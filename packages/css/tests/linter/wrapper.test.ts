@@ -101,6 +101,29 @@ describe('LinterWrapper', () => {
     ]);
   });
 
+  it('should omit end positions for no-empty-source on an empty file', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, './fixtures/empty.css'),
+    );
+    const rules = [{ key: 'no-empty-source', configurations: [] }];
+    const options = await createStylelintOptions(filePath, rules);
+
+    const linter = new LinterWrapper();
+    const { issues } = await linter.lint(filePath, options);
+
+    // Stylelint reports line:1, column:1, endLine:1, endColumn:2 for empty files.
+    // End positions are omitted because endColumn would exceed the line length (0 chars).
+    expect(issues).toEqual([
+      {
+        ruleId: 'no-empty-source',
+        language: 'css',
+        line: 1,
+        column: 0,
+        message: 'Unexpected empty source',
+      },
+    ]);
+  });
+
   it('should not lint with a disabled rule', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, './fixtures/block.css'),
