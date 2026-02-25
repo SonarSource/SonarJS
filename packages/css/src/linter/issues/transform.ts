@@ -70,10 +70,12 @@ export function transform(
         language: 'css',
       };
 
-      if (isValidPosition(warning.endLine)) {
+      if (
+        warning.rule !== 'no-empty-source' &&
+        isValidPosition(warning.endLine) &&
+        isValidPosition(warning.endColumn)
+      ) {
         issue.endLine = warning.endLine;
-      }
-      if (isValidPosition(warning.endColumn)) {
         issue.endColumn = warning.endColumn - 1;
       }
 

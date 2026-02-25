@@ -106,6 +106,30 @@ describe('transform', () => {
     expect(issues[0]).not.toHaveProperty('endColumn');
   });
 
+  it('should not emit endLine/endColumn for no-empty-source rule', () => {
+    const filePath = normalizeToAbsolutePath('/tmp/path');
+    const results = [
+      {
+        source: filePath as string,
+        warnings: [
+          {
+            rule: 'no-empty-source',
+            text: 'Unexpected empty source',
+            line: 1,
+            column: 1,
+            endLine: 1,
+            endColumn: 2,
+          },
+        ],
+      },
+    ] as stylelint.LintResult[];
+
+    const issues = transform(results, filePath);
+
+    expect(issues[0]).not.toHaveProperty('endLine');
+    expect(issues[0]).not.toHaveProperty('endColumn');
+  });
+
   it('should strip the trailing (rulekey) suffix from messages', () => {
     const filePath = normalizeToAbsolutePath('/tmp/path');
     const results = [
@@ -162,7 +186,7 @@ describe('transform', () => {
     );
   });
 
-  it('should default to line 1 and column 1 for invalid positions', ({ mock }) => {
+  it('should default to line 1 and column 0 for invalid positions', ({ mock }) => {
     console.log = mock.fn(console.log);
 
     const filePath = normalizeToAbsolutePath('/tmp/path');
