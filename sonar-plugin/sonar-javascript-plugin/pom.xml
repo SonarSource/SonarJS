@@ -200,7 +200,7 @@
             </configuration>
           </execution>
 
-          <!-- tsgolint: init submodule -->
+          <!-- tsgolint: ensure submodule is initialized (no-op if already done by checkout) -->
           <execution>
             <id>tsgolint-submodule-init</id>
             <phase>initialize</phase>
@@ -229,6 +229,37 @@
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/service.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/converter.go</argument>
                 <argument>${project.basedir}/../../tsgolint/cmd/sonar-server/</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint: install Go proto generators (idempotent) -->
+          <execution>
+            <id>tsgolint-install-proto-gen</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <environmentVariables>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>install</argument>
+                <argument>google.golang.org/protobuf/cmd/protoc-gen-go@latest</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tsgolint-install-proto-gen-grpc</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <environmentVariables>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>install</argument>
+                <argument>google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest</argument>
               </arguments>
             </configuration>
           </execution>
