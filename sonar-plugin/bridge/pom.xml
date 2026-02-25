@@ -65,6 +65,12 @@
       <version>${grpc.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>annotations-api</artifactId>
+      <version>6.0.53</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-params</artifactId>
       <scope>test</scope>
@@ -142,6 +148,7 @@
               <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
               <protoSourceRoot>${project.basedir}/src/main/proto</protoSourceRoot>
               <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+              <clearOutputDirectory>false</clearOutputDirectory>
               <pluginId>grpc-java</pluginId>
               <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
             </configuration>
