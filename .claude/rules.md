@@ -52,3 +52,27 @@ export const rule: Rule.RuleModule = {
   },
 };
 ```
+
+## Testing
+
+### RuleTesters
+
+| RuleTester                 | Use When                                    |
+| -------------------------- | ------------------------------------------- |
+| `DefaultParserRuleTester`  | Pure JavaScript rules, no TS syntax         |
+| `NoTypeCheckingRuleTester` | JS/TS rules that don't need type info       |
+| `RuleTester`               | Rules requiring TypeScript type information |
+
+### Running Tests
+
+```bash
+npx tsx --test packages/jsts/src/rules/S1234/**/*.test.ts
+```
+
+## Shared Helpers
+
+Check `packages/jsts/src/rules/helpers/` before writing utilities:
+
+- `ast.ts` - AST traversal and node type checking
+- `module.ts` - Module detection, `getFullyQualifiedName`
+- `package-jsons/dependencies.ts` - Dependency detection

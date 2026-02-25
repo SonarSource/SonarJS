@@ -6,6 +6,7 @@ description: Build pipeline for SonarJS. Use when asked to build the project, re
 ## Quick Reference
 
 ```bash
+npm ci                          # Install dependencies
 npm run bbf                     # Fast JS/TS build (no tests): clear lib + generate-meta + compile
 npm run generate-meta           # Regenerate generated-meta.ts files from RSPEC JSON
 npm run generate-java-rule-classes  # Regenerate Java check classes

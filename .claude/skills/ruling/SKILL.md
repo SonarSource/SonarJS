@@ -6,17 +6,17 @@ disable-model-invocation: true
 
 ## Overview
 
-Ruling tests analyze large third-party codebases and compare issues against expected output. Run them when adding or modifying rules to verify real-world behavior.
+Ruling tests analyze large third-party codebases (JS/TS and CSS) and compare issues against expected output. Run them when adding or modifying rules to verify real-world behavior.
 
 > **Warning:** Running ruling tests removes `node_modules` from the project root. Run `npm ci` afterward.
 
-## JS/TS Ruling
+## Running Ruling
 
 ```bash
 # Prerequisite: rebuild the jar first
 mvn install -DskipTests
 
-# Run ruling
+# Run ruling (JS/TS and CSS)
 npm run ruling
 
 # Sync actual → expected (after reviewing output)
@@ -28,43 +28,31 @@ sh tools/ruling-debug-script.sh
 
 Results:
 - Actual: `packages/ruling/actual/`
-- Expected: `its/ruling/src/test/resources/expected/`
+- Expected: `its/ruling/src/test/expected/`
 
-## CSS Ruling
-
-```bash
-cd its/ruling
-mvn verify -Dtest=CssRulingTest -Dmaven.test.redirectTestOutputToFile=false
-```
-
-Then copy actual to expected:
-```bash
-cp -R target/actual/css/ src/test/expected/css
-```
-
-## Old JS/TS Way (Maven)
+## Java Ruling (Old Way)
 
 ```bash
 cd its/ruling
-mvn verify -Dtest=JsTsRulingTest -Dmaven.test.redirectTestOutputToFile=false
+mvn verify -Dtest=RulingTest -Dmaven.test.redirectTestOutputToFile=false
 ```
 
 Copy actual to expected:
 ```bash
-cp -R target/actual/jsts/ src/test/expected/jsts
+cp -R target/actual/ src/test/expected/
 ```
 
 Review diff:
 ```bash
-diff -rq src/test/expected/jsts target/actual/jsts
+diff -rq src/test/expected target/actual
 ```
 
 ## Custom Source Files for New Rules
 
 If a new rule raises no issues on existing sources, add test code:
 
-- `its/sources/jsts/custom/S1234.js` — regular code
-- `its/sources/jsts/custom/tests/S1234.js` — test code
+- `its/sources/custom/jsts/S1234.js` — regular code
+- `its/sources/custom/jsts/tests/S1234.js` — test code
 
 Copy from RSPEC HTML description (compliant/non-compliant examples).
 
