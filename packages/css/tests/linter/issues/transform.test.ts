@@ -131,6 +131,34 @@ describe('transform', () => {
     expect(issues[0]).not.toHaveProperty('endColumn');
   });
 
+  it('should clamp start column and drop end positions for multi-line selectors', () => {
+    const filePath = normalizeToAbsolutePath('/tmp/path');
+    // Simulates no-descending-specificity on "button,\ninput" where stylelint
+    // reports columns relative to the full selector, not the reported line.
+    const results = [
+      {
+        source: filePath as string,
+        warnings: [
+          {
+            rule: 'no-descending-specificity',
+            text: 'Expected selector "input" to come before selector "button"',
+            line: 1,
+            column: 9,
+            endLine: 1,
+            endColumn: 14,
+          },
+        ],
+      },
+    ] as stylelint.LintResult[];
+
+    // Line 1 is "button," (7 chars) — column 8 (0-based) exceeds line length
+    const issues = transform(results, filePath, [7, 5]);
+
+    expect(issues[0].column).toBe(7);
+    expect(issues[0]).not.toHaveProperty('endLine');
+    expect(issues[0]).not.toHaveProperty('endColumn');
+  });
+
   it('should strip the trailing (rulekey) suffix from messages', () => {
     const filePath = normalizeToAbsolutePath('/tmp/path');
     const results = [
