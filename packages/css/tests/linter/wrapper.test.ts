@@ -101,7 +101,7 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should omit end positions for no-empty-source on an empty file', async () => {
+  it('should omit end positions when they exceed line length (empty file)', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, './fixtures/empty.css'),
     );

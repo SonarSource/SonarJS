@@ -38,7 +38,7 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    const issues = transform(results, filePath);
+    const issues = transform(results, filePath, [5000]);
 
     expect(issues).toEqual([
       {
@@ -69,7 +69,7 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    const issues = transform(results, filePath);
+    const issues = transform(results, filePath, [20]);
 
     expect(issues).toEqual([
       {
@@ -100,13 +100,13 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    const issues = transform(results, filePath);
+    const issues = transform(results, filePath, [20]);
 
     expect(issues[0]).not.toHaveProperty('endLine');
     expect(issues[0]).not.toHaveProperty('endColumn');
   });
 
-  it('should not emit endLine/endColumn for no-empty-source rule', () => {
+  it('should drop endLine/endColumn when endColumn exceeds line length', () => {
     const filePath = normalizeToAbsolutePath('/tmp/path');
     const results = [
       {
@@ -124,7 +124,8 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    const issues = transform(results, filePath);
+    // Line 1 has 0 characters, so endColumn 1 (0-based) is invalid
+    const issues = transform(results, filePath, [0]);
 
     expect(issues[0]).not.toHaveProperty('endLine');
     expect(issues[0]).not.toHaveProperty('endColumn');
@@ -146,7 +147,7 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    const issues = transform(results, filePath);
+    const issues = transform(results, filePath, [10]);
 
     expect(issues).toEqual([
       {
@@ -178,7 +179,7 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    const issues = transform(results, filePath);
+    const issues = transform(results, filePath, [5000]);
 
     expect(issues).toHaveLength(0);
     expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toEqual(
@@ -204,7 +205,7 @@ describe('transform', () => {
       },
     ] as unknown as stylelint.LintResult[];
 
-    const issues = transform(results, filePath);
+    const issues = transform(results, filePath, [0]);
 
     expect(issues).toEqual([
       {

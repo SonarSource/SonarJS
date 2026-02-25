@@ -31,11 +31,13 @@ function isValidPosition(value: number | undefined): value is number {
  * Transforms Stylelint linting results into SonarQube issues
  * @param results the Stylelint linting results
  * @param filePath the path of the linted file
+ * @param lineLengths number of characters per line (0-indexed), used to clamp end positions
  * @returns the transformed SonarQube issues
  */
 export function transform(
   results: stylelint.LintResult[],
   filePath: NormalizedAbsolutePath,
+  lineLengths: number[],
 ): CssIssue[] {
   const issues: CssIssue[] = [];
   /**
@@ -70,13 +72,14 @@ export function transform(
         language: 'css',
       };
 
-      if (
-        warning.rule !== 'no-empty-source' &&
-        isValidPosition(warning.endLine) &&
-        isValidPosition(warning.endColumn)
-      ) {
-        issue.endLine = warning.endLine;
-        issue.endColumn = warning.endColumn - 1;
+      if (isValidPosition(warning.endLine) && isValidPosition(warning.endColumn)) {
+        const endLine = warning.endLine;
+        const endColumn = warning.endColumn - 1;
+        const maxColumn = lineLengths[endLine - 1];
+        if (maxColumn !== undefined && endColumn <= maxColumn) {
+          issue.endLine = endLine;
+          issue.endColumn = endColumn;
+        }
       }
 
       issues.push(issue);
