@@ -38,7 +38,9 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    const issues = transform(results, filePath, [5000]);
+    // Pass enough line lengths to cover line 42
+    const lineLengths = Array(50).fill(5000);
+    const issues = transform(results, filePath, lineLengths);
 
     expect(issues).toEqual([
       {
@@ -127,34 +129,6 @@ describe('transform', () => {
     // Line 1 has 0 characters, so endColumn 1 (0-based) is invalid
     const issues = transform(results, filePath, [0]);
 
-    expect(issues[0]).not.toHaveProperty('endLine');
-    expect(issues[0]).not.toHaveProperty('endColumn');
-  });
-
-  it('should clamp start column and drop end positions for multi-line selectors', () => {
-    const filePath = normalizeToAbsolutePath('/tmp/path');
-    // Simulates no-descending-specificity on "button,\ninput" where stylelint
-    // reports columns relative to the full selector, not the reported line.
-    const results = [
-      {
-        source: filePath as string,
-        warnings: [
-          {
-            rule: 'no-descending-specificity',
-            text: 'Expected selector "input" to come before selector "button"',
-            line: 1,
-            column: 9,
-            endLine: 1,
-            endColumn: 14,
-          },
-        ],
-      },
-    ] as stylelint.LintResult[];
-
-    // Line 1 is "button," (7 chars) — column 8 (0-based) exceeds line length
-    const issues = transform(results, filePath, [7, 5]);
-
-    expect(issues[0].column).toBe(7);
     expect(issues[0]).not.toHaveProperty('endLine');
     expect(issues[0]).not.toHaveProperty('endColumn');
   });

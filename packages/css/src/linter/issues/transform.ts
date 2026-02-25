@@ -64,16 +64,10 @@ export function transform(
         );
       }
 
-      // Clamp start column to line length — stylelint may report columns beyond
-      // the line for multi-line selectors (e.g., no-descending-specificity).
-      const maxStartColumn = lineLengths[line - 1];
-      const clampedColumn =
-        maxStartColumn !== undefined ? Math.min(column, maxStartColumn) : column;
-
       const issue: CssIssue = {
         ruleId: warning.rule,
         line,
-        column: clampedColumn,
+        column,
         message: normalizeMessage(warning.text),
         language: 'css',
       };
