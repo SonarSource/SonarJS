@@ -215,6 +215,74 @@
             </configuration>
           </execution>
 
+          <!-- tsgolint: init submodule -->
+          <execution>
+            <id>tsgolint-submodule-init</id>
+            <phase>initialize</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>git</executable>
+              <workingDirectory>${project.basedir}/../..</workingDirectory>
+              <arguments>
+                <argument>submodule</argument>
+                <argument>update</argument>
+                <argument>--init</argument>
+                <argument>tsgolint</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint: copy sonar-server overlay into submodule -->
+          <execution>
+            <id>tsgolint-copy-overlay</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>cp</executable>
+              <arguments>
+                <argument>-f</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/main.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/service.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/converter.go</argument>
+                <argument>${project.basedir}/../../tsgolint/cmd/sonar-server/</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint: generate Go proto stubs -->
+          <execution>
+            <id>tsgolint-proto-gen-go</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>protoc</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <arguments>
+                <argument>--proto_path=${project.basedir}/../bridge/src/main/proto</argument>
+                <argument>--go_out=.</argument>
+                <argument>--go_opt=module=github.com/typescript-eslint/tsgolint</argument>
+                <argument>--go-grpc_out=.</argument>
+                <argument>--go-grpc_opt=module=github.com/typescript-eslint/tsgolint</argument>
+                <argument>analyzer.proto</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint: add gRPC dependencies to go.mod -->
+          <execution>
+            <id>tsgolint-go-get-grpc</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <environmentVariables>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>get</argument>
+                <argument>google.golang.org/grpc@latest</argument>
+                <argument>google.golang.org/protobuf@latest</argument>
+              </arguments>
+            </configuration>
+          </execution>
           <!-- tsgolint Go cross-compilation -->
           <execution>
             <id>build-tsgolint-linux-x64</id>
@@ -227,6 +295,7 @@
                 <GOOS>linux</GOOS>
                 <GOARCH>amd64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
@@ -248,6 +317,7 @@
                 <GOOS>linux</GOOS>
                 <GOARCH>arm64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
@@ -269,6 +339,7 @@
                 <GOOS>linux</GOOS>
                 <GOARCH>amd64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
@@ -290,6 +361,7 @@
                 <GOOS>windows</GOOS>
                 <GOARCH>amd64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
@@ -311,6 +383,7 @@
                 <GOOS>darwin</GOOS>
                 <GOARCH>arm64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
@@ -332,6 +405,7 @@
                 <GOOS>darwin</GOOS>
                 <GOARCH>amd64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
@@ -342,7 +416,6 @@
               </arguments>
             </configuration>
           </execution>
-
           <!-- tsgolint xz compression -->
           <execution>
             <id>compress-tsgolint-linux-x64</id>

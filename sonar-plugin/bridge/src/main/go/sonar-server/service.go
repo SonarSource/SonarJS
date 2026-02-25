@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 
-	pb "github.com/nicolo-ribaudo/tsgolint/cmd/sonar-server/grpc"
+	pb "github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc"
 )
 
 type analyzerService struct {

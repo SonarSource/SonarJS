@@ -18,7 +18,7 @@ package sonarjs.analyzer;
 
 option java_multiple_files = true;
 option java_package = "org.sonar.plugins.javascript.bridge.grpc";
-option go_package = "github.com/nicolo-ribaudo/tsgolint/cmd/sonar-server/grpc";
+option go_package = "github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc";
 
 // Generic analyzer service — any backend can implement this.
 // Design: server-side streaming (one request, N FileResult messages, one AnalysisComplete).
