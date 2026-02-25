@@ -1,5 +1,7 @@
 # ACLI Jira Guide
 
+Use this skill when viewing, editing, or commenting on Jira tickets. Covers `acli` commands for viewing issues, searching with JQL, creating/updating comments (including ADF rich text), and editing work items.
+
 This document covers how to use `acli` (Atlassian CLI) to interact with Jira Cloud.
 
 > **Version Note:** This guide was written based on `acli version 1.3.9-stable`. Some limitations documented here (e.g., `--body-adf` not available on `comment create`, `--description-file` not supporting ADF) may be resolved in newer versions. Check `acli --version` and consult the [official documentation](https://developer.atlassian.com/cloud/acli/) for updates.
@@ -21,6 +23,7 @@ acli jira workitem comment --help
 ## Viewing Work Items
 
 ### View a Single Issue
+
 ```bash
 # View issue details
 acli jira workitem view JS-1140
@@ -30,11 +33,13 @@ acli jira workitem view JS-1140 --json
 ```
 
 The output includes:
+
 - Key, Type, Summary, Status
 - Description (full text)
 - Other fields like assignee, labels, etc.
 
 ### Search for Issues
+
 ```bash
 # Search using JQL
 acli jira workitem search --jql "project = JS AND status = 'To Do'"
@@ -46,6 +51,7 @@ acli jira workitem search --jql "project = JS AND type = Epic" --json
 ## Comments
 
 ### List Comments
+
 ```bash
 # List all comments on an issue
 acli jira workitem comment list --key JS-1140
@@ -55,6 +61,7 @@ acli jira workitem comment list --key JS-1140 --json
 ```
 
 JSON output structure:
+
 ```json
 {
   "comments": [
@@ -70,6 +77,7 @@ JSON output structure:
 ```
 
 ### Create Comments
+
 ```bash
 # Plain text comment
 acli jira workitem comment create --key "JS-1140" --body "Plain text comment"
@@ -81,6 +89,7 @@ acli jira workitem comment create --key "JS-1140" --body-file "/path/to/comment.
 **Note:** `comment create` does NOT support `--body-adf`. See "Formatted Comments with ADF" below.
 
 ### Update Comments
+
 ```bash
 # Update comment text
 acli jira workitem comment update --key "JS-1140" --id "864721" --body "Updated text"
@@ -90,6 +99,7 @@ acli jira workitem comment update --key "JS-1140" --id "864721" --body-adf "/pat
 ```
 
 ### Delete Comments
+
 ```bash
 acli jira workitem comment delete --key "JS-1140" --id "864721"
 ```
@@ -97,6 +107,7 @@ acli jira workitem comment delete --key "JS-1140" --id "864721"
 ## Editing Work Items
 
 ### Edit Basic Fields
+
 ```bash
 # Edit summary
 acli jira workitem edit --key "JS-1140" --summary "New Title" --yes
@@ -115,6 +126,7 @@ acli jira workitem edit --key "JS-1140" --labels "label1,label2" --yes
 ```
 
 ### Edit with ADF Description
+
 ```bash
 # Use --from-json for ADF-formatted descriptions
 acli jira workitem edit --from-json "/path/to/workitem.json" --yes
@@ -123,12 +135,14 @@ acli jira workitem edit --from-json "/path/to/workitem.json" --yes
 **Warning:** `--description-file` does NOT support ADF despite what the help says. Use `--from-json` instead.
 
 ### Generate Edit Template
+
 ```bash
 # See the expected JSON structure
 acli jira workitem edit --generate-json
 ```
 
 Output:
+
 ```json
 {
   "assignee": "Assignee email or ID",
@@ -153,15 +167,16 @@ Jira Cloud uses **Atlassian Document Format (ADF)** for rich text content. ADF i
 
 ### When to Use ADF
 
-| Operation | Plain Text | ADF Support |
-|-----------|------------|-------------|
-| `comment create --body` | ✅ | ❌ |
-| `comment update --body` | ✅ | ✅ via `--body-adf` |
-| `workitem edit --description` | ✅ | ❌ |
-| `workitem edit --description-file` | ✅ | ❌ (despite help text) |
-| `workitem edit --from-json` | N/A | ✅ |
+| Operation                          | Plain Text | ADF Support            |
+| ---------------------------------- | ---------- | ---------------------- |
+| `comment create --body`            | ✅         | ❌                     |
+| `comment update --body`            | ✅         | ✅ via `--body-adf`    |
+| `workitem edit --description`      | ✅         | ❌                     |
+| `workitem edit --description-file` | ✅         | ❌ (despite help text) |
+| `workitem edit --from-json`        | N/A        | ✅                     |
 
 ### Basic ADF Structure
+
 ```json
 {
   "version": 1,
@@ -175,6 +190,7 @@ Jira Cloud uses **Atlassian Document Format (ADF)** for rich text content. ADF i
 ### Supported Block Nodes
 
 #### Paragraph
+
 ```json
 {
   "type": "paragraph",
@@ -183,6 +199,7 @@ Jira Cloud uses **Atlassian Document Format (ADF)** for rich text content. ADF i
 ```
 
 #### Headings (levels 1-6)
+
 ```json
 {
   "type": "heading",
@@ -192,38 +209,45 @@ Jira Cloud uses **Atlassian Document Format (ADF)** for rich text content. ADF i
 ```
 
 #### Bullet List
+
 ```json
 {
   "type": "bulletList",
   "content": [
     {
       "type": "listItem",
-      "content": [{
-        "type": "paragraph",
-        "content": [{ "type": "text", "text": "Item text" }]
-      }]
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [{ "type": "text", "text": "Item text" }]
+        }
+      ]
     }
   ]
 }
 ```
 
 #### Ordered List
+
 ```json
 {
   "type": "orderedList",
   "content": [
     {
       "type": "listItem",
-      "content": [{
-        "type": "paragraph",
-        "content": [{ "type": "text", "text": "Item text" }]
-      }]
+      "content": [
+        {
+          "type": "paragraph",
+          "content": [{ "type": "text", "text": "Item text" }]
+        }
+      ]
     }
   ]
 }
 ```
 
 #### Code Block
+
 ```json
 {
   "type": "codeBlock",
@@ -233,6 +257,7 @@ Jira Cloud uses **Atlassian Document Format (ADF)** for rich text content. ADF i
 ```
 
 #### Table
+
 ```json
 {
   "type": "table",
@@ -241,13 +266,19 @@ Jira Cloud uses **Atlassian Document Format (ADF)** for rich text content. ADF i
     {
       "type": "tableRow",
       "content": [
-        { "type": "tableHeader", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Header" }] }] }
+        {
+          "type": "tableHeader",
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Header" }] }]
+        }
       ]
     },
     {
       "type": "tableRow",
       "content": [
-        { "type": "tableCell", "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Cell" }] }] }
+        {
+          "type": "tableCell",
+          "content": [{ "type": "paragraph", "content": [{ "type": "text", "text": "Cell" }] }]
+        }
       ]
     }
   ]
@@ -255,6 +286,7 @@ Jira Cloud uses **Atlassian Document Format (ADF)** for rich text content. ADF i
 ```
 
 #### Horizontal Rule
+
 ```json
 {
   "type": "rule"
@@ -264,28 +296,41 @@ Jira Cloud uses **Atlassian Document Format (ADF)** for rich text content. ADF i
 ### Text Formatting (Marks)
 
 #### Bold
+
 ```json
 { "type": "text", "text": "Bold text", "marks": [{ "type": "strong" }] }
 ```
 
 #### Italic
+
 ```json
 { "type": "text", "text": "Italic text", "marks": [{ "type": "em" }] }
 ```
 
 #### Code (inline)
+
 ```json
 { "type": "text", "text": "inline code", "marks": [{ "type": "code" }] }
 ```
 
 #### Link
+
 ```json
-{ "type": "text", "text": "Link text", "marks": [{ "type": "link", "attrs": { "href": "https://example.com" } }] }
+{
+  "type": "text",
+  "text": "Link text",
+  "marks": [{ "type": "link", "attrs": { "href": "https://example.com" } }]
+}
 ```
 
 #### Combined Marks
+
 ```json
-{ "type": "text", "text": "Bold link", "marks": [{ "type": "strong" }, { "type": "link", "attrs": { "href": "https://example.com" } }] }
+{
+  "type": "text",
+  "text": "Bold link",
+  "marks": [{ "type": "strong" }, { "type": "link", "attrs": { "href": "https://example.com" } }]
+}
 ```
 
 ---
@@ -377,6 +422,7 @@ acli jira workitem comment list --key JS-1140
 3. **Tables may cause INVALID_INPUT errors** - If ADF fails, try removing tables first to isolate the issue
 
 4. **JSON validation** - Always validate JSON before sending:
+
    ```bash
    cat file.json | python -m json.tool > /dev/null && echo "Valid JSON"
    ```
@@ -389,16 +435,16 @@ acli jira workitem comment list --key JS-1140
 
 ## Quick Reference
 
-| Task | Command |
-|------|---------|
-| View issue | `acli jira workitem view KEY` |
-| View issue (JSON) | `acli jira workitem view KEY --json` |
-| Search issues | `acli jira workitem search --jql "..."` |
-| List comments | `acli jira workitem comment list --key KEY` |
-| List comments (JSON) | `acli jira workitem comment list --key KEY --json` |
-| Add comment | `acli jira workitem comment create --key KEY --body "text"` |
-| Update comment | `acli jira workitem comment update --key KEY --id ID --body "text"` |
+| Task                 | Command                                                                    |
+| -------------------- | -------------------------------------------------------------------------- |
+| View issue           | `acli jira workitem view KEY`                                              |
+| View issue (JSON)    | `acli jira workitem view KEY --json`                                       |
+| Search issues        | `acli jira workitem search --jql "..."`                                    |
+| List comments        | `acli jira workitem comment list --key KEY`                                |
+| List comments (JSON) | `acli jira workitem comment list --key KEY --json`                         |
+| Add comment          | `acli jira workitem comment create --key KEY --body "text"`                |
+| Update comment       | `acli jira workitem comment update --key KEY --id ID --body "text"`        |
 | Update comment (ADF) | `acli jira workitem comment update --key KEY --id ID --body-adf file.json` |
-| Edit description | `acli jira workitem edit --key KEY --description "text" --yes` |
-| Edit with ADF | `acli jira workitem edit --from-json file.json --yes` |
-| Generate template | `acli jira workitem edit --generate-json` |
+| Edit description     | `acli jira workitem edit --key KEY --description "text" --yes`             |
+| Edit with ADF        | `acli jira workitem edit --from-json file.json --yes`                      |
+| Generate template    | `acli jira workitem edit --generate-json`                                  |
