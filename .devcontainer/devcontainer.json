@@ -16,11 +16,13 @@
   },
   "remoteUser": "node",
   // initializeCommand runs on the host before container creation (before the repo is cloned).
-  // It stages the corporate CA cert and ~/.npmrc into a temp directory that Docker can bind-mount.
-  // Path conversion: wslpath (WSL2 bash), cygpath (Git Bash on Windows), or /tmp (macOS/Linux).
+  // It stages the corporate CA cert and ~/.npmrc so Docker can bind-mount them.
+  // On Windows (TEMP starts with a drive letter): uses cmd.exe, which resolves 8.3 shortnames
+  // natively via %TEMP% — avoiding the MSYS2 limitation that blocks cygpath-converted paths.
+  // On Linux/macOS (TEMP is a Unix path or unset): uses bash directly with /tmp.
   "initializeCommand": [
     "bash", "-c",
-    "STAGING=$(wslpath -u '${localEnv:TEMP:/tmp}' 2>/dev/null || cygpath -u '${localEnv:TEMP:/tmp}' 2>/dev/null || echo /tmp) && (cp \"${NODE_EXTRA_CA_CERTS:-}\" \"$STAGING/dc-cert.crt\" 2>/dev/null || touch \"$STAGING/dc-cert.crt\") && (cp ~/.npmrc \"$STAGING/dc-npmrc\" 2>/dev/null || touch \"$STAGING/dc-npmrc\")"
+    "T='${localEnv:TEMP:/tmp}'; if [[ \"$T\" != /* ]]; then cmd.exe /c \"(if defined NODE_EXTRA_CA_CERTS (copy /Y \\\"%NODE_EXTRA_CA_CERTS%\\\" \\\"%TEMP%\\dc-cert.crt\\\") else (type nul >\\\"%TEMP%\\dc-cert.crt\\\")) & (if exist \\\"%USERPROFILE%\\.npmrc\\\" (copy /Y \\\"%USERPROFILE%\\.npmrc\\\" \\\"%TEMP%\\dc-npmrc\\\") else (type nul >\\\"%TEMP%\\dc-npmrc\\\"))\"; else (cp \"${NODE_EXTRA_CA_CERTS:-}\" \"$T/dc-cert.crt\" 2>/dev/null || touch \"$T/dc-cert.crt\") && (cp ~/.npmrc \"$T/dc-npmrc\" 2>/dev/null || touch \"$T/dc-npmrc\"); fi"
   ],
   "mounts": [
     "source=${localEnv:TEMP:/tmp}/dc-cert.crt,target=/tmp/corporate-ca.crt,type=bind,consistency=cached,readonly",
@@ -29,7 +31,7 @@
   "remoteEnv": {
     "NODE_EXTRA_CA_CERTS": "/home/node/.certs/bundle.pem"
   },
-  "postCreateCommand": "mkdir -p /home/node/.certs && cat /etc/ssl/certs/ca-certificates.crt /tmp/corporate-ca.crt > /home/node/.certs/bundle.pem && mise trust && mise install && git submodule update --init --recursive && npm ci",
+  "postCreateCommand": "mkdir -p /home/node/.certs && cat /etc/ssl/certs/ca-certificates.crt $([ -f /tmp/corporate-ca.crt ] && echo /tmp/corporate-ca.crt) > /home/node/.certs/bundle.pem && mise trust && mise install && git submodule update --init --recursive && npm ci",
   "customizations": {
     "vscode": {
       "extensions": [
