@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "github.com/nicolo-ribaudo/tsgolint/cmd/sonar-server/grpc"
+	pb "github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc"
 )
 
 // RuleDiagnostic represents a diagnostic from tsgolint's linter.

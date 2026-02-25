@@ -6,7 +6,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/nicolo-ribaudo/tsgolint/cmd/sonar-server/grpc"
+	pb "github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc"
 	"google.golang.org/grpc"
 )
 
