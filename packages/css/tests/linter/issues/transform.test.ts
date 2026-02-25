@@ -38,9 +38,7 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    // Pass enough line lengths to cover line 42
-    const lineLengths = Array(50).fill(5000);
-    const issues = transform(results, filePath, lineLengths);
+    const issues = transform(results, filePath);
 
     expect(issues).toEqual([
       {
@@ -71,7 +69,7 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    const issues = transform(results, filePath, [20]);
+    const issues = transform(results, filePath);
 
     expect(issues).toEqual([
       {
@@ -102,14 +100,16 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    const issues = transform(results, filePath, [20]);
+    const issues = transform(results, filePath);
 
     expect(issues[0]).not.toHaveProperty('endLine');
     expect(issues[0]).not.toHaveProperty('endColumn');
   });
 
-  it('should drop endLine/endColumn when endColumn exceeds line length', () => {
+  it('should not emit endLine/endColumn for no-empty-source rule', () => {
     const filePath = normalizeToAbsolutePath('/tmp/path');
+    // Stylelint reports endColumn: 2 on empty files, which after 1→0 conversion
+    // becomes offset 1 on a line with 0 characters — invalid for SonarQube.
     const results = [
       {
         source: filePath as string,
@@ -126,8 +126,7 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    // Line 1 has 0 characters, so endColumn 1 (0-based) is invalid
-    const issues = transform(results, filePath, [0]);
+    const issues = transform(results, filePath);
 
     expect(issues[0]).not.toHaveProperty('endLine');
     expect(issues[0]).not.toHaveProperty('endColumn');
@@ -149,7 +148,7 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    const issues = transform(results, filePath, [10]);
+    const issues = transform(results, filePath);
 
     expect(issues).toEqual([
       {
@@ -181,7 +180,7 @@ describe('transform', () => {
       },
     ] as stylelint.LintResult[];
 
-    const issues = transform(results, filePath, [5000]);
+    const issues = transform(results, filePath);
 
     expect(issues).toHaveLength(0);
     expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toEqual(
@@ -207,7 +206,7 @@ describe('transform', () => {
       },
     ] as unknown as stylelint.LintResult[];
 
-    const issues = transform(results, filePath, [0]);
+    const issues = transform(results, filePath);
 
     expect(issues).toEqual([
       {

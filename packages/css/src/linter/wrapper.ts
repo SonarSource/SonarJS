@@ -95,10 +95,8 @@ export class LinterWrapper {
     if (this.config && !options.config) {
       finalOptions = { ...options, config: this.config };
     }
-    const code = typeof finalOptions.code === 'string' ? finalOptions.code : '';
-    const lineLengths = code.split('\n').map(l => l.replace(/\r$/, '').length);
     return stylelint.lint(finalOptions).then(result => ({
-      issues: transform(result.results, filePath, lineLengths),
+      issues: transform(result.results, filePath),
       root: result.results[0]?._postcssResult?.root,
     }));
   }
