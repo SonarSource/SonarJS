@@ -1,0 +1,83 @@
+// SonarQube JavaScript Plugin
+// Copyright (C) 2011-2025 SonarSource Sàrl
+// mailto:info AT sonarsource DOT com
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+// See the Sonar Source-Available License for more details.
+//
+// You should have received a copy of the Sonar Source-Available License
+// along with this program; if not, see https://sonarsource.com/license/ssal/
+
+syntax = "proto3";
+package sonarjs.analyzer;
+
+option java_multiple_files = true;
+option java_package = "org.sonar.plugins.javascript.bridge.grpc";
+option go_package = "github.com/nicolo-ribaudo/tsgolint/cmd/sonar-server/grpc";
+
+// Generic analyzer service — any backend can implement this.
+// Design: server-side streaming (one request, N FileResult messages, one AnalysisComplete).
+service AnalyzerService {
+  rpc AnalyzeProject(AnalyzeProjectRequest) returns (stream AnalyzeProjectResponse);
+  rpc IsAlive(AliveRequest) returns (AliveResponse);
+}
+
+message AnalyzeProjectRequest {
+  string base_dir = 1;
+  repeated string file_paths = 2;
+  repeated string rules = 3;
+  repeated string tsconfig_paths = 4;
+  AnalysisConfiguration configuration = 5;
+}
+
+message AnalysisConfiguration {
+  bool skip_unchanged = 1;
+  repeated string ts_suffixes = 2;
+  repeated string js_suffixes = 3;
+}
+
+message AnalyzeProjectResponse {
+  oneof payload {
+    FileResult file_result = 1;
+    AnalysisComplete complete = 2;
+  }
+}
+
+message FileResult {
+  string file_path = 1;
+  repeated Issue issues = 2;
+}
+
+message Issue {
+  string rule_name = 1;
+  string message = 2;
+  TextRange range = 3;
+  repeated SecondaryLocation secondary_locations = 4;
+}
+
+message TextRange {
+  int32 start_line = 1;     // 1-indexed
+  int32 start_column = 2;   // 0-indexed
+  int32 end_line = 3;
+  int32 end_column = 4;
+}
+
+message SecondaryLocation {
+  string message = 1;
+  TextRange range = 2;
+}
+
+message AnalysisComplete {
+  repeated string warnings = 1;
+}
+
+message AliveRequest {}
+
+message AliveResponse {
+  string status = 1;
+}

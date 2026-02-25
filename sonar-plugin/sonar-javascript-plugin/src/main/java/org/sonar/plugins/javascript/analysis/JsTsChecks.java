@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -76,6 +77,20 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public class JsTsChecks {
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTsChecks.class);
+
+  /**
+   * ESLint rule keys for rules offloaded to tsgolint (Go-based linter).
+   * These rules are excluded from the Node.js bridge and run via gRPC instead.
+   */
+  static final Set<String> TSGOLINT_RULES = Set.of(
+    "await-thenable",
+    "prefer-readonly",
+    "no-unnecessary-type-arguments",
+    "no-unnecessary-type-assertion",
+    "prefer-return-this-type",
+    "no-mixed-enums",
+    "prefer-promise-reject-errors"
+  );
 
   /**
    * SonarQube-provided component that knows which rules are active in the quality profile.
@@ -357,6 +372,24 @@ public class JsTsChecks {
 
     // Combine both sources - all will be sent to the bridge for execution
     return Stream.concat(eslintRules, eslintHooks).toList();
+  }
+
+  /**
+   * Returns ESLint rules for the bridge, excluding rules offloaded to tsgolint.
+   */
+  List<EslintRule> enabledBridgeEslintRules() {
+    return EslintRule.findAllBut(enabledEslintRules(), TSGOLINT_RULES);
+  }
+
+  /**
+   * Returns the set of tsgolint rule names that are active in the current quality profile.
+   */
+  List<String> enabledTsgolintRuleNames() {
+    return enabledEslintRules()
+      .stream()
+      .map(EslintRule::getKey)
+      .filter(TSGOLINT_RULES::contains)
+      .collect(Collectors.toList());
   }
 
   static class LanguageAndRepository {
