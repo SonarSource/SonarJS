@@ -26,13 +26,28 @@ describe('S6747', () => {
   ruleTester.run('S6747 ignores jsx and global props for Styled-JSX projects', rule, {
     valid: [
       {
-        // styled-jsx scoped styles
+        // styled-jsx scoped styles (shorthand boolean)
         code: `<style jsx>{".foo { color: red; }"}</style>;`,
         filename: join(dirname, 'filename.jsx'),
       },
       {
-        // styled-jsx global styles
+        // styled-jsx scoped styles (explicit boolean)
+        code: `<style jsx={true}>{".foo { color: red; }"}</style>;`,
+        filename: join(dirname, 'filename.jsx'),
+      },
+      {
+        // styled-jsx global styles (shorthand)
         code: `<style jsx global>{".foo { color: red; }"}</style>;`,
+        filename: join(dirname, 'filename.jsx'),
+      },
+      {
+        // styled-jsx global styles (explicit boolean jsx, shorthand global)
+        code: `<style jsx={true} global>{".foo { color: red; }"}</style>;`,
+        filename: join(dirname, 'filename.jsx'),
+      },
+      {
+        // styled-jsx global styles (global attribute before jsx)
+        code: `<style global jsx={true}>{".foo { color: red; }"}</style>;`,
         filename: join(dirname, 'filename.jsx'),
       },
     ],
