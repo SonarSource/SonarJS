@@ -25,7 +25,7 @@ import * as meta from './generated-meta.js';
  * Decorates the no-unused-prop-types rule to suppress false positives when
  * props are used indirectly through patterns the upstream rule cannot track:
  * helper method calls, spread operators, bracket notation, forwardRef,
- * context providers, HOC wrappers, exported interfaces, and super(props).
+ * context providers, HOC wrappers, and super(props).
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -76,23 +76,33 @@ function isIndirectPropsPattern(node: TSESTree.Node): boolean {
     isContextProviderWithProps(node) ||
     isHOCExportWrapper(node) ||
     isRelayHOCCall(node) ||
-    isExportedPropsInterface(node) ||
     isSuperWithProps(node) ||
     isDecoratorWithPropsCallback(node)
   );
 }
+
+/** Known prop-validation-only functions that do not consume props for functionality */
+const PROP_VALIDATION_FUNCTIONS = new Set(['checkPropTypes']);
 
 /** Detects: someFunction(props) or someFunction(this.props) */
 function isPropsPassedToFunction(node: TSESTree.Node): boolean {
   if (node.type !== 'CallExpression') {
     return false;
   }
-  const call = node as TSESTree.CallExpression;
   // Exclude super(props) — handled separately
-  if (call.callee.type === 'Super') {
+  if (node.callee.type === 'Super') {
     return false;
   }
-  return call.arguments.some(isPropsReference);
+  // Exclude PropTypes.checkPropTypes(propTypes, props, ...) — only validates, does not consume
+  if (
+    node.callee.type === 'MemberExpression' &&
+    !node.callee.computed &&
+    node.callee.property.type === 'Identifier' &&
+    PROP_VALIDATION_FUNCTIONS.has(node.callee.property.name)
+  ) {
+    return false;
+  }
+  return node.arguments.some(isPropsReference);
 }
 
 /** Detects: {...props} or {...this.props} */
@@ -100,8 +110,7 @@ function isPropsSpread(node: TSESTree.Node): boolean {
   if (node.type !== 'SpreadElement' && node.type !== 'JSXSpreadAttribute') {
     return false;
   }
-  const spread = node as TSESTree.SpreadElement | TSESTree.JSXSpreadAttribute;
-  return isPropsReference(spread.argument);
+  return isPropsReference(node.argument);
 }
 
 /** Detects: props[key] or this.props[key] */
@@ -109,8 +118,7 @@ function isBracketNotationOnProps(node: TSESTree.Node): boolean {
   if (node.type !== 'MemberExpression') {
     return false;
   }
-  const member = node as TSESTree.MemberExpression;
-  return member.computed && isPropsReference(member.object);
+  return node.computed && isPropsReference(node.object);
 }
 
 /** Detects: React.forwardRef(...) or forwardRef(...) wrapping a component */
@@ -118,20 +126,18 @@ function isForwardRefWrapper(node: TSESTree.Node): boolean {
   if (node.type !== 'CallExpression') {
     return false;
   }
-  const call = node as TSESTree.CallExpression;
-  const callee = call.callee;
+  const { callee } = node;
   // Match bare forwardRef(...) call
   if (callee.type === 'Identifier') {
-    return (callee as TSESTree.Identifier).name === 'forwardRef';
+    return callee.name === 'forwardRef';
   }
   // Match React.forwardRef(...) member expression call
   if (callee.type === 'MemberExpression') {
-    const member = callee as TSESTree.MemberExpression;
     return (
-      member.object.type === 'Identifier' &&
-      (member.object as TSESTree.Identifier).name === 'React' &&
-      member.property.type === 'Identifier' &&
-      (member.property as TSESTree.Identifier).name === 'forwardRef'
+      callee.object.type === 'Identifier' &&
+      callee.object.name === 'React' &&
+      callee.property.type === 'Identifier' &&
+      callee.property.name === 'forwardRef'
     );
   }
   return false;
@@ -142,18 +148,17 @@ function isContextProviderWithProps(node: TSESTree.Node): boolean {
   if (node.type !== 'JSXAttribute') {
     return false;
   }
-  const attr = node as TSESTree.JSXAttribute;
-  if (attr.name.type !== 'JSXIdentifier' || attr.name.name !== 'value') {
+  if (node.name.type !== 'JSXIdentifier' || node.name.name !== 'value') {
     return false;
   }
-  if (!attr.value || attr.value.type !== 'JSXExpressionContainer') {
+  if (node.value?.type !== 'JSXExpressionContainer') {
     return false;
   }
-  const expr = attr.value.expression;
+  const expr = node.value.expression;
   if (expr.type === 'JSXEmptyExpression') {
     return false;
   }
-  return isPropsReference(expr as TSESTree.Expression);
+  return isPropsReference(expr);
 }
 
 /** Known Relay/React HOC function names that inject props into wrapped components */
@@ -176,23 +181,21 @@ function isRelayHOCCall(node: TSESTree.Node): boolean {
   if (node.type !== 'VariableDeclaration') {
     return false;
   }
-  const varDecl = node as TSESTree.VariableDeclaration;
-  return varDecl.declarations.some(d => {
+  return node.declarations.some(d => {
     if (d.init == null || d.init.type !== 'CallExpression') {
       return false;
     }
-    const call = d.init as TSESTree.CallExpression;
+    const { callee } = d.init;
     // Check for Relay HOC function names
-    if (call.callee.type === 'Identifier') {
-      return RELAY_HOC_NAMES.has((call.callee as TSESTree.Identifier).name);
+    if (callee.type === 'Identifier') {
+      return RELAY_HOC_NAMES.has(callee.name);
     }
     // Support member expression: Relay.createContainer(...)
-    if (call.callee.type === 'MemberExpression') {
-      const member = call.callee as TSESTree.MemberExpression;
+    if (callee.type === 'MemberExpression') {
       return (
-        !member.computed &&
-        member.property.type === 'Identifier' &&
-        RELAY_HOC_NAMES.has((member.property as TSESTree.Identifier).name)
+        !callee.computed &&
+        callee.property.type === 'Identifier' &&
+        RELAY_HOC_NAMES.has(callee.property.name)
       );
     }
     return false;
@@ -212,17 +215,13 @@ function isDecoratorWithPropsCallback(node: TSESTree.Node): boolean {
   if (node.type !== 'Decorator') {
     return false;
   }
-  const decorator = node as TSESTree.Decorator;
-  if (decorator.expression.type !== 'CallExpression') {
+  if (node.expression.type !== 'CallExpression') {
     return false;
   }
-  const call = decorator.expression as TSESTree.CallExpression;
   // Check if any argument is a function that has a first parameter
-  return call.arguments.some(arg => {
-    const fn = arg as TSESTree.Node;
-    if (fn.type === 'ArrowFunctionExpression' || fn.type === 'FunctionExpression') {
-      const func = fn as TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression;
-      return func.params.length > 0;
+  return node.expression.arguments.some(arg => {
+    if (arg.type === 'ArrowFunctionExpression' || arg.type === 'FunctionExpression') {
+      return arg.params.length > 0;
     }
     return false;
   });
@@ -244,23 +243,19 @@ function isDecoratorWithPropsCallback(node: TSESTree.Node): boolean {
 function isHOCExportWrapper(node: TSESTree.Node): boolean {
   // export default HOC(Component) or export default identifier (indirect HOC)
   if (node.type === 'ExportDefaultDeclaration') {
-    const decl = node as TSESTree.ExportDefaultDeclaration;
-    return isHOCCallExpression(decl.declaration);
+    return isHOCCallExpression(node.declaration);
   }
   // export const Foo = HOC(Component) or export const Foo = HOC(config)(Component)
   if (node.type === 'ExportNamedDeclaration') {
-    const exportDecl = node as TSESTree.ExportNamedDeclaration;
-    if (exportDecl.declaration && exportDecl.declaration.type === 'VariableDeclaration') {
-      const varDecl = exportDecl.declaration as TSESTree.VariableDeclaration;
+    if (node.declaration?.type === 'VariableDeclaration') {
       // Allow both single-call (createFragmentContainer(Comp, config)) and curried HOC
-      return varDecl.declarations.some(d => d.init != null && isHOCCallExpression(d.init));
+      return node.declaration.declarations.some(d => d.init != null && isHOCCallExpression(d.init));
     }
   }
   // module.exports = HOC(Component)
   if (node.type === 'AssignmentExpression') {
-    const assign = node as TSESTree.AssignmentExpression;
-    if (isModuleExports(assign.left)) {
-      return isHOCCallExpression(assign.right);
+    if (isModuleExports(node.left)) {
+      return isHOCCallExpression(node.right);
     }
   }
   return false;
@@ -280,21 +275,20 @@ function isHOCCallExpression(node: TSESTree.Node): boolean {
   if (node.type !== 'CallExpression') {
     return false;
   }
-  const call = node as TSESTree.CallExpression;
   // If the callee itself is a call expression, this is a curried HOC: HOC(config)(Component)
-  if (call.callee.type === 'CallExpression') {
+  if (node.callee.type === 'CallExpression') {
     return true;
   }
   // HOC(Component) or HOC(Component, config) — first argument must be a component-like identifier
   // (starts with uppercase letter by React convention) to avoid false suppression on
   // utility exports like `export const Ctx = React.createContext({...})`
   // Also matches HOC(HOC2(Component), config) where the first argument is another HOC call
-  if (call.arguments.length === 0) {
+  if (node.arguments.length === 0) {
     return false;
   }
-  const firstArg = call.arguments[0];
+  const firstArg = node.arguments[0];
   if (firstArg.type === 'Identifier') {
-    return /^[A-Z]/.test((firstArg as TSESTree.Identifier).name);
+    return /^[A-Z]/.test(firstArg.name);
   }
   // First argument is a call expression: HOC(anotherHOC(Component), config)
   // e.g. Relay.createContainer(withRouter(AlgoliaPopupIndexes), {...})
@@ -309,46 +303,13 @@ function isModuleExports(node: TSESTree.Node): boolean {
   if (node.type !== 'MemberExpression') {
     return false;
   }
-  const member = node as TSESTree.MemberExpression;
   return (
-    !member.computed &&
-    member.object.type === 'Identifier' &&
-    (member.object as TSESTree.Identifier).name === 'module' &&
-    member.property.type === 'Identifier' &&
-    (member.property as TSESTree.Identifier).name === 'exports'
+    !node.computed &&
+    node.object.type === 'Identifier' &&
+    node.object.name === 'module' &&
+    node.property.type === 'Identifier' &&
+    node.property.name === 'exports'
   );
-}
-
-/**
- * Detects exported props interface or type declarations whose name indicates
- * they are component props:
- * - export interface FooProps { ... }
- * - export type FooProps = { ... }
- *
- * When the props interface is exported, other modules can use it to pass
- * props that won't be tracked by the upstream rule. We check for "Props"
- * in the name to avoid false negatives from unrelated exported types.
- */
-function isExportedPropsInterface(node: TSESTree.Node): boolean {
-  // export interface FooProps { ... } or export type FooProps = ...
-  if (node.type === 'ExportNamedDeclaration') {
-    const exportDecl = node as TSESTree.ExportNamedDeclaration;
-    if (!exportDecl.declaration) {
-      return false;
-    }
-    const decl = exportDecl.declaration;
-    // export interface FooProps { ... }
-    if (decl.type === 'TSInterfaceDeclaration') {
-      const name = (decl as TSESTree.TSInterfaceDeclaration).id.name;
-      return name.includes('Props') || name.includes('Properties');
-    }
-    // export type FooProps = { ... }
-    if (decl.type === 'TSTypeAliasDeclaration') {
-      const name = (decl as TSESTree.TSTypeAliasDeclaration).id.name;
-      return name.includes('Props') || name.includes('Properties');
-    }
-  }
-  return false;
 }
 
 /**
@@ -362,28 +323,42 @@ function isSuperWithProps(node: TSESTree.Node): boolean {
   if (node.type !== 'CallExpression') {
     return false;
   }
-  const call = node as TSESTree.CallExpression;
-  if (call.callee.type !== 'Super') {
+  if (node.callee.type !== 'Super') {
     return false;
   }
-  return call.arguments.some(isPropsReference);
+  return node.arguments.some(isPropsReference);
 }
 
 /** Checks if a node is `props` (Identifier) or `this.props` (MemberExpression) */
 function isPropsReference(node: TSESTree.Node): boolean {
   if (node.type === 'Identifier') {
-    return (node as TSESTree.Identifier).name === 'props';
+    return node.name === 'props';
   }
   if (node.type === 'MemberExpression') {
-    const member = node as TSESTree.MemberExpression;
     return (
-      !member.computed &&
-      member.object.type === 'ThisExpression' &&
-      member.property.type === 'Identifier' &&
-      (member.property as TSESTree.Identifier).name === 'props'
+      !node.computed &&
+      node.object.type === 'ThisExpression' &&
+      node.property.type === 'Identifier' &&
+      node.property.name === 'props'
     );
   }
   return false;
+}
+
+/** Collects the child AST nodes of a given node for traversal */
+function collectNodeChildren(value: unknown, children: TSESTree.Node[]): void {
+  if (!value || typeof value !== 'object') {
+    return;
+  }
+  if (isNode(value)) {
+    children.push(value as TSESTree.Node);
+  } else if (Array.isArray(value)) {
+    for (const item of value) {
+      if (item && typeof item === 'object' && isNode(item)) {
+        children.push(item as TSESTree.Node);
+      }
+    }
+  }
 }
 
 /** Returns the child nodes of a given node for traversal */
@@ -393,18 +368,7 @@ function getChildren(node: TSESTree.Node): TSESTree.Node[] {
     if (key === 'parent') {
       continue;
     }
-    const value = (node as unknown as Record<string, unknown>)[key];
-    if (value && typeof value === 'object') {
-      if (isNode(value)) {
-        children.push(value as TSESTree.Node);
-      } else if (Array.isArray(value)) {
-        for (const item of value) {
-          if (item && typeof item === 'object' && isNode(item)) {
-            children.push(item as TSESTree.Node);
-          }
-        }
-      }
-    }
+    collectNodeChildren((node as unknown as Record<string, unknown>)[key], children);
   }
   return children;
 }

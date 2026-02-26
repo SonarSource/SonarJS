@@ -200,16 +200,6 @@ export default TrackingComponent;`,
           languageOptions: { parserOptions: { ecmaFeatures: { experimentalDecorators: true } } },
         },
         {
-          // Compliant: exported props interface with "Props" in name suppresses issue (public API)
-          code: `
-import * as React from 'react';
-export interface ButtonProps { label: string; variant: string; onClick: () => void; }
-class Button extends React.Component<ButtonProps> {
-  render() { return <button onClick={this.props.onClick}>{this.props.label}</button>; }
-}
-export default Button;`,
-        },
-        {
           // Compliant: HOC(HOC2(Component), config) pattern — first argument is a HOC call expression
           // e.g. Relay.createContainer(withRouter(Component), fragments)
           code: `
@@ -268,6 +258,34 @@ interface PaddingProps { fullBleed: boolean; isPresentedModally: boolean; isVisi
 const Padding: React.FC<PaddingProps> = ({ fullBleed }) => <div style={{ padding: fullBleed ? 0 : 16 }} />;
 export const BackButtonContext = React.createContext<{ update: () => void }>({ update() {} });`,
           errors: 2,
+        },
+        {
+          // Non-compliant: exported Props interface alone does not suppress (over-broad pattern removed)
+          // An exported interface does not guarantee props are consumed indirectly
+          code: `
+import * as React from 'react';
+export interface ButtonProps { label: string; variant: string; onClick: () => void; }
+class Button extends React.Component<ButtonProps> {
+  render() { return <button onClick={this.props.onClick}>{this.props.label}</button>; }
+}
+export default Button;`,
+          errors: 1,
+        },
+        {
+          // Non-compliant: PropTypes.checkPropTypes(props) does not count as functional prop usage
+          // checkPropTypes only validates prop types, it does not consume props for functionality
+          code: `
+import React from 'react';
+import PropTypes from 'prop-types';
+interface Props { name: string; age: number; }
+class MyComponent extends React.Component<Props> {
+  static propTypes = { name: PropTypes.string, age: PropTypes.number };
+  componentDidMount() {
+    PropTypes.checkPropTypes(MyComponent.propTypes, this.props, 'prop', 'MyComponent');
+  }
+  render() { return <div>{this.props.name}</div>; }
+}`,
+          errors: 1,
         },
       ],
     });
