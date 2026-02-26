@@ -51,6 +51,29 @@ const compareBigIntFunctionPlaceholder = [
 ];
 const languageSensitiveOrderPlaceholder = '(a, b) => a.localeCompare(b)';
 
+function isObjectKeysCall(node: estree.Node): boolean {
+  return (
+    node.type === 'CallExpression' &&
+    isCallingMethod(node, 1, 'keys') &&
+    isIdentifier(node.callee.object, 'Object')
+  );
+}
+
+function isArrayFromKeysOrEntries(node: estree.Node): boolean {
+  // Matches Array.from(iterable.keys()), Array.from(iterable.entries()), etc.
+  if (
+    node.type !== 'CallExpression' ||
+    !isCallingMethod(node, 1, 'from') ||
+    !isIdentifier(node.callee.object, 'Array')
+  ) {
+    return false;
+  }
+  const firstArg = node.arguments[0];
+  return (
+    firstArg.type === 'CallExpression' && isCallingMethod(firstArg, 0, 'keys', 'entries', 'values')
+  );
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     hasSuggestions: true,
@@ -133,30 +156,6 @@ export const rule: Rule.RuleModule = {
 
       // Suppress when array comes from Object.keys(), Map.keys(), or Map.entries()
       return isObjectKeysCall(object) || isArrayFromKeysOrEntries(object);
-    }
-
-    function isObjectKeysCall(node: estree.Node): boolean {
-      return (
-        node.type === 'CallExpression' &&
-        isCallingMethod(node, 1, 'keys') &&
-        isIdentifier(node.callee.object, 'Object')
-      );
-    }
-
-    function isArrayFromKeysOrEntries(node: estree.Node): boolean {
-      // Matches Array.from(iterable.keys()), Array.from(iterable.entries()), etc.
-      if (
-        node.type !== 'CallExpression' ||
-        !isCallingMethod(node, 1, 'from') ||
-        !isIdentifier(node.callee.object, 'Array')
-      ) {
-        return false;
-      }
-      const firstArg = node.arguments[0];
-      return (
-        firstArg.type === 'CallExpression' &&
-        isCallingMethod(firstArg, 0, 'keys', 'entries', 'values')
-      );
     }
 
     function fixer(call: estree.CallExpression, ...placeholder: string[]): Rule.ReportFixer {
