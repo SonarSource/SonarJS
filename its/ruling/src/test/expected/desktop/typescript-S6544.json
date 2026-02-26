@@ -1,7 +1,4 @@
 {
-"desktop:app/src/lib/app-shell.ts": [
-51
-],
 "desktop:app/src/lib/git/cherry-pick.ts": [
 219,
 301,
@@ -24,14 +21,5 @@
 ],
 "desktop:app/src/main-process/main.ts": [
 468
-],
-"desktop:app/src/ui/dispatcher/dispatcher.ts": [
-3782
-],
-"desktop:app/src/ui/lib/conflicts/unmerged-file.tsx": [
-324
-],
-"desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
-246
 ]
 }
