@@ -25,7 +25,7 @@
   "remoteEnv": {
     "NODE_EXTRA_CA_CERTS": "/home/node/.certs/bundle.pem"
   },
-  "postCreateCommand": "mkdir -p /home/node/.certs && cp /run/secrets/dc-npmrc /home/node/.npmrc 2>/dev/null || true && cat /etc/ssl/certs/ca-certificates.crt $([ -f /run/secrets/dc-cert.crt ] && echo /run/secrets/dc-cert.crt) > /home/node/.certs/bundle.pem && mise trust && mise install && git submodule update --init --recursive && npm ci",
+  "postCreateCommand": "mkdir -p /home/node/.certs /home/node/.m2 && cp /run/secrets/dc-npmrc /home/node/.npmrc 2>/dev/null || true && cp /run/secrets/dc-m2-settings.xml /home/node/.m2/settings.xml 2>/dev/null || true && cat /etc/ssl/certs/ca-certificates.crt $([ -f /run/secrets/dc-cert.crt ] && echo /run/secrets/dc-cert.crt) > /home/node/.certs/bundle.pem && mise trust && mise install && git submodule update --init --recursive && npm ci",
   "customizations": {
     "vscode": {
       "extensions": [
