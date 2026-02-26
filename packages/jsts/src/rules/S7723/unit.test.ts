@@ -29,10 +29,14 @@ describe('S7723', () => {
         valid: [
           { code: `var obj = Object(value);` }, // type coercion
           { code: `let O = Object(this);` }, // polyfill pattern
-          { code: `var arr = Array(10);` }, // pre-sized array
-          { code: `var arr = Array(count).fill(0);` },
-          { code: `var spaces = Array(width + 1).join(' ');` },
-          { code: `var result = Array(set.size);` },
+          { code: `var arr = Array(10);` }, // pre-sized array with numeric literal
+          { code: `var arr = Array(count).fill(0);` }, // pre-sized array chained with fill
+          { code: `var spaces = Array(width + 1).join(' ');` }, // string repeat idiom
+          { code: `var result = Array(set.size);` }, // pre-sized from property
+          { code: `var arr = Array(Math.max(0, n));` }, // pre-sized with expression
+          { code: `var items = [...Array(n)].map((_, i) => i);` }, // spread for iteration
+          { code: `var keys = [...Array(n).keys()];` }, // spread keys for range
+          { code: `var arr = Array(length).fill(null);` }, // fill with null
         ],
         invalid: [
           {
