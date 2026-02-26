@@ -319,7 +319,7 @@ jobs:
           🤖 Generated with GitHub Actions"
             git push origin "$FIX_BRANCH"
             FIX_PR_URL=$(gh pr create \
-              --title "Update rules README" \
+              --title "Update rules README for PR #${PR_NUMBER}" \
               --base "$HEAD_REF" \
               --head "$FIX_BRANCH" \
               --body "Auto-generated README update for PR #${PR_NUMBER}.
@@ -1075,7 +1075,7 @@ jobs:
           🤖 Generated with GitHub Actions"
                 git push origin "$FIX_BRANCH"
                 FIX_PR_URL=$(gh pr create \
-                  --title "Update ruling results" \
+                  --title "Update ruling results for PR #${PR_NUMBER}" \
                   --base "$HEAD_REF" \
                   --head "$FIX_BRANCH" \
                   --body "Auto-generated ruling update for PR #${PR_NUMBER}.
