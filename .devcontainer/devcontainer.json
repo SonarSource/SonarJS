@@ -18,7 +18,7 @@
   // initializeCommand populates a Docker named volume (dc-sonarjs-secrets) with ~/.npmrc.
   // Requires Node.js and Docker CLI on the host. If Node.js is unavailable the command
   // continues silently without populating the volume.
-  "initializeCommand": "node ${localWorkspaceFolder}/.devcontainer/init-host.js || echo '[init-host] Skipped: NodeJS not available'",
+  "initializeCommand": "node ${localWorkspaceFolder}/.devcontainer/init-host.cjs || echo '[init-host] Skipped: NodeJS not available'",
   "mounts": [
     "source=dc-sonarjs-secrets,target=/run/secrets,type=volume"
   ],
