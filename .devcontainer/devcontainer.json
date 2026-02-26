@@ -15,12 +15,10 @@
     }
   },
   "remoteUser": "node",
-  // initializeCommand populates a Docker named volume (dc-sonarjs-secrets) with the corporate
-  // CA cert and ~/.npmrc from the WSL2 environment. This avoids all Windows path/8.3 shortname
-  // issues by letting Docker mount WSL2 paths directly into a temporary alpine container.
-  // Requirement: open the folder in container from a WSL2 terminal (code .) so that Docker CLI
-  // and WSL2 file paths ($NODE_EXTRA_CA_CERTS, ~/.npmrc) resolve correctly.
-  "initializeCommand": ["${localWorkspaceFolder}/.devcontainer/init-host.sh"],
+  // initializeCommand populates a Docker named volume (dc-sonarjs-secrets) with ~/.npmrc.
+  // Requires Node.js and Docker CLI on the host. If Node.js is unavailable the command
+  // continues silently without populating the volume.
+  "initializeCommand": "node ${localWorkspaceFolder}/.devcontainer/init-host.js || echo '[init-host] Skipped: NodeJS not available'",
   "mounts": [
     "source=dc-sonarjs-secrets,target=/run/secrets,type=volume"
   ],
