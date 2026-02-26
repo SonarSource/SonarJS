@@ -96,6 +96,25 @@ External rules (identified by `implementation = 'external'` in `meta.ts`) can ha
 2. **Arrays need `items`**: Must specify `{ type: 'string' }` or similar
 3. **No RegExp Objects**: Use string patterns (e.g., `'^pattern$'`), not JS RegExp objects (`/^pattern$/`)
 4. **Double Escaping**: Backslashes in `customDefault` for Java must be double-escaped (e.g., `^\\\\w+$` to match `\w`)
+5. **Value Translation with `customForConfiguration`**: When SonarQube exposes a property in a different type than what ESLint expects, use `customForConfiguration` (a `(value: unknown) => unknown` function) paired with `customDefault` (the SQ-side parse target):
+
+```typescript
+// S1441: SQ exposes boolean "singleQuotes", ESLint expects 'single' | 'double'
+{
+  default: 'single',          // ESLint default
+  customDefault: true,        // SQ-side default (boolean — used for parsing)
+  displayName: 'singleQuotes',
+  customForConfiguration: (value: unknown) => (value ? 'single' : 'double'),
+}
+
+// S6418: SQ sends '5.0' as a string, ESLint expects a number
+{
+  field: 'randomnessSensibility',
+  default: 5,                 // ESLint default
+  customDefault: '5.0',       // SQ-side default (string — used for parsing)
+  customForConfiguration: Number,
+}
+```
 
 ### Workflow for Exposing Configuration
 

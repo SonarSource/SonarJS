@@ -7,6 +7,7 @@ description: Build pipeline for SonarJS. Use when asked to build the project, re
 
 ```bash
 npm ci                          # Install dependencies
+npx tsc -b packages             # Quickest way to spot compilation errors (no output generated)
 npm run bbf                     # Fast JS/TS build (no tests): clear lib + generate-meta + compile
 npm run generate-meta           # Regenerate generated-meta.ts files from RSPEC JSON
 npm run generate-java-rule-classes  # Regenerate Java check classes
@@ -84,7 +85,7 @@ SONARSOURCE_QA=true mvn clean install   # With integration tests (qa profile)
 
 ## Notes
 
-- Do not run `npm run bridge:test` or `npm run ruling` — they take too long
+- Do not run `npm run bridge:test` or `npm run ruling` — they take too long; if needed, run specific unit tests with `npx tsx --test $test_file`
 - `generated-meta.ts` files are auto-generated; do not edit manually
-- Java check classes in `sonar-plugin/javascript-checks/` are auto-generated
+- Java check classes in `sonar-plugin/javascript-checks/` are auto-generated; CSS check classes are also auto-generated
 - Requires `GITHUB_TOKEN` env var with read access to `SonarSource/rspec` for Maven builds

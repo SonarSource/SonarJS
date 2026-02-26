@@ -57,7 +57,7 @@ problematicCode();
 
 - **`valid` array**: Code that should NOT raise an issue (compliant code)
 - **`invalid` array**: Code that SHOULD raise an issue (non-compliant code)
-- **`errors`**: Number of expected issues in an invalid case
+- **`errors`**: Number of expected issues in an invalid case, or an array of ESLint error objects (useful for asserting quickfixes and suggestions, e.g. `errors: [{ messageId: 'errorKey', suggestions: [...] }]`)
 - **`options`**: Pass rule configuration options if needed
 
 When fixing false positives, add test cases to the `valid` array - the false positive is code that should be treated as valid.

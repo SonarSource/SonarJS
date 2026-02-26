@@ -18,6 +18,7 @@ Replace `S1234` with the actual rule number. Do not run the full test suite (`np
 | `DefaultParserRuleTester` | Pure JavaScript rules, no TypeScript syntax |
 | `NoTypeCheckingRuleTester` | JS/TS rules that don't need type information |
 | `RuleTester` | Rules requiring TypeScript type information |
+| `RuleTester` with `@babel/eslint-parser` | Legacy JavaScript or Babel-specific syntax (e.g. Flow types, decorator proposals) |
 
 ## Comment-Based Tests (preferred)
 
