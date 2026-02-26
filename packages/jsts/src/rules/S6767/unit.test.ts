@@ -156,6 +156,50 @@ const mapStateToProps = () => ({ styles: {} });
 export const ConnectedButton = connect(mapStateToProps)(Button);`,
         },
         {
+          // Compliant: single-call Relay HOC named export (createFragmentContainer) suppresses issue
+          code: `
+import React from 'react';
+import { createFragmentContainer, graphql, RelayProp } from 'react-relay';
+interface Props {
+  relay: RelayProp;
+  title: string;
+  unusedProp?: string;
+}
+const MyComponent: React.FC<Props> = ({ title }) => <div>{title}</div>;
+export const MyComponentContainer = createFragmentContainer(MyComponent, {
+  data: graphql\`fragment MyComponent_data on Query { title }\`,
+});`,
+        },
+        {
+          // Compliant: non-exported Relay HOC call (createPaginationContainer) suppresses issue
+          code: `
+import React from 'react';
+import { createPaginationContainer, graphql, RelayPaginationProp } from 'react-relay';
+interface Props {
+  relay: RelayPaginationProp;
+  items: string[];
+}
+const MyList: React.FC<Props> = ({ items }) => <div>{items.join(', ')}</div>;
+const MyListContainer = createPaginationContainer(MyList, {
+  data: graphql\`fragment MyList_data on Query { items }\`,
+}, {});`,
+        },
+        {
+          // Compliant: method decorator with props callback suppresses issue (@track pattern)
+          code: `
+import React from 'react';
+interface Props { contextModule?: string; label: string; }
+class TrackingComponent extends React.Component<Props> {
+  // @ts-ignore
+  @track((props: Props) => ({ context_module: props.contextModule }))
+  handlePress() {}
+  render() { return <button onClick={this.handlePress}>{this.props.label}</button>; }
+}
+export default TrackingComponent;`,
+          filename: 'test.tsx',
+          languageOptions: { parserOptions: { ecmaFeatures: { experimentalDecorators: true } } },
+        },
+        {
           // Compliant: exported props interface with "Props" in name suppresses issue (public API)
           code: `
 import * as React from 'react';
@@ -164,6 +208,24 @@ class Button extends React.Component<ButtonProps> {
   render() { return <button onClick={this.props.onClick}>{this.props.label}</button>; }
 }
 export default Button;`,
+        },
+        {
+          // Compliant: HOC(HOC2(Component), config) pattern — first argument is a HOC call expression
+          // e.g. Relay.createContainer(withRouter(Component), fragments)
+          code: `
+import * as React from 'react';
+import * as Relay from 'react-relay';
+import { withRouter } from 'react-router';
+interface Props { viewer: any; params: any; router: any; }
+class MyComponent extends React.Component<Props> {
+  render() {
+    const { params } = this.props;
+    return <div>{params.id}</div>;
+  }
+}
+export default Relay.createContainer(withRouter(MyComponent), {
+  fragments: { viewer: () => Relay.QL\`fragment on Viewer { id }\` },
+});`,
         },
         {
           // Compliant: all props directly used even when interface is exported
@@ -196,6 +258,16 @@ export type NavigationStack = { Home: undefined; Profile: undefined; };
 interface ScreenProps { title?: string; visible: boolean; }
 export const Screen: React.FC<ScreenProps> = ({ visible }) => <div>{visible ? 'shown' : 'hidden'}</div>;`,
           errors: 1,
+        },
+        {
+          // Non-compliant: exported React.createContext() in same file does not suppress unused props
+          // React.createContext() is not an HOC wrapper - it does not inject props into components
+          code: `
+import * as React from 'react';
+interface PaddingProps { fullBleed: boolean; isPresentedModally: boolean; isVisible: boolean; }
+const Padding: React.FC<PaddingProps> = ({ fullBleed }) => <div style={{ padding: fullBleed ? 0 : 16 }} />;
+export const BackButtonContext = React.createContext<{ update: () => void }>({ update() {} });`,
+          errors: 2,
         },
       ],
     });

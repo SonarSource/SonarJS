@@ -75,8 +75,10 @@ function isIndirectPropsPattern(node: TSESTree.Node): boolean {
     isForwardRefWrapper(node) ||
     isContextProviderWithProps(node) ||
     isHOCExportWrapper(node) ||
+    isRelayHOCCall(node) ||
     isExportedPropsInterface(node) ||
-    isSuperWithProps(node)
+    isSuperWithProps(node) ||
+    isDecoratorWithPropsCallback(node)
   );
 }
 
@@ -154,29 +156,104 @@ function isContextProviderWithProps(node: TSESTree.Node): boolean {
   return isPropsReference(expr as TSESTree.Expression);
 }
 
+/** Known Relay/React HOC function names that inject props into wrapped components */
+const RELAY_HOC_NAMES = new Set([
+  'createFragmentContainer',
+  'createPaginationContainer',
+  'createRefetchContainer',
+  'createContainer',
+]);
+
+/**
+ * Detects non-exported Relay HOC calls that wrap a component:
+ * - const Container = createFragmentContainer(Component, {...})
+ * - const Container = createPaginationContainer(Component, {...})
+ *
+ * These are often not exported directly but still inject props (like `relay`)
+ * that the upstream rule cannot track as used.
+ */
+function isRelayHOCCall(node: TSESTree.Node): boolean {
+  if (node.type !== 'VariableDeclaration') {
+    return false;
+  }
+  const varDecl = node as TSESTree.VariableDeclaration;
+  return varDecl.declarations.some(d => {
+    if (d.init == null || d.init.type !== 'CallExpression') {
+      return false;
+    }
+    const call = d.init as TSESTree.CallExpression;
+    // Check for Relay HOC function names
+    if (call.callee.type === 'Identifier') {
+      return RELAY_HOC_NAMES.has((call.callee as TSESTree.Identifier).name);
+    }
+    // Support member expression: Relay.createContainer(...)
+    if (call.callee.type === 'MemberExpression') {
+      const member = call.callee as TSESTree.MemberExpression;
+      return (
+        !member.computed &&
+        member.property.type === 'Identifier' &&
+        RELAY_HOC_NAMES.has((member.property as TSESTree.Identifier).name)
+      );
+    }
+    return false;
+  });
+}
+
+/**
+ * Detects TypeScript/ES decorator patterns where props are passed as a callback
+ * argument to a decorator function:
+ * - @track((props) => ({ context_module: props.contextModule }))
+ * - @screenTrack((props: Props) => ({ ... }))
+ *
+ * When decorators with props callbacks are present, props may be consumed
+ * by the decorator framework and thus not directly accessed in the component body.
+ */
+function isDecoratorWithPropsCallback(node: TSESTree.Node): boolean {
+  if (node.type !== 'Decorator') {
+    return false;
+  }
+  const decorator = node as TSESTree.Decorator;
+  if (decorator.expression.type !== 'CallExpression') {
+    return false;
+  }
+  const call = decorator.expression as TSESTree.CallExpression;
+  // Check if any argument is a function that has a first parameter
+  return call.arguments.some(arg => {
+    const fn = arg as TSESTree.Node;
+    if (fn.type === 'ArrowFunctionExpression' || fn.type === 'FunctionExpression') {
+      const func = fn as TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression;
+      return func.params.length > 0;
+    }
+    return false;
+  });
+}
+
 /**
  * Detects HOC export wrapper patterns:
  * - export default connect(mapState)(Component)
  * - export default Relay.createContainer(Component, ...)
  * - export default withRouter(Component)
  * - export const Container = connect(mapState)(Component)
+ * - export const Container = createFragmentContainer(Component, {...})
+ * - const Container = HOC(Component); export default Container
  * - module.exports = HOC(Component)
  *
  * These patterns indicate the component receives props injected by the HOC
  * that the upstream rule cannot track as used.
  */
 function isHOCExportWrapper(node: TSESTree.Node): boolean {
-  // export default HOC(Component)
+  // export default HOC(Component) or export default identifier (indirect HOC)
   if (node.type === 'ExportDefaultDeclaration') {
     const decl = node as TSESTree.ExportDefaultDeclaration;
     return isHOCCallExpression(decl.declaration);
   }
-  // export const Foo = HOC(config)(Component) — curried HOC pattern only
+  // export const Foo = HOC(Component) or export const Foo = HOC(config)(Component)
   if (node.type === 'ExportNamedDeclaration') {
     const exportDecl = node as TSESTree.ExportNamedDeclaration;
     if (exportDecl.declaration && exportDecl.declaration.type === 'VariableDeclaration') {
       const varDecl = exportDecl.declaration as TSESTree.VariableDeclaration;
-      return varDecl.declarations.some(d => d.init != null && isCurriedHOCCallExpression(d.init));
+      // Allow both single-call (createFragmentContainer(Comp, config)) and curried HOC
+      return varDecl.declarations.some(d => d.init != null && isHOCCallExpression(d.init));
     }
   }
   // module.exports = HOC(Component)
@@ -191,7 +268,13 @@ function isHOCExportWrapper(node: TSESTree.Node): boolean {
 
 /**
  * Checks if a node is a call expression that wraps a component (HOC pattern).
- * Matches: HOC(Component), HOC(Component, config), HOC(config)(Component)
+ * Matches: HOC(Component), HOC(Component, config), HOC(config)(Component),
+ *          HOC(HOC2(Component), config)
+ *
+ * For single-call HOCs (non-curried), requires the first argument to be either:
+ * - a component-like identifier (starts with uppercase letter by React convention), or
+ * - a call expression (another HOC wrapping the component, e.g. withRouter(Component))
+ * This avoids false suppression for utility exports like `React.createContext({...})`.
  */
 function isHOCCallExpression(node: TSESTree.Node): boolean {
   if (node.type !== 'CallExpression') {
@@ -202,22 +285,23 @@ function isHOCCallExpression(node: TSESTree.Node): boolean {
   if (call.callee.type === 'CallExpression') {
     return true;
   }
-  // HOC(Component) or HOC(Component, config) — must have at least one argument
-  return call.arguments.length > 0;
-}
-
-/**
- * Checks if a node is a curried HOC call like HOC(config)(Component).
- * More specific than isHOCCallExpression; used for named exports to avoid
- * false negatives from ordinary function calls.
- */
-function isCurriedHOCCallExpression(node: TSESTree.Node): boolean {
-  if (node.type !== 'CallExpression') {
+  // HOC(Component) or HOC(Component, config) — first argument must be a component-like identifier
+  // (starts with uppercase letter by React convention) to avoid false suppression on
+  // utility exports like `export const Ctx = React.createContext({...})`
+  // Also matches HOC(HOC2(Component), config) where the first argument is another HOC call
+  if (call.arguments.length === 0) {
     return false;
   }
-  const call = node as TSESTree.CallExpression;
-  // The callee itself must be a call expression: HOC(config)(Component)
-  return call.callee.type === 'CallExpression';
+  const firstArg = call.arguments[0];
+  if (firstArg.type === 'Identifier') {
+    return /^[A-Z]/.test((firstArg as TSESTree.Identifier).name);
+  }
+  // First argument is a call expression: HOC(anotherHOC(Component), config)
+  // e.g. Relay.createContainer(withRouter(AlgoliaPopupIndexes), {...})
+  if (firstArg.type === 'CallExpression') {
+    return true;
+  }
+  return false;
 }
 
 /** Checks if a node is `module.exports` */
