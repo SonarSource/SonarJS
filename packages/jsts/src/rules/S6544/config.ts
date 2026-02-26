@@ -25,6 +25,7 @@ export const fields = [
       default: {
         attributes: false,
         arguments: false,
+        properties: false,
       },
     },
     {

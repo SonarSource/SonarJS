@@ -8,6 +8,13 @@ function setCallback(cb: CallBack) {
 
 setCallback({cb: async () => {}}); // Compliant
 
+type VoidCallback = () => void;
+function makeCallback(): VoidCallback {
+  return async () => { // Noncompliant {{Promise-returning function provided to return value where a void return was expected.}}
+    await Promise.resolve();
+  };
+}
+
 type ErrorHandler = {
   onError: (err: Error) => void;
   onSuccess: () => void;
