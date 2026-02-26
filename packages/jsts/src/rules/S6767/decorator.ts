@@ -24,8 +24,8 @@ import * as meta from './generated-meta.js';
 /**
  * Decorates the no-unused-prop-types rule to suppress false positives when
  * props are used indirectly through patterns the upstream rule cannot track:
- * helper method calls, HOC wrappers, spread operators, bracket notation,
- * exported interfaces, super(props), forwardRef, and context providers.
+ * helper method calls, spread operators, bracket notation, forwardRef, and
+ * context providers.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -45,6 +45,11 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 /**
  * Scans the program AST for indirect prop usage patterns that the upstream
  * rule cannot track. Returns true if any such pattern is found.
+ *
+ * Note: Only patterns that genuinely indicate indirect prop consumption are
+ * included. Patterns like super(props), export default HOC(Comp), and
+ * exported interfaces are intentionally excluded because they are too broad
+ * and cause false negatives for genuinely unused props.
  */
 function hasIndirectPropsUsage(program: TSESTree.Program): boolean {
   return hasPattern(program);
@@ -64,16 +69,15 @@ function hasPattern(node: TSESTree.Node): boolean {
 
 /**
  * Checks if a node represents an indirect props usage pattern.
+ * Only patterns that genuinely indicate the entire props object is consumed
+ * indirectly are included here.
  */
 function isIndirectPropsPattern(node: TSESTree.Node): boolean {
   return (
     isPropsPassedToFunction(node) ||
     isPropsSpread(node) ||
-    isSuperProps(node) ||
     isBracketNotationOnProps(node) ||
-    isExportedPropsInterface(node) ||
     isForwardRefWrapper(node) ||
-    isHOCExport(node) ||
     isContextProviderWithProps(node)
   );
 }
@@ -84,6 +88,11 @@ function isPropsPassedToFunction(node: TSESTree.Node): boolean {
     return false;
   }
   const call = node as TSESTree.CallExpression;
+  // Exclude super(props) — passing props to the parent constructor does not
+  // indicate indirect consumption of the component's own props.
+  if (call.callee.type === 'Super') {
+    return false;
+  }
   return call.arguments.some(isPropsReference);
 }
 
@@ -96,20 +105,6 @@ function isPropsSpread(node: TSESTree.Node): boolean {
   return isPropsReference(spread.argument);
 }
 
-/** Detects: super(props) in constructor */
-function isSuperProps(node: TSESTree.Node): boolean {
-  if (node.type !== 'CallExpression') {
-    return false;
-  }
-  const call = node as TSESTree.CallExpression;
-  return (
-    call.callee.type === 'Super' &&
-    call.arguments.some(
-      arg => arg.type === 'Identifier' && (arg as TSESTree.Identifier).name === 'props',
-    )
-  );
-}
-
 /** Detects: props[key] or this.props[key] */
 function isBracketNotationOnProps(node: TSESTree.Node): boolean {
   if (node.type !== 'MemberExpression') {
@@ -119,45 +114,28 @@ function isBracketNotationOnProps(node: TSESTree.Node): boolean {
   return member.computed && isPropsReference(member.object);
 }
 
-/** Detects: export interface Props or export type Props */
-function isExportedPropsInterface(node: TSESTree.Node): boolean {
-  if (node.type !== 'ExportNamedDeclaration') {
-    return false;
-  }
-  const exportDecl = node as TSESTree.ExportNamedDeclaration;
-  const decl = exportDecl.declaration;
-  if (!decl) {
-    return false;
-  }
-  return decl.type === 'TSInterfaceDeclaration' || decl.type === 'TSTypeAliasDeclaration';
-}
-
-/** Detects: React.forwardRef(...) wrapping a component */
+/** Detects: React.forwardRef(...) or forwardRef(...) wrapping a component */
 function isForwardRefWrapper(node: TSESTree.Node): boolean {
   if (node.type !== 'CallExpression') {
     return false;
   }
   const call = node as TSESTree.CallExpression;
   const callee = call.callee;
-  if (callee.type !== 'MemberExpression') {
-    return false;
+  // Match bare forwardRef(...) call
+  if (callee.type === 'Identifier') {
+    return (callee as TSESTree.Identifier).name === 'forwardRef';
   }
-  const member = callee as TSESTree.MemberExpression;
-  return (
-    member.object.type === 'Identifier' &&
-    (member.object as TSESTree.Identifier).name === 'React' &&
-    member.property.type === 'Identifier' &&
-    (member.property as TSESTree.Identifier).name === 'forwardRef'
-  );
-}
-
-/** Detects: export default SomeHOC(Component) */
-function isHOCExport(node: TSESTree.Node): boolean {
-  if (node.type !== 'ExportDefaultDeclaration') {
-    return false;
+  // Match React.forwardRef(...) member expression call
+  if (callee.type === 'MemberExpression') {
+    const member = callee as TSESTree.MemberExpression;
+    return (
+      member.object.type === 'Identifier' &&
+      (member.object as TSESTree.Identifier).name === 'React' &&
+      member.property.type === 'Identifier' &&
+      (member.property as TSESTree.Identifier).name === 'forwardRef'
+    );
   }
-  const exportDecl = node as TSESTree.ExportDefaultDeclaration;
-  return exportDecl.declaration.type === 'CallExpression';
+  return false;
 }
 
 /** Detects: <Context.Provider value={props}> */
