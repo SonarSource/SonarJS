@@ -49,3 +49,48 @@ const readable: ListHandler = {
     }
   },
 };
+
+// Wrapper arrow function calling an async function assigned to void-typed property
+async function navigate(url: string): Promise<void> {
+  await Promise.resolve(url);
+}
+
+type PressHandler = {
+  onPress: () => void;
+};
+
+const handler1: PressHandler = {
+  onPress: () => navigate('/home'), // Compliant - wrapper calling async function for side effect
+};
+
+// Async method reference assigned to void-typed property
+type BranchActions = {
+  onDeleteBranch: (name: string) => void;
+};
+
+async function deleteBranch(branchName: string): Promise<void> {
+  await Promise.resolve(branchName);
+}
+
+const branchActions: BranchActions = {
+  onDeleteBranch: deleteBranch, // Compliant - async function reference in void-typed property
+};
+
+// Async function in object property with complex body (side-effects, no meaningful return)
+type ConflictHandler = {
+  onOpenConflictsDialog: () => void;
+};
+
+async function getConflictState(): Promise<string | null> {
+  return Promise.resolve(null);
+}
+
+const conflictBanner: ConflictHandler = {
+  onOpenConflictsDialog: async () => { // Compliant - async function performing side effects
+    const state = await getConflictState();
+    if (state == null) {
+      return;
+    }
+    console.log(state);
+  },
+};
