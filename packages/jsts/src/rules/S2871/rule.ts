@@ -54,7 +54,7 @@ const languageSensitiveOrderPlaceholder = '(a, b) => a.localeCompare(b)';
 function isObjectKeysCall(node: estree.Node): boolean {
   return (
     node.type === 'CallExpression' &&
-    isCallingMethod(node, 1, 'keys') &&
+    isCallingMethod(node, 1, 'keys', 'getOwnPropertyNames') &&
     isIdentifier(node.callee.object, 'Object')
   );
 }
@@ -154,7 +154,7 @@ export const rule: Rule.RuleModule = {
         }
       }
 
-      // Suppress when array comes from Object.keys(), Map.keys(), or Map.entries()
+      // Suppress when array comes from Object.keys(), Object.getOwnPropertyNames(), Map.keys(), or Map.entries()
       return isObjectKeysCall(object) || isArrayFromKeysOrEntries(object);
     }
 
