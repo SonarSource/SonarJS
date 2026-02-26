@@ -140,11 +140,12 @@ describe('S4325', () => {
     });
   });
 
-  it('should not flag non-null assertions on declared nullable types', () => {
-    ruleTester.run('S4325 non-null assertions', rule, {
-      valid: [
+  it('should flag non-null assertions on declared nullable types without strictNullChecks', () => {
+    ruleTester.run('S4325 non-null assertions without strictNullChecks', rule, {
+      valid: [],
+      invalid: [
         {
-          // Property declared as T | null
+          // Property declared as T | null — flagged because without strictNullChecks, ! is a no-op
           code: `
             interface Api {
               user(): Promise<{ name: string }>;
@@ -156,18 +157,36 @@ describe('S4325', () => {
               }
             }
           `,
+          output: `
+            interface Api {
+              user(): Promise<{ name: string }>;
+            }
+            class CmsClient {
+              api: Api | null = null;
+              async getUser() {
+                return await this.api.user();
+              }
+            }
+          `,
+          errors: 1,
         },
         {
-          // Variable declared as T | undefined
+          // Variable declared as T | undefined — flagged because without strictNullChecks, ! is a no-op
           code: `
             let config: { debug: boolean } | undefined;
             function getDebug() {
               return config!.debug;
             }
           `,
+          output: `
+            let config: { debug: boolean } | undefined;
+            function getDebug() {
+              return config.debug;
+            }
+          `,
+          errors: 1,
         },
       ],
-      invalid: [],
     });
   });
 
@@ -289,27 +308,6 @@ describe('S4325', () => {
           output: `
             function parse(): string { return ''; }
             const result = parse();
-          `,
-          errors: 1,
-        },
-      ],
-    });
-  });
-
-  it('should flag non-null assertion on call expression result without type checking', () => {
-    ruleTester.run('S4325 non-null on call without strictNullChecks', rule, {
-      valid: [],
-      invalid: [
-        {
-          // Non-null assertion on a call expression where the symbol cannot be resolved
-          // Exercises shouldSuppressNonNullAssertion returning false when no symbol at location
-          code: `
-            function getUser(): string { return ''; }
-            getUser()!;
-          `,
-          output: `
-            function getUser(): string { return ''; }
-            getUser();
           `,
           errors: 1,
         },
