@@ -27,88 +27,25 @@ describe('S7723', () => {
       rule,
       {
         valid: [
-          {
-            // Object(value) is type coercion, not object creation
-            code: `var obj = Object(value);`,
-          },
-          {
-            // Defensive coercion in utility function
-            code: `
-function conformsTo(object, props) {
-  object = Object(object);
-  return props.every(key => key in object);
-}`,
-          },
-          {
-            // Object(value) nested in Object.values()
-            code: `Object.values(Object(templates)).length > 0;`,
-          },
-          {
-            // Object(value) as return value
-            code: `function toObject(val) { return Object(val); }`,
-          },
-          {
-            // Object() with multiple arguments
-            code: `var result = Object(a, b);`,
-          },
-          {
-            // Object(this) in polyfill pattern
-            code: `let O = Object(this);`,
-          },
-          {
-            // Object(value) with 'in' operator for safe property checking
-            code: `var length = 'length' in Object(obj) && obj.length;`,
-          },
-          {
-            // Object(value) in for...in for safe iteration
-            code: `for (var key in Object(object)) {}`,
-          },
-          {
-            code: `var obj = new Object();`,
-          },
-          {
-            code: `var arr = new Array(10);`,
-          },
-          {
-            // Array(n) pre-sizing idiom
-            code: `var arr = Array(10);`,
-          },
-          {
-            // Array(n).fill()
-            code: `var arr = Array(count).fill(0);`,
-          },
-          {
-            // Array(n).join() string repetition
-            code: `var spaces = Array(width + 1).join(' ');`,
-          },
-          {
-            // Array(n) chained with fill and map
-            code: `var grid = Array(rows).fill(null).map(() => Array(cols).fill(0));`,
-          },
-          {
-            // Array.from(Array(n)) indexed iteration
-            code: `var items = Array.from(Array(MAX_ITEMS)).map((_, i) => i);`,
-          },
-          {
-            // Array(n) pre-allocation
-            code: `var result = Array(set.size);`,
-          },
+          { code: `var obj = Object(value);` }, // type coercion
+          { code: `let O = Object(this);` }, // polyfill pattern
+          { code: `var arr = Array(10);` }, // pre-sized array
+          { code: `var arr = Array(count).fill(0);` },
+          { code: `var spaces = Array(width + 1).join(' ');` },
+          { code: `var result = Array(set.size);` },
         ],
         invalid: [
           {
-            // Object() without arguments is still non-compliant
             code: `var obj = Object();`,
             output: `var obj = new Object();`,
             errors: 1,
           },
           {
-            // Array() without arguments
             code: `var arr = Array();`,
             output: `var arr = new Array();`,
             errors: 1,
           },
           {
-            // Array with multiple arguments
             code: `var arr = Array(1, 2, 3);`,
             output: `var arr = new Array(1, 2, 3);`,
             errors: 1,

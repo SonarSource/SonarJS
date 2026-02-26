@@ -21,7 +21,6 @@ import type estree from 'estree';
 import { generateMeta, interceptReport } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
-// Object(value) is a type coercion pattern, not object creation
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
@@ -31,13 +30,16 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     (context, reportDescriptor) => {
       if ('node' in reportDescriptor) {
         const node = reportDescriptor.node as estree.CallExpression;
-        if (
-          node.type === 'CallExpression' &&
-          node.callee.type === 'Identifier' &&
-          node.callee.name === 'Object' &&
-          node.arguments.length >= 1
-        ) {
-          return;
+        if (node.type === 'CallExpression' && node.callee.type === 'Identifier') {
+          const { name } = node.callee;
+          // Object(value) is a type coercion pattern, not object creation
+          if (name === 'Object' && node.arguments.length >= 1) {
+            return;
+          }
+          // Array(n) is a standard idiom for pre-sized array creation
+          if (name === 'Array' && node.arguments.length === 1) {
+            return;
+          }
         }
       }
       context.report(reportDescriptor);
