@@ -261,25 +261,30 @@ const sanitize = () => {
         },
         {
           code: `
-function isValidCSSColor(str) { // single return, TS infers boolean|array
+function isValidCSSColor(str) { // Compliant: single return, union from && / ||
   return str != null && typeof str === 'string' && str.match(/^#[0-9a-fA-F]{3,6}$/)
     || ['red', 'blue', 'green'].indexOf(str) >= 0;
 }`,
         },
         {
           code: `
-function getLabelOrFail(type) { // single return ternary, string|false
+function getLabelOrFail(type) { // Compliant: single return ternary
   return type === 'success' ? 'All good' : false;
 }`,
         },
         {
           code: `
-function checkMode(mod, o, g, gid, myGid) { // single return, bitwise number|boolean
+function checkMode(mod, o, g, gid, myGid) { // Compliant: single return, bitwise ops
   return mod & o || mod & g && gid === myGid;
 }`,
         },
-      ],
-      invalid: [
+        {
+          code: `
+const sanitize = () => {
+  return condition ? true : 42;
+};
+`,
+        },
         {
           code: `
         function foo() {
@@ -289,18 +294,11 @@ function checkMode(mod, o, g, gid, myGid) { // single return, bitwise number|boo
           } else {
             ret = 'str';
           }
-          return ret // FN - does not infer ret to number | string;
+          return ret;
         }`,
-          errors: [
-            {
-              message: 'Refactor this function to always return the same type.',
-              line: 2,
-              column: 18,
-              endLine: 2,
-              endColumn: 21,
-            },
-          ],
         },
+      ],
+      invalid: [
         {
           code: `
         function foo() {
@@ -582,14 +580,6 @@ function checkMode(mod, o, g, gid, myGid) { // single return, bitwise number|boo
               endColumn: 14,
             },
           ],
-        },
-        {
-          code: `
-const sanitize = () => {
-  return condition ? true : 42;
-};
-`,
-          errors: 1,
         },
       ],
     });
