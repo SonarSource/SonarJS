@@ -69,6 +69,30 @@ function conformsTo(object, props) {
           {
             code: `var arr = new Array(10);`,
           },
+          {
+            // Array(n) pre-sizing idiom
+            code: `var arr = Array(10);`,
+          },
+          {
+            // Array(n).fill()
+            code: `var arr = Array(count).fill(0);`,
+          },
+          {
+            // Array(n).join() string repetition
+            code: `var spaces = Array(width + 1).join(' ');`,
+          },
+          {
+            // Array(n) chained with fill and map
+            code: `var grid = Array(rows).fill(null).map(() => Array(cols).fill(0));`,
+          },
+          {
+            // Array.from(Array(n)) indexed iteration
+            code: `var items = Array.from(Array(MAX_ITEMS)).map((_, i) => i);`,
+          },
+          {
+            // Array(n) pre-allocation
+            code: `var result = Array(set.size);`,
+          },
         ],
         invalid: [
           {
@@ -78,9 +102,15 @@ function conformsTo(object, props) {
             errors: 1,
           },
           {
-            // Other constructors without new remain non-compliant
-            code: `var arr = Array(10);`,
-            output: `var arr = new Array(10);`,
+            // Array() without arguments
+            code: `var arr = Array();`,
+            output: `var arr = new Array();`,
+            errors: 1,
+          },
+          {
+            // Array with multiple arguments
+            code: `var arr = Array(1, 2, 3);`,
+            output: `var arr = new Array(1, 2, 3);`,
             errors: 1,
           },
           {
