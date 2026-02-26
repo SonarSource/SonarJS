@@ -163,9 +163,12 @@ describe('S2871', () => {
       }
     `,
           },
-          // Compliant: Object.keys sort
+          // Compliant: Object.keys/getOwnPropertyNames sort
           {
             code: `const keys = Object.keys({ a: 1, b: 2 }).sort();`,
+          },
+          {
+            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).sort();`,
           },
           // Compliant: Map.keys/entries sort
           {
@@ -560,9 +563,12 @@ describe('S2871', () => {
       }
     `,
           },
-          // Compliant: Object.keys sort
+          // Compliant: Object.keys/getOwnPropertyNames sort
           {
             code: `const keys = Object.keys({ a: 1, b: 2 }).toSorted();`,
+          },
+          {
+            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).toSorted();`,
           },
           // Compliant: Map.keys sort
           {
