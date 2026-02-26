@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-// Populates the Docker named volume dc-sonarjs-secrets with ~/.npmrc and ~/.m2/settings.xml.
+// Populates the Docker named volume dc-sonarjs-secrets with ~/.npmrc, ~/.m2/settings.xml,
+// and ~/.m2/settings-security.xml (needed to decrypt Maven encrypted passwords).
 // Runs as initializeCommand. Requires Docker CLI.
 // Self-signed certificate support is handled via .npmrc (e.g. cafile= or strict-ssl=false).
 'use strict';
@@ -32,6 +33,14 @@ try {
     log('~/.m2/settings.xml not found');
   }
 
+  const m2SecurityPath = join(homedir(), '.m2', 'settings-security.xml');
+  log(`m2 security path: ${m2SecurityPath}`);
+  if (existsSync(m2SecurityPath)) {
+    process.stdout.write(execSync(`ls -la "${m2SecurityPath}"`, { encoding: 'utf8' }));
+  } else {
+    log('~/.m2/settings-security.xml not found');
+  }
+
   execSync(`docker volume create ${VOLUME}`, { stdio: 'pipe' });
   log(`Volume '${VOLUME}' ready.`);
 
@@ -56,10 +65,19 @@ try {
     });
     log('~/.m2/settings.xml copied.');
   } else {
-    const dockerCmd = `docker run --rm -v ${VOLUME}:/secrets alpine touch /secrets/dc-m2-settings.xml`;
+    log('~/.m2/settings.xml not found, skipping.');
+  }
+
+  if (existsSync(m2SecurityPath)) {
+    const dockerCmd = `docker run --rm -i -v ${VOLUME}:/secrets alpine sh -c 'cat > /secrets/dc-m2-settings-security.xml'`;
     log(`Running: ${dockerCmd}`);
-    execSync(dockerCmd, { stdio: 'pipe' });
-    log('Created empty placeholder.');
+    execSync(dockerCmd, {
+      input: readFileSync(m2SecurityPath),
+      stdio: ['pipe', 'inherit', 'inherit'],
+    });
+    log('~/.m2/settings-security.xml copied.');
+  } else {
+    log('~/.m2/settings-security.xml not found, skipping.');
   }
 
   log('Done.');
