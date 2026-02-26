@@ -1,13 +1,4 @@
 {
-"vuetify:packages/docs/src/examples/v-data-table/virtual.vue": [
-112
-],
-"vuetify:packages/docs/src/examples/v-date-picker/event-events.vue": [
-35
-],
-"vuetify:packages/docs/src/examples/v-menu/prop-rounded.vue": [
-41
-],
 "vuetify:scripts/rules/no-render-string-reference.js": [
 23
 ]

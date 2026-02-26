@@ -1,73 +1,25 @@
 {
-"ace:experiments/dom.html": [
-354
-],
 "ace:lib/ace/mode/javascript/jshint.js": [
 248,
-363,
-411,
-442,
 478,
-1258,
-1992,
 2408,
-2453,
-2463,
-2921,
-2933,
-3171,
 3199,
 3200,
-3272,
-3386,
-3731,
-4161,
-4201
+3272
 ],
 "ace:lib/ace/mode/javascript_worker.js": [
 39
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 4037,
-4092,
-4184,
-5054,
-5348,
-5354
-],
-"ace:src/background_tokenizer.js": [
-153
-],
-"ace:src/edit_session.js": [
-1475,
-1623
-],
-"ace:src/edit_session/folding.js": [
-853
-],
-"ace:src/ext/elastic_tabstops_lite.js": [
-207
+4184
 ],
 "ace:src/keyboard/vim.js": [
 1333,
 1998,
-3636,
-3639,
-3645,
 5895,
 5939,
 6014
-],
-"ace:src/layer/text_test.js": [
-61,
-62,
-63
-],
-"ace:src/mode/_test/highlight_rules_test.js": [
-16
-],
-"ace:src/mode/behaviour/behaviour_test.js": [
-34
 ],
 "ace:src/mode/folding/diff.js": [
 10,
@@ -75,16 +27,6 @@
 ],
 "ace:src/mode/livescript.js": [
 14
-],
-"ace:src/test/benchmark.js": [
-19,
-31
-],
-"ace:tool/add_mode.js": [
-77
-],
-"ace:tool/lib.js": [
-44
 ],
 "ace:tool/unicode.js": [
 130

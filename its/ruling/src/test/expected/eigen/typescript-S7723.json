@@ -1,17 +1,8 @@
 {
-"eigen:src/app/Components/ParentAwareScrollView.tsx": [
-72
-],
-"eigen:src/app/Scenes/MyProfile/MyProfileEditForm.tsx": [
-389
-],
 "eigen:src/app/utils/AdminMenu.tsx": [
 206
 ],
 "eigen:src/app/utils/renderMarkdown.tests.tsx": [
 149
-],
-"eigen:src/palette/elements/ProgressBar/ProgressBar.tsx": [
-48
 ]
 }
