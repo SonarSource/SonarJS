@@ -259,6 +259,25 @@ const sanitize = () => {
   return 'Value should be a string';
 }`,
         },
+        {
+          code: `
+function isValidCSSColor(str) { // single return, TS infers boolean|array
+  return str != null && typeof str === 'string' && str.match(/^#[0-9a-fA-F]{3,6}$/)
+    || ['red', 'blue', 'green'].indexOf(str) >= 0;
+}`,
+        },
+        {
+          code: `
+function getLabelOrFail(type) { // single return ternary, string|false
+  return type === 'success' ? 'All good' : false;
+}`,
+        },
+        {
+          code: `
+function checkMode(mod, o, g, gid, myGid) { // single return, bitwise number|boolean
+  return mod & o || mod & g && gid === myGid;
+}`,
+        },
       ],
       invalid: [
         {
