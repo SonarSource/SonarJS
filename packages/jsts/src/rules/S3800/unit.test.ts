@@ -297,6 +297,28 @@ const sanitize = () => {
           return ret;
         }`,
         },
+        {
+          // Compliant: two returns each producing the same union type (string | boolean)
+          // Both branches consistently return the same mixed-type ternary pattern
+          code: `
+function commandMatch(pressed, mapped) {
+  if (mapped.slice(-11) === '<character>') {
+    return pressed.length > 0 ? 'full' : false;
+  } else {
+    return pressed === mapped ? 'full' : false;
+  }
+}`,
+        },
+        {
+          // Compliant: two returns both boolean, one early return and one via negation
+          code: `
+function isAssigned(node: any, container: any) {
+  if (!node) {
+    return false;
+  }
+  return !!container.check(node);
+}`,
+        },
       ],
       invalid: [
         {
@@ -580,6 +602,29 @@ const sanitize = () => {
               endColumn: 14,
             },
           ],
+        },
+        {
+          // Noncompliant: returns object or false (boolean) - mixed types
+          code: `
+function getConfig() {
+  if (condition) {
+    return { host: 'localhost', port: 8080 };
+  }
+  return false;
+}`,
+          errors: 1,
+        },
+        {
+          // Noncompliant: validate-style pattern - returns boolean or array
+          code: `
+function validate() {
+  if (!this.validators) {
+    return true;
+  }
+  var invalid = [];
+  return invalid;
+}`,
+          errors: 1,
         },
       ],
     });
