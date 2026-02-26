@@ -24,8 +24,8 @@ import * as meta from './generated-meta.js';
 /**
  * Decorates the no-unused-prop-types rule to suppress false positives when
  * props are used indirectly through patterns the upstream rule cannot track:
- * helper method calls, spread operators, bracket notation, forwardRef, and
- * context providers.
+ * helper method calls, spread operators, bracket notation, forwardRef,
+ * context providers, HOC wrappers, exported interfaces, and super(props).
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
@@ -45,11 +45,6 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 /**
  * Scans the program AST for indirect prop usage patterns that the upstream
  * rule cannot track. Returns true if any such pattern is found.
- *
- * Note: Only patterns that genuinely indicate indirect prop consumption are
- * included. Patterns like super(props), export default HOC(Comp), and
- * exported interfaces are intentionally excluded because they are too broad
- * and cause false negatives for genuinely unused props.
  */
 function hasIndirectPropsUsage(program: TSESTree.Program): boolean {
   return hasPattern(program);
@@ -69,8 +64,8 @@ function hasPattern(node: TSESTree.Node): boolean {
 
 /**
  * Checks if a node represents an indirect props usage pattern.
- * Only patterns that genuinely indicate the entire props object is consumed
- * indirectly are included here.
+ * Patterns included here indicate the entire props object may be consumed
+ * indirectly or that the component is part of a larger HOC wrapper pattern.
  */
 function isIndirectPropsPattern(node: TSESTree.Node): boolean {
   return (
@@ -78,7 +73,10 @@ function isIndirectPropsPattern(node: TSESTree.Node): boolean {
     isPropsSpread(node) ||
     isBracketNotationOnProps(node) ||
     isForwardRefWrapper(node) ||
-    isContextProviderWithProps(node)
+    isContextProviderWithProps(node) ||
+    isHOCExportWrapper(node) ||
+    isExportedPropsInterface(node) ||
+    isSuperWithProps(node)
   );
 }
 
@@ -88,8 +86,7 @@ function isPropsPassedToFunction(node: TSESTree.Node): boolean {
     return false;
   }
   const call = node as TSESTree.CallExpression;
-  // Exclude super(props) — passing props to the parent constructor does not
-  // indicate indirect consumption of the component's own props.
+  // Exclude super(props) — handled separately
   if (call.callee.type === 'Super') {
     return false;
   }
@@ -155,6 +152,137 @@ function isContextProviderWithProps(node: TSESTree.Node): boolean {
     return false;
   }
   return isPropsReference(expr as TSESTree.Expression);
+}
+
+/**
+ * Detects HOC export wrapper patterns:
+ * - export default connect(mapState)(Component)
+ * - export default Relay.createContainer(Component, ...)
+ * - export default withRouter(Component)
+ * - export const Container = connect(mapState)(Component)
+ * - module.exports = HOC(Component)
+ *
+ * These patterns indicate the component receives props injected by the HOC
+ * that the upstream rule cannot track as used.
+ */
+function isHOCExportWrapper(node: TSESTree.Node): boolean {
+  // export default HOC(Component)
+  if (node.type === 'ExportDefaultDeclaration') {
+    const decl = node as TSESTree.ExportDefaultDeclaration;
+    return isHOCCallExpression(decl.declaration);
+  }
+  // export const Foo = HOC(config)(Component) — curried HOC pattern only
+  if (node.type === 'ExportNamedDeclaration') {
+    const exportDecl = node as TSESTree.ExportNamedDeclaration;
+    if (exportDecl.declaration && exportDecl.declaration.type === 'VariableDeclaration') {
+      const varDecl = exportDecl.declaration as TSESTree.VariableDeclaration;
+      return varDecl.declarations.some(d => d.init != null && isCurriedHOCCallExpression(d.init));
+    }
+  }
+  // module.exports = HOC(Component)
+  if (node.type === 'AssignmentExpression') {
+    const assign = node as TSESTree.AssignmentExpression;
+    if (isModuleExports(assign.left)) {
+      return isHOCCallExpression(assign.right);
+    }
+  }
+  return false;
+}
+
+/**
+ * Checks if a node is a call expression that wraps a component (HOC pattern).
+ * Matches: HOC(Component), HOC(Component, config), HOC(config)(Component)
+ */
+function isHOCCallExpression(node: TSESTree.Node): boolean {
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
+  const call = node as TSESTree.CallExpression;
+  // If the callee itself is a call expression, this is a curried HOC: HOC(config)(Component)
+  if (call.callee.type === 'CallExpression') {
+    return true;
+  }
+  // HOC(Component) or HOC(Component, config) — must have at least one argument
+  return call.arguments.length > 0;
+}
+
+/**
+ * Checks if a node is a curried HOC call like HOC(config)(Component).
+ * More specific than isHOCCallExpression; used for named exports to avoid
+ * false negatives from ordinary function calls.
+ */
+function isCurriedHOCCallExpression(node: TSESTree.Node): boolean {
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
+  const call = node as TSESTree.CallExpression;
+  // The callee itself must be a call expression: HOC(config)(Component)
+  return call.callee.type === 'CallExpression';
+}
+
+/** Checks if a node is `module.exports` */
+function isModuleExports(node: TSESTree.Node): boolean {
+  if (node.type !== 'MemberExpression') {
+    return false;
+  }
+  const member = node as TSESTree.MemberExpression;
+  return (
+    !member.computed &&
+    member.object.type === 'Identifier' &&
+    (member.object as TSESTree.Identifier).name === 'module' &&
+    member.property.type === 'Identifier' &&
+    (member.property as TSESTree.Identifier).name === 'exports'
+  );
+}
+
+/**
+ * Detects exported props interface or type declarations whose name indicates
+ * they are component props:
+ * - export interface FooProps { ... }
+ * - export type FooProps = { ... }
+ *
+ * When the props interface is exported, other modules can use it to pass
+ * props that won't be tracked by the upstream rule. We check for "Props"
+ * in the name to avoid false negatives from unrelated exported types.
+ */
+function isExportedPropsInterface(node: TSESTree.Node): boolean {
+  // export interface FooProps { ... } or export type FooProps = ...
+  if (node.type === 'ExportNamedDeclaration') {
+    const exportDecl = node as TSESTree.ExportNamedDeclaration;
+    if (!exportDecl.declaration) {
+      return false;
+    }
+    const decl = exportDecl.declaration;
+    // export interface FooProps { ... }
+    if (decl.type === 'TSInterfaceDeclaration') {
+      const name = (decl as TSESTree.TSInterfaceDeclaration).id.name;
+      return name.includes('Props') || name.includes('Properties');
+    }
+    // export type FooProps = { ... }
+    if (decl.type === 'TSTypeAliasDeclaration') {
+      const name = (decl as TSESTree.TSTypeAliasDeclaration).id.name;
+      return name.includes('Props') || name.includes('Properties');
+    }
+  }
+  return false;
+}
+
+/**
+ * Detects super(props) calls in class constructors.
+ * When a component passes props to its parent class constructor, it indicates
+ * the component follows React class component conventions. The parent class
+ * may consume some of those props, or the props may be used indirectly
+ * through class lifecycle methods or inherited functionality.
+ */
+function isSuperWithProps(node: TSESTree.Node): boolean {
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
+  const call = node as TSESTree.CallExpression;
+  if (call.callee.type !== 'Super') {
+    return false;
+  }
+  return call.arguments.some(isPropsReference);
 }
 
 /** Checks if a node is `props` (Identifier) or `this.props` (MemberExpression) */

@@ -111,6 +111,18 @@ const ConfigProvider: React.FC<ConfigProps> = (props) => {
 export default ConfigProvider;`,
         },
         {
+          // Compliant: super(props) in constructor suppresses issue (props may be used in lifecycle methods)
+          code: `
+import * as React from 'react';
+interface ThemeProps { theme: string; children: React.ReactNode; }
+export default class ThemeProvider extends React.Component<ThemeProps> {
+  constructor(props: ThemeProps) {
+    super(props);
+  }
+  render() { return <div>{this.props.children}</div>; }
+}`,
+        },
+        {
           // Compliant: all props directly used even with super(props) in constructor
           code: `
 import * as React from 'react';
@@ -121,6 +133,37 @@ export default class ThemeProvider extends React.Component<ThemeProps> {
   }
   render() { return <div className={this.props.theme}>{this.props.children}</div>; }
 }`,
+        },
+        {
+          // Compliant: HOC export wrapper suppresses issue (HOC may inject or consume props)
+          code: `
+import * as React from 'react';
+interface ButtonProps { label: string; styles: Record<string, string>; }
+declare function withTheme<P extends { styles?: Record<string, string> }>(Component: React.ComponentType<P>): React.FC<Omit<P, 'styles'>>;
+class Button extends React.Component<ButtonProps> {
+  render() { return <button>{this.props.label}</button>; }
+}
+export default withTheme(Button);`,
+        },
+        {
+          // Compliant: curried HOC named export suppresses issue
+          code: `
+import * as React from 'react';
+import { connect } from 'react-redux';
+interface ButtonProps { label: string; styles: Record<string, string>; }
+const Button: React.FC<ButtonProps> = ({ label }) => <button>{label}</button>;
+const mapStateToProps = () => ({ styles: {} });
+export const ConnectedButton = connect(mapStateToProps)(Button);`,
+        },
+        {
+          // Compliant: exported props interface with "Props" in name suppresses issue (public API)
+          code: `
+import * as React from 'react';
+export interface ButtonProps { label: string; variant: string; onClick: () => void; }
+class Button extends React.Component<ButtonProps> {
+  render() { return <button onClick={this.props.onClick}>{this.props.label}</button>; }
+}
+export default Button;`,
         },
         {
           // Compliant: all props directly used even when interface is exported
@@ -136,7 +179,7 @@ export default Button;`,
       ],
       invalid: [
         {
-          // Non-compliant: genuinely unused prop
+          // Non-compliant: genuinely unused prop with no suppression pattern
           code: `
 import React from 'react';
 interface Props { name: string; }
@@ -146,39 +189,12 @@ class Hello extends React.Component<Props> {
           errors: 1,
         },
         {
-          // Non-compliant: super(props) alone does not suppress unused props
+          // Non-compliant: exported type with name not containing 'Props' does not suppress
           code: `
 import * as React from 'react';
-interface ThemeProps { theme: string; children: React.ReactNode; }
-export default class ThemeProvider extends React.Component<ThemeProps> {
-  constructor(props: ThemeProps) {
-    super(props);
-  }
-  render() { return <div>{this.props.children}</div>; }
-}`,
-          errors: 1,
-        },
-        {
-          // Non-compliant: HOC export alone does not suppress unused props
-          code: `
-import * as React from 'react';
-interface ButtonProps { label: string; styles: Record<string, string>; }
-declare function withTheme<P extends { styles?: Record<string, string> }>(Component: React.ComponentType<P>): React.FC<Omit<P, 'styles'>>;
-class Button extends React.Component<ButtonProps> {
-  render() { return <button>{this.props.label}</button>; }
-}
-export default withTheme(Button);`,
-          errors: 1,
-        },
-        {
-          // Non-compliant: exported interface alone does not suppress unused props
-          code: `
-import * as React from 'react';
-export interface ButtonProps { label: string; variant: string; onClick: () => void; }
-class Button extends React.Component<ButtonProps> {
-  render() { return <button onClick={this.props.onClick}>{this.props.label}</button>; }
-}
-export default Button;`,
+export type NavigationStack = { Home: undefined; Profile: undefined; };
+interface ScreenProps { title?: string; visible: boolean; }
+export const Screen: React.FC<ScreenProps> = ({ visible }) => <div>{visible ? 'shown' : 'hidden'}</div>;`,
           errors: 1,
         },
       ],
