@@ -15,10 +15,14 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { decorate } from './decorator.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 import path from 'node:path';
 import parser from '@typescript-eslint/parser';
+import { Linter } from 'eslint';
+import assert from 'node:assert';
+import type { Rule } from 'eslint';
 
 const ruleTester = new RuleTester();
 
@@ -244,6 +248,45 @@ describe('S4325', () => {
     });
   });
 
+  it('should suppress non-null assertion on nullable union with strictNullChecks', () => {
+    const strictNullTester = new RuleTester({
+      parser,
+      parserOptions: {
+        project: `./tsconfig.json`,
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    strictNullTester.run(
+      'S4325 suppress contextually unnecessary non-null on nullable union',
+      rule,
+      {
+        valid: [
+          {
+            // Non-null assertion on a parameter typed as a nullable union is suppressed when
+            // the contextual type (return type) also accepts null.
+            // Exercises shouldSuppressNonNullAssertion returning true (line 69 return).
+            code: `
+            function passNullable(x: string | null): string | null {
+              return x!;
+            }
+          `,
+            filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          },
+          {
+            // Non-null assertion on a nullable union with undefined is also suppressed.
+            code: `
+            function passUndefinable(x: number | undefined): number | undefined {
+              return x!;
+            }
+          `,
+            filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          },
+        ],
+        invalid: [],
+      },
+    );
+  });
+
   it('should flag non-null assertions after null guard with strictNullChecks', () => {
     const strictNullTester = new RuleTester({
       parser,
@@ -313,5 +356,58 @@ describe('S4325', () => {
         },
       ],
     });
+  });
+
+  it('should pass through report descriptor without a node', () => {
+    // Exercises the defensive check at lines 49-50: when the upstream rule reports
+    // a descriptor that has no 'node' property, the decorator forwards it as-is.
+    const mockUpstream: Rule.RuleModule = {
+      meta: { type: 'suggestion', fixable: 'code', messages: {} },
+      create(ctx) {
+        return {
+          Program() {
+            // Report without a node property (using loc instead) — tests the !('node' in reportDescriptor) branch
+            (ctx as any).report({
+              loc: { line: 1, column: 0 },
+              message: 'upstream message without node',
+            });
+          },
+        };
+      },
+    };
+    const decorated = decorate(mockUpstream);
+    const linter = new Linter();
+    const messages = linter.verify('const x = 1;', {
+      plugins: { test: { rules: { r: decorated } } },
+      rules: { 'test/r': 'error' },
+    });
+    assert.strictEqual(messages.length, 1);
+    assert.strictEqual(messages[0].message, 'upstream message without node');
+  });
+
+  it('should pass through report when TypeScript parser services are unavailable', () => {
+    // Exercises lines 55-56: when the report descriptor has a node but the parser services
+    // lack a TypeScript program (isRequiredParserServices returns false), the decorator
+    // forwards the report without attempting type-based suppression.
+    const mockUpstream: Rule.RuleModule = {
+      meta: { type: 'suggestion', fixable: 'code', messages: {} },
+      create(ctx) {
+        return {
+          Identifier(node) {
+            ctx.report({ node, message: 'upstream message with node' });
+          },
+        };
+      },
+    };
+    const decorated = decorate(mockUpstream);
+    // Run with the default ESLint parser (no TypeScript parser services)
+    const linter = new Linter();
+    const messages = linter.verify('const x = 1;', {
+      plugins: { test: { rules: { r: decorated } } },
+      rules: { 'test/r': 'error' },
+    });
+    // 'x' and '1' are identifiers, so two reports are forwarded
+    assert.ok(messages.length >= 1);
+    assert.strictEqual(messages[0].message, 'upstream message with node');
   });
 });
