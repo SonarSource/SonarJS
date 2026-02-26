@@ -182,7 +182,7 @@ function isRelayHOCCall(node: TSESTree.Node): boolean {
     return false;
   }
   return node.declarations.some(d => {
-    if (d.init == null || d.init.type !== 'CallExpression') {
+    if (d.init?.type !== 'CallExpression') {
       return false;
     }
     const { callee } = d.init;
@@ -246,17 +246,13 @@ function isHOCExportWrapper(node: TSESTree.Node): boolean {
     return isHOCCallExpression(node.declaration);
   }
   // export const Foo = HOC(Component) or export const Foo = HOC(config)(Component)
-  if (node.type === 'ExportNamedDeclaration') {
-    if (node.declaration?.type === 'VariableDeclaration') {
-      // Allow both single-call (createFragmentContainer(Comp, config)) and curried HOC
-      return node.declaration.declarations.some(d => d.init != null && isHOCCallExpression(d.init));
-    }
+  if (node.type === 'ExportNamedDeclaration' && node.declaration?.type === 'VariableDeclaration') {
+    // Allow both single-call (createFragmentContainer(Comp, config)) and curried HOC
+    return node.declaration.declarations.some(d => d.init != null && isHOCCallExpression(d.init));
   }
   // module.exports = HOC(Component)
-  if (node.type === 'AssignmentExpression') {
-    if (isModuleExports(node.left)) {
-      return isHOCCallExpression(node.right);
-    }
+  if (node.type === 'AssignmentExpression' && isModuleExports(node.left)) {
+    return isHOCCallExpression(node.right);
   }
   return false;
 }
