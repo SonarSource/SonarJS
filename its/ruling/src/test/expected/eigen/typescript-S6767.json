@@ -7,6 +7,9 @@
 "eigen:src/app/Components/AuctionResultsList.tsx": [
 109
 ],
+"eigen:src/app/Components/Buttons/BottomAlignedButtonWrapper.tsx": [
+6
+],
 "eigen:src/app/Components/LocationAutocomplete/LocationAutocomplete.tsx": [
 94
 ],
@@ -31,6 +34,9 @@
 21
 ],
 "eigen:src/app/Scenes/Map/MapContainer.tsx": [
+9
+],
+"eigen:src/app/Scenes/SavedSearchAlert/Components/SavedSearchAlertSwitch.tsx": [
 9
 ],
 "eigen:src/app/navigation/NavStack.tsx": [
