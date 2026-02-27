@@ -566,4 +566,58 @@ describe('transformProjectOutputToResponse', () => {
 
     expect(result.measures).toEqual([]);
   });
+
+  it('should propagate CSS issue endLine and endColumn to textRange', () => {
+    const output = makeOutput({
+      '/project/src/styles.css': {
+        issues: [
+          {
+            ruleId: 'block-no-empty',
+            language: 'css',
+            line: 1,
+            column: 2,
+            endLine: 1,
+            endColumn: 5,
+            message: 'Unexpected empty block',
+          },
+        ],
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].textRange).toEqual({
+      startLine: 1,
+      startLineOffset: 2,
+      endLine: 1,
+      endLineOffset: 5,
+    });
+  });
+
+  it('should fall back to start position when CSS issue has no endLine/endColumn', () => {
+    const output = makeOutput({
+      '/project/src/styles.css': {
+        issues: [
+          {
+            ruleId: 'block-no-empty',
+            language: 'css',
+            line: 1,
+            column: 2,
+            message: 'Unexpected empty block',
+          },
+        ],
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].textRange).toEqual({
+      startLine: 1,
+      startLineOffset: 2,
+      endLine: 1,
+      endLineOffset: 2,
+    });
+  });
 });

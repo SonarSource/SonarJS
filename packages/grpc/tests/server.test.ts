@@ -781,6 +781,10 @@ describe('gRPC server', () => {
       expect(issues[0].rule?.repo).toBe('css');
       expect(issues[0].rule?.rule).toBe('S4658');
       expect(issues[0].filePath).toMatch(/src\/styles\.css$/);
+      expect(issues[0].textRange?.startLine).toBe(1);
+      expect(issues[0].textRange?.startLineOffset).toBe(2);
+      expect(issues[0].textRange?.endLine).toBe(1);
+      expect(issues[0].textRange?.endLineOffset).toBe(5);
     });
 
     it('should analyze a SCSS file and return issues', async () => {

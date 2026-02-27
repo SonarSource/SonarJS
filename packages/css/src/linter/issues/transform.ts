@@ -52,7 +52,8 @@ export function transform(
     }
     for (const warning of result.warnings) {
       const line = isValidPosition(warning.line) ? warning.line : 1;
-      const column = isValidPosition(warning.column) ? warning.column : 1;
+      // Stylelint columns are 1-based; SonarQube expects 0-based
+      const column = isValidPosition(warning.column) ? warning.column - 1 : 0;
 
       if (!isValidPosition(warning.line) || !isValidPosition(warning.column)) {
         warn(
@@ -61,13 +62,26 @@ export function transform(
         );
       }
 
-      issues.push({
+      const issue: CssIssue = {
         ruleId: warning.rule,
         line,
         column,
         message: normalizeMessage(warning.text),
         language: 'css',
-      });
+      };
+
+      // no-empty-source fires on empty files; stylelint reports endColumn: 2
+      // which would be invalid (line has 0 chars), so skip end positions.
+      if (
+        warning.rule !== 'no-empty-source' &&
+        isValidPosition(warning.endLine) &&
+        isValidPosition(warning.endColumn)
+      ) {
+        issue.endLine = warning.endLine;
+        issue.endColumn = warning.endColumn - 1;
+      }
+
+      issues.push(issue);
     }
   }
   return issues;

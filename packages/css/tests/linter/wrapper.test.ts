@@ -44,7 +44,9 @@ describe('LinterWrapper', () => {
         ruleId: 'block-no-empty',
         language: 'css',
         line: 1,
-        column: 3,
+        column: 2,
+        endLine: 1,
+        endColumn: 5,
         message: 'Unexpected empty block',
       },
     ]);
@@ -63,7 +65,9 @@ describe('LinterWrapper', () => {
         ruleId: S5362.ruleName,
         language: 'css',
         line: 1,
-        column: 6,
+        column: 5,
+        endLine: 1,
+        endColumn: 28,
         message: `Fix this malformed 'calc' expression.`,
       },
     ]);
@@ -89,8 +93,33 @@ describe('LinterWrapper', () => {
         ruleId: 'font-family-no-missing-generic-family-keyword',
         language: 'css',
         line: 2,
-        column: 18,
+        column: 17,
+        endLine: 2,
+        endColumn: 20,
         message: 'Unexpected missing generic font family',
+      },
+    ]);
+  });
+
+  it('should omit end positions when they exceed line length (empty file)', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, './fixtures/empty.css'),
+    );
+    const rules = [{ key: 'no-empty-source', configurations: [] }];
+    const options = await createStylelintOptions(filePath, rules);
+
+    const linter = new LinterWrapper();
+    const { issues } = await linter.lint(filePath, options);
+
+    // Stylelint reports line:1, column:1, endLine:1, endColumn:2 for empty files.
+    // End positions are omitted because endColumn would exceed the line length (0 chars).
+    expect(issues).toEqual([
+      {
+        ruleId: 'no-empty-source',
+        language: 'css',
+        line: 1,
+        column: 0,
+        message: 'Unexpected empty source',
       },
     ]);
   });
