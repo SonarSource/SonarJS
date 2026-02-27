@@ -152,6 +152,55 @@ describe('S1119', () => {
         }
       }`,
         },
+        {
+          // Compliant: outer for-loop body is directly a for-loop (no braces)
+          code: `
+      search: for (var i = 0; (currentExpr = exprs[i]); i++) for (var j = 0; (bit = currentExpr[j]); j++) {
+        if (!this[bit.combinator]) continue search;
+        doSomething(bit);
+      }`,
+        },
+        {
+          // Compliant: break from nested while inside do-while
+          code: `
+      traverseScopesLoop:
+      do {
+        while (watchers.$$digestWatchIndex--) {
+          if (watch === lastDirtyWatch) {
+            dirty = false;
+            break traverseScopesLoop;
+          }
+        }
+      } while ((current = next));`,
+        },
+        {
+          // Compliant: continue from nested for-of inside while
+          code: `
+      function findNode() {
+        outer: while (true) {
+          for (const child of current.getChildren()) {
+            if (position < child.getEnd()) {
+              current = child;
+              continue outer;
+            }
+          }
+          return current;
+        }
+      }`,
+        },
+        {
+          // Compliant: continue from nested for-in inside for-in
+          code: `
+      defaultHeadersIteration:
+      for (var defHeaderName in defHeaders) {
+        for (var reqHeaderName in reqHeaders) {
+          if (reqHeaderName === defHeaderName) {
+            continue defaultHeadersIteration;
+          }
+        }
+        reqHeaders[defHeaderName] = defHeaders[defHeaderName];
+      }`,
+        },
       ],
       invalid: [
         {
@@ -205,6 +254,35 @@ describe('S1119', () => {
         for (var i = 0; i < n; i++) {
           if (done) break myLabel;
         }
+      }`,
+          errors: 1,
+        },
+        {
+          // break inside switch (not a nested loop) inside labeled while
+          code: `
+      scan: while (pos < text.length) {
+        switch (text.charCodeAt(pos)) {
+          case 10:
+            if (trailing) {
+              break scan;
+            }
+            break;
+        }
+        pos++;
+      }`,
+          errors: 1,
+        },
+        {
+          // labeled loop where all refs target it from within a switch (not a nested loop)
+          code: `
+      for (var offsetB = 0; offsetB < arrayB.length; offsetB++) {
+        inner: for (var offsetA = 0; offsetA < arrayA.length; offsetA++) {
+          switch (compare(arrayB[offsetB], arrayA[offsetA])) {
+            case -1: break inner;
+            case 1: continue inner;
+          }
+        }
+        result.push(arrayB[offsetB]);
       }`,
           errors: 1,
         },
