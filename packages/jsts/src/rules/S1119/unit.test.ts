@@ -30,6 +30,124 @@ describe('S1119', () => {
         doSomethingElse();
       }`,
         },
+        {
+          // Compliant: break outer for-loop from inner for-loop
+          code: `
+      outer: for (var cur = target; cur != display.scroll; cur = cur.parentNode) {
+        for (var i = 0; i < view.length; i++) {
+          if (view[i].node == cur) {
+            display.currentTarget = cur;
+            break outer;
+          }
+        }
+      }`,
+        },
+        {
+          // Compliant: continue outer do-while from inner for-loop
+          code: `
+      outer: do {
+        for (var i = 0; i < chunk.children.length; ++i) {
+          var child = chunk.children[i];
+          if (h < child.height) { chunk = child; continue outer; }
+          h -= child.height;
+        }
+        return n;
+      } while (true);`,
+        },
+        {
+          // Compliant: continue outer for-of from inner for-of
+          code: `
+      loopTags: for (var tag of newTags) {
+        for (var existing of existingTags) {
+          if (existing.id === tag.id) continue loopTags;
+        }
+        result.push(tag);
+      }`,
+        },
+        {
+          // Compliant: continue outer infinite for from inner for-loop
+          code: `
+      search: for (;;) {
+        var line = doc.getLine(curPos.line);
+        if (line.markedSpans) {
+          for (var i = 0; i < line.markedSpans.length; ++i) {
+            var sp = line.markedSpans[i];
+            if (sp.from != null && sp.from <= curPos.ch) {
+              curPos = { line: curPos.line, ch: sp.to };
+              continue search;
+            }
+          }
+        }
+        return curPos;
+      }`,
+        },
+        {
+          // Compliant: break outer for-in from inner for-of
+          code: `
+      propLoop: for (var key in obj) {
+        for (var validator of validators) {
+          if (!validator(key, obj[key])) {
+            invalid = key;
+            break propLoop;
+          }
+        }
+      }`,
+        },
+        {
+          // Compliant: continue outer for from inner for
+          code: `
+      outer: for (var i = 0, j = 0; i < curSize; i++) {
+        var child = curNode.child(i);
+        for (var scan = j, e = Math.min(oldSize, i + 5); scan < e; scan++) {
+          if (oldNode.child(scan) === child) {
+            j = scan + 1;
+            continue outer;
+          }
+        }
+        changedDescendants(oldNode, child, callback, offset);
+      }`,
+        },
+        {
+          // Compliant: break outer while from inner while
+          code: `
+      outer: while (true) {
+        var next = null;
+        while (true) {
+          if (node === anchorNode) {
+            length += anchorOffset;
+            break outer;
+          }
+          if (node.firstChild !== null) {
+            next = node.firstChild;
+            break;
+          }
+          if (node === root) {
+            break outer;
+          }
+          while (node.nextSibling === null) {
+            node = node.parentNode;
+            if (node === root) {
+              break outer;
+            }
+          }
+          node = node.nextSibling;
+          break;
+        }
+        if (next !== null) {
+          node = next;
+        }
+      }`,
+        },
+        {
+          // Compliant: break and continue, all from nested loops
+          code: `
+      outer: for (var i = 0; i < rows.length; i++) {
+        for (var j = 0; j < cols.length; j++) {
+          if (rows[i][j] === null) break outer;
+          if (rows[i][j] === target) continue outer;
+        }
+      }`,
+        },
       ],
       invalid: [
         {
@@ -51,6 +169,40 @@ describe('S1119', () => {
               endColumn: 14,
             },
           ],
+        },
+        {
+          // break not inside a nested loop
+          code: `
+      outer: for (var i = 0; i < n; i++) {
+        if (i === target) break outer;
+      }`,
+          errors: 1,
+        },
+        {
+          // label on loop with no references
+          code: `
+      empty: for (var i = 0; i < n; i++) {
+        doSomething(i);
+      }`,
+          errors: 1,
+        },
+        {
+          // label on non-loop body
+          code: `
+      myLabel: if (condition) {
+        break myLabel;
+      }`,
+          errors: 1,
+        },
+        {
+          // label on block (non-loop), not on the loop itself
+          code: `
+      myLabel: {
+        for (var i = 0; i < n; i++) {
+          if (done) break myLabel;
+        }
+      }`,
+          errors: 1,
         },
       ],
     });
