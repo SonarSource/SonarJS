@@ -374,6 +374,10 @@ export function typeHasMethod(
  */
 export function isIterable(node: estree.Node, services: RequiredParserServices): boolean {
   const type = getTypeFromTreeNode(node, services);
+  // Arrays are always iterable with for...of regardless of lib target
+  if (services.program.getTypeChecker().isArrayType(type)) {
+    return true;
+  }
   const properties = type.getProperties();
   return properties.some(prop => prop.name.startsWith('__@iterator@'));
 }
