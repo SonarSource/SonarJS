@@ -20,7 +20,6 @@ import { describe, it } from 'node:test';
 
 const ruleTester = new NoTypeCheckingRuleTester();
 
-const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
 const CUSTOM_FORMAT = '^[_A-Z][a-zA-Z0-9]*$';
 
 describe('S101', () => {
@@ -33,7 +32,7 @@ describe('S101', () => {
       var x = class y {} // Compliant, rule doesn't check class expressions
       interface MyInterface {}
       `,
-          options: [{ format: DEFAULT_FORMAT }],
+          options: [{ format: '^\\$?[A-Z][a-zA-Z0-9]*$' }],
         },
         {
           code: `
@@ -43,14 +42,30 @@ describe('S101', () => {
       `,
           options: [{ format: CUSTOM_FORMAT }],
         },
+        {
+          // Compliant: $ prefix before PascalCase is allowed by the default format
+          code: `
+      interface $ZodCheckDef {}
+      interface $ZodCheckInternals<T> {}
+      interface $ZodCheckLessThanDef extends $ZodCheckDef {}
+      interface $ZodCheckLessThanInternals<T extends number> extends $ZodCheckInternals<T> {}
+      `,
+        },
+        {
+          // Compliant: $ prefix before PascalCase is allowed by the default format
+          code: `
+      class $LocationShimProvider {}
+      class $ServiceProvider {}
+      `,
+        },
       ],
       invalid: [
         {
           code: `class my_class {}`,
-          options: [{ format: DEFAULT_FORMAT }],
+          options: [{ format: '^\\$?[A-Z][a-zA-Z0-9]*$' }],
           errors: [
             {
-              message: `Rename class "my_class" to match the regular expression ${DEFAULT_FORMAT}.`,
+              message: `Rename class "my_class" to match the regular expression ^\\$?[A-Z][a-zA-Z0-9]*$.`,
               line: 1,
               endLine: 1,
               column: 7,
@@ -60,10 +75,19 @@ describe('S101', () => {
         },
         {
           code: `interface my_interface {}`,
-          options: [{ format: DEFAULT_FORMAT }],
+          options: [{ format: '^\\$?[A-Z][a-zA-Z0-9]*$' }],
           errors: [
             {
-              message: `Rename interface "my_interface" to match the regular expression ${DEFAULT_FORMAT}.`,
+              message: `Rename interface "my_interface" to match the regular expression ^\\$?[A-Z][a-zA-Z0-9]*$.`,
+            },
+          ],
+        },
+        {
+          // $ prefix only allowed before PascalCase, not snake_case
+          code: `interface $my_interface {}`,
+          errors: [
+            {
+              message: `Rename interface "$my_interface" to match the regular expression ^\\$?[A-Z][a-zA-Z0-9]*$.`,
             },
           ],
         },
