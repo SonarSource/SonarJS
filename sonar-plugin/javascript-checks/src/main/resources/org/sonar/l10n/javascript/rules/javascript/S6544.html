@@ -28,6 +28,17 @@ developer forgot to resolve it.</p>
 <pre>
 await new Promise(resolve =&gt; time.setTimeout(1000));
 </pre>
+<p>This rule does not flag conditionals that check whether a Promise-typed variable has been initialized when the same variable is assigned within the
+conditional body. This is a common lazy initialization pattern.</p>
+<pre>
+let cachedData;
+function getData() {
+  if (!cachedData) {
+    cachedData = fetchData();
+  }
+  return cachedData;
+}
+</pre>
 <h2>How to fix it</h2>
 <p>If you mistakenly treated a promise as its resolved value, you can ensure it is properly resolved by using await or resolve on the promise. In some
 cases, you may need to use an "immediately invoked function expression" (IIFE):</p>
