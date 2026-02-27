@@ -138,6 +138,23 @@ class JavaScriptPluginTest {
     assertThat(propertyDefinition.subCategory()).isEqualTo("TypeScript");
   }
 
+  @Test
+  void disableTypeCheckingPropertyIsCorrectlyExposed() {
+    var propertyDefinition = properties()
+      .stream()
+      .filter(item -> {
+        return Objects.equals(item.key(), "sonar.javascript.disableTypeChecking");
+      })
+      .findFirst()
+      .get();
+
+    assertThat(propertyDefinition.name()).isEqualTo("Disable TypeScript type checking");
+    assertThat(propertyDefinition.type().toString()).isEqualTo("BOOLEAN");
+    assertThat(propertyDefinition.defaultValue()).isEqualTo("false");
+    assertThat(propertyDefinition.category()).isEqualTo("JavaScript / TypeScript");
+    assertThat(propertyDefinition.subCategory()).isEqualTo("TypeScript");
+  }
+
   private List<PropertyDefinition> properties() {
     var extensions = setupContext(
       SonarRuntimeImpl.forSonarQube(LTS_VERSION, SonarQubeSide.SERVER, SonarEdition.COMMUNITY)

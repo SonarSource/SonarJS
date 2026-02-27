@@ -132,6 +132,7 @@ public class JavaScriptPlugin implements Plugin {
   public static final String NO_FS = "sonar.javascript.canAccessFileSystem";
   public static final String CREATE_TS_PROGRAM_FOR_ORPHAN_FILES =
     "sonar.javascript.createTSProgramForOrphanFiles";
+  public static final String DISABLE_TYPE_CHECKING = "sonar.javascript.disableTypeChecking";
 
   @Override
   public void define(Context context) {
@@ -256,6 +257,18 @@ public class JavaScriptPlugin implements Plugin {
         .description(
           "Controls whether a TypeScript program should be created for files not included in any tsconfig.json. " +
             "When disabled, orphan files are analyzed without type information, which is faster but may reduce analysis accuracy."
+        )
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
+        .subCategory(TS_SUB_CATEGORY)
+        .category(JS_TS_CATEGORY)
+        .type(PropertyType.BOOLEAN)
+        .build(),
+      PropertyDefinition.builder(DISABLE_TYPE_CHECKING)
+        .defaultValue("false")
+        .name("Disable TypeScript type checking")
+        .description(
+          "Controls whether TypeScript type checking should be completely disabled during analysis. " +
+            "When enabled, all files are analyzed without type information, which is faster but type-aware rules will not produce results."
         )
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
         .subCategory(TS_SUB_CATEGORY)

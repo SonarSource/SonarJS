@@ -661,6 +661,33 @@ describe('SonarQube project analysis', () => {
     expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
   });
 
+  it('should skip all program creation when disableTypeChecking is true', async () => {
+    const baseDir = join(fixtures, 'no-tsconfig');
+    const filePath = join(baseDir, 'orphan.ts');
+
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const configuration = await initForTest(
+      { baseDir, disableTypeChecking: true },
+      { [filePath]: { filePath, fileType: 'MAIN' } },
+    );
+
+    const result = await analyzeProject({ rules, bundles: [] }, configuration);
+
+    // Should log the disableTypeChecking message
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes(
+          'Type checking is disabled (sonar.javascript.disableTypeChecking=true)',
+        ),
+      ),
+    ).toBe(true);
+
+    // The file should still be analyzed (without type info)
+    expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
+  });
+
   it('should report parsing errors', async () => {
     const baseDir = join(fixtures, 'parsing-error');
     const filePath = join(baseDir, 'file.js');

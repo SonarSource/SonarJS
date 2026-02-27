@@ -520,6 +520,29 @@ class WebSensorTest {
   }
 
   @Test
+  void should_send_disableTypeChecking_false_by_default() {
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .disableTypeChecking()
+    ).isFalse();
+  }
+
+  @Test
+  void should_send_disableTypeChecking_true_when_enabled() {
+    context.setSettings(
+      new MapSettings().setProperty(JavaScriptPlugin.DISABLE_TYPE_CHECKING, "true")
+    );
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .disableTypeChecking()
+    ).isTrue();
+  }
+
+  @Test
   void should_not_send_content() {
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)
