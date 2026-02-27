@@ -196,13 +196,13 @@ jobs:
           PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault).PGP_PASSPHRASE }}
           GITHUB_TOKEN: ${{ fromJSON(steps.deployer-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Upload SonarJS artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
           retention-days: 1
       - name: Upload Maven target artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: maven-targets-${{ github.sha }}
           path: |
@@ -477,7 +477,7 @@ jobs:
       - *java_coverage_cache
       - &download_maven_targets
         name: Download Maven target artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
           name: maven-targets-${{ github.sha }}
       - *config_maven
@@ -585,7 +585,7 @@ jobs:
       - *maven_cache
       - &download_sonarjs_m2
         name: Download SonarJS artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
@@ -713,7 +713,7 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     container:
-      image: alpine/java:21-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
+      image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
     permissions: *read_permissions
     env:
       # Pre-set build number to avoid cache miss in container.
@@ -820,7 +820,7 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     container:
-      image: alpine/java:21-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
+      image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
     permissions: *read_permissions
     env:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
@@ -1098,7 +1098,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - name: Upload ruling differences
         if: failure()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: ruling-differences
           path: its/ruling/target/actual/
