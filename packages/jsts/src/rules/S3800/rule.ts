@@ -86,6 +86,10 @@ export const rule: Rule.RuleModule = {
         if (stmtsTypes.every(isAny)) {
           return;
         }
+        const stmtCategories = stmtsTypes.map(t => prettyPrint(t, checker));
+        if (stmtCategories.filter((val, i, arr) => distinct(val, i, arr)).length <= 1) {
+          return;
+        }
         report(
           context,
           {
