@@ -205,6 +205,53 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // JSON Schema {if, then} conditional construct
+        {
+          code: `
+          const schema = {
+            allOf: [
+              {
+                if: { properties: { group: { const: 'platform' } } },
+                then: { properties: { visibility: { enum: ['private', 'shared'] } }, required: ['visibility'] },
+              },
+            ],
+          };
+        `,
+          filename: testFilePath,
+        },
+        // JSON Schema {if, then, else} conditional construct
+        {
+          code: `
+          const schema = {
+            allOf: [
+              {
+                if: { properties: { animal: { const: 'Cat' } } },
+                then: { properties: { food: { enum: ['meat', 'grass', 'fish'] } }, required: ['food'] },
+                else: { properties: { food: { enum: ['worm', 'plankton'] } }, required: ['food'] },
+              },
+            ],
+          };
+        `,
+          filename: testFilePath,
+        },
+        // Multiple JSON Schema {if, then} conditionals in allOf
+        {
+          code: `
+          const schema = {
+            allOf: [
+              {
+                if: { properties: { type: { const: 'circle' } } },
+                then: { properties: { radius: { type: 'number' } }, required: ['radius'] },
+              },
+              {
+                if: { properties: { type: { const: 'rectangle' } } },
+                then: { properties: { width: { type: 'number' }, height: { type: 'number' } }, required: ['width', 'height'] },
+              },
+            ],
+          };
+        `,
+          filename: testFilePath,
+        },
       ],
       invalid: [
         {

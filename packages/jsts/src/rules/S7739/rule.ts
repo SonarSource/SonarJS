@@ -330,6 +330,20 @@ function isConditionalValidationConfig(node: Node): boolean {
 }
 
 /**
+ * Checks if 'then' is inside an object that also has an 'if' sibling property,
+ * indicating a JSON Schema conditional validation construct ({if, then, else}).
+ */
+function isJsonSchemaConditional(node: Node): boolean {
+  const ancestors = getAncestorsWithParent(node);
+  const objectExpr = ancestors.find(a => a.type === 'ObjectExpression');
+  if (objectExpr?.type !== 'ObjectExpression') {
+    return false;
+  }
+  const propertyNames = collectPropertyNames(objectExpr);
+  return propertyNames.has('then') && propertyNames.has('if');
+}
+
+/**
  * Checks if the reported node represents an intentional thenable implementation
  * that should not be flagged.
  */
@@ -338,7 +352,8 @@ function isIntentionalThenableImplementation(node: Node): boolean {
     isDelegatingToPromiseThen(node) ||
     isInsidePromiseOrDeferredDefinition(node) ||
     isPrototypeThenAssignment(node) ||
-    hasSiblingThenableMethods(node)
+    hasSiblingThenableMethods(node) ||
+    isJsonSchemaConditional(node)
   );
 }
 
