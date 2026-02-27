@@ -142,7 +142,10 @@ jobs:
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
-      - *checkout
+      - name: Checkout source code with submodules
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: true
       - &mise
         uses: jdx/mise-action@v3.6.1
         with:
@@ -153,6 +156,22 @@ jobs:
             java = "21.0"
             maven = "3.9"
             node = "24.11.0"
+      - name: Setup Go and proto tools for tsgolint
+        uses: jdx/mise-action@v3.6.1
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            go = "1.26"
+      - name: Install protoc and Go proto generators
+        env:
+          PROTOC_VERSION: "28.3"
+        run: |
+          curl -sSLo /tmp/protoc.zip "https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip"
+          sudo unzip -o /tmp/protoc.zip -d /usr/local bin/protoc
+          sudo chmod +x /usr/local/bin/protoc
+          go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+          go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
       - &npm_cache
         name: Cache NPM dependencies
         uses: SonarSource/gh-action_cache@v1

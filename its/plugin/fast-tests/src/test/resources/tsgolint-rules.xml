@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>tsgolint-rules</name>
+  <language>ts</language>
+  <rules>
+    <!-- S4123: await-thenable -->
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S4123</key>
+    </rule>
+    <!-- S2933: prefer-readonly -->
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S2933</key>
+    </rule>
+    <!-- S4157: no-unnecessary-type-arguments -->
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S4157</key>
+    </rule>
+    <!-- S4325: no-unnecessary-type-assertion -->
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S4325</key>
+    </rule>
+    <!-- S6565: prefer-return-this-type -->
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S6565</key>
+    </rule>
+    <!-- S6583: no-mixed-enums -->
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S6583</key>
+    </rule>
+    <!-- S6671: prefer-promise-reject-errors -->
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S6671</key>
+    </rule>
+  </rules>
+</profile>

@@ -2,3 +2,7 @@
 [submodule "its/sources/jsts/projects"]
 	path = its/sources/projects
 	url = https://github.com/SonarSource/jsts-test-sources.git
+[submodule "tsgolint"]
+	path = tsgolint
+	url = https://github.com/oxc-project/tsgolint.git
+	ignore = dirty

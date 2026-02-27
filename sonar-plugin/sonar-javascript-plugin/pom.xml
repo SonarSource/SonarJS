@@ -199,6 +199,318 @@
               </arguments>
             </configuration>
           </execution>
+
+          <!-- tsgolint: ensure submodule is initialized (no-op if already done by checkout) -->
+          <execution>
+            <id>tsgolint-submodule-init</id>
+            <phase>initialize</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>git</executable>
+              <workingDirectory>${project.basedir}/../..</workingDirectory>
+              <arguments>
+                <argument>submodule</argument>
+                <argument>update</argument>
+                <argument>--init</argument>
+                <argument>tsgolint</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint: copy sonar-server overlay into submodule -->
+          <execution>
+            <id>tsgolint-copy-overlay</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>cp</executable>
+              <arguments>
+                <argument>-f</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/main.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/service.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/converter.go</argument>
+                <argument>${project.basedir}/../../tsgolint/cmd/sonar-server/</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint: install Go proto generators (idempotent) -->
+          <execution>
+            <id>tsgolint-install-proto-gen</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <environmentVariables>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>install</argument>
+                <argument>google.golang.org/protobuf/cmd/protoc-gen-go@latest</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tsgolint-install-proto-gen-grpc</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <environmentVariables>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>install</argument>
+                <argument>google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint: generate Go proto stubs -->
+          <execution>
+            <id>tsgolint-proto-gen-go</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>protoc</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <arguments>
+                <argument>--proto_path=${project.basedir}/../bridge/src/main/proto</argument>
+                <argument>--go_out=.</argument>
+                <argument>--go_opt=module=github.com/typescript-eslint/tsgolint</argument>
+                <argument>--go-grpc_out=.</argument>
+                <argument>--go-grpc_opt=module=github.com/typescript-eslint/tsgolint</argument>
+                <argument>analyzer.proto</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint: add gRPC dependencies to go.mod -->
+          <execution>
+            <id>tsgolint-go-get-grpc</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <environmentVariables>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>get</argument>
+                <argument>google.golang.org/grpc@latest</argument>
+                <argument>google.golang.org/protobuf@latest</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint Go cross-compilation -->
+          <execution>
+            <id>build-tsgolint-linux-x64</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <environmentVariables>
+                <GOOS>linux</GOOS>
+                <GOARCH>amd64</GOARCH>
+                <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>build</argument>
+                <argument>-ldflags=-s -w</argument>
+                <argument>-o</argument>
+                <argument>${project.build.directory}/tsgolint/linux-x64/tsgolint</argument>
+                <argument>./cmd/sonar-server</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>build-tsgolint-linux-arm64</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <environmentVariables>
+                <GOOS>linux</GOOS>
+                <GOARCH>arm64</GOARCH>
+                <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>build</argument>
+                <argument>-ldflags=-s -w</argument>
+                <argument>-o</argument>
+                <argument>${project.build.directory}/tsgolint/linux-arm64/tsgolint</argument>
+                <argument>./cmd/sonar-server</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>build-tsgolint-linux-x64-musl</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <environmentVariables>
+                <GOOS>linux</GOOS>
+                <GOARCH>amd64</GOARCH>
+                <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>build</argument>
+                <argument>-ldflags=-s -w</argument>
+                <argument>-o</argument>
+                <argument>${project.build.directory}/tsgolint/linux-x64-musl/tsgolint</argument>
+                <argument>./cmd/sonar-server</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>build-tsgolint-win-x64</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <environmentVariables>
+                <GOOS>windows</GOOS>
+                <GOARCH>amd64</GOARCH>
+                <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>build</argument>
+                <argument>-ldflags=-s -w</argument>
+                <argument>-o</argument>
+                <argument>${project.build.directory}/tsgolint/win-x64/tsgolint.exe</argument>
+                <argument>./cmd/sonar-server</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>build-tsgolint-darwin-arm64</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <environmentVariables>
+                <GOOS>darwin</GOOS>
+                <GOARCH>arm64</GOARCH>
+                <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>build</argument>
+                <argument>-ldflags=-s -w</argument>
+                <argument>-o</argument>
+                <argument>${project.build.directory}/tsgolint/darwin-arm64/tsgolint</argument>
+                <argument>./cmd/sonar-server</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>build-tsgolint-darwin-x64</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>go</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <environmentVariables>
+                <GOOS>darwin</GOOS>
+                <GOARCH>amd64</GOARCH>
+                <CGO_ENABLED>0</CGO_ENABLED>
+                <GOWORK>off</GOWORK>
+              </environmentVariables>
+              <arguments>
+                <argument>build</argument>
+                <argument>-ldflags=-s -w</argument>
+                <argument>-o</argument>
+                <argument>${project.build.directory}/tsgolint/darwin-x64/tsgolint</argument>
+                <argument>./cmd/sonar-server</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint xz compression -->
+          <execution>
+            <id>compress-tsgolint-linux-x64</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>xz</executable>
+              <arguments>
+                <argument>-k</argument>
+                <argument>-f</argument>
+                <argument>${project.build.directory}/tsgolint/linux-x64/tsgolint</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compress-tsgolint-linux-arm64</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>xz</executable>
+              <arguments>
+                <argument>-k</argument>
+                <argument>-f</argument>
+                <argument>${project.build.directory}/tsgolint/linux-arm64/tsgolint</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compress-tsgolint-linux-x64-musl</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>xz</executable>
+              <arguments>
+                <argument>-k</argument>
+                <argument>-f</argument>
+                <argument>${project.build.directory}/tsgolint/linux-x64-musl/tsgolint</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compress-tsgolint-win-x64</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>xz</executable>
+              <arguments>
+                <argument>-k</argument>
+                <argument>-f</argument>
+                <argument>${project.build.directory}/tsgolint/win-x64/tsgolint.exe</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compress-tsgolint-darwin-arm64</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>xz</executable>
+              <arguments>
+                <argument>-k</argument>
+                <argument>-f</argument>
+                <argument>${project.build.directory}/tsgolint/darwin-arm64/tsgolint</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>compress-tsgolint-darwin-x64</id>
+            <phase>generate-resources</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>xz</executable>
+              <arguments>
+                <argument>-k</argument>
+                <argument>-f</argument>
+                <argument>${project.build.directory}/tsgolint/darwin-x64/tsgolint</argument>
+              </arguments>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
 
@@ -288,6 +600,10 @@
                   <resource>win-x64/version.txt</resource>
                   <file>${project.build.directory}/downloads/runtimes/win-x64/version.txt</file>
                 </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/win-x64/tsgolint.exe.xz</resource>
+                  <file>${project.build.directory}/tsgolint/win-x64/tsgolint.exe.xz</file>
+                </transformer>
               </transformers>
             </configuration>
           </execution>
@@ -315,6 +631,10 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-x64/version.txt</resource>
                   <file>${project.build.directory}/downloads/runtimes/linux-x64/version.txt</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/linux-x64/tsgolint.xz</resource>
+                  <file>${project.build.directory}/tsgolint/linux-x64/tsgolint.xz</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -344,6 +664,10 @@
                   <resource>linux-x64-musl/version.txt</resource>
                   <file>${project.build.directory}/downloads/runtimes/linux-x64-musl/version.txt</file>
                 </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/linux-x64-musl/tsgolint.xz</resource>
+                  <file>${project.build.directory}/tsgolint/linux-x64-musl/tsgolint.xz</file>
+                </transformer>
               </transformers>
             </configuration>
           </execution>
@@ -371,6 +695,10 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/version.txt</resource>
                   <file>${project.build.directory}/downloads/runtimes/darwin-arm64/version.txt</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/darwin-arm64/tsgolint.xz</resource>
+                  <file>${project.build.directory}/tsgolint/darwin-arm64/tsgolint.xz</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -400,6 +728,10 @@
                   <resource>darwin-x64/version.txt</resource>
                   <file>${project.build.directory}/downloads/runtimes/darwin-x64/version.txt</file>
                 </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/darwin-x64/tsgolint.xz</resource>
+                  <file>${project.build.directory}/tsgolint/darwin-x64/tsgolint.xz</file>
+                </transformer>
               </transformers>
             </configuration>
           </execution>
@@ -427,6 +759,10 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>linux-arm64/version.txt</resource>
                   <file>${project.build.directory}/downloads/runtimes/linux-arm64/version.txt</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/linux-arm64/tsgolint.xz</resource>
+                  <file>${project.build.directory}/tsgolint/linux-arm64/tsgolint.xz</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -479,6 +815,30 @@
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
                   <resource>darwin-arm64/version.txt</resource>
                   <file>${project.build.directory}/downloads/runtimes/darwin-arm64/version.txt</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/win-x64/tsgolint.exe.xz</resource>
+                  <file>${project.build.directory}/tsgolint/win-x64/tsgolint.exe.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/linux-x64/tsgolint.xz</resource>
+                  <file>${project.build.directory}/tsgolint/linux-x64/tsgolint.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/linux-x64-musl/tsgolint.xz</resource>
+                  <file>${project.build.directory}/tsgolint/linux-x64-musl/tsgolint.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/linux-arm64/tsgolint.xz</resource>
+                  <file>${project.build.directory}/tsgolint/linux-arm64/tsgolint.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/darwin-arm64/tsgolint.xz</resource>
+                  <file>${project.build.directory}/tsgolint/darwin-arm64/tsgolint.xz</file>
+                </transformer>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
+                  <resource>tsgolint/darwin-x64/tsgolint.xz</resource>
+                  <file>${project.build.directory}/tsgolint/darwin-x64/tsgolint.xz</file>
                 </transformer>
               </transformers>
             </configuration>
