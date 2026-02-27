@@ -52,7 +52,8 @@ function collectLabelRefAncestors(
 
   if (
     (current.type === 'BreakStatement' || current.type === 'ContinueStatement') &&
-    (current as estree.BreakStatement | estree.ContinueStatement).label?.name === labelName
+    current.label != null &&
+    current.label.name === labelName
   ) {
     result.push(ancestorChain);
   }
@@ -95,7 +96,7 @@ export const rule: Rule.RuleModule = {
         if (!isLoop(body)) {
           context.report({
             messageId: 'removeLabel',
-            loc: context.sourceCode.getFirstToken(node)!.loc,
+            node: node.label,
           });
           return;
         }
@@ -114,7 +115,7 @@ export const rule: Rule.RuleModule = {
         if (refAncestors.length === 0) {
           context.report({
             messageId: 'removeLabel',
-            loc: context.sourceCode.getFirstToken(node)!.loc,
+            node: node.label,
           });
           return;
         }
@@ -124,7 +125,7 @@ export const rule: Rule.RuleModule = {
           if (!hasNestedLoop(body, ancestors)) {
             context.report({
               messageId: 'removeLabel',
-              loc: context.sourceCode.getFirstToken(node)!.loc,
+              node: node.label,
             });
             return;
           }
