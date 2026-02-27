@@ -31,7 +31,7 @@ describe('S1119', () => {
       }`,
         },
         {
-          // Compliant: break outer for-loop from inner for-loop
+          // Compliant: break from nested for-loop
           code: `
       outer: for (var cur = target; cur != display.scroll; cur = cur.parentNode) {
         for (var i = 0; i < view.length; i++) {
@@ -43,19 +43,21 @@ describe('S1119', () => {
       }`,
         },
         {
-          // Compliant: continue outer do-while from inner for-loop
+          // Compliant: continue from nested for-loop
           code: `
-      outer: do {
-        for (var i = 0; i < chunk.children.length; ++i) {
-          var child = chunk.children[i];
-          if (h < child.height) { chunk = child; continue outer; }
-          h -= child.height;
-        }
-        return n;
-      } while (true);`,
+      function f() {
+        outer: do {
+          for (var i = 0; i < chunk.children.length; ++i) {
+            var child = chunk.children[i];
+            if (h < child.height) { chunk = child; continue outer; }
+            h -= child.height;
+          }
+          return n;
+        } while (true);
+      }`,
         },
         {
-          // Compliant: continue outer for-of from inner for-of
+          // Compliant: continue from nested for-of
           code: `
       loopTags: for (var tag of newTags) {
         for (var existing of existingTags) {
@@ -65,24 +67,26 @@ describe('S1119', () => {
       }`,
         },
         {
-          // Compliant: continue outer infinite for from inner for-loop
+          // Compliant: continue from nested loop (infinite for)
           code: `
-      search: for (;;) {
-        var line = doc.getLine(curPos.line);
-        if (line.markedSpans) {
-          for (var i = 0; i < line.markedSpans.length; ++i) {
-            var sp = line.markedSpans[i];
-            if (sp.from != null && sp.from <= curPos.ch) {
-              curPos = { line: curPos.line, ch: sp.to };
-              continue search;
+      function f() {
+        search: for (;;) {
+          var line = doc.getLine(curPos.line);
+          if (line.markedSpans) {
+            for (var i = 0; i < line.markedSpans.length; ++i) {
+              var sp = line.markedSpans[i];
+              if (sp.from != null && sp.from <= curPos.ch) {
+                curPos = { line: curPos.line, ch: sp.to };
+                continue search;
+              }
             }
           }
+          return curPos;
         }
-        return curPos;
       }`,
         },
         {
-          // Compliant: break outer for-in from inner for-of
+          // Compliant: break from nested for-of
           code: `
       propLoop: for (var key in obj) {
         for (var validator of validators) {
@@ -94,7 +98,7 @@ describe('S1119', () => {
       }`,
         },
         {
-          // Compliant: continue outer for from inner for
+          // Compliant: continue from nested for-loop
           code: `
       outer: for (var i = 0, j = 0; i < curSize; i++) {
         var child = curNode.child(i);
@@ -108,7 +112,7 @@ describe('S1119', () => {
       }`,
         },
         {
-          // Compliant: break outer while from inner while
+          // Compliant: break from nested while
           code: `
       outer: while (true) {
         var next = null;
@@ -139,7 +143,7 @@ describe('S1119', () => {
       }`,
         },
         {
-          // Compliant: break and continue, all from nested loops
+          // Compliant: break and continue from nested loop
           code: `
       outer: for (var i = 0; i < rows.length; i++) {
         for (var j = 0; j < cols.length; j++) {
