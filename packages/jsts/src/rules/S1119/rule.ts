@@ -52,8 +52,7 @@ function collectLabelRefAncestors(
 
   if (
     (current.type === 'BreakStatement' || current.type === 'ContinueStatement') &&
-    current.label != null &&
-    current.label.name === labelName
+    current.label?.name === labelName
   ) {
     result.push(ancestorChain);
   }
