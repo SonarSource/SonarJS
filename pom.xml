@@ -90,7 +90,7 @@
 
     <!-- sonar analysis -->
     <sonar.sources>packages/</sonar.sources>
-    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*,packages/**/fixtures-*/**/*,packages/grpc/src/proto/*</sonar.exclusions>
+    <sonar.exclusions>packages/**/*.test.ts,packages/**/*.fixture.*,packages/**/fixtures/**/*,packages/**/fixtures-*/**/*,packages/grpc/src/proto/*,packages/jsts/src/parsers/estree.js,packages/jsts/src/parsers/estree.d.ts</sonar.exclusions>
     <sonar.tests>packages/</sonar.tests>
     <sonar.test.inclusions>packages/**/*.test.ts</sonar.test.inclusions>
     <sonar.javascript.lcov.reportPaths>coverage/js/lcov.info</sonar.javascript.lcov.reportPaths>
