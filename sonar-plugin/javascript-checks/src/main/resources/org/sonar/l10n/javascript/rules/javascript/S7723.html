@@ -29,6 +29,14 @@ const list = new Array(10);
 const now = new Date();
 const map = new Map([['foo', 'bar']]);
 </pre>
+<h3>Exceptions</h3>
+<p>No issue is raised when <code>Object()</code> is called with one or more arguments. Calling <code>Object(value)</code> is a type coercion pattern
+that converts the value to an object, preserving existing objects while wrapping primitives. This is semantically different from <code>new
+Object()</code> which creates a new empty object, and is a common pattern in polyfills and utility code.</p>
+<pre>
+const obj = Object(value); // Compliant - type coercion
+const wrapped = Object(this); // Compliant - commonly used in polyfills
+</pre>
 <h3>Documentation</h3>
 <ul>
   <li> <a href="https://github.com/sindresorhus/eslint-plugin-unicorn#readme">eslint-plugin-unicorn</a> - Rule <a
