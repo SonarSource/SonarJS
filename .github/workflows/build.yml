@@ -262,56 +262,92 @@ jobs:
       - *npm_cache
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
-      - name: Check README.md freshness
-        if: always() && github.event_name == 'pull_request'
-        continue-on-error: true
+      - name: Check README freshness
+        if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
-          HEAD_REF: ${{ github.head_ref }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          if git diff --quiet packages/jsts/src/rules/README.md; then
-            echo "README.md is up to date"
-            exit 0
-          fi
-
-          # Prevent infinite loop if last commit was auto-generated
+          # Check if last commit was already an auto-update (prevent infinite loop)
           LAST_COMMIT_MSG=$(git log -1 --format=%B)
-          if echo "$LAST_COMMIT_MSG" | grep -q "Generated with GitHub Actions"; then
-            echo "Last commit was auto-generated, skipping"
+          if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
+            echo "Last commit was an auto-update, skipping to prevent infinite loop"
             exit 0
           fi
 
-          echo "README.md is out of date, creating fix PR..."
+          # Regenerate README and check for differences
+          npm run generate-meta
 
-          # Create a new branch from the PR branch
           FIX_BRANCH="fix/update-readme-for-${HEAD_REF}"
+
+          if git diff --quiet packages/jsts/src/rules/README.md; then
+            echo "README is up to date"
+
+            # Clean up stale fix PR if one exists
+            FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url' 2>/dev/null || true)
+            if [ -n "$FIX_PR_URL" ]; then
+              gh pr close "$FIX_BRANCH" --comment "No longer needed — the original PR is now up to date."
+              git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
+            fi
+
+            exit 0
+          fi
+
+          echo "README is stale — creating fix PR"
+
           git stash push -m "readme-update" -- packages/jsts/src/rules/README.md
           git fetch origin "$HEAD_REF"
-          git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git stash pop
-          git add packages/jsts/src/rules/README.md
-          git commit -m "Update ESLint plugin README.md
+
+          if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
+            git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
+            git stash pop
+            git add packages/jsts/src/rules/README.md
+            git commit -m "Update rules README
 
           🤖 Generated with GitHub Actions"
-          git push origin "$FIX_BRANCH"
+            git push --force-with-lease origin "$FIX_BRANCH"
+            FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url')
+          else
+            git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
+            git stash pop
+            git add packages/jsts/src/rules/README.md
+            git commit -m "Update rules README
 
-          # Create PR targeting the original PR branch
-          FIX_PR_URL=$(gh pr create \
-            --title "Update ESLint plugin README.md" \
-            --base "$HEAD_REF" \
-            --head "$FIX_BRANCH" \
-            --body "Auto-generated update for \`packages/jsts/src/rules/README.md\`.
+          🤖 Generated with GitHub Actions"
+            git push origin "$FIX_BRANCH"
+            FIX_PR_URL=$(gh pr create \
+              --title "Update rules README for PR #${PR_NUMBER}" \
+              --base "$HEAD_REF" \
+              --head "$FIX_BRANCH" \
+              --body "Auto-generated README update for PR #${PR_NUMBER}.
 
           🤖 Generated with GitHub Actions")
+          fi
 
-          # Comment on the original PR with link to fix PR
-          gh pr comment "$PR_NUMBER" \
-            --body "⚠️ The ESLint plugin README.md is out of date. A fix PR has been created automatically: $FIX_PR_URL. Please merge it into this branch to continue."
+          # Comment on original PR with link to fix PR
+          MARKER="<!-- readme-freshness -->"
+          COMMENT_BODY="${MARKER}
+          ## README Freshness Check
 
-          echo "::error::README.md was out of date. A fix PR has been created."
+          ❌ **The rules README is out of date.**
+
+          A fix PR has been created: ${FIX_PR_URL}
+
+          Please review and merge it into your branch, then re-run CI."
+
+          EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
+
+          if [ -n "$EXISTING_COMMENT_ID" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT_ID" \
+              -X PATCH -F body="$COMMENT_BODY"
+          else
+            gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
+          fi
+
           exit 1
       - &eslint_tarball_cache
         name: Cache ESLint plugin tarball
@@ -969,7 +1005,6 @@ jobs:
           npm run generate-meta
           npm run ruling
       - name: Update ruling and notify
-        continue-on-error: true
         if: always() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -1002,29 +1037,58 @@ jobs:
             HAS_DIFFERENCES=false
           fi
 
-          # Commit and push the synced ruling files if there are differences
+          FIX_BRANCH="fix/update-ruling-for-${HEAD_REF}"
+
+          # Create/update fix PR if ruling failed and there are differences
           if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
             # Stash changes before checkout
             git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/
 
-            # Checkout PR branch
             git fetch origin "$HEAD_REF"
-            git checkout "$HEAD_REF"
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
 
-            # Pop the stashed changes
-            git stash pop
+            if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
+              git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
+              git stash pop
+              git add its/ruling/src/test/expected/
 
-            git add its/ruling/src/test/expected/
-
-            if git diff --staged --quiet; then
-              echo "No ruling changes to commit"
-            else
-              git commit -m "Update ruling results
+              if git diff --staged --quiet; then
+                echo "No ruling changes to commit"
+              else
+                git commit -m "Update ruling results
 
           🤖 Generated with GitHub Actions"
-              git push origin "$HEAD_REF"
+                git push --force-with-lease origin "$FIX_BRANCH"
+              fi
+              FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url')
+            else
+              git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
+              git stash pop
+              git add its/ruling/src/test/expected/
+
+              if git diff --staged --quiet; then
+                echo "No ruling changes to commit"
+              else
+                git commit -m "Update ruling results
+
+          🤖 Generated with GitHub Actions"
+                git push origin "$FIX_BRANCH"
+                FIX_PR_URL=$(gh pr create \
+                  --title "Update ruling results for PR #${PR_NUMBER}" \
+                  --base "$HEAD_REF" \
+                  --head "$FIX_BRANCH" \
+                  --body "Auto-generated ruling update for PR #${PR_NUMBER}.
+
+          🤖 Generated with GitHub Actions")
+              fi
+            fi
+          else
+            # No changes needed — clean up stale fix PR if one exists
+            FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url' 2>/dev/null || true)
+            if [ -n "$FIX_PR_URL" ]; then
+              gh pr close "$FIX_BRANCH" --comment "No longer needed — the original PR is now up to date."
+              git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
             fi
           fi
 
@@ -1036,11 +1100,11 @@ jobs:
               echo "$MARKER"
               cat ruling-report.md
               echo ""
-              if [ "$RULING_FAILED" = "true" ]; then
+              if [ "$RULING_FAILED" = "true" ] && [ -n "${FIX_PR_URL:-}" ]; then
                 echo "---"
-                echo "✅ **Ruling has been updated.** To re-run CI, either:"
-                echo "- Close and reopen this PR, or"
-                echo "- Run: \`git pull && git commit --allow-empty -m 'Trigger CI' && git push\`"
+                echo "❌ **Ruling needs updating.** A fix PR has been created: ${FIX_PR_URL}"
+                echo ""
+                echo "Please review and merge it into your branch, then re-run CI."
               fi
             } > comment.md
           else
@@ -1071,6 +1135,12 @@ jobs:
               -X PATCH -F body=@comment.md
           else
             gh pr comment "$PR_NUMBER" --body-file comment.md
+          fi
+
+          # Fail CI if ruling needs updating
+          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
+            echo "::error::Ruling results are out of date. See fix PR: ${FIX_PR_URL:-}"
+            exit 1
           fi
 
   ruling:
