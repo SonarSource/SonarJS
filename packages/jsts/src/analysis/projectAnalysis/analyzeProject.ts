@@ -126,7 +126,7 @@ export async function analyzeProject(
       const pendingJsTsCount = Array.from(pendingFiles).filter(filePath =>
         isJsTsFile(filePath, jsTsConfigFields.shouldIgnoreParams),
       ).length;
-      if (pendingJsTsCount > 0) {
+      if (pendingJsTsCount > 0 && !jsTsConfigFields.disableTypeChecking) {
         info(
           `Found ${pendingJsTsCount} JS/TS file(s) not part of any tsconfig.json: they will be analyzed without type information`,
         );
