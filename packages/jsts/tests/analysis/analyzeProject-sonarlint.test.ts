@@ -546,6 +546,32 @@ describe('SonarLint tsconfig change detection', () => {
     expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
   });
 
+  it('should skip all program creation when disableTypeChecking is true', async () => {
+    await writeFile(filePath, 'const x: number = 1;');
+
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const configuration = await initForTest(
+      { baseDir: tempDir, sonarlint: true, disableTypeChecking: true },
+      { [filePath]: { filePath, fileContent: 'const x: number = 1;' } },
+    );
+
+    const result = await analyzeProject({ rules, bundles: [] }, configuration);
+
+    // Should log the disableTypeChecking message
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes(
+          'Type checking is disabled (sonar.javascript.disableTypeChecking=true)',
+        ),
+      ),
+    ).toBe(true);
+
+    // The file should still be analyzed (without type info)
+    expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
+  });
+
   it('should handle error from tsconfig in sonarlint context', async () => {
     // Clear caches to ensure fresh state
     tsConfigStore.clearCache();

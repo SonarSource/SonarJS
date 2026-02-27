@@ -51,6 +51,8 @@ public interface AnalysisConfiguration {
 
   boolean shouldCreateTSProgramForOrphanFiles();
 
+  boolean shouldDisableTypeChecking();
+
   List<String> getSources();
 
   List<String> getInclusions();

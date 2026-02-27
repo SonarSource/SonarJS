@@ -197,6 +197,7 @@ public interface BridgeServer extends Startable {
     boolean detectBundles;
     boolean canAccessFileSystem;
     boolean createTSProgramForOrphanFiles;
+    boolean disableTypeChecking;
 
     /*
     We do not set sources, inclusions, exclusions, tests, testInclusions nor testExclusions as Sonar Engine
@@ -233,6 +234,7 @@ public interface BridgeServer extends Startable {
       this.canAccessFileSystem = analysisConfiguration.canAccessFileSystem();
       this.createTSProgramForOrphanFiles =
         analysisConfiguration.shouldCreateTSProgramForOrphanFiles();
+      this.disableTypeChecking = analysisConfiguration.shouldDisableTypeChecking();
     }
 
     public boolean skipAst() {
@@ -241,6 +243,10 @@ public interface BridgeServer extends Startable {
 
     public boolean createTSProgramForOrphanFiles() {
       return createTSProgramForOrphanFiles;
+    }
+
+    public boolean disableTypeChecking() {
+      return disableTypeChecking;
     }
 
     public void setSkipAst(boolean skipAst) {
