@@ -29,7 +29,7 @@ describe('S101', () => {
         {
           code: `
       class MyClass {}
-      var x = class y {} // Compliant, rule doesn't check class expressions
+      var x = class y {} // Compliant: expressions not checked
       interface MyInterface {}
       `,
           options: [{ format: '^\\$?[A-Z][a-zA-Z0-9]*$' }],
@@ -43,7 +43,7 @@ describe('S101', () => {
           options: [{ format: CUSTOM_FORMAT }],
         },
         {
-          // Compliant: $ prefix before PascalCase is allowed by the default format
+          // Compliant: $ prefix allowed by default
           code: `
       interface $ZodCheckDef {}
       interface $ZodCheckInternals<T> {}
@@ -52,7 +52,7 @@ describe('S101', () => {
       `,
         },
         {
-          // Compliant: $ prefix before PascalCase is allowed by the default format
+          // Compliant: $ prefix allowed by default
           code: `
       class $LocationShimProvider {}
       class $ServiceProvider {}
@@ -83,8 +83,7 @@ describe('S101', () => {
           ],
         },
         {
-          // $ prefix only allowed before PascalCase, not snake_case
-          code: `interface $my_interface {}`,
+          code: `interface $my_interface {}`, // $ before snake_case still flagged
           errors: [
             {
               message: `Rename interface "$my_interface" to match the regular expression ^\\$?[A-Z][a-zA-Z0-9]*$.`,
