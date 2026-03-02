@@ -90,6 +90,10 @@ describe('S6679', () => {
         },
         { code: `x !== x && x !== x`, errors: 2 }, // same variable on both sides
         { code: `x !== x || y !== y`, errors: 2 }, // || not &&
+        {
+          code: `(typeof x === "number" && x !== x) && (typeof y === "number" && y !== y)`,
+          errors: 2, // sibling is typeof check, not a self-comparison — both flagged
+        },
       ],
     });
   });
