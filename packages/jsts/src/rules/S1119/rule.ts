@@ -46,18 +46,17 @@ export const rule: Rule.RuleModule = {
     const labelRefs = new Map<estree.LabeledStatement, boolean[]>();
 
     function onBreakOrContinue(node: estree.BreakStatement | estree.ContinueStatement) {
-      if (!node.label) return;
+      if (!node.label) {
+        return;
+      }
       const labelName = node.label.name;
       const ancestors = context.sourceCode.getAncestors(node);
 
       // Find the closest LabeledStatement ancestor with this label name.
       for (let i = ancestors.length - 1; i >= 0; i--) {
         const ancestor = ancestors[i];
-        if (
-          ancestor.type === 'LabeledStatement' &&
-          (ancestor as estree.LabeledStatement).label.name === labelName
-        ) {
-          const labeledStmt = ancestor as estree.LabeledStatement;
+        if (ancestor.type === 'LabeledStatement' && ancestor.label.name === labelName) {
+          const labeledStmt = ancestor;
           // ancestors[i+1] is the labeled body (the loop itself).
           // Check if any ancestor beyond the loop body is itself a loop,
           // indicating this break/continue is inside a nested inner loop.
