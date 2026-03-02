@@ -415,7 +415,7 @@ export async function sanitizeProjectAnalysisInput(
  * @param configuration - The project configuration for path normalization and filtering
  * @returns A promise of sanitized JsTsFiles ready to use
  */
-export type SanitizedInputFiles = {
+type SanitizedInputFiles = {
   files: JsTsFiles;
   pathMap: Map<string, string>;
 };
