@@ -147,7 +147,7 @@ if (!existsSync(join(rspecPath, 'rules'))) {
   execSync(`git clone --depth 1 --sparse --branch ${RSPEC_BRANCH} ${repoUrl} ${rspecPath}`, {
     stdio: 'inherit',
   });
-  execSync('git sparse-checkout set rules external_refs shared_content', {
+  execSync('git sparse-checkout set rules shared_content', {
     cwd: rspecPath,
     stdio: 'inherit',
   });
@@ -189,7 +189,6 @@ asciidoctor.ConverterFactory.register(SonarListingConverter as any, ['html5']);
 
 const langSq = LANGUAGE_SQ[language];
 const rulesDir = join(rspecPath, 'rules');
-const externalRefsPath = join(rspecPath, 'external_refs', 'ExternalReferences.adoc');
 const outputDir = join(ROOT_DIR, 'resources', 'rule-data', language);
 
 // Clean and recreate output directory
@@ -228,12 +227,7 @@ for (const ruleName of ruleDirs) {
   // Render adoc to HTML
   const adocPath = join(languageDir, 'rule.adoc');
   if (existsSync(adocPath)) {
-    let adocContent = readFileSync(adocPath, 'utf-8');
-
-    // Prepend external references (same as rule-api)
-    if (existsSync(externalRefsPath)) {
-      adocContent = `include::${externalRefsPath}[]\n\n${adocContent}`;
-    }
+    const adocContent = readFileSync(adocPath, 'utf-8');
 
     const html = asciidoctor.convert(adocContent, {
       safe: 'unsafe',
