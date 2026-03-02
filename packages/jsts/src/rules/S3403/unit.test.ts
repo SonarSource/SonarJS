@@ -321,6 +321,31 @@ describe('S3403', () => {
       `,
             filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
           },
+          {
+            // JS-1325: FP when checking local variable (string | undefined) against undefined
+            code: `
+      function findItem(items: string[], target: string) {
+        let found: string | undefined;
+        for (const item of items) {
+          if (item === target) { found = item; break; }
+        }
+        if (found === undefined) { return null; }
+        return found;
+      }
+      `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
+          },
+          {
+            // JS-1325: FP when checking Array.find result (string | undefined) against undefined
+            code: `
+      function lookup(items: string[], target: string) {
+        const match = items.find(x => x === target);
+        if (match !== undefined) { return match.toUpperCase(); }
+        return '';
+      }
+      `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
+          },
         ],
         invalid: [
           {
