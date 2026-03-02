@@ -205,6 +205,18 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // Interface shape descriptor: 'then' as a type reference, not a function
+        {
+          code: `
+          const connectionInterface = {
+            open: Function,
+            send: Function,
+            then: Function,
+            close: Function,
+          };
+        `,
+          filename: testFilePath,
+        },
         // JSON Schema {if, then} conditional construct
         {
           code: `
