@@ -40,6 +40,8 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
+    // Stack of currently active LabeledStatement nodes (innermost last).
+    const labelStack: estree.LabeledStatement[] = [];
     // Map from LabeledStatement node to array of booleans.
     // Each boolean indicates whether the corresponding break/continue
     // referencing the label is nested inside an inner loop.
@@ -50,37 +52,47 @@ export const rule: Rule.RuleModule = {
         return;
       }
       const labelName = node.label.name;
-      const ancestors = context.sourceCode.getAncestors(node);
 
-      // Find the closest LabeledStatement ancestor with this label name.
-      for (let i = ancestors.length - 1; i >= 0; i--) {
-        const ancestor = ancestors[i];
-        if (ancestor.type === 'LabeledStatement' && ancestor.label.name === labelName) {
-          const labeledStmt = ancestor;
-          // ancestors[i+1] is the labeled body (the loop itself).
-          // Check if any ancestor beyond the loop body is itself a loop,
-          // indicating this break/continue is inside a nested inner loop.
-          const hasNested = ancestors.slice(i + 2).some(isLoop);
-          const refs = labelRefs.get(labeledStmt);
-          if (refs) {
-            refs.push(hasNested);
-          } else {
-            labelRefs.set(labeledStmt, [hasNested]);
-          }
+      // Find the latest matching label on the stack.
+      let labeledStmt: estree.LabeledStatement | undefined;
+      for (let i = labelStack.length - 1; i >= 0; i--) {
+        if (labelStack[i].label.name === labelName) {
+          labeledStmt = labelStack[i];
           break;
         }
+      }
+      if (!labeledStmt) {
+        return;
+      }
+
+      const ancestors = context.sourceCode.getAncestors(node);
+      const labelIdx = ancestors.indexOf(labeledStmt);
+      // ancestors[labelIdx+1] is the labeled body (the loop itself).
+      // Check if any ancestor beyond the loop body is itself a loop,
+      // indicating this break/continue is inside a nested inner loop.
+      const hasNested = ancestors.slice(labelIdx + 2).some(isLoop);
+
+      const refs = labelRefs.get(labeledStmt);
+      if (refs) {
+        refs.push(hasNested);
+      } else {
+        labelRefs.set(labeledStmt, [hasNested]);
       }
     }
 
     return {
+      LabeledStatement(node) {
+        labelStack.push(node);
+      },
+
       BreakStatement: onBreakOrContinue,
       ContinueStatement: onBreakOrContinue,
 
       'LabeledStatement:exit'(node) {
-        const body = node.body;
+        labelStack.pop();
 
         // If the labeled body is not a loop, always report
-        if (!isLoop(body)) {
+        if (!isLoop(node.body)) {
           context.report({
             messageId: 'removeLabel',
             node: node.label,
