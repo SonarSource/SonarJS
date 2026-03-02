@@ -48,6 +48,48 @@ describe('S3799', () => {
           code: `const fn = ({} = {}) => {};`,
           options: [{ allowObjectPatternsAsParameters: true }],
         },
+        {
+          // Compliant: interface method signature
+          code: `interface EmptyProps {}
+interface Component { render({}: EmptyProps): void; }`,
+          options: [{ allowObjectPatternsAsParameters: true }],
+        },
+        {
+          // Compliant: abstract class method
+          code: `interface EmptyProps {}
+abstract class AbstractComponent { abstract initialize({}: EmptyProps): void; }`,
+          options: [{ allowObjectPatternsAsParameters: true }],
+        },
+        {
+          // Compliant: function type alias
+          code: `interface EmptyProps {}
+type Component = ({}: EmptyProps) => void;`,
+          options: [{ allowObjectPatternsAsParameters: true }],
+        },
+        {
+          // Compliant: ambient function declaration
+          code: `interface EmptyConfig {}
+declare function useHook({}: EmptyConfig): void;`,
+          options: [{ allowObjectPatternsAsParameters: true }],
+        },
+        {
+          // Compliant: ambient variable with function type
+          code: `interface EmptyProps {}
+declare const Component: ({}: EmptyProps) => void;`,
+          options: [{ allowObjectPatternsAsParameters: true }],
+        },
+        {
+          // Compliant: construct signature
+          code: `interface EmptyProps {}
+interface Factory { new({}: EmptyProps): object; }`,
+          options: [{ allowObjectPatternsAsParameters: true }],
+        },
+        {
+          // Compliant: call signature
+          code: `interface EmptyProps {}
+interface Callable { ({}: EmptyProps): void; }`,
+          options: [{ allowObjectPatternsAsParameters: true }],
+        },
       ],
       invalid: [],
     });

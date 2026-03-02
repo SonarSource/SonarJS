@@ -15,4 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { getESLintCoreRule } from '../external/core.js';
-export const rule = getESLintCoreRule('no-empty-pattern');
+import { decorate } from './decorator.js';
+
+export const rule = decorate(getESLintCoreRule('no-empty-pattern'));
