@@ -17,6 +17,7 @@
 import { rule } from './index.js';
 import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
 
 describe('S3403', () => {
   it('S3403', () => {
@@ -258,6 +259,80 @@ describe('S3403', () => {
                 ],
               },
             ],
+          },
+        ],
+      },
+    );
+
+    // JS-1325: with strictNullChecks, undefined/null are not assignable to non-nullable types,
+    // causing FPs for valid parameter checks against undefined or null.
+    const ruleTesterTsStrict = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    ruleTesterTsStrict.run(
+      `Strict equality operators should not be used with dissimilar types [ts strict]`,
+      rule,
+      {
+        valid: [
+          {
+            // JS-1325: FP when checking typed parameter against undefined
+            code: `
+      function measure(measureName: string) {
+        if (measureName === undefined) { throw new TypeError('1 argument required'); }
+      }
+      `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
+          },
+          {
+            // JS-1325: FP when checking typed parameter with !== undefined
+            code: `
+      function process(value: string) {
+        if (value !== undefined) { return value.toUpperCase(); }
+      }
+      `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
+          },
+          {
+            // JS-1325: FP when checking typed parameter against null
+            code: `
+      function processConfig(config: string) {
+        if (config === null) { throw new TypeError('config must not be null'); }
+      }
+      `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
+          },
+          {
+            // JS-1325: FP when checking typed parameter with !== null
+            code: `
+      function assertNotNull(value: string) {
+        if (value !== null) { return value; }
+      }
+      `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
+          },
+          {
+            // JS-1325: FP when checking typed parameter against void 0 (minification pattern)
+            code: `
+      function validateConcurrency(concurrency: string) {
+        if (concurrency === void 0) { return; }
+      }
+      `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
+          },
+        ],
+        invalid: [
+          {
+            // string vs number is always false in strict mode
+            code: `
+      function compare(str: string, num: number) {
+        return str === num;
+      }
+      `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
+            errors: 1,
           },
         ],
       },
