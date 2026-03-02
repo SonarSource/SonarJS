@@ -59,6 +59,15 @@ describe('S1523', () => {
         {
           code: `Function(\`Hello\`)`,
         },
+        {
+          code: `'javascript: void(0)'`,
+        },
+        {
+          code: `'javascript:false'`,
+        },
+        {
+          code: `\`javascript:void(0)\``,
+        },
       ],
       invalid: [
         {
@@ -102,8 +111,36 @@ describe('S1523', () => {
           errors: 1,
         },
         {
-          code: `location.href = 'javascript: void(0)';`,
-          errors: 1,
+          code: `\`javascript:\${expr}\``,
+          errors: [
+            {
+              message: "Make sure that 'javascript:' code is safe as it is a form of eval().",
+            },
+          ],
+        },
+        {
+          code: `'javascript:' + expr`,
+          errors: [
+            {
+              message: "Make sure that 'javascript:' code is safe as it is a form of eval().",
+            },
+          ],
+        },
+        {
+          code: `'javascript:smth' + expr`,
+          errors: [
+            {
+              message: "Make sure that 'javascript:' code is safe as it is a form of eval().",
+            },
+          ],
+        },
+        {
+          code: `'javascript:' + 'safe' + expr`,
+          errors: [
+            {
+              message: "Make sure that 'javascript:' code is safe as it is a form of eval().",
+            },
+          ],
         },
       ],
     });

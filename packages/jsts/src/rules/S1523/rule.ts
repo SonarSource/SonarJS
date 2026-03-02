@@ -19,11 +19,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { getESLintCoreRule } from '../external/core.js';
 import { generateMeta, getFullyQualifiedName } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
-
-const noScriptUrlRule = getESLintCoreRule('no-script-url');
 
 const EVAL_LIKE_FUNCTIONS: Set<string> = new Set([
   'eval',
@@ -48,7 +45,23 @@ export const rule: Rule.RuleModule = {
         checkCallExpression(node as estree.CallExpression, context),
       NewExpression: (node: estree.Node) =>
         checkCallExpression(node as estree.CallExpression, context),
-      ...noScriptUrlRule.create(context),
+      TemplateLiteral: (node: estree.TemplateLiteral) => {
+        if (
+          node.expressions.length > 0 &&
+          node.quasis[0].value.raw.match(/^javascript:/i)
+        ) {
+          context.report({ messageId: 'unexpectedScriptURL', node });
+        }
+      },
+      BinaryExpression: (node: estree.BinaryExpression) => {
+        if (
+          isConcatenation(node) &&
+          isVariableConcat(node) &&
+          getLeftmostStringValue(node)?.match(/^javascript:/i)
+        ) {
+          context.report({ messageId: 'unexpectedScriptURL', node });
+        }
+      },
     };
   },
 };
@@ -79,4 +92,33 @@ function isLiteral(node: estree.Node) {
   }
 
   return false;
+}
+
+function isConcatenation(node: estree.Node): node is estree.BinaryExpression {
+  return node.type === 'BinaryExpression' && node.operator === '+';
+}
+
+function isVariableConcat(node: estree.BinaryExpression): boolean {
+  const { left, right } = node;
+  if (!isLiteral(right)) {
+    return true;
+  }
+  if (isConcatenation(left)) {
+    return isVariableConcat(left);
+  }
+  return !isLiteral(left);
+}
+
+function getLeftmostStringValue(node: estree.BinaryExpression): string | undefined {
+  const { left } = node;
+  if (isConcatenation(left)) {
+    return getLeftmostStringValue(left);
+  }
+  if (left.type === 'Literal' && typeof left.value === 'string') {
+    return left.value;
+  }
+  if (left.type === 'TemplateLiteral' && left.expressions.length === 0) {
+    return left.quasis[0].value.raw;
+  }
+  return undefined;
 }
