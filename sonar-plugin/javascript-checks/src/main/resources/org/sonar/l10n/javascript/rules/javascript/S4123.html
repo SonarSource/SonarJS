@@ -37,6 +37,34 @@ async function bar() {
   await foo(); // Compliant
 }
 </pre>
+<p>Another common reason for this issue is a mismatch between JSDoc annotations and async function signatures. When a JSDoc <code>@returns</code> tag
+specifies a non-Promise type on an <code>async</code> function, the analyzer trusts the annotation and considers the return type to be non-awaitable,
+even though <code>async</code> functions always return a <code>Promise</code>.</p>
+<pre data-diff-id="3" data-diff-type="noncompliant">
+/**
+ * @returns {boolean} True if the lock was set successfully.
+ */
+async function lock() {
+  return await someAsyncOperation();
+}
+
+async function bar() {
+  await lock(); // Noncompliant: JSDoc says lock() returns boolean, not a Promise
+}
+</pre>
+<p>Make sure to wrap the return type in <code>Promise</code> to match the <code>async</code> function signature.</p>
+<pre data-diff-id="3" data-diff-type="compliant">
+/**
+ * @returns {Promise&lt;boolean&gt;} True if the lock was set successfully.
+ */
+async function lock() {
+  return await someAsyncOperation();
+}
+
+async function bar() {
+  await lock(); // Compliant
+}
+</pre>
 <h2>Resources</h2>
 <h3>Documentation</h3>
 <ul>

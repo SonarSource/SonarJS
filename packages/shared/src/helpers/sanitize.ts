@@ -387,7 +387,7 @@ export async function sanitizeProjectAnalysisInput(
 
   // Sanitize raw input files first (if provided), then initialize file stores
   const inputFiles = isObject(raw.files)
-    ? await sanitizeRawInputFiles(raw.files, configuration)
+    ? (await sanitizeRawInputFiles(raw.files, configuration)).files
     : undefined;
 
   await initFileStores(configuration, inputFiles);
@@ -415,16 +415,22 @@ export async function sanitizeProjectAnalysisInput(
  * @param configuration - The project configuration for path normalization and filtering
  * @returns A promise of sanitized JsTsFiles ready to use
  */
+type SanitizedInputFiles = {
+  files: JsTsFiles;
+  pathMap: Map<string, string>;
+};
+
 export async function sanitizeRawInputFiles(
   rawFiles: Record<string, unknown> | undefined,
   configuration: Configuration,
-): Promise<JsTsFiles> {
+): Promise<SanitizedInputFiles> {
   const { baseDir } = configuration;
   const shouldIgnoreParams: ShouldIgnoreFileParams = getShouldIgnoreParams(configuration);
   const files = createJsTsFiles();
+  const pathMap = new Map<string, string>();
 
   if (!rawFiles) {
-    return files;
+    return { files, pathMap };
   }
 
   for (const [key, rawFile] of Object.entries(rawFiles)) {
@@ -455,7 +461,8 @@ export async function sanitizeRawInputFiles(
       fileType: rawFileType ?? JSTS_ANALYSIS_DEFAULTS.fileType,
       fileStatus: rawFileStatus ?? JSTS_ANALYSIS_DEFAULTS.fileStatus,
     };
+    pathMap.set(filePath, key);
   }
 
-  return files;
+  return { files, pathMap };
 }
