@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 /**
- * Syncs RSPEC rule metadata from the SonarSource/rspec repository.
+ * Syncs RSPEC rule metadata and descriptions from the SonarSource/rspec repository.
  *
  * Usage:
  *   tsx tools/sync-rspec.ts --language javascript|css [--rspec-path <path>]
@@ -24,21 +24,95 @@
  * If that doesn't exist, it clones the repo automatically (requires GITHUB_TOKEN).
  * If the clone already exists, it fetches the latest changes first.
  *
- * For each rule that has a <language>/metadata.json in the rspec repo, merges
- * the parent metadata.json with the language-specific overrides and writes the
- * result to resources/rule-data/<language>/<rule>.json.
+ * For each rule that has a <language>/metadata.json in the rspec repo:
+ * - Merges parent + language-specific metadata.json → resources/rule-data/<language>/<rule>.json
+ * - Renders <language>/rule.adoc to HTML → resources/rule-data/<language>/<rule>.html
  */
 import { readdirSync, readFileSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
+import Asciidoctor from '@asciidoctor/core';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
 const DEFAULT_RSPEC_PATH = join(ROOT_DIR, 'resources', 'rspec');
 const RSPEC_REPO_SSH = 'git@github.com:SonarSource/rspec.git';
 const RSPEC_BRANCH = 'dogfood-automerge';
+
+// Language identifiers used for rule cross-reference links (matches rule-api Language.getSq())
+const LANGUAGE_SQ: Record<string, string> = {
+  javascript: 'javascript',
+  css: 'css',
+};
+
+const CODE_PATTERN = /.*<code[\s\w"=-]*$/s;
+const PRE_PATTERN = /.*<pre[\s\w"=-]*$/s;
+
+/**
+ * Post-process rendered HTML to replace rule references (e.g. S1234) with
+ * {rule:lang:S1234} placeholders, matching the rule-api populateLinks behavior.
+ * Only replaces outside <code> and <pre> blocks.
+ */
+function populateLinks(langSq: string, html: string): string {
+  const segments = html.split('>');
+  let inVerbatim = false;
+
+  for (let i = 0; i < segments.length; i++) {
+    if (!inVerbatim) {
+      segments[i] = segments[i].replace(/(\b)(S\d{3,})/g, `$1{rule:${langSq}:$2}`);
+    }
+    if (CODE_PATTERN.test(segments[i]) || PRE_PATTERN.test(segments[i])) {
+      inVerbatim = true;
+    }
+    if (segments[i].endsWith('</code') || segments[i].endsWith('</pre')) {
+      inVerbatim = false;
+    }
+  }
+
+  return segments.join('>');
+}
+
+/**
+ * Sanitize Asciidoctor HTML output to match sonar-rule-api HtmlSanitizer behavior:
+ * - Remove all <div> wrappers (keep children)
+ * - Remove <p> inside <li> (keep children)
+ * - Remove class, id, type attributes from all elements
+ * - Unwrap <code data-lang="..."> inside <pre> (remove syntax highlighting wrapper)
+ * - Keep data-diff-id and data-diff-type attributes on <pre>
+ */
+function sanitizeHtml(html: string): string {
+  // Remove all <div ...> and </div> tags (unwrap contents)
+  let result = html.replace(/<\/?div[^>]*>/g, '');
+
+  // Remove <code data-lang="..."> and </code> inside pre blocks (syntax highlighting)
+  result = result.replace(/<pre[^>]*>[\s\S]*?<\/pre>/g, block =>
+    block.replace(/<code[^>]*data-lang="[^"]*"[^>]*>([\s\S]*?)<\/code>/g, '$1'),
+  );
+
+  // Remove class, id, type attributes (matching HtmlSanitizer.removeAttrs)
+  result = result.replace(/\s+(?:class|id|type)="[^"]*"/g, '');
+
+  // Remove <p> inside <li> (unwrap)
+  result = result.replace(/<li>\s*<p>([\s\S]*?)<\/p>\s*<\/li>/g, '<li>$1</li>');
+
+  // Put pre content on own lines (matches HtmlSanitizer.putPreOnOwnLines)
+  result = result.replace(/<pre([^>]*)>([\s\S]*?)<\/pre>/g, (_, attrs, content) => {
+    let c = content;
+    if (!c.startsWith('\n')) c = '\n' + c;
+    if (!c.endsWith('\n')) c = c + '\n';
+    return `<pre${attrs}>${c}</pre>`;
+  });
+
+  // Clean up whitespace: collapse multiple blank lines
+  result = result.replace(/\n{3,}/g, '\n');
+
+  // Trim leading/trailing whitespace
+  result = result.trim() + '\n';
+
+  return result;
+}
 
 const { values } = parseArgs({
   options: {
@@ -64,7 +138,7 @@ if (!existsSync(join(rspecPath, 'rules'))) {
     console.error(`Error: rspec repo not found at ${rspecPath}`);
     process.exit(1);
   }
-  console.log(`Cloning rspec repo (sparse, rules/ only) to ${rspecPath}...`);
+  console.log(`Cloning rspec repo (sparse) to ${rspecPath}...`);
   const token = process.env.GITHUB_TOKEN;
   const repoUrl = token
     ? `https://x-access-token:${token}@github.com/SonarSource/rspec.git`
@@ -74,7 +148,7 @@ if (!existsSync(join(rspecPath, 'rules'))) {
     `git clone --depth 1 --filter=blob:none --sparse --branch ${RSPEC_BRANCH} ${repoUrl} ${rspecPath}`,
     { stdio: 'inherit' },
   );
-  execSync('git sparse-checkout set rules', { cwd: rspecPath, stdio: 'inherit' });
+  execSync('git sparse-checkout set rules external_refs', { cwd: rspecPath, stdio: 'inherit' });
 } else if (isManagedClone) {
   // Only auto-fetch for the managed clone, not user-provided paths
   console.log(`Fetching latest changes in ${rspecPath}...`);
@@ -88,7 +162,32 @@ if (!existsSync(join(rspecPath, 'rules'))) {
   }
 }
 
+// Initialize Asciidoctor
+const asciidoctor = Asciidoctor();
+
+// Register a custom converter to handle listing blocks with diff-id/diff-type attributes
+// This matches the listing.html.slim template from sonar-rule-api
+class SonarListingConverter {
+  baseConverter: ReturnType<typeof asciidoctor.Html5Converter.create>;
+  constructor() {
+    this.baseConverter = asciidoctor.Html5Converter.create();
+  }
+  convert(node: any, transform?: string) {
+    if ((transform || node.getNodeName()) === 'listing') {
+      const diffId = node.getAttribute('diff-id');
+      const diffType = node.getAttribute('diff-type');
+      if (diffId && diffType) {
+        return `<pre data-diff-id="${diffId}" data-diff-type="${diffType}">${node.getSource()}</pre>`;
+      }
+    }
+    return this.baseConverter.convert(node, transform);
+  }
+}
+asciidoctor.ConverterFactory.register(SonarListingConverter as any, ['html5']);
+
+const langSq = LANGUAGE_SQ[language];
 const rulesDir = join(rspecPath, 'rules');
+const externalRefsPath = join(rspecPath, 'external_refs', 'ExternalReferences.adoc');
 const outputDir = join(ROOT_DIR, 'resources', 'rule-data', language);
 
 // Clean and recreate output directory
@@ -101,7 +200,8 @@ const ruleDirs = readdirSync(rulesDir).filter(name => ruleRegex.test(name));
 let count = 0;
 
 for (const ruleName of ruleDirs) {
-  const languageMetadataPath = join(rulesDir, ruleName, language, 'metadata.json');
+  const languageDir = join(rulesDir, ruleName, language);
+  const languageMetadataPath = join(languageDir, 'metadata.json');
   let languageMetadata: Record<string, unknown>;
   try {
     languageMetadata = JSON.parse(readFileSync(languageMetadataPath, 'utf-8'));
@@ -119,9 +219,33 @@ for (const ruleName of ruleDirs) {
     continue;
   }
 
+  // Write merged JSON metadata
   const merged = { ...parentMetadata, ...languageMetadata };
-  const outputPath = join(outputDir, `${ruleName}.json`);
-  writeFileSync(outputPath, JSON.stringify(merged, null, 2) + '\n');
+  writeFileSync(join(outputDir, `${ruleName}.json`), JSON.stringify(merged, null, 2) + '\n');
+
+  // Render adoc to HTML
+  const adocPath = join(languageDir, 'rule.adoc');
+  if (existsSync(adocPath)) {
+    try {
+      let adocContent = readFileSync(adocPath, 'utf-8');
+
+      // Prepend external references (same as rule-api)
+      if (existsSync(externalRefsPath)) {
+        adocContent = `include::${externalRefsPath}[]\n\n${adocContent}`;
+      }
+
+      const html = asciidoctor.convert(adocContent, {
+        safe: 'unsafe',
+        base_dir: languageDir,
+        attributes: { 'attribute-missing': 'warn' },
+      }) as string;
+
+      writeFileSync(join(outputDir, `${ruleName}.html`), populateLinks(langSq, sanitizeHtml(html)));
+    } catch (e) {
+      console.warn(`Warning: Failed to render HTML for ${ruleName}: ${e}`);
+    }
+  }
+
   count++;
 }
 

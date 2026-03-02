@@ -1,0 +1,44 @@
+<h2>Why is this an issue?</h2>
+<p>React components have built-in <code>state</code> data. This data is used to store component property values. When <code>state</code> changes, the component is re-rendered. React provides the <code>useState</code> hook to manage the <code>state</code>. <code>useState</code> returns a state variable retaining the data and a state setter function to update its value.</p>
+<p>React will skip re-rendering the component and its children if the new value you provide is identical to the current state, as determined by an <code>Object.is</code> comparison. When the setter function is called with the state variable as a parameter, that comparison will always be <code>true</code>, and the component will never be re-rendered. This can happen by mistake when attempting to reset a default value or invert a boolean, among others.</p>
+<p>This rule raises an issue when calling the setter function with the state variable provided by the same <code>useState</code> React hook.</p>
+
+<pre data-diff-id="1" data-diff-type="noncompliant">
+import { useState } from "react";
+
+function ShowLanguage() {
+    const [language, setLanguage] = useState("fr-FR");
+    return (
+      <section>
+        <h1>Your language is {language}!</h1>
+        <button onClick={() => setLanguage(navigator.language)}>Detect language</button>
+        <button onClick={() => setLanguage(language)}>Je préfère le français</button>{/* Non compliant: This button does nothing */}
+      </section>
+    );
+};
+</pre>
+
+<p>Instead, you should call the setter with any parameter different from the state variable.</p>
+
+<pre data-diff-id="1" data-diff-type="compliant">
+import { useState } from "react";
+
+function ShowLanguage() {
+    const [language, setLanguage] = useState("fr-FR");
+    return (
+      <section>
+        <h1>Your language is {language}!</h1>
+        <button onClick={() => setLanguage(navigator.language)}>Detect language</button>
+        <button onClick={() => setLanguage("fr-FR")}>Je préfère le français</button>
+      </section>
+    );
+};
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+
+<ul>
+<li>React Documentation - <a href="https://react.dev/learn/state-a-components-memory">State: A Component&#8217;s Memory</a></li>
+<li>React Documentation - <a href="https://react.dev/reference/react/useState">useState</a></li>
+<li>MDN web docs - <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/is">Object.is()</a></li>
+</ul>

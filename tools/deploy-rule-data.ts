@@ -70,8 +70,10 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
   const sonarWayRuleNames: Array<string> = [];
 
   for (const ruleName of ruleNames) {
-    const fileName = `${ruleName}.json`;
-    copyFileSync(join(sourceFolder, fileName), join(targetFolder, fileName));
+    for (const extension of ['json', 'html']) {
+      const fileName = `${ruleName}.${extension}`;
+      copyFileSync(join(sourceFolder, fileName), join(targetFolder, fileName));
+    }
     const manifest: {
       defaultQualityProfiles: Array<string>;
     } = JSON.parse(readFileSync(join(sourceFolder, `${ruleName}.json`), 'utf-8'));

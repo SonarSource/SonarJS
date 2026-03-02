@@ -1,0 +1,45 @@
+<h2>Why is this an issue?</h2>
+<p>React&#8217;s <code>useState</code> hook setter function should not be called directly in the body of a component, as it would produce an infinite render loop. A re-rendering occurs whenever the state of a component changes. Since a hook setter function changes the component&#8217;s state, it also triggers re-rendering.</p>
+<p>The loop "state updates &#8594; triggers re-render &#8594; state updates &#8594; triggers re-render &#8594; &#8230;&#8203;" will continue indefinitely.</p>
+
+<pre data-diff-id="1" data-diff-type="noncompliant">
+import { useState } from "react";
+
+function ShowLanguage() {
+    const [language, setLanguage] = useState("fr-FR");
+
+    setLanguage(navigator.language); // Noncompliant: causes an infinite loop
+
+    return (
+      <section>
+        <h1>Your language is {language}!</h1>
+        <button onClick={() => setLanguage("fr-FR")}>Je préfère le français</button>
+      </section>
+    );
+}
+</pre>
+
+<p>Instead, the setter function should be called from an event handler.</p>
+
+<pre data-diff-id="1" data-diff-type="compliant">
+import { useState } from "react";
+
+function ShowLanguage() {
+    const [language, setLanguage] = useState(navigator.language);
+
+    return (
+      <section>
+        <h1>Your language is {language}!</h1>
+        <button onClick={() => setLanguage("fr-FR")}>Je préfère le Français</button>
+      </section>
+    );
+}
+</pre>
+<h2>Resources</h2>
+<h3>Documentation</h3>
+
+<ul>
+<li>React Documentation - <a href="https://react.dev/reference/react">React Hooks</a></li>
+<li>React Documentation - <a href="https://react.dev/reference/react/useState">useState - API reference</a></li>
+<li>React Documentation - <a href="https://react.dev/reference/react/useState#im-getting-an-error-too-many-re-renders">useState - Troubleshooting</a></li>
+</ul>
