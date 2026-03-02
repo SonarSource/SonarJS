@@ -26,18 +26,6 @@
 147,
 178
 ],
-"ag-grid:src/ts/componentProvider.ts": [
-194,
-204,
-208,
-230,
-234,
-238,
-243,
-248,
-291,
-299
-],
 "ag-grid:src/ts/components/agGridWebComponent.ts": [
 36
 ],
@@ -48,10 +36,6 @@
 51,
 53,
 55
-],
-"ag-grid:src/ts/dragAndDrop/dragAndDropService.ts": [
-356,
-360
 ],
 "ag-grid:src/ts/entities/column.ts": [
 227,
@@ -71,14 +55,7 @@
 75,
 77
 ],
-"ag-grid:src/ts/filter/floatingFilterWrapper.ts": [
-77
-],
-"ag-grid:src/ts/filter/numberFilter.ts": [
-60
-],
 "ag-grid:src/ts/gridPanel/gridPanel.ts": [
-1195,
 1201
 ],
 "ag-grid:src/ts/headerRendering/cssClassApplier.ts": [
@@ -89,22 +66,12 @@
 61,
 71
 ],
-"ag-grid:src/ts/headerRendering/deprecated/renderedHeaderCell.ts": [
-74
-],
 "ag-grid:src/ts/headerRendering/headerRowComp.ts": [
 179
-],
-"ag-grid:src/ts/layout/tabbedLayout.ts": [
-26,
-27
 ],
 "ag-grid:src/ts/rendering/autoWidthCalculator.ts": [
 79,
 84
-],
-"ag-grid:src/ts/rendering/cellEditors/selectCellEditor.ts": [
-13
 ],
 "ag-grid:src/ts/rendering/cellRendererService.ts": [
 85
@@ -112,16 +79,11 @@
 "ag-grid:src/ts/rendering/renderedCell.ts": [
 201
 ],
-"ag-grid:src/ts/sortController.ts": [
-157
-],
 "ag-grid:src/ts/utils.ts": [
 292
 ],
 "ag-grid:src/ts/widgets/component.ts": [
 63,
-87,
-138,
-142
+87
 ]
 }
