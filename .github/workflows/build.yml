@@ -206,7 +206,6 @@ jobs:
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.2
         with:
           name: rspec-rule-data
-          path: sonar-plugin
       - id: deployer-secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -474,7 +473,6 @@ jobs:
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.2
         with:
           name: rspec-rule-data
-          path: sonar-plugin
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests with coverage
         run: |
@@ -519,7 +517,6 @@ jobs:
         uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.2
         with:
           name: rspec-rule-data
-          path: sonar-plugin
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests on Windows
         shell: bash
