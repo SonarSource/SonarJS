@@ -47,6 +47,7 @@ The project can be built into the SonarJS Plugin by installing Node.js dependenc
 
 ```shell
 npm install
+npm run sync-rspec-all
 mvn clean install
 ```
 
