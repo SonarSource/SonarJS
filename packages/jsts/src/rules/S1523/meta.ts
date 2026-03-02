@@ -16,3 +16,4 @@
  */
 export const implementation = 'decorated';
 export const eslintId = 'code-eval';
+export const externalRules = [];
