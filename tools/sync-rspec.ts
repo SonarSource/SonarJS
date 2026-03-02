@@ -148,7 +148,10 @@ if (!existsSync(join(rspecPath, 'rules'))) {
     `git clone --depth 1 --filter=blob:none --sparse --branch ${RSPEC_BRANCH} ${repoUrl} ${rspecPath}`,
     { stdio: 'inherit' },
   );
-  execSync('git sparse-checkout set rules external_refs', { cwd: rspecPath, stdio: 'inherit' });
+  execSync('git sparse-checkout set rules external_refs shared_content', {
+    cwd: rspecPath,
+    stdio: 'inherit',
+  });
 } else if (isManagedClone) {
   // Only auto-fetch for the managed clone, not user-provided paths
   console.log(`Fetching latest changes in ${rspecPath}...`);
@@ -226,24 +229,20 @@ for (const ruleName of ruleDirs) {
   // Render adoc to HTML
   const adocPath = join(languageDir, 'rule.adoc');
   if (existsSync(adocPath)) {
-    try {
-      let adocContent = readFileSync(adocPath, 'utf-8');
+    let adocContent = readFileSync(adocPath, 'utf-8');
 
-      // Prepend external references (same as rule-api)
-      if (existsSync(externalRefsPath)) {
-        adocContent = `include::${externalRefsPath}[]\n\n${adocContent}`;
-      }
-
-      const html = asciidoctor.convert(adocContent, {
-        safe: 'unsafe',
-        base_dir: languageDir,
-        attributes: { 'attribute-missing': 'warn' },
-      }) as string;
-
-      writeFileSync(join(outputDir, `${ruleName}.html`), populateLinks(langSq, sanitizeHtml(html)));
-    } catch (e) {
-      console.warn(`Warning: Failed to render HTML for ${ruleName}: ${e}`);
+    // Prepend external references (same as rule-api)
+    if (existsSync(externalRefsPath)) {
+      adocContent = `include::${externalRefsPath}[]\n\n${adocContent}`;
     }
+
+    const html = asciidoctor.convert(adocContent, {
+      safe: 'unsafe',
+      base_dir: languageDir,
+      attributes: { 'attribute-missing': 'warn' },
+    }) as string;
+
+    writeFileSync(join(outputDir, `${ruleName}.html`), populateLinks(langSq, sanitizeHtml(html)));
   }
 
   count++;
