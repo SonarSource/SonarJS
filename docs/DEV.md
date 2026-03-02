@@ -11,15 +11,7 @@ To work on this project, it is required to have the following tools installed:
 
 ### RSPEC Rule Metadata
 
-The build process needs rule metadata from the `SonarSource/rspec` repository. Run the sync script to fetch and merge it:
-
-```bash
-npm run sync-rspec-all
-```
-
-On first run, this clones the rspec repo (sparse checkout, `rules/` only) into `resources/rspec/` via SSH. On subsequent runs, it fetches the latest changes automatically. Use `--rspec-path` to point to an existing local clone instead.
-
-This writes merged metadata JSON files to `resources/rule-data/` and deploys them to the sonar-plugin resources. You only need to re-run this when RSPEC metadata changes.
+Rule metadata is automatically fetched from the `SonarSource/rspec` repository as part of the build. On first run, the rspec repo is cloned (sparse checkout) into `resources/rspec/` via SSH. On subsequent runs, the latest changes are fetched automatically. Use `--rspec-path` to point to an existing local clone instead (e.g. `npm run sync-rspec -- --rspec-path ../rspec --language javascript`).
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
