@@ -423,12 +423,13 @@ jobs:
   knip:
     runs-on: github-ubuntu-latest-s
     name: Knip
-    needs: [setup, populate_npm_cache]
+    needs: [setup, populate_npm_cache, sync_rspec]
     permissions: *read_permissions
     steps:
       - *checkout
       - *mise
       - *npm_cache
+      - *download_rspec_rule_data
       - name: Run knip
         run: |
           npm run bbf
