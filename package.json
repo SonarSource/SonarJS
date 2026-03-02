@@ -128,7 +128,7 @@
     "eslint-plugin-unicorn": "63.0.0",
     "express": "5.2.1",
     "functional-red-black-tree": "1.0.1",
-    "globals": "17.3.0",
+    "globals": "17.4.0",
     "htmlparser2": "10.1.0",
     "http-status-codes": "2.3.0",
     "jsx-ast-utils-x": "0.1.0",
