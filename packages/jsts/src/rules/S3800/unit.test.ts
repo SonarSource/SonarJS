@@ -298,8 +298,7 @@ const sanitize = () => {
         }`,
         },
         {
-          // Compliant: two returns each producing the same union type (string | boolean)
-          // Both branches consistently return the same mixed-type ternary pattern
+          // Compliant: consistent union type
           code: `
 function commandMatch(pressed, mapped) {
   if (mapped.slice(-11) === '<character>') {
@@ -310,7 +309,7 @@ function commandMatch(pressed, mapped) {
 }`,
         },
         {
-          // Compliant: two returns both boolean, one early return and one via negation
+          // Compliant: consistent booleans
           code: `
 function isAssigned(node: any, container: any) {
   if (!node) {
@@ -320,7 +319,7 @@ function isAssigned(node: any, container: any) {
 }`,
         },
         {
-          // Compliant: any-typed return from external parameter excluded
+          // Compliant: any return excluded
           code: `
 function printMemberExpression(path: any, print: any): boolean | string {
   if (!path) {
@@ -330,7 +329,7 @@ function printMemberExpression(path: any, print: any): boolean | string {
 }`,
         },
         {
-          // Compliant: any-typed external call among consistent boolean returns
+          // Compliant: any return excluded
           code: `
 function validateInput(value: any, externalValidate: any): boolean | string {
   if (!value) {
@@ -627,7 +626,7 @@ function validateInput(value: any, externalValidate: any): boolean | string {
           ],
         },
         {
-          // Noncompliant: returns object or false (boolean) - mixed types
+          // Noncompliant: mixed object and boolean
           code: `
 function getConfig() {
   if (condition) {
@@ -638,7 +637,7 @@ function getConfig() {
           errors: 1,
         },
         {
-          // Noncompliant: validate-style pattern - returns boolean or array
+          // Noncompliant: mixed boolean and array
           code: `
 function validate() {
   if (!this.validators) {
