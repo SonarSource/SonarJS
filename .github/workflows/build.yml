@@ -203,7 +203,7 @@ jobs:
           disable-caching: 'true'
       - &download_rspec_rule_data
         name: Download RSPEC rule data
-        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.2
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
           name: rspec-rule-data
       - id: deployer-secrets
@@ -470,7 +470,7 @@ jobs:
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Download RSPEC rule data
-        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.2
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
           name: rspec-rule-data
       - if: steps.cache.outputs.cache-hit != 'true'
@@ -514,7 +514,7 @@ jobs:
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Download RSPEC rule data
-        uses: actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e # v4.2.2
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
           name: rspec-rule-data
       - if: steps.cache.outputs.cache-hit != 'true'
