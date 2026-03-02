@@ -64,6 +64,13 @@ class CheckListTest {
       .stream()
       .map(c -> c.getAnnotation(org.sonar.check.Rule.class).key())
       .collect(Collectors.toList());
+    for (var key : keys) {
+      assertThat(
+        getClass().getResource("/org/sonar/l10n/javascript/rules/javascript/" + key + ".html")
+      )
+        .overridingErrorMessage("No description for " + key)
+        .isNotNull();
+    }
 
     // these rules have different implementation for TS and JS
     keys.remove("S3854");
