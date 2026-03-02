@@ -61,6 +61,7 @@
   },
   "type": "module",
   "devDependencies": {
+    "@asciidoctor/core": "3.0.4",
     "@eslint/core": "1.1.0",
     "@inquirer/prompts": "8.3.0",
     "@istanbuljs/esm-loader-hook": "0.3.0",
@@ -102,7 +103,6 @@
   },
   "dependencies": {
     "@angular-eslint/eslint-plugin": "21.2.0",
-    "@asciidoctor/core": "3.0.4",
     "@babel/core": "7.29.0",
     "@babel/eslint-parser": "7.28.6",
     "@babel/plugin-proposal-decorators": "7.29.0",
