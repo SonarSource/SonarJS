@@ -22,6 +22,7 @@ import ts from 'typescript';
 import {
   generateMeta,
   getTypeFromTreeNode,
+  isNullOrUndefinedType,
   isRequiredParserServices,
   report,
   toSecondaryLocation,
@@ -40,6 +41,11 @@ export const rule: Rule.RuleModule = {
       const checker = services.program.getTypeChecker();
       const lhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(lhs, services));
       const rhsType = checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(rhs, services));
+
+      // Comparing against undefined/null is always valid: any value can be undefined/null at runtime
+      if (isNullOrUndefinedType(lhsType) || isNullOrUndefinedType(rhsType)) {
+        return true;
+      }
 
       // If either type is indeterminate (unknown, type parameter, or indexed access),
       // we cannot know at compile time if the comparison will always fail

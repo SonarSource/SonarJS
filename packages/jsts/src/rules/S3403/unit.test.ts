@@ -264,8 +264,7 @@ describe('S3403', () => {
       },
     );
 
-    // JS-1325: with strictNullChecks, undefined/null are not assignable to non-nullable types,
-    // causing FPs for valid parameter checks against undefined or null.
+    // JS-1325: strictNullChecks causes FPs for parameter checks against undefined/null
     const ruleTesterTsStrict = new RuleTester({
       parserOptions: {
         project: './tsconfig.json',
@@ -314,7 +313,7 @@ describe('S3403', () => {
             filename: path.join(import.meta.dirname, 'fixtures', 'index.ts'),
           },
           {
-            // JS-1325: FP when checking typed parameter against void 0 (minification pattern)
+            // JS-1325: FP when checking typed parameter against void 0
             code: `
       function validateConcurrency(concurrency: string) {
         if (concurrency === void 0) { return; }
@@ -325,7 +324,7 @@ describe('S3403', () => {
         ],
         invalid: [
           {
-            // string vs number is always false in strict mode
+            // still reported with strictNullChecks
             code: `
       function compare(str: string, num: number) {
         return str === num;
