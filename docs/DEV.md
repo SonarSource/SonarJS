@@ -9,24 +9,27 @@ To work on this project, it is required to have the following tools installed:
 - [npm](https://www.npmjs.com/) >= 8
 - [Maven](https://maven.apache.org/) >= 3.8
 
-### GitHub Token for RSPEC Access
+### RSPEC Rule Metadata
 
-The build process fetches rule metadata from the private `SonarSource/rspec` repository. You need a GitHub personal access token with read access to this repository.
+The build process needs rule metadata from the `SonarSource/rspec` repository. Run the sync script to fetch and merge it:
 
-1. Create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) with:
-   - Repository access: `SonarSource/rspec`
-   - Permissions: **Contents: Read**
+```bash
+npm run sync-rspec -- --language javascript
+npm run sync-rspec -- --language css
+npm run deploy-rule-data
+```
 
-2. Add it to your shell environment (e.g., `~/.zshenv` for zsh):
+On first run, this clones the rspec repo (sparse checkout, `rules/` only) into `resources/rspec/`. On subsequent runs, it fetches the latest changes automatically. You need a `GITHUB_TOKEN` environment variable with read access to `SonarSource/rspec` for the initial clone.
 
-   ```bash
-   export GITHUB_TOKEN="your-token-here"
-   ```
+Alternatively, if you already have the rspec repo cloned locally:
 
-3. Restart your terminal or source the file:
-   ```bash
-   source ~/.zshenv
-   ```
+```bash
+npm run sync-rspec -- --rspec-path ../rspec --language javascript
+npm run sync-rspec -- --rspec-path ../rspec --language css
+npm run deploy-rule-data
+```
+
+This writes merged metadata JSON files to `resources/rule-data/` and deploys them to the sonar-plugin resources. You only need to re-run this when RSPEC metadata changes.
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
