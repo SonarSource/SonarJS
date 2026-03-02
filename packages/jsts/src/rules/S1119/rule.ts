@@ -18,7 +18,7 @@
 
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
-import { childrenOf, generateMeta, isFunctionNode, type LoopLike } from '../helpers/index.js';
+import { childrenOf, generateMeta, isFunctionNode } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
 
 const LOOP_TYPES = new Set([
@@ -29,7 +29,7 @@ const LOOP_TYPES = new Set([
   'ForOfStatement',
 ]);
 
-function isLoop(node: estree.Node): node is LoopLike {
+function isLoop(node: estree.Node): boolean {
   return LOOP_TYPES.has(node.type);
 }
 
@@ -63,21 +63,11 @@ function collectLabelRefAncestors(
 }
 
 /**
- * Returns true if the ancestor chain contains at least one loop node
- * that is nested inside the labeled loop (i.e., appears after it in the chain).
+ * Returns true if the ancestor chain contains at least one nested loop.
+ * ancestors[0] is always the labeled loop body itself, so we skip it.
  */
-function hasNestedLoop(labeledLoop: LoopLike, ancestors: estree.Node[]): boolean {
-  let foundLabeledLoop = false;
-  for (const ancestor of ancestors) {
-    if (ancestor === labeledLoop) {
-      foundLabeledLoop = true;
-      continue;
-    }
-    if (foundLabeledLoop && isLoop(ancestor)) {
-      return true;
-    }
-  }
-  return false;
+function hasNestedLoop(ancestors: estree.Node[]): boolean {
+  return ancestors.slice(1).some(isLoop);
 }
 
 export const rule: Rule.RuleModule = {
@@ -121,7 +111,7 @@ export const rule: Rule.RuleModule = {
 
         // Report if any reference is not from within a nested loop
         for (const ancestors of refAncestors) {
-          if (!hasNestedLoop(body, ancestors)) {
+          if (!hasNestedLoop(ancestors)) {
             context.report({
               messageId: 'removeLabel',
               node: node.label,
