@@ -330,6 +330,15 @@ describe('S7739', () => {
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
         },
+        // True Positive: Assigning a non-.then method to .then (like jQuery.ready.then = jQuery.fn.ready)
+        // RHS accesses a property that is not named 'then', so it's not a Promise delegation
+        {
+          code: `
+          jQuery.ready.then = jQuery.fn.ready;
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
         // {is, then} pattern should be flagged without validation library dependency
         {
           code: `
