@@ -26,12 +26,12 @@ import * as meta from './generated-meta.js';
 // FunctionDeclaration, FunctionExpression, and ArrowFunctionExpression, so empty {}
 // patterns in these TypeScript types are incorrectly reported.
 const TS_FUNCTION_TYPES = new Set([
-  'TSMethodSignature', //           interface I { method({}): void; }
-  'TSCallSignatureDeclaration', //  interface I { ({}): void; }
-  'TSConstructSignatureDeclaration', // interface I { new({}): void; }
-  'TSFunctionType', //              type F = ({}) => void;
-  'TSDeclareFunction', //           declare function f({}): void;
-  'TSEmptyBodyFunctionExpression', // abstract class C { abstract m({}): void; }
+  'TSMethodSignature', // method signature in a TypeScript interface
+  'TSCallSignatureDeclaration', // call signature in a TypeScript interface
+  'TSConstructSignatureDeclaration', // construct signature in a TypeScript interface
+  'TSFunctionType', // function type in a type alias
+  'TSDeclareFunction', // ambient function declaration
+  'TSEmptyBodyFunctionExpression', // body-less function in an abstract class
 ]);
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
