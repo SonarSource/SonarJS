@@ -28,7 +28,8 @@
  * - Merges parent + language-specific metadata.json → resources/rule-data/<language>/<rule>.json
  * - Renders <language>/rule.adoc to HTML → resources/rule-data/<language>/<rule>.html
  */
-import { readdirSync, readFileSync, mkdirSync, writeFileSync, rmSync, existsSync } from 'node:fs';
+import { readdir, readFile, mkdir, writeFile, rm, access } from 'node:fs/promises';
+import { existsSync, mkdirSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync } from 'node:child_process';
@@ -114,6 +115,15 @@ function sanitizeHtml(html: string): string {
   return result;
 }
 
+async function exists(path: string): Promise<boolean> {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const { values } = parseArgs({
   options: {
     'rspec-path': { type: 'string' },
@@ -192,42 +202,45 @@ const rulesDir = join(rspecPath, 'rules');
 const outputDir = join(ROOT_DIR, 'resources', 'rule-data', language);
 
 // Clean and recreate output directory
-rmSync(outputDir, { recursive: true, force: true });
-mkdirSync(outputDir, { recursive: true });
+await rm(outputDir, { recursive: true, force: true });
+await mkdir(outputDir, { recursive: true });
 
 const ruleRegex = /^S\d+$/;
-const ruleDirs = readdirSync(rulesDir).filter(name => ruleRegex.test(name));
+const ruleDirs = (await readdir(rulesDir)).filter(name => ruleRegex.test(name));
 
-let count = 0;
-
-for (const ruleName of ruleDirs) {
+async function syncRule(ruleName: string): Promise<boolean> {
   const languageDir = join(rulesDir, ruleName, language);
   const languageMetadataPath = join(languageDir, 'metadata.json');
-  let languageMetadata: Record<string, unknown>;
+
+  let languageMetadataRaw: string;
   try {
-    languageMetadata = JSON.parse(readFileSync(languageMetadataPath, 'utf-8'));
+    languageMetadataRaw = await readFile(languageMetadataPath, 'utf-8');
   } catch {
     // Rule doesn't have this language — skip
-    continue;
+    return false;
   }
+  const languageMetadata = JSON.parse(languageMetadataRaw);
 
   const parentMetadataPath = join(rulesDir, ruleName, 'metadata.json');
-  let parentMetadata: Record<string, unknown>;
+  let parentMetadataRaw: string;
   try {
-    parentMetadata = JSON.parse(readFileSync(parentMetadataPath, 'utf-8'));
+    parentMetadataRaw = await readFile(parentMetadataPath, 'utf-8');
   } catch {
     console.warn(`Warning: No parent metadata.json for ${ruleName}, skipping`);
-    continue;
+    return false;
   }
+  const parentMetadata = JSON.parse(parentMetadataRaw);
 
   // Write merged JSON metadata
   const merged = { ...parentMetadata, ...languageMetadata };
-  writeFileSync(join(outputDir, `${ruleName}.json`), JSON.stringify(merged, null, 2) + '\n');
+  const writes: Promise<void>[] = [
+    writeFile(join(outputDir, `${ruleName}.json`), JSON.stringify(merged, null, 2) + '\n'),
+  ];
 
   // Render adoc to HTML
   const adocPath = join(languageDir, 'rule.adoc');
-  if (existsSync(adocPath)) {
-    const adocContent = readFileSync(adocPath, 'utf-8');
+  if (await exists(adocPath)) {
+    const adocContent = await readFile(adocPath, 'utf-8');
 
     const html = asciidoctor.convert(adocContent, {
       safe: 'unsafe',
@@ -235,10 +248,16 @@ for (const ruleName of ruleDirs) {
       attributes: { 'attribute-missing': 'warn' },
     }) as string;
 
-    writeFileSync(join(outputDir, `${ruleName}.html`), populateLinks(langSq, sanitizeHtml(html)));
+    writes.push(
+      writeFile(join(outputDir, `${ruleName}.html`), populateLinks(langSq, sanitizeHtml(html))),
+    );
   }
 
-  count++;
+  await Promise.all(writes);
+  return true;
 }
+
+const results = await Promise.all(ruleDirs.map(syncRule));
+const count = results.filter(Boolean).length;
 
 console.log(`Synced ${count} ${language} rules to ${outputDir}`);
