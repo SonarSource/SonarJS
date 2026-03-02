@@ -14,20 +14,10 @@ To work on this project, it is required to have the following tools installed:
 The build process needs rule metadata from the `SonarSource/rspec` repository. Run the sync script to fetch and merge it:
 
 ```bash
-npm run sync-rspec -- --language javascript
-npm run sync-rspec -- --language css
-npm run deploy-rule-data
+npm run sync-rspec-all
 ```
 
-On first run, this clones the rspec repo (sparse checkout, `rules/` only) into `resources/rspec/`. On subsequent runs, it fetches the latest changes automatically. You need a `GITHUB_TOKEN` environment variable with read access to `SonarSource/rspec` for the initial clone.
-
-Alternatively, if you already have the rspec repo cloned locally:
-
-```bash
-npm run sync-rspec -- --rspec-path ../rspec --language javascript
-npm run sync-rspec -- --rspec-path ../rspec --language css
-npm run deploy-rule-data
-```
+On first run, this clones the rspec repo (sparse checkout, `rules/` only) into `resources/rspec/` via SSH. On subsequent runs, it fetches the latest changes automatically. Use `--rspec-path` to point to an existing local clone instead.
 
 This writes merged metadata JSON files to `resources/rule-data/` and deploys them to the sonar-plugin resources. You only need to re-run this when RSPEC metadata changes.
 

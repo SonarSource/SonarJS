@@ -37,7 +37,7 @@ import { parseArgs } from 'node:util';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
 const DEFAULT_RSPEC_PATH = join(ROOT_DIR, 'resources', 'rspec');
-const RSPEC_REPO = 'https://github.com/SonarSource/rspec.git';
+const RSPEC_REPO_SSH = 'git@github.com:SonarSource/rspec.git';
 const RSPEC_BRANCH = 'dogfood-automerge';
 
 const { values } = parseArgs({
@@ -68,7 +68,7 @@ if (!existsSync(join(rspecPath, 'rules'))) {
   const token = process.env.GITHUB_TOKEN;
   const repoUrl = token
     ? `https://x-access-token:${token}@github.com/SonarSource/rspec.git`
-    : RSPEC_REPO;
+    : RSPEC_REPO_SSH;
   mkdirSync(rspecPath, { recursive: true });
   execSync(
     `git clone --depth 1 --filter=blob:none --sparse --branch ${RSPEC_BRANCH} ${repoUrl} ${rspecPath}`,

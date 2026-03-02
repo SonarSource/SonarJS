@@ -16,7 +16,7 @@
  */
 import { join, resolve } from 'node:path/posix';
 import { listRulesDir } from './helpers.js';
-import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 
 const sourceFolder = resolve('resources/rule-data');
 
@@ -70,14 +70,8 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
   const sonarWayRuleNames: Array<string> = [];
 
   for (const ruleName of ruleNames) {
-    for (const extension of ['json', 'html']) {
-      const fileName = `${ruleName}.${extension}`;
-      const src = join(sourceFolder, fileName);
-
-      if (existsSync(src)) {
-        copyFileSync(src, join(targetFolder, fileName));
-      }
-    }
+    const fileName = `${ruleName}.json`;
+    copyFileSync(join(sourceFolder, fileName), join(targetFolder, fileName));
     const manifest: {
       defaultQualityProfiles: Array<string>;
     } = JSON.parse(readFileSync(join(sourceFolder, `${ruleName}.json`), 'utf-8'));

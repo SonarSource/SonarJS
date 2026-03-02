@@ -11,6 +11,7 @@
     "generate-java-rule-classes": "tsx tools/generate-java-rule-classes.ts",
     "ruling": "tsx --tsconfig packages/tsconfig.test.json --test packages/ruling/projects/*.ruling.test.ts",
     "sync-rspec": "tsx tools/sync-rspec.ts",
+    "sync-rspec-all": "npm run sync-rspec -- --language javascript && npm run sync-rspec -- --language css && npm run deploy-rule-data",
     "ruling-sync": "rsync -avh packages/ruling/actual/ its/ruling/src/test/expected/ --delete",
     "bridge:compile:ts5": "tsc -b packages && tsx tools/generate-proto.ts --copy",
     "bridge:compile": "tsgo -p packages/tsconfig.app.json && tsgo -p packages/tsconfig.test.json && tsx tools/generate-proto.ts --copy",

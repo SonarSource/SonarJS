@@ -165,11 +165,7 @@ jobs:
           secrets: |
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
       - name: Sync RSPEC rule data
-        run: |
-          npm run sync-rspec -- --language javascript
-          npm run sync-rspec -- --language css
-          rm -rf resources/rspec
-          npm run deploy-rule-data
+        run: npm run sync-rspec-all
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Upload RSPEC rule data
