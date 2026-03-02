@@ -235,8 +235,8 @@ describe('gRPC server', () => {
 
     expect(issues.length).toBe(2);
     const filePaths = issues.map(i => i.filePath);
-    expect(filePaths.some(p => p?.endsWith('/project/src/file1.js'))).toBe(true);
-    expect(filePaths.some(p => p?.endsWith('/project/src/file2.js'))).toBe(true);
+    expect(filePaths).toContain('/project/src/file1.js');
+    expect(filePaths).toContain('/project/src/file2.js');
   });
 
   it('should handle parsing errors', async () => {
@@ -754,6 +754,56 @@ describe('gRPC server', () => {
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
+  it('should return the original relativePath in issue filePath for relative path', async () => {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [
+        {
+          relativePath: 'src/app.js',
+          content: 'const x = 1;;\n',
+        },
+      ],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S1116' },
+          params: [],
+        },
+      ],
+    };
+
+    const response = await client.analyze(request);
+    const issues = response.issues || [];
+
+    expect(issues.length).toBe(1);
+    expect(issues[0].filePath).toBe('src/app.js');
+  });
+
+  it('should return the original relativePath in issue filePath for nested relative path', async () => {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [
+        {
+          relativePath: 'project/src/nested.js',
+          content: 'const x = 1;;\n',
+        },
+      ],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S1116' },
+          params: [],
+        },
+      ],
+    };
+
+    const response = await client.analyze(request);
+    const issues = response.issues || [];
+
+    expect(issues.length).toBe(1);
+    expect(issues[0].filePath).toBe('project/src/nested.js');
+  });
+
   describe('CSS analysis', () => {
     it('should analyze a CSS file and return issues', async () => {
       // S4658 = block-no-empty — triggers on empty blocks
@@ -780,7 +830,7 @@ describe('gRPC server', () => {
       expect(issues.length).toBe(1);
       expect(issues[0].rule?.repo).toBe('css');
       expect(issues[0].rule?.rule).toBe('S4658');
-      expect(issues[0].filePath).toMatch(/src\/styles\.css$/);
+      expect(issues[0].filePath).toBe('src/styles.css');
       expect(issues[0].textRange?.startLine).toBe(1);
       expect(issues[0].textRange?.startLineOffset).toBe(2);
       expect(issues[0].textRange?.endLine).toBe(1);
