@@ -348,6 +348,94 @@ describe('S2310 - valid patterns', () => {
       }
       `,
         },
+        // False positive: simple assignment (=) to loop counter after splice() compensates
+        // for index shift. splice(i, 1) removes the element at position i, so i = i - 1
+        // ensures the next iteration re-checks the same index (now occupied by the next element).
+        {
+          code: `
+      function removeMatchingItems(items, predicate) {
+        for (let i = 0; i < items.length; i++) {
+          if (predicate(items[i])) {
+            items.splice(i, 1);
+            i = i - 1; // Compliant: compensating for splice index shift
+          }
+        }
+        return items;
+      }
+      `,
+        },
+        // False positive: simple assignment (=) to restart loop counter after splice()
+        // After splice removes elements that may affect earlier indices, the counter is
+        // reset to re-scan from a known-good position.
+        {
+          code: `
+      function deduplicateSorted(arr) {
+        for (let i = 1; i < arr.length; i++) {
+          if (arr[i] === arr[i - 1]) {
+            arr.splice(i, 1);
+            i = 0; // Compliant: restart scan after removing duplicate
+          }
+        }
+        return arr;
+      }
+      `,
+        },
+        // False positive: simple assignment (=) to skip past elements inserted by splice()
+        // When splice inserts multiple elements, the counter needs to advance past them
+        // to avoid re-processing.
+        {
+          code: `
+      function flattenNestedGroups(groups) {
+        for (let i = 0; i < groups.length; i++) {
+          const group = groups[i];
+          if (group.children && group.children.length > 0) {
+            const children = group.children;
+            groups.splice(i, 1);
+            for (let j = 0; j < children.length; j++) {
+              groups.splice(i + j, 0, children[j]);
+            }
+            i = i + children.length - 1; // Compliant: skip past inserted children
+          }
+        }
+        return groups;
+      }
+      `,
+        },
+        // False positive from ruling data (knockout): splice(r, 1) followed by r = 0
+        // to reset inner loop counter and re-scan from start after removing matched item
+        {
+          code: `
+      function findMovesInArrayComparison(left, right, limitFailedCompares) {
+        if (left.length && right.length) {
+          var failedCompares, l, r;
+          for (failedCompares = l = 0; (!limitFailedCompares || failedCompares < limitFailedCompares) && left[l]; ++l) {
+            for (r = 0; right[r]; ++r) {
+              if (left[l].value === right[r].value) {
+                right.splice(r, 1);
+                failedCompares = r = 0; // Compliant: reset after splice removes matched item
+                break;
+              }
+            }
+            failedCompares += r;
+          }
+        }
+      }
+      `,
+        },
+        // Splice result captured in variable declaration followed by counter adjustment
+        {
+          code: `
+      function removeAndTrack(items, predicate) {
+        for (let i = 0; i < items.length; i++) {
+          if (predicate(items[i])) {
+            const removed = items.splice(i, 1);
+            console.log('removed:', removed);
+            i = i - 1; // Compliant: compensating for splice index shift
+          }
+        }
+      }
+      `,
+        },
       ],
       invalid: [],
     });
@@ -524,6 +612,65 @@ describe('S2310 - invalid patterns', () => {
       }
       `,
           errors: [{ message: 'Remove this assignment of "i".', line: 4 }],
+        },
+        // Unconditional decrement with splice inside if-branch is a bug (infinite loop risk)
+        {
+          code: `
+      function removeIfMatching(items, predicate) {
+        for (let i = 0; i < items.length; i++) {
+          if (predicate(items[i])) {
+            items.splice(i, 1);
+          }
+          i = i - 1; // Noncompliant: runs unconditionally, not just when splice happened
+        }
+        return items;
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 7 }],
+        },
+        // Unconditional decrement with splice inside else-branch is a bug
+        {
+          code: `
+      function keepOrRemove(items, predicate) {
+        for (let i = 0; i < items.length; i++) {
+          if (!predicate(items[i])) {
+            console.log('keeping', items[i]);
+          } else {
+            items.splice(i, 1);
+          }
+          i = i - 1; // Noncompliant: runs unconditionally
+        }
+        return items;
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 9 }],
+        },
+        // Unconditional decrement with splice inside brace-less if is a bug
+        {
+          code: `
+      function removeSingleStatement(items, predicate) {
+        for (let i = 0; i < items.length; i++) {
+          if (predicate(items[i])) items.splice(i, 1);
+          i = i - 1; // Noncompliant: runs unconditionally
+        }
+        return items;
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 5 }],
+        },
+        // Unconditional decrement with splice inside brace-less else is a bug
+        {
+          code: `
+      function keepOrRemoveSingleStatement(items, predicate) {
+        for (let i = 0; i < items.length; i++) {
+          if (!predicate(items[i])) console.log('keeping');
+          else items.splice(i, 1);
+          i = i - 1; // Noncompliant: runs unconditionally
+        }
+        return items;
+      }
+      `,
+          errors: [{ message: 'Remove this assignment of "i".', line: 6 }],
         },
       ],
     });
