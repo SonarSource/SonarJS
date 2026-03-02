@@ -1,0 +1,293 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import { rule } from './index.js';
+import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
+
+describe('S6767', () => {
+  it('S6767', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          code: `
+import React from 'react';
+interface Props { name: string; }
+class Hello extends React.Component<Props> {
+  render() { return <div>{this.props.name}</div>; }
+}`,
+        },
+        {
+          // Compliant: props passed to helper function
+          code: `
+import * as React from 'react';
+interface BarProps { x: number; y: number; barOffset: number[]; }
+function getBarPath(props: BarProps): string { return \`M\${props.x},\${props.y}\`; }
+export default class Bar extends React.Component<BarProps> {
+  render() {
+    const path = getBarPath(this.props);
+    return <path d={path} />;
+  }
+}`,
+        },
+        {
+          // Compliant: bracket notation access
+          code: `
+import * as React from 'react';
+interface ConfigProps { prefixCls?: string; children?: React.ReactNode; input?: object; form?: object; }
+const PASSED_PROPS: (keyof ConfigProps)[] = ['input', 'form'];
+export default class ConfigProvider extends React.Component<ConfigProps> {
+  render() {
+    const config: Record<string, unknown> = {};
+    PASSED_PROPS.forEach((propName) => {
+      const value = this.props[propName];
+      if (value) config[propName] = value;
+    });
+    return <div className={this.props.prefixCls}>{this.props.children}</div>;
+  }
+}`,
+        },
+        {
+          // Compliant: this.props spread
+          code: `
+import * as React from 'react';
+interface WrapperProps { className: string; id: string; children: React.ReactNode; }
+class Wrapper extends React.Component<WrapperProps> {
+  render() {
+    const merged = { ...this.props, extra: true };
+    return <div className={merged.className}>{merged.children}</div>;
+  }
+}
+export default Wrapper;`,
+        },
+        {
+          // Compliant: React.forwardRef wrapper
+          code: `
+import * as React from 'react';
+interface InputProps { value: string; size: 'small' | 'medium' | 'large'; onChange: (value: string) => void; }
+const Input = React.forwardRef<HTMLInputElement, InputProps>((props, ref) => {
+  const { value, onChange } = props;
+  return <input ref={ref} value={value} onChange={(e) => onChange(e.target.value)} />;
+});
+export default Input;`,
+        },
+        {
+          // Compliant: bare forwardRef (named import, not React.forwardRef)
+          code: `
+import * as React from 'react';
+import { forwardRef } from 'react';
+interface InputProps { value: string; size: 'small' | 'medium' | 'large'; }
+const Input = forwardRef<HTMLInputElement, InputProps>((props, ref) => {
+  const { value } = props;
+  return <input ref={ref} value={value} />;
+});
+export default Input;`,
+        },
+        {
+          // Compliant: props passed to context provider
+          code: `
+import * as React from 'react';
+interface ConfigProps { theme: string; locale: string; children: React.ReactNode; }
+const ConfigContext = React.createContext<Partial<ConfigProps>>({});
+const ConfigProvider: React.FC<ConfigProps> = (props) => {
+  const { children } = props;
+  return <ConfigContext.Provider value={props}>{children}</ConfigContext.Provider>;
+};
+export default ConfigProvider;`,
+        },
+        {
+          // Compliant: super(props) in constructor suppresses issue (props may be used in lifecycle methods)
+          code: `
+import * as React from 'react';
+interface ThemeProps { theme: string; children: React.ReactNode; }
+export default class ThemeProvider extends React.Component<ThemeProps> {
+  constructor(props: ThemeProps) {
+    super(props);
+  }
+  render() { return <div>{this.props.children}</div>; }
+}`,
+        },
+        {
+          // Compliant: all props directly used even with super(props) in constructor
+          code: `
+import * as React from 'react';
+interface ThemeProps { theme: string; children: React.ReactNode; }
+export default class ThemeProvider extends React.Component<ThemeProps> {
+  constructor(props: ThemeProps) {
+    super(props);
+  }
+  render() { return <div className={this.props.theme}>{this.props.children}</div>; }
+}`,
+        },
+        {
+          // Compliant: HOC export wrapper suppresses issue (HOC may inject or consume props)
+          code: `
+import * as React from 'react';
+interface ButtonProps { label: string; styles: Record<string, string>; }
+declare function withTheme<P extends { styles?: Record<string, string> }>(Component: React.ComponentType<P>): React.FC<Omit<P, 'styles'>>;
+class Button extends React.Component<ButtonProps> {
+  render() { return <button>{this.props.label}</button>; }
+}
+export default withTheme(Button);`,
+        },
+        {
+          // Compliant: curried HOC named export suppresses issue
+          code: `
+import * as React from 'react';
+import { connect } from 'react-redux';
+interface ButtonProps { label: string; styles: Record<string, string>; }
+const Button: React.FC<ButtonProps> = ({ label }) => <button>{label}</button>;
+const mapStateToProps = () => ({ styles: {} });
+export const ConnectedButton = connect(mapStateToProps)(Button);`,
+        },
+        {
+          // Compliant: single-call Relay HOC named export (createFragmentContainer) suppresses issue
+          code: `
+import React from 'react';
+import { createFragmentContainer, graphql, RelayProp } from 'react-relay';
+interface Props {
+  relay: RelayProp;
+  title: string;
+  unusedProp?: string;
+}
+const MyComponent: React.FC<Props> = ({ title }) => <div>{title}</div>;
+export const MyComponentContainer = createFragmentContainer(MyComponent, {
+  data: graphql\`fragment MyComponent_data on Query { title }\`,
+});`,
+        },
+        {
+          // Compliant: non-exported Relay HOC call (createPaginationContainer) suppresses issue
+          code: `
+import React from 'react';
+import { createPaginationContainer, graphql, RelayPaginationProp } from 'react-relay';
+interface Props {
+  relay: RelayPaginationProp;
+  items: string[];
+}
+const MyList: React.FC<Props> = ({ items }) => <div>{items.join(', ')}</div>;
+const MyListContainer = createPaginationContainer(MyList, {
+  data: graphql\`fragment MyList_data on Query { items }\`,
+}, {});`,
+        },
+        {
+          // Compliant: method decorator with props callback suppresses issue (@track pattern)
+          code: `
+import React from 'react';
+interface Props { contextModule?: string; label: string; }
+class TrackingComponent extends React.Component<Props> {
+  // @ts-ignore
+  @track((props: Props) => ({ context_module: props.contextModule }))
+  handlePress() {}
+  render() { return <button onClick={this.handlePress}>{this.props.label}</button>; }
+}
+export default TrackingComponent;`,
+          filename: 'test.tsx',
+          languageOptions: { parserOptions: { ecmaFeatures: { experimentalDecorators: true } } },
+        },
+        {
+          // Compliant: HOC(HOC2(Component), config) pattern — first argument is a HOC call expression
+          // e.g. Relay.createContainer(withRouter(Component), fragments)
+          code: `
+import * as React from 'react';
+import * as Relay from 'react-relay';
+import { withRouter } from 'react-router';
+interface Props { viewer: any; params: any; router: any; }
+class MyComponent extends React.Component<Props> {
+  render() {
+    const { params } = this.props;
+    return <div>{params.id}</div>;
+  }
+}
+export default Relay.createContainer(withRouter(MyComponent), {
+  fragments: { viewer: () => Relay.QL\`fragment on Viewer { id }\` },
+});`,
+        },
+        {
+          // Compliant: all props directly used even when interface is exported
+          code: `
+import * as React from 'react';
+export interface ButtonProps { label: string; variant: 'primary' | 'secondary'; onClick?: () => void; }
+const Button: React.FC<ButtonProps> = (props) => {
+  const { label, onClick, variant } = props;
+  return <button className={variant} onClick={onClick}>{label}</button>;
+};
+export default Button;`,
+        },
+      ],
+      invalid: [
+        {
+          // Non-compliant: genuinely unused prop with no suppression pattern
+          code: `
+import React from 'react';
+interface Props { name: string; }
+class Hello extends React.Component<Props> {
+  render() { return <div>Hello</div>; }
+}`,
+          errors: 1,
+        },
+        {
+          // Non-compliant: exported type with name not containing 'Props' does not suppress
+          code: `
+import * as React from 'react';
+export type NavigationStack = { Home: undefined; Profile: undefined; };
+interface ScreenProps { title?: string; visible: boolean; }
+export const Screen: React.FC<ScreenProps> = ({ visible }) => <div>{visible ? 'shown' : 'hidden'}</div>;`,
+          errors: 1,
+        },
+        {
+          // Non-compliant: exported React.createContext() in same file does not suppress unused props
+          // React.createContext() is not an HOC wrapper - it does not inject props into components
+          code: `
+import * as React from 'react';
+interface PaddingProps { fullBleed: boolean; isPresentedModally: boolean; isVisible: boolean; }
+const Padding: React.FC<PaddingProps> = ({ fullBleed }) => <div style={{ padding: fullBleed ? 0 : 16 }} />;
+export const BackButtonContext = React.createContext<{ update: () => void }>({ update() {} });`,
+          errors: 2,
+        },
+        {
+          // Non-compliant: exported Props interface alone does not suppress (over-broad pattern removed)
+          // An exported interface does not guarantee props are consumed indirectly
+          code: `
+import * as React from 'react';
+export interface ButtonProps { label: string; variant: string; onClick: () => void; }
+class Button extends React.Component<ButtonProps> {
+  render() { return <button onClick={this.props.onClick}>{this.props.label}</button>; }
+}
+export default Button;`,
+          errors: 1,
+        },
+        {
+          // Non-compliant: PropTypes.checkPropTypes(props) does not count as functional prop usage
+          // checkPropTypes only validates prop types, it does not consume props for functionality
+          code: `
+import React from 'react';
+import PropTypes from 'prop-types';
+interface Props { name: string; age: number; }
+class MyComponent extends React.Component<Props> {
+  static propTypes = { name: PropTypes.string, age: PropTypes.number };
+  componentDidMount() {
+    PropTypes.checkPropTypes(MyComponent.propTypes, this.props, 'prop', 'MyComponent');
+  }
+  render() { return <div>{this.props.name}</div>; }
+}`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
