@@ -144,10 +144,9 @@ if (!existsSync(join(rspecPath, 'rules'))) {
     ? `https://x-access-token:${token}@github.com/SonarSource/rspec.git`
     : RSPEC_REPO_SSH;
   mkdirSync(rspecPath, { recursive: true });
-  execSync(
-    `git clone --depth 1 --filter=blob:none --sparse --branch ${RSPEC_BRANCH} ${repoUrl} ${rspecPath}`,
-    { stdio: 'inherit' },
-  );
+  execSync(`git clone --depth 1 --sparse --branch ${RSPEC_BRANCH} ${repoUrl} ${rspecPath}`, {
+    stdio: 'inherit',
+  });
   execSync('git sparse-checkout set rules external_refs shared_content', {
     cwd: rspecPath,
     stdio: 'inherit',
