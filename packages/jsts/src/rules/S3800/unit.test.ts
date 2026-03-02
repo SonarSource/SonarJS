@@ -319,6 +319,29 @@ function isAssigned(node: any, container: any) {
   return !!container.check(node);
 }`,
         },
+        {
+          // Compliant: any-typed return from external parameter excluded
+          code: `
+function printMemberExpression(path: any, print: any): boolean | string {
+  if (!path) {
+    return false;
+  }
+  return print(path.node);
+}`,
+        },
+        {
+          // Compliant: any-typed external call among consistent boolean returns
+          code: `
+function validateInput(value: any, externalValidate: any): boolean | string {
+  if (!value) {
+    return false;
+  }
+  if (typeof value !== 'string') {
+    return true;
+  }
+  return externalValidate(value);
+}`,
+        },
       ],
       invalid: [
         {
