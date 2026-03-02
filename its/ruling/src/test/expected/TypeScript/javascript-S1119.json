@@ -1,15 +1,10 @@
 {
 "TypeScript:lib/tsc.js": [
-610,
-684,
 685,
 3740,
-21357,
-28160
+21357
 ],
 "TypeScript:lib/typingsInstaller.js": [
-620,
-694,
 695,
 3750
 ]

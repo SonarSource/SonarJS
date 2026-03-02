@@ -16,9 +16,59 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1119/javascript
 
-import type { Rule } from 'eslint';
-import { generateMeta } from '../helpers/index.js';
+import type { Rule, SourceCode } from 'eslint';
+import type estree from 'estree';
+import { childrenOf, generateMeta, isFunctionNode } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
+
+const LOOP_TYPES = new Set([
+  'ForStatement',
+  'WhileStatement',
+  'DoWhileStatement',
+  'ForInStatement',
+  'ForOfStatement',
+]);
+
+function isLoop(node: estree.Node): boolean {
+  return LOOP_TYPES.has(node.type);
+}
+
+/**
+ * Collects ancestor chains for all break/continue statements referencing
+ * `labelName` within `current`, stopping at function boundaries.
+ * Each entry in `result` is the ancestor chain from the start of traversal
+ * down to the statement's immediate parent.
+ */
+function collectLabelRefAncestors(
+  current: estree.Node,
+  labelName: string,
+  ancestorChain: estree.Node[],
+  visitorKeys: SourceCode.VisitorKeys,
+  result: estree.Node[][],
+): void {
+  if (isFunctionNode(current)) {
+    return;
+  }
+
+  if (
+    (current.type === 'BreakStatement' || current.type === 'ContinueStatement') &&
+    current.label?.name === labelName
+  ) {
+    result.push(ancestorChain);
+  }
+
+  for (const child of childrenOf(current, visitorKeys)) {
+    collectLabelRefAncestors(child, labelName, [...ancestorChain, current], visitorKeys, result);
+  }
+}
+
+/**
+ * Returns true if the ancestor chain contains at least one nested loop.
+ * ancestors[0] is always the labeled loop body itself, so we skip it.
+ */
+function hasNestedLoop(ancestors: estree.Node[]): boolean {
+  return ancestors.slice(1).some(isLoop);
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -29,11 +79,48 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       LabeledStatement(node) {
-        const sourceCode = context.sourceCode;
-        context.report({
-          messageId: 'removeLabel',
-          loc: sourceCode.getFirstToken(node)!.loc,
-        });
+        const body = node.body;
+
+        // If the labeled body is not a loop, always report
+        if (!isLoop(body)) {
+          context.report({
+            messageId: 'removeLabel',
+            node: node.label,
+          });
+          return;
+        }
+
+        // Collect ancestor chains for all break/continue referencing this label
+        const refAncestors: estree.Node[][] = [];
+        collectLabelRefAncestors(
+          body,
+          node.label.name,
+          [],
+          context.sourceCode.visitorKeys,
+          refAncestors,
+        );
+
+        // No references: label on loop is unused → report
+        if (refAncestors.length === 0) {
+          context.report({
+            messageId: 'removeLabel',
+            node: node.label,
+          });
+          return;
+        }
+
+        // Report if any reference is not from within a nested loop
+        for (const ancestors of refAncestors) {
+          if (!hasNestedLoop(ancestors)) {
+            context.report({
+              messageId: 'removeLabel',
+              node: node.label,
+            });
+            return;
+          }
+        }
+
+        // All references are multi-level loop exits: suppress
       },
     };
   },
