@@ -39,11 +39,11 @@
       "12.1.2"
     ]
   },
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

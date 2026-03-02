@@ -13,6 +13,9 @@
   "ruleSpecification": "RSPEC-7648",
   "sqKey": "S7648",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "covered",
   "code": {
     "impacts": {
@@ -27,8 +30,5 @@
   },
   "compatibleLanguages": [
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

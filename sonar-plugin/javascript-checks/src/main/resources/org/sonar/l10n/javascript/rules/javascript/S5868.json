@@ -24,12 +24,12 @@
   "ruleSpecification": "RSPEC-5868",
   "sqKey": "S5868",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

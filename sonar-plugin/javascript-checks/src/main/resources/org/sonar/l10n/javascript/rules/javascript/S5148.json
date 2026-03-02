@@ -35,11 +35,11 @@
       "A5"
     ]
   },
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

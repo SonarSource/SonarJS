@@ -23,10 +23,10 @@
   "ruleSpecification": "RSPEC-4139",
   "sqKey": "S4139",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

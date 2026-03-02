@@ -26,10 +26,10 @@
   "ruleSpecification": "RSPEC-117",
   "sqKey": "S117",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

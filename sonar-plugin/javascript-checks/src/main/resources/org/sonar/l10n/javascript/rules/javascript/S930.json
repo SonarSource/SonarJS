@@ -28,11 +28,11 @@
       628
     ]
   },
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

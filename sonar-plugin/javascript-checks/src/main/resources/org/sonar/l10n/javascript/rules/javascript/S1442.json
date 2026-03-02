@@ -17,9 +17,9 @@
   "ruleSpecification": "RSPEC-1442",
   "sqKey": "S1442",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

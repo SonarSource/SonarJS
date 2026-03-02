@@ -25,10 +25,10 @@
   "ruleSpecification": "RSPEC-1774",
   "sqKey": "S1774",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

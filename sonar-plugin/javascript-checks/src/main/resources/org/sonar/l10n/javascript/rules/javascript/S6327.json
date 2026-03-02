@@ -43,11 +43,11 @@
       "V-222588"
     ]
   },
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

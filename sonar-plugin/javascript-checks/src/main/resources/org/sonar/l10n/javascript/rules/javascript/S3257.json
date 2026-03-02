@@ -24,9 +24,9 @@
   "ruleSpecification": "RSPEC-3257",
   "sqKey": "S3257",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "covered",
   "compatibleLanguages": [
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

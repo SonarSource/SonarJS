@@ -18,13 +18,13 @@
   "ruleSpecification": "RSPEC-6582",
   "sqKey": "S6582",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "covered",
   "title": "Optional chaining should be preferred",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

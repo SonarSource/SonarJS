@@ -24,11 +24,11 @@
   "ruleSpecification": "RSPEC-3800",
   "sqKey": "S3800",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

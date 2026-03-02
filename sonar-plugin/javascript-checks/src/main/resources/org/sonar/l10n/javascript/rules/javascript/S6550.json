@@ -19,11 +19,11 @@
   "ruleSpecification": "RSPEC-6550",
   "sqKey": "S6550",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "infeasible",
   "compatibleLanguages": [
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

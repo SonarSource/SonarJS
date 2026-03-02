@@ -14,6 +14,7 @@
   "ruleSpecification": "RSPEC-7730",
   "sqKey": "S7730",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "covered",
   "code": {
     "impacts": {
@@ -24,6 +25,5 @@
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

@@ -26,12 +26,12 @@
   "ruleSpecification": "RSPEC-5973",
   "sqKey": "S5973",
   "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "infeasible",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

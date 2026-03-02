@@ -1,5 +1,5 @@
 {
-  "title": "React\u0027s useState hook should not be used directly in the render function or body of a component",
+  "title": "React's useState hook should not be used directly in the render function or body of a component",
   "type": "BUG",
   "code": {
     "impacts": {
@@ -19,12 +19,12 @@
   "ruleSpecification": "RSPEC-6442",
   "sqKey": "S6442",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

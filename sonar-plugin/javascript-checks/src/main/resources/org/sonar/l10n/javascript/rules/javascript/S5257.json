@@ -1,5 +1,5 @@
 {
-  "title": "HTML \"\u003ctable\u003e\" should not be used for layout purposes",
+  "title": "HTML \"<table>\" should not be used for layout purposes",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
@@ -24,12 +24,12 @@
   "ruleSpecification": "RSPEC-5257",
   "sqKey": "S5257",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

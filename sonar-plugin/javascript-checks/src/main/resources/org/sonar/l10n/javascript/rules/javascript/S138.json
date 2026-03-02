@@ -25,10 +25,10 @@
   "ruleSpecification": "RSPEC-138",
   "sqKey": "S138",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

@@ -24,11 +24,11 @@
   "ruleSpecification": "RSPEC-1527",
   "sqKey": "S1527",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

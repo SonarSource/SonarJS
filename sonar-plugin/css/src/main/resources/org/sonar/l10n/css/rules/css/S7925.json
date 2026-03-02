@@ -15,6 +15,9 @@
   "ruleSpecification": "RSPEC-7925",
   "sqKey": "S7925",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "unknown",
   "code": {
     "impacts": {
@@ -24,8 +27,5 @@
   },
   "compatibleLanguages": [
     "css"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

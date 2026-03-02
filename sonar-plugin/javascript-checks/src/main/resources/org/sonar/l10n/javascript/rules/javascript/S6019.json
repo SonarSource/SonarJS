@@ -1,5 +1,5 @@
 {
-  "title": "Reluctant quantifiers in regular expressions should be followed by an expression that can\u0027t match the empty string",
+  "title": "Reluctant quantifiers in regular expressions should be followed by an expression that can't match the empty string",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
@@ -24,12 +24,12 @@
   "ruleSpecification": "RSPEC-6019",
   "sqKey": "S6019",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

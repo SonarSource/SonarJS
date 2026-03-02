@@ -23,11 +23,11 @@
   "ruleSpecification": "RSPEC-4323",
   "sqKey": "S4323",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

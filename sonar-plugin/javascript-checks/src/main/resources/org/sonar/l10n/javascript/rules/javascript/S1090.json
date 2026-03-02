@@ -14,6 +14,9 @@
   "ruleSpecification": "RSPEC-1090",
   "sqKey": "S1090",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "infeasible",
   "code": {
     "impacts": {
@@ -24,8 +27,5 @@
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

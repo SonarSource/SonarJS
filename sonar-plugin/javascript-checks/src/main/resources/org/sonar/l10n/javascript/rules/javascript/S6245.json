@@ -29,9 +29,9 @@
       "6.2.4"
     ]
   },
+  "defaultQualityProfiles": [],
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

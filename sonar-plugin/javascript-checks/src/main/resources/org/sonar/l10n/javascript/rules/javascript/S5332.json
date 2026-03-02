@@ -55,11 +55,11 @@
       "V-222599"
     ]
   },
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

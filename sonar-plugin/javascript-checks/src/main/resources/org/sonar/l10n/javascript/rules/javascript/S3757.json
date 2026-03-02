@@ -23,9 +23,9 @@
   "ruleSpecification": "RSPEC-3757",
   "sqKey": "S3757",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

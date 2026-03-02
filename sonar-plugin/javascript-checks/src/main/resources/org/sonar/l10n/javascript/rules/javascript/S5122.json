@@ -43,11 +43,11 @@
       "14.5.3"
     ]
   },
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

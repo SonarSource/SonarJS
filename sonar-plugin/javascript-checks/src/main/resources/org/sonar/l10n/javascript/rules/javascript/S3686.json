@@ -21,11 +21,11 @@
   "ruleSpecification": "RSPEC-3686",
   "sqKey": "S3686",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

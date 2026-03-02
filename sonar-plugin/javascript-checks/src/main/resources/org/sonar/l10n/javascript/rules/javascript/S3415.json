@@ -25,12 +25,12 @@
   "ruleSpecification": "RSPEC-3415",
   "sqKey": "S3415",
   "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

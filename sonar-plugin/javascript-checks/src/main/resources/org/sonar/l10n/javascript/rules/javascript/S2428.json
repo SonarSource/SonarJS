@@ -23,9 +23,9 @@
   "ruleSpecification": "RSPEC-2428",
   "sqKey": "S2428",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

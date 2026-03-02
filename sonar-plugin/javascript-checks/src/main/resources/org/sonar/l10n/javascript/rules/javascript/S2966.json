@@ -23,9 +23,9 @@
   "ruleSpecification": "RSPEC-2966",
   "sqKey": "S2966",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "covered",
   "compatibleLanguages": [
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

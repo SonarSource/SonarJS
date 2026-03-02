@@ -21,9 +21,9 @@
   "ruleSpecification": "RSPEC-4787",
   "sqKey": "S4787",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

@@ -10,6 +10,9 @@
   "ruleSpecification": "RSPEC-6850",
   "sqKey": "S6850",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "infeasible",
   "code": {
     "impacts": {
@@ -25,8 +28,5 @@
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

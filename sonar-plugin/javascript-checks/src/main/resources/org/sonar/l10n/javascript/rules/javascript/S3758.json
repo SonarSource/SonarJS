@@ -23,9 +23,9 @@
   "ruleSpecification": "RSPEC-3758",
   "sqKey": "S3758",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

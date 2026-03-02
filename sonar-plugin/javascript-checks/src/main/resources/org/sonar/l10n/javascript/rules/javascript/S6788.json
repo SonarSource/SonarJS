@@ -1,5 +1,5 @@
 {
-  "title": "React\u0027s \"findDOMNode\" should not be used",
+  "title": "React's \"findDOMNode\" should not be used",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -18,6 +18,9 @@
   "ruleSpecification": "RSPEC-6788",
   "sqKey": "S6788",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "unknown",
   "code": {
     "impacts": {
@@ -29,8 +32,5 @@
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

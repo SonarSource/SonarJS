@@ -20,11 +20,11 @@
   "ruleSpecification": "RSPEC-6583",
   "sqKey": "S6583",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "infeasible",
   "compatibleLanguages": [
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

@@ -28,11 +28,11 @@
   "ruleSpecification": "RSPEC-1117",
   "sqKey": "S1117",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "title": "Variables should not be shadowed",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

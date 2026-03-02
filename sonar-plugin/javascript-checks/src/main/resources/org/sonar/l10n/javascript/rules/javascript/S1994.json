@@ -1,5 +1,5 @@
 {
-  "title": "\"for\" loop increment clauses should modify the loops\u0027 counters",
+  "title": "\"for\" loop increment clauses should modify the loops' counters",
   "type": "CODE_SMELL",
   "code": {
     "impacts": {
@@ -23,12 +23,12 @@
   "ruleSpecification": "RSPEC-1994",
   "sqKey": "S1994",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

@@ -24,10 +24,10 @@
   "ruleSpecification": "RSPEC-1539",
   "sqKey": "S1539",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

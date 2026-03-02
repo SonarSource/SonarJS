@@ -21,10 +21,10 @@
   "ruleSpecification": "RSPEC-3786",
   "sqKey": "S3786",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

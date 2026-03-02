@@ -1,5 +1,5 @@
 {
-  "title": "Non-interactive elements shouldn\u0027t have event handlers",
+  "title": "Non-interactive elements shouldn't have event handlers",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
@@ -14,6 +14,9 @@
   "ruleSpecification": "RSPEC-6847",
   "sqKey": "S6847",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "infeasible",
   "code": {
     "impacts": {
@@ -25,8 +28,5 @@
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

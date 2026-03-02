@@ -24,10 +24,10 @@
   "ruleSpecification": "RSPEC-105",
   "sqKey": "S105",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

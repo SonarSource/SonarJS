@@ -17,12 +17,12 @@
   "ruleSpecification": "RSPEC-6426",
   "sqKey": "S6426",
   "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

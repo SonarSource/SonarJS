@@ -25,10 +25,10 @@
   "ruleSpecification": "RSPEC-1526",
   "sqKey": "S1526",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

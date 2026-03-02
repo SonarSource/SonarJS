@@ -21,9 +21,9 @@
   "ruleSpecification": "RSPEC-4328",
   "sqKey": "S4328",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

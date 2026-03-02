@@ -11,9 +11,9 @@
   "ruleSpecification": "RSPEC-4829",
   "sqKey": "S4829",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

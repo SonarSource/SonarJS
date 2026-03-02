@@ -21,8 +21,8 @@
   "ruleSpecification": "RSPEC-4662",
   "sqKey": "S4662",
   "scope": "Main",
-  "quickfix": "unknown",
   "defaultQualityProfiles": [
     "Sonar way"
-  ]
+  ],
+  "quickfix": "unknown"
 }

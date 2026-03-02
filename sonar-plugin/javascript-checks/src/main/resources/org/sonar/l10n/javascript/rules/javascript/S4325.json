@@ -24,11 +24,11 @@
   "ruleSpecification": "RSPEC-4325",
   "sqKey": "S4325",
   "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
   "quickfix": "covered",
   "compatibleLanguages": [
     "ts"
-  ],
-  "defaultQualityProfiles": [
-    "Sonar way"
   ]
 }

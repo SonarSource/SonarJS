@@ -21,9 +21,9 @@
   "ruleSpecification": "RSPEC-4023",
   "sqKey": "S4023",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "covered",
   "compatibleLanguages": [
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

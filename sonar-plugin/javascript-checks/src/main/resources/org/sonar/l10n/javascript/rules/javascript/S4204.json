@@ -23,9 +23,9 @@
   "ruleSpecification": "RSPEC-4204",
   "sqKey": "S4204",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "covered",
   "compatibleLanguages": [
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }

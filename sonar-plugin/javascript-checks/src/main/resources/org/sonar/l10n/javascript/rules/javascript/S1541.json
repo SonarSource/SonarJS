@@ -31,10 +31,10 @@
   "ruleSpecification": "RSPEC-1541",
   "sqKey": "S1541",
   "scope": "Main",
+  "defaultQualityProfiles": [],
   "quickfix": "unknown",
   "compatibleLanguages": [
     "js",
     "ts"
-  ],
-  "defaultQualityProfiles": []
+  ]
 }
