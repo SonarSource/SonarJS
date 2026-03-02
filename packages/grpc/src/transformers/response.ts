@@ -106,7 +106,7 @@ function transformIssue(issue: JsTsIssue): analyzer.IIssue {
  * @param filePath - The file path the issue belongs to
  * @returns gRPC Issue object ready for protobuf serialization
  */
-function transformCssIssue(issue: CssIssue, filePath: NormalizedAbsolutePath): analyzer.IIssue {
+function transformCssIssue(issue: CssIssue, filePath: string): analyzer.IIssue {
   const sqKey = reverseCssRuleKeyMap.get(issue.ruleId) ?? issue.ruleId;
   return {
     filePath,
@@ -120,6 +120,13 @@ function transformCssIssue(issue: CssIssue, filePath: NormalizedAbsolutePath): a
     },
     flows: [],
   };
+}
+
+/**
+ * Look up the original path from the path map, falling back to the normalized path.
+ */
+function restorePath(filePath: NormalizedAbsolutePath, pathMap: Map<string, string>): string {
+  return pathMap.get(filePath) ?? filePath;
 }
 
 /**
@@ -155,6 +162,7 @@ function transformCssIssue(issue: CssIssue, filePath: NormalizedAbsolutePath): a
  */
 export function transformProjectOutputToResponse(
   output: ProjectAnalysisOutput,
+  pathMap: Map<string, string> = new Map(),
 ): analyzer.IAnalyzeResponse {
   const issues: analyzer.IIssue[] = [];
   const analysisProblems: analyzer.IAnalysisProblem[] = [];
@@ -169,11 +177,13 @@ export function transformProjectOutputToResponse(
   }
 
   for (const [filePath, fileResult] of entriesOfFileResults(output.files)) {
+    const originalPath = restorePath(filePath, pathMap);
+
     if ('error' in fileResult) {
       analysisProblems.push({
         type: analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_UNDEFINED,
         message: fileResult.error,
-        filePath,
+        filePath: originalPath,
       });
       continue;
     }
@@ -184,7 +194,7 @@ export function transformProjectOutputToResponse(
       analysisProblems.push({
         type: analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_PARSING,
         message,
-        filePath,
+        filePath: originalPath,
       });
 
       issues.push(
@@ -196,7 +206,7 @@ export function transformProjectOutputToResponse(
           language: 'js',
           secondaryLocations: [],
           ruleESLintKeys: [],
-          filePath,
+          filePath: originalPath as NormalizedAbsolutePath,
         }),
       );
       continue;
@@ -206,18 +216,20 @@ export function transformProjectOutputToResponse(
       for (const issue of fileResult.issues) {
         switch (issue.language) {
           case 'css':
-            issues.push(transformCssIssue(issue, filePath));
+            issues.push(transformCssIssue(issue, originalPath));
             break;
           case 'js':
           case 'ts':
-            issues.push(transformIssue(issue));
+            issues.push(
+              transformIssue({ ...issue, filePath: originalPath as NormalizedAbsolutePath }),
+            );
             break;
         }
       }
       const ncloc = 'metrics' in fileResult ? fileResult.metrics?.ncloc : undefined;
       if (ncloc !== undefined) {
         measures.push({
-          filePath,
+          filePath: originalPath,
           measures: [{ metricKey: 'ncloc', intValue: ncloc.length }],
         });
       }

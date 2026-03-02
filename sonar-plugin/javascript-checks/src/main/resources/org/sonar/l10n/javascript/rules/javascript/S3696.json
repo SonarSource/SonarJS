@@ -14,8 +14,7 @@
   },
   "tags": [
     "error-handling",
-    "api-design",
-    "type-dependent"
+    "api-design"
   ],
   "extra": {
     "replacementRules": [],

@@ -45,7 +45,7 @@ jobs:
         with:
           ref: ${{ inputs.branch || github.ref }}
 
-      - uses: jdx/mise-action@v3.6.1
+      - uses: jdx/mise-action@v3.6.2
         with:
           version: 2025.11.2
           mise_toml: |
