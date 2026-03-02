@@ -175,6 +175,8 @@ jobs:
           path: |
             sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript
             sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
+            resources/rule-data/.synced-sha-javascript
+            resources/rule-data/.synced-sha-css
           retention-days: 1
 
   build:

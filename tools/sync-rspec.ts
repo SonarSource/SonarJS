@@ -29,10 +29,10 @@
  * - Renders <language>/rule.adoc to HTML → resources/rule-data/<language>/<rule>.html
  */
 import { readdir, readFile, mkdir, writeFile, rm, access } from 'node:fs/promises';
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { execSync } from 'node:child_process';
+import { execSync, execFileSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
 import Asciidoctor from '@asciidoctor/core';
 
@@ -143,6 +143,33 @@ const explicitPath = values['rspec-path'] as string | undefined;
 const rspecPath = resolve(explicitPath ?? DEFAULT_RSPEC_PATH);
 const isManagedClone = !explicitPath;
 
+// SHA file stores the last-synced rspec branch SHA to detect whether re-sync is needed
+const outputDir = join(ROOT_DIR, 'resources', 'rule-data', language);
+const shaFile = join(ROOT_DIR, 'resources', 'rule-data', `.synced-sha-${language}`);
+
+// For managed clones, check if rspec has changed since last sync via ls-remote (fast, no clone)
+if (isManagedClone && existsSync(shaFile)) {
+  try {
+    const remoteInfo = execFileSync(
+      'git',
+      ['ls-remote', RSPEC_REPO_SSH, `refs/heads/${RSPEC_BRANCH}`],
+      {
+        encoding: 'utf-8',
+      },
+    );
+    const remoteSha = remoteInfo.split('\t')[0].trim();
+    const storedSha = readFileSync(shaFile, 'utf-8').trim();
+    if (remoteSha && remoteSha === storedSha) {
+      console.log(
+        `RSPEC ${language} rules are up to date (${remoteSha.slice(0, 8)}), skipping sync`,
+      );
+      process.exit(0);
+    }
+  } catch {
+    // If ls-remote fails (e.g. offline), continue with sync
+  }
+}
+
 if (!existsSync(join(rspecPath, 'rules'))) {
   if (!isManagedClone) {
     console.error(`Error: rspec repo not found at ${rspecPath}`);
@@ -199,7 +226,6 @@ asciidoctor.ConverterFactory.register(SonarListingConverter as any, ['html5']);
 
 const langSq = LANGUAGE_SQ[language];
 const rulesDir = join(rspecPath, 'rules');
-const outputDir = join(ROOT_DIR, 'resources', 'rule-data', language);
 
 // Clean and recreate output directory
 await rm(outputDir, { recursive: true, force: true });
@@ -259,5 +285,19 @@ async function syncRule(ruleName: string): Promise<boolean> {
 
 const results = await Promise.all(ruleDirs.map(syncRule));
 const count = results.filter(Boolean).length;
+
+// Store the current rspec HEAD SHA so future runs can skip if nothing changed
+if (isManagedClone) {
+  try {
+    const sha = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: rspecPath,
+      encoding: 'utf-8',
+    }).trim();
+    await mkdir(join(ROOT_DIR, 'resources', 'rule-data'), { recursive: true });
+    writeFileSync(shaFile, sha);
+  } catch {
+    // Non-fatal — skip will just not work next time
+  }
+}
 
 console.log(`Synced ${count} ${language} rules to ${outputDir}`);
