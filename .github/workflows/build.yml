@@ -284,9 +284,9 @@ jobs:
           if git diff --quiet packages/jsts/src/rules/README.md; then
             echo "README is up to date"
 
-            # Clean up stale fix PR if one exists
-            FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url' 2>/dev/null || true)
-            if [ -n "$FIX_PR_URL" ]; then
+            # Clean up stale fix PR if one exists and is still open
+            FIX_PR_STATE=$(gh pr view "$FIX_BRANCH" --json state --jq '.state' 2>/dev/null || true)
+            if [ "$FIX_PR_STATE" = "OPEN" ]; then
               gh pr close "$FIX_BRANCH" --comment "No longer needed — the original PR is now up to date."
               git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
             fi
@@ -1084,9 +1084,9 @@ jobs:
               fi
             fi
           else
-            # No changes needed — clean up stale fix PR if one exists
-            FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url' 2>/dev/null || true)
-            if [ -n "$FIX_PR_URL" ]; then
+            # No changes needed — clean up stale fix PR if one exists and is still open
+            FIX_PR_STATE=$(gh pr view "$FIX_BRANCH" --json state --jq '.state' 2>/dev/null || true)
+            if [ "$FIX_PR_STATE" = "OPEN" ]; then
               gh pr close "$FIX_BRANCH" --comment "No longer needed — the original PR is now up to date."
               git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
             fi
