@@ -76,7 +76,7 @@ export const rule: Rule.RuleModule = {
       const hasNested = ancestors.slice(labelIdx + 2).some(isLoop);
       // Check if there is a switch statement between the labeled body and the break/continue.
       // A break inside a switch can only exit the switch with plain break; using a label
-      // to exit an enclosing non-loop block from within a switch is a legitimate pattern.
+      // to exit an enclosing loop from within a switch is a legitimate pattern.
       const isFromNestedSwitch = ancestors
         .slice(labelIdx + 2)
         .some(a => a.type === 'SwitchStatement');
@@ -100,27 +100,17 @@ export const rule: Rule.RuleModule = {
       'LabeledStatement:exit'(node) {
         labelStack.pop();
 
-        // If the labeled body is not a loop, check for switch-based control flow
+        const refs = labelRefs.get(node);
+        labelRefs.delete(node);
+
+        // Non-loop labeled body: always report (labels on blocks, if-statements, etc.)
         if (!isLoop(node.body)) {
-          const refs = labelRefs.get(node);
-          labelRefs.delete(node);
-
-          // Suppress if all break references originate from inside a switch nested within
-          // the labeled body. Inside a switch, plain 'break' only exits the switch, so
-          // 'break label' is the only way to exit the enclosing block — a legitimate pattern.
-          if (refs && refs.length > 0 && refs.every(r => r.isFromNestedSwitch)) {
-            return;
-          }
-
           context.report({
             messageId: 'removeLabel',
             node: node.label,
           });
           return;
         }
-
-        const refs = labelRefs.get(node);
-        labelRefs.delete(node);
 
         // No references: label on loop is unused → report
         if (!refs || refs.length === 0) {
@@ -131,15 +121,17 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        // Report if any reference is not from within a nested loop
-        if (refs.some(r => !r.hasNested)) {
+        // Suppress if all references exit via a nested loop or via a nested switch.
+        // Inside a switch, plain 'break' only exits the switch, so 'break label' is the
+        // only way to exit an enclosing loop from within a switch — a legitimate pattern.
+        if (refs.some(r => !r.hasNested && !r.isFromNestedSwitch)) {
           context.report({
             messageId: 'removeLabel',
             node: node.label,
           });
         }
 
-        // All references are multi-level loop exits: suppress
+        // All references are multi-level loop exits or from within nested switches: suppress
       },
     };
   },
