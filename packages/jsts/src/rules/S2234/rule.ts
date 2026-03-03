@@ -236,30 +236,34 @@ export const rule: Rule.RuleModule = {
 };
 
 const CRYPTO_FUNCTION_PATTERN = /^(md[45]_?)?(ff|gg|hh|ii)$/i;
+const CRYPTO_STATE_PARAM_COUNT = 4;
 
 function isCryptoCyclicRotation(
   functionCall: estree.CallExpression,
   functionParameters: Array<string | undefined>,
 ): boolean {
   const callee = functionCall.callee;
-  const calleeName =
-    callee.type === 'Identifier'
-      ? callee.name
-      : callee.type === 'MemberExpression' && callee.property.type === 'Identifier'
-        ? callee.property.name
-        : null;
+  let calleeName: string | null = null;
+  if (callee.type === 'Identifier') {
+    calleeName = callee.name;
+  } else if (callee.type === 'MemberExpression' && callee.property.type === 'Identifier') {
+    calleeName = callee.property.name;
+  }
 
   if (!calleeName || !CRYPTO_FUNCTION_PATTERN.test(calleeName)) {
     return false;
   }
 
-  if (functionParameters.length < 4 || functionCall.arguments.length < 4) {
+  if (
+    functionParameters.length < CRYPTO_STATE_PARAM_COUNT ||
+    functionCall.arguments.length < CRYPTO_STATE_PARAM_COUNT
+  ) {
     return false;
   }
 
   // First 4 arguments must all be identifiers
   const argNames: string[] = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < CRYPTO_STATE_PARAM_COUNT; i++) {
     const arg = functionCall.arguments[i];
     if (arg.type !== 'Identifier') {
       return false;
@@ -268,14 +272,14 @@ function isCryptoCyclicRotation(
   }
 
   // First 4 parameters must all be defined
-  const paramNames = functionParameters.slice(0, 4);
-  if (paramNames.some(p => p === undefined)) {
+  const paramNames = functionParameters.slice(0, CRYPTO_STATE_PARAM_COUNT);
+  if (paramNames.includes(undefined)) {
     return false;
   }
 
   // Check if args[0..3] are a cyclic rotation of params[0..3]
-  for (let k = 1; k <= 3; k++) {
-    if (argNames.every((arg, i) => arg === paramNames[(i + k) % 4])) {
+  for (let k = 1; k <= CRYPTO_STATE_PARAM_COUNT - 1; k++) {
+    if (argNames.every((arg, i) => arg === paramNames[(i + k) % CRYPTO_STATE_PARAM_COUNT])) {
       return true;
     }
   }
