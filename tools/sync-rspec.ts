@@ -311,18 +311,27 @@ async function syncRule(ruleName: string): Promise<boolean> {
 const results = await Promise.all(ruleDirs.map(syncRule));
 const count = results.filter(Boolean).length;
 
-// Store the current rspec HEAD SHA so future runs can skip if nothing changed
-if (isManagedClone) {
+// Read the actual rspec HEAD SHA used for this sync
+let usedSha: string | undefined = pinnedSha ?? undefined;
+try {
+  usedSha = execFileSync('git', ['rev-parse', 'HEAD'], {
+    cwd: rspecPath,
+    encoding: 'utf-8',
+  }).trim();
+} catch {
+  // ignore
+}
+
+// Store the SHA so future runs can skip if nothing changed
+if (isManagedClone && usedSha) {
   try {
-    const sha = execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: rspecPath,
-      encoding: 'utf-8',
-    }).trim();
     await mkdir(join(ROOT_DIR, 'resources', 'rule-data'), { recursive: true });
-    writeFileSync(shaFile, sha);
+    writeFileSync(shaFile, usedSha);
   } catch {
     // Non-fatal — skip will just not work next time
   }
 }
 
-console.log(`Synced ${count} ${language} rules to ${outputDir}`);
+console.log(
+  `Synced ${count} ${language} rules to ${outputDir} (rspec@${usedSha?.slice(0, 8) ?? 'unknown'})`,
+);
