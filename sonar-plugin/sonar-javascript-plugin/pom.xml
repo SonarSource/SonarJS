@@ -222,13 +222,14 @@
             <phase>generate-resources</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
-              <executable>cp</executable>
+              <executable>bash</executable>
               <arguments>
-                <argument>-f</argument>
+                <argument>-c</argument>
+                <argument>mkdir -p "${0}" &amp;&amp; cp -f "${1}" "${2}" "${3}" "${0}"</argument>
+                <argument>${project.basedir}/../../tsgolint/cmd/sonar-server/</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/main.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/service.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/converter.go</argument>
-                <argument>${project.basedir}/../../tsgolint/cmd/sonar-server/</argument>
               </arguments>
             </configuration>
           </execution>
@@ -269,7 +270,7 @@
             <phase>generate-resources</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
-              <executable>protoc</executable>
+              <executable>${project.build.directory}/protoc.exe</executable>
               <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
               <arguments>
                 <argument>--proto_path=${project.basedir}/../bridge/src/main/proto</argument>
@@ -537,6 +538,26 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
+          <execution>
+            <id>copy-protoc</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>copy</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.google.protobuf</groupId>
+                  <artifactId>protoc</artifactId>
+                  <version>${protobuf.version}</version>
+                  <type>exe</type>
+                  <classifier>${os.detected.classifier}</classifier>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                  <destFileName>protoc.exe</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
           <execution>
             <id>unpack-node-runtimes</id>
             <phase>process-resources</phase>
