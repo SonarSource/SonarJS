@@ -9,24 +9,25 @@ To work on this project, it is required to have the following tools installed:
 - [npm](https://www.npmjs.com/) >= 8
 - [Maven](https://maven.apache.org/) >= 3.8
 
-### GitHub Token for RSPEC Access
+### RSPEC Rule Metadata
 
-The build process fetches rule metadata from the private `SonarSource/rspec` repository. You need a GitHub personal access token with read access to this repository.
+Rule metadata is automatically fetched from the `SonarSource/rspec` repository as part of the build. On first run, the rspec repo is cloned (sparse checkout) into `resources/rspec/` via SSH. On subsequent runs, the latest changes are fetched automatically.
 
-1. Create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) with:
-   - Repository access: `SonarSource/rspec`
-   - Permissions: **Contents: Read**
+Use `--rspec-path` to point to an existing local clone instead:
 
-2. Add it to your shell environment (e.g., `~/.zshenv` for zsh):
+```bash
+npm run sync-rspec -- --rspec-path ../rspec --language javascript
+```
 
-   ```bash
-   export GITHUB_TOKEN="your-token-here"
-   ```
+#### Pinning a specific rspec version
 
-3. Restart your terminal or source the file:
-   ```bash
-   source ~/.zshenv
-   ```
+To use a specific rspec commit instead of the latest `dogfood-automerge`, create a `rspec.sha` file at the repo root:
+
+```bash
+echo "<commit-sha>" > rspec.sha
+```
+
+When this file is present, `sync-rspec` fetches that exact SHA and the skip check becomes local (no network call needed). The file is not tracked by default but can be committed to make CI builds reproducible against a specific rspec version.
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
