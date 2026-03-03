@@ -332,6 +332,20 @@ if (isManagedClone && usedSha) {
   }
 }
 
+// Publish the rspec SHA into the jar resources so it is accessible at runtime
+if (usedSha) {
+  const jarResourcesDir = join(
+    ROOT_DIR,
+    'sonar-plugin',
+    'javascript-checks',
+    'src',
+    'main',
+    'resources',
+  );
+  await mkdir(jarResourcesDir, { recursive: true });
+  writeFileSync(join(jarResourcesDir, 'rspec.sha'), usedSha + '\n');
+}
+
 console.log(
   `Synced ${count} ${language} rules to ${outputDir} (rspec@${usedSha?.slice(0, 8) ?? 'unknown'})`,
 );

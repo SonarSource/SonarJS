@@ -15,6 +15,7 @@ packages/jsts/src/parsers/estree.d.ts
 
 # Auto-generated RSPEC rule data (by npm run sync-rspec-all)
 sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/
+sonar-plugin/javascript-checks/src/main/resources/rspec.sha
 sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/
 
 # Auto-generated CSS Java rule classes (by npm run generate-java-rule-classes)
