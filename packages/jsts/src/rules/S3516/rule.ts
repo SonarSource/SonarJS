@@ -16,11 +16,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S3516/javascript
 
-import type { Rule, Scope } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   type RuleContext,
+  childrenOf,
   findFirstMatchingAncestor,
   FUNCTION_NODES,
   generateMeta,
@@ -65,6 +66,15 @@ export const rule: Rule.RuleModule = {
         returnStatement => returnStatement.argument as estree.Node,
       );
       if (areAllSameValue(returnedValues, context.sourceCode.getScope(node))) {
+        // Only suppress when the returned value is a non-literal (e.g., a variable used for chaining).
+        // Functions returning literals (false, null, 0, etc.) have no chaining rationale and are always flagged.
+        const firstValue = getLiteralValue(returnedValues[0], context.sourceCode.getScope(node));
+        if (
+          firstValue === undefined &&
+          hasSideEffectOnlyConditional(node, context.sourceCode.visitorKeys)
+        ) {
+          return;
+        }
         report(
           context,
           {
@@ -220,4 +230,89 @@ function evaluateUnaryLiteralExpression(operator: string, innerReturnedValue: Li
     default:
       return undefined;
   }
+}
+
+const CONDITIONAL_LOOP_NODE_TYPES = new Set([
+  'IfStatement',
+  'WhileStatement',
+  'DoWhileStatement',
+  'ForStatement',
+  'ForInStatement',
+  'ForOfStatement',
+  'SwitchStatement',
+]);
+
+/**
+ * Returns true if the function body contains a conditional or loop construct where at least
+ * one branch has side effects (call or assignment expressions) but no return statement.
+ * This pattern indicates an intentional invariant return used for chaining or signaling.
+ */
+function hasSideEffectOnlyConditional(
+  funcNode: estree.Node,
+  visitorKeys: SourceCode.VisitorKeys,
+): boolean {
+  const body = (funcNode as estree.Function).body;
+  if (!body || body.type !== 'BlockStatement') return false;
+  return findSideEffectOnlyConditional(body, visitorKeys);
+}
+
+function findSideEffectOnlyConditional(
+  node: estree.Node,
+  visitorKeys: SourceCode.VisitorKeys,
+): boolean {
+  if (FUNCTION_NODES.includes(node.type)) return false;
+  if (
+    CONDITIONAL_LOOP_NODE_TYPES.has(node.type) &&
+    conditionalHasSideEffectOnlyBranch(node, visitorKeys)
+  ) {
+    return true;
+  }
+  return childrenOf(node, visitorKeys).some(child =>
+    findSideEffectOnlyConditional(child, visitorKeys),
+  );
+}
+
+function conditionalHasSideEffectOnlyBranch(
+  node: estree.Node,
+  visitorKeys: SourceCode.VisitorKeys,
+): boolean {
+  return getBranchBodies(node).some(
+    body => nodeHasSideEffect(body, visitorKeys) && !nodeHasReturn(body, visitorKeys),
+  );
+}
+
+function getBranchBodies(node: estree.Node): estree.Node[] {
+  switch (node.type) {
+    case 'IfStatement': {
+      const ifNode = node as estree.IfStatement;
+      return ifNode.alternate ? [ifNode.consequent, ifNode.alternate] : [ifNode.consequent];
+    }
+    case 'WhileStatement':
+    case 'DoWhileStatement':
+    case 'ForStatement':
+    case 'ForInStatement':
+    case 'ForOfStatement':
+      return [(node as { body: estree.Node }).body];
+    case 'SwitchStatement':
+      return (node as estree.SwitchStatement).cases;
+    default:
+      return [];
+  }
+}
+
+function nodeHasSideEffect(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
+  if (FUNCTION_NODES.includes(node.type)) return false;
+  if (node.type === 'ExpressionStatement') {
+    const { expression } = node as estree.ExpressionStatement;
+    if (expression.type === 'CallExpression' || expression.type === 'AssignmentExpression') {
+      return true;
+    }
+  }
+  return childrenOf(node, visitorKeys).some(child => nodeHasSideEffect(child, visitorKeys));
+}
+
+function nodeHasReturn(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
+  if (FUNCTION_NODES.includes(node.type)) return false;
+  if (node.type === 'ReturnStatement') return true;
+  return childrenOf(node, visitorKeys).some(child => nodeHasReturn(child, visitorKeys));
 }
