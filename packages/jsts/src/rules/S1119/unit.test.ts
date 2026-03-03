@@ -201,6 +201,78 @@ describe('S1119', () => {
         reqHeaders[defHeaderName] = defHeaders[defHeaderName];
       }`,
         },
+        {
+          // Compliant: labeled block containing a switch where all breaks target the label.
+          // Inside a switch, plain 'break' only exits the switch; 'break a' is the only
+          // way to exit the outer block from within a switch case.
+          code: `
+      function processAction(action, state) {
+        var result = state;
+        a: {
+          switch (action.type) {
+            case 'REPLACE':
+              result = action.payload;
+              break a;
+            case 'MERGE':
+              result = Object.assign({}, state, action.payload);
+              break a;
+            case 'FORCE':
+              result = { forced: true };
+              break a;
+          }
+          result = state;
+        }
+        return result;
+      }`,
+        },
+        {
+          // Compliant: labeled if-statement containing a switch where all breaks target the label.
+          // Inside a switch, plain 'break' only exits the switch; 'break a' is the only
+          // way to exit the outer if-statement from within a switch case.
+          code: `
+      function resolveComponent(workInProgress) {
+        var current = workInProgress.elementType;
+        a: if (typeof current === 'function') {
+          switch (workInProgress.tag) {
+            case 0:
+              workInProgress.type = current;
+              break a;
+            case 1:
+              workInProgress.type = resolveForRef(current);
+              break a;
+            case 2:
+              workInProgress.type = resolveMemo(current);
+              break a;
+          }
+          workInProgress.type = current;
+        }
+      }`,
+        },
+        {
+          // Compliant: labeled block inside a do-while loop, containing a switch where all
+          // breaks target the label. 'break a' exits the block; plain 'break' would only exit the switch.
+          code: `
+      function processUpdateQueue(workInProgress) {
+        var update = workInProgress.firstUpdate;
+        do {
+          a: {
+            switch (update.tag) {
+              case 0:
+                workInProgress.state = update.payload;
+                break a;
+              case 1:
+                workInProgress.flags |= 128;
+                break a;
+              case 2:
+                if (update.payload === null) { break a; }
+                workInProgress.state = Object.assign({}, workInProgress.state, update.payload);
+                break a;
+            }
+          }
+          update = update.next;
+        } while (update !== null);
+      }`,
+        },
       ],
       invalid: [
         {
