@@ -389,7 +389,7 @@ jobs:
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
-          npm install --ignore-scripts
+          npm install --ignore-scripts --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-retries=3
           npx tsc --noEmit
           npm run test
 
