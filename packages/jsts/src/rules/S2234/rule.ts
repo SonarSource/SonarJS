@@ -68,6 +68,10 @@ export const rule: Rule.RuleModule = {
 
       const { params: functionParameters, declaration: functionDeclaration } = resolvedFunction;
 
+      if (isCryptoCyclicRotation(functionCall, functionParameters)) {
+        return;
+      }
+
       for (let argumentIndex = 0; argumentIndex < argumentNames.length; argumentIndex++) {
         const argumentName = argumentNames[argumentIndex];
         if (argumentName) {
@@ -230,6 +234,54 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+const CRYPTO_FUNCTION_PATTERN = /^(md[45]_?)?(ff|gg|hh|ii)$/i;
+
+function isCryptoCyclicRotation(
+  functionCall: estree.CallExpression,
+  functionParameters: Array<string | undefined>,
+): boolean {
+  const callee = functionCall.callee;
+  const calleeName =
+    callee.type === 'Identifier'
+      ? callee.name
+      : callee.type === 'MemberExpression' && callee.property.type === 'Identifier'
+        ? callee.property.name
+        : null;
+
+  if (!calleeName || !CRYPTO_FUNCTION_PATTERN.test(calleeName)) {
+    return false;
+  }
+
+  if (functionParameters.length < 4 || functionCall.arguments.length < 4) {
+    return false;
+  }
+
+  // First 4 arguments must all be identifiers
+  const argNames: string[] = [];
+  for (let i = 0; i < 4; i++) {
+    const arg = functionCall.arguments[i];
+    if (arg.type !== 'Identifier') {
+      return false;
+    }
+    argNames.push(arg.name);
+  }
+
+  // First 4 parameters must all be defined
+  const paramNames = functionParameters.slice(0, 4);
+  if (paramNames.some(p => p === undefined)) {
+    return false;
+  }
+
+  // Check if args[0..3] are a cyclic rotation of params[0..3]
+  for (let k = 1; k <= 3; k++) {
+    if (argNames.every((arg, i) => arg === paramNames[(i + k) % 4])) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 function extractFunctionParameters(functionDeclaration: FunctionNodeType) {
   return functionDeclaration.params.map(param => {
