@@ -13,9 +13,6 @@ packages/grpc/src/proto/*.d.ts
 packages/jsts/src/parsers/estree.js
 packages/jsts/src/parsers/estree.d.ts
 
-# Optional rspec SHA pin — create this file locally to use a specific rspec version (not tracked by default)
-rspec.sha
-
 # Auto-generated RSPEC rule data (by npm run sync-rspec-all)
 sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/
 sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/

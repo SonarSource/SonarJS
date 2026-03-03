@@ -148,7 +148,7 @@ const outputDir = join(ROOT_DIR, 'resources', 'rule-data', language);
 const shaFile = join(ROOT_DIR, 'resources', 'rule-data', `.synced-sha-${language}`);
 
 // Optional override file: if rspec.sha exists at repo root, pin to that exact SHA.
-// This file is gitignored by default — create it locally to test against a specific rspec version.
+// Not tracked by default — create or commit it to pin a specific rspec version.
 const rsspecOverrideFile = join(ROOT_DIR, 'rspec.sha');
 const pinnedSha = existsSync(rsspecOverrideFile)
   ? readFileSync(rsspecOverrideFile, 'utf-8').trim()
