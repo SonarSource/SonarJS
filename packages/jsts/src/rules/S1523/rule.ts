@@ -54,7 +54,9 @@ export const rule: Rule.RuleModule = {
         }
       },
       BinaryExpression: (node: estree.BinaryExpression) => {
+        const parent = (node as estree.Node & { parent?: estree.Node }).parent;
         if (
+          !isConcatenation(parent as estree.Node) &&
           isConcatenation(node) &&
           isVariableConcat(node) &&
           /^javascript:/i.exec(getLeftmostStringValue(node) ?? '')

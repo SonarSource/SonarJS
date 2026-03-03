@@ -68,6 +68,12 @@ describe('S1523', () => {
         {
           code: `\`javascript:void(0)\``,
         },
+        {
+          code: `x + 'safe'`,
+        },
+        {
+          code: `'safe' + 'code' + 'literal'`,
+        },
       ],
       invalid: [
         {
@@ -136,6 +142,22 @@ describe('S1523', () => {
         },
         {
           code: `'javascript:' + 'safe' + expr`,
+          errors: [
+            {
+              message: "Make sure that 'javascript:' code is safe as it is a form of eval().",
+            },
+          ],
+        },
+        {
+          code: `'javascript:' + expr + 'safe'`,
+          errors: [
+            {
+              message: "Make sure that 'javascript:' code is safe as it is a form of eval().",
+            },
+          ],
+        },
+        {
+          code: `\`javascript:\` + expr`,
           errors: [
             {
               message: "Make sure that 'javascript:' code is safe as it is a form of eval().",
