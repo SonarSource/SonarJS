@@ -11,7 +11,23 @@ To work on this project, it is required to have the following tools installed:
 
 ### RSPEC Rule Metadata
 
-Rule metadata is automatically fetched from the `SonarSource/rspec` repository as part of the build. On first run, the rspec repo is cloned (sparse checkout) into `resources/rspec/` via SSH. On subsequent runs, the latest changes are fetched automatically. Use `--rspec-path` to point to an existing local clone instead (e.g. `npm run sync-rspec -- --rspec-path ../rspec --language javascript`).
+Rule metadata is automatically fetched from the `SonarSource/rspec` repository as part of the build. On first run, the rspec repo is cloned (sparse checkout) into `resources/rspec/` via SSH. On subsequent runs, the latest changes are fetched automatically.
+
+Use `--rspec-path` to point to an existing local clone instead:
+
+```bash
+npm run sync-rspec -- --rspec-path ../rspec --language javascript
+```
+
+#### Pinning a specific rspec version
+
+To use a specific rspec commit instead of the latest `dogfood-automerge`, create a `rspec.sha` file at the repo root:
+
+```bash
+echo "<commit-sha>" > rspec.sha
+```
+
+When this file is present, `sync-rspec` fetches that exact SHA and the skip check becomes local (no network call needed). The file is not tracked by default but can be committed to make CI builds reproducible against a specific rspec version.
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
