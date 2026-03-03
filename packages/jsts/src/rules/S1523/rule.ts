@@ -48,7 +48,7 @@ export const rule: Rule.RuleModule = {
       TemplateLiteral: (node: estree.TemplateLiteral) => {
         if (
           node.expressions.length > 0 &&
-          node.quasis[0].value.raw.match(/^javascript:/i)
+          /^javascript:/i.exec(node.quasis[0].value.raw)
         ) {
           context.report({ messageId: 'unexpectedScriptURL', node });
         }
@@ -57,7 +57,7 @@ export const rule: Rule.RuleModule = {
         if (
           isConcatenation(node) &&
           isVariableConcat(node) &&
-          getLeftmostStringValue(node)?.match(/^javascript:/i)
+          /^javascript:/i.exec(getLeftmostStringValue(node) ?? '')
         ) {
           context.report({ messageId: 'unexpectedScriptURL', node });
         }
