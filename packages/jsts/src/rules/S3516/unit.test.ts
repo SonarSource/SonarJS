@@ -285,6 +285,25 @@ function getDecorationsExample(
   return decorations;
 }`,
         },
+        {
+          // middleware pattern: async function returns non-literal for chaining while a nested
+          // conditional performs side effects (e.g. signout, alert) without returning.
+          // Two returns of the same non-literal value but with an inner side-effect-only branch.
+          code: `
+async function middlewareExample(req, next) {
+  const res = await next(req)
+  if (res.errors && res.errors.length) {
+    if (alreadyHandled(req)) {
+      return res
+    }
+    const result = await fetch('/api/check')
+    if (result.status === 401) {
+      performSignOut()
+    }
+  }
+  return res
+}`,
+        },
       ],
       invalid: [
         {
@@ -555,6 +574,21 @@ function f(a, g) {
   if (a < 0) { return false; }
   if (a > 10) { g(a); }
   return false;
+}`,
+          errors: 1,
+        },
+        {
+          // switch where the case with side effect ALSO has a return: not side-effect-only branch,
+          // so the exemption does not apply and the issue is correctly raised
+          code: `
+function dispatchInTheMiddleOfReducer(state = [], action) {
+  switch (action.type) {
+    case 'DISPATCH_IN_MIDDLE':
+      sideEffect()
+      return state
+    default:
+      return state
+  }
 }`,
           errors: 1,
         },
