@@ -72,7 +72,6 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
   for (const ruleName of ruleNames) {
     for (const extension of ['json', 'html']) {
       const fileName = `${ruleName}.${extension}`;
-
       copyFileSync(join(sourceFolder, fileName), join(targetFolder, fileName));
     }
     const manifest: {
