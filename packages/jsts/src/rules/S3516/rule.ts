@@ -245,7 +245,9 @@ function hasSideEffectOnlyConditional(
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
   const body = (funcNode as estree.Function).body;
-  if (!body || body.type !== 'BlockStatement') return false;
+  if (body?.type !== 'BlockStatement') {
+    return false;
+  }
   return findSideEffectOnlyConditional(body, visitorKeys);
 }
 
@@ -253,7 +255,9 @@ function findSideEffectOnlyConditional(
   node: estree.Node,
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
-  if (FUNCTION_NODES.includes(node.type)) return false;
+  if (FUNCTION_NODES.includes(node.type)) {
+    return false;
+  }
   if (
     CONDITIONAL_LOOP_NODE_TYPES.has(node.type) &&
     conditionalHasSideEffectOnlyBranch(node, visitorKeys)
@@ -277,8 +281,7 @@ function conditionalHasSideEffectOnlyBranch(
 function getBranchBodies(node: estree.Node): estree.Node[] {
   switch (node.type) {
     case 'IfStatement': {
-      const ifNode = node as estree.IfStatement;
-      return ifNode.alternate ? [ifNode.consequent, ifNode.alternate] : [ifNode.consequent];
+      return node.alternate ? [node.consequent, node.alternate] : [node.consequent];
     }
     case 'WhileStatement':
     case 'DoWhileStatement':
@@ -287,16 +290,18 @@ function getBranchBodies(node: estree.Node): estree.Node[] {
     case 'ForOfStatement':
       return [(node as { body: estree.Node }).body];
     case 'SwitchStatement':
-      return (node as estree.SwitchStatement).cases;
+      return node.cases;
     default:
       return [];
   }
 }
 
 function nodeHasSideEffect(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
-  if (FUNCTION_NODES.includes(node.type)) return false;
+  if (FUNCTION_NODES.includes(node.type)) {
+    return false;
+  }
   if (node.type === 'ExpressionStatement') {
-    const { expression } = node as estree.ExpressionStatement;
+    const { expression } = node;
     if (expression.type === 'CallExpression' || expression.type === 'AssignmentExpression') {
       return true;
     }
@@ -305,7 +310,11 @@ function nodeHasSideEffect(node: estree.Node, visitorKeys: SourceCode.VisitorKey
 }
 
 function nodeHasReturn(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
-  if (FUNCTION_NODES.includes(node.type)) return false;
-  if (node.type === 'ReturnStatement') return true;
+  if (FUNCTION_NODES.includes(node.type)) {
+    return false;
+  }
+  if (node.type === 'ReturnStatement') {
+    return true;
+  }
   return childrenOf(node, visitorKeys).some(child => nodeHasReturn(child, visitorKeys));
 }
