@@ -270,15 +270,13 @@
             <phase>generate-resources</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
-              <executable>${project.build.directory}/protoc.exe</executable>
+              <executable>bash</executable>
               <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
               <arguments>
-                <argument>--proto_path=${project.basedir}/../bridge/src/main/proto</argument>
-                <argument>--go_out=.</argument>
-                <argument>--go_opt=module=github.com/typescript-eslint/tsgolint</argument>
-                <argument>--go-grpc_out=.</argument>
-                <argument>--go-grpc_opt=module=github.com/typescript-eslint/tsgolint</argument>
-                <argument>analyzer.proto</argument>
+                <argument>-c</argument>
+                <argument>chmod +x "${0}" &amp;&amp; "${0}" --proto_path="${1}" --go_out=. --go_opt=module=github.com/typescript-eslint/tsgolint --go-grpc_out=. --go-grpc_opt=module=github.com/typescript-eslint/tsgolint analyzer.proto</argument>
+                <argument>${project.build.directory}/protoc.exe</argument>
+                <argument>${project.basedir}/../bridge/src/main/proto</argument>
               </arguments>
             </configuration>
           </execution>
