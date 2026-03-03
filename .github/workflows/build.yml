@@ -336,7 +336,7 @@ jobs:
 
           A fix PR has been created: ${FIX_PR_URL}
 
-          Please review and merge it into your branch, then re-run CI."
+          Please review and merge it into your branch."
 
           EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
             --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
@@ -1104,7 +1104,7 @@ jobs:
                 echo "---"
                 echo "❌ **Ruling needs updating.** A fix PR has been created: ${FIX_PR_URL}"
                 echo ""
-                echo "Please review and merge it into your branch, then re-run CI."
+                echo "Please review and merge it into your branch."
               fi
             } > comment.md
           else
