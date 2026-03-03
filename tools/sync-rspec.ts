@@ -143,30 +143,51 @@ const explicitPath = values['rspec-path'] as string | undefined;
 const rspecPath = resolve(explicitPath ?? DEFAULT_RSPEC_PATH);
 const isManagedClone = !explicitPath;
 
-// SHA file stores the last-synced rspec branch SHA to detect whether re-sync is needed
+// SHA file stores the last-synced rspec SHA to detect whether re-sync is needed
 const outputDir = join(ROOT_DIR, 'resources', 'rule-data', language);
 const shaFile = join(ROOT_DIR, 'resources', 'rule-data', `.synced-sha-${language}`);
 
-// For managed clones, check if rspec has changed since last sync via ls-remote (fast, no clone)
+// Optional override file: if rspec.sha exists at repo root, pin to that exact SHA.
+// This file is gitignored by default — create it locally to test against a specific rspec version.
+const rsspecOverrideFile = join(ROOT_DIR, 'rspec.sha');
+const pinnedSha = existsSync(rsspecOverrideFile)
+  ? readFileSync(rsspecOverrideFile, 'utf-8').trim()
+  : null;
+
+if (pinnedSha) {
+  console.log(`Using pinned rspec SHA: ${pinnedSha.slice(0, 8)} (from rspec.sha)`);
+}
+
+// For managed clones, check if rspec has changed since last sync
 if (isManagedClone && existsSync(shaFile)) {
-  try {
-    const remoteInfo = execFileSync(
-      'git',
-      ['ls-remote', RSPEC_REPO_SSH, `refs/heads/${RSPEC_BRANCH}`],
-      {
-        encoding: 'utf-8',
-      },
-    );
-    const remoteSha = remoteInfo.split('\t')[0].trim();
-    const storedSha = readFileSync(shaFile, 'utf-8').trim();
-    if (remoteSha && remoteSha === storedSha) {
+  const storedSha = readFileSync(shaFile, 'utf-8').trim();
+
+  if (pinnedSha) {
+    // Pinned SHA: skip check is local, no network needed
+    if (storedSha === pinnedSha) {
       console.log(
-        `RSPEC ${language} rules are up to date (${remoteSha.slice(0, 8)}), skipping sync`,
+        `RSPEC ${language} rules are up to date (${storedSha.slice(0, 8)}), skipping sync`,
       );
       process.exit(0);
     }
-  } catch {
-    // If ls-remote fails (e.g. offline), continue with sync
+  } else {
+    // No pin: check remote branch SHA via ls-remote (fast, no clone)
+    try {
+      const remoteInfo = execFileSync(
+        'git',
+        ['ls-remote', RSPEC_REPO_SSH, `refs/heads/${RSPEC_BRANCH}`],
+        { encoding: 'utf-8' },
+      );
+      const remoteSha = remoteInfo.split('\t')[0].trim();
+      if (remoteSha && remoteSha === storedSha) {
+        console.log(
+          `RSPEC ${language} rules are up to date (${remoteSha.slice(0, 8)}), skipping sync`,
+        );
+        process.exit(0);
+      }
+    } catch {
+      // If ls-remote fails (e.g. offline), continue with sync
+    }
   }
 }
 
@@ -181,7 +202,8 @@ if (!existsSync(join(rspecPath, 'rules'))) {
     ? `https://x-access-token:${token}@github.com/SonarSource/rspec.git`
     : RSPEC_REPO_SSH;
   mkdirSync(rspecPath, { recursive: true });
-  execSync(`git clone --depth 1 --sparse --branch ${RSPEC_BRANCH} ${repoUrl} ${rspecPath}`, {
+  const cloneRef = pinnedSha ?? RSPEC_BRANCH;
+  execSync(`git clone --depth 1 --sparse --branch ${cloneRef} ${repoUrl} ${rspecPath}`, {
     stdio: 'inherit',
   });
   execSync('git sparse-checkout set rules shared_content', {
@@ -190,14 +212,17 @@ if (!existsSync(join(rspecPath, 'rules'))) {
   });
 } else if (isManagedClone) {
   // Only auto-fetch for the managed clone, not user-provided paths
-  console.log(`Fetching latest changes in ${rspecPath}...`);
+  const fetchRef = pinnedSha ?? RSPEC_BRANCH;
+  console.log(
+    `Fetching rspec (${pinnedSha ? pinnedSha.slice(0, 8) : 'latest'}) into ${rspecPath}...`,
+  );
   try {
-    execSync(`git fetch --depth 1 origin ${RSPEC_BRANCH} && git reset --hard FETCH_HEAD`, {
+    execSync(`git fetch --depth 1 origin ${fetchRef} && git reset --hard FETCH_HEAD`, {
       cwd: rspecPath,
       stdio: 'inherit',
     });
   } catch {
-    console.warn('Warning: Failed to fetch latest changes, using existing data');
+    console.warn('Warning: Failed to fetch rspec, using existing data');
   }
 }
 
