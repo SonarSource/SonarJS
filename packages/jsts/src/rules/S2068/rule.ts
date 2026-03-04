@@ -137,28 +137,35 @@ function findValueSuspect(node: estree.Node | undefined | null): boolean {
 }
 
 function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: estree.Literal) {
-  if (isStringLiteral(literal)) {
-    const value = literal.value as string;
-    const lowerValue = value.toLowerCase();
-    for (const pattern of patterns) {
-      const match = pattern.exec(lowerValue);
-      if (match) {
-        const eqIndex = value.indexOf('=', match.index);
-        if (eqIndex !== -1) {
-          const passwordPart = value.substring(eqIndex + 1);
-          const nextSep = findNextSeparator(passwordPart);
-          const passwordValue = nextSep === -1 ? passwordPart : passwordPart.substring(0, nextSep);
-          if (passwordValue.length >= MIN_PASSWORD_LENGTH && hasHighEntropy(passwordValue)) {
-            context.report({
-              messageId: 'reviewPassword',
-              node: literal,
-            });
-            return;
-          }
-        }
-      }
+  if (!isStringLiteral(literal)) {
+    return;
+  }
+  const value = literal.value as string;
+  const lowerValue = value.toLowerCase();
+  for (const pattern of patterns) {
+    const match = pattern.exec(lowerValue);
+    if (!match) {
+      continue;
+    }
+    const eqIndex = value.indexOf('=', match.index);
+    if (eqIndex === -1) {
+      continue;
+    }
+    const passwordValue = extractPasswordValue(value, eqIndex);
+    if (passwordValue.length >= MIN_PASSWORD_LENGTH && hasHighEntropy(passwordValue)) {
+      context.report({
+        messageId: 'reviewPassword',
+        node: literal,
+      });
+      return;
     }
   }
+}
+
+function extractPasswordValue(value: string, eqIndex: number): string {
+  const passwordPart = value.substring(eqIndex + 1);
+  const nextSep = findNextSeparator(passwordPart);
+  return nextSep === -1 ? passwordPart : passwordPart.substring(0, nextSep);
 }
 
 function findNextSeparator(str: string): number {
