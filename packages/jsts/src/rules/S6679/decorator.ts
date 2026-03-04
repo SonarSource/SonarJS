@@ -62,7 +62,7 @@ function isDualNaNCheck(node: estree.BinaryExpression, context: Rule.RuleContext
   if (parent?.type !== 'LogicalExpression') {
     return false;
   }
-  const logicalExpr = parent as estree.LogicalExpression;
+  const logicalExpr = parent;
   if (logicalExpr.operator !== '&&') {
     return false;
   }
@@ -70,7 +70,7 @@ function isDualNaNCheck(node: estree.BinaryExpression, context: Rule.RuleContext
   if (sibling.type !== 'BinaryExpression') {
     return false;
   }
-  const siblingBinary = sibling as estree.BinaryExpression;
+  const siblingBinary = sibling;
   // Check the sibling is also a self-comparison
   if (!areEquivalent(siblingBinary.left, siblingBinary.right, context.sourceCode)) {
     return false;
