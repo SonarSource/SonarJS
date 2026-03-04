@@ -152,7 +152,7 @@ describe('S2068', () => {
           options,
         },
         {
-          code: `const PASSWORD_RESET_MSG = 'Password reset is not available through the Perceptiv platform. Please reset your password through your SSO provider.';`,
+          code: `const PASSWORD_RESET_MSG = 'Password reset is not available through the platform. Please reset your password through your SSO provider.';`,
           options,
         },
         // i18n translations with spaces
@@ -193,7 +193,7 @@ describe('S2068', () => {
         },
         // Module path references (contain slashes)
         {
-          code: `const moduleMap = { 'reset-password-dialog/index.ts': '@enevo/users/reset-password-dialog' };`,
+          code: `const moduleMap = { 'reset-password-dialog/index.ts': '@app/users/reset-password-dialog' };`,
           options,
         },
         // HTML input type = 'password'
