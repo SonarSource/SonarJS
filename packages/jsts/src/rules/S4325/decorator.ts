@@ -142,7 +142,7 @@ function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserSe
   // have been substituted, so getTypeParameters() may return undefined.
   // The declaration still retains the original type parameter list.
   const declaration = signature.getDeclaration();
-  if (declaration?.typeParameters && declaration.typeParameters.length > 0) {
+  if (declaration?.typeParameters?.length > 0) {
     return true;
   }
 
