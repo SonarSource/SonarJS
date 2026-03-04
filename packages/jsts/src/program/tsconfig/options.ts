@@ -88,7 +88,7 @@ export function parseMaxNodeMajor(versionStr: string): number | null {
     return null;
   }
   const nums = [...versionStr.matchAll(/(\d+)(?:\.\d+)*/g)]
-    .map(m => parseInt(m[1], 10))
+    .map(m => Number.parseInt(m[1], 10))
     .filter(n => n >= 8 && n < 100);
   if (!nums.length) {
     return null;
@@ -122,11 +122,11 @@ export function esYearToLib(year: number): string[] {
 }
 
 function esYearFromEsPrefix(ecmaScriptVersion: string): number | null {
-  const match = ecmaScriptVersion.match(/^ES(\d{4})$/i);
+  const match = /^ES(\d{4})$/i.exec(ecmaScriptVersion);
   if (!match) {
     return null;
   }
-  const year = parseInt(match[1], 10);
+  const year = Number.parseInt(match[1], 10);
   return year >= 2015 && year <= 2030 ? year : null;
 }
 
