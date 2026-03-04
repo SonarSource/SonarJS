@@ -233,22 +233,25 @@ public class WebSensor implements Sensor {
       return;
     }
 
-    // Collect TypeScript file paths for tsgolint analysis
-    var tsFiles = inputFiles
+    // Collect JS/TS file paths for tsgolint analysis (exclude CSS, HTML, YAML)
+    var jstsFiles = inputFiles
       .stream()
-      .filter(f -> TypeScriptLanguage.KEY.equals(f.language()))
+      .filter(f -> {
+        var lang = f.language();
+        return TypeScriptLanguage.KEY.equals(lang) || JavaScriptLanguage.KEY.equals(lang);
+      })
       .toList();
-    if (tsFiles.isEmpty()) {
+    if (jstsFiles.isEmpty()) {
       return;
     }
 
     LOG.info(
-      "Running tsgolint analysis on {} TypeScript files with {} rules",
-      tsFiles.size(),
+      "Running tsgolint analysis on {} JS/TS files with {} rules",
+      jstsFiles.size(),
       enabledRules.size()
     );
 
-    var filePaths = tsFiles.stream().map(InputFile::absolutePath).toList();
+    var filePaths = jstsFiles.stream().map(InputFile::absolutePath).toList();
 
     var request = org.sonar.plugins.javascript.bridge.grpc.AnalyzeProjectRequest.newBuilder()
       .setBaseDir(context.getSensorContext().fileSystem().baseDir().getAbsolutePath())
@@ -260,7 +263,7 @@ public class WebSensor implements Sensor {
       .build();
 
     var fileMap = new HashMap<String, InputFile>();
-    for (var f : tsFiles) {
+    for (var f : jstsFiles) {
       fileMap.put(f.absolutePath(), f);
     }
 

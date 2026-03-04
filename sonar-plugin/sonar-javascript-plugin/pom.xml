@@ -228,11 +228,57 @@
               <executable>bash</executable>
               <arguments>
                 <argument>-c</argument>
-                <argument>mkdir -p "${0}" &amp;&amp; cp -f "${1}" "${2}" "${3}" "${0}"</argument>
+                <argument>mkdir -p "${0}" &amp;&amp; cp -f "${1}" "${2}" "${3}" "${4}" "${0}"</argument>
                 <argument>${project.basedir}/../../tsgolint/cmd/sonar-server/</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/main.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/service.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/converter.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/rules.go</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint: init typescript-go submodule -->
+          <execution>
+            <id>tsgolint-init-typescript-go</id>
+            <phase>${tsgolint.build.phase}</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>git</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <arguments>
+                <argument>submodule</argument>
+                <argument>update</argument>
+                <argument>--init</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint: apply patches to typescript-go -->
+          <execution>
+            <id>tsgolint-apply-patches</id>
+            <phase>${tsgolint.build.phase}</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>bash</executable>
+              <workingDirectory>${project.basedir}/../../tsgolint/typescript-go</workingDirectory>
+              <arguments>
+                <argument>-c</argument>
+                <argument>find "${0}" -name '*.patch' -print0 | sort -z | xargs -0 -r git am --3way --no-gpg-sign || true</argument>
+                <argument>${project.basedir}/../../tsgolint/patches</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <!-- tsgolint: copy collections from patched typescript-go -->
+          <execution>
+            <id>tsgolint-copy-collections</id>
+            <phase>${tsgolint.build.phase}</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>bash</executable>
+              <arguments>
+                <argument>-c</argument>
+                <argument>mkdir -p "${0}" &amp;&amp; find "${1}" -type f ! -name '*_test.go' -exec cp {} "${0}" \;</argument>
+                <argument>${project.basedir}/../../tsgolint/internal/collections</argument>
+                <argument>${project.basedir}/../../tsgolint/typescript-go/internal/collections</argument>
               </arguments>
             </configuration>
           </execution>
@@ -243,9 +289,6 @@
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
-              <environmentVariables>
-                <GOWORK>off</GOWORK>
-              </environmentVariables>
               <arguments>
                 <argument>install</argument>
                 <argument>google.golang.org/protobuf/cmd/protoc-gen-go@latest</argument>
@@ -258,9 +301,6 @@
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
-              <environmentVariables>
-                <GOWORK>off</GOWORK>
-              </environmentVariables>
               <arguments>
                 <argument>install</argument>
                 <argument>google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest</argument>
@@ -291,9 +331,6 @@
             <configuration>
               <executable>go</executable>
               <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
-              <environmentVariables>
-                <GOWORK>off</GOWORK>
-              </environmentVariables>
               <arguments>
                 <argument>get</argument>
                 <argument>google.golang.org/grpc@latest</argument>
@@ -313,7 +350,6 @@
                 <GOOS>linux</GOOS>
                 <GOARCH>amd64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
-                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
@@ -335,7 +371,6 @@
                 <GOOS>linux</GOOS>
                 <GOARCH>arm64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
-                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
@@ -357,7 +392,6 @@
                 <GOOS>linux</GOOS>
                 <GOARCH>amd64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
-                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
@@ -379,7 +413,6 @@
                 <GOOS>windows</GOOS>
                 <GOARCH>amd64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
-                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
@@ -401,7 +434,6 @@
                 <GOOS>darwin</GOOS>
                 <GOARCH>arm64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
-                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
@@ -423,7 +455,6 @@
                 <GOOS>darwin</GOOS>
                 <GOARCH>amd64</GOARCH>
                 <CGO_ENABLED>0</CGO_ENABLED>
-                <GOWORK>off</GOWORK>
               </environmentVariables>
               <arguments>
                 <argument>build</argument>
