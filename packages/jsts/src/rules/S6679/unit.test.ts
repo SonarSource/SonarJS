@@ -100,6 +100,24 @@ describe('S6679', () => {
         },
         { code: `x !== x && x !== x`, errors: 2 }, // same variable — not a dual-NaN check
         { code: `x !== x || y !== y`, errors: 2 }, // || operator — each is an independent NaN check
+        {
+          code: `(typeof x === "number" && x !== x) && (typeof y === "number" && y !== y)`,
+          errors: 2,
+        }, // typeof-guarded self-comparisons — sibling is a typeof expression, not a self-comparison
+        {
+          code: `value.getTime() !== value.getTime()`,
+          errors: [
+            {
+              message: "Use 'Number.isNaN()' to check for 'NaN' value",
+              suggestions: [
+                {
+                  desc: `Replace self-compare with Number.isNaN()`,
+                  output: `Number.isNaN(value.getTime())`,
+                },
+              ],
+            },
+          ],
+        }, // method call self-comparison
       ],
     });
   });
