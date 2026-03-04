@@ -30,9 +30,11 @@ import {
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
+  detectLibFromSignals,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
+import { getNodeVersionSignal } from '../../rules/helpers/package-jsons/dependencies.js';
 import { getProgramCacheManager } from '../../program/cache/programCache.js';
 import { clearSourceFileContentCache } from '../../program/cache/sourceFileCache.js';
 import { createStandardProgram } from '../../program/factory.js';
@@ -152,10 +154,29 @@ async function analyzeFilesFromEntryPoint(
     `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'}`,
   );
 
+  const nodeSignal = getNodeVersionSignal(baseDir, baseDir);
+
   const programOptions = foundProgramOptions.length
     ? merge({}, ...foundProgramOptions)
     : createProgramOptionsFromJson(defaultCompilerOptions, rootNames, baseDir);
   programOptions.rootNames = rootNames;
+
+  // For the default options path, replace esnext with a more specific detected version.
+  // For the merge path, only enrich if no tsconfig set an explicit lib.
+  if (!foundProgramOptions.length || !programOptions.options.lib) {
+    const lib = detectLibFromSignals(jsTsConfigFields.ecmaScriptVersion, nodeSignal);
+    if (lib) {
+      programOptions.options.lib = lib;
+    }
+    if (programOptions.options.lib) {
+      const libSource = jsTsConfigFields.ecmaScriptVersion
+        ? 'sonar.javascript.ecmaScriptVersion'
+        : nodeSignal
+          ? 'package.json signals'
+          : 'default';
+      info(`Effective lib: [${programOptions.options.lib.join(', ')}] (source: ${libSource})`);
+    }
+  }
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
 
   const tsProgram = createStandardProgram(programOptions);
@@ -211,6 +232,23 @@ async function analyzeFilesFromTsConfig(
   if (programOptions.missingTsConfig) {
     const msg = `${tsconfig} extends a configuration that was not found. Please run 'npm install' for a more complete analysis.`;
     warn(msg);
+  }
+
+  const hadLib = !!programOptions.options.lib;
+  if (!hadLib) {
+    const nodeSignal = getNodeVersionSignal(baseDir, baseDir);
+    const lib = detectLibFromSignals(jsTsConfigFields.ecmaScriptVersion, nodeSignal);
+    if (lib) {
+      programOptions.options.lib = lib;
+    }
+  }
+  if (programOptions.options.lib) {
+    const libSource = !hadLib
+      ? jsTsConfigFields.ecmaScriptVersion
+        ? 'sonar.javascript.ecmaScriptVersion'
+        : 'package.json signals'
+      : 'tsconfig.lib';
+    info(`Effective lib: [${programOptions.options.lib.join(', ')}] (source: ${libSource})`);
   }
 
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);

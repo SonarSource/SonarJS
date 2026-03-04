@@ -23,6 +23,10 @@ import {
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
+  detectLibFromSignals,
+  esYearToLib,
+  nodeVersionToEs,
+  parseMaxNodeMajor,
 } from '../../src/program/tsconfig/options.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 import { clearTsConfigContentCache } from '../../src/program/cache/tsconfigCache.js';
@@ -204,5 +208,103 @@ describe('defaultCompilerOptions', () => {
     expect(defaultCompilerOptions.allowJs).toBe(true);
     expect(defaultCompilerOptions.noImplicitAny).toBe(true);
     expect(defaultCompilerOptions.lib).toEqual(['esnext', 'dom']);
+  });
+});
+
+describe('parseMaxNodeMajor', () => {
+  it('should return the highest major from a simple version', () => {
+    expect(parseMaxNodeMajor('18.0.0')).toBe(18);
+  });
+
+  it('should handle caret ranges', () => {
+    expect(parseMaxNodeMajor('^18')).toBe(18);
+    expect(parseMaxNodeMajor('^18.0.0')).toBe(18);
+  });
+
+  it('should handle >= ranges', () => {
+    expect(parseMaxNodeMajor('>=16.0.0')).toBe(16);
+  });
+
+  it('should handle x-ranges', () => {
+    expect(parseMaxNodeMajor('14.x')).toBe(14);
+  });
+
+  it('should return the highest version from OR ranges', () => {
+    expect(parseMaxNodeMajor('>=16 || >=18')).toBe(18);
+    expect(parseMaxNodeMajor('>=16 || >=18 || 22')).toBe(22);
+  });
+
+  it('should return null for wildcard', () => {
+    expect(parseMaxNodeMajor('*')).toBeNull();
+  });
+
+  it('should return null for latest', () => {
+    expect(parseMaxNodeMajor('latest')).toBeNull();
+  });
+
+  it('should return null for empty string', () => {
+    expect(parseMaxNodeMajor('')).toBeNull();
+  });
+
+  it('should ignore versions below 8', () => {
+    expect(parseMaxNodeMajor('6.0.0')).toBeNull();
+  });
+});
+
+describe('nodeVersionToEs', () => {
+  it('should map Node 22 to ES2024', () => {
+    expect(nodeVersionToEs(22)).toBe(2024);
+  });
+
+  it('should map Node 18 to ES2022', () => {
+    expect(nodeVersionToEs(18)).toBe(2022);
+  });
+
+  it('should map Node 16 to ES2021', () => {
+    expect(nodeVersionToEs(16)).toBe(2021);
+  });
+
+  it('should map unknown high version to most recent ES year', () => {
+    expect(nodeVersionToEs(99)).toBe(2024);
+  });
+
+  it('should map Node 8 to ES2017', () => {
+    expect(nodeVersionToEs(8)).toBe(2017);
+  });
+});
+
+describe('esYearToLib', () => {
+  it('should return normalized lib file names for an ES year', () => {
+    expect(esYearToLib(2022)).toEqual(['lib.es2022.d.ts', 'lib.dom.d.ts']);
+  });
+});
+
+describe('detectLibFromSignals', () => {
+  it('should return lib from @types/node ^22', () => {
+    expect(detectLibFromSignals(undefined, '^22.0.0')).toEqual(['lib.es2024.d.ts', 'lib.dom.d.ts']);
+  });
+
+  it('should return lib from engines.node >=18', () => {
+    expect(detectLibFromSignals(undefined, '>=18')).toEqual(['lib.es2022.d.ts', 'lib.dom.d.ts']);
+  });
+
+  it('should use ecmaScriptVersion override over node signal', () => {
+    expect(detectLibFromSignals('ES2023', '^18.0.0')).toEqual(['lib.es2023.d.ts', 'lib.dom.d.ts']);
+  });
+
+  it('should return null when @types/node is latest', () => {
+    expect(detectLibFromSignals(undefined, 'latest')).toBeNull();
+  });
+
+  it('should return null when both signals are absent', () => {
+    expect(detectLibFromSignals(undefined, null)).toBeNull();
+  });
+
+  it('should be case-insensitive for ecmaScriptVersion', () => {
+    expect(detectLibFromSignals('es2022', null)).toEqual(['lib.es2022.d.ts', 'lib.dom.d.ts']);
+  });
+
+  it('should return null for invalid ecmaScriptVersion with no node signal', () => {
+    expect(detectLibFromSignals('INVALID', null)).toBeNull();
   });
 });
