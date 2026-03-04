@@ -41,6 +41,12 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     (context, reportDescriptor) => {
       const node = (reportDescriptor as any).node as JSXOpeningElement;
 
+      // Suppress if any spread attribute is present ({...props} or {...this.props}),
+      // as accessible content (children, aria-label, title, etc.) may be provided at runtime.
+      if (node.attributes.some(attr => attr.type === 'JSXSpreadAttribute')) {
+        return;
+      }
+
       if (hasAnyProp(node.attributes, ['title', 'aria-label'])) {
         return;
       }
