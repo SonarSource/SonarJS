@@ -92,8 +92,8 @@ function shouldSuppressTypeAssertion(
   // Casting a non-any/unknown value to any/unknown genuinely changes type behavior.
   // But casting `any` to `any` is truly redundant and should still be flagged.
   if (
-    assertionTargetType.flags === ts.TypeFlags.Any ||
-    assertionTargetType.flags === ts.TypeFlags.Unknown
+    assertionTargetType.flags & ts.TypeFlags.Any ||
+    assertionTargetType.flags & ts.TypeFlags.Unknown
   ) {
     const expressionType = getTypeFromTreeNode(expression, services);
     if (expressionType.flags !== assertionTargetType.flags) {
