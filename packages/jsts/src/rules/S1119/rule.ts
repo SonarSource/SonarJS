@@ -33,6 +33,10 @@ function isLoop(node: estree.Node): boolean {
   return LOOP_TYPES.has(node.type);
 }
 
+function isSwitch(node: estree.Node): boolean {
+  return node.type === 'SwitchStatement';
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
@@ -42,13 +46,10 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     // Stack of currently active LabeledStatement nodes (innermost last).
     const labelStack: estree.LabeledStatement[] = [];
-    // Map from LabeledStatement node to array of reference info objects.
-    // hasNested: break/continue is inside a nested inner loop (for loop bodies).
-    // isFromNestedSwitch: break/continue is inside a switch nested within the labeled body.
-    const labelRefs = new Map<
-      estree.LabeledStatement,
-      { hasNested: boolean; isFromNestedSwitch: boolean }[]
-    >();
+    // Map from LabeledStatement node to array of booleans.
+    // Each boolean is true if the break/continue is inside a nested loop or switch,
+    // meaning it legitimately needs the label to exit the enclosing construct.
+    const labelRefs = new Map<estree.LabeledStatement, boolean[]>();
 
     function onBreakOrContinue(node: estree.BreakStatement | estree.ContinueStatement) {
       if (!node.label) {
@@ -71,21 +72,17 @@ export const rule: Rule.RuleModule = {
       const ancestors = context.sourceCode.getAncestors(node);
       const labelIdx = ancestors.indexOf(labeledStmt);
       // ancestors[labelIdx+1] is the labeled body.
-      // Check if any ancestor beyond the labeled body is itself a loop,
-      // indicating this break/continue is inside a nested inner loop.
-      const hasNested = ancestors.slice(labelIdx + 2).some(isLoop);
-      // Check if there is a switch statement between the labeled body and the break/continue.
-      // A break inside a switch can only exit the switch with plain break; using a label
-      // to exit an enclosing loop from within a switch is a legitimate pattern.
-      const isFromNestedSwitch = ancestors
-        .slice(labelIdx + 2)
-        .some(a => a.type === 'SwitchStatement');
+      // True if the break/continue is inside a nested loop or switch:
+      // - nested loop: break/continue must target the label to exit multiple levels
+      // - nested switch: plain 'break' only exits the switch, so 'break label' is the
+      //   only way to exit the enclosing loop from within the switch
+      const isNested = ancestors.slice(labelIdx + 2).some(n => isLoop(n) || isSwitch(n));
 
       const refs = labelRefs.get(labeledStmt);
       if (refs) {
-        refs.push({ hasNested, isFromNestedSwitch });
+        refs.push(isNested);
       } else {
-        labelRefs.set(labeledStmt, [{ hasNested, isFromNestedSwitch }]);
+        labelRefs.set(labeledStmt, [isNested]);
       }
     }
 
@@ -121,17 +118,14 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        // Suppress if all references exit via a nested loop or via a nested switch.
-        // Inside a switch, plain 'break' only exits the switch, so 'break label' is the
-        // only way to exit an enclosing loop from within a switch — a legitimate pattern.
-        if (refs.some(r => !r.hasNested && !r.isFromNestedSwitch)) {
+        // Report if any reference is not from within a nested loop or switch.
+        // Suppress if all references legitimately need the label (nested loop or switch exits).
+        if (refs.some(r => !r)) {
           context.report({
             messageId: 'removeLabel',
             node: node.label,
           });
         }
-
-        // All references are multi-level loop exits or from within nested switches: suppress
       },
     };
   },
