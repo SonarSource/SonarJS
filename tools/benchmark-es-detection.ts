@@ -24,7 +24,7 @@
  * Pass the path to a peachee-js checkout for full corpus analysis.
  */
 import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, dirname, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
 // ---------------------------------------------------------------------------
@@ -97,7 +97,7 @@ function libEntryToEsYear(entry: string): number | null {
 // ---------------------------------------------------------------------------
 // Detection result
 // ---------------------------------------------------------------------------
-type DetectionSource = 'tsconfig.lib' | '@types/node' | 'engines.node';
+type DetectionSource = 'tsconfig.lib' | '@types/node' | 'engines.node' | '.nvmrc';
 
 interface DetectionResult {
   esYear: number;
@@ -119,7 +119,8 @@ function findFiles(dir: string, filename: string, maxDepth = 4): string[] {
       return;
     }
     for (const entry of entries) {
-      if (entry === 'node_modules' || entry.startsWith('.')) continue;
+      if (entry === 'node_modules') continue;
+      if (entry.startsWith('.') && entry !== filename) continue;
       const full = join(current, entry);
       let stat;
       try {
@@ -139,7 +140,42 @@ function findFiles(dir: string, filename: string, maxDepth = 4): string[] {
 }
 
 // ---------------------------------------------------------------------------
-// Signal 1: tsconfig.lib
+// Resolve the effective compilerOptions.lib by following extends chains.
+// Stops at package references (no relative path) and cycles.
+// Returns the lib array from the nearest ancestor that defines it.
+// ---------------------------------------------------------------------------
+function resolveEffectiveLib(tsconfigPath: string, visited = new Set<string>()): string[] | null {
+  const absPath = resolve(tsconfigPath);
+  if (visited.has(absPath)) return null;
+  visited.add(absPath);
+
+  let parsed: any;
+  try {
+    parsed = JSON.parse(readFileSync(absPath, 'utf-8'));
+  } catch {
+    return null;
+  }
+
+  // If this file declares lib, use it (child overrides parent)
+  const lib: unknown = parsed?.compilerOptions?.lib;
+  if (Array.isArray(lib)) return lib as string[];
+
+  // Follow extends if present
+  const ext: unknown = parsed?.extends;
+  if (typeof ext !== 'string') return null;
+
+  // Skip package references (no ./ or ../)
+  if (!ext.startsWith('.')) return null;
+
+  // Resolve the extended path, adding .json if no extension
+  const extPath = ext.endsWith('.json') ? ext : `${ext}.json`;
+  const resolvedExt = resolve(dirname(absPath), extPath);
+
+  return resolveEffectiveLib(resolvedExt, visited);
+}
+
+// ---------------------------------------------------------------------------
+// Signal 1: tsconfig.lib (with extends resolution)
 // ---------------------------------------------------------------------------
 function detectFromTsconfigLib(projectDir: string): DetectionResult | null {
   const tsconfigs = findFiles(projectDir, 'tsconfig.json');
@@ -147,14 +183,7 @@ function detectFromTsconfigLib(projectDir: string): DetectionResult | null {
   let bestRaw = '';
 
   for (const tsconfigPath of tsconfigs) {
-    let parsed: any;
-    try {
-      parsed = JSON.parse(readFileSync(tsconfigPath, 'utf-8'));
-    } catch {
-      continue;
-    }
-
-    const lib: unknown = parsed?.compilerOptions?.lib;
+    const lib = resolveEffectiveLib(tsconfigPath);
     if (!Array.isArray(lib)) continue;
 
     for (const entry of lib) {
@@ -244,13 +273,38 @@ function detectFromEnginesNode(projectDir: string): DetectionResult | null {
 }
 
 // ---------------------------------------------------------------------------
-// Combined detection (priority: tsconfig.lib > @types/node > engines.node)
+// Signal 4: .nvmrc or .node-version files
+// ---------------------------------------------------------------------------
+function detectFromNvmrc(projectDir: string): DetectionResult | null {
+  for (const filename of ['.nvmrc', '.node-version']) {
+    const files = findFiles(projectDir, filename, 2);
+    for (const file of files) {
+      let content: string;
+      try {
+        content = readFileSync(file, 'utf-8').trim();
+      } catch {
+        continue;
+      }
+      // Strip leading 'v', e.g. "v22.12.0" → "22.12.0"
+      const version = content.replace(/^v/, '');
+      const major = parseMinNodeMajor(version);
+      if (major === null) continue;
+      const year = nodeVersionToEs(major);
+      return { esYear: year, source: '.nvmrc', raw: `${filename}="${content}" → Node ${major}` };
+    }
+  }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Combined detection (priority: tsconfig.lib > @types/node > engines.node > .nvmrc)
 // ---------------------------------------------------------------------------
 function detectEsVersion(projectDir: string): DetectionResult | null {
   return (
     detectFromTsconfigLib(projectDir) ??
     detectFromTypesNode(projectDir) ??
-    detectFromEnginesNode(projectDir)
+    detectFromEnginesNode(projectDir) ??
+    detectFromNvmrc(projectDir)
   );
 }
 
@@ -272,7 +326,12 @@ if (!existsSync(projectsDir)) {
 
 const projects = readdirSync(projectsDir).filter(name => {
   try {
-    return statSync(join(projectsDir, name)).isDirectory();
+    const dir = join(projectsDir, name);
+    if (!statSync(dir).isDirectory()) return false;
+    // Only treat as a project if it has checkout.sh and a non-empty workspace/
+    if (!existsSync(join(dir, 'checkout.sh'))) return false;
+    const workspaceDir = join(dir, 'workspace');
+    return existsSync(workspaceDir) && readdirSync(workspaceDir).length > 0;
   } catch {
     return false;
   }
@@ -289,6 +348,7 @@ const rows: Array<{
     lib: DetectionResult | null;
     types: DetectionResult | null;
     engines: DetectionResult | null;
+    nvmrc: DetectionResult | null;
   };
 }> = [];
 
@@ -297,8 +357,9 @@ for (const project of projects) {
   const lib = detectFromTsconfigLib(dir);
   const types = detectFromTypesNode(dir);
   const engines = detectFromEnginesNode(dir);
-  const result = lib ?? types ?? engines;
-  rows.push({ project, result, signals: { lib, types, engines } });
+  const nvmrc = detectFromNvmrc(dir);
+  const result = lib ?? types ?? engines ?? nvmrc;
+  rows.push({ project, result, signals: { lib, types, engines, nvmrc } });
 }
 
 // Coverage stats
@@ -307,6 +368,7 @@ const bySource: Record<DetectionSource | 'none', number> = {
   'tsconfig.lib': 0,
   '@types/node': 0,
   'engines.node': 0,
+  '.nvmrc': 0,
   none: 0,
 };
 for (const row of rows) {
@@ -339,14 +401,19 @@ console.log(
 console.log(
   `  engines.node:                ${bySource['engines.node']} (${pct(bySource['engines.node'], projects.length)}%)`,
 );
+console.log(
+  `  .nvmrc/.node-version:        ${bySource['.nvmrc']} (${pct(bySource['.nvmrc'], projects.length)}%)`,
+);
 console.log('');
 console.log('── Individual signal presence ──────────────────────');
 const hasLib = rows.filter(r => r.signals.lib !== null).length;
 const hasTypes = rows.filter(r => r.signals.types !== null).length;
 const hasEngines = rows.filter(r => r.signals.engines !== null).length;
+const hasNvmrc = rows.filter(r => r.signals.nvmrc !== null).length;
 console.log(`  Has tsconfig.lib signal:     ${hasLib} (${pct(hasLib, projects.length)}%)`);
 console.log(`  Has @types/node signal:      ${hasTypes} (${pct(hasTypes, projects.length)}%)`);
 console.log(`  Has engines.node signal:     ${hasEngines} (${pct(hasEngines, projects.length)}%)`);
+console.log(`  Has .nvmrc/.node-version:    ${hasNvmrc} (${pct(hasNvmrc, projects.length)}%)`);
 console.log('');
 console.log('── ES Year distribution (detected projects) ────────');
 for (const year of Object.keys(esYearDist).map(Number).sort()) {
@@ -360,13 +427,20 @@ if (values.verbose) {
   console.log('── Per-project results ─────────────────────────────');
   const colW = Math.max(...rows.map(r => r.project.length)) + 2;
   for (const row of rows) {
-    const { project, result } = row;
-    if (result) {
-      console.log(
-        `  ${project.padEnd(colW)} ES${result.esYear}  [${result.source}]  ${result.raw}`,
-      );
-    } else {
-      console.log(`  ${project.padEnd(colW)} —`);
+    const { project, result, signals } = row;
+    const primary = result ? `ES${result.esYear}  [${result.source}]  ${result.raw}` : '—';
+    console.log(`  ${project.padEnd(colW)} ${primary}`);
+    // Show all signals found, even those not chosen as primary
+    const allSignals: [string, DetectionResult | null][] = [
+      ['tsconfig.lib', signals.lib],
+      ['@types/node', signals.types],
+      ['engines.node', signals.engines],
+      ['.nvmrc', signals.nvmrc],
+    ];
+    for (const [name, sig] of allSignals) {
+      if (sig && sig.source !== result?.source) {
+        console.log(`  ${''.padEnd(colW)} (also: [${name}] ES${sig.esYear}  ${sig.raw})`);
+      }
     }
   }
   console.log('');
