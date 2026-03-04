@@ -25,9 +25,7 @@ describe('S1143', () => {
     ruleTester.run('Jump statements should not occur in "finally" blocks', rule, {
       valid: [
         {
-          // Guard return with cancellation flag in finally block - React async effect cleanup pattern
-          // This should NOT raise an issue because: the return is conditional on a boolean flag,
-          // followed by code that performs side effects, and doesn't suppress exceptions
+          // guard clause with identifier condition
           code: `
 async function asyncOperation() {
   let cancelled = false;
@@ -43,7 +41,7 @@ async function asyncOperation() {
           `,
         },
         {
-          // Guard return with block syntax: if (flag) { return; }
+          // guard clause with block syntax
           code: `
 async function asyncOperation() {
   let stopped = false;
@@ -61,7 +59,7 @@ async function asyncOperation() {
           `,
         },
         {
-          // Guard return followed by multiple statements
+          // guard clause followed by multiple statements
           code: `
 async function asyncOperation() {
   let cancelled = false;
@@ -76,7 +74,51 @@ async function asyncOperation() {
           `,
         },
         {
-          // No finally block - should not trigger rule
+          // guard clause with optional chaining condition
+          code: `
+async function closePopover() {
+  try {
+    await validateForm();
+  } finally {
+    const errors = getFormErrors();
+    if (errors?.length) return;
+    setVisible(false);
+  }
+}
+          `,
+        },
+        {
+          // guard clause with negated flag condition
+          code: `
+async function fetchData() {
+  let isActive = true;
+  try {
+    const data = await fetch('/api/data');
+    processData(data);
+  } finally {
+    if (!isActive) {
+      return;
+    }
+    setLoading(false);
+  }
+}
+          `,
+        },
+        {
+          // guard clause with member expression condition
+          code: `
+async function asyncOperation() {
+  const state = { cancelled: false };
+  try {
+    await doWork();
+  } finally {
+    if (state.cancelled) return;
+    performCleanup();
+  }
+}
+          `,
+        },
+        {
           code: `
 function foo() {
   try {
@@ -90,7 +132,7 @@ function foo() {
       ],
       invalid: [
         {
-          // Unconditional return in finally block - should be flagged
+          // unconditional return in finally block
           code: `
 function foo() {
   try {
@@ -103,8 +145,7 @@ function foo() {
           errors: 1,
         },
         {
-          // Return with value in finally block - should be flagged even if conditional
-          // because it overrides the return value
+          // return with value in finally block overrides the return value
           code: `
 function foo() {
   let cancelled = false;
@@ -120,8 +161,7 @@ function foo() {
           errors: 1,
         },
         {
-          // Guard return NOT followed by statements - should be flagged
-          // because it's effectively the same as unconditional return at end of finally
+          // guard return not followed by statements
           code: `
 function foo() {
   let cancelled = false;
@@ -135,8 +175,7 @@ function foo() {
           errors: 1,
         },
         {
-          // Return with non-identifier condition - should be flagged
-          // The condition is a call expression, not a simple identifier
+          // guard return with call expression condition
           code: `
 function foo() {
   try {
@@ -150,7 +189,7 @@ function foo() {
           errors: 1,
         },
         {
-          // Break in finally block - should be flagged
+          // break in finally block
           code: `
 function foo() {
   while (true) {
@@ -165,7 +204,7 @@ function foo() {
           errors: 1,
         },
         {
-          // Continue in finally block - should be flagged
+          // continue in finally block
           code: `
 function foo() {
   while (true) {
@@ -180,7 +219,7 @@ function foo() {
           errors: 1,
         },
         {
-          // Throw in finally block - should be flagged
+          // throw in finally block
           code: `
 function foo() {
   try {
