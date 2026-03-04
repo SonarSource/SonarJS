@@ -1,0 +1,70 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+// https://sonarsource.github.io/rspec/#/rspec/S6767/javascript
+
+import type { Rule, SourceCode } from 'eslint';
+import type estree from 'estree';
+import {
+  childrenOf,
+  findReactComponentNode,
+  generateMeta,
+  interceptReportForReact,
+  isIdentifier,
+} from '../helpers/index.js';
+import * as meta from './generated-meta.js';
+
+/** Composable pattern checkers — extend via Array.some() for future FP patterns. */
+const propsArgPatterns: Array<(arg: estree.Node) => boolean> = [
+  arg => isIdentifier(arg, 'props'),
+  arg =>
+    arg.type === 'MemberExpression' &&
+    (arg as estree.MemberExpression).object.type === 'ThisExpression' &&
+    isIdentifier((arg as estree.MemberExpression).property, 'props'),
+];
+
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return interceptReportForReact(
+    { ...rule, meta: generateMeta(meta, rule.meta) },
+    (context, descriptor) => {
+      const { node } = descriptor as { node: estree.Node };
+      const componentNode = findReactComponentNode(node, context);
+      if (hasPropsCall(componentNode, context.sourceCode.visitorKeys)) return;
+      context.report(descriptor);
+    },
+  );
+}
+
+function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {
+  if (root.type === 'CallExpression') {
+    const call = root as estree.CallExpression;
+    if (
+      call.callee.type !== 'Super' &&
+      !isPropTypesCheckCall(call) &&
+      call.arguments.some(a => propsArgPatterns.some(p => p(a as estree.Node)))
+    )
+      return true;
+  }
+  return childrenOf(root, keys).some(child => hasPropsCall(child, keys));
+}
+
+function isPropTypesCheckCall(call: estree.CallExpression): boolean {
+  return (
+    call.callee.type === 'MemberExpression' &&
+    isIdentifier((call.callee as estree.MemberExpression).object, 'PropTypes') &&
+    isIdentifier((call.callee as estree.MemberExpression).property, 'checkPropTypes')
+  );
+}

@@ -34,6 +34,7 @@ export * from './module.js';
 export * from './module-ts.js';
 export * from './quickfix.js';
 export * from './reaching-definitions.js';
+export * from './react.js';
 export * from './rule-detect-react.js';
 export * from './sinon.js';
 export * from './test-frameworks.js';
