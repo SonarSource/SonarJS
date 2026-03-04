@@ -22,6 +22,7 @@ export * from './chai.js';
 export * from './collection.js';
 export * from './conditions.js';
 export * from './decorators/index.js';
+export * from './entropy.js';
 export * from './equivalence.js';
 export * from './express.js';
 export * from './files.js';
