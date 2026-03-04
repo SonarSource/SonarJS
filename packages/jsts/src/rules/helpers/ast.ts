@@ -15,9 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { Rule, Scope } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import {
+  childrenOf,
   findFirstMatchingAncestor,
   flatMap,
   getFullyQualifiedName,
@@ -725,4 +726,41 @@ export function hasTypePredicateReturn(node: estree.Node): boolean {
     return tsNode.returnType?.typeAnnotation?.type === 'TSTypePredicate';
   }
   return false;
+}
+
+/**
+ * Returns the direct branch body nodes of a conditional or loop statement.
+ * For IfStatement, returns consequent and (if present) alternate.
+ * For loop statements, returns the loop body.
+ * For SwitchStatement, returns the case clauses.
+ */
+export function getBranchBodies(node: estree.Node): estree.Node[] {
+  switch (node.type) {
+    case 'IfStatement': {
+      return node.alternate ? [node.consequent, node.alternate] : [node.consequent];
+    }
+    case 'WhileStatement':
+    case 'DoWhileStatement':
+    case 'ForStatement':
+    case 'ForInStatement':
+    case 'ForOfStatement':
+      return [(node as { body: estree.Node }).body];
+    case 'SwitchStatement':
+      return node.cases;
+    default:
+      return [];
+  }
+}
+
+/**
+ * Returns true if the given node contains a ReturnStatement, without crossing function boundaries.
+ */
+export function nodeHasReturn(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
+  if (FUNCTION_NODES.includes(node.type)) {
+    return false;
+  }
+  if (node.type === 'ReturnStatement') {
+    return true;
+  }
+  return childrenOf(node, visitorKeys).some(child => nodeHasReturn(child, visitorKeys));
 }

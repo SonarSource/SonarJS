@@ -25,9 +25,11 @@ import {
   findFirstMatchingAncestor,
   FUNCTION_NODES,
   generateMeta,
+  getBranchBodies,
   getMainFunctionTokenLocation,
   getParent,
   isElementWrite,
+  nodeHasReturn,
   report,
   toSecondaryLocation,
 } from '../helpers/index.js';
@@ -285,24 +287,6 @@ function conditionalHasSideEffectOnlyBranch(
   );
 }
 
-function getBranchBodies(node: estree.Node): estree.Node[] {
-  switch (node.type) {
-    case 'IfStatement': {
-      return node.alternate ? [node.consequent, node.alternate] : [node.consequent];
-    }
-    case 'WhileStatement':
-    case 'DoWhileStatement':
-    case 'ForStatement':
-    case 'ForInStatement':
-    case 'ForOfStatement':
-      return [(node as { body: estree.Node }).body];
-    case 'SwitchStatement':
-      return node.cases;
-    default:
-      return [];
-  }
-}
-
 function nodeHasSideEffect(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
   if (FUNCTION_NODES.includes(node.type)) {
     return false;
@@ -314,14 +298,4 @@ function nodeHasSideEffect(node: estree.Node, visitorKeys: SourceCode.VisitorKey
     }
   }
   return childrenOf(node, visitorKeys).some(child => nodeHasSideEffect(child, visitorKeys));
-}
-
-function nodeHasReturn(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
-  if (FUNCTION_NODES.includes(node.type)) {
-    return false;
-  }
-  if (node.type === 'ReturnStatement') {
-    return true;
-  }
-  return childrenOf(node, visitorKeys).some(child => nodeHasReturn(child, visitorKeys));
 }
