@@ -21,7 +21,7 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { RuleContext } from '../helpers/type.js';
 import { childrenOf, findFirstMatchingAncestor, getParent } from '../helpers/ancestor.js';
-import { FUNCTION_NODES, isElementWrite } from '../helpers/ast.js';
+import { FUNCTION_NODES, getBranchBodies, isElementWrite, nodeHasReturn } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
@@ -278,24 +278,6 @@ function conditionalHasSideEffectOnlyBranch(
   );
 }
 
-function getBranchBodies(node: estree.Node): estree.Node[] {
-  switch (node.type) {
-    case 'IfStatement': {
-      return node.alternate ? [node.consequent, node.alternate] : [node.consequent];
-    }
-    case 'WhileStatement':
-    case 'DoWhileStatement':
-    case 'ForStatement':
-    case 'ForInStatement':
-    case 'ForOfStatement':
-      return [(node as { body: estree.Node }).body];
-    case 'SwitchStatement':
-      return node.cases;
-    default:
-      return [];
-  }
-}
-
 function nodeHasSideEffect(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
   if (FUNCTION_NODES.includes(node.type)) {
     return false;
@@ -307,14 +289,4 @@ function nodeHasSideEffect(node: estree.Node, visitorKeys: SourceCode.VisitorKey
     }
   }
   return childrenOf(node, visitorKeys).some(child => nodeHasSideEffect(child, visitorKeys));
-}
-
-function nodeHasReturn(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
-  if (FUNCTION_NODES.includes(node.type)) {
-    return false;
-  }
-  if (node.type === 'ReturnStatement') {
-    return true;
-  }
-  return childrenOf(node, visitorKeys).some(child => nodeHasReturn(child, visitorKeys));
 }
