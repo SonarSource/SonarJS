@@ -40,13 +40,16 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     (context, descriptor) => {
       const { node } = descriptor as { node: estree.Node };
       const componentNode = findReactComponentNode(node, context);
-      if (hasPropsCall(componentNode, context.sourceCode.visitorKeys)) return;
+      if (componentNode && hasPropsCall(componentNode, context.sourceCode.visitorKeys)) return;
       context.report(descriptor);
     },
   );
 }
 
 function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {
+  if (!root) return false;
+
+  // Check if this is a CallExpression with props as argument
   if (root.type === 'CallExpression') {
     const call = root as estree.CallExpression;
     if (
@@ -56,6 +59,14 @@ function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean 
     )
       return true;
   }
+
+  // Check if this is a SpreadElement with props (for {...props} in JSX)
+  if (root.type === 'SpreadElement') {
+    const spread = root as estree.SpreadElement;
+    if (propsArgPatterns.some(p => p(spread.argument))) return true;
+  }
+
+  // Recursively check all children
   return childrenOf(root, keys).some(child => hasPropsCall(child, keys));
 }
 

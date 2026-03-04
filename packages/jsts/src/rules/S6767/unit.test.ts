@@ -87,6 +87,43 @@ function Card(props: CardProps) {
 }
 `,
         },
+        {
+          // FP: component spreads props into another component
+          code: `
+interface MyComponentProps {
+  color: string;
+  size: number;
+}
+function MyComponent(props: MyComponentProps) {
+  return <SomeComponent {...props} />;
+}
+`,
+        },
+        {
+          // FP: component spreads props with omit utility
+          code: `
+interface PageProps {
+  title: string;
+  subtitle: string;
+}
+function Page(props: PageProps) {
+  return <Content {...omit(props, ['title'])} />;
+}
+`,
+        },
+        {
+          // FP: component spreads props into object literal
+          code: `
+interface DataProps {
+  id: string;
+  name: string;
+}
+function DataComponent(props: DataProps) {
+  const merged = { ...props, extra: 'value' };
+  return <div>{JSON.stringify(merged)}</div>;
+}
+`,
+        },
       ],
       invalid: [
         {
