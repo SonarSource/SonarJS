@@ -44,27 +44,33 @@ const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclar
  *      Falls back to the full file AST if unavailable or no match found.
  */
 export function findReactComponentNode(node: estree.Node, context: Rule.RuleContext): estree.Node {
-  const ancestors = context.sourceCode.getAncestors(node as any) as estree.Node[];
+  const ancestors = context.sourceCode.getAncestors(node);
 
   // Strategy A: direct component ancestor
   for (let i = ancestors.length - 1; i >= 0; i--) {
-    if (COMPONENT_NODE_TYPES.has(ancestors[i].type)) return ancestors[i];
+    if (COMPONENT_NODE_TYPES.has(ancestors[i].type)) {
+      return ancestors[i];
+    }
   }
 
   // Strategy B: Foo.propTypes = {...} assignment ancestor
   for (let i = ancestors.length - 1; i >= 0; i--) {
     const anc = ancestors[i];
-    if (anc.type !== 'AssignmentExpression') continue;
-    const { left } = anc as estree.AssignmentExpression;
+    if (anc.type !== 'AssignmentExpression') {
+      continue;
+    }
+    const { left } = anc;
     if (
       left.type === 'MemberExpression' &&
-      isIdentifier((left as estree.MemberExpression).property, 'propTypes') &&
-      (left as estree.MemberExpression).object.type === 'Identifier'
+      isIdentifier(left.property, 'propTypes') &&
+      left.object.type === 'Identifier'
     ) {
-      const name = ((left as estree.MemberExpression).object as estree.Identifier).name;
-      const defNode = context.sourceCode.getScope(node as any).variables.find(v => v.name === name)
+      const name = (left.object as estree.Identifier).name;
+      const defNode = context.sourceCode.getScope(node).variables.find(v => v.name === name)
         ?.defs[0]?.node;
-      if (defNode) return defNode as estree.Node;
+      if (defNode) {
+        return defNode as estree.Node;
+      }
     }
   }
 
@@ -80,10 +86,14 @@ function findOwnerByType(
   keys: SourceCode.VisitorKeys,
 ): estree.Node | undefined {
   const services = context.sourceCode.parserServices;
-  if (!isRequiredParserServices(services)) return undefined;
+  if (!isRequiredParserServices(services)) {
+    return undefined;
+  }
 
   const typeDecl = [...ancestors].reverse().find(a => TS_TYPE_DECL_TYPES.has(a.type));
-  if (!typeDecl) return undefined;
+  if (!typeDecl) {
+    return undefined;
+  }
 
   const checker = services.program.getTypeChecker();
   const propsType = getTypeFromTreeNode(typeDecl, services);
@@ -93,32 +103,57 @@ function findOwnerByType(
       componentNode as TSESTree.Node,
     ) as ts.Declaration;
     if (componentNode.type === 'ClassDeclaration' || componentNode.type === 'ClassExpression') {
-      const cls = tsNode as ts.ClassLikeDeclaration;
-      if (!cls.name) continue;
-      const classSymbol = checker.getSymbolAtLocation(cls.name);
-      if (!classSymbol) continue;
-      const instanceType = checker.getDeclaredTypeOfSymbol(classSymbol);
-      const propsSymbol = instanceType.getProperty('props');
-      if (!propsSymbol) continue;
-      // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-      if (checker.isTypeAssignableTo(propsType, checker.getTypeOfSymbol(propsSymbol)))
+      if (matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, propsType)) {
         return componentNode;
-    } else {
-      // Function component: skip non-PascalCase names to avoid matching helper functions
-      // that happen to accept the same props type (React components use PascalCase by convention).
-      const funcName = getFunctionName(componentNode);
-      if (funcName !== undefined && !/^[A-Z]/.test(funcName)) continue;
-      const tsFuncNode = tsNode as ts.SignatureDeclaration;
-      const signature = checker.getSignatureFromDeclaration(tsFuncNode);
-      const firstParam = signature?.parameters[0];
-      if (firstParam) {
-        // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-        if (checker.isTypeAssignableTo(propsType, checker.getTypeOfSymbol(firstParam)))
-          return componentNode;
       }
+    } else if (
+      matchesFunctionProps(componentNode, tsNode as ts.SignatureDeclaration, checker, propsType)
+    ) {
+      return componentNode;
     }
   }
   return undefined;
+}
+
+function matchesClassProps(
+  cls: ts.ClassLikeDeclaration,
+  checker: ts.TypeChecker,
+  propsType: ts.Type,
+): boolean {
+  if (!cls.name) {
+    return false;
+  }
+  const classSymbol = checker.getSymbolAtLocation(cls.name);
+  if (!classSymbol) {
+    return false;
+  }
+  const instanceType = checker.getDeclaredTypeOfSymbol(classSymbol);
+  const propsSymbol = instanceType.getProperty('props');
+  if (!propsSymbol) {
+    return false;
+  }
+  // @ts-ignore — isTypeAssignableTo is a private TypeScript API
+  return checker.isTypeAssignableTo(propsType, checker.getTypeOfSymbol(propsSymbol));
+}
+
+function matchesFunctionProps(
+  componentNode: estree.Node,
+  tsFuncNode: ts.SignatureDeclaration,
+  checker: ts.TypeChecker,
+  propsType: ts.Type,
+): boolean {
+  // Skip non-PascalCase names to avoid matching helper functions
+  // that happen to accept the same props type (React components use PascalCase by convention).
+  const funcName = getFunctionName(componentNode);
+  if (funcName !== undefined && !/^[A-Z]/.test(funcName)) {
+    return false;
+  }
+  const signature = checker.getSignatureFromDeclaration(tsFuncNode);
+  const firstParam = signature?.parameters[0];
+  // @ts-ignore — isTypeAssignableTo is a private TypeScript API
+  return (
+    firstParam != null && checker.isTypeAssignableTo(propsType, checker.getTypeOfSymbol(firstParam))
+  );
 }
 
 function getFunctionName(node: estree.Node): string | undefined {
@@ -136,7 +171,9 @@ function getFunctionName(node: estree.Node): string | undefined {
 
 function collectComponentNodes(root: estree.Node, keys: SourceCode.VisitorKeys): estree.Node[] {
   const result: estree.Node[] = [];
-  if (COMPONENT_NODE_TYPES.has(root.type)) result.push(root);
+  if (COMPONENT_NODE_TYPES.has(root.type)) {
+    result.push(root);
+  }
   for (const child of childrenOf(root, keys)) {
     result.push(...collectComponentNodes(child, keys));
   }

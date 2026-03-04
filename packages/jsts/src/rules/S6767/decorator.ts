@@ -30,8 +30,8 @@ const propsArgPatterns: Array<(arg: estree.Node) => boolean> = [
   arg => isIdentifier(arg, 'props'),
   arg =>
     arg.type === 'MemberExpression' &&
-    (arg as estree.MemberExpression).object.type === 'ThisExpression' &&
-    isIdentifier((arg as estree.MemberExpression).property, 'props'),
+    arg.object.type === 'ThisExpression' &&
+    isIdentifier(arg.property, 'props'),
 ];
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -40,14 +40,18 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     (context, descriptor) => {
       const { node } = descriptor as { node: estree.Node };
       const componentNode = findReactComponentNode(node, context);
-      if (componentNode && hasPropsCall(componentNode, context.sourceCode.visitorKeys)) return;
+      if (componentNode && hasPropsCall(componentNode, context.sourceCode.visitorKeys)) {
+        return;
+      }
       context.report(descriptor);
     },
   );
 }
 
 function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {
-  if (!root) return false;
+  if (!root) {
+    return false;
+  }
 
   // Check if this is a CallExpression with props as argument
   if (root.type === 'CallExpression') {
@@ -56,14 +60,16 @@ function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean 
       call.callee.type !== 'Super' &&
       !isPropTypesCheckCall(call) &&
       call.arguments.some(a => propsArgPatterns.some(p => p(a as estree.Node)))
-    )
+    ) {
       return true;
+    }
   }
 
   // Check if this is a SpreadElement with props (for {...props} in JSX)
   if (root.type === 'SpreadElement') {
-    const spread = root as estree.SpreadElement;
-    if (propsArgPatterns.some(p => p(spread.argument))) return true;
+    if (propsArgPatterns.some(p => p(root.argument))) {
+      return true;
+    }
   }
 
   // Recursively check all children
@@ -73,7 +79,7 @@ function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean 
 function isPropTypesCheckCall(call: estree.CallExpression): boolean {
   return (
     call.callee.type === 'MemberExpression' &&
-    isIdentifier((call.callee as estree.MemberExpression).object, 'PropTypes') &&
-    isIdentifier((call.callee as estree.MemberExpression).property, 'checkPropTypes')
+    isIdentifier(call.callee.object, 'PropTypes') &&
+    isIdentifier(call.callee.property, 'checkPropTypes')
   );
 }

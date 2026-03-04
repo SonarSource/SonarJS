@@ -1,0 +1,7 @@
+project_name: 'SonarJS'
+languages:
+  - typescript
+encoding: 'utf-8'
+ignore_all_files_in_gitignore: true
+read_only: false
+excluded_tools: []
