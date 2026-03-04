@@ -34,6 +34,8 @@ const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
     'entries',
     'filter',
     'findIndex',
+    'findLast',
+    'findLastIndex',
     'keys',
     'map',
     'values',
@@ -197,7 +199,8 @@ export const rule: Rule.RuleModule = {
               );
             if (
               !hasSideEffect(methodName, objectType, services) &&
-              !isReplaceWithCallback(methodName, call.arguments, services)
+              !isReplaceWithCallback(methodName, call.arguments, services) &&
+              !isFindWithAssignmentCallback(methodName, call.arguments)
             ) {
               context.report(reportDescriptor(methodName, node));
             }
@@ -226,6 +229,53 @@ function isReplaceWithCallback(
     return typeNode && isFunctionTypeNode(typeNode);
   }
   return false;
+}
+
+// Early-exit array methods currently in METHODS_WITHOUT_SIDE_EFFECTS['array']
+const EARLY_EXIT_ARRAY_METHODS = new Set(['find', 'findIndex', 'findLast', 'findLastIndex']);
+
+/**
+ * Returns true if the call is an early-exit array method whose first argument is an inline
+ * function containing an AssignmentExpression. Such callbacks intentionally assign to outer
+ * variables to exploit early-exit behavior, making the return value unused by design.
+ */
+function isFindWithAssignmentCallback(
+  methodName: string,
+  callArguments: Array<estree.Expression | estree.SpreadElement>,
+): boolean {
+  if (!EARLY_EXIT_ARRAY_METHODS.has(methodName) || callArguments.length === 0) {
+    return false;
+  }
+  const callback = callArguments[0];
+  if (callback.type !== 'ArrowFunctionExpression' && callback.type !== 'FunctionExpression') {
+    return false;
+  }
+  return containsAssignment(callback.body);
+}
+
+/**
+ * Recursively checks if an AST node contains an AssignmentExpression.
+ * Handles common statement types; returns false for unrecognized nodes (conservative).
+ */
+function containsAssignment(node: estree.Node): boolean {
+  switch (node.type) {
+    case 'AssignmentExpression':
+      return true;
+    case 'BlockStatement':
+      return node.body.some(containsAssignment);
+    case 'ExpressionStatement':
+      return containsAssignment(node.expression);
+    case 'IfStatement':
+      return (
+        containsAssignment(node.test) ||
+        containsAssignment(node.consequent) ||
+        (node.alternate != null && containsAssignment(node.alternate))
+      );
+    case 'ReturnStatement':
+      return node.argument != null && containsAssignment(node.argument);
+    default:
+      return false;
+  }
 }
 
 function reportDescriptor(methodName: string, node: estree.Node): Rule.ReportDescriptor {
