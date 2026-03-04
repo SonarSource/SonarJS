@@ -60,6 +60,102 @@ export const defaultCompilerOptions: ts.CompilerOptions = {
 };
 
 /**
+ * Node.js major version to ES year mapping (descending order for lookup).
+ */
+const NODE_TO_ES: [number, number][] = [
+  [22, 2024],
+  [20, 2023],
+  [18, 2022],
+  [16, 2021],
+  [14, 2020],
+  [12, 2019],
+  [10, 2018],
+  [8, 2017],
+];
+
+/**
+ * Parses a version string and returns the highest Node.js major version found.
+ * Handles ranges like ">=16 || >=18", "^18.0.0", "14.x", etc.
+ * Exported for testing purposes.
+ *
+ * @param versionStr version string to parse
+ * @returns highest major version number >= 8 and < 100, or null if none found
+ */
+export function parseMaxNodeMajor(versionStr: string): number | null {
+  if (!versionStr || versionStr === '*' || versionStr === 'latest') {
+    return null;
+  }
+  const nums = [...versionStr.matchAll(/(\d+)(?:\.\d+)*/g)]
+    .map(m => parseInt(m[1], 10))
+    .filter(n => n >= 8 && n < 100);
+  if (!nums.length) {
+    return null;
+  }
+  return Math.max(...nums);
+}
+
+/**
+ * Maps a Node.js major version to the corresponding ES year.
+ *
+ * @param major Node.js major version number
+ * @returns ES year supported by that Node.js version
+ */
+export function nodeVersionToEs(major: number): number {
+  for (const [nodeMajor, esYear] of NODE_TO_ES) {
+    if (major >= nodeMajor) {
+      return esYear;
+    }
+  }
+  return 2017; // fallback for very old Node versions
+}
+
+/**
+ * Converts an ES year to normalized TypeScript lib file names.
+ *
+ * @param year ES year (e.g., 2022)
+ * @returns array of normalized lib file names for TypeScript compiler options
+ */
+export function esYearToLib(year: number): string[] {
+  return [`lib.es${year}.d.ts`, 'lib.dom.d.ts'];
+}
+
+function esYearFromEsPrefix(ecmaScriptVersion: string): number | null {
+  const match = ecmaScriptVersion.match(/^ES(\d{4})$/i);
+  if (!match) {
+    return null;
+  }
+  const year = parseInt(match[1], 10);
+  return year >= 2015 && year <= 2030 ? year : null;
+}
+
+/**
+ * Detects the appropriate TypeScript lib files from available signals.
+ * Priority: ecmaScriptVersion override > @types/node / engines.node version signal.
+ *
+ * @param ecmaScriptVersion explicit ES version override (e.g., 'ES2022')
+ * @param nodeVersionSignal raw version string from @types/node or engines.node
+ * @returns normalized lib file names or null if no signal available
+ */
+export function detectLibFromSignals(
+  ecmaScriptVersion: string | undefined,
+  nodeVersionSignal: string | null,
+): string[] | null {
+  if (ecmaScriptVersion) {
+    const year = esYearFromEsPrefix(ecmaScriptVersion);
+    if (year) {
+      return esYearToLib(year);
+    }
+  }
+  if (nodeVersionSignal) {
+    const major = parseMaxNodeMajor(nodeVersionSignal);
+    if (major !== null) {
+      return esYearToLib(nodeVersionToEs(major));
+    }
+  }
+  return null;
+}
+
+/**
  * Creates a ParseConfigHost that uses either TypeScript's file system APIs
  * or the sourceFileStore based on the canAccessFileSystem parameter.
  *

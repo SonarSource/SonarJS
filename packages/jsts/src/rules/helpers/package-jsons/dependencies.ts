@@ -103,3 +103,34 @@ export function parseReactVersion(reactVersion: string): string | null {
     return null;
   }
 }
+
+/**
+ * Gets a Node.js version signal from the closest package.json.
+ * Checks @types/node in all dependency fields first, then engines.node.
+ * Returns the raw version string for further parsing.
+ *
+ * @param baseDir base directory to start searching from
+ * @param topDir top directory to stop searching at
+ * @returns raw version string from @types/node or engines.node, or null if not found
+ */
+export function getNodeVersionSignal(
+  baseDir: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
+): string | null {
+  for (const packageJson of getManifests(baseDir, topDir, fs)) {
+    const allDeps = {
+      ...packageJson.dependencies,
+      ...packageJson.devDependencies,
+      ...packageJson.peerDependencies,
+    };
+    const typesNode = allDeps['@types/node'];
+    if (typeof typesNode === 'string' && typesNode !== 'latest' && typesNode !== '*') {
+      return typesNode;
+    }
+    const enginesNode = packageJson.engines?.['node'];
+    if (typeof enginesNode === 'string') {
+      return enginesNode;
+    }
+  }
+  return null;
+}
