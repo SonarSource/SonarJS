@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { describe, it } from 'node:test';
 
@@ -100,6 +100,38 @@ describe('S6679', () => {
         },
         { code: `x !== x && x !== x`, errors: 2 }, // same variable — not a dual-NaN check
         { code: `x !== x || y !== y`, errors: 2 }, // || operator — each is an independent NaN check
+      ],
+    });
+  });
+
+  it('S6679 with TypeScript types', () => {
+    const ruleTester = new RuleTester();
+
+    ruleTester.run('Number.isNaN() - TypeScript type-aware dual-NaN check', rule, {
+      valid: [
+        {
+          // number types can be NaN — suppress the dual-NaN check
+          code: `function eq(a: number, b: number) { return a !== a && b !== b; }`,
+        },
+        {
+          // any type can be NaN — suppress the dual-NaN check
+          code: `function eq(a: any, b: any) { return a !== a && b !== b; }`,
+        },
+        {
+          // unknown type can be NaN — suppress the dual-NaN check
+          code: `function eq(a: unknown, b: unknown) { return a !== a && b !== b; }`,
+        },
+        {
+          // generic type parameter — suppress (type is unknown, prefer no FP)
+          code: `function eq<T>(a: T, b: T) { return a !== a && b !== b; }`,
+        },
+      ],
+      invalid: [
+        {
+          // string type cannot be NaN — report each self-comparison
+          code: `function eq(a: string, b: string) { return a !== a && b !== b; }`,
+          errors: 2,
+        },
       ],
     });
   });
