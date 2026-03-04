@@ -29,8 +29,8 @@ const TS_FUNCTION_TYPES = new Set([
   'TSMethodSignature', //           interface I { method({}): void; } // NOSONAR S125
   'TSCallSignatureDeclaration', //  interface I { ({}): void; } // NOSONAR S125
   'TSConstructSignatureDeclaration', // interface I { new({}): void; } // NOSONAR S125
-  'TSFunctionType', //              type F = ({}) => void; // NOSONAR S125
-  'TSDeclareFunction', //           declare function f({}): void; // NOSONAR S125
+  'TSFunctionType', //              function type alias, e.g., type F = ({}) => void
+  'TSDeclareFunction', //           ambient function declaration, e.g., declare function f({}): void
   'TSEmptyBodyFunctionExpression', // abstract class C { abstract m({}): void; } // NOSONAR S125
 ]);
 
