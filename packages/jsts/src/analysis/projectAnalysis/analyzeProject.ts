@@ -95,7 +95,11 @@ export async function analyzeProject(
 
   const progressReport = new ProgressReport(pendingFiles.size);
   if (pendingFiles.size) {
-    if (sonarlint && rules.length) {
+    if (jsTsConfigFields.disableTypeChecking) {
+      info(
+        'Type checking is disabled (sonar.javascript.disableTypeChecking=true). All files will be analyzed without type information.',
+      );
+    } else if (sonarlint && rules.length) {
       await analyzeWithIncrementalProgram(
         filesToAnalyze,
         results,
@@ -122,7 +126,7 @@ export async function analyzeProject(
       const pendingJsTsCount = Array.from(pendingFiles).filter(filePath =>
         isJsTsFile(filePath, jsTsConfigFields.shouldIgnoreParams),
       ).length;
-      if (pendingJsTsCount > 0) {
+      if (pendingJsTsCount > 0 && !jsTsConfigFields.disableTypeChecking) {
         info(
           `Found ${pendingJsTsCount} JS/TS file(s) not part of any tsconfig.json: they will be analyzed without type information`,
         );

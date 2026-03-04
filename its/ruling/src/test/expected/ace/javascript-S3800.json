@@ -16,9 +16,6 @@
 "ace:src/keyboard/hash_handler.js": [
 162
 ],
-"ace:src/keyboard/vim.js": [
-3946
-],
 "ace:src/mode/c9search_highlight_rules.js": [
 64
 ],
@@ -29,7 +26,6 @@
 111
 ],
 "ace:src/mode/folding/vbscript.js": [
-36,
 72
 ],
 "ace:src/mode/slim_highlight_rules.js": [
@@ -49,7 +45,6 @@
 130
 ],
 "ace:tool/regexp_tokenizer.js": [
-81,
 84
 ]
 }

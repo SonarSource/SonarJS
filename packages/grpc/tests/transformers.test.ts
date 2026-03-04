@@ -566,4 +566,140 @@ describe('transformProjectOutputToResponse', () => {
 
     expect(result.measures).toEqual([]);
   });
+
+  it('should propagate CSS issue endLine and endColumn to textRange', () => {
+    const output = makeOutput({
+      '/project/src/styles.css': {
+        issues: [
+          {
+            ruleId: 'block-no-empty',
+            language: 'css',
+            line: 1,
+            column: 2,
+            endLine: 1,
+            endColumn: 5,
+            message: 'Unexpected empty block',
+          },
+        ],
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].textRange).toEqual({
+      startLine: 1,
+      startLineOffset: 2,
+      endLine: 1,
+      endLineOffset: 5,
+    });
+  });
+
+  it('should fall back to start position when CSS issue has no endLine/endColumn', () => {
+    const output = makeOutput({
+      '/project/src/styles.css': {
+        issues: [
+          {
+            ruleId: 'block-no-empty',
+            language: 'css',
+            line: 1,
+            column: 2,
+            message: 'Unexpected empty block',
+          },
+        ],
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].textRange).toEqual({
+      startLine: 1,
+      startLineOffset: 2,
+      endLine: 1,
+      endLineOffset: 2,
+    });
+  });
+
+  it('should restore original paths using pathMap for JS/TS issues', () => {
+    const output = makeOutput({
+      '/app/src/file.ts': {
+        issues: [
+          {
+            ruleId: 'S134',
+            language: 'ts',
+            line: 1,
+            column: 0,
+            message: 'Too deeply nested',
+            secondaryLocations: [],
+            ruleESLintKeys: [],
+            filePath: '/app/src/file.ts',
+          },
+        ],
+      },
+    });
+    const pathMap = new Map([['/app/src/file.ts', 'src/file.ts']]);
+
+    const result = transformProjectOutputToResponse(output, pathMap);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].filePath).toBe('src/file.ts');
+  });
+
+  it('should restore original paths using pathMap for CSS issues', () => {
+    const output = makeOutput({
+      '/app/src/styles.css': {
+        issues: [
+          {
+            ruleId: 'block-no-empty',
+            language: 'css',
+            line: 1,
+            column: 2,
+            message: 'Unexpected empty block',
+          },
+        ],
+      },
+    });
+    const pathMap = new Map([['/app/src/styles.css', 'src/styles.css']]);
+
+    const result = transformProjectOutputToResponse(output, pathMap);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].filePath).toBe('src/styles.css');
+  });
+
+  it('should restore original paths in analysis problems', () => {
+    const output = makeOutput({
+      '/app/src/broken.js': {
+        parsingError: { message: 'Unexpected token', code: 'PARSING', line: 5 },
+      },
+    });
+    const pathMap = new Map([['/app/src/broken.js', 'src/broken.js']]);
+
+    const result = transformProjectOutputToResponse(output, pathMap);
+
+    expect(result.analysisProblems?.[0].filePath).toBe('src/broken.js');
+    expect(result.issues?.[0].filePath).toBe('src/broken.js');
+  });
+
+  it('should restore original paths in measures', () => {
+    const output = makeOutput({
+      '/app/src/main.js': { issues: [], metrics: { nosonarLines: [], ncloc: [1, 2] } },
+    });
+    const pathMap = new Map([['/app/src/main.js', 'src/main.js']]);
+
+    const result = transformProjectOutputToResponse(output, pathMap);
+
+    expect(result.measures?.[0].filePath).toBe('src/main.js');
+  });
+
+  it('should fall back to normalized path when pathMap has no entry', () => {
+    const output = makeOutput({
+      '/project/src/main.js': { issues: [], metrics: { nosonarLines: [], ncloc: [1] } },
+    });
+
+    const result = transformProjectOutputToResponse(output, new Map());
+
+    expect(result.measures?.[0].filePath).toBe('/project/src/main.js');
+  });
 });

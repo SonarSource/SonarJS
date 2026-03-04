@@ -205,6 +205,65 @@ describe('S7739', () => {
         `,
           filename: testFilePath,
         },
+        // Interface shape descriptor: 'then' as a type reference, not a function
+        {
+          code: `
+          const connectionInterface = {
+            open: Function,
+            send: Function,
+            then: Function,
+            close: Function,
+          };
+        `,
+          filename: testFilePath,
+        },
+        // JSON Schema {if, then} conditional construct
+        {
+          code: `
+          const schema = {
+            allOf: [
+              {
+                if: { properties: { group: { const: 'platform' } } },
+                then: { properties: { visibility: { enum: ['private', 'shared'] } }, required: ['visibility'] },
+              },
+            ],
+          };
+        `,
+          filename: testFilePath,
+        },
+        // JSON Schema {if, then, else} conditional construct
+        {
+          code: `
+          const schema = {
+            allOf: [
+              {
+                if: { properties: { animal: { const: 'Cat' } } },
+                then: { properties: { food: { enum: ['meat', 'grass', 'fish'] } }, required: ['food'] },
+                else: { properties: { food: { enum: ['worm', 'plankton'] } }, required: ['food'] },
+              },
+            ],
+          };
+        `,
+          filename: testFilePath,
+        },
+        // Multiple JSON Schema {if, then} conditionals in allOf
+        {
+          code: `
+          const schema = {
+            allOf: [
+              {
+                if: { properties: { type: { const: 'circle' } } },
+                then: { properties: { radius: { type: 'number' } }, required: ['radius'] },
+              },
+              {
+                if: { properties: { type: { const: 'rectangle' } } },
+                then: { properties: { width: { type: 'number' }, height: { type: 'number' } }, required: ['width', 'height'] },
+              },
+            ],
+          };
+        `,
+          filename: testFilePath,
+        },
       ],
       invalid: [
         {
@@ -267,6 +326,15 @@ describe('S7739', () => {
           code: `
           const result = {};
           result.then = (args) => someOtherCall(args);
+        `,
+          filename: testFilePath,
+          errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],
+        },
+        // True Positive: Assigning a non-.then method to .then (like jQuery.ready.then = jQuery.fn.ready)
+        // RHS accesses a property that is not named 'then', so it's not a Promise delegation
+        {
+          code: `
+          jQuery.ready.then = jQuery.fn.ready;
         `,
           filename: testFilePath,
           errors: [{ messageId: NO_THENABLE_OBJECT_ERROR }],

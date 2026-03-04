@@ -43,12 +43,16 @@ export interface AnalysisInput {
  * @param line the issue starting line (1-based)
  * @param column the issue starting column (0-based)
  * @param message the issue message describing the problem
+ * @param endLine the issue ending line (1-based, optional)
+ * @param endColumn the issue ending column (0-based, optional)
  */
 export interface BaseIssue {
   ruleId: string;
   line: number;
   column: number;
   message: string;
+  endLine?: number;
+  endColumn?: number;
 }
 
 /**

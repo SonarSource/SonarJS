@@ -237,6 +237,10 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
       .orElse(true);
   }
 
+  public boolean shouldDisableTypeChecking() {
+    return context.config().getBoolean(JavaScriptPlugin.DISABLE_TYPE_CHECKING).orElse(false);
+  }
+
   public List<String> getSources() {
     return stream(this.context.config().getStringArray("sonar.sources"))
       .filter(x -> !x.isBlank())

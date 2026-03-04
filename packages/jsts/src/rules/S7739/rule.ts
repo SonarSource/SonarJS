@@ -330,6 +330,35 @@ function isConditionalValidationConfig(node: Node): boolean {
 }
 
 /**
+ * Checks if 'then' is inside an object that also has an 'if' sibling property,
+ * indicating a JSON Schema conditional validation construct ({if, then, else}).
+ */
+function isJsonSchemaConditional(node: Node): boolean {
+  const ancestors = getAncestorsWithParent(node);
+  const objectExpr = ancestors.find(a => a.type === 'ObjectExpression');
+  if (objectExpr?.type !== 'ObjectExpression') {
+    return false;
+  }
+  const propertyNames = collectPropertyNames(objectExpr);
+  return propertyNames.has('then') && propertyNames.has('if');
+}
+
+/**
+ * Checks if 'then' is a property key whose value is the Function constructor,
+ * indicating an interface shape descriptor (e.g., { then: Function, open: Function }).
+ * This pattern describes the expected shape of an object, not a thenable implementation.
+ */
+function isInterfaceShapeDescriptor(node: Node): boolean {
+  const ancestors = getAncestorsWithParent(node);
+  const parent = ancestors[0];
+  if (parent?.type !== 'Property') {
+    return false;
+  }
+  const prop = parent as Node & { type: 'Property'; key: Node; value: Node; computed: boolean };
+  return !prop.computed && prop.key === node && isIdentifier(prop.value, 'Function');
+}
+
+/**
  * Checks if the reported node represents an intentional thenable implementation
  * that should not be flagged.
  */
@@ -338,7 +367,9 @@ function isIntentionalThenableImplementation(node: Node): boolean {
     isDelegatingToPromiseThen(node) ||
     isInsidePromiseOrDeferredDefinition(node) ||
     isPrototypeThenAssignment(node) ||
-    hasSiblingThenableMethods(node)
+    hasSiblingThenableMethods(node) ||
+    isJsonSchemaConditional(node) ||
+    isInterfaceShapeDescriptor(node)
   );
 }
 

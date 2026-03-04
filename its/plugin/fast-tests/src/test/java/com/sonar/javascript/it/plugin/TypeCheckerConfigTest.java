@@ -130,26 +130,30 @@ class TypeCheckerConfigTest {
 
   /**
    * Test a project having a main tsconfig.json file at the root and secondary tsconfig.json in sub-folders extending the main file.
-   * The analyzer will find the root tsconfig.json first and will analyze all files with it, ignoring the secondary files and any
-   * parameters impacting type checking (like baseUrl).
+   * When sonar.typescript.tsconfigPaths lists tsconfig.json before src/tsconfig.json, the root tsconfig (without baseUrl) is
+   * processed first, so module resolution fails and the issue is missed.
+   * When only src/tsconfig.json is provided (which has baseUrl), the issue is correctly found.
    */
   @Test
   void extend_main_from_folder() {
     var project = "extend-main-from-folder";
     var scanner = getSonarScannerBuilder(project);
+
+    // Root tsconfig.json processed first (no baseUrl) → module resolution fails → no issue
     var result = ScannerRunner.run(
       SERVER_CONTEXT,
-      scanner.build(),
+      scanner
+        .withScannerProperty("sonar.typescript.tsconfigPaths", "tsconfig.json,src/tsconfig.json")
+        .build(),
       ScannerRunnerConfig.builder().build()
     );
-
     assertThat(result.logOutput())
       .extracting(Log::message)
       .filteredOn(m -> m.startsWith("Found 2 tsconfig.json file(s)"))
       .hasSize(1);
     assertThat(result.scannerOutputReader().getProject().getAllIssues()).isEmpty();
-    // Missing issues for main.ts
 
+    // Only src/tsconfig.json (with baseUrl) → module resolution succeeds → issue found
     var result2 = ScannerRunner.run(
       SERVER_CONTEXT,
       scanner.withScannerProperty("sonar.typescript.tsconfigPaths", "src/tsconfig.json").build(),

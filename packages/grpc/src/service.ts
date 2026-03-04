@@ -52,14 +52,14 @@ export async function analyzeFileHandler(
 
     // Transform, sanitize source files, and initialize file stores
     const rawFiles = transformSourceFilesToRawInputFiles(request.sourceFiles || []);
-    const inputFiles = await sanitizeRawInputFiles(rawFiles, configuration);
+    const { files: inputFiles, pathMap } = await sanitizeRawInputFiles(rawFiles, configuration);
     await initFileStores(configuration, inputFiles);
 
     const projectInput = transformRequestToProjectInput(request);
 
     const projectOutput = await analyzeProject(projectInput, configuration);
 
-    const response = transformProjectOutputToResponse(projectOutput);
+    const response = transformProjectOutputToResponse(projectOutput, pathMap);
 
     info(`Analysis complete: ${response.issues?.length ?? 0} issues found`);
     callback(null, response);

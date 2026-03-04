@@ -102,7 +102,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.2
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -135,16 +135,16 @@ jobs:
     permissions: *read_permissions
     steps: *populate_npm_cache_steps
 
-  build:
+  sync_rspec:
     runs-on: github-ubuntu-latest-s
-    name: Build SonarJS on Linux
-    needs: [setup, get_build_number, populate_npm_cache]
+    name: Sync RSPEC metadata
+    needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout
       - &mise
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.2
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -159,6 +159,37 @@ jobs:
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
+      - &rspec_secrets
+        id: rspec-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+      - name: Sync RSPEC rule data
+        run: npm run sync-rspec-all
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+      - name: Upload RSPEC rule data
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: rspec-rule-data
+          path: |
+            sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript
+            sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
+            resources/rule-data/.synced-sha-javascript
+            resources/rule-data/.synced-sha-css
+          retention-days: 1
+
+  build:
+    runs-on: github-ubuntu-latest-s
+    name: Build SonarJS on Linux
+    needs: [setup, get_build_number, populate_npm_cache, sync_rspec]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - *npm_cache
       - &maven_cache
         uses: ./.github/actions/maven-cache
         with:
@@ -171,6 +202,12 @@ jobs:
         with:
           artifactory-reader-role: private-reader
           disable-caching: 'true'
+      - &download_rspec_rule_data
+        name: Download RSPEC rule data
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+        with:
+          name: rspec-rule-data
+      - *rspec_secrets
       - id: deployer-secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -179,7 +216,6 @@ jobs:
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
             development/kv/data/sign key | SIGN_KEY;
             development/kv/data/sign passphrase | PGP_PASSPHRASE;
-            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
       - &java_coverage_cache
         name: Cache Java coverage
         uses: SonarSource/gh-action_cache@v1
@@ -194,15 +230,15 @@ jobs:
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
           SIGN_KEY: ${{ fromJSON(steps.deployer-secrets.outputs.vault).SIGN_KEY }}
           PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault).PGP_PASSPHRASE }}
-          GITHUB_TOKEN: ${{ fromJSON(steps.deployer-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Upload SonarJS artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
           retention-days: 1
       - name: Upload Maven target artifacts
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: maven-targets-${{ github.sha }}
           path: |
@@ -218,7 +254,7 @@ jobs:
   build_win:
     runs-on: github-windows-latest-s
     name: Build SonarJS on Windows
-    needs: [setup, populate_npm_cache_win]
+    needs: [setup, populate_npm_cache_win, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
@@ -227,11 +263,8 @@ jobs:
       - *npm_cache
       - *maven_cache
       - *config_maven
-      - id: rspec-secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+      - *download_rspec_rule_data
+      - *rspec_secrets
       - name: Build and test Maven (no deploy)
         run: mvn verify -T1C
         env:
@@ -239,7 +272,7 @@ jobs:
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
-    needs: [setup, populate_npm_cache]
+    needs: [setup, populate_npm_cache, sync_rspec]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions:
@@ -260,58 +293,98 @@ jobs:
           npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
           npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - *npm_cache
+      - *download_rspec_rule_data
+      - *rspec_secrets
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
-      - name: Check README.md freshness
-        if: always() && github.event_name == 'pull_request'
-        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+      - name: Check README freshness
+        if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
-          HEAD_REF: ${{ github.head_ref }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          if git diff --quiet packages/jsts/src/rules/README.md; then
-            echo "README.md is up to date"
-            exit 0
-          fi
-
-          # Prevent infinite loop if last commit was auto-generated
+          # Check if last commit was already an auto-update (prevent infinite loop)
           LAST_COMMIT_MSG=$(git log -1 --format=%B)
-          if echo "$LAST_COMMIT_MSG" | grep -q "Generated with GitHub Actions"; then
-            echo "Last commit was auto-generated, skipping"
+          if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
+            echo "Last commit was an auto-update, skipping to prevent infinite loop"
             exit 0
           fi
 
-          echo "README.md is out of date, creating fix PR..."
+          # Regenerate README and check for differences
+          npm run generate-meta
 
-          # Create a new branch from the PR branch
           FIX_BRANCH="fix/update-readme-for-${HEAD_REF}"
+
+          if git diff --quiet packages/jsts/src/rules/README.md; then
+            echo "README is up to date"
+
+            # Clean up stale fix PR if one exists and is still open
+            FIX_PR_STATE=$(gh pr view "$FIX_BRANCH" --json state --jq '.state' 2>/dev/null || true)
+            if [ "$FIX_PR_STATE" = "OPEN" ]; then
+              gh pr close "$FIX_BRANCH" --comment "No longer needed — the original PR is now up to date."
+              git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
+            fi
+
+            exit 0
+          fi
+
+          echo "README is stale — creating fix PR"
+
           git stash push -m "readme-update" -- packages/jsts/src/rules/README.md
           git fetch origin "$HEAD_REF"
-          git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git stash pop
-          git add packages/jsts/src/rules/README.md
-          git commit -m "Update ESLint plugin README.md
+
+          if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
+            git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
+            git stash pop
+            git add packages/jsts/src/rules/README.md
+            git commit -m "Update rules README
 
           🤖 Generated with GitHub Actions"
-          git push origin "$FIX_BRANCH"
+            git push --force-with-lease origin "$FIX_BRANCH"
+            FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url')
+          else
+            git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
+            git stash pop
+            git add packages/jsts/src/rules/README.md
+            git commit -m "Update rules README
 
-          # Create PR targeting the original PR branch
-          FIX_PR_URL=$(gh pr create \
-            --title "Update ESLint plugin README.md" \
-            --base "$HEAD_REF" \
-            --head "$FIX_BRANCH" \
-            --body "Auto-generated update for \`packages/jsts/src/rules/README.md\`.
+          🤖 Generated with GitHub Actions"
+            git push origin "$FIX_BRANCH"
+            FIX_PR_URL=$(gh pr create \
+              --title "Update rules README for PR #${PR_NUMBER}" \
+              --base "$HEAD_REF" \
+              --head "$FIX_BRANCH" \
+              --body "Auto-generated README update for PR #${PR_NUMBER}.
 
           🤖 Generated with GitHub Actions")
+          fi
 
-          # Comment on the original PR with link to fix PR
-          gh pr comment "$PR_NUMBER" \
-            --body "⚠️ The ESLint plugin README.md is out of date. A fix PR has been created automatically: $FIX_PR_URL. Please merge it into this branch to continue."
+          # Comment on original PR with link to fix PR
+          MARKER="<!-- readme-freshness -->"
+          COMMENT_BODY="${MARKER}
+          ## README Freshness Check
 
-          echo "::error::README.md was out of date. A fix PR has been created."
+          ❌ **The rules README is out of date.**
+
+          A fix PR has been created: ${FIX_PR_URL}
+
+          Please review and merge it into your branch."
+
+          EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
+
+          if [ -n "$EXISTING_COMMENT_ID" ]; then
+            gh api "repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT_ID" \
+              -X PATCH -F body="$COMMENT_BODY"
+          else
+            gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
+          fi
+
           exit 1
       - &eslint_tarball_cache
         name: Cache ESLint plugin tarball
@@ -342,7 +415,7 @@ jobs:
             node-label: 'node 16'
     steps:
       - *checkout
-      - uses: jdx/mise-action@v3.6.1
+      - uses: jdx/mise-action@v3.6.2
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -353,28 +426,32 @@ jobs:
       - name: Test ESLint Plugin
         run: |
           cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
-          npm install --ignore-scripts
+          npm install --ignore-scripts --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-retries=3
           npx tsc --noEmit
           npm run test
 
   knip:
     runs-on: github-ubuntu-latest-s
     name: Knip
-    needs: [setup, populate_npm_cache]
+    needs: [setup, populate_npm_cache, sync_rspec]
     permissions: *read_permissions
     steps:
       - *checkout
       - *mise
       - *npm_cache
+      - *download_rspec_rule_data
+      - *rspec_secrets
       - name: Run knip
         run: |
           npm run bbf
           npx knip
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
   test_js:
     runs-on: github-ubuntu-latest-m
     name: Unit tests JavaScript/TypeScript
-    needs: [setup, populate_npm_cache]
+    needs: [setup, populate_npm_cache, sync_rspec]
     permissions: *read_permissions
     steps:
       - name: Check JS coverage cache
@@ -388,7 +465,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.2
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -404,16 +481,29 @@ jobs:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - if: steps.cache.outputs.cache-hit != 'true'
+        name: Download RSPEC rule data
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+        with:
+          name: rspec-rule-data
+      - if: steps.cache.outputs.cache-hit != 'true'
+        id: rspec-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests with coverage
         run: |
           npm run generate-meta
           npm run bridge:compile
           npm run bridge:test:cov
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
 
   test_js_win:
     runs-on: github-windows-latest-s
     name: Unit tests JavaScript on Windows
-    needs: [setup, populate_npm_cache_win]
+    needs: [setup, populate_npm_cache_win, sync_rspec]
     permissions: *read_permissions
     steps:
       - name: Cache JS test results marker (Windows)
@@ -427,7 +517,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.2
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -443,6 +533,17 @@ jobs:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - if: steps.cache.outputs.cache-hit != 'true'
+        name: Download RSPEC rule data
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
+        with:
+          name: rspec-rule-data
+      - if: steps.cache.outputs.cache-hit != 'true'
+        id: rspec-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Run JS tests on Windows
         shell: bash
         run: |
@@ -450,6 +551,8 @@ jobs:
           npm run bridge:compile
           npm run bridge:test:js
           mkdir -p .js-test-marker-win && touch .js-test-marker-win/success
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
 
   analyze_primary:
     runs-on: github-ubuntu-latest-s
@@ -477,7 +580,7 @@ jobs:
       - *java_coverage_cache
       - &download_maven_targets
         name: Download Maven target artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
           name: maven-targets-${{ github.sha }}
       - *config_maven
@@ -573,7 +676,7 @@ jobs:
     steps:
       - *checkout
       - &mise_java_matrix_node
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.2
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -585,7 +688,7 @@ jobs:
       - *maven_cache
       - &download_sonarjs_m2
         name: Download SonarJS artifacts
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        uses: actions/download-artifact@70fc10c6e5e1ce46ad2ea6f2b72d43f7d47b13c3 # v8.0.0
         with:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
@@ -643,7 +746,7 @@ jobs:
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.2
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -713,7 +816,7 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     container:
-      image: alpine/java:21-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
+      image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
     permissions: *read_permissions
     env:
       # Pre-set build number to avoid cache miss in container.
@@ -735,7 +838,7 @@ jobs:
           chown -R sonar:sonar /github/home
       - &alpine_setup_maven
         name: Setup Maven
-        uses: jdx/mise-action@v3.6.1
+        uses: jdx/mise-action@v3.6.2
         with:
           version: 2025.11.2
           cache_save: true
@@ -820,7 +923,7 @@ jobs:
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     container:
-      image: alpine/java:21-jdk@sha256:366ad7df4fafeca51290ccd7d6f046cf4bf3aa312e59bb191b4be543b39f25e2
+      image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
     permissions: *read_permissions
     env:
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
@@ -949,7 +1052,7 @@ jobs:
   js_ts_ruling:
     runs-on: github-ubuntu-latest-m
     name: JS/TS Ruling
-    needs: [setup, populate_npm_cache]
+    needs: [setup, populate_npm_cache, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions:
       id-token: write
@@ -963,13 +1066,16 @@ jobs:
           submodules: true
       - *mise
       - *npm_cache
+      - *download_rspec_rule_data
+      - *rspec_secrets
       - name: Run JS/TS Ruling
         id: ruling
         run: |
           npm run generate-meta
           npm run ruling
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Update ruling and notify
-        continue-on-error: true
         if: always() && github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -1002,29 +1108,58 @@ jobs:
             HAS_DIFFERENCES=false
           fi
 
-          # Commit and push the synced ruling files if there are differences
+          FIX_BRANCH="fix/update-ruling-for-${HEAD_REF}"
+
+          # Create/update fix PR if ruling failed and there are differences
           if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
             # Stash changes before checkout
             git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/
 
-            # Checkout PR branch
             git fetch origin "$HEAD_REF"
-            git checkout "$HEAD_REF"
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
 
-            # Pop the stashed changes
-            git stash pop
+            if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
+              git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
+              git stash pop
+              git add its/ruling/src/test/expected/
 
-            git add its/ruling/src/test/expected/
-
-            if git diff --staged --quiet; then
-              echo "No ruling changes to commit"
-            else
-              git commit -m "Update ruling results
+              if git diff --staged --quiet; then
+                echo "No ruling changes to commit"
+              else
+                git commit -m "Update ruling results
 
           🤖 Generated with GitHub Actions"
-              git push origin "$HEAD_REF"
+                git push --force-with-lease origin "$FIX_BRANCH"
+              fi
+              FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url')
+            else
+              git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
+              git stash pop
+              git add its/ruling/src/test/expected/
+
+              if git diff --staged --quiet; then
+                echo "No ruling changes to commit"
+              else
+                git commit -m "Update ruling results
+
+          🤖 Generated with GitHub Actions"
+                git push origin "$FIX_BRANCH"
+                FIX_PR_URL=$(gh pr create \
+                  --title "Update ruling results for PR #${PR_NUMBER}" \
+                  --base "$HEAD_REF" \
+                  --head "$FIX_BRANCH" \
+                  --body "Auto-generated ruling update for PR #${PR_NUMBER}.
+
+          🤖 Generated with GitHub Actions")
+              fi
+            fi
+          else
+            # No changes needed — clean up stale fix PR if one exists and is still open
+            FIX_PR_STATE=$(gh pr view "$FIX_BRANCH" --json state --jq '.state' 2>/dev/null || true)
+            if [ "$FIX_PR_STATE" = "OPEN" ]; then
+              gh pr close "$FIX_BRANCH" --comment "No longer needed — the original PR is now up to date."
+              git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
             fi
           fi
 
@@ -1036,11 +1171,11 @@ jobs:
               echo "$MARKER"
               cat ruling-report.md
               echo ""
-              if [ "$RULING_FAILED" = "true" ]; then
+              if [ "$RULING_FAILED" = "true" ] && [ -n "${FIX_PR_URL:-}" ]; then
                 echo "---"
-                echo "✅ **Ruling has been updated.** To re-run CI, either:"
-                echo "- Close and reopen this PR, or"
-                echo "- Run: \`git pull && git commit --allow-empty -m 'Trigger CI' && git push\`"
+                echo "❌ **Ruling needs updating.** A fix PR has been created: ${FIX_PR_URL}"
+                echo ""
+                echo "Please review and merge it into your branch."
               fi
             } > comment.md
           else
@@ -1073,6 +1208,12 @@ jobs:
             gh pr comment "$PR_NUMBER" --body-file comment.md
           fi
 
+          # Fail CI if ruling needs updating
+          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
+            echo "::error::Ruling results are out of date. See fix PR: ${FIX_PR_URL:-}"
+            exit 1
+          fi
+
   ruling:
     runs-on: github-ubuntu-latest-m
     name: Ruling Test
@@ -1098,7 +1239,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - name: Upload ruling differences
         if: failure()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: ruling-differences
           path: its/ruling/target/actual/

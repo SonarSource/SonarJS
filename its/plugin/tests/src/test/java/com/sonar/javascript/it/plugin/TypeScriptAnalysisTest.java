@@ -152,8 +152,8 @@ class TypeScriptAnalysisTest {
       );
 
     List<Path> tsconfigs = Arrays.asList(
-      projectDir.getCanonicalFile().toPath().resolve("tsconfig.json"),
-      projectDir.getCanonicalFile().toPath().resolve(Paths.get("dir", "custom.tsconfig.json"))
+      projectDir.getCanonicalFile().toPath().resolve(Paths.get("dir", "custom.tsconfig.json")),
+      projectDir.getCanonicalFile().toPath().resolve("tsconfig.json")
     );
     assertThat(
       result.getLogsLines(l ->

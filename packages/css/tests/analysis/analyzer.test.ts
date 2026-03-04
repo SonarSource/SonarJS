@@ -45,7 +45,9 @@ describe('analyzeCSS', () => {
             ruleId: 'block-no-empty',
             language: 'css',
             line: 1,
-            column: 3,
+            column: 2,
+            endLine: 1,
+            endColumn: 4,
             message: 'Unexpected empty block',
           },
         ],
@@ -122,7 +124,7 @@ describe('analyzeCSS', () => {
           ruleId: 'CssSyntaxError',
           language: 'css',
           line: 2,
-          column: 3,
+          column: 2,
           message: 'Unclosed block',
         },
       ],
@@ -132,8 +134,8 @@ describe('analyzeCSS', () => {
 
 describe('should emit correctly located issues regardless of invisible characters', () => {
   const testCases = [
-    ['single', [5, 2]],
-    ['multiple', [7, 4]],
+    ['single', [5, 1]],
+    ['multiple', [7, 3]],
   ] as const;
 
   for (const [type, expectation] of testCases) {

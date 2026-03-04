@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>disable-type-checking-profile</name>
+  <language>ts</language>
+  <rules>
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S3003</key> <!-- strings-comparison (requires type info) -->
+      <priority>INFO</priority>
+    </rule>
+  </rules>
+</profile>

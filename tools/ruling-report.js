@@ -61,12 +61,12 @@ function parseRulingJson(filePath) {
 function getRulingChanges(filePath) {
   const changes = [];
 
-  // Extract project and rule from file path
-  // e.g., its/ruling/src/test/expected/jsts/ace/javascript-S1134.json
+  // Extract project, language, and rule from file path
+  // e.g., its/ruling/src/test/expected/ace/javascript-S1134.json
   const match = filePath.match(/expected\/([^/]+)\/([\w.-]+)-(S\w+|CommentRegexTest\w*)\.json$/);
   if (!match) return changes;
 
-  const [, project, , rule] = match;
+  const [, project, language, rule] = match;
   const fullPath = join(ROOT_DIR, filePath);
 
   // Get current (staged/working) version
@@ -97,6 +97,7 @@ function getRulingChanges(filePath) {
           type: 'added',
           project,
           rule,
+          language,
           filePath: relativePath,
           line,
         });
@@ -115,6 +116,7 @@ function getRulingChanges(filePath) {
           type: 'removed',
           project,
           rule,
+          language,
           filePath: relativePath,
           line,
         });
@@ -199,7 +201,8 @@ function generateChangesSection(changes, maxSnippets = MAX_SNIPPETS) {
   for (const [rule, ruleChanges] of byRule) {
     if (!unlimited && snippetCount >= maxSnippets) break;
 
-    const rspecLink = `${RSPEC_URL}/${rule}/javascript`;
+    const rspecLanguage = ruleChanges[0].language || 'javascript';
+    const rspecLink = `${RSPEC_URL}/${rule}/${rspecLanguage}`;
     md += `#### <a href="${rspecLink}" target="_blank">${rule}</a>\n\n`;
 
     for (const change of ruleChanges) {
@@ -241,7 +244,8 @@ function generateFullChangesSection(changes) {
   }
 
   for (const [rule, ruleChanges] of byRule) {
-    const rspecLink = `${RSPEC_URL}/${rule}/javascript`;
+    const rspecLanguage = ruleChanges[0].language || 'javascript';
+    const rspecLink = `${RSPEC_URL}/${rule}/${rspecLanguage}`;
     md += `**<a href="${rspecLink}" target="_blank">${rule}</a>**\n\n`;
 
     for (const change of ruleChanges) {

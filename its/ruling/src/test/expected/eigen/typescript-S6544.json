@@ -2,14 +2,6 @@
 "eigen:src/app/Scenes/Artwork/Components/RequestConditionReport.tsx": [
 47
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tsx": [
-42,
-75
-],
-"eigen:src/app/Scenes/Show/Components/ShowContextCard.tsx": [
-202,
-213
-],
 "eigen:src/app/store/AuthModel.ts": [
 483,
 590,
@@ -20,8 +12,5 @@
 ],
 "eigen:src/app/utils/PushNotification.ts": [
 47
-],
-"eigen:src/palette/elements/Select/Select.tsx": [
-92
 ]
 }
