@@ -17,29 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6679/javascript
 
 import type { Rule } from 'eslint';
-import type estree from 'estree';
-import { areEquivalent, generateMeta, getNodeParent, interceptReport } from '../helpers/index.js';
+import { generateMeta, interceptReport } from '../helpers/index.js';
 import * as meta from './generated-meta.js';
-
-/**
- * Checks if a self-comparison node is part of a dual-NaN equality check pattern:
- * `a !== a && b !== b` — an intentional idiom to check if both values are NaN.
- */
-function isDualNaNCheck(node: estree.BinaryExpression, context: Rule.RuleContext): boolean {
-  const parent = getNodeParent(node);
-  if (parent?.type !== 'LogicalExpression' || parent.operator !== '&&') {
-    return false;
-  }
-  const sibling = parent.left === node ? parent.right : parent.left;
-  if (sibling.type !== 'BinaryExpression') {
-    return false;
-  }
-  // Sibling must be a self-comparison of a different variable
-  return (
-    areEquivalent(sibling.left, sibling.right, context.sourceCode) &&
-    !areEquivalent(node.left, sibling.left, context.sourceCode)
-  );
-}
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -60,10 +39,6 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
           operators.has(node.operator) &&
           node.left.type !== 'Literal'
         ) {
-          if (isDualNaNCheck(node, context)) {
-            return;
-          }
-
           const prefix = node.operator.startsWith('!') ? '' : '!',
             value = context.sourceCode.getText(node.left),
             suggest: Rule.SuggestionReportDescriptor[] = [

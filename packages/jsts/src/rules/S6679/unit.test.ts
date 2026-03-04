@@ -23,14 +23,7 @@ describe('S6679', () => {
     const ruleTester = new DefaultParserRuleTester();
 
     ruleTester.run('Number.isNaN() should be used to check for NaN value', rule, {
-      valid: [
-        { code: `x > x` },
-        { code: `x < x` },
-        { code: `x >= x` },
-        { code: `x <= x` },
-        { code: `x !== x && y !== y` }, // Compliant: dual-NaN equality check
-        { code: `(x === y && (0 !== x || 1 / x === 1 / y)) || (x !== x && y !== y)` }, // Compliant: SameValueZero is() pattern
-      ],
+      valid: [{ code: `x > x` }, { code: `x < x` }, { code: `x >= x` }, { code: `x <= x` }],
       invalid: [
         {
           code: `x === x`,
@@ -87,12 +80,6 @@ describe('S6679', () => {
               ],
             },
           ],
-        },
-        { code: `x !== x && x !== x`, errors: 2 }, // same variable on both sides
-        { code: `x !== x || y !== y`, errors: 2 }, // || not &&
-        {
-          code: `(typeof x === "number" && x !== x) && (typeof y === "number" && y !== y)`,
-          errors: 2, // sibling is typeof check, not a self-comparison — both flagged
         },
       ],
     });
