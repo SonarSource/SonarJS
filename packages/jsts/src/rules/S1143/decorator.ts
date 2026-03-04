@@ -120,7 +120,7 @@ function isSimpleStateExpression(node: TSESTree.Expression): boolean {
       // Allow optional member access (errors?.length) but not optional calls (fn?.())
       return node.expression.type === 'MemberExpression';
     case 'UnaryExpression':
-      return node.operator === '!' && isSimpleStateExpression(node.argument as TSESTree.Expression);
+      return node.operator === '!' && isSimpleStateExpression(node.argument);
     default:
       return false;
   }
