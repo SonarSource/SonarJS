@@ -13,7 +13,10 @@ Ruling tests analyze large third-party codebases (JS/TS and CSS) and compare iss
 ## Running Ruling
 
 ```bash
-# Prerequisite: rebuild the jar first
+# Prerequisites: init submodules, install dependencies, build JS/TS, then rebuild the jar
+git submodule update --init --recursive
+npm install
+npm run bbf
 mvn install -DskipTests
 
 # Run ruling (JS/TS and CSS)
@@ -27,6 +30,7 @@ sh tools/ruling-debug-script.sh
 ```
 
 Results:
+
 - Actual: `packages/ruling/actual/`
 - Expected: `its/ruling/src/test/expected/`
 
@@ -38,11 +42,13 @@ mvn verify -Dtest=RulingTest -Dmaven.test.redirectTestOutputToFile=false
 ```
 
 Copy actual to expected:
+
 ```bash
 cp -R target/actual/ src/test/expected/
 ```
 
 Review diff:
+
 ```bash
 diff -rq src/test/expected target/actual
 ```
