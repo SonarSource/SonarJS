@@ -133,6 +133,7 @@ public class JavaScriptPlugin implements Plugin {
   public static final String CREATE_TS_PROGRAM_FOR_ORPHAN_FILES =
     "sonar.javascript.createTSProgramForOrphanFiles";
   public static final String DISABLE_TYPE_CHECKING = "sonar.javascript.disableTypeChecking";
+  public static final String ECMA_SCRIPT_VERSION = "sonar.javascript.ecmaScriptVersion";
 
   @Override
   public void define(Context context) {
@@ -274,6 +275,17 @@ public class JavaScriptPlugin implements Plugin {
         .subCategory(TS_SUB_CATEGORY)
         .category(JS_TS_CATEGORY)
         .type(PropertyType.BOOLEAN)
+        .build(),
+      PropertyDefinition.builder(ECMA_SCRIPT_VERSION)
+        .name("ECMAScript Version")
+        .description(
+          "Overrides the ECMAScript version used for TypeScript program lib resolution. " +
+            "Accepts values like 'ES2022', 'ES2023'. When set, this takes precedence over version signals " +
+            "detected from package.json (e.g. @types/node or engines.node)."
+        )
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
+        .subCategory(TS_SUB_CATEGORY)
+        .category(JS_TS_CATEGORY)
         .build()
     );
 

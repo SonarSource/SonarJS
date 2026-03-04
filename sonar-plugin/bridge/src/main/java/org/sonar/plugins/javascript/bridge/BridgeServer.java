@@ -198,6 +198,7 @@ public interface BridgeServer extends Startable {
     boolean canAccessFileSystem;
     boolean createTSProgramForOrphanFiles;
     boolean disableTypeChecking;
+    String ecmaScriptVersion;
 
     /*
     We do not set sources, inclusions, exclusions, tests, testInclusions nor testExclusions as Sonar Engine
@@ -235,6 +236,7 @@ public interface BridgeServer extends Startable {
       this.createTSProgramForOrphanFiles =
         analysisConfiguration.shouldCreateTSProgramForOrphanFiles();
       this.disableTypeChecking = analysisConfiguration.shouldDisableTypeChecking();
+      this.ecmaScriptVersion = analysisConfiguration.getEcmaScriptVersion();
     }
 
     public boolean skipAst() {
