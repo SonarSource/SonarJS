@@ -77,7 +77,7 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
     stderrThread.start();
 
     // Create gRPC channel
-    channel = ManagedChannelBuilder.forAddress("localhost", port).usePlaintext().build();
+    channel = ManagedChannelBuilder.forAddress("127.0.0.1", port).usePlaintext().build();
     blockingStub = AnalyzerServiceGrpc.newBlockingStub(channel);
 
     // Poll until alive
