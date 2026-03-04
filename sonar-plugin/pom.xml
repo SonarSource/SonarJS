@@ -20,6 +20,7 @@
     <node.resources.phase>process-resources</node.resources.phase>
     <protobuf.generation.phase>generate-sources</protobuf.generation.phase>
     <java.generation.phase>generate-resources</java.generation.phase>
+    <!-- Override to 'none' via -Pskip-node to skip npm/node steps in bridge and javascript-checks -->
     <!-- sonar scanner properties -->
     <sonar.sources>src/main</sonar.sources>
     <sonar.tests>src/test</sonar.tests>
@@ -72,6 +73,13 @@
       </activation>
       <properties>
         <java.generation.phase>none</java.generation.phase>
+      </properties>
+    </profile>
+    <profile>
+      <id>skip-node</id>
+      <properties>
+        <node.build.phase>none</node.build.phase>
+        <node.init.phase>none</node.init.phase>
       </properties>
     </profile>
   </profiles>
