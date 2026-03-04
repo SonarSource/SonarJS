@@ -96,7 +96,7 @@ function shouldSuppressTypeAssertion(
     assertionTargetType.flags & ts.TypeFlags.Unknown
   ) {
     const expressionType = getTypeFromTreeNode(expression, services);
-    if (expressionType.flags !== assertionTargetType.flags) {
+    if (!(expressionType.flags & assertionTargetType.flags)) {
       return true;
     }
   }
