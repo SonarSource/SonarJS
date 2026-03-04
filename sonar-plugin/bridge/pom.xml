@@ -193,7 +193,7 @@
           </execution>
           <execution>
             <id>Build the bridge</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -208,7 +208,7 @@
           </execution>
           <execution>
             <id>Bundle the bridge</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -223,7 +223,7 @@
           </execution>
           <execution>
             <id>Pack the bridge</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -237,7 +237,7 @@
           </execution>
           <execution>
             <id>Generate Node.js properties node-info.properties</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>

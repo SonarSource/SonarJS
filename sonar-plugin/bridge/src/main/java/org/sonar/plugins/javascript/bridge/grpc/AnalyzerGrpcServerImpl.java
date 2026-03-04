@@ -16,11 +16,14 @@
  */
 package org.sonar.plugins.javascript.bridge.grpc;
 
+import io.grpc.LoadBalancerRegistry;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
+import io.grpc.internal.PickFirstLoadBalancerProvider;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -77,7 +80,16 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
     stderrThread.start();
 
     // Create gRPC channel
-    channel = ManagedChannelBuilder.forAddress("127.0.0.1", port).usePlaintext().build();
+    // NettyChannelBuilder.forAddress(SocketAddress) bypasses NameResolverRegistry
+    // (avoids "unix" resolver from SonarQube's grpc-core). But LoadBalancerRegistry
+    // is still used internally, and pick_first is missing from the corrupted
+    // META-INF/services, so we register it explicitly.
+    // See: https://github.com/grpc/grpc-java/issues/10853
+    // See: https://github.com/grpc/grpc-java/issues/5493
+    LoadBalancerRegistry.getDefaultRegistry().register(new PickFirstLoadBalancerProvider());
+    channel = NettyChannelBuilder.forAddress(new InetSocketAddress("127.0.0.1", port))
+      .usePlaintext()
+      .build();
     blockingStub = AnalyzerServiceGrpc.newBlockingStub(channel);
 
     // Poll until alive

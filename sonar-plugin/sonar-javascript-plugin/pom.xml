@@ -27,6 +27,9 @@
   <properties>
     <artifactoryToken/>
     <nodejs.runtime.version>24.11.0.70</nodejs.runtime.version>
+    <!-- Override to 'none' via -Pskip-tsgolint to skip Go build/compress steps -->
+    <tsgolint.build.phase>generate-resources</tsgolint.build.phase>
+    <tsgolint.init.phase>initialize</tsgolint.init.phase>
   </properties>
 
   <dependencies>
@@ -157,7 +160,7 @@
         <executions>
           <execution>
             <id>Validate quickfix configuration</id>
-            <phase>initialize</phase>
+            <phase>${node.init.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -172,7 +175,7 @@
           </execution>
           <execution>
             <id>Generate Node.js properties node-info.properties</id>
-            <phase>initialize</phase>
+            <phase>${node.init.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -203,7 +206,7 @@
           <!-- tsgolint: ensure submodule is initialized (no-op if already done by checkout) -->
           <execution>
             <id>tsgolint-submodule-init</id>
-            <phase>initialize</phase>
+            <phase>${tsgolint.init.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>git</executable>
@@ -219,7 +222,7 @@
           <!-- tsgolint: copy sonar-server overlay into submodule -->
           <execution>
             <id>tsgolint-copy-overlay</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>bash</executable>
@@ -236,7 +239,7 @@
           <!-- tsgolint: install Go proto generators (idempotent) -->
           <execution>
             <id>tsgolint-install-proto-gen</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
@@ -251,7 +254,7 @@
           </execution>
           <execution>
             <id>tsgolint-install-proto-gen-grpc</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
@@ -267,7 +270,7 @@
           <!-- tsgolint: generate Go proto stubs -->
           <execution>
             <id>tsgolint-proto-gen-go</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>bash</executable>
@@ -283,7 +286,7 @@
           <!-- tsgolint: add gRPC dependencies to go.mod -->
           <execution>
             <id>tsgolint-go-get-grpc</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
@@ -301,7 +304,7 @@
           <!-- tsgolint Go cross-compilation -->
           <execution>
             <id>build-tsgolint-linux-x64</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
@@ -323,7 +326,7 @@
           </execution>
           <execution>
             <id>build-tsgolint-linux-arm64</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
@@ -345,7 +348,7 @@
           </execution>
           <execution>
             <id>build-tsgolint-linux-x64-musl</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
@@ -367,7 +370,7 @@
           </execution>
           <execution>
             <id>build-tsgolint-win-x64</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
@@ -389,7 +392,7 @@
           </execution>
           <execution>
             <id>build-tsgolint-darwin-arm64</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
@@ -411,7 +414,7 @@
           </execution>
           <execution>
             <id>build-tsgolint-darwin-x64</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
@@ -434,7 +437,7 @@
           <!-- tsgolint xz compression -->
           <execution>
             <id>compress-tsgolint-linux-x64</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
@@ -447,7 +450,7 @@
           </execution>
           <execution>
             <id>compress-tsgolint-linux-arm64</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
@@ -460,7 +463,7 @@
           </execution>
           <execution>
             <id>compress-tsgolint-linux-x64-musl</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
@@ -473,7 +476,7 @@
           </execution>
           <execution>
             <id>compress-tsgolint-win-x64</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
@@ -486,7 +489,7 @@
           </execution>
           <execution>
             <id>compress-tsgolint-darwin-arm64</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
@@ -499,7 +502,7 @@
           </execution>
           <execution>
             <id>compress-tsgolint-darwin-x64</id>
-            <phase>generate-resources</phase>
+            <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
@@ -519,7 +522,7 @@
         <version>1.3.0</version>
         <executions>
           <execution>
-            <phase>initialize</phase>
+            <phase>${node.init.phase}</phase>
             <goals>
               <goal>read-project-properties</goal>
             </goals>
@@ -538,7 +541,7 @@
         <executions>
           <execution>
             <id>copy-protoc</id>
-            <phase>initialize</phase>
+            <phase>${tsgolint.init.phase}</phase>
             <goals>
               <goal>copy</goal>
             </goals>
@@ -585,6 +588,11 @@
         <configuration>
           <minimizeJar>true</minimizeJar>
           <createDependencyReducedPom>false</createDependencyReducedPom>
+          <transformers>
+            <!-- Merge META-INF/services files (gRPC NameResolver, LoadBalancer providers) -->
+            <!-- See: https://github.com/grpc/grpc-java/issues/5493 -->
+            <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+          </transformers>
           <filters>
             <filter>
               <artifact>org.sonarsource.javascript:api</artifact>
@@ -900,6 +908,13 @@
     </plugins>
   </build>
   <profiles>
+    <profile>
+      <id>skip-tsgolint</id>
+      <properties>
+        <tsgolint.build.phase>none</tsgolint.build.phase>
+        <tsgolint.init.phase>none</tsgolint.init.phase>
+      </properties>
+    </profile>
     <profile>
       <id>license-regeneration</id>
       <build>
