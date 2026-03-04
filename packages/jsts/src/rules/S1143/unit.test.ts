@@ -16,7 +16,72 @@
  */
 import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { getESLintCoreRule } from '../external/core.js';
 import { describe, it } from 'node:test';
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
+describe('S1143 upstream sentinel', () => {
+  it('upstream no-unsafe-finally raises on guard clause patterns that decorator suppresses', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    const upstreamRule = getESLintCoreRule('no-unsafe-finally');
+
+    ruleTester.run('upstream no-unsafe-finally raises on fixed patterns', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // optional chaining condition — suppressed by decorator, raised by upstream
+          code: `
+async function closePopover() {
+  try {
+    await validateForm();
+  } finally {
+    const errors = getFormErrors();
+    if (errors?.length) return;
+    setVisible(false);
+  }
+}
+          `,
+          errors: 1,
+        },
+        {
+          // negated flag condition — suppressed by decorator, raised by upstream
+          code: `
+async function fetchData() {
+  let isActive = true;
+  try {
+    const data = await fetch('/api/data');
+    processData(data);
+  } finally {
+    if (!isActive) {
+      return;
+    }
+    setLoading(false);
+  }
+}
+          `,
+          errors: 1,
+        },
+        {
+          // member expression condition — suppressed by decorator, raised by upstream
+          code: `
+async function asyncOperation() {
+  const state = { cancelled: false };
+  try {
+    await doWork();
+  } finally {
+    if (state.cancelled) return;
+    performCleanup();
+  }
+}
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
 
 describe('S1143', () => {
   it('S1143', () => {
