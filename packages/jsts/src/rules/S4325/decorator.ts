@@ -133,7 +133,7 @@ function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserSe
 
   // Check the resolved signature's type parameters first
   const typeParameters = signature.getTypeParameters();
-  if (typeParameters && typeParameters.length > 0) {
+  if (typeParameters?.length > 0) {
     return true;
   }
 
