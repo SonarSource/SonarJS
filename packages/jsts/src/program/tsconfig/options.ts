@@ -176,7 +176,7 @@ export function enrichProgramLib(
   if (programOptions.options.lib) {
     return 'tsconfig.lib';
   }
-  const nodeSignal = getNodeVersionSignal(baseDir, baseDir);
+  const nodeSignal = getNodeVersionSignal(baseDir);
   const detected = detectLibFromSignals(ecmaScriptVersion, nodeSignal);
   programOptions.options.lib = detected ?? ESNEXT_LIB;
   if (detected) {
