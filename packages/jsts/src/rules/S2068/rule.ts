@@ -27,9 +27,9 @@ import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 const DEFAULT_NAMES = ['password', 'pwd', 'passwd', 'passphrase'];
-const ENTROPY_THRESHOLD = 3.0;
+const ENTROPY_THRESHOLD = 3;
 const MIN_PASSWORD_LENGTH = 5;
-const NON_CREDENTIAL_CHARS = /[\s/\[\]"'<>]/;
+const NON_CREDENTIAL_CHARS = /[\s/["'\]<>]/;
 const TEST_FILE_PATTERN = /\.(spec|test|mock)\.[jt]sx?$/;
 
 const messages = {
@@ -102,6 +102,7 @@ function checkAssignment(
   initializer?: estree.Node | null,
 ) {
   if (
+    initializer &&
     patterns.some(pattern =>
       context.sourceCode.getText(variable).toLowerCase().includes(pattern),
     ) &&
@@ -109,7 +110,7 @@ function checkAssignment(
   ) {
     context.report({
       messageId: 'reviewPassword',
-      node: initializer!,
+      node: initializer,
     });
   }
 }
