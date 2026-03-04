@@ -18,8 +18,13 @@
 
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import TS from 'typescript';
-import type { Rule } from 'eslint';
-import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
+import type { Rule, SourceCode } from 'eslint';
+import {
+  childrenOf,
+  generateMeta,
+  getTypeFromTreeNode,
+  isRequiredParserServices,
+} from '../helpers/index.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
@@ -200,7 +205,11 @@ export const rule: Rule.RuleModule = {
             if (
               !hasSideEffect(methodName, objectType, services) &&
               !isReplaceWithCallback(methodName, call.arguments, services) &&
-              !isFindWithAssignmentCallback(methodName, call.arguments)
+              !isFindWithAssignmentCallback(
+                methodName,
+                call.arguments,
+                context.sourceCode.visitorKeys,
+              )
             ) {
               context.report(reportDescriptor(methodName, node));
             }
@@ -242,6 +251,7 @@ const EARLY_EXIT_ARRAY_METHODS = new Set(['find', 'findIndex', 'findLast', 'find
 function isFindWithAssignmentCallback(
   methodName: string,
   callArguments: Array<estree.Expression | estree.SpreadElement>,
+  visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
   if (!EARLY_EXIT_ARRAY_METHODS.has(methodName) || callArguments.length === 0) {
     return false;
@@ -250,32 +260,28 @@ function isFindWithAssignmentCallback(
   if (callback.type !== 'ArrowFunctionExpression' && callback.type !== 'FunctionExpression') {
     return false;
   }
-  return containsAssignment(callback.body);
+  return containsAssignment(callback.body, visitorKeys);
 }
 
+const FUNCTION_BOUNDARIES = new Set([
+  'FunctionExpression',
+  'ArrowFunctionExpression',
+  'FunctionDeclaration',
+]);
+
 /**
- * Recursively checks if an AST node contains an AssignmentExpression.
- * Handles common statement types; returns false for unrecognized nodes (conservative).
+ * Recursively checks if an AST node contains an AssignmentExpression, using childrenOf for
+ * complete traversal. Stops at nested function boundaries so assignments in inner closures
+ * do not suppress the issue.
  */
-function containsAssignment(node: estree.Node): boolean {
-  switch (node.type) {
-    case 'AssignmentExpression':
-      return true;
-    case 'BlockStatement':
-      return node.body.some(containsAssignment);
-    case 'ExpressionStatement':
-      return containsAssignment(node.expression);
-    case 'IfStatement':
-      return (
-        containsAssignment(node.test) ||
-        containsAssignment(node.consequent) ||
-        (node.alternate != null && containsAssignment(node.alternate))
-      );
-    case 'ReturnStatement':
-      return node.argument != null && containsAssignment(node.argument);
-    default:
-      return false;
+function containsAssignment(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
+  if (node.type === 'AssignmentExpression') {
+    return true;
   }
+  if (FUNCTION_BOUNDARIES.has(node.type)) {
+    return false;
+  }
+  return childrenOf(node, visitorKeys).some(child => containsAssignment(child, visitorKeys));
 }
 
 function reportDescriptor(methodName: string, node: estree.Node): Rule.ReportDescriptor {

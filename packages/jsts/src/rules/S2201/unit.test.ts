@@ -150,6 +150,20 @@ describe('S2201', () => {
         return x > 1;
       });`,
           },
+          {
+            // find() with assignment inside a for...of loop body (FP fix)
+            code: `
+      interface Item { match: boolean }
+      interface Container { items: Item[] }
+      let result: Item | undefined;
+      const containers: Container[] = [];
+      containers.find(x => {
+        for (const item of x.items) {
+          if (item.match) { result = item; return true; }
+        }
+        return false;
+      });`,
+          },
         ],
         invalid: [
           {
