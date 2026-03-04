@@ -79,13 +79,13 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        const stmts = returnStatements.filter(
-          retStmt => !isNullLike(getTypeFromTreeNode(retStmt.argument!, services)),
-        );
+        // Exclude null-like and any-typed returns; any-typed returns come from external/unknown
+        // functions whose signature is unavailable and cannot contribute to type inconsistency.
+        const stmts = returnStatements.filter(retStmt => {
+          const type = getTypeFromTreeNode(retStmt.argument!, services);
+          return !isNullLike(type) && !isAny(type);
+        });
         const stmtsTypes = stmts.map(retStmt => getTypeFromTreeNode(retStmt.argument!, services));
-        if (stmtsTypes.every(isAny)) {
-          return;
-        }
         const stmtCategories = stmtsTypes.map(t => prettyPrint(t, checker));
         if (stmtCategories.filter((val, i, arr) => distinct(val, i, arr)).length <= 1) {
           return;
