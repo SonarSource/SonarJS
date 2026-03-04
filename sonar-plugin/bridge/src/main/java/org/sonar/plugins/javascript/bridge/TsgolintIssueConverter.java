@@ -17,16 +17,43 @@
 package org.sonar.plugins.javascript.bridge;
 
 import java.util.List;
+import java.util.Map;
 import org.sonar.plugins.javascript.bridge.grpc.Issue;
 import org.sonar.plugins.javascript.bridge.grpc.SecondaryLocation;
 import org.sonar.plugins.javascript.bridge.grpc.TextRange;
 
 public class TsgolintIssueConverter {
 
+  /**
+   * Reverse mapping: tsgolint rule name (eslint ID) → Sonar rule key.
+   * The Java side uses Sonar keys as eslintKey() (e.g., "S4123"),
+   * while tsgolint uses eslint names (e.g., "await-thenable").
+   */
+  private static final Map<String, String> ESLINT_TO_SONAR_KEY = Map.of(
+    "await-thenable",
+    "S4123",
+    "prefer-readonly",
+    "S2933",
+    "no-unnecessary-type-arguments",
+    "S4157",
+    "no-unnecessary-type-assertion",
+    "S4325",
+    "prefer-return-this-type",
+    "S6565",
+    "no-mixed-enums",
+    "S6583",
+    "prefer-promise-reject-errors",
+    "S6671"
+  );
+
   private TsgolintIssueConverter() {}
 
   public static BridgeServer.Issue convert(Issue protoIssue, String filePath) {
     TextRange range = protoIssue.getRange();
+    String ruleId = ESLINT_TO_SONAR_KEY.getOrDefault(
+      protoIssue.getRuleName(),
+      protoIssue.getRuleName()
+    );
 
     List<BridgeServer.IssueLocation> secondaryLocations = protoIssue
       .getSecondaryLocationsList()
@@ -40,7 +67,7 @@ public class TsgolintIssueConverter {
       range.getEndLine(),
       range.getEndColumn(),
       protoIssue.getMessage(),
-      protoIssue.getRuleName(),
+      ruleId,
       "ts",
       secondaryLocations,
       null,
