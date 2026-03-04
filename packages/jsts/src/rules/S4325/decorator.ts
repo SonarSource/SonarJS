@@ -133,7 +133,7 @@ function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserSe
 
   // Check the resolved signature's type parameters first
   const typeParameters = signature.getTypeParameters();
-  if (typeParameters?.length > 0) {
+  if ((typeParameters?.length ?? 0) > 0) {
     return true;
   }
 
@@ -142,7 +142,7 @@ function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserSe
   // have been substituted, so getTypeParameters() may return undefined.
   // The declaration still retains the original type parameter list.
   const declaration = signature.getDeclaration();
-  if (declaration?.typeParameters?.length > 0) {
+  if ((declaration?.typeParameters?.length ?? 0) > 0) {
     return true;
   }
 
