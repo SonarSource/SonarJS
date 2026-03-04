@@ -17,6 +17,7 @@
 
 import ts from 'typescript';
 import { error, warn } from '../../../../shared/src/helpers/logging.js';
+import { getNodeVersionSignal } from '../../rules/helpers/package-jsons/dependencies.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
@@ -49,15 +50,16 @@ type CustomParseConfigHost = {
 
 /**
  * Default compiler options used when tsconfig doesn't specify them.
- * Note: We don't set 'lib' here - TypeScript will automatically infer
- * the correct lib files based on 'target'. Explicitly setting 'lib' breaks
- * TypeScript's internal lib file resolution mechanism.
+ * lib is not preset here — enrichProgramLib computes it from project signals
+ * and falls back to esnext when none are found.
  */
 export const defaultCompilerOptions: ts.CompilerOptions = {
   allowJs: true,
   noImplicitAny: true,
-  lib: ['esnext', 'dom'],
 };
+
+/** Fallback lib used when no project signals are found. */
+const ESNEXT_LIB = ['lib.esnext.d.ts', 'lib.dom.d.ts'];
 
 /**
  * Node.js major version to ES year mapping (descending order for lookup).
@@ -153,6 +155,34 @@ export function detectLibFromSignals(
     }
   }
   return null;
+}
+
+/**
+ * Enriches program compiler options with the best available lib for the project.
+ * If lib is already set (explicit tsconfig), it is left unchanged.
+ * Otherwise lib is computed from available signals: ecmaScriptVersion override,
+ * then @types/node / engines.node, then esnext as final fallback.
+ *
+ * @param programOptions program options to enrich in place
+ * @param ecmaScriptVersion explicit ES version override from sonar.javascript.ecmaScriptVersion
+ * @param baseDir project base directory used to locate package.json
+ * @returns a string describing where the lib came from, for use in log messages
+ */
+export function enrichProgramLib(
+  programOptions: ProgramOptions,
+  ecmaScriptVersion: string | undefined,
+  baseDir: NormalizedAbsolutePath,
+): string {
+  if (programOptions.options.lib) {
+    return 'tsconfig.lib';
+  }
+  const nodeSignal = getNodeVersionSignal(baseDir, baseDir);
+  const detected = detectLibFromSignals(ecmaScriptVersion, nodeSignal);
+  programOptions.options.lib = detected ?? ESNEXT_LIB;
+  if (detected) {
+    return ecmaScriptVersion ? 'sonar.javascript.ecmaScriptVersion' : 'package.json signals';
+  }
+  return 'default';
 }
 
 /**

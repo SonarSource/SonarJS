@@ -24,6 +24,7 @@ import {
   createProgramOptionsFromJson,
   defaultCompilerOptions,
   detectLibFromSignals,
+  enrichProgramLib,
   esYearToLib,
   nodeVersionToEs,
   parseMaxNodeMajor,
@@ -207,7 +208,45 @@ describe('defaultCompilerOptions', () => {
   it('should have expected default values', () => {
     expect(defaultCompilerOptions.allowJs).toBe(true);
     expect(defaultCompilerOptions.noImplicitAny).toBe(true);
-    expect(defaultCompilerOptions.lib).toEqual(['esnext', 'dom']);
+    expect(defaultCompilerOptions.lib).toBeUndefined();
+  });
+});
+
+describe('enrichProgramLib', () => {
+  const baseDir = normalizeToAbsolutePath('/tmp');
+
+  it('should leave lib unchanged when already set by tsconfig', () => {
+    const programOptions = createProgramOptionsFromJson(
+      { lib: ['es2020'] },
+      [normalizeToAbsolutePath('/tmp/a.ts')],
+      '/tmp',
+    );
+    const source = enrichProgramLib(programOptions, undefined, baseDir);
+    expect(source).toBe('tsconfig.lib');
+    // lib is still the tsconfig-set value (normalized by TypeScript)
+    expect(programOptions.options.lib).toContain('lib.es2020.d.ts');
+  });
+
+  it('should enrich from ecmaScriptVersion when lib is absent', () => {
+    const programOptions = createProgramOptionsFromJson(
+      {},
+      [normalizeToAbsolutePath('/tmp/a.ts')],
+      '/tmp',
+    );
+    const source = enrichProgramLib(programOptions, 'ES2022', baseDir);
+    expect(source).toBe('sonar.javascript.ecmaScriptVersion');
+    expect(programOptions.options.lib).toEqual(['lib.es2022.d.ts', 'lib.dom.d.ts']);
+  });
+
+  it('should fall back to esnext when no signals are available', () => {
+    const programOptions = createProgramOptionsFromJson(
+      {},
+      [normalizeToAbsolutePath('/tmp/a.ts')],
+      '/tmp',
+    );
+    const source = enrichProgramLib(programOptions, undefined, baseDir);
+    expect(source).toBe('default');
+    expect(programOptions.options.lib).toEqual(['lib.esnext.d.ts', 'lib.dom.d.ts']);
   });
 });
 

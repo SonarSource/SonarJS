@@ -241,6 +241,11 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return context.config().getBoolean(JavaScriptPlugin.DISABLE_TYPE_CHECKING).orElse(false);
   }
 
+  @Override
+  public String getEcmaScriptVersion() {
+    return context.config().get(JavaScriptPlugin.ECMA_SCRIPT_VERSION).orElse(null);
+  }
+
   public List<String> getSources() {
     return stream(this.context.config().getStringArray("sonar.sources"))
       .filter(x -> !x.isBlank())

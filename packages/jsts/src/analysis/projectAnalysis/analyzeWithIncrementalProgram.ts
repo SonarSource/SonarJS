@@ -30,11 +30,10 @@ import {
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
-  detectLibFromSignals,
+  enrichProgramLib,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
-import { getNodeVersionSignal } from '../../rules/helpers/package-jsons/dependencies.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
 
 /**
@@ -84,8 +83,7 @@ export async function analyzeWithIncrementalProgram(
         pendingFiles,
         baseDir,
         canAccessFileSystem,
-        jsTsConfigFields.createTSProgramForOrphanFiles,
-        jsTsConfigFields.ecmaScriptVersion,
+        jsTsConfigFields,
       ),
     );
 
@@ -121,8 +119,7 @@ function programOptionsFromClosestTsconfig(
   pendingFiles: Set<NormalizedAbsolutePath>,
   baseDir: NormalizedAbsolutePath,
   canAccessFileSystem: boolean,
-  createTSProgramForOrphanFiles: boolean,
-  ecmaScriptVersion?: string,
+  jsTsConfigFields: JsTsConfigFields,
 ): ProgramOptions | undefined {
   const processedTsConfigs = new Set<NormalizedAbsolutePath>();
 
@@ -147,23 +144,14 @@ function programOptionsFromClosestTsconfig(
         warn(msg);
       }
       if (programOptions.rootNames.includes(file)) {
-        info(`Using tsconfig ${tsconfig} for ${file}`);
-        const hadLib = !!programOptions.options.lib;
-        if (!hadLib) {
-          const nodeSignal = getNodeVersionSignal(baseDir, baseDir);
-          const lib = detectLibFromSignals(ecmaScriptVersion, nodeSignal);
-          if (lib) {
-            programOptions.options.lib = lib;
-          }
-        }
-        if (programOptions.options.lib) {
-          const libSource = !hadLib
-            ? ecmaScriptVersion
-              ? 'sonar.javascript.ecmaScriptVersion'
-              : 'package.json signals'
-            : 'tsconfig.lib';
-          info(`Effective lib: [${programOptions.options.lib.join(', ')}] (source: ${libSource})`);
-        }
+        const libSource = enrichProgramLib(
+          programOptions,
+          jsTsConfigFields.ecmaScriptVersion,
+          baseDir,
+        );
+        info(
+          `Using tsconfig ${tsconfig} for ${file} [lib: ${programOptions.options.lib?.join(', ')}, source: ${libSource}]`,
+        );
         return programOptions;
       }
     } catch (e) {
@@ -174,7 +162,7 @@ function programOptionsFromClosestTsconfig(
     }
   }
 
-  if (!createTSProgramForOrphanFiles) {
+  if (!jsTsConfigFields.createTSProgramForOrphanFiles) {
     info(
       `Skipping TypeScript program creation for orphan file (sonar.javascript.createTSProgramForOrphanFiles=false)`,
     );
@@ -182,21 +170,17 @@ function programOptionsFromClosestTsconfig(
   }
 
   try {
-    info('No tsconfig found for files, using default options');
-    const nodeSignal = getNodeVersionSignal(baseDir, baseDir);
-    const enrichedLib =
-      detectLibFromSignals(ecmaScriptVersion, nodeSignal) ?? defaultCompilerOptions.lib;
-    const enrichedDefaultOptions = { ...defaultCompilerOptions, lib: enrichedLib };
-    if (enrichedDefaultOptions.lib) {
-      const libSource = ecmaScriptVersion
-        ? 'sonar.javascript.ecmaScriptVersion'
-        : nodeSignal
-          ? 'package.json signals'
-          : 'default';
-      info(`Effective lib: [${enrichedDefaultOptions.lib.join(', ')}] (source: ${libSource})`);
-    }
     // TODO(JS-1138): File order can affect program combinations - improve strategy
-    return createProgramOptionsFromJson(enrichedDefaultOptions, [...pendingFiles], baseDir);
+    const programOptions = createProgramOptionsFromJson(
+      defaultCompilerOptions,
+      [...pendingFiles],
+      baseDir,
+    );
+    const libSource = enrichProgramLib(programOptions, jsTsConfigFields.ecmaScriptVersion, baseDir);
+    info(
+      `No tsconfig found for files, using default options [lib: ${programOptions.options.lib?.join(', ')}, source: ${libSource}]`,
+    );
+    return programOptions;
   } catch (e) {
     error(`Failed to generate program from merged config: ${e}`);
   }
