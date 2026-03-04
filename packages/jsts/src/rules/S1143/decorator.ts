@@ -27,12 +27,10 @@ import * as meta from './generated-meta.js';
  *
  * Suppresses reports when a return statement in a finally block is:
  * 1. The only statement in an IfStatement's consequent (single-statement guard)
- * 2. The IfStatement's test is a simple Identifier (boolean flag check like `cancelled`)
+ * 2. The IfStatement's test is a simple state-reading expression (Identifier, MemberExpression,
+ *    optional-chained MemberExpression, or negated variant — not a function call)
  * 3. There are statements after the IfStatement in the finally block
  * 4. The return has no argument (void return, not overriding a value)
- *
- * This pattern is commonly used in React async effect cleanup to prevent
- * state updates on unmounted components.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -76,7 +74,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
  * Algorithm:
  * 1. Find the enclosing IfStatement
  * 2. Verify the return is the only statement in the consequent
- * 3. Verify the condition is a simple Identifier
+ * 3. Verify the condition is a simple state-reading expression (no function calls)
  * 4. Find the finally block containing the IfStatement
  * 5. Verify there are statements after the IfStatement in the finally block
  */
@@ -92,8 +90,8 @@ function isGuardReturnInFinally(returnNode: TSESTree.ReturnStatement): boolean {
     return false;
   }
 
-  // Step 3: Verify the condition is a simple Identifier
-  if (ifStatement.test.type !== 'Identifier') {
+  // Step 3: Verify the condition is a simple state-reading expression (no function calls)
+  if (!isSimpleStateExpression(ifStatement.test)) {
     return false;
   }
 
@@ -105,6 +103,27 @@ function isGuardReturnInFinally(returnNode: TSESTree.ReturnStatement): boolean {
 
   // Step 5: Verify there are statements after the IfStatement
   return hasStatementsAfter(ifStatement, finallyBlock);
+}
+
+/**
+ * Returns true for state-reading expressions that contain no function/method calls.
+ * Accepts: Identifier, MemberExpression, ChainExpression (optional member access),
+ * and UnaryExpression with '!' over any accepted type.
+ * Rejects: CallExpression, NewExpression, or any other expression type.
+ */
+function isSimpleStateExpression(node: TSESTree.Expression): boolean {
+  switch (node.type) {
+    case 'Identifier':
+    case 'MemberExpression':
+      return true;
+    case 'ChainExpression':
+      // Allow optional member access (errors?.length) but not optional calls (fn?.())
+      return node.expression.type === 'MemberExpression';
+    case 'UnaryExpression':
+      return node.operator === '!' && isSimpleStateExpression(node.argument as TSESTree.Expression);
+    default:
+      return false;
+  }
 }
 
 /**
