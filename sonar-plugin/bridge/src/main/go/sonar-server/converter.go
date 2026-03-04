@@ -1,51 +1,41 @@
 package main
 
 import (
+	"github.com/microsoft/typescript-go/shim/scanner"
+	"github.com/typescript-eslint/tsgolint/internal/rule"
+
 	pb "github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc"
 )
 
-// RuleDiagnostic represents a diagnostic from tsgolint's linter.
-// TODO: Replace with actual type from internal/linter package.
-type RuleDiagnostic struct {
-	RuleName  string
-	Message   string
-	StartLine int32 // 1-indexed
-	StartCol  int32 // 0-indexed
-	EndLine   int32 // 1-indexed
-	EndCol    int32 // 0-indexed
-	Secondary []SecondaryDiagnostic
-}
+// ConvertDiagnostic converts a tsgolint rule.RuleDiagnostic to a proto Issue.
+// tsgolint uses byte offsets (core.TextRange), proto expects 1-indexed lines
+// and 0-indexed columns.
+func ConvertDiagnostic(d rule.RuleDiagnostic) *pb.Issue {
+	startLine, startCol := scanner.GetECMALineAndCharacterOfPosition(d.SourceFile, d.Range.Pos())
+	endLine, endCol := scanner.GetECMALineAndCharacterOfPosition(d.SourceFile, d.Range.End())
 
-// SecondaryDiagnostic represents a secondary location for a diagnostic.
-type SecondaryDiagnostic struct {
-	Message   string
-	StartLine int32
-	StartCol  int32
-	EndLine   int32
-	EndCol    int32
-}
-
-// ConvertDiagnostic converts a tsgolint RuleDiagnostic to a proto Issue.
-func ConvertDiagnostic(diag RuleDiagnostic) *pb.Issue {
 	issue := &pb.Issue{
-		RuleName: diag.RuleName,
-		Message:  diag.Message,
+		RuleName: d.RuleName,
+		Message:  d.Message.Description,
 		Range: &pb.TextRange{
-			StartLine:   diag.StartLine,
-			StartColumn: diag.StartCol,
-			EndLine:     diag.EndLine,
-			EndColumn:   diag.EndCol,
+			StartLine:   int32(startLine + 1), // 0-indexed -> 1-indexed
+			StartColumn: int32(startCol),       // already 0-indexed
+			EndLine:     int32(endLine + 1),
+			EndColumn:   int32(endCol),
 		},
 	}
 
-	for _, sec := range diag.Secondary {
+	for _, lr := range d.LabeledRanges {
+		lrStartLine, lrStartCol := scanner.GetECMALineAndCharacterOfPosition(d.SourceFile, lr.Range.Pos())
+		lrEndLine, lrEndCol := scanner.GetECMALineAndCharacterOfPosition(d.SourceFile, lr.Range.End())
+
 		issue.SecondaryLocations = append(issue.SecondaryLocations, &pb.SecondaryLocation{
-			Message: sec.Message,
+			Message: lr.Label,
 			Range: &pb.TextRange{
-				StartLine:   sec.StartLine,
-				StartColumn: sec.StartCol,
-				EndLine:     sec.EndLine,
-				EndColumn:   sec.EndCol,
+				StartLine:   int32(lrStartLine + 1),
+				StartColumn: int32(lrStartCol),
+				EndLine:     int32(lrEndLine + 1),
+				EndColumn:   int32(lrEndCol),
 			},
 		})
 	}
