@@ -105,19 +105,15 @@ export function parseReactVersion(reactVersion: string): string | null {
 }
 
 /**
- * Gets a Node.js version signal from the closest package.json.
+ * Gets a Node.js version signal from the package.json at baseDir.
  * Checks @types/node in all dependency fields first, then engines.node.
  * Returns the raw version string for further parsing.
  *
- * @param baseDir base directory to start searching from
- * @param topDir top directory to stop searching at
+ * @param baseDir project base directory containing package.json
  * @returns raw version string from @types/node or engines.node, or null if not found
  */
-export function getNodeVersionSignal(
-  baseDir: NormalizedAbsolutePath,
-  topDir: NormalizedAbsolutePath,
-): string | null {
-  for (const packageJson of getManifests(baseDir, topDir, fs)) {
+export function getNodeVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
+  for (const packageJson of getManifests(baseDir, baseDir, fs)) {
     const allDeps = {
       ...packageJson.dependencies,
       ...packageJson.devDependencies,
