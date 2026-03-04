@@ -91,6 +91,65 @@ describe('S2201', () => {
         "abc".replace(/ab/, myCallBack);
       }`,
           },
+          {
+            // find() with assignment to outer variable exploits early-exit (FP fix)
+            code: `
+      const items: number[] = [1, 2, 3, 4, 5];
+      let found: number | undefined;
+      items.find(x => {
+        found = x;
+        return x > 3;
+      });`,
+          },
+          {
+            // findIndex() with assignment in if block exploits early-exit (FP fix)
+            code: `
+      interface User { id: number; name: string }
+      const users: User[] = [{ id: 1, name: 'Alice' }, { id: 2, name: 'Bob' }];
+      let matchedUser: User | undefined;
+      users.findIndex(user => {
+        if (user.name === 'Bob') {
+          matchedUser = user;
+          return true;
+        }
+        return false;
+      });`,
+          },
+          {
+            // find() with nested iteration and assignment: Jira ticket reproducer
+            code: `
+      interface Item { name: string; val: number }
+      let found: Item | undefined;
+      const haystack: { [key: string]: Item[] } = {
+        a: [{ name: 'item1', val: 1 }],
+        b: [{ name: 'item2', val: 2 }],
+      };
+      const needle = 'item2';
+      Object.entries(haystack).find(([_key, arr]) => {
+        found = arr.find(obj => obj.name === needle);
+        return !!found;
+      });`,
+          },
+          {
+            // findLast() with assignment to outer variable (FP fix)
+            code: `
+      const nums: number[] = [1, 2, 3];
+      let lastFound: number | undefined;
+      nums.findLast(x => {
+        lastFound = x;
+        return x > 1;
+      });`,
+          },
+          {
+            // findLastIndex() with assignment to outer variable (FP fix)
+            code: `
+      const nums: number[] = [1, 2, 3];
+      let lastIdx: number | undefined;
+      nums.findLastIndex(x => {
+        lastIdx = x;
+        return x > 1;
+      });`,
+          },
         ],
         invalid: [
           {
@@ -225,6 +284,54 @@ describe('S2201', () => {
                 column: 9,
                 endLine: 4,
                 endColumn: 33,
+              },
+            ],
+          },
+          {
+            // find() without assignment in callback still raises (pure callback)
+            code: `
+      const arr: number[] = [1, 2, 3];
+      arr.find(x => x > 2);`,
+            errors: [
+              {
+                messageId: 'returnValueMustBeUsed',
+                data: { methodName: 'find' },
+              },
+            ],
+          },
+          {
+            // findIndex() without assignment in callback still raises (pure callback)
+            code: `
+      const arr: number[] = [1, 2, 3];
+      arr.findIndex(x => x > 2);`,
+            errors: [
+              {
+                messageId: 'returnValueMustBeUsed',
+                data: { methodName: 'findIndex' },
+              },
+            ],
+          },
+          {
+            // findLast() without assignment raises as a new TP
+            code: `
+      const arr: number[] = [1, 2, 3];
+      arr.findLast(x => x > 2);`,
+            errors: [
+              {
+                messageId: 'returnValueMustBeUsed',
+                data: { methodName: 'findLast' },
+              },
+            ],
+          },
+          {
+            // findLastIndex() without assignment raises as a new TP
+            code: `
+      const arr: number[] = [1, 2, 3];
+      arr.findLastIndex(x => x > 2);`,
+            errors: [
+              {
+                messageId: 'returnValueMustBeUsed',
+                data: { methodName: 'findLastIndex' },
               },
             ],
           },
