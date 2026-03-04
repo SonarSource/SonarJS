@@ -94,6 +94,16 @@ describe('S2234', () => {
         md5ii(c, d, a, b, 0, 15, 1);
         `,
         },
+        {
+          // False positive: md4-prefixed round functions follow the same cyclic rotation pattern
+          code: `
+        function md4ff(a, b, c, d, x, s, ac) { return a; }
+        function md4gg(a, b, c, d, x, s, ac) { return a; }
+        var a = 0, b = 0, c = 0, d = 0;
+        md4ff(c, d, a, b, 0, 17, 1);
+        md4gg(d, a, b, c, 0, 9, 1);
+        `,
+        },
       ],
       invalid: [
         {
@@ -173,6 +183,17 @@ describe('S2234', () => {
     const typeScriptRuleTester = new RuleTester();
     typeScriptRuleTester.run('Parameters should be passed in the correct order', rule, {
       valid: [
+        {
+          // False positive: MemberExpression callee (obj.ff) extracts the property name for the crypto check
+          code: `
+        class MD5 {
+          ff(a: number, b: number, c: number, d: number, x: number, s: number, ac: number) { return a; }
+        }
+        const md5 = new MD5();
+        const a = 0, b = 0, c = 0, d = 0;
+        md5.ff(c, d, a, b, 0, 17, 1);
+        `,
+        },
         {
           code: `
         const a = 1, b = 2, c = 3, d = 4, x = "", y = 5;
