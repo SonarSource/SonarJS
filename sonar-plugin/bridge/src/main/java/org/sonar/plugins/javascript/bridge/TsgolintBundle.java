@@ -16,11 +16,15 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import java.io.ByteArrayInputStream;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +40,7 @@ public class TsgolintBundle {
   private final EmbeddedNode.Platform platform;
   private final Path deployLocation;
   private boolean isAvailable;
+  private Path deployedBinary;
 
   public TsgolintBundle(Environment env) {
     this.platform = EmbeddedNode.Platform.detect(env);
@@ -56,19 +61,22 @@ public class TsgolintBundle {
       LOG.info("tsgolint binary not found in classpath at {}", resourcePath);
       return;
     }
+    var archiveBytes = is.readAllBytes();
+    var archiveHash = sha256(archiveBytes);
 
-    Path targetBinary = deployLocation.resolve(binaryName);
-    Files.createDirectories(deployLocation);
+    Path targetBinary = deployLocation.resolve(archiveHash).resolve(binaryName);
+    Files.createDirectories(targetBinary.getParent());
+    deployedBinary = targetBinary;
 
     if (Files.exists(targetBinary)) {
-      LOG.debug("tsgolint binary already deployed at {}", targetBinary);
+      LOG.debug("tsgolint binary already deployed and up-to-date at {}", targetBinary);
       isAvailable = true;
       return;
     }
 
     LOG.info("Extracting tsgolint binary to {}", targetBinary);
     try (
-      var stream = new BufferedInputStream(is);
+      var stream = new BufferedInputStream(new ByteArrayInputStream(archiveBytes));
       var archive = new XZInputStream(stream);
       var os = Files.newOutputStream(targetBinary)
     ) {
@@ -98,6 +106,9 @@ public class TsgolintBundle {
   }
 
   public Path binary() {
+    if (deployedBinary != null) {
+      return deployedBinary;
+    }
     String binaryName = platform == EmbeddedNode.Platform.WIN_X64 ? "tsgolint.exe" : "tsgolint";
     return deployLocation.resolve(binaryName);
   }
@@ -112,5 +123,13 @@ public class TsgolintBundle {
       case DARWIN_X64 -> "/darwin-x64/";
       default -> "";
     };
+  }
+
+  private static String sha256(byte[] bytes) {
+    try {
+      return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException("SHA-256 not available", e);
+    }
   }
 }

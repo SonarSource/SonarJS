@@ -19,11 +19,10 @@ package org.sonar.plugins.javascript.bridge.grpc;
 import io.grpc.LoadBalancerRegistry;
 import io.grpc.ManagedChannel;
 import io.grpc.internal.PickFirstLoadBalancerProvider;
-import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+import io.grpc.okhttp.OkHttpChannelBuilder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.InetSocketAddress;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -79,15 +78,11 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
     stderrThread.setDaemon(true);
     stderrThread.start();
 
-    // Create gRPC channel
-    // NettyChannelBuilder.forAddress(SocketAddress) bypasses NameResolverRegistry
-    // (avoids "unix" resolver from SonarQube's grpc-core). But LoadBalancerRegistry
-    // is still used internally, and pick_first is missing from the corrupted
-    // META-INF/services, so we register it explicitly.
-    // See: https://github.com/grpc/grpc-java/issues/10853
-    // See: https://github.com/grpc/grpc-java/issues/5493
+    // gRPC core bundled in scanner runtime is missing pick_first registration, so force it.
     LoadBalancerRegistry.getDefaultRegistry().register(new PickFirstLoadBalancerProvider());
-    channel = NettyChannelBuilder.forAddress(new InetSocketAddress("127.0.0.1", port))
+
+    // Create gRPC channel.
+    channel = OkHttpChannelBuilder.forAddress("127.0.0.1", port)
       .usePlaintext()
       .build();
     blockingStub = AnalyzerServiceGrpc.newBlockingStub(channel);
