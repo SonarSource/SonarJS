@@ -65,7 +65,7 @@ export function findReactComponentNode(node: estree.Node, context: Rule.RuleCont
       isIdentifier(left.property, 'propTypes') &&
       left.object.type === 'Identifier'
     ) {
-      const name = (left.object as estree.Identifier).name;
+      const name = left.object.name;
       const defNode = context.sourceCode.getScope(node).variables.find(v => v.name === name)
         ?.defs[0]?.node;
       if (defNode) {
