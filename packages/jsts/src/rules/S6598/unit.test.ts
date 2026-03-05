@@ -17,10 +17,16 @@
 import { rule } from './index.js';
 import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import vueParser from 'vue-eslint-parser';
+import tsParser from '@typescript-eslint/parser';
 
 describe('S6598', () => {
   it('S6598', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
+    const vueRuleTester = new NoTypeCheckingRuleTester({
+      parser: vueParser,
+      parserOptions: { parser: tsParser },
+    });
 
     ruleTester.run(`Decorated rule should reword the issue message`, rule, {
       valid: [
@@ -38,6 +44,48 @@ describe('S6598', () => {
             },
           ],
           output: 'type Foo = () => number;',
+        },
+      ],
+    });
+
+    vueRuleTester.run('defineEmits type argument in Vue script setup', rule, {
+      valid: [
+        {
+          // Compliant: named interface as defineEmits type arg
+          code: `<script setup lang="ts">
+interface ClickEmits {
+  (e: 'click'): void;
+}
+const emit = defineEmits<ClickEmits>();
+</script>`,
+        },
+        {
+          // Compliant: inline type literal as defineEmits type arg
+          code: `<script setup lang="ts">
+const emit = defineEmits<{
+  (e: 'submit'): void;
+}>();
+</script>`,
+        },
+        {
+          // Compliant: named type alias as defineEmits type arg
+          code: `<script setup lang="ts">
+type ChangeEmits = {
+  (e: 'change', value: string): void;
+};
+const emit = defineEmits<ChangeEmits>();
+</script>`,
+        },
+      ],
+      invalid: [
+        {
+          // Interface unrelated to defineEmits is still flagged
+          code: `<script setup lang="ts">
+interface MyTransformer {
+  (input: string): number;
+}
+</script>`,
+          errors: 1,
         },
       ],
     });
