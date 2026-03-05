@@ -182,13 +182,40 @@ export function detectLibFromSignals(
  * Enriches program compiler options with the best available lib for the project.
  * If lib is already set (explicit tsconfig), it is left unchanged.
  *
- * Otherwise lib is resolved in the following priority order:
- * 1. sonar.javascript.ecmaScriptVersion override — always wins when set
- * 2. Maximum ES year across tsconfig target and package.json node signals —
- *    taking the max ensures the lib reflects the highest ES version the project
- *    actually supports (e.g. target=ES5 for output but running on Node 22).
- *    ES3/ES5 targets map to ES2020, matching TypeScript's own lib.d.ts behaviour.
- * 3. esnext fallback when no signals are found
+ * ## Background: target vs lib
+ *
+ * TypeScript separates two independent concerns:
+ * - `target` controls *output syntax* (e.g. ES5 → transpile classes, arrow functions, etc.)
+ * - `lib` controls *type definitions* — what built-in APIs TypeScript knows about
+ *
+ * When a tsconfig sets `target` but omits `lib`, TypeScript leaves `options.lib` as
+ * `undefined` and resolves it internally at program-creation time. For ES3/ES5 it loads
+ * `lib.d.ts`, a legacy bundle that covers APIs up to ES2020 (it assumes polyfills are in
+ * use — a common pattern with Babel + core-js). For ES2015+ it loads the matching
+ * `lib.esXXXX.full.d.ts`.
+ *
+ * ## Why we take the maximum
+ *
+ * Two signals are relevant: `tsconfig.target` and the Node.js version inferred from
+ * package.json (`@types/node`, `engines.node`, `.nvmrc`).
+ *
+ * Neither signal alone is sufficient:
+ * - target alone misses the case where a project compiles to ES5 for broad browser
+ *   support but runs on Node 22 at build time, where modern APIs (e.g. `Array.at()`)
+ *   are available. Using target ES5 → ES2020 would suppress valid findings.
+ * - node signals alone miss the case where target is set to ES2022 but the only
+ *   package.json node signal is `@types/node@16` (ES2021), which would suppress valid
+ *   ES2022 findings (e.g. `Array.at()` which requires `lib.es2022.array.d.ts`).
+ *
+ * Taking the maximum of both signals gives the most accurate picture of what ES version
+ * the project actually supports at runtime. ES3/ES5 targets are mapped to ES2020 (not
+ * ES2009/2005) to match TypeScript's own lib.d.ts effective coverage.
+ *
+ * ## Resolution order
+ * 1. `tsconfig.lib` explicitly set → leave it unchanged
+ * 2. `sonar.javascript.ecmaScriptVersion` override → always wins when provided
+ * 3. max(tsconfig.target, package.json node signals) → use the higher ES year
+ * 4. esnext fallback when no signals are found at all
  *
  * @param programOptions program options to enrich in place
  * @param ecmaScriptVersion explicit ES version override from sonar.javascript.ecmaScriptVersion
