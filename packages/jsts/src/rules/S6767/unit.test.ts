@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { rules } from '../external/react.js';
 import { NoTypeCheckingRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 import path from 'node:path';
@@ -287,6 +288,31 @@ class FooComp extends React.Component<FooProps> {
 }
 `,
           filename: fixtureFile,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('upstream rule should report FP pattern (sentinel: remove decorator if this fails)', () => {
+    // This test asserts that the upstream eslint-plugin-react no-unused-prop-types
+    // rule DOES raise an issue on the wholesale props-delegation pattern.
+    // If it starts passing as valid, the upstream rule has been fixed and the
+    // S6767 decorator can be removed.
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types (upstream)', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // upstream cannot track props consumed inside a helper
+          code: `
+function Button(props) {
+  return <button style={getStyle(props)} />;
+}
+Button.propTypes = { color: PropTypes.string };
+`,
           errors: 1,
         },
       ],
