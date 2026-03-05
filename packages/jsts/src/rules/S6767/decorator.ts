@@ -68,10 +68,8 @@ function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean 
   }
 
   // Check if this is a SpreadElement with props (for {...props} in JSX)
-  if (root.type === 'SpreadElement') {
-    if (propsArgPatterns.some(p => p(root.argument))) {
-      return true;
-    }
+  if (root.type === 'SpreadElement' && propsArgPatterns.some(p => p(root.argument))) {
+    return true;
   }
 
   // Recursively check all children
