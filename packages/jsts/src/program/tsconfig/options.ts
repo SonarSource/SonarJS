@@ -131,6 +131,27 @@ function esYearFromEsPrefix(ecmaScriptVersion: string): number | null {
 }
 
 /**
+ * Maps a TypeScript ScriptTarget to an effective ES year for lib selection.
+ *
+ * ES3/ES5 map to 2020 because TypeScript's default lib.d.ts for these targets
+ * includes APIs up to ES2020 (it assumes polyfills are in use).
+ * Returns null for ESNext/JSON targets (handled separately as esnext fallback).
+ *
+ * @param target TypeScript ScriptTarget enum value
+ * @returns effective ES year, or null for ESNext/JSON
+ */
+export function tsTargetToEsYear(target: ts.ScriptTarget): number | null {
+  if (target >= ts.ScriptTarget.ESNext) {
+    return null;
+  }
+  if (target <= ts.ScriptTarget.ES5) {
+    return 2020;
+  }
+  // ScriptTarget enum: ES2015=2, ES2016=3, ..., ES2023=10
+  return 2013 + target;
+}
+
+/**
  * Detects the appropriate TypeScript lib files from available signals.
  * Priority: ecmaScriptVersion override > @types/node / engines.node version signal.
  *
@@ -160,8 +181,14 @@ export function detectLibFromSignals(
 /**
  * Enriches program compiler options with the best available lib for the project.
  * If lib is already set (explicit tsconfig), it is left unchanged.
- * Otherwise lib is computed from available signals: ecmaScriptVersion override,
- * then @types/node / engines.node, then esnext as final fallback.
+ *
+ * Otherwise lib is resolved in the following priority order:
+ * 1. sonar.javascript.ecmaScriptVersion override — always wins when set
+ * 2. Maximum ES year across tsconfig target and package.json node signals —
+ *    taking the max ensures the lib reflects the highest ES version the project
+ *    actually supports (e.g. target=ES5 for output but running on Node 22).
+ *    ES3/ES5 targets map to ES2020, matching TypeScript's own lib.d.ts behaviour.
+ * 3. esnext fallback when no signals are found
  *
  * @param programOptions program options to enrich in place
  * @param ecmaScriptVersion explicit ES version override from sonar.javascript.ecmaScriptVersion
@@ -176,13 +203,42 @@ export function enrichProgramLib(
   if (programOptions.options.lib) {
     return 'tsconfig.lib';
   }
-  const nodeSignal = getNodeVersionSignal(baseDir);
-  const detected = detectLibFromSignals(ecmaScriptVersion, nodeSignal);
-  programOptions.options.lib = detected ?? ESNEXT_LIB;
-  if (detected) {
-    return ecmaScriptVersion ? 'sonar.javascript.ecmaScriptVersion' : 'package.json signals';
+
+  // sonar.javascript.ecmaScriptVersion is an explicit user override — always wins
+  if (ecmaScriptVersion) {
+    const year = esYearFromEsPrefix(ecmaScriptVersion);
+    if (year) {
+      programOptions.options.lib = esYearToLib(year);
+      return 'sonar.javascript.ecmaScriptVersion';
+    }
   }
-  return 'default';
+
+  // Collect ES year from tsconfig target and node signals, take the maximum
+  const years: { year: number; source: string }[] = [];
+
+  if (programOptions.options.target !== undefined) {
+    const year = tsTargetToEsYear(programOptions.options.target);
+    if (year !== null) {
+      years.push({ year, source: 'tsconfig.target' });
+    }
+  }
+
+  const nodeSignal = getNodeVersionSignal(baseDir);
+  if (nodeSignal) {
+    const major = parseMaxNodeMajor(nodeSignal);
+    if (major !== null) {
+      years.push({ year: nodeVersionToEs(major), source: 'package.json signals' });
+    }
+  }
+
+  if (years.length === 0) {
+    programOptions.options.lib = ESNEXT_LIB;
+    return 'default';
+  }
+
+  const best = years.reduce((a, b) => (b.year > a.year ? b : a), years[0]);
+  programOptions.options.lib = esYearToLib(best.year);
+  return best.source;
 }
 
 /**

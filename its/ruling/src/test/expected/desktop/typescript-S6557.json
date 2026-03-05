@@ -2,6 +2,10 @@
 "desktop:app/src/lib/git/config.ts": [
 172
 ],
+"desktop:app/src/lib/git/diff.ts": [
+300,
+300
+],
 "desktop:app/src/lib/git/log.ts": [
 256,
 256
