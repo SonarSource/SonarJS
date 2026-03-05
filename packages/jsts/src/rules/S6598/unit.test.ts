@@ -86,6 +86,9 @@ interface MyTransformer {
 }
 </script>`,
           errors: 1,
+          output: `<script setup lang="ts">
+type MyTransformer = (input: string) => number;
+</script>`,
         },
       ],
     });
