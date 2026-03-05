@@ -265,7 +265,7 @@
               <workingDirectory>${project.basedir}/../../tsgolint/typescript-go</workingDirectory>
               <arguments>
                 <argument>-c</argument>
-                <argument>set -e; for patch in $(find "${0}" -name '*.patch' | sort); do if git apply --reverse --check "$patch" &gt;/dev/null 2&gt;&amp;1; then :; else git am --3way --no-gpg-sign "$patch"; fi; done</argument>
+                <argument>set -e; for patch in $(find "${0}" -name '*.patch' | sort); do if git apply --reverse --check "$patch" &gt;/dev/null 2&gt;&amp;1; then :; else GIT_COMMITTER_NAME='SonarJS CI' GIT_COMMITTER_EMAIL='sonarjs-ci@sonarsource.com' GIT_AUTHOR_NAME='SonarJS CI' GIT_AUTHOR_EMAIL='sonarjs-ci@sonarsource.com' git am --3way --no-gpg-sign "$patch"; fi; done</argument>
                 <argument>${project.basedir}/../../tsgolint/patches</argument>
               </arguments>
             </configuration>
