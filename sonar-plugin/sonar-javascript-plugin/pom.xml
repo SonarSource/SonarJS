@@ -30,6 +30,9 @@
     <!-- Override to 'none' via -Pskip-tsgolint to skip Go build/compress steps -->
     <tsgolint.build.phase>generate-resources</tsgolint.build.phase>
     <tsgolint.init.phase>initialize</tsgolint.init.phase>
+    <tsgolint.go.protobuf.version>v1.36.6</tsgolint.go.protobuf.version>
+    <tsgolint.go.grpc.version>v1.72.0</tsgolint.go.grpc.version>
+    <tsgolint.protoc.gen.go.grpc.version>v1.6.1</tsgolint.protoc.gen.go.grpc.version>
   </properties>
 
   <dependencies>
@@ -262,7 +265,7 @@
               <workingDirectory>${project.basedir}/../../tsgolint/typescript-go</workingDirectory>
               <arguments>
                 <argument>-c</argument>
-                <argument>find "${0}" -name '*.patch' -print0 | sort -z | xargs -0 -r git am --3way --no-gpg-sign || true</argument>
+                <argument>set -e; for patch in $(find "${0}" -name '*.patch' | sort); do if git apply --reverse --check "$patch" &gt;/dev/null 2&gt;&amp;1; then :; else git am --3way --no-gpg-sign "$patch"; fi; done</argument>
                 <argument>${project.basedir}/../../tsgolint/patches</argument>
               </arguments>
             </configuration>
@@ -291,7 +294,7 @@
               <executable>go</executable>
               <arguments>
                 <argument>install</argument>
-                <argument>google.golang.org/protobuf/cmd/protoc-gen-go@latest</argument>
+                <argument>google.golang.org/protobuf/cmd/protoc-gen-go@${tsgolint.go.protobuf.version}</argument>
               </arguments>
             </configuration>
           </execution>
@@ -303,7 +306,7 @@
               <executable>go</executable>
               <arguments>
                 <argument>install</argument>
-                <argument>google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest</argument>
+                <argument>google.golang.org/grpc/cmd/protoc-gen-go-grpc@${tsgolint.protoc.gen.go.grpc.version}</argument>
               </arguments>
             </configuration>
           </execution>
@@ -333,8 +336,8 @@
               <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
               <arguments>
                 <argument>get</argument>
-                <argument>google.golang.org/grpc@latest</argument>
-                <argument>google.golang.org/protobuf@latest</argument>
+                <argument>google.golang.org/grpc@${tsgolint.go.grpc.version}</argument>
+                <argument>google.golang.org/protobuf@${tsgolint.go.protobuf.version}</argument>
               </arguments>
             </configuration>
           </execution>
