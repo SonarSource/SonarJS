@@ -21,6 +21,8 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import java.io.IOException;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -224,6 +226,14 @@ public class WebSensor implements Sensor {
     }
   }
 
+  private static String normalizePathKey(String path) {
+    try {
+      return Path.of(path).normalize().toString();
+    } catch (InvalidPathException e) {
+      return path.replace('\\', '/');
+    }
+  }
+
   private void runTsgolintAnalysis(List<InputFile> inputFiles) {
     if (tsgolintServer == null || !tsgolintServer.isAlive()) {
       return;
@@ -264,13 +274,18 @@ public class WebSensor implements Sensor {
 
     var fileMap = new HashMap<String, InputFile>();
     for (var f : jstsFiles) {
-      fileMap.put(f.absolutePath(), f);
+      var absolutePath = f.absolutePath();
+      fileMap.put(absolutePath, f);
+      fileMap.put(normalizePathKey(absolutePath), f);
     }
 
     tsgolintServer.analyzeProject(request, issue -> {
       var inputFile = fileMap.get(issue.filePath());
+      if (inputFile == null) {
+        inputFile = fileMap.get(normalizePathKey(issue.filePath()));
+      }
       if (inputFile != null) {
-        analysisProcessor.saveIssue(context, issue);
+        analysisProcessor.saveIssue(context, checks, inputFile, issue);
       }
     });
   }

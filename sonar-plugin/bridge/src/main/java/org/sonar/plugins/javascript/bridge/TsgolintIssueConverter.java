@@ -17,6 +17,7 @@
 package org.sonar.plugins.javascript.bridge;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.sonar.plugins.javascript.bridge.grpc.Issue;
 import org.sonar.plugins.javascript.bridge.grpc.SecondaryLocation;
@@ -68,13 +69,26 @@ public class TsgolintIssueConverter {
       range.getEndColumn(),
       protoIssue.getMessage(),
       ruleId,
-      "ts",
+      issueLanguage(filePath),
       secondaryLocations,
       null,
       List.of(),
       List.of(),
       filePath
     );
+  }
+
+  private static String issueLanguage(String filePath) {
+    String lowerCasePath = filePath.toLowerCase(Locale.ROOT);
+    if (
+      lowerCasePath.endsWith(".js") ||
+      lowerCasePath.endsWith(".jsx") ||
+      lowerCasePath.endsWith(".cjs") ||
+      lowerCasePath.endsWith(".mjs")
+    ) {
+      return "js";
+    }
+    return "ts";
   }
 
   private static BridgeServer.IssueLocation convertSecondaryLocation(SecondaryLocation loc) {

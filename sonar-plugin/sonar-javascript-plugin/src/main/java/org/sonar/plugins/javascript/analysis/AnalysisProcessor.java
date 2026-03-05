@@ -304,6 +304,12 @@ public class AnalysisProcessor {
     }
   }
 
+  void saveIssue(JsTsContext<?> context, JsTsChecks checks, InputFile inputFile, Issue issue) {
+    this.checks = checks;
+    this.file = inputFile;
+    saveIssue(context, issue);
+  }
+
   void saveIssue(JsTsContext<?> context, Issue issue) {
     var newIssue = context.getSensorContext().newIssue();
     var location = newIssue.newLocation().on(file);
