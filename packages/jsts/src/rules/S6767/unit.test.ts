@@ -15,8 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
 
 describe('S6767', () => {
   it('should not report props passed wholesale to a helper function', () => {
@@ -124,6 +125,20 @@ function DataComponent(props: DataProps) {
 }
 `,
         },
+        {
+          // FP: static propTypes inside class body with this.props delegation
+          // (Strategy A: ClassDeclaration is a direct ancestor of the reported prop)
+          code: `
+class Button extends React.Component {
+  static propTypes = {
+    color: PropTypes.string,
+  };
+  render() {
+    return <button style={getStyle(this.props)} />;
+  }
+}
+`,
+        },
       ],
       invalid: [
         {
@@ -154,6 +169,124 @@ Button.propTypes = {
   color: PropTypes.string,
 };
 `,
+          errors: 1,
+        },
+        {
+          // TP: static class propTypes — prop is inside ClassDeclaration (Strategy A in findReactComponentNode)
+          code: `
+class Button extends React.Component {
+  static propTypes = {
+    label: PropTypes.string,
+    color: PropTypes.string,
+  };
+  render() {
+    return <button>{this.props.label}</button>;
+  }
+}
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should exercise TypeScript type-checking paths (Strategy C in react helpers)', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: TypeScript function component with props delegation — Strategy C finds
+          // the component and hasPropsCall suppresses the report.
+          code: `
+declare const React: any;
+interface CardProps {
+  title: string;
+}
+function Card(props: CardProps) {
+  const result = helper(props);
+  return <div>{result}</div>;
+}
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [
+        {
+          // TP: TypeScript function component — Strategy C exercises findOwnerByType,
+          // collectComponentNodes, matchesFunctionProps, and getFunctionName (FunctionDeclaration path).
+          // A lowercase helper function exercises the "funcName starts with lowercase" early return.
+          code: `
+declare const React: any;
+interface CardProps {
+  title: string;
+  subtitle: string;
+}
+function helper(props: CardProps) { return null; }
+function Card(props: CardProps) {
+  return <div>{props.title}</div>;
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: Arrow function component in VariableDeclarator — exercises the
+          // ArrowFunctionExpression branch of getFunctionName (lines 163-166).
+          code: `
+declare const React: any;
+interface BannerProps {
+  text: string;
+  size: number;
+}
+const Banner = (props: BannerProps) => <div>{props.text}</div>;
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: TypeScript class component with explicit props property — exercises
+          // matchesClassProps success path (class has props: ButtonProps so TypeScript
+          // type checker finds it and confirms assignability).
+          code: `
+declare const React: any;
+interface ButtonProps {
+  label: string;
+  color: string;
+}
+class Button extends React.Component<ButtonProps> {
+  props: ButtonProps;
+  render() {
+    return <button>{this.props.label}</button>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: TypeScript class component without explicit props field — exercises
+          // matchesClassProps failure path (no props symbol → return false, line 133)
+          // and findOwnerByType returning undefined (line 115).
+          code: `
+declare const React: any;
+interface FooProps {
+  unusedProp: string;
+}
+class FooComp extends React.Component<FooProps> {
+  render() {
+    return <div />;
+  }
+}
+`,
+          filename: fixtureFile,
           errors: 1,
         },
       ],
