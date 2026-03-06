@@ -18,61 +18,67 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isInsideVueSetupScript } from '../helpers/vue.js';
 import * as meta from './generated-meta.js';
 
-function isReferencedByDefineEmits(name: string | undefined, context: Rule.RuleContext): boolean {
-  if (!name) return false;
-  for (const statement of context.sourceCode.ast.body) {
-    let callExpr: estree.CallExpression | undefined;
-    if (
-      statement.type === 'ExpressionStatement' &&
-      statement.expression.type === 'CallExpression'
-    ) {
-      callExpr = statement.expression;
-    } else if (statement.type === 'VariableDeclaration') {
-      for (const decl of statement.declarations) {
-        if (decl.init?.type === 'CallExpression') {
-          callExpr = decl.init;
-        }
-      }
+function getTopLevelCallExprs(context: Rule.RuleContext): TSESTree.CallExpression[] {
+  return context.sourceCode.ast.body.flatMap(stmt => {
+    if (stmt.type === 'ExpressionStatement' && stmt.expression.type === 'CallExpression') {
+      return [stmt.expression as unknown as TSESTree.CallExpression];
     }
-    if (callExpr?.callee.type === 'Identifier' && callExpr.callee.name === 'defineEmits') {
-      const typeArgs = (callExpr as any).typeArguments ?? (callExpr as any).typeParameters;
-      if (
-        typeArgs?.params?.some(
-          (p: any) => p.type === 'TSTypeReference' && p.typeName?.name === name,
-        )
-      ) {
-        return true;
-      }
+    if (stmt.type === 'VariableDeclaration') {
+      return stmt.declarations
+        .filter(decl => decl.init?.type === 'CallExpression')
+        .map(decl => decl.init as unknown as TSESTree.CallExpression);
     }
-  }
-  return false;
+    return [];
+  });
 }
 
-function isDefineEmitsTypeArg(node: estree.Node, context: Rule.RuleContext): boolean {
-  const parent = (node as any).parent;
-  if (parent?.type === 'TSTypeLiteral') {
+function isReferencedByDefineEmits(name: string, context: Rule.RuleContext): boolean {
+  return getTopLevelCallExprs(context).some(call => {
+    if (call.callee.type !== 'Identifier' || call.callee.name !== 'defineEmits') {
+      return false;
+    }
+    return (
+      call.typeArguments?.params?.some(
+        p =>
+          p.type === 'TSTypeReference' &&
+          p.typeName.type === 'Identifier' &&
+          p.typeName.name === name,
+      ) ?? false
+    );
+  });
+}
+
+function isDefineEmitsTypeArg(
+  node: TSESTree.TSCallSignatureDeclaration,
+  context: Rule.RuleContext,
+): boolean {
+  const { parent } = node;
+  if (parent.type === 'TSTypeLiteral') {
     const grandParent = parent.parent;
     // Inline type literal directly as defineEmits type argument
-    if (grandParent?.type === 'TSTypeParameterInstantiation') {
+    if (grandParent.type === 'TSTypeParameterInstantiation') {
       const greatGrandParent = grandParent.parent;
-      return (
-        greatGrandParent?.type === 'CallExpression' &&
-        (greatGrandParent as any).callee?.name === 'defineEmits'
-      );
+      if (greatGrandParent.type === 'CallExpression') {
+        const { callee } = greatGrandParent;
+        return callee.type === 'Identifier' && callee.name === 'defineEmits';
+      }
+      return false;
     }
     // Named type alias referenced by defineEmits
-    if (grandParent?.type === 'TSTypeAliasDeclaration') {
-      return isReferencedByDefineEmits(grandParent.id?.name, context);
+    if (grandParent.type === 'TSTypeAliasDeclaration') {
+      return isReferencedByDefineEmits(grandParent.id.name, context);
     }
+    return false;
   }
   // Named interface referenced by defineEmits
-  if (parent?.type === 'TSInterfaceBody' && parent.parent?.type === 'TSInterfaceDeclaration') {
-    return isReferencedByDefineEmits(parent.parent.id?.name, context);
+  if (parent.type === 'TSInterfaceBody') {
+    return isReferencedByDefineEmits(parent.parent.id.name, context);
   }
   return false;
 }
@@ -94,8 +100,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }),
     },
     (context, reportDescriptor) => {
-      const node = (reportDescriptor as any).node as estree.Node;
-      if (!isInsideVueSetupScript(node, context)) {
+      const node = (reportDescriptor as unknown as { node: TSESTree.TSCallSignatureDeclaration })
+        .node;
+      if (!isInsideVueSetupScript(node as unknown as estree.Node, context)) {
         context.report({ ...reportDescriptor });
         return;
       }
