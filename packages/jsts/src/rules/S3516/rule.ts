@@ -21,7 +21,7 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { RuleContext } from '../helpers/type.js';
 import { childrenOf, findFirstMatchingAncestor, getParent } from '../helpers/ancestor.js';
-import { FUNCTION_NODES, getBranchBodies, isElementWrite, nodeHasReturn } from '../helpers/ast.js';
+import { FUNCTION_NODES, getBranchBodies, isElementWrite } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
@@ -273,20 +273,45 @@ function conditionalHasSideEffectOnlyBranch(
   node: estree.Node,
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
-  return getBranchBodies(node).some(
-    body => nodeHasSideEffect(body, visitorKeys) && !nodeHasReturn(body, visitorKeys),
-  );
+  return getBranchBodies(node).some(body => branchHasSideEffectButNoReturn(body, visitorKeys));
 }
 
-function nodeHasSideEffect(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
+/**
+ * Single-pass scan of a branch body. Returns true if the branch has at least one side effect
+ * (call or assignment expression) but no return statement.
+ * Exits early once a return statement is found, since the branch cannot be "side-effect-only".
+ */
+function branchHasSideEffectButNoReturn(
+  node: estree.Node,
+  visitorKeys: SourceCode.VisitorKeys,
+): boolean {
+  const result = { hasSideEffect: false, hasReturn: false };
+  scanBranchForSideEffectAndReturn(node, visitorKeys, result);
+  return result.hasSideEffect && !result.hasReturn;
+}
+
+function scanBranchForSideEffectAndReturn(
+  node: estree.Node,
+  visitorKeys: SourceCode.VisitorKeys,
+  result: { hasSideEffect: boolean; hasReturn: boolean },
+): void {
   if (FUNCTION_NODES.includes(node.type)) {
-    return false;
+    return;
+  }
+  if (node.type === 'ReturnStatement') {
+    result.hasReturn = true;
+    return;
   }
   if (node.type === 'ExpressionStatement') {
-    const { expression } = node;
+    const { expression } = node as estree.ExpressionStatement;
     if (expression.type === 'CallExpression' || expression.type === 'AssignmentExpression') {
-      return true;
+      result.hasSideEffect = true;
     }
   }
-  return childrenOf(node, visitorKeys).some(child => nodeHasSideEffect(child, visitorKeys));
+  for (const child of childrenOf(node, visitorKeys)) {
+    scanBranchForSideEffectAndReturn(child, visitorKeys, result);
+    if (result.hasReturn) {
+      return; // Early exit: return found, branch cannot be side-effect-only
+    }
+  }
 }
