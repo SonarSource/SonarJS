@@ -49,7 +49,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       // Handle ThrowStatement: suppress conditional throws that are the last statement in a finally block
       if (node.type === 'ThrowStatement') {
-        if (isGuardThrowInFinally(node as TSESTree.ThrowStatement)) {
+        if (isGuardThrowInFinally(node)) {
           return;
         }
         context.report(reportDescriptor);
