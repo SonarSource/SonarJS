@@ -102,6 +102,8 @@ function collectCountersFor(updateExpression: estree.Expression, counters: estre
 /**
  * Checks if a loop counter modification is an intentional skip-ahead pattern
  * (UpdateExpression or compound assignment) rather than a simple assignment.
+ * Simple assignments (=) are allowed when a splice() call using the same
+ * counter variable exists in the enclosing block (splice compensation pattern).
  * Modifications in nested for-loop update clauses are not considered skip-ahead.
  */
 function isIntentionalSkipAhead(id: estree.Identifier, outerLoopBody: estree.Node): boolean {
@@ -115,7 +117,89 @@ function isIntentionalSkipAhead(id: estree.Identifier, outerLoopBody: estree.Nod
   if (parent?.type === 'AssignmentExpression' && parent.operator !== '=') {
     return true;
   }
+  if (parent?.type === 'AssignmentExpression' && parent.operator === '=') {
+    const block = findEnclosingBlock(id);
+    if (block && blockContainsSpliceWithCounter(block, id.name)) {
+      return true;
+    }
+  }
   return false;
+}
+
+/**
+ * Walks up the AST from the given node to find the nearest enclosing BlockStatement.
+ */
+function findEnclosingBlock(node: estree.Node): estree.BlockStatement | undefined {
+  let current: estree.Node | undefined = getNodeParent(node);
+  while (current) {
+    if (current.type === 'BlockStatement') {
+      return current;
+    }
+    current = getNodeParent(current);
+  }
+  return undefined;
+}
+
+/**
+ * Checks whether a block contains a splice() call whose first argument
+ * is an Identifier matching the given counter variable name.
+ */
+function blockContainsSpliceWithCounter(
+  block: estree.BlockStatement,
+  counterName: string,
+): boolean {
+  return block.body.some(stmt => containsSpliceWithCounter(stmt, counterName));
+}
+
+/**
+ * Checks whether a statement contains a splice() call whose first argument
+ * references the given counter variable name. Only checks direct statements
+ * in the block — not ones nested inside conditional branches.
+ */
+function containsSpliceWithCounter(node: estree.Node, counterName: string): boolean {
+  if (node.type === 'ExpressionStatement') {
+    return expressionContainsSplice(node.expression, counterName);
+  }
+  if (
+    node.type === 'VariableDeclaration' &&
+    node.declarations.some(
+      d => d.init?.type === 'CallExpression' && isSpliceCallWithCounter(d.init, counterName),
+    )
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Checks whether an expression is or contains a splice() call whose first argument
+ * matches the given counter variable name. Handles both direct splice calls
+ * and splice calls on the right side of assignments (e.g., removed = arr.splice(i, 1)).
+ */
+function expressionContainsSplice(expr: estree.Expression, counterName: string): boolean {
+  if (expr.type === 'CallExpression') {
+    return isSpliceCallWithCounter(expr, counterName);
+  }
+  return (
+    expr.type === 'AssignmentExpression' &&
+    expr.right.type === 'CallExpression' &&
+    isSpliceCallWithCounter(expr.right, counterName)
+  );
+}
+
+/**
+ * Checks if a CallExpression is a .splice() call whose first argument
+ * is an Identifier matching the counter variable name.
+ */
+function isSpliceCallWithCounter(call: estree.CallExpression, counterName: string): boolean {
+  return (
+    call.callee.type === 'MemberExpression' &&
+    call.callee.property.type === 'Identifier' &&
+    call.callee.property.name === 'splice' &&
+    call.arguments.length >= 1 &&
+    call.arguments[0].type === 'Identifier' &&
+    call.arguments[0].name === counterName
+  );
 }
 
 function isUsedInsideBody(id: estree.Identifier, loopBody: estree.Node) {

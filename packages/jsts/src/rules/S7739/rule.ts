@@ -344,6 +344,21 @@ function isJsonSchemaConditional(node: Node): boolean {
 }
 
 /**
+ * Checks if 'then' is a property key whose value is the Function constructor,
+ * indicating an interface shape descriptor (e.g., { then: Function, open: Function }).
+ * This pattern describes the expected shape of an object, not a thenable implementation.
+ */
+function isInterfaceShapeDescriptor(node: Node): boolean {
+  const ancestors = getAncestorsWithParent(node);
+  const parent = ancestors[0];
+  if (parent?.type !== 'Property') {
+    return false;
+  }
+  const prop = parent as Node & { type: 'Property'; key: Node; value: Node; computed: boolean };
+  return !prop.computed && prop.key === node && isIdentifier(prop.value, 'Function');
+}
+
+/**
  * Checks if the reported node represents an intentional thenable implementation
  * that should not be flagged.
  */
@@ -353,7 +368,8 @@ function isIntentionalThenableImplementation(node: Node): boolean {
     isInsidePromiseOrDeferredDefinition(node) ||
     isPrototypeThenAssignment(node) ||
     hasSiblingThenableMethods(node) ||
-    isJsonSchemaConditional(node)
+    isJsonSchemaConditional(node) ||
+    isInterfaceShapeDescriptor(node)
   );
 }
 

@@ -16,7 +16,86 @@
  */
 import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { getESLintCoreRule } from '../external/core.js';
 import { describe, it } from 'node:test';
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
+describe('S1143 upstream sentinel', () => {
+  it('upstream no-unsafe-finally raises on guard clause patterns that decorator suppresses', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    const upstreamRule = getESLintCoreRule('no-unsafe-finally');
+
+    ruleTester.run('upstream no-unsafe-finally raises on fixed patterns', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // optional chaining condition — suppressed by decorator, raised by upstream
+          code: `
+async function closePopover() {
+  try {
+    await validateForm();
+  } finally {
+    const errors = getFormErrors();
+    if (errors?.length) return;
+    setVisible(false);
+  }
+}
+          `,
+          errors: 1,
+        },
+        {
+          // negated flag condition — suppressed by decorator, raised by upstream
+          code: `
+async function fetchData() {
+  let isActive = true;
+  try {
+    const data = await fetch('/api/data');
+    processData(data);
+  } finally {
+    if (!isActive) {
+      return;
+    }
+    setLoading(false);
+  }
+}
+          `,
+          errors: 1,
+        },
+        {
+          // member expression condition — suppressed by decorator, raised by upstream
+          code: `
+async function asyncOperation() {
+  const state = { cancelled: false };
+  try {
+    await doWork();
+  } finally {
+    if (state.cancelled) return;
+    performCleanup();
+  }
+}
+          `,
+          errors: 1,
+        },
+        {
+          // call expression condition — suppressed by decorator, raised by upstream
+          code: `
+function foo() {
+  try {
+    doWork();
+  } finally {
+    if (isCancelled()) return;
+    cleanup();
+  }
+}
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
 
 describe('S1143', () => {
   it('S1143', () => {
@@ -25,9 +104,7 @@ describe('S1143', () => {
     ruleTester.run('Jump statements should not occur in "finally" blocks', rule, {
       valid: [
         {
-          // Guard return with cancellation flag in finally block - React async effect cleanup pattern
-          // This should NOT raise an issue because: the return is conditional on a boolean flag,
-          // followed by code that performs side effects, and doesn't suppress exceptions
+          // guard clause with identifier condition
           code: `
 async function asyncOperation() {
   let cancelled = false;
@@ -43,7 +120,7 @@ async function asyncOperation() {
           `,
         },
         {
-          // Guard return with block syntax: if (flag) { return; }
+          // guard clause with block syntax
           code: `
 async function asyncOperation() {
   let stopped = false;
@@ -61,7 +138,7 @@ async function asyncOperation() {
           `,
         },
         {
-          // Guard return followed by multiple statements
+          // guard clause followed by multiple statements
           code: `
 async function asyncOperation() {
   let cancelled = false;
@@ -76,7 +153,64 @@ async function asyncOperation() {
           `,
         },
         {
-          // No finally block - should not trigger rule
+          // guard clause with optional chaining condition
+          code: `
+async function closePopover() {
+  try {
+    await validateForm();
+  } finally {
+    const errors = getFormErrors();
+    if (errors?.length) return;
+    setVisible(false);
+  }
+}
+          `,
+        },
+        {
+          // guard clause with negated flag condition
+          code: `
+async function fetchData() {
+  let isActive = true;
+  try {
+    const data = await fetch('/api/data');
+    processData(data);
+  } finally {
+    if (!isActive) {
+      return;
+    }
+    setLoading(false);
+  }
+}
+          `,
+        },
+        {
+          // guard clause with member expression condition
+          code: `
+async function asyncOperation() {
+  const state = { cancelled: false };
+  try {
+    await doWork();
+  } finally {
+    if (state.cancelled) return;
+    performCleanup();
+  }
+}
+          `,
+        },
+        {
+          // guard clause with call expression condition
+          code: `
+function foo() {
+  try {
+    doWork();
+  } finally {
+    if (isCancelled()) return;
+    cleanup();
+  }
+}
+          `,
+        },
+        {
           code: `
 function foo() {
   try {
@@ -90,7 +224,7 @@ function foo() {
       ],
       invalid: [
         {
-          // Unconditional return in finally block - should be flagged
+          // unconditional return in finally block
           code: `
 function foo() {
   try {
@@ -103,8 +237,7 @@ function foo() {
           errors: 1,
         },
         {
-          // Return with value in finally block - should be flagged even if conditional
-          // because it overrides the return value
+          // return with value in finally block overrides the return value
           code: `
 function foo() {
   let cancelled = false;
@@ -120,8 +253,7 @@ function foo() {
           errors: 1,
         },
         {
-          // Guard return NOT followed by statements - should be flagged
-          // because it's effectively the same as unconditional return at end of finally
+          // guard return not followed by statements
           code: `
 function foo() {
   let cancelled = false;
@@ -135,22 +267,7 @@ function foo() {
           errors: 1,
         },
         {
-          // Return with non-identifier condition - should be flagged
-          // The condition is a call expression, not a simple identifier
-          code: `
-function foo() {
-  try {
-    doWork();
-  } finally {
-    if (isCancelled()) return;
-    cleanup();
-  }
-}
-          `,
-          errors: 1,
-        },
-        {
-          // Break in finally block - should be flagged
+          // break in finally block
           code: `
 function foo() {
   while (true) {
@@ -165,7 +282,7 @@ function foo() {
           errors: 1,
         },
         {
-          // Continue in finally block - should be flagged
+          // continue in finally block
           code: `
 function foo() {
   while (true) {
@@ -180,7 +297,7 @@ function foo() {
           errors: 1,
         },
         {
-          // Throw in finally block - should be flagged
+          // throw in finally block
           code: `
 function foo() {
   try {
