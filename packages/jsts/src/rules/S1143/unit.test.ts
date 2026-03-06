@@ -78,6 +78,20 @@ async function asyncOperation() {
           `,
           errors: 1,
         },
+        {
+          // call expression condition — suppressed by decorator, raised by upstream
+          code: `
+function foo() {
+  try {
+    doWork();
+  } finally {
+    if (isCancelled()) return;
+    cleanup();
+  }
+}
+          `,
+          errors: 1,
+        },
       ],
     });
   });
@@ -184,6 +198,19 @@ async function asyncOperation() {
           `,
         },
         {
+          // guard clause with call expression condition
+          code: `
+function foo() {
+  try {
+    doWork();
+  } finally {
+    if (isCancelled()) return;
+    cleanup();
+  }
+}
+          `,
+        },
+        {
           code: `
 function foo() {
   try {
@@ -234,20 +261,6 @@ function foo() {
     doWork();
   } finally {
     if (cancelled) return;
-  }
-}
-          `,
-          errors: 1,
-        },
-        {
-          // guard return with call expression condition
-          code: `
-function foo() {
-  try {
-    doWork();
-  } finally {
-    if (isCancelled()) return;
-    cleanup();
   }
 }
           `,
