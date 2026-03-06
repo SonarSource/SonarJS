@@ -755,7 +755,7 @@ export function getBranchBodies(node: estree.Node): estree.Node[] {
 /**
  * Returns true if the given node contains a ReturnStatement, without crossing function boundaries.
  */
-export function nodeHasReturn(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
+function nodeHasReturn(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
   if (FUNCTION_NODES.includes(node.type)) {
     return false;
   }
