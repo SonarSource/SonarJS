@@ -311,7 +311,7 @@ function scanBranchForSideEffectAndReturn(
     return;
   }
   if (node.type === 'ExpressionStatement') {
-    const { expression } = node as estree.ExpressionStatement;
+    const { expression } = node;
     if (expression.type === 'CallExpression' || expression.type === 'AssignmentExpression') {
       result.hasSideEffect = true;
     }
