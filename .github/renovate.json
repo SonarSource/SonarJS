@@ -43,7 +43,7 @@
     {
       "description": "@typescript/native-preview - dev builds update daily, limit to weekly",
       "matchPackageNames": ["@typescript/native-preview"],
-      "schedule": ["once a week"]
+      "extends": ["schedule:weekly"]
     }
   ],
   "hostRules": [
