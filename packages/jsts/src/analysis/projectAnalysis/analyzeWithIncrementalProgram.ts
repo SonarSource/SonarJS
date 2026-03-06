@@ -30,6 +30,7 @@ import {
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
+  enrichProgramLib,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
@@ -82,7 +83,7 @@ export async function analyzeWithIncrementalProgram(
         pendingFiles,
         baseDir,
         canAccessFileSystem,
-        jsTsConfigFields.createTSProgramForOrphanFiles,
+        jsTsConfigFields,
       ),
     );
 
@@ -118,7 +119,7 @@ function programOptionsFromClosestTsconfig(
   pendingFiles: Set<NormalizedAbsolutePath>,
   baseDir: NormalizedAbsolutePath,
   canAccessFileSystem: boolean,
-  createTSProgramForOrphanFiles: boolean,
+  jsTsConfigFields: JsTsConfigFields,
 ): ProgramOptions | undefined {
   const processedTsConfigs = new Set<NormalizedAbsolutePath>();
 
@@ -143,7 +144,14 @@ function programOptionsFromClosestTsconfig(
         warn(msg);
       }
       if (programOptions.rootNames.includes(file)) {
-        info(`Using tsconfig ${tsconfig} for ${file}`);
+        const libSource = enrichProgramLib(
+          programOptions,
+          jsTsConfigFields.ecmaScriptVersion,
+          baseDir,
+        );
+        info(
+          `Using tsconfig ${tsconfig} for ${file} [lib: ${programOptions.options.lib?.join(', ')}, source: ${libSource}]`,
+        );
         return programOptions;
       }
     } catch (e) {
@@ -154,7 +162,7 @@ function programOptionsFromClosestTsconfig(
     }
   }
 
-  if (!createTSProgramForOrphanFiles) {
+  if (!jsTsConfigFields.createTSProgramForOrphanFiles) {
     info(
       `Skipping TypeScript program creation for orphan file (sonar.javascript.createTSProgramForOrphanFiles=false)`,
     );
@@ -162,10 +170,17 @@ function programOptionsFromClosestTsconfig(
   }
 
   try {
-    info('No tsconfig found for files, using default options');
-    // Fallback: use default options if no tsconfig found
     // TODO(JS-1138): File order can affect program combinations - improve strategy
-    return createProgramOptionsFromJson(defaultCompilerOptions, [...pendingFiles], baseDir);
+    const programOptions = createProgramOptionsFromJson(
+      defaultCompilerOptions,
+      [...pendingFiles],
+      baseDir,
+    );
+    const libSource = enrichProgramLib(programOptions, jsTsConfigFields.ecmaScriptVersion, baseDir);
+    info(
+      `No tsconfig found for files, using default options [lib: ${programOptions.options.lib?.join(', ')}, source: ${libSource}]`,
+    );
+    return programOptions;
   } catch (e) {
     error(`Failed to generate program from merged config: ${e}`);
   }

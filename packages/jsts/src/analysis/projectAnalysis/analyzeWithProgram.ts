@@ -30,6 +30,7 @@ import {
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
+  enrichProgramLib,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
@@ -148,14 +149,15 @@ async function analyzeFilesFromEntryPoint(
     return;
   }
 
-  info(
-    `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'}`,
-  );
-
   const programOptions = foundProgramOptions.length
     ? merge({}, ...foundProgramOptions)
     : createProgramOptionsFromJson(defaultCompilerOptions, rootNames, baseDir);
   programOptions.rootNames = rootNames;
+
+  const libSource = enrichProgramLib(programOptions, jsTsConfigFields.ecmaScriptVersion, baseDir);
+  info(
+    `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'} [lib: ${programOptions.options.lib?.join(', ')}, source: ${libSource}]`,
+  );
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
 
   const tsProgram = createStandardProgram(programOptions);
@@ -192,7 +194,6 @@ async function analyzeFilesFromTsConfig(
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   processedTSConfigs.add(tsconfig);
-  info(`Creating TypeScript(${ts.version}) program with configuration file ${tsconfig}`);
 
   // Parse tsconfig to get compiler options
   let programOptions;
@@ -213,6 +214,10 @@ async function analyzeFilesFromTsConfig(
     warn(msg);
   }
 
+  const libSource = enrichProgramLib(programOptions, jsTsConfigFields.ecmaScriptVersion, baseDir);
+  info(
+    `Creating TypeScript(${ts.version}) program with configuration file ${tsconfig} [lib: ${programOptions.options.lib?.join(', ')}, source: ${libSource}]`,
+  );
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
   const tsProgram = createStandardProgram(programOptions);
 
