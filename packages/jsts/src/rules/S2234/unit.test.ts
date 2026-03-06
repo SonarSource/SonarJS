@@ -64,6 +64,46 @@ describe('S2234', () => {
       }
       `,
         },
+        {
+          // False positive: MD5 round functions use cyclic parameter rotation, not argument swaps
+          code: `
+        function ff(a, b, c, d, x, s, t) { return b; }
+        function gg(a, b, c, d, x, s, t) { return b; }
+        function hh(a, b, c, d, x, s, t) { return b; }
+        function ii(a, b, c, d, x, s, t) { return b; }
+        var a = 0, b = 0, c = 0, d = 0;
+        ff(c, d, a, b, 0, 17, 1);
+        gg(c, d, a, b, 0, 14, 1);
+        hh(c, d, a, b, 0, 16, 1);
+        ii(c, d, a, b, 0, 15, 1);
+        ff(d, a, b, c, 0, 12, 1);
+        ff(b, c, d, a, 0, 22, 1);
+        `,
+        },
+        {
+          // False positive: md5-prefixed round functions follow the same cyclic rotation pattern
+          code: `
+        function md5ff(a, b, c, d, x, s, ac) { return a; }
+        function md5gg(a, b, c, d, x, s, ac) { return a; }
+        function md5hh(a, b, c, d, x, s, ac) { return a; }
+        function md5ii(a, b, c, d, x, s, ac) { return a; }
+        var a = 0, b = 0, c = 0, d = 0;
+        md5ff(c, d, a, b, 0, 17, 1);
+        md5gg(d, a, b, c, 0, 9, 1);
+        md5hh(b, c, d, a, 0, 4, 1);
+        md5ii(c, d, a, b, 0, 15, 1);
+        `,
+        },
+        {
+          // False positive: md4-prefixed round functions follow the same cyclic rotation pattern
+          code: `
+        function md4ff(a, b, c, d, x, s, ac) { return a; }
+        function md4gg(a, b, c, d, x, s, ac) { return a; }
+        var a = 0, b = 0, c = 0, d = 0;
+        md4ff(c, d, a, b, 0, 17, 1);
+        md4gg(d, a, b, c, 0, 9, 1);
+        `,
+        },
       ],
       invalid: [
         {
@@ -129,12 +169,31 @@ describe('S2234', () => {
       `,
           errors: 5,
         },
+        {
+          // Non-crypto functions with the same rotation pattern are still flagged
+          code: `
+        function other(a, b, c, d, x, s, t) {}
+        var a = 1, b = 2, c = 3, d = 4;
+        other(c, d, a, b, 0, 0, 0);`,
+          errors: 1,
+        },
       ],
     });
 
     const typeScriptRuleTester = new RuleTester();
     typeScriptRuleTester.run('Parameters should be passed in the correct order', rule, {
       valid: [
+        {
+          // False positive: MemberExpression callee (obj.ff) extracts the property name for the crypto check
+          code: `
+        class MD5 {
+          ff(a: number, b: number, c: number, d: number, x: number, s: number, ac: number) { return a; }
+        }
+        const md5 = new MD5();
+        const a = 0, b = 0, c = 0, d = 0;
+        md5.ff(c, d, a, b, 0, 17, 1);
+        `,
+        },
         {
           code: `
         const a = 1, b = 2, c = 3, d = 4, x = "", y = 5;
