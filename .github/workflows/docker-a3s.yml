@@ -59,6 +59,7 @@ jobs:
         with:
           secrets: |
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
 
       - name: Configure npm registry
         run: |
@@ -69,6 +70,8 @@ jobs:
         run: npm ci
 
       - name: Build bundle for Docker
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
         run: npm run grpc:build
 
       - name: Configure AWS credentials
