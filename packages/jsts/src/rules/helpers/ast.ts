@@ -18,7 +18,6 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import {
-  childrenOf,
   findFirstMatchingAncestor,
   flatMap,
   getFullyQualifiedName,
