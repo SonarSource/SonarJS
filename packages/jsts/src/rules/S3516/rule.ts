@@ -288,7 +288,9 @@ function branchHasSideEffectButNoReturn(
   const hasReturn = returnStatements.some(
     ret => ret.range !== undefined && ret.range[0] >= branchStart && ret.range[0] < branchEnd,
   );
-  if (hasReturn) return false;
+  if (hasReturn) {
+    return false;
+  }
   return sideEffectNodes.some(
     se => se.range !== undefined && se.range[0] >= branchStart && se.range[0] < branchEnd,
   );
