@@ -17,7 +17,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import { childrenOf, findFirstMatchingAncestor } from './ancestor.js';
+import { findFirstMatchingAncestor } from './ancestor.js';
 import { flatMap, last } from './collection.js';
 import { getFullyQualifiedName } from './module.js';
 import { report, toSecondaryLocation } from './location.js';
