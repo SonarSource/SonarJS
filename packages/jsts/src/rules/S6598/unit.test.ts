@@ -114,6 +114,10 @@ interface ClickEmits {
 const emit = defineEmits<ClickEmits>();
 </script>`,
             errors: 1,
+            output: `<script setup lang="ts">
+type ClickEmits = (e: 'click') => void;
+const emit = defineEmits<ClickEmits>();
+</script>`,
           },
         ],
       },
