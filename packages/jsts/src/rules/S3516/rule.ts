@@ -303,9 +303,13 @@ function branchHasSideEffectButNoReturn(
   returnStatements: estree.ReturnStatement[],
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
-  const [branchStart, branchEnd] = node.range!;
+  const nodeRange = node.range;
+  if (!nodeRange) {
+    return false;
+  }
+  const [branchStart, branchEnd] = nodeRange;
   const hasReturn = returnStatements.some(
-    ret => ret.range![0] >= branchStart && ret.range![0] < branchEnd,
+    ret => ret.range !== undefined && ret.range[0] >= branchStart && ret.range[0] < branchEnd,
   );
   return !hasReturn && branchHasSideEffect(node, visitorKeys);
 }
