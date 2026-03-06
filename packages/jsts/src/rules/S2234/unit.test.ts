@@ -104,6 +104,62 @@ describe('S2234', () => {
         md4gg(d, a, b, c, 0, 9, 1);
         `,
         },
+        {
+          // False positive: parameter swap inside 'rtl' object property is intentional RTL direction handling
+          code: `
+        function doSetRange(win, start, soffset, finish, foffset) {}
+        var win = window;
+        var setRangeFromRelative = {
+          ltr: function (start, soffset, finish, foffset) {
+            doSetRange(win, start, soffset, finish, foffset);
+          },
+          rtl: function (start, soffset, finish, foffset) {
+            doSetRange(win, finish, foffset, start, soffset);
+          },
+        };
+        `,
+        },
+        {
+          // False positive: parameter swap inside 'rtl' property represents intentional reversed range
+          code: `
+        function relativeToNative(win, startSitu, finishSitu) {}
+        var win = null, startSitu = null, finishSitu = null;
+        var rangeHandlers = {
+          ltr: function () {
+            return relativeToNative(win, startSitu, finishSitu);
+          },
+          rtl: function () {
+            return relativeToNative(win, finishSitu, startSitu);
+          },
+        };
+        `,
+        },
+        {
+          // False positive: parameter swap inside 'reverse' property is intentional reverse-direction movement
+          code: `
+        function moveItems(from, to) {}
+        var from = 0, to = 10;
+        var directionHandlers = {
+          forward: function () {
+            moveItems(from, to);
+          },
+          reverse: function () {
+            moveItems(to, from);
+          },
+        };
+        `,
+        },
+        {
+          // False positive: parameter swap inside 'flip' property is intentional direction reversal
+          code: `
+        function render(x, y) {}
+        var x = 0, y = 0;
+        var handlers = {
+          normal: function () { render(x, y); },
+          flip: function () { render(y, x); },
+        };
+        `,
+        },
       ],
       invalid: [
         {
@@ -175,6 +231,16 @@ describe('S2234', () => {
         function other(a, b, c, d, x, s, t) {}
         var a = 1, b = 2, c = 3, d = 4;
         other(c, d, a, b, 0, 0, 0);`,
+          errors: 1,
+        },
+        {
+          // 'forwardRef' contains 'forward' but word-boundary matching prevents suppression
+          code: `
+        function process(a, b) {}
+        var a = 1, b = 2;
+        var obj = {
+          forwardRef: function () { process(b, a); },
+        };`,
           errors: 1,
         },
       ],
