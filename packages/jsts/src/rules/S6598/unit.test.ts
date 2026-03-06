@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 import vueParser from 'vue-eslint-parser';
@@ -92,5 +93,30 @@ type MyTransformer = (input: string) => number;
         },
       ],
     });
+
+    // Sentinel: verify the upstream rule still raises an issue on the defineEmits FP pattern.
+    // If this test fails, upstream prefer-function-type no longer flags this pattern natively,
+    // and the suppression logic in decorator.ts can be safely removed.
+    new NoTypeCheckingRuleTester({
+      parser: vueParser,
+      parserOptions: { parser: tsParser },
+    }).run(
+      'upstream prefer-function-type raises issue on defineEmits type arg (sentinel)',
+      tsEslintRules['prefer-function-type'],
+      {
+        valid: [],
+        invalid: [
+          {
+            code: `<script setup lang="ts">
+interface ClickEmits {
+  (e: 'click'): void;
+}
+const emit = defineEmits<ClickEmits>();
+</script>`,
+            errors: 1,
+          },
+        ],
+      },
+    );
   });
 });
