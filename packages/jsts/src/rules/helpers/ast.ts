@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { Rule, Scope, SourceCode } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import {
   childrenOf,
@@ -750,17 +750,4 @@ export function getBranchBodies(node: estree.Node): estree.Node[] {
     default:
       return [];
   }
-}
-
-/**
- * Returns true if the given node contains a ReturnStatement, without crossing function boundaries.
- */
-function nodeHasReturn(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
-  if (FUNCTION_NODES.includes(node.type)) {
-    return false;
-  }
-  if (node.type === 'ReturnStatement') {
-    return true;
-  }
-  return childrenOf(node, visitorKeys).some(child => nodeHasReturn(child, visitorKeys));
 }
