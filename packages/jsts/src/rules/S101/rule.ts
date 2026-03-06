@@ -25,7 +25,7 @@ import * as meta from './generated-meta.js';
 
 type ClassOrInterfaceDeclaration = TSESTree.ClassDeclaration | TSESTree.TSInterfaceDeclaration;
 
-const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
+const DEFAULT_FORMAT = '^\\$?[A-Z][a-zA-Z0-9]*$';
 const messages = {
   renameClass: 'Rename {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.',
 };
