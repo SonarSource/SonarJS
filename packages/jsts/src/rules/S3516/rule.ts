@@ -64,7 +64,11 @@ export const rule: Rule.RuleModule = {
         const firstValue = getLiteralValue(returnedValues[0], context.sourceCode.getScope(node));
         if (
           firstValue === undefined &&
-          hasSideEffectOnlyConditional(node, context.sourceCode.visitorKeys)
+          hasSideEffectOnlyConditional(
+            node,
+            functionContext.returnStatements,
+            context.sourceCode.visitorKeys,
+          )
         ) {
           return;
         }
@@ -242,17 +246,19 @@ const CONDITIONAL_LOOP_NODE_TYPES = new Set([
  */
 function hasSideEffectOnlyConditional(
   funcNode: estree.Node,
+  returnStatements: estree.ReturnStatement[],
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
   const body = (funcNode as estree.Function).body;
   if (body?.type !== 'BlockStatement') {
     return false;
   }
-  return findSideEffectOnlyConditional(body, visitorKeys);
+  return findSideEffectOnlyConditional(body, returnStatements, visitorKeys);
 }
 
 function findSideEffectOnlyConditional(
   node: estree.Node,
+  returnStatements: estree.ReturnStatement[],
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
   if (FUNCTION_NODES.includes(node.type)) {
@@ -260,58 +266,51 @@ function findSideEffectOnlyConditional(
   }
   if (
     CONDITIONAL_LOOP_NODE_TYPES.has(node.type) &&
-    conditionalHasSideEffectOnlyBranch(node, visitorKeys)
+    conditionalHasSideEffectOnlyBranch(node, returnStatements, visitorKeys)
   ) {
     return true;
   }
   return childrenOf(node, visitorKeys).some(child =>
-    findSideEffectOnlyConditional(child, visitorKeys),
+    findSideEffectOnlyConditional(child, returnStatements, visitorKeys),
   );
 }
 
 function conditionalHasSideEffectOnlyBranch(
   node: estree.Node,
+  returnStatements: estree.ReturnStatement[],
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
-  return getBranchBodies(node).some(body => branchHasSideEffectButNoReturn(body, visitorKeys));
+  return getBranchBodies(node).some(body =>
+    branchHasSideEffectButNoReturn(body, returnStatements, visitorKeys),
+  );
 }
 
 /**
- * Single-pass scan of a branch body. Returns true if the branch has at least one side effect
- * (call or assignment expression) but no return statement.
- * Exits early once a return statement is found, since the branch cannot be "side-effect-only".
+ * Returns true if the branch has at least one side effect (call or assignment expression)
+ * but no return statement. Return detection uses the pre-captured return statements for the
+ * enclosing function (via range containment) rather than an exhaustive traversal.
  */
 function branchHasSideEffectButNoReturn(
   node: estree.Node,
+  returnStatements: estree.ReturnStatement[],
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
-  const result = { hasSideEffect: false, hasReturn: false };
-  scanBranchForSideEffectAndReturn(node, visitorKeys, result);
-  return result.hasSideEffect && !result.hasReturn;
+  const [branchStart, branchEnd] = node.range!;
+  const hasReturn = returnStatements.some(
+    ret => ret.range![0] >= branchStart && ret.range![0] < branchEnd,
+  );
+  return !hasReturn && branchHasSideEffect(node, visitorKeys);
 }
 
-function scanBranchForSideEffectAndReturn(
-  node: estree.Node,
-  visitorKeys: SourceCode.VisitorKeys,
-  result: { hasSideEffect: boolean; hasReturn: boolean },
-): void {
+function branchHasSideEffect(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
   if (FUNCTION_NODES.includes(node.type)) {
-    return;
-  }
-  if (node.type === 'ReturnStatement') {
-    result.hasReturn = true;
-    return;
+    return false;
   }
   if (node.type === 'ExpressionStatement') {
     const { expression } = node;
     if (expression.type === 'CallExpression' || expression.type === 'AssignmentExpression') {
-      result.hasSideEffect = true;
+      return true;
     }
   }
-  for (const child of childrenOf(node, visitorKeys)) {
-    scanBranchForSideEffectAndReturn(child, visitorKeys, result);
-    if (result.hasReturn) {
-      return; // Early exit: return found, branch cannot be side-effect-only
-    }
-  }
+  return childrenOf(node, visitorKeys).some(child => branchHasSideEffect(child, visitorKeys));
 }
