@@ -20,6 +20,7 @@ import { describe, it } from 'node:test';
 
 const ruleTester = new NoTypeCheckingRuleTester();
 
+const DEFAULT_FORMAT = '^\\$?[A-Z][a-zA-Z0-9]*$';
 const CUSTOM_FORMAT = '^[_A-Z][a-zA-Z0-9]*$';
 
 describe('S101', () => {
@@ -32,7 +33,7 @@ describe('S101', () => {
       var x = class y {} // Compliant: expressions not checked
       interface MyInterface {}
       `,
-          options: [{ format: '^\\$?[A-Z][a-zA-Z0-9]*$' }],
+          options: [{ format: DEFAULT_FORMAT }],
         },
         {
           code: `
@@ -62,10 +63,10 @@ describe('S101', () => {
       invalid: [
         {
           code: `class my_class {}`,
-          options: [{ format: '^\\$?[A-Z][a-zA-Z0-9]*$' }],
+          options: [{ format: DEFAULT_FORMAT }],
           errors: [
             {
-              message: `Rename class "my_class" to match the regular expression ^\\$?[A-Z][a-zA-Z0-9]*$.`,
+              message: `Rename class "my_class" to match the regular expression ${DEFAULT_FORMAT}.`,
               line: 1,
               endLine: 1,
               column: 7,
@@ -75,10 +76,10 @@ describe('S101', () => {
         },
         {
           code: `interface my_interface {}`,
-          options: [{ format: '^\\$?[A-Z][a-zA-Z0-9]*$' }],
+          options: [{ format: DEFAULT_FORMAT }],
           errors: [
             {
-              message: `Rename interface "my_interface" to match the regular expression ^\\$?[A-Z][a-zA-Z0-9]*$.`,
+              message: `Rename interface "my_interface" to match the regular expression ${DEFAULT_FORMAT}.`,
             },
           ],
         },
@@ -86,7 +87,7 @@ describe('S101', () => {
           code: `interface $my_interface {}`, // $ before snake_case still flagged
           errors: [
             {
-              message: `Rename interface "$my_interface" to match the regular expression ^\\$?[A-Z][a-zA-Z0-9]*$.`,
+              message: `Rename interface "$my_interface" to match the regular expression ${DEFAULT_FORMAT}.`,
             },
           ],
         },
