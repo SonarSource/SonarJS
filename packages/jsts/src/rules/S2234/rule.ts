@@ -68,6 +68,10 @@ export const rule: Rule.RuleModule = {
 
       const { params: functionParameters, declaration: functionDeclaration } = resolvedFunction;
 
+      if (isCryptoCyclicRotation(functionCall, functionParameters)) {
+        return;
+      }
+
       for (let argumentIndex = 0; argumentIndex < argumentNames.length; argumentIndex++) {
         const argumentName = argumentNames[argumentIndex];
         if (argumentName) {
@@ -230,6 +234,58 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+const CRYPTO_FUNCTION_PATTERN = /^(md[45]_?)?(ff|gg|hh|ii)$/i;
+const CRYPTO_STATE_PARAM_COUNT = 4;
+
+function isCryptoCyclicRotation(
+  functionCall: estree.CallExpression,
+  functionParameters: Array<string | undefined>,
+): boolean {
+  const callee = functionCall.callee;
+  let calleeName: string | null = null;
+  if (callee.type === 'Identifier') {
+    calleeName = callee.name;
+  } else if (callee.type === 'MemberExpression' && callee.property.type === 'Identifier') {
+    calleeName = callee.property.name;
+  }
+
+  if (!calleeName || !CRYPTO_FUNCTION_PATTERN.test(calleeName)) {
+    return false;
+  }
+
+  if (
+    functionParameters.length < CRYPTO_STATE_PARAM_COUNT ||
+    functionCall.arguments.length < CRYPTO_STATE_PARAM_COUNT
+  ) {
+    return false;
+  }
+
+  // First 4 arguments must all be identifiers
+  const argNames: string[] = [];
+  for (let i = 0; i < CRYPTO_STATE_PARAM_COUNT; i++) {
+    const arg = functionCall.arguments[i];
+    if (arg.type !== 'Identifier') {
+      return false;
+    }
+    argNames.push(arg.name);
+  }
+
+  // First 4 parameters must all be defined
+  const paramNames = functionParameters.slice(0, CRYPTO_STATE_PARAM_COUNT);
+  if (paramNames.includes(undefined)) {
+    return false;
+  }
+
+  // Check if args[0..3] are a cyclic rotation of params[0..3]
+  for (let k = 1; k <= CRYPTO_STATE_PARAM_COUNT - 1; k++) {
+    if (argNames.every((arg, i) => arg === paramNames[(i + k) % CRYPTO_STATE_PARAM_COUNT])) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 function extractFunctionParameters(functionDeclaration: FunctionNodeType) {
   return functionDeclaration.params.map(param => {

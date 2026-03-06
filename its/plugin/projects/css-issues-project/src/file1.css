@@ -34,7 +34,7 @@ a:unknown {                                                   /* S4659 | selecto
   width: calc(100% 80px);                                     /* S5362 | sonar/function-calc-no-invalid */
 }
 
-//color: pink;                                               /* S4668 | no-invalid-double-slash-comments */ /* S4654 | property-no-unknown */
+//color: pink;                                               /* S4668 | no-invalid-double-slash-comments */
 
 .class1 {
   width: 100px;

@@ -27,12 +27,8 @@ import * as meta from './generated-meta.js';
  *
  * Suppresses reports when a return statement in a finally block is:
  * 1. The only statement in an IfStatement's consequent (single-statement guard)
- * 2. The IfStatement's test is a simple Identifier (boolean flag check like `cancelled`)
- * 3. There are statements after the IfStatement in the finally block
- * 4. The return has no argument (void return, not overriding a value)
- *
- * This pattern is commonly used in React async effect cleanup to prevent
- * state updates on unmounted components.
+ * 2. There are statements after the IfStatement in the finally block
+ * 3. The return has no argument (void return, not overriding a value)
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -76,9 +72,8 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
  * Algorithm:
  * 1. Find the enclosing IfStatement
  * 2. Verify the return is the only statement in the consequent
- * 3. Verify the condition is a simple Identifier
- * 4. Find the finally block containing the IfStatement
- * 5. Verify there are statements after the IfStatement in the finally block
+ * 3. Find the finally block containing the IfStatement
+ * 4. Verify there are statements after the IfStatement in the finally block
  */
 function isGuardReturnInFinally(returnNode: TSESTree.ReturnStatement): boolean {
   // Step 1: Find the enclosing IfStatement
@@ -92,18 +87,13 @@ function isGuardReturnInFinally(returnNode: TSESTree.ReturnStatement): boolean {
     return false;
   }
 
-  // Step 3: Verify the condition is a simple Identifier
-  if (ifStatement.test.type !== 'Identifier') {
-    return false;
-  }
-
-  // Step 4: Find the finally block containing the IfStatement
+  // Step 3: Find the finally block containing the IfStatement
   const finallyBlock = findFinallyBlock(ifStatement);
   if (!finallyBlock) {
     return false;
   }
 
-  // Step 5: Verify there are statements after the IfStatement
+  // Step 4: Verify there are statements after the IfStatement
   return hasStatementsAfter(ifStatement, finallyBlock);
 }
 
