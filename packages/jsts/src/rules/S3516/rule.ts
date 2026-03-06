@@ -24,6 +24,7 @@ import {
   findFirstMatchingAncestor,
   FUNCTION_NODES,
   generateMeta,
+  getBranchBodies,
   getMainFunctionTokenLocation,
   getParent,
   isElementWrite,
@@ -36,6 +37,8 @@ interface FunctionContext {
   codePath: Rule.CodePath;
   containsReturnWithoutValue: boolean;
   returnStatements: estree.ReturnStatement[];
+  conditionalNodes: estree.Node[];
+  sideEffectNodes: estree.ExpressionStatement[];
 }
 
 interface SingleWriteVariable {
@@ -65,6 +68,19 @@ export const rule: Rule.RuleModule = {
         returnStatement => returnStatement.argument as estree.Node,
       );
       if (areAllSameValue(returnedValues, context.sourceCode.getScope(node))) {
+        // Only suppress when the returned value is a non-literal (e.g., a variable used for chaining).
+        // Functions returning literals (false, null, 0, etc.) have no chaining rationale and are always flagged.
+        const firstValue = getLiteralValue(returnedValues[0], context.sourceCode.getScope(node));
+        if (
+          firstValue === undefined &&
+          hasSideEffectOnlyConditional(
+            functionContext.returnStatements,
+            functionContext.conditionalNodes,
+            functionContext.sideEffectNodes,
+          )
+        ) {
+          return;
+        }
         report(
           context,
           {
@@ -81,12 +97,18 @@ export const rule: Rule.RuleModule = {
       }
     }
 
+    const trackConditionalNode = (node: estree.Node) => {
+      functionContextStack.at(-1)?.conditionalNodes.push(node);
+    };
+
     return {
       onCodePathStart(codePath: Rule.CodePath) {
         functionContextStack.push({
           codePath,
           containsReturnWithoutValue: false,
           returnStatements: [],
+          conditionalNodes: [],
+          sideEffectNodes: [],
         });
         codePathSegments.push(currentCodePathSegments);
         currentCodePathSegments = [];
@@ -108,6 +130,20 @@ export const rule: Rule.RuleModule = {
           currentContext.containsReturnWithoutValue =
             currentContext.containsReturnWithoutValue || !returnStatement.argument;
           currentContext.returnStatements.push(returnStatement);
+        }
+      },
+      IfStatement: trackConditionalNode,
+      WhileStatement: trackConditionalNode,
+      DoWhileStatement: trackConditionalNode,
+      ForStatement: trackConditionalNode,
+      ForInStatement: trackConditionalNode,
+      ForOfStatement: trackConditionalNode,
+      SwitchStatement: trackConditionalNode,
+      ExpressionStatement(node: estree.Node) {
+        const exprNode = node as estree.ExpressionStatement;
+        const { expression } = exprNode;
+        if (expression.type === 'CallExpression' || expression.type === 'AssignmentExpression') {
+          functionContextStack.at(-1)?.sideEffectNodes.push(exprNode);
         }
       },
       'FunctionDeclaration:exit': checkOnFunctionExit,
@@ -220,4 +256,49 @@ function evaluateUnaryLiteralExpression(operator: string, innerReturnedValue: Li
     default:
       return undefined;
   }
+}
+
+/**
+ * Returns true if the function body contains a conditional or loop construct where at least
+ * one branch has side effects (call or assignment expressions) but no return statement.
+ * This pattern indicates an intentional invariant return used for chaining or signaling.
+ *
+ * Uses pre-collected conditional nodes and side-effect expression statements captured during
+ * the normal ESLint traversal, avoiding a second pass over the function body.
+ */
+function hasSideEffectOnlyConditional(
+  returnStatements: estree.ReturnStatement[],
+  conditionalNodes: estree.Node[],
+  sideEffectNodes: estree.ExpressionStatement[],
+): boolean {
+  return conditionalNodes.some(condNode =>
+    getBranchBodies(condNode).some(body =>
+      branchHasSideEffectButNoReturn(body, returnStatements, sideEffectNodes),
+    ),
+  );
+}
+
+/**
+ * Returns true if the branch has at least one side effect (call or assignment expression)
+ * but no return statement. Both checks use range containment against pre-collected arrays.
+ */
+function branchHasSideEffectButNoReturn(
+  node: estree.Node,
+  returnStatements: estree.ReturnStatement[],
+  sideEffectNodes: estree.ExpressionStatement[],
+): boolean {
+  const nodeRange = node.range;
+  if (!nodeRange) {
+    return false;
+  }
+  const [branchStart, branchEnd] = nodeRange;
+  const hasReturn = returnStatements.some(
+    ret => ret.range !== undefined && ret.range[0] >= branchStart && ret.range[0] < branchEnd,
+  );
+  if (hasReturn) {
+    return false;
+  }
+  return sideEffectNodes.some(
+    se => se.range !== undefined && se.range[0] >= branchStart && se.range[0] < branchEnd,
+  );
 }
