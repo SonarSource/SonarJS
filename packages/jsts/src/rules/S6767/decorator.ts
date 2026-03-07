@@ -20,7 +20,7 @@ import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import {
   childrenOf,
-  findReactComponentNode,
+  getComponentOrFileScope,
   generateMeta,
   interceptReportForReact,
   isIdentifier,
@@ -41,7 +41,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
       const { node } = descriptor as { node: estree.Node };
-      const componentNode = findReactComponentNode(node, context);
+      const componentNode = getComponentOrFileScope(node, context);
       if (componentNode && hasPropsCall(componentNode, context.sourceCode.visitorKeys)) {
         return;
       }
