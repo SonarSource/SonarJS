@@ -43,7 +43,7 @@ const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclar
  *      class or function component (identified by PascalCase convention).
  *      Falls back to the full file AST if unavailable or no match found.
  */
-export function findReactComponentNode(node: estree.Node, context: Rule.RuleContext): estree.Node {
+export function getComponentOrFileScope(node: estree.Node, context: Rule.RuleContext): estree.Node {
   const ancestors = context.sourceCode.getAncestors(node);
 
   // Strategy A: direct component ancestor

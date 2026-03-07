@@ -173,7 +173,7 @@ Button.propTypes = {
           errors: 1,
         },
         {
-          // TP: static class propTypes — prop is inside ClassDeclaration (Strategy A in findReactComponentNode)
+          // TP: static class propTypes — prop is inside ClassDeclaration (Strategy A in getComponentOrFileScope)
           code: `
 class Button extends React.Component {
   static propTypes = {
