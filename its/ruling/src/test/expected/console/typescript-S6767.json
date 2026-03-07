@@ -1,9 +1,4 @@
 {
-"console:src/components/Header/Header.tsx": [
-8,
-9,
-10
-],
 "console:src/components/InfiniteTable/InfiniteTable.tsx": [
 13,
 17,
@@ -13,77 +8,15 @@
 9,
 12
 ],
-"console:src/components/NodeSelector/NodeSelector.tsx": [
-17
-],
-"console:src/components/ProjectSelection/ProjectSelection.tsx": [
-32,
-33,
-34,
-35,
-36
-],
-"console:src/components/ToggleButton/ToggleButton.tsx": [
-19
-],
-"console:src/components/onboarding/OnboardingPopup/OnboardingPopup.tsx": [
-15
-],
 "console:src/views/FunctionsView/FunctionPopup/Trigger.tsx": [
 14
-],
-"console:src/views/FunctionsView/FunctionRow.tsx": [
-24
-],
-"console:src/views/FunctionsView/FunctionsView.tsx": [
-10
-],
-"console:src/views/Integrations/Algolia/AlgoliaView.tsx": [
-27
 ],
 "console:src/views/Integrations/Algolia/ConfirmOperationsPopup.tsx": [
 10,
 13
 ],
-"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopup.tsx": [
-22,
-28
-],
-"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndexes.tsx": [
-14,
-16
-],
-"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
-34,
-35,
-39
-],
 "console:src/views/PermissionsView/RelationPermissionPopup/RelationBaseSettings.tsx": [
 7
-],
-"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx": [
-35,
-36,
-40
-],
-"console:src/views/ProjectRootView/OnboardSideNav.tsx": [
-14,
-15
-],
-"console:src/views/ProjectRootView/Onboarding/FinalPopup.tsx": [
-12
-],
-"console:src/views/ProjectRootView/Onboarding/SelectExample.tsx": [
-11
-],
-"console:src/views/ProjectRootView/ProjectRootView.tsx": [
-46
-],
-"console:src/views/ProjectRootView/SideNav.tsx": [
-34,
-35,
-40,
-45
 ],
 "console:src/views/RelationsPopup/ConfirmPopup.tsx": [
 15,
@@ -94,49 +27,17 @@
 16,
 18
 ],
-"console:src/views/RelationsPopup/SetMutation.tsx": [
-28,
-29
-],
-"console:src/views/SchemaView/EnumsOverview/AddEnum.tsx": [
-40,
-41,
-42
-],
 "console:src/views/SchemaView/EnumsOverview/ConfirmEnum.tsx": [
 15
 ],
-"console:src/views/SchemaView/EnumsOverview/EnumBox.tsx": [
-23,
-27,
-28
-],
-"console:src/views/SchemaView/EnumsOverview/EnumsOverview.tsx": [
-12
-],
 "console:src/views/SchemaView/EnumsOverview/EnumsOverviewHeader.tsx": [
 5
-],
-"console:src/views/SchemaView/SchemaEditor.tsx": [
-21,
-27
 ],
 "console:src/views/SchemaView/SchemaOverview/ConfirmModel.tsx": [
 15
 ],
 "console:src/views/SchemaView/SchemaOverview/SchemaOverviewHeader.tsx": [
 8
-],
-"console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
-25
-],
-"console:src/views/Settings/Billing/Billing.tsx": [
-41,
-42,
-46
-],
-"console:src/views/Settings/Billing/ChangePricingPlan.tsx": [
-11
 ],
 "console:src/views/Settings/Billing/CreditCardBack.tsx": [
 9,
@@ -145,65 +46,13 @@
 "console:src/views/Settings/Billing/CurrentPlan.tsx": [
 14
 ],
-"console:src/views/account/AccountView/SettingsTab.tsx": [
-14
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
-16,
-20
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-44,
-45,
-51,
-64
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-34
-],
 "console:src/views/models/DatabrowserView/CheckboxCell.tsx": [
 9
 ],
 "console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
 20
 ],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-66,
-67,
-68,
-69,
-70,
-71,
-72,
-73,
-78,
-81,
-82,
-101,
-102,
-127
-],
-"console:src/views/models/DatabrowserView/NewRow.tsx": [
-30,
-31,
-35
-],
 "console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
 18
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-53
-],
-"console:src/views/models/ModelHeader.tsx": [
-35,
-37
-],
-"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopup.tsx": [
-19
-],
-"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
-67,
-70,
-71
 ]
 }

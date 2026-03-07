@@ -1,45 +1,7 @@
 {
-"ant-design:components/anchor/Anchor.tsx": [
-70
-],
-"ant-design:components/auto-complete/index.tsx": [
-43
-],
 "ant-design:components/button/LoadingIcon.tsx": [
 41,
 41
-],
-"ant-design:components/config-provider/index.tsx": [
-60,
-61,
-65,
-73,
-76,
-80
-],
-"ant-design:components/descriptions/Row.tsx": [
-94,
-96
-],
-"ant-design:components/input/ClearableLabeledInput.tsx": [
-32,
-40,
-42,
-43,
-44,
-45
-],
-"ant-design:components/page-header/index.tsx": [
-19,
-21,
-22,
-26,
-28,
-29,
-30
-],
-"ant-design:components/progress/Circle.tsx": [
-11
 ],
 "ant-design:components/skeleton/Element.tsx": [
 10
