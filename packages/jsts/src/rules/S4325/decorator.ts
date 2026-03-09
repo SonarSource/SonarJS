@@ -20,13 +20,13 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode } from '../helpers/type.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import {
-  generateMeta,
-  getTypeFromTreeNode,
-  interceptReport,
   isRequiredParserServices,
   type RequiredParserServices,
-} from '../helpers/index.js';
+} from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 /**
