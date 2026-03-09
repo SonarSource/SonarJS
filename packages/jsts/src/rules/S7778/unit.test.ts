@@ -1,0 +1,104 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import { rule } from './index.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
+
+describe('S7778', () => {
+  it('S7778', () => {
+    const noTypeCheckingRuleTester = new DefaultParserRuleTester();
+    noTypeCheckingRuleTester.run('Conservative fallback without type information', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+const items = [];
+items.push(1);
+items.push(2);
+`,
+          errors: 1,
+        },
+        {
+          code: `
+importScripts('a.js');
+importScripts('b.js');
+`,
+          errors: 1,
+        },
+      ],
+    });
+
+    const ruleTester = new RuleTester();
+    ruleTester.run('Combine consecutive method calls', rule, {
+      valid: [
+        {
+          // https://community.sonarsource.com/t/typescript-s7778-incorrectly-reporting-on-methods-that-dont-accept-multiple-arguments/179057
+          code: `
+class CustomClass {
+  push(item: number): void {}
+}
+const instance = new CustomClass();
+instance.push(1);
+instance.push(2); // Compliant: not an Array
+`,
+        },
+        {
+          code: `
+class CustomTokenList {
+  add(token: string): void {}
+  remove(token: string): void {}
+}
+class VirtualElement {
+  readonly classList = new CustomTokenList();
+}
+const el = new VirtualElement();
+el.classList.add('active');
+el.classList.add('visible'); // Compliant: not a DOMTokenList
+el.classList.remove('hidden');
+el.classList.remove('inactive'); // Compliant: not a DOMTokenList
+`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+const items: number[] = [];
+items.push(1);
+items.push(2);
+`,
+          errors: 1,
+        },
+        {
+          code: `
+const element = document.createElement('div');
+element.classList.add('foo');
+element.classList.add('bar');
+`,
+          errors: 1,
+        },
+        {
+          code: `
+const element = document.createElement('div');
+element.classList.remove('foo');
+element.classList.remove('bar');
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
