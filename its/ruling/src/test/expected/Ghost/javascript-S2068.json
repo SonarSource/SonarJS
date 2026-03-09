@@ -1,5 +1,6 @@
 {
 "Ghost:core/test/functional/base.js": [
+29,
 49
 ],
 "Ghost:core/test/integration/api/api_authentication_spec.js": [
