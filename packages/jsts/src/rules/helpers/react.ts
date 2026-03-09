@@ -34,16 +34,21 @@ const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclar
 
 /**
  * Given a reported AST node (e.g., a prop name inside an interface/propTypes),
- * returns the React component node that owns it.
+ * returns the React component node that owns it, or `undefined` if no owner can be identified.
  *
  * Uses three strategies:
  *   A. Walk ancestors for a direct component ancestor.
  *   B. Walk ancestors for a `Foo.propTypes = {...}` assignment; resolve Foo's declaration.
  *   C. Use the TypeScript type checker to match the props interface to its owning
  *      class or function component (identified by PascalCase convention).
- *      Falls back to the full file AST if unavailable or no match found.
+ *
+ * Returns `undefined` if all strategies fail — callers should pass the report through
+ * without suppression rather than falling back to a file-wide scan.
  */
-export function getComponentOrFileScope(node: estree.Node, context: Rule.RuleContext): estree.Node {
+export function getComponentOrFileScope(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): estree.Node | undefined {
   const ancestors = context.sourceCode.getAncestors(node);
 
   // Strategy A: direct component ancestor
@@ -75,9 +80,7 @@ export function getComponentOrFileScope(node: estree.Node, context: Rule.RuleCon
   }
 
   // Strategy C: TypeScript type checker — match the props interface to its owning component
-  return (
-    findOwnerByType(ancestors, context, context.sourceCode.visitorKeys) ?? context.sourceCode.ast
-  );
+  return findOwnerByType(ancestors, context, context.sourceCode.visitorKeys);
 }
 
 function findOwnerByType(
