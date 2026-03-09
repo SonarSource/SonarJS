@@ -14,8 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { QuickFix } from '../../../../shared/src/types/location.js';
-import type { Location } from '../../../../shared/src/types/location.js';
+import type { QuickFix, Location } from '../../../../shared/src/types/location.js';
 import type { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
 import type { BaseIssue } from '../../../../shared/src/types/analysis.js';
