@@ -120,6 +120,17 @@ describe('S2234', () => {
         `,
         },
         {
+          // False positive: string literal key 'rtl' is handled the same as identifier key 'rtl'
+          code: `
+        function doLayout(left, right) {}
+        var left = 0, right = 100;
+        var layoutHandlers = {
+          'ltr': function () { doLayout(left, right); },
+          'rtl': function () { doLayout(right, left); },
+        };
+        `,
+        },
+        {
           // False positive: parameter swap inside 'rtl' property represents intentional reversed range
           code: `
         function relativeToNative(win, startSitu, finishSitu) {}
