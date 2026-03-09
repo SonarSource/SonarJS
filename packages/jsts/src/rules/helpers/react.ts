@@ -132,8 +132,12 @@ function matchesClassProps(
   if (!propsSymbol) {
     return false;
   }
+  const componentPropsType = checker.getTypeOfSymbol(propsSymbol);
   // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-  return checker.isTypeAssignableTo(propsType, checker.getTypeOfSymbol(propsSymbol));
+  return (
+    checker.isTypeAssignableTo(propsType, componentPropsType) &&
+    checker.isTypeAssignableTo(componentPropsType, propsType)
+  );
 }
 
 function matchesFunctionProps(
@@ -150,9 +154,14 @@ function matchesFunctionProps(
   }
   const signature = checker.getSignatureFromDeclaration(tsFuncNode);
   const firstParam = signature?.parameters[0];
+  if (firstParam == null) {
+    return false;
+  }
+  const componentParamType = checker.getTypeOfSymbol(firstParam);
   // @ts-ignore — isTypeAssignableTo is a private TypeScript API
   return (
-    firstParam != null && checker.isTypeAssignableTo(propsType, checker.getTypeOfSymbol(firstParam))
+    checker.isTypeAssignableTo(propsType, componentParamType) &&
+    checker.isTypeAssignableTo(componentParamType, propsType)
   );
 }
 
