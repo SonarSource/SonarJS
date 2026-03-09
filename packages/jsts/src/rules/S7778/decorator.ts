@@ -139,7 +139,7 @@ function methodHasSingleParameter(
     for (const param of sig.parameters) {
       const declaration = param.valueDeclaration as ts.ParameterDeclaration | undefined;
       // If the parameter has a dotDotDotToken, it's a rest parameter and can accept multiple arguments
-      if (declaration && declaration.dotDotDotToken) {
+      if (declaration?.dotDotDotToken) {
         return false;
       }
     }
