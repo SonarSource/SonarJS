@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isStringLiteral } from '../helpers/ast.js';
-import { isFunction } from '../helpers/type.js';
+import { isFunction, isString as isStringType } from '../helpers/type.js';
 import {
   type RequiredParserServices,
   isRequiredParserServices,
@@ -67,7 +67,7 @@ function isString(
   node: estree.SpreadElement | estree.Expression,
   services?: RequiredParserServices,
 ): boolean {
-  return (isRequiredParserServices(services) && isString(node, services)) || isStringLiteral(node);
+  return isRequiredParserServices(services) ? isStringType(node, services) : isStringLiteral(node);
 }
 
 function isCommonJsImport(
