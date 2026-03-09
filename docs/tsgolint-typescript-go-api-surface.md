@@ -397,3 +397,109 @@ For this effort, these analysis domains remain Node-owned and are not moving to 
 - Non-typechecked fallback analysis of JS/TS files not in tsconfig ([analyzeWithoutProgram.ts](../packages/jsts/src/analysis/projectAnalysis/analyzeWithoutProgram.ts#L38))
 
 So even with a Go expansion for typed TS analysis, the architecture remains hybrid for the foreseeable roadmap: Node continues to own non-typechecked, embedded, CSS, and Vue-specialized analysis.
+
+## 13. ESLint to tsgolint Rule Authoring Quickstart
+
+This section gives a practical mental model for implementing typed rules in `tsgolint` when you are used to ESLint + ESTree + esquery.
+
+### 13.1 Core Model Mapping
+
+| ESLint (Node)                                    | tsgolint (Go)                                                                                                                                                                                                                                                                      |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `create(context)`                                | `Run(ctx rule.RuleContext, options any)` in [`internal/rule/rule.go`](../tsgolint/internal/rule/rule.go)                                                                                                                                                                        |
+| visitor key: `"CallExpression"`                  | listener key: `ast.KindCallExpression` in `rule.RuleListeners`                                                                                                                                                                                                                    |
+| visitor key: `"CallExpression:exit"`             | `rule.ListenerOnExit(ast.KindCallExpression)` (example pattern in [`prefer_readonly.go`](../tsgolint/internal/rules/prefer_readonly/prefer_readonly.go))                                                                                                                       |
+| selector string (`esquery`)                      | no generic selector DSL; use `ast.Kind` listeners + imperative checks inside callbacks                                                                                                                                                                                            |
+| `context.report(...)`                            | `ctx.ReportNode`, `ctx.ReportRange`, `ctx.ReportNodeWithFixes`, `ctx.ReportNodeWithSuggestions` in [`internal/rule/rule.go`](../tsgolint/internal/rule/rule.go)                                                                                                                |
+| parser services + TS checker                     | direct `ctx.Program` and `ctx.TypeChecker` (same `RuleContext`)                                                                                                                                                                                                                   |
+| autofix via fixer API                            | `rule.RuleFix*` helpers (`RuleFixInsertBefore`, `RuleFixReplace`, `RuleFixRemoveRange`, etc.) in [`internal/rule/rule.go`](../tsgolint/internal/rule/rule.go)                                                                                                                 |
+
+In short: tsgolint keeps the rule-authoring shape familiar (listeners + context + report/fix), but operates on TypeScript-go AST nodes directly instead of ESTree nodes selected through esquery.
+
+### 13.2 "Selector Equivalents" in Practice
+
+For selector-like behavior:
+
+1. Register the narrowest `ast.Kind...` listener you can.
+2. Add guard conditions in code (`ast.IsX(...)`, property/name checks, type checks).
+3. Use `ListenerOnExit(...)` where ESLint used `:exit`.
+4. Use `ListenerOnAllowPattern(...)` / `ListenerOnNotAllowPattern(...)` only for rules that depend on the assignment-pattern semantics implemented in the linter walker (see traversal notes in [`internal/linter/linter.go`](../tsgolint/internal/linter/linter.go)).
+
+Examples:
+
+- Direct node listener: [`await_thenable.go`](../tsgolint/internal/rules/await_thenable/await_thenable.go)
+- Exit listener usage: [`dot_notation.go`](../tsgolint/internal/rules/dot_notation/dot_notation.go)
+- Pattern-aware listeners: [`no_misused_spread.go`](../tsgolint/internal/rules/no_misused_spread/no_misused_spread.go), [`no_unsafe_assignment.go`](../tsgolint/internal/rules/no_unsafe_assignment/no_unsafe_assignment.go)
+
+### 13.3 AST Navigation in tsgolint
+
+Common navigation primitives:
+
+- Node kind check: `node.Kind == ast.Kind...`
+- Type guards: `ast.IsCallExpression(node)`, `ast.IsPropertyAccessExpression(node)`, etc. (from [`shim/ast/shim.go`](../tsgolint/shim/ast/shim.go))
+- Accessors/casts: `node.AsCallExpression()`, `node.Expression()`, `node.Name()`, `node.Parent`
+- Child traversal when needed: `node.ForEachChild(...)`
+- Type-level analysis: `ctx.TypeChecker.GetTypeAtLocation(...)`, `ctx.TypeChecker.GetSymbolAtLocation(...)`, plus helpers in [`internal/utils/ts_api_utils.go`](../tsgolint/internal/utils/ts_api_utils.go)
+
+### 13.4 Minimal Rule Skeleton
+
+```go
+package no_console_log
+
+import (
+  "github.com/microsoft/typescript-go/shim/ast"
+  "github.com/typescript-eslint/tsgolint/internal/rule"
+)
+
+var NoConsoleLogRule = rule.Rule{
+  Name: "no-console-log",
+  Run: func(ctx rule.RuleContext, options any) rule.RuleListeners {
+    return rule.RuleListeners{
+      ast.KindCallExpression: func(node *ast.Node) {
+        callee := node.Expression()
+        if !ast.IsPropertyAccessExpression(callee) {
+          return
+        }
+        p := callee.AsPropertyAccessExpression()
+        if ast.IsIdentifier(p.Expression) &&
+          p.Expression.AsIdentifier().Text == "console" &&
+          p.Name().Text() == "log" {
+          ctx.ReportNode(callee, rule.RuleMessage{
+            Id:          "avoidConsoleLog",
+            Description: "Avoid console.log",
+          })
+        }
+      },
+    }
+  },
+}
+```
+
+### 13.5 Step-by-Step in This Repository
+
+1. Create rule package under `tsgolint/internal/rules/<rule_name>/`.
+2. Add `<rule_name>.go` with a `rule.Rule` implementation.
+3. Add `<rule_name>_test.go` using [`rule_tester.RunRuleTester`](../tsgolint/internal/rule_tester/rule_tester.go).
+4. Register rule in tsgolint CLI/headless registry in [`tsgolint/cmd/tsgolint/main.go`](../tsgolint/cmd/tsgolint/main.go).
+5. If rule has options:
+   - add `schema.json` in the rule directory
+   - run `node tools/gen-json-schemas.mjs`
+   - parse options with `utils.UnmarshalOptions[...]` (usage pattern in [`prefer_readonly.go`](../tsgolint/internal/rules/prefer_readonly/prefer_readonly.go))
+6. Validate with:
+   - `go test ./internal/rules/<rule_name>`
+   - `go test ./internal/...`
+
+### 13.6 SonarJS gRPC Offload Wiring (If Rule Should Run via Go Path)
+
+Adding a rule to `tsgolint` alone is not enough for SonarJS gRPC offload.
+
+You also need to wire mappings and enabled lists:
+
+1. Add the rule to `allRules` in Go analyzer rule lists:
+   - [`sonar-plugin/bridge/src/main/go/sonar-server/rules.go`](../sonar-plugin/bridge/src/main/go/sonar-server/rules.go)
+   - mirrored copy: [`tsgolint/cmd/sonar-server/rules.go`](../tsgolint/cmd/sonar-server/rules.go)
+2. Add Sonar-key <-> ESLint-name mapping on Java side:
+   - offloaded set and forward map in [`JsTsChecks.java`](../sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/analysis/JsTsChecks.java)
+   - reverse conversion map in [`TsgolintIssueConverter.java`](../sonar-plugin/bridge/src/main/java/org/sonar/plugins/javascript/bridge/TsgolintIssueConverter.java)
+
+Without those mappings, the rule either will not be requested by the scanner or returned diagnostics will not map back to Sonar rule keys.
