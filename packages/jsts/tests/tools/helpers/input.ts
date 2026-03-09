@@ -17,7 +17,7 @@
 import { readFile, type NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { EmbeddedAnalysisInput } from '../../../src/embedded/analysis/analysis.js';
 import { JsTsAnalysisInput, JSTS_ANALYSIS_DEFAULTS } from '../../../src/analysis/analysis.js';
-import { normalizeToAbsolutePath } from '../../../src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../../src/rules/helpers/files.js';
 
 /**
  * Test input type that allows partial JsTsAnalysisInput fields for convenience.

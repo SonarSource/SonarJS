@@ -19,7 +19,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getFullyQualifiedName } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
 const EVAL_LIKE_FUNCTIONS: Set<string> = new Set([
@@ -46,10 +47,7 @@ export const rule: Rule.RuleModule = {
       NewExpression: (node: estree.Node) =>
         checkCallExpression(node as estree.CallExpression, context),
       TemplateLiteral: (node: estree.TemplateLiteral) => {
-        if (
-          node.expressions.length > 0 &&
-          /^javascript:/i.exec(node.quasis[0].value.raw)
-        ) {
+        if (node.expressions.length > 0 && /^javascript:/i.exec(node.quasis[0].value.raw)) {
           context.report({ messageId: 'unexpectedScriptURL', node });
         }
       },

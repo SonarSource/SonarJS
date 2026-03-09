@@ -17,14 +17,10 @@
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
-import {
-  generateMeta,
-  getTypeFromTreeNode,
-  interceptReport,
-  isAny,
-  isRequiredParserServices,
-  isIterable,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode, isAny, isIterable } from '../helpers/type.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 /**

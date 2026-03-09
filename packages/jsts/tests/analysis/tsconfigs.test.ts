@@ -22,7 +22,7 @@ import {
 } from '../../src/analysis/projectAnalysis/file-stores/index.js';
 import { expect } from 'expect';
 import { join, relative } from 'node:path/posix';
-import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 import { createConfiguration } from '../../../shared/src/helpers/configuration.js';
 
 const fixtures = normalizeToAbsolutePath(

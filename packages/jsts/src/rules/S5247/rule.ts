@@ -20,14 +20,14 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
   checkSensitiveCall,
-  generateMeta,
-  getFullyQualifiedName,
   getValueOfExpression,
   isIdentifier,
-  isRequiredParserServices,
-  report,
   resolveFromFunctionReference,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { report } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 const MESSAGE = 'Make sure disabling auto-escaping feature is safe here.';

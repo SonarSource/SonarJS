@@ -19,7 +19,8 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { type AST, visitRegExpAST } from '@eslint-community/regexpp';
-import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 import { extractReferences, type GroupReference } from '../helpers/regex/group.js';
 import { getParsedRegex } from '../helpers/regex/extract.js';

@@ -17,7 +17,7 @@
 import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import type * as regexpp from '@eslint-community/regexpp';
-import { isRegexLiteral, isStringLiteral } from '../index.js';
+import { isRegexLiteral, isStringLiteral } from '../ast.js';
 import { getRegexpRange } from './range.js';
 
 /**

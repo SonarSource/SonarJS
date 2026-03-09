@@ -17,7 +17,8 @@
 import { Rule } from 'eslint';
 import { RuleTester } from 'eslint';
 import type estree from 'estree';
-import { Express, getProperty } from '../../../src/rules/helpers/index.js';
+import { Express } from '../../../src/rules/helpers/express.js';
+import { getProperty } from '../../../src/rules/helpers/ast.js';
 
 const rule = Express.SensitiveMiddlewarePropertyRule(
   (context: Rule.RuleContext, node: estree.CallExpression): estree.Property[] => {

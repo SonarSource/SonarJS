@@ -18,12 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  generateMeta,
-  getFullyQualifiedName,
-  getUniqueWriteUsageOrNode,
-  isStringLiteral,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getUniqueWriteUsageOrNode, isStringLiteral } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const message = 'Make sure this weak hash algorithm is not used in a sensitive context here.';

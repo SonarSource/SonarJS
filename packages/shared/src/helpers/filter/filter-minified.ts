@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug } from '../logging.js';
-import type { NormalizedAbsolutePath } from '../../../../jsts/src/rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../../../../jsts/src/rules/helpers/files.js';
 
 const DEFAULT_AVERAGE_LINE_LENGTH_THRESHOLD = 200;
 

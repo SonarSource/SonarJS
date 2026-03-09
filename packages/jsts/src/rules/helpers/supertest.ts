@@ -15,12 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import {
-  getFullyQualifiedName,
-  getImportDeclarations,
-  getRequireCalls,
-  getFullyQualifiedNameTS,
-} from './index.js';
+import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './module.js';
+import { getFullyQualifiedNameTS } from './module-ts.js';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';

@@ -18,7 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, isIdentifier, isMemberWithProperty } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isIdentifier, isMemberWithProperty } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const stringMethods = ['match', 'search', 'split'];

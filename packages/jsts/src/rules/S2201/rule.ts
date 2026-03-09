@@ -19,12 +19,10 @@
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import TS from 'typescript';
 import type { Rule, SourceCode } from 'eslint';
-import {
-  childrenOf,
-  generateMeta,
-  getTypeFromTreeNode,
-  isRequiredParserServices,
-} from '../helpers/index.js';
+import { childrenOf } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode } from '../helpers/type.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 

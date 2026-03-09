@@ -17,7 +17,7 @@
 import http from 'node:http';
 import path from 'node:path';
 import { start } from '../src/server.js';
-import { request } from './tools/index.js';
+import { request } from './tools/request.js';
 import { describe, before, after, it } from 'node:test';
 import { expect } from 'expect';
 

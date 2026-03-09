@@ -20,8 +20,8 @@ import {
   dirnamePath,
   basenamePath,
   type NormalizedAbsolutePath,
-} from '../../../jsts/src/rules/helpers/index.js';
-export * from '../../../jsts/src/rules/helpers/index.js';
+} from '../../../jsts/src/rules/helpers/files.js';
+export * from '../../../jsts/src/rules/helpers/files.js';
 
 /**
  * The type of input file

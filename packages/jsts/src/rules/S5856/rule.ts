@@ -17,14 +17,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5856/javascript
 
 import type { Rule } from 'eslint';
-import {
-  generateMeta,
-  getTypeFromTreeNode,
-  isIdentifier,
-  isRequiredParserServices,
-  isStringLiteral,
-  isStringType,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode, isStringType } from '../helpers/type.js';
+import { isIdentifier, isStringLiteral } from '../helpers/ast.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import type estree from 'estree';
 import { RegExpValidator } from '@eslint-community/regexpp';
 import * as meta from './generated-meta.js';

@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule } from './index.js';
+import { rule } from './rule.js';
 import { test } from '../../../tests/tools/testers/comment-based/checker.js';
 import { describe } from 'node:test';
 import * as meta from './generated-meta.js';

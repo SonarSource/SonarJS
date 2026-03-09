@@ -33,7 +33,7 @@ import {
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
-import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using cached SemanticDiagnosticsBuilderPrograms.

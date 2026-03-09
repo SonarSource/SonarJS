@@ -20,13 +20,9 @@ import type { Rule } from 'eslint';
 import { AwsCdkCheckArguments, AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk.js';
 import type { CallExpression, MemberExpression, NewExpression, Node } from 'estree';
 import { getResultOfExpression } from '../helpers/result.js';
-import {
-  generateMeta,
-  getFullyQualifiedName,
-  getUniqueWriteUsageOrNode,
-  isMemberWithProperty,
-  isMethodCall,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getUniqueWriteUsageOrNode, isMemberWithProperty, isMethodCall } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const REST_API_PROPERTIES_POSITION = 2;

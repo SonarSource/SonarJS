@@ -20,7 +20,7 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { parseHTML } from '../../src/parser/parse.js';
 import { build } from '../../../jsts/src/embedded/builder/build.js';
-import { normalizeToAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../../jsts/src/rules/helpers/files.js';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures');

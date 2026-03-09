@@ -18,14 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  generateMeta,
-  getTypeFromTreeNode,
-  isBigIntType,
-  isNumberType,
-  isRequiredParserServices,
-  isStringType,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode, isBigIntType, isNumberType, isStringType } from '../helpers/type.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 const detectReactNativeSelector = [

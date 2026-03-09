@@ -20,15 +20,13 @@ import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import {
   type EncodedMessage,
-  type FunctionNodeType,
   type IssueLocation,
-  type RuleContext,
-  childrenOf,
-  generateMeta,
   getMainFunctionTokenLocation,
-  getParent,
-  isFunctionNode,
-} from '../helpers/index.js';
+} from '../helpers/location.js';
+import { type FunctionNodeType, isFunctionNode } from '../helpers/ast.js';
+import type { RuleContext } from '../helpers/type.js';
+import { childrenOf, getParent } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';

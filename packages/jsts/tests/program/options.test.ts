@@ -18,7 +18,7 @@ import path from 'node:path/posix';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
-import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 import {
   createProgramOptions,
   createProgramOptionsFromJson,

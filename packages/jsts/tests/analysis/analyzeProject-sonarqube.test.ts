@@ -18,7 +18,7 @@
 import { describe, it, beforeEach, type Mock, mock } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
-import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 import {
   analyzeProject,
   cancelAnalysis,

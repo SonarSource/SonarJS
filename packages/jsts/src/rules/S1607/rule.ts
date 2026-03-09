@@ -18,9 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import {
-  generateMeta,
-  getFullyQualifiedName,
   getProperty,
   getValueOfExpression,
   isFunctionInvocation,
@@ -28,7 +28,7 @@ import {
   isLiteral,
   isMethodInvocation,
   resolveFunction,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';

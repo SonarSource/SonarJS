@@ -21,13 +21,12 @@ import type estree from 'estree';
 import tsTypes from 'typescript';
 import {
   type RequiredParserServices,
-  generateMeta,
-  getTypeFromTreeNode,
   isRequiredParserServices,
-  isStringLiteral,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/parser-services.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode } from '../helpers/type.js';
+import { isStringLiteral } from '../helpers/ast.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 const message = `Review this expression to be sure that the concatenation was intended.`;

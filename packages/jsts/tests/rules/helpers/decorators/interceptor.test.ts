@@ -16,11 +16,11 @@
  */
 import { Rule } from 'eslint';
 import { NoTypeCheckingRuleTester, Tests } from '../../../tools/testers/rule-tester.js';
-import { interceptReport } from '../../../../src/rules/helpers/index.js';
+import { interceptReport } from '../../../../src/rules/helpers/decorators/interceptor.js';
 // Covers `getDeclaredVariables`, `getScope`, `getSourceCode`.
-import { rule as noParameterReassignment } from '../../../../src/rules/S1226/index.js';
+import { rule as noParameterReassignment } from '../../../../src/rules/S1226/rule.js';
 // Covers `getFilename`
-import { rule as noImplicitDependencies } from '../../../../src/rules/S4328/index.js';
+import { rule as noImplicitDependencies } from '../../../../src/rules/S4328/rule.js';
 import path from 'node:path';
 import { describe } from 'node:test';
 

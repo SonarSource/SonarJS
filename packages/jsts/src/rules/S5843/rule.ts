@@ -22,17 +22,19 @@ import { visitRegExpAST, type AST } from '@eslint-community/regexpp';
 import {
   type IssueLocation,
   type LocationHolder,
-  generateMeta,
+  report,
+  toSecondaryLocation,
+} from '../helpers/location.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import {
   getUniqueWriteUsage,
   isBinaryPlus,
   isIdentifier,
   isRegexLiteral,
-  isRequiredParserServices,
   isStaticTemplateLiteral,
   isStringLiteral,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import { isRegExpConstructor, isStringRegexMethodCall } from '../helpers/regex/ast.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';

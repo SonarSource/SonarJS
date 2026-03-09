@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { build } from '../../../../../src/builders/build.js';
-import { normalizeToAbsolutePath } from '../../../../../src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../../../../src/rules/helpers/files.js';
 import { JSTS_ANALYSIS_DEFAULTS } from '../../../../../src/analysis/analysis.js';
 import type estree from 'estree';
 

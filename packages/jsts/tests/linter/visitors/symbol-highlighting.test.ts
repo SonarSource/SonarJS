@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Linter } from 'eslint';
-import { Location } from '../../../src/linter/visitors/metrics/helpers/index.js';
+import { Location } from '../../../src/linter/visitors/metrics/helpers/location.js';
 import path from 'node:path';
 import { parseTypeScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { describe, it } from 'node:test';

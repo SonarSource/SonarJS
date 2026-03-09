@@ -20,7 +20,9 @@ import { AwsCdkCheckArguments, AwsCdkTemplate } from '../helpers/aws/cdk.js';
 import type { Rule } from 'eslint';
 import type { NewExpression, Node } from 'estree';
 import { type Result, getResultOfExpression } from '../helpers/result.js';
-import { generateMeta, getFullyQualifiedName, isCallingMethod } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { isCallingMethod } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const PROPERTIES_POSITION = 2;

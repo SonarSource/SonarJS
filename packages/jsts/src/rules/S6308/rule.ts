@@ -19,12 +19,9 @@
 import type { Rule } from 'eslint';
 import { AwsCdkTemplate } from '../helpers/aws/cdk.js';
 import type { NewExpression, Node } from 'estree';
-import {
-  generateMeta,
-  getFullyQualifiedName,
-  isBooleanLiteral,
-  isStringLiteral,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { isBooleanLiteral, isStringLiteral } from '../helpers/ast.js';
 import { getResultOfExpression } from '../helpers/result.js';
 import * as meta from './generated-meta.js';
 

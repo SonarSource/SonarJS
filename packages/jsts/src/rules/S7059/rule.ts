@@ -17,12 +17,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7059/javascript
 
 import type { Rule } from 'eslint';
-import {
-  isRequiredParserServices,
-  generateMeta,
-  isThenable,
-  isFunctionNode,
-} from '../helpers/index.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isThenable } from '../helpers/type.js';
+import { isFunctionNode } from '../helpers/ast.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 

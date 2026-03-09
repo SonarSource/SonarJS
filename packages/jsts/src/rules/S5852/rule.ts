@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import type { AST } from '@eslint-community/regexpp';
 import { analyse } from 'scslre';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 

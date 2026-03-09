@@ -20,15 +20,17 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import {
   type IssueLocation,
-  generateMeta,
-  getFullyQualifiedName,
+  report as contextReport,
+  toSecondaryLocation,
+} from '../helpers/location.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import {
   getLhsVariable,
   getProperty,
   getValueOfExpression,
   getVariableFromName,
-  report as contextReport,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const FORMIDABLE_MODULE = 'formidable';

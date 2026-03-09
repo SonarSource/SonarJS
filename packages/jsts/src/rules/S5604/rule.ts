@@ -18,12 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  generateMeta,
-  getValueOfExpression,
-  isIdentifier,
-  isMemberExpression,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getValueOfExpression, isIdentifier, isMemberExpression } from '../helpers/ast.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 

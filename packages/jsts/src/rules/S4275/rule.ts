@@ -19,17 +19,12 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  generateMeta,
-  getVariableFromName,
-  interceptReport,
-  isMethodInvocation,
-  isStringLiteral,
-  last,
-  mergeRules,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getVariableFromName, isMethodInvocation, isStringLiteral } from '../helpers/ast.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { last } from '../helpers/collection.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import { getESLintCoreRule } from '../external/core.js';
 import * as meta from './generated-meta.js';
 

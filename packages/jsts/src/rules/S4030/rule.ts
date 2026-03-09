@@ -18,14 +18,10 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope } from 'eslint';
-import {
-  collectionConstructor,
-  findFirstMatchingAncestor,
-  generateMeta,
-  isElementWrite,
-  isIdentifier,
-  writingMethods,
-} from '../helpers/index.js';
+import { collectionConstructor, writingMethods } from '../helpers/collection.js';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isElementWrite, isIdentifier } from '../helpers/ast.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 

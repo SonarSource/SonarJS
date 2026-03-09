@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import { isRequiredParserServices } from '../../helpers/index.js';
+import { isRequiredParserServices } from '../../helpers/parser-services.js';
 
 /**
  * Sanitizes a TypeScript ESLint rule

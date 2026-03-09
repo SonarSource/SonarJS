@@ -18,7 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, interceptReport, UTILITY_TYPES } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { UTILITY_TYPES } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 // core implementation of this rule raises issues on empty interface extending TypeScript utility types

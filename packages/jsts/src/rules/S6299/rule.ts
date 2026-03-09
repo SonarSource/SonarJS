@@ -19,7 +19,7 @@
 import type estree from 'estree';
 import type { Rule } from 'eslint';
 import type { AST } from 'vue-eslint-parser';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

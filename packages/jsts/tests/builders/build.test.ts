@@ -21,7 +21,7 @@ import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { build } from '../../src/builders/build.js';
 import { APIError } from '../../../shared/src/errors/error.js';
-import { normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 
 describe('buildSourceCode', () => {
   it('should build JavaScript source code', async () => {

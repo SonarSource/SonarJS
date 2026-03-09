@@ -18,7 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type * as regexpp from '@eslint-community/regexpp';
-import { generateMeta, last } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { last } from '../helpers/collection.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule, type RegexRuleContext } from '../helpers/regex/rule-template.js';
 

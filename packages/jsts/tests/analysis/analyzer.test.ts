@@ -22,7 +22,7 @@ import {
   normalizePath,
   normalizeToAbsolutePath,
   dirnamePath,
-} from '../../src/rules/helpers/index.js';
+} from '../../src/rules/helpers/files.js';
 import { analyzeJSTS } from '../../src/analysis/analyzer.js';
 import type { JsTsIssue } from '../../src/linter/issues/issue.js';
 import { APIError } from '../../../shared/src/errors/error.js';

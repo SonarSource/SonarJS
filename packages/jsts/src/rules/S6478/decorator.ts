@@ -18,13 +18,11 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  type RuleContext,
-  functionLike,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  interceptReportForReact,
-} from '../helpers/index.js';
+import type { RuleContext } from '../helpers/type.js';
+import { functionLike } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation } from '../helpers/location.js';
+import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 

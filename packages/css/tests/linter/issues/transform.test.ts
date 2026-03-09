@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import stylelint from 'stylelint';
-import { transform } from '../../../src/linter/issues/index.js';
+import { transform } from '../../../src/linter/issues/transform.js';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';

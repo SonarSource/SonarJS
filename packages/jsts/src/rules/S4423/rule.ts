@@ -19,7 +19,8 @@
 import type { Rule } from 'eslint';
 import { rule as librariesRule } from './rule.lib.js';
 import { rule as awsRule } from './rule.aws.js';
-import { generateMeta, mergeRules } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

@@ -18,16 +18,16 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { Chai } from '../helpers/chai.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import {
-  Chai,
-  generateMeta,
   getUniqueWriteUsageOrNode,
   isIdentifier,
   isMethodCall,
   isNumberLiteral,
   isThisExpression,
-  Mocha,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
+import { Mocha } from '../helpers/mocha.js';
 import * as meta from './generated-meta.js';
 
 const MESSAGE =

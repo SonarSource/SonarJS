@@ -17,14 +17,10 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import {
-  findFirstMatchingAncestor,
-  flatMap,
-  getFullyQualifiedName,
-  last,
-  report,
-  toSecondaryLocation,
-} from './index.js';
+import { findFirstMatchingAncestor } from './ancestor.js';
+import { flatMap, last } from './collection.js';
+import { getFullyQualifiedName } from './module.js';
+import { report, toSecondaryLocation } from './location.js';
 
 export type Node = estree.Node | TSESTree.Node;
 

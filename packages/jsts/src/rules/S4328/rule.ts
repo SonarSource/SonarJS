@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import builtins from 'builtin-modules';
 import ts from 'typescript';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 import type { Minimatch } from 'minimatch';

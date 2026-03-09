@@ -18,18 +18,12 @@
 
 import type { Rule } from 'eslint';
 import type { NewExpression, ObjectExpression, Property } from 'estree';
-import {
-  findPropagatedSetting,
-  generateMeta,
-  getBucketProperty,
-  getFullyQualifiedName,
-  getValueOfExpression,
-  isIdentifier,
-  isProperty,
-  normalizeFQN,
-  report,
-  S3BucketTemplate,
-} from '../helpers/index.js';
+import { findPropagatedSetting, getBucketProperty, S3BucketTemplate } from '../helpers/aws/s3.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getValueOfExpression, isIdentifier, isProperty } from '../helpers/ast.js';
+import { normalizeFQN } from '../helpers/aws/cdk.js';
+import { report } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 const BLOCK_PUBLIC_ACCESS_KEY = 'blockPublicAccess';

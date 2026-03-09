@@ -20,12 +20,12 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getNodeParent } from '../helpers/ancestor.js';
 import {
-  generateMeta,
-  getNodeParent,
   isRequiredParserServices,
   type RequiredParserServices,
-} from '../helpers/index.js';
+} from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
