@@ -288,4 +288,47 @@ Button.propTypes = { color: PropTypes.string };
       ],
     });
   });
+
+  it('upstream rule should NOT report state interface properties when TypeScript type info is available', () => {
+    // Confirms that the upstream rule uses TypeScript type information to distinguish
+    // state types from props types. AnchorState (used as the second type parameter of
+    // React.Component) should not be reported as unused props.
+    // This explains why the ant-design/Anchor.tsx:70 ruling entry was correctly removed:
+    // the upstream rule handles it on its own with TypeScript — the decorator does not
+    // need to suppress it.
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types (upstream, with TypeScript)', upstreamRule, {
+      valid: [
+        {
+          // AnchorState is the second type parameter (state), not props — upstream rule
+          // correctly does not flag activeLink as an unused prop when type info is present.
+          code: `
+declare const React: any;
+interface AnchorState {
+  activeLink: null | string;
+}
+interface AnchorProps {
+  href?: string;
+}
+class Anchor extends React.Component<AnchorProps, AnchorState> {
+  render() {
+    const { activeLink } = this.state;
+    return <a href={this.props.href}>{activeLink}</a>;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [],
+    });
+  });
 });
