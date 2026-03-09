@@ -22,7 +22,7 @@ import type { ProgressReport } from '../../../../shared/src/helpers/progress-rep
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { analyzeFile } from './analyzeFile.js';
-import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
 
 /**
  * Analyzes files without type-checking.

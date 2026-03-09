@@ -19,16 +19,14 @@
 import type { Rule } from 'eslint';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { getESLintCoreRule } from '../external/core.js';
-import {
-  type RuleContext,
-  areEquivalent,
-  findFirstMatchingLocalAncestor,
-  FUNCTION_NODES,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  interceptReport,
-  mergeRules,
-} from '../helpers/index.js';
+import type { RuleContext } from '../helpers/type.js';
+import { areEquivalent } from '../helpers/equivalence.js';
+import { findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
+import { FUNCTION_NODES } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation } from '../helpers/location.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 

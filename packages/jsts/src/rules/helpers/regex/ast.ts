@@ -15,7 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import { type RequiredParserServices, isIdentifier, isString } from '../index.js';
+import type { RequiredParserServices } from '../parser-services.js';
+import { isIdentifier } from '../ast.js';
+import { isString } from '../type.js';
 
 export function isRegExpConstructor(node: estree.Node): node is estree.CallExpression {
   return (

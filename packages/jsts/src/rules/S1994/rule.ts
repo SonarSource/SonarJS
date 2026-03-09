@@ -18,7 +18,10 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { areEquivalent, generateMeta, getParent, last } from '../helpers/index.js';
+import { areEquivalent } from '../helpers/equivalence.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getParent } from '../helpers/ancestor.js';
+import { last } from '../helpers/collection.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 

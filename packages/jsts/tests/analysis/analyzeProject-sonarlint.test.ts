@@ -20,7 +20,7 @@ import { expect } from 'expect';
 import { join } from 'node:path/posix';
 import { mkdtemp, rm, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 import {
   analyzeProject,
   cancelAnalysis,

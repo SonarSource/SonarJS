@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { NormalizedAbsolutePath } from '../../../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../../../rules/helpers/files.js';
 import type { Configuration } from '../../../../../shared/src/helpers/configuration.js';
 import type { JsTsFiles } from '../projectAnalysis.js';
 

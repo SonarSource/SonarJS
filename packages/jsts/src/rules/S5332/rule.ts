@@ -17,7 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5332/javascript
 
 import type { Rule } from 'eslint';
-import { generateMeta, mergeRules } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
 import { rule as networkProtocolsRule } from './rule.lib.js';
 import { rule as awsRule } from './rule.aws.js';
 import * as meta from './generated-meta.js';

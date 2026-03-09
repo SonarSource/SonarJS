@@ -18,7 +18,10 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getParent, isArray, isRequiredParserServices } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getParent } from '../helpers/ancestor.js';
+import { isArray } from '../helpers/type.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 const ArrayDeleteExpression =

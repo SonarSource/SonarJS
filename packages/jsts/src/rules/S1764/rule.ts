@@ -17,15 +17,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1764
 
 import type estree from 'estree';
-import {
-  type IssueLocation,
-  areEquivalent,
-  generateMeta,
-  isIdentifier,
-  isLiteral,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { type IssueLocation, report, toSecondaryLocation } from '../helpers/location.js';
+import { areEquivalent } from '../helpers/equivalence.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isIdentifier, isLiteral } from '../helpers/ast.js';
 import type { Rule } from 'eslint';
 import * as meta from './generated-meta.js';
 import { isSonarRuntime } from '../helpers/sonar-runtime.js';

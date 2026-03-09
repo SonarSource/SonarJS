@@ -20,7 +20,7 @@ import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
 import type { FileStore } from './store-type.js';
 import type { Configuration } from '../../../../../shared/src/helpers/configuration.js';
-import { isRoot, type NormalizedAbsolutePath, dirnamePath } from '../../../rules/helpers/index.js';
+import { isRoot, type NormalizedAbsolutePath, dirnamePath } from '../../../rules/helpers/files.js';
 import type { JsTsFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();

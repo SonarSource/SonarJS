@@ -16,7 +16,7 @@
  */
 import { describe, it } from 'node:test';
 import path from 'node:path';
-import { stripBOM } from '../../../src/rules/helpers/index.js';
+import { stripBOM } from '../../../src/rules/helpers/files.js';
 import { readFile } from 'node:fs/promises';
 import { expect } from 'expect';
 import { getDependenciesFromPackageJson } from '../../../src/rules/helpers/package-jsons/parse.js';

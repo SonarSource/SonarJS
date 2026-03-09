@@ -18,7 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getVariableFromName, interceptReport } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getVariableFromName } from '../helpers/ast.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {

@@ -18,7 +18,7 @@ import { debug, error, info } from '../../../../../shared/src/helpers/logging.js
 import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import type { FileStore } from './store-type.js';
-import type { NormalizedAbsolutePath } from '../../../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../../../rules/helpers/files.js';
 import type { Configuration } from '../../../../../shared/src/helpers/configuration.js';
 import { clearTsConfigContentCache } from '../../../program/cache/tsconfigCache.js';
 import { clearProgramOptionsCache } from '../../../program/cache/programOptionsCache.js';

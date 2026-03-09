@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import { FUNCTION_NODES, isIdentifier } from './index.js';
+import { FUNCTION_NODES, isIdentifier } from './ast.js';
 
 export namespace Mocha {
   const TEST_CONSTRUCTS = [

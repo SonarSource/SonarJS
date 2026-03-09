@@ -21,16 +21,12 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   type RequiredParserServices,
-  type RuleContext,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  isArray,
-  isDotNotation,
-  isIndexNotation,
-  isMemberExpression,
   isRequiredParserServices,
-  isTypedArray,
-} from '../helpers/index.js';
+} from '../helpers/parser-services.js';
+import { type RuleContext, isArray, isTypedArray } from '../helpers/type.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation } from '../helpers/location.js';
+import { isDotNotation, isIndexNotation, isMemberExpression } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const message = `Add a "return" statement to this callback.`;

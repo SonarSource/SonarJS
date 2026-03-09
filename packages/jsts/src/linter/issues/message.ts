@@ -19,7 +19,7 @@ import { transformFixes } from '../quickfixes/transform.js';
 import type { JsTsIssue } from './issue.js';
 import * as ruleMetas from '../../rules/metas.js';
 import type { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
-import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
 
 function getESLintKeys(sonarKey: string) {
   const ruleMeta = ruleMetas[sonarKey as keyof typeof ruleMetas];

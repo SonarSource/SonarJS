@@ -18,19 +18,18 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import {
-  findFirstMatchingLocalAncestor,
-  generateMeta,
-  getFullyQualifiedName,
   getProperty,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
   isCallingMethod,
   isIdentifier,
-  report,
   resolveFunction,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 

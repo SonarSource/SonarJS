@@ -28,7 +28,7 @@ import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
   dirnamePath,
-} from '../rules/helpers/index.js';
+} from '../rules/helpers/files.js';
 import { createOptions } from './pragmas.js';
 import path from 'node:path';
 import type { ParseResult } from '../parsers/parse.js';

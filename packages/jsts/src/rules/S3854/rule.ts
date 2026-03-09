@@ -18,7 +18,8 @@
 
 import type { Rule } from 'eslint';
 import { getESLintCoreRule } from '../external/core.js';
-import { generateMeta, mergeRules } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
 import * as meta from './generated-meta.js';
 
 const constructorSuperRule = getESLintCoreRule('constructor-super');

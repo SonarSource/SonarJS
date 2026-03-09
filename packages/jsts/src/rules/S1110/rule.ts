@@ -18,7 +18,9 @@
 
 import type { AST, Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getParent, report, toSecondaryLocation } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getParent } from '../helpers/ancestor.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 interface ParenthesesPair {

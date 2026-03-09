@@ -16,15 +16,10 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  getFullyQualifiedName,
-  isModuleExports,
-  isMethodInvocation,
-  flattenArgs,
-  getParent,
-  report,
-  toSecondaryLocation,
-} from './index.js';
+import { getFullyQualifiedName } from './module.js';
+import { isModuleExports, isMethodInvocation, flattenArgs } from './ast.js';
+import { getParent } from './ancestor.js';
+import { report, toSecondaryLocation } from './location.js';
 import type { RulesMeta } from '@eslint/core';
 
 /**

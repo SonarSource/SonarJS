@@ -19,9 +19,11 @@
 import type { AST, Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, last } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { last } from '../helpers/collection.js';
 import * as meta from './generated-meta.js';
-import { CodeRecognizer, JavaScriptFootPrint } from '../helpers/recognizers/index.js';
+import { CodeRecognizer } from '../helpers/recognizers/CodeRecognizer.js';
+import { JavaScriptFootPrint } from '../helpers/recognizers/JavaScriptFootPrint.js';
 import path from 'node:path';
 
 const EXCLUDED_STATEMENTS = new Set(['BreakStatement', 'LabeledStatement', 'ContinueStatement']);

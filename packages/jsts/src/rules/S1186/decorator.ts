@@ -18,13 +18,9 @@
 
 import type estree from 'estree';
 import type { AST, Rule } from 'eslint';
-import {
-  type FunctionNodeType,
-  generateMeta,
-  interceptReport,
-  isFunctionNode,
-  isIdentifier,
-} from '../helpers/index.js';
+import { type FunctionNodeType, isFunctionNode, isIdentifier } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
 
 type RuleFunctionNode = FunctionNodeType & Rule.Node;

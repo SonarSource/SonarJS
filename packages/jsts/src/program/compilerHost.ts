@@ -23,7 +23,7 @@ import {
   setCachedSourceFile,
   invalidateParsedSourceFile,
 } from './cache/sourceFileCache.js';
-import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
 
 interface FsCall {
   op: string;

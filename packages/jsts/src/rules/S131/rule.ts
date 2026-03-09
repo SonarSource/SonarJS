@@ -19,13 +19,11 @@
 import type estree from 'estree';
 import type { Rule, SourceCode } from 'eslint';
 import { rules } from '../external/typescript-eslint/index.js';
-import {
-  generateMeta,
-  interceptReport,
-  isRequiredParserServices,
-  isUnion,
-  mergeRules,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { isUnion } from '../helpers/type.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
 import * as meta from './generated-meta.js';
 
 /**

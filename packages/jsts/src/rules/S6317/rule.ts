@@ -18,7 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type { Node } from 'estree';
-import { type StringLiteral, generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
+import type { StringLiteral } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import { type Result, getResultOfExpression } from '../helpers/result.js';
 import {
   type PolicyCheckerOptions,

@@ -17,13 +17,11 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1488
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  generateMeta,
-  isFunction,
-  isIdentifier,
-  isRequiredParserServices,
-  last,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isFunction } from '../helpers/type.js';
+import { isIdentifier } from '../helpers/ast.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { last } from '../helpers/collection.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';

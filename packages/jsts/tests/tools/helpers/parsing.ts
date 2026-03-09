@@ -19,7 +19,7 @@ import { build } from '../../../src/builders/build.js';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
-} from '../../../src/rules/helpers/index.js';
+} from '../../../src/rules/helpers/files.js';
 import { JsTsAnalysisInput, JSTS_ANALYSIS_DEFAULTS } from '../../../src/analysis/analysis.js';
 
 /**

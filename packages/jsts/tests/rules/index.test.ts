@@ -31,7 +31,7 @@ import reactHooksRules from 'eslint-plugin-react-hooks';
 import angularPlugin from '@angular-eslint/eslint-plugin';
 const { rules: angularRules } = angularPlugin;
 import { rules as unicornRules } from '../../src/rules/external/unicorn.js';
-import { SonarMeta } from '../../src/rules/helpers/index.js';
+import { SonarMeta } from '../../src/rules/helpers/generate-meta.js';
 
 const allExternalRules = {
   eslint: key => getESLintCoreRule(key),

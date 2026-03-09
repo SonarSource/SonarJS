@@ -17,7 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1082/javascript
 
 import type { Rule } from 'eslint';
-import { generateMeta, mergeRules } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
 import { rules } from '../external/a11y.js';
 import * as meta from './generated-meta.js';
 

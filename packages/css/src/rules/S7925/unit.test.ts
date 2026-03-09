@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { StylelintRuleTester } from '../../../tests/tools/tester/index.js';
+import { StylelintRuleTester } from '../../../tests/tools/tester/tester.js';
 import { rule, messages } from './rule.js';
 import { describe, it } from 'node:test';
 

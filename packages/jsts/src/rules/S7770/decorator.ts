@@ -17,7 +17,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7770/javascript
 
 import type { Rule } from 'eslint';
-import { generateMeta, hasTypePredicateReturn, interceptReport } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { hasTypePredicateReturn } from '../helpers/ast.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
 
 /**

@@ -20,7 +20,8 @@ import type estree from 'estree';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { type TableCell, computeGrid } from '../helpers/table.js';
-import { generateMeta, getElementType } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getElementType } from '../helpers/accessibility.js';
 import * as meta from './generated-meta.js';
 
 type BlockInfo = {

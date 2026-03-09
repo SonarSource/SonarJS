@@ -21,10 +21,10 @@ import type estree from 'estree';
 import ts from 'typescript';
 import {
   type RequiredParserServices,
-  generateMeta,
-  getTypeFromTreeNode,
   isRequiredParserServices,
-} from '../helpers/index.js';
+} from '../helpers/parser-services.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

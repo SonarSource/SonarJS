@@ -23,7 +23,8 @@ import { build } from '../builders/build.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { serializeInProtobuf } from '../parsers/ast.js';
 import type { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
-import { computeMetrics, findNoSonarLines } from '../linter/visitors/metrics/index.js';
+import { computeMetrics } from '../linter/visitors/metrics/compute.js';
+import { findNoSonarLines } from '../linter/visitors/metrics/nosonar.js';
 import { findNcloc } from '../linter/visitors/metrics/ncloc.js';
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
 import { getCpdTokens } from '../linter/visitors/cpd.js';
@@ -32,7 +33,7 @@ import {
   type ShouldIgnoreFileParams,
 } from '../../../shared/src/helpers/filter/filter.js';
 import { clearDependenciesCache } from '../rules/helpers/package-jsons/index.js';
-import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input

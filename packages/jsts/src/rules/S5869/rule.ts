@@ -18,7 +18,8 @@
 
 import type { AST, Rule } from 'eslint';
 import type { AST as RegexppAST } from '@eslint-community/regexpp';
-import { type IssueLocation, generateMeta, toSecondaryLocation } from '../helpers/index.js';
+import { type IssueLocation, toSecondaryLocation } from '../helpers/location.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 import { SimplifiedRegexCharacterClass } from '../helpers/regex/simplified-regex-character-class.js';

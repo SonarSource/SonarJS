@@ -19,16 +19,12 @@
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  areEquivalent,
-  findFirstMatchingAncestor,
-  functionLike,
-  generateMeta,
-  isNullLiteral,
-  isRequiredParserServices,
-  isUndefined,
-  isUndefinedOrNull,
-} from '../helpers/index.js';
+import { areEquivalent } from '../helpers/equivalence.js';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { functionLike, isNullLiteral, isUndefined } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { isUndefinedOrNull } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 enum Null {

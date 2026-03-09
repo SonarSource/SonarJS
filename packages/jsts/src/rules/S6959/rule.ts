@@ -18,14 +18,10 @@
 
 import type estree from 'estree';
 import type { Rule } from 'eslint';
-import {
-  generateMeta,
-  getUniqueWriteUsageOrNode,
-  isArray as isArrayType,
-  isArrayExpression,
-  isCallingMethod,
-  isRequiredParserServices,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getUniqueWriteUsageOrNode, isArrayExpression, isCallingMethod } from '../helpers/ast.js';
+import { isArray as isArrayType } from '../helpers/type.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

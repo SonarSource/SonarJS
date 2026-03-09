@@ -21,13 +21,10 @@ import type estree from 'estree';
 import ts from 'typescript';
 import {
   type RequiredParserServices,
-  generateMeta,
-  getTypeFromTreeNode,
-  isBigIntType,
-  isNumberType,
   isRequiredParserServices,
-  isStringType,
-} from '../helpers/index.js';
+} from '../helpers/parser-services.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode, isBigIntType, isNumberType, isStringType } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 const comparisonOperators = new Set(['>', '<', '>=', '<=']);

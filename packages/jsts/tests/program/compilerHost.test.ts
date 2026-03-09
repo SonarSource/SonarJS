@@ -24,7 +24,7 @@ import {
   clearSourceFileContentCache,
   getCachedSourceFile,
 } from '../../src/program/cache/sourceFileCache.js';
-import { normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 
 describe('IncrementalCompilerHost', () => {
   const baseDir = normalizeToAbsolutePath('/project');

@@ -19,8 +19,8 @@ import type { analyzer } from './proto/language_analyzer.js';
 import {
   transformRequestToProjectInput,
   transformSourceFilesToRawInputFiles,
-  transformProjectOutputToResponse,
-} from './transformers/index.js';
+} from './transformers/request.js';
+import { transformProjectOutputToResponse } from './transformers/response.js';
 import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/analyzeProject.js';
 import { initFileStores } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';

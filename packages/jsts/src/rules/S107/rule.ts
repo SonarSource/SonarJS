@@ -20,14 +20,11 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { getESLintCoreRule } from '../external/core.js';
-import {
-  generateMeta,
-  getFullyQualifiedName,
-  interceptReport,
-  isFunctionCall,
-  isIdentifier,
-  mergeRules,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isFunctionCall, isIdentifier } from '../helpers/ast.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 

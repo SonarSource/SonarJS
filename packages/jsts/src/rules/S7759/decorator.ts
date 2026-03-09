@@ -18,7 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, interceptReport, isMemberExpression } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isMemberExpression } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 /**

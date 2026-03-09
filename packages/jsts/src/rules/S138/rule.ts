@@ -22,14 +22,11 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  type RuleContext,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  getNodeParent,
-  getParent,
-  last,
-} from '../helpers/index.js';
+import type { RuleContext } from '../helpers/type.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation } from '../helpers/location.js';
+import { getNodeParent, getParent } from '../helpers/ancestor.js';
+import { last } from '../helpers/collection.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 

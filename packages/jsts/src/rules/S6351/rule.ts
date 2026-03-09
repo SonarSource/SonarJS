@@ -20,17 +20,16 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import {
   functionLike,
-  generateMeta,
-  getParent,
   getUniqueWriteUsage,
   getVariableFromName,
   isCallingMethod,
   isDotNotation,
   isMethodCall,
   isRegexLiteral,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getParent } from '../helpers/ancestor.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 import { isRegExpConstructor } from '../helpers/regex/ast.js';
 import { getFlags } from '../helpers/regex/flags.js';

@@ -24,7 +24,7 @@ import {
 import { info } from '../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
 import { getCurrentFilesContext } from './cache/sourceFileCache.js';
-import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/index.js';
+import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/files.js';
 
 function createBuilderProgramWithHost(
   programOptions: ProgramOptions,

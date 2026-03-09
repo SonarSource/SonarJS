@@ -21,7 +21,8 @@ import { convertMessage } from './message.js';
 import { extractCognitiveComplexity, extractHighlightedSymbols } from './extract.js';
 import type { SymbolHighlight } from '../visitors/symbol-highlighting.js';
 import type { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
-import { type SonarMeta, type NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import type { SonarMeta } from '../../rules/helpers/generate-meta.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
 
 /**
  * The result of linting a source code

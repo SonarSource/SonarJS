@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import { convertLocation } from '../../../../../src/linter/visitors/metrics/helpers/index.js';
+import { convertLocation } from '../../../../../src/linter/visitors/metrics/helpers/location.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 

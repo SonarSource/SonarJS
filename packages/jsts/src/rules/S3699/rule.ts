@@ -17,12 +17,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3699
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  type RuleContext,
-  generateMeta,
-  isArrowFunctionExpression,
-  isFunctionExpression,
-} from '../helpers/index.js';
+import type { RuleContext } from '../helpers/type.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isArrowFunctionExpression, isFunctionExpression } from '../helpers/ast.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';

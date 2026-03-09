@@ -18,13 +18,10 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  findFirstMatchingAncestor,
-  generateMeta,
-  isInsideVueSetupScript,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isInsideVueSetupScript } from '../helpers/vue.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 // https://vuejs.org/api/sfc-script-setup.html#defineprops-defineemits

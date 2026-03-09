@@ -18,17 +18,11 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  type IssueLocation,
-  childrenOf,
-  generateMeta,
-  getFullyQualifiedName,
-  getProperty,
-  getPropertyWithValue,
-  getValueOfExpression,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { type IssueLocation, report, toSecondaryLocation } from '../helpers/location.js';
+import { childrenOf } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getProperty, getPropertyWithValue, getValueOfExpression } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

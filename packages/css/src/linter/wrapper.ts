@@ -16,7 +16,7 @@
  */
 import stylelint from 'stylelint';
 import type { Root, Document } from 'postcss';
-import { transform } from './issues/index.js';
+import { transform } from './issues/transform.js';
 import { createStylelintConfig, type RuleConfig } from './config.js';
 import type { CssIssue } from './issues/issue.js';
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';

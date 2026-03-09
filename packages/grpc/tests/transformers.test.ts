@@ -16,7 +16,7 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { transformRequestToProjectInput } from '../src/transformers/index.js';
+import { transformRequestToProjectInput } from '../src/transformers/request.js';
 import { transformProjectOutputToResponse } from '../src/transformers/response.js';
 import { buildRuleConfigurations as buildCssRuleConfigurations } from '../src/transformers/rule-configurations/css.js';
 import { buildRuleConfigurations as buildJstsRuleConfigurations } from '../src/transformers/rule-configurations/jsts.js';

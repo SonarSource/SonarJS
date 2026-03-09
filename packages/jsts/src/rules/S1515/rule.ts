@@ -19,16 +19,11 @@
 import type { AST, Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  type LoopLike,
-  type RuleContext,
-  findFirstMatchingAncestor,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  getParent,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import type { LoopLike } from '../helpers/ast.js';
+import type { RuleContext } from '../helpers/type.js';
+import { findFirstMatchingAncestor, getParent } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 const message = 'Make sure this function is not called after the loop completes.';
