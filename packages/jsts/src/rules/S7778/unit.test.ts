@@ -117,6 +117,37 @@ element.classList.remove('foo', 'bar');
 `,
           errors: 1,
         },
+        {
+          code: `
+const obj = { items: [] };
+obj.items.push(1);
+obj.items.push(2);
+`,
+          output: `
+const obj = { items: [] };
+obj.items.push(1, 2);
+`,
+          errors: 1,
+        },
+        {
+          // Custom class with multi-arg push method should be reported
+          code: `
+class CustomPusher {
+  push(...items: any[]): void {}
+}
+const pusher = new CustomPusher();
+pusher.push(1);
+pusher.push(2);
+`,
+          output: `
+class CustomPusher {
+  push(...items: any[]): void {}
+}
+const pusher = new CustomPusher();
+pusher.push(1, 2);
+`,
+          errors: 1,
+        },
       ],
     });
   });
