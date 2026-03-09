@@ -61,8 +61,7 @@ export const rule: Rule.RuleModule = {
       },
       AssignmentExpression: (node: estree.Node) => {
         const assignment = node as estree.AssignmentExpression;
-        const value = extractDefaultOperatorIfNeeded(assignment);
-        checkAssignment(context, lowerCaseVariableNames, assignment.left, value);
+        checkAssignment(context, lowerCaseVariableNames, assignment.left, assignment.right);
       },
       Property: (node: estree.Node) => {
         const property = node as estree.Property;
@@ -84,16 +83,6 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
-
-function extractDefaultOperatorIfNeeded(node: estree.AssignmentExpression): estree.Node {
-  if (
-    isLogicalExpression(node.right as TSESTree.Node) &&
-    ['??', '||'].includes((node.right as estree.LogicalExpression).operator)
-  ) {
-    return (node.right as estree.LogicalExpression).right;
-  }
-  return node.right;
-}
 
 function checkAssignment(
   context: Rule.RuleContext,
@@ -129,6 +118,12 @@ function findValueSuspect(node: estree.Node | undefined | null): boolean {
   }
   if (node.type === 'ConditionalExpression') {
     return findValueSuspect(node.consequent) || findValueSuspect(node.alternate);
+  }
+  if (
+    isLogicalExpression(node as TSESTree.Node) &&
+    ['??', '||'].includes((node as estree.LogicalExpression).operator)
+  ) {
+    return findValueSuspect((node as estree.LogicalExpression).right);
   }
   return false;
 }
