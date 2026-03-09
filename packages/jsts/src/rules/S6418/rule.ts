@@ -19,6 +19,7 @@
 import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isLogicalExpression, isStringLiteral } from '../helpers/ast.js';
+import { shannonEntropy } from '../helpers/entropy.js';
 import * as meta from './generated-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import type estree from 'estree';
@@ -172,25 +173,5 @@ function buildSecretWordRegexps(secretWords: string) {
 }
 
 function entropyShouldRaise(value: string): boolean {
-  return ShannonEntropy.calculate(value) > randomnessSensibility;
+  return shannonEntropy(value) > randomnessSensibility;
 }
-
-const ShannonEntropy = {
-  calculate: (str: string): number => {
-    if (!str) {
-      return 0;
-    }
-    const lettersTotal = str.length;
-    const occurrences: Record<string, number> = {};
-    for (const letter of str) {
-      occurrences[letter] = (occurrences[letter] ?? 0) + 1;
-    }
-    const values = Object.values(occurrences);
-    return (
-      values
-        .map(count => count / lettersTotal)
-        .map(frequency => -frequency * Math.log(frequency))
-        .reduce((acc, entropy) => acc + entropy, 0) / Math.log(2)
-    );
-  },
-};
