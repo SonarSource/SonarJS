@@ -19,16 +19,12 @@
 import type { Rule, Scope } from 'eslint';
 import { getESLintCoreRule } from '../external/core.js';
 import type estree from 'estree';
-import {
-  childrenOf,
-  findFirstMatchingAncestor,
-  functionLike,
-  generateMeta,
-  getFullyQualifiedName,
-  interceptReport,
-  isUndefined,
-  mergeRules,
-} from '../helpers/index.js';
+import { childrenOf, findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { functionLike, isUndefined } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 

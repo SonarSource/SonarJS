@@ -17,7 +17,8 @@
 import type { Rule } from 'eslint';
 import { getESLintCoreRule } from '../external/core.js';
 import { decorate } from './decorator.js';
-import { isSupported, normalizeToAbsolutePath, dirnamePath } from '../helpers/index.js';
+import { isSupported } from '../helpers/validate-version.js';
+import { normalizeToAbsolutePath, dirnamePath } from '../helpers/files.js';
 
 const decorated = decorate(getESLintCoreRule('prefer-object-spread'));
 

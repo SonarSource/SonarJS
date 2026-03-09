@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule as cognitiveComplexityRule } from '../../rules/S3776/index.js';
+import { rule as cognitiveComplexityRule } from '../../rules/S3776/rule.js';
 import type { CustomRule } from './custom-rule.js';
 
 /**

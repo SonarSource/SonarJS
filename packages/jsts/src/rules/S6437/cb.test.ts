@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6437/javascript
 import { test } from '../../../tests/tools/testers/comment-based/checker.js';
-import { rule } from './index.js';
+import { rule } from './rule.js';
 import { describe } from 'node:test';
 import * as meta from './generated-meta.js';
 

@@ -21,12 +21,12 @@ import type { Function, Node, ReturnStatement } from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   type RequiredParserServices,
-  generateMeta,
-  getTypeFromTreeNode,
-  getUniqueWriteUsageOrNode,
   isRequiredParserServices,
-  last,
-} from '../helpers/index.js';
+} from '../helpers/parser-services.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode } from '../helpers/type.js';
+import { getUniqueWriteUsageOrNode } from '../helpers/ast.js';
+import { last } from '../helpers/collection.js';
 import { isPropertyReadonlyInType } from 'ts-api-utils';
 import ts from 'typescript';
 import * as meta from './generated-meta.js';

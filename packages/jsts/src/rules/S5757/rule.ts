@@ -18,14 +18,10 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  generateMeta,
-  getFullyQualifiedName,
-  getProperty,
-  getValueOfExpression,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getProperty, getValueOfExpression } from '../helpers/ast.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 const MESSAGE = 'Make sure confidential information is not logged here.';

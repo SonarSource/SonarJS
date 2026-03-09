@@ -15,12 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import {
-  generateMeta,
-  interceptReport,
-  isRequiredParserServices,
-  typeHasMethod,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { typeHasMethod } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';

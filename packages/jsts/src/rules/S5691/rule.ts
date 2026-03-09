@@ -18,12 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  generateMeta,
-  getFullyQualifiedName,
-  getProperty,
-  getUniqueWriteUsage,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getProperty, getUniqueWriteUsage } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const SERVE_STATIC = 'serve-static';

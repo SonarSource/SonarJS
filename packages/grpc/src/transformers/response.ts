@@ -22,7 +22,7 @@ import {
 import { reverseCssRuleKeyMap } from '../../../css/src/rules/metadata.js';
 import type { JsTsIssue } from '../../../jsts/src/linter/issues/issue.js';
 import type { CssIssue } from '../../../css/src/linter/issues/issue.js';
-import { type NormalizedAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../../../jsts/src/rules/helpers/files.js';
 
 /**
  * SonarQube rule key for parsing errors. When a file cannot be parsed,

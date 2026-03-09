@@ -18,7 +18,10 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { Express, generateMeta, getFullyQualifiedName, getProperty } from '../helpers/index.js';
+import { Express } from '../helpers/express.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getProperty } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const HELMET = 'helmet';

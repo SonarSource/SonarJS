@@ -19,7 +19,9 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
-import { generateMeta, getNodeParent, isMethodInvocation } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getNodeParent } from '../helpers/ancestor.js';
+import { isMethodInvocation } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const baseRuleModule = tsEslintRules['no-magic-numbers'];

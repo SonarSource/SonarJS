@@ -22,7 +22,7 @@ import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
 import { getCachedProgramOptions, setCachedProgramOptions } from '../cache/programOptionsCache.js';
 import { sourceFileStore } from '../../analysis/projectAnalysis/file-stores/index.js';
-import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../../rules/helpers/files.js';
 
 /**
  * Unique symbol to brand ProgramOptions, ensuring they can only be created

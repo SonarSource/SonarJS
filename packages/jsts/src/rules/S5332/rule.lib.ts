@@ -19,12 +19,9 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { URL } from 'node:url';
-import {
-  getFullyQualifiedName,
-  getParent,
-  getProperty,
-  getValueOfExpression,
-} from '../helpers/index.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getParent } from '../helpers/ancestor.js';
+import { getProperty, getValueOfExpression } from '../helpers/ast.js';
 import { normalizeFQN } from '../helpers/aws/cdk.js';
 
 const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];

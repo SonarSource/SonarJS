@@ -17,7 +17,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4624
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { ancestorsChain, generateMeta, last } from '../helpers/index.js';
+import { ancestorsChain } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { last } from '../helpers/collection.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';

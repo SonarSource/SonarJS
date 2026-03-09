@@ -19,7 +19,7 @@ import path from 'node:path';
 import { Rule, RuleTester } from 'eslint';
 import { extractExpectations } from './framework.js';
 import parser from './parser.js';
-import { SonarMeta } from '../../../../src/rules/helpers/index.js';
+import { SonarMeta } from '../../../../src/rules/helpers/generate-meta.js';
 import { it } from 'node:test';
 
 /**

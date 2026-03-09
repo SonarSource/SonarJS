@@ -19,14 +19,10 @@
 import type estree from 'estree';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  type RuleContext,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  isTestFrameworkCall,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import type { RuleContext } from '../helpers/type.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
+import { isTestFrameworkCall } from '../helpers/test-frameworks.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 

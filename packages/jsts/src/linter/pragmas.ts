@@ -19,7 +19,7 @@ import type estree from 'estree';
 import { customRules as internalCustomRules } from './custom-rules/rules.js';
 import * as ruleMetas from '../rules/metas.js';
 import * as rules from '../rules/rules.js';
-import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
 
 const eslintMapping: { [key: string]: { ruleId: string; ruleModule: Rule.RuleModule } } = {};
 

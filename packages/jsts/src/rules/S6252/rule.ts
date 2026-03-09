@@ -17,16 +17,11 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6252/javascript
 
 import type { Rule } from 'eslint';
-import {
-  type IssueLocation,
-  generateMeta,
-  getBucketProperty,
-  getNodeParent,
-  getValueOfExpression,
-  report,
-  S3BucketTemplate,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { type IssueLocation, report, toSecondaryLocation } from '../helpers/location.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getBucketProperty, S3BucketTemplate } from '../helpers/aws/s3.js';
+import { getNodeParent } from '../helpers/ancestor.js';
+import { getValueOfExpression } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const VERSIONED_KEY = 'versioned';

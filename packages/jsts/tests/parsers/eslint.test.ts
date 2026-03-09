@@ -21,7 +21,7 @@ import { type FileType, readFile } from '../../../shared/src/helpers/files.js';
 import { build } from '../../src/builders/build.js';
 import { JSTS_ANALYSIS_DEFAULTS } from '../../src/analysis/analysis.js';
 import type { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
-import { normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 
 const cases: { syntax: string; fixture: string; language: JsTsLanguage }[] = [
   { syntax: 'ECMAScript 2015', fixture: 'es2015.js', language: 'js' },

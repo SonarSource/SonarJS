@@ -18,7 +18,7 @@ import type { AST } from 'eslint';
 import { SourceCode } from 'eslint';
 import type { Comment, Node } from 'estree';
 import type { APIError } from '../../../../shared/src/errors/error.js';
-import type { EmbeddedJS } from '../analysis/embedded-js.js';
+import type { EmbeddedJS } from '../../../../shared/src/types/embedded.js';
 import { visit } from '../../linter/visitors/visitor.js';
 
 /**

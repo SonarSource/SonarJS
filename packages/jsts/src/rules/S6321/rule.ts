@@ -26,16 +26,15 @@ import {
   getLiteralValue,
   normalizeFQN,
 } from '../helpers/aws/cdk.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName, reduceToIdentifier } from '../helpers/module.js';
 import {
-  generateMeta,
-  getFullyQualifiedName,
   getProperty,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
   isUndefined,
   isUnresolved,
-  reduceToIdentifier,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const TYPES_WITH_CONNECTIONS = [

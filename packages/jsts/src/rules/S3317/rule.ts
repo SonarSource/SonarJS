@@ -19,7 +19,8 @@
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import path from 'node:path';
-import { generateMeta, getVariableFromName } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getVariableFromName } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

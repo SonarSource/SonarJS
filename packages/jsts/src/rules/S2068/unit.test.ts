@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule } from './index.js';
+import { rule } from './rule.js';
 import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import path from 'node:path';
 import { describe, it } from 'node:test';

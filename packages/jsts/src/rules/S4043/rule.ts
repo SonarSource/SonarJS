@@ -22,13 +22,12 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 import {
   type RequiredParserServices,
-  generateMeta,
-  getSymbolAtLocation,
-  isArray,
   isRequiredParserServices,
-  localAncestorsChain,
-  sortLike,
-} from '../helpers/index.js';
+} from '../helpers/parser-services.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getSymbolAtLocation, isArray } from '../helpers/type.js';
+import { localAncestorsChain } from '../helpers/ancestor.js';
+import { sortLike } from '../helpers/collection.js';
 import * as meta from './generated-meta.js';
 
 const arrayMutatingMethods = new Set(['reverse', "'reverse'", '"reverse"', ...sortLike]);

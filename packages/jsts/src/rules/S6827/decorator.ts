@@ -15,12 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import {
-  generateMeta,
-  interceptReport,
-  getValueOfExpression,
-  getProperty,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { getValueOfExpression, getProperty } from '../helpers/ast.js';
 import pkg from 'jsx-ast-utils-x';
 const { hasAnyProp } = pkg;
 import type { JSXOpeningElement, JSXSpreadAttribute } from 'estree-jsx';

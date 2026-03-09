@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import { rules } from '../external/react.js';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import { decorate } from './decorator.js';
 import * as meta from './generated-meta.js';
 import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';

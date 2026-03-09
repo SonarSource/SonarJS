@@ -22,16 +22,12 @@ import ts from 'typescript';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   type RequiredParserServices,
-  type RuleContext,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  getParent,
-  getSignatureFromCallee,
-  getTypeFromTreeNode,
   isRequiredParserServices,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/parser-services.js';
+import { type RuleContext, getSignatureFromCallee, getTypeFromTreeNode } from '../helpers/type.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
+import { getParent } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
 interface FunctionContext {

@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S105/javascript
 
 import type { Rule } from 'eslint';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

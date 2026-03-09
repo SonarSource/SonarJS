@@ -18,7 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { getFullyQualifiedName, getProperty, getValueOfExpression } from '../helpers/index.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getProperty, getValueOfExpression } from '../helpers/ast.js';
 
 const SECURE_PROTOCOL_ALLOWED_VALUES = new Set([
   'TLSv1_2_method',

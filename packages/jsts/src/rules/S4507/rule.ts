@@ -18,13 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  flattenArgs,
-  generateMeta,
-  getFullyQualifiedName,
-  getUniqueWriteUsageOrNode,
-  isMemberWithProperty,
-} from '../helpers/index.js';
+import { flattenArgs, getUniqueWriteUsageOrNode, isMemberWithProperty } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
 const ERRORHANDLER_MODULE = 'errorhandler';

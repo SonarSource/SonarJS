@@ -16,13 +16,9 @@
  */
 import { rules } from '../external/typescript-eslint/index.js';
 import { type Rule } from 'eslint';
-import {
-  generateMeta,
-  getTypeFromTreeNode,
-  interceptReport,
-  isNullOrUndefinedType,
-  isObjectType,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode, isNullOrUndefinedType, isObjectType } from '../helpers/type.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import type { LogicalExpression } from 'estree';
 import * as meta from './generated-meta.js';
 import { isTypeUnknownType, isTypeAnyType } from '@typescript-eslint/type-utils';

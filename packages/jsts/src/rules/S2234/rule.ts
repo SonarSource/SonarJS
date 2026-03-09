@@ -21,16 +21,14 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   type FunctionNodeType,
-  generateMeta,
-  getSignatureFromCallee,
-  getTypeAsString,
   isFunctionNode,
-  isRequiredParserServices,
-  report,
   resolveFromFunctionReference,
   resolveIdentifiers,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getSignatureFromCallee, getTypeAsString } from '../helpers/type.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 interface FunctionSignature {

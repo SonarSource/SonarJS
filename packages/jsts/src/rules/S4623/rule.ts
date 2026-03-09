@@ -20,11 +20,11 @@ import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   type RequiredParserServices,
-  generateMeta,
   isRequiredParserServices,
-  isUndefined,
-  last,
-} from '../helpers/index.js';
+} from '../helpers/parser-services.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isUndefined } from '../helpers/ast.js';
+import { last } from '../helpers/collection.js';
 import type estree from 'estree';
 import ts from 'typescript';
 import * as meta from './generated-meta.js';

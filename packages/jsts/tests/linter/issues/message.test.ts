@@ -21,7 +21,7 @@ import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 import { rule as S1116 } from '../../../src/rules/S1116/index.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { normalizeToAbsolutePath } from '../../../src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../../src/rules/helpers/files.js';
 
 describe('convertMessage', () => {
   it('should convert an ESLint message into a Sonar issue', async () => {

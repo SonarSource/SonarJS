@@ -20,15 +20,14 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
   flattenArgs,
-  generateMeta,
-  getFullyQualifiedName,
   getProperty,
   isIdentifier,
   isLiteral,
   isRequireModule,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 const CSURF_MODULE = 'csurf';

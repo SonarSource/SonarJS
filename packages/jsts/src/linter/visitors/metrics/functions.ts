@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { SourceCode } from 'eslint';
-import { visitAndCountIf } from './helpers/index.js';
+import { visitAndCountIf } from './helpers/counter.js';
 
 /**
  * The ESLint function node types

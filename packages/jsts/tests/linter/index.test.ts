@@ -22,7 +22,7 @@ import { Linter } from '../../src/linter/linter.js';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { AnalysisMode } from '../../src/analysis/analysis.js';
-import { normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 
 describe('Linter', () => {
   it('should initialize the linter wrapper', async ({ mock }) => {

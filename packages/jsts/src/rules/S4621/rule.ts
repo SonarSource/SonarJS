@@ -19,7 +19,8 @@
 import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { type IssueLocation, generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
+import { type IssueLocation, report, toSecondaryLocation } from '../helpers/location.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

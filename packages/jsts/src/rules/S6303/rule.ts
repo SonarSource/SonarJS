@@ -17,15 +17,15 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6303/javascript
 
 import type { Rule } from 'eslint';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import {
-  generateMeta,
-  getFullyQualifiedName,
   getProperty,
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
   isFalseLiteral,
   isUndefined,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
 
 import type estree from 'estree';
 import { AwsCdkTemplate, normalizeFQN } from '../helpers/aws/cdk.js';

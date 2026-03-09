@@ -17,12 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6418/javascript
 
 import type { Rule } from 'eslint';
-import {
-  generateMeta,
-  isIdentifier,
-  isLogicalExpression,
-  isStringLiteral,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isIdentifier, isLogicalExpression, isStringLiteral } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import type estree from 'estree';

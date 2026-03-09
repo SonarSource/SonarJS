@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3723/javascript
 
 import stylistic from '@stylistic/eslint-plugin';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
 /**

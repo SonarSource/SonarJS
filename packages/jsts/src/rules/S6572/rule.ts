@@ -19,7 +19,8 @@
 import type estree from 'estree';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isNumberLiteral } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isNumberLiteral } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 import { rules } from '../external/typescript-eslint/index.js';
 const baseRuleModule = rules['prefer-enum-initializers'];

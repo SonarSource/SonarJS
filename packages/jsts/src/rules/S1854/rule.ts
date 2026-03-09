@@ -19,15 +19,11 @@
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  type ReferenceLike,
-  childrenOf,
-  generateMeta,
-  isNullLiteral,
-  last,
-  LiveVariables,
-  lva,
-} from '../helpers/index.js';
+import { type ReferenceLike, LiveVariables, lva } from '../helpers/lva.js';
+import { childrenOf } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isNullLiteral } from '../helpers/ast.js';
+import { last } from '../helpers/collection.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
