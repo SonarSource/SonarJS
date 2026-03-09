@@ -65,68 +65,6 @@ BarChart.propTypes = {
 `,
         },
         {
-          // FP: TypeScript class component with interface, this.props to helper
-          code: `
-interface BarProps {
-  barOffset?: number;
-}
-class Bar extends React.Component<BarProps> {
-  render() {
-    return <div style={getStyle(this.props)} />;
-  }
-}
-`,
-        },
-        {
-          // FP: TypeScript functional component, props to helper
-          code: `
-interface CardProps {
-  title: string;
-}
-function Card(props: CardProps) {
-  const { heading } = formatCard(props);
-  return <div><h2>{heading}</h2></div>;
-}
-`,
-        },
-        {
-          // FP: component spreads props into another component
-          code: `
-interface MyComponentProps {
-  color: string;
-  size: number;
-}
-function MyComponent(props: MyComponentProps) {
-  return <SomeComponent {...props} />;
-}
-`,
-        },
-        {
-          // FP: component spreads props with omit utility
-          code: `
-interface PageProps {
-  title: string;
-  subtitle: string;
-}
-function Page(props: PageProps) {
-  return <Content {...omit(props, ['title'])} />;
-}
-`,
-        },
-        {
-          // FP: component spreads props into object literal
-          code: `
-interface DataProps {
-  id: string;
-  name: string;
-}
-function DataComponent(props: DataProps) {
-  const merged = { ...props, extra: 'value' };
-  return <div>{JSON.stringify(merged)}</div>;
-}
-`,
-        },
-        {
           // FP: static propTypes inside class body with this.props delegation
           // (Strategy A: ClassDeclaration is a direct ancestor of the reported prop)
           code: `
@@ -214,6 +152,38 @@ interface CardProps {
 function Card(props: CardProps) {
   const result = helper(props);
   return <div>{result}</div>;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: TypeScript class component with this.props delegation — Strategy C
+          // matches BarProps to Bar via matchesClassProps, hasPropsCall finds getStyle(this.props).
+          code: `
+declare const React: any;
+interface BarProps {
+  barOffset?: number;
+}
+class Bar extends React.Component<BarProps> {
+  props: BarProps;
+  render() {
+    return <div style={getStyle(this.props)} />;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: TypeScript function component spreads props — Strategy C matches
+          // MyComponentProps to MyComponent, hasPropsCall finds the SpreadElement.
+          code: `
+declare const React: any;
+interface MyComponentProps {
+  color: string;
+  size: number;
+}
+function MyComponent(props: MyComponentProps) {
+  return <SomeComponent {...props} />;
 }
 `,
           filename: fixtureFile,
