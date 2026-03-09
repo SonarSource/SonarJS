@@ -30,12 +30,19 @@ const items = [];
 items.push(1);
 items.push(2);
 `,
+          output: `
+const items = [];
+items.push(1, 2);
+`,
           errors: 1,
         },
         {
           code: `
 importScripts('a.js');
 importScripts('b.js');
+`,
+          output: `
+importScripts('a.js', 'b.js');
 `,
           errors: 1,
         },
@@ -80,6 +87,10 @@ const items: number[] = [];
 items.push(1);
 items.push(2);
 `,
+          output: `
+const items: number[] = [];
+items.push(1, 2);
+`,
           errors: 1,
         },
         {
@@ -88,6 +99,10 @@ const element = document.createElement('div');
 element.classList.add('foo');
 element.classList.add('bar');
 `,
+          output: `
+const element = document.createElement('div');
+element.classList.add('foo', 'bar');
+`,
           errors: 1,
         },
         {
@@ -95,6 +110,10 @@ element.classList.add('bar');
 const element = document.createElement('div');
 element.classList.remove('foo');
 element.classList.remove('bar');
+`,
+          output: `
+const element = document.createElement('div');
+element.classList.remove('foo', 'bar');
 `,
           errors: 1,
         },
