@@ -1,7 +1,4 @@
 {
-"p5.js:Gruntfile.js": [
-496
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 130,
 2261,
@@ -232,9 +229,5 @@
 706,
 707,
 728
-],
-"p5.js:tasks/build/combineModules.js": [
-34,
-38
 ]
 }

@@ -43,27 +43,13 @@
 "vuetify:packages/docs/src/examples/v-lazy/usage.vue": [
 64
 ],
-"vuetify:packages/docs/src/service-worker.js": [
-70,
-74,
-99,
-107
-],
 "vuetify:packages/vuetify/build/babel-plugin-replace-import-extension.js": [
 1,
 27
 ],
-"vuetify:packages/vuetify/build/rollup.config.js": [
-25
-],
 "vuetify:packages/vuetify/build/rollup.types.config.js": [
 24,
 54
-],
-"vuetify:scripts/converter.js": [
-10,
-23,
-53
 ],
 "vuetify:scripts/rules/no-render-string-reference.js": [
 5,

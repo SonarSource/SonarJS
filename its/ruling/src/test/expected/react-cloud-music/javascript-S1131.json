@@ -1,12 +1,4 @@
 {
-"react-cloud-music:config/webpack.config.js": [
-311,
-344,
-383
-],
-"react-cloud-music:rename.js": [
-11
-],
 "react-cloud-music:src/api/config.js": [
 241,
 245,
@@ -58,9 +50,6 @@
 203,
 216,
 217
-],
-"react-cloud-music:src/application/Player/store/reducer.js": [
-65
 ],
 "react-cloud-music:src/application/Rank/index.jsx": [
 6,
@@ -114,10 +103,6 @@
 "react-cloud-music:src/baseUI/loading/index.jsx": [
 38
 ],
-"react-cloud-music:src/baseUI/music-note/index.jsx": [
-58,
-82
-],
 "react-cloud-music:src/baseUI/progress-bar/index.jsx": [
 49,
 90
@@ -129,19 +114,10 @@
 56,
 79
 ],
-"react-cloud-music:src/components/list/index.jsx": [
-2,
-41
-],
 "react-cloud-music:src/components/list/style.js": [
 24
 ],
 "react-cloud-music:src/components/slider/index.jsx": [
 42
-],
-"react-cloud-music:ts-music/config/webpack.config.js": [
-339,
-372,
-414
 ]
 }

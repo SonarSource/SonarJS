@@ -301,26 +301,6 @@
 299,
 1023
 ],
-"ant-design:scripts/check-site.js": [
-43,
-67,
-73,
-77
-],
-"ant-design:scripts/check-version-md.js": [
-55
-],
-"ant-design:scripts/post-script.js": [
-9,
-10,
-31
-],
-"ant-design:scripts/print-changelog.js": [
-106
-],
-"ant-design:site/bisheng.config.js": [
-30
-],
 "ant-design:site/theme/template/Color/ColorBlock.jsx": [
 15,
 16
@@ -328,8 +308,5 @@
 "ant-design:site/theme/template/Content/ComponentOverview.jsx": [
 28,
 55
-],
-"ant-design:site/theme/template/Content/index.jsx": [
-16
 ]
 }

@@ -1,16 +1,6 @@
 {
-"vuetify:packages/docs/build/markdown-it.ts": [
-19,
-24
-],
 "vuetify:packages/docs/src/components/app/Toc.vue": [
 130
-],
-"vuetify:packages/docs/src/store/app.ts": [
-91
-],
-"vuetify:packages/docs/vite.config.ts": [
-106
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 348
@@ -20,10 +10,6 @@
 106,
 112,
 120
-],
-"vuetify:packages/vuetify/src/composables/forwardRefs.ts": [
-40,
-60
 ],
 "vuetify:packages/vuetify/src/composables/layout.ts": [
 150,

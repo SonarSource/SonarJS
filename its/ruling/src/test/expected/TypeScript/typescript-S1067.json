@@ -195,12 +195,6 @@
 1609,
 2534
 ],
-"TypeScript:src/harness/harness.ts": [
-192
-],
-"TypeScript:src/harness/runner.ts": [
-75
-],
 "TypeScript:src/harness/sourceMapRecorder.ts": [
 263
 ],

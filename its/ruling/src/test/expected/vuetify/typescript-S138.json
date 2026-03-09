@@ -1,15 +1,9 @@
 {
-"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
-105
-],
 "vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
 52
 ],
 "vuetify:packages/vuetify/src/components/VColorPicker/__tests__/VColorPicker.spec.cy.tsx": [
 7
-],
-"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
-107
 ],
 "vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.cy.tsx": [
 7
@@ -23,17 +17,8 @@
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 149
 ],
-"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
-127
-],
-"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
-111
-],
 "vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
 8
-],
-"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
-82
 ],
 "vuetify:packages/vuetify/src/components/VSlideGroup/__tests__/VSlideGroup.spec.cy.tsx": [
 9

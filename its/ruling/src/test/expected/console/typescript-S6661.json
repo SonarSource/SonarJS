@@ -1,16 +1,7 @@
 {
-"console:src/components/Datepicker/Datepicker.tsx": [
-70
-],
-"console:src/components/FloatingInput/FloatingInput.tsx": [
-23
-],
 "console:src/components/MapProps/MapProps.tsx": [
 14,
 25
-],
-"console:src/components/Tether/Tether.tsx": [
-57
 ],
 "console:src/mutations/ModelPermission/AddPermissionMutation.ts": [
 48
@@ -116,29 +107,5 @@
 ],
 "console:src/views/FunctionsView/FunctionPopup/WebhookEditor.tsx": [
 162
-],
-"console:src/views/RelationsPopup/RelationPopup.tsx": [
-741
-],
-"console:src/views/SchemaView/SchemaViewer.tsx": [
-53,
-72
-],
-"console:src/views/models/DatabrowserView/Cell/NullableCell.tsx": [
-48
-],
-"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
-107
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-68,
-69,
-72
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-150
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-570
 ]
 }

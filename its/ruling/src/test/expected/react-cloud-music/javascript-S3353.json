@@ -1,15 +1,9 @@
 {
-"react-cloud-music:scripts/test.js": [
-21
-],
 "react-cloud-music:src/api/lyric-parser.js": [
 47,
 57,
 98,
 104
-],
-"react-cloud-music:src/api/script.js": [
-14
 ],
 "react-cloud-music:src/api/utils.js": [
 40,
@@ -56,19 +50,12 @@
 "react-cloud-music:src/application/Player/store/actionCreators.js": [
 103
 ],
-"react-cloud-music:src/application/Player/store/reducer.js": [
-23,
-40
-],
 "react-cloud-music:src/application/Rank/index.jsx": [
 20,
 64,
 65,
 66,
 67
-],
-"react-cloud-music:src/application/Rank/store/index.js": [
-17
 ],
 "react-cloud-music:src/application/Search/index.jsx": [
 48,
@@ -94,31 +81,11 @@
 25,
 26
 ],
-"react-cloud-music:src/baseUI/horizen-item/index.jsx": [
-42,
-43
-],
-"react-cloud-music:src/baseUI/music-note/index.jsx": [
-33,
-40,
-43,
-51,
-61,
-62,
-71
-],
-"react-cloud-music:src/baseUI/scroll/index.jsx": [
-89,
-93
-],
 "react-cloud-music:src/baseUI/search-box/index.jsx": [
 46,
 70
 ],
 "react-cloud-music:src/components/slider/index.jsx": [
 12
-],
-"react-cloud-music:ts-music/scripts/test.js": [
-21
 ]
 }

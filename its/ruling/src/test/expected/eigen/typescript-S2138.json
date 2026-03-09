@@ -33,9 +33,6 @@
 33,
 55
 ],
-"eigen:src/app/Scenes/MyCollection/State/MyCollectionArtworkModel.tsx": [
-46
-],
 "eigen:src/app/Scenes/MyCollection/utils/cleanArtworkPayload.tests.ts": [
 15
 ],
@@ -64,14 +61,8 @@
 45,
 70
 ],
-"eigen:src/app/store/AuthModel.tests.ts": [
-629
-],
 "eigen:src/app/store/GlobalStore.tsx": [
 88
-],
-"eigen:src/app/store/NativeModel.tests.ts": [
-33
 ],
 "eigen:src/app/tests/MockRelayRenderer.tsx": [
 136

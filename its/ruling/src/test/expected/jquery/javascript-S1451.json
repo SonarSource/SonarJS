@@ -2,12 +2,6 @@
 "jquery:Gruntfile.js": [
 0
 ],
-"jquery:build/release.js": [
-0
-],
-"jquery:build/release/cdn.js": [
-0
-],
 "jquery:build/release/dist.js": [
 0
 ],
@@ -32,16 +26,7 @@
 "jquery:build/tasks/promises_aplus_tests.js": [
 0
 ],
-"jquery:build/tasks/qunit_fixture.js": [
-0
-],
-"jquery:build/tasks/sourcemap.js": [
-0
-],
 "jquery:build/tasks/testswarm.js": [
-0
-],
-"jquery:src/ajax.js": [
 0
 ],
 "jquery:src/ajax/jsonp.js": [
@@ -96,9 +81,6 @@
 0
 ],
 "jquery:src/core/camelCase.js": [
-0
-],
-"jquery:src/core/init.js": [
 0
 ],
 "jquery:src/core/isAttached.js": [
@@ -198,9 +180,6 @@
 0
 ],
 "jquery:src/dimensions.js": [
-0
-],
-"jquery:src/effects.js": [
 0
 ],
 "jquery:src/effects/Tween.js": [

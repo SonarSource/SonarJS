@@ -1,8 +1,4 @@
 {
-"vuetify:packages/api-generator/src/index.ts": [
-114,
-136
-],
 "vuetify:packages/api-generator/src/utils.ts": [
 105
 ],
@@ -18,11 +14,6 @@
 ],
 "vuetify:packages/docs/src/components/introduction/EnterpriseForm.vue": [
 207
-],
-"vuetify:packages/docs/src/main.ts": [
-99,
-102,
-109
 ],
 "vuetify:packages/docs/src/plugins/pwa.ts": [
 42

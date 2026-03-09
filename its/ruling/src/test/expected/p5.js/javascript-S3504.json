@@ -8,12 +8,6 @@
 "p5.js:bench/math/sin.bench.js": [
 4
 ],
-"p5.js:docs/preprocessor.js": [
-63,
-83,
-119,
-188
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 40,
 41,
@@ -1524,14 +1518,5 @@
 3387,
 3389,
 3404
-],
-"p5.js:tasks/build/combineModules.js": [
-47,
-48,
-49,
-54
-],
-"p5.js:utils/sample-linter.js": [
-142
 ]
 }

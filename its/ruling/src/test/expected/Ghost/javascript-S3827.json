@@ -2,15 +2,6 @@
 "Ghost:core/client/app/components/gh-navitem-url-input.js": [
 18
 ],
-"Ghost:core/client/app/components/gh-profile-image.js": [
-51
-],
-"Ghost:core/client/app/controllers/setup/three.js": [
-45
-],
-"Ghost:core/client/app/models/user.js": [
-67
-],
 "Ghost:core/client/app/utils/validator-extensions.js": [
 8
 ],

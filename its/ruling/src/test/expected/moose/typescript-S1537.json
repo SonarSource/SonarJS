@@ -80,18 +80,6 @@
 "moose:renderer/components/Cast/Cast.tsx": [
 12
 ],
-"moose:renderer/components/Container/Container.tsx": [
-13,
-76,
-155
-],
-"moose:renderer/components/Downloads/Downloads.tsx": [
-7,
-45,
-49,
-77,
-142
-],
 "moose:renderer/components/Downloads/makeData.tsx": [
 7,
 11,
@@ -102,40 +90,10 @@
 32,
 33
 ],
-"moose:renderer/components/DragAndDrop/DragAndDrop.tsx": [
-48
-],
-"moose:renderer/components/DropUI/DropUI.tsx": [
-18,
-30
-],
-"moose:renderer/components/FilesList/FilesList.tsx": [
-8,
-56,
-60,
-79,
-80,
-93,
-95,
-138
-],
-"moose:renderer/components/Header/Header.tsx": [
-44,
-45,
-47,
-73,
-118
-],
 "moose:renderer/components/Modal/Modal.tsx": [
 20,
 53,
 66
-],
-"moose:renderer/components/Player/Player.tsx": [
-22,
-38,
-39,
-105
 ],
 "moose:renderer/components/Settings/Settings.tsx": [
 27,

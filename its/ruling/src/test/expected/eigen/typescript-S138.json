@@ -25,9 +25,6 @@
 "eigen:src/app/Components/ArtworkFilter/SavedSearch/convertersToFilterParams.tests.ts": [
 415
 ],
-"eigen:src/app/Components/Bidding/Screens/Registration.tests.tsx": [
-170
-],
 "eigen:src/app/Scenes/Artwork/Artwork.tests.tsx": [
 66
 ],
@@ -57,10 +54,6 @@
 ],
 "eigen:src/app/Scenes/Fair/Fair.tests.tsx": [
 21
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tests.tsx": [
-89,
-151
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tests.tsx": [
 16
@@ -98,16 +91,10 @@
 "eigen:src/app/navigation/routes.tests.tsx": [
 4
 ],
-"eigen:src/app/store/AuthModel.tests.ts": [
-30
-],
 "eigen:src/app/store/AuthModel.ts": [
 210
 ],
 "eigen:src/app/utils/renderMarkdown.tsx": [
 37
-],
-"eigen:src/palette/elements/Input/Input.tsx": [
-110
 ]
 }

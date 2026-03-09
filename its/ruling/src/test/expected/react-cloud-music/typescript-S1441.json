@@ -206,23 +206,6 @@
 "react-cloud-music:ts-music/src/baseUI/loading/index.tsx": [
 22
 ],
-"react-cloud-music:ts-music/src/baseUI/scroll/index.tsx": [
-1,
-2,
-9,
-9,
-70,
-91,
-92,
-164,
-164,
-165,
-165
-],
-"react-cloud-music:ts-music/src/components/list/index.tsx": [
-7,
-31
-],
 "react-cloud-music:ts-music/src/components/list/style.ts": [
 11,
 43,
@@ -252,21 +235,5 @@
 2,
 9,
 25
-],
-"react-cloud-music:ts-music/src/routes/index.tsx": [
-11,
-24,
-26,
-29,
-33
-],
-"react-cloud-music:ts-music/src/store/index.ts": [
-1,
-2,
-3
-],
-"react-cloud-music:ts-music/src/store/reducer.ts": [
-1,
-2
 ]
 }

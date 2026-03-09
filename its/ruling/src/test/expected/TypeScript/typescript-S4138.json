@@ -20,15 +20,8 @@
 "TypeScript:src/harness/compilerRunner.ts": [
 214
 ],
-"TypeScript:src/harness/harness.ts": [
-572,
-1759
-],
 "TypeScript:src/harness/projectsRunner.ts": [
 141
-],
-"TypeScript:src/harness/runner.ts": [
-28
 ],
 "TypeScript:src/harness/rwcRunner.ts": [
 254

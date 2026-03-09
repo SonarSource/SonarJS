@@ -108,33 +108,6 @@
 1952,
 2024
 ],
-"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
-25,
-112,
-143,
-178,
-216,
-256,
-279,
-323,
-351,
-381,
-419,
-443,
-469,
-495,
-520,
-545,
-571,
-596,
-600,
-628,
-654,
-682,
-708,
-733,
-758
-],
 "tailwindcss:__tests__/resolveConfig.test.js": [
 479,
 480,
@@ -244,21 +217,6 @@
 "tailwindcss:jest/runInTempDirectory.js": [
 9
 ],
-"tailwindcss:scripts/build.js": [
-18,
-22,
-27
-],
-"tailwindcss:scripts/compat.js": [
-65
-],
-"tailwindcss:scripts/rebuildFixtures.js": [
-16,
-21
-],
-"tailwindcss:src/cli.js": [
-6
-],
 "tailwindcss:src/cli/commands/build.js": [
 54,
 77
@@ -323,40 +281,6 @@
 ],
 "tailwindcss:src/lib/registerConfigAsDependency.js": [
 10
-],
-"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
-24,
-54,
-56,
-63,
-67,
-89,
-91,
-96,
-97,
-101,
-102,
-130,
-143,
-151,
-173,
-180,
-189,
-233,
-235,
-242,
-264,
-265,
-265,
-268,
-270,
-278,
-279,
-322,
-352,
-355,
-362,
-362
 ],
 "tailwindcss:src/lib/substituteResponsiveAtRules.js": [
 22,
@@ -502,15 +426,6 @@
 "tailwindcss:src/util/flattenColorPalette.js": [
 1
 ],
-"tailwindcss:src/util/generateVariantFunction.js": [
-6,
-6,
-11,
-12,
-26,
-27,
-32
-],
 "tailwindcss:src/util/getAllConfigs.js": [
 6,
 6,
@@ -565,27 +480,5 @@
 ],
 "tailwindcss:src/util/usesCustomProperties.js": [
 6
-],
-"tailwindcss:stubs/defaultConfig.stub.js": [
-74,
-86,
-103,
-107,
-147,
-148,
-149,
-220,
-221,
-336,
-438,
-524,
-525,
-526,
-527,
-531,
-539,
-607,
-608,
-675
 ]
 }

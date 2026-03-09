@@ -5,9 +5,6 @@
 "TypeScript:scripts/createBenchmark.ts": [
 122
 ],
-"TypeScript:scripts/errorCheck.ts": [
-25
-],
 "TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 117
 ],
@@ -24,16 +21,6 @@
 ],
 "TypeScript:src/harness/fourslashRunner.ts": [
 52
-],
-"TypeScript:src/harness/harness.ts": [
-1286,
-1300,
-1303,
-1326,
-1342,
-1475,
-1477,
-1503
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 51,

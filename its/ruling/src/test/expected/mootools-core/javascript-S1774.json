@@ -1,18 +1,4 @@
 {
-"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
-122,
-125,
-198,
-201,
-211,
-221,
-222,
-223,
-299,
-321,
-456,
-652
-],
 "mootools-core:Source/Element/Element.js": [
 26,
 65,

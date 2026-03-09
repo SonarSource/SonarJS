@@ -5,24 +5,6 @@
 "jira-clone:api/src/constants/projects.ts": [
 0
 ],
-"jira-clone:api/src/controllers/authentication.ts": [
-0
-],
-"jira-clone:api/src/controllers/comments.ts": [
-0
-],
-"jira-clone:api/src/controllers/issues.ts": [
-0
-],
-"jira-clone:api/src/controllers/projects.ts": [
-0
-],
-"jira-clone:api/src/controllers/test.ts": [
-0
-],
-"jira-clone:api/src/controllers/users.ts": [
-0
-],
 "jira-clone:api/src/database/createConnection.ts": [
 0
 ],
@@ -60,9 +42,6 @@
 0
 ],
 "jira-clone:api/src/index.ts": [
-0
-],
-"jira-clone:api/src/middleware/authentication.ts": [
 0
 ],
 "jira-clone:api/src/middleware/errors.ts": [

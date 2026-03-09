@@ -1,20 +1,10 @@
 {
-"Ghost:Gruntfile.js": [
-17
-],
 "Ghost:core/client/app/components/gh-navitem-url-input.js": [
 18,
 18,
 137,
 141,
 141
-],
-"Ghost:core/client/app/controllers/settings/tags/tag.js": [
-59
-],
-"Ghost:core/client/app/controllers/setup/three.js": [
-33,
-107
 ],
 "Ghost:core/client/app/controllers/signin.js": [
 42,
@@ -30,22 +20,6 @@
 ],
 "Ghost:core/client/app/validators/tag-settings.js": [
 12
-],
-"Ghost:core/server/config/url.js": [
-225,
-240
-],
-"Ghost:core/server/data/meta/asset_url.js": [
-8,
-8,
-8,
-26
-],
-"Ghost:core/server/middleware/redirect-to-setup.js": [
-7
-],
-"Ghost:core/server/middleware/serve-shared-file.js": [
-15
 ],
 "Ghost:core/server/utils/downzero.js": [
 33,

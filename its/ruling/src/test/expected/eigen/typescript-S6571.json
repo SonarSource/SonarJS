@@ -9,27 +9,15 @@
 "eigen:src/app/Components/StickyTabPage/StickyTabPage.tsx": [
 27
 ],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquirySuccessNotification.tsx": [
-20
-],
 "eigen:src/app/Scenes/Collection/Collection.tsx": [
 67
 ],
 "eigen:src/app/Scenes/Fair/Fair.tsx": [
 192
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tsx": [
-42
-],
 "eigen:src/app/Scenes/MyCollection/utils/formatArtworkDimensions.ts": [
 7,
 7
-],
-"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
-8,
-9,
-20,
-21
 ],
 "eigen:src/app/store/GlobalStore.tsx": [
 186

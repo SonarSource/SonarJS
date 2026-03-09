@@ -33,25 +33,6 @@
 12,
 28
 ],
-"react-cloud-music:ts-music/src/baseUI/scroll/index.tsx": [
-32,
-42,
-51,
-82,
-86,
-103,
-109,
-112,
-126,
-140,
-175
-],
-"react-cloud-music:ts-music/src/components/list/index.tsx": [
-18,
-19,
-40,
-46
-],
 "react-cloud-music:ts-music/src/components/list/style.ts": [
 13,
 20,
@@ -64,15 +45,8 @@
 "react-cloud-music:ts-music/src/components/slider/style.ts": [
 36
 ],
-"react-cloud-music:ts-music/src/store/index.ts": [
-7
-],
 "react-cloud-music:ts-music/src/style.ts": [
 1,
 54
-],
-"react-cloud-music:vite.config.ts": [
-1,
-10
 ]
 }

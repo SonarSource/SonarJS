@@ -1,11 +1,4 @@
 {
-"watchtower.js:karma.conf.js": [
-38
-],
-"watchtower.js:test/matchers.js": [
-62,
-85
-],
 "watchtower.js:test/watchgroup.spec.js": [
 29,
 439,

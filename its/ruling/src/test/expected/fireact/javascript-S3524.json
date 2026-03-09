@@ -1,22 +1,4 @@
 {
-"fireact:functions/index.js": [
-26,
-38,
-44,
-58,
-156,
-161,
-165,
-169,
-317,
-339,
-383,
-566,
-592,
-599,
-618,
-651
-],
 "fireact:src/components/DataList/index.js": [
 56
 ],
@@ -33,12 +15,6 @@
 ],
 "fireact:src/components/Form/Input.js": [
 5
-],
-"fireact:src/components/Layout/index.js": [
-12,
-21,
-43,
-60
 ],
 "fireact:src/components/Pagination/index.js": [
 49,

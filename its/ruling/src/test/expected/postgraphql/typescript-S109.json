@@ -15,10 +15,6 @@
 34,
 37
 ],
-"postgraphql:src/postgraphql/cli.ts": [
-101,
-136
-],
 "postgraphql:src/postgraphql/schema/auth/getPgTokenTypeFromIdentifier.ts": [
 53
 ],

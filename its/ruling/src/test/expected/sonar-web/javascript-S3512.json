@@ -1,7 +1,4 @@
 {
-"sonar-web:gulp/scripts.js": [
-54
-],
 "sonar-web:src/main/js/apps/api-documentation/action-view.js": [
 49
 ],
@@ -46,11 +43,6 @@
 ],
 "sonar-web:src/main/js/apps/coding-rules/rule/rule-meta-view.js": [
 92
-],
-"sonar-web:src/main/js/apps/dashboard/app.js": [
-101,
-116,
-124
 ],
 "sonar-web:src/main/js/apps/global-permissions/groups-view.js": [
 6,
@@ -332,33 +324,8 @@
 "sonar-web:src/main/js/widgets/old/word-cloud.js": [
 33
 ],
-"sonar-web:test/helpers/test-page.js": [
-20,
-35,
-50,
-68,
-87,
-164,
-177
-],
-"sonar-web:test/medium/issues.spec.js": [
-111,
-154,
-230
-],
 "sonar-web:tests/helpers/measures-test.js": [
 36,
 39
-],
-"sonar-web:tests/helpers/urls-test.js": [
-42,
-47,
-52,
-57,
-63,
-70,
-75,
-80,
-86
 ]
 }

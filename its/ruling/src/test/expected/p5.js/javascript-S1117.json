@@ -1,8 +1,4 @@
 {
-"p5.js:docs/preprocessor.js": [
-188,
-268
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 296,
 606,
@@ -124,16 +120,7 @@
 581,
 583
 ],
-"p5.js:tasks/release/release-bower.js": [
-42,
-42,
-60,
-60
-],
 "p5.js:test/test.html": [
 47
-],
-"p5.js:utils/sample-linter.js": [
-35
 ]
 }

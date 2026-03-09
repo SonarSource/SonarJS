@@ -1,7 +1,4 @@
 {
-"eigen:src/app/Components/Artist/ArtistInsights/ArtistInsightsAuctionResults.tsx": [
-160
-],
 "eigen:src/app/Components/ArtsyWebView.tsx": [
 121
 ],
@@ -18,14 +15,8 @@
 "eigen:src/app/Components/FancyModal/FancyModalCard.tsx": [
 157
 ],
-"eigen:src/app/Components/FancyModal/FancyModalHeader.tsx": [
-46
-],
 "eigen:src/app/Components/Lists/AuctionResultListItem.tsx": [
 41
-],
-"eigen:src/app/Components/Lists/ShowItemRow.tsx": [
-130
 ],
 "eigen:src/app/Components/PopoverMessage/PopoverMessage.tsx": [
 97,
@@ -52,9 +43,6 @@
 "eigen:src/app/Scenes/Artwork/Components/ArtworkTombstone.tsx": [
 99,
 103
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryModal.tsx": [
-115
 ],
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomPyramid.ts": [
 19
@@ -85,12 +73,6 @@
 ],
 "eigen:src/app/Scenes/LotsByArtistsYouFollow/LotsByArtistsYouFollow.tsx": [
 22
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-236,
-237,
-238,
-691
 ],
 "eigen:src/app/Scenes/MyAccount/MyAccountDeleteAccount.tsx": [
 73
@@ -130,9 +112,6 @@
 "eigen:src/app/Scenes/MyProfile/MyProfileHeader.tsx": [
 92
 ],
-"eigen:src/app/Scenes/MyProfile/MyProfilePaymentNewCreditCard.tsx": [
-36
-],
 "eigen:src/app/Scenes/NewWorksForYou/NewWorksForYou.tsx": [
 32
 ],
@@ -164,16 +143,6 @@
 "eigen:src/app/Scenes/Sale/Components/SaleHeader.tsx": [
 125
 ],
-"eigen:src/app/Scenes/SaleInfo/SaleInfo.tsx": [
-160
-],
-"eigen:src/app/Scenes/SavedAddresses/SavedAddressesForm.tsx": [
-44,
-309
-],
-"eigen:src/app/Scenes/Search/Search.tsx": [
-233
-],
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/UploadPhotos/UploadPhotos.tsx": [
 56
 ],
@@ -187,9 +156,6 @@
 54,
 72,
 88
-],
-"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomHeader.tsx": [
-82
 ],
 "eigen:src/app/errorReporting/hooks.ts": [
 8
@@ -221,17 +187,11 @@
 "eigen:src/palette/elements/Cards/CardTag.tsx": [
 35
 ],
-"eigen:src/palette/elements/Checkbox/Checkbox.tsx": [
-100
-],
 "eigen:src/palette/elements/CollapsibleMenuItem/CollapsibleMenuItem.stories.tsx": [
 104
 ],
 "eigen:src/palette/elements/Dialog/Dialog.tsx": [
 72
-],
-"eigen:src/palette/elements/Input/Input.tsx": [
-160
 ],
 "eigen:src/palette/elements/Input/PhoneInput/cleanUserPhoneNumber.ts": [
 32
@@ -239,11 +199,5 @@
 "eigen:src/palette/elements/PopIn/PopIn.tsx": [
 31,
 40
-],
-"eigen:src/palette/elements/Radio/RadioButton.tsx": [
-100
-],
-"eigen:src/palette/elements/Text/Text.tsx": [
-58
 ]
 }

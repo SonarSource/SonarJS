@@ -19,11 +19,6 @@
 "it-tools:src/tools/chronometer/chronometer.service.ts": [
 10
 ],
-"it-tools:src/tools/date-time-converter/date-time-converter.models.ts": [
-57,
-61,
-61
-],
 "it-tools:src/tools/date-time-converter/date-time-converter.vue": [
 99
 ],
@@ -231,23 +226,6 @@
 "it-tools:src/tools/token-generator/token-generator.service.test.ts": [
 28,
 28
-],
-"it-tools:src/ui/c-alert/c-alert.theme.ts": [
-27,
-33
-],
-"it-tools:src/ui/c-button/c-button.theme.ts": [
-57,
-58,
-63,
-64,
-69,
-70,
-84,
-87,
-90,
-93,
-96
 ],
 "it-tools:src/ui/color/color.models.test.ts": [
 8,

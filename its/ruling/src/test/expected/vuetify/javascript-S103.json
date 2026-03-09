@@ -242,8 +242,5 @@
 ],
 "vuetify:packages/docs/src/examples/why-vuetify/card-slots.vue": [
 8
-],
-"vuetify:packages/docs/src/service-worker.js": [
-15
 ]
 }

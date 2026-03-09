@@ -18,8 +18,5 @@
 ],
 "desktop:app/src/lib/stores/git-store.ts": [
 380
-],
-"desktop:app/src/main-process/main.ts": [
-468
 ]
 }

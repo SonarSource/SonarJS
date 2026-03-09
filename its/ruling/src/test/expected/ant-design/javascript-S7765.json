@@ -19,20 +19,10 @@
 300,
 301
 ],
-"ant-design:scripts/generate-authors.js": [
-24
-],
-"ant-design:site/bisheng.config.js": [
-16,
-20
-],
 "ant-design:site/theme/static/template.html": [
 152
 ],
 "ant-design:site/theme/template/Color/Palette.jsx": [
 22
-],
-"ant-design:site/theme/template/Content/index.jsx": [
-6
 ]
 }

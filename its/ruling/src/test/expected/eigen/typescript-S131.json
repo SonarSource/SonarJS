@@ -8,9 +8,6 @@
 "eigen:src/app/Components/ArtworkFilter/ArtworkFilterNavigator.tsx": [
 181
 ],
-"eigen:src/app/Components/ArtworkFilter/ArtworkFilterOptionsScreen.tsx": [
-123
-],
 "eigen:src/app/Components/ArtworkFilter/Filters/useMultiSelect.ts": [
 55
 ],
@@ -52,9 +49,6 @@
 ],
 "eigen:src/app/utils/usePreferredThemeTracking.ts": [
 12
-],
-"eigen:src/palette/elements/Button/Button.tsx": [
-101
 ],
 "eigen:src/shared/utils/ArtsyKeyboardAvoidingView.tsx": [
 80

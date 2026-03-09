@@ -2,9 +2,6 @@
 "custom-jsts:FutureReservedWords.js": [
 8
 ],
-"custom-jsts:S1534.js": [
-6
-],
 "custom-jsts:S2432.js": [
 5
 ],
@@ -16,9 +13,6 @@
 ],
 "custom-jsts:S4423.js": [
 4
-],
-"custom-jsts:S5247.js": [
-3
 ],
 "custom-jsts:S5332.js": [
 28,
@@ -35,56 +29,12 @@
 78,
 85
 ],
-"custom-jsts:S5728.js": [
-6
-],
-"custom-jsts:S5730.js": [
-7,
-8
-],
-"custom-jsts:S5732.js": [
-8,
-9
-],
-"custom-jsts:S5734.js": [
-6
-],
-"custom-jsts:S5736.js": [
-6
-],
-"custom-jsts:S5739.js": [
-7
-],
-"custom-jsts:S5742.js": [
-6
-],
-"custom-jsts:S5757.js": [
-3
-],
-"custom-jsts:S6249.js": [
-7,
-14
-],
-"custom-jsts:S6252.js": [
-6,
-11
-],
-"custom-jsts:S6265.js": [
-10,
-16,
-20,
-26
-],
 "custom-jsts:S6270.js": [
 18,
 28,
 38,
 48,
 58
-],
-"custom-jsts:S6281.js": [
-5,
-10
 ],
 "custom-jsts:S6302.js": [
 17,
@@ -135,8 +85,5 @@
 "custom-jsts:S6333.js": [
 26,
 71
-],
-"custom-jsts:S6437.js": [
-54
 ]
 }

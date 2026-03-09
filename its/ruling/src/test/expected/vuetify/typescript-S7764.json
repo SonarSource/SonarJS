@@ -12,14 +12,8 @@
 34,
 36
 ],
-"vuetify:packages/docs/src/main.ts": [
-42
-],
 "vuetify:packages/docs/src/plugins/pwa.ts": [
 44
-],
-"vuetify:packages/docs/src/store/locale.ts": [
-15
 ],
 "vuetify:packages/docs/src/util/globals.ts": [
 1
@@ -40,16 +34,6 @@
 81,
 82
 ],
-"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerCanvas.tsx": [
-92,
-93,
-94,
-95,
-109,
-110,
-111,
-112
-],
 "vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 187
 ],
@@ -64,19 +48,6 @@
 "vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
 186,
 188
-],
-"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
-257,
-258,
-264,
-271,
-280,
-281
-],
-"vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.tsx": [
-74,
-79,
-85
 ],
 "vuetify:packages/vuetify/src/composables/__tests__/scroll.spec.ts": [
 48
@@ -119,14 +90,6 @@
 15,
 33,
 34
-],
-"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
-111,
-196,
-215,
-224,
-230,
-247
 ],
 "vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
 29,

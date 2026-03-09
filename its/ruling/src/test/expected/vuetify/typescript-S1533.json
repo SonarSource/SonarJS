@@ -1,8 +1,5 @@
 {
 "vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
 10
-],
-"vuetify:packages/vuetify/src/composables/icons.tsx": [
-55
 ]
 }

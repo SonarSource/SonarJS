@@ -133,10 +133,6 @@
 "desktop:app/src/lib/source-map-support.ts": [
 37
 ],
-"desktop:app/src/lib/ssh/ssh.ts": [
-80,
-87
-],
 "desktop:app/src/lib/status-parser.ts": [
 129
 ],
@@ -193,9 +189,6 @@
 "desktop:app/src/main-process/exception-reporting.ts": [
 68
 ],
-"desktop:app/src/main-process/main.ts": [
-92
-],
 "desktop:app/src/main-process/menu/build-default-menu.ts": [
 46,
 636,
@@ -236,9 +229,6 @@
 "desktop:app/src/ui/diff/diff-helpers.tsx": [
 360,
 360
-],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-1318
 ],
 "desktop:app/src/ui/dispatcher/dispatcher.ts": [
 3130

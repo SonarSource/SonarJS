@@ -1,16 +1,4 @@
 {
-"vuetify:eslint-local-rules.js": [
-10,
-16,
-35,
-42,
-67
-],
-"vuetify:packages/docs/build/sitemap.js": [
-12,
-13,
-14
-],
 "vuetify:packages/docs/src/components/app/Markdown.vue": [
 23
 ],
@@ -170,10 +158,6 @@
 "vuetify:packages/docs/src/examples/v-treeview/prop-load-children.vue": [
 140
 ],
-"vuetify:packages/docs/src/service-worker.js": [
-61,
-102
-],
 "vuetify:packages/vuetify/build/rollup.types.config.js": [
 28,
 45
@@ -186,9 +170,5 @@
 242,
 264,
 266
-],
-"vuetify:scripts/converter.js": [
-16,
-48
 ]
 }

@@ -1,7 +1,4 @@
 {
-"p5.js:Gruntfile.js": [
-0
-],
 "p5.js:bench/math/random-fe-off.bench.js": [
 0
 ],
@@ -12,9 +9,6 @@
 0
 ],
 "p5.js:docs/documented-method.js": [
-0
-],
-"p5.js:docs/preprocessor.js": [
 0
 ],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
@@ -254,28 +248,10 @@
 "p5.js:tasks/build/browserify.js": [
 0
 ],
-"p5.js:tasks/build/combineModules.js": [
-0
-],
 "p5.js:tasks/build/eslint-samples.js": [
 0
 ],
-"p5.js:tasks/release/release-bower.js": [
-0
-],
-"p5.js:tasks/release/release-docs.js": [
-0
-],
-"p5.js:tasks/release/release-github.js": [
-0
-],
 "p5.js:tasks/release/release-p5.js": [
-0
-],
-"p5.js:tasks/test/mocha-chrome.js": [
-0
-],
-"p5.js:utils/sample-linter.js": [
 0
 ]
 }

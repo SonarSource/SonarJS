@@ -91,37 +91,11 @@
 2443,
 2454
 ],
-"sizzle:tasks/commit.js": [
-2
-],
 "sizzle:tasks/compile.js": [
 8,
 18
 ],
-"sizzle:tasks/dist.js": [
-3,
-7,
-10
-],
-"sizzle:tasks/ensure_ascii.js": [
-3,
-10,
-15
-],
-"sizzle:tasks/release.js": [
-3,
-6,
-17
-],
-"sizzle:tasks/tag.js": [
-3
-],
 "sizzle:tasks/test.js": [
 5
-],
-"sizzle:tasks/version.js": [
-3,
-12,
-18
 ]
 }

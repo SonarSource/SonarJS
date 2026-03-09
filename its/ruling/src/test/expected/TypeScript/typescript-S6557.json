@@ -1,7 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-105
-],
 "TypeScript:scripts/authors.ts": [
 90,
 91
@@ -26,14 +23,6 @@
 ],
 "TypeScript:src/harness/fourslash.ts": [
 2898
-],
-"TypeScript:src/harness/harness.ts": [
-992,
-1001,
-1003,
-1283,
-1327,
-1978
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 107,

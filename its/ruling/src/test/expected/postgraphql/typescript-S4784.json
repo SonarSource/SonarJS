@@ -1,7 +1,4 @@
 {
-"postgraphql:src/graphql/utils/formatName.ts": [
-4
-],
 "postgraphql:src/postgraphql/schema/auth/getPgTokenTypeFromIdentifier.ts": [
 46
 ],

@@ -187,24 +187,9 @@
 36,
 50
 ],
-"desktop:app/src/lib/editors/win32.ts": [
-89,
-125,
-172,
-194,
-216,
-265,
-372,
-417,
-425,
-431
-],
 "desktop:app/src/lib/email.ts": [
 32,
 95
-],
-"desktop:app/src/lib/endpoint-capabilities.ts": [
-109
 ],
 "desktop:app/src/lib/enum.ts": [
 7
@@ -247,12 +232,6 @@
 ],
 "desktop:app/src/lib/get-account-for-repository.ts": [
 8
-],
-"desktop:app/src/lib/get-os.ts": [
-43,
-48,
-55,
-60
 ],
 "desktop:app/src/lib/git/add.ts": [
 13
@@ -742,23 +721,12 @@
 58,
 63
 ],
-"desktop:app/src/lib/markdown-filters/node-filter.ts": [
-71,
-88,
-95,
-109,
-117,
-138
-],
 "desktop:app/src/lib/markdown-filters/resolve-owner-repo.ts": [
 15
 ],
 "desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
 40,
 45
-],
-"desktop:app/src/lib/markdown-filters/video-url-regex.ts": [
-13
 ],
 "desktop:app/src/lib/menu-item.ts": [
 46,
@@ -923,20 +891,8 @@
 27,
 32
 ],
-"desktop:app/src/lib/ssh/ssh-key-passphrase.ts": [
-9,
-40,
-48
-],
 "desktop:app/src/lib/ssh/ssh-secret-storage.ts": [
 43
-],
-"desktop:app/src/lib/ssh/ssh-user-password.ts": [
-32,
-38
-],
-"desktop:app/src/lib/ssh/ssh.ts": [
-27
 ],
 "desktop:app/src/lib/stats/stats-store.ts": [
 447,
@@ -1767,9 +1723,6 @@
 12,
 34
 ],
-"desktop:app/src/main-process/desktop-file-transport.ts": [
-17
-],
 "desktop:app/src/main-process/exception-reporting.ts": [
 15,
 56,
@@ -1779,36 +1732,6 @@
 16,
 31,
 46
-],
-"desktop:app/src/main-process/log.ts": [
-24
-],
-"desktop:app/src/main-process/main.ts": [
-223,
-229,
-293,
-310,
-329,
-478,
-486,
-490,
-503,
-507,
-511,
-515,
-519,
-583,
-596,
-600,
-605,
-634,
-642,
-650,
-664,
-672,
-676,
-679,
-711
 ],
 "desktop:app/src/main-process/menu/build-context-menu.ts": [
 52,
@@ -2532,46 +2455,6 @@
 413,
 449
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-104,
-229,
-269,
-325,
-340,
-346,
-350,
-429,
-453,
-465,
-477,
-483,
-521,
-544,
-581,
-587,
-641,
-853,
-958,
-1003,
-1025,
-1046,
-1055,
-1079,
-1121,
-1125,
-1154,
-1191,
-1208,
-1212,
-1221,
-1226,
-1261,
-1265,
-1330,
-1359,
-1386,
-1406
-],
 "desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
 51,
 78,
@@ -3008,21 +2891,6 @@
 297,
 332,
 423
-],
-"desktop:app/src/ui/index.tsx": [
-125,
-133,
-202,
-224,
-230,
-236,
-241,
-246,
-262,
-276,
-287,
-340,
-353
 ],
 "desktop:app/src/ui/lib/access-text.tsx": [
 53,
@@ -3603,20 +3471,6 @@
 "desktop:script/build-platforms.ts": [
 31
 ],
-"desktop:script/build.ts": [
-95,
-106,
-150,
-164,
-180,
-297,
-330,
-332,
-343,
-345,
-389,
-433
-],
 "desktop:script/changelog/git.ts": [
 12
 ],
@@ -3668,9 +3522,6 @@
 116,
 124
 ],
-"desktop:script/licenses/update-license-dump.ts": [
-14
-],
 "desktop:script/package.ts": [
 41,
 48,
@@ -3679,10 +3530,6 @@
 76,
 81,
 133
-],
-"desktop:script/post-install.ts": [
-34,
-44
 ],
 "desktop:script/pr-api.ts": [
 20,
@@ -3711,16 +3558,10 @@
 "desktop:script/run.ts": [
 16
 ],
-"desktop:script/sh.ts": [
-14
-],
 "desktop:script/start.ts": [
 29,
 53,
 55
-],
-"desktop:script/validate-changelog.ts": [
-47
 ],
 "desktop:script/validate-sass/validate-all.ts": [
 6,

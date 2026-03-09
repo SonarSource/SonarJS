@@ -1,7 +1,4 @@
 {
-"templating:protractor-shared.conf.js": [
-11
-],
 "templating:src/lib/di/ce_di.js": [
 43
 ],

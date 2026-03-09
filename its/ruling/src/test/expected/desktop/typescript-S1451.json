@@ -137,13 +137,7 @@
 "desktop:app/src/lib/editors/shared.ts": [
 0
 ],
-"desktop:app/src/lib/editors/win32.ts": [
-0
-],
 "desktop:app/src/lib/email.ts": [
-0
-],
-"desktop:app/src/lib/endpoint-capabilities.ts": [
 0
 ],
 "desktop:app/src/lib/endpoint-token.ts": [
@@ -162,9 +156,6 @@
 0
 ],
 "desktop:app/src/lib/error-with-metadata.ts": [
-0
-],
-"desktop:app/src/lib/exec-file.ts": [
 0
 ],
 "desktop:app/src/lib/fatal-error.ts": [
@@ -213,9 +204,6 @@
 0
 ],
 "desktop:app/src/lib/get-old-path.ts": [
-0
-],
-"desktop:app/src/lib/get-os.ts": [
 0
 ],
 "desktop:app/src/lib/get-renderer-guid.ts": [
@@ -470,9 +458,6 @@
 "desktop:app/src/lib/markdown-filters/mention-filter.ts": [
 0
 ],
-"desktop:app/src/lib/markdown-filters/node-filter.ts": [
-0
-],
 "desktop:app/src/lib/markdown-filters/resolve-owner-repo.ts": [
 0
 ],
@@ -483,9 +468,6 @@
 0
 ],
 "desktop:app/src/lib/markdown-filters/video-tag-filter.ts": [
-0
-],
-"desktop:app/src/lib/markdown-filters/video-url-regex.ts": [
 0
 ],
 "desktop:app/src/lib/menu-item.ts": [
@@ -623,16 +605,7 @@
 "desktop:app/src/lib/squash/squashed-commit-description.ts": [
 0
 ],
-"desktop:app/src/lib/ssh/ssh-key-passphrase.ts": [
-0
-],
 "desktop:app/src/lib/ssh/ssh-secret-storage.ts": [
-0
-],
-"desktop:app/src/lib/ssh/ssh-user-password.ts": [
-0
-],
-"desktop:app/src/lib/ssh/ssh.ts": [
 0
 ],
 "desktop:app/src/lib/stats/index.ts": [
@@ -827,9 +800,6 @@
 "desktop:app/src/main-process/desktop-console-transport.ts": [
 0
 ],
-"desktop:app/src/main-process/desktop-file-transport.ts": [
-0
-],
 "desktop:app/src/main-process/exception-reporting.ts": [
 0
 ],
@@ -837,12 +807,6 @@
 0
 ],
 "desktop:app/src/main-process/ipc-webcontents.ts": [
-0
-],
-"desktop:app/src/main-process/log.ts": [
-0
-],
-"desktop:app/src/main-process/main.ts": [
 0
 ],
 "desktop:app/src/main-process/menu/build-context-menu.ts": [
@@ -1445,9 +1409,6 @@
 "desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [
 0
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-0
-],
 "desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
 0
 ],
@@ -1536,9 +1497,6 @@
 0
 ],
 "desktop:app/src/ui/history/selected-commit.tsx": [
-0
-],
-"desktop:app/src/ui/index.tsx": [
 0
 ],
 "desktop:app/src/ui/install-git/index.ts": [
@@ -2204,9 +2162,6 @@
 "desktop:script/build-platforms.ts": [
 0
 ],
-"desktop:script/build.ts": [
-0
-],
 "desktop:script/changelog/git.ts": [
 0
 ],
@@ -2234,13 +2189,7 @@
 "desktop:script/licenses/license-overrides.ts": [
 0
 ],
-"desktop:script/licenses/update-license-dump.ts": [
-0
-],
 "desktop:script/package.ts": [
-0
-],
-"desktop:script/post-install.ts": [
 0
 ],
 "desktop:script/pr-api.ts": [
@@ -2255,9 +2204,6 @@
 "desktop:script/run.ts": [
 0
 ],
-"desktop:script/sh.ts": [
-0
-],
 "desktop:script/start.ts": [
 0
 ],
@@ -2265,9 +2211,6 @@
 0
 ],
 "desktop:script/test-setup.ts": [
-0
-],
-"desktop:script/validate-changelog.ts": [
 0
 ],
 "desktop:script/validate-sass/validate-all.ts": [

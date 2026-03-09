@@ -110,9 +110,6 @@
 "jira-clone:client/src/shared/components/AboutTooltip/index.jsx": [
 13
 ],
-"jira-clone:client/src/shared/components/Button/index.jsx": [
-42
-],
 "jira-clone:client/src/shared/components/ConfirmModal/index.jsx": [
 54,
 62
@@ -136,9 +133,6 @@
 26,
 48
 ],
-"jira-clone:client/src/shared/components/Input/index.jsx": [
-34
-],
 "jira-clone:client/src/shared/components/InputDebounced.jsx": [
 38
 ],
@@ -157,8 +151,5 @@
 166,
 193,
 195
-],
-"jira-clone:client/src/shared/components/Textarea/index.jsx": [
-27
 ]
 }

@@ -32,13 +32,6 @@
 41,
 69
 ],
-"react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
-40,
-41,
-46,
-51,
-56
-],
 "react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
 42
 ],
@@ -47,10 +40,6 @@
 ],
 "react-cloud-music:src/application/User/Login/PhoneForm/step-two/index.jsx": [
 57
-],
-"react-cloud-music:src/baseUI/confirm/index.jsx": [
-97,
-98
 ],
 "react-cloud-music:src/baseUI/header/index.jsx": [
 32

@@ -9,17 +9,6 @@
 22,
 28
 ],
-"angular.js:scripts/compare-master-to-stable.js": [
-14,
-25
-],
-"angular.js:src/Angular.js": [
-379,
-418,
-1241,
-1246,
-1251
-],
 "angular.js:src/loader.js": [
 391,
 405
@@ -27,22 +16,11 @@
 "angular.js:src/minErr.js": [
 102
 ],
-"angular.js:src/ng/compile.js": [
-2857,
-4006
-],
 "angular.js:src/ng/exceptionHandler.js": [
 50
 ],
-"angular.js:src/ng/http.js": [
-1320,
-1332
-],
 "angular.js:src/ng/intervalFactory.js": [
 10
-],
-"angular.js:src/ng/location.js": [
-300
 ],
 "angular.js:src/ng/log.js": [
 136,
@@ -51,9 +29,6 @@
 "angular.js:src/ng/rootScope.js": [
 1322,
 1394
-],
-"angular.js:src/ng/timeout.js": [
-49
 ],
 "angular.js:src/ngAnimate/animateQueue.js": [
 256

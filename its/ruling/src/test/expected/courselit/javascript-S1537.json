@@ -1,7 +1,4 @@
 {
-"courselit:apps/web/models/Customisation.js": [
-5
-],
 "courselit:apps/web/models/Subscriber.js": [
 8,
 11
@@ -10,16 +7,6 @@
 10,
 13,
 14
-],
-"courselit:packages/common-widgets/webpack.config.js": [
-11,
-18,
-20,
-21,
-22,
-25,
-34,
-35
 ],
 "courselit:packages/rich-text/babel.config.js": [
 2
@@ -101,44 +88,13 @@
 71,
 72
 ],
-"courselit:packages/rich-text/webpack.config.js": [
-12,
-20,
-21,
-25,
-30,
-31,
-32,
-33,
-37,
-39
-],
 "courselit:packages/widget-buttondown/babel.config.js": [
 2
-],
-"courselit:packages/widget-buttondown/src/AdminWidget.js": [
-43,
-150,
-151,
-155
-],
-"courselit:packages/widget-buttondown/src/Widget.js": [
-116,
-120
 ],
 "courselit:packages/widget-buttondown/src/index.js": [
 8
 ],
 "courselit:packages/widget-buttondown/src/metadata.js": [
 6
-],
-"courselit:packages/widget-buttondown/webpack.config.js": [
-11,
-19,
-20,
-21,
-22,
-30,
-31
 ]
 }

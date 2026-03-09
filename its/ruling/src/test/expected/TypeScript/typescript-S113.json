@@ -68,9 +68,6 @@
 "TypeScript:src/server/utilities.ts": [
 242
 ],
-"TypeScript:src/server/watchGuard/watchGuard.ts": [
-19
-],
 "TypeScript:src/services/codefixes/disableJsDiagnostics.ts": [
 70
 ],

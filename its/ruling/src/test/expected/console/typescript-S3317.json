@@ -1,10 +1,4 @@
 {
-"console:src/__mocks__/redux-mock-store.ts": [
-0
-],
-"console:src/components/FloatingInput/FloatingInput.tsx": [
-0
-],
 "console:src/mutations/Enums/AddEnum.tsx": [
 0
 ],
@@ -35,9 +29,6 @@
 "console:src/utils/region.ts": [
 0
 ],
-"console:src/views/FunctionsView/FunctionLogs/Log.tsx": [
-0
-],
 "console:src/views/PermissionsView/PermissionPopup/OldPermissionPopupFooter.tsx": [
 0
 ],
@@ -53,13 +44,7 @@
 "console:src/views/SchemaView/EnumsOverview/ConfirmEnum.tsx": [
 0
 ],
-"console:src/views/SchemaView/EnumsOverview/EnumBox.tsx": [
-0
-],
 "console:src/views/SchemaView/EnumsOverview/EnumsOverviewHeader.tsx": [
-0
-],
-"console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
 0
 ],
 "console:src/views/Settings/Team/EmptyRow.tsx": [
@@ -69,15 +54,6 @@
 0
 ],
 "console:src/views/models/AuthProviderPopup/auth.ts": [
-0
-],
-"console:src/views/models/DatabrowserView/DataActionRow.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/DataActionRow/DeleteNodeRow.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
 0
 ]
 }

@@ -5,11 +5,5 @@
 33,
 37,
 38
-],
-"postgraphql:src/postgraphql/http/__tests__/createPostGraphQLHttpRequestHandler-test.js": [
-96
-],
-"postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
-21
 ]
 }

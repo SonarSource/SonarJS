@@ -48,17 +48,6 @@
 8,
 9
 ],
-"rxjs:protractor.conf.js": [
-35,
-36,
-36,
-37,
-37,
-38,
-38,
-41,
-42
-],
 "rxjs:spec/support/mocha-browser-runner.html": [
 41,
 42,

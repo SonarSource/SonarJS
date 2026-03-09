@@ -248,13 +248,6 @@
 15,
 30
 ],
-"ant-design:components/layout/layout.tsx": [
-33
-],
-"ant-design:components/list/Item.tsx": [
-79,
-109
-],
 "ant-design:components/list/index.tsx": [
 65,
 74,
@@ -534,14 +527,6 @@
 18,
 18
 ],
-"ant-design:site/theme/template/Content/Article.tsx": [
-26,
-28,
-29,
-33,
-170,
-170
-],
 "ant-design:site/theme/template/Home/Banner/Background.tsx": [
 8,
 138,
@@ -568,36 +553,14 @@
 "ant-design:site/theme/template/Home/util.tsx": [
 19
 ],
-"ant-design:site/theme/template/IconDisplay/Category.tsx": [
-13
-],
 "ant-design:site/theme/template/IconDisplay/CopyableIcon.tsx": [
 9,
 17
-],
-"ant-design:site/theme/template/IconDisplay/IconPicSearcher.tsx": [
-8,
-23,
-31,
-99,
-109,
-118,
-178
-],
-"ant-design:site/theme/template/IconDisplay/index.tsx": [
-20,
-24
 ],
 "ant-design:site/theme/template/IconDisplay/themeIcons.tsx": [
 21,
 35,
 48
-],
-"ant-design:site/theme/template/Layout/Footer.tsx": [
-25,
-185,
-334,
-352
 ],
 "ant-design:site/theme/template/Layout/Header/Logo.tsx": [
 9
@@ -608,28 +571,9 @@
 "ant-design:site/theme/template/Layout/Header/SearchBar.tsx": [
 24
 ],
-"ant-design:site/theme/template/Layout/Header/index.tsx": [
-32,
-33,
-38,
-49,
-64,
-64,
-401
-],
 "ant-design:site/theme/template/NotFound.tsx": [
 12,
 14
-],
-"ant-design:site/theme/template/Resources/index.tsx": [
-10,
-19,
-40,
-41,
-56,
-104,
-105,
-111
 ],
 "ant-design:site/theme/template/utils.tsx": [
 7,

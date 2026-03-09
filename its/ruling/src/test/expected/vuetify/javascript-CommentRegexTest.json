@@ -7,9 +7,5 @@
 ],
 "vuetify:packages/docs/src/examples/v-scroll/usage.vue": [
 109
-],
-"vuetify:packages/vuetify/build/rollup.config.js": [
-159,
-278
 ]
 }

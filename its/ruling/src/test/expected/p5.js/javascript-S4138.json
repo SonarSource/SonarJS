@@ -116,12 +116,5 @@
 ],
 "p5.js:src/webgl/text.js": [
 532
-],
-"p5.js:tasks/build/combineModules.js": [
-47
-],
-"p5.js:utils/sample-linter.js": [
-113,
-147
 ]
 }

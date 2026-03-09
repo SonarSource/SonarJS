@@ -1,7 +1,4 @@
 {
-"templating:protractor-shared.conf.js": [
-13
-],
 "templating:src/lib/di/ce_di.js": [
 71
 ],
@@ -21,13 +18,7 @@
 "templating:test/example/ngmodel.spec.js": [
 5
 ],
-"templating:test/example/tab.spec.js": [
-14
-],
 "templating:test/example/todo.spec.js": [
 4
-],
-"templating:test/example/video.spec.js": [
-7
 ]
 }

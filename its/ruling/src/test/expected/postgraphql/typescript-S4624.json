@@ -1,10 +1,4 @@
 {
-"postgraphql:src/postgraphql/cli.ts": [
-136,
-136,
-138,
-141
-],
 "postgraphql:src/postgres/inventory/__tests__/conditionToSql-test.ts": [
 14
 ],

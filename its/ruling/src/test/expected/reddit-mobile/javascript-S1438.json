@@ -1,22 +1,6 @@
 {
-"reddit-mobile:assets/js/client.es6.js": [
-60,
-174,
-294,
-298,
-313,
-428
-],
 "reddit-mobile:assets/js/trackingEvents.es6.js": [
 2
-],
-"reddit-mobile:buildTasks/js.js": [
-140
-],
-"reddit-mobile:index.js": [
-20,
-28,
-36
 ],
 "reddit-mobile:src/config.es6.js": [
 3,

@@ -1,33 +1,6 @@
 {
-"courselit:apps/web/components/admin/courses/course-editor/course-structure-editor.tsx": [
-315
-],
-"courselit:apps/web/components/admin/courses/course-editor/group.tsx": [
-218,
-247
-],
-"courselit:apps/web/components/admin/courses/index.tsx": [
-210
-],
 "courselit:apps/web/components/admin/design/layout-manager/add-component-dialog.tsx": [
 50
-],
-"courselit:apps/web/components/admin/design/layout-manager/index.tsx": [
-268,
-356,
-421,
-493,
-536
-],
-"courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
-199
-],
-"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
-168
-],
-"courselit:apps/web/components/public/base-layout/template/section.tsx": [
-26,
-28
 ],
 "courselit:apps/web/components/public/items.tsx": [
 73

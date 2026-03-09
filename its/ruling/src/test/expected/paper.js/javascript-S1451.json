@@ -1,67 +1,4 @@
 {
-"paper.js:examples/Node.js/AnimatedStar.js": [
-0
-],
-"paper.js:examples/Node.js/BooleanOperations.js": [
-0
-],
-"paper.js:examples/Node.js/JSONtoPDF.js": [
-0
-],
-"paper.js:examples/Node.js/RasterRemote.js": [
-0
-],
-"paper.js:examples/Node.js/SvgExport.js": [
-0
-],
-"paper.js:examples/Node.js/SvgImport.js": [
-0
-],
-"paper.js:examples/Node.js/Tadpoles.js": [
-0
-],
-"paper.js:examples/Worker/Worker.js": [
-0
-],
-"paper.js:gulp/tasks/build.js": [
-0
-],
-"paper.js:gulp/tasks/dist.js": [
-0
-],
-"paper.js:gulp/tasks/docs.js": [
-0
-],
-"paper.js:gulp/tasks/jshint.js": [
-0
-],
-"paper.js:gulp/tasks/load.js": [
-0
-],
-"paper.js:gulp/tasks/minify.js": [
-0
-],
-"paper.js:gulp/tasks/publish.js": [
-0
-],
-"paper.js:gulp/tasks/test.js": [
-0
-],
-"paper.js:gulp/tasks/watch.js": [
-0
-],
-"paper.js:gulp/typescript/typescript-definition-generator.js": [
-0
-],
-"paper.js:gulp/utils/error.js": [
-0
-],
-"paper.js:gulp/utils/options.js": [
-0
-],
-"paper.js:gulpfile.js": [
-0
-],
 "paper.js:src/anim/Tween.js": [
 0
 ],
@@ -87,9 +24,6 @@
 0
 ],
 "paper.js:src/canvas/ProxyContext.js": [
-0
-],
-"paper.js:src/constants.js": [
 0
 ],
 "paper.js:src/core/Base.js": [
@@ -129,9 +63,6 @@
 0
 ],
 "paper.js:src/export.js": [
-0
-],
-"paper.js:src/init.js": [
 0
 ],
 "paper.js:src/item/ChangeFlag.js": [
@@ -174,12 +105,6 @@
 0
 ],
 "paper.js:src/node/canvas.js": [
-0
-],
-"paper.js:src/node/extend.js": [
-0
-],
-"paper.js:src/node/self.js": [
 0
 ],
 "paper.js:src/node/xml.js": [

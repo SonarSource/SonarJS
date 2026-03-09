@@ -9,9 +9,6 @@
 "tailwindcss:src/lib/formatCSS.js": [
 2
 ],
-"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
-174
-],
 "tailwindcss:src/util/processPlugins.js": [
 31
 ]

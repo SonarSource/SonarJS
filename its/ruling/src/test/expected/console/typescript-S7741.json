@@ -1,7 +1,4 @@
 {
-"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
-354
-],
 "console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
 196,
 206,
@@ -10,10 +7,6 @@
 "console:src/views/models/FieldPopup/EditValueInput.tsx": [
 71,
 117
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-428,
-435
 ],
 "console:src/views/models/FieldPopup/FieldPopupState.ts": [
 42

@@ -1,10 +1,4 @@
 {
-"templating:protractor-shared.conf.js": [
-16
-],
-"templating:src/lib/index.js": [
-25
-],
 "templating:src/lib/load_barrier.js": [
 23,
 126

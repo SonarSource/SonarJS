@@ -527,9 +527,6 @@
 38,
 71
 ],
-"ant-design:components/date-picker/index.tsx": [
-6
-],
 "ant-design:components/date-picker/locale/ar_EG.tsx": [
 10,
 13,
@@ -1060,21 +1057,6 @@
 39,
 41
 ],
-"ant-design:components/input/Input.tsx": [
-37,
-62,
-74,
-86,
-164,
-182,
-246,
-248,
-255,
-257,
-260,
-266,
-268
-],
 "ant-design:components/input/Password.tsx": [
 22,
 54,
@@ -1140,26 +1122,6 @@
 "ant-design:components/layout/__tests__/dynamic-breakpoint.test.tsx": [
 29
 ],
-"ant-design:components/layout/layout.tsx": [
-24,
-25,
-64,
-66,
-77,
-78,
-80,
-95,
-101,
-107,
-113
-],
-"ant-design:components/list/Item.tsx": [
-9,
-72,
-114,
-116,
-127
-],
 "ant-design:components/list/index.tsx": [
 96,
 104,
@@ -1177,9 +1139,6 @@
 33,
 54,
 64
-],
-"ant-design:components/locale-provider/__tests__/cached-context.test.tsx": [
-7
 ],
 "ant-design:components/locale-provider/index.tsx": [
 58,
@@ -2324,9 +2283,6 @@
 154,
 193
 ],
-"ant-design:components/menu/MenuContext.tsx": [
-19
-],
 "ant-design:components/menu/MenuDivider.tsx": [
 24,
 26
@@ -2359,15 +2315,6 @@
 ],
 "ant-design:components/menu/hooks/useItems.tsx": [
 6
-],
-"ant-design:components/menu/index.tsx": [
-80,
-86,
-92,
-122,
-134,
-146,
-148
 ],
 "ant-design:components/message/__tests__/type.test.tsx": [
 23
@@ -2695,13 +2642,6 @@
 ],
 "ant-design:components/statistic/Number.tsx": [
 49
-],
-"ant-design:components/statistic/Statistic.tsx": [
-44,
-50,
-52,
-71,
-75
 ],
 "ant-design:components/statistic/__tests__/index.test.tsx": [
 39,
@@ -3497,18 +3437,6 @@
 89,
 90
 ],
-"ant-design:site/theme/template/Content/Article.tsx": [
-58,
-67,
-93,
-102,
-144,
-154,
-155,
-161,
-162,
-163
-],
 "ant-design:site/theme/template/Home/Banner/Background.tsx": [
 14,
 20,
@@ -3519,13 +3447,6 @@
 175,
 180,
 181
-],
-"ant-design:site/theme/template/Home/Banner/Logo.tsx": [
-19,
-106,
-107,
-108,
-109
 ],
 "ant-design:site/theme/template/Home/DesignPage/Certainty.tsx": [
 18,
@@ -3611,22 +3532,9 @@
 "ant-design:site/theme/template/Home/index.tsx": [
 54
 ],
-"ant-design:site/theme/template/IconDisplay/Category.tsx": [
-24,
-35,
-50
-],
 "ant-design:site/theme/template/IconDisplay/CopyableIcon.tsx": [
 25,
 29
-],
-"ant-design:site/theme/template/IconDisplay/IconPicSearcher.tsx": [
-49,
-92,
-115,
-130,
-142,
-148
 ],
 "ant-design:site/theme/template/IconDisplay/fields.ts": [
 70,
@@ -3635,67 +3543,6 @@
 149,
 202,
 215
-],
-"ant-design:site/theme/template/IconDisplay/index.tsx": [
-16,
-39,
-49,
-56,
-80,
-99
-],
-"ant-design:site/theme/template/Layout/Footer.tsx": [
-20,
-29,
-62,
-67,
-72,
-77,
-83,
-89,
-95,
-101,
-107,
-113,
-119,
-123,
-124,
-125,
-135,
-141,
-147,
-153,
-159,
-171,
-172,
-173,
-182,
-184,
-195,
-201,
-207,
-213,
-219,
-225,
-231,
-237,
-238,
-239,
-261,
-273,
-285,
-297,
-308,
-315,
-317,
-318,
-319,
-327,
-331,
-336,
-341,
-354,
-374
 ],
 "ant-design:site/theme/template/Layout/Header/Github.tsx": [
 15
@@ -3738,28 +3585,6 @@
 "ant-design:site/theme/template/Layout/Header/algolia-config.ts": [
 25
 ],
-"ant-design:site/theme/template/Layout/Header/index.tsx": [
-69,
-100,
-111,
-120,
-139,
-153,
-163,
-169,
-197,
-205,
-225,
-238,
-252,
-256,
-279,
-284,
-332,
-350,
-358,
-359
-],
 "ant-design:site/theme/template/Layout/SiteContext.tsx": [
 10
 ],
@@ -3770,17 +3595,6 @@
 ],
 "ant-design:site/theme/template/Resources/AffixTabs.tsx": [
 75
-],
-"ant-design:site/theme/template/Resources/index.tsx": [
-74,
-88,
-90,
-91,
-94,
-95,
-97,
-127,
-138
 ],
 "ant-design:site/theme/template/utils.tsx": [
 26,

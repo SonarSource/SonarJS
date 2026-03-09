@@ -1,7 +1,4 @@
 {
-"vuetify:eslint-local-rules.js": [
-41
-],
 "vuetify:packages/docs/src/components/app/Markdown.vue": [
 52
 ],
@@ -11,15 +8,5 @@
 "vuetify:packages/docs/src/examples/v-text-field/misc-custom-validation.vue": [
 150,
 157
-],
-"vuetify:packages/vuetify/build/rollup.config.js": [
-124,
-127,
-146,
-261,
-264
-],
-"vuetify:scripts/lint-commit-message.js": [
-28
 ]
 }

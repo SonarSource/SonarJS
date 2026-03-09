@@ -33,11 +33,5 @@
 ],
 "vuetify:packages/docs/src/examples/v-scroll/usage.vue": [
 115
-],
-"vuetify:scripts/build.js": [
-12
-],
-"vuetify:scripts/dev.js": [
-9
 ]
 }

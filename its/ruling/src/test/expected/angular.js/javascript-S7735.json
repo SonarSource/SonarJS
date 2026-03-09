@@ -1,19 +1,6 @@
 {
-"angular.js:Gruntfile.js": [
-37
-],
 "angular.js:docs/config/tag-defs/deprecated.js": [
 14
-],
-"angular.js:src/Angular.js": [
-1911
-],
-"angular.js:src/auto/injector.js": [
-789,
-941
-],
-"angular.js:src/jqLite.js": [
-345
 ],
 "angular.js:src/ng/anchorScroll.js": [
 200
@@ -22,43 +9,11 @@
 64,
 136
 ],
-"angular.js:src/ng/compile.js": [
-2455,
-3016,
-4094
-],
-"angular.js:src/ng/directive/form.js": [
-353,
-642
-],
 "angular.js:src/ng/directive/input.js": [
 1662
 ],
-"angular.js:src/ng/directive/ngModel.js": [
-672
-],
-"angular.js:src/ng/directive/ngOptions.js": [
-453
-],
-"angular.js:src/ng/filter/filters.js": [
-72
-],
-"angular.js:src/ng/interpolate.js": [
-353
-],
 "angular.js:src/ng/intervalFactory.js": [
 19
-],
-"angular.js:src/ng/location.js": [
-511,
-615
-],
-"angular.js:src/ng/parse.js": [
-611,
-644,
-772,
-921,
-1618
 ],
 "angular.js:src/ng/taskTrackerFactory.js": [
 71,
@@ -84,9 +39,6 @@
 92,
 113,
 117
-],
-"angular.js:src/ngMessages/messages.js": [
-524
 ],
 "angular.js:src/ngMock/angular-mocks.js": [
 163,

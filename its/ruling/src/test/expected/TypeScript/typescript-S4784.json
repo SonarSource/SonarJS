@@ -1,17 +1,10 @@
 {
-"TypeScript:Gulpfile.ts": [
-412
-],
 "TypeScript:scripts/authors.ts": [
 22,
 115
 ],
 "TypeScript:scripts/configureNightly.ts": [
 33
-],
-"TypeScript:scripts/errorCheck.ts": [
-19,
-55
 ],
 "TypeScript:scripts/tslint/objectLiteralSurroundingSpaceRule.ts": [
 27
@@ -53,11 +46,6 @@
 ],
 "TypeScript:src/harness/fourslash.ts": [
 2908
-],
-"TypeScript:src/harness/harness.ts": [
-445,
-1506,
-1729
 ],
 "TypeScript:src/harness/rwcRunner.ts": [
 39

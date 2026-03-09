@@ -22,17 +22,8 @@
 80,
 120
 ],
-"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
-144
-],
-"console:src/views/FunctionsView/FunctionPopup/RequestPipelineFunctionInput.tsx": [
-115
-],
 "console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx": [
 97
-],
-"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
-133
 ],
 "console:src/views/PermissionsView/PermissionPopup/PermissionPopupFooter.tsx": [
 19
@@ -40,45 +31,17 @@
 "console:src/views/RelationsPopup/FieldNameInput.tsx": [
 31
 ],
-"console:src/views/RelationsPopup/RelationPopup.tsx": [
-67,
-102,
-425,
-460
-],
 "console:src/views/RelationsPopup/SetMutation.tsx": [
 47
 ],
-"console:src/views/SchemaView/SchemaOverview/AddType.tsx": [
-82
-],
 "console:src/views/SchemaView/SchemaOverview/PermissionsTag.tsx": [
 12
-],
-"console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
-79
 ],
 "console:src/views/Settings/Billing/Billing.tsx": [
 81
 ],
 "console:src/views/Settings/Billing/CurrentPlan.tsx": [
 22
-],
-"console:src/views/Settings/General/ProjectInfo.tsx": [
-57
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-72,
-345
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-212
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-294
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-583
 ],
 "console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
 45
@@ -88,9 +51,6 @@
 ],
 "console:src/views/models/FieldPopup/FieldLabel.tsx": [
 30
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-162
 ],
 "console:src/views/models/FieldPopup/FieldPopupFooter.tsx": [
 42

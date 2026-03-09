@@ -1,8 +1,4 @@
 {
-"qunit:build/tasks/test-on-node.js": [
-17,
-17
-],
 "qunit:reporter/diff.js": [
 431,
 431
@@ -19,15 +15,6 @@
 "qunit:src/assert.js": [
 363,
 380
-],
-"qunit:src/cli/find-reporter.js": [
-70
-],
-"qunit:src/cli/require-qunit.js": [
-19
-],
-"qunit:src/cli/run.js": [
-147
 ],
 "qunit:src/core/logging.js": [
 11

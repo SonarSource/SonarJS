@@ -1,14 +1,4 @@
 {
-"router:gulpfile.js": [
-16,
-17,
-77,
-95
-],
-"router:karma.conf.js": [
-23,
-35
-],
 "router:src/activation.js": [
 156,
 165

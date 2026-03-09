@@ -42,13 +42,7 @@
 1,
 2
 ],
-"desktop:app/src/lib/editors/win32.ts": [
-1
-],
 "desktop:app/src/lib/email.ts": [
-1
-],
-"desktop:app/src/lib/endpoint-capabilities.ts": [
 1
 ],
 "desktop:app/src/lib/file-system.ts": [
@@ -70,9 +64,6 @@
 1
 ],
 "desktop:app/src/lib/generic-git-auth.ts": [
-1
-],
-"desktop:app/src/lib/get-os.ts": [
 1
 ],
 "desktop:app/src/lib/git/cherry-pick.ts": [
@@ -251,14 +242,6 @@
 "desktop:app/src/main-process/crash-window.ts": [
 5,
 6
-],
-"desktop:app/src/main-process/log.ts": [
-1
-],
-"desktop:app/src/main-process/main.ts": [
-12,
-13,
-36
 ],
 "desktop:app/src/main-process/menu/build-default-menu.ts": [
 9
@@ -681,9 +664,6 @@
 1,
 13
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-1
-],
 "desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
 1
 ],
@@ -763,12 +743,6 @@
 "desktop:app/src/ui/history/selected-commit.tsx": [
 1,
 3
-],
-"desktop:app/src/ui/index.tsx": [
-3,
-4,
-5,
-79
 ],
 "desktop:app/src/ui/install-git/index.ts": [
 1
@@ -1307,11 +1281,6 @@
 1,
 3
 ],
-"desktop:script/build.ts": [
-4,
-5,
-6
-],
 "desktop:script/changelog/parser.ts": [
 1,
 2
@@ -1325,16 +1294,10 @@
 9,
 10
 ],
-"desktop:script/licenses/update-license-dump.ts": [
-1
-],
 "desktop:script/package.ts": [
 3,
 4,
 5
-],
-"desktop:script/post-install.ts": [
-3
 ],
 "desktop:script/pr-api.ts": [
 1
@@ -1360,10 +1323,6 @@
 3
 ],
 "desktop:script/test-setup.ts": [
-3,
-4
-],
-"desktop:script/validate-changelog.ts": [
 3,
 4
 ],

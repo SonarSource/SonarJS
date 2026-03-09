@@ -8,17 +8,11 @@
 5,
 7
 ],
-"custom-jsts:S1534.js": [
-1
-],
 "custom-jsts:S2123.js": [
 1
 ],
 "custom-jsts:S2432.js": [
 1
-],
-"custom-jsts:S2688.js": [
-3
 ],
 "custom-jsts:S3854.js": [
 14,
@@ -32,11 +26,6 @@
 ],
 "custom-jsts:S4123.js": [
 1
-],
-"custom-jsts:S5247.js": [
-2,
-5,
-6
 ],
 "custom-jsts:S5725.js": [
 1
@@ -76,9 +65,5 @@
 ],
 "custom-jsts:S6851.js": [
 1
-],
-"custom-jsts:boundOrAssignedEvalOrArguments.js": [
-2,
-8
 ]
 }

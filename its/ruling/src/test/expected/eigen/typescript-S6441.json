@@ -30,24 +30,6 @@
 92,
 98
 ],
-"eigen:src/app/Scenes/Inbox/Components/ActiveBids/index.tsx": [
-47
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tsx": [
-44
-],
-"eigen:src/app/Scenes/Inbox/Screens/Conversation.tsx": [
-66,
-170
-],
-"eigen:src/app/Scenes/Map/Components/ShowCard.tsx": [
-120,
-128,
-138
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-145
-],
 "eigen:src/app/utils/__legacy_do_not_use__navigator-ios-shim.tsx": [
 28,
 36,

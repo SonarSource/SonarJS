@@ -1,40 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-76,
-298,
-302,
-326,
-360,
-369,
-475,
-487,
-487,
-516,
-528,
-532,
-533,
-550,
-578,
-599,
-719,
-725,
-747,
-796,
-800,
-814,
-815,
-839,
-853,
-856,
-860,
-883,
-888,
-908,
-934,
-936,
-959,
-963
-],
 "TypeScript:scripts/buildProtocol.ts": [
 145
 ],
@@ -70,11 +34,6 @@
 1463,
 2216,
 3298
-],
-"TypeScript:src/harness/harness.ts": [
-1371,
-1375,
-1826
 ],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 190,

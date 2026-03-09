@@ -1,7 +1,4 @@
 {
-"sonar-web:gulp/scripts.js": [
-56
-],
 "sonar-web:src/main/js/api/measures.js": [
 10,
 24

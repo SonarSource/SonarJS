@@ -1,50 +1,8 @@
 {
-"ace:Makefile.dryice.js": [
-819
-],
 "ace:lib/ace/mode/css/csslint.js": [
 4251,
 4271,
 5648
-],
-"ace:lib/ace/mode/html/saxparser.js": [
-383,
-385
-],
-"ace:lib/ace/mode/javascript/jshint.js": [
-11854,
-11880,
-11905,
-12288,
-12311,
-12832,
-12839
-],
-"ace:lib/ace/mode/json/json_parse.js": [
-174
-],
-"ace:lib/ace/mode/php/php.js": [
-1319,
-1322
-],
-"ace:lib/ace/mode/xml/dom.js": [
-410
-],
-"ace:lib/ace/mode/xml/sax.js": [
-46,
-48
-],
-"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
-1519,
-1534,
-1568,
-1578
-],
-"ace:lib/ace/mode/xquery/xquery_lexer.js": [
-1519,
-1534,
-1568,
-1578
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 404,
@@ -140,35 +98,8 @@
 3358,
 3373
 ],
-"ace:src/bidihandler.js": [
-144
-],
-"ace:src/edit_session.js": [
-1910,
-1954
-],
-"ace:src/keyboard/vim.js": [
-949,
-1287,
-3898,
-6383,
-6384,
-6394,
-7008
-],
-"ace:src/keyboard/vim_test.js": [
-5411,
-5493
-],
 "ace:src/lib/bidiutil.js": [
 249
-],
-"ace:src/lib/keys.js": [
-158
-],
-"ace:src/test/mockdom.js": [
-634,
-635
 ],
 "ace:src/test/user.js": [
 40,
@@ -176,8 +107,5 @@
 ],
 "ace:src/unicode.js": [
 14
-],
-"ace:tool/unicode.js": [
-134
 ]
 }

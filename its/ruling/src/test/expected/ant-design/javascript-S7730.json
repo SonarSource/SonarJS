@@ -9,8 +9,5 @@
 "ant-design:components/notification/__tests__/index.test.js": [
 82,
 95
-],
-"ant-design:scripts/generate-authors.js": [
-20
 ]
 }

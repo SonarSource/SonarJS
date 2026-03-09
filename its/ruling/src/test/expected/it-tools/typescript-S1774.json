@@ -1,8 +1,4 @@
 {
-"it-tools:playwright.config.ts": [
-18,
-20
-],
 "it-tools:src/App.vue": [
 12,
 13
@@ -40,12 +36,6 @@
 ],
 "it-tools:src/modules/command-palette/command-palette.vue": [
 52
-],
-"it-tools:src/plugins/i18n.plugin.ts": [
-20
-],
-"it-tools:src/router.ts": [
-36
 ],
 "it-tools:src/tools/benchmark-builder/benchmark-builder.vue": [
 36,

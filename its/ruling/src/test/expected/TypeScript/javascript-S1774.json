@@ -1,11 +1,4 @@
 {
-"TypeScript:Jakefile.js": [
-281,
-785,
-964,
-975,
-1201
-],
 "TypeScript:lib/tsc.js": [
 86,
 86,
@@ -1379,17 +1372,5 @@
 7100,
 7186,
 7637
-],
-"TypeScript:scripts/browserify-optional.js": [
-11
-],
-"TypeScript:scripts/mocha-parallel.js": [
-162,
-163,
-164,
-256,
-257,
-349,
-359
 ]
 }

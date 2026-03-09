@@ -1,7 +1,4 @@
 {
-"jquery:build/release/cdn.js": [
-88
-],
 "jquery:build/release/dist.js": [
 136
 ],
@@ -12,21 +9,6 @@
 296,
 304,
 324
-],
-"jquery:src/ajax.js": [
-120,
-276,
-369,
-427,
-470,
-475,
-605,
-614,
-645,
-647,
-738,
-814,
-815
 ],
 "jquery:src/ajax/jsonp.js": [
 24,
@@ -73,11 +55,6 @@
 "jquery:src/core/access.js": [
 45,
 62
-],
-"jquery:src/core/init.js": [
-47,
-53,
-106
 ],
 "jquery:src/core/ready-no-deferred.js": [
 34
@@ -136,17 +113,6 @@
 23,
 41,
 48
-],
-"jquery:src/effects.js": [
-53,
-121,
-182,
-238,
-350,
-449,
-516,
-582,
-618
 ],
 "jquery:src/effects/Tween.js": [
 21,

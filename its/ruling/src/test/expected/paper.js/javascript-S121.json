@@ -1,23 +1,9 @@
 {
-"paper.js:examples/Node.js/JSONtoPDF.js": [
-12,
-17
-],
-"paper.js:examples/Node.js/SvgExport.js": [
-49
-],
 "paper.js:examples/Scripts/BooleanOperations.html": [
 366,
 387,
 399,
 425
-],
-"paper.js:gulp/utils/error.js": [
-20,
-22
-],
-"paper.js:gulp/utils/options.js": [
-40
 ],
 "paper.js:src/basic/Line.js": [
 188
@@ -305,10 +291,6 @@
 ],
 "paper.js:src/net/Http.js": [
 20
-],
-"paper.js:src/node/extend.js": [
-93,
-95
 ],
 "paper.js:src/node/xml.js": [
 23

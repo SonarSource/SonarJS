@@ -46,9 +46,6 @@
 88,
 430
 ],
-"eigen:src/app/Components/Bidding/Screens/Registration.tests.tsx": [
-195
-],
 "eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
 80
 ],
@@ -60,15 +57,6 @@
 ],
 "eigen:src/app/Components/StickyTabPage/SnappyHorizontalRail.tsx": [
 42
-],
-"eigen:src/app/NativeModules/LegacyNativeModules.tsx": [
-103
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx": [
-87,
-94,
-115,
-122
 ],
 "eigen:src/app/Scenes/Artwork/Components/ContextCard.tsx": [
 60
@@ -99,11 +87,6 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/UpdateConversation.ts": [
 17
 ],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-162,
-292,
-452
-],
 "eigen:src/app/Scenes/Map/MapRenderer.tsx": [
 49
 ],
@@ -116,9 +99,6 @@
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tsx": [
 248,
 259
-],
-"eigen:src/app/Scenes/MyCollection/State/MyCollectionArtworkModel.tsx": [
-183
 ],
 "eigen:src/app/Scenes/MyCollection/utils/randomMyCollectionArtwork.ts": [
 14
@@ -149,9 +129,6 @@
 38,
 135
 ],
-"eigen:src/app/Scenes/Sale/Components/SaleLotsList.tsx": [
-100
-],
 "eigen:src/app/Scenes/SavedSearchAlert/pillExtractors.ts": [
 94,
 104,
@@ -164,13 +141,6 @@
 ],
 "eigen:src/app/Scenes/Search/AutosuggestResults.tsx": [
 315
-],
-"eigen:src/app/Scenes/Search/Search.tsx": [
-309
-],
-"eigen:src/app/Scenes/Search/SearchResults.tsx": [
-34,
-51
 ],
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ArtworkDetails/utils/createOrUpdateSubmission.ts": [
 24
@@ -219,8 +189,5 @@
 "eigen:src/app/utils/useStickyScrollHeader.tsx": [
 115,
 117
-],
-"eigen:src/palette/elements/Input/Input.tsx": [
-257
 ]
 }

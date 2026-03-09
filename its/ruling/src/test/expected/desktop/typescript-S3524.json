@@ -21,10 +21,6 @@
 6173,
 6190
 ],
-"desktop:app/src/main-process/main.ts": [
-614,
-623
-],
 "desktop:app/src/main-process/menu/build-default-menu.ts": [
 250
 ],
@@ -38,9 +34,6 @@
 ],
 "desktop:app/src/ui/diff/diff-explorer.ts": [
 38
-],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-396
 ],
 "desktop:app/src/ui/diff/text-diff.tsx": [
 605

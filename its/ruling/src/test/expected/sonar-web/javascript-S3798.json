@@ -1,16 +1,4 @@
 {
-"sonar-web:gulp/scripts.js": [
-18,
-25
-],
-"sonar-web:gulpfile.js": [
-9,
-10,
-11,
-12,
-13,
-15
-],
 "sonar-web:src/main/js/api/ce.js": [
 3,
 8,
@@ -81,11 +69,6 @@
 ],
 "sonar-web:src/main/js/api/users.js": [
 3
-],
-"sonar-web:src/main/js/apps/account/app.js": [
-6,
-7,
-9
 ],
 "sonar-web:src/main/js/apps/api-documentation/app.js": [
 14
@@ -351,18 +334,6 @@
 11,
 34,
 39
-],
-"sonar-web:src/main/js/main/processes.js": [
-6,
-12,
-51,
-55,
-89,
-90,
-98,
-114,
-126,
-137
 ],
 "sonar-web:src/main/js/widgets/issue-filter/widget.js": [
 22,

@@ -1,12 +1,4 @@
 {
-"jquery:build/release/cdn.js": [
-39,
-50,
-64,
-73,
-75,
-88
-],
 "jquery:build/release/dist.js": [
 31,
 78,
@@ -29,25 +21,11 @@
 12,
 21
 ],
-"jquery:build/tasks/qunit_fixture.js": [
-10,
-20
-],
 "jquery:build/tasks/testswarm.js": [
 24,
 27,
 32,
 35
-],
-"jquery:src/ajax.js": [
-165,
-234,
-245,
-276,
-554,
-555,
-614,
-647
 ],
 "jquery:src/ajax/jsonp.js": [
 14,

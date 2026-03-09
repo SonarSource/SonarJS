@@ -2,10 +2,6 @@
 "postgraphql:src/graphql/schema/createMutationGqlField.ts": [
 20
 ],
-"postgraphql:src/interface/__ideas__/01-new-types.ts": [
-34,
-56
-],
 "postgraphql:src/interface/collection/Collection.ts": [
 19
 ],

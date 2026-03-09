@@ -22,12 +22,5 @@
 69,
 76,
 80
-],
-"vuetify:packages/vuetify/vite.config.mjs": [
-17,
-22
-],
-"vuetify:scripts/lint-commit-message.js": [
-7
 ]
 }

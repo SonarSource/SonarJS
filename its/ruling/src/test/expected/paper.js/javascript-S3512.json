@@ -1,31 +1,4 @@
 {
-"paper.js:examples/Node.js/AnimatedStar.js": [
-23
-],
-"paper.js:examples/Node.js/SvgImport.js": [
-16
-],
-"paper.js:examples/Node.js/Tadpoles.js": [
-14
-],
-"paper.js:gulp/tasks/build.js": [
-72
-],
-"paper.js:gulp/tasks/docs.js": [
-47
-],
-"paper.js:gulp/tasks/watch.js": [
-21
-],
-"paper.js:gulp/typescript/typescript-definition-generator.js": [
-270,
-293,
-322,
-326
-],
-"paper.js:gulp/utils/options.js": [
-29
-],
 "paper.js:src/basic/Matrix.js": [
 167
 ],
@@ -83,14 +56,6 @@
 ],
 "paper.js:src/net/Http.js": [
 33
-],
-"paper.js:src/node/extend.js": [
-101,
-115
-],
-"paper.js:src/node/self.js": [
-43,
-52
 ],
 "paper.js:src/node/xml.js": [
 32

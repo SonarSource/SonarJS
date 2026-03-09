@@ -2,9 +2,6 @@
 "postgraphql:src/__tests__/utils/createTestInParallel.ts": [
 24
 ],
-"postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts": [
-70
-],
 "postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingAttributes.ts": [
 34
 ],

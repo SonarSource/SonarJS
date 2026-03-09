@@ -1,14 +1,4 @@
 {
-"TypeScript:Jakefile.js": [
-237,
-357,
-382,
-819,
-1020,
-1020,
-1023,
-1133
-],
 "TypeScript:lib/tsc.js": [
 17,
 19,
@@ -487,12 +477,5 @@
 7636,
 7636,
 7636
-],
-"TypeScript:scripts/mocha-parallel.js": [
-294
-],
-"TypeScript:scripts/parallel-lint.js": [
-16,
-22
 ]
 }

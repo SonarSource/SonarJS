@@ -1,22 +1,4 @@
 {
-"amplify:demo/core/context/demo.js": [
-3
-],
-"amplify:demo/core/data/demo.js": [
-3
-],
-"amplify:demo/core/nodata/demo.js": [
-3
-],
-"amplify:demo/core/priority/demo.js": [
-3
-],
-"amplify:demo/store/implicit/demo.js": [
-3
-],
-"amplify:demo/store/sessionstorage/demo.js": [
-2
-],
 "amplify:lib/amplify-vsdoc.js": [
 14
 ],
@@ -28,8 +10,5 @@
 ],
 "amplify:src/store.js": [
 4
-],
-"amplify:test-jquery-versions.js": [
-3
 ]
 }

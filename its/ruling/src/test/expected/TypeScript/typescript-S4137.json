@@ -3299,39 +3299,6 @@
 2773,
 2782
 ],
-"TypeScript:src/harness/harness.ts": [
-36,
-139,
-197,
-200,
-219,
-234,
-235,
-236,
-237,
-238,
-239,
-245,
-272,
-297,
-312,
-324,
-329,
-382,
-388,
-423,
-423,
-452,
-566,
-603,
-606,
-743,
-790,
-993,
-1102,
-1104,
-1986
-],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 81,
 99,
@@ -3353,11 +3320,6 @@
 "TypeScript:src/harness/projectsRunner.ts": [
 72,
 262
-],
-"TypeScript:src/harness/runner.ts": [
-101,
-125,
-128
 ],
 "TypeScript:src/harness/virtualFileSystem.ts": [
 36,

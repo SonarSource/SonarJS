@@ -33,9 +33,6 @@
 8,
 33
 ],
-"desktop:app/src/main-process/desktop-file-transport.ts": [
-22
-],
 "desktop:app/src/models/app-menu.ts": [
 145
 ],
@@ -46,35 +43,9 @@
 "desktop:app/src/ui/diff/text-diff.tsx": [
 466
 ],
-"desktop:app/src/ui/index.tsx": [
-129,
-132
-],
 "desktop:app/src/ui/lib/id-pool.ts": [
 39,
 64
-],
-"desktop:script/build.ts": [
-68,
-70,
-73,
-76,
-79,
-82,
-88,
-94,
-103,
-105,
-108,
-116,
-120,
-124,
-315,
-318,
-337,
-349,
-356,
-384
 ],
 "desktop:script/changelog/parser.ts": [
 136
@@ -85,10 +56,6 @@
 35,
 40,
 43
-],
-"desktop:script/draft-release/index.ts": [
-6,
-11
 ],
 "desktop:script/draft-release/run.ts": [
 64,
@@ -150,10 +117,6 @@
 18,
 22,
 26
-],
-"desktop:script/validate-changelog.ts": [
-9,
-80
 ],
 "desktop:script/validate-sass/validate-all.ts": [
 12,

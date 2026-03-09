@@ -1,12 +1,4 @@
 {
-"searchkit:examples/indexer/mrp-products/config.ts": [
-78,
-90,
-102
-],
-"searchkit:packages/searchkit-client/src/searchkit.tsx": [
-298
-],
 "searchkit:packages/searchkit-schema/src/resolvers/FacetResolver.ts": [
 9
 ],

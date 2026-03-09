@@ -1,26 +1,10 @@
 {
-"angular.js:src/Angular.js": [
-279
-],
-"angular.js:src/ng/animate.js": [
-17
-],
 "angular.js:src/ng/animateRunner.js": [
 11
-],
-"angular.js:src/ng/compile.js": [
-4286,
-4288
 ],
 "angular.js:src/ng/directive/ngClass.js": [
 112,
 114
-],
-"angular.js:src/ng/parse.js": [
-1359,
-1370,
-1393,
-1417
 ],
 "angular.js:src/ng/rootScope.js": [
 703,

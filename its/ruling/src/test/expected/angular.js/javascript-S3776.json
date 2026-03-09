@@ -1,35 +1,6 @@
 {
-"angular.js:src/Angular.js": [
-235,
-324,
-901,
-1083
-],
-"angular.js:src/auto/injector.js": [
-93
-],
-"angular.js:src/jqLite.js": [
-405,
-477,
-762
-],
 "angular.js:src/ng/browser.js": [
 95
-],
-"angular.js:src/ng/compile.js": [
-1997,
-2192,
-2477,
-2531,
-2652,
-2793,
-2884,
-3208,
-3387,
-3492,
-3603,
-3937,
-4032
 ],
 "angular.js:src/ng/directive/input.js": [
 1444,
@@ -41,31 +12,11 @@
 "angular.js:src/ng/filter/filter.js": [
 214
 ],
-"angular.js:src/ng/filter/filters.js": [
-217,
-292
-],
 "angular.js:src/ng/filter/orderBy.js": [
 674
 ],
-"angular.js:src/ng/http.js": [
-136,
-1350
-],
 "angular.js:src/ng/httpBackend.js": [
 59
-],
-"angular.js:src/ng/interpolate.js": [
-240
-],
-"angular.js:src/ng/location.js": [
-894
-],
-"angular.js:src/ng/parse.js": [
-70,
-513,
-654,
-906
 ],
 "angular.js:src/ng/rootScope.js": [
 606,

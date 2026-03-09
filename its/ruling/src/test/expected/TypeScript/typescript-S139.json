@@ -1,7 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-989
-],
 "TypeScript:scripts/bisect-test.ts": [
 53
 ],
@@ -740,9 +737,6 @@
 200,
 1470
 ],
-"TypeScript:src/harness/harness.ts": [
-1729
-],
 "TypeScript:src/harness/projectsRunner.ts": [
 7,
 8,
@@ -755,9 +749,6 @@
 19,
 253,
 335
-],
-"TypeScript:src/harness/runner.ts": [
-204
 ],
 "TypeScript:src/harness/sourceMapRecorder.ts": [
 458

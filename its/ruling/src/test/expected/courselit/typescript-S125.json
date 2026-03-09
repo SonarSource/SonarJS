@@ -1,16 +1,4 @@
 {
-"courselit:apps/web/components/admin/media/upload.tsx": [
-61,
-67,
-76
-],
-"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
-17,
-137,
-141,
-145,
-279
-],
 "courselit:apps/web/graphql/courses/helpers.ts": [
 55,
 60,

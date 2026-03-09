@@ -17,94 +17,14 @@
 "angular.js:docs/app/src/examples.js": [
 30
 ],
-"angular.js:docs/config/processors/pages-data.js": [
-184
-],
-"angular.js:docs/config/processors/versions-data.js": [
-70
-],
 "angular.js:docs/config/tag-defs/deprecated.js": [
 13
-],
-"angular.js:lib/versions/version-info.js": [
-149
-],
-"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
-57,
-99,
-126
-],
-"angular.js:src/Angular.js": [
-901,
-901,
-901,
-936,
-936,
-954,
-969,
-1410,
-1699,
-1825,
-1825
-],
-"angular.js:src/auto/injector.js": [
-111,
-732,
-757,
-777,
-801,
-820,
-822,
-831,
-874
-],
-"angular.js:src/jqLite.js": [
-354,
-365,
-905,
-960
 ],
 "angular.js:src/loader.js": [
 85
 ],
-"angular.js:src/ng/compile.js": [
-1522,
-2531,
-2531,
-2532,
-2532,
-2532,
-2692,
-3028,
-3047,
-3058,
-3187,
-3187,
-3209,
-3209,
-3209,
-3209,
-3233,
-3270,
-3270,
-3278,
-3341,
-3350,
-3350,
-3907,
-4091,
-4273
-],
 "angular.js:src/ng/cookieReader.js": [
 17
-],
-"angular.js:src/ng/directive/a.js": [
-18
-],
-"angular.js:src/ng/directive/form.js": [
-541,
-553,
-553
 ],
 "angular.js:src/ng/directive/input.js": [
 1585,
@@ -116,63 +36,18 @@
 "angular.js:src/ng/directive/ngInclude.js": [
 249
 ],
-"angular.js:src/ng/directive/ngModel.js": [
-1337,
-1361
-],
-"angular.js:src/ng/directive/ngOptions.js": [
-285,
-348,
-381,
-396,
-642,
-656
-],
 "angular.js:src/ng/directive/ngRepeat.js": [
 518,
 518,
 582
-],
-"angular.js:src/ng/directive/ngSwitch.js": [
-206
 ],
 "angular.js:src/ng/directive/select.js": [
 434,
 883,
 883
 ],
-"angular.js:src/ng/filter/filters.js": [
-263,
-263,
-263,
-313
-],
-"angular.js:src/ng/http.js": [
-1081,
-1098,
-1115,
-1140,
-1332
-],
 "angular.js:src/ng/httpBackend.js": [
 187
-],
-"angular.js:src/ng/interpolate.js": [
-115,
-297
-],
-"angular.js:src/ng/location.js": [
-250,
-998
-],
-"angular.js:src/ng/parse.js": [
-919,
-1858,
-1875,
-1878,
-1878,
-1922,
-1940
 ],
 "angular.js:src/ng/q.js": [
 440,
@@ -230,9 +105,6 @@
 267,
 375,
 375
-],
-"angular.js:src/ngMessages/messages.js": [
-437
 ],
 "angular.js:src/ngMock/angular-mocks.js": [
 104,

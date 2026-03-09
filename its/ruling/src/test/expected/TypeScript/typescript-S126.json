@@ -1,16 +1,9 @@
 {
-"TypeScript:Gulpfile.ts": [
-237,
-276
-],
 "TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 136
 ],
 "TypeScript:scripts/tslint/booleanTriviaRule.ts": [
 46
-],
-"TypeScript:scripts/word2md.ts": [
-288
 ],
 "TypeScript:src/compiler/binder.ts": [
 496,
@@ -307,26 +300,13 @@
 3252,
 3273
 ],
-"TypeScript:src/harness/harness.ts": [
-261,
-578,
-1221,
-1534,
-1800
-],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 371
-],
-"TypeScript:src/harness/instrumenter.ts": [
-57
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 111,
 206,
 340
-],
-"TypeScript:src/harness/runner.ts": [
-127
 ],
 "TypeScript:src/harness/rwcRunner.ts": [
 111

@@ -5,16 +5,6 @@
 "router:examples/http.js": [
 1
 ],
-"router:gulpfile.js": [
-7,
-20,
-91
-],
-"router:read-pkg-url.js": [
-4,
-5,
-6
-],
 "router:src/activation.js": [
 5,
 31,

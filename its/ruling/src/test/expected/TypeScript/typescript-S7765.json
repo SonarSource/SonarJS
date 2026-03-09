@@ -1,7 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-81
-],
 "TypeScript:scripts/authors.ts": [
 77
 ],
@@ -11,9 +8,6 @@
 "TypeScript:scripts/buildProtocol.ts": [
 7,
 37
-],
-"TypeScript:scripts/errorCheck.ts": [
-79
 ],
 "TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 115
@@ -27,9 +21,6 @@
 "TypeScript:scripts/tslint/nextLineRule.ts": [
 13,
 14
-],
-"TypeScript:scripts/word2md.ts": [
-269
 ],
 "TypeScript:src/compiler/checker.ts": [
 13286
@@ -56,13 +47,6 @@
 2667,
 2785,
 3252
-],
-"TypeScript:src/harness/harness.ts": [
-121,
-199,
-674,
-1006,
-1377
 ],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 615

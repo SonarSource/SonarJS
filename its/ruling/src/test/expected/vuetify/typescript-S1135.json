@@ -20,9 +20,6 @@
 "vuetify:packages/vuetify/src/components/VAppBar/VAppBar.tsx": [
 24
 ],
-"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
-87
-],
 "vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
 9,
 61,
@@ -35,9 +32,6 @@
 "vuetify:packages/vuetify/src/components/VBtnGroup/__tests__/VBtnGroup.spec.cy.tsx": [
 11
 ],
-"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
-89
-],
 "vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 353
 ],
@@ -47,18 +41,9 @@
 "vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 120
 ],
-"vuetify:packages/vuetify/src/components/VMenu/VMenu.tsx": [
-27
-],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 115,
 419
-],
-"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
-198
-],
-"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
-122
 ],
 "vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
 88
@@ -84,9 +69,6 @@
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
 131
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/composables/items.ts": [
-14
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/sort.ts": [
 73

@@ -113,9 +113,6 @@
 "tailwindcss:__tests__/processPlugins.test.js": [
 0
 ],
-"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
-0
-],
 "tailwindcss:__tests__/resolveConfig.test.js": [
 0
 ],
@@ -146,34 +143,10 @@
 "tailwindcss:colors.js": [
 0
 ],
-"tailwindcss:defaultConfig.js": [
-0
-],
-"tailwindcss:defaultTheme.js": [
-0
-],
 "tailwindcss:jest/customMatchers.js": [
 0
 ],
 "tailwindcss:jest/runInTempDirectory.js": [
-0
-],
-"tailwindcss:plugin.js": [
-0
-],
-"tailwindcss:resolveConfig.js": [
-0
-],
-"tailwindcss:scripts/build.js": [
-0
-],
-"tailwindcss:scripts/compat.js": [
-0
-],
-"tailwindcss:scripts/rebuildFixtures.js": [
-0
-],
-"tailwindcss:src/cli.js": [
 0
 ],
 "tailwindcss:src/cli/colors.js": [
@@ -192,9 +165,6 @@
 0
 ],
 "tailwindcss:src/cli/compile.js": [
-0
-],
-"tailwindcss:src/cli/emoji.js": [
 0
 ],
 "tailwindcss:src/cli/main.js": [
@@ -240,9 +210,6 @@
 0
 ],
 "tailwindcss:src/lib/registerConfigAsDependency.js": [
-0
-],
-"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
 0
 ],
 "tailwindcss:src/lib/substituteResponsiveAtRules.js": [
@@ -647,9 +614,6 @@
 "tailwindcss:src/util/flattenColorPalette.js": [
 0
 ],
-"tailwindcss:src/util/generateVariantFunction.js": [
-0
-],
 "tailwindcss:src/util/getAllConfigs.js": [
 0
 ],
@@ -702,9 +666,6 @@
 0
 ],
 "tailwindcss:src/util/wrapWithVariants.js": [
-0
-],
-"tailwindcss:stubs/defaultConfig.stub.js": [
 0
 ],
 "tailwindcss:stubs/defaultPostCssConfig.stub.js": [

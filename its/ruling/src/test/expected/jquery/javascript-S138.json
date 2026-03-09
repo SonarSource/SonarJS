@@ -4,8 +4,5 @@
 ],
 "jquery:build/tasks/build.js": [
 9
-],
-"jquery:src/ajax.js": [
-382
 ]
 }

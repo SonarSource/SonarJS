@@ -1,17 +1,4 @@
 {
-"http:gulpfile.js": [
-10,
-48,
-49,
-55
-],
-"http:karma.conf.js": [
-17,
-28
-],
-"http:lib/gulp/karma/index.js": [
-24
-],
 "http:src/IConnection.js": [
 19
 ],
@@ -63,10 +50,5 @@
 ],
 "http:test/Public.spec.js": [
 12
-],
-"http:test/matchers.js": [
-17,
-19,
-21
 ]
 }

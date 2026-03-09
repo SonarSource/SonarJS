@@ -5,12 +5,6 @@
 17,
 29
 ],
-"ecmascript6-today:10-modules/in/main.js": [
-3,
-3,
-4,
-4
-],
 "ecmascript6-today:10-modules/js/circle.js": [
 1,
 2,
@@ -104,27 +98,5 @@
 32,
 32,
 32
-],
-"ecmascript6-today:8-iterators.js": [
-6,
-6,
-6,
-6,
-14,
-15,
-23,
-23,
-23,
-23,
-29,
-29,
-29,
-29,
-37,
-38,
-38,
-39,
-39,
-41
 ]
 }

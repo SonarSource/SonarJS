@@ -13,35 +13,11 @@
 8,
 16
 ],
-"redux:examples/async/containers/App.js": [
-80,
-88,
-91,
-98
-],
 "redux:examples/async/index.js": [
 14
 ],
-"redux:examples/async/reducers/index.js": [
-4,
-19,
-24,
-29,
-36,
-49,
-58
-],
 "redux:examples/async/store/configureStore.js": [
 8
-],
-"redux:examples/async/webpack.config.js": [
-8,
-13,
-18,
-25,
-26,
-27,
-43
 ],
 "redux:examples/buildAll.js": [
 16,
@@ -60,12 +36,6 @@
 "redux:examples/counter/index.js": [
 13
 ],
-"redux:examples/counter/reducers/index.js": [
-5
-],
-"redux:examples/counter/store/configureStore.js": [
-6
-],
 "redux:examples/counter/test/actions/counter.spec.js": [
 34,
 39,
@@ -79,16 +49,6 @@
 "redux:examples/counter/test/containers/App.spec.js": [
 13,
 18
-],
-"redux:examples/counter/webpack.config.js": [
-8,
-13,
-18,
-26,
-27,
-28,
-29,
-45
 ],
 "redux:examples/real-world/actions/index.js": [
 14,
@@ -125,9 +85,6 @@
 68,
 74
 ],
-"redux:examples/real-world/containers/DevTools.js": [
-10
-],
 "redux:examples/real-world/containers/RepoPage.js": [
 72,
 79,
@@ -149,46 +106,12 @@
 "redux:examples/real-world/index.js": [
 11
 ],
-"redux:examples/real-world/middleware/api.js": [
-29,
-40,
-54,
-58,
-62,
-70,
-116,
-120,
-121
-],
-"redux:examples/real-world/reducers/index.js": [
-36,
-37,
-44,
-45,
-46,
-53
-],
 "redux:examples/real-world/reducers/paginate.js": [
 23,
 28,
 35,
 39,
 56
-],
-"redux:examples/real-world/store/configureStore.dev.js": [
-15
-],
-"redux:examples/real-world/store/configureStore.prod.js": [
-11
-],
-"redux:examples/real-world/webpack.config.js": [
-8,
-13,
-18,
-25,
-26,
-27,
-43
 ],
 "redux:examples/shopping-cart/actions/index.js": [
 7,
@@ -226,35 +149,11 @@
 36,
 42
 ],
-"redux:examples/shopping-cart/index.js": [
-24
-],
 "redux:examples/shopping-cart/reducers/cart.js": [
 4,
 9,
 30,
 46
-],
-"redux:examples/shopping-cart/reducers/index.js": [
-8,
-15,
-21
-],
-"redux:examples/shopping-cart/reducers/products.js": [
-9,
-24,
-31,
-49
-],
-"redux:examples/shopping-cart/webpack.config.js": [
-8,
-13,
-18,
-25,
-31,
-32,
-33,
-49
 ],
 "redux:examples/testAll.js": [
 15,
@@ -292,9 +191,6 @@
 ],
 "redux:examples/todomvc/index.js": [
 15
-],
-"redux:examples/todomvc/reducers/index.js": [
-5
 ],
 "redux:examples/todomvc/reducers/todos.js": [
 7,
@@ -430,16 +326,6 @@
 281,
 282
 ],
-"redux:examples/todomvc/webpack.config.js": [
-8,
-13,
-18,
-25,
-29,
-30,
-31,
-47
-],
 "redux:examples/todos-with-undo/actions.js": [
 8
 ],
@@ -459,34 +345,6 @@
 22,
 23
 ],
-"redux:examples/todos-with-undo/containers/App.js": [
-35,
-40,
-43,
-63
-],
-"redux:examples/todos-with-undo/index.js": [
-15
-],
-"redux:examples/todos-with-undo/reducers.js": [
-23,
-24,
-30,
-32,
-41
-],
-"redux:examples/todos-with-undo/webpack.config.js": [
-8,
-13,
-18,
-25,
-26,
-27,
-43
-],
-"redux:examples/universal/client/index.js": [
-16
-],
 "redux:examples/universal/common/actions/counter.js": [
 8,
 14,
@@ -497,33 +355,6 @@
 ],
 "redux:examples/universal/common/containers/App.js": [
 8
-],
-"redux:examples/universal/common/reducers/index.js": [
-5
-],
-"redux:examples/universal/common/store/configureStore.js": [
-6
-],
-"redux:examples/universal/server/server.js": [
-48
-],
-"redux:examples/universal/webpack.config.js": [
-8,
-13,
-18,
-33,
-41,
-42,
-43,
-44,
-45,
-46,
-47,
-48,
-49,
-50,
-51,
-66
 ],
 "redux:src/createStore.js": [
 10,
@@ -685,15 +516,5 @@
 11,
 14,
 15
-],
-"redux:webpack.config.development.js": [
-10,
-11
-],
-"redux:webpack.config.production.js": [
-10,
-15,
-16,
-17
 ]
 }

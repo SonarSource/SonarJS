@@ -53,9 +53,6 @@
 59,
 71
 ],
-"desktop:app/src/main-process/main.ts": [
-305
-],
 "desktop:app/src/main-process/ordered-webrequest.ts": [
 41
 ],
@@ -72,12 +69,6 @@
 ],
 "desktop:app/src/ui/changes/sidebar.tsx": [
 286
-],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-503,
-508,
-528,
-1050
 ],
 "desktop:app/src/ui/diff/text-diff.tsx": [
 1004

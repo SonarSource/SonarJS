@@ -39,8 +39,5 @@
 "sizzle:tasks/compile.js": [
 23,
 24
-],
-"sizzle:tasks/ensure_ascii.js": [
-39
 ]
 }

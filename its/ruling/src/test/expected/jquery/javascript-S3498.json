@@ -2,16 +2,6 @@
 "jquery:Gruntfile.js": [
 31
 ],
-"jquery:build/release.js": [
-39,
-50,
-67,
-78
-],
-"jquery:build/release/cdn.js": [
-118,
-119
-],
 "jquery:build/tasks/build.js": [
 300
 ],
@@ -19,20 +9,6 @@
 50,
 52,
 53
-],
-"jquery:src/ajax.js": [
-368,
-382,
-451,
-474,
-479,
-489,
-497,
-516,
-834,
-838,
-855,
-858
 ],
 "jquery:src/ajax/jsonp.js": [
 13
@@ -173,18 +149,6 @@
 12,
 16,
 19
-],
-"jquery:src/effects.js": [
-328,
-339,
-345,
-399,
-418,
-439,
-493,
-501,
-520,
-572
 ],
 "jquery:src/effects/Tween.js": [
 14,

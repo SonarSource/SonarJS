@@ -1,8 +1,4 @@
 {
-"jquery:src/ajax.js": [
-93,
-134
-],
 "jquery:src/ajax/jsonp.js": [
 21
 ],
@@ -30,9 +26,6 @@
 ],
 "jquery:src/data.js": [
 131
-],
-"jquery:src/effects.js": [
-66
 ],
 "jquery:src/event.js": [
 294,

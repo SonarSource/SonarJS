@@ -4,8 +4,5 @@
 ],
 "watchtower.js:src/watch_record.js": [
 245
-],
-"watchtower.js:test/matchers.js": [
-13
 ]
 }

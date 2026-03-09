@@ -1,7 +1,4 @@
 {
-"eigen:metaphysics-queries-freshness-tests/test-freshness.ts": [
-45
-],
 "eigen:src/app/Components/ArtsyWebView.tsx": [
 211
 ],
@@ -10,9 +7,6 @@
 ],
 "eigen:src/app/Components/ArtworkFilter/ArtworkFilterNavigator.tsx": [
 178
-],
-"eigen:src/app/Components/ArtworkFilter/ArtworkFilterOptionsScreen.tsx": [
-217
 ],
 "eigen:src/app/Components/ArtworkGrids/ArtworkGridItem.tsx": [
 93
@@ -38,14 +32,8 @@
 "eigen:src/app/Components/Lists/AuctionResultListItem.tsx": [
 26
 ],
-"eigen:src/app/Components/Lists/ShowItemRow.tsx": [
-128
-],
 "eigen:src/app/Components/MenuItem.tsx": [
 34
-],
-"eigen:src/app/Components/OpaqueImageView/OpaqueImageView.tsx": [
-81
 ],
 "eigen:src/app/Components/ReadMore.tsx": [
 143
@@ -68,9 +56,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/CommercialButtons.tsx": [
 25
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx": [
-170
 ],
 "eigen:src/app/Scenes/Artwork/Components/CommercialPartnerInformation.tsx": [
 12
@@ -127,9 +112,6 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/utils/groupConversationItems.ts": [
 12
 ],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-334
-],
 "eigen:src/app/Scenes/MyAccount/MyAccount.tsx": [
 20
 ],
@@ -163,17 +145,11 @@
 "eigen:src/app/Scenes/Sale/Components/SaleHeader.tsx": [
 27
 ],
-"eigen:src/app/Scenes/SavedAddresses/SavedAddressesForm.tsx": [
-90
-],
 "eigen:src/app/Scenes/SavedSearchAlert/Components/Form.tsx": [
 35
 ],
 "eigen:src/app/Scenes/SavedSearchAlert/pillExtractors.ts": [
 162
-],
-"eigen:src/app/Scenes/Search/Search.tsx": [
-55
 ],
 "eigen:src/app/Scenes/Search/components/AlgoliaSearchResults.tsx": [
 35
@@ -198,9 +174,6 @@
 394,
 658
 ],
-"eigen:src/app/store/NativeModel.ts": [
-67
-],
 "eigen:src/app/tests/MockRelayRenderer.tsx": [
 144
 ],
@@ -216,21 +189,8 @@
 "eigen:src/app/utils/saleTime.ts": [
 28
 ],
-"eigen:src/palette/elements/Button/Button.tsx": [
-143,
-241
-],
-"eigen:src/palette/elements/Checkbox/Checkbox.tsx": [
-34
-],
-"eigen:src/palette/elements/Input/Input.tsx": [
-110
-],
 "eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
 84,
 107
-],
-"eigen:src/palette/elements/Radio/RadioButton.tsx": [
-37
 ]
 }

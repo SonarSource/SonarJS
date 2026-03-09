@@ -7,8 +7,5 @@
 ],
 "Ghost:core/client/tests/unit/helpers/gh-user-can-admin-test.js": [
 48
-],
-"Ghost:core/server/data/migration/fixtures/permissions/index.js": [
-36
 ]
 }

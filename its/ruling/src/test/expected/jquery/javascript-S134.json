@@ -4,10 +4,6 @@
 130,
 150
 ],
-"jquery:src/ajax.js": [
-237,
-265
-],
 "jquery:src/attributes/classes.js": [
 42,
 50,
@@ -18,21 +14,11 @@
 156,
 161
 ],
-"jquery:src/core/init.js": [
-58,
-78
-],
 "jquery:src/css/showHide.js": [
 51
 ],
 "jquery:src/data.js": [
 105
-],
-"jquery:src/effects.js": [
-125,
-176,
-206,
-275
 ],
 "jquery:src/event.js": [
 193,

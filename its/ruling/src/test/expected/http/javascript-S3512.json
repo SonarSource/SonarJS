@@ -1,7 +1,4 @@
 {
-"http:test/matchers.js": [
-16
-],
 "http:test/mocks/Xhr.js": [
 96
 ]

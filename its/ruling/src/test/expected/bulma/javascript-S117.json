@@ -30,59 +30,6 @@
 325,
 493
 ],
-"bulma:docs/_scripts/01-initial.js": [
-4,
-5
-],
-"bulma:docs/_scripts/02-derived.js": [
-4,
-5
-],
-"bulma:docs/_scripts/03-other.js": [
-4,
-5
-],
-"bulma:docs/_scripts/plugins/01-read-initial-variables.js": [
-10
-],
-"bulma:docs/_scripts/plugins/02-read-derived-variables.js": [
-6,
-7,
-13,
-25
-],
-"bulma:docs/_scripts/plugins/03-read-other-variables.js": [
-6,
-7,
-13,
-29
-],
-"bulma:docs/_scripts/plugins/utils.js": [
-4,
-5,
-6,
-65,
-66,
-68,
-69,
-81,
-83,
-84,
-85,
-93,
-94,
-95,
-108,
-110,
-113,
-124,
-124,
-125,
-128,
-137,
-168,
-179
-],
 "bulma:docs/lib/main.js": [
 16,
 25,

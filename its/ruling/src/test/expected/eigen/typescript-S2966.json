@@ -17,9 +17,6 @@
 126,
 127
 ],
-"eigen:src/app/Components/Artist/ArtistInsights/ArtistInsightsAuctionResults.tsx": [
-184
-],
 "eigen:src/app/Components/ArtistAutosuggest/ArtistAutosuggestResults.tsx": [
 59,
 59,
@@ -46,9 +43,6 @@
 112,
 280,
 280
-],
-"eigen:src/app/Components/ArtworkFilter/ArtworkFilterOptionsScreen.tsx": [
-204
 ],
 "eigen:src/app/Components/ArtworkFilter/Filters/AdditionalGeneIDsOptions.tsx": [
 29,
@@ -154,17 +148,8 @@
 238,
 239
 ],
-"eigen:src/app/Components/Bidding/Screens/SelectMaxBid.tsx": [
-86,
-162,
-163,
-163
-],
 "eigen:src/app/Components/Gene/GeneArtworks.tsx": [
 78
-],
-"eigen:src/app/Components/GenericArtistSeriesRail.tsx": [
-66
 ],
 "eigen:src/app/Components/Home/ArtistRails/ArtistRail.tsx": [
 219
@@ -175,11 +160,6 @@
 "eigen:src/app/Components/LotsByArtistsYouFollowRail/LotsByFollowedArtistsRail.tsx": [
 61,
 63
-],
-"eigen:src/app/Components/OpaqueImageView/OpaqueImageView.tsx": [
-132,
-133,
-186
 ],
 "eigen:src/app/Components/PartnerEntityHeader.tsx": [
 25
@@ -237,11 +217,6 @@
 "eigen:src/app/Scenes/ArtistSeries/ArtistSeriesMoreSeries.tsx": [
 63
 ],
-"eigen:src/app/Scenes/Artwork/Components/ArtworkActions.tsx": [
-109,
-110,
-113
-],
 "eigen:src/app/Scenes/Artwork/Components/ArtworkExtraLinks/index.tests.tsx": [
 41
 ],
@@ -284,19 +259,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/AuctionPrice.tsx": [
 107
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryButtons.tests.tsx": [
-49,
-50,
-50
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryModal.tests.tsx": [
-43,
-43
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryModal.tsx": [
-146,
-248
 ],
 "eigen:src/app/Scenes/Artwork/Components/CommercialPartnerInformation.tsx": [
 44
@@ -349,14 +311,6 @@
 "eigen:src/app/Scenes/Artwork/Components/Questions.tests.tsx": [
 24
 ],
-"eigen:src/app/Scenes/BottomTabs/BottomTabs.tests.tsx": [
-69,
-96,
-158
-],
-"eigen:src/app/Scenes/BottomTabs/BottomTabsButton.tsx": [
-63
-],
 "eigen:src/app/Scenes/City/CityBMWList.tsx": [
 63
 ],
@@ -367,21 +321,8 @@
 "eigen:src/app/Scenes/City/CitySavedList.tsx": [
 58
 ],
-"eigen:src/app/Scenes/City/Components/Event/index.tsx": [
-136,
-159
-],
-"eigen:src/app/Scenes/City/Components/TabFairItemRow/index.tsx": [
-32
-],
 "eigen:src/app/Scenes/City/cityTabs.ts": [
 9
-],
-"eigen:src/app/Scenes/Collection/Components/CollectionHubsRails/FeaturedCollections/FeaturedCollectionsRail.tsx": [
-103
-],
-"eigen:src/app/Scenes/Collection/Screens/CollectionArtworks.tsx": [
-28
 ],
 "eigen:src/app/Scenes/Fair/Components/FairArtworks.tsx": [
 39
@@ -488,21 +429,11 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/CTAPopUp.tsx": [
 36
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tests.tsx": [
-43,
-43,
-43
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tsx": [
 28
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tsx": [
 118
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tests.tsx": [
-41,
-44,
-44
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryPurchaseButton.tests.tsx": [
 33,
@@ -511,60 +442,17 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryPurchaseButton.tsx": [
 96
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/MakeOfferModal.tests.tsx": [
-21,
-21,
-171,
-186,
-187
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/MakeOfferModal.tsx": [
 49,
 53,
 54,
 128
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Message.tsx": [
-37,
-54
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/MessageGroup.tsx": [
-57,
-73,
-76,
-120
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tests.tsx": [
-54,
-54,
-54
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tsx": [
-84,
-159,
-167,
-168
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/OpenInquiryModalButton.tsx": [
 28
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tests.tsx": [
-61,
-61,
-61,
-61,
-61,
-61,
-61
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Preview/ArtworkPreview.tsx": [
-58
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Preview/Attachment/AttachmentPreview.tsx": [
 33
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Preview/ShowPreview.tsx": [
-53
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/PurchaseModal.tsx": [
 49,
@@ -575,21 +463,6 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/utils/groupConversationItems.ts": [
 18,
 22
-],
-"eigen:src/app/Scenes/Inbox/Screens/Conversation.tests.tsx": [
-52,
-52
-],
-"eigen:src/app/Scenes/Inbox/Screens/Conversation.tsx": [
-167
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-388,
-389
-],
-"eigen:src/app/Scenes/Map/NewMap.tsx": [
-39,
-39
 ],
 "eigen:src/app/Scenes/MyBids/Components/ActiveLotStanding.tsx": [
 19
@@ -741,29 +614,9 @@
 45,
 54
 ],
-"eigen:src/app/Scenes/Sale/Components/SaleLotsList.tsx": [
-156,
-167
-],
 "eigen:src/app/Scenes/Sale/Sale.tsx": [
 143,
 440
-],
-"eigen:src/app/Scenes/SavedAddresses/SavedAddressesForm.tsx": [
-103,
-104,
-121,
-122,
-124,
-126,
-134,
-155,
-156,
-158,
-160,
-167,
-261,
-272
 ],
 "eigen:src/app/Scenes/SavedSearchAlert/EditSavedSearchAlert.tsx": [
 53
@@ -789,12 +642,6 @@
 120,
 286
 ],
-"eigen:src/app/Scenes/Search/Search.tsx": [
-91,
-91,
-176,
-193
-],
 "eigen:src/app/Scenes/Search/SearchArtworksContainer.tsx": [
 28
 ],
@@ -804,11 +651,6 @@
 "eigen:src/app/Scenes/Search/SearchModel.tests.tsx": [
 35,
 102
-],
-"eigen:src/app/Scenes/Search/SearchResults.tsx": [
-39,
-53,
-54
 ],
 "eigen:src/app/Scenes/Search/components/AutosuggestSearchResult.tsx": [
 111,
@@ -876,11 +718,6 @@
 ],
 "eigen:src/app/Scenes/VanityURL/VanityURLPossibleRedirect.tsx": [
 17
-],
-"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomHeader.tsx": [
-124,
-124,
-135
 ],
 "eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomSubsections.tsx": [
 13,
@@ -982,9 +819,6 @@
 "eigen:src/palette/elements/Autocomplete/Autocomplete.ts": [
 57
 ],
-"eigen:src/palette/elements/Input/Input.tsx": [
-123
-],
 "eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
 116,
 119,
@@ -994,12 +828,6 @@
 "eigen:src/palette/elements/Tabs/TabBarContainer.tsx": [
 37,
 39
-],
-"eigen:src/palette/organisms/screenStructure/Screen.tsx": [
-26
-],
-"eigen:src/setupJest.ts": [
-53
 ],
 "eigen:src/shared/utils/ArtsyKeyboardAvoidingView.tsx": [
 136,

@@ -1,21 +1,4 @@
 {
-"angular.js:src/jqLite.js": [
-762,
-1091
-],
-"angular.js:src/ng/compile.js": [
-4202
-],
-"angular.js:src/ng/directive/form.js": [
-636
-],
-"angular.js:src/ng/location.js": [
-654
-],
-"angular.js:src/ng/sce.js": [
-301,
-304
-],
 "angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js": [
 26,
 38,

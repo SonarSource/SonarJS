@@ -1,20 +1,8 @@
 {
-"qunit:Gruntfile.js": [
-0
-],
-"qunit:bin/qunit.js": [
-0
-],
 "qunit:build/coverage-bridge.js": [
 0
 ],
 "qunit:build/release.js": [
-0
-],
-"qunit:build/tasks/livereload.js": [
-0
-],
-"qunit:build/tasks/test-on-node.js": [
 0
 ],
 "qunit:reporter/diff.js": [
@@ -29,9 +17,6 @@
 "qunit:reporter/urlparams.js": [
 0
 ],
-"qunit:rollup.config.js": [
-0
-],
 "qunit:runner/fixture.js": [
 0
 ],
@@ -39,24 +24,6 @@
 0
 ],
 "qunit:src/assert.js": [
-0
-],
-"qunit:src/cli/find-reporter.js": [
-0
-],
-"qunit:src/cli/require-from-cwd.js": [
-0
-],
-"qunit:src/cli/require-qunit.js": [
-0
-],
-"qunit:src/cli/run.js": [
-0
-],
-"qunit:src/cli/utils.js": [
-0
-],
-"qunit:src/core.js": [
 0
 ],
 "qunit:src/core/config.js": [
@@ -72,9 +39,6 @@
 0
 ],
 "qunit:src/core/processing-queue.js": [
-0
-],
-"qunit:src/core/stacktrace.js": [
 0
 ],
 "qunit:src/core/utilities.js": [
@@ -93,9 +57,6 @@
 0
 ],
 "qunit:src/globals.js": [
-0
-],
-"qunit:src/logger.js": [
 0
 ],
 "qunit:src/module.js": [

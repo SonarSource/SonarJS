@@ -1,19 +1,9 @@
 {
-"ace:demo/kitchen-sink/dev_util.js": [
-166,
-167
-],
 "ace:experiments/worker.js": [
 2
-],
-"ace:lib/ace/mode/javascript/jshint.js": [
-3316
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 3528,
 3533
-],
-"ace:tool/mode_creator.js": [
-214
 ]
 }

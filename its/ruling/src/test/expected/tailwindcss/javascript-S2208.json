@@ -6,9 +6,6 @@
 "tailwindcss:__tests__/cli.utils.test.js": [
 1
 ],
-"tailwindcss:src/cli.js": [
-4
-],
 "tailwindcss:src/cli/commands/build.js": [
 8,
 9,

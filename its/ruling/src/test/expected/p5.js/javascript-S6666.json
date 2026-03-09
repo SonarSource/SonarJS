@@ -16,8 +16,5 @@
 ],
 "p5.js:src/core/shim.js": [
 71
-],
-"p5.js:tasks/test/mocha-chrome.js": [
-54
 ]
 }

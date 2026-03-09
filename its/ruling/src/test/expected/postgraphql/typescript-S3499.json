@@ -1,12 +1,6 @@
 {
-"postgraphql:src/graphql/schema/type/getGqlInputType.ts": [
-136
-],
 "postgraphql:src/interface/collection/Condition.ts": [
 69
-],
-"postgraphql:src/postgraphql/cli.ts": [
-110
 ],
 "postgraphql:src/postgraphql/schema/procedures/createPgProcedureMutationGqlFieldEntry.ts": [
 52

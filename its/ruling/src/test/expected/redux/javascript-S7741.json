@@ -2,9 +2,6 @@
 "redux:examples/counter/test/actions/counter.spec.js": [
 15
 ],
-"redux:examples/real-world/middleware/api.js": [
-80
-],
 "redux:src/createStore.js": [
 108
 ],

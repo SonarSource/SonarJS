@@ -1,24 +1,4 @@
 {
-"TypeScript:Jakefile.js": [
-65,
-66,
-786,
-787,
-788,
-789,
-890
-],
-"TypeScript:lib/cancellationToken.js": [
-37,
-38,
-39,
-50,
-51,
-55,
-65,
-66,
-67
-],
 "TypeScript:lib/tsc.js": [
 238,
 239,
@@ -630,21 +610,5 @@
 7548,
 7548,
 7697
-],
-"TypeScript:scripts/browserify-optional.js": [
-10
-],
-"TypeScript:scripts/mocha-parallel.js": [
-237,
-270,
-271,
-272,
-273,
-274,
-282,
-288,
-294,
-324,
-348
 ]
 }

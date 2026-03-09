@@ -1,47 +1,14 @@
 {
-"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
-325,
-330,
-333,
-336,
-351
-],
 "vuetify:packages/vuetify/src/components/VCarousel/VCarousel.tsx": [
 129
 ],
-"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerSwatches.tsx": [
-72
-],
-"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
-405,
-410,
-413,
-416,
-431
-],
-"vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx": [
-214,
-219,
-226,
-238
-],
 "vuetify:packages/vuetify/src/components/VOverlay/scrollStrategies.ts": [
 137
-],
-"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
-280,
-288,
-291,
-305
 ],
 "vuetify:packages/vuetify/src/components/VSwitch/VSwitch.tsx": [
 133
 ],
 "vuetify:packages/vuetify/src/composables/delay.ts": [
 33
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRow.tsx": [
-71,
-82
 ]
 }

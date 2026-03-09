@@ -1,7 +1,4 @@
 {
-"sonar-web:src/main/js/apps/account/app.js": [
-6
-],
 "sonar-web:src/main/js/apps/coding-rules/rule/custom-rule-creation-view.js": [
 64,
 65,
@@ -94,9 +91,6 @@
 ],
 "sonar-web:src/main/js/main/nav/global/search-view.js": [
 111
-],
-"sonar-web:src/main/js/main/processes.js": [
-140
 ],
 "sonar-web:src/main/js/widgets/issue-filter/widget.js": [
 242,

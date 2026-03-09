@@ -1,16 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-73,
-74,
-75,
-76,
-81,
-106,
-387,
-766,
-808,
-1029
-],
 "TypeScript:scripts/authors.ts": [
 116
 ],
@@ -1400,32 +1388,6 @@
 3720,
 4097
 ],
-"TypeScript:src/harness/harness.ts": [
-70,
-75,
-80,
-225,
-562,
-770,
-771,
-950,
-960,
-961,
-1126,
-1130,
-1144,
-1252,
-1256,
-1283,
-1461,
-1466,
-1482,
-1524,
-1572,
-1609,
-1809,
-1826
-],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 151,
 199,
@@ -1448,11 +1410,6 @@
 415,
 431,
 435
-],
-"TypeScript:src/harness/runner.ts": [
-75,
-77,
-79
 ],
 "TypeScript:src/harness/runnerbase.ts": [
 20,

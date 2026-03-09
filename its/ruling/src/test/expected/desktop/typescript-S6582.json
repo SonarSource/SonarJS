@@ -207,10 +207,6 @@
 "desktop:app/src/ui/create-tag/create-tag-dialog.tsx": [
 124
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-773,
-855
-],
 "desktop:app/src/ui/diff/text-diff.tsx": [
 499,
 729,

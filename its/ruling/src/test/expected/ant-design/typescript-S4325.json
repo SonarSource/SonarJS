@@ -21,15 +21,6 @@
 734,
 736
 ],
-"ant-design:components/anchor/__tests__/cached-context.test.tsx": [
-42,
-44,
-46,
-48,
-49,
-50,
-52
-],
 "ant-design:components/avatar/avatar.tsx": [
 233
 ],
@@ -192,16 +183,10 @@
 "ant-design:components/upload/utils.tsx": [
 57
 ],
-"ant-design:site/theme/template/IconDisplay/index.tsx": [
-87
-],
 "ant-design:site/theme/template/IconDisplay/themeIcons.tsx": [
 21,
 35,
 48
-],
-"ant-design:site/theme/template/Resources/index.tsx": [
-105
 ],
 "ant-design:site/theme/template/utils.tsx": [
 189

@@ -1,7 +1,4 @@
 {
-"p5.js:Gruntfile.js": [
-68
-],
 "p5.js:bench/math/random-fe-off.bench.js": [
 4
 ],
@@ -10,13 +7,6 @@
 ],
 "p5.js:bench/math/sin.bench.js": [
 4
-],
-"p5.js:docs/preprocessor.js": [
-5,
-33,
-43,
-224,
-233
 ],
 "p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
 1
@@ -116,18 +106,11 @@
 47,
 125
 ],
-"p5.js:tasks/test/mocha-chrome.js": [
-92
-],
 "p5.js:test/test-reference.html": [
 36,
 41,
 42,
 53,
 97
-],
-"p5.js:utils/sample-linter.js": [
-31,
-196
 ]
 }

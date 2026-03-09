@@ -50,12 +50,6 @@
 16,
 20
 ],
-"fireact:src/components/Layout/index.js": [
-77,
-77,
-77,
-77
-],
 "fireact:src/components/Loader/index.js": [
 4,
 4
@@ -74,16 +68,6 @@
 3,
 3,
 3
-],
-"fireact:src/components/routers/AuthRouter/index.js": [
-7,
-7,
-7
-],
-"fireact:src/components/routers/PublicRouter/index.js": [
-4,
-4,
-4
 ],
 "fireact:src/components/templates/AccountTemplate/index.js": [
 12,

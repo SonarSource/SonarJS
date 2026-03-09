@@ -2,9 +2,6 @@
 "eigen:dangerfile.ts": [
 4
 ],
-"eigen:metaphysics-queries-freshness-tests/test-freshness.ts": [
-7
-],
 "eigen:src/app/Components/ArtsyWebView.tsx": [
 23
 ],
@@ -29,13 +26,5 @@
 "eigen:src/app/utils/renderMarkdown.tests.tsx": [
 5,
 7
-],
-"eigen:src/palette/elements/Input/Input.tsx": [
-2
-],
-"eigen:src/setupJest.ts": [
-10,
-587,
-602
 ]
 }

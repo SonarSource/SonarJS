@@ -272,9 +272,6 @@
 "ant-design:components/layout/Sider.tsx": [
 6
 ],
-"ant-design:components/layout/layout.tsx": [
-2
-],
 "ant-design:components/list/index.tsx": [
 2
 ],
@@ -304,9 +301,6 @@
 ],
 "ant-design:components/menu/hooks/useItems.tsx": [
 8
-],
-"ant-design:components/menu/index.tsx": [
-7
 ],
 "ant-design:components/message/hooks/useMessage.tsx": [
 7
@@ -459,9 +453,6 @@
 1
 ],
 "ant-design:components/statistic/Number.tsx": [
-2
-],
-"ant-design:components/statistic/Statistic.tsx": [
 2
 ],
 "ant-design:components/statistic/utils.tsx": [
@@ -629,9 +620,6 @@
 "ant-design:site/theme/template/Home/Banner/Background.tsx": [
 1
 ],
-"ant-design:site/theme/template/Home/Banner/Logo.tsx": [
-1
-],
 "ant-design:site/theme/template/Home/Banner/index.tsx": [
 1
 ],
@@ -665,22 +653,12 @@
 "ant-design:site/theme/template/Home/util.tsx": [
 2
 ],
-"ant-design:site/theme/template/IconDisplay/Category.tsx": [
-1
-],
 "ant-design:site/theme/template/IconDisplay/CopyableIcon.tsx": [
 1,
 5
 ],
-"ant-design:site/theme/template/IconDisplay/IconPicSearcher.tsx": [
-5
-],
 "ant-design:site/theme/template/IconDisplay/fields.ts": [
 1
-],
-"ant-design:site/theme/template/IconDisplay/index.tsx": [
-1,
-2
 ],
 "ant-design:site/theme/template/IconDisplay/themeIcons.tsx": [
 1
@@ -703,9 +681,6 @@
 1,
 2
 ],
-"ant-design:site/theme/template/Layout/Header/index.tsx": [
-7
-],
 "ant-design:site/theme/template/Layout/SiteContext.tsx": [
 1
 ],
@@ -717,9 +692,5 @@
 ],
 "ant-design:site/theme/template/Resources/Articles/index.tsx": [
 2
-],
-"ant-design:site/theme/template/Resources/index.tsx": [
-1,
-6
 ]
 }

@@ -1,16 +1,9 @@
 {
-"jquery:src/ajax.js": [
-647,
-676
-],
 "jquery:src/attributes/attr.js": [
 109
 ],
 "jquery:src/attributes/val.js": [
 84
-],
-"jquery:src/core/init.js": [
-106
 ],
 "jquery:src/core/ready-no-deferred.js": [
 75

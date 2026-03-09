@@ -11,17 +11,8 @@
 "Ghost:core/client/app/components/gh-spin-button.js": [
 40
 ],
-"Ghost:core/client/app/controllers/settings/tags.js": [
-25
-],
-"Ghost:core/client/app/controllers/setup/three.js": [
-226
-],
 "Ghost:core/client/app/mixins/ed-editor-shortcuts.js": [
 68
-],
-"Ghost:core/client/app/mixins/editor-base-controller.js": [
-351
 ],
 "Ghost:core/client/app/mixins/validation-engine.js": [
 82
@@ -66,74 +57,6 @@
 14,
 31,
 48
-],
-"Ghost:core/server/api/index.js": [
-69,
-117
-],
-"Ghost:core/server/api/users.js": [
-205
-],
-"Ghost:core/server/config/url.js": [
-199,
-218
-],
-"Ghost:core/server/controllers/frontend/index.js": [
-182
-],
-"Ghost:core/server/data/import/index.js": [
-36,
-87,
-135
-],
-"Ghost:core/server/data/meta/description.js": [
-18
-],
-"Ghost:core/server/data/meta/next_url.js": [
-14
-],
-"Ghost:core/server/data/meta/schema.js": [
-104
-],
-"Ghost:core/server/data/migration/builder.js": [
-59
-],
-"Ghost:core/server/data/migration/fixtures/permissions/index.js": [
-36
-],
-"Ghost:core/server/data/validation/index.js": [
-152
-],
-"Ghost:core/server/helpers/body_class.js": [
-42
-],
-"Ghost:core/server/helpers/ghost_head.js": [
-55
-],
-"Ghost:core/server/helpers/plural.js": [
-27
-],
-"Ghost:core/server/middleware/auth.js": [
-156
-],
-"Ghost:core/server/models/post.js": [
-345,
-357,
-420,
-427
-],
-"Ghost:core/server/models/role.js": [
-67
-],
-"Ghost:core/server/models/user.js": [
-285
-],
-"Ghost:core/server/permissions/index.js": [
-59,
-75,
-98,
-140,
-176
 ],
 "Ghost:core/server/utils/downzero.js": [
 51,

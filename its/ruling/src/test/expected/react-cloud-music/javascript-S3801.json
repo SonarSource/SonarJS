@@ -1,7 +1,4 @@
 {
-"react-cloud-music:scripts/start.js": [
-109
-],
 "react-cloud-music:src/api/utils.js": [
 30
 ],
@@ -11,18 +8,5 @@
 ],
 "react-cloud-music:src/application/User/Login/PhoneForm/step-two/index.jsx": [
 13
-],
-"react-cloud-music:src/baseUI/scroll/index.jsx": [
-115,
-123,
-137,
-165
-],
-"react-cloud-music:ts-music/config/modules.js": [
-64,
-85
-],
-"react-cloud-music:ts-music/scripts/start.js": [
-121
 ]
 }

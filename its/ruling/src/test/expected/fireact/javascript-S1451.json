@@ -1,10 +1,4 @@
 {
-"fireact:functions/index.js": [
-0
-],
-"fireact:src/App.js": [
-0
-],
 "fireact:src/App.test.js": [
 0
 ],
@@ -50,9 +44,6 @@
 "fireact:src/components/Form/index.js": [
 0
 ],
-"fireact:src/components/Layout/index.js": [
-0
-],
 "fireact:src/components/Loader/index.js": [
 0
 ],
@@ -72,12 +63,6 @@
 0
 ],
 "fireact:src/components/menus/UserMenu/index.js": [
-0
-],
-"fireact:src/components/routers/AuthRouter/index.js": [
-0
-],
-"fireact:src/components/routers/PublicRouter/index.js": [
 0
 ],
 "fireact:src/components/templates/AccountTemplate/index.js": [
@@ -177,9 +162,6 @@
 0
 ],
 "fireact:src/pages/public/SignIn/index.js": [
-0
-],
-"fireact:src/serviceWorker.js": [
 0
 ],
 "fireact:src/setupTests.js": [

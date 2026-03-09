@@ -63,9 +63,6 @@
 51,
 167
 ],
-"sonar-web:tests/apps/background-tasks-test.js": [
-60
-],
 "sonar-web:tests/apps/overview/components/timeline-chart-test.js": [
 22
 ]

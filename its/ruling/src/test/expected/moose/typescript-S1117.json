@@ -13,25 +13,6 @@
 37,
 53
 ],
-"moose:renderer/components/CastControl/CastControl.tsx": [
-67,
-73,
-73
-],
-"moose:renderer/components/Container/Container.tsx": [
-42,
-88,
-98
-],
-"moose:renderer/components/Downloads/Downloads.tsx": [
-87
-],
-"moose:renderer/components/DragAndDrop/DragAndDrop.tsx": [
-27
-],
-"moose:renderer/components/FilesList/FilesList.tsx": [
-140
-],
 "moose:renderer/components/Settings/Settings.tsx": [
 52
 ],

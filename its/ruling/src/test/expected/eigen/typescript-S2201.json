@@ -1,7 +1,4 @@
 {
-"eigen:metaphysics-queries-freshness-tests/test-freshness.ts": [
-153
-],
 "eigen:src/app/Components/ArtworkFilter/Filters/WaysToBuyOptions.tsx": [
 67
 ],
@@ -10,8 +7,5 @@
 ],
 "eigen:src/app/utils/renderMarkdown.tests.tsx": [
 161
-],
-"eigen:src/palette/organisms/screenStructure/Screen.tsx": [
-224
 ]
 }

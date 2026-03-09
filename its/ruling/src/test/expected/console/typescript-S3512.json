@@ -30,23 +30,6 @@
 145,
 147
 ],
-"console:src/views/RelationsPopup/RelationPopup.tsx": [
-501,
-514,
-550,
-566,
-572,
-580,
-588,
-596,
-603
-],
-"console:src/views/SchemaView/SchemaEditor.tsx": [
-263
-],
-"console:src/views/SchemaView/SchemaViewer.tsx": [
-100
-],
 "console:src/views/Settings/Billing/Billing.tsx": [
 142
 ],
@@ -69,8 +52,5 @@
 ],
 "console:src/views/Settings/Team/Team.tsx": [
 93
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-75
 ]
 }

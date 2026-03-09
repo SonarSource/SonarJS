@@ -1,18 +1,6 @@
 {
-"paper.js:examples/Node.js/AnimatedStar.js": [
-31,
-37
-],
 "paper.js:examples/Scripts/BooleanOperations.html": [
 359
-],
-"paper.js:gulp/typescript/typescript-definition-generator.js": [
-20,
-49,
-56,
-120,
-124,
-135
 ],
 "paper.js:src/anim/Tween.js": [
 49,
@@ -293,13 +281,6 @@
 ],
 "paper.js:src/item/SymbolItem.js": [
 78
-],
-"paper.js:src/node/extend.js": [
-24,
-147
-],
-"paper.js:src/node/self.js": [
-22
 ],
 "paper.js:src/options.js": [
 26

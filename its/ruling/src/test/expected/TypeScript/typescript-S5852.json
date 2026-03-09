@@ -1,7 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-412
-],
 "TypeScript:scripts/authors.ts": [
 22,
 115
@@ -18,9 +15,6 @@
 641,
 642,
 3002
-],
-"TypeScript:src/harness/harness.ts": [
-680
 ],
 "TypeScript:src/harness/rwcRunner.ts": [
 39,

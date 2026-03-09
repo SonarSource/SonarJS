@@ -6,13 +6,6 @@
 4,
 10
 ],
-"sonar-web:src/main/js/apps/account/app.js": [
-6,
-6,
-6,
-18,
-35
-],
 "sonar-web:src/main/js/apps/account/change-password-view.js": [
 26
 ],
@@ -77,13 +70,6 @@
 ],
 "sonar-web:src/main/js/apps/custom-measures/app.js": [
 49
-],
-"sonar-web:src/main/js/apps/dashboard/app.js": [
-4,
-8,
-135,
-137,
-144
 ],
 "sonar-web:src/main/js/apps/drilldown/app.js": [
 8,
@@ -760,12 +746,6 @@
 80,
 83
 ],
-"sonar-web:test/medium/issues.spec.js": [
-179
-],
-"sonar-web:test/medium/update-center.spec.js": [
-100
-],
 "sonar-web:tests/application-test.js": [
 4,
 8,
@@ -788,11 +768,6 @@
 64,
 65
 ],
-"sonar-web:tests/apps/system-test.js": [
-53,
-54,
-62
-],
 "sonar-web:tests/helpers/measures-test.js": [
 13,
 22,
@@ -803,20 +778,5 @@
 30,
 33,
 41
-],
-"sonar-web:tests/helpers/urls-test.js": [
-17,
-21,
-34,
-61,
-84
-],
-"sonar-web:tests/jsdom-setup.js": [
-7,
-8,
-9,
-11,
-12,
-12
 ]
 }

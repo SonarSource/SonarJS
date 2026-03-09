@@ -2,13 +2,6 @@
 "postgraphql:src/interface/Inventory.ts": [
 89
 ],
-"postgraphql:src/postgraphql/cli.ts": [
-39,
-42,
-43,
-44,
-136
-],
 "postgraphql:src/postgraphql/schema/auth/getPgTokenTypeFromIdentifier.ts": [
 19
 ],

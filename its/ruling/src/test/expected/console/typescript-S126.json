@@ -9,25 +9,8 @@
 "console:src/utils/polyfils.ts": [
 90
 ],
-"console:src/views/ActionsView/ActionTrigger.tsx": [
-25
-],
-"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
-465,
-482
-],
-"console:src/views/FunctionsView/FunctionPopup/TestPopup.tsx": [
-325
-],
-"console:src/views/ProjectRootView/ProjectRootView.tsx": [
-169
-],
 "console:src/views/ProjectSettingsView/CreateRelationHeaderTab.tsx": [
 48
-],
-"console:src/views/RelationsPopup/RelationPopup.tsx": [
-445,
-479
 ],
 "console:src/views/RelationsPopup/SetMutation.tsx": [
 195,
@@ -51,9 +34,6 @@
 "console:src/views/Settings/Billing/EditCreditCard.tsx": [
 95,
 238
-],
-"console:src/views/Settings/General/ProjectInfo.tsx": [
-339
 ],
 "console:src/views/Settings/Team/EmptyRow.tsx": [
 160

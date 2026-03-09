@@ -20,26 +20,11 @@
 116,
 146
 ],
-"console:src/views/FunctionsView/FunctionLogs/Log.tsx": [
-26
-],
-"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
-396
-],
 "console:src/views/FunctionsView/FunctionPopup/Trigger.tsx": [
 98
 ],
 "console:src/views/FunctionsView/FunctionPopup/functionPopupState.ts": [
 87
-],
-"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx": [
-79,
-126,
-342,
-372
-],
-"console:src/views/ProjectRootView/OnboardSideNav.tsx": [
-160
 ],
 "console:src/views/RelationsPopup/ModelSelectionBox.tsx": [
 185
@@ -56,22 +41,8 @@
 "console:src/views/Settings/Team/Team.tsx": [
 76
 ],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-403
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-312,
-316
-],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-553,
-553
-],
 "console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
 244
-],
-"console:src/views/models/FieldPopup/BaseSettings.tsx": [
-226
 ],
 "console:src/views/models/FieldPopup/EditValueInput.tsx": [
 133

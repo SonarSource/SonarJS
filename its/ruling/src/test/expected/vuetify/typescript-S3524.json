@@ -26,11 +26,6 @@
 50,
 65
 ],
-"vuetify:packages/docs/src/main.ts": [
-64,
-74,
-105
-],
 "vuetify:packages/docs/src/plugins/i18n.ts": [
 10
 ],
@@ -51,31 +46,8 @@
 130,
 142
 ],
-"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
-134
-],
-"vuetify:packages/vuetify/src/components/VBtn/VBtn.tsx": [
-120
-],
-"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerEdit.tsx": [
-51
-],
-"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
-138,
-176
-],
-"vuetify:packages/vuetify/src/components/VCounter/VCounter.tsx": [
-33
-],
-"vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx": [
-73
-],
 "vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 107
-],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
-114,
-178
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
 144
@@ -83,22 +55,11 @@
 "vuetify:packages/vuetify/src/components/VParallax/VParallax.tsx": [
 63
 ],
-"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
-136
-],
 "vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
 26
 ],
-"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
-332,
-336
-],
 "vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
 121
-],
-"vuetify:packages/vuetify/src/composables/__tests__/proxiedModel.spec.ts": [
-149,
-152
 ],
 "vuetify:packages/vuetify/src/composables/density.ts": [
 31
@@ -111,10 +72,6 @@
 ],
 "vuetify:packages/vuetify/src/composables/group.ts": [
 127
-],
-"vuetify:packages/vuetify/src/composables/icons.tsx": [
-138,
-151
 ],
 "vuetify:packages/vuetify/src/composables/layout.ts": [
 210,

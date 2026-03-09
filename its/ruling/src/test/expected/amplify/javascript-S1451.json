@@ -1,22 +1,4 @@
 {
-"amplify:demo/core/context/demo.js": [
-0
-],
-"amplify:demo/core/data/demo.js": [
-0
-],
-"amplify:demo/core/nodata/demo.js": [
-0
-],
-"amplify:demo/core/priority/demo.js": [
-0
-],
-"amplify:demo/store/implicit/demo.js": [
-0
-],
-"amplify:demo/store/sessionstorage/demo.js": [
-0
-],
 "amplify:header.js": [
 0
 ],
@@ -51,12 +33,6 @@
 0
 ],
 "amplify:src/store.js": [
-0
-],
-"amplify:test-jquery-versions.js": [
-0
-],
-"amplify:test-server.js": [
 0
 ]
 }

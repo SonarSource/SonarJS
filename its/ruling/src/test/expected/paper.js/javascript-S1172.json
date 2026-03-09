@@ -1,13 +1,4 @@
 {
-"paper.js:examples/Node.js/BooleanOperations.js": [
-7
-],
-"paper.js:examples/Node.js/SvgImport.js": [
-8
-],
-"paper.js:gulp/tasks/test.js": [
-28
-],
 "paper.js:src/canvas/BlendMode.js": [
 233
 ],
@@ -19,9 +10,6 @@
 ],
 "paper.js:src/item/Raster.js": [
 795
-],
-"paper.js:src/node/extend.js": [
-79
 ],
 "paper.js:src/node/xml.js": [
 33

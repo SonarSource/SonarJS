@@ -1,21 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-67,
-117,
-141,
-317,
-349,
-429,
-490,
-506,
-772,
-778,
-898,
-918,
-949,
-973,
-989
-],
 "TypeScript:scripts/authors.ts": [
 69
 ],
@@ -25,9 +8,6 @@
 ],
 "TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 64
-],
-"TypeScript:scripts/word2md.ts": [
-165
 ],
 "TypeScript:src/compiler/binder.ts": [
 9,
@@ -1098,16 +1078,6 @@
 "TypeScript:src/harness/fourslashRunner.ts": [
 9
 ],
-"TypeScript:src/harness/harness.ts": [
-220,
-746,
-839,
-1012,
-1050,
-1779,
-1817,
-1826
-],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 42,
 260,
@@ -1138,9 +1108,6 @@
 224,
 230,
 438
-],
-"TypeScript:src/harness/runner.ts": [
-211
 ],
 "TypeScript:src/harness/rwcRunner.ts": [
 37,

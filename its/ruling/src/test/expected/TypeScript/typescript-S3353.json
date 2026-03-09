@@ -6,24 +6,6 @@
 41,
 61
 ],
-"TypeScript:scripts/errorCheck.ts": [
-2,
-3,
-4,
-11,
-12,
-15,
-19,
-21,
-24,
-32,
-43,
-55,
-56,
-65,
-70,
-78
-],
 "TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 45,
 55,
@@ -59,23 +41,8 @@
 642,
 4400
 ],
-"TypeScript:src/harness/harness.ts": [
-68,
-565,
-589,
-608,
-688,
-705,
-780,
-781
-],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 526
-],
-"TypeScript:src/harness/runner.ts": [
-23,
-24,
-74
 ],
 "TypeScript:src/server/project.ts": [
 516

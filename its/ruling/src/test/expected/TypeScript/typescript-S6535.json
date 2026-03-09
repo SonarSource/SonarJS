@@ -32,15 +32,8 @@
 "TypeScript:src/harness/fourslashRunner.ts": [
 55
 ],
-"TypeScript:src/harness/harness.ts": [
-1729
-],
 "TypeScript:src/harness/projectsRunner.ts": [
 77
-],
-"TypeScript:src/harness/runner.ts": [
-38,
-38
 ],
 "TypeScript:src/server/editorServices.ts": [
 1486

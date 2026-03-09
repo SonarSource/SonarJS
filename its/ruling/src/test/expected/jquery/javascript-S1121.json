@@ -2,11 +2,6 @@
 "jquery:build/tasks/build.js": [
 95
 ],
-"jquery:src/ajax.js": [
-73,
-77,
-102
-],
 "jquery:src/ajax/script.js": [
 51
 ],
@@ -26,10 +21,6 @@
 "jquery:src/deferred.js": [
 19,
 23
-],
-"jquery:src/effects.js": [
-42,
-72
 ],
 "jquery:src/event.js": [
 137,

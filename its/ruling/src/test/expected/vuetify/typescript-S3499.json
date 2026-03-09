@@ -1,7 +1,4 @@
 {
-"vuetify:packages/api-generator/src/index.ts": [
-73
-],
 "vuetify:packages/docs/src/plugins/vuetify.ts": [
 21
 ],
@@ -14,15 +11,6 @@
 "vuetify:packages/vuetify/src/components/VItemGroup/VItem.tsx": [
 22
 ],
-"vuetify:packages/vuetify/src/components/VList/VList.tsx": [
-147
-],
-"vuetify:packages/vuetify/src/components/VList/VListItem.tsx": [
-148
-],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
-162
-],
 "vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
 283
 ],
@@ -31,12 +19,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VSelectionControlGroup/VSelectionControlGroup.tsx": [
 92
-],
-"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
-309
-],
-"vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.tsx": [
-105
 ],
 "vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
 18
@@ -77,20 +59,9 @@
 694,
 712
 ],
-"vuetify:packages/vuetify/src/composables/nested/nested.ts": [
-133,
-167,
-169,
-181,
-193,
-195
-],
 "vuetify:packages/vuetify/src/composables/nested/selectStrategies.ts": [
 51,
 179
-],
-"vuetify:packages/vuetify/src/composables/stack.ts": [
-62
 ],
 "vuetify:packages/vuetify/src/composables/theme.ts": [
 350

@@ -86,14 +86,6 @@
 "p5.js:src/core/error_helpers.js": [
 371
 ],
-"p5.js:tasks/release/release-bower.js": [
-45,
-64
-],
-"p5.js:tasks/release/release-docs.js": [
-44,
-63
-],
 "p5.js:test/test-reference.html": [
 146
 ]

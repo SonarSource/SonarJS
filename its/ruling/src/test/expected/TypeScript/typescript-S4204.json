@@ -1,12 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-70,
-75,
-597,
-689,
-706,
-790
-],
 "TypeScript:scripts/authors.ts": [
 174,
 176
@@ -14,22 +6,11 @@
 "TypeScript:scripts/buildProtocol.ts": [
 47
 ],
-"TypeScript:scripts/errorCheck.ts": [
-1
-],
 "TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 98
 ],
 "TypeScript:scripts/processDiagnosticMessages.ts": [
 231
-],
-"TypeScript:scripts/word2md.ts": [
-28,
-47,
-119,
-170,
-187,
-187
 ],
 "TypeScript:src/compiler/binder.ts": [
 1891,
@@ -197,51 +178,6 @@
 3735,
 3739
 ],
-"TypeScript:src/harness/harness.ts": [
-36,
-83,
-137,
-139,
-139,
-188,
-197,
-200,
-206,
-219,
-234,
-235,
-236,
-237,
-238,
-239,
-245,
-248,
-248,
-254,
-272,
-274,
-275,
-297,
-312,
-324,
-329,
-382,
-388,
-410,
-410,
-423,
-452,
-509,
-510,
-510,
-1016,
-1087,
-1111,
-1723,
-1755,
-1756,
-1986
-],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 366,
 708,
@@ -254,15 +190,6 @@
 720,
 737,
 799
-],
-"TypeScript:src/harness/instrumenter.ts": [
-1,
-1,
-2,
-3,
-25,
-28,
-31
 ],
 "TypeScript:src/harness/loggedIO.ts": [
 134,
@@ -277,11 +204,6 @@
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 262
-],
-"TypeScript:src/harness/runner.ts": [
-125,
-128,
-229
 ],
 "TypeScript:src/server/builder.ts": [
 127
@@ -359,10 +281,6 @@
 196,
 196,
 217
-],
-"TypeScript:src/server/watchGuard/watchGuard.ts": [
-7,
-7
 ],
 "TypeScript:src/services/codefixes/importFixes.ts": [
 572

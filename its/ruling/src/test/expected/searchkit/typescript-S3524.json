@@ -1,15 +1,4 @@
 {
-"searchkit:examples/indexer/bike-hire-stations/config.ts": [
-33
-],
-"searchkit:examples/indexer/config.ts": [
-146
-],
-"searchkit:examples/indexer/mrp-products/config.ts": [
-78,
-90,
-102
-],
 "searchkit:packages/searchkit-cli/src/index.ts": [
 50,
 72,
@@ -46,26 +35,8 @@
 "searchkit:packages/searchkit-client/src/__tests__/searchkit.test.tsx": [
 26
 ],
-"searchkit:packages/searchkit-client/src/components.tsx": [
-49,
-52,
-73,
-76,
-83,
-112
-],
 "searchkit:packages/searchkit-client/src/history.ts": [
 95
-],
-"searchkit:packages/searchkit-client/src/searchkit.tsx": [
-103,
-123,
-128,
-143,
-144,
-153,
-171,
-180
 ],
 "searchkit:packages/searchkit-client/src/withSearchkit.tsx": [
 16,

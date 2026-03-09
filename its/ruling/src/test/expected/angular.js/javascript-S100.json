@@ -5,38 +5,14 @@
 "angular.js:docs/config/processors/error-docs.js": [
 12
 ],
-"angular.js:docs/config/processors/index-page.js": [
-18
-],
-"angular.js:docs/config/processors/keywords.js": [
-28
-],
-"angular.js:docs/config/processors/pages-data.js": [
-152
-],
 "angular.js:docs/config/processors/sitemap.js": [
 9
-],
-"angular.js:docs/config/processors/versions-data.js": [
-18
-],
-"angular.js:src/Angular.js": [
-767,
-1893
 ],
 "angular.js:src/apis.js": [
 40
 ],
-"angular.js:src/jqLite.js": [
-275,
-1116
-],
 "angular.js:src/ng/anchorScroll.js": [
 12
-],
-"angular.js:src/ng/animate.js": [
-56,
-62
 ],
 "angular.js:src/ng/animateCss.js": [
 17
@@ -54,69 +30,14 @@
 85,
 404
 ],
-"angular.js:src/ng/compile.js": [
-1369,
-1380,
-2090,
-2136,
-2153,
-2171,
-2192,
-2284,
-4198
-],
-"angular.js:src/ng/controller.js": [
-28
-],
 "angular.js:src/ng/cookieReader.js": [
 12,
 63
-],
-"angular.js:src/ng/directive/form.js": [
-73,
-106,
-123,
-150,
-183,
-188,
-214,
-245,
-269,
-292,
-306,
-314
-],
-"angular.js:src/ng/directive/ngModel.js": [
-254,
-304,
-370,
-375,
-396,
-414,
-434,
-451,
-546,
-564,
-601,
-706,
-727,
-780,
-843,
-850,
-907,
-1023,
-1038,
-1053,
-1059,
-1070
 ],
 "angular.js:src/ng/directive/ngModelOptions.js": [
 13,
 549,
 554
-],
-"angular.js:src/ng/directive/ngOptions.js": [
-307
 ],
 "angular.js:src/ng/document.js": [
 29,
@@ -131,23 +52,9 @@
 "angular.js:src/ng/forceReflow.js": [
 3
 ],
-"angular.js:src/ng/http.js": [
-22,
-60,
-265,
-1034
-],
 "angular.js:src/ng/httpBackend.js": [
 25,
 51
-],
-"angular.js:src/ng/interpolate.js": [
-59,
-240,
-349
-],
-"angular.js:src/ng/interval.js": [
-6
 ],
 "angular.js:src/ng/intervalFactory.js": [
 4
@@ -155,27 +62,8 @@
 "angular.js:src/ng/jsonpCallbacks.js": [
 12
 ],
-"angular.js:src/ng/location.js": [
-122,
-194,
-298,
-357,
-729
-],
 "angular.js:src/ng/log.js": [
 57
-],
-"angular.js:src/ng/parse.js": [
-63,
-272,
-797,
-1163,
-1167,
-1263,
-1637,
-1726,
-1792,
-1819
 ],
 "angular.js:src/ng/q.js": [
 227,
@@ -217,10 +105,6 @@
 "angular.js:src/ng/sanitizeUri.js": [
 8
 ],
-"angular.js:src/ng/sce.js": [
-180,
-776
-],
 "angular.js:src/ng/sniffer.js": [
 20
 ],
@@ -228,14 +112,8 @@
 18,
 22
 ],
-"angular.js:src/ng/templateRequest.js": [
-16
-],
 "angular.js:src/ng/testability.js": [
 4
-],
-"angular.js:src/ng/timeout.js": [
-6
 ],
 "angular.js:src/ng/window.js": [
 45

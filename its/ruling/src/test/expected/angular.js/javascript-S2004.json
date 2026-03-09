@@ -10,21 +10,11 @@
 131,
 165
 ],
-"angular.js:docs/config/processors/keywords.js": [
-104
-],
-"angular.js:docs/config/processors/pages-data.js": [
-91
-],
 "angular.js:src/loader.js": [
 150,
 370,
 388,
 401
-],
-"angular.js:src/ng/animate.js": [
-123,
-134
 ],
 "angular.js:src/ng/animateCss.js": [
 49
@@ -32,30 +22,6 @@
 "angular.js:src/ng/animateRunner.js": [
 52,
 116
-],
-"angular.js:src/ng/compile.js": [
-1649,
-3233,
-3270,
-3278,
-3341,
-3350,
-3643,
-3744,
-3832,
-3838,
-3883,
-4047,
-4083,
-4091,
-4128,
-4152
-],
-"angular.js:src/ng/directive/form.js": [
-564,
-577,
-591,
-599
 ],
 "angular.js:src/ng/directive/ngClass.js": [
 68
@@ -73,26 +39,6 @@
 582,
 641
 ],
-"angular.js:src/ng/directive/ngSwitch.js": [
-181
-],
-"angular.js:src/ng/directive/ngTransclude.js": [
-210
-],
-"angular.js:src/ng/http.js": [
-46,
-114,
-118,
-1101,
-1146,
-1321,
-1333,
-1428,
-1464
-],
-"angular.js:src/ng/interpolate.js": [
-351
-],
 "angular.js:src/ng/intervalFactory.js": [
 18,
 26
@@ -100,15 +46,8 @@
 "angular.js:src/ng/log.js": [
 161
 ],
-"angular.js:src/ng/parse.js": [
-1040,
-2007
-],
 "angular.js:src/ng/rootScope.js": [
 492
-],
-"angular.js:src/ng/sce.js": [
-294
 ],
 "angular.js:src/ng/testability.js": [
 35
@@ -163,9 +102,6 @@
 ],
 "angular.js:src/ngAria/aria.js": [
 401
-],
-"angular.js:src/ngMessages/messages.js": [
-771
 ],
 "angular.js:src/ngMock/angular-mocks.js": [
 545,

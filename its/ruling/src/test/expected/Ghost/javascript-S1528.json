@@ -40,9 +40,5 @@
 "Ghost:core/test/functional/client/team_test.js": [
 269,
 307
-],
-"Ghost:core/test/integration/import_spec.js": [
-241,
-405
 ]
 }

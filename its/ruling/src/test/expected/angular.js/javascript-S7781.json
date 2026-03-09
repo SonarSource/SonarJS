@@ -5,77 +5,11 @@
 40,
 45
 ],
-"angular.js:lib/grunt/utils.js": [
-100,
-101,
-102,
-103,
-104,
-105,
-106,
-110,
-111,
-112,
-123,
-174
-],
-"angular.js:src/Angular.js": [
-730,
-732,
-1346,
-1413,
-1465,
-1466,
-1467,
-1484,
-1485,
-1486,
-1487,
-1488,
-1489,
-1895
-],
-"angular.js:src/auto/injector.js": [
-78
-],
-"angular.js:src/jqLite.js": [
-164,
-218,
-436,
-443,
-460
-],
 "angular.js:src/minErr.js": [
 115
 ],
-"angular.js:src/ng/compile.js": [
-2331,
-2331,
-2692,
-4215
-],
 "angular.js:src/ng/directive/ngPluralize.js": [
 203
-],
-"angular.js:src/ng/filter/filters.js": [
-649,
-649
-],
-"angular.js:src/ng/interpolate.js": [
-101,
-102
-],
-"angular.js:src/ng/location.js": [
-21,
-35
-],
-"angular.js:src/ng/parse.js": [
-1201
-],
-"angular.js:src/ng/sce.js": [
-48,
-64,
-65
 ],
 "angular.js:src/ngAnimate/animateCssDriver.js": [
 43

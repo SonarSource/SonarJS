@@ -6,29 +6,11 @@
 "console:src/actions/gettingStarted.tsx": [
 57
 ],
-"console:src/components/ApiLayover/ApiLayover.tsx": [
-59
-],
-"console:src/components/FloatingInput/FloatingInput.tsx": [
-19
-],
-"console:src/components/Loading/Loading.tsx": [
-14,
-15
-],
-"console:src/components/NodeSelector/NodeSelector.tsx": [
-103,
-103,
-103
-],
 "console:src/components/Popup.tsx": [
 17
 ],
 "console:src/components/PopupWrapper/PopupWrapper.tsx": [
 34
-],
-"console:src/components/RedirectOnMount/RedirectOnMount.tsx": [
-15
 ],
 "console:src/components/ResizableBox.tsx": [
 16,
@@ -36,15 +18,6 @@
 115,
 115,
 115
-],
-"console:src/components/TemporaryNotification/TemporaryNotification.tsx": [
-18
-],
-"console:src/components/Tether/Tether.tsx": [
-53
-],
-"console:src/components/ToggleButton/ToggleButton.tsx": [
-113
 ],
 "console:src/components/onboarding/Steps.tsx": [
 43,
@@ -76,14 +49,8 @@
 26,
 30
 ],
-"console:src/views/AfterSignUpView/AfterSignUpView.tsx": [
-251
-],
 "console:src/views/AuthView/AuthView.tsx": [
 13
-],
-"console:src/views/FunctionsView/FunctionPopup/TestPopup.tsx": [
-308
 ],
 "console:src/views/FunctionsView/FunctionPopup/WebhookEditor.tsx": [
 157,
@@ -94,17 +61,8 @@
 80,
 275
 ],
-"console:src/views/ProjectRootView/OnboardSideNav.tsx": [
-28
-],
 "console:src/views/ProjectRootView/Onboarding/OnboardingBar.tsx": [
 27
-],
-"console:src/views/ProjectRootView/ProjectRootView.tsx": [
-314
-],
-"console:src/views/ProjectSettingsView/AddPermanentAuthTokenRow.tsx": [
-59
 ],
 "console:src/views/RelationsPopup/CardinalitySelection.tsx": [
 14,
@@ -125,28 +83,8 @@
 17,
 17
 ],
-"console:src/views/SchemaView/EnumsOverview/AddEnum.tsx": [
-259,
-277
-],
-"console:src/views/SchemaView/EnumsOverview/EnumBox.tsx": [
-63,
-298
-],
 "console:src/views/SchemaView/EnumsOverview/EnumEditor.tsx": [
 110
-],
-"console:src/views/SchemaView/SchemaEditor.tsx": [
-119
-],
-"console:src/views/SchemaView/SchemaOverview/AddType.tsx": [
-287,
-315,
-321
-],
-"console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
-63,
-442
 ],
 "console:src/views/SchemaView/SchemaView.tsx": [
 31,
@@ -167,10 +105,6 @@
 100,
 116
 ],
-"console:src/views/Settings/General/ProjectInfo.tsx": [
-337,
-339
-],
 "console:src/views/Settings/Team/EmptyRow.tsx": [
 158,
 160
@@ -179,34 +113,14 @@
 27,
 30
 ],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-216,
-227,
-233,
-239,
-240,
-252,
-258,
-265
-],
-"console:src/views/models/DatabrowserView/Cell/EnumCell.tsx": [
-65,
-65
-],
 "console:src/views/models/DatabrowserView/Cell/JsonCell.tsx": [
 20,
 20,
 20,
 20
 ],
-"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
-330
-],
 "console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SearchBox.tsx": [
 25
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-423
 ],
 "console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
 48
@@ -218,24 +132,6 @@
 110,
 110
 ],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-164,
-566,
-568,
-588,
-597,
-602,
-607,
-608,
-618,
-623
-],
-"console:src/views/models/DatabrowserView/NewRow.tsx": [
-56
-],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
-240
-],
 "console:src/views/models/FieldPopup/EditValueInput.tsx": [
 150,
 154
@@ -243,11 +139,6 @@
 "console:src/views/models/FieldPopup/FieldLabel.tsx": [
 171,
 175
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-199,
-199,
-339
 ],
 "console:src/views/models/FieldPopup/__tests__/FieldPopupStateTest.ts": [
 31,

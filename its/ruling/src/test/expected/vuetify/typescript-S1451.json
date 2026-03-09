@@ -5,9 +5,6 @@
 "vuetify:packages/api-generator/src/helpers/text.ts": [
 0
 ],
-"vuetify:packages/api-generator/src/index.ts": [
-0
-],
 "vuetify:packages/api-generator/src/types.ts": [
 0
 ],
@@ -24,9 +21,6 @@
 0
 ],
 "vuetify:packages/docs/build/examples-plugin.ts": [
-0
-],
-"vuetify:packages/docs/build/markdown-it.ts": [
 0
 ],
 "vuetify:packages/docs/src/App.vue": [
@@ -155,12 +149,6 @@
 "vuetify:packages/docs/src/util/metadata.ts": [
 0
 ],
-"vuetify:packages/docs/vite.config.ts": [
-0
-],
-"vuetify:packages/vuetify/cypress.config.ts": [
-0
-],
 "vuetify:packages/vuetify/cypress/support/index.ts": [
 0
 ],
@@ -203,9 +191,6 @@
 "vuetify:packages/vuetify/src/components/VBadge/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/VBanner/VBannerText.ts": [
-0
-],
 "vuetify:packages/vuetify/src/components/VBanner/index.ts": [
 0
 ],
@@ -230,18 +215,6 @@
 "vuetify:packages/vuetify/src/components/VCalendar/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/VCard/VCard.tsx": [
-0
-],
-"vuetify:packages/vuetify/src/components/VCard/VCardSubtitle.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VCard/VCardText.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VCard/VCardTitle.ts": [
-0
-],
 "vuetify:packages/vuetify/src/components/VCard/index.ts": [
 0
 ],
@@ -251,16 +224,10 @@
 "vuetify:packages/vuetify/src/components/VCheckbox/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
-0
-],
 "vuetify:packages/vuetify/src/components/VChip/index.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VChipGroup/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VCode/index.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VColorPicker/__tests__/VColorPicker.spec.cy.tsx": [
@@ -350,9 +317,6 @@
 "vuetify:packages/vuetify/src/components/VItemGroup/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/VKbd/index.ts": [
-0
-],
 "vuetify:packages/vuetify/src/components/VLabel/index.ts": [
 0
 ],
@@ -360,15 +324,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/components/VLazy/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VList/VListImg.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VList/VListItemSubtitle.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VList/VListItemTitle.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VList/__tests__/VList.spec.cy.tsx": [
@@ -473,9 +428,6 @@
 "vuetify:packages/vuetify/src/components/VSlider/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
-0
-],
 "vuetify:packages/vuetify/src/components/VSnackbar/index.ts": [
 0
 ],
@@ -483,9 +435,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/components/VSpeedDial/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VStepper/index.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VSwitch/index.ts": [
@@ -545,12 +494,6 @@
 "vuetify:packages/vuetify/src/components/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/transitions/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/composables/__tests__/forwardRefs.spec.tsx": [
-0
-],
 "vuetify:packages/vuetify/src/composables/__tests__/group.spec.ts": [
 0
 ],
@@ -569,9 +512,6 @@
 "vuetify:packages/vuetify/src/composables/filter.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/composables/forwardRefs.ts": [
-0
-],
 "vuetify:packages/vuetify/src/composables/index.ts": [
 0
 ],
@@ -581,9 +521,6 @@
 "vuetify:packages/vuetify/src/composables/nested/__tests__/selectStrategies.spec.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/composables/nested/nested.ts": [
-0
-],
 "vuetify:packages/vuetify/src/composables/nested/openStrategies.ts": [
 0
 ],
@@ -591,9 +528,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/composables/scopeId.ts": [
-0
-],
-"vuetify:packages/vuetify/src/composables/stack.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/composables/toggleScope.ts": [
@@ -621,9 +555,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/directives/resize/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/directives/ripple/__tests__/ripple.spec.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
@@ -813,9 +744,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/util/__tests__/dateTimeUtils.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/util/__tests__/dom.spec.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/util/__tests__/helpers.spec.ts": [

@@ -1,18 +1,4 @@
 {
-"watchtower.js:gulpfile.js": [
-8,
-40
-],
-"watchtower.js:karma.conf.js": [
-15,
-25,
-31,
-32,
-33
-],
-"watchtower.js:lib/gulp/karma/index.js": [
-24
-],
 "watchtower.js:src/dirty_checking.js": [
 7
 ],
@@ -48,11 +34,6 @@
 524,
 537,
 570
-],
-"watchtower.js:test/matchers.js": [
-59,
-82,
-151
 ],
 "watchtower.js:test/observer.spec.js": [
 2,

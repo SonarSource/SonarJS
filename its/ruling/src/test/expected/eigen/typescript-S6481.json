@@ -1,7 +1,4 @@
 {
-"eigen:src/app/AppRegistry.tsx": [
-212
-],
 "eigen:src/app/Components/AnimatableHeader/AnimatableHeaderProvider.tsx": [
 18
 ],
@@ -30,38 +27,20 @@
 "eigen:src/app/Scenes/Onboarding/Onboarding.tsx": [
 111
 ],
-"eigen:src/app/Scenes/Search/AutosuggestResults.tests.tsx": [
-105
-],
 "eigen:src/app/Scenes/Search/RecentSearches.tests.tsx": [
 78
 ],
 "eigen:src/app/Scenes/Search/components/AutosuggestSearchResult.tests.tsx": [
 37
 ],
-"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
-44
-],
 "eigen:src/app/navigation/NavStack.tsx": [
 38,
 41
 ],
-"eigen:src/app/utils/ArtworkInquiry/ArtworkInquiryStore.tsx": [
-68
-],
 "eigen:src/app/utils/Context.tsx": [
 25
 ],
-"eigen:src/app/utils/experiments/UnleashProvider.tsx": [
-47
-],
 "eigen:src/app/utils/placeholders.tsx": [
 61
-],
-"eigen:src/palette/organisms/screenStructure/Screen.tsx": [
-42
-],
-"eigen:src/shared/hooks/useScreenDimensions.tsx": [
-53
 ]
 }

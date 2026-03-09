@@ -1,8 +1,4 @@
 {
-"sonar-web:gulp/scripts.js": [
-20,
-21
-],
 "sonar-web:src/main/js/apps/api-documentation/actions-view.js": [
 41
 ],
@@ -202,9 +198,6 @@
 222,
 232
 ],
-"sonar-web:src/main/js/main/processes.js": [
-47
-],
 "sonar-web:src/main/js/widgets/old/bubble-chart.js": [
 142,
 142,
@@ -294,113 +287,9 @@
 65,
 65
 ],
-"sonar-web:test/helpers/test-page.js": [
-97,
-101
-],
-"sonar-web:test/medium/coding-rules.spec.js": [
-325,
-350,
-394,
-605,
-610,
-615,
-638,
-643,
-655,
-660,
-672,
-677,
-703,
-708,
-737,
-751,
-755,
-766,
-770,
-774
-],
-"sonar-web:test/medium/custom-measures.spec.js": [
-67
-],
-"sonar-web:test/medium/global-permissions.spec.js": [
-15
-],
-"sonar-web:test/medium/groups.spec.js": [
-91
-],
-"sonar-web:test/medium/issues.spec.js": [
-80,
-102,
-123,
-133,
-243
-],
-"sonar-web:test/medium/metrics.spec.js": [
-14,
-20,
-21,
-39,
-51
-],
-"sonar-web:test/medium/quality-gates.spec.js": [
-13,
-193,
-274
-],
-"sonar-web:test/medium/quality-profiles.spec.js": [
-15,
-35,
-193,
-203,
-269,
-280,
-296,
-314,
-369,
-461,
-500
-],
-"sonar-web:test/medium/update-center.spec.js": [
-15,
-60,
-87,
-104,
-124,
-129,
-142,
-147,
-169,
-174,
-175,
-186
-],
-"sonar-web:test/medium/users.spec.js": [
-12,
-16,
-17,
-18,
-34,
-46,
-60,
-69
-],
 "sonar-web:tests/application-test.js": [
 54,
 65
-],
-"sonar-web:tests/apps/background-tasks-test.js": [
-22,
-192,
-199,
-203,
-211,
-215,
-219,
-223,
-227,
-231,
-235
 ],
 "sonar-web:tests/apps/overview/components/complexity-distribution-test.js": [
 35,
@@ -445,11 +334,6 @@
 "sonar-web:tests/apps/overview/main/coverage-test.js": [
 11
 ],
-"sonar-web:tests/apps/system-test.js": [
-44,
-45,
-68
-],
 "sonar-web:tests/components/charts/bar-chart-test.js": [
 17,
 28,
@@ -469,19 +353,6 @@
 ],
 "sonar-web:tests/components/charts/work-cloud-test.js": [
 17
-],
-"sonar-web:tests/components/issue-test.js": [
-58,
-130,
-140,
-141,
-143,
-151,
-154,
-155,
-157,
-159,
-161
 ],
 "sonar-web:tests/helpers/measures-test.js": [
 48,

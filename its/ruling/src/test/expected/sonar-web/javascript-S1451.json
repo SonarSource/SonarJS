@@ -1,13 +1,4 @@
 {
-"sonar-web:gulp/scripts.js": [
-0
-],
-"sonar-web:gulp/styles.js": [
-0
-],
-"sonar-web:gulpfile.js": [
-0
-],
 "sonar-web:src/main/js/api/ce.js": [
 0
 ],
@@ -42,9 +33,6 @@
 0
 ],
 "sonar-web:src/main/js/api/users.js": [
-0
-],
-"sonar-web:src/main/js/apps/account/app.js": [
 0
 ],
 "sonar-web:src/main/js/apps/account/change-password-view.js": [
@@ -285,9 +273,6 @@
 0
 ],
 "sonar-web:src/main/js/apps/custom-measures/update-view.js": [
-0
-],
-"sonar-web:src/main/js/apps/dashboard/app.js": [
 0
 ],
 "sonar-web:src/main/js/apps/drilldown/app.js": [
@@ -1346,9 +1331,6 @@
 "sonar-web:src/main/js/main/nav/settings/settings-nav.js": [
 0
 ],
-"sonar-web:src/main/js/main/processes.js": [
-0
-],
 "sonar-web:src/main/js/widgets/issue-filter/widget.js": [
 0
 ],
@@ -1385,58 +1367,10 @@
 "sonar-web:src/main/js/widgets/widgets.js": [
 0
 ],
-"sonar-web:test/helpers/test-page.js": [
-0
-],
 "sonar-web:test/intern.js": [
 0
 ],
-"sonar-web:test/medium/api-documentation.spec.js": [
-0
-],
-"sonar-web:test/medium/coding-rules.spec.js": [
-0
-],
-"sonar-web:test/medium/custom-measures.spec.js": [
-0
-],
-"sonar-web:test/medium/global-permissions.spec.js": [
-0
-],
-"sonar-web:test/medium/groups.spec.js": [
-0
-],
-"sonar-web:test/medium/issues.spec.js": [
-0
-],
-"sonar-web:test/medium/maintenance.spec.js": [
-0
-],
-"sonar-web:test/medium/metrics.spec.js": [
-0
-],
-"sonar-web:test/medium/project-permissions.spec.js": [
-0
-],
-"sonar-web:test/medium/quality-gates.spec.js": [
-0
-],
-"sonar-web:test/medium/quality-profiles.spec.js": [
-0
-],
-"sonar-web:test/medium/source-viewer.spec.js": [
-0
-],
-"sonar-web:test/medium/update-center.spec.js": [
-0
-],
-"sonar-web:test/medium/users.spec.js": [
-0
-],
 "sonar-web:tests/application-test.js": [
-0
-],
-"sonar-web:tests/apps/background-tasks-test.js": [
 0
 ],
 "sonar-web:tests/apps/overview/components/complexity-distribution-test.js": [
@@ -1466,15 +1400,6 @@
 "sonar-web:tests/apps/overview/overview-test.js": [
 0
 ],
-"sonar-web:tests/apps/permission-templates-test.js": [
-0
-],
-"sonar-web:tests/apps/projects-test.js": [
-0
-],
-"sonar-web:tests/apps/system-test.js": [
-0
-],
 "sonar-web:tests/components/charts/bar-chart-test.js": [
 0
 ],
@@ -1490,22 +1415,7 @@
 "sonar-web:tests/components/charts/work-cloud-test.js": [
 0
 ],
-"sonar-web:tests/components/issue-test.js": [
-0
-],
-"sonar-web:tests/components/source-viewer-test.js": [
-0
-],
 "sonar-web:tests/helpers/measures-test.js": [
-0
-],
-"sonar-web:tests/helpers/urls-test.js": [
-0
-],
-"sonar-web:tests/jsdom-setup.js": [
-0
-],
-"sonar-web:tests/nav-test.js": [
 0
 ]
 }

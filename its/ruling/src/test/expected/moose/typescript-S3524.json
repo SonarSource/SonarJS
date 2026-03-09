@@ -44,36 +44,6 @@
 50,
 81
 ],
-"moose:renderer/components/CastControl/CastControl.tsx": [
-21
-],
-"moose:renderer/components/Container/Container.tsx": [
-72,
-73,
-135,
-138,
-139,
-146
-],
-"moose:renderer/components/Downloads/Downloads.tsx": [
-49,
-107,
-109,
-121,
-129,
-134
-],
-"moose:renderer/components/FilesList/FilesList.tsx": [
-91,
-95,
-157,
-162,
-164,
-169
-],
-"moose:renderer/components/Header/Header.tsx": [
-103
-],
 "moose:renderer/components/Preferences/Preferences.tsx": [
 4
 ],

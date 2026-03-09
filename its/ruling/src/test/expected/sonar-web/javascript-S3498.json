@@ -1,15 +1,4 @@
 {
-"sonar-web:gulp/scripts.js": [
-84,
-84,
-84,
-108,
-108,
-108,
-130,
-130,
-130
-],
 "sonar-web:src/main/js/api/permissions.js": [
 19,
 19,
@@ -481,15 +470,6 @@
 ],
 "sonar-web:src/main/js/apps/custom-measures/update-view.js": [
 5
-],
-"sonar-web:src/main/js/apps/dashboard/app.js": [
-10,
-21,
-68,
-78,
-112,
-120,
-128
 ],
 "sonar-web:src/main/js/apps/global-permissions/groups-view.js": [
 14,
@@ -2352,14 +2332,6 @@
 211,
 225
 ],
-"sonar-web:src/main/js/main/processes.js": [
-17,
-24,
-31,
-63,
-149,
-152
-],
 "sonar-web:src/main/js/widgets/issue-filter/widget.js": [
 51,
 58,
@@ -2406,34 +2378,7 @@
 319,
 329
 ],
-"sonar-web:test/helpers/test-page.js": [
-137,
-146
-],
 "sonar-web:test/intern.js": [
 36
-],
-"sonar-web:test/medium/custom-measures.spec.js": [
-12,
-31,
-37,
-47,
-55,
-60,
-75,
-88,
-103,
-110,
-128,
-134
-],
-"sonar-web:test/medium/source-viewer.spec.js": [
-17,
-40,
-59,
-78
-],
-"sonar-web:tests/nav-test.js": [
-16
 ]
 }

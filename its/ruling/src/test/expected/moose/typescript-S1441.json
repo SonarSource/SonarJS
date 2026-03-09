@@ -281,103 +281,11 @@
 "moose:renderer/components/Cast/index.ts": [
 1
 ],
-"moose:renderer/components/CastControl/CastControl.tsx": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-11,
-19,
-20,
-42,
-44,
-50,
-73,
-99,
-114,
-114,
-114,
-115,
-115
-],
 "moose:renderer/components/CastControl/index.ts": [
 1
 ],
-"moose:renderer/components/Container/Container.tsx": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-14,
-15,
-16,
-17,
-18,
-19,
-20,
-24,
-24,
-26,
-26,
-33,
-36,
-46,
-49,
-55,
-56,
-60,
-64,
-66,
-75,
-76,
-101,
-104,
-123,
-126,
-131
-],
 "moose:renderer/components/Container/index.ts": [
 1
-],
-"moose:renderer/components/Downloads/Downloads.tsx": [
-8,
-9,
-10,
-11,
-12,
-13,
-14,
-15,
-16,
-17,
-18,
-19,
-20,
-21,
-57,
-59,
-75,
-77,
-77,
-77,
-114,
-133,
-139,
-142,
-145,
-148
 ],
 "moose:renderer/components/Downloads/index.ts": [
 1
@@ -400,94 +308,14 @@
 27,
 32
 ],
-"moose:renderer/components/DragAndDrop/DragAndDrop.tsx": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-20,
-33,
-35
-],
 "moose:renderer/components/DragAndDrop/index.ts": [
 1
-],
-"moose:renderer/components/DropUI/DropUI.tsx": [
-1,
-2,
-3,
-4,
-5,
-6,
-16
 ],
 "moose:renderer/components/DropUI/index.ts": [
 1
 ],
-"moose:renderer/components/FilesList/FilesList.tsx": [
-9,
-10,
-11,
-12,
-13,
-14,
-15,
-16,
-17,
-18,
-19,
-20,
-21,
-22,
-23,
-24,
-25,
-26,
-43,
-44,
-59,
-60,
-63,
-64,
-65,
-67,
-105,
-167,
-178,
-213,
-234
-],
 "moose:renderer/components/FilesList/index.ts": [
 1
-],
-"moose:renderer/components/Header/Header.tsx": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9,
-10,
-11,
-12,
-13,
-14,
-15,
-16,
-40,
-43,
-44,
-47,
-72
 ],
 "moose:renderer/components/Header/index.ts": [
 1
@@ -500,17 +328,6 @@
 ],
 "moose:renderer/components/Message/index.ts": [
 1
-],
-"moose:renderer/components/MiniPlayer/MiniPlayer.tsx": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-39,
-39
 ],
 "moose:renderer/components/MiniPlayer/index.ts": [
 1
@@ -532,20 +349,6 @@
 ],
 "moose:renderer/components/Modal/index.ts": [
 1
-],
-"moose:renderer/components/Player/Player.tsx": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-22,
-37,
-104,
-120
 ],
 "moose:renderer/components/Player/index.ts": [
 1

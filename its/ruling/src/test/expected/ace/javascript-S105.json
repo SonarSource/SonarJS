@@ -5,21 +5,6 @@
 "ace:demo/settings_menu.html": [
 36
 ],
-"ace:lib/ace/mode/html/saxparser.js": [
-5
-],
-"ace:lib/ace/mode/php/php.js": [
-21
-],
-"ace:lib/ace/mode/xml/dom-parser.js": [
-2
-],
-"ace:lib/ace/mode/xml/dom.js": [
-11
-],
-"ace:lib/ace/mode/xml/sax.js": [
-3
-],
 "ace:lib/ace/snippets/jsoniq.snippets.js": [
 2
 ],
@@ -28,30 +13,6 @@
 ],
 "ace:src/lib/bidiutil.js": [
 9
-],
-"ace:src/mode/folding/diff.js": [
-8
-],
-"ace:src/mode/html_highlight_rules.js": [
-11
-],
-"ace:src/mode/jade.js": [
-16
-],
-"ace:src/mode/matlab_highlight_rules.js": [
-18
-],
-"ace:src/mode/raku_highlight_rules.js": [
-43
-],
-"ace:src/mode/rdoc.js": [
-47
-],
-"ace:src/mode/scheme.js": [
-10
-],
-"ace:src/mode/xml_highlight_rules.js": [
-8
 ],
 "ace:src/snippets/abc.snippets.js": [
 3
@@ -190,11 +151,5 @@
 ],
 "ace:src/snippets/wollok.snippets.js": [
 4
-],
-"ace:tool/lib.js": [
-160
-],
-"ace:tool/update_deps.js": [
-218
 ]
 }

@@ -26,21 +26,8 @@
 "console:src/views/CLIAuthView/CLIAuthView/CLIAuthView.tsx": [
 71
 ],
-"console:src/views/FunctionsView/FunctionRow.tsx": [
-241,
-256
-],
-"console:src/views/PermissionsView/PermissionsList/ModelPermissions/ModelPermission.tsx": [
-103
-],
-"console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermission.tsx": [
-114
-],
 "console:src/views/ProjectRootView/Onboarding/FinalPopup.tsx": [
 42
-],
-"console:src/views/RelationsPopup/RelationPopup.tsx": [
-540
 ],
 "console:src/views/Settings/Authentication/Tokens.tsx": [
 161
@@ -50,15 +37,5 @@
 ],
 "console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
 433
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-482,
-513
-],
-"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
-439
-],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
-244
 ]
 }

@@ -1,10 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-800
-],
-"TypeScript:scripts/errorCheck.ts": [
-26
-],
 "TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 128,
 144
@@ -16,9 +10,6 @@
 ],
 "TypeScript:src/compiler/sys.ts": [
 135
-],
-"TypeScript:src/harness/instrumenter.ts": [
-31
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 455,

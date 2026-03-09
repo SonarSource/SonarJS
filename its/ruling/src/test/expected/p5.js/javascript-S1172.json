@@ -1,21 +1,4 @@
 {
-"p5.js:Gruntfile.js": [
-333,
-333,
-339,
-360,
-360,
-366,
-387,
-387,
-393
-],
-"p5.js:docs/preprocessor.js": [
-245,
-267,
-268,
-268
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 268,
 289,
@@ -91,28 +74,5 @@
 1456,
 1456,
 1460
-],
-"p5.js:tasks/release/release-bower.js": [
-26,
-37,
-37,
-45,
-57,
-57,
-64
-],
-"p5.js:tasks/release/release-docs.js": [
-25,
-44,
-63
-],
-"p5.js:tasks/release/release-github.js": [
-8,
-76,
-76,
-94
-],
-"p5.js:utils/sample-linter.js": [
-134
 ]
 }

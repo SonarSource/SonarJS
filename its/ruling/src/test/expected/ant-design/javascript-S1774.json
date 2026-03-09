@@ -33,17 +33,6 @@
 "ant-design:components/upload/__tests__/upload.test.js": [
 678
 ],
-"ant-design:scripts/post-script.js": [
-57,
-72
-],
-"ant-design:scripts/print-changelog.js": [
-108,
-207
-],
-"ant-design:site/bisheng.config.js": [
-42
-],
 "ant-design:site/theme/static/template.html": [
 31,
 137,
@@ -79,79 +68,13 @@
 64,
 70
 ],
-"ant-design:site/theme/template/Content/ComponentDoc.jsx": [
-115,
-187,
-200,
-204,
-213,
-217,
-227,
-232,
-249,
-250,
-254
-],
 "ant-design:site/theme/template/Content/ComponentOverview.jsx": [
 92,
 109,
 114
 ],
-"ant-design:site/theme/template/Content/Demo/index.jsx": [
-144,
-198,
-209,
-210,
-215,
-227,
-236,
-237,
-255,
-259,
-297,
-318,
-319,
-362,
-366,
-378,
-427,
-450,
-453,
-461,
-467,
-471,
-477,
-481,
-490
-],
-"ant-design:site/theme/template/Content/MainContent.jsx": [
-24,
-31,
-53,
-240,
-251,
-254,
-350,
-376,
-509
-],
 "ant-design:site/theme/template/Content/PrevAndNext.jsx": [
 5,
 10
-],
-"ant-design:site/theme/template/Content/index.jsx": [
-12,
-19,
-21
-],
-"ant-design:site/theme/template/Layout/index.jsx": [
-73,
-211,
-215,
-223,
-249
-],
-"ant-design:webpack.config.js": [
-15
 ]
 }

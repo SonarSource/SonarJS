@@ -41,22 +41,10 @@
 "Ghost:core/client/config/environment.js": [
 4
 ],
-"Ghost:core/client/ember-cli-build.js": [
-18
-],
 "Ghost:core/client/tests/helpers/module-for-acceptance.js": [
 5
 ],
 "Ghost:core/server/models/plugins/access-rules.js": [
 5
-],
-"Ghost:core/server/models/plugins/include-count.js": [
-3
-],
-"Ghost:core/test/utils/fixtures/filter-param/index.js": [
-315
-],
-"Ghost:core/test/utils/jscs-rules/disallow-object-controller.js": [
-3
 ]
 }

@@ -5,9 +5,6 @@
 "tailwindcss:jest/runInTempDirectory.js": [
 10
 ],
-"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
-57
-],
 "tailwindcss:src/util/resolveConfig.js": [
 116
 ]

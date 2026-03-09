@@ -4,19 +4,6 @@
 42,
 46
 ],
-"p5.js:docs/preprocessor.js": [
-6,
-34,
-128,
-209,
-216,
-229,
-234,
-237,
-240,
-250,
-256
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 13,
 43,
@@ -74,10 +61,5 @@
 209,
 220,
 222
-],
-"p5.js:utils/sample-linter.js": [
-15,
-19,
-27
 ]
 }

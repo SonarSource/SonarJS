@@ -1,9 +1,5 @@
 {
 "watchtower.js:src/dirty_checking.js": [
 707
-],
-"watchtower.js:test/matchers.js": [
-112,
-125
 ]
 }

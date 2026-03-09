@@ -1,8 +1,4 @@
 {
-"react-cloud-music:rename.js": [
-13,
-20
-],
 "react-cloud-music:src/api/utils.js": [
 41
 ],
@@ -25,10 +21,6 @@
 86,
 94,
 96
-],
-"react-cloud-music:src/application/Player/store/reducer.js": [
-25,
-64
 ],
 "react-cloud-music:src/application/Search/index.jsx": [
 43,
@@ -54,13 +46,5 @@
 ],
 "react-cloud-music:src/baseUI/progress-bar/index.jsx": [
 88
-],
-"react-cloud-music:src/baseUI/scroll/index.jsx": [
-116,
-124,
-138
-],
-"react-cloud-music:src/baseUI/toast/index.jsx": [
-42
 ]
 }

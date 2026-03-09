@@ -47,9 +47,6 @@
 "console:src/views/CLIAuthView/CLIAuthSuccessView.tsx": [
 5
 ],
-"console:src/views/FunctionsView/FunctionLogs/FunctionLogs.tsx": [
-18
-],
 "console:src/views/FunctionsView/FunctionPopup/DummyTestLog.tsx": [
 3
 ],
@@ -59,23 +56,11 @@
 "console:src/views/FunctionsView/FunctionPopup/Step0.tsx": [
 18
 ],
-"console:src/views/FunctionsView/FunctionsList.tsx": [
-15
-],
-"console:src/views/FunctionsView/FunctionsView.tsx": [
-14
-],
 "console:src/views/FunctionsView/RequestGraph.tsx": [
 9
 ],
 "console:src/views/Integrations/Algolia/AlgoliaIndexes.tsx": [
 13
-],
-"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndex.tsx": [
-22
-],
-"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndexes.tsx": [
-20
 ],
 "console:src/views/ProjectRootView/Onboarding/FinalPopup.tsx": [
 17
@@ -95,19 +80,10 @@
 "console:src/views/RootView/MobileScreen.tsx": [
 4
 ],
-"console:src/views/SchemaView/ComingSoonTag.tsx": [
-10
-],
 "console:src/views/Settings/Billing/CreditCardFront.tsx": [
 4
 ],
 "console:src/views/Settings/Billing/CurrentPlan.tsx": [
 6
-],
-"console:src/views/models/DatabrowserView/DataActionRow/DeleteNodeRow.tsx": [
-16
-],
-"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
-27
 ]
 }

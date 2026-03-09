@@ -14,22 +14,8 @@
 "postgraphql:src/graphql/schema/collection/mutations/createDeleteCollectionKeyMutationFieldEntry.ts": [
 13
 ],
-"postgraphql:src/graphql/schema/collection/mutations/createDeleteCollectionMutationFieldEntry.ts": [
-14
-],
 "postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionKeyMutationFieldEntry.ts": [
 13
-],
-"postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionMutationFieldEntry.ts": [
-22
-],
-"postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts": [
-19,
-366
-],
-"postgraphql:src/graphql/schema/getQueryGqlType.ts": [
-10,
-15
 ],
 "postgraphql:src/graphql/schema/node/createNodeFieldEntry.ts": [
 9
@@ -51,9 +37,6 @@
 116,
 120,
 135
-],
-"postgraphql:src/interface/__ideas__/01-new-types.ts": [
-9
 ],
 "postgraphql:src/interface/collection/Collection.ts": [
 31,
@@ -93,12 +76,6 @@
 ],
 "postgraphql:src/interface/type/Type.ts": [
 27
-],
-"postgraphql:src/postgraphql/cli.ts": [
-13
-],
-"postgraphql:src/postgraphql/schema/auth/getJwtGqlType.ts": [
-18
 ],
 "postgraphql:src/postgraphql/schema/createPostGraphQLSchema.ts": [
 45,
@@ -146,9 +123,6 @@
 "postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingOffset.ts": [
 147
 ],
-"postgraphql:src/postgres/inventory/pgClientFromContext.ts": [
-1
-],
 "postgraphql:src/postgres/inventory/type/PgRangeType.ts": [
 19,
 20,
@@ -159,10 +133,6 @@
 "postgraphql:src/postgres/inventory/type/custom/pgIntervalType.ts": [
 1,
 2
-],
-"postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts": [
-62,
-120
 ],
 "postgraphql:src/postgres/utils/index.ts": [
 9

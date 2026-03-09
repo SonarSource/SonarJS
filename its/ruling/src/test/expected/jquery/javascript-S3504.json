@@ -3,16 +3,6 @@
 5,
 15
 ],
-"jquery:build/release.js": [
-3,
-7,
-26
-],
-"jquery:build/release/cdn.js": [
-3,
-36,
-71
-],
 "jquery:build/release/dist.js": [
 5,
 60,
@@ -27,33 +17,8 @@
 "jquery:build/tasks/lib/spawn_test.js": [
 7
 ],
-"jquery:build/tasks/qunit_fixture.js": [
-3,
-7
-],
-"jquery:build/tasks/sourcemap.js": [
-3,
-6,
-8,
-13
-],
 "jquery:build/tasks/testswarm.js": [
 6
-],
-"jquery:src/ajax.js": [
-14,
-61,
-87,
-91,
-94,
-115,
-136,
-193,
-393,
-452,
-498,
-517,
-715
 ],
 "jquery:src/ajax/jsonp.js": [
 7,
@@ -133,10 +98,6 @@
 ],
 "jquery:src/core/camelCase.js": [
 2
-],
-"jquery:src/core/init.js": [
-9,
-18
 ],
 "jquery:src/core/isAttached.js": [
 6
@@ -231,28 +192,6 @@
 "jquery:src/dimensions.js": [
 14,
 18
-],
-"jquery:src/effects.js": [
-20,
-47,
-67,
-81,
-250,
-287,
-300,
-340,
-346,
-412,
-426,
-449,
-502,
-507,
-521,
-522,
-537,
-577,
-616,
-640
 ],
 "jquery:src/effects/Tween.js": [
 24,

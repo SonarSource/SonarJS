@@ -14,13 +14,5 @@
 ],
 "fireact:src/pages/auth/user/VerifyEmail/index.js": [
 93
-],
-"fireact:src/serviceWorker.js": [
-14,
-16,
-18,
-26,
-27,
-116
 ]
 }

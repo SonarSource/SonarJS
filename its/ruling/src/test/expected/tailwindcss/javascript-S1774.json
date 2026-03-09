@@ -12,9 +12,6 @@
 27,
 47
 ],
-"tailwindcss:plugin.js": [
-3
-],
 "tailwindcss:src/cli/commands/build.js": [
 72,
 118,
@@ -57,12 +54,6 @@
 ],
 "tailwindcss:src/lib/purgeUnusedStyles.js": [
 107
-],
-"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
-19,
-201,
-263,
-342
 ],
 "tailwindcss:src/lib/substituteResponsiveAtRules.js": [
 15

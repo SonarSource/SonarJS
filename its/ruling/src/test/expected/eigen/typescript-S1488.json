@@ -4,9 +4,6 @@
 456,
 481
 ],
-"eigen:src/app/Components/ArtworkFilter/ArtworkFilterOptionsScreen.tsx": [
-71
-],
 "eigen:src/app/Components/ArtworkFilter/ArtworkFilterStore.tsx": [
 272
 ],
@@ -42,15 +39,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Artwork.tests.tsx": [
 72
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/LocationAutocomplete.tsx": [
-92
-],
-"eigen:src/app/Scenes/BottomTabs/BottomTabs.tests.tsx": [
-18
-],
-"eigen:src/app/Scenes/Inbox/Components/ActiveBids/index.tsx": [
-40
 ],
 "eigen:src/app/Scenes/MyAccount/MyAccount.tests.tsx": [
 69,
@@ -143,12 +131,6 @@
 "eigen:src/app/Scenes/ViewingRoom/ViewingRoomArtwork.tests.tsx": [
 32
 ],
-"eigen:src/app/Websockets/GravityWebsocketContext.tsx": [
-51
-],
-"eigen:src/app/Websockets/auctions/AuctionSocketContext.tsx": [
-118
-],
 "eigen:src/app/navigation/routes.tsx": [
 257
 ],
@@ -161,10 +143,5 @@
 "eigen:src/app/utils/relayHelpers.ts": [
 28,
 39
-],
-"eigen:src/palette/Theme.tsx": [
-70,
-96,
-128
 ]
 }

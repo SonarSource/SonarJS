@@ -2,11 +2,6 @@
 "jira-clone:client/src/shared/components/Avatar/index.jsx": [
 14
 ],
-"jira-clone:client/src/shared/components/Button/index.jsx": [
-21,
-22,
-24
-],
 "jira-clone:client/src/shared/components/ConfirmModal/index.jsx": [
 18
 ],
@@ -20,25 +15,12 @@
 20,
 22
 ],
-"jira-clone:client/src/shared/components/Form/Field.jsx": [
-22,
-23,
-24,
-25,
-26
-],
 "jira-clone:client/src/shared/components/Form/index.jsx": [
 18,
 19
 ],
 "jira-clone:client/src/shared/components/Icon/index.jsx": [
 50
-],
-"jira-clone:client/src/shared/components/Input/index.jsx": [
-16,
-17,
-18,
-20
 ],
 "jira-clone:client/src/shared/components/InputDebounced.jsx": [
 13
@@ -77,10 +59,6 @@
 19,
 20,
 21
-],
-"jira-clone:client/src/shared/components/Textarea/index.jsx": [
-16,
-19
 ],
 "jira-clone:client/src/shared/components/Tooltip/index.jsx": [
 22

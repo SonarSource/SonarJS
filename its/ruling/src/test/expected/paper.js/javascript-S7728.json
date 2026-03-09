@@ -1,12 +1,4 @@
 {
-"paper.js:gulp/typescript/typescript-definition-generator.js": [
-14,
-71,
-293
-],
-"paper.js:gulp/utils/error.js": [
-23
-],
 "paper.js:src/core/PaperScript.js": [
 308
 ]

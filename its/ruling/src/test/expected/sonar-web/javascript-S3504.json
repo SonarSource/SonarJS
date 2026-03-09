@@ -1,53 +1,4 @@
 {
-"sonar-web:gulp/scripts.js": [
-1,
-3,
-4,
-5,
-6,
-8,
-9,
-10,
-11,
-12,
-13,
-15,
-26,
-42,
-53,
-54,
-60,
-94
-],
-"sonar-web:gulp/styles.js": [
-1,
-3,
-4,
-5,
-6,
-7,
-8,
-9
-],
-"sonar-web:gulpfile.js": [
-1,
-3,
-5,
-6,
-7,
-9,
-10,
-11,
-12,
-13,
-15,
-16
-],
-"sonar-web:src/main/js/apps/account/app.js": [
-6,
-7,
-18
-],
 "sonar-web:src/main/js/apps/account/change-password-view.js": [
 18,
 24,
@@ -326,18 +277,6 @@
 ],
 "sonar-web:src/main/js/apps/custom-measures/update-view.js": [
 6
-],
-"sonar-web:src/main/js/apps/dashboard/app.js": [
-22,
-69,
-79,
-81,
-93,
-101,
-136,
-142,
-144,
-147
 ],
 "sonar-web:src/main/js/apps/drilldown/app.js": [
 6,
@@ -1566,18 +1505,6 @@
 216,
 226
 ],
-"sonar-web:src/main/js/main/processes.js": [
-6,
-12,
-32,
-64,
-72,
-89,
-99,
-115,
-127,
-139
-],
 "sonar-web:src/main/js/widgets/issue-filter/widget.js": [
 22,
 27,
@@ -1745,132 +1672,12 @@
 71,
 76
 ],
-"sonar-web:test/helpers/test-page.js": [
-3,
-4,
-5,
-6,
-8,
-14,
-29,
-44,
-59,
-60,
-78,
-79,
-133,
-176,
-185
-],
 "sonar-web:test/intern.js": [
 3
-],
-"sonar-web:test/medium/api-documentation.spec.js": [
-2
-],
-"sonar-web:test/medium/coding-rules.spec.js": [
-2
-],
-"sonar-web:test/medium/custom-measures.spec.js": [
-2,
-6
-],
-"sonar-web:test/medium/global-permissions.spec.js": [
-2
-],
-"sonar-web:test/medium/groups.spec.js": [
-2
-],
-"sonar-web:test/medium/issues.spec.js": [
-2,
-110,
-153,
-215
-],
-"sonar-web:test/medium/maintenance.spec.js": [
-2
-],
-"sonar-web:test/medium/metrics.spec.js": [
-2
-],
-"sonar-web:test/medium/project-permissions.spec.js": [
-2
-],
-"sonar-web:test/medium/quality-gates.spec.js": [
-2
-],
-"sonar-web:test/medium/quality-profiles.spec.js": [
-2
-],
-"sonar-web:test/medium/source-viewer.spec.js": [
-2,
-6
-],
-"sonar-web:test/medium/update-center.spec.js": [
-2
-],
-"sonar-web:test/medium/users.spec.js": [
-2
-],
-"sonar-web:tests/apps/permission-templates-test.js": [
-54
-],
-"sonar-web:tests/apps/system-test.js": [
-50
-],
-"sonar-web:tests/components/issue-test.js": [
-13,
-18,
-19,
-24,
-25,
-30,
-31,
-37,
-38,
-44,
-45,
-51,
-52,
-57,
-58,
-64,
-65,
-75,
-76,
-86,
-87,
-94,
-95,
-102,
-103,
-115,
-125,
-135,
-149,
-167
-],
-"sonar-web:tests/components/source-viewer-test.js": [
-12,
-27,
-43,
-54,
-70
 ],
 "sonar-web:tests/helpers/measures-test.js": [
 7,
 26,
 31
-],
-"sonar-web:tests/helpers/urls-test.js": [
-14
-],
-"sonar-web:tests/jsdom-setup.js": [
-3,
-13
-],
-"sonar-web:tests/nav-test.js": [
-12,
-15
 ]
 }

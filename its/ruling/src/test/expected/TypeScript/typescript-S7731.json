@@ -1,7 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-238
-],
 "TypeScript:scripts/processDiagnosticMessages.ts": [
 76,
 91,
@@ -77,18 +74,9 @@
 "TypeScript:src/harness/compilerRunner.ts": [
 214
 ],
-"TypeScript:src/harness/harness.ts": [
-349,
-405,
-572,
-1759
-],
 "TypeScript:src/harness/projectsRunner.ts": [
 141,
 287
-],
-"TypeScript:src/harness/runner.ts": [
-28
 ],
 "TypeScript:src/harness/rwcRunner.ts": [
 254

@@ -18,15 +18,9 @@
 "vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
 75
 ],
-"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
-185
-],
 "vuetify:packages/vuetify/src/components/VColorPicker/util/index.ts": [
 35,
 66
-],
-"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
-232
 ],
 "vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 188
@@ -43,21 +37,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/util/point.ts": [
 52
-],
-"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
-159,
-301
-],
-"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
-185
-],
-"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
-135,
-176,
-231,
-237,
-244,
-267
 ],
 "vuetify:packages/vuetify/src/components/VSlideGroup/helpers.ts": [
 32
@@ -90,9 +69,6 @@
 ],
 "vuetify:packages/vuetify/src/composables/validation.ts": [
 124
-],
-"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
-309
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/virtual.ts": [
 51,

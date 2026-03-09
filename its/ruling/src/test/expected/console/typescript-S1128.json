@@ -15,13 +15,6 @@
 "console:src/components/PopupFooter.tsx": [
 2
 ],
-"console:src/components/ProjectSelection/ProjectSelection.tsx": [
-11,
-25
-],
-"console:src/main.tsx": [
-21
-],
 "console:src/mutations/DeleteAlgoliaSyncQueryMutation.ts": [
 2,
 2,
@@ -52,28 +45,12 @@
 "console:src/routes.tsx": [
 47
 ],
-"console:src/views/CLIAuthView/CLIAuthSuccessInitView/Right.tsx": [
-2
-],
-"console:src/views/FunctionsView/FunctionLogs/FunctionLogs.tsx": [
-8
-],
-"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
-19
-],
 "console:src/views/FunctionsView/FunctionPopup/InfoBox.tsx": [
 2,
 2
 ],
 "console:src/views/FunctionsView/FunctionPopup/RequestPipelineFunction.tsx": [
 2
-],
-"console:src/views/FunctionsView/FunctionPopup/TestPopup.tsx": [
-6
-],
-"console:src/views/FunctionsView/FunctionsList.tsx": [
-5,
-6
 ],
 "console:src/views/Integrations/Algolia/AlgoliaIndexes.tsx": [
 2,
@@ -96,25 +73,6 @@
 7,
 8
 ],
-"console:src/views/Integrations/Algolia/AlgoliaView.tsx": [
-5,
-6,
-9,
-10,
-11
-],
-"console:src/views/Integrations/Algolia/CreateAlgoliaIndex.tsx": [
-3,
-5,
-6,
-7,
-8,
-17
-],
-"console:src/views/Integrations/AlgoliaPopup/AlgoliaIndexPopup/AlgoliaIndexPopupModels.tsx": [
-6,
-6
-],
 "console:src/views/Integrations/AlgoliaPopup/AlgoliaIndexPopup/AlgoliaIndexPopupQuery.tsx": [
 7,
 8,
@@ -126,25 +84,9 @@
 6,
 7
 ],
-"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndex.tsx": [
-5,
-6,
-7,
-9
-],
 "console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndexTop.tsx": [
 2,
 2
-],
-"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndexes.tsx": [
-3,
-4,
-5,
-7,
-11
-],
-"console:src/views/Integrations/IntegrationsCard.tsx": [
-5
 ],
 "console:src/views/Integrations/IntegrationsCardGrid.tsx": [
 4,
@@ -152,12 +94,6 @@
 ],
 "console:src/views/Integrations/IntegrationsHeader.tsx": [
 2
-],
-"console:src/views/PermissionsView/PermissionPopup/AffectedFields.tsx": [
-3
-],
-"console:src/views/PermissionsView/PermissionPopup/OperationChooser.tsx": [
-5
 ],
 "console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx": [
 8,
@@ -167,12 +103,6 @@
 12,
 19,
 22
-],
-"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
-4,
-5,
-8,
-10
 ],
 "console:src/views/PermissionsView/PermissionPopup/PermissionPopupFooter.tsx": [
 2,
@@ -186,55 +116,17 @@
 "console:src/views/PermissionsView/PermissionPopup/ast.ts": [
 4
 ],
-"console:src/views/PermissionsView/PermissionsList/ModelPermissions/ModelPermissionFields.tsx": [
-9
-],
 "console:src/views/PermissionsView/PermissionsList/ModelPermissions/PermissionField.tsx": [
 3
-],
-"console:src/views/PermissionsView/PermissionsList/PermissionsList.tsx": [
-8,
-9
 ],
 "console:src/views/PermissionsView/RelationPermissionPopup/RelationBaseSettings.tsx": [
 3
 ],
-"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx": [
-4,
-5,
-7,
-7,
-7,
-11
-],
-"console:src/views/PermissionsView/RelationPermissionsList/AllRelationPermissionsList.tsx": [
-3
-],
-"console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermission.tsx": [
-3,
-3
-],
-"console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermissionList.tsx": [
-4
-],
 "console:src/views/PermissionsView/RelationPermissionsList/RelationPermissions/RelationPermissions.tsx": [
 3
 ],
-"console:src/views/ProjectRootView/CloneProjectPopup.tsx": [
-11
-],
 "console:src/views/ProjectRootView/Onboarding/OnboardingFinale.tsx": [
 3
-],
-"console:src/views/ProjectRootView/ProjectRootView.tsx": [
-10,
-12,
-16,
-18,
-30
-],
-"console:src/views/ProjectRootView/SideNav.tsx": [
-8
 ],
 "console:src/views/RelationsPopup/BreakingChangeIndicator.tsx": [
 3
@@ -253,41 +145,8 @@
 3,
 4
 ],
-"console:src/views/RelationsPopup/RelationPopup.tsx": [
-6,
-13
-],
-"console:src/views/SchemaView/EnumsOverview/AddEnum.tsx": [
-2,
-2,
-2,
-11,
-12,
-16
-],
-"console:src/views/SchemaView/EnumsOverview/EnumBox.tsx": [
-3,
-6,
-7,
-8,
-12,
-13
-],
-"console:src/views/SchemaView/EnumsOverview/EnumList.tsx": [
-2
-],
-"console:src/views/SchemaView/SchemaEditor.tsx": [
-6
-],
 "console:src/views/SchemaView/SchemaHeader.tsx": [
 5
-],
-"console:src/views/SchemaView/SchemaOverview/AddType.tsx": [
-3,
-15
-],
-"console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
-8
 ],
 "console:src/views/Settings/Billing/Billing.tsx": [
 9,
@@ -307,45 +166,14 @@
 2,
 4
 ],
-"console:src/views/models/AuthProviderPopup/AuthProviderPopup.tsx": [
-7
-],
-"console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-10
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-7,
-11
-],
 "console:src/views/models/DatabrowserView/Cell/IntCell.tsx": [
 3
-],
-"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
-2
 ],
 "console:src/views/models/DatabrowserView/Cell/cellgenerator.tsx": [
 11
 ],
-"console:src/views/models/DatabrowserView/NewRow.tsx": [
-10
-],
-"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
-15
-],
-"console:src/views/models/FieldPopup/Constraints.tsx": [
-4,
-4
-],
 "console:src/views/models/FieldPopup/EditValueInput.tsx": [
 3
-],
-"console:src/views/models/FieldPopup/FieldPopup.tsx": [
-6,
-6,
-6,
-7,
-7,
-11
 ],
 "console:src/views/models/FieldPopup/FieldPopupFooter.tsx": [
 2,
@@ -354,23 +182,7 @@
 "console:src/views/models/FieldPopup/FieldPopupState.ts": [
 1
 ],
-"console:src/views/models/ModelHeader.tsx": [
-12,
-13
-],
 "console:src/views/models/utils.ts": [
 6
-],
-"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
-4,
-7,
-9,
-12,
-13,
-17,
-21,
-22,
-25,
-26
 ]
 }

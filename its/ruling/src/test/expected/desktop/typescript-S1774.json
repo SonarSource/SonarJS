@@ -75,15 +75,8 @@
 "desktop:app/src/lib/editors/lookup.ts": [
 60
 ],
-"desktop:app/src/lib/editors/win32.ts": [
-420,
-454
-],
 "desktop:app/src/lib/email.ts": [
 57
-],
-"desktop:app/src/lib/endpoint-capabilities.ts": [
-83
 ],
 "desktop:app/src/lib/find-account.ts": [
 85,
@@ -106,11 +99,6 @@
 ],
 "desktop:app/src/lib/get-architecture.ts": [
 16
-],
-"desktop:app/src/lib/get-os.ts": [
-11,
-21,
-26
 ],
 "desktop:app/src/lib/git/branch.ts": [
 31
@@ -339,9 +327,6 @@
 "desktop:app/src/lib/ssh/ssh-secret-storage.ts": [
 3
 ],
-"desktop:app/src/lib/ssh/ssh.ts": [
-46
-],
 "desktop:app/src/lib/stats/stats-store.ts": [
 546,
 549,
@@ -489,12 +474,6 @@
 ],
 "desktop:app/src/main-process/exception-reporting.ts": [
 62
-],
-"desktop:app/src/main-process/log.ts": [
-33
-],
-"desktop:app/src/main-process/main.ts": [
-471
 ],
 "desktop:app/src/main-process/menu/build-context-menu.ts": [
 9,
@@ -1061,26 +1040,6 @@
 538,
 566,
 625
-],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-442,
-452,
-600,
-738,
-791,
-793,
-801,
-877,
-881,
-883,
-885,
-890,
-891,
-920,
-946,
-1110,
-1316,
-1364
 ],
 "desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
 116,
@@ -1872,16 +1831,6 @@
 "desktop:app/src/ui/workflow-push-rejected/workflow-push-rejected.tsx": [
 9,
 37
-],
-"desktop:script/build.ts": [
-63,
-169,
-212,
-217,
-226,
-305,
-321,
-370
 ],
 "desktop:script/changelog/git.ts": [
 13

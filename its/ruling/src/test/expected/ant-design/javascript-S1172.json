@@ -24,11 +24,5 @@
 ],
 "ant-design:index-style-only.js": [
 2
-],
-"ant-design:scripts/generateLegacyLocale.js": [
-8
-],
-"ant-design:site/antd.js": [
-3
 ]
 }

@@ -13,24 +13,14 @@
 "eigen:src/app/Components/ArtistListItem.tsx": [
 115
 ],
-"eigen:src/app/Components/Bidding/Screens/ConfirmBid.tests.tsx": [
-171
-],
 "eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
 163
 ],
 "eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
 203
 ],
-"eigen:src/app/Components/Bidding/Screens/SelectMaxBid.tsx": [
-71
-],
 "eigen:src/app/Components/EntityList/index.tsx": [
 50
-],
-"eigen:src/app/Components/Lists/ShowItemRow.tsx": [
-121,
-140
 ],
 "eigen:src/app/Components/RelatedArtists/RelatedArtist.tsx": [
 24
@@ -44,10 +34,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/AboutArtist.tsx": [
 17
-],
-"eigen:src/app/Scenes/Artwork/Components/ArtworkActions.tsx": [
-41,
-126
 ],
 "eigen:src/app/Scenes/Artwork/Components/ArtworkDetails.tsx": [
 38,
@@ -171,27 +157,11 @@
 "eigen:src/app/Scenes/Home/Components/HomeHero.tsx": [
 12
 ],
-"eigen:src/app/Scenes/Inbox/Components/ActiveBids/ActiveBid.tsx": [
-83,
-130,
-142
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tsx": [
-74
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
-79,
-83,
-89
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tsx": [
 201
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tsx": [
 62
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tsx": [
-73
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Shipping.tsx": [
 42
@@ -201,13 +171,6 @@
 ],
 "eigen:src/app/Scenes/Map/EventEmitter.ts": [
 32
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-314,
-322,
-384,
-481,
-590
 ],
 "eigen:src/app/Scenes/MyCollection/Screens/Artwork/Components/MyCollectionArtworkHeader.tsx": [
 48
@@ -235,10 +198,6 @@
 ],
 "eigen:src/app/Scenes/Partner/Components/PartnerOverview.tsx": [
 132
-],
-"eigen:src/app/Scenes/Partner/Components/PartnerShows.tsx": [
-38,
-215
 ],
 "eigen:src/app/Scenes/Partner/Components/PartnerShowsRail.tsx": [
 102

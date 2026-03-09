@@ -1,8 +1,4 @@
 {
-"jshint:scripts/remove-dev-dependencies.js": [
-35,
-36
-],
 "jshint:src/reporters/checkstyle.js": [
 92
 ],

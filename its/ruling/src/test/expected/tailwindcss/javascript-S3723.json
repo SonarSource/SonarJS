@@ -133,38 +133,6 @@
 2442,
 2473
 ],
-"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
-115,
-141,
-148,
-176,
-183,
-214,
-221,
-254,
-261,
-282,
-301,
-303,
-327,
-357,
-389,
-426,
-446,
-451,
-473,
-478,
-498,
-503,
-523,
-528,
-548,
-575,
-609,
-658,
-712,
-762
-],
 "tailwindcss:__tests__/sanity.test.js": [
 16,
 32,
@@ -202,12 +170,6 @@
 93,
 105
 ],
-"tailwindcss:scripts/compat.js": [
-66
-],
-"tailwindcss:scripts/rebuildFixtures.js": [
-66
-],
 "tailwindcss:src/cli/commands/build.js": [
 74
 ],
@@ -226,18 +188,6 @@
 ],
 "tailwindcss:src/lib/purgeUnusedStyles.js": [
 40
-],
-"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
-29,
-68,
-97,
-102,
-134,
-165,
-196,
-205,
-247,
-265
 ],
 "tailwindcss:src/lib/substituteResponsiveAtRules.js": [
 70,
@@ -499,11 +449,6 @@
 "tailwindcss:src/util/flattenColorPalette.js": [
 9,
 10
-],
-"tailwindcss:src/util/generateVariantFunction.js": [
-12,
-44,
-45
 ],
 "tailwindcss:src/util/processPlugins.js": [
 101,

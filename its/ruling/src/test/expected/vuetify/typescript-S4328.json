@@ -100,9 +100,6 @@
 35,
 37
 ],
-"vuetify:packages/docs/src/main.ts": [
-9
-],
 "vuetify:packages/docs/src/plugins/global-components.ts": [
 2,
 3,
@@ -205,9 +202,6 @@
 "vuetify:packages/vuetify/src/composables/__tests__/filter.spec.ts": [
 3
 ],
-"vuetify:packages/vuetify/src/composables/__tests__/forwardRefs.spec.tsx": [
-4
-],
 "vuetify:packages/vuetify/src/composables/__tests__/group.spec.ts": [
 6
 ],
@@ -227,9 +221,6 @@
 5
 ],
 "vuetify:packages/vuetify/src/composables/__tests__/position.spec.ts": [
-3
-],
-"vuetify:packages/vuetify/src/composables/__tests__/proxiedModel.spec.ts": [
 3
 ],
 "vuetify:packages/vuetify/src/composables/__tests__/resizeObserver.spec.ts": [
@@ -274,9 +265,6 @@
 "vuetify:packages/vuetify/src/directives/resize/__tests__/resize.spec.ts": [
 1
 ],
-"vuetify:packages/vuetify/src/directives/ripple/__tests__/ripple.spec.ts": [
-2
-],
 "vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
 1
 ],
@@ -297,9 +285,6 @@
 ],
 "vuetify:packages/vuetify/src/util/__tests__/dateTimeUtils.spec.ts": [
 1
-],
-"vuetify:packages/vuetify/src/util/__tests__/dom.spec.ts": [
-3
 ],
 "vuetify:packages/vuetify/src/util/__tests__/getCurrentInstance.spec.tsx": [
 5

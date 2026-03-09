@@ -14,14 +14,6 @@
 451,
 457
 ],
-"desktop:script/build.ts": [
-316
-],
-"desktop:script/post-install.ts": [
-32,
-42,
-51
-],
 "desktop:script/publish.ts": [
 33
 ],

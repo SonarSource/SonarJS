@@ -8,9 +8,6 @@
 "desktop:app/src/lib/ci-checks/ci-checks.ts": [
 105
 ],
-"desktop:app/src/lib/editors/win32.ts": [
-484
-],
 "desktop:app/src/lib/fuzzy-find.ts": [
 38
 ],
@@ -115,9 +112,6 @@
 ],
 "desktop:app/src/ui/create-branch/create-branch-dialog.tsx": [
 109
-],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-1274
 ],
 "desktop:app/src/ui/diff/text-diff.tsx": [
 473,

@@ -132,12 +132,6 @@
 "rxjs:src/operator/timestamp.ts": [
 18
 ],
-"rxjs:src/symbol/iterator.ts": [
-3
-],
-"rxjs:src/symbol/observable.ts": [
-4
-],
 "rxjs:src/testing/ColdObservable.ts": [
 40,
 40
@@ -163,8 +157,5 @@
 ],
 "rxjs:src/util/UnsubscriptionError.ts": [
 10
-],
-"rxjs:src/util/assign.ts": [
-16
 ]
 }

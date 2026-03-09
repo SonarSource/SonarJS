@@ -14,13 +14,6 @@
 "desktop:app/src/lib/databases/pull-request-database.ts": [
 117
 ],
-"desktop:app/src/lib/editors/win32.ts": [
-143,
-179,
-316,
-326,
-349
-],
 "desktop:app/src/lib/git/cherry-pick.ts": [
 171
 ],
@@ -65,9 +58,6 @@
 ],
 "desktop:app/src/ui/app-theme.tsx": [
 61
-],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-1207
 ],
 "desktop:app/src/ui/diff/text-diff.tsx": [
 558,

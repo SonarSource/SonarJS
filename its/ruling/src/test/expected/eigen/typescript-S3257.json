@@ -23,14 +23,8 @@
 "eigen:src/app/relay/middlewares/errorMiddleware.ts": [
 56
 ],
-"eigen:src/app/store/AuthModel.tests.ts": [
-19
-],
 "eigen:src/app/utils/ExecutionQueue.ts": [
 2
-],
-"eigen:src/app/utils/PushNotification.tests.ts": [
-16
 ],
 "eigen:src/app/utils/PushNotification.ts": [
 46

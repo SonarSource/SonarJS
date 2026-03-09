@@ -330,56 +330,6 @@
 "desktop:app/src/lib/editors/shared.ts": [
 40
 ],
-"desktop:app/src/lib/editors/win32.ts": [
-7,
-67,
-129,
-143,
-150,
-157,
-175,
-179,
-197,
-201,
-219,
-223,
-231,
-235,
-240,
-244,
-252,
-256,
-266,
-270,
-296,
-300,
-305,
-309,
-316,
-323,
-331,
-334,
-342,
-346,
-353,
-360,
-367,
-376,
-383,
-390,
-397,
-404,
-411,
-412,
-487
-],
-"desktop:app/src/lib/endpoint-capabilities.ts": [
-147,
-153,
-159,
-169,
-175
-],
 "desktop:app/src/lib/error-with-metadata.ts": [
 49,
 65
@@ -690,9 +640,6 @@
 "desktop:app/src/lib/markdown-filters/mention-filter.ts": [
 77
 ],
-"desktop:app/src/lib/markdown-filters/node-filter.ts": [
-12
-],
 "desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
 62
 ],
@@ -817,19 +764,6 @@
 ],
 "desktop:app/src/lib/squash/squashed-commit-description.ts": [
 13
-],
-"desktop:app/src/lib/ssh/ssh-key-passphrase.ts": [
-5
-],
-"desktop:app/src/lib/ssh/ssh-user-password.ts": [
-4
-],
-"desktop:app/src/lib/ssh/ssh.ts": [
-7,
-50,
-59,
-68,
-88
 ],
 "desktop:app/src/lib/stats/stats-database.ts": [
 533,
@@ -1379,24 +1313,6 @@
 ],
 "desktop:app/src/main-process/desktop-console-transport.ts": [
 8
-],
-"desktop:app/src/main-process/log.ts": [
-25,
-33,
-38
-],
-"desktop:app/src/main-process/main.ts": [
-10,
-27,
-39,
-46,
-93,
-284,
-328,
-720,
-727,
-735,
-753
 ],
 "desktop:app/src/main-process/menu/build-context-menu.ts": [
 91
@@ -2051,40 +1967,6 @@
 468,
 494
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-9,
-14,
-20,
-28,
-34,
-49,
-57,
-189,
-207,
-241,
-276,
-437,
-454,
-466,
-484,
-545,
-568,
-739,
-740,
-780,
-781,
-798,
-804,
-862,
-863,
-986,
-1113,
-1134,
-1228,
-1240,
-1251,
-1279
-],
 "desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
 13,
 133,
@@ -2320,14 +2202,6 @@
 387,
 389,
 409
-],
-"desktop:app/src/ui/index.tsx": [
-24,
-35,
-43,
-51,
-74,
-138
 ],
 "desktop:app/src/ui/lfs/attribute-mismatch.tsx": [
 28
@@ -3176,23 +3050,6 @@
 60,
 69
 ],
-"desktop:script/build.ts": [
-11,
-33,
-42,
-55,
-200,
-219,
-230,
-231,
-232,
-242,
-243,
-312,
-367,
-416,
-459
-],
 "desktop:script/changelog/parser.ts": [
 32
 ],
@@ -3217,18 +3074,10 @@
 64,
 68
 ],
-"desktop:script/licenses/update-license-dump.ts": [
-22,
-40,
-54
-],
 "desktop:script/package.ts": [
 15,
 101,
 144
-],
-"desktop:script/post-install.ts": [
-13
 ],
 "desktop:script/pr-api.ts": [
 28,
@@ -3252,14 +3101,6 @@
 ],
 "desktop:script/start.ts": [
 54
-],
-"desktop:script/validate-changelog.ts": [
-61,
-63,
-64,
-66,
-67,
-68
 ],
 "desktop:script/validate-sass/validate-file.ts": [
 17,

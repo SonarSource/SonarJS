@@ -17,9 +17,6 @@
 "eigen:src/app/utils/AboveTheFoldQueryRenderer.tsx": [
 54
 ],
-"eigen:src/app/utils/experiments/UnleashProvider.tsx": [
-13
-],
 "eigen:src/app/utils/useGlobalState.tests.tsx": [
 16
 ],

@@ -1,20 +1,9 @@
 {
-"angular.js:src/Angular.js": [
-329,
-1109
-],
-"angular.js:src/ng/compile.js": [
-3657,
-4289
-],
 "angular.js:src/ng/directive/ngClass.js": [
 115
 ],
 "angular.js:src/ng/filter/filter.js": [
 245
-],
-"angular.js:src/ng/http.js": [
-1129
 ],
 "angular.js:src/ng/rootScope.js": [
 1335,

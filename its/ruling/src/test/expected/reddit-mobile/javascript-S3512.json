@@ -1,7 +1,4 @@
 {
-"reddit-mobile:index.js": [
-221
-],
 "reddit-mobile:src/lib/TrackingPixel.es6.js": [
 14,
 35
@@ -11,8 +8,5 @@
 104,
 238,
 372
-],
-"reddit-mobile:version.js": [
-5
 ]
 }

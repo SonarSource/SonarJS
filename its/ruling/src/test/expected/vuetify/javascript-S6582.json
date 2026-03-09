@@ -1,7 +1,4 @@
 {
-"vuetify:scripts/converter.js": [
-55
-],
 "vuetify:scripts/rules/no-render-string-reference.js": [
 16
 ]

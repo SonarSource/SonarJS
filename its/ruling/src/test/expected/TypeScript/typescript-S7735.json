@@ -1,13 +1,6 @@
 {
-"TypeScript:Gulpfile.ts": [
-637,
-678
-],
 "TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 86
-],
-"TypeScript:scripts/word2md.ts": [
-319
 ],
 "TypeScript:src/compiler/binder.ts": [
 1328,
@@ -179,14 +172,6 @@
 225,
 736,
 1499
-],
-"TypeScript:src/harness/harness.ts": [
-60,
-70,
-771,
-1144,
-1235,
-1881
 ],
 "TypeScript:src/harness/loggedIO.ts": [
 189,

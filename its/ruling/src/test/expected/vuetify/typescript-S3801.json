@@ -6,12 +6,6 @@
 "vuetify:packages/docs/src/util/helpers.ts": [
 114
 ],
-"vuetify:packages/docs/vite.config.ts": [
-201
-],
-"vuetify:packages/vuetify/src/components/VIcon/VIcon.tsx": [
-37
-],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 218
 ],
@@ -20,10 +14,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.tsx": [
 87
-],
-"vuetify:packages/vuetify/src/composables/forwardRefs.ts": [
-18,
-31
 ],
 "vuetify:packages/vuetify/src/framework.ts": [
 126

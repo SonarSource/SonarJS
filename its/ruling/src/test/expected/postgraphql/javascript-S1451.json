@@ -1,10 +1,4 @@
 {
-"postgraphql:resources/jest-preprocessor.js": [
-0
-],
-"postgraphql:resources/jest-setup.js": [
-0
-],
 "postgraphql:src/graphql/__tests__/graphqlIntegration-test.js": [
 0
 ],
@@ -23,37 +17,10 @@
 "postgraphql:src/postgraphql/__tests__/__mocks__/fs.js": [
 0
 ],
-"postgraphql:src/postgraphql/__tests__/postgraphql-test.js": [
-0
-],
-"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationMutations-test.js": [
-0
-],
-"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationQueries-test.js": [
-0
-],
-"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationSchema-test.js": [
-0
-],
-"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationSchemaExport-test.js": [
-0
-],
-"postgraphql:src/postgraphql/__tests__/withPostGraphQLContext-test.js": [
-0
-],
 "postgraphql:src/postgraphql/graphiql/src/components/PostGraphiQL.js": [
 0
 ],
 "postgraphql:src/postgraphql/graphiql/src/index.js": [
-0
-],
-"postgraphql:src/postgraphql/http/__tests__/createPostGraphQLHttpRequestHandler-test.js": [
-0
-],
-"postgraphql:src/postgraphql/http/__tests__/setupServerSentEvents-test.js": [
-0
-],
-"postgraphql:src/postgraphql/http/createPostGraphQLHttpRequestHandler.js": [
 0
 ],
 "postgraphql:src/postgraphql/http/setupServerSentEvents.js": [
@@ -62,19 +29,7 @@
 "postgraphql:src/postgraphql/schema/auth/__tests__/getJwtGqlType-test.js": [
 0
 ],
-"postgraphql:src/postgraphql/watch/__tests__/watchPgSchemas-test.js": [
-0
-],
 "postgraphql:src/postgres/introspection/__tests__/PgCatalog-test.js": [
-0
-],
-"postgraphql:src/postgres/introspection/__tests__/introspectDatabase-test.js": [
-0
-],
-"postgraphql:src/postgres/inventory/collection/__tests__/PgCollection-test.js": [
-0
-],
-"postgraphql:src/postgres/inventory/collection/__tests__/PgCollectionKey-test.js": [
 0
 ]
 }

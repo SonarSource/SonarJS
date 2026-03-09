@@ -2,12 +2,6 @@
 "jquery:Gruntfile.js": [
 1
 ],
-"jquery:build/release.js": [
-1
-],
-"jquery:build/release/cdn.js": [
-1
-],
 "jquery:build/release/dist.js": [
 1
 ],
@@ -30,12 +24,6 @@
 1
 ],
 "jquery:build/tasks/promises_aplus_tests.js": [
-1
-],
-"jquery:build/tasks/qunit_fixture.js": [
-1
-],
-"jquery:build/tasks/sourcemap.js": [
 1
 ],
 "jquery:build/tasks/testswarm.js": [

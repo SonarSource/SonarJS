@@ -1,7 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-1008
-],
 "TypeScript:scripts/buildProtocol.ts": [
 73
 ],
@@ -14,10 +11,6 @@
 ],
 "TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
 16
-],
-"TypeScript:scripts/word2md.ts": [
-250,
-296
 ],
 "TypeScript:src/compiler/binder.ts": [
 247,
@@ -211,9 +204,6 @@
 3772,
 3794,
 3807
-],
-"TypeScript:src/harness/runner.ts": [
-137
 ],
 "TypeScript:src/server/project.ts": [
 26

@@ -1,33 +1,4 @@
 {
-"react-cloud-music:config/paths.js": [
-37
-],
-"react-cloud-music:config/webpack.config.js": [
-55,
-65,
-77,
-121,
-124,
-125,
-152,
-157,
-163,
-170,
-230,
-486,
-592,
-595,
-609
-],
-"react-cloud-music:config/webpackDevServer.config.js": [
-10
-],
-"react-cloud-music:scripts/start.js": [
-79
-],
-"react-cloud-music:scripts/test.js": [
-48
-],
 "react-cloud-music:src/api/lyric-parser.js": [
 104
 ],
@@ -129,38 +100,7 @@
 54,
 77
 ],
-"react-cloud-music:src/baseUI/confirm/index.jsx": [
-92
-],
-"react-cloud-music:src/baseUI/horizen-item/index.jsx": [
-66
-],
-"react-cloud-music:src/baseUI/scroll/index.jsx": [
-171,
-172
-],
 "react-cloud-music:src/baseUI/search-box/index.jsx": [
 80
-],
-"react-cloud-music:ts-music/config/webpack.config.js": [
-78,
-132,
-135,
-136,
-163,
-168,
-174,
-182,
-244,
-519,
-634,
-637,
-650
-],
-"react-cloud-music:ts-music/scripts/start.js": [
-80
-],
-"react-cloud-music:ts-music/scripts/test.js": [
-49
 ]
 }

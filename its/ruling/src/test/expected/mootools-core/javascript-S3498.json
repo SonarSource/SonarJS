@@ -1,21 +1,4 @@
 {
-"mootools-core:Grunt/options/options.js": [
-30
-],
-"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
-120,
-123,
-174,
-175,
-182,
-674,
-693,
-699,
-705,
-709,
-713,
-723
-],
 "mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js": [
 32,
 35

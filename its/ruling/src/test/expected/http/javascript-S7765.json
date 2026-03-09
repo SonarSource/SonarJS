@@ -1,7 +1,4 @@
 {
-"http:lib/gulp/karma/background.js": [
-6
-],
 "http:src/IInterceptResolution.js": [
 8
 ]

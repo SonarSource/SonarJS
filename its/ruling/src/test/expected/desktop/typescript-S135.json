@@ -9,9 +9,6 @@
 367,
 498
 ],
-"desktop:app/src/lib/editors/win32.ts": [
-437
-],
 "desktop:app/src/lib/git/for-each-ref.ts": [
 107
 ],
@@ -51,9 +48,6 @@
 ],
 "desktop:app/src/lib/stores/pull-request-store.ts": [
 268
-],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-1089
 ],
 "desktop:app/src/ui/donut.tsx": [
 68

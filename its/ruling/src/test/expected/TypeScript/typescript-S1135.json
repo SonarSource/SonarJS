@@ -1,7 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-72
-],
 "TypeScript:scripts/processDiagnosticMessages.ts": [
 22
 ],
@@ -50,14 +47,8 @@
 "TypeScript:src/harness/fourslash.ts": [
 1805
 ],
-"TypeScript:src/harness/harness.ts": [
-1352
-],
 "TypeScript:src/harness/loggedIO.ts": [
 233
-],
-"TypeScript:src/harness/runner.ts": [
-180
 ],
 "TypeScript:src/server/client.ts": [
 290,

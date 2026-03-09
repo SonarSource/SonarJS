@@ -14,9 +14,6 @@
 1593,
 1627
 ],
-"desktop:app/src/lib/editors/win32.ts": [
-110
-],
 "desktop:app/src/lib/find-account.ts": [
 97
 ],
@@ -61,9 +58,6 @@
 "desktop:app/src/ui/diff/diff-syntax-mode.ts": [
 212
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-1347
-],
 "desktop:app/src/ui/diff/text-diff.tsx": [
 898,
 914,
@@ -71,15 +65,6 @@
 ],
 "desktop:app/src/ui/history/commit-summary.tsx": [
 166
-],
-"desktop:app/src/ui/index.tsx": [
-143,
-147,
-151,
-159,
-163,
-167,
-171
 ],
 "desktop:app/src/ui/lib/list/list.tsx": [
 296,

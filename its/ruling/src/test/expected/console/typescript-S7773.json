@@ -17,20 +17,10 @@
 163,
 163
 ],
-"console:src/views/SchemaView/ComingSoonTag.tsx": [
-7
-],
-"console:src/views/SchemaView/EnumsOverview/EnumList.tsx": [
-32
-],
 "console:src/views/SchemaView/SchemaOverview/TypeList.tsx": [
 35
 ],
 "console:src/views/SchemaView/SchemaView.tsx": [
 38
-],
-"console:src/views/models/FieldPopup/BaseSettings.tsx": [
-257,
-258
 ]
 }

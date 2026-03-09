@@ -1,7 +1,4 @@
 {
-"paper.js:gulp/typescript/typescript-definition-generator.js": [
-59
-],
 "paper.js:src/core/Base.js": [
 32,
 539
@@ -17,9 +14,6 @@
 ],
 "paper.js:src/item/Raster.js": [
 555
-],
-"paper.js:src/node/self.js": [
-22
 ],
 "paper.js:src/style/Color.js": [
 105

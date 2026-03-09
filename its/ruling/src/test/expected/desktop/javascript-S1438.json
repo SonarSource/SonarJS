@@ -114,56 +114,6 @@
 83,
 85
 ],
-"desktop:eslint-rules/tests/insecure-random.test.js": [
-3,
-4,
-9,
-11,
-39
-],
-"desktop:eslint-rules/tests/react-no-unbound-dispatcher-props.test.js": [
-3,
-4,
-12,
-18,
-36
-],
-"desktop:eslint-rules/tests/react-proper-lifecycle-methods.test.js": [
-3,
-5,
-6,
-18,
-542
-],
-"desktop:eslint-rules/tests/react-readonly-props-and-state.test.js": [
-3,
-5,
-6,
-14,
-99
-],
-"desktop:script/jest-actions-reporter.js": [
-1,
-6,
-7,
-12,
-15,
-16,
-21,
-24,
-28,
-30,
-33,
-43,
-46,
-49,
-52,
-53,
-54,
-60,
-64,
-67
-],
 "desktop:script/jest.config.js": [
 9
 ]

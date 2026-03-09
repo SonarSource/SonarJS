@@ -1,54 +1,8 @@
 {
-"Ghost:Gruntfile.js": [
-841
-],
 "Ghost:core/client/app/assets/lib/uploader.js": [
 37
 ],
-"Ghost:core/server/api/users.js": [
-199,
-341,
-399,
-401,
-403
-],
-"Ghost:core/server/data/import/data-importer.js": [
-95
-],
-"Ghost:core/server/data/importer/index.js": [
-250
-],
-"Ghost:core/server/data/migration/fixtures/index.js": [
-303
-],
-"Ghost:core/server/filters.js": [
-82
-],
-"Ghost:core/server/models/post.js": [
-197,
-204,
-222,
-232
-],
-"Ghost:core/server/permissions/index.js": [
-151
-],
-"Ghost:core/server/update-check.js": [
-122,
-123,
-124,
-137
-],
-"Ghost:core/test/functional/base.js": [
-442
-],
 "Ghost:core/test/functional/client/app_test.js": [
 222
-],
-"Ghost:core/test/utils/fork.js": [
-74,
-88,
-107,
-122
 ]
 }

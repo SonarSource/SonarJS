@@ -1,7 +1,4 @@
 {
-"amplify:demo/core/context/demo.js": [
-9
-],
 "amplify:lib/amplify-vsdoc.js": [
 36
 ],
@@ -15,9 +12,6 @@
 "amplify:src/store.js": [
 82,
 212
-],
-"amplify:test-server.js": [
-20
 ],
 "amplify:test/index.html": [
 16

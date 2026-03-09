@@ -6,9 +6,6 @@
 22,
 215
 ],
-"console:src/views/FunctionsView/FunctionPopup/JsEditor.tsx": [
-12
-],
 "console:src/views/FunctionsView/FunctionPopup/N.tsx": [
 10
 ],
@@ -23,9 +20,6 @@
 ],
 "console:src/views/FunctionsView/FunctionPopup/StepMarker.tsx": [
 10
-],
-"console:src/views/FunctionsView/FunctionPopup/TestLog.tsx": [
-12
 ],
 "console:src/views/FunctionsView/FunctionPopup/Toggle.tsx": [
 10

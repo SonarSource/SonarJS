@@ -23,8 +23,5 @@
 "eigen:src/app/utils/saleTime.ts": [
 56,
 79
-],
-"eigen:src/setupJest.ts": [
-529
 ]
 }

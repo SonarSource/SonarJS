@@ -1,65 +1,7 @@
 {
-"qunit:Gruntfile.js": [
-42,
-43,
-49,
-50,
-51,
-58,
-62,
-68,
-72,
-76,
-77,
-83,
-84,
-88,
-99,
-104,
-105,
-110,
-111,
-112,
-122,
-126,
-127,
-137,
-138,
-142,
-179,
-180,
-181,
-182,
-209,
-210,
-216,
-225,
-227,
-232,
-233,
-240,
-241,
-246,
-247,
-255,
-256,
-261,
-266,
-267,
-268,
-293
-],
-"qunit:bin/qunit.js": [
-50
-],
 "qunit:build/release.js": [
 21,
 27
-],
-"qunit:build/tasks/test-on-node.js": [
-33,
-65,
-100
 ],
 "qunit:reporter/diff.js": [
 73,
@@ -98,12 +40,6 @@
 52,
 53
 ],
-"qunit:rollup.config.js": [
-11,
-27,
-30,
-31
-],
 "qunit:src/assert.js": [
 51,
 120,
@@ -124,26 +60,6 @@
 386,
 441,
 445
-],
-"qunit:src/cli/find-reporter.js": [
-48,
-66,
-85
-],
-"qunit:src/cli/run.js": [
-11,
-113,
-158
-],
-"qunit:src/cli/utils.js": [
-52,
-99
-],
-"qunit:src/core.js": [
-103,
-122,
-170,
-178
 ],
 "qunit:src/core/config.js": [
 54,
@@ -181,9 +97,6 @@
 ],
 "qunit:src/events.js": [
 11
-],
-"qunit:src/logger.js": [
-18
 ],
 "qunit:src/module.js": [
 35,

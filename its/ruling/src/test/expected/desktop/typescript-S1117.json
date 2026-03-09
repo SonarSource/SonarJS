@@ -89,13 +89,6 @@
 112,
 115
 ],
-"desktop:app/src/main-process/desktop-file-transport.ts": [
-20
-],
-"desktop:app/src/main-process/main.ts": [
-690,
-697
-],
 "desktop:app/src/main-process/squirrel-updater.ts": [
 73
 ],
@@ -210,10 +203,6 @@
 ],
 "desktop:app/webpack.development.ts": [
 27
-],
-"desktop:script/build.ts": [
-394,
-406
 ],
 "desktop:script/dist-info.ts": [
 46,

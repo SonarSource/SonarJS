@@ -1,7 +1,4 @@
 {
-"angular.js:Gruntfile.js": [
-0
-],
 "angular.js:angularFiles.js": [
 0
 ],
@@ -86,9 +83,6 @@
 "angular.js:docs/app/assets/js/angular-bootstrap/dropdown-toggle.js": [
 0
 ],
-"angular.js:docs/app/assets/js/search-worker.js": [
-0
-],
 "angular.js:docs/app/e2e/api-docs/api-pages.scenario.js": [
 0
 ],
@@ -99,9 +93,6 @@
 0
 ],
 "angular.js:docs/app/e2e/api-docs/service-pages.scenario.js": [
-0
-],
-"angular.js:docs/app/e2e/app.scenario.js": [
 0
 ],
 "angular.js:docs/app/e2e/table-of-contents.scenario.js": [
@@ -140,28 +131,13 @@
 "angular.js:docs/app/test/errorsSpec.js": [
 0
 ],
-"angular.js:docs/config/index.js": [
-0
-],
 "angular.js:docs/config/inline-tag-defs/type.js": [
 0
 ],
 "angular.js:docs/config/processors/error-docs.js": [
 0
 ],
-"angular.js:docs/config/processors/index-page.js": [
-0
-],
-"angular.js:docs/config/processors/keywords.js": [
-0
-],
-"angular.js:docs/config/processors/pages-data.js": [
-0
-],
 "angular.js:docs/config/processors/sitemap.js": [
-0
-],
-"angular.js:docs/config/processors/versions-data.js": [
 0
 ],
 "angular.js:docs/config/services/deployments/debug.js": [
@@ -173,25 +149,10 @@
 "angular.js:docs/config/services/deployments/jquery.js": [
 0
 ],
-"angular.js:docs/config/services/deployments/production.js": [
-0
-],
 "angular.js:docs/config/services/deployments/test.js": [
 0
 ],
-"angular.js:docs/config/services/errorNamespaceMap.js": [
-0
-],
-"angular.js:docs/config/services/getMinerrInfo.js": [
-0
-],
-"angular.js:docs/config/services/getVersion.js": [
-0
-],
 "angular.js:docs/config/tag-defs/deprecated.js": [
-0
-],
-"angular.js:docs/config/tag-defs/deprecated.spec.js": [
 0
 ],
 "angular.js:docs/config/tag-defs/installation.js": [
@@ -206,82 +167,16 @@
 "angular.js:docs/config/tag-defs/tutorial-step.js": [
 0
 ],
-"angular.js:docs/gulpfile.js": [
-0
-],
-"angular.js:docs/protractor-conf.js": [
-0
-],
-"angular.js:karma-docs.conf.js": [
-0
-],
-"angular.js:karma-jqlite.conf.js": [
-0
-],
-"angular.js:karma-jquery-2.1.conf.js": [
-0
-],
-"angular.js:karma-jquery-2.2.conf.js": [
-0
-],
-"angular.js:karma-jquery.conf-factory.js": [
-0
-],
-"angular.js:karma-jquery.conf.js": [
-0
-],
-"angular.js:karma-modules-ngAnimate.conf.js": [
-0
-],
-"angular.js:karma-modules-ngMock.conf.js": [
-0
-],
-"angular.js:karma-modules.conf.js": [
-0
-],
 "angular.js:karma-shared.conf.js": [
 0
 ],
-"angular.js:lib/browserstack/start_tunnel.js": [
-0
-],
-"angular.js:lib/grunt/plugins.js": [
-0
-],
-"angular.js:lib/grunt/utils.js": [
-0
-],
-"angular.js:lib/grunt/validate-angular-files.js": [
-0
-],
 "angular.js:lib/promises-aplus/promises-aplus-test-adapter.js": [
-0
-],
-"angular.js:lib/versions/version-info.js": [
-0
-],
-"angular.js:protractor-conf.js": [
 0
 ],
 "angular.js:protractor-jenkins-conf.js": [
 0
 ],
 "angular.js:protractor-shared-conf.js": [
-0
-],
-"angular.js:protractor-travis-conf.js": [
-0
-],
-"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
-0
-],
-"angular.js:scripts/compare-master-to-stable.js": [
-0
-],
-"angular.js:scripts/docs.angularjs.org-firebase/functions/index.js": [
-0
-],
-"angular.js:src/Angular.js": [
 0
 ],
 "angular.js:src/AngularPublic.js": [
@@ -293,12 +188,6 @@
 "angular.js:src/apis.js": [
 0
 ],
-"angular.js:src/auto/injector.js": [
-0
-],
-"angular.js:src/jqLite.js": [
-0
-],
 "angular.js:src/loader.js": [
 0
 ],
@@ -306,9 +195,6 @@
 0
 ],
 "angular.js:src/ng/anchorScroll.js": [
-0
-],
-"angular.js:src/ng/animate.js": [
 0
 ],
 "angular.js:src/ng/animateCss.js": [
@@ -323,16 +209,7 @@
 "angular.js:src/ng/cacheFactory.js": [
 0
 ],
-"angular.js:src/ng/compile.js": [
-0
-],
-"angular.js:src/ng/controller.js": [
-0
-],
 "angular.js:src/ng/cookieReader.js": [
-0
-],
-"angular.js:src/ng/directive/a.js": [
 0
 ],
 "angular.js:src/ng/directive/attrs.js": [
@@ -341,22 +218,13 @@
 "angular.js:src/ng/directive/directives.js": [
 0
 ],
-"angular.js:src/ng/directive/form.js": [
-0
-],
 "angular.js:src/ng/directive/input.js": [
 0
 ],
 "angular.js:src/ng/directive/ngBind.js": [
 0
 ],
-"angular.js:src/ng/directive/ngChange.js": [
-0
-],
 "angular.js:src/ng/directive/ngClass.js": [
-0
-],
-"angular.js:src/ng/directive/ngCloak.js": [
 0
 ],
 "angular.js:src/ng/directive/ngController.js": [
@@ -374,43 +242,19 @@
 "angular.js:src/ng/directive/ngInclude.js": [
 0
 ],
-"angular.js:src/ng/directive/ngInit.js": [
-0
-],
 "angular.js:src/ng/directive/ngList.js": [
-0
-],
-"angular.js:src/ng/directive/ngModel.js": [
 0
 ],
 "angular.js:src/ng/directive/ngModelOptions.js": [
 0
 ],
-"angular.js:src/ng/directive/ngNonBindable.js": [
-0
-],
-"angular.js:src/ng/directive/ngOptions.js": [
-0
-],
 "angular.js:src/ng/directive/ngPluralize.js": [
-0
-],
-"angular.js:src/ng/directive/ngRef.js": [
 0
 ],
 "angular.js:src/ng/directive/ngRepeat.js": [
 0
 ],
 "angular.js:src/ng/directive/ngShowHide.js": [
-0
-],
-"angular.js:src/ng/directive/ngStyle.js": [
-0
-],
-"angular.js:src/ng/directive/ngSwitch.js": [
-0
-],
-"angular.js:src/ng/directive/ngTransclude.js": [
 0
 ],
 "angular.js:src/ng/directive/script.js": [
@@ -434,9 +278,6 @@
 "angular.js:src/ng/filter/filter.js": [
 0
 ],
-"angular.js:src/ng/filter/filters.js": [
-0
-],
 "angular.js:src/ng/filter/limitTo.js": [
 0
 ],
@@ -446,16 +287,7 @@
 "angular.js:src/ng/forceReflow.js": [
 0
 ],
-"angular.js:src/ng/http.js": [
-0
-],
 "angular.js:src/ng/httpBackend.js": [
-0
-],
-"angular.js:src/ng/interpolate.js": [
-0
-],
-"angular.js:src/ng/interval.js": [
 0
 ],
 "angular.js:src/ng/intervalFactory.js": [
@@ -467,13 +299,7 @@
 "angular.js:src/ng/locale.js": [
 0
 ],
-"angular.js:src/ng/location.js": [
-0
-],
 "angular.js:src/ng/log.js": [
-0
-],
-"angular.js:src/ng/parse.js": [
 0
 ],
 "angular.js:src/ng/q.js": [
@@ -491,25 +317,13 @@
 "angular.js:src/ng/sanitizeUri.js": [
 0
 ],
-"angular.js:src/ng/sce.js": [
-0
-],
 "angular.js:src/ng/sniffer.js": [
 0
 ],
 "angular.js:src/ng/taskTrackerFactory.js": [
 0
 ],
-"angular.js:src/ng/templateRequest.js": [
-0
-],
 "angular.js:src/ng/testability.js": [
-0
-],
-"angular.js:src/ng/timeout.js": [
-0
-],
-"angular.js:src/ng/urlUtils.js": [
 0
 ],
 "angular.js:src/ng/window.js": [
@@ -578,9 +392,6 @@
 "angular.js:src/ngMessageFormat/messageFormatService.js": [
 0
 ],
-"angular.js:src/ngMessages/messages.js": [
-0
-],
 "angular.js:src/ngMock/angular-mocks.js": [
 0
 ],
@@ -618,9 +429,6 @@
 0
 ],
 "angular.js:src/ngTouch/touch.js": [
-0
-],
-"angular.js:src/publishExternalApis.js": [
 0
 ],
 "angular.js:src/routeToRegExp.js": [

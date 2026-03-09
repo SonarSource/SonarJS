@@ -1,12 +1,6 @@
 {
-"TypeScript:Gulpfile.ts": [
-240
-],
 "TypeScript:scripts/authors.ts": [
 43
-],
-"TypeScript:scripts/errorCheck.ts": [
-67
 ],
 "TypeScript:scripts/processDiagnosticMessages.ts": [
 174,
@@ -147,15 +141,6 @@
 2336,
 3271,
 3276
-],
-"TypeScript:src/harness/harness.ts": [
-195,
-434,
-439,
-1768
-],
-"TypeScript:src/harness/runner.ts": [
-134
 ],
 "TypeScript:src/harness/rwcRunner.ts": [
 102,

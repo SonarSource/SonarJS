@@ -1,10 +1,4 @@
 {
-"jshint:src/cli.js": [
-609
-],
-"jshint:src/lex.js": [
-472
-],
 "jshint:src/style.js": [
 47
 ]

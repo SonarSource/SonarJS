@@ -44,9 +44,6 @@
 "desktop:app/src/lib/http.ts": [
 123
 ],
-"desktop:app/src/lib/ssh/ssh.ts": [
-12
-],
 "desktop:app/src/lib/stats/stats-store.ts": [
 69,
 820

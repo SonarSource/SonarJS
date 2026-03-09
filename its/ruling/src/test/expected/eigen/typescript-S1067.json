@@ -1,15 +1,9 @@
 {
-"eigen:metaphysics-queries-freshness-tests/test-freshness.ts": [
-46
-],
 "eigen:src/app/Components/ArticleCard.tsx": [
 41
 ],
 "eigen:src/app/Components/ArtworkGrids/ArtworkGridItem.tsx": [
 232
-],
-"eigen:src/app/Components/OpaqueImageView/OpaqueImageView.tsx": [
-97
 ],
 "eigen:src/app/Scenes/Artwork/Artwork.tsx": [
 109
@@ -17,9 +11,6 @@
 "eigen:src/app/Scenes/Artwork/Components/ArtworkTombstone.tsx": [
 133,
 232
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx": [
-335
 ],
 "eigen:src/app/Scenes/Artwork/Components/CommercialPartnerInformation.tsx": [
 29
@@ -32,10 +23,6 @@
 ],
 "eigen:src/app/Scenes/Fair/Fair.tsx": [
 61
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-358,
-635
 ],
 "eigen:src/app/Scenes/MyBids/Components/ActiveLotStanding.tsx": [
 66
@@ -52,13 +39,7 @@
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ContactInformation/ContactInformation.tsx": [
 111
 ],
-"eigen:src/palette/elements/Input/Input.tsx": [
-323
-],
 "eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
 94
-],
-"eigen:src/setupJest.ts": [
-21
 ]
 }

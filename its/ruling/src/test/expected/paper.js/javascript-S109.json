@@ -1,44 +1,4 @@
 {
-"paper.js:examples/Node.js/AnimatedStar.js": [
-5,
-29,
-36,
-37
-],
-"paper.js:examples/Node.js/BooleanOperations.js": [
-8,
-8,
-17,
-17,
-17,
-17,
-19,
-19,
-24,
-34
-],
-"paper.js:examples/Node.js/JSONtoPDF.js": [
-8,
-8
-],
-"paper.js:examples/Node.js/RasterRemote.js": [
-7,
-7
-],
-"paper.js:examples/Node.js/SvgExport.js": [
-9,
-9,
-12,
-43,
-43
-],
-"paper.js:examples/Node.js/SvgImport.js": [
-6,
-6
-],
-"paper.js:examples/Node.js/Tadpoles.js": [
-5
-],
 "paper.js:examples/Scripts/BooleanOperations.html": [
 44,
 44,
@@ -182,10 +142,6 @@
 434,
 435,
 437
-],
-"paper.js:examples/Worker/Worker.js": [
-3,
-3
 ],
 "paper.js:src/basic/Matrix.js": [
 77,

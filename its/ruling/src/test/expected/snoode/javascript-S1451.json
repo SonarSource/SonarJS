@@ -2,9 +2,6 @@
 "snoode:src/api.es6.js": [
 0
 ],
-"snoode:src/endpoints/v1.es6.js": [
-0
-],
 "snoode:src/errors/noModelError.es6.js": [
 0
 ],
@@ -51,18 +48,6 @@
 0
 ],
 "snoode:test/endpoints/v1.js": [
-0
-],
-"snoode:test/models/account.js": [
-0
-],
-"snoode:test/models/base.js": [
-0
-],
-"snoode:test/models/comment.js": [
-0
-],
-"snoode:test/models/link.js": [
 0
 ]
 }

@@ -1,15 +1,4 @@
 {
-"p5.js:Gruntfile.js": [
-115,
-128,
-259,
-332,
-333,
-359,
-360,
-386,
-387
-],
 "p5.js:docs/documented-method.js": [
 38
 ],
@@ -247,13 +236,5 @@
 "p5.js:src/dom/dom.js": [
 2277,
 2283
-],
-"p5.js:utils/sample-linter.js": [
-90,
-96,
-106,
-124,
-126,
-134
 ]
 }

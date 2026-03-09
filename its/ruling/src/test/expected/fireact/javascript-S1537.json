@@ -2,26 +2,6 @@
 "fireact:src/components/Form/index.js": [
 10
 ],
-"fireact:src/components/Layout/index.js": [
-16,
-18,
-24,
-29,
-30,
-39,
-43,
-48,
-55,
-56,
-57,
-68,
-72,
-73,
-74,
-104,
-113,
-122
-],
 "fireact:src/components/Loader/index.js": [
 11,
 18
@@ -53,8 +33,5 @@
 ],
 "fireact:src/pages/auth/accounts/UserList/index.js": [
 54
-],
-"fireact:src/serviceWorker.js": [
-104
 ]
 }

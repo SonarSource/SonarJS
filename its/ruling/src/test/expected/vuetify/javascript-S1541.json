@@ -1,7 +1,4 @@
 {
-"vuetify:eslint-local-rules.js": [
-9
-],
 "vuetify:scripts/rules/jsx-curly-spacing.js": [
 125,
 372

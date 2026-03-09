@@ -8,9 +8,6 @@
 "ant-design:components/anchor/__tests__/Anchor.test.tsx": [
 170
 ],
-"ant-design:components/anchor/__tests__/cached-context.test.tsx": [
-42
-],
 "ant-design:components/badge/__tests__/index.test.tsx": [
 153
 ],
@@ -29,9 +26,6 @@
 7,
 38
 ],
-"ant-design:components/grid/__tests__/cached-row-context.test.tsx": [
-37
-],
 "ant-design:components/input/__tests__/index.test.tsx": [
 125,
 245,
@@ -43,9 +37,6 @@
 ],
 "ant-design:components/locale/hu_HU.tsx": [
 15
-],
-"ant-design:components/menu/__tests__/cached-context.test.tsx": [
-44
 ],
 "ant-design:components/modal/__tests__/hook.test.tsx": [
 130

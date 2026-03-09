@@ -14,12 +14,6 @@
 "qunit:src/assert.js": [
 361
 ],
-"qunit:src/cli/run.js": [
-84
-],
-"qunit:src/cli/utils.js": [
-69
-],
 "qunit:src/core/config.js": [
 65,
 68
@@ -29,9 +23,6 @@
 174,
 178,
 182
-],
-"qunit:src/core/stacktrace.js": [
-12
 ],
 "qunit:src/core/utilities.js": [
 17,

@@ -1,273 +1,15 @@
 {
-"courselit:apps/web/components/admin/base-layout.tsx": [
-10,
-29,
-35,
-36,
-45,
-51,
-59,
-65,
-73,
-81,
-89,
-111,
-171
-],
-"courselit:apps/web/components/admin/courses/course-editor/course-structure-editor.tsx": [
-10,
-25,
-31,
-37,
-38,
-57,
-111,
-179,
-184,
-205,
-206,
-325,
-353,
-357
-],
-"courselit:apps/web/components/admin/courses/course-editor/group.tsx": [
-13,
-24,
-37,
-42,
-48,
-56,
-57,
-82,
-284
-],
-"courselit:apps/web/components/admin/courses/course-editor/index.tsx": [
-25,
-40,
-58,
-63,
-64,
-95,
-98,
-306,
-315,
-316,
-325,
-326,
-351,
-372,
-373,
-374,
-534,
-674,
-704,
-828,
-830,
-842,
-846
-],
-"courselit:apps/web/components/admin/courses/index.tsx": [
-10,
-18,
-39,
-46,
-49,
-53,
-57,
-58,
-191,
-216,
-261,
-265
-],
-"courselit:apps/web/components/admin/courses/lesson-editor.tsx": [
-13,
-27,
-37,
-57,
-63,
-70,
-79,
-84,
-92,
-93,
-163,
-164,
-317,
-374,
-417,
-430,
-460,
-536,
-538,
-547,
-551
-],
-"courselit:apps/web/components/admin/design/index.tsx": [
-35,
-48
-],
 "courselit:apps/web/components/admin/design/layout-manager/add-component-dialog.tsx": [
 10,
-14
-],
-"courselit:apps/web/components/admin/design/layout-manager/added-component.tsx": [
-13,
 14
 ],
 "courselit:apps/web/components/admin/design/layout-manager/compatible-components-map.ts": [
 10,
 21
 ],
-"courselit:apps/web/components/admin/design/layout-manager/edit-widget-dialog.tsx": [
-8,
-13,
-71
-],
-"courselit:apps/web/components/admin/design/layout-manager/index.tsx": [
-15,
-45,
-53,
-58,
-63,
-68,
-72,
-76,
-80,
-85,
-89,
-93,
-97,
-101,
-139,
-145,
-164,
-214,
-226,
-312,
-394,
-591,
-595
-],
-"courselit:apps/web/components/admin/design/menus/links/index.tsx": [
-42,
-43,
-65,
-69
-],
-"courselit:apps/web/components/admin/design/menus/links/navigation-link-item.tsx": [
-14,
-20,
-24,
-39,
-45,
-46,
-74,
-231,
-289,
-293
-],
-"courselit:apps/web/components/admin/design/themes-manager/index.tsx": [
-22,
-36,
-41,
-45,
-46,
-326,
-330
-],
-"courselit:apps/web/components/admin/design/themes-manager/theme-item.tsx": [
-11,
-19,
-26,
-27,
-28,
-41,
-107,
-109,
-119,
-121
-],
-"courselit:apps/web/components/admin/media/editor.tsx": [
-9,
-43,
-55,
-92,
-220,
-222,
-231,
-235
-],
-"courselit:apps/web/components/admin/media/index.tsx": [
-9,
-27,
-34,
-35,
-127,
-131,
-149,
-184,
-230
-],
-"courselit:apps/web/components/admin/media/media-preview.tsx": [
-8,
-16,
-35,
-43,
-46,
-49,
-50,
-153,
-201,
-205
-],
-"courselit:apps/web/components/admin/media/media-selector/index.tsx": [
-5,
-14,
-19,
-20
-],
 "courselit:apps/web/components/admin/media/media-selector/media-manager-dialog.tsx": [
 7,
 12
-],
-"courselit:apps/web/components/admin/media/upload.tsx": [
-10,
-24,
-29,
-30,
-44,
-57,
-133,
-142,
-211
-],
-"courselit:apps/web/components/admin/settings.tsx": [
-6,
-13,
-24,
-46,
-66,
-72,
-76,
-80,
-86,
-87,
-106,
-115,
-171,
-228,
-288,
-310,
-311,
-361,
-396,
-458,
-473,
-480,
-550,
-767,
-771
 ],
 "courselit:apps/web/components/admin/users/details.tsx": [
 6,
@@ -293,162 +35,11 @@
 168,
 172
 ],
-"courselit:apps/web/components/app-error.tsx": [
-11,
-16,
-17
-],
-"courselit:apps/web/components/app-loader.tsx": [
-8,
-15
-],
 "courselit:apps/web/components/app-toast.tsx": [
 47,
 71,
 85,
 89
-],
-"courselit:apps/web/components/course-introduction.tsx": [
-14
-],
-"courselit:apps/web/components/img.tsx": [
-35
-],
-"courselit:apps/web/components/public/article.tsx": [
-11,
-30,
-38,
-42,
-48,
-52,
-57,
-60,
-83,
-95,
-146,
-201
-],
-"courselit:apps/web/components/public/base-layout/branding.tsx": [
-19,
-32,
-38,
-44,
-47,
-79
-],
-"courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
-17,
-45,
-50,
-56,
-57,
-66,
-67,
-74,
-75,
-83,
-93,
-94,
-98,
-102,
-110,
-116,
-120,
-124,
-129,
-133,
-134,
-274,
-277,
-286,
-317
-],
-"courselit:apps/web/components/public/base-layout/drawer-list-item-icon.tsx": [
-8,
-13,
-14,
-24
-],
-"courselit:apps/web/components/public/base-layout/header.tsx": [
-12,
-18,
-19,
-20
-],
-"courselit:apps/web/components/public/base-layout/index.tsx": [
-45
-],
-"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
-40,
-45,
-51,
-52,
-61,
-62,
-69,
-70,
-78,
-88,
-89,
-93,
-97,
-105,
-111,
-115,
-119,
-123,
-128,
-129,
-238,
-241,
-250,
-298
-],
-"courselit:apps/web/components/public/base-layout/scaffold/drawer-content.tsx": [
-8,
-20,
-27,
-28,
-46,
-63,
-74,
-104
-],
-"courselit:apps/web/components/public/base-layout/scaffold/index.tsx": [
-33,
-38,
-44,
-45,
-54,
-55,
-62,
-63,
-71,
-81,
-82,
-86,
-90,
-94,
-95,
-144,
-147,
-159,
-192
-],
-"courselit:apps/web/components/public/base-layout/scaffold/menu-item.tsx": [
-11,
-18,
-19
-],
-"courselit:apps/web/components/public/base-layout/template/index.tsx": [
-16,
-25,
-35,
-36,
-130
-],
-"courselit:apps/web/components/public/base-layout/template/section.tsx": [
-45
 ],
 "courselit:apps/web/components/public/base-layout/template/widget-by-name.tsx": [
 24,
@@ -461,52 +52,10 @@
 73,
 77
 ],
-"courselit:apps/web/components/public/checkout/index.tsx": [
-6,
-42
-],
-"courselit:apps/web/components/public/checkout/stripe.tsx": [
-13,
-38,
-39,
-44,
-52,
-59,
-70,
-76,
-96
-],
-"courselit:apps/web/components/public/code-injector.tsx": [
-50
-],
 "courselit:apps/web/components/public/items.tsx": [
 11,
 96,
 100
-],
-"courselit:apps/web/components/public/lesson-viewer.tsx": [
-8,
-15,
-28,
-33,
-38,
-42,
-43,
-67,
-124,
-125,
-247,
-251
-],
-"courselit:apps/web/components/public/purchase-status.tsx": [
-7,
-18,
-62,
-166
-],
-"courselit:apps/web/components/public/session-button.tsx": [
-6,
-35
 ],
 "courselit:apps/web/config/constants.ts": [
 70,
@@ -665,13 +214,6 @@
 44,
 45,
 52
-],
-"courselit:apps/web/graphql/index.ts": [
-21,
-22,
-33,
-34,
-35
 ],
 "courselit:apps/web/graphql/lessons/index.ts": [
 6
@@ -970,82 +512,6 @@
 38,
 56
 ],
-"courselit:apps/web/pages/api/auth/login.ts": [
-22,
-30,
-44,
-60,
-61
-],
-"courselit:apps/web/pages/api/auth/user.ts": [
-17
-],
-"courselit:apps/web/pages/api/graph.ts": [
-20,
-43
-],
-"courselit:apps/web/pages/api/media/[mediaId].ts": [
-22,
-39,
-62
-],
-"courselit:apps/web/pages/api/media/index.ts": [
-23,
-36,
-47
-],
-"courselit:apps/web/pages/api/media/presigned.ts": [
-22,
-33
-],
-"courselit:apps/web/pages/api/payment/initiate.ts": [
-29,
-48,
-57,
-68,
-86,
-92,
-100,
-106
-],
-"courselit:apps/web/pages/api/payment/verify.ts": [
-23,
-41,
-48,
-55,
-60,
-67
-],
-"courselit:apps/web/pages/api/payment/webhook.ts": [
-22,
-36,
-49,
-53,
-58
-],
-"courselit:apps/web/pages/course/[id]/[slug].tsx": [
-6,
-40,
-45,
-56,
-177,
-182,
-183,
-189,
-190,
-197,
-198,
-206
-],
-"courselit:apps/web/pages/courses.tsx": [
-45
-],
-"courselit:apps/web/pages/index.tsx": [
-47,
-54,
-72,
-112
-],
 "courselit:apps/web/pages/login.tsx": [
 7,
 76,
@@ -1058,16 +524,6 @@
 35,
 39
 ],
-"courselit:apps/web/pages/post/[id]/[slug].tsx": [
-21,
-97,
-103,
-104,
-110
-],
-"courselit:apps/web/pages/posts.tsx": [
-41
-],
 "courselit:apps/web/pages/profile/[id].tsx": [
 13,
 74,
@@ -1076,10 +532,6 @@
 278,
 285,
 289
-],
-"courselit:apps/web/pages/tag/[tag].tsx": [
-3,
-53
 ],
 "courselit:apps/web/payments/index.ts": [
 9
@@ -1195,14 +647,6 @@
 29,
 64
 ],
-"courselit:packages/components-library/src/course-item.tsx": [
-14,
-22,
-27,
-28,
-43,
-52
-],
 "courselit:packages/components-library/src/image.tsx": [
 43,
 54
@@ -1242,20 +686,7 @@
 46,
 48
 ],
-"courselit:packages/state-management/src/reducer.ts": [
-17,
-28,
-65,
-99,
-114,
-155,
-181,
-188
-],
 "courselit:packages/state-management/src/utils/get-address.ts": [
 4
-],
-"courselit:packages/utils/src/fetch-builder.ts": [
-29
 ]
 }

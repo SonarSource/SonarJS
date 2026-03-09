@@ -25,14 +25,6 @@
 8,
 9
 ],
-"eigen:src/app/Components/Bidding/Screens/ConfirmBid.tests.tsx": [
-19,
-20
-],
-"eigen:src/app/Components/Bidding/Screens/SelectMaxBid.tests.tsx": [
-7,
-15
-],
 "eigen:src/app/Components/PopoverMessage/PopoverMessageProvider.tsx": [
 2,
 3,
@@ -68,29 +60,9 @@
 1,
 2
 ],
-"eigen:src/app/Scenes/City/CityPicker.tsx": [
-5,
-6
-],
-"eigen:src/app/Scenes/City/Components/FairEventSection/index.tsx": [
-5,
-6
-],
-"eigen:src/app/Scenes/Collection/Components/CollectionHubsRails/FeaturedCollections/FeaturedCollectionsRail.tsx": [
-7,
-8
-],
 "eigen:src/app/Scenes/Home/Components/SalesRail.tests.tsx": [
 10,
 11
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tests.tsx": [
-8,
-9
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tests.tsx": [
-6,
-7
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/OpenInquiryModalButton.tests.tsx": [
 8,
@@ -120,10 +92,6 @@
 "eigen:src/app/Scenes/Sale/SaleLotsList.tests.tsx": [
 2,
 3
-],
-"eigen:src/app/Scenes/Search/Search.tsx": [
-40,
-41
 ],
 "eigen:src/app/Scenes/SellWithArtsy/Components/ArtistList.tsx": [
 6,
@@ -165,10 +133,6 @@
 4,
 5
 ],
-"eigen:src/palette/elements/Button/Button.tsx": [
-4,
-5
-],
 "eigen:src/palette/elements/Button/CTAButton.tsx": [
 1,
 2
@@ -205,13 +169,5 @@
 3,
 4,
 5
-],
-"eigen:src/palette/elements/Text/Text.tsx": [
-4,
-5
-],
-"eigen:src/palette/organisms/screenStructure/Screen.tsx": [
-13,
-14
 ]
 }

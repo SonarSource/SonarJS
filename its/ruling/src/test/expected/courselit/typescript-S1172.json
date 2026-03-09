@@ -1,32 +1,4 @@
 {
-"courselit:apps/web/components/admin/base-layout.tsx": [
-111
-],
-"courselit:apps/web/components/admin/courses/course-editor/course-structure-editor.tsx": [
-55,
-110
-],
-"courselit:apps/web/components/admin/courses/course-editor/index.tsx": [
-244
-],
-"courselit:apps/web/components/admin/courses/lesson-editor.tsx": [
-278
-],
-"courselit:apps/web/components/admin/design/menus/index.tsx": [
-9
-],
-"courselit:apps/web/components/admin/design/themes-manager/theme-item.tsx": [
-22
-],
-"courselit:apps/web/components/admin/media/editor.tsx": [
-38
-],
-"courselit:apps/web/components/admin/media/index.tsx": [
-31
-],
-"courselit:apps/web/components/admin/media/upload.tsx": [
-40
-],
 "courselit:apps/web/components/admin/users/details.tsx": [
 35
 ],
@@ -36,9 +8,6 @@
 ],
 "courselit:apps/web/components/admin/users/permissions-editor.tsx": [
 38
-],
-"courselit:apps/web/components/app-loader.tsx": [
-18
 ],
 "courselit:apps/web/components/public/checkout/free.tsx": [
 21
@@ -81,63 +50,14 @@
 "courselit:apps/web/middlewares/verify-domain.ts": [
 59
 ],
-"courselit:apps/web/pages/api/auth/login.ts": [
-17,
-17,
-20
-],
 "courselit:apps/web/pages/api/auth/logout.ts": [
 5
-],
-"courselit:apps/web/pages/api/auth/user.ts": [
-12,
-12,
-15,
-24
-],
-"courselit:apps/web/pages/api/graph.ts": [
-15,
-15,
-18
-],
-"courselit:apps/web/pages/api/media/[mediaId].ts": [
-17,
-17,
-20
-],
-"courselit:apps/web/pages/api/media/index.ts": [
-17,
-17,
-20
-],
-"courselit:apps/web/pages/api/media/presigned.ts": [
-17,
-17,
-20
-],
-"courselit:apps/web/pages/api/payment/initiate.ts": [
-23,
-23,
-26
-],
-"courselit:apps/web/pages/api/payment/verify.ts": [
-17,
-17,
-20
-],
-"courselit:apps/web/pages/api/payment/webhook.ts": [
-16,
-16,
-19
 ],
 "courselit:apps/web/pages/login.tsx": [
 27
 ],
 "courselit:apps/web/pages/logout.tsx": [
 14
-],
-"courselit:apps/web/pages/purchase.tsx": [
-10
 ],
 "courselit:packages/components-library/src/widget-helpers.ts": [
 56

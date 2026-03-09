@@ -1,74 +1,11 @@
 {
-"courselit:apps/web/components/admin/base-layout.tsx": [
-0
-],
-"courselit:apps/web/components/admin/courses/course-editor/course-structure-editor.tsx": [
-0
-],
-"courselit:apps/web/components/admin/courses/course-editor/group.tsx": [
-0
-],
-"courselit:apps/web/components/admin/courses/course-editor/index.tsx": [
-0
-],
-"courselit:apps/web/components/admin/courses/index.tsx": [
-0
-],
-"courselit:apps/web/components/admin/courses/lesson-editor.tsx": [
-0
-],
-"courselit:apps/web/components/admin/design/index.tsx": [
-0
-],
 "courselit:apps/web/components/admin/design/layout-manager/add-component-dialog.tsx": [
-0
-],
-"courselit:apps/web/components/admin/design/layout-manager/added-component.tsx": [
 0
 ],
 "courselit:apps/web/components/admin/design/layout-manager/compatible-components-map.ts": [
 0
 ],
-"courselit:apps/web/components/admin/design/layout-manager/edit-widget-dialog.tsx": [
-0
-],
-"courselit:apps/web/components/admin/design/layout-manager/index.tsx": [
-0
-],
-"courselit:apps/web/components/admin/design/menus/index.tsx": [
-0
-],
-"courselit:apps/web/components/admin/design/menus/links/index.tsx": [
-0
-],
-"courselit:apps/web/components/admin/design/menus/links/navigation-link-item.tsx": [
-0
-],
-"courselit:apps/web/components/admin/design/themes-manager/index.tsx": [
-0
-],
-"courselit:apps/web/components/admin/design/themes-manager/theme-item.tsx": [
-0
-],
-"courselit:apps/web/components/admin/media/editor.tsx": [
-0
-],
-"courselit:apps/web/components/admin/media/index.tsx": [
-0
-],
-"courselit:apps/web/components/admin/media/media-preview.tsx": [
-0
-],
-"courselit:apps/web/components/admin/media/media-selector/index.tsx": [
-0
-],
 "courselit:apps/web/components/admin/media/media-selector/media-manager-dialog.tsx": [
-0
-],
-"courselit:apps/web/components/admin/media/upload.tsx": [
-0
-],
-"courselit:apps/web/components/admin/settings.tsx": [
 0
 ],
 "courselit:apps/web/components/admin/users/details.tsx": [
@@ -80,58 +17,10 @@
 "courselit:apps/web/components/admin/users/permissions-editor.tsx": [
 0
 ],
-"courselit:apps/web/components/app-error.tsx": [
-0
-],
-"courselit:apps/web/components/app-loader.tsx": [
-0
-],
 "courselit:apps/web/components/app-toast.tsx": [
 0
 ],
-"courselit:apps/web/components/course-introduction.tsx": [
-0
-],
-"courselit:apps/web/components/img.tsx": [
-0
-],
 "courselit:apps/web/components/public/app-dialog.tsx": [
-0
-],
-"courselit:apps/web/components/public/article.tsx": [
-0
-],
-"courselit:apps/web/components/public/base-layout/branding.tsx": [
-0
-],
-"courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
-0
-],
-"courselit:apps/web/components/public/base-layout/drawer-list-item-icon.tsx": [
-0
-],
-"courselit:apps/web/components/public/base-layout/header.tsx": [
-0
-],
-"courselit:apps/web/components/public/base-layout/index.tsx": [
-0
-],
-"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
-0
-],
-"courselit:apps/web/components/public/base-layout/scaffold/drawer-content.tsx": [
-0
-],
-"courselit:apps/web/components/public/base-layout/scaffold/index.tsx": [
-0
-],
-"courselit:apps/web/components/public/base-layout/scaffold/menu-item.tsx": [
-0
-],
-"courselit:apps/web/components/public/base-layout/template/index.tsx": [
-0
-],
-"courselit:apps/web/components/public/base-layout/template/section.tsx": [
 0
 ],
 "courselit:apps/web/components/public/base-layout/template/widget-by-name.tsx": [
@@ -140,25 +29,7 @@
 "courselit:apps/web/components/public/checkout/free.tsx": [
 0
 ],
-"courselit:apps/web/components/public/checkout/index.tsx": [
-0
-],
-"courselit:apps/web/components/public/checkout/stripe.tsx": [
-0
-],
-"courselit:apps/web/components/public/code-injector.tsx": [
-0
-],
 "courselit:apps/web/components/public/items.tsx": [
-0
-],
-"courselit:apps/web/components/public/lesson-viewer.tsx": [
-0
-],
-"courselit:apps/web/components/public/purchase-status.tsx": [
-0
-],
-"courselit:apps/web/components/public/session-button.tsx": [
 0
 ],
 "courselit:apps/web/config/constants.ts": [
@@ -201,9 +72,6 @@
 0
 ],
 "courselit:apps/web/graphql/design/types.ts": [
-0
-],
-"courselit:apps/web/graphql/index.ts": [
 0
 ],
 "courselit:apps/web/graphql/lessons/helpers.ts": [
@@ -374,67 +242,10 @@
 "courselit:apps/web/pages/_document.tsx": [
 0
 ],
-"courselit:apps/web/pages/api/auth/login.ts": [
-0
-],
 "courselit:apps/web/pages/api/auth/logout.ts": [
 0
 ],
-"courselit:apps/web/pages/api/auth/user.ts": [
-0
-],
-"courselit:apps/web/pages/api/graph.ts": [
-0
-],
-"courselit:apps/web/pages/api/media/[mediaId].ts": [
-0
-],
-"courselit:apps/web/pages/api/media/index.ts": [
-0
-],
-"courselit:apps/web/pages/api/media/presigned.ts": [
-0
-],
-"courselit:apps/web/pages/api/payment/initiate.ts": [
-0
-],
-"courselit:apps/web/pages/api/payment/verify.ts": [
-0
-],
-"courselit:apps/web/pages/api/payment/webhook.ts": [
-0
-],
-"courselit:apps/web/pages/course/[id]/[slug].tsx": [
-0
-],
-"courselit:apps/web/pages/courses.tsx": [
-0
-],
-"courselit:apps/web/pages/dashboard/courses/edit/[[...id]].tsx": [
-0
-],
-"courselit:apps/web/pages/dashboard/courses/index.tsx": [
-0
-],
-"courselit:apps/web/pages/dashboard/design.tsx": [
-0
-],
 "courselit:apps/web/pages/dashboard/index.tsx": [
-0
-],
-"courselit:apps/web/pages/dashboard/media.tsx": [
-0
-],
-"courselit:apps/web/pages/dashboard/settings.tsx": [
-0
-],
-"courselit:apps/web/pages/dashboard/users/[id].tsx": [
-0
-],
-"courselit:apps/web/pages/dashboard/users/index.tsx": [
-0
-],
-"courselit:apps/web/pages/index.tsx": [
 0
 ],
 "courselit:apps/web/pages/login.tsx": [
@@ -443,19 +254,7 @@
 "courselit:apps/web/pages/logout.tsx": [
 0
 ],
-"courselit:apps/web/pages/post/[id]/[slug].tsx": [
-0
-],
-"courselit:apps/web/pages/posts.tsx": [
-0
-],
 "courselit:apps/web/pages/profile/[id].tsx": [
-0
-],
-"courselit:apps/web/pages/purchase.tsx": [
-0
-],
-"courselit:apps/web/pages/tag/[tag].tsx": [
 0
 ],
 "courselit:apps/web/payments/index.ts": [
@@ -656,9 +455,6 @@
 "courselit:packages/common-widgets/src/tagged-content/widget.tsx": [
 0
 ],
-"courselit:packages/components-library/src/course-item.tsx": [
-0
-],
 "courselit:packages/components-library/src/image.tsx": [
 0
 ],
@@ -680,9 +476,6 @@
 "courselit:packages/components-library/src/rich-text.tsx": [
 0
 ],
-"courselit:packages/components-library/src/section.tsx": [
-0
-],
 "courselit:packages/state-management/src/action-creators.ts": [
 0
 ],
@@ -698,16 +491,10 @@
 "courselit:packages/state-management/src/index.ts": [
 0
 ],
-"courselit:packages/state-management/src/reducer.ts": [
-0
-],
 "courselit:packages/state-management/src/store.ts": [
 0
 ],
 "courselit:packages/state-management/src/utils/get-address.ts": [
-0
-],
-"courselit:packages/utils/src/fetch-builder.ts": [
 0
 ],
 "courselit:packages/utils/src/generate-unique-id.ts": [

@@ -1,9 +1,4 @@
 {
-"jquery:build/release/cdn.js": [
-62,
-104,
-108
-],
 "jquery:build/tasks/build.js": [
 118,
 315
@@ -44,12 +39,6 @@
 "jquery:src/dimensions.js": [
 17,
 17
-],
-"jquery:src/effects.js": [
-304,
-305,
-346,
-350
 ],
 "jquery:src/event.js": [
 519

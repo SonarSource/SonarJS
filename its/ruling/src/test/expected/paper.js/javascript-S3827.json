@@ -7,10 +7,6 @@
 279,
 373
 ],
-"paper.js:examples/Worker/Worker.js": [
-2,
-8
-],
 "paper.js:src/anim/Tween.js": [
 27,
 27,
@@ -55,9 +51,6 @@
 ],
 "paper.js:src/canvas/ProxyContext.js": [
 71
-],
-"paper.js:src/constants.js": [
-13
 ],
 "paper.js:src/core/Base.js": [
 19,

@@ -1,7 +1,4 @@
 {
-"eigen:src/app/Components/Artist/ArtistHeader.tsx": [
-40
-],
 "eigen:src/app/Components/Artist/ArtistShows/Metadata.tsx": [
 52
 ],
@@ -28,9 +25,6 @@
 "eigen:src/app/Components/EntityList/index.tsx": [
 52
 ],
-"eigen:src/app/Components/LocationMap/LocationMap.tsx": [
-29
-],
 "eigen:src/app/Components/RelatedArtists/RelatedArtist.tsx": [
 63
 ],
@@ -39,9 +33,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/ArtworkHeader.tsx": [
 70
-],
-"eigen:src/app/Scenes/Inbox/Components/ActiveBids/ActiveBid.tsx": [
-145
 ],
 "eigen:src/app/Scenes/MyCollection/utils/formatArtworkDimensions.ts": [
 18

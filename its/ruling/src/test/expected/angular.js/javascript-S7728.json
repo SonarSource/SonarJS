@@ -4,9 +4,6 @@
 314,
 315
 ],
-"angular.js:docs/app/assets/js/search-worker.js": [
-40
-],
 "angular.js:docs/app/src/docs.js": [
 47
 ],
@@ -33,49 +30,6 @@
 25,
 62,
 66
-],
-"angular.js:docs/config/processors/index-page.js": [
-22,
-29
-],
-"angular.js:docs/config/processors/keywords.js": [
-71,
-88,
-97,
-104
-],
-"angular.js:docs/config/processors/pages-data.js": [
-78,
-91,
-184
-],
-"angular.js:lib/browserstack/start_tunnel.js": [
-17,
-38
-],
-"angular.js:lib/grunt/plugins.js": [
-18,
-30
-],
-"angular.js:lib/grunt/utils.js": [
-244,
-247,
-251,
-271
-],
-"angular.js:lib/grunt/validate-angular-files.js": [
-29,
-39,
-40
-],
-"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
-120,
-125,
-224
-],
-"angular.js:src/ng/directive/ngOptions.js": [
-517,
-656
 ],
 "angular.js:src/ngAnimate/animation.js": [
 99

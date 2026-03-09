@@ -6,9 +6,6 @@
 35,
 36
 ],
-"eigen:src/app/AppRegistry.tsx": [
-134
-],
 "eigen:src/app/Components/ArtworkFilter/ArtworkFilterHelpers.ts": [
 181,
 182,
@@ -37,51 +34,11 @@
 "eigen:src/app/Components/Bidding/Components/BackButton.tsx": [
 24
 ],
-"eigen:src/app/Components/Bidding/Components/Timer.tests.tsx": [
-27
-],
-"eigen:src/app/Components/Bidding/Context/TimeOffsetProvider.tests.tsx": [
-26
-],
-"eigen:src/app/Components/Bidding/Screens/ConfirmBid.tests.tsx": [
-32,
-70,
-271,
-289,
-403,
-718,
-742,
-765,
-787,
-890,
-917,
-995,
-996,
-1010,
-1011,
-1025,
-1026
-],
 "eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
 262
 ],
-"eigen:src/app/Components/Bidding/Screens/Registration.tests.tsx": [
-287,
-298,
-320,
-350,
-379,
-404,
-440,
-478,
-518,
-540
-],
 "eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
 530
-],
-"eigen:src/app/Components/Bidding/Screens/SelectMaxBid.tsx": [
-155
 ],
 "eigen:src/app/Components/Bidding/types.ts": [
 48
@@ -102,9 +59,6 @@
 "eigen:src/app/Components/MenuItem.tsx": [
 7
 ],
-"eigen:src/app/Components/OpaqueImageView/OpaqueImageView.tsx": [
-78
-],
 "eigen:src/app/Components/ReadMore.tests.tsx": [
 89,
 102
@@ -114,12 +68,6 @@
 ],
 "eigen:src/app/Components/SaleArtworkTileRailCard/SaleArtworkTileRailCard.tests.tsx": [
 70
-],
-"eigen:src/app/Components/StickyTabPage/StickyTabPageFlatList.tsx": [
-19
-],
-"eigen:src/app/Containers/Inquiry.tsx": [
-216
 ],
 "eigen:src/app/Scenes/Artwork/Components/ArtworkActions.tests.tsx": [
 208
@@ -141,22 +89,11 @@
 "eigen:src/app/Scenes/Artwork/Components/PartnerCard.tests.tsx": [
 305
 ],
-"eigen:src/app/Scenes/City/City.tsx": [
-30
-],
 "eigen:src/app/Scenes/Collection/Screens/CollectionHeader.tsx": [
 36
 ],
-"eigen:src/app/Scenes/Inbox/Components/ActiveBids/ActiveBid.tsx": [
-118,
-120
-],
 "eigen:src/app/Scenes/Map/GlobalMap.tests.tsx": [
 40
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-743,
-750
 ],
 "eigen:src/app/Scenes/Map/MapRenderer.tsx": [
 76
@@ -166,10 +103,6 @@
 ],
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Screens/MyCollectionArtworkFormMain.tests.tsx": [
 240
-],
-"eigen:src/app/Scenes/MyCollection/State/MyCollectionArtworkModel.tsx": [
-24,
-145
 ],
 "eigen:src/app/Scenes/MyCollection/utils/localArtworkSortAndFilter.ts": [
 118
@@ -197,13 +130,6 @@
 ],
 "eigen:src/app/Scenes/Sale/SaleHeader.tests.tsx": [
 159
-],
-"eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlertForm.tests.tsx": [
-400,
-428,
-686,
-735,
-758
 ],
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ArtworkDetails/validation.ts": [
 96
@@ -252,10 +178,6 @@
 22,
 24
 ],
-"eigen:src/app/utils/PushNotification.tests.ts": [
-11,
-104
-],
 "eigen:src/app/utils/PushNotification.ts": [
 124,
 126,
@@ -279,22 +201,6 @@
 40,
 41
 ],
-"eigen:src/palette/Theme.tsx": [
-32,
-238,
-239,
-241,
-242,
-243,
-244,
-245,
-246
-],
-"eigen:src/palette/elements/Button/Button.tsx": [
-93,
-94,
-98
-],
 "eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
 82
 ],
@@ -302,39 +208,10 @@
 61,
 62
 ],
-"eigen:src/palette/elements/Text/Text.tsx": [
-57,
-59
-],
 "eigen:src/palette/helpers/color.tests.tsx": [
 28
 ],
 "eigen:src/palette/helpers/space.tests.tsx": [
 30
-],
-"eigen:src/palette/organisms/screenStructure/Screen.tsx": [
-195,
-204,
-213,
-219
-],
-"eigen:src/setupJest.ts": [
-86,
-302,
-303,
-304,
-305,
-306,
-307,
-308,
-309,
-310,
-311,
-312,
-313,
-314,
-315,
-316,
-317
 ]
 }

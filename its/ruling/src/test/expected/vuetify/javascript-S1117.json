@@ -1,8 +1,4 @@
 {
-"vuetify:eslint-local-rules.js": [
-69,
-82
-],
 "vuetify:packages/docs/src/components/app/Markdown.vue": [
 58
 ],
@@ -22,18 +18,7 @@
 "vuetify:packages/docs/src/examples/v-tooltip/usage.vue": [
 37
 ],
-"vuetify:packages/vuetify/build/rollup.config.js": [
-25,
-124,
-127,
-146,
-261,
-264
-],
 "vuetify:packages/vuetify/dev/Playground.nested.vue": [
 278
-],
-"vuetify:scripts/converter.js": [
-69
 ]
 }

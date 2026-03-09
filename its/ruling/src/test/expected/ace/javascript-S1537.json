@@ -5,15 +5,6 @@
 90,
 103
 ],
-"ace:demo/kitchen-sink/demo.js": [
-372
-],
-"ace:demo/kitchen-sink/dev_util.js": [
-273
-],
-"ace:demo/kitchen-sink/doclist.js": [
-50
-],
 "ace:demo/toolbar.html": [
 34,
 85
@@ -31,47 +22,5 @@
 "ace:kitchen-sink.html": [
 71,
 101
-],
-"ace:lib/ace/mode/html/saxparser.js": [
-5560
-],
-"ace:lib/ace/mode/javascript/jshint.js": [
-5881,
-6739,
-14510,
-16458
-],
-"ace:lib/ace/mode/php/php.js": [
-261,
-306,
-514,
-831
-],
-"ace:src/keyboard/vim.js": [
-4836,
-4884,
-4929,
-4988,
-4993,
-5006,
-5009,
-5049,
-5054,
-5102
-],
-"ace:src/keyboard/vim_ace_test.js": [
-157,
-200
-],
-"ace:src/keyboard/vim_test.js": [
-40,
-5385,
-5486
-],
-"ace:tool/regexp_tokenizer.js": [
-24
-],
-"ace:tool/update_deps.js": [
-175
 ]
 }

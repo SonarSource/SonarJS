@@ -1,50 +1,4 @@
 {
-"reddit-mobile:assets/js/client.es6.js": [
-14,
-113,
-192,
-201,
-433
-],
-"reddit-mobile:buildTasks/clean.js": [
-9
-],
-"reddit-mobile:buildTasks/icons.js": [
-16,
-23,
-42
-],
-"reddit-mobile:buildTasks/js.js": [
-44,
-45,
-75,
-77,
-80,
-82,
-95,
-120,
-128
-],
-"reddit-mobile:buildTasks/less.js": [
-19,
-38,
-41
-],
-"reddit-mobile:buildTasks/utils/notify.js": [
-16,
-27
-],
-"reddit-mobile:gulpfile.js": [
-7,
-26,
-27
-],
-"reddit-mobile:index.js": [
-47,
-79,
-81,
-256
-],
 "reddit-mobile:src/EUCountries.es6.js": [
 32
 ],
@@ -65,25 +19,6 @@
 "reddit-mobile:src/lib/savedReply.es6.js": [
 14,
 51
-],
-"reddit-mobile:src/propTypes.es6.js": [
-6,
-12,
-18,
-37,
-44,
-47,
-59,
-68,
-78,
-79,
-86,
-90,
-98,
-104,
-110,
-118,
-119
 ],
 "reddit-mobile:src/server/config.es6.js": [
 50,
@@ -121,9 +56,6 @@
 ],
 "reddit-mobile:src/sideNavAboutMenuItems.es6.js": [
 14
-],
-"reddit-mobile:test/helpers/buildProps.es6.js": [
-17
 ],
 "reddit-mobile:test/helpers/components.es6.js": [
 109

@@ -1,7 +1,4 @@
 {
-"paper.js:gulp/typescript/typescript-definition-generator.js": [
-190
-],
 "paper.js:src/anim/Tween.js": [
 233,
 327,
@@ -107,9 +104,6 @@
 ],
 "paper.js:src/node/canvas.js": [
 44
-],
-"paper.js:src/node/self.js": [
-20
 ],
 "paper.js:src/path/CompoundPath.js": [
 191,

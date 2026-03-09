@@ -23,12 +23,6 @@
 "ant-design:components/menu/MenuItem.tsx": [
 21
 ],
-"ant-design:components/menu/index.tsx": [
-180,
-182,
-184,
-186
-],
 "ant-design:components/spin/index.tsx": [
 79
 ],
@@ -46,12 +40,5 @@
 ],
 "ant-design:site/theme/template/Color/ColorPicker.tsx": [
 16
-],
-"ant-design:site/theme/template/IconDisplay/index.tsx": [
-33,
-35
-],
-"ant-design:site/theme/template/Layout/Header/index.tsx": [
-92
 ]
 }

@@ -17,21 +17,6 @@
 "desktop:eslint-rules/react-readonly-props-and-state.js": [
 0
 ],
-"desktop:eslint-rules/tests/insecure-random.test.js": [
-0
-],
-"desktop:eslint-rules/tests/react-no-unbound-dispatcher-props.test.js": [
-0
-],
-"desktop:eslint-rules/tests/react-proper-lifecycle-methods.test.js": [
-0
-],
-"desktop:eslint-rules/tests/react-readonly-props-and-state.test.js": [
-0
-],
-"desktop:script/jest-actions-reporter.js": [
-0
-],
 "desktop:script/jest.config.js": [
 0
 ]

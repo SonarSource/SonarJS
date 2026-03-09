@@ -198,11 +198,6 @@
 17,
 67
 ],
-"react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
-8,
-8,
-8
-],
 "react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
 8,
 8,
@@ -220,26 +215,6 @@
 8,
 52
 ],
-"react-cloud-music:src/application/User/Login/index.jsx": [
-13,
-14,
-15,
-16,
-17,
-18,
-26,
-31
-],
-"react-cloud-music:src/baseUI/confirm/index.jsx": [
-80,
-80,
-80,
-82
-],
-"react-cloud-music:src/baseUI/horizen-item/index.jsx": [
-38,
-38
-],
 "react-cloud-music:src/baseUI/progress-bar/index.jsx": [
 45,
 69
@@ -249,17 +224,10 @@
 22,
 36
 ],
-"react-cloud-music:src/baseUI/scroll/index.jsx": [
-85,
-175
-],
 "react-cloud-music:src/baseUI/search-box/index.jsx": [
 43,
 44,
 84
-],
-"react-cloud-music:src/baseUI/toast/index.jsx": [
-38
 ],
 "react-cloud-music:src/components/album-detail/index.jsx": [
 6,
@@ -275,12 +243,6 @@
 60,
 61,
 64
-],
-"react-cloud-music:src/components/list/index.jsx": [
-12,
-12,
-19,
-19
 ],
 "react-cloud-music:src/components/slider/index.jsx": [
 8,

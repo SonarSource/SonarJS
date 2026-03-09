@@ -1,7 +1,4 @@
 {
-"sonar-web:gulpfile.js": [
-13
-],
 "sonar-web:src/main/js/api/measures.js": [
 26
 ],
@@ -418,13 +415,6 @@
 ],
 "sonar-web:src/main/js/widgets/old/word-cloud.js": [
 30
-],
-"sonar-web:test/helpers/test-page.js": [
-15,
-30,
-45,
-63,
-82
 ],
 "sonar-web:test/intern.js": [
 4

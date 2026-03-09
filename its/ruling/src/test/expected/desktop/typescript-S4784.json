@@ -97,9 +97,6 @@
 "desktop:app/src/lib/shell.ts": [
 60
 ],
-"desktop:app/src/lib/ssh/ssh.ts": [
-77
-],
 "desktop:app/src/lib/status-parser.ts": [
 95,
 110,

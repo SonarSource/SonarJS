@@ -1,22 +1,4 @@
 {
-"templating:gulpfile.js": [
-0
-],
-"templating:karma.conf.js": [
-0
-],
-"templating:protractor-shared.conf.js": [
-0
-],
-"templating:protractor-travis.conf.js": [
-0
-],
-"templating:protractor.conf.js": [
-0
-],
-"templating:scripts/read-pkg-url.js": [
-0
-],
 "templating:src/example/tab/directives.js": [
 0
 ],
@@ -30,9 +12,6 @@
 0
 ],
 "templating:src/lib/directive/index.js": [
-0
-],
-"templating:src/lib/index.js": [
 0
 ],
 "templating:src/lib/index_ce_di.js": [
@@ -62,13 +41,7 @@
 "templating:test/example/shadow-dom-util.js": [
 0
 ],
-"templating:test/example/tab.spec.js": [
-0
-],
 "templating:test/example/todo.spec.js": [
-0
-],
-"templating:test/example/video.spec.js": [
 0
 ],
 "templating:test/lib/compiler/compiler.spec.js": [

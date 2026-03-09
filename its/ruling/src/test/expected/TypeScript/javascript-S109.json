@@ -1,8 +1,4 @@
 {
-"TypeScript:Jakefile.js": [
-62,
-834
-],
 "TypeScript:lib/tsc.js": [
 1261,
 1262,
@@ -12426,13 +12422,5 @@
 7245,
 7532,
 7727
-],
-"TypeScript:lib/watchGuard.js": [
-16
-],
-"TypeScript:scripts/mocha-parallel.js": [
-83,
-108,
-267
 ]
 }

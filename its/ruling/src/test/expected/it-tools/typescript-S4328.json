@@ -43,10 +43,6 @@
 7,
 8
 ],
-"it-tools:src/main.ts": [
-5,
-8
-],
 "it-tools:src/modules/command-palette/command-palette.store.ts": [
 8,
 9,
@@ -127,9 +123,6 @@
 ],
 "it-tools:src/tools/iban-validator-and-parser/iban-validator-and-parser.vue": [
 4
-],
-"it-tools:src/tools/iban-validator-and-parser/index.ts": [
-3
 ],
 "it-tools:src/tools/integer-base-converter/integer-base-converter.vue": [
 4
@@ -212,12 +205,6 @@
 "it-tools:src/tools/otp-code-generator-and-validator/token-display.vue": [
 2
 ],
-"it-tools:src/tools/password-strength-analyser/index.ts": [
-3
-],
-"it-tools:src/tools/pdf-signature-checker/index.ts": [
-3
-],
 "it-tools:src/tools/pdf-signature-checker/pdf-signature-checker.vue": [
 4
 ],
@@ -282,14 +269,8 @@
 4,
 5
 ],
-"it-tools:src/tools/toml-to-json/index.ts": [
-4
-],
 "it-tools:src/tools/toml-to-json/toml-to-json.vue": [
 5
-],
-"it-tools:src/tools/toml-to-yaml/index.ts": [
-3
 ],
 "it-tools:src/tools/toml-to-yaml/toml-to-yaml.vue": [
 6
@@ -334,10 +315,6 @@
 5,
 6,
 7
-],
-"it-tools:src/ui/c-alert/c-alert.theme.ts": [
-5,
-6
 ],
 "it-tools:src/ui/c-diff-editor/c-diff-editor.vue": [
 3

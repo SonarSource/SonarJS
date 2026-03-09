@@ -58,8 +58,5 @@
 ],
 "tailwindcss:__tests__/variantsAtRule.test.js": [
 10
-],
-"tailwindcss:scripts/rebuildFixtures.js": [
-14
 ]
 }

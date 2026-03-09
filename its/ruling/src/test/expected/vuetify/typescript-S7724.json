@@ -119,16 +119,7 @@
 "vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
 2
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
-2
-],
 "vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerMonthTable.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerTitle.ts": [
 2
 ],
 "vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerYears.ts": [
@@ -188,9 +179,6 @@
 "vuetify:packages/vuetify/src/components/VMenu/__tests__/VMenu.spec.ts": [
 2
 ],
-"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
-2
-],
 "vuetify:packages/vuetify/src/components/VOtpInput/__tests__/VOtpInput.spec.ts": [
 2
 ],
@@ -212,9 +200,6 @@
 "vuetify:packages/vuetify/src/components/VSkeletonLoader/__tests__/VSkeletonLoader.spec.ts": [
 2
 ],
-"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
-2
-],
 "vuetify:packages/vuetify/src/components/VSparkline/__tests__/VSparkline.spec.ts": [
 2
 ],
@@ -233,12 +218,6 @@
 "vuetify:packages/vuetify/src/components/VSpeedDial/__tests__/VSpeedDial.spec.ts": [
 2
 ],
-"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VStepper/VStepperContent.ts": [
-2
-],
 "vuetify:packages/vuetify/src/components/VStepper/VStepperStep.ts": [
 2
 ],
@@ -254,13 +233,7 @@
 "vuetify:packages/vuetify/src/components/VTimePicker/SelectingTimes.ts": [
 2
 ],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-2
-],
 "vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerTitle.ts": [
 2
 ],
 "vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePicker.spec.ts": [
@@ -270,12 +243,6 @@
 2
 ],
 "vuetify:packages/vuetify/src/components/VTimePicker/__tests__/VTimePickerTitle.spec.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-2
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
 2
 ],
 "vuetify:packages/vuetify/src/components/VTreeview/__tests__/VTreeview.spec.ts": [

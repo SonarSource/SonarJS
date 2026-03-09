@@ -199,9 +199,6 @@
 "vuetify:packages/vuetify/src/composables/__tests__/group.spec.ts": [
 57
 ],
-"vuetify:packages/vuetify/src/composables/__tests__/proxiedModel.spec.ts": [
-13
-],
 "vuetify:packages/vuetify/src/composables/__tests__/variant.spec.ts": [
 32
 ],
@@ -211,12 +208,6 @@
 ],
 "vuetify:packages/vuetify/src/composables/theme.ts": [
 303
-],
-"vuetify:packages/vuetify/src/directives/ripple/__tests__/ripple.spec.ts": [
-52
-],
-"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
-105
 ],
 "vuetify:packages/vuetify/src/iconsets/fa.ts": [
 10

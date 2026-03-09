@@ -64,19 +64,6 @@
 332,
 337
 ],
-"eigen:src/app/Scenes/SaleInfo/SaleInfo.tsx": [
-206,
-208,
-209,
-210,
-211
-],
-"eigen:src/app/Scenes/SavedAddresses/SavedAddresses.tsx": [
-195
-],
-"eigen:src/app/Scenes/SavedAddresses/SavedAddressesForm.tsx": [
-313
-],
 "eigen:src/app/Scenes/SavedSearchAlertsList/Components/SavedSearchAlertsListPlaceholder.tsx": [
 12
 ],
@@ -105,8 +92,5 @@
 193,
 207,
 208
-],
-"eigen:src/app/utils/hideBackButtonOnScroll.tests.tsx": [
-21
 ]
 }

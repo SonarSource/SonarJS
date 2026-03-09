@@ -52,27 +52,9 @@
 88,
 89
 ],
-"react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
-19
-],
 "react-cloud-music:src/application/User/Login/PhoneForm/index.jsx": [
 51,
 52,
 59
-],
-"react-cloud-music:src/application/User/Login/index.jsx": [
-62,
-63,
-74,
-80
-],
-"react-cloud-music:src/baseUI/confirm/index.jsx": [
-92
-],
-"react-cloud-music:src/baseUI/horizen-item/index.jsx": [
-67
-],
-"react-cloud-music:src/components/list/index.jsx": [
-21
 ]
 }

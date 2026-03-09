@@ -35,9 +35,6 @@
 "desktop:app/src/ui/clone-repository/clone-repository.tsx": [
 260
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-1028
-],
 "desktop:app/src/ui/diff/text-diff-expansion.ts": [
 189,
 203
@@ -68,8 +65,5 @@
 ],
 "desktop:script/build-platforms.ts": [
 65
-],
-"desktop:script/build.ts": [
-173
 ]
 }

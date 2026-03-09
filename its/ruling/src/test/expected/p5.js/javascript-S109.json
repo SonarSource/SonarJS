@@ -1,7 +1,4 @@
 {
-"p5.js:docs/preprocessor.js": [
-12
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 123,
 198,
@@ -1378,13 +1375,6 @@
 "p5.js:tasks/build/browserify.js": [
 70,
 70
-],
-"p5.js:tasks/build/combineModules.js": [
-100,
-100
-],
-"p5.js:tasks/release/release-github.js": [
-82
 ],
 "p5.js:test/test-reference.html": [
 61,

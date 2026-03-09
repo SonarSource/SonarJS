@@ -1,7 +1,4 @@
 {
-"jira-clone:api/tsconfig-paths.js": [
-11
-],
 "jira-clone:client/cypress/support/commands.js": [
 61,
 63
@@ -127,14 +124,6 @@
 "jira-clone:client/src/shared/components/Breadcrumbs/index.jsx": [
 7
 ],
-"jira-clone:client/src/shared/components/Button/Styles.js": [
-77
-],
-"jira-clone:client/src/shared/components/Button/index.jsx": [
-17,
-28,
-59
-],
 "jira-clone:client/src/shared/components/ConfirmModal/index.jsx": [
 14,
 23,
@@ -157,11 +146,6 @@
 16,
 22
 ],
-"jira-clone:client/src/shared/components/Form/Field.jsx": [
-18,
-26,
-58
-],
 "jira-clone:client/src/shared/components/Form/index.jsx": [
 14,
 20
@@ -170,10 +154,6 @@
 38,
 46,
 53
-],
-"jira-clone:client/src/shared/components/Input/index.jsx": [
-12,
-21
 ],
 "jira-clone:client/src/shared/components/InputDebounced.jsx": [
 9,
@@ -189,11 +169,6 @@
 "jira-clone:client/src/shared/components/Logo.jsx": [
 6,
 11
-],
-"jira-clone:client/src/shared/components/Modal/Styles.js": [
-29,
-51,
-87
 ],
 "jira-clone:client/src/shared/components/Modal/index.jsx": [
 19,
@@ -233,10 +208,6 @@
 80,
 81,
 82
-],
-"jira-clone:client/src/shared/components/Textarea/index.jsx": [
-12,
-20
 ],
 "jira-clone:client/src/shared/components/Tooltip/index.jsx": [
 14,
@@ -326,42 +297,5 @@
 ],
 "jira-clone:client/src/shared/utils/validation.js": [
 19
-],
-"jira-clone:client/webpack.config.js": [
-11,
-18,
-22,
-29,
-30,
-31,
-32,
-33,
-38,
-44,
-50,
-51,
-52
-],
-"jira-clone:client/webpack.config.production.js": [
-8,
-13,
-20,
-28,
-29,
-30,
-37,
-38,
-39,
-46,
-47,
-48,
-49,
-50,
-54,
-59,
-64,
-65,
-67,
-68
 ]
 }

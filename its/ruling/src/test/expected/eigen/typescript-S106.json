@@ -1,21 +1,4 @@
 {
-"eigen:metaphysics-queries-freshness-tests/test-freshness.ts": [
-12,
-30,
-91,
-92,
-93,
-107,
-112,
-127,
-152,
-154,
-155,
-156,
-157,
-159,
-162
-],
 "eigen:scripts/algolia-example-galleries-near-me.ts": [
 55,
 68,
@@ -29,18 +12,12 @@
 "eigen:src/app/Components/Artist/ArtistInsights/ArtistInsightsAuctionResults.tests.tsx": [
 62
 ],
-"eigen:src/app/Components/Artist/ArtistInsights/ArtistInsightsAuctionResults.tsx": [
-113
-],
 "eigen:src/app/Components/ArtistAutosuggest/ArtistAutosuggestResults.tsx": [
 203
 ],
 "eigen:src/app/Components/ArtsyWebView.tsx": [
 88,
 197
-],
-"eigen:src/app/Components/ArtworkFilter/FilterModal.tests.tsx": [
-535
 ],
 "eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tests.tsx": [
 62
@@ -62,39 +39,13 @@
 60,
 66
 ],
-"eigen:src/app/Components/Bidding/Screens/ConfirmBid.tests.tsx": [
-271,
-289,
-718,
-742,
-765,
-787,
-890
-],
 "eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
 372,
 395,
 443
 ],
-"eigen:src/app/Components/Bidding/Screens/CreditCardForm.tests.tsx": [
-19,
-22,
-92
-],
 "eigen:src/app/Components/Bidding/Screens/CreditCardForm.tsx": [
 66
-],
-"eigen:src/app/Components/Bidding/Screens/Registration.tests.tsx": [
-287,
-298,
-320,
-350,
-379,
-404,
-440,
-478,
-518,
-540
 ],
 "eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
 160,
@@ -111,10 +62,6 @@
 "eigen:src/app/Components/LotsByArtistsYouFollowRail/LotsByFollowedArtistsRail.tsx": [
 44
 ],
-"eigen:src/app/Components/OpaqueImageView/OpaqueImageView.tsx": [
-104,
-175
-],
 "eigen:src/app/Components/ParentAwareScrollView.tsx": [
 129
 ],
@@ -123,11 +70,6 @@
 ],
 "eigen:src/app/Components/Portal.tsx": [
 55
-],
-"eigen:src/app/Components/RetryErrorBoundary.tests.tsx": [
-9,
-11,
-14
 ],
 "eigen:src/app/Components/RetryErrorBoundary.tsx": [
 26
@@ -152,9 +94,6 @@
 "eigen:src/app/Containers/Inbox.tests.tsx": [
 48
 ],
-"eigen:src/app/Containers/Inquiry.tsx": [
-211
-],
 "eigen:src/app/Containers/WorksForYou.tsx": [
 46,
 64,
@@ -172,10 +111,6 @@
 31,
 43,
 49
-],
-"eigen:src/app/NativeModules/LegacyNativeModules.tsx": [
-11,
-153
 ],
 "eigen:src/app/NativeModules/triggerCamera.tsx": [
 9
@@ -223,13 +158,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/BuyNowButton.tsx": [
 50
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryButtons.tests.tsx": [
-52
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryModal.tests.tsx": [
-64,
-85
 ],
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/MakeOfferButton.tsx": [
 56
@@ -365,17 +293,8 @@
 106,
 137
 ],
-"eigen:src/app/Scenes/Inbox/Components/ActiveBids/index.tsx": [
-60
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tests.tsx": [
-46
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tests.tsx": [
 42
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
-68
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tests.tsx": [
 34
@@ -383,9 +302,6 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tsx": [
 43,
 58
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tests.tsx": [
-52
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tsx": [
 49
@@ -395,28 +311,6 @@
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryPurchaseButton.tsx": [
 47
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/MakeOfferModal.tests.tsx": [
-36
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tests.tsx": [
-56
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tsx": [
-109,
-132
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tests.tsx": [
-64
-],
-"eigen:src/app/Scenes/Inbox/Screens/Conversation.tests.tsx": [
-54
-],
-"eigen:src/app/Scenes/Inbox/Screens/Conversation.tsx": [
-104,
-123,
-156,
-229
 ],
 "eigen:src/app/Scenes/Map/EventEmitter.ts": [
 11
@@ -467,9 +361,6 @@
 "eigen:src/app/Scenes/MyProfile/MyProfileHeaderMyCollectionAndSavedWorks.tests.tsx": [
 50
 ],
-"eigen:src/app/Scenes/MyProfile/MyProfilePaymentNewCreditCard.tsx": [
-138
-],
 "eigen:src/app/Scenes/Onboarding/OnboardingPersonalization/OnboardingPersonalizationModal.tsx": [
 47,
 228
@@ -494,9 +385,6 @@
 ],
 "eigen:src/app/Scenes/Partner/Components/PartnerOverview.tsx": [
 61
-],
-"eigen:src/app/Scenes/Partner/Components/PartnerShows.tsx": [
-146
 ],
 "eigen:src/app/Scenes/Partner/Components/PartnerShowsRail.tsx": [
 29
@@ -531,9 +419,6 @@
 "eigen:src/app/Scenes/SavedSearchAlertsList/Components/SavedSearchesList.tsx": [
 109,
 126
-],
-"eigen:src/app/Scenes/Search/AutosuggestResults.tests.tsx": [
-142
 ],
 "eigen:src/app/Scenes/Search/AutosuggestResults.tsx": [
 284
@@ -657,9 +542,6 @@
 210,
 231
 ],
-"eigen:src/app/utils/experiments/UnleashProvider.tsx": [
-31
-],
 "eigen:src/app/utils/experiments/unleashClient.ts": [
 29
 ],
@@ -689,9 +571,6 @@
 "eigen:src/app/utils/useImageSearch.ts": [
 102
 ],
-"eigen:src/app/utils/useSearchInsightsConfig.ts": [
-18
-],
 "eigen:src/app/utils/useWebViewEvent.ts": [
 64
 ],
@@ -702,9 +581,6 @@
 "eigen:src/app/utils/volleyClient.ts": [
 78,
 95
-],
-"eigen:src/palette/Theme.tsx": [
-293
 ],
 "eigen:src/palette/elements/Button/Button.stories.tsx": [
 38,
@@ -733,17 +609,7 @@
 "eigen:src/palette/elements/Select/SelectV2.tsx": [
 198
 ],
-"eigen:src/palette/elements/Text/Text.tsx": [
-46
-],
 "eigen:src/palette/svgs/sf/BoltCircleFill.tsx": [
 9
-],
-"eigen:src/setupJest.ts": [
-17,
-19,
-42,
-43,
-76
 ]
 }

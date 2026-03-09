@@ -40,26 +40,11 @@
 84,
 86
 ],
-"moose:renderer/components/CastControl/CastControl.tsx": [
-50,
-99
-],
-"moose:renderer/components/Downloads/Downloads.tsx": [
-133
-],
 "moose:renderer/components/Downloads/makeData.tsx": [
 29
 ],
-"moose:renderer/components/FilesList/FilesList.tsx": [
-167,
-224
-],
 "moose:renderer/components/Modal/Modal.tsx": [
 53
-],
-"moose:renderer/components/Player/Player.tsx": [
-120,
-132
 ],
 "moose:renderer/pages/home.tsx": [
 24

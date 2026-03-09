@@ -98,11 +98,6 @@
 293,
 301
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-214,
-222,
-732
-],
 "desktop:app/src/ui/drag-elements/commit-drag-element.tsx": [
 43,
 56
@@ -112,9 +107,6 @@
 ],
 "desktop:app/src/ui/history/compare.tsx": [
 504
-],
-"desktop:app/src/ui/index.tsx": [
-217
 ],
 "desktop:app/src/ui/install-globals.ts": [
 3

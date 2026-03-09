@@ -1,113 +1,4 @@
 {
-"paper.js:examples/Node.js/AnimatedStar.js": [
-4,
-7,
-9,
-28,
-29,
-30,
-34,
-35,
-37,
-47,
-48,
-49
-],
-"paper.js:examples/Node.js/BooleanOperations.js": [
-4,
-5,
-8,
-11,
-17,
-19,
-22,
-27
-],
-"paper.js:examples/Node.js/JSONtoPDF.js": [
-4,
-5,
-6,
-8
-],
-"paper.js:examples/Node.js/RasterRemote.js": [
-4,
-5,
-7,
-10,
-11
-],
-"paper.js:examples/Node.js/SvgExport.js": [
-4,
-5,
-6,
-10,
-12,
-16,
-28,
-31,
-45
-],
-"paper.js:examples/Node.js/SvgImport.js": [
-4
-],
-"paper.js:examples/Node.js/Tadpoles.js": [
-4,
-5
-],
-"paper.js:examples/Worker/Worker.js": [
-6,
-8,
-9,
-11
-],
-"paper.js:gulp/tasks/build.js": [
-13,
-23,
-28
-],
-"paper.js:gulp/tasks/dist.js": [
-13
-],
-"paper.js:gulp/tasks/docs.js": [
-13,
-20,
-33
-],
-"paper.js:gulp/tasks/jshint.js": [
-13
-],
-"paper.js:gulp/tasks/load.js": [
-13
-],
-"paper.js:gulp/tasks/minify.js": [
-13,
-18,
-20
-],
-"paper.js:gulp/tasks/publish.js": [
-13,
-25,
-94,
-162
-],
-"paper.js:gulp/tasks/test.js": [
-13
-],
-"paper.js:gulp/tasks/watch.js": [
-13
-],
-"paper.js:gulp/utils/error.js": [
-13,
-18
-],
-"paper.js:gulp/utils/options.js": [
-13,
-27,
-35
-],
-"paper.js:gulpfile.js": [
-13
-],
 "paper.js:src/anim/Tween.js": [
 27,
 121,
@@ -466,9 +357,6 @@
 "paper.js:src/export.js": [
 19
 ],
-"paper.js:src/init.js": [
-33
-],
 "paper.js:src/item/ChangeFlag.js": [
 13,
 46
@@ -794,24 +682,6 @@
 50,
 58,
 62
-],
-"paper.js:src/node/extend.js": [
-13,
-18,
-23,
-34,
-62,
-96,
-114,
-117,
-119,
-146
-],
-"paper.js:src/node/self.js": [
-16,
-20,
-24,
-40
 ],
 "paper.js:src/node/xml.js": [
 26,

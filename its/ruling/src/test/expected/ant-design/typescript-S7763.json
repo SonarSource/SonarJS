@@ -5,9 +5,6 @@
 "ant-design:components/_util/warning.ts": [
 3
 ],
-"ant-design:components/calendar/index.tsx": [
-7
-],
 "ant-design:components/cascader/index.tsx": [
 35,
 35
@@ -44,14 +41,6 @@
 ],
 "ant-design:components/image/index.tsx": [
 54
-],
-"ant-design:components/input/Input.tsx": [
-21
-],
-"ant-design:components/menu/index.tsx": [
-25,
-25,
-25
 ],
 "ant-design:components/pagination/Pagination.tsx": [
 29

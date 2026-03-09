@@ -17,9 +17,6 @@
 303,
 426
 ],
-"desktop:app/src/lib/editors/win32.ts": [
-96
-],
 "desktop:app/src/lib/file-system.ts": [
 71
 ],
@@ -177,18 +174,6 @@
 "desktop:app/src/ui/diff/diff-helpers.tsx": [
 408
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-1048,
-1081,
-1087,
-1160,
-1161,
-1171,
-1173,
-1174,
-1268,
-1290
-],
 "desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
 152,
 153,
@@ -253,9 +238,6 @@
 ],
 "desktop:app/src/ui/toolbar/push-pull-button.tsx": [
 73
-],
-"desktop:script/build.ts": [
-400
 ],
 "desktop:script/draft-release/run.ts": [
 155

@@ -1,7 +1,4 @@
 {
-"paper.js:gulp/tasks/minify.js": [
-43
-],
 "paper.js:src/canvas/BlendMode.js": [
 253
 ],
@@ -19,8 +16,5 @@
 ],
 "paper.js:src/node/canvas.js": [
 22
-],
-"paper.js:src/node/self.js": [
-29
 ]
 }

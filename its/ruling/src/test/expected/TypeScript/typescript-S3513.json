@@ -13,9 +13,6 @@
 "TypeScript:src/compiler/tsc.ts": [
 55
 ],
-"TypeScript:src/harness/harness.ts": [
-140
-],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 739,
 802

@@ -2,13 +2,6 @@
 "Ghost:core/client/app/adapters/base.js": [
 13
 ],
-"Ghost:core/client/app/components/gh-profile-image.js": [
-67
-],
-"Ghost:core/client/app/controllers/team/user.js": [
-132,
-138
-],
 "Ghost:core/client/app/services/media-queries.js": [
 26
 ],
@@ -40,19 +33,12 @@
 488,
 489
 ],
-"Ghost:core/server/i18n.js": [
-88,
-107
-],
 "Ghost:core/shared/ghost-url.js": [
 61,
 62,
 62,
 63,
 64
-],
-"Ghost:core/test/functional/base.js": [
-184
 ],
 "Ghost:core/test/functional/client/signout_test.js": [
 17,

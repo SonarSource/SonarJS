@@ -1,10 +1,4 @@
 {
-"qunit:src/cli/require-from-cwd.js": [
-5
-],
-"qunit:src/cli/run.js": [
-42
-],
 "qunit:src/module.js": [
 30,
 33

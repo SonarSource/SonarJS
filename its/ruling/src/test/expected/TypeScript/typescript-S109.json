@@ -1,7 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-629
-],
 "TypeScript:scripts/bisect-test.ts": [
 33,
 53
@@ -9,9 +6,6 @@
 "TypeScript:scripts/buildProtocol.ts": [
 176,
 182
-],
-"TypeScript:scripts/errorCheck.ts": [
-40
 ],
 "TypeScript:scripts/ior.ts": [
 66
@@ -2902,12 +2896,6 @@
 "TypeScript:src/harness/fourslash.ts": [
 1430
 ],
-"TypeScript:src/harness/harness.ts": [
-692,
-702,
-707,
-723
-],
 "TypeScript:src/harness/projectsRunner.ts": [
 323,
 337,
@@ -2937,9 +2925,6 @@
 ],
 "TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
 395
-],
-"TypeScript:src/server/watchGuard/watchGuard.ts": [
-3
 ],
 "TypeScript:src/services/classifier.ts": [
 74,

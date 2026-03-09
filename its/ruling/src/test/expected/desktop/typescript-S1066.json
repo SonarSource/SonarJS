@@ -68,9 +68,6 @@
 "desktop:app/src/ui/diff/code-mirror-host.tsx": [
 217
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-565
-],
 "desktop:app/src/ui/diff/text-diff.tsx": [
 569,
 1490,

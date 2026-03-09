@@ -13,71 +13,9 @@
 "angular.js:docs/app/src/search.js": [
 45
 ],
-"angular.js:docs/config/processors/versions-data.js": [
-56
-],
 "angular.js:docs/config/tag-defs/deprecated.js": [
 31,
 32
-],
-"angular.js:lib/grunt/utils.js": [
-28,
-45,
-58,
-59,
-60,
-61,
-62,
-72,
-129,
-211,
-231,
-232
-],
-"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
-100,
-107
-],
-"angular.js:src/Angular.js": [
-182,
-188,
-329,
-346,
-1084,
-1085,
-1087,
-1091,
-1094,
-1099,
-1102,
-1106,
-1109,
-1110,
-1117,
-1199,
-1315,
-1793,
-1992
-],
-"angular.js:src/auto/injector.js": [
-743,
-746,
-824
-],
-"angular.js:src/jqLite.js": [
-307,
-337,
-343,
-435,
-517,
-535,
-537,
-819,
-886,
-974,
-1120,
-1124,
-1128
 ],
 "angular.js:src/loader.js": [
 152,
@@ -91,13 +29,6 @@
 252,
 255,
 264
-],
-"angular.js:src/ng/animate.js": [
-8,
-9,
-10,
-11,
-12
 ],
 "angular.js:src/ng/animateRunner.js": [
 9
@@ -118,50 +49,9 @@
 313,
 314
 ],
-"angular.js:src/ng/compile.js": [
-1478,
-1672,
-1689,
-2365,
-2442,
-2443,
-2738,
-2758,
-2804,
-2805,
-3189,
-3198,
-3494,
-3657,
-3689,
-3710,
-3711,
-3742,
-3746,
-3785,
-3786,
-3867,
-3898,
-4071,
-4075,
-4116,
-4120,
-4150,
-4289
-],
-"angular.js:src/ng/controller.js": [
-8,
-11
-],
-"angular.js:src/ng/directive/a.js": [
-20
-],
 "angular.js:src/ng/directive/attrs.js": [
 354,
 443
-],
-"angular.js:src/ng/directive/form.js": [
-592
 ],
 "angular.js:src/ng/directive/input.js": [
 1327,
@@ -192,27 +82,10 @@
 105,
 111
 ],
-"angular.js:src/ng/directive/ngModel.js": [
-1370
-],
-"angular.js:src/ng/directive/ngOptions.js": [
-457,
-464,
-511,
-531,
-583,
-611
-],
 "angular.js:src/ng/directive/ngRepeat.js": [
 440,
 511,
 583
-],
-"angular.js:src/ng/directive/ngStyle.js": [
-59
-],
-"angular.js:src/ng/directive/ngSwitch.js": [
-157
 ],
 "angular.js:src/ng/directive/select.js": [
 205,
@@ -231,15 +104,6 @@
 399,
 421
 ],
-"angular.js:src/ng/filter/filters.js": [
-174,
-192,
-242,
-259,
-294,
-369,
-384
-],
 "angular.js:src/ng/filter/limitTo.js": [
 109,
 111,
@@ -253,59 +117,8 @@
 690,
 691
 ],
-"angular.js:src/ng/http.js": [
-41,
-44,
-107,
-213,
-1472,
-1500
-],
-"angular.js:src/ng/interpolate.js": [
-245,
-315
-],
-"angular.js:src/ng/interval.js": [
-159,
-166
-],
 "angular.js:src/ng/intervalFactory.js": [
 39
-],
-"angular.js:src/ng/location.js": [
-411,
-412,
-572,
-899,
-906,
-909,
-923,
-968,
-979,
-1004
-],
-"angular.js:src/ng/parse.js": [
-148,
-315,
-615,
-616,
-768,
-771,
-894,
-1143,
-1210,
-1239,
-1240,
-1241,
-1242,
-1243,
-1244,
-1345,
-1354,
-1355,
-1628,
-1934,
-1970
 ],
 "angular.js:src/ng/q.js": [
 328,
@@ -332,14 +145,6 @@
 ],
 "angular.js:src/ng/sniffer.js": [
 69
-],
-"angular.js:src/ng/timeout.js": [
-65,
-88,
-95
-],
-"angular.js:src/ng/urlUtils.js": [
-67
 ],
 "angular.js:src/ngAnimate/animateCss.js": [
 657,
@@ -399,11 +204,6 @@
 ],
 "angular.js:src/ngMessageFormat/messageFormatInterpolationParts.js": [
 68
-],
-"angular.js:src/ngMessages/messages.js": [
-416,
-542,
-603
 ],
 "angular.js:src/ngMock/angular-mocks.js": [
 105,

@@ -1,14 +1,6 @@
 {
-"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
-37,
-45
-],
 "mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js": [
 3
-],
-"mootools-core:Grunt/plugins/karma/syn/index.js": [
-3,
-13
 ],
 "mootools-core:Source/Element/Element.js": [
 92,

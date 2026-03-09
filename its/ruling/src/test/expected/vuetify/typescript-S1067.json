@@ -2,32 +2,8 @@
 "vuetify:packages/api-generator/src/utils.ts": [
 82
 ],
-"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
-261
-],
-"vuetify:packages/vuetify/src/components/VBadge/VBadge.tsx": [
-75
-],
-"vuetify:packages/vuetify/src/components/VBtn/VBtn.tsx": [
-138
-],
-"vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
-123
-],
-"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
-342
-],
-"vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
-55
-],
 "vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 135
-],
-"vuetify:packages/vuetify/src/components/VList/VListItem.tsx": [
-118
-],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
-264
 ],
 "vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
 40,
@@ -42,15 +18,6 @@
 "vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx": [
 76,
 186
-],
-"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
-218
-],
-"vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
-89
-],
-"vuetify:packages/vuetify/src/components/VTooltip/VTooltip.tsx": [
-67
 ],
 "vuetify:packages/vuetify/src/composables/display.ts": [
 168,

@@ -24,26 +24,5 @@
 217,
 749,
 791
-],
-"ant-design:scripts/check-site.js": [
-27
-],
-"ant-design:scripts/print-changelog.js": [
-161
-],
-"ant-design:site/bisheng.config.js": [
-32
-],
-"ant-design:site/theme/template/Content/Demo/index.jsx": [
-212,
-344
-],
-"ant-design:site/theme/template/Content/MainContent.jsx": [
-385,
-397,
-408,
-420,
-432,
-443
 ]
 }

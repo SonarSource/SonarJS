@@ -10,31 +10,13 @@
 20,
 27
 ],
-"jira-clone:client/server.js": [
-13
-],
-"jira-clone:client/src/App/Toast/Styles.js": [
-50,
-57
-],
-"jira-clone:client/src/Project/Board/Filters/Styles.js": [
-50
-],
 "jira-clone:client/src/Project/Board/IssueDetails/AssigneesReporter/Styles.js": [
 12,
 25
 ],
-"jira-clone:client/src/Project/Board/IssueDetails/Comments/Comment/Styles.js": [
-9,
-34,
-46
-],
 "jira-clone:client/src/Project/Board/IssueDetails/Comments/Create/ProTip/Styles.js": [
 10,
 26
-],
-"jira-clone:client/src/Project/Board/IssueDetails/Comments/Create/Styles.js": [
-9
 ],
 "jira-clone:client/src/Project/Board/IssueDetails/Comments/Styles.js": [
 11
@@ -50,28 +32,14 @@
 22,
 39
 ],
-"jira-clone:client/src/Project/Board/IssueDetails/EstimateTracking/TrackingWidget/Styles.js": [
-38
-],
 "jira-clone:client/src/Project/Board/IssueDetails/Priority/Styles.js": [
 22
 ],
 "jira-clone:client/src/Project/Board/IssueDetails/Styles.js": [
 38
 ],
-"jira-clone:client/src/Project/Board/IssueDetails/Title/Styles.js": [
-30
-],
 "jira-clone:client/src/Project/Board/IssueDetails/Title/index.jsx": [
 24
-],
-"jira-clone:client/src/Project/Board/IssueDetails/Type/Styles.js": [
-10,
-20
-],
-"jira-clone:client/src/Project/Board/Lists/List/Issue/Styles.js": [
-35,
-37
 ],
 "jira-clone:client/src/Project/Board/Lists/List/Styles.js": [
 19,
@@ -79,20 +47,6 @@
 ],
 "jira-clone:client/src/Project/Board/Lists/List/index.jsx": [
 66
-],
-"jira-clone:client/src/Project/IssueCreate/Styles.js": [
-12
-],
-"jira-clone:client/src/Project/IssueSearch/Styles.js": [
-23,
-65,
-71,
-79,
-90,
-95
-],
-"jira-clone:client/src/Project/NavbarLeft/Styles.js": [
-73
 ],
 "jira-clone:client/src/Project/Sidebar/Styles.js": [
 36,
@@ -115,17 +69,6 @@
 7,
 14
 ],
-"jira-clone:client/src/shared/components/Button/Styles.js": [
-13,
-13,
-19,
-33,
-86
-],
-"jira-clone:client/src/shared/components/ConfirmModal/Styles.js": [
-14,
-21
-],
 "jira-clone:client/src/shared/components/CopyLinkButton.jsx": [
 11
 ],
@@ -147,22 +90,12 @@
 20,
 28
 ],
-"jira-clone:client/src/shared/components/Input/Styles.js": [
-23
-],
 "jira-clone:client/src/shared/components/InputDebounced.jsx": [
 21
-],
-"jira-clone:client/src/shared/components/PageError/Styles.js": [
-44
 ],
 "jira-clone:client/src/shared/components/Select/Dropdown.jsx": [
 133,
 145
-],
-"jira-clone:client/src/shared/components/Select/Styles.js": [
-10,
-83
 ],
 "jira-clone:client/src/shared/components/TextEditedContent/Styles.js": [
 7

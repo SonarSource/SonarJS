@@ -4,10 +4,6 @@
 17,
 29
 ],
-"ecmascript6-today:10-modules/in/main.js": [
-3,
-4
-],
 "ecmascript6-today:10-modules/js/main.js": [
 8,
 9
@@ -44,12 +40,5 @@
 5,
 11,
 29
-],
-"ecmascript6-today:8-iterators.js": [
-8,
-18,
-25,
-31,
-41
 ]
 }

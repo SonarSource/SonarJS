@@ -6,14 +6,6 @@
 20,
 20
 ],
-"qunit:build/tasks/test-on-node.js": [
-40,
-82
-],
-"qunit:src/cli/run.js": [
-44,
-130
-],
 "qunit:test/amd.html": [
 22
 ],

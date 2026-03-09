@@ -1,20 +1,4 @@
 {
-"courselit:apps/web/components/admin/courses/index.tsx": [
-18,
-23
-],
-"courselit:apps/web/components/admin/design/themes-manager/theme-item.tsx": [
-9
-],
-"courselit:apps/web/components/admin/settings.tsx": [
-1
-],
-"courselit:apps/web/components/public/article.tsx": [
-3
-],
-"courselit:apps/web/components/public/checkout/stripe.tsx": [
-11
-],
 "courselit:apps/web/graphql/courses/query.ts": [
 7
 ],
@@ -34,10 +18,6 @@
 ],
 "courselit:apps/web/middlewares/verify-jwt.ts": [
 2
-],
-"courselit:apps/web/pages/api/payment/initiate.ts": [
-13,
-15
 ],
 "courselit:apps/web/ui-models/compatible-components-map.ts": [
 1

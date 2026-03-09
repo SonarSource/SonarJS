@@ -280,15 +280,6 @@
 180,
 212
 ],
-"ant-design:components/layout/layout.tsx": [
-63
-],
-"ant-design:components/list/Item.tsx": [
-106,
-110,
-119,
-133
-],
 "ant-design:components/list/index.tsx": [
 93,
 201,
@@ -412,9 +403,6 @@
 ],
 "ant-design:components/statistic/Number.tsx": [
 33
-],
-"ant-design:components/statistic/Statistic.tsx": [
-60
 ],
 "ant-design:components/steps/index.tsx": [
 52,
@@ -629,12 +617,6 @@
 64,
 103
 ],
-"ant-design:site/theme/template/Content/Article.tsx": [
-134,
-135,
-141,
-147
-],
 "ant-design:site/theme/template/Home/DesignPage/index.tsx": [
 77
 ],
@@ -648,9 +630,6 @@
 68,
 73,
 76
-],
-"ant-design:site/theme/template/IconDisplay/index.tsx": [
-94
 ],
 "ant-design:site/theme/template/Layout/Header/More.tsx": [
 88
@@ -669,13 +648,6 @@
 "ant-design:site/theme/template/Layout/Header/algolia-config.ts": [
 17
 ],
-"ant-design:site/theme/template/Layout/Header/index.tsx": [
-216,
-231,
-336,
-338,
-341
-],
 "ant-design:site/theme/template/NotFound.tsx": [
 54,
 59
@@ -685,11 +657,6 @@
 72,
 87,
 90
-],
-"ant-design:site/theme/template/Resources/index.tsx": [
-49,
-85,
-154
 ],
 "ant-design:site/theme/template/utils.tsx": [
 127,

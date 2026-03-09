@@ -32,18 +32,6 @@
 377,
 390
 ],
-"bulma:docs/_scripts/plugins/01-read-initial-variables.js": [
-10,
-18
-],
-"bulma:docs/_scripts/plugins/02-read-derived-variables.js": [
-13,
-21
-],
-"bulma:docs/_scripts/plugins/03-read-other-variables.js": [
-13,
-25
-],
 "bulma:docs/lib/index.js": [
 56,
 59
@@ -76,11 +64,5 @@
 380,
 383,
 398
-],
-"bulma:test/dart-sass/dart-sass.js": [
-40
-],
-"bulma:test/node-sass/node-sass.js": [
-30
 ]
 }

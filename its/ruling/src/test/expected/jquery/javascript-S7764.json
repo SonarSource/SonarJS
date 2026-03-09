@@ -1,8 +1,4 @@
 {
-"jquery:src/ajax.js": [
-693,
-727
-],
 "jquery:src/ajax/jsonp.js": [
 69
 ],
@@ -36,12 +32,6 @@
 ],
 "jquery:src/deferred/exceptionHook.js": [
 12
-],
-"jquery:src/effects.js": [
-27,
-28,
-30,
-39
 ],
 "jquery:src/event/trigger.js": [
 89

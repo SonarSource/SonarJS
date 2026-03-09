@@ -16,9 +16,6 @@
 58,
 66
 ],
-"angular.js:docs/app/e2e/app.scenario.js": [
-129
-],
 "angular.js:docs/app/e2e/table-of-contents.scenario.js": [
 41,
 114,
@@ -36,45 +33,6 @@
 28,
 120
 ],
-"angular.js:lib/browserstack/start_tunnel.js": [
-8,
-8
-],
-"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
-10,
-42,
-54,
-69,
-91,
-93,
-150
-],
-"angular.js:scripts/compare-master-to-stable.js": [
-150
-],
-"angular.js:scripts/docs.angularjs.org-firebase/functions/index.js": [
-7,
-34
-],
-"angular.js:src/Angular.js": [
-1347
-],
-"angular.js:src/jqLite.js": [
-178
-],
-"angular.js:src/ng/compile.js": [
-1420,
-2491,
-2543,
-2699,
-2700,
-2748,
-3393
-],
-"angular.js:src/ng/controller.js": [
-11,
-106
-],
 "angular.js:src/ng/directive/input.js": [
 1367,
 1367,
@@ -84,42 +42,9 @@
 1427,
 2349
 ],
-"angular.js:src/ng/directive/ngOptions.js": [
-267,
-267,
-269,
-274,
-292
-],
 "angular.js:src/ng/directive/ngRepeat.js": [
 485,
 494
-],
-"angular.js:src/ng/filter/filters.js": [
-245,
-384,
-384,
-414,
-414,
-429,
-436,
-460,
-461,
-468,
-595,
-596,
-597,
-597,
-599,
-601,
-602,
-603
-],
-"angular.js:src/ng/http.js": [
-253,
-253,
-1395,
-1397
 ],
 "angular.js:src/ng/httpBackend.js": [
 66,
@@ -133,19 +58,6 @@
 "angular.js:src/ng/jsonpCallbacks.js": [
 37
 ],
-"angular.js:src/ng/location.js": [
-412,
-413
-],
-"angular.js:src/ng/parse.js": [
-150,
-161,
-161,
-161,
-161,
-241,
-1235
-],
 "angular.js:src/ng/q.js": [
 474
 ],
@@ -155,9 +67,6 @@
 "angular.js:src/ng/rootScope.js": [
 110,
 832
-],
-"angular.js:src/ng/timeout.js": [
-49
 ],
 "angular.js:src/ngAnimate/animateCssDriver.js": [
 13

@@ -17,12 +17,5 @@
 ],
 "redux:examples/todos-with-undo/components/TodoList.js": [
 11
-],
-"redux:examples/todos-with-undo/containers/App.js": [
-15,
-18,
-21,
-22,
-23
 ]
 }

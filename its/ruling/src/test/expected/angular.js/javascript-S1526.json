@@ -3,24 +3,11 @@
 38,
 39
 ],
-"angular.js:src/Angular.js": [
-1201,
-1374
-],
-"angular.js:src/auto/injector.js": [
-733
-],
-"angular.js:src/ng/compile.js": [
-2690
-],
 "angular.js:src/ng/directive/attrs.js": [
 357
 ],
 "angular.js:src/ng/directive/input.js": [
 1316
-],
-"angular.js:src/ng/directive/ngOptions.js": [
-288
 ],
 "angular.js:src/ng/q.js": [
 339

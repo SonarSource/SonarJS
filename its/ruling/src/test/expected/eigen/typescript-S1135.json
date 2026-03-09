@@ -1,7 +1,4 @@
 {
-"eigen:src/app/AppRegistry.tsx": [
-455
-],
 "eigen:src/app/Components/Artist/ArtistArtworks/ArtistArtworks.tsx": [
 141
 ],
@@ -11,17 +8,8 @@
 "eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tsx": [
 36
 ],
-"eigen:src/app/Components/Bidding/Screens/BidResult.tsx": [
-73
-],
-"eigen:src/app/Components/Bidding/Screens/SelectMaxBid.tsx": [
-135
-],
 "eigen:src/app/Components/Home/ArtistRails/ArtistRail.tsx": [
 1
-],
-"eigen:src/app/Components/OpaqueImageView/OpaqueImageView.tsx": [
-123
 ],
 "eigen:src/app/Components/PageWithSimpleHeader.tsx": [
 17
@@ -37,10 +25,6 @@
 ],
 "eigen:src/app/Containers/Inbox.tsx": [
 94
-],
-"eigen:src/app/Containers/Inquiry.tsx": [
-69,
-250
 ],
 "eigen:src/app/NativeModules/ARScreenPresenterModule.tsx": [
 102,
@@ -64,9 +48,6 @@
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/BidButton.tsx": [
 175
 ],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquirySuccessNotification.tsx": [
-14
-],
 "eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tests.tsx": [
 35
 ],
@@ -88,18 +69,11 @@
 "eigen:src/app/Scenes/BottomTabs/BottomTabsNavigator.tsx": [
 15
 ],
-"eigen:src/app/Scenes/City/City.tsx": [
-171,
-255
-],
 "eigen:src/app/Scenes/City/CityBMWList.tsx": [
 49
 ],
 "eigen:src/app/Scenes/City/CityFairList.tsx": [
 60
-],
-"eigen:src/app/Scenes/City/CityPicker.tsx": [
-45
 ],
 "eigen:src/app/Scenes/City/CitySavedList.tsx": [
 52
@@ -112,12 +86,6 @@
 ],
 "eigen:src/app/Scenes/City/Components/EventList.tsx": [
 37
-],
-"eigen:src/app/Scenes/City/Components/FairEventSection/Components/FairEventSectionCard.tsx": [
-19
-],
-"eigen:src/app/Scenes/City/Components/SavedEventSection/index.tsx": [
-27
 ],
 "eigen:src/app/Scenes/City/Components/TabFairItemRow/index.tests.tsx": [
 9,
@@ -141,17 +109,9 @@
 "eigen:src/app/Scenes/Favorites/FavoriteShows.tsx": [
 61
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tsx": [
-116
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/SendConversationMessage.ts": [
 45,
 73
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-214,
-547,
-688
 ],
 "eigen:src/app/Scenes/MyBids/MyBids.tsx": [
 61
@@ -182,9 +142,6 @@
 ],
 "eigen:src/app/Scenes/MyProfile/DevicePrefsModel.ts": [
 24
-],
-"eigen:src/app/Scenes/MyProfile/MyProfilePaymentNewCreditCard.tsx": [
-129
 ],
 "eigen:src/app/Scenes/Partner/Components/PartnerOverview.tsx": [
 51
@@ -240,15 +197,6 @@
 "eigen:src/app/utils/track/schema.ts": [
 1
 ],
-"eigen:src/palette/Theme.tsx": [
-241,
-242,
-243,
-244,
-245,
-246,
-248
-],
 "eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
 50,
 56
@@ -301,9 +249,6 @@
 18
 ],
 "eigen:src/palette/svgs/UserSingleIcon.tsx": [
-18
-],
-"eigen:src/setupJest.ts": [
 18
 ]
 }

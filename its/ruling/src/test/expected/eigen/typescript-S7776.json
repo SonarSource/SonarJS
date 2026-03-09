@@ -2,9 +2,6 @@
 "eigen:dangerfile.ts": [
 126
 ],
-"eigen:metaphysics-queries-freshness-tests/test-freshness.ts": [
-44
-],
 "eigen:src/app/Components/ArtworkFilter/ArtworkFilterHelpers.ts": [
 264,
 268,
@@ -12,9 +9,6 @@
 ],
 "eigen:src/app/Scenes/Feature/Feature.tsx": [
 23
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/MessageGroup.tsx": [
-36
 ],
 "eigen:src/app/Scenes/MyBids/Components/LotStatusListItem.tsx": [
 14

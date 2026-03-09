@@ -209,23 +209,5 @@
 29,
 30,
 36
-],
-"backbone:examples/todos/todos.js": [
-13,
-36,
-67,
-73,
-119,
-144,
-181,
-182,
-199,
-225,
-232
-],
-"backbone:karma.conf-sauce.js": [
-1,
-4,
-38
 ]
 }

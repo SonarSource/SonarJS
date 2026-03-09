@@ -53,9 +53,6 @@
 "desktop:app/src/ui/history/commit-list-item.tsx": [
 406
 ],
-"desktop:app/src/ui/index.tsx": [
-113
-],
 "desktop:app/src/ui/lib/text-box.tsx": [
 199
 ],
@@ -70,9 +67,6 @@
 ],
 "desktop:app/src/ui/tutorial/tutorial-panel.tsx": [
 59
-],
-"desktop:script/build.ts": [
-188
 ],
 "desktop:script/dist-info.ts": [
 159

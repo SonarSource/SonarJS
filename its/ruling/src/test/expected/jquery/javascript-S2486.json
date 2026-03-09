@@ -2,9 +2,6 @@
 "jquery:Gruntfile.js": [
 11
 ],
-"jquery:src/ajax.js": [
-556
-],
 "jquery:src/ajax/parseXML.js": [
 14
 ],

@@ -1,7 +1,4 @@
 {
-"watchtower.js:karma.conf.js": [
-50
-],
 "watchtower.js:test/dirtychecking.spec.js": [
 7,
 20,
@@ -10,10 +7,6 @@
 385,
 452,
 485
-],
-"watchtower.js:test/matchers.js": [
-111,
-124
 ],
 "watchtower.js:test/observer.spec.js": [
 20

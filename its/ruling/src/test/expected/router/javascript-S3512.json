@@ -2,12 +2,6 @@
 "router:examples/hello/jsonp.js": [
 12
 ],
-"router:gulpfile.js": [
-52
-],
-"router:read-pkg-url.js": [
-8
-],
 "router:src/history.js": [
 20,
 79,

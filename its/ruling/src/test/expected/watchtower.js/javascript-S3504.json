@@ -1,28 +1,4 @@
 {
-"watchtower.js:gulpfile.js": [
-1,
-7,
-39,
-42,
-43
-],
-"watchtower.js:karma.conf.js": [
-1,
-39,
-46
-],
-"watchtower.js:lib/gulp/karma/background.js": [
-1,
-2,
-3,
-4
-],
-"watchtower.js:lib/gulp/karma/index.js": [
-1,
-15,
-20,
-21
-],
 "watchtower.js:src/dirty_checking.js": [
 6,
 10,
@@ -141,30 +117,6 @@
 363,
 447,
 585
-],
-"watchtower.js:test/matchers.js": [
-2,
-6,
-7,
-8,
-28,
-37,
-43,
-49,
-55,
-67,
-78,
-90,
-103,
-104,
-105,
-116,
-117,
-118,
-129,
-130,
-142,
-143
 ],
 "watchtower.js:test/observer.spec.js": [
 10,

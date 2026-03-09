@@ -23,12 +23,6 @@
 3,
 4
 ],
-"moose:renderer/components/Container/Container.tsx": [
-18
-],
-"moose:renderer/components/Header/Header.tsx": [
-9
-],
 "moose:renderer/utils/parseFileInfo.ts": [
 2
 ]

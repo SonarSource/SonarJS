@@ -46,13 +46,6 @@
 190,
 190
 ],
-"desktop:app/src/main-process/main.ts": [
-175,
-175,
-689,
-705,
-705
-],
 "desktop:app/src/main-process/menu/build-default-menu.ts": [
 238,
 253,
@@ -115,9 +108,6 @@
 ],
 "desktop:app/src/ui/diff/image-diffs/modified-image-diff.tsx": [
 107
-],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-1259
 ],
 "desktop:app/src/ui/diff/text-diff.tsx": [
 932,
@@ -198,9 +188,6 @@
 ],
 "desktop:app/src/ui/window/window-controls.tsx": [
 79
-],
-"desktop:script/build.ts": [
-93
 ],
 "desktop:script/pr-api.ts": [
 33

@@ -5,8 +5,5 @@
 "console:src/utils/__tests__/utils.ts": [
 7,
 37
-],
-"console:src/views/ActionsView/ActionHandlerBox.tsx": [
-70
 ]
 }

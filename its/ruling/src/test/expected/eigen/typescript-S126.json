@@ -2,17 +2,11 @@
 "eigen:src/app/Components/Artist/ArtistConsignButton.tests.tsx": [
 49
 ],
-"eigen:src/app/Components/Artist/ArtistHeader.tsx": [
-36
-],
 "eigen:src/app/Components/Artist/ArtistInsights/MarketStats.tsx": [
 96
 ],
 "eigen:src/app/Components/ArtsyWebView.tsx": [
 104
-],
-"eigen:src/app/Components/ArtworkFilter/FilterModal.tests.tsx": [
-534
 ],
 "eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tests.tsx": [
 61
@@ -28,10 +22,6 @@
 ],
 "eigen:src/app/Components/Buttons/DarkNavigationButton.tsx": [
 38
-],
-"eigen:src/app/Components/LocationMap/LocationMap.tsx": [
-32,
-154
 ],
 "eigen:src/app/Components/PartnerEntityHeader.tests.tsx": [
 33
@@ -66,9 +56,6 @@
 "eigen:src/app/Scenes/ArtistSeries/ArtistSeriesMoreSeries.tests.tsx": [
 54
 ],
-"eigen:src/app/Scenes/Artwork/Components/ArtworkActions.tsx": [
-45
-],
 "eigen:src/app/Scenes/Artwork/Components/ArtworksInSeriesRail.tests.tsx": [
 40
 ],
@@ -78,18 +65,8 @@
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/BuyNowButton.tsx": [
 107
 ],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryButtons.tests.tsx": [
-51
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryModal.tests.tsx": [
-63,
-84
-],
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/MakeOfferButton.tsx": [
 116
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx": [
-234
 ],
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/ImageZoomView.tsx": [
 244,
@@ -137,46 +114,20 @@
 "eigen:src/app/Scenes/Home/Components/ShowsRail.tests.tsx": [
 62
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tests.tsx": [
-45
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tests.tsx": [
 41
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tsx": [
 72
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationSnippet.tsx": [
-81
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Conversations.tests.tsx": [
 33
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tests.tsx": [
-51
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tsx": [
 103
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryPurchaseButton.tests.tsx": [
 40
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/MakeOfferModal.tests.tsx": [
-35
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tests.tsx": [
-55
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tests.tsx": [
-63
-],
-"eigen:src/app/Scenes/Inbox/Screens/Conversation.tests.tsx": [
-53
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-402,
-432,
-695
 ],
 "eigen:src/app/Scenes/MyAccount/MyAccount.tests.tsx": [
 55
@@ -241,9 +192,6 @@
 "eigen:src/app/Scenes/Show/ShowViewingRoom.tests.tsx": [
 35
 ],
-"eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomHeader.tsx": [
-69
-],
 "eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsListItem.tsx": [
 82
 ],
@@ -273,11 +221,5 @@
 ],
 "eigen:src/palette/elements/Input/PhoneInput/PhoneInput.tsx": [
 115
-],
-"eigen:src/palette/elements/Pill/Pill.tsx": [
-82
-],
-"eigen:src/setupJest.ts": [
-55
 ]
 }

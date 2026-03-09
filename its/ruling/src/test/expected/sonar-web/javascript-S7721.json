@@ -1,8 +1,4 @@
 {
-"sonar-web:gulp/scripts.js": [
-53,
-60
-],
 "sonar-web:src/main/js/apps/coding-rules/rule/custom-rule-creation-view.js": [
 57
 ],

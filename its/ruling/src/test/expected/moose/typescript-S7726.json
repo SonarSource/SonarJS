@@ -2,9 +2,6 @@
 "moose:main/helpers/createWindow.ts": [
 12
 ],
-"moose:renderer/components/Container/Container.tsx": [
-28
-],
 "moose:renderer/components/Settings/Settings.tsx": [
 9
 ],

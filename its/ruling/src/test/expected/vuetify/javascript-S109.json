@@ -1,11 +1,4 @@
 {
-"vuetify:packages/docs/build/sitemap.js": [
-13,
-14
-],
-"vuetify:packages/docs/jest.config.js": [
-3
-],
 "vuetify:packages/docs/src/components/app/BackToTop.vue": [
 31
 ],
@@ -412,16 +405,5 @@
 293,
 294,
 294
-],
-"vuetify:scripts/lint-commit-message.js": [
-18,
-20,
-32,
-34,
-36
-],
-"vuetify:scripts/parse-npm-tag.js": [
-7,
-14
 ]
 }

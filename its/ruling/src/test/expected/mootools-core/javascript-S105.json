@@ -5,19 +5,10 @@
 "mootools-core:Grunt/options/dist.js": [
 4
 ],
-"mootools-core:Grunt/options/options.js": [
-7
-],
 "mootools-core:Grunt/options/specs.js": [
 4
 ],
-"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
-38
-],
 "mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js": [
-4
-],
-"mootools-core:Grunt/plugins/karma/syn/index.js": [
 4
 ],
 "mootools-core:Grunt/tasks/tasks.js": [

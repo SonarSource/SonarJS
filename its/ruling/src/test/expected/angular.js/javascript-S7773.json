@@ -8,10 +8,6 @@
 "angular.js:docs/config/tag-defs/tutorial-step.js": [
 9
 ],
-"angular.js:src/Angular.js": [
-424,
-873
-],
 "angular.js:src/apis.js": [
 43,
 89
@@ -32,17 +28,8 @@
 "angular.js:src/ng/directive/select.js": [
 822
 ],
-"angular.js:src/ng/filter/filters.js": [
-294,
-296,
-603,
-626
-],
 "angular.js:src/ng/filter/limitTo.js": [
 114
-],
-"angular.js:src/ng/parse.js": [
-246
 ],
 "angular.js:src/ngAnimate/animateCss.js": [
 286,

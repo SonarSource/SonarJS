@@ -51,9 +51,6 @@
 "ant-design:components/grid/row.tsx": [
 70
 ],
-"ant-design:components/input/Input.tsx": [
-188
-],
 "ant-design:components/input/__tests__/index.test.tsx": [
 298,
 310,

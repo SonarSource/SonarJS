@@ -1,22 +1,7 @@
 {
-"searchkit:examples/indexer/config.ts": [
-147
-],
 "searchkit:packages/searchkit-cli/src/lib.ts": [
 8,
 12
-],
-"searchkit:packages/searchkit-client/src/components.tsx": [
-45,
-69
-],
-"searchkit:packages/searchkit-client/src/searchkit.tsx": [
-32,
-39,
-46,
-48,
-49,
-219
 ],
 "searchkit:packages/searchkit-client/src/withSearchkitRouting.tsx": [
 67

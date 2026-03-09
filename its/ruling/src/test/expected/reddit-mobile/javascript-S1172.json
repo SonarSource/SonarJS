@@ -1,24 +1,10 @@
 {
-"reddit-mobile:assets/js/client.es6.js": [
-141,
-231,
-371,
-459
-],
 "reddit-mobile:assets/js/trackingEvents.es6.js": [
 93,
 101
 ],
 "reddit-mobile:buildTasks/assets.js": [
 3
-],
-"reddit-mobile:buildTasks/icons.js": [
-10,
-25
-],
-"reddit-mobile:index.js": [
-219,
-219
 ],
 "reddit-mobile:src/lib/timing.es6.js": [
 1

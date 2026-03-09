@@ -178,10 +178,6 @@
 "desktop:app/src/ui/diff/seamless-diff-switcher.tsx": [
 229
 ],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-1075,
-1152
-],
 "desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
 151
 ],
@@ -206,9 +202,6 @@
 "desktop:app/src/ui/history/commit-list.tsx": [
 153,
 387
-],
-"desktop:app/src/ui/index.tsx": [
-126
 ],
 "desktop:app/src/ui/lib/avatar.tsx": [
 58

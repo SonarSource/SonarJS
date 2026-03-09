@@ -23,22 +23,5 @@
 269,
 270,
 270
-],
-"Ghost:core/server/helpers/date.js": [
-12
-],
-"Ghost:core/server/helpers/index.js": [
-57
-],
-"Ghost:core/test/unit/metadata/schema_spec.js": [
-64,
-72
-],
-"Ghost:core/test/unit/metadata/structured_data_spec.js": [
-49
-],
-"Ghost:core/test/utils/fork.js": [
-77,
-125
 ]
 }

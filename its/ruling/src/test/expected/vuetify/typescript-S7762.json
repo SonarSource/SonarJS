@@ -10,8 +10,5 @@
 ],
 "vuetify:packages/vuetify/src/directives/mutate/__tests__/mutate.spec.ts": [
 46
-],
-"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
-154
 ]
 }

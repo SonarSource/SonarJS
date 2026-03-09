@@ -3,15 +3,8 @@
 25,
 27
 ],
-"angular.js:src/ng/directive/ngOptions.js": [
-238
-],
 "angular.js:src/ng/directive/ngRepeat.js": [
 476
-],
-"angular.js:src/ng/filter/filters.js": [
-481,
-584
 ],
 "angular.js:src/ngMessageFormat/messageFormatParser.js": [
 181,

@@ -1,8 +1,4 @@
 {
-"paper.js:gulp/tasks/docs.js": [
-21,
-22
-],
 "paper.js:src/basic/Matrix.js": [
 77,
 713
@@ -50,10 +46,6 @@
 ],
 "paper.js:src/item/Shape.js": [
 295
-],
-"paper.js:src/node/extend.js": [
-40,
-90
 ],
 "paper.js:src/path/CompoundPath.js": [
 148,

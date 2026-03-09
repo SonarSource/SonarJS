@@ -88,9 +88,5 @@
 ],
 "sonar-web:src/main/js/widgets/issue-filter/widget.js": [
 29
-],
-"sonar-web:test/helpers/test-page.js": [
-61,
-80
 ]
 }

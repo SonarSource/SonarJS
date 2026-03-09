@@ -14,11 +14,6 @@
 4641,
 4650
 ],
-"TypeScript:src/harness/harness.ts": [
-129,
-551,
-630
-],
 "TypeScript:src/harness/projectsRunner.ts": [
 307,
 494
@@ -35,9 +30,6 @@
 ],
 "TypeScript:src/server/typingsInstaller/nodeTypingsInstaller.ts": [
 27
-],
-"TypeScript:src/server/watchGuard/watchGuard.ts": [
-17
 ],
 "TypeScript:src/services/codefixes/importFixes.ts": [
 523

@@ -5,20 +5,8 @@
 "eigen:src/app/Components/ArtworkFilter/Filters/ColorsOptions.tests.tsx": [
 187
 ],
-"eigen:src/app/Components/ArtworkFilter/Filters/YearOptions.tsx": [
-75
-],
 "eigen:src/app/Components/ArtworkFilter/components/ArtworkFilterOptionCheckboxItem.tests.tsx": [
 56
-],
-"eigen:src/app/Components/Bidding/Screens/ConfirmBid.tests.tsx": [
-229
-],
-"eigen:src/app/Components/Bidding/Screens/Registration.tests.tsx": [
-264
-],
-"eigen:src/app/Scenes/City/Components/Event/index.tsx": [
-108
 ],
 "eigen:src/app/Scenes/Fair/Fair.tests.tsx": [
 215
@@ -28,10 +16,6 @@
 ],
 "eigen:src/app/Scenes/Home/homeAnalytics.ts": [
 194
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-230,
-388
 ],
 "eigen:src/app/Scenes/MyCollection/utils/localArtworkSortAndFilter.ts": [
 194,

@@ -9,10 +9,6 @@
 1,
 2
 ],
-"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
-1,
-2
-],
 "tailwindcss:__tests__/sanity.test.js": [
 1,
 2
@@ -20,16 +16,6 @@
 "tailwindcss:jest/runInTempDirectory.js": [
 1,
 2
-],
-"tailwindcss:scripts/build.js": [
-1
-],
-"tailwindcss:scripts/compat.js": [
-1,
-2
-],
-"tailwindcss:scripts/rebuildFixtures.js": [
-1
 ],
 "tailwindcss:src/cli/utils.js": [
 3

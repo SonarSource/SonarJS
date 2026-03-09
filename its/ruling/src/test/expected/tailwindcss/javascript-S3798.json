@@ -15,27 +15,11 @@
 7,
 11
 ],
-"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
-8,
-22,
-32,
-64
-],
 "tailwindcss:__tests__/util/produce.js": [
 3
 ],
 "tailwindcss:jest/customMatchers.js": [
 4
-],
-"tailwindcss:scripts/build.js": [
-6
-],
-"tailwindcss:scripts/compat.js": [
-5,
-9
-],
-"tailwindcss:scripts/rebuildFixtures.js": [
-5
 ],
 "tailwindcss:src/cli/colors.js": [
 8,
@@ -106,17 +90,6 @@
 25,
 36
 ],
-"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
-14,
-35,
-53,
-105,
-148,
-183,
-216,
-229,
-313
-],
 "tailwindcss:src/lib/substituteResponsiveAtRules.js": [
 7,
 14
@@ -150,9 +123,6 @@
 ],
 "tailwindcss:src/util/escapeClassName.js": [
 4
-],
-"tailwindcss:src/util/generateVariantFunction.js": [
-15
 ],
 "tailwindcss:src/util/getAllConfigs.js": [
 5

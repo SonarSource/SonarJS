@@ -22,17 +22,5 @@
 106,
 122,
 129
-],
-"ant-design:scripts/check-commit.js": [
-13
-],
-"ant-design:scripts/post-script.js": [
-9,
-10
-],
-"ant-design:site/theme/template/Content/Demo/index.jsx": [
-22,
-23,
-24
 ]
 }

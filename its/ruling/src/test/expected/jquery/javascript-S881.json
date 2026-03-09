@@ -1,10 +1,4 @@
 {
-"jquery:src/ajax.js": [
-68,
-582,
-615,
-825
-],
 "jquery:src/ajax/jsonp.js": [
 14
 ],
@@ -56,11 +50,6 @@
 ],
 "jquery:src/deprecated.js": [
 54
-],
-"jquery:src/effects.js": [
-554,
-595,
-651
 ],
 "jquery:src/event.js": [
 91,

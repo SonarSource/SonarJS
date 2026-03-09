@@ -1,45 +1,15 @@
 {
-"angular.js:Gruntfile.js": [
-6
-],
-"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
-159
-],
-"angular.js:src/Angular.js": [
-128,
-153
-],
-"angular.js:src/jqLite.js": [
-894
-],
 "angular.js:src/minErr.js": [
 102
 ],
 "angular.js:src/ng/browser.js": [
 36
 ],
-"angular.js:src/ng/compile.js": [
-2401,
-2890,
-4033
-],
-"angular.js:src/ng/directive/form.js": [
-632
-],
-"angular.js:src/ng/directive/ngModel.js": [
-1338
-],
-"angular.js:src/ng/directive/ngOptions.js": [
-418
-],
 "angular.js:src/ng/directive/ngRepeat.js": [
 483
 ],
 "angular.js:src/ng/directive/select.js": [
 757
-],
-"angular.js:src/ng/sce.js": [
-1165
 ],
 "angular.js:src/ngAnimate/animateCss.js": [
 873

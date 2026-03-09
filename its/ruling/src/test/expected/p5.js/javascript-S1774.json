@@ -1,7 +1,4 @@
 {
-"p5.js:Gruntfile.js": [
-99
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 210,
 236,
@@ -286,13 +283,5 @@
 "p5.js:tasks/build/browserify.js": [
 20,
 22
-],
-"p5.js:tasks/build/combineModules.js": [
-53,
-62
-],
-"p5.js:utils/sample-linter.js": [
-53,
-238
 ]
 }

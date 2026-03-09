@@ -436,8 +436,5 @@
 "sonar-web:tests/helpers/measures-test.js": [
 24,
 31
-],
-"sonar-web:tests/jsdom-setup.js": [
-13
 ]
 }

@@ -1,18 +1,4 @@
 {
-"fireact:functions/index.js": [
-188,
-219,
-220,
-243,
-244,
-247,
-305,
-326,
-396,
-439,
-449,
-544
-],
 "fireact:src/components/Breadcrumb/index.js": [
 11
 ],
@@ -21,9 +7,6 @@
 ],
 "fireact:src/components/UserAvatar/index.js": [
 7
-],
-"fireact:src/components/routers/AuthRouter/index.js": [
-18
 ],
 "fireact:src/pages/auth/accounts/AddUser/index.js": [
 133

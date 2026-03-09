@@ -1,16 +1,4 @@
 {
-"fireact:functions/index.js": [
-105,
-106,
-114,
-132,
-133,
-251,
-262,
-276,
-278,
-330
-],
 "fireact:src/components/FirebaseAuth/index.js": [
 21
 ],

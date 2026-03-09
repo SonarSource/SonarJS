@@ -11,17 +11,8 @@
 "eigen:src/app/Components/Bidding/Components/Timer.tsx": [
 204
 ],
-"eigen:src/app/Components/Bidding/Context/TimeOffsetProvider.tests.tsx": [
-17
-],
 "eigen:src/app/Components/Bidding/Context/TimeOffsetProvider.tsx": [
 74
-],
-"eigen:src/app/Components/Markdown.tsx": [
-17
-],
-"eigen:src/app/Components/OpaqueImageView/OpaqueImageView.tsx": [
-77
 ],
 "eigen:src/app/Components/ParentAwareScrollView.tsx": [
 41

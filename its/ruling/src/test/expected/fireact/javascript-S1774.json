@@ -1,8 +1,4 @@
 {
-"fireact:functions/index.js": [
-205,
-234
-],
 "fireact:src/components/DataCreate/index.js": [
 56
 ],
@@ -11,10 +7,6 @@
 ],
 "fireact:src/components/DataList/index.js": [
 34
-],
-"fireact:src/components/Layout/index.js": [
-96,
-129
 ],
 "fireact:src/components/Loader/index.js": [
 21
@@ -29,10 +21,6 @@
 ],
 "fireact:src/components/UserAvatar/index.js": [
 7
-],
-"fireact:src/components/routers/AuthRouter/index.js": [
-17,
-18
 ],
 "fireact:src/components/templates/AccountTemplate/index.js": [
 43,

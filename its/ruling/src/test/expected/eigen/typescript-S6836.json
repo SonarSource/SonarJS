@@ -7,13 +7,5 @@
 ],
 "eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccount.tsx": [
 103
-],
-"eigen:src/app/store/NativeModel.ts": [
-94
-],
-"eigen:src/app/utils/ArtworkInquiry/ArtworkInquiryStore.tsx": [
-42,
-43,
-44
 ]
 }

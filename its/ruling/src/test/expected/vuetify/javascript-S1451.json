@@ -1,14 +1,8 @@
 {
-"vuetify:ecosystem-win.config.js": [
-0
-],
 "vuetify:ecosystem-wsl.config.js": [
 0
 ],
 "vuetify:ecosystem.config.js": [
-0
-],
-"vuetify:eslint-local-rules.js": [
 0
 ],
 "vuetify:jest.config.js": [
@@ -17,13 +11,7 @@
 "vuetify:packages/api-generator/babel.config.js": [
 0
 ],
-"vuetify:packages/docs/build/sitemap.js": [
-0
-],
 "vuetify:packages/docs/jest-runner-eslint.config.js": [
-0
-],
-"vuetify:packages/docs/jest.config.js": [
 0
 ],
 "vuetify:packages/docs/src/components/Alert.vue": [
@@ -2576,22 +2564,10 @@
 "vuetify:packages/docs/src/layouts/wireframe.vue": [
 0
 ],
-"vuetify:packages/docs/src/service-worker.js": [
-0
-],
-"vuetify:packages/vuetify/babel.config.js": [
-0
-],
 "vuetify:packages/vuetify/build/babel-plugin-replace-import-extension.js": [
 0
 ],
-"vuetify:packages/vuetify/build/rollup.config.js": [
-0
-],
 "vuetify:packages/vuetify/build/rollup.types.config.js": [
-0
-],
-"vuetify:packages/vuetify/build/run-tests.js": [
 0
 ],
 "vuetify:packages/vuetify/dev/App.vue": [
@@ -2618,55 +2594,10 @@
 "vuetify:packages/vuetify/dev/router.js": [
 0
 ],
-"vuetify:packages/vuetify/dev/vuetify.js": [
-0
-],
-"vuetify:packages/vuetify/jest.config.js": [
-0
-],
-"vuetify:packages/vuetify/postcss.config.js": [
-0
-],
-"vuetify:packages/vuetify/vite.config.mjs": [
-0
-],
-"vuetify:scripts/build.js": [
-0
-],
-"vuetify:scripts/confirm-npm-tag.js": [
-0
-],
-"vuetify:scripts/converter.js": [
-0
-],
-"vuetify:scripts/deploy-and-alias.js": [
-0
-],
-"vuetify:scripts/dev.js": [
-0
-],
-"vuetify:scripts/lint-commit-message.js": [
-0
-],
-"vuetify:scripts/parse-npm-tag.js": [
-0
-],
-"vuetify:scripts/post-install.js": [
-0
-],
-"vuetify:scripts/post-release-merge.js": [
-0
-],
-"vuetify:scripts/prepare-commit-message.js": [
-0
-],
 "vuetify:scripts/rules/jsx-curly-spacing.js": [
 0
 ],
 "vuetify:scripts/rules/no-render-string-reference.js": [
-0
-],
-"vuetify:scripts/warn-npm-install.js": [
 0
 ]
 }

@@ -21,17 +21,11 @@
 "redux:examples/todos-with-undo/components/AddTodo.js": [
 17
 ],
-"redux:examples/universal/server/server.js": [
-77
-],
 "redux:src/utils/applyMiddleware.js": [
 20,
 27
 ],
 "redux:src/utils/combineReducers.js": [
 100
-],
-"redux:src/utils/isPlainObject.js": [
-1
 ]
 }

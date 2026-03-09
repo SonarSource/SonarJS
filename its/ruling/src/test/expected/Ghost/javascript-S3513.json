@@ -43,43 +43,8 @@
 18,
 23
 ],
-"Ghost:core/client/app/components/gh-posts-list-item.js": [
-50,
-55
-],
-"Ghost:core/client/app/components/gh-profile-image.js": [
-38,
-56,
-77,
-98
-],
-"Ghost:core/client/app/components/gh-search-input.js": [
-124
-],
-"Ghost:core/client/app/components/gh-selectize.js": [
-11,
-120
-],
 "Ghost:core/client/app/components/gh-spin-button.js": [
 56
-],
-"Ghost:core/client/app/components/gh-tab-pane.js": [
-24,
-30
-],
-"Ghost:core/client/app/components/gh-tab.js": [
-25,
-31
-],
-"Ghost:core/client/app/components/gh-tag-settings-form.js": [
-87
-],
-"Ghost:core/client/app/components/gh-tags-management-container.js": [
-26
-],
-"Ghost:core/client/app/components/gh-trim-focus-input.js": [
-33,
-38
 ],
 "Ghost:core/client/app/components/gh-uploader.js": [
 38,
@@ -96,9 +61,6 @@
 ],
 "Ghost:core/client/app/components/modals/upload-image.js": [
 36
-],
-"Ghost:core/client/app/controllers/feature.js": [
-29
 ],
 "Ghost:core/client/app/controllers/settings/navigation.js": [
 37
@@ -119,9 +81,6 @@
 "Ghost:core/client/app/mixins/ed-editor-scroll.js": [
 89,
 95
-],
-"Ghost:core/client/app/mixins/editor-base-controller.js": [
-35
 ],
 "Ghost:core/client/app/mixins/editor-base-route.js": [
 124
@@ -166,10 +125,6 @@
 21,
 31
 ],
-"Ghost:core/client/app/routes/posts/index.js": [
-19,
-27
-],
 "Ghost:core/client/app/routes/reset.js": [
 17,
 30
@@ -200,15 +155,8 @@
 "Ghost:core/client/app/routes/settings/tags/tag.js": [
 17
 ],
-"Ghost:core/client/app/routes/setup.js": [
-22,
-43
-],
 "Ghost:core/client/app/routes/setup/index.js": [
 7
-],
-"Ghost:core/client/app/routes/setup/one.js": [
-18
 ],
 "Ghost:core/client/app/routes/setup/three.js": [
 7
@@ -216,10 +164,6 @@
 "Ghost:core/client/app/routes/signin.js": [
 20,
 39
-],
-"Ghost:core/client/app/routes/signup.js": [
-22,
-72
 ],
 "Ghost:core/client/app/routes/team/user.js": [
 21,
@@ -252,86 +196,10 @@
 11,
 19
 ],
-"Ghost:core/server/api/utils.js": [
-47
-],
-"Ghost:core/server/apps/proxy.js": [
-34,
-44
-],
-"Ghost:core/server/config/url.js": [
-33
-],
-"Ghost:core/server/data/import/utils.js": [
-20
-],
-"Ghost:core/server/data/xml/sitemap/page-generator.js": [
-10
-],
-"Ghost:core/server/data/xml/sitemap/post-generator.js": [
-10
-],
-"Ghost:core/server/data/xml/sitemap/tag-generator.js": [
-10
-],
-"Ghost:core/server/data/xml/sitemap/user-generator.js": [
-11
-],
-"Ghost:core/server/errors/index.js": [
-95
-],
-"Ghost:core/server/models/app.js": [
-12
-],
-"Ghost:core/server/models/base/index.js": [
-70
-],
 "Ghost:core/server/models/plugins/access-rules.js": [
 33
 ],
-"Ghost:core/server/models/plugins/filter.js": [
-18
-],
-"Ghost:core/server/models/plugins/include-count.js": [
-61,
-71
-],
-"Ghost:core/server/models/post.js": [
-39,
-571
-],
-"Ghost:core/server/models/role.js": [
-52
-],
-"Ghost:core/server/models/settings.js": [
-59,
-99
-],
-"Ghost:core/server/models/tag.js": [
-16,
-34
-],
-"Ghost:core/server/models/user.js": [
-46,
-84,
-100,
-448
-],
-"Ghost:core/server/utils/pipeline.js": [
-10
-],
 "Ghost:core/shared/ghost-url.js": [
 32
-],
-"Ghost:core/test/integration/api/api_settings_spec.js": [
-23
-],
-"Ghost:core/test/unit/server_helpers_index_spec.js": [
-26
-],
-"Ghost:core/test/utils/index.js": [
-473,
-489,
-508
 ]
 }

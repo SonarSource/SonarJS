@@ -1,19 +1,4 @@
 {
-"searchkit:examples/indexer/bike-hire-stations/config.ts": [
-2,
-2,
-2
-],
-"searchkit:examples/indexer/mrp-products/config.ts": [
-2,
-2,
-2
-],
-"searchkit:examples/indexer/parks/config.ts": [
-2,
-2,
-2
-],
 "searchkit:packages/searchkit-client/src/__tests__/searchkit.test.tsx": [
 8
 ],

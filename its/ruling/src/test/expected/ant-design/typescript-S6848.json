@@ -26,9 +26,6 @@
 "ant-design:components/radio/group.tsx": [
 92
 ],
-"ant-design:components/statistic/Statistic.tsx": [
-55
-],
 "ant-design:components/table/hooks/useFilter/FilterWrapper.tsx": [
 9
 ],
@@ -58,9 +55,6 @@
 "ant-design:site/theme/template/Color/ColorPicker.tsx": [
 99,
 105
-],
-"ant-design:site/theme/template/Home/Banner/Logo.tsx": [
-56
 ],
 "ant-design:site/theme/template/Home/DesignPage/InteractiveIcon.tsx": [
 19

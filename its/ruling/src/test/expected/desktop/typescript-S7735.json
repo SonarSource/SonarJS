@@ -125,9 +125,6 @@
 "desktop:app/src/lib/window-state.ts": [
 17
 ],
-"desktop:app/src/main-process/main.ts": [
-382
-],
 "desktop:app/src/models/account.ts": [
 66
 ],
@@ -214,9 +211,6 @@
 "desktop:app/src/ui/diff/seamless-diff-switcher.tsx": [
 167,
 336
-],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-1301
 ],
 "desktop:app/src/ui/diff/text-diff-expansion.ts": [
 195
@@ -343,9 +337,6 @@
 ],
 "desktop:app/src/ui/welcome/start.tsx": [
 31
-],
-"desktop:script/build.ts": [
-226
 ],
 "desktop:script/dist-info.ts": [
 115,

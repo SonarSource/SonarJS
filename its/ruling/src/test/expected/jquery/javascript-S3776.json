@@ -3,12 +3,6 @@
 59,
 118
 ],
-"jquery:src/ajax.js": [
-134,
-192,
-382,
-714
-],
 "jquery:src/attributes/classes.js": [
 23,
 60
@@ -18,9 +12,6 @@
 ],
 "jquery:src/core/access.js": [
 6
-],
-"jquery:src/core/init.js": [
-17
 ],
 "jquery:src/css.js": [
 46,
@@ -34,11 +25,6 @@
 ],
 "jquery:src/data.js": [
 93
-],
-"jquery:src/effects.js": [
-80,
-249,
-536
 ],
 "jquery:src/event.js": [
 106,

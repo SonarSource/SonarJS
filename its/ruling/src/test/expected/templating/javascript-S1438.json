@@ -9,9 +9,6 @@
 "templating:test/example/greet.spec.js": [
 7
 ],
-"templating:test/example/video.spec.js": [
-34
-],
 "templating:test/lib/util/document_ready.spec.js": [
 17
 ]

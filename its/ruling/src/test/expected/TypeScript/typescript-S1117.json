@@ -1,8 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-675,
-800
-],
 "TypeScript:scripts/authors.ts": [
 113
 ],
@@ -15,11 +11,6 @@
 124,
 126,
 142
-],
-"TypeScript:scripts/errorCheck.ts": [
-22,
-26,
-63
 ],
 "TypeScript:scripts/importDefinitelyTypedTests/importDefinitelyTypedTests.ts": [
 38,
@@ -411,25 +402,9 @@
 4089,
 4093
 ],
-"TypeScript:src/harness/harness.ts": [
-740,
-891,
-911,
-1477
-],
-"TypeScript:src/harness/instrumenter.ts": [
-5,
-11,
-17,
-28,
-31
-],
 "TypeScript:src/harness/projectsRunner.ts": [
 249,
 257
-],
-"TypeScript:src/harness/runner.ts": [
-26
 ],
 "TypeScript:src/harness/virtualFileSystem.ts": [
 220

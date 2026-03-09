@@ -2,9 +2,6 @@
 "qunit:reporter/html.js": [
 686
 ],
-"qunit:src/cli/run.js": [
-50
-],
 "qunit:src/events.js": [
 35
 ],

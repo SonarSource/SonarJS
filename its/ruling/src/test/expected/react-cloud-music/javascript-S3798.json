@@ -1,28 +1,4 @@
 {
-"react-cloud-music:config/env.js": [
-18,
-63
-],
-"react-cloud-music:config/modules.js": [
-13,
-49
-],
-"react-cloud-music:config/paths.js": [
-14,
-34
-],
-"react-cloud-music:scripts/build.js": [
-122,
-186
-],
-"react-cloud-music:scripts/test.js": [
-23,
-32
-],
-"react-cloud-music:server.js": [
-6,
-8
-],
 "react-cloud-music:src/api/lyric-parser.js": [
 23
 ],
@@ -61,9 +37,6 @@
 "react-cloud-music:src/application/Singers/index.jsx": [
 18
 ],
-"react-cloud-music:src/baseUI/horizen-item/index.jsx": [
-35
-],
 "react-cloud-music:src/baseUI/loading-v2/index.jsx": [
 43
 ],
@@ -79,47 +52,10 @@
 "react-cloud-music:src/components/album-detail/index.jsx": [
 5
 ],
-"react-cloud-music:src/components/list/index.jsx": [
-10
-],
 "react-cloud-music:src/components/slider/index.jsx": [
 6
 ],
 "react-cloud-music:src/layouts/HomeLayout.jsx": [
 7
-],
-"react-cloud-music:src/serviceWorker.js": [
-23,
-57,
-101,
-129
-],
-"react-cloud-music:ts-music/config/env.js": [
-63
-],
-"react-cloud-music:ts-music/config/getHttpsConfig.js": [
-11,
-35,
-48
-],
-"react-cloud-music:ts-music/config/modules.js": [
-14,
-64,
-85,
-101
-],
-"react-cloud-music:ts-music/scripts/build.js": [
-132,
-206
-],
-"react-cloud-music:ts-music/scripts/test.js": [
-23,
-32
-],
-"react-cloud-music:ts-music/src/serviceWorker.js": [
-23,
-57,
-101,
-131
 ]
 }

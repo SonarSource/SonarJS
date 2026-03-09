@@ -89,9 +89,6 @@
 "sonar-web:src/main/js/apps/custom-measures/update-view.js": [
 6
 ],
-"sonar-web:src/main/js/apps/dashboard/app.js": [
-22
-],
 "sonar-web:src/main/js/apps/groups/create-view.js": [
 7
 ],
@@ -414,9 +411,6 @@
 78,
 122,
 166
-],
-"sonar-web:src/main/js/main/processes.js": [
-32
 ],
 "sonar-web:src/main/js/widgets/issue-filter/widget.js": [
 323

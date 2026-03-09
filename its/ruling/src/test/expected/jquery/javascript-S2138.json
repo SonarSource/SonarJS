@@ -1,10 +1,4 @@
 {
-"jquery:src/ajax.js": [
-387,
-732,
-811,
-850
-],
 "jquery:src/ajax/jsonp.js": [
 91
 ],
@@ -23,11 +17,6 @@
 "jquery:src/deferred.js": [
 171,
 202
-],
-"jquery:src/effects.js": [
-40,
-530,
-658
 ],
 "jquery:src/event.js": [
 48,

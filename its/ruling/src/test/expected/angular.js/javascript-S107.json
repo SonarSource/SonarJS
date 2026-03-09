@@ -2,24 +2,10 @@
 "angular.js:docs/app/src/docs.js": [
 8
 ],
-"angular.js:docs/config/index.js": [
-157
-],
-"angular.js:src/ng/compile.js": [
-1997,
-2884,
-3585
-],
 "angular.js:src/ng/directive/input.js": [
 1502,
 1724,
 2003
-],
-"angular.js:src/ng/directive/ngModel.js": [
-254
-],
-"angular.js:src/ng/http.js": [
-432
 ],
 "angular.js:src/ng/httpBackend.js": [
 59

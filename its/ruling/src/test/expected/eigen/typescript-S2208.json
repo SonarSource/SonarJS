@@ -111,9 +111,6 @@
 "eigen:src/app/store/AuthModel.ts": [
 6
 ],
-"eigen:src/app/store/config/EchoModel.tests.tsx": [
-1
-],
 "eigen:src/app/store/config/FeaturesModel.tests.tsx": [
 5
 ],
@@ -134,9 +131,6 @@
 ],
 "eigen:src/app/utils/AdminMenu.tsx": [
 2
-],
-"eigen:src/app/utils/PushNotification.tests.ts": [
-9
 ],
 "eigen:src/app/utils/auction/index.tsx": [
 1

@@ -1,13 +1,4 @@
 {
-"eigen:scripts/changelog/generatePlatformChangelog.tests.ts": [
-17,
-33,
-33,
-33,
-34,
-34,
-35
-],
 "eigen:src/app/Components/AnimatableHeader/AnimatableHeader.tests.tsx": [
 10
 ],
@@ -48,16 +39,6 @@
 436,
 678,
 697
-],
-"eigen:src/app/Components/ArtworkFilter/FilterModal.tests.tsx": [
-52,
-105,
-224,
-312,
-359,
-446,
-543,
-603
 ],
 "eigen:src/app/Components/ArtworkFilter/Filters/AdditionalGeneIDsOptions.tests.tsx": [
 75
@@ -132,25 +113,6 @@
 ],
 "eigen:src/app/Components/ArtworkGrids/LotCloseInfo.tests.tsx": [
 91
-],
-"eigen:src/app/Components/Bidding/Components/Timer.tests.tsx": [
-188
-],
-"eigen:src/app/Components/Bidding/Screens/ConfirmBid.tests.tsx": [
-307,
-309,
-566,
-570,
-579,
-589,
-712,
-845,
-927
-],
-"eigen:src/app/Components/Bidding/Screens/Registration.tests.tsx": [
-309,
-341,
-382
 ],
 "eigen:src/app/Components/DetailedLocationAutocomplete.tests.tsx": [
 35
@@ -255,9 +217,6 @@
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/CommercialButtons.tests.tsx": [
 100
 ],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryModal.tests.tsx": [
-143
-],
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/LocationAutocomplete.tests.tsx": [
 19
 ],
@@ -358,19 +317,12 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ItemShow.tests.tsx": [
 31
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tests.tsx": [
-158,
-159
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/OfferSubmittedModal.tests.tsx": [
 27
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/OpenInquiryModalButton.tests.tsx": [
 73,
 99
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tests.tsx": [
-104
 ],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/PurchaseModal.tests.tsx": [
 37,
@@ -508,27 +460,9 @@
 "eigen:src/app/Scenes/SavedSearchAlert/EditSavedSearchAlert.tests.tsx": [
 42
 ],
-"eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlertForm.tests.tsx": [
-64,
-73,
-74,
-83,
-129,
-194,
-297,
-319,
-475,
-584,
-608,
-794
-],
 "eigen:src/app/Scenes/SavedSearchAlertsList/Components/SortByModal.tests.tsx": [
 23,
 24
-],
-"eigen:src/app/Scenes/Search/AutosuggestResults.tests.tsx": [
-50,
-139
 ],
 "eigen:src/app/Scenes/Search/RecentSearches.tests.tsx": [
 16,
@@ -637,34 +571,8 @@
 39,
 40
 ],
-"eigen:src/app/store/AuthModel.tests.ts": [
-34,
-84,
-132,
-133,
-138,
-339,
-342,
-420,
-431,
-432,
-463,
-464,
-469,
-486,
-582,
-583,
-617
-],
 "eigen:src/app/store/AuthModel.ts": [
 565
-],
-"eigen:src/app/store/NativeModel.tests.ts": [
-28
-],
-"eigen:src/app/store/config/EchoModel.tests.tsx": [
-138,
-171
 ],
 "eigen:src/app/store/config/UserIsDevModel.tests.tsx": [
 32
@@ -702,12 +610,6 @@
 16,
 46
 ],
-"eigen:src/palette/Theme.tsx": [
-155,
-155,
-156,
-156
-],
 "eigen:src/palette/atoms/Spacer/Spacer.stories.tsx": [
 51
 ],
@@ -721,12 +623,6 @@
 ],
 "eigen:src/palette/elements/Button/Button.tests.tsx": [
 26
-],
-"eigen:src/palette/elements/Button/Button.tsx": [
-250
-],
-"eigen:src/palette/elements/Checkbox/Check.tsx": [
-16
 ],
 "eigen:src/palette/elements/CollapsibleMenuItem/CollapsibleMenuItem.stories.tsx": [
 53
@@ -763,10 +659,5 @@
 ],
 "eigen:src/palette/elements/Pill/Pill.stories.tsx": [
 53
-],
-"eigen:src/palette/elements/Radio/RadioDot.tsx": [
-10,
-11,
-16
 ]
 }

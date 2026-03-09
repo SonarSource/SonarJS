@@ -81,10 +81,6 @@
 "ant-design:components/input/ClearableLabeledInput.tsx": [
 59
 ],
-"ant-design:components/input/Input.tsx": [
-223,
-224
-],
 "ant-design:components/input/Search.tsx": [
 112,
 113,
@@ -257,24 +253,12 @@
 "ant-design:site/theme/template/Home/Banner/Background.tsx": [
 153
 ],
-"ant-design:site/theme/template/Home/Banner/Logo.tsx": [
-88
-],
 "ant-design:site/theme/template/IconDisplay/CopyableIcon.tsx": [
 39
-],
-"ant-design:site/theme/template/IconDisplay/IconPicSearcher.tsx": [
-178
-],
-"ant-design:site/theme/template/IconDisplay/index.tsx": [
-124
 ],
 "ant-design:site/theme/template/Layout/Header/SearchBar.tsx": [
 147,
 151
-],
-"ant-design:site/theme/template/Layout/Header/index.tsx": [
-311
 ],
 "ant-design:site/theme/template/Resources/AffixTabs.tsx": [
 81

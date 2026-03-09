@@ -1,7 +1,4 @@
 {
-"eigen:src/app/Components/Artist/ArtistInsights/ArtistInsightsAuctionResults.tsx": [
-160
-],
 "eigen:src/app/Components/ArtworkGrids/InfiniteScrollArtworksGrid.tsx": [
 144,
 400
@@ -32,17 +29,6 @@
 "eigen:src/app/Scenes/Artwork/Components/ArtworkDetails.tsx": [
 22
 ],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryButtons.tests.tsx": [
-49,
-51
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/LocationAutocomplete.tsx": [
-44
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx": [
-282,
-302
-],
 "eigen:src/app/Scenes/City/Components/EventList.tsx": [
 98
 ],
@@ -58,33 +44,8 @@
 "eigen:src/app/Scenes/Home/Components/SalesRail.tsx": [
 49
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tests.tsx": [
-41,
-45
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryMakeOfferButton.tests.tsx": [
-41,
-51
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tests.tsx": [
-53,
-55
-],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/OrderUpdate.tests.tsx": [
-60,
-63
-],
-"eigen:src/app/Scenes/Inbox/Screens/Conversation.tests.tsx": [
-51,
-53
-],
 "eigen:src/app/Scenes/LotsByArtistsYouFollow/LotsByArtistsYouFollow.tsx": [
 22
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-236,
-237,
-238
 ],
 "eigen:src/app/Scenes/MyBids/MyBids.tests.tsx": [
 49,
@@ -144,15 +105,6 @@
 "eigen:src/app/Scenes/Sale/Components/SaleHeader.tsx": [
 125
 ],
-"eigen:src/app/Scenes/SaleInfo/SaleInfo.tsx": [
-160
-],
-"eigen:src/app/Scenes/SavedAddresses/SavedAddressesForm.tsx": [
-309
-],
-"eigen:src/app/Scenes/Search/Search.tsx": [
-233
-],
 "eigen:src/app/Scenes/Search/UserPrefsModel.tsx": [
 75
 ],
@@ -165,9 +117,6 @@
 ],
 "eigen:src/app/Scenes/Show/Components/ShowLocation.tsx": [
 21
-],
-"eigen:src/app/Scenes/Show/Components/ShowLocationHours.tsx": [
-22
 ],
 "eigen:src/app/Scenes/Show/Screens/ShowMoreInfo.tsx": [
 54,
@@ -188,16 +137,7 @@
 "eigen:src/palette/elements/Cards/CardTag.tsx": [
 35
 ],
-"eigen:src/palette/elements/Checkbox/Checkbox.tsx": [
-100
-],
 "eigen:src/palette/elements/Dialog/Dialog.tsx": [
 72
-],
-"eigen:src/palette/elements/Radio/RadioButton.tsx": [
-100
-],
-"eigen:src/palette/elements/Text/Text.tsx": [
-58
 ]
 }

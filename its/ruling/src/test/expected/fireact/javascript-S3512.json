@@ -1,10 +1,4 @@
 {
-"fireact:functions/index.js": [
-32,
-60,
-69,
-433
-],
 "fireact:src/components/Form/Input.js": [
 42,
 48
@@ -19,9 +13,6 @@
 24,
 33,
 39
-],
-"fireact:src/components/routers/AuthRouter/index.js": [
-24
 ],
 "fireact:src/components/templates/AccountTemplate/index.js": [
 80

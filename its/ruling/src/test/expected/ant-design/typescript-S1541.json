@@ -41,9 +41,6 @@
 "ant-design:components/input-number/index.tsx": [
 32
 ],
-"ant-design:components/input/Input.tsx": [
-124
-],
 "ant-design:components/input/TextArea.tsx": [
 80
 ],
@@ -55,9 +52,6 @@
 ],
 "ant-design:components/menu/MenuItem.tsx": [
 40
-],
-"ant-design:components/menu/index.tsx": [
-48
 ],
 "ant-design:components/modal/ConfirmDialog.tsx": [
 18
@@ -109,9 +103,6 @@
 ],
 "ant-design:components/upload/UploadList/ListItem.tsx": [
 74
-],
-"ant-design:site/theme/template/Content/Article.tsx": [
-97
 ],
 "ant-design:site/theme/template/Layout/Header/Navigation.tsx": [
 36

@@ -2,9 +2,6 @@
 "searchkit:packages/searchkit-cli/src/lib.ts": [
 171
 ],
-"searchkit:packages/searchkit-client/src/searchkit.tsx": [
-129
-],
 "searchkit:packages/searchkit-client/src/withSearchkitRouting.tsx": [
 83,
 88,

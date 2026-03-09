@@ -1,7 +1,4 @@
 {
-"vuetify:packages/api-generator/src/index.ts": [
-44
-],
 "vuetify:packages/api-generator/src/types.ts": [
 307
 ],
@@ -10,15 +7,6 @@
 ],
 "vuetify:packages/docs/src/util/helpers.ts": [
 46
-],
-"vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
-150
-],
-"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
-205
-],
-"vuetify:packages/vuetify/src/components/VList/VList.tsx": [
-194
 ],
 "vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
 37
@@ -33,23 +21,14 @@
 "vuetify:packages/vuetify/src/components/VOverlay/util/point.ts": [
 37
 ],
-"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
-225
-],
 "vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.tsx": [
 87
-],
-"vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
-64
 ],
 "vuetify:packages/vuetify/src/composables/display.ts": [
 163
 ],
 "vuetify:packages/vuetify/src/composables/filter.ts": [
 51
-],
-"vuetify:packages/vuetify/src/composables/forwardRefs.ts": [
-31
 ],
 "vuetify:packages/vuetify/src/composables/group.ts": [
 217

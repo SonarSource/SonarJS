@@ -1,38 +1,9 @@
 {
-"angular.js:lib/versions/version-info.js": [
-124
-],
-"angular.js:scripts/code.angularjs.org-firebase/functions/index.js": [
-165
-],
-"angular.js:src/Angular.js": [
-749,
-1105
-],
-"angular.js:src/ng/compile.js": [
-2509,
-2957,
-2962,
-3790
-],
 "angular.js:src/ng/directive/input.js": [
 1367
 ],
 "angular.js:src/ng/filter/orderBy.js": [
 698
-],
-"angular.js:src/ng/http.js": [
-325,
-1378
-],
-"angular.js:src/ng/location.js": [
-899
-],
-"angular.js:src/ng/parse.js": [
-121,
-132,
-587,
-786
 ],
 "angular.js:src/ng/rootScope.js": [
 859

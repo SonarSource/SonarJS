@@ -1,28 +1,6 @@
 {
-"console:src/components/ApiLayover/ApiLayover.tsx": [
-35
-],
-"console:src/components/Datepicker/Datepicker.tsx": [
-83
-],
-"console:src/components/Help/Alert.tsx": [
-38
-],
-"console:src/components/Help/Help.tsx": [
-36
-],
 "console:src/components/PopupWrapper/PopupWrapper.tsx": [
 47
-],
-"console:src/components/ScrollBox/ScrollBox.tsx": [
-49,
-53
-],
-"console:src/components/Tether/Tether.tsx": [
-74
-],
-"console:src/components/ToggleButton/ToggleButton.tsx": [
-59
 ],
 "console:src/views/ProjectRootView/AddModelPopup.tsx": [
 139
@@ -30,14 +8,8 @@
 "console:src/views/ProjectRootView/EditModelPopup.tsx": [
 145
 ],
-"console:src/views/ProjectSettingsView/ProjectSettingsView.tsx": [
-82
-],
 "console:src/views/RootView/RootView.tsx": [
 50
-],
-"console:src/views/models/DatabrowserView/Cell.tsx": [
-116
 ],
 "console:src/views/models/DatabrowserView/Cell/DefaultCell.tsx": [
 11

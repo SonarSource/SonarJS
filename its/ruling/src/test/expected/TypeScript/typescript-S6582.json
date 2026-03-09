@@ -1,7 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-628
-],
 "TypeScript:src/compiler/binder.ts": [
 292,
 294,
@@ -322,16 +319,6 @@
 2610,
 2848
 ],
-"TypeScript:src/harness/harness.ts": [
-742,
-905,
-1307,
-1591,
-1909,
-1909,
-1964,
-1964
-],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 151,
 189,
@@ -342,9 +329,6 @@
 "TypeScript:src/harness/projectsRunner.ts": [
 106,
 522
-],
-"TypeScript:src/harness/runner.ts": [
-38
 ],
 "TypeScript:src/harness/virtualFileSystem.ts": [
 136,

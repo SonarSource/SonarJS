@@ -1,33 +1,4 @@
 {
-"paper.js:examples/Node.js/AnimatedStar.js": [
-19,
-22
-],
-"paper.js:examples/Node.js/SvgExport.js": [
-18,
-20,
-32,
-33,
-35
-],
-"paper.js:examples/Node.js/SvgImport.js": [
-8,
-12,
-15,
-20
-],
-"paper.js:examples/Node.js/Tadpoles.js": [
-10,
-13
-],
-"paper.js:gulp/tasks/build.js": [
-48
-],
-"paper.js:gulp/typescript/typescript-definition-generator.js": [
-47,
-54,
-100
-],
 "paper.js:src/anim/Tween.js": [
 33,
 38,
@@ -657,16 +628,6 @@
 "paper.js:src/node/canvas.js": [
 42,
 47
-],
-"paper.js:src/node/extend.js": [
-22,
-24,
-38,
-58,
-85,
-112,
-122,
-144
 ],
 "paper.js:src/node/xml.js": [
 21

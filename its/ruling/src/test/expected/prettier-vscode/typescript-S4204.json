@@ -4,8 +4,5 @@
 ],
 "prettier-vscode:src/extension.ts": [
 15
-],
-"prettier-vscode:src/requirePkg.ts": [
-33
 ]
 }

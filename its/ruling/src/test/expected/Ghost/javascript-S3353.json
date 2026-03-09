@@ -54,10 +54,6 @@
 "Ghost:core/client/app/components/gh-content-preview-content.js": [
 15
 ],
-"Ghost:core/client/app/components/gh-datetime-input.js": [
-18,
-28
-],
 "Ghost:core/client/app/components/gh-dropdown.js": [
 57,
 58,
@@ -112,76 +108,6 @@
 19,
 23
 ],
-"Ghost:core/client/app/components/gh-posts-list-item.js": [
-64,
-65,
-66,
-67,
-68,
-69,
-72,
-73,
-75
-],
-"Ghost:core/client/app/components/gh-profile-image.js": [
-44,
-50,
-57,
-62,
-63,
-67,
-74,
-75,
-96,
-106,
-114
-],
-"Ghost:core/client/app/components/gh-search-input.js": [
-37,
-38,
-39,
-40,
-59,
-60,
-61,
-62,
-76,
-77,
-78,
-79,
-93,
-94,
-95,
-96,
-137,
-142,
-147,
-163,
-164,
-177,
-184
-],
-"Ghost:core/client/app/components/gh-select-native.js": [
-25,
-27,
-30,
-31,
-33
-],
-"Ghost:core/client/app/components/gh-selectize.js": [
-11,
-23,
-39,
-40,
-57,
-58,
-59,
-66,
-75,
-85,
-98,
-102
-],
 "Ghost:core/client/app/components/gh-skip-link.js": [
 19,
 20
@@ -189,22 +115,6 @@
 "Ghost:core/client/app/components/gh-spin-button.js": [
 29,
 30
-],
-"Ghost:core/client/app/components/gh-tab-pane.js": [
-15,
-16
-],
-"Ghost:core/client/app/components/gh-tag-settings-form.js": [
-54,
-55
-],
-"Ghost:core/client/app/components/gh-tags-management-container.js": [
-31,
-32,
-33
-],
-"Ghost:core/client/app/components/gh-trim-focus-input.js": [
-28
 ],
 "Ghost:core/client/app/components/gh-uploader.js": [
 24,
@@ -241,9 +151,6 @@
 "Ghost:core/client/app/components/modals/delete-all.js": [
 18
 ],
-"Ghost:core/client/app/components/modals/delete-post.js": [
-21
-],
 "Ghost:core/client/app/components/modals/invite-new-user.js": [
 31,
 52,
@@ -267,38 +174,6 @@
 75,
 76
 ],
-"Ghost:core/client/app/controllers/about.js": [
-18
-],
-"Ghost:core/client/app/controllers/feature.js": [
-31
-],
-"Ghost:core/client/app/controllers/post-settings-menu.js": [
-45,
-64,
-65,
-73,
-106,
-139,
-140,
-165,
-228,
-255,
-256,
-293,
-294,
-342,
-343,
-344,
-363,
-364,
-365,
-410,
-426,
-427,
-449,
-450
-],
 "Ghost:core/client/app/controllers/posts.js": [
 12,
 13,
@@ -316,16 +191,6 @@
 ],
 "Ghost:core/client/app/controllers/settings/code-injection.js": [
 13
-],
-"Ghost:core/client/app/controllers/settings/general.js": [
-21,
-22,
-46,
-51,
-59,
-80,
-81,
-100
 ],
 "Ghost:core/client/app/controllers/settings/labs.js": [
 28,
@@ -358,38 +223,6 @@
 151,
 152
 ],
-"Ghost:core/client/app/controllers/settings/tags.js": [
-20,
-21,
-34
-],
-"Ghost:core/client/app/controllers/settings/tags/tag.js": [
-22,
-23,
-47,
-57
-],
-"Ghost:core/client/app/controllers/setup.js": [
-18,
-19
-],
-"Ghost:core/client/app/controllers/setup/three.js": [
-26,
-27,
-42,
-50,
-58,
-77,
-78,
-79,
-102,
-103,
-104,
-153,
-154,
-169,
-188
-],
 "Ghost:core/client/app/controllers/setup/two.js": [
 38,
 44,
@@ -416,28 +249,6 @@
 51,
 52,
 58
-],
-"Ghost:core/client/app/controllers/team/index.js": [
-23
-],
-"Ghost:core/client/app/controllers/team/user.js": [
-63,
-74,
-89,
-110,
-111,
-112,
-123,
-171,
-195,
-198,
-199,
-225,
-226,
-246,
-247,
-262,
-263
 ],
 "Ghost:core/client/app/helpers/gh-count-characters.js": [
 10,
@@ -538,31 +349,6 @@
 106,
 142
 ],
-"Ghost:core/client/app/mixins/editor-base-controller.js": [
-51,
-56,
-59,
-85,
-86,
-98,
-99,
-106,
-130,
-131,
-132,
-133,
-134,
-223,
-241,
-267,
-268,
-282,
-283,
-284,
-322,
-368,
-369
-],
 "Ghost:core/client/app/mixins/editor-base-route.js": [
 8,
 23,
@@ -615,22 +401,6 @@
 14,
 15
 ],
-"Ghost:core/client/app/models/post.js": [
-47,
-48,
-53,
-54,
-55,
-76,
-77
-],
-"Ghost:core/client/app/models/user.js": [
-65,
-92,
-107,
-108,
-112
-],
 "Ghost:core/client/app/router.js": [
 11
 ],
@@ -658,9 +428,6 @@
 57,
 58
 ],
-"Ghost:core/client/app/routes/posts/index.js": [
-32
-],
 "Ghost:core/client/app/routes/posts/post.js": [
 13,
 20,
@@ -678,23 +445,8 @@
 "Ghost:core/client/app/routes/settings/tags/index.js": [
 12
 ],
-"Ghost:core/client/app/routes/setup.js": [
-29,
-34
-],
-"Ghost:core/client/app/routes/setup/one.js": [
-10,
-24,
-25,
-37
-],
 "Ghost:core/client/app/routes/signin.js": [
 37
-],
-"Ghost:core/client/app/routes/signup.js": [
-31,
-32,
-50
 ],
 "Ghost:core/client/app/routes/team/user.js": [
 24,
@@ -733,14 +485,6 @@
 "Ghost:core/client/app/services/ajax.js": [
 10,
 13
-],
-"Ghost:core/client/app/services/config.js": [
-29,
-30,
-33,
-34,
-35,
-37
 ],
 "Ghost:core/client/app/services/media-queries.js": [
 26,

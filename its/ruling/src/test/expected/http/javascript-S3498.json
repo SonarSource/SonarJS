@@ -4,10 +4,5 @@
 ],
 "http:test/XHRConnection.spec.js": [
 195
-],
-"http:test/matchers.js": [
-3,
-5,
-9
 ]
 }

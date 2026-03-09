@@ -1,21 +1,8 @@
 {
-"angular.js:src/Angular.js": [
-1990,
-2016
-],
-"angular.js:src/jqLite.js": [
-788,
-855
-],
 "angular.js:src/ng/browser.js": [
 49,
 53,
 233
-],
-"angular.js:src/ng/compile.js": [
-1678,
-2193,
-2453
 ],
 "angular.js:src/ng/directive/input.js": [
 1743,
@@ -30,16 +17,6 @@
 ],
 "angular.js:src/ng/httpBackend.js": [
 58
-],
-"angular.js:src/ng/interpolate.js": [
-113
-],
-"angular.js:src/ng/location.js": [
-896
-],
-"angular.js:src/ng/parse.js": [
-493,
-1834
 ],
 "angular.js:src/ngAnimate/animateCss.js": [
 652

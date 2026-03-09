@@ -1,11 +1,4 @@
 {
-"vuetify:ecosystem-win.config.js": [
-6
-],
-"vuetify:eslint-local-rules.js": [
-18,
-37
-],
 "vuetify:packages/docs/src/components/app/Figure.vue": [
 29
 ],
@@ -208,24 +201,8 @@
 "vuetify:packages/docs/src/layouts/default.vue": [
 62
 ],
-"vuetify:packages/docs/src/service-worker.js": [
-71,
-78
-],
 "vuetify:packages/vuetify/dev/Playground.nested.vue": [
 275
-],
-"vuetify:packages/vuetify/vite.config.mjs": [
-33
-],
-"vuetify:scripts/confirm-npm-tag.js": [
-17
-],
-"vuetify:scripts/converter.js": [
-37
-],
-"vuetify:scripts/lint-commit-message.js": [
-25
 ],
 "vuetify:scripts/rules/jsx-curly-spacing.js": [
 126,

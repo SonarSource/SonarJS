@@ -1,15 +1,6 @@
 {
-"eigen:src/app/AppRegistry.tsx": [
-202
-],
-"eigen:src/app/Components/Artist/ArtistArtworks/ArtistNotableWorksRail.tsx": [
-24
-],
 "eigen:src/app/Components/Artist/ArtistInsights/ArtistInsights.tests.tsx": [
 12
-],
-"eigen:src/app/Components/Artist/ArtistInsights/ArtistInsightsAuctionResults.tsx": [
-189
 ],
 "eigen:src/app/Components/Artist/ArtistInsights/MarketStats.tests.tsx": [
 15
@@ -63,9 +54,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/CommercialButtons.tests.tsx": [
 19
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx": [
-75
 ],
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomTile.tsx": [
 92,

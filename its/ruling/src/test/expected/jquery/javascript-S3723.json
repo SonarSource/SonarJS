@@ -63,20 +63,6 @@
 329,
 342
 ],
-"jquery:build/release.js": [
-14,
-18,
-55,
-82,
-90
-],
-"jquery:build/release/cdn.js": [
-16,
-21,
-26,
-75,
-119
-],
 "jquery:build/release/dist.js": [
 20,
 49,
@@ -115,29 +101,11 @@
 15,
 24
 ],
-"jquery:build/tasks/qunit_fixture.js": [
-15,
-16,
-18
-],
 "jquery:build/tasks/testswarm.js": [
 40,
 45,
 53,
 59
-],
-"jquery:src/ajax.js": [
-276,
-323,
-329,
-335,
-352,
-361,
-362,
-523,
-648,
-840,
-859
 ],
 "jquery:src/ajax/jsonp.js": [
 17
@@ -202,9 +170,6 @@
 "jquery:src/core/access.js": [
 47
 ],
-"jquery:src/core/init.js": [
-54
-],
 "jquery:src/core/ready-no-deferred.js": [
 58
 ],
@@ -258,18 +223,6 @@
 ],
 "jquery:src/dimensions.js": [
 37
-],
-"jquery:src/effects.js": [
-332,
-367,
-401,
-402,
-415,
-445,
-453,
-612,
-631,
-685
 ],
 "jquery:src/effects/Tween.js": [
 36,

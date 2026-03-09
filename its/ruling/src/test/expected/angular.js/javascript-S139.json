@@ -1,15 +1,6 @@
 {
-"angular.js:Gruntfile.js": [
-333
-],
 "angular.js:docs/app/src/directives.js": [
 27
-],
-"angular.js:docs/config/index.js": [
-57
-],
-"angular.js:docs/config/processors/pages-data.js": [
-49
 ],
 "angular.js:karma-shared.conf.js": [
 15,
@@ -20,41 +11,9 @@
 20,
 21
 ],
-"angular.js:lib/grunt/utils.js": [
-174,
-175
-],
-"angular.js:scripts/compare-master-to-stable.js": [
-78
-],
-"angular.js:src/Angular.js": [
-150,
-151,
-152,
-750,
-751,
-1087,
-1910,
-1911,
-1912,
-2050
-],
-"angular.js:src/jqLite.js": [
-234,
-332,
-343,
-415,
-424
-],
 "angular.js:src/ng/cacheFactory.js": [
 313,
 314
-],
-"angular.js:src/ng/compile.js": [
-2721,
-2922,
-3075,
-4035
 ],
 "angular.js:src/ng/cookieReader.js": [
 45
@@ -62,22 +21,8 @@
 "angular.js:src/ng/directive/attrs.js": [
 412
 ],
-"angular.js:src/ng/directive/form.js": [
-544,
-602
-],
-"angular.js:src/ng/directive/ngModel.js": [
-257,
-269,
-270,
-271,
-865
-],
 "angular.js:src/ng/directive/ngPluralize.js": [
 185
-],
-"angular.js:src/ng/directive/ngRef.js": [
-247
 ],
 "angular.js:src/ng/directive/ngRepeat.js": [
 533,
@@ -87,21 +32,6 @@
 "angular.js:src/ng/directive/select.js": [
 160,
 889
-],
-"angular.js:src/ng/filter/filters.js": [
-429
-],
-"angular.js:src/ng/interpolate.js": [
-282,
-347
-],
-"angular.js:src/ng/location.js": [
-150,
-844
-],
-"angular.js:src/ng/parse.js": [
-1856,
-1871
 ],
 "angular.js:src/ng/raf.js": [
 22
@@ -145,11 +75,6 @@
 294,
 414,
 415
-],
-"angular.js:src/ngMessages/messages.js": [
-555,
-599,
-736
 ],
 "angular.js:src/ngMock/angular-mocks.js": [
 43,

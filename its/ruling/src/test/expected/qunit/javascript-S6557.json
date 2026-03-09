@@ -6,9 +6,6 @@
 "qunit:src/assert.js": [
 466
 ],
-"qunit:src/cli/run.js": [
-157
-],
 "qunit:src/test.js": [
 651
 ]

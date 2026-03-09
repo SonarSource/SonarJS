@@ -1,9 +1,4 @@
 {
-"vuetify:packages/api-generator/src/index.ts": [
-62,
-78,
-80
-],
 "vuetify:packages/api-generator/src/utils.ts": [
 55,
 94,
@@ -11,9 +6,6 @@
 ],
 "vuetify:packages/docs/src/components/app/search/Search.vue": [
 127
-],
-"vuetify:packages/docs/src/store/app.ts": [
-83
 ],
 "vuetify:packages/docs/src/util/analytics.ts": [
 9
@@ -24,59 +16,21 @@
 "vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
 87
 ],
-"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
-65,
-129
-],
 "vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
 38,
 41,
 44,
 47
 ],
-"vuetify:packages/vuetify/src/components/VCard/VCard.tsx": [
-107
-],
-"vuetify:packages/vuetify/src/components/VChip/VChip.tsx": [
-125
-],
-"vuetify:packages/vuetify/src/components/VColorPicker/VColorPicker.tsx": [
-100
-],
-"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
-67,
-133
-],
 "vuetify:packages/vuetify/src/components/VCombobox/__tests__/VCombobox.spec.cy.tsx": [
 299
-],
-"vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
-65,
-102
 ],
 "vuetify:packages/vuetify/src/components/VFileInput/__tests__/VFileInput.spec.tsx": [
 27,
 63
 ],
-"vuetify:packages/vuetify/src/components/VIcon/VIcon.tsx": [
-42
-],
 "vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 227
-],
-"vuetify:packages/vuetify/src/components/VList/VList.tsx": [
-198
-],
-"vuetify:packages/vuetify/src/components/VList/VListItem.tsx": [
-114,
-120
-],
-"vuetify:packages/vuetify/src/components/VMenu/VMenu.tsx": [
-87
-],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
-121,
-172
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 39,
@@ -89,21 +43,11 @@
 63,
 227
 ],
-"vuetify:packages/vuetify/src/components/VPagination/VPagination.tsx": [
-167
-],
-"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
-77,
-132
-],
 "vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
 135
 ],
 "vuetify:packages/vuetify/src/components/VSelectionControl/VSelectionControl.tsx": [
 63
-],
-"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
-254
 ],
 "vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
 92
@@ -119,12 +63,6 @@
 "vuetify:packages/vuetify/src/components/VTextarea/__tests__/VTextarea.spec.tsx": [
 27,
 63
-],
-"vuetify:packages/vuetify/src/components/VToolbar/VToolbar.tsx": [
-96
-],
-"vuetify:packages/vuetify/src/components/VTooltip/VTooltip.tsx": [
-84
 ],
 "vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
 173,
@@ -152,9 +90,6 @@
 151,
 168
 ],
-"vuetify:packages/vuetify/src/composables/icons.tsx": [
-209
-],
 "vuetify:packages/vuetify/src/composables/layout.ts": [
 48,
 266
@@ -164,9 +99,6 @@
 ],
 "vuetify:packages/vuetify/src/composables/mutationObserver.ts": [
 27
-],
-"vuetify:packages/vuetify/src/composables/stack.ts": [
-20
 ],
 "vuetify:packages/vuetify/src/composables/toggleScope.ts": [
 10
@@ -179,10 +111,6 @@
 ],
 "vuetify:packages/vuetify/src/directives/mutate/index.ts": [
 30
-],
-"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
-49,
-86
 ],
 "vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
 30

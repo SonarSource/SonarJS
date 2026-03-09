@@ -8,19 +8,6 @@
 "templating:src/lib/util/module_annotator.js": [
 15
 ],
-"templating:test/example/tab.spec.js": [
-57,
-64,
-71,
-74,
-81,
-89,
-93
-],
-"templating:test/example/video.spec.js": [
-29,
-33
-],
 "templating:test/lib/compiler/compiler.spec.js": [
 14,
 278

@@ -1,33 +1,6 @@
 {
-"reddit-mobile:assets/js/client.es6.js": [
-46,
-99,
-100,
-128,
-401,
-403,
-432,
-439,
-441,
-445
-],
 "reddit-mobile:assets/js/trackingEvents.es6.js": [
 8
-],
-"reddit-mobile:index.js": [
-6,
-7,
-8,
-9,
-68,
-100,
-119,
-146,
-167,
-169,
-203,
-223,
-243
 ],
 "reddit-mobile:src/config.es6.js": [
 5
@@ -50,16 +23,6 @@
 "reddit-mobile:src/lib/loid.es6.js": [
 4,
 5
-],
-"reddit-mobile:src/propTypes.es6.js": [
-3,
-3,
-3,
-3,
-3,
-3,
-3,
-3
 ],
 "reddit-mobile:src/server/config.es6.js": [
 3,
@@ -145,10 +108,5 @@
 82,
 91,
 100
-],
-"reddit-mobile:test/helpers/buildProps.es6.js": [
-8,
-11,
-14
 ]
 }

@@ -76,9 +76,5 @@
 "desktop:script/build-platforms.ts": [
 67,
 68
-],
-"desktop:script/build.ts": [
-188,
-195
 ]
 }

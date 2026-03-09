@@ -2,11 +2,6 @@
 "router:examples/hello/jsonp.js": [
 3
 ],
-"router:gulpfile.js": [
-21,
-21,
-83
-],
 "router:src/modelBinding.js": [
 2
 ],

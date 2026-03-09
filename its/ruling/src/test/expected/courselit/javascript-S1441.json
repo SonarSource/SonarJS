@@ -1,8 +1,4 @@
 {
-"courselit:apps/web/models/Customisation.js": [
-1,
-8
-],
 "courselit:apps/web/models/Subscriber.js": [
 1,
 16
@@ -14,32 +10,6 @@
 1,
 3,
 4
-],
-"courselit:packages/common-widgets/webpack.config.js": [
-1,
-4,
-5,
-7,
-8,
-9,
-10,
-11,
-18,
-25,
-25,
-28,
-29,
-29,
-30,
-30,
-31,
-31,
-32,
-32,
-33,
-33,
-34,
-34
 ],
 "courselit:packages/components-library/__tests__/components-library.test.js": [
 1,
@@ -221,23 +191,6 @@
 68,
 71
 ],
-"courselit:packages/rich-text/webpack.config.js": [
-1,
-2,
-5,
-6,
-8,
-9,
-10,
-11,
-12,
-20,
-25,
-30,
-36,
-37,
-37
-],
 "courselit:packages/utils/src/utils.js": [
 1
 ],
@@ -248,28 +201,6 @@
 ],
 "courselit:packages/widget-buttondown/babel.config.js": [
 2
-],
-"courselit:packages/widget-buttondown/src/AdminWidget.js": [
-1,
-2,
-3,
-4,
-5,
-99,
-109,
-118,
-127
-],
-"courselit:packages/widget-buttondown/src/Widget.js": [
-1,
-2,
-3,
-4,
-5,
-34,
-88,
-96,
-101
 ],
 "courselit:packages/widget-buttondown/src/index.js": [
 1,
@@ -283,27 +214,5 @@
 4,
 5,
 6
-],
-"courselit:packages/widget-buttondown/webpack.config.js": [
-1,
-4,
-5,
-7,
-8,
-9,
-10,
-11,
-19,
-25,
-26,
-26,
-27,
-27,
-28,
-28,
-29,
-29,
-30,
-30
 ]
 }

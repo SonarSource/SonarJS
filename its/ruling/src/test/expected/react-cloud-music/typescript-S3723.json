@@ -1,9 +1,4 @@
 {
-"react-cloud-music:ewas.config.ts": [
-7,
-12,
-13
-],
 "react-cloud-music:ts-music/src/api/config.ts": [
 8,
 17,
@@ -74,22 +69,5 @@
 ],
 "react-cloud-music:ts-music/src/assets/global-style.ts": [
 48
-],
-"react-cloud-music:ts-music/src/baseUI/scroll/index.tsx": [
-97,
-98,
-161
-],
-"react-cloud-music:ts-music/src/components/list/index.tsx": [
-5
-],
-"react-cloud-music:ts-music/src/routes/index.tsx": [
-26,
-35,
-36,
-72
-],
-"react-cloud-music:vite.config.ts": [
-9
 ]
 }

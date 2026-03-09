@@ -1,29 +1,4 @@
 {
-"paper.js:examples/Node.js/AnimatedStar.js": [
-7,
-9,
-27
-],
-"paper.js:examples/Node.js/JSONtoPDF.js": [
-8
-],
-"paper.js:examples/Node.js/RasterRemote.js": [
-7,
-10,
-11
-],
-"paper.js:examples/Node.js/SvgExport.js": [
-10,
-12,
-13,
-14,
-16,
-31,
-45
-],
-"paper.js:examples/Node.js/Tadpoles.js": [
-5
-],
 "paper.js:examples/Scripts/BooleanOperations.html": [
 10,
 18,
@@ -37,50 +12,6 @@
 386,
 398,
 424
-],
-"paper.js:gulp/tasks/build.js": [
-23,
-28
-],
-"paper.js:gulp/tasks/docs.js": [
-20
-],
-"paper.js:gulp/tasks/minify.js": [
-18,
-20
-],
-"paper.js:gulp/tasks/publish.js": [
-25,
-26,
-27,
-28,
-29,
-30,
-31
-],
-"paper.js:gulp/typescript/typescript-definition-generator.js": [
-119,
-123,
-127,
-131,
-219,
-228,
-244,
-253,
-284,
-305,
-329,
-333
-],
-"paper.js:gulp/utils/error.js": [
-15
-],
-"paper.js:gulp/utils/options.js": [
-13,
-17,
-19,
-27,
-36
 ],
 "paper.js:src/anim/Tween.js": [
 27
@@ -177,10 +108,6 @@
 ],
 "paper.js:src/net/Http.js": [
 13
-],
-"paper.js:src/node/self.js": [
-21,
-24
 ],
 "paper.js:src/options.js": [
 25

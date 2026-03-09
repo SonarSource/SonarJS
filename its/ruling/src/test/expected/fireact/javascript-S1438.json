@@ -1,36 +1,4 @@
 {
-"fireact:functions/index.js": [
-22,
-24,
-35,
-43,
-47,
-56,
-62,
-76,
-84,
-87,
-114,
-116,
-128,
-154,
-159,
-235,
-255,
-266,
-295,
-328,
-345,
-363,
-416,
-437,
-533,
-560,
-596,
-597,
-622,
-623
-],
 "fireact:src/components/Breadcrumb/index.js": [
 14,
 18,
@@ -105,9 +73,6 @@
 "fireact:src/components/Form/index.js": [
 11
 ],
-"fireact:src/components/Layout/index.js": [
-155
-],
 "fireact:src/components/Loader/index.js": [
 2
 ],
@@ -142,12 +107,6 @@
 "fireact:src/components/menus/UserMenu/index.js": [
 76,
 77
-],
-"fireact:src/components/routers/AuthRouter/index.js": [
-34
-],
-"fireact:src/components/routers/PublicRouter/index.js": [
-18
 ],
 "fireact:src/components/templates/AccountTemplate/index.js": [
 23,

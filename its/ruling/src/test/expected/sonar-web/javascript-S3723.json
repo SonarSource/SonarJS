@@ -1,16 +1,4 @@
 {
-"sonar-web:gulp/scripts.js": [
-30,
-156
-],
-"sonar-web:gulp/styles.js": [
-24,
-34,
-35
-],
-"sonar-web:gulpfile.js": [
-58
-],
 "sonar-web:src/main/js/api/measures.js": [
 29
 ],
@@ -465,10 +453,6 @@
 15,
 16,
 24
-],
-"sonar-web:src/main/js/apps/dashboard/app.js": [
-106,
-131
 ],
 "sonar-web:src/main/js/apps/global-permissions/groups-view.js": [
 44,
@@ -2280,20 +2264,6 @@
 "sonar-web:src/main/js/main/nav/settings/settings-nav.js": [
 67
 ],
-"sonar-web:src/main/js/main/processes.js": [
-9,
-14,
-20,
-42,
-48,
-52,
-60,
-85,
-91,
-104,
-161,
-162
-],
 "sonar-web:src/main/js/widgets/issue-filter/widget.js": [
 54,
 66,
@@ -2356,35 +2326,6 @@
 53,
 54
 ],
-"sonar-web:test/medium/coding-rules.spec.js": [
-936,
-937,
-943,
-944
-],
-"sonar-web:test/medium/custom-measures.spec.js": [
-60,
-114
-],
-"sonar-web:test/medium/quality-profiles.spec.js": [
-119,
-189,
-223,
-249,
-276,
-391,
-435,
-458,
-485,
-486,
-496,
-497,
-514,
-544
-],
-"sonar-web:tests/apps/background-tasks-test.js": [
-189
-],
 "sonar-web:tests/apps/overview/components/complexity-distribution-test.js": [
 30
 ],
@@ -2425,20 +2366,6 @@
 "sonar-web:tests/apps/overview/overview-test.js": [
 34
 ],
-"sonar-web:tests/apps/permission-templates-test.js": [
-17,
-27,
-37,
-47,
-60,
-70,
-80,
-90
-],
-"sonar-web:tests/apps/projects-test.js": [
-14,
-26
-],
 "sonar-web:tests/components/charts/bar-chart-test.js": [
 14,
 24,
@@ -2461,24 +2388,7 @@
 "sonar-web:tests/components/charts/work-cloud-test.js": [
 14
 ],
-"sonar-web:tests/components/issue-test.js": [
-70,
-81,
-108
-],
-"sonar-web:tests/components/source-viewer-test.js": [
-22,
-30,
-38,
-49,
-57,
-65
-],
 "sonar-web:tests/helpers/measures-test.js": [
 20
-],
-"sonar-web:tests/nav-test.js": [
-13,
-16
 ]
 }

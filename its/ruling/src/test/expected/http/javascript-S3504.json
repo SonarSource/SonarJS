@@ -1,29 +1,4 @@
 {
-"http:gulpfile.js": [
-1,
-2,
-3,
-4,
-7,
-54,
-57,
-58
-],
-"http:karma.conf.js": [
-1
-],
-"http:lib/gulp/karma/background.js": [
-1,
-2,
-3,
-4
-],
-"http:lib/gulp/karma/index.js": [
-1,
-15,
-20,
-21
-],
 "http:src/IConnection.js": [
 3,
 4
@@ -181,9 +156,6 @@
 207,
 222,
 223
-],
-"http:test/matchers.js": [
-6
 ],
 "http:test/mocks/Xhr.js": [
 69,

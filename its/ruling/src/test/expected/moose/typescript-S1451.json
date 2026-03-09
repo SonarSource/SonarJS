@@ -68,19 +68,10 @@
 "moose:renderer/components/Cast/index.ts": [
 0
 ],
-"moose:renderer/components/CastControl/CastControl.tsx": [
-0
-],
 "moose:renderer/components/CastControl/index.ts": [
 0
 ],
-"moose:renderer/components/Container/Container.tsx": [
-0
-],
 "moose:renderer/components/Container/index.ts": [
-0
-],
-"moose:renderer/components/Downloads/Downloads.tsx": [
 0
 ],
 "moose:renderer/components/Downloads/index.ts": [
@@ -89,25 +80,13 @@
 "moose:renderer/components/Downloads/makeData.tsx": [
 0
 ],
-"moose:renderer/components/DragAndDrop/DragAndDrop.tsx": [
-0
-],
 "moose:renderer/components/DragAndDrop/index.ts": [
-0
-],
-"moose:renderer/components/DropUI/DropUI.tsx": [
 0
 ],
 "moose:renderer/components/DropUI/index.ts": [
 0
 ],
-"moose:renderer/components/FilesList/FilesList.tsx": [
-0
-],
 "moose:renderer/components/FilesList/index.ts": [
-0
-],
-"moose:renderer/components/Header/Header.tsx": [
 0
 ],
 "moose:renderer/components/Header/index.ts": [
@@ -119,9 +98,6 @@
 "moose:renderer/components/Message/index.ts": [
 0
 ],
-"moose:renderer/components/MiniPlayer/MiniPlayer.tsx": [
-0
-],
 "moose:renderer/components/MiniPlayer/index.ts": [
 0
 ],
@@ -129,9 +105,6 @@
 0
 ],
 "moose:renderer/components/Modal/index.ts": [
-0
-],
-"moose:renderer/components/Player/Player.tsx": [
 0
 ],
 "moose:renderer/components/Player/index.ts": [

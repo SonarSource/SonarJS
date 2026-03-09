@@ -113,43 +113,7 @@
 "ant-design:index-style-only.js": [
 8
 ],
-"ant-design:index-with-locales.js": [
-7
-],
-"ant-design:scripts/check-commit.js": [
-38
-],
-"ant-design:scripts/generateLegacyLocale.js": [
-9
-],
-"ant-design:scripts/print-changelog.js": [
-174
-],
-"ant-design:site/antd.js": [
-10
-],
-"ant-design:site/bisheng.config.js": [
-14,
-127,
-135
-],
 "ant-design:site/theme/template/Color/Palette.jsx": [
 20
-],
-"ant-design:site/theme/template/Content/ComponentDoc.jsx": [
-123
-],
-"ant-design:site/theme/template/Content/MainContent.jsx": [
-171
-],
-"ant-design:site/theme/template/Layout/index.jsx": [
-21
-],
-"ant-design:webpack.config.js": [
-15,
-16,
-64,
-69,
-118
 ]
 }

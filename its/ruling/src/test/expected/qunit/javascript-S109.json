@@ -1,8 +1,4 @@
 {
-"qunit:Gruntfile.js": [
-16,
-17
-],
 "qunit:reporter/diff.js": [
 176,
 376,
@@ -18,9 +14,6 @@
 ],
 "qunit:src/assert.js": [
 466
-],
-"qunit:src/cli/run.js": [
-34
 ],
 "qunit:src/core/on-unhandled-rejection.js": [
 13

@@ -1,7 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-656
-],
 "TypeScript:src/compiler/commandLineParser.ts": [
 1036,
 1045
@@ -31,14 +28,6 @@
 3205,
 3206,
 3207
-],
-"TypeScript:src/harness/runner.ts": [
-140,
-141,
-178,
-187,
-188,
-189
 ],
 "TypeScript:src/services/classifier.ts": [
 355,

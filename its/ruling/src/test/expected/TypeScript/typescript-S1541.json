@@ -1,8 +1,4 @@
 {
-"TypeScript:Gulpfile.ts": [
-195,
-599
-],
 "TypeScript:scripts/buildProtocol.ts": [
 71
 ],
@@ -11,9 +7,6 @@
 ],
 "TypeScript:scripts/tslint/booleanTriviaRule.ts": [
 28
-],
-"TypeScript:scripts/word2md.ts": [
-262
 ],
 "TypeScript:src/compiler/binder.ts": [
 19,
@@ -431,13 +424,6 @@
 2520,
 2906,
 3109
-],
-"TypeScript:src/harness/harness.ts": [
-151,
-280,
-880,
-1119,
-1745
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 247

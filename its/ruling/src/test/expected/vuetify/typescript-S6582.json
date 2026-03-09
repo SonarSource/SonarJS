@@ -1,12 +1,6 @@
 {
-"vuetify:packages/vuetify/src/components/VList/VList.tsx": [
-217
-],
 "vuetify:packages/vuetify/src/directives/click-outside/index.ts": [
 59
-],
-"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
-112
 ],
 "vuetify:packages/vuetify/src/util/getScrollParent.ts": [
 25

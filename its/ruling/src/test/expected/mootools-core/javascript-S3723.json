@@ -53,20 +53,6 @@
 77,
 78
 ],
-"mootools-core:Grunt/options/options.js": [
-22,
-24,
-25,
-33,
-34,
-38,
-39,
-45,
-46,
-50,
-51,
-52
-],
 "mootools-core:Grunt/options/specs.js": [
 9,
 15,
@@ -78,43 +64,10 @@
 35,
 36
 ],
-"mootools-core:Grunt/plugins/eslint/rules/mootools-indent.js": [
-75,
-76,
-99,
-123,
-141,
-146,
-157,
-162,
-178,
-185,
-263,
-281,
-558,
-730,
-739,
-742,
-743,
-744,
-750,
-753,
-759,
-762,
-765,
-766,
-767,
-768,
-770,
-771
-],
 "mootools-core:Grunt/plugins/eslint/rules/mootools-whitespace.js": [
 8,
 23,
 39
-],
-"mootools-core:Grunt/plugins/karma/syn/index.js": [
-21
 ],
 "mootools-core:Grunt/tasks/tasks.js": [
 9,

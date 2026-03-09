@@ -6,14 +6,8 @@
 66,
 337
 ],
-"qunit:src/cli/find-reporter.js": [
-7
-],
 "qunit:src/core/logging.js": [
 37
-],
-"qunit:src/core/stacktrace.js": [
-7
 ],
 "qunit:src/test.js": [
 346

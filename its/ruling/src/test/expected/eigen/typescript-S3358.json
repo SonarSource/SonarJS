@@ -9,9 +9,6 @@
 55,
 230
 ],
-"eigen:src/app/Components/GenericArtistSeriesRail.tsx": [
-51
-],
 "eigen:src/app/Components/RelatedArtists/RelatedArtist.tsx": [
 53
 ],
@@ -21,9 +18,6 @@
 "eigen:src/app/Icons/Pin.tsx": [
 23
 ],
-"eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx": [
-211
-],
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/DeepZoom/DeepZoomTile.tsx": [
 112
 ],
@@ -32,9 +26,6 @@
 ],
 "eigen:src/app/Scenes/Feature/Feature.tsx": [
 117
-],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-354
 ],
 "eigen:src/app/Scenes/MyBids/Components/ActiveLotStanding.tsx": [
 70
@@ -58,23 +49,7 @@
 "eigen:src/app/utils/hideBackButtonOnScroll.tsx": [
 33
 ],
-"eigen:src/palette/elements/Button/Button.tsx": [
-96
-],
-"eigen:src/palette/elements/Checkbox/Checkbox.tsx": [
-71,
-71,
-73
-],
-"eigen:src/palette/elements/Radio/RadioButton.tsx": [
-71,
-71,
-73
-],
 "eigen:src/palette/elements/Tabs/Tab.tsx": [
 43
-],
-"eigen:src/shared/hooks/useScreenDimensions.tsx": [
-31
 ]
 }

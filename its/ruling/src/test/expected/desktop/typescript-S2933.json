@@ -88,9 +88,6 @@
 36,
 37
 ],
-"desktop:app/src/main-process/desktop-file-transport.ts": [
-39
-],
 "desktop:app/src/ui/about/about.tsx": [
 75,
 93
@@ -641,30 +638,6 @@
 619,
 644,
 655
-],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-196,
-320,
-396,
-400,
-617,
-638,
-650,
-660,
-690,
-696,
-700,
-710,
-731,
-756,
-808,
-827,
-842,
-867,
-915,
-930,
-936,
-977
 ],
 "desktop:app/src/ui/diff/text-diff.tsx": [
 293,

@@ -14,8 +14,5 @@
 ],
 "qunit:src/assert.js": [
 266
-],
-"qunit:src/core/stacktrace.js": [
-7
 ]
 }

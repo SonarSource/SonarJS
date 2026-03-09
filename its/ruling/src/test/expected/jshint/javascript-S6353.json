@@ -1,8 +1,4 @@
 {
-"jshint:src/lex.js": [
-234,
-757
-],
 "jshint:src/reg.js": [
 46
 ]

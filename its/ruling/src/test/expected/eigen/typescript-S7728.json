@@ -54,11 +54,6 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/ConversationCTA.tests.tsx": [
 62
 ],
-"eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-252,
-313,
-321
-],
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionImageUtil.ts": [
 10
 ],
@@ -70,9 +65,6 @@
 ],
 "eigen:src/app/Scenes/MyCollection/utils/localArtworkSortAndFilter.ts": [
 296
-],
-"eigen:src/app/Scenes/SavedAddresses/SavedAddressesForm.tsx": [
-105
 ],
 "eigen:src/app/Scenes/SavedSearchAlert/helpers.ts": [
 85
@@ -98,9 +90,6 @@
 "eigen:src/app/utils/track/providers.tsx": [
 53
 ],
-"eigen:src/palette/Theme.tsx": [
-136
-],
 "eigen:src/palette/animation/CssTransition.tsx": [
 61
 ],
@@ -109,10 +98,6 @@
 ],
 "eigen:src/palette/elements/Tabs/NavigationalTabs.tsx": [
 37
-],
-"eigen:src/setupJest.ts": [
-74,
-525
 ],
 "eigen:src/shared/utils/ArtsyKeyboardAvoidingView.tsx": [
 159

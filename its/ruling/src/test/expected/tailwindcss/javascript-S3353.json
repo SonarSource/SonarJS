@@ -16,13 +16,6 @@
 "tailwindcss:src/lib/evaluateTailwindFunctions.js": [
 90
 ],
-"tailwindcss:src/lib/substituteClassApplyAtRules.js": [
-90,
-311,
-320,
-323,
-333
-],
 "tailwindcss:src/lib/substituteVariantsAtRules.js": [
 176
 ],

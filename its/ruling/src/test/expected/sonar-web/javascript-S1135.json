@@ -4,10 +4,5 @@
 ],
 "sonar-web:src/main/js/components/issue/models/issue.js": [
 242
-],
-"sonar-web:test/medium/coding-rules.spec.js": [
-487,
-725,
-734
 ]
 }

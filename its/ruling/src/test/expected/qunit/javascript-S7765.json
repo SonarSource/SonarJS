@@ -8,12 +8,6 @@
 849,
 850
 ],
-"qunit:src/cli/find-reporter.js": [
-72
-],
-"qunit:src/core/stacktrace.js": [
-20
-],
 "qunit:src/core/utilities.js": [
 65
 ],

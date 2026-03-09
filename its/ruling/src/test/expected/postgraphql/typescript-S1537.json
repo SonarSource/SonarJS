@@ -1,7 +1,4 @@
 {
-"postgraphql:src/__tests__/utils/pgPool.ts": [
-8
-],
 "postgraphql:src/graphql/__tests__/fixtures/forumInventory.ts": [
 15,
 24,
@@ -73,13 +70,6 @@
 59,
 60
 ],
-"postgraphql:src/graphql/schema/collection/getConditionGqlType.ts": [
-30,
-31,
-39,
-52,
-53
-],
 "postgraphql:src/graphql/schema/collection/mutations/createCreateCollectionMutationFieldEntry.ts": [
 17,
 38,
@@ -94,79 +84,11 @@
 16,
 32
 ],
-"postgraphql:src/graphql/schema/collection/mutations/createDeleteCollectionMutationFieldEntry.ts": [
-17,
-37,
-38,
-50,
-61,
-72,
-78,
-81,
-82
-],
 "postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionKeyMutationFieldEntry.ts": [
 16,
 41,
 42,
 46
-],
-"postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionMutationFieldEntry.ts": [
-7,
-25,
-47,
-55,
-56,
-68,
-99,
-100,
-108,
-119,
-135,
-145,
-148,
-149
-],
-"postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts": [
-12,
-27,
-50,
-54,
-58,
-62,
-66,
-70,
-77,
-85,
-110,
-123,
-125,
-136,
-148,
-154,
-160,
-166,
-167,
-168,
-179,
-191,
-196,
-197,
-198,
-208,
-216,
-226,
-237,
-247,
-248,
-249,
-265,
-302,
-307,
-315,
-323,
-324,
-325
 ],
 "postgraphql:src/graphql/schema/createGqlSchema.ts": [
 38,
@@ -196,65 +118,10 @@
 60,
 61
 ],
-"postgraphql:src/graphql/schema/getMutationGqlType.ts": [
-40,
-50
-],
-"postgraphql:src/graphql/schema/getQueryGqlType.ts": [
-29,
-45,
-52,
-53,
-54,
-55
-],
 "postgraphql:src/graphql/schema/node/createNodeFieldEntry.ts": [
 18,
 19,
 61
-],
-"postgraphql:src/graphql/schema/node/getNodeInterfaceType.ts": [
-21,
-22,
-23
-],
-"postgraphql:src/graphql/schema/type/getGqlInputType.ts": [
-8,
-21,
-64,
-78,
-101,
-107,
-122,
-141,
-152,
-153,
-154,
-159,
-169,
-170
-],
-"postgraphql:src/graphql/schema/type/getGqlOutputType.ts": [
-14,
-30,
-77,
-91,
-103,
-120,
-121,
-123,
-146,
-164,
-165,
-167,
-172,
-173,
-175,
-204,
-206,
-208,
-253,
-261
 ],
 "postgraphql:src/graphql/utils/buildObject.ts": [
 33
@@ -270,11 +137,6 @@
 "postgraphql:src/index.ts": [
 8
 ],
-"postgraphql:src/interface/__ideas__/01-new-types.ts": [
-12,
-22,
-95
-],
 "postgraphql:src/interface/index.ts": [
 51
 ],
@@ -285,12 +147,6 @@
 ],
 "postgraphql:src/interface/type/ListType.ts": [
 13
-],
-"postgraphql:src/interface/type/getNamedType.ts": [
-18
-],
-"postgraphql:src/interface/type/getNonNullableType.ts": [
-10
 ],
 "postgraphql:src/interface/type/scalar/booleanType.ts": [
 23
@@ -307,12 +163,6 @@
 "postgraphql:src/interface/type/scalar/stringType.ts": [
 24
 ],
-"postgraphql:src/postgraphql/cli.ts": [
-83,
-102,
-105,
-127
-],
 "postgraphql:src/postgraphql/index.ts": [
 8
 ],
@@ -321,10 +171,6 @@
 82,
 108,
 124
-],
-"postgraphql:src/postgraphql/schema/auth/getJwtGqlType.ts": [
-36,
-38
 ],
 "postgraphql:src/postgraphql/schema/auth/getPgTokenTypeFromIdentifier.ts": [
 10,
@@ -392,15 +238,6 @@
 ],
 "postgraphql:src/postgraphql/schema/procedures/getPgProcedureComputedClass.ts": [
 22
-],
-"postgraphql:src/postgraphql/withPostGraphQLContext.ts": [
-40,
-49,
-68,
-73,
-99,
-124,
-176
 ],
 "postgraphql:src/postgres/index.ts": [
 6
@@ -514,11 +351,6 @@
 ],
 "postgraphql:src/postgres/inventory/type/custom/pgUuidType.ts": [
 12
-],
-"postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts": [
-51,
-106,
-116
 ],
 "postgraphql:src/postgres/inventory/type/scalar/pgBooleanType.ts": [
 16

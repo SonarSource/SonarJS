@@ -1,7 +1,4 @@
 {
-"TypeScript:lib/cancellationToken.js": [
-59
-],
 "TypeScript:lib/tsc.js": [
 152,
 184,
@@ -226,14 +223,5 @@
 6844,
 6894,
 7667
-],
-"TypeScript:scripts/mocha-parallel.js": [
-72,
-73,
-74,
-135
-],
-"TypeScript:scripts/parallel-lint.js": [
-8
 ]
 }

@@ -4,10 +4,6 @@
 79,
 85
 ],
-"TypeScript:scripts/word2md.ts": [
-187,
-243
-],
 "TypeScript:src/compiler/binder.ts": [
 184,
 199,
@@ -235,11 +231,6 @@
 2038,
 2556,
 2576
-],
-"TypeScript:src/harness/harness.ts": [
-227,
-248,
-1633
 ],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 796

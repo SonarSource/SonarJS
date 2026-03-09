@@ -1,9 +1,4 @@
 {
-"p5.js:docs/preprocessor.js": [
-16,
-85,
-251
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 3713,
 3852
@@ -186,42 +181,7 @@
 626,
 636
 ],
-"p5.js:tasks/build/combineModules.js": [
-59
-],
 "p5.js:tasks/build/eslint-samples.js": [
 34
-],
-"p5.js:tasks/release/release-bower.js": [
-21,
-41,
-59,
-71,
-79
-],
-"p5.js:tasks/release/release-docs.js": [
-20,
-29,
-38,
-48,
-56,
-67,
-74
-],
-"p5.js:tasks/release/release-github.js": [
-63,
-80,
-84,
-93,
-103
-],
-"p5.js:tasks/test/mocha-chrome.js": [
-54,
-98
-],
-"p5.js:utils/sample-linter.js": [
-206,
-212,
-237
 ]
 }

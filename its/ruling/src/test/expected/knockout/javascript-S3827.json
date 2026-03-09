@@ -1,7 +1,4 @@
 {
-"knockout:build/fragments/source-references.js": [
-1
-],
 "knockout:src/binding/bindingAttributeSyntax.js": [
 3,
 569
@@ -14,9 +11,6 @@
 ],
 "knockout:src/binding/defaultBindings/checked.js": [
 3
-],
-"knockout:src/binding/defaultBindings/click.js": [
-2
 ],
 "knockout:src/binding/defaultBindings/css.js": [
 2

@@ -139,16 +139,9 @@
 1609,
 1609
 ],
-"TypeScript:src/harness/harness.ts": [
-961
-],
 "TypeScript:src/harness/projectsRunner.ts": [
 82,
 329
-],
-"TypeScript:src/harness/runner.ts": [
-77,
-79
 ],
 "TypeScript:src/server/builder.ts": [
 193

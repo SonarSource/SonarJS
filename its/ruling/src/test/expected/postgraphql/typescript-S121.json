@@ -29,27 +29,11 @@
 "postgraphql:src/graphql/schema/collection/mutations/createDeleteCollectionKeyMutationFieldEntry.ts": [
 20
 ],
-"postgraphql:src/graphql/schema/collection/mutations/createDeleteCollectionMutationFieldEntry.ts": [
-24,
-47
-],
 "postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionKeyMutationFieldEntry.ts": [
 20
 ],
-"postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionMutationFieldEntry.ts": [
-32,
-65
-],
-"postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts": [
-93,
-95,
-99
-],
 "postgraphql:src/graphql/schema/createMutationGqlField.ts": [
 50
-],
-"postgraphql:src/graphql/schema/getMutationGqlType.ts": [
-45
 ],
 "postgraphql:src/graphql/schema/node/createNodeFieldEntry.ts": [
 26,
@@ -60,14 +44,6 @@
 "postgraphql:src/graphql/schema/type/aliasGqlType.ts": [
 8,
 11
-],
-"postgraphql:src/graphql/schema/type/getGqlInputType.ts": [
-97,
-186,
-209
-],
-"postgraphql:src/graphql/schema/type/getGqlOutputType.ts": [
-233
 ],
 "postgraphql:src/graphql/utils/buildObject.ts": [
 39,
@@ -93,9 +69,6 @@
 83,
 86,
 89
-],
-"postgraphql:src/interface/__ideas__/01-new-types.ts": [
-74
 ],
 "postgraphql:src/interface/collection/Condition.ts": [
 42,
@@ -126,9 +99,6 @@
 42,
 44,
 49
-],
-"postgraphql:src/postgraphql/cli.ts": [
-141
 ],
 "postgraphql:src/postgraphql/postgraphql.ts": [
 143
@@ -165,10 +135,6 @@
 14,
 85,
 100
-],
-"postgraphql:src/postgraphql/withPostGraphQLContext.ts": [
-121,
-133
 ],
 "postgraphql:src/postgres/introspection/PgCatalog.ts": [
 71,
@@ -221,11 +187,6 @@
 68,
 77
 ],
-"postgraphql:src/postgres/inventory/pgClientFromContext.ts": [
-13,
-18,
-21
-],
 "postgraphql:src/postgres/inventory/type/PgClassType.ts": [
 46,
 78,
@@ -244,12 +205,6 @@
 172,
 173,
 187
-],
-"postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts": [
-73,
-83,
-87,
-134
 ],
 "postgraphql:src/postgres/inventory/type/scalar/pgBooleanType.ts": [
 11

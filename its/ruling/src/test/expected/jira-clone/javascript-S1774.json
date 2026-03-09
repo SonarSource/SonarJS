@@ -36,14 +36,6 @@
 "jira-clone:client/src/shared/components/Avatar/index.jsx": [
 24
 ],
-"jira-clone:client/src/shared/components/Button/Styles.js": [
-13,
-86
-],
-"jira-clone:client/src/shared/components/Button/index.jsx": [
-51,
-63
-],
 "jira-clone:client/src/shared/components/CopyLinkButton.jsx": [
 17
 ],
@@ -57,9 +49,6 @@
 ],
 "jira-clone:client/src/shared/components/DatePicker/index.jsx": [
 60
-],
-"jira-clone:client/src/shared/components/Form/Field.jsx": [
-37
 ],
 "jira-clone:client/src/shared/components/Form/index.jsx": [
 57
@@ -81,9 +70,6 @@
 170,
 199,
 209
-],
-"jira-clone:client/src/shared/components/Select/Styles.js": [
-100
 ],
 "jira-clone:client/src/shared/components/Select/index.jsx": [
 70,

@@ -17,17 +17,8 @@
 10512,
 10620
 ],
-"ace:lib/ace/mode/javascript/jshint.js": [
-621,
-733,
-2007,
-15184
-],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 4350,
 4465
-],
-"ace:src/edit_session_test.js": [
-799
 ]
 }

@@ -23,17 +23,6 @@
 "Ghost:core/client/app/components/gh-notification.js": [
 39
 ],
-"Ghost:core/client/app/components/gh-search-input.js": [
-64,
-65,
-81,
-82,
-98,
-99
-],
-"Ghost:core/client/app/components/gh-selectize.js": [
-84
-],
 "Ghost:core/client/app/components/gh-user-invited.js": [
 29,
 40,
@@ -57,35 +46,6 @@
 "Ghost:core/client/app/controllers/editor/new.js": [
 18
 ],
-"Ghost:core/client/app/controllers/feature.js": [
-31,
-31
-],
-"Ghost:core/client/app/controllers/post-settings-menu.js": [
-37,
-47,
-47,
-49,
-50,
-50,
-74,
-179,
-203,
-218,
-241,
-281,
-335,
-390,
-403,
-441,
-450,
-450,
-463,
-464,
-464,
-470,
-470
-],
 "Ghost:core/client/app/controllers/reset.js": [
 52,
 56,
@@ -93,11 +53,6 @@
 ],
 "Ghost:core/client/app/controllers/settings/code-injection.js": [
 15
-],
-"Ghost:core/client/app/controllers/settings/general.js": [
-25,
-83,
-87
 ],
 "Ghost:core/client/app/controllers/settings/labs.js": [
 35,
@@ -110,23 +65,6 @@
 93,
 102,
 119
-],
-"Ghost:core/client/app/controllers/settings/tags/tag.js": [
-36,
-39,
-51
-],
-"Ghost:core/client/app/controllers/setup/three.js": [
-52,
-52,
-60,
-90,
-135,
-135,
-166,
-168,
-187,
-194
 ],
 "Ghost:core/client/app/controllers/setup/two.js": [
 43,
@@ -147,17 +85,6 @@
 75,
 78
 ],
-"Ghost:core/client/app/controllers/team/user.js": [
-123,
-125,
-145,
-174,
-185,
-211,
-257,
-261,
-270
-],
 "Ghost:core/client/app/mirage/config.js": [
 147
 ],
@@ -170,11 +97,6 @@
 "Ghost:core/client/app/mixins/current-user-settings.js": [
 7,
 17
-],
-"Ghost:core/client/app/mixins/editor-base-controller.js": [
-36,
-323,
-331
 ],
 "Ghost:core/client/app/mixins/pagination-route.js": [
 54,
@@ -217,9 +139,6 @@
 18,
 27
 ],
-"Ghost:core/client/app/routes/posts/index.js": [
-35
-],
 "Ghost:core/client/app/routes/posts/post.js": [
 31,
 43
@@ -243,16 +162,6 @@
 "Ghost:core/client/app/routes/settings/tags.js": [
 36,
 36
-],
-"Ghost:core/client/app/routes/setup.js": [
-33
-],
-"Ghost:core/client/app/routes/setup/one.js": [
-36
-],
-"Ghost:core/client/app/routes/signup.js": [
-36,
-57
 ],
 "Ghost:core/client/app/routes/team/index.js": [
 21

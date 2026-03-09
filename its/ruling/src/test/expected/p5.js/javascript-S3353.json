@@ -1,14 +1,4 @@
 {
-"p5.js:Gruntfile.js": [
-138
-],
-"p5.js:docs/preprocessor.js": [
-44,
-45,
-47,
-59,
-126
-],
 "p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
 4609
 ],
@@ -47,8 +37,5 @@
 "p5.js:src/webgl/p5.RendererGL.js": [
 808,
 815
-],
-"p5.js:tasks/release/release-github.js": [
-107
 ]
 }
