@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { test } from '../../../tests/tools/testers/comment-based/checker.js';
-import { rule } from './index.js';
+import { rule } from './rule.js';
 import { describe } from 'node:test';
 import path from 'node:path';
 import * as meta from './generated-meta.js';

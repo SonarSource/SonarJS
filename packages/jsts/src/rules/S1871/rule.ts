@@ -17,17 +17,16 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1871
 
 import type { TSESTree } from '@typescript-eslint/utils';
+import { areEquivalent } from '../helpers/equivalence.js';
 import {
-  areEquivalent,
   collectIfBranches,
   collectSwitchBranches,
-  generateMeta,
-  isIfStatement,
-  last,
-  report,
   takeWithoutBreak,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/conditions.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isIfStatement } from '../helpers/ast.js';
+import { last } from '../helpers/collection.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';

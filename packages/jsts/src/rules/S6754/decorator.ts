@@ -17,7 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6754/javascript
 
 import type { Rule } from 'eslint';
-import { generateMeta, interceptReportForReact } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
 import type { ArrayPattern, Node } from 'estree';
 

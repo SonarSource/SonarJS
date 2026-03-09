@@ -16,7 +16,7 @@
  */
 import type { Linter, Rule, SourceCode } from 'eslint';
 import { getQuickFixMessage } from './messages.js';
-import type { QuickFix, QuickFixEdit } from './quickfix.js';
+import type { QuickFix, QuickFixEdit } from '../../../../shared/src/types/location.js';
 import * as ruleMetas from '../../rules/metas.js';
 
 /**

@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { addLines } from '../../../../../src/linter/visitors/metrics/helpers/index.js';
+import { addLines } from '../../../../../src/linter/visitors/metrics/helpers/lines.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 

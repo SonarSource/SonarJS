@@ -23,7 +23,7 @@ import {
   extractCognitiveComplexity,
   extractHighlightedSymbols,
 } from '../../../src/linter/issues/extract.js';
-import { normalizeToAbsolutePath } from '../../../src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../../src/rules/helpers/files.js';
 
 describe('extract', () => {
   it('should extract highlighted symbols', () => {

@@ -17,7 +17,8 @@
 import type { AST } from 'eslint';
 import type estree from 'estree';
 import type * as regexpp from '@eslint-community/regexpp';
-import { last, isRegexLiteral, isStringLiteral } from '../index.js';
+import { last } from '../collection.js';
+import { isRegexLiteral, isStringLiteral } from '../ast.js';
 import { tokenizeString } from './tokenizer.js';
 
 /**

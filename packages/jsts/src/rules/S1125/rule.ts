@@ -17,7 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1125
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isBooleanLiteral } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isBooleanLiteral } from '../helpers/ast.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';

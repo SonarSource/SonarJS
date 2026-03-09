@@ -19,13 +19,10 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  areEquivalent,
-  collectIfBranches,
-  collectSwitchBranches,
-  generateMeta,
-  isIfStatement,
-} from '../helpers/index.js';
+import { areEquivalent } from '../helpers/equivalence.js';
+import { collectIfBranches, collectSwitchBranches } from '../helpers/conditions.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isIfStatement } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

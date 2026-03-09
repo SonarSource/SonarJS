@@ -18,7 +18,10 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getVariableFromIdentifier, isIdentifier, Mocha } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
+import { isIdentifier } from '../helpers/ast.js';
+import { Mocha } from '../helpers/mocha.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

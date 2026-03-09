@@ -23,7 +23,7 @@ import type {
   Quantifier,
   RegExpLiteral,
 } from '@eslint-community/regexpp/ast';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule, type RegexRuleContext } from '../helpers/regex/rule-template.js';
 

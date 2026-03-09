@@ -18,7 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getVariableFromName } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getVariableFromName } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const allEqualityOperators = new Set(['!=', '==', '!==', '===']);

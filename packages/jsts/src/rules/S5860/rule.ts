@@ -25,10 +25,13 @@ import type {
   CapturingGroup,
   RegExpLiteral,
 } from '@eslint-community/regexpp/ast';
+import { type IssueLocation, report, toSecondaryLocation } from '../helpers/location.js';
 import {
-  type IssueLocation,
   type RequiredParserServices,
-  generateMeta,
+  isRequiredParserServices,
+} from '../helpers/parser-services.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import {
   getLhsVariable,
   getUniqueWriteUsage,
   getValueOfExpression,
@@ -37,11 +40,8 @@ import {
   isIndexNotation,
   isMethodCall,
   isObjectDestructuring,
-  isRequiredParserServices,
-  isString,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
+import { isString } from '../helpers/type.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 import { isStringRegexMethodCall, isStringReplaceCall } from '../helpers/regex/ast.js';

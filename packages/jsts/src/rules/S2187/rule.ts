@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type { Node } from 'estree';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
 const APIs = new Set([

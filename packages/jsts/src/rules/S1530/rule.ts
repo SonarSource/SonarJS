@@ -19,12 +19,10 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  type RuleContext,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  getParent,
-} from '../helpers/index.js';
+import type { RuleContext } from '../helpers/type.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation } from '../helpers/location.js';
+import { getParent } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

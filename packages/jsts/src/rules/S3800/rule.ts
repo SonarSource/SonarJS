@@ -22,18 +22,16 @@ import type estree from 'estree';
 import ts, { type UnionType } from 'typescript';
 import {
   type RuleContext,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  getParent,
   getTypeFromTreeNode,
   isAny,
   isBooleanTrueType,
-  isRequiredParserServices,
   isStringType,
-  last,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/type.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
+import { getParent } from '../helpers/ancestor.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { last } from '../helpers/collection.js';
 import * as meta from './generated-meta.js';
 
 class FunctionScope {

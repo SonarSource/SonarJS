@@ -19,7 +19,9 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import { rules } from '../external/a11y.js';
-import { generateMeta, interceptReport, mergeRules } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
 import * as meta from './generated-meta.js';
 
 const langRule = rules['lang'];

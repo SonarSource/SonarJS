@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { SourceCode } from 'eslint';
-import { addLines } from './helpers/index.js';
+import { addLines } from './helpers/lines.js';
 
 /**
  * A comment marker to tell SonarQube to ignore any issue on the same line

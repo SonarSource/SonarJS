@@ -18,7 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getProperty, getValueOfExpression, isIdentifier } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getProperty, getValueOfExpression, isIdentifier } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const MINIMAL_MODULUS_LENGTH = 2048;

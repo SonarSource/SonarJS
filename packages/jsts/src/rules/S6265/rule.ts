@@ -20,21 +20,23 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
   findPropagatedSetting,
-  generateMeta,
   getBucketProperty,
-  getFullyQualifiedName,
+  isS3BucketConstructor,
+  isS3BucketDeploymentConstructor,
+  S3BucketTemplate,
+} from '../helpers/aws/s3.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import {
   getUniqueWriteUsageOrNode,
   getValueOfExpression,
   isIdentifier,
   isMethodCall,
-  isS3BucketConstructor,
-  isS3BucketDeploymentConstructor,
-  last,
-  mergeRules,
-  normalizeFQN,
-  report,
-  S3BucketTemplate,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
+import { last } from '../helpers/collection.js';
+import { mergeRules } from '../helpers/decorators/merger.js';
+import { normalizeFQN } from '../helpers/aws/cdk.js';
+import { report } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 const messages = {

@@ -18,7 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 const message = 'Merge this if statement with the nested one.';

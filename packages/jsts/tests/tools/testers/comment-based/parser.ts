@@ -24,7 +24,7 @@ import {
 import { build } from '../../../../src/builders/build.js';
 import { JSTS_ANALYSIS_DEFAULTS } from '../../../../src/analysis/analysis.js';
 import { JsTsLanguage } from '../../../../../shared/src/helpers/configuration.js';
-import { normalizeToAbsolutePath } from '../../../../src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../../../src/rules/helpers/files.js';
 /**
  * This function is provided as 'parseForESLint' implementation which is used in RuleTester to invoke exactly same logic
  * as we use in our 'services/analysis/analyzer.ts' module

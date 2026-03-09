@@ -19,13 +19,9 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type ts from 'typescript';
-import {
-  generateMeta,
-  getTypeFromTreeNode,
-  isArrayLikeType,
-  isRequiredParserServices,
-  isStringType,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode, isArrayLikeType, isStringType } from '../helpers/type.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

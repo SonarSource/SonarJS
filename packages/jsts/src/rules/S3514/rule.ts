@@ -19,14 +19,10 @@
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
-import {
-  findFirstMatchingAncestor,
-  generateMeta,
-  isIdentifier,
-  isNumberLiteral,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isIdentifier, isNumberLiteral } from '../helpers/ast.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 const MAX_INDEX = 4;

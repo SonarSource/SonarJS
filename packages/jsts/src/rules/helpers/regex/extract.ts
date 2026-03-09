@@ -26,7 +26,7 @@ import {
   isSimpleRawString,
   isStaticTemplateLiteral,
   isStringLiteral,
-} from '../index.js';
+} from '../ast.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { isRegExpConstructor } from './ast.js';
 import { getFlags } from './flags.js';

@@ -18,16 +18,15 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import {
-  generateMeta,
-  getFullyQualifiedName,
   getProperty,
   getPropertyWithValue,
   getValueOfExpression,
   isNullLiteral,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

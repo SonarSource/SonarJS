@@ -18,12 +18,10 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import {
-  generateMeta,
-  getFullyQualifiedName,
-  getVariableFromIdentifier,
-  isIdentifier,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
+import { isIdentifier } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 /** DOM selection method names commonly used for element selection */

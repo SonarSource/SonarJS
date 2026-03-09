@@ -18,15 +18,11 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  Express,
-  flattenArgs,
-  generateMeta,
-  getFullyQualifiedName,
-  isMethodInvocation,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { Express } from '../helpers/express.js';
+import { flattenArgs, isMethodInvocation } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 // If a rule has a schema, use this to extract it.
 // import { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';

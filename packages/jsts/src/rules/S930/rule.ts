@@ -20,16 +20,18 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope } from 'eslint';
 import {
   type IssueLocation,
-  type RuleContext,
-  generateMeta,
   getMainFunctionTokenLocation,
+  report,
+  toSecondaryLocation,
+} from '../helpers/location.js';
+import type { RuleContext } from '../helpers/type.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import {
   isArrowFunctionExpression,
   isFunctionDeclaration,
   isFunctionExpression,
   isIdentifier,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 

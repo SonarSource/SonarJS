@@ -18,13 +18,13 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { generateMeta } from '../helpers/generate-meta.js';
 import {
-  generateMeta,
   getValueOfExpression,
   isIdentifier,
   isMethodCall,
   isStringLiteral,
-} from '../helpers/index.js';
+} from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const REQUIRED_OPTION = 'noopener';

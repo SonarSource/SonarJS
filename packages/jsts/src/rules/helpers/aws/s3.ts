@@ -16,15 +16,10 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  type IssueLocation,
-  getFullyQualifiedName,
-  getNodeParent,
-  getValueOfExpression,
-  isIdentifier,
-  isProperty,
-  toSecondaryLocation,
-} from '../index.js';
+import { type IssueLocation, toSecondaryLocation } from '../location.js';
+import { getFullyQualifiedName } from '../module.js';
+import { getNodeParent } from '../ancestor.js';
+import { getValueOfExpression, isIdentifier, isProperty } from '../ast.js';
 import { normalizeFQN } from './cdk.js';
 import type { RulesMeta } from '@eslint/core';
 

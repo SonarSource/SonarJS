@@ -17,7 +17,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6092/javascript
 
 import type { Rule } from 'eslint';
-import { Chai, generateMeta, isDotNotation, isIdentifier } from '../helpers/index.js';
+import { Chai } from '../helpers/chai.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isDotNotation, isIdentifier } from '../helpers/ast.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 

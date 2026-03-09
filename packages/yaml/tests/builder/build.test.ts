@@ -22,7 +22,7 @@ import { build, composeSyntheticFilePath } from '../../../jsts/src/embedded/buil
 import { parseAwsFromYaml } from '../../src/aws/parser.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { embeddedInput } from '../../../jsts/tests/tools/helpers/input.js';
-import { normalizeToAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../../jsts/src/rules/helpers/files.js';
 
 describe('buildSourceCodes()', () => {
   const fixturesPath = join(import.meta.dirname, 'fixtures', 'build');

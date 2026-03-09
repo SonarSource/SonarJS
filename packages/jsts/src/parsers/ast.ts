@@ -18,7 +18,7 @@ import base64 from '@protobufjs/base64';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 import { debug } from '../../../shared/src/helpers/logging.js';
-import type { NormalizedAbsolutePath } from '../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
 import { estree } from './estree.js';
 
 const NODE_TYPE = estree.Node;

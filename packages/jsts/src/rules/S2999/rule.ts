@@ -19,14 +19,10 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
-import {
-  generateMeta,
-  getSignatureFromCallee,
-  getTypeFromTreeNode,
-  isRequiredParserServices,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getSignatureFromCallee, getTypeFromTreeNode } from '../helpers/type.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 

@@ -19,17 +19,16 @@
 import type { Rule } from 'eslint';
 import type ts from 'typescript';
 import type estree from 'estree';
+import { copyingSortLike, sortLike } from '../helpers/collection.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import {
-  copyingSortLike,
-  generateMeta,
   getTypeFromTreeNode,
   isArrayLikeType,
   isBigIntArray,
   isNumberArray,
-  isRequiredParserServices,
   isStringArray,
-  sortLike,
-} from '../helpers/index.js';
+} from '../helpers/type.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';

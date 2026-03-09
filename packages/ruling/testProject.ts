@@ -25,7 +25,7 @@ import { compare, Result } from 'dir-compare';
 import { RuleConfig } from '../jsts/src/linter/config/rule-config.js';
 import { expect } from 'expect';
 import * as metas from '../jsts/src/rules/metas.js';
-import { SonarMeta } from '../jsts/src/rules/helpers/index.js';
+import { SonarMeta } from '../jsts/src/rules/helpers/generate-meta.js';
 import { symlink } from 'node:fs/promises';
 import { cssRulesMeta } from '../css/src/rules/metadata.js';
 import type { RuleConfig as CssRuleConfig } from '../css/src/linter/config.js';

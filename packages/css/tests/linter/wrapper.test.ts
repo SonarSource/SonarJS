@@ -19,7 +19,7 @@ import stylelint from 'stylelint';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 
-import { rule as S5362 } from '../../src/rules/S5362/index.js';
+import { rule as S5362 } from '../../src/rules/S5362/rule.js';
 import { LinterWrapper } from '../../src/linter/wrapper.js';
 import {
   readFile,

@@ -19,13 +19,10 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  generateMeta,
-  getFullyQualifiedName,
-  getProperty,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getProperty } from '../helpers/ast.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 const TARGET_XML_FQNS: Set<string> = new Set([

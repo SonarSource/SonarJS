@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1451/javascript
 
 import type { Rule } from 'eslint';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 

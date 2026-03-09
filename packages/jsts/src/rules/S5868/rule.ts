@@ -17,7 +17,9 @@
 // https://sonarsource.github.io/rspec/#/rspec/S5868/javascript
 
 import type { AST, Rule } from 'eslint';
-import { ancestorsChain, generateMeta, isRegexLiteral } from '../helpers/index.js';
+import { ancestorsChain } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isRegexLiteral } from '../helpers/ast.js';
 import { RegExpValidator, type AST as RegexppAST } from '@eslint-community/regexpp';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';

@@ -18,13 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  generateMeta,
-  getFullyQualifiedName,
-  isIdentifier,
-  isLiteral,
-  isStaticTemplateLiteral,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { isIdentifier, isLiteral, isStaticTemplateLiteral } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const EXEC_FUNCTIONS = new Set(['exec', 'execSync']);

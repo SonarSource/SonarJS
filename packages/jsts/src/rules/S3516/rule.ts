@@ -19,17 +19,11 @@
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  type RuleContext,
-  findFirstMatchingAncestor,
-  FUNCTION_NODES,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  getParent,
-  isElementWrite,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import type { RuleContext } from '../helpers/type.js';
+import { findFirstMatchingAncestor, getParent } from '../helpers/ancestor.js';
+import { FUNCTION_NODES, isElementWrite } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 interface FunctionContext {

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { DefaultParserRuleTester } from '../../../tools/testers/rule-tester.js';
-import { S3BucketTemplate } from '../../../../src/rules/helpers/index.js';
+import { S3BucketTemplate } from '../../../../src/rules/helpers/aws/s3.js';
 
 const rule = S3BucketTemplate((node, context) => {
   if (node.arguments.length > 0) {

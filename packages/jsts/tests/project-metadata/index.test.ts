@@ -14,12 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { isSupported } from '../../src/rules/helpers/validate-version.js';
 import {
-  isSupported,
   normalizeToAbsolutePath,
   joinPaths,
   type NormalizedAbsolutePath,
-} from '../../src/rules/helpers/index.js';
+} from '../../src/rules/helpers/files.js';
 import fs from 'node:fs';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';

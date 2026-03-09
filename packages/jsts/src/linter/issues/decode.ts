@@ -15,7 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { JsTsIssue } from './issue.js';
-import type { EncodedMessage, SonarMeta } from '../../rules/helpers/index.js';
+import type { EncodedMessage } from '../../rules/helpers/location.js';
+import type { SonarMeta } from '../../rules/helpers/generate-meta.js';
 
 /**
  * Decodes an issue with secondary locations, if any.

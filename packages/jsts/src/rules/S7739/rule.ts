@@ -19,12 +19,10 @@
 import type { Rule } from 'eslint';
 import type { AssignmentExpression, CallExpression, Node } from 'estree';
 import { rules } from '../external/unicorn.js';
-import {
-  generateMeta,
-  getFullyQualifiedName,
-  interceptReport,
-  isIdentifier,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { isIdentifier } from '../helpers/ast.js';
 import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
 import * as meta from './generated-meta.js';
 

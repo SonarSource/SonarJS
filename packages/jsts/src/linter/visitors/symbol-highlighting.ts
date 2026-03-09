@@ -18,11 +18,8 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { AST } from 'vue-eslint-parser';
-import {
-  type Location,
-  convertLocation,
-  extractTokensAndComments,
-} from './metrics/helpers/index.js';
+import { type Location, convertLocation } from './metrics/helpers/location.js';
+import { extractTokensAndComments } from './metrics/helpers/tokens.js';
 
 /**
  * A symbol highlight

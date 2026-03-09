@@ -15,8 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { rule } from './index.js';
-import type { EncodedMessage, IssueLocation } from '../helpers/index.js';
+import { rule } from './rule.js';
+import type { EncodedMessage, IssueLocation } from '../helpers/location.js';
 import { describe, it } from 'node:test';
 
 describe('S1541', () => {
