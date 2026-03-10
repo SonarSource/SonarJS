@@ -22,7 +22,7 @@ import { childrenOf } from '../helpers/ancestor.js';
 import { isIdentifier } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getComponentOrFileScope } from '../helpers/react.js';
+import { findComponentNode } from '../helpers/react.js';
 import * as meta from './generated-meta.js';
 
 /** Composable pattern checkers — extend via Array.some() for future FP patterns. */
@@ -39,7 +39,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
       const { node } = descriptor as { node: estree.Node };
-      const componentNode = getComponentOrFileScope(node, context);
+      const componentNode = findComponentNode(node, context);
       if (componentNode && hasPropsCall(componentNode, context.sourceCode.visitorKeys)) {
         return;
       }

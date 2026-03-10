@@ -62,7 +62,7 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
  * Returns `undefined` if all strategies fail — callers should pass the report through
  * without suppression rather than falling back to a file-wide scan.
  */
-export function getComponentOrFileScope(
+export function findComponentNode(
   node: estree.Node,
   context: Rule.RuleContext,
 ): estree.Node | undefined {
@@ -130,7 +130,8 @@ function findOwnerByType(
   const checker = services.program.getTypeChecker();
   const propsType = getTypeFromTreeNode(typeDecl, services);
   const componentNodes =
-    sourceCache.componentNodes ?? (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
+    sourceCache.componentNodes ??
+    (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
 
   for (const componentNode of componentNodes) {
     const tsNode = services.esTreeNodeToTSNodeMap.get(
