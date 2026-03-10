@@ -14,6 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rules } from '../external/typescript-eslint/index.js';
-import { decorate } from './decorator.js';
-export const rule = decorate(rules['no-unnecessary-type-assertion']);
+
+export function shannonEntropy(str: string): number {
+  if (!str) {
+    return 0;
+  }
+  const len = str.length;
+  const occurrences: Record<string, number> = {};
+  for (const ch of str) {
+    occurrences[ch] = (occurrences[ch] ?? 0) + 1;
+  }
+  return (
+    Object.values(occurrences)
+      .map(count => count / len)
+      .map(freq => -freq * Math.log(freq))
+      .reduce((acc, e) => acc + e, 0) / Math.log(2)
+  );
+}

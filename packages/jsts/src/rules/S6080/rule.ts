@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { Chai } from '../helpers/chai.js';
+import { isImported as isChaiImported } from '../helpers/chai.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
   getUniqueWriteUsageOrNode,
@@ -27,7 +27,7 @@ import {
   isNumberLiteral,
   isThisExpression,
 } from '../helpers/ast.js';
-import { Mocha } from '../helpers/mocha.js';
+import { isTestConstruct } from '../helpers/mocha.js';
 import * as meta from './generated-meta.js';
 
 const MESSAGE =
@@ -37,13 +37,13 @@ const MAX_DELAY_VALUE = 2_147_483_647;
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    if (!Chai.isImported(context)) {
+    if (!isChaiImported(context)) {
       return {};
     }
     const constructs: estree.Node[] = [];
     return {
       CallExpression: (node: estree.Node) => {
-        if (Mocha.isTestConstruct(node)) {
+        if (isTestConstruct(node)) {
           constructs.push(node);
           return;
         }
@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
         }
       },
       'CallExpression:exit': (node: estree.Node) => {
-        if (Mocha.isTestConstruct(node)) {
+        if (isTestConstruct(node)) {
           constructs.pop();
         }
       },
