@@ -16,13 +16,12 @@
  */
 import { readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-
-const exactSemver = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
+import semver from 'semver';
 
 function normalizeDependencies(dependencies) {
   return Object.fromEntries(
     Object.entries(dependencies).map(([name, version]) => {
-      if (typeof version === 'string' && exactSemver.test(version)) {
+      if (typeof version === 'string' && semver.valid(version) !== null) {
         return [name, `^${version}`];
       }
       return [name, version];
