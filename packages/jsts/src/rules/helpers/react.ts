@@ -220,7 +220,10 @@ function collectComponentNodes(root: estree.Node, keys: SourceCode.VisitorKeys):
   const result: estree.Node[] = [];
   const stack = [root];
   while (stack.length > 0) {
-    const node = stack.pop()!;
+    const node = stack.pop();
+    if (node === undefined) {
+      continue;
+    }
     if (COMPONENT_NODE_TYPES.has(node.type)) {
       result.push(node);
       continue; // don't recurse into component bodies — nested components are an antipattern
