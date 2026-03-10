@@ -21,7 +21,7 @@ import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
 import { isIdentifier } from '../helpers/ast.js';
-import { Mocha } from '../helpers/mocha.js';
+import { isTestConstruct } from '../helpers/mocha.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -32,7 +32,7 @@ export const rule: Rule.RuleModule = {
     function isInsideTest(node: estree.Node) {
       return context.sourceCode
         .getAncestors(node)
-        .some(n => n.type === 'CallExpression' && Mocha.isTestConstruct(n));
+        .some(n => n.type === 'CallExpression' && isTestConstruct(n));
     }
 
     return {
