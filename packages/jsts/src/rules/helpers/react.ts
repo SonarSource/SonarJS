@@ -100,16 +100,35 @@ export function findComponentNode(
   return findOwnerByType(ancestors, context, context.sourceCode.visitorKeys);
 }
 
+/**
+ * Strategy C: use the TypeScript type checker to find which React component owns a given
+ * props type declaration (`interface FooProps` or `type FooProps = ...`).
+ *
+ * The idea: the reported node is inside a TypeScript interface or type alias.  We resolve
+ * that type with the TS checker, then scan every component node in the file and ask whether
+ * its props parameter type is *mutually assignable* to the reported type.  Mutual assignability
+ * (A ↔ B) is stricter than one-directional subtyping and avoids false matches such as an empty
+ * or all-optional props type accidentally matching an unrelated state interface.
+ *
+ * Results are cached per source-file and per type-declaration node so the expensive
+ * type-checker calls are only made once per unique `(file, typeDecl)` pair.
+ *
+ * @returns The component node that owns the props type, or `undefined` if no match is found.
+ */
 function findOwnerByType(
   ancestors: estree.Node[],
   context: Rule.RuleContext,
   keys: SourceCode.VisitorKeys,
 ): estree.Node | undefined {
+  // Strategy C requires TypeScript type information — bail out without it.
   const services = context.sourceCode.parserServices;
   if (!isRequiredParserServices(services)) {
     return undefined;
   }
 
+  // Step 1: locate the nearest enclosing TypeScript type declaration in the ancestor chain.
+  // The reported node (e.g. a prop name) lives inside `interface FooProps { ... }` or
+  // `type FooProps = { ... }` — we need that declaration node to look up its TS type.
   let typeDecl: estree.Node | undefined;
   for (let i = ancestors.length - 1; i >= 0; i--) {
     if (TS_TYPE_DECL_TYPES.has(ancestors[i].type)) {
@@ -118,21 +137,30 @@ function findOwnerByType(
     }
   }
   if (!typeDecl) {
+    // Not inside a type declaration — Strategy C cannot apply.
     return undefined;
   }
 
+  // Step 2: check the per-file cache before doing any type-checker work.
+  // `null` in the cache means "we already searched and found no owner".
   const sourceCache = getSourceCache(context.sourceCode);
   const cachedOwner = sourceCache.ownerByTypeDecl.get(typeDecl);
   if (cachedOwner !== undefined) {
-    return cachedOwner ?? undefined;
+    return cachedOwner ?? undefined; // convert null → undefined for callers
   }
 
+  // Step 3: resolve the TS type for the type declaration (e.g. the shape of `FooProps`).
   const checker = services.program.getTypeChecker();
   const propsType = getTypeFromTreeNode(typeDecl, services);
+
+  // Step 4: collect all top-level component nodes in the file (also cached).
+  // We intentionally stop at component boundaries and do not recurse into their bodies,
+  // because nested components are an antipattern and scanning them would be expensive.
   const componentNodes =
     sourceCache.componentNodes ??
     (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
 
+  // Step 5: find the first component whose props type is mutually assignable to `propsType`.
   for (const componentNode of componentNodes) {
     const tsNode = services.esTreeNodeToTSNodeMap.get(
       componentNode as TSESTree.Node,
@@ -149,10 +177,27 @@ function findOwnerByType(
       return componentNode;
     }
   }
+
+  // No component matched — record the negative result so we don't search again.
   sourceCache.ownerByTypeDecl.set(typeDecl, null);
   return undefined;
 }
 
+/**
+ * Returns `true` when the class component's declared `props` property type is mutually
+ * assignable to `propsType`.
+ *
+ * For a class component `class Foo extends React.Component<FooProps>`, TypeScript
+ * exposes the props via the instance property `this.props`.  We resolve that property's
+ * type from the class symbol and compare it with the candidate `propsType`.
+ *
+ * **Why mutual assignability?**
+ * One-directional assignability (`propsType → componentPropsType`) would return `true`
+ * whenever `propsType` is a structural subtype of `componentPropsType`, which is
+ * trivially satisfied when the component's props interface has only optional fields.
+ * Requiring the reverse direction as well (`componentPropsType → propsType`) filters
+ * out unrelated interfaces that happen to satisfy a permissive props shape.
+ */
 function matchesClassProps(
   cls: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
@@ -165,9 +210,11 @@ function matchesClassProps(
   if (!classSymbol) {
     return false;
   }
+  // Obtain the instance type (the shape of `new Foo()`) to read its `props` property.
   const instanceType = checker.getDeclaredTypeOfSymbol(classSymbol);
   const propsSymbol = instanceType.getProperty('props');
   if (!propsSymbol) {
+    // Not a class component with a typed `props` property — skip.
     return false;
   }
   const componentPropsType = checker.getTypeOfSymbol(propsSymbol);
@@ -178,6 +225,24 @@ function matchesClassProps(
   );
 }
 
+/**
+ * Returns `true` when the function component's first parameter type is mutually
+ * assignable to `propsType`.
+ *
+ * For a function component `function Foo(props: FooProps)`, we inspect the type of
+ * its first parameter via the TypeScript checker and compare it with the candidate
+ * `propsType`.
+ *
+ * **PascalCase guard:** React components are conventionally PascalCase.  If the function
+ * has a resolvable name that starts with a lowercase letter, it is almost certainly a
+ * helper (e.g. `getStyle(props)`) rather than a component — skip it to avoid false
+ * matches.  Unnamed functions (e.g. anonymous arrow functions) are not filtered out
+ * because they could still be valid component expressions assigned to a PascalCase
+ * variable.
+ *
+ * **Why mutual assignability?** — same rationale as `matchesClassProps`: prevents
+ * accidental matches when the component's props type is permissive (all-optional fields).
+ */
 function matchesFunctionProps(
   componentNode: estree.Node,
   tsFuncNode: ts.SignatureDeclaration,
@@ -193,6 +258,7 @@ function matchesFunctionProps(
   const signature = checker.getSignatureFromDeclaration(tsFuncNode);
   const firstParam = signature?.parameters[0];
   if (firstParam == null) {
+    // Function has no parameters — cannot be a props-consuming component.
     return false;
   }
   const componentParamType = checker.getTypeOfSymbol(firstParam);
@@ -203,6 +269,13 @@ function matchesFunctionProps(
   );
 }
 
+/**
+ * Returns the name of a function/arrow-function node if it can be statically determined,
+ * or `undefined` for anonymous functions.
+ *
+ * - `FunctionDeclaration` / `FunctionExpression`: use the node's own `id`.
+ * - `ArrowFunctionExpression`: look at the parent `VariableDeclarator` (e.g. `const Foo = () => …`).
+ */
 function getFunctionName(node: estree.Node): string | undefined {
   if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {
     return (node as estree.Function as { id?: estree.Identifier }).id?.name;
@@ -216,6 +289,17 @@ function getFunctionName(node: estree.Node): string | undefined {
   return undefined;
 }
 
+/**
+ * Performs a shallow AST walk from `root` and returns every top-level component node
+ * (`ClassDeclaration`, `ClassExpression`, `FunctionDeclaration`, `FunctionExpression`,
+ * `ArrowFunctionExpression`).
+ *
+ * "Shallow" means the walk **stops** when it reaches a component node — it does not
+ * recurse into the component's body.  This is intentional: nested component definitions
+ * are an antipattern in React, and skipping their bodies keeps the traversal bounded.
+ * The children are pushed in reverse order so that the leftmost child is processed first
+ * (stack is LIFO), preserving document order in the result array.
+ */
 function collectComponentNodes(root: estree.Node, keys: SourceCode.VisitorKeys): estree.Node[] {
   const result: estree.Node[] = [];
   const stack = [root];
@@ -229,6 +313,7 @@ function collectComponentNodes(root: estree.Node, keys: SourceCode.VisitorKeys):
       continue; // don't recurse into component bodies — nested components are an antipattern
     }
     const children = childrenOf(node, keys);
+    // Push in reverse so the first child is on top and processed next (preserves order).
     for (let i = children.length - 1; i >= 0; i--) {
       stack.push(children[i]);
     }
