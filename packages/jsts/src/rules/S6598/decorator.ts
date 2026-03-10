@@ -100,13 +100,17 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }),
     },
     (context, reportDescriptor) => {
-      const node = (reportDescriptor as unknown as { node: TSESTree.TSCallSignatureDeclaration })
-        .node;
-      if (!isInsideVueSetupScript(node as unknown as estree.Node, context)) {
+      const node = (reportDescriptor as unknown as { node: TSESTree.Node }).node;
+      if (node.type !== 'TSCallSignatureDeclaration') {
         context.report({ ...reportDescriptor });
         return;
       }
-      if (!isDefineEmitsTypeArg(node, context)) {
+      const callSigNode = node as TSESTree.TSCallSignatureDeclaration;
+      if (!isInsideVueSetupScript(callSigNode as unknown as estree.Node, context)) {
+        context.report({ ...reportDescriptor });
+        return;
+      }
+      if (!isDefineEmitsTypeArg(callSigNode, context)) {
         context.report({ ...reportDescriptor });
       }
     },
