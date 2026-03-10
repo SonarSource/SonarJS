@@ -14,8 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { rules } from '../external/unicorn.js';
 import { rule } from './index.js';
-import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+  RuleTester,
+} from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S7778', () => {
@@ -136,6 +141,34 @@ obj.items.push(2);
           output: `
 const obj = { items: [] };
 obj.items.push(1, 2);
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
+
+describe('S7778 upstream canary', () => {
+  it('upstream prefer-single-call should still report on custom class with single-arg push', () => {
+    // This test uses the upstream unicorn prefer-single-call rule directly,
+    // without the SonarJS decorator. It expects the upstream rule to still flag
+    // consecutive calls to a custom class push() method that accepts only a single
+    // argument — this is the false positive that the S7778 decorator suppresses.
+    //
+    // If the upstream rule is later improved to use TypeScript type information and
+    // suppress reports on non-Array types, this test will fail — that is the signal
+    // to remove the SonarJS decorator.
+    const upstreamRuleTester = new NoTypeCheckingRuleTester();
+    upstreamRuleTester.run('prefer-single-call', rules['prefer-single-call'], {
+      valid: [],
+      invalid: [
+        {
+          code: `
+class CustomClass { push(item: number): void {} }
+const instance = new CustomClass();
+instance.push(1);
+instance.push(2);
 `,
           errors: 1,
         },
