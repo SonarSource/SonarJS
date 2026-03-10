@@ -20,14 +20,13 @@ import type { Rule } from 'eslint';
 import type ts from 'typescript';
 import type estree from 'estree';
 import { getNodeParent } from '../helpers/ancestor.js';
+import { isCallingMethod, isIdentifier } from '../helpers/ast.js';
 import { copyingSortLike, sortLike } from '../helpers/collection.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
   getTypeFromTreeNode,
   isArrayLikeType,
   isBigIntArray,
-  isCallingMethod,
-  isIdentifier,
   isNumberArray,
   isStringArray,
 } from '../helpers/type.js';
