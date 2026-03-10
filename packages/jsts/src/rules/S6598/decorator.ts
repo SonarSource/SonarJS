@@ -105,12 +105,11 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         context.report({ ...reportDescriptor });
         return;
       }
-      const callSigNode = node as TSESTree.TSCallSignatureDeclaration;
-      if (!isInsideVueSetupScript(callSigNode as unknown as estree.Node, context)) {
+      if (!isInsideVueSetupScript(node as unknown as estree.Node, context)) {
         context.report({ ...reportDescriptor });
         return;
       }
-      if (!isDefineEmitsTypeArg(callSigNode, context)) {
+      if (!isDefineEmitsTypeArg(node, context)) {
         context.report({ ...reportDescriptor });
       }
     },
