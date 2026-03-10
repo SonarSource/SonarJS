@@ -144,7 +144,7 @@ export const rule: Rule.RuleModule = {
     // directional keyword (e.g. 'rtl', 'ltr', 'reverse'). In such cases, parameter
     // swapping is intentional — it represents the opposite ordering for bidirectional
     // text handling or conditional reversal logic.
-    function isInDirectionalContext(node: estree.Node): boolean {
+    function isInDirectionalContext(node: estree.CallExpression): boolean {
       const ancestors = context.sourceCode.getAncestors(node);
       for (const ancestor of ancestors) {
         if (ancestor.type === 'Property') {
