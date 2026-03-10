@@ -170,6 +170,11 @@ const instance = new CustomClass();
 instance.push(1);
 instance.push(2);
 `,
+          output: `
+class CustomClass { push(item: number): void {} }
+const instance = new CustomClass();
+instance.push(1, 2);
+`,
           errors: 1,
         },
       ],
