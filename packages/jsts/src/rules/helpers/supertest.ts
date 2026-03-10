@@ -21,48 +21,46 @@ import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
-export namespace Supertest {
-  export function isImported(context: Rule.RuleContext): boolean {
-    return (
-      getRequireCalls(context).some(
-        r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'supertest',
-      ) || getImportDeclarations(context).some(i => i.source.value === 'supertest')
-    );
+export function isImported(context: Rule.RuleContext): boolean {
+  return (
+    getRequireCalls(context).some(
+      r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'supertest',
+    ) || getImportDeclarations(context).some(i => i.source.value === 'supertest')
+  );
+}
+
+export function isAssertion(context: Rule.RuleContext, node: estree.Node) {
+  const fqn = extractFQNForCallExpression(context, node);
+  return isFQNAssertion(fqn);
+}
+
+export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
+  if (node.kind !== ts.SyntaxKind.CallExpression) {
+    return false;
+  }
+  const fqn = getFullyQualifiedNameTS(services, node);
+  return isFQNAssertion(fqn);
+}
+
+function isFQNAssertion(fqn: string | null | undefined) {
+  if (!fqn) {
+    return false;
   }
 
-  export function isAssertion(context: Rule.RuleContext, node: estree.Node) {
-    const fqn = extractFQNForCallExpression(context, node);
-    return isFQNAssertion(fqn);
+  const names = fqn.split('.');
+
+  /**
+   * supertest assertions look like `[supertest instance](...).[HTTP verb](...).expect(...)`, typically:
+   * `supertest(application).get('/foo').expect(200)`
+   * hence only the first and third values matter, the second one being an HTTP verb irrelevant for assertion detection
+   */
+  return names.length >= 3 && names[0] === 'supertest' && names[2] === 'expect';
+}
+
+function extractFQNForCallExpression(context: Rule.RuleContext, node: estree.Node) {
+  if (node.type !== 'CallExpression') {
+    return undefined;
   }
 
-  export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
-    if (node.kind !== ts.SyntaxKind.CallExpression) {
-      return false;
-    }
-    const fqn = getFullyQualifiedNameTS(services, node);
-    return isFQNAssertion(fqn);
-  }
-
-  function isFQNAssertion(fqn: string | null | undefined) {
-    if (!fqn) {
-      return false;
-    }
-
-    const names = fqn.split('.');
-
-    /**
-     * supertest assertions look like `[supertest instance](...).[HTTP verb](...).expect(...)`, typically:
-     * `supertest(application).get('/foo').expect(200)`
-     * hence only the first and third values matter, the second one being an HTTP verb irrelevant for assertion detection
-     */
-    return names.length >= 3 && names[0] === 'supertest' && names[2] === 'expect';
-  }
-
-  function extractFQNForCallExpression(context: Rule.RuleContext, node: estree.Node) {
-    if (node.type !== 'CallExpression') {
-      return undefined;
-    }
-
-    return getFullyQualifiedName(context, node);
-  }
+  return getFullyQualifiedName(context, node);
 }
