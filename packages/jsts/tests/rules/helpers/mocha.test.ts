@@ -16,7 +16,7 @@
  */
 import esprima from 'esprima';
 import type estree from 'estree';
-import { Mocha } from '../../../src/rules/helpers/mocha.js';
+import { isTestConstruct } from '../../../src/rules/helpers/mocha.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 
@@ -24,18 +24,18 @@ describe('Mocha.js', () => {
   it('should recognize test constructs', () => {
     const program = esprima.parse(`it('foo', () => {})`);
     const node: estree.Node = program.body[0].expression;
-    expect(Mocha.isTestConstruct(node)).toEqual(true);
+    expect(isTestConstruct(node)).toEqual(true);
   });
 
   it('should recognize special test constructs', () => {
     const program = esprima.parse(`it.only('foo', () => {})`);
     const node: estree.Node = program.body[0].expression;
-    expect(Mocha.isTestConstruct(node)).toEqual(true);
+    expect(isTestConstruct(node)).toEqual(true);
   });
 
   it('should not recognize garbage', () => {
     const program = esprima.parse(`'foo'`);
     const node: estree.Node = program.body[0].expression;
-    expect(Mocha.isTestConstruct(node)).toEqual(false);
+    expect(isTestConstruct(node)).toEqual(false);
   });
 });

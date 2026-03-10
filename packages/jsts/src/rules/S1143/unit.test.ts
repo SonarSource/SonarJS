@@ -92,6 +92,41 @@ function foo() {
           `,
           errors: 1,
         },
+        {
+          // conditional throw as last statement in finally — suppressed by decorator, raised by upstream
+          code: `
+async function waitForMessage() {
+  let lastMsg = null;
+  try {
+    lastMsg = await fetchMessage();
+  } finally {
+    if (!lastMsg) {
+      throw new Error('message never arrived');
+    }
+  }
+  return lastMsg;
+}
+          `,
+          errors: 1,
+        },
+        {
+          // conditional throw after cleanup as last statement — suppressed by decorator, raised by upstream
+          code: `
+async function processWithCleanup(resource) {
+  let result = null;
+  try {
+    result = await loadResource(resource);
+  } finally {
+    releaseResource(resource);
+    if (!result) {
+      throw new Error('Failed to load resource');
+    }
+  }
+  return result;
+}
+          `,
+          errors: 1,
+        },
       ],
     });
   });
@@ -221,6 +256,53 @@ function foo() {
 }
           `,
         },
+        {
+          // conditional throw as last statement in finally
+          code: `
+async function waitForMessage() {
+  let lastMsg = null;
+  try {
+    lastMsg = await fetchMessage();
+  } finally {
+    if (!lastMsg) {
+      throw new Error('message never arrived');
+    }
+  }
+  return lastMsg;
+}
+          `,
+        },
+        {
+          // conditional throw after cleanup, last in finally
+          code: `
+async function processWithCleanup(resource) {
+  let result = null;
+  try {
+    result = await loadResource(resource);
+  } finally {
+    releaseResource(resource);
+    if (!result) {
+      throw new Error('Failed to load resource');
+    }
+  }
+  return result;
+}
+          `,
+        },
+        {
+          // direct conditional throw as last statement in finally
+          code: `
+function validate() {
+  let done = false;
+  try {
+    doWork();
+    done = true;
+  } finally {
+    if (!done) throw new Error('did not complete');
+  }
+}
+          `,
+        },
       ],
       invalid: [
         {
@@ -304,6 +386,23 @@ function foo() {
     doWork();
   } finally {
     throw new Error('error');
+  }
+}
+          `,
+          errors: 1,
+        },
+        {
+          // conditional throw not last in finally (statements after)
+          code: `
+function foo() {
+  let done = false;
+  try {
+    doWork();
+  } finally {
+    if (!done) {
+      throw new Error('not done');
+    }
+    cleanup();
   }
 }
           `,

@@ -18,7 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { Express } from '../helpers/express.js';
+import { SensitiveMiddlewarePropertyRule } from '../helpers/express.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { getPropertyWithValue } from '../helpers/ast.js';
@@ -27,7 +27,7 @@ import * as meta from './generated-meta.js';
 const HELMET = 'helmet';
 const CONTENT_SECURITY_POLICY = 'contentSecurityPolicy';
 
-export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
+export const rule: Rule.RuleModule = SensitiveMiddlewarePropertyRule(
   findFalseContentSecurityPolicyPropertyFromHelmet,
   `Make sure not enabling content security policy fetch directives is safe here.`,
   generateMeta(meta),

@@ -17,10 +17,10 @@
 import { Rule } from 'eslint';
 import { RuleTester } from 'eslint';
 import type estree from 'estree';
-import { Express } from '../../../src/rules/helpers/express.js';
+import { SensitiveMiddlewarePropertyRule } from '../../../src/rules/helpers/express.js';
 import { getProperty } from '../../../src/rules/helpers/ast.js';
 
-const rule = Express.SensitiveMiddlewarePropertyRule(
+const rule = SensitiveMiddlewarePropertyRule(
   (context: Rule.RuleContext, node: estree.CallExpression): estree.Property[] => {
     const sensitives: estree.Property[] = [];
     const { callee, arguments: args } = node;
