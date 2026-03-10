@@ -58,7 +58,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
    * Returns true if the file content actually changed
    */
   updateFile(filePath: NormalizedAbsolutePath, content: string | undefined): boolean {
-    if (!content) {
+    if (content === undefined) {
       return false;
     }
     const normalized = path.normalize(filePath);
@@ -122,20 +122,23 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   readFile(fileName: string): string | undefined {
     const normalized = path.normalize(fileName);
     const cache = getSourceFileContentCache();
-
-    // 1. Check global cache
-    if (cache.has(normalized)) {
-      this.trackFsCall('readFile-cache', fileName);
-      return cache.get(normalized);
-    }
-
-    // 2. Try to get from current files context (if content is already available)
     const filesContext = getCurrentFilesContext();
+
+    // 1. For files in the current request context, always prefer request content.
+    // This avoids serving stale contents from the global cache across requests.
     if (typeof filesContext?.[fileName]?.fileContent === 'string') {
       this.trackFsCall('readFile-context', fileName);
       const content = filesContext[fileName].fileContent;
-      cache.set(normalized, content);
+      if (cache.get(normalized) !== content) {
+        cache.set(normalized, content);
+      }
       return content;
+    }
+
+    // 2. For files outside the request context, use the global cache.
+    if (cache.has(normalized)) {
+      this.trackFsCall('readFile-cache', fileName);
+      return cache.get(normalized);
     }
 
     // 3. Fallback to real filesystem (and cache it)
@@ -184,6 +187,14 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile | undefined {
     const normalized = path.normalize(fileName);
+
+    // For files explicitly present in the current analysis context, make the
+    // request content authoritative before looking up cached parsed ASTs.
+    const contextContent = getCurrentFilesContext()?.[fileName]?.fileContent;
+    if (contextContent !== undefined) {
+      this.updateFile(normalized as NormalizedAbsolutePath, contextContent);
+    }
+
     const currentVersion = this.fileVersions.get(normalized) || 0;
     const contentHash = currentVersion.toString();
 
@@ -205,7 +216,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     // Try to read content (will use global cache or lazy load)
     const content = this.readFile(fileName);
     let sourceFile: (ts.SourceFile & { version?: string }) | undefined;
-    if (content) {
+    if (content !== undefined) {
       // Parse the file
       sourceFile = ts.createSourceFile(
         fileName,

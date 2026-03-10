@@ -22,11 +22,28 @@ import {
 } from './transformers/request.js';
 import { transformProjectOutputToResponse } from './transformers/response.js';
 import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/analyzeProject.js';
-import { initFileStores } from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
+import {
+  initFileStores,
+  sourceFileStore,
+  packageJsonStore,
+  tsConfigStore,
+} from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
 import { createConfiguration } from '../../shared/src/helpers/configuration.js';
 import { ROOT_PATH } from '../../shared/src/helpers/files.js';
 import { sanitizeRawInputFiles } from '../../shared/src/helpers/sanitize.js';
+import { clearSourceFileContentCache } from '../../jsts/src/program/cache/sourceFileCache.js';
+
+/**
+ * gRPC requests are independent analyses. Reset all shared caches to avoid
+ * leaking data between requests with overlapping file paths.
+ */
+function resetGrpcCaches() {
+  sourceFileStore.clearCache();
+  packageJsonStore.clearCache();
+  tsConfigStore.clearCache();
+  clearSourceFileContentCache();
+}
 
 /**
  * gRPC handler for the Analyze RPC
@@ -41,6 +58,8 @@ export async function analyzeFileHandler(
     info(
       `Received Analyze request (${request.analysisId ?? 'no id'}) with ${request.sourceFiles?.length ?? 0} files`,
     );
+
+    resetGrpcCaches();
 
     // Create configuration for gRPC context
     // gRPC requests contain all file contents inline - no filesystem access needed
