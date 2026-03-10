@@ -223,6 +223,7 @@ function collectComponentNodes(root: estree.Node, keys: SourceCode.VisitorKeys):
     const node = stack.pop()!;
     if (COMPONENT_NODE_TYPES.has(node.type)) {
       result.push(node);
+      continue; // don't recurse into component bodies — nested components are an antipattern
     }
     const children = childrenOf(node, keys);
     for (let i = children.length - 1; i >= 0; i--) {
