@@ -31,6 +31,23 @@ const COMPONENT_NODE_TYPES = new Set([
   'ArrowFunctionExpression',
 ]);
 const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclaration']);
+type SourceCache = {
+  componentNodes: estree.Node[] | undefined;
+  ownerByTypeDecl: WeakMap<estree.Node, estree.Node | null>;
+};
+const perSourceCache = new WeakMap<SourceCode, SourceCache>();
+
+function getSourceCache(sourceCode: SourceCode): SourceCache {
+  let cache = perSourceCache.get(sourceCode);
+  if (!cache) {
+    cache = {
+      componentNodes: undefined,
+      ownerByTypeDecl: new WeakMap<estree.Node, estree.Node | null>(),
+    };
+    perSourceCache.set(sourceCode, cache);
+  }
+  return cache;
+}
 
 /**
  * Given a reported AST node (e.g., a prop name inside an interface/propTypes),
@@ -93,28 +110,45 @@ function findOwnerByType(
     return undefined;
   }
 
-  const typeDecl = [...ancestors].reverse().find(a => TS_TYPE_DECL_TYPES.has(a.type));
+  let typeDecl: estree.Node | undefined;
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    if (TS_TYPE_DECL_TYPES.has(ancestors[i].type)) {
+      typeDecl = ancestors[i];
+      break;
+    }
+  }
   if (!typeDecl) {
     return undefined;
   }
 
+  const sourceCache = getSourceCache(context.sourceCode);
+  const cachedOwner = sourceCache.ownerByTypeDecl.get(typeDecl);
+  if (cachedOwner !== undefined) {
+    return cachedOwner ?? undefined;
+  }
+
   const checker = services.program.getTypeChecker();
   const propsType = getTypeFromTreeNode(typeDecl, services);
+  const componentNodes =
+    sourceCache.componentNodes ?? (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
 
-  for (const componentNode of collectComponentNodes(context.sourceCode.ast, keys)) {
+  for (const componentNode of componentNodes) {
     const tsNode = services.esTreeNodeToTSNodeMap.get(
       componentNode as TSESTree.Node,
     ) as ts.Declaration;
     if (componentNode.type === 'ClassDeclaration' || componentNode.type === 'ClassExpression') {
       if (matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, propsType)) {
+        sourceCache.ownerByTypeDecl.set(typeDecl, componentNode);
         return componentNode;
       }
     } else if (
       matchesFunctionProps(componentNode, tsNode as ts.SignatureDeclaration, checker, propsType)
     ) {
+      sourceCache.ownerByTypeDecl.set(typeDecl, componentNode);
       return componentNode;
     }
   }
+  sourceCache.ownerByTypeDecl.set(typeDecl, null);
   return undefined;
 }
 
@@ -183,11 +217,16 @@ function getFunctionName(node: estree.Node): string | undefined {
 
 function collectComponentNodes(root: estree.Node, keys: SourceCode.VisitorKeys): estree.Node[] {
   const result: estree.Node[] = [];
-  if (COMPONENT_NODE_TYPES.has(root.type)) {
-    result.push(root);
-  }
-  for (const child of childrenOf(root, keys)) {
-    result.push(...collectComponentNodes(child, keys));
+  const stack = [root];
+  while (stack.length > 0) {
+    const node = stack.pop()!;
+    if (COMPONENT_NODE_TYPES.has(node.type)) {
+      result.push(node);
+    }
+    const children = childrenOf(node, keys);
+    for (let i = children.length - 1; i >= 0; i--) {
+      stack.push(children[i]);
+    }
   }
   return result;
 }
