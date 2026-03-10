@@ -208,6 +208,51 @@ describe('gRPC server', () => {
     expect(issue.message).toBe('Unnecessary semicolon.');
   });
 
+  it('should not reuse previous issues when the same file path is analyzed with different content', async () => {
+    const filePath = '/project/src/cached-content.js';
+
+    const requestWithIssue: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [
+        {
+          relativePath: filePath,
+          content: 'const x = 1;;\n',
+        },
+      ],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S1116' },
+          params: [],
+        },
+      ],
+    };
+
+    const responseWithIssue = await client.analyze(requestWithIssue);
+    expect(responseWithIssue.issues?.length).toBe(1);
+    expect(responseWithIssue.issues?.[0].filePath).toBe(filePath);
+
+    const requestWithoutIssue: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [
+        {
+          relativePath: filePath,
+          content: 'const x = 1;\n',
+        },
+      ],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S1116' },
+          params: [],
+        },
+      ],
+    };
+
+    const responseWithoutIssue = await client.analyze(requestWithoutIssue);
+    expect(responseWithoutIssue.issues?.length).toBe(0);
+  });
+
   it('should handle multiple files in a single request', async () => {
     const request: analyzer.IAnalyzeRequest = {
       analysisId: generateAnalysisId(),

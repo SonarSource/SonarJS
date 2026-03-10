@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { isIdentifier, isMethodInvocation } from '../helpers/ast.js';
-import { Mocha } from '../helpers/mocha.js';
+import { isDescribeCase } from '../helpers/mocha.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
           report(context, node);
           return;
         }
-        if (Mocha.isDescribeCase(node)) {
+        if (isDescribeCase(node)) {
           describes.push(node);
           return;
         }
@@ -56,7 +56,7 @@ export const rule: Rule.RuleModule = {
         }
       },
       'CallExpression:exit': (node: estree.Node) => {
-        if (Mocha.isDescribeCase(node)) {
+        if (isDescribeCase(node)) {
           describes.pop();
         }
       },
