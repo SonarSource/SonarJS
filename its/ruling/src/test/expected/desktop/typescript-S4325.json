@@ -12,9 +12,6 @@
 "desktop:app/src/lib/stores/repositories-store.ts": [
 122
 ],
-"desktop:app/src/models/diff/diff-selection.ts": [
-200
-],
 "desktop:app/src/ui/dispatcher/dispatcher.ts": [
 3222,
 3226
