@@ -79,6 +79,16 @@ el.classList.remove('hidden');
 el.classList.remove('inactive'); // Compliant: not a DOMTokenList
 `,
         },
+        {
+          code: `
+class CustomPusher {
+  push(...items: any[]): void {}
+}
+const pusher = new CustomPusher();
+pusher.push(1);
+pusher.push(2); // Compliant: not an Array
+`,
+        },
       ],
       invalid: [
         {
@@ -126,25 +136,6 @@ obj.items.push(2);
           output: `
 const obj = { items: [] };
 obj.items.push(1, 2);
-`,
-          errors: 1,
-        },
-        {
-          // Custom class with multi-arg push method should be reported
-          code: `
-class CustomPusher {
-  push(...items: any[]): void {}
-}
-const pusher = new CustomPusher();
-pusher.push(1);
-pusher.push(2);
-`,
-          output: `
-class CustomPusher {
-  push(...items: any[]): void {}
-}
-const pusher = new CustomPusher();
-pusher.push(1, 2);
 `,
           errors: 1,
         },
