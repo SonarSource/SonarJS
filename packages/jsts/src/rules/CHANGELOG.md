@@ -1,3 +1,11 @@
+## 2026-03-10, Version 4.0.2
+
+* [[JS-1364](https://sonarsource.atlassian.net/browse/JS-1364)] - Fix FP on S2234: MD5/crypto algorithm parameter rotation patterns
+* [[JS-1361](https://sonarsource.atlassian.net/browse/JS-1361)] - Fix FP on S1119: Labels used for control flow within switch statements
+* [[JS-1360](https://sonarsource.atlassian.net/browse/JS-1360)] - Fix FP on S1119: Labels for multi-level loop exits in nested iteration
+* [[JS-1122](https://sonarsource.atlassian.net/browse/JS-1122)] - Fix FP on S2310: Array splice with compensating counter decrement pattern
+* [[JS-139](https://sonarsource.atlassian.net/browse/JS-139)] - Fix FP S2201 (`no-ignored-return`): "Return values from functions without side effects should not be ignored" triggering on `Array#find`
+
 ## 2026-03-06, Version 4.0.1
 
 * [[JS-1400](https://sonarsource.atlassian.net/browse/JS-1400)] - Get rid of no-script-url for FP reduction
