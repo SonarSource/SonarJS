@@ -103,7 +103,7 @@ function isReferenceAssigningCollection(ref: Scope.Reference) {
     if (declOrExprStmt.type === 'ExpressionStatement') {
       const { expression } = declOrExprStmt;
       return (
-        expression.type === 'AssignmentExpression' &&
+        expression?.type === 'AssignmentExpression' &&
         isReferenceTo(ref, expression.left as estree.Node) &&
         isCollectionType(expression.right)
       );
