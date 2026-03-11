@@ -16,6 +16,8 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
+import static org.sonarsource.api.sonarlint.SonarLintSide.INSTANCE;
+
 import java.io.ByteArrayInputStream;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -29,9 +31,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.scanner.ScannerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.tukaani.xz.XZInputStream;
 
 @ScannerSide
+@SonarLintSide(lifespan = INSTANCE)
 public class TsgolintBundle {
 
   private static final Logger LOG = LoggerFactory.getLogger(TsgolintBundle.class);
