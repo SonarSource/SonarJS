@@ -3,6 +3,7 @@ name: peach-check
 description: Fetch the latest Peach Main Analysis run from SonarSource/peachee-js, classify all
   failed jobs as critical analyzer issues or safe-to-ignore infrastructure problems, and print a
   summary table. Use before a SonarJS release to verify analyzer stability.
+disable-model-invocation: true
 ---
 
 # Peach Main Analysis Check
