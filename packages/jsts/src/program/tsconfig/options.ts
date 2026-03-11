@@ -353,19 +353,6 @@ export function createProgramOptions(
     throw new Error(diagnosticToString(config.error));
   }
 
-  // Inject lib into raw JSON before TypeScript parses it, so TypeScript handles
-  // the string → internal file name conversion itself. Only when lib is not
-  // explicitly set in the tsconfig and we have signals to compute from.
-  if (baseDir && !config.config?.compilerOptions?.lib) {
-    config.config ??= {};
-    config.config.compilerOptions ??= {};
-    config.config.compilerOptions.lib = computeLibJson(
-      ecmaScriptVersion,
-      config.config.compilerOptions.target,
-      baseDir,
-    );
-  }
-
   const parsedConfigFile = ts.parseJsonConfigFileContent(
     config.config,
     parseConfigHost,
@@ -384,6 +371,20 @@ export function createProgramOptions(
       },
     ],
   );
+
+  // Enrich with computed lib if not set by the tsconfig or any extended config.
+  // Checked after parsing so that inherited lib settings are respected.
+  // Uses ts.convertCompilerOptionsFromJson to convert raw JSON strings to TypeScript's
+  // internal format, avoiding hardcoded lib file names.
+  if (baseDir && !parsedConfigFile.options.lib) {
+    const jsonLib = computeLibJson(
+      ecmaScriptVersion,
+      config.config?.compilerOptions?.target,
+      baseDir,
+    );
+    const { options: libOptions } = ts.convertCompilerOptionsFromJson({ lib: jsonLib }, baseDir);
+    parsedConfigFile.options.lib = libOptions.lib;
+  }
 
   // Filter diagnostics by severity
   const errors = parsedConfigFile.errors.filter(d => d.category === ts.DiagnosticCategory.Error);
