@@ -75,7 +75,7 @@ export const rule: Rule.RuleModule = {
         }
 
         const configArg = node.arguments[1];
-        if (!configArg || configArg.type !== 'ObjectExpression') {
+        if (configArg?.type !== 'ObjectExpression') {
           return;
         }
 
@@ -93,36 +93,41 @@ export const rule: Rule.RuleModule = {
 
 function collectActions(config: estree.ObjectExpression): string[] {
   const actions: string[] = [];
-
   for (const prop of config.properties) {
     if (prop.type !== 'Property') {
       continue;
     }
-
-    const key = getPropertyName(prop);
-    if (!key) {
-      continue;
-    }
-
-    if (key === 'ADD_TAGS') {
-      const dangerous = getDangerousArrayElements(prop.value, DANGEROUS_TAGS);
-      if (dangerous.length > 0) {
-        actions.push(`remove ${formatList(dangerous)} from 'ADD_TAGS'`);
-      }
-    } else if (key === 'ADD_ATTR') {
-      const dangerous = getDangerousAttributes(prop.value);
-      if (dangerous.length > 0) {
-        actions.push(`remove ${formatList(dangerous)} from 'ADD_ATTR'`);
-      }
-    } else if (key in DANGEROUS_BOOLEAN_OPTIONS) {
-      const dangerousValue = DANGEROUS_BOOLEAN_OPTIONS[key];
-      if (isBooleanLiteral(prop.value, dangerousValue)) {
-        actions.push(`set '${key}' to '${!dangerousValue}'`);
-      }
+    const action = getActionForProperty(prop);
+    if (action) {
+      actions.push(action);
     }
   }
-
   return actions;
+}
+
+function getActionForProperty(prop: estree.Property): string | undefined {
+  const key = getPropertyName(prop);
+  if (!key) {
+    return undefined;
+  }
+
+  if (key === 'ADD_TAGS') {
+    const dangerous = getDangerousArrayElements(prop.value, DANGEROUS_TAGS);
+    if (dangerous.length > 0) {
+      return `remove ${formatList(dangerous)} from 'ADD_TAGS'`;
+    }
+  } else if (key === 'ADD_ATTR') {
+    const dangerous = getDangerousAttributes(prop.value);
+    if (dangerous.length > 0) {
+      return `remove ${formatList(dangerous)} from 'ADD_ATTR'`;
+    }
+  } else if (key in DANGEROUS_BOOLEAN_OPTIONS) {
+    const dangerousValue = DANGEROUS_BOOLEAN_OPTIONS[key];
+    if (isBooleanLiteral(prop.value, dangerousValue)) {
+      return `set '${key}' to '${!dangerousValue}'`;
+    }
+  }
+  return undefined;
 }
 
 function buildMessage(actions: string[]): string {
@@ -140,7 +145,7 @@ function joinActions(actions: string[]): string {
   if (actions.length === 1) {
     return actions[0];
   }
-  return `${actions.slice(0, -1).join(', ')}, and ${actions[actions.length - 1]}`;
+  return `${actions.slice(0, -1).join(', ')}, and ${actions.at(-1)}`;
 }
 
 function getPropertyName(prop: estree.Property): string | undefined {
@@ -163,7 +168,7 @@ function getDangerousArrayElements(node: estree.Node, dangerousSet: Set<string>)
         el !== null &&
         el.type === 'Literal' &&
         typeof el.value === 'string' &&
-        dangerousSet.has((el.value as string).toLowerCase()),
+        dangerousSet.has(el.value.toLowerCase()),
     )
     .map(el => el.value as string);
 }
@@ -178,7 +183,7 @@ function getDangerousAttributes(node: estree.Node): string[] {
         el !== null &&
         el.type === 'Literal' &&
         typeof el.value === 'string' &&
-        EVENT_HANDLER_PATTERN.test(el.value as string),
+        EVENT_HANDLER_PATTERN.test(el.value),
     )
     .map(el => el.value as string);
 }
@@ -188,7 +193,7 @@ function formatList(items: string[]): string {
   if (quoted.length === 1) {
     return quoted[0];
   }
-  return `${quoted.slice(0, -1).join(', ')} and ${quoted[quoted.length - 1]}`;
+  return `${quoted.slice(0, -1).join(', ')} and ${quoted.at(-1)}`;
 }
 
 function isBooleanLiteral(node: estree.Node, value: boolean): boolean {
