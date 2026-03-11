@@ -69,9 +69,8 @@ function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescr
     return;
   }
 
-  const identifier = tsNode as TSESTree.Identifier;
   const receiver = (tsNode.parent as TSESTree.MemberExpression).object as estree.Node;
-  const methodName = identifier.name;
+  const methodName = tsNode.name;
 
   if (methodName === 'push') {
     // Report only if receiver is an Array
