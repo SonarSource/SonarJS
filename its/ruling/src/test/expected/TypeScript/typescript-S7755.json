@@ -1,0 +1,25 @@
+{
+"TypeScript:src/compiler/checker.ts": [
+8812
+],
+"TypeScript:src/compiler/core.ts": [
+791,
+1691,
+1700,
+1712,
+2286
+],
+"TypeScript:src/compiler/declarationEmitter.ts": [
+1520
+],
+"TypeScript:src/compiler/parser.ts": [
+6464,
+6464
+],
+"TypeScript:src/compiler/program.ts": [
+551
+],
+"TypeScript:src/compiler/utilities.ts": [
+4289
+]
+}
