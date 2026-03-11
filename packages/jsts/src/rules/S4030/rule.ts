@@ -143,7 +143,7 @@ function isRead(ref: Scope.Reference) {
  * myArray.push(1);
  */
 function isWritingMethodCall(statement: estree.ExpressionStatement, ref: Scope.Reference) {
-  if (statement.expression.type === 'CallExpression') {
+  if (statement.expression?.type === 'CallExpression') {
     const { callee } = statement.expression;
     if (callee.type === 'MemberExpression') {
       const { property } = callee;
