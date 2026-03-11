@@ -104,7 +104,7 @@ Job ID: JOB_ID
 Task ID: TASK_ID (mark this task complete when done)
 
 Your steps:
-0. Working directory: /home/francois/git/worktree/SonarJS/fix-peach-check-skill (or the current SonarJS worktree — check that `docs/peach-main-analysis.md` exists before reading)
+0. Working directory: use the directory where this skill was invoked (run `pwd` to confirm). Verify that `docs/peach-main-analysis.md` exists before reading it.
 1. Read docs/peach-main-analysis.md to understand failure categories and the decision flowchart
 2. The job logs are provided below between the <job-logs> tags. Read them carefully.
 
