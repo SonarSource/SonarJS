@@ -43,31 +43,16 @@ const EVENT_HANDLER_PATTERN = /^on[a-z]/i;
 
 /**
  * Boolean options that are dangerous when set to the specified value.
- * `dangerousValue` is the value that weakens sanitization,
- * `reason` explains why it is dangerous.
  */
-const DANGEROUS_BOOLEAN_OPTIONS: Record<string, { dangerousValue: boolean; reason: string }> = {
-  ALLOW_UNKNOWN_PROTOCOLS: {
-    dangerousValue: true,
-    reason: 'prevent injection through dangerous URI schemes like javascript:',
-  },
-  WHOLE_DOCUMENT: {
-    dangerousValue: true,
-    reason: 'avoid processing the full document including dangerous head elements',
-  },
-  SAFE_FOR_XML: {
-    dangerousValue: false,
-    reason: 'enable XML-specific sanitization',
-  },
-  SANITIZE_DOM: {
-    dangerousValue: false,
-    reason: 'enable protection against DOM clobbering attacks',
-  },
-  RETURN_TRUSTED_TYPE: {
-    dangerousValue: false,
-    reason: 'leverage Trusted Types for additional XSS protection',
-  },
+const DANGEROUS_BOOLEAN_OPTIONS: Record<string, boolean> = {
+  ALLOW_UNKNOWN_PROTOCOLS: true,
+  WHOLE_DOCUMENT: true,
+  SAFE_FOR_XML: false,
+  SANITIZE_DOM: false,
+  RETURN_TRUSTED_TYPE: false,
 };
+
+const MAX_ACTIONS_IN_MESSAGE = 2;
 
 const SANITIZE_FQNS = new Set([
   'dompurify.sanitize',
@@ -77,12 +62,7 @@ const SANITIZE_FQNS = new Set([
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      dangerousTags:
-        "Remove {{tags}} from 'ADD_TAGS' to prevent introducing dangerous HTML elements.",
-      dangerousAttrs:
-        "Remove {{attrs}} from 'ADD_ATTR' to prevent introducing event handler attributes.",
-      unsafeBoolOption:
-        "Set '{{option}}' to '{{safe}}' to {{reason}}.",
+      unsafeConfig: 'unsafeConfig',
     },
   }),
 
@@ -99,16 +79,21 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        reportDangerousConfig(context, configArg);
+        const actions = collectActions(configArg);
+        if (actions.length > 0) {
+          context.report({
+            message: buildMessage(actions),
+            node: configArg,
+          });
+        }
       },
     };
   },
 };
 
-function reportDangerousConfig(
-  context: Rule.RuleContext,
-  config: estree.ObjectExpression,
-): void {
+function collectActions(config: estree.ObjectExpression): string[] {
+  const actions: string[] = [];
+
   for (const prop of config.properties) {
     if (prop.type !== 'Property') {
       continue;
@@ -122,32 +107,40 @@ function reportDangerousConfig(
     if (key === 'ADD_TAGS') {
       const dangerous = getDangerousArrayElements(prop.value, DANGEROUS_TAGS);
       if (dangerous.length > 0) {
-        context.report({
-          messageId: 'dangerousTags',
-          node: prop,
-          data: { tags: formatList(dangerous) },
-        });
+        actions.push(`remove ${formatList(dangerous)} from 'ADD_TAGS'`);
       }
     } else if (key === 'ADD_ATTR') {
       const dangerous = getDangerousAttributes(prop.value);
       if (dangerous.length > 0) {
-        context.report({
-          messageId: 'dangerousAttrs',
-          node: prop,
-          data: { attrs: formatList(dangerous) },
-        });
+        actions.push(`remove ${formatList(dangerous)} from 'ADD_ATTR'`);
       }
     } else if (key in DANGEROUS_BOOLEAN_OPTIONS) {
-      const { dangerousValue, reason } = DANGEROUS_BOOLEAN_OPTIONS[key];
+      const dangerousValue = DANGEROUS_BOOLEAN_OPTIONS[key];
       if (isBooleanLiteral(prop.value, dangerousValue)) {
-        context.report({
-          messageId: 'unsafeBoolOption',
-          node: prop,
-          data: { option: key, safe: String(!dangerousValue), reason },
-        });
+        actions.push(`set '${key}' to '${!dangerousValue}'`);
       }
     }
   }
+
+  return actions;
+}
+
+function buildMessage(actions: string[]): string {
+  const shown = actions.slice(0, MAX_ACTIONS_IN_MESSAGE);
+  const remaining = actions.length - shown.length;
+
+  let message = `To prevent DOM-based attacks, ${joinActions(shown)}.`;
+  if (remaining > 0) {
+    message += ` Plus ${remaining} more ${remaining === 1 ? 'issue' : 'issues'}. Read 'How to fix it' for all details.`;
+  }
+  return message;
+}
+
+function joinActions(actions: string[]): string {
+  if (actions.length === 1) {
+    return actions[0];
+  }
+  return `${actions.slice(0, -1).join(', ')}, and ${actions[actions.length - 1]}`;
 }
 
 function getPropertyName(prop: estree.Property): string | undefined {

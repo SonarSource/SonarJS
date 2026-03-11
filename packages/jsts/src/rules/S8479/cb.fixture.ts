@@ -2,62 +2,85 @@ import DOMPurify from 'dompurify';
 
 const html = '<div>test</div>';
 
-// dangerous tags in ADD_TAGS
-const clean1 = DOMPurify.sanitize(html, { ADD_TAGS: ['script', 'iframe'] }); // Noncompliant {{Remove 'script' and 'iframe' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
+// single: dangerous tags
+const clean1 = DOMPurify.sanitize(html, { ADD_TAGS: ['script', 'iframe'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'script' and 'iframe' from 'ADD_TAGS'.}}
 
-// event handler attributes in ADD_ATTR
-const clean2 = DOMPurify.sanitize(html, { ADD_ATTR: ['onclick', 'onerror'] }); // Noncompliant {{Remove 'onclick' and 'onerror' from 'ADD_ATTR' to prevent introducing event handler attributes.}}
+// single: event handler attributes
+const clean2 = DOMPurify.sanitize(html, { ADD_ATTR: ['onclick', 'onerror'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'onclick' and 'onerror' from 'ADD_ATTR'.}}
 
-// ALLOW_UNKNOWN_PROTOCOLS set to true
-const clean3 = DOMPurify.sanitize(html, { ALLOW_UNKNOWN_PROTOCOLS: true }); // Noncompliant {{Set 'ALLOW_UNKNOWN_PROTOCOLS' to 'false' to prevent injection through dangerous URI schemes like javascript:.}}
+// single: ALLOW_UNKNOWN_PROTOCOLS
+const clean3 = DOMPurify.sanitize(html, { ALLOW_UNKNOWN_PROTOCOLS: true }); // Noncompliant {{To prevent DOM-based attacks, set 'ALLOW_UNKNOWN_PROTOCOLS' to 'false'.}}
 
-// WHOLE_DOCUMENT set to true
-const clean4 = DOMPurify.sanitize(html, { WHOLE_DOCUMENT: true }); // Noncompliant {{Set 'WHOLE_DOCUMENT' to 'false' to avoid processing the full document including dangerous head elements.}}
+// single: WHOLE_DOCUMENT
+const clean4 = DOMPurify.sanitize(html, { WHOLE_DOCUMENT: true }); // Noncompliant {{To prevent DOM-based attacks, set 'WHOLE_DOCUMENT' to 'false'.}}
 
-// SAFE_FOR_XML set to false
-const clean5 = DOMPurify.sanitize(html, { SAFE_FOR_XML: false }); // Noncompliant {{Set 'SAFE_FOR_XML' to 'true' to enable XML-specific sanitization.}}
+// single: SAFE_FOR_XML
+const clean5 = DOMPurify.sanitize(html, { SAFE_FOR_XML: false }); // Noncompliant {{To prevent DOM-based attacks, set 'SAFE_FOR_XML' to 'true'.}}
 
-// SANITIZE_DOM set to false
-const clean6 = DOMPurify.sanitize(html, { SANITIZE_DOM: false }); // Noncompliant {{Set 'SANITIZE_DOM' to 'true' to enable protection against DOM clobbering attacks.}}
+// single: SANITIZE_DOM
+const clean6 = DOMPurify.sanitize(html, { SANITIZE_DOM: false }); // Noncompliant {{To prevent DOM-based attacks, set 'SANITIZE_DOM' to 'true'.}}
 
-// RETURN_TRUSTED_TYPE set to false
-const clean7 = DOMPurify.sanitize(html, { RETURN_TRUSTED_TYPE: false }); // Noncompliant {{Set 'RETURN_TRUSTED_TYPE' to 'true' to leverage Trusted Types for additional XSS protection.}}
+// single: RETURN_TRUSTED_TYPE
+const clean7 = DOMPurify.sanitize(html, { RETURN_TRUSTED_TYPE: false }); // Noncompliant {{To prevent DOM-based attacks, set 'RETURN_TRUSTED_TYPE' to 'true'.}}
 
-// dangerous tag 'embed'
-const clean8 = DOMPurify.sanitize(html, { ADD_TAGS: ['embed'] }); // Noncompliant {{Remove 'embed' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
+// single: dangerous tag 'embed'
+const clean8 = DOMPurify.sanitize(html, { ADD_TAGS: ['embed'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'embed' from 'ADD_TAGS'.}}
 
-// dangerous tag 'form'
-const clean9 = DOMPurify.sanitize(html, { ADD_TAGS: ['form'] }); // Noncompliant {{Remove 'form' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
+// single: dangerous tag 'form'
+const clean9 = DOMPurify.sanitize(html, { ADD_TAGS: ['form'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'form' from 'ADD_TAGS'.}}
 
-// dangerous tag 'svg'
-const clean10 = DOMPurify.sanitize(html, { ADD_TAGS: ['svg'] }); // Noncompliant {{Remove 'svg' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
+// single: dangerous tag 'svg'
+const clean10 = DOMPurify.sanitize(html, { ADD_TAGS: ['svg'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'svg' from 'ADD_TAGS'.}}
 
-// dangerous tag 'math'
-const clean11 = DOMPurify.sanitize(html, { ADD_TAGS: ['math'] }); // Noncompliant {{Remove 'math' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
+// single: dangerous tag 'math'
+const clean11 = DOMPurify.sanitize(html, { ADD_TAGS: ['math'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'math' from 'ADD_TAGS'.}}
 
-// dangerous tag 'style'
-const clean12 = DOMPurify.sanitize(html, { ADD_TAGS: ['style'] }); // Noncompliant {{Remove 'style' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
+// single: dangerous tag 'style'
+const clean12 = DOMPurify.sanitize(html, { ADD_TAGS: ['style'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'style' from 'ADD_TAGS'.}}
 
-// dangerous tag 'base'
-const clean13 = DOMPurify.sanitize(html, { ADD_TAGS: ['base'] }); // Noncompliant {{Remove 'base' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
+// single: dangerous tag 'base'
+const clean13 = DOMPurify.sanitize(html, { ADD_TAGS: ['base'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'base' from 'ADD_TAGS'.}}
 
-// dangerous tag 'meta'
-const clean14 = DOMPurify.sanitize(html, { ADD_TAGS: ['meta'] }); // Noncompliant {{Remove 'meta' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
+// single: dangerous tag 'meta'
+const clean14 = DOMPurify.sanitize(html, { ADD_TAGS: ['meta'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'meta' from 'ADD_TAGS'.}}
 
-// dangerous tag 'link'
-const clean15 = DOMPurify.sanitize(html, { ADD_TAGS: ['link'] }); // Noncompliant {{Remove 'link' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
+// single: dangerous tag 'link'
+const clean15 = DOMPurify.sanitize(html, { ADD_TAGS: ['link'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'link' from 'ADD_TAGS'.}}
 
-// event handler 'onmouseover'
-const clean16 = DOMPurify.sanitize(html, { ADD_ATTR: ['onmouseover'] }); // Noncompliant {{Remove 'onmouseover' from 'ADD_ATTR' to prevent introducing event handler attributes.}}
+// single: event handler 'onmouseover'
+const clean16 = DOMPurify.sanitize(html, { ADD_ATTR: ['onmouseover'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'onmouseover' from 'ADD_ATTR'.}}
 
-// event handler 'onfocus'
-const clean17 = DOMPurify.sanitize(html, { ADD_ATTR: ['onfocus'] }); // Noncompliant {{Remove 'onfocus' from 'ADD_ATTR' to prevent introducing event handler attributes.}}
+// single: event handler 'onfocus'
+const clean17 = DOMPurify.sanitize(html, { ADD_ATTR: ['onfocus'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'onfocus' from 'ADD_ATTR'.}}
 
-// event handler 'onload'
-const clean18 = DOMPurify.sanitize(html, { ADD_ATTR: ['onload'] }); // Noncompliant {{Remove 'onload' from 'ADD_ATTR' to prevent introducing event handler attributes.}}
+// single: event handler 'onload'
+const clean18 = DOMPurify.sanitize(html, { ADD_ATTR: ['onload'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'onload' from 'ADD_ATTR'.}}
 
-// safe tag mixed with dangerous one
-const clean19 = DOMPurify.sanitize(html, { ADD_TAGS: ['custom-element', 'script'] }); // Noncompliant {{Remove 'script' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
+// single: safe tag mixed with dangerous one
+const clean19 = DOMPurify.sanitize(html, { ADD_TAGS: ['custom-element', 'script'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'script' from 'ADD_TAGS'.}}
+
+// two issues: both shown
+const multi1 = DOMPurify.sanitize(html, { ADD_TAGS: ['script'], SANITIZE_DOM: false }); // Noncompliant {{To prevent DOM-based attacks, remove 'script' from 'ADD_TAGS', and set 'SANITIZE_DOM' to 'true'.}}
+
+// three issues: two shown, one overflow
+const multi2 = DOMPurify.sanitize(html, { ADD_TAGS: ['script'], ADD_ATTR: ['onclick'], SANITIZE_DOM: false }); // Noncompliant {{To prevent DOM-based attacks, remove 'script' from 'ADD_TAGS', and remove 'onclick' from 'ADD_ATTR'. Plus 1 more issue. Read 'How to fix it' for all details.}}
+
+// five issues: two shown, three overflow
+const multi3 = DOMPurify.sanitize(html, { // Noncompliant {{To prevent DOM-based attacks, remove 'script' and 'iframe' from 'ADD_TAGS', and remove 'onclick' from 'ADD_ATTR'. Plus 3 more issues. Read 'How to fix it' for all details.}}
+  ADD_TAGS: ['script', 'iframe'],
+  ADD_ATTR: ['onclick'],
+  ALLOW_UNKNOWN_PROTOCOLS: true,
+  WHOLE_DOCUMENT: true,
+  SANITIZE_DOM: false,
+});
+
+// mix of dangerous and safe: only dangerous ones count
+const multi4 = DOMPurify.sanitize(html, { // Noncompliant {{To prevent DOM-based attacks, remove 'iframe' from 'ADD_TAGS', and set 'ALLOW_UNKNOWN_PROTOCOLS' to 'false'.}}
+  ADD_TAGS: ['custom-element', 'iframe'],
+  ADD_ATTR: ['data-custom', 'aria-label'],
+  SANITIZE_DOM: true,
+  ALLOW_UNKNOWN_PROTOCOLS: true,
+});
 
 // Compliant: safe configuration with USE_PROFILES
 const safeClean1 = DOMPurify.sanitize(html, {
