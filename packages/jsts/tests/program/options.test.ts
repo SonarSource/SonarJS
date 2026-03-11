@@ -149,6 +149,58 @@ describe('createProgramOptions', () => {
     });
   });
 
+  describe('lib enrichment', () => {
+    const nodeSignalsBaseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures/node-signals'),
+    );
+
+    it('should enrich lib from node signals when tsconfig has no lib', () => {
+      // tsconfig with target but no lib, no extends — node signal should be applied
+      const { options } = createProgramOptions(
+        'tsconfig.json',
+        '{ "compilerOptions": { "target": "ES5" }, "files": ["/tmp/a.ts"] }',
+        true,
+        undefined,
+        nodeSignalsBaseDir,
+      );
+
+      // @types/node ^18 → ES2022; target ES5 → ES2020; max = ES2022
+      expect(options.lib).toBeDefined();
+      expect(options.lib!.some(l => l.includes('es2022'))).toBe(true);
+    });
+
+    it('should respect lib inherited from extended tsconfig, not overwrite with computed value', () => {
+      const tsConfig = path.join(fixtures, 'lib-inheritance', 'tsconfig.child.json');
+
+      // node-signals would give ES2022, but parent sets ['esnext','dom','dom.iterable']
+      const { options } = createProgramOptions(
+        tsConfig,
+        undefined,
+        true,
+        undefined,
+        nodeSignalsBaseDir,
+      );
+
+      // Inherited lib must be preserved — esnext and dom.iterable must survive
+      expect(options.lib!.some(l => l.includes('esnext'))).toBe(true);
+      expect(options.lib!.some(l => l.includes('dom.iterable'))).toBe(true);
+    });
+
+    it('should not overwrite lib set directly in tsconfig', () => {
+      // tsconfig with explicit lib: ['es5'] — node signal (ES2022) must not override it
+      const { options } = createProgramOptions(
+        'tsconfig.json',
+        '{ "compilerOptions": { "lib": ["es5"] }, "files": ["/tmp/a.ts"] }',
+        true,
+        undefined,
+        nodeSignalsBaseDir,
+      );
+
+      expect(options.lib!.some(l => l.includes('es5'))).toBe(true);
+      expect(options.lib!.some(l => l.includes('es2022'))).toBe(false);
+    });
+  });
+
   describe('caching', () => {
     it('should cache program options', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
