@@ -82,6 +82,18 @@ const multi4 = DOMPurify.sanitize(html, { // Noncompliant {{To prevent DOM-based
   ALLOW_UNKNOWN_PROTOCOLS: true,
 });
 
+// ALLOWED_ATTR with event handler (the useSafeInnerHTML pattern)
+const clean20 = DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'i', 'img'], ALLOWED_ATTR: ['class', 'src', 'onerror'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'onerror' from 'ALLOWED_ATTR'.}}
+
+// ALLOWED_TAGS with dangerous tag
+const clean21 = DOMPurify.sanitize(html, { ALLOWED_TAGS: ['p', 'script'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'script' from 'ALLOWED_TAGS'.}}
+
+// ALLOWED_TAGS and ALLOWED_ATTR both dangerous
+const clean22 = DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'iframe'], ALLOWED_ATTR: ['onclick'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'iframe' from 'ALLOWED_TAGS', and remove 'onclick' from 'ALLOWED_ATTR'.}}
+
+// Compliant: ALLOWED_TAGS and ALLOWED_ATTR with safe values only
+const safeClean10 = DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'], ALLOWED_ATTR: ['class', 'src', 'href'] });
+
 // Compliant: safe configuration with USE_PROFILES
 const safeClean1 = DOMPurify.sanitize(html, {
   USE_PROFILES: { html: true },

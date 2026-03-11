@@ -111,15 +111,15 @@ function getActionForProperty(prop: estree.Property): string | undefined {
     return undefined;
   }
 
-  if (key === 'ADD_TAGS') {
+  if (key === 'ADD_TAGS' || key === 'ALLOWED_TAGS') {
     const dangerous = getDangerousArrayElements(prop.value, DANGEROUS_TAGS);
     if (dangerous.length > 0) {
-      return `remove ${formatList(dangerous)} from 'ADD_TAGS'`;
+      return `remove ${formatList(dangerous)} from '${key}'`;
     }
-  } else if (key === 'ADD_ATTR') {
+  } else if (key === 'ADD_ATTR' || key === 'ALLOWED_ATTR') {
     const dangerous = getDangerousAttributes(prop.value);
     if (dangerous.length > 0) {
-      return `remove ${formatList(dangerous)} from 'ADD_ATTR'`;
+      return `remove ${formatList(dangerous)} from '${key}'`;
     }
   } else if (key in DANGEROUS_BOOLEAN_OPTIONS) {
     const dangerousValue = DANGEROUS_BOOLEAN_OPTIONS[key];
