@@ -27,12 +27,11 @@ import com.sonarsource.scanner.integrationtester.dsl.issue.TextRangeIssue;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunner;
 import com.sonarsource.scanner.integrationtester.runner.ScannerRunnerConfig;
 import java.nio.file.Path;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 
 /**
- * Integration test verifying that the 7 tsgolint-offloaded rules produce
+ * Integration test verifying that the 8 tsgolint-offloaded rules produce
  * issues when analyzing TypeScript files.
  */
 class TsgolintIntegrationTest {
@@ -83,7 +82,7 @@ class TsgolintIntegrationTest {
       .map(TextRangeIssue.class::cast)
       .toList();
 
-    // Verify all 7 rules produced at least one issue
+    // Verify all 8 rules produced at least one issue
     assertThat(issues)
       .extracting(TextRangeIssue::ruleKey)
       .contains(
@@ -93,7 +92,8 @@ class TsgolintIntegrationTest {
         "typescript:S4325", // no-unnecessary-type-assertion
         "typescript:S6565", // prefer-return-this-type
         "typescript:S6583", // no-mixed-enums
-        "typescript:S6671" // prefer-promise-reject-errors
+        "typescript:S6671", // prefer-promise-reject-errors
+        "typescript:S2870" // no-array-delete
       );
 
     // Verify correct file associations
@@ -106,5 +106,10 @@ class TsgolintIntegrationTest {
       .filteredOn(i -> i.ruleKey().equals("typescript:S2933"))
       .extracting(TextRangeIssue::componentPath)
       .containsExactly("prefer-readonly.ts");
+
+    assertThat(issues)
+      .filteredOn(i -> i.ruleKey().equals("typescript:S2870"))
+      .extracting(TextRangeIssue::componentPath)
+      .containsExactly("no-array-delete.ts");
   }
 }
