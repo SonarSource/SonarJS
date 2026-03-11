@@ -42,9 +42,11 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   private static final Logger LOG = LoggerFactory.getLogger(JavaScriptProfilesDefinition.class);
 
   static final String SONAR_WAY = "Sonar way";
+  static final String AGENT_QUALITY_PROFILE = "Agent Quality Profile";
 
   public static final String RESOURCE_PATH = "org/sonar/l10n/javascript/rules/javascript";
   public static final String SONAR_WAY_JSON = RESOURCE_PATH + "/Sonar_way_profile.json";
+  public static final String AGENT_QUALITY_PROFILE_JSON = RESOURCE_PATH + "/Agent_quality_profile.json";
 
   private static final Map<String, String> PROFILES = new HashMap<>();
   static final String SONAR_JASMIN_RULES_CLASS_NAME = "com.sonar.plugins.jasmin.api.JsRules";
@@ -52,6 +54,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
 
   static {
     PROFILES.put(SONAR_WAY, SONAR_WAY_JSON);
+    PROFILES.put(AGENT_QUALITY_PROFILE, AGENT_QUALITY_PROFILE_JSON);
   }
 
   private static final Map<Language, String> REPO_BY_LANGUAGE = new EnumMap<>(Language.class);
@@ -86,6 +89,8 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   public void define(Context context) {
     createSonarWayProfile(JavaScriptLanguage.KEY, context);
     createSonarWayProfile(TypeScriptLanguage.KEY, context);
+    createAgentQualityProfile(JavaScriptLanguage.KEY, context);
+    createAgentQualityProfile(TypeScriptLanguage.KEY, context);
   }
 
   private void createSonarWayProfile(String language, Context context) {
@@ -93,6 +98,22 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     activateBuiltInRules(newProfile);
     activateAdditionalRules(newProfile);
     activateSecurityRules(newProfile, language);
+    newProfile.done();
+  }
+
+  /**
+   * Create Agent Quality Profile focused on security, reliability, and complexity.
+   *
+   * This profile activates rules that help maintain code quality for AI agents by focusing on:
+   * - Security vulnerabilities and security hotspots
+   * - Reliability issues (bugs)
+   * - Code complexity metrics (cognitive complexity, cyclomatic complexity, etc.)
+   */
+  private void createAgentQualityProfile(String language, Context context) {
+    NewBuiltInQualityProfile newProfile = context.createBuiltInQualityProfile(AGENT_QUALITY_PROFILE, language);
+    activateBuiltInRules(newProfile);
+    // Note: Additional and security rules are not activated by default for Agent Quality Profile
+    // as the profile is specifically curated for agent-relevant security, reliability, and complexity rules
     newProfile.done();
   }
 
