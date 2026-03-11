@@ -27,10 +27,10 @@ import merge from 'lodash.merge';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from '../../program/compilerHost.js';
 import {
+  computeLibJson,
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
-  enrichProgramLib,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
@@ -151,12 +151,18 @@ async function analyzeFilesFromEntryPoint(
 
   const programOptions = foundProgramOptions.length
     ? merge({}, ...foundProgramOptions)
-    : createProgramOptionsFromJson(defaultCompilerOptions, rootNames, baseDir);
+    : createProgramOptionsFromJson(
+        {
+          ...defaultCompilerOptions,
+          lib: computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, baseDir),
+        },
+        rootNames,
+        baseDir,
+      );
   programOptions.rootNames = rootNames;
 
-  const libSource = enrichProgramLib(programOptions, jsTsConfigFields.ecmaScriptVersion, baseDir);
   info(
-    `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'} [lib: ${programOptions.options.lib?.join(', ')}, source: ${libSource}]`,
+    `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'} [lib: ${programOptions.options.lib?.join(', ')}]`,
   );
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
 
@@ -198,7 +204,13 @@ async function analyzeFilesFromTsConfig(
   // Parse tsconfig to get compiler options
   let programOptions;
   try {
-    programOptions = createProgramOptions(tsconfig, undefined, canAccessFileSystem);
+    programOptions = createProgramOptions(
+      tsconfig,
+      undefined,
+      canAccessFileSystem,
+      jsTsConfigFields.ecmaScriptVersion,
+      baseDir,
+    );
   } catch (e) {
     error(`Failed to parse tsconfig ${tsconfig}: ${e}`);
     results.meta.warnings.push(
@@ -214,9 +226,8 @@ async function analyzeFilesFromTsConfig(
     warn(msg);
   }
 
-  const libSource = enrichProgramLib(programOptions, jsTsConfigFields.ecmaScriptVersion, baseDir);
   info(
-    `Creating TypeScript(${ts.version}) program with configuration file ${tsconfig} [lib: ${programOptions.options.lib?.join(', ')}, source: ${libSource}]`,
+    `Creating TypeScript(${ts.version}) program with configuration file ${tsconfig} [lib: ${programOptions.options.lib?.join(', ')}]`,
   );
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
   const tsProgram = createStandardProgram(programOptions);

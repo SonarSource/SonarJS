@@ -20,15 +20,12 @@ import { expect } from 'expect';
 import ts from 'typescript';
 import { normalizePath, normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
 import {
+  computeLibJson,
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
-  detectLibFromSignals,
-  enrichProgramLib,
-  esYearToLib,
   nodeVersionToEs,
   parseMaxNodeMajor,
-  tsTargetToEsYear,
 } from '../../src/program/tsconfig/options.js';
 import { clearProgramOptionsCache } from '../../src/program/cache/programOptionsCache.js';
 import { clearTsConfigContentCache } from '../../src/program/cache/tsconfigCache.js';
@@ -213,94 +210,42 @@ describe('defaultCompilerOptions', () => {
   });
 });
 
-describe('tsTargetToEsYear', () => {
-  it('should map ES3 and ES5 to 2020 (matches TypeScript lib.d.ts effective coverage)', () => {
-    expect(tsTargetToEsYear(ts.ScriptTarget.ES3)).toBe(2020);
-    expect(tsTargetToEsYear(ts.ScriptTarget.ES5)).toBe(2020);
-  });
-
-  it('should map ES2015–ES2023 to the corresponding year', () => {
-    expect(tsTargetToEsYear(ts.ScriptTarget.ES2015)).toBe(2015);
-    expect(tsTargetToEsYear(ts.ScriptTarget.ES2017)).toBe(2017);
-    expect(tsTargetToEsYear(ts.ScriptTarget.ES2022)).toBe(2022);
-    expect(tsTargetToEsYear(ts.ScriptTarget.ES2023)).toBe(2023);
-  });
-
-  it('should return null for ESNext (handled as esnext fallback)', () => {
-    expect(tsTargetToEsYear(ts.ScriptTarget.ESNext)).toBeNull();
-  });
-});
-
-describe('enrichProgramLib', () => {
+describe('computeLibJson', () => {
   const baseDir = normalizeToAbsolutePath('/tmp');
 
-  it('should leave lib unchanged when already set by tsconfig', () => {
-    const programOptions = createProgramOptionsFromJson(
-      { lib: ['es2020'] },
-      [normalizeToAbsolutePath('/tmp/a.ts')],
-      '/tmp',
-    );
-    const source = enrichProgramLib(programOptions, undefined, baseDir);
-    expect(source).toBe('tsconfig.lib');
-    // lib is still the tsconfig-set value (normalized by TypeScript)
-    expect(programOptions.options.lib).toContain('lib.es2020.d.ts');
-  });
-
-  it('should use ecmaScriptVersion override when set, ignoring other signals', () => {
+  it('should use ecmaScriptVersion override, ignoring other signals', () => {
     // target=ES2023 would give ES2023, but ecmaScriptVersion=ES2022 wins
-    const programOptions = createProgramOptionsFromJson(
-      { target: 'ES2023' },
-      [normalizeToAbsolutePath('/tmp/a.ts')],
-      '/tmp',
-    );
-    const source = enrichProgramLib(programOptions, 'ES2022', baseDir);
-    expect(source).toBe('sonar.javascript.ecmaScriptVersion');
-    expect(programOptions.options.lib).toEqual(['lib.es2022.d.ts', 'lib.dom.d.ts']);
+    expect(computeLibJson('ES2022', 'ES2023', baseDir)).toEqual(['es2022', 'dom']);
   });
 
-  it('should use tsconfig target when it is the only signal', () => {
-    const programOptions = createProgramOptionsFromJson(
-      { target: 'ES2022' },
-      [normalizeToAbsolutePath('/tmp/a.ts')],
-      '/tmp',
-    );
-    const source = enrichProgramLib(programOptions, undefined, baseDir);
-    expect(source).toBe('tsconfig.target');
-    expect(programOptions.options.lib).toEqual(['lib.es2022.d.ts', 'lib.dom.d.ts']);
+  it('should be case-insensitive for ecmaScriptVersion', () => {
+    expect(computeLibJson('es2022', undefined, baseDir)).toEqual(['es2022', 'dom']);
   });
 
-  it('should map ES5 target to ES2020 (matching TypeScript lib.d.ts coverage)', () => {
-    const programOptions = createProgramOptionsFromJson(
-      { target: 'ES5' },
-      [normalizeToAbsolutePath('/tmp/a.ts')],
-      '/tmp',
-    );
-    const source = enrichProgramLib(programOptions, undefined, baseDir);
-    expect(source).toBe('tsconfig.target');
-    expect(programOptions.options.lib).toEqual(['lib.es2020.d.ts', 'lib.dom.d.ts']);
+  it('should use tsconfig target string when it is the only signal', () => {
+    expect(computeLibJson(undefined, 'ES2022', baseDir)).toEqual(['es2022', 'dom']);
   });
 
-  it('should take the maximum of target and node signals', () => {
-    // target=ES2022 (2022) vs no node signal in /tmp → tsconfig.target wins
-    const programOptions = createProgramOptionsFromJson(
-      { target: 'ES2022' },
-      [normalizeToAbsolutePath('/tmp/a.ts')],
-      '/tmp',
-    );
-    const source = enrichProgramLib(programOptions, undefined, baseDir);
-    expect(source).toBe('tsconfig.target');
-    expect(programOptions.options.lib).toEqual(['lib.es2022.d.ts', 'lib.dom.d.ts']);
+  it('should map ES3 and ES5 targets to ES2020', () => {
+    expect(computeLibJson(undefined, 'ES3', baseDir)).toEqual(['es2020', 'dom']);
+    expect(computeLibJson(undefined, 'ES5', baseDir)).toEqual(['es2020', 'dom']);
+  });
+
+  it('should return esnext for ESNext target with no node signals', () => {
+    expect(computeLibJson(undefined, 'ESNext', baseDir)).toEqual(['esnext', 'dom']);
   });
 
   it('should fall back to esnext when no signals at all', () => {
-    const programOptions = createProgramOptionsFromJson(
-      {},
-      [normalizeToAbsolutePath('/tmp/a.ts')],
-      '/tmp',
+    expect(computeLibJson(undefined, undefined, baseDir)).toEqual(['esnext', 'dom']);
+  });
+
+  it('should take the maximum of target and node signals', () => {
+    // target=ES2020, node signal from package.json gives ES2022 → ES2022 wins
+    // We use the fixtures dir which has a package.json with @types/node ^18 → ES2022
+    const fixturesBaseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures/node-signals'),
     );
-    const source = enrichProgramLib(programOptions, undefined, baseDir);
-    expect(source).toBe('default');
-    expect(programOptions.options.lib).toEqual(['lib.esnext.d.ts', 'lib.dom.d.ts']);
+    expect(computeLibJson(undefined, 'ES2020', fixturesBaseDir)).toEqual(['es2022', 'dom']);
   });
 });
 
@@ -363,41 +308,5 @@ describe('nodeVersionToEs', () => {
 
   it('should map Node 8 to ES2017', () => {
     expect(nodeVersionToEs(8)).toBe(2017);
-  });
-});
-
-describe('esYearToLib', () => {
-  it('should return normalized lib file names for an ES year', () => {
-    expect(esYearToLib(2022)).toEqual(['lib.es2022.d.ts', 'lib.dom.d.ts']);
-  });
-});
-
-describe('detectLibFromSignals', () => {
-  it('should return lib from @types/node ^22', () => {
-    expect(detectLibFromSignals(undefined, '^22.0.0')).toEqual(['lib.es2024.d.ts', 'lib.dom.d.ts']);
-  });
-
-  it('should return lib from engines.node >=18', () => {
-    expect(detectLibFromSignals(undefined, '>=18')).toEqual(['lib.es2022.d.ts', 'lib.dom.d.ts']);
-  });
-
-  it('should use ecmaScriptVersion override over node signal', () => {
-    expect(detectLibFromSignals('ES2023', '^18.0.0')).toEqual(['lib.es2023.d.ts', 'lib.dom.d.ts']);
-  });
-
-  it('should return null when @types/node is latest', () => {
-    expect(detectLibFromSignals(undefined, 'latest')).toBeNull();
-  });
-
-  it('should return null when both signals are absent', () => {
-    expect(detectLibFromSignals(undefined, null)).toBeNull();
-  });
-
-  it('should be case-insensitive for ecmaScriptVersion', () => {
-    expect(detectLibFromSignals('es2022', null)).toEqual(['lib.es2022.d.ts', 'lib.dom.d.ts']);
-  });
-
-  it('should return null for invalid ecmaScriptVersion with no node signal', () => {
-    expect(detectLibFromSignals('INVALID', null)).toBeNull();
   });
 });

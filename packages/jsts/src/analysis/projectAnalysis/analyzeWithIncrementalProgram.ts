@@ -27,10 +27,10 @@ import { sanitizeReferences } from '../../program/tsconfig/utils.js';
 import ts from 'typescript';
 import { createOrGetCachedProgramForFile } from '../../program/factory.js';
 import {
+  computeLibJson,
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
-  enrichProgramLib,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
@@ -132,7 +132,13 @@ function programOptionsFromClosestTsconfig(
   ) {
     processedTsConfigs.add(tsconfig);
     try {
-      const programOptions = createProgramOptions(tsconfig, undefined, canAccessFileSystem);
+      const programOptions = createProgramOptions(
+        tsconfig,
+        undefined,
+        canAccessFileSystem,
+        jsTsConfigFields.ecmaScriptVersion,
+        baseDir,
+      );
       if (programOptions.projectReferences?.length) {
         for (const reference of sanitizeReferences(programOptions.projectReferences)) {
           tsConfigStore.addDiscoveredTsConfig(reference);
@@ -144,13 +150,8 @@ function programOptionsFromClosestTsconfig(
         warn(msg);
       }
       if (programOptions.rootNames.includes(file)) {
-        const libSource = enrichProgramLib(
-          programOptions,
-          jsTsConfigFields.ecmaScriptVersion,
-          baseDir,
-        );
         info(
-          `Using tsconfig ${tsconfig} for ${file} [lib: ${programOptions.options.lib?.join(', ')}, source: ${libSource}]`,
+          `Using tsconfig ${tsconfig} for ${file} [lib: ${programOptions.options.lib?.join(', ')}]`,
         );
         return programOptions;
       }
@@ -172,13 +173,15 @@ function programOptionsFromClosestTsconfig(
   try {
     // TODO(JS-1138): File order can affect program combinations - improve strategy
     const programOptions = createProgramOptionsFromJson(
-      defaultCompilerOptions,
+      {
+        ...defaultCompilerOptions,
+        lib: computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, baseDir),
+      },
       [...pendingFiles],
       baseDir,
     );
-    const libSource = enrichProgramLib(programOptions, jsTsConfigFields.ecmaScriptVersion, baseDir);
     info(
-      `No tsconfig found for files, using default options [lib: ${programOptions.options.lib?.join(', ')}, source: ${libSource}]`,
+      `No tsconfig found for files, using default options [lib: ${programOptions.options.lib?.join(', ')}]`,
     );
     return programOptions;
   } catch (e) {
