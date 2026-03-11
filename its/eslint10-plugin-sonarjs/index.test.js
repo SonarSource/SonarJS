@@ -75,4 +75,5 @@ test('should not crash on Svelte use: directives (JS-1429)', async t => {
     },
   );
   assert(!result.stderr.includes('TypeError'), `ESLint crashed:\n${result.stderr}`);
+  assert.notStrictEqual(result.status, 2, `ESLint exited with fatal error:\n${result.stderr}`);
 });
