@@ -129,6 +129,41 @@ class Button extends React.Component {
     });
   });
 
+  it('should not report props when spread into a JSX element via JSXSpreadAttribute', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: props forwarded via JSX spread; second object-literal spread resets upstream flag
+          code: `
+function Wrapper(props) {
+  return <div {...props} {...{extra: 'extra-value'}} />;
+}
+Wrapper.propTypes = {
+  onClick: PropTypes.func,
+};
+`,
+        },
+        {
+          // FP: class component this.props forwarded via JSX spread; second object-literal spread resets upstream flag
+          code: `
+class MyComponent extends React.Component {
+  render() {
+    return <Child {...this.props} {...{extra: 'extra-value'}} />;
+  }
+}
+MyComponent.propTypes = {
+  onClick: PropTypes.func,
+  label: PropTypes.string,
+};
+`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('should exercise TypeScript type-checking paths (Strategy C in react helpers)', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
@@ -282,6 +317,32 @@ function Button(props) {
   return <button style={getStyle(props)} />;
 }
 Button.propTypes = { color: PropTypes.string };
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('upstream rule should report JSX spread FP pattern (sentinel: remove decorator if this fails)', () => {
+    // Confirms that the upstream eslint-plugin-react no-unused-prop-types rule DOES raise
+    // issues when {...props} or {...this.props} in JSX is followed by an object-literal
+    // spread that resets the upstream ignoreUnusedPropTypesValidation flag.
+    // If this test starts failing, the upstream rule has been fixed and the JSXSpreadAttribute
+    // handling in the S6767 decorator can be removed.
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types (upstream, JSX spread)', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // upstream resets ignoreUnusedPropTypesValidation when an object-literal spread follows the props spread
+          code: `
+function Wrapper(props) {
+  return <div {...props} {...{extra: 'extra-value'}} />;
+}
+Wrapper.propTypes = { onClick: PropTypes.func };
 `,
           errors: 1,
         },
