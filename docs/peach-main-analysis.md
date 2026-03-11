@@ -15,6 +15,19 @@ before a release is essential to ensure the analyzer is stable.
 Not all failures indicate an analyzer problem. The workflow involves several phases before the
 actual scan, and failures in early phases are unrelated to the SonarJS analyzer.
 
+## SonarJS Sensor Names
+
+The SonarJS plugin registers exactly these sensors. A crash is only a SonarJS concern if the
+log shows one of these names in the failing sensor context:
+
+- `JavaScript/TypeScript/CSS analysis` — the main analysis sensor (WebSensor)
+- `JavaScript/TypeScript Coverage` — LCOV coverage import
+- `Import of TSLint issues` — TSLint report import
+- `Import of stylelint issues` — stylelint report import
+
+Any other sensor name (e.g. `Sensor Declarative Rule Engine for Shell`, `Java sensor`,
+`Security SonarQube`) belongs to a **different plugin** and is not a SonarJS issue.
+
 ### Decision Flowchart
 
 ```
@@ -25,45 +38,42 @@ actual scan, and failures in early phases are unrelated to the SonarJS analyzer.
 
 2. What is the scanner exit code?
    ├─ Exit code 3 → read the error message:
-   │   ├─ Java stack trace (IllegalArgumentException, IllegalStateException, DRE) → CRITICAL (analyzer crash)
-   │   └─ "The folder X does not exist" or "Invalid value of sonar.X" → IGNORE (project misconfiguration)
+   │   ├─ "The folder X does not exist" or "Invalid value of sonar.X" → IGNORE (project misconfiguration)
+   │   └─ Java stack trace present → go to step 3
    ├─ Exit code 137 → CRITICAL (out-of-memory, escalate)
-   └─ Other exit code → inspect stack trace:
-       ├─ Java exception originating from SonarJS/scanner code → CRITICAL
-       └─ Other → NEEDS-MANUAL-REVIEW
+   └─ Other exit code → NEEDS-MANUAL-REVIEW
+
+3. Which sensor crashed?
+   ├─ Sensor name is one of the SonarJS sensors listed above → CRITICAL (SonarJS analyzer crash)
+   └─ Sensor name is something else (DRE Shell, Java, Security...) → IGNORE (different plugin, not our problem)
 ```
 
 ## Failure Categories
 
-### CRITICAL: Analyzer Crash
+### CRITICAL: SonarJS Analyzer Crash
 
 **Verdict:** CRITICAL — must be investigated before any release.
 
 **How to identify:**
 - Failure occurs during the SonarScanner execution step (not during install/checkout)
 - Scanner exits with code 3
-- Java stack trace present in logs containing one or more of:
-  - `DRE analysis failed`
-  - `java.lang.IllegalArgumentException`
-  - `java.lang.IllegalStateException`
-  - `Failed to save issue`
-  - `EXECUTION FAILURE` followed by a Java exception
+- Java stack trace present in the logs
+- The failing sensor is one of the **SonarJS sensors** listed above (look for
+  `Sensor JavaScript/TypeScript/CSS analysis` or similar in the log lines near the crash)
 
 **Example log excerpt:**
 ```
-03:04:07 ERROR Error during SonarScanner Engine execution
-java.lang.IllegalStateException: DRE analysis failed
-  at com.A.A.D.H.execute(Unknown Source)
-  ...
-Caused by: java.lang.IllegalStateException: Failed to save issue
-Caused by: java.lang.IllegalArgumentException: 19 is not a valid line offset for pointer.
-  File packages/react-native-editor/bin/test-e2e-setup.sh has 18 character(s) at line 21
+Sensor JavaScript/TypeScript/CSS analysis [javascript]
 ...
-03:04:08 INFO  EXECUTION FAILURE
+ERROR Error during SonarScanner Engine execution
+java.lang.IllegalStateException: Analysis failed
+  at org.sonar.plugins.javascript.analysis.WebSensor.execute(WebSensor.java:...)
+  ...
+EXECUTION FAILURE
 ##[error]Process completed with exit code 3.
 ```
 
-**Action:** File a bug or investigate the analyzer code. Do not release until resolved.
+**Action:** File a bug or investigate the SonarJS analyzer code. Do not release until resolved.
 
 ---
 
@@ -82,6 +92,38 @@ Caused by: java.lang.IllegalArgumentException: 19 is not a valid line offset for
 ```
 
 **Action:** Investigate whether the analyzer has a memory regression. Do not release until confirmed safe.
+
+---
+
+### IGNORE: Third-Party Sensor Crash
+
+**Verdict:** IGNORE — a different SonarSource plugin crashed, not the SonarJS analyzer.
+
+**How to identify:**
+- Failure occurs during the SonarScanner execution step
+- Scanner exits with code 3 and a Java stack trace is present
+- The failing sensor name is **not** one of the SonarJS sensors listed above
+- Common non-SonarJS sensor names seen on Peach:
+  - `Sensor Declarative Rule Engine for Shell` — belongs to **sonar-iac**
+  - `Sensor Declarative Rule Engine for Terraform` — belongs to **sonar-iac**
+  - `Sensor Declarative Rule Engine for CloudFormation` — belongs to **sonar-iac**
+  - `Java sensor` — belongs to **sonar-java**
+  - Any `Security` sensor — belongs to SonarSource security plugins
+
+**Example log excerpt (gutenberg, 2026-03-11):**
+```
+java.lang.IllegalStateException: DRE analysis failed
+  at com.A.A.D.H.execute(Unknown Source)       ← sonar-iac obfuscated class, not SonarJS
+  ...
+Caused by: java.lang.IllegalArgumentException: 19 is not a valid line offset for pointer.
+  File packages/react-native-editor/bin/test-e2e-setup.sh has 18 character(s) at line 21
+EXECUTION FAILURE
+##[error]Process completed with exit code 3.
+```
+
+The class `com.A.A.D.H` is from the sonar-iac plugin (obfuscated). No `org.sonar.plugins.javascript` frame is present — this is not a SonarJS crash.
+
+**Action:** None for the SonarJS team. Optionally notify the team responsible for the failing sensor (e.g. sonar-iac team for DRE Shell failures).
 
 ---
 
