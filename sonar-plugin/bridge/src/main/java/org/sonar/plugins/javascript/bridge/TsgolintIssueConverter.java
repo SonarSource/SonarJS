@@ -44,7 +44,9 @@ public class TsgolintIssueConverter {
     "no-mixed-enums",
     "S6583",
     "prefer-promise-reject-errors",
-    "S6671"
+    "S6671",
+    "no-array-delete",
+    "S2870"
   );
 
   private TsgolintIssueConverter() {}

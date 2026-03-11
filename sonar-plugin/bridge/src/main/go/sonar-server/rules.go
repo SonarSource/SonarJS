@@ -12,7 +12,7 @@ import (
 )
 
 // allRules contains the rules available in the sonar-server.
-// For the PoC, only the 7 pure-external rules are included.
+// For the PoC, 7 external rules and 1 custom Sonar rule are included.
 var allRules = []rule.Rule{
 	await_thenable.AwaitThenableRule,
 	prefer_readonly.PreferReadonlyRule,
@@ -21,4 +21,5 @@ var allRules = []rule.Rule{
 	prefer_return_this_type.PreferReturnThisTypeRule,
 	no_mixed_enums.NoMixedEnumsRule,
 	prefer_promise_reject_errors.PreferPromiseRejectErrorsRule,
+	NoArrayDeleteRule,
 }

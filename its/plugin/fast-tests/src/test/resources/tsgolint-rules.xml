@@ -45,5 +45,11 @@
       <key>S6671</key>
       <priority>INFO</priority>
     </rule>
+    <!-- S2870: no-array-delete -->
+    <rule>
+      <repositoryKey>typescript</repositoryKey>
+      <key>S2870</key>
+      <priority>INFO</priority>
+    </rule>
   </rules>
 </profile>
