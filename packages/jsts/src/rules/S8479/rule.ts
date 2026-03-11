@@ -42,15 +42,30 @@ const EVENT_HANDLER_PATTERN = /^on[a-z]/i;
 
 /**
  * Boolean options that are dangerous when set to the specified value.
- * `true` means the option is dangerous when set to `true`,
- * `false` means the option is dangerous when set to `false`.
+ * `dangerousValue` is the value that weakens sanitization,
+ * `reason` explains why it is dangerous.
  */
-const DANGEROUS_BOOLEAN_OPTIONS: Record<string, boolean> = {
-  ALLOW_UNKNOWN_PROTOCOLS: true,
-  WHOLE_DOCUMENT: true,
-  SAFE_FOR_XML: false,
-  SANITIZE_DOM: false,
-  RETURN_TRUSTED_TYPE: false,
+const DANGEROUS_BOOLEAN_OPTIONS: Record<string, { dangerousValue: boolean; reason: string }> = {
+  ALLOW_UNKNOWN_PROTOCOLS: {
+    dangerousValue: true,
+    reason: 'prevent injection through dangerous URI schemes like javascript:',
+  },
+  WHOLE_DOCUMENT: {
+    dangerousValue: true,
+    reason: 'avoid processing the full document including dangerous head elements',
+  },
+  SAFE_FOR_XML: {
+    dangerousValue: false,
+    reason: 'enable XML-specific sanitization',
+  },
+  SANITIZE_DOM: {
+    dangerousValue: false,
+    reason: 'enable protection against DOM clobbering attacks',
+  },
+  RETURN_TRUSTED_TYPE: {
+    dangerousValue: false,
+    reason: 'leverage Trusted Types for additional XSS protection',
+  },
 };
 
 const SANITIZE_FQNS = new Set([
@@ -61,8 +76,12 @@ const SANITIZE_FQNS = new Set([
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      unsafeConfig:
-        'Review this DOMPurify configuration to ensure it does not weaken sanitization.',
+      dangerousTags:
+        "Remove {{tags}} from 'ADD_TAGS' to prevent introducing dangerous HTML elements.",
+      dangerousAttrs:
+        "Remove {{attrs}} from 'ADD_ATTR' to prevent introducing event handler attributes.",
+      unsafeBoolOption:
+        "Set '{{option}}' to '{{safe}}' to {{reason}}.",
     },
   }),
 
@@ -79,18 +98,16 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (hasDangerousConfig(configArg)) {
-          context.report({
-            messageId: 'unsafeConfig',
-            node: configArg,
-          });
-        }
+        reportDangerousConfig(context, configArg);
       },
     };
   },
 };
 
-function hasDangerousConfig(config: estree.ObjectExpression): boolean {
+function reportDangerousConfig(
+  context: Rule.RuleContext,
+  config: estree.ObjectExpression,
+): void {
   for (const prop of config.properties) {
     if (prop.type !== 'Property') {
       continue;
@@ -101,20 +118,35 @@ function hasDangerousConfig(config: estree.ObjectExpression): boolean {
       continue;
     }
 
-    if (key === 'ADD_TAGS' && hasDangerousArrayElements(prop.value, DANGEROUS_TAGS)) {
-      return true;
-    }
-
-    if (key === 'ADD_ATTR' && hasDangerousAttributes(prop.value)) {
-      return true;
-    }
-
-    if (key in DANGEROUS_BOOLEAN_OPTIONS && isBooleanLiteral(prop.value, DANGEROUS_BOOLEAN_OPTIONS[key])) {
-      return true;
+    if (key === 'ADD_TAGS') {
+      const dangerous = getDangerousArrayElements(prop.value, DANGEROUS_TAGS);
+      if (dangerous.length > 0) {
+        context.report({
+          messageId: 'dangerousTags',
+          node: prop,
+          data: { tags: formatList(dangerous) },
+        });
+      }
+    } else if (key === 'ADD_ATTR') {
+      const dangerous = getDangerousAttributes(prop.value);
+      if (dangerous.length > 0) {
+        context.report({
+          messageId: 'dangerousAttrs',
+          node: prop,
+          data: { attrs: formatList(dangerous) },
+        });
+      }
+    } else if (key in DANGEROUS_BOOLEAN_OPTIONS) {
+      const { dangerousValue, reason } = DANGEROUS_BOOLEAN_OPTIONS[key];
+      if (isBooleanLiteral(prop.value, dangerousValue)) {
+        context.report({
+          messageId: 'unsafeBoolOption',
+          node: prop,
+          data: { option: key, safe: String(!dangerousValue), reason },
+        });
+      }
     }
   }
-
-  return false;
 }
 
 function getPropertyName(prop: estree.Property): string | undefined {
@@ -127,26 +159,42 @@ function getPropertyName(prop: estree.Property): string | undefined {
   return undefined;
 }
 
-function hasDangerousArrayElements(node: estree.Node, dangerousSet: Set<string>): boolean {
+function getDangerousArrayElements(node: estree.Node, dangerousSet: Set<string>): string[] {
   if (node.type !== 'ArrayExpression') {
-    return false;
+    return [];
   }
-  return node.elements.some(
-    el => el && el.type === 'Literal' && typeof el.value === 'string' && dangerousSet.has(el.value.toLowerCase()),
-  );
+  return node.elements
+    .filter(
+      (el): el is estree.Literal =>
+        el !== null &&
+        el.type === 'Literal' &&
+        typeof el.value === 'string' &&
+        dangerousSet.has((el.value as string).toLowerCase()),
+    )
+    .map(el => el.value as string);
 }
 
-function hasDangerousAttributes(node: estree.Node): boolean {
+function getDangerousAttributes(node: estree.Node): string[] {
   if (node.type !== 'ArrayExpression') {
-    return false;
+    return [];
   }
-  return node.elements.some(
-    el =>
-      el &&
-      el.type === 'Literal' &&
-      typeof el.value === 'string' &&
-      EVENT_HANDLER_PATTERN.test(el.value),
-  );
+  return node.elements
+    .filter(
+      (el): el is estree.Literal =>
+        el !== null &&
+        el.type === 'Literal' &&
+        typeof el.value === 'string' &&
+        EVENT_HANDLER_PATTERN.test(el.value as string),
+    )
+    .map(el => el.value as string);
+}
+
+function formatList(items: string[]): string {
+  const quoted = items.map(item => `'${item}'`);
+  if (quoted.length === 1) {
+    return quoted[0];
+  }
+  return `${quoted.slice(0, -1).join(', ')} and ${quoted[quoted.length - 1]}`;
 }
 
 function isBooleanLiteral(node: estree.Node, value: boolean): boolean {

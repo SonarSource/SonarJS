@@ -2,81 +2,62 @@ import DOMPurify from 'dompurify';
 
 const html = '<div>test</div>';
 
-// Noncompliant: dangerous tags in ADD_TAGS
-const clean1 = DOMPurify.sanitize(html, { ADD_TAGS: ['script', 'iframe'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// dangerous tags in ADD_TAGS
+const clean1 = DOMPurify.sanitize(html, { ADD_TAGS: ['script', 'iframe'] }); // Noncompliant {{Remove 'script' and 'iframe' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
 
-// Noncompliant: event handler attributes in ADD_ATTR
-const clean2 = DOMPurify.sanitize(html, { ADD_ATTR: ['onclick', 'onerror'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// event handler attributes in ADD_ATTR
+const clean2 = DOMPurify.sanitize(html, { ADD_ATTR: ['onclick', 'onerror'] }); // Noncompliant {{Remove 'onclick' and 'onerror' from 'ADD_ATTR' to prevent introducing event handler attributes.}}
 
-// Noncompliant: ALLOW_UNKNOWN_PROTOCOLS set to true
-const clean3 = DOMPurify.sanitize(html, { ALLOW_UNKNOWN_PROTOCOLS: true }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// ALLOW_UNKNOWN_PROTOCOLS set to true
+const clean3 = DOMPurify.sanitize(html, { ALLOW_UNKNOWN_PROTOCOLS: true }); // Noncompliant {{Set 'ALLOW_UNKNOWN_PROTOCOLS' to 'false' to prevent injection through dangerous URI schemes like javascript:.}}
 
-// Noncompliant: WHOLE_DOCUMENT set to true
-const clean4 = DOMPurify.sanitize(html, { WHOLE_DOCUMENT: true }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                       ^^^^^^^^^^^^^^^^^^^^^^^^
+// WHOLE_DOCUMENT set to true
+const clean4 = DOMPurify.sanitize(html, { WHOLE_DOCUMENT: true }); // Noncompliant {{Set 'WHOLE_DOCUMENT' to 'false' to avoid processing the full document including dangerous head elements.}}
 
-// Noncompliant: SAFE_FOR_XML set to false
-const clean5 = DOMPurify.sanitize(html, { SAFE_FOR_XML: false }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                       ^^^^^^^^^^^^^^^^^^^^^^^
+// SAFE_FOR_XML set to false
+const clean5 = DOMPurify.sanitize(html, { SAFE_FOR_XML: false }); // Noncompliant {{Set 'SAFE_FOR_XML' to 'true' to enable XML-specific sanitization.}}
 
-// Noncompliant: SANITIZE_DOM set to false
-const clean6 = DOMPurify.sanitize(html, { SANITIZE_DOM: false }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                       ^^^^^^^^^^^^^^^^^^^^^^^
+// SANITIZE_DOM set to false
+const clean6 = DOMPurify.sanitize(html, { SANITIZE_DOM: false }); // Noncompliant {{Set 'SANITIZE_DOM' to 'true' to enable protection against DOM clobbering attacks.}}
 
-// Noncompliant: RETURN_TRUSTED_TYPE set to false
-const clean7 = DOMPurify.sanitize(html, { RETURN_TRUSTED_TYPE: false }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// RETURN_TRUSTED_TYPE set to false
+const clean7 = DOMPurify.sanitize(html, { RETURN_TRUSTED_TYPE: false }); // Noncompliant {{Set 'RETURN_TRUSTED_TYPE' to 'true' to leverage Trusted Types for additional XSS protection.}}
 
-// Noncompliant: dangerous tag 'embed'
-const clean8 = DOMPurify.sanitize(html, { ADD_TAGS: ['embed'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                       ^^^^^^^^^^^^^^^^^^^^^^^
+// dangerous tag 'embed'
+const clean8 = DOMPurify.sanitize(html, { ADD_TAGS: ['embed'] }); // Noncompliant {{Remove 'embed' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
 
-// Noncompliant: dangerous tag 'form'
-const clean9 = DOMPurify.sanitize(html, { ADD_TAGS: ['form'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                       ^^^^^^^^^^^^^^^^^^^^^^
+// dangerous tag 'form'
+const clean9 = DOMPurify.sanitize(html, { ADD_TAGS: ['form'] }); // Noncompliant {{Remove 'form' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
 
-// Noncompliant: dangerous tag 'svg'
-const clean10 = DOMPurify.sanitize(html, { ADD_TAGS: ['svg'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                        ^^^^^^^^^^^^^^^^^^^^^^
+// dangerous tag 'svg'
+const clean10 = DOMPurify.sanitize(html, { ADD_TAGS: ['svg'] }); // Noncompliant {{Remove 'svg' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
 
-// Noncompliant: dangerous tag 'math'
-const clean11 = DOMPurify.sanitize(html, { ADD_TAGS: ['math'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                        ^^^^^^^^^^^^^^^^^^^^^^^
+// dangerous tag 'math'
+const clean11 = DOMPurify.sanitize(html, { ADD_TAGS: ['math'] }); // Noncompliant {{Remove 'math' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
 
-// Noncompliant: dangerous tag 'style'
-const clean12 = DOMPurify.sanitize(html, { ADD_TAGS: ['style'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                        ^^^^^^^^^^^^^^^^^^^^^^^^
+// dangerous tag 'style'
+const clean12 = DOMPurify.sanitize(html, { ADD_TAGS: ['style'] }); // Noncompliant {{Remove 'style' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
 
-// Noncompliant: dangerous tag 'base'
-const clean13 = DOMPurify.sanitize(html, { ADD_TAGS: ['base'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                        ^^^^^^^^^^^^^^^^^^^^^^^
+// dangerous tag 'base'
+const clean13 = DOMPurify.sanitize(html, { ADD_TAGS: ['base'] }); // Noncompliant {{Remove 'base' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
 
-// Noncompliant: dangerous tag 'meta'
-const clean14 = DOMPurify.sanitize(html, { ADD_TAGS: ['meta'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                        ^^^^^^^^^^^^^^^^^^^^^^^
+// dangerous tag 'meta'
+const clean14 = DOMPurify.sanitize(html, { ADD_TAGS: ['meta'] }); // Noncompliant {{Remove 'meta' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
 
-// Noncompliant: dangerous tag 'link'
-const clean15 = DOMPurify.sanitize(html, { ADD_TAGS: ['link'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                        ^^^^^^^^^^^^^^^^^^^^^^^
+// dangerous tag 'link'
+const clean15 = DOMPurify.sanitize(html, { ADD_TAGS: ['link'] }); // Noncompliant {{Remove 'link' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
 
-// Noncompliant: event handler 'onmouseover'
-const clean16 = DOMPurify.sanitize(html, { ADD_ATTR: ['onmouseover'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// event handler 'onmouseover'
+const clean16 = DOMPurify.sanitize(html, { ADD_ATTR: ['onmouseover'] }); // Noncompliant {{Remove 'onmouseover' from 'ADD_ATTR' to prevent introducing event handler attributes.}}
 
-// Noncompliant: event handler 'onfocus'
-const clean17 = DOMPurify.sanitize(html, { ADD_ATTR: ['onfocus'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+// event handler 'onfocus'
+const clean17 = DOMPurify.sanitize(html, { ADD_ATTR: ['onfocus'] }); // Noncompliant {{Remove 'onfocus' from 'ADD_ATTR' to prevent introducing event handler attributes.}}
 
-// Noncompliant: event handler 'onload'
-const clean18 = DOMPurify.sanitize(html, { ADD_ATTR: ['onload'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                        ^^^^^^^^^^^^^^^^^^^^^^^^^
+// event handler 'onload'
+const clean18 = DOMPurify.sanitize(html, { ADD_ATTR: ['onload'] }); // Noncompliant {{Remove 'onload' from 'ADD_ATTR' to prevent introducing event handler attributes.}}
 
-// Noncompliant: safe tag mixed with dangerous one
-const clean19 = DOMPurify.sanitize(html, { ADD_TAGS: ['custom-element', 'script'] }); // Noncompliant {{Review this DOMPurify configuration to ensure it does not weaken sanitization.}}
-//                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// safe tag mixed with dangerous one
+const clean19 = DOMPurify.sanitize(html, { ADD_TAGS: ['custom-element', 'script'] }); // Noncompliant {{Remove 'script' from 'ADD_TAGS' to prevent introducing dangerous HTML elements.}}
 
 // Compliant: safe configuration with USE_PROFILES
 const safeClean1 = DOMPurify.sanitize(html, {
