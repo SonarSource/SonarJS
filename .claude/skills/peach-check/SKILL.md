@@ -45,7 +45,7 @@ gh run list \
   --json databaseId,conclusion,createdAt,status
 ```
 
-Pick the most recent run with `status == "completed"`. Record its `databaseId` as `RUN_ID`.
+Pick the most recent run with `status == "completed"` (meaning finished running, not necessarily passed — a completed run can have failed jobs, which is what we're looking for). Record its `databaseId` as `RUN_ID`.
 
 **Step 1.2 — Collect all failed jobs**
 
@@ -93,9 +93,11 @@ Job ID: JOB_ID
 Task ID: TASK_ID (mark this task complete when done)
 
 Your steps:
+0. Working directory: /home/francois/git/worktree/SonarJS/fix-peach-check-skill (or the current SonarJS worktree — check that `docs/peach-main-analysis.md` exists before reading)
 1. Read docs/peach-main-analysis.md to understand failure categories and the decision flowchart
 2. Download the job logs:
    gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs"
+   If the log download fails or returns a redirect URL instead of content, skip to step 5 and return verdict `NEEDS-MANUAL-REVIEW` with evidence `Log download failed`.
 3. Classify the failure using the decision flowchart in docs/peach-main-analysis.md
 4. Mark the task TASK_ID as complete
 5. Return a structured assessment:
@@ -110,7 +112,7 @@ Do not do anything else. Just classify and return the assessment.
 
 **Step 1.6 — Collect results and print summary**
 
-Wait for all agents to return. Then print the summary table:
+Wait for all agents to return. If any agent returned no structured assessment, record that job as `NEEDS-MANUAL-REVIEW` with evidence `Agent returned no output`. Then print the summary table:
 
 ```
 ## Peach Main Analysis — Run RUN_ID (DATE)
