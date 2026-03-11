@@ -24,7 +24,9 @@ actual scan, and failures in early phases are unrelated to the SonarJS analyzer.
    └─ Unclear / no recognizable step → NEEDS-MANUAL-REVIEW
 
 2. What is the scanner exit code?
-   ├─ Exit code 3 → CRITICAL (analyzer crash)
+   ├─ Exit code 3 → read the error message:
+   │   ├─ Java stack trace (IllegalArgumentException, IllegalStateException, DRE) → CRITICAL (analyzer crash)
+   │   └─ "The folder X does not exist" or "Invalid value of sonar.X" → IGNORE (project misconfiguration)
    ├─ Exit code 137 → CRITICAL (out-of-memory, escalate)
    └─ Other exit code → inspect stack trace:
        ├─ Java exception originating from SonarJS/scanner code → CRITICAL
@@ -80,6 +82,30 @@ Caused by: java.lang.IllegalArgumentException: 19 is not a valid line offset for
 ```
 
 **Action:** Investigate whether the analyzer has a memory regression. Do not release until confirmed safe.
+
+---
+
+### IGNORE: Project Misconfiguration
+
+**Verdict:** IGNORE — the analyzed project's sonar-project.properties is misconfigured, unrelated to SonarJS.
+
+**How to identify:**
+- Failure occurs during the SonarScanner execution step
+- Scanner exits with code 3 (same as an analyzer crash — read the error message carefully)
+- Error message contains phrases like:
+  - `The folder 'X' does not exist for 'Y'`
+  - `Invalid value of sonar.tests` or `Invalid value of sonar.sources`
+  - `is not a valid` combined with a project path or configuration property
+
+**Example log excerpt:**
+```
+03:01:00.715 ERROR Invalid value of sonar.tests for js:open-swe
+03:01:00.744 ERROR The folder 'apps' does not exist for 'js:open-swe' (base directory = ...)
+03:01:01.077 INFO  EXECUTION FAILURE
+##[error]Process completed with exit code 3.
+```
+
+**Action:** None. The analyzed project's sonar-project.properties references a path that no longer exists. Not a SonarJS issue.
 
 ---
 

@@ -82,8 +82,18 @@ Download the logs and classify using docs/peach-main-analysis.md."
 
 **Step 1.5 — Launch parallel assessment agents**
 
+Before launching agents, download the logs for ALL failed jobs:
+
+```bash
+gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs"
+```
+
+Run this for each failed job. Store the output (trim to the most relevant ~100 lines if very long — keep lines containing ERROR, exit code, exception names, step group headers). You will pass these logs inline to each agent.
+
+Then update each agent prompt to include the logs inline. The per-job agent prompt becomes (fill in JOB_NAME, JOB_ID, TASK_ID, LOG_CONTENT):
+
 In a SINGLE message, launch one Agent tool call per failed job. All agents run concurrently.
-Each agent receives this prompt (fill in JOB_NAME, JOB_ID, TASK_ID):
+Each agent receives this prompt (fill in JOB_NAME, JOB_ID, TASK_ID, LOG_CONTENT):
 
 ```
 You are assessing a failed job in the Peach Main Analysis workflow.
@@ -95,9 +105,12 @@ Task ID: TASK_ID (mark this task complete when done)
 Your steps:
 0. Working directory: /home/francois/git/worktree/SonarJS/fix-peach-check-skill (or the current SonarJS worktree — check that `docs/peach-main-analysis.md` exists before reading)
 1. Read docs/peach-main-analysis.md to understand failure categories and the decision flowchart
-2. Download the job logs:
-   gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs"
-   If the log download fails or returns a redirect URL instead of content, skip to step 5 and return verdict `NEEDS-MANUAL-REVIEW` with evidence `Log download failed`.
+2. The job logs are provided below between the <job-logs> tags. Read them carefully.
+
+<job-logs>
+LOG_CONTENT
+</job-logs>
+
 3. Classify the failure using the decision flowchart in docs/peach-main-analysis.md
 4. Mark the task TASK_ID as complete
 5. Return a structured assessment:
