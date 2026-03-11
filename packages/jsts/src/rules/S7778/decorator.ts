@@ -64,6 +64,11 @@ function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescr
     return;
   }
 
+  if (tsNode.type !== 'Identifier') {
+    context.report(descriptor);
+    return;
+  }
+
   const identifier = tsNode as TSESTree.Identifier;
   const receiver = (tsNode.parent as TSESTree.MemberExpression).object as estree.Node;
   const methodName = identifier.name;
