@@ -17,6 +17,7 @@
 import { rule } from './index.js';
 import { decorate } from './decorator.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { rules as typescriptEslintRules } from '../external/typescript-eslint/index.js';
 import { describe, it } from 'node:test';
 import path from 'node:path';
 import parser from '@typescript-eslint/parser';
@@ -25,6 +26,42 @@ import assert from 'node:assert';
 import type { Rule } from 'eslint';
 
 const ruleTester = new RuleTester();
+const upstreamRule = typescriptEslintRules['no-unnecessary-type-assertion'];
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
+describe('S4325 upstream sentinel', () => {
+  it('upstream no-unnecessary-type-assertion raises on generic-call assertions that decorator suppresses', () => {
+    const sentinelTester = new RuleTester();
+    sentinelTester.run('no-unnecessary-type-assertion', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // Generic querySelector() as HTMLElement — suppressed by decorator, raised by upstream
+          code: `
+            class Component {
+              private eGui: HTMLElement = document.createElement('div');
+              queryForHtmlElement(cssSelector: string): HTMLElement {
+                return this.eGui.querySelector(cssSelector) as HTMLElement;
+              }
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // querySelector()! as HTMLElement — suppressed by decorator (new fix), raised by upstream
+          code: `
+            function getSubmitButton(form: Element): HTMLElement {
+              return form.querySelector('button[type="submit"]')! as HTMLElement;
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
 
 describe('S4325', () => {
   it('should not flag assertions narrowing generic function return types', () => {
@@ -117,6 +154,22 @@ describe('S4325', () => {
             }
             type EndOfFileToken = { kind: 'eof' };
             const token = parseTokenNode() as EndOfFileToken;
+          `,
+        },
+        {
+          // querySelector()! as HTMLElement — `as` drives generic inference; `!` strips null
+          code: `
+            function getSubmitButton(form: Element): HTMLElement {
+              return form.querySelector('button[type="submit"]')! as HTMLElement;
+            }
+          `,
+        },
+        {
+          // Same pattern with a more specific DOM element type
+          code: `
+            function getFirstLink(container: Element): HTMLAnchorElement {
+              return container.querySelector('a')! as HTMLAnchorElement;
+            }
           `,
         },
       ],
