@@ -106,6 +106,15 @@ function shouldSuppressTypeAssertion(
     return isCalleeGeneric(expression, services);
   }
 
+  // For non-null assertions wrapping a generic call (e.g., `querySelector()! as T`),
+  // the `as T` drives generic type inference just as a direct call would.
+  if ((expression as TSESTree.Node).type === 'TSNonNullExpression') {
+    const nonNull = expression as TSESTree.Node as TSESTree.TSNonNullExpression;
+    if (nonNull.expression.type === 'CallExpression') {
+      return isCalleeGeneric(nonNull.expression as unknown as estree.Node, services);
+    }
+  }
+
   return false;
 }
 
@@ -165,6 +174,18 @@ function shouldSuppressNonNullAssertion(
   services: RequiredParserServices,
 ): boolean {
   const expression = node.expression as estree.Node;
+
+  // Suppress `!` when it is part of `genericCall()! as T`:
+  // the `as T` drives generic type inference, so even if `!` appears redundant
+  // in isolation, it is inseparable from the assertion that drives inference.
+  if (
+    (node.parent?.type === 'TSAsExpression' || node.parent?.type === 'TSTypeAssertion') &&
+    (node.expression as TSESTree.Node).type === 'CallExpression' &&
+    isCalleeGeneric(expression, services)
+  ) {
+    return true;
+  }
+
   const checker = services.program.getTypeChecker();
   const tsNode = services.esTreeNodeToTSNodeMap.get(expression as TSESTree.Node);
   const compilerOptions = services.program.getCompilerOptions();

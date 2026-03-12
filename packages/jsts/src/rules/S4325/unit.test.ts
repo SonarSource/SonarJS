@@ -47,16 +47,32 @@ describe('S4325 upstream sentinel', () => {
               }
             }
           `,
+          output: `
+            class Component {
+              private eGui: HTMLElement = document.createElement('div');
+              queryForHtmlElement(cssSelector: string): HTMLElement {
+                return this.eGui.querySelector(cssSelector);
+              }
+            }
+          `,
           errors: 1,
         },
         {
-          // querySelector()! as HTMLElement — suppressed by decorator (new fix), raised by upstream
+          // querySelector()! as HTMLElement — suppressed by decorator (new fix), raised by upstream.
+          // Without strictNullChecks, both `!` and `as HTMLElement` are unnecessary: 2 errors.
+          // ESLint applies fixes with non-overlapping ranges in one pass; the `!` and `as T` fixes
+          // overlap, so only the `!` fix is applied per pass, leaving `as HTMLElement` in output.
           code: `
             function getSubmitButton(form: Element): HTMLElement {
               return form.querySelector('button[type="submit"]')! as HTMLElement;
             }
           `,
-          errors: 1,
+          output: `
+            function getSubmitButton(form: Element): HTMLElement {
+              return form.querySelector('button[type="submit"]') as HTMLElement;
+            }
+          `,
+          errors: 2,
         },
       ],
     });
