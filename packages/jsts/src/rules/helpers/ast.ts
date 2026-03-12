@@ -723,26 +723,3 @@ export function hasTypePredicateReturn(node: estree.Node): boolean {
   return false;
 }
 
-/**
- * Returns the direct branch body nodes of a conditional or loop statement.
- * For IfStatement, returns consequent and (if present) alternate.
- * For loop statements, returns the loop body.
- * For SwitchStatement, returns the case clauses.
- */
-export function getBranchBodies(node: estree.Node): estree.Node[] {
-  switch (node.type) {
-    case 'IfStatement': {
-      return node.alternate ? [node.consequent, node.alternate] : [node.consequent];
-    }
-    case 'WhileStatement':
-    case 'DoWhileStatement':
-    case 'ForStatement':
-    case 'ForInStatement':
-    case 'ForOfStatement':
-      return [(node as { body: estree.Node }).body];
-    case 'SwitchStatement':
-      return node.cases;
-    default:
-      return [];
-  }
-}
