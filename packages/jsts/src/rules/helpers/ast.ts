@@ -251,7 +251,7 @@ export function isElementWrite(
   ref: Scope.Reference,
   recursive = true,
 ): boolean {
-  if (statement.expression.type === 'AssignmentExpression') {
+  if (statement.expression?.type === 'AssignmentExpression') {
     const assignmentExpression = statement.expression;
     const lhs = assignmentExpression.left;
     return isMemberExpressionReference(lhs, ref, recursive);

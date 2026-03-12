@@ -103,7 +103,7 @@ function isReferenceAssigningCollection(ref: Scope.Reference) {
     if (declOrExprStmt.type === 'ExpressionStatement') {
       const { expression } = declOrExprStmt;
       return (
-        expression.type === 'AssignmentExpression' &&
+        expression?.type === 'AssignmentExpression' &&
         isReferenceTo(ref, expression.left as estree.Node) &&
         isCollectionType(expression.right)
       );
@@ -143,7 +143,7 @@ function isRead(ref: Scope.Reference) {
  * myArray.push(1);
  */
 function isWritingMethodCall(statement: estree.ExpressionStatement, ref: Scope.Reference) {
-  if (statement.expression.type === 'CallExpression') {
+  if (statement.expression?.type === 'CallExpression') {
     const { callee } = statement.expression;
     if (callee.type === 'MemberExpression') {
       const { property } = callee;
