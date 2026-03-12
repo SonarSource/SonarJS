@@ -24,6 +24,7 @@ import {
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
+  esLibToYear,
   nodeVersionToEs,
   parseMaxNodeMajor,
 } from '../../src/program/tsconfig/options.js';
@@ -360,5 +361,24 @@ describe('nodeVersionToEs', () => {
 
   it('should map Node 8 to ES2017', () => {
     expect(nodeVersionToEs(8)).toBe(2017);
+  });
+});
+
+describe('esLibToYear', () => {
+  it('should extract the year from a normalized lib array', () => {
+    expect(esLibToYear(['lib.es2022.d.ts', 'lib.dom.d.ts'])).toBe(2022);
+    expect(esLibToYear(['lib.es2015.d.ts', 'lib.dom.d.ts'])).toBe(2015);
+  });
+
+  it('should return null for esnext lib (no restriction)', () => {
+    expect(esLibToYear(['lib.esnext.d.ts', 'lib.dom.d.ts'])).toBeNull();
+  });
+
+  it('should return null for undefined lib', () => {
+    expect(esLibToYear(undefined)).toBeNull();
+  });
+
+  it('should return null for empty lib array', () => {
+    expect(esLibToYear([])).toBeNull();
   });
 });
