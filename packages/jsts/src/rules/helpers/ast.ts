@@ -722,3 +722,4 @@ export function hasTypePredicateReturn(node: estree.Node): boolean {
   }
   return false;
 }
+
