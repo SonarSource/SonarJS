@@ -18,6 +18,7 @@
 
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
+import type { JSXSpreadAttribute } from 'estree-jsx';
 import { childrenOf } from '../helpers/ancestor.js';
 import { isIdentifier } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
@@ -67,6 +68,14 @@ function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean 
 
   // Check if this is a SpreadElement with props (for {...props} in JSX)
   if (root.type === 'SpreadElement' && propsArgPatterns.some(p => p(root.argument))) {
+    return true;
+  }
+
+  // Check if this is a JSXSpreadAttribute with props (for {...props} or {...this.props} in JSX elements)
+  if (
+    root.type === 'JSXSpreadAttribute' &&
+    propsArgPatterns.some(p => p((root as unknown as JSXSpreadAttribute).argument))
+  ) {
     return true;
   }
 
