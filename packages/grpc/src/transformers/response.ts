@@ -30,13 +30,13 @@ import type { NormalizedAbsolutePath } from '../../../jsts/src/rules/helpers/fil
  */
 const PARSING_ERROR_RULE_KEY = 'S2260';
 
-function isValidOneBasedLine(line: number | undefined): line is number {
-  return typeof line === 'number' && line >= 1;
+function isValidOneBasedLine(line: number): line is number {
+  return line >= 1;
 }
 
 function toTextRange(
-  line: number | undefined,
-  column: number | undefined,
+  line: number,
+  column: number,
   endLine: number | undefined,
   endColumn: number | undefined,
 ): analyzer.ITextRange | undefined {
@@ -145,6 +145,26 @@ function transformCssIssue(issue: CssIssue, filePath: string): analyzer.IIssue {
 }
 
 /**
+ * Transform a parsing error into a gRPC issue.
+ *
+ * Mirrors Java-side behavior: when line is missing, the issue is file-level
+ * and does not carry a text range.
+ */
+function transformParsingErrorIssue(
+  message: string,
+  filePath: NormalizedAbsolutePath,
+  line: number | undefined,
+): analyzer.IIssue {
+  return {
+    filePath,
+    message,
+    rule: { repo: 'javascript', rule: PARSING_ERROR_RULE_KEY },
+    textRange: line !== undefined ? toTextRange(line, 0, undefined, undefined) : undefined,
+    flows: [],
+  };
+}
+
+/**
  * Look up the original path from the path map, falling back to the normalized path.
  */
 function restorePath(filePath: NormalizedAbsolutePath, pathMap: Map<string, string>): string {
@@ -180,6 +200,7 @@ function restorePath(filePath: NormalizedAbsolutePath, pathMap: Map<string, stri
  * ```
  *
  * @param output - The ProjectAnalysisOutput from analyzeProject()
+ * @param pathMap - Optional mapping from normalized absolute paths to original request paths
  * @returns gRPC IAnalyzeResponse ready for protobuf serialization
  */
 export function transformProjectOutputToResponse(
@@ -220,16 +241,7 @@ export function transformProjectOutputToResponse(
       });
 
       issues.push(
-        transformIssue({
-          ruleId: PARSING_ERROR_RULE_KEY,
-          message,
-          line: line ?? 1,
-          column: 0,
-          language: 'js',
-          secondaryLocations: [],
-          ruleESLintKeys: [],
-          filePath: originalPath as NormalizedAbsolutePath,
-        }),
+        transformParsingErrorIssue(message, originalPath as NormalizedAbsolutePath, line),
       );
       continue;
     }

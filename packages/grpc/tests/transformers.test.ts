@@ -669,6 +669,19 @@ describe('transformProjectOutputToResponse', () => {
     expect(result.issues?.[0].textRange).toBeUndefined();
   });
 
+  it('should omit textRange for parsing error issues when parser line is missing', () => {
+    const output = makeOutput({
+      '/project/src/broken.js': {
+        parsingError: { message: 'Unexpected token', code: 'PARSING' },
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].textRange).toBeUndefined();
+  });
+
   it('should restore original paths using pathMap for JS/TS issues', () => {
     const output = makeOutput({
       '/app/src/file.ts': {
