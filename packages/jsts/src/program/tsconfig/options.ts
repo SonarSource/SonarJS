@@ -176,6 +176,24 @@ function targetStringToEsYear(target: string): number | null {
  * @param baseDir project base directory used to locate package.json
  * @returns raw JSON lib string array (e.g. ['es2022', 'dom'])
  */
+/**
+ * Extracts the ES year from a normalized TypeScript lib array.
+ * Returns null for esnext (no ES version restriction applies).
+ *
+ * @param lib normalized lib file names (e.g. ['lib.es2022.d.ts', 'lib.dom.d.ts'])
+ * @returns ES year (e.g. 2022) or null if esnext/not found
+ */
+export function esLibToYear(lib: string[] | undefined): number | null {
+  if (!lib) return null;
+  for (const entry of lib) {
+    const match = /lib\.es(\d{4})\.d\.ts$/.exec(entry);
+    if (match) {
+      return Number.parseInt(match[1], 10);
+    }
+  }
+  return null;
+}
+
 export function computeLibJson(
   ecmaScriptVersion: string | undefined,
   targetJson: string | undefined,

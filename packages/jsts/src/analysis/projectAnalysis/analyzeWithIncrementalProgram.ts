@@ -31,6 +31,7 @@ import {
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
+  esLibToYear,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
@@ -87,6 +88,11 @@ export async function analyzeWithIncrementalProgram(
       ),
     );
 
+    const detectedEsYear =
+      program != null
+        ? (esLibToYear(program.getCompilerOptions().lib as string[] | undefined) ?? undefined)
+        : undefined;
+
     await analyzeFile(
       filename,
       files[filename],
@@ -96,6 +102,7 @@ export async function analyzeWithIncrementalProgram(
       pendingFiles,
       progressReport,
       incrementalResultsChannel,
+      detectedEsYear,
     );
 
     if (!pendingFiles.size) {
