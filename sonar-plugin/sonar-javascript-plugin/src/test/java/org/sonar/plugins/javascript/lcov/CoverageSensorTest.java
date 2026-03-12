@@ -287,7 +287,8 @@ class CoverageSensorTest {
 
     Files.write(
       lcovFile,
-      ("SF:" +
+      (
+        "SF:" +
         absolutePathFile1 +
         "\n" +
         "DA:1,2\n" +
@@ -305,7 +306,8 @@ class CoverageSensorTest {
         "\n" +
         "DA:1,5\n" +
         "DA:2,5\n" +
-        "end_of_record\n").getBytes(StandardCharsets.UTF_8)
+        "end_of_record\n"
+      ).getBytes(StandardCharsets.UTF_8)
     );
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcovFile.toAbsolutePath().toString());
     inputFile("file1.js", Type.MAIN);
@@ -359,7 +361,8 @@ class CoverageSensorTest {
     Path lcov = tempDir.resolve("file.lcov");
     Files.write(
       lcov,
-      ("SF:src/file1.ts\n" +
+      (
+        "SF:src/file1.ts\n" +
         "DA:1,2\n" +
         "DA:2,2\n" +
         "DA:3,1\n" +
@@ -373,7 +376,8 @@ class CoverageSensorTest {
         "SF:src/file2.ts\n" +
         "DA:1,5\n" +
         "DA:2,5\n" +
-        "end_of_record\n").getBytes(StandardCharsets.UTF_8)
+        "end_of_record\n"
+      ).getBytes(StandardCharsets.UTF_8)
     );
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.toAbsolutePath().toString());
     coverageSensor.execute(context);
@@ -414,5 +418,93 @@ class CoverageSensorTest {
     coverageSensor.execute(context);
     assertThat(context.conditions(inputFile.key(), 1)).isEqualTo(2);
     assertThat(context.coveredConditions(inputFile.key(), 1)).isEqualTo(2);
+  }
+
+  @Test
+  void should_report_full_branch_coverage_when_only_one_branch_is_declared() throws Exception {
+    Path lcov = tempDir.resolve("integration_only.lcov");
+    Files.write(
+      lcov,
+      ("SF:file1.js\n" + "BRDA:2,0,0,6\n" + "end_of_record\n").getBytes(StandardCharsets.UTF_8)
+    );
+
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.toAbsolutePath().toString());
+    coverageSensor.execute(context);
+
+    String file1Key = "moduleKey:file1.js";
+    assertThat(context.conditions(file1Key, 2)).isEqualTo(1);
+    assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(1);
+  }
+
+  @Test
+  void should_keep_missing_branches_uncovered_when_reports_are_merged() throws Exception {
+    Path unitLcov = tempDir.resolve("unit.lcov");
+    Files.write(
+      unitLcov,
+      ("SF:file1.js\n" + "BRDA:2,0,0,0\n" + "BRDA:2,0,1,0\n" + "end_of_record\n").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+
+    Path integrationLcov = tempDir.resolve("integration.lcov");
+    Files.write(
+      integrationLcov,
+      ("SF:file1.js\n" + "BRDA:2,0,0,6\n" + "end_of_record\n").getBytes(StandardCharsets.UTF_8)
+    );
+
+    settings.setProperty(
+      JavaScriptPlugin.LCOV_REPORT_PATHS,
+      unitLcov.toAbsolutePath() + "," + integrationLcov.toAbsolutePath()
+    );
+    coverageSensor.execute(context);
+
+    String file1Key = "moduleKey:file1.js";
+    assertThat(context.conditions(file1Key, 2)).isEqualTo(2);
+    assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(1);
+  }
+
+  @Test
+  void should_import_coverage_when_source_file_uses_windows_separators() throws Exception {
+    inputFile("deep/nested/dir/js/file1.js", Type.MAIN);
+
+    Path lcov = tempDir.resolve("windows_separator_path.lcov");
+    Files.write(
+      lcov,
+      (
+        "SF:deep\\nested\\dir\\js\\file1.js\n" +
+        "DA:1,7\n" +
+        "DA:2,3\n" +
+        "end_of_record\n"
+      ).getBytes(StandardCharsets.UTF_8)
+    );
+
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.toAbsolutePath().toString());
+    coverageSensor.execute(context);
+
+    String key = "moduleKey:deep/nested/dir/js/file1.js";
+    assertThat(context.lineHits(key, 1)).isEqualTo(7);
+    assertThat(context.lineHits(key, 2)).isEqualTo(3);
+  }
+
+  @Test
+  void should_not_resolve_absolute_path_from_different_root() throws Exception {
+    Path lcov = tempDir.resolve("foreign_absolute_path.lcov");
+    Files.write(
+      lcov,
+      ("SF:/home/runner/work/repo/file1.js\n" + "DA:1,1\n" + "end_of_record\n").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.toAbsolutePath().toString());
+    coverageSensor.execute(context);
+
+    assertThat(context.lineHits("moduleKey:file1.js", 1)).isNull();
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Could not resolve 1 file paths in [" + lcov.toAbsolutePath() + "]"
+    );
+    assertThat(logTester.logs(Level.DEBUG)).contains(
+      "Unresolved paths:\n/home/runner/work/repo/file1.js"
+    );
   }
 }
