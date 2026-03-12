@@ -30,6 +30,34 @@ import type { NormalizedAbsolutePath } from '../../../jsts/src/rules/helpers/fil
  */
 const PARSING_ERROR_RULE_KEY = 'S2260';
 
+function isValidOneBasedLine(line: number | undefined): line is number {
+  return typeof line === 'number' && line >= 1;
+}
+
+function toTextRange(
+  line: number | undefined,
+  column: number | undefined,
+  endLine: number | undefined,
+  endColumn: number | undefined,
+): analyzer.ITextRange | undefined {
+  if (!isValidOneBasedLine(line)) {
+    return undefined;
+  }
+
+  const resolvedEndLine = endLine ?? line;
+  if (!isValidOneBasedLine(resolvedEndLine)) {
+    return undefined;
+  }
+
+  const startLineOffset = column ?? 0;
+  return {
+    startLine: line,
+    startLineOffset,
+    endLine: resolvedEndLine,
+    endLineOffset: endColumn ?? startLineOffset,
+  };
+}
+
 /**
  * Transform a single Issue from the internal format to the gRPC Issue format.
  *
@@ -52,32 +80,31 @@ const PARSING_ERROR_RULE_KEY = 'S2260';
  * @returns gRPC Issue object ready for protobuf serialization
  */
 function transformIssue(issue: JsTsIssue): analyzer.IIssue {
-  const textRange: analyzer.ITextRange = {
-    startLine: issue.line,
-    startLineOffset: issue.column,
-    endLine: issue.endLine ?? issue.line,
-    endLineOffset: issue.endColumn ?? issue.column,
-  };
+  const textRange = toTextRange(issue.line, issue.column, issue.endLine, issue.endColumn);
 
   // Transform secondary locations into flows
   const flows: analyzer.IFlow[] = [];
   if (issue.secondaryLocations && issue.secondaryLocations.length > 0) {
-    const locations: analyzer.IFlowLocation[] = issue.secondaryLocations.map(loc => ({
-      textRange: {
-        startLine: loc.line,
-        startLineOffset: loc.column,
-        endLine: loc.endLine,
-        endLineOffset: loc.endColumn,
-      },
-      message: loc.message ?? '',
-      file: issue.filePath,
-    }));
+    const locations: analyzer.IFlowLocation[] = [];
 
-    flows.push({
-      type: analyzer.FlowType.FLOW_TYPE_DATA,
-      description: '',
-      locations,
-    });
+    for (const loc of issue.secondaryLocations) {
+      const range = toTextRange(loc.line, loc.column, loc.endLine, loc.endColumn);
+      if (range !== undefined) {
+        locations.push({
+          textRange: range,
+          message: loc.message ?? '',
+          file: issue.filePath,
+        });
+      }
+    }
+
+    if (locations.length > 0) {
+      flows.push({
+        type: analyzer.FlowType.FLOW_TYPE_DATA,
+        description: '',
+        locations,
+      });
+    }
   }
 
   const repo = issue.language === 'js' ? 'javascript' : 'typescript';
@@ -112,12 +139,7 @@ function transformCssIssue(issue: CssIssue, filePath: string): analyzer.IIssue {
     filePath,
     message: issue.message,
     rule: { repo: 'css', rule: sqKey },
-    textRange: {
-      startLine: issue.line,
-      startLineOffset: issue.column,
-      endLine: issue.endLine ?? issue.line,
-      endLineOffset: issue.endColumn ?? issue.column,
-    },
+    textRange: toTextRange(issue.line, issue.column, issue.endLine, issue.endColumn),
     flows: [],
   };
 }
