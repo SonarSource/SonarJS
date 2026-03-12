@@ -132,11 +132,11 @@ export const rule: Rule.RuleModule = {
       ForInStatement: trackConditionalNode,
       ForOfStatement: trackConditionalNode,
       SwitchStatement: trackConditionalNode,
-      'ExpressionStatement > CallExpression'(node: estree.Node) {
-        functionContextStack.at(-1)?.sideEffectNodes.push(node as estree.CallExpression);
+      'ExpressionStatement > CallExpression'(node: estree.CallExpression) {
+        functionContextStack.at(-1)?.sideEffectNodes.push(node);
       },
-      'ExpressionStatement > AssignmentExpression'(node: estree.Node) {
-        functionContextStack.at(-1)?.sideEffectNodes.push(node as estree.AssignmentExpression);
+      'ExpressionStatement > AssignmentExpression'(node: estree.AssignmentExpression) {
+        functionContextStack.at(-1)?.sideEffectNodes.push(node);
       },
       'FunctionDeclaration:exit': checkOnFunctionExit,
       'FunctionExpression:exit': checkOnFunctionExit,
