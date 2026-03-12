@@ -91,7 +91,8 @@ public class JsTsChecks {
     "S4325", // no-unnecessary-type-assertion
     "S6565", // prefer-return-this-type
     "S6583", // no-mixed-enums
-    "S6671" // prefer-promise-reject-errors
+    "S6671", // prefer-promise-reject-errors
+    "S2870" // no-array-delete
   );
 
   /**
@@ -111,7 +112,9 @@ public class JsTsChecks {
     "S6583",
     "no-mixed-enums",
     "S6671",
-    "prefer-promise-reject-errors"
+    "prefer-promise-reject-errors",
+    "S2870",
+    "no-array-delete"
   );
 
   /**

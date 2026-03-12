@@ -231,12 +231,13 @@
               <executable>bash</executable>
               <arguments>
                 <argument>-c</argument>
-                <argument>mkdir -p "${0}" &amp;&amp; cp -f "${1}" "${2}" "${3}" "${4}" "${0}"</argument>
+                <argument>mkdir -p "${0}" &amp;&amp; cp -f "${1}" "${2}" "${3}" "${4}" "${5}" "${0}"</argument>
                 <argument>${project.basedir}/../../tsgolint/cmd/sonar-server/</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/main.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/service.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/converter.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/rules.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/no_array_delete_rule.go</argument>
               </arguments>
             </configuration>
           </execution>
