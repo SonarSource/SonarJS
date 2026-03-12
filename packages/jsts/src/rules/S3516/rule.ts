@@ -31,7 +31,7 @@ interface FunctionContext {
   containsReturnWithoutValue: boolean;
   returnStatements: estree.ReturnStatement[];
   conditionalNodes: estree.Node[];
-  sideEffectNodes: estree.ExpressionStatement[];
+  sideEffectNodes: (estree.CallExpression | estree.AssignmentExpression)[];
 }
 
 interface SingleWriteVariable {
@@ -132,12 +132,11 @@ export const rule: Rule.RuleModule = {
       ForInStatement: trackConditionalNode,
       ForOfStatement: trackConditionalNode,
       SwitchStatement: trackConditionalNode,
-      ExpressionStatement(node: estree.Node) {
-        const exprNode = node as estree.ExpressionStatement;
-        const { expression } = exprNode;
-        if (expression.type === 'CallExpression' || expression.type === 'AssignmentExpression') {
-          functionContextStack.at(-1)?.sideEffectNodes.push(exprNode);
-        }
+      'ExpressionStatement > CallExpression'(node: estree.Node) {
+        functionContextStack.at(-1)?.sideEffectNodes.push(node as estree.CallExpression);
+      },
+      'ExpressionStatement > AssignmentExpression'(node: estree.Node) {
+        functionContextStack.at(-1)?.sideEffectNodes.push(node as estree.AssignmentExpression);
       },
       'FunctionDeclaration:exit': checkOnFunctionExit,
       'FunctionExpression:exit': checkOnFunctionExit,
@@ -262,7 +261,7 @@ function evaluateUnaryLiteralExpression(operator: string, innerReturnedValue: Li
 function hasSideEffectOnlyConditional(
   returnStatements: estree.ReturnStatement[],
   conditionalNodes: estree.Node[],
-  sideEffectNodes: estree.ExpressionStatement[],
+  sideEffectNodes: (estree.CallExpression | estree.AssignmentExpression)[],
 ): boolean {
   return conditionalNodes.some(condNode =>
     getBranchBodies(condNode).some(body =>
@@ -278,7 +277,7 @@ function hasSideEffectOnlyConditional(
 function branchHasSideEffectButNoReturn(
   node: estree.Node,
   returnStatements: estree.ReturnStatement[],
-  sideEffectNodes: estree.ExpressionStatement[],
+  sideEffectNodes: (estree.CallExpression | estree.AssignmentExpression)[],
 ): boolean {
   const nodeRange = node.range;
   if (!nodeRange) {
