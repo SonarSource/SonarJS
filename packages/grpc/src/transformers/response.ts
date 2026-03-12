@@ -93,7 +93,7 @@ function transformIssue(issue: JsTsIssue): analyzer.IIssue {
         locations.push({
           textRange: range,
           message: loc.message ?? '',
-          file: issue.filePath,
+          filePath: issue.filePath,
         });
       }
     }
