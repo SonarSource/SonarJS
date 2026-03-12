@@ -25,7 +25,13 @@ export function getFullyQualifiedNameTS(
 ): string | null {
   const result: string[] = [];
   let node: ts.Node | undefined = rootNode;
+  const visitedNodes = new Set<ts.Node>();
   while (node) {
+    if (visitedNodes.has(node)) {
+      return null;
+    }
+    visitedNodes.add(node);
+
     switch (node.kind) {
       case ts.SyntaxKind.CallExpression: {
         const callExpressionNode = node as ts.CallExpression;
