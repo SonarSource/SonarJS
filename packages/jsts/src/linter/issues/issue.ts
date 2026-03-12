@@ -37,8 +37,6 @@ import type { BaseIssue } from '../../../../shared/src/types/analysis.js';
  */
 export interface JsTsIssue extends BaseIssue {
   language: JsTsLanguage;
-  endLine?: number;
-  endColumn?: number;
   cost?: number;
   secondaryLocations: Location[];
   quickFixes?: QuickFix[];
