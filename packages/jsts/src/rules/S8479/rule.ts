@@ -42,6 +42,13 @@ const DANGEROUS_TAGS = new Set([
 const EVENT_HANDLER_PATTERN = /^on[a-z]/i;
 
 /**
+ * URI-carrying attributes that must never be added to ADD_URI_SAFE_ATTR.
+ * Marking them as "URI-safe" skips DOMPurify's javascript: URI check,
+ * enabling 1-click XSS via crafted href/src/action values.
+ */
+const DANGEROUS_URI_ATTRS = new Set(['href', 'src', 'action', 'formaction', 'xlink:href', 'data']);
+
+/**
  * Boolean options that are dangerous when set to the specified value.
  */
 const DANGEROUS_BOOLEAN_OPTIONS: Record<string, boolean> = {
@@ -121,6 +128,15 @@ function getActionForProperty(prop: estree.Property): string | undefined {
     if (dangerous.length > 0) {
       return `remove ${formatList(dangerous)} from '${key}'`;
     }
+  } else if (key === 'ADD_URI_SAFE_ATTR') {
+    const dangerous = getDangerousArrayElements(prop.value, DANGEROUS_URI_ATTRS);
+    if (dangerous.length > 0) {
+      return `remove ${formatList(dangerous)} from '${key}'`;
+    }
+  } else if (key === 'ALLOWED_URI_REGEXP') {
+    if (isUnanchoredRegex(prop.value)) {
+      return `anchor the 'ALLOWED_URI_REGEXP' pattern with '^' to prevent partial URI matches`;
+    }
   } else if (key in DANGEROUS_BOOLEAN_OPTIONS) {
     const dangerousValue = DANGEROUS_BOOLEAN_OPTIONS[key];
     if (isBooleanLiteral(prop.value, dangerousValue)) {
@@ -198,4 +214,11 @@ function formatList(items: string[]): string {
 
 function isBooleanLiteral(node: estree.Node, value: boolean): boolean {
   return node.type === 'Literal' && node.value === value;
+}
+
+function isUnanchoredRegex(node: estree.Node): boolean {
+  if (node.type === 'Literal' && 'regex' in node && node.regex) {
+    return !node.regex.pattern.startsWith('^');
+  }
+  return false;
 }

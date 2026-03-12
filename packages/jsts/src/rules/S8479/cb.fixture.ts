@@ -91,6 +91,33 @@ const clean21 = DOMPurify.sanitize(html, { ALLOWED_TAGS: ['p', 'script'] }); // 
 // ALLOWED_TAGS and ALLOWED_ATTR both dangerous
 const clean22 = DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'iframe'], ALLOWED_ATTR: ['onclick'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'iframe' from 'ALLOWED_TAGS', and remove 'onclick' from 'ALLOWED_ATTR'.}}
 
+// single: ADD_URI_SAFE_ATTR with href
+const clean23 = DOMPurify.sanitize(html, { ADD_URI_SAFE_ATTR: ['href'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'href' from 'ADD_URI_SAFE_ATTR'.}}
+
+// single: ADD_URI_SAFE_ATTR with src
+const clean24 = DOMPurify.sanitize(html, { ADD_URI_SAFE_ATTR: ['src'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'src' from 'ADD_URI_SAFE_ATTR'.}}
+
+// single: ADD_URI_SAFE_ATTR with action
+const clean25 = DOMPurify.sanitize(html, { ADD_URI_SAFE_ATTR: ['action'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'action' from 'ADD_URI_SAFE_ATTR'.}}
+
+// single: ADD_URI_SAFE_ATTR with formaction
+const clean26 = DOMPurify.sanitize(html, { ADD_URI_SAFE_ATTR: ['formaction'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'formaction' from 'ADD_URI_SAFE_ATTR'.}}
+
+// single: ADD_URI_SAFE_ATTR with xlink:href
+const clean27 = DOMPurify.sanitize(html, { ADD_URI_SAFE_ATTR: ['xlink:href'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'xlink:href' from 'ADD_URI_SAFE_ATTR'.}}
+
+// single: ADD_URI_SAFE_ATTR with data
+const clean28 = DOMPurify.sanitize(html, { ADD_URI_SAFE_ATTR: ['data'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'data' from 'ADD_URI_SAFE_ATTR'.}}
+
+// mixed: safe and dangerous URI attrs
+const clean29 = DOMPurify.sanitize(html, { ADD_URI_SAFE_ATTR: ['my-custom-attr', 'href'] }); // Noncompliant {{To prevent DOM-based attacks, remove 'href' from 'ADD_URI_SAFE_ATTR'.}}
+
+// ALLOWED_URI_REGEXP without ^ anchor (partial match bypass)
+const clean30 = DOMPurify.sanitize(html, { ALLOWED_URI_REGEXP: /https?:\/\/safe\.example\.com/ }); // Noncompliant {{To prevent DOM-based attacks, anchor the 'ALLOWED_URI_REGEXP' pattern with '^' to prevent partial URI matches.}}
+
+// ALLOWED_URI_REGEXP: only scheme without anchor
+const clean31 = DOMPurify.sanitize(html, { ALLOWED_URI_REGEXP: /https?:/ }); // Noncompliant {{To prevent DOM-based attacks, anchor the 'ALLOWED_URI_REGEXP' pattern with '^' to prevent partial URI matches.}}
+
 // Compliant: ALLOWED_TAGS and ALLOWED_ATTR with safe values only
 const safeClean10 = DOMPurify.sanitize(html, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong'], ALLOWED_ATTR: ['class', 'src', 'href'] });
 
@@ -124,6 +151,15 @@ const safeClean8 = DOMPurify.sanitize(html, { ALLOW_UNKNOWN_PROTOCOLS: false });
 
 // Compliant: FORBID_TAGS and FORBID_ATTR
 const safeClean9 = DOMPurify.sanitize(html, { FORBID_TAGS: ['script'], FORBID_ATTR: ['onclick'] });
+
+// Compliant: ADD_URI_SAFE_ATTR with non-URI attribute
+const safeClean11 = DOMPurify.sanitize(html, { ADD_URI_SAFE_ATTR: ['my-custom-attr', 'data-value'] });
+
+// Compliant: ALLOWED_URI_REGEXP anchored with ^
+const safeClean12 = DOMPurify.sanitize(html, { ALLOWED_URI_REGEXP: /^https?:\/\/safe\.example\.com/ });
+
+// Compliant: ALLOWED_URI_REGEXP anchored, with flags
+const safeClean13 = DOMPurify.sanitize(html, { ALLOWED_URI_REGEXP: /^https?:/i });
 
 // Compliant: not DOMPurify
 function sanitize(html: string, config: object) { return html; }
