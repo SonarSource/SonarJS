@@ -27,6 +27,7 @@ import { sanitizeReferences } from '../../program/tsconfig/utils.js';
 import ts from 'typescript';
 import { createOrGetCachedProgramForFile } from '../../program/factory.js';
 import {
+  computeLibJson,
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
@@ -82,7 +83,7 @@ export async function analyzeWithIncrementalProgram(
         pendingFiles,
         baseDir,
         canAccessFileSystem,
-        jsTsConfigFields.createTSProgramForOrphanFiles,
+        jsTsConfigFields,
       ),
     );
 
@@ -118,7 +119,7 @@ function programOptionsFromClosestTsconfig(
   pendingFiles: Set<NormalizedAbsolutePath>,
   baseDir: NormalizedAbsolutePath,
   canAccessFileSystem: boolean,
-  createTSProgramForOrphanFiles: boolean,
+  jsTsConfigFields: JsTsConfigFields,
 ): ProgramOptions | undefined {
   const processedTsConfigs = new Set<NormalizedAbsolutePath>();
 
@@ -131,7 +132,13 @@ function programOptionsFromClosestTsconfig(
   ) {
     processedTsConfigs.add(tsconfig);
     try {
-      const programOptions = createProgramOptions(tsconfig, undefined, canAccessFileSystem);
+      const programOptions = createProgramOptions(
+        tsconfig,
+        undefined,
+        canAccessFileSystem,
+        jsTsConfigFields.ecmaScriptVersion,
+        baseDir,
+      );
       if (programOptions.projectReferences?.length) {
         for (const reference of sanitizeReferences(programOptions.projectReferences)) {
           tsConfigStore.addDiscoveredTsConfig(reference);
@@ -143,7 +150,9 @@ function programOptionsFromClosestTsconfig(
         warn(msg);
       }
       if (programOptions.rootNames.includes(file)) {
-        info(`Using tsconfig ${tsconfig} for ${file}`);
+        info(
+          `Using tsconfig ${tsconfig} for ${file} [lib: ${programOptions.options.lib?.join(', ')}]`,
+        );
         return programOptions;
       }
     } catch (e) {
@@ -154,7 +163,7 @@ function programOptionsFromClosestTsconfig(
     }
   }
 
-  if (!createTSProgramForOrphanFiles) {
+  if (!jsTsConfigFields.createTSProgramForOrphanFiles) {
     info(
       `Skipping TypeScript program creation for orphan file (sonar.javascript.createTSProgramForOrphanFiles=false)`,
     );
@@ -162,10 +171,19 @@ function programOptionsFromClosestTsconfig(
   }
 
   try {
-    info('No tsconfig found for files, using default options');
-    // Fallback: use default options if no tsconfig found
     // TODO(JS-1138): File order can affect program combinations - improve strategy
-    return createProgramOptionsFromJson(defaultCompilerOptions, [...pendingFiles], baseDir);
+    const programOptions = createProgramOptionsFromJson(
+      {
+        ...defaultCompilerOptions,
+        lib: computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, baseDir),
+      },
+      [...pendingFiles],
+      baseDir,
+    );
+    info(
+      `No tsconfig found for files, using default options [lib: ${programOptions.options.lib?.join(', ')}]`,
+    );
+    return programOptions;
   } catch (e) {
     error(`Failed to generate program from merged config: ${e}`);
   }

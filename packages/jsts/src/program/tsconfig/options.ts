@@ -17,6 +17,7 @@
 
 import ts from 'typescript';
 import { error, warn } from '../../../../shared/src/helpers/logging.js';
+import { getNodeVersionSignal } from '../../rules/helpers/package-jsons/dependencies.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
@@ -49,15 +50,167 @@ type CustomParseConfigHost = {
 
 /**
  * Default compiler options used when tsconfig doesn't specify them.
- * Note: We don't set 'lib' here - TypeScript will automatically infer
- * the correct lib files based on 'target'. Explicitly setting 'lib' breaks
- * TypeScript's internal lib file resolution mechanism.
+ * lib is not preset here — computeLibJson computes it from project signals
+ * and falls back to esnext when none are found.
  */
 export const defaultCompilerOptions: ts.CompilerOptions = {
   allowJs: true,
   noImplicitAny: true,
-  lib: ['esnext', 'dom'],
 };
+
+/**
+ * Node.js major version to ES year mapping (descending order for lookup).
+ */
+const NODE_TO_ES: [number, number][] = [
+  [22, 2024],
+  [20, 2023],
+  [18, 2022],
+  [16, 2021],
+  [14, 2020],
+  [12, 2019],
+  [10, 2018],
+  [8, 2017],
+];
+
+/**
+ * Parses a version string and returns the highest Node.js major version found.
+ * Handles ranges like ">=16 || >=18", "^18.0.0", "14.x", etc.
+ * Exported for testing purposes.
+ *
+ * @param versionStr version string to parse
+ * @returns highest major version number >= 8 and < 100, or null if none found
+ */
+export function parseMaxNodeMajor(versionStr: string): number | null {
+  if (!versionStr || versionStr === '*' || versionStr === 'latest') {
+    return null;
+  }
+  const nums = [...versionStr.matchAll(/(\d+)(?:\.\d+)*/g)]
+    .map(m => Number.parseInt(m[1], 10))
+    .filter(n => n >= 8 && n < 100);
+  if (!nums.length) {
+    return null;
+  }
+  return Math.max(...nums);
+}
+
+/**
+ * Maps a Node.js major version to the corresponding ES year.
+ *
+ * @param major Node.js major version number
+ * @returns ES year supported by that Node.js version
+ */
+export function nodeVersionToEs(major: number): number {
+  for (const [nodeMajor, esYear] of NODE_TO_ES) {
+    if (major >= nodeMajor) {
+      return esYear;
+    }
+  }
+  return 2017; // fallback for very old Node versions
+}
+
+function esYearFromEsPrefix(ecmaScriptVersion: string): number | null {
+  const match = /^ES(\d{4})$/i.exec(ecmaScriptVersion);
+  if (!match) {
+    return null;
+  }
+  const year = Number.parseInt(match[1], 10);
+  return year >= 2015 && year <= 2030 ? year : null;
+}
+
+/**
+ * Maps a raw tsconfig JSON target string to an effective ES year for lib selection.
+ *
+ * ES3/ES5 map to 2020 because TypeScript's default lib.d.ts for these targets
+ * includes APIs up to ES2020 (it assumes polyfills are in use).
+ * Returns null for ESNext/JSON targets (handled as esnext fallback).
+ */
+function targetStringToEsYear(target: string): number | null {
+  const upper = target.toUpperCase();
+  if (upper === 'ESNEXT' || upper === 'JSON') {
+    return null;
+  }
+  if (upper === 'ES3' || upper === 'ES5') {
+    return 2020;
+  }
+  const match = /^ES(\d{4})$/.exec(upper);
+  if (match) {
+    const year = Number.parseInt(match[1], 10);
+    if (year >= 2015) {
+      return year;
+    }
+  }
+  return null;
+}
+
+/**
+ * Computes the best lib JSON string array for the project from available signals,
+ * returning values suitable for passing directly to createProgramOptionsFromJson
+ * or injecting into a raw tsconfig JSON before ts.parseJsonConfigFileContent.
+ *
+ * ## Background: target vs lib
+ *
+ * TypeScript separates two independent concerns:
+ * - `target` controls *output syntax* (e.g. ES5 → transpile classes, arrow functions, etc.)
+ * - `lib` controls *type definitions* — what built-in APIs TypeScript knows about
+ *
+ * ## Why we take the maximum
+ *
+ * Two signals are relevant: `tsconfig.target` and the Node.js version inferred from
+ * package.json (`@types/node`, `engines.node`, `.nvmrc`).
+ *
+ * Neither signal alone is sufficient:
+ * - target alone misses the case where a project compiles to ES5 for broad browser
+ *   support but runs on Node 22 at build time, where modern APIs (e.g. `Array.at()`)
+ *   are available. Using target ES5 → ES2020 would suppress valid findings.
+ * - node signals alone miss the case where target is set to ES2022 but the only
+ *   package.json node signal is `@types/node@16` (ES2021), which would suppress valid
+ *   ES2022 findings (e.g. `Array.at()` which requires `lib.es2022.array.d.ts`).
+ *
+ * ## Resolution order
+ * 1. `sonar.javascript.ecmaScriptVersion` override → always wins when provided
+ * 2. max(tsconfig.target, package.json node signals) → use the higher ES year
+ * 3. esnext fallback when no signals are found at all
+ *
+ * @param ecmaScriptVersion explicit ES version override from sonar.javascript.ecmaScriptVersion
+ * @param targetJson raw JSON target string from tsconfig (e.g. 'ES2022', 'ES5', 'ESNext')
+ * @param baseDir project base directory used to locate package.json
+ * @returns raw JSON lib string array (e.g. ['es2022', 'dom'])
+ */
+export function computeLibJson(
+  ecmaScriptVersion: string | undefined,
+  targetJson: string | undefined,
+  baseDir: NormalizedAbsolutePath,
+): string[] {
+  if (ecmaScriptVersion) {
+    const year = esYearFromEsPrefix(ecmaScriptVersion);
+    if (year) {
+      return [`es${year}`, 'dom'];
+    }
+  }
+
+  const years: number[] = [];
+
+  if (targetJson) {
+    const year = targetStringToEsYear(targetJson);
+    if (year !== null) {
+      years.push(year);
+    }
+  }
+
+  const nodeSignal = getNodeVersionSignal(baseDir);
+  if (nodeSignal) {
+    const major = parseMaxNodeMajor(nodeSignal);
+    if (major !== null) {
+      years.push(nodeVersionToEs(major));
+    }
+  }
+
+  if (years.length === 0) {
+    return ['esnext', 'dom'];
+  }
+
+  return [`es${Math.max(...years)}`, 'dom'];
+}
 
 /**
  * Creates a ParseConfigHost that uses either TypeScript's file system APIs
@@ -132,6 +285,8 @@ export function createProgramOptions(
   tsConfig: string,
   tsconfigContents: string | undefined,
   canAccessFileSystem: boolean,
+  ecmaScriptVersion?: string,
+  baseDir?: NormalizedAbsolutePath,
 ): ProgramOptions {
   // Check cache first
   const cached = getCachedProgramOptions(tsConfig, tsconfigContents);
@@ -216,6 +371,20 @@ export function createProgramOptions(
       },
     ],
   );
+
+  // Enrich with computed lib if not set by the tsconfig or any extended config.
+  // Checked after parsing so that inherited lib settings are respected.
+  // Uses ts.convertCompilerOptionsFromJson to convert raw JSON strings to TypeScript's
+  // internal format, avoiding hardcoded lib file names.
+  if (baseDir && !parsedConfigFile.options.lib) {
+    const jsonLib = computeLibJson(
+      ecmaScriptVersion,
+      config.config?.compilerOptions?.target,
+      baseDir,
+    );
+    const { options: libOptions } = ts.convertCompilerOptionsFromJson({ lib: jsonLib }, baseDir);
+    parsedConfigFile.options.lib = libOptions.lib;
+  }
 
   // Filter diagnostics by severity
   const errors = parsedConfigFile.errors.filter(d => d.category === ts.DiagnosticCategory.Error);

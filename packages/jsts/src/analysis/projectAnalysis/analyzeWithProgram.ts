@@ -27,6 +27,7 @@ import merge from 'lodash.merge';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from '../../program/compilerHost.js';
 import {
+  computeLibJson,
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
@@ -148,14 +149,21 @@ async function analyzeFilesFromEntryPoint(
     return;
   }
 
-  info(
-    `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'}`,
-  );
-
   const programOptions = foundProgramOptions.length
     ? merge({}, ...foundProgramOptions)
-    : createProgramOptionsFromJson(defaultCompilerOptions, rootNames, baseDir);
+    : createProgramOptionsFromJson(
+        {
+          ...defaultCompilerOptions,
+          lib: computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, baseDir),
+        },
+        rootNames,
+        baseDir,
+      );
   programOptions.rootNames = rootNames;
+
+  info(
+    `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'} [lib: ${programOptions.options.lib?.join(', ')}]`,
+  );
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
 
   const tsProgram = createStandardProgram(programOptions);
@@ -192,12 +200,17 @@ async function analyzeFilesFromTsConfig(
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   processedTSConfigs.add(tsconfig);
-  info(`Creating TypeScript(${ts.version}) program with configuration file ${tsconfig}`);
 
   // Parse tsconfig to get compiler options
   let programOptions;
   try {
-    programOptions = createProgramOptions(tsconfig, undefined, canAccessFileSystem);
+    programOptions = createProgramOptions(
+      tsconfig,
+      undefined,
+      canAccessFileSystem,
+      jsTsConfigFields.ecmaScriptVersion,
+      baseDir,
+    );
   } catch (e) {
     error(`Failed to parse tsconfig ${tsconfig}: ${e}`);
     results.meta.warnings.push(
@@ -213,6 +226,9 @@ async function analyzeFilesFromTsConfig(
     warn(msg);
   }
 
+  info(
+    `Creating TypeScript(${ts.version}) program with configuration file ${tsconfig} [lib: ${programOptions.options.lib?.join(', ')}]`,
+  );
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
   const tsProgram = createStandardProgram(programOptions);
 
