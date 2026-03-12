@@ -61,7 +61,8 @@ function isDefineEmitsTypeArg(
   const { parent } = node;
   if (parent.type === 'TSTypeLiteral') {
     const grandParent = parent.parent;
-    // Inline type literal directly as defineEmits type argument
+    // Inline type literal used directly as a defineEmits type argument, e.g.:
+    //   defineEmits<{ ...function signature... }>()
     if (grandParent.type === 'TSTypeParameterInstantiation') {
       const greatGrandParent = grandParent.parent;
       if (greatGrandParent.type === 'CallExpression') {
@@ -70,13 +71,17 @@ function isDefineEmitsTypeArg(
       }
       return false;
     }
-    // Named type alias referenced by defineEmits
+    // Type alias whose body contains the call signature, referenced by defineEmits, e.g.:
+    //   type Emits = { ...function signature... }
+    //   defineEmits<Emits>()
     if (grandParent.type === 'TSTypeAliasDeclaration') {
       return isReferencedByDefineEmits(grandParent.id.name, context);
     }
     return false;
   }
-  // Named interface referenced by defineEmits
+  // Interface whose body contains the call signature, referenced by defineEmits, e.g.:
+  //   interface Emits { ...function signature... }
+  //   defineEmits<Emits>()
   if (parent.type === 'TSInterfaceBody') {
     return isReferencedByDefineEmits(parent.parent.id.name, context);
   }
