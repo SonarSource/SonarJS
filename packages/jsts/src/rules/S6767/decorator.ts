@@ -79,6 +79,15 @@ function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean 
     return true;
   }
 
+  // Check if this is a computed MemberExpression with props (for props[key] or this.props[key])
+  if (
+    root.type === 'MemberExpression' &&
+    root.computed &&
+    propsArgPatterns.some(p => p(root.object))
+  ) {
+    return true;
+  }
+
   // Recursively check all children
   return childrenOf(root, keys).some(child => hasPropsCall(child, keys));
 }
