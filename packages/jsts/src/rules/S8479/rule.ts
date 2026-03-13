@@ -118,32 +118,32 @@ function getActionForProperty(prop: estree.Property): string | undefined {
     return undefined;
   }
 
-  if (key === 'ADD_TAGS' || key === 'ALLOWED_TAGS') {
-    const dangerous = getDangerousArrayElements(prop.value, DANGEROUS_TAGS);
-    if (dangerous.length > 0) {
-      return `remove ${formatList(dangerous)} from '${key}'`;
+  switch (key) {
+    case 'ADD_TAGS':
+    case 'ALLOWED_TAGS': {
+      const dangerous = getDangerousArrayElements(prop.value, DANGEROUS_TAGS);
+      return dangerous.length > 0 ? `remove ${formatList(dangerous)} from '${key}'` : undefined;
     }
-  } else if (key === 'ADD_ATTR' || key === 'ALLOWED_ATTR') {
-    const dangerous = getDangerousAttributes(prop.value);
-    if (dangerous.length > 0) {
-      return `remove ${formatList(dangerous)} from '${key}'`;
+    case 'ADD_ATTR':
+    case 'ALLOWED_ATTR': {
+      const dangerous = getDangerousAttributes(prop.value);
+      return dangerous.length > 0 ? `remove ${formatList(dangerous)} from '${key}'` : undefined;
     }
-  } else if (key === 'ADD_URI_SAFE_ATTR') {
-    const dangerous = getDangerousArrayElements(prop.value, DANGEROUS_URI_ATTRS);
-    if (dangerous.length > 0) {
-      return `remove ${formatList(dangerous)} from '${key}'`;
+    case 'ADD_URI_SAFE_ATTR': {
+      const dangerous = getDangerousArrayElements(prop.value, DANGEROUS_URI_ATTRS);
+      return dangerous.length > 0 ? `remove ${formatList(dangerous)} from '${key}'` : undefined;
     }
-  } else if (key === 'ALLOWED_URI_REGEXP') {
-    if (isUnanchoredRegex(prop.value)) {
-      return `anchor the 'ALLOWED_URI_REGEXP' pattern with '^' to prevent partial URI matches`;
-    }
-  } else if (key in DANGEROUS_BOOLEAN_OPTIONS) {
-    const dangerousValue = DANGEROUS_BOOLEAN_OPTIONS[key];
-    if (isBooleanLiteral(prop.value, dangerousValue)) {
-      return `set '${key}' to '${!dangerousValue}'`;
-    }
+    case 'ALLOWED_URI_REGEXP':
+      return isUnanchoredRegex(prop.value)
+        ? `anchor the 'ALLOWED_URI_REGEXP' pattern with '^' to prevent partial URI matches`
+        : undefined;
+    default:
+      if (key in DANGEROUS_BOOLEAN_OPTIONS) {
+        const dangerousValue = DANGEROUS_BOOLEAN_OPTIONS[key];
+        return isBooleanLiteral(prop.value, dangerousValue) ? `set '${key}' to '${!dangerousValue}'` : undefined;
+      }
+      return undefined;
   }
-  return undefined;
 }
 
 function buildMessage(actions: string[]): string {
