@@ -104,6 +104,27 @@ describe('S2234', () => {
         md4gg(d, a, b, c, 0, 9, 1);
         `,
         },
+        {
+          // False positive: comparator reversal in arrow function expression body
+          code: `
+        function compare(a, b) { return a - b; }
+        const rcompare = (a, b) => compare(b, a);
+        `,
+        },
+        {
+          // False positive: comparator reversal in function expression with sole return
+          code: `
+        function compareByName(a, b) { return a.localeCompare(b); }
+        ['banana', 'apple'].sort(function(a, b) { return compareByName(b, a); });
+        `,
+        },
+        {
+          // False positive: comparator reversal inline in sort callback
+          code: `
+        function sorter(a, b) { return a < b ? -1 : 1; }
+        function getSortedDesc(items) { return items.sort((a, b) => sorter(b, a)); }
+        `,
+        },
       ],
       invalid: [
         {
@@ -177,6 +198,20 @@ describe('S2234', () => {
         other(c, d, a, b, 0, 0, 0);`,
           errors: 1,
         },
+        {
+          // Outer wrapper has 3 params — not a 2-param comparator, exception does not apply
+          code: `
+        function compare(a, b) { return a - b; }
+        const fn = (a, b, c) => compare(b, a);`,
+          errors: 1,
+        },
+        {
+          // Block body with extra statement — not sole return, exception does not apply
+          code: `
+        function compare(a, b) { return a - b; }
+        const fn = (a, b) => { console.log(a, b); return compare(b, a); };`,
+          errors: 1,
+        },
       ],
     });
 
@@ -241,6 +276,13 @@ describe('S2234', () => {
         new A().sameType(42, a, c);
         new A().sameType(a, d, b);
         new A().differentTypes(y, x);`,
+        },
+        {
+          // False positive: comparator reversal in TypeScript
+          code: `
+        function compare(a: number, b: number): number { return a - b; }
+        const rcompare = (a: number, b: number) => compare(b, a);
+        `,
         },
       ],
       invalid: [

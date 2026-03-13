@@ -82,7 +82,8 @@ export const rule: Rule.RuleModule = {
           );
           if (
             swappedArgumentName &&
-            !areComparedArguments([argumentName, swappedArgumentName], functionCall)
+            !areComparedArguments([argumentName, swappedArgumentName], functionCall) &&
+            !isIntentionalComparatorReversal(functionCall, argumentName, swappedArgumentName)
           ) {
             raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
             return;
@@ -136,6 +137,53 @@ export const rule: Rule.RuleModule = {
           }
         }
       }
+      return false;
+    }
+
+    function isIntentionalComparatorReversal(
+      functionCall: estree.CallExpression,
+      arg1Name: string,
+      arg2Name: string,
+    ): boolean {
+      const enclosingFunc = context.sourceCode
+        .getAncestors(functionCall)
+        .reverse()
+        .find(
+          ancestor =>
+            ancestor.type === 'ArrowFunctionExpression' || ancestor.type === 'FunctionExpression',
+        );
+
+      if (!enclosingFunc) {
+        return false;
+      }
+
+      if (enclosingFunc.params.length !== 2) {
+        return false;
+      }
+
+      const [param0, param1] = enclosingFunc.params;
+      if (param0.type !== 'Identifier' || param1.type !== 'Identifier') {
+        return false;
+      }
+
+      const paramNames = new Set([param0.name, param1.name]);
+      if (!paramNames.has(arg1Name) || !paramNames.has(arg2Name)) {
+        return false;
+      }
+
+      const body = enclosingFunc.body;
+      if (body === functionCall) {
+        return true;
+      }
+      if (
+        body.type === 'BlockStatement' &&
+        body.body.length === 1 &&
+        body.body[0].type === 'ReturnStatement' &&
+        body.body[0].argument === functionCall
+      ) {
+        return true;
+      }
+
       return false;
     }
 
