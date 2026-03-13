@@ -109,10 +109,11 @@ function shouldSuppressTypeAssertion(
 
   // For non-null assertions wrapping a generic call (e.g., `querySelector()! as T`),
   // the `as T` drives generic type inference just as a direct call would.
-  if (tsExpression.type === 'TSNonNullExpression') {
-    if (tsExpression.expression.type === 'CallExpression') {
-      return isCalleeGeneric(tsExpression.expression, services);
-    }
+  if (
+    tsExpression.type === 'TSNonNullExpression' &&
+    tsExpression.expression.type === 'CallExpression'
+  ) {
+    return isCalleeGeneric(tsExpression.expression, services);
   }
 
   return false;
