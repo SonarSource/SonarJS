@@ -200,6 +200,65 @@ VictoryAxis.propTypes = {
     });
   });
 
+  it('should not report props accessed via closure inside a forwardRef callback', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: React.forwardRef closure — props used inside the callback via closure
+          code: `
+function Wrapper(props) {
+  const ForwardedInput = React.forwardRef((_, ref) => (
+    <label>{props.label}<input ref={ref} /></label>
+  ));
+  return <ForwardedInput />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+        {
+          // FP: bare forwardRef closure — props used inside the callback via closure
+          code: `
+function Wrapper(props) {
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{props.label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+      ],
+      invalid: [
+        {
+          // TP: suppression is component-scoped; sibling component's unused prop is still reported
+          code: `
+function WrapperWithForwardRef(props) {
+  const FwdComp = React.forwardRef((_, ref) => <div ref={ref}>{props.title}</div>);
+  return <FwdComp />;
+}
+WrapperWithForwardRef.propTypes = {
+  title: PropTypes.string,
+};
+function Button(props) {
+  return <button>{props.label}</button>;
+}
+Button.propTypes = {
+  label: PropTypes.string,
+  color: PropTypes.string,
+};
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('should exercise TypeScript type-checking paths (Strategy C in react helpers)', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
@@ -280,6 +339,27 @@ class VictoryAxis extends React.Component<VictoryAxisProps> {
   render() {
     return <div>{this.animate()}</div>;
   }
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: TypeScript function component with React.forwardRef closure — containsForwardRefCall
+          // suppresses the report when the component subtree contains a React.forwardRef call.
+          code: `
+declare const React: any;
+interface InputProps {
+  label: string;
+  disabled?: boolean;
+}
+function InputWrapper(props: InputProps) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label>
+      {props.label}
+      <input ref={ref} disabled={props.disabled} />
+    </label>
+  ));
+  return <ForwardedInput />;
 }
 `,
           filename: fixtureFile,
@@ -431,6 +511,36 @@ function AnimationComponent(props) {
 }
 AnimationComponent.propTypes = {
   offsetX: PropTypes.number,
+};
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('upstream rule should report forwardRef closure FP pattern (sentinel: remove decorator check if this fails)', () => {
+    // Confirms that the upstream eslint-plugin-react no-unused-prop-types rule DOES raise
+    // issues when props are accessed via closure inside a forwardRef callback.
+    // If this test starts failing, the upstream rule has been fixed and the forwardRef
+    // handling in the S6767 decorator can be removed.
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types (upstream, forwardRef)', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // upstream does not credit outer component when props are accessed via closure in forwardRef
+          code: `
+function Wrapper(props) {
+  const ForwardedInput = React.forwardRef((_, ref) => (
+    <label>{props.label}</label>
+  ));
+  return <ForwardedInput />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
 };
 `,
           errors: 1,
