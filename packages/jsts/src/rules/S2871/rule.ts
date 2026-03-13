@@ -46,53 +46,53 @@ const compareBigIntFunctionPlaceholder = [
   '}',
 ];
 
+function isObjectStaticKeyCall(node: estree.Node): boolean {
+  return (
+    node.type === 'CallExpression' &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.object.type === 'Identifier' &&
+    node.callee.object.name === 'Object' &&
+    node.callee.property.type === 'Identifier' &&
+    ['keys', 'getOwnPropertyNames', 'getOwnPropertySymbols'].includes(node.callee.property.name)
+  );
+}
+
+function isArrayFromIterableMethod(node: estree.Node): boolean {
+  if (
+    node.type !== 'CallExpression' ||
+    !isCallingMethod(node as estree.CallExpression, 1, 'from')
+  ) {
+    return false;
+  }
+  const arg = (node as estree.CallExpression).arguments[0];
+  return (
+    arg?.type === 'CallExpression' &&
+    arg.callee.type === 'MemberExpression' &&
+    arg.callee.property.type === 'Identifier' &&
+    ['keys', 'entries', 'values'].includes(arg.callee.property.name)
+  );
+}
+
+function isSpreadIterableMethod(node: estree.Node): boolean {
+  if (node.type !== 'SpreadElement' || node.argument.type !== 'CallExpression') {
+    return false;
+  }
+  const call = node.argument as estree.CallExpression;
+  return (
+    call.callee.type === 'MemberExpression' &&
+    call.callee.property.type === 'Identifier' &&
+    ['keys', 'entries', 'values'].includes(call.callee.property.name)
+  );
+}
+
 /**
  * Checks if the array being sorted comes from Object.keys, Object.getOwnPropertyNames,
  * Map.keys(), Map.entries(), or similar string-returning methods
  */
 function isArrayFromKeyOrEntryCall(node: estree.Node): boolean {
-  // Object.keys().sort() or Object.getOwnPropertyNames().sort()
-  if (
-    node.type === 'CallExpression' &&
-    node.callee.type === 'MemberExpression' &&
-    node.callee.object.type === 'Identifier' &&
-    node.callee.object.name === 'Object' &&
-    node.callee.property.type === 'Identifier'
-  ) {
-    const methodName = node.callee.property.name;
-    if (['keys', 'getOwnPropertyNames', 'getOwnPropertySymbols'].includes(methodName)) {
-      return true;
-    }
-  }
-
-  // Array.from(map.keys()).sort() or similar
-  if (node.type === 'CallExpression' && isCallingMethod(node as estree.CallExpression, 1, 'from')) {
-    const arg = (node as estree.CallExpression).arguments[0];
-    if (
-      arg &&
-      arg.type === 'CallExpression' &&
-      arg.callee.type === 'MemberExpression' &&
-      arg.callee.property.type === 'Identifier'
-    ) {
-      const innerMethodName = arg.callee.property.name;
-      if (['keys', 'entries', 'values'].includes(innerMethodName)) {
-        return true;
-      }
-    }
-  }
-
-  // [...map.keys()].sort() or similar
-  if (node.type === 'SpreadElement' && node.argument.type === 'CallExpression') {
-    const call = node.argument as estree.CallExpression;
-    if (call.callee.type === 'MemberExpression' && call.callee.property.type === 'Identifier') {
-      const methodName = call.callee.property.name;
-      if (['keys', 'entries', 'values'].includes(methodName)) {
-        return true;
-      }
-    }
-  }
-
-  return false;
+  return (
+    isObjectStaticKeyCall(node) || isArrayFromIterableMethod(node) || isSpreadIterableMethod(node)
+  );
 }
 
 /**
@@ -100,11 +100,10 @@ function isArrayFromKeyOrEntryCall(node: estree.Node): boolean {
  * e.g., arr1.sort() === arr2.sort()
  */
 function isInOrderIndependentComparison(parent: estree.Node | undefined): boolean {
-  if (!parent || parent.type !== 'BinaryExpression') {
+  if (parent?.type !== 'BinaryExpression') {
     return false;
   }
-  const binaryExpr = parent as estree.BinaryExpression;
-  return ['===', '!==', '==', '!='].includes(binaryExpr.operator);
+  return ['===', '!==', '==', '!='].includes(parent.operator);
 }
 
 export const rule: Rule.RuleModule = {
