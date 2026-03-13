@@ -59,7 +59,7 @@ gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100&page=
 gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100&page=3"
 ```
 
-For each page, collect jobs where `conclusion == "failure"`. Record each job's `name` and `id`.
+For each page, collect jobs where `conclusion == "failure"`. Record each job's `name`, `id`, and `completedAt`.
 
 **Step 1.3 — Early exit if no failures**
 
@@ -71,54 +71,50 @@ If there are no failed jobs, print:
 
 Then stop.
 
-**Step 1.4 — Create tasks for each failure**
+**Step 1.4 — Read the classification guide and download all logs**
 
-For each failed job, create a task:
+Read `docs/peach-main-analysis.md` once to load the failure categories and decision flowchart.
 
+Then, in a SINGLE message, download all job logs in parallel:
+
+```bash
+gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs" \
+  | grep -A 15 "ERROR\|exit code\|EXECUTION FAILURE\|IllegalStateException\|SocketTimeoutException"
 ```
-TaskCreate subject: "Assess peach failure: JOB_NAME"
-description: "Classify the failure of job JOB_NAME (id: JOB_ID) in Peach Main Analysis run RUN_ID.
-Download the logs and classify using docs/peach-main-analysis.md."
-```
+
+Run one command per failed job, all concurrently.
+
+> **Fallback:** If `gh api` is blocked by permission restrictions, try fetching logs via
+> `gh run view --log --job JOB_ID --repo SonarSource/peachee-js` instead.
 
 **Step 1.5 — Launch parallel assessment agents**
 
-Before launching agents, download the logs for ALL failed jobs:
-
-```bash
-gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs"
-```
-
-Run this for each failed job. Store the output (trim to the most relevant ~100 lines if very long — keep lines containing ERROR, exit code, exception names, step group headers). You will pass these logs inline to each agent.
-
-Then update each agent prompt to include the logs inline. The per-job agent prompt becomes (fill in JOB_NAME, JOB_ID, TASK_ID, LOG_CONTENT):
-
 In a SINGLE message, launch one Agent tool call per failed job. All agents run concurrently.
-Each agent receives this prompt (fill in JOB_NAME, JOB_ID, TASK_ID, LOG_CONTENT):
+
+Pass the classification rules and log output inline so agents do not need to read any files or
+make network calls. Each agent receives this prompt (fill in JOB_NAME, JOB_ID, LOGS, CLASSIFICATION_RULES):
 
 ```
 You are assessing a failed job in the Peach Main Analysis workflow.
 
 Job: JOB_NAME
 Job ID: JOB_ID
-Task ID: TASK_ID (mark this task complete when done)
 
-Your steps:
-0. Working directory: use the directory where this skill was invoked (run `pwd` to confirm). Verify that `docs/peach-main-analysis.md` exists before reading it.
-1. Read docs/peach-main-analysis.md to understand failure categories and the decision flowchart
-2. The job logs are provided below between the <job-logs> tags. Read them carefully.
+Classification rules:
+<classification-rules>
+CLASSIFICATION_RULES
+</classification-rules>
 
+Job logs (filtered for errors):
 <job-logs>
-LOG_CONTENT
+LOGS
 </job-logs>
 
-3. Classify the failure using the decision flowchart in docs/peach-main-analysis.md
-4. Mark the task TASK_ID as complete
-5. Return a structured assessment:
+Using the decision flowchart in the classification rules, classify this failure and return:
 
    Job: JOB_NAME
    Verdict: CRITICAL | IGNORE | NEEDS-MANUAL-REVIEW
-   Category: <category name from docs/peach-main-analysis.md>
+   Category: <category name from the classification rules>
    Evidence: <the key log line(s) that led to this verdict, max 2 lines>
 
 Do not do anything else. Just classify and return the assessment.
@@ -126,16 +122,24 @@ Do not do anything else. Just classify and return the assessment.
 
 **Step 1.6 — Collect results and print summary**
 
-Wait for all agents to return. If any agent returned no structured assessment, record that job as `NEEDS-MANUAL-REVIEW` with evidence `Agent returned no output`. Then print the summary table:
+Wait for all agents to return. If any agent returned no structured assessment, record that job as
+`NEEDS-MANUAL-REVIEW` with evidence `Agent returned no output`.
+
+**Cluster check:** If 2 or more jobs share the same category and their `completedAt` timestamps
+fall within a 5-minute window, add a note beneath the table:
+> ⚠️ N jobs failed with the same pattern within a 5-minute window — likely caused by a single infrastructure event.
+
+Sort rows by verdict in this order: CRITICAL first, then NEEDS-MANUAL-REVIEW, then IGNORE.
+Place the Category column first:
 
 ```
 ## Peach Main Analysis — Run RUN_ID (DATE)
 
-| Job         | Verdict               | Category                  | Evidence                                     |
-|-------------|-----------------------|---------------------------|----------------------------------------------|
-| gutenberg   | 🔴 CRITICAL           | Analyzer crash            | IllegalArgumentException: invalid line offset |
-| builderbot  | ✅ IGNORE             | Dep install failure       | ERR_PNPM_OUTDATED_LOCKFILE                   |
-| hono        | ✅ IGNORE             | Dep install failure       | ETARGET: No matching version for @hono/...   |
+| Category                  | Job         | Verdict               | Evidence                                     |
+|---------------------------|-------------|-----------------------|----------------------------------------------|
+| Analyzer crash            | gutenberg   | 🔴 CRITICAL           | IllegalArgumentException: invalid line offset |
+| Dep install failure       | builderbot  | ✅ IGNORE             | ERR_PNPM_OUTDATED_LOCKFILE                   |
+| Dep install failure       | hono        | ✅ IGNORE             | ETARGET: No matching version for @hono/...   |
 
 ### Summary
 - 🔴 CRITICAL: N jobs — investigate before release
@@ -149,3 +153,10 @@ The release recommendation is:
 - **SAFE** — zero CRITICAL or NEEDS-MANUAL-REVIEW jobs
 - **NOT SAFE** — one or more CRITICAL jobs
 - **REVIEW NEEDED** — zero CRITICAL but one or more NEEDS-MANUAL-REVIEW jobs
+
+**Step 1.7 — Update docs if a new failure pattern was found**
+
+If any job was classified as NEEDS-MANUAL-REVIEW and you were able to identify its root cause
+during this session, update `docs/peach-main-analysis.md` with a new category entry and add the
+corresponding branch to the decision flowchart. This keeps the classification guide current for
+future runs.

@@ -43,7 +43,8 @@ Any other sensor name (e.g. `Sensor Declarative Rule Engine for Shell`, `Java se
    ├─ Exit code 137 → CRITICAL (out-of-memory, escalate)
    └─ Other exit code → NEEDS-MANUAL-REVIEW
 
-3. Which sensor crashed?
+3. Which component crashed?
+   ├─ Stack trace is in `ReportPublisher.upload` → IGNORE (Peach server / report upload timeout)
    ├─ Sensor name is one of the SonarJS sensors listed above → CRITICAL (SonarJS analyzer crash)
    └─ Sensor name is something else (DRE Shell, Java, Security...) → IGNORE (different plugin, not our problem)
 ```
@@ -148,6 +149,32 @@ The class `com.A.A.D.H` is from the sonar-iac plugin (obfuscated). No `org.sonar
 ```
 
 **Action:** None. The analyzed project's sonar-project.properties references a path that no longer exists. Not a SonarJS issue.
+
+---
+
+### IGNORE: Peach Server / Report Upload Timeout
+
+**Verdict:** IGNORE — the Peach server timed out while receiving the analysis report; the analysis itself completed successfully.
+
+**How to identify:**
+- Failure occurs after the SonarScanner execution step (analysis finished, report generated)
+- Scanner exits with code 3
+- Java stack trace originates in `ReportPublisher.upload`, not in any sensor
+- Root cause is `java.net.SocketTimeoutException: timeout` during an HTTP POST to `peach.sonarsource.com/api/ce/submit`
+
+**Example log excerpt (fossflow, 2026-03-13):**
+```
+java.lang.IllegalStateException: Failed to upload report: Fail to request url:
+  https://peach.sonarsource.com/api/ce/submit?projectKey=js%3AFossFLOW...
+	at org.sonar.scanner.report.ReportPublisher.upload(ReportPublisher.java:243)
+Caused by: java.net.SocketTimeoutException: timeout
+	at okhttp3.internal.http2.Http2Stream$StreamTimeout.newTimeoutException(Http2Stream.kt:731)
+##[error]Process completed with exit code 3.
+```
+
+Multiple jobs failing this way within the same ~2-minute window is a strong indicator that the Peach server was temporarily unavailable or overloaded.
+
+**Action:** None for the SonarJS team. Re-run the workflow if needed; the failures are unrelated to the analyzer.
 
 ---
 
