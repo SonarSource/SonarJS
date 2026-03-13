@@ -1,7 +1,4 @@
 {
-"ace:doc/site/js/ga.js": [
-3
-],
 "ace:lib/ace/mode/css/csslint.js": [
 10554,
 10555
@@ -21,9 +18,6 @@
 ],
 "ace:src/keyboard/vim.js": [
 7164
-],
-"ace:src/mode/yaml_highlight_rules.js": [
-59
 ],
 "ace:src/range_list_test.js": [
 125
