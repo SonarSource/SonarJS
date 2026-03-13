@@ -1367,6 +1367,7 @@ class WebSensorTest {
       analysisWarnings,
       consumers,
       mock(CssRules.class),
+      mock(org.sonar.plugins.javascript.bridge.TsgolintBundle.class),
       fsListener
     );
   }

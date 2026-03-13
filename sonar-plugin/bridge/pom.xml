@@ -10,7 +10,7 @@
   <artifactId>bridge</artifactId>
   <name>SonarQube JavaScript :: Bridge</name>
   <properties>
-    <protobuf.version>4.34.0</protobuf.version>
+    <grpc.version>1.72.0</grpc.version>
   </properties>
   <dependencies>
     <dependency>
@@ -47,6 +47,32 @@
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
       <version>${protobuf.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-okhttp</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-core</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-protobuf</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.grpc</groupId>
+      <artifactId>grpc-stub</artifactId>
+      <version>${grpc.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>annotations-api</artifactId>
+      <version>6.0.53</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -89,13 +115,6 @@
     </dependency>
   </dependencies>
   <build>
-    <extensions>
-      <extension>
-        <groupId>kr.motd.maven</groupId>
-        <artifactId>os-maven-plugin</artifactId>
-        <version>1.7.1</version>
-      </extension>
-    </extensions>
     <plugins>
       <plugin>
         <groupId>org.xolstice.maven.plugins</groupId>
@@ -113,6 +132,22 @@
               </protocArtifact>
               <protoSourceRoot>../../packages/jsts/src/parsers</protoSourceRoot>
               <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Generate gRPC Analyzer Java Sources</id>
+            <goals>
+              <goal>compile</goal>
+              <goal>compile-custom</goal>
+            </goals>
+            <phase>generate-sources</phase>
+            <configuration>
+              <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}</protocArtifact>
+              <protoSourceRoot>${project.basedir}/src/main/proto</protoSourceRoot>
+              <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
+              <clearOutputDirectory>false</clearOutputDirectory>
+              <pluginId>grpc-java</pluginId>
+              <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
             </configuration>
           </execution>
         </executions>
@@ -163,7 +198,7 @@
           </execution>
           <execution>
             <id>Build the bridge</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -178,7 +213,7 @@
           </execution>
           <execution>
             <id>Bundle the bridge</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -193,7 +228,7 @@
           </execution>
           <execution>
             <id>Pack the bridge</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -207,7 +242,7 @@
           </execution>
           <execution>
             <id>Generate Node.js properties node-info.properties</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>

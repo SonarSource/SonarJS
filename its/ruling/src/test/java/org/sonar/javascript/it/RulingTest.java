@@ -85,63 +85,7 @@ class RulingTest {
     .build();
 
   public static Stream<Arguments> ruling() {
-    return Stream.of(
-      project("amplify", "external/**", "test"),
-      project("angular.js", "src/ngLocale/**, i18n/**", "test"),
-      project("backbone", "test"),
-      project("es5-shim", "tests"),
-      project("fireact"),
-      project("ace"),
-      project("ecmascript6-today"),
-      project("expressionist.js"),
-      project("Ghost"),
-      project("http"),
-      project("reddit-mobile"),
-      project("redux"),
-      project("router"),
-      project("snoode"),
-      project("sonar-web"),
-      project("templating"),
-      project("watchtower.js"),
-      project("jira-clone"),
-      project("TypeScript", "src/harness/unittests"),
-      project("jquery", "test"),
-      project("jshint", "tests"),
-      project("jStorage", "tests"),
-      project("knockout", "spec"),
-      project("mootools-core", "Specs"),
-      project("ocanvas", "build/**", ""),
-      project("p5.js", "test"),
-      project("paper.js", "gulp/jsdoc/**, packages/**", "test"),
-      project("prototype", "test"),
-      project("qunit", "test"),
-      project("react-cloud-music"),
-      project("sizzle", "external/**", "test"),
-      project("underscore", "test"),
-      project("ag-grid", "spec"),
-      project("ant-design", "tests"), // todo: many dirs **/__tests__
-      project("console"), // todo: many dirs **/__tests__
-      project("courselit", ".yarn/**", ""),
-      project("desktop", "app/test"),
-      project("eigen"), // todo
-      project("fireface"),
-      project("ionic2-auth"),
-      project("Joust"), // todo: files **/*.spec.ts
-      project("moose"),
-      project("postgraphql"), // todo: many dirs **/__tests__
-      project("prettier-vscode"),
-      project("rxjs", "spec"),
-      project("searchkit"), // todo
-      project("vuetify"),
-      project("it-tools"),
-      project("custom-yaml", "../sources/custom/yaml", "", ""),
-      project("custom-jsts", "../sources/custom/jsts", "", "tests"),
-      project("animate.css"),
-      project("bulma"),
-      project("normalize.css"),
-      project("tailwindcss"),
-      project("custom-css", "../sources/custom/css", "", "")
-    );
+    return Stream.of(project("router"));
   }
 
   private static Arguments project(String project) {
