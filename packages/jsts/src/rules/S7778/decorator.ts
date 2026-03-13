@@ -93,8 +93,10 @@ function methodAcceptsMultipleArguments(
   const calleeType = getTypeFromTreeNode(callee as unknown as estree.Node, services);
   return calleeType.getCallSignatures().some(sig => {
     const params = sig.parameters;
-    if (params.length === 0) return false;
-    const lastParam = params[params.length - 1];
+    if (params.length === 0) {
+      return false;
+    }
+    const lastParam = params.at(-1)!;
     const decl = lastParam.valueDeclaration;
     return (
       (decl !== undefined && ts.isParameter(decl) && !!decl.dotDotDotToken) || params.length > 1
