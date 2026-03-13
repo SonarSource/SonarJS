@@ -19,8 +19,6 @@
 import type { Rule } from 'eslint';
 import type ts from 'typescript';
 import type estree from 'estree';
-import { getNodeParent } from '../helpers/ancestor.js';
-import { isCallingMethod, isIdentifier } from '../helpers/ast.js';
 import { copyingSortLike, sortLike } from '../helpers/collection.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
@@ -32,8 +30,6 @@ import {
 } from '../helpers/type.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
-
-const ORDER_INDEPENDENT_OPERATORS = new Set(['===', '!==', '==', '!=']);
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
 const compareBigIntFunctionPlaceholder = [
@@ -47,30 +43,6 @@ const compareBigIntFunctionPlaceholder = [
   '  }',
   '}',
 ];
-const languageSensitiveOrderPlaceholder = '(a, b) => a.localeCompare(b)';
-
-function isObjectKeysCall(node: estree.Node): boolean {
-  return (
-    node.type === 'CallExpression' &&
-    isCallingMethod(node, 1, 'keys', 'getOwnPropertyNames') &&
-    isIdentifier(node.callee.object, 'Object')
-  );
-}
-
-function isArrayFromKeysOrEntries(node: estree.Node): boolean {
-  // Matches Array.from(iterable.keys()), Array.from(iterable.entries()), etc.
-  if (
-    node.type !== 'CallExpression' ||
-    !isCallingMethod(node, 1, 'from') ||
-    !isIdentifier(node.callee.object, 'Array')
-  ) {
-    return false;
-  }
-  const firstArg = node.arguments[0];
-  return (
-    firstArg.type === 'CallExpression' && isCallingMethod(firstArg, 0, 'keys', 'entries', 'values')
-  );
-}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -78,11 +50,7 @@ export const rule: Rule.RuleModule = {
     messages: {
       provideCompareFunction:
         'Provide a compare function to avoid sorting elements alphabetically.',
-      provideCompareFunctionForArrayOfStrings:
-        'Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.',
       suggestNumericOrder: 'Add a comparator function to sort in ascending order',
-      suggestLanguageSensitiveOrder:
-        'Add a comparator function to sort in ascending language-sensitive order',
     },
   }),
   create(context: Rule.RuleContext) {
@@ -101,12 +69,12 @@ export const rule: Rule.RuleModule = {
         const type = getTypeFromTreeNode(object, services);
 
         if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
-          if (isSuppressedSort(call, object, type)) {
+          if (isStringArray(type, services)) {
+            // TypeScript knows the values are strings; default alphabetical sort is intentional
             return;
           }
           const suggest = getSuggestions(call, type);
-          const messageId = getMessageId(type);
-          context.report({ node, suggest, messageId });
+          context.report({ node, suggest, messageId: 'provideCompareFunction' });
         }
       },
     };
@@ -123,37 +91,8 @@ export const rule: Rule.RuleModule = {
           messageId: 'suggestNumericOrder',
           fix: fixer(call, ...compareBigIntFunctionPlaceholder),
         });
-      } else if (isStringArray(type, services)) {
-        suggestions.push({
-          messageId: 'suggestLanguageSensitiveOrder',
-          fix: fixer(call, languageSensitiveOrderPlaceholder),
-        });
       }
       return suggestions;
-    }
-
-    function getMessageId(type: ts.Type) {
-      if (isStringArray(type, services)) {
-        return 'provideCompareFunctionForArrayOfStrings';
-      }
-
-      return 'provideCompareFunction';
-    }
-
-    function isSuppressedSort(call: estree.CallExpression, object: estree.Node, type: ts.Type) {
-      // Suppress when sort() is used for order-independent comparison (e.g., a.sort() === b.sort())
-      if (isStringArray(type, services)) {
-        const parent = getNodeParent(call);
-        if (
-          parent.type === 'BinaryExpression' &&
-          ORDER_INDEPENDENT_OPERATORS.has(parent.operator)
-        ) {
-          return true;
-        }
-      }
-
-      // Suppress when array comes from Object.keys(), Object.getOwnPropertyNames(), Map.keys(), or Map.entries()
-      return isObjectKeysCall(object) || isArrayFromKeysOrEntries(object);
     }
 
     function fixer(call: estree.CallExpression, ...placeholder: string[]): Rule.ReportFixer {
