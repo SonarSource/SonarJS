@@ -16,7 +16,7 @@
  */
 import { join, resolve } from 'node:path/posix';
 import { listRulesDir } from './helpers.js';
-import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 
 const sourceFolder = resolve('resources/rule-data');
 
@@ -92,4 +92,14 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
       ruleKeys: sonarWayRuleNames,
     }),
   );
+
+  // Copy additional quality profiles from profiles directory
+  const language = targetFolder.includes('javascript') ? 'javascript' : 'css';
+  const profilesFolder = resolve(join('profiles', language));
+  if (existsSync(profilesFolder)) {
+    const profileFiles = readdirSync(profilesFolder).filter(file => file.endsWith('.json'));
+    for (const profileFile of profileFiles) {
+      copyFileSync(join(profilesFolder, profileFile), join(targetFolder, profileFile));
+    }
+  }
 }
