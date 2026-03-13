@@ -88,16 +88,6 @@ el.classList.remove('hidden');
 el.classList.remove('inactive'); // Compliant: not a DOMTokenList
 `,
         },
-        {
-          code: `
-class CustomPusher {
-  push(...items: any[]): void {}
-}
-const pusher = new CustomPusher();
-pusher.push(1);
-pusher.push(2); // Compliant: not an Array
-`,
-        },
       ],
       invalid: [
         {
@@ -145,6 +135,25 @@ obj.items.push(2);
           output: `
 const obj = { items: [] };
 obj.items.push(1, 2);
+`,
+          errors: 1,
+        },
+        {
+          // A custom class with a variadic push can legitimately be combined
+          code: `
+class CustomPusher {
+  push(...items: any[]): void {}
+}
+const pusher = new CustomPusher();
+pusher.push(1);
+pusher.push(2);
+`,
+          output: `
+class CustomPusher {
+  push(...items: any[]): void {}
+}
+const pusher = new CustomPusher();
+pusher.push(1, 2);
 `,
           errors: 1,
         },

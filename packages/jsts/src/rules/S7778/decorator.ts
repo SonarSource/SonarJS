@@ -17,10 +17,14 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
+import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
-import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { isArray, getTypeFromTreeNode } from '../helpers/type.js';
+import {
+  isRequiredParserServices,
+  type RequiredParserServices,
+} from '../helpers/parser-services.js';
+import { getTypeFromTreeNode } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -69,20 +73,31 @@ function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescr
     return;
   }
 
-  const receiver = (tsNode.parent as TSESTree.MemberExpression).object as estree.Node;
-  const methodName = tsNode.name;
-
-  if (methodName === 'push') {
-    // Report only if receiver is an Array
-    if (isArray(receiver, services)) {
-      context.report(descriptor);
-    }
-    return;
-  }
-
-  // add or remove: report only if the receiver is a DOMTokenList
-  const receiverType = getTypeFromTreeNode(receiver, services);
-  if (receiverType.symbol?.name === 'DOMTokenList') {
+  const callee = tsNode.parent as TSESTree.MemberExpression;
+  if (methodAcceptsMultipleArguments(callee, services)) {
     context.report(descriptor);
   }
+}
+
+/**
+ * Returns true if any TypeScript call signature of the given callee can accept
+ * more than one argument — either via a rest parameter or multiple parameters.
+ * Consecutive calls to such methods can legitimately be combined, so the report
+ * should be kept. Single-argument methods (custom classes that shadow built-in
+ * names like push/add/remove) are suppressed as false positives.
+ */
+function methodAcceptsMultipleArguments(
+  callee: TSESTree.MemberExpression,
+  services: RequiredParserServices,
+): boolean {
+  const calleeType = getTypeFromTreeNode(callee as unknown as estree.Node, services);
+  return calleeType.getCallSignatures().some(sig => {
+    const params = sig.parameters;
+    if (params.length === 0) return false;
+    const lastParam = params[params.length - 1];
+    const decl = lastParam.valueDeclaration;
+    return (
+      (decl !== undefined && ts.isParameter(decl) && !!decl.dotDotDotToken) || params.length > 1
+    );
+  });
 }
