@@ -187,13 +187,21 @@ export function esLibToYear(lib: string[] | undefined): number | null {
   if (!lib) {
     return null;
   }
+  // esnext means no ES version restriction — return null regardless of other entries
+  if (lib.some(entry => /lib\.esnext(\..*)?\.d\.ts$/.test(entry))) {
+    return null;
+  }
+  let maxYear: number | null = null;
   for (const entry of lib) {
-    const match = /lib\.es(\d{4})\.d\.ts$/.exec(entry);
+    const match = /lib\.es(\d{4})(\..*)?\.d\.ts$/.exec(entry);
     if (match) {
-      return Number.parseInt(match[1], 10);
+      const year = Number.parseInt(match[1], 10);
+      if (maxYear === null || year > maxYear) {
+        maxYear = year;
+      }
     }
   }
-  return null;
+  return maxYear;
 }
 
 export function computeLibJson(

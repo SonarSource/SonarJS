@@ -370,8 +370,18 @@ describe('esLibToYear', () => {
     expect(esLibToYear(['lib.es2015.d.ts', 'lib.dom.d.ts'])).toBe(2015);
   });
 
+  it('should return the maximum year when multiple year libs are present', () => {
+    // e.g. a tsconfig with lib: ['es2015', 'es2017', 'es2019'] — max is 2019
+    expect(esLibToYear(['lib.es2015.d.ts', 'lib.es2017.d.ts', 'lib.es2019.d.ts'])).toBe(2019);
+  });
+
   it('should return null for esnext lib (no restriction)', () => {
     expect(esLibToYear(['lib.esnext.d.ts', 'lib.dom.d.ts'])).toBeNull();
+  });
+
+  it('should return null when esnext is mixed with year libs', () => {
+    // esnext wins — merged programs can combine e.g. [es2020, esnext]
+    expect(esLibToYear(['lib.es2020.d.ts', 'lib.dom.d.ts', 'lib.esnext.d.ts'])).toBeNull();
   });
 
   it('should return null for undefined lib', () => {
