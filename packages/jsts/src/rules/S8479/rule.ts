@@ -18,8 +18,11 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
+import { getFullyQualifiedNameTS } from '../helpers/module-ts.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 const DANGEROUS_TAGS = new Set([
@@ -74,9 +77,17 @@ export const rule: Rule.RuleModule = {
   }),
 
   create(context: Rule.RuleContext) {
+    const services = context.sourceCode.parserServices;
+    const hasTypeInformation = isRequiredParserServices(services);
     return {
       CallExpression(node: estree.CallExpression) {
-        const fqn = getFullyQualifiedName(context, node);
+        let fqn: string | null = null;
+        if (hasTypeInformation) {
+          const tsNode = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
+          fqn = getFullyQualifiedNameTS(services, tsNode);
+        } else {
+          fqn = getFullyQualifiedName(context, node);
+        }
         if (!fqn || !SANITIZE_FQNS.has(fqn)) {
           return;
         }
