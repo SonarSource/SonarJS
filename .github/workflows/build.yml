@@ -1081,9 +1081,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
           RULING_FAILED: ${{ steps.ruling.outcome == 'failure' }}
         run: |
-          git fetch origin master
+          git fetch origin "$BASE_REF"
 
           # If ruling failed, sync the actual results first to get the differences
           if [ "$RULING_FAILED" = "true" ]; then
@@ -1098,7 +1099,7 @@ jobs:
             npm run ruling-sync
           fi
 
-          # Generate report comparing against master (after sync if ruling failed)
+          # Generate report comparing against base branch (after sync if ruling failed)
           node tools/ruling-report.js > ruling-report.md
 
           # Check if there are ruling differences
