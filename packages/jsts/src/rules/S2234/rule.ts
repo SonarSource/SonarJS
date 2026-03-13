@@ -151,7 +151,7 @@ export const rule: Rule.RuleModule = {
         .find(
           ancestor =>
             ancestor.type === 'ArrowFunctionExpression' || ancestor.type === 'FunctionExpression',
-        ) as estree.ArrowFunctionExpression | estree.FunctionExpression | undefined;
+        );
 
       if (!enclosingFunc) {
         return false;
@@ -171,7 +171,7 @@ export const rule: Rule.RuleModule = {
         return false;
       }
 
-      const body = enclosingFunc.body as estree.Expression | estree.BlockStatement;
+      const body = enclosingFunc.body;
       if (body === functionCall) {
         return true;
       }
@@ -179,7 +179,7 @@ export const rule: Rule.RuleModule = {
         body.type === 'BlockStatement' &&
         body.body.length === 1 &&
         body.body[0].type === 'ReturnStatement' &&
-        (body.body[0] as estree.ReturnStatement).argument === functionCall
+        body.body[0].argument === functionCall
       ) {
         return true;
       }
