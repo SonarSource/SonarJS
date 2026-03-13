@@ -55,12 +55,12 @@ Read helper implementations to understand their usage and parameters.
 
 ### childrenOf
 
-`childrenOf(node)` always returns `estree.Node[]`. Do not add `isNode()` type guards or `Array.isArray()` checks on its return value — they are dead code:
+`childrenOf(node)` always returns `estree.Node[]`. Do not write custom type guard predicates or `Array.isArray()` checks on its return values — they are dead code:
 
 ```typescript
-// ❌ Redundant guards
+// ❌ Redundant — childrenOf already guarantees estree.Node[]
 for (const child of childrenOf(node)) {
-  if (isNode(child)) { ... }  // childrenOf never returns non-nodes
+  if (typeof child === 'object' && 'type' in child) { ... }
 }
 
 // ✅ Iterate directly
