@@ -213,6 +213,30 @@ describe('S2871', () => {
       }
     `,
           },
+          // Compliant: Array.from(arr.keys()) where arr is number[] - indices are numbers, not strings,
+          // but this pattern (arr.keys()) is always intentional and order-independent
+          {
+            code: `
+      function f(arr: number[]) {
+        return Array.from(arr.keys()).sort();
+      }
+    `,
+          },
+          // Compliant: number array in order-independent equality comparison
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.sort() === b.sort();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.sort() !== b.sort();
+      }
+    `,
+          },
         ],
         invalid: [
           {
@@ -592,6 +616,29 @@ describe('S2871', () => {
             code: `
       function f(map: Map<string, number>) {
         return Array.from(map.keys()).toSorted();
+      }
+    `,
+          },
+          // Compliant: Array.from(arr.keys()) where arr is number[] - always intentional pattern
+          {
+            code: `
+      function f(arr: number[]) {
+        return Array.from(arr.keys()).toSorted();
+      }
+    `,
+          },
+          // Compliant: number array in order-independent equality comparison
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted() === b.toSorted();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted() !== b.toSorted();
       }
     `,
           },
