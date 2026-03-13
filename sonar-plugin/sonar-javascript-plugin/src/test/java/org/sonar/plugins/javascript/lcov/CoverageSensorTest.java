@@ -437,7 +437,7 @@ class CoverageSensorTest {
   }
 
   @Test
-  void should_keep_missing_branches_uncovered_when_reports_are_merged() throws Exception {
+  void should_ignore_zero_hit_branches_missing_from_other_reports_when_merged() throws Exception {
     Path unitLcov = tempDir.resolve("unit.lcov");
     Files.write(
       unitLcov,
@@ -459,8 +459,84 @@ class CoverageSensorTest {
     coverageSensor.execute(context);
 
     String file1Key = "moduleKey:file1.js";
+    assertThat(context.conditions(file1Key, 2)).isEqualTo(1);
+    assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(1);
+  }
+
+  @Test
+  void should_merge_jest_shard_branches_with_different_block_numbers() throws Exception {
+    Path shard1 = tempDir.resolve("jest_shard_1.lcov");
+    Files.write(
+      shard1,
+      ("SF:file1.js\n" + "BRDA:2,11,0,12\n" + "BRDA:2,11,1,0\n" + "end_of_record\n").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+
+    Path shard2 = tempDir.resolve("jest_shard_2.lcov");
+    Files.write(
+      shard2,
+      ("SF:file1.js\n" + "BRDA:2,14,0,0\n" + "BRDA:2,14,1,8\n" + "end_of_record\n").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+
+    settings.setProperty(
+      JavaScriptPlugin.LCOV_REPORT_PATHS,
+      shard1.toAbsolutePath() + "," + shard2.toAbsolutePath()
+    );
+    coverageSensor.execute(context);
+
+    String file1Key = "moduleKey:file1.js";
+    assertThat(context.conditions(file1Key, 2)).isEqualTo(2);
+    assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(2);
+  }
+
+  @Test
+  void should_keep_uncovered_branch_when_all_reports_declare_it() throws Exception {
+    Path report1 = tempDir.resolve("report_1.lcov");
+    Files.write(
+      report1,
+      ("SF:file1.js\n" + "BRDA:2,0,0,6\n" + "BRDA:2,0,1,0\n" + "end_of_record\n").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+
+    Path report2 = tempDir.resolve("report_2.lcov");
+    Files.write(
+      report2,
+      ("SF:file1.js\n" + "BRDA:2,3,0,0\n" + "BRDA:2,3,1,0\n" + "end_of_record\n").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+
+    settings.setProperty(
+      JavaScriptPlugin.LCOV_REPORT_PATHS,
+      report1.toAbsolutePath() + "," + report2.toAbsolutePath()
+    );
+    coverageSensor.execute(context);
+
+    String file1Key = "moduleKey:file1.js";
     assertThat(context.conditions(file1Key, 2)).isEqualTo(2);
     assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(1);
+  }
+
+  @Test
+  void should_report_full_branch_coverage_when_jest_shards_are_premerged() throws Exception {
+    Path merged = tempDir.resolve("jest_merged.lcov");
+    Files.write(
+      merged,
+      ("SF:file1.js\n" + "BRDA:2,11,0,12\n" + "BRDA:2,11,1,8\n" + "end_of_record\n").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, merged.toAbsolutePath().toString());
+    coverageSensor.execute(context);
+
+    String file1Key = "moduleKey:file1.js";
+    assertThat(context.conditions(file1Key, 2)).isEqualTo(2);
+    assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(2);
   }
 
   @Test
