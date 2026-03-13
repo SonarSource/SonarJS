@@ -20,8 +20,9 @@
  *
  * Usage: node tools/ruling-report.js
  *
- * Compares ruling JSON files against origin/master and generates a report
- * showing all changes introduced by the current branch.
+ * Compares ruling JSON files against the PR base branch (via BASE_REF env var,
+ * defaults to master) and generates a report showing all changes introduced by
+ * the current branch.
  */
 
 import { execSync } from 'child_process';
@@ -32,13 +33,13 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
 const SOURCES_DIR = join(ROOT_DIR, 'its/sources');
-const BASE_REF = 'origin/master';
+const BASE_REF = `origin/${process.env.BASE_REF ?? 'master'}`;
 const SOURCES_REPO_URL = 'https://github.com/SonarSource/jsts-test-sources/blob/master';
 const RSPEC_URL = 'https://musical-adventure-r9qk65j.pages.github.io/rspec/#';
 
 function getChangedRulingFiles() {
   try {
-    // Compare against master to show all changes introduced by this branch
+    // Compare against base branch to show all changes introduced by this branch
     const output = execSync(`git diff ${BASE_REF} --name-only its/ruling/src/test/expected/`, {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
@@ -72,27 +73,27 @@ function getRulingChanges(filePath) {
   // Get current (staged/working) version
   const currentData = parseRulingJson(fullPath);
 
-  // Get master version (suppress stderr for new files)
-  let masterData = {};
+  // Get base branch version (suppress stderr for new files)
+  let baseData = {};
   try {
-    const masterContent = execSync(`git show ${BASE_REF}:${filePath} 2>/dev/null`, {
+    const baseContent = execSync(`git show ${BASE_REF}:${filePath} 2>/dev/null`, {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-    masterData = JSON.parse(masterContent);
+    baseData = JSON.parse(baseContent);
   } catch {
     // File might be new
   }
 
-  // Find added lines (in current but not in master)
+  // Find added lines (in current but not in base branch)
   for (const [fileKey, lines] of Object.entries(currentData)) {
-    const masterLines = new Set(masterData[fileKey] || []);
+    const baseLines = new Set(baseData[fileKey] || []);
     // Extract relative path from "project:path" format
     const relativePath = fileKey.includes(':') ? fileKey.split(':')[1] : fileKey;
 
     for (const line of lines) {
-      if (!masterLines.has(line)) {
+      if (!baseLines.has(line)) {
         changes.push({
           type: 'added',
           project,
@@ -105,8 +106,8 @@ function getRulingChanges(filePath) {
     }
   }
 
-  // Find removed lines (in master but not in current)
-  for (const [fileKey, lines] of Object.entries(masterData)) {
+  // Find removed lines (in base branch but not in current)
+  for (const [fileKey, lines] of Object.entries(baseData)) {
     const currentLines = new Set(currentData[fileKey] || []);
     const relativePath = fileKey.includes(':') ? fileKey.split(':')[1] : fileKey;
 
