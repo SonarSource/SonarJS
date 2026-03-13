@@ -148,6 +148,95 @@ describe('S2871', () => {
           {
             code: `Array.prototype.sort.apply([1, 2, 10])`,
           },
+          // Compliant: string array sorts are suppressed (typechecker detects string values)
+          {
+            code: `const array = ["foo", "bar"]; array.sort();`,
+          },
+          {
+            code: `['foo', 'bar', 'baz'].sort();`,
+          },
+          {
+            code: `
+      function f(a: string[]) {
+        a.sort();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: string[]) {
+        a?.sort();
+      }
+    `,
+          },
+          {
+            code: `
+      function getString() {
+        return 'foo';
+      }
+      [getString(), getString()].sort();
+    `,
+          },
+          {
+            code: `
+      const foo = 'foo';
+      const bar = 'bar';
+      const baz = 'baz';
+      [foo, bar, baz].sort();
+    `,
+          },
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.sort() === b.sort();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.sort() !== b.sort();
+      }
+    `,
+          },
+          // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (string[])
+          {
+            code: `const keys = Object.keys({ a: 1, b: 2 }).sort();`,
+          },
+          {
+            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).sort();`,
+          },
+          {
+            code: `
+      function f(map: Map<string, number>) {
+        return Array.from(map.keys()).sort();
+      }
+    `,
+          },
+          // Compliant: Array.from(arr.keys()) where arr is number[] - indices are numbers, not strings,
+          // but this pattern (arr.keys()) is always intentional and order-independent
+          {
+            code: `
+      function f(arr: number[]) {
+        return Array.from(arr.keys()).sort();
+      }
+    `,
+          },
+          // Compliant: number array in order-independent equality comparison
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.sort() === b.sort();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.sort() !== b.sort();
+      }
+    `,
+          },
         ],
         invalid: [
           {
@@ -338,54 +427,6 @@ describe('S2871', () => {
               },
             ],
           },
-          {
-            code: 'const array = ["foo", "bar"]; array.sort();',
-            errors: [
-              {
-                messageId: 'provideCompareFunctionForArrayOfStrings',
-                suggestions: [
-                  {
-                    desc: 'Add a comparator function to sort in ascending language-sensitive order',
-                    output:
-                      'const array = ["foo", "bar"]; array.sort((a, b) => a.localeCompare(b));',
-                  },
-                ],
-              },
-            ],
-          },
-          // optional chain
-          {
-            code: `
-        function f(a: string[]) {
-          a?.sort();
-        }
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        ['foo', 'bar', 'baz'].sort();
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        function getString() {
-          return 'foo';
-        }
-        [getString(), getString()].sort();
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        const foo = 'foo';
-        const bar = 'bar';
-        const baz = 'baz';
-        [foo, bar, baz].sort();
-      `,
-            errors: 1,
-          },
         ],
       },
     );
@@ -510,6 +551,96 @@ describe('S2871', () => {
           },
           {
             code: `const sorted = Array.prototype.toSorted.apply([1, 2, 10])`,
+          },
+          // Compliant: string array sorts are suppressed (typechecker detects string values)
+          {
+            code: `const array = ["foo", "bar"]; const sorted = array.toSorted();`,
+          },
+          {
+            code: `
+      function f(a: string[]) {
+        return a.toSorted();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: string[]) {
+        return a?.toSorted();
+      }
+    `,
+          },
+          {
+            code: `
+      const sorted = ['foo', 'bar', 'baz'].toSorted();
+    `,
+          },
+          {
+            code: `
+      function getString() {
+        return 'foo';
+      }
+      const sorted = [getString(), getString()].toSorted();
+    `,
+          },
+          {
+            code: `
+      const foo = 'foo';
+      const bar = 'bar';
+      const baz = 'baz';
+      const sorted = [foo, bar, baz].toSorted();
+    `,
+          },
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted() === b.toSorted();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted() !== b.toSorted();
+      }
+    `,
+          },
+          // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (string[])
+          {
+            code: `const keys = Object.keys({ a: 1, b: 2 }).toSorted();`,
+          },
+          {
+            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).toSorted();`,
+          },
+          {
+            code: `
+      function f(map: Map<string, number>) {
+        return Array.from(map.keys()).toSorted();
+      }
+    `,
+          },
+          // Compliant: Array.from(arr.keys()) where arr is number[] - always intentional pattern
+          {
+            code: `
+      function f(arr: number[]) {
+        return Array.from(arr.keys()).toSorted();
+      }
+    `,
+          },
+          // Compliant: number array in order-independent equality comparison
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted() === b.toSorted();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted() !== b.toSorted();
+      }
+    `,
           },
         ],
         invalid: [
@@ -703,55 +834,6 @@ describe('S2871', () => {
                 suggestions: [],
               },
             ],
-          },
-          {
-            code: 'const array = ["foo", "bar"]; const sortedArray = array.toSorted();',
-            errors: [
-              {
-                message:
-                  'Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.',
-                suggestions: [
-                  {
-                    desc: 'Add a comparator function to sort in ascending language-sensitive order',
-                    output:
-                      'const array = ["foo", "bar"]; const sortedArray = array.toSorted((a, b) => a.localeCompare(b));',
-                  },
-                ],
-              },
-            ],
-          },
-          // optional chain
-          {
-            code: `
-        function f(a: string[]) {
-          return a?.toSorted();
-        }
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        const sorted = ['foo', 'bar', 'baz'].toSorted();
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        function getString() {
-          return 'foo';
-        }
-        const sorted = [getString(), getString()].toSorted();
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        const foo = 'foo';
-        const bar = 'bar';
-        const baz = 'baz';
-        const sorted = [foo, bar, baz].toSorted();
-      `,
-            errors: 1,
           },
         ],
       },

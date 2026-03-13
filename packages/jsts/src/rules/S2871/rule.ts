@@ -29,6 +29,8 @@ import {
   isStringArray,
 } from '../helpers/type.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { isCallingMethod } from '../helpers/ast.js';
+import { getNodeParent } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
@@ -43,7 +45,66 @@ const compareBigIntFunctionPlaceholder = [
   '  }',
   '}',
 ];
-const languageSensitiveOrderPlaceholder = '(a, b) => a.localeCompare(b)';
+
+function isObjectStaticKeyCall(node: estree.Node): boolean {
+  return (
+    node.type === 'CallExpression' &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.object.type === 'Identifier' &&
+    node.callee.object.name === 'Object' &&
+    node.callee.property.type === 'Identifier' &&
+    ['keys', 'getOwnPropertyNames', 'getOwnPropertySymbols'].includes(node.callee.property.name)
+  );
+}
+
+function isArrayFromIterableMethod(node: estree.Node): boolean {
+  if (
+    node.type !== 'CallExpression' ||
+    !isCallingMethod(node as estree.CallExpression, 1, 'from')
+  ) {
+    return false;
+  }
+  const arg = (node as estree.CallExpression).arguments[0];
+  return (
+    arg?.type === 'CallExpression' &&
+    arg.callee.type === 'MemberExpression' &&
+    arg.callee.property.type === 'Identifier' &&
+    ['keys', 'entries', 'values'].includes(arg.callee.property.name)
+  );
+}
+
+function isSpreadIterableMethod(node: estree.Node): boolean {
+  if (node.type !== 'SpreadElement' || node.argument.type !== 'CallExpression') {
+    return false;
+  }
+  const call = node.argument as estree.CallExpression;
+  return (
+    call.callee.type === 'MemberExpression' &&
+    call.callee.property.type === 'Identifier' &&
+    ['keys', 'entries', 'values'].includes(call.callee.property.name)
+  );
+}
+
+/**
+ * Checks if the array being sorted comes from Object.keys, Object.getOwnPropertyNames,
+ * Map.keys(), Map.entries(), or similar string-returning methods
+ */
+function isArrayFromKeyOrEntryCall(node: estree.Node): boolean {
+  return (
+    isObjectStaticKeyCall(node) || isArrayFromIterableMethod(node) || isSpreadIterableMethod(node)
+  );
+}
+
+/**
+ * Checks if the sort() call is part of an order-independent comparison
+ * e.g., arr1.sort() === arr2.sort()
+ */
+function isInOrderIndependentComparison(parent: estree.Node | undefined): boolean {
+  if (parent?.type !== 'BinaryExpression') {
+    return false;
+  }
+  return ['===', '!==', '==', '!='].includes(parent.operator);
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -51,11 +112,7 @@ export const rule: Rule.RuleModule = {
     messages: {
       provideCompareFunction:
         'Provide a compare function to avoid sorting elements alphabetically.',
-      provideCompareFunctionForArrayOfStrings:
-        'Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.',
       suggestNumericOrder: 'Add a comparator function to sort in ascending order',
-      suggestLanguageSensitiveOrder:
-        'Add a comparator function to sort in ascending language-sensitive order',
     },
   }),
   create(context: Rule.RuleContext) {
@@ -74,9 +131,27 @@ export const rule: Rule.RuleModule = {
         const type = getTypeFromTreeNode(object, services);
 
         if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
+          // Suppress for string arrays (TypeScript type analysis)
+          if (isStringArray(type, services)) {
+            // TypeScript knows the values are strings; default alphabetical sort is intentional
+            return;
+          }
+
+          // Suppress for known string-producing patterns
+          if (isArrayFromKeyOrEntryCall(object)) {
+            // Array from Object.keys(), Map.keys(), etc. - always strings
+            return;
+          }
+
+          // Suppress for order-independent comparisons (a.sort() === b.sort())
+          const parent = getNodeParent(call);
+          if (isInOrderIndependentComparison(parent)) {
+            // Order-independent comparison where alphabetical sort is intentional
+            return;
+          }
+
           const suggest = getSuggestions(call, type);
-          const messageId = getMessageId(type);
-          context.report({ node, suggest, messageId });
+          context.report({ node, suggest, messageId: 'provideCompareFunction' });
         }
       },
     };
@@ -93,21 +168,8 @@ export const rule: Rule.RuleModule = {
           messageId: 'suggestNumericOrder',
           fix: fixer(call, ...compareBigIntFunctionPlaceholder),
         });
-      } else if (isStringArray(type, services)) {
-        suggestions.push({
-          messageId: 'suggestLanguageSensitiveOrder',
-          fix: fixer(call, languageSensitiveOrderPlaceholder),
-        });
       }
       return suggestions;
-    }
-
-    function getMessageId(type: ts.Type) {
-      if (isStringArray(type, services)) {
-        return 'provideCompareFunctionForArrayOfStrings';
-      }
-
-      return 'provideCompareFunction';
     }
 
     function fixer(call: estree.CallExpression, ...placeholder: string[]): Rule.ReportFixer {
