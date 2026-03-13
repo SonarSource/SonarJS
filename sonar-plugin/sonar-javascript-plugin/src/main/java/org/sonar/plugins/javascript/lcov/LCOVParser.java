@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -85,11 +86,13 @@ class LCOVParser {
   private Map<InputFile, NewCoverage> parse(List<String> lines) {
     final Map<InputFile, FileData> files = new HashMap<>();
     FileData fileData = null;
+    int sourceFileRecordIndex = 0;
     int reportLineNum = 0;
 
     for (String line : lines) {
       reportLineNum++;
       if (line.startsWith(SF)) {
+        sourceFileRecordIndex++;
         fileData = files.computeIfAbsent(inputFileForSourceFile(line), inputFile ->
           inputFile == null ? null : new FileData(inputFile)
         );
@@ -97,7 +100,7 @@ class LCOVParser {
         if (line.startsWith(DA)) {
           parseLineCoverage(fileData, reportLineNum, line);
         } else if (line.startsWith(BRDA)) {
-          parseBranchCoverage(fileData, reportLineNum, line);
+          parseBranchCoverage(fileData, sourceFileRecordIndex, reportLineNum, line);
         }
       }
     }
@@ -112,16 +115,24 @@ class LCOVParser {
     return coveredFiles;
   }
 
-  private void parseBranchCoverage(FileData fileData, int reportLineNum, String line) {
+  private void parseBranchCoverage(
+    FileData fileData,
+    int sourceFileRecordIndex,
+    int reportLineNum,
+    String line
+  ) {
     try {
       // BRDA:<line number>,<block number>,<branch number>,<taken>
       String[] tokens = line.substring(BRDA.length()).trim().split(",");
       String lineNumber = tokens[0];
-      String branchNumber = tokens[1] + tokens[2];
+      String blockNumber = tokens[1];
+      String branchNumber = tokens[2];
       String taken = tokens[3];
 
       fileData.addBranch(
+        sourceFileRecordIndex,
         Integer.valueOf(lineNumber),
+        blockNumber,
         branchNumber,
         "-".equals(taken) ? 0 : Integer.valueOf(taken)
       );
@@ -173,9 +184,9 @@ class LCOVParser {
   private static class FileData {
 
     /**
-     * line number -> branch number -> taken
+     * line number -> source-file record index -> branches
      */
-    private Map<Integer, Map<String, Integer>> branches = new HashMap<>();
+    private Map<Integer, Map<Integer, List<BranchData>>> branches = new HashMap<>();
 
     /**
      * line number -> execution count
@@ -197,12 +208,22 @@ class LCOVParser {
       filename = inputFile.filename();
     }
 
-    void addBranch(Integer lineNumber, String branchNumber, Integer taken) {
+    void addBranch(
+      Integer sourceFileRecordIndex,
+      Integer lineNumber,
+      String blockNumber,
+      String branchNumber,
+      Integer taken
+    ) {
       checkLine(lineNumber);
-      Map<String, Integer> branchesForLine = branches.computeIfAbsent(lineNumber, l ->
+      Map<Integer, List<BranchData>> branchesForLine = branches.computeIfAbsent(lineNumber, l ->
         new HashMap<>()
       );
-      branchesForLine.merge(branchNumber, taken, Integer::sum);
+      List<BranchData> branchesForRecord = branchesForLine.computeIfAbsent(
+        sourceFileRecordIndex,
+        i -> new ArrayList<>()
+      );
+      branchesForRecord.add(new BranchData(blockNumber, branchNumber, taken));
     }
 
     void addLine(Integer lineNumber, Integer executionCount) {
@@ -214,19 +235,58 @@ class LCOVParser {
       for (Map.Entry<Integer, Integer> e : hits.entrySet()) {
         newCoverage.lineHits(e.getKey(), e.getValue());
       }
-      for (Map.Entry<Integer, Map<String, Integer>> e : branches.entrySet()) {
+      for (Map.Entry<Integer, Map<Integer, List<BranchData>>> e : branches.entrySet()) {
         int line = e.getKey();
-        int conditions = e.getValue().size();
-        int covered = 0;
-        for (Integer taken : e.getValue().values()) {
-          if (taken > 0) {
-            covered++;
-          }
+        BranchLineCoverage branchLineCoverage = mergeBranchesByLine(e.getValue());
+
+        if (branchLineCoverage.conditions > 0) {
+          newCoverage.conditions(line, branchLineCoverage.conditions, branchLineCoverage.covered);
+          newCoverage.lineHits(line, hits.getOrDefault(line, 0) + branchLineCoverage.covered);
+        }
+      }
+    }
+
+    private static BranchLineCoverage mergeBranchesByLine(
+      Map<Integer, List<BranchData>> branchesBySourceFileRecord
+    ) {
+      Map<String, Integer> coveredByBranch = new HashMap<>();
+      Map<String, Integer> presenceByBranch = new HashMap<>();
+      int totalRecords = branchesBySourceFileRecord.size();
+
+      for (List<BranchData> branchesForRecord : branchesBySourceFileRecord.values()) {
+        Map<String, Integer> coveredInCurrentRecord = new HashMap<>();
+        Map<String, Integer> normalizedBlockByOriginal = new LinkedHashMap<>();
+
+        for (BranchData branchData : branchesForRecord) {
+          String normalizedBlockNumber = String.valueOf(
+            normalizedBlockByOriginal.computeIfAbsent(branchData.blockNumber, ignored ->
+              normalizedBlockByOriginal.size()
+            )
+          );
+          String normalizedBranchKey = normalizedBlockNumber + ":" + branchData.branchNumber;
+          coveredInCurrentRecord.merge(normalizedBranchKey, branchData.taken, Integer::sum);
         }
 
-        newCoverage.conditions(line, conditions, covered);
-        newCoverage.lineHits(line, hits.getOrDefault(line, 0) + covered);
+        for (Map.Entry<String, Integer> branchCoverage : coveredInCurrentRecord.entrySet()) {
+          coveredByBranch.merge(branchCoverage.getKey(), branchCoverage.getValue(), Integer::sum);
+          presenceByBranch.merge(branchCoverage.getKey(), 1, Integer::sum);
+        }
       }
+
+      int conditions = 0;
+      int covered = 0;
+      for (Map.Entry<String, Integer> branchCoverage : coveredByBranch.entrySet()) {
+        int taken = branchCoverage.getValue();
+        int presence = presenceByBranch.getOrDefault(branchCoverage.getKey(), 0);
+
+        if (taken > 0) {
+          conditions++;
+          covered++;
+        } else if (presence == totalRecords) {
+          conditions++;
+        }
+      }
+      return new BranchLineCoverage(conditions, covered);
     }
 
     private void checkLine(Integer lineNumber) {
@@ -234,6 +294,30 @@ class LCOVParser {
         throw new IllegalArgumentException(
           String.format(WRONG_LINE_EXCEPTION_MESSAGE, lineNumber, filename)
         );
+      }
+    }
+
+    private static class BranchData {
+
+      private final String blockNumber;
+      private final String branchNumber;
+      private final int taken;
+
+      private BranchData(String blockNumber, String branchNumber, int taken) {
+        this.blockNumber = blockNumber;
+        this.branchNumber = branchNumber;
+        this.taken = taken;
+      }
+    }
+
+    private static class BranchLineCoverage {
+
+      private final int conditions;
+      private final int covered;
+
+      private BranchLineCoverage(int conditions, int covered) {
+        this.conditions = conditions;
+        this.covered = covered;
       }
     }
   }
