@@ -89,9 +89,7 @@ export async function analyzeWithIncrementalProgram(
     );
 
     const detectedEsYear =
-      program != null
-        ? (esLibToYear(program.getCompilerOptions().lib as string[] | undefined) ?? undefined)
-        : undefined;
+      program == null ? undefined : (esLibToYear(program.getCompilerOptions().lib) ?? undefined);
 
     await analyzeFile(
       filename,

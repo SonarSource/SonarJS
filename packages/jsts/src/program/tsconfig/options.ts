@@ -184,7 +184,9 @@ function targetStringToEsYear(target: string): number | null {
  * @returns ES year (e.g. 2022) or null if esnext/not found
  */
 export function esLibToYear(lib: string[] | undefined): number | null {
-  if (!lib) return null;
+  if (!lib) {
+    return null;
+  }
   for (const entry of lib) {
     const match = /lib\.es(\d{4})\.d\.ts$/.exec(entry);
     if (match) {
