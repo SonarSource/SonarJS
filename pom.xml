@@ -321,6 +321,7 @@
                 <exclude>**/*.d.ts</exclude>
                 <!-- Folders -->
                 <exclude>its/**/*</exclude>
+                <exclude>tsgolint/**/*</exclude>
                 <!-- Generated -->
                 <exclude>**/bin/**/*</exclude>
                 <exclude>**/dist/**/*</exclude>

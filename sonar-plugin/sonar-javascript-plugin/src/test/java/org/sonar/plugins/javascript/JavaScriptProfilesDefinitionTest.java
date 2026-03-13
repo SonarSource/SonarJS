@@ -17,13 +17,18 @@
 package org.sonar.plugins.javascript;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.PROFILES_JSON;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULE_KEYS_METHOD_NAME;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_JASMIN_RULES_CLASS_NAME;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JSON;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
 
+import com.google.gson.JsonParser;
 import com.sonar.plugins.jasmin.api.JsRules;
+import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -152,6 +157,23 @@ class JavaScriptProfilesDefinitionTest {
     );
 
     assertThat(sonarWayKeys).isSubsetOf(allKeys);
+  }
+
+  @Test
+  void should_define_all_profiles_from_generated_index() {
+    var profilesIndex = getClass().getClassLoader().getResourceAsStream(PROFILES_JSON);
+    assertThat(profilesIndex).isNotNull();
+
+    Set<String> profileNames = new HashSet<>();
+    JsonParser.parseReader(new InputStreamReader(profilesIndex, StandardCharsets.UTF_8))
+      .getAsJsonArray()
+      .forEach(profile -> profileNames.add(profile.getAsJsonObject().get("name").getAsString()));
+
+    assertThat(profileNames).isNotEmpty();
+    profileNames.forEach(profileName -> {
+      assertThat(context.profile(JavaScriptLanguage.KEY, profileName)).isNotNull();
+      assertThat(context.profile(TypeScriptLanguage.KEY, profileName)).isNotNull();
+    });
   }
 
   @Test
