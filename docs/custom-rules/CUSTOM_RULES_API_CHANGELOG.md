@@ -25,6 +25,7 @@ git show <commit-hash> --stat
 - `sonar-plugin/api/src/main/java/org/sonar/plugins/javascript/api/`
   - `EslintHook.java` - New hook interface (10.23.0+)
   - `EslintHookRegistrar.java` - Hook registration (10.23.0+)
+  - `ProfileRegistrar.java` - Default profile activation SPI (10.22.0+)
   - `EslintBasedCheck.java` - Check interface (deprecated 11.6.0)
   - `JavaScriptCheck.java` - Marker interface (deprecated 11.6.0)
   - `CustomRuleRepository.java` - Rule repository interface
@@ -107,12 +108,13 @@ public Set<org.sonar.plugins.javascript.api.Language> compatibleLanguages() {
 
 ### SonarJS 10.22.0 (March 2025)
 
-| Change                                  | Details                                     | Commit        |
-| --------------------------------------- | ------------------------------------------- | ------------- |
-| ✅ `Language` enum added (standalone)   | `org.sonar.plugins.javascript.api.Language` | `2f9168ca008` |
-| ✅ `compatibleLanguages()` method added | New method in `CustomRuleRepository`        | `2f9168ca008` |
-| ⚠️ `languages()` method deprecated      | Use `compatibleLanguages()` instead         | `2f9168ca008` |
-| 🔄 `CustomRuleRepository` undeprecated  | Interface itself is no longer deprecated    | `2f9168ca008` |
+| Change                                  | Details                                                            | Commit        |
+| --------------------------------------- | ------------------------------------------------------------------ | ------------- |
+| ✅ `Language` enum added (standalone)   | `org.sonar.plugins.javascript.api.Language`                        | `2f9168ca008` |
+| ✅ `compatibleLanguages()` method added | New method in `CustomRuleRepository`                               | `2f9168ca008` |
+| ✅ `ProfileRegistrar` interface added   | Register extra rule keys in built-in default profile (`Sonar way`) | `27e268aad12` |
+| ⚠️ `languages()` method deprecated      | Use `compatibleLanguages()` instead                                | `2f9168ca008` |
+| 🔄 `CustomRuleRepository` undeprecated  | Interface itself is no longer deprecated                           | `2f9168ca008` |
 
 **Migration**: Start using `compatibleLanguages()` to prepare for 11.x.
 
@@ -250,6 +252,7 @@ JavaScriptCheck (deprecated, marker only)
 | `RulesBundle`                        | 6.x         | -             |
 | Separate API module                  | 10.15.0     | -             |
 | `compatibleLanguages()`              | 10.22.0     | 25.5.0        |
+| `ProfileRegistrar`                   | 10.22.0     | 25.5.0        |
 | `EslintHook` / `EslintHookRegistrar` | 10.23.0     | 25.6.0        |
 | `languages()` removed                | 11.1.0      | 25.9.0        |
 | `EslintBasedCheck` deprecated        | 11.6.0      | 25.12.0       |
