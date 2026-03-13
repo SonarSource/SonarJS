@@ -35,6 +35,15 @@ const propsArgPatterns: Array<(arg: estree.Node) => boolean> = [
     isIdentifier(arg.property, 'props'),
 ];
 
+/** Composable callee checkers for forwardRef call detection. */
+const forwardRefCalleePatterns: Array<(callee: estree.Expression | estree.Super) => boolean> = [
+  callee => isIdentifier(callee, 'forwardRef'),
+  callee =>
+    callee.type === 'MemberExpression' &&
+    isIdentifier(callee.object, 'React') &&
+    isIdentifier(callee.property, 'forwardRef'),
+];
+
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     { ...rule, meta: generateMeta(meta, rule.meta) },
@@ -44,9 +53,23 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       if (componentNode && hasPropsCall(componentNode, context.sourceCode.visitorKeys)) {
         return;
       }
+      // Suppress FP when the component contains a forwardRef call (closure over outer props).
+      if (componentNode && containsForwardRefCall(componentNode, context.sourceCode.visitorKeys)) {
+        return;
+      }
       context.report(descriptor);
     },
   );
+}
+
+function containsForwardRefCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {
+  if (root.type === 'CallExpression') {
+    const call = root as estree.CallExpression;
+    if (forwardRefCalleePatterns.some(p => p(call.callee))) {
+      return true;
+    }
+  }
+  return childrenOf(root, keys).some(child => containsForwardRefCall(child, keys));
 }
 
 function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {
