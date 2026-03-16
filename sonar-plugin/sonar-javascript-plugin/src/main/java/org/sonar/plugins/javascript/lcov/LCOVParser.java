@@ -37,6 +37,8 @@ import org.sonar.api.batch.sensor.coverage.NewCoverage;
 
 /**
  * http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php
+ *
+ * Parses one or more LCOV reports and produces Sonar coverage data for resolved input files.
  */
 class LCOVParser {
 
@@ -59,6 +61,9 @@ class LCOVParser {
     this.coverageByFile = parse(lines);
   }
 
+  /**
+   * Reads all report files and parses them as a single LCOV stream.
+   */
   static LCOVParser create(SensorContext context, List<File> files, FileLocator fileLocator) {
     final List<String> lines = new LinkedList<>();
     for (File file : files) {
@@ -83,6 +88,13 @@ class LCOVParser {
     return inconsistenciesCounter;
   }
 
+  /**
+   * Single-pass parser over LCOV lines.
+   *
+   * The parser keeps track of the current source file record (SF) and routes DA/BRDA entries to
+   * the active {@link FileData}. Every SF block gets a unique record index to support branch merge
+   * logic across multiple reports.
+   */
   private Map<InputFile, NewCoverage> parse(List<String> lines) {
     final Map<InputFile, FileData> files = new HashMap<>();
     FileData fileData = null;
@@ -115,6 +127,9 @@ class LCOVParser {
     return coveredFiles;
   }
 
+  /**
+   * Parses one BRDA entry and stores branch data for deferred per-line merge.
+   */
   private void parseBranchCoverage(
     FileData fileData,
     int sourceFileRecordIndex,
@@ -141,6 +156,9 @@ class LCOVParser {
     }
   }
 
+  /**
+   * Parses one DA entry and accumulates line hits.
+   */
   private void parseLineCoverage(FileData fileData, int reportLineNum, String line) {
     try {
       // DA:<line number>,<execution count>[,<checksum>]
@@ -154,6 +172,9 @@ class LCOVParser {
     }
   }
 
+  /**
+   * Records malformed LCOV data as a non-fatal inconsistency.
+   */
   private void logWrongDataWarning(String dataType, int reportLineNum, Exception e) {
     LOG.debug(
       "Problem during processing LCOV report: can't save {} data for line {} of coverage report file ({}).",
@@ -164,6 +185,13 @@ class LCOVParser {
     inconsistenciesCounter++;
   }
 
+  /**
+   * Resolves the SF path to an indexed input file.
+   *
+   * Resolution order:
+   * 1) exact filesystem predicate match (absolute or project-relative path),
+   * 2) suffix-based lookup through {@link FileLocator} for cross-tool/cross-root path variants.
+   */
   @CheckForNull
   private InputFile inputFileForSourceFile(String line) {
     // SF:<absolute path to the source file>
@@ -185,13 +213,17 @@ class LCOVParser {
 
     /**
      * line number -> source-file record index -> branches
+     *
+     * We keep BRDA entries grouped by source-file record ("SF" block), because the same logical
+     * branch can be emitted with different block numbers across reports (for example with sharded
+     * runs). We normalize block numbers later when merging records for a line.
      */
-    private Map<Integer, Map<Integer, List<BranchData>>> branches = new HashMap<>();
+    private final Map<Integer, Map<Integer, List<BranchData>>> branches = new HashMap<>();
 
     /**
      * line number -> execution count
      */
-    private Map<Integer, Integer> hits = new HashMap<>();
+    private final Map<Integer, Integer> hits = new HashMap<>();
 
     /**
      * Number of lines in the file
@@ -208,6 +240,12 @@ class LCOVParser {
       filename = inputFile.filename();
     }
 
+    /**
+     * Adds one raw BRDA entry.
+     *
+     * Branches are intentionally stored per source file record and merged only in {@link #save},
+     * where we can normalize report-specific block numbering before comparing records.
+     */
     void addBranch(
       Integer sourceFileRecordIndex,
       Integer lineNumber,
@@ -226,11 +264,17 @@ class LCOVParser {
       branchesForRecord.add(new BranchData(blockNumber, branchNumber, taken));
     }
 
+    /**
+     * Adds one DA entry, summing hits across reports.
+     */
     void addLine(Integer lineNumber, Integer executionCount) {
       checkLine(lineNumber);
       hits.merge(lineNumber, executionCount, Integer::sum);
     }
 
+    /**
+     * Persists merged line and branch coverage into Sonar's coverage model.
+     */
     void save(NewCoverage newCoverage) {
       for (Map.Entry<Integer, Integer> e : hits.entrySet()) {
         newCoverage.lineHits(e.getKey(), e.getValue());
@@ -241,11 +285,23 @@ class LCOVParser {
 
         if (branchLineCoverage.conditions > 0) {
           newCoverage.conditions(line, branchLineCoverage.conditions, branchLineCoverage.covered);
+          // Keep historical behavior: branch coverage contributes to line hits as covered branches.
           newCoverage.lineHits(line, hits.getOrDefault(line, 0) + branchLineCoverage.covered);
         }
       }
     }
 
+    /**
+     * Merges all BRDA entries for one source line across multiple source-file records.
+     *
+     * Merge strategy:
+     * - normalize block numbers independently per record (to absorb block-number drift);
+     * - aggregate coverage by normalized branch key across records;
+     * - count uncovered branches only if the same branch is declared in every record.
+     *
+     * This avoids denominator inflation when two reports describe the same logical branch with
+     * different block numbers or when a zero-hit branch is omitted from some reports.
+     */
     private static BranchLineCoverage mergeBranchesByLine(
       Map<Integer, List<BranchData>> branchesBySourceFileRecord
     ) {
@@ -254,7 +310,9 @@ class LCOVParser {
       int totalRecords = branchesBySourceFileRecord.size();
 
       for (List<BranchData> branchesForRecord : branchesBySourceFileRecord.values()) {
+        // Collapses duplicates within a single SF record before cross-record aggregation.
         Map<String, Integer> coveredInCurrentRecord = new HashMap<>();
+        // Preserve first-seen order to map original block ids to deterministic local ids (0,1,...).
         Map<String, Integer> normalizedBlockByOriginal = new LinkedHashMap<>();
 
         for (BranchData branchData : branchesForRecord) {
@@ -269,6 +327,7 @@ class LCOVParser {
 
         for (Map.Entry<String, Integer> branchCoverage : coveredInCurrentRecord.entrySet()) {
           coveredByBranch.merge(branchCoverage.getKey(), branchCoverage.getValue(), Integer::sum);
+          // Number of SF records where this normalized branch exists.
           presenceByBranch.merge(branchCoverage.getKey(), 1, Integer::sum);
         }
       }
@@ -282,13 +341,18 @@ class LCOVParser {
         if (taken > 0) {
           conditions++;
           covered++;
+          // Any observed hit marks the branch covered in the merged result.
         } else if (presence == totalRecords) {
+          // Zero-hit branch only counts when declared by every record for this line.
           conditions++;
         }
       }
       return new BranchLineCoverage(conditions, covered);
     }
 
+    /**
+     * Guards against malformed coverage pointing to non-existent source lines.
+     */
     private void checkLine(Integer lineNumber) {
       if (lineNumber < 1 || lineNumber > linesInFile) {
         throw new IllegalArgumentException(
