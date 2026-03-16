@@ -522,6 +522,45 @@ class CoverageSensorTest {
   }
 
   @Test
+  void should_merge_branches_when_block_order_differs_between_reports() throws Exception {
+    Path report1 = tempDir.resolve("order_1.lcov");
+    Files.write(
+      report1,
+      (
+        "SF:file1.js\n" +
+        "BRDA:2,10,0,3\n" +
+        "BRDA:2,10,1,0\n" +
+        "BRDA:2,20,0,0\n" +
+        "BRDA:2,20,1,5\n" +
+        "end_of_record\n"
+      ).getBytes(StandardCharsets.UTF_8)
+    );
+
+    Path report2 = tempDir.resolve("order_2.lcov");
+    Files.write(
+      report2,
+      (
+        "SF:file1.js\n" +
+        "BRDA:2,40,0,0\n" +
+        "BRDA:2,40,1,5\n" +
+        "BRDA:2,30,0,3\n" +
+        "BRDA:2,30,1,0\n" +
+        "end_of_record\n"
+      ).getBytes(StandardCharsets.UTF_8)
+    );
+
+    settings.setProperty(
+      JavaScriptPlugin.LCOV_REPORT_PATHS,
+      report1.toAbsolutePath() + "," + report2.toAbsolutePath()
+    );
+    coverageSensor.execute(context);
+
+    String file1Key = "moduleKey:file1.js";
+    assertThat(context.conditions(file1Key, 2)).isEqualTo(4);
+    assertThat(context.coveredConditions(file1Key, 2)).isEqualTo(2);
+  }
+
+  @Test
   void should_report_full_branch_coverage_when_jest_shards_are_premerged() throws Exception {
     Path merged = tempDir.resolve("jest_merged.lcov");
     Files.write(

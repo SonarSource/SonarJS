@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -312,15 +311,13 @@ class LCOVParser {
       for (List<BranchData> branchesForRecord : branchesBySourceFileRecord.values()) {
         // Collapses duplicates within a single SF record before cross-record aggregation.
         Map<String, Integer> coveredInCurrentRecord = new HashMap<>();
-        // Preserve first-seen order to map original block ids to deterministic local ids (0,1,...).
-        Map<String, Integer> normalizedBlockByOriginal = new LinkedHashMap<>();
+        // Map report-specific block ids to deterministic local ids (0,1,...) by sorted block value.
+        Map<String, String> normalizedBlockByOriginal = buildNormalizedBlockMapping(
+          branchesForRecord
+        );
 
         for (BranchData branchData : branchesForRecord) {
-          String normalizedBlockNumber = String.valueOf(
-            normalizedBlockByOriginal.computeIfAbsent(branchData.blockNumber, ignored ->
-              normalizedBlockByOriginal.size()
-            )
-          );
+          String normalizedBlockNumber = normalizedBlockByOriginal.get(branchData.blockNumber);
           String normalizedBranchKey = normalizedBlockNumber + ":" + branchData.branchNumber;
           coveredInCurrentRecord.merge(normalizedBranchKey, branchData.taken, Integer::sum);
         }
@@ -348,6 +345,36 @@ class LCOVParser {
         }
       }
       return new BranchLineCoverage(conditions, covered);
+    }
+
+    /**
+     * Creates a deterministic local block index for a single source-file record.
+     *
+     * We sort distinct LCOV block ids to make normalization independent from BRDA emission order.
+     */
+    private static Map<String, String> buildNormalizedBlockMapping(
+      List<BranchData> branchesForRecord
+    ) {
+      List<String> sortedBlockNumbers = branchesForRecord
+        .stream()
+        .map(branch -> branch.blockNumber)
+        .distinct()
+        .sorted(FileData::compareBlockNumbers)
+        .toList();
+
+      Map<String, String> normalizedBlockByOriginal = new HashMap<>();
+      for (int i = 0; i < sortedBlockNumbers.size(); i++) {
+        normalizedBlockByOriginal.put(sortedBlockNumbers.get(i), String.valueOf(i));
+      }
+      return normalizedBlockByOriginal;
+    }
+
+    private static int compareBlockNumbers(String left, String right) {
+      try {
+        return Long.compare(Long.parseLong(left), Long.parseLong(right));
+      } catch (NumberFormatException e) {
+        return left.compareTo(right);
+      }
     }
 
     /**
