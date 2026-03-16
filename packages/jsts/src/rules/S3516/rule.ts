@@ -26,10 +26,17 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
+interface BranchFrame {
+  hasSideEffect: boolean;
+  hasReturn: boolean;
+}
+
 interface FunctionContext {
   codePath: Rule.CodePath;
   containsReturnWithoutValue: boolean;
   returnStatements: estree.ReturnStatement[];
+  branchStack: BranchFrame[];
+  hasSideEffectOnlyBranch: boolean;
 }
 
 interface SingleWriteVariable {
@@ -59,6 +66,12 @@ export const rule: Rule.RuleModule = {
         returnStatement => returnStatement.argument as estree.Node,
       );
       if (areAllSameValue(returnedValues, context.sourceCode.getScope(node))) {
+        // Only suppress when the returned value is a non-literal (e.g., a variable used for chaining).
+        // Functions returning literals (false, null, 0, etc.) have no chaining rationale and are always flagged.
+        const firstValue = getLiteralValue(returnedValues[0], context.sourceCode.getScope(node));
+        if (firstValue === undefined && functionContext.hasSideEffectOnlyBranch) {
+          return;
+        }
         report(
           context,
           {
@@ -75,12 +88,45 @@ export const rule: Rule.RuleModule = {
       }
     }
 
+    function pushBranchFrame() {
+      functionContextStack.at(-1)?.branchStack.push({ hasSideEffect: false, hasReturn: false });
+    }
+
+    function popBranchFrame() {
+      const ctx = functionContextStack.at(-1);
+      if (ctx) {
+        const frame = ctx.branchStack.pop();
+        if (frame?.hasSideEffect && !frame.hasReturn) {
+          ctx.hasSideEffectOnlyBranch = true;
+        }
+      }
+    }
+
+    function recordSideEffect(node: estree.CallExpression | estree.AssignmentExpression) {
+      const ctx = functionContextStack.at(-1);
+      if (!ctx) {
+        return;
+      }
+      const frame = ctx.branchStack.at(-1);
+      if (frame) {
+        frame.hasSideEffect = true;
+      }
+      // Also handle bare statement branches where ExpressionStatement IS the branch body
+      // (e.g. `if (x) doSomething()` — no BlockStatement is pushed for such a branch)
+      const exprStmt = (node as TSESTree.Node).parent as TSESTree.Node | undefined;
+      if (exprStmt && isBranchBody(exprStmt)) {
+        ctx.hasSideEffectOnlyBranch = true;
+      }
+    }
+
     return {
       onCodePathStart(codePath: Rule.CodePath) {
         functionContextStack.push({
           codePath,
           containsReturnWithoutValue: false,
           returnStatements: [],
+          branchStack: [],
+          hasSideEffectOnlyBranch: false,
         });
         codePathSegments.push(currentCodePathSegments);
         currentCodePathSegments = [];
@@ -102,7 +148,33 @@ export const rule: Rule.RuleModule = {
           currentContext.containsReturnWithoutValue =
             currentContext.containsReturnWithoutValue || !returnStatement.argument;
           currentContext.returnStatements.push(returnStatement);
+          const frame = currentContext.branchStack.at(-1);
+          if (frame) {
+            frame.hasReturn = true;
+          }
         }
+      },
+      BlockStatement(node: estree.Node) {
+        if (isBranchBody(node as TSESTree.Node)) {
+          pushBranchFrame();
+        }
+      },
+      'BlockStatement:exit'(node: estree.Node) {
+        if (isBranchBody(node as TSESTree.Node)) {
+          popBranchFrame();
+        }
+      },
+      SwitchCase() {
+        pushBranchFrame();
+      },
+      'SwitchCase:exit'() {
+        popBranchFrame();
+      },
+      'ExpressionStatement > CallExpression'(node: estree.CallExpression) {
+        recordSideEffect(node);
+      },
+      'ExpressionStatement > AssignmentExpression'(node: estree.AssignmentExpression) {
+        recordSideEffect(node);
       },
       'FunctionDeclaration:exit': checkOnFunctionExit,
       'FunctionExpression:exit': checkOnFunctionExit,
@@ -214,4 +286,29 @@ function evaluateUnaryLiteralExpression(operator: string, innerReturnedValue: Li
     default:
       return undefined;
   }
+}
+
+/**
+ * Returns true if the node is a direct branch body of a conditional or loop statement —
+ * i.e., the consequent/alternate of an IfStatement or the body of a loop.
+ * Used to push and pop branch frames on the stack when entering and exiting branches.
+ */
+function isBranchBody(node: TSESTree.Node): boolean {
+  const { parent } = node;
+  if (!parent) {
+    return false;
+  }
+  if (parent.type === 'IfStatement') {
+    return node === parent.consequent || node === parent.alternate;
+  }
+  if (
+    parent.type === 'WhileStatement' ||
+    parent.type === 'DoWhileStatement' ||
+    parent.type === 'ForStatement' ||
+    parent.type === 'ForInStatement' ||
+    parent.type === 'ForOfStatement'
+  ) {
+    return node === parent.body;
+  }
+  return false;
 }

@@ -69,6 +69,7 @@ export async function analyzeFile(
   pendingFiles: Set<NormalizedAbsolutePath> | undefined,
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+  detectedEsYear?: number,
 ) {
   progressReport.nextFile(fileName);
 
@@ -87,6 +88,7 @@ export async function analyzeFile(
     language: inferLanguageForProjectAnalysis(file.filePath, file.fileContent),
     tsConfigs: [],
     program,
+    detectedEsYear,
   };
 
   // Run analysis through the unified dispatcher (with error handling)

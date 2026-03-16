@@ -47,51 +47,5 @@
 ],
 "TypeScript:src/compiler/emitter.ts": [
 1128
-],
-"TypeScript:src/harness/compilerRunner.ts": [
-75,
-177
-],
-"TypeScript:src/harness/fourslash.ts": [
-2667,
-2785,
-3252
-],
-"TypeScript:src/harness/harness.ts": [
-121,
-199,
-674,
-1006,
-1377
-],
-"TypeScript:src/harness/harnessLanguageService.ts": [
-615
-],
-"TypeScript:src/server/cancellationToken/cancellationToken.ts": [
-43
-],
-"TypeScript:src/server/editorServices.ts": [
-830,
-1411,
-1522,
-1547,
-1555
-],
-"TypeScript:src/server/session.ts": [
-1552
-],
-"TypeScript:src/server/shared.ts": [
-18
-],
-"TypeScript:src/services/formatting/tokenRange.ts": [
-19,
-87
-],
-"TypeScript:src/services/importTracker.ts": [
-405
-],
-"TypeScript:src/services/pathCompletions.ts": [
-203,
-243
 ]
 }

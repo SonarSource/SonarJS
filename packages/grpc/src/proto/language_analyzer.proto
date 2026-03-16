@@ -8,7 +8,9 @@ package analyzer;
 
 // Language Analyzer Service
 service LanguageAnalyzerService {
-  // Analyze a file
+  // Analyzes one or more source files in the context of a single analysis job.
+  // A single request may contain multiple source files (multi-file analysis).
+  // This RPC may be called concurrently by multiple clients — implementations must be thread-safe.
   rpc Analyze(AnalyzeRequest) returns (AnalyzeResponse);
 }
 
@@ -28,10 +30,13 @@ message AnalyzeRequest {
 //             When provided, it takes precedence over any scope deduced from the context.
 //             When not provided, the scope should be deduced from the context if available.
 //             When neither is provided, the analyzer should perform best effort to determine the scope.
+// sonar_language: the language key of the file (e.g., "java", "js", "ts"), following Sonar plugins definition. This is optional but recommended
+//           for proper analysis. When not provided, the analyzer may attempt to detect the language.
 message SourceFile {
   string relative_path = 1;
   string content = 2;
   optional FileScope file_scope = 3;
+  optional string sonar_language = 4;
 }
 
 // Enum for file scope
@@ -45,6 +50,13 @@ message AnalyzeResponse {
   repeated Issue issues = 1;
   repeated AnalysisProblem analysis_problems = 2;
   repeated FileMeasures measures = 3;
+}
+
+// Represents a problem encountered during analysis
+message AnalysisProblem {
+  AnalysisProblemType type = 1;    // Type of the problem
+  string message = 2;              // Description of the problem
+  string file_path = 3;            // Optional path to the file where the problem occurred
 }
 
 // Represents measures for a file
@@ -63,13 +75,6 @@ message Measure {
     bool bool_value = 5;
     string string_value = 6;
   }
-}
-
-// Represents a problem encountered during analysis
-message AnalysisProblem {
-  AnalysisProblemType type = 1;    // Type of the problem
-  string message = 2;              // Description of the problem
-  string file_path = 3;            // Optional path to the file where the problem occurred
 }
 
 // Enum for analysis problem types
@@ -132,5 +137,5 @@ message Flow {
 message FlowLocation {
   TextRange text_range = 1;
   string message = 2;              // Description of the step
-  string file = 3;                 // File path where this location exists
+  string file_path = 3;            // File path where this location exists
 }

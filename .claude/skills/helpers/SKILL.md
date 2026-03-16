@@ -24,10 +24,23 @@ Helper functions are located in `packages/jsts/src/rules/helpers/`. These provid
 
 ## Usage Guidance
 
-When implementing a fix:
-1. Review the `packages/jsts/src/rules/helpers/` directory for existing utilities
-2. Use existing helpers instead of writing custom logic where possible
-3. This ensures consistency and reduces code duplication
+**Before writing any new function**, search `packages/jsts/src/rules/helpers/` for an existing equivalent. Key files to check:
+- `ast.ts` — generic AST utilities (child enumeration, node classification, ancestor walking)
+- `vue.ts` — Vue-specific helpers
+- `react.ts` — React/JSX-specific helpers
+
+Reviewers will reject re-implementations of existing helpers.
+
+**Anti-pattern:** Iterating `Object.keys(node)` to enumerate child nodes. Use the existing `childrenOf` helper instead:
+```typescript
+// ❌ Do not do this
+for (const key of Object.keys(node)) { ... }
+
+// ✅ Use this
+for (const child of childrenOf(node)) { ... }
+```
+
+If you write a **new** utility function that only operates on `estree`/`TSESTree` nodes with no rule-specific domain logic, place it in `helpers/ast.ts` (or `helpers/vue.ts`, `helpers/react.ts` for domain-specific utilities) — not inside the individual rule file. Functions buried in a rule file are invisible to future implementers.
 
 ## Finding Helpers
 
@@ -37,3 +50,21 @@ ls packages/jsts/src/rules/helpers/
 ```
 
 Read helper implementations to understand their usage and parameters.
+
+## Helper Contracts
+
+### childrenOf
+
+`childrenOf(node)` always returns `estree.Node[]`. Do not write custom type guard predicates or `Array.isArray()` checks on its return values — they are dead code:
+
+```typescript
+// ❌ Redundant — childrenOf already guarantees estree.Node[]
+for (const child of childrenOf(node)) {
+  if (typeof child === 'object' && 'type' in child) { ... }
+}
+
+// ✅ Iterate directly
+for (const child of childrenOf(node)) {
+  // child is already estree.Node
+}
+```

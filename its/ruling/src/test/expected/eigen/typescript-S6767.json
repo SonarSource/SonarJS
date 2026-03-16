@@ -21,24 +21,11 @@
 "eigen:src/app/Components/AuctionResultsList.tsx": [
 109
 ],
-"eigen:src/app/Components/Bidding/Components/Timer.tsx": [
-28,
-29,
-30,
-31,
-32,
-33
-],
 "eigen:src/app/Components/Bidding/Screens/SelectMaxBid.tsx": [
 25
 ],
 "eigen:src/app/Components/Buttons/BottomAlignedButtonWrapper.tsx": [
 6
-],
-"eigen:src/app/Components/Countdown/CountdownTimer.tsx": [
-6,
-7,
-8
 ],
 "eigen:src/app/Components/LocationAutocomplete/LocationAutocomplete.tsx": [
 94
@@ -79,10 +66,6 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/BidButton.tsx": [
 20
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialInformation.tsx": [
-34,
-37
 ],
 "eigen:src/app/Scenes/Artwork/Components/FollowArtistLink.tsx": [
 11

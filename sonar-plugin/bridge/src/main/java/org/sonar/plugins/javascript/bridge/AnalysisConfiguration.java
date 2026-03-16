@@ -53,6 +53,10 @@ public interface AnalysisConfiguration {
 
   boolean shouldDisableTypeChecking();
 
+  default String getEcmaScriptVersion() {
+    return null;
+  }
+
   List<String> getSources();
 
   List<String> getInclusions();

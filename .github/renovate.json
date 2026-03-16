@@ -25,6 +25,11 @@
       "matchDepNames": ["/^org\\.sonarsource\\.javascript:/"]
     },
     {
+      "description": "Don't group updates",
+      "matchPackageNames": ["*"],
+      "groupName": null
+    },
+    {
       "matchManagers": ["github-actions"],
       "pinDigests": false,
       "groupName": "all github actions",
