@@ -62,6 +62,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   skipAst: boolean;
   clearDependenciesCache: boolean;
   reportNclocForTestFiles: boolean;
+  detectedEsYear?: number;
 }
 
 export type AnalysisMode = 'DEFAULT' | 'SKIP_UNCHANGED';
