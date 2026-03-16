@@ -14,7 +14,8 @@
     "*/src/rules/tools",
     "ruling/**/*",
     "*/src/rules/**/*.test.ts",
-    "**/ruling/projects.json"
+    "**/ruling/projects.json",
+    "../typings/**/*.d.ts"
   ],
   "exclude": ["*/tests/**/fixtures*", "*/src/rules/**/*.fixture.*", "*/src/rules/**/fixtures"]
 }
