@@ -89,7 +89,7 @@ class LCOVParser {
 
   /**
    * Single-pass parser over LCOV lines.
-   *
+   * <p>
    * The parser keeps track of the current source file record (SF) and routes DA/BRDA entries to
    * the active {@link FileData}. Every SF block gets a unique record index to support branch merge
    * logic across multiple reports.
@@ -148,7 +148,7 @@ class LCOVParser {
         Integer.valueOf(lineNumber),
         blockNumber,
         branchNumber,
-        "-".equals(taken) ? 0 : Integer.valueOf(taken)
+        "-".equals(taken) ? 0 : Integer.parseInt(taken)
       );
     } catch (Exception e) {
       logWrongDataWarning("BRDA", reportLineNum, e);
@@ -175,18 +175,20 @@ class LCOVParser {
    * Records malformed LCOV data as a non-fatal inconsistency.
    */
   private void logWrongDataWarning(String dataType, int reportLineNum, Exception e) {
-    LOG.debug(
-      "Problem during processing LCOV report: can't save {} data for line {} of coverage report file ({}).",
-      dataType,
-      reportLineNum,
-      e.toString()
-    );
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(
+        "Problem during processing LCOV report: can't save {} data for line {} of coverage report file ({}).",
+        dataType,
+        reportLineNum,
+        e.toString()
+      );
+    }
     inconsistenciesCounter++;
   }
 
   /**
    * Resolves the SF path to an indexed input file.
-   *
+   * <p>
    * Resolution order:
    * 1) exact filesystem predicate match (absolute or project-relative path),
    * 2) suffix-based lookup through {@link FileLocator} for cross-tool/cross-root path variants.
@@ -212,7 +214,7 @@ class LCOVParser {
 
     /**
      * line number -> source-file record index -> branches
-     *
+     * <p>
      * We keep BRDA entries grouped by source-file record ("SF" block), because the same logical
      * branch can be emitted with different block numbers across reports (for example with sharded
      * runs). We normalize block numbers later when merging records for a line.
@@ -241,7 +243,7 @@ class LCOVParser {
 
     /**
      * Adds one raw BRDA entry.
-     *
+     * <p>
      * Branches are intentionally stored per source file record and merged only in {@link #save},
      * where we can normalize report-specific block numbering before comparing records.
      */
@@ -292,12 +294,12 @@ class LCOVParser {
 
     /**
      * Merges all BRDA entries for one source line across multiple source-file records.
-     *
+     * <p>
      * Merge strategy:
      * - normalize block numbers independently per record (to absorb block-number drift);
      * - aggregate coverage by normalized branch key across records;
      * - count uncovered branches only if the same branch is declared in every record.
-     *
+     * <p>
      * This avoids denominator inflation when two reports describe the same logical branch with
      * different block numbers or when a zero-hit branch is omitted from some reports.
      */
@@ -349,7 +351,7 @@ class LCOVParser {
 
     /**
      * Creates a deterministic local block index for a single source-file record.
-     *
+     * <p>
      * We sort distinct LCOV block ids to make normalization independent from BRDA emission order.
      */
     private static Map<String, String> buildNormalizedBlockMapping(
@@ -388,28 +390,8 @@ class LCOVParser {
       }
     }
 
-    private static class BranchData {
+    private record BranchData(String blockNumber, String branchNumber, int taken) {}
 
-      private final String blockNumber;
-      private final String branchNumber;
-      private final int taken;
-
-      private BranchData(String blockNumber, String branchNumber, int taken) {
-        this.blockNumber = blockNumber;
-        this.branchNumber = branchNumber;
-        this.taken = taken;
-      }
-    }
-
-    private static class BranchLineCoverage {
-
-      private final int conditions;
-      private final int covered;
-
-      private BranchLineCoverage(int conditions, int covered) {
-        this.conditions = conditions;
-        this.covered = covered;
-      }
-    }
+    private record BranchLineCoverage(int conditions, int covered) {}
   }
 }
