@@ -21,12 +21,14 @@ import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js
 import type { CssAnalysisOutput } from '../../../../css/src/analysis/analysis.js';
 import type { ErrorCode } from '../../../../shared/src/errors/error.js';
 import type { FileType, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import type { ProjectAnalysisTelemetry } from './telemetry.js';
 
 // Re-export for backward compatibility
 export { type JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
+  telemetry?: ProjectAnalysisTelemetry;
 };
 
 // Brand for the FileResults container - ensures type-safe iteration

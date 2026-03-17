@@ -19,15 +19,20 @@ package org.sonar.plugins.javascript.analysis;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ProgramCreationTelemetry;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisTelemetry;
 import org.sonar.plugins.javascript.bridge.BridgeServer.RuntimeTelemetry;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryData;
 
@@ -35,20 +40,22 @@ class PluginTelemetryTest {
 
   private SensorContext ctx;
   private PluginTelemetry pluginTelemetry;
+  private JsTsContext<SensorContext> jsTsContext;
+  private BridgeServer server;
 
   @BeforeEach
   void setUp() {
-    JsTsContext<SensorContext> jsTsContext = mock(JsTsContext.class);
+    jsTsContext = mock(JsTsContext.class);
     ctx = mock(SensorContext.class);
     SonarRuntime sonarRuntime = mock(SonarRuntime.class);
     when(ctx.runtime()).thenReturn(sonarRuntime);
     when(jsTsContext.getSensorContext()).thenReturn(ctx);
 
-    BridgeServer server = mock(BridgeServer.class);
+    server = mock(BridgeServer.class);
     when(server.getTelemetry()).thenReturn(
       new TelemetryData(new RuntimeTelemetry(Version.create(22, 9), "embedded"))
     );
-    pluginTelemetry = new PluginTelemetry(jsTsContext, server);
+    pluginTelemetry = new PluginTelemetry(jsTsContext, server, null);
   }
 
   @Test
@@ -65,5 +72,47 @@ class PluginTelemetryTest {
     verify(ctx).addTelemetryProperty("javascript.runtime.major-version", "22");
     verify(ctx).addTelemetryProperty("javascript.runtime.version", "22.9");
     verify(ctx).addTelemetryProperty("javascript.runtime.node-executable-origin", "embedded");
+  }
+
+  @Test
+  void shouldReportProjectTelemetry() {
+    when(ctx.runtime().getApiVersion()).thenReturn(Version.create(10, 9));
+    var projectTelemetry = new ProjectAnalysisTelemetry(
+      "7.0.0-dev.20260316.1",
+      true,
+      Map.of("module", List.of("nodenext", "esnext"), "lib", List.of("dom", "es2022")),
+      List.of("ES2022", "ES2024"),
+      new ProgramCreationTelemetry(3, 2, 1)
+    );
+
+    new PluginTelemetry(jsTsContext, server, projectTelemetry).reportTelemetry();
+
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.typescript.version",
+      "7.0.0-dev.20260316.1"
+    );
+    verify(ctx).addTelemetryProperty("javascript.telemetry.typescript.native-preview", "true");
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.typescript.compiler-options.module",
+      "esnext,nodenext"
+    );
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.typescript.compiler-options.lib",
+      "dom,es2022"
+    );
+    verify(ctx).addTelemetryProperty("javascript.telemetry.ecmascript.versions", "ES2022,ES2024");
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.typescript.program-creation.attempted",
+      "3"
+    );
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.typescript.program-creation.succeeded",
+      "2"
+    );
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.typescript.program-creation.failed",
+      "1"
+    );
+    verify(ctx, times(11)).addTelemetryProperty(anyString(), anyString());
   }
 }
