@@ -77,7 +77,7 @@ export async function analyzeProject(
     },
   };
   const { baseDir, environments, globals, sonarlint, canAccessFileSystem } = configuration;
-  resetProjectAnalysisTelemetry(baseDir);
+  resetProjectAnalysisTelemetry();
   const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);
   await Linter.initialize({

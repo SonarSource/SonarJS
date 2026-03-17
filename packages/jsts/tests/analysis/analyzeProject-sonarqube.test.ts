@@ -181,7 +181,7 @@ describe('SonarQube project analysis', () => {
 
     expect(result.meta.telemetry).toBeDefined();
     expect(result.meta.telemetry).toMatchObject({
-      typescriptVersion: '7.0.0-dev.20260316.1',
+      typescriptVersions: ['5.7.2', '7.0.0-dev.20260316.1'],
       typescriptNativePreview: true,
       ecmaScriptVersions: ['ES2020', 'ES2022'],
       programCreation: {
@@ -291,7 +291,7 @@ describe('SonarQube project analysis', () => {
       meta: {
         warnings: [],
         telemetry: {
-          typescriptVersion: 'not-detected',
+          typescriptVersions: ['not-detected'],
           typescriptNativePreview: false,
           compilerOptions: {},
           ecmaScriptVersions: ['not-detected'],
@@ -381,7 +381,7 @@ describe('SonarQube project analysis', () => {
     expect(metaResult).toMatchObject({
       messageType: 'meta',
       telemetry: {
-        typescriptVersion: 'not-detected',
+        typescriptVersions: ['not-detected'],
         typescriptNativePreview: false,
         programCreation: {
           attempted: 1,

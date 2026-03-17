@@ -78,7 +78,7 @@ class PluginTelemetryTest {
   void shouldReportProjectTelemetry() {
     when(ctx.runtime().getApiVersion()).thenReturn(Version.create(10, 9));
     var projectTelemetry = new ProjectAnalysisTelemetry(
-      "7.0.0-dev.20260316.1",
+      List.of("7.0.0-dev.20260316.1", "7.1.0"),
       true,
       Map.of("module", List.of("nodenext", "esnext"), "lib", List.of("dom", "es2022")),
       List.of("ES2022", "ES2024"),
@@ -88,8 +88,8 @@ class PluginTelemetryTest {
     new PluginTelemetry(jsTsContext, server, projectTelemetry).reportTelemetry();
 
     verify(ctx).addTelemetryProperty(
-      "javascript.telemetry.typescript.version",
-      "7.0.0-dev.20260316.1"
+      "javascript.telemetry.typescript.versions",
+      "7.0.0-dev.20260316.1,7.1.0"
     );
     verify(ctx).addTelemetryProperty("javascript.telemetry.typescript.native-preview", "true");
     verify(ctx).addTelemetryProperty(

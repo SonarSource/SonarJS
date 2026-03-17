@@ -274,13 +274,14 @@ public interface BridgeServer extends Startable {
   }
 
   record ProjectAnalysisTelemetry(
-    String typescriptVersion,
+    List<String> typescriptVersions,
     boolean typescriptNativePreview,
     Map<String, List<String>> compilerOptions,
     List<String> ecmaScriptVersions,
     @Nullable ProgramCreationTelemetry programCreation
   ) {
     public ProjectAnalysisTelemetry {
+      typescriptVersions = typescriptVersions != null ? typescriptVersions : List.of();
       compilerOptions = compilerOptions != null ? compilerOptions : Map.of();
       ecmaScriptVersions = ecmaScriptVersions != null ? ecmaScriptVersions : List.of();
     }

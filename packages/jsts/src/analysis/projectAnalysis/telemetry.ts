@@ -16,11 +16,13 @@
  */
 import { minVersion } from 'semver';
 import ts from 'typescript';
-import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import {
-  getTypeScriptVersionSignal,
-  isTypeScriptNativePreviewSignal,
+  getTypeScriptVersionSignalsFromPackageJson,
+  hasTypeScriptNativePreviewSignal,
 } from '../../rules/helpers/package-jsons/dependencies.js';
+import type { PackageJson } from 'type-fest';
+import { packageJsonStore } from './file-stores/index.js';
+import { stripBOM } from '../../rules/helpers/files.js';
 
 const NOT_DETECTED = 'not-detected';
 
@@ -33,15 +35,15 @@ type ProgramCreationTelemetry = {
 };
 
 export type ProjectAnalysisTelemetry = {
-  typescriptVersion: string;
+  typescriptVersions: string[];
   typescriptNativePreview: boolean;
   compilerOptions: Record<string, string[]>;
   ecmaScriptVersions: string[];
   programCreation: ProgramCreationTelemetry;
 };
 
-export function resetProjectAnalysisTelemetry(baseDir: NormalizedAbsolutePath) {
-  projectAnalysisTelemetryCollector = new ProjectAnalysisTelemetryCollector(baseDir);
+export function resetProjectAnalysisTelemetry() {
+  projectAnalysisTelemetryCollector = new ProjectAnalysisTelemetryCollector();
 }
 
 export function getProjectAnalysisTelemetryCollector() {
@@ -56,7 +58,7 @@ export function getProjectAnalysisTelemetry(): ProjectAnalysisTelemetry {
 }
 
 export class ProjectAnalysisTelemetryCollector {
-  private readonly typescriptVersion: string;
+  private readonly typescriptVersions: string[];
   private readonly typescriptNativePreview: boolean;
   private readonly compilerOptionValues = new Map<string, Set<string>>();
   private readonly ecmaScriptVersions = new Set<string>();
@@ -67,9 +69,12 @@ export class ProjectAnalysisTelemetryCollector {
     failed: 0,
   };
 
-  constructor(baseDir: NormalizedAbsolutePath) {
-    this.typescriptVersion = detectTypeScriptVersion(baseDir);
-    this.typescriptNativePreview = isTypeScriptNativePreviewSignal(baseDir);
+  constructor() {
+    const packageJsons = getAvailablePackageJsons();
+    this.typescriptVersions = normalizeTypeScriptVersions(
+      packageJsons.flatMap(getTypeScriptVersionSignalsFromPackageJson),
+    );
+    this.typescriptNativePreview = packageJsons.some(hasTypeScriptNativePreviewSignal);
   }
 
   recordCompilerOptions(options: ts.CompilerOptions | undefined) {
@@ -110,7 +115,7 @@ export class ProjectAnalysisTelemetryCollector {
     }
 
     return {
-      typescriptVersion: this.typescriptVersion,
+      typescriptVersions: this.typescriptVersions,
       typescriptNativePreview: this.typescriptNativePreview,
       compilerOptions,
       ecmaScriptVersions:
@@ -171,16 +176,38 @@ export class ProjectAnalysisTelemetryCollector {
   }
 }
 
-function detectTypeScriptVersion(baseDir: NormalizedAbsolutePath): string {
-  const typeScriptSignal = getTypeScriptVersionSignal(baseDir);
-  if (!typeScriptSignal) {
-    return NOT_DETECTED;
+function normalizeTypeScriptVersions(typeScriptSignals: string[]): string[] {
+  const normalizedVersions = new Set<string>();
+  for (const signal of typeScriptSignals) {
+    try {
+      const version = minVersion(signal)?.version;
+      if (version) {
+        normalizedVersions.add(version);
+      }
+    } catch {
+      continue;
+    }
   }
+  if (normalizedVersions.size === 0) {
+    return [NOT_DETECTED];
+  }
+  return Array.from(normalizedVersions).sort();
+}
+
+function getAvailablePackageJsons(): PackageJson[] {
+  const packageJsons: PackageJson[] = [];
   try {
-    return minVersion(typeScriptSignal)?.version ?? NOT_DETECTED;
+    for (const packageJsonFile of packageJsonStore.getPackageJsons().values()) {
+      const content =
+        typeof packageJsonFile.content === 'string'
+          ? packageJsonFile.content
+          : packageJsonFile.content.toString();
+      packageJsons.push(JSON.parse(stripBOM(content)) as PackageJson);
+    }
   } catch {
-    return NOT_DETECTED;
+    return [];
   }
+  return packageJsons;
 }
 
 function normalizeLibValue(value: string): string {
