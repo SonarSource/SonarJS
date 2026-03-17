@@ -42,16 +42,20 @@ export const rule: Rule.RuleModule = {
           returnsBoolean(node.consequent) &&
           alternateReturnsBoolean(node)
         ) {
+          const suggestions = getSuggestion(node, parent);
           context.report({
             messageId: 'replaceIfThenElseByReturn',
             node,
-            suggest: getSuggestion(node, parent),
+            ...(suggestions.length > 0 ? { suggest: suggestions } : {}),
           });
         }
       },
     };
 
     function getSuggestion(ifStmt: estree.IfStatement, parent: estree.Node) {
+      if (context.sourceCode.getCommentsInside(ifStmt.consequent).length > 0) {
+        return [];
+      }
       const getFix = (condition: string) => {
         return (fixer: Rule.RuleFixer) => {
           const singleReturn = `return ${condition};`;

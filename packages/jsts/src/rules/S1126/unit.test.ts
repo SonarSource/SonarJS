@@ -675,6 +675,23 @@ function foo() {
             },
           ],
         },
+        {
+          code: `
+function foo(condition) {
+  if (condition) {
+    // important comment
+    return false;
+  } else {
+    return true;
+  }
+}`,
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              suggestions: [],
+            },
+          ],
+        },
       ],
     });
   });
