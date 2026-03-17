@@ -176,6 +176,8 @@ jobs:
           path: |
             sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript
             sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
+            resources/rule-data/javascript
+            resources/rule-data/css
             resources/rule-data/.synced-sha-javascript
             resources/rule-data/.synced-sha-css
           retention-days: 1
@@ -1082,9 +1084,17 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_REF: ${{ github.head_ref }}
           BASE_REF: ${{ github.base_ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
           RULING_FAILED: ${{ steps.ruling.outcome == 'failure' }}
         run: |
           git fetch origin "$BASE_REF"
+          if [ -n "$BASE_SHA" ]; then
+            git fetch origin "$BASE_SHA" || true
+            if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+              echo "::error::Failed to fetch PR base SHA: $BASE_SHA"
+              exit 1
+            fi
+          fi
 
           # If ruling failed, sync the actual results first to get the differences
           if [ "$RULING_FAILED" = "true" ]; then

@@ -29,18 +29,24 @@
  * - Renders <language>/rule.adoc to HTML → resources/rule-data/<language>/<rule>.html
  */
 import { readdir, readFile, mkdir, writeFile, rm, access } from 'node:fs/promises';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync, execFileSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
 import Asciidoctor from '@asciidoctor/core';
+import { parseDocument, DomUtils } from 'htmlparser2';
+import { isTag, type ChildNode, type ParentNode } from 'domhandler';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
 const DEFAULT_RSPEC_PATH = join(ROOT_DIR, 'resources', 'rspec');
 const RSPEC_REPO_SSH = 'git@github.com:SonarSource/rspec.git';
 const RSPEC_BRANCH = 'dogfood-automerge';
+const STANDARD_TAG_APPLICABILITY_FILE = join(
+  __dirname,
+  'sync-rspec-standard-tag-applicability.json',
+);
 
 // Language identifiers used for rule cross-reference links (matches rule-api Language.getSq())
 const LANGUAGE_SQ: Record<string, string> = {
@@ -50,6 +56,42 @@ const LANGUAGE_SQ: Record<string, string> = {
 
 const CODE_PATTERN = /.*<code[\s\w"=-]*$/s;
 const PRE_PATTERN = /.*<pre[\s\w"=-]*$/s;
+const HTML_SANITIZER_WRAP_WIDTH = 150;
+
+type StandardTagApplicabilityConfig = {
+  version: number;
+  tagApplicability: Record<string, string[]>;
+};
+
+function readStandardTagApplicabilityConfig(): StandardTagApplicabilityConfig {
+  const parsed: unknown = JSON.parse(readFileSync(STANDARD_TAG_APPLICABILITY_FILE, 'utf-8'));
+  if (!parsed || typeof parsed !== 'object') {
+    throw new Error(
+      `Invalid standard tag applicability config at '${STANDARD_TAG_APPLICABILITY_FILE}': expected object`,
+    );
+  }
+  const config = parsed as Partial<StandardTagApplicabilityConfig>;
+  if (typeof config.version !== 'number') {
+    throw new Error(
+      `Invalid standard tag applicability config at '${STANDARD_TAG_APPLICABILITY_FILE}': missing numeric 'version'`,
+    );
+  }
+  if (!config.tagApplicability || typeof config.tagApplicability !== 'object') {
+    throw new Error(
+      `Invalid standard tag applicability config at '${STANDARD_TAG_APPLICABILITY_FILE}': missing object 'tagApplicability'`,
+    );
+  }
+  for (const [tag, languages] of Object.entries(config.tagApplicability)) {
+    if (!Array.isArray(languages) || languages.some(language => typeof language !== 'string')) {
+      throw new Error(
+        `Invalid standard tag applicability config at '${STANDARD_TAG_APPLICABILITY_FILE}': '${tag}' must map to string[]`,
+      );
+    }
+  }
+  return config as StandardTagApplicabilityConfig;
+}
+
+const standardTagApplicabilityConfig = readStandardTagApplicabilityConfig();
 
 /**
  * Post-process rendered HTML to replace rule references (e.g. S1234) with
@@ -84,35 +126,283 @@ function populateLinks(langSq: string, html: string): string {
  * - Keep data-diff-id and data-diff-type attributes on <pre>
  */
 function sanitizeHtml(html: string): string {
-  // Remove all <div ...> and </div> tags (unwrap contents)
-  let result = html.replace(/<\/?div[^>]*>/g, '');
+  const doc = parseDocument(html, { decodeEntities: false });
+  sanitizeDom(doc, false);
+  const normalized = DomUtils.getOuterHTML(doc.children, { decodeEntities: false });
+  const preNormalized = putPreOnOwnLines(normalized);
+  return wrapLines(preNormalized, HTML_SANITIZER_WRAP_WIDTH);
+}
 
-  // Remove <code data-lang="..."> and </code> inside pre blocks (syntax highlighting)
-  result = result.replace(/<pre[^>]*>[\s\S]*?<\/pre>/g, block =>
-    block.replace(/<code[^>]*data-lang="[^"]*"[^>]*>([\s\S]*?)<\/code>/g, '$1'),
-  );
+function sanitizeDom(parent: ParentNode, insideListItem: boolean): void {
+  let index = 0;
+  while (index < parent.children.length) {
+    const node = parent.children[index];
+    if (!isTag(node)) {
+      index++;
+      continue;
+    }
 
-  // Remove class, id, type attributes (matching HtmlSanitizer.removeAttrs)
-  result = result.replace(/\s+(?:class|id|type)="[^"]*"/g, '');
+    // Keep parity with sonar-rule-api HtmlSanitizer.removeAttrs(...)
+    // https://github.com/SonarSource/sonar-rule-api/blob/master/src/main/java/com/sonarsource/ruleapi/utilities/HtmlSanitizer.java
+    delete node.attribs.class;
+    delete node.attribs.id;
+    delete node.attribs.type;
 
-  // Remove <p> inside <li> (unwrap)
-  result = result.replace(/<li>\s*<p>([\s\S]*?)<\/p>\s*<\/li>/g, '<li>$1</li>');
+    const shouldUnwrap =
+      // HtmlSanitizer.removeAllByQuery(doc, "div")
+      node.name === 'div' ||
+      // HtmlSanitizer.removeAllByQuery(doc, "li p")
+      (insideListItem && node.name === 'p') ||
+      // HtmlSanitizer.removeSyntaxHighlighting(doc)
+      (node.name === 'code' && node.attribs['data-lang'] !== undefined);
 
-  // Put pre content on own lines (matches HtmlSanitizer.putPreOnOwnLines)
-  result = result.replace(/<pre([^>]*)>([\s\S]*?)<\/pre>/g, (_, attrs, content) => {
-    let c = content;
-    if (!c.startsWith('\n')) c = '\n' + c;
-    if (!c.endsWith('\n')) c = c + '\n';
-    return `<pre${attrs}>${c}</pre>`;
+    if (shouldUnwrap) {
+      unwrapNode(parent, index, node.children);
+      continue;
+    }
+
+    sanitizeDom(node, insideListItem || node.name === 'li');
+    index++;
+  }
+
+  relinkSiblings(parent);
+}
+
+function unwrapNode(parent: ParentNode, index: number, replacementNodes: ChildNode[]): void {
+  for (const child of replacementNodes) {
+    child.parent = parent;
+  }
+  parent.children.splice(index, 1, ...replacementNodes);
+  relinkSiblings(parent);
+}
+
+function relinkSiblings(parent: ParentNode): void {
+  for (let index = 0; index < parent.children.length; index++) {
+    const node = parent.children[index];
+    node.parent = parent;
+    node.prev = index === 0 ? null : parent.children[index - 1];
+    node.next = index === parent.children.length - 1 ? null : parent.children[index + 1];
+  }
+}
+
+function putPreOnOwnLines(html: string): string {
+  // Keep parity with HtmlSanitizer.putPreOnOwnLines(...)
+  // https://github.com/SonarSource/sonar-rule-api/blob/master/src/main/java/com/sonarsource/ruleapi/utilities/HtmlSanitizer.java
+  return html.replace(/<pre([^>]*)>([\s\S]*?)<\/pre>/g, (_, attrs, content) => {
+    let normalizedContent = content;
+    if (!normalizedContent.startsWith('\n')) {
+      normalizedContent = '\n' + normalizedContent;
+    }
+    if (!normalizedContent.endsWith('\n')) {
+      normalizedContent += '\n';
+    }
+    return `<pre${attrs}>${normalizedContent}</pre>`;
+  });
+}
+
+function wrapLines(html: string, wrapWidth: number): string {
+  // Keep parity with HtmlSanitizer.wrapLines(...) + writeWrapped(...)
+  // https://github.com/SonarSource/sonar-rule-api/blob/master/src/main/java/com/sonarsource/ruleapi/utilities/HtmlSanitizer.java
+  const lines = html.split('\n');
+  let inPreTag = false;
+  let output = '';
+  for (const rawLine of lines) {
+    const line = trimRight(rawLine);
+    if (!isImpactedByPreTagStatus(inPreTag, line)) {
+      output += writeWrapped(line, wrapWidth);
+    } else {
+      output += `${line}\n`;
+    }
+    inPreTag = updateInPreTagStatus(inPreTag, line);
+  }
+  return output;
+}
+
+function writeWrapped(line: string, wrapWidth: number): string {
+  let remaining = line;
+  if (remaining.length <= wrapWidth) {
+    return `${remaining}\n`;
+  }
+  const padding = ' '.repeat(indentSize(remaining));
+  let output = '';
+  while (remaining.length > 0) {
+    let spacePos = -1;
+    if (remaining.length > wrapWidth) {
+      spacePos = findBestSpacePosToSplit(remaining, wrapWidth);
+    }
+    if (spacePos !== -1 && spacePos > padding.length) {
+      output += `${remaining.slice(0, spacePos)}\n`;
+      remaining = padding + remaining.slice(spacePos + 1);
+    } else {
+      output += `${remaining}\n`;
+      remaining = '';
+    }
+  }
+  return output;
+}
+
+function trimRight(line: string): string {
+  let lineEnd = line.length;
+  while (lineEnd > 0 && line.charAt(lineEnd - 1) === ' ') {
+    lineEnd--;
+  }
+  return line.slice(0, lineEnd);
+}
+
+function findBestSpacePosToSplit(line: string, wrapWidth: number): number {
+  let spacePos = line.lastIndexOf(' ', wrapWidth);
+  if (spacePos === -1) {
+    spacePos = line.indexOf(' ', wrapWidth + 1);
+  }
+  return spacePos;
+}
+
+function isImpactedByPreTagStatus(previousInPreTag: boolean, line: string): boolean {
+  return previousInPreTag || line.includes('<pre>') || line.includes('</pre>');
+}
+
+function updateInPreTagStatus(previousInPreTag: boolean, line: string): boolean {
+  const openPrePos = line.indexOf('<pre');
+  const closePrePos = line.indexOf('</pre>');
+  const openPreTag = openPrePos !== -1 && openPrePos > closePrePos;
+  const closePreTag = closePrePos !== -1 && closePrePos > openPrePos;
+  return openPreTag || (previousInPreTag && !closePreTag);
+}
+
+function indentSize(text: string): number {
+  let indent = 0;
+  while (indent < text.length && text.charAt(indent) === ' ') {
+    indent++;
+  }
+  return indent;
+}
+
+/**
+ * Keep standards tag filtering equivalent to previous sonar-rule-api generation:
+ * - AsciiDoctorConverter.filterApplicableStandards(...)
+ *   https://github.com/SonarSource/sonar-rule-api/blob/master/src/main/java/com/sonarsource/ruleapi/asciidoctor/AsciiDoctorConverter.java
+ * - SupportedStandard / TaggableStandard language applicability
+ *   https://github.com/SonarSource/sonar-rule-api/blob/master/src/main/java/com/sonarsource/ruleapi/externalspecifications/SupportedStandard.java
+ *
+ * The applicability map is versioned in sync-rspec-standard-tag-applicability.json.
+ */
+function filterApplicableStandardTags(
+  languageKey: string,
+  metadata: Record<string, unknown>,
+): void {
+  const tags = metadata.tags;
+  if (!Array.isArray(tags)) {
+    return;
+  }
+
+  const filteredTags = tags.filter(tag => {
+    if (typeof tag !== 'string') {
+      return true;
+    }
+    const applicableLanguages = standardTagApplicabilityConfig.tagApplicability[tag];
+    if (!applicableLanguages) {
+      return true;
+    }
+    return applicableLanguages.includes('*') || applicableLanguages.includes(languageKey);
   });
 
-  // Clean up whitespace: collapse multiple blank lines
-  result = result.replace(/\n{3,}/g, '\n');
+  metadata.tags = filteredTags;
+}
 
-  // Trim leading/trailing whitespace
-  result = result.trim() + '\n';
+/**
+ * Keep defaultQualityProfiles emission equivalent to previous rspec-maven-plugin output:
+ * - AsciiDoctorConverter.getProfiles(...) extracts profiles (or empty set) from metadata
+ *   https://github.com/SonarSource/sonar-rule-api/blob/master/src/main/java/com/sonarsource/ruleapi/asciidoctor/AsciiDoctorConverter.java
+ * - RuleDataGenerator.execute(...) always writes defaultQualityProfiles back to JSON
+ *   https://github.com/SonarSource/rspec-maven-plugin/blob/master/src/main/java/domain/RuleDataGenerator.java
+ */
+function normalizeDefaultQualityProfiles(metadata: Record<string, unknown>): void {
+  const rawProfiles = metadata.defaultQualityProfiles;
+  if (!Array.isArray(rawProfiles)) {
+    metadata.defaultQualityProfiles = [];
+    return;
+  }
 
-  return result;
+  const seen = new Set<string>();
+  const normalizedProfiles: string[] = [];
+  for (const profile of rawProfiles) {
+    if (profile == null) {
+      continue;
+    }
+    const profileName = String(profile);
+    if (!seen.has(profileName)) {
+      seen.add(profileName);
+      normalizedProfiles.push(profileName);
+    }
+  }
+  metadata.defaultQualityProfiles = normalizedProfiles;
+}
+
+function normalizeRuleKey(key: string): string {
+  const trimmed = key.trim();
+  if (/^RSPEC-\d+$/.test(trimmed)) {
+    return trimmed.replace(/^RSPEC-/, 'S');
+  }
+  if (/^S\d+$/.test(trimmed)) {
+    return trimmed;
+  }
+  if (/^\d+$/.test(trimmed)) {
+    return `S${trimmed}`;
+  }
+  throw new Error(`Wrong replacement rule key format: '${key}'. Expected S###, RSPEC-###, or ###.`);
+}
+
+/**
+ * Keep deprecated/superseded post-processing equivalent to the previous
+ * rspec-maven-plugin + sonar-rule-api generation path:
+ * - rspec-maven-plugin uses GitHubRuleMaker.getRulesByRuleSubdirectory(...)
+ *   https://github.com/SonarSource/rspec-maven-plugin/blob/master/src/main/java/application/ApplicationRuleRepository.java
+ * - which applies GitHubRuleMaker.generateDeprecatedSectionAndCorrectStatus(...)
+ *   https://github.com/SonarSource/sonar-rule-api/blob/master/src/main/java/com/sonarsource/ruleapi/github/GitHubRuleMaker.java
+ */
+function generateDeprecatedSectionAndCorrectStatus(
+  langSq: string,
+  metadata: Record<string, unknown>,
+): string {
+  const status = String(metadata.status ?? '').toLowerCase();
+  const extra = metadata.extra as Record<string, unknown> | undefined;
+  const replacements = extra?.replacementRules;
+
+  if (!['deprecated', 'superseded'].includes(status) || !Array.isArray(replacements)) {
+    return '';
+  }
+
+  let noReplacementDrafted = true;
+  const replacementRules: string[] = [];
+
+  for (const replacementRule of replacements) {
+    noReplacementDrafted = false;
+    const replacementRuleId = normalizeRuleKey(String(replacementRule));
+    // In getRulesByRuleSubdirectory mode, every drafted replacement is treated as implemented.
+    replacementRules.push(`{rule:${langSq}:${replacementRuleId}}`);
+  }
+
+  if (replacementRules.length === 0) {
+    if (noReplacementDrafted) {
+      return '<p>This rule is deprecated, and will eventually be removed.</p>\n';
+    }
+    metadata.status = 'ready';
+    return '';
+  }
+
+  metadata.status = 'deprecated';
+  return `<p>This rule is deprecated; use ${replacementRules.join(', ')} instead.</p>\n`;
+}
+
+function hasGeneratedRuleData(path: string): boolean {
+  if (!existsSync(path)) {
+    return false;
+  }
+  try {
+    return readdirSync(path).some(file => /^S\d+\.json$/.test(file));
+  } catch {
+    return false;
+  }
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -161,14 +451,20 @@ if (pinnedSha) {
 // For managed clones, check if rspec has changed since last sync
 if (isManagedClone && existsSync(shaFile)) {
   const storedSha = readFileSync(shaFile, 'utf-8').trim();
+  const hasOutputData = hasGeneratedRuleData(outputDir);
 
   if (pinnedSha) {
     // Pinned SHA: skip check is local, no network needed
-    if (storedSha === pinnedSha) {
+    if (storedSha === pinnedSha && hasOutputData) {
       console.log(
         `RSPEC ${language} rules are up to date (${storedSha.slice(0, 8)}), skipping sync`,
       );
       process.exit(0);
+    }
+    if (storedSha === pinnedSha && !hasOutputData) {
+      console.log(
+        `RSPEC ${language} SHA matches (${storedSha.slice(0, 8)}) but local rule data is missing, syncing`,
+      );
     }
   } else {
     // No pin: check remote branch SHA via ls-remote (fast, no clone)
@@ -179,11 +475,16 @@ if (isManagedClone && existsSync(shaFile)) {
         { encoding: 'utf-8' },
       );
       const remoteSha = remoteInfo.split('\t')[0].trim();
-      if (remoteSha && remoteSha === storedSha) {
+      if (remoteSha && remoteSha === storedSha && hasOutputData) {
         console.log(
           `RSPEC ${language} rules are up to date (${remoteSha.slice(0, 8)}), skipping sync`,
         );
         process.exit(0);
+      }
+      if (remoteSha && remoteSha === storedSha && !hasOutputData) {
+        console.log(
+          `RSPEC ${language} SHA matches (${remoteSha.slice(0, 8)}) but local rule data is missing, syncing`,
+        );
       }
     } catch {
       // If ls-remote fails (e.g. offline), continue with sync
@@ -202,25 +503,41 @@ if (!existsSync(join(rspecPath, 'rules'))) {
     ? `https://x-access-token:${token}@github.com/SonarSource/rspec.git`
     : RSPEC_REPO_SSH;
   mkdirSync(rspecPath, { recursive: true });
-  const cloneRef = pinnedSha ?? RSPEC_BRANCH;
-  execSync(`git clone --depth 1 --sparse --branch ${cloneRef} ${repoUrl} ${rspecPath}`, {
+  execSync(`git clone --depth 1 --sparse --branch ${RSPEC_BRANCH} ${repoUrl} ${rspecPath}`, {
     stdio: 'inherit',
   });
   execSync('git sparse-checkout set rules shared_content', {
     cwd: rspecPath,
     stdio: 'inherit',
   });
+  if (pinnedSha) {
+    try {
+      execSync(`git fetch --depth 1 origin ${pinnedSha} && git checkout --detach FETCH_HEAD`, {
+        cwd: rspecPath,
+        stdio: 'inherit',
+      });
+    } catch {
+      console.error(`Error: Failed to fetch pinned rspec SHA ${pinnedSha}`);
+      process.exit(1);
+    }
+  }
 } else if (isManagedClone) {
   // Only auto-fetch for the managed clone, not user-provided paths
-  const fetchRef = pinnedSha ?? RSPEC_BRANCH;
   console.log(
     `Fetching rspec (${pinnedSha ? pinnedSha.slice(0, 8) : 'latest'}) into ${rspecPath}...`,
   );
   try {
-    execSync(`git fetch --depth 1 origin ${fetchRef} && git reset --hard FETCH_HEAD`, {
-      cwd: rspecPath,
-      stdio: 'inherit',
-    });
+    if (pinnedSha) {
+      execSync(`git fetch --depth 1 origin ${pinnedSha} && git checkout --detach FETCH_HEAD`, {
+        cwd: rspecPath,
+        stdio: 'inherit',
+      });
+    } else {
+      execSync(`git fetch --depth 1 origin ${RSPEC_BRANCH} && git reset --hard FETCH_HEAD`, {
+        cwd: rspecPath,
+        stdio: 'inherit',
+      });
+    }
   } catch {
     console.warn('Warning: Failed to fetch rspec, using existing data');
   }
@@ -241,7 +558,15 @@ class SonarListingConverter {
       const diffId = node.getAttribute('diff-id');
       const diffType = node.getAttribute('diff-type');
       if (diffId && diffType) {
-        return `<pre data-diff-id="${diffId}" data-diff-type="${diffType}">${node.getSource()}</pre>`;
+        // Keep diff listings escaped to match sonar-rule-api output:
+        // - sonar-rule-api template uses `=content` in listing.html.slim (escaped output).
+        //   https://github.com/SonarSource/sonar-rule-api/blob/master/src/main/resources/templates/listing.html.slim
+        // Using raw getSource() here injects HTML/JSX inside <pre>, which changes rendered snippets.
+        const escapedContent =
+          typeof node.getContent === 'function'
+            ? node.getContent()
+            : node.getSource().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return `<pre data-diff-id="${diffId}" data-diff-type="${diffType}">${escapedContent}</pre>`;
       }
     }
     return this.baseConverter.convert(node, transform);
@@ -284,6 +609,9 @@ async function syncRule(ruleName: string): Promise<boolean> {
 
   // Write merged JSON metadata
   const merged = { ...parentMetadata, ...languageMetadata };
+  const deprecatedSection = generateDeprecatedSectionAndCorrectStatus(langSq, merged);
+  filterApplicableStandardTags(language, merged);
+  normalizeDefaultQualityProfiles(merged);
   const writes: Promise<void>[] = [
     writeFile(join(outputDir, `${ruleName}.json`), JSON.stringify(merged, null, 2) + '\n'),
   ];
@@ -300,7 +628,10 @@ async function syncRule(ruleName: string): Promise<boolean> {
     }) as string;
 
     writes.push(
-      writeFile(join(outputDir, `${ruleName}.html`), populateLinks(langSq, sanitizeHtml(html))),
+      writeFile(
+        join(outputDir, `${ruleName}.html`),
+        deprecatedSection + populateLinks(langSq, sanitizeHtml(html)),
+      ),
     );
   }
 
