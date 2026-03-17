@@ -57,7 +57,7 @@ describe('project analysis telemetry', () => {
     expect(collector.getTelemetry().compilerOptions.customOption).toBeUndefined();
   });
 
-  it('should skip path compiler options and redact other absolute paths', () => {
+  it('should skip path compiler options and ignore other absolute paths', () => {
     const collector = new ProjectAnalysisTelemetryCollector();
     collector.recordCompilerOptions({
       rootDir: '/home/user/project/src',
@@ -66,12 +66,14 @@ describe('project analysis telemetry', () => {
       outDir: 'file:///var/project/dist',
       paths: { '@/*': ['/Users/jane/project/src/*'] },
       customOption: '/tmp/absolute-path',
+      customRelativeOption: 'src/relative-path',
     } as unknown as ts.CompilerOptions);
 
-    expect(collector.getTelemetry().compilerOptions).toMatchObject({
-      paths: ['{"@/*":["redacted-path"]}'],
-      customOption: ['redacted-path'],
-    });
+    expect(collector.getTelemetry().compilerOptions.customRelativeOption).toEqual([
+      'src/relative-path',
+    ]);
+    expect(collector.getTelemetry().compilerOptions.paths).toBeUndefined();
+    expect(collector.getTelemetry().compilerOptions.customOption).toBeUndefined();
     expect(collector.getTelemetry().compilerOptions.rootDir).toBeUndefined();
     expect(collector.getTelemetry().compilerOptions.rootDirs).toBeUndefined();
     expect(collector.getTelemetry().compilerOptions.baseUrl).toBeUndefined();
