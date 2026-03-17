@@ -249,7 +249,7 @@ function normalizeLibValue(value: string): string {
 }
 
 function sanitizeStringOptionValue(value: string): string | undefined {
-  if (looksLikeAbsolutePath(value)) {
+  if (looksLikePath(value)) {
     return undefined;
   }
   return value;
@@ -278,12 +278,14 @@ function sanitizeObjectOptionValue(value: unknown): unknown {
   return value;
 }
 
-function looksLikeAbsolutePath(value: string): boolean {
+function looksLikePath(value: string): boolean {
   return (
     value.startsWith('/') ||
     /^[a-zA-Z]:[\\/]/.test(value) ||
     value.startsWith('\\\\') ||
-    value.startsWith('file://')
+    value.startsWith('file://') ||
+    value.includes('/') ||
+    value.includes('\\')
   );
 }
 
