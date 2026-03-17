@@ -245,7 +245,7 @@ function normalizeLibValue(value: string): string {
 }
 
 function sanitizeStringOptionValue(optionName: string, value: string): string {
-  if (PATH_COMPILER_OPTIONS.has(optionName) || looksLikeAbsolutePath(value)) {
+  if (looksLikeAbsolutePath(value)) {
     return REDACTED_PATH;
   }
   return value;
