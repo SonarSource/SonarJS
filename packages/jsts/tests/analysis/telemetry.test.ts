@@ -42,7 +42,6 @@ describe('project analysis telemetry', () => {
     expect(collector.getTelemetry().compilerOptions).toEqual({
       lib: ['dom', 'es2020', 'es2022'],
       module: ['commonjs', 'nodenext'],
-      paths: ['{"@/*":["src/*"]}'],
       strict: ['true'],
     });
   });
@@ -57,7 +56,7 @@ describe('project analysis telemetry', () => {
     expect(collector.getTelemetry().compilerOptions.customOption).toBeUndefined();
   });
 
-  it('should skip path compiler options and ignore other absolute paths', () => {
+  it('should skip path compiler options and ignore other path-like values', () => {
     const collector = new ProjectAnalysisTelemetryCollector();
     collector.recordCompilerOptions({
       rootDir: '/home/user/project/src',
@@ -67,13 +66,13 @@ describe('project analysis telemetry', () => {
       paths: { '@/*': ['/Users/jane/project/src/*'] },
       customOption: '/tmp/absolute-path',
       customRelativeOption: 'src/relative-path',
+      customNonPathOption: 'keep-me',
     } as unknown as ts.CompilerOptions);
 
-    expect(collector.getTelemetry().compilerOptions.customRelativeOption).toEqual([
-      'src/relative-path',
-    ]);
+    expect(collector.getTelemetry().compilerOptions.customNonPathOption).toEqual(['keep-me']);
     expect(collector.getTelemetry().compilerOptions.paths).toBeUndefined();
     expect(collector.getTelemetry().compilerOptions.customOption).toBeUndefined();
+    expect(collector.getTelemetry().compilerOptions.customRelativeOption).toBeUndefined();
     expect(collector.getTelemetry().compilerOptions.rootDir).toBeUndefined();
     expect(collector.getTelemetry().compilerOptions.rootDirs).toBeUndefined();
     expect(collector.getTelemetry().compilerOptions.baseUrl).toBeUndefined();
