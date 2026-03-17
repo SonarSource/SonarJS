@@ -25,6 +25,18 @@ import { packageJsonStore } from './file-stores/index.js';
 import { stripBOM } from '../../rules/helpers/files.js';
 
 const NOT_DETECTED = 'not-detected';
+const REDACTED_PATH = 'redacted-path';
+const PATH_COMPILER_OPTIONS = new Set([
+  'baseUrl',
+  'declarationDir',
+  'mapRoot',
+  'outDir',
+  'outFile',
+  'rootDir',
+  'rootDirs',
+  'sourceRoot',
+  'tsBuildInfoFile',
+]);
 
 let projectAnalysisTelemetryCollector: ProjectAnalysisTelemetryCollector | undefined;
 
@@ -131,6 +143,10 @@ export class ProjectAnalysisTelemetryCollector {
   }
 
   private recordOptionValue(optionName: string, optionValue: unknown) {
+    if (PATH_COMPILER_OPTIONS.has(optionName)) {
+      return;
+    }
+
     if (optionValue === undefined) {
       return;
     }
@@ -166,7 +182,7 @@ export class ProjectAnalysisTelemetryCollector {
       if (optionName === 'lib') {
         return [normalizeLibValue(optionValue)];
       }
-      return [optionValue];
+      return [sanitizeStringOptionValue(optionName, optionValue)];
     }
 
     if (typeof optionValue === 'boolean' || typeof optionValue === 'bigint') {
@@ -174,7 +190,8 @@ export class ProjectAnalysisTelemetryCollector {
     }
 
     if (typeof optionValue === 'object') {
-      return [JSON.stringify(optionValue)];
+      const json = JSON.stringify(sanitizeObjectOptionValue(optionName, optionValue));
+      return json === undefined ? [] : [json];
     }
 
     const json = JSON.stringify(optionValue);
@@ -225,6 +242,40 @@ function getAvailablePackageJsons(): PackageJson[] {
 function normalizeLibValue(value: string): string {
   const match = /^lib\.(.+)\.d\.ts$/i.exec(value);
   return match ? match[1] : value;
+}
+
+function sanitizeStringOptionValue(optionName: string, value: string): string {
+  if (PATH_COMPILER_OPTIONS.has(optionName) || looksLikeAbsolutePath(value)) {
+    return REDACTED_PATH;
+  }
+  return value;
+}
+
+function sanitizeObjectOptionValue(optionName: string, value: unknown): unknown {
+  if (typeof value === 'string') {
+    return sanitizeStringOptionValue(optionName, value);
+  }
+  if (Array.isArray(value)) {
+    return value.map(item => sanitizeObjectOptionValue(optionName, item));
+  }
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, nested]) => [
+        key,
+        sanitizeObjectOptionValue(optionName, nested),
+      ]),
+    );
+  }
+  return value;
+}
+
+function looksLikeAbsolutePath(value: string): boolean {
+  return (
+    value.startsWith('/') ||
+    /^[a-zA-Z]:[\\/]/.test(value) ||
+    value.startsWith('\\\\') ||
+    value.startsWith('file://')
+  );
 }
 
 function buildEnumOptionValues(): Map<string, Map<number, string>> {
