@@ -82,7 +82,8 @@ export const rule: Rule.RuleModule = {
           );
           if (
             swappedArgumentName &&
-            !areComparedArguments([argumentName, swappedArgumentName], functionCall)
+            !areComparedArguments([argumentName, swappedArgumentName], functionCall) &&
+            !isInDirectionalContext(functionCall)
           ) {
             raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
             return;
@@ -133,6 +134,30 @@ export const rule: Rule.RuleModule = {
               return checkComparedArguments(lhs, rhs);
             }
             break;
+          }
+        }
+      }
+      return false;
+    }
+
+    // Returns true if the node is nested inside an object property whose key is a
+    // directional keyword (e.g. 'rtl', 'ltr', 'reverse'). In such cases, parameter
+    // swapping is intentional — it represents the opposite ordering for bidirectional
+    // text handling or conditional reversal logic.
+    function isInDirectionalContext(node: estree.CallExpression): boolean {
+      const ancestors = context.sourceCode.getAncestors(node);
+      for (const ancestor of ancestors) {
+        if (ancestor.type === 'Property') {
+          const { key } = ancestor;
+          if (key.type === 'Identifier' && DIRECTIONAL_KEYWORD_PATTERN.test(key.name)) {
+            return true;
+          }
+          if (
+            key.type === 'Literal' &&
+            typeof key.value === 'string' &&
+            DIRECTIONAL_KEYWORD_PATTERN.test(key.value)
+          ) {
+            return true;
           }
         }
       }
@@ -233,6 +258,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+const DIRECTIONAL_KEYWORD_PATTERN = /\b(rtl|ltr|reverse|flip|swap|forward|backward)\b/i;
 const CRYPTO_FUNCTION_PATTERN = /^(md[45]_?)?(ff|gg|hh|ii)$/i;
 const CRYPTO_STATE_PARAM_COUNT = 4;
 
