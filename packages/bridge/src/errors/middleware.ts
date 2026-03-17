@@ -18,6 +18,8 @@ import type express from 'express';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import { error } from '../../../shared/src/helpers/logging.js';
 
+export type ParsingErrorLanguage = 'js' | 'ts' | 'css';
+
 /**
  * Express.js middleware for handling error while serving requests.
  *
@@ -37,29 +39,41 @@ export function errorMiddleware(
   response.json(handleError(err));
 }
 
-export function handleError(err: any) {
+export function handleError(err: any, language?: ParsingErrorLanguage) {
   const { code, message, stack } = err;
   switch (code) {
     case ErrorCode.Parsing:
     case ErrorCode.FailingTypeScript:
     case ErrorCode.LinterInitialization:
-      return generateParsingError(err);
+      return generateParsingError(err, language);
     default:
       error(stack);
       return { error: message };
   }
 }
 
-function generateParsingError(error: {
-  message: string;
-  code: ErrorCode;
-  data?: { line: number };
-}) {
+function generateParsingError(
+  error: {
+    message: string;
+    code: ErrorCode;
+    data?: { line: number };
+  },
+  language?: ParsingErrorLanguage,
+) {
+  const parsingError: {
+    message: string;
+    code: ErrorCode;
+    line: number | undefined;
+    language?: ParsingErrorLanguage;
+  } = {
+    message: error.message,
+    code: error.code,
+    line: error.data?.line,
+  };
+  if (language !== undefined) {
+    parsingError.language = language;
+  }
   return {
-    parsingError: {
-      message: error.message,
-      code: error.code,
-      line: error.data?.line,
-    },
+    parsingError,
   };
 }

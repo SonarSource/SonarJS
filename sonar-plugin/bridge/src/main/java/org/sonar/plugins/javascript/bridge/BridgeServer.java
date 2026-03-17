@@ -330,7 +330,12 @@ public interface BridgeServer extends Startable {
     }
   }
 
-  record ParsingError(String message, Integer line, ParsingErrorCode code) {}
+  record ParsingError(
+    String message,
+    Integer line,
+    ParsingErrorCode code,
+    @Nullable String language
+  ) {}
 
   enum ParsingErrorCode {
     PARSING,

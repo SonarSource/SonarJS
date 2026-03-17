@@ -66,6 +66,7 @@ import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 public class AnalysisProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisProcessor.class);
+  private static final String CSS_PARSING_ERROR_STYLELINT_KEY = "CssSyntaxError";
 
   private final NoSonarFilter noSonarFilter;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -133,7 +134,7 @@ public class AnalysisProcessor {
       LOG.warn("Failed to parse file [{}] at line {}: {}", file, line, message);
     } else if (parsingError.code() == ParsingErrorCode.FAILING_TYPESCRIPT) {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
-    } else if (CssLanguage.KEY.equals(file.language())) {
+    } else if (isCssParsingError(parsingError)) {
       // CSS parsing errors are expected for certain preprocessor files (e.g. Sass)
       // and should not abort the analysis in failFast mode.
       LOG.warn("Failed to analyze CSS file [{}]: {}", file, message);
@@ -144,7 +145,7 @@ public class AnalysisProcessor {
       }
     }
 
-    var parsingErrorRuleKey = checks.parsingErrorRuleKey();
+    var parsingErrorRuleKey = parsingErrorRuleKey(parsingError);
     if (parsingErrorRuleKey != null) {
       NewIssue newIssue = context.getSensorContext().newIssue();
 
@@ -164,6 +165,31 @@ public class AnalysisProcessor {
       .at(file.newPointer(line != null ? line : 1, 0))
       .message(message)
       .save();
+  }
+
+  private boolean isCssParsingError(ParsingError parsingError) {
+    return (
+      CssLanguage.KEY.equals(parsingError.language()) || CssLanguage.KEY.equals(file.language())
+    );
+  }
+
+  @Nullable
+  private RuleKey parsingErrorRuleKey(ParsingError parsingError) {
+    if (isCssParsingError(parsingError)) {
+      return cssRules != null ? cssRules.getActiveSonarKey(CSS_PARSING_ERROR_STYLELINT_KEY) : null;
+    }
+
+    var parsingErrorRuleKey = checks.parsingErrorRuleKey(Language.of(parsingError.language()));
+    if (parsingErrorRuleKey != null) {
+      return parsingErrorRuleKey;
+    }
+
+    parsingErrorRuleKey = checks.parsingErrorRuleKey(Language.of(file.language()));
+    if (parsingErrorRuleKey != null) {
+      return parsingErrorRuleKey;
+    }
+
+    return checks.parsingErrorRuleKey();
   }
 
   private void saveIssues(JsTsContext<?> context, List<Issue> issues) {

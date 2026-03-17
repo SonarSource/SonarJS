@@ -57,6 +57,7 @@ type ParsingError = {
     message: string;
     code: ErrorCode;
     line?: number;
+    language?: 'js' | 'ts' | 'css';
   };
 };
 

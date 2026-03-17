@@ -307,7 +307,7 @@ describe('gRPC server', () => {
     const issues = response.issues || [];
 
     expect(issues.length).toBe(1);
-    expect(issues[0].rule?.repo).toBe('javascript');
+    expect(issues[0].rule?.repo).toBe('typescript');
     expect(issues[0].rule?.rule).toBe('S2260');
   });
 

@@ -50,7 +50,9 @@ const CSS_RULE_DATA_FOLDER = join(
 );
 
 const jsRuleNames = [...new Set([...(await listRulesDir()), 'S2260'])].sort(sortRuleKeys);
-const cssRuleNames = [...new Set(cssRulesMeta.map(rule => rule.sqKey))].sort(sortRuleKeys);
+const cssRuleNames = [...new Set([...cssRulesMeta.map(rule => rule.sqKey), 'S2260'])].sort(
+  sortRuleKeys,
+);
 
 type RuleManifest = {
   defaultQualityProfiles?: Array<string>;
