@@ -1,8 +1,0 @@
-{
-"postgraphql:src/postgraphql/watch/watchPgSchemas.ts": [
-95
-],
-"postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts": [
-58
-]
-}

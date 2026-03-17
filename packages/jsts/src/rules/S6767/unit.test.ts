@@ -164,6 +164,42 @@ MyComponent.propTypes = {
     });
   });
 
+  it('should not report props accessed via computed bracket notation', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: props[key] computed access
+          code: `
+function AnimationComponent(props) {
+  const key = 'offsetX';
+  return <div value={props[key]} />;
+}
+AnimationComponent.propTypes = {
+  offsetX: PropTypes.number,
+};
+`,
+        },
+        {
+          // FP: this.props[key] computed access
+          code: `
+class VictoryAxis extends React.Component {
+  render() {
+    const key = 'offsetX';
+    return <div>{this.props[key]}</div>;
+  }
+}
+VictoryAxis.propTypes = {
+  offsetX: PropTypes.number,
+};
+`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('should exercise TypeScript type-checking paths (Strategy C in react helpers)', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
@@ -219,6 +255,31 @@ interface MyComponentProps {
 }
 function MyComponent(props: MyComponentProps) {
   return <SomeComponent {...props} />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: TypeScript class component with this.props[key] — Strategy C matches
+          // VictoryAxisProps to VictoryAxis via matchesClassProps, hasPropsCall finds computed MemberExpression.
+          code: `
+declare const React: any;
+interface VictoryAxisProps {
+  offsetX?: number;
+  offsetY?: number;
+}
+class VictoryAxis extends React.Component<VictoryAxisProps> {
+  props: VictoryAxisProps;
+  static animationWhitelist: Array<keyof VictoryAxisProps> = ['offsetX', 'offsetY'];
+  animate() {
+    return VictoryAxis.animationWhitelist.reduce((acc: Record<string, unknown>, key) => {
+      acc[key] = this.props[key];
+      return acc;
+    }, {});
+  }
+  render() {
+    return <div>{this.animate()}</div>;
+  }
 }
 `,
           filename: fixtureFile,
@@ -343,6 +404,34 @@ function Wrapper(props) {
   return <div {...props} {...{extra: 'extra-value'}} />;
 }
 Wrapper.propTypes = { onClick: PropTypes.func };
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('upstream rule should report dynamic bracket notation FP pattern (sentinel: remove decorator check if this fails)', () => {
+    // Confirms that the upstream eslint-plugin-react no-unused-prop-types rule DOES raise
+    // issues when props are accessed via computed bracket notation (props[key], this.props[key]).
+    // If this test starts failing, the upstream rule has been fixed and the computed
+    // MemberExpression handling in the S6767 decorator can be removed.
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types (upstream, bracket notation)', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // upstream does not track props[key] computed bracket access
+          code: `
+function AnimationComponent(props) {
+  const key = 'offsetX';
+  return <div value={props[key]} />;
+}
+AnimationComponent.propTypes = {
+  offsetX: PropTypes.number,
+};
 `,
           errors: 1,
         },

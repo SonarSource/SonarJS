@@ -31,6 +31,7 @@ import {
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
+  esLibToYear,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
@@ -167,6 +168,7 @@ async function analyzeFilesFromEntryPoint(
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
 
   const tsProgram = createStandardProgram(programOptions);
+  const detectedEsYear = esLibToYear(programOptions.options.lib);
 
   for (const fileName of rootNames) {
     if (isAnalysisCancelled()) {
@@ -182,6 +184,7 @@ async function analyzeFilesFromEntryPoint(
       pendingFiles,
       progressReport,
       incrementalResultsChannel,
+      detectedEsYear ?? undefined,
     );
   }
 }
@@ -231,6 +234,7 @@ async function analyzeFilesFromTsConfig(
   );
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
   const tsProgram = createStandardProgram(programOptions);
+  const detectedEsYear = esLibToYear(programOptions.options.lib);
 
   // TypeScript normalizes file paths internally, so we can safely cast them
   const filesToAnalyze = tsProgram
@@ -268,6 +272,7 @@ async function analyzeFilesFromTsConfig(
       pendingFiles,
       progressReport,
       incrementalResultsChannel,
+      detectedEsYear ?? undefined,
     );
   }
 }
