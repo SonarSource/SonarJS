@@ -100,9 +100,10 @@ public class PluginTelemetry {
     if (projectAnalysisTelemetry == null) {
       return;
     }
-    keyMapToSave.put(
-      TELEMETRY_PREFIX + "typescript.version",
-      projectAnalysisTelemetry.typescriptVersion()
+    addValueList(
+      keyMapToSave,
+      TELEMETRY_PREFIX + "typescript.versions",
+      projectAnalysisTelemetry.typescriptVersions()
     );
     keyMapToSave.put(
       TELEMETRY_PREFIX + "typescript.native-preview",

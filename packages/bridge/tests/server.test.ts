@@ -80,9 +80,13 @@ describe('server', () => {
           },
         });
 
-        expect(response).toEqual({
+        expect(response).toMatchObject({
           messageType: 'meta',
           warnings: [],
+          telemetry: {
+            typescriptVersions: ['not-detected'],
+            typescriptNativePreview: false,
+          },
         });
         expect(messages.length).toEqual(1);
         const {
