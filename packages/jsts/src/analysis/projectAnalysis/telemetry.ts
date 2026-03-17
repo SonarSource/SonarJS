@@ -25,17 +25,8 @@ import { packageJsonStore } from './file-stores/index.js';
 import { stripBOM } from '../../rules/helpers/files.js';
 
 const NOT_DETECTED = 'not-detected';
-const PATH_COMPILER_OPTIONS = new Set([
-  'baseUrl',
-  'declarationDir',
-  'mapRoot',
-  'outDir',
-  'outFile',
-  'rootDir',
-  'rootDirs',
-  'sourceRoot',
-  'tsBuildInfoFile',
-]);
+const KNOWN_COMPILER_OPTIONS = buildKnownCompilerOptions();
+const PATH_COMPILER_OPTIONS = buildPathCompilerOptions();
 
 let projectAnalysisTelemetryCollector: ProjectAnalysisTelemetryCollector | undefined;
 
@@ -181,7 +172,7 @@ export class ProjectAnalysisTelemetryCollector {
       if (optionName === 'lib') {
         return [normalizeLibValue(optionValue)];
       }
-      const sanitized = sanitizeStringOptionValue(optionValue);
+      const sanitized = sanitizeStringOptionValue(optionName, optionValue);
       return sanitized === undefined ? [] : [sanitized];
     }
 
@@ -190,7 +181,7 @@ export class ProjectAnalysisTelemetryCollector {
     }
 
     if (typeof optionValue === 'object') {
-      const sanitized = sanitizeObjectOptionValue(optionValue);
+      const sanitized = sanitizeObjectOptionValue(optionName, optionValue);
       if (sanitized === undefined) {
         return [];
       }
@@ -248,20 +239,23 @@ function normalizeLibValue(value: string): string {
   return match ? match[1] : value;
 }
 
-function sanitizeStringOptionValue(value: string): string | undefined {
-  if (looksLikePath(value)) {
+function sanitizeStringOptionValue(optionName: string, value: string): string | undefined {
+  if (looksLikeFilesystemPath(value)) {
+    return undefined;
+  }
+  if (!KNOWN_COMPILER_OPTIONS.has(optionName) && looksLikePathWithSeparator(value)) {
     return undefined;
   }
   return value;
 }
 
-function sanitizeObjectOptionValue(value: unknown): unknown {
+function sanitizeObjectOptionValue(optionName: string, value: unknown): unknown {
   if (typeof value === 'string') {
-    return sanitizeStringOptionValue(value);
+    return sanitizeStringOptionValue(optionName, value);
   }
   if (Array.isArray(value)) {
     const sanitizedValues = value.flatMap(item => {
-      const sanitized = sanitizeObjectOptionValue(item);
+      const sanitized = sanitizeObjectOptionValue(optionName, item);
       return sanitized === undefined ? [] : [sanitized];
     });
     return sanitizedValues.length > 0 ? sanitizedValues : undefined;
@@ -269,7 +263,7 @@ function sanitizeObjectOptionValue(value: unknown): unknown {
   if (value && typeof value === 'object') {
     const sanitizedEntries = Object.entries(value as Record<string, unknown>).flatMap(
       ([key, nested]) => {
-        const sanitized = sanitizeObjectOptionValue(nested);
+        const sanitized = sanitizeObjectOptionValue(optionName, nested);
         return sanitized === undefined ? [] : [[key, sanitized] as [string, unknown]];
       },
     );
@@ -278,23 +272,58 @@ function sanitizeObjectOptionValue(value: unknown): unknown {
   return value;
 }
 
-function looksLikePath(value: string): boolean {
+function looksLikeFilesystemPath(value: string): boolean {
   return (
     value.startsWith('/') ||
     /^[a-zA-Z]:[\\/]/.test(value) ||
     value.startsWith('\\\\') ||
     value.startsWith('file://') ||
-    value.includes('/') ||
-    value.includes('\\')
+    value.startsWith('./') ||
+    value.startsWith('../') ||
+    value.startsWith('.\\') ||
+    value.startsWith('..\\') ||
+    value.startsWith('~/') ||
+    value.startsWith('~\\')
   );
 }
 
+function looksLikePathWithSeparator(value: string): boolean {
+  return value.includes('/') || value.includes('\\');
+}
+
+function buildKnownCompilerOptions(): Set<string> {
+  return new Set(getTypeScriptOptionDeclarations().map(declaration => declaration.name));
+}
+
+function buildPathCompilerOptions(): Set<string> {
+  const pathOptions = new Set(['paths']);
+  for (const declaration of getTypeScriptOptionDeclarations()) {
+    if (
+      declaration.isFilePath === true ||
+      (declaration.type === 'list' && declaration.element?.isFilePath === true)
+    ) {
+      pathOptions.add(declaration.name);
+    }
+  }
+  return pathOptions;
+}
+
+type TypeScriptOptionDeclaration = {
+  name: string;
+  type: unknown;
+  isFilePath?: boolean;
+  element?: {
+    isFilePath?: boolean;
+  };
+};
+
+function getTypeScriptOptionDeclarations(): TypeScriptOptionDeclaration[] {
+  return ((ts as unknown as { optionDeclarations?: unknown[] }).optionDeclarations ??
+    []) as TypeScriptOptionDeclaration[];
+}
+
 function buildEnumOptionValues(): Map<string, Map<number, string>> {
-  const optionDeclarations = ((ts as unknown as { optionDeclarations?: unknown[] })
-    .optionDeclarations ?? []) as Array<{
-    name: string;
-    type: unknown;
-  }>;
+  const optionDeclarations = getTypeScriptOptionDeclarations();
   const enums = new Map<string, Map<number, string>>();
   for (const declaration of optionDeclarations) {
     if (!(declaration.type instanceof Map)) {
