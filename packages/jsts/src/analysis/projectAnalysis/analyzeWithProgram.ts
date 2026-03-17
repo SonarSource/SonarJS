@@ -177,10 +177,7 @@ async function analyzeFilesFromEntryPoint(
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
 
   telemetry.recordProgramCreationAttempt();
-  const tsProgram = createStandardProgram(programOptions, {
-    onProgramCreated: () => telemetry.recordProgramCreationSuccess(),
-    onProgramCreationError: () => telemetry.recordProgramCreationFailure(),
-  });
+  const tsProgram = createStandardProgram(programOptions);
   const detectedEsYear = esLibToYear(programOptions.options.lib);
   telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
 
@@ -251,10 +248,7 @@ async function analyzeFilesFromTsConfig(
     `Creating TypeScript(${ts.version}) program with configuration file ${tsconfig} [lib: ${programOptions.options.lib?.join(', ')}]`,
   );
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
-  const tsProgram = createStandardProgram(programOptions, {
-    onProgramCreated: () => telemetry.recordProgramCreationSuccess(),
-    onProgramCreationError: () => telemetry.recordProgramCreationFailure(),
-  });
+  const tsProgram = createStandardProgram(programOptions);
   const detectedEsYear = esLibToYear(programOptions.options.lib);
   telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
 

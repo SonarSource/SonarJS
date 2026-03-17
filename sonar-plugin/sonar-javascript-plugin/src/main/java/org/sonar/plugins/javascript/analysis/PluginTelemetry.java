@@ -142,7 +142,7 @@ public class PluginTelemetry {
     String option,
     @Nullable List<String> values
   ) {
-    if (option == null || option.isBlank()) {
+    if (option.isBlank()) {
       return;
     }
     addValueList(keyMapToSave, TELEMETRY_PREFIX + "typescript.compiler-options." + option, values);
