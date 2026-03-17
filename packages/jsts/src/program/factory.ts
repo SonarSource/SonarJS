@@ -26,6 +26,11 @@ import { getProgramCacheManager } from './cache/programCache.js';
 import { getCurrentFilesContext } from './cache/sourceFileCache.js';
 import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/files.js';
 
+type ProgramCreationCallbacks = {
+  onProgramCreated?: () => void;
+  onProgramCreationError?: () => void;
+};
+
 function createBuilderProgramWithHost(
   programOptions: ProgramOptions,
   host: ts.CompilerHost,
@@ -85,10 +90,21 @@ function createBuilderProgramAndHost(
  * enforces this at compile time.
  *
  * @param programOptions - Program options from createProgramOptions()
+ * @param callbacks - Optional hooks triggered on creation success or failure
  * @returns Standard TypeScript Program
  */
-export function createStandardProgram(programOptions: ProgramOptions): ts.Program {
-  return ts.createProgram(programOptions);
+export function createStandardProgram(
+  programOptions: ProgramOptions,
+  callbacks: ProgramCreationCallbacks = {},
+): ts.Program {
+  try {
+    const program = ts.createProgram(programOptions);
+    callbacks.onProgramCreated?.();
+    return program;
+  } catch (error) {
+    callbacks.onProgramCreationError?.();
+    throw error;
+  }
 }
 
 /**

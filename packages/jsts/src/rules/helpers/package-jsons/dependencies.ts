@@ -104,6 +104,71 @@ export function parseReactVersion(reactVersion: string): string | null {
   }
 }
 
+function getAllDependencySignals(packageJson: {
+  dependencies?: Record<string, unknown>;
+  devDependencies?: Record<string, unknown>;
+  peerDependencies?: Record<string, unknown>;
+  optionalDependencies?: Record<string, unknown>;
+}) {
+  return {
+    ...packageJson.dependencies,
+    ...packageJson.devDependencies,
+    ...packageJson.peerDependencies,
+    ...packageJson.optionalDependencies,
+  };
+}
+
+function getDependencyVersionSignal(
+  packageJson: {
+    dependencies?: Record<string, unknown>;
+    devDependencies?: Record<string, unknown>;
+    peerDependencies?: Record<string, unknown>;
+    optionalDependencies?: Record<string, unknown>;
+  },
+  dependencyName: string,
+): string | null {
+  const dependencyVersion = getAllDependencySignals(packageJson)[dependencyName];
+  return typeof dependencyVersion === 'string' ? dependencyVersion : null;
+}
+
+export function isTypeScriptNativePreviewSignal(baseDir: NormalizedAbsolutePath): boolean {
+  for (const packageJson of getManifests(baseDir, baseDir, fs)) {
+    if (getDependencyVersionSignal(packageJson, '@typescript/native-preview') !== null) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Gets a TypeScript version signal from package.json at baseDir.
+ * Prioritizes @typescript/native-preview, then typescript.
+ *
+ * @param baseDir project base directory containing package.json
+ * @returns raw version string from package.json dependencies, or null if not found
+ */
+export function getTypeScriptVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
+  for (const packageJson of getManifests(baseDir, baseDir, fs)) {
+    const nativePreviewVersion = getDependencyVersionSignal(
+      packageJson,
+      '@typescript/native-preview',
+    );
+    if (
+      nativePreviewVersion !== null &&
+      nativePreviewVersion !== 'latest' &&
+      nativePreviewVersion !== '*'
+    ) {
+      return nativePreviewVersion;
+    }
+
+    const typeScriptVersion = getDependencyVersionSignal(packageJson, 'typescript');
+    if (typeScriptVersion !== null && typeScriptVersion !== 'latest' && typeScriptVersion !== '*') {
+      return typeScriptVersion;
+    }
+  }
+  return null;
+}
+
 /**
  * Gets a Node.js version signal from the package.json at baseDir.
  * Checks @types/node in all dependency fields first, then engines.node.
@@ -114,12 +179,7 @@ export function parseReactVersion(reactVersion: string): string | null {
  */
 export function getNodeVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
   for (const packageJson of getManifests(baseDir, baseDir, fs)) {
-    const allDeps = {
-      ...packageJson.dependencies,
-      ...packageJson.devDependencies,
-      ...packageJson.peerDependencies,
-    };
-    const typesNode = allDeps['@types/node'];
+    const typesNode = getDependencyVersionSignal(packageJson, '@types/node');
     if (typeof typesNode === 'string' && typesNode !== 'latest' && typesNode !== '*') {
       return typesNode;
     }
