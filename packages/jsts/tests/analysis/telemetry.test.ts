@@ -29,8 +29,10 @@ describe('project analysis telemetry', () => {
     const collector = new ProjectAnalysisTelemetryCollector();
     collector.recordCompilerOptions({
       lib: ['lib.es2022.d.ts', 'dom'],
+      jsxImportSource: '@emotion/react',
       module: ts.ModuleKind.CommonJS,
       strict: true,
+      types: ['@types/node'],
       paths: { '@/*': ['src/*'] },
     });
     collector.recordCompilerOptions({
@@ -40,9 +42,11 @@ describe('project analysis telemetry', () => {
     });
 
     expect(collector.getTelemetry().compilerOptions).toEqual({
+      jsxImportSource: ['@emotion/react'],
       lib: ['dom', 'es2020', 'es2022'],
       module: ['commonjs', 'nodenext'],
       strict: ['true'],
+      types: ['@types/node'],
     });
   });
 
