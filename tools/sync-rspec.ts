@@ -29,7 +29,7 @@
  * - Renders <language>/rule.adoc to HTML → resources/rule-data/<language>/<rule>.html
  */
 import { readdir, readFile, mkdir, writeFile, rm, access } from 'node:fs/promises';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execSync, execFileSync } from 'node:child_process';
@@ -115,6 +115,17 @@ function sanitizeHtml(html: string): string {
   return result;
 }
 
+function hasGeneratedRuleData(path: string): boolean {
+  if (!existsSync(path)) {
+    return false;
+  }
+  try {
+    return readdirSync(path).some(file => /^S\d+\.json$/.test(file));
+  } catch {
+    return false;
+  }
+}
+
 async function exists(path: string): Promise<boolean> {
   try {
     await access(path);
@@ -161,14 +172,20 @@ if (pinnedSha) {
 // For managed clones, check if rspec has changed since last sync
 if (isManagedClone && existsSync(shaFile)) {
   const storedSha = readFileSync(shaFile, 'utf-8').trim();
+  const hasOutputData = hasGeneratedRuleData(outputDir);
 
   if (pinnedSha) {
     // Pinned SHA: skip check is local, no network needed
-    if (storedSha === pinnedSha) {
+    if (storedSha === pinnedSha && hasOutputData) {
       console.log(
         `RSPEC ${language} rules are up to date (${storedSha.slice(0, 8)}), skipping sync`,
       );
       process.exit(0);
+    }
+    if (storedSha === pinnedSha && !hasOutputData) {
+      console.log(
+        `RSPEC ${language} SHA matches (${storedSha.slice(0, 8)}) but local rule data is missing, syncing`,
+      );
     }
   } else {
     // No pin: check remote branch SHA via ls-remote (fast, no clone)
@@ -179,11 +196,16 @@ if (isManagedClone && existsSync(shaFile)) {
         { encoding: 'utf-8' },
       );
       const remoteSha = remoteInfo.split('\t')[0].trim();
-      if (remoteSha && remoteSha === storedSha) {
+      if (remoteSha && remoteSha === storedSha && hasOutputData) {
         console.log(
           `RSPEC ${language} rules are up to date (${remoteSha.slice(0, 8)}), skipping sync`,
         );
         process.exit(0);
+      }
+      if (remoteSha && remoteSha === storedSha && !hasOutputData) {
+        console.log(
+          `RSPEC ${language} SHA matches (${remoteSha.slice(0, 8)}) but local rule data is missing, syncing`,
+        );
       }
     } catch {
       // If ls-remote fails (e.g. offline), continue with sync
@@ -202,25 +224,41 @@ if (!existsSync(join(rspecPath, 'rules'))) {
     ? `https://x-access-token:${token}@github.com/SonarSource/rspec.git`
     : RSPEC_REPO_SSH;
   mkdirSync(rspecPath, { recursive: true });
-  const cloneRef = pinnedSha ?? RSPEC_BRANCH;
-  execSync(`git clone --depth 1 --sparse --branch ${cloneRef} ${repoUrl} ${rspecPath}`, {
+  execSync(`git clone --depth 1 --sparse --branch ${RSPEC_BRANCH} ${repoUrl} ${rspecPath}`, {
     stdio: 'inherit',
   });
   execSync('git sparse-checkout set rules shared_content', {
     cwd: rspecPath,
     stdio: 'inherit',
   });
+  if (pinnedSha) {
+    try {
+      execSync(`git fetch --depth 1 origin ${pinnedSha} && git checkout --detach FETCH_HEAD`, {
+        cwd: rspecPath,
+        stdio: 'inherit',
+      });
+    } catch {
+      console.error(`Error: Failed to fetch pinned rspec SHA ${pinnedSha}`);
+      process.exit(1);
+    }
+  }
 } else if (isManagedClone) {
   // Only auto-fetch for the managed clone, not user-provided paths
-  const fetchRef = pinnedSha ?? RSPEC_BRANCH;
   console.log(
     `Fetching rspec (${pinnedSha ? pinnedSha.slice(0, 8) : 'latest'}) into ${rspecPath}...`,
   );
   try {
-    execSync(`git fetch --depth 1 origin ${fetchRef} && git reset --hard FETCH_HEAD`, {
-      cwd: rspecPath,
-      stdio: 'inherit',
-    });
+    if (pinnedSha) {
+      execSync(`git fetch --depth 1 origin ${pinnedSha} && git checkout --detach FETCH_HEAD`, {
+        cwd: rspecPath,
+        stdio: 'inherit',
+      });
+    } else {
+      execSync(`git fetch --depth 1 origin ${RSPEC_BRANCH} && git reset --hard FETCH_HEAD`, {
+        cwd: rspecPath,
+        stdio: 'inherit',
+      });
+    }
   } catch {
     console.warn('Warning: Failed to fetch rspec, using existing data');
   }
