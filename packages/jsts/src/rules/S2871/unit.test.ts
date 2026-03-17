@@ -439,11 +439,9 @@ describe('S2871', () => {
         { code: `Object.keys({ a: 1 }).toSorted()` },
         { code: `Object.getOwnPropertyNames({ a: 1 }).sort()` },
         { code: `Object.getOwnPropertyNames({ a: 1 }).toSorted()` },
-        // AST-based suppression: Array.from(iterable.keys/entries/values())
+        // AST-based suppression: Array.from(x.keys()) - keys() is typically string-returning (Map/Set/Object)
         { code: `Array.from(map.keys()).sort()` },
         { code: `Array.from(map.keys()).toSorted()` },
-        { code: `Array.from(map.entries()).sort()` },
-        { code: `Array.from(map.entries()).toSorted()` },
         // AST-based suppression: order-independent comparison
         { code: `a.sort() === b.sort()` },
         { code: `a.sort() !== b.sort()` },

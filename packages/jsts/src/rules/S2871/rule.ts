@@ -69,7 +69,7 @@ function isArrayFromIterableMethod(node: estree.Node): boolean {
     arg?.type === 'CallExpression' &&
     arg.callee.type === 'MemberExpression' &&
     arg.callee.property.type === 'Identifier' &&
-    ['keys', 'entries', 'values'].includes(arg.callee.property.name)
+    arg.callee.property.name === 'keys'
   );
 }
 
@@ -81,13 +81,13 @@ function isSpreadIterableMethod(node: estree.Node): boolean {
   return (
     call.callee.type === 'MemberExpression' &&
     call.callee.property.type === 'Identifier' &&
-    ['keys', 'entries', 'values'].includes(call.callee.property.name)
+    call.callee.property.name === 'keys'
   );
 }
 
 /**
  * Checks if the array being sorted comes from Object.keys, Object.getOwnPropertyNames,
- * Map.keys(), Map.entries(), or similar string-returning methods
+ * or Array.from(x.keys()) / [...x.keys()] patterns
  */
 function isArrayFromKeyOrEntryCall(node: estree.Node): boolean {
   return (
