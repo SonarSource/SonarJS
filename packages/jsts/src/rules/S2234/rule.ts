@@ -153,7 +153,7 @@ export const rule: Rule.RuleModule = {
             ancestor.type === 'ArrowFunctionExpression' || ancestor.type === 'FunctionExpression',
         );
 
-      if (!enclosingFunc || enclosingFunc.params.length !== 2) {
+      if (enclosingFunc?.params.length !== 2) {
         return false;
       }
 
