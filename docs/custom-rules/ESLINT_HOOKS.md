@@ -21,7 +21,7 @@ A complete custom rules integration requires:
 3. **Rules Bundle** - packages the ESLint-side JavaScript code
 4. **Rules Definition** - defines rule metadata for SonarQube
 5. **Plugin Class** - registers all components
-6. **Default Profile Registrar (optional)** - implements `ProfileRegistrar` to activate rules in built-in default profile (`Sonar way`)
+6. **Profile Registrar (optional)** - implements `ProfileRegistrar` to activate rules in built-in profiles
 
 ## Implementation Guide
 
@@ -285,9 +285,9 @@ Add the SonarJS API dependency to your `pom.xml`:
 </dependency>
 ```
 
-### 9. Optional: Activate Rules in the Default Built-In Profile
+### 9. Optional: Activate Rules in Built-In Profiles
 
-If you want your rules to be active by default in the built-in default quality profile (`Sonar way`), implement `ProfileRegistrar`:
+If you want your rules to be active by default in built-in quality profiles, implement `ProfileRegistrar`:
 
 ```java
 package com.example.plugin;
@@ -301,12 +301,20 @@ public class MyProfileRegistrar implements ProfileRegistrar {
 
   @Override
   public void register(RegistrarContext registrarContext) {
+    // Backward-compatible shortcut for "Sonar way"
     registrarContext.registerDefaultQualityProfileRules(
       Language.JAVASCRIPT,
       List.of(RuleKey.of(MyRuleRepository.REPOSITORY_KEY, "S1234"))
     );
     registrarContext.registerDefaultQualityProfileRules(
       Language.TYPESCRIPT,
+      List.of(RuleKey.of(MyRuleRepository.REPOSITORY_KEY, "S1234"))
+    );
+
+    // Profile-aware activation using the rspec profile name
+    registrarContext.registerQualityProfileRules(
+      "Agentic",
+      Language.JAVASCRIPT,
       List.of(RuleKey.of(MyRuleRepository.REPOSITORY_KEY, "S1234"))
     );
   }
@@ -327,7 +335,9 @@ context.addExtensions(
 Notes:
 
 - This is `@ServerSide` API and is not used in SonarLint.
-- It contributes to the built-in default profile (`Sonar way`) only.
+- `registerDefaultQualityProfileRules(...)` contributes to `Sonar way`.
+- `registerQualityProfileRules(...)` contributes to the profile name you pass (exact match required).
+- Profile names come from rspec `defaultQualityProfiles` metadata values.
 - Users can still activate/deactivate your rules in any quality profile.
 
 ## API Reference
@@ -353,10 +363,11 @@ Notes:
 
 ### ProfileRegistrar Interface (Optional)
 
-| Method                                    | Description                                                                |
-| ----------------------------------------- | -------------------------------------------------------------------------- |
-| `register(RegistrarContext)`              | Called on server side to contribute additional default-profile activations |
-| `registerDefaultQualityProfileRules(...)` | Adds rule keys to the built-in default profile (`Sonar way`) for JS or TS  |
+| Method                                    | Description                                                                 |
+| ----------------------------------------- | --------------------------------------------------------------------------- |
+| `register(RegistrarContext)`              | Called on server side to contribute additional built-in profile activations |
+| `registerDefaultQualityProfileRules(...)` | Adds rule keys to the built-in default profile (`Sonar way`) for JS or TS   |
+| `registerQualityProfileRules(...)`        | Adds rule keys to a specific built-in profile by name for JS or TS          |
 
 ## Best Practices
 

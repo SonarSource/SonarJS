@@ -26,8 +26,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +56,9 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   public static final String PROFILES_JSON = RESOURCE_PATH + "/profiles.json";
 
   private static final List<ProfileDefinition> PROFILES = loadProfiles();
+  private static final Set<String> PROFILE_NAMES = PROFILES.stream()
+    .map(ProfileDefinition::name)
+    .collect(Collectors.toSet());
   static final String SONAR_JASMIN_RULES_CLASS_NAME = "com.sonar.plugins.jasmin.api.JsRules";
   public static final String SECURITY_RULE_KEYS_METHOD_NAME = "getSecurityRuleKeys";
 
@@ -64,7 +69,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     REPO_BY_LANGUAGE.put(Language.TYPESCRIPT, CheckList.TS_REPOSITORY_KEY);
   }
 
-  private final Map<Language, ArrayList<RuleKey>> additionalRulesByLanguage;
+  private final Map<String, Map<Language, ArrayList<RuleKey>>> additionalRulesByProfileAndLanguage;
 
   /**
    * Constructor used by Pico container (SC) when no ProfileRegistrar are available
@@ -74,19 +79,45 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   }
 
   public JavaScriptProfilesDefinition(ProfileRegistrar[] profileRegistrars) {
-    additionalRulesByLanguage = new EnumMap<>(Language.class);
+    additionalRulesByProfileAndLanguage = new HashMap<>();
     for (var profileRegistrar : profileRegistrars) {
-      profileRegistrar.register((language, rules) -> {
-        var additionalRules = additionalRulesByLanguage.computeIfAbsent(language, it ->
-          new ArrayList<>()
-        );
-        additionalRules.addAll(rules);
-      });
+      profileRegistrar.register(
+        new ProfileRegistrar.RegistrarContext() {
+          @Override
+          public void registerDefaultQualityProfileRules(
+            Language language,
+            Collection<RuleKey> ruleKeys
+          ) {
+            registerQualityProfileRules(
+              ProfileRegistrar.RegistrarContext.DEFAULT_QUALITY_PROFILE,
+              language,
+              ruleKeys
+            );
+          }
+
+          @Override
+          public void registerQualityProfileRules(
+            String qualityProfileName,
+            Language language,
+            Collection<RuleKey> ruleKeys
+          ) {
+            var rulesByLanguage = additionalRulesByProfileAndLanguage.computeIfAbsent(
+              qualityProfileName,
+              ignored -> new EnumMap<>(Language.class)
+            );
+            var additionalRules = rulesByLanguage.computeIfAbsent(language, ignored ->
+              new ArrayList<>()
+            );
+            additionalRules.addAll(ruleKeys);
+          }
+        }
+      );
     }
   }
 
   @Override
   public void define(Context context) {
+    warnOnUnknownProfiles();
     createProfiles(JavaScriptLanguage.KEY, context);
     createProfiles(TypeScriptLanguage.KEY, context);
   }
@@ -101,8 +132,8 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
       language
     );
     activateBuiltInRules(newProfile, profile.path());
+    activateAdditionalRules(newProfile, profile.name());
     if (SONAR_WAY.equals(profile.name())) {
-      activateAdditionalRules(newProfile);
       activateSecurityRules(newProfile, language);
     }
     newProfile.done();
@@ -168,15 +199,33 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
    * Activate additional rules that are provided by other plugins.
    *
    * @param profile profile to activate the rules for
+   * @param profileName quality profile name
    */
-  void activateAdditionalRules(NewBuiltInQualityProfile profile) {
-    var language = profile.language();
-    var rules = additionalRulesByLanguage.get(Language.of(language));
+  void activateAdditionalRules(NewBuiltInQualityProfile profile, String profileName) {
+    var rulesByLanguage = additionalRulesByProfileAndLanguage.get(profileName);
+    if (rulesByLanguage == null) {
+      return;
+    }
+    var language = Language.of(profile.language());
+    var rules = rulesByLanguage.get(language);
     if (rules == null) {
       return;
     }
     rules.forEach(it -> profile.activateRule(it.repository(), it.rule()));
-    LOG.debug("Adding extra {} ruleKeys {}", language, rules);
+    LOG.debug("Adding extra {} ruleKeys {} to profile {}", language, rules, profileName);
+  }
+
+  private void warnOnUnknownProfiles() {
+    additionalRulesByProfileAndLanguage
+      .keySet()
+      .stream()
+      .filter(profileName -> !PROFILE_NAMES.contains(profileName))
+      .forEach(profileName ->
+        LOG.warn(
+          "Ignoring additional rules contribution for unknown built-in quality profile '{}'",
+          profileName
+        )
+      );
   }
 
   /**
