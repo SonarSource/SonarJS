@@ -21,13 +21,13 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 
 /**
- * This class can be extended to provide additional rule keys in the builtin default quality profile.
+ * This class can be extended to provide additional rule keys in built-in quality profiles.
  *
  * <pre>
  *   {@code
  *     public void register(RegistrarContext registrarContext) {
- *       registrarContext.registerDefaultQualityProfileRules(Language.JAVASCRIPT, jsRuleKeys);
- *       registrarContext.registerDefaultQualityProfileRules(Language.TYPESCRIPT, tsRuleKeys);
+ *       registrarContext.registerQualityProfileRules("Sonar way", Language.JAVASCRIPT, jsRuleKeys);
+ *       registrarContext.registerQualityProfileRules("Sonar way", Language.TYPESCRIPT, tsRuleKeys);
  *     }
  *   }
  * </pre>
@@ -35,7 +35,7 @@ import org.sonar.api.server.ServerSide;
 @ServerSide
 public interface ProfileRegistrar {
   /**
-   * This method is called on server side and during an analysis to modify the builtin default quality profile for java.
+   * This method is called on server side and during an analysis to modify built-in quality profiles.
    */
   void register(RegistrarContext registrarContext);
 
@@ -47,5 +47,22 @@ public interface ProfileRegistrar {
      * @param ruleKeys additional rule keys
      */
     void registerDefaultQualityProfileRules(Language language, Collection<RuleKey> ruleKeys);
+
+    /**
+     * Registers additional rules into a built-in quality profile for the given language.
+     * <p>
+     * The profile name is expected to match the profile string coming from rspec metadata
+     * ({@code defaultQualityProfiles}).
+     * </p>
+     *
+     * @param qualityProfileName built-in quality profile name
+     * @param language profile language
+     * @param ruleKeys additional rule keys
+     */
+    void registerQualityProfileRules(
+      String qualityProfileName,
+      Language language,
+      Collection<RuleKey> ruleKeys
+    );
   }
 }
