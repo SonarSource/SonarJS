@@ -98,6 +98,33 @@ const functionBoundaryTypes = new Set([
   'ArrowFunctionExpression',
 ]);
 
+function findVariableInScope(
+  identifier: estree.Identifier,
+  sourceCode: Rule.RuleContext['sourceCode'],
+): Scope.Variable | undefined {
+  let variable: Scope.Variable | undefined;
+  let currentScope: Scope.Scope | null = sourceCode.getScope(identifier);
+  while (currentScope && !variable) {
+    variable = currentScope.variables.find(v => v.name === identifier.name);
+    currentScope = currentScope.upper;
+  }
+  return variable;
+}
+
+function isInsideForIn(startNode: estree.Node): boolean {
+  let current: estree.Node | undefined = getNodeParent(startNode);
+  while (current) {
+    if (current.type === 'ForInStatement') {
+      return true;
+    }
+    if (functionBoundaryTypes.has(current.type)) {
+      return false;
+    }
+    current = getNodeParent(current);
+  }
+  return false;
+}
+
 /**
  * Checks if an identifier refers to a variable that was initialized as an empty array
  * and is only populated by pushing items from for-in loop iterations.
@@ -108,26 +135,19 @@ function isForInKeyArray(
   identifier: estree.Identifier,
   sourceCode: Rule.RuleContext['sourceCode'],
 ): boolean {
-  // Find variable in scope chain
-  let variable: Scope.Variable | undefined;
-  let currentScope: Scope.Scope | null = sourceCode.getScope(identifier);
-  while (currentScope && !variable) {
-    variable = currentScope.variables.find(v => v.name === identifier.name);
-    currentScope = currentScope.upper;
+  const variable = findVariableInScope(identifier, sourceCode);
+  if (variable?.defs.length !== 1) {
+    return false;
   }
 
-  if (!variable || variable.defs.length !== 1) return false;
-
   const def = variable.defs[0];
-  if (def.type !== 'Variable') return false;
+  if (def.type !== 'Variable') {
+    return false;
+  }
 
   // Must be initialized as an empty array
-  const decl = def.node as estree.VariableDeclarator;
-  if (
-    !decl.init ||
-    decl.init.type !== 'ArrayExpression' ||
-    (decl.init as estree.ArrayExpression).elements.length !== 0
-  ) {
+  const decl = def.node;
+  if (decl.init?.type !== 'ArrayExpression' || decl.init.elements.length !== 0) {
     return false;
   }
 
@@ -141,40 +161,26 @@ function isForInKeyArray(
     const memberParent = getNodeParent(refId);
 
     // If reference is not used as object of a method call, it's a plain read (e.g., return arr) - allow
-    if (
-      memberParent?.type !== 'MemberExpression' ||
-      (memberParent as estree.MemberExpression).object !== refId
-    ) {
+    if (memberParent?.type !== 'MemberExpression' || memberParent.object !== refId) {
       continue;
     }
 
     // Reference is object of a member expression - check if it's a push() call
-    const prop = (memberParent as estree.MemberExpression).property;
+    const prop = memberParent.property;
     const callParent = getNodeParent(memberParent);
 
     if (
       prop.type !== 'Identifier' ||
-      (prop as estree.Identifier).name !== 'push' ||
+      prop.name !== 'push' ||
       callParent?.type !== 'CallExpression'
     ) {
       return false; // non-push method call on the array - reject
     }
 
     // push() call - must be inside a for-in statement (not crossing function boundaries)
-    let current: estree.Node | undefined = getNodeParent(callParent);
-    let insideForIn = false;
-    while (current) {
-      if (current.type === 'ForInStatement') {
-        insideForIn = true;
-        break;
-      }
-      if (functionBoundaryTypes.has(current.type)) {
-        break;
-      }
-      current = getNodeParent(current);
+    if (!isInsideForIn(callParent)) {
+      return false; // push outside for-in - reject
     }
-
-    if (!insideForIn) return false; // push outside for-in - reject
 
     hasForInPush = true;
   }
@@ -221,10 +227,7 @@ export const rule: Rule.RuleModule = {
 
         // AST-based suppression: for-in key collection pattern
         // var arr = []; for (var key in obj) arr.push(key); arr.sort()
-        if (
-          object.type === 'Identifier' &&
-          isForInKeyArray(object as estree.Identifier, sourceCode)
-        ) {
+        if (object.type === 'Identifier' && isForInKeyArray(object, sourceCode)) {
           return;
         }
 
