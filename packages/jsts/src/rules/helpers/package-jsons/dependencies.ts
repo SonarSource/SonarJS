@@ -19,6 +19,7 @@ import { ComputedCache } from '../cache.js';
 import type { Minimatch } from 'minimatch';
 import fs from 'node:fs';
 import { minVersion } from 'semver';
+import type { PackageJson } from 'type-fest';
 import { type NormalizedAbsolutePath, normalizeToAbsolutePath, dirnamePath } from '../files.js';
 import { getDependenciesFromPackageJson } from './parse.js';
 import { getClosestPackageJSONDir } from './closest.js';
@@ -105,10 +106,10 @@ export function parseReactVersion(reactVersion: string): string | null {
 }
 
 function getAllDependencySignals(packageJson: {
-  dependencies?: Record<string, unknown>;
-  devDependencies?: Record<string, unknown>;
-  peerDependencies?: Record<string, unknown>;
-  optionalDependencies?: Record<string, unknown>;
+  dependencies?: PackageJson.Dependency;
+  devDependencies?: PackageJson.Dependency;
+  peerDependencies?: PackageJson.Dependency;
+  optionalDependencies?: PackageJson.Dependency;
 }) {
   return {
     ...packageJson.dependencies,
@@ -119,21 +120,42 @@ function getAllDependencySignals(packageJson: {
 }
 
 function getDependencyVersionSignal(
-  packageJson: {
-    dependencies?: Record<string, unknown>;
-    devDependencies?: Record<string, unknown>;
-    peerDependencies?: Record<string, unknown>;
-    optionalDependencies?: Record<string, unknown>;
-  },
+  packageJson: PackageJson,
   dependencyName: string,
 ): string | null {
   const dependencyVersion = getAllDependencySignals(packageJson)[dependencyName];
   return typeof dependencyVersion === 'string' ? dependencyVersion : null;
 }
 
+function isValidDependencySignal(versionSignal: string | null): versionSignal is string {
+  return versionSignal !== null && versionSignal !== 'latest' && versionSignal !== '*';
+}
+
+export function hasTypeScriptNativePreviewSignal(packageJson: PackageJson): boolean {
+  return isValidDependencySignal(
+    getDependencyVersionSignal(packageJson, '@typescript/native-preview'),
+  );
+}
+
+export function getTypeScriptVersionSignalsFromPackageJson(packageJson: PackageJson): string[] {
+  const result: string[] = [];
+  const nativePreviewVersion = getDependencyVersionSignal(
+    packageJson,
+    '@typescript/native-preview',
+  );
+  if (isValidDependencySignal(nativePreviewVersion)) {
+    result.push(nativePreviewVersion);
+  }
+  const typeScriptVersion = getDependencyVersionSignal(packageJson, 'typescript');
+  if (isValidDependencySignal(typeScriptVersion)) {
+    result.push(typeScriptVersion);
+  }
+  return result;
+}
+
 export function isTypeScriptNativePreviewSignal(baseDir: NormalizedAbsolutePath): boolean {
   for (const packageJson of getManifests(baseDir, baseDir, fs)) {
-    if (getDependencyVersionSignal(packageJson, '@typescript/native-preview') !== null) {
+    if (hasTypeScriptNativePreviewSignal(packageJson)) {
       return true;
     }
   }
@@ -149,20 +171,8 @@ export function isTypeScriptNativePreviewSignal(baseDir: NormalizedAbsolutePath)
  */
 export function getTypeScriptVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
   for (const packageJson of getManifests(baseDir, baseDir, fs)) {
-    const nativePreviewVersion = getDependencyVersionSignal(
-      packageJson,
-      '@typescript/native-preview',
-    );
-    if (
-      nativePreviewVersion !== null &&
-      nativePreviewVersion !== 'latest' &&
-      nativePreviewVersion !== '*'
-    ) {
-      return nativePreviewVersion;
-    }
-
-    const typeScriptVersion = getDependencyVersionSignal(packageJson, 'typescript');
-    if (typeScriptVersion !== null && typeScriptVersion !== 'latest' && typeScriptVersion !== '*') {
+    const typeScriptVersion = getTypeScriptVersionSignalsFromPackageJson(packageJson)[0];
+    if (typeScriptVersion) {
       return typeScriptVersion;
     }
   }
