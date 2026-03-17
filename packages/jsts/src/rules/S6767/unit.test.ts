@@ -255,6 +255,23 @@ Button.propTypes = {
 `,
           errors: 1,
         },
+        {
+          // TP: forwardRef present, 'label' is referenced inside the callback (suppressed),
+          // but 'color' is not — it must still be reported
+          code: `
+function Wrapper(props) {
+  const ForwardedInput = React.forwardRef((_, ref) => (
+    <label>{props.label}<input ref={ref} /></label>
+  ));
+  return <ForwardedInput />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+  color: PropTypes.string,
+};
+`,
+          errors: 1,
+        },
       ],
     });
   });

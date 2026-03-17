@@ -53,8 +53,18 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       if (componentNode && hasPropsCall(componentNode, context.sourceCode.visitorKeys)) {
         return;
       }
-      // Suppress FP when the component contains a forwardRef call (closure over outer props).
-      if (componentNode && containsForwardRefCall(componentNode, context.sourceCode.visitorKeys)) {
+      // Suppress FP only when the specific reported prop is referenced inside a forwardRef callback.
+      const { data } = descriptor as { data?: Record<string, string> };
+      const propName = data?.name;
+      if (
+        propName &&
+        componentNode &&
+        isPropReferencedInForwardRefCallback(
+          componentNode,
+          propName,
+          context.sourceCode.visitorKeys,
+        )
+      ) {
         return;
       }
       context.report(descriptor);
@@ -62,14 +72,44 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
-function containsForwardRefCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {
+/**
+ * Returns true only when `propName` (as `props.<propName>`) is referenced inside the body
+ * of at least one forwardRef callback found in the subtree of `root`.
+ * This avoids silencing reports for props that are genuinely unused.
+ */
+function isPropReferencedInForwardRefCallback(
+  root: estree.Node,
+  propName: string,
+  keys: SourceCode.VisitorKeys,
+): boolean {
   if (root.type === 'CallExpression') {
     const call = root as estree.CallExpression;
     if (forwardRefCalleePatterns.some(p => p(call.callee))) {
-      return true;
+      const callback = call.arguments[0] as estree.Node | undefined;
+      if (callback && hasPropMemberReference(callback, propName, keys)) {
+        return true;
+      }
     }
   }
-  return childrenOf(root, keys).some(child => containsForwardRefCall(child, keys));
+  return childrenOf(root, keys).some(child =>
+    isPropReferencedInForwardRefCallback(child, propName, keys),
+  );
+}
+
+function hasPropMemberReference(
+  root: estree.Node,
+  propName: string,
+  keys: SourceCode.VisitorKeys,
+): boolean {
+  if (
+    root.type === 'MemberExpression' &&
+    !root.computed &&
+    isIdentifier(root.object, 'props') &&
+    isIdentifier(root.property, propName)
+  ) {
+    return true;
+  }
+  return childrenOf(root, keys).some(child => hasPropMemberReference(child, propName, keys));
 }
 
 function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {
