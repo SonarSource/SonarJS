@@ -73,26 +73,12 @@ function isArrayFromIterableMethod(node: estree.Node): boolean {
   );
 }
 
-function isSpreadIterableMethod(node: estree.Node): boolean {
-  if (node.type !== 'SpreadElement' || node.argument.type !== 'CallExpression') {
-    return false;
-  }
-  const call = node.argument as estree.CallExpression;
-  return (
-    call.callee.type === 'MemberExpression' &&
-    call.callee.property.type === 'Identifier' &&
-    call.callee.property.name === 'keys'
-  );
-}
-
 /**
  * Checks if the array being sorted comes from Object.keys, Object.getOwnPropertyNames,
- * or Array.from(x.keys()) / [...x.keys()] patterns
+ * or Array.from(x.keys()) patterns
  */
 function isArrayFromKeyOrEntryCall(node: estree.Node): boolean {
-  return (
-    isObjectStaticKeyCall(node) || isArrayFromIterableMethod(node) || isSpreadIterableMethod(node)
-  );
+  return isObjectStaticKeyCall(node) || isArrayFromIterableMethod(node);
 }
 
 /**
