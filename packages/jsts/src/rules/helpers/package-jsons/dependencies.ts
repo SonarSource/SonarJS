@@ -153,32 +153,6 @@ export function getTypeScriptVersionSignalsFromPackageJson(packageJson: PackageJ
   return result;
 }
 
-export function isTypeScriptNativePreviewSignal(baseDir: NormalizedAbsolutePath): boolean {
-  for (const packageJson of getManifests(baseDir, baseDir, fs)) {
-    if (hasTypeScriptNativePreviewSignal(packageJson)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * Gets a TypeScript version signal from package.json at baseDir.
- * Prioritizes @typescript/native-preview, then typescript.
- *
- * @param baseDir project base directory containing package.json
- * @returns raw version string from package.json dependencies, or null if not found
- */
-export function getTypeScriptVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
-  for (const packageJson of getManifests(baseDir, baseDir, fs)) {
-    const typeScriptVersion = getTypeScriptVersionSignalsFromPackageJson(packageJson)[0];
-    if (typeScriptVersion) {
-      return typeScriptVersion;
-    }
-  }
-  return null;
-}
-
 /**
  * Gets a Node.js version signal from the package.json at baseDir.
  * Checks @types/node in all dependency fields first, then engines.node.
