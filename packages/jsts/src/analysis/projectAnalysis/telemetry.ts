@@ -25,7 +25,6 @@ import { packageJsonStore } from './file-stores/index.js';
 import { stripBOM } from '../../rules/helpers/files.js';
 
 const NOT_DETECTED = 'not-detected';
-const REDACTED_PATH = 'redacted-path';
 const PATH_COMPILER_OPTIONS = new Set([
   'baseUrl',
   'declarationDir',
@@ -182,7 +181,8 @@ export class ProjectAnalysisTelemetryCollector {
       if (optionName === 'lib') {
         return [normalizeLibValue(optionValue)];
       }
-      return [sanitizeStringOptionValue(optionName, optionValue)];
+      const sanitized = sanitizeStringOptionValue(optionValue);
+      return sanitized === undefined ? [] : [sanitized];
     }
 
     if (typeof optionValue === 'boolean' || typeof optionValue === 'bigint') {
@@ -190,7 +190,11 @@ export class ProjectAnalysisTelemetryCollector {
     }
 
     if (typeof optionValue === 'object') {
-      const json = JSON.stringify(sanitizeObjectOptionValue(optionName, optionValue));
+      const sanitized = sanitizeObjectOptionValue(optionValue);
+      if (sanitized === undefined) {
+        return [];
+      }
+      const json = JSON.stringify(sanitized);
       return json === undefined ? [] : [json];
     }
 
@@ -244,27 +248,32 @@ function normalizeLibValue(value: string): string {
   return match ? match[1] : value;
 }
 
-function sanitizeStringOptionValue(optionName: string, value: string): string {
+function sanitizeStringOptionValue(value: string): string | undefined {
   if (looksLikeAbsolutePath(value)) {
-    return REDACTED_PATH;
+    return undefined;
   }
   return value;
 }
 
-function sanitizeObjectOptionValue(optionName: string, value: unknown): unknown {
+function sanitizeObjectOptionValue(value: unknown): unknown {
   if (typeof value === 'string') {
-    return sanitizeStringOptionValue(optionName, value);
+    return sanitizeStringOptionValue(value);
   }
   if (Array.isArray(value)) {
-    return value.map(item => sanitizeObjectOptionValue(optionName, item));
+    const sanitizedValues = value.flatMap(item => {
+      const sanitized = sanitizeObjectOptionValue(item);
+      return sanitized === undefined ? [] : [sanitized];
+    });
+    return sanitizedValues.length > 0 ? sanitizedValues : undefined;
   }
   if (value && typeof value === 'object') {
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>).map(([key, nested]) => [
-        key,
-        sanitizeObjectOptionValue(optionName, nested),
-      ]),
+    const sanitizedEntries = Object.entries(value as Record<string, unknown>).flatMap(
+      ([key, nested]) => {
+        const sanitized = sanitizeObjectOptionValue(nested);
+        return sanitized === undefined ? [] : [[key, sanitized] as [string, unknown]];
+      },
     );
+    return sanitizedEntries.length > 0 ? Object.fromEntries(sanitizedEntries) : undefined;
   }
   return value;
 }
