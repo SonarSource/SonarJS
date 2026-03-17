@@ -39,7 +39,10 @@ import { getProgramCacheManager } from '../../program/cache/programCache.js';
 import { clearSourceFileContentCache } from '../../program/cache/sourceFileCache.js';
 import { createStandardProgram } from '../../program/factory.js';
 import { sanitizeProgramReferences } from '../../program/tsconfig/utils.js';
-import type { ProjectAnalysisTelemetryCollector } from './telemetry.js';
+import {
+  getProjectAnalysisTelemetryCollector,
+  type ProjectAnalysisTelemetryCollector,
+} from './telemetry.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -63,9 +66,9 @@ export async function analyzeWithProgram(
   baseDir: NormalizedAbsolutePath,
   canAccessFileSystem: boolean,
   jsTsConfigFields: JsTsConfigFields,
-  telemetry: ProjectAnalysisTelemetryCollector,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
+  const telemetry = getProjectAnalysisTelemetryCollector();
   const foundProgramOptions: ProgramOptions[] = [];
   const processedTSConfigs: Set<NormalizedAbsolutePath> = new Set();
   const tsconfigs = tsConfigStore.getTsConfigs();
@@ -174,14 +177,10 @@ async function analyzeFilesFromEntryPoint(
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
 
   telemetry.recordProgramCreationAttempt();
-  let tsProgram: ts.Program;
-  try {
-    tsProgram = createStandardProgram(programOptions);
-    telemetry.recordProgramCreationSuccess();
-  } catch (e) {
-    telemetry.recordProgramCreationFailure();
-    throw e;
-  }
+  const tsProgram = createStandardProgram(programOptions, {
+    onProgramCreated: () => telemetry.recordProgramCreationSuccess(),
+    onProgramCreationError: () => telemetry.recordProgramCreationFailure(),
+  });
   const detectedEsYear = esLibToYear(programOptions.options.lib);
   telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
 
@@ -252,14 +251,10 @@ async function analyzeFilesFromTsConfig(
     `Creating TypeScript(${ts.version}) program with configuration file ${tsconfig} [lib: ${programOptions.options.lib?.join(', ')}]`,
   );
   programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
-  let tsProgram: ts.Program;
-  try {
-    tsProgram = createStandardProgram(programOptions);
-    telemetry.recordProgramCreationSuccess();
-  } catch (e) {
-    telemetry.recordProgramCreationFailure();
-    throw e;
-  }
+  const tsProgram = createStandardProgram(programOptions, {
+    onProgramCreated: () => telemetry.recordProgramCreationSuccess(),
+    onProgramCreationError: () => telemetry.recordProgramCreationFailure(),
+  });
   const detectedEsYear = esLibToYear(programOptions.options.lib);
   telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
 
