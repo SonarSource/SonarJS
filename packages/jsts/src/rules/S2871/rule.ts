@@ -118,9 +118,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
     const services = context.sourceCode.parserServices;
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
+    const hasTypeChecker = isRequiredParserServices(services);
 
     return {
       'CallExpression[arguments.length=0][callee.type="MemberExpression"]': (
@@ -128,31 +126,40 @@ export const rule: Rule.RuleModule = {
       ) => {
         const { object, property: node } = call.callee as estree.MemberExpression;
         const text = sourceCode.getText(node);
-        const type = getTypeFromTreeNode(object, services);
 
-        if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
-          // Suppress for string arrays (TypeScript type analysis)
-          if (isStringArray(type, services)) {
-            // TypeScript knows the values are strings; default alphabetical sort is intentional
-            return;
-          }
-
-          // Suppress for known string-producing patterns
-          if (isArrayFromKeyOrEntryCall(object)) {
-            // Array from Object.keys(), Map.keys(), etc. - always strings
-            return;
-          }
-
-          // Suppress for order-independent comparisons (a.sort() === b.sort())
-          const parent = getNodeParent(call);
-          if (isInOrderIndependentComparison(parent)) {
-            // Order-independent comparison where alphabetical sort is intentional
-            return;
-          }
-
-          const suggest = getSuggestions(call, type);
-          context.report({ node, suggest, messageId: 'provideCompareFunction' });
+        if (![...sortLike, ...copyingSortLike].includes(text)) {
+          return;
         }
+
+        // AST-based suppression: Object.keys(), Array.from(map.keys()), etc.
+        // Works with or without type checker
+        if (isArrayFromKeyOrEntryCall(object)) {
+          return;
+        }
+
+        // AST-based suppression: order-independent comparison (a.sort() === b.sort())
+        const parent = getNodeParent(call);
+        if (isInOrderIndependentComparison(parent)) {
+          return;
+        }
+
+        if (!hasTypeChecker) {
+          context.report({ node, messageId: 'provideCompareFunction' });
+          return;
+        }
+
+        const type = getTypeFromTreeNode(object, services);
+        if (!isArrayLikeType(type, services)) {
+          return;
+        }
+
+        // Suppress for string arrays (TypeScript type analysis)
+        if (isStringArray(type, services)) {
+          return;
+        }
+
+        const suggest = getSuggestions(call, type);
+        context.report({ node, suggest, messageId: 'provideCompareFunction' });
       },
     };
 

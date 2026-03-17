@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
+import { RuleTester, NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
@@ -430,6 +430,39 @@ describe('S2871', () => {
         ],
       },
     );
+
+    const noTypeCheckingRuleTester = new NoTypeCheckingRuleTester();
+    noTypeCheckingRuleTester.run(`AST-based suppression works without type checker`, rule, {
+      valid: [
+        // AST-based suppression: Object.keys/getOwnPropertyNames always return string[]
+        { code: `Object.keys({ a: 1 }).sort()` },
+        { code: `Object.keys({ a: 1 }).toSorted()` },
+        { code: `Object.getOwnPropertyNames({ a: 1 }).sort()` },
+        { code: `Object.getOwnPropertyNames({ a: 1 }).toSorted()` },
+        // AST-based suppression: Array.from(iterable.keys/entries/values())
+        { code: `Array.from(map.keys()).sort()` },
+        { code: `Array.from(map.keys()).toSorted()` },
+        { code: `Array.from(map.entries()).sort()` },
+        { code: `Array.from(map.entries()).toSorted()` },
+        // AST-based suppression: order-independent comparison
+        { code: `a.sort() === b.sort()` },
+        { code: `a.sort() !== b.sort()` },
+        { code: `a.toSorted() === b.toSorted()` },
+        { code: `a.toSorted() !== b.toSorted()` },
+      ],
+      invalid: [
+        // Without type checker, sort on unknown arrays is still flagged (no suggestions)
+        {
+          code: `[1, 2, 3].sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        { code: `arr.sort()`, errors: [{ messageId: 'provideCompareFunction', suggestions: [] }] },
+        {
+          code: `[1, 2, 3].toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+      ],
+    });
 
     ruleTester.run(
       `A compare function should be provided when using "Array.prototype.toSorted()"`,
