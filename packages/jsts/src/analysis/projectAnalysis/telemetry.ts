@@ -14,11 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { createRequire } from 'node:module';
+import { minVersion } from 'semver';
 import ts from 'typescript';
+import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import {
+  getTypeScriptVersionSignal,
+  isTypeScriptNativePreviewSignal,
+} from '../../rules/helpers/package-jsons/dependencies.js';
 
 const NOT_DETECTED = 'not-detected';
-const require = createRequire(`${process.cwd()}/package.json`);
+
+let projectAnalysisTelemetryCollector: ProjectAnalysisTelemetryCollector | undefined;
 
 type ProgramCreationTelemetry = {
   attempted: number;
@@ -34,9 +40,24 @@ export type ProjectAnalysisTelemetry = {
   programCreation: ProgramCreationTelemetry;
 };
 
+export function resetProjectAnalysisTelemetry(baseDir: NormalizedAbsolutePath) {
+  projectAnalysisTelemetryCollector = new ProjectAnalysisTelemetryCollector(baseDir);
+}
+
+export function getProjectAnalysisTelemetryCollector() {
+  if (!projectAnalysisTelemetryCollector) {
+    throw new Error('Project analysis telemetry collector has not been initialized');
+  }
+  return projectAnalysisTelemetryCollector;
+}
+
+export function getProjectAnalysisTelemetry(): ProjectAnalysisTelemetry {
+  return getProjectAnalysisTelemetryCollector().getTelemetry();
+}
+
 export class ProjectAnalysisTelemetryCollector {
-  private readonly typescriptVersion = normalizeTypeScriptVersion(ts.version);
-  private readonly typescriptNativePreview = detectTypeScriptNativePreview();
+  private readonly typescriptVersion: string;
+  private readonly typescriptNativePreview: boolean;
   private readonly compilerOptionValues = new Map<string, Set<string>>();
   private readonly ecmaScriptVersions = new Set<string>();
   private readonly enumOptionValues = buildEnumOptionValues();
@@ -45,6 +66,11 @@ export class ProjectAnalysisTelemetryCollector {
     succeeded: 0,
     failed: 0,
   };
+
+  constructor(baseDir: NormalizedAbsolutePath) {
+    this.typescriptVersion = detectTypeScriptVersion(baseDir);
+    this.typescriptNativePreview = isTypeScriptNativePreviewSignal(baseDir);
+  }
 
   recordCompilerOptions(options: ts.CompilerOptions | undefined) {
     if (!options) {
@@ -145,19 +171,15 @@ export class ProjectAnalysisTelemetryCollector {
   }
 }
 
-function normalizeTypeScriptVersion(version: unknown): string {
-  if (typeof version !== 'string' || version.trim().length === 0) {
+function detectTypeScriptVersion(baseDir: NormalizedAbsolutePath): string {
+  const typeScriptSignal = getTypeScriptVersionSignal(baseDir);
+  if (!typeScriptSignal) {
     return NOT_DETECTED;
   }
-  return version;
-}
-
-function detectTypeScriptNativePreview(): boolean {
   try {
-    const pkg = require('typescript/package.json') as { name?: unknown };
-    return pkg.name === '@typescript/native-preview';
+    return minVersion(typeScriptSignal)?.version ?? NOT_DETECTED;
   } catch {
-    return false;
+    return NOT_DETECTED;
   }
 }
 
