@@ -9,7 +9,8 @@
     "packages/bridge/src/worker.ts",
     "its/**",
     "tools/header.ts",
-    "tools/new-plugin.ts"
+    "tools/new-plugin.ts",
+    "tools/sync-rspec.ts"
   ],
   "project": ["packages/**/*.ts", "tools/**/*.ts"],
   "ignoreDependencies": [
