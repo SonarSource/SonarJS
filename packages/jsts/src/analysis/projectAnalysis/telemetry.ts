@@ -169,7 +169,7 @@ export class ProjectAnalysisTelemetryCollector {
     }
 
     if (typeof optionValue === 'object') {
-      return [stableJsonStringify(optionValue)];
+      return [JSON.stringify(optionValue)];
     }
 
     return [String(optionValue)];
@@ -237,19 +237,4 @@ function buildEnumOptionValues(): Map<string, Map<number, string>> {
     }
   }
   return enums;
-}
-
-function stableJsonStringify(value: unknown): string {
-  if (Array.isArray(value)) {
-    return `[${value.map(stableJsonStringify).join(',')}]`;
-  }
-  if (value && typeof value === 'object') {
-    const entries = Object.entries(value as Record<string, unknown>).sort(([a], [b]) =>
-      a.localeCompare(b),
-    );
-    return `{${entries
-      .map(([key, nested]) => `${JSON.stringify(key)}:${stableJsonStringify(nested)}`)
-      .join(',')}}`;
-  }
-  return JSON.stringify(value);
 }
