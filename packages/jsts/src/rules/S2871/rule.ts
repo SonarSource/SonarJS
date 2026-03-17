@@ -53,7 +53,7 @@ function isObjectStaticKeyCall(node: estree.Node): boolean {
     node.callee.object.type === 'Identifier' &&
     node.callee.object.name === 'Object' &&
     node.callee.property.type === 'Identifier' &&
-    ['keys', 'getOwnPropertyNames', 'getOwnPropertySymbols'].includes(node.callee.property.name)
+    ['keys', 'getOwnPropertyNames'].includes(node.callee.property.name)
   );
 }
 

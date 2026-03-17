@@ -461,6 +461,15 @@ describe('S2871', () => {
           code: `[1, 2, 3].toSorted()`,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
+        // Object.getOwnPropertySymbols returns symbol[], not string[] - must be flagged
+        {
+          code: `Object.getOwnPropertySymbols(obj).sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `Object.getOwnPropertySymbols(obj).toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
       ],
     });
 
