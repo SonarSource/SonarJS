@@ -106,7 +106,7 @@
     "@babel/core": "7.29.0",
     "@babel/eslint-parser": "7.28.6",
     "@babel/plugin-proposal-decorators": "7.29.0",
-    "@babel/preset-env": "7.29.0",
+    "@babel/preset-env": "7.29.2",
     "@babel/preset-flow": "7.27.1",
     "@babel/preset-react": "7.28.5",
     "@eslint-community/regexpp": "4.12.2",
