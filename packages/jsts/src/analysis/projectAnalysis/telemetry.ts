@@ -53,6 +53,10 @@ export function getProjectAnalysisTelemetryCollector() {
   return projectAnalysisTelemetryCollector;
 }
 
+export function getOptionalProjectAnalysisTelemetryCollector() {
+  return projectAnalysisTelemetryCollector;
+}
+
 export function getProjectAnalysisTelemetry(): ProjectAnalysisTelemetry {
   return getProjectAnalysisTelemetryCollector().getTelemetry();
 }
@@ -108,7 +112,7 @@ export class ProjectAnalysisTelemetryCollector {
   getTelemetry(): ProjectAnalysisTelemetry {
     const compilerOptions: Record<string, string[]> = {};
     for (const [optionName, values] of this.compilerOptionValues.entries()) {
-      const sorted = Array.from(values).sort();
+      const sorted = Array.from(values).sort((a, b) => a.localeCompare(b));
       if (sorted.length > 0) {
         compilerOptions[optionName] = sorted;
       }
@@ -120,7 +124,7 @@ export class ProjectAnalysisTelemetryCollector {
       compilerOptions,
       ecmaScriptVersions:
         this.ecmaScriptVersions.size > 0
-          ? Array.from(this.ecmaScriptVersions).sort()
+          ? Array.from(this.ecmaScriptVersions).sort((a, b) => a.localeCompare(b))
           : [NOT_DETECTED],
       programCreation: this.programCreation,
     };
@@ -134,10 +138,11 @@ export class ProjectAnalysisTelemetryCollector {
     if (values.length === 0) {
       return;
     }
-    if (!this.compilerOptionValues.has(optionName)) {
-      this.compilerOptionValues.set(optionName, new Set());
+    let target = this.compilerOptionValues.get(optionName);
+    if (!target) {
+      target = new Set<string>();
+      this.compilerOptionValues.set(optionName, target);
     }
-    const target = this.compilerOptionValues.get(optionName)!;
     for (const value of values) {
       target.add(value);
     }
@@ -172,7 +177,8 @@ export class ProjectAnalysisTelemetryCollector {
       return [JSON.stringify(optionValue)];
     }
 
-    return [String(optionValue)];
+    const json = JSON.stringify(optionValue);
+    return json === undefined ? [] : [json];
   }
 }
 
@@ -180,9 +186,9 @@ function normalizeTypeScriptVersions(typeScriptSignals: string[]): string[] {
   const normalizedVersions = new Set<string>();
   for (const signal of typeScriptSignals) {
     try {
-      const version = minVersion(signal)?.version;
-      if (version) {
-        normalizedVersions.add(version);
+      const resolvedVersion = minVersion(signal)?.version;
+      if (resolvedVersion) {
+        normalizedVersions.add(resolvedVersion);
       }
     } catch {
       continue;
@@ -191,21 +197,27 @@ function normalizeTypeScriptVersions(typeScriptSignals: string[]): string[] {
   if (normalizedVersions.size === 0) {
     return [NOT_DETECTED];
   }
-  return Array.from(normalizedVersions).sort();
+  return Array.from(normalizedVersions).sort((a, b) => a.localeCompare(b));
 }
 
 function getAvailablePackageJsons(): PackageJson[] {
   const packageJsons: PackageJson[] = [];
+  let packageJsonFiles: Iterable<{ content: string | Buffer }>;
   try {
-    for (const packageJsonFile of packageJsonStore.getPackageJsons().values()) {
-      const content =
-        typeof packageJsonFile.content === 'string'
-          ? packageJsonFile.content
-          : packageJsonFile.content.toString();
-      packageJsons.push(JSON.parse(stripBOM(content)) as PackageJson);
-    }
+    packageJsonFiles = packageJsonStore.getPackageJsons().values();
   } catch {
-    return [];
+    return packageJsons;
+  }
+  for (const packageJsonFile of packageJsonFiles) {
+    const content =
+      typeof packageJsonFile.content === 'string'
+        ? packageJsonFile.content
+        : packageJsonFile.content.toString();
+    try {
+      packageJsons.push(JSON.parse(stripBOM(content)) as PackageJson);
+    } catch {
+      continue;
+    }
   }
   return packageJsons;
 }

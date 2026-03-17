@@ -25,11 +25,7 @@ import { info } from '../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
 import { getCurrentFilesContext } from './cache/sourceFileCache.js';
 import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/files.js';
-
-type ProgramCreationCallbacks = {
-  onProgramCreated?: () => void;
-  onProgramCreationError?: () => void;
-};
+import { getOptionalProjectAnalysisTelemetryCollector } from '../analysis/projectAnalysis/telemetry.js';
 
 function createBuilderProgramWithHost(
   programOptions: ProgramOptions,
@@ -90,19 +86,16 @@ function createBuilderProgramAndHost(
  * enforces this at compile time.
  *
  * @param programOptions - Program options from createProgramOptions()
- * @param callbacks - Optional hooks triggered on creation success or failure
  * @returns Standard TypeScript Program
  */
-export function createStandardProgram(
-  programOptions: ProgramOptions,
-  callbacks: ProgramCreationCallbacks = {},
-): ts.Program {
+export function createStandardProgram(programOptions: ProgramOptions): ts.Program {
+  const telemetryCollector = getOptionalProjectAnalysisTelemetryCollector();
   try {
     const program = ts.createProgram(programOptions);
-    callbacks.onProgramCreated?.();
+    telemetryCollector?.recordProgramCreationSuccess();
     return program;
   } catch (error) {
-    callbacks.onProgramCreationError?.();
+    telemetryCollector?.recordProgramCreationFailure();
     throw error;
   }
 }
