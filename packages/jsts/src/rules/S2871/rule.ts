@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2871/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type ts from 'typescript';
 import type estree from 'estree';
 import { copyingSortLike, sortLike } from '../helpers/collection.js';
@@ -92,6 +92,96 @@ function isInOrderIndependentComparison(parent: estree.Node | undefined): boolea
   return ['===', '!==', '==', '!='].includes(parent.operator);
 }
 
+const functionBoundaryTypes = new Set([
+  'FunctionDeclaration',
+  'FunctionExpression',
+  'ArrowFunctionExpression',
+]);
+
+/**
+ * Checks if an identifier refers to a variable that was initialized as an empty array
+ * and is only populated by pushing items from for-in loop iterations.
+ * Pattern: var arr = []; for (var key in obj) arr.push(key); arr.sort()
+ * This is semantically equivalent to Object.keys() and safe for default sort.
+ */
+function isForInKeyArray(
+  identifier: estree.Identifier,
+  sourceCode: Rule.RuleContext['sourceCode'],
+): boolean {
+  // Find variable in scope chain
+  let variable: Scope.Variable | undefined;
+  let currentScope: Scope.Scope | null = sourceCode.getScope(identifier);
+  while (currentScope && !variable) {
+    variable = currentScope.variables.find(v => v.name === identifier.name);
+    currentScope = currentScope.upper;
+  }
+
+  if (!variable || variable.defs.length !== 1) return false;
+
+  const def = variable.defs[0];
+  if (def.type !== 'Variable') return false;
+
+  // Must be initialized as an empty array
+  const decl = def.node as estree.VariableDeclarator;
+  if (
+    !decl.init ||
+    decl.init.type !== 'ArrayExpression' ||
+    (decl.init as estree.ArrayExpression).elements.length !== 0
+  ) {
+    return false;
+  }
+
+  // Check all references except init and the current sort() call
+  const otherRefs = variable.references.filter(ref => !ref.init && ref.identifier !== identifier);
+
+  let hasForInPush = false;
+
+  for (const ref of otherRefs) {
+    const refId = ref.identifier;
+    const memberParent = getNodeParent(refId);
+
+    // If reference is not used as object of a method call, it's a plain read (e.g., return arr) - allow
+    if (
+      memberParent?.type !== 'MemberExpression' ||
+      (memberParent as estree.MemberExpression).object !== refId
+    ) {
+      continue;
+    }
+
+    // Reference is object of a member expression - check if it's a push() call
+    const prop = (memberParent as estree.MemberExpression).property;
+    const callParent = getNodeParent(memberParent);
+
+    if (
+      prop.type !== 'Identifier' ||
+      (prop as estree.Identifier).name !== 'push' ||
+      callParent?.type !== 'CallExpression'
+    ) {
+      return false; // non-push method call on the array - reject
+    }
+
+    // push() call - must be inside a for-in statement (not crossing function boundaries)
+    let current: estree.Node | undefined = getNodeParent(callParent);
+    let insideForIn = false;
+    while (current) {
+      if (current.type === 'ForInStatement') {
+        insideForIn = true;
+        break;
+      }
+      if (functionBoundaryTypes.has(current.type)) {
+        break;
+      }
+      current = getNodeParent(current);
+    }
+
+    if (!insideForIn) return false; // push outside for-in - reject
+
+    hasForInPush = true;
+  }
+
+  return hasForInPush; // must have at least one for-in push to confirm the pattern
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     hasSuggestions: true,
@@ -126,6 +216,15 @@ export const rule: Rule.RuleModule = {
         // AST-based suppression: order-independent comparison (a.sort() === b.sort())
         const parent = getNodeParent(call);
         if (isInOrderIndependentComparison(parent)) {
+          return;
+        }
+
+        // AST-based suppression: for-in key collection pattern
+        // var arr = []; for (var key in obj) arr.push(key); arr.sort()
+        if (
+          object.type === 'Identifier' &&
+          isForInKeyArray(object as estree.Identifier, sourceCode)
+        ) {
           return;
         }
 

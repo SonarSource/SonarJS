@@ -447,6 +447,30 @@ describe('S2871', () => {
         { code: `a.sort() !== b.sort()` },
         { code: `a.toSorted() === b.toSorted()` },
         { code: `a.toSorted() !== b.toSorted()` },
+        // AST-based suppression: for-in key collection pattern (semantically equivalent to Object.keys)
+        {
+          code: `
+            var props = [];
+            for (var key in obj) props.push(key);
+            props.sort();
+          `,
+        },
+        {
+          code: `
+            var props = [];
+            for (var key in this.value) props.push(key);
+            return props.sort();
+          `,
+        },
+        // for-in with plain reads (return, etc.) is also suppressed
+        {
+          code: `
+            var props = [];
+            for (var key in obj) props.push(key);
+            props.sort();
+            return props;
+          `,
+        },
       ],
       invalid: [
         // Without type checker, sort on unknown arrays is still flagged (no suggestions)
@@ -466,6 +490,25 @@ describe('S2871', () => {
         },
         {
           code: `Object.getOwnPropertySymbols(obj).toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // for-in pattern with push outside the loop - still flagged
+        {
+          code: `
+            var arr = [];
+            for (var key in obj) arr.push(key);
+            arr.push('extra');
+            arr.sort();
+          `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // for-in pattern but array not initialized as empty - still flagged
+        {
+          code: `
+            var arr = ['initial'];
+            for (var key in obj) arr.push(key);
+            arr.sort();
+          `,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
       ],
