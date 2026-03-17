@@ -511,6 +511,16 @@ describe('S2871', () => {
           `,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
+        // for-in pattern but array is reassigned - still flagged
+        {
+          code: `
+            var arr = [];
+            for (var key in obj) arr.push(key);
+            arr = [1, 2, 3];
+            arr.sort();
+          `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
       ],
     });
 

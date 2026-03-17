@@ -160,8 +160,11 @@ function isForInKeyArray(
     const refId = ref.identifier;
     const memberParent = getNodeParent(refId);
 
-    // If reference is not used as object of a method call, it's a plain read (e.g., return arr) - allow
+    // If reference is not used as object of a method call, check if it's a write (reassignment)
     if (memberParent?.type !== 'MemberExpression' || memberParent.object !== refId) {
+      if (ref.isWrite()) {
+        return false; // reassignment invalidates the pattern
+      }
       continue;
     }
 
