@@ -20,10 +20,14 @@ import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/con
 import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
 import type { CssAnalysisOutput } from '../../../../css/src/analysis/analysis.js';
 import type { FileType, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import type { ParsingError } from '../../../../shared/src/errors/project-analysis.js';
+import type { ProjectAnalysisTelemetry } from './telemetry.js';
+
+// Re-export for backward compatibility
+export { type JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
+  telemetry?: ProjectAnalysisTelemetry;
 };
 
 // Brand for the FileResults container - ensures type-safe iteration

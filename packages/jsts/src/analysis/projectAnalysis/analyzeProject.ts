@@ -35,6 +35,7 @@ import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { setSourceFilesContext } from '../../program/cache/sourceFileCache.js';
 import { sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import { ProjectAnalysisTelemetryCollector } from './telemetry.js';
 
 const analysisStatus = {
   cancelled: false,
@@ -64,6 +65,7 @@ export async function analyzeProject(
   analysisStatus.cancelled = false;
   const { rules, bundles, rulesWorkdir } = input;
   const filesToAnalyze = sourceFileStore.getFiles();
+  const telemetry = new ProjectAnalysisTelemetryCollector();
 
   // All files go into pendingFiles — analyzeFile decides per-file whether to
   // run JS/TS analysis, CSS analysis, or both (for Vue/HTML files).
@@ -119,6 +121,7 @@ export async function analyzeProject(
         baseDir,
         canAccessFileSystem,
         jsTsConfigFields,
+        telemetry,
         incrementalResultsChannel,
       );
     }
@@ -147,7 +150,11 @@ export async function analyzeProject(
     error('Analysis has been cancelled');
     incrementalResultsChannel?.({ messageType: 'cancelled' });
   } else {
-    incrementalResultsChannel?.({ ...results.meta, messageType: 'meta' });
+    incrementalResultsChannel?.({
+      ...results.meta,
+      telemetry: telemetry.getTelemetry(),
+      messageType: 'meta',
+    });
   }
   return results;
 }
