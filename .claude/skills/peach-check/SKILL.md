@@ -1,9 +1,8 @@
 ---
 name: peach-check
-description: Fetch the latest Peach Main Analysis run from SonarSource/peachee-js, classify all
-  failed jobs as critical analyzer issues or safe-to-ignore infrastructure problems, and print a
-  summary table. Use before a SonarJS release to verify analyzer stability.
-disable-model-invocation: true
+description: Use before a SonarJS release or when the nightly Peach Main Analysis workflow shows
+  failures that need triage. Classifies each failure as a critical analyzer bug or a safe-to-ignore
+  infrastructure problem.
 ---
 
 # Peach Main Analysis Check
@@ -25,13 +24,7 @@ and produces a summary. It is self-contained: all instructions are in this file 
 
 ## Execution
 
-You are the **orchestrator**. Follow these phases exactly.
-
----
-
-### Phase 1: Fetch failed jobs
-
-**Step 1.1 — Find the run to analyse**
+**Step 1 — Find the run to analyse**
 
 If the user provided a `run-id`, use it directly.
 
@@ -48,7 +41,7 @@ gh run list \
 
 Pick the most recent run with `status == "completed"` (meaning finished running, not necessarily passed — a completed run can have failed jobs, which is what we're looking for). Record its `databaseId` as `RUN_ID`.
 
-**Step 1.2 — Collect all failed jobs**
+**Step 2 — Collect all failed jobs**
 
 The run has ~250 jobs across 3 pages. Fetch all three pages and collect jobs where
 `conclusion == "failure"`:
@@ -59,9 +52,10 @@ gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100&page=
 gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100&page=3"
 ```
 
-For each page, collect jobs where `conclusion == "failure"`. Record each job's `name`, `id`, and `completedAt`.
+For each page, collect jobs where `conclusion == "failure"`. Record each job's `name`, `id`, and
+`completedAt` (may be `null` — see Step 6 for handling).
 
-**Step 1.3 — Early exit if no failures**
+**Step 3 — Early exit if no failures**
 
 If there are no failed jobs, print:
 
@@ -71,7 +65,7 @@ If there are no failed jobs, print:
 
 Then stop.
 
-**Step 1.4 — Read the classification guide and download all logs**
+**Step 4 — Read the classification guide and download all logs**
 
 Read `docs/peach-main-analysis.md` once to load the failure categories and decision flowchart.
 
@@ -79,7 +73,7 @@ Then, in a SINGLE message, download all job logs in parallel:
 
 ```bash
 gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs" \
-  | grep -A 15 "ERROR\|exit code\|EXECUTION FAILURE\|IllegalStateException\|SocketTimeoutException"
+  | grep -A 15 "ERROR\|exit code\|EXECUTION FAILURE\|IllegalStateException\|SocketTimeoutException\|All 3 attempts\|does not exist\|OUTDATED_LOCKFILE\|ERESOLVE"
 ```
 
 Run one command per failed job, all concurrently.
@@ -87,49 +81,41 @@ Run one command per failed job, all concurrently.
 > **Fallback:** If `gh api` is blocked by permission restrictions, try fetching logs via
 > `gh run view --log --job JOB_ID --repo SonarSource/peachee-js` instead.
 
-**Step 1.5 — Launch parallel assessment agents**
+**Step 5 — Classify each job**
 
-In a SINGLE message, launch one Agent tool call per failed job. All agents run concurrently.
+Using the decision flowchart from the classification guide, classify each job directly from the
+logs. Most failures are unambiguous (clone timeout, dep install failure, project misconfiguration)
+and need no further help.
 
-Pass the classification rules and log output inline so agents do not need to read any files or
-make network calls. Each agent receives this prompt (fill in JOB_NAME, JOB_ID, LOGS, CLASSIFICATION_RULES):
+**Only launch parallel agents when** a job's logs are ambiguous — e.g. an unfamiliar stack trace
+or an exit code that doesn't match any known category. Launch one Agent per ambiguous job,
+all concurrently, passing the classification rules and log excerpt inline:
 
 ```
 You are assessing a failed job in the Peach Main Analysis workflow.
 
 Job: JOB_NAME
-Job ID: JOB_ID
+Classification rules: <classification-rules>CLASSIFICATION_RULES</classification-rules>
+Job logs: <job-logs>LOGS</job-logs>
 
-Classification rules:
-<classification-rules>
-CLASSIFICATION_RULES
-</classification-rules>
-
-Job logs (filtered for errors):
-<job-logs>
-LOGS
-</job-logs>
-
-Using the decision flowchart in the classification rules, classify this failure and return:
-
+Classify and return:
    Job: JOB_NAME
    Verdict: CRITICAL | IGNORE | NEEDS-MANUAL-REVIEW
-   Category: <category name from the classification rules>
-   Evidence: <the key log line(s) that led to this verdict, max 2 lines>
-
-Do not do anything else. Just classify and return the assessment.
+   Category: <category name>
+   Evidence: <key log line(s), max 2>
 ```
 
-**Step 1.6 — Collect results and print summary**
+If an agent returns no structured assessment, record that job as `NEEDS-MANUAL-REVIEW` with
+evidence `Agent returned no output`.
 
-Wait for all agents to return. If any agent returned no structured assessment, record that job as
-`NEEDS-MANUAL-REVIEW` with evidence `Agent returned no output`.
+**Step 6 — Print summary**
 
-**Cluster check:** If 2 or more jobs share the same category and their `completedAt` timestamps
-fall within a 5-minute window, add a note beneath the table:
+**Cluster check:** If 2 or more jobs share the same category, check whether they failed within a
+5-minute window. Use `completedAt` timestamps if available; otherwise extract the timestamp prefix
+from log lines (format: `2026-MM-DDTHH:MM:SS.`). If clustered, add a note beneath the table:
 > ⚠️ N jobs failed with the same pattern within a 5-minute window — likely caused by a single infrastructure event.
 
-Sort rows by verdict in this order: CRITICAL first, then NEEDS-MANUAL-REVIEW, then IGNORE.
+Sort rows by verdict: CRITICAL first, then NEEDS-MANUAL-REVIEW, then IGNORE.
 Place the Category column first:
 
 ```
@@ -154,9 +140,8 @@ The release recommendation is:
 - **NOT SAFE** — one or more CRITICAL jobs
 - **REVIEW NEEDED** — zero CRITICAL but one or more NEEDS-MANUAL-REVIEW jobs
 
-**Step 1.7 — Update docs if a new failure pattern was found**
+**Step 7 — Update docs if a new failure pattern was found**
 
-If any job was classified as NEEDS-MANUAL-REVIEW and you were able to identify its root cause
-during this session, update `docs/peach-main-analysis.md` with a new category entry and add the
-corresponding branch to the decision flowchart. This keeps the classification guide current for
-future runs.
+If any job was classified as NEEDS-MANUAL-REVIEW and you identified its root cause during this
+session, update `docs/peach-main-analysis.md` with a new category entry. This keeps the
+classification guide current for future runs.
