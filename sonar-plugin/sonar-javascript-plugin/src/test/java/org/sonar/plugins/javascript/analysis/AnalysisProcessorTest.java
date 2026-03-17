@@ -30,8 +30,10 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.css.CssRules;
+import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
 import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Highlight;
@@ -39,6 +41,8 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.HighlightedSymbol;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Location;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Metrics;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
 
 class AnalysisProcessorTest {
 
@@ -196,5 +200,125 @@ class AnalysisProcessorTest {
     );
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs()).contains("Failed to save issue in " + file.uri() + " at line 2");
+  }
+
+  @Test
+  void should_raise_css_parsing_error_issue_when_language_is_css() {
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
+    var cssRules = mock(CssRules.class);
+    when(cssRules.getActiveSonarKey("CssSyntaxError")).thenReturn(RuleKey.of("css", "S2260"));
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      cssRules
+    );
+    var checks = mock(JsTsChecks.class);
+    when(checks.parsingErrorRuleKey()).thenReturn(RuleKey.of("javascript", "S2260"));
+
+    var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    var file = TestInputFileBuilder.create("moduleKey", "file.css")
+      .setLanguage("css")
+      .setContents("a {\n  color: red;\n")
+      .build();
+
+    var response = new AnalysisResponse(
+      new ParsingError("Unclosed block", 2, ParsingErrorCode.PARSING, "css"),
+      List.of(),
+      List.of(),
+      List.of(),
+      new Metrics(),
+      List.of(),
+      null
+    );
+
+    processor.processResponse(context, checks, file, response);
+
+    assertThat(context.getSensorContext().allIssues()).hasSize(1);
+    assertThat(context.getSensorContext().allIssues().iterator().next().ruleKey()).isEqualTo(
+      RuleKey.of("css", "S2260")
+    );
+  }
+
+  @Test
+  void should_resolve_parsing_error_rule_key_using_parsing_error_language() {
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
+    var cssRules = mock(CssRules.class);
+    when(cssRules.getActiveSonarKey("CssSyntaxError")).thenReturn(RuleKey.of("css", "S2260"));
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      cssRules
+    );
+    var checks = mock(JsTsChecks.class);
+    when(checks.parsingErrorRuleKey(Language.JAVASCRIPT)).thenReturn(
+      RuleKey.of("javascript", "S2260")
+    );
+    when(checks.parsingErrorRuleKey()).thenReturn(RuleKey.of("javascript", "S2260"));
+
+    var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    var file = TestInputFileBuilder.create("moduleKey", "file.html")
+      .setLanguage("web")
+      .setContents("<script>\nconst a = ;\n</script>")
+      .build();
+
+    var response = new AnalysisResponse(
+      new ParsingError("Unexpected token", 2, ParsingErrorCode.PARSING, "js"),
+      List.of(),
+      List.of(),
+      List.of(),
+      new Metrics(),
+      List.of(),
+      null
+    );
+
+    processor.processResponse(context, checks, file, response);
+
+    assertThat(context.getSensorContext().allIssues()).hasSize(1);
+    assertThat(context.getSensorContext().allIssues().iterator().next().ruleKey()).isEqualTo(
+      RuleKey.of("javascript", "S2260")
+    );
+  }
+
+  @Test
+  void should_resolve_css_parsing_error_in_html_using_css_rule_key() {
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
+    var cssRules = mock(CssRules.class);
+    when(cssRules.getActiveSonarKey("CssSyntaxError")).thenReturn(RuleKey.of("css", "S2260"));
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      cssRules
+    );
+    var checks = mock(JsTsChecks.class);
+    when(checks.parsingErrorRuleKey(Language.JAVASCRIPT)).thenReturn(
+      RuleKey.of("javascript", "S2260")
+    );
+    when(checks.parsingErrorRuleKey()).thenReturn(RuleKey.of("javascript", "S2260"));
+
+    var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    var file = TestInputFileBuilder.create("moduleKey", "file.html")
+      .setLanguage("web")
+      .setContents("<style>\na {\n</style>")
+      .build();
+
+    var response = new AnalysisResponse(
+      new ParsingError("Unclosed block", 2, ParsingErrorCode.PARSING, "css"),
+      List.of(),
+      List.of(),
+      List.of(),
+      new Metrics(),
+      List.of(),
+      null
+    );
+
+    processor.processResponse(context, checks, file, response);
+
+    assertThat(context.getSensorContext().allIssues()).hasSize(1);
+    assertThat(context.getSensorContext().allIssues().iterator().next().ruleKey()).isEqualTo(
+      RuleKey.of("css", "S2260")
+    );
   }
 }

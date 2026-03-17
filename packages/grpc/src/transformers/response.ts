@@ -29,6 +29,11 @@ import type { NormalizedAbsolutePath } from '../../../jsts/src/rules/helpers/fil
  * the error is reported as an issue with this rule key.
  */
 const PARSING_ERROR_RULE_KEY = 'S2260';
+const PARSING_ERROR_REPO_BY_LANGUAGE = {
+  css: 'css',
+  js: 'javascript',
+  ts: 'typescript',
+} as const;
 
 function isValidOneBasedLine(line: number): line is number {
   return line >= 1;
@@ -154,11 +159,16 @@ function transformParsingErrorIssue(
   message: string,
   filePath: NormalizedAbsolutePath,
   line: number | undefined,
+  language: 'css' | 'js' | 'ts' | undefined,
 ): analyzer.IIssue {
+  const repo =
+    language !== undefined
+      ? PARSING_ERROR_REPO_BY_LANGUAGE[language]
+      : PARSING_ERROR_REPO_BY_LANGUAGE.js;
   return {
     filePath,
     message,
-    rule: { repo: 'javascript', rule: PARSING_ERROR_RULE_KEY },
+    rule: { repo, rule: PARSING_ERROR_RULE_KEY },
     textRange: line !== undefined ? toTextRange(line, 0, undefined, undefined) : undefined,
     flows: [],
   };
@@ -232,7 +242,7 @@ export function transformProjectOutputToResponse(
     }
 
     if ('parsingError' in fileResult) {
-      const { message, line } = fileResult.parsingError;
+      const { message, line, language } = fileResult.parsingError;
 
       analysisProblems.push({
         type: analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_PARSING,
@@ -241,7 +251,7 @@ export function transformProjectOutputToResponse(
       });
 
       issues.push(
-        transformParsingErrorIssue(message, originalPath as NormalizedAbsolutePath, line),
+        transformParsingErrorIssue(message, originalPath as NormalizedAbsolutePath, line, language),
       );
       continue;
     }

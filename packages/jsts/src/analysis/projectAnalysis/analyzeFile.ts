@@ -148,8 +148,15 @@ async function analyzeInput(
   try {
     return await getAnalyzerForFile(input, shouldIgnoreParams);
   } catch (e) {
-    return handleError(serializeError(e));
+    return handleError(serializeError(e), parsingErrorLanguage(input, shouldIgnoreParams));
   }
+}
+
+function parsingErrorLanguage(
+  input: JsTsAnalysisInput,
+  shouldIgnoreParams: ShouldIgnoreFileParams,
+): 'js' | 'ts' | 'css' {
+  return isCssFile(input.filePath, shouldIgnoreParams.cssSuffixes) ? 'css' : input.language;
 }
 
 async function getAnalyzerForFile(
