@@ -40,8 +40,6 @@ public interface ProfileRegistrar {
   void register(RegistrarContext registrarContext);
 
   interface RegistrarContext {
-    String DEFAULT_QUALITY_PROFILE = "Sonar way";
-
     /**
      * Registers additional rules into the "Sonar Way" default quality profile for the given language.
      *
@@ -61,14 +59,10 @@ public interface ProfileRegistrar {
      * @param language profile language
      * @param ruleKeys additional rule keys
      */
-    default void registerQualityProfileRules(
+    void registerQualityProfileRules(
       String qualityProfileName,
       Language language,
       Collection<RuleKey> ruleKeys
-    ) {
-      if (DEFAULT_QUALITY_PROFILE.equals(qualityProfileName)) {
-        registerDefaultQualityProfileRules(language, ruleKeys);
-      }
-    }
+    );
   }
 }

@@ -56,9 +56,6 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
   public static final String PROFILES_JSON = RESOURCE_PATH + "/profiles.json";
 
   private static final List<ProfileDefinition> PROFILES = loadProfiles();
-  private static final Set<String> PROFILE_NAMES = PROFILES.stream()
-    .map(ProfileDefinition::name)
-    .collect(Collectors.toSet());
   static final String SONAR_JASMIN_RULES_CLASS_NAME = "com.sonar.plugins.jasmin.api.JsRules";
   public static final String SECURITY_RULE_KEYS_METHOD_NAME = "getSecurityRuleKeys";
 
@@ -88,11 +85,7 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
             Language language,
             Collection<RuleKey> ruleKeys
           ) {
-            registerQualityProfileRules(
-              ProfileRegistrar.RegistrarContext.DEFAULT_QUALITY_PROFILE,
-              language,
-              ruleKeys
-            );
+            registerQualityProfileRules(SONAR_WAY, language, ruleKeys);
           }
 
           @Override
@@ -117,7 +110,6 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
 
   @Override
   public void define(Context context) {
-    warnOnUnknownProfiles();
     createProfiles(JavaScriptLanguage.KEY, context);
     createProfiles(TypeScriptLanguage.KEY, context);
   }
@@ -213,19 +205,6 @@ public class JavaScriptProfilesDefinition implements BuiltInQualityProfilesDefin
     }
     rules.forEach(it -> profile.activateRule(it.repository(), it.rule()));
     LOG.debug("Adding extra {} ruleKeys {} to profile {}", language, rules, profileName);
-  }
-
-  private void warnOnUnknownProfiles() {
-    additionalRulesByProfileAndLanguage
-      .keySet()
-      .stream()
-      .filter(profileName -> !PROFILE_NAMES.contains(profileName))
-      .forEach(profileName ->
-        LOG.warn(
-          "Ignoring additional rules contribution for unknown built-in quality profile '{}'",
-          profileName
-        )
-      );
   }
 
   /**
