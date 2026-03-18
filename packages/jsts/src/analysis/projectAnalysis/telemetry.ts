@@ -197,13 +197,9 @@ export class ProjectAnalysisTelemetryCollector {
 function normalizeTypeScriptVersions(typeScriptSignals: string[]): string[] {
   const normalizedVersions = new Set<string>();
   for (const signal of typeScriptSignals) {
-    try {
-      const resolvedVersion = minVersion(signal)?.version;
-      if (resolvedVersion) {
-        normalizedVersions.add(resolvedVersion);
-      }
-    } catch {
-      continue;
+    const resolvedVersion = resolveTypeScriptVersion(signal);
+    if (resolvedVersion !== undefined) {
+      normalizedVersions.add(resolvedVersion);
     }
   }
   if (normalizedVersions.size === 0) {
@@ -212,26 +208,40 @@ function normalizeTypeScriptVersions(typeScriptSignals: string[]): string[] {
   return Array.from(normalizedVersions).sort((a, b) => a.localeCompare(b));
 }
 
+function resolveTypeScriptVersion(typeScriptSignal: string): string | undefined {
+  try {
+    return minVersion(typeScriptSignal)?.version;
+  } catch {
+    return undefined;
+  }
+}
+
 function getAvailablePackageJsons(): PackageJson[] {
   const packageJsons: PackageJson[] = [];
-  let packageJsonFiles: Iterable<{ content: string | Buffer }>;
-  try {
-    packageJsonFiles = packageJsonStore.getPackageJsons().values();
-  } catch {
-    return packageJsons;
-  }
-  for (const packageJsonFile of packageJsonFiles) {
-    const content =
-      typeof packageJsonFile.content === 'string'
-        ? packageJsonFile.content
-        : packageJsonFile.content.toString();
-    try {
-      packageJsons.push(JSON.parse(stripBOM(content)) as PackageJson);
-    } catch {
-      continue;
+  for (const packageJsonFile of getPackageJsonFiles()) {
+    const packageJson = parsePackageJsonFile(packageJsonFile.content);
+    if (packageJson !== undefined) {
+      packageJsons.push(packageJson);
     }
   }
   return packageJsons;
+}
+
+function getPackageJsonFiles(): Iterable<{ content: string | Buffer }> {
+  try {
+    return packageJsonStore.getPackageJsons().values();
+  } catch {
+    return [];
+  }
+}
+
+function parsePackageJsonFile(content: string | Buffer): PackageJson | undefined {
+  const packageJsonContent = typeof content === 'string' ? content : content.toString();
+  try {
+    return JSON.parse(stripBOM(packageJsonContent)) as PackageJson;
+  } catch {
+    return undefined;
+  }
 }
 
 function normalizeLibValue(value: string): string {
