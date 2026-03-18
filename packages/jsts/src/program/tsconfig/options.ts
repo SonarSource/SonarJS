@@ -63,10 +63,29 @@ export const defaultCompilerOptions: ts.CompilerOptions = {
   strict: false,
 };
 
-const STRICTNESS_COMPILER_OPTIONS: string[] = [
+type StrictnessCompilerOption =
+  | 'strict'
+  | 'alwaysStrict'
+  | 'noImplicitAny'
+  | 'noImplicitThis'
+  | 'strictBindCallApply'
+  | 'strictBuiltinIteratorReturn'
+  | 'strictFunctionTypes'
+  | 'strictNullChecks'
+  | 'strictPropertyInitialization'
+  | 'useUnknownInCatchVariables';
+
+const STRICTNESS_COMPILER_OPTIONS: StrictnessCompilerOption[] = [
   'strict',
   'alwaysStrict',
-  ...new Set(ts.optionDeclarations.filter(option => option.strictFlag).map(option => option.name)),
+  'noImplicitAny',
+  'noImplicitThis',
+  'strictBindCallApply',
+  'strictBuiltinIteratorReturn',
+  'strictFunctionTypes',
+  'strictNullChecks',
+  'strictPropertyInitialization',
+  'useUnknownInCatchVariables',
 ];
 
 /**
