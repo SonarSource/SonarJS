@@ -53,6 +53,7 @@ export async function generateMetaForRule(
   // Extract ES year from tags like ["es2022", "performance"]
   const ecmaTag = ruleRspecMeta.tags.find((t: string) => /^es20\d\d$/i.test(t));
   const requiredEcmaVersion = ecmaTag ? Number.parseInt(ecmaTag.slice(2), 10) : undefined;
+  const requiredModuleType = getRequiredModuleType(sonarKey, ruleRspecMeta.tags);
 
   await inflateTemplateToFile(
     join(TS_TEMPLATES_FOLDER, 'generated-meta.template'),
@@ -70,10 +71,29 @@ export async function generateMetaForRule(
       ___LANGUAGES___: JSON.stringify(ruleRspecMeta.compatibleLanguages),
       ___SCOPE___: ruleRspecMeta.scope,
       ___REQUIRED_DEPENDENCY___: JSON.stringify(ruleRspecMeta.extra?.requiredDependency ?? []),
+      ___REQUIRED_MODULE_TYPE_EXPORT___:
+        requiredModuleType.length > 0
+          ? `export const requiredModuleType = ${JSON.stringify(requiredModuleType)};`
+          : '',
       ___REQUIRED_ECMA_VERSION_EXPORT___:
         requiredEcmaVersion !== undefined
           ? `export const requiredEcmaVersion = ${requiredEcmaVersion};`
           : '',
     },
   );
+}
+
+function getRequiredModuleType(sonarKey: string, tags: string[]): ('module' | 'commonjs')[] {
+  const esmOnly = tags.includes('esm_only');
+  const cjsOnly = tags.includes('cjs_only');
+  if (esmOnly && cjsOnly) {
+    throw new Error(`Rule ${sonarKey} cannot have both 'esm_only' and 'cjs_only' tags`);
+  }
+  if (esmOnly) {
+    return ['module'];
+  }
+  if (cjsOnly) {
+    return ['commonjs'];
+  }
+  return [];
 }

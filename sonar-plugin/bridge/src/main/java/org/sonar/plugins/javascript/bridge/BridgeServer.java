@@ -278,7 +278,9 @@ public interface BridgeServer extends Startable {
     boolean typescriptNativePreview,
     Map<String, List<String>> compilerOptions,
     List<String> ecmaScriptVersions,
-    @Nullable ProgramCreationTelemetry programCreation
+    @Nullable ProgramCreationTelemetry programCreation,
+    int esmFileCount,
+    int cjsFileCount
   ) {
     public ProjectAnalysisTelemetry {
       typescriptVersions = typescriptVersions != null ? typescriptVersions : List.of();
