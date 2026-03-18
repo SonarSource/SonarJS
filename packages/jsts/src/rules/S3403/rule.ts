@@ -53,7 +53,11 @@ export const rule: Rule.RuleModule = {
     return {
       BinaryExpression: (node: estree.Node) => {
         const { left, operator, right } = node as estree.BinaryExpression;
-        if (['===', '!=='].includes(operator) && !isComparableTo(left, right)) {
+        if (
+          ['===', '!=='].includes(operator) &&
+          !isDefensiveNullishCheck(left, right) &&
+          !isComparableTo(left, right)
+        ) {
           const [actual, expected, outcome] =
             operator === '===' ? ['===', '==', 'false'] : ['!==', '!=', 'true'];
           const operatorToken = context.sourceCode
@@ -78,6 +82,30 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isDefensiveNullishCheck(left: estree.Node, right: estree.Node) {
+  return (
+    (isNullishLiteral(left) && isReferenceLike(right)) ||
+    (isNullishLiteral(right) && isReferenceLike(left))
+  );
+}
+
+function isNullishLiteral(node: estree.Node) {
+  return (
+    (node.type === 'Literal' && node.value === null) ||
+    (node.type === 'Identifier' && node.name === 'undefined') ||
+    (node.type === 'UnaryExpression' && node.operator === 'void')
+  );
+}
+
+function isReferenceLike(node: estree.Node) {
+  return (
+    node.type === 'Identifier' ||
+    node.type === 'MemberExpression' ||
+    node.type === 'ChainExpression' ||
+    node.type === 'ThisExpression'
+  );
+}
 
 /**
  * Checks if a type is indeterminate (its actual value cannot be determined at compile time).

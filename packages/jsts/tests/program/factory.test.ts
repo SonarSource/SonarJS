@@ -111,6 +111,7 @@ describe('factory', () => {
       const options = program.getCompilerOptions();
 
       expect(options.allowJs).toBe(defaultCompilerOptions.allowJs);
+      expect(options.strict).toBe(defaultCompilerOptions.strict);
     });
 
     it('should handle TypeScript syntax correctly', () => {

@@ -79,6 +79,11 @@ describe('S3757', () => {
        }
       `,
         },
+        {
+          code: `
+      new Boolean(true) - 1;
+    `,
+        },
       ],
       invalid: [
         {

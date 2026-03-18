@@ -87,7 +87,7 @@ describe('SonarQube project analysis', () => {
     // Verify it created a TypeScript program
     expect(
       consoleLogMock.calls.some(call =>
-        /Creating TypeScript\(\d+\.\d+\.\d+\) program/.test(call.arguments[0] as string),
+        /Creating TypeScript\([^)]+\) program/.test(call.arguments[0] as string),
       ),
     ).toBe(true);
   });

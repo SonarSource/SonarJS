@@ -42,7 +42,10 @@ export const rule: Rule.RuleModule = {
 
     function isObjectType(...types: ts.Type[]): boolean {
       return types.some(
-        t => !!(t.getFlags() & ts.TypeFlags.Object) && !isDate(t) && t.symbol?.name !== 'Number',
+        t =>
+          !!(t.getFlags() & ts.TypeFlags.Object) &&
+          !isDate(t) &&
+          !['Number', 'Boolean'].includes(t.symbol?.name ?? ''),
       );
     }
 

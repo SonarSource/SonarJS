@@ -202,6 +202,77 @@ describe('createProgramOptions', () => {
     });
   });
 
+  describe('strictness compatibility', () => {
+    const strictnessTs5BaseDir = normalizeToAbsolutePath(path.join(fixtures, 'strictness-ts5'));
+    const strictnessTs6BaseDir = normalizeToAbsolutePath(path.join(fixtures, 'strictness-ts6'));
+
+    it('should apply pre-TS6 strictness defaults when strict options are not configured', () => {
+      const tsConfig = path.join(strictnessTs5BaseDir, 'tsconfig.no-strict.json');
+
+      const { options } = createProgramOptions(
+        tsConfig,
+        undefined,
+        true,
+        undefined,
+        strictnessTs5BaseDir,
+      );
+
+      expect(options.strict).toBe(false);
+      expect(options.strictNullChecks).toBe(false);
+      expect(options.noImplicitAny).toBe(false);
+      expect(options.strictFunctionTypes).toBe(false);
+    });
+
+    it('should preserve explicit strict sub-options and default only missing ones for TS < 6', () => {
+      const tsConfig = path.join(strictnessTs5BaseDir, 'tsconfig.suboption.json');
+
+      const { options } = createProgramOptions(
+        tsConfig,
+        undefined,
+        true,
+        undefined,
+        strictnessTs5BaseDir,
+      );
+
+      expect(options.strict).toBe(false);
+      expect(options.strictNullChecks).toBe(true);
+      expect(options.noImplicitAny).toBe(false);
+      expect(options.strictFunctionTypes).toBe(false);
+    });
+
+    it('should respect strict explicitly configured in extended tsconfig for TS < 6', () => {
+      const tsConfig = path.join(strictnessTs5BaseDir, 'tsconfig.extends-strict.json');
+
+      const { options } = createProgramOptions(
+        tsConfig,
+        undefined,
+        true,
+        undefined,
+        strictnessTs5BaseDir,
+      );
+
+      expect(options.strict).toBe(true);
+      expect(options.strictNullChecks).toBeUndefined();
+      expect(options.noImplicitAny).toBeUndefined();
+    });
+
+    it('should keep TypeScript 6 strict defaults for TS >= 6 projects', () => {
+      const tsConfig = path.join(strictnessTs6BaseDir, 'tsconfig.no-strict.json');
+
+      const { options } = createProgramOptions(
+        tsConfig,
+        undefined,
+        true,
+        undefined,
+        strictnessTs6BaseDir,
+      );
+
+      expect(options.strict).toBeUndefined();
+      expect(options.strictNullChecks).toBeUndefined();
+      expect(options.noImplicitAny).toBeUndefined();
+    });
+  });
+
   describe('caching', () => {
     it('should cache program options', () => {
       const tsConfig = path.join(fixtures, 'tsconfig.json');
@@ -259,6 +330,7 @@ describe('defaultCompilerOptions', () => {
   it('should have expected default values', () => {
     expect(defaultCompilerOptions.allowJs).toBe(true);
     expect(defaultCompilerOptions.noImplicitAny).toBe(true);
+    expect(defaultCompilerOptions.strict).toBe(false);
     expect(defaultCompilerOptions.lib).toBeUndefined();
   });
 });

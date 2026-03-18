@@ -125,7 +125,7 @@ jobs:
           npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Install NPM dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
   populate_npm_cache_win:
     runs-on: github-windows-latest-s
@@ -300,6 +300,7 @@ jobs:
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
         env:
+          NPM_CONFIG_LEGACY_PEER_DEPS: true
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Check README freshness
         if: github.event_name == 'pull_request'
