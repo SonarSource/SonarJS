@@ -40,7 +40,11 @@ import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { defaultOptions, applyTransformations } from '../rules/helpers/configs.js';
 import merge from 'lodash.merge';
-import { getDependencies, getModuleType } from '../rules/helpers/package-jsons/dependencies.js';
+import {
+  getDependencies,
+  getModuleType,
+  type ModuleType,
+} from '../rules/helpers/package-jsons/dependencies.js';
 import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../analysis/projectAnalysis/telemetry.js';
 
@@ -291,12 +295,12 @@ export class Linter {
           (ruleMeta.requiredEcmaVersion as number) <= detectedEsYear;
         const requiredModuleType =
           ruleMeta && 'requiredModuleType' in ruleMeta
-            ? ((ruleMeta as { requiredModuleType?: string[] }).requiredModuleType ?? [])
-            : [];
+            ? ((ruleMeta as { requiredModuleType?: ModuleType }).requiredModuleType ?? undefined)
+            : undefined;
         const satisfiesModuleType =
           detectedModuleType == null ||
-          requiredModuleType.length === 0 ||
-          requiredModuleType.includes(detectedModuleType);
+          requiredModuleType == null ||
+          requiredModuleType === detectedModuleType;
         return (
           fileTypeTargets.includes(fileType) &&
           analysisModes.includes(analysisMode) &&

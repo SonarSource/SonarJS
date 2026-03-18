@@ -72,8 +72,8 @@ export async function generateMetaForRule(
       ___SCOPE___: ruleRspecMeta.scope,
       ___REQUIRED_DEPENDENCY___: JSON.stringify(ruleRspecMeta.extra?.requiredDependency ?? []),
       ___REQUIRED_MODULE_TYPE_EXPORT___:
-        requiredModuleType.length > 0
-          ? `export const requiredModuleType = ${JSON.stringify(requiredModuleType)};`
+        requiredModuleType !== undefined
+          ? `export const requiredModuleType = '${requiredModuleType}';`
           : '',
       ___REQUIRED_ECMA_VERSION_EXPORT___:
         requiredEcmaVersion !== undefined
@@ -83,17 +83,20 @@ export async function generateMetaForRule(
   );
 }
 
-function getRequiredModuleType(sonarKey: string, tags: string[]): ('module' | 'commonjs')[] {
+function getRequiredModuleType(
+  sonarKey: string,
+  tags: string[],
+): 'module' | 'commonjs' | undefined {
   const esmOnly = tags.includes('esm_only');
   const cjsOnly = tags.includes('cjs_only');
   if (esmOnly && cjsOnly) {
     throw new Error(`Rule ${sonarKey} cannot have both 'esm_only' and 'cjs_only' tags`);
   }
   if (esmOnly) {
-    return ['module'];
+    return 'module';
   }
   if (cjsOnly) {
-    return ['commonjs'];
+    return 'commonjs';
   }
-  return [];
+  return undefined;
 }
