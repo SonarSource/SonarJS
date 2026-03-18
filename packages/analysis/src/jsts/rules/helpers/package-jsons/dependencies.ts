@@ -245,6 +245,23 @@ export function getNodeVersionSignal(baseDir: NormalizedAbsolutePath): string | 
   return null;
 }
 
+/**
+ * Gets a TypeScript version signal from the package.json at baseDir.
+ * Checks dependency fields for "typescript" and returns the raw version range.
+ *
+ * @param baseDir project base directory containing package.json
+ * @returns raw version string from typescript dependency, or null if not found
+ */
+export function getTypeScriptVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
+  for (const packageJson of getManifests(baseDir, baseDir, fs)) {
+    const typescriptVersion = getDependencyVersionSignal(packageJson, 'typescript');
+    if (isValidDependencySignal(typescriptVersion)) {
+      return typescriptVersion;
+    }
+  }
+  return null;
+}
+
 function parsePackageJsonContent(content: string | Buffer): PackageJson | undefined {
   const packageJsonContent = typeof content === 'string' ? content : content.toString();
   try {
