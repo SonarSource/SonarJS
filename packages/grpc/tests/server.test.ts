@@ -678,9 +678,8 @@ describe('gRPC server', () => {
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
-  it('should handle customDefault with escaped regex string (S139 — trailing comments)', async () => {
-    // S139 (line-comment-position) config.ts has ignorePattern with default: '^\\s*[^\\s]+$'
-    // and customDefault: '^\\\\s*[^\\\\s]+$' (double-escaped for Java).
+  it('should handle escaped regex string defaults (S139 — trailing comments)', async () => {
+    // S139 (line-comment-position) config.ts has ignorePattern default: '^\\s*[^\\s]+$'.
     // The SQ key is 'pattern' (displayName).
 
     // Multi-word trailing comment doesn't match default ignorePattern → should trigger
@@ -720,9 +719,8 @@ describe('gRPC server', () => {
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
-  it('should handle customDefault with array of escaped regexes (S7718 — catch error name)', async () => {
-    // S7718 config.ts has ignore field with default: array of regexes and
-    // customDefault: same array with double-escaped regexes (for Java).
+  it('should handle escaped regex defaults in arrays (S7718 — catch error name)', async () => {
+    // S7718 config.ts has ignore field default as an array of regexes.
     // The gRPC path should split comma-separated values into an array.
     const content = 'try { foo(); } catch (myVar) { throw myVar; }\n';
 

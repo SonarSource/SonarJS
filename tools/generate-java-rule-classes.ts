@@ -175,10 +175,10 @@ function generateBody(
         case 'boolean':
           return `"" + ${defaultValue}`;
         case 'string':
-          return `"${defaultValue}"`;
+          return `"${escapeJavaString(defaultValue)}"`;
         case 'object': {
           assert(Array.isArray(defaultValue));
-          return `"${defaultValue.join(',')}"`;
+          return `"${escapeJavaString(defaultValue.join(','))}"`;
         }
       }
     };
@@ -190,10 +190,10 @@ function generateBody(
         case 'boolean':
           return `${defaultValue.toString()}`;
         case 'string':
-          return `"${defaultValue}"`;
+          return `"${escapeJavaString(defaultValue)}"`;
         case 'object':
           assert(Array.isArray(defaultValue));
-          return `"${defaultValue.join(',')}"`;
+          return `"${escapeJavaString(defaultValue.join(','))}"`;
       }
     };
 
@@ -201,7 +201,7 @@ function generateBody(
     const defaultValue = getDefaultValueString();
     imports.add('import org.sonar.check.RuleProperty;');
     result.push(
-      `@RuleProperty(key="${property.displayName ?? defaultFieldName}", description = "${property.description}", defaultValue = ${defaultValue}, type="${property.fieldType || ''}")`,
+      `@RuleProperty(key="${escapeJavaString(property.displayName ?? defaultFieldName)}", description = "${escapeJavaString(property.description)}", defaultValue = ${defaultValue}, type="${escapeJavaString(property.fieldType || '')}")`,
     );
     result.push(`${getJavaType()} ${defaultFieldName} = ${getDefaultValue()};`);
     hasSQProperties = true;
