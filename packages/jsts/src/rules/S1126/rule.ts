@@ -54,7 +54,7 @@ export const rule: Rule.RuleModule = {
 
     function getSuggestion(ifStmt: estree.IfStatement, parent: estree.Node) {
       const replacementRange = getReplacementRange(ifStmt, parent);
-      if (hasCommentsInRange(replacementRange)) {
+      if (replacementRange === null || hasCommentsInRange(replacementRange)) {
         return [];
       }
       const getFix = (condition: string) => {
@@ -79,16 +79,6 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function getReplacementRange(ifStmt: estree.IfStatement, parent: estree.Node): [number, number] {
-      if (ifStmt.alternate || parent.type !== 'BlockStatement') {
-        return ifStmt.range!;
-      }
-
-      const ifStmtIndex = parent.body.indexOf(ifStmt);
-      const returnStmt = parent.body[ifStmtIndex + 1];
-      return [ifStmt.range![0], returnStmt.range![1]];
-    }
-
     function hasCommentsInRange(range: [number, number]): boolean {
       return context.sourceCode.getAllComments().some(comment => {
         const commentRange = comment.range;
@@ -99,6 +89,29 @@ export const rule: Rule.RuleModule = {
     }
   },
 };
+
+function getReplacementRange(
+  ifStmt: estree.IfStatement,
+  parent: estree.Node,
+): [number, number] | null {
+  const ifStmtRange = ifStmt.range;
+  if (ifStmtRange === undefined) {
+    return null;
+  }
+
+  if (ifStmt.alternate || parent.type !== 'BlockStatement') {
+    return ifStmtRange;
+  }
+
+  const ifStmtIndex = parent.body.indexOf(ifStmt);
+  const returnStmt = parent.body[ifStmtIndex + 1];
+  const returnStmtRange = returnStmt?.range;
+  if (returnStmtRange === undefined) {
+    return null;
+  }
+
+  return [ifStmtRange[0], returnStmtRange[1]];
+}
 
 function isBlockReturningBooleanLiteral(statement: estree.Statement) {
   return (
