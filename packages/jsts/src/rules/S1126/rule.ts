@@ -90,9 +90,12 @@ export const rule: Rule.RuleModule = {
     }
 
     function hasCommentsInRange(range: [number, number]): boolean {
-      return context.sourceCode
-        .getAllComments()
-        .some(comment => comment.range[0] >= range[0] && comment.range[1] <= range[1]);
+      return context.sourceCode.getAllComments().some(comment => {
+        const commentRange = comment.range;
+        return (
+          commentRange !== undefined && commentRange[0] >= range[0] && commentRange[1] <= range[1]
+        );
+      });
     }
   },
 };
