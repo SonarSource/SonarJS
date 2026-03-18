@@ -88,6 +88,15 @@ el.classList.remove('hidden');
 el.classList.remove('inactive'); // Compliant: not a DOMTokenList
 `,
         },
+        {
+          // importScripts declared with zero parameters → calleeAcceptsMultipleArguments returns false → suppressed
+          // Covers the CallExpression parent path (lines 63-64) and the zero-params early return (line 90)
+          code: `
+declare function importScripts(): void;
+importScripts();
+importScripts();
+`,
+        },
       ],
       invalid: [
         {
@@ -157,6 +166,20 @@ pusher.push(1, 2);
 `,
           errors: 1,
         },
+        {
+          // importScripts with rest params declared via TypeScript → callee accepts multiple args → reported
+          // Covers the CallExpression parent path (lines 63-64) where the reported node is the callee Identifier
+          code: `
+declare function importScripts(...urls: string[]): void;
+importScripts('a.js');
+importScripts('b.js');
+`,
+          output: `
+declare function importScripts(...urls: string[]): void;
+importScripts('a.js', 'b.js');
+`,
+          errors: 1,
+        },
       ],
     });
   });
@@ -189,6 +212,35 @@ const instance = new CustomClass();
 instance.push(1, 2);
 `,
           errors: 1,
+        },
+      ],
+    });
+  });
+});
+
+describe('S7778 decorator TypeScript else-fallback', () => {
+  it('should pass through report when TypeScript is available but node parent is neither MemberExpression nor CallExpression', () => {
+    // When TypeScript services are available but the reported node's parent is neither
+    // a MemberExpression nor a CallExpression, the decorator falls through to the else
+    // branch and forwards the report unchanged (lines 66-67 in decorator.ts).
+    const mockRuleWithLiteral: Rule.RuleModule = {
+      meta: { type: 'suggestion', fixable: 'code', messages: {} },
+      create(ctx) {
+        return {
+          Literal(node) {
+            ctx.report({ node, message: 'else-fallback forwarded' });
+          },
+        };
+      },
+    };
+    const tsRuleTester = new RuleTester();
+    tsRuleTester.run('else-fallback-ts', decorate(mockRuleWithLiteral), {
+      valid: [],
+      invalid: [
+        {
+          // Literal `42` has parent ExpressionStatement — not MemberExpression or CallExpression
+          code: `42;`,
+          errors: [{ message: 'else-fallback forwarded' }],
         },
       ],
     });
