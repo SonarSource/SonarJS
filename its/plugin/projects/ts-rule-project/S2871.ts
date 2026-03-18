@@ -9,7 +9,7 @@ function getArrayOfNumbers(): number[] {}
 getArrayOfNumbers().sort(); // Noncompliant
 
 var arrayOfStrings = ["foo", "bar"];
-arrayOfStrings.sort(); // Noncompliant
+arrayOfStrings.sort();
 
 var arrayOfObjects = [{a: 2}, {a: 4}];
 arrayOfObjects.sort(); // Noncompliant
