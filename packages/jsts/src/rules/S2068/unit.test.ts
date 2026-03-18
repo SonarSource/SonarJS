@@ -216,6 +216,10 @@ describe('S2068', () => {
           code: `const password = isDev ? 'pass' : 'pass';`,
           options,
         },
+        {
+          code: 'const password = `${env.PASSWORD}`;',
+          options,
+        },
         // URL with low-entropy password value
         {
           code: `let url = "https://example.com?password=foo";`,
@@ -241,6 +245,11 @@ describe('S2068', () => {
         },
         {
           code: `const servicePassword = 'Jx!9kL#mP2vN5qW8';`,
+          options,
+          errors: 1,
+        },
+        {
+          code: 'const servicePassword = `Jx!9kL#mP2vN5qW8`;',
           options,
           errors: 1,
         },
@@ -296,6 +305,11 @@ describe('S2068', () => {
         },
         {
           code: `let url = "https://example.com?PASSword=hl2OAIXXZ60";`,
+          options,
+          errors: 1,
+        },
+        {
+          code: 'let url = `https://example.com?password=hl2OAIXXZ60`;',
           options,
           errors: 1,
         },
