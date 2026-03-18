@@ -152,6 +152,16 @@ describe('S3403', () => {
         str !== obj;`,
           },
           {
+            // Defensive check on indexed access can be intentional in JS/legacy patterns.
+            code: `
+      const items = ['a'];
+      if (items[0] === undefined) {
+        doSomething();
+      }
+      function doSomething() {}
+      `,
+          },
+          {
             code: `
       const foo = Symbol('foo');
       const symbols = [ foo ];

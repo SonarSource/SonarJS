@@ -30,6 +30,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
+      if (isTestLikeFile(context.physicalFilename || context.filename)) {
+        return;
+      }
       if ('node' in reportDescriptor) {
         const services = context.sourceCode.parserServices;
         if (isGenericType(reportDescriptor.node as TSESTree.Node, services)) {
@@ -39,5 +42,17 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         }
       }
     },
+  );
+}
+
+function isTestLikeFile(filename: string | undefined) {
+  if (!filename) {
+    return false;
+  }
+  return (
+    /(^|[\\/])__tests__([\\/]|$)/.test(filename) ||
+    /(^|[\\/])tests?([\\/]|$)/.test(filename) ||
+    /(?:^|[._-])test\.[cm]?[jt]sx?$/.test(filename) ||
+    /(?:^|[._-])spec\.[cm]?[jt]sx?$/.test(filename)
   );
 }

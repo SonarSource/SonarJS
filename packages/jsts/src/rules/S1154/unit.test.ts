@@ -50,6 +50,17 @@ describe('S1154', () => {
         {
           code: `'hello'['whatever']();`,
         },
+        {
+          code: `
+        'hello'.replace(/l/g, () => 'x');
+      `,
+        },
+        {
+          code: `
+        const replacer = (value: string) => value.toUpperCase();
+        'hello'.replace(/l/g, replacer);
+      `,
+        },
       ],
       invalid: [
         {
@@ -94,6 +105,10 @@ describe('S1154', () => {
         },
         {
           code: `'hello'.substr(1, 2).toUpperCase();`,
+          errors: 1,
+        },
+        {
+          code: `'hello'.replace(/l/g, 'x');`,
           errors: 1,
         },
       ],
