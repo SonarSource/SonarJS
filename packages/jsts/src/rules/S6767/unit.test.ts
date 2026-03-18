@@ -233,6 +233,20 @@ Wrapper.propTypes = {
 };
 `,
         },
+        {
+          // FP: renamed props parameter is still recognized inside the forwardRef closure
+          code: `
+function Wrapper(ownProps) {
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{ownProps.label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
       ],
       invalid: [
         {
@@ -375,6 +389,22 @@ function InputWrapper(props: InputProps) {
       {props.label}
       <input ref={ref} disabled={props.disabled} />
     </label>
+  ));
+  return <ForwardedInput />;
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: TypeScript function component with renamed props parameter in React.forwardRef closure.
+          code: `
+declare const React: any;
+interface InputProps {
+  label: string;
+}
+function InputWrapper(ownProps: InputProps) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label ref={ref}>{ownProps.label}</label>
   ));
   return <ForwardedInput />;
 }
