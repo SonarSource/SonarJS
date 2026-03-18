@@ -300,6 +300,7 @@ jobs:
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
         env:
+          NPM_CONFIG_LEGACY_PEER_DEPS: true
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Check README freshness
         if: github.event_name == 'pull_request'

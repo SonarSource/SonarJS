@@ -48,11 +48,7 @@ class ReferencedTSConfigTest {
         .logOutput()
         .stream()
         .filter(l ->
-          l
-            .message()
-            .matches(
-              "Creating TypeScript(\\(\\d\\.\\d\\.\\d\\))? program with configuration file.*"
-            )
+          l.message().matches("Creating TypeScript(\\([^)]*\\))? program with configuration file.*")
         )
     ).hasSize(2);
   }
