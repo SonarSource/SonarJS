@@ -18,7 +18,7 @@ import type express from 'express';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import { error } from '../../../shared/src/helpers/logging.js';
 
-export type ParsingErrorLanguage = 'js' | 'ts' | 'css';
+type ParsingErrorLanguage = 'js' | 'ts' | 'css';
 
 /**
  * Express.js middleware for handling error while serving requests.
