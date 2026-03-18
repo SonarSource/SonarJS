@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 import com.sonarsource.scanner.integrationtester.dsl.EngineVersion;
-import com.sonarsource.scanner.integrationtester.dsl.Log;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerInput;
 import com.sonarsource.scanner.integrationtester.dsl.ScannerResult;
 import com.sonarsource.scanner.integrationtester.dsl.SonarProjectContext;
@@ -73,25 +72,19 @@ class CssIssuesTest {
   }
 
   void parsingErrorsNotExcluded(ScannerResult result) {
-    assertThat(
-      result
-        .logOutput()
-        .stream()
-        .anyMatch(
-          s ->
-            s
-              .message()
-              .matches(
-                "Failed to parse file file:\\S*file-with-parsing-error\\.css, line 1, Unclosed block.*"
-              ) &&
-            s.level() == Log.Level.WARN
-        )
-    ).isTrue();
-    assertThat(result.logOutput().stream()).noneSatisfy(s ->
-      assertThat(s.message()).matches(
-        "(?s).*WARN: Failed to parse file file:\\S*file-with-parsing-error-excluded\\.css.*"
-      )
-    );
+    var issues = result
+      .scannerOutputReader()
+      .getProject()
+      .getAllIssues()
+      .stream()
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
+      .map(issue -> tuple(issue.ruleKey(), issue.componentPath()))
+      .toList();
+
+    assertThat(issues)
+      .contains(tuple("css:S2260", "src/file-with-parsing-error.css"))
+      .doesNotContain(tuple("css:S2260", "src/file-with-parsing-error-excluded.css"));
   }
 
   void checkIssues(ScannerResult result) {
