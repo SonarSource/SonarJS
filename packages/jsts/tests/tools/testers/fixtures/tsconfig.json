@@ -6,5 +6,9 @@
     "strictNullChecks": false,
     "lib": ["ESNext", "DOM"],
   },
-  "include": ["*.ts", "*.tsx"]
+  "include": [
+    "*.ts",
+    "*.tsx",
+    "../../../../src/rules/S6551/fixtures/*.ts"
+  ]
 }

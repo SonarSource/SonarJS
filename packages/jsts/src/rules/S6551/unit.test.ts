@@ -17,6 +17,7 @@
 import { rule } from './index.js';
 import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
 
 describe('S6551', () => {
   it('S6551', () => {
@@ -30,13 +31,13 @@ describe('S6551', () => {
       valid: [
         {
           code,
-          filename: 'rule.test.ts',
+          filename: path.join(import.meta.dirname, 'fixtures', 'r6551.test.ts'),
         },
       ],
       invalid: [
         {
           code,
-          filename: 'rule.ts',
+          filename: path.join(import.meta.dirname, 'fixtures', 'r6551.ts'),
           errors: 1,
         },
       ],

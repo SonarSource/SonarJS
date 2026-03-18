@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2021",
+    "rootDir": ".",
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "lib": ["ES2022", "dom"],
@@ -12,6 +13,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
+    "ignoreDeprecations": "6.0",
     "forceConsistentCasingInFileNames": true,
     "types": ["node", "jsx-ast-utils-x"],
     "typeRoots": ["./node_modules/@types", "./typings"]
