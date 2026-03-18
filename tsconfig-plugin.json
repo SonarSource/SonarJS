@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "rootDir": ".",
+    "rootDir": "packages/jsts/src/rules",
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "lib": ["ES2022", "dom"],
