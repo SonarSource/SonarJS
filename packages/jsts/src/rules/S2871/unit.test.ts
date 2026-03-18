@@ -521,6 +521,15 @@ describe('S2871', () => {
           `,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
+        // Foo.from(map.keys()).sort() - non-Array receiver is not suppressed
+        {
+          code: `Foo.from(map.keys()).sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `Foo.from(map.keys()).toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
       ],
     });
 

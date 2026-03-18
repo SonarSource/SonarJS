@@ -29,7 +29,7 @@ import {
   isStringArray,
 } from '../helpers/type.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { isCallingMethod } from '../helpers/ast.js';
+import { isCallingMethod, isIdentifier } from '../helpers/ast.js';
 import { getNodeParent } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
@@ -64,7 +64,13 @@ function isArrayFromIterableMethod(node: estree.Node): boolean {
   ) {
     return false;
   }
-  const arg = (node as estree.CallExpression).arguments[0];
+  const callExpr = node as estree.CallExpression;
+  // isCallingMethod guarantees callee is a MemberExpression; verify receiver is specifically Array
+  const callee = callExpr.callee as estree.MemberExpression;
+  if (!isIdentifier(callee.object, 'Array')) {
+    return false;
+  }
+  const arg = callExpr.arguments[0];
   return (
     arg?.type === 'CallExpression' &&
     arg.callee.type === 'MemberExpression' &&
