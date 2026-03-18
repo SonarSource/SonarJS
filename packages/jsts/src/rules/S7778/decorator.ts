@@ -43,24 +43,6 @@ function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescr
     return;
   }
 
-  const { node } = descriptor;
-  const tsNode = node as TSESTree.Node;
-
-  // The unicorn rule reports either the callee Identifier (importScripts)
-  // or the property Identifier (push, add, remove).
-  // For importScripts, node.parent is a CallExpression directly.
-  if (tsNode.parent?.type === 'CallExpression') {
-    // importScripts: negligible risk of a user-written single-arg shadow; always report
-    context.report(descriptor);
-    return;
-  }
-
-  // For push/add/remove, node.parent is a MemberExpression (the callee)
-  if (tsNode.parent?.type !== 'MemberExpression') {
-    context.report(descriptor);
-    return;
-  }
-
   const services = context.sourceCode.parserServices;
   if (!isRequiredParserServices(services)) {
     // No TypeScript type information available; pass through unchanged (conservative fallback)
@@ -68,13 +50,24 @@ function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescr
     return;
   }
 
-  if (tsNode.type !== 'Identifier') {
+  const { node } = descriptor;
+  const tsNode = node as TSESTree.Node;
+  const parent = tsNode.parent;
+
+  // Determine the callee node whose call signatures we'll inspect:
+  // - method call (push, add, remove): the MemberExpression is the callee
+  // - direct function call (importScripts): the reported Identifier is the callee
+  let callee: TSESTree.Node;
+  if (parent?.type === 'MemberExpression') {
+    callee = parent;
+  } else if (parent?.type === 'CallExpression') {
+    callee = tsNode;
+  } else {
     context.report(descriptor);
     return;
   }
 
-  const callee = tsNode.parent as TSESTree.MemberExpression;
-  if (methodAcceptsMultipleArguments(callee, services)) {
+  if (calleeAcceptsMultipleArguments(callee, services)) {
     context.report(descriptor);
   }
 }
@@ -82,12 +75,11 @@ function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescr
 /**
  * Returns true if any TypeScript call signature of the given callee can accept
  * more than one argument — either via a rest parameter or multiple parameters.
- * Consecutive calls to such methods can legitimately be combined, so the report
- * should be kept. Single-argument methods (custom classes that shadow built-in
- * names like push/add/remove) are suppressed as false positives.
+ * Consecutive calls to such callees can legitimately be combined, so the report
+ * should be kept. Single-argument callees are suppressed as false positives.
  */
-function methodAcceptsMultipleArguments(
-  callee: TSESTree.MemberExpression,
+function calleeAcceptsMultipleArguments(
+  callee: TSESTree.Node,
   services: RequiredParserServices,
 ): boolean {
   const calleeType = getTypeFromTreeNode(callee as unknown as estree.Node, services);

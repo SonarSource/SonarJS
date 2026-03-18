@@ -197,7 +197,7 @@ instance.push(1, 2);
 
 describe('S7778 decorator edge cases', () => {
   it('should pass through descriptor without a node property', () => {
-    // Exercises lines 38-39: when the descriptor has no 'node' property,
+    // When the descriptor has no 'node' property,
     // the decorator forwards it as-is without attempting to filter.
     const mockUpstream: Rule.RuleModule = {
       meta: { type: 'suggestion', fixable: 'code', messages: {} },
@@ -221,8 +221,8 @@ describe('S7778 decorator edge cases', () => {
   });
 
   it('should pass through descriptor when reported node parent is not a CallExpression or MemberExpression', () => {
-    // Exercises lines 56-57: when the descriptor has a node but its parent
-    // is neither a CallExpression nor a MemberExpression, the decorator forwards it.
+    // When the descriptor has a node but its parent is neither a CallExpression
+    // nor a MemberExpression, the decorator forwards it.
     // Here the `val` Identifier in `const x = val` has parent VariableDeclarator.
     const mockUpstream: Rule.RuleModule = {
       meta: { type: 'suggestion', fixable: 'code', messages: {} },
@@ -244,40 +244,5 @@ describe('S7778 decorator edge cases', () => {
     });
     assert.strictEqual(messages.length, 1);
     assert.strictEqual(messages[0].message, 'non-call/member parent forwarded');
-  });
-
-  it('should pass through descriptor when reported node is not an Identifier', () => {
-    // Exercises lines 68-69: when the node's parent IS a MemberExpression but the node
-    // itself is not an Identifier (e.g. a MemberExpression), and TypeScript parser services
-    // are available, the decorator forwards the report unchanged.
-    // In `x.a.b`, the inner `x.a` MemberExpression has parent MemberExpression `x.a.b`.
-    const mockUpstream: Rule.RuleModule = {
-      meta: { type: 'suggestion', fixable: 'code', messages: {} },
-      create(ctx) {
-        return {
-          MemberExpression(node) {
-            if (node.parent?.type === 'MemberExpression') {
-              ctx.report({ node, message: 'non-identifier node forwarded' });
-            }
-          },
-        };
-      },
-    };
-    const decorated = decorate(mockUpstream);
-    const ruleTester = new RuleTester();
-    ruleTester.run(
-      'non-Identifier node with MemberExpression parent passes through with TypeScript services',
-      decorated,
-      {
-        valid: [],
-        invalid: [
-          {
-            code: `const x = { a: { b: 1 } }; x.a.b;`,
-            output: null,
-            errors: [{ message: 'non-identifier node forwarded' }],
-          },
-        ],
-      },
-    );
   });
 });
