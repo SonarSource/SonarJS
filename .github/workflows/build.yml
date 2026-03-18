@@ -125,7 +125,7 @@ jobs:
           npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Install NPM dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
   populate_npm_cache_win:
     runs-on: github-windows-latest-s
