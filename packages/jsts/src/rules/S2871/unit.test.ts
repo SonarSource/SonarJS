@@ -213,15 +213,6 @@ describe('S2871', () => {
       }
     `,
           },
-          // Compliant: Array.from(arr.keys()) where arr is number[] - indices are numbers, not strings,
-          // but this pattern (arr.keys()) is always intentional and order-independent
-          {
-            code: `
-      function f(arr: number[]) {
-        return Array.from(arr.keys()).sort();
-      }
-    `,
-          },
           // Compliant: number array in order-independent equality comparison
           {
             code: `
@@ -398,6 +389,30 @@ describe('S2871', () => {
               {
                 messageId: 'provideCompareFunction',
                 suggestions: [],
+              },
+            ],
+          },
+          // Array.from(arr.keys()) where arr is number[] returns number[] (array indices),
+          // TypeScript correctly identifies this as a number array that needs a comparator
+          {
+            code: `
+        function f(arr: number[]) {
+          return Array.from(arr.keys()).sort();
+        }
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+        function f(arr: number[]) {
+          return Array.from(arr.keys()).sort((a, b) => (a - b));
+        }
+      `,
+                  },
+                ],
               },
             ],
           },
@@ -721,14 +736,6 @@ describe('S2871', () => {
       }
     `,
           },
-          // Compliant: Array.from(arr.keys()) where arr is number[] - always intentional pattern
-          {
-            code: `
-      function f(arr: number[]) {
-        return Array.from(arr.keys()).toSorted();
-      }
-    `,
-          },
           // Compliant: number array in order-independent equality comparison
           {
             code: `
@@ -908,6 +915,30 @@ describe('S2871', () => {
               {
                 messageId: 'provideCompareFunction',
                 suggestions: [],
+              },
+            ],
+          },
+          // Array.from(arr.keys()) where arr is number[] returns number[] (array indices),
+          // TypeScript correctly identifies this as a number array that needs a comparator
+          {
+            code: `
+        function f(arr: number[]) {
+          return Array.from(arr.keys()).toSorted();
+        }
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+        function f(arr: number[]) {
+          return Array.from(arr.keys()).toSorted((a, b) => (a - b));
+        }
+      `,
+                  },
+                ],
               },
             ],
           },

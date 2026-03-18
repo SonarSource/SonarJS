@@ -222,35 +222,34 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        // AST-based suppression: Object.keys(), Array.from(map.keys()), etc.
-        // Works with or without type checker
-        if (isArrayFromKeyOrEntryCall(object)) {
-          return;
-        }
-
         // AST-based suppression: order-independent comparison (a.sort() === b.sort())
+        // This is pattern-based, not type-based, so it applies regardless of type checker availability
         const parent = getNodeParent(call);
         if (isInOrderIndependentComparison(parent)) {
           return;
         }
 
-        // AST-based suppression: for-in key collection pattern
-        // var arr = []; for (var key in obj) arr.push(key); arr.sort()
-        if (object.type === 'Identifier' && isForInKeyArray(object, sourceCode)) {
-          return;
-        }
-
         if (!hasTypeChecker) {
+          // No type checker: fall back to AST-based suppression for known string-returning patterns
+          if (isArrayFromKeyOrEntryCall(object)) {
+            return;
+          }
+          // var arr = []; for (var key in obj) arr.push(key); arr.sort()
+          if (object.type === 'Identifier' && isForInKeyArray(object, sourceCode)) {
+            return;
+          }
           context.report({ node, messageId: 'provideCompareFunction' });
           return;
         }
 
+        // TypeScript type checker available: use type information for precise suppression
         const type = getTypeFromTreeNode(object, services);
         if (!isArrayLikeType(type, services)) {
           return;
         }
 
-        // Suppress for string arrays (TypeScript type analysis)
+        // Suppress for string arrays — covers Object.keys(), Array.from(map.keys()),
+        // for-in key collections, and all other contexts where TypeScript infers string[]
         if (isStringArray(type, services)) {
           return;
         }
