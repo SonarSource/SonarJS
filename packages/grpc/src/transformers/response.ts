@@ -159,12 +159,9 @@ function transformParsingErrorIssue(
   message: string,
   filePath: NormalizedAbsolutePath,
   line: number | undefined,
-  language: 'css' | 'js' | 'ts' | undefined,
+  language: 'css' | 'js' | 'ts',
 ): analyzer.IIssue {
-  const repo =
-    language !== undefined
-      ? PARSING_ERROR_REPO_BY_LANGUAGE[language]
-      : PARSING_ERROR_REPO_BY_LANGUAGE.js;
+  const repo = PARSING_ERROR_REPO_BY_LANGUAGE[language];
   return {
     filePath,
     message,
@@ -188,19 +185,18 @@ function restorePath(filePath: NormalizedAbsolutePath, pathMap: Map<string, stri
  * It processes the analysis results for all files and converts them into the
  * protobuf format expected by gRPC clients.
  *
- * **File Result Types:**
- * The ProjectAnalysisOutput contains a map of file paths to results, where each
- * result can be one of three types:
+ * **File Result Fields:**
+ * A file result may carry one or more of these fields:
  *
  * 1. **Error** (`'error' in result`): Analysis failed for this file
  *    - Added to `analysisProblems` array with UNDEFINED type
  *
- * 2. **Parsing Error** (`'parsingError' in result`): File could not be parsed
- *    - Added to `analysisProblems` array with PARSING type
- *    - Also converted to an issue with rule S2260
- *
- * 3. **Success** (`'issues' in result`): Analysis completed successfully
+ * 2. **Issues** (`'issues' in result`): Regular analyzer issues
  *    - All issues are transformed and added to the response
+ *
+ * 3. **Parsing Errors** (`'parsingErrors' in result`): Parser failures
+ *    - Each error is added to `analysisProblems` array with PARSING type
+ *    - Each error is also converted to an issue with rule S2260
  *
  * **Response Structure:**
  * ```
@@ -241,21 +237,6 @@ export function transformProjectOutputToResponse(
       continue;
     }
 
-    if ('parsingError' in fileResult) {
-      const { message, line, language } = fileResult.parsingError;
-
-      analysisProblems.push({
-        type: analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_PARSING,
-        message,
-        filePath: originalPath,
-      });
-
-      issues.push(
-        transformParsingErrorIssue(message, originalPath as NormalizedAbsolutePath, line, language),
-      );
-      continue;
-    }
-
     if ('issues' in fileResult) {
       for (const issue of fileResult.issues) {
         switch (issue.language) {
@@ -276,6 +257,25 @@ export function transformProjectOutputToResponse(
           filePath: originalPath,
           measures: [{ metricKey: 'ncloc', intValue: ncloc.length }],
         });
+      }
+    }
+
+    if ('parsingErrors' in fileResult) {
+      for (const { message, line, language } of fileResult.parsingErrors ?? []) {
+        analysisProblems.push({
+          type: analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_PARSING,
+          message,
+          filePath: originalPath,
+        });
+
+        issues.push(
+          transformParsingErrorIssue(
+            message,
+            originalPath as NormalizedAbsolutePath,
+            line,
+            language,
+          ),
+        );
       }
     }
   }

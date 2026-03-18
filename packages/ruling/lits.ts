@@ -86,8 +86,12 @@ function transformResults(projectPath: string, project: string, results: Project
           result[ruleId][language][projectWithFilename] ?? [];
         result[ruleId][language][projectWithFilename].push(line);
       }
-    } else if ('parsingError' in analysisOutput) {
-      result.S2260.js[projectWithFilename] = [analysisOutput.parsingError.line ?? 0];
+    }
+
+    if ('parsingErrors' in analysisOutput) {
+      for (const parsingError of analysisOutput.parsingErrors ?? []) {
+        result.S2260[parsingError.language][projectWithFilename] = [parsingError.line ?? 0];
+      }
     }
   }
   return result;

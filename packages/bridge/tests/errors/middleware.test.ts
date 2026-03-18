@@ -47,6 +47,7 @@ describe('errorMiddleware', () => {
         message: 'Unexpected token "{"',
         line: 42,
         code: ErrorCode.Parsing,
+        language: 'js',
       },
     });
   });
@@ -65,6 +66,7 @@ describe('errorMiddleware', () => {
           message: 'TypeScript failed for some reason',
           line: undefined,
           code: ErrorCode.FailingTypeScript,
+          language: 'ts',
         },
       },
     );
@@ -84,6 +86,7 @@ describe('errorMiddleware', () => {
           message: 'Uninitialized linter',
           line: undefined,
           code: ErrorCode.LinterInitialization,
+          language: 'js',
         },
       },
     );

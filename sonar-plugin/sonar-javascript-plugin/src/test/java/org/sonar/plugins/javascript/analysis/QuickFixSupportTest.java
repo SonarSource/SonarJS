@@ -107,7 +107,7 @@ class QuickFixSupportTest {
     var context = createContext(Version.create(6, 3));
 
     var response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(issueWithQuickFix()),
       List.of(),
       List.of(),
@@ -160,7 +160,7 @@ class QuickFixSupportTest {
   void test_old_version() {
     var context = createContext(Version.create(6, 2));
     var response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(issueWithQuickFix()),
       List.of(),
       List.of(),
@@ -194,7 +194,7 @@ class QuickFixSupportTest {
       "index.js"
     );
     var response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(issue),
       List.of(),
       List.of(),

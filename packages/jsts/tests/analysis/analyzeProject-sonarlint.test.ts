@@ -340,12 +340,13 @@ describe('SonarLint tsconfig change detection', () => {
 
     // Should have a parsing error (exact message may vary between parsers)
     const fileResult = result.files[normalizeToAbsolutePath(filePath)] as {
-      parsingError?: { code: ErrorCode; line?: number };
+      parsingErrors?: Array<{ code: ErrorCode; line?: number }>;
     };
-    expect('parsingError' in fileResult).toBe(true);
-    if ('parsingError' in fileResult) {
-      expect(fileResult.parsingError!.code).toBe(ErrorCode.Parsing);
-      expect(fileResult.parsingError!.line).toBe(3);
+    expect('parsingErrors' in fileResult).toBe(true);
+    if ('parsingErrors' in fileResult) {
+      expect(fileResult.parsingErrors).toHaveLength(1);
+      expect(fileResult.parsingErrors![0].code).toBe(ErrorCode.Parsing);
+      expect(fileResult.parsingErrors![0].line).toBe(3);
     }
   });
 

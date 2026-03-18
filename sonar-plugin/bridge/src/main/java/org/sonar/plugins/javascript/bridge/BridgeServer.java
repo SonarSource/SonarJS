@@ -270,16 +270,29 @@ public interface BridgeServer extends Startable {
 
   record AnalysisResponseDTO(
     @Nullable ParsingError parsingError,
+    @Nullable List<ParsingError> parsingErrors,
     List<Issue> issues,
     List<Highlight> highlights,
     List<HighlightedSymbol> highlightedSymbols,
     Metrics metrics,
     List<CpdToken> cpdTokens,
     @Nullable String ast
-  ) {}
+  ) {
+    public AnalysisResponseDTO(
+      @Nullable ParsingError parsingError,
+      List<Issue> issues,
+      List<Highlight> highlights,
+      List<HighlightedSymbol> highlightedSymbols,
+      Metrics metrics,
+      List<CpdToken> cpdTokens,
+      @Nullable String ast
+    ) {
+      this(parsingError, null, issues, highlights, highlightedSymbols, metrics, cpdTokens, ast);
+    }
+  }
 
   record AnalysisResponse(
-    @Nullable ParsingError parsingError,
+    List<ParsingError> parsingErrors,
     List<Issue> issues,
     List<Highlight> highlights,
     List<HighlightedSymbol> highlightedSymbols,
@@ -288,11 +301,11 @@ public interface BridgeServer extends Startable {
     @Nullable Node ast
   ) {
     public AnalysisResponse() {
-      this(null, List.of(), List.of(), List.of(), new Metrics(), List.of(), null);
+      this(List.of(), List.of(), List.of(), List.of(), new Metrics(), List.of(), null);
     }
 
     public AnalysisResponse(
-      @Nullable ParsingError parsingError,
+      @Nullable List<ParsingError> parsingErrors,
       @Nullable List<Issue> issues,
       @Nullable List<Highlight> highlights,
       @Nullable List<HighlightedSymbol> highlightedSymbols,
@@ -300,7 +313,7 @@ public interface BridgeServer extends Startable {
       @Nullable List<CpdToken> cpdTokens,
       @Nullable Node ast
     ) {
-      this.parsingError = parsingError;
+      this.parsingErrors = parsingErrors != null ? parsingErrors : List.of();
       this.issues = issues != null ? issues : List.of();
       this.highlights = highlights != null ? highlights : List.of();
       this.highlightedSymbols = highlightedSymbols != null ? highlightedSymbols : List.of();
@@ -318,8 +331,15 @@ public interface BridgeServer extends Startable {
           throw new IllegalStateException("Failed to parse protobuf", e);
         }
       }
+      var parsingErrors = analysisResponseDTO.parsingErrors;
+      if (
+        (parsingErrors == null || parsingErrors.isEmpty()) &&
+        analysisResponseDTO.parsingError != null
+      ) {
+        parsingErrors = List.of(analysisResponseDTO.parsingError);
+      }
       return new AnalysisResponse(
-        analysisResponseDTO.parsingError,
+        parsingErrors,
         analysisResponseDTO.issues,
         analysisResponseDTO.highlights,
         analysisResponseDTO.highlightedSymbols,
@@ -328,14 +348,14 @@ public interface BridgeServer extends Startable {
         ast
       );
     }
+
+    @Nullable
+    public ParsingError parsingError() {
+      return parsingErrors.stream().findFirst().orElse(null);
+    }
   }
 
-  record ParsingError(
-    String message,
-    Integer line,
-    ParsingErrorCode code,
-    @Nullable String language
-  ) {}
+  record ParsingError(String message, Integer line, ParsingErrorCode code, String language) {}
 
   enum ParsingErrorCode {
     PARSING,

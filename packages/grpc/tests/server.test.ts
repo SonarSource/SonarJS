@@ -907,6 +907,39 @@ describe('gRPC server', () => {
       expect(issues[0].rule?.repo).toBe('css');
     });
 
+    it('should return CSS parsing errors as both S2260 issues and parsing problems', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/broken.css',
+            content: 'a {',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+      const analysisProblems = response.analysisProblems || [];
+
+      expect(issues.length).toBe(1);
+      expect(issues[0].rule?.repo).toBe('css');
+      expect(issues[0].rule?.rule).toBe('S2260');
+
+      expect(analysisProblems.length).toBe(1);
+      expect(analysisProblems[0].type).toBe(
+        analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_PARSING,
+      );
+      expect(analysisProblems[0].filePath).toBe('src/broken.css');
+    });
+
     it('should return no issues for valid CSS', async () => {
       const request: analyzer.IAnalyzeRequest = {
         analysisId: generateAnalysisId(),

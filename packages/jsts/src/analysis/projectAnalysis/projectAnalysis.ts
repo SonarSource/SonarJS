@@ -45,21 +45,30 @@ export type ProjectAnalysisOutput = {
   meta: ProjectAnalysisMeta;
 };
 
-export type FileResult =
-  | JsTsAnalysisOutput
-  | EmbeddedAnalysisOutput
-  | CssAnalysisOutput
-  | ParsingError
-  | { error: string };
+export type FileResult = AnalysisOutputWithParsingErrors | ParsingErrors | { error: string };
 
-type ParsingError = {
-  parsingError: {
-    message: string;
-    code: ErrorCode;
-    line?: number;
-    language?: 'js' | 'ts' | 'css';
-  };
+export type ParsingErrorLanguage = 'js' | 'ts' | 'css';
+
+export type ParsingError = {
+  message: string;
+  code: ErrorCode;
+  line?: number;
+  language: ParsingErrorLanguage;
 };
+
+export type ParsingErrors = {
+  /**
+   * A file can be analyzed by more than one language pipeline (for example
+   * HTML/Vue can run both JS/TS and CSS analysis), so we keep parsing errors
+   * as an array to preserve every parser failure found in a single file.
+   */
+  parsingErrors: ParsingError[];
+};
+
+type AnalysisOutputWithParsingErrors =
+  | (JsTsAnalysisOutput & { parsingErrors?: ParsingError[] })
+  | (EmbeddedAnalysisOutput & { parsingErrors?: ParsingError[] })
+  | (CssAnalysisOutput & { parsingErrors?: ParsingError[] });
 
 /**
  * Partial file input used for intermediate storage during project analysis.

@@ -94,8 +94,8 @@ public class AnalysisProcessor {
 
     this.checks = checks;
     this.file = file;
-    if (response.parsingError() != null) {
-      processParsingError(context, response.parsingError());
+    if (!response.parsingErrors().isEmpty()) {
+      response.parsingErrors().forEach(parsingError -> processParsingError(context, parsingError));
       return new ArrayList<>();
     }
 
