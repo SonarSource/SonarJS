@@ -13,6 +13,7 @@
     "skipLibCheck": true,
     "useUnknownInCatchVariables": false,
     "forceConsistentCasingInFileNames": true,
+    "types": ["node", "jsx-ast-utils-x"],
     "typeRoots": ["./node_modules/@types", "./typings"]
   },
   "include": ["packages/jsts/src/rules/plugin.ts"]

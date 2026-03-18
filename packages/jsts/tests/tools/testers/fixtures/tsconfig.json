@@ -2,7 +2,9 @@
   "compilerOptions": {
     "allowJs": true,
     "noImplicitAny": true,
+    "strict": false,
+    "strictNullChecks": false,
     "lib": ["ESNext", "DOM"],
   },
-  "files": ["placeholder.tsx"]
+  "include": ["*.ts", "*.tsx"]
 }
