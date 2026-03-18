@@ -16,7 +16,7 @@
  */
 import path from 'node:path';
 import { NoTypeCheckingRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { rule } from './index.js';
+import { rule } from './rule.js';
 import parser from '@typescript-eslint/parser';
 import { describe, it } from 'node:test';
 

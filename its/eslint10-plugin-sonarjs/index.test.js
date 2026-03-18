@@ -62,3 +62,18 @@ test('should work with TSESLint config', async t => {
   );
   verifyErrors(result.stdout);
 });
+
+test('should not crash on Svelte use: directives (JS-1429)', async t => {
+  // Regression test: S4030 crashed with TypeError when linting a Svelte file
+  // containing a use: action directive parsed by svelte-eslint-parser.
+  const result = spawn.sync(
+    'npx',
+    ['eslint', '-c', 'svelte.config.mjs', path.join(fixturesDir, 'file.svelte')],
+    {
+      cwd: __dirname,
+      encoding: 'utf-8',
+    },
+  );
+  assert(!result.stderr.includes('TypeError'), `ESLint crashed:\n${result.stderr}`);
+  assert.notStrictEqual(result.status, 2, `ESLint exited with fatal error:\n${result.stderr}`);
+});

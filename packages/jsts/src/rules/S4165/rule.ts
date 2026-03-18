@@ -21,13 +21,13 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
   type Values,
-  generateMeta,
   getVariableFromIdentifier,
-  last,
   ReachingDefinitions,
   reachingDefinitions,
   resolveAssignedValues,
-} from '../helpers/index.js';
+} from '../helpers/reaching-definitions.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { last } from '../helpers/collection.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {

@@ -19,13 +19,13 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 type ClassOrInterfaceDeclaration = TSESTree.ClassDeclaration | TSESTree.TSInterfaceDeclaration;
 
-const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
+const DEFAULT_FORMAT = String.raw`^\$?[A-Z][a-zA-Z0-9]*$`;
 const messages = {
   renameClass: 'Rename {{symbolType}} "{{symbol}}" to match the regular expression {{format}}.',
 };

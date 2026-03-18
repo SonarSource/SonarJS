@@ -18,21 +18,21 @@
 
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, interceptReport } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
 /**
- * Decorates the no-unsafe-finally rule to suppress false positives for guard return patterns.
+ * Decorates the no-unsafe-finally rule to suppress false positives for guard patterns in finally blocks.
  *
- * Suppresses reports when a return statement in a finally block is:
- * 1. The only statement in an IfStatement's consequent (single-statement guard)
- * 2. The IfStatement's test is a simple Identifier (boolean flag check like `cancelled`)
- * 3. There are statements after the IfStatement in the finally block
- * 4. The return has no argument (void return, not overriding a value)
+ * Suppresses a void return when:
+ * 1. It is the only statement in an IfStatement's consequent
+ * 2. There are statements after the IfStatement in the finally block
  *
- * This pattern is commonly used in React async effect cleanup to prevent
- * state updates on unmounted components.
+ * Suppresses a throw when:
+ * 1. It is the only statement in an IfStatement's consequent
+ * 2. The IfStatement is the last statement in the finally block (post-condition validation)
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -48,7 +48,16 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       const node = reportDescriptor.node as TSESTree.Node;
 
-      // Only handle ReturnStatement - other jump statements (break, continue, throw) are always flagged
+      // Handle ThrowStatement: suppress conditional throws that are the last statement in a finally block
+      if (node.type === 'ThrowStatement') {
+        if (isGuardThrowInFinally(node)) {
+          return;
+        }
+        context.report(reportDescriptor);
+        return;
+      }
+
+      // Only handle ReturnStatement - other jump statements (break, continue) are always flagged
       if (node.type !== 'ReturnStatement') {
         context.report(reportDescriptor);
         return;
@@ -76,9 +85,8 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
  * Algorithm:
  * 1. Find the enclosing IfStatement
  * 2. Verify the return is the only statement in the consequent
- * 3. Verify the condition is a simple Identifier
- * 4. Find the finally block containing the IfStatement
- * 5. Verify there are statements after the IfStatement in the finally block
+ * 3. Find the finally block containing the IfStatement
+ * 4. Verify there are statements after the IfStatement in the finally block
  */
 function isGuardReturnInFinally(returnNode: TSESTree.ReturnStatement): boolean {
   // Step 1: Find the enclosing IfStatement
@@ -92,29 +100,52 @@ function isGuardReturnInFinally(returnNode: TSESTree.ReturnStatement): boolean {
     return false;
   }
 
-  // Step 3: Verify the condition is a simple Identifier
-  if (ifStatement.test.type !== 'Identifier') {
-    return false;
-  }
-
-  // Step 4: Find the finally block containing the IfStatement
+  // Step 3: Find the finally block containing the IfStatement
   const finallyBlock = findFinallyBlock(ifStatement);
   if (!finallyBlock) {
     return false;
   }
 
-  // Step 5: Verify there are statements after the IfStatement
+  // Step 4: Verify there are statements after the IfStatement
   return hasStatementsAfter(ifStatement, finallyBlock);
 }
 
 /**
- * Finds the immediate enclosing IfStatement for the return node.
- * The return must be directly inside the if's consequent.
+ * Checks if the throw statement is a guard pattern in a finally block.
+ *
+ * Algorithm:
+ * 1. Find the enclosing IfStatement
+ * 2. Verify the throw is the only statement in the consequent
+ * 3. Find the finally block containing the IfStatement
+ * 4. Verify the IfStatement is the last statement in the finally block
+ *    (nothing after it, so it validates state rather than masking exceptions)
+ */
+function isGuardThrowInFinally(throwNode: TSESTree.ThrowStatement): boolean {
+  const ifStatement = findEnclosingIfStatement(throwNode);
+  if (!ifStatement) {
+    return false;
+  }
+
+  if (!isOnlyStatementInConsequent(throwNode, ifStatement)) {
+    return false;
+  }
+
+  const finallyBlock = findFinallyBlock(ifStatement);
+  if (!finallyBlock) {
+    return false;
+  }
+
+  return isLastStatementInFinally(ifStatement, finallyBlock);
+}
+
+/**
+ * Finds the immediate enclosing IfStatement for the given node.
+ * The node must be directly inside the if's consequent.
  */
 function findEnclosingIfStatement(
-  returnNode: TSESTree.ReturnStatement,
+  stmtNode: TSESTree.ReturnStatement | TSESTree.ThrowStatement,
 ): TSESTree.IfStatement | null {
-  let parent = returnNode.parent;
+  let parent = stmtNode.parent;
 
   // Handle both `if (x) return;` and `if (x) { return; }`
   if (parent?.type === 'BlockStatement') {
@@ -129,24 +160,24 @@ function findEnclosingIfStatement(
 }
 
 /**
- * Checks if the return is the only statement in the if's consequent.
+ * Checks if the statement is the only statement in the if's consequent.
  */
 function isOnlyStatementInConsequent(
-  returnNode: TSESTree.ReturnStatement,
+  stmtNode: TSESTree.ReturnStatement | TSESTree.ThrowStatement,
   ifStatement: TSESTree.IfStatement,
 ): boolean {
   const consequent = ifStatement.consequent;
 
-  // Direct return: if (x) return;
-  if (consequent === returnNode) {
+  // Direct statement: if (x) return; or if (x) throw ...;
+  if (consequent === stmtNode) {
     return true;
   }
 
-  // Block with single return: if (x) { return; }
+  // Block with single statement: if (x) { return; } or if (x) { throw ...; }
   if (
     consequent.type === 'BlockStatement' &&
     consequent.body.length === 1 &&
-    consequent.body[0] === returnNode
+    consequent.body[0] === stmtNode
   ) {
     return true;
   }
@@ -207,4 +238,19 @@ function hasStatementsAfter(
 
   // There must be statements after the if
   return ifIndex < statements.length - 1;
+}
+
+/**
+ * Checks if the if statement is the last statement in the finally block.
+ * Used for guard throw patterns where the throw validates state at the end of finally.
+ */
+function isLastStatementInFinally(
+  ifStatement: TSESTree.IfStatement,
+  finallyBlock: TSESTree.BlockStatement,
+): boolean {
+  const statements = finallyBlock.body;
+  const ifIndex = statements.indexOf(ifStatement);
+
+  // The if must be a direct child of the finally block and the last one
+  return ifIndex !== -1 && ifIndex === statements.length - 1;
 }

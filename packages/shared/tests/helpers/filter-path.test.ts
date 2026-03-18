@@ -18,7 +18,7 @@ import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { filterPathAndGetFileType, isJsTsExcluded } from '../../src/helpers/filter/filter-path.js';
 import { createConfiguration, type Configuration } from '../../src/helpers/configuration.js';
-import { normalizeToAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../../jsts/src/rules/helpers/files.js';
 
 function getFilterPathParams(config: Configuration) {
   return {

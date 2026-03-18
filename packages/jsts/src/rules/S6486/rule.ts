@@ -20,7 +20,8 @@
 // https://github.com/jsx-eslint/eslint-plugin-react/blob/0a2f6b7e9df32215fcd4e3061ec69ea3f2eef793/lib/rules/no-array-index-key.js#L16
 
 import type { Rule } from 'eslint';
-import { generateMeta, isMemberExpression } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isMemberExpression } from '../helpers/ast.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';

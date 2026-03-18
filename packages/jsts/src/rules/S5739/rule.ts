@@ -18,14 +18,10 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  Express,
-  generateMeta,
-  getFullyQualifiedName,
-  getProperty,
-  getPropertyWithValue,
-  getValueOfExpression,
-} from '../helpers/index.js';
+import { SensitiveMiddlewarePropertyRule } from '../helpers/express.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getProperty, getPropertyWithValue, getValueOfExpression } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const HSTS = 'hsts';
@@ -34,7 +30,7 @@ const MAX_AGE = 'maxAge';
 const INCLUDE_SUB_DOMAINS = 'includeSubDomains';
 const RECOMMENDED_MAX_AGE = 15552000;
 
-export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
+export const rule: Rule.RuleModule = SensitiveMiddlewarePropertyRule(
   findSensitiveTransportSecurityPolicyProperty,
   `Disabling Strict-Transport-Security policy is security-sensitive.`,
   generateMeta(meta),

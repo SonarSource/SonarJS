@@ -16,57 +16,48 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  getFullyQualifiedName,
-  getImportDeclarations,
-  getRequireCalls,
-  getFullyQualifiedNameTS,
-} from './index.js';
+import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './module.js';
+import { getFullyQualifiedNameTS } from './module-ts.js';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
-export namespace Sinon {
-  export function isImported(context: Rule.RuleContext): boolean {
-    return (
-      getRequireCalls(context).some(
-        r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'sinon',
-      ) || getImportDeclarations(context).some(i => i.source.value === 'sinon')
-    );
-  }
+export function isImported(context: Rule.RuleContext): boolean {
+  return (
+    getRequireCalls(context).some(
+      r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'sinon',
+    ) || getImportDeclarations(context).some(i => i.source.value === 'sinon')
+  );
+}
 
-  export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-    return isAssertUsage(context, node);
-  }
+export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
+  return isAssertUsage(context, node);
+}
 
-  export function isTSAssertion(
-    services: ParserServicesWithTypeInformation,
-    node: ts.Node,
-  ): boolean {
-    if (node.kind !== ts.SyntaxKind.CallExpression) {
-      return false;
-    }
-    const fqn = getFullyQualifiedNameTS(services, node);
-    return isFQNAssertion(fqn);
+export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node): boolean {
+  if (node.kind !== ts.SyntaxKind.CallExpression) {
+    return false;
   }
+  const fqn = getFullyQualifiedNameTS(services, node);
+  return isFQNAssertion(fqn);
+}
 
-  function isAssertUsage(context: Rule.RuleContext, node: estree.Node) {
-    // assert.<expr>(), sinon.assert.<expr>()
-    const fqn = extractFQNforCallExpression(context, node);
-    return isFQNAssertion(fqn);
-  }
+function isAssertUsage(context: Rule.RuleContext, node: estree.Node) {
+  // assert.<expr>(), sinon.assert.<expr>()
+  const fqn = extractFQNforCallExpression(context, node);
+  return isFQNAssertion(fqn);
+}
 
-  function isFQNAssertion(fqn: string | null | undefined) {
-    if (!fqn) {
-      return false;
-    }
-    const names = fqn.split('.');
-    return names.length === 3 && names[0] === 'sinon' && names[1] === 'assert';
+function isFQNAssertion(fqn: string | null | undefined) {
+  if (!fqn) {
+    return false;
   }
+  const names = fqn.split('.');
+  return names.length === 3 && names[0] === 'sinon' && names[1] === 'assert';
+}
 
-  function extractFQNforCallExpression(context: Rule.RuleContext, node: estree.Node) {
-    if (node.type !== 'CallExpression') {
-      return undefined;
-    }
-    return getFullyQualifiedName(context, node);
+function extractFQNforCallExpression(context: Rule.RuleContext, node: estree.Node) {
+  if (node.type !== 'CallExpression') {
+    return undefined;
   }
+  return getFullyQualifiedName(context, node);
 }

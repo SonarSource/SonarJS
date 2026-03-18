@@ -18,7 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, getFullyQualifiedName, getValueOfExpression } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getValueOfExpression } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const WEAK_CIPHERS = ['bf', 'blowfish', 'des', 'rc2', 'rc4'];

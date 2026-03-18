@@ -18,7 +18,7 @@ import path from 'node:path';
 import { parseJavaScriptSourceFile } from '../../../tools/helpers/parsing.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { findNoSonarLines } from '../../../../src/linter/visitors/metrics/index.js';
+import { findNoSonarLines } from '../../../../src/linter/visitors/metrics/nosonar.js';
 
 describe('findNoSonarLines', () => {
   it('should find NOSONAR comment lines', async () => {

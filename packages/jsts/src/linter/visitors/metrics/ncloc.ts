@@ -16,7 +16,7 @@
  */
 import type { SourceCode } from 'eslint';
 import type { AST } from 'vue-eslint-parser';
-import { addLines } from './helpers/index.js';
+import { addLines } from './helpers/lines.js';
 
 /**
  * Finds the line numbers of code (ncloc)

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import { isStringLiteral } from '../index.js';
+import { isStringLiteral } from '../ast.js';
 
 export interface GroupReference {
   raw: string;

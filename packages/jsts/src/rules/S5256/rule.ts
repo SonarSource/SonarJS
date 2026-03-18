@@ -23,7 +23,8 @@ import pkg from 'jsx-ast-utils-x';
 const { getLiteralPropValue, getProp } = pkg;
 
 import { computeGrid } from '../helpers/table.js';
-import { generateMeta, isPresentationTable, getElementType } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isPresentationTable, getElementType } from '../helpers/accessibility.js';
 import * as meta from './generated-meta.js';
 import type { JSXOpeningElement } from 'estree-jsx';
 

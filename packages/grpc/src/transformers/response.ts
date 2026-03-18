@@ -22,13 +22,41 @@ import {
 import { reverseCssRuleKeyMap } from '../../../css/src/rules/metadata.js';
 import type { JsTsIssue } from '../../../jsts/src/linter/issues/issue.js';
 import type { CssIssue } from '../../../css/src/linter/issues/issue.js';
-import { type NormalizedAbsolutePath } from '../../../jsts/src/rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../../../jsts/src/rules/helpers/files.js';
 
 /**
  * SonarQube rule key for parsing errors. When a file cannot be parsed,
  * the error is reported as an issue with this rule key.
  */
 const PARSING_ERROR_RULE_KEY = 'S2260';
+
+function isValidOneBasedLine(line: number): line is number {
+  return line >= 1;
+}
+
+function toTextRange(
+  line: number,
+  column: number,
+  endLine: number | undefined,
+  endColumn: number | undefined,
+): analyzer.ITextRange | undefined {
+  if (!isValidOneBasedLine(line)) {
+    return undefined;
+  }
+
+  const resolvedEndLine = endLine ?? line;
+  if (!isValidOneBasedLine(resolvedEndLine)) {
+    return undefined;
+  }
+
+  const startLineOffset = column ?? 0;
+  return {
+    startLine: line,
+    startLineOffset,
+    endLine: resolvedEndLine,
+    endLineOffset: endColumn ?? startLineOffset,
+  };
+}
 
 /**
  * Transform a single Issue from the internal format to the gRPC Issue format.
@@ -52,32 +80,31 @@ const PARSING_ERROR_RULE_KEY = 'S2260';
  * @returns gRPC Issue object ready for protobuf serialization
  */
 function transformIssue(issue: JsTsIssue): analyzer.IIssue {
-  const textRange: analyzer.ITextRange = {
-    startLine: issue.line,
-    startLineOffset: issue.column,
-    endLine: issue.endLine ?? issue.line,
-    endLineOffset: issue.endColumn ?? issue.column,
-  };
+  const textRange = toTextRange(issue.line, issue.column, issue.endLine, issue.endColumn);
 
   // Transform secondary locations into flows
   const flows: analyzer.IFlow[] = [];
   if (issue.secondaryLocations && issue.secondaryLocations.length > 0) {
-    const locations: analyzer.IFlowLocation[] = issue.secondaryLocations.map(loc => ({
-      textRange: {
-        startLine: loc.line,
-        startLineOffset: loc.column,
-        endLine: loc.endLine,
-        endLineOffset: loc.endColumn,
-      },
-      message: loc.message ?? '',
-      file: issue.filePath,
-    }));
+    const locations: analyzer.IFlowLocation[] = [];
 
-    flows.push({
-      type: analyzer.FlowType.FLOW_TYPE_DATA,
-      description: '',
-      locations,
-    });
+    for (const loc of issue.secondaryLocations) {
+      const range = toTextRange(loc.line, loc.column, loc.endLine, loc.endColumn);
+      if (range !== undefined) {
+        locations.push({
+          textRange: range,
+          message: loc.message ?? '',
+          filePath: issue.filePath,
+        });
+      }
+    }
+
+    if (locations.length > 0) {
+      flows.push({
+        type: analyzer.FlowType.FLOW_TYPE_DATA,
+        description: '',
+        locations,
+      });
+    }
   }
 
   const repo = issue.language === 'js' ? 'javascript' : 'typescript';
@@ -112,12 +139,27 @@ function transformCssIssue(issue: CssIssue, filePath: string): analyzer.IIssue {
     filePath,
     message: issue.message,
     rule: { repo: 'css', rule: sqKey },
-    textRange: {
-      startLine: issue.line,
-      startLineOffset: issue.column,
-      endLine: issue.endLine ?? issue.line,
-      endLineOffset: issue.endColumn ?? issue.column,
-    },
+    textRange: toTextRange(issue.line, issue.column, issue.endLine, issue.endColumn),
+    flows: [],
+  };
+}
+
+/**
+ * Transform a parsing error into a gRPC issue.
+ *
+ * Mirrors Java-side behavior: when line is missing, the issue is file-level
+ * and does not carry a text range.
+ */
+function transformParsingErrorIssue(
+  message: string,
+  filePath: NormalizedAbsolutePath,
+  line: number | undefined,
+): analyzer.IIssue {
+  return {
+    filePath,
+    message,
+    rule: { repo: 'javascript', rule: PARSING_ERROR_RULE_KEY },
+    textRange: line !== undefined ? toTextRange(line, 0, undefined, undefined) : undefined,
     flows: [],
   };
 }
@@ -158,6 +200,7 @@ function restorePath(filePath: NormalizedAbsolutePath, pathMap: Map<string, stri
  * ```
  *
  * @param output - The ProjectAnalysisOutput from analyzeProject()
+ * @param pathMap - Optional mapping from normalized absolute paths to original request paths
  * @returns gRPC IAnalyzeResponse ready for protobuf serialization
  */
 export function transformProjectOutputToResponse(
@@ -198,16 +241,7 @@ export function transformProjectOutputToResponse(
       });
 
       issues.push(
-        transformIssue({
-          ruleId: PARSING_ERROR_RULE_KEY,
-          message,
-          line: line ?? 1,
-          column: 0,
-          language: 'js',
-          secondaryLocations: [],
-          ruleESLintKeys: [],
-          filePath: originalPath as NormalizedAbsolutePath,
-        }),
+        transformParsingErrorIssue(message, originalPath as NormalizedAbsolutePath, line),
       );
       continue;
     }

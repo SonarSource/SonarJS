@@ -18,7 +18,9 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { functionLike, generateMeta, last } from '../helpers/index.js';
+import { functionLike } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { last } from '../helpers/collection.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 

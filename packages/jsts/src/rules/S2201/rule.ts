@@ -18,8 +18,11 @@
 
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import TS from 'typescript';
-import type { Rule } from 'eslint';
-import { generateMeta, getTypeFromTreeNode, isRequiredParserServices } from '../helpers/index.js';
+import type { Rule, SourceCode } from 'eslint';
+import { childrenOf } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode } from '../helpers/type.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
@@ -34,6 +37,8 @@ const METHODS_WITHOUT_SIDE_EFFECTS: { [index: string]: Set<string> } = {
     'entries',
     'filter',
     'findIndex',
+    'findLast',
+    'findLastIndex',
     'keys',
     'map',
     'values',
@@ -197,7 +202,12 @@ export const rule: Rule.RuleModule = {
               );
             if (
               !hasSideEffect(methodName, objectType, services) &&
-              !isReplaceWithCallback(methodName, call.arguments, services)
+              !isReplaceWithCallback(methodName, call.arguments, services) &&
+              !isFindWithAssignmentCallback(
+                methodName,
+                call.arguments,
+                context.sourceCode.visitorKeys,
+              )
             ) {
               context.report(reportDescriptor(methodName, node));
             }
@@ -226,6 +236,50 @@ function isReplaceWithCallback(
     return typeNode && isFunctionTypeNode(typeNode);
   }
   return false;
+}
+
+// Early-exit array methods currently in METHODS_WITHOUT_SIDE_EFFECTS['array']
+const EARLY_EXIT_ARRAY_METHODS = new Set(['find', 'findIndex', 'findLast', 'findLastIndex']);
+
+/**
+ * Returns true if the call is an early-exit array method whose first argument is an inline
+ * function containing an AssignmentExpression. Such callbacks intentionally assign to outer
+ * variables to exploit early-exit behavior, making the return value unused by design.
+ */
+function isFindWithAssignmentCallback(
+  methodName: string,
+  callArguments: Array<estree.Expression | estree.SpreadElement>,
+  visitorKeys: SourceCode.VisitorKeys,
+): boolean {
+  if (!EARLY_EXIT_ARRAY_METHODS.has(methodName) || callArguments.length === 0) {
+    return false;
+  }
+  const callback = callArguments[0];
+  if (callback.type !== 'ArrowFunctionExpression' && callback.type !== 'FunctionExpression') {
+    return false;
+  }
+  return containsAssignment(callback.body, visitorKeys);
+}
+
+const FUNCTION_BOUNDARIES = new Set([
+  'FunctionExpression',
+  'ArrowFunctionExpression',
+  'FunctionDeclaration',
+]);
+
+/**
+ * Recursively checks if an AST node contains an AssignmentExpression, using childrenOf for
+ * complete traversal. Stops at nested function boundaries so assignments in inner closures
+ * do not suppress the issue.
+ */
+function containsAssignment(node: estree.Node, visitorKeys: SourceCode.VisitorKeys): boolean {
+  if (node.type === 'AssignmentExpression') {
+    return true;
+  }
+  if (FUNCTION_BOUNDARIES.has(node.type)) {
+    return false;
+  }
+  return childrenOf(node, visitorKeys).some(child => containsAssignment(child, visitorKeys));
 }
 
 function reportDescriptor(methodName: string, node: estree.Node): Rule.ReportDescriptor {

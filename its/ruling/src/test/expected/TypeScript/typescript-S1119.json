@@ -1,14 +1,5 @@
 {
 "TypeScript:src/compiler/checker.ts": [
 872
-],
-"TypeScript:src/compiler/core.ts": [
-706
-],
-"TypeScript:src/compiler/scanner.ts": [
-623
-],
-"TypeScript:src/services/jsDoc.ts": [
-173
 ]
 }

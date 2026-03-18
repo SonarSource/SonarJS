@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule } from './index.js';
+import { rule } from './rule.js';
 import { DefaultParserRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
@@ -201,6 +201,37 @@ describe('S1119', () => {
         reqHeaders[defHeaderName] = defHeaders[defHeaderName];
       }`,
         },
+        {
+          // Compliant: labeled while containing a switch where break/continue target the
+          // outer loop label. Plain 'break' only exits the switch; 'break scan' is the
+          // only way to exit the while loop from within a switch case.
+          code: `
+      scan: while (pos < text.length) {
+        switch (text.charCodeAt(pos)) {
+          case 10:
+            if (trailing) {
+              break scan;
+            }
+            break;
+        }
+        pos++;
+      }`,
+        },
+        {
+          // Compliant: labeled for-loop containing a switch where break/continue target the
+          // outer loop label. Plain 'break' only exits the switch; 'break inner'/'continue inner'
+          // are the only ways to exit/continue the for-loop from within a switch case.
+          code: `
+      for (var offsetB = 0; offsetB < arrayB.length; offsetB++) {
+        inner: for (var offsetA = 0; offsetA < arrayA.length; offsetA++) {
+          switch (compare(arrayB[offsetB], arrayA[offsetA])) {
+            case -1: break inner;
+            case 1: continue inner;
+          }
+        }
+        result.push(arrayB[offsetB]);
+      }`,
+        },
       ],
       invalid: [
         {
@@ -258,31 +289,75 @@ describe('S1119', () => {
           errors: 1,
         },
         {
-          // break inside switch (not a nested loop) inside labeled while
+          // label on non-loop block containing a switch: even though all breaks come from
+          // the switch, a non-loop labeled body is still reported.
           code: `
-      scan: while (pos < text.length) {
-        switch (text.charCodeAt(pos)) {
-          case 10:
-            if (trailing) {
-              break scan;
-            }
-            break;
+      function processAction(action, state) {
+        var result = state;
+        a: {
+          switch (action.type) {
+            case 'REPLACE':
+              result = action.payload;
+              break a;
+            case 'MERGE':
+              result = Object.assign({}, state, action.payload);
+              break a;
+            case 'FORCE':
+              result = { forced: true };
+              break a;
+          }
+          result = state;
         }
-        pos++;
+        return result;
       }`,
           errors: 1,
         },
         {
-          // labeled loop where all refs target it from within a switch (not a nested loop)
+          // label on non-loop if-statement containing a switch: even though all breaks come
+          // from the switch, a non-loop labeled body is still reported.
           code: `
-      for (var offsetB = 0; offsetB < arrayB.length; offsetB++) {
-        inner: for (var offsetA = 0; offsetA < arrayA.length; offsetA++) {
-          switch (compare(arrayB[offsetB], arrayA[offsetA])) {
-            case -1: break inner;
-            case 1: continue inner;
+      function resolveComponent(workInProgress) {
+        var current = workInProgress.elementType;
+        a: if (typeof current === 'function') {
+          switch (workInProgress.tag) {
+            case 0:
+              workInProgress.type = current;
+              break a;
+            case 1:
+              workInProgress.type = resolveForRef(current);
+              break a;
+            case 2:
+              workInProgress.type = resolveMemo(current);
+              break a;
           }
+          workInProgress.type = current;
         }
-        result.push(arrayB[offsetB]);
+      }`,
+          errors: 1,
+        },
+        {
+          // label on non-loop block inside a loop containing a switch: even though all breaks
+          // come from the switch, a non-loop labeled body is still reported.
+          code: `
+      function processUpdateQueue(workInProgress) {
+        var update = workInProgress.firstUpdate;
+        do {
+          a: {
+            switch (update.tag) {
+              case 0:
+                workInProgress.state = update.payload;
+                break a;
+              case 1:
+                workInProgress.flags |= 128;
+                break a;
+              case 2:
+                if (update.payload === null) { break a; }
+                workInProgress.state = Object.assign({}, workInProgress.state, update.payload);
+                break a;
+            }
+          }
+          update = update.next;
+        } while (update !== null);
       }`,
           errors: 1,
         },

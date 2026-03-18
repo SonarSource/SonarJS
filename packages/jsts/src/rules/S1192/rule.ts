@@ -17,7 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1192
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, report, toSecondaryLocation } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';

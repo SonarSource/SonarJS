@@ -17,7 +17,8 @@
 import type { SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { AST } from 'vue-eslint-parser';
-import { type Location, extractTokensAndComments } from './metrics/helpers/index.js';
+import type { Location } from './metrics/helpers/location.js';
+import { extractTokensAndComments } from './metrics/helpers/tokens.js';
 
 /**
  * A syntax highlight

@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { handleError } from '../../../../bridge/src/errors/index.js';
+import { handleError } from '../../../../bridge/src/errors/middleware.js';
 import type { JsTsAnalysisInput } from '../analysis.js';
 import { analyzeHTML } from '../../../../html/src/index.js';
 import { analyzeYAML } from '../../../../yaml/src/index.js';
@@ -33,7 +33,7 @@ import type { FileResult, ProjectAnalysisOutput, JsTsFile } from './projectAnaly
 import type { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import type ts from 'typescript';
-import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
 import type { EmbeddedAnalysisInput } from '../../embedded/analysis/analysis.js';
 import type { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/filter.js';
 import { analyzeCSS } from '../../../../css/src/analysis/analyzer.js';
@@ -69,6 +69,7 @@ export async function analyzeFile(
   pendingFiles: Set<NormalizedAbsolutePath> | undefined,
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+  detectedEsYear?: number,
 ) {
   progressReport.nextFile(fileName);
 
@@ -87,6 +88,7 @@ export async function analyzeFile(
     language: inferLanguageForProjectAnalysis(file.filePath, file.fileContent),
     tsConfigs: [],
     program,
+    detectedEsYear,
   };
 
   // Run analysis through the unified dispatcher (with error handling)

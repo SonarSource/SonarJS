@@ -17,7 +17,7 @@
 import { start } from '../src/server.js';
 import * as path from 'node:path';
 import { AddressInfo } from 'node:net';
-import { request } from './tools/index.js';
+import { request } from './tools/request.js';
 import * as http from 'node:http';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';

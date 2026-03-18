@@ -18,7 +18,8 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { generateMeta, isIdentifier, isNumberLiteral } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isIdentifier, isNumberLiteral } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const assertionFunctions = [

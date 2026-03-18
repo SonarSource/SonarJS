@@ -17,7 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S1874/javascript
 
 import type { Rule } from 'eslint';
-import { generateMeta, isRequiredParserServices } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import type ts from 'typescript';
 import * as meta from './generated-meta.js';
 

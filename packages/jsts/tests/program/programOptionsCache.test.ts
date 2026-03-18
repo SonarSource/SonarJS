@@ -17,7 +17,7 @@
 import path from 'node:path/posix';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
-import { normalizePath } from '../../src/rules/helpers/index.js';
+import { normalizePath } from '../../src/rules/helpers/files.js';
 import {
   getCachedProgramOptions,
   setCachedProgramOptions,

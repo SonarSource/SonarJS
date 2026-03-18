@@ -16,49 +16,43 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  getFullyQualifiedName,
-  getFullyQualifiedNameTS,
-  getImportDeclarations,
-  getRequireCalls,
-} from './index.js';
+import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './module.js';
+import { getFullyQualifiedNameTS } from './module-ts.js';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
-export namespace Vitest {
-  export function isImported(context: Rule.RuleContext): boolean {
-    return (
-      getRequireCalls(context).some(
-        r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'vitest',
-      ) || getImportDeclarations(context).some(i => i.source.value === 'vitest')
-    );
-  }
+export function isImported(context: Rule.RuleContext): boolean {
+  return (
+    getRequireCalls(context).some(
+      r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'vitest',
+    ) || getImportDeclarations(context).some(i => i.source.value === 'vitest')
+  );
+}
 
-  export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-    const fullyQualifiedName = extractFQNforCallExpression(context, node);
-    return isFQNAssertion(fullyQualifiedName);
-  }
+export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
+  const fullyQualifiedName = extractFQNforCallExpression(context, node);
+  return isFQNAssertion(fullyQualifiedName);
+}
 
-  export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
-    if (node.kind !== ts.SyntaxKind.CallExpression) {
-      return false;
-    }
-    const fqn = getFullyQualifiedNameTS(services, node);
-    return isFQNAssertion(fqn);
+export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
+  if (node.kind !== ts.SyntaxKind.CallExpression) {
+    return false;
   }
+  const fqn = getFullyQualifiedNameTS(services, node);
+  return isFQNAssertion(fqn);
+}
 
-  function isFQNAssertion(fqn: string | null | undefined) {
-    if (!fqn) {
-      return false;
-    }
-    const validAssertionCalls = ['vitest.expect', 'vitest.expectTypeOf', 'vitest.assertType'];
-    return validAssertionCalls.some(callPrefix => fqn.startsWith(callPrefix));
+function isFQNAssertion(fqn: string | null | undefined) {
+  if (!fqn) {
+    return false;
   }
+  const validAssertionCalls = ['vitest.expect', 'vitest.expectTypeOf', 'vitest.assertType'];
+  return validAssertionCalls.some(callPrefix => fqn.startsWith(callPrefix));
+}
 
-  function extractFQNforCallExpression(context: Rule.RuleContext, node: estree.Node) {
-    if (node.type !== 'CallExpression') {
-      return undefined;
-    }
-    return getFullyQualifiedName(context, node);
+function extractFQNforCallExpression(context: Rule.RuleContext, node: estree.Node) {
+  if (node.type !== 'CallExpression') {
+    return undefined;
   }
+  return getFullyQualifiedName(context, node);
 }

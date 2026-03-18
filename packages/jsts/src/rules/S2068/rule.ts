@@ -19,12 +19,18 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { generateMeta, isStringLiteral } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isLogicalExpression, isStaticTemplateLiteral, isStringLiteral } from '../helpers/ast.js';
+import { shannonEntropy } from '../helpers/entropy.js';
 import path from 'node:path';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
 const DEFAULT_NAMES = ['password', 'pwd', 'passwd', 'passphrase'];
+const ENTROPY_THRESHOLD = 3;
+const MIN_PASSWORD_LENGTH = 5;
+const NON_CREDENTIAL_CHARS = /[\s/["'\]<>]/;
+const TEST_FILE_PATTERN = /\.(spec|test|mock)\.[jt]sx?$/;
 
 const messages = {
   reviewPassword: 'Review this potentially hard-coded password.',
@@ -33,7 +39,12 @@ const messages = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
-    const dir = path.dirname(context.physicalFilename);
+    const filename = context.physicalFilename;
+    if (TEST_FILE_PATTERN.test(filename)) {
+      return {};
+    }
+
+    const dir = path.dirname(filename);
     const parts = dir.split(path.sep).map(part => part.toLowerCase());
     if (parts.includes('l10n')) {
       return {};
@@ -60,6 +71,10 @@ export const rule: Rule.RuleModule = {
         const literal = node as estree.Literal;
         checkLiteral(context, literalRegExp, literal);
       },
+      TemplateLiteral: (node: estree.Node) => {
+        const templateLiteral = node as estree.TemplateLiteral;
+        checkTemplateLiteral(context, literalRegExp, templateLiteral);
+      },
       PropertyDefinition: (node: estree.Node) => {
         const property = node as TSESTree.PropertyDefinition;
         checkAssignment(
@@ -81,9 +96,10 @@ function checkAssignment(
 ) {
   if (
     initializer &&
-    isStringLiteral(initializer) &&
-    (initializer.value as string).length > 0 &&
-    patterns.some(pattern => context.sourceCode.getText(variable).toLowerCase().includes(pattern))
+    patterns.some(pattern =>
+      context.sourceCode.getText(variable).toLowerCase().includes(pattern),
+    ) &&
+    findValueSuspect(initializer)
   ) {
     context.report({
       messageId: 'reviewPassword',
@@ -92,14 +108,107 @@ function checkAssignment(
   }
 }
 
-function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: estree.Literal) {
-  if (
-    isStringLiteral(literal) &&
-    patterns.some(pattern => pattern.test((literal.value as string).toLowerCase()))
-  ) {
-    context.report({
-      messageId: 'reviewPassword',
-      node: literal,
-    });
+function findValueSuspect(node: estree.Node | undefined | null): boolean {
+  if (!node) {
+    return false;
   }
+  if (isStaticTemplateLiteral(node)) {
+    const value = node.quasis[0].value.cooked;
+    return (
+      value != null &&
+      value.length >= MIN_PASSWORD_LENGTH &&
+      !NON_CREDENTIAL_CHARS.test(value) &&
+      hasHighEntropy(value)
+    );
+  }
+  if (isStringLiteral(node)) {
+    const value = node.value as string;
+    return (
+      value.length >= MIN_PASSWORD_LENGTH &&
+      !NON_CREDENTIAL_CHARS.test(value) &&
+      hasHighEntropy(value)
+    );
+  }
+  if (node.type === 'ConditionalExpression') {
+    return findValueSuspect(node.consequent) || findValueSuspect(node.alternate);
+  }
+  if (
+    isLogicalExpression(node as TSESTree.Node) &&
+    ['??', '||'].includes((node as estree.LogicalExpression).operator)
+  ) {
+    return findValueSuspect((node as estree.LogicalExpression).right);
+  }
+  return false;
+}
+
+function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: estree.Literal) {
+  if (!isStringLiteral(literal)) {
+    return;
+  }
+  const value = literal.value as string;
+  checkStringValue(context, patterns, value, literal);
+}
+
+function checkTemplateLiteral(
+  context: Rule.RuleContext,
+  patterns: RegExp[],
+  templateLiteral: estree.TemplateLiteral,
+) {
+  if (!isStaticTemplateLiteral(templateLiteral)) {
+    return;
+  }
+  const value = templateLiteral.quasis[0].value.cooked;
+  if (value == null) {
+    return;
+  }
+  checkStringValue(context, patterns, value, templateLiteral);
+}
+
+function checkStringValue(
+  context: Rule.RuleContext,
+  patterns: RegExp[],
+  value: string,
+  node: estree.Node,
+) {
+  const lowerValue = value.toLowerCase();
+  for (const pattern of patterns) {
+    const match = pattern.exec(lowerValue);
+    if (!match) {
+      continue;
+    }
+    const eqIndex = value.indexOf('=', match.index);
+    if (eqIndex === -1) {
+      continue;
+    }
+    const passwordValue = extractPasswordValue(value, eqIndex);
+    if (passwordValue.length >= MIN_PASSWORD_LENGTH && hasHighEntropy(passwordValue)) {
+      context.report({
+        messageId: 'reviewPassword',
+        node,
+      });
+      return;
+    }
+  }
+}
+
+function extractPasswordValue(value: string, eqIndex: number): string {
+  const passwordPart = value.substring(eqIndex + 1);
+  const nextSep = findNextSeparator(passwordPart);
+  return nextSep === -1 ? passwordPart : passwordPart.substring(0, nextSep);
+}
+
+function findNextSeparator(str: string): number {
+  const separators = ['&', ' ', ';'];
+  let minIndex = -1;
+  for (const sep of separators) {
+    const idx = str.indexOf(sep);
+    if (idx !== -1 && (minIndex === -1 || idx < minIndex)) {
+      minIndex = idx;
+    }
+  }
+  return minIndex;
+}
+
+function hasHighEntropy(value: string): boolean {
+  return shannonEntropy(value) > ENTROPY_THRESHOLD;
 }

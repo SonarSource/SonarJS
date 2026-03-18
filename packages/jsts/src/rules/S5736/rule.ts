@@ -18,13 +18,10 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  Express,
-  generateMeta,
-  getFullyQualifiedName,
-  getProperty,
-  getPropertyWithValue,
-} from '../helpers/index.js';
+import { SensitiveMiddlewarePropertyRule } from '../helpers/express.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getProperty, getPropertyWithValue } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const HELMET = 'helmet';
@@ -32,7 +29,7 @@ const POLICY = 'policy';
 const REFERRER_POLICY = 'referrerPolicy';
 const UNSAFE_REFERRER_POLICY_VALUES = new Set(['', 'unsafe-url', 'no-referrer-when-downgrade']);
 
-export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
+export const rule: Rule.RuleModule = SensitiveMiddlewarePropertyRule(
   findNoReferrerPolicyPropertyFromHelmet,
   `Make sure disabling strict HTTP no-referrer policy is safe here.`,
   generateMeta(meta),

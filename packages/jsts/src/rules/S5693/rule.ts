@@ -20,13 +20,9 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { getVariablePropertyFromAssignment } from '../S2598/rule.js';
 import { parse } from 'bytes';
-import {
-  generateMeta,
-  getFullyQualifiedName,
-  getLhsVariable,
-  getProperty,
-  getValueOfExpression,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getLhsVariable, getProperty, getValueOfExpression } from '../helpers/ast.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 

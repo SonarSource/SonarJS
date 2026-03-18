@@ -18,14 +18,10 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import {
-  findFirstMatchingLocalAncestor,
-  generateMeta,
-  getFullyQualifiedName,
-  getVariableFromName,
-  isFunctionNode,
-  isIdentifier,
-} from '../helpers/index.js';
+import { findFirstMatchingLocalAncestor } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getVariableFromName, isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 

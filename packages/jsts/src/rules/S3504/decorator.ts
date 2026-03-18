@@ -15,7 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import { generateMeta, interceptReport } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 

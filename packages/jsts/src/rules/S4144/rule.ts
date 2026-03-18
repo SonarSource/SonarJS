@@ -17,15 +17,11 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4144
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  type RuleContext,
-  areEquivalent,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  last,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import type { RuleContext } from '../helpers/type.js';
+import { areEquivalent } from '../helpers/equivalence.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
+import { last } from '../helpers/collection.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';

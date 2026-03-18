@@ -18,15 +18,11 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  Express,
-  flattenArgs,
-  generateMeta,
-  getFullyQualifiedName,
-  isMethodInvocation,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { attemptFindAppInjection, attemptFindAppInstantiation } from '../helpers/express.js';
+import { flattenArgs, isMethodInvocation } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 // If a rule has a schema, use this to extract it.
 // import { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
@@ -66,7 +62,7 @@ export const rule: Rule.RuleModule = {
       },
       ':function'(node: estree.Node) {
         scopeStack.push({ app, lastSessionMiddleware });
-        const injectedApp = Express.attemptFindAppInjection(node as estree.Function, context, node);
+        const injectedApp = attemptFindAppInjection(node as estree.Function, context, node);
         if (injectedApp) {
           app = injectedApp;
           lastSessionMiddleware = null;
@@ -81,7 +77,7 @@ export const rule: Rule.RuleModule = {
       },
       VariableDeclarator(node: estree.Node) {
         const varDecl = node as estree.VariableDeclarator;
-        const instantiatedApp = Express.attemptFindAppInstantiation(varDecl, context);
+        const instantiatedApp = attemptFindAppInstantiation(varDecl, context);
         if (instantiatedApp) {
           app = instantiatedApp;
           lastSessionMiddleware = null;

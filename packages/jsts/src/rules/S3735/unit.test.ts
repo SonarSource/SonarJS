@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { rule } from './index.js';
+import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
 describe('S3735', () => {
@@ -110,7 +110,8 @@ describe('S3735', () => {
             declare function executeCommand(): ThenableFn<void>;
             void executeCommand();
             `,
-        },        {
+        },
+        {
           code: `
             // Union with void: () => void | Promise<void>
             type VoidOrPromiseFunction = () => void | Promise<void>;

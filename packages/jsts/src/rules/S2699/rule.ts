@@ -17,23 +17,23 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2699/javascript
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
+import * as Chai from '../helpers/chai.js';
+import { childrenOf } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getFullyQualifiedNameTS } from '../helpers/module-ts.js';
 import {
-  Chai,
-  childrenOf,
-  generateMeta,
-  getFullyQualifiedName,
-  getFullyQualifiedNameTS,
   getProperty,
   isFunctionCall,
   isIdentifier,
   isMethodCall,
-  isRequiredParserServices,
-  Mocha,
   resolveFunction,
-  Sinon,
-  Vitest,
-} from '../helpers/index.js';
-import { Supertest } from '../helpers/supertest.js';
+} from '../helpers/ast.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import * as Mocha from '../helpers/mocha.js';
+import * as Sinon from '../helpers/sinon.js';
+import * as Vitest from '../helpers/vitest.js';
+import * as Supertest from '../helpers/supertest.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';

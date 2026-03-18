@@ -16,7 +16,7 @@
  */
 import type { FileResult, ProjectAnalysisOutput } from './projectAnalysis.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
-import type { NormalizedAbsolutePath } from '../../rules/helpers/index.js';
+import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
 
 export function handleFileResult(
   result: FileResult,

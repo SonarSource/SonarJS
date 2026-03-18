@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule } from './index.js';
+import { rule } from './rule.js';
 import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
@@ -298,8 +298,7 @@ const sanitize = () => {
         }`,
         },
         {
-          // Compliant: two returns each producing the same union type (string | boolean)
-          // Both branches consistently return the same mixed-type ternary pattern
+          // Compliant: consistent union type
           code: `
 function commandMatch(pressed, mapped) {
   if (mapped.slice(-11) === '<character>') {
@@ -310,13 +309,36 @@ function commandMatch(pressed, mapped) {
 }`,
         },
         {
-          // Compliant: two returns both boolean, one early return and one via negation
+          // Compliant: consistent booleans
           code: `
 function isAssigned(node: any, container: any) {
   if (!node) {
     return false;
   }
   return !!container.check(node);
+}`,
+        },
+        {
+          // Compliant: any return excluded
+          code: `
+function printMemberExpression(path: any, print: any): boolean | string {
+  if (!path) {
+    return false;
+  }
+  return print(path.node);
+}`,
+        },
+        {
+          // Compliant: any return excluded
+          code: `
+function validateInput(value: any, externalValidate: any): boolean | string {
+  if (!value) {
+    return false;
+  }
+  if (typeof value !== 'string') {
+    return true;
+  }
+  return externalValidate(value);
 }`,
         },
       ],
@@ -604,7 +626,7 @@ function isAssigned(node: any, container: any) {
           ],
         },
         {
-          // Noncompliant: returns object or false (boolean) - mixed types
+          // Noncompliant: mixed object and boolean
           code: `
 function getConfig() {
   if (condition) {
@@ -615,7 +637,7 @@ function getConfig() {
           errors: 1,
         },
         {
-          // Noncompliant: validate-style pattern - returns boolean or array
+          // Noncompliant: mixed boolean and array
           code: `
 function validate() {
   if (!this.validators) {

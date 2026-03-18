@@ -16,64 +16,58 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  getFullyQualifiedName,
-  getFullyQualifiedNameTS,
-  getImportDeclarations,
-  getRequireCalls,
-  isIdentifier,
-} from './index.js';
+import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './module.js';
+import { getFullyQualifiedNameTS } from './module-ts.js';
+import { isIdentifier } from './ast.js';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
-export namespace Chai {
-  export function isImported(context: Rule.RuleContext): boolean {
-    return (
-      getRequireCalls(context).some(
-        r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'chai',
-      ) || getImportDeclarations(context).some(i => i.source.value === 'chai')
-    );
-  }
+export function isImported(context: Rule.RuleContext): boolean {
+  return (
+    getRequireCalls(context).some(
+      r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'chai',
+    ) || getImportDeclarations(context).some(i => i.source.value === 'chai')
+  );
+}
 
-  export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
-    if (node.kind !== ts.SyntaxKind.CallExpression) {
-      return false;
-    }
-    const fqn = getFullyQualifiedNameTS(services, node);
-    if (!fqn) {
-      return false;
-    }
-    return fqn.startsWith('chai.assert') || fqn.startsWith('chai.expect') || fqn.includes('should');
+export function isTSAssertion(services: ParserServicesWithTypeInformation, node: ts.Node) {
+  if (node.kind !== ts.SyntaxKind.CallExpression) {
+    return false;
   }
+  const fqn = getFullyQualifiedNameTS(services, node);
+  if (!fqn) {
+    return false;
+  }
+  return fqn.startsWith('chai.assert') || fqn.startsWith('chai.expect') || fqn.includes('should');
+}
 
-  export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
-    return isAssertUsage(context, node) || isExpectUsage(context, node) || isShouldUsage(node);
-  }
+export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
+  return isAssertUsage(context, node) || isExpectUsage(context, node) || isShouldUsage(node);
+}
 
-  function isAssertUsage(context: Rule.RuleContext, node: estree.Node) {
-    // assert(), assert.<expr>(), chai.assert(), chai.assert.<expr>()
-    const fqn = extractFQNforCallExpression(context, node);
-    if (!fqn) {
-      return false;
-    }
-    const names = fqn.split('.');
-    return names[0] === 'chai' && names[1] === 'assert';
+function isAssertUsage(context: Rule.RuleContext, node: estree.Node) {
+  // assert(), assert.<expr>(), chai.assert(), chai.assert.<expr>()
+  const fqn = extractFQNforCallExpression(context, node);
+  if (!fqn) {
+    return false;
   }
+  const names = fqn.split('.');
+  return names[0] === 'chai' && names[1] === 'assert';
+}
 
-  function isExpectUsage(context: Rule.RuleContext, node: estree.Node) {
-    // expect(), chai.expect()
-    return extractFQNforCallExpression(context, node) === 'chai.expect';
-  }
+function isExpectUsage(context: Rule.RuleContext, node: estree.Node) {
+  // expect(), chai.expect()
+  return extractFQNforCallExpression(context, node) === 'chai.expect';
+}
 
-  function isShouldUsage(node: estree.Node) {
-    // <expr>.should.<expr>
-    return node.type === 'MemberExpression' && isIdentifier(node.property, 'should');
-  }
+function isShouldUsage(node: estree.Node) {
+  // <expr>.should.<expr>
+  return node.type === 'MemberExpression' && isIdentifier(node.property, 'should');
+}
 
-  function extractFQNforCallExpression(context: Rule.RuleContext, node: estree.Node) {
-    if (node.type !== 'CallExpression') {
-      return undefined;
-    }
-    return getFullyQualifiedName(context, node);
+function extractFQNforCallExpression(context: Rule.RuleContext, node: estree.Node) {
+  if (node.type !== 'CallExpression') {
+    return undefined;
   }
+  return getFullyQualifiedName(context, node);
 }

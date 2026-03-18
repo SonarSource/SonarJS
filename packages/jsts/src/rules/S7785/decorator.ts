@@ -17,7 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7785/javascript
 
 import type { Rule } from 'eslint';
-import { generateMeta, isESModule } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isESModule } from '../helpers/module.js';
 import * as meta from './generated-meta.js';
 
 /**

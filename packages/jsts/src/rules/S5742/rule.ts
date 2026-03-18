@@ -18,18 +18,16 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  Express,
-  generateMeta,
-  getFullyQualifiedName,
-  getPropertyWithValue,
-} from '../helpers/index.js';
+import { SensitiveMiddlewarePropertyRule } from '../helpers/express.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getPropertyWithValue } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const HELMET = 'helmet';
 const EXPECT_CERTIFICATE_TRANSPARENCY = 'expectCt';
 
-export const rule: Rule.RuleModule = Express.SensitiveMiddlewarePropertyRule(
+export const rule: Rule.RuleModule = SensitiveMiddlewarePropertyRule(
   findFalseCertificateTransparencyPropertyFromHelmet,
   `Make sure disabling Certificate Transparency monitoring is safe here.`,
   generateMeta(meta),

@@ -18,15 +18,10 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  generateMeta,
-  isIdentifier,
-  isLiteral,
-  isMethodCall,
-  Mocha,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isIdentifier, isLiteral, isMethodCall } from '../helpers/ast.js';
+import { isTestCase } from '../helpers/mocha.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 const ASSERT_FUNCTIONS = [
@@ -46,7 +41,7 @@ export const rule: Rule.RuleModule = {
     const testCases: estree.Node[] = [];
     return {
       CallExpression(node: estree.Node) {
-        if (Mocha.isTestCase(node)) {
+        if (isTestCase(node)) {
           testCases.push(node);
           return;
         }
@@ -55,7 +50,7 @@ export const rule: Rule.RuleModule = {
         }
       },
       'CallExpression:exit': (node: estree.Node) => {
-        if (Mocha.isTestCase(node)) {
+        if (isTestCase(node)) {
           testCases.pop();
         }
       },

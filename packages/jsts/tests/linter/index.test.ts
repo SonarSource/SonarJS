@@ -22,7 +22,7 @@ import { Linter } from '../../src/linter/linter.js';
 import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { AnalysisMode } from '../../src/analysis/analysis.js';
-import { normalizeToAbsolutePath } from '../../src/rules/helpers/index.js';
+import { normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 
 describe('Linter', () => {
   it('should initialize the linter wrapper', async ({ mock }) => {
@@ -169,6 +169,78 @@ describe('Linter', () => {
       'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
       'sonarjs/internal-symbol-highlighting': ['error'],
     });
+  });
+
+  it('should disable rules whose requiredEcmaVersion exceeds the detected ES year', async () => {
+    // S7755 (prefer-at) requires ES2022 — should be disabled when project is ES2020
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S7755',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath('/file.js'),
+      'MAIN',
+      'DEFAULT',
+      'js',
+      2020,
+    );
+    expect(rules).not.toHaveProperty('sonarjs/S7755');
+  });
+
+  it('should enable rules whose requiredEcmaVersion matches the detected ES year', async () => {
+    // S7755 requires ES2022 — should be enabled when project is exactly ES2022
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S7755',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath('/file.js'),
+      'MAIN',
+      'DEFAULT',
+      'js',
+      2022,
+    );
+    expect(rules).toHaveProperty('sonarjs/S7755');
+  });
+
+  it('should enable all rules when detectedEsYear is undefined (esnext fallback)', async () => {
+    // No ES year detected → no restriction, all active rules should be enabled
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S7755',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath('/file.js'),
+      'MAIN',
+      'DEFAULT',
+      'js',
+      undefined,
+    );
+    expect(rules).toHaveProperty('sonarjs/S7755');
   });
 
   it('should not enable internal custom rules in SonarLint context', async () => {

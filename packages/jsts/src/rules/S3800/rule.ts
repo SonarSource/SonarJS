@@ -22,18 +22,16 @@ import type estree from 'estree';
 import ts, { type UnionType } from 'typescript';
 import {
   type RuleContext,
-  generateMeta,
-  getMainFunctionTokenLocation,
-  getParent,
   getTypeFromTreeNode,
   isAny,
   isBooleanTrueType,
-  isRequiredParserServices,
   isStringType,
-  last,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+} from '../helpers/type.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
+import { getParent } from '../helpers/ancestor.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { last } from '../helpers/collection.js';
 import * as meta from './generated-meta.js';
 
 class FunctionScope {
@@ -79,13 +77,13 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        const stmts = returnStatements.filter(
-          retStmt => !isNullLike(getTypeFromTreeNode(retStmt.argument!, services)),
-        );
+        // Exclude null-like and any-typed returns; any-typed returns come from external/unknown
+        // functions whose signature is unavailable and cannot contribute to type inconsistency.
+        const stmts = returnStatements.filter(retStmt => {
+          const type = getTypeFromTreeNode(retStmt.argument!, services);
+          return !isNullLike(type) && !isAny(type);
+        });
         const stmtsTypes = stmts.map(retStmt => getTypeFromTreeNode(retStmt.argument!, services));
-        if (stmtsTypes.every(isAny)) {
-          return;
-        }
         const stmtCategories = stmtsTypes.map(t => prettyPrint(t, checker));
         if (stmtCategories.filter((val, i, arr) => distinct(val, i, arr)).length <= 1) {
           return;

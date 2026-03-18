@@ -16,7 +16,7 @@
  */
 import type { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
 import type { RuleConfig } from '../linter/config.js';
-import type { CssIssue } from '../linter/issues/index.js';
+import type { CssIssue } from '../linter/issues/issue.js';
 
 /**
  * A CSS analysis input

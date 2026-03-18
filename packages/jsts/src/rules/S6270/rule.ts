@@ -18,15 +18,10 @@
 
 import type { Rule } from 'eslint';
 import type { NewExpression, Node } from 'estree';
-import {
-  type StringLiteral,
-  generateMeta,
-  getFullyQualifiedName,
-  isArrayExpression,
-  isStringLiteral,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { type StringLiteral, isArrayExpression, isStringLiteral } from '../helpers/ast.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import { type Result, getResultOfExpression } from '../helpers/result.js';
 import {
   type PolicyCheckerOptions,

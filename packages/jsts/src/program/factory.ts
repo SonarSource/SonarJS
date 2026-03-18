@@ -24,7 +24,7 @@ import {
 import { info } from '../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
 import { getCurrentFilesContext } from './cache/sourceFileCache.js';
-import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/index.js';
+import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/files.js';
 
 function createBuilderProgramWithHost(
   programOptions: ProgramOptions,
@@ -105,7 +105,13 @@ export function createProgramFromSingleFile(
   contents: string,
   compilerOptions: ts.CompilerOptions = defaultCompilerOptions,
 ) {
-  const target = compilerOptions.target ?? ts.ScriptTarget.ESNext;
+  // Fall back to esnext+dom when no lib is specified, matching the behaviour of
+  // the production code paths that call computeLibJson before createProgramOptionsFromJson.
+  const resolvedOptions = compilerOptions.lib
+    ? compilerOptions
+    : { ...compilerOptions, lib: ['esnext', 'dom'] };
+
+  const target = resolvedOptions.target ?? ts.ScriptTarget.ESNext;
 
   // Create a virtual file system with our source code
   const sourceFile = ts.createSourceFile(fileName, contents, target, true);
@@ -113,7 +119,7 @@ export function createProgramFromSingleFile(
   // Parse and brand through the centralized function (uses default parseConfigHost)
   const normalizedFileName = normalizeToAbsolutePath(fileName);
   const programOptions = createProgramOptionsFromJson(
-    compilerOptions,
+    resolvedOptions,
     [normalizedFileName],
     process.cwd(),
   );

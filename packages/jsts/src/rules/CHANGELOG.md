@@ -1,3 +1,28 @@
+## 2026-03-10, Version 4.0.2
+
+* [[JS-1364](https://sonarsource.atlassian.net/browse/JS-1364)] - Fix FP on S2234: MD5/crypto algorithm parameter rotation patterns
+* [[JS-1361](https://sonarsource.atlassian.net/browse/JS-1361)] - Fix FP on S1119: Labels used for control flow within switch statements
+* [[JS-1360](https://sonarsource.atlassian.net/browse/JS-1360)] - Fix FP on S1119: Labels for multi-level loop exits in nested iteration
+* [[JS-1122](https://sonarsource.atlassian.net/browse/JS-1122)] - Fix FP on S2310: Array splice with compensating counter decrement pattern
+* [[JS-139](https://sonarsource.atlassian.net/browse/JS-139)] - Fix FP S2201 (`no-ignored-return`): "Return values from functions without side effects should not be ignored" triggering on `Array#find`
+
+## 2026-03-06, Version 4.0.1
+
+* [[JS-1400](https://sonarsource.atlassian.net/browse/JS-1400)] - Get rid of no-script-url for FP reduction
+* [[JS-1337](https://sonarsource.atlassian.net/browse/JS-1337)] - Use trie-based directory grouping for TypeScript program creation
+* [[JS-1336](https://sonarsource.atlassian.net/browse/JS-1336)] - Fix infinite loop in getFullyQualifiedNameTS when import is shadowed
+* [[JS-1335](https://sonarsource.atlassian.net/browse/JS-1335)] - Add ESLint v10 support; remove code-eval, enforce-trailing-comma, super-invocation from eslint-plugin-sonarjs
+* [[JS-1333](https://sonarsource.atlassian.net/browse/JS-1333)] - fix(S7790): Prevent references to target FQNs from raising
+* [[JS-1325](https://sonarsource.atlassian.net/browse/JS-1325)] - Fix FP on S3403: Parameter undefined checks flagged as always false
+* [[JS-1301](https://sonarsource.atlassian.net/browse/JS-1301)] - Fix FP on S3800: Functions with consistent return types flagged as mixed
+* [[JS-1238](https://sonarsource.atlassian.net/browse/JS-1238)] - Create JS rule
+* [[JS-1179](https://sonarsource.atlassian.net/browse/JS-1179)] - Fix FP on S5850: Regex anchors with alternation for trimming operations
+* [[JS-1135](https://sonarsource.atlassian.net/browse/JS-1135)] - Fix FP on S3735: Union types containing Promise and void/undefined
+* [[JS-1123](https://sonarsource.atlassian.net/browse/JS-1123)] - Fix FP on S7718: Minified code with auto-generated catch parameter names
+* [[JS-1115](https://sonarsource.atlassian.net/browse/JS-1115)] - Fix FP on S4335: string & {} and number & {} patterns for type autocomplete
+* [[JS-1044](https://sonarsource.atlassian.net/browse/JS-1044)] - Implement the health check gRPC API
+* [[JS-290](https://sonarsource.atlassian.net/browse/JS-290)] - Fix FP S4165 (`no-redundant-assignments`)
+
 ## 2026-02-18, Version 4.0.0
 
 * [[JS-1335](https://sonarsource.atlassian.net/browse/JS-1335)] - Add ESLint v10 support; remove code-eval, enforce-trailing-comma, super-invocation from eslint-plugin-sonarjs

@@ -20,14 +20,16 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
   type RequiredParserServices,
-  generateMeta,
-  getParent,
+  isRequiredParserServices,
+} from '../helpers/parser-services.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getParent } from '../helpers/ancestor.js';
+import {
   getFunctionParameterCount,
   getTypeFromTreeNode,
-  interceptReport,
   isArrayLikeType,
-  isRequiredParserServices,
-} from '../helpers/index.js';
+} from '../helpers/type.js';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
 
 /**

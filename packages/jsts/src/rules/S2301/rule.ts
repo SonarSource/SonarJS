@@ -17,16 +17,12 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2301/javascript
 
 import type { Rule } from 'eslint';
-import {
-  generateMeta,
-  getTypeFromTreeNode,
-  getVariableFromIdentifier,
-  hasParent,
-  isBooleanType,
-  isRequiredParserServices,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getTypeFromTreeNode, isBooleanType } from '../helpers/type.js';
+import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
+import { hasParent } from '../helpers/ast.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import type { ArrowFunctionExpression, BlockStatement, FunctionExpression, Node } from 'estree';
 import * as meta from './generated-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';

@@ -14,13 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule } from './index.js';
+import { rule } from './rule.js';
 import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 const ruleTester = new NoTypeCheckingRuleTester();
 
-const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
+const DEFAULT_FORMAT = '^\\$?[A-Z][a-zA-Z0-9]*$';
 const CUSTOM_FORMAT = '^[_A-Z][a-zA-Z0-9]*$';
 
 describe('S101', () => {
@@ -30,7 +30,7 @@ describe('S101', () => {
         {
           code: `
       class MyClass {}
-      var x = class y {} // Compliant, rule doesn't check class expressions
+      var x = class y {} // Compliant: expressions not checked
       interface MyInterface {}
       `,
           options: [{ format: DEFAULT_FORMAT }],
@@ -42,6 +42,22 @@ describe('S101', () => {
       interface _MyInterface {}
       `,
           options: [{ format: CUSTOM_FORMAT }],
+        },
+        {
+          // Compliant: $ prefix allowed by default
+          code: `
+      interface $ZodCheckDef {}
+      interface $ZodCheckInternals<T> {}
+      interface $ZodCheckLessThanDef extends $ZodCheckDef {}
+      interface $ZodCheckLessThanInternals<T extends number> extends $ZodCheckInternals<T> {}
+      `,
+        },
+        {
+          // Compliant: $ prefix allowed by default
+          code: `
+      class $LocationShimProvider {}
+      class $ServiceProvider {}
+      `,
         },
       ],
       invalid: [
@@ -64,6 +80,14 @@ describe('S101', () => {
           errors: [
             {
               message: `Rename interface "my_interface" to match the regular expression ${DEFAULT_FORMAT}.`,
+            },
+          ],
+        },
+        {
+          code: `interface $my_interface {}`, // $ before snake_case still flagged
+          errors: [
+            {
+              message: `Rename interface "$my_interface" to match the regular expression ${DEFAULT_FORMAT}.`,
             },
           ],
         },

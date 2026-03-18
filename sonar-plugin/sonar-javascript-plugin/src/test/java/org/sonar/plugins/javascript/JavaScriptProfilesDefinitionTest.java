@@ -17,13 +17,18 @@
 package org.sonar.plugins.javascript;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.PROFILES_JSON;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SECURITY_RULE_KEYS_METHOD_NAME;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_JASMIN_RULES_CLASS_NAME;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.SONAR_WAY_JSON;
 import static org.sonar.plugins.javascript.JavaScriptProfilesDefinition.getSecurityRuleKeys;
 
+import com.google.gson.JsonParser;
 import com.sonar.plugins.jasmin.api.JsRules;
+import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -155,6 +160,83 @@ class JavaScriptProfilesDefinitionTest {
   }
 
   @Test
+  void should_define_all_profiles_from_generated_index() {
+    Set<String> profileNames = loadProfileNames();
+
+    assertThat(profileNames).isNotEmpty();
+    profileNames.forEach(profileName -> {
+      assertThat(context.profile(JavaScriptLanguage.KEY, profileName)).isNotNull();
+      assertThat(context.profile(TypeScriptLanguage.KEY, profileName)).isNotNull();
+    });
+  }
+
+  @Test
+  void should_add_profile_specific_rules_using_profile_name_api() {
+    var profileContext = new BuiltInQualityProfilesDefinition.Context();
+    new JavaScriptProfilesDefinition(
+      new ProfileRegistrar[] {
+        new ProfileRegistrar() {
+          @Override
+          public void register(RegistrarContext registrarContext) {
+            registrarContext.registerQualityProfileRules(
+              JavaScriptProfilesDefinition.SONAR_WAY,
+              Language.JAVASCRIPT,
+              List.of(RuleKey.of("additionalRepository", "profileSpecificRule"))
+            );
+          }
+        },
+      }
+    )
+      .define(profileContext);
+
+    BuiltInQualityProfile jsTargetProfile = profileContext.profile(
+      JavaScriptLanguage.KEY,
+      JavaScriptProfilesDefinition.SONAR_WAY
+    );
+    assertThat(jsTargetProfile.rules()).extracting("repoKey").contains("additionalRepository");
+    assertThat(jsTargetProfile.rules())
+      .extracting(BuiltInQualityProfilesDefinition.BuiltInActiveRule::ruleKey)
+      .contains("profileSpecificRule");
+
+    BuiltInQualityProfile tsSonarWayProfile = profileContext.profile(
+      TypeScriptLanguage.KEY,
+      JavaScriptProfilesDefinition.SONAR_WAY
+    );
+    assertThat(tsSonarWayProfile.rules())
+      .extracting("repoKey")
+      .doesNotContain("additionalRepository");
+  }
+
+  @Test
+  void should_ignore_unknown_profile_contributions() {
+    var profileContext = new BuiltInQualityProfilesDefinition.Context();
+    new JavaScriptProfilesDefinition(
+      new ProfileRegistrar[] {
+        new ProfileRegistrar() {
+          @Override
+          public void register(RegistrarContext registrarContext) {
+            registrarContext.registerQualityProfileRules(
+              "Unknown profile",
+              Language.JAVASCRIPT,
+              List.of(RuleKey.of("additionalRepository", "unknownRule"))
+            );
+          }
+        },
+      }
+    )
+      .define(profileContext);
+
+    loadProfileNames().forEach(profileName -> {
+      assertThat(profileContext.profile(JavaScriptLanguage.KEY, profileName).rules())
+        .extracting("repoKey")
+        .doesNotContain("additionalRepository");
+      assertThat(profileContext.profile(TypeScriptLanguage.KEY, profileName).rules())
+        .extracting("repoKey")
+        .doesNotContain("additionalRepository");
+    });
+  }
+
+  @Test
   void should_contains_security_rules_if_available() {
     // no security rule available
     assertThat(
@@ -183,5 +265,16 @@ class JavaScriptProfilesDefinitionTest {
     assertThat(getSecurityRuleKeys(SONAR_JASMIN_RULES_CLASS_NAME, "xxx", "js")).isEmpty();
 
     JsRules.clear();
+  }
+
+  private Set<String> loadProfileNames() {
+    var profilesIndex = getClass().getClassLoader().getResourceAsStream(PROFILES_JSON);
+    assertThat(profilesIndex).isNotNull();
+
+    Set<String> profileNames = new HashSet<>();
+    JsonParser.parseReader(new InputStreamReader(profilesIndex, StandardCharsets.UTF_8))
+      .getAsJsonArray()
+      .forEach(profile -> profileNames.add(profile.getAsJsonObject().get("name").getAsString()));
+    return profileNames;
   }
 }

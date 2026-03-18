@@ -17,13 +17,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6079/javascript
 
 import type { Rule, Scope } from 'eslint';
-import {
-  generateMeta,
-  getVariableFromIdentifier,
-  Mocha,
-  report as contextReport,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getVariableFromIdentifier } from '../helpers/reaching-definitions.js';
+import { type TestCase, extractTestCase } from '../helpers/mocha.js';
+import { report as contextReport, toSecondaryLocation } from '../helpers/location.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
@@ -35,11 +32,11 @@ export const rule: Rule.RuleModule = {
     let doneSegment: Rule.CodePathSegment | undefined;
 
     let currentSegment: Rule.CodePathSegment | undefined;
-    let currentCase: Mocha.TestCase;
+    let currentCase: TestCase;
     const segmentFirstStatement: Map<Rule.CodePathSegment, estree.Node> = new Map();
 
     function checkForTestCase(node: estree.Node) {
-      const testCase = Mocha.extractTestCase(node);
+      const testCase = extractTestCase(node);
       if (!testCase) {
         return;
       }

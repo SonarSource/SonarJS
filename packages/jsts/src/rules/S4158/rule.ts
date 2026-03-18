@@ -17,14 +17,10 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4158
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import {
-  ancestorsChain,
-  collectionConstructor,
-  findFirstMatchingAncestor,
-  generateMeta,
-  isIdentifier,
-  isReferenceTo,
-} from '../helpers/index.js';
+import { ancestorsChain, findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { collectionConstructor } from '../helpers/collection.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isIdentifier, isReferenceTo } from '../helpers/ast.js';
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';

@@ -19,11 +19,13 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import {
-  Express,
-  generateMeta,
-  getFullyQualifiedName,
-  isMethodInvocation,
-} from '../helpers/index.js';
+  attemptFindAppInstantiation,
+  isMiddlewareInstance,
+  isUsingMiddleware,
+} from '../helpers/express.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { isMethodInvocation } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const HELMET = 'helmet';
@@ -55,7 +57,7 @@ export const rule: Rule.RuleModule = {
         if (!isSafe && appInstantiation) {
           const callExpr = node as estree.CallExpression;
           isSafe =
-            Express.isUsingMiddleware(context, callExpr, appInstantiation, isProtecting(context)) ||
+            isUsingMiddleware(context, callExpr, appInstantiation, isProtecting(context)) ||
             isDisabledXPoweredBy(callExpr, appInstantiation) ||
             isSetFalseXPoweredBy(callExpr, appInstantiation) ||
             isAppEscaping(callExpr, appInstantiation);
@@ -65,7 +67,7 @@ export const rule: Rule.RuleModule = {
       VariableDeclarator: (node: estree.Node) => {
         if (!isSafe && !appInstantiation) {
           const varDecl = node as estree.VariableDeclarator;
-          const app = Express.attemptFindAppInstantiation(varDecl, context);
+          const app = attemptFindAppInstantiation(varDecl, context);
           if (app) {
             appInstantiation = app;
           }
@@ -105,7 +107,7 @@ function isHidePoweredByFromHelmet(context: Rule.RuleContext, n: estree.Node): b
 
 function isProtecting(context: Rule.RuleContext): (n: estree.Node) => boolean {
   return (n: estree.Node) =>
-    Express.isMiddlewareInstance(context, PROTECTING_MIDDLEWARES, n) ||
+    isMiddlewareInstance(context, PROTECTING_MIDDLEWARES, n) ||
     isHidePoweredByFromHelmet(context, n);
 }
 

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { DefaultParserRuleTester, RuleTester } from '../../../tests/tools/testers/rule-tester.js';
-import { rule } from './index.js';
+import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
 describe('S2234', () => {
@@ -63,6 +63,113 @@ describe('S2234', () => {
         f(p2, p1);
       }
       `,
+        },
+        {
+          // False positive: MD5 round functions use cyclic parameter rotation, not argument swaps
+          code: `
+        function ff(a, b, c, d, x, s, t) { return b; }
+        function gg(a, b, c, d, x, s, t) { return b; }
+        function hh(a, b, c, d, x, s, t) { return b; }
+        function ii(a, b, c, d, x, s, t) { return b; }
+        var a = 0, b = 0, c = 0, d = 0;
+        ff(c, d, a, b, 0, 17, 1);
+        gg(c, d, a, b, 0, 14, 1);
+        hh(c, d, a, b, 0, 16, 1);
+        ii(c, d, a, b, 0, 15, 1);
+        ff(d, a, b, c, 0, 12, 1);
+        ff(b, c, d, a, 0, 22, 1);
+        `,
+        },
+        {
+          // False positive: md5-prefixed round functions follow the same cyclic rotation pattern
+          code: `
+        function md5ff(a, b, c, d, x, s, ac) { return a; }
+        function md5gg(a, b, c, d, x, s, ac) { return a; }
+        function md5hh(a, b, c, d, x, s, ac) { return a; }
+        function md5ii(a, b, c, d, x, s, ac) { return a; }
+        var a = 0, b = 0, c = 0, d = 0;
+        md5ff(c, d, a, b, 0, 17, 1);
+        md5gg(d, a, b, c, 0, 9, 1);
+        md5hh(b, c, d, a, 0, 4, 1);
+        md5ii(c, d, a, b, 0, 15, 1);
+        `,
+        },
+        {
+          // False positive: md4-prefixed round functions follow the same cyclic rotation pattern
+          code: `
+        function md4ff(a, b, c, d, x, s, ac) { return a; }
+        function md4gg(a, b, c, d, x, s, ac) { return a; }
+        var a = 0, b = 0, c = 0, d = 0;
+        md4ff(c, d, a, b, 0, 17, 1);
+        md4gg(d, a, b, c, 0, 9, 1);
+        `,
+        },
+        {
+          // False positive: parameter swap inside 'rtl' object property is intentional RTL direction handling
+          code: `
+        function doSetRange(win, start, soffset, finish, foffset) {}
+        var win = window;
+        var setRangeFromRelative = {
+          ltr: function (start, soffset, finish, foffset) {
+            doSetRange(win, start, soffset, finish, foffset);
+          },
+          rtl: function (start, soffset, finish, foffset) {
+            doSetRange(win, finish, foffset, start, soffset);
+          },
+        };
+        `,
+        },
+        {
+          // False positive: string literal key 'rtl' is handled the same as identifier key 'rtl'
+          code: `
+        function doLayout(left, right) {}
+        var left = 0, right = 100;
+        var layoutHandlers = {
+          'ltr': function () { doLayout(left, right); },
+          'rtl': function () { doLayout(right, left); },
+        };
+        `,
+        },
+        {
+          // False positive: parameter swap inside 'rtl' property represents intentional reversed range
+          code: `
+        function relativeToNative(win, startSitu, finishSitu) {}
+        var win = null, startSitu = null, finishSitu = null;
+        var rangeHandlers = {
+          ltr: function () {
+            return relativeToNative(win, startSitu, finishSitu);
+          },
+          rtl: function () {
+            return relativeToNative(win, finishSitu, startSitu);
+          },
+        };
+        `,
+        },
+        {
+          // False positive: parameter swap inside 'reverse' property is intentional reverse-direction movement
+          code: `
+        function moveItems(from, to) {}
+        var from = 0, to = 10;
+        var directionHandlers = {
+          forward: function () {
+            moveItems(from, to);
+          },
+          reverse: function () {
+            moveItems(to, from);
+          },
+        };
+        `,
+        },
+        {
+          // False positive: parameter swap inside 'flip' property is intentional direction reversal
+          code: `
+        function render(x, y) {}
+        var x = 0, y = 0;
+        var handlers = {
+          normal: function () { render(x, y); },
+          flip: function () { render(y, x); },
+        };
+        `,
         },
       ],
       invalid: [
@@ -129,12 +236,41 @@ describe('S2234', () => {
       `,
           errors: 5,
         },
+        {
+          // Non-crypto functions with the same rotation pattern are still flagged
+          code: `
+        function other(a, b, c, d, x, s, t) {}
+        var a = 1, b = 2, c = 3, d = 4;
+        other(c, d, a, b, 0, 0, 0);`,
+          errors: 1,
+        },
+        {
+          // 'forwardRef' contains 'forward' but word-boundary matching prevents suppression
+          code: `
+        function process(a, b) {}
+        var a = 1, b = 2;
+        var obj = {
+          forwardRef: function () { process(b, a); },
+        };`,
+          errors: 1,
+        },
       ],
     });
 
     const typeScriptRuleTester = new RuleTester();
     typeScriptRuleTester.run('Parameters should be passed in the correct order', rule, {
       valid: [
+        {
+          // False positive: MemberExpression callee (obj.ff) extracts the property name for the crypto check
+          code: `
+        class MD5 {
+          ff(a: number, b: number, c: number, d: number, x: number, s: number, ac: number) { return a; }
+        }
+        const md5 = new MD5();
+        const a = 0, b = 0, c = 0, d = 0;
+        md5.ff(c, d, a, b, 0, 17, 1);
+        `,
+        },
         {
           code: `
         const a = 1, b = 2, c = 3, d = 4, x = "", y = 5;

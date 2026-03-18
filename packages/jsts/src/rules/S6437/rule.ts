@@ -18,15 +18,10 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  type IssueLocation,
-  generateMeta,
-  getFullyQualifiedName,
-  getProperty,
-  getValueOfExpression,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { type IssueLocation, report, toSecondaryLocation } from '../helpers/location.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
+import { getProperty, getValueOfExpression } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 // Dictionary with fully qualified names of functions and indices of their

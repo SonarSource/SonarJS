@@ -18,8 +18,14 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import * as helpers from '../helpers/index.js';
-import { generateMeta, isStringLiteral, last } from '../helpers/index.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isStringLiteral } from '../helpers/ast.js';
+import { isFunction, isString as isStringType } from '../helpers/type.js';
+import {
+  type RequiredParserServices,
+  isRequiredParserServices,
+} from '../helpers/parser-services.js';
+import { last } from '../helpers/collection.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -59,18 +65,15 @@ export const rule: Rule.RuleModule = {
 
 function isString(
   node: estree.SpreadElement | estree.Expression,
-  services?: helpers.RequiredParserServices,
+  services?: RequiredParserServices,
 ): boolean {
-  return (
-    (helpers.isRequiredParserServices(services) && helpers.isString(node, services)) ||
-    isStringLiteral(node)
-  );
+  return isRequiredParserServices(services) ? isStringType(node, services) : isStringLiteral(node);
 }
 
 function isCommonJsImport(
   callExpression: estree.CallExpression,
   identifier: estree.Identifier,
-  services: helpers.RequiredParserServices,
+  services: RequiredParserServices,
 ): boolean {
   return (
     callExpression.arguments.length === 1 &&
@@ -82,7 +85,7 @@ function isCommonJsImport(
 function isAmdImport(
   callExpression: estree.CallExpression,
   identifier: estree.Identifier,
-  services?: helpers.RequiredParserServices,
+  services?: RequiredParserServices,
 ): boolean {
   if (identifier.name !== 'require' && identifier.name !== 'define') {
     return false;
@@ -90,8 +93,5 @@ function isAmdImport(
   if (callExpression.arguments.length !== 2 && callExpression.arguments.length !== 3) {
     return false;
   }
-  return (
-    helpers.isRequiredParserServices(services) &&
-    helpers.isFunction(last(callExpression.arguments), services)
-  );
+  return isRequiredParserServices(services) && isFunction(last(callExpression.arguments), services);
 }

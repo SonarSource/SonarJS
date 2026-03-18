@@ -16,7 +16,7 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { transformRequestToProjectInput } from '../src/transformers/index.js';
+import { transformRequestToProjectInput } from '../src/transformers/request.js';
 import { transformProjectOutputToResponse } from '../src/transformers/response.js';
 import { buildRuleConfigurations as buildCssRuleConfigurations } from '../src/transformers/rule-configurations/css.js';
 import { buildRuleConfigurations as buildJstsRuleConfigurations } from '../src/transformers/rule-configurations/jsts.js';
@@ -619,6 +619,67 @@ describe('transformProjectOutputToResponse', () => {
       endLine: 1,
       endLineOffset: 2,
     });
+  });
+
+  it('should omit textRange for file-level JS/TS issues', () => {
+    const output = makeOutput({
+      '/project/src/file.js': {
+        issues: [
+          {
+            ruleId: 'S1451',
+            language: 'js',
+            line: 0,
+            column: 0,
+            endLine: 0,
+            endColumn: 0,
+            message: 'Add or update the header of this file.',
+            secondaryLocations: [
+              {
+                line: 0,
+                column: 0,
+                endLine: 0,
+                endColumn: 0,
+                message: 'Secondary',
+              },
+            ],
+            ruleESLintKeys: [],
+            filePath: '/project/src/file.js',
+          },
+        ],
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].textRange).toBeUndefined();
+    expect(result.issues?.[0].flows).toEqual([]);
+  });
+
+  it('should omit textRange for parsing error issues when parser returns line 0', () => {
+    const output = makeOutput({
+      '/project/src/broken.js': {
+        parsingError: { message: 'Unexpected token', code: 'PARSING', line: 0 },
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].textRange).toBeUndefined();
+  });
+
+  it('should omit textRange for parsing error issues when parser line is missing', () => {
+    const output = makeOutput({
+      '/project/src/broken.js': {
+        parsingError: { message: 'Unexpected token', code: 'PARSING' },
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].textRange).toBeUndefined();
   });
 
   it('should restore original paths using pathMap for JS/TS issues', () => {

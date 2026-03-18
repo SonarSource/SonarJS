@@ -19,21 +19,17 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  areEquivalent,
-  Chai,
-  generateMeta,
-  isIdentifier,
-  isLiteral,
-  report,
-  toSecondaryLocation,
-} from '../helpers/index.js';
+import { areEquivalent } from '../helpers/equivalence.js';
+import { isImported as isChaiImported } from '../helpers/chai.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isIdentifier, isLiteral } from '../helpers/ast.js';
+import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    if (!Chai.isImported(context)) {
+    if (!isChaiImported(context)) {
       return {};
     }
     return {

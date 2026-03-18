@@ -16,15 +16,9 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  type IssueLocation,
-  isIdentifier,
-  getValueOfExpression,
-  getFullyQualifiedName,
-  getProperty,
-  report,
-  toSecondaryLocation,
-} from './index.js';
+import { type IssueLocation, report, toSecondaryLocation } from './location.js';
+import { isIdentifier, getValueOfExpression, getProperty } from './ast.js';
+import { getFullyQualifiedName } from './module.js';
 
 export class CookieFlagCheck {
   issueMessage: string;

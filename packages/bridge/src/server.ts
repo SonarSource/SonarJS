@@ -17,9 +17,9 @@
 import express from 'express';
 import * as http from 'node:http';
 import router from './router.js';
-import { errorMiddleware } from './errors/index.js';
+import { errorMiddleware } from './errors/middleware.js';
 import { debug } from '../../shared/src/helpers/logging.js';
-import { timeoutMiddleware } from './timeout/index.js';
+import { timeoutMiddleware } from './timeout/middleware.js';
 import type { AddressInfo } from 'node:net';
 import type { Worker } from 'node:worker_threads';
 import {

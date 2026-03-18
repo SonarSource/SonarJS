@@ -18,14 +18,10 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope } from 'eslint';
-import {
-  collectionConstructor,
-  findFirstMatchingAncestor,
-  generateMeta,
-  isElementWrite,
-  isIdentifier,
-  writingMethods,
-} from '../helpers/index.js';
+import { collectionConstructor, writingMethods } from '../helpers/collection.js';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isElementWrite, isIdentifier } from '../helpers/ast.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 
@@ -107,7 +103,7 @@ function isReferenceAssigningCollection(ref: Scope.Reference) {
     if (declOrExprStmt.type === 'ExpressionStatement') {
       const { expression } = declOrExprStmt;
       return (
-        expression.type === 'AssignmentExpression' &&
+        expression?.type === 'AssignmentExpression' &&
         isReferenceTo(ref, expression.left as estree.Node) &&
         isCollectionType(expression.right)
       );
@@ -147,7 +143,7 @@ function isRead(ref: Scope.Reference) {
  * myArray.push(1);
  */
 function isWritingMethodCall(statement: estree.ExpressionStatement, ref: Scope.Reference) {
-  if (statement.expression.type === 'CallExpression') {
+  if (statement.expression?.type === 'CallExpression') {
     const { callee } = statement.expression;
     if (callee.type === 'MemberExpression') {
       const { property } = callee;

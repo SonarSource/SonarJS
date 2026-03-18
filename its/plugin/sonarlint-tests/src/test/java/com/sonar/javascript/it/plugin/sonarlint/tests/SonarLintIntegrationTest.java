@@ -149,11 +149,13 @@ class SonarLintIntegrationTest {
     assertResults(results -> {
       assertThat(results).hasSize(2);
       assertThat(client.getLogMessages()).contains("Resetting the TsConfigCache");
-      assertThat(client.getLogMessages()).contains(
-        "Using tsconfig " +
-          tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
-          " for " +
-          jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/')
+      assertThat(client.getLogMessages()).anyMatch(log ->
+        log.startsWith(
+          "Using tsconfig " +
+            tsconfigDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/') +
+            " for " +
+            jsFileDTO.getFsPath().toFile().getAbsolutePath().replace('\\', '/')
+        )
       );
       assertThat(results.get(0).getRuleKey()).isEqualTo("typescript:S3504");
       assertThat(results.get(1).getRuleKey()).isEqualTo("typescript:S2870");
@@ -196,8 +198,8 @@ class SonarLintIntegrationTest {
     assertResults(results -> {
       assertThat(results).hasSize(2);
       assertThat(client.getLogMessages()).contains("Resetting the TsConfigCache");
-      assertThat(client.getLogMessages()).contains(
-        "No tsconfig found for files, using default options"
+      assertThat(client.getLogMessages()).anyMatch(log ->
+        log.startsWith("No tsconfig found for files, using default options")
       );
       assertThat(results.get(0).getRuleKey()).isEqualTo("typescript:S3504");
       assertThat(results.get(1).getRuleKey()).isEqualTo("typescript:S2870");
