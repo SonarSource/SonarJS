@@ -53,20 +53,14 @@ export const rule: Rule.RuleModule = {
     };
 
     function getSuggestion(ifStmt: estree.IfStatement, parent: estree.Node) {
-      if (context.sourceCode.getCommentsInside(ifStmt.consequent).length > 0) {
+      const replacementRange = getReplacementRange(ifStmt, parent);
+      if (hasCommentsInRange(replacementRange)) {
         return [];
       }
       const getFix = (condition: string) => {
         return (fixer: Rule.RuleFixer) => {
           const singleReturn = `return ${condition};`;
-          if (ifStmt.alternate) {
-            return fixer.replaceText(ifStmt, singleReturn);
-          } else {
-            const ifStmtIndex = (parent as estree.BlockStatement).body.indexOf(ifStmt);
-            const returnStmt = (parent as estree.BlockStatement).body[ifStmtIndex + 1];
-            const range: [number, number] = [ifStmt.range![0], returnStmt.range![1]];
-            return fixer.replaceTextRange(range, singleReturn);
-          }
+          return fixer.replaceTextRange(replacementRange, singleReturn);
         };
       };
       const shouldNegate = isReturningFalse(ifStmt.consequent);
@@ -83,6 +77,22 @@ export const rule: Rule.RuleModule = {
       } else {
         return [{ messageId: 'suggest', fix: getFix(testText) }];
       }
+    }
+
+    function getReplacementRange(ifStmt: estree.IfStatement, parent: estree.Node): [number, number] {
+      if (ifStmt.alternate || parent.type !== 'BlockStatement') {
+        return ifStmt.range!;
+      }
+
+      const ifStmtIndex = parent.body.indexOf(ifStmt);
+      const returnStmt = parent.body[ifStmtIndex + 1];
+      return [ifStmt.range![0], returnStmt.range![1]];
+    }
+
+    function hasCommentsInRange(range: [number, number]): boolean {
+      return context.sourceCode
+        .getAllComments()
+        .some(comment => comment.range[0] >= range[0] && comment.range[1] <= range[1]);
     }
   },
 };
