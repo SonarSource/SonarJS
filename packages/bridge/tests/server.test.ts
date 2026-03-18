@@ -56,17 +56,20 @@ describe('server', () => {
 
   it('should fail when linter is not initialized', async () => {
     const { server, serverClosed } = await start(port);
+    try {
+      const fileType = 'MAIN';
 
-    const fileType = 'MAIN';
-
-    expect(JSON.parse(await requestAnalyzeJs(server, fileType))).toStrictEqual({
-      parsingError: {
-        code: 'LINTER_INITIALIZATION',
-        message: 'Linter does not exist. Did you call /init-linter?',
-      },
-    });
-    await request(server, '/close', 'POST');
-    await serverClosed;
+      expect(JSON.parse(await requestAnalyzeJs(server, fileType))).toStrictEqual({
+        parsingError: {
+          code: 'LINTER_INITIALIZATION',
+          message: 'Linter does not exist. Did you call /init-linter?',
+          language: 'js',
+        },
+      });
+    } finally {
+      await request(server, '/close', 'POST');
+      await serverClosed;
+    }
   });
 
   it('should accept a ws request', async t => {
