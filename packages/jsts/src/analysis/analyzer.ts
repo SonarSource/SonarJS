@@ -57,7 +57,8 @@ export async function analyzeJSTS(
   shouldIgnoreParams: ShouldIgnoreFileParams,
 ): Promise<JsTsAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}"`);
-  const { filePath, fileContent, fileType, analysisMode, fileStatus, language } = input;
+  const { filePath, fileContent, fileType, analysisMode, fileStatus, language, detectedEsYear } =
+    input;
 
   if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
     return { issues: [] };
@@ -75,6 +76,7 @@ export async function analyzeJSTS(
       fileStatus,
       analysisMode,
       language,
+      detectedEsYear,
     );
     const extendedMetrics = computeExtendedMetrics(
       input,

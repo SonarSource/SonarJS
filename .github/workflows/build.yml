@@ -102,7 +102,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v3.6.3
+        uses: jdx/mise-action@v4.0.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -144,7 +144,7 @@ jobs:
     steps:
       - *checkout
       - &mise
-        uses: jdx/mise-action@v3.6.3
+        uses: jdx/mise-action@v4.0.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -176,6 +176,8 @@ jobs:
           path: |
             sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript
             sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
+            resources/rule-data/javascript
+            resources/rule-data/css
             resources/rule-data/.synced-sha-javascript
             resources/rule-data/.synced-sha-css
           retention-days: 1
@@ -415,7 +417,7 @@ jobs:
             node-label: 'node 16'
     steps:
       - *checkout
-      - uses: jdx/mise-action@v3.6.3
+      - uses: jdx/mise-action@v4.0.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -465,7 +467,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v3.6.3
+        uses: jdx/mise-action@v4.0.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -517,7 +519,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v3.6.3
+        uses: jdx/mise-action@v4.0.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -676,7 +678,7 @@ jobs:
     steps:
       - *checkout
       - &mise_java_matrix_node
-        uses: jdx/mise-action@v3.6.3
+        uses: jdx/mise-action@v4.0.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -746,7 +748,7 @@ jobs:
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
-        uses: jdx/mise-action@v3.6.3
+        uses: jdx/mise-action@v4.0.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -838,7 +840,7 @@ jobs:
           chown -R sonar:sonar /github/home
       - &alpine_setup_maven
         name: Setup Maven
-        uses: jdx/mise-action@v3.6.3
+        uses: jdx/mise-action@v4.0.0
         with:
           version: 2025.11.2
           cache_save: true
@@ -1082,9 +1084,17 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_REF: ${{ github.head_ref }}
           BASE_REF: ${{ github.base_ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
           RULING_FAILED: ${{ steps.ruling.outcome == 'failure' }}
         run: |
           git fetch origin "$BASE_REF"
+          if [ -n "$BASE_SHA" ]; then
+            git fetch origin "$BASE_SHA" || true
+            if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+              echo "::error::Failed to fetch PR base SHA: $BASE_SHA"
+              exit 1
+            fi
+          fi
 
           # If ruling failed, sync the actual results first to get the differences
           if [ "$RULING_FAILED" = "true" ]; then

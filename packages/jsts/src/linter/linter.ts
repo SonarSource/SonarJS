@@ -184,6 +184,7 @@ export class Linter {
     fileStatus: FileStatus = 'CHANGED',
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
+    detectedEsYear?: number,
   ): LintingResult {
     if (!Linter.linter) {
       throw APIError.linterError(`Linter does not exist. Did you call /init-linter?`);
@@ -202,6 +203,7 @@ export class Linter {
         fileType,
         fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
         language,
+        detectedEsYear,
       ),
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
       settings: {
@@ -244,6 +246,7 @@ export class Linter {
     fileType: FileType,
     analysisMode: AnalysisMode,
     fileLanguage: JsTsLanguage,
+    detectedEsYear?: number,
   ): ESLintLinter.RulesRecord {
     const linterConfigKey = createLinterConfigKey(
       filePath,
@@ -251,6 +254,7 @@ export class Linter {
       fileType,
       fileLanguage,
       analysisMode,
+      detectedEsYear,
     );
     if (!Linter.rulesConfigCache.has(linterConfigKey)) {
       /**
@@ -275,12 +279,19 @@ export class Linter {
           !ruleMeta ||
           ruleMeta.requiredDependency.length === 0 ||
           ruleMeta.requiredDependency.some(dependency => dependencies.has(dependency));
+        const satisfiesEcmaVersion =
+          detectedEsYear == null ||
+          !ruleMeta ||
+          !('requiredEcmaVersion' in ruleMeta) ||
+          ruleMeta.requiredEcmaVersion == null ||
+          (ruleMeta.requiredEcmaVersion as number) <= detectedEsYear;
         return (
           fileTypeTargets.includes(fileType) &&
           analysisModes.includes(analysisMode) &&
           fileLanguage === language &&
           !(blacklistedExtensions || []).includes(extname(normalizePath(filePath))) &&
-          satisfiesRequiredDependency
+          satisfiesRequiredDependency &&
+          satisfiesEcmaVersion
         );
       });
       Linter.rulesConfigCache.set(linterConfigKey, Linter.createRulesRecord(rules ?? []));
@@ -347,9 +358,11 @@ function createLinterConfigKey(
   fileType: FileType,
   language: JsTsLanguage,
   analysisMode: AnalysisMode,
+  detectedEsYear?: number,
 ) {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const normalizedPath = normalizeToAbsolutePath(filePath);
   const packageJsonDirName = getClosestPackageJSONDir(dirnamePath(normalizedPath), baseDir);
-  return `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${packageJsonDirName}`;
+  const linterConfigKey = `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${packageJsonDirName}`;
+  return `${linterConfigKey}:${detectedEsYear ?? 'esnext'}`;
 }
