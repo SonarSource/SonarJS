@@ -5,7 +5,8 @@
     "*/src/**/*.json",
     "bridge/src/worker.js",
     "ruling/tools/*.ts",
-    "ruling/filter/*.ts"
+    "ruling/filter/*.ts",
+    "../typings/**/*.d.ts"
   ],
   "exclude": ["*/src/rules/**/*.test.ts", "*/src/rules/**/*.fixture.*", "*/src/rules/**/fixtures"]
 }

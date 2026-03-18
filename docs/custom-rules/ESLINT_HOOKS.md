@@ -9,7 +9,7 @@ This document describes the recommended approach for creating custom rules that 
 The `EslintHook` interface is the modern way to define custom rules in SonarJS. Rules implementing this interface:
 
 - **Can raise Sonar issues** when registered via `CustomRuleRepository`
-- **Are activated through quality profiles** - only run when enabled by users
+- **Are activated through quality profiles** - by default, run only when enabled in the active quality profile
 - **Provide full control** over analysis modes, file types, and configurations
 
 ## Components
@@ -21,6 +21,7 @@ A complete custom rules integration requires:
 3. **Rules Bundle** - packages the ESLint-side JavaScript code
 4. **Rules Definition** - defines rule metadata for SonarQube
 5. **Plugin Class** - registers all components
+6. **Profile Registrar (optional)** - implements `ProfileRegistrar` to activate rules in built-in profiles
 
 ## Implementation Guide
 
@@ -284,6 +285,61 @@ Add the SonarJS API dependency to your `pom.xml`:
 </dependency>
 ```
 
+### 9. Optional: Activate Rules in Built-In Profiles
+
+If you want your rules to be active by default in built-in quality profiles, implement `ProfileRegistrar`:
+
+```java
+package com.example.plugin;
+
+import java.util.List;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.plugins.javascript.api.Language;
+import org.sonar.plugins.javascript.api.ProfileRegistrar;
+
+public class MyProfileRegistrar implements ProfileRegistrar {
+
+  @Override
+  public void register(RegistrarContext registrarContext) {
+    // Backward-compatible shortcut for "Sonar way"
+    registrarContext.registerDefaultQualityProfileRules(
+      Language.JAVASCRIPT,
+      List.of(RuleKey.of(MyRuleRepository.REPOSITORY_KEY, "S1234"))
+    );
+    registrarContext.registerDefaultQualityProfileRules(
+      Language.TYPESCRIPT,
+      List.of(RuleKey.of(MyRuleRepository.REPOSITORY_KEY, "S1234"))
+    );
+
+    // Profile-aware activation using the rspec profile name
+    registrarContext.registerQualityProfileRules(
+      "Agentic",
+      Language.JAVASCRIPT,
+      List.of(RuleKey.of(MyRuleRepository.REPOSITORY_KEY, "S1234"))
+    );
+  }
+}
+```
+
+Register it in your plugin:
+
+```java
+context.addExtensions(
+  MyRulesBundle.class,
+  MyRuleRepository.class,
+  MyRulesDefinition.class,
+  MyProfileRegistrar.class
+);
+```
+
+Notes:
+
+- This is `@ServerSide` API and is not used in SonarLint.
+- `registerDefaultQualityProfileRules(...)` contributes to `Sonar way`.
+- `registerQualityProfileRules(...)` contributes to the profile name you pass (exact match required).
+- Profile names come from rspec `defaultQualityProfiles` metadata values.
+- Users can still activate/deactivate your rules in any quality profile.
+
 ## API Reference
 
 ### EslintHook Interface
@@ -304,6 +360,14 @@ Add the SonarJS API dependency to your `pom.xml`:
 | `repositoryKey()`       | Unique identifier for your rule repository    |
 | `checkClasses()`        | List of check classes implementing EslintHook |
 | `compatibleLanguages()` | Languages this repository supports (JS/TS)    |
+
+### ProfileRegistrar Interface (Optional)
+
+| Method                                    | Description                                                                 |
+| ----------------------------------------- | --------------------------------------------------------------------------- |
+| `register(RegistrarContext)`              | Called on server side to contribute additional built-in profile activations |
+| `registerDefaultQualityProfileRules(...)` | Adds rule keys to the built-in default profile (`Sonar way`) for JS or TS   |
+| `registerQualityProfileRules(...)`        | Adds rule keys to a specific built-in profile by name for JS or TS          |
 
 ## Best Practices
 
@@ -658,12 +722,14 @@ This is why `CustomRuleRepository` rules can raise issues: their `eslintKey` is 
 
 ### Key Integration Points
 
-| Component                      | File                                                       | Purpose                              |
-| ------------------------------ | ---------------------------------------------------------- | ------------------------------------ |
-| `EslintHook`                   | `sonar-plugin/api/.../EslintHook.java`                     | Rule interface                       |
-| `CustomRuleRepository`         | `sonar-plugin/api/.../CustomRuleRepository.java`           | Interface for rule repositories      |
-| `RulesBundle`                  | `sonar-plugin/api/.../RulesBundle.java`                    | Interface for JS bundle location     |
-| `JsTsChecks.addCustomChecks()` | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java` | Processes custom repositories        |
-| `JsTsChecks.doAddChecks()`     | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java` | Instantiates checks via CheckFactory |
-| `RulesBundles`                 | `sonar-plugin/bridge/.../RulesBundles.java`                | Deploys JS bundles                   |
-| `Linter`                       | `packages/jsts/src/linter/linter.ts`                       | Loads and executes rules             |
+| Component                      | File                                                                         | Purpose                               |
+| ------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------- |
+| `EslintHook`                   | `sonar-plugin/api/.../EslintHook.java`                                       | Rule interface                        |
+| `CustomRuleRepository`         | `sonar-plugin/api/.../CustomRuleRepository.java`                             | Interface for rule repositories       |
+| `ProfileRegistrar`             | `sonar-plugin/api/.../ProfileRegistrar.java`                                 | Optional default-profile activations  |
+| `RulesBundle`                  | `sonar-plugin/api/.../RulesBundle.java`                                      | Interface for JS bundle location      |
+| `JsTsChecks.addCustomChecks()` | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java`                   | Processes custom repositories         |
+| `JsTsChecks.doAddChecks()`     | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java`                   | Instantiates checks via CheckFactory  |
+| `JavaScriptProfilesDefinition` | `sonar-plugin/sonar-javascript-plugin/.../JavaScriptProfilesDefinition.java` | Applies default-profile contributions |
+| `RulesBundles`                 | `sonar-plugin/bridge/.../RulesBundles.java`                                  | Deploys JS bundles                    |
+| `Linter`                       | `packages/jsts/src/linter/linter.ts`                                         | Loads and executes rules              |

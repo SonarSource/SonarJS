@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isLogicalExpression, isStringLiteral } from '../helpers/ast.js';
+import { isLogicalExpression, isStaticTemplateLiteral, isStringLiteral } from '../helpers/ast.js';
 import { shannonEntropy } from '../helpers/entropy.js';
 import path from 'node:path';
 import type { FromSchema } from 'json-schema-to-ts';
@@ -71,6 +71,10 @@ export const rule: Rule.RuleModule = {
         const literal = node as estree.Literal;
         checkLiteral(context, literalRegExp, literal);
       },
+      TemplateLiteral: (node: estree.Node) => {
+        const templateLiteral = node as estree.TemplateLiteral;
+        checkTemplateLiteral(context, literalRegExp, templateLiteral);
+      },
       PropertyDefinition: (node: estree.Node) => {
         const property = node as TSESTree.PropertyDefinition;
         checkAssignment(
@@ -108,6 +112,15 @@ function findValueSuspect(node: estree.Node | undefined | null): boolean {
   if (!node) {
     return false;
   }
+  if (isStaticTemplateLiteral(node)) {
+    const value = node.quasis[0].value.cooked;
+    return (
+      value != null &&
+      value.length >= MIN_PASSWORD_LENGTH &&
+      !NON_CREDENTIAL_CHARS.test(value) &&
+      hasHighEntropy(value)
+    );
+  }
   if (isStringLiteral(node)) {
     const value = node.value as string;
     return (
@@ -133,6 +146,30 @@ function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: es
     return;
   }
   const value = literal.value as string;
+  checkStringValue(context, patterns, value, literal);
+}
+
+function checkTemplateLiteral(
+  context: Rule.RuleContext,
+  patterns: RegExp[],
+  templateLiteral: estree.TemplateLiteral,
+) {
+  if (!isStaticTemplateLiteral(templateLiteral)) {
+    return;
+  }
+  const value = templateLiteral.quasis[0].value.cooked;
+  if (value == null) {
+    return;
+  }
+  checkStringValue(context, patterns, value, templateLiteral);
+}
+
+function checkStringValue(
+  context: Rule.RuleContext,
+  patterns: RegExp[],
+  value: string,
+  node: estree.Node,
+) {
   const lowerValue = value.toLowerCase();
   for (const pattern of patterns) {
     const match = pattern.exec(lowerValue);
@@ -147,7 +184,7 @@ function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: es
     if (passwordValue.length >= MIN_PASSWORD_LENGTH && hasHighEntropy(passwordValue)) {
       context.report({
         messageId: 'reviewPassword',
-        node: literal,
+        node,
       });
       return;
     }

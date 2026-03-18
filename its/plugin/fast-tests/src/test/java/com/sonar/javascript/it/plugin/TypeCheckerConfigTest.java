@@ -82,7 +82,7 @@ class TypeCheckerConfigTest {
       .filteredOn(
         l ->
           l.level().equals(Log.Level.INFO) &&
-          l.message().equals("Analyzing 1 file(s) using merged compiler options")
+          l.message().startsWith("Analyzing 1 file(s) using merged compiler options")
       )
       .hasSize(1);
 

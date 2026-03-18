@@ -205,7 +205,7 @@ describe('S3516', () => {
         }
         
         var arrowWithExpressionBody = p => p ? 1 : 1;
-        
+
         function sameSymbolicValueSameConstraint(p) { // FN - not using SE
           var num = foo() - bar();
           var num2 = num;
@@ -215,6 +215,94 @@ describe('S3516', () => {
             return num2;
           }
         }`,
+        },
+        {
+          // chaining pattern: while-loop mutates obj in-place, invariant return enables chaining
+          code: `
+function deepFreezeExample<T>(obj: T): T {
+  if (!obj || typeof obj !== 'object') {
+    return obj;
+  }
+  const stack: any[] = [obj];
+  while (stack.length > 0) {
+    const current = stack.shift();
+    Object.freeze(current);
+    for (const key of Object.keys(current)) {
+      const val = current[key];
+      if (val && typeof val === 'object' && !Object.isFrozen(val)) {
+        stack.push(val);
+      }
+    }
+  }
+  return obj;
+}`,
+        },
+        {
+          // chaining pattern: if/else mutates linked-list pointers, invariant return enables chaining
+          code: `
+interface MoveRecord<V> {
+  value: V;
+  previousIndex: number;
+  _nextMoved: MoveRecord<V> | null;
+}
+function addToMovesExample<V>(
+  record: MoveRecord<V>,
+  movesTail: MoveRecord<V> | null,
+  toIndex: number,
+): MoveRecord<V> {
+  if (record.previousIndex === toIndex) {
+    return record;
+  }
+  if (movesTail === null) {
+    movesTail = record;
+  } else {
+    movesTail._nextMoved = record;
+  }
+  return record;
+}`,
+        },
+        {
+          // signaling pattern: conditional callback invocation, invariant return of non-literal
+          code: `
+interface SelectionState { empty: boolean; from: number; }
+interface PluginState {
+  decorations: string[];
+  selection: SelectionState;
+  getAnnotationsAt(pos: number): string[] | null;
+}
+function getDecorationsExample(
+  state: PluginState,
+  onUpdate: (annotations: string[]) => void,
+): string[] {
+  const decorations = state.decorations ?? [];
+  if (!state.selection.empty) {
+    return decorations;
+  }
+  const annotations = state.getAnnotationsAt(state.selection.from);
+  if (annotations) {
+    onUpdate(annotations);
+  }
+  return decorations;
+}`,
+        },
+        {
+          // middleware pattern: async function returns non-literal for chaining while a nested
+          // conditional performs side effects (e.g. signout, alert) without returning.
+          // Two returns of the same non-literal value but with an inner side-effect-only branch.
+          code: `
+async function middlewareExample(req, next) {
+  const res = await next(req)
+  if (res.errors && res.errors.length) {
+    if (alreadyHandled(req)) {
+      return res
+    }
+    const result = await fetch('/api/check')
+    if (result.status === 401) {
+      performSignOut()
+    }
+  }
+  return res
+}`,
         },
       ],
       invalid: [
@@ -478,6 +566,31 @@ describe('S3516', () => {
         var arrowEquivalent5 = (p) => { if (p) { return "boolean"; } return typeof false; };
         var arrowEquivalent6 = (p) => { if (p) { return ~4; } return -5; };`,
           errors: 8,
+        },
+        {
+          // literal return with side-effect conditional: literal guard prevents exemption
+          code: `
+function f(a, g) {
+  if (a < 0) { return false; }
+  if (a > 10) { g(a); }
+  return false;
+}`,
+          errors: 1,
+        },
+        {
+          // switch where the case with side effect ALSO has a return: not side-effect-only branch,
+          // so the exemption does not apply and the issue is correctly raised
+          code: `
+function dispatchInTheMiddleOfReducer(state = [], action) {
+  switch (action.type) {
+    case 'DISPATCH_IN_MIDDLE':
+      sideEffect()
+      return state
+    default:
+      return state
+  }
+}`,
+          errors: 1,
         },
       ],
     });

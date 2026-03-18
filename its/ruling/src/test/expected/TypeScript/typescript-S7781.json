@@ -50,46 +50,5 @@
 2446,
 2469,
 3002
-],
-"TypeScript:src/harness/compilerRunner.ts": [
-196
-],
-"TypeScript:src/harness/fourslash.ts": [
-26,
-107,
-1879,
-2423,
-2430,
-2836,
-2836,
-2836,
-2836
-],
-"TypeScript:src/harness/harness.ts": [
-1261,
-1263,
-1353,
-1483
-],
-"TypeScript:src/harness/runner.ts": [
-38
-],
-"TypeScript:src/harness/runnerbase.ts": [
-39
-],
-"TypeScript:src/harness/test262Runner.ts": [
-40
-],
-"TypeScript:src/server/session.ts": [
-953
-],
-"TypeScript:src/services/jsTyping.ts": [
-192
-],
-"TypeScript:src/services/navigationBar.ts": [
-630
-],
-"TypeScript:src/services/services.ts": [
-1887
 ]
 }

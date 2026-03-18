@@ -103,6 +103,7 @@ public class StandaloneParser implements AutoCloseable {
   }
 
   public static class Builder {
+
     private int timeout = DEFAULT_TIMEOUT_SECONDS;
     private int maxOldSpaceSize = -1;
     private org.sonar.api.config.Configuration configuration = new EmptyConfiguration();
@@ -164,7 +165,16 @@ public class StandaloneParser implements AutoCloseable {
       BridgeServer.AnalysisResponse result = bridge.analyzeJsTs(request);
       Node ast = result.ast();
       if (ast == null) {
-        throw new IllegalArgumentException("Failed to parse the code");
+        var parsingError = result.parsingError();
+        var message =
+          parsingError != null && parsingError.message() != null
+            ? String.format(
+                "Failed to parse the code: [%s] in [%s]",
+                parsingError.message(),
+                filename
+              )
+            : "Failed to parse the code";
+        throw new IllegalArgumentException(message);
       }
       return ESTreeFactory.from(ast, ESTree.Program.class);
     } catch (IOException e) {
