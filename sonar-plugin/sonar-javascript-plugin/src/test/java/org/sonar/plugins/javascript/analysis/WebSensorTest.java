@@ -392,7 +392,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+              "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"} }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -419,7 +419,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+              "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"} }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -446,7 +446,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { message: \"Parse error message\"} }",
+              "{ parsingError: { message: \"Parse error message\", language: \"ts\"} }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -597,7 +597,7 @@ class WebSensorTest {
             GSON.fromJson(
               "{ parsingError: { message: \"Debug Failure. False expression.\", code: \"" +
                 BridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT +
-                "\"} }",
+                "\", language: \"ts\"} }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -639,7 +639,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { message: \"Parse error message\"} }",
+              "{ parsingError: { message: \"Parse error message\", language: \"ts\"} }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );

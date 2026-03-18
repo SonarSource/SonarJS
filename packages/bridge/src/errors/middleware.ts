@@ -32,11 +32,11 @@ export type ParsingErrorLanguage = 'js' | 'ts' | 'css';
  */
 export function errorMiddleware(
   err: any,
-  _request: express.Request,
+  request: express.Request,
   response: express.Response,
   _next: express.NextFunction,
 ) {
-  response.json(handleError(err));
+  response.json(handleError(err, inferParsingErrorLanguage(request, err)));
 }
 
 export function handleError(err: any, language?: ParsingErrorLanguage) {
@@ -45,11 +45,50 @@ export function handleError(err: any, language?: ParsingErrorLanguage) {
     case ErrorCode.Parsing:
     case ErrorCode.FailingTypeScript:
     case ErrorCode.LinterInitialization:
-      return generateParsingError(err, language);
+      return generateParsingError(err, resolveParsingErrorLanguage(code, language));
     default:
       error(stack);
       return { error: message };
   }
+}
+
+function resolveParsingErrorLanguage(
+  code: ErrorCode,
+  language?: ParsingErrorLanguage,
+): ParsingErrorLanguage {
+  if (language !== undefined) {
+    return language;
+  }
+  return code === ErrorCode.FailingTypeScript ? 'ts' : 'js';
+}
+
+function inferParsingErrorLanguage(request: express.Request, err: any): ParsingErrorLanguage {
+  const fromRequest = inferLanguageFromFilePath(request.body?.filePath);
+  return resolveParsingErrorLanguage(err?.code, fromRequest);
+}
+
+function inferLanguageFromFilePath(filePath: unknown): ParsingErrorLanguage | undefined {
+  if (typeof filePath !== 'string') {
+    return undefined;
+  }
+  const path = filePath.toLowerCase();
+  if (
+    path.endsWith('.css') ||
+    path.endsWith('.scss') ||
+    path.endsWith('.sass') ||
+    path.endsWith('.less')
+  ) {
+    return 'css';
+  }
+  if (
+    path.endsWith('.ts') ||
+    path.endsWith('.tsx') ||
+    path.endsWith('.cts') ||
+    path.endsWith('.mts')
+  ) {
+    return 'ts';
+  }
+  return 'js';
 }
 
 function generateParsingError(
@@ -58,21 +97,19 @@ function generateParsingError(
     code: ErrorCode;
     data?: { line: number };
   },
-  language?: ParsingErrorLanguage,
+  language: ParsingErrorLanguage,
 ) {
   const parsingError: {
     message: string;
     code: ErrorCode;
     line: number | undefined;
-    language?: ParsingErrorLanguage;
+    language: ParsingErrorLanguage;
   } = {
     message: error.message,
     code: error.code,
     line: error.data?.line,
+    language,
   };
-  if (language !== undefined) {
-    parsingError.language = language;
-  }
   return {
     parsingError,
   };

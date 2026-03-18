@@ -69,7 +69,7 @@ class AnalysisProcessorTest {
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var highlight = new Highlight(location, "");
     var response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(),
       List.of(highlight),
       List.of(),
@@ -100,7 +100,7 @@ class AnalysisProcessorTest {
     var declaration = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var symbol = new HighlightedSymbol(declaration, List.of());
     var response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(),
       List.of(),
       List.of(symbol),
@@ -116,7 +116,7 @@ class AnalysisProcessorTest {
     context = new JsTsContext(SensorContextTester.create(baseDir));
     symbol = new HighlightedSymbol(new Location(1, 1, 1, 2), List.of(new Location(2, 2, 2, 1)));
     response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(),
       List.of(),
       List.of(symbol),
@@ -147,7 +147,7 @@ class AnalysisProcessorTest {
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var cpd = new CpdToken(location, "img");
     var response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(),
       List.of(),
       List.of(),
@@ -190,7 +190,7 @@ class AnalysisProcessorTest {
       "file.js"
     ); // invalid location startLine > endLine
     var response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(issue),
       List.of(),
       List.of(),
@@ -223,7 +223,7 @@ class AnalysisProcessorTest {
       .build();
 
     var response = new AnalysisResponse(
-      new ParsingError("Unclosed block", 2, ParsingErrorCode.PARSING, "css"),
+      List.of(new ParsingError("Unclosed block", 2, ParsingErrorCode.PARSING, "css")),
       List.of(),
       List.of(),
       List.of(),
@@ -264,7 +264,7 @@ class AnalysisProcessorTest {
       .build();
 
     var response = new AnalysisResponse(
-      new ParsingError("Unexpected token", 2, ParsingErrorCode.PARSING, "js"),
+      List.of(new ParsingError("Unexpected token", 2, ParsingErrorCode.PARSING, "js")),
       List.of(),
       List.of(),
       List.of(),
@@ -305,7 +305,7 @@ class AnalysisProcessorTest {
       .build();
 
     var response = new AnalysisResponse(
-      new ParsingError("Unclosed block", 2, ParsingErrorCode.PARSING, "css"),
+      List.of(new ParsingError("Unclosed block", 2, ParsingErrorCode.PARSING, "css")),
       List.of(),
       List.of(),
       List.of(),
@@ -320,5 +320,48 @@ class AnalysisProcessorTest {
     assertThat(context.getSensorContext().allIssues().iterator().next().ruleKey()).isEqualTo(
       RuleKey.of("css", "S2260")
     );
+  }
+
+  @Test
+  void should_process_multiple_parsing_errors_for_the_same_file() {
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
+    var cssRules = mock(CssRules.class);
+    when(cssRules.getActiveSonarKey("CssSyntaxError")).thenReturn(RuleKey.of("css", "S2260"));
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      cssRules
+    );
+    var checks = mock(JsTsChecks.class);
+    when(checks.parsingErrorRuleKey(Language.JAVASCRIPT)).thenReturn(
+      RuleKey.of("javascript", "S2260")
+    );
+    when(checks.parsingErrorRuleKey()).thenReturn(RuleKey.of("javascript", "S2260"));
+
+    var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    var file = TestInputFileBuilder.create("moduleKey", "file.html")
+      .setLanguage("web")
+      .setContents("<script>\nconst a = ;\n</script>\n<style>\na {\n</style>")
+      .build();
+
+    var response = new AnalysisResponse(
+      List.of(
+        new ParsingError("Unexpected token", 2, ParsingErrorCode.PARSING, "js"),
+        new ParsingError("Unclosed block", 5, ParsingErrorCode.PARSING, "css")
+      ),
+      List.of(),
+      List.of(),
+      List.of(),
+      new Metrics(),
+      List.of(),
+      null
+    );
+
+    processor.processResponse(context, checks, file, response);
+
+    assertThat(context.getSensorContext().allIssues())
+      .extracting(issue -> issue.ruleKey().repository())
+      .containsExactlyInAnyOrder("javascript", "css");
   }
 }

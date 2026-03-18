@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { handleError } from '../../../../bridge/src/errors/middleware.js';
 import type { JsTsAnalysisInput } from '../analysis.js';
 import { analyzeHTML } from '../../../../html/src/index.js';
 import { analyzeYAML } from '../../../../yaml/src/index.js';
@@ -29,7 +28,13 @@ import {
 } from '../../../../shared/src/helpers/configuration.js';
 import { inferLanguage } from '../../../../shared/src/helpers/sanitize.js';
 import { type WsIncrementalResult, serializeError } from '../../../../bridge/src/request.js';
-import type { FileResult, ProjectAnalysisOutput, JsTsFile } from './projectAnalysis.js';
+import type {
+  FileResult,
+  JsTsFile,
+  ParsingError,
+  ParsingErrorLanguage,
+  ProjectAnalysisOutput,
+} from './projectAnalysis.js';
 import type { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import type ts from 'typescript';
@@ -38,6 +43,7 @@ import type { EmbeddedAnalysisInput } from '../../embedded/analysis/analysis.js'
 import type { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/filter.js';
 import { analyzeCSS } from '../../../../css/src/analysis/analyzer.js';
 import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
+import { ErrorCode } from '../../../../shared/src/errors/error.js';
 import { error } from '../../../../shared/src/helpers/logging.js';
 
 /**
@@ -92,7 +98,7 @@ export async function analyzeFile(
   };
 
   // Run analysis through the unified dispatcher (with error handling)
-  const result = await analyzeInput(input, shouldIgnoreParams);
+  let result = await analyzeInput(input, shouldIgnoreParams);
 
   // For Vue and web files: also run stylelint CSS analysis on <style> blocks.
   // Mirrors CssRuleSensor.getInputFiles() in Java (vueFilePredicate + webFilePredicate).
@@ -110,7 +116,14 @@ export async function analyzeFile(
         result.issues.push(...cssOutput.issues);
       }
     } catch (e) {
-      error(`CSS analysis failed for ${fileName}: ${e}`);
+      const cssResult = normalizeFailure(e, 'css');
+      if ('parsingErrors' in cssResult) {
+        result = mergeParsingErrors(result, cssResult.parsingErrors ?? []);
+      } else {
+        // Preserve legacy behavior for non-parsing CSS failures in mixed files:
+        // log and continue with the primary analysis result.
+        error(`CSS analysis failed for ${fileName}: ${e}`);
+      }
     }
   }
 
@@ -148,15 +161,57 @@ async function analyzeInput(
   try {
     return await getAnalyzerForFile(input, shouldIgnoreParams);
   } catch (e) {
-    return handleError(serializeError(e), parsingErrorLanguage(input, shouldIgnoreParams));
+    return normalizeFailure(e, parsingErrorLanguage(input, shouldIgnoreParams));
   }
 }
 
 function parsingErrorLanguage(
   input: JsTsAnalysisInput,
   shouldIgnoreParams: ShouldIgnoreFileParams,
-): 'js' | 'ts' | 'css' {
+): ParsingErrorLanguage {
   return isCssFile(input.filePath, shouldIgnoreParams.cssSuffixes) ? 'css' : input.language;
+}
+
+function normalizeFailure(
+  failure: unknown,
+  language: ParsingErrorLanguage,
+): FileResult | { parsingErrors: ParsingError[] } | { error: string } {
+  const serialized = serializeError(failure);
+  const { code, message, data } = serialized;
+
+  if (
+    code === ErrorCode.Parsing ||
+    code === ErrorCode.FailingTypeScript ||
+    code === ErrorCode.LinterInitialization
+  ) {
+    const parsingError: ParsingError = {
+      message: String(message),
+      code,
+      line: data?.line,
+      language,
+    };
+    return { parsingErrors: [parsingError] };
+  }
+
+  return { error: String(message) };
+}
+
+function mergeParsingErrors(result: FileResult, parsingErrors: ParsingError[]): FileResult {
+  if (parsingErrors.length === 0 || 'error' in result) {
+    return result;
+  }
+
+  if ('parsingErrors' in result) {
+    return {
+      ...result,
+      parsingErrors: [...(result.parsingErrors ?? []), ...parsingErrors],
+    };
+  }
+
+  return {
+    ...result,
+    parsingErrors,
+  };
 }
 
 async function getAnalyzerForFile(
