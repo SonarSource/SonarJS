@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "sources": {
+    "supportedStandard": "https://github.com/SonarSource/sonar-rule-api/blob/master/src/main/java/com/sonarsource/ruleapi/externalspecifications/SupportedStandard.java",
+    "asciiDoctorConverter": "https://github.com/SonarSource/sonar-rule-api/blob/master/src/main/java/com/sonarsource/ruleapi/asciidoctor/AsciiDoctorConverter.java"
+  },
+  "tagApplicability": {
+    "cert": ["c", "cpp", "java"],
+    "cwe": ["*"],
+    "misra-c2004": ["c"],
+    "misra-c2012": ["c"],
+    "misra-c++2008": ["cpp"],
+    "owasp-a1": ["*"],
+    "owasp-a2": ["*"],
+    "owasp-a3": ["*"],
+    "owasp-a4": ["*"],
+    "owasp-a5": ["*"],
+    "owasp-a6": ["*"],
+    "owasp-a7": ["*"],
+    "owasp-a8": ["*"],
+    "owasp-a9": ["*"],
+    "owasp-a10": ["*"],
+    "sans-top25-insecure": ["*"],
+    "sans-top25-risky": ["*"],
+    "sans-top25-porous": ["*"]
+  }
+}

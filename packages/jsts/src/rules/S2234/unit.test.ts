@@ -125,6 +125,73 @@ describe('S2234', () => {
         function getSortedDesc(items) { return items.sort((a, b) => sorter(b, a)); }
         `,
         },
+        {
+          // False positive: parameter swap inside 'rtl' object property is intentional RTL direction handling
+          code: `
+        function doSetRange(win, start, soffset, finish, foffset) {}
+        var win = window;
+        var setRangeFromRelative = {
+          ltr: function (start, soffset, finish, foffset) {
+            doSetRange(win, start, soffset, finish, foffset);
+          },
+          rtl: function (start, soffset, finish, foffset) {
+            doSetRange(win, finish, foffset, start, soffset);
+          },
+        };
+        `,
+        },
+        {
+          // False positive: string literal key 'rtl' is handled the same as identifier key 'rtl'
+          code: `
+        function doLayout(left, right) {}
+        var left = 0, right = 100;
+        var layoutHandlers = {
+          'ltr': function () { doLayout(left, right); },
+          'rtl': function () { doLayout(right, left); },
+        };
+        `,
+        },
+        {
+          // False positive: parameter swap inside 'rtl' property represents intentional reversed range
+          code: `
+        function relativeToNative(win, startSitu, finishSitu) {}
+        var win = null, startSitu = null, finishSitu = null;
+        var rangeHandlers = {
+          ltr: function () {
+            return relativeToNative(win, startSitu, finishSitu);
+          },
+          rtl: function () {
+            return relativeToNative(win, finishSitu, startSitu);
+          },
+        };
+        `,
+        },
+        {
+          // False positive: parameter swap inside 'reverse' property is intentional reverse-direction movement
+          code: `
+        function moveItems(from, to) {}
+        var from = 0, to = 10;
+        var directionHandlers = {
+          forward: function () {
+            moveItems(from, to);
+          },
+          reverse: function () {
+            moveItems(to, from);
+          },
+        };
+        `,
+        },
+        {
+          // False positive: parameter swap inside 'flip' property is intentional direction reversal
+          code: `
+        function render(x, y) {}
+        var x = 0, y = 0;
+        var handlers = {
+          normal: function () { render(x, y); },
+          flip: function () { render(y, x); },
+        };
+        `,
+        },
       ],
       invalid: [
         {
@@ -210,6 +277,16 @@ describe('S2234', () => {
           code: `
         function compare(a, b) { return a - b; }
         const fn = (a, b) => { console.log(a, b); return compare(b, a); };`,
+          errors: 1,
+        },
+        {
+          // 'forwardRef' contains 'forward' but word-boundary matching prevents suppression
+          code: `
+        function process(a, b) {}
+        var a = 1, b = 2;
+        var obj = {
+          forwardRef: function () { process(b, a); },
+        };`,
           errors: 1,
         },
       ],

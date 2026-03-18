@@ -50,6 +50,10 @@ export async function generateMetaForRule(
   const ruleFolder = join(RULES_FOLDER, sonarKey);
   const eslintConfiguration = await getESLintDefaultConfiguration(sonarKey);
 
+  // Extract ES year from tags like ["es2022", "performance"]
+  const ecmaTag = ruleRspecMeta.tags.find((t: string) => /^es20\d\d$/i.test(t));
+  const requiredEcmaVersion = ecmaTag ? Number.parseInt(ecmaTag.slice(2), 10) : undefined;
+
   await inflateTemplateToFile(
     join(TS_TEMPLATES_FOLDER, 'generated-meta.template'),
     join(ruleFolder, `generated-meta.ts`),
@@ -66,6 +70,8 @@ export async function generateMetaForRule(
       ___LANGUAGES___: JSON.stringify(ruleRspecMeta.compatibleLanguages),
       ___SCOPE___: ruleRspecMeta.scope,
       ___REQUIRED_DEPENDENCY___: JSON.stringify(ruleRspecMeta.extra?.requiredDependency ?? []),
+      ___REQUIRED_ECMA_VERSION___:
+        requiredEcmaVersion !== undefined ? String(requiredEcmaVersion) : 'undefined',
     },
   );
 }
