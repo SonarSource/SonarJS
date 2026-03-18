@@ -259,6 +259,7 @@ describe('defaultCompilerOptions', () => {
   it('should have expected default values', () => {
     expect(defaultCompilerOptions.allowJs).toBe(true);
     expect(defaultCompilerOptions.noImplicitAny).toBe(true);
+    expect(defaultCompilerOptions.strict).toBe(false);
     expect(defaultCompilerOptions.lib).toBeUndefined();
   });
 });

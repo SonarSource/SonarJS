@@ -58,6 +58,7 @@ type CustomParseConfigHost = {
 export const defaultCompilerOptions: ts.CompilerOptions = {
   allowJs: true,
   noImplicitAny: true,
+  strict: false,
 };
 
 /**
