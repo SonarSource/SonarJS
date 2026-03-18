@@ -141,6 +141,22 @@ export const rule: Rule.RuleModule = {
       return false;
     }
 
+    /**
+     * Returns true when the detected argument swap is an intentional reversal wrapper.
+     *
+     * A reversal wrapper is an ArrowFunctionExpression or FunctionExpression with exactly
+     * 2 identifier parameters whose sole body is a single call that passes those same 2
+     * parameters in swapped order, e.g. `(a, b) => compare(b, a)`.
+     *
+     * **Accepted tradeoff**: this check fires whenever the enclosing 2-parameter function's
+     * entire body is that reversed call — it does not verify that the callee is a comparator
+     * or that the wrapper is passed to `.sort()` / `.toSorted()`. The rationale is that a
+     * sole-purpose reversal wrapper is almost always intentional (descending sort, RTL/LTR
+     * flip, semver reverse-compare, etc.), and restricting to sort-accepting methods would
+     * miss the majority of real-world cases. A genuine bug like
+     * `(year, month) => formatDate(month, year)` is unlikely to be the *only* statement in
+     * the wrapper function, so the sole-body constraint limits false negatives in practice.
+     */
     function isIntentionalComparatorReversal(
       functionCall: estree.CallExpression,
       arg1Name: string,
