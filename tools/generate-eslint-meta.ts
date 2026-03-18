@@ -70,8 +70,10 @@ export async function generateMetaForRule(
       ___LANGUAGES___: JSON.stringify(ruleRspecMeta.compatibleLanguages),
       ___SCOPE___: ruleRspecMeta.scope,
       ___REQUIRED_DEPENDENCY___: JSON.stringify(ruleRspecMeta.extra?.requiredDependency ?? []),
-      ___REQUIRED_ECMA_VERSION___:
-        requiredEcmaVersion !== undefined ? String(requiredEcmaVersion) : 'undefined',
+      ___REQUIRED_ECMA_VERSION_EXPORT___:
+        requiredEcmaVersion !== undefined
+          ? `export const requiredEcmaVersion = ${requiredEcmaVersion};`
+          : '',
     },
   );
 }
