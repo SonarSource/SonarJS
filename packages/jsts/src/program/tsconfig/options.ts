@@ -17,13 +17,17 @@
 
 import ts from 'typescript';
 import { error, warn } from '../../../../shared/src/helpers/logging.js';
-import { getNodeVersionSignal } from '../../rules/helpers/package-jsons/dependencies.js';
+import {
+  getNodeVersionSignal,
+  getTypeScriptVersionSignal,
+} from '../../rules/helpers/package-jsons/dependencies.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
 import { getCachedProgramOptions, setCachedProgramOptions } from '../cache/programOptionsCache.js';
 import { sourceFileStore } from '../../analysis/projectAnalysis/file-stores/index.js';
 import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../../rules/helpers/files.js';
+import { intersects } from 'semver';
 
 /**
  * Unique symbol to brand ProgramOptions, ensuring they can only be created
@@ -58,6 +62,12 @@ export const defaultCompilerOptions: ts.CompilerOptions = {
   noImplicitAny: true,
   strict: false,
 };
+
+const STRICTNESS_COMPILER_OPTIONS: string[] = [
+  'strict',
+  'alwaysStrict',
+  ...new Set(ts.optionDeclarations.filter(option => option.strictFlag).map(option => option.name)),
+];
 
 /**
  * Node.js major version to ES year mapping (descending order for lookup).
@@ -107,6 +117,81 @@ export function nodeVersionToEs(major: number): number {
     }
   }
   return 2017; // fallback for very old Node versions
+}
+
+function addExplicitStrictnessCompilerOptions(
+  compilerOptions: unknown,
+  explicitOptions: Set<string>,
+) {
+  if (!compilerOptions || typeof compilerOptions !== 'object') {
+    return;
+  }
+  const options = compilerOptions as Record<string, unknown>;
+  for (const optionName of STRICTNESS_COMPILER_OPTIONS) {
+    if (Object.hasOwn(options, optionName)) {
+      explicitOptions.add(optionName);
+    }
+  }
+}
+
+function getExplicitStrictnessCompilerOptions(
+  rootConfig: any,
+  extendedConfigCache: Map<string, ts.ExtendedConfigCacheEntry>,
+) {
+  const explicitOptions = new Set<string>();
+
+  addExplicitStrictnessCompilerOptions(rootConfig?.compilerOptions, explicitOptions);
+  for (const entry of extendedConfigCache.values()) {
+    addExplicitStrictnessCompilerOptions(
+      entry.extendedConfig?.raw?.compilerOptions,
+      explicitOptions,
+    );
+  }
+
+  return explicitOptions;
+}
+
+function isTypeScriptVersionDefinitelyBelow6(versionRange: string) {
+  try {
+    const options = { includePrerelease: true };
+    const supportsBelow6 = intersects(versionRange, '<6.0.0-0', options);
+    const supports6OrAbove = intersects(versionRange, '>=6.0.0-0', options);
+    return supportsBelow6 && !supports6OrAbove;
+  } catch {
+    return false;
+  }
+}
+
+function shouldApplyLegacyStrictnessDefaults(baseDir?: NormalizedAbsolutePath) {
+  if (!baseDir) {
+    return false;
+  }
+  const versionSignal = getTypeScriptVersionSignal(baseDir);
+  if (!versionSignal) {
+    return false;
+  }
+  return isTypeScriptVersionDefinitelyBelow6(versionSignal);
+}
+
+function applyLegacyStrictnessDefaults(
+  parsedConfigFile: ts.ParsedCommandLine,
+  rootConfig: any,
+  extendedConfigCache: Map<string, ts.ExtendedConfigCacheEntry>,
+) {
+  const explicitOptions = getExplicitStrictnessCompilerOptions(rootConfig, extendedConfigCache);
+
+  // If strict is explicitly configured (including via extends), TypeScript already applies
+  // the expected defaults for strict sub-options.
+  if (explicitOptions.has('strict')) {
+    return;
+  }
+
+  const compilerOptions = parsedConfigFile.options as Record<string, unknown>;
+  for (const optionName of STRICTNESS_COMPILER_OPTIONS) {
+    if (!explicitOptions.has(optionName)) {
+      compilerOptions[optionName] = false;
+    }
+  }
 }
 
 function esYearFromEsPrefix(ecmaScriptVersion: string): number | null {
@@ -382,6 +467,7 @@ export function createProgramOptions(
     throw new Error(diagnosticToString(config.error));
   }
 
+  const extendedConfigCache = new Map<string, ts.ExtendedConfigCacheEntry>();
   const parsedConfigFile = ts.parseJsonConfigFileContent(
     config.config,
     parseConfigHost,
@@ -399,7 +485,12 @@ export function createProgramOptions(
         scriptKind: ts.ScriptKind.Deferred,
       },
     ],
+    extendedConfigCache,
   );
+
+  if (shouldApplyLegacyStrictnessDefaults(baseDir)) {
+    applyLegacyStrictnessDefaults(parsedConfigFile, config.config, extendedConfigCache);
+  }
 
   // Enrich with computed lib if not set by the tsconfig or any extended config.
   // Checked after parsing so that inherited lib settings are respected.
