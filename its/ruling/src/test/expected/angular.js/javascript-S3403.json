@@ -1,5 +1,24 @@
 {
+"angular.js:src/ng/compile.js": [
+2231
+],
 "angular.js:src/ng/directive/ngModel.js": [
 714
+],
+"angular.js:src/ng/location.js": [
+582
+],
+"angular.js:src/ngAnimate/shared.js": [
+27,
+27,
+36,
+36
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+1986
+],
+"angular.js:src/ngSanitize/sanitize.js": [
+509,
+509
 ]
 }

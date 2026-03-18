@@ -3,16 +3,37 @@
 157
 ],
 "TypeScript:src/compiler/binder.ts": [
-185
+185,
+204
 ],
 "TypeScript:src/compiler/checker.ts": [
 60,
 61,
 62,
+579,
+583,
+2507,
+3249,
 3661,
+4478,
+5040,
+6152,
+6419,
+6767,
+6925,
+6977,
+7174,
+7261,
+7300,
+7433,
+7608,
+7647,
 10038,
+10464,
 11051,
+13712,
 14885,
+15858,
 19049,
 22598
 ],
@@ -24,13 +45,27 @@
 1529
 ],
 "TypeScript:src/compiler/factory.ts": [
+988,
 3558
 ],
 "TypeScript:src/compiler/parser.ts": [
-1112
+704,
+1112,
+6769,
+6864
 ],
 "TypeScript:src/compiler/program.ts": [
+1008,
+1300,
 1839
+],
+"TypeScript:src/compiler/transformers/destructuring.ts": [
+231
+],
+"TypeScript:src/compiler/transformers/es2015.ts": [
+2611,
+2957,
+2963
 ],
 "TypeScript:src/compiler/transformers/generators.ts": [
 2412,

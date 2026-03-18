@@ -2,6 +2,13 @@
 "p5.js:lib/addons/p5.sound.js": [
 9362
 ],
+"p5.js:src/dom/dom.js": [
+1188,
+1195
+],
+"p5.js:src/events/acceleration.js": [
+647
+],
 "p5.js:src/events/keyboard.js": [
 189,
 240
@@ -9,7 +16,11 @@
 "p5.js:src/io/files.js": [
 1854
 ],
+"p5.js:src/utilities/conversion.js": [
+272
+],
 "p5.js:src/webgl/p5.RendererGL.Immediate.js": [
+34,
 153
 ]
 }

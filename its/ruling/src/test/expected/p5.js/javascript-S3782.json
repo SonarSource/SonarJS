@@ -5,5 +5,8 @@
 "p5.js:src/typography/p5.Font.js": [
 1007,
 1008
+],
+"p5.js:src/webgl/light.js": [
+826
 ]
 }

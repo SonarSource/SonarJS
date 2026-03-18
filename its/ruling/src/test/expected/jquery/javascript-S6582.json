@@ -27,9 +27,6 @@
 "jquery:src/core/init.js": [
 53
 ],
-"jquery:src/core/parseHTML.js": [
-45
-],
 "jquery:src/css.js": [
 244
 ],
