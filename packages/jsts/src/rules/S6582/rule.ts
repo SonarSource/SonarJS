@@ -114,7 +114,6 @@ export const rule: Rule.RuleModule = {
       if (undefinedAssignable) {
         // undefined is assignable to the contextual type — replacement is type-safe
         ctx.report(descriptor);
-        return;
       }
       // undefined is NOT assignable to the contextual type — suppress the report
     }).create(context);
