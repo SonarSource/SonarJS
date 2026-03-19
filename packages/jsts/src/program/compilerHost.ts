@@ -23,7 +23,7 @@ import {
   setCachedSourceFile,
   invalidateParsedSourceFile,
 } from './cache/sourceFileCache.js';
-import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
+import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/files.js';
 
 interface FsCall {
   op: string;
@@ -288,6 +288,13 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     includes: readonly string[],
     depth?: number,
   ): string[] {
+    const normalizedRootDir = normalizeToAbsolutePath(rootDir, this.baseDir);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalizedRootDir)) {
+      this.trackFsCall('readDirectory-node_modules-skip', rootDir);
+      return [];
+    }
+
+    this.trackFsCall('readDirectory-disk', rootDir);
     return this.baseHost.readDirectory!(rootDir, extensions, excludes, includes, depth);
   }
 
@@ -301,5 +308,13 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   getNewLine(): string {
     return this.baseHost.getNewLine();
+  }
+
+  private shouldSkipNodeModulesOutsideBaseDir(fileName: string): boolean {
+    if (fileName.startsWith(this.getDefaultLibLocation())) {
+      return false;
+    }
+    const baseDirPrefix = `${this.baseDir}/`;
+    return fileName.includes('/node_modules/') && !fileName.startsWith(baseDirPrefix);
   }
 }
