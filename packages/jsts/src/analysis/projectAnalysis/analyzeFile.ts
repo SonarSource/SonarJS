@@ -38,6 +38,7 @@ import { analyzeCSSProject } from '../../../../css/src/analysis/analyzer.js';
 import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
 import { error } from '../../../../shared/src/helpers/logging.js';
 import type { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/filter.js';
+import type { FileSuccessResult } from './projectAnalysis.js';
 
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
@@ -155,6 +156,7 @@ async function mergeAdditionalCssAnalysis(
   if ('error' in result) {
     return result;
   }
+  const primaryResult = result as FileSuccessResult;
 
   const cssResult = await analyzeCSSProject(
     {
@@ -168,23 +170,16 @@ async function mergeAdditionalCssAnalysis(
   if ('error' in cssResult) {
     // Preserve legacy behavior for non-parsing CSS failures in mixed files.
     error(`CSS analysis failed for ${fileName}: ${cssResult.error}`);
-    return result;
+    return primaryResult;
   }
-
-  if ('issues' in cssResult && 'issues' in result) {
-    result.issues.push(...cssResult.issues);
-  }
-
+  primaryResult.issues.push(...cssResult.issues);
   if ('parsingErrors' in cssResult && cssResult.parsingErrors?.length) {
-    const parsingErrors = [
-      ...('parsingErrors' in result ? (result.parsingErrors ?? []) : []),
-      ...cssResult.parsingErrors,
-    ];
+    const parsingErrors = [...(primaryResult.parsingErrors ?? []), ...cssResult.parsingErrors];
     return {
-      ...result,
+      ...primaryResult,
       parsingErrors,
     };
   }
 
-  return result;
+  return primaryResult;
 }

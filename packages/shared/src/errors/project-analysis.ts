@@ -31,7 +31,12 @@ export type ParsingError = {
   language: ParsingErrorLanguage;
 };
 
-export type ProjectFailureResult = { parsingErrors: ParsingError[] } | { error: string };
+export type ProjectParsingResult = {
+  issues: [];
+  parsingErrors: ParsingError[];
+};
+
+export type ProjectFailureResult = ProjectParsingResult | { error: string };
 
 export function isParsingErrorCode(code: ErrorCode | undefined): code is ParsingErrorCode {
   return (
@@ -48,6 +53,7 @@ export function toProjectFailureResult(
   if (failure instanceof APIError) {
     if (isParsingErrorCode(failure.code)) {
       return {
+        issues: [],
         parsingErrors: [
           {
             message: failure.message,

@@ -20,10 +20,7 @@ import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/con
 import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
 import type { CssAnalysisOutput } from '../../../../css/src/analysis/analysis.js';
 import type { FileType, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import type {
-  ParsingError,
-  ProjectFailureResult,
-} from '../../../../shared/src/errors/project-analysis.js';
+import type { ParsingError } from '../../../../shared/src/errors/project-analysis.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
@@ -45,12 +42,14 @@ export type ProjectAnalysisOutput = {
   meta: ProjectAnalysisMeta;
 };
 
-export type FileResult = AnalysisOutputWithParsingErrors | ProjectFailureResult;
+export type FileResult = FileSuccessResult | FileErrorResult;
 
-type AnalysisOutputWithParsingErrors =
+export type FileSuccessResult =
   | (JsTsAnalysisOutput & { parsingErrors?: ParsingError[] })
   | (EmbeddedAnalysisOutput & { parsingErrors?: ParsingError[] })
   | (CssAnalysisOutput & { parsingErrors?: ParsingError[] });
+
+export type FileErrorResult = { error: string };
 
 /**
  * Partial file input used for intermediate storage during project analysis.
