@@ -21,10 +21,9 @@ import { describe } from 'node:test';
 
 describe('S6477', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
-  process.chdir(dirname); // change current working dir to avoid the package.json lookup to up in the tree
 
   const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('S6477 reports missing keys even when React is not explicitly imported', rule, {
+  ruleTester.run('S6477 reports missing keys in JSX list items', rule, {
     valid: [],
     invalid: [
       {
