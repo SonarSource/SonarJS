@@ -43,11 +43,49 @@ describe('S2392', () => {
 
           var build;
           var f;
-      
+
           try {
             build = 1;
           } catch (e) {
             f = build;
+          }
+        }
+        `,
+        },
+        {
+          // Compliant: counter reused across sequential for-loops
+          code: `
+        function processOps(ops) {
+          for (var i = 0; i < ops.length; i++)
+            phase1(ops[i]);
+          for (var i = 0; i < ops.length; i++)
+            phase2(ops[i]);
+          for (var i = 0; i < ops.length; i++)
+            phase3(ops[i]);
+        }
+        `,
+        },
+        {
+          // Compliant: for-in and for-loop share same var
+          code: `
+        function clearAll(items, extras) {
+          for (var n in items)
+            process(n);
+          for (var n = extras.length - 1; n >= 0; n--)
+            extras[n].remove();
+        }
+        `,
+        },
+        {
+          // Compliant: multiple vars reused across sequential for-loops
+          code: `
+        function extend(args) {
+          for (var v, b, i = 0; i < args.length; i++) {
+            v = v || args[i].initialize;
+            b = b || args[i].prototype;
+          }
+          for (var v, b, j = 0; j < args.length; j++) {
+            finalize(v, b, args[j]);
           }
         }
         `,
@@ -143,6 +181,23 @@ describe('S2392', () => {
               message:
                 "Consider moving declaration of 'k' as it is referenced outside current binding context.",
               line: 11,
+            },
+          ],
+        },
+        {
+          // counter used after all loops — not covered by another loop's redeclaration
+          code: `
+        function fun() {
+          for (var i = 0; i < n; i++) {}
+          for (var i = 0; i < m; i++) {}
+          foo(i);
+        }
+        `,
+          errors: [
+            {
+              message:
+                "Consider moving declaration of 'i' as it is referenced outside current binding context.",
+              line: 3,
             },
           ],
         },
