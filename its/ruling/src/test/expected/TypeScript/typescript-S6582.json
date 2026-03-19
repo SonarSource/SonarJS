@@ -49,7 +49,6 @@
 4755,
 5131,
 5225,
-5252,
 5989,
 6055,
 6204,
@@ -79,9 +78,7 @@
 14369,
 14563,
 14602,
-14756,
 14765,
-14878,
 14886,
 15643,
 15899,
@@ -90,7 +87,6 @@
 16498,
 16517,
 17374,
-18291,
 18361,
 18433,
 19067,
@@ -306,7 +302,6 @@
 1011,
 1031,
 1085,
-1184,
 1306,
 1898,
 1915,
@@ -325,7 +320,6 @@
 "TypeScript:src/harness/harness.ts": [
 742,
 905,
-1307,
 1591,
 1909,
 1909,
@@ -474,6 +468,12 @@
 ],
 "TypeScript:src/services/formatting/formattingScanner.ts": [
 145
+],
+"TypeScript:src/services/formatting/rules.ts": [
+577,
+581,
+585,
+589
 ],
 "TypeScript:src/services/goToDefinition.ts": [
 18

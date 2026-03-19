@@ -29,17 +29,8 @@
 "console:src/views/SchemaView/SchemaViewer.tsx": [
 51
 ],
-"console:src/views/Settings/Billing/Billing.tsx": [
-230,
-256,
-281,
-394
-],
 "console:src/views/Settings/Billing/ConfirmPricingPlan.tsx": [
 113
-],
-"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
-443
 ],
 "console:src/views/Settings/Billing/NodeUsageIndicator.tsx": [
 77
@@ -52,8 +43,5 @@
 ],
 "console:src/views/models/FieldPopup/FieldPopupHeader.tsx": [
 94
-],
-"console:src/views/models/utils.ts": [
-113
 ]
 }

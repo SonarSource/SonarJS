@@ -7,9 +7,6 @@
 127,
 144
 ],
-"ant-design:components/anchor/Anchor.tsx": [
-27
-],
 "ant-design:components/anchor/__tests__/Anchor.test.tsx": [
 61,
 78,
@@ -31,6 +28,7 @@
 52
 ],
 "ant-design:components/avatar/avatar.tsx": [
+116,
 233
 ],
 "ant-design:components/badge/__tests__/index.test.tsx": [
@@ -121,17 +119,20 @@
 405,
 408
 ],
-"ant-design:components/layout/Sider.tsx": [
-122
-],
 "ant-design:components/mentions/index.tsx": [
 142
+],
+"ant-design:components/menu/hooks/useItems.tsx": [
+41
 ],
 "ant-design:components/popconfirm/index.tsx": [
 152
 ],
 "ant-design:components/popover/index.tsx": [
 37
+],
+"ant-design:components/progress/progress.tsx": [
+78
 ],
 "ant-design:components/slider/SliderTooltip.tsx": [
 15
@@ -146,15 +147,30 @@
 27
 ],
 "ant-design:components/table/Table.tsx": [
-419,
-472,
-475
+190,
+239,
+249,
+249,
+249,
+251,
+252,
+419
 ],
 "ant-design:components/table/hooks/useFilter/FilterDropdown.tsx": [
 174
 ],
+"ant-design:components/table/hooks/useLazyKVMap.ts": [
+34
+],
+"ant-design:components/table/hooks/usePagination.ts": [
+34
+],
 "ant-design:components/table/hooks/useSelection.tsx": [
+69,
 342
+],
+"ant-design:components/table/hooks/useSorter.tsx": [
+312
 ],
 "ant-design:components/tag/index.tsx": [
 55
@@ -191,9 +207,6 @@
 "ant-design:components/upload/utils.tsx": [
 57
 ],
-"ant-design:site/theme/template/IconDisplay/index.tsx": [
-87
-],
 "ant-design:site/theme/template/IconDisplay/themeIcons.tsx": [
 21,
 35,
@@ -201,8 +214,5 @@
 ],
 "ant-design:site/theme/template/Resources/index.tsx": [
 105
-],
-"ant-design:site/theme/template/utils.tsx": [
-189
 ]
 }

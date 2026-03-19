@@ -1,8 +1,4 @@
 {
-"jira-clone:client/cypress/support/commands.js": [
-12,
-19
-],
 "jira-clone:client/src/shared/utils/validation.js": [
 27,
 28

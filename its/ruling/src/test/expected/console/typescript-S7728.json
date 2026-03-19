@@ -9,12 +9,6 @@
 327,
 369
 ],
-"console:src/reducers/databrowser/__tests__/data.ts": [
-141
-],
-"console:src/utils/change.ts": [
-3
-],
 "console:src/utils/functionTest.ts": [
 31
 ],
@@ -23,9 +17,6 @@
 ],
 "console:src/utils/relay.ts": [
 42
-],
-"console:src/views/PermissionsView/PermissionsList/ModelPermissions/ModelPermissionsHeader.tsx": [
-23
 ],
 "console:src/views/RelationsPopup/RelationHeader.tsx": [
 23
@@ -42,8 +33,5 @@
 ],
 "console:src/views/models/FieldPopup/FieldPopupState.ts": [
 76
-],
-"console:src/views/models/utils.ts": [
-172
 ]
 }

@@ -3,9 +3,6 @@
 97,
 162
 ],
-"desktop:app/src/lib/branch.ts": [
-42
-],
 "desktop:app/src/lib/git/rebase.ts": [
 572
 ],
@@ -16,17 +13,8 @@
 1200,
 2107
 ],
-"desktop:app/src/lib/thank-you.ts": [
-97
-],
-"desktop:app/src/main-process/menu/build-default-menu.ts": [
-684
-],
 "desktop:app/src/models/repository.ts": [
 212
-],
-"desktop:app/src/models/status.ts": [
-330
 ],
 "desktop:app/src/ui/diff/diff-explorer.ts": [
 176,

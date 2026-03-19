@@ -289,14 +289,6 @@
 "console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
 8
 ],
-"console:src/views/Settings/Billing/Billing.tsx": [
-9,
-9
-],
-"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
-8,
-8
-],
 "console:src/views/Settings/Billing/RequestUsageIndicator.tsx": [
 2
 ],
@@ -357,9 +349,6 @@
 "console:src/views/models/ModelHeader.tsx": [
 12,
 13
-],
-"console:src/views/models/utils.ts": [
-6
 ],
 "console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
 4,

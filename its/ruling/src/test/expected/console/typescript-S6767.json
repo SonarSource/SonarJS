@@ -130,11 +130,6 @@
 "console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
 25
 ],
-"console:src/views/Settings/Billing/Billing.tsx": [
-41,
-42,
-46
-],
 "console:src/views/Settings/Billing/ChangePricingPlan.tsx": [
 11
 ],

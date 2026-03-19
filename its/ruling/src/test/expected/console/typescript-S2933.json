@@ -504,17 +504,6 @@
 146,
 166
 ],
-"console:src/views/Settings/Billing/Billing.tsx": [
-222,
-235,
-246,
-286,
-290,
-301,
-308,
-351,
-380
-],
 "console:src/views/Settings/Billing/ChangePricingPlan.tsx": [
 69,
 73
@@ -535,22 +524,6 @@
 87,
 118,
 131
-],
-"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
-142,
-151,
-177,
-269,
-296,
-328,
-338,
-372,
-377,
-383,
-430,
-472,
-483,
-491
 ],
 "console:src/views/Settings/Billing/EditCreditCard.tsx": [
 47,

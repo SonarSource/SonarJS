@@ -2,39 +2,18 @@
 "tailwindcss:__tests__/processPlugins.test.js": [
 654
 ],
-"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
-654,
-708,
-758
-],
-"tailwindcss:__tests__/util/produce.js": [
-19
-],
-"tailwindcss:src/cli/utils.js": [
-32
-],
-"tailwindcss:src/index.js": [
-56
-],
-"tailwindcss:src/index.postcss7.js": [
-57
-],
 "tailwindcss:src/lib/getModuleDependencies.js": [
 25
 ],
 "tailwindcss:src/lib/purgeUnusedStyles.js": [
 88
 ],
-"tailwindcss:src/lib/registerConfigAsDependency.js": [
-10
-],
 "tailwindcss:src/lib/substituteClassApplyAtRules.js": [
 112,
 151,
 189,
 262,
-265,
-268
+265
 ],
 "tailwindcss:src/lib/substituteResponsiveAtRules.js": [
 58

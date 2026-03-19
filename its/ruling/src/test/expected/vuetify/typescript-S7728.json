@@ -1,7 +1,4 @@
 {
-"vuetify:packages/api-generator/src/types.ts": [
-76
-],
 "vuetify:packages/docs/src/App.vue": [
 87,
 120
@@ -10,8 +7,8 @@
 161,
 175
 ],
-"vuetify:packages/docs/src/util/markdown-it.ts": [
-53
+"vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
+77
 ],
 "vuetify:packages/vuetify/src/components/VAlert/__tests__/VAlert.spec.cy.tsx": [
 35
@@ -32,14 +29,9 @@
 "vuetify:packages/vuetify/src/components/VGrid/VRow.ts": [
 113
 ],
-"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
-325
-],
 "vuetify:packages/vuetify/src/components/VOverlay/scrollStrategies.ts": [
 88,
-96,
-158,
-163
+96
 ],
 "vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx": [
 250,
@@ -56,8 +48,9 @@
 "vuetify:packages/vuetify/src/components/VToolbar/__tests__/VToolbar.spec.cy.tsx": [
 33
 ],
-"vuetify:packages/vuetify/src/composables/filter.ts": [
-162
+"vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
+44,
+75
 ],
 "vuetify:packages/vuetify/src/composables/form.ts": [
 110,
@@ -67,24 +60,16 @@
 60,
 67
 ],
-"vuetify:packages/vuetify/src/directives/touch/index.ts": [
-130,
-143
-],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
 111
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
-71,
-85
+71
 ],
 "vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
 151
 ],
 "vuetify:packages/vuetify/src/locale/__tests__/index.spec.ts": [
 24
-],
-"vuetify:packages/vuetify/src/util/helpers.ts": [
-225
 ]
 }

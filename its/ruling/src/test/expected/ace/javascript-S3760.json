@@ -1,8 +1,6 @@
 {
 "ace:lib/ace/mode/css/csslint.js": [
 7610,
-7610,
-7629,
 7629
 ],
 "ace:lib/ace/mode/html/saxparser.js": [
@@ -22,7 +20,6 @@
 5417
 ],
 "ace:src/mode/text.js": [
-256,
 256
 ],
 "ace:src/test/user.js": [

@@ -70,13 +70,7 @@
 518,
 557
 ],
-"desktop:app/src/ui/changes/sidebar.tsx": [
-286
-],
 "desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-503,
-508,
-528,
 1050
 ],
 "desktop:app/src/ui/diff/text-diff.tsx": [
@@ -90,9 +84,6 @@
 ],
 "desktop:app/src/ui/lib/observable-ref.ts": [
 22
-],
-"desktop:app/src/ui/repositories-list/group-repositories.ts": [
-113
 ],
 "desktop:script/generate-octicons.ts": [
 119

@@ -18,7 +18,6 @@
 26
 ],
 "eigen:src/app/Scenes/City/CitySectionList.tsx": [
-33,
 84,
 230
 ],
@@ -49,6 +48,9 @@
 ],
 "eigen:src/app/Scenes/ViewingRoom/Components/ViewingRoomsListItem.tsx": [
 16
+],
+"eigen:src/app/navigation/RouteMatcher.ts": [
+56
 ],
 "eigen:src/app/utils/usePreferredThemeTracking.ts": [
 12

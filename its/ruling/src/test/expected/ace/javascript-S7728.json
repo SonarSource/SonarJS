@@ -7,7 +7,6 @@
 443,
 450,
 456,
-463,
 470,
 477,
 547,
@@ -19,10 +18,6 @@
 832,
 854
 ],
-"ace:demo/kitchen-sink/dev_util.js": [
-328,
-339
-],
 "ace:demo/kitchen-sink/doclist.js": [
 65
 ],
@@ -33,9 +28,6 @@
 ],
 "ace:demo/static-highlighter.html": [
 68
-],
-"ace:doc/site/js/main.js": [
-193
 ],
 "ace:experiments/dom.html": [
 377
@@ -74,26 +66,22 @@
 9807
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
+413,
+444,
 4627,
 4913,
 4946,
 4963,
 4989,
-8100,
 8845,
-9614,
-9649,
 9746,
-10285,
 10303,
 10310,
 10317,
 10888,
 10986,
-10993,
 11005,
 11392,
-11639,
 15372,
 15538,
 15676,
@@ -124,9 +112,7 @@
 2952,
 2964,
 3215,
-3222,
 3413,
-3420,
 3518
 ],
 "ace:lib/ace/worker/worker_client.js": [
@@ -167,7 +153,6 @@
 84,
 269,
 315,
-382,
 390,
 401,
 417
@@ -210,9 +195,6 @@
 "ace:src/ext/static_highlight.js": [
 179
 ],
-"ace:src/ext/textarea.js": [
-65
-],
 "ace:src/ext/whitespace.js": [
 102
 ],
@@ -220,16 +202,10 @@
 273
 ],
 "ace:src/keyboard/emacs.js": [
-148,
 150,
 174,
 187,
 444
-],
-"ace:src/keyboard/emacs_test.js": [
-80,
-96,
-110
 ],
 "ace:src/keyboard/hash_handler.js": [
 70,
@@ -238,45 +214,11 @@
 145,
 151
 ],
-"ace:src/keyboard/sublime.js": [
-414
-],
-"ace:src/keyboard/sublime_test.js": [
-29,
-33
-],
-"ace:src/keyboard/textarea.js": [
-49
-],
-"ace:src/keyboard/textinput.js": [
-101
-],
-"ace:src/keyboard/textinput_test.js": [
-106,
-125,
-149,
-238,
-359,
-422,
-447,
-584,
-604
-],
 "ace:src/keyboard/vim.js": [
 6902
 ],
-"ace:src/keyboard/vim_ace_test.js": [
-159,
-202,
-255,
-338
-],
 "ace:src/keyboard/vim_test.js": [
-5014,
 5559
-],
-"ace:src/keyboard/vscode.js": [
-312
 ],
 "ace:src/layer/decorators.js": [
 74
@@ -292,8 +234,7 @@
 124
 ],
 "ace:src/lib/dom.js": [
-36,
-171
+36
 ],
 "ace:src/lib/es6-shim.js": [
 58
@@ -332,9 +273,6 @@
 17,
 20
 ],
-"ace:src/mode/glsl_highlight_rules.js": [
-41
-],
 "ace:src/mode/php_laravel_blade_highlight_rules.js": [
 163
 ],
@@ -347,12 +285,6 @@
 "ace:src/mode/text_highlight_rules.js": [
 176,
 182
-],
-"ace:src/mouse/default_handlers.js": [
-21
-],
-"ace:src/mouse/dragdrop_handler.js": [
-21
 ],
 "ace:src/mouse/multi_select_handler.js": [
 126
@@ -370,7 +302,6 @@
 ],
 "ace:src/snippets.js": [
 374,
-404,
 431,
 453,
 657,
@@ -388,9 +319,6 @@
 "ace:src/test/all_browser.js": [
 129
 ],
-"ace:src/test/asyncjs/test.js": [
-158
-],
 "ace:src/test/mockdom.js": [
 16,
 23,
@@ -399,20 +327,13 @@
 446,
 524,
 832,
-848,
-896
+848
 ],
 "ace:src/test/user.js": [
 177
 ],
-"ace:src/tokenizer.js": [
-98
-],
 "ace:src/undomanager.js": [
 169
-],
-"ace:src/virtual_renderer_test.js": [
-97
 ],
 "ace:tool/mode_creator.js": [
 169,

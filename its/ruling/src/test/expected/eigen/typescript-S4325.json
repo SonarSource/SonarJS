@@ -1,4 +1,7 @@
 {
+"eigen:metaphysics-queries-freshness-tests/test-freshness.ts": [
+99
+],
 "eigen:scripts/algolia-example-galleries-near-me.ts": [
 33,
 33
@@ -11,9 +14,6 @@
 ],
 "eigen:src/app/Components/Artist/ArtistConsignButton.tests.tsx": [
 45
-],
-"eigen:src/app/Components/ArtistAutosuggest/ArtistAutosuggest.tests.tsx": [
-12
 ],
 "eigen:src/app/Components/ArtistAutosuggest/ArtistAutosuggestResults.tsx": [
 205
@@ -28,9 +28,6 @@
 231,
 319
 ],
-"eigen:src/app/Components/ArtworkFilter/ArtworkFilterHelpers.ts": [
-347
-],
 "eigen:src/app/Components/ArtworkFilter/ArtworkFilterNavigator.tsx": [
 280,
 280
@@ -40,9 +37,6 @@
 ],
 "eigen:src/app/Components/ArtworkFilter/Filters/ColorsSwatch.tsx": [
 41
-],
-"eigen:src/app/Components/ArtworkFilter/Filters/PriceRangeOptions.tsx": [
-70
 ],
 "eigen:src/app/Components/ArtworkGrids/ArtworkGridItem.tsx": [
 140
@@ -93,9 +87,6 @@
 ],
 "eigen:src/app/Components/Home/HeroUnit.tsx": [
 34
-],
-"eigen:src/app/Components/LocationAutocomplete/LocationAutocomplete.tests.tsx": [
-12
 ],
 "eigen:src/app/Components/LotsByArtistsYouFollowRail/LotsByFollowedArtistsRail.tsx": [
 61
@@ -149,20 +140,17 @@
 "eigen:src/app/Scenes/Artwork/Components/PartnerCard.tsx": [
 113
 ],
-"eigen:src/app/Scenes/AuctionBuyersPremium/AuctionBuyersPremium.tests.tsx": [
-10
-],
 "eigen:src/app/Scenes/BottomTabs/BottomTabsButton.tsx": [
 63
 ],
 "eigen:src/app/Scenes/City/Components/Event/index.tsx": [
 159
 ],
+"eigen:src/app/Scenes/City/Components/FairEventSection/index.tests.tsx": [
+8
+],
 "eigen:src/app/Scenes/City/Components/TabFairItemRow/index.tsx": [
 32
-],
-"eigen:src/app/Scenes/City/cityTabs.ts": [
-9
 ],
 "eigen:src/app/Scenes/Fair/Components/FairExhibitorRail.tsx": [
 51
@@ -176,9 +164,6 @@
 ],
 "eigen:src/app/Scenes/Fair/FairMoreInfo.tsx": [
 115
-],
-"eigen:src/app/Scenes/Feature/Feature.tests.tsx": [
-10
 ],
 "eigen:src/app/Scenes/Feature/Feature.tsx": [
 93
@@ -216,9 +201,6 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Messages.tsx": [
 84
 ],
-"eigen:src/app/Scenes/Inbox/Components/Conversations/OpenInquiryModalButton.tests.tsx": [
-33
-],
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Preview/Attachment/AttachmentPreview.tsx": [
 33
 ],
@@ -235,8 +217,7 @@
 168
 ],
 "eigen:src/app/Scenes/Map/GlobalMap.tsx": [
-266,
-403
+266
 ],
 "eigen:src/app/Scenes/MyBids/Components/ActiveLotStanding.tsx": [
 19
@@ -256,27 +237,18 @@
 50,
 51
 ],
-"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tests.tsx": [
-39
-],
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Screens/MyCollectionArtworkFormArtwork.tsx": [
 81,
 82
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/Screens/MyCollectionArtworkFormMain.tsx": [
+157
 ],
 "eigen:src/app/Scenes/MyCollection/Screens/ArtworkList/MyCollectionArtworkGridItem.tests.tsx": [
 33
 ],
 "eigen:src/app/Scenes/MyCollection/Screens/Insights/AuctionResultsForArtistsYouCollect.tsx": [
 21
-],
-"eigen:src/app/Scenes/MyCollection/utils/deletedPhotos.ts": [
-12
-],
-"eigen:src/app/Scenes/MyProfile/MyProfilePushNotifications.tests.tsx": [
-21
-],
-"eigen:src/app/Scenes/MyProfile/__tests__/MyProfileEditForm.tests.tsx": [
-26
 ],
 "eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccount.tsx": [
 163
@@ -288,6 +260,12 @@
 ],
 "eigen:src/app/Scenes/Onboarding/OnboardingPersonalization/OnboardingPersonalizationModal.tsx": [
 230
+],
+"eigen:src/app/Scenes/Onboarding/OnboardingSocialLink.tests.tsx": [
+29,
+77,
+95,
+114
 ],
 "eigen:src/app/Scenes/OrderHistory/OrderDetails/Components/OrderDetailsPayment.tsx": [
 20
@@ -308,8 +286,8 @@
 45,
 54
 ],
-"eigen:src/app/Scenes/SavedAddresses/SavedAddresses.tests.tsx": [
-15
+"eigen:src/app/Scenes/Sale/Sale.tsx": [
+440
 ],
 "eigen:src/app/Scenes/SavedAddresses/SavedAddressesForm.tsx": [
 103,
@@ -318,15 +296,6 @@
 167,
 261,
 272
-],
-"eigen:src/app/Scenes/SavedSearchAlert/CreateSavedSearchAlert.tests.tsx": [
-73
-],
-"eigen:src/app/Scenes/SavedSearchAlert/EditSavedSearchAlert.tests.tsx": [
-16
-],
-"eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlertForm.tests.tsx": [
-23
 ],
 "eigen:src/app/Scenes/SavedSearchAlert/SavedSearchAlertForm.tsx": [
 133,
@@ -348,11 +317,13 @@
 91,
 176
 ],
-"eigen:src/app/Scenes/Search/SearchArtworksContainer.tests.tsx": [
-14
-],
 "eigen:src/app/Scenes/Search/SearchModel.tests.tsx": [
 102
+],
+"eigen:src/app/Scenes/Search/UserPrefsModel.tsx": [
+20,
+67,
+68
 ],
 "eigen:src/app/Scenes/Search/components/AutosuggestSearchResult.tsx": [
 111,
@@ -363,15 +334,6 @@
 ],
 "eigen:src/app/Scenes/SellWithArtsy/Components/RecentlySold.tsx": [
 59
-],
-"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ArtworkDetails/ArtworkDetails.tests.tsx": [
-27
-],
-"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/ContactInformation/ContactInformation.tests.tsx": [
-21
-],
-"eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/UploadPhotos/UploadPhotos.tests.tsx": [
-14
 ],
 "eigen:src/app/Scenes/SellWithArtsy/mutations/createConsignSubmissionMutation.ts": [
 34
@@ -418,11 +380,14 @@
 "eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
 114
 ],
+"eigen:src/app/store/GlobalStore.tsx": [
+83
+],
 "eigen:src/app/utils/LocalImageStore.tests.ts": [
 70
 ],
-"eigen:src/app/utils/experiments/unleashClient.ts": [
-50
+"eigen:src/app/utils/extractNodes.ts": [
+10
 ],
 "eigen:src/app/utils/hideBackButtonOnScroll.tests.tsx": [
 15
@@ -435,15 +400,7 @@
 9,
 20
 ],
-"eigen:src/app/utils/renderWithPlaceholder.tsx": [
-50,
-85,
-88
-],
 "eigen:src/app/utils/useImageSearch.ts": [
 100
-],
-"eigen:src/palette/elements/PhotoRow/PhotoRow.tests.tsx": [
-13
 ]
 }

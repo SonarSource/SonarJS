@@ -47,13 +47,6 @@
 "console:src/views/SchemaView/SchemaViewer.tsx": [
 100
 ],
-"console:src/views/Settings/Billing/Billing.tsx": [
-142
-],
-"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
-77,
-333
-],
 "console:src/views/Settings/Billing/NodeUsageIndicator.tsx": [
 22,
 23

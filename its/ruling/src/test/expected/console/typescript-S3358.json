@@ -46,10 +46,6 @@
 "console:src/views/models/FieldPopup/FieldPopup.tsx": [
 280
 ],
-"console:src/views/models/utils.ts": [
-69,
-164
-],
 "console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
 114
 ]

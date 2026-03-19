@@ -2,13 +2,7 @@
 "Joust:tests.webpack.ts": [
 2
 ],
-"Joust:ts/Launcher.tsx": [
-312
-],
 "Joust:ts/components/EventLog.tsx": [
-52,
-130,
-132,
 164,
 180,
 183,
@@ -17,7 +11,6 @@
 221
 ],
 "Joust:ts/components/GameWidget.tsx": [
-172,
 205
 ],
 "Joust:ts/components/game/Card.tsx": [
@@ -53,7 +46,6 @@
 338
 ],
 "Joust:ts/protocol/KettleDecoder.ts": [
-77,
 97,
 110,
 132

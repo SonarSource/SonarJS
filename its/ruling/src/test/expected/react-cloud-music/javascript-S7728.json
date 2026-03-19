@@ -5,9 +5,6 @@
 "react-cloud-music:rename.js": [
 18
 ],
-"react-cloud-music:scripts/start.js": [
-133
-],
 "react-cloud-music:src/api/utils.js": [
 108
 ],
@@ -19,8 +16,5 @@
 ],
 "react-cloud-music:ts-music/config/env.js": [
 33
-],
-"react-cloud-music:ts-music/scripts/start.js": [
-145
 ]
 }

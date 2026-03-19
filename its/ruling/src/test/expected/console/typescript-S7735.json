@@ -47,14 +47,8 @@
 "console:src/views/SchemaView/SchemaOverview/ConfirmModel.tsx": [
 177
 ],
-"console:src/views/Settings/Billing/Billing.tsx": [
-183
-],
 "console:src/views/Settings/Billing/CreditCardFront.tsx": [
 136
-],
-"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
-494
 ],
 "console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
 67

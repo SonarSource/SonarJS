@@ -16,19 +16,11 @@
 "sonar-web:src/main/js/apps/issues/component-viewer/main.js": [
 177
 ],
-"sonar-web:src/main/js/apps/issues/controller.js": [
-60,
-115,
-134
-],
 "sonar-web:src/main/js/apps/issues/facets/action-plan-facet.js": [
 38
 ],
 "sonar-web:src/main/js/apps/issues/facets/assignee-facet.js": [
 53
-],
-"sonar-web:src/main/js/apps/issues/facets/creation-date-facet.js": [
-35
 ],
 "sonar-web:src/main/js/apps/issues/facets/file-facet.js": [
 20
@@ -51,9 +43,6 @@
 "sonar-web:src/main/js/apps/issues/facets/tag-facet.js": [
 40
 ],
-"sonar-web:src/main/js/apps/issues/models/issue.js": [
-6
-],
 "sonar-web:src/main/js/apps/issues/models/issues.js": [
 19,
 82,
@@ -64,7 +53,6 @@
 72
 ],
 "sonar-web:src/main/js/apps/issues/workspace-list-item-view.js": [
-62,
 66
 ],
 "sonar-web:src/main/js/apps/overview/components/domain-bubble-chart.js": [
@@ -88,9 +76,6 @@
 "sonar-web:src/main/js/apps/overview/main/main.js": [
 91,
 140
-],
-"sonar-web:src/main/js/apps/permission-templates/main.js": [
-41
 ],
 "sonar-web:src/main/js/apps/project-permissions/apply-template-view.js": [
 27
@@ -157,8 +142,7 @@
 311,
 360,
 694,
-740,
-751
+740
 ],
 "sonar-web:src/main/js/components/source-viewer/measures-overlay.js": [
 100,

@@ -1,9 +1,7 @@
 {
 "ant-design:components/_util/wave.tsx": [
-16,
 22,
 60,
-131,
 138,
 154
 ],
@@ -70,7 +68,8 @@
 158
 ],
 "ant-design:components/locale-provider/LocaleReceiver.tsx": [
-39
+39,
+41
 ],
 "ant-design:components/locale-provider/index.tsx": [
 63,

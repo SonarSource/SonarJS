@@ -10,8 +10,5 @@
 ],
 "redux:src/utils/combineReducers.js": [
 55
-],
-"redux:test/createStore.spec.js": [
-310
 ]
 }

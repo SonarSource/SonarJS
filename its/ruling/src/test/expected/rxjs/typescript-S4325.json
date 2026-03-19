@@ -1,28 +1,20 @@
 {
 "rxjs:src/Subscriber.ts": [
 71,
-75,
-182,
-183,
-184
+75
 ],
 "rxjs:src/observable/ForkJoinObservable.ts": [
-64
+64,
+71
 ],
 "rxjs:src/observable/GenerateObservable.ts": [
 200
-],
-"rxjs:src/observable/TimerObservable.ts": [
-104
 ],
 "rxjs:src/observable/dom/WebSocketSubject.ts": [
 90
 ],
 "rxjs:src/operator/bufferTime.ts": [
 224
-],
-"rxjs:src/operator/delay.ts": [
-54
 ],
 "rxjs:src/operator/mergeMap.ts": [
 76
@@ -33,24 +25,18 @@
 "rxjs:src/operator/multicast.ts": [
 38
 ],
-"rxjs:src/operator/race.ts": [
-30,
-52,
-54
+"rxjs:src/operator/onErrorResumeNext.ts": [
+109
 ],
 "rxjs:src/operator/startWith.ts": [
 43,
 45,
 47
 ],
-"rxjs:src/operator/timeout.ts": [
-22
-],
-"rxjs:src/util/isPromise.ts": [
-2,
-2
-],
 "rxjs:src/util/isScheduler.ts": [
 3
+],
+"rxjs:src/util/subscribeToResult.ts": [
+46
 ]
 }

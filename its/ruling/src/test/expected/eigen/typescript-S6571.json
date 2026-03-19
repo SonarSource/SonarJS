@@ -21,6 +21,11 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Composer.tsx": [
 42
 ],
+"eigen:src/app/Scenes/Map/types.ts": [
+25,
+29,
+29
+],
 "eigen:src/app/Scenes/MyCollection/utils/formatArtworkDimensions.ts": [
 7,
 7

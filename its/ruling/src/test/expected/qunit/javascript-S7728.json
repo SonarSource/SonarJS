@@ -1,7 +1,6 @@
 {
 "qunit:src/cli/run.js": [
-46,
-116
+46
 ],
 "qunit:src/cli/utils.js": [
 26

@@ -35,12 +35,6 @@
 "console:src/views/SchemaView/SchemaEditor.tsx": [
 322
 ],
-"console:src/views/Settings/Billing/Billing.tsx": [
-296
-],
-"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
-478
-],
 "console:src/views/models/DatabrowserView/Cell.tsx": [
 361
 ],

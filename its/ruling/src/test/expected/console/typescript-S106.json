@@ -45,12 +45,6 @@
 "console:src/views/Settings/Authentication/Tokens.tsx": [
 161
 ],
-"console:src/views/Settings/Billing/Billing.tsx": [
-383
-],
-"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
-433
-],
 "console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
 482,
 513

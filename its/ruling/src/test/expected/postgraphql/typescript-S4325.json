@@ -1,12 +1,15 @@
 {
-"postgraphql:src/__tests__/utils/withPgClient.ts": [
-56
-],
 "postgraphql:src/graphql/schema/collection/getConditionGqlType.ts": [
 46,
 49
 ],
 "postgraphql:src/graphql/schema/type/getGqlInputType.ts": [
 212
+],
+"postgraphql:src/postgraphql/schema/procedures/PgProcedurePaginator.ts": [
+47
+],
+"postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts": [
+87
 ]
 }

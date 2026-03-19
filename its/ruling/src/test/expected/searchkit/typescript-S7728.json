@@ -5,11 +5,5 @@
 ],
 "searchkit:packages/searchkit-elastic-ui/src/Facets/ComboBoxFacet/index.tsx": [
 56
-],
-"searchkit:packages/searchkit-sdk/src/core/RequestBodyBuilder.ts": [
-74
-],
-"searchkit:packages/searchkit-sdk/src/suggestors/HitsSuggestor.ts": [
-46
 ]
 }

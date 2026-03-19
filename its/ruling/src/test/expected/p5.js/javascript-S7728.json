@@ -23,8 +23,7 @@
 47
 ],
 "p5.js:docs/yuidoc-p5-theme/assets/js/render.js": [
-12,
-221
+12
 ],
 "p5.js:docs/yuidoc-p5-theme/helpers/helpers_dev.js": [
 13
@@ -44,7 +43,6 @@
 12738
 ],
 "p5.js:src/core/error_helpers.js": [
-280,
 298,
 371
 ],
@@ -52,16 +50,11 @@
 462,
 491
 ],
-"p5.js:src/core/p5.Renderer2D.js": [
-449,
-468
-],
 "p5.js:src/core/structure.js": [
 392,
 399
 ],
 "p5.js:src/dom/dom.js": [
-377,
 2086
 ],
 "p5.js:src/webgl/p5.RendererGL.Immediate.js": [

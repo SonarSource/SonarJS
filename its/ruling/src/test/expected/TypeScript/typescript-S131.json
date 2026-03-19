@@ -160,7 +160,8 @@
 763
 ],
 "TypeScript:src/compiler/transformers/generators.ts": [
-221
+221,
+2940
 ],
 "TypeScript:src/compiler/transformers/module/es2015.ts": [
 51
@@ -170,6 +171,7 @@
 1327
 ],
 "TypeScript:src/compiler/transformers/module/system.ts": [
+475,
 1541,
 1613
 ],

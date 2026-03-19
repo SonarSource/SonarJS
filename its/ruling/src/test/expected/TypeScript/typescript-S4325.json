@@ -1,19 +1,17 @@
 {
+"TypeScript:scripts/buildProtocol.ts": [
+117
+],
 "TypeScript:scripts/tslint/noIncrementDecrementRule.ts": [
 31
 ],
 "TypeScript:src/compiler/binder.ts": [
 236,
-298,
 445,
 975,
 1148,
-1229,
-1232,
-1235,
 1554,
 1588,
-1666,
 2199,
 2227,
 2360,
@@ -42,7 +40,6 @@
 3778,
 3899,
 3932,
-3957,
 4147,
 4207,
 4275,
@@ -80,12 +77,6 @@
 12725,
 12748,
 13014,
-13113,
-13116,
-13120,
-13129,
-13130,
-13173,
 13328,
 13383,
 13440,
@@ -128,14 +119,11 @@
 17364,
 17438,
 17439,
-17608,
-17692,
 17713,
 18021,
 18066,
 18107,
 19070,
-19308,
 19606,
 19618,
 19720,
@@ -143,10 +131,7 @@
 19811,
 19833,
 19885,
-20355,
 20462,
-20982,
-20986,
 21164,
 21417,
 21420,
@@ -167,11 +152,6 @@
 22387,
 22836,
 22852,
-23827,
-23830,
-23833,
-23858,
-23911,
 23921,
 24135,
 24214,
@@ -236,24 +216,23 @@
 6763
 ],
 "TypeScript:src/compiler/program.ts": [
+673,
 1438
 ],
+"TypeScript:src/compiler/transformers/destructuring.ts": [
+453,
+462
+],
 "TypeScript:src/compiler/transformers/es2015.ts": [
+904,
 1983,
-2011,
 2619,
 2622,
-2703,
-3026,
-3034,
-3038,
-3042
+2703
 ],
 "TypeScript:src/compiler/transformers/generators.ts": [
-1761,
-2942,
-2946,
-2948
+998,
+1065
 ],
 "TypeScript:src/compiler/transformers/jsx.ts": [
 55,
@@ -265,13 +244,8 @@
 251,
 254
 ],
-"TypeScript:src/compiler/transformers/module/system.ts": [
-348,
-477,
-496,
-506
-],
 "TypeScript:src/compiler/transformers/ts.ts": [
+865,
 1861,
 1878,
 1934,
@@ -296,7 +270,7 @@
 1478,
 1484,
 1485,
-1527,
+1610,
 1620,
 2025,
 2026,
@@ -304,21 +278,23 @@
 ],
 "TypeScript:src/harness/fourslash.ts": [
 427,
-1500,
 2773,
 2782
 ],
 "TypeScript:src/harness/harness.ts": [
-36,
+603,
+606,
 1102
+],
+"TypeScript:src/server/client.ts": [
+432,
+441
 ],
 "TypeScript:src/server/editorServices.ts": [
 1123
 ],
 "TypeScript:src/server/scriptVersionCache.ts": [
-887,
-893,
-907
+613
 ],
 "TypeScript:src/services/breakpoints.ts": [
 343,
@@ -329,8 +305,8 @@
 "TypeScript:src/services/codefixes/fixClassDoesntImplementInheritedAbstractMember.ts": [
 22
 ],
-"TypeScript:src/services/codefixes/helpers.ts": [
-64
+"TypeScript:src/services/codefixes/importFixes.ts": [
+572
 ],
 "TypeScript:src/services/codefixes/unusedIdentifierFixes.ts": [
 114,
@@ -345,8 +321,7 @@
 842,
 858,
 861,
-869,
-1414
+869
 ],
 "TypeScript:src/services/documentHighlights.ts": [
 511
@@ -365,13 +340,12 @@
 346
 ],
 "TypeScript:src/services/importTracker.ts": [
-86,
 400,
 547,
 547
 ],
 "TypeScript:src/services/jsDoc.ts": [
-210
+54
 ],
 "TypeScript:src/services/navigateTo.ts": [
 108,
@@ -380,8 +354,7 @@
 ],
 "TypeScript:src/services/navigationBar.ts": [
 200,
-203,
-453
+203
 ],
 "TypeScript:src/services/pathCompletions.ts": [
 9
@@ -395,6 +368,7 @@
 2085
 ],
 "TypeScript:src/services/signatureHelp.ts": [
+41,
 64,
 180,
 290,

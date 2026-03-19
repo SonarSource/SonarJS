@@ -7,8 +7,5 @@
 ],
 "vuetify:packages/vuetify/src/composables/proxiedModel.ts": [
 24
-],
-"vuetify:packages/vuetify/src/directives/click-outside/index.ts": [
-90
 ]
 }

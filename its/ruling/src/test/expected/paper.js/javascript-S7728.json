@@ -5,9 +5,6 @@
 "paper.js:gulp/tasks/docs.js": [
 31
 ],
-"paper.js:gulp/tasks/publish.js": [
-92
-],
 "paper.js:gulp/typescript/typescript-definition-generator.js": [
 14,
 71,
@@ -22,8 +19,5 @@
 ],
 "paper.js:src/core/PaperScript.js": [
 308
-],
-"paper.js:src/node/canvas.js": [
-60
 ]
 }

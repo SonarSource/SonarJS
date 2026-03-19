@@ -1,6 +1,32 @@
 {
+"vuetify:packages/api-generator/src/web-types.ts": [
+40
+],
+"vuetify:packages/docs/src/plugins/i18n.ts": [
+11
+],
+"vuetify:packages/docs/src/store/app.ts": [
+30
+],
+"vuetify:packages/docs/src/util/metadata.ts": [
+36
+],
+"vuetify:packages/docs/src/util/routes.ts": [
+18
+],
 "vuetify:packages/vuetify/cypress/support/mount.ts": [
 32
+],
+"vuetify:packages/vuetify/cypress/templates/gridOn.tsx": [
+8
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerEdit.tsx": [
+69
+],
+"vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
+51,
+52,
+60
 ],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 114,
@@ -16,12 +42,22 @@
 "vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
 61
 ],
+"vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
+181
+],
+"vuetify:packages/vuetify/src/components/VOverlay/requestNewFrame.ts": [
+2
+],
 "vuetify:packages/vuetify/src/components/VOverlay/scrollStrategies.ts": [
 55,
 57
 ],
 "vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.tsx": [
 17
+],
+"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
+258,
+262
 ],
 "vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 163,
@@ -31,12 +67,27 @@
 35,
 65
 ],
+"vuetify:packages/vuetify/src/components/transitions/expand-transition.ts": [
+20
+],
 "vuetify:packages/vuetify/src/composables/__tests__/border.spec.ts": [
+23,
 39
 ],
 "vuetify:packages/vuetify/src/composables/__tests__/color.spec.ts": [
 25,
 65
+],
+"vuetify:packages/vuetify/src/composables/__tests__/rounded.spec.ts": [
+23
+],
+"vuetify:packages/vuetify/src/composables/forwardRefs.ts": [
+59,
+66
+],
+"vuetify:packages/vuetify/src/composables/nested/selectStrategies.ts": [
+39,
+169
 ],
 "vuetify:packages/vuetify/src/composables/router.tsx": [
 53
@@ -54,6 +105,18 @@
 23,
 38,
 42
+],
+"vuetify:packages/vuetify/src/directives/ripple/index.ts": [
+166,
+212,
+239
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/headers.ts": [
+41,
+42
+],
+"vuetify:packages/vuetify/src/util/dom.ts": [
+23
 ],
 "vuetify:packages/vuetify/src/util/helpers.ts": [
 121,

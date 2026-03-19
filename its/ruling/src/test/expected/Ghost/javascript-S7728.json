@@ -71,23 +71,14 @@
 "Ghost:core/client/lib/asset-delivery/index.js": [
 16
 ],
-"Ghost:core/client/tests/unit/models/user-test.js": [
-30
-],
-"Ghost:core/client/tests/unit/validators/nav-item-test.js": [
-67,
-87
-],
 "Ghost:core/server/controllers/frontend/secure.js": [
 5
 ],
 "Ghost:core/server/data/import/data-importer.js": [
 30,
-58,
-135
+58
 ],
 "Ghost:core/server/data/xml/rss/index.js": [
-71,
 137
 ],
 "Ghost:core/server/ghost-server.js": [
@@ -98,7 +89,6 @@
 66
 ],
 "Ghost:core/server/index.js": [
-87,
 206,
 210
 ],
@@ -127,36 +117,6 @@
 ],
 "Ghost:core/test/unit/mail_spec.js": [
 107
-],
-"Ghost:core/test/unit/middleware/decide-is-admin_spec.js": [
-40,
-50
-],
-"Ghost:core/test/unit/server_helpers/date_spec.js": [
-40,
-61
-],
-"Ghost:core/test/unit/showdown_client_integrated_spec.js": [
-66,
-78,
-97,
-116,
-131,
-150,
-169,
-188,
-235,
-258,
-314,
-349,
-384,
-399,
-420,
-484,
-506,
-525,
-571,
-614
 ],
 "Ghost:core/test/utils/jscs-rules/disallow-object-controller.js": [
 24

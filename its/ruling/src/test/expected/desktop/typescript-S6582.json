@@ -18,36 +18,12 @@
 "desktop:app/src/lib/git/for-each-ref.ts": [
 27
 ],
-"desktop:app/src/lib/git/rebase.ts": [
-282
-],
 "desktop:app/src/lib/git/reflog.ts": [
-45,
-116
+45
 ],
 "desktop:app/src/lib/http.ts": [
 38,
 42
-],
-"desktop:app/src/lib/markdown-filters/close-keyword-filter.ts": [
-171
-],
-"desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts": [
-169,
-201,
-227
-],
-"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
-58
-],
-"desktop:app/src/lib/markdown-filters/issue-link-filter.ts": [
-113
-],
-"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
-94
-],
-"desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
-58
 ],
 "desktop:app/src/lib/menu-item.ts": [
 91,
@@ -77,30 +53,21 @@
 30,
 170
 ],
-"desktop:app/src/lib/stores/api-repositories-store.ts": [
-165
-],
 "desktop:app/src/lib/stores/app-store.ts": [
 1755,
 2060,
-2863,
 4764,
 5702,
 5801,
 6122,
 6469,
-6571,
-6575,
-6968,
-7017
+6571
 ],
 "desktop:app/src/lib/stores/git-store.ts": [
 510,
 541,
-1150,
 1170,
 1192,
-1213,
 1246,
 1260
 ],
@@ -109,9 +76,6 @@
 ],
 "desktop:app/src/lib/stores/helpers/create-tutorial-repository.ts": [
 44
-],
-"desktop:app/src/lib/stores/helpers/tutorial-assessor.ts": [
-112
 ],
 "desktop:app/src/lib/stores/issues-store.ts": [
 54
@@ -134,9 +98,6 @@
 "desktop:app/src/lib/thank-you.ts": [
 35
 ],
-"desktop:app/src/lib/trampoline/trampoline-command-parser.ts": [
-76
-],
 "desktop:app/src/lib/trampoline/trampoline-server.ts": [
 108
 ],
@@ -144,14 +105,10 @@
 22
 ],
 "desktop:app/src/models/app-menu.ts": [
-347,
 432
 ],
 "desktop:app/src/models/branch.ts": [
 88
-],
-"desktop:app/src/models/diff/diff-selection.ts": [
-103
 ],
 "desktop:app/src/models/repository.ts": [
 64
@@ -221,8 +178,7 @@
 686,
 1136,
 2961,
-3082,
-3551
+3082
 ],
 "desktop:app/src/ui/dispatcher/error-handlers.ts": [
 556
@@ -257,10 +213,6 @@
 "desktop:app/src/ui/sign-in/sign-in.tsx": [
 57,
 314
-],
-"desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
-329,
-330
 ],
 "desktop:script/changelog/parser.ts": [
 21,

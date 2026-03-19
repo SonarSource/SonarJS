@@ -1,7 +1,4 @@
 {
-"rxjs:doc/scripts/theme-toggler.js": [
-23
-],
 "rxjs:perf/macro/bufferCount/buffercount.spec.js": [
 9
 ],
@@ -30,7 +27,6 @@
 9
 ],
 "rxjs:perf/micro/index.js": [
-79,
 81
 ],
 "rxjs:tools/check-gzip-size.js": [

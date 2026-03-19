@@ -58,9 +58,6 @@
 "console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
 79
 ],
-"console:src/views/Settings/Billing/Billing.tsx": [
-81
-],
 "console:src/views/Settings/Billing/CurrentPlan.tsx": [
 22
 ],
