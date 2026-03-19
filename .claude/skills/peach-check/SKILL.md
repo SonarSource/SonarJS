@@ -65,20 +65,72 @@ If there are no failed jobs, print:
 
 Then stop.
 
-**Step 4 — Read the classification guide and download all logs**
+**Step 3b — Mass failure detection**
+
+If **≥80% of jobs failed** (e.g. 200+ out of 253), this almost always indicates a single
+infrastructure event, not individual analyzer bugs. Do not triage every job individually.
+
+Instead:
+1. Sample 5 representative jobs (spread across pages 1–3)
+2. Run Phase 1 grep on each (see below) to identify the dominant pattern
+3. If all 5 share the same IGNORE category, apply that verdict to all failed jobs
+4. In the summary, note the mass event and list only the sampled jobs as evidence
+
+Common mass-failure causes (all IGNORE):
+- Peach server down: `HTTP 502 Bad Gateway` at `peach.sonarsource.com/api/server/version`
+- Artifact expired: `Artifact has expired (HTTP 410)` during JAR download
+
+**Step 4 — Read the classification guide and triage all logs**
 
 Read `docs/peach-main-analysis.md` once to load the failure categories and decision flowchart.
 
-Then, in a SINGLE message, download all job logs in parallel:
+Then triage each failed job using a graduated approach. Work through phases as needed — stop as
+soon as a job can be classified. Run all jobs in parallel within each phase.
+
+**Phase 1 — Grep for failure signals (always, all jobs in parallel)**
+
+Fetch the log and grep for key failure signals. Do NOT use `tail -40` — cleanup steps often run
+after the scan step fails (e.g. always-run SHA extraction), pushing the exit code out of the
+tail window. Grep is more reliable:
 
 ```bash
 gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs" \
-  | grep -A 15 "ERROR\|exit code\|EXECUTION FAILURE\|IllegalStateException\|SocketTimeoutException\|All 3 attempts\|does not exist\|OUTDATED_LOCKFILE\|ERESOLVE"
+  | grep -E "##\[error\]Process completed with exit code|EXECUTION FAILURE|OutOfMemoryError|502 Bad Gateway|503|Artifact has expired|All 3 attempts failed|ERR_PNPM|ERESOLVE|Invalid value of sonar|does not exist for"
 ```
 
-Run one command per failed job, all concurrently.
+Classify immediately from the grep output:
+- `exit code 1` + `502 Bad Gateway` → Peach server unreachable → IGNORE
+- `exit code 1` + `Artifact has expired` → Artifact expired → IGNORE
+- `exit code 1` + `All 3 attempts failed` → Git clone timeout → IGNORE
+- `exit code 1` + `ERR_PNPM` / `ERESOLVE` / dep install error → Dep install failure → IGNORE
+- `exit code 1` (vault/infra, no other signal) → Vault / CI infra failure → IGNORE
+- `exit code 3` + `Invalid value of sonar` / `does not exist` → Project misconfiguration → IGNORE
+- `exit code 137` → Out-of-memory kill → CRITICAL
+- `exit code 3` + Java stack trace → proceed to Phase 2 (identify which sensor crashed)
 
-> **Fallback:** If `gh api` is blocked by permission restrictions, try fetching logs via
+**Phase 2 — Sensor context grep (only for exit code 3 + Java stack trace)**
+
+When Phase 1 shows exit code 3 with a Java stack trace but the active sensor name is not visible
+in the grep output, add `Sensor ` to the grep to find the last sensor that ran:
+
+```bash
+gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs" \
+  | grep -E "Sensor |EXECUTION FAILURE|OutOfMemoryError|##\[error\]"
+```
+
+This gives both the last sensor that ran and the failure signal. Run only for jobs that need it,
+all concurrently.
+
+**Phase 3 — Full log (only when Phase 2 is still ambiguous)**
+
+If the failure still cannot be classified (unrecognised stack trace, unexpected exit code), fetch
+the full log and inspect it. This should be rare.
+
+```bash
+gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs"
+```
+
+> **Fallback:** If `gh api` is blocked by permission restrictions, use
 > `gh run view --log --job JOB_ID --repo SonarSource/peachee-js` instead.
 
 **Step 5 — Classify each job**

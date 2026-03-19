@@ -243,6 +243,46 @@ All 3 attempts failed
 
 ---
 
+### IGNORE: Peach Server Unreachable (502/503)
+
+**Verdict:** IGNORE — the Peach server was down or overloaded at scan start; the analyzer never ran.
+
+**How to identify:**
+- Failure occurs at the very start of the sonar-scanner execution step (server version query)
+- Error message: `Failed to query server version: GET https://peach.sonarsource.com/api/server/version failed with HTTP 502 Bad Gateway`
+- Scanner exits with code 1
+- Typically affects **all or most jobs** in the same run (mass failure pattern)
+
+**Example log excerpt:**
+```
+ERROR Failed to query server version: GET https://peach.sonarsource.com/api/server/version failed with HTTP 502 Bad Gateway
+INFO  EXECUTION FAILURE
+##[error]Process completed with exit code 1.
+```
+
+**Action:** None. Re-run the workflow later when the Peach server is back online.
+
+---
+
+### IGNORE: Artifact Expired
+
+**Verdict:** IGNORE — the SonarJS JAR artifact used by the workflow has expired; the analyzer never ran.
+
+**How to identify:**
+- Failure occurs during the artifact download step (before any scan)
+- Error message: `Artifact has expired (HTTP 410)`
+- Scanner exits with code 1
+
+**Example log excerpt:**
+```
+gh: Artifact has expired (HTTP 410)
+##[error]Process completed with exit code 1.
+```
+
+**Action:** The workflow needs to be re-triggered with a fresh artifact build. Not a SonarJS analyzer bug.
+
+---
+
 ### NEEDS-MANUAL-REVIEW: Unknown Failure
 
 **Verdict:** NEEDS-MANUAL-REVIEW — cannot be automatically classified.
