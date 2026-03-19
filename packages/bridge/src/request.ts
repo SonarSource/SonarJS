@@ -40,16 +40,7 @@ export type WsIncrementalResult = WsFileResult | WsMetaResult | WsAnalysisCancel
 
 export type RequestType = BridgeRequest['type'];
 
-export type BridgeRequest =
-  | JsTsRequest
-  | ProjectAnalysisRequest
-  | CancellationRequest
-  | InitLinterRequest;
-
-type JsTsRequest = {
-  type: 'on-analyze-jsts';
-  data: unknown;
-};
+export type BridgeRequest = ProjectAnalysisRequest | CancellationRequest;
 
 type ProjectAnalysisRequest = {
   type: 'on-analyze-project';
@@ -58,11 +49,6 @@ type ProjectAnalysisRequest = {
 
 type CancellationRequest = {
   type: 'on-cancel-analysis';
-};
-
-type InitLinterRequest = {
-  type: 'on-init-linter';
-  data: unknown;
 };
 
 type SerializedError = {

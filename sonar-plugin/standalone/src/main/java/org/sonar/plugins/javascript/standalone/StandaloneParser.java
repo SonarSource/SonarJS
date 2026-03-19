@@ -18,12 +18,16 @@ package org.sonar.plugins.javascript.standalone;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.api.estree.ESTree;
+import org.sonar.plugins.javascript.bridge.AnalysisConfiguration;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
@@ -43,8 +47,25 @@ import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 public class StandaloneParser implements AutoCloseable {
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
+  private static final long MAX_FILE_SIZE_KB = Long.MAX_VALUE / 1024;
+  private static final List<String> DEFAULT_JS_SUFFIXES = List.of(
+    ".js",
+    ".mjs",
+    ".cjs",
+    ".jsx",
+    ".vue"
+  );
+  private static final List<String> DEFAULT_TS_SUFFIXES = List.of(".ts", ".mts", ".cts", ".tsx");
+  private static final List<String> DEFAULT_CSS_SUFFIXES = List.of(
+    ".css",
+    ".less",
+    ".scss",
+    ".sass"
+  );
 
   private final BridgeServerImpl bridge;
+  private final String baseDir;
+  private final BridgeServer.ProjectAnalysisConfiguration parserConfiguration;
 
   public StandaloneParser() {
     this(builder());
@@ -67,6 +88,7 @@ public class StandaloneParser implements AutoCloseable {
     }
 
     var temporaryFolder = new StandaloneTemporaryFolder();
+    baseDir = temporaryFolder.newDir().getAbsolutePath();
     Http httpClient = builder.http != null ? builder.http : Http.getJdkHttpClient();
     bridge = new BridgeServerImpl(
       nodeCommandBuilder,
@@ -78,6 +100,11 @@ public class StandaloneParser implements AutoCloseable {
       new EmbeddedNode(processWrapper, new Environment(builder.configuration)),
       httpClient
     );
+    parserConfiguration = new BridgeServer.ProjectAnalysisConfiguration(
+      baseDir,
+      new StandaloneAnalysisConfiguration()
+    );
+    parserConfiguration.setSkipAst(false);
     try {
       bridge.startServerLazily(
         new BridgeServerConfig(
@@ -85,13 +112,6 @@ public class StandaloneParser implements AutoCloseable {
           temporaryFolder.newDir().getAbsolutePath(),
           SonarProduct.SONARLINT
         )
-      );
-      bridge.initLinter(
-        List.of(),
-        List.of(),
-        List.of(),
-        temporaryFolder.newDir().getAbsolutePath(),
-        true
       );
     } catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -147,22 +167,15 @@ public class StandaloneParser implements AutoCloseable {
   }
 
   public ESTree.Program parse(String code, String filename) {
-    BridgeServer.JsAnalysisRequest request = new BridgeServer.JsAnalysisRequest(
-      filename,
-      "MAIN",
-      code,
-      true,
-      null,
-      null,
-      InputFile.Status.ADDED,
-      AnalysisMode.DEFAULT,
-      false,
-      false,
-      true,
-      true
+    String filePath = toAbsolutePath(filename);
+    var request = new BridgeServer.ProjectAnalysisRequest(
+      Map.of(filePath, new BridgeServer.JsTsFile(filePath, "MAIN", InputFile.Status.ADDED, code)),
+      List.of(),
+      parserConfiguration
     );
     try {
-      BridgeServer.AnalysisResponse result = bridge.analyzeJsTs(request);
+      var output = bridge.analyzeProject(request);
+      var result = toSingleFileResponse(output, filePath);
       Node ast = result.ast();
       if (ast == null) {
         var parsingError = result.parsingError();
@@ -180,6 +193,23 @@ public class StandaloneParser implements AutoCloseable {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  private String toAbsolutePath(String filename) {
+    return Path.of(filename).isAbsolute() ? filename : Path.of(baseDir, filename).toString();
+  }
+
+  private static BridgeServer.AnalysisResponse toSingleFileResponse(
+    BridgeServer.ProjectAnalysisOutputDTO output,
+    String filePath
+  ) {
+    var responseDTO = output.files().get(filePath);
+    if (responseDTO == null && output.files().size() == 1) {
+      responseDTO = output.files().values().iterator().next();
+    }
+    return responseDTO == null
+      ? new BridgeServer.AnalysisResponse()
+      : BridgeServer.AnalysisResponse.fromDTO(responseDTO);
   }
 
   @Override
@@ -203,6 +233,119 @@ public class StandaloneParser implements AutoCloseable {
     @Override
     public String[] getStringArray(String key) {
       return new String[0];
+    }
+  }
+
+  private static class StandaloneAnalysisConfiguration implements AnalysisConfiguration {
+
+    @Override
+    public boolean isSonarLint() {
+      return true;
+    }
+
+    @Override
+    public boolean allowTsParserJsFiles() {
+      return true;
+    }
+
+    @Override
+    public AnalysisMode getAnalysisMode() {
+      return AnalysisMode.DEFAULT;
+    }
+
+    @Override
+    public boolean ignoreHeaderComments() {
+      return true;
+    }
+
+    @Override
+    public long getMaxFileSizeProperty() {
+      return MAX_FILE_SIZE_KB;
+    }
+
+    @Override
+    public List<String> getEnvironments() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getGlobals() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getTsExtensions() {
+      return DEFAULT_TS_SUFFIXES;
+    }
+
+    @Override
+    public List<String> getJsExtensions() {
+      return DEFAULT_JS_SUFFIXES;
+    }
+
+    @Override
+    public List<String> getCssExtensions() {
+      return DEFAULT_CSS_SUFFIXES;
+    }
+
+    @Override
+    public Set<String> getTsConfigPaths() {
+      return Set.of();
+    }
+
+    @Override
+    public List<String> getJsTsExcludedPaths() {
+      return List.of();
+    }
+
+    @Override
+    public boolean shouldDetectBundles() {
+      return false;
+    }
+
+    @Override
+    public boolean canAccessFileSystem() {
+      return false;
+    }
+
+    @Override
+    public boolean shouldCreateTSProgramForOrphanFiles() {
+      return false;
+    }
+
+    @Override
+    public boolean shouldDisableTypeChecking() {
+      return true;
+    }
+
+    @Override
+    public List<String> getSources() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getInclusions() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getExclusions() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getTests() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getTestInclusions() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getTestExclusions() {
+      return List.of();
     }
   }
 }

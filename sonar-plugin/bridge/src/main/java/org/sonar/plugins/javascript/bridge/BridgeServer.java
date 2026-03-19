@@ -38,16 +38,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public interface BridgeServer extends Startable {
   void startServerLazily(BridgeServerConfig context) throws IOException;
 
-  void initLinter(
-    List<EslintRule> rules,
-    List<String> environments,
-    List<String> globals,
-    String baseDir,
-    boolean sonarlint
-  ) throws IOException;
-
-  AnalysisResponse analyzeJsTs(JsAnalysisRequest request) throws IOException;
-
   void clean() throws InterruptedException;
 
   String getCommandInfo();
@@ -56,67 +46,17 @@ public interface BridgeServer extends Startable {
 
   TelemetryData getTelemetry();
 
-  record InitLinterRequest(
-    List<EslintRule> rules,
-    List<String> environments,
-    List<String> globals,
-    String baseDir,
-    boolean sonarlint,
-    List<String> bundles,
-    String rulesWorkdir
-  ) {}
-
   void analyzeProject(WebSocketMessageHandler<ProjectAnalysisRequest> handler);
+
+  ProjectAnalysisOutputDTO analyzeProject(ProjectAnalysisRequest request) throws IOException;
 
   record ProjectAnalysisOutputDTO(
     Map<String, AnalysisResponseDTO> files,
     ProjectAnalysisMetaResponse meta
-  ) {}
-
-  record JsAnalysisRequest(
-    String filePath,
-    String fileType,
-    @Nullable String fileContent,
-    boolean ignoreHeaderComments,
-    @Nullable List<String> tsConfigs,
-    @Nullable String programId,
-    InputFile.Status fileStatus,
-    AnalysisMode analysisMode,
-    boolean skipAst,
-    boolean shouldClearDependenciesCache,
-    boolean sonarlint,
-    boolean allowTsParserJsFiles,
-    @Nullable ProjectAnalysisConfiguration configuration
   ) {
-    public JsAnalysisRequest(
-      String filePath,
-      String fileType,
-      @Nullable String fileContent,
-      boolean ignoreHeaderComments,
-      @Nullable List<String> tsConfigs,
-      @Nullable String programId,
-      InputFile.Status fileStatus,
-      AnalysisMode analysisMode,
-      boolean skipAst,
-      boolean shouldClearDependenciesCache,
-      boolean sonarlint,
-      boolean allowTsParserJsFiles
-    ) {
-      this(
-        filePath,
-        fileType,
-        fileContent,
-        ignoreHeaderComments,
-        tsConfigs,
-        programId,
-        fileStatus,
-        analysisMode,
-        skipAst,
-        shouldClearDependenciesCache,
-        sonarlint,
-        allowTsParserJsFiles,
-        null
-      );
+    public ProjectAnalysisOutputDTO {
+      files = files != null ? files : Map.of();
+      meta = meta != null ? meta : new ProjectAnalysisMetaResponse();
     }
   }
 

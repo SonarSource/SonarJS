@@ -40,9 +40,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import javax.annotation.Nonnull;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -62,7 +62,6 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.api.AnalysisMode;
-import org.sonar.plugins.javascript.bridge.BridgeServer.JsAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
@@ -173,31 +172,8 @@ class BridgeServerImplTest {
   void should_get_answer_from_server() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig);
-    JsAnalysisRequest request = createRequest();
-    var response = bridgeServer.analyzeJsTs(request);
+    var response = analyzeSingleFile(bridgeServer, createInputFile(), false);
     assertThat(response.issues()).hasSize(1);
-  }
-
-  @Test
-  void test_init() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
-
-    List<EslintRule> rules = Collections.singletonList(
-      new EslintRule(
-        "key",
-        singletonList("config"),
-        Collections.singletonList(InputFile.Type.MAIN),
-        singletonList(AnalysisMode.DEFAULT),
-        emptyList(),
-        "js"
-      )
-    );
-    bridgeServer.initLinter(rules, Collections.emptyList(), Collections.emptyList(), "", false);
-    bridgeServer.stop();
-    assertThat(logTester.logs()).contains(
-      "{\"rules\":[{\"key\":\"key\",\"fileTypeTargets\":[\"MAIN\"],\"configurations\":[\"config\"],\"analysisModes\":[\"DEFAULT\"],\"blacklistedExtensions\":[],\"language\":\"js\"}],\"environments\":[],\"globals\":[],\"baseDir\":\"\",\"sonarlint\":false,\"bundles\":[]}"
-    );
   }
 
   @Test
@@ -208,24 +184,7 @@ class BridgeServerImplTest {
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.ts")
       .setContents("alert('Fly, you fools!')")
       .build();
-    DefaultInputFile tsConfig = TestInputFileBuilder.create("foo", "tsconfig.json")
-      .setContents("{\"compilerOptions\": {\"target\": \"es6\", \"allowJs\": true }}")
-      .build();
-    JsAnalysisRequest request = new JsAnalysisRequest(
-      inputFile.absolutePath(),
-      inputFile.type().toString(),
-      null,
-      true,
-      singletonList(tsConfig.absolutePath()),
-      null,
-      inputFile.status(),
-      AnalysisMode.DEFAULT,
-      false,
-      false,
-      false,
-      true
-    );
-    assertThat(bridgeServer.analyzeJsTs(request).issues()).hasSize(1);
+    assertThat(analyzeSingleFile(bridgeServer, inputFile, false).issues()).hasSize(1);
   }
 
   private static DefaultInputFile createInputFile() {
@@ -234,26 +193,43 @@ class BridgeServerImplTest {
       .build();
   }
 
-  private static JsAnalysisRequest createRequest() {
-    return createRequest(createInputFile());
+  private static BridgeServer.ProjectAnalysisRequest createProjectRequest(
+    DefaultInputFile inputFile,
+    boolean skipAst
+  ) throws IOException {
+    var configuration = new BridgeServer.ProjectAnalysisConfiguration(
+      inputFile.absolutePath(),
+      new MinimalAnalysisConfiguration()
+    );
+    configuration.setSkipAst(skipAst);
+    return new BridgeServer.ProjectAnalysisRequest(
+      Map.of(
+        inputFile.absolutePath(),
+        new BridgeServer.JsTsFile(
+          inputFile.absolutePath(),
+          inputFile.type().toString(),
+          inputFile.status(),
+          inputFile.contents()
+        )
+      ),
+      List.of(),
+      configuration
+    );
   }
 
-  @Nonnull
-  private static JsAnalysisRequest createRequest(DefaultInputFile inputFile) {
-    return new JsAnalysisRequest(
-      inputFile.absolutePath(),
-      inputFile.type().toString(),
-      null,
-      true,
-      null,
-      null,
-      inputFile.status(),
-      AnalysisMode.DEFAULT,
-      false,
-      false,
-      false,
-      true
-    );
+  private static BridgeServer.AnalysisResponse analyzeSingleFile(
+    BridgeServerImpl bridgeServer,
+    DefaultInputFile inputFile,
+    boolean skipAst
+  ) throws IOException {
+    var output = bridgeServer.analyzeProject(createProjectRequest(inputFile, skipAst));
+    var responseDto = output.files().get(inputFile.absolutePath());
+    if (responseDto == null && !output.files().isEmpty()) {
+      responseDto = output.files().values().iterator().next();
+    }
+    return responseDto == null
+      ? new BridgeServer.AnalysisResponse()
+      : BridgeServer.AnalysisResponse.fromDTO(responseDto);
   }
 
   @Test
@@ -429,23 +405,9 @@ class BridgeServerImplTest {
     bridgeServer.startServerLazily(serverConfig);
 
     DefaultInputFile inputFile = createInputFile();
-    JsAnalysisRequest request = new JsAnalysisRequest(
-      inputFile.absolutePath(),
-      inputFile.type().toString(),
-      null,
-      true,
-      null,
-      null,
-      inputFile.status(),
-      AnalysisMode.DEFAULT,
-      false,
-      false,
-      false,
-      true
-    );
-    assertThatThrownBy(() -> bridgeServer.analyzeJsTs(request)).isInstanceOf(
-      IllegalStateException.class
-    );
+    assertThatThrownBy(() ->
+      bridgeServer.analyzeProject(createProjectRequest(inputFile, false))
+    ).isInstanceOf(IllegalStateException.class);
     assertThat(context.allIssues()).isEmpty();
   }
 
@@ -465,7 +427,9 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer("timeout.js");
     bridgeServer.startServer(serverConfig);
 
-    assertThatThrownBy(() -> bridgeServer.analyzeJsTs(createRequest()))
+    assertThatThrownBy(() ->
+      bridgeServer.analyzeProject(createProjectRequest(createInputFile(), false))
+    )
       .isInstanceOf(IllegalStateException.class)
       .hasMessage(
         "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis"
@@ -601,8 +565,7 @@ class BridgeServerImplTest {
   void should_return_an_ast() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig);
-    JsAnalysisRequest request = createRequest();
-    var response = bridgeServer.analyzeJsTs(request);
+    var response = analyzeSingleFile(bridgeServer, createInputFile(), false);
     assertThat(response.ast()).isNotNull();
     Node node = response.ast();
     assertThat(node.getProgram()).isNotNull();
@@ -613,12 +576,12 @@ class BridgeServerImplTest {
   void should_handle_io_exception() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig);
-    JsAnalysisRequest request = createRequest();
+    var inputFile = createInputFile();
     try (MockedStatic<AstProtoUtils> mocked = mockStatic(AstProtoUtils.class)) {
       mocked
         .when(() -> AstProtoUtils.parseProtobuf(any()))
         .thenThrow(new IOException("Test exception"));
-      assertThatThrownBy(() -> bridgeServer.analyzeJsTs(request))
+      assertThatThrownBy(() -> analyzeSingleFile(bridgeServer, inputFile, false))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Failed to parse protobuf");
     }
@@ -629,22 +592,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(BridgeServerConfig.fromSensorContext(context));
 
-    DefaultInputFile inputFile = createInputFile();
-    JsAnalysisRequest request = new JsAnalysisRequest(
-      inputFile.absolutePath(),
-      inputFile.type().toString(),
-      null,
-      true,
-      null,
-      null,
-      inputFile.status(),
-      AnalysisMode.DEFAULT,
-      true,
-      false,
-      false,
-      true
-    );
-    var response = bridgeServer.analyzeJsTs(request);
+    var response = analyzeSingleFile(bridgeServer, createInputFile(), true);
     assertThat(response.ast()).isNull();
   }
 
@@ -757,6 +705,119 @@ class BridgeServerImplTest {
     when(mockEnvironment.getOsName()).thenReturn("");
     when(mockEnvironment.getOsArch()).thenReturn("");
     return mockEnvironment;
+  }
+
+  private static class MinimalAnalysisConfiguration implements AnalysisConfiguration {
+
+    @Override
+    public boolean isSonarLint() {
+      return true;
+    }
+
+    @Override
+    public boolean allowTsParserJsFiles() {
+      return true;
+    }
+
+    @Override
+    public AnalysisMode getAnalysisMode() {
+      return AnalysisMode.DEFAULT;
+    }
+
+    @Override
+    public boolean ignoreHeaderComments() {
+      return true;
+    }
+
+    @Override
+    public long getMaxFileSizeProperty() {
+      return Long.MAX_VALUE / 1024;
+    }
+
+    @Override
+    public List<String> getEnvironments() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getGlobals() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getTsExtensions() {
+      return List.of(".ts", ".mts", ".cts", ".tsx");
+    }
+
+    @Override
+    public List<String> getJsExtensions() {
+      return List.of(".js", ".mjs", ".cjs", ".jsx", ".vue");
+    }
+
+    @Override
+    public List<String> getCssExtensions() {
+      return List.of(".css", ".less", ".scss", ".sass");
+    }
+
+    @Override
+    public Set<String> getTsConfigPaths() {
+      return Set.of();
+    }
+
+    @Override
+    public List<String> getJsTsExcludedPaths() {
+      return List.of();
+    }
+
+    @Override
+    public boolean shouldDetectBundles() {
+      return false;
+    }
+
+    @Override
+    public boolean canAccessFileSystem() {
+      return false;
+    }
+
+    @Override
+    public boolean shouldCreateTSProgramForOrphanFiles() {
+      return false;
+    }
+
+    @Override
+    public boolean shouldDisableTypeChecking() {
+      return true;
+    }
+
+    @Override
+    public List<String> getSources() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getInclusions() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getExclusions() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getTests() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getTestInclusions() {
+      return List.of();
+    }
+
+    @Override
+    public List<String> getTestExclusions() {
+      return List.of();
+    }
   }
 
   static class TestBundle implements Bundle {
