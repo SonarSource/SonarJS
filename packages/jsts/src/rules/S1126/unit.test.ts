@@ -675,6 +675,56 @@ function foo() {
             },
           ],
         },
+        {
+          code: `
+function foo(condition) {
+  if (condition) {
+    // important comment
+    return false;
+  } else {
+    return true;
+  }
+}`,
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              suggestions: [],
+            },
+          ],
+        },
+        {
+          code: `
+function foo(condition) {
+  if (condition) {
+    return false;
+  } else {
+    // important comment
+    return true;
+  }
+}`,
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              suggestions: [],
+            },
+          ],
+        },
+        {
+          code: `
+function foo(condition) {
+  if (condition) {
+    return false;
+  }
+  // important comment
+  return true;
+}`,
+          errors: [
+            {
+              messageId: 'replaceIfThenElseByReturn',
+              suggestions: [],
+            },
+          ],
+        },
       ],
     });
   });
