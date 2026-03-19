@@ -87,10 +87,10 @@ function getRequiredModuleType(
   sonarKey: string,
   tags: string[],
 ): 'module' | 'commonjs' | undefined {
-  const esmOnly = tags.includes('esm_only');
-  const cjsOnly = tags.includes('cjs_only');
+  const esmOnly = tags.includes('esm-only') || tags.includes('esm_only');
+  const cjsOnly = tags.includes('cjs-only') || tags.includes('cjs_only');
   if (esmOnly && cjsOnly) {
-    throw new Error(`Rule ${sonarKey} cannot have both 'esm_only' and 'cjs_only' tags`);
+    throw new Error(`Rule ${sonarKey} cannot have both 'esm-only' and 'cjs-only' tags`);
   }
   if (esmOnly) {
     return 'module';
