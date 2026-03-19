@@ -25,17 +25,20 @@ import { isHtmlElement } from '../helpers/isHtmlElement.js';
 import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
-// ARIA table container roles that indicate a custom table widget
-const TABLE_CONTAINER_ROLES = new Set(['table', 'grid']);
-// ARIA table child roles that must be inside a container role
-const TABLE_CHILD_ROLES = new Set([
+// ARIA composite container roles that indicate a custom composite widget
+const COMPOSITE_CONTAINER_ROLES = new Set(['table', 'grid', 'listbox']);
+// ARIA composite child roles that must be inside a container role
+const COMPOSITE_CHILD_ROLES = new Set([
   'row',
   'rowgroup',
   'cell',
   'gridcell',
   'columnheader',
   'rowheader',
+  'option',
 ]);
+// ARIA inner roles that are suppressed when nested inside any composite container
+const COMPOSITE_INNER_ROLES = new Set(['button', 'presentation', 'none']);
 
 /**
  * Decorates the prefer-tag-over-role rule to fix false positives.
@@ -49,7 +52,8 @@ const TABLE_CHILD_ROLES = new Set([
  *    - role="radio" with aria-checked
  *    - role="separator" with children (since <hr> is void)
  *    - role="img" on div/span with children or CSS backgroundImage (since <img> is void)
- *    - ARIA table roles (table, grid, row, etc.) when forming complete custom widget patterns
+ *    - ARIA composite widget roles (table, grid, listbox, row, option, etc.) when forming
+ *      complete custom widget patterns, and inner roles (button, etc.) nested inside them
  *
  * Note: SVG internal elements like <g> are not in HTML_TAG_NAMES, so they're
  * already filtered out by isHtmlElement. HTML elements with role="group" remain
@@ -116,7 +120,7 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
     isCustomRadio(role, attributes) ||
     isSeparatorWithChildren(role, node) ||
     isImgRoleWithValidPattern(elementName, role, attributes, node) ||
-    isCustomTableWidget(elementName, role, node)
+    isCustomCompositeWidget(role, node)
   );
 }
 
@@ -223,62 +227,49 @@ function hasChildren(node: TSESTree.JSXOpeningElement): boolean {
 }
 
 /**
- * Checks if the element is part of a custom table widget pattern.
+ * Checks if the element is part of a custom composite widget pattern.
  *
- * Custom table widgets use div/span elements with ARIA table roles because
- * native table elements (<table>, <tr>, <td>) only work within <table> structures,
- * but virtualized tables need div-based layouts for performance.
+ * Suppresses three categories of roles:
+ * - Container roles (table, grid, listbox) when they have descendant child roles
+ * - Child roles (row, option, etc.) when they have an ancestor container role
+ * - Inner roles (button, presentation, none) when nested inside any container role
  *
- * A valid custom table widget requires both:
- * - Container roles (table, grid) must have descendant child roles
- * - Child roles (row, rowgroup, cell, etc.) must have ancestor container roles
+ * No element-name restriction: any HTML tag (div, ul, li, span, etc.) qualifies.
  */
-function isCustomTableWidget(
-  elementName: string | null,
-  role: string,
-  node: TSESTree.JSXOpeningElement,
-): boolean {
-  // Only applies to div/span elements
-  if (elementName !== 'div' && elementName !== 'span') {
-    return false;
+function isCustomCompositeWidget(role: string, node: TSESTree.JSXOpeningElement): boolean {
+  if (COMPOSITE_CONTAINER_ROLES.has(role)) {
+    return hasDescendantCompositeChildRole(node);
   }
 
-  // Check if this is a container role (table, grid)
-  if (TABLE_CONTAINER_ROLES.has(role)) {
-    return hasDescendantTableChildRole(node);
-  }
-
-  // Check if this is a child role (row, rowgroup, cell, etc.)
-  if (TABLE_CHILD_ROLES.has(role)) {
-    return hasAncestorTableContainerRole(node);
+  if (COMPOSITE_CHILD_ROLES.has(role) || COMPOSITE_INNER_ROLES.has(role)) {
+    return hasAncestorCompositeContainerRole(node);
   }
 
   return false;
 }
 
 /**
- * Checks if the element has any descendant with a TABLE_CHILD_ROLE.
+ * Checks if the element has any descendant with a COMPOSITE_CHILD_ROLE.
  */
-function hasDescendantTableChildRole(node: TSESTree.JSXOpeningElement): boolean {
+function hasDescendantCompositeChildRole(node: TSESTree.JSXOpeningElement): boolean {
   const jsxElement = node.parent;
   if (jsxElement?.type !== 'JSXElement') {
     return false;
   }
-  return hasTableChildRoleInSubtree(jsxElement);
+  return hasCompositeChildRoleInSubtree(jsxElement);
 }
 
 /**
- * Recursively searches the JSX subtree for elements with TABLE_CHILD_ROLES.
+ * Recursively searches the JSX subtree for elements with COMPOSITE_CHILD_ROLES.
  */
-function hasTableChildRoleInSubtree(node: TSESTree.JSXElement): boolean {
+function hasCompositeChildRoleInSubtree(node: TSESTree.JSXElement): boolean {
   for (const child of node.children) {
     if (child.type === 'JSXElement') {
       const childRole = getJSXElementRole(child);
-      if (childRole && TABLE_CHILD_ROLES.has(childRole)) {
+      if (childRole && COMPOSITE_CHILD_ROLES.has(childRole)) {
         return true;
       }
-      // Recursively search nested elements
-      if (hasTableChildRoleInSubtree(child)) {
+      if (hasCompositeChildRoleInSubtree(child)) {
         return true;
       }
     }
@@ -304,31 +295,15 @@ function getJSXElementRole(element: TSESTree.JSXElement): string | null {
 }
 
 /**
- * Checks if any ancestor div/span has a TABLE_CONTAINER_ROLE.
+ * Checks if any ancestor JSX element has a COMPOSITE_CONTAINER_ROLE.
  */
-function hasAncestorTableContainerRole(node: TSESTree.JSXOpeningElement): boolean {
+function hasAncestorCompositeContainerRole(node: TSESTree.JSXOpeningElement): boolean {
   const ancestor = findFirstMatchingAncestor(node, n => {
     if (n.type !== 'JSXElement') {
       return false;
     }
-    const elementName = getJSXElementName(n);
-    // Only consider div/span as valid container elements
-    if (elementName !== 'div' && elementName !== 'span') {
-      return false;
-    }
     const role = getJSXElementRole(n);
-    return role !== null && TABLE_CONTAINER_ROLES.has(role);
+    return role !== null && COMPOSITE_CONTAINER_ROLES.has(role);
   });
   return ancestor !== undefined;
-}
-
-/**
- * Gets the element name from a JSXElement.
- */
-function getJSXElementName(element: TSESTree.JSXElement): string | null {
-  const name = element.openingElement.name;
-  if (name.type === 'JSXIdentifier') {
-    return name.name.toLowerCase();
-  }
-  return null;
 }
