@@ -148,6 +148,12 @@ describe('S1121', () => {
         {
           code: `function cached(fn) { let r; return function() { return (r = r || fn()); }; }`,
         },
+        {
+          code: `function foo() { return (carry += value); }`,
+        },
+        {
+          code: `let node; for (var i = 0; node = nodes[i++];) {}`,
+        },
       ],
       invalid: [
         {
@@ -236,6 +242,14 @@ describe('S1121', () => {
         },
         {
           code: `(a = 0) || a;`,
+          errors: 1,
+        },
+        {
+          code: `if (!(a = getValue())) {}`,
+          errors: 1,
+        },
+        {
+          code: `if (isDefined(a = getValue())) {}`,
           errors: 1,
         },
       ],
