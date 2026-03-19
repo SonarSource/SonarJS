@@ -26,8 +26,48 @@ import { packageJsonStore } from './file-stores/index.js';
 import { stripBOM } from '../../rules/helpers/files.js';
 
 const NOT_DETECTED = 'not-detected';
-const KNOWN_COMPILER_OPTIONS = buildKnownCompilerOptions();
-const PATH_COMPILER_OPTIONS = buildPathCompilerOptions();
+const COMPILER_OPTIONS_TO_LOG = [
+  'allowArbitraryExtensions',
+  'allowImportingTsExtensions',
+  'allowJs',
+  'allowSyntheticDefaultImports',
+  'checkJs',
+  'esModuleInterop',
+  'exactOptionalPropertyTypes',
+  'isolatedModules',
+  'jsx',
+  'jsxImportSource',
+  'lib',
+  'module',
+  'moduleDetection',
+  'moduleResolution',
+  'noUncheckedIndexedAccess',
+  'resolveJsonModule',
+  'resolvePackageJsonExports',
+  'resolvePackageJsonImports',
+  'skipLibCheck',
+  'strict',
+  'target',
+  'types',
+  'useDefineForClassFields',
+  'verbatimModuleSyntax',
+] as const satisfies ReadonlyArray<keyof ts.CompilerOptions>;
+const COMPILER_OPTIONS_TO_LOG_SET = new Set<string>(COMPILER_OPTIONS_TO_LOG);
+
+const TARGET_OPTION_VALUES = buildEnumOptionValuesFromRuntimeEnum(ts.ScriptTarget);
+const MODULE_OPTION_VALUES = buildEnumOptionValuesFromRuntimeEnum(ts.ModuleKind);
+const MODULE_RESOLUTION_OPTION_VALUES = buildEnumOptionValuesFromRuntimeEnum(
+  ts.ModuleResolutionKind,
+);
+const MODULE_DETECTION_OPTION_VALUES = buildEnumOptionValuesFromRuntimeEnum(ts.ModuleDetectionKind);
+const JSX_OPTION_VALUES = new Map<number, string>([
+  [ts.JsxEmit.None, 'none'],
+  [ts.JsxEmit.Preserve, 'preserve'],
+  [ts.JsxEmit.React, 'react'],
+  [ts.JsxEmit.ReactNative, 'react-native'],
+  [ts.JsxEmit.ReactJSX, 'react-jsx'],
+  [ts.JsxEmit.ReactJSXDev, 'react-jsxdev'],
+]);
 
 let projectAnalysisTelemetryCollector: ProjectAnalysisTelemetryCollector | undefined;
 
@@ -71,7 +111,6 @@ export class ProjectAnalysisTelemetryCollector {
   private readonly typescriptNativePreview: boolean;
   private readonly compilerOptionValues = new Map<string, Set<string>>();
   private readonly ecmaScriptVersions = new Set<string>();
-  private readonly enumOptionValues = buildEnumOptionValues();
   private readonly programCreation: ProgramCreationTelemetry = {
     attempted: 0,
     succeeded: 0,
@@ -148,7 +187,7 @@ export class ProjectAnalysisTelemetryCollector {
   }
 
   private recordOptionValue(optionName: string, optionValue: unknown) {
-    if (PATH_COMPILER_OPTIONS.has(optionName)) {
+    if (!COMPILER_OPTIONS_TO_LOG_SET.has(optionName)) {
       return;
     }
 
@@ -179,15 +218,14 @@ export class ProjectAnalysisTelemetryCollector {
     }
 
     if (typeof optionValue === 'number') {
-      const enumValue = this.enumOptionValues.get(optionName)?.get(optionValue);
-      return [enumValue ?? String(optionValue)];
+      return [normalizeNumericOptionValue(optionName, optionValue)];
     }
 
     if (typeof optionValue === 'string') {
       if (optionName === 'lib') {
         return [normalizeLibValue(optionValue)];
       }
-      const sanitized = sanitizeStringOptionValue(optionName, optionValue);
+      const sanitized = sanitizeStringOptionValue(optionValue);
       return sanitized === undefined ? [] : [sanitized];
     }
 
@@ -196,7 +234,7 @@ export class ProjectAnalysisTelemetryCollector {
     }
 
     if (typeof optionValue === 'object') {
-      const sanitized = sanitizeObjectOptionValue(optionName, optionValue);
+      const sanitized = sanitizeObjectOptionValue(optionValue);
       if (sanitized === undefined) {
         return [];
       }
@@ -264,23 +302,37 @@ function normalizeLibValue(value: string): string {
   return match ? match[1] : value;
 }
 
-function sanitizeStringOptionValue(optionName: string, value: string): string | undefined {
-  if (looksLikeFilesystemPath(value)) {
-    return undefined;
+function normalizeNumericOptionValue(optionName: string, value: number): string {
+  switch (optionName) {
+    case 'target':
+      return TARGET_OPTION_VALUES.get(value) ?? String(value);
+    case 'module':
+      return MODULE_OPTION_VALUES.get(value) ?? String(value);
+    case 'moduleResolution':
+      return MODULE_RESOLUTION_OPTION_VALUES.get(value) ?? String(value);
+    case 'moduleDetection':
+      return MODULE_DETECTION_OPTION_VALUES.get(value) ?? String(value);
+    case 'jsx':
+      return JSX_OPTION_VALUES.get(value) ?? String(value);
+    default:
+      return String(value);
   }
-  if (!KNOWN_COMPILER_OPTIONS.has(optionName) && looksLikePathWithSeparator(value)) {
+}
+
+function sanitizeStringOptionValue(value: string): string | undefined {
+  if (looksLikeFilesystemPath(value)) {
     return undefined;
   }
   return value;
 }
 
-function sanitizeObjectOptionValue(optionName: string, value: unknown): unknown {
+function sanitizeObjectOptionValue(value: unknown): unknown {
   if (typeof value === 'string') {
-    return sanitizeStringOptionValue(optionName, value);
+    return sanitizeStringOptionValue(value);
   }
   if (Array.isArray(value)) {
     const sanitizedValues = value.flatMap(item => {
-      const sanitized = sanitizeObjectOptionValue(optionName, item);
+      const sanitized = sanitizeObjectOptionValue(item);
       return sanitized === undefined ? [] : [sanitized];
     });
     return sanitizedValues.length > 0 ? sanitizedValues : undefined;
@@ -288,7 +340,7 @@ function sanitizeObjectOptionValue(optionName: string, value: unknown): unknown 
   if (value && typeof value === 'object') {
     const sanitizedEntries = Object.entries(value as Record<string, unknown>).flatMap(
       ([key, nested]) => {
-        const sanitized = sanitizeObjectOptionValue(optionName, nested);
+        const sanitized = sanitizeObjectOptionValue(nested);
         return sanitized === undefined ? [] : [[key, sanitized] as [string, unknown]];
       },
     );
@@ -312,57 +364,14 @@ function looksLikeFilesystemPath(value: string): boolean {
   );
 }
 
-function looksLikePathWithSeparator(value: string): boolean {
-  return value.includes('/') || value.includes('\\');
-}
-
-function buildKnownCompilerOptions(): Set<string> {
-  return new Set(getTypeScriptOptionDeclarations().map(declaration => declaration.name));
-}
-
-function buildPathCompilerOptions(): Set<string> {
-  const pathOptions = new Set(['paths']);
-  for (const declaration of getTypeScriptOptionDeclarations()) {
-    if (
-      declaration.isFilePath === true ||
-      (declaration.type === 'list' && declaration.element?.isFilePath === true)
-    ) {
-      pathOptions.add(declaration.name);
+function buildEnumOptionValuesFromRuntimeEnum(
+  values: Record<string, string | number>,
+): Map<number, string> {
+  const result = new Map<number, string>();
+  for (const [name, value] of Object.entries(values)) {
+    if (typeof value === 'number') {
+      result.set(value, name.toLowerCase());
     }
   }
-  return pathOptions;
-}
-
-type TypeScriptOptionDeclaration = {
-  name: string;
-  type: unknown;
-  isFilePath?: boolean;
-  element?: {
-    isFilePath?: boolean;
-  };
-};
-
-function getTypeScriptOptionDeclarations(): TypeScriptOptionDeclaration[] {
-  return ((ts as unknown as { optionDeclarations?: unknown[] }).optionDeclarations ??
-    []) as TypeScriptOptionDeclaration[];
-}
-
-function buildEnumOptionValues(): Map<string, Map<number, string>> {
-  const optionDeclarations = getTypeScriptOptionDeclarations();
-  const enums = new Map<string, Map<number, string>>();
-  for (const declaration of optionDeclarations) {
-    if (!(declaration.type instanceof Map)) {
-      continue;
-    }
-    const optionValues = new Map<number, string>();
-    for (const [name, value] of declaration.type.entries()) {
-      if (typeof value === 'number') {
-        optionValues.set(value, name);
-      }
-    }
-    if (optionValues.size > 0) {
-      enums.set(declaration.name, optionValues);
-    }
-  }
-  return enums;
+  return result;
 }

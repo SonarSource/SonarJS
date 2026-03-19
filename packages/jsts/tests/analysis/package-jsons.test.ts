@@ -117,6 +117,16 @@ describe('files', () => {
     ).toBeUndefined();
   });
 
+  it('should use only the first manifest when extracting module type', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'module-type-first-manifest-only'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    expect(
+      getModuleType(normalizeToAbsolutePath(join(baseDir, 'subdir/index.js')), baseDir),
+    ).toBeUndefined();
+  });
+
   it('should extract module type from explicit file extension', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
     const configuration = createConfiguration({ baseDir });

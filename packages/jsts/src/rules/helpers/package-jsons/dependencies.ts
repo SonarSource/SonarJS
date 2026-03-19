@@ -65,10 +65,9 @@ export const moduleTypeCache = new ComputedCache(
     if (!closestPackageJSONDirName) {
       return undefined;
     }
-    for (const manifest of getManifests(closestPackageJSONDirName, topDir, fs)) {
-      if (manifest.type === 'module' || manifest.type === 'commonjs') {
-        return manifest.type;
-      }
+    const [firstManifest] = getManifests(closestPackageJSONDirName, topDir, fs);
+    if (firstManifest?.type === 'module' || firstManifest?.type === 'commonjs') {
+      return firstManifest.type;
     }
     return undefined;
   },
