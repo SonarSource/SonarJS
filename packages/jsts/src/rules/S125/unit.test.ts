@@ -134,6 +134,41 @@ describe('S125', () => {
             // YUI().use('*'); // Comment following ';'
         `,
         },
+        {
+          // TODO on a non-code line followed by commented-out code — task marker suppresses issue
+          code: `
+// TODO: pending
+// processVector(name, 'separate setting');
+        `,
+        },
+        {
+          // FIXME on a non-code line followed by a commented-out type alias — task marker suppresses issue
+          code: `
+// FIXME: reenable
+// type GiscusRepo = string | null;
+        `,
+        },
+        {
+          // HACK on a non-code line followed by commented-out code — task marker suppresses issue
+          code: `
+// HACK: disabled
+// const result = processValue(type);
+        `,
+        },
+        {
+          // XXX on a non-code line followed by commented-out code — task marker suppresses issue
+          code: `
+// XXX: broken
+// if (result > 0) { doSomething(); }
+        `,
+        },
+        {
+          // NOTE on a non-code line followed by commented-out code — task marker suppresses issue
+          code: `
+// NOTE: legacy
+// const legacy = computeLegacy(name, value);
+        `,
+        },
       ],
       invalid: [
         {
@@ -316,6 +351,16 @@ let x = 0;`,
 let x = 0;`,
                 },
               ],
+            },
+          ],
+        },
+        {
+          // NOTE as a JavaScript identifier in commented code — per-line check prevents suppression
+          code: `// const NOTE = 'padding';`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
             },
           ],
         },
