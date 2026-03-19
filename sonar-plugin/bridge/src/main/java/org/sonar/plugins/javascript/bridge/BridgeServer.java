@@ -209,7 +209,6 @@ public interface BridgeServer extends Startable {
   record BridgeResponse(InputStreamReader reader) {}
 
   record AnalysisResponseDTO(
-    @Nullable ParsingError parsingError,
     @Nullable List<ParsingError> parsingErrors,
     List<Issue> issues,
     List<Highlight> highlights,
@@ -217,19 +216,7 @@ public interface BridgeServer extends Startable {
     Metrics metrics,
     List<CpdToken> cpdTokens,
     @Nullable String ast
-  ) {
-    public AnalysisResponseDTO(
-      @Nullable ParsingError parsingError,
-      List<Issue> issues,
-      List<Highlight> highlights,
-      List<HighlightedSymbol> highlightedSymbols,
-      Metrics metrics,
-      List<CpdToken> cpdTokens,
-      @Nullable String ast
-    ) {
-      this(parsingError, null, issues, highlights, highlightedSymbols, metrics, cpdTokens, ast);
-    }
-  }
+  ) {}
 
   record AnalysisResponse(
     List<ParsingError> parsingErrors,
@@ -271,15 +258,8 @@ public interface BridgeServer extends Startable {
           throw new IllegalStateException("Failed to parse protobuf", e);
         }
       }
-      var parsingErrors = analysisResponseDTO.parsingErrors;
-      if (
-        (parsingErrors == null || parsingErrors.isEmpty()) &&
-        analysisResponseDTO.parsingError != null
-      ) {
-        parsingErrors = List.of(analysisResponseDTO.parsingError);
-      }
       return new AnalysisResponse(
-        parsingErrors,
+        analysisResponseDTO.parsingErrors,
         analysisResponseDTO.issues,
         analysisResponseDTO.highlights,
         analysisResponseDTO.highlightedSymbols,
@@ -287,11 +267,6 @@ public interface BridgeServer extends Startable {
         analysisResponseDTO.cpdTokens,
         ast
       );
-    }
-
-    @Nullable
-    public ParsingError parsingError() {
-      return parsingErrors.stream().findFirst().orElse(null);
     }
   }
 

@@ -20,7 +20,6 @@ import {
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
   readFile,
-  dirnamePath,
 } from './files.js';
 import {
   isJsFile,
@@ -35,7 +34,6 @@ import { filterPathAndGetFileType } from './filter/filter-path.js';
 import { initFileStores } from '../../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
 
 import {
-  type JsTsAnalysisInput,
   type FileStatus,
   type AnalysisMode,
   JSTS_ANALYSIS_DEFAULTS,
@@ -103,40 +101,6 @@ export function sanitizePaths(
 }
 
 /**
- * Sanitized single-file analysis input containing the normalized file path and configuration.
- */
-interface SanitizedSingleFileInput {
-  filePath: NormalizedAbsolutePath;
-  configuration: Configuration;
-}
-
-/**
- * Sanitizes and validates a single-file analysis request.
- * - Validates that data is an object with a filePath string
- * - Creates configuration from data.configuration if provided, otherwise derives from filePath
- * - Normalizes the file path relative to the configuration's baseDir
- *
- * @param data the raw request data
- * @returns the sanitized file path and configuration
- */
-function sanitizeSingleFileAnalysisInput(data: unknown): SanitizedSingleFileInput {
-  if (!isObject(data)) {
-    throw new Error('Invalid request data: expected object');
-  }
-  if (!isString(data.filePath)) {
-    throw new Error('Invalid request data: filePath must be a string');
-  }
-
-  const configuration = data.configuration
-    ? createConfiguration(data.configuration)
-    : createConfiguration({ baseDir: dirnamePath(normalizeToAbsolutePath(data.filePath)) });
-
-  const filePath = normalizeToAbsolutePath(data.filePath, configuration.baseDir);
-
-  return { filePath, configuration };
-}
-
-/**
  * Infers the language (js or ts) from the file path and content.
  * @param explicit explicitly provided language, if any
  * @param filePath the normalized file path
@@ -163,112 +127,6 @@ export function inferLanguage(
     return 'js';
   }
   throw new Error(`Unable to infer language for file ${filePath}`);
-}
-
-/**
- * Infers the file type (MAIN or TEST) from the file path.
- * Uses the filter path logic to determine if a file is a test file.
- * @param filePath the normalized file path
- * @param configuration the configuration containing path filtering parameters
- * @param explicit explicitly provided file type, if any
- * @returns the inferred or explicit file type, defaults to MAIN
- */
-function inferFileType(
-  filePath: NormalizedAbsolutePath,
-  configuration: Configuration,
-  explicit?: FileType,
-): FileType {
-  if (explicit) {
-    return explicit;
-  }
-  return (
-    filterPathAndGetFileType(filePath, {
-      sourcesPaths: configuration.sources.length ? configuration.sources : [configuration.baseDir],
-      testPaths: configuration.tests,
-      inclusions: configuration.inclusions,
-      exclusions: configuration.exclusions,
-      testInclusions: configuration.testInclusions,
-      testExclusions: configuration.testExclusions,
-    }) ?? 'MAIN'
-  );
-}
-
-/**
- * Sanitized JS/TS analysis input with configuration.
- */
-interface SanitizedJsTsAnalysisInput {
-  input: JsTsAnalysisInput;
-  configuration: Configuration;
-}
-
-/**
- * Sanitizes a raw JS/TS analysis input into a complete, validated input.
- * - Validates that input is an object with required fields
- * - Normalizes all paths (filePath, tsConfigs)
- * - Reads file content if not provided
- * - Infers language from file extension if not provided
- * - Infers file type from path if not provided
- * - Sets defaults for all optional fields using JSTS_ANALYSIS_DEFAULTS
- *
- * @param raw the raw JS/TS analysis input from JSON deserialization
- * @returns a promise of the sanitized JS/TS analysis input with configuration
- */
-export async function sanitizeJsTsAnalysisInput(raw: unknown): Promise<SanitizedJsTsAnalysisInput> {
-  const { filePath, configuration } = sanitizeSingleFileAnalysisInput(raw);
-  const rawObj = raw as Record<string, unknown>;
-
-  const fileContent = isString(rawObj.fileContent) ? rawObj.fileContent : await readFile(filePath);
-
-  // Validate and extract language if provided
-  const rawLanguage = rawObj.language;
-  const language = inferLanguage(
-    rawLanguage === 'js' || rawLanguage === 'ts' ? rawLanguage : undefined,
-    filePath,
-    fileContent,
-    configuration.jsSuffixes,
-    configuration.tsSuffixes,
-  );
-
-  // Validate and extract fileType if provided
-  const rawFileType = rawObj.fileType;
-  const fileType = inferFileType(
-    filePath,
-    configuration,
-    rawFileType === 'MAIN' || rawFileType === 'TEST' ? rawFileType : undefined,
-  );
-
-  const defaults = JSTS_ANALYSIS_DEFAULTS;
-
-  return {
-    input: {
-      filePath,
-      fileContent,
-      sonarlint: isBoolean(rawObj.sonarlint) ? rawObj.sonarlint : defaults.sonarlint,
-      fileType,
-      fileStatus: isFileStatus(rawObj.fileStatus) ? rawObj.fileStatus : defaults.fileStatus,
-      language,
-      analysisMode: isAnalysisMode(rawObj.analysisMode)
-        ? rawObj.analysisMode
-        : defaults.analysisMode,
-      ignoreHeaderComments: isBoolean(rawObj.ignoreHeaderComments)
-        ? rawObj.ignoreHeaderComments
-        : defaults.ignoreHeaderComments,
-      allowTsParserJsFiles: isBoolean(rawObj.allowTsParserJsFiles)
-        ? rawObj.allowTsParserJsFiles
-        : defaults.allowTsParserJsFiles,
-      tsConfigs: sanitizePaths(
-        isStringArray(rawObj.tsConfigs) ? rawObj.tsConfigs : undefined,
-        configuration.baseDir,
-      ),
-      program: rawObj.program as JsTsAnalysisInput['program'],
-      skipAst: isBoolean(rawObj.skipAst) ? rawObj.skipAst : defaults.skipAst,
-      clearDependenciesCache: isBoolean(rawObj.clearDependenciesCache)
-        ? rawObj.clearDependenciesCache
-        : defaults.clearDependenciesCache,
-      reportNclocForTestFiles: defaults.reportNclocForTestFiles,
-    },
-    configuration,
-  };
 }
 
 /**
@@ -309,46 +167,6 @@ function isCssRuleConfig(value: unknown): boolean {
  */
 function isCssRuleConfigArray(value: unknown): boolean {
   return Array.isArray(value) && value.every(isCssRuleConfig);
-}
-
-/**
- * Sanitized input for Linter.initialize()
- */
-interface SanitizedInitLinterInput {
-  rules: RuleConfig[];
-  environments: string[];
-  globals: string[];
-  baseDir: NormalizedAbsolutePath;
-  sonarlint: boolean;
-  bundles: NormalizedAbsolutePath[];
-  rulesWorkdir?: NormalizedAbsolutePath;
-}
-
-/**
- * Sanitizes the init-linter request data.
- */
-export function sanitizeInitLinterInput(raw: unknown): SanitizedInitLinterInput {
-  if (!isObject(raw)) {
-    throw new Error('Invalid init-linter input: expected object');
-  }
-
-  // baseDir is required
-  if (!isString(raw.baseDir)) {
-    throw new Error('Invalid init-linter input: baseDir must be a string');
-  }
-  const baseDir = normalizeToAbsolutePath(raw.baseDir);
-
-  return {
-    rules: isJsTsRuleConfigArray(raw.rules) ? (raw.rules as RuleConfig[]) : [],
-    environments: isStringArray(raw.environments) ? raw.environments : [],
-    globals: isStringArray(raw.globals) ? raw.globals : [],
-    baseDir,
-    sonarlint: isBoolean(raw.sonarlint) ? raw.sonarlint : false,
-    bundles: sanitizePaths(raw.bundles, baseDir),
-    rulesWorkdir: isString(raw.rulesWorkdir)
-      ? normalizeToAbsolutePath(raw.rulesWorkdir, baseDir)
-      : undefined,
-  };
 }
 
 /**

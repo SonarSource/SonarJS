@@ -187,7 +187,7 @@ export class Linter {
     detectedEsYear?: number,
   ): LintingResult {
     if (!Linter.linter) {
-      throw APIError.linterError(`Linter does not exist. Did you call /init-linter?`);
+      throw APIError.linterError(`Linter does not exist. Was project analysis initialized?`);
     }
     const config = {
       languageOptions: {
