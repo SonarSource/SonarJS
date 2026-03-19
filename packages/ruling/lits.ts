@@ -17,6 +17,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
+  type FileResult,
+  type ParsingError,
   type ProjectAnalysisOutput,
   entriesOfFileResults,
 } from '../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
@@ -65,36 +67,76 @@ export async function writeResults(
  * Transform ProjectAnalysisOutput to LITS format
  */
 function transformResults(projectPath: string, project: string, results: ProjectAnalysisOutput) {
-  const result: LitsFormattedResult = { S2260: { js: {}, ts: {}, css: {} } }; // We already add parsing error rule
+  const result = createEmptyLitsFormattedResult();
   for (const [filename, analysisOutput] of entriesOfFileResults(results.files)) {
-    const relativePath = filename.substring(projectPath.length + 1);
-    const projectWithFilename = `${project}:${relativePath}`;
-    if ('issues' in analysisOutput) {
-      for (const issue of analysisOutput.issues) {
-        if (issue.ruleId === 'CssSyntaxError') {
-          // CSS parsing errors are skipped, no parsing error rule in CSS // TODO??
-          continue;
-        }
-        const { language, line } = issue;
-        // CSS issues use stylelint keys (e.g. 'sonar/minimum-contrast'), map to SonarQube keys
-        const ruleId =
-          language === 'css'
-            ? (reverseCssRuleKeyMap.get(issue.ruleId) ?? issue.ruleId)
-            : issue.ruleId;
-        result[ruleId] = result[ruleId] ?? { js: {}, ts: {}, css: {} };
-        result[ruleId][language][projectWithFilename] =
-          result[ruleId][language][projectWithFilename] ?? [];
-        result[ruleId][language][projectWithFilename].push(line);
-      }
-    }
-
-    if ('parsingErrors' in analysisOutput) {
-      for (const parsingError of analysisOutput.parsingErrors ?? []) {
-        result.S2260[parsingError.language][projectWithFilename] = [parsingError.line ?? 0];
-      }
-    }
+    const projectWithFilename = toProjectFilename(projectPath, project, filename);
+    registerIssues(result, analysisOutput, projectWithFilename);
+    registerParsingErrors(result, analysisOutput, projectWithFilename);
   }
   return result;
+}
+
+function createEmptyLitsFormattedResult(): LitsFormattedResult {
+  return { S2260: { js: {}, ts: {}, css: {} } };
+}
+
+function toProjectFilename(projectPath: string, project: string, filename: string) {
+  const relativePath = filename.substring(projectPath.length + 1);
+  return `${project}:${relativePath}`;
+}
+
+function registerIssues(
+  result: LitsFormattedResult,
+  analysisOutput: FileResult,
+  projectWithFilename: string,
+) {
+  if (!('issues' in analysisOutput)) {
+    return;
+  }
+
+  for (const issue of analysisOutput.issues) {
+    if (issue.ruleId === 'CssSyntaxError') {
+      // Parsing errors are serialized separately as S2260 via parsingErrors.
+      continue;
+    }
+    const ruleId = toLitsRuleId(issue.ruleId, issue.language);
+    const languageIssues = getRuleIssues(result, ruleId)[issue.language];
+    const lines = languageIssues[projectWithFilename] ?? [];
+    lines.push(issue.line);
+    languageIssues[projectWithFilename] = lines;
+  }
+}
+
+function toLitsRuleId(ruleId: string, language: 'js' | 'ts' | 'css') {
+  // CSS issues use stylelint keys (e.g. 'sonar/minimum-contrast'), map to SonarQube keys.
+  return language === 'css' ? (reverseCssRuleKeyMap.get(ruleId) ?? ruleId) : ruleId;
+}
+
+function getRuleIssues(result: LitsFormattedResult, ruleId: string) {
+  result[ruleId] = result[ruleId] ?? { js: {}, ts: {}, css: {} };
+  return result[ruleId];
+}
+
+function registerParsingErrors(
+  result: LitsFormattedResult,
+  analysisOutput: FileResult,
+  projectWithFilename: string,
+) {
+  if (!('parsingErrors' in analysisOutput)) {
+    return;
+  }
+
+  for (const parsingError of analysisOutput.parsingErrors ?? []) {
+    registerParsingError(result, parsingError, projectWithFilename);
+  }
+}
+
+function registerParsingError(
+  result: LitsFormattedResult,
+  parsingError: ParsingError,
+  projectWithFilename: string,
+) {
+  result.S2260[parsingError.language][projectWithFilename] = [parsingError.line ?? 0];
 }
 
 /**

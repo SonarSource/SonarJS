@@ -342,12 +342,9 @@ describe('SonarLint tsconfig change detection', () => {
     const fileResult = result.files[normalizeToAbsolutePath(filePath)] as {
       parsingErrors?: Array<{ code: ErrorCode; line?: number }>;
     };
-    expect('parsingErrors' in fileResult).toBe(true);
-    if ('parsingErrors' in fileResult) {
-      expect(fileResult.parsingErrors).toHaveLength(1);
-      expect(fileResult.parsingErrors![0].code).toBe(ErrorCode.Parsing);
-      expect(fileResult.parsingErrors![0].line).toBe(3);
-    }
+    expect(fileResult).toMatchObject({
+      parsingErrors: [{ code: ErrorCode.Parsing, line: 3 }],
+    });
   });
 
   it('should cancel analysis', async () => {

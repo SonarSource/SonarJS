@@ -14,7 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { JsTsConfigFields, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import type {
+  AnalyzableFiles,
+  JsTsConfigFields,
+  ProjectAnalysisOutput,
+} from './projectAnalysis.js';
 import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import { warn } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
@@ -37,7 +41,7 @@ import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
  */
 export async function analyzeWithoutProgram(
   filenames: Set<NormalizedAbsolutePath>,
-  files: JsTsFiles,
+  files: AnalyzableFiles,
   results: ProjectAnalysisOutput,
   progressReport: ProgressReport,
   baseDir: NormalizedAbsolutePath,

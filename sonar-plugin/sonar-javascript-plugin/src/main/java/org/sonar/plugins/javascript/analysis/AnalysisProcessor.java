@@ -66,7 +66,6 @@ import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 public class AnalysisProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisProcessor.class);
-  private static final String CSS_PARSING_ERROR_STYLELINT_KEY = "CssSyntaxError";
 
   private final NoSonarFilter noSonarFilter;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -134,7 +133,7 @@ public class AnalysisProcessor {
       LOG.warn("Failed to parse file [{}] at line {}: {}", file, line, message);
     } else if (parsingError.code() == ParsingErrorCode.FAILING_TYPESCRIPT) {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
-    } else if (isCssParsingError(parsingError)) {
+    } else if (CssLanguage.KEY.equals(file.language())) {
       // CSS parsing errors are expected for certain preprocessor files (e.g. Sass)
       // and should not abort the analysis in failFast mode.
       LOG.warn("Failed to analyze CSS file [{}]: {}", file, message);
@@ -176,15 +175,17 @@ public class AnalysisProcessor {
   @Nullable
   private RuleKey parsingErrorRuleKey(ParsingError parsingError) {
     if (isCssParsingError(parsingError)) {
-      return cssRules != null ? cssRules.getActiveSonarKey(CSS_PARSING_ERROR_STYLELINT_KEY) : null;
+      return cssRules != null
+        ? cssRules.getActiveSonarKey(CssRules.CSS_PARSING_ERROR_STYLELINT_KEY)
+        : null;
     }
 
-    var parsingErrorRuleKey = checks.parsingErrorRuleKey(Language.of(parsingError.language()));
+    var parsingErrorRuleKey = checks.parsingErrorRuleKey(toLanguage(parsingError.language()));
     if (parsingErrorRuleKey != null) {
       return parsingErrorRuleKey;
     }
 
-    parsingErrorRuleKey = checks.parsingErrorRuleKey(Language.of(file.language()));
+    parsingErrorRuleKey = checks.parsingErrorRuleKey(toLanguage(file.language()));
     if (parsingErrorRuleKey != null) {
       return parsingErrorRuleKey;
     }
@@ -372,7 +373,7 @@ public class AnalysisProcessor {
     var ruleKey = findRuleKey(issue);
     if (ruleKey != null) {
       newIssue.at(location).forRule(ruleKey).save();
-    } else if ("CssSyntaxError".equals(issue.ruleId())) {
+    } else if (CssRules.CSS_PARSING_ERROR_STYLELINT_KEY.equals(issue.ruleId())) {
       LOG.warn("Failed to parse file {}, line {}, {}", file.uri(), issue.line(), issue.message());
     }
   }
@@ -410,6 +411,11 @@ public class AnalysisProcessor {
       TypeScriptLanguage.KEY.equals(language) ||
       CssLanguage.KEY.equals(language)
     );
+  }
+
+  @Nullable
+  private static Language toLanguage(@Nullable String language) {
+    return language != null ? Language.of(language) : null;
   }
 
   private static NewIssueLocation newSecondaryLocation(

@@ -319,7 +319,16 @@ async function testWSWithWorker(worker: Worker | undefined, requestJSON: string)
 
 async function requestAnalyzeJs(server: http.Server, fileType: string) {
   const filePath = path.join(import.meta.dirname, 'fixtures', 'routing.js');
-  const analysisInput = { filePath, fileType };
+  const analysisInput = {
+    filePath,
+    fileType,
+    configuration: {
+      baseDir: import.meta.dirname,
+      jsSuffixes: ['.js', '.jsx', '.cjs', '.mjs'],
+      tsSuffixes: ['.ts', '.tsx', '.cts', '.mts'],
+      cssSuffixes: ['.css', '.scss', '.sass', '.less'],
+    },
+  };
 
   return await request(server, '/analyze-jsts', 'POST', analysisInput);
 }

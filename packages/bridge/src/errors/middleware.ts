@@ -17,8 +17,30 @@
 import type express from 'express';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import { error } from '../../../shared/src/helpers/logging.js';
+import {
+  createConfiguration,
+  isCssFile,
+  isJsFile,
+  isTsFile,
+} from '../../../shared/src/helpers/configuration.js';
+import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
+import type {
+  ParsingError,
+  ParsingErrorLanguage,
+} from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 
-type ParsingErrorLanguage = 'js' | 'ts' | 'css';
+type RequestWithConfig = {
+  filePath: string;
+  fileContent?: string;
+  configuration: unknown;
+};
+
+type ErrorWithCode = {
+  code?: ErrorCode;
+  message?: string;
+  stack?: string;
+  data?: { line?: number };
+};
 
 /**
  * Express.js middleware for handling error while serving requests.
@@ -31,24 +53,31 @@ type ParsingErrorLanguage = 'js' | 'ts' | 'css';
  * @see https://expressjs.com/en/guide/error-handling.html
  */
 export function errorMiddleware(
-  err: any,
+  err: unknown,
   request: express.Request,
   response: express.Response,
   _next: express.NextFunction,
 ) {
-  response.json(handleError(err, inferParsingErrorLanguage(request, err)));
+  const normalizedError = normalizeError(err);
+  const language = isParsingErrorCode(normalizedError.code)
+    ? inferParsingErrorLanguage(request)
+    : undefined;
+  response.json(handleError(normalizedError, language));
 }
 
-export function handleError(err: any, language?: ParsingErrorLanguage) {
-  const { code, message, stack } = err;
+export function handleError(err: unknown, language?: ParsingErrorLanguage) {
+  const normalizedError = normalizeError(err);
+  const { code, message, stack } = normalizedError;
   switch (code) {
     case ErrorCode.Parsing:
     case ErrorCode.FailingTypeScript:
     case ErrorCode.LinterInitialization:
-      return generateParsingError(err, resolveParsingErrorLanguage(code, language));
+      return generateParsingError(normalizedError, resolveParsingErrorLanguage(code, language));
     default:
-      error(stack);
-      return { error: message };
+      if (stack) {
+        error(stack);
+      }
+      return { error: message ?? 'Unexpected error' };
   }
 }
 
@@ -56,61 +85,77 @@ function resolveParsingErrorLanguage(
   code: ErrorCode,
   language?: ParsingErrorLanguage,
 ): ParsingErrorLanguage {
-  if (language !== undefined) {
+  if (language) {
     return language;
   }
-  return code === ErrorCode.FailingTypeScript ? 'ts' : 'js';
-}
-
-function inferParsingErrorLanguage(request: express.Request, err: any): ParsingErrorLanguage {
-  const fromRequest = inferLanguageFromFilePath(request.body?.filePath);
-  return resolveParsingErrorLanguage(err?.code, fromRequest);
-}
-
-function inferLanguageFromFilePath(filePath: unknown): ParsingErrorLanguage | undefined {
-  if (typeof filePath !== 'string') {
-    return undefined;
-  }
-  const path = filePath.toLowerCase();
-  if (
-    path.endsWith('.css') ||
-    path.endsWith('.scss') ||
-    path.endsWith('.sass') ||
-    path.endsWith('.less')
-  ) {
-    return 'css';
-  }
-  if (
-    path.endsWith('.ts') ||
-    path.endsWith('.tsx') ||
-    path.endsWith('.cts') ||
-    path.endsWith('.mts')
-  ) {
+  if (code === ErrorCode.FailingTypeScript) {
     return 'ts';
   }
-  return 'js';
+  throw new Error(`Missing parsing error language for ${code}`);
 }
 
-function generateParsingError(
-  error: {
-    message: string;
-    code: ErrorCode;
-    data?: { line: number };
-  },
-  language: ParsingErrorLanguage,
-) {
-  const parsingError: {
-    message: string;
-    code: ErrorCode;
-    line: number | undefined;
-    language: ParsingErrorLanguage;
-  } = {
-    message: error.message,
-    code: error.code,
-    line: error.data?.line,
+function inferParsingErrorLanguage(request: express.Request): ParsingErrorLanguage {
+  const parsedRequest = asRequestWithConfig(request.body);
+  const filePath = normalizeToAbsolutePath(parsedRequest.filePath);
+  const configuration = createConfiguration(parsedRequest.configuration);
+  if (isCssFile(filePath, configuration.cssSuffixes)) {
+    return 'css';
+  }
+  if (isTsFile(filePath, parsedRequest.fileContent ?? '', configuration.tsSuffixes)) {
+    return 'ts';
+  }
+  if (isJsFile(filePath, configuration.jsSuffixes)) {
+    return 'js';
+  }
+  throw new Error(`Unable to infer parsing error language for file '${parsedRequest.filePath}'`);
+}
+
+function asRequestWithConfig(value: unknown): RequestWithConfig {
+  if (typeof value !== 'object' || value === null) {
+    throw new Error('Cannot infer parsing error language: request body is missing');
+  }
+  const request = value as Record<string, unknown>;
+  if (typeof request.filePath !== 'string') {
+    throw new Error('Cannot infer parsing error language: request.filePath is missing');
+  }
+  if (typeof request.configuration !== 'object' || request.configuration === null) {
+    throw new Error('Cannot infer parsing error language: request.configuration is missing');
+  }
+  return {
+    filePath: request.filePath,
+    fileContent: typeof request.fileContent === 'string' ? request.fileContent : undefined,
+    configuration: request.configuration,
+  };
+}
+
+function generateParsingError(err: ErrorWithCode, language: ParsingErrorLanguage) {
+  const parsingError: ParsingError = {
+    message: err.message ?? 'Parsing failed',
+    code: err.code as ErrorCode,
+    line: err.data?.line,
     language,
   };
   return {
     parsingError,
   };
+}
+
+function isParsingErrorCode(
+  code: ErrorCode | undefined,
+): code is ErrorCode.Parsing | ErrorCode.FailingTypeScript | ErrorCode.LinterInitialization {
+  return (
+    code === ErrorCode.Parsing ||
+    code === ErrorCode.FailingTypeScript ||
+    code === ErrorCode.LinterInitialization
+  );
+}
+
+function normalizeError(err: unknown): ErrorWithCode {
+  if (typeof err === 'object' && err !== null) {
+    return err as ErrorWithCode;
+  }
+  if (typeof err === 'string') {
+    return { message: err };
+  }
+  return { message: 'Unexpected error' };
 }

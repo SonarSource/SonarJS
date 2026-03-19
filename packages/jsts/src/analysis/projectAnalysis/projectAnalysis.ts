@@ -75,30 +75,35 @@ type AnalysisOutputWithParsingErrors =
  * Contains the per-file fields needed for storage and analysis.
  * The remaining fields are filled from configuration when actually analyzing the file.
  */
-export type JsTsFile = {
+export type AnalyzableFile = {
   filePath: NormalizedAbsolutePath;
   fileContent: string;
   fileType: FileType;
   fileStatus: FileStatus;
 };
 
-// Brand for the JsTsFiles container - ensures type-safe iteration
-declare const JsTsFilesBrand: unique symbol;
+// Brand for the AnalyzableFiles container - ensures type-safe iteration
+declare const AnalyzableFilesBrand: unique symbol;
 
 /**
- * Branded type for JS/TS files keyed by NormalizedAbsolutePath.
+ * Branded type for files keyed by NormalizedAbsolutePath.
  * The brand ensures compile-time type safety when iterating over the object.
  */
-export type JsTsFiles = { [key: NormalizedAbsolutePath]: JsTsFile } & {
-  readonly [JsTsFilesBrand]: never;
+export type AnalyzableFiles = { [key: NormalizedAbsolutePath]: AnalyzableFile } & {
+  readonly [AnalyzableFilesBrand]: never;
 };
 
 /**
- * Creates an empty branded JsTsFiles object.
+ * Creates an empty branded AnalyzableFiles object.
  */
-export function createJsTsFiles(): JsTsFiles {
-  return {} as JsTsFiles;
+export function createAnalyzableFiles(): AnalyzableFiles {
+  return {} as AnalyzableFiles;
 }
+
+// Backward-compatible aliases kept during transition.
+export type JsTsFile = AnalyzableFile;
+export type JsTsFiles = AnalyzableFiles;
+export const createJsTsFiles = createAnalyzableFiles;
 
 /**
  * Creates an empty branded FileResults object.

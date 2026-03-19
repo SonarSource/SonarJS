@@ -43,8 +43,8 @@ import {
 import type { RuleConfig as CssRuleConfig } from '../../../css/src/linter/config.js';
 import type { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
 import {
-  type JsTsFiles,
-  createJsTsFiles,
+  type AnalyzableFiles,
+  createAnalyzableFiles,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 import { shouldIgnoreFile, type ShouldIgnoreFileParams } from './filter/filter.js';
 
@@ -406,17 +406,17 @@ export async function sanitizeProjectAnalysisInput(
 
 /**
  * Sanitizes raw input files and filters them before returning.
- * This handles the conversion from raw input (HTTP/gRPC) to JsTsFiles,
+ * This handles the conversion from raw input (HTTP/gRPC) to AnalyzableFiles,
  * applying path normalization, default values, and file filtering in one pass.
  *
  * Files with invalid structure (missing or non-string filePath) are skipped with a warning.
  *
  * @param rawFiles - The raw input files from the request (Record<string, unknown>)
  * @param configuration - The project configuration for path normalization and filtering
- * @returns A promise of sanitized JsTsFiles ready to use
+ * @returns A promise of sanitized AnalyzableFiles ready to use
  */
 type SanitizedInputFiles = {
-  files: JsTsFiles;
+  files: AnalyzableFiles;
   pathMap: Map<string, string>;
 };
 
@@ -426,7 +426,7 @@ export async function sanitizeRawInputFiles(
 ): Promise<SanitizedInputFiles> {
   const { baseDir } = configuration;
   const shouldIgnoreParams: ShouldIgnoreFileParams = getShouldIgnoreParams(configuration);
-  const files = createJsTsFiles();
+  const files = createAnalyzableFiles();
   const pathMap = new Map<string, string>();
 
   if (!rawFiles) {

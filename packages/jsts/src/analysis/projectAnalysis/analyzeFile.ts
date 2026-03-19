@@ -29,8 +29,8 @@ import {
 import { inferLanguage } from '../../../../shared/src/helpers/sanitize.js';
 import { type WsIncrementalResult, serializeError } from '../../../../bridge/src/request.js';
 import type {
+  AnalyzableFile,
   FileResult,
-  JsTsFile,
   ParsingError,
   ParsingErrorLanguage,
   ProjectAnalysisOutput,
@@ -49,7 +49,7 @@ import { error } from '../../../../shared/src/helpers/logging.js';
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
  * This is the common entry point for all analysis paths (with program, without program, with cache).
- * Takes a StoredJsTsFile (minimal fields) and completes it into a full JsTsAnalysisInput.
+ * Takes a stored analyzable file (minimal fields) and completes it into a full JsTsAnalysisInput.
  *
  * Pure CSS files are dispatched to stylelint and skip the JS/TS pipeline entirely.
  * Vue and web files (.vue, .html, .htm, .xhtml) get both JS/TS and CSS analysis.
@@ -68,7 +68,7 @@ import { error } from '../../../../shared/src/helpers/logging.js';
  */
 export async function analyzeFile(
   fileName: NormalizedAbsolutePath,
-  file: JsTsFile,
+  file: AnalyzableFile,
   configFields: JsTsConfigFields,
   program: ts.Program | undefined,
   results: ProjectAnalysisOutput,

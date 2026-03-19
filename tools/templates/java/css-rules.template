@@ -23,7 +23,7 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 @SonarLintSide
 public class CssRules {
 
-  private static final String CSS_PARSING_ERROR_STYLELINT_KEY = "CssSyntaxError";
+  public static final String CSS_PARSING_ERROR_STYLELINT_KEY = "CssSyntaxError";
 
   private final Map<String, RuleKey> stylelintKeyToRuleKey;
   private final Collection<CssRule> rules;
