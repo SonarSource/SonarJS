@@ -52,7 +52,7 @@ const COMPILER_OPTIONS_TO_LOG = [
   'useDefineForClassFields',
   'verbatimModuleSyntax',
 ] as const satisfies ReadonlyArray<keyof ts.CompilerOptions>;
-const COMPILER_OPTIONS_TO_LOG_SET = new Set<string>(COMPILER_OPTIONS_TO_LOG);
+type LoggedCompilerOptionName = (typeof COMPILER_OPTIONS_TO_LOG)[number];
 
 const TARGET_OPTION_VALUES = buildEnumOptionValuesFromRuntimeEnum(ts.ScriptTarget);
 const MODULE_OPTION_VALUES = buildEnumOptionValuesFromRuntimeEnum(ts.ModuleKind);
@@ -131,7 +131,13 @@ export class ProjectAnalysisTelemetryCollector {
     if (!options) {
       return;
     }
-    for (const [optionName, optionValue] of Object.entries(options)) {
+    for (const optionName of COMPILER_OPTIONS_TO_LOG) {
+      let optionValue: unknown;
+      try {
+        optionValue = options[optionName];
+      } catch {
+        continue;
+      }
       this.recordOptionValue(optionName, optionValue);
     }
   }
@@ -186,15 +192,16 @@ export class ProjectAnalysisTelemetryCollector {
     };
   }
 
-  private recordOptionValue(optionName: string, optionValue: unknown) {
-    if (!COMPILER_OPTIONS_TO_LOG_SET.has(optionName)) {
-      return;
-    }
-
+  private recordOptionValue(optionName: LoggedCompilerOptionName, optionValue: unknown) {
     if (optionValue === undefined) {
       return;
     }
-    const values = this.normalizeOptionValue(optionName, optionValue);
+    let values: string[];
+    try {
+      values = this.normalizeOptionValue(optionName, optionValue);
+    } catch {
+      return;
+    }
     if (values.length === 0) {
       return;
     }
@@ -208,7 +215,10 @@ export class ProjectAnalysisTelemetryCollector {
     }
   }
 
-  private normalizeOptionValue(optionName: string, optionValue: unknown): string[] {
+  private normalizeOptionValue(
+    optionName: LoggedCompilerOptionName,
+    optionValue: unknown,
+  ): string[] {
     if (Array.isArray(optionValue)) {
       return optionValue.flatMap(item => this.normalizeOptionValue(optionName, item));
     }
@@ -225,8 +235,7 @@ export class ProjectAnalysisTelemetryCollector {
       if (optionName === 'lib') {
         return [normalizeLibValue(optionValue)];
       }
-      const sanitized = sanitizeStringOptionValue(optionValue);
-      return sanitized === undefined ? [] : [sanitized];
+      return [optionValue];
     }
 
     if (typeof optionValue === 'boolean' || typeof optionValue === 'bigint') {
@@ -234,11 +243,7 @@ export class ProjectAnalysisTelemetryCollector {
     }
 
     if (typeof optionValue === 'object') {
-      const sanitized = sanitizeObjectOptionValue(optionValue);
-      if (sanitized === undefined) {
-        return [];
-      }
-      const json = JSON.stringify(sanitized);
+      const json = JSON.stringify(optionValue);
       return json === undefined ? [] : [json];
     }
 
@@ -317,51 +322,6 @@ function normalizeNumericOptionValue(optionName: string, value: number): string 
     default:
       return String(value);
   }
-}
-
-function sanitizeStringOptionValue(value: string): string | undefined {
-  if (looksLikeFilesystemPath(value)) {
-    return undefined;
-  }
-  return value;
-}
-
-function sanitizeObjectOptionValue(value: unknown): unknown {
-  if (typeof value === 'string') {
-    return sanitizeStringOptionValue(value);
-  }
-  if (Array.isArray(value)) {
-    const sanitizedValues = value.flatMap(item => {
-      const sanitized = sanitizeObjectOptionValue(item);
-      return sanitized === undefined ? [] : [sanitized];
-    });
-    return sanitizedValues.length > 0 ? sanitizedValues : undefined;
-  }
-  if (value && typeof value === 'object') {
-    const sanitizedEntries = Object.entries(value as Record<string, unknown>).flatMap(
-      ([key, nested]) => {
-        const sanitized = sanitizeObjectOptionValue(nested);
-        return sanitized === undefined ? [] : [[key, sanitized] as [string, unknown]];
-      },
-    );
-    return sanitizedEntries.length > 0 ? Object.fromEntries(sanitizedEntries) : undefined;
-  }
-  return value;
-}
-
-function looksLikeFilesystemPath(value: string): boolean {
-  return (
-    value.startsWith('/') ||
-    /^[a-zA-Z]:[\\/]/.test(value) ||
-    value.startsWith('\\\\') ||
-    value.startsWith('file://') ||
-    value.startsWith('./') ||
-    value.startsWith('../') ||
-    value.startsWith('.\\') ||
-    value.startsWith('..\\') ||
-    value.startsWith('~/') ||
-    value.startsWith('~\\')
-  );
 }
 
 function buildEnumOptionValuesFromRuntimeEnum(
