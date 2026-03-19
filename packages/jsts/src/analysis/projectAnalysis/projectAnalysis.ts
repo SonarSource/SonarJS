@@ -100,11 +100,6 @@ export function createAnalyzableFiles(): AnalyzableFiles {
   return {} as AnalyzableFiles;
 }
 
-// Backward-compatible aliases kept during transition.
-export type JsTsFile = AnalyzableFile;
-export type JsTsFiles = AnalyzableFiles;
-export const createJsTsFiles = createAnalyzableFiles;
-
 /**
  * Creates an empty branded FileResults object.
  */
