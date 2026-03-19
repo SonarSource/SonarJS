@@ -69,7 +69,7 @@ class StandaloneParserTest {
   void should_throw_exception_when_fail_to_parse_code() {
     assertThatThrownBy(() -> parser.parse("..."))
       .isInstanceOf(IllegalArgumentException.class)
-      .hasMessage("Failed to parse the code");
+      .hasMessageStartingWith("Failed to parse the code:");
   }
 
   @Test
@@ -83,12 +83,14 @@ class StandaloneParserTest {
 
   @Test
   void test_standalone_created_with_builder() {
-    try (StandaloneParser builtParser = StandaloneParser.builder()
-      .timeout(600)
-      .nodeJsArgs("--no-warnings")
-      .maxOldSpaceSize(2048)
-      .configuration(new StandaloneParser.EmptyConfiguration())
-      .build()) {
+    try (
+      StandaloneParser builtParser = StandaloneParser.builder()
+        .timeout(600)
+        .nodeJsArgs("--no-warnings")
+        .maxOldSpaceSize(2048)
+        .configuration(new StandaloneParser.EmptyConfiguration())
+        .build()
+    ) {
       Program program = builtParser.parse("var x = 1;");
       assertThat(program.body()).hasSize(1);
     }
@@ -138,8 +140,9 @@ class StandaloneParserTest {
     Program program = parser.parse(code, "file.ts");
     assertThat(program.body()).hasSize(1);
     assertThat(program.body().get(0)).isInstanceOf(ESTree.ClassDeclaration.class);
-    List<ESTree.MethodDefinitionOrPropertyDefinitionOrStaticBlock> bodyClass =
-      ((ESTree.ClassDeclaration) program.body().get(0)).body().body();
+    List<ESTree.MethodDefinitionOrPropertyDefinitionOrStaticBlock> bodyClass = (
+      (ESTree.ClassDeclaration) program.body().get(0)
+    ).body().body();
     assertThat(bodyClass).isNotEmpty();
     return bodyClass.get(0);
   }
