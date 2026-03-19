@@ -28,7 +28,7 @@ import path from 'node:path';
 
 const EXCLUDED_STATEMENTS = new Set(['BreakStatement', 'LabeledStatement', 'ContinueStatement']);
 
-const TASK_MARKER_PATTERN = /\b(TODO|FIXME|HACK|XXX|NOTE)\b/i;
+const TASK_MARKER_PATTERN = /\b(TODO|FIXME|HACK|XXX|NOTE)\b/;
 
 // Cheap prefilter: any meaningful JS statement must contain at least one of these characters,
 // or be an import/export with a string literal (side-effect imports have no punctuation)
