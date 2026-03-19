@@ -21,51 +21,103 @@ import java.util.Set;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 
 public interface AnalysisConfiguration {
-  boolean isSonarLint();
+  default boolean isSonarLint() {
+    return false;
+  }
 
-  boolean allowTsParserJsFiles();
+  default boolean allowTsParserJsFiles() {
+    return true;
+  }
 
-  AnalysisMode getAnalysisMode();
+  default AnalysisMode getAnalysisMode() {
+    return AnalysisMode.DEFAULT;
+  }
 
-  boolean ignoreHeaderComments();
+  default boolean ignoreHeaderComments() {
+    return true;
+  }
 
-  long getMaxFileSizeProperty();
+  default long getMaxFileSizeProperty() {
+    return 1_000L;
+  }
 
-  List<String> getEnvironments();
+  default List<String> getEnvironments() {
+    return List.of();
+  }
 
-  List<String> getGlobals();
+  default List<String> getGlobals() {
+    return List.of();
+  }
 
-  List<String> getTsExtensions();
+  default List<String> getTsExtensions() {
+    return List.of();
+  }
 
-  List<String> getJsExtensions();
+  default List<String> getJsExtensions() {
+    return List.of();
+  }
 
-  List<String> getCssExtensions();
+  default List<String> getCssExtensions() {
+    return List.of();
+  }
 
-  Set<String> getTsConfigPaths();
+  /**
+   * Controls whether JS/TS/CSS suffix arrays should be serialized in the bridge request.
+   * When false, the fields are omitted so Node-side defaults are applied.
+   */
+  default boolean shouldSendFileSuffixes() {
+    return false;
+  }
 
-  List<String> getJsTsExcludedPaths();
+  default Set<String> getTsConfigPaths() {
+    return Set.of();
+  }
 
-  boolean shouldDetectBundles();
+  default List<String> getJsTsExcludedPaths() {
+    return List.of();
+  }
 
-  boolean canAccessFileSystem();
+  default boolean shouldDetectBundles() {
+    return true;
+  }
 
-  boolean shouldCreateTSProgramForOrphanFiles();
+  default boolean canAccessFileSystem() {
+    return true;
+  }
 
-  boolean shouldDisableTypeChecking();
+  default boolean shouldCreateTSProgramForOrphanFiles() {
+    return true;
+  }
+
+  default boolean shouldDisableTypeChecking() {
+    return false;
+  }
 
   default String getEcmaScriptVersion() {
     return null;
   }
 
-  List<String> getSources();
+  default List<String> getSources() {
+    return List.of();
+  }
 
-  List<String> getInclusions();
+  default List<String> getInclusions() {
+    return List.of();
+  }
 
-  List<String> getExclusions();
+  default List<String> getExclusions() {
+    return List.of();
+  }
 
-  List<String> getTests();
+  default List<String> getTests() {
+    return List.of();
+  }
 
-  List<String> getTestInclusions();
+  default List<String> getTestInclusions() {
+    return List.of();
+  }
 
-  List<String> getTestExclusions();
+  default List<String> getTestExclusions() {
+    return List.of();
+  }
 }

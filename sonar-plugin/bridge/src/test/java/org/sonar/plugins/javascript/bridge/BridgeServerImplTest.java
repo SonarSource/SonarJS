@@ -41,7 +41,6 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
@@ -73,6 +72,33 @@ class BridgeServerImplTest {
 
   private static final String START_SERVER_SCRIPT = "startServer.js";
   private static final int TEST_TIMEOUT_SECONDS = 1;
+  private static final AnalysisConfiguration TEST_ANALYSIS_CONFIGURATION =
+    new AnalysisConfiguration() {
+      @Override
+      public long getMaxFileSizeProperty() {
+        return Long.MAX_VALUE / 1024;
+      }
+
+      @Override
+      public boolean shouldDetectBundles() {
+        return false;
+      }
+
+      @Override
+      public boolean canAccessFileSystem() {
+        return false;
+      }
+
+      @Override
+      public boolean shouldCreateTSProgramForOrphanFiles() {
+        return false;
+      }
+
+      @Override
+      public boolean shouldDisableTypeChecking() {
+        return true;
+      }
+    };
 
   @RegisterExtension
   public LogTesterJUnit5 logTester = new LogTesterJUnit5().setLevel(DEBUG);
@@ -199,7 +225,7 @@ class BridgeServerImplTest {
   ) throws IOException {
     var configuration = new BridgeServer.ProjectAnalysisConfiguration(
       inputFile.absolutePath(),
-      new MinimalAnalysisConfiguration()
+      TEST_ANALYSIS_CONFIGURATION
     );
     configuration.setSkipAst(skipAst);
     return new BridgeServer.ProjectAnalysisRequest(
@@ -705,119 +731,6 @@ class BridgeServerImplTest {
     when(mockEnvironment.getOsName()).thenReturn("");
     when(mockEnvironment.getOsArch()).thenReturn("");
     return mockEnvironment;
-  }
-
-  private static class MinimalAnalysisConfiguration implements AnalysisConfiguration {
-
-    @Override
-    public boolean isSonarLint() {
-      return true;
-    }
-
-    @Override
-    public boolean allowTsParserJsFiles() {
-      return true;
-    }
-
-    @Override
-    public AnalysisMode getAnalysisMode() {
-      return AnalysisMode.DEFAULT;
-    }
-
-    @Override
-    public boolean ignoreHeaderComments() {
-      return true;
-    }
-
-    @Override
-    public long getMaxFileSizeProperty() {
-      return Long.MAX_VALUE / 1024;
-    }
-
-    @Override
-    public List<String> getEnvironments() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getGlobals() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getTsExtensions() {
-      return List.of(".ts", ".mts", ".cts", ".tsx");
-    }
-
-    @Override
-    public List<String> getJsExtensions() {
-      return List.of(".js", ".mjs", ".cjs", ".jsx", ".vue");
-    }
-
-    @Override
-    public List<String> getCssExtensions() {
-      return List.of(".css", ".less", ".scss", ".sass");
-    }
-
-    @Override
-    public Set<String> getTsConfigPaths() {
-      return Set.of();
-    }
-
-    @Override
-    public List<String> getJsTsExcludedPaths() {
-      return List.of();
-    }
-
-    @Override
-    public boolean shouldDetectBundles() {
-      return false;
-    }
-
-    @Override
-    public boolean canAccessFileSystem() {
-      return false;
-    }
-
-    @Override
-    public boolean shouldCreateTSProgramForOrphanFiles() {
-      return false;
-    }
-
-    @Override
-    public boolean shouldDisableTypeChecking() {
-      return true;
-    }
-
-    @Override
-    public List<String> getSources() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getInclusions() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getExclusions() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getTests() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getTestInclusions() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getTestExclusions() {
-      return List.of();
-    }
   }
 
   static class TestBundle implements Bundle {

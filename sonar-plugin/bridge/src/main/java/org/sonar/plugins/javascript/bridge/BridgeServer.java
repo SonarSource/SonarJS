@@ -166,9 +166,11 @@ public interface BridgeServer extends Startable {
       this.maxFileSize = analysisConfiguration.getMaxFileSizeProperty();
       this.environments = analysisConfiguration.getEnvironments();
       this.globals = analysisConfiguration.getGlobals();
-      this.tsSuffixes = analysisConfiguration.getTsExtensions();
-      this.jsSuffixes = analysisConfiguration.getJsExtensions();
-      this.cssSuffixes = analysisConfiguration.getCssExtensions();
+      if (analysisConfiguration.shouldSendFileSuffixes()) {
+        this.tsSuffixes = analysisConfiguration.getTsExtensions();
+        this.jsSuffixes = analysisConfiguration.getJsExtensions();
+        this.cssSuffixes = analysisConfiguration.getCssExtensions();
+      }
       this.tsConfigPaths = analysisConfiguration.getTsConfigPaths();
       this.jsTsExclusions = analysisConfiguration.getJsTsExcludedPaths();
       this.detectBundles = analysisConfiguration.shouldDetectBundles();

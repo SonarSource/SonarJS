@@ -22,10 +22,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisConfiguration;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
@@ -48,20 +46,6 @@ public class StandaloneParser implements AutoCloseable {
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
   private static final long MAX_FILE_SIZE_KB = Long.MAX_VALUE / 1024;
-  private static final List<String> DEFAULT_JS_SUFFIXES = List.of(
-    ".js",
-    ".mjs",
-    ".cjs",
-    ".jsx",
-    ".vue"
-  );
-  private static final List<String> DEFAULT_TS_SUFFIXES = List.of(".ts", ".mts", ".cts", ".tsx");
-  private static final List<String> DEFAULT_CSS_SUFFIXES = List.of(
-    ".css",
-    ".less",
-    ".scss",
-    ".sass"
-  );
 
   private final BridgeServerImpl bridge;
   private final String baseDir;
@@ -239,63 +223,8 @@ public class StandaloneParser implements AutoCloseable {
   private static class StandaloneAnalysisConfiguration implements AnalysisConfiguration {
 
     @Override
-    public boolean isSonarLint() {
-      return true;
-    }
-
-    @Override
-    public boolean allowTsParserJsFiles() {
-      return true;
-    }
-
-    @Override
-    public AnalysisMode getAnalysisMode() {
-      return AnalysisMode.DEFAULT;
-    }
-
-    @Override
-    public boolean ignoreHeaderComments() {
-      return true;
-    }
-
-    @Override
     public long getMaxFileSizeProperty() {
       return MAX_FILE_SIZE_KB;
-    }
-
-    @Override
-    public List<String> getEnvironments() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getGlobals() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getTsExtensions() {
-      return DEFAULT_TS_SUFFIXES;
-    }
-
-    @Override
-    public List<String> getJsExtensions() {
-      return DEFAULT_JS_SUFFIXES;
-    }
-
-    @Override
-    public List<String> getCssExtensions() {
-      return DEFAULT_CSS_SUFFIXES;
-    }
-
-    @Override
-    public Set<String> getTsConfigPaths() {
-      return Set.of();
-    }
-
-    @Override
-    public List<String> getJsTsExcludedPaths() {
-      return List.of();
     }
 
     @Override
@@ -316,36 +245,6 @@ public class StandaloneParser implements AutoCloseable {
     @Override
     public boolean shouldDisableTypeChecking() {
       return true;
-    }
-
-    @Override
-    public List<String> getSources() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getInclusions() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getExclusions() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getTests() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getTestInclusions() {
-      return List.of();
-    }
-
-    @Override
-    public List<String> getTestExclusions() {
-      return List.of();
     }
   }
 }
