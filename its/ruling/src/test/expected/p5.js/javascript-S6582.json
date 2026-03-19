@@ -33,15 +33,6 @@
 7730,
 7993
 ],
-"p5.js:src/core/environment.js": [
-467,
-468,
-476,
-477
-],
-"p5.js:src/core/error_helpers.js": [
-372
-],
 "p5.js:src/core/main.js": [
 452
 ],
@@ -72,9 +63,6 @@
 80,
 281,
 384,
-885,
-895,
-902,
 944
 ],
 "p5.js:src/utilities/array_functions.js": [
