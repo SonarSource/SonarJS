@@ -55,14 +55,8 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      // Suppress if the identifier is not found in any import specifier.
-      // This means it is locally defined, not a re-export candidate.
-      if (!isFromImport(context.sourceCode, identifierName)) {
-        return;
-      }
-
-      // Suppress the report for default import re-exports.
-      if (isDefaultImport(context.sourceCode, identifierName)) {
+      const importKind = getImportKind(context.sourceCode, identifierName);
+      if (!importKind || importKind === 'default') {
         return;
       }
 
@@ -90,74 +84,34 @@ function getReportedIdentifierName(node: estree.Node): string | undefined {
 }
 
 /**
- * Checks if the given identifier name is the local binding of any import specifier.
- * Returns false for locally defined identifiers that are not imported.
+ * Returns the import kind for an identifier name, or null if not imported.
+ *
+ * Returns 'default' for:
+ *   import foo from './foo';                    // ImportDefaultSpecifier
+ *   import { default as foo } from './foo';     // ImportSpecifier with imported name 'default'
+ * Returns 'named' for any other import specifier.
+ * Returns null if the identifier is not found in any import declaration.
  */
-function isFromImport(sourceCode: SourceCode, identifierName: string): boolean {
+function getImportKind(sourceCode: SourceCode, identifierName: string): 'default' | 'named' | null {
   for (const node of sourceCode.ast.body) {
     if (node.type !== 'ImportDeclaration') {
       continue;
     }
     for (const specifier of node.specifiers) {
-      if (specifier.local.name === identifierName) {
-        return true;
+      if (specifier.local.name !== identifierName) {
+        continue;
       }
+      if (
+        specifier.type === 'ImportDefaultSpecifier' ||
+        (specifier.type === 'ImportSpecifier' &&
+          (specifier.imported.type === 'Identifier'
+            ? specifier.imported.name
+            : String(specifier.imported.value)) === 'default')
+      ) {
+        return 'default';
+      }
+      return 'named';
     }
   }
-  return false;
-}
-
-/**
- * Checks if the given identifier name comes from a default import.
- *
- * Matches patterns like:
- *   import foo from './foo';           // foo is the default import
- *   import { default as foo } from './foo';  // foo is aliased from default
- */
-function isDefaultImport(sourceCode: SourceCode, identifierName: string): boolean {
-  for (const node of sourceCode.ast.body) {
-    if (node.type === 'ImportDeclaration' && hasDefaultImportFor(node, identifierName)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * Checks if an import declaration has a default import for the given identifier name.
- */
-function hasDefaultImportFor(node: estree.ImportDeclaration, identifierName: string): boolean {
-  for (const specifier of node.specifiers) {
-    if (isMatchingDefaultImport(specifier, identifierName)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * Checks if a specifier is a default import matching the identifier name.
- */
-function isMatchingDefaultImport(
-  specifier:
-    | estree.ImportSpecifier
-    | estree.ImportDefaultSpecifier
-    | estree.ImportNamespaceSpecifier,
-  identifierName: string,
-): boolean {
-  // Check for: import foo from './foo'
-  if (specifier.type === 'ImportDefaultSpecifier') {
-    return specifier.local.name === identifierName;
-  }
-
-  // Check for: import { default as foo } from './foo'
-  if (specifier.type === 'ImportSpecifier' && specifier.local.name === identifierName) {
-    const importedName =
-      specifier.imported.type === 'Identifier'
-        ? specifier.imported.name
-        : String(specifier.imported.value);
-    return importedName === 'default';
-  }
-
-  return false;
+  return null;
 }
