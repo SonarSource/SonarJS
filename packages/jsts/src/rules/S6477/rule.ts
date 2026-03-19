@@ -16,21 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6477/javascript
 
-import type { Rule } from 'eslint';
 import { rules } from '../external/react.js';
-import { generateMeta } from '../helpers/generate-meta.js';
 import { decorate } from './decorator.js';
-import * as meta from './generated-meta.js';
 
-const decoratedJsxKey = decorate(rules['jsx-key']);
-
-export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, {
-    messages: {
-      ...decoratedJsxKey.meta!.messages,
-    },
-  }),
-  create(context: Rule.RuleContext) {
-    return decoratedJsxKey.create(context);
-  },
-};
+export const rule = decorate(rules['jsx-key']);
