@@ -20,6 +20,7 @@ import {
   getTypeScriptVersionSignalsFromPackageJson,
   hasTypeScriptNativePreviewSignal,
 } from '../../rules/helpers/package-jsons/dependencies.js';
+import type { ModuleType } from '../../rules/helpers/package-jsons/dependencies.js';
 import type { PackageJson } from 'type-fest';
 import { packageJsonStore } from './file-stores/index.js';
 import { stripBOM } from '../../rules/helpers/files.js';
@@ -42,6 +43,8 @@ export type ProjectAnalysisTelemetry = {
   compilerOptions: Record<string, string[]>;
   ecmaScriptVersions: string[];
   programCreation: ProgramCreationTelemetry;
+  esmFileCount: number;
+  cjsFileCount: number;
 };
 
 export function resetProjectAnalysisTelemetry() {
@@ -74,6 +77,8 @@ export class ProjectAnalysisTelemetryCollector {
     succeeded: 0,
     failed: 0,
   };
+  private esmFileCount = 0;
+  private cjsFileCount = 0;
 
   constructor() {
     const packageJsons = getAvailablePackageJsons();
@@ -111,6 +116,14 @@ export class ProjectAnalysisTelemetryCollector {
     this.programCreation.failed += 1;
   }
 
+  recordModuleType(moduleType: ModuleType | undefined) {
+    if (moduleType === 'module') {
+      this.esmFileCount += 1;
+    } else if (moduleType === 'commonjs') {
+      this.cjsFileCount += 1;
+    }
+  }
+
   getTelemetry(): ProjectAnalysisTelemetry {
     const compilerOptions: Record<string, string[]> = {};
     for (const [optionName, values] of this.compilerOptionValues.entries()) {
@@ -129,6 +142,8 @@ export class ProjectAnalysisTelemetryCollector {
           ? Array.from(this.ecmaScriptVersions).sort((a, b) => a.localeCompare(b))
           : [NOT_DETECTED],
       programCreation: this.programCreation,
+      esmFileCount: this.esmFileCount,
+      cjsFileCount: this.cjsFileCount,
     };
   }
 

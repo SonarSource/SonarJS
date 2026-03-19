@@ -18,12 +18,22 @@ import type { Rule } from 'eslint';
 import { ComputedCache } from '../cache.js';
 import type { Minimatch } from 'minimatch';
 import fs from 'node:fs';
+import { extname } from 'node:path/posix';
 import { minVersion } from 'semver';
 import type { PackageJson } from 'type-fest';
 import { type NormalizedAbsolutePath, normalizeToAbsolutePath, dirnamePath } from '../files.js';
 import { getDependenciesFromPackageJson } from './parse.js';
 import { getClosestPackageJSONDir } from './closest.js';
 import { getManifests } from './all-in-parent-dirs.js';
+
+export type ModuleType = 'module' | 'commonjs';
+
+const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
+  '.mjs': 'module',
+  '.mts': 'module',
+  '.cjs': 'commonjs',
+  '.cts': 'commonjs',
+};
 
 /**
  * Cache for the available dependencies by dirname. Exported for tests
@@ -45,6 +55,25 @@ export const dependenciesCache = new ComputedCache(
     return result;
   },
 );
+
+/**
+ * Cache for module type signal by dirname. Exported for tests.
+ */
+export const moduleTypeCache = new ComputedCache(
+  (dir: NormalizedAbsolutePath, topDir?: NormalizedAbsolutePath): ModuleType | undefined => {
+    const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
+    if (!closestPackageJSONDirName) {
+      return undefined;
+    }
+    for (const manifest of getManifests(closestPackageJSONDirName, topDir, fs)) {
+      if (manifest.type === 'module' || manifest.type === 'commonjs') {
+        return manifest.type;
+      }
+    }
+    return undefined;
+  },
+);
+
 /**
  * Retrieve the dependencies of all the package.json files available for the given file.
  *
@@ -58,6 +87,21 @@ export function getDependencies(dir: NormalizedAbsolutePath, topDir: NormalizedA
     return dependenciesCache.get(closestPackageJSONDirName, topDir);
   }
   return new Set<string | Minimatch>();
+}
+
+/**
+ * Retrieve the module type signal for a file.
+ *
+ * Extension-specific module kinds (.mjs/.mts and .cjs/.cts) are explicit and
+ * take precedence. Otherwise, package.json#type from the closest manifest chain
+ * is used when available.
+ */
+export function getModuleType(filePath: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath) {
+  const extensionSignal = MODULE_TYPE_BY_EXTENSION[extname(filePath).toLowerCase()];
+  if (extensionSignal) {
+    return extensionSignal;
+  }
+  return moduleTypeCache.get(dirnamePath(filePath), topDir);
 }
 
 export function getDependenciesSanitizePaths(context: Rule.RuleContext) {

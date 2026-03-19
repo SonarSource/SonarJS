@@ -82,7 +82,9 @@ class PluginTelemetryTest {
       true,
       Map.of("module", List.of("nodenext", "esnext"), "lib", List.of("dom", "es2022")),
       List.of("ES2022", "ES2024"),
-      new ProgramCreationTelemetry(3, 2, 1)
+      new ProgramCreationTelemetry(3, 2, 1),
+      4,
+      1
     );
 
     new PluginTelemetry(jsTsContext, server, projectTelemetry).reportTelemetry();
@@ -113,6 +115,8 @@ class PluginTelemetryTest {
       "javascript.telemetry.typescript.program-creation.failed",
       "1"
     );
-    verify(ctx, times(11)).addTelemetryProperty(anyString(), anyString());
+    verify(ctx).addTelemetryProperty("javascript.telemetry.module-type.esm-file-count", "4");
+    verify(ctx).addTelemetryProperty("javascript.telemetry.module-type.cjs-file-count", "1");
+    verify(ctx, times(13)).addTelemetryProperty(anyString(), anyString());
   }
 }

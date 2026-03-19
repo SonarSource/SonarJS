@@ -16,7 +16,7 @@
  */
 import type { File, NormalizedAbsolutePath } from '../files.js';
 import { MinimatchCache } from '../find-up/find-minimatch.js';
-import { dependenciesCache } from './dependencies.js';
+import { dependenciesCache, moduleTypeCache } from './dependencies.js';
 import { closestPatternCache } from '../find-up/closest.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import { basename } from 'node:path/posix';
@@ -54,6 +54,7 @@ export function fillPackageJsonCaches(
  */
 export function clearDependenciesCache() {
   dependenciesCache.clear();
+  moduleTypeCache.clear();
   closestPatternCache.get(PACKAGE_JSON).clear();
   patternInParentsCache.get(PACKAGE_JSON).clear();
   MinimatchCache.clear();

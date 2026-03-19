@@ -184,6 +184,8 @@ describe('SonarQube project analysis', () => {
       typescriptVersions: ['5.7.2', '7.0.0-dev.20260316.1'],
       typescriptNativePreview: true,
       ecmaScriptVersions: ['ES2020', 'ES2022'],
+      esmFileCount: 0,
+      cjsFileCount: 0,
       programCreation: {
         attempted: 2,
         succeeded: 2,
@@ -295,6 +297,8 @@ describe('SonarQube project analysis', () => {
           typescriptNativePreview: false,
           compilerOptions: {},
           ecmaScriptVersions: ['not-detected'],
+          esmFileCount: 0,
+          cjsFileCount: 0,
           programCreation: {
             attempted: 0,
             succeeded: 0,
@@ -383,6 +387,8 @@ describe('SonarQube project analysis', () => {
       telemetry: {
         typescriptVersions: ['not-detected'],
         typescriptNativePreview: false,
+        esmFileCount: 0,
+        cjsFileCount: 0,
         programCreation: {
           attempted: 1,
           succeeded: 1,
