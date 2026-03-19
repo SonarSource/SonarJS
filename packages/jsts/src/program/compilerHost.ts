@@ -121,10 +121,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   readFile(fileName: string): string | undefined {
     const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
-    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
-      this.trackFsCall('readFile-node_modules-skip', fileName);
-      return undefined;
-    }
     const cache = getSourceFileContentCache();
     const filesContext = getCurrentFilesContext();
 
@@ -163,10 +159,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   fileExists(fileName: string): boolean {
     const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
-    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
-      this.trackFsCall('fileExists-node_modules-skip', fileName);
-      return false;
-    }
     const cache = getSourceFileContentCache();
 
     // 1. Check global cache
@@ -195,10 +187,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile | undefined {
     const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
-    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
-      this.trackFsCall('getSourceFile-node_modules-skip', fileName);
-      return undefined;
-    }
 
     // For files explicitly present in the current analysis context, make the
     // request content authoritative before looking up cached parsed ASTs.
@@ -255,14 +243,6 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       sourceFile.version = contentHash;
     }
     return sourceFile;
-  }
-
-  private shouldSkipNodeModulesOutsideBaseDir(fileName: string): boolean {
-    if (fileName.startsWith(this.baseHost.getDefaultLibLocation!())) {
-      return false;
-    }
-    const baseDirPrefix = `${this.baseDir}/`;
-    return fileName.includes('/node_modules/') && !fileName.startsWith(baseDirPrefix);
   }
 
   private trackFsCall(op: string, file: string): void {
