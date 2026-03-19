@@ -24,14 +24,10 @@ import * as meta from './generated-meta.js';
 
 /**
  * S7763 is the unicorn/prefer-export-from rule.
- * This decorator adds an exception for re-exporting default imports.
- *
- * When you import a default export and give it a meaningful name during re-export,
- * the two-step pattern may provide better IDE refactoring support.
- *
- * Example that should NOT be flagged after this fix:
- *   import { default as foo } from './foo';
- *   export { foo };
+ * This decorator suppresses false positives for locally defined exports:
+ *   - `export const alias = importedThing` (ExportNamedDeclaration with declaration)
+ *   - `export { locallyDefinedFn }` (identifier not found in any import specifier)
+ *   - re-exporting default imports (e.g. `import foo from './foo'; export { foo }`)
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -46,10 +42,30 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
+      // Suppress ExportNamedDeclaration with a declaration (e.g. `export const alias = importedThing`).
+      // The exported binding is a locally defined variable, not a re-export.
+      if (
+        node.type === 'ExportNamedDeclaration' &&
+        (node as estree.ExportNamedDeclaration).declaration !== null
+      ) {
+        return;
+      }
+
       const identifierName = getReportedIdentifierName(node);
 
-      // Suppress the report for default import re-exports
-      if (identifierName && isDefaultImport(context.sourceCode, identifierName)) {
+      // Defensive: if the identifier cannot be extracted, suppress to avoid FPs.
+      if (!identifierName) {
+        return;
+      }
+
+      // Suppress if the identifier is not found in any import specifier.
+      // This means it is locally defined, not a re-export candidate.
+      if (!isFromImport(context.sourceCode, identifierName)) {
+        return;
+      }
+
+      // Suppress the report for default import re-exports.
+      if (isDefaultImport(context.sourceCode, identifierName)) {
         return;
       }
 
@@ -74,6 +90,24 @@ function getReportedIdentifierName(node: estree.Node): string | undefined {
     default:
       return undefined;
   }
+}
+
+/**
+ * Checks if the given identifier name is the local binding of any import specifier.
+ * Returns false for locally defined identifiers that are not imported.
+ */
+function isFromImport(sourceCode: SourceCode, identifierName: string): boolean {
+  for (const node of sourceCode.ast.body) {
+    if (node.type !== 'ImportDeclaration') {
+      continue;
+    }
+    for (const specifier of node.specifiers) {
+      if (specifier.local.name === identifierName) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 /**
