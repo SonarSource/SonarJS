@@ -154,6 +154,12 @@ describe('S1121', () => {
         {
           code: `let node; for (var i = 0; node = nodes[i++];) {}`,
         },
+        {
+          code: `if (a = b = 0) {}`,
+        },
+        {
+          code: `for (; i = j = 0;);`,
+        },
       ],
       invalid: [
         {
