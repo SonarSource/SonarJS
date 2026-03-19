@@ -92,7 +92,7 @@ export function getDependencies(dir: NormalizedAbsolutePath, topDir: NormalizedA
  * Retrieve the module type signal for a file.
  *
  * Extension-specific module kinds (.mjs/.mts and .cjs/.cts) are explicit and
- * take precedence. Otherwise, package.json#type from the closest manifest chain
+ * take precedence. Otherwise, package.json#type from the closest manifest only
  * is used when available.
  */
 export function getModuleType(filePath: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath) {

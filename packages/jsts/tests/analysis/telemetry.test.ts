@@ -60,7 +60,7 @@ describe('project analysis telemetry', () => {
     expect(collector.getTelemetry().compilerOptions.customOption).toBeUndefined();
   });
 
-  it('should skip path and non-allowlisted compiler options', () => {
+  it('should skip non-allowlisted compiler options', () => {
     const collector = new ProjectAnalysisTelemetryCollector();
     collector.recordCompilerOptions({
       rootDir: '/home/user/project/src',
@@ -81,5 +81,37 @@ describe('project analysis telemetry', () => {
     expect(collector.getTelemetry().compilerOptions.rootDirs).toBeUndefined();
     expect(collector.getTelemetry().compilerOptions.baseUrl).toBeUndefined();
     expect(collector.getTelemetry().compilerOptions.outDir).toBeUndefined();
+  });
+
+  it('should keep path-like strings for allowlisted compiler options', () => {
+    const collector = new ProjectAnalysisTelemetryCollector();
+    collector.recordCompilerOptions({
+      jsxImportSource: '../my-jsx-runtime',
+      types: ['./types', '/abs/types', 'C:\\workspace\\types'],
+    });
+
+    expect(collector.getTelemetry().compilerOptions.jsxImportSource).toEqual(['../my-jsx-runtime']);
+    expect(collector.getTelemetry().compilerOptions.types).toEqual([
+      './types',
+      '/abs/types',
+      'C:\\workspace\\types',
+    ]);
+  });
+
+  it('should not throw on malformed allowlisted compiler options', () => {
+    const collector = new ProjectAnalysisTelemetryCollector();
+    const circular: Record<string, unknown> = {};
+    circular.self = circular;
+
+    expect(() =>
+      collector.recordCompilerOptions({
+        jsxImportSource: circular as unknown as string,
+        strict: true,
+      }),
+    ).not.toThrow();
+
+    expect(collector.getTelemetry().compilerOptions).toEqual({
+      strict: ['true'],
+    });
   });
 });
