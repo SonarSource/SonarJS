@@ -27,14 +27,11 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     ...noUnusedClassComponentMethod.meta,
     messages: {
-      ...noUnusedClassComponentMethod.meta!.messages,
       unused:
         'Remove this property or method or refactor this component, as "{{name}}" is not used inside component body',
       unusedWithClass:
         'Remove this property or method or refactor "{{className}}", as "{{name}}" is not used inside component body',
     },
   }),
-  create(context: Rule.RuleContext) {
-    return noUnusedClassComponentMethod.create(context);
-  },
+  create: noUnusedClassComponentMethod.create,
 };
