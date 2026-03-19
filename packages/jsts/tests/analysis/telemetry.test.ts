@@ -42,11 +42,9 @@ describe('project analysis telemetry', () => {
     });
 
     expect(collector.getTelemetry().compilerOptions).toEqual({
-      jsxImportSource: ['@emotion/react'],
       lib: ['dom', 'es2020', 'es2022'],
       module: ['commonjs', 'nodenext'],
       strict: ['true'],
-      types: ['@types/node'],
     });
   });
 
@@ -83,19 +81,15 @@ describe('project analysis telemetry', () => {
     expect(collector.getTelemetry().compilerOptions.outDir).toBeUndefined();
   });
 
-  it('should keep path-like strings for allowlisted compiler options', () => {
+  it('should skip types and jsxImportSource compiler options', () => {
     const collector = new ProjectAnalysisTelemetryCollector();
     collector.recordCompilerOptions({
       jsxImportSource: '../my-jsx-runtime',
       types: ['./types', '/abs/types', 'C:\\workspace\\types'],
     });
 
-    expect(collector.getTelemetry().compilerOptions.jsxImportSource).toEqual(['../my-jsx-runtime']);
-    expect(collector.getTelemetry().compilerOptions.types).toEqual([
-      './types',
-      '/abs/types',
-      'C:\\workspace\\types',
-    ]);
+    expect(collector.getTelemetry().compilerOptions.jsxImportSource).toBeUndefined();
+    expect(collector.getTelemetry().compilerOptions.types).toBeUndefined();
   });
 
   it('should not throw on malformed allowlisted compiler options', () => {
@@ -105,7 +99,7 @@ describe('project analysis telemetry', () => {
 
     expect(() =>
       collector.recordCompilerOptions({
-        jsxImportSource: circular as unknown as string,
+        module: circular as unknown as ts.ModuleKind,
         strict: true,
       }),
     ).not.toThrow();

@@ -21,7 +21,12 @@ import fs from 'node:fs';
 import { extname } from 'node:path/posix';
 import { minVersion } from 'semver';
 import type { PackageJson } from 'type-fest';
-import { type NormalizedAbsolutePath, normalizeToAbsolutePath, dirnamePath } from '../files.js';
+import {
+  type NormalizedAbsolutePath,
+  normalizeToAbsolutePath,
+  dirnamePath,
+  stripBOM,
+} from '../files.js';
 import { getDependenciesFromPackageJson } from './parse.js';
 import { getClosestPackageJSONDir } from './closest.js';
 import { getManifests } from './all-in-parent-dirs.js';
@@ -196,6 +201,25 @@ export function getTypeScriptVersionSignalsFromPackageJson(packageJson: PackageJ
   return result;
 }
 
+export function getTypeScriptSignalsFromPackageJsonFiles(
+  packageJsonFiles: Iterable<{ content: string | Buffer }>,
+): { typeScriptVersionSignals: string[]; hasTypeScriptNativePreview: boolean } {
+  const typeScriptVersionSignals: string[] = [];
+  let hasTypeScriptNativePreview = false;
+
+  for (const packageJsonFile of packageJsonFiles) {
+    const packageJson = parsePackageJsonContent(packageJsonFile.content);
+    if (packageJson === undefined) {
+      continue;
+    }
+    typeScriptVersionSignals.push(...getTypeScriptVersionSignalsFromPackageJson(packageJson));
+    hasTypeScriptNativePreview =
+      hasTypeScriptNativePreview || hasTypeScriptNativePreviewSignal(packageJson);
+  }
+
+  return { typeScriptVersionSignals, hasTypeScriptNativePreview };
+}
+
 /**
  * Gets a Node.js version signal from the package.json at baseDir.
  * Checks @types/node in all dependency fields first, then engines.node.
@@ -216,4 +240,13 @@ export function getNodeVersionSignal(baseDir: NormalizedAbsolutePath): string | 
     }
   }
   return null;
+}
+
+function parsePackageJsonContent(content: string | Buffer): PackageJson | undefined {
+  const packageJsonContent = typeof content === 'string' ? content : content.toString();
+  try {
+    return JSON.parse(stripBOM(packageJsonContent)) as PackageJson;
+  } catch {
+    return undefined;
+  }
 }
