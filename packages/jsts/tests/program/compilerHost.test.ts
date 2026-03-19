@@ -24,7 +24,7 @@ import {
   clearSourceFileContentCache,
   getCachedSourceFile,
 } from '../../src/program/cache/sourceFileCache.js';
-import { normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
+import { joinPaths, normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 
 describe('IncrementalCompilerHost', () => {
   const baseDir = normalizeToAbsolutePath('/project');
@@ -170,6 +170,19 @@ describe('IncrementalCompilerHost', () => {
 
       expect(cache.get(normalizeToAbsolutePath('/project/src/index.ts'))).toBe(content);
     });
+
+    it('should skip node_modules reads nested under baseDir', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const nestedNodeModulesFile = joinPaths(baseDir, 'src', 'node_modules', 'pkg', 'index.d.ts');
+
+      const result = host.readFile(nestedNodeModulesFile);
+
+      expect(result).toBeUndefined();
+
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'readFile-node_modules-skip')).toBe(true);
+      expect(calls.some(c => c.op === 'readFile-disk')).toBe(false);
+    });
   });
 
   describe('fileExists', () => {
@@ -196,6 +209,41 @@ describe('IncrementalCompilerHost', () => {
 
       const calls = host.getTrackedFsCalls();
       expect(calls.some(c => c.op === 'fileExists-context')).toBe(true);
+    });
+
+    it('should skip node_modules lookups nested under baseDir', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const nestedNodeModulesFile = joinPaths(baseDir, 'src', 'node_modules', 'pkg', 'index.d.ts');
+
+      expect(host.fileExists(nestedNodeModulesFile)).toBe(false);
+
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'fileExists-node_modules-skip')).toBe(true);
+      expect(calls.some(c => c.op === 'fileExists-disk')).toBe(false);
+    });
+
+    it('should not skip node_modules lookups under baseDir', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const fileInsideBaseNodeModules = joinPaths(baseDir, 'node_modules', 'pkg', 'index.d.ts');
+
+      host.fileExists(fileInsideBaseNodeModules);
+
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'fileExists-node_modules-skip')).toBe(false);
+      expect(calls.some(c => c.op === 'fileExists-disk')).toBe(true);
+    });
+
+    it('should not skip node_modules lookups outside baseDir', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const outsideNodeModulesFile = normalizeToAbsolutePath(
+        '/external/node_modules/pkg/index.d.ts',
+      );
+
+      host.fileExists(outsideNodeModulesFile);
+
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'fileExists-node_modules-skip')).toBe(false);
+      expect(calls.some(c => c.op === 'fileExists-disk')).toBe(true);
     });
   });
 
@@ -263,6 +311,19 @@ describe('IncrementalCompilerHost', () => {
       );
 
       expect(sf?.languageVersion).toBe(ts.ScriptTarget.ES2020);
+    });
+
+    it('should skip source files from nested node_modules under baseDir', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const nestedNodeModulesFile = joinPaths(baseDir, 'src', 'node_modules', 'pkg', 'index.d.ts');
+
+      const sf = host.getSourceFile(nestedNodeModulesFile, ts.ScriptTarget.ESNext);
+
+      expect(sf).toBeUndefined();
+
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'getSourceFile-node_modules-skip')).toBe(true);
+      expect(calls.some(c => c.op === 'getSourceFile-disk-fallback')).toBe(false);
     });
   });
 
