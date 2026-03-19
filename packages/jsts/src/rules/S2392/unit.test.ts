@@ -90,6 +90,67 @@ describe('S2392', () => {
         }
         `,
         },
+        {
+          // Compliant: three sequential for-loops reusing counter at same level
+          code: `
+        function processAll(items) {
+          for (var i = 0; i < items.length; i++)
+            phase1(items[i]);
+          for (var i = 0; i < items.length; i++)
+            phase2(items[i]);
+          for (var i = 0; i < items.length; i++)
+            phase3(items[i]);
+        }
+        `,
+        },
+        {
+          // Compliant: for-in and for-loop reusing var at same level
+          code: `
+        function detectIndentation(lines) {
+          for (var i = 0; i < lines.length; i++) {
+            process(lines[i]);
+          }
+          for (var i = 1; i < 12; i++) {
+            score(i);
+          }
+        }
+        `,
+        },
+        {
+          // Compliant: counter reused across for-loops in if/else branches
+          code: `
+        function indent(cm, args) {
+          if (args.indentMore) {
+            for (var j = 0; j < args.repeat; j++) {
+              cm.indentMore();
+            }
+          } else {
+            for (var j = 0; j < args.repeat; j++) {
+              cm.indentLess();
+            }
+          }
+        }
+        `,
+        },
+        {
+          // Compliant: counter reused in switch case branches
+          code: `
+        function processOp(op, items) {
+          switch (op) {
+            case 'add':
+              for (var i = 0; i < items.length; i++) {
+                add(items[i]);
+              }
+              break;
+            case 'remove':
+              for (var i = 0; i < items.length; i++) {
+                remove(items[i]);
+              }
+              break;
+          }
+        }
+        `,
+        },
       ],
       invalid: [
         {
@@ -198,6 +259,28 @@ describe('S2392', () => {
               message:
                 "Consider moving declaration of 'i' as it is referenced outside current binding context.",
               line: 3,
+            },
+          ],
+        },
+        {
+          // var in block + for-in in sibling block — should raise at the block declaration
+          code: `
+        function process(args, themes) {
+          if (args) {
+            var name = args[0];
+            use(name);
+          } else {
+            for (var name in themes) {
+              convert(name);
+            }
+          }
+        }
+        `,
+          errors: [
+            {
+              message:
+                "Consider moving declaration of 'name' as it is referenced outside current binding context.",
+              line: 4,
             },
           ],
         },

@@ -79,19 +79,28 @@ export const rule: Rule.RuleModule = {
           // Suppress FP: loop counter variables reused across sequential for-loops.
           // If every outside reference is covered by another for-loop that also declares
           // this same variable, the reuse is intentional (var hoisting) and should not be reported.
+          // Only apply this suppression when the current declaration is directly in a for-loop
+          // header (init/left), not when it is a regular statement inside a block or for-loop body.
+          const varDeclParent = (varDeclaration as unknown as { parent?: { type: string } }).parent;
+          const isCurrentDeclInForLoop =
+            varDeclParent?.type === 'ForStatement' ||
+            varDeclParent?.type === 'ForInStatement' ||
+            varDeclParent?.type === 'ForOfStatement';
           const otherLoopRanges: [number, number][] = [];
-          for (const def of variable.defs) {
-            if (varDeclaration.declarations.includes(def.node as estree.VariableDeclarator)) {
-              continue;
-            }
-            const loopNode = (def.node as unknown as { parent?: { parent?: estree.Node } }).parent
-              ?.parent;
-            if (
-              loopNode?.type === 'ForStatement' ||
-              loopNode?.type === 'ForInStatement' ||
-              loopNode?.type === 'ForOfStatement'
-            ) {
-              otherLoopRanges.push(loopNode.range!);
+          if (isCurrentDeclInForLoop) {
+            for (const def of variable.defs) {
+              if (varDeclaration.declarations.includes(def.node as estree.VariableDeclarator)) {
+                continue;
+              }
+              const loopNode = (def.node as unknown as { parent?: { parent?: estree.Node } }).parent
+                ?.parent;
+              if (
+                loopNode?.type === 'ForStatement' ||
+                loopNode?.type === 'ForInStatement' ||
+                loopNode?.type === 'ForOfStatement'
+              ) {
+                otherLoopRanges.push(loopNode.range!);
+              }
             }
           }
           if (
