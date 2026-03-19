@@ -121,7 +121,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   readFile(fileName: string): string | undefined {
     const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
-    if (this.shouldSkipNestedNodeModulesLookup(normalized)) {
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
       this.trackFsCall('readFile-node_modules-skip', fileName);
       return undefined;
     }
@@ -163,7 +163,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   fileExists(fileName: string): boolean {
     const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
-    if (this.shouldSkipNestedNodeModulesLookup(normalized)) {
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
       this.trackFsCall('fileExists-node_modules-skip', fileName);
       return false;
     }
@@ -195,7 +195,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile | undefined {
     const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
-    if (this.shouldSkipNestedNodeModulesLookup(normalized)) {
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
       this.trackFsCall('getSourceFile-node_modules-skip', fileName);
       return undefined;
     }
@@ -257,14 +257,9 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     return sourceFile;
   }
 
-  private shouldSkipNestedNodeModulesLookup(fileName: string): boolean {
+  private shouldSkipNodeModulesOutsideBaseDir(fileName: string): boolean {
     const baseDirPrefix = `${this.baseDir}/`;
-    const baseNodeModulesPrefix = `${this.baseDir}/node_modules/`;
-    return (
-      fileName.startsWith(baseDirPrefix) &&
-      fileName.includes('/node_modules/') &&
-      !fileName.startsWith(baseNodeModulesPrefix)
-    );
+    return fileName.includes('/node_modules/') && !fileName.startsWith(baseDirPrefix);
   }
 
   private trackFsCall(op: string, file: string): void {
