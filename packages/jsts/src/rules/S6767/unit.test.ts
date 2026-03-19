@@ -375,8 +375,8 @@ class VictoryAxis extends React.Component<VictoryAxisProps> {
           filename: fixtureFile,
         },
         {
-          // FP: TypeScript function component with React.forwardRef closure — containsForwardRefCall
-          // suppresses the report when the component subtree contains a React.forwardRef call.
+          // FP: TypeScript function component with React.forwardRef closure — scope analysis
+          // confirms both props.label and props.disabled are referenced inside the callback.
           code: `
 declare const React: any;
 interface InputProps {

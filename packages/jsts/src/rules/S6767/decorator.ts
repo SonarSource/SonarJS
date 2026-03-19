@@ -110,14 +110,22 @@ function isPropReferenceInForwardRefCallback(
     return false;
   }
 
-  let current: estree.Node | undefined = memberExpression;
+  // Walk up ancestors. Track `prev` so that when we find a forwardRef CallExpression
+  // we can confirm the reference sits inside its first argument (the render callback),
+  // not in the callee position or a later argument.
+  let prev: estree.Node = memberExpression;
+  let current: estree.Node | undefined = getNodeParent(memberExpression);
   while (current) {
     if (current.type === 'CallExpression') {
       const call = current;
-      if (forwardRefCalleePatterns.some(pattern => pattern(call.callee))) {
+      if (
+        forwardRefCalleePatterns.some(pattern => pattern(call.callee)) &&
+        call.arguments[0] === prev
+      ) {
         return true;
       }
     }
+    prev = current;
     current = getNodeParent(current);
   }
   return false;
