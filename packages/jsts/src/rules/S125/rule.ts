@@ -28,6 +28,8 @@ import path from 'node:path';
 
 const EXCLUDED_STATEMENTS = new Set(['BreakStatement', 'LabeledStatement', 'ContinueStatement']);
 
+const TASK_MARKER_PATTERN = /\b(TODO|FIXME|HACK|XXX|NOTE)\b/i;
+
 // Cheap prefilter: any meaningful JS statement must contain at least one of these characters,
 // or be an import/export with a string literal (side-effect imports have no punctuation)
 const CODE_CHAR_PATTERN = /[;{}()=<>]|\bimport\s+['"]|\bexport\s/;
@@ -96,7 +98,8 @@ export const rule: Rule.RuleModule = {
           const rawTextTrimmed = groupComment.value.trim();
           if (
             rawTextTrimmed !== '}' &&
-            containsCode(injectMissingBraces(rawTextTrimmed), context)
+            containsCode(injectMissingBraces(rawTextTrimmed), context) &&
+            !hasTaskMarker(groupComment.value, context)
           ) {
             context.report({
               messageId: 'commentedCode',
@@ -118,6 +121,19 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+/**
+ * Returns true if the comment group contains at least one line that matches a task marker
+ * (TODO, FIXME, HACK, XXX, NOTE) and that line is not itself parsable as code.
+ * This avoids false suppression when task-marker keywords appear as identifiers in commented code.
+ */
+function hasTaskMarker(groupValue: string, context: Rule.RuleContext): boolean {
+  return groupValue.split('\n').some(line => {
+    return (
+      TASK_MARKER_PATTERN.test(line) && !containsCode(injectMissingBraces(line.trim()), context)
+    );
+  });
+}
 
 function isExpressionExclusion(
   statement: estree.Node,
