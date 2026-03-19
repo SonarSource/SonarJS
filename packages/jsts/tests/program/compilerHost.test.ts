@@ -245,6 +245,38 @@ describe('IncrementalCompilerHost', () => {
     });
   });
 
+  describe('readDirectory', () => {
+    const extensions = ['.ts', '.d.ts'];
+    const includes = ['**/*'];
+
+    it('should skip node_modules lookups outside baseDir', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+
+      const files = host.readDirectory(
+        '/external/node_modules/pkg',
+        extensions,
+        undefined,
+        includes,
+      );
+
+      expect(files).toEqual([]);
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'readDirectory-node_modules-skip')).toBe(true);
+      expect(calls.some(c => c.op === 'readDirectory-disk')).toBe(false);
+    });
+
+    it('should not skip node_modules lookups under baseDir', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const nodeModulesUnderBaseDir = joinPaths(baseDir, 'node_modules');
+
+      host.readDirectory(nodeModulesUnderBaseDir, extensions, undefined, includes);
+
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'readDirectory-node_modules-skip')).toBe(false);
+      expect(calls.some(c => c.op === 'readDirectory-disk')).toBe(true);
+    });
+  });
+
   describe('getSourceFile', () => {
     it('should return cached source file when available', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
