@@ -719,6 +719,28 @@ describe('gRPC server', () => {
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
+  it('should handle escaped regex defaults with optional $ prefix (S101 — class names)', async () => {
+    // S101 default format is '^\\$?[A-Z][a-zA-Z0-9]*$' and should allow optional '$'.
+    // This verifies the default from Java is correctly unescaped on the JS side.
+    const content = 'interface $ZodCheckDef {}\ninterface my_interface {}\n';
+
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/interface-name.ts', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S101' },
+          params: [],
+        },
+      ],
+    };
+
+    const response = await client.analyze(request);
+    expect(response.issues?.length).toBe(1);
+    expect(response.issues?.[0].rule?.rule).toBe('S101');
+  });
+
   it('should handle escaped regex defaults in arrays (S7718 — catch error name)', async () => {
     // S7718 config.ts has ignore field default as an array of regexes.
     // The gRPC path should split comma-separated values into an array.
