@@ -21,7 +21,6 @@ import { rules } from '../external/react.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { decorate } from './decorator.js';
 import * as meta from './generated-meta.js';
-import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
 
 const decoratedJsxKey = decorate(rules['jsx-key']);
 
@@ -32,10 +31,6 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    const dependencies = getDependenciesSanitizePaths(context);
-    if (!dependencies.has('react')) {
-      return {};
-    }
     return decoratedJsxKey.create(context);
   },
 };
