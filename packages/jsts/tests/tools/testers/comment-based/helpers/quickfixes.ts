@@ -16,12 +16,14 @@
  */
 import { LineIssues } from './issues.js';
 import { Comment } from './comments.js';
-import { extractEffectiveLine, LINE_ADJUSTMENT } from './locations.js';
+import { extractEffectiveLine } from './locations.js';
 
 const STARTS_WITH_QUICKFIX = /^ *(edit|del|add|fix)@/;
 export const QUICKFIX_SEPARATOR = String.raw`[,\s]+`;
 export const QUICKFIX_ID = String.raw`\[\[(?<quickfixes>\w+(=\d+)?!?(?:${QUICKFIX_SEPARATOR}(?:\w+(=\d+)?!?))*)\]\]`;
-const BRACED_TEXT_CONTENT = String.raw`(?:[^}]|}(?!\}))*`;
+const BRACED_TEXT_CONTENT = String.raw`(?:(?!\}\}(?!\})).)*`;
+// Legacy fixtures support line adjustments both as `@+1` and `+1`.
+const QUICKFIX_LINE_ADJUSTMENT = String.raw`(?:@?(?<lineAdjustment>(?<relativeAdjustment>[+-])?\d+))?`;
 const QUICKFIX_DESCRIPTION_PATTERN = new RegExp(
   String.raw`^ *` +
     // quickfix description, ex: fix@qf1 {{Replace with foo}}
@@ -35,7 +37,7 @@ const QUICKFIX_CHANGE_PATTERN = new RegExp(
   String.raw`^ *` +
     // quickfix edit, ex: edit@qf1
     String.raw`(?<type>edit|add|del)@(?<quickfixId>\w+)` +
-    LINE_ADJUSTMENT +
+    QUICKFIX_LINE_ADJUSTMENT +
     // start and end columns, ex: [[sc=1;ec=5]] both are optional
     String.raw` *(?:\[\[` +
     String.raw`(?<firstColumnType>sc|ec)=(?<firstColumnValue>\d+)(?:;(?<secondColumnType>sc|ec)=(?<secondColumnValue>\d+))?` +

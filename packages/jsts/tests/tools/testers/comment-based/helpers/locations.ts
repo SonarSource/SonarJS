@@ -23,7 +23,7 @@ export const LINE_ADJUSTMENT = String.raw`(?:@(?<lineAdjustment>(?<relativeAdjus
 const STARTS_WITH_LOCATION = /^ *\^/;
 const COUNT = String.raw`(?<count>\d+)`;
 const DIRECTION = '(?<direction>[<>])';
-const MESSAGE_CONTENT = String.raw`(?:[^}]|}(?!\}))*`;
+const MESSAGE_CONTENT = String.raw`(?:(?!\}\}(?!\})).)*`;
 const LOCATION_PATTERN = new RegExp(
   String.raw`^ *` +
     // highlighted range, ex: ^^^^ |OR| ^^^@12 |OR| ^^^@-2
