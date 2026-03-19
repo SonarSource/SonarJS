@@ -178,12 +178,12 @@ public class StandaloneParser implements AutoCloseable {
       var result = toSingleFileResponse(output, filePath);
       Node ast = result.ast();
       if (ast == null) {
-        var parsingError = result.parsingError();
+        var parsingErrors = result.parsingErrors();
         var message =
-          parsingError != null && parsingError.message() != null
+          !parsingErrors.isEmpty() && parsingErrors.get(0).message() != null
             ? String.format(
                 "Failed to parse the code: [%s] in [%s]",
-                parsingError.message(),
+                parsingErrors.get(0).message(),
                 filename
               )
             : "Failed to parse the code";
