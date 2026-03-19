@@ -298,8 +298,8 @@ export class Linter {
             ? ((ruleMeta as { requiredModuleType?: ModuleType }).requiredModuleType ?? undefined)
             : undefined;
         const satisfiesModuleType =
-          detectedModuleType == null ||
-          requiredModuleType == null ||
+          !detectedModuleType ||
+          !requiredModuleType ||
           requiredModuleType === detectedModuleType;
         return (
           fileTypeTargets.includes(fileType) &&
