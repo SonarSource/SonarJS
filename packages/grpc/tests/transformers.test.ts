@@ -682,6 +682,32 @@ describe('transformProjectOutputToResponse', () => {
     expect(result.issues?.[0].textRange).toBeUndefined();
   });
 
+  it('should map parsing errors to typescript repo when language is ts', () => {
+    const output = makeOutput({
+      '/project/src/broken.ts': {
+        parsingError: { message: 'Unexpected token', code: 'PARSING', line: 5, language: 'ts' },
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].rule).toEqual({ repo: 'typescript', rule: 'S2260' });
+  });
+
+  it('should map parsing errors to css repo when language is css', () => {
+    const output = makeOutput({
+      '/project/src/broken.css': {
+        parsingError: { message: 'Unclosed block', code: 'PARSING', line: 2, language: 'css' },
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].rule).toEqual({ repo: 'css', rule: 'S2260' });
+  });
+
   it('should restore original paths using pathMap for JS/TS issues', () => {
     const output = makeOutput({
       '/app/src/file.ts': {

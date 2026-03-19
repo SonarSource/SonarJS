@@ -116,6 +116,25 @@ class JsTsChecksTest {
   }
 
   @Test
+  void should_resolve_parsing_error_rule_key_by_language() {
+    JsTsChecks checks = new JsTsChecks(
+      checkFactory(
+        List.of(
+          RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S2260"),
+          RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S2260")
+        )
+      )
+    );
+
+    assertThat(checks.parsingErrorRuleKey(JAVASCRIPT)).isEqualTo(
+      RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S2260")
+    );
+    assertThat(checks.parsingErrorRuleKey(TYPESCRIPT)).isEqualTo(
+      RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S2260")
+    );
+  }
+
+  @Test
   void test_equals() {
     var js1 = new JsTsChecks.LanguageAndRepository(JAVASCRIPT, "javascript");
     var js2 = new JsTsChecks.LanguageAndRepository(JAVASCRIPT, "javascript");

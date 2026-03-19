@@ -4,5 +4,8 @@
 ],
 "Ghost:core/server/utils/downzero.js": [
 72
+],
+"Ghost:core/shared/ghost-url.js": [
+36
 ]
 }

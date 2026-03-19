@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import express from 'express';
-import { errorMiddleware } from '../../src/errors/middleware.js';
+import { errorMiddleware, handleError } from '../../src/errors/middleware.js';
 import assert from 'node:assert';
 
 import { describe, it, beforeEach, afterEach, mock, type Mock } from 'node:test';
@@ -100,6 +100,20 @@ describe('errorMiddleware', () => {
       (mockResponse.json as Mock<typeof mockResponse.json>).mock.calls[0].arguments[0],
       {
         error: 'Something unexpected happened.',
+      },
+    );
+  });
+
+  it('should include parsing error language when provided', () => {
+    assert.deepEqual(
+      handleError(APIError.parsingError('Unexpected token "{"', { line: 42 }), 'css'),
+      {
+        parsingError: {
+          message: 'Unexpected token "{"',
+          line: 42,
+          code: ErrorCode.Parsing,
+          language: 'css',
+        },
       },
     );
   });

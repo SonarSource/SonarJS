@@ -35,7 +35,6 @@
 "ace:lib/ace/mode/css/csslint.js": [
 7632,
 7781,
-7782,
 7896,
 7897,
 10186,
@@ -134,10 +133,6 @@
 453,
 717,
 760
-],
-"ace:lib/ace/mode/xml/sax.js": [
-499,
-500
 ],
 "ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
 4440

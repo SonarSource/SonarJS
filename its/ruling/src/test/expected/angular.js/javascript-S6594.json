@@ -2,6 +2,16 @@
 "angular.js:lib/grunt/utils.js": [
 189
 ],
+"angular.js:src/auto/injector.js": [
+79,
+79
+],
+"angular.js:src/ng/compile.js": [
+2458
+],
+"angular.js:src/ng/directive/ngInclude.js": [
+290
+],
 "angular.js:src/ngMock/angular-mocks.js": [
 1112
 ]
