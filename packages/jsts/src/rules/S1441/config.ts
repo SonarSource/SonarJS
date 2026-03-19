@@ -22,9 +22,9 @@ export const fields = [
   {
     description: 'Set to true to require single quotes, false for double quotes.',
     default: 'single',
-    customDefault: true,
     displayName: 'singleQuotes',
-    customForConfiguration: (value: unknown) => (value ? 'single' : 'double'),
+    customForConfiguration: (value: unknown) =>
+      value === false || value === 'false' || value === 'double' ? 'double' : 'single',
   },
   [
     {
