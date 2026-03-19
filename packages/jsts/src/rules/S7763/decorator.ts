@@ -44,10 +44,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       // Suppress ExportNamedDeclaration with a declaration (e.g. `export const alias = importedThing`).
       // The exported binding is a locally defined variable, not a re-export.
-      if (
-        node.type === 'ExportNamedDeclaration' &&
-        (node as estree.ExportNamedDeclaration).declaration !== null
-      ) {
+      if (node.type === 'ExportNamedDeclaration' && node.declaration !== null) {
         return;
       }
 
