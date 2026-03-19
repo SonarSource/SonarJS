@@ -119,9 +119,13 @@ describe('analyzeCSS', () => {
 
   it('should throw a parsing error when CSS syntax is invalid', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'malformed.css');
-    await expect(analyzeCSS(await input(filePath), defaultShouldIgnoreParams)).rejects.toEqual(
-      APIError.parsingError('Unclosed block', { line: 2 }),
-    );
+    await expect(
+      analyzeCSS(await input(filePath), defaultShouldIgnoreParams),
+    ).rejects.toMatchObject({
+      code: APIError.parsingError('Unclosed block', { line: 2 }).code,
+      message: 'Unclosed block',
+      data: { line: 2, column: expect.any(Number) },
+    });
   });
 });
 
@@ -161,7 +165,14 @@ ${character}${character}${character}.foo {`,
           };
 
           await expect(analyzeCSS(analysisInput, defaultShouldIgnoreParams))
-            .rejects.toEqual(APIError.parsingError('Unclosed block', { line: expectation[0] }))
+            .rejects.toMatchObject({
+              code: APIError.parsingError('Unclosed block', { line: expectation[0] }).code,
+              message: 'Unclosed block',
+              data: {
+                line: expectation[0],
+                column: expect.any(Number),
+              },
+            })
             .catch(error => {
               throw error;
             });

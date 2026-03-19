@@ -127,6 +127,7 @@ public class AnalysisProcessor {
 
   private void processParsingError(JsTsContext<?> context, ParsingError parsingError) {
     Integer line = parsingError.line();
+    Integer column = parsingError.column();
     String message = parsingError.message();
 
     if (line != null) {
@@ -151,7 +152,22 @@ public class AnalysisProcessor {
       NewIssueLocation primaryLocation = newIssue.newLocation().message(message).on(file);
 
       if (line != null) {
-        primaryLocation.at(file.selectLine(line));
+        try {
+          if (column != null && column >= 0) {
+            // SonarQube does not allow zero-length ranges; highlight one character.
+            primaryLocation.at(file.newRange(line, column, line, column + 1));
+          } else {
+            primaryLocation.at(file.selectLine(line));
+          }
+        } catch (RuntimeException e) {
+          LOG.warn(
+            "Failed to create parsing error location in {} at line {}, column {}. Falling back to line.",
+            file.uri(),
+            line,
+            column
+          );
+          primaryLocation.at(file.selectLine(line));
+        }
       }
 
       newIssue.forRule(parsingErrorRuleKey).at(primaryLocation).save();
@@ -161,7 +177,7 @@ public class AnalysisProcessor {
       .getSensorContext()
       .newAnalysisError()
       .onFile(file)
-      .at(file.newPointer(line != null ? line : 1, 0))
+      .at(file.newPointer(line != null ? line : 1, toParsingErrorColumn(line, column)))
       .message(message)
       .save();
   }
@@ -416,6 +432,10 @@ public class AnalysisProcessor {
   @Nullable
   private static Language toLanguage(@Nullable String language) {
     return language != null ? Language.of(language) : null;
+  }
+
+  private static int toParsingErrorColumn(@Nullable Integer line, @Nullable Integer column) {
+    return line != null && column != null && column >= 0 ? column : 0;
   }
 
   private static NewIssueLocation newSecondaryLocation(

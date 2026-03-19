@@ -188,6 +188,7 @@ function normalizeFailure(
       message: String(message),
       code,
       line: data?.line,
+      column: data?.column,
       language,
     };
     return { parsingErrors: [parsingError] };

@@ -159,6 +159,7 @@ function transformParsingErrorIssue(
   message: string,
   filePath: NormalizedAbsolutePath,
   line: number | undefined,
+  column: number | undefined,
   language: 'css' | 'js' | 'ts',
 ): analyzer.IIssue {
   const repo = PARSING_ERROR_REPO_BY_LANGUAGE[language];
@@ -166,7 +167,8 @@ function transformParsingErrorIssue(
     filePath,
     message,
     rule: { repo, rule: PARSING_ERROR_RULE_KEY },
-    textRange: line !== undefined ? toTextRange(line, 0, undefined, undefined) : undefined,
+    textRange:
+      line !== undefined ? toTextRange(line, column ?? 0, undefined, undefined) : undefined,
     flows: [],
   };
 }
@@ -261,7 +263,7 @@ export function transformProjectOutputToResponse(
     }
 
     if ('parsingErrors' in fileResult) {
-      for (const { message, line, language } of fileResult.parsingErrors ?? []) {
+      for (const { message, line, column, language } of fileResult.parsingErrors ?? []) {
         analysisProblems.push({
           type: analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_PARSING,
           message,
@@ -273,6 +275,7 @@ export function transformProjectOutputToResponse(
             message,
             originalPath as NormalizedAbsolutePath,
             line,
+            column,
             language,
           ),
         );

@@ -392,7 +392,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"} }",
+              "{ parsingError: { line: 3, column: 4, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"} }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -404,6 +404,7 @@ class WebSensorTest {
     assertThat(issues).hasSize(1);
     Issue issue = issues.iterator().next();
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
+    assertThat(issue.primaryLocation().textRange().start().lineOffset()).isEqualTo(4);
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
     assertThat(logTester.logs(Level.WARN)).contains(

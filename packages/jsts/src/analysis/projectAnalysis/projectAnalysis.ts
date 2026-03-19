@@ -53,6 +53,7 @@ export type ParsingError = {
   message: string;
   code: ErrorCode;
   line?: number;
+  column?: number;
   language: ParsingErrorLanguage;
 };
 

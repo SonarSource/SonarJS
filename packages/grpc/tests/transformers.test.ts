@@ -682,6 +682,26 @@ describe('transformProjectOutputToResponse', () => {
     expect(result.issues?.[0].textRange).toBeUndefined();
   });
 
+  it('should use parsing error column as start offset when provided', () => {
+    const output = makeOutput({
+      '/project/src/broken.css': {
+        parsingErrors: [
+          { message: 'Unclosed block', code: 'PARSING', line: 2, column: 7, language: 'css' },
+        ],
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].textRange).toEqual({
+      startLine: 2,
+      startLineOffset: 7,
+      endLine: 2,
+      endLineOffset: 7,
+    });
+  });
+
   it('should map parsing errors to typescript repo when language is ts', () => {
     const output = makeOutput({
       '/project/src/broken.ts': {

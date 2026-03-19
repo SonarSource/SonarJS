@@ -102,6 +102,9 @@ export async function analyzeCSS(
 function throwIfCssParsingError(issues: CssIssue[]) {
   const parsingIssue = issues.find(issue => issue.ruleId === 'CssSyntaxError');
   if (parsingIssue) {
-    throw APIError.parsingError(parsingIssue.message, { line: parsingIssue.line });
+    throw APIError.parsingError(parsingIssue.message, {
+      line: parsingIssue.line,
+      column: parsingIssue.column,
+    });
   }
 }

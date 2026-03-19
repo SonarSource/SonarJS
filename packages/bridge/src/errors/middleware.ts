@@ -39,7 +39,7 @@ type ErrorWithCode = {
   code?: ErrorCode;
   message?: string;
   stack?: string;
-  data?: { line?: number };
+  data?: { line?: number; column?: number };
 };
 
 /**
@@ -133,6 +133,7 @@ function generateParsingError(err: ErrorWithCode, language: ParsingErrorLanguage
     message: err.message ?? 'Parsing failed',
     code: err.code as ErrorCode,
     line: err.data?.line,
+    ...(err.data?.column !== undefined ? { column: err.data.column } : {}),
     language,
   };
   return {

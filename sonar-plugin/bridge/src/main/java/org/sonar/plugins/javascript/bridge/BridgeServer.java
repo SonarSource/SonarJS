@@ -355,7 +355,13 @@ public interface BridgeServer extends Startable {
     }
   }
 
-  record ParsingError(String message, Integer line, ParsingErrorCode code, String language) {}
+  record ParsingError(
+    String message,
+    Integer line,
+    Integer column,
+    ParsingErrorCode code,
+    String language
+  ) {}
 
   enum ParsingErrorCode {
     PARSING,

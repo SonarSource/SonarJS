@@ -118,13 +118,14 @@ describe('errorMiddleware', () => {
     );
   });
 
-  it('should include parsing error language when provided', () => {
+  it('should include parsing error language and column when provided', () => {
     assert.deepEqual(
-      handleError(APIError.parsingError('Unexpected token "{"', { line: 42 }), 'css'),
+      handleError(APIError.parsingError('Unexpected token "{"', { line: 42, column: 7 }), 'css'),
       {
         parsingError: {
           message: 'Unexpected token "{"',
           line: 42,
+          column: 7,
           code: ErrorCode.Parsing,
           language: 'css',
         },
