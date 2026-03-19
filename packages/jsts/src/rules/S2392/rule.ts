@@ -75,8 +75,38 @@ export const rule: Rule.RuleModule = {
           if (referencesOutside.length === 0) {
             continue;
           }
+
+          // Suppress FP: loop counter variables reused across sequential for-loops.
+          // If every outside reference is covered by another for-loop that also declares
+          // this same variable, the reuse is intentional (var hoisting) and should not be reported.
+          const otherLoopRanges: [number, number][] = [];
+          for (const def of variable.defs) {
+            if (varDeclaration.declarations.includes(def.node as estree.VariableDeclarator)) {
+              continue;
+            }
+            const loopNode = (def.node as unknown as { parent?: { parent?: estree.Node } }).parent
+              ?.parent;
+            if (
+              loopNode?.type === 'ForStatement' ||
+              loopNode?.type === 'ForInStatement' ||
+              loopNode?.type === 'ForOfStatement'
+            ) {
+              otherLoopRanges.push(loopNode.range!);
+            }
+          }
+          if (
+            otherLoopRanges.length > 0 &&
+            referencesOutside.every(ref =>
+              otherLoopRanges.some(
+                ([start, end]) => ref.range![0] >= start && ref.range![1] <= end,
+              ),
+            )
+          ) {
+            continue;
+          }
+
           const definition = variable.defs.find(def =>
-            varDeclaration.declarations.includes(def.node),
+            varDeclaration.declarations.includes(def.node as estree.VariableDeclarator),
           );
           if (definition && !reported.includes(definition.name)) {
             report(
