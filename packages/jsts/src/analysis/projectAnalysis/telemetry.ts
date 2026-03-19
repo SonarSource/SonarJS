@@ -16,14 +16,9 @@
  */
 import { minVersion } from 'semver';
 import ts from 'typescript';
-import {
-  getTypeScriptVersionSignalsFromPackageJson,
-  hasTypeScriptNativePreviewSignal,
-} from '../../rules/helpers/package-jsons/dependencies.js';
+import { getTypeScriptSignalsFromPackageJsonFiles } from '../../rules/helpers/package-jsons/dependencies.js';
 import type { ModuleType } from '../../rules/helpers/package-jsons/dependencies.js';
-import type { PackageJson } from 'type-fest';
 import { packageJsonStore } from './file-stores/index.js';
-import { stripBOM } from '../../rules/helpers/files.js';
 
 const NOT_DETECTED = 'not-detected';
 const COMPILER_OPTIONS_TO_LOG = [
@@ -36,7 +31,6 @@ const COMPILER_OPTIONS_TO_LOG = [
   'exactOptionalPropertyTypes',
   'isolatedModules',
   'jsx',
-  'jsxImportSource',
   'lib',
   'module',
   'moduleDetection',
@@ -48,7 +42,6 @@ const COMPILER_OPTIONS_TO_LOG = [
   'skipLibCheck',
   'strict',
   'target',
-  'types',
   'useDefineForClassFields',
   'verbatimModuleSyntax',
 ] as const satisfies ReadonlyArray<keyof ts.CompilerOptions>;
@@ -120,11 +113,10 @@ export class ProjectAnalysisTelemetryCollector {
   private cjsFileCount = 0;
 
   constructor() {
-    const packageJsons = getAvailablePackageJsons();
-    this.typescriptVersions = normalizeTypeScriptVersions(
-      packageJsons.flatMap(getTypeScriptVersionSignalsFromPackageJson),
-    );
-    this.typescriptNativePreview = packageJsons.some(hasTypeScriptNativePreviewSignal);
+    const { typeScriptVersionSignals, hasTypeScriptNativePreview } =
+      getTypeScriptSignalsFromPackageJsonFiles(getPackageJsonFiles());
+    this.typescriptVersions = normalizeTypeScriptVersions(typeScriptVersionSignals);
+    this.typescriptNativePreview = hasTypeScriptNativePreview;
   }
 
   recordCompilerOptions(options: ts.CompilerOptions | undefined) {
@@ -274,31 +266,11 @@ function resolveTypeScriptVersion(typeScriptSignal: string): string | undefined 
   }
 }
 
-function getAvailablePackageJsons(): PackageJson[] {
-  const packageJsons: PackageJson[] = [];
-  for (const packageJsonFile of getPackageJsonFiles()) {
-    const packageJson = parsePackageJsonFile(packageJsonFile.content);
-    if (packageJson !== undefined) {
-      packageJsons.push(packageJson);
-    }
-  }
-  return packageJsons;
-}
-
 function getPackageJsonFiles(): Iterable<{ content: string | Buffer }> {
   try {
     return packageJsonStore.getPackageJsons().values();
   } catch {
     return [];
-  }
-}
-
-function parsePackageJsonFile(content: string | Buffer): PackageJson | undefined {
-  const packageJsonContent = typeof content === 'string' ? content : content.toString();
-  try {
-    return JSON.parse(stripBOM(packageJsonContent)) as PackageJson;
-  } catch {
-    return undefined;
   }
 }
 
