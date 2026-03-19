@@ -19,6 +19,7 @@ import { rule } from './rule.js';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { describe, it } from 'node:test';
 import path from 'node:path';
+import type { Rule } from 'eslint';
 
 const upstreamRule = tsEslintRules['prefer-optional-chain'];
 
@@ -48,6 +49,81 @@ describe('S6582 upstream sentinel', () => {
           errors: 1,
         },
       ],
+    });
+  });
+});
+
+describe('S6582 defensive guard fallback paths', () => {
+  const fixtureFile = path.join(import.meta.dirname, 'fixtures/index.ts');
+  const ruleTesterOptions = {
+    parserOptions: {
+      project: './tsconfig.json',
+      tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+    },
+  };
+  // Code that reliably triggers prefer-optional-chain in a boolean context (no suppression normally)
+  const triggerCode = `function f(arr: string[] | null) { if (arr && arr.length) {} }`;
+
+  it('reports when getNodeByRangeIndex returns null (defensive !node fallback)', () => {
+    // Wrap sourceCode in a Proxy that overrides getNodeByRangeIndex to return null.
+    // The S6582 callback falls back to ctx.report when it can't find the AST node,
+    // exercising the defensive guard at lines 84-85 of rule.ts.
+    const noNodeRule: Rule.RuleModule = {
+      meta: rule.meta,
+      create(context) {
+        // Use Proxy to intercept getNodeByRangeIndex without mutating the non-extensible
+        // sourceCode object. Reflect.get(target, prop, target) is used for all other
+        // properties to satisfy Proxy invariants for non-configurable data properties.
+        const wrappedSourceCode = new Proxy(context.sourceCode, {
+          get(target, prop) {
+            if (prop === 'getNodeByRangeIndex') return () => null;
+            return Reflect.get(target, prop, target);
+          },
+        });
+        // Use Reflect.get(target, prop, receiver) for the context proxy so that
+        // non-configurable data properties (like 'report') satisfy Proxy invariants.
+        const wrappedContext = new Proxy(context, {
+          get(target, prop, receiver) {
+            if (prop === 'sourceCode') return wrappedSourceCode;
+            return Reflect.get(target, prop, receiver);
+          },
+        });
+        return rule.create(wrappedContext as Rule.RuleContext);
+      },
+    };
+
+    const ruleTester = new RuleTester(ruleTesterOptions);
+    ruleTester.run('S6582-no-node', noNodeRule, {
+      valid: [],
+      invalid: [{ code: triggerCode, filename: fixtureFile, errors: 1 }],
+    });
+  });
+
+  it('reports when esTreeNodeToTSNodeMap.get returns undefined (defensive !tsNode fallback)', () => {
+    // Patch esTreeNodeToTSNodeMap.get to return undefined for LogicalExpression nodes.
+    // The S6582 callback walks the AST up to the LogicalExpression and looks it up;
+    // the upstream rule looks up Identifier/MemberExpression nodes for type checking.
+    // Returning undefined only for LogicalExpression exercises the guard at lines 93-94 of rule.ts
+    // while leaving the upstream rule's type checks unaffected.
+    const noTsNodeRule: Rule.RuleModule = {
+      meta: rule.meta,
+      create(context) {
+        const services = context.sourceCode.parserServices as any;
+        if (services?.esTreeNodeToTSNodeMap) {
+          const origGet = services.esTreeNodeToTSNodeMap.get.bind(services.esTreeNodeToTSNodeMap);
+          services.esTreeNodeToTSNodeMap.get = (node: any) => {
+            if (node?.type === 'LogicalExpression') return undefined;
+            return origGet(node);
+          };
+        }
+        return rule.create(context);
+      },
+    };
+
+    const ruleTester = new RuleTester(ruleTesterOptions);
+    ruleTester.run('S6582-no-ts-node', noTsNodeRule, {
+      valid: [],
+      invalid: [{ code: triggerCode, filename: fixtureFile, errors: 1 }],
     });
   });
 });
