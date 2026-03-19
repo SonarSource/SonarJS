@@ -42,11 +42,9 @@ export const rule: Rule.RuleModule = {
           !isEnclosingDeclarator(parent) &&
           !isLambdaBody(parent, assignment) &&
           !isConditionalAssignment(parent, assignment) &&
-          !isWhileCondition(parent, assignment) &&
           !isForInitOrUpdate(parent, assignment) &&
           !isReturnStatement(parent) &&
-          !isIfCondition(parent, assignment) &&
-          !isForCondition(parent, assignment)
+          !isDirectTestCondition(parent, assignment)
         ) {
           raiseIssue(assignment, context);
         }
@@ -103,12 +101,6 @@ function isConditionalAssignment(parent: estree.Node, expr: estree.AssignmentExp
   return parent.type === 'LogicalExpression' && parent.right === expr;
 }
 
-function isWhileCondition(parent: estree.Node, expr: estree.AssignmentExpression) {
-  return (
-    (parent.type === 'DoWhileStatement' || parent.type === 'WhileStatement') && parent.test === expr
-  );
-}
-
 function isForInitOrUpdate(parent: estree.Node, expr: estree.AssignmentExpression) {
   return parent.type === 'ForStatement' && (parent.init === expr || parent.update === expr);
 }
@@ -117,10 +109,12 @@ function isReturnStatement(parent: estree.Node) {
   return parent.type === 'ReturnStatement';
 }
 
-function isIfCondition(parent: estree.Node, expr: estree.AssignmentExpression) {
-  return parent.type === 'IfStatement' && parent.test === expr;
-}
-
-function isForCondition(parent: estree.Node, expr: estree.AssignmentExpression) {
-  return parent.type === 'ForStatement' && parent.test === expr;
+function isDirectTestCondition(parent: estree.Node, expr: estree.AssignmentExpression) {
+  return (
+    (parent.type === 'IfStatement' ||
+      parent.type === 'WhileStatement' ||
+      parent.type === 'DoWhileStatement' ||
+      parent.type === 'ForStatement') &&
+    parent.test === expr
+  );
 }
