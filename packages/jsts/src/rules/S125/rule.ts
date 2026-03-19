@@ -123,8 +123,8 @@ export const rule: Rule.RuleModule = {
 };
 
 /**
- * Returns true if the comment group contains at least one line that matches a task marker
- * (TODO, FIXME, HACK, XXX, NOTE) and that line is not itself parsable as code.
+ * Returns true if the comment group contains at least one line that matches TASK_MARKER_PATTERN
+ * and that line is not itself parsable as code.
  * This avoids false suppression when task-marker keywords appear as identifiers in commented code.
  */
 function hasTaskMarker(groupValue: string, context: Rule.RuleContext): boolean {
