@@ -121,30 +121,37 @@ describe('S1121', () => {
         {
           code: `let f = a => (a = (b = 0));`,
         },
-      ],
-      invalid: [
         {
           code: `if (a = 0) {}`,
-          errors: [
-            {
-              message: `Extract the assignment of "a" from this expression.`,
-              line: 1,
-              endLine: 1,
-              column: 7,
-              endColumn: 8,
-            },
-          ],
-        },
-        {
-          code: `if (a = b = 0) {}`,
-          errors: 1,
-        },
-        {
-          code: `if ((a = 0) && b) {}`,
-          errors: 1,
         },
         {
           code: `if ((fun())[i] = 0) {}`,
+        },
+        {
+          code: `let m; if (m = /\\w+/.exec('hello')) {}`,
+        },
+        {
+          code: `let m; if (false) {} else if (m = /\\w+/.exec('hello')) {}`,
+        },
+        {
+          code: `for (; i = 0;);`,
+        },
+        {
+          code: `for (;a = 0;) {}`,
+        },
+        {
+          code: `let node; for (let i = 0; node = [1, 2, 0][i]; i++) {}`,
+        },
+        {
+          code: `function foo() { return (a = 0); }`,
+        },
+        {
+          code: `function cached(fn) { let r; return function() { return (r = r || fn()); }; }`,
+        },
+      ],
+      invalid: [
+        {
+          code: `if ((a = 0) && b) {}`,
           errors: 1,
         },
         {
@@ -165,14 +172,6 @@ describe('S1121', () => {
         },
         {
           code: `fun(a, b = 0);`,
-          errors: 1,
-        },
-        {
-          code: `for (; i = 0;);`,
-          errors: 1,
-        },
-        {
-          code: `for (; i = j = 0;);`,
           errors: 1,
         },
         {
@@ -232,15 +231,7 @@ describe('S1121', () => {
           errors: 2,
         },
         {
-          code: `function foo() { return (a = 0); }`,
-          errors: 1,
-        },
-        {
           code: `throw (a = 0);`,
-          errors: 1,
-        },
-        {
-          code: `for (;a = 0;) {}`,
           errors: 1,
         },
         {
