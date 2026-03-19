@@ -16,9 +16,33 @@
  */
 import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { rule } from './index.js';
+import { rules } from '../external/unicorn.js';
 import { describe, it } from 'node:test';
 
 const ruleTester = new NoTypeCheckingRuleTester();
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
+describe('S7763 upstream sentinel', () => {
+  it('upstream prefer-export-from raises on export-const-alias patterns that decorator suppresses', () => {
+    const upstreamRule = rules['prefer-export-from'];
+    ruleTester.run('prefer-export-from', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // export const alias = importedThing — suppressed by decorator, raised by upstream
+          code: `import { updateStatus } from './status-service';
+export const updateStatusHandler = updateStatus;`,
+          output: `
+
+export {updateStatus as updateStatusHandler} from './status-service';`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
 
 describe('S7763', () => {
   it('S7763 - prefer-export-from with default import exception', () => {
@@ -37,6 +61,30 @@ describe('S7763', () => {
         },
         // Default import re-exported as default
         { code: `import foo from './foo';\nexport default foo;` },
+        // JS-1475: export const alias = importedThing should NOT be flagged
+        {
+          code: `import { updateStatus } from './status-service';
+export const updateStatusHandler = updateStatus;`,
+        },
+        // Multiple export const aliases (constants/adapter file pattern)
+        {
+          code: `import { getEscalationStatusQuery } from './escalation-queries';
+import { updateEscalationStatusMutation } from './escalation-mutations';
+export const escalationStatusQuery = getEscalationStatusQuery;
+export const escalationStatusMutation = updateEscalationStatusMutation;`,
+        },
+        // Adapter/facade: locally-defined public names for imported implementations
+        {
+          code: `import { readFile } from './file-reader';
+import { writeFile } from './file-writer';
+export const load = readFile;
+export const save = writeFile;`,
+        },
+        // Locally defined export is not a re-export candidate
+        {
+          code: `function processData() { return 42; }
+export { processData };`,
+        },
       ],
       invalid: [
         // Named imports should still be flagged
