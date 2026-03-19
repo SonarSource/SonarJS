@@ -16,7 +16,6 @@
 2237,
 2264,
 2305,
-2407,
 2407
 ],
 "TypeScript:src/compiler/checker.ts": [
@@ -43,14 +42,11 @@
 3511,
 3529,
 3756,
-3869,
-4382,
 4421,
 4755,
 5131,
 5225,
 5252,
-5989,
 6055,
 6204,
 6236,
@@ -75,7 +71,6 @@
 12445,
 13096,
 13381,
-14275,
 14369,
 14563,
 14602,
@@ -88,7 +83,6 @@
 16104,
 16259,
 16498,
-16517,
 17374,
 18291,
 18361,
@@ -102,7 +96,6 @@
 21672,
 22120,
 22129,
-22133,
 22342,
 22378,
 22755,
@@ -126,12 +119,10 @@
 ],
 "TypeScript:src/compiler/comments.ts": [
 49,
-50,
 118,
 133
 ],
 "TypeScript:src/compiler/core.ts": [
-658,
 799,
 809,
 1220,
@@ -146,8 +137,6 @@
 ],
 "TypeScript:src/compiler/declarationEmitter.ts": [
 286,
-1008,
-1025,
 1204,
 1740
 ],
@@ -161,15 +150,10 @@
 1018,
 2212,
 2213,
-2259,
 2275,
 2291,
-2292,
 2310,
-2323,
-2337,
 2354,
-2409,
 2417,
 3725,
 3726,
@@ -177,14 +161,12 @@
 ],
 "TypeScript:src/compiler/moduleNameResolver.ts": [
 202,
-235,
 364,
 414,
 415,
 703,
 937,
 990,
-1006,
 1013
 ],
 "TypeScript:src/compiler/parser.ts": [
@@ -213,7 +195,6 @@
 "TypeScript:src/compiler/sourcemap.ts": [
 276,
 322,
-323,
 361,
 362,
 363
@@ -221,46 +202,32 @@
 "TypeScript:src/compiler/sys.ts": [
 515
 ],
-"TypeScript:src/compiler/transformer.ts": [
-45,
-78
-],
 "TypeScript:src/compiler/transformers/es2015.ts": [
 611,
 1329,
 1889,
-2658,
-2979
+2658
 ],
 "TypeScript:src/compiler/transformers/es5.ts": [
 68
 ],
 "TypeScript:src/compiler/transformers/generators.ts": [
-1640,
-1657,
-1948,
-2056
+1948
 ],
 "TypeScript:src/compiler/transformers/module/module.ts": [
-1358,
-1484
+1358
 ],
 "TypeScript:src/compiler/transformers/module/system.ts": [
-1524,
-1770,
-1774
+1770
 ],
 "TypeScript:src/compiler/transformers/ts.ts": [
-864,
 1246,
 1443,
 2569,
 2587
 ],
 "TypeScript:src/compiler/tsc.ts": [
-310,
-381,
-381
+310
 ],
 "TypeScript:src/compiler/utilities.ts": [
 88,
@@ -273,19 +240,14 @@
 826,
 926,
 930,
-940,
-944,
 1383,
 1477,
 1577,
 1586,
 1587,
-1639,
 1664,
-1666,
 1674,
 1735,
-1738,
 2493,
 2520,
 2753,
@@ -303,7 +265,6 @@
 "TypeScript:src/harness/fourslash.ts": [
 280,
 973,
-1011,
 1031,
 1085,
 1184,
@@ -326,18 +287,12 @@
 742,
 905,
 1307,
-1591,
-1909,
-1909,
-1964,
-1964
+1591
 ],
 "TypeScript:src/harness/harnessLanguageService.ts": [
 151,
 189,
-259,
-323,
-620
+323
 ],
 "TypeScript:src/harness/projectsRunner.ts": [
 106,
@@ -360,8 +315,6 @@
 "TypeScript:src/server/editorServices.ts": [
 448,
 943,
-1373,
-1392,
 1432,
 1507
 ],
@@ -373,7 +326,6 @@
 ],
 "TypeScript:src/server/project.ts": [
 319,
-407,
 418,
 697,
 887
@@ -386,8 +338,6 @@
 63
 ],
 "TypeScript:src/server/session.ts": [
-609,
-610,
 805,
 1149
 ],
@@ -397,9 +347,6 @@
 "TypeScript:src/server/typingsInstaller/nodeTypingsInstaller.ts": [
 162,
 162
-],
-"TypeScript:src/server/typingsInstaller/typingsInstaller.ts": [
-25
 ],
 "TypeScript:src/services/classifier.ts": [
 701,
@@ -435,18 +382,14 @@
 42,
 149,
 480,
-730,
 1060,
 1104,
 1106,
 1115,
-1182,
-1198
+1182
 ],
 "TypeScript:src/services/documentHighlights.ts": [
-49,
-54,
-136
+49
 ],
 "TypeScript:src/services/documentRegistry.ts": [
 124
@@ -472,9 +415,6 @@
 473,
 1171
 ],
-"TypeScript:src/services/formatting/formattingScanner.ts": [
-145
-],
 "TypeScript:src/services/goToDefinition.ts": [
 18
 ],
@@ -482,7 +422,6 @@
 105,
 106,
 222,
-328,
 344,
 539
 ],
@@ -504,21 +443,15 @@
 ],
 "TypeScript:src/services/services.ts": [
 628,
-873,
-878,
 1003,
-1044,
 1052,
-1053,
 1116,
-1147,
 1214,
 1509,
 2117
 ],
 "TypeScript:src/services/shims.ts": [
-628,
-1174
+628
 ],
 "TypeScript:src/services/signatureHelp.ts": [
 72,
@@ -529,7 +462,6 @@
 "TypeScript:src/services/symbolDisplay.ts": [
 85,
 113,
-116,
 279,
 435
 ],

@@ -23,7 +23,6 @@
 ],
 "angular.js:src/Angular.js": [
 682,
-768,
 1136,
 1137,
 1708,
@@ -110,9 +109,6 @@
 154,
 303
 ],
-"angular.js:src/ng/log.js": [
-85
-],
 "angular.js:src/ng/q.js": [
 368,
 469
@@ -120,9 +116,6 @@
 "angular.js:src/ng/rootScope.js": [
 1040,
 1041
-],
-"angular.js:src/ng/sanitizeUri.js": [
-75
 ],
 "angular.js:src/ng/sniffer.js": [
 29,

@@ -93,9 +93,6 @@
 "courselit:packages/common-widgets/src/tagged-content/widget.tsx": [
 82
 ],
-"courselit:packages/components-library/src/course-item.tsx": [
-72
-],
 "courselit:packages/state-management/src/reducer.ts": [
 91,
 92,

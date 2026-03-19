@@ -9,8 +9,7 @@
 44
 ],
 "react-cloud-music:src/application/Player/index.jsx": [
-95,
-120
+95
 ],
 "react-cloud-music:src/application/Rank/store/index.js": [
 17
@@ -21,8 +20,7 @@
 ],
 "react-cloud-music:src/serviceWorker.js": [
 78,
-88,
-109
+88
 ],
 "react-cloud-music:ts-music/scripts/build.js": [
 125
@@ -32,7 +30,6 @@
 ],
 "react-cloud-music:ts-music/src/serviceWorker.js": [
 78,
-88,
-111
+88
 ]
 }

@@ -11,7 +11,6 @@
 ],
 "ace:demo/kitchen-sink/doclist.js": [
 82,
-95,
 145
 ],
 "ace:demo/kitchen-sink/inline_editor.js": [
@@ -55,7 +54,6 @@
 "ace:lib/ace/mode/javascript/jshint.js": [
 242,
 245,
-460,
 1516,
 2495,
 2524,
@@ -92,8 +90,6 @@
 8798,
 8821,
 8851,
-9179,
-9228,
 9232,
 9274,
 9275,
@@ -154,7 +150,6 @@
 4034,
 4054,
 4059,
-4169,
 5297
 ],
 "ace:lib/ace/worker/worker.js": [
@@ -274,7 +269,6 @@
 37
 ],
 "ace:src/ext/emmet.js": [
-200,
 414
 ],
 "ace:src/ext/hardwrap.js": [
@@ -475,9 +469,6 @@
 18,
 48
 ],
-"ace:src/mode/folding/haskell_cabal.js": [
-22
-],
 "ace:src/mode/folding/latex.js": [
 113
 ],
@@ -549,7 +540,6 @@
 ],
 "ace:src/multi_select.js": [
 435,
-436,
 833
 ],
 "ace:src/occur.js": [
