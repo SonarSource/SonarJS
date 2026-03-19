@@ -23,7 +23,7 @@ import {
   setCachedSourceFile,
   invalidateParsedSourceFile,
 } from './cache/sourceFileCache.js';
-import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
+import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/files.js';
 
 interface FsCall {
   op: string;
@@ -120,7 +120,11 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   // CompilerHost implementation - intercept file reads
 
   readFile(fileName: string): string | undefined {
-    const normalized = path.normalize(fileName);
+    const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
+    if (this.shouldSkipNestedNodeModulesLookup(normalized)) {
+      this.trackFsCall('readFile-node_modules-skip', fileName);
+      return undefined;
+    }
     const cache = getSourceFileContentCache();
     const filesContext = getCurrentFilesContext();
 
@@ -158,7 +162,11 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   }
 
   fileExists(fileName: string): boolean {
-    const normalized = path.normalize(fileName);
+    const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
+    if (this.shouldSkipNestedNodeModulesLookup(normalized)) {
+      this.trackFsCall('fileExists-node_modules-skip', fileName);
+      return false;
+    }
     const cache = getSourceFileContentCache();
 
     // 1. Check global cache
@@ -186,13 +194,17 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     onError?: (message: string) => void,
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile | undefined {
-    const normalized = path.normalize(fileName);
+    const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
+    if (this.shouldSkipNestedNodeModulesLookup(normalized)) {
+      this.trackFsCall('getSourceFile-node_modules-skip', fileName);
+      return undefined;
+    }
 
     // For files explicitly present in the current analysis context, make the
     // request content authoritative before looking up cached parsed ASTs.
     const contextContent = getCurrentFilesContext()?.[fileName]?.fileContent;
     if (contextContent !== undefined) {
-      this.updateFile(normalized as NormalizedAbsolutePath, contextContent);
+      this.updateFile(normalized, contextContent);
     }
 
     const currentVersion = this.fileVersions.get(normalized) || 0;
@@ -243,6 +255,16 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       sourceFile.version = contentHash;
     }
     return sourceFile;
+  }
+
+  private shouldSkipNestedNodeModulesLookup(fileName: string): boolean {
+    const baseDirPrefix = `${this.baseDir}/`;
+    const baseNodeModulesPrefix = `${this.baseDir}/node_modules/`;
+    return (
+      fileName.startsWith(baseDirPrefix) &&
+      fileName.includes('/node_modules/') &&
+      !fileName.startsWith(baseNodeModulesPrefix)
+    );
   }
 
   private trackFsCall(op: string, file: string): void {
