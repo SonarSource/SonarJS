@@ -85,6 +85,12 @@ export const save = writeFile;`,
           code: `function processData() { return 42; }
 export { processData };`,
         },
+        // Namespace import aliased via export const should NOT be flagged
+        // Pattern: import * as _Foo from './foo'; export const Foo = _Foo
+        {
+          code: `import * as _AllIcons from './svgs';
+export const AllIcons = _AllIcons;`,
+        },
       ],
       invalid: [
         // Named imports should still be flagged
