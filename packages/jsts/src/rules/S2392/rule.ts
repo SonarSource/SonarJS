@@ -16,12 +16,51 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2392/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { last } from '../helpers/collection.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
+
+function isForLoopNode(node: { type?: string } | null | undefined): boolean {
+  return (
+    node?.type === 'ForStatement' ||
+    node?.type === 'ForInStatement' ||
+    node?.type === 'ForOfStatement'
+  );
+}
+
+function getOtherLoopRanges(
+  variable: Scope.Variable,
+  varDeclaration: estree.VariableDeclaration,
+): [number, number][] {
+  const ranges: [number, number][] = [];
+  for (const def of variable.defs) {
+    if (varDeclaration.declarations.includes(def.node as estree.VariableDeclarator)) {
+      continue;
+    }
+    const loopNode = (def.node as unknown as { parent?: { parent?: estree.Node } }).parent?.parent;
+    const loopRange = loopNode?.range;
+    if (isForLoopNode(loopNode) && loopRange) {
+      ranges.push(loopRange);
+    }
+  }
+  return ranges;
+}
+
+function isCoveredByOtherLoops(
+  referencesOutside: estree.Identifier[],
+  otherLoopRanges: [number, number][],
+): boolean {
+  if (otherLoopRanges.length === 0) {
+    return false;
+  }
+  return referencesOutside.every(ref => {
+    const range = ref.range;
+    return range !== undefined && otherLoopRanges.some(([s, e]) => range[0] >= s && range[1] <= e);
+  });
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
@@ -76,42 +115,13 @@ export const rule: Rule.RuleModule = {
             continue;
           }
 
-          // Suppress FP: loop counter variables reused across sequential for-loops.
-          // If every outside reference is covered by another for-loop that also declares
-          // this same variable, the reuse is intentional (var hoisting) and should not be reported.
-          // Only apply this suppression when the current declaration is directly in a for-loop
-          // header (init/left), not when it is a regular statement inside a block or for-loop body.
-          const varDeclParent = (varDeclaration as unknown as { parent?: { type: string } }).parent;
-          const isCurrentDeclInForLoop =
-            varDeclParent?.type === 'ForStatement' ||
-            varDeclParent?.type === 'ForInStatement' ||
-            varDeclParent?.type === 'ForOfStatement';
-          const otherLoopRanges: [number, number][] = [];
-          if (isCurrentDeclInForLoop) {
-            for (const def of variable.defs) {
-              if (varDeclaration.declarations.includes(def.node as estree.VariableDeclarator)) {
-                continue;
-              }
-              const loopNode = (def.node as unknown as { parent?: { parent?: estree.Node } }).parent
-                ?.parent;
-              if (
-                loopNode?.type === 'ForStatement' ||
-                loopNode?.type === 'ForInStatement' ||
-                loopNode?.type === 'ForOfStatement'
-              ) {
-                otherLoopRanges.push(loopNode.range!);
-              }
+          const varDeclParent = (varDeclaration as unknown as { parent?: { type?: string } })
+            .parent;
+          if (isForLoopNode(varDeclParent)) {
+            const otherLoopRanges = getOtherLoopRanges(variable, varDeclaration);
+            if (isCoveredByOtherLoops(referencesOutside, otherLoopRanges)) {
+              continue;
             }
-          }
-          if (
-            otherLoopRanges.length > 0 &&
-            referencesOutside.every(ref =>
-              otherLoopRanges.some(
-                ([start, end]) => ref.range![0] >= start && ref.range![1] <= end,
-              ),
-            )
-          ) {
-            continue;
           }
 
           const definition = variable.defs.find(def =>
