@@ -25,7 +25,8 @@ import * as meta from './generated-meta.js';
 /**
  * S7763 is the unicorn/prefer-export-from rule.
  * This decorator suppresses false positives for locally defined exports:
- *   - `export const alias = importedThing` (ExportNamedDeclaration with declaration)
+ *   - `export const alias = importedThing`, `export function foo() {}`, `export class Foo {}`
+ *     (ExportNamedDeclaration with any declaration — all are locally defined, not re-exports)
  *   - `export { locallyDefinedFn }` (identifier not found in any import specifier)
  *   - re-exporting default imports (e.g. `import foo from './foo'; export { foo }`)
  */
@@ -42,8 +43,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      // Suppress ExportNamedDeclaration with a declaration (e.g. `export const alias = importedThing`).
-      // The exported binding is a locally defined variable, not a re-export.
+      // Suppress ExportNamedDeclaration with any declaration (e.g. `export const alias = importedThing`,
+      // `export function foo() {}`, `export class Foo {}`). All of these are locally defined bindings,
+      // not re-exports — regardless of whether the declaration is a VariableDeclaration, FunctionDeclaration,
+      // or ClassDeclaration. Suppressing all is intentional: none of these can be simplified to `export…from`.
       if (node.type === 'ExportNamedDeclaration' && node.declaration !== null) {
         return;
       }
