@@ -85,6 +85,16 @@ describe('S6582', () => {
           code: `interface Item { name: string; } function f(item: Item | null) { const x: string | null = item && item.name; }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
+        {
+          // FP: method return type 'ISnapshot | null' excludes undefined — replacing with optional chaining gives 'ISnapshot | undefined', not assignable to 'ISnapshot | null'
+          code: `interface ISnapshot { getText(): string; } interface Entry { snapshot: ISnapshot; } class Cache { getEntry(k: string): Entry | null { return null; } getSnapshot(k: string): ISnapshot | null { const e = this.getEntry(k); return e && e.snapshot; } }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          // FP: object literal field typed 'string | null' — replacing with optional chaining gives 'string | undefined', not assignable to 'string | null'
+          code: `interface Entry { version: string; } class Cache { getEntry(k: string): Entry | null { return null; } getInfo(k: string): { version: string | null } { const e = this.getEntry(k); return { version: e && e.version }; } }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
       ],
       invalid: [
         {
