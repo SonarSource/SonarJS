@@ -34,7 +34,7 @@ import type { ShouldIgnoreFileParams } from '../../shared/src/helpers/filter/fil
  * @param shouldIgnoreParams configuration parameters for file filtering
  * @returns the analysis output with issues found in embedded JS
  */
-export async function analyzeYAML(
+async function analyzeYAML(
   input: EmbeddedAnalysisInput,
   shouldIgnoreParams: ShouldIgnoreFileParams,
 ): Promise<EmbeddedAnalysisOutput> {
