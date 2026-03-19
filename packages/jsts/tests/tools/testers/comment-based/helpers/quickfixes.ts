@@ -21,17 +21,18 @@ import { extractEffectiveLine, LINE_ADJUSTMENT } from './locations.js';
 const STARTS_WITH_QUICKFIX = /^ *(edit|del|add|fix)@/;
 export const QUICKFIX_SEPARATOR = String.raw`[,\s]+`;
 export const QUICKFIX_ID = String.raw`\[\[(?<quickfixes>\w+(=\d+)?!?(?:${QUICKFIX_SEPARATOR}(?:\w+(=\d+)?!?))*)\]\]`;
+const BRACED_TEXT_CONTENT = String.raw`(?:[^}]|}(?!\}))*`;
 const QUICKFIX_DESCRIPTION_PATTERN = new RegExp(
-  String.raw` *` +
+  String.raw`^ *` +
     // quickfix description, ex: fix@qf1 {{Replace with foo}}
     String.raw`fix@(?<quickfixId>\w+)` +
     // message, ex: {{msg}}
-    String.raw` *(?:\{\{(?<message>.*?)\}\}(?!\}))? *` +
-    String.raw`(?:\r(\n?)|\n)?`,
+    String.raw` *(?:\{\{(?<message>${BRACED_TEXT_CONTENT})\}\}(?!\}))? *` +
+    String.raw`(?:\r?\n)?$`,
 );
 
 const QUICKFIX_CHANGE_PATTERN = new RegExp(
-  String.raw` *` +
+  String.raw`^ *` +
     // quickfix edit, ex: edit@qf1
     String.raw`(?<type>edit|add|del)@(?<quickfixId>\w+)` +
     LINE_ADJUSTMENT +
@@ -40,8 +41,8 @@ const QUICKFIX_CHANGE_PATTERN = new RegExp(
     String.raw`(?<firstColumnType>sc|ec)=(?<firstColumnValue>\d+)(?:;(?<secondColumnType>sc|ec)=(?<secondColumnValue>\d+))?` +
     String.raw`\]\])?` +
     // contents to be applied, ex: {{foo}}
-    String.raw` *(?:\{\{(?<contents>.*?)\}\}(?!\}))?` +
-    String.raw` *(?:\r(\n?)|\n)?`,
+    String.raw` *(?:\{\{(?<contents>${BRACED_TEXT_CONTENT})\}\}(?!\}))?` +
+    String.raw` *(?:\r?\n)?$`,
 );
 
 type ChangeType = 'add' | 'del' | 'edit';
