@@ -169,6 +169,20 @@ describe('S125', () => {
 // const legacy = computeLegacy(name, value);
         `,
         },
+        {
+          // @TODO prefix is also detected as a task marker — suppresses issue
+          code: `
+// @TODO: disabled pending review
+// const validator = validateInput(config);
+        `,
+        },
+        {
+          // doubly-nested TODO (// // TODO) is still detected as a task marker — suppresses issue
+          code: `
+// // TODO: readd when bug is fixed
+// casper.thenClick('.post-settings');
+        `,
+        },
       ],
       invalid: [
         {
@@ -361,6 +375,18 @@ let x = 0;`,
             {
               messageId: 'commentedCode',
               suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
+        {
+          // task marker in a different group (blank line separates groups) — code group still raises
+          code: `// TODO: reenable\n\n// if (condition) { doSomething(); }`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [
+                { desc: 'Remove this commented out code', output: '// TODO: reenable\n\n' },
+              ],
             },
           ],
         },
