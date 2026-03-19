@@ -20,9 +20,10 @@
  *
  * Usage: node tools/ruling-report.js
  *
- * Compares ruling JSON files against the PR base branch (via BASE_REF env var,
- * defaults to master) and generates a report showing all changes introduced by
- * the current branch.
+ * Compares ruling JSON files against the PR base snapshot:
+ * - BASE_SHA (exact PR base commit) when provided
+ * - otherwise origin/BASE_REF (defaults to origin/master)
+ * and generates a report showing all changes introduced by the current branch.
  */
 
 import { execSync } from 'child_process';
@@ -33,14 +34,14 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
 const SOURCES_DIR = join(ROOT_DIR, 'its/sources');
-const BASE_REF = `origin/${process.env.BASE_REF ?? 'master'}`;
+const BASE_COMMIT = process.env.BASE_SHA ?? `origin/${process.env.BASE_REF ?? 'master'}`;
 const SOURCES_REPO_URL = 'https://github.com/SonarSource/jsts-test-sources/blob/master';
 const RSPEC_URL = 'https://musical-adventure-r9qk65j.pages.github.io/rspec/#';
 
 function getChangedRulingFiles() {
   try {
     // Compare against base branch to show all changes introduced by this branch
-    const output = execSync(`git diff ${BASE_REF} --name-only its/ruling/src/test/expected/`, {
+    const output = execSync(`git diff ${BASE_COMMIT} --name-only its/ruling/src/test/expected/`, {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
     });
@@ -76,7 +77,7 @@ function getRulingChanges(filePath) {
   // Get base branch version (suppress stderr for new files)
   let baseData = {};
   try {
-    const baseContent = execSync(`git show ${BASE_REF}:${filePath} 2>/dev/null`, {
+    const baseContent = execSync(`git show ${BASE_COMMIT}:${filePath} 2>/dev/null`, {
       cwd: ROOT_DIR,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
