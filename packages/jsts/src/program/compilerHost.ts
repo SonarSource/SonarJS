@@ -258,6 +258,9 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   }
 
   private shouldSkipNodeModulesOutsideBaseDir(fileName: string): boolean {
+    if (fileName.startsWith(this.baseHost.getDefaultLibLocation!())) {
+      return false;
+    }
     const baseDirPrefix = `${this.baseDir}/`;
     return fileName.includes('/node_modules/') && !fileName.startsWith(baseDirPrefix);
   }
