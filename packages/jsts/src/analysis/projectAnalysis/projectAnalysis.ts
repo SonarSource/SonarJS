@@ -19,11 +19,11 @@ import type { RuleConfig } from '../../linter/config/rule-config.js';
 import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/config.js';
 import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js';
 import type { CssAnalysisOutput } from '../../../../css/src/analysis/analysis.js';
-import type { ErrorCode } from '../../../../shared/src/errors/error.js';
 import type { FileType, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
-
-// Re-export for backward compatibility
-export { type JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
+import type {
+  ParsingError,
+  ProjectFailureResult,
+} from '../../../../shared/src/errors/project-analysis.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
@@ -45,26 +45,7 @@ export type ProjectAnalysisOutput = {
   meta: ProjectAnalysisMeta;
 };
 
-export type FileResult = AnalysisOutputWithParsingErrors | ParsingErrors | { error: string };
-
-export type ParsingErrorLanguage = 'js' | 'ts' | 'css';
-
-export type ParsingError = {
-  message: string;
-  code: ErrorCode;
-  line?: number;
-  column?: number;
-  language: ParsingErrorLanguage;
-};
-
-export type ParsingErrors = {
-  /**
-   * A file can be analyzed by more than one language pipeline (for example
-   * HTML/Vue can run both JS/TS and CSS analysis), so we keep parsing errors
-   * as an array to preserve every parser failure found in a single file.
-   */
-  parsingErrors: ParsingError[];
-};
+export type FileResult = AnalysisOutputWithParsingErrors | ProjectFailureResult;
 
 type AnalysisOutputWithParsingErrors =
   | (JsTsAnalysisOutput & { parsingErrors?: ParsingError[] })

@@ -14,11 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type {
-  AnalyzableFiles,
-  JsTsConfigFields,
-  ProjectAnalysisOutput,
-} from './projectAnalysis.js';
+import type { AnalyzableFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import { warn } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
@@ -27,6 +23,7 @@ import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { analyzeFile } from './analyzeFile.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
+import type { JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes files without type-checking.

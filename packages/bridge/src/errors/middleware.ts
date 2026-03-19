@@ -18,16 +18,17 @@ import type express from 'express';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 import { error } from '../../../shared/src/helpers/logging.js';
 import {
+  type ParsingError,
+  type ParsingErrorLanguage,
+  isParsingErrorCode,
+} from '../../../shared/src/errors/project-analysis.js';
+import {
   createConfiguration,
   isCssFile,
   isJsFile,
   isTsFile,
 } from '../../../shared/src/helpers/configuration.js';
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
-import type {
-  ParsingError,
-  ParsingErrorLanguage,
-} from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
 
 type RequestWithConfig = {
   filePath: string;
@@ -72,7 +73,11 @@ export function handleError(err: unknown, language?: ParsingErrorLanguage) {
     case ErrorCode.Parsing:
     case ErrorCode.FailingTypeScript:
     case ErrorCode.LinterInitialization:
-      return generateParsingError(normalizedError, resolveParsingErrorLanguage(code, language));
+      return generateParsingError(
+        normalizedError,
+        resolveParsingErrorLanguage(code, language),
+        code,
+      );
     default:
       if (stack) {
         error(stack);
@@ -128,10 +133,14 @@ function asRequestWithConfig(value: unknown): RequestWithConfig {
   };
 }
 
-function generateParsingError(err: ErrorWithCode, language: ParsingErrorLanguage) {
+function generateParsingError(
+  err: ErrorWithCode,
+  language: ParsingErrorLanguage,
+  code: ParsingError['code'],
+) {
   const parsingError: ParsingError = {
     message: err.message ?? 'Parsing failed',
-    code: err.code as ErrorCode,
+    code,
     line: err.data?.line,
     ...(err.data?.column !== undefined ? { column: err.data.column } : {}),
     language,
@@ -139,16 +148,6 @@ function generateParsingError(err: ErrorWithCode, language: ParsingErrorLanguage
   return {
     parsingError,
   };
-}
-
-function isParsingErrorCode(
-  code: ErrorCode | undefined,
-): code is ErrorCode.Parsing | ErrorCode.FailingTypeScript | ErrorCode.LinterInitialization {
-  return (
-    code === ErrorCode.Parsing ||
-    code === ErrorCode.FailingTypeScript ||
-    code === ErrorCode.LinterInitialization
-  );
 }
 
 function normalizeError(err: unknown): ErrorWithCode {

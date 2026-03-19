@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { JsTsAnalysisInput } from '../analysis.js';
-import { analyzeHTML } from '../../../../html/src/index.js';
-import { analyzeYAML } from '../../../../yaml/src/index.js';
-import { analyzeJSTS } from '../analyzer.js';
+import { analyzeHTMLProject } from '../../../../html/src/index.js';
+import { analyzeYAMLProject } from '../../../../yaml/src/index.js';
+import { analyzeJSTSProject } from '../analyzer.js';
 import {
   isAlsoCssFile,
   isCssFile,
@@ -27,24 +27,17 @@ import {
   type JsTsConfigFields,
 } from '../../../../shared/src/helpers/configuration.js';
 import { inferLanguage } from '../../../../shared/src/helpers/sanitize.js';
-import { type WsIncrementalResult, serializeError } from '../../../../bridge/src/request.js';
-import type {
-  AnalyzableFile,
-  FileResult,
-  ParsingError,
-  ParsingErrorLanguage,
-  ProjectAnalysisOutput,
-} from './projectAnalysis.js';
+import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
+import type { AnalyzableFile, FileResult, ProjectAnalysisOutput } from './projectAnalysis.js';
 import type { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import type ts from 'typescript';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
 import type { EmbeddedAnalysisInput } from '../../embedded/analysis/analysis.js';
-import type { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/filter.js';
-import { analyzeCSS } from '../../../../css/src/analysis/analyzer.js';
+import { analyzeCSSProject } from '../../../../css/src/analysis/analyzer.js';
 import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
-import { ErrorCode } from '../../../../shared/src/errors/error.js';
 import { error } from '../../../../shared/src/helpers/logging.js';
+import type { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/filter.js';
 
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
@@ -96,34 +89,38 @@ export async function analyzeFile(
     program,
     detectedEsYear,
   };
+  const embeddedInput: EmbeddedAnalysisInput = {
+    filePath: input.filePath,
+    fileContent: input.fileContent,
+    sonarlint: input.sonarlint,
+  };
+  let result: FileResult;
 
-  // Run analysis through the unified dispatcher (with error handling)
-  let result = await analyzeInput(input, shouldIgnoreParams);
+  if (isCssFile(fileName, shouldIgnoreParams.cssSuffixes)) {
+    const rules = cssLinter.isInitialized() ? undefined : [];
+    result = await analyzeCSSProject(
+      {
+        filePath: input.filePath,
+        fileContent: input.fileContent,
+        fileType: input.fileType,
+        sonarlint: input.sonarlint,
+        rules,
+      },
+      shouldIgnoreParams,
+    );
+  } else {
+    if (isHtmlFile(fileName)) {
+      result = await analyzeHTMLProject(embeddedInput, shouldIgnoreParams, input.language);
+    } else if (isYamlFile(fileName, input.fileContent)) {
+      result = await analyzeYAMLProject(embeddedInput, shouldIgnoreParams, input.language);
+    } else if (isJsTsFile(fileName, shouldIgnoreParams)) {
+      result = await analyzeJSTSProject(input, shouldIgnoreParams);
+    } else {
+      result = { issues: [] };
+    }
 
-  // For Vue and web files: also run stylelint CSS analysis on <style> blocks.
-  // Mirrors CssRuleSensor.getInputFiles() in Java (vueFilePredicate + webFilePredicate).
-  if (cssLinter.isInitialized() && !('error' in result) && isAlsoCssFile(fileName)) {
-    try {
-      const cssOutput = await analyzeCSS(
-        {
-          filePath: file.filePath,
-          fileContent: file.fileContent,
-          sonarlint: configFields.sonarlint,
-        },
-        shouldIgnoreParams,
-      );
-      if ('issues' in result) {
-        result.issues.push(...cssOutput.issues);
-      }
-    } catch (e) {
-      const cssResult = normalizeFailure(e, 'css');
-      if ('parsingErrors' in cssResult) {
-        result = mergeParsingErrors(result, cssResult.parsingErrors ?? []);
-      } else {
-        // Preserve legacy behavior for non-parsing CSS failures in mixed files:
-        // log and continue with the primary analysis result.
-        error(`CSS analysis failed for ${fileName}: ${e}`);
-      }
+    if (cssLinter.isInitialized() && isAlsoCssFile(fileName)) {
+      result = await mergeAdditionalCssAnalysis(fileName, input, shouldIgnoreParams, result);
     }
   }
 
@@ -149,108 +146,45 @@ function inferLanguageForProjectAnalysis(
   }
 }
 
-/**
- * Safely analyze a file wrapping raised exceptions in the output format
- * @param input JsTsAnalysisInput object containing all the data necessary for the analysis
- * @param shouldIgnoreParams parameters for file filtering
- */
-async function analyzeInput(
+async function mergeAdditionalCssAnalysis(
+  fileName: NormalizedAbsolutePath,
   input: JsTsAnalysisInput,
   shouldIgnoreParams: ShouldIgnoreFileParams,
+  result: FileResult,
 ): Promise<FileResult> {
-  try {
-    return await getAnalyzerForFile(input, shouldIgnoreParams);
-  } catch (e) {
-    return normalizeFailure(e, parsingErrorLanguage(input, shouldIgnoreParams));
-  }
-}
-
-function parsingErrorLanguage(
-  input: JsTsAnalysisInput,
-  shouldIgnoreParams: ShouldIgnoreFileParams,
-): ParsingErrorLanguage {
-  return isCssFile(input.filePath, shouldIgnoreParams.cssSuffixes) ? 'css' : input.language;
-}
-
-function normalizeFailure(
-  failure: unknown,
-  language: ParsingErrorLanguage,
-): FileResult | { parsingErrors: ParsingError[] } | { error: string } {
-  const serialized = serializeError(failure);
-  const { code, message, data } = serialized;
-
-  if (
-    code === ErrorCode.Parsing ||
-    code === ErrorCode.FailingTypeScript ||
-    code === ErrorCode.LinterInitialization
-  ) {
-    const parsingError: ParsingError = {
-      message: String(message),
-      code,
-      line: data?.line,
-      column: data?.column,
-      language,
-    };
-    return { parsingErrors: [parsingError] };
-  }
-
-  return { error: String(message) };
-}
-
-function mergeParsingErrors(result: FileResult, parsingErrors: ParsingError[]): FileResult {
-  if (parsingErrors.length === 0 || 'error' in result) {
+  if ('error' in result) {
     return result;
   }
 
-  if ('parsingErrors' in result) {
+  const cssResult = await analyzeCSSProject(
+    {
+      filePath: input.filePath,
+      fileContent: input.fileContent,
+      sonarlint: input.sonarlint,
+    },
+    shouldIgnoreParams,
+  );
+
+  if ('error' in cssResult) {
+    // Preserve legacy behavior for non-parsing CSS failures in mixed files.
+    error(`CSS analysis failed for ${fileName}: ${cssResult.error}`);
+    return result;
+  }
+
+  if ('issues' in cssResult && 'issues' in result) {
+    result.issues.push(...cssResult.issues);
+  }
+
+  if ('parsingErrors' in cssResult && cssResult.parsingErrors?.length) {
+    const parsingErrors = [
+      ...('parsingErrors' in result ? (result.parsingErrors ?? []) : []),
+      ...cssResult.parsingErrors,
+    ];
     return {
       ...result,
-      parsingErrors: [...(result.parsingErrors ?? []), ...parsingErrors],
+      parsingErrors,
     };
   }
 
-  return {
-    ...result,
-    parsingErrors,
-  };
-}
-
-async function getAnalyzerForFile(
-  input: JsTsAnalysisInput,
-  shouldIgnoreParams: ShouldIgnoreFileParams,
-): Promise<FileResult> {
-  const filename = input.filePath;
-  if (isCssFile(filename, shouldIgnoreParams.cssSuffixes)) {
-    const rules = cssLinter.isInitialized() ? undefined : [];
-    return analyzeCSS(
-      {
-        filePath: input.filePath,
-        fileContent: input.fileContent,
-        fileType: input.fileType,
-        sonarlint: input.sonarlint,
-        rules,
-      },
-      shouldIgnoreParams,
-    );
-  } else if (isHtmlFile(filename)) {
-    const embeddedInput: EmbeddedAnalysisInput = {
-      filePath: input.filePath,
-      fileContent: input.fileContent,
-      sonarlint: input.sonarlint,
-    };
-    return analyzeHTML(embeddedInput, shouldIgnoreParams);
-  } else if (isYamlFile(filename, input.fileContent)) {
-    const embeddedInput: EmbeddedAnalysisInput = {
-      filePath: input.filePath,
-      fileContent: input.fileContent,
-      sonarlint: input.sonarlint,
-    };
-    return analyzeYAML(embeddedInput, shouldIgnoreParams);
-  } else if (isJsTsFile(filename, shouldIgnoreParams)) {
-    return analyzeJSTS(input, shouldIgnoreParams);
-  } else {
-    // Files that don't match any analyzer (e.g. .xhtml from webFilePredicate)
-    // return empty issues. CSS analysis may still run via isAlsoCssFile check.
-    return { issues: [] };
-  }
+  return result;
 }

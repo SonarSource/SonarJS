@@ -34,6 +34,10 @@ import {
 } from '../../../shared/src/helpers/filter/filter.js';
 import { clearDependenciesCache } from '../rules/helpers/package-jsons/index.js';
 import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
+import {
+  toProjectFailureResult,
+  type ProjectFailureResult,
+} from '../../../shared/src/errors/project-analysis.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -108,6 +112,17 @@ export async function analyzeJSTS(
     } else {
       throw e;
     }
+  }
+}
+
+export async function analyzeJSTSProject(
+  input: JsTsAnalysisInput,
+  shouldIgnoreParams: ShouldIgnoreFileParams,
+): Promise<JsTsAnalysisOutput | ProjectFailureResult> {
+  try {
+    return await analyzeJSTS(input, shouldIgnoreParams);
+  } catch (failure) {
+    return toProjectFailureResult(failure, input.language);
   }
 }
 

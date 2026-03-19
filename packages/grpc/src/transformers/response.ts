@@ -19,6 +19,7 @@ import {
   type ProjectAnalysisOutput,
   entriesOfFileResults,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import type { ParsingErrorLanguage } from '../../../shared/src/errors/project-analysis.js';
 import { reverseCssRuleKeyMap } from '../../../css/src/rules/metadata.js';
 import type { JsTsIssue } from '../../../jsts/src/linter/issues/issue.js';
 import type { CssIssue } from '../../../css/src/linter/issues/issue.js';
@@ -160,7 +161,7 @@ function transformParsingErrorIssue(
   filePath: NormalizedAbsolutePath,
   line: number | undefined,
   column: number | undefined,
-  language: 'css' | 'js' | 'ts',
+  language: ParsingErrorLanguage,
 ): analyzer.IIssue {
   const repo = PARSING_ERROR_REPO_BY_LANGUAGE[language];
   return {

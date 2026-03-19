@@ -21,6 +21,10 @@ import { createStylelintConfig } from '../linter/config.js';
 import { computeMetrics } from './metrics.js';
 import { computeHighlighting } from './highlighting.js';
 import { APIError } from '../../../shared/src/errors/error.js';
+import {
+  toProjectFailureResult,
+  type ProjectFailureResult,
+} from '../../../shared/src/errors/project-analysis.js';
 import { error, warn } from '../../../shared/src/helpers/logging.js';
 import type { CssIssue } from '../linter/issues/issue.js';
 import {
@@ -96,6 +100,17 @@ export async function analyzeCSS(
   } catch (err) {
     warn(`Failed to compute metrics/highlighting for ${filePath}: ${err}`);
     return { issues: isTestFile ? [] : issues };
+  }
+}
+
+export async function analyzeCSSProject(
+  input: CssAnalysisInput,
+  shouldIgnoreParams: ShouldIgnoreFileParams,
+): Promise<CssAnalysisOutput | ProjectFailureResult> {
+  try {
+    return await analyzeCSS(input, shouldIgnoreParams);
+  } catch (failure) {
+    return toProjectFailureResult(failure, 'css');
   }
 }
 

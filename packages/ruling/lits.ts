@@ -18,10 +18,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
   type FileResult,
-  type ParsingError,
   type ProjectAnalysisOutput,
   entriesOfFileResults,
 } from '../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
+import type { ParsingError } from '../shared/src/errors/project-analysis.js';
 import { reverseCssRuleKeyMap } from '../css/src/rules/metadata.js';
 
 /**

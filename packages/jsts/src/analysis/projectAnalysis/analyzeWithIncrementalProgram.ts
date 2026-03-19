@@ -14,11 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type {
-  AnalyzableFiles,
-  JsTsConfigFields,
-  ProjectAnalysisOutput,
-} from './projectAnalysis.js';
+import type { AnalyzableFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
 import type { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
@@ -40,6 +36,7 @@ import {
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
+import type { JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using cached SemanticDiagnosticsBuilderPrograms.

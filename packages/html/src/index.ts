@@ -16,6 +16,11 @@
  */
 import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
 import { parseHTML } from './parser/parse.js';
+import {
+  toProjectFailureResult,
+  type ParsingErrorLanguage,
+  type ProjectFailureResult,
+} from '../../shared/src/errors/project-analysis.js';
 
 import type { EmbeddedAnalysisInput } from '../../shared/src/types/analysis.js';
 import type { EmbeddedAnalysisOutput } from '../../jsts/src/embedded/analysis/analysis.js';
@@ -34,4 +39,16 @@ export async function analyzeHTML(
   shouldIgnoreParams: ShouldIgnoreFileParams,
 ): Promise<EmbeddedAnalysisOutput> {
   return analyzeEmbedded(input, parseHTML, shouldIgnoreParams);
+}
+
+export async function analyzeHTMLProject(
+  input: EmbeddedAnalysisInput,
+  shouldIgnoreParams: ShouldIgnoreFileParams,
+  language: ParsingErrorLanguage,
+): Promise<EmbeddedAnalysisOutput | ProjectFailureResult> {
+  try {
+    return await analyzeHTML(input, shouldIgnoreParams);
+  } catch (failure) {
+    return toProjectFailureResult(failure, language);
+  }
 }
