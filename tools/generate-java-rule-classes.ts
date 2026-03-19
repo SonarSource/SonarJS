@@ -150,12 +150,10 @@ function generateBody(
       return;
     }
 
-    const getSQDefault = () => {
-      return property.customDefault ?? property.default;
-    };
+    const sqDefault = property.customDefault ?? property.default;
 
     const getJavaType = () => {
-      const defaultValue = getSQDefault();
+      const defaultValue = sqDefault;
       switch (typeof defaultValue) {
         case 'number':
           return 'int';
@@ -169,7 +167,7 @@ function generateBody(
     };
 
     const getDefaultValueString = () => {
-      const defaultValue = getSQDefault();
+      const defaultValue = sqDefault;
       switch (typeof defaultValue) {
         case 'number':
         case 'boolean':
@@ -184,7 +182,7 @@ function generateBody(
     };
 
     const getDefaultValue = () => {
-      const defaultValue = getSQDefault();
+      const defaultValue = sqDefault;
       switch (typeof defaultValue) {
         case 'number':
         case 'boolean':
