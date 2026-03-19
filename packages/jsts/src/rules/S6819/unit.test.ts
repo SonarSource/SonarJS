@@ -15,8 +15,31 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { rules } from '../external/a11y.js';
 import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+
+const upstreamRule = rules['prefer-tag-over-role'];
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
+describe('S6819 upstream sentinel', () => {
+  it('upstream prefer-tag-over-role raises on composite widget patterns that decorator suppresses', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('prefer-tag-over-role', upstreamRule, {
+      valid: [],
+      invalid: [
+        // listbox/option composite — suppressed by decorator, raised by upstream
+        { code: `<div role="listbox"><div role="option">Item</div></div>`, errors: 2 },
+        // ul/li listbox/option — suppressed by decorator, raised by upstream
+        { code: `<ul role="listbox"><li role="option">Item</li></ul>`, errors: 2 },
+        // role="button" inside grid — suppressed by decorator as COMPOSITE_INNER_ROLE, raised by upstream
+        { code: `<div role="grid"><div role="button">Drop</div></div>`, errors: 1 },
+      ],
+    });
+  });
+});
 
 describe('S6819', () => {
   it('should not flag custom components', () => {
@@ -258,6 +281,58 @@ describe('S6819', () => {
         },
         // Note: role="grid" is not tested as invalid because the underlying
         // eslint-plugin-jsx-a11y rule does not flag it (no semantic equivalent exists)
+      ],
+    });
+  });
+
+  // JS-1464: listbox/option composite widgets and inner roles inside composite containers
+  it('should not flag ARIA composite widget roles (listbox/option and inner roles)', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - composite widget patterns', rule, {
+      valid: [
+        {
+          // Compliant: div-based listbox/option composite widget
+          code: `
+            <div role="listbox">
+              <div role="option">Option 1</div>
+              <div role="option">Option 2</div>
+            </div>
+          `,
+        },
+        {
+          // Compliant: ul/li listbox/option (<option> requires <select> parent)
+          code: `
+            <ul role="listbox">
+              <li role="option">First item</li>
+              <li role="option">Second item</li>
+            </ul>
+          `,
+        },
+        {
+          // Compliant: role="button" (inner role) inside grid composite widget
+          code: `
+            <div role="grid">
+              <div role="row">
+                <div role="gridcell">
+                  <div role="button">Drop indicator</div>
+                </div>
+              </div>
+            </div>
+          `,
+        },
+      ],
+      invalid: [
+        // True positive: option without listbox ancestor (use <option>)
+        {
+          code: `<div role="option">Orphan option</div>`,
+          errors: 1,
+        },
+        // True positive: listbox without option descendants (use <select>)
+        {
+          code: `<div role="listbox"><div>hello</div></div>`,
+          errors: 1,
+        },
       ],
     });
   });
