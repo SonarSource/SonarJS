@@ -25,21 +25,21 @@ const COUNT = String.raw`(?<count>\d+)`;
 const DIRECTION = '(?<direction>[<>])';
 const MESSAGE = '(?<message>.*?)';
 const LOCATION_PATTERN = new RegExp(
-  ' *' +
+  String.raw` *` +
     // highlighted range, ex: ^^^^ |OR| ^^^@12 |OR| ^^^@-2
-    '(?<range>\\^(?:\\[(?<params>[^\\]]+)\\]|\\^+)?)' +
+    String.raw`(?<range>\^(?:\[(?<params>[^\]]+)\]|\^+)?)` +
     LINE_ADJUSTMENT +
     // count, ex: 3 |OR| direction
-    ' *(?:' +
+    String.raw` *(?:` +
     COUNT +
-    '|' +
+    String.raw`|` +
     DIRECTION +
-    ')?' +
+    String.raw`)?` +
     // message, ex: {{msg}}
-    ' *(?:\\{\\{' +
+    String.raw` *(?:\{\{` +
     MESSAGE +
-    '\\}\\})? *' +
-    '(?:\r(\n?)|\n)?',
+    String.raw`\}\})? *` +
+    String.raw`(?:\r(\n?)|\n)?`,
 );
 
 export abstract class Location {

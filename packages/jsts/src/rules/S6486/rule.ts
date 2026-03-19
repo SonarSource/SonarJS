@@ -39,7 +39,7 @@ export const rule: Rule.RuleModule = {
         const node = pNode as unknown as TSESTree.JSXAttribute;
 
         const value = node.value;
-        if (!value || value.type !== 'JSXExpressionContainer') {
+        if (value?.type !== 'JSXExpressionContainer') {
           // key='foo' or just simply 'key'
           return;
         }
