@@ -19,16 +19,6 @@ Use `--rspec-path` to point to an existing local clone instead:
 npm run sync-rspec -- --rspec-path ../rspec --language javascript
 ```
 
-#### Pinning a specific rspec version
-
-To use a specific rspec commit instead of the latest `dogfood-automerge`, create a `rspec.sha` file at the repo root:
-
-```bash
-echo "<commit-sha>" > rspec.sha
-```
-
-When this file is present, `sync-rspec` fetches that exact SHA and the skip check becomes local (no network call needed). The file is not tracked by default but can be committed to make CI builds reproducible against a specific rspec version.
-
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
 ## Build and run unit tests
