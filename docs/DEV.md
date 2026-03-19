@@ -449,15 +449,14 @@ export const fields = [
 
 #### Field Properties
 
-| Property        | Required              | Purpose                                                                     |
-| --------------- | --------------------- | --------------------------------------------------------------------------- |
-| `field`         | Yes                   | ESLint/schema key name                                                      |
-| `default`       | Yes                   | Default value; also determines type (`number`, `string`, `boolean`, arrays) |
-| `description`   | **For SQ visibility** | Makes the option visible in SonarQube UI                                    |
-| `displayName`   | No                    | SonarQube key if different from `field`                                     |
-| `items`         | For arrays            | `{ type: 'string' }` or `{ type: 'integer' }`                               |
-| `customDefault` | No                    | Different default for SQ than JS/TS                                         |
-| `fieldType`     | No                    | Override SQ field type (e.g., `'TEXT'`)                                     |
+| Property      | Required              | Purpose                                                                     |
+| ------------- | --------------------- | --------------------------------------------------------------------------- |
+| `field`       | Yes                   | ESLint/schema key name                                                      |
+| `default`     | Yes                   | Default value; also determines type (`number`, `string`, `boolean`, arrays) |
+| `description` | **For SQ visibility** | Makes the option visible in SonarQube UI                                    |
+| `displayName` | No                    | SonarQube key if different from `field`                                     |
+| `items`       | For arrays            | `{ type: 'string' }` or `{ type: 'integer' }`                               |
+| `fieldType`   | No                    | Override SQ field type (e.g., `'TEXT'`)                                     |
 
 ### Making Options Visible in SonarQube
 

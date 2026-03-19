@@ -594,8 +594,8 @@ describe('gRPC server', () => {
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
-  it('should handle rule with customForConfiguration and customDefault (S1441 — quotes)', async () => {
-    // S1441 has customDefault: true and customForConfiguration: `value ? "single" : "double"`
+  it('should handle rule with customForConfiguration (S1441 — quotes)', async () => {
+    // S1441 has default: true and customForConfiguration: `value ? "single" : "double"`
     // When SQ sends singleQuotes='true', it should be transformed to 'single' for ESLint
     const content = 'const x = "hello";\n';
 
@@ -633,9 +633,9 @@ describe('gRPC server', () => {
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
-  it('should handle customDefault with number field in object config (S6418 — hard-coded secrets)', async () => {
-    // S6418 config.ts has randomnessSensibility with default: 5 (number) and customDefault: '5.0' (string for Java).
-    // The gRPC path should parse 'randomnessSensibility' as a number (from default: 5).
+  it('should handle customForConfiguration with number field in object config (S6418 — hard-coded secrets)', async () => {
+    // S6418 config.ts has randomnessSensibility with default: '5.0' (string) and customForConfiguration: Number.
+    // The gRPC path should parse 'randomnessSensibility' as string first, then transform it to number.
     // Also tests that 'secretWords' string param is passed correctly.
     // Needs a high-entropy string to exceed the sensibility threshold.
     const content =

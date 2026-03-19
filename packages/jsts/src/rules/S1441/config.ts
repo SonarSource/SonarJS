@@ -21,8 +21,7 @@ import type { ESLintConfiguration } from '../helpers/configs.js';
 export const fields = [
   {
     description: 'Set to true to require single quotes, false for double quotes.',
-    default: 'single',
-    customDefault: true,
+    default: true,
     displayName: 'singleQuotes',
     customForConfiguration: (value: unknown) => (value ? 'single' : 'double'),
   },
