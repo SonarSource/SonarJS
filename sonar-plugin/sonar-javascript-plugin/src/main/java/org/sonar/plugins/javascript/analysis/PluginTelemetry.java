@@ -34,6 +34,7 @@ public class PluginTelemetry {
   private static final String KEY_PREFIX = "javascript.";
   private static final String RUNTIME_PREFIX = KEY_PREFIX + "runtime.";
   private static final String TELEMETRY_PREFIX = KEY_PREFIX + "telemetry.";
+  private static final String MODULE_TYPE_PREFIX = TELEMETRY_PREFIX + "module-type.";
 
   private final BridgeServer server;
   private final JsTsContext<?> ctx;
@@ -135,6 +136,14 @@ public class PluginTelemetry {
         Integer.toString(programCreation.failed())
       );
     }
+    keyMapToSave.put(
+      MODULE_TYPE_PREFIX + "esm-file-count",
+      Integer.toString(projectAnalysisTelemetry.esmFileCount())
+    );
+    keyMapToSave.put(
+      MODULE_TYPE_PREFIX + "cjs-file-count",
+      Integer.toString(projectAnalysisTelemetry.cjsFileCount())
+    );
   }
 
   private static void addCompilerOptionTelemetry(

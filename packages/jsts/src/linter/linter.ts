@@ -40,8 +40,13 @@ import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { defaultOptions, applyTransformations } from '../rules/helpers/configs.js';
 import merge from 'lodash.merge';
-import { getDependencies } from '../rules/helpers/package-jsons/dependencies.js';
+import {
+  getDependencies,
+  getModuleType,
+  type ModuleType,
+} from '../rules/helpers/package-jsons/dependencies.js';
 import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
+import { getOptionalProjectAnalysisTelemetryCollector } from '../analysis/projectAnalysis/telemetry.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -248,6 +253,9 @@ export class Linter {
     fileLanguage: JsTsLanguage,
     detectedEsYear?: number,
   ): ESLintLinter.RulesRecord {
+    const normalizedFilePath = normalizeToAbsolutePath(filePath);
+    const detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
+    getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
     const linterConfigKey = createLinterConfigKey(
       filePath,
       Linter.baseDir,
@@ -255,6 +263,7 @@ export class Linter {
       fileLanguage,
       analysisMode,
       detectedEsYear,
+      detectedModuleType,
     );
     if (!Linter.rulesConfigCache.has(linterConfigKey)) {
       /**
@@ -262,7 +271,6 @@ export class Linter {
        * The wrapper's linting configuration includes multiple ESLint
        * configurations: one per fileType/language/analysisMode combination.
        */
-      const normalizedFilePath = normalizeToAbsolutePath(filePath);
       const dependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
       const rules = Linter.ruleConfigs?.filter(ruleConfig => {
         const {
@@ -285,13 +293,22 @@ export class Linter {
           !('requiredEcmaVersion' in ruleMeta) ||
           ruleMeta.requiredEcmaVersion == null ||
           (ruleMeta.requiredEcmaVersion as number) <= detectedEsYear;
+        const requiredModuleType =
+          ruleMeta && 'requiredModuleType' in ruleMeta
+            ? ((ruleMeta as { requiredModuleType?: ModuleType }).requiredModuleType ?? undefined)
+            : undefined;
+        const satisfiesModuleType =
+          !detectedModuleType ||
+          !requiredModuleType ||
+          requiredModuleType === detectedModuleType;
         return (
           fileTypeTargets.includes(fileType) &&
           analysisModes.includes(analysisMode) &&
           fileLanguage === language &&
           !(blacklistedExtensions || []).includes(extname(normalizePath(filePath))) &&
           satisfiesRequiredDependency &&
-          satisfiesEcmaVersion
+          satisfiesEcmaVersion &&
+          satisfiesModuleType
         );
       });
       Linter.rulesConfigCache.set(linterConfigKey, Linter.createRulesRecord(rules ?? []));
@@ -359,10 +376,11 @@ function createLinterConfigKey(
   language: JsTsLanguage,
   analysisMode: AnalysisMode,
   detectedEsYear?: number,
+  detectedModuleType?: string,
 ) {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const normalizedPath = normalizeToAbsolutePath(filePath);
   const packageJsonDirName = getClosestPackageJSONDir(dirnamePath(normalizedPath), baseDir);
   const linterConfigKey = `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${packageJsonDirName}`;
-  return `${linterConfigKey}:${detectedEsYear ?? 'esnext'}`;
+  return `${linterConfigKey}:${detectedEsYear ?? 'esnext'}:${detectedModuleType ?? 'unknown'}`;
 }
