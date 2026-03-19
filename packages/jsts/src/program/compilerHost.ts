@@ -120,7 +120,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   // CompilerHost implementation - intercept file reads
 
   readFile(fileName: string): string | undefined {
-    const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
+    const normalized = path.normalize(fileName);
     const cache = getSourceFileContentCache();
     const filesContext = getCurrentFilesContext();
 
@@ -158,7 +158,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   }
 
   fileExists(fileName: string): boolean {
-    const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
+    const normalized = path.normalize(fileName);
     const cache = getSourceFileContentCache();
 
     // 1. Check global cache
@@ -186,13 +186,13 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     onError?: (message: string) => void,
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile | undefined {
-    const normalized = normalizeToAbsolutePath(fileName, this.baseDir);
+    const normalized = path.normalize(fileName);
 
     // For files explicitly present in the current analysis context, make the
     // request content authoritative before looking up cached parsed ASTs.
     const contextContent = getCurrentFilesContext()?.[fileName]?.fileContent;
     if (contextContent !== undefined) {
-      this.updateFile(normalized, contextContent);
+      this.updateFile(normalized as NormalizedAbsolutePath, contextContent);
     }
 
     const currentVersion = this.fileVersions.get(normalized) || 0;
