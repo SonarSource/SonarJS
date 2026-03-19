@@ -179,13 +179,13 @@ function isValidDependencySignal(versionSignal: string | null): versionSignal is
   return versionSignal !== null && versionSignal !== 'latest' && versionSignal !== '*';
 }
 
-export function hasTypeScriptNativePreviewSignal(packageJson: PackageJson): boolean {
+function hasTypeScriptNativePreviewSignal(packageJson: PackageJson): boolean {
   return isValidDependencySignal(
     getDependencyVersionSignal(packageJson, '@typescript/native-preview'),
   );
 }
 
-export function getTypeScriptVersionSignalsFromPackageJson(packageJson: PackageJson): string[] {
+function getTypeScriptVersionSignalsFromPackageJson(packageJson: PackageJson): string[] {
   const result: string[] = [];
   const nativePreviewVersion = getDependencyVersionSignal(
     packageJson,
