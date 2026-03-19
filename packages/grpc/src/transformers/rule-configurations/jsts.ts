@@ -53,7 +53,6 @@ type FieldDef = {
   field: string;
   displayName?: string;
   default: unknown;
-  customDefault?: unknown;
   customForConfiguration?: (value: unknown) => unknown;
 };
 
@@ -120,16 +119,6 @@ function parseParamValue(value: string, defaultValue: unknown) {
   return value;
 }
 
-function getParseTarget(fieldDef: {
-  default: unknown;
-  customDefault?: unknown;
-  customForConfiguration?: (value: unknown) => unknown;
-}) {
-  return fieldDef.customForConfiguration && fieldDef.customDefault !== undefined
-    ? fieldDef.customDefault
-    : fieldDef.default;
-}
-
 /**
  * Build an object configuration from an array of field definitions.
  *
@@ -176,7 +165,7 @@ function buildObjectConfiguration(fieldDefs: FieldDef[], paramsLookup: Map<strin
     const paramValue = paramsLookup.get(sqKey);
 
     if (paramValue !== undefined) {
-      paramsObj[fieldDef.field] = parseParamValue(paramValue, getParseTarget(fieldDef));
+      paramsObj[fieldDef.field] = parseParamValue(paramValue, fieldDef.default);
     }
   }
 
@@ -230,7 +219,6 @@ function buildPrimitiveConfiguration(
   element: {
     default: unknown;
     displayName?: string;
-    customDefault?: unknown;
     customForConfiguration?: (value: unknown) => unknown;
   },
   paramsLookup: Map<string, string>,
@@ -242,7 +230,7 @@ function buildPrimitiveConfiguration(
   if (sqKey) {
     const paramValue = paramsLookup.get(sqKey);
     if (paramValue !== undefined) {
-      return parseParamValue(paramValue, getParseTarget(element));
+      return parseParamValue(paramValue, element.default);
     }
   } else if (params.length > 0 && index === 0) {
     // Fallback for Type B primitives without displayName.
