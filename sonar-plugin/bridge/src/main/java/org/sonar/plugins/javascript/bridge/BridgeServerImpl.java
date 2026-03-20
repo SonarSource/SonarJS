@@ -525,9 +525,13 @@ public class BridgeServerImpl implements BridgeServer {
     @Override
     public void accept(String message) {
       if (message.startsWith("DEBUG")) {
-        LOG.debug(message.substring(5).trim());
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(message.substring(5).trim());
+        }
       } else if (message.startsWith("WARN")) {
-        LOG.warn(message.substring(4).trim());
+        if (LOG.isWarnEnabled()) {
+          LOG.warn(message.substring(4).trim());
+        }
       } else {
         LOG.info(message);
       }

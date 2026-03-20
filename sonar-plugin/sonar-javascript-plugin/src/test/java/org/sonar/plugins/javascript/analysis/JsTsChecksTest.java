@@ -24,10 +24,15 @@ import static org.sonar.plugins.javascript.api.Language.TYPESCRIPT;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.batch.rule.CheckFactory;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.check.Rule;
+import org.sonar.check.RuleProperty;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.javascript.checks.MainFileCheck;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
@@ -132,6 +137,24 @@ class JsTsChecksTest {
     assertThat(checks.parsingErrorRuleKey(TYPESCRIPT)).isEqualTo(
       RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S2260")
     );
+  void should_initialize_all_builtin_checks_with_default_rule_properties() {
+    JsTsChecks checks = new JsTsChecks(buildCheckFactoryWithParameters(Map.of()));
+    assertThat(checks.all()).hasSize(expectedBuiltinRuleCount());
+  }
+
+  @Test
+  void should_initialize_all_builtin_checks_with_s6418_decimal_rule_property_value() {
+    JsTsChecks checks = new JsTsChecks(
+      buildCheckFactoryWithParameters(
+        Map.of(
+          RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S6418"),
+          Map.of("randomnessSensibility", "5.0"),
+          RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S6418"),
+          Map.of("randomnessSensibility", "5.0")
+        )
+      )
+    );
+    assertThat(checks.all()).hasSize(expectedBuiltinRuleCount());
   }
 
   @Test
@@ -184,4 +207,55 @@ class JsTsChecksTest {
   @JavaScriptRule
   @Rule(key = "customcheck")
   public static class CustomTsCheck extends MainFileCheck {}
+
+  private static CheckFactory buildCheckFactoryWithParameters(
+    Map<RuleKey, Map<String, String>> parameterOverrides
+  ) {
+    ActiveRulesBuilder builder = new ActiveRulesBuilder();
+    addActiveRules(
+      builder,
+      CheckList.JS_REPOSITORY_KEY,
+      CheckList.getJavaScriptChecks(),
+      parameterOverrides
+    );
+    addActiveRules(
+      builder,
+      CheckList.TS_REPOSITORY_KEY,
+      CheckList.getTypeScriptChecks(),
+      parameterOverrides
+    );
+    return new CheckFactory(builder.build());
+  }
+
+  private static void addActiveRules(
+    ActiveRulesBuilder builder,
+    String repositoryKey,
+    List<Class<? extends EslintHook>> checkClasses,
+    Map<RuleKey, Map<String, String>> parameterOverrides
+  ) {
+    for (var checkClass : checkClasses) {
+      Rule rule = checkClass.getAnnotation(Rule.class);
+      if (rule == null) {
+        continue;
+      }
+      RuleKey ruleKey = RuleKey.of(repositoryKey, rule.key());
+      NewActiveRule.Builder activeRule = new NewActiveRule.Builder().setRuleKey(ruleKey);
+      Map<String, String> ruleOverrides = parameterOverrides.getOrDefault(ruleKey, Map.of());
+      for (var field : checkClass.getDeclaredFields()) {
+        RuleProperty ruleProperty = field.getAnnotation(RuleProperty.class);
+        if (ruleProperty != null) {
+          if (ruleOverrides.containsKey(ruleProperty.key())) {
+            continue;
+          }
+          activeRule.setParam(ruleProperty.key(), ruleProperty.defaultValue());
+        }
+      }
+      ruleOverrides.forEach(activeRule::setParam);
+      builder.addRule(activeRule.build());
+    }
+  }
+
+  private static int expectedBuiltinRuleCount() {
+    return CheckList.getJavaScriptChecks().size() + CheckList.getTypeScriptChecks().size();
+  }
 }

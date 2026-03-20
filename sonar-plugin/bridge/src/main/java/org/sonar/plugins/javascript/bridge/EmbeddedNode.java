@@ -174,7 +174,9 @@ public class EmbeddedNode {
       var is = getClass().getResourceAsStream(platform.archivePathInJar());
 
       if (is == null) {
-        LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
+        }
         return;
       }
 
