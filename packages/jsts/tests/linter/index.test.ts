@@ -159,6 +159,56 @@ describe('Linter', () => {
     );
   });
 
+  it('should disable React-dependent rules when react dependency is missing', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'no-react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S6477',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.jsx')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    expect(rules).not.toHaveProperty('sonarjs/S6477');
+  });
+
+  it('should enable React-dependent rules when react dependency is present', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S6477',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.jsx')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    expect(rules).toHaveProperty('sonarjs/S6477');
+  });
+
   it('should enable internal custom rules by default', async () => {
     await Linter.initialize({
       baseDir: normalizeToAbsolutePath(import.meta.dirname),
