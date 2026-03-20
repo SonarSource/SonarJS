@@ -14,13 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { analyzeJSTS } from '../../jsts/src/analysis/analyzer.js';
 import {
   analyzeProject,
   cancelAnalysis,
 } from '../../jsts/src/analysis/projectAnalysis/analyzeProject.js';
 import { logHeapStatistics } from './memory.js';
-import { Linter } from '../../jsts/src/linter/linter.js';
 import {
   type BridgeRequest,
   type RequestResult,
@@ -28,12 +26,7 @@ import {
   type WsIncrementalResult,
 } from './request.js';
 import type { WorkerData } from '../../shared/src/helpers/worker.js';
-import {
-  sanitizeJsTsAnalysisInput,
-  sanitizeInitLinterInput,
-  sanitizeProjectAnalysisInput,
-} from '../../shared/src/helpers/sanitize.js';
-import { getShouldIgnoreParams } from '../../shared/src/helpers/configuration.js';
+import { sanitizeProjectAnalysisInput } from '../../shared/src/helpers/sanitize.js';
 
 export async function handleRequest(
   request: BridgeRequest,
@@ -42,16 +35,6 @@ export async function handleRequest(
 ): Promise<RequestResult> {
   try {
     switch (request.type) {
-      case 'on-init-linter': {
-        const sanitizedInput = sanitizeInitLinterInput(request.data);
-        await Linter.initialize(sanitizedInput);
-        return { type: 'success', result: 'OK' };
-      }
-      case 'on-analyze-jsts': {
-        const { input, configuration } = await sanitizeJsTsAnalysisInput(request.data);
-        const output = await analyzeJSTS(input, getShouldIgnoreParams(configuration));
-        return { type: 'success', result: output };
-      }
       case 'on-analyze-project': {
         logHeapStatistics(workerData?.debugMemory);
         // sanitizeProjectAnalysisInput initializes file stores internally

@@ -160,6 +160,12 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return getJsExtensions(context.config());
   }
 
+  @Override
+  public boolean shouldSendFileSuffixes() {
+    // SonarQube/SonarLint contexts must forward configured suffixes (including explicit empty values).
+    return true;
+  }
+
   public static List<String> getTsExtensions(Configuration config) {
     return List.of(
       config.hasKey(TypeScriptLanguage.FILE_SUFFIXES_KEY)

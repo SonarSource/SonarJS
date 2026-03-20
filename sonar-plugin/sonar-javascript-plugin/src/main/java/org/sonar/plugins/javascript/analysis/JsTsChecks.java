@@ -32,7 +32,6 @@ import org.sonar.api.batch.rule.Checks;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.javascript.checks.CheckList;
-import org.sonar.javascript.checks.S2260;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.api.CustomRuleRepository;
@@ -120,7 +119,7 @@ public class JsTsChecks {
    */
   private final Map<String, Map<Language, RuleKey>> eslintKeyToRuleKey = new HashMap<>();
 
-  private RuleKey parseErrorRuleKey;
+  private final Map<Language, RuleKey> parseErrorRuleKeys = new EnumMap<>(Language.class);
 
   public JsTsChecks(CheckFactory checkFactory) {
     this(checkFactory, new CustomRuleRepository[] {}, new EslintHookRegistrar[] {});
@@ -277,19 +276,21 @@ public class JsTsChecks {
   /**
    * parsingErrorRuleKey equals null if ParsingErrorCheck is not activated
    *
+   * @param language The language that produced the parsing error
    * @return rule key for parse error
    */
-  @Nullable
-  RuleKey parsingErrorRuleKey() {
-    return parseErrorRuleKey;
+  RuleKey parsingErrorRuleKey(Language language) {
+    return parseErrorRuleKeys.get(language);
   }
 
   protected void initParsingErrorRuleKey() {
-    this.parseErrorRuleKey = all()
-      .filter(S2260.class::isInstance)
-      .findFirst()
-      .map(this::ruleKeyFor)
-      .orElse(null);
+    parseErrorRuleKeys.clear();
+    for (var language : Language.values()) {
+      var parseErrorRuleKey = ruleKeyByEslintKey("S2260", language);
+      if (parseErrorRuleKey != null) {
+        parseErrorRuleKeys.put(language, parseErrorRuleKey);
+      }
+    }
   }
 
   /**

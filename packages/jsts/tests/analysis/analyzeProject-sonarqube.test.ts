@@ -445,6 +445,46 @@ describe('SonarQube project analysis', () => {
     }
   });
 
+  it('should collect JS/TS and CSS parsing errors for HTML files analyzed by both pipelines', async () => {
+    const baseDir = join(fixtures, 'html-yaml');
+    const htmlFile = join(baseDir, 'dual-parse.html');
+
+    const htmlRules: RuleConfig[] = [
+      {
+        key: 'S1440',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+    const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
+
+    const fileContent = [
+      '<html><body>',
+      '<script>const broken = ;</script>',
+      '<style>a {</style>',
+      '</body></html>',
+    ].join('\n');
+
+    const configuration = await initForTest(
+      { baseDir },
+      { [htmlFile]: { filePath: htmlFile, fileType: 'MAIN', fileContent } },
+    );
+
+    const result = await analyzeProject({ rules: htmlRules, cssRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(htmlFile)];
+    expect(fileResult).toBeDefined();
+    expect('parsingErrors' in fileResult!).toBe(true);
+    if ('parsingErrors' in fileResult!) {
+      const parsingErrors = fileResult.parsingErrors ?? [];
+      expect(parsingErrors).toHaveLength(2);
+      expect(parsingErrors.map(pe => pe.language).sort()).toEqual(['css', 'js']);
+      expect(parsingErrors.every(pe => pe.code === ErrorCode.Parsing)).toBe(true);
+    }
+  });
+
   it('should route YAML files to YAML analyzer', async () => {
     const baseDir = join(fixtures, 'html-yaml');
     const yamlFile = join(baseDir, 'file.yaml');
@@ -531,7 +571,7 @@ describe('SonarQube project analysis', () => {
     const fileResult = result.files[normalizeToAbsolutePath(sassFile)];
     expect(fileResult).toBeDefined();
     // Should not be a parsing error
-    expect(fileResult && 'parsingError' in fileResult).toBe(false);
+    expect(fileResult && 'parsingErrors' in fileResult).toBe(false);
   });
 
   it('should not return issues or metrics for TEST CSS files, only highlights', async () => {
@@ -701,9 +741,11 @@ describe('SonarQube project analysis', () => {
 
     const fileResult = result.files[normalizeToAbsolutePath(filePath)];
     expect(fileResult).toBeDefined();
-    expect('parsingError' in fileResult!).toBe(true);
-    if ('parsingError' in fileResult!) {
-      expect(fileResult.parsingError).toMatchObject({
+    expect('parsingErrors' in fileResult!).toBe(true);
+    if ('parsingErrors' in fileResult!) {
+      const parsingErrors = fileResult.parsingErrors ?? [];
+      expect(parsingErrors).toHaveLength(1);
+      expect(parsingErrors[0]).toMatchObject({
         code: ErrorCode.Parsing,
         message: 'Unexpected token (3:0)',
         line: 3,
