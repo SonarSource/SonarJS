@@ -23,18 +23,6 @@ import { APIError, ErrorCode } from '../../../shared/src/errors/error.js';
 
 describe('errorMiddleware', () => {
   const mockNext = {} as express.NextFunction;
-  const mockRequest = (filePath: string) =>
-    ({
-      body: {
-        filePath,
-        configuration: {
-          baseDir: '/project',
-          jsSuffixes: ['.js', '.jsx', '.cjs', '.mjs'],
-          tsSuffixes: ['.ts', '.tsx', '.cts', '.mts'],
-          cssSuffixes: ['.css', '.scss', '.sass', '.less'],
-        },
-      },
-    }) as express.Request;
 
   let mockResponse: Partial<express.Response> & { json: Mock<express.Response['json']> };
   beforeEach(() => {
@@ -49,7 +37,7 @@ describe('errorMiddleware', () => {
   it('should return empty JS/TS analysis properties and a complete parsingError for PARSING errors', () => {
     errorMiddleware(
       APIError.parsingError('Unexpected token "{"', { line: 42 }),
-      mockRequest('/project/src/file.js'),
+      {} as express.Request,
       mockResponse as express.Response,
       mockNext,
     );
@@ -66,7 +54,7 @@ describe('errorMiddleware', () => {
   it('should return a parsingError with properties "message" and "code" for FAILING_TYPESCRIPT errors', () => {
     errorMiddleware(
       APIError.failingTypeScriptError('TypeScript failed for some reason'),
-      mockRequest('/project/src/file.ts'),
+      {} as express.Request,
       mockResponse as express.Response,
       mockNext,
     );
@@ -86,7 +74,7 @@ describe('errorMiddleware', () => {
   it('should return a parsingError with properties "message" and "code" for LINTER_INITIALIZATION errors', () => {
     errorMiddleware(
       APIError.linterError('Uninitialized linter'),
-      mockRequest('/project/src/file.js'),
+      {} as express.Request,
       mockResponse as express.Response,
       mockNext,
     );
@@ -106,7 +94,7 @@ describe('errorMiddleware', () => {
   it('should return a property "error" containing the error message for any other error', () => {
     errorMiddleware(
       new Error('Something unexpected happened.'),
-      mockRequest('/project/src/file.js'),
+      {} as express.Request,
       mockResponse as express.Response,
       mockNext,
     );
@@ -131,78 +119,6 @@ describe('errorMiddleware', () => {
         },
       },
     );
-  });
-
-  it('should infer css parsing error language from configured suffixes', () => {
-    errorMiddleware(
-      APIError.parsingError('Unclosed block', { line: 2 }),
-      mockRequest('/project/src/style.scss'),
-      mockResponse as express.Response,
-      mockNext,
-    );
-
-    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
-      parsingError: {
-        message: 'Unclosed block',
-        line: 2,
-        code: ErrorCode.Parsing,
-        language: 'css',
-      },
-    });
-  });
-
-  it('should infer ts parsing error language from configured suffixes', () => {
-    errorMiddleware(
-      APIError.parsingError('Unexpected token', { line: 3 }),
-      mockRequest('/project/src/file.mts'),
-      mockResponse as express.Response,
-      mockNext,
-    );
-
-    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
-      parsingError: {
-        message: 'Unexpected token',
-        line: 3,
-        code: ErrorCode.Parsing,
-        language: 'ts',
-      },
-    });
-  });
-
-  it('should fallback to js parsing error language when request body is missing', () => {
-    errorMiddleware(
-      APIError.parsingError('Unexpected token', { line: 3 }),
-      {} as express.Request,
-      mockResponse as express.Response,
-      mockNext,
-    );
-
-    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
-      parsingError: {
-        message: 'Unexpected token',
-        line: 3,
-        code: ErrorCode.Parsing,
-        language: 'js',
-      },
-    });
-  });
-
-  it('should fallback to js parsing error language for unknown file extensions', () => {
-    errorMiddleware(
-      APIError.parsingError('Unexpected token', { line: 3 }),
-      mockRequest('/project/src/file.unknown'),
-      mockResponse as express.Response,
-      mockNext,
-    );
-
-    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
-      parsingError: {
-        message: 'Unexpected token',
-        line: 3,
-        code: ErrorCode.Parsing,
-        language: 'js',
-      },
-    });
   });
 
   it('should fallback to ts parsing error language for FAILING_TYPESCRIPT errors', () => {

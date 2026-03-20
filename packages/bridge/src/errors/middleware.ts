@@ -16,25 +16,11 @@
  */
 import type express from 'express';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
-import { error, warn } from '../../../shared/src/helpers/logging.js';
+import { error } from '../../../shared/src/helpers/logging.js';
 import {
   type ParsingError,
   type ParsingErrorLanguage,
-  isParsingErrorCode,
 } from '../../../shared/src/errors/project-analysis.js';
-import {
-  createConfiguration,
-  isCssFile,
-  isJsFile,
-  isTsFile,
-} from '../../../shared/src/helpers/configuration.js';
-import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
-
-type RequestWithConfig = {
-  filePath: string;
-  fileContent?: string;
-  configuration: unknown;
-};
 
 type ErrorWithCode = {
   code?: ErrorCode;
@@ -55,13 +41,12 @@ type ErrorWithCode = {
  */
 export function errorMiddleware(
   err: unknown,
-  request: express.Request,
+  _request: express.Request,
   response: express.Response,
   _next: express.NextFunction,
 ) {
   const normalizedError = normalizeError(err);
-  const language = inferParsingErrorLanguageSafely(normalizedError.code, request);
-  response.json(handleError(normalizedError, language));
+  response.json(handleError(normalizedError));
 }
 
 export function handleError(err: unknown, language?: ParsingErrorLanguage) {
@@ -94,64 +79,8 @@ function resolveParsingErrorLanguage(
   return fallbackParsingErrorLanguage(code);
 }
 
-function inferParsingErrorLanguageSafely(
-  code: ErrorCode | undefined,
-  request: express.Request,
-): ParsingErrorLanguage | undefined {
-  if (!isParsingErrorCode(code)) {
-    return undefined;
-  }
-
-  try {
-    return inferParsingErrorLanguage(request);
-  } catch (inferenceError: unknown) {
-    const normalizedError = normalizeError(inferenceError);
-    warn(
-      `Cannot infer parsing error language: ${normalizedError.message ?? 'Unexpected error'}. Falling back to default language.`,
-    );
-    if (normalizedError.stack) {
-      error(normalizedError.stack);
-    }
-    return fallbackParsingErrorLanguage(code);
-  }
-}
-
 function fallbackParsingErrorLanguage(code: ErrorCode): ParsingErrorLanguage {
   return code === ErrorCode.FailingTypeScript ? 'ts' : 'js';
-}
-
-function inferParsingErrorLanguage(request: express.Request): ParsingErrorLanguage {
-  const parsedRequest = asRequestWithConfig(request.body);
-  const filePath = normalizeToAbsolutePath(parsedRequest.filePath);
-  const configuration = createConfiguration(parsedRequest.configuration);
-  if (isCssFile(filePath, configuration.cssSuffixes)) {
-    return 'css';
-  }
-  if (isTsFile(filePath, parsedRequest.fileContent ?? '', configuration.tsSuffixes)) {
-    return 'ts';
-  }
-  if (isJsFile(filePath, configuration.jsSuffixes)) {
-    return 'js';
-  }
-  throw new Error(`Unable to infer parsing error language for file '${parsedRequest.filePath}'`);
-}
-
-function asRequestWithConfig(value: unknown): RequestWithConfig {
-  if (typeof value !== 'object' || value === null) {
-    throw new Error('Cannot infer parsing error language: request body is missing');
-  }
-  const request = value as Record<string, unknown>;
-  if (typeof request.filePath !== 'string') {
-    throw new Error('Cannot infer parsing error language: request.filePath is missing');
-  }
-  if (typeof request.configuration !== 'object' || request.configuration === null) {
-    throw new Error('Cannot infer parsing error language: request.configuration is missing');
-  }
-  return {
-    filePath: request.filePath,
-    fileContent: typeof request.fileContent === 'string' ? request.fileContent : undefined,
-    configuration: request.configuration,
-  };
 }
 
 function generateParsingError(
