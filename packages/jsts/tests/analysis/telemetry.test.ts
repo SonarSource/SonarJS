@@ -42,9 +42,33 @@ describe('project analysis telemetry', () => {
     });
 
     expect(collector.getTelemetry().compilerOptions).toEqual({
+      alwaysStrict: ['true'],
       lib: ['dom', 'es2020', 'es2022'],
       module: ['commonjs', 'nodenext'],
+      noImplicitAny: ['true'],
+      noImplicitThis: ['true'],
+      strictBindCallApply: ['true'],
+      strictBuiltinIteratorReturn: ['true'],
+      strictFunctionTypes: ['true'],
+      strictNullChecks: ['true'],
+      strictPropertyInitialization: ['true'],
       strict: ['true'],
+      useUnknownInCatchVariables: ['true'],
+    });
+  });
+
+  it('should derive strict child options from strict while keeping explicit overrides', () => {
+    const collector = new ProjectAnalysisTelemetryCollector();
+    collector.recordCompilerOptions({
+      strict: true,
+      noImplicitAny: false,
+    });
+
+    expect(collector.getTelemetry().compilerOptions).toMatchObject({
+      strict: ['true'],
+      noImplicitAny: ['false'],
+      strictNullChecks: ['true'],
+      strictFunctionTypes: ['true'],
     });
   });
 
@@ -104,8 +128,17 @@ describe('project analysis telemetry', () => {
       }),
     ).not.toThrow();
 
-    expect(collector.getTelemetry().compilerOptions).toEqual({
+    expect(collector.getTelemetry().compilerOptions).toMatchObject({
       strict: ['true'],
+      alwaysStrict: ['true'],
+      noImplicitAny: ['true'],
+      noImplicitThis: ['true'],
+      strictBindCallApply: ['true'],
+      strictBuiltinIteratorReturn: ['true'],
+      strictFunctionTypes: ['true'],
+      strictNullChecks: ['true'],
+      strictPropertyInitialization: ['true'],
+      useUnknownInCatchVariables: ['true'],
     });
   });
 });

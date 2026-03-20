@@ -74,6 +74,9 @@ export const moduleTypeCache = new ComputedCache(
     if (firstManifest?.type === 'module' || firstManifest?.type === 'commonjs') {
       return firstManifest.type;
     }
+    if (firstManifest) {
+      return 'commonjs';
+    }
     return undefined;
   },
 );
@@ -98,7 +101,7 @@ export function getDependencies(dir: NormalizedAbsolutePath, topDir: NormalizedA
  *
  * Extension-specific module kinds (.mjs/.mts and .cjs/.cts) are explicit and
  * take precedence. Otherwise, package.json#type from the closest manifest only
- * is used when available.
+ * is used. If that closest manifest exists but omits "type", default to CommonJS.
  */
 export function getModuleType(filePath: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath) {
   const extensionSignal = MODULE_TYPE_BY_EXTENSION[extname(filePath).toLowerCase()];

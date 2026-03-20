@@ -21,6 +21,18 @@ import type { ModuleType } from '../../rules/helpers/package-jsons/dependencies.
 import { packageJsonStore } from './file-stores/index.js';
 
 const NOT_DETECTED = 'not-detected';
+const STRICT_CHILD_COMPILER_OPTIONS = [
+  'alwaysStrict',
+  'noImplicitAny',
+  'noImplicitThis',
+  'strictBindCallApply',
+  'strictBuiltinIteratorReturn',
+  'strictFunctionTypes',
+  'strictNullChecks',
+  'strictPropertyInitialization',
+  'useUnknownInCatchVariables',
+] as const satisfies ReadonlyArray<keyof ts.CompilerOptions>;
+
 const COMPILER_OPTIONS_TO_LOG = [
   'allowArbitraryExtensions',
   'allowImportingTsExtensions',
@@ -41,11 +53,14 @@ const COMPILER_OPTIONS_TO_LOG = [
   'resolvePackageJsonImports',
   'skipLibCheck',
   'strict',
+  ...STRICT_CHILD_COMPILER_OPTIONS,
   'target',
   'useDefineForClassFields',
   'verbatimModuleSyntax',
 ] as const satisfies ReadonlyArray<keyof ts.CompilerOptions>;
 type LoggedCompilerOptionName = (typeof COMPILER_OPTIONS_TO_LOG)[number];
+type StrictChildCompilerOptionName = (typeof STRICT_CHILD_COMPILER_OPTIONS)[number];
+const STRICT_CHILD_COMPILER_OPTIONS_SET = new Set<string>(STRICT_CHILD_COMPILER_OPTIONS);
 
 const TARGET_OPTION_VALUES = buildEnumOptionValuesFromRuntimeEnum(ts.ScriptTarget);
 const MODULE_OPTION_VALUES = buildEnumOptionValuesFromRuntimeEnum(ts.ModuleKind);
@@ -124,12 +139,7 @@ export class ProjectAnalysisTelemetryCollector {
       return;
     }
     for (const optionName of COMPILER_OPTIONS_TO_LOG) {
-      let optionValue: unknown;
-      try {
-        optionValue = options[optionName];
-      } catch {
-        continue;
-      }
+      const optionValue = readCompilerOptionValue(options, optionName);
       this.recordOptionValue(optionName, optionValue);
     }
   }
@@ -256,6 +266,40 @@ function normalizeTypeScriptVersions(typeScriptSignals: string[]): string[] {
     return [NOT_DETECTED];
   }
   return Array.from(normalizedVersions).sort((a, b) => a.localeCompare(b));
+}
+
+function readCompilerOptionValue(
+  options: ts.CompilerOptions,
+  optionName: LoggedCompilerOptionName,
+): unknown {
+  const directValue = safelyReadCompilerOptionValue(options, optionName);
+  if (directValue !== undefined) {
+    return directValue;
+  }
+  if (isStrictChildCompilerOptionName(optionName)) {
+    const strictValue = safelyReadCompilerOptionValue(options, 'strict');
+    if (typeof strictValue === 'boolean') {
+      return strictValue;
+    }
+  }
+  return undefined;
+}
+
+function safelyReadCompilerOptionValue(
+  options: ts.CompilerOptions,
+  optionName: keyof ts.CompilerOptions,
+): unknown {
+  try {
+    return options[optionName];
+  } catch {
+    return undefined;
+  }
+}
+
+function isStrictChildCompilerOptionName(
+  optionName: LoggedCompilerOptionName,
+): optionName is StrictChildCompilerOptionName {
+  return STRICT_CHILD_COMPILER_OPTIONS_SET.has(optionName);
 }
 
 function resolveTypeScriptVersion(typeScriptSignal: string): string | undefined {

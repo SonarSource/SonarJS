@@ -114,7 +114,7 @@ describe('files', () => {
         normalizeToAbsolutePath(join(unspecifiedBaseDir, 'index.js')),
         unspecifiedBaseDir,
       ),
-    ).toBeUndefined();
+    ).toEqual('commonjs');
   });
 
   it('should use only the first manifest when extracting module type', async () => {
@@ -124,7 +124,7 @@ describe('files', () => {
 
     expect(
       getModuleType(normalizeToAbsolutePath(join(baseDir, 'subdir/index.js')), baseDir),
-    ).toBeUndefined();
+    ).toEqual('commonjs');
   });
 
   it('should extract module type from explicit file extension', async () => {
