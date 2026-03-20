@@ -137,6 +137,9 @@ class JsTsChecksTest {
     assertThat(checks.parsingErrorRuleKey(TYPESCRIPT)).isEqualTo(
       RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S2260")
     );
+  }
+
+  @Test
   void should_initialize_all_builtin_checks_with_default_rule_properties() {
     JsTsChecks checks = new JsTsChecks(buildCheckFactoryWithParameters(Map.of()));
     assertThat(checks.all()).hasSize(expectedBuiltinRuleCount());
