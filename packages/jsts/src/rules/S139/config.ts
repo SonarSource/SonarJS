@@ -24,6 +24,7 @@ export const fields = [
       field: 'ignorePattern',
       description: 'Pattern (JavaScript syntax) for text of trailing comments that are allowed.',
       default: String.raw`^\s*[^\s]+$`,
+      customDefault: `^\\\\s*[^\\\\s]+$`,
       displayName: 'pattern',
     },
   ],
