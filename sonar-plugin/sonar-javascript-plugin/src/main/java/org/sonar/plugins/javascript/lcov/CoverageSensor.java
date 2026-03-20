@@ -159,7 +159,7 @@ public class CoverageSensor implements Sensor {
 
   private static void logIfUsedProperty(SensorContext context, String property) {
     if (context.config().hasKey(property)) {
-      LOG.debug(String.format("Property %s is used.", property));
+      LOG.debug("Property {} is used.", property);
     }
   }
 }

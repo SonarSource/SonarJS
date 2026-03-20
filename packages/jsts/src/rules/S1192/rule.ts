@@ -54,7 +54,7 @@ export const rule: Rule.RuleModule = {
       ...DEFAULT_OPTIONS,
       ...(context.options as FromSchema<typeof meta.schema>)[0],
     };
-    const whitelist = ignoreStrings.split(',');
+    const whitelist = new Set(ignoreStrings.split(','));
     return {
       Literal: (node: estree.Node) => {
         const literal = node as TSESTree.Literal;
@@ -67,7 +67,7 @@ export const rule: Rule.RuleModule = {
           const stringContent = literal.value.trim();
 
           if (
-            !whitelist.includes(literal.value) &&
+            !whitelist.has(literal.value) &&
             !isExcludedByUsageContext(context, literal) &&
             stringContent.length >= MIN_LENGTH &&
             !NO_SEPARATOR_REGEXP.test(stringContent)
