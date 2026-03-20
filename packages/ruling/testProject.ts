@@ -26,15 +26,22 @@ import { RuleConfig } from '../jsts/src/linter/config/rule-config.js';
 import { expect } from 'expect';
 import * as metas from '../jsts/src/rules/metas.js';
 import { SonarMeta } from '../jsts/src/rules/helpers/generate-meta.js';
+import { symlink } from 'node:fs/promises';
 import { cssRulesMeta } from '../css/src/rules/metadata.js';
 import type { RuleConfig as CssRuleConfig } from '../css/src/linter/config.js';
 
 const currentPath = normalizePath(import.meta.dirname);
 
 const SONARJS_ROOT = join(currentPath, '..', '..');
-const sourcesPath = join(SONARJS_ROOT, 'its', 'sources');
+const sourcesPath = join(SONARJS_ROOT, '..', 'sonarjs-ruling-sources');
 const expectedBase = join(SONARJS_ROOT, 'its', 'ruling', 'src', 'test', 'expected');
 const actualBase = join(currentPath, 'actual');
+
+await symlink(join(SONARJS_ROOT, 'its', 'sources'), sourcesPath).catch(err => {
+  if (err.code !== 'EEXIST') {
+    throw err;
+  }
+});
 
 const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
 
