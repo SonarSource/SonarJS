@@ -185,7 +185,7 @@ describe('SonarQube project analysis', () => {
       typescriptNativePreview: true,
       ecmaScriptVersions: ['ES2020', 'ES2022'],
       esmFileCount: 0,
-      cjsFileCount: 0,
+      cjsFileCount: 2,
       programCreation: {
         attempted: 2,
         succeeded: 2,
