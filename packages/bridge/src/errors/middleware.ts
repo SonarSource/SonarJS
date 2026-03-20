@@ -15,18 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type express from 'express';
-import { ErrorCode } from '../../../shared/src/errors/error.js';
 import { error } from '../../../shared/src/helpers/logging.js';
-import {
-  type ParsingError,
-  type ParsingErrorLanguage,
-} from '../../../shared/src/errors/project-analysis.js';
 
 type ErrorWithCode = {
-  code?: ErrorCode;
   message?: string;
   stack?: string;
-  data?: { line?: number; column?: number };
 };
 
 /**
@@ -49,55 +42,13 @@ export function errorMiddleware(
   response.json(handleError(normalizedError));
 }
 
-export function handleError(err: unknown, language?: ParsingErrorLanguage) {
+export function handleError(err: unknown) {
   const normalizedError = normalizeError(err);
-  const { code, message, stack } = normalizedError;
-  switch (code) {
-    case ErrorCode.Parsing:
-    case ErrorCode.FailingTypeScript:
-    case ErrorCode.LinterInitialization:
-      return generateParsingError(
-        normalizedError,
-        resolveParsingErrorLanguage(code, language),
-        code,
-      );
-    default:
-      if (stack) {
-        error(stack);
-      }
-      return { error: message ?? 'Unexpected error' };
+  const { message, stack } = normalizedError;
+  if (stack) {
+    error(stack);
   }
-}
-
-function resolveParsingErrorLanguage(
-  code: ErrorCode,
-  language?: ParsingErrorLanguage,
-): ParsingErrorLanguage {
-  if (language) {
-    return language;
-  }
-  return fallbackParsingErrorLanguage(code);
-}
-
-function fallbackParsingErrorLanguage(code: ErrorCode): ParsingErrorLanguage {
-  return code === ErrorCode.FailingTypeScript ? 'ts' : 'js';
-}
-
-function generateParsingError(
-  err: ErrorWithCode,
-  language: ParsingErrorLanguage,
-  code: ParsingError['code'],
-) {
-  const parsingError: ParsingError = {
-    message: err.message ?? 'Parsing failed',
-    code,
-    line: err.data?.line,
-    ...(err.data?.column !== undefined ? { column: err.data.column } : {}),
-    language,
-  };
-  return {
-    parsingError,
-  };
+  return { error: message ?? 'Unexpected error' };
 }
 
 function normalizeError(err: unknown): ErrorWithCode {
