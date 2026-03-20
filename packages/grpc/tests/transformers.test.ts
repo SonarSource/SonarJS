@@ -702,31 +702,26 @@ describe('transformProjectOutputToResponse', () => {
     });
   });
 
-  it('should map parsing errors to typescript repo when language is ts', () => {
-    const output = makeOutput({
-      '/project/src/broken.ts': {
-        parsingErrors: [{ message: 'Unexpected token', code: 'PARSING', line: 5, language: 'ts' }],
-      },
+  const parsingErrorRepoMapping = [
+    { filePath: '/project/src/broken.js', line: 5, language: 'js', repo: 'javascript' },
+    { filePath: '/project/src/broken.ts', line: 5, language: 'ts', repo: 'typescript' },
+    { filePath: '/project/src/broken.css', line: 2, language: 'css', repo: 'css' },
+  ] as const;
+
+  for (const { filePath, line, language, repo } of parsingErrorRepoMapping) {
+    it(`should map parsing errors to ${repo} repo when language is ${language}`, () => {
+      const output = makeOutput({
+        [filePath]: {
+          parsingErrors: [{ message: 'Unexpected token', code: 'PARSING', line, language }],
+        },
+      });
+
+      const result = transformProjectOutputToResponse(output);
+
+      expect(result.issues?.length).toBe(1);
+      expect(result.issues?.[0].rule).toEqual({ repo, rule: 'S2260' });
     });
-
-    const result = transformProjectOutputToResponse(output);
-
-    expect(result.issues?.length).toBe(1);
-    expect(result.issues?.[0].rule).toEqual({ repo: 'typescript', rule: 'S2260' });
-  });
-
-  it('should map parsing errors to css repo when language is css', () => {
-    const output = makeOutput({
-      '/project/src/broken.css': {
-        parsingErrors: [{ message: 'Unclosed block', code: 'PARSING', line: 2, language: 'css' }],
-      },
-    });
-
-    const result = transformProjectOutputToResponse(output);
-
-    expect(result.issues?.length).toBe(1);
-    expect(result.issues?.[0].rule).toEqual({ repo: 'css', rule: 'S2260' });
-  });
+  }
 
   it('should include issues and parsing errors from the same file result', () => {
     const output = makeOutput({

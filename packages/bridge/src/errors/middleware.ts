@@ -16,7 +16,7 @@
  */
 import type express from 'express';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
-import { error } from '../../../shared/src/helpers/logging.js';
+import { error, warn } from '../../../shared/src/helpers/logging.js';
 import {
   type ParsingError,
   type ParsingErrorLanguage,
@@ -60,9 +60,7 @@ export function errorMiddleware(
   _next: express.NextFunction,
 ) {
   const normalizedError = normalizeError(err);
-  const language = isParsingErrorCode(normalizedError.code)
-    ? inferParsingErrorLanguage(request)
-    : undefined;
+  const language = inferParsingErrorLanguageSafely(normalizedError.code, request);
   response.json(handleError(normalizedError, language));
 }
 
@@ -93,10 +91,33 @@ function resolveParsingErrorLanguage(
   if (language) {
     return language;
   }
-  if (code === ErrorCode.FailingTypeScript) {
-    return 'ts';
+  return fallbackParsingErrorLanguage(code);
+}
+
+function inferParsingErrorLanguageSafely(
+  code: ErrorCode | undefined,
+  request: express.Request,
+): ParsingErrorLanguage | undefined {
+  if (!isParsingErrorCode(code)) {
+    return undefined;
   }
-  throw new Error(`Missing parsing error language for ${code}`);
+
+  try {
+    return inferParsingErrorLanguage(request);
+  } catch (inferenceError: unknown) {
+    const normalizedError = normalizeError(inferenceError);
+    warn(
+      `Cannot infer parsing error language: ${normalizedError.message ?? 'Unexpected error'}. Falling back to default language.`,
+    );
+    if (normalizedError.stack) {
+      error(normalizedError.stack);
+    }
+    return fallbackParsingErrorLanguage(code);
+  }
+}
+
+function fallbackParsingErrorLanguage(code: ErrorCode): ParsingErrorLanguage {
+  return code === ErrorCode.FailingTypeScript ? 'ts' : 'js';
 }
 
 function inferParsingErrorLanguage(request: express.Request): ParsingErrorLanguage {

@@ -168,4 +168,58 @@ describe('errorMiddleware', () => {
       },
     });
   });
+
+  it('should fallback to js parsing error language when request body is missing', () => {
+    errorMiddleware(
+      APIError.parsingError('Unexpected token', { line: 3 }),
+      {} as express.Request,
+      mockResponse as express.Response,
+      mockNext,
+    );
+
+    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
+      parsingError: {
+        message: 'Unexpected token',
+        line: 3,
+        code: ErrorCode.Parsing,
+        language: 'js',
+      },
+    });
+  });
+
+  it('should fallback to js parsing error language for unknown file extensions', () => {
+    errorMiddleware(
+      APIError.parsingError('Unexpected token', { line: 3 }),
+      mockRequest('/project/src/file.unknown'),
+      mockResponse as express.Response,
+      mockNext,
+    );
+
+    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
+      parsingError: {
+        message: 'Unexpected token',
+        line: 3,
+        code: ErrorCode.Parsing,
+        language: 'js',
+      },
+    });
+  });
+
+  it('should fallback to ts parsing error language for FAILING_TYPESCRIPT errors', () => {
+    errorMiddleware(
+      APIError.failingTypeScriptError('TypeScript failed'),
+      {} as express.Request,
+      mockResponse as express.Response,
+      mockNext,
+    );
+
+    assert.deepEqual(mockResponse.json.mock.calls[0].arguments[0], {
+      parsingError: {
+        message: 'TypeScript failed',
+        line: undefined,
+        code: ErrorCode.FailingTypeScript,
+        language: 'ts',
+      },
+    });
+  });
 });
