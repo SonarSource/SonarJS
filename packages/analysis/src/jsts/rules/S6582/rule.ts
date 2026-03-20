@@ -68,7 +68,7 @@ export const rule: Rule.RuleModule = {
               | undefined)
           : undefined;
 
-      if (!loc) {
+      if (!loc || !('start' in loc)) {
         ctx.report(descriptor);
         return;
       }
