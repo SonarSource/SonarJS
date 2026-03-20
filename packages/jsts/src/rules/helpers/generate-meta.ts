@@ -17,7 +17,6 @@
 import type { Rule } from 'eslint';
 import type { RulesMeta } from '@eslint/core';
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-import { applyTransformations } from './configs.js';
 import type { ESLintConfiguration } from './configs.js';
 import merge from 'lodash.merge';
 
@@ -62,13 +61,6 @@ export function generateMeta(sonarMeta: SonarMeta, ruleMeta?: RulesMeta): RulesM
   // If rules contains default options, we will augment them with our defaults.
   if (ruleMeta?.defaultOptions) {
     metadata.defaultOptions = merge(ruleMeta.defaultOptions, sonarMeta.meta.defaultOptions);
-  }
-
-  if (metadata.defaultOptions && sonarMeta.fields) {
-    metadata.defaultOptions = applyTransformations(
-      sonarMeta.fields,
-      metadata.defaultOptions as unknown[],
-    ) as Rule.RuleMetaData['defaultOptions'];
   }
 
   // RSPEC metadata can include fixable also for rules with suggestions, because RSPEC doesn't differentiate between fix
