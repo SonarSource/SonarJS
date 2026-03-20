@@ -25,7 +25,8 @@
 2,
 3,
 4,
-5
+5,
+10
 ],
 "ant-design:scripts/check-demo.js": [
 1,
@@ -52,7 +53,8 @@
 2,
 3,
 4,
-5
+5,
+30
 ],
 "ant-design:scripts/compact-vars.js": [
 1,

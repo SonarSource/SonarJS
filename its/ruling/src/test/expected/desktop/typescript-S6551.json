@@ -4,5 +4,8 @@
 ],
 "desktop:app/src/ui/diff/side-by-side-diff.tsx": [
 1264
+],
+"desktop:script/draft-release/run.ts": [
+97
 ]
 }

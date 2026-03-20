@@ -1,4 +1,11 @@
 {
+"TypeScript:Jakefile.js": [
+1028,
+1029
+],
+"TypeScript:scripts/browserify-optional.js": [
+12
+],
 "TypeScript:scripts/mocha-parallel.js": [
 359
 ]
