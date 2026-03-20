@@ -23,23 +23,23 @@ export const LINE_ADJUSTMENT = String.raw`(?:@(?<lineAdjustment>(?<relativeAdjus
 const STARTS_WITH_LOCATION = /^ *\^/;
 const COUNT = String.raw`(?<count>\d+)`;
 const DIRECTION = '(?<direction>[<>])';
-const MESSAGE = '(?<message>.*?)';
+const MESSAGE_CONTENT = String.raw`(?:(?!\}\}(?!\})).)*`;
 const LOCATION_PATTERN = new RegExp(
-  ' *' +
+  String.raw`^ *` +
     // highlighted range, ex: ^^^^ |OR| ^^^@12 |OR| ^^^@-2
-    '(?<range>\\^(?:\\[(?<params>[^\\]]+)\\]|\\^+)?)' +
+    String.raw`(?<range>\^(?:\[(?<params>[^\]]+)\]|\^+)?)` +
     LINE_ADJUSTMENT +
     // count, ex: 3 |OR| direction
-    ' *(?:' +
+    String.raw` *(?:` +
     COUNT +
-    '|' +
+    String.raw`|` +
     DIRECTION +
-    ')?' +
+    String.raw`)?` +
     // message, ex: {{msg}}
-    ' *(?:\\{\\{' +
-    MESSAGE +
-    '\\}\\})? *' +
-    '(?:\r(\n?)|\n)?',
+    String.raw` *(?:\{\{` +
+    String.raw`(?<message>${MESSAGE_CONTENT})` +
+    String.raw`\}\})? *` +
+    String.raw`(?:\r?\n)?`,
 );
 
 export abstract class Location {
