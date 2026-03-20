@@ -127,8 +127,17 @@ class JsTsChecksTest {
   }
 
   @Test
-  void should_initialize_all_builtin_checks_with_legacy_rule_properties() {
-    JsTsChecks checks = new JsTsChecks(buildCheckFactoryWithParameters(legacyParameters()));
+  void should_initialize_all_builtin_checks_with_s6418_decimal_rule_property_value() {
+    JsTsChecks checks = new JsTsChecks(
+      buildCheckFactoryWithParameters(
+        Map.of(
+          RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S6418"),
+          Map.of("randomnessSensibility", "5.0"),
+          RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S6418"),
+          Map.of("randomnessSensibility", "5.0")
+        )
+      )
+    );
     assertThat(checks.all()).hasSize(expectedBuiltinRuleCount());
   }
 
@@ -228,15 +237,6 @@ class JsTsChecksTest {
       ruleOverrides.forEach(activeRule::setParam);
       builder.addRule(activeRule.build());
     }
-  }
-
-  private static Map<RuleKey, Map<String, String>> legacyParameters() {
-    return Map.of(
-      RuleKey.of(CheckList.JS_REPOSITORY_KEY, "S6418"),
-      Map.of("randomnessSensibility", "5.0"),
-      RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S6418"),
-      Map.of("randomnessSensibility", "5.0")
-    );
   }
 
   private static int expectedBuiltinRuleCount() {
