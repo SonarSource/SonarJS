@@ -24,7 +24,6 @@ type ESLintConfigurationDefaultProperty = {
  * Necessary for the property to show up in the SonarQube interface.
  * @param description will explain to the user what the property configures
  * @param displayName only necessary if the name of the property is different from the `field` name
- * @param customDefault only necessary if different default in SQ different than in JS/TS
  * @param items only necessary if type is 'array'
  * @param fieldType only necessary if you need to override the default fieldType in SQ
  * @param customForConfiguration replacement content how to pass this variable to the Configuration object
@@ -32,7 +31,6 @@ type ESLintConfigurationDefaultProperty = {
 export type ESLintConfigurationSQProperty = ESLintConfigurationDefaultProperty & {
   description: string;
   displayName?: string;
-  customDefault?: Default;
   items?: {
     type: 'string' | 'integer';
   };
@@ -156,8 +154,8 @@ export function applyTransformations(
       // fieldDefinition is a single property: { default, customForConfiguration, ... }
       // mergedConfigEntry is a scalar value (string, number, boolean)
       //
-      // Example — S1441 fieldDefinition = { default: 'single', customDefault: true, customForConfiguration: (v) => v ? 'single' : 'double' }
-      // mergedConfigEntry = true (boolean from SQ)
+      // Example — S1441 fieldDefinition = { default: 'single', customForConfiguration: (v) => ... }
+      // mergedConfigEntry = 'true' (string from SQ)
       // After transform: 'single' (string expected by ESLint quotes rule)
       return fieldDefinition.customForConfiguration(mergedConfigEntry);
     }

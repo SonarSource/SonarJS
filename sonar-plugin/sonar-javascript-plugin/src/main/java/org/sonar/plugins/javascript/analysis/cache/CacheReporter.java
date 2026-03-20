@@ -75,8 +75,10 @@ class CacheReporter {
     var hits = getHits();
     var misses = total - hits;
 
-    LOG.info(format("Hit the cache for %d out of %d", hits, total));
-    LOG.info(format("Miss the cache for %d out of %d%s", misses, total, getMissMessages(total)));
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Hit the cache for {} out of {}", hits, total);
+      LOG.info("Miss the cache for {} out of {}{}", misses, total, getMissMessages(total));
+    }
   }
 
   private String getMissMessages(int total) {
@@ -87,7 +89,7 @@ class CacheReporter {
       .map(entry -> getMissMessage(total, entry.getKey().get(), entry.getValue().intValue()))
       .sorted()
       .collect(joining(", "));
-    return message.length() > 0 ? (": " + message) : "";
+    return !message.isEmpty() ? (": " + message) : "";
   }
 
   private int getTotal() {

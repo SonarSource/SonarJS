@@ -16,33 +16,35 @@
  */
 import { LineIssues } from './issues.js';
 import { Comment } from './comments.js';
-import { extractEffectiveLine, LINE_ADJUSTMENT } from './locations.js';
+import { extractEffectiveLine } from './locations.js';
 
 const STARTS_WITH_QUICKFIX = /^ *(edit|del|add|fix)@/;
-export const QUICKFIX_SEPARATOR = '[,\\s]+';
-export const QUICKFIX_ID =
-  '\\[\\[(?<quickfixes>\\w+(=\\d+)?!?(?:' + QUICKFIX_SEPARATOR + '(?:\\w+(=\\d+)?!?))*)\\]\\]';
+export const QUICKFIX_SEPARATOR = String.raw`[,\s]+`;
+export const QUICKFIX_ID = String.raw`\[\[(?<quickfixes>\w+(=\d+)?!?(?:${QUICKFIX_SEPARATOR}(?:\w+(=\d+)?!?))*)\]\]`;
+const BRACED_TEXT_CONTENT = String.raw`(?:(?!\}\}(?!\})).)*`;
+// Legacy fixtures support line adjustments both as `@+1` and `+1`.
+const QUICKFIX_LINE_ADJUSTMENT = String.raw`(?:@?(?<lineAdjustment>(?<relativeAdjustment>[+-])?\d+))?`;
 const QUICKFIX_DESCRIPTION_PATTERN = new RegExp(
-  ' *' +
+  String.raw`^ *` +
     // quickfix description, ex: fix@qf1 {{Replace with foo}}
-    'fix@(?<quickfixId>\\w+)' +
+    String.raw`fix@(?<quickfixId>\w+)` +
     // message, ex: {{msg}}
-    ' *(?:\\{\\{(?<message>.*?)\\}\\}(?!\\}))? *' +
-    '(?:\\r(\\n?)|\\n)?',
+    String.raw` *(?:\{\{(?<message>${BRACED_TEXT_CONTENT})\}\}(?!\}))? *` +
+    String.raw`(?:\r?\n)?$`,
 );
 
 const QUICKFIX_CHANGE_PATTERN = new RegExp(
-  ' *' +
+  String.raw`^ *` +
     // quickfix edit, ex: edit@qf1
-    '(?<type>edit|add|del)@(?<quickfixId>\\w+)' +
-    LINE_ADJUSTMENT +
+    String.raw`(?<type>edit|add|del)@(?<quickfixId>\w+)` +
+    QUICKFIX_LINE_ADJUSTMENT +
     // start and end columns, ex: [[sc=1;ec=5]] both are optional
-    ' *(?:\\[\\[' +
-    '(?<firstColumnType>sc|ec)=(?<firstColumnValue>\\d+)(?:;(?<secondColumnType>sc|ec)=(?<secondColumnValue>\\d+))?' +
-    '\\]\\])?' +
+    String.raw` *(?:\[\[` +
+    String.raw`(?<firstColumnType>sc|ec)=(?<firstColumnValue>\d+)(?:;(?<secondColumnType>sc|ec)=(?<secondColumnValue>\d+))?` +
+    String.raw`\]\])?` +
     // contents to be applied, ex: {{foo}}
-    ' *(?:\\{\\{(?<contents>.*?)\\}\\}(?!\\}))?' +
-    ' *(?:\\r(\\n?)|\\n)?',
+    String.raw` *(?:\{\{(?<contents>${BRACED_TEXT_CONTENT})\}\}(?!\}))?` +
+    String.raw` *(?:\r?\n)?$`,
 );
 
 type ChangeType = 'add' | 'del' | 'edit';

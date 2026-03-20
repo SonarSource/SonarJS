@@ -24,7 +24,6 @@ export const fields = [
       field: 'format',
       description: 'Regular expression used to check the class names against.',
       default: String.raw`^\$?[A-Z][a-zA-Z0-9]*$`,
-      customDefault: String.raw`^\\$?[A-Z][a-zA-Z0-9]*$`,
     },
   ],
 ] as const satisfies ESLintConfiguration;

@@ -199,7 +199,7 @@ function isForIterationPattern(ref: Scope.Reference) {
     n => n.type === 'ForOfStatement' || n.type === 'ForInStatement',
   ) as TSESTree.ForOfStatement | TSESTree.ForInStatement;
 
-  return forInOrOfStatement && forInOrOfStatement.right === ref.identifier;
+  return forInOrOfStatement?.right === ref.identifier;
 }
 
 function isElementRead(ref: Scope.Reference) {
