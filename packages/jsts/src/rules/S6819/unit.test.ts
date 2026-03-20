@@ -25,7 +25,7 @@ const upstreamRule = rules['prefer-tag-over-role'];
 // If this test starts failing (i.e., the upstream rule no longer reports these patterns),
 // it signals that the decorator can be safely removed.
 describe('S6819 upstream sentinel', () => {
-  it('upstream prefer-tag-over-role raises on composite widget patterns that decorator suppresses', () => {
+  it('upstream prefer-tag-over-role raises on listbox/option patterns that decorator suppresses', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('prefer-tag-over-role', upstreamRule, {
       valid: [],
@@ -34,8 +34,6 @@ describe('S6819 upstream sentinel', () => {
         { code: `<div role="listbox"><div role="option">Item</div></div>`, errors: 2 },
         // ul/li listbox/option — suppressed by decorator, raised by upstream
         { code: `<ul role="listbox"><li role="option">Item</li></ul>`, errors: 2 },
-        // role="button" inside grid — suppressed by decorator as COMPOSITE_INNER_ROLE, raised by upstream
-        { code: `<div role="grid"><div role="button">Drop</div></div>`, errors: 1 },
       ],
     });
   });
@@ -285,8 +283,8 @@ describe('S6819', () => {
     });
   });
 
-  // JS-1464: listbox/option composite widgets and inner roles inside composite containers
-  it('should not flag ARIA composite widget roles (listbox/option and inner roles)', () => {
+  // JS-1464: listbox/option composite widgets
+  it('should not flag ARIA listbox/option composite widget roles', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('prefer-tag-over-role - composite widget patterns', rule, {
@@ -307,18 +305,6 @@ describe('S6819', () => {
               <li role="option">First item</li>
               <li role="option">Second item</li>
             </ul>
-          `,
-        },
-        {
-          // Compliant: role="button" (inner role) inside grid composite widget
-          code: `
-            <div role="grid">
-              <div role="row">
-                <div role="gridcell">
-                  <div role="button">Drop indicator</div>
-                </div>
-              </div>
-            </div>
           `,
         },
       ],

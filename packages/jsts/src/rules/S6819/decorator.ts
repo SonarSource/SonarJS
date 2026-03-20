@@ -37,8 +37,6 @@ const COMPOSITE_CHILD_ROLES = new Set([
   'rowheader',
   'option',
 ]);
-// ARIA inner roles that are suppressed when nested inside any composite container
-const COMPOSITE_INNER_ROLES = new Set(['button', 'presentation', 'none']);
 
 /**
  * Decorates the prefer-tag-over-role rule to fix false positives.
@@ -53,7 +51,7 @@ const COMPOSITE_INNER_ROLES = new Set(['button', 'presentation', 'none']);
  *    - role="separator" with children (since <hr> is void)
  *    - role="img" on div/span with children or CSS backgroundImage (since <img> is void)
  *    - ARIA composite widget roles (table, grid, listbox, row, option, etc.) when forming
- *      complete custom widget patterns, and inner roles (button, etc.) nested inside them
+ *      complete custom widget patterns
  *
  * Note: SVG internal elements like <g> are not in HTML_TAG_NAMES, so they're
  * already filtered out by isHtmlElement. HTML elements with role="group" remain
@@ -229,10 +227,9 @@ function hasChildren(node: TSESTree.JSXOpeningElement): boolean {
 /**
  * Checks if the element is part of a custom composite widget pattern.
  *
- * Suppresses three categories of roles:
+ * Suppresses two categories of roles:
  * - Container roles (table, grid, listbox) when they have descendant child roles
  * - Child roles (row, option, etc.) when they have an ancestor container role
- * - Inner roles (button, presentation, none) when nested inside any container role
  *
  * No element-name restriction: any HTML tag (div, ul, li, span, etc.) qualifies.
  */
@@ -241,7 +238,7 @@ function isCustomCompositeWidget(role: string, node: TSESTree.JSXOpeningElement)
     return hasDescendantCompositeChildRole(node);
   }
 
-  if (COMPOSITE_CHILD_ROLES.has(role) || COMPOSITE_INNER_ROLES.has(role)) {
+  if (COMPOSITE_CHILD_ROLES.has(role)) {
     return hasAncestorCompositeContainerRole(node);
   }
 
