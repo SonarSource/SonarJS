@@ -54,7 +54,7 @@ describe('await analyzeJSTS', () => {
     const input = await jsTsInput({ filePath });
 
     await expect(() => analyzeJSTS(input, defaultShouldIgnoreParams)).rejects.toThrow(
-      APIError.linterError('Linter does not exist. Was project analysis initialized?'),
+      APIError.linterError('Linter does not exist. Linter.initialize() was never called.'),
     );
   });
 

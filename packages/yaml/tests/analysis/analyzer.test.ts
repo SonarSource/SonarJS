@@ -48,7 +48,7 @@ describe('analyzeYAML', () => {
           defaultShouldIgnoreParams,
         ),
     ).rejects.toThrow(
-      APIError.linterError('Linter does not exist. Was project analysis initialized?'),
+      APIError.linterError('Linter does not exist. Linter.initialize() was never called.'),
     );
   });
 

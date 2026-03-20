@@ -38,7 +38,7 @@ export type ProjectParsingResult = {
 
 export type ProjectFailureResult = ProjectParsingResult | { error: string };
 
-export function isParsingErrorCode(code: ErrorCode | undefined): code is ParsingErrorCode {
+function isParsingErrorCode(code: ErrorCode | undefined): code is ParsingErrorCode {
   return (
     code === ErrorCode.Parsing ||
     code === ErrorCode.FailingTypeScript ||

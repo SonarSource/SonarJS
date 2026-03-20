@@ -1584,6 +1584,10 @@ class WebSensorTest {
       builder.addRule(
         new NewActiveRule.Builder()
           .setRuleKey(RuleKey.of(CheckList.TS_REPOSITORY_KEY, ruleKey))
+          .build()
+      );
+      builder.addRule(
+        new NewActiveRule.Builder()
           .setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, ruleKey))
           .build()
       );

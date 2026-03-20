@@ -283,11 +283,6 @@ public class JsTsChecks {
     return parseErrorRuleKeys.get(language);
   }
 
-  @Nullable
-  RuleKey parsingErrorRuleKey() {
-    return parseErrorRuleKeys.values().stream().findFirst().orElse(null);
-  }
-
   protected void initParsingErrorRuleKey() {
     parseErrorRuleKeys.clear();
     for (var language : Language.values()) {
