@@ -203,7 +203,11 @@ export const rule: Rule.RuleModule = {
     messages: {
       provideCompareFunction:
         'Provide a compare function to avoid sorting elements alphabetically.',
+      provideCompareFunctionForArrayOfStrings:
+        'Provide a compare function to avoid sorting elements alphabetically.',
       suggestNumericOrder: 'Add a comparator function to sort in ascending order',
+      suggestLanguageSensitiveOrder:
+        'Add a comparator function to sort in a language-sensitive way',
     },
   }),
   create(context: Rule.RuleContext) {
@@ -248,9 +252,18 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        // Suppress for string arrays — covers Object.keys(), Array.from(map.keys()),
-        // for-in key collections, and all other contexts where TypeScript infers string[]
+        // For string arrays, suppress only provably technical cases where default
+        // alphabetical ordering is clearly intentional; report everything else
+        // with a localeCompare suggestion.
         if (isStringArray(type, services)) {
+          if (isInOrderIndependentComparison(parent) || isArrayFromKeyOrEntryCall(object)) {
+            return; // safe: provably technical strings
+          }
+          context.report({
+            node,
+            suggest: getSuggestions(call, type),
+            messageId: 'provideCompareFunctionForArrayOfStrings',
+          });
           return;
         }
 
@@ -270,6 +283,11 @@ export const rule: Rule.RuleModule = {
         suggestions.push({
           messageId: 'suggestNumericOrder',
           fix: fixer(call, ...compareBigIntFunctionPlaceholder),
+        });
+      } else if (isStringArray(type, services)) {
+        suggestions.push({
+          messageId: 'suggestLanguageSensitiveOrder',
+          fix: fixer(call, '(a, b) => a.localeCompare(b)'),
         });
       }
       return suggestions;

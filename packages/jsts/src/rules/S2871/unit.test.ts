@@ -148,43 +148,7 @@ describe('S2871', () => {
           {
             code: `Array.prototype.sort.apply([1, 2, 10])`,
           },
-          // Compliant: string array sorts are suppressed (typechecker detects string values)
-          {
-            code: `const array = ["foo", "bar"]; array.sort();`,
-          },
-          {
-            code: `['foo', 'bar', 'baz'].sort();`,
-          },
-          {
-            code: `
-      function f(a: string[]) {
-        a.sort();
-      }
-    `,
-          },
-          {
-            code: `
-      function f(a: string[]) {
-        a?.sort();
-      }
-    `,
-          },
-          {
-            code: `
-      function getString() {
-        return 'foo';
-      }
-      [getString(), getString()].sort();
-    `,
-          },
-          {
-            code: `
-      const foo = 'foo';
-      const bar = 'bar';
-      const baz = 'baz';
-      [foo, bar, baz].sort();
-    `,
-          },
+          // Compliant: order-independent comparison suppressed before type check
           {
             code: `
       function f(a: string[], b: string[]) {
@@ -199,7 +163,7 @@ describe('S2871', () => {
       }
     `,
           },
-          // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (string[])
+          // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (provably technical strings)
           {
             code: `const keys = Object.keys({ a: 1, b: 2 }).sort();`,
           },
@@ -389,6 +353,127 @@ describe('S2871', () => {
               {
                 messageId: 'provideCompareFunction',
                 suggestions: [],
+              },
+            ],
+          },
+          // General string arrays: reported with localeCompare suggestion
+          {
+            code: `const array = ["foo", "bar"]; array.sort();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const array = ["foo", "bar"]; array.sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      function f(a: string[]) {
+        a?.sort();
+      }
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[]) {
+        a?.sort((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `['foo', 'bar', 'baz'].sort();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `['foo', 'bar', 'baz'].sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      function f(a: string[]) {
+        a.sort();
+      }
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[]) {
+        a.sort((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      function getString() {
+        return 'foo';
+      }
+      [getString(), getString()].sort();
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function getString() {
+        return 'foo';
+      }
+      [getString(), getString()].sort((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      const foo = 'foo';
+      const bar = 'bar';
+      const baz = 'baz';
+      [foo, bar, baz].sort();
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      const foo = 'foo';
+      const bar = 'bar';
+      const baz = 'baz';
+      [foo, bar, baz].sort((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
               },
             ],
           },
@@ -669,45 +754,7 @@ describe('S2871', () => {
           {
             code: `const sorted = Array.prototype.toSorted.apply([1, 2, 10])`,
           },
-          // Compliant: string array sorts are suppressed (typechecker detects string values)
-          {
-            code: `const array = ["foo", "bar"]; const sorted = array.toSorted();`,
-          },
-          {
-            code: `
-      function f(a: string[]) {
-        return a.toSorted();
-      }
-    `,
-          },
-          {
-            code: `
-      function f(a: string[]) {
-        return a?.toSorted();
-      }
-    `,
-          },
-          {
-            code: `
-      const sorted = ['foo', 'bar', 'baz'].toSorted();
-    `,
-          },
-          {
-            code: `
-      function getString() {
-        return 'foo';
-      }
-      const sorted = [getString(), getString()].toSorted();
-    `,
-          },
-          {
-            code: `
-      const foo = 'foo';
-      const bar = 'bar';
-      const baz = 'baz';
-      const sorted = [foo, bar, baz].toSorted();
-    `,
-          },
+          // Compliant: order-independent comparison suppressed before type check
           {
             code: `
       function f(a: string[], b: string[]) {
@@ -722,7 +769,7 @@ describe('S2871', () => {
       }
     `,
           },
-          // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (string[])
+          // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (provably technical strings)
           {
             code: `const keys = Object.keys({ a: 1, b: 2 }).toSorted();`,
           },
@@ -915,6 +962,131 @@ describe('S2871', () => {
               {
                 messageId: 'provideCompareFunction',
                 suggestions: [],
+              },
+            ],
+          },
+          // General string arrays: reported with localeCompare suggestion
+          {
+            code: `
+      function f(a: string[]) {
+        return a?.toSorted();
+      }
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[]) {
+        return a?.toSorted((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `const array = ["foo", "bar"]; const sorted = array.toSorted();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const array = ["foo", "bar"]; const sorted = array.toSorted((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      function f(a: string[]) {
+        return a.toSorted();
+      }
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[]) {
+        return a.toSorted((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      const sorted = ['foo', 'bar', 'baz'].toSorted();
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      const sorted = ['foo', 'bar', 'baz'].toSorted((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      function getString() {
+        return 'foo';
+      }
+      const sorted = [getString(), getString()].toSorted();
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function getString() {
+        return 'foo';
+      }
+      const sorted = [getString(), getString()].toSorted((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      const foo = 'foo';
+      const bar = 'bar';
+      const baz = 'baz';
+      const sorted = [foo, bar, baz].toSorted();
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      const foo = 'foo';
+      const bar = 'bar';
+      const baz = 'baz';
+      const sorted = [foo, bar, baz].toSorted((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
               },
             ],
           },
