@@ -63,7 +63,7 @@ gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100&page=
 ```
 
 For each page, collect jobs where `conclusion == "failure"`. Record each job's `name`, `id`, and
-`completedAt` (may be `null` — see Step 8 for handling).
+`completedAt` (may be `null` — see Step 7 for handling).
 
 **Step 3 — Early exit if no failures**
 

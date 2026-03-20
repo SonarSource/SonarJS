@@ -45,6 +45,7 @@ Any other sensor name (e.g. `Sensor Declarative Rule Engine for Shell`, `Java se
 
 3. Which component crashed?
    ├─ Stack trace is in `ReportPublisher.upload` → IGNORE (Peach server / report upload timeout)
+   ├─ Stack trace contains `org.sonar.plugins.javascript` frames but no sensor name → CRITICAL (SonarJS plugin initialization failure)
    ├─ Sensor name is one of the SonarJS sensors listed above → CRITICAL (SonarJS analyzer crash)
    └─ Sensor name is something else (DRE Shell, Java, Security...) → IGNORE (different plugin, not our problem)
 ```
