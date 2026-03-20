@@ -51,24 +51,35 @@ Any other sensor name (e.g. `Sensor Declarative Rule Engine for Shell`, `Java se
 
 ## Failure Categories
 
-### CRITICAL: SonarJS Analyzer Crash
+### CRITICAL: SonarJS Plugin Failure
 
 **Verdict:** CRITICAL — must be investigated before any release.
 
 **How to identify:**
 - Failure occurs during the SonarScanner execution step (not during install/checkout)
 - Scanner exits with code 3
-- Java stack trace present in the logs
-- The failing sensor is one of the **SonarJS sensors** listed above (look for
-  `Sensor JavaScript/TypeScript/CSS analysis` or similar in the log lines near the crash)
+- Java stack trace present in the logs, with frames in `org.sonar.plugins.javascript`
+- This includes both sensor-level crashes and plugin initialization failures (where no sensor
+  name appears because the plugin failed to load before any sensor ran)
+- When this is the root cause of a mass failure, it takes priority over any infrastructure
+  explanation
 
-**Example log excerpt:**
+**Example log excerpt (sensor crash):**
 ```
 Sensor JavaScript/TypeScript/CSS analysis [javascript]
 ...
 ERROR Error during SonarScanner Engine execution
 java.lang.IllegalStateException: Analysis failed
   at org.sonar.plugins.javascript.analysis.WebSensor.execute(WebSensor.java:...)
+  ...
+EXECUTION FAILURE
+##[error]Process completed with exit code 3.
+```
+
+**Example log excerpt (plugin initialization failure — can cause mass failure):**
+```
+java.lang.IllegalStateException: Unable to load components interface org.sonar.api.batch.sensor.Sensor
+  at org.sonar.plugins.javascript.analysis.JsTsChecks.<init>(JsTsChecks.java:...)
   ...
 EXECUTION FAILURE
 ##[error]Process completed with exit code 3.
