@@ -23,7 +23,7 @@ import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/f
 import { RuleConfig } from '../../src/linter/config.js';
 import type { ShouldIgnoreFileParams } from '../../../shared/src/helpers/filter/filter.js';
 import { DEFAULT_FILE_SUFFIXES } from '../../../shared/src/helpers/configuration.js';
-import { APIError } from '../../../shared/src/errors/error.js';
+import { ErrorCode } from '../../../shared/src/errors/error.js';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 
@@ -122,9 +122,9 @@ describe('analyzeCSS', () => {
     await expect(
       analyzeCSS(await input(filePath), defaultShouldIgnoreParams),
     ).rejects.toMatchObject({
-      code: APIError.parsingError('Unclosed block', { line: 2 }).code,
+      code: ErrorCode.Parsing,
       message: 'Unclosed block',
-      data: { line: 2, column: expect.any(Number) },
+      data: { line: 2, column: 2 },
     });
   });
 });
@@ -142,7 +142,7 @@ describe('should emit correctly located issues regardless of invisible character
       const executeTest = async (characterCode: number) => {
         const hexadecimalRepresentation = characterCode.toString(16);
 
-        it(`${type} character(s) 0x${hexadecimalRepresentation}`, async () => {
+        await it(`${type} character(s) 0x${hexadecimalRepresentation}`, async () => {
           const character = String.fromCodePoint(characterCode);
           const analysisInput: CssAnalysisInput = {
             fileContent:
@@ -166,11 +166,11 @@ ${character}${character}${character}.foo {`,
 
           await expect(analyzeCSS(analysisInput, defaultShouldIgnoreParams))
             .rejects.toMatchObject({
-              code: APIError.parsingError('Unclosed block', { line: expectation[0] }).code,
+              code: ErrorCode.Parsing,
               message: 'Unclosed block',
               data: {
                 line: expectation[0],
-                column: expect.any(Number),
+                column: expectation[1],
               },
             })
             .catch(error => {

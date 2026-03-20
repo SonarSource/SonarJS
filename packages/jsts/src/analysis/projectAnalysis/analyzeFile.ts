@@ -38,7 +38,6 @@ import { analyzeCSSProject } from '../../../../css/src/analysis/analyzer.js';
 import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
 import { error } from '../../../../shared/src/helpers/logging.js';
 import type { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/filter.js';
-import type { FileSuccessResult } from './projectAnalysis.js';
 
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
@@ -109,20 +108,18 @@ export async function analyzeFile(
       },
       shouldIgnoreParams,
     );
+  } else if (isHtmlFile(fileName)) {
+    result = await analyzeHTMLProject(embeddedInput, shouldIgnoreParams, input.language);
+  } else if (isYamlFile(fileName, input.fileContent)) {
+    result = await analyzeYAMLProject(embeddedInput, shouldIgnoreParams, input.language);
+  } else if (isJsTsFile(fileName, shouldIgnoreParams)) {
+    result = await analyzeJSTSProject(input, shouldIgnoreParams);
   } else {
-    if (isHtmlFile(fileName)) {
-      result = await analyzeHTMLProject(embeddedInput, shouldIgnoreParams, input.language);
-    } else if (isYamlFile(fileName, input.fileContent)) {
-      result = await analyzeYAMLProject(embeddedInput, shouldIgnoreParams, input.language);
-    } else if (isJsTsFile(fileName, shouldIgnoreParams)) {
-      result = await analyzeJSTSProject(input, shouldIgnoreParams);
-    } else {
-      result = { issues: [] };
-    }
+    result = { issues: [] };
+  }
 
-    if (cssLinter.isInitialized() && isAlsoCssFile(fileName)) {
-      result = await mergeAdditionalCssAnalysis(fileName, input, shouldIgnoreParams, result);
-    }
+  if (cssLinter.isInitialized() && isAlsoCssFile(fileName)) {
+    result = await mergeAdditionalCssAnalysis(fileName, input, shouldIgnoreParams, result);
   }
 
   if (pendingFiles) {
@@ -156,7 +153,6 @@ async function mergeAdditionalCssAnalysis(
   if ('error' in result) {
     return result;
   }
-  const primaryResult = result as FileSuccessResult;
 
   const cssResult = await analyzeCSSProject(
     {
@@ -170,16 +166,16 @@ async function mergeAdditionalCssAnalysis(
   if ('error' in cssResult) {
     // Preserve legacy behavior for non-parsing CSS failures in mixed files.
     error(`CSS analysis failed for ${fileName}: ${cssResult.error}`);
-    return primaryResult;
+    return result;
   }
-  primaryResult.issues.push(...cssResult.issues);
+  result.issues.push(...cssResult.issues);
   if ('parsingErrors' in cssResult && cssResult.parsingErrors?.length) {
-    const parsingErrors = [...(primaryResult.parsingErrors ?? []), ...cssResult.parsingErrors];
+    const parsingErrors = [...(result.parsingErrors ?? []), ...cssResult.parsingErrors];
     return {
-      ...primaryResult,
+      ...result,
       parsingErrors,
     };
   }
 
-  return primaryResult;
+  return result;
 }

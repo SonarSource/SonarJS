@@ -48,7 +48,7 @@ export async function analyzeYAMLProject(
 ): Promise<EmbeddedAnalysisOutput | ProjectFailureResult> {
   try {
     return await analyzeYAML(input, shouldIgnoreParams);
-  } catch (failure) {
-    return toProjectFailureResult(failure, language);
+  } catch (err) {
+    return toProjectFailureResult(err, language);
   }
 }

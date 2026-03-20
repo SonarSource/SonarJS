@@ -48,7 +48,7 @@ export async function analyzeHTMLProject(
 ): Promise<EmbeddedAnalysisOutput | ProjectFailureResult> {
   try {
     return await analyzeHTML(input, shouldIgnoreParams);
-  } catch (failure) {
-    return toProjectFailureResult(failure, language);
+  } catch (err) {
+    return toProjectFailureResult(err, language);
   }
 }

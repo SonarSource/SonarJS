@@ -401,9 +401,7 @@ public class BridgeServerImpl implements BridgeServer {
     try {
       return GSON.fromJson(result.reader(), ProjectAnalysisOutputDTO.class);
     } catch (JsonSyntaxException e) {
-      String msg = "Failed to parse project analysis response";
-      LOG.error(msg, e);
-      throw new IllegalStateException(msg, e);
+      throw new IllegalStateException("Failed to parse project analysis response", e);
     }
   }
 

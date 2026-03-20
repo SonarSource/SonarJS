@@ -121,8 +121,8 @@ export async function analyzeJSTSProject(
 ): Promise<JsTsAnalysisOutput | ProjectFailureResult> {
   try {
     return await analyzeJSTS(input, shouldIgnoreParams);
-  } catch (failure) {
-    return toProjectFailureResult(failure, input.language);
+  } catch (err) {
+    return toProjectFailureResult(err, input.language);
   }
 }
 

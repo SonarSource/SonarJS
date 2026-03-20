@@ -38,8 +38,7 @@ export function errorMiddleware(
   response: express.Response,
   _next: express.NextFunction,
 ) {
-  const normalizedError = normalizeError(err);
-  response.json(handleError(normalizedError));
+  response.json(handleError(err));
 }
 
 export function handleError(err: unknown) {

@@ -109,8 +109,8 @@ export async function analyzeCSSProject(
 ): Promise<CssAnalysisOutput | ProjectFailureResult> {
   try {
     return await analyzeCSS(input, shouldIgnoreParams);
-  } catch (failure) {
-    return toProjectFailureResult(failure, 'css');
+  } catch (err) {
+    return toProjectFailureResult(err, 'css');
   }
 }
 

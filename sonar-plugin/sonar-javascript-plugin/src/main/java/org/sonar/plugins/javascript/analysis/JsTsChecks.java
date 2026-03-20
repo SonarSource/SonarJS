@@ -279,9 +279,8 @@ public class JsTsChecks {
    * @param language The language that produced the parsing error
    * @return rule key for parse error
    */
-  @Nullable
-  RuleKey parsingErrorRuleKey(@Nullable Language language) {
-    return language != null ? parseErrorRuleKeys.get(language) : null;
+  RuleKey parsingErrorRuleKey(Language language) {
+    return parseErrorRuleKeys.get(language);
   }
 
   @Nullable

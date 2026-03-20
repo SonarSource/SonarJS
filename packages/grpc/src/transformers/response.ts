@@ -43,8 +43,8 @@ function isValidOneBasedLine(line: number): line is number {
 function toTextRange(
   line: number,
   column: number,
-  endLine: number | undefined,
-  endColumn: number | undefined,
+  endLine?: number,
+  endColumn?: number,
 ): analyzer.ITextRange | undefined {
   if (!isValidOneBasedLine(line)) {
     return undefined;
@@ -168,8 +168,7 @@ function transformParsingErrorIssue(
     filePath,
     message,
     rule: { repo, rule: PARSING_ERROR_RULE_KEY },
-    textRange:
-      line !== undefined ? toTextRange(line, column ?? 0, undefined, undefined) : undefined,
+    textRange: line !== undefined ? toTextRange(line, column ?? 0) : undefined,
     flows: [],
   };
 }

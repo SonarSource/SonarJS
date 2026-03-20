@@ -133,10 +133,6 @@ public class AnalysisProcessor {
       LOG.warn("Failed to parse file [{}] at line {}: {}", file, line, message);
     } else if (parsingError.code() == ParsingErrorCode.FAILING_TYPESCRIPT) {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
-    } else if (CssLanguage.KEY.equals(file.language())) {
-      // CSS parsing errors are expected for certain preprocessor files (e.g. Sass)
-      // and should not abort the analysis in failFast mode.
-      LOG.warn("Failed to analyze CSS file [{}]: {}", file, message);
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
       if (context.failFast()) {
@@ -181,31 +177,13 @@ public class AnalysisProcessor {
       .save();
   }
 
-  private boolean isCssParsingError(ParsingError parsingError) {
-    return (
-      CssLanguage.KEY.equals(parsingError.language()) || CssLanguage.KEY.equals(file.language())
-    );
-  }
-
   @Nullable
   private RuleKey parsingErrorRuleKey(ParsingError parsingError) {
-    if (isCssParsingError(parsingError)) {
-      return cssRules != null
-        ? cssRules.getActiveSonarKey(CssRules.CSS_PARSING_ERROR_STYLELINT_KEY)
-        : null;
+    if (CssLanguage.KEY.equals(parsingError.language())) {
+      return cssRules.getActiveSonarKey(CssRules.CSS_PARSING_ERROR_STYLELINT_KEY);
     }
 
-    var parsingErrorRuleKey = checks.parsingErrorRuleKey(toLanguage(parsingError.language()));
-    if (parsingErrorRuleKey != null) {
-      return parsingErrorRuleKey;
-    }
-
-    parsingErrorRuleKey = checks.parsingErrorRuleKey(toLanguage(file.language()));
-    if (parsingErrorRuleKey != null) {
-      return parsingErrorRuleKey;
-    }
-
-    return checks.parsingErrorRuleKey();
+    return checks.parsingErrorRuleKey(Language.of(parsingError.language()));
   }
 
   private void saveIssues(JsTsContext<?> context, List<Issue> issues) {
@@ -426,11 +404,6 @@ public class AnalysisProcessor {
       TypeScriptLanguage.KEY.equals(language) ||
       CssLanguage.KEY.equals(language)
     );
-  }
-
-  @Nullable
-  private static Language toLanguage(@Nullable String language) {
-    return language != null ? Language.of(language) : null;
   }
 
   private static int toParsingErrorColumn(@Nullable Integer line, @Nullable Integer column) {

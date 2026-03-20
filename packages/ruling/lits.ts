@@ -95,10 +95,6 @@ function registerIssues(
   }
 
   for (const issue of analysisOutput.issues) {
-    if (issue.ruleId === 'CssSyntaxError') {
-      // Parsing errors are serialized separately as S2260 via parsingErrors.
-      continue;
-    }
     const ruleId = toLitsRuleId(issue.ruleId, issue.language);
     const languageIssues = getRuleIssues(result, ruleId)[issue.language];
     const lines = languageIssues[projectWithFilename] ?? [];
