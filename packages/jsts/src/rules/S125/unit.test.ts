@@ -390,6 +390,16 @@ let x = 0;`,
             },
           ],
         },
+        {
+          // task marker inline after code on same line — line parses as code, so not treated as task marker; group is still flagged
+          code: `// if (cond) { doSomething(); } // TODO: remove`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
       ],
     });
   });
