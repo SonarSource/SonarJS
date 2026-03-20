@@ -135,7 +135,7 @@ public class AnalysisProcessor {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
-      if (context.failFast()) {
+      if (context.failFast() && !CssLanguage.KEY.equals(parsingError.language())) {
         throw new IllegalStateException("Failed to analyze file " + file);
       }
     }

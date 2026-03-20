@@ -661,6 +661,31 @@ class WebSensorTest {
   }
 
   @Test
+  void should_not_fail_fast_with_css_parsing_error_without_line() {
+    MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
+    context.setSettings(settings);
+    var expectedResponse = createProjectResponse(
+      new HashMap<>() {
+        {
+          put(
+            inputFile.absolutePath(),
+            GSON.fromJson(
+              "{ parsingErrors: [{ message: \"Parse error message\", language: \"css\"}] }",
+              BridgeServer.AnalysisResponseDTO.class
+            )
+          );
+        }
+      }
+    );
+
+    executeSensorMockingResponse(expectedResponse);
+    assertThat(logTester.logs(Level.ERROR)).contains(
+      "Failed to analyze file [dir/file.ts]: Parse error message"
+    );
+    assertThat(context.allAnalysisErrors()).hasSize(1);
+  }
+
+  @Test
   void do_not_start_analysis_if_cancelled() {
     context.setCancelled(true);
     createSensor().execute(context);
