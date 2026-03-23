@@ -82,7 +82,9 @@ export const rule: Rule.RuleModule = {
           );
           if (
             swappedArgumentName &&
-            !areComparedArguments([argumentName, swappedArgumentName], functionCall)
+            !areComparedArguments([argumentName, swappedArgumentName], functionCall) &&
+            !isIntentionalComparatorReversal(functionCall, argumentName, swappedArgumentName) &&
+            !isInDirectionalContext(functionCall)
           ) {
             raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
             return;
@@ -133,6 +135,91 @@ export const rule: Rule.RuleModule = {
               return checkComparedArguments(lhs, rhs);
             }
             break;
+          }
+        }
+      }
+      return false;
+    }
+
+    /**
+     * Returns true when the detected argument swap is an intentional reversal wrapper.
+     *
+     * A reversal wrapper is an ArrowFunctionExpression or FunctionExpression with exactly
+     * 2 single-character identifier parameters (e.g. `a`, `b`, `x`, `y`) whose sole body
+     * is a single call that passes those same 2 parameters in swapped order,
+     * e.g. `(a, b) => compare(b, a)`.
+     *
+     * Requiring single-character parameter names ensures that only placeholder-style names
+     * are treated as intentional reversals. Meaningful names like `year` or `month` indicate
+     * that the swap is likely a bug rather than a deliberate comparator reversal.
+     */
+    function isIntentionalComparatorReversal(
+      functionCall: estree.CallExpression,
+      arg1Name: string,
+      arg2Name: string,
+    ): boolean {
+      const enclosingFunc = context.sourceCode
+        .getAncestors(functionCall)
+        .reverse()
+        .find(
+          ancestor =>
+            ancestor.type === 'ArrowFunctionExpression' || ancestor.type === 'FunctionExpression',
+        );
+
+      if (enclosingFunc?.params.length !== 2) {
+        return false;
+      }
+
+      const [param0, param1] = enclosingFunc.params;
+      if (param0.type !== 'Identifier' || param1.type !== 'Identifier') {
+        return false;
+      }
+
+      // Only suppress when parameter names are single-character placeholders like 'a', 'b', 'x', 'y'.
+      // Meaningful names (e.g. 'year', 'month') suggest the swap is a real bug, not an intentional reversal.
+      if (param0.name.length > 1 || param1.name.length > 1) {
+        return false;
+      }
+
+      const paramNames = new Set([param0.name, param1.name]);
+      if (!paramNames.has(arg1Name) || !paramNames.has(arg2Name)) {
+        return false;
+      }
+
+      const body = enclosingFunc.body;
+      if (body === functionCall) {
+        return true;
+      }
+      if (
+        body.type === 'BlockStatement' &&
+        body.body.length === 1 &&
+        body.body[0].type === 'ReturnStatement' &&
+        body.body[0].argument === functionCall
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+
+    // Returns true if the node is nested inside an object property whose key is a
+    // directional keyword (e.g. 'rtl', 'ltr', 'reverse'). In such cases, parameter
+    // swapping is intentional — it represents the opposite ordering for bidirectional
+    // text handling or conditional reversal logic.
+    function isInDirectionalContext(node: estree.CallExpression): boolean {
+      const ancestors = context.sourceCode.getAncestors(node);
+      for (const ancestor of ancestors) {
+        if (ancestor.type === 'Property') {
+          const { key } = ancestor;
+          if (key.type === 'Identifier' && DIRECTIONAL_KEYWORD_PATTERN.test(key.name)) {
+            return true;
+          }
+          if (
+            key.type === 'Literal' &&
+            typeof key.value === 'string' &&
+            DIRECTIONAL_KEYWORD_PATTERN.test(key.value)
+          ) {
+            return true;
           }
         }
       }
@@ -233,6 +320,7 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+const DIRECTIONAL_KEYWORD_PATTERN = /\b(rtl|ltr|reverse|flip|swap|forward|backward)\b/i;
 const CRYPTO_FUNCTION_PATTERN = /^(md[45]_?)?(ff|gg|hh|ii)$/i;
 const CRYPTO_STATE_PARAM_COUNT = 4;
 

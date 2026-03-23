@@ -18,11 +18,27 @@ import type { Rule } from 'eslint';
 import { ComputedCache } from '../cache.js';
 import type { Minimatch } from 'minimatch';
 import fs from 'node:fs';
+import { extname } from 'node:path/posix';
 import { minVersion } from 'semver';
-import { type NormalizedAbsolutePath, normalizeToAbsolutePath, dirnamePath } from '../files.js';
+import type { PackageJson } from 'type-fest';
+import {
+  type NormalizedAbsolutePath,
+  normalizeToAbsolutePath,
+  dirnamePath,
+  stripBOM,
+} from '../files.js';
 import { getDependenciesFromPackageJson } from './parse.js';
 import { getClosestPackageJSONDir } from './closest.js';
 import { getManifests } from './all-in-parent-dirs.js';
+
+export type ModuleType = 'module' | 'commonjs';
+
+const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
+  '.mjs': 'module',
+  '.mts': 'module',
+  '.cjs': 'commonjs',
+  '.cts': 'commonjs',
+};
 
 /**
  * Cache for the available dependencies by dirname. Exported for tests
@@ -44,6 +60,27 @@ export const dependenciesCache = new ComputedCache(
     return result;
   },
 );
+
+/**
+ * Cache for module type signal by dirname. Exported for tests.
+ */
+export const moduleTypeCache = new ComputedCache(
+  (dir: NormalizedAbsolutePath, topDir?: NormalizedAbsolutePath): ModuleType | undefined => {
+    const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
+    if (!closestPackageJSONDirName) {
+      return undefined;
+    }
+    const [firstManifest] = getManifests(closestPackageJSONDirName, topDir, fs);
+    if (firstManifest?.type === 'module' || firstManifest?.type === 'commonjs') {
+      return firstManifest.type;
+    }
+    if (firstManifest) {
+      return 'commonjs';
+    }
+    return undefined;
+  },
+);
+
 /**
  * Retrieve the dependencies of all the package.json files available for the given file.
  *
@@ -57,6 +94,21 @@ export function getDependencies(dir: NormalizedAbsolutePath, topDir: NormalizedA
     return dependenciesCache.get(closestPackageJSONDirName, topDir);
   }
   return new Set<string | Minimatch>();
+}
+
+/**
+ * Retrieve the module type signal for a file.
+ *
+ * Extension-specific module kinds (.mjs/.mts and .cjs/.cts) are explicit and
+ * take precedence. Otherwise, package.json#type from the closest manifest only
+ * is used. If that closest manifest exists but omits "type", default to CommonJS.
+ */
+export function getModuleType(filePath: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath) {
+  const extensionSignal = MODULE_TYPE_BY_EXTENSION[extname(filePath).toLowerCase()];
+  if (extensionSignal) {
+    return extensionSignal;
+  }
+  return moduleTypeCache.get(dirnamePath(filePath), topDir);
 }
 
 export function getDependenciesSanitizePaths(context: Rule.RuleContext) {
@@ -104,6 +156,73 @@ export function parseReactVersion(reactVersion: string): string | null {
   }
 }
 
+function getAllDependencySignals(packageJson: {
+  dependencies?: PackageJson.Dependency;
+  devDependencies?: PackageJson.Dependency;
+  peerDependencies?: PackageJson.Dependency;
+  optionalDependencies?: PackageJson.Dependency;
+}) {
+  return {
+    ...packageJson.dependencies,
+    ...packageJson.devDependencies,
+    ...packageJson.peerDependencies,
+    ...packageJson.optionalDependencies,
+  };
+}
+
+function getDependencyVersionSignal(
+  packageJson: PackageJson,
+  dependencyName: string,
+): string | null {
+  const dependencyVersion = getAllDependencySignals(packageJson)[dependencyName];
+  return typeof dependencyVersion === 'string' ? dependencyVersion : null;
+}
+
+function isValidDependencySignal(versionSignal: string | null): versionSignal is string {
+  return versionSignal !== null && versionSignal !== 'latest' && versionSignal !== '*';
+}
+
+function hasTypeScriptNativePreviewSignal(packageJson: PackageJson): boolean {
+  return isValidDependencySignal(
+    getDependencyVersionSignal(packageJson, '@typescript/native-preview'),
+  );
+}
+
+function getTypeScriptVersionSignalsFromPackageJson(packageJson: PackageJson): string[] {
+  const result: string[] = [];
+  const nativePreviewVersion = getDependencyVersionSignal(
+    packageJson,
+    '@typescript/native-preview',
+  );
+  if (isValidDependencySignal(nativePreviewVersion)) {
+    result.push(nativePreviewVersion);
+  }
+  const typeScriptVersion = getDependencyVersionSignal(packageJson, 'typescript');
+  if (isValidDependencySignal(typeScriptVersion)) {
+    result.push(typeScriptVersion);
+  }
+  return result;
+}
+
+export function getTypeScriptSignalsFromPackageJsonFiles(
+  packageJsonFiles: Iterable<{ content: string | Buffer }>,
+): { typeScriptVersionSignals: string[]; hasTypeScriptNativePreview: boolean } {
+  const typeScriptVersionSignals: string[] = [];
+  let hasTypeScriptNativePreview = false;
+
+  for (const packageJsonFile of packageJsonFiles) {
+    const packageJson = parsePackageJsonContent(packageJsonFile.content);
+    if (packageJson === undefined) {
+      continue;
+    }
+    typeScriptVersionSignals.push(...getTypeScriptVersionSignalsFromPackageJson(packageJson));
+    hasTypeScriptNativePreview =
+      hasTypeScriptNativePreview || hasTypeScriptNativePreviewSignal(packageJson);
+  }
+
+  return { typeScriptVersionSignals, hasTypeScriptNativePreview };
+}
+
 /**
  * Gets a Node.js version signal from the package.json at baseDir.
  * Checks @types/node in all dependency fields first, then engines.node.
@@ -114,12 +233,7 @@ export function parseReactVersion(reactVersion: string): string | null {
  */
 export function getNodeVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
   for (const packageJson of getManifests(baseDir, baseDir, fs)) {
-    const allDeps = {
-      ...packageJson.dependencies,
-      ...packageJson.devDependencies,
-      ...packageJson.peerDependencies,
-    };
-    const typesNode = allDeps['@types/node'];
+    const typesNode = getDependencyVersionSignal(packageJson, '@types/node');
     if (typeof typesNode === 'string' && typesNode !== 'latest' && typesNode !== '*') {
       return typesNode;
     }
@@ -129,4 +243,13 @@ export function getNodeVersionSignal(baseDir: NormalizedAbsolutePath): string | 
     }
   }
   return null;
+}
+
+function parsePackageJsonContent(content: string | Buffer): PackageJson | undefined {
+  const packageJsonContent = typeof content === 'string' ? content : content.toString();
+  try {
+    return JSON.parse(stripBOM(packageJsonContent)) as PackageJson;
+  } catch {
+    return undefined;
+  }
 }

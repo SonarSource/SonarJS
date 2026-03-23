@@ -174,7 +174,9 @@ public class EmbeddedNode {
       var is = getClass().getResourceAsStream(platform.archivePathInJar());
 
       if (is == null) {
-        LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Embedded node not found for platform {}", platform.archivePathInJar());
+        }
         return;
       }
 
@@ -201,6 +203,7 @@ public class EmbeddedNode {
       LOG.debug("Deployed node version {}", detected);
       isAvailable = true;
     } catch (Exception e) {
+      cleanupDeployedRuntime();
       LOG.warn(
         """
         Embedded Node.js failed to deploy in {}.
@@ -211,6 +214,19 @@ public class EmbeddedNode {
         Environment.defaultSonarUserHome(),
         e
       );
+    }
+  }
+
+  private void cleanupDeployedRuntime() {
+    deleteIfExists(binary());
+    deleteIfExists(deployLocation.resolve(VERSION_FILENAME));
+  }
+
+  private static void deleteIfExists(Path path) {
+    try {
+      Files.deleteIfExists(path);
+    } catch (IOException cleanupError) {
+      LOG.debug("Failed to cleanup embedded Node.js artifact {}", path, cleanupError);
     }
   }
 

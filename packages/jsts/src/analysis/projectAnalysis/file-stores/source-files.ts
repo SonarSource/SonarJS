@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { type JsTsFiles, createJsTsFiles } from '../projectAnalysis.js';
+import { type AnalyzableFiles, createAnalyzableFiles } from '../projectAnalysis.js';
 import { JSTS_ANALYSIS_DEFAULTS } from '../../../analysis/analysis.js';
 import {
   isAnalyzableFile,
@@ -37,13 +37,13 @@ export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call l
 export class SourceFileStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private readonly ignoredPaths = new Set<string>();
-  private files: JsTsFiles | undefined = undefined;
+  private files: AnalyzableFiles | undefined = undefined;
   private readonly directoryIndex = new DirectoryIndex();
 
   /**
    * Checks if the file store is initialized for the given base directory.
    */
-  async isInitialized(configuration: Configuration, inputFiles?: JsTsFiles) {
+  async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
     const { baseDir } = configuration;
     this.dirtyCachesIfNeeded(baseDir);
     if (inputFiles) {
@@ -85,7 +85,7 @@ export class SourceFileStore implements FileStore {
 
   setup(configuration: Configuration) {
     this.baseDir = configuration.baseDir;
-    this.files = createJsTsFiles();
+    this.files = createAnalyzableFiles();
   }
 
   async processFile(filename: NormalizedAbsolutePath, configuration: Configuration) {

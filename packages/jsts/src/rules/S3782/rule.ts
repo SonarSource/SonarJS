@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
 
     function isBuiltInMethod(symbol: ts.Symbol) {
       const parent = symbol.valueDeclaration?.parent;
-      if (!parent || parent.kind !== ts.SyntaxKind.InterfaceDeclaration) {
+      if (parent?.kind !== ts.SyntaxKind.InterfaceDeclaration) {
         return false;
       }
       const parentSymbol = tc.getSymbolAtLocation((parent as ts.InterfaceDeclaration).name);

@@ -16,7 +16,7 @@
  */
 import type { NormalizedAbsolutePath } from '../../../rules/helpers/files.js';
 import type { Configuration } from '../../../../../shared/src/helpers/configuration.js';
-import type { JsTsFiles } from '../projectAnalysis.js';
+import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export abstract class FileStore {
   /**
@@ -25,7 +25,10 @@ export abstract class FileStore {
    * @param configuration - The project configuration
    * @param inputFiles - Optional sanitized input files
    */
-  abstract isInitialized(configuration: Configuration, inputFiles?: JsTsFiles): Promise<boolean>;
+  abstract isInitialized(
+    configuration: Configuration,
+    inputFiles?: AnalyzableFiles,
+  ): Promise<boolean>;
 
   /**
    * Sets up the store for processing files.

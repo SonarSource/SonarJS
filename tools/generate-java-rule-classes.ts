@@ -175,10 +175,10 @@ function generateBody(
         case 'boolean':
           return `"" + ${defaultValue}`;
         case 'string':
-          return `"${defaultValue}"`;
+          return `"${escapeJavaString(defaultValue)}"`;
         case 'object': {
           assert(Array.isArray(defaultValue));
-          return `"${defaultValue.join(',')}"`;
+          return `"${escapeJavaString(defaultValue.join(','))}"`;
         }
       }
     };
@@ -190,10 +190,10 @@ function generateBody(
         case 'boolean':
           return `${defaultValue.toString()}`;
         case 'string':
-          return `"${defaultValue}"`;
+          return `"${escapeJavaString(defaultValue)}"`;
         case 'object':
           assert(Array.isArray(defaultValue));
-          return `"${defaultValue.join(',')}"`;
+          return `"${escapeJavaString(defaultValue.join(','))}"`;
       }
     };
 
@@ -201,7 +201,7 @@ function generateBody(
     const defaultValue = getDefaultValueString();
     imports.add('import org.sonar.check.RuleProperty;');
     result.push(
-      `@RuleProperty(key="${property.displayName ?? defaultFieldName}", description = "${property.description}", defaultValue = ${defaultValue}, type="${property.fieldType || ''}")`,
+      `@RuleProperty(key="${escapeJavaString(property.displayName ?? defaultFieldName)}", description = "${escapeJavaString(property.description)}", defaultValue = ${defaultValue}, type="${escapeJavaString(property.fieldType || '')}")`,
     );
     result.push(`${getJavaType()} ${defaultFieldName} = ${getDefaultValue()};`);
     hasSQProperties = true;
@@ -307,6 +307,9 @@ const CSS_JAVA_TEST_FOLDER = join(
   'css',
   'rules',
 );
+
+const CSS_PARSING_ERROR_RULE_KEY = 'S2260';
+const CSS_PARSING_ERROR_STYLELINT_KEY = 'CssSyntaxError';
 
 function escapeJavaString(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
@@ -426,6 +429,21 @@ async function generateCssJavaCheckClass(rule: CssRuleMeta): Promise<void> {
   );
 }
 
+async function generateCssParsingErrorClass(): Promise<void> {
+  await inflateTemplateToFile(
+    join(JAVA_TEMPLATES_FOLDER, 'css-check.template'),
+    join(CSS_JAVA_CHECKS_FOLDER, `${CSS_PARSING_ERROR_RULE_KEY}.java`),
+    {
+      ___HEADER___: header,
+      ___IMPORTS___: '',
+      ___RULE_KEY___: CSS_PARSING_ERROR_RULE_KEY,
+      ___CLASS_NAME___: CSS_PARSING_ERROR_RULE_KEY,
+      ___STYLELINT_KEY___: CSS_PARSING_ERROR_STYLELINT_KEY,
+      ___BODY___: '',
+    },
+  );
+}
+
 function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
   perRuleTests: string;
   rulesWithOptionsClasses: string;
@@ -526,13 +544,18 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
 for (const cssRule of cssRulesMeta) {
   await generateCssJavaCheckClass(cssRule);
 }
+await generateCssParsingErrorClass();
 
 // Generate CssRules.java
-const sortedCssRules = cssRulesMeta.toSorted((a, b) => sonarKeySorter(a.sqKey, b.sqKey));
+const sortedCssRuleKeys = [
+  ...new Set([...cssRulesMeta.map(rule => rule.sqKey), CSS_PARSING_ERROR_RULE_KEY]),
+].toSorted(sonarKeySorter);
 
-const cssRuleImports = sortedCssRules.map(r => `import org.sonar.css.rules.${r.sqKey};`).join('\n');
+const cssRuleImports = sortedCssRuleKeys
+  .map(ruleKey => `import org.sonar.css.rules.${ruleKey};`)
+  .join('\n');
 
-const cssRuleClasses = sortedCssRules.map(r => `${r.sqKey}.class`).join(',\n        ');
+const cssRuleClasses = sortedCssRuleKeys.map(ruleKey => `${ruleKey}.class`).join(',\n        ');
 
 await inflateTemplateToFile(
   join(JAVA_TEMPLATES_FOLDER, 'css-rules.template'),

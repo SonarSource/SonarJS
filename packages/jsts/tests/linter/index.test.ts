@@ -23,6 +23,10 @@ import { RuleConfig } from '../../src/linter/config/rule-config.js';
 import { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import { AnalysisMode } from '../../src/analysis/analysis.js';
 import { normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
+import {
+  getProjectAnalysisTelemetry,
+  resetProjectAnalysisTelemetry,
+} from '../../src/analysis/projectAnalysis/telemetry.js';
 
 describe('Linter', () => {
   it('should initialize the linter wrapper', async ({ mock }) => {
@@ -159,6 +163,56 @@ describe('Linter', () => {
     );
   });
 
+  it('should disable React-dependent rules when react dependency is missing', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'no-react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S6477',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.jsx')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    expect(rules).not.toHaveProperty('sonarjs/S6477');
+  });
+
+  it('should enable React-dependent rules when react dependency is present', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S6477',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.jsx')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    expect(rules).toHaveProperty('sonarjs/S6477');
+  });
+
   it('should enable internal custom rules by default', async () => {
     await Linter.initialize({
       baseDir: normalizeToAbsolutePath(import.meta.dirname),
@@ -241,6 +295,95 @@ describe('Linter', () => {
       undefined,
     );
     expect(rules).toHaveProperty('sonarjs/S7755');
+  });
+
+  it('should disable rules whose requiredModuleType excludes detected module type', async () => {
+    // S7785 requires ESM modules — should be disabled for explicit CommonJS files
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S7785',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath('/file.cjs'),
+      'MAIN',
+      'DEFAULT',
+      'js',
+      2022,
+    );
+    expect(rules).not.toHaveProperty('sonarjs/S7785');
+  });
+
+  it('should enable rules when requiredModuleType matches detected module type', async () => {
+    // S7785 requires ESM modules — should be enabled for explicit ES modules
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S7785',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath('/file.mjs'),
+      'MAIN',
+      'DEFAULT',
+      'js',
+      2022,
+    );
+    expect(rules).toHaveProperty('sonarjs/S7785');
+  });
+
+  it('should not filter rules by module type when no module signal is available', async () => {
+    // Unknown module type should keep rules enabled (same behavior as unknown ES version)
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S7785',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath('/file.js'),
+      'MAIN',
+      'DEFAULT',
+      'js',
+      2022,
+    );
+    expect(rules).toHaveProperty('sonarjs/S7785');
+  });
+
+  it('should track module type telemetry during rule filtering', async () => {
+    resetProjectAnalysisTelemetry();
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [],
+    });
+
+    Linter.getRulesForFile(normalizeToAbsolutePath('/file.mjs'), 'MAIN', 'DEFAULT', 'js');
+    Linter.getRulesForFile(normalizeToAbsolutePath('/file.cjs'), 'MAIN', 'DEFAULT', 'js');
+    Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js');
+
+    expect(getProjectAnalysisTelemetry()).toMatchObject({
+      esmFileCount: 1,
+      cjsFileCount: 1,
+    });
   });
 
   it('should not enable internal custom rules in SonarLint context', async () => {

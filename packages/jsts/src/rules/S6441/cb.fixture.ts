@@ -1,10 +1,3 @@
-class Foo extends React.Component {
-  handleClick() {}
-  render() {
-    return null;
-  }
-}
-
 import React from 'react';
 
 class Foo2 extends React.Component {

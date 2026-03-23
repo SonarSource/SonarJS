@@ -78,11 +78,11 @@ public class NodeCommand {
    */
   public void start() {
     try {
-      LOG.debug("Launching command {}", toString());
+      LOG.debug("Launching command {}", this);
       process = processWrapper.startProcess(command, env, outputConsumer, errorConsumer);
     } catch (IOException e) {
       throw new NodeCommandException(
-        "Error when running: '" + toString() + "'. Is Node.js available during analysis?",
+        "Error when running: '" + this + "'. Is Node.js available during analysis?",
         e
       );
     }

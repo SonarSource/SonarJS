@@ -24,7 +24,7 @@ import {
   clearSourceFileContentCache,
   getCachedSourceFile,
 } from '../../src/program/cache/sourceFileCache.js';
-import { normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
+import { joinPaths, normalizeToAbsolutePath } from '../../src/rules/helpers/files.js';
 
 describe('IncrementalCompilerHost', () => {
   const baseDir = normalizeToAbsolutePath('/project');
@@ -196,6 +196,60 @@ describe('IncrementalCompilerHost', () => {
 
       const calls = host.getTrackedFsCalls();
       expect(calls.some(c => c.op === 'fileExists-context')).toBe(true);
+    });
+
+    it('should query node_modules lookups outside baseDir', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const outsideNodeModulesFile = normalizeToAbsolutePath(
+        '/external/node_modules/pkg/index.d.ts',
+      );
+
+      expect(host.fileExists(outsideNodeModulesFile)).toBe(false);
+
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'fileExists-disk')).toBe(true);
+    });
+  });
+
+  describe('readDirectory', () => {
+    const extensions = ['.ts', '.d.ts'];
+    const includes = ['**/*'];
+
+    it('should query disk for node_modules lookups outside baseDir by default', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+
+      host.readDirectory('/external/node_modules/pkg', extensions, undefined, includes);
+
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'readDirectory-node_modules-skip')).toBe(false);
+      expect(calls.some(c => c.op === 'readDirectory-disk')).toBe(true);
+    });
+
+    it('should skip node_modules lookups outside baseDir', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir, true);
+
+      const files = host.readDirectory(
+        '/external/node_modules/pkg',
+        extensions,
+        undefined,
+        includes,
+      );
+
+      expect(files).toEqual([]);
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'readDirectory-node_modules-skip')).toBe(true);
+      expect(calls.some(c => c.op === 'readDirectory-disk')).toBe(false);
+    });
+
+    it('should not skip node_modules lookups under baseDir', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+      const nodeModulesUnderBaseDir = joinPaths(baseDir, 'node_modules');
+
+      host.readDirectory(nodeModulesUnderBaseDir, extensions, undefined, includes);
+
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'readDirectory-node_modules-skip')).toBe(false);
+      expect(calls.some(c => c.op === 'readDirectory-disk')).toBe(true);
     });
   });
 

@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { AnalysisOutput } from '../../shared/src/types/analysis.js';
 import type {
   FileResult,
   ProjectAnalysisMeta,
@@ -25,7 +24,7 @@ import { type ErrorData, APIError, ErrorCode } from '../../shared/src/errors/err
 export type RequestResult =
   | {
       type: 'success';
-      result: string | AnalysisOutput | ProjectAnalysisOutput;
+      result: string | ProjectAnalysisOutput;
     }
   | {
       type: 'failure';
@@ -40,16 +39,7 @@ export type WsIncrementalResult = WsFileResult | WsMetaResult | WsAnalysisCancel
 
 export type RequestType = BridgeRequest['type'];
 
-export type BridgeRequest =
-  | JsTsRequest
-  | ProjectAnalysisRequest
-  | CancellationRequest
-  | InitLinterRequest;
-
-type JsTsRequest = {
-  type: 'on-analyze-jsts';
-  data: unknown;
-};
+export type BridgeRequest = ProjectAnalysisRequest | CancellationRequest;
 
 type ProjectAnalysisRequest = {
   type: 'on-analyze-project';
@@ -58,11 +48,6 @@ type ProjectAnalysisRequest = {
 
 type CancellationRequest = {
   type: 'on-cancel-analysis';
-};
-
-type InitLinterRequest = {
-  type: 'on-init-linter';
-  data: unknown;
 };
 
 type SerializedError = {

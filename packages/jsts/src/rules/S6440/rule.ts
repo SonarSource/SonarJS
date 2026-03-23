@@ -21,12 +21,10 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
 import eslintPlugin from 'eslint-plugin-react-hooks';
 const rulesOfHooks = (eslintPlugin as any).rules['rules-of-hooks'];
-import { detectReactRule } from '../helpers/rule-detect-react.js';
 import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isFunctionNode } from '../helpers/ast.js';
-import { mergeRules } from '../helpers/decorators/merger.js';
 import * as meta from './generated-meta.js';
 
 const FC_TYPES = new Set(['FC', 'FunctionComponent']);
@@ -68,17 +66,9 @@ function isTypedAsFunctionalComponent(funcNode: TSESTree.Node): boolean {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { ...rulesOfHooks.meta }),
   create(context: Rule.RuleContext) {
-    let isReact = false;
-
-    const detectReactListener: Rule.RuleModule = interceptReport(detectReactRule, function () {
-      isReact = true;
-    });
     const rulesOfHooksListener: Rule.RuleModule = interceptReport(
       rulesOfHooks,
       function (context: Rule.RuleContext, descriptor: Rule.ReportDescriptor) {
-        if (!isReact) {
-          return;
-        }
         if (
           'message' in descriptor &&
           typeof descriptor.message === 'string' &&
@@ -97,6 +87,6 @@ export const rule: Rule.RuleModule = {
       },
     );
 
-    return mergeRules(detectReactListener.create(context), rulesOfHooksListener.create(context));
+    return rulesOfHooksListener.create(context);
   },
 };

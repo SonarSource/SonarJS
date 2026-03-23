@@ -65,7 +65,7 @@ class AnalysisProcessorTest {
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var highlight = new Highlight(location, "");
     var response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(),
       List.of(highlight),
       List.of(),
@@ -96,7 +96,7 @@ class AnalysisProcessorTest {
     var declaration = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var symbol = new HighlightedSymbol(declaration, List.of());
     var response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(),
       List.of(),
       List.of(symbol),
@@ -112,7 +112,7 @@ class AnalysisProcessorTest {
     context = new JsTsContext(SensorContextTester.create(baseDir));
     symbol = new HighlightedSymbol(new Location(1, 1, 1, 2), List.of(new Location(2, 2, 2, 1)));
     response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(),
       List.of(),
       List.of(symbol),
@@ -143,7 +143,7 @@ class AnalysisProcessorTest {
     var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
     var cpd = new CpdToken(location, "img");
     var response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(),
       List.of(),
       List.of(),
@@ -186,7 +186,7 @@ class AnalysisProcessorTest {
       "file.js"
     ); // invalid location startLine > endLine
     var response = new AnalysisResponse(
-      null,
+      List.of(),
       List.of(issue),
       List.of(),
       List.of(),

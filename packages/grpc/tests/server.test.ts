@@ -307,7 +307,7 @@ describe('gRPC server', () => {
     const issues = response.issues || [];
 
     expect(issues.length).toBe(1);
-    expect(issues[0].rule?.repo).toBe('javascript');
+    expect(issues[0].rule?.repo).toBe('typescript');
     expect(issues[0].rule?.rule).toBe('S2260');
   });
 
@@ -594,8 +594,8 @@ describe('gRPC server', () => {
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
-  it('should handle rule with customForConfiguration and customDefault (S1441 — quotes)', async () => {
-    // S1441 has customDefault: true and customForConfiguration: `value ? "single" : "double"`
+  it('should handle rule with customForConfiguration (S1441 — quotes)', async () => {
+    // S1441 has default: 'single' and customForConfiguration handling SQ values 'true'/'false'.
     // When SQ sends singleQuotes='true', it should be transformed to 'single' for ESLint
     const content = 'const x = "hello";\n';
 
@@ -633,9 +633,9 @@ describe('gRPC server', () => {
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
-  it('should handle customDefault with number field in object config (S6418 — hard-coded secrets)', async () => {
-    // S6418 config.ts has randomnessSensibility with default: 5 (number) and customDefault: '5.0' (string for Java).
-    // The gRPC path should parse 'randomnessSensibility' as a number (from default: 5).
+  it('should handle number field in object config (S6418 — hard-coded secrets)', async () => {
+    // S6418 config.ts has randomnessSensibility with numeric default: 5.
+    // The gRPC path should parse 'randomnessSensibility' as number.
     // Also tests that 'secretWords' string param is passed correctly.
     // Needs a high-entropy string to exceed the sensibility threshold.
     const content =
@@ -678,9 +678,8 @@ describe('gRPC server', () => {
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
-  it('should handle customDefault with escaped regex string (S139 — trailing comments)', async () => {
-    // S139 (line-comment-position) config.ts has ignorePattern with default: '^\\s*[^\\s]+$'
-    // and customDefault: '^\\\\s*[^\\\\s]+$' (double-escaped for Java).
+  it('should handle escaped regex string defaults (S139 — trailing comments)', async () => {
+    // S139 (line-comment-position) config.ts has ignorePattern default: '^\\s*[^\\s]+$'.
     // The SQ key is 'pattern' (displayName).
 
     // Multi-word trailing comment doesn't match default ignorePattern → should trigger
@@ -720,9 +719,30 @@ describe('gRPC server', () => {
     expect(responseNoTrigger.issues?.length).toBe(0);
   });
 
-  it('should handle customDefault with array of escaped regexes (S7718 — catch error name)', async () => {
-    // S7718 config.ts has ignore field with default: array of regexes and
-    // customDefault: same array with double-escaped regexes (for Java).
+  it('should handle escaped regex defaults with optional $ prefix (S101 — class names)', async () => {
+    // S101 default format is '^\\$?[A-Z][a-zA-Z0-9]*$' and should allow optional '$'.
+    // This verifies the default from Java is correctly unescaped on the JS side.
+    const content = 'interface $ZodCheckDef {}\ninterface my_interface {}\n';
+
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [{ relativePath: '/project/src/interface-name.ts', content }],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S101' },
+          params: [],
+        },
+      ],
+    };
+
+    const response = await client.analyze(request);
+    expect(response.issues?.length).toBe(1);
+    expect(response.issues?.[0].rule?.rule).toBe('S101');
+  });
+
+  it('should handle escaped regex defaults in arrays (S7718 — catch error name)', async () => {
+    // S7718 config.ts has ignore field default as an array of regexes.
     // The gRPC path should split comma-separated values into an array.
     const content = 'try { foo(); } catch (myVar) { throw myVar; }\n';
 
@@ -905,6 +925,39 @@ describe('gRPC server', () => {
 
       expect(issues.length).toBe(1);
       expect(issues[0].rule?.repo).toBe('css');
+    });
+
+    it('should return CSS parsing errors as both S2260 issues and parsing problems', async () => {
+      const request: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [
+          {
+            relativePath: 'src/broken.css',
+            content: 'a {',
+          },
+        ],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4658' },
+            params: [],
+          },
+        ],
+      };
+
+      const response = await client.analyze(request);
+      const issues = response.issues || [];
+      const analysisProblems = response.analysisProblems || [];
+
+      expect(issues.length).toBe(1);
+      expect(issues[0].rule?.repo).toBe('css');
+      expect(issues[0].rule?.rule).toBe('S2260');
+
+      expect(analysisProblems.length).toBe(1);
+      expect(analysisProblems[0].type).toBe(
+        analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_PARSING,
+      );
+      expect(analysisProblems[0].filePath).toBe('src/broken.css');
     });
 
     it('should return no issues for valid CSS', async () => {
