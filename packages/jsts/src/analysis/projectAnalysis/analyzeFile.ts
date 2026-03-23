@@ -106,13 +106,11 @@ export async function analyzeFile(
   let result: FileResult;
 
   if (isCssFile(fileName, cssSuffixes)) {
-    const rules = cssLinter.isInitialized() ? undefined : [];
     result = await analyzeCSSProject({
       filePath: input.filePath,
       fileContent: input.fileContent,
       fileType: input.fileType,
       sonarlint: input.sonarlint,
-      rules,
     });
   } else if (isHtmlFile(fileName, htmlSuffixes)) {
     result = await analyzeHTMLProject(embeddedInput, input.language);
@@ -124,7 +122,7 @@ export async function analyzeFile(
     result = { issues: [] };
   }
 
-  if (cssLinter.isInitialized() && isAlsoCssFile(fileName, cssAdditionalSuffixes)) {
+  if (cssLinter.hasActiveRules() && isAlsoCssFile(fileName, cssAdditionalSuffixes)) {
     result = await mergeAdditionalCssAnalysis(fileName, input, result);
   }
 
@@ -163,6 +161,7 @@ async function mergeAdditionalCssAnalysis(
     {
       filePath: input.filePath,
       fileContent: input.fileContent,
+      fileType: input.fileType,
       sonarlint: input.sonarlint,
     },
     true,

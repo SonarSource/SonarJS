@@ -603,6 +603,31 @@ class WebSensorTest {
   }
 
   @Test
+  void should_normalize_suffixes_before_sending_to_bridge_configuration() {
+    context.setSettings(
+      new MapSettings()
+        .setProperty(JavaScriptPlugin.HTML_FILE_SUFFIXES_KEY, " CUSTOM-HTML ")
+        .setProperty(JavaScriptPlugin.YAML_FILE_SUFFIXES_KEY, ".CUSTOM-YAML")
+        .setProperty(JavaScriptPlugin.CSS_ADDITIONAL_FILE_SUFFIXES_KEY, " custom-style ")
+    );
+
+    var configuration = executeSensorAndCaptureHandler(createSensor(), context)
+      .getRequest()
+      .getConfiguration();
+    JsonObject configurationJson = GSON.toJsonTree(configuration).getAsJsonObject();
+
+    assertThat(getJsonArrayStrings(configurationJson, "htmlSuffixes")).containsExactly(
+      ".custom-html"
+    );
+    assertThat(getJsonArrayStrings(configurationJson, "yamlSuffixes")).containsExactly(
+      ".custom-yaml"
+    );
+    assertThat(getJsonArrayStrings(configurationJson, "cssAdditionalSuffixes")).containsExactly(
+      ".custom-style"
+    );
+  }
+
+  @Test
   void should_select_html_yaml_and_css_additional_files_using_configured_extensions() {
     context.setSettings(
       new MapSettings()

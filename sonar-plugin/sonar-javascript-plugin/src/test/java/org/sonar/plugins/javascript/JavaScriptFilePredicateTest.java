@@ -81,7 +81,10 @@ class JavaScriptFilePredicateTest {
       )
     );
 
-    FilePredicate predicate = JavaScriptFilePredicate.getYamlPredicate(List.of(".yaml", ".yml"));
+    FilePredicate predicate = JavaScriptFilePredicate.getYamlPredicate(
+      fs,
+      List.of(".yaml", ".yml")
+    );
     List<File> files = new ArrayList<>();
     fs.files(predicate).forEach(files::add);
 
@@ -114,7 +117,7 @@ class JavaScriptFilePredicateTest {
     fs.add(yamlWithCustomLanguage);
     fs.add(nonYamlWithYamlLanguage);
 
-    FilePredicate predicate = JavaScriptFilePredicate.getYamlPredicate(List.of(".yaml"));
+    FilePredicate predicate = JavaScriptFilePredicate.getYamlPredicate(fs, List.of(".yaml"));
     assertThat(predicate.apply(yamlWithCustomLanguage)).isTrue();
     assertThat(predicate.apply(nonYamlWithYamlLanguage)).isFalse();
   }

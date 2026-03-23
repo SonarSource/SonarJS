@@ -445,6 +445,26 @@ describe('SonarQube project analysis', () => {
     }
   });
 
+  it('should not include CSS issues from style blocks for TEST HTML files', async () => {
+    const baseDir = join(fixtures, 'html-yaml');
+    const htmlFile = join(baseDir, 'file.html');
+    const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
+
+    const configuration = await initForTest(
+      { baseDir },
+      { [htmlFile]: { filePath: htmlFile, fileType: 'TEST' } },
+    );
+
+    const result = await analyzeProject({ rules: [], cssRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(htmlFile)];
+    expect(fileResult).toBeDefined();
+    expect('issues' in fileResult!).toBe(true);
+    if ('issues' in fileResult!) {
+      expect(fileResult.issues).toEqual([]);
+    }
+  });
+
   it('should collect JS/TS and CSS parsing errors for HTML files analyzed by both pipelines', async () => {
     const baseDir = join(fixtures, 'html-yaml');
     const htmlFile = join(baseDir, 'dual-parse.html');

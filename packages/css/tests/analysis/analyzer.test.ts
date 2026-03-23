@@ -21,11 +21,25 @@ import { analyzeCSS } from '../../src/analysis/analyzer.js';
 import { CssAnalysisInput } from '../../src/analysis/analysis.js';
 import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { RuleConfig } from '../../src/linter/config.js';
+import { linter } from '../../src/linter/wrapper.js';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 
 describe('analyzeCSS', () => {
+  it('should throw a linter initialization error when linter is not initialized', async () => {
+    const analysisInput: CssAnalysisInput = {
+      filePath: normalizeToAbsolutePath('/some/fake/path.css'),
+      fileContent: 'p {}',
+      sonarlint: false,
+    };
+
+    await expect(analyzeCSS(analysisInput)).rejects.toMatchObject({
+      code: ErrorCode.LinterInitialization,
+      message: 'Linter does not exist. LinterWrapper.initialize() was never called.',
+    });
+  });
+
   it('should analyze a css file', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'file.css');
     await expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual(
@@ -62,8 +76,30 @@ describe('analyzeCSS', () => {
     const fileContent = 'a { color: red; }';
     const result = await analyzeCSS(await input('/some/fake/path', fileContent, []));
 
-    expect(result.metrics?.ncloc.length).toBeGreaterThan(0);
+    expect(result.metrics?.ncloc?.length).toBeGreaterThan(0);
     expect(result.highlights?.length).toBeGreaterThan(0);
+  });
+
+  it('should override rules for TEST files and return highlights only', async () => {
+    const fileContent = 'p {}';
+    const result = await analyzeCSS(await input('/some/fake/path', fileContent, rules, 'TEST'));
+
+    expect(result.issues).toEqual([]);
+    expect(result.metrics).toBeUndefined();
+    expect(result.highlights).toBeDefined();
+  });
+
+  it('should return only nosonar metrics in SonarLint context', async () => {
+    const fileContent = '/* NOSONAR */\na { color: red; }';
+    const result = await analyzeCSS(
+      await input('/some/fake/path', fileContent, [], undefined, true),
+    );
+
+    expect(result.issues).toEqual([]);
+    expect(result.highlights).toBeUndefined();
+    expect(result.metrics).toEqual({
+      nosonarLines: [1],
+    });
   });
 
   it('should analyze sass syntax', async () => {
@@ -123,6 +159,7 @@ describe('should emit correctly located issues regardless of invisible character
 
         await it(`${type} character(s) 0x${hexadecimalRepresentation}`, async () => {
           const character = String.fromCodePoint(characterCode);
+          linter.initialize(rules);
           const analysisInput: CssAnalysisInput = {
             fileContent:
               type === 'single'
@@ -138,7 +175,6 @@ ${character}
 ${character}
 ${character}
 ${character}${character}${character}.foo {`,
-            rules,
             filePath: normalizeToAbsolutePath('foo.css'),
             sonarlint: false,
           };
@@ -171,12 +207,15 @@ async function input(
   filePath: string,
   fileContent?: string,
   rules: RuleConfig[] = [],
+  fileType?: 'MAIN' | 'TEST',
+  sonarlint = false,
 ): Promise<CssAnalysisInput> {
+  linter.initialize(rules);
   const normalizedPath = normalizeToAbsolutePath(filePath);
   return {
     filePath: normalizedPath,
     fileContent: fileContent || (await readFile(normalizedPath)),
-    rules,
-    sonarlint: false,
+    fileType,
+    sonarlint,
   };
 }

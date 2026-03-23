@@ -31,6 +31,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
+import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
@@ -184,21 +185,24 @@ public class WebSensor implements Sensor {
     var jsTsPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
 
     // HTML files for JS-in-HTML analysis - extension based only.
-    var htmlPredicate = JavaScriptFilePredicate.getSuffixPredicate(context.getHtmlExtensions());
+    var htmlPredicate = getExtensionsPredicate(fileSystem, context.getHtmlExtensions());
 
     // HTML files for CSS-in-HTML analysis - extension-only.
     // Matches old CssRuleSensor's webFilePredicate (MAIN files only).
     var webFilePredicate = p.and(
       p.hasType(InputFile.Type.MAIN),
-      JavaScriptFilePredicate.getSuffixPredicate(context.getCssAdditionalExtensions())
+      getExtensionsPredicate(fileSystem, context.getCssAdditionalExtensions())
     );
 
     // YAML files (extension based + Helm-safe and SAM template checks)
-    var yamlPredicate = JavaScriptFilePredicate.getYamlPredicate(context.getYamlExtensions());
+    var yamlPredicate = JavaScriptFilePredicate.getYamlPredicate(
+      fileSystem,
+      context.getYamlExtensions()
+    );
 
     // CSS files - include all types (MAIN and TEST). Old CssMetricSensor processed
     // all files for highlighting; old CssRuleSensor only MAIN for issues. The Node.js
-    // side skips linting for TEST files, so only highlighting is computed for them.
+    // side keeps this behavior: TEST files get highlighting but no issues/metrics.
     var cssPredicate = p.hasLanguages(CssLanguage.KEY);
 
     return StreamSupport.stream(
@@ -209,6 +213,23 @@ public class WebSensor implements Sensor {
         .spliterator(),
       false
     ).toList();
+  }
+
+  private static FilePredicate getExtensionsPredicate(
+    FileSystem fileSystem,
+    List<String> suffixes
+  ) {
+    var predicates = fileSystem.predicates();
+    if (suffixes.isEmpty()) {
+      return predicates.none();
+    }
+
+    var extensionPredicates = suffixes
+      .stream()
+      .map(suffix -> suffix.substring(1))
+      .map(predicates::hasExtension)
+      .toList();
+    return predicates.or(extensionPredicates);
   }
 
   private void analyzeFiles(List<InputFile> inputFiles) {

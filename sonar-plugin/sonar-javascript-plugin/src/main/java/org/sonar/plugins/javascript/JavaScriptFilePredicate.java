@@ -17,11 +17,8 @@
 package org.sonar.plugins.javascript;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -63,49 +60,22 @@ public class JavaScriptFilePredicate {
    * <p>We only accept files that also contain the SAM transform marker and a
    * Node.js runtime declaration, matching the previous YamlSensor behavior.</p>
    */
-  public static FilePredicate getYamlPredicate(List<String> yamlExtensions) {
-    var yamlExtensionPredicate = getSuffixPredicate(yamlExtensions);
+  public static FilePredicate getYamlPredicate(FileSystem fs, List<String> yamlExtensions) {
+    var predicates = fs.predicates();
+    if (yamlExtensions.isEmpty()) {
+      return inputFile -> false;
+    }
+    var yamlExtensionPredicate = predicates.or(
+      yamlExtensions
+        .stream()
+        .map(suffix -> predicates.hasExtension(suffix.substring(1)))
+        .toList()
+    );
     return inputFile -> yamlExtensionPredicate.apply(inputFile) && hasValidYamlContent(inputFile);
   }
 
   public static FilePredicate getJsTsPredicate(FileSystem fs) {
     return fs.predicates().hasLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY);
-  }
-
-  public static FilePredicate getSuffixPredicate(List<String> suffixes) {
-    Set<String> normalizedSuffixes = normalizeSuffixes(suffixes);
-    if (normalizedSuffixes.isEmpty()) {
-      return inputFile -> false;
-    }
-    return inputFile -> normalizedSuffixes.contains(getLowerCaseExtension(inputFile.filename()));
-  }
-
-  private static Set<String> normalizeSuffixes(List<String> suffixes) {
-    if (suffixes == null || suffixes.isEmpty()) {
-      return Set.of();
-    }
-    Set<String> normalizedSuffixes = new HashSet<>();
-    for (String suffix : suffixes) {
-      if (suffix == null) {
-        continue;
-      }
-      String normalizedSuffix = suffix.trim().toLowerCase(Locale.ROOT);
-      if (normalizedSuffix.isBlank()) {
-        continue;
-      }
-      normalizedSuffixes.add(
-        normalizedSuffix.startsWith(".") ? normalizedSuffix : "." + normalizedSuffix
-      );
-    }
-    return normalizedSuffixes;
-  }
-
-  private static String getLowerCaseExtension(String fileName) {
-    int extensionStart = fileName.lastIndexOf('.');
-    if (extensionStart < 0) {
-      return "";
-    }
-    return fileName.substring(extensionStart).toLowerCase(Locale.ROOT);
   }
 
   private static boolean hasValidYamlContent(InputFile inputFile) {
