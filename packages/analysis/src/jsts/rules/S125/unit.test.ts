@@ -366,7 +366,12 @@ let x = 0;`,
         {
           // Task marker keyword as code identifier — still flagged (containsCode returns true for the line)
           code: `// const NOTE = 'padding';`,
-          errors: [{ messageId: 'commentedCode' }],
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
         },
       ],
     });
