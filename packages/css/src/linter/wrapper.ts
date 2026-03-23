@@ -95,10 +95,15 @@ export class LinterWrapper {
       config,
     };
 
-    return stylelint.lint(options).then(result => ({
-      issues: transform(result.results, filePath),
-      root: result.results[0]?._postcssResult?.root,
-    }));
+    return stylelint
+      .lint(options)
+      .catch(err => {
+        throw APIError.linterError(`Linter failed to parse file ${filePath}: ${err}`);
+      })
+      .then(result => ({
+        issues: transform(result.results, filePath),
+        root: result.results[0]?._postcssResult?.root,
+      }));
   }
 }
 

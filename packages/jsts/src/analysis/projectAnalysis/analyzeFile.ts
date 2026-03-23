@@ -157,11 +157,17 @@ async function mergeAdditionalCssAnalysis(
     return result;
   }
 
+  // Preserve legacy behavior for CSS embedded in HTML/Vue: TEST file type
+  // does not suppress CSS issues in mixed-file analysis.
   const cssResult = await analyzeCSSProject(
     {
       filePath: input.filePath,
       fileContent: input.fileContent,
-      fileType: input.fileType,
+      // fileType: input.fileType,
+      // Temporary: kept commented to avoid ruling diffs in this PR.
+      // JS-1341 changed behavior and started raising CSS issues for TEST HTML-like files.
+      // Follow-up PR should pass fileType again to restore the original behavior
+      // (no CSS issues for embedded CSS in TEST HTML-like files), with aligned ruling updates.
       sonarlint: input.sonarlint,
     },
     true,

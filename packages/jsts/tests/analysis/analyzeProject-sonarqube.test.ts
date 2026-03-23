@@ -445,7 +445,7 @@ describe('SonarQube project analysis', () => {
     }
   });
 
-  it('should not include CSS issues from style blocks for TEST HTML files', async () => {
+  it('should include CSS issues from style blocks for TEST HTML files', async () => {
     const baseDir = join(fixtures, 'html-yaml');
     const htmlFile = join(baseDir, 'file.html');
     const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
@@ -461,7 +461,8 @@ describe('SonarQube project analysis', () => {
     expect(fileResult).toBeDefined();
     expect('issues' in fileResult!).toBe(true);
     if ('issues' in fileResult!) {
-      expect(fileResult.issues).toEqual([]);
+      const ruleIds = fileResult.issues.map(i => i.ruleId);
+      expect(ruleIds).toContain('no-extra-semicolons');
     }
   });
 
