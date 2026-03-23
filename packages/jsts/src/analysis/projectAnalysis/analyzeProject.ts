@@ -35,6 +35,7 @@ import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { setSourceFilesContext } from '../../program/cache/sourceFileCache.js';
 import { sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import { getProjectAnalysisTelemetry, resetProjectAnalysisTelemetry } from './telemetry.js';
 
 const analysisStatus = {
   cancelled: false,
@@ -76,6 +77,7 @@ export async function analyzeProject(
     },
   };
   const { baseDir, environments, globals, sonarlint, canAccessFileSystem } = configuration;
+  resetProjectAnalysisTelemetry();
   const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);
   await Linter.initialize({
@@ -147,6 +149,7 @@ export async function analyzeProject(
     error('Analysis has been cancelled');
     incrementalResultsChannel?.({ messageType: 'cancelled' });
   } else {
+    results.meta.telemetry = getProjectAnalysisTelemetry();
     incrementalResultsChannel?.({ ...results.meta, messageType: 'meta' });
   }
   return results;

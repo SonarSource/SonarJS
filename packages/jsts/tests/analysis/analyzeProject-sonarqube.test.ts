@@ -178,6 +178,22 @@ describe('SonarQube project analysis', () => {
     // Both files should have issues (empty statements)
     expect('issues' in frontendResult! && frontendResult!.issues.length).toBeGreaterThan(0);
     expect('issues' in backendResult! && backendResult!.issues.length).toBeGreaterThan(0);
+
+    expect(result.meta.telemetry).toBeDefined();
+    expect(result.meta.telemetry).toMatchObject({
+      typescriptVersions: ['5.7.2', '7.0.0-dev.20260316.1'],
+      typescriptNativePreview: true,
+      ecmaScriptVersions: ['ES2020', 'ES2022'],
+      esmFileCount: 0,
+      cjsFileCount: 2,
+      programCreation: {
+        attempted: 2,
+        succeeded: 2,
+        failed: 0,
+      },
+    });
+    expect(result.meta.telemetry?.compilerOptions.module).toEqual(['commonjs', 'nodenext']);
+    expect(result.meta.telemetry?.compilerOptions.lib).toEqual(['dom', 'es2020', 'es2022']);
   });
 
   it('should analyze files not in any tsconfig with default options', async () => {
@@ -276,6 +292,19 @@ describe('SonarQube project analysis', () => {
       files: {},
       meta: {
         warnings: [],
+        telemetry: {
+          typescriptVersions: ['not-detected'],
+          typescriptNativePreview: false,
+          compilerOptions: {},
+          ecmaScriptVersions: ['not-detected'],
+          esmFileCount: 0,
+          cjsFileCount: 0,
+          programCreation: {
+            attempted: 0,
+            succeeded: 0,
+            failed: 0,
+          },
+        },
       },
     });
   });
@@ -348,6 +377,25 @@ describe('SonarQube project analysis', () => {
       m => (m as { messageType: string; filename?: string }).filename === filePath,
     );
     expect(fileResult).toBeDefined();
+
+    const metaResult = receivedMessages.find(
+      m => (m as { messageType: string }).messageType === 'meta',
+    ) as { messageType: string; telemetry?: unknown } | undefined;
+    expect(metaResult).toBeDefined();
+    expect(metaResult).toMatchObject({
+      messageType: 'meta',
+      telemetry: {
+        typescriptVersions: ['not-detected'],
+        typescriptNativePreview: false,
+        esmFileCount: 0,
+        cjsFileCount: 0,
+        programCreation: {
+          attempted: 1,
+          succeeded: 1,
+          failed: 0,
+        },
+      },
+    });
   });
 
   it('should discover and use tsconfigs from project references', async () => {

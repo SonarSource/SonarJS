@@ -209,9 +209,38 @@ public interface BridgeServer extends Startable {
     }
   }
 
-  record ProjectAnalysisMetaResponse(List<String> warnings) {
+  record ProjectAnalysisMetaResponse(
+    List<String> warnings,
+    @Nullable ProjectAnalysisTelemetry telemetry
+  ) {
+    public ProjectAnalysisMetaResponse(List<String> warnings) {
+      this(warnings, null);
+    }
+
     public ProjectAnalysisMetaResponse() {
-      this(List.of());
+      this(List.of(), null);
+    }
+  }
+
+  record ProjectAnalysisTelemetry(
+    List<String> typescriptVersions,
+    boolean typescriptNativePreview,
+    Map<String, List<String>> compilerOptions,
+    List<String> ecmaScriptVersions,
+    @Nullable ProgramCreationTelemetry programCreation,
+    int esmFileCount,
+    int cjsFileCount
+  ) {
+    public ProjectAnalysisTelemetry {
+      typescriptVersions = typescriptVersions != null ? typescriptVersions : List.of();
+      compilerOptions = compilerOptions != null ? compilerOptions : Map.of();
+      ecmaScriptVersions = ecmaScriptVersions != null ? ecmaScriptVersions : List.of();
+    }
+  }
+
+  record ProgramCreationTelemetry(int attempted, int succeeded, int failed) {
+    public ProgramCreationTelemetry() {
+      this(0, 0, 0);
     }
   }
 

@@ -25,6 +25,7 @@ import { info } from '../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
 import { getCurrentFilesContext } from './cache/sourceFileCache.js';
 import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/files.js';
+import { getOptionalProjectAnalysisTelemetryCollector } from '../analysis/projectAnalysis/telemetry.js';
 
 function createBuilderProgramWithHost(
   programOptions: ProgramOptions,
@@ -93,7 +94,15 @@ function createBuilderProgramAndHost(
  * @returns Standard TypeScript Program
  */
 export function createStandardProgram(programOptions: ProgramOptions): ts.Program {
-  return ts.createProgram(programOptions);
+  const telemetryCollector = getOptionalProjectAnalysisTelemetryCollector();
+  try {
+    const program = ts.createProgram(programOptions);
+    telemetryCollector?.recordProgramCreationSuccess();
+    return program;
+  } catch (error) {
+    telemetryCollector?.recordProgramCreationFailure();
+    throw error;
+  }
 }
 
 /**

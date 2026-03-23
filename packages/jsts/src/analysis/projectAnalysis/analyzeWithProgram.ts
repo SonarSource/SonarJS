@@ -22,7 +22,7 @@ import ts from 'typescript';
 import type { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
-import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
+import { isJsTsFile, type JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
 import merge from 'lodash.merge';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from '../../program/compilerHost.js';
@@ -39,7 +39,10 @@ import { getProgramCacheManager } from '../../program/cache/programCache.js';
 import { clearSourceFileContentCache } from '../../program/cache/sourceFileCache.js';
 import { createStandardProgram } from '../../program/factory.js';
 import { sanitizeProgramReferences } from '../../program/tsconfig/utils.js';
-import type { JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
+import {
+  getProjectAnalysisTelemetryCollector,
+  type ProjectAnalysisTelemetryCollector,
+} from './telemetry.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -65,6 +68,7 @@ export async function analyzeWithProgram(
   jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
+  const telemetry = getProjectAnalysisTelemetryCollector();
   const foundProgramOptions: ProgramOptions[] = [];
   const processedTSConfigs: Set<NormalizedAbsolutePath> = new Set();
   const tsconfigs = tsConfigStore.getTsConfigs();
@@ -96,6 +100,7 @@ export async function analyzeWithProgram(
       baseDir,
       canAccessFileSystem,
       jsTsConfigFields,
+      telemetry,
       incrementalResultsChannel,
     );
   }
@@ -109,6 +114,7 @@ export async function analyzeWithProgram(
       progressReport,
       baseDir,
       jsTsConfigFields,
+      telemetry,
       incrementalResultsChannel,
     );
   } else if (pendingFiles.size) {
@@ -141,6 +147,7 @@ async function analyzeFilesFromEntryPoint(
   progressReport: ProgressReport,
   baseDir: NormalizedAbsolutePath,
   jsTsConfigFields: JsTsConfigFields,
+  telemetry: ProjectAnalysisTelemetryCollector,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   const { jsSuffixes, tsSuffixes, cssSuffixes } = jsTsConfigFields.shouldIgnoreParams;
@@ -162,6 +169,7 @@ async function analyzeFilesFromEntryPoint(
         baseDir,
       );
   programOptions.rootNames = rootNames;
+  telemetry.recordCompilerOptions(programOptions.options);
 
   info(
     `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'} [lib: ${programOptions.options.lib?.join(', ')}]`,
@@ -172,8 +180,10 @@ async function analyzeFilesFromEntryPoint(
     jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
   );
 
+  telemetry.recordProgramCreationAttempt();
   const tsProgram = createStandardProgram(programOptions);
   const detectedEsYear = esLibToYear(programOptions.options.lib);
+  telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
 
   for (const fileName of rootNames) {
     if (isAnalysisCancelled()) {
@@ -205,9 +215,11 @@ async function analyzeFilesFromTsConfig(
   baseDir: NormalizedAbsolutePath,
   canAccessFileSystem: boolean,
   jsTsConfigFields: JsTsConfigFields,
+  telemetry: ProjectAnalysisTelemetryCollector,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
   processedTSConfigs.add(tsconfig);
+  telemetry.recordProgramCreationAttempt();
 
   // Parse tsconfig to get compiler options
   let programOptions;
@@ -220,6 +232,7 @@ async function analyzeFilesFromTsConfig(
       baseDir,
     );
   } catch (e) {
+    telemetry.recordProgramCreationFailure();
     error(`Failed to parse tsconfig ${tsconfig}: ${e}`);
     results.meta.warnings.push(
       `Failed to parse TSConfig file ${tsconfig}. Highest TypeScript supported version is ${ts.version}`,
@@ -228,6 +241,7 @@ async function analyzeFilesFromTsConfig(
   }
 
   foundProgramOptions.push(programOptions);
+  telemetry.recordCompilerOptions(programOptions.options);
 
   if (programOptions.missingTsConfig) {
     const msg = `${tsconfig} extends a configuration that was not found. Please run 'npm install' for a more complete analysis.`;
@@ -244,6 +258,7 @@ async function analyzeFilesFromTsConfig(
   );
   const tsProgram = createStandardProgram(programOptions);
   const detectedEsYear = esLibToYear(programOptions.options.lib);
+  telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
 
   // TypeScript normalizes file paths internally, so we can safely cast them
   const filesToAnalyze = tsProgram
