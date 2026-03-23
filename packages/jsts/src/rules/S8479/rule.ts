@@ -64,10 +64,7 @@ const DANGEROUS_BOOLEAN_OPTIONS: Record<string, boolean> = {
 
 const MAX_ACTIONS_IN_MESSAGE = 2;
 
-const SANITIZE_FQNS = new Set([
-  'dompurify.sanitize',
-  'isomorphic-dompurify.sanitize',
-]);
+const SANITIZE_FQNS = new Set(['dompurify.sanitize', 'isomorphic-dompurify.sanitize']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -151,7 +148,9 @@ function getActionForProperty(prop: estree.Property): string | undefined {
     default:
       if (key in DANGEROUS_BOOLEAN_OPTIONS) {
         const dangerousValue = DANGEROUS_BOOLEAN_OPTIONS[key];
-        return isBooleanLiteral(prop.value, dangerousValue) ? `set '${key}' to '${!dangerousValue}'` : undefined;
+        return isBooleanLiteral(prop.value, dangerousValue)
+          ? `set '${key}' to '${!dangerousValue}'`
+          : undefined;
       }
       return undefined;
   }
