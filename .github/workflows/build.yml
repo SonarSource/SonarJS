@@ -346,6 +346,10 @@ jobs:
             git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
             git stash pop
             git add "$RULES_README"
+            if git diff --cached --quiet -- "$RULES_README"; then
+              echo "README is up to date on the PR head branch"
+              exit 0
+            fi
             git commit -m "Update rules README
 
           🤖 Generated with GitHub Actions"
@@ -355,6 +359,10 @@ jobs:
             git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
             git stash pop
             git add "$RULES_README"
+            if git diff --cached --quiet -- "$RULES_README"; then
+              echo "README is up to date on the PR head branch"
+              exit 0
+            fi
             git commit -m "Update rules README
 
           🤖 Generated with GitHub Actions"
