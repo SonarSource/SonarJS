@@ -81,6 +81,14 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
   }
 
+  @Override
+  public boolean shouldSkipNodeModuleLookupOutsideBaseDir() {
+    return context
+      .config()
+      .getBoolean("sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir")
+      .orElse(false);
+  }
+
   public boolean allowTsParserJsFiles() {
     return context.config().getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
   }

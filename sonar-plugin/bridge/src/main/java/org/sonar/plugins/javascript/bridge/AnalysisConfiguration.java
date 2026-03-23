@@ -93,6 +93,10 @@ public interface AnalysisConfiguration {
     return false;
   }
 
+  default boolean shouldSkipNodeModuleLookupOutsideBaseDir() {
+    return false;
+  }
+
   default String getEcmaScriptVersion() {
     return null;
   }

@@ -49,6 +49,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   constructor(
     compilerOptions: ts.CompilerOptions,
     private readonly baseDir: NormalizedAbsolutePath,
+    private readonly skipNodeModuleLookupOutsideBaseDir = false,
   ) {
     this.baseHost = ts.createCompilerHost(compilerOptions, true);
   }
@@ -311,6 +312,9 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   }
 
   private shouldSkipNodeModulesOutsideBaseDir(fileName: string): boolean {
+    if (!this.skipNodeModuleLookupOutsideBaseDir) {
+      return false;
+    }
     if (fileName.startsWith(this.getDefaultLibLocation())) {
       return false;
     }

@@ -166,7 +166,11 @@ async function analyzeFilesFromEntryPoint(
   info(
     `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'} [lib: ${programOptions.options.lib?.join(', ')}]`,
   );
-  programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
+  programOptions.host = new IncrementalCompilerHost(
+    programOptions.options,
+    baseDir,
+    jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
+  );
 
   const tsProgram = createStandardProgram(programOptions);
   const detectedEsYear = esLibToYear(programOptions.options.lib);
@@ -233,7 +237,11 @@ async function analyzeFilesFromTsConfig(
   info(
     `Creating TypeScript(${ts.version}) program with configuration file ${tsconfig} [lib: ${programOptions.options.lib?.join(', ')}]`,
   );
-  programOptions.host = new IncrementalCompilerHost(programOptions.options, baseDir);
+  programOptions.host = new IncrementalCompilerHost(
+    programOptions.options,
+    baseDir,
+    jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
+  );
   const tsProgram = createStandardProgram(programOptions);
   const detectedEsYear = esLibToYear(programOptions.options.lib);
 

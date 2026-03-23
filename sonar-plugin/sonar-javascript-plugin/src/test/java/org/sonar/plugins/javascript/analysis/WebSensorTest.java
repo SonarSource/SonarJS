@@ -546,6 +546,32 @@ class WebSensorTest {
   }
 
   @Test
+  void should_send_skipNodeModuleLookupOutsideBaseDir_false_by_default() {
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .skipNodeModuleLookupOutsideBaseDir()
+    ).isFalse();
+  }
+
+  @Test
+  void should_send_skipNodeModuleLookupOutsideBaseDir_true_when_enabled() {
+    context.setSettings(
+      new MapSettings().setProperty(
+        "sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir",
+        "true"
+      )
+    );
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .skipNodeModuleLookupOutsideBaseDir()
+    ).isTrue();
+  }
+
+  @Test
   void should_not_send_content() {
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)

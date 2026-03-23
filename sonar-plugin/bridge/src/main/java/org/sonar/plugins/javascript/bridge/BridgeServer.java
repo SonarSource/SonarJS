@@ -138,6 +138,7 @@ public interface BridgeServer extends Startable {
     boolean canAccessFileSystem;
     boolean createTSProgramForOrphanFiles;
     boolean disableTypeChecking;
+    boolean skipNodeModuleLookupOutsideBaseDir;
     String ecmaScriptVersion;
 
     /*
@@ -178,6 +179,8 @@ public interface BridgeServer extends Startable {
       this.createTSProgramForOrphanFiles =
         analysisConfiguration.shouldCreateTSProgramForOrphanFiles();
       this.disableTypeChecking = analysisConfiguration.shouldDisableTypeChecking();
+      this.skipNodeModuleLookupOutsideBaseDir =
+        analysisConfiguration.shouldSkipNodeModuleLookupOutsideBaseDir();
       this.ecmaScriptVersion = analysisConfiguration.getEcmaScriptVersion();
     }
 
@@ -191,6 +194,10 @@ public interface BridgeServer extends Startable {
 
     public boolean disableTypeChecking() {
       return disableTypeChecking;
+    }
+
+    public boolean skipNodeModuleLookupOutsideBaseDir() {
+      return skipNodeModuleLookupOutsideBaseDir;
     }
 
     public void setSkipAst(boolean skipAst) {

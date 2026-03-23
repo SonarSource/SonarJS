@@ -82,6 +82,7 @@ export async function testProject(projectName: string) {
     baseDir,
     maxFileSize: 4000,
     canAccessFileSystem: true,
+    skipNodeModuleLookupOutsideBaseDir: true,
     tests: testDir ? [testDir] : undefined,
     exclusions: exclusions ? DEFAULT_EXCLUSIONS.concat(exclusions.split(',')) : DEFAULT_EXCLUSIONS,
   });
