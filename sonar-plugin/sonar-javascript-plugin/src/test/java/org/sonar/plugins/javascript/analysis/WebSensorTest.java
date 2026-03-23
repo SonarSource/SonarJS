@@ -193,6 +193,12 @@ class WebSensorTest {
     return queue;
   }
 
+  private static List<String> getJsonArrayStrings(JsonObject jsonObject, String fieldName) {
+    List<String> values = new ArrayList<>();
+    jsonObject.getAsJsonArray(fieldName).forEach(value -> values.add(value.getAsString()));
+    return values;
+  }
+
   @Test
   void should_have_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
@@ -569,6 +575,82 @@ class WebSensorTest {
         .getConfiguration()
         .skipNodeModuleLookupOutsideBaseDir()
     ).isTrue();
+  }
+
+  @Test
+  void should_send_html_yaml_and_css_additional_suffixes_to_bridge_configuration() {
+    context.setSettings(
+      new MapSettings()
+        .setProperty(JavaScriptPlugin.HTML_FILE_SUFFIXES_KEY, ".custom-html")
+        .setProperty(JavaScriptPlugin.YAML_FILE_SUFFIXES_KEY, ".custom-yaml")
+        .setProperty(JavaScriptPlugin.CSS_ADDITIONAL_FILE_SUFFIXES_KEY, ".custom-style")
+    );
+
+    var configuration = executeSensorAndCaptureHandler(createSensor(), context)
+      .getRequest()
+      .getConfiguration();
+    JsonObject configurationJson = GSON.toJsonTree(configuration).getAsJsonObject();
+
+    assertThat(getJsonArrayStrings(configurationJson, "htmlSuffixes")).containsExactly(
+      ".custom-html"
+    );
+    assertThat(getJsonArrayStrings(configurationJson, "yamlSuffixes")).containsExactly(
+      ".custom-yaml"
+    );
+    assertThat(getJsonArrayStrings(configurationJson, "cssAdditionalSuffixes")).containsExactly(
+      ".custom-style"
+    );
+  }
+
+  @Test
+  void should_select_html_yaml_and_css_additional_files_using_configured_extensions() {
+    context.setSettings(
+      new MapSettings()
+        .setProperty(JavaScriptPlugin.HTML_FILE_SUFFIXES_KEY, ".custom-html")
+        .setProperty(JavaScriptPlugin.YAML_FILE_SUFFIXES_KEY, ".custom-yaml")
+        .setProperty(JavaScriptPlugin.CSS_ADDITIONAL_FILE_SUFFIXES_KEY, ".custom-style")
+    );
+
+    var htmlFile = new TestInputFileBuilder(
+      "moduleKey",
+      baseDir.toFile(),
+      baseDir.resolve("dir/template.custom-html").toFile()
+    )
+      .setLanguage("text")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("<template>{{ value }}</template>")
+      .build();
+    var yamlFile = new TestInputFileBuilder(
+      "moduleKey",
+      baseDir.toFile(),
+      baseDir.resolve("dir/template.custom-yaml").toFile()
+    )
+      .setLanguage("text")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("Transform: AWS::Serverless-2016-10-31\nRuntime: nodejs18.x\nResources: {}")
+      .build();
+    var cssAdditionalFile = new TestInputFileBuilder(
+      "moduleKey",
+      baseDir.toFile(),
+      baseDir.resolve("dir/component.custom-style").toFile()
+    )
+      .setLanguage("text")
+      .setType(InputFile.Type.MAIN)
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("<style>.a { color: red; }</style>")
+      .build();
+    context.fileSystem().add(htmlFile);
+    context.fileSystem().add(yamlFile);
+    context.fileSystem().add(cssAdditionalFile);
+
+    var requestFiles = executeSensorAndCaptureHandler(createSensor(), context)
+      .getRequest()
+      .getFiles();
+    assertThat(requestFiles).containsKeys(
+      htmlFile.absolutePath(),
+      yamlFile.absolutePath(),
+      cssAdditionalFile.absolutePath()
+    );
   }
 
   @Test

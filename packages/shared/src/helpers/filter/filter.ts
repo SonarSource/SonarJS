@@ -14,47 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Minimatch } from 'minimatch';
 import { filterBundle } from './filter-bundle.js';
 import { filterMinified, hasExcessiveAverageLineLength } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
-import { isCssFile, isJsTsFile, type FileSuffixes } from '../configuration.js';
+import { isCssFile, isJsTsFile, ShouldIgnoreFileParams } from '../configuration.js';
 import { isJsTsExcluded } from './filter-path.js';
 import { type NormalizedAbsolutePath } from '../files.js';
-
-/**
- * Minimal input required for shouldIgnoreFile.
- * All fields are required since the input should be sanitized before calling this function.
- */
-interface ShouldIgnoreFileInput {
-  filePath: NormalizedAbsolutePath;
-  fileContent: string;
-}
-
-/**
- * Parameters for the accept function.
- */
-interface AcceptParams extends FileSuffixes {
-  /** Whether to detect and skip bundled files */
-  detectBundles: boolean;
-  /** Maximum file size in KB (0 means no limit) */
-  maxFileSize: number;
-}
-
-/**
- * Parameters for the shouldIgnoreFile function.
- */
-export interface ShouldIgnoreFileParams extends AcceptParams {
-  /** JS/TS exclusion patterns from sonar.typescript.exclusions and sonar.javascript.exclusions */
-  jsTsExclusions: Minimatch[];
-}
 
 /**
  * Determines whether a given file should be accepted for further processing based on its content.
  *
  * @param {NormalizedAbsolutePath} filePath - The path of the file to be checked.
  * @param {string} fileContent - The content of the file to be checked.
- * @param {AcceptParams} params - Configuration parameters for filtering.
+ * @param {ShouldIgnoreFileParams} params - Configuration parameters for filtering.
  * @return {boolean} Returns true if the file meets the acceptance criteria, otherwise false.
  *
  * Callers need to pass: shouldDetectBundles() and getMaxFileSize() from configuration
@@ -62,11 +34,10 @@ export interface ShouldIgnoreFileParams extends AcceptParams {
 export function accept(
   filePath: NormalizedAbsolutePath,
   fileContent: string,
-  params: AcceptParams,
+  params: ShouldIgnoreFileParams,
 ): boolean {
   const { detectBundles, maxFileSize, jsSuffixes, tsSuffixes, cssSuffixes } = params;
-  const suffixes: FileSuffixes = { jsSuffixes, tsSuffixes, cssSuffixes };
-  if (isJsTsFile(filePath, suffixes)) {
+  if (isJsTsFile(filePath, { jsSuffixes, tsSuffixes })) {
     return (
       (!detectBundles || filterBundle(filePath, fileContent)) &&
       filterMinified(filePath, fileContent) &&
@@ -99,29 +70,21 @@ export function acceptSnippet(content: string): boolean {
  *
  * The input must be fully sanitized (all fields required) before calling this function.
  *
- * @param {ShouldIgnoreFileInput} file - The file to analyze with filePath and fileContent already populated.
+ * @param {filePath: string, fileContent: string} file - The file to analyze with filePath and fileContent already populated.
  * @param {ShouldIgnoreFileParams} params - Configuration parameters for filtering.
  * @return {Promise<boolean>} A promise that resolves to `true` if the file should be ignored otherwise `false`.
  *
  * Callers need to pass: getJsTsExclusions(), shouldDetectBundles(), and getMaxFileSize() from configuration
  */
 export async function shouldIgnoreFile(
-  file: ShouldIgnoreFileInput,
+  file: {
+    filePath: NormalizedAbsolutePath;
+    fileContent: string;
+  },
   params: ShouldIgnoreFileParams,
 ): Promise<boolean> {
   const { filePath, fileContent } = file;
-  const { jsTsExclusions, detectBundles, maxFileSize, jsSuffixes, tsSuffixes, cssSuffixes } =
-    params;
-  if (
-    isJsTsExcluded(filePath, jsTsExclusions) ||
-    !accept(filePath, fileContent, {
-      detectBundles,
-      maxFileSize,
-      jsSuffixes,
-      tsSuffixes,
-      cssSuffixes,
-    })
-  ) {
+  if (isJsTsExcluded(filePath, params.jsTsExclusions) || !accept(filePath, fileContent, params)) {
     return true;
   }
   return false;

@@ -21,25 +21,14 @@ import { analyzeCSS } from '../../src/analysis/analyzer.js';
 import { CssAnalysisInput } from '../../src/analysis/analysis.js';
 import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { RuleConfig } from '../../src/linter/config.js';
-import type { ShouldIgnoreFileParams } from '../../../shared/src/helpers/filter/filter.js';
-import { DEFAULT_FILE_SUFFIXES } from '../../../shared/src/helpers/configuration.js';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 
-const defaultShouldIgnoreParams: ShouldIgnoreFileParams = {
-  jsTsExclusions: [],
-  detectBundles: false,
-  maxFileSize: 1000,
-  ...DEFAULT_FILE_SUFFIXES,
-};
-
 describe('analyzeCSS', () => {
   it('should analyze a css file', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'file.css');
-    await expect(
-      analyzeCSS(await input(filePath, undefined, rules), defaultShouldIgnoreParams),
-    ).resolves.toEqual(
+    await expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual(
       expect.objectContaining({
         issues: [
           {
@@ -58,9 +47,7 @@ describe('analyzeCSS', () => {
 
   it('should analyze css content', async () => {
     const fileContent = 'p {}';
-    await expect(
-      analyzeCSS(await input('/some/fake/path', fileContent, rules), defaultShouldIgnoreParams),
-    ).resolves.toEqual(
+    await expect(analyzeCSS(await input('/some/fake/path', fileContent, rules))).resolves.toEqual(
       expect.objectContaining({
         issues: [
           expect.objectContaining({
@@ -73,10 +60,7 @@ describe('analyzeCSS', () => {
 
   it('should still parse and compute metrics/highlighting with no rules', async () => {
     const fileContent = 'a { color: red; }';
-    const result = await analyzeCSS(
-      await input('/some/fake/path', fileContent, []),
-      defaultShouldIgnoreParams,
-    );
+    const result = await analyzeCSS(await input('/some/fake/path', fileContent, []));
 
     expect(result.metrics?.ncloc.length).toBeGreaterThan(0);
     expect(result.highlights?.length).toBeGreaterThan(0);
@@ -89,7 +73,6 @@ describe('analyzeCSS', () => {
         await input(filePath, undefined, [
           { key: 'selector-pseudo-element-no-unknown', configurations: [] },
         ]),
-        defaultShouldIgnoreParams,
       ),
     ).resolves.toEqual(
       expect.objectContaining({
@@ -104,9 +87,7 @@ describe('analyzeCSS', () => {
 
   it('should analyze less syntax', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'file.less');
-    await expect(
-      analyzeCSS(await input(filePath, undefined, rules), defaultShouldIgnoreParams),
-    ).resolves.toEqual(
+    await expect(analyzeCSS(await input(filePath, undefined, rules))).resolves.toEqual(
       expect.objectContaining({
         issues: [
           expect.objectContaining({
@@ -119,9 +100,7 @@ describe('analyzeCSS', () => {
 
   it('should throw a parsing error when CSS syntax is invalid', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'malformed.css');
-    await expect(
-      analyzeCSS(await input(filePath), defaultShouldIgnoreParams),
-    ).rejects.toMatchObject({
+    await expect(analyzeCSS(await input(filePath))).rejects.toMatchObject({
       code: ErrorCode.Parsing,
       message: 'Unclosed block',
       data: { line: 2, column: 2 },
@@ -164,7 +143,7 @@ ${character}${character}${character}.foo {`,
             sonarlint: false,
           };
 
-          await expect(analyzeCSS(analysisInput, defaultShouldIgnoreParams))
+          await expect(analyzeCSS(analysisInput))
             .rejects.toMatchObject({
               code: ErrorCode.Parsing,
               message: 'Unclosed block',

@@ -183,25 +183,20 @@ public class WebSensor implements Sensor {
     var p = fileSystem.predicates();
     var jsTsPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
 
-    // HTML files for JS-in-HTML analysis — requires "web" language (from sonar-html).
-    // Extension filter limits to extensions we support (sonar-html also covers .cshtml, .erb, etc.).
-    var htmlPredicate = p.and(
-      p.hasLanguage(JavaScriptFilePredicate.WEB_LANGUAGE),
-      p.or(p.hasExtension("htm"), p.hasExtension("html"), p.hasExtension("xhtml"))
-    );
+    // HTML files for JS-in-HTML analysis - extension based only.
+    var htmlPredicate = JavaScriptFilePredicate.getSuffixPredicate(context.getHtmlExtensions());
 
-    // HTML files for CSS-in-HTML analysis — extension-only, no language requirement.
-    // Matches old CssRuleSensor's webFilePredicate. These files may not have "web"
-    // language when sonar-html is not installed.
+    // HTML files for CSS-in-HTML analysis - extension-only.
+    // Matches old CssRuleSensor's webFilePredicate (MAIN files only).
     var webFilePredicate = p.and(
       p.hasType(InputFile.Type.MAIN),
-      p.or(p.hasExtension("htm"), p.hasExtension("html"), p.hasExtension("xhtml"))
+      JavaScriptFilePredicate.getSuffixPredicate(context.getCssAdditionalExtensions())
     );
 
-    // YAML files (Helm-safe and SAM template checks)
-    var yamlPredicate = JavaScriptFilePredicate.getYamlPredicate(fileSystem);
+    // YAML files (extension based + Helm-safe and SAM template checks)
+    var yamlPredicate = JavaScriptFilePredicate.getYamlPredicate(context.getYamlExtensions());
 
-    // CSS files — include all types (MAIN and TEST). Old CssMetricSensor processed
+    // CSS files - include all types (MAIN and TEST). Old CssMetricSensor processed
     // all files for highlighting; old CssRuleSensor only MAIN for issues. The Node.js
     // side skips linting for TEST files, so only highlighting is computed for them.
     var cssPredicate = p.hasLanguages(CssLanguage.KEY);
@@ -278,7 +273,7 @@ public class WebSensor implements Sensor {
               acceptAstResponse(cacheAnalysis.getAst(), inputFile);
             }
           } else {
-            // CSS and extension-based web files: always analyze, no caching.
+            // CSS and extension-based HTML/YAML/CSS-additional files: always analyze, no caching.
             addFileToAnalyze(files, inputFile);
           }
         }

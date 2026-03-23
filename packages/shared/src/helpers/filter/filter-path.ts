@@ -17,24 +17,7 @@
 import type { Minimatch } from 'minimatch';
 import { type FileType, type NormalizedAbsolutePath } from '../files.js';
 import { debug } from '../logging.js';
-
-/**
- * Parameters for filterPathAndGetFileType function.
- */
-export interface FilterPathParams {
-  /** sonar.sources - absolute paths to look for files */
-  sourcesPaths: NormalizedAbsolutePath[];
-  /** sonar.tests - absolute paths to look for test files */
-  testPaths: NormalizedAbsolutePath[];
-  /** sonar.inclusions - wildcards to narrow down sonar.sources */
-  inclusions: Minimatch[];
-  /** sonar.exclusions - wildcards to narrow down sonar.sources */
-  exclusions: Minimatch[];
-  /** sonar.test.inclusions - wildcards to narrow down sonar.tests */
-  testInclusions: Minimatch[];
-  /** sonar.test.exclusions - wildcards to narrow down sonar.tests */
-  testExclusions: Minimatch[];
-}
+import { FilterPathParams } from '../configuration.js';
 
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion

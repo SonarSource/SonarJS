@@ -126,6 +126,9 @@ public interface BridgeServer extends Startable {
     List<String> tsSuffixes;
     List<String> jsSuffixes;
     List<String> cssSuffixes;
+    List<String> htmlSuffixes;
+    List<String> yamlSuffixes;
+    List<String> cssAdditionalSuffixes;
     Set<String> tsConfigPaths;
     List<String> jsTsExclusions;
     List<String> sources;
@@ -171,6 +174,9 @@ public interface BridgeServer extends Startable {
         this.tsSuffixes = analysisConfiguration.getTsExtensions();
         this.jsSuffixes = analysisConfiguration.getJsExtensions();
         this.cssSuffixes = analysisConfiguration.getCssExtensions();
+        this.htmlSuffixes = analysisConfiguration.getHtmlExtensions();
+        this.yamlSuffixes = analysisConfiguration.getYamlExtensions();
+        this.cssAdditionalSuffixes = analysisConfiguration.getCssAdditionalExtensions();
       }
       this.tsConfigPaths = analysisConfiguration.getTsConfigPaths();
       this.jsTsExclusions = analysisConfiguration.getJsTsExcludedPaths();

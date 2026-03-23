@@ -45,13 +45,18 @@ export async function analyzeWithoutProgram(
   jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  const { jsSuffixes, tsSuffixes, cssSuffixes } = jsTsConfigFields.shouldIgnoreParams;
+  const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
   for (const filename of filenames) {
     if (isAnalysisCancelled()) {
       return;
     }
     const relativePath = relative(baseDir, filename);
-    if (isJsTsFile(filename, { jsSuffixes, tsSuffixes, cssSuffixes })) {
+    if (
+      isJsTsFile(filename, {
+        jsSuffixes,
+        tsSuffixes,
+      })
+    ) {
       warn(
         `JS/TS file analyzed without type-checking (not part of any tsconfig.json): ${relativePath}`,
       );

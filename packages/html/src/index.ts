@@ -24,30 +24,24 @@ import {
 
 import type { EmbeddedAnalysisInput } from '../../shared/src/types/analysis.js';
 import type { EmbeddedAnalysisOutput } from '../../jsts/src/embedded/analysis/analysis.js';
-import type { ShouldIgnoreFileParams } from '../../shared/src/helpers/filter/filter.js';
 
 /**
  * Analyzes an HTML file for embedded JavaScript code.
  * The input must be fully sanitized (all fields required) before calling this function.
  *
  * @param input the sanitized analysis input
- * @param shouldIgnoreParams configuration parameters for file filtering
  * @returns the analysis output with issues found in embedded JS
  */
-async function analyzeHTML(
-  input: EmbeddedAnalysisInput,
-  shouldIgnoreParams: ShouldIgnoreFileParams,
-): Promise<EmbeddedAnalysisOutput> {
-  return analyzeEmbedded(input, parseHTML, shouldIgnoreParams);
+async function analyzeHTML(input: EmbeddedAnalysisInput): Promise<EmbeddedAnalysisOutput> {
+  return analyzeEmbedded(input, parseHTML);
 }
 
 export async function analyzeHTMLProject(
   input: EmbeddedAnalysisInput,
-  shouldIgnoreParams: ShouldIgnoreFileParams,
   language: ParsingErrorLanguage,
 ): Promise<EmbeddedAnalysisOutput | ProjectFailureResult> {
   try {
-    return await analyzeHTML(input, shouldIgnoreParams);
+    return await analyzeHTML(input);
   } catch (err) {
     return toProjectFailureResult(err, language);
   }

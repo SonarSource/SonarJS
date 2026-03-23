@@ -205,6 +205,42 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     );
   }
 
+  public List<String> getHtmlExtensions() {
+    return getHtmlExtensions(context.config());
+  }
+
+  public static List<String> getHtmlExtensions(Configuration config) {
+    return List.of(
+      config.hasKey(JavaScriptPlugin.HTML_FILE_SUFFIXES_KEY)
+        ? config.getStringArray(JavaScriptPlugin.HTML_FILE_SUFFIXES_KEY)
+        : JavaScriptPlugin.HTML_FILE_SUFFIXES_DEFAULT_VALUE.split(",")
+    );
+  }
+
+  public List<String> getYamlExtensions() {
+    return getYamlExtensions(context.config());
+  }
+
+  public static List<String> getYamlExtensions(Configuration config) {
+    return List.of(
+      config.hasKey(JavaScriptPlugin.YAML_FILE_SUFFIXES_KEY)
+        ? config.getStringArray(JavaScriptPlugin.YAML_FILE_SUFFIXES_KEY)
+        : JavaScriptPlugin.YAML_FILE_SUFFIXES_DEFAULT_VALUE.split(",")
+    );
+  }
+
+  public List<String> getCssAdditionalExtensions() {
+    return getCssAdditionalExtensions(context.config());
+  }
+
+  public static List<String> getCssAdditionalExtensions(Configuration config) {
+    return List.of(
+      config.hasKey(JavaScriptPlugin.CSS_ADDITIONAL_FILE_SUFFIXES_KEY)
+        ? config.getStringArray(JavaScriptPlugin.CSS_ADDITIONAL_FILE_SUFFIXES_KEY)
+        : JavaScriptPlugin.CSS_ADDITIONAL_FILE_SUFFIXES_DEFAULT_VALUE.split(",")
+    );
+  }
+
   public List<String> getJsTsExcludedPaths() {
     return Arrays.asList(getJsTsExcludedPaths(context.config()));
   }

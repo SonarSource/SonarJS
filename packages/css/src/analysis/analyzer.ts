@@ -27,11 +27,6 @@ import {
 } from '../../../shared/src/errors/project-analysis.js';
 import { error, warn } from '../../../shared/src/helpers/logging.js';
 import type { CssIssue } from '../linter/issues/issue.js';
-import {
-  shouldIgnoreFile,
-  type ShouldIgnoreFileParams,
-} from '../../../shared/src/helpers/filter/filter.js';
-import { isAlsoCssFile } from '../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes a CSS analysis input
@@ -47,17 +42,14 @@ import { isAlsoCssFile } from '../../../shared/src/helpers/configuration.js';
  * pre-initialized config is used instead (see `LinterWrapper.initialize()`).
  *
  * @param input the sanitized CSS analysis input to analyze
- * @param shouldIgnoreParams parameters needed to determine whether a file should be ignored
+ * @param noMetrics whether to skip metrics calculation
  * @returns a promise of the CSS analysis output
  */
 export async function analyzeCSS(
   input: CssAnalysisInput,
-  shouldIgnoreParams: ShouldIgnoreFileParams,
+  noMetrics = false,
 ): Promise<CssAnalysisOutput> {
   const { filePath, fileContent, rules, fileType } = input;
-  if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
-    return { issues: [] };
-  }
 
   const isTestFile = fileType === 'TEST';
   const sanitizedCode = fileContent.replaceAll(/[\u2000-\u200F]/g, ' ');
@@ -83,7 +75,7 @@ export async function analyzeCSS(
 
   // Skip metrics and highlighting in SonarLint mode and for non-pure-CSS files
   // (HTML/Vue files are handled by their own analyzers for metrics)
-  if (input.sonarlint || isAlsoCssFile(filePath) || !root) {
+  if (input.sonarlint || noMetrics || !root) {
     return { issues: isTestFile ? [] : issues };
   }
 
@@ -105,10 +97,10 @@ export async function analyzeCSS(
 
 export async function analyzeCSSProject(
   input: CssAnalysisInput,
-  shouldIgnoreParams: ShouldIgnoreFileParams,
+  noMetrics = false,
 ): Promise<CssAnalysisOutput | ProjectFailureResult> {
   try {
-    return await analyzeCSS(input, shouldIgnoreParams);
+    return await analyzeCSS(input, noMetrics);
   } catch (err) {
     return toProjectFailureResult(err, 'css');
   }
