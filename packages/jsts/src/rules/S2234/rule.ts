@@ -145,17 +145,13 @@ export const rule: Rule.RuleModule = {
      * Returns true when the detected argument swap is an intentional reversal wrapper.
      *
      * A reversal wrapper is an ArrowFunctionExpression or FunctionExpression with exactly
-     * 2 identifier parameters whose sole body is a single call that passes those same 2
-     * parameters in swapped order, e.g. `(a, b) => compare(b, a)`.
+     * 2 single-character identifier parameters (e.g. `a`, `b`, `x`, `y`) whose sole body
+     * is a single call that passes those same 2 parameters in swapped order,
+     * e.g. `(a, b) => compare(b, a)`.
      *
-     * **Accepted tradeoff**: this check fires whenever the enclosing 2-parameter function's
-     * entire body is that reversed call — it does not verify that the callee is a comparator
-     * or that the wrapper is passed to `.sort()` / `.toSorted()`. The rationale is that a
-     * sole-purpose reversal wrapper is almost always intentional (descending sort, RTL/LTR
-     * flip, semver reverse-compare, etc.), and restricting to sort-accepting methods would
-     * miss the majority of real-world cases. A genuine bug like
-     * `(year, month) => formatDate(month, year)` is unlikely to be the *only* statement in
-     * the wrapper function, so the sole-body constraint limits false negatives in practice.
+     * Requiring single-character parameter names ensures that only placeholder-style names
+     * are treated as intentional reversals. Meaningful names like `year` or `month` indicate
+     * that the swap is likely a bug rather than a deliberate comparator reversal.
      */
     function isIntentionalComparatorReversal(
       functionCall: estree.CallExpression,
@@ -176,6 +172,12 @@ export const rule: Rule.RuleModule = {
 
       const [param0, param1] = enclosingFunc.params;
       if (param0.type !== 'Identifier' || param1.type !== 'Identifier') {
+        return false;
+      }
+
+      // Only suppress when parameter names are single-character placeholders like 'a', 'b', 'x', 'y'.
+      // Meaningful names (e.g. 'year', 'month') suggest the swap is a real bug, not an intentional reversal.
+      if (param0.name.length > 1 || param1.name.length > 1) {
         return false;
       }
 

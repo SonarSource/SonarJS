@@ -289,6 +289,13 @@ describe('S2234', () => {
         };`,
           errors: 1,
         },
+        {
+          // Meaningful parameter names — not single-character placeholders, exception does not apply
+          code: `
+        function formatDate(year, month) { return year + '-' + month; }
+        const wrongWrapper = (year, month) => formatDate(month, year);`,
+          errors: 1,
+        },
       ],
     });
 
