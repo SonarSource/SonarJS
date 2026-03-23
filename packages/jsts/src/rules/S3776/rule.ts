@@ -372,7 +372,7 @@ export const rule: Rule.RuleModule = {
           if (
             current.operator !== '||' &&
             current.operator !== '??' &&
-            (!previous || previous.operator !== current.operator)
+            previous?.operator !== current.operator
           ) {
             const operatorTokenLoc = getFirstTokenAfter(
               current.left,

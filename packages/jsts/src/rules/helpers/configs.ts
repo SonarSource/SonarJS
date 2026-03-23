@@ -156,8 +156,8 @@ export function applyTransformations(
       // fieldDefinition is a single property: { default, customForConfiguration, ... }
       // mergedConfigEntry is a scalar value (string, number, boolean)
       //
-      // Example — S1441 fieldDefinition = { default: 'single', customDefault: true, customForConfiguration: (v) => v ? 'single' : 'double' }
-      // mergedConfigEntry = true (boolean from SQ)
+      // Example — S1441 fieldDefinition = { default: 'single', customForConfiguration: (v) => ... }
+      // mergedConfigEntry = 'true' (string from SQ)
       // After transform: 'single' (string expected by ESLint quotes rule)
       return fieldDefinition.customForConfiguration(mergedConfigEntry);
     }

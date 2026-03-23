@@ -18,51 +18,20 @@
 
 import type { Rule } from 'eslint';
 import { rules } from '../external/react.js';
-import { detectReactRule } from '../helpers/rule-detect-react.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { mergeRules } from '../helpers/decorators/merger.js';
 import * as meta from './generated-meta.js';
 
 const noUnusedClassComponentMethod = rules['no-unused-class-component-methods'];
-
-function overrideContext(context: Rule.RuleContext, overrides: any): Rule.RuleContext {
-  Object.setPrototypeOf(overrides, context);
-  return overrides;
-}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     ...noUnusedClassComponentMethod.meta,
     messages: {
-      ...noUnusedClassComponentMethod.meta!.messages,
       unused:
         'Remove this property or method or refactor this component, as "{{name}}" is not used inside component body',
       unusedWithClass:
         'Remove this property or method or refactor "{{className}}", as "{{name}}" is not used inside component body',
     },
   }),
-  create(context: Rule.RuleContext) {
-    let isReact = false;
-
-    const detectReactListener: Rule.RuleListener = detectReactRule.create(
-      overrideContext(context, {
-        report(_descriptor: Rule.ReportDescriptor): void {
-          isReact = true;
-        },
-      }),
-    );
-
-    const noUnusedClassComponentMethodListener: Rule.RuleListener =
-      noUnusedClassComponentMethod.create(
-        overrideContext(context, {
-          report(descriptor: Rule.ReportDescriptor): void {
-            if (isReact) {
-              context.report(descriptor);
-            }
-          },
-        }),
-      );
-
-    return mergeRules(detectReactListener, noUnusedClassComponentMethodListener);
-  },
+  create: noUnusedClassComponentMethod.create,
 };

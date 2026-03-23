@@ -23,7 +23,6 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NO
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +43,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -365,42 +363,6 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public void initLinter(
-    List<EslintRule> rules,
-    List<String> environments,
-    List<String> globals,
-    String baseDir,
-    boolean sonarlint
-  ) {
-    InitLinterRequest initLinterRequest = new InitLinterRequest(
-      rules,
-      environments,
-      globals,
-      baseDir,
-      sonarlint,
-      deployedBundles.stream().map(Path::toString).toList(),
-      workdir
-    );
-    String request = GSON.toJson(initLinterRequest);
-
-    String response = textResponse(request(request, "init-linter"));
-    if (!"OK".equals(response)) {
-      throw new IllegalStateException("Failed to initialize linter");
-    }
-  }
-
-  private static String textResponse(BridgeResponse response) {
-    BufferedReader bufferedReader = new BufferedReader(response.reader());
-    return bufferedReader.lines().collect(Collectors.joining());
-  }
-
-  @Override
-  public AnalysisResponse analyzeJsTs(JsAnalysisRequest request) throws IOException {
-    String json = GSON.toJson(request);
-    return response(request(json, "analyze-jsts"), request.filePath());
-  }
-
-  @Override
   public void analyzeProject(WebSocketMessageHandler<ProjectAnalysisRequest> handler) {
     this.client.registerHandler(handler);
     var request = handler.getRequest();
@@ -408,6 +370,14 @@ public class BridgeServerImpl implements BridgeServer {
     request.setRulesWorkdir(workdir);
     this.client.send(GSON.toJson(Map.of("type", "on-analyze-project", "data", request)));
     handler.getFuture().join();
+  }
+
+  @Override
+  public ProjectAnalysisOutputDTO analyzeProject(ProjectAnalysisRequest request)
+    throws IOException {
+    request.setBundles(deployedBundles.stream().map(Path::toString).toList());
+    request.setRulesWorkdir(workdir);
+    return projectResponse(request(GSON.toJson(request), "analyze-project"));
   }
 
   private BridgeResponse request(String json, String endpoint) {
@@ -427,14 +397,11 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  private static AnalysisResponse response(BridgeResponse result, String filePath) {
+  private static ProjectAnalysisOutputDTO projectResponse(BridgeResponse result) {
     try {
-      return AnalysisResponse.fromDTO(GSON.fromJson(result.reader(), AnalysisResponseDTO.class));
+      return GSON.fromJson(result.reader(), ProjectAnalysisOutputDTO.class);
     } catch (JsonSyntaxException e) {
-      String msg =
-        "Failed to parse response for file " + filePath + ": \n-----\n" + result + "\n-----\n";
-      LOG.error(msg, e);
-      throw new IllegalStateException("Failed to parse response", e);
+      throw new IllegalStateException("Failed to parse project analysis response", e);
     }
   }
 
@@ -556,9 +523,13 @@ public class BridgeServerImpl implements BridgeServer {
     @Override
     public void accept(String message) {
       if (message.startsWith("DEBUG")) {
-        LOG.debug(message.substring(5).trim());
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(message.substring(5).trim());
+        }
       } else if (message.startsWith("WARN")) {
-        LOG.warn(message.substring(4).trim());
+        if (LOG.isWarnEnabled()) {
+          LOG.warn(message.substring(4).trim());
+        }
       } else {
         LOG.info(message);
       }

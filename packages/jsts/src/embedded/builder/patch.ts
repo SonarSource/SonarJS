@@ -132,10 +132,15 @@ function patchASTLocations(sourceCode: SourceCode, offset: number) {
 export function patchParsingError(parsingError: APIError, embeddedJS: EmbeddedJS): APIError {
   if (typeof parsingError.data?.line === 'number') {
     const { message, data } = parsingError;
+    const { column } = data;
     const patchedLine =
       embeddedJS.format === 'PLAIN' ? embeddedJS.line : embeddedJS.line + data.line;
     parsingError.message = patchParsingErrorMessage(message, patchedLine, embeddedJS);
     parsingError.data.line = patchedLine;
+    if (typeof column === 'number') {
+      parsingError.data.column =
+        embeddedJS.format === 'PLAIN' ? column + embeddedJS.column - 1 : column;
+    }
   }
   return parsingError;
 }

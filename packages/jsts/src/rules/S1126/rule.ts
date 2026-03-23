@@ -42,27 +42,25 @@ export const rule: Rule.RuleModule = {
           returnsBoolean(node.consequent) &&
           alternateReturnsBoolean(node)
         ) {
+          const suggestions = getSuggestion(node, parent);
           context.report({
             messageId: 'replaceIfThenElseByReturn',
             node,
-            suggest: getSuggestion(node, parent),
+            ...(suggestions.length > 0 ? { suggest: suggestions } : {}),
           });
         }
       },
     };
 
     function getSuggestion(ifStmt: estree.IfStatement, parent: estree.Node) {
+      const replacementRange = getReplacementRange(ifStmt, parent);
+      if (replacementRange === null || hasCommentsInRange(replacementRange)) {
+        return [];
+      }
       const getFix = (condition: string) => {
         return (fixer: Rule.RuleFixer) => {
           const singleReturn = `return ${condition};`;
-          if (ifStmt.alternate) {
-            return fixer.replaceText(ifStmt, singleReturn);
-          } else {
-            const ifStmtIndex = (parent as estree.BlockStatement).body.indexOf(ifStmt);
-            const returnStmt = (parent as estree.BlockStatement).body[ifStmtIndex + 1];
-            const range: [number, number] = [ifStmt.range![0], returnStmt.range![1]];
-            return fixer.replaceTextRange(range, singleReturn);
-          }
+          return fixer.replaceTextRange(replacementRange, singleReturn);
         };
       };
       const shouldNegate = isReturningFalse(ifStmt.consequent);
@@ -80,8 +78,40 @@ export const rule: Rule.RuleModule = {
         return [{ messageId: 'suggest', fix: getFix(testText) }];
       }
     }
+
+    function hasCommentsInRange(range: [number, number]): boolean {
+      return context.sourceCode.getAllComments().some(comment => {
+        const commentRange = comment.range;
+        return (
+          commentRange !== undefined && commentRange[0] >= range[0] && commentRange[1] <= range[1]
+        );
+      });
+    }
   },
 };
+
+function getReplacementRange(
+  ifStmt: estree.IfStatement,
+  parent: estree.Node,
+): [number, number] | null {
+  const ifStmtRange = ifStmt.range;
+  if (ifStmtRange === undefined) {
+    return null;
+  }
+
+  if (ifStmt.alternate || parent.type !== 'BlockStatement') {
+    return ifStmtRange;
+  }
+
+  const ifStmtIndex = parent.body.indexOf(ifStmt);
+  const returnStmt = parent.body[ifStmtIndex + 1];
+  const returnStmtRange = returnStmt?.range;
+  if (returnStmtRange === undefined) {
+    return null;
+  }
+
+  return [ifStmtRange[0], returnStmtRange[1]];
+}
 
 function isBlockReturningBooleanLiteral(statement: estree.Statement) {
   return (

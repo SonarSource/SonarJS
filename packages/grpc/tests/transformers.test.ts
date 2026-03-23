@@ -20,7 +20,7 @@ import { transformRequestToProjectInput } from '../src/transformers/request.js';
 import { transformProjectOutputToResponse } from '../src/transformers/response.js';
 import { buildRuleConfigurations as buildCssRuleConfigurations } from '../src/transformers/rule-configurations/css.js';
 import { buildRuleConfigurations as buildJstsRuleConfigurations } from '../src/transformers/rule-configurations/jsts.js';
-import type { analyzer } from '../src/proto/language_analyzer.js';
+import { analyzer } from '../src/proto/language_analyzer.js';
 
 describe('transformRequestToProjectInput', () => {
   describe('rule options transformation', () => {
@@ -538,7 +538,7 @@ describe('transformProjectOutputToResponse', () => {
   it('should not include a measures entry for a file with a parsing error', () => {
     const output = makeOutput({
       '/project/src/broken.js': {
-        parsingError: { message: 'Unexpected token', code: 'PARSING', line: 5 },
+        parsingErrors: [{ message: 'Unexpected token', code: 'PARSING', line: 5, language: 'js' }],
       },
     });
 
@@ -659,7 +659,7 @@ describe('transformProjectOutputToResponse', () => {
   it('should omit textRange for parsing error issues when parser returns line 0', () => {
     const output = makeOutput({
       '/project/src/broken.js': {
-        parsingError: { message: 'Unexpected token', code: 'PARSING', line: 0 },
+        parsingErrors: [{ message: 'Unexpected token', code: 'PARSING', line: 0, language: 'js' }],
       },
     });
 
@@ -672,7 +672,7 @@ describe('transformProjectOutputToResponse', () => {
   it('should omit textRange for parsing error issues when parser line is missing', () => {
     const output = makeOutput({
       '/project/src/broken.js': {
-        parsingError: { message: 'Unexpected token', code: 'PARSING' },
+        parsingErrors: [{ message: 'Unexpected token', code: 'PARSING', language: 'js' }],
       },
     });
 
@@ -680,6 +680,79 @@ describe('transformProjectOutputToResponse', () => {
 
     expect(result.issues?.length).toBe(1);
     expect(result.issues?.[0].textRange).toBeUndefined();
+  });
+
+  it('should use parsing error column as start offset when provided', () => {
+    const output = makeOutput({
+      '/project/src/broken.css': {
+        parsingErrors: [
+          { message: 'Unclosed block', code: 'PARSING', line: 2, column: 7, language: 'css' },
+        ],
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].textRange).toEqual({
+      startLine: 2,
+      startLineOffset: 7,
+      endLine: 2,
+      endLineOffset: 7,
+    });
+  });
+
+  const parsingErrorRepoMapping = [
+    { filePath: '/project/src/broken.js', line: 5, language: 'js', repo: 'javascript' },
+    { filePath: '/project/src/broken.ts', line: 5, language: 'ts', repo: 'typescript' },
+    { filePath: '/project/src/broken.css', line: 2, language: 'css', repo: 'css' },
+  ] as const;
+
+  for (const { filePath, line, language, repo } of parsingErrorRepoMapping) {
+    it(`should map parsing errors to ${repo} repo when language is ${language}`, () => {
+      const output = makeOutput({
+        [filePath]: {
+          parsingErrors: [{ message: 'Unexpected token', code: 'PARSING', line, language }],
+        },
+      });
+
+      const result = transformProjectOutputToResponse(output);
+
+      expect(result.issues?.length).toBe(1);
+      expect(result.issues?.[0].rule).toEqual({ repo, rule: 'S2260' });
+    });
+  }
+
+  it('should include issues and parsing errors from the same file result', () => {
+    const output = makeOutput({
+      '/project/src/mixed.html': {
+        issues: [
+          {
+            ruleId: 'S1481',
+            language: 'js',
+            line: 2,
+            column: 1,
+            message: 'Remove the declaration of the unused variable.',
+            secondaryLocations: [],
+            ruleESLintKeys: [],
+            filePath: '/project/src/mixed.html',
+          },
+        ],
+        parsingErrors: [{ message: 'Unclosed block', code: 'PARSING', line: 4, language: 'css' }],
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(2);
+    expect(result.analysisProblems?.length).toBe(1);
+    expect(result.analysisProblems?.[0].type).toBe(
+      analyzer.AnalysisProblemType.ANALYSIS_PROBLEM_TYPE_PARSING,
+    );
+    expect(result.issues?.some(issue => issue.rule?.rule === 'S1481')).toBe(true);
+    expect(
+      result.issues?.some(issue => issue.rule?.repo === 'css' && issue.rule?.rule === 'S2260'),
+    ).toBe(true);
   });
 
   it('should restore original paths using pathMap for JS/TS issues', () => {
@@ -732,7 +805,7 @@ describe('transformProjectOutputToResponse', () => {
   it('should restore original paths in analysis problems', () => {
     const output = makeOutput({
       '/app/src/broken.js': {
-        parsingError: { message: 'Unexpected token', code: 'PARSING', line: 5 },
+        parsingErrors: [{ message: 'Unexpected token', code: 'PARSING', line: 5, language: 'js' }],
       },
     });
     const pathMap = new Map([['/app/src/broken.js', 'src/broken.js']]);

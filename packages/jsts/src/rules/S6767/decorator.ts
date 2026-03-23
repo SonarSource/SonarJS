@@ -16,11 +16,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6767/javascript
 
-import type { Rule, SourceCode } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { JSXSpreadAttribute } from 'estree-jsx';
-import { childrenOf } from '../helpers/ancestor.js';
-import { isIdentifier } from '../helpers/ast.js';
+import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
+import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { findComponentNode } from '../helpers/react.js';
@@ -35,6 +35,15 @@ const propsArgPatterns: Array<(arg: estree.Node) => boolean> = [
     isIdentifier(arg.property, 'props'),
 ];
 
+/** Composable callee checkers for forwardRef call detection. */
+const forwardRefCalleePatterns: Array<(callee: estree.Expression | estree.Super) => boolean> = [
+  callee => isIdentifier(callee, 'forwardRef'),
+  callee =>
+    callee.type === 'MemberExpression' &&
+    isIdentifier(callee.object, 'React') &&
+    isIdentifier(callee.property, 'forwardRef'),
+];
+
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     { ...rule, meta: generateMeta(meta, rule.meta) },
@@ -44,9 +53,82 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       if (componentNode && hasPropsCall(componentNode, context.sourceCode.visitorKeys)) {
         return;
       }
+      // Suppress FP only when the specific reported prop is referenced inside a forwardRef callback.
+      const { data } = descriptor as { data?: Record<string, string> };
+      const propName = data?.name;
+      if (
+        propName &&
+        componentNode &&
+        hasPropMemberReference(context.sourceCode, componentNode, propName)
+      ) {
+        return;
+      }
       context.report(descriptor);
     },
   );
+}
+
+/**
+ * Returns true only when `propName` is referenced through the component's actual
+ * first parameter binding and the matching member access sits inside a forwardRef callback.
+ */
+function hasPropMemberReference(
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+  propName: string,
+): boolean {
+  if (!isFunctionNode(componentNode)) {
+    return false;
+  }
+
+  const propsParam = componentNode.params[0];
+  if (!isIdentifier(propsParam)) {
+    return false;
+  }
+
+  const variable = sourceCode.getScope(componentNode).set.get(propsParam.name);
+  if (!variable) {
+    return false;
+  }
+
+  return variable.references.some(reference =>
+    isPropReferenceInForwardRefCallback(reference, propName),
+  );
+}
+
+function isPropReferenceInForwardRefCallback(
+  reference: Scope.Reference,
+  propName: string,
+): boolean {
+  const memberExpression = getNodeParent(reference.identifier);
+  if (
+    memberExpression?.type !== 'MemberExpression' ||
+    memberExpression.object !== reference.identifier ||
+    memberExpression.computed ||
+    !isIdentifier(memberExpression.property, propName)
+  ) {
+    return false;
+  }
+
+  // Walk up ancestors. Track `prev` so that when we find a forwardRef CallExpression
+  // we can confirm the reference sits inside its first argument (the render callback),
+  // not in the callee position or a later argument.
+  let prev: estree.Node = memberExpression;
+  let current: estree.Node | undefined = getNodeParent(memberExpression);
+  while (current) {
+    if (current.type === 'CallExpression') {
+      const call = current;
+      if (
+        forwardRefCalleePatterns.some(pattern => pattern(call.callee)) &&
+        call.arguments[0] === prev
+      ) {
+        return true;
+      }
+    }
+    prev = current;
+    current = getNodeParent(current);
+  }
+  return false;
 }
 
 function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {

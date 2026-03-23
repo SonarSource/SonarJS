@@ -51,17 +51,24 @@ describe('worker', () => {
       }
     });
 
-    worker.postMessage({
-      type: 'on-init-linter',
-      data: { rules: [], baseDir: import.meta.dirname },
-    });
+    worker.postMessage({ type: 'on-cancel-analysis' });
     await promise;
   });
 
   it('should post back stringified results', async () => {
     let { promise, resolve, reject } = Promise.withResolvers<void>();
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'routing.js');
     const input = {
-      filePath: path.join(import.meta.dirname, 'fixtures', 'routing.js'),
+      configuration: {
+        baseDir: import.meta.dirname,
+      },
+      files: {
+        [filePath]: {
+          filePath,
+          fileType: 'MAIN',
+        },
+      },
+      rules: [],
     };
     worker.once('message', message => {
       const { type, result } = message;
@@ -69,7 +76,7 @@ describe('worker', () => {
         expect(type).toEqual('success');
         expect(result).toEqual(
           expect.objectContaining({
-            issues: expect.any(Array),
+            files: expect.any(Object),
           }),
         );
         resolve();
@@ -78,7 +85,7 @@ describe('worker', () => {
       }
     });
 
-    worker.postMessage({ type: 'on-analyze-jsts', data: input });
+    worker.postMessage({ type: 'on-analyze-project', data: input });
     await promise;
   });
 

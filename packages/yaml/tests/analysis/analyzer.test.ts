@@ -47,7 +47,9 @@ describe('analyzeYAML', () => {
           parseAwsFromYaml,
           defaultShouldIgnoreParams,
         ),
-    ).rejects.toThrow(APIError.linterError('Linter does not exist. Did you call /init-linter?'));
+    ).rejects.toThrow(
+      APIError.linterError('Linter does not exist. Linter.initialize() was never called.'),
+    );
   });
 
   it('should analyze YAML file', async () => {

@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { JsTsConfigFields, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import type { AnalyzableFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { analyzeFile } from './analyzeFile.js';
 import { error, info, warn } from '../../../../shared/src/helpers/logging.js';
 import { tsConfigStore } from './file-stores/index.js';
@@ -39,6 +39,7 @@ import { getProgramCacheManager } from '../../program/cache/programCache.js';
 import { clearSourceFileContentCache } from '../../program/cache/sourceFileCache.js';
 import { createStandardProgram } from '../../program/factory.js';
 import { sanitizeProgramReferences } from '../../program/tsconfig/utils.js';
+import type { JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using TypeScript programs. Files not
@@ -55,7 +56,7 @@ import { sanitizeProgramReferences } from '../../program/tsconfig/utils.js';
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  */
 export async function analyzeWithProgram(
-  files: JsTsFiles,
+  files: AnalyzableFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<NormalizedAbsolutePath>,
   progressReport: ProgressReport,
@@ -133,7 +134,7 @@ export async function analyzeWithProgram(
 }
 
 async function analyzeFilesFromEntryPoint(
-  files: JsTsFiles,
+  files: AnalyzableFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<NormalizedAbsolutePath>,
   foundProgramOptions: ProgramOptions[],
@@ -190,7 +191,7 @@ async function analyzeFilesFromEntryPoint(
 }
 
 async function analyzeFilesFromTsConfig(
-  files: JsTsFiles,
+  files: AnalyzableFiles,
   tsconfig: NormalizedAbsolutePath,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<NormalizedAbsolutePath>,

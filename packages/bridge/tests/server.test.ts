@@ -18,7 +18,6 @@ import { start } from '../src/server.js';
 import * as path from 'node:path';
 import { AddressInfo } from 'node:net';
 import { request } from './tools/request.js';
-import * as http from 'node:http';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import assert from 'node:assert';
@@ -50,21 +49,6 @@ describe('server', () => {
       `DEBUG The bridge server is listening on port ${(server.address() as AddressInfo)?.port}`,
     );
 
-    await request(server, '/close', 'POST');
-    await serverClosed;
-  });
-
-  it('should fail when linter is not initialized', async () => {
-    const { server, serverClosed } = await start(port);
-
-    const fileType = 'MAIN';
-
-    expect(JSON.parse(await requestAnalyzeJs(server, fileType))).toStrictEqual({
-      parsingError: {
-        code: 'LINTER_INITIALIZATION',
-        message: 'Linter does not exist. Did you call /init-linter?',
-      },
-    });
     await request(server, '/close', 'POST');
     await serverClosed;
   });
@@ -155,7 +139,7 @@ describe('server', () => {
   it('should not log memory', async ({ mock }) => {
     console.log = mock.fn(console.log);
     const { server, serverClosed } = await start(port, undefined, undefined);
-    await request(server, '/create-program', 'POST', {
+    await request(server, '/analyze-project', 'POST', {
       tsConfig: path.join(import.meta.dirname, 'fixtures', 'router', 'tsconfig.json'),
     });
     await request(server, '/close', 'POST');
@@ -163,30 +147,6 @@ describe('server', () => {
       call => call.arguments[0],
     );
     expect(logs.some(message => message.match(/total_heap_size/))).toEqual(false);
-    await serverClosed;
-  });
-
-  it('should route service requests', async () => {
-    const { server, serverClosed } = await start(port);
-
-    expect(server.listening).toBeTruthy();
-
-    const ruleId = 'S1116';
-    const fileType = 'MAIN';
-
-    await requestInitLinter(server, fileType, ruleId);
-    const response = await requestAnalyzeJs(server, fileType);
-
-    const {
-      issues: [issue],
-    } = JSON.parse(response);
-    expect(issue).toEqual(
-      expect.objectContaining({
-        ruleId,
-      }),
-    );
-
-    await request(server, '/close', 'POST');
     await serverClosed;
   });
 
@@ -312,28 +272,4 @@ async function testWSWithWorker(worker: Worker | undefined, requestJSON: string)
     response,
     messages,
   };
-}
-
-async function requestAnalyzeJs(server: http.Server, fileType: string) {
-  const filePath = path.join(import.meta.dirname, 'fixtures', 'routing.js');
-  const analysisInput = { filePath, fileType };
-
-  return await request(server, '/analyze-jsts', 'POST', analysisInput);
-}
-
-function requestInitLinter(server: http.Server, fileType: string, ruleId: string) {
-  const config = {
-    baseDir: import.meta.dirname,
-    rules: [
-      {
-        key: ruleId,
-        configurations: [],
-        fileTypeTargets: [fileType],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-    ],
-  };
-
-  return request(server, '/init-linter', 'POST', config);
 }

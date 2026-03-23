@@ -18,11 +18,21 @@ package org.sonar.css;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.Context;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.Version;
 
 class CssProfileDefinitionTest {
+
+  private static final SonarRuntime sonarRuntime = SonarRuntimeImpl.forSonarLint(
+    Version.create(9, 3)
+  );
 
   @Test
   void should_create_css_profile() {
@@ -37,6 +47,17 @@ class CssProfileDefinitionTest {
     assertThat(profile.rules())
       .extracting("repoKey")
       .containsOnly(CssRulesDefinition.REPOSITORY_KEY);
-    assertThat(profile.rules()).extracting("ruleKey").hasSize(CssRules.getRuleClasses().size() - 2);
+    Set<String> activatedByDefaultKeys = CssRulesDefinitionTest.buildRepository(
+      CssLanguage.KEY,
+      new CssRulesDefinition(sonarRuntime)
+    )
+      .rules()
+      .stream()
+      .filter(RulesDefinition.Rule::activatedByDefault)
+      .map(RulesDefinition.Rule::key)
+      .collect(Collectors.toSet());
+    assertThat(profile.rules())
+      .extracting("ruleKey")
+      .containsExactlyInAnyOrderElementsOf(activatedByDefaultKeys);
   }
 }

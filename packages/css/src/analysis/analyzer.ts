@@ -21,7 +21,12 @@ import { createStylelintConfig } from '../linter/config.js';
 import { computeMetrics } from './metrics.js';
 import { computeHighlighting } from './highlighting.js';
 import { APIError } from '../../../shared/src/errors/error.js';
+import {
+  toProjectFailureResult,
+  type ProjectFailureResult,
+} from '../../../shared/src/errors/project-analysis.js';
 import { error, warn } from '../../../shared/src/helpers/logging.js';
+import type { CssIssue } from '../linter/issues/issue.js';
 import {
   shouldIgnoreFile,
   type ShouldIgnoreFileParams,
@@ -74,6 +79,7 @@ export async function analyzeCSS(
     error(`Linter failed to parse file ${filePath}: ${err}`);
     throw APIError.linterError(`Linter failed to parse file ${filePath}: ${err}`);
   });
+  throwIfCssParsingError(issues);
 
   // Skip metrics and highlighting in SonarLint mode and for non-pure-CSS files
   // (HTML/Vue files are handled by their own analyzers for metrics)
@@ -94,5 +100,26 @@ export async function analyzeCSS(
   } catch (err) {
     warn(`Failed to compute metrics/highlighting for ${filePath}: ${err}`);
     return { issues: isTestFile ? [] : issues };
+  }
+}
+
+export async function analyzeCSSProject(
+  input: CssAnalysisInput,
+  shouldIgnoreParams: ShouldIgnoreFileParams,
+): Promise<CssAnalysisOutput | ProjectFailureResult> {
+  try {
+    return await analyzeCSS(input, shouldIgnoreParams);
+  } catch (err) {
+    return toProjectFailureResult(err, 'css');
+  }
+}
+
+function throwIfCssParsingError(issues: CssIssue[]) {
+  const parsingIssue = issues.find(issue => issue.ruleId === 'CssSyntaxError');
+  if (parsingIssue) {
+    throw APIError.parsingError(parsingIssue.message, {
+      line: parsingIssue.line,
+      column: parsingIssue.column,
+    });
   }
 }
