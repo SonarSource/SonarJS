@@ -61,17 +61,21 @@ public class JavaScriptFilePredicate {
    * Node.js runtime declaration, matching the previous YamlSensor behavior.</p>
    */
   public static FilePredicate getYamlPredicate(FileSystem fs, List<String> yamlExtensions) {
+    var yamlExtensionPredicate = getExtensionsPredicate(fs, yamlExtensions);
+    return inputFile -> yamlExtensionPredicate.apply(inputFile) && hasValidYamlContent(inputFile);
+  }
+
+  public static FilePredicate getExtensionsPredicate(FileSystem fs, List<String> suffixes) {
     var predicates = fs.predicates();
-    if (yamlExtensions.isEmpty()) {
-      return inputFile -> false;
+    if (suffixes.isEmpty()) {
+      return predicates.none();
     }
-    var yamlExtensionPredicate = predicates.or(
-      yamlExtensions
+    return predicates.or(
+      suffixes
         .stream()
         .map(suffix -> predicates.hasExtension(suffix.substring(1)))
         .toList()
     );
-    return inputFile -> yamlExtensionPredicate.apply(inputFile) && hasValidYamlContent(inputFile);
   }
 
   public static FilePredicate getJsTsPredicate(FileSystem fs) {

@@ -185,13 +185,19 @@ public class WebSensor implements Sensor {
     var jsTsPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
 
     // HTML files for JS-in-HTML analysis - extension based only.
-    var htmlPredicate = getExtensionsPredicate(fileSystem, context.getHtmlExtensions());
+    var htmlPredicate = JavaScriptFilePredicate.getExtensionsPredicate(
+      fileSystem,
+      context.getHtmlExtensions()
+    );
 
     // HTML files for CSS-in-HTML analysis - extension-only.
     // Matches old CssRuleSensor's webFilePredicate (MAIN files only).
     var webFilePredicate = p.and(
       p.hasType(InputFile.Type.MAIN),
-      getExtensionsPredicate(fileSystem, context.getCssAdditionalExtensions())
+      JavaScriptFilePredicate.getExtensionsPredicate(
+        fileSystem,
+        context.getCssAdditionalExtensions()
+      )
     );
 
     // YAML files (extension based + Helm-safe and SAM template checks)
@@ -213,23 +219,6 @@ public class WebSensor implements Sensor {
         .spliterator(),
       false
     ).toList();
-  }
-
-  private static FilePredicate getExtensionsPredicate(
-    FileSystem fileSystem,
-    List<String> suffixes
-  ) {
-    var predicates = fileSystem.predicates();
-    if (suffixes.isEmpty()) {
-      return predicates.none();
-    }
-
-    var extensionPredicates = suffixes
-      .stream()
-      .map(suffix -> suffix.substring(1))
-      .map(predicates::hasExtension)
-      .toList();
-    return predicates.or(extensionPredicates);
   }
 
   private void analyzeFiles(List<InputFile> inputFiles) {
