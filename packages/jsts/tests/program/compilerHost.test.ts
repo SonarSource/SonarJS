@@ -215,8 +215,18 @@ describe('IncrementalCompilerHost', () => {
     const extensions = ['.ts', '.d.ts'];
     const includes = ['**/*'];
 
-    it('should skip node_modules lookups outside baseDir', () => {
+    it('should query disk for node_modules lookups outside baseDir by default', () => {
       const host = new IncrementalCompilerHost(compilerOptions, baseDir);
+
+      host.readDirectory('/external/node_modules/pkg', extensions, undefined, includes);
+
+      const calls = host.getTrackedFsCalls();
+      expect(calls.some(c => c.op === 'readDirectory-node_modules-skip')).toBe(false);
+      expect(calls.some(c => c.op === 'readDirectory-disk')).toBe(true);
+    });
+
+    it('should skip node_modules lookups outside baseDir', () => {
+      const host = new IncrementalCompilerHost(compilerOptions, baseDir, true);
 
       const files = host.readDirectory(
         '/external/node_modules/pkg',

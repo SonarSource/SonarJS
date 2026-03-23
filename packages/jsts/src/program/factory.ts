@@ -55,9 +55,14 @@ function createBuilderProgramWithHost(
 function createBuilderProgramAndHost(
   programOptions: ProgramOptions,
   baseDir: NormalizedAbsolutePath,
+  skipNodeModuleLookupOutsideBaseDir: boolean,
   oldProgram?: ts.SemanticDiagnosticsBuilderProgram,
 ) {
-  const host = new IncrementalCompilerHost(programOptions.options, baseDir);
+  const host = new IncrementalCompilerHost(
+    programOptions.options,
+    baseDir,
+    skipNodeModuleLookupOutsideBaseDir,
+  );
 
   const builderProgram = createBuilderProgramWithHost(programOptions, host, oldProgram);
 
@@ -158,6 +163,7 @@ export function createOrGetCachedProgramForFile(
   baseDir: NormalizedAbsolutePath,
   sourceFile: NormalizedAbsolutePath,
   getProgramOptions: () => ProgramOptions | undefined,
+  skipNodeModuleLookupOutsideBaseDir = false,
 ) {
   const cacheManager = getProgramCacheManager();
   const fileContent = getCurrentFilesContext()?.[sourceFile]?.fileContent;
@@ -206,7 +212,11 @@ export function createOrGetCachedProgramForFile(
         : ''),
   );
 
-  const { builderProgram, host } = createBuilderProgramAndHost(programOptions, baseDir);
+  const { builderProgram, host } = createBuilderProgramAndHost(
+    programOptions,
+    baseDir,
+    skipNodeModuleLookupOutsideBaseDir,
+  );
 
   // Store in cache
   cacheManager.storeProgram(programOptions, builderProgram, host);

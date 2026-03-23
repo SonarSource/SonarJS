@@ -77,16 +77,20 @@ export async function analyzeWithIncrementalProgram(
       return;
     }
 
-    const program = createOrGetCachedProgramForFile(baseDir, filename, () =>
-      programOptionsFromClosestTsconfig(
-        filename,
-        results,
-        foundProgramOptions,
-        pendingFiles,
-        baseDir,
-        canAccessFileSystem,
-        jsTsConfigFields,
-      ),
+    const program = createOrGetCachedProgramForFile(
+      baseDir,
+      filename,
+      () =>
+        programOptionsFromClosestTsconfig(
+          filename,
+          results,
+          foundProgramOptions,
+          pendingFiles,
+          baseDir,
+          canAccessFileSystem,
+          jsTsConfigFields,
+        ),
+      jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
     );
 
     const detectedEsYear =
