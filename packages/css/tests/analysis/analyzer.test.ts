@@ -23,6 +23,7 @@ import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/f
 import { RuleConfig } from '../../src/linter/config.js';
 import type { ShouldIgnoreFileParams } from '../../../shared/src/helpers/filter/filter.js';
 import { DEFAULT_FILE_SUFFIXES } from '../../../shared/src/helpers/configuration.js';
+import { ErrorCode } from '../../../shared/src/errors/error.js';
 
 const rules = [{ key: 'block-no-empty', configurations: [] }];
 
@@ -116,18 +117,14 @@ describe('analyzeCSS', () => {
     );
   });
 
-  it('should return a parsing error in the form of an issue', async () => {
+  it('should throw a parsing error when CSS syntax is invalid', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'malformed.css');
-    await expect(analyzeCSS(await input(filePath), defaultShouldIgnoreParams)).resolves.toEqual({
-      issues: [
-        {
-          ruleId: 'CssSyntaxError',
-          language: 'css',
-          line: 2,
-          column: 2,
-          message: 'Unclosed block',
-        },
-      ],
+    await expect(
+      analyzeCSS(await input(filePath), defaultShouldIgnoreParams),
+    ).rejects.toMatchObject({
+      code: ErrorCode.Parsing,
+      message: 'Unclosed block',
+      data: { line: 2, column: 2 },
     });
   });
 });
@@ -145,7 +142,7 @@ describe('should emit correctly located issues regardless of invisible character
       const executeTest = async (characterCode: number) => {
         const hexadecimalRepresentation = characterCode.toString(16);
 
-        it(`${type} character(s) 0x${hexadecimalRepresentation}`, async () => {
+        await it(`${type} character(s) 0x${hexadecimalRepresentation}`, async () => {
           const character = String.fromCodePoint(characterCode);
           const analysisInput: CssAnalysisInput = {
             fileContent:
@@ -168,16 +165,13 @@ ${character}${character}${character}.foo {`,
           };
 
           await expect(analyzeCSS(analysisInput, defaultShouldIgnoreParams))
-            .resolves.toEqual({
-              issues: [
-                {
-                  ruleId: 'CssSyntaxError',
-                  language: 'css',
-                  line: expectation[0],
-                  column: expectation[1],
-                  message: 'Unclosed block',
-                },
-              ],
+            .rejects.toMatchObject({
+              code: ErrorCode.Parsing,
+              message: 'Unclosed block',
+              data: {
+                line: expectation[0],
+                column: expectation[1],
+              },
             })
             .catch(error => {
               throw error;

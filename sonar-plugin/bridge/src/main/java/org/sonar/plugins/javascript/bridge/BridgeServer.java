@@ -38,16 +38,6 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public interface BridgeServer extends Startable {
   void startServerLazily(BridgeServerConfig context) throws IOException;
 
-  void initLinter(
-    List<EslintRule> rules,
-    List<String> environments,
-    List<String> globals,
-    String baseDir,
-    boolean sonarlint
-  ) throws IOException;
-
-  AnalysisResponse analyzeJsTs(JsAnalysisRequest request) throws IOException;
-
   void clean() throws InterruptedException;
 
   String getCommandInfo();
@@ -56,67 +46,17 @@ public interface BridgeServer extends Startable {
 
   TelemetryData getTelemetry();
 
-  record InitLinterRequest(
-    List<EslintRule> rules,
-    List<String> environments,
-    List<String> globals,
-    String baseDir,
-    boolean sonarlint,
-    List<String> bundles,
-    String rulesWorkdir
-  ) {}
-
   void analyzeProject(WebSocketMessageHandler<ProjectAnalysisRequest> handler);
+
+  ProjectAnalysisOutputDTO analyzeProject(ProjectAnalysisRequest request) throws IOException;
 
   record ProjectAnalysisOutputDTO(
     Map<String, AnalysisResponseDTO> files,
     ProjectAnalysisMetaResponse meta
-  ) {}
-
-  record JsAnalysisRequest(
-    String filePath,
-    String fileType,
-    @Nullable String fileContent,
-    boolean ignoreHeaderComments,
-    @Nullable List<String> tsConfigs,
-    @Nullable String programId,
-    InputFile.Status fileStatus,
-    AnalysisMode analysisMode,
-    boolean skipAst,
-    boolean shouldClearDependenciesCache,
-    boolean sonarlint,
-    boolean allowTsParserJsFiles,
-    @Nullable ProjectAnalysisConfiguration configuration
   ) {
-    public JsAnalysisRequest(
-      String filePath,
-      String fileType,
-      @Nullable String fileContent,
-      boolean ignoreHeaderComments,
-      @Nullable List<String> tsConfigs,
-      @Nullable String programId,
-      InputFile.Status fileStatus,
-      AnalysisMode analysisMode,
-      boolean skipAst,
-      boolean shouldClearDependenciesCache,
-      boolean sonarlint,
-      boolean allowTsParserJsFiles
-    ) {
-      this(
-        filePath,
-        fileType,
-        fileContent,
-        ignoreHeaderComments,
-        tsConfigs,
-        programId,
-        fileStatus,
-        analysisMode,
-        skipAst,
-        shouldClearDependenciesCache,
-        sonarlint,
-        allowTsParserJsFiles,
-        null
-      );
+    public ProjectAnalysisOutputDTO {
+      files = files != null ? files : Map.of();
+      meta = meta != null ? meta : new ProjectAnalysisMetaResponse();
     }
   }
 
@@ -226,9 +166,11 @@ public interface BridgeServer extends Startable {
       this.maxFileSize = analysisConfiguration.getMaxFileSizeProperty();
       this.environments = analysisConfiguration.getEnvironments();
       this.globals = analysisConfiguration.getGlobals();
-      this.tsSuffixes = analysisConfiguration.getTsExtensions();
-      this.jsSuffixes = analysisConfiguration.getJsExtensions();
-      this.cssSuffixes = analysisConfiguration.getCssExtensions();
+      if (analysisConfiguration.shouldSendFileSuffixes()) {
+        this.tsSuffixes = analysisConfiguration.getTsExtensions();
+        this.jsSuffixes = analysisConfiguration.getJsExtensions();
+        this.cssSuffixes = analysisConfiguration.getCssExtensions();
+      }
       this.tsConfigPaths = analysisConfiguration.getTsConfigPaths();
       this.jsTsExclusions = analysisConfiguration.getJsTsExcludedPaths();
       this.detectBundles = analysisConfiguration.shouldDetectBundles();
@@ -269,7 +211,7 @@ public interface BridgeServer extends Startable {
   record BridgeResponse(InputStreamReader reader) {}
 
   record AnalysisResponseDTO(
-    @Nullable ParsingError parsingError,
+    @Nullable List<ParsingError> parsingErrors,
     List<Issue> issues,
     List<Highlight> highlights,
     List<HighlightedSymbol> highlightedSymbols,
@@ -279,7 +221,7 @@ public interface BridgeServer extends Startable {
   ) {}
 
   record AnalysisResponse(
-    @Nullable ParsingError parsingError,
+    List<ParsingError> parsingErrors,
     List<Issue> issues,
     List<Highlight> highlights,
     List<HighlightedSymbol> highlightedSymbols,
@@ -288,11 +230,11 @@ public interface BridgeServer extends Startable {
     @Nullable Node ast
   ) {
     public AnalysisResponse() {
-      this(null, List.of(), List.of(), List.of(), new Metrics(), List.of(), null);
+      this(List.of(), List.of(), List.of(), List.of(), new Metrics(), List.of(), null);
     }
 
     public AnalysisResponse(
-      @Nullable ParsingError parsingError,
+      @Nullable List<ParsingError> parsingErrors,
       @Nullable List<Issue> issues,
       @Nullable List<Highlight> highlights,
       @Nullable List<HighlightedSymbol> highlightedSymbols,
@@ -300,7 +242,7 @@ public interface BridgeServer extends Startable {
       @Nullable List<CpdToken> cpdTokens,
       @Nullable Node ast
     ) {
-      this.parsingError = parsingError;
+      this.parsingErrors = parsingErrors != null ? parsingErrors : List.of();
       this.issues = issues != null ? issues : List.of();
       this.highlights = highlights != null ? highlights : List.of();
       this.highlightedSymbols = highlightedSymbols != null ? highlightedSymbols : List.of();
@@ -319,7 +261,7 @@ public interface BridgeServer extends Startable {
         }
       }
       return new AnalysisResponse(
-        analysisResponseDTO.parsingError,
+        analysisResponseDTO.parsingErrors,
         analysisResponseDTO.issues,
         analysisResponseDTO.highlights,
         analysisResponseDTO.highlightedSymbols,
@@ -330,7 +272,13 @@ public interface BridgeServer extends Startable {
     }
   }
 
-  record ParsingError(String message, Integer line, ParsingErrorCode code) {}
+  record ParsingError(
+    String message,
+    Integer line,
+    Integer column,
+    ParsingErrorCode code,
+    String language
+  ) {}
 
   enum ParsingErrorCode {
     PARSING,

@@ -21,13 +21,13 @@ import { findFiles } from '../../../../../shared/src/helpers/find-files.js';
 import type { FileStore } from './store-type.js';
 import type { Configuration } from '../../../../../shared/src/helpers/configuration.js';
 import { isRoot, type NormalizedAbsolutePath, dirnamePath } from '../../../rules/helpers/files.js';
-import type { JsTsFiles } from '../projectAnalysis.js';
+import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const packageJsonStore = new PackageJsonStore();
 export const tsConfigStore = new TsConfigStore();
 
-export async function initFileStores(configuration: Configuration, inputFiles?: JsTsFiles) {
+export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
 
@@ -66,13 +66,13 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
 }
 
 export async function simulateFromInputFiles(
-  inputFiles: JsTsFiles,
+  inputFiles: AnalyzableFiles,
   configuration: Configuration,
   pendingStores: FileStore[],
 ) {
   const { baseDir } = configuration;
   // simulate file system traversal from baseDir to each given input file
-  // Keys in JsTsFiles are already normalized absolute paths
+  // Keys in AnalyzableFiles are already normalized absolute paths
   const filePaths = Object.keys(inputFiles) as NormalizedAbsolutePath[];
 
   const allDirs = new Set<NormalizedAbsolutePath>();

@@ -175,6 +175,7 @@ export class Linter {
    * @param fileStatus whether the file has changed or not
    * @param analysisMode whether we are analyzing all files or only changed files
    * @param language language of the source file
+   * @param detectedEsYear ecmascript version for the file
    * @returns the linting result
    */
   static lint(
@@ -187,7 +188,7 @@ export class Linter {
     detectedEsYear?: number,
   ): LintingResult {
     if (!Linter.linter) {
-      throw APIError.linterError(`Linter does not exist. Did you call /init-linter?`);
+      throw APIError.linterError(`Linter does not exist. Linter.initialize() was never called.`);
     }
     const config = {
       languageOptions: {

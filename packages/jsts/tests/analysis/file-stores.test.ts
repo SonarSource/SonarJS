@@ -24,7 +24,7 @@ import {
   createConfiguration,
   type Configuration,
 } from '../../../shared/src/helpers/configuration.js';
-import type { JsTsFiles } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
+import type { AnalyzableFiles } from '../../src/analysis/projectAnalysis/projectAnalysis.js';
 import { sanitizeRawInputFiles } from '../../../shared/src/helpers/sanitize.js';
 
 class MockFileStore implements FileStore {
@@ -33,7 +33,10 @@ class MockFileStore implements FileStore {
   public setupCalled = false;
   public postProcessCalled = false;
 
-  async isInitialized(_configuration: Configuration, _inputFiles?: JsTsFiles): Promise<boolean> {
+  async isInitialized(
+    _configuration: Configuration,
+    _inputFiles?: AnalyzableFiles,
+  ): Promise<boolean> {
     return false; // Always return false to simulate uninitialized state
   }
 
@@ -103,7 +106,7 @@ describe('simulateFromInputFiles', () => {
 
       async isInitialized(
         _configuration: Configuration,
-        _inputFiles?: JsTsFiles,
+        _inputFiles?: AnalyzableFiles,
       ): Promise<boolean> {
         return false;
       }

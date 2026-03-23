@@ -23,13 +23,18 @@ describe('S6947', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname); // change current working dir to avoid the package.json lookup to up in the tree
   const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('S6747 turns into a noop on non-React projects', rule, {
-    valid: [
-      {
-        code: '<div class="foo"></div>;',
-        filename: join(dirname, 'filename.jsx'),
-      },
-    ],
-    invalid: [],
-  });
+  ruleTester.run(
+    'S6747 reports invalid JSX props even when React is not explicitly imported',
+    rule,
+    {
+      valid: [],
+      invalid: [
+        {
+          code: '<div class="foo"></div>;',
+          filename: join(dirname, 'filename.jsx'),
+          errors: 1,
+        },
+      ],
+    },
+  );
 });

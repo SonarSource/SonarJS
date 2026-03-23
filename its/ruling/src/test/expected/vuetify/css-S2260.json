@@ -1,0 +1,242 @@
+{
+"vuetify:packages/vuetify/src/components/VAlert/VAlert.sass": [
+14
+],
+"vuetify:packages/vuetify/src/components/VAppBar/VAppBar.sass": [
+8
+],
+"vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.sass": [
+9
+],
+"vuetify:packages/vuetify/src/components/VAvatar/VAvatar.sass": [
+15
+],
+"vuetify:packages/vuetify/src/components/VBadge/VBadge.sass": [
+24
+],
+"vuetify:packages/vuetify/src/components/VBanner/VBanner.sass": [
+21
+],
+"vuetify:packages/vuetify/src/components/VBottomNavigation/VBottomNavigation.sass": [
+11
+],
+"vuetify:packages/vuetify/src/components/VBottomSheet/VBottomSheet.sass": [
+0
+],
+"vuetify:packages/vuetify/src/components/VBreadcrumbs/VBreadcrumbs.sass": [
+11
+],
+"vuetify:packages/vuetify/src/components/VBtn/VBtn.sass": [
+26
+],
+"vuetify:packages/vuetify/src/components/VBtnGroup/VBtnGroup.sass": [
+16
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.sass": [
+4
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarDaily.sass": [
+4
+],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.sass": [
+4
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.sass": [
+4
+],
+"vuetify:packages/vuetify/src/components/VCard/VCard.sass": [
+17
+],
+"vuetify:packages/vuetify/src/components/VChip/VChip.sass": [
+21
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPicker.sass": [
+10
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerEdit.sass": [
+15
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerPreview.sass": [
+8
+],
+"vuetify:packages/vuetify/src/components/VCombobox/VCombobox.sass": [
+9
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerHeader.sass": [
+3
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerTable.sass": [
+3
+],
+"vuetify:packages/vuetify/src/components/VDialog/VDialog.sass": [
+24
+],
+"vuetify:packages/vuetify/src/components/VDivider/VDivider.sass": [
+12
+],
+"vuetify:packages/vuetify/src/components/VExpansionPanel/VExpansionPanel.sass": [
+69
+],
+"vuetify:packages/vuetify/src/components/VField/VField.sass": [
+45
+],
+"vuetify:packages/vuetify/src/components/VFileInput/VFileInput.sass": [
+7
+],
+"vuetify:packages/vuetify/src/components/VFooter/VFooter.sass": [
+12
+],
+"vuetify:packages/vuetify/src/components/VGrid/VGrid.sass": [
+23
+],
+"vuetify:packages/vuetify/src/components/VGrid/_mixins.sass": [
+6
+],
+"vuetify:packages/vuetify/src/components/VIcon/VIcon.sass": [
+23
+],
+"vuetify:packages/vuetify/src/components/VImg/VImg.sass": [
+18
+],
+"vuetify:packages/vuetify/src/components/VKbd/VKbd.sass": [
+12
+],
+"vuetify:packages/vuetify/src/components/VLayout/VLayoutItem.sass": [
+5
+],
+"vuetify:packages/vuetify/src/components/VList/VList.sass": [
+10
+],
+"vuetify:packages/vuetify/src/components/VList/VListItem.sass": [
+17
+],
+"vuetify:packages/vuetify/src/components/VMain/VMain.sass": [
+19
+],
+"vuetify:packages/vuetify/src/components/VMenu/VMenu.sass": [
+8
+],
+"vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.sass": [
+18
+],
+"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.sass": [
+5
+],
+"vuetify:packages/vuetify/src/components/VOverflowBtn/VOverflowBtn.sass": [
+4
+],
+"vuetify:packages/vuetify/src/components/VOverlay/VOverlay.sass": [
+17
+],
+"vuetify:packages/vuetify/src/components/VPicker/VPicker.sass": [
+4
+],
+"vuetify:packages/vuetify/src/components/VProgressCircular/VProgressCircular.sass": [
+42
+],
+"vuetify:packages/vuetify/src/components/VProgressLinear/VProgressLinear.sass": [
+110
+],
+"vuetify:packages/vuetify/src/components/VResponsive/VResponsive.sass": [
+20
+],
+"vuetify:packages/vuetify/src/components/VSelect/VSelect.sass": [
+9
+],
+"vuetify:packages/vuetify/src/components/VSelectionControl/VSelectionControl.sass": [
+77
+],
+"vuetify:packages/vuetify/src/components/VSheet/VSheet.sass": [
+7
+],
+"vuetify:packages/vuetify/src/components/VSkeletonLoader/VSkeletonLoader.sass": [
+6
+],
+"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.sass": [
+30
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSliderThumb.sass": [
+38
+],
+"vuetify:packages/vuetify/src/components/VSlider/VSliderTrack.sass": [
+44
+],
+"vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.sass": [
+26
+],
+"vuetify:packages/vuetify/src/components/VStepper/VStepper.sass": [
+3
+],
+"vuetify:packages/vuetify/src/components/VSwitch/VSwitch.sass": [
+44
+],
+"vuetify:packages/vuetify/src/components/VSystemBar/VSystemBar.sass": [
+20
+],
+"vuetify:packages/vuetify/src/components/VTable/VTable.sass": [
+8
+],
+"vuetify:packages/vuetify/src/components/VTabs/VTabs.sass": [
+48
+],
+"vuetify:packages/vuetify/src/components/VTextField/VTextField.sass": [
+26
+],
+"vuetify:packages/vuetify/src/components/VTextarea/VTextarea.sass": [
+49
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.sass": [
+4
+],
+"vuetify:packages/vuetify/src/components/VTimeline/VTimeline.sass": [
+101
+],
+"vuetify:packages/vuetify/src/components/VTimeline/_mixins.sass": [
+17
+],
+"vuetify:packages/vuetify/src/components/VToolbar/VToolbar.sass": [
+18
+],
+"vuetify:packages/vuetify/src/components/VTooltip/VTooltip.sass": [
+20
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.sass": [
+5
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTable.sass": [
+20
+],
+"vuetify:packages/vuetify/src/styles/elements/_blockquote.sass": [
+4
+],
+"vuetify:packages/vuetify/src/styles/elements/_global.sass": [
+4
+],
+"vuetify:packages/vuetify/src/styles/tools/_density.sass": [
+6
+],
+"vuetify:packages/vuetify/src/styles/tools/_elevation.sass": [
+5
+],
+"vuetify:packages/vuetify/src/styles/tools/_radius.sass": [
+6
+],
+"vuetify:packages/vuetify/src/styles/tools/_sheet.sass": [
+2
+],
+"vuetify:packages/vuetify/src/styles/tools/_states.sass": [
+11
+],
+"vuetify:packages/vuetify/src/styles/tools/_utilities.sass": [
+27
+],
+"vuetify:packages/vuetify/src/styles/utilities/_display.sass": [
+3
+],
+"vuetify:packages/vuetify/src/styles/utilities/_index.sass": [
+11
+],
+"vuetify:packages/vuetify/src/styles/utilities/_screenreaders.sass": [
+4
+]
+}
