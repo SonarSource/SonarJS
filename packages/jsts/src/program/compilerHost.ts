@@ -122,6 +122,10 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   readFile(fileName: string): string | undefined {
     const normalized = path.normalize(fileName);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return;
+    }
+
     const cache = getSourceFileContentCache();
     const filesContext = getCurrentFilesContext();
 
@@ -160,6 +164,10 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   fileExists(fileName: string): boolean {
     const normalized = path.normalize(fileName);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return false;
+    }
+
     const cache = getSourceFileContentCache();
 
     // 1. Check global cache
@@ -188,6 +196,9 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile | undefined {
     const normalized = path.normalize(fileName);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return;
+    }
 
     // For files explicitly present in the current analysis context, make the
     // request content authoritative before looking up cached parsed ASTs.
