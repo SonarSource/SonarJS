@@ -134,6 +134,50 @@ describe('S125', () => {
             // YUI().use('*'); // Comment following ';'
         `,
         },
+        {
+          // TODO task marker preceding commented code — not flagged
+          code: `
+// TODO: pending
+// processVector(name, 'separate setting');
+          `,
+        },
+        {
+          // FIXME task marker preceding commented code — not flagged
+          code: `
+// FIXME: reenable
+// const greetUser = (name) => { return name; };
+          `,
+        },
+        {
+          // HACK task marker preceding commented code — not flagged
+          code: `
+// HACK: disabled
+// const result = processValue(type);
+          `,
+        },
+        {
+          // XXX task marker preceding commented code — not flagged
+          code: `
+// XXX: broken
+// if (result > 0) { processResult(result); }
+          `,
+        },
+        {
+          // NOTE task marker preceding commented code — not flagged
+          code: `
+// NOTE: legacy
+// const legacy = computeLegacy(name, value);
+          `,
+        },
+        {
+          // TODO task marker with multi-line commented code block
+          code: `
+// TODO: implement
+// function doSomething(x) {
+//   return x + 1;
+// }
+          `,
+        },
       ],
       invalid: [
         {
@@ -318,6 +362,11 @@ let x = 0;`,
               ],
             },
           ],
+        },
+        {
+          // Task marker keyword as code identifier — still flagged (containsCode returns true for the line)
+          code: `// const NOTE = 'padding';`,
+          errors: [{ messageId: 'commentedCode' }],
         },
       ],
     });
