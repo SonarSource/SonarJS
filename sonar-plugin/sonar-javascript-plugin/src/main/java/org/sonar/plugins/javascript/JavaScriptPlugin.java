@@ -121,6 +121,12 @@ public class JavaScriptPlugin implements Plugin {
   public static final String TSLINT_REPORT_PATHS = "sonar.typescript.tslint.reportPaths";
 
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
+  private static final String HTML_FILE_SUFFIXES_DESCRIPTION =
+    "List of suffixes for HTML files where embedded JavaScript should be analyzed.";
+  private static final String YAML_FILE_SUFFIXES_DESCRIPTION =
+    "List of suffixes for AWS SAM/CloudFormation YAML files with embedded JavaScript.";
+  private static final String CSS_ADDITIONAL_FILE_SUFFIXES_DESCRIPTION =
+    "List of non-CSS file suffixes where embedded CSS should be analyzed.";
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
   public static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
 
@@ -197,7 +203,7 @@ public class JavaScriptPlugin implements Plugin {
       PropertyDefinition.builder(HTML_FILE_SUFFIXES_KEY)
         .defaultValue(HTML_FILE_SUFFIXES_DEFAULT_VALUE)
         .name("HTML File Suffixes")
-        .description(FILE_SUFFIXES_DESCRIPTION)
+        .description(HTML_FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
@@ -206,7 +212,7 @@ public class JavaScriptPlugin implements Plugin {
       PropertyDefinition.builder(YAML_FILE_SUFFIXES_KEY)
         .defaultValue(YAML_FILE_SUFFIXES_DEFAULT_VALUE)
         .name("YAML File Suffixes")
-        .description(FILE_SUFFIXES_DESCRIPTION)
+        .description(YAML_FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
@@ -215,7 +221,7 @@ public class JavaScriptPlugin implements Plugin {
       PropertyDefinition.builder(CSS_ADDITIONAL_FILE_SUFFIXES_KEY)
         .defaultValue(CSS_ADDITIONAL_FILE_SUFFIXES_DEFAULT_VALUE)
         .name("CSS-in-HTML File Suffixes")
-        .description("List of suffixes used for secondary CSS analysis in non-CSS files.")
+        .description(CSS_ADDITIONAL_FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)

@@ -256,7 +256,7 @@ export type FileSuffixes = {
   cssAdditionalSuffixes: string[];
 };
 
-export const DEFAULT_FILE_SUFFIXES: FileSuffixes = {
+const DEFAULT_FILE_SUFFIXES: FileSuffixes = {
   jsSuffixes: DEFAULT_JS_EXTENSIONS,
   tsSuffixes: DEFAULT_TS_EXTENSIONS,
   cssSuffixes: DEFAULT_CSS_EXTENSIONS,
