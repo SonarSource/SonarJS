@@ -2,6 +2,9 @@
 "angular.js:docs/gulpfile.js": [
 90
 ],
+"angular.js:lib/grunt/validate-angular-files.js": [
+43
+],
 "angular.js:src/Angular.js": [
 1109,
 1115,

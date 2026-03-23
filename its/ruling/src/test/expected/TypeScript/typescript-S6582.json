@@ -2,6 +2,9 @@
 "TypeScript:Gulpfile.ts": [
 628
 ],
+"TypeScript:scripts/tslint/booleanTriviaRule.ts": [
+71
+],
 "TypeScript:src/compiler/binder.ts": [
 292,
 294,
