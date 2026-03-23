@@ -178,6 +178,31 @@ describe('S125', () => {
 // }
           `,
         },
+        {
+          // Nested // TODO pattern: TODO marker inside a // comment that itself is commented — not flagged
+          code: `
+// // TODO readd this test when fixed
+// casper.thenClick('.post-settings');
+// casper.waitForOpaque('.post-settings-menu.open');
+          `,
+        },
+        {
+          // Block comment with // TODO as first line followed by commented-out code — not flagged
+          code: `
+/*
+// TODO: Reenable once circular dependency issue is resolved
+import { foo } from './foo';
+const bar = foo();
+*/
+          `,
+        },
+        {
+          // TODO embedded as nested comment within commented-out code — not flagged
+          code: `
+// // TODO: verify the result
+// var canThisResult = permissions.canThis(updatedUser.id);
+          `,
+        },
       ],
       invalid: [
         {
