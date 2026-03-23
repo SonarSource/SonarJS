@@ -374,7 +374,9 @@ class WebSensorTest {
 
   @Test
   void should_explode_if_no_response_from_project_analysis() {
-    doThrow(new IllegalStateException("error")).when(bridgeServerMock).analyzeProject(any());
+    doThrow(new IllegalStateException("error"))
+      .when(bridgeServerMock)
+      .analyzeProject(any(WebSocketMessageHandler.class));
     var sensor = createSensor();
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
@@ -392,7 +394,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+              "{ parsingErrors: [{ line: 3, column: 4, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"}] }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -404,6 +406,7 @@ class WebSensorTest {
     assertThat(issues).hasSize(1);
     Issue issue = issues.iterator().next();
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
+    assertThat(issue.primaryLocation().textRange().start().lineOffset()).isEqualTo(4);
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
     assertThat(logTester.logs(Level.WARN)).contains(
@@ -419,7 +422,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+              "{ parsingErrors: [{ line: 3, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"}] }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -446,7 +449,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { message: \"Parse error message\"} }",
+              "{ parsingErrors: [{ message: \"Parse error message\", language: \"ts\"}] }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -543,6 +546,32 @@ class WebSensorTest {
   }
 
   @Test
+  void should_send_skipNodeModuleLookupOutsideBaseDir_false_by_default() {
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .skipNodeModuleLookupOutsideBaseDir()
+    ).isFalse();
+  }
+
+  @Test
+  void should_send_skipNodeModuleLookupOutsideBaseDir_true_when_enabled() {
+    context.setSettings(
+      new MapSettings().setProperty(
+        "sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir",
+        "true"
+      )
+    );
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .skipNodeModuleLookupOutsideBaseDir()
+    ).isTrue();
+  }
+
+  @Test
   void should_not_send_content() {
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)
@@ -595,9 +624,9 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { message: \"Debug Failure. False expression.\", code: \"" +
+              "{ parsingErrors: [{ message: \"Debug Failure. False expression.\", code: \"" +
                 BridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT +
-                "\"} }",
+                "\", language: \"ts\"}] }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -622,7 +651,9 @@ class WebSensorTest {
 
   @Test
   void should_fail_fast() {
-    doThrow(new IllegalStateException("error")).when(bridgeServerMock).analyzeProject(any());
+    doThrow(new IllegalStateException("error"))
+      .when(bridgeServerMock)
+      .analyzeProject(any(WebSocketMessageHandler.class));
     var sensor = createSensor();
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
@@ -639,7 +670,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { message: \"Parse error message\"} }",
+              "{ parsingErrors: [{ message: \"Parse error message\", language: \"ts\"}] }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -653,6 +684,31 @@ class WebSensorTest {
     assertThat(logTester.logs(Level.ERROR)).contains(
       "Failed to analyze file [dir/file.ts]: Parse error message"
     );
+  }
+
+  @Test
+  void should_not_fail_fast_with_css_parsing_error_without_line() {
+    MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
+    context.setSettings(settings);
+    var expectedResponse = createProjectResponse(
+      new HashMap<>() {
+        {
+          put(
+            inputFile.absolutePath(),
+            GSON.fromJson(
+              "{ parsingErrors: [{ message: \"Parse error message\", language: \"css\"}] }",
+              BridgeServer.AnalysisResponseDTO.class
+            )
+          );
+        }
+      }
+    );
+
+    executeSensorMockingResponse(expectedResponse);
+    assertThat(logTester.logs(Level.ERROR)).contains(
+      "Failed to analyze file [dir/file.ts]: Parse error message"
+    );
+    assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
   @Test
@@ -1287,7 +1343,7 @@ class WebSensorTest {
       return handler.getFuture().join();
     })
       .when(bridgeServerMock)
-      .analyzeProject(any());
+      .analyzeProject(any(WebSocketMessageHandler.class));
     sensor.execute(context);
     assertThat(webSocketClient.getMessageHandlers()).isEmpty();
   }
@@ -1392,7 +1448,7 @@ class WebSensorTest {
     Node node
   ) {
     var analysisResponse = new BridgeServer.AnalysisResponseDTO(
-      null,
+      List.of(),
       List.of(),
       List.of(),
       List.of(),
@@ -1423,7 +1479,7 @@ class WebSensorTest {
 
   private BridgeServer.AnalysisResponseDTO createResponse(List<BridgeServer.Issue> issues) {
     return new BridgeServer.AnalysisResponseDTO(
-      null,
+      List.of(),
       issues,
       List.of(),
       List.of(),
@@ -1579,6 +1635,10 @@ class WebSensorTest {
       builder.addRule(
         new NewActiveRule.Builder()
           .setRuleKey(RuleKey.of(CheckList.TS_REPOSITORY_KEY, ruleKey))
+          .build()
+      );
+      builder.addRule(
+        new NewActiveRule.Builder()
           .setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, ruleKey))
           .build()
       );

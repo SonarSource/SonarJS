@@ -304,6 +304,57 @@ async function middlewareExample(req, next) {
   return res
 }`,
         },
+        {
+          // status function: early-exit branch logs before returning, no pure-return branches
+          code: `
+function synchronizeData(networkAvailable: boolean, lastSyncId: string): boolean {
+  if (!networkAvailable) {
+    logWarning('Network unavailable, skipping synchronization for: ' + lastSyncId);
+    return true;
+  }
+  performSync(lastSyncId);
+  recordSyncTime(lastSyncId);
+  return true;
+}
+function logWarning(_msg: string): void {}
+function performSync(_id: string): void {}
+function recordSyncTime(_id: string): void {}`,
+        },
+        {
+          // event handler: every return-containing branch performs an action before returning
+          code: `
+function handleKeyboardShortcut(key: string, isCtrl: boolean): boolean {
+  if (key === 'Escape') {
+    closeActiveDialog();
+    return false;
+  }
+  if (key === 'Enter' && isCtrl) {
+    submitActiveForm();
+    return false;
+  }
+  return false;
+}
+function closeActiveDialog(): void {}
+function submitActiveForm(): void {}`,
+        },
+        {
+          // guard pattern: each guard branch logs before returning, no pure-return branches
+          code: `
+function processRequest(requestId: string, payload: Record<string, unknown> | null): boolean {
+  if (!requestId) {
+    logError('processRequest: missing requestId, request dropped.');
+    return true;
+  }
+  if (!payload) {
+    logError('processRequest: missing payload for request ' + requestId + ', request dropped.');
+    return true;
+  }
+  storeRequestData(requestId, payload);
+  return true;
+}
+function logError(_msg: string): void {}
+function storeRequestData(_id: string, _data: Record<string, unknown>): void {}`,
+        },
       ],
       invalid: [
         {
@@ -589,6 +640,16 @@ function dispatchInTheMiddleOfReducer(state = [], action) {
     default:
       return state
   }
+}`,
+          errors: 1,
+        },
+        {
+          // pure-return guard prevents suppression even when another branch has side effect + return
+          code: `
+function f(a, g) {
+  if (a < 0) { return false; }
+  if (a > 10) { g(a); return false; }
+  return false;
 }`,
           errors: 1,
         },

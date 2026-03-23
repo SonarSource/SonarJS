@@ -222,7 +222,11 @@ public class WebSensor implements Sensor {
     try {
       var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);
-      new PluginTelemetry(context, bridgeServer).reportTelemetry();
+      new PluginTelemetry(
+        context,
+        bridgeServer,
+        handler.getProjectAnalysisTelemetry()
+      ).reportTelemetry();
       consumers.doneAnalysis(context.getSensorContext());
     } catch (CompletionException e) {
       if (e.getCause() instanceof CancellationException nestedException) {
@@ -243,6 +247,9 @@ public class WebSensor implements Sensor {
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
     private final CompletableFuture<Void> handle;
+
+    @Nullable
+    private BridgeServer.ProjectAnalysisTelemetry projectAnalysisTelemetry;
 
     AnalyzeProjectHandler(
       JsTsContext<?> context,
@@ -302,6 +309,11 @@ public class WebSensor implements Sensor {
       return handle;
     }
 
+    @Nullable
+    BridgeServer.ProjectAnalysisTelemetry getProjectAnalysisTelemetry() {
+      return projectAnalysisTelemetry;
+    }
+
     @Override
     public SensorContext getContext() {
       return context.getSensorContext();
@@ -341,6 +353,7 @@ public class WebSensor implements Sensor {
       } else if ("meta".equals(messageType)) {
         var meta = GSON.fromJson(jsonObject, BridgeServer.ProjectAnalysisMetaResponse.class);
         meta.warnings().forEach(analysisWarnings::addUnique);
+        projectAnalysisTelemetry = meta.telemetry();
         handle.complete(null);
       } else if ("cancelled".equals(messageType)) {
         handle.completeExceptionally(

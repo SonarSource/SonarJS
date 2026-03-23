@@ -75,6 +75,7 @@ export type Configuration = {
   detectBundles: boolean /* sonar.javascript.detectBundles - whether files looking like bundled code should be ignored */;
   createTSProgramForOrphanFiles: boolean /* sonar.javascript.createTSProgramForOrphanFiles - whether to create a TS program for orphan files */;
   disableTypeChecking: boolean /* sonar.javascript.disableTypeChecking - whether to completely disable TypeScript type checking */;
+  skipNodeModuleLookupOutsideBaseDir: boolean /* sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir - whether to skip node_modules lookups outside baseDir in TS compiler host */;
   ecmaScriptVersion?: string /* sonar.javascript.ecmaScriptVersion - explicit ES version override e.g. 'ES2022' */;
   reportNclocForTestFiles: boolean /* In gRPC/A3S context, ncloc for test files is computed by the analyzer. In SQ context, ncloc is not computed for tests. */;
 };
@@ -214,6 +215,9 @@ export function createConfiguration(raw: unknown): Configuration {
       ? raw.createTSProgramForOrphanFiles
       : true,
     disableTypeChecking: isBoolean(raw.disableTypeChecking) ? raw.disableTypeChecking : false,
+    skipNodeModuleLookupOutsideBaseDir: isBoolean(raw.skipNodeModuleLookupOutsideBaseDir)
+      ? raw.skipNodeModuleLookupOutsideBaseDir
+      : false,
     ecmaScriptVersion: isString(raw.ecmaScriptVersion) ? raw.ecmaScriptVersion : undefined,
     reportNclocForTestFiles: isBoolean(raw.reportNclocForTestFiles)
       ? raw.reportNclocForTestFiles
@@ -407,6 +411,7 @@ export type JsTsConfigFields = {
   shouldIgnoreParams: ShouldIgnoreFileParams;
   createTSProgramForOrphanFiles: boolean;
   disableTypeChecking: boolean;
+  skipNodeModuleLookupOutsideBaseDir: boolean;
   ecmaScriptVersion?: string /* sonar.javascript.ecmaScriptVersion */;
   reportNclocForTestFiles: boolean;
 };
@@ -428,6 +433,7 @@ export function getJsTsConfigFields(configuration: Configuration): JsTsConfigFie
     shouldIgnoreParams: getShouldIgnoreParams(configuration),
     createTSProgramForOrphanFiles: configuration.createTSProgramForOrphanFiles,
     disableTypeChecking: configuration.disableTypeChecking,
+    skipNodeModuleLookupOutsideBaseDir: configuration.skipNodeModuleLookupOutsideBaseDir,
     ecmaScriptVersion: configuration.ecmaScriptVersion,
     reportNclocForTestFiles: configuration.reportNclocForTestFiles,
   };

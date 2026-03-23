@@ -32,6 +32,7 @@ export enum ErrorCode {
 
 export interface ErrorData {
   line: number;
+  column?: number;
 }
 
 export class APIError extends Error {
