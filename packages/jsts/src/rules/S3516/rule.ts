@@ -37,6 +37,8 @@ interface FunctionContext {
   returnStatements: estree.ReturnStatement[];
   branchStack: BranchFrame[];
   hasSideEffectOnlyBranch: boolean;
+  hasSideEffectBranchWithReturn: boolean;
+  hasReturnBranchWithoutSideEffect: boolean;
 }
 
 interface SingleWriteVariable {
@@ -66,10 +68,19 @@ export const rule: Rule.RuleModule = {
         returnStatement => returnStatement.argument as estree.Node,
       );
       if (areAllSameValue(returnedValues, context.sourceCode.getScope(node))) {
-        // Only suppress when the returned value is a non-literal (e.g., a variable used for chaining).
-        // Functions returning literals (false, null, 0, etc.) have no chaining rationale and are always flagged.
         const firstValue = getLiteralValue(returnedValues[0], context.sourceCode.getScope(node));
         if (firstValue === undefined && functionContext.hasSideEffectOnlyBranch) {
+          return;
+        }
+        // Suppress literal invariant returns only when ALL branching returns are accompanied
+        // by side effects (no pure-return branches exist). This distinguishes intentional
+        // control flow (every branch does real work before returning the same literal) from
+        // dead code (some branch returns the literal with no side effect).
+        if (
+          firstValue !== undefined &&
+          functionContext.hasSideEffectBranchWithReturn &&
+          !functionContext.hasReturnBranchWithoutSideEffect
+        ) {
           return;
         }
         report(
@@ -99,6 +110,12 @@ export const rule: Rule.RuleModule = {
         if (frame?.hasSideEffect && !frame.hasReturn) {
           ctx.hasSideEffectOnlyBranch = true;
         }
+        if (frame?.hasSideEffect && frame.hasReturn) {
+          ctx.hasSideEffectBranchWithReturn = true;
+        }
+        if (frame?.hasReturn && !frame.hasSideEffect) {
+          ctx.hasReturnBranchWithoutSideEffect = true;
+        }
       }
     }
 
@@ -127,6 +144,8 @@ export const rule: Rule.RuleModule = {
           returnStatements: [],
           branchStack: [],
           hasSideEffectOnlyBranch: false,
+          hasSideEffectBranchWithReturn: false,
+          hasReturnBranchWithoutSideEffect: false,
         });
         codePathSegments.push(currentCodePathSegments);
         currentCodePathSegments = [];
