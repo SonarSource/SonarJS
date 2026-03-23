@@ -317,8 +317,8 @@ jobs:
 
           RULES_README="packages/jsts/src/rules/README.md"
 
-          # Regenerate only the rules README and check for differences
-          npx tsx tools/generate-external-rules-docs.ts
+          # Regenerate metadata and check for differences only on the rules README
+          npm run generate-meta
 
           FIX_BRANCH="fix/update-readme-for-${HEAD_REF}"
 
