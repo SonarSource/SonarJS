@@ -315,12 +315,14 @@ jobs:
             exit 0
           fi
 
-          # Regenerate README and check for differences
-          npm run generate-meta
+          RULES_README="packages/jsts/src/rules/README.md"
+
+          # Regenerate only the rules README and check for differences
+          npx tsx tools/generate-external-rules-docs.ts
 
           FIX_BRANCH="fix/update-readme-for-${HEAD_REF}"
 
-          if git diff --quiet packages/jsts/src/rules/README.md; then
+          if git diff --quiet -- "$RULES_README"; then
             echo "README is up to date"
 
             # Clean up stale fix PR if one exists and is still open
@@ -335,7 +337,7 @@ jobs:
 
           echo "README is stale — creating fix PR"
 
-          git stash push -m "readme-update" -- packages/jsts/src/rules/README.md
+          git stash push -m "readme-update" -- "$RULES_README"
           git fetch origin "$HEAD_REF"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -343,7 +345,7 @@ jobs:
           if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
             git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
             git stash pop
-            git add packages/jsts/src/rules/README.md
+            git add "$RULES_README"
             git commit -m "Update rules README
 
           🤖 Generated with GitHub Actions"
@@ -352,7 +354,7 @@ jobs:
           else
             git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
             git stash pop
-            git add packages/jsts/src/rules/README.md
+            git add "$RULES_README"
             git commit -m "Update rules README
 
           🤖 Generated with GitHub Actions"
