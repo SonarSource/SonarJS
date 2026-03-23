@@ -15,6 +15,7 @@
 10
 ],
 "Ghost:core/test/functional/client/content_test.js": [
+70,
 75,
 77
 ],
@@ -44,6 +45,7 @@
 ],
 "Ghost:core/test/unit/permissions_spec.js": [
 288,
+323,
 326,
 397,
 408,

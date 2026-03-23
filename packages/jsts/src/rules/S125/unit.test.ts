@@ -134,55 +134,6 @@ describe('S125', () => {
             // YUI().use('*'); // Comment following ';'
         `,
         },
-        {
-          // TODO on a non-code line followed by commented-out code — task marker suppresses issue
-          code: `
-// TODO: pending
-// processVector(name, 'separate setting');
-        `,
-        },
-        {
-          // FIXME on a non-code line followed by a commented-out type alias — task marker suppresses issue
-          code: `
-// FIXME: reenable
-// type GiscusRepo = string | null;
-        `,
-        },
-        {
-          // HACK on a non-code line followed by commented-out code — task marker suppresses issue
-          code: `
-// HACK: disabled
-// const result = processValue(type);
-        `,
-        },
-        {
-          // XXX on a non-code line followed by commented-out code — task marker suppresses issue
-          code: `
-// XXX: broken
-// if (result > 0) { doSomething(); }
-        `,
-        },
-        {
-          // NOTE on a non-code line followed by commented-out code — task marker suppresses issue
-          code: `
-// NOTE: legacy
-// const legacy = computeLegacy(name, value);
-        `,
-        },
-        {
-          // @TODO prefix is also detected as a task marker — suppresses issue
-          code: `
-// @TODO: disabled pending review
-// const validator = validateInput(config);
-        `,
-        },
-        {
-          // doubly-nested TODO (// // TODO) is still detected as a task marker — suppresses issue
-          code: `
-// // TODO: readd when bug is fixed
-// casper.thenClick('.post-settings');
-        `,
-        },
       ],
       invalid: [
         {
@@ -369,30 +320,7 @@ let x = 0;`,
           ],
         },
         {
-          // NOTE as a JavaScript identifier in commented code — per-line check prevents suppression
           code: `// const NOTE = 'padding';`,
-          errors: [
-            {
-              messageId: 'commentedCode',
-              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
-            },
-          ],
-        },
-        {
-          // task marker in a different group (blank line separates groups) — code group still raises
-          code: `// TODO: reenable\n\n// if (condition) { doSomething(); }`,
-          errors: [
-            {
-              messageId: 'commentedCode',
-              suggestions: [
-                { desc: 'Remove this commented out code', output: '// TODO: reenable\n\n' },
-              ],
-            },
-          ],
-        },
-        {
-          // task marker inline after code on same line — line parses as code, so not treated as task marker; group is still flagged
-          code: `// if (cond) { doSomething(); } // TODO: remove`,
           errors: [
             {
               messageId: 'commentedCode',
