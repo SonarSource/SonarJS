@@ -22,7 +22,7 @@ import ts from 'typescript';
 import type { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
 import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
-import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
+import { isJsTsFile, type JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
 import merge from 'lodash.merge';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from '../../program/compilerHost.js';

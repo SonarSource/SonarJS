@@ -21,6 +21,7 @@ import type { EmbeddedAnalysisOutput } from '../../embedded/analysis/analysis.js
 import type { CssAnalysisOutput } from '../../../../css/src/analysis/analysis.js';
 import type { FileType, NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import type { ProjectAnalysisTelemetry } from './telemetry.js';
+import type { ParsingError } from '../../../../shared/src/errors/project-analysis.js';
 
 export type ProjectAnalysisMeta = {
   warnings: string[];
