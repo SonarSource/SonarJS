@@ -56,20 +56,12 @@ export interface CssSyntaxHighlight {
 /**
  * Metrics computed from a CSS source file.
  *
- * CSS files have limited metric semantics compared to JS/TS, so
- * functions, statements, classes, complexity, and cognitiveComplexity
- * are always 0. The primary metrics are ncloc and commentLines.
+ * CSS metrics only include line-based metrics and NOSONAR locations.
  */
 export interface CssMetrics {
   ncloc?: number[];
   commentLines?: number[];
   nosonarLines: number[];
-  executableLines?: number[];
-  functions?: number;
-  statements?: number;
-  classes?: number;
-  complexity?: number;
-  cognitiveComplexity?: number;
 }
 
 /**

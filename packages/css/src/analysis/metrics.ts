@@ -83,11 +83,5 @@ export function computeMetrics(root: Root | Document): CssMetrics {
     ncloc: Array.from(codeLines).sort((a, b) => a - b),
     commentLines: Array.from(commentCandidates).sort((a, b) => a - b),
     nosonarLines: nosonarLines.sort((a, b) => a - b),
-    executableLines: [],
-    functions: 0,
-    statements: 0,
-    classes: 0,
-    complexity: 0,
-    cognitiveComplexity: 0,
   };
 }
