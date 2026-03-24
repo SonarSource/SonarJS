@@ -656,6 +656,15 @@ describe('S2871', () => {
           `,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
+        // for-in pattern but pushed value is not the loop variable - still flagged
+        {
+          code: `
+            var arr = [];
+            for (var key in obj) arr.push(someNumber);
+            arr.sort();
+          `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
         // Foo.from(map.keys()).sort() - non-Array receiver is not suppressed
         {
           code: `Foo.from(map.keys()).sort()`,

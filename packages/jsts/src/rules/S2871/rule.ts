@@ -119,18 +119,18 @@ const functionBoundaryTypes = new Set([
   'ArrowFunctionExpression',
 ]);
 
-function isInsideForIn(startNode: estree.Node): boolean {
+function getEnclosingForIn(startNode: estree.Node): estree.ForInStatement | null {
   let current: estree.Node | undefined = getNodeParent(startNode);
   while (current) {
     if (current.type === 'ForInStatement') {
-      return true;
+      return current as estree.ForInStatement;
     }
     if (functionBoundaryTypes.has(current.type)) {
-      return false;
+      return null;
     }
     current = getNodeParent(current);
   }
-  return false;
+  return null;
 }
 
 /**
@@ -189,8 +189,23 @@ function isForInKeyArray(
     }
 
     // push() call - must be inside a for-in statement (not crossing function boundaries)
-    if (!isInsideForIn(callParent)) {
+    const forIn = getEnclosingForIn(callParent);
+    if (!forIn) {
       return false; // push outside for-in - reject
+    }
+
+    // Verify the pushed value is the loop variable (key), not an arbitrary expression.
+    // Pattern must be: for (var key in obj) arr.push(key)
+    const loopVar =
+      forIn.left.type === 'VariableDeclaration' ? forIn.left.declarations[0].id : forIn.left;
+    const pushArg = (callParent as estree.CallExpression).arguments[0];
+    if (
+      !pushArg ||
+      pushArg.type !== 'Identifier' ||
+      loopVar.type !== 'Identifier' ||
+      pushArg.name !== loopVar.name
+    ) {
+      return false;
     }
 
     hasForInPush = true;
