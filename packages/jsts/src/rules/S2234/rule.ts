@@ -84,7 +84,8 @@ export const rule: Rule.RuleModule = {
             swappedArgumentName &&
             !areComparedArguments([argumentName, swappedArgumentName], functionCall) &&
             !isIntentionalComparatorReversal(functionCall, argumentName, swappedArgumentName) &&
-            !isInDirectionalContext(functionCall)
+            !isInDirectionalContext(functionCall) &&
+            !isIntentionalTernarySwap(functionCall, argumentName, swappedArgumentName)
           ) {
             raiseIssue(argumentName, swappedArgumentName, functionDeclaration, functionCall);
             return;
@@ -224,6 +225,79 @@ export const rule: Rule.RuleModule = {
         }
       }
       return false;
+    }
+
+    /**
+     * Returns true when the detected argument swap is in one branch of a ConditionalExpression
+     * and the other branch calls the same function with those arguments in the opposite (correct)
+     * order. The condition acts as the selector, making both orderings intentional.
+     *
+     * Example: `cond ? fn(b, a) : fn(a, b)` — both orderings are deliberate.
+     */
+    function isIntentionalTernarySwap(
+      functionCall: estree.CallExpression,
+      arg1Name: string,
+      arg2Name: string,
+    ): boolean {
+      const ancestors = context.sourceCode.getAncestors(functionCall);
+      const parent = ancestors[ancestors.length - 1];
+
+      if (!parent || parent.type !== 'ConditionalExpression') {
+        return false;
+      }
+
+      const conditional = parent as estree.ConditionalExpression;
+
+      // Determine the "other" branch of the ternary
+      const otherBranch =
+        conditional.consequent === functionCall
+          ? conditional.alternate
+          : conditional.alternate === functionCall
+            ? conditional.consequent
+            : null;
+
+      if (!otherBranch || otherBranch.type !== 'CallExpression') {
+        return false;
+      }
+
+      const otherCall = otherBranch as estree.CallExpression;
+
+      // Both calls must target the same callee (by source text)
+      if (
+        context.sourceCode.getText(functionCall.callee) !==
+        context.sourceCode.getText(otherCall.callee)
+      ) {
+        return false;
+      }
+
+      if (otherCall.arguments.length !== functionCall.arguments.length) {
+        return false;
+      }
+
+      // Find positions of arg1 and arg2 in the flagged call
+      const args = functionCall.arguments;
+      const idx1 = args.findIndex(
+        a => a.type === 'Identifier' && (a as estree.Identifier).name === arg1Name,
+      );
+      const idx2 = args.findIndex(
+        a => a.type === 'Identifier' && (a as estree.Identifier).name === arg2Name,
+      );
+
+      if (idx1 < 0 || idx2 < 0) {
+        return false;
+      }
+
+      // In the other branch, those same positions must carry arg2 and arg1 (reversed)
+      const otherArgs = otherCall.arguments;
+      const otherAtIdx1 = otherArgs[idx1];
+      const otherAtIdx2 = otherArgs[idx2];
+
+      return (
+        otherAtIdx1?.type === 'Identifier' &&
+        (otherAtIdx1 as estree.Identifier).name === arg2Name &&
+        otherAtIdx2?.type === 'Identifier' &&
+        (otherAtIdx2 as estree.Identifier).name === arg1Name
+      );
     }
 
     function resolveFunctionDeclaration(node: estree.CallExpression): FunctionSignature | null {
