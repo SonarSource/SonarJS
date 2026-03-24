@@ -92,16 +92,4 @@ describe('computeMetrics', () => {
       expect(metricsOf('/* just a comment */').nosonarLines).toEqual([]);
     });
   });
-
-  describe('default zero metrics', () => {
-    it('should return zero for JS/TS-only metrics', () => {
-      const m = metricsOf('a { color: red; }');
-      expect(m.functions).toBe(0);
-      expect(m.statements).toBe(0);
-      expect(m.classes).toBe(0);
-      expect(m.complexity).toBe(0);
-      expect(m.cognitiveComplexity).toBe(0);
-      expect(m.executableLines).toEqual([]);
-    });
-  });
 });

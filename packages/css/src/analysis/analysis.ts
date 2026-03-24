@@ -15,23 +15,19 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
-import type { RuleConfig } from '../linter/config.js';
 import type { CssIssue } from '../linter/issues/issue.js';
+import type { FileType } from '../../../shared/src/helpers/files.js';
 
 /**
- * A CSS analysis input
+ * A CSS analysis input.
  *
- * A CSS analysis input only needs an input file and a set
- * of rule configurations to analyze a stylesheet.
+ * CSS analysis uses the global linter configuration initialized by
+ * `LinterWrapper.initialize()` in project analysis.
  *
- * When `rules` are provided (bridge per-request path), a fresh config is created.
- * When `rules` are absent (analyzeProject path), the linter must be pre-initialized.
- *
- * @param rules the rules from the active quality profile (optional when linter is pre-initialized)
+ * For TEST files, rules are overridden to an empty set internally.
  */
 export interface CssAnalysisInput extends AnalysisInput {
-  rules?: RuleConfig[];
-  fileType?: string;
+  fileType?: FileType;
 }
 
 /**
@@ -60,20 +56,12 @@ export interface CssSyntaxHighlight {
 /**
  * Metrics computed from a CSS source file.
  *
- * CSS files have limited metric semantics compared to JS/TS, so
- * functions, statements, classes, complexity, and cognitiveComplexity
- * are always 0. The primary metrics are ncloc and commentLines.
+ * CSS metrics only include line-based metrics and NOSONAR locations.
  */
 export interface CssMetrics {
-  ncloc: number[];
-  commentLines: number[];
+  ncloc?: number[];
+  commentLines?: number[];
   nosonarLines: number[];
-  executableLines: number[];
-  functions: number;
-  statements: number;
-  classes: number;
-  complexity: number;
-  cognitiveComplexity: number;
 }
 
 /**

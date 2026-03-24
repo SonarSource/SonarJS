@@ -44,7 +44,7 @@ import {
   type AnalyzableFiles,
   createAnalyzableFiles,
 } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
-import { shouldIgnoreFile, type ShouldIgnoreFileParams } from './filter/filter.js';
+import { shouldIgnoreFile } from './filter/filter.js';
 
 // Type guards for runtime validation of JSON-deserialized values
 // These ensure values from untrusted sources (JSON, protobuf) match expected types
@@ -243,7 +243,6 @@ export async function sanitizeRawInputFiles(
   configuration: Configuration,
 ): Promise<SanitizedInputFiles> {
   const { baseDir } = configuration;
-  const shouldIgnoreParams: ShouldIgnoreFileParams = getShouldIgnoreParams(configuration);
   const files = createAnalyzableFiles();
   const pathMap = new Map<string, string>();
 
@@ -269,7 +268,7 @@ export async function sanitizeRawInputFiles(
     const rawFileStatus = isFileStatus(rawFile.fileStatus) ? rawFile.fileStatus : undefined;
 
     // Apply filters to files from the request
-    if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
+    if (await shouldIgnoreFile({ filePath, fileContent }, getShouldIgnoreParams(configuration))) {
       continue;
     }
 

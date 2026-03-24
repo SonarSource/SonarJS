@@ -36,8 +36,7 @@ import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
 import type { EmbeddedAnalysisInput } from '../../embedded/analysis/analysis.js';
 import { analyzeCSSProject } from '../../../../css/src/analysis/analyzer.js';
 import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
-import { error } from '../../../../shared/src/helpers/logging.js';
-import type { ShouldIgnoreFileParams } from '../../../../shared/src/helpers/filter/filter.js';
+import { error, info } from '../../../../shared/src/helpers/logging.js';
 
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
@@ -73,7 +72,17 @@ export async function analyzeFile(
   progressReport.nextFile(fileName);
 
   // Extract shouldIgnoreParams separately as it's not part of JsTsAnalysisInput
-  const { shouldIgnoreParams, ...jsTsConfigFields } = configFields;
+  const {
+    shouldIgnoreParams: {
+      jsSuffixes,
+      tsSuffixes,
+      cssSuffixes,
+      cssAdditionalSuffixes,
+      htmlSuffixes,
+      yamlSuffixes,
+    },
+    ...jsTsConfigFields
+  } = configFields;
 
   // Build complete analysis input from stored file and provided configuration
   // jsTsConfigFields provides config-based values (analysisMode, skipAst, etc.)
@@ -96,30 +105,26 @@ export async function analyzeFile(
   };
   let result: FileResult;
 
-  if (isCssFile(fileName, shouldIgnoreParams.cssSuffixes)) {
-    const rules = cssLinter.isInitialized() ? undefined : [];
-    result = await analyzeCSSProject(
-      {
-        filePath: input.filePath,
-        fileContent: input.fileContent,
-        fileType: input.fileType,
-        sonarlint: input.sonarlint,
-        rules,
-      },
-      shouldIgnoreParams,
-    );
-  } else if (isHtmlFile(fileName)) {
-    result = await analyzeHTMLProject(embeddedInput, shouldIgnoreParams, input.language);
-  } else if (isYamlFile(fileName, input.fileContent)) {
-    result = await analyzeYAMLProject(embeddedInput, shouldIgnoreParams, input.language);
-  } else if (isJsTsFile(fileName, shouldIgnoreParams)) {
-    result = await analyzeJSTSProject(input, shouldIgnoreParams);
+  if (isCssFile(fileName, cssSuffixes)) {
+    result = await analyzeCSSProject({
+      filePath: input.filePath,
+      fileContent: input.fileContent,
+      fileType: input.fileType,
+      sonarlint: input.sonarlint,
+    });
+  } else if (isHtmlFile(fileName, htmlSuffixes)) {
+    result = await analyzeHTMLProject(embeddedInput, input.language);
+  } else if (isYamlFile(fileName, input.fileContent, yamlSuffixes)) {
+    result = await analyzeYAMLProject(embeddedInput, input.language);
+  } else if (isJsTsFile(fileName, { jsSuffixes, tsSuffixes })) {
+    result = await analyzeJSTSProject(input);
   } else {
+    info(`Skipping analysis requested for unknown extension for file ${fileName}`);
     result = { issues: [] };
   }
 
-  if (cssLinter.isInitialized() && isAlsoCssFile(fileName)) {
-    result = await mergeAdditionalCssAnalysis(fileName, input, shouldIgnoreParams, result);
+  if (cssLinter.hasActiveRules() && isAlsoCssFile(fileName, cssAdditionalSuffixes)) {
+    result = await mergeAdditionalCssAnalysis(fileName, input, result);
   }
 
   if (pendingFiles) {
@@ -147,7 +152,6 @@ function inferLanguageForProjectAnalysis(
 async function mergeAdditionalCssAnalysis(
   fileName: NormalizedAbsolutePath,
   input: JsTsAnalysisInput,
-  shouldIgnoreParams: ShouldIgnoreFileParams,
   result: FileResult,
 ): Promise<FileResult> {
   if ('error' in result) {
@@ -158,9 +162,10 @@ async function mergeAdditionalCssAnalysis(
     {
       filePath: input.filePath,
       fileContent: input.fileContent,
+      fileType: input.fileType,
       sonarlint: input.sonarlint,
     },
-    shouldIgnoreParams,
+    false,
   );
 
   if ('error' in cssResult) {

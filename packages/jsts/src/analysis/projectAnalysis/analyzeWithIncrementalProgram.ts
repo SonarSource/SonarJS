@@ -63,9 +63,12 @@ export async function analyzeWithIncrementalProgram(
   jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  const { jsSuffixes, tsSuffixes, cssSuffixes } = jsTsConfigFields.shouldIgnoreParams;
+  const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
   const rootNames = Array.from(pendingFiles).filter(file =>
-    isJsTsFile(file, { jsSuffixes, tsSuffixes, cssSuffixes }),
+    isJsTsFile(file, {
+      jsSuffixes,
+      tsSuffixes,
+    }),
   );
   if (rootNames.length === 0) {
     return;

@@ -27,8 +27,6 @@ import {
   isAnalysisMode,
   isObject,
 } from './sanitize.js';
-import { type ShouldIgnoreFileParams } from './filter/filter.js';
-import { type FilterPathParams } from './filter/filter-path.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -64,6 +62,9 @@ export type Configuration = {
   tsSuffixes: string[] /* sonar.typescript.file.suffixes */;
   jsSuffixes: string[] /* sonar.javascript.file.suffixes */;
   cssSuffixes: string[] /* sonar.css.file.suffixes */;
+  htmlSuffixes: string[] /* sonar.javascript.html.file.suffixes */;
+  yamlSuffixes: string[] /* sonar.javascript.yaml.file.suffixes */;
+  cssAdditionalSuffixes: string[] /* sonar.javascript.css.additional.file.suffixes */;
   tsConfigPaths: NormalizedAbsolutePath[] /* sonar.typescript.tsconfigPath(s) */;
   jsTsExclusions: Minimatch[] /* sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */;
   sources: NormalizedAbsolutePath[] /* sonar.sources - absolute or relative path to baseDir to look for files */;
@@ -86,6 +87,9 @@ const IGNORED_PATTERNS = ['.scannerwork'];
 const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
 const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
 const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
+const DEFAULT_HTML_EXTENSIONS = ['.html', '.htm', '.xhtml'];
+const DEFAULT_YAML_EXTENSIONS = ['.yml', '.yaml'];
+const DEFAULT_CSS_ADDITIONAL_EXTENSIONS = ['.vue', '.html', '.htm', '.xhtml'];
 const DEFAULT_MAX_FILE_SIZE_KB = 1000; // 1MB, matches Java default in JavaScriptPlugin.java
 const VUE_TS_REGEX = /<script[^>]+lang=['"]ts['"][^>]*>/;
 
@@ -197,6 +201,11 @@ export function createConfiguration(raw: unknown): Configuration {
     tsSuffixes: isStringArray(raw.tsSuffixes) ? raw.tsSuffixes : DEFAULT_TS_EXTENSIONS,
     jsSuffixes: isStringArray(raw.jsSuffixes) ? raw.jsSuffixes : DEFAULT_JS_EXTENSIONS,
     cssSuffixes: isStringArray(raw.cssSuffixes) ? raw.cssSuffixes : DEFAULT_CSS_EXTENSIONS,
+    htmlSuffixes: isStringArray(raw.htmlSuffixes) ? raw.htmlSuffixes : DEFAULT_HTML_EXTENSIONS,
+    yamlSuffixes: isStringArray(raw.yamlSuffixes) ? raw.yamlSuffixes : DEFAULT_YAML_EXTENSIONS,
+    cssAdditionalSuffixes: isStringArray(raw.cssAdditionalSuffixes)
+      ? raw.cssAdditionalSuffixes
+      : DEFAULT_CSS_ADDITIONAL_EXTENSIONS,
     tsConfigPaths: sanitizePaths(raw.tsConfigPaths, baseDir),
     jsTsExclusions: normalizeGlobs(
       (isStringArray(raw.jsTsExclusions) ? raw.jsTsExclusions : DEFAULT_EXCLUSIONS).concat(
@@ -225,8 +234,6 @@ export function createConfiguration(raw: unknown): Configuration {
   };
 }
 
-const HTML_EXTENSIONS = new Set(['.html', '.htm']);
-const YAML_EXTENSIONS = new Set(['.yml', '.yaml']);
 const SAM_TRANSFORM_FIELD = 'AWS::Serverless-2016-10-31';
 const NODEJS_RUNTIME_REGEX = /^\s*Runtime:\s*['"]?nodejs\S*['"]?/;
 const HELM_DIRECTIVE_IN_COMMENT_OR_STRING = new RegExp(
@@ -237,8 +244,6 @@ const HELM_DIRECTIVE_IN_COMMENT_OR_STRING = new RegExp(
     String.raw`\{\{[\w\s]+}}`, // actual Helm directive: {{ .Values.foo }}
   ].join('|'),
 );
-const CSS_ALSO_EXTENSIONS = new Set(['.vue', '.html', '.htm', '.xhtml']);
-
 /**
  * File suffix configuration for determining file types.
  */
@@ -246,13 +251,89 @@ export type FileSuffixes = {
   jsSuffixes: string[];
   tsSuffixes: string[];
   cssSuffixes: string[];
+  htmlSuffixes: string[];
+  yamlSuffixes: string[];
+  cssAdditionalSuffixes: string[];
 };
 
-export const DEFAULT_FILE_SUFFIXES: FileSuffixes = {
+const DEFAULT_FILE_SUFFIXES: FileSuffixes = {
   jsSuffixes: DEFAULT_JS_EXTENSIONS,
   tsSuffixes: DEFAULT_TS_EXTENSIONS,
   cssSuffixes: DEFAULT_CSS_EXTENSIONS,
+  htmlSuffixes: DEFAULT_HTML_EXTENSIONS,
+  yamlSuffixes: DEFAULT_YAML_EXTENSIONS,
+  cssAdditionalSuffixes: DEFAULT_CSS_ADDITIONAL_EXTENSIONS,
 };
+
+/**
+ * Fields needed to filter files.
+ */
+export type FilterFileParams = FileSuffixes & {
+  /** Whether to detect and skip bundled files */
+  detectBundles: boolean;
+  /** Maximum file size in KB (0 means no limit) */
+  maxFileSize: number;
+  /** JS/TS exclusion patterns from sonar.typescript.exclusions and sonar.javascript.exclusions */
+  jsTsExclusions: Minimatch[];
+};
+
+/**
+ * Extracts the parameters needed for shouldIgnoreFile from a Configuration.
+ *
+ * @param configuration - The Configuration instance
+ * @returns FilterFileParams containing jsTsExclusions, detectBundles, maxFileSize, and file suffixes
+ */
+export function getShouldIgnoreParams(configuration: Configuration): FilterFileParams {
+  return {
+    jsTsExclusions: configuration.jsTsExclusions,
+    detectBundles: configuration.detectBundles,
+    maxFileSize: configuration.maxFileSize,
+    jsSuffixes: configuration.jsSuffixes,
+    tsSuffixes: configuration.tsSuffixes,
+    cssSuffixes: configuration.cssSuffixes,
+    htmlSuffixes: configuration.htmlSuffixes,
+    yamlSuffixes: configuration.yamlSuffixes,
+    cssAdditionalSuffixes: configuration.cssAdditionalSuffixes,
+  };
+}
+
+/**
+ * Fields needed to filter files by path and determine their file type.
+ */
+
+export interface FilterPathParams {
+  /** sonar.sources - absolute paths to look for files */
+  sourcesPaths: NormalizedAbsolutePath[];
+  /** sonar.tests - absolute paths to look for test files */
+  testPaths: NormalizedAbsolutePath[];
+  /** sonar.inclusions - wildcards to narrow down sonar.sources */
+  inclusions: Minimatch[];
+  /** sonar.exclusions - wildcards to narrow down sonar.sources */
+  exclusions: Minimatch[];
+  /** sonar.test.inclusions - wildcards to narrow down sonar.tests */
+  testInclusions: Minimatch[];
+  /** sonar.test.exclusions - wildcards to narrow down sonar.tests */
+  testExclusions: Minimatch[];
+}
+
+/**
+ * Extracts the parameters needed for filterPathAndGetFileType from a Configuration.
+ * If sources is empty, defaults sourcesPaths to [configuration.baseDir].
+ *
+ * @param configuration - The Configuration instance
+ * @returns FilterPathParams containing sourcesPaths, testPaths, inclusions, exclusions, testInclusions, testExclusions
+ */
+export function getFilterPathParams(configuration: Configuration): FilterPathParams {
+  return {
+    sourcesPaths:
+      configuration.sources.length > 0 ? configuration.sources : [configuration.baseDir],
+    testPaths: configuration.tests,
+    inclusions: configuration.inclusions,
+    exclusions: configuration.exclusions,
+    testInclusions: configuration.testInclusions,
+    testExclusions: configuration.testExclusions,
+  };
+}
 
 export function isJsFile(
   filePath: NormalizedAbsolutePath,
@@ -272,12 +353,19 @@ export function isTsFile(
   );
 }
 
-export function isHtmlFile(filePath: NormalizedAbsolutePath): boolean {
-  return HTML_EXTENSIONS.has(extname(filePath).toLowerCase());
+export function isHtmlFile(
+  filePath: NormalizedAbsolutePath,
+  htmlSuffixes: string[] = DEFAULT_HTML_EXTENSIONS,
+): boolean {
+  return htmlSuffixes.includes(extname(filePath).toLowerCase());
 }
 
-export function isYamlFile(filePath: NormalizedAbsolutePath, contents?: string): boolean {
-  if (!YAML_EXTENSIONS.has(extname(filePath).toLowerCase())) {
+export function isYamlFile(
+  filePath: NormalizedAbsolutePath,
+  contents?: string,
+  yamlSuffixes: string[] = DEFAULT_YAML_EXTENSIONS,
+): boolean {
+  if (!yamlSuffixes.includes(extname(filePath).toLowerCase())) {
     return false;
   }
   // When contents are provided, apply the same Helm-safe + SAM template checks
@@ -306,7 +394,7 @@ export function isYamlFile(filePath: NormalizedAbsolutePath, contents?: string):
 
 export function isJsTsFile(
   filePath: NormalizedAbsolutePath,
-  suffixes: FileSuffixes = DEFAULT_FILE_SUFFIXES,
+  suffixes: Pick<FileSuffixes, 'jsSuffixes' | 'tsSuffixes'> = DEFAULT_FILE_SUFFIXES,
 ): boolean {
   const extension = extname(filePath).toLowerCase();
   return suffixes.jsSuffixes.includes(extension) || suffixes.tsSuffixes.includes(extension);
@@ -319,8 +407,11 @@ export function isCssFile(
   return cssSuffixes.includes(extname(filePath).toLowerCase());
 }
 
-export function isAlsoCssFile(filePath: NormalizedAbsolutePath): boolean {
-  return CSS_ALSO_EXTENSIONS.has(extname(filePath).toLowerCase());
+export function isAlsoCssFile(
+  filePath: NormalizedAbsolutePath,
+  cssAdditionalSuffixes: string[] = DEFAULT_CSS_ADDITIONAL_EXTENSIONS,
+): boolean {
+  return cssAdditionalSuffixes.includes(extname(filePath).toLowerCase());
 }
 
 export function isAnalyzableFile(
@@ -328,11 +419,11 @@ export function isAnalyzableFile(
   suffixes: FileSuffixes = DEFAULT_FILE_SUFFIXES,
 ): boolean {
   return (
-    isHtmlFile(filePath) ||
-    isYamlFile(filePath) ||
+    isHtmlFile(filePath, suffixes.htmlSuffixes) ||
+    isYamlFile(filePath, undefined, suffixes.yamlSuffixes) ||
     isJsTsFile(filePath, suffixes) ||
     isCssFile(filePath, suffixes.cssSuffixes) ||
-    isAlsoCssFile(filePath)
+    isAlsoCssFile(filePath, suffixes.cssAdditionalSuffixes)
   );
 }
 
@@ -362,42 +453,6 @@ function normalizeFsEvents(
 }
 
 /**
- * Extracts the parameters needed for shouldIgnoreFile from a Configuration.
- *
- * @param configuration - The Configuration instance
- * @returns ShouldIgnoreFileParams containing jsTsExclusions, detectBundles, maxFileSize, and file suffixes
- */
-export function getShouldIgnoreParams(configuration: Configuration): ShouldIgnoreFileParams {
-  return {
-    jsTsExclusions: configuration.jsTsExclusions,
-    detectBundles: configuration.detectBundles,
-    maxFileSize: configuration.maxFileSize,
-    jsSuffixes: configuration.jsSuffixes,
-    tsSuffixes: configuration.tsSuffixes,
-    cssSuffixes: configuration.cssSuffixes,
-  };
-}
-
-/**
- * Extracts the parameters needed for filterPathAndGetFileType from a Configuration.
- * If sources is empty, defaults sourcesPaths to [configuration.baseDir].
- *
- * @param configuration - The Configuration instance
- * @returns FilterPathParams containing sourcesPaths, testPaths, inclusions, exclusions, testInclusions, testExclusions
- */
-export function getFilterPathParams(configuration: Configuration): FilterPathParams {
-  return {
-    sourcesPaths:
-      configuration.sources.length > 0 ? configuration.sources : [configuration.baseDir],
-    testPaths: configuration.tests,
-    inclusions: configuration.inclusions,
-    exclusions: configuration.exclusions,
-    testInclusions: configuration.testInclusions,
-    testExclusions: configuration.testExclusions,
-  };
-}
-
-/**
  * Configuration fields needed for JS/TS file analysis.
  * Used by analyzeWithProgram, analyzeWithIncrementalProgram, analyzeWithoutProgram.
  */
@@ -408,7 +463,7 @@ export type JsTsConfigFields = {
   clearDependenciesCache: boolean;
   skipAst: boolean;
   sonarlint: boolean;
-  shouldIgnoreParams: ShouldIgnoreFileParams;
+  shouldIgnoreParams: FilterFileParams;
   createTSProgramForOrphanFiles: boolean;
   disableTypeChecking: boolean;
   skipNodeModuleLookupOutsideBaseDir: boolean;

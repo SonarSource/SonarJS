@@ -17,10 +17,12 @@
 package org.sonar.plugins.javascript;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 
 public class JavaScriptFilePredicate {
 
@@ -58,37 +60,51 @@ public class JavaScriptFilePredicate {
    * <p>We only accept files that also contain the SAM transform marker and a
    * Node.js runtime declaration, matching the previous YamlSensor behavior.</p>
    */
-  public static FilePredicate getYamlPredicate(FileSystem fs) {
-    return fs
-      .predicates()
-      .and(fs.predicates().hasLanguage(YAML_LANGUAGE), inputFile -> {
-        try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
-          Pattern regex = Pattern.compile(NODEJS_RUNTIME_REGEX);
-          boolean hasAwsTransform = false;
-          boolean hasNodeJsRuntime = false;
-          while (scanner.hasNextLine()) {
-            String line = scanner.nextLine();
-            if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
-              return false;
-            }
-            if (!hasAwsTransform && line.contains(SAM_TRANSFORM_FIELD)) {
-              hasAwsTransform = true;
-            }
-            if (!hasNodeJsRuntime && regex.matcher(line).find()) {
-              hasNodeJsRuntime = true;
-            }
-          }
-          return hasAwsTransform && hasNodeJsRuntime;
-        } catch (IOException e) {
-          throw new IllegalStateException(
-            String.format("Unable to read file: %s. %s", inputFile.uri(), e.getMessage()),
-            e
-          );
-        }
-      });
+  public static FilePredicate getYamlPredicate(FileSystem fs, List<String> yamlExtensions) {
+    var yamlExtensionPredicate = getExtensionsPredicate(fs, yamlExtensions);
+    return inputFile -> yamlExtensionPredicate.apply(inputFile) && hasValidYamlContent(inputFile);
+  }
+
+  public static FilePredicate getExtensionsPredicate(FileSystem fs, List<String> suffixes) {
+    var predicates = fs.predicates();
+    if (suffixes.isEmpty()) {
+      return predicates.none();
+    }
+    return predicates.or(
+      suffixes
+        .stream()
+        .map(suffix -> predicates.hasExtension(suffix.substring(1)))
+        .toList()
+    );
   }
 
   public static FilePredicate getJsTsPredicate(FileSystem fs) {
     return fs.predicates().hasLanguages(JavaScriptLanguage.KEY, TypeScriptLanguage.KEY);
+  }
+
+  private static boolean hasValidYamlContent(InputFile inputFile) {
+    try (Scanner scanner = new Scanner(inputFile.inputStream(), inputFile.charset().name())) {
+      Pattern regex = Pattern.compile(NODEJS_RUNTIME_REGEX);
+      boolean hasAwsTransform = false;
+      boolean hasNodeJsRuntime = false;
+      while (scanner.hasNextLine()) {
+        String line = scanner.nextLine();
+        if (line.contains("{{") && !HELM_DIRECTIVE_IN_COMMENT_OR_STRING.matcher(line).find()) {
+          return false;
+        }
+        if (!hasAwsTransform && line.contains(SAM_TRANSFORM_FIELD)) {
+          hasAwsTransform = true;
+        }
+        if (!hasNodeJsRuntime && regex.matcher(line).find()) {
+          hasNodeJsRuntime = true;
+        }
+      }
+      return hasAwsTransform && hasNodeJsRuntime;
+    } catch (IOException e) {
+      throw new IllegalStateException(
+        String.format("Unable to read file: %s. %s", inputFile.uri(), e.getMessage()),
+        e
+      );
+    }
   }
 }

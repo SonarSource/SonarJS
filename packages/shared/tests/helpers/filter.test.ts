@@ -14,13 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import {
-  accept,
-  acceptSnippet,
-  shouldIgnoreFile,
-  type ShouldIgnoreFileParams,
-} from '../../src/helpers/filter/filter.js';
-import { createConfiguration, type Configuration } from '../../src/helpers/configuration.js';
+import { accept, acceptSnippet, shouldIgnoreFile } from '../../src/helpers/filter/filter.js';
+import { createConfiguration, getShouldIgnoreParams } from '../../src/helpers/configuration.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
@@ -28,18 +23,6 @@ import { normalizePath, normalizeToAbsolutePath, readFile } from '../../src/help
 
 const BUNDLE_CONTENTS = '/* jQuery JavaScript Library v1.4.3*/(function(';
 const baseDir = join(normalizePath(import.meta.dirname), 'fixtures');
-
-/** Extract ShouldIgnoreFileParams from Configuration */
-function getShouldIgnoreParams(config: Configuration): ShouldIgnoreFileParams {
-  return {
-    jsTsExclusions: config.jsTsExclusions,
-    detectBundles: config.detectBundles,
-    maxFileSize: config.maxFileSize,
-    jsSuffixes: config.jsSuffixes,
-    tsSuffixes: config.tsSuffixes,
-    cssSuffixes: config.cssSuffixes,
-  };
-}
 
 describe('filter.ts', () => {
   describe('accept', () => {

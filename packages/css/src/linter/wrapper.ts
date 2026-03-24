@@ -19,12 +19,15 @@ import type { Root, Document } from 'postcss';
 import { transform } from './issues/transform.js';
 import { createStylelintConfig, type RuleConfig } from './config.js';
 import type { CssIssue } from './issues/issue.js';
-import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
+import type { FileType, NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
+import { APIError } from '../../../shared/src/errors/error.js';
 
 interface LintResult {
   issues: CssIssue[];
   root?: Root | Document;
 }
+
+const testFileConfig = createStylelintConfig([]);
 
 /**
  * A wrapper of Stylelint linter
@@ -32,44 +35,32 @@ interface LintResult {
 export class LinterWrapper {
   /**
    * The stored Stylelint configuration from the active quality profile.
-   * Set by `initialize()` and consumed by `lint()` when no per-call config is provided.
+   * Set by `initialize()` and consumed by `lint()` for MAIN files.
    */
   private config: stylelint.Config | undefined;
 
   /**
-   * Whether the linter was initialized with at least one rule.
-   * When false, CSS analysis is skipped in the analyzeProject path.
-   */
-  private hasRules = false;
-
-  /**
    * Initializes the linter with a set of rules from the active quality profile.
-   * After calling this, lint() can be called without providing a config.
+   * After calling this, lint() can analyze MAIN and TEST files.
    * Mirrors the Linter.initialize() pattern used for JS/TS analysis.
    *
-   * When called with an empty rules array, the linter is reset to an
-   * uninitialized state (isInitialized() returns false), so CSS analysis
-   * is correctly skipped when no CSS rules are active.
+   * When called with an empty rules array, the linter remains initialized
+   * with an empty config.
    *
    * @param rules the CSS rules from the active quality profile
    */
   initialize(rules: RuleConfig[]): void {
-    if (rules.length > 0) {
-      this.config = createStylelintConfig(rules);
-      this.hasRules = true;
-    } else {
-      this.config = undefined;
-      this.hasRules = false;
-    }
+    this.config = createStylelintConfig(rules);
   }
 
   /**
-   * Whether the linter has been pre-initialized with a stored configuration
-   * that contains at least one rule. Returns false if never initialized or
-   * initialized with an empty rule set.
+   * Whether the current initialized configuration has at least one active rule.
    */
-  isInitialized(): boolean {
-    return this.hasRules;
+  hasActiveRules(): boolean {
+    if (!this.config?.rules) {
+      return false;
+    }
+    return Object.keys(this.config.rules).length > 0;
   }
 
   /**
@@ -78,27 +69,39 @@ export class LinterWrapper {
    * The PostCSS root from Stylelint's internal parse is returned so callers
    * can compute metrics and highlighting without parsing the file a second time.
    *
-   * When no config is provided in the options, the stored config from
-   * `initialize()` is used. This supports the analyzeProject path where
-   * the linter is pre-initialized once, avoiding per-file config threading.
+   * MAIN files use the stored config from `initialize()`.
+   * TEST files use a shared empty-rules config.
    *
    * @param filePath the path of the stylesheet
-   * @param options the linting options
+   * @param fileContent the stylesheet source code
+   * @param fileType whether the file is MAIN or TEST
    * @returns the found issues and the PostCSS AST root
    */
   async lint(
     filePath: NormalizedAbsolutePath,
-    options: stylelint.LinterOptions,
+    fileContent: string,
+    fileType: FileType = 'MAIN',
   ): Promise<LintResult> {
-    let finalOptions = options;
-
-    if (this.config && !options.config) {
-      finalOptions = { ...options, config: this.config };
+    if (!this.config) {
+      throw APIError.linterError(`Linter does not exist.`);
     }
-    return stylelint.lint(finalOptions).then(result => ({
-      issues: transform(result.results, filePath),
-      root: result.results[0]?._postcssResult?.root,
-    }));
+
+    const config = fileType === 'TEST' ? testFileConfig : this.config;
+    const options: stylelint.LinterOptions = {
+      code: fileContent,
+      codeFilename: filePath,
+      config,
+    };
+
+    return stylelint
+      .lint(options)
+      .catch(err => {
+        throw APIError.linterError(`Linter failed to parse file ${filePath}: ${err}`);
+      })
+      .then(result => ({
+        issues: transform(result.results, filePath),
+        root: result.results[0]?._postcssResult?.root,
+      }));
   }
 }
 
