@@ -88,6 +88,21 @@ function isArrayFromKeyOrEntryCall(node: estree.Node): boolean {
 }
 
 /**
+ * Checks if the sorted array is provably a technical string collection where
+ * default alphabetical ordering is intentional (Object keys, for-in key arrays).
+ * Used to suppress false positives in both the no-type-checker and type-checker paths.
+ */
+function isTechnicalStringSort(
+  object: estree.Node,
+  sourceCode: Rule.RuleContext['sourceCode'],
+): boolean {
+  return (
+    isArrayFromKeyOrEntryCall(object) ||
+    (object.type === 'Identifier' && isForInKeyArray(object, sourceCode))
+  );
+}
+
+/**
  * Checks if the sort() call is part of an order-independent comparison
  * e.g., arr1.sort() === arr2.sort()
  */
@@ -235,11 +250,7 @@ export const rule: Rule.RuleModule = {
 
         if (!hasTypeChecker) {
           // No type checker: fall back to AST-based suppression for known string-returning patterns
-          if (isArrayFromKeyOrEntryCall(object)) {
-            return;
-          }
-          // var arr = []; for (var key in obj) arr.push(key); arr.sort()
-          if (object.type === 'Identifier' && isForInKeyArray(object, sourceCode)) {
+          if (isTechnicalStringSort(object, sourceCode)) {
             return;
           }
           context.report({ node, messageId: 'provideCompareFunction' });
@@ -256,10 +267,7 @@ export const rule: Rule.RuleModule = {
         // alphabetical ordering is clearly intentional; report everything else
         // with a localeCompare suggestion.
         if (isStringArray(type, services)) {
-          if (
-            isArrayFromKeyOrEntryCall(object) ||
-            (object.type === 'Identifier' && isForInKeyArray(object, sourceCode))
-          ) {
+          if (isTechnicalStringSort(object, sourceCode)) {
             return; // safe: provably technical strings
           }
           context.report({
