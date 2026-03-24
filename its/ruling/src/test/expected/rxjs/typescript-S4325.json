@@ -18,9 +18,6 @@
 "rxjs:src/observable/dom/WebSocketSubject.ts": [
 90
 ],
-"rxjs:src/operator/bufferTime.ts": [
-224
-],
 "rxjs:src/operator/delay.ts": [
 54
 ],

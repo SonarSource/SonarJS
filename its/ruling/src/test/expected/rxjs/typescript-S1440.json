@@ -4,8 +4,5 @@
 ],
 "rxjs:src/operator/bufferCount.ts": [
 84
-],
-"rxjs:src/operator/bufferTime.ts": [
-143
 ]
 }

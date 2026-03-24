@@ -11,12 +11,6 @@
 "rxjs:src/operator/auditTime.ts": [
 85
 ],
-"rxjs:src/operator/bufferTime.ts": [
-126,
-130,
-181,
-226
-],
 "rxjs:src/operator/catch.ts": [
 70
 ],
