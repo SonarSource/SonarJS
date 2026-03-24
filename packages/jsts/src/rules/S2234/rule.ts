@@ -240,23 +240,25 @@ export const rule: Rule.RuleModule = {
       arg2Name: string,
     ): boolean {
       const ancestors = context.sourceCode.getAncestors(functionCall);
-      const parent = ancestors[ancestors.length - 1];
+      const parent = ancestors.at(-1);
 
-      if (!parent || parent.type !== 'ConditionalExpression') {
+      if (parent?.type !== 'ConditionalExpression') {
         return false;
       }
 
-      const conditional = parent as estree.ConditionalExpression;
+      const conditional = parent;
 
       // Determine the "other" branch of the ternary
-      const otherBranch =
-        conditional.consequent === functionCall
-          ? conditional.alternate
-          : conditional.alternate === functionCall
-            ? conditional.consequent
-            : null;
+      let otherBranch: estree.Node | null;
+      if (conditional.consequent === functionCall) {
+        otherBranch = conditional.alternate;
+      } else if (conditional.alternate === functionCall) {
+        otherBranch = conditional.consequent;
+      } else {
+        otherBranch = null;
+      }
 
-      if (!otherBranch || otherBranch.type !== 'CallExpression') {
+      if (otherBranch?.type !== 'CallExpression') {
         return false;
       }
 
@@ -276,12 +278,8 @@ export const rule: Rule.RuleModule = {
 
       // Find positions of arg1 and arg2 in the flagged call
       const args = functionCall.arguments;
-      const idx1 = args.findIndex(
-        a => a.type === 'Identifier' && (a as estree.Identifier).name === arg1Name,
-      );
-      const idx2 = args.findIndex(
-        a => a.type === 'Identifier' && (a as estree.Identifier).name === arg2Name,
-      );
+      const idx1 = args.findIndex(a => a.type === 'Identifier' && a.name === arg1Name);
+      const idx2 = args.findIndex(a => a.type === 'Identifier' && a.name === arg2Name);
 
       if (idx1 < 0 || idx2 < 0) {
         return false;
@@ -294,9 +292,9 @@ export const rule: Rule.RuleModule = {
 
       return (
         otherAtIdx1?.type === 'Identifier' &&
-        (otherAtIdx1 as estree.Identifier).name === arg2Name &&
+        otherAtIdx1.name === arg2Name &&
         otherAtIdx2?.type === 'Identifier' &&
-        (otherAtIdx2 as estree.Identifier).name === arg1Name
+        otherAtIdx2.name === arg1Name
       );
     }
 
