@@ -36,7 +36,7 @@ import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
 import type { EmbeddedAnalysisInput } from '../../embedded/analysis/analysis.js';
 import { analyzeCSSProject } from '../../../../css/src/analysis/analyzer.js';
 import { linter as cssLinter } from '../../../../css/src/linter/wrapper.js';
-import { error } from '../../../../shared/src/helpers/logging.js';
+import { error, info } from '../../../../shared/src/helpers/logging.js';
 
 /**
  * Analyzes a single file, optionally with a TypeScript program for type-checking.
@@ -119,6 +119,7 @@ export async function analyzeFile(
   } else if (isJsTsFile(fileName, { jsSuffixes, tsSuffixes })) {
     result = await analyzeJSTSProject(input);
   } else {
+    info(`Skipping analysis requested for unknown extension for file ${fileName}`);
     result = { issues: [] };
   }
 
@@ -164,7 +165,7 @@ async function mergeAdditionalCssAnalysis(
       fileType: input.fileType,
       sonarlint: input.sonarlint,
     },
-    true,
+    false,
   );
 
   if ('error' in cssResult) {

@@ -83,9 +83,7 @@ export class LinterWrapper {
     fileType: FileType = 'MAIN',
   ): Promise<LintResult> {
     if (!this.config) {
-      throw APIError.linterError(
-        `Linter does not exist. LinterWrapper.initialize() was never called.`,
-      );
+      throw APIError.linterError(`Linter does not exist.`);
     }
 
     const config = fileType === 'TEST' ? testFileConfig : this.config;

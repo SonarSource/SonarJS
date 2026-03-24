@@ -268,7 +268,7 @@ const DEFAULT_FILE_SUFFIXES: FileSuffixes = {
 /**
  * Fields needed to filter files.
  */
-export type ShouldIgnoreFileParams = FileSuffixes & {
+export type FilterFileParams = FileSuffixes & {
   /** Whether to detect and skip bundled files */
   detectBundles: boolean;
   /** Maximum file size in KB (0 means no limit) */
@@ -281,9 +281,9 @@ export type ShouldIgnoreFileParams = FileSuffixes & {
  * Extracts the parameters needed for shouldIgnoreFile from a Configuration.
  *
  * @param configuration - The Configuration instance
- * @returns ShouldIgnoreFileParams containing jsTsExclusions, detectBundles, maxFileSize, and file suffixes
+ * @returns FilterFileParams containing jsTsExclusions, detectBundles, maxFileSize, and file suffixes
  */
-export function getShouldIgnoreParams(configuration: Configuration): ShouldIgnoreFileParams {
+export function getShouldIgnoreParams(configuration: Configuration): FilterFileParams {
   return {
     jsTsExclusions: configuration.jsTsExclusions,
     detectBundles: configuration.detectBundles,
@@ -463,7 +463,7 @@ export type JsTsConfigFields = {
   clearDependenciesCache: boolean;
   skipAst: boolean;
   sonarlint: boolean;
-  shouldIgnoreParams: ShouldIgnoreFileParams;
+  shouldIgnoreParams: FilterFileParams;
   createTSProgramForOrphanFiles: boolean;
   disableTypeChecking: boolean;
   skipNodeModuleLookupOutsideBaseDir: boolean;

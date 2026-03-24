@@ -37,9 +37,7 @@ describe('analyzeYAML', () => {
           await embeddedInput({ filePath: join(fixturesPath, 'file.yaml') }),
           parseAwsFromYaml,
         ),
-    ).rejects.toThrow(
-      APIError.linterError('Linter does not exist. Linter.initialize() was never called.'),
-    );
+    ).rejects.toThrow(APIError.linterError('Linter does not exist.'));
   });
 
   it('should analyze YAML file', async () => {

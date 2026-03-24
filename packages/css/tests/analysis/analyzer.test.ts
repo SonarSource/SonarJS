@@ -19,7 +19,7 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { analyzeCSS } from '../../src/analysis/analyzer.js';
 import { CssAnalysisInput } from '../../src/analysis/analysis.js';
-import { readFile, normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
+import { readFile, normalizeToAbsolutePath, FileType } from '../../../shared/src/helpers/files.js';
 import { RuleConfig } from '../../src/linter/config.js';
 import { linter } from '../../src/linter/wrapper.js';
 import { ErrorCode } from '../../../shared/src/errors/error.js';
@@ -36,7 +36,7 @@ describe('analyzeCSS', () => {
 
     await expect(analyzeCSS(analysisInput)).rejects.toMatchObject({
       code: ErrorCode.LinterInitialization,
-      message: 'Linter does not exist. LinterWrapper.initialize() was never called.',
+      message: 'Linter does not exist.',
     });
   });
 
@@ -207,7 +207,7 @@ async function input(
   filePath: string,
   fileContent?: string,
   rules: RuleConfig[] = [],
-  fileType?: 'MAIN' | 'TEST',
+  fileType?: FileType,
   sonarlint = false,
 ): Promise<CssAnalysisInput> {
   linter.initialize(rules);

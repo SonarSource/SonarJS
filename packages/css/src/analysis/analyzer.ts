@@ -40,13 +40,20 @@ import type { CssIssue } from '../linter/issues/issue.js';
  * empty config to suppress issues while preserving parsing/highlighting behavior.
  * The CSS linter must be initialized before calling this function.
  *
+ * Behavior:
+ *
+ * CSS in HTML/Vue MAIN: linted for issues, no CSS metrics.
+ * CSS in HTML/Vue TEST: not linted (noMetrics + TEST early return), so no CSS issues.
+ * Pure CSS MAIN: issues + metrics/highlighting.
+ * Pure CSS TEST: no issues/metrics, highlighting only
+ *
  * @param input the sanitized CSS analysis input to analyze
- * @param noMetrics whether to skip metrics calculation
+ * @param includeMetrics whether to include metrics calculation
  * @returns a promise of the CSS analysis output
  */
 export async function analyzeCSS(
   input: CssAnalysisInput,
-  noMetrics = false,
+  includeMetrics = true,
 ): Promise<CssAnalysisOutput> {
   const { filePath, fileContent, fileType } = input;
 
@@ -54,42 +61,42 @@ export async function analyzeCSS(
 
   // Mixed-file CSS analysis (HTML/Vue) runs with noMetrics=true. For TEST files,
   // preserve legacy behavior by skipping CSS linting entirely.
-  if (isTestFile && noMetrics) {
+  if (isTestFile && !includeMetrics) {
     return { issues: [] };
   }
   const sanitizedCode = fileContent.replaceAll(/[\u2000-\u200F]/g, ' ');
 
   // TEST files keep highlighting (parity with old CssMetricSensor), but issues remain suppressed.
-  const lintResult = await linter.lint(filePath, sanitizedCode, isTestFile ? 'TEST' : 'MAIN');
+  const lintResult = await linter.lint(filePath, sanitizedCode, fileType);
   const { root, issues: lintingIssues } = lintResult;
   throwIfCssParsingError(lintingIssues);
   const issues = isTestFile ? [] : lintingIssues;
 
   // Skip metrics and highlighting for non-pure-CSS files
   // (HTML/Vue files are handled by their own analyzers for metrics)
-  if (noMetrics || !root) {
+  if (!includeMetrics || !root) {
     return { issues };
   }
 
   try {
-    const metrics = computeMetrics(root);
-    // In SonarLint context, keep only NOSONAR lines (parity with JS/TS and old sensors).
     if (input.sonarlint) {
+      const metrics = computeMetrics(root);
+      // In SonarLint context, keep only NOSONAR lines (parity with JS/TS and old sensors).
       return {
         issues,
         metrics: { nosonarLines: metrics.nosonarLines },
       };
+    } else {
+      const highlights = computeHighlighting(root, sanitizedCode);
+      if (isTestFile) {
+        return { issues, highlights };
+      }
+      return {
+        issues,
+        highlights,
+        metrics: computeMetrics(root),
+      };
     }
-
-    const highlights = computeHighlighting(root, sanitizedCode);
-    if (isTestFile) {
-      return { issues, highlights };
-    }
-    return {
-      issues,
-      highlights,
-      metrics,
-    };
   } catch (err) {
     warn(`Failed to compute metrics/highlighting for ${filePath}: ${err}`);
     return { issues };
@@ -98,10 +105,10 @@ export async function analyzeCSS(
 
 export async function analyzeCSSProject(
   input: CssAnalysisInput,
-  noMetrics = false,
+  includeMetrics = true,
 ): Promise<CssAnalysisOutput | ProjectFailureResult> {
   try {
-    return await analyzeCSS(input, noMetrics);
+    return await analyzeCSS(input, includeMetrics);
   } catch (err) {
     return toProjectFailureResult(err, 'css');
   }

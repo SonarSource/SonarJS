@@ -17,7 +17,7 @@
 import { filterBundle } from './filter-bundle.js';
 import { filterMinified, hasExcessiveAverageLineLength } from './filter-minified.js';
 import { filterSize } from './filter-size.js';
-import { isCssFile, isJsTsFile, ShouldIgnoreFileParams } from '../configuration.js';
+import { isCssFile, isJsTsFile, type FilterFileParams } from '../configuration.js';
 import { isJsTsExcluded } from './filter-path.js';
 import { type NormalizedAbsolutePath } from '../files.js';
 
@@ -26,7 +26,7 @@ import { type NormalizedAbsolutePath } from '../files.js';
  *
  * @param {NormalizedAbsolutePath} filePath - The path of the file to be checked.
  * @param {string} fileContent - The content of the file to be checked.
- * @param {ShouldIgnoreFileParams} params - Configuration parameters for filtering.
+ * @param {FilterFileParams} params - Configuration parameters for filtering.
  * @return {boolean} Returns true if the file meets the acceptance criteria, otherwise false.
  *
  * Callers need to pass: shouldDetectBundles() and getMaxFileSize() from configuration
@@ -34,7 +34,7 @@ import { type NormalizedAbsolutePath } from '../files.js';
 export function accept(
   filePath: NormalizedAbsolutePath,
   fileContent: string,
-  params: ShouldIgnoreFileParams,
+  params: FilterFileParams,
 ): boolean {
   const { detectBundles, maxFileSize, jsSuffixes, tsSuffixes, cssSuffixes } = params;
   if (isJsTsFile(filePath, { jsSuffixes, tsSuffixes })) {
@@ -71,7 +71,7 @@ export function acceptSnippet(content: string): boolean {
  * The input must be fully sanitized (all fields required) before calling this function.
  *
  * @param {filePath: string, fileContent: string} file - The file to analyze with filePath and fileContent already populated.
- * @param {ShouldIgnoreFileParams} params - Configuration parameters for filtering.
+ * @param {FilterFileParams} params - Configuration parameters for filtering.
  * @return {Promise<boolean>} A promise that resolves to `true` if the file should be ignored otherwise `false`.
  *
  * Callers need to pass: getJsTsExclusions(), shouldDetectBundles(), and getMaxFileSize() from configuration
@@ -81,7 +81,7 @@ export async function shouldIgnoreFile(
     filePath: NormalizedAbsolutePath;
     fileContent: string;
   },
-  params: ShouldIgnoreFileParams,
+  params: FilterFileParams,
 ): Promise<boolean> {
   const { filePath, fileContent } = file;
   if (isJsTsExcluded(filePath, params.jsTsExclusions) || !accept(filePath, fileContent, params)) {
