@@ -123,7 +123,7 @@ function getEnclosingForIn(startNode: estree.Node): estree.ForInStatement | null
   let current: estree.Node | undefined = getNodeParent(startNode);
   while (current) {
     if (current.type === 'ForInStatement') {
-      return current as estree.ForInStatement;
+      return current;
     }
     if (functionBoundaryTypes.has(current.type)) {
       return null;
@@ -131,6 +131,23 @@ function getEnclosingForIn(startNode: estree.Node): estree.ForInStatement | null
     current = getNodeParent(current);
   }
   return null;
+}
+
+/**
+ * Verifies that a call expression is arr.push(loopVar) inside a for-in loop
+ * where loopVar is the for-in iteration variable.
+ */
+function isForInKeyPush(callParent: estree.CallExpression): boolean {
+  const forIn = getEnclosingForIn(callParent);
+  if (!forIn) {
+    return false;
+  }
+  const loopVar =
+    forIn.left.type === 'VariableDeclaration' ? forIn.left.declarations[0].id : forIn.left;
+  const pushArg = callParent.arguments[0];
+  return (
+    pushArg?.type === 'Identifier' && loopVar.type === 'Identifier' && pushArg.name === loopVar.name
+  );
 }
 
 /**
@@ -188,23 +205,8 @@ function isForInKeyArray(
       return false; // non-push method call on the array - reject
     }
 
-    // push() call - must be inside a for-in statement (not crossing function boundaries)
-    const forIn = getEnclosingForIn(callParent);
-    if (!forIn) {
-      return false; // push outside for-in - reject
-    }
-
-    // Verify the pushed value is the loop variable (key), not an arbitrary expression.
-    // Pattern must be: for (var key in obj) arr.push(key)
-    const loopVar =
-      forIn.left.type === 'VariableDeclaration' ? forIn.left.declarations[0].id : forIn.left;
-    const pushArg = (callParent as estree.CallExpression).arguments[0];
-    if (
-      !pushArg ||
-      pushArg.type !== 'Identifier' ||
-      loopVar.type !== 'Identifier' ||
-      pushArg.name !== loopVar.name
-    ) {
+    // push() call - must be inside a for-in loop, pushing the loop variable
+    if (!isForInKeyPush(callParent as estree.CallExpression)) {
       return false;
     }
 
@@ -221,7 +223,7 @@ export const rule: Rule.RuleModule = {
       provideCompareFunction:
         'Provide a compare function to avoid sorting elements alphabetically.',
       provideCompareFunctionForArrayOfStrings:
-        'Provide a compare function to avoid sorting elements alphabetically.',
+        'Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.',
       suggestNumericOrder: 'Add a comparator function to sort in ascending order',
       suggestLanguageSensitiveOrder:
         'Add a comparator function to sort in a language-sensitive way',
