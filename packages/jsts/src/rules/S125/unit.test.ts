@@ -134,6 +134,75 @@ describe('S125', () => {
             // YUI().use('*'); // Comment following ';'
         `,
         },
+        {
+          // TODO task marker preceding commented code — not flagged
+          code: `
+// TODO: pending
+// processVector(name, 'separate setting');
+          `,
+        },
+        {
+          // FIXME task marker preceding commented code — not flagged
+          code: `
+// FIXME: reenable
+// const greetUser = (name) => { return name; };
+          `,
+        },
+        {
+          // HACK task marker preceding commented code — not flagged
+          code: `
+// HACK: disabled
+// const result = processValue(type);
+          `,
+        },
+        {
+          // XXX task marker preceding commented code — not flagged
+          code: `
+// XXX: broken
+// if (result > 0) { processResult(result); }
+          `,
+        },
+        {
+          // NOTE task marker preceding commented code — not flagged
+          code: `
+// NOTE: legacy
+// const legacy = computeLegacy(name, value);
+          `,
+        },
+        {
+          // TODO task marker with multi-line commented code block
+          code: `
+// TODO: implement
+// function doSomething(x) {
+//   return x + 1;
+// }
+          `,
+        },
+        {
+          // Nested // TODO pattern: TODO marker inside a // comment that itself is commented — not flagged
+          code: `
+// // TODO readd this test when fixed
+// casper.thenClick('.post-settings');
+// casper.waitForOpaque('.post-settings-menu.open');
+          `,
+        },
+        {
+          // Block comment with // TODO as first line followed by commented-out code — not flagged
+          code: `
+/*
+// TODO: Reenable once circular dependency issue is resolved
+import { foo } from './foo';
+const bar = foo();
+*/
+          `,
+        },
+        {
+          // TODO embedded as nested comment within commented-out code — not flagged
+          code: `
+// // TODO: verify the result
+// var canThisResult = permissions.canThis(updatedUser.id);
+          `,
+        },
       ],
       invalid: [
         {
@@ -316,6 +385,16 @@ let x = 0;`,
 let x = 0;`,
                 },
               ],
+            },
+          ],
+        },
+        {
+          // Task marker keyword as code identifier — still flagged (containsCode returns true for the line)
+          code: `// const NOTE = 'padding';`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
             },
           ],
         },
