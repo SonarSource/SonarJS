@@ -15,8 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type express from 'express';
-import { ErrorCode } from '../../../shared/src/errors/error.js';
 import { error } from '../../../shared/src/helpers/logging.js';
+
+type ErrorWithCode = {
+  message?: string;
+  stack?: string;
+};
 
 /**
  * Express.js middleware for handling error while serving requests.
@@ -29,7 +33,7 @@ import { error } from '../../../shared/src/helpers/logging.js';
  * @see https://expressjs.com/en/guide/error-handling.html
  */
 export function errorMiddleware(
-  err: any,
+  err: unknown,
   _request: express.Request,
   response: express.Response,
   _next: express.NextFunction,
@@ -37,29 +41,21 @@ export function errorMiddleware(
   response.json(handleError(err));
 }
 
-export function handleError(err: any) {
-  const { code, message, stack } = err;
-  switch (code) {
-    case ErrorCode.Parsing:
-    case ErrorCode.FailingTypeScript:
-    case ErrorCode.LinterInitialization:
-      return generateParsingError(err);
-    default:
-      error(stack);
-      return { error: message };
+export function handleError(err: unknown) {
+  const normalizedError = normalizeError(err);
+  const { message, stack } = normalizedError;
+  if (stack) {
+    error(stack);
   }
+  return { error: message ?? 'Unexpected error' };
 }
 
-function generateParsingError(error: {
-  message: string;
-  code: ErrorCode;
-  data?: { line: number };
-}) {
-  return {
-    parsingError: {
-      message: error.message,
-      code: error.code,
-      line: error.data?.line,
-    },
-  };
+function normalizeError(err: unknown): ErrorWithCode {
+  if (typeof err === 'object' && err !== null) {
+    return err as ErrorWithCode;
+  }
+  if (typeof err === 'string') {
+    return { message: err };
+  }
+  return { message: 'Unexpected error' };
 }

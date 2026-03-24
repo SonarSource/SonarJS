@@ -105,6 +105,27 @@ describe('S2234', () => {
         `,
         },
         {
+          // False positive: comparator reversal in arrow function expression body
+          code: `
+        function compare(a, b) { return a - b; }
+        const rcompare = (a, b) => compare(b, a);
+        `,
+        },
+        {
+          // False positive: comparator reversal in function expression with sole return
+          code: `
+        function compareByName(a, b) { return a.localeCompare(b); }
+        ['banana', 'apple'].sort(function(a, b) { return compareByName(b, a); });
+        `,
+        },
+        {
+          // False positive: comparator reversal inline in sort callback
+          code: `
+        function sorter(a, b) { return a < b ? -1 : 1; }
+        function getSortedDesc(items) { return items.sort((a, b) => sorter(b, a)); }
+        `,
+        },
+        {
           // False positive: parameter swap inside 'rtl' object property is intentional RTL direction handling
           code: `
         function doSetRange(win, start, soffset, finish, foffset) {}
@@ -245,6 +266,20 @@ describe('S2234', () => {
           errors: 1,
         },
         {
+          // Outer wrapper has 3 params — not a 2-param comparator, exception does not apply
+          code: `
+        function compare(a, b) { return a - b; }
+        const fn = (a, b, c) => compare(b, a);`,
+          errors: 1,
+        },
+        {
+          // Block body with extra statement — not sole return, exception does not apply
+          code: `
+        function compare(a, b) { return a - b; }
+        const fn = (a, b) => { console.log(a, b); return compare(b, a); };`,
+          errors: 1,
+        },
+        {
           // 'forwardRef' contains 'forward' but word-boundary matching prevents suppression
           code: `
         function process(a, b) {}
@@ -252,6 +287,13 @@ describe('S2234', () => {
         var obj = {
           forwardRef: function () { process(b, a); },
         };`,
+          errors: 1,
+        },
+        {
+          // Meaningful parameter names — not single-character placeholders, exception does not apply
+          code: `
+        function formatDate(year, month) { return year + '-' + month; }
+        const wrongWrapper = (year, month) => formatDate(month, year);`,
           errors: 1,
         },
       ],
@@ -318,6 +360,13 @@ describe('S2234', () => {
         new A().sameType(42, a, c);
         new A().sameType(a, d, b);
         new A().differentTypes(y, x);`,
+        },
+        {
+          // False positive: comparator reversal in TypeScript
+          code: `
+        function compare(a: number, b: number): number { return a - b; }
+        const rcompare = (a: number, b: number) => compare(b, a);
+        `,
         },
       ],
       invalid: [

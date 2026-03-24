@@ -92,8 +92,8 @@ public class AnalysisProcessor {
 
     this.checks = checks;
     this.file = file;
-    if (response.parsingError() != null) {
-      processParsingError(context, response.parsingError());
+    if (!response.parsingErrors().isEmpty()) {
+      response.parsingErrors().forEach(parsingError -> processParsingError(context, parsingError));
       return new ArrayList<>();
     }
 
@@ -126,31 +126,43 @@ public class AnalysisProcessor {
 
   private void processParsingError(JsTsContext<?> context, ParsingError parsingError) {
     Integer line = parsingError.line();
+    Integer column = parsingError.column();
     String message = parsingError.message();
 
     if (line != null) {
       LOG.warn("Failed to parse file [{}] at line {}: {}", file, line, message);
     } else if (parsingError.code() == ParsingErrorCode.FAILING_TYPESCRIPT) {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
-    } else if (CssLanguage.KEY.equals(file.language())) {
-      // CSS parsing errors are expected for certain preprocessor files (e.g. Sass)
-      // and should not abort the analysis in failFast mode.
-      LOG.warn("Failed to analyze CSS file [{}]: {}", file, message);
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
-      if (context.failFast()) {
+      if (context.failFast() && !CssLanguage.KEY.equals(parsingError.language())) {
         throw new IllegalStateException("Failed to analyze file " + file);
       }
     }
 
-    var parsingErrorRuleKey = checks.parsingErrorRuleKey();
+    var parsingErrorRuleKey = parsingErrorRuleKey(parsingError);
     if (parsingErrorRuleKey != null) {
       NewIssue newIssue = context.getSensorContext().newIssue();
 
       NewIssueLocation primaryLocation = newIssue.newLocation().message(message).on(file);
 
       if (line != null) {
-        primaryLocation.at(file.selectLine(line));
+        try {
+          if (column != null && column >= 0) {
+            // SonarQube does not allow zero-length ranges; highlight one character.
+            primaryLocation.at(file.newRange(line, column, line, column + 1));
+          } else {
+            primaryLocation.at(file.selectLine(line));
+          }
+        } catch (RuntimeException e) {
+          LOG.warn(
+            "Failed to create parsing error location in {} at line {}, column {}. Falling back to line.",
+            file.uri(),
+            line,
+            column
+          );
+          primaryLocation.at(file.selectLine(line));
+        }
       }
 
       newIssue.forRule(parsingErrorRuleKey).at(primaryLocation).save();
@@ -160,9 +172,18 @@ public class AnalysisProcessor {
       .getSensorContext()
       .newAnalysisError()
       .onFile(file)
-      .at(file.newPointer(line != null ? line : 1, 0))
+      .at(file.newPointer(line != null ? line : 1, toParsingErrorColumn(line, column)))
       .message(message)
       .save();
+  }
+
+  @Nullable
+  private RuleKey parsingErrorRuleKey(ParsingError parsingError) {
+    if (CssLanguage.KEY.equals(parsingError.language())) {
+      return cssRules.getActiveSonarKey(CssRules.CSS_PARSING_ERROR_STYLELINT_KEY);
+    }
+
+    return checks.parsingErrorRuleKey(Language.of(parsingError.language()));
   }
 
   private void saveIssues(JsTsContext<?> context, List<Issue> issues) {
@@ -345,7 +366,7 @@ public class AnalysisProcessor {
     var ruleKey = findRuleKey(issue);
     if (ruleKey != null) {
       newIssue.at(location).forRule(ruleKey).save();
-    } else if ("CssSyntaxError".equals(issue.ruleId())) {
+    } else if (CssRules.CSS_PARSING_ERROR_STYLELINT_KEY.equals(issue.ruleId())) {
       LOG.warn("Failed to parse file {}, line {}, {}", file.uri(), issue.line(), issue.message());
     }
   }
@@ -383,6 +404,10 @@ public class AnalysisProcessor {
       TypeScriptLanguage.KEY.equals(language) ||
       CssLanguage.KEY.equals(language)
     );
+  }
+
+  private static int toParsingErrorColumn(@Nullable Integer line, @Nullable Integer column) {
+    return line != null && column != null && column >= 0 ? column : 0;
   }
 
   private static NewIssueLocation newSecondaryLocation(

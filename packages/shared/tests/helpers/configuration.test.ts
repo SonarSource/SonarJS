@@ -16,7 +16,13 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { createConfiguration, isYamlFile } from '../../src/helpers/configuration.js';
+import {
+  createConfiguration,
+  isAlsoCssFile,
+  isAnalyzableFile,
+  isHtmlFile,
+  isYamlFile,
+} from '../../src/helpers/configuration.js';
 import { normalizeToAbsolutePath } from '../../src/helpers/files.js';
 
 describe('createConfiguration', () => {
@@ -89,5 +95,27 @@ Resources:
 `;
     const filePath = normalizeToAbsolutePath('/path/to/template.yaml');
     expect(isYamlFile(filePath, contents)).toBe(true);
+  });
+});
+
+describe('configurable suffixes', () => {
+  it('uses configured html/yaml/css-additional suffixes', () => {
+    const config = createConfiguration({
+      baseDir: '/path/to/project',
+      htmlSuffixes: ['.custom-html'],
+      yamlSuffixes: ['.custom-yaml'],
+      cssAdditionalSuffixes: ['.custom-style'],
+    });
+
+    const htmlPath = normalizeToAbsolutePath('/path/to/template.custom-html');
+    const yamlPath = normalizeToAbsolutePath('/path/to/template.custom-yaml');
+    const cssAdditionalPath = normalizeToAbsolutePath('/path/to/component.custom-style');
+
+    expect(isHtmlFile(htmlPath, config.htmlSuffixes)).toBe(true);
+    expect(isYamlFile(yamlPath, undefined, config.yamlSuffixes)).toBe(true);
+    expect(isAlsoCssFile(cssAdditionalPath, config.cssAdditionalSuffixes)).toBe(true);
+    expect(isAnalyzableFile(htmlPath, config)).toBe(true);
+    expect(isAnalyzableFile(yamlPath, config)).toBe(true);
+    expect(isAnalyzableFile(cssAdditionalPath, config)).toBe(true);
   });
 });

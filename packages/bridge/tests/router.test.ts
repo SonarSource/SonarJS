@@ -22,8 +22,6 @@ import { describe, before, after, it } from 'node:test';
 import { expect } from 'expect';
 
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
-import { deserializeProtobuf } from '../../jsts/src/parsers/ast.js';
-import { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
 import { createWorker } from '../../shared/src/helpers/worker.js';
 
 describe('router', () => {
@@ -87,71 +85,6 @@ describe('router', () => {
     );
   });
 
-  it('should route /analyze-jsts requests', async () => {
-    await requestInitLinter(server, [
-      {
-        key: 'S6325',
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'js',
-        analysisModes: ['DEFAULT'],
-      },
-      {
-        key: 'S4621',
-        configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'ts',
-        analysisModes: ['DEFAULT'],
-      },
-    ]);
-    let filePath = path.join(fixtures, 'file.js');
-    let fileType = 'MAIN';
-    let data: any = { filePath, fileType, tsConfigs: [], skipAst: false };
-    let response = await request(server, '/analyze-jsts', 'POST', data);
-    let {
-      ast,
-      issues: [issue],
-    } = JSON.parse(response);
-    expect(issue).toEqual(
-      expect.objectContaining({
-        ruleId: 'S6325',
-        line: 1,
-        column: 0,
-        endLine: 1,
-        endColumn: 17,
-        message: `Use a regular expression literal instead of the 'RegExp' constructor.`,
-      }),
-    );
-    const protoMessage = deserializeProtobuf(ast);
-    expect(protoMessage.type).toEqual(0);
-    expect(protoMessage.program.body).toHaveLength(1);
-    expect(protoMessage.program.body[0].expressionStatement.expression.newExpression).toBeDefined();
-
-    filePath = path.join(fixtures, 'file.ts');
-    fileType = 'MAIN';
-    data = { filePath, fileType, tsConfigs: [path.join(fixtures, 'tsconfig.json')], skipAst: true };
-    response = await request(server, '/analyze-jsts', 'POST', data);
-    ({
-      issues: [issue],
-    } = JSON.parse(response));
-    expect(issue).toEqual(
-      expect.objectContaining({
-        ruleId: 'S4621',
-        line: 1,
-        column: 28,
-        endLine: 1,
-        endColumn: 35,
-        message: `Remove this duplicated type or replace with another one.`,
-      }),
-    );
-  });
-
-  it('should route /init-linter requests', async () => {
-    const data = { rules: [], environments: [], globals: [], baseDir: fixtures };
-    const response = await request(server, '/init-linter', 'POST', data);
-    expect(response).toEqual('OK');
-  });
-
   it('should route /status requests', async () => {
     const response = await request(server, '/status', 'GET');
     expect(response).toEqual('OK');
@@ -162,8 +95,3 @@ describe('router', () => {
     expect(response).toEqual('OK');
   });
 });
-
-function requestInitLinter(server: http.Server, rules: RuleConfig[]) {
-  const config = { rules, baseDir: import.meta.dirname };
-  return request(server, '/init-linter', 'POST', config);
-}

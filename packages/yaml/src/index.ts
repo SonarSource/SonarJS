@@ -16,22 +16,33 @@
  */
 import { analyzeEmbedded } from '../../jsts/src/embedded/analysis/analyzer.js';
 import { parseAwsFromYaml } from './aws/parser.js';
+import {
+  toProjectFailureResult,
+  type ParsingErrorLanguage,
+  type ProjectFailureResult,
+} from '../../shared/src/errors/project-analysis.js';
 
 import type { EmbeddedAnalysisInput } from '../../shared/src/types/analysis.js';
 import type { EmbeddedAnalysisOutput } from '../../jsts/src/embedded/analysis/analysis.js';
-import type { ShouldIgnoreFileParams } from '../../shared/src/helpers/filter/filter.js';
 
 /**
  * Analyzes a YAML file for embedded JavaScript code.
  * The input must be fully sanitized (all fields required) before calling this function.
  *
  * @param input the sanitized analysis input
- * @param shouldIgnoreParams configuration parameters for file filtering
  * @returns the analysis output with issues found in embedded JS
  */
-export async function analyzeYAML(
+async function analyzeYAML(input: EmbeddedAnalysisInput): Promise<EmbeddedAnalysisOutput> {
+  return analyzeEmbedded(input, parseAwsFromYaml);
+}
+
+export async function analyzeYAMLProject(
   input: EmbeddedAnalysisInput,
-  shouldIgnoreParams: ShouldIgnoreFileParams,
-): Promise<EmbeddedAnalysisOutput> {
-  return analyzeEmbedded(input, parseAwsFromYaml, shouldIgnoreParams);
+  language: ParsingErrorLanguage,
+): Promise<EmbeddedAnalysisOutput | ProjectFailureResult> {
+  try {
+    return await analyzeYAML(input);
+  } catch (err) {
+    return toProjectFailureResult(err, language);
+  }
 }

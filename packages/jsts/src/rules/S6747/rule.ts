@@ -90,9 +90,6 @@ export const rule: Rule.RuleModule = {
 
   create(context: Rule.RuleContext) {
     const dependencies = getDependenciesSanitizePaths(context);
-    if (!dependencies.has('react')) {
-      return {};
-    }
 
     // Build list of props to ignore based on dependencies
     const frameworkIgnoredProps: string[] = [];

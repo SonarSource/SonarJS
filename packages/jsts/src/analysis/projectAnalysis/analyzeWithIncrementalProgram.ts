@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { JsTsConfigFields, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import type { AnalyzableFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import { tsConfigStore } from './file-stores/index.js';
 import type { ProgressReport } from '../../../../shared/src/helpers/progress-report.js';
@@ -36,6 +36,7 @@ import {
   type ProgramOptions,
 } from '../../program/tsconfig/options.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
+import type { JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes JavaScript / TypeScript files using cached SemanticDiagnosticsBuilderPrograms.
@@ -53,7 +54,7 @@ import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
  * @param incrementalResultsChannel if provided, a function to send results incrementally after each analyzed file
  */
 export async function analyzeWithIncrementalProgram(
-  files: JsTsFiles,
+  files: AnalyzableFiles,
   results: ProjectAnalysisOutput,
   pendingFiles: Set<NormalizedAbsolutePath>,
   progressReport: ProgressReport,
@@ -62,9 +63,12 @@ export async function analyzeWithIncrementalProgram(
   jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  const { jsSuffixes, tsSuffixes, cssSuffixes } = jsTsConfigFields.shouldIgnoreParams;
+  const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
   const rootNames = Array.from(pendingFiles).filter(file =>
-    isJsTsFile(file, { jsSuffixes, tsSuffixes, cssSuffixes }),
+    isJsTsFile(file, {
+      jsSuffixes,
+      tsSuffixes,
+    }),
   );
   if (rootNames.length === 0) {
     return;
@@ -76,16 +80,20 @@ export async function analyzeWithIncrementalProgram(
       return;
     }
 
-    const program = createOrGetCachedProgramForFile(baseDir, filename, () =>
-      programOptionsFromClosestTsconfig(
-        filename,
-        results,
-        foundProgramOptions,
-        pendingFiles,
-        baseDir,
-        canAccessFileSystem,
-        jsTsConfigFields,
-      ),
+    const program = createOrGetCachedProgramForFile(
+      baseDir,
+      filename,
+      () =>
+        programOptionsFromClosestTsconfig(
+          filename,
+          results,
+          foundProgramOptions,
+          pendingFiles,
+          baseDir,
+          canAccessFileSystem,
+          jsTsConfigFields,
+        ),
+      jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
     );
 
     const detectedEsYear =

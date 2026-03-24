@@ -28,12 +28,12 @@ import { findNoSonarLines } from '../linter/visitors/metrics/nosonar.js';
 import { findNcloc } from '../linter/visitors/metrics/ncloc.js';
 import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
 import { getCpdTokens } from '../linter/visitors/cpd.js';
-import {
-  shouldIgnoreFile,
-  type ShouldIgnoreFileParams,
-} from '../../../shared/src/helpers/filter/filter.js';
 import { clearDependenciesCache } from '../rules/helpers/package-jsons/index.js';
 import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
+import {
+  toProjectFailureResult,
+  type ProjectFailureResult,
+} from '../../../shared/src/errors/project-analysis.js';
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -49,20 +49,12 @@ import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
  * The input must be fully sanitized (all fields required) before calling this function.
  *
  * @param input the sanitized JavaScript / TypeScript analysis input to analyze
- * @param shouldIgnoreParams parameters needed to determine whether a file should be ignored
  * @returns the JavaScript / TypeScript analysis output
  */
-export async function analyzeJSTS(
-  input: JsTsAnalysisInput,
-  shouldIgnoreParams: ShouldIgnoreFileParams,
-): Promise<JsTsAnalysisOutput> {
+export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}"`);
-  const { filePath, fileContent, fileType, analysisMode, fileStatus, language, detectedEsYear } =
-    input;
+  const { filePath, fileType, analysisMode, fileStatus, language, detectedEsYear } = input;
 
-  if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
-    return { issues: [] };
-  }
   const parseResult = build(input);
   try {
     if (input.clearDependenciesCache) {
@@ -108,6 +100,16 @@ export async function analyzeJSTS(
     } else {
       throw e;
     }
+  }
+}
+
+export async function analyzeJSTSProject(
+  input: JsTsAnalysisInput,
+): Promise<JsTsAnalysisOutput | ProjectFailureResult> {
+  try {
+    return await analyzeJSTS(input);
+  } catch (err) {
+    return toProjectFailureResult(err, input.language);
   }
 }
 

@@ -23,7 +23,7 @@ import {
   setCachedSourceFile,
   invalidateParsedSourceFile,
 } from './cache/sourceFileCache.js';
-import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
+import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/files.js';
 
 interface FsCall {
   op: string;
@@ -49,6 +49,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   constructor(
     compilerOptions: ts.CompilerOptions,
     private readonly baseDir: NormalizedAbsolutePath,
+    private readonly skipNodeModuleLookupOutsideBaseDir = false,
   ) {
     this.baseHost = ts.createCompilerHost(compilerOptions, true);
   }
@@ -121,6 +122,10 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   readFile(fileName: string): string | undefined {
     const normalized = path.normalize(fileName);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return;
+    }
+
     const cache = getSourceFileContentCache();
     const filesContext = getCurrentFilesContext();
 
@@ -159,6 +164,10 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   fileExists(fileName: string): boolean {
     const normalized = path.normalize(fileName);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return false;
+    }
+
     const cache = getSourceFileContentCache();
 
     // 1. Check global cache
@@ -187,6 +196,9 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     shouldCreateNewSourceFile?: boolean,
   ): ts.SourceFile | undefined {
     const normalized = path.normalize(fileName);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalized)) {
+      return;
+    }
 
     // For files explicitly present in the current analysis context, make the
     // request content authoritative before looking up cached parsed ASTs.
@@ -288,6 +300,13 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
     includes: readonly string[],
     depth?: number,
   ): string[] {
+    const normalizedRootDir = normalizeToAbsolutePath(rootDir, this.baseDir);
+    if (this.shouldSkipNodeModulesOutsideBaseDir(normalizedRootDir)) {
+      this.trackFsCall('readDirectory-node_modules-skip', rootDir);
+      return [];
+    }
+
+    this.trackFsCall('readDirectory-disk', rootDir);
     return this.baseHost.readDirectory!(rootDir, extensions, excludes, includes, depth);
   }
 
@@ -301,5 +320,16 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
 
   getNewLine(): string {
     return this.baseHost.getNewLine();
+  }
+
+  private shouldSkipNodeModulesOutsideBaseDir(fileName: string): boolean {
+    if (!this.skipNodeModuleLookupOutsideBaseDir) {
+      return false;
+    }
+    if (fileName.startsWith(this.getDefaultLibLocation())) {
+      return false;
+    }
+    const baseDirPrefix = `${this.baseDir}/`;
+    return fileName.includes('/node_modules/') && !fileName.startsWith(baseDirPrefix);
   }
 }

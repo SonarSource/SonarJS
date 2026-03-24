@@ -25,6 +25,7 @@ import { info } from '../../../shared/src/helpers/logging.js';
 import { getProgramCacheManager } from './cache/programCache.js';
 import { getCurrentFilesContext } from './cache/sourceFileCache.js';
 import { normalizeToAbsolutePath, type NormalizedAbsolutePath } from '../rules/helpers/files.js';
+import { getOptionalProjectAnalysisTelemetryCollector } from '../analysis/projectAnalysis/telemetry.js';
 
 function createBuilderProgramWithHost(
   programOptions: ProgramOptions,
@@ -55,9 +56,14 @@ function createBuilderProgramWithHost(
 function createBuilderProgramAndHost(
   programOptions: ProgramOptions,
   baseDir: NormalizedAbsolutePath,
+  skipNodeModuleLookupOutsideBaseDir: boolean,
   oldProgram?: ts.SemanticDiagnosticsBuilderProgram,
 ) {
-  const host = new IncrementalCompilerHost(programOptions.options, baseDir);
+  const host = new IncrementalCompilerHost(
+    programOptions.options,
+    baseDir,
+    skipNodeModuleLookupOutsideBaseDir,
+  );
 
   const builderProgram = createBuilderProgramWithHost(programOptions, host, oldProgram);
 
@@ -88,7 +94,15 @@ function createBuilderProgramAndHost(
  * @returns Standard TypeScript Program
  */
 export function createStandardProgram(programOptions: ProgramOptions): ts.Program {
-  return ts.createProgram(programOptions);
+  const telemetryCollector = getOptionalProjectAnalysisTelemetryCollector();
+  try {
+    const program = ts.createProgram(programOptions);
+    telemetryCollector?.recordProgramCreationSuccess();
+    return program;
+  } catch (error) {
+    telemetryCollector?.recordProgramCreationFailure();
+    throw error;
+  }
 }
 
 /**
@@ -158,6 +172,7 @@ export function createOrGetCachedProgramForFile(
   baseDir: NormalizedAbsolutePath,
   sourceFile: NormalizedAbsolutePath,
   getProgramOptions: () => ProgramOptions | undefined,
+  skipNodeModuleLookupOutsideBaseDir = false,
 ) {
   const cacheManager = getProgramCacheManager();
   const fileContent = getCurrentFilesContext()?.[sourceFile]?.fileContent;
@@ -206,7 +221,11 @@ export function createOrGetCachedProgramForFile(
         : ''),
   );
 
-  const { builderProgram, host } = createBuilderProgramAndHost(programOptions, baseDir);
+  const { builderProgram, host } = createBuilderProgramAndHost(
+    programOptions,
+    baseDir,
+    skipNodeModuleLookupOutsideBaseDir,
+  );
 
   // Store in cache
   cacheManager.storeProgram(programOptions, builderProgram, host);

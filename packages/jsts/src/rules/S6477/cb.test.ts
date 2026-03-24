@@ -14,33 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule } from 'eslint';
-import type { Node } from 'estree';
+import { test } from '../../../tests/tools/testers/comment-based/checker.js';
+import { rule } from './rule.js';
+import { describe } from 'node:test';
+import * as meta from './generated-meta.js';
 
-const detectReactSelector = [
-  ':matches(',
-  [
-    'CallExpression[callee.name="require"][arguments.0.value="react"]',
-    'CallExpression[callee.name="require"][arguments.0.value="create-react-class"]',
-    'ImportDeclaration[source.value="react"]',
-  ].join(','),
-  ')',
-].join('');
-
-export const detectReactRule: Rule.RuleModule = {
-  meta: {
-    messages: {
-      reactDetected: 'React detected',
-    },
-  },
-  create(context: Rule.RuleContext) {
-    return {
-      [detectReactSelector](node: Node) {
-        context.report({
-          messageId: 'reactDetected',
-          node,
-        });
-      },
-    };
-  },
-};
+describe('Rule S6477', () => {
+  test(meta, rule, import.meta.dirname);
+});

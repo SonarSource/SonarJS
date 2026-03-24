@@ -23,15 +23,6 @@ import { analyzeEmbedded } from '../../../jsts/src/embedded/analysis/analyzer.js
 import type { JsTsIssue } from '../../../jsts/src/linter/issues/issue.js';
 import { parseHTML } from '../../src/parser/parse.js';
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
-import type { ShouldIgnoreFileParams } from '../../../shared/src/helpers/filter/filter.js';
-import { DEFAULT_FILE_SUFFIXES } from '../../../shared/src/helpers/configuration.js';
-
-const defaultShouldIgnoreParams: ShouldIgnoreFileParams = {
-  jsTsExclusions: [],
-  detectBundles: false,
-  maxFileSize: 1000,
-  ...DEFAULT_FILE_SUFFIXES,
-};
 
 describe('analyzeHTML', () => {
   const fixturesPath = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures'));
@@ -54,7 +45,6 @@ describe('analyzeHTML', () => {
     } = await analyzeEmbedded(
       await embeddedInput({ filePath: normalizeToAbsolutePath(join(fixturesPath, 'file.html')) }),
       parseHTML,
-      defaultShouldIgnoreParams,
     );
     expect(issue).toEqual(
       expect.objectContaining({
@@ -85,7 +75,6 @@ describe('analyzeHTML', () => {
         filePath: normalizeToAbsolutePath(join(fixturesPath, 'quickfix.html')),
       }),
       parseHTML,
-      defaultShouldIgnoreParams,
     );
 
     const { quickFixes } = result.issues[0] as JsTsIssue;
@@ -121,7 +110,6 @@ describe('analyzeHTML', () => {
         filePath: normalizeToAbsolutePath(join(fixturesPath, 'enforce-trailing-comma.html')),
       }),
       parseHTML,
-      defaultShouldIgnoreParams,
     );
     expect(issues).toHaveLength(2);
     expect(issues[0]).toEqual(
@@ -160,7 +148,6 @@ describe('analyzeHTML', () => {
         filePath: normalizeToAbsolutePath(join(fixturesPath, 'secondary.html')),
       }),
       parseHTML,
-      defaultShouldIgnoreParams,
     );
     const { secondaryLocations } = result.issues[0] as JsTsIssue;
     const [secondaryLocation] = secondaryLocations;
@@ -188,7 +175,6 @@ describe('analyzeHTML', () => {
     const result = await analyzeEmbedded(
       await embeddedInput({ filePath: normalizeToAbsolutePath(join(fixturesPath, 'regex.html')) }),
       parseHTML,
-      defaultShouldIgnoreParams,
     );
     const {
       issues: [issue],
@@ -226,7 +212,6 @@ describe('analyzeHTML', () => {
     const { issues } = await analyzeEmbedded(
       await embeddedInput({ filePath: join(fixturesPath, 'minified-bundle.html') }),
       parseHTML,
-      defaultShouldIgnoreParams,
     );
     // The minified script (avg line length > 200, with S7739 violation for 'then') should be skipped
     // The normal script (with S3923 violation) should still be analyzed

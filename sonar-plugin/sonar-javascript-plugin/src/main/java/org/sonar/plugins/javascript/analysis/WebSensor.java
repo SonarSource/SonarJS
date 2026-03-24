@@ -182,34 +182,33 @@ public class WebSensor implements Sensor {
     FileSystem fileSystem = context.getSensorContext().fileSystem();
     var p = fileSystem.predicates();
     var jsTsPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
-
-    // HTML files for JS-in-HTML analysis — requires "web" language (from sonar-html).
-    // Extension filter limits to extensions we support (sonar-html also covers .cshtml, .erb, etc.).
-    var htmlPredicate = p.and(
-      p.hasLanguage(JavaScriptFilePredicate.WEB_LANGUAGE),
-      p.or(p.hasExtension("htm"), p.hasExtension("html"), p.hasExtension("xhtml"))
-    );
-
-    // HTML files for CSS-in-HTML analysis — extension-only, no language requirement.
-    // Matches old CssRuleSensor's webFilePredicate. These files may not have "web"
-    // language when sonar-html is not installed.
-    var webFilePredicate = p.and(
-      p.hasType(InputFile.Type.MAIN),
-      p.or(p.hasExtension("htm"), p.hasExtension("html"), p.hasExtension("xhtml"))
-    );
-
-    // YAML files (Helm-safe and SAM template checks)
-    var yamlPredicate = JavaScriptFilePredicate.getYamlPredicate(fileSystem);
-
-    // CSS files — include all types (MAIN and TEST). Old CssMetricSensor processed
+    // CSS files - include all types (MAIN and TEST). Old CssMetricSensor processed
     // all files for highlighting; old CssRuleSensor only MAIN for issues. The Node.js
-    // side skips linting for TEST files, so only highlighting is computed for them.
+    // side keeps this behavior: TEST files get highlighting but no issues/metrics.
     var cssPredicate = p.hasLanguages(CssLanguage.KEY);
+
+    // HTML files for JS-in-HTML analysis - extension based only.
+    var jsInHtmlPredicate = JavaScriptFilePredicate.getExtensionsPredicate(
+      fileSystem,
+      context.getHtmlExtensions()
+    );
+
+    // HTML files for CSS-in-HTML analysis - extension-only. ONLY MAIN files raise issues
+    var cssInHtmlPredicate = JavaScriptFilePredicate.getExtensionsPredicate(
+      fileSystem,
+      context.getCssAdditionalExtensions()
+    );
+
+    // YAML files (extension based + Helm-safe and SAM template checks)
+    var yamlPredicate = JavaScriptFilePredicate.getYamlPredicate(
+      fileSystem,
+      context.getYamlExtensions()
+    );
 
     return StreamSupport.stream(
       fileSystem
         .inputFiles(
-          p.or(jsTsPredicate, htmlPredicate, webFilePredicate, yamlPredicate, cssPredicate)
+          p.or(jsTsPredicate, jsInHtmlPredicate, cssInHtmlPredicate, yamlPredicate, cssPredicate)
         )
         .spliterator(),
       false
@@ -222,7 +221,11 @@ public class WebSensor implements Sensor {
     try {
       var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);
-      new PluginTelemetry(context, bridgeServer).reportTelemetry();
+      new PluginTelemetry(
+        context,
+        bridgeServer,
+        handler.getProjectAnalysisTelemetry()
+      ).reportTelemetry();
       consumers.doneAnalysis(context.getSensorContext());
     } catch (CompletionException e) {
       if (e.getCause() instanceof CancellationException nestedException) {
@@ -243,6 +246,9 @@ public class WebSensor implements Sensor {
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
     private final CompletableFuture<Void> handle;
+
+    @Nullable
+    private BridgeServer.ProjectAnalysisTelemetry projectAnalysisTelemetry;
 
     AnalyzeProjectHandler(
       JsTsContext<?> context,
@@ -278,7 +284,7 @@ public class WebSensor implements Sensor {
               acceptAstResponse(cacheAnalysis.getAst(), inputFile);
             }
           } else {
-            // CSS and extension-based web files: always analyze, no caching.
+            // CSS and extension-based HTML/YAML/CSS-additional files: always analyze, no caching.
             addFileToAnalyze(files, inputFile);
           }
         }
@@ -300,6 +306,11 @@ public class WebSensor implements Sensor {
 
     public CompletableFuture<Void> getFuture() {
       return handle;
+    }
+
+    @Nullable
+    BridgeServer.ProjectAnalysisTelemetry getProjectAnalysisTelemetry() {
+      return projectAnalysisTelemetry;
     }
 
     @Override
@@ -341,6 +352,7 @@ public class WebSensor implements Sensor {
       } else if ("meta".equals(messageType)) {
         var meta = GSON.fromJson(jsonObject, BridgeServer.ProjectAnalysisMetaResponse.class);
         meta.warnings().forEach(analysisWarnings::addUnique);
+        projectAnalysisTelemetry = meta.telemetry();
         handle.complete(null);
       } else if ("cancelled".equals(messageType)) {
         handle.completeExceptionally(

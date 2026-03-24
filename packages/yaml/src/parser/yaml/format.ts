@@ -17,11 +17,9 @@
 /**
  * YAML string formats given by the YAML parser
  */
-export const [PLAIN_FORMAT, BLOCK_FOLDED_FORMAT, BLOCK_LITERAL_FORMAT] = [
-  'PLAIN',
-  'BLOCK_FOLDED',
-  'BLOCK_LITERAL',
-];
+const PLAIN_FORMAT = 'PLAIN';
+export const BLOCK_FOLDED_FORMAT = 'BLOCK_FOLDED';
+export const BLOCK_LITERAL_FORMAT = 'BLOCK_LITERAL';
 
 /**
  * The list of supported YAML string formats

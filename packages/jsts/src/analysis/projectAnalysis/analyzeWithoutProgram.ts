@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { JsTsConfigFields, JsTsFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
+import type { AnalyzableFiles, ProjectAnalysisOutput } from './projectAnalysis.js';
 import { isJsTsFile } from '../../../../shared/src/helpers/configuration.js';
 import { warn } from '../../../../shared/src/helpers/logging.js';
 import { relative } from 'node:path/posix';
@@ -23,6 +23,7 @@ import type { WsIncrementalResult } from '../../../../bridge/src/request.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { analyzeFile } from './analyzeFile.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
+import type { JsTsConfigFields } from '../../../../shared/src/helpers/configuration.js';
 
 /**
  * Analyzes files without type-checking.
@@ -37,20 +38,25 @@ import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
  */
 export async function analyzeWithoutProgram(
   filenames: Set<NormalizedAbsolutePath>,
-  files: JsTsFiles,
+  files: AnalyzableFiles,
   results: ProjectAnalysisOutput,
   progressReport: ProgressReport,
   baseDir: NormalizedAbsolutePath,
   jsTsConfigFields: JsTsConfigFields,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
 ) {
-  const { jsSuffixes, tsSuffixes, cssSuffixes } = jsTsConfigFields.shouldIgnoreParams;
+  const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
   for (const filename of filenames) {
     if (isAnalysisCancelled()) {
       return;
     }
     const relativePath = relative(baseDir, filename);
-    if (isJsTsFile(filename, { jsSuffixes, tsSuffixes, cssSuffixes })) {
+    if (
+      isJsTsFile(filename, {
+        jsSuffixes,
+        tsSuffixes,
+      })
+    ) {
       warn(
         `JS/TS file analyzed without type-checking (not part of any tsconfig.json): ${relativePath}`,
       );

@@ -102,7 +102,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.0.0
+        uses: jdx/mise-action@v4.0.1
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -144,7 +144,7 @@ jobs:
     steps:
       - *checkout
       - &mise
-        uses: jdx/mise-action@v4.0.0
+        uses: jdx/mise-action@v4.0.1
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -305,6 +305,7 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           GH_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           HEAD_REF: ${{ github.head_ref }}
         run: |
@@ -315,12 +316,17 @@ jobs:
             exit 0
           fi
 
-          # Regenerate README and check for differences
+          RULES_README="packages/jsts/src/rules/README.md"
+
+          # Make git@github.com transport use token auth during generate-meta (sync-rspec).
+          git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "git@github.com:"
+
+          # Regenerate metadata and check for differences only on the rules README
           npm run generate-meta
 
           FIX_BRANCH="fix/update-readme-for-${HEAD_REF}"
 
-          if git diff --quiet packages/jsts/src/rules/README.md; then
+          if git diff --quiet -- "$RULES_README"; then
             echo "README is up to date"
 
             # Clean up stale fix PR if one exists and is still open
@@ -335,7 +341,7 @@ jobs:
 
           echo "README is stale — creating fix PR"
 
-          git stash push -m "readme-update" -- packages/jsts/src/rules/README.md
+          git stash push -m "readme-update" -- "$RULES_README"
           git fetch origin "$HEAD_REF"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -343,7 +349,11 @@ jobs:
           if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
             git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
             git stash pop
-            git add packages/jsts/src/rules/README.md
+            git add "$RULES_README"
+            if git diff --cached --quiet -- "$RULES_README"; then
+              echo "README is up to date on the PR head branch"
+              exit 0
+            fi
             git commit -m "Update rules README
 
           🤖 Generated with GitHub Actions"
@@ -352,7 +362,11 @@ jobs:
           else
             git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
             git stash pop
-            git add packages/jsts/src/rules/README.md
+            git add "$RULES_README"
+            if git diff --cached --quiet -- "$RULES_README"; then
+              echo "README is up to date on the PR head branch"
+              exit 0
+            fi
             git commit -m "Update rules README
 
           🤖 Generated with GitHub Actions"
@@ -417,7 +431,7 @@ jobs:
             node-label: 'node 16'
     steps:
       - *checkout
-      - uses: jdx/mise-action@v4.0.0
+      - uses: jdx/mise-action@v4.0.1
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -467,7 +481,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.0.0
+        uses: jdx/mise-action@v4.0.1
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -519,7 +533,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.0.0
+        uses: jdx/mise-action@v4.0.1
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -678,7 +692,7 @@ jobs:
     steps:
       - *checkout
       - &mise_java_matrix_node
-        uses: jdx/mise-action@v4.0.0
+        uses: jdx/mise-action@v4.0.1
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -748,7 +762,7 @@ jobs:
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
-        uses: jdx/mise-action@v4.0.0
+        uses: jdx/mise-action@v4.0.1
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -840,7 +854,7 @@ jobs:
           chown -R sonar:sonar /github/home
       - &alpine_setup_maven
         name: Setup Maven
-        uses: jdx/mise-action@v4.0.0
+        uses: jdx/mise-action@v4.0.1
         with:
           version: 2025.11.2
           cache_save: true

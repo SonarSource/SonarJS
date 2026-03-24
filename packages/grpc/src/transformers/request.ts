@@ -127,7 +127,7 @@ function transformActiveRules(activeRules: analyzer.IActiveRule[]): {
  * **Transformation flow:**
  * ```
  * IAnalyzeRequest
- *   ├── sourceFiles[] ──→ transformSourceFilesToRawInputFiles() ──→ sanitizeRawInputFiles() ──→ JsTsFiles
+ *   ├── sourceFiles[] ──→ transformSourceFilesToRawInputFiles() ──→ sanitizeRawInputFiles() ──→ AnalyzableFiles
  *   └── activeRules[] ──→ transformActiveRules() ──→ RuleConfig[] (one per rule+language)
  * ```
  *

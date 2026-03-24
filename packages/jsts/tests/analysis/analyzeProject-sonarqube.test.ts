@@ -178,6 +178,22 @@ describe('SonarQube project analysis', () => {
     // Both files should have issues (empty statements)
     expect('issues' in frontendResult! && frontendResult!.issues.length).toBeGreaterThan(0);
     expect('issues' in backendResult! && backendResult!.issues.length).toBeGreaterThan(0);
+
+    expect(result.meta.telemetry).toBeDefined();
+    expect(result.meta.telemetry).toMatchObject({
+      typescriptVersions: ['5.7.2', '7.0.0-dev.20260316.1'],
+      typescriptNativePreview: true,
+      ecmaScriptVersions: ['ES2020', 'ES2022'],
+      esmFileCount: 0,
+      cjsFileCount: 2,
+      programCreation: {
+        attempted: 2,
+        succeeded: 2,
+        failed: 0,
+      },
+    });
+    expect(result.meta.telemetry?.compilerOptions.module).toEqual(['commonjs', 'nodenext']);
+    expect(result.meta.telemetry?.compilerOptions.lib).toEqual(['dom', 'es2020', 'es2022']);
   });
 
   it('should analyze files not in any tsconfig with default options', async () => {
@@ -276,6 +292,19 @@ describe('SonarQube project analysis', () => {
       files: {},
       meta: {
         warnings: [],
+        telemetry: {
+          typescriptVersions: ['not-detected'],
+          typescriptNativePreview: false,
+          compilerOptions: {},
+          ecmaScriptVersions: ['not-detected'],
+          esmFileCount: 0,
+          cjsFileCount: 0,
+          programCreation: {
+            attempted: 0,
+            succeeded: 0,
+            failed: 0,
+          },
+        },
       },
     });
   });
@@ -348,6 +377,25 @@ describe('SonarQube project analysis', () => {
       m => (m as { messageType: string; filename?: string }).filename === filePath,
     );
     expect(fileResult).toBeDefined();
+
+    const metaResult = receivedMessages.find(
+      m => (m as { messageType: string }).messageType === 'meta',
+    ) as { messageType: string; telemetry?: unknown } | undefined;
+    expect(metaResult).toBeDefined();
+    expect(metaResult).toMatchObject({
+      messageType: 'meta',
+      telemetry: {
+        typescriptVersions: ['not-detected'],
+        typescriptNativePreview: false,
+        esmFileCount: 0,
+        cjsFileCount: 0,
+        programCreation: {
+          attempted: 1,
+          succeeded: 1,
+          failed: 0,
+        },
+      },
+    });
   });
 
   it('should discover and use tsconfigs from project references', async () => {
@@ -445,6 +493,67 @@ describe('SonarQube project analysis', () => {
     }
   });
 
+  it('should not include CSS issues from style blocks for TEST HTML files', async () => {
+    const baseDir = join(fixtures, 'html-yaml');
+    const htmlFile = join(baseDir, 'file.html');
+    const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
+
+    const configuration = await initForTest(
+      { baseDir },
+      { [htmlFile]: { filePath: htmlFile, fileType: 'TEST' } },
+    );
+
+    const result = await analyzeProject({ rules: [], cssRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(htmlFile)];
+    expect(fileResult).toBeDefined();
+    expect('issues' in fileResult!).toBe(true);
+    if ('issues' in fileResult!) {
+      const ruleIds = fileResult.issues.map(i => i.ruleId);
+      expect(ruleIds).not.toContain('no-extra-semicolons');
+    }
+  });
+
+  it('should collect JS/TS and CSS parsing errors for HTML files analyzed by both pipelines', async () => {
+    const baseDir = join(fixtures, 'html-yaml');
+    const htmlFile = join(baseDir, 'dual-parse.html');
+
+    const htmlRules: RuleConfig[] = [
+      {
+        key: 'S1440',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+    const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
+
+    const fileContent = [
+      '<html><body>',
+      '<script>const broken = ;</script>',
+      '<style>a {</style>',
+      '</body></html>',
+    ].join('\n');
+
+    const configuration = await initForTest(
+      { baseDir },
+      { [htmlFile]: { filePath: htmlFile, fileType: 'MAIN', fileContent } },
+    );
+
+    const result = await analyzeProject({ rules: htmlRules, cssRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(htmlFile)];
+    expect(fileResult).toBeDefined();
+    expect('parsingErrors' in fileResult!).toBe(true);
+    if ('parsingErrors' in fileResult!) {
+      const parsingErrors = fileResult.parsingErrors ?? [];
+      expect(parsingErrors).toHaveLength(2);
+      expect(parsingErrors.map(pe => pe.language).sort()).toEqual(['css', 'js']);
+      expect(parsingErrors.every(pe => pe.code === ErrorCode.Parsing)).toBe(true);
+    }
+  });
+
   it('should route YAML files to YAML analyzer', async () => {
     const baseDir = join(fixtures, 'html-yaml');
     const yamlFile = join(baseDir, 'file.yaml');
@@ -531,7 +640,7 @@ describe('SonarQube project analysis', () => {
     const fileResult = result.files[normalizeToAbsolutePath(sassFile)];
     expect(fileResult).toBeDefined();
     // Should not be a parsing error
-    expect(fileResult && 'parsingError' in fileResult).toBe(false);
+    expect(fileResult && 'parsingErrors' in fileResult).toBe(false);
   });
 
   it('should not return issues or metrics for TEST CSS files, only highlights', async () => {
@@ -701,9 +810,11 @@ describe('SonarQube project analysis', () => {
 
     const fileResult = result.files[normalizeToAbsolutePath(filePath)];
     expect(fileResult).toBeDefined();
-    expect('parsingError' in fileResult!).toBe(true);
-    if ('parsingError' in fileResult!) {
-      expect(fileResult.parsingError).toMatchObject({
+    expect('parsingErrors' in fileResult!).toBe(true);
+    if ('parsingErrors' in fileResult!) {
+      const parsingErrors = fileResult.parsingErrors ?? [];
+      expect(parsingErrors).toHaveLength(1);
+      expect(parsingErrors[0]).toMatchObject({
         code: ErrorCode.Parsing,
         message: 'Unexpected token (3:0)',
         line: 3,

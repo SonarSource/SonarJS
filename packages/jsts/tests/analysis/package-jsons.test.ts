@@ -28,6 +28,8 @@ import { UNINITIALIZED_ERROR } from '../../src/analysis/projectAnalysis/file-sto
 import {
   dependenciesCache,
   getDependencies,
+  getModuleType,
+  moduleTypeCache,
 } from '../../src/rules/helpers/package-jsons/dependencies.js';
 import { closestPatternCache } from '../../src/rules/helpers/find-up/closest.js';
 import { PACKAGE_JSON } from '../../src/rules/helpers/package-jsons/index.js';
@@ -79,6 +81,63 @@ describe('files', () => {
     getDependencies(baseDir, baseDir);
     expect(dependenciesCache.size).toEqual(1);
     expect(dependenciesCache.has(baseDir)).toEqual(true);
+    expect(moduleTypeCache.size).toEqual(0);
+    getModuleType(normalizeToAbsolutePath(join(baseDir, 'index.js')), baseDir);
+    expect(moduleTypeCache.size).toEqual(1);
+    expect(moduleTypeCache.has(baseDir)).toEqual(true);
+  });
+
+  it('should extract module type from package.json', async () => {
+    const moduleBaseDir = normalizeToAbsolutePath(join(fixtures, 'module-type-module'));
+    const moduleConfiguration = createConfiguration({ baseDir: moduleBaseDir });
+    await initFileStores(moduleConfiguration);
+    expect(
+      getModuleType(normalizeToAbsolutePath(join(moduleBaseDir, 'index.js')), moduleBaseDir),
+    ).toEqual('module');
+
+    packageJsonStore.clearCache();
+
+    const commonJsBaseDir = normalizeToAbsolutePath(join(fixtures, 'module-type-commonjs'));
+    const commonJsConfiguration = createConfiguration({ baseDir: commonJsBaseDir });
+    await initFileStores(commonJsConfiguration);
+    expect(
+      getModuleType(normalizeToAbsolutePath(join(commonJsBaseDir, 'index.js')), commonJsBaseDir),
+    ).toEqual('commonjs');
+
+    packageJsonStore.clearCache();
+
+    const unspecifiedBaseDir = normalizeToAbsolutePath(join(fixtures, 'module-type-unspecified'));
+    const unspecifiedConfiguration = createConfiguration({ baseDir: unspecifiedBaseDir });
+    await initFileStores(unspecifiedConfiguration);
+    expect(
+      getModuleType(
+        normalizeToAbsolutePath(join(unspecifiedBaseDir, 'index.js')),
+        unspecifiedBaseDir,
+      ),
+    ).toEqual('commonjs');
+  });
+
+  it('should use only the first manifest when extracting module type', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'module-type-first-manifest-only'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    expect(
+      getModuleType(normalizeToAbsolutePath(join(baseDir, 'subdir/index.js')), baseDir),
+    ).toEqual('commonjs');
+  });
+
+  it('should extract module type from explicit file extension', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    expect(getModuleType(normalizeToAbsolutePath(join(baseDir, 'index.mjs')), baseDir)).toEqual(
+      'module',
+    );
+    expect(getModuleType(normalizeToAbsolutePath(join(baseDir, 'index.cjs')), baseDir)).toEqual(
+      'commonjs',
+    );
   });
 
   it('should ignore malformed package.json files', async ({ mock }) => {
@@ -117,5 +176,6 @@ describe('files', () => {
     packageJsonStore.dirtyCachesIfNeeded(configuration);
     expect(() => packageJsonStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
     expect(dependenciesCache.size).toEqual(0);
+    expect(moduleTypeCache.size).toEqual(0);
   });
 });

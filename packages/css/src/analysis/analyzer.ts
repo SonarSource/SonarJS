@@ -14,19 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { LinterOptions } from 'stylelint';
 import type { CssAnalysisInput, CssAnalysisOutput } from './analysis.js';
 import { linter } from '../linter/wrapper.js';
-import { createStylelintConfig } from '../linter/config.js';
 import { computeMetrics } from './metrics.js';
 import { computeHighlighting } from './highlighting.js';
 import { APIError } from '../../../shared/src/errors/error.js';
-import { error, warn } from '../../../shared/src/helpers/logging.js';
 import {
-  shouldIgnoreFile,
-  type ShouldIgnoreFileParams,
-} from '../../../shared/src/helpers/filter/filter.js';
-import { isAlsoCssFile } from '../../../shared/src/helpers/configuration.js';
+  toProjectFailureResult,
+  type ProjectFailureResult,
+} from '../../../shared/src/errors/project-analysis.js';
+import { warn } from '../../../shared/src/helpers/logging.js';
+import type { CssIssue } from '../linter/issues/issue.js';
 
 /**
  * Analyzes a CSS analysis input
@@ -37,62 +35,91 @@ import { isAlsoCssFile } from '../../../shared/src/helpers/configuration.js';
  *
  * The input must be fully sanitized (all fields required) before calling this function.
  *
- * When `input.rules` is provided (bridge per-request path), a fresh Stylelint
- * config is created from them. When absent (analyzeProject path), the linter's
- * pre-initialized config is used instead (see `LinterWrapper.initialize()`).
+ * Stylelint config comes from the pre-initialized linter
+ * (`LinterWrapper.initialize()`). For TEST files, rules are overridden to an
+ * empty config to suppress issues while preserving parsing/highlighting behavior.
+ * The CSS linter must be initialized before calling this function.
+ *
+ * Behavior:
+ *
+ * CSS in HTML/Vue MAIN: linted for issues, no CSS metrics.
+ * CSS in HTML/Vue TEST: not linted (noMetrics + TEST early return), so no CSS issues.
+ * Pure CSS MAIN: issues + metrics/highlighting.
+ * Pure CSS TEST: no issues/metrics, highlighting only
  *
  * @param input the sanitized CSS analysis input to analyze
- * @param shouldIgnoreParams parameters needed to determine whether a file should be ignored
+ * @param includeMetrics whether to include metrics calculation
  * @returns a promise of the CSS analysis output
  */
 export async function analyzeCSS(
   input: CssAnalysisInput,
-  shouldIgnoreParams: ShouldIgnoreFileParams,
+  includeMetrics = true,
 ): Promise<CssAnalysisOutput> {
-  const { filePath, fileContent, rules, fileType } = input;
-  if (await shouldIgnoreFile({ filePath, fileContent }, shouldIgnoreParams)) {
-    return { issues: [] };
-  }
+  const { filePath, fileContent, fileType } = input;
 
   const isTestFile = fileType === 'TEST';
+
+  // Mixed-file CSS analysis (HTML/Vue) runs with noMetrics=true. For TEST files,
+  // preserve legacy behavior by skipping CSS linting entirely.
+  if (isTestFile && !includeMetrics) {
+    return { issues: [] };
+  }
   const sanitizedCode = fileContent.replaceAll(/[\u2000-\u200F]/g, ' ');
 
-  // If rules are provided explicitly (bridge path), create a fresh config.
-  // Otherwise, use the linter's pre-initialized config (analyzeProject path).
-  const config = rules ? createStylelintConfig(rules) : undefined;
+  // TEST files keep highlighting (parity with old CssMetricSensor), but issues remain suppressed.
+  const lintResult = await linter.lint(filePath, sanitizedCode, fileType);
+  const { root, issues: lintingIssues } = lintResult;
+  throwIfCssParsingError(lintingIssues);
+  const issues = isTestFile ? [] : lintingIssues;
 
-  const options: LinterOptions = {
-    code: sanitizedCode,
-    codeFilename: filePath,
-    ...(config && { config }),
-  };
-
-  // TEST files only get highlighting (matching old CssMetricSensor behavior).
-  // Old CssRuleSensor never analyzed TEST files for issues, but we still
-  // need to run Stylelint to get the PostCSS root for highlighting.
-  const { issues, root } = await linter.lint(filePath, options).catch(err => {
-    error(`Linter failed to parse file ${filePath}: ${err}`);
-    throw APIError.linterError(`Linter failed to parse file ${filePath}: ${err}`);
-  });
-
-  // Skip metrics and highlighting in SonarLint mode and for non-pure-CSS files
+  // Skip metrics and highlighting for non-pure-CSS files
   // (HTML/Vue files are handled by their own analyzers for metrics)
-  if (input.sonarlint || isAlsoCssFile(filePath) || !root) {
-    return { issues: isTestFile ? [] : issues };
+  if (!includeMetrics || !root) {
+    return { issues };
   }
 
   try {
-    const highlights = computeHighlighting(root, sanitizedCode);
-    if (isTestFile) {
-      return { issues: [], highlights };
+    if (input.sonarlint) {
+      const metrics = computeMetrics(root);
+      // In SonarLint context, keep only NOSONAR lines (parity with JS/TS and old sensors).
+      return {
+        issues,
+        metrics: { nosonarLines: metrics.nosonarLines },
+      };
+    } else {
+      const highlights = computeHighlighting(root, sanitizedCode);
+      if (isTestFile) {
+        return { issues, highlights };
+      }
+      return {
+        issues,
+        highlights,
+        metrics: computeMetrics(root),
+      };
     }
-    return {
-      issues,
-      highlights,
-      metrics: computeMetrics(root),
-    };
   } catch (err) {
     warn(`Failed to compute metrics/highlighting for ${filePath}: ${err}`);
-    return { issues: isTestFile ? [] : issues };
+    return { issues };
+  }
+}
+
+export async function analyzeCSSProject(
+  input: CssAnalysisInput,
+  includeMetrics = true,
+): Promise<CssAnalysisOutput | ProjectFailureResult> {
+  try {
+    return await analyzeCSS(input, includeMetrics);
+  } catch (err) {
+    return toProjectFailureResult(err, 'css');
+  }
+}
+
+function throwIfCssParsingError(issues: CssIssue[]) {
+  const parsingIssue = issues.find(issue => issue.ruleId === 'CssSyntaxError');
+  if (parsingIssue) {
+    throw APIError.parsingError(parsingIssue.message, {
+      line: parsingIssue.line,
+      column: parsingIssue.column,
+    });
   }
 }
