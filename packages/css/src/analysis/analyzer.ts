@@ -51,40 +51,48 @@ export async function analyzeCSS(
   const { filePath, fileContent, fileType } = input;
 
   const isTestFile = fileType === 'TEST';
+
+  // Mixed-file CSS analysis (HTML/Vue) runs with noMetrics=true. For TEST files,
+  // preserve legacy behavior by skipping CSS linting entirely.
+  if (isTestFile && noMetrics) {
+    return { issues: [] };
+  }
   const sanitizedCode = fileContent.replaceAll(/[\u2000-\u200F]/g, ' ');
 
   // TEST files keep highlighting (parity with old CssMetricSensor), but issues remain suppressed.
   const lintResult = await linter.lint(filePath, sanitizedCode, isTestFile ? 'TEST' : 'MAIN');
-  const { issues, root } = lintResult;
-  throwIfCssParsingError(issues);
-
-  // In SonarLint context, keep only NOSONAR lines (parity with JS/TS and old sensors).
-  if (input.sonarlint) {
-    return {
-      issues: isTestFile ? [] : issues,
-      ...(root && { metrics: { nosonarLines: computeMetrics(root).nosonarLines } }),
-    };
-  }
+  const { root, issues: lintingIssues } = lintResult;
+  throwIfCssParsingError(lintingIssues);
+  const issues = isTestFile ? [] : lintingIssues;
 
   // Skip metrics and highlighting for non-pure-CSS files
   // (HTML/Vue files are handled by their own analyzers for metrics)
   if (noMetrics || !root) {
-    return { issues: isTestFile ? [] : issues };
+    return { issues };
   }
 
   try {
+    const metrics = computeMetrics(root);
+    // In SonarLint context, keep only NOSONAR lines (parity with JS/TS and old sensors).
+    if (input.sonarlint) {
+      return {
+        issues,
+        metrics: { nosonarLines: metrics.nosonarLines },
+      };
+    }
+
     const highlights = computeHighlighting(root, sanitizedCode);
     if (isTestFile) {
-      return { issues: [], highlights };
+      return { issues, highlights };
     }
     return {
       issues,
       highlights,
-      metrics: computeMetrics(root),
+      metrics,
     };
   } catch (err) {
     warn(`Failed to compute metrics/highlighting for ${filePath}: ${err}`);
-    return { issues: isTestFile ? [] : issues };
+    return { issues };
   }
 }
 

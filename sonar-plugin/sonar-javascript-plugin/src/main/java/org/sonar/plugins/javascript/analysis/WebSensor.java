@@ -31,7 +31,6 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
-import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.Sensor;
@@ -183,21 +182,21 @@ public class WebSensor implements Sensor {
     FileSystem fileSystem = context.getSensorContext().fileSystem();
     var p = fileSystem.predicates();
     var jsTsPredicate = JavaScriptFilePredicate.getJsTsPredicate(fileSystem);
+    // CSS files - include all types (MAIN and TEST). Old CssMetricSensor processed
+    // all files for highlighting; old CssRuleSensor only MAIN for issues. The Node.js
+    // side keeps this behavior: TEST files get highlighting but no issues/metrics.
+    var cssPredicate = p.hasLanguages(CssLanguage.KEY);
 
     // HTML files for JS-in-HTML analysis - extension based only.
-    var htmlPredicate = JavaScriptFilePredicate.getExtensionsPredicate(
+    var jsInHtmlPredicate = JavaScriptFilePredicate.getExtensionsPredicate(
       fileSystem,
       context.getHtmlExtensions()
     );
 
-    // HTML files for CSS-in-HTML analysis - extension-only.
-    // Matches old CssRuleSensor's webFilePredicate (MAIN files only).
-    var webFilePredicate = p.and(
-      p.hasType(InputFile.Type.MAIN),
-      JavaScriptFilePredicate.getExtensionsPredicate(
-        fileSystem,
-        context.getCssAdditionalExtensions()
-      )
+    // HTML files for CSS-in-HTML analysis - extension-only. ONLY MAIN files raise issues
+    var cssInHtmlPredicate = JavaScriptFilePredicate.getExtensionsPredicate(
+      fileSystem,
+      context.getCssAdditionalExtensions()
     );
 
     // YAML files (extension based + Helm-safe and SAM template checks)
@@ -206,15 +205,10 @@ public class WebSensor implements Sensor {
       context.getYamlExtensions()
     );
 
-    // CSS files - include all types (MAIN and TEST). Old CssMetricSensor processed
-    // all files for highlighting; old CssRuleSensor only MAIN for issues. The Node.js
-    // side keeps this behavior: TEST files get highlighting but no issues/metrics.
-    var cssPredicate = p.hasLanguages(CssLanguage.KEY);
-
     return StreamSupport.stream(
       fileSystem
         .inputFiles(
-          p.or(jsTsPredicate, htmlPredicate, webFilePredicate, yamlPredicate, cssPredicate)
+          p.or(jsTsPredicate, jsInHtmlPredicate, cssInHtmlPredicate, yamlPredicate, cssPredicate)
         )
         .spliterator(),
       false
