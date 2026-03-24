@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2871/javascript
 
-import type { Rule, Scope } from 'eslint';
+import type { Rule } from 'eslint';
 import type ts from 'typescript';
 import type estree from 'estree';
 import { copyingSortLike, sortLike } from '../helpers/collection.js';
@@ -29,7 +29,7 @@ import {
   isStringArray,
 } from '../helpers/type.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { isCallingMethod, isIdentifier } from '../helpers/ast.js';
+import { getVariableFromScope, isCallingMethod, isIdentifier } from '../helpers/ast.js';
 import { getNodeParent } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
@@ -119,19 +119,6 @@ const functionBoundaryTypes = new Set([
   'ArrowFunctionExpression',
 ]);
 
-function findVariableInScope(
-  identifier: estree.Identifier,
-  sourceCode: Rule.RuleContext['sourceCode'],
-): Scope.Variable | undefined {
-  let variable: Scope.Variable | undefined;
-  let currentScope: Scope.Scope | null = sourceCode.getScope(identifier);
-  while (currentScope && !variable) {
-    variable = currentScope.variables.find(v => v.name === identifier.name);
-    currentScope = currentScope.upper;
-  }
-  return variable;
-}
-
 function isInsideForIn(startNode: estree.Node): boolean {
   let current: estree.Node | undefined = getNodeParent(startNode);
   while (current) {
@@ -156,7 +143,7 @@ function isForInKeyArray(
   identifier: estree.Identifier,
   sourceCode: Rule.RuleContext['sourceCode'],
 ): boolean {
-  const variable = findVariableInScope(identifier, sourceCode);
+  const variable = getVariableFromScope(sourceCode.getScope(identifier), identifier.name);
   if (variable?.defs.length !== 1) {
     return false;
   }
