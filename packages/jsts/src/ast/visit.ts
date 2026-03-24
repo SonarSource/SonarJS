@@ -14,9 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule as cognitiveComplexity } from './cognitive-complexity.js';
-import type { CustomRule } from './custom-rule.js';
+import type estree from 'estree';
+import type { SourceCode } from 'eslint';
+import { childrenOf } from '../rules/helpers/ancestor.js';
+
 /**
- * The set of internal custom rules
+ * Visits the abstract syntax tree of an ESLint source code
+ * @param sourceCode the source code to visit
+ * @param callback a callback function invoked at each node visit
  */
-export const customRules: CustomRule[] = [cognitiveComplexity];
+export function visit(sourceCode: SourceCode, callback: (node: estree.Node) => void): void {
+  const stack: estree.Node[] = [sourceCode.ast];
+  while (stack.length) {
+    const node = stack.pop() as estree.Node;
+    callback(node);
+    stack.push(...childrenOf(node, sourceCode.visitorKeys).reverse());
+  }
+}

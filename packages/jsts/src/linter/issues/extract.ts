@@ -14,66 +14,39 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { JsTsIssue } from './issue.js';
+import type { Linter } from 'eslint';
 import { rule as cognitiveComplexityRule } from '../custom-rules/cognitive-complexity.js';
-import { rule as symbolHighlightingRule } from '../custom-rules/symbol-highlighting.js';
-import type { SymbolHighlight } from '../visitors/symbol-highlighting.js';
+
+const INTERNAL_COGNITIVE_COMPLEXITY_RULE_ID = `sonarjs/${cognitiveComplexityRule.ruleId}`;
 
 /**
- * Extracts the symbol highlighting
+ * Extracts analysis data produced by internal custom rules.
  *
- * The linter enables the internal custom rule for symbol highlighting
- * which eventually creates an issue to this end. The issue encodes the
- * symbol highlighting as a serialized JSON object in its message, which
- * can safely be extracted if it exists in the list of returned issues
- * after linting.
+ * Internal rules encode file-level data in ESLint messages. We extract the first
+ * occurrence of each internal metric message and remove those messages from the
+ * returned list, so regular message transformation remains issue-only.
  *
- * @param issues the issues to process
- * @returns the symbol highlighting
+ * @param messages ESLint messages to process
+ * @returns filtered messages and extracted metrics
  */
-export function extractHighlightedSymbols(issues: JsTsIssue[]) {
-  const issue = findAndRemoveFirstIssue(issues, symbolHighlightingRule.ruleId);
-  if (issue) {
-    return JSON.parse(issue.message) as SymbolHighlight[];
-  }
-  return [];
-}
+export function extractInternalMetrics(messages: Linter.LintMessage[]): {
+  messages: Linter.LintMessage[];
+  cognitiveComplexity?: number;
+} {
+  const filteredMessages: Linter.LintMessage[] = [];
+  let cognitiveComplexity: number | undefined;
+  let foundCognitiveComplexity = false;
 
-/**
- * Extracts the cognitive complexity
- *
- * The linter enables the internal custom rule for cognitive complexity
- * which eventually creates an issue to this end. The issue encodes the
- * complexity as a number in its message, which can safely be extracted
- * if it exists in the list of returned issues after linting.
- *
- * @param issues the issues to process
- * @returns the cognitive complexity
- */
-export function extractCognitiveComplexity(issues: JsTsIssue[]) {
-  const issue = findAndRemoveFirstIssue(issues, cognitiveComplexityRule.ruleId);
-  if (issue && !Number.isNaN(Number(issue.message))) {
-    return Number(issue.message);
-  }
-  return undefined;
-}
-
-/**
- * Finds the first issue matching a rule id
- *
- * The function removes the issue from the list if it exists.
- *
- * @param issues the issues to process
- * @param ruleId the rule id that is looked for
- * @returns the found issue, if any
- */
-function findAndRemoveFirstIssue(issues: JsTsIssue[], ruleId: string) {
-  for (const issue of issues) {
-    if (issue.ruleId === ruleId) {
-      const index = issues.indexOf(issue);
-      issues.splice(index, 1);
-      return issue;
+  for (const message of messages) {
+    if (message.ruleId === INTERNAL_COGNITIVE_COMPLEXITY_RULE_ID && !foundCognitiveComplexity) {
+      const parsed = Number(message.message);
+      cognitiveComplexity = Number.isNaN(parsed) ? undefined : parsed;
+      foundCognitiveComplexity = true;
+      continue;
     }
+
+    filteredMessages.push(message);
   }
-  return undefined;
+
+  return { messages: filteredMessages, cognitiveComplexity };
 }

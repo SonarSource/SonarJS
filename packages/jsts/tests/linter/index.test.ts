@@ -221,7 +221,6 @@ describe('Linter', () => {
       Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
     ).toEqual({
       'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
-      'sonarjs/internal-symbol-highlighting': ['error'],
     });
   });
 
@@ -743,7 +742,7 @@ describe('Linter', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should compute cognitive complexity and symbol highlighting', async () => {
+  it('should compute cognitive complexity', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-symbol.js'),
     );
@@ -753,19 +752,8 @@ describe('Linter', () => {
       baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
       rules: [],
     });
-    const { cognitiveComplexity, highlightedSymbols } = Linter.lint(parseResult, filePath);
+    const { cognitiveComplexity } = Linter.lint(parseResult, filePath);
 
     expect(cognitiveComplexity).toEqual(6);
-    expect(highlightedSymbols).toEqual([
-      {
-        declaration: {
-          startLine: 1,
-          startCol: 42,
-          endLine: 1,
-          endCol: 43,
-        },
-        references: [],
-      },
-    ]);
   });
 });

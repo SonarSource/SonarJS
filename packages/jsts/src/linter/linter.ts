@@ -20,7 +20,7 @@ import type { RuleConfig } from './config/rule-config.js';
 import type { CustomRule } from './custom-rules/custom-rule.js';
 import type { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import type { FileType } from '../../../shared/src/helpers/files.js';
-import { type LintingResult, transformMessages } from './issues/transform.js';
+import { transformMessages } from './issues/transform.js';
 import { customRules } from './custom-rules/rules.js';
 import * as internalRules from '../rules/rules.js';
 import {
@@ -47,6 +47,7 @@ import {
 } from '../rules/helpers/package-jsons/dependencies.js';
 import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../analysis/projectAnalysis/telemetry.js';
+import { extractInternalMetrics } from './issues/extract.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -84,8 +85,7 @@ export class Linter {
   private static linter: ESLintLinter;
   /**
    * internal rules: rules in the packages/jsts/src/rules folder
-   * custom rules: used internally by SonarQube to have the symbol highlighting and
-   * the cognitive complexity metrics.
+   * custom rules: used internally by SonarQube to compute the cognitive complexity metric.
    */
   public static readonly rules: Record<string, Rule.RuleModule> = {
     ...internalRules,
@@ -191,7 +191,7 @@ export class Linter {
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
     detectedEsYear?: number,
-  ): LintingResult {
+  ) {
     if (!Linter.linter) {
       throw APIError.linterError(`Linter does not exist.`);
     }
@@ -222,7 +222,16 @@ export class Linter {
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
-    return transformMessages(messages, language, { sourceCode, ruleMetas, filePath });
+    const { messages: filteredMessages, cognitiveComplexity } = extractInternalMetrics(messages);
+    const issues = transformMessages(filteredMessages, language, {
+      sourceCode,
+      ruleMetas,
+      filePath,
+    });
+    return {
+      issues,
+      cognitiveComplexity,
+    };
   }
 
   /**
@@ -299,9 +308,7 @@ export class Linter {
             ? ((ruleMeta as { requiredModuleType?: ModuleType }).requiredModuleType ?? undefined)
             : undefined;
         const satisfiesModuleType =
-          !detectedModuleType ||
-          !requiredModuleType ||
-          requiredModuleType === detectedModuleType;
+          !detectedModuleType || !requiredModuleType || requiredModuleType === detectedModuleType;
         return (
           fileTypeTargets.includes(fileType) &&
           analysisModes.includes(analysisMode) &&
@@ -351,9 +358,8 @@ export class Linter {
   }
 
   /**
-   * Custom rules like cognitive complexity and symbol highlighting
-   * are always enabled as part of metrics computation. Such rules
-   * are, therefore, added in the linting configuration by default.
+   * Internal metric rules like cognitive complexity are always enabled
+   * as part of metrics computation and are added by default.
    *
    * _Internal custom rules are not enabled in SonarLint context._
    */

@@ -14,129 +14,59 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rule as cognitiveComplexityRule } from '../../../src/linter/custom-rules/cognitive-complexity.js';
-import { rule as symbolHighlightingRule } from '../../../src/linter/custom-rules/symbol-highlighting.js';
+import type { Linter } from 'eslint';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { JsTsIssue } from '../../../src/linter/issues/issue.js';
-import {
-  extractCognitiveComplexity,
-  extractHighlightedSymbols,
-} from '../../../src/linter/issues/extract.js';
-import { normalizeToAbsolutePath } from '../../../src/rules/helpers/files.js';
+import { rule as cognitiveComplexityRule } from '../../../src/linter/custom-rules/cognitive-complexity.js';
+import { extractInternalMetrics } from '../../../src/linter/issues/extract.js';
 
-describe('extract', () => {
-  it('should extract highlighted symbols', () => {
-    const issues: JsTsIssue[] = [
-      {
-        ruleId: symbolHighlightingRule.ruleId,
-        line: 1,
-        column: 2,
-        message: JSON.stringify({
-          declaration: { startLine: 1, startCol: 2, endLine: 3, endCol: 4 },
-          references: [{ startLine: 10, startCol: 20, endLine: 30, endCol: 40 }],
-        }),
-        secondaryLocations: [],
-        ruleESLintKeys: [],
-        filePath: normalizeToAbsolutePath('/foo.js'),
-        language: 'js',
-      },
-    ];
-    expect(extractHighlightedSymbols(issues)).toEqual({
-      declaration: { startLine: 1, startCol: 2, endLine: 3, endCol: 4 },
-      references: [{ startLine: 10, startCol: 20, endLine: 30, endCol: 40 }],
+const cognitiveRuleId = `sonarjs/${cognitiveComplexityRule.ruleId}`;
+
+describe('extractInternalMetrics', () => {
+  it('should extract cognitive complexity from lint messages', () => {
+    const messages = [lintMessage({ ruleId: cognitiveRuleId, message: '42' })];
+
+    expect(extractInternalMetrics(messages)).toEqual({
+      messages: [],
+      cognitiveComplexity: 42,
     });
   });
 
-  it('should return an empty array of highlighted symbols', () => {
-    expect(extractHighlightedSymbols([])).toEqual([]);
+  it('should return undefined on invalid cognitive complexity', () => {
+    const messages = [lintMessage({ ruleId: cognitiveRuleId, message: 'nan' })];
+
+    expect(extractInternalMetrics(messages)).toEqual({
+      messages: [],
+      cognitiveComplexity: undefined,
+    });
   });
 
-  it('should extract cognitive complexity', () => {
-    const issues: JsTsIssue[] = [
-      {
-        ruleId: cognitiveComplexityRule.ruleId,
-        line: 1,
-        column: 2,
-        message: '42',
-        secondaryLocations: [],
-        ruleESLintKeys: [],
-        filePath: normalizeToAbsolutePath('/foo.js'),
-        language: 'js',
-      },
-    ];
-    expect(extractCognitiveComplexity(issues)).toEqual(42);
+  it('should preserve non-internal messages', () => {
+    const messages = [lintMessage({ ruleId: 'sonarjs/S1116', message: 'issue message' })];
+
+    expect(extractInternalMetrics(messages)).toEqual({
+      messages,
+      cognitiveComplexity: undefined,
+    });
   });
 
-  it('should return undefined on NaN cognitive complexity', () => {
-    const issues: JsTsIssue[] = [
-      {
-        ruleId: cognitiveComplexityRule.ruleId,
-        line: 1,
-        column: 2,
-        message: 'nan',
-        secondaryLocations: [],
-        ruleESLintKeys: [],
-        filePath: normalizeToAbsolutePath('/foo.js'),
-        language: 'js',
-      },
-    ];
-    expect(extractCognitiveComplexity(issues)).toEqual(undefined);
-  });
+  it('should extract only first internal message and preserve subsequent duplicates', () => {
+    const duplicateCognitive = lintMessage({ ruleId: cognitiveRuleId, message: '43' });
+    const messages = [lintMessage({ ruleId: cognitiveRuleId, message: '42' }), duplicateCognitive];
 
-  it('should return undefined on missing cognitive complexity', () => {
-    expect(extractCognitiveComplexity([])).toEqual(undefined);
-  });
-
-  it('should preserve non-extracted issues', () => {
-    const issues: JsTsIssue[] = [
-      {
-        ruleId: symbolHighlightingRule.ruleId,
-        line: 1,
-        column: 2,
-        message: JSON.stringify({
-          declaration: { startLine: 1, startCol: 2, endLine: 3, endCol: 4 },
-          references: [{ startLine: 10, startCol: 20, endLine: 30, endCol: 40 }],
-        }),
-        secondaryLocations: [],
-        ruleESLintKeys: [],
-        filePath: normalizeToAbsolutePath('/foo.js'),
-        language: 'js',
-      },
-      {
-        ruleId: 'non-extracted-rule',
-        line: 1,
-        column: 2,
-        message: 'non-extract-message',
-        secondaryLocations: [],
-        ruleESLintKeys: [],
-        filePath: normalizeToAbsolutePath('/foo.js'),
-        language: 'js',
-      },
-      {
-        ruleId: cognitiveComplexityRule.ruleId,
-        line: 1,
-        column: 2,
-        message: '42',
-        secondaryLocations: [],
-        ruleESLintKeys: [],
-        filePath: normalizeToAbsolutePath('/foo.js'),
-        language: 'js',
-      },
-    ];
-    extractHighlightedSymbols(issues);
-    extractCognitiveComplexity(issues);
-    expect(issues).toEqual([
-      {
-        ruleId: 'non-extracted-rule',
-        line: 1,
-        column: 2,
-        message: 'non-extract-message',
-        secondaryLocations: [],
-        ruleESLintKeys: [],
-        filePath: normalizeToAbsolutePath('/foo.js'),
-        language: 'js',
-      },
-    ]);
+    expect(extractInternalMetrics(messages)).toEqual({
+      messages: [duplicateCognitive],
+      cognitiveComplexity: 42,
+    });
   });
 });
+
+function lintMessage({ ruleId, message }: { ruleId: string; message: string }): Linter.LintMessage {
+  return {
+    ruleId,
+    message,
+    line: 1,
+    column: 1,
+    severity: 2,
+  };
+}

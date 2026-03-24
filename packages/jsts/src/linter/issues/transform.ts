@@ -18,30 +18,9 @@ import type { Linter, SourceCode } from 'eslint';
 import { decodeSecondaryLocations } from './decode.js';
 import type { JsTsIssue } from './issue.js';
 import { convertMessage } from './message.js';
-import { extractCognitiveComplexity, extractHighlightedSymbols } from './extract.js';
-import type { SymbolHighlight } from '../visitors/symbol-highlighting.js';
 import type { JsTsLanguage } from '../../../../shared/src/helpers/configuration.js';
 import type { SonarMeta } from '../../rules/helpers/generate-meta.js';
 import type { NormalizedAbsolutePath } from '../../rules/helpers/files.js';
-
-/**
- * The result of linting a source code
- *
- * ESLint API returns what it calls messages as results of linting a file.
- * A linting result in the context of the analyzer includes more than that
- * as it needs not only to transform ESLint messages into SonarQube issues
- * as well as analysis data about the analyzed source code, namely symbol
- * highlighting and cognitive complexity.
- *
- * @param issues the issues found in the code
- * @param highlightedSymbols the symbol highlighting of the code
- * @param cognitiveComplexity the cognitive complexity of the code
- */
-export type LintingResult = {
-  issues: JsTsIssue[];
-  highlightedSymbols: SymbolHighlight[];
-  cognitiveComplexity?: number;
-};
 
 /**
  * Transforms ESLint messages into SonarQube issues
@@ -50,10 +29,6 @@ export type LintingResult = {
  * to return SonarQube issues. These transformations include
  * decoding issues with secondary locations as well as converting
  * quick fixes.
- *
- * Besides issues, a few metrics are computed during linting in the form of
- * an internal custom rule execution, namely cognitive complexity and symbol
- * highlighting. These custom rules also produce issues that are extracted.
  *
  * Transforming an ESLint message into a SonarQube issue implies:
  * - converting ESLint messages into SonarQube issues
@@ -64,7 +39,7 @@ export type LintingResult = {
  * @param messages ESLint messages to transform
  * @param language the file language
  * @param ctx contextual information
- * @returns the linting result
+ * @returns the transformed issues
  */
 export function transformMessages(
   messages: Linter.LintMessage[],
@@ -74,7 +49,7 @@ export function transformMessages(
     ruleMetas: { [key: string]: SonarMeta };
     filePath: NormalizedAbsolutePath;
   },
-): LintingResult {
+): JsTsIssue[] {
   const issues: JsTsIssue[] = [];
 
   for (const message of messages) {
@@ -85,13 +60,7 @@ export function transformMessages(
     }
   }
 
-  const highlightedSymbols = extractHighlightedSymbols(issues);
-  const cognitiveComplexity = extractCognitiveComplexity(issues);
-  return {
-    issues,
-    highlightedSymbols,
-    cognitiveComplexity,
-  };
+  return issues;
 }
 
 /**

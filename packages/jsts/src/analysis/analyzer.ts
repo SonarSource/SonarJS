@@ -22,12 +22,11 @@ import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
 import { APIError } from '../../../shared/src/errors/error.js';
 import { serializeInProtobuf } from '../parsers/ast.js';
-import type { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
-import { computeMetrics } from '../linter/visitors/metrics/compute.js';
-import { findNoSonarLines } from '../linter/visitors/metrics/nosonar.js';
-import { findNcloc } from '../linter/visitors/metrics/ncloc.js';
-import { getSyntaxHighlighting } from '../linter/visitors/syntax-highlighting.js';
-import { getCpdTokens } from '../linter/visitors/cpd.js';
+import {
+  collectMainFileArtifacts,
+  collectNoSonarMetrics,
+  collectTestFileArtifacts,
+} from './file-artifacts.js';
 import { clearDependenciesCache } from '../rules/helpers/package-jsons/index.js';
 import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
 import {
@@ -61,7 +60,7 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
       debug('Clearing dependencies cache');
       clearDependenciesCache();
     }
-    const { issues, highlightedSymbols, cognitiveComplexity } = Linter.lint(
+    const { issues, cognitiveComplexity } = Linter.lint(
       parseResult,
       filePath,
       fileType,
@@ -73,7 +72,6 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     const extendedMetrics = computeExtendedMetrics(
       input,
       parseResult.sourceCode,
-      highlightedSymbols,
       cognitiveComplexity,
     );
 
@@ -134,34 +132,39 @@ function serializeAst(sourceCode: SourceCode, filePath: NormalizedAbsolutePath) 
  *
  * @param input the JavaScript / TypeScript analysis input to analyze
  * @param sourceCode the analyzed ESLint SourceCode instance
- * @param highlightedSymbols the computed symbol highlighting of the code
  * @param cognitiveComplexity the computed cognitive complexity of the code
  * @returns the extended metrics of the code
  */
 function computeExtendedMetrics(
   input: JsTsAnalysisInput,
   sourceCode: SourceCode,
-  highlightedSymbols: SymbolHighlight[],
   cognitiveComplexity?: number,
 ) {
   if (input.sonarlint) {
-    return { metrics: findNoSonarLines(sourceCode) };
+    return { metrics: collectNoSonarMetrics(sourceCode) };
   }
   const { fileType, ignoreHeaderComments } = input;
   if (fileType === 'MAIN') {
+    const { metrics, cpdTokens, highlights, highlightedSymbols } = collectMainFileArtifacts(
+      sourceCode,
+      ignoreHeaderComments,
+      cognitiveComplexity,
+    );
     return {
       highlightedSymbols,
-      highlights: getSyntaxHighlighting(sourceCode).highlights,
-      metrics: computeMetrics(sourceCode, ignoreHeaderComments, cognitiveComplexity),
-      cpdTokens: getCpdTokens(sourceCode).cpdTokens,
+      highlights,
+      metrics,
+      cpdTokens,
     };
   } else {
+    const { metrics, highlights, highlightedSymbols } = collectTestFileArtifacts(
+      sourceCode,
+      input.reportNclocForTestFiles,
+    );
     return {
       highlightedSymbols,
-      highlights: getSyntaxHighlighting(sourceCode).highlights,
-      metrics: input.reportNclocForTestFiles
-        ? { ...findNoSonarLines(sourceCode), ncloc: findNcloc(sourceCode) }
-        : findNoSonarLines(sourceCode),
+      highlights,
+      metrics,
     };
   }
 }

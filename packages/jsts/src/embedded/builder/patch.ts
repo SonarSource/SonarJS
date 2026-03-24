@@ -19,7 +19,7 @@ import { SourceCode } from 'eslint';
 import type { Comment, Node } from 'estree';
 import type { APIError } from '../../../../shared/src/errors/error.js';
 import type { EmbeddedJS } from '../../../../shared/src/types/embedded.js';
-import { visit } from '../../linter/visitors/visitor.js';
+import { visit } from '../../ast/visit.js';
 
 /**
  * Patches the ESLint SourceCode instance parsed with an ESLint-based parser

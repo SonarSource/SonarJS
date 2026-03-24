@@ -58,7 +58,7 @@ describe('transformMessages', () => {
         },
       },
       filePath: normalizeToAbsolutePath('/foo.js'),
-    }).issues;
+    });
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -97,7 +97,7 @@ describe('transformMessages', () => {
         },
       },
       filePath: normalizeToAbsolutePath('/foo.js'),
-    }).issues;
+    });
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId,
@@ -135,7 +135,7 @@ describe('transformMessages', () => {
         },
       },
       filePath: normalizeToAbsolutePath('/foo.js'),
-    }).issues;
+    });
     expect(issue).toEqual(
       expect.objectContaining({
         quickFixes: [
@@ -187,7 +187,7 @@ describe('transformMessages', () => {
         },
       },
       filePath: normalizeToAbsolutePath('/foo.js'),
-    }).issues;
+    });
     expect(secondaryLocations).toEqual([
       {
         line: 1,
