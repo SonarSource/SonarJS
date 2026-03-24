@@ -213,14 +213,34 @@ describe('Linter', () => {
     expect(rules).toHaveProperty('sonarjs/S6477');
   });
 
-  it('should enable internal custom rules by default', async () => {
+  it('should enable cognitive complexity metric rule by default', async () => {
     await Linter.initialize({
       baseDir: normalizeToAbsolutePath(import.meta.dirname),
     });
     expect(
       Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
     ).toEqual({
-      'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
+      'sonarjs/S3776': ['error', 'metric'],
+    });
+  });
+
+  it('should run S3776 in issue and metric mode when enabled in profile', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S3776',
+          configurations: [0],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    expect(
+      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+    ).toEqual({
+      'sonarjs/S3776': ['error', 0, 'metric', 'report-issues'],
     });
   });
 
@@ -740,6 +760,46 @@ describe('Linter', () => {
 
     expect(Linter.globals.has('angular')).toEqual(true);
     expect(issues).toHaveLength(0);
+  });
+
+  it('should compute cognitive complexity without reporting S3776 issues when rule is disabled', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-function.js'),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [],
+    });
+    const { cognitiveComplexity, issues } = Linter.lint(parseResult, filePath);
+
+    expect(cognitiveComplexity).toEqual(1);
+    expect(issues).toEqual([]);
+  });
+
+  it('should report S3776 issues and compute cognitive complexity when rule is enabled', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-function.js'),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S3776',
+          configurations: [0],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const { cognitiveComplexity, issues } = Linter.lint(parseResult, filePath);
+
+    expect(cognitiveComplexity).toEqual(1);
+    expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3776' })]);
   });
 
   it('should compute cognitive complexity', async () => {

@@ -15,16 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Linter } from 'eslint';
-import { rule as cognitiveComplexityRule } from '../custom-rules/cognitive-complexity.js';
 
-const INTERNAL_COGNITIVE_COMPLEXITY_RULE_ID = `sonarjs/${cognitiveComplexityRule.ruleId}`;
+const COGNITIVE_COMPLEXITY_RULE_ID = 'sonarjs/S3776';
+const COGNITIVE_COMPLEXITY_MESSAGE_ID = 'fileComplexity';
 
 /**
- * Extracts analysis data produced by internal custom rules.
+ * Extracts analysis data produced by internal metric messages.
  *
- * Internal rules encode file-level data in ESLint messages. We extract the first
- * occurrence of each internal metric message and remove those messages from the
- * returned list, so regular message transformation remains issue-only.
+ * S3776 encodes file-level cognitive complexity in a dedicated ESLint message.
+ * We extract the first metric message and remove it from the returned list, so
+ * regular message transformation remains issue-only.
  *
  * @param messages ESLint messages to process
  * @returns filtered messages and extracted metrics
@@ -38,7 +38,10 @@ export function extractInternalMetrics(messages: Linter.LintMessage[]): {
   let foundCognitiveComplexity = false;
 
   for (const message of messages) {
-    if (message.ruleId === INTERNAL_COGNITIVE_COMPLEXITY_RULE_ID && !foundCognitiveComplexity) {
+    const isCognitiveComplexityMetricMessage =
+      message.ruleId === COGNITIVE_COMPLEXITY_RULE_ID &&
+      message.messageId === COGNITIVE_COMPLEXITY_MESSAGE_ID;
+    if (isCognitiveComplexityMetricMessage && !foundCognitiveComplexity) {
       const parsed = Number(message.message);
       cognitiveComplexity = Number.isNaN(parsed) ? undefined : parsed;
       foundCognitiveComplexity = true;

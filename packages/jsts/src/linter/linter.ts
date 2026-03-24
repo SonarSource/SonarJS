@@ -17,11 +17,9 @@
 import { debug } from '../../../shared/src/helpers/logging.js';
 import { type Rule, Linter as ESLintLinter } from 'eslint';
 import type { RuleConfig } from './config/rule-config.js';
-import type { CustomRule } from './custom-rules/custom-rule.js';
 import type { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import type { FileType } from '../../../shared/src/helpers/files.js';
 import { transformMessages } from './issues/transform.js';
-import { customRules } from './custom-rules/rules.js';
 import * as internalRules from '../rules/rules.js';
 import {
   normalizePath,
@@ -48,6 +46,10 @@ import {
 import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../analysis/projectAnalysis/telemetry.js';
 import { extractInternalMetrics } from './issues/extract.js';
+
+const COGNITIVE_COMPLEXITY_RULE_ID = 'sonarjs/S3776';
+const COGNITIVE_COMPLEXITY_METRIC_OPTION = 'metric';
+const COGNITIVE_COMPLEXITY_REPORT_ISSUES_OPTION = 'report-issues';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -85,18 +87,8 @@ export class Linter {
   private static linter: ESLintLinter;
   /**
    * internal rules: rules in the packages/jsts/src/rules folder
-   * custom rules: used internally by SonarQube to compute the cognitive complexity metric.
    */
-  public static readonly rules: Record<string, Rule.RuleModule> = {
-    ...internalRules,
-    ...customRules.reduce(
-      (acc, rule: CustomRule) => {
-        acc[rule.ruleId] = rule.ruleModule;
-        return acc;
-      },
-      {} as Record<string, Rule.RuleModule>,
-    ),
-  };
+  public static readonly rules: Record<string, Rule.RuleModule> = { ...internalRules };
 
   /** The rules configuration */
   private static ruleConfigs: RuleConfig[] | undefined;
@@ -335,44 +327,61 @@ export class Linter {
    * @param rules the rules from the active quality profile
    */
   private static createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
-    return {
-      ...rules.reduce((rules, rule) => {
-        // in the case of bundles, rule.key will not be present in the ruleMetas
-        const ruleMeta =
-          rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
-        if (ruleMeta && 'fields' in ruleMeta) {
-          rules[`sonarjs/${rule.key}`] = [
-            'error',
-            ...applyTransformations(
-              ruleMeta.fields,
-              merge(defaultOptions(ruleMeta.fields), rule.configurations),
-            ),
-          ];
-        } else {
-          rules[`sonarjs/${rule.key}`] = ['error'];
-        }
-        return rules;
-      }, {} as ESLintLinter.RulesRecord),
-      ...Linter.createInternalRulesRecord(),
-    };
+    const rulesRecord = rules.reduce((rules, rule) => {
+      // in the case of bundles, rule.key will not be present in the ruleMetas
+      const ruleMeta =
+        rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
+      if (ruleMeta && 'fields' in ruleMeta) {
+        rules[`sonarjs/${rule.key}`] = [
+          'error',
+          ...applyTransformations(
+            ruleMeta.fields,
+            merge(defaultOptions(ruleMeta.fields), rule.configurations),
+          ),
+        ];
+      } else {
+        rules[`sonarjs/${rule.key}`] = ['error'];
+      }
+      return rules;
+    }, {} as ESLintLinter.RulesRecord);
+    Linter.enableCognitiveComplexityMetric(rulesRecord);
+    return rulesRecord;
   }
 
   /**
-   * Internal metric rules like cognitive complexity are always enabled
-   * as part of metrics computation and are added by default.
+   * Cognitive complexity is always enabled as part of SonarQube metrics computation.
    *
-   * _Internal custom rules are not enabled in SonarLint context._
+   * - If S3776 is enabled in the quality profile, we run it once in issue+metric mode.
+   * - If S3776 is disabled, we run it in metric-only mode.
+   *
+   * In SonarLint context the metric is not needed and the rule is not forced on.
    */
-  private static createInternalRulesRecord(): ESLintLinter.RulesRecord {
+  private static enableCognitiveComplexityMetric(rulesRecord: ESLintLinter.RulesRecord): void {
     if (Linter.sonarlint) {
-      return {};
+      return;
     }
-    return {
-      ...customRules.reduce((rules, rule) => {
-        rules[`sonarjs/${rule.ruleId}`] = ['error', ...rule.ruleConfig];
-        return rules;
-      }, {} as ESLintLinter.RulesRecord),
-    };
+    const configuredRule = rulesRecord[COGNITIVE_COMPLEXITY_RULE_ID];
+    if (configuredRule === undefined) {
+      rulesRecord[COGNITIVE_COMPLEXITY_RULE_ID] = ['error', COGNITIVE_COMPLEXITY_METRIC_OPTION];
+      return;
+    }
+
+    if (Array.isArray(configuredRule)) {
+      const augmentedRule = [...configuredRule] as [ESLintLinter.RuleSeverity, ...unknown[]];
+      if (!augmentedRule.includes(COGNITIVE_COMPLEXITY_METRIC_OPTION)) {
+        augmentedRule.push(COGNITIVE_COMPLEXITY_METRIC_OPTION);
+      }
+      if (!augmentedRule.includes(COGNITIVE_COMPLEXITY_REPORT_ISSUES_OPTION)) {
+        augmentedRule.push(COGNITIVE_COMPLEXITY_REPORT_ISSUES_OPTION);
+      }
+      rulesRecord[COGNITIVE_COMPLEXITY_RULE_ID] = augmentedRule;
+    } else {
+      rulesRecord[COGNITIVE_COMPLEXITY_RULE_ID] = [
+        configuredRule,
+        COGNITIVE_COMPLEXITY_METRIC_OPTION,
+        COGNITIVE_COMPLEXITY_REPORT_ISSUES_OPTION,
+      ];
+    }
   }
 }
 

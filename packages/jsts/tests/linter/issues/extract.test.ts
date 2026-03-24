@@ -17,14 +17,20 @@
 import type { Linter } from 'eslint';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { rule as cognitiveComplexityRule } from '../../../src/linter/custom-rules/cognitive-complexity.js';
 import { extractInternalMetrics } from '../../../src/linter/issues/extract.js';
 
-const cognitiveRuleId = `sonarjs/${cognitiveComplexityRule.ruleId}`;
+const cognitiveRuleId = 'sonarjs/S3776';
+const cognitiveMetricMessageId = 'fileComplexity';
 
 describe('extractInternalMetrics', () => {
   it('should extract cognitive complexity from lint messages', () => {
-    const messages = [lintMessage({ ruleId: cognitiveRuleId, message: '42' })];
+    const messages = [
+      lintMessage({
+        ruleId: cognitiveRuleId,
+        messageId: cognitiveMetricMessageId,
+        message: '42',
+      }),
+    ];
 
     expect(extractInternalMetrics(messages)).toEqual({
       messages: [],
@@ -33,7 +39,13 @@ describe('extractInternalMetrics', () => {
   });
 
   it('should return undefined on invalid cognitive complexity', () => {
-    const messages = [lintMessage({ ruleId: cognitiveRuleId, message: 'nan' })];
+    const messages = [
+      lintMessage({
+        ruleId: cognitiveRuleId,
+        messageId: cognitiveMetricMessageId,
+        message: 'nan',
+      }),
+    ];
 
     expect(extractInternalMetrics(messages)).toEqual({
       messages: [],
@@ -41,7 +53,7 @@ describe('extractInternalMetrics', () => {
     });
   });
 
-  it('should preserve non-internal messages', () => {
+  it('should preserve non-metric messages', () => {
     const messages = [lintMessage({ ruleId: 'sonarjs/S1116', message: 'issue message' })];
 
     expect(extractInternalMetrics(messages)).toEqual({
@@ -50,9 +62,41 @@ describe('extractInternalMetrics', () => {
     });
   });
 
-  it('should extract only first internal message and preserve subsequent duplicates', () => {
-    const duplicateCognitive = lintMessage({ ruleId: cognitiveRuleId, message: '43' });
-    const messages = [lintMessage({ ruleId: cognitiveRuleId, message: '42' }), duplicateCognitive];
+  it('should preserve S3776 issue messages while extracting metric message', () => {
+    const issue = lintMessage({
+      ruleId: cognitiveRuleId,
+      messageId: 'refactorFunction',
+      message: 'Refactor this function...',
+    });
+    const messages = [
+      lintMessage({
+        ruleId: cognitiveRuleId,
+        messageId: cognitiveMetricMessageId,
+        message: '42',
+      }),
+      issue,
+    ];
+
+    expect(extractInternalMetrics(messages)).toEqual({
+      messages: [issue],
+      cognitiveComplexity: 42,
+    });
+  });
+
+  it('should extract only first metric message and preserve subsequent duplicates', () => {
+    const duplicateCognitive = lintMessage({
+      ruleId: cognitiveRuleId,
+      messageId: cognitiveMetricMessageId,
+      message: '43',
+    });
+    const messages = [
+      lintMessage({
+        ruleId: cognitiveRuleId,
+        messageId: cognitiveMetricMessageId,
+        message: '42',
+      }),
+      duplicateCognitive,
+    ];
 
     expect(extractInternalMetrics(messages)).toEqual({
       messages: [duplicateCognitive],
@@ -61,9 +105,18 @@ describe('extractInternalMetrics', () => {
   });
 });
 
-function lintMessage({ ruleId, message }: { ruleId: string; message: string }): Linter.LintMessage {
+function lintMessage({
+  ruleId,
+  message,
+  messageId,
+}: {
+  ruleId: string;
+  message: string;
+  messageId?: string;
+}): Linter.LintMessage {
   return {
     ruleId,
+    messageId,
     message,
     line: 1,
     column: 1,

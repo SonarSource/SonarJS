@@ -36,6 +36,8 @@ import * as meta from './generated-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 
 const DEFAULT_THRESHOLD = 15;
+const METRIC_OPTION = 'metric';
+const REPORT_ISSUES_OPTION = 'report-issues';
 
 type LoopStatement =
   | TSESTree.ForStatement
@@ -62,7 +64,8 @@ export const rule: Rule.RuleModule = {
     const threshold = typeof thresholdOption === 'number' ? thresholdOption : DEFAULT_THRESHOLD;
 
     /** Indicator if the file complexity should be reported */
-    const isFileComplexity = context.options.includes('metric');
+    const isFileComplexity = context.options.includes(METRIC_OPTION);
+    const shouldReportIssues = !isFileComplexity || context.options.includes(REPORT_ISSUES_OPTION);
 
     /** Complexity of the file */
     let fileComplexity = 0;
@@ -253,7 +256,7 @@ export const rule: Rule.RuleModule = {
         });
       }
 
-      if (isFileComplexity) {
+      if (!shouldReportIssues) {
         return;
       }
 
