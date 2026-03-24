@@ -192,6 +192,31 @@ describe('S2234', () => {
         };
         `,
         },
+        {
+          // False positive: swap in consequent branch paired with normal-order call in alternate (d3-array reverse-flag pattern)
+          code: `
+        function tickIncrement(start, stop, count) { return Math.ceil((stop - start) / count); }
+        function computeTick(start, stop, count) {
+          const reverse = stop < start;
+          const inc = reverse
+            ? tickIncrement(stop, start, count)
+            : tickIncrement(start, stop, count);
+          return inc;
+        }
+        `,
+        },
+        {
+          // False positive: swap in alternate branch paired with normal-order call in consequent (phaser canonical-ordering pattern)
+          code: `
+        function getTrigger(index1, index2) { return { from: index1, to: index2 }; }
+        function getSortedTrigger(index1, index2) {
+          const event = index1 < index2
+            ? getTrigger(index1, index2)
+            : getTrigger(index2, index1);
+          return event;
+        }
+        `,
+        },
       ],
       invalid: [
         {
@@ -295,6 +320,31 @@ describe('S2234', () => {
         function formatDate(year, month) { return year + '-' + month; }
         const wrongWrapper = (year, month) => formatDate(month, year);`,
           errors: 1,
+        },
+        {
+          // Ternary where the other branch is not a CallExpression — ternary suppression does not apply
+          code: `
+        function f(start, stop) {}
+        var start = 0, stop = 10, x = null;
+        const r = x ? f(stop, start) : null;`,
+          errors: 1,
+        },
+        {
+          // Ternary where the other branch calls a different function — ternary suppression does not apply
+          code: `
+        function f(start, stop) {}
+        function g(start, stop) {}
+        var start = 0, stop = 10, x = null;
+        const r = x ? f(stop, start) : g(start, stop);`,
+          errors: 1,
+        },
+        {
+          // Ternary where both branches swap arguments — no normal-order branch, ternary suppression does not apply
+          code: `
+        function f(start, stop) {}
+        var start = 0, stop = 10, x = null;
+        const r = x ? f(stop, start) : f(stop, start);`,
+          errors: 2,
         },
       ],
     });
