@@ -115,7 +115,7 @@
     "@stylistic/eslint-plugin": "5.10.0",
     "@stylistic/stylelint-plugin": "5.0.1",
     "@typescript-eslint/eslint-plugin": "8.57.1",
-    "@typescript-eslint/parser": "8.57.1",
+    "@typescript-eslint/parser": "8.57.2",
     "@typescript-eslint/type-utils": "8.57.2",
     "@typescript-eslint/utils": "8.57.2",
     "@typescript/native-preview": "7.0.0-dev.20260316.1",
