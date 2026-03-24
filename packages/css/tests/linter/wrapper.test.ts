@@ -33,7 +33,7 @@ describe('LinterWrapper', () => {
     const linter = new LinterWrapper();
     await expect(linter.lint(filePath, code)).rejects.toMatchObject({
       code: ErrorCode.LinterInitialization,
-      message: 'Linter does not exist. LinterWrapper.initialize() was never called.',
+      message: 'Linter does not exist.',
     });
   });
 
