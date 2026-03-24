@@ -364,6 +364,21 @@ describe('S2871', () => {
               },
             ],
           },
+          // Object.keys().map().sort() - Object.keys origin lost after map, should raise
+          {
+            code: `Object.keys({ a: 1, b: 2 }).map(k => k.toUpperCase()).sort();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `Object.keys({ a: 1, b: 2 }).map(k => k.toUpperCase()).sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
           // General string arrays: reported with localeCompare suggestion
           {
             code: `const array = ["foo", "bar"]; array.sort();`,
@@ -577,6 +592,18 @@ describe('S2871', () => {
             for (var key in obj) props.push(key);
             props.sort();
             return props;
+          `,
+        },
+        // for-in with conditional hasOwnProperty guard - push is still inside for-in loop
+        {
+          code: `
+            var keys = [];
+            for (var key in obj) {
+              if (obj.hasOwnProperty(key)) {
+                keys.push(key);
+              }
+            }
+            keys.sort();
           `,
         },
       ],
@@ -978,6 +1005,21 @@ describe('S2871', () => {
               {
                 messageId: 'provideCompareFunction',
                 suggestions: [],
+              },
+            ],
+          },
+          // Object.keys().map().toSorted() - Object.keys origin lost after map, should raise
+          {
+            code: `Object.keys({ a: 1, b: 2 }).map(k => k.toUpperCase()).toSorted();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `Object.keys({ a: 1, b: 2 }).map(k => k.toUpperCase()).toSorted((a, b) => a.localeCompare(b));`,
+                  },
+                ],
               },
             ],
           },
