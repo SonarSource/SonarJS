@@ -177,6 +177,14 @@ describe('S2871', () => {
       }
     `,
           },
+          // Compliant: for-in key collection pattern typed as string[] by TypeScript
+          {
+            code: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      props.sort();
+    `,
+          },
           // Compliant: number array in order-independent equality comparison
           {
             code: `
@@ -781,6 +789,14 @@ describe('S2871', () => {
       function f(map: Map<string, number>) {
         return Array.from(map.keys()).toSorted();
       }
+    `,
+          },
+          // Compliant: for-in key collection pattern typed as string[] by TypeScript
+          {
+            code: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      const sorted = props.toSorted();
     `,
           },
           // Compliant: number array in order-independent equality comparison

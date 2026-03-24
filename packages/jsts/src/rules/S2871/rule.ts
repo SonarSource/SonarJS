@@ -256,7 +256,10 @@ export const rule: Rule.RuleModule = {
         // alphabetical ordering is clearly intentional; report everything else
         // with a localeCompare suggestion.
         if (isStringArray(type, services)) {
-          if (isArrayFromKeyOrEntryCall(object)) {
+          if (
+            isArrayFromKeyOrEntryCall(object) ||
+            (object.type === 'Identifier' && isForInKeyArray(object, sourceCode))
+          ) {
             return; // safe: provably technical strings
           }
           context.report({
