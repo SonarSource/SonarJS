@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { collectCommentMetrics } from '../../../src/analysis/file-artifacts.js';
+import { collectMainFileArtifacts } from '../../../src/analysis/file-artifacts.js';
 import { buildParserOptions } from '../../../src/parsers/options.js';
 import { parse } from '../../../src/parsers/parse.js';
 import { parsersMap } from '../../../src/parsers/eslint.js';
@@ -91,11 +91,14 @@ some comment
   },
 ];
 
-describe('collectCommentMetrics', () => {
+describe('collectMainFileArtifacts (comment metrics)', () => {
   for (const { given, source, ignoreHeader, expectedLines } of cases)
     it(`should find comment lines ${given}`, () => {
       const sourceCode = parseJavaScriptSource(source);
-      const { commentLines: actualLines } = collectCommentMetrics(sourceCode, ignoreHeader);
+      const { commentLines: actualLines } = collectMainFileArtifacts(
+        sourceCode,
+        ignoreHeader,
+      ).metrics;
       expect(actualLines).toEqual(expectedLines);
     });
 });

@@ -46,6 +46,10 @@ import {
 import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../analysis/projectAnalysis/telemetry.js';
 import { extractInternalMetrics } from './issues/extract.js';
+import {
+  type InternalMetricsSink,
+  toInternalMetricsSettings,
+} from '../rules/helpers/internal-metrics.js';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'sonarjs/S3776';
 const COGNITIVE_COMPLEXITY_METRIC_OPTION = 'metric';
@@ -187,6 +191,7 @@ export class Linter {
     if (!Linter.linter) {
       throw APIError.linterError(`Linter does not exist.`);
     }
+    const internalMetricsSink: InternalMetricsSink = {};
     const config = {
       languageOptions: {
         globals: Object.fromEntries(Linter.globals),
@@ -209,12 +214,21 @@ export class Linter {
         fileType,
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
+        ...toInternalMetricsSettings(internalMetricsSink),
       },
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
-    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
-    const { messages: filteredMessages, cognitiveComplexity } = extractInternalMetrics(messages);
+    let filteredMessages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
+    let cognitiveComplexity = internalMetricsSink.cognitiveComplexity;
+    if (cognitiveComplexity === undefined) {
+      const extracted = extractInternalMetrics(filteredMessages);
+      filteredMessages = extracted.messages;
+      cognitiveComplexity = extracted.cognitiveComplexity;
+    }
+    if (cognitiveComplexity === undefined && !Linter.sonarlint) {
+      cognitiveComplexity = Linter.computeCognitiveComplexityMetric(sourceCode, config, filePath);
+    }
     const issues = transformMessages(filteredMessages, language, {
       sourceCode,
       ruleMetas,
@@ -224,6 +238,43 @@ export class Linter {
       issues,
       cognitiveComplexity,
     };
+  }
+
+  private static computeCognitiveComplexityMetric(
+    sourceCode: ParseResult['sourceCode'],
+    baseConfig: Parameters<ESLintLinter['verify']>[1],
+    filePath: NormalizedAbsolutePath,
+  ) {
+    try {
+      const internalMetricsSink: InternalMetricsSink = {};
+      const baseSettings =
+        !Array.isArray(baseConfig) && 'settings' in baseConfig ? baseConfig.settings : undefined;
+      const metricMessages = Linter.linter.verify(
+        sourceCode,
+        {
+          ...baseConfig,
+          settings: {
+            ...(baseSettings ?? {}),
+            ...toInternalMetricsSettings(internalMetricsSink),
+          },
+          rules: {
+            [COGNITIVE_COMPLEXITY_RULE_ID]: ['error', COGNITIVE_COMPLEXITY_METRIC_OPTION],
+          },
+        },
+        {
+          ...createOptions(filePath),
+          allowInlineConfig: false,
+        },
+      );
+
+      if (internalMetricsSink.cognitiveComplexity !== undefined) {
+        return internalMetricsSink.cognitiveComplexity;
+      }
+      return extractInternalMetrics(metricMessages).cognitiveComplexity;
+    } catch (error) {
+      debug(`Could not compute fallback cognitive complexity metric: ${String(error)}`);
+      return undefined;
+    }
   }
 
   /**

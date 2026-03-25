@@ -802,6 +802,22 @@ describe('Linter', () => {
     expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3776' })]);
   });
 
+  it('should compute cognitive complexity even when S3776 is disabled with ESLint directives', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-function-disabled.js'),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [],
+    });
+    const { cognitiveComplexity, issues } = Linter.lint(parseResult, filePath);
+
+    expect(cognitiveComplexity).toEqual(1);
+    expect(issues).toEqual([]);
+  });
+
   it('should compute cognitive complexity', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-symbol.js'),

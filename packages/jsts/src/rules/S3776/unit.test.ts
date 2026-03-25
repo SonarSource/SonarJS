@@ -18,8 +18,50 @@ import { rule } from './rule.js';
 import type { IssueLocation } from '../helpers/location.js';
 import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import { Linter as ESLintLinter } from 'eslint';
+import { toInternalMetricsSettings } from '../helpers/internal-metrics.js';
+import { expect } from 'expect';
 
 describe('S3776', () => {
+  it('should write file complexity metric to internal settings sink when available', () => {
+    const linter = new ESLintLinter();
+    const sink = {};
+
+    const messages = linter.verify(
+      `
+      function foo(flag) {
+        if (flag) {
+          return 1;
+        }
+        return 0;
+      }
+      `,
+      {
+        languageOptions: {
+          ecmaVersion: 2022,
+        },
+        plugins: {
+          sonarjs: {
+            rules: {
+              S3776: rule,
+            },
+          },
+        },
+        rules: {
+          'sonarjs/S3776': ['error', 0, 'metric'],
+        },
+        settings: {
+          ...toInternalMetricsSettings(sink),
+        },
+        files: ['**/*.js'],
+      },
+      { filename: 'input.js' },
+    );
+
+    expect(messages).toEqual([]);
+    expect(sink).toEqual({ cognitiveComplexity: 1 });
+  });
+
   it('S3776', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 

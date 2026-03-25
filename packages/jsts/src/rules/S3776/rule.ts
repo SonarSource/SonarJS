@@ -34,6 +34,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
+import { getInternalMetricsSink } from '../helpers/internal-metrics.js';
 
 const DEFAULT_THRESHOLD = 15;
 const METRIC_OPTION = 'metric';
@@ -151,12 +152,17 @@ export const rule: Rule.RuleModule = {
       },
       'Program:exit'(node: estree.Node) {
         if (isFileComplexity) {
-          // value from the message will be saved in SonarQube as file complexity metric
-          context.report({
-            node,
-            messageId: 'fileComplexity',
-            data: { complexityAmount: fileComplexity as any },
-          });
+          const metricsSink = getInternalMetricsSink(context.settings);
+          if (metricsSink) {
+            metricsSink.cognitiveComplexity = fileComplexity;
+          } else {
+            // value from the message will be saved in SonarQube as file complexity metric
+            context.report({
+              node,
+              messageId: 'fileComplexity',
+              data: { complexityAmount: fileComplexity as any },
+            });
+          }
         }
       },
       IfStatement(node: estree.Node) {

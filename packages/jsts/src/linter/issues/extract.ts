@@ -35,16 +35,13 @@ export function extractInternalMetrics(messages: Linter.LintMessage[]): {
 } {
   const filteredMessages: Linter.LintMessage[] = [];
   let cognitiveComplexity: number | undefined;
-  let foundCognitiveComplexity = false;
+  let foundCognitiveComplexityMetric = false;
 
   for (const message of messages) {
-    const isCognitiveComplexityMetricMessage =
-      message.ruleId === COGNITIVE_COMPLEXITY_RULE_ID &&
-      message.messageId === COGNITIVE_COMPLEXITY_MESSAGE_ID;
-    if (isCognitiveComplexityMetricMessage && !foundCognitiveComplexity) {
+    if (isCognitiveComplexityMetric(message) && !foundCognitiveComplexityMetric) {
       const parsed = Number(message.message);
       cognitiveComplexity = Number.isNaN(parsed) ? undefined : parsed;
-      foundCognitiveComplexity = true;
+      foundCognitiveComplexityMetric = true;
       continue;
     }
 
@@ -52,4 +49,11 @@ export function extractInternalMetrics(messages: Linter.LintMessage[]): {
   }
 
   return { messages: filteredMessages, cognitiveComplexity };
+}
+
+function isCognitiveComplexityMetric(message: Linter.LintMessage) {
+  return (
+    message.ruleId === COGNITIVE_COMPLEXITY_RULE_ID &&
+    message.messageId === COGNITIVE_COMPLEXITY_MESSAGE_ID
+  );
 }

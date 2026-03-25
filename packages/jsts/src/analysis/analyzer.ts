@@ -145,26 +145,8 @@ function computeExtendedMetrics(
   }
   const { fileType, ignoreHeaderComments } = input;
   if (fileType === 'MAIN') {
-    const { metrics, cpdTokens, highlights, highlightedSymbols } = collectMainFileArtifacts(
-      sourceCode,
-      ignoreHeaderComments,
-      cognitiveComplexity,
-    );
-    return {
-      highlightedSymbols,
-      highlights,
-      metrics,
-      cpdTokens,
-    };
+    return collectMainFileArtifacts(sourceCode, ignoreHeaderComments, cognitiveComplexity);
   } else {
-    const { metrics, highlights, highlightedSymbols } = collectTestFileArtifacts(
-      sourceCode,
-      input.reportNclocForTestFiles,
-    );
-    return {
-      highlightedSymbols,
-      highlights,
-      metrics,
-    };
+    return collectTestFileArtifacts(sourceCode, input.reportNclocForTestFiles);
   }
 }

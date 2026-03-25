@@ -23,6 +23,9 @@ import { visit } from '../ast/visit.js';
 /**
  * A metric location
  *
+ * This shape matches the analyzer payload contract (flat line/column fields)
+ * and differs from ESTree's nested `loc` object.
+ *
  * @param startLine the starting line of the metric
  * @param startCol the starting column of the metric
  * @param endLine the ending line of the metric
@@ -40,7 +43,7 @@ export interface Location {
  *
  * A cpd token is used by SonarQube to compute code duplication
  * within a code base. It relies on a token location as well as
- * an image, that is, the token value except for string literal
+ * an image, i.e. the token text except for string literals
  * which is anonymised to extend the scope of what a duplicated
  * code pattern can be.
  *
@@ -116,7 +119,7 @@ export interface SymbolHighlight {
  * @param endLine the upper bound
  * @param lines the set of line numbers to extend
  */
-export function addLines(startLine: number, endLine: number, lines: Set<number>) {
+function addLines(startLine: number, endLine: number, lines: Set<number>) {
   for (let line = startLine; line <= endLine; line++) {
     lines.add(line);
   }
@@ -127,37 +130,13 @@ export function addLines(startLine: number, endLine: number, lines: Set<number>)
  * @param loc the ESLint location to convert
  * @returns the converted location
  */
-export function convertLocation(loc: estree.SourceLocation): Location {
+function convertLocation(loc: estree.SourceLocation): Location {
   return {
     startLine: loc.start.line,
     startCol: loc.start.column,
     endLine: loc.end.line,
     endCol: loc.end.column,
   };
-}
-
-/**
- * Extracts comments and tokens from an ESLint source code
- *
- * The returned extracted comments includes also those from
- * the template section of a Vue.js Single File Component.
- *
- * @param sourceCode the source code to extract from
- * @returns the extracted tokens and comments
- */
-export function extractTokensAndComments(sourceCode: SourceCode): {
-  tokens: VueAST.Token[];
-  comments: VueAST.Token[];
-} {
-  const ast = sourceCode.ast as VueAST.ESLintProgram;
-  const tokens = [...(ast.tokens ?? [])];
-  const comments = [...(ast.comments ?? [])];
-  if (ast.templateBody) {
-    const { templateBody } = ast;
-    tokens.push(...templateBody.tokens);
-    comments.push(...templateBody.comments);
-  }
-  return { tokens, comments };
 }
 
 const EXECUTABLE_NODES = new Set([
@@ -333,24 +312,6 @@ export function collectTestFileArtifacts(
   };
 }
 
-export function collectCommentMetrics(sourceCode: SourceCode, ignoreHeaderComments: boolean) {
-  const collected = collectArtifacts(sourceCode, {
-    includeStructuralMetrics: false,
-    includeCommentLines: true,
-    includeNoSonar: true,
-    includeNcloc: false,
-    includeHighlights: false,
-    includeSymbolHighlights: false,
-    includeCpdTokens: false,
-    ignoreHeaderComments,
-  });
-
-  return {
-    commentLines: collected.commentLines,
-    nosonarLines: collected.nosonarLines,
-  };
-}
-
 export function collectNoSonarMetrics(sourceCode: SourceCode) {
   const collected = collectArtifacts(sourceCode, {
     includeStructuralMetrics: false,
@@ -454,8 +415,9 @@ function collectArtifacts(
     options.includeHighlights || options.includeCommentLines || options.includeNoSonar;
 
   if (needsTokenLoop || needsCommentLoop) {
-    const { tokens, comments } = extractTokensAndComments(sourceCode);
-    const jsTokensCount = sourceCode.ast.tokens?.length ?? 0;
+    const tokens = needsTokenLoop ? extractTokens(sourceCode) : [];
+    const comments = needsCommentLoop ? extractComments(sourceCode, options.includeHighlights) : [];
+    const jsTokensCount = needsTokenLoop ? (sourceCode.ast.tokens?.length ?? 0) : 0;
 
     if (needsTokenLoop) {
       const openCurlyBracesStack: VueAST.Token[] = [];
@@ -544,6 +506,28 @@ function collectArtifacts(
     highlightedSymbols,
     cpdTokens,
   };
+}
+
+/**
+ * We use Vue parser token types here because template tokens/comments
+ * (for .vue files) are provided by `vue-eslint-parser`, not by ESLint's core AST token type.
+ */
+function extractTokens(sourceCode: SourceCode): VueAST.Token[] {
+  const ast = sourceCode.ast as VueAST.ESLintProgram;
+  const tokens = [...(ast.tokens ?? [])];
+  if (ast.templateBody) {
+    tokens.push(...ast.templateBody.tokens);
+  }
+  return tokens;
+}
+
+function extractComments(sourceCode: SourceCode, includeTemplateComments: boolean): VueAST.Token[] {
+  const ast = sourceCode.ast as VueAST.ESLintProgram;
+  const comments = [...(ast.comments ?? [])];
+  if (includeTemplateComments && ast.templateBody) {
+    comments.push(...ast.templateBody.comments);
+  }
+  return comments;
 }
 
 function collectSyntaxHighlightForToken(
