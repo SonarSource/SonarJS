@@ -722,6 +722,15 @@ describe('S2871', () => {
           `,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
+        // for-in pattern with extra push argument - arr is NOT a pure key array
+        {
+          code: `
+            var arr = [];
+            for (var key in obj) arr.push(key, 42);
+            arr.sort();
+          `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
         // Foo.from(map.keys()).sort() - non-Array receiver is not suppressed
         {
           code: `Foo.from(map.keys()).sort()`,

@@ -187,7 +187,10 @@ function isForInKeyPush(callParent: estree.CallExpression): boolean {
     forIn.left.type === 'VariableDeclaration' ? forIn.left.declarations[0].id : forIn.left;
   const pushArg = callParent.arguments[0];
   return (
-    pushArg?.type === 'Identifier' && loopVar.type === 'Identifier' && pushArg.name === loopVar.name
+    callParent.arguments.length === 1 &&
+    pushArg?.type === 'Identifier' &&
+    loopVar.type === 'Identifier' &&
+    pushArg.name === loopVar.name
   );
 }
 
