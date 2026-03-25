@@ -535,7 +535,7 @@ function collectSyntaxHighlightForToken(
   token: VueAST.Token,
   highlights: SyntaxHighlight[],
 ) {
-  switch (token.type as any) {
+  switch (token.type) {
     case 'HTMLTagOpen':
     case 'HTMLTagClose':
     case 'HTMLEndTagOpen':
