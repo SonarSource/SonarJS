@@ -8,8 +8,9 @@ description: Provides JavaScript/TypeScript test file structure and patterns for
 ## Test File Location
 
 Test files for rules are located alongside the rule implementation:
+
 - `unit.test.ts` - Unit tests using the rule tester
-- Test fixtures in `packages/jsts/src/rules/{RULE_ID}/fixtures/` (if applicable)
+- Test fixtures in `packages/analysis/jsts/src/rules/{RULE_ID}/fixtures/` (if applicable)
 
 ## Test Structure
 

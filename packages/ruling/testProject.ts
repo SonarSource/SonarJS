@@ -17,17 +17,17 @@
 import { join, basename } from 'node:path/posix';
 import { writeResults } from './lits.js';
 import projects from './projects.json' with { type: 'json' };
-import { analyzeProject } from '../jsts/src/analysis/projectAnalysis/analyzeProject.js';
-import { initFileStores } from '../jsts/src/analysis/projectAnalysis/file-stores/index.js';
+import { analyzeProject } from '../analysis/src/analyzeProject.js';
+import { initFileStores } from '../analysis/src/file-stores/index.js';
 import { normalizePath, normalizeToAbsolutePath } from '../shared/src/helpers/files.js';
-import { createConfiguration } from '../shared/src/helpers/configuration.js';
+import { createConfiguration } from '../analysis/src/common/configuration.js';
 import { compare, Result } from 'dir-compare';
-import { RuleConfig } from '../jsts/src/linter/config/rule-config.js';
+import { RuleConfig } from '../analysis/jsts/src/linter/config/rule-config.js';
 import { expect } from 'expect';
-import * as metas from '../jsts/src/rules/metas.js';
-import { SonarMeta } from '../jsts/src/rules/helpers/generate-meta.js';
-import { cssRulesMeta } from '../css/src/rules/metadata.js';
-import type { RuleConfig as CssRuleConfig } from '../css/src/linter/config.js';
+import * as metas from '../analysis/jsts/src/rules/metas.js';
+import { SonarMeta } from '../analysis/jsts/src/rules/helpers/generate-meta.js';
+import { cssRulesMeta } from '../analysis/css/src/rules/metadata.js';
+import type { RuleConfig as CssRuleConfig } from '../analysis/css/src/linter/config.js';
 
 const currentPath = normalizePath(import.meta.dirname);
 
@@ -35,6 +35,7 @@ const SONARJS_ROOT = join(currentPath, '..', '..');
 const sourcesPath = join(SONARJS_ROOT, 'its', 'sources');
 const expectedBase = join(SONARJS_ROOT, 'its', 'ruling', 'src', 'test', 'expected');
 const actualBase = join(currentPath, 'actual');
+const ruleMetas = metas as unknown as Record<string, SonarMeta>;
 
 const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
 
@@ -54,7 +55,7 @@ export async function testProject(projectName: string) {
   const { folder, name, exclusions, testDir } = (projects as ProjectsData[]).find(
     p => p.name === projectName,
   )!;
-  const rules = Object.entries(metas)
+  const rules = Object.entries(ruleMetas)
     .flatMap(([key, meta]: [string, SonarMeta]): RuleConfig[] => {
       return meta.languages.map(language => ({
         key,
@@ -172,3 +173,4 @@ function applyRulingConfig(rule: RuleConfig) {
   }
   return rule;
 }
+

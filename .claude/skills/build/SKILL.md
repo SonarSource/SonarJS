@@ -17,12 +17,12 @@ mvn clean install               # Full clean build with tests
 
 ## When to Run What
 
-| Goal | Command |
-|------|---------|
-| After editing rule TS code | `npm run bbf` |
-| After modifying `config.ts` or `meta.ts` | `npm run generate-meta && npm run bbf` |
-| After modifying `fields` array | `npm run generate-meta && npm run generate-java-rule-classes` |
-| Full plugin build | `mvn install -DskipTests` |
+| Goal                                     | Command                                                       |
+| ---------------------------------------- | ------------------------------------------------------------- |
+| After editing rule TS code               | `npm run bbf`                                                 |
+| After modifying `config.ts` or `meta.ts` | `npm run generate-meta && npm run bbf`                        |
+| After modifying `fields` array           | `npm run generate-meta && npm run generate-java-rule-classes` |
+| Full plugin build                        | `mvn install -DskipTests`                                     |
 
 ## Build Pipeline Overview
 
@@ -38,13 +38,15 @@ bbf
 ### `npm run generate-meta`
 
 Reads RSPEC metadata from:
+
 ```
 sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/
 ```
 
 Writes to (gitignored):
+
 ```
-packages/jsts/src/rules/SXXXX/generated-meta.ts
+packages/analysis/jsts/src/rules/SXXXX/generated-meta.ts
 ```
 
 ### Maven Build Phases (relevant for rule work)
@@ -62,19 +64,19 @@ resources/rule-data/
        ↓  (npm run deploy-rule-data, committed)
 sonar-plugin/javascript-checks/src/main/resources/…/javascript/*.json
        ↓  (npm run generate-meta, gitignored)
-packages/jsts/src/rules/SXXXX/generated-meta.ts
+packages/analysis/jsts/src/rules/SXXXX/generated-meta.ts
 ```
 
 **Key:** The `sonar-plugin/javascript-checks/src/main/resources/…/javascript/` directory is **committed** (526 files). It is the source of truth for `generate-meta`.
 
 ## Generated vs. Committed Files
 
-| Path | Status |
-|------|--------|
-| `resources/rule-data/` | Gitignored (fresh RSPEC download) |
-| `sonar-plugin/javascript-checks/src/main/resources/…/javascript/*.json` | **Committed** |
-| `packages/jsts/src/rules/*/generated-meta.ts` | Gitignored |
-| `lib/` | Gitignored |
+| Path                                                                    | Status                            |
+| ----------------------------------------------------------------------- | --------------------------------- |
+| `resources/rule-data/`                                                  | Gitignored (fresh RSPEC download) |
+| `sonar-plugin/javascript-checks/src/main/resources/…/javascript/*.json` | **Committed**                     |
+| `packages/analysis/jsts/src/rules/*/generated-meta.ts`                  | Gitignored                        |
+| `lib/`                                                                  | Gitignored                        |
 
 ## Build Profiles
 

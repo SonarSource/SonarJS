@@ -85,7 +85,7 @@
               <arguments>
                 <argument>clean</argument>
                 <argument>-xdf</argument>
-                <argument>packages/jsts/src/rules/</argument>
+                <argument>packages/analysis/jsts/src/rules/</argument>
               </arguments>
             </configuration>
           </execution>

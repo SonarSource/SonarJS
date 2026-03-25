@@ -5,7 +5,7 @@ description: Provides JavaScript/TypeScript helper functions and utilities for S
 
 # JavaScript/TypeScript Rule Helper Functions
 
-Helper functions are located in `packages/jsts/src/rules/helpers/`. These provide common utilities for rule implementations.
+Helper functions are located in `packages/analysis/jsts/src/rules/helpers/`. These provide common utilities for rule implementations.
 
 ## Helper Categories
 
@@ -24,7 +24,8 @@ Helper functions are located in `packages/jsts/src/rules/helpers/`. These provid
 
 ## Usage Guidance
 
-**Before writing any new function**, search `packages/jsts/src/rules/helpers/` for an existing equivalent. Key files to check:
+**Before writing any new function**, search `packages/analysis/jsts/src/rules/helpers/` for an existing equivalent. Key files to check:
+
 - `ast.ts` — generic AST utilities (child enumeration, node classification, ancestor walking)
 - `vue.ts` — Vue-specific helpers
 - `react.ts` — React/JSX-specific helpers
@@ -32,6 +33,7 @@ Helper functions are located in `packages/jsts/src/rules/helpers/`. These provid
 Reviewers will reject re-implementations of existing helpers.
 
 **Anti-pattern:** Iterating `Object.keys(node)` to enumerate child nodes. Use the existing `childrenOf` helper instead:
+
 ```typescript
 // ❌ Do not do this
 for (const key of Object.keys(node)) { ... }
@@ -45,8 +47,9 @@ If you write a **new** utility function that only operates on `estree`/`TSESTree
 ## Finding Helpers
 
 To explore available helpers:
+
 ```bash
-ls packages/jsts/src/rules/helpers/
+ls packages/analysis/jsts/src/rules/helpers/
 ```
 
 Read helper implementations to understand their usage and parameters.

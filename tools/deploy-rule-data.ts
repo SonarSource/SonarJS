@@ -17,7 +17,7 @@
 import { join, resolve } from 'node:path/posix';
 import { listRulesDir } from './helpers.js';
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { cssRulesMeta } from '../packages/css/src/rules/metadata.js';
+import { cssRulesMeta } from '../packages/analysis/css/src/rules/metadata.js';
 
 const sourceFolder = resolve('resources/rule-data');
 

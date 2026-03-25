@@ -14,13 +14,15 @@ New rules follow the pattern: RSPEC description → scaffold → implement → t
 npm run new-rule
 ```
 
-This interactive script generates in `packages/jsts/src/rules/SXXXX/`:
+This interactive script generates in `packages/analysis/jsts/src/rules/SXXXX/`:
+
 - `index.ts` — rule export
 - `rule.ts` — ESLint rule implementation (skeleton)
 - `cb.fixture.js` — empty comment-based test fixture
 - `cb.test.js` — test launcher
 
 It also auto-generates (not tracked by git):
+
 - Java check class `SXXXX.java`
 - Updates `rules/rules.ts` and `rules/plugin-rules.ts`
 - Updates `AllRules.java`
@@ -28,6 +30,7 @@ It also auto-generates (not tracked by git):
 ## Step 2: Configure the Java Check Class
 
 In the generated Java class, verify:
+
 - `@JavaScriptRule` and/or `@TypeScriptRule` annotations match target languages
 - If rule has options, override `configurations()` method (see `/rule-options` skill)
 - If rule targets test files, extend `TestFileCheck` instead of `Check`
@@ -36,12 +39,12 @@ In the generated Java class, verify:
 
 ### File Structure
 
-| File | Purpose |
-|------|---------|
-| `rule.ts` | ESLint rule implementation |
-| `meta.ts` | Manual metadata: `implementation`, `eslintId`, `schema`, re-exports `fields` |
-| `config.ts` | Option definitions with `fields` array (if rule has options) |
-| `generated-meta.ts` | Auto-generated from RSPEC — do not edit |
+| File                | Purpose                                                                      |
+| ------------------- | ---------------------------------------------------------------------------- |
+| `rule.ts`           | ESLint rule implementation                                                   |
+| `meta.ts`           | Manual metadata: `implementation`, `eslintId`, `schema`, re-exports `fields` |
+| `config.ts`         | Option definitions with `fields` array (if rule has options)                 |
+| `generated-meta.ts` | Auto-generated from RSPEC — do not edit                                      |
 
 ### Rule Template
 
@@ -82,14 +85,14 @@ When in doubt: skip.
 
 ## Step 4: Check Shared Helpers
 
-**Before writing any utility code**, check `packages/jsts/src/rules/helpers/`:
+**Before writing any utility code**, check `packages/analysis/jsts/src/rules/helpers/`:
 
-| File | Contains |
-|------|----------|
-| `ast.ts` | `isFunctionNode`, `isIdentifier`, `hasTypePredicateReturn`, AST traversal |
-| `module.ts` | `isESModule`, `getImportDeclarations`, `getFullyQualifiedName` |
-| `package-jsons/dependencies.ts` | `getDependencies`, `getReactVersion` |
-| `index.ts` | Re-exports all helpers — check here first |
+| File                            | Contains                                                                  |
+| ------------------------------- | ------------------------------------------------------------------------- |
+| `ast.ts`                        | `isFunctionNode`, `isIdentifier`, `hasTypePredicateReturn`, AST traversal |
+| `module.ts`                     | `isESModule`, `getImportDeclarations`, `getFullyQualifiedName`            |
+| `package-jsons/dependencies.ts` | `getDependencies`, `getReactVersion`                                      |
+| `index.ts`                      | Re-exports all helpers — check here first                                 |
 
 If a new utility would benefit multiple rules, add it to the appropriate helper file.
 
@@ -108,16 +111,18 @@ This creates/updates `generated-meta.ts` with `defaultOptions`, `sonarKey`, `sco
 See `/test-rule` skill for full testing documentation.
 
 Quick start — write `cb.fixture.js`:
+
 ```javascript
-someCleanCode();                            // no issue raised
+someCleanCode(); // no issue raised
 
 someFaultyCode(); // Noncompliant {{message}}
 //  ^^^^^^^^^^
 ```
 
 Run:
+
 ```bash
-npx tsx --test packages/jsts/src/rules/S1234/**/*.test.ts
+npx tsx --test packages/analysis/jsts/src/rules/S1234/**/*.test.ts
 ```
 
 ## Step 7: Run Ruling
@@ -155,6 +160,7 @@ export const schema = {
 ### RSPEC Tags
 
 When creating the RSPEC PR:
+
 - Tag `type-dependent` if the rule uses TypeScript type information
 - Add `dependencies` field if rule requires a specific import (e.g., `'react'`, `'jest'`)
 - Add `compatibleLanguages: ['js', 'ts']` as appropriate

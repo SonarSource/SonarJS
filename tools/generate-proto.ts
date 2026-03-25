@@ -31,9 +31,9 @@ const PROTO_FILES = [
     dts: 'packages/grpc/src/proto/health.d.ts',
   },
   {
-    proto: 'packages/jsts/src/parsers/estree.proto',
-    js: 'packages/jsts/src/parsers/estree.js',
-    dts: 'packages/jsts/src/parsers/estree.d.ts',
+    proto: 'packages/analysis/jsts/src/parsers/estree.proto',
+    js: 'packages/analysis/jsts/src/parsers/estree.js',
+    dts: 'packages/analysis/jsts/src/parsers/estree.d.ts',
   },
 ];
 
@@ -46,7 +46,7 @@ function copyToLib(filePath: string) {
 if (process.argv.includes('--copy')) {
   for (const { js, dts } of PROTO_FILES) {
     copyToLib(js);
-    if (!js.startsWith('packages/jsts')) {
+    if (!js.startsWith('packages/analysis/jsts')) {
       copyToLib(dts);
     }
   }

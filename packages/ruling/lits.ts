@@ -20,9 +20,9 @@ import {
   type FileResult,
   type ProjectAnalysisOutput,
   entriesOfFileResults,
-} from '../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
-import type { ParsingError } from '../shared/src/errors/project-analysis.js';
-import { reverseCssRuleKeyMap } from '../css/src/rules/metadata.js';
+} from '../analysis/src/projectAnalysis.js';
+import type { ParsingError } from '../analysis/src/contracts/project-analysis.js';
+import { reverseCssRuleKeyMap } from '../analysis/css/src/rules/metadata.js';
 
 /**
  * LITS formatted results with extra intermediate key js/ts
