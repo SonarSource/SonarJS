@@ -185,6 +185,15 @@ describe('S2871', () => {
       props.sort();
     `,
           },
+          // Compliant: for-in with property read (e.g. props.length) before sort
+          {
+            code: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      if (props.length === 0) return;
+      props.sort();
+    `,
+          },
           // Compliant: number array in order-independent equality comparison
           {
             code: `
@@ -612,6 +621,15 @@ describe('S2871', () => {
             for (var key in obj) props.push(key);
             props.sort();
             return props;
+          `,
+        },
+        // for-in with property read (e.g. props.length) before sort - property reads are not mutations
+        {
+          code: `
+            var props = [];
+            for (var key in obj) props.push(key);
+            if (props.length === 0) return;
+            props.sort();
           `,
         },
         // for-in with conditional hasOwnProperty guard - push is still inside for-in loop

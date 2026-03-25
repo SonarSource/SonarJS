@@ -213,11 +213,10 @@ function isForInKeyArray(
     const prop = memberParent.property;
     const callParent = getNodeParent(memberParent);
 
-    if (
-      prop.type !== 'Identifier' ||
-      prop.name !== 'push' ||
-      callParent?.type !== 'CallExpression'
-    ) {
+    if (callParent?.type !== 'CallExpression') {
+      continue; // property read (e.g. arr.length, arr[0]), not a mutation — safe to ignore
+    }
+    if (prop.type !== 'Identifier' || prop.name !== 'push') {
       return false; // non-push method call on the array - reject
     }
 
