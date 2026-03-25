@@ -198,6 +198,6 @@ Inside `maybeParseSync`, there are two different flows:
 ## SonarJS-Specific Notes
 
 - SonarJS uses `@babel/eslint-parser` for **JavaScript** files only. TypeScript files use `@typescript-eslint/parser` (which delegates to the TypeScript compiler directly — no Babel involvement, no lag).
-- Babel config is in `packages/jsts/src/parsers/options.ts`, function `babelParserOptions()`.
+- Babel config is in `packages/analysis/jsts/src/parsers/options.ts`, function `babelParserOptions()`.
 - Plugins go in the `babelOptions.plugins` array alongside the decorators plugin.
-- Custom plugin files should live in `packages/jsts/src/parsers/plugins/`.
+- Custom plugin files should live in `packages/analysis/jsts/src/parsers/plugins/`.

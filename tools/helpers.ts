@@ -20,7 +20,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 //@ts-ignore
 import { prettier as prettierOpts } from '../package.json';
-import { ESLintConfiguration } from '../packages/jsts/src/rules/helpers/configs.js';
+import { ESLintConfiguration } from '../packages/analysis/jsts/src/rules/helpers/configs.js';
 import { mkdir } from 'node:fs/promises';
 import prettierPluginJava from 'prettier-plugin-java';
 
@@ -29,7 +29,7 @@ const DIRNAME = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = join(DIRNAME, '..');
 export const TS_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'ts');
 export const JAVA_TEMPLATES_FOLDER = join(DIRNAME, 'templates', 'java');
-export const RULES_FOLDER = join(REPOSITORY_ROOT, 'packages', 'jsts', 'src', 'rules');
+export const RULES_FOLDER = join(REPOSITORY_ROOT, 'packages', 'analysis', 'jsts', 'src', 'rules');
 export const METADATA_FOLDER = join(
   REPOSITORY_ROOT,
   'sonar-plugin',

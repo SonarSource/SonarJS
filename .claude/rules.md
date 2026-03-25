@@ -18,7 +18,7 @@ if (!isRequiredParserServices(services)) {
 
 ## Rule Structure
 
-Each rule in `packages/jsts/src/rules/SXXXX/` contains:
+Each rule in `packages/analysis/jsts/src/rules/SXXXX/` contains:
 
 | File                | Purpose                                 |
 | ------------------- | --------------------------------------- |
@@ -66,12 +66,12 @@ export const rule: Rule.RuleModule = {
 ### Running Tests
 
 ```bash
-npx tsx --test packages/jsts/src/rules/S1234/**/*.test.ts
+npx tsx --test packages/analysis/jsts/src/rules/S1234/**/*.test.ts
 ```
 
 ## Shared Helpers
 
-Check `packages/jsts/src/rules/helpers/` before writing utilities:
+Check `packages/analysis/jsts/src/rules/helpers/` before writing utilities:
 
 - `ast.ts` - AST traversal and node type checking
 - `module.ts` - Module detection, `getFullyQualifiedName`

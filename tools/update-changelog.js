@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 
 /**
  * This script updates the changelog for the eslint plugin located in
- * packages/jsts/src/rules/CHANGELOG.md
+ * packages/analysis/jsts/src/rules/CHANGELOG.md
  *
  * It is automatically run as part of the release_eslint_plugin.yml workflow,
  * which creates a PR with the updated changelog after publishing.
@@ -36,7 +36,16 @@ if (!version) {
 }
 
 export const DIRNAME = dirname(fileURLToPath(import.meta.url));
-const changelogPath = join(DIRNAME, '..', 'packages', 'jsts', 'src', 'rules', 'CHANGELOG.md');
+const changelogPath = join(
+  DIRNAME,
+  '..',
+  'packages',
+  'analysis',
+  'jsts',
+  'src',
+  'rules',
+  'CHANGELOG.md',
+);
 const changelog = await readFile(changelogPath, 'utf8').catch(() => '');
 
 const startDate = changelog.match(/^## (\d+-\d+-\d+)/)[1];
