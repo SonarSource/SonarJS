@@ -830,7 +830,7 @@ describe('await analyzeJSTS', () => {
     });
   });
 
-  it('should skip cognitive complexity metric when S3776 is disabled with ESLint directives', async () => {
+  it('should keep cognitive complexity metric at 0 when S3776 is disabled with ESLint directives', async () => {
     const rules: RuleConfig[] = [];
     const filePath = path.join(
       currentPath,
@@ -845,7 +845,7 @@ describe('await analyzeJSTS', () => {
     const { issues, metrics } = await analyzeJSTS(await jsTsInput({ filePath }));
 
     expect(issues).toEqual([]);
-    expect(metrics).not.toHaveProperty('cognitiveComplexity');
+    expect(metrics?.cognitiveComplexity).toEqual(0);
   });
 
   it('should compute metrics on test files', async () => {
