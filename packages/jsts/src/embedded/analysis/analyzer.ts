@@ -66,11 +66,7 @@ export async function analyzeEmbedded(
 }
 
 function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
-  const { issues } = Linter.lint(
-    extendedParseResult,
-    extendedParseResult.syntheticFilePath,
-    'MAIN',
-  );
+  const issues = Linter.lint(extendedParseResult, extendedParseResult.syntheticFilePath, 'MAIN');
   const ncloc = collectNclocLines(extendedParseResult.sourceCode);
   return { issues, ncloc };
 }

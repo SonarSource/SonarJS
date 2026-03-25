@@ -51,7 +51,6 @@ interface InitializeParams {
   environments?: string[];
   globals?: string[];
   baseDir: NormalizedAbsolutePath;
-  sonarlint?: boolean;
   bundles?: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
 }
@@ -117,7 +116,6 @@ export class Linter {
    * @param rules the active quality profile rules
    * @param environments the JavaScript execution environments
    * @param globals the global variables
-   * @param sonarlint retained for compatibility; currently unused by linter setup
    * @param bundles paths to external rule bundles to import
    * @param baseDir the working directory
    * @param rulesWorkdir the working directory for rules accessing FS (architecture, dbd)
@@ -126,7 +124,6 @@ export class Linter {
     rules,
     environments = [],
     globals = [],
-    sonarlint: _sonarlint = false,
     bundles = [],
     baseDir,
     rulesWorkdir,
@@ -170,7 +167,8 @@ export class Linter {
    * @param analysisMode whether we are analyzing all files or only changed files
    * @param language language of the source file
    * @param detectedEsYear ecmascript version for the file
-   * @returns the linting result
+   * @param lintOptions additional rules and settings for linting
+   * @returns linting issues
    */
   static lint(
     { sourceCode, parserOptions, parser }: ParseResult,
@@ -217,12 +215,11 @@ export class Linter {
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
-    const issues = transformMessages(messages, language, {
+    return transformMessages(messages, language, {
       sourceCode,
       ruleMetas,
       filePath,
     });
-    return { issues };
   }
 
   /**
