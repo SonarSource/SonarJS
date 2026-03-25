@@ -370,7 +370,6 @@ export class Linter {
         'error',
         COGNITIVE_COMPLEXITY_SILENCE_ISSUES_OPTION,
       ];
-      return;
     }
   }
 }
