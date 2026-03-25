@@ -170,6 +170,13 @@ describe('S2871', () => {
           {
             code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).sort();`,
           },
+          // Compliant: variable initialized from Object.keys/getOwnPropertyNames and not reassigned
+          {
+            code: `var ka = Object.keys(a); ka.sort();`,
+          },
+          {
+            code: `var kb = Object.getOwnPropertyNames(b); kb.sort();`,
+          },
           {
             code: `
       function f(map: Map<string, number>) {
@@ -644,6 +651,13 @@ describe('S2871', () => {
             keys.sort();
           `,
         },
+        // Object.keys/getOwnPropertyNames variable assignment (no type checker)
+        {
+          code: `var ka = Object.keys(a); ka.sort();`,
+        },
+        {
+          code: `var kb = Object.getOwnPropertyNames(b); kb.sort();`,
+        },
       ],
       invalid: [
         // Without type checker, sort on unknown arrays is still flagged (no suggestions)
@@ -692,6 +706,11 @@ describe('S2871', () => {
             arr = [1, 2, 3];
             arr.sort();
           `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // Object.keys variable that is reassigned - not suppressed
+        {
+          code: `var ka = Object.keys(a); ka = []; ka.sort();`,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
         // for-in pattern but pushed value is not the loop variable - still flagged
@@ -876,6 +895,13 @@ describe('S2871', () => {
           },
           {
             code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).toSorted();`,
+          },
+          // Compliant: variable initialized from Object.keys/getOwnPropertyNames and not reassigned
+          {
+            code: `var ka = Object.keys(a); ka.toSorted();`,
+          },
+          {
+            code: `var kb = Object.getOwnPropertyNames(b); kb.toSorted();`,
           },
           {
             code: `

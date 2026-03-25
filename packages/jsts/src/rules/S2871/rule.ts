@@ -65,6 +65,30 @@ function isObjectStaticKeyCall(node: estree.Node): boolean {
   );
 }
 
+/**
+ * Checks if an identifier refers to a variable initialized directly from
+ * Object.keys()/Object.getOwnPropertyNames() that was never subsequently
+ * reassigned.
+ * Pattern: const ka = Object.keys(a); ... ka.sort()
+ */
+function isObjectKeysVariable(
+  identifier: estree.Identifier,
+  sourceCode: Rule.RuleContext['sourceCode'],
+): boolean {
+  const variable = getVariableFromScope(sourceCode.getScope(identifier), identifier.name);
+  if (!variable || variable.defs.length !== 1) {
+    return false;
+  }
+  const def = variable.defs[0];
+  if (def.type !== 'Variable' || !def.node.init) {
+    return false;
+  }
+  if (!isObjectStaticKeyCall(def.node.init)) {
+    return false;
+  }
+  return !variable.references.some(ref => !ref.init && ref.isWrite());
+}
+
 function isArrayFromIterableMethod(node: estree.Node): boolean {
   if (
     node.type !== 'CallExpression' ||
@@ -100,7 +124,8 @@ function isTechnicalStringSort(
 ): boolean {
   return (
     isObjectStaticKeyCall(object) ||
-    (object.type === 'Identifier' && isForInKeyArray(object, sourceCode))
+    (object.type === 'Identifier' &&
+      (isForInKeyArray(object, sourceCode) || isObjectKeysVariable(object, sourceCode)))
   );
 }
 
