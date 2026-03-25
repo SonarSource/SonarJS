@@ -220,7 +220,7 @@ describe('Linter', () => {
     expect(
       Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
     ).toEqual({
-      'sonarjs/S3776': ['error'],
+      'sonarjs/S3776': ['error', 'silence-issues'],
     });
   });
 
@@ -240,7 +240,7 @@ describe('Linter', () => {
     expect(
       Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
     ).toEqual({
-      'sonarjs/S3776': ['error', 0, 'report-issues'],
+      'sonarjs/S3776': ['error', 0],
     });
   });
 
@@ -802,7 +802,7 @@ describe('Linter', () => {
     expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3776' })]);
   });
 
-  it('should compute cognitive complexity even when S3776 is disabled with ESLint directives', async () => {
+  it('should not compute cognitive complexity when S3776 is disabled with ESLint directives', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-function-disabled.js'),
     );
@@ -814,7 +814,7 @@ describe('Linter', () => {
     });
     const { cognitiveComplexity, issues } = Linter.lint(parseResult, filePath);
 
-    expect(cognitiveComplexity).toEqual(1);
+    expect(cognitiveComplexity).toEqual(undefined);
     expect(issues).toEqual([]);
   });
 

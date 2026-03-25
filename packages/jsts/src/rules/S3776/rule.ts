@@ -37,8 +37,7 @@ import type { FromSchema } from 'json-schema-to-ts';
 import { getInternalMetricsSink } from '../helpers/internal-metrics.js';
 
 const DEFAULT_THRESHOLD = 15;
-const METRIC_OPTION = 'metric';
-const REPORT_ISSUES_OPTION = 'report-issues';
+const SILENCE_ISSUES_OPTION = 'silence-issues';
 
 type LoopStatement =
   | TSESTree.ForStatement
@@ -56,7 +55,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
       refactorFunction: message,
-      fileComplexity: '{{complexityAmount}}',
     },
   }),
   create(context) {
@@ -65,12 +63,8 @@ export const rule: Rule.RuleModule = {
     const threshold = typeof thresholdOption === 'number' ? thresholdOption : DEFAULT_THRESHOLD;
 
     const metricsSink = getInternalMetricsSink(context.settings);
-    const hasMetricsSink = metricsSink !== undefined;
-    const isMetricOnlyMode =
-      context.options.includes(METRIC_OPTION) && !context.options.includes(REPORT_ISSUES_OPTION);
-    const shouldReportIssues = hasMetricsSink
-      ? context.options.includes(REPORT_ISSUES_OPTION)
-      : !isMetricOnlyMode;
+    const shouldSilenceIssues = context.options.includes(SILENCE_ISSUES_OPTION);
+    const shouldReportIssues = !shouldSilenceIssues;
 
     /** Complexity of the file */
     let fileComplexity = 0;

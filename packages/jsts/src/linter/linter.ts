@@ -51,7 +51,7 @@ import {
 } from '../rules/helpers/internal-metrics.js';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'sonarjs/S3776';
-const COGNITIVE_COMPLEXITY_REPORT_ISSUES_OPTION = 'report-issues';
+const COGNITIVE_COMPLEXITY_SILENCE_ISSUES_OPTION = 'silence-issues';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -218,10 +218,7 @@ export class Linter {
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
-    let cognitiveComplexity = internalMetricsSink?.cognitiveComplexity;
-    if (cognitiveComplexity === undefined && !Linter.sonarlint) {
-      cognitiveComplexity = Linter.computeCognitiveComplexityMetric(sourceCode, config, filePath);
-    }
+    const cognitiveComplexity = internalMetricsSink?.cognitiveComplexity;
     const issues = transformMessages(messages, language, {
       sourceCode,
       ruleMetas,
@@ -231,40 +228,6 @@ export class Linter {
       issues,
       cognitiveComplexity,
     };
-  }
-
-  private static computeCognitiveComplexityMetric(
-    sourceCode: ParseResult['sourceCode'],
-    baseConfig: Parameters<ESLintLinter['verify']>[1],
-    filePath: NormalizedAbsolutePath,
-  ) {
-    try {
-      const internalMetricsSink: InternalMetricsSink = {};
-      const baseSettings =
-        !Array.isArray(baseConfig) && 'settings' in baseConfig ? baseConfig.settings : undefined;
-      Linter.linter.verify(
-        sourceCode,
-        {
-          ...baseConfig,
-          settings: {
-            ...(baseSettings ?? {}),
-            ...toInternalMetricsSettings(internalMetricsSink),
-          },
-          rules: {
-            [COGNITIVE_COMPLEXITY_RULE_ID]: ['error'],
-          },
-        },
-        {
-          ...createOptions(filePath),
-          allowInlineConfig: false,
-        },
-      );
-
-      return internalMetricsSink.cognitiveComplexity;
-    } catch (error) {
-      debug(`Could not compute fallback cognitive complexity metric: ${String(error)}`);
-      return undefined;
-    }
   }
 
   /**
@@ -392,8 +355,8 @@ export class Linter {
   /**
    * Cognitive complexity is always enabled as part of SonarQube metrics computation.
    *
-   * - If S3776 is enabled in the quality profile, we run it once and opt in to issues.
-   * - If S3776 is disabled, we still run it to collect the metric.
+   * - If S3776 is enabled in the quality profile, we run it once and keep issue reporting.
+   * - If S3776 is disabled, we still run it in metric-only mode to collect the metric.
    *
    * In SonarLint context the metric is not needed and the rule is not forced on.
    */
@@ -403,21 +366,11 @@ export class Linter {
     }
     const configuredRule = rulesRecord[COGNITIVE_COMPLEXITY_RULE_ID];
     if (configuredRule === undefined) {
-      rulesRecord[COGNITIVE_COMPLEXITY_RULE_ID] = ['error'];
-      return;
-    }
-
-    if (Array.isArray(configuredRule)) {
-      const augmentedRule = [...configuredRule] as [ESLintLinter.RuleSeverity, ...unknown[]];
-      if (!augmentedRule.includes(COGNITIVE_COMPLEXITY_REPORT_ISSUES_OPTION)) {
-        augmentedRule.push(COGNITIVE_COMPLEXITY_REPORT_ISSUES_OPTION);
-      }
-      rulesRecord[COGNITIVE_COMPLEXITY_RULE_ID] = augmentedRule;
-    } else {
       rulesRecord[COGNITIVE_COMPLEXITY_RULE_ID] = [
-        configuredRule,
-        COGNITIVE_COMPLEXITY_REPORT_ISSUES_OPTION,
+        'error',
+        COGNITIVE_COMPLEXITY_SILENCE_ISSUES_OPTION,
       ];
+      return;
     }
   }
 }

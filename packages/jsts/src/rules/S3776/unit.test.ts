@@ -48,7 +48,7 @@ describe('S3776', () => {
           },
         },
         rules: {
-          'sonarjs/S3776': ['error', 0],
+          'sonarjs/S3776': ['error', 0, 'silence-issues'],
         },
         settings: {
           ...toInternalMetricsSettings(sink),
