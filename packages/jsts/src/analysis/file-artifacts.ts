@@ -257,7 +257,7 @@ interface NclocState {
 export function collectMainFileArtifacts(
   sourceCode: SourceCode,
   ignoreHeaderComments: boolean,
-  cognitiveComplexity = 0,
+  cognitiveComplexity?: number,
 ): MainFileArtifacts {
   const collected = collectArtifacts(sourceCode, {
     includeStructuralMetrics: true,
@@ -280,7 +280,7 @@ export function collectMainFileArtifacts(
       statements: collected.statements,
       classes: collected.classes,
       complexity: collected.complexity,
-      cognitiveComplexity,
+      ...(cognitiveComplexity !== undefined ? { cognitiveComplexity } : {}),
     },
     cpdTokens: collected.cpdTokens,
     highlights: collected.highlights,

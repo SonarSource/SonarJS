@@ -45,13 +45,6 @@ import {
 } from '../rules/helpers/package-jsons/dependencies.js';
 import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../analysis/projectAnalysis/telemetry.js';
-import {
-  type InternalMetricsSink,
-  toInternalMetricsSettings,
-} from '../rules/helpers/internal-metrics.js';
-
-const COGNITIVE_COMPLEXITY_RULE_ID = 'sonarjs/S3776';
-const COGNITIVE_COMPLEXITY_SILENCE_ISSUES_OPTION = 'silence-issues';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -61,6 +54,11 @@ interface InitializeParams {
   sonarlint?: boolean;
   bundles?: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
+}
+
+interface LintOptions {
+  additionalSettings?: Record<string, unknown>;
+  additionalRules?: ESLintLinter.RulesRecord;
 }
 
 /**
@@ -100,8 +98,6 @@ export class Linter {
   public static readonly globals: Map<string, ESLintLinter.GlobalConf> = new Map();
   /** The rules working directory (used for architecture, dbd...) */
   private static rulesWorkdir?: NormalizedAbsolutePath;
-  /** whether we are running in sonarlint context */
-  private static sonarlint: boolean;
   private static baseDir: NormalizedAbsolutePath;
 
   /** Linter is a static class and cannot be instantiated */
@@ -121,7 +117,7 @@ export class Linter {
    * @param rules the active quality profile rules
    * @param environments the JavaScript execution environments
    * @param globals the global variables
-   * @param sonarlint whether we are running in sonarlint context
+   * @param sonarlint retained for compatibility; currently unused by linter setup
    * @param bundles paths to external rule bundles to import
    * @param baseDir the working directory
    * @param rulesWorkdir the working directory for rules accessing FS (architecture, dbd)
@@ -130,14 +126,13 @@ export class Linter {
     rules,
     environments = [],
     globals = [],
-    sonarlint = false,
+    sonarlint: _sonarlint = false,
     bundles = [],
     baseDir,
     rulesWorkdir,
   }: InitializeParams) {
     debug(`Initializing linter with ${rules?.map(rule => rule.key)}`);
     Linter.ruleConfigs = rules;
-    Linter.sonarlint = sonarlint;
     Linter.linter = new ESLintLinter({ cwd: baseDir });
     Linter.rulesWorkdir = rulesWorkdir;
     Linter.setGlobals(globals, environments);
@@ -185,11 +180,21 @@ export class Linter {
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
     detectedEsYear?: number,
+    lintOptions: LintOptions = {},
   ) {
     if (!Linter.linter) {
       throw APIError.linterError(`Linter does not exist.`);
     }
-    const internalMetricsSink: InternalMetricsSink | undefined = Linter.sonarlint ? undefined : {};
+    const baseRules = Linter.getRulesForFile(
+      filePath,
+      fileType,
+      fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
+      language,
+      detectedEsYear,
+    );
+    const rules = lintOptions.additionalRules
+      ? { ...lintOptions.additionalRules, ...baseRules }
+      : baseRules;
     const config = {
       languageOptions: {
         globals: Object.fromEntries(Linter.globals),
@@ -199,35 +204,25 @@ export class Linter {
       plugins: {
         sonarjs: { rules: Linter.rules },
       },
-      rules: Linter.getRulesForFile(
-        filePath,
-        fileType,
-        fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
-        language,
-        detectedEsYear,
-      ),
+      rules,
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
       settings: {
         react: { version: '999.999.999' },
         fileType,
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
-        ...(internalMetricsSink ? toInternalMetricsSettings(internalMetricsSink) : {}),
+        ...(lintOptions.additionalSettings ?? {}),
       },
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
-    const cognitiveComplexity = internalMetricsSink?.cognitiveComplexity;
     const issues = transformMessages(messages, language, {
       sourceCode,
       ruleMetas,
       filePath,
     });
-    return {
-      issues,
-      cognitiveComplexity,
-    };
+    return { issues };
   }
 
   /**
@@ -331,7 +326,7 @@ export class Linter {
    * @param rules the rules from the active quality profile
    */
   private static createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
-    const rulesRecord = rules.reduce((rules, rule) => {
+    return rules.reduce((rules, rule) => {
       // in the case of bundles, rule.key will not be present in the ruleMetas
       const ruleMeta =
         rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
@@ -348,29 +343,6 @@ export class Linter {
       }
       return rules;
     }, {} as ESLintLinter.RulesRecord);
-    Linter.enableCognitiveComplexityMetric(rulesRecord);
-    return rulesRecord;
-  }
-
-  /**
-   * Cognitive complexity is always enabled as part of SonarQube metrics computation.
-   *
-   * - If S3776 is enabled in the quality profile, we run it once and keep issue reporting.
-   * - If S3776 is disabled, we still run it in metric-only mode to collect the metric.
-   *
-   * In SonarLint context the metric is not needed and the rule is not forced on.
-   */
-  private static enableCognitiveComplexityMetric(rulesRecord: ESLintLinter.RulesRecord): void {
-    if (Linter.sonarlint) {
-      return;
-    }
-    const configuredRule = rulesRecord[COGNITIVE_COMPLEXITY_RULE_ID];
-    if (configuredRule === undefined) {
-      rulesRecord[COGNITIVE_COMPLEXITY_RULE_ID] = [
-        'error',
-        COGNITIVE_COMPLEXITY_SILENCE_ISSUES_OPTION,
-      ];
-    }
   }
 }
 

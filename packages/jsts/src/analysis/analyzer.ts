@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug, info } from '../../../shared/src/helpers/logging.js';
-import type { SourceCode } from 'eslint';
+import type { Linter as ESLintLinter, SourceCode } from 'eslint';
 import type { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
@@ -33,6 +33,19 @@ import {
   toProjectFailureResult,
   type ProjectFailureResult,
 } from '../../../shared/src/errors/project-analysis.js';
+import {
+  type InternalMetricsSink,
+  toInternalMetricsSettings,
+} from '../rules/helpers/internal-metrics.js';
+
+const COGNITIVE_COMPLEXITY_RULE_ID = 'sonarjs/S3776';
+const COGNITIVE_COMPLEXITY_SILENCE_ISSUES_OPTION = 'silence-issues';
+
+interface AnalysisLinterOptions {
+  additionalRules?: ESLintLinter.RulesRecord;
+  additionalSettings?: Record<string, unknown>;
+  metricsSink?: InternalMetricsSink;
+}
 
 /**
  * Analyzes a JavaScript / TypeScript analysis input
@@ -60,7 +73,8 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
       debug('Clearing dependencies cache');
       clearDependenciesCache();
     }
-    const { issues, cognitiveComplexity } = Linter.lint(
+    const { additionalRules, additionalSettings, metricsSink } = prepareLinterOptions(input);
+    const { issues } = Linter.lint(
       parseResult,
       filePath,
       fileType,
@@ -68,11 +82,12 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
       analysisMode,
       language,
       detectedEsYear,
+      { additionalRules, additionalSettings },
     );
     const extendedMetrics = computeExtendedMetrics(
       input,
       parseResult.sourceCode,
-      cognitiveComplexity,
+      metricsSink?.cognitiveComplexity,
     );
 
     const result = {
@@ -99,6 +114,21 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
       throw e;
     }
   }
+}
+
+function prepareLinterOptions(input: JsTsAnalysisInput): AnalysisLinterOptions {
+  if (input.sonarlint || input.fileType !== 'MAIN') {
+    return {};
+  }
+
+  const metricsSink: InternalMetricsSink = {};
+  return {
+    additionalRules: {
+      [COGNITIVE_COMPLEXITY_RULE_ID]: ['error', COGNITIVE_COMPLEXITY_SILENCE_ISSUES_OPTION],
+    },
+    additionalSettings: toInternalMetricsSettings(metricsSink),
+    metricsSink,
+  };
 }
 
 export async function analyzeJSTSProject(
