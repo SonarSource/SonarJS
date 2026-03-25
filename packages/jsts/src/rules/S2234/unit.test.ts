@@ -193,19 +193,6 @@ describe('S2234', () => {
         `,
         },
         {
-          // False positive: swap in consequent branch paired with normal-order call in alternate (d3-array reverse-flag pattern)
-          code: `
-        function tickIncrement(start, stop, count) { return Math.ceil((stop - start) / count); }
-        function computeTick(start, stop, count) {
-          const reverse = stop < start;
-          const inc = reverse
-            ? tickIncrement(stop, start, count)
-            : tickIncrement(start, stop, count);
-          return inc;
-        }
-        `,
-        },
-        {
           // False positive: swap in alternate branch paired with normal-order call in consequent (phaser canonical-ordering pattern)
           code: `
         function getTrigger(index1, index2) { return { from: index1, to: index2 }; }
@@ -319,6 +306,27 @@ describe('S2234', () => {
           code: `
         function formatDate(year, month) { return year + '-' + month; }
         const wrongWrapper = (year, month) => formatDate(month, year);`,
+          errors: 1,
+        },
+        {
+          // Ternary where the condition is an unrelated boolean — condition must compare the swapped pair
+          code: `
+        function formatDate(year, month) {}
+        var year = 2024, month = 6, legacy = true;
+        const d = legacy ? formatDate(month, year) : formatDate(year, month);`,
+          errors: 1,
+        },
+        {
+          // Ternary where the condition is a boolean variable derived from a comparison, not a direct comparison
+          code: `
+        function tickIncrement(start, stop, count) { return Math.ceil((stop - start) / count); }
+        function computeTick(start, stop, count) {
+          const reverse = stop < start;
+          const inc = reverse
+            ? tickIncrement(stop, start, count)
+            : tickIncrement(start, stop, count);
+          return inc;
+        }`,
           errors: 1,
         },
         {

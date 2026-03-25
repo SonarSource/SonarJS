@@ -228,11 +228,14 @@ export const rule: Rule.RuleModule = {
     }
 
     /**
-     * Returns true when the detected argument swap is in one branch of a ConditionalExpression
-     * and the other branch calls the same function with those arguments in the opposite (correct)
-     * order. The condition acts as the selector, making both orderings intentional.
+     * Returns true when the detected argument swap is in one branch of a ConditionalExpression,
+     * the other branch calls the same function with those arguments in the opposite (normal) order,
+     * AND the ternary condition itself is a comparison that involves both of those same arguments.
      *
-     * Example: `cond ? fn(b, a) : fn(a, b)` — both orderings are deliberate.
+     * This ensures the condition is actually selecting the correct ordering rather than being an
+     * unrelated boolean. For example:
+     *   `start < stop ? fn(start, stop) : fn(stop, start)` — suppressed (condition compares the pair)
+     *   `legacy ? fn(stop, start) : fn(start, stop)` — reported (condition unrelated to arg order)
      */
     function isIntentionalTernarySwap(
       functionCall: estree.CallExpression,
@@ -290,12 +293,35 @@ export const rule: Rule.RuleModule = {
       const otherAtIdx1 = otherArgs[idx1];
       const otherAtIdx2 = otherArgs[idx2];
 
-      return (
-        otherAtIdx1?.type === 'Identifier' &&
-        otherAtIdx1.name === arg2Name &&
-        otherAtIdx2?.type === 'Identifier' &&
-        otherAtIdx2.name === arg1Name
-      );
+      if (
+        !(
+          otherAtIdx1?.type === 'Identifier' &&
+          otherAtIdx1.name === arg2Name &&
+          otherAtIdx2?.type === 'Identifier' &&
+          otherAtIdx2.name === arg1Name
+        )
+      ) {
+        return false;
+      }
+
+      // The ternary condition must itself compare the same argument pair. This ties the
+      // suppression to condition-controlled ordering (e.g. `a < b ? fn(a, b) : fn(b, a)`)
+      // rather than an arbitrary boolean selector (e.g. `flag ? fn(b, a) : fn(a, b)`).
+      const test = conditional.test;
+      if (test.type !== 'BinaryExpression') {
+        return false;
+      }
+      const COMPARISON_OPERATORS = ['==', '!=', '===', '!==', '<', '<=', '>', '>='];
+      if (!COMPARISON_OPERATORS.includes(test.operator)) {
+        return false;
+      }
+      const leftName = test.left.type === 'Identifier' ? test.left.name : undefined;
+      const rightName = test.right.type === 'Identifier' ? test.right.name : undefined;
+      if (!leftName || !rightName) {
+        return false;
+      }
+      const conditionNames = new Set([leftName, rightName]);
+      return conditionNames.has(arg1Name) && conditionNames.has(arg2Name);
     }
 
     function resolveFunctionDeclaration(node: estree.CallExpression): FunctionSignature | null {
