@@ -45,7 +45,6 @@ import {
 } from '../rules/helpers/package-jsons/dependencies.js';
 import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../analysis/projectAnalysis/telemetry.js';
-import { extractInternalMetrics } from './issues/extract.js';
 import {
   type InternalMetricsSink,
   toInternalMetricsSettings,
@@ -219,17 +218,12 @@ export class Linter {
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
-    let filteredMessages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
+    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
     let cognitiveComplexity = internalMetricsSink.cognitiveComplexity;
-    if (cognitiveComplexity === undefined) {
-      const extracted = extractInternalMetrics(filteredMessages);
-      filteredMessages = extracted.messages;
-      cognitiveComplexity = extracted.cognitiveComplexity;
-    }
     if (cognitiveComplexity === undefined && !Linter.sonarlint) {
       cognitiveComplexity = Linter.computeCognitiveComplexityMetric(sourceCode, config, filePath);
     }
-    const issues = transformMessages(filteredMessages, language, {
+    const issues = transformMessages(messages, language, {
       sourceCode,
       ruleMetas,
       filePath,
@@ -249,7 +243,7 @@ export class Linter {
       const internalMetricsSink: InternalMetricsSink = {};
       const baseSettings =
         !Array.isArray(baseConfig) && 'settings' in baseConfig ? baseConfig.settings : undefined;
-      const metricMessages = Linter.linter.verify(
+      Linter.linter.verify(
         sourceCode,
         {
           ...baseConfig,
@@ -267,10 +261,7 @@ export class Linter {
         },
       );
 
-      if (internalMetricsSink.cognitiveComplexity !== undefined) {
-        return internalMetricsSink.cognitiveComplexity;
-      }
-      return extractInternalMetrics(metricMessages).cognitiveComplexity;
+      return internalMetricsSink.cognitiveComplexity;
     } catch (error) {
       debug(`Could not compute fallback cognitive complexity metric: ${String(error)}`);
       return undefined;

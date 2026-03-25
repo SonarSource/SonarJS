@@ -150,18 +150,11 @@ export const rule: Rule.RuleModule = {
       Program() {
         fileComplexity = 0;
       },
-      'Program:exit'(node: estree.Node) {
+      'Program:exit'() {
         if (isFileComplexity) {
           const metricsSink = getInternalMetricsSink(context.settings);
           if (metricsSink) {
             metricsSink.cognitiveComplexity = fileComplexity;
-          } else {
-            // value from the message will be saved in SonarQube as file complexity metric
-            context.report({
-              node,
-              messageId: 'fileComplexity',
-              data: { complexityAmount: fileComplexity as any },
-            });
           }
         }
       },
