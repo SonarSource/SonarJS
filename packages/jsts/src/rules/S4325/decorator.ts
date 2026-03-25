@@ -84,6 +84,7 @@ function shouldSuppressTypeAssertion(
   services: RequiredParserServices,
 ): boolean {
   const expression = node.expression as estree.Node;
+  const tsExpression = node.expression;
 
   // Get the assertion's target type from the type annotation
   const assertionTargetType = getTypeFromTreeNode(node as unknown as estree.Node, services);
@@ -102,8 +103,17 @@ function shouldSuppressTypeAssertion(
   }
 
   // For call expressions, check the callee's declared return type
-  if ((expression as TSESTree.Node).type === 'CallExpression') {
-    return isCalleeGeneric(expression, services);
+  if (tsExpression.type === 'CallExpression') {
+    return isCalleeGeneric(tsExpression, services);
+  }
+
+  // For non-null assertions wrapping a generic call (e.g., `querySelector()! as T`),
+  // the `as T` drives generic type inference just as a direct call would.
+  if (
+    tsExpression.type === 'TSNonNullExpression' &&
+    tsExpression.expression.type === 'CallExpression'
+  ) {
+    return isCalleeGeneric(tsExpression.expression, services);
   }
 
   return false;
@@ -119,9 +129,9 @@ function shouldSuppressTypeAssertion(
  * getResolvedSignature() returns an instantiated signature where
  * getTypeParameters() may return undefined.
  */
-function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserServices): boolean {
+function isCalleeGeneric(callExpression: TSESTree.Node, services: RequiredParserServices): boolean {
   const checker = services.program.getTypeChecker();
-  const tsNode = services.esTreeNodeToTSNodeMap.get(callExpression as TSESTree.Node);
+  const tsNode = services.esTreeNodeToTSNodeMap.get(callExpression);
   if (!ts.isCallExpression(tsNode)) {
     return false;
   }
@@ -164,9 +174,19 @@ function shouldSuppressNonNullAssertion(
   node: TSESTree.TSNonNullExpression,
   services: RequiredParserServices,
 ): boolean {
-  const expression = node.expression as estree.Node;
+  // Suppress `!` when it is part of `genericCall()! as T`:
+  // the `as T` drives generic type inference, so even if `!` appears redundant
+  // in isolation, it is inseparable from the assertion that drives inference.
+  if (
+    (node.parent?.type === 'TSAsExpression' || node.parent?.type === 'TSTypeAssertion') &&
+    node.expression.type === 'CallExpression' &&
+    isCalleeGeneric(node.expression, services)
+  ) {
+    return true;
+  }
+
   const checker = services.program.getTypeChecker();
-  const tsNode = services.esTreeNodeToTSNodeMap.get(expression as TSESTree.Node);
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node.expression);
   const compilerOptions = services.program.getCompilerOptions();
 
   if (compilerOptions.strictNullChecks || compilerOptions.strict) {
