@@ -209,7 +209,7 @@ export class Linter {
         fileType,
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
-        ...(lintOptions.additionalSettings ?? {}),
+        ...lintOptions.additionalSettings,
       },
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
