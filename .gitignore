@@ -4,6 +4,7 @@ bin/
 .flattened-pom.xml
 
 lib/
+node_modules
 node_modules/
 coverage/
 
@@ -39,6 +40,7 @@ sonarjs-1.0.0.tgz
 .vs/
 
 # VS Code
+.vscode
 .vscode/
 
 # ---- Mac OS X
