@@ -6,12 +6,5 @@
 "ace:lib/ace/mode/javascript/jshint.js": [
 18112,
 18113
-],
-"ace:lib/ace/mode/yaml/yaml-lint.js": [
-734
-],
-"ace:src/test/asyncjs/assert.js": [
-207,
-208
 ]
 }
