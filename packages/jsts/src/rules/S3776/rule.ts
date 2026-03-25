@@ -64,9 +64,13 @@ export const rule: Rule.RuleModule = {
     const thresholdOption = (context.options as FromSchema<typeof meta.schema>)[0];
     const threshold = typeof thresholdOption === 'number' ? thresholdOption : DEFAULT_THRESHOLD;
 
-    /** Indicator if the file complexity should be reported */
-    const isFileComplexity = context.options.includes(METRIC_OPTION);
-    const shouldReportIssues = !isFileComplexity || context.options.includes(REPORT_ISSUES_OPTION);
+    const metricsSink = getInternalMetricsSink(context.settings);
+    const hasMetricsSink = metricsSink !== undefined;
+    const isMetricOnlyMode =
+      context.options.includes(METRIC_OPTION) && !context.options.includes(REPORT_ISSUES_OPTION);
+    const shouldReportIssues = hasMetricsSink
+      ? context.options.includes(REPORT_ISSUES_OPTION)
+      : !isMetricOnlyMode;
 
     /** Complexity of the file */
     let fileComplexity = 0;
@@ -151,11 +155,8 @@ export const rule: Rule.RuleModule = {
         fileComplexity = 0;
       },
       'Program:exit'() {
-        if (isFileComplexity) {
-          const metricsSink = getInternalMetricsSink(context.settings);
-          if (metricsSink) {
-            metricsSink.cognitiveComplexity = fileComplexity;
-          }
+        if (metricsSink) {
+          metricsSink.cognitiveComplexity = fileComplexity;
         }
       },
       IfStatement(node: estree.Node) {

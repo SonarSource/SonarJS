@@ -220,7 +220,7 @@ describe('Linter', () => {
     expect(
       Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
     ).toEqual({
-      'sonarjs/S3776': ['error', 'metric'],
+      'sonarjs/S3776': ['error'],
     });
   });
 
@@ -240,7 +240,7 @@ describe('Linter', () => {
     expect(
       Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
     ).toEqual({
-      'sonarjs/S3776': ['error', 0, 'metric', 'report-issues'],
+      'sonarjs/S3776': ['error', 0, 'report-issues'],
     });
   });
 
