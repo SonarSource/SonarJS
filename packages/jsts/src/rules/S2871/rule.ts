@@ -28,8 +28,16 @@ import {
   isNumberArray,
   isStringArray,
 } from '../helpers/type.js';
-import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { getVariableFromScope, isCallingMethod, isIdentifier } from '../helpers/ast.js';
+import {
+  isRequiredParserServices,
+  type RequiredParserServices,
+} from '../helpers/parser-services.js';
+import {
+  functionLike,
+  getVariableFromScope,
+  isCallingMethod,
+  isIdentifier,
+} from '../helpers/ast.js';
 import { getNodeParent } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
@@ -80,26 +88,40 @@ function isArrayFromIterableMethod(node: estree.Node): boolean {
 }
 
 /**
- * Checks if the array being sorted comes from Object.keys, Object.getOwnPropertyNames,
- * or Array.from(x.keys()) patterns
- */
-function isArrayFromKeyOrEntryCall(node: estree.Node): boolean {
-  return isObjectStaticKeyCall(node) || isArrayFromIterableMethod(node);
-}
-
-/**
  * Checks if the sorted array is provably a technical string collection where
  * default alphabetical ordering is intentional (Object keys, for-in key arrays).
- * Used to suppress false positives in both the no-type-checker and type-checker paths.
+ * Used in both the no-type-checker and type-checker paths.
+ * Does NOT include Array.from(x.keys()) — that requires type info to distinguish
+ * Map<string,...>.keys() from numeric array .keys() and other iterables.
  */
 function isTechnicalStringSort(
   object: estree.Node,
   sourceCode: Rule.RuleContext['sourceCode'],
 ): boolean {
   return (
-    isArrayFromKeyOrEntryCall(object) ||
+    isObjectStaticKeyCall(object) ||
     (object.type === 'Identifier' && isForInKeyArray(object, sourceCode))
   );
+}
+
+/**
+ * Checks if the node is Array.from(receiver.keys()) where receiver is a built-in Map.
+ * Only valid when the type checker is available. Suppresses sort() on Map keys,
+ * which are technical strings where default alphabetical ordering is intentional.
+ * Does NOT suppress Set<string>.keys() or custom .keys() methods.
+ */
+function isArrayFromMapStringKeysCall(
+  object: estree.Node,
+  services: RequiredParserServices,
+): boolean {
+  if (!isArrayFromIterableMethod(object)) {
+    return false;
+  }
+  const callExpr = object as estree.CallExpression;
+  const arg = callExpr.arguments[0] as estree.CallExpression;
+  const innerReceiver = (arg.callee as estree.MemberExpression).object;
+  const receiverType = getTypeFromTreeNode(innerReceiver, services);
+  return receiverType.symbol?.name === 'Map';
 }
 
 /**
@@ -113,19 +135,13 @@ function isInOrderIndependentComparison(parent: estree.Node | undefined): boolea
   return ['===', '!==', '==', '!='].includes(parent.operator);
 }
 
-const functionBoundaryTypes = new Set([
-  'FunctionDeclaration',
-  'FunctionExpression',
-  'ArrowFunctionExpression',
-]);
-
 function getEnclosingForIn(startNode: estree.Node): estree.ForInStatement | null {
   let current: estree.Node | undefined = getNodeParent(startNode);
   while (current) {
     if (current.type === 'ForInStatement') {
       return current;
     }
-    if (functionBoundaryTypes.has(current.type)) {
+    if (functionLike.has(current.type)) {
       return null;
     }
     current = getNodeParent(current);
@@ -271,7 +287,10 @@ export const rule: Rule.RuleModule = {
         // alphabetical ordering is clearly intentional; report everything else
         // with a localeCompare suggestion.
         if (isStringArray(type, services)) {
-          if (isTechnicalStringSort(object, sourceCode)) {
+          if (
+            isTechnicalStringSort(object, sourceCode) ||
+            isArrayFromMapStringKeysCall(object, services)
+          ) {
             return; // safe: provably technical strings
           }
           context.report({

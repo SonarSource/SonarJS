@@ -524,6 +524,29 @@ describe('S2871', () => {
               },
             ],
           },
+          // Set<string>.keys() yields user-facing strings — not technical keys, must be reported
+          {
+            code: `
+        function f(s: Set<string>) {
+          return Array.from(s.keys()).sort();
+        }
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+        function f(s: Set<string>) {
+          return Array.from(s.keys()).sort((a, b) => a.localeCompare(b));
+        }
+      `,
+                  },
+                ],
+              },
+            ],
+          },
           {
             code: `
         function f<T extends number[]>(a: T) {
@@ -562,9 +585,6 @@ describe('S2871', () => {
         { code: `Object.keys({ a: 1 }).toSorted()` },
         { code: `Object.getOwnPropertyNames({ a: 1 }).sort()` },
         { code: `Object.getOwnPropertyNames({ a: 1 }).toSorted()` },
-        // AST-based suppression: Array.from(x.keys()) - keys() is typically string-returning (Map/Set/Object)
-        { code: `Array.from(map.keys()).sort()` },
-        { code: `Array.from(map.keys()).toSorted()` },
         // AST-based suppression: order-independent comparison
         { code: `a.sort() === b.sort()` },
         { code: `a.sort() !== b.sort()` },
@@ -672,6 +692,25 @@ describe('S2871', () => {
         },
         {
           code: `Foo.from(map.keys()).toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // Array.from(x.keys()) is not suppressed without type checker:
+        // x could be a numeric array or any non-Map iterable
+        {
+          code: `Array.from(map.keys()).sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `Array.from(map.keys()).toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // Regression: numeric .keys() iterators must still be reported
+        {
+          code: `Array.from(numArr.keys()).sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `Array.from(numArr.keys()).toSorted()`,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
       ],
@@ -1174,6 +1213,29 @@ describe('S2871', () => {
                     output: `
         function f(arr: number[]) {
           return Array.from(arr.keys()).toSorted((a, b) => (a - b));
+        }
+      `,
+                  },
+                ],
+              },
+            ],
+          },
+          // Set<string>.keys() yields user-facing strings — not technical keys, must be reported
+          {
+            code: `
+        function f(s: Set<string>) {
+          return Array.from(s.keys()).toSorted();
+        }
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+        function f(s: Set<string>) {
+          return Array.from(s.keys()).toSorted((a, b) => a.localeCompare(b));
         }
       `,
                   },
