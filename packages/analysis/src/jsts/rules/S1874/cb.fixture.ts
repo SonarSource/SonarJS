@@ -141,10 +141,10 @@ deprecatedCallSignature2(); // Noncompliant {{'deprecatedCallSignature2' is depr
 
 /* separator */
 
-import * as allDeprecations from './cb.fixture.deprecations.js';
+import * as allDeprecations from './cb.fixture.deprecations';
 z(allDeprecations.deprecatedFunction);
 
-import defaultImport, {deprecatedFunction, anotherDeprecatedFunction as aliasForDeprecated, notDeprecated1, notDeprecated2} from './cb.fixture.deprecations.js'; // Noncompliant  {{'anotherDeprecatedFunction' is deprecated.}} {{'notDeprecated1' is deprecated.}}
+import defaultImport, {deprecatedFunction, anotherDeprecatedFunction as aliasForDeprecated, notDeprecated1, notDeprecated2} from './cb.fixture.deprecations'; // Noncompliant  {{'anotherDeprecatedFunction' is deprecated.}} {{'notDeprecated1' is deprecated.}}
 defaultImport(); // Noncompliant {{'defaultImport' is deprecated.}}
 deprecatedFunction(); // Noncompliant {{The signature '(): void' of 'deprecatedFunction' is deprecated.}}
 deprecatedFunction(1);
@@ -152,10 +152,10 @@ aliasForDeprecated(); // Noncompliant {{'aliasForDeprecated' is deprecated.}}
 noDeprecated1(); // OK
 noDeprecated2(); // OK
 
-import * as deprecationsExport from './cb.fixture.deprecationsExport.js';
+import * as deprecationsExport from './cb.fixture.deprecationsExport';
 z(deprecationsExport); // Noncompliant {{'deprecationsExport' is deprecated.}}
 
-import {DeprecatedClass, ClassWithDeprecatedConstructor, ClassWithOneDeprecatedConstructor} from "./cb.fixture.deprecations.js" // Noncompliant {{'DeprecatedClass' is deprecated.}}
+import {DeprecatedClass, ClassWithDeprecatedConstructor, ClassWithOneDeprecatedConstructor} from "./cb.fixture.deprecations" // Noncompliant {{'DeprecatedClass' is deprecated.}}
 const myObj2: DeprecatedClass = new DeprecatedClass();  // Noncompliant  {{'DeprecatedClass' is deprecated.}} {{'DeprecatedClass' is deprecated.}}
 const myObj3: DeprecatedConstructorClass = new ClassWithDeprecatedConstructor(); // Noncompliant {{The signature '(): ClassWithDeprecatedConstructor' of 'ClassWithDeprecatedConstructor' is deprecated.}}
 new ClassWithOneDeprecatedConstructor();
