@@ -18,8 +18,50 @@ import { rule } from './rule.js';
 import type { IssueLocation } from '../helpers/location.js';
 import { NoTypeCheckingRuleTester } from '../../../tests/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import { Linter as ESLintLinter } from 'eslint';
+import { toInternalMetricsSettings } from '../helpers/internal-metrics.js';
+import { expect } from 'expect';
 
 describe('S3776', () => {
+  it('should write file complexity metric to internal settings sink when available', () => {
+    const linter = new ESLintLinter();
+    const sink = {};
+
+    const messages = linter.verify(
+      `
+      function foo(flag) {
+        if (flag) {
+          return 1;
+        }
+        return 0;
+      }
+      `,
+      {
+        languageOptions: {
+          ecmaVersion: 2022,
+        },
+        plugins: {
+          sonarjs: {
+            rules: {
+              S3776: rule,
+            },
+          },
+        },
+        rules: {
+          'sonarjs/S3776': ['error', 0, 'silence-issues'],
+        },
+        settings: {
+          ...toInternalMetricsSettings(sink),
+        },
+        files: ['**/*.js'],
+      },
+      { filename: 'input.js' },
+    );
+
+    expect(messages).toEqual([]);
+    expect(sink).toEqual({ cognitiveComplexity: 1 });
+  });
+
   it('S3776', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
@@ -502,97 +544,6 @@ describe('S3776', () => {
               },
             },
           ],
-        },
-      ],
-    });
-
-    ruleTester.run('file-cognitive-complexity', rule, {
-      valid: [],
-      invalid: [
-        {
-          code: `
-      a; // Noncompliant [[id=1]] {{25}}
-function foo() {
-  x && y;
-//S ^^ 1 {{+1}}
-  function foo1() {
-    if (x) {}
-//S ^^ 1 {{+1}}
-  }
-}
-
-function bar() {
-    if (x) {}
-//S ^^ 1 {{+1}}
-    function bar1() {
-      if (x) {}
-//S   ^^ 1 {{+2 (incl. 1 for nesting)}}
-    }
-}
-
-    if (x) {
-//S ^^ 1 {{+1}}
-      function zoo() {
-       x && y;
-//S      ^^ 1 {{+1}}
-       function zoo2() {
-         if (x) {}
-//S      ^^ 1 {{+2 (incl. 1 for nesting)}}
-       }
-      }
-
-      function zoo1() {
-        if (x) {}
-//S     ^^ 1 {{+2 (incl. 1 for nesting)}}
-      }
-
-    }
-
-x   && y;
-//S ^^ 1 {{+1}}
-
-    if (x) {
-//S ^^ 1
-      if (y) {
-//S   ^^ 1
-        function nested() {
-          if (z) {}
-//S       ^^ 1
-          x && y;
-//S         ^^ 1
-        }
-      }
-
-      class NestedClass {
-
-        innerMethod() {
-          if (x) {}
-//S       ^^ 1 {{+2 (incl. 1 for nesting)}}
-        }
-
-      }
-
-    }
-
-class TopLevel {
-
-  someMethod() {
-    if (x) {
-//S ^^ 1 {{+1}}
-      class ClassInClass {
-
-        innerMethod() {
-          if (x) {}
-//S       ^^ 1 {{+3 (incl. 2 for nesting)}}
-        }
-      }
-    }
-  }
-}
-      `,
-          options: [0, 'metric'],
-          settings: { sonarRuntime: true },
-          errors: [{ messageId: 'fileComplexity', data: { complexityAmount: 25 } }],
         },
       ],
     });

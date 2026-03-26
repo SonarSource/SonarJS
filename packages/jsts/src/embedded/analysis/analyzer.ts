@@ -19,7 +19,7 @@ import type { Position } from 'estree';
 import type { JsTsIssue } from '../../linter/issues/issue.js';
 import { Linter } from '../../linter/linter.js';
 import type { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
-import { findNcloc } from '../../linter/visitors/metrics/ncloc.js';
+import { collectNclocLines } from '../../analysis/file-artifacts.js';
 import { type ExtendedParseResult, type LanguageParser, build } from '../builder/build.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 
@@ -66,12 +66,8 @@ export async function analyzeEmbedded(
 }
 
 function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
-  const { issues } = Linter.lint(
-    extendedParseResult,
-    extendedParseResult.syntheticFilePath,
-    'MAIN',
-  );
-  const ncloc = findNcloc(extendedParseResult.sourceCode);
+  const issues = Linter.lint(extendedParseResult, extendedParseResult.syntheticFilePath, 'MAIN');
+  const ncloc = collectNclocLines(extendedParseResult.sourceCode);
   return { issues, ncloc };
 }
 

@@ -14,23 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'original';
-export const eslintId = 'cognitive-complexity';
-export * from './config.js';
-export const hasSecondaries = true;
+import type estree from 'estree';
+import type { SourceCode } from 'eslint';
+import { childrenOf } from '../rules/helpers/ancestor.js';
 
-import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
-export const schema = {
-  type: 'array',
-  minItems: 0,
-  maxItems: 2,
-  items: [
-    {
-      oneOf: [
-        { type: 'integer', minimum: 0 },
-        { type: 'string', enum: ['silence-issues'] },
-      ],
-    },
-    { type: 'string', enum: ['silence-issues'] },
-  ],
-} as const satisfies JSONSchema4;
+/**
+ * Visits the abstract syntax tree of an ESLint source code
+ * @param sourceCode the source code to visit
+ * @param callback a callback function invoked at each node visit
+ */
+export function visit(sourceCode: SourceCode, callback: (node: estree.Node) => void): void {
+  const stack: estree.Node[] = [sourceCode.ast];
+  while (stack.length) {
+    const node = stack.pop() as estree.Node;
+    callback(node);
+    stack.push(...childrenOf(node, sourceCode.visitorKeys).reverse());
+  }
+}

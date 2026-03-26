@@ -17,10 +17,7 @@
 import type { FileType, NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 import type { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import type { AnalysisInput, AnalysisOutput } from '../../../shared/src/types/analysis.js';
-import type { SyntaxHighlight } from '../linter/visitors/syntax-highlighting.js';
-import type { SymbolHighlight } from '../linter/visitors/symbol-highlighting.js';
-import type { Metrics } from '../linter/visitors/metrics/metrics.js';
-import type { CpdToken } from '../linter/visitors/cpd.js';
+import type { CpdToken, Metrics, SymbolHighlight, SyntaxHighlight } from './file-artifacts.js';
 import type { JsTsIssue } from '../linter/issues/issue.js';
 import type { CssIssue } from '../../../css/src/linter/issues/issue.js';
 import type { Program } from 'typescript';

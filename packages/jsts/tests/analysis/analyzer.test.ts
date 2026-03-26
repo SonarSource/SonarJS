@@ -830,6 +830,24 @@ describe('await analyzeJSTS', () => {
     });
   });
 
+  it('should keep cognitive complexity metric at 0 when S3776 is disabled with ESLint directives', async () => {
+    const rules: RuleConfig[] = [];
+    const filePath = path.join(
+      currentPath,
+      '..',
+      'linter',
+      'fixtures',
+      'wrapper',
+      'cognitive-function-disabled.js',
+    );
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
+
+    const { issues, metrics } = await analyzeJSTS(await jsTsInput({ filePath }));
+
+    expect(issues).toEqual([]);
+    expect(metrics?.cognitiveComplexity).toEqual(0);
+  });
+
   it('should compute metrics on test files', async () => {
     const rules: RuleConfig[] = [];
     const filePath = path.join(fixtures, 'metrics.js');

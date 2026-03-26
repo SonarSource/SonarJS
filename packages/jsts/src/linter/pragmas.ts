@@ -16,7 +16,6 @@
  */
 import type { Linter, Rule } from 'eslint';
 import type estree from 'estree';
-import { customRules as internalCustomRules } from './custom-rules/rules.js';
 import * as ruleMetas from '../rules/metas.js';
 import * as rules from '../rules/rules.js';
 import type { NormalizedAbsolutePath } from '../rules/helpers/files.js';
@@ -35,10 +34,6 @@ type Directive = {
   ruleId: string | null;
   justification: string;
 };
-
-for (const rule of internalCustomRules) {
-  eslintMapping[rule.ruleId] = { ruleId: `sonarjs/${rule.ruleId}`, ruleModule: rule.ruleModule };
-}
 
 for (const [sonarKey, meta] of Object.entries(ruleMetas)) {
   const ruleId = `sonarjs/${sonarKey}`;

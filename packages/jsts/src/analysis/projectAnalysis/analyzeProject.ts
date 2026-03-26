@@ -84,7 +84,6 @@ export async function analyzeProject(
     rules,
     environments,
     globals,
-    sonarlint,
     bundles,
     baseDir,
     rulesWorkdir,

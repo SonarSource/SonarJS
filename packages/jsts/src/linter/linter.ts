@@ -17,11 +17,9 @@
 import { debug } from '../../../shared/src/helpers/logging.js';
 import { type Rule, Linter as ESLintLinter } from 'eslint';
 import type { RuleConfig } from './config/rule-config.js';
-import type { CustomRule } from './custom-rules/custom-rule.js';
 import type { JsTsLanguage } from '../../../shared/src/helpers/configuration.js';
 import type { FileType } from '../../../shared/src/helpers/files.js';
-import { type LintingResult, transformMessages } from './issues/transform.js';
-import { customRules } from './custom-rules/rules.js';
+import { transformMessages } from './issues/transform.js';
 import * as internalRules from '../rules/rules.js';
 import {
   normalizePath,
@@ -53,9 +51,13 @@ interface InitializeParams {
   environments?: string[];
   globals?: string[];
   baseDir: NormalizedAbsolutePath;
-  sonarlint?: boolean;
   bundles?: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
+}
+
+interface LintOptions {
+  additionalSettings?: Record<string, unknown>;
+  additionalRules?: ESLintLinter.RulesRecord;
 }
 
 /**
@@ -84,19 +86,8 @@ export class Linter {
   private static linter: ESLintLinter;
   /**
    * internal rules: rules in the packages/jsts/src/rules folder
-   * custom rules: used internally by SonarQube to have the symbol highlighting and
-   * the cognitive complexity metrics.
    */
-  public static readonly rules: Record<string, Rule.RuleModule> = {
-    ...internalRules,
-    ...customRules.reduce(
-      (acc, rule: CustomRule) => {
-        acc[rule.ruleId] = rule.ruleModule;
-        return acc;
-      },
-      {} as Record<string, Rule.RuleModule>,
-    ),
-  };
+  public static readonly rules: Record<string, Rule.RuleModule> = { ...internalRules };
 
   /** The rules configuration */
   private static ruleConfigs: RuleConfig[] | undefined;
@@ -106,8 +97,6 @@ export class Linter {
   public static readonly globals: Map<string, ESLintLinter.GlobalConf> = new Map();
   /** The rules working directory (used for architecture, dbd...) */
   private static rulesWorkdir?: NormalizedAbsolutePath;
-  /** whether we are running in sonarlint context */
-  private static sonarlint: boolean;
   private static baseDir: NormalizedAbsolutePath;
 
   /** Linter is a static class and cannot be instantiated */
@@ -127,7 +116,6 @@ export class Linter {
    * @param rules the active quality profile rules
    * @param environments the JavaScript execution environments
    * @param globals the global variables
-   * @param sonarlint whether we are running in sonarlint context
    * @param bundles paths to external rule bundles to import
    * @param baseDir the working directory
    * @param rulesWorkdir the working directory for rules accessing FS (architecture, dbd)
@@ -136,14 +124,12 @@ export class Linter {
     rules,
     environments = [],
     globals = [],
-    sonarlint = false,
     bundles = [],
     baseDir,
     rulesWorkdir,
   }: InitializeParams) {
     debug(`Initializing linter with ${rules?.map(rule => rule.key)}`);
     Linter.ruleConfigs = rules;
-    Linter.sonarlint = sonarlint;
     Linter.linter = new ESLintLinter({ cwd: baseDir });
     Linter.rulesWorkdir = rulesWorkdir;
     Linter.setGlobals(globals, environments);
@@ -181,7 +167,8 @@ export class Linter {
    * @param analysisMode whether we are analyzing all files or only changed files
    * @param language language of the source file
    * @param detectedEsYear ecmascript version for the file
-   * @returns the linting result
+   * @param lintOptions additional rules and settings for linting
+   * @returns linting issues
    */
   static lint(
     { sourceCode, parserOptions, parser }: ParseResult,
@@ -191,10 +178,21 @@ export class Linter {
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
     detectedEsYear?: number,
-  ): LintingResult {
+    lintOptions: LintOptions = {},
+  ) {
     if (!Linter.linter) {
       throw APIError.linterError(`Linter does not exist.`);
     }
+    const baseRules = Linter.getRulesForFile(
+      filePath,
+      fileType,
+      fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
+      language,
+      detectedEsYear,
+    );
+    const rules = lintOptions.additionalRules
+      ? { ...lintOptions.additionalRules, ...baseRules }
+      : baseRules;
     const config = {
       languageOptions: {
         globals: Object.fromEntries(Linter.globals),
@@ -204,25 +202,24 @@ export class Linter {
       plugins: {
         sonarjs: { rules: Linter.rules },
       },
-      rules: Linter.getRulesForFile(
-        filePath,
-        fileType,
-        fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
-        language,
-        detectedEsYear,
-      ),
+      rules,
       /* using "max" version to prevent `eslint-plugin-react` from printing a warning */
       settings: {
         react: { version: '999.999.999' },
         fileType,
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
+        ...lintOptions.additionalSettings,
       },
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
-    return transformMessages(messages, language, { sourceCode, ruleMetas, filePath });
+    return transformMessages(messages, language, {
+      sourceCode,
+      ruleMetas,
+      filePath,
+    });
   }
 
   /**
@@ -299,9 +296,7 @@ export class Linter {
             ? ((ruleMeta as { requiredModuleType?: ModuleType }).requiredModuleType ?? undefined)
             : undefined;
         const satisfiesModuleType =
-          !detectedModuleType ||
-          !requiredModuleType ||
-          requiredModuleType === detectedModuleType;
+          !detectedModuleType || !requiredModuleType || requiredModuleType === detectedModuleType;
         return (
           fileTypeTargets.includes(fileType) &&
           analysisModes.includes(analysisMode) &&
@@ -328,45 +323,23 @@ export class Linter {
    * @param rules the rules from the active quality profile
    */
   private static createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
-    return {
-      ...rules.reduce((rules, rule) => {
-        // in the case of bundles, rule.key will not be present in the ruleMetas
-        const ruleMeta =
-          rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
-        if (ruleMeta && 'fields' in ruleMeta) {
-          rules[`sonarjs/${rule.key}`] = [
-            'error',
-            ...applyTransformations(
-              ruleMeta.fields,
-              merge(defaultOptions(ruleMeta.fields), rule.configurations),
-            ),
-          ];
-        } else {
-          rules[`sonarjs/${rule.key}`] = ['error'];
-        }
-        return rules;
-      }, {} as ESLintLinter.RulesRecord),
-      ...Linter.createInternalRulesRecord(),
-    };
-  }
-
-  /**
-   * Custom rules like cognitive complexity and symbol highlighting
-   * are always enabled as part of metrics computation. Such rules
-   * are, therefore, added in the linting configuration by default.
-   *
-   * _Internal custom rules are not enabled in SonarLint context._
-   */
-  private static createInternalRulesRecord(): ESLintLinter.RulesRecord {
-    if (Linter.sonarlint) {
-      return {};
-    }
-    return {
-      ...customRules.reduce((rules, rule) => {
-        rules[`sonarjs/${rule.ruleId}`] = ['error', ...rule.ruleConfig];
-        return rules;
-      }, {} as ESLintLinter.RulesRecord),
-    };
+    return rules.reduce((rules, rule) => {
+      // in the case of bundles, rule.key will not be present in the ruleMetas
+      const ruleMeta =
+        rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
+      if (ruleMeta && 'fields' in ruleMeta) {
+        rules[`sonarjs/${rule.key}`] = [
+          'error',
+          ...applyTransformations(
+            ruleMeta.fields,
+            merge(defaultOptions(ruleMeta.fields), rule.configurations),
+          ),
+        ];
+      } else {
+        rules[`sonarjs/${rule.key}`] = ['error'];
+      }
+      return rules;
+    }, {} as ESLintLinter.RulesRecord);
   }
 }
 

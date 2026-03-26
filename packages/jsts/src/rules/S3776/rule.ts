@@ -34,8 +34,10 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
+import { getInternalMetricsSink } from '../helpers/internal-metrics.js';
 
 const DEFAULT_THRESHOLD = 15;
+const SILENCE_ISSUES_OPTION = 'silence-issues';
 
 type LoopStatement =
   | TSESTree.ForStatement
@@ -53,7 +55,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
       refactorFunction: message,
-      fileComplexity: '{{complexityAmount}}',
     },
   }),
   create(context) {
@@ -61,8 +62,9 @@ export const rule: Rule.RuleModule = {
     const thresholdOption = (context.options as FromSchema<typeof meta.schema>)[0];
     const threshold = typeof thresholdOption === 'number' ? thresholdOption : DEFAULT_THRESHOLD;
 
-    /** Indicator if the file complexity should be reported */
-    const isFileComplexity = context.options.includes('metric');
+    const metricsSink = getInternalMetricsSink(context.settings);
+    const shouldSilenceIssues = context.options.includes(SILENCE_ISSUES_OPTION);
+    const shouldReportIssues = !shouldSilenceIssues;
 
     /** Complexity of the file */
     let fileComplexity = 0;
@@ -146,14 +148,9 @@ export const rule: Rule.RuleModule = {
       Program() {
         fileComplexity = 0;
       },
-      'Program:exit'(node: estree.Node) {
-        if (isFileComplexity) {
-          // value from the message will be saved in SonarQube as file complexity metric
-          context.report({
-            node,
-            messageId: 'fileComplexity',
-            data: { complexityAmount: fileComplexity as any },
-          });
+      'Program:exit'() {
+        if (metricsSink) {
+          metricsSink.cognitiveComplexity = fileComplexity;
         }
       },
       IfStatement(node: estree.Node) {
@@ -253,7 +250,7 @@ export const rule: Rule.RuleModule = {
         });
       }
 
-      if (isFileComplexity) {
+      if (!shouldReportIssues) {
         return;
       }
 

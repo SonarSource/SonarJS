@@ -27,6 +27,7 @@ import {
   getProjectAnalysisTelemetry,
   resetProjectAnalysisTelemetry,
 } from '../../src/analysis/projectAnalysis/telemetry.js';
+import { toInternalMetricsSettings } from '../../src/rules/helpers/internal-metrics.js';
 
 describe('Linter', () => {
   it('should initialize the linter wrapper', async ({ mock }) => {
@@ -54,9 +55,7 @@ describe('Linter', () => {
       path.join(import.meta.dirname, 'fixtures', 'index', 'regular.js'),
     );
 
-    const {
-      issues: [issue],
-    } = Linter.lint(await parseJavaScriptSourceFile(filePath), filePath);
+    const [issue] = Linter.lint(await parseJavaScriptSourceFile(filePath), filePath);
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'S1116',
@@ -86,7 +85,6 @@ describe('Linter', () => {
       ],
       environments: [],
       globals: [],
-      sonarlint: false,
       bundles: [bundlePath],
     });
 
@@ -100,9 +98,10 @@ describe('Linter', () => {
       path.join(import.meta.dirname, 'fixtures', 'index', 'custom.js'),
     );
 
-    const {
-      issues: [issue],
-    } = Linter.lint(await parseJavaScriptSourceFile(filePath, [], 'MAIN', false, false), filePath);
+    const [issue] = Linter.lint(
+      await parseJavaScriptSourceFile(filePath, [], 'MAIN', false, false),
+      filePath,
+    );
     expect(issue).toEqual(
       expect.objectContaining({
         ruleId: 'custom-rule',
@@ -213,15 +212,32 @@ describe('Linter', () => {
     expect(rules).toHaveProperty('sonarjs/S6477');
   });
 
-  it('should enable internal custom rules by default', async () => {
+  it('should not force cognitive complexity metric rule by default', async () => {
     await Linter.initialize({
       baseDir: normalizeToAbsolutePath(import.meta.dirname),
     });
     expect(
       Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+    ).toEqual({});
+  });
+
+  it('should keep S3776 options from quality profile', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S3776',
+          configurations: [0],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    expect(
+      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
     ).toEqual({
-      'sonarjs/internal-cognitive-complexity': ['error', 'metric'],
-      'sonarjs/internal-symbol-highlighting': ['error'],
+      'sonarjs/S3776': ['error', 0],
     });
   });
 
@@ -386,7 +402,7 @@ describe('Linter', () => {
     });
   });
 
-  it('should not enable internal custom rules in SonarLint context', async () => {
+  it('should keep configured rules unchanged when only profile rules are set', async () => {
     await Linter.initialize({
       baseDir: normalizeToAbsolutePath(import.meta.dirname),
       rules: [
@@ -400,7 +416,6 @@ describe('Linter', () => {
       ],
       environments: [],
       globals: [],
-      sonarlint: true,
     });
     expect(
       Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
@@ -432,7 +447,7 @@ describe('Linter', () => {
     ];
 
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
-    const { issues } = Linter.lint(parseResult, filePath, 'MAIN', 'SAME');
+    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'SAME');
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -459,7 +474,7 @@ describe('Linter', () => {
     ];
 
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
-    const { issues } = Linter.lint(parseResult, filePath, 'MAIN', 'SAME', 'SKIP_UNCHANGED');
+    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'SAME', 'SKIP_UNCHANGED');
 
     expect(issues).toEqual([]);
   });
@@ -483,7 +498,7 @@ describe('Linter', () => {
     ];
 
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
-    const { issues } = Linter.lint(parseResult, filePath);
+    const issues = Linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -516,7 +531,7 @@ describe('Linter', () => {
     ];
 
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
-    const { issues } = Linter.lint(parseResult, filePath, 'TEST');
+    const issues = Linter.lint(parseResult, filePath, 'TEST');
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -543,7 +558,7 @@ describe('Linter', () => {
     ];
 
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
-    const { issues } = Linter.lint(parseResult, filePath);
+    const issues = Linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(0);
   });
@@ -564,7 +579,7 @@ describe('Linter', () => {
       },
     ];
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
-    const { issues } = Linter.lint(parseResult, filePath);
+    const issues = Linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(0);
   });
@@ -587,7 +602,7 @@ describe('Linter', () => {
     ];
 
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
-    const { issues } = Linter.lint(parseResult, filePath);
+    const issues = Linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -628,7 +643,7 @@ describe('Linter', () => {
     ];
 
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
-    const { issues } = Linter.lint(parseResult, filePath);
+    const issues = Linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(4);
     expect(issues.every(issue => issue.ruleId === 'S3854')).toBe(true);
@@ -651,7 +666,7 @@ describe('Linter', () => {
     ];
 
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
-    const { issues } = Linter.lint(parseResult, filePath);
+    const issues = Linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(0);
   });
@@ -666,7 +681,7 @@ describe('Linter', () => {
       baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
       rules: [],
     });
-    const { issues } = Linter.lint(parseResult, filePath);
+    const issues = Linter.lint(parseResult, filePath);
 
     expect(issues).toEqual([
       expect.objectContaining({
@@ -705,7 +720,7 @@ describe('Linter', () => {
       rules,
       environments: env,
     });
-    const { issues } = Linter.lint(parseResult, filePath);
+    const issues = Linter.lint(parseResult, filePath);
     expect(Linter.globals.has('alert')).toBeTruthy();
     expect(issues).toHaveLength(0);
   });
@@ -737,15 +752,15 @@ describe('Linter', () => {
       environments: [],
       globals: globals,
     });
-    const { issues } = Linter.lint(parseResult, filePath);
+    const issues = Linter.lint(parseResult, filePath);
 
     expect(Linter.globals.has('angular')).toEqual(true);
     expect(issues).toHaveLength(0);
   });
 
-  it('should compute cognitive complexity and symbol highlighting', async () => {
+  it('should apply additional rules during linting', async () => {
     const filePath = normalizeToAbsolutePath(
-      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-symbol.js'),
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-function.js'),
     );
     const parseResult = await parseJavaScriptSourceFile(filePath);
 
@@ -753,19 +768,61 @@ describe('Linter', () => {
       baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
       rules: [],
     });
-    const { cognitiveComplexity, highlightedSymbols } = Linter.lint(parseResult, filePath);
-
-    expect(cognitiveComplexity).toEqual(6);
-    expect(highlightedSymbols).toEqual([
-      {
-        declaration: {
-          startLine: 1,
-          startCol: 42,
-          endLine: 1,
-          endCol: 43,
-        },
-        references: [],
+    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', 2022, {
+      additionalRules: {
+        'sonarjs/S3776': ['error', 0],
       },
-    ]);
+    });
+
+    expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3776' })]);
+  });
+
+  it('should prefer configured rules over additional rules', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-function.js'),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S3776',
+          configurations: [0],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', 2022, {
+      additionalRules: {
+        'sonarjs/S3776': ['error', 'silence-issues'],
+      },
+    });
+
+    expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3776' })]);
+  });
+
+  it('should pass additional settings to rules during linting', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'cognitive-function.js'),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [],
+    });
+    const sink = {};
+    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', 2022, {
+      additionalRules: {
+        'sonarjs/S3776': ['error', 'silence-issues'],
+      },
+      additionalSettings: toInternalMetricsSettings(sink),
+    });
+
+    expect(sink).toEqual({ cognitiveComplexity: 1 });
+    expect(issues).toEqual([]);
   });
 });
