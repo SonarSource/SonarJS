@@ -99,9 +99,9 @@ const program = ts.createProgram({
 const parsed = ts.parseJsonConfigFileContent(
   { compilerOptions: { target: 'ES2020', allowJs: true, noEmit: true } },
   ts.sys,
-  'c:/www/projects/SonarJS/packages/jsts',
+  'c:/www/projects/SonarJS/packages/analysis/src/jsts',
   {},
-  'c:/www/projects/SonarJS/packages/jsts/tsconfig.json', // Inside process.cwd()
+  'c:/www/projects/SonarJS/packages/analysis/src/jsts/tsconfig.json', // Inside process.cwd()
 );
 
 const program = ts.createProgram({
@@ -117,18 +117,18 @@ const program = ts.createProgram({
 - `getCurrentDirectory()` calls: 1 (returns `C:\www\projects\SonarJS`)
 - `directoryExists()` calls: 3,715
 - @types searches: **1,537+ attempts**
-  - `c:/www/projects/SonarJS/packages/jsts/node_modules/@types` → false
+  - `c:/www/projects/SonarJS/packages/analysis/src/jsts/node_modules/@types` → false
   - `c:/www/projects/SonarJS/node_modules/@types` → true ✓
   - Then searches each @types package like Scenario B
 - **@types/node: FOUND** ✓
 
 ### Summary
 
-| Scenario | configFilePath                                        | @types Search Starting Point             | @types/node Found? | Method Calls |
-| -------- | ----------------------------------------------------- | ---------------------------------------- | ------------------ | ------------ |
-| A        | `/project/root/tsconfig.json`                         | `/project/root/`                         | ❌ No              | 2,388        |
-| B        | `undefined`                                           | `process.cwd()`                          | ✓ Yes              | 11,758       |
-| C        | `c:/www/projects/SonarJS/packages/jsts/tsconfig.json` | `c:/www/projects/SonarJS/packages/jsts/` | ✓ Yes              | 11,996       |
+| Scenario | configFilePath                                                     | @types Search Starting Point                          | @types/node Found? | Method Calls |
+| -------- | ------------------------------------------------------------------ | ----------------------------------------------------- | ------------------ | ------------ |
+| A        | `/project/root/tsconfig.json`                                      | `/project/root/`                                      | ❌ No              | 2,388        |
+| B        | `undefined`                                                        | `process.cwd()`                                       | ✓ Yes              | 11,758       |
+| C        | `c:/www/projects/SonarJS/packages/analysis/src/jsts/tsconfig.json` | `c:/www/projects/SonarJS/packages/analysis/src/jsts/` | ✓ Yes              | 11,996       |
 
 ### Important Notes
 

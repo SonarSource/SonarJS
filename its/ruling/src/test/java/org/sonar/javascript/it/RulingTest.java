@@ -29,12 +29,9 @@ import com.sonar.orchestrator.locator.MavenLocation;
 import com.sonar.orchestrator.util.Version;
 import java.io.File;
 import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -167,7 +164,6 @@ class RulingTest {
 
   @BeforeAll
   public static void setUp() throws Exception {
-    cleanRootNodeModules();
     ProfileGenerator.RulesConfiguration jsRulesConfiguration =
       new ProfileGenerator.RulesConfiguration()
         .add(
@@ -234,32 +230,6 @@ class RulingTest {
     installScanner();
   }
 
-  /**
-   * Method to remove SonarJS root node_modules to avoid typescript picking up typings from SonarJS,
-   * as they are not available during CI and the results with and without node_modules are different.
-   *
-   * @throws IOException
-   */
-  private static void cleanRootNodeModules() throws IOException {
-    var nodeModules = Path.of("../../node_modules");
-    if (Files.exists(nodeModules)) {
-      var start = System.currentTimeMillis();
-      LOG.info("Cleaning node_modules");
-      try (var dirStream = Files.walk(nodeModules)) {
-        dirStream.sorted(Comparator.reverseOrder()).forEachOrdered(RulingTest::deleteUnchecked);
-      }
-      LOG.info("Done cleaning node_modules in {}ms", System.currentTimeMillis() - start);
-    }
-  }
-
-  private static void deleteUnchecked(Path path) {
-    try {
-      Files.delete(path);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
-  }
-
   private static void installScanner() {
     var installer = new SonarScannerInstaller(orchestrator.getLocators());
     installer.install(Version.create(SCANNER_VERSION), Path.of("target").toFile());
@@ -313,6 +283,7 @@ class RulingTest {
       .setProperty("sonar.javascript.node.maxspace", "4096")
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
+      .setProperty("sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir", "true")
       .setProperty("sonar.internal.analysis.failFast", "true");
 
     orchestrator.executeBuild(build);

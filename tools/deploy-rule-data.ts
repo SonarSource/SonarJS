@@ -17,7 +17,7 @@
 import { join, resolve } from 'node:path/posix';
 import { listRulesDir } from './helpers.js';
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
-import { cssRulesMeta } from '../packages/css/src/rules/metadata.js';
+import { cssRulesMeta } from '../packages/analysis/src/css/rules/metadata.js';
 
 const sourceFolder = resolve('resources/rule-data');
 
@@ -50,7 +50,9 @@ const CSS_RULE_DATA_FOLDER = join(
 );
 
 const jsRuleNames = [...new Set([...(await listRulesDir()), 'S2260'])].sort(sortRuleKeys);
-const cssRuleNames = [...new Set(cssRulesMeta.map(rule => rule.sqKey))].sort(sortRuleKeys);
+const cssRuleNames = [...new Set([...cssRulesMeta.map(rule => rule.sqKey), 'S2260'])].sort(
+  sortRuleKeys,
+);
 
 type RuleManifest = {
   defaultQualityProfiles?: Array<string>;

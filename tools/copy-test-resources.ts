@@ -21,15 +21,15 @@ import { toUnixPath } from './helpers.js';
 
 const sourceBaseDir = path.join(import.meta.dirname, '..');
 const patterns = [
-  'packages/*/tests/**/fixtures/**/*',
-  'packages/*/tests/**/fixtures-*/**/*',
-  'packages/*/src/rules/**/*.fixture.*',
-  'packages/*/src/rules/**/fixtures/**/*',
-  'packages/*/src/rules/*/cb.options.json',
+  'packages/**/tests/**/fixtures/**/*',
+  'packages/**/tests/**/fixtures-*/**/*',
+  'packages/**/src/*/rules/**/*.fixture.*',
+  'packages/**/src/*/rules/**/fixtures/**/*',
+  'packages/**/src/*/rules/*/cb.options.json',
 ];
 
 const filesToCopy = [
-  path.join(sourceBaseDir, 'packages', 'jsts', 'src', 'rules', 'tsconfig.cb.json'),
+  path.join(sourceBaseDir, 'packages', 'analysis', 'src', 'jsts', 'rules', 'tsconfig.cb.json'),
 ];
 filesToCopy.map(toUnixPath).forEach(copyFileIntoLib);
 
