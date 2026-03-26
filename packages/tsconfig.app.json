@@ -11,11 +11,8 @@
     "../typings/**/*.d.ts"
   ],
   "exclude": [
-    "**/src/rules/**/*.test.ts",
     "**/src/*/rules/**/*.test.ts",
-    "**/src/rules/**/*.fixture.*",
     "**/src/*/rules/**/*.fixture.*",
-    "**/src/rules/**/fixtures",
     "**/src/*/rules/**/fixtures"
   ]
 }
