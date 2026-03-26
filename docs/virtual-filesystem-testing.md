@@ -110,7 +110,7 @@ export async function load(url, context, nextLoad) {
 ### Step 3: Run Tests with the Hook
 
 ```bash
-node --import ./tests/hooks/register.mjs --test packages/jsts/tests/**/*.test.ts
+node --import ./tests/hooks/register.mjs --test packages/analysis/tests/jsts/**/*.test.ts
 ```
 
 Or configure in `package.json`:
@@ -161,7 +161,7 @@ Output will show all intercepted calls:
 ```
 [fs-hook] Intercepted: fs from file:///node_modules/typescript/lib/typescript.js
 [fs-hook] Intercepted: fs from file:///node_modules/@typescript-eslint/parser/...
-[fs-hook] Intercepted: fs/promises from file:///packages/jsts/src/...
+[fs-hook] Intercepted: fs/promises from file:///packages/analysis/src/jsts/...
 ```
 
 ## Approach 2: mock-fs (Native Binding Level)

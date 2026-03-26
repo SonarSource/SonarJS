@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import * as rules from '../packages/jsts/src/rules/rules.js';
+import * as rules from '../packages/analysis/src/jsts/rules/rules.js';
 import { getRspecMeta, getRuleMetadata } from './helpers.js';
 
 const errors: string[] = [];

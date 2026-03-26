@@ -7,7 +7,7 @@ types = "./types/plugin.d.ts"
 author = "SonarSource"
 license = "LGPL-3.0-only"
 keywords = ["sonarjs", "eslint", "eslintplugin"]
-homepage = "https://github.com/SonarSource/SonarJS/blob/master/packages/jsts/src/rules/README.md"
+homepage = "https://github.com/SonarSource/SonarJS/blob/master/packages/analysis/src/jsts/rules/README.md"
 
 [data.repository]
 type = "git"

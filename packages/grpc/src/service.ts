@@ -21,18 +21,18 @@ import {
   transformSourceFilesToRawInputFiles,
 } from './transformers/request.js';
 import { transformProjectOutputToResponse } from './transformers/response.js';
-import { analyzeProject } from '../../jsts/src/analysis/projectAnalysis/analyzeProject.js';
+import { analyzeProject } from '../../analysis/src/analyzeProject.js';
 import {
   initFileStores,
   sourceFileStore,
   packageJsonStore,
   tsConfigStore,
-} from '../../jsts/src/analysis/projectAnalysis/file-stores/index.js';
+} from '../../analysis/src/file-stores/index.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
-import { createConfiguration } from '../../shared/src/helpers/configuration.js';
+import { createConfiguration } from '../../analysis/src/common/configuration.js';
 import { ROOT_PATH } from '../../shared/src/helpers/files.js';
-import { sanitizeRawInputFiles } from '../../shared/src/helpers/sanitize.js';
-import { clearSourceFileContentCache } from '../../jsts/src/program/cache/sourceFileCache.js';
+import { sanitizeRawInputFiles } from '../../analysis/src/common/input-sanitize.js';
+import { clearSourceFileContentCache } from '../../analysis/src/jsts/program/cache/sourceFileCache.js';
 
 /**
  * gRPC requests are independent analyses. Reset all shared caches to avoid
