@@ -252,13 +252,11 @@ export const rule: Rule.RuleModule = {
       const conditional = parent;
 
       // Determine the "other" branch of the ternary
-      let otherBranch: estree.Node | null;
+      let otherBranch: estree.Node | null = null;
       if (conditional.consequent === functionCall) {
         otherBranch = conditional.alternate;
       } else if (conditional.alternate === functionCall) {
         otherBranch = conditional.consequent;
-      } else {
-        otherBranch = null;
       }
 
       if (otherBranch?.type !== 'CallExpression') {
