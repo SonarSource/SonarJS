@@ -4,7 +4,7 @@ This document describes the different configuration patterns used by JS/TS and C
 
 ## Overview
 
-Rules can have configurable parameters. JS/TS rules define theirs in each rule's `config.ts` using the `ESLintConfiguration` type. CSS rules define theirs in `packages/css/src/rules/metadata.ts` using `ignoreParams` and `booleanParam` metadata.
+Rules can have configurable parameters. JS/TS rules define theirs in each rule's `config.ts` using the `ESLintConfiguration` type. CSS rules define theirs in `packages/analysis/src/css/rules/metadata.ts` using `ignoreParams` and `booleanParam` metadata.
 
 The gRPC transformers in `rule-configurations/jsts.ts` and `rule-configurations/css.ts` convert SonarQube parameter string values into the configuration arrays expected by ESLint and stylelint respectively.
 
@@ -152,7 +152,7 @@ The `parseParamValue` function in `rule-configurations/jsts.ts` converts string 
 
 CSS rules use stylelint, which expects rule configurations in the format `[primaryOption, secondaryOptions]` where the primary option is `true` (to enable the rule) and secondary options is an object with rule-specific settings.
 
-CSS rule parameters are defined declaratively in `packages/css/src/rules/metadata.ts` using two patterns. The gRPC transformer in `rule-configurations/css.ts` reads these definitions and builds the stylelint configuration arrays.
+CSS rule parameters are defined declaratively in `packages/analysis/src/css/rules/metadata.ts` using two patterns. The gRPC transformer in `rule-configurations/css.ts` reads these definitions and builds the stylelint configuration arrays.
 
 ### Ignore Params (string-list)
 

@@ -172,7 +172,7 @@ export async function buildBundle({ entryPoint, outfile, additionalAssets = [] }
           // look for those in the filesystem
           {
             from: ['./node_modules/typescript/lib/*.d.ts'],
-            to: ['./bin/'],
+            to: ['./bin'],
           },
           ...additionalAssets,
         ],

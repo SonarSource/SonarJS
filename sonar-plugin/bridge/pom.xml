@@ -98,6 +98,26 @@
     </extensions>
     <plugins>
       <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${maven.multiModuleProjectDirectory}/lib</directory>
+            </fileset>
+            <fileset>
+              <directory>${maven.multiModuleProjectDirectory}/bin</directory>
+            </fileset>
+            <fileset>
+              <directory>${project.basedir}/src/main/resources</directory>
+              <includes>
+                <include>node-info.properties</include>
+              </includes>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.xolstice.maven.plugins</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
         <version>0.6.1</version>
@@ -111,7 +131,7 @@
             <configuration>
               <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
               </protocArtifact>
-              <protoSourceRoot>../../packages/jsts/src/parsers</protoSourceRoot>
+              <protoSourceRoot>../../packages/analysis/src/jsts/parsers</protoSourceRoot>
               <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
             </configuration>
           </execution>
@@ -131,36 +151,6 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.6.3</version>
         <executions>
-          <execution>
-            <id>Clean the npm dependencies</id>
-            <phase>clean</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>rm</executable>
-              <workingDirectory>../..</workingDirectory>
-              <arguments>
-                <argument>-rf</argument>
-                <argument>lib</argument>
-                <argument>bin</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>Clean the resources</id>
-            <phase>clean</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>rm</executable>
-              <arguments>
-                <argument>-f</argument>
-                <argument>src/main/resources/node-info.properties</argument>
-              </arguments>
-            </configuration>
-          </execution>
           <execution>
             <id>Build the bridge</id>
             <phase>generate-resources</phase>
