@@ -22,7 +22,7 @@ import type { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
 import { isAnalysisCancelled } from './analyzeProject.js';
 import { analyzeFile } from './analyzeFile.js';
-import type { NormalizedAbsolutePath } from '../jsts/src/rules/helpers/files.js';
+import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import type { JsTsConfigFields } from './common/configuration.js';
 
 /**
@@ -73,4 +73,3 @@ export async function analyzeWithoutProgram(
     );
   }
 }
-

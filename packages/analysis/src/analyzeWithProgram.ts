@@ -25,7 +25,7 @@ import { isAnalysisCancelled } from './analyzeProject.js';
 import { isJsTsFile, type JsTsConfigFields } from './common/configuration.js';
 import merge from 'lodash.merge';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
-import { IncrementalCompilerHost } from '../jsts/src/program/compilerHost.js';
+import { IncrementalCompilerHost } from './jsts/program/compilerHost.js';
 import {
   computeLibJson,
   createProgramOptions,
@@ -34,11 +34,11 @@ import {
   esLibToYear,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
-} from '../jsts/src/program/tsconfig/options.js';
-import { getProgramCacheManager } from '../jsts/src/program/cache/programCache.js';
-import { clearSourceFileContentCache } from '../jsts/src/program/cache/sourceFileCache.js';
-import { createStandardProgram } from '../jsts/src/program/factory.js';
-import { sanitizeProgramReferences } from '../jsts/src/program/tsconfig/utils.js';
+} from './jsts/program/tsconfig/options.js';
+import { getProgramCacheManager } from './jsts/program/cache/programCache.js';
+import { clearSourceFileContentCache } from './jsts/program/cache/sourceFileCache.js';
+import { createStandardProgram } from './jsts/program/factory.js';
+import { sanitizeProgramReferences } from './jsts/program/tsconfig/utils.js';
 import {
   getProjectAnalysisTelemetryCollector,
   type ProjectAnalysisTelemetryCollector,
@@ -303,4 +303,3 @@ async function analyzeFilesFromTsConfig(
     );
   }
 }
-

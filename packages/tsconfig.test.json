@@ -12,14 +12,18 @@
   "include": [
     "**/tests",
     "**/src/rules/tools",
+    "**/src/*/rules/tools",
     "ruling/**/*",
     "**/src/rules/**/*.test.ts",
+    "**/src/*/rules/**/*.test.ts",
     "**/ruling/projects.json",
     "../typings/**/*.d.ts"
   ],
   "exclude": [
     "**/tests/**/fixtures*",
     "**/src/rules/**/*.fixture.*",
-    "**/src/rules/**/fixtures"
+    "**/src/*/rules/**/*.fixture.*",
+    "**/src/rules/**/fixtures",
+    "**/src/*/rules/**/fixtures"
   ]
 }

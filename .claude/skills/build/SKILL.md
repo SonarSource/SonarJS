@@ -46,7 +46,7 @@ sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rule
 Writes to (gitignored):
 
 ```
-packages/analysis/jsts/src/rules/SXXXX/generated-meta.ts
+packages/analysis/src/jsts/rules/SXXXX/generated-meta.ts
 ```
 
 ### Maven Build Phases (relevant for rule work)
@@ -64,7 +64,7 @@ resources/rule-data/
        ↓  (npm run deploy-rule-data, committed)
 sonar-plugin/javascript-checks/src/main/resources/…/javascript/*.json
        ↓  (npm run generate-meta, gitignored)
-packages/analysis/jsts/src/rules/SXXXX/generated-meta.ts
+packages/analysis/src/jsts/rules/SXXXX/generated-meta.ts
 ```
 
 **Key:** The `sonar-plugin/javascript-checks/src/main/resources/…/javascript/` directory is **committed** (526 files). It is the source of truth for `generate-meta`.
@@ -75,7 +75,7 @@ packages/analysis/jsts/src/rules/SXXXX/generated-meta.ts
 | ----------------------------------------------------------------------- | --------------------------------- |
 | `resources/rule-data/`                                                  | Gitignored (fresh RSPEC download) |
 | `sonar-plugin/javascript-checks/src/main/resources/…/javascript/*.json` | **Committed**                     |
-| `packages/analysis/jsts/src/rules/*/generated-meta.ts`                  | Gitignored                        |
+| `packages/analysis/src/jsts/rules/*/generated-meta.ts`                  | Gitignored                        |
 | `lib/`                                                                  | Gitignored                        |
 
 ## Build Profiles

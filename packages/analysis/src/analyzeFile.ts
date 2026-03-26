@@ -14,10 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { JsTsAnalysisInput } from '../jsts/src/analysis/analysis.js';
-import { analyzeHTMLProject } from '../html/src/index.js';
-import { analyzeYAMLProject } from '../yaml/src/index.js';
-import { analyzeJSTSProject } from '../jsts/src/analysis/analyzer.js';
+import type { JsTsAnalysisInput } from './jsts/analysis/analysis.js';
+import { analyzeHTMLProject } from './html/index.js';
+import { analyzeYAMLProject } from './yaml/index.js';
+import { analyzeJSTSProject } from './jsts/analysis/analyzer.js';
 import {
   isAlsoCssFile,
   isCssFile,
@@ -32,10 +32,10 @@ import type { AnalyzableFile, FileResult, ProjectAnalysisOutput } from './projec
 import type { ProgressReport } from './common/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
 import type ts from 'typescript';
-import type { NormalizedAbsolutePath } from '../jsts/src/rules/helpers/files.js';
-import type { EmbeddedAnalysisInput } from '../jsts/src/embedded/analysis/analysis.js';
-import { analyzeCSSProject } from '../css/src/analysis/analyzer.js';
-import { linter as cssLinter } from '../css/src/linter/wrapper.js';
+import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
+import type { EmbeddedAnalysisInput } from './jsts/embedded/analysis/analysis.js';
+import { analyzeCSSProject } from './css/analysis/analyzer.js';
+import { linter as cssLinter } from './css/linter/wrapper.js';
 import { error, info } from '../../shared/src/helpers/logging.js';
 
 /**
@@ -184,4 +184,3 @@ async function mergeAdditionalCssAnalysis(
 
   return result;
 }
-

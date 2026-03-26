@@ -32,7 +32,7 @@ import { info, error as logError } from '../../shared/src/helpers/logging.js';
 import { createConfiguration } from '../../analysis/src/common/configuration.js';
 import { ROOT_PATH } from '../../shared/src/helpers/files.js';
 import { sanitizeRawInputFiles } from '../../analysis/src/common/input-sanitize.js';
-import { clearSourceFileContentCache } from '../../analysis/jsts/src/program/cache/sourceFileCache.js';
+import { clearSourceFileContentCache } from '../../analysis/src/jsts/program/cache/sourceFileCache.js';
 
 /**
  * gRPC requests are independent analyses. Reset all shared caches to avoid
@@ -91,4 +91,3 @@ export async function analyzeFileHandler(
     });
   }
 }
-

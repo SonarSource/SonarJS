@@ -11,7 +11,7 @@
     "its/plugin/projects/**",
     "**/test/**",
     "**/fixtures/**",
-    "packages/analysis/jsts/src/rules/**",
+    "packages/analysis/src/jsts/rules/**",
     "its/eslint8-plugin-sonarjs/**",
     "its/eslint9-plugin-sonarjs/**",
     "its/eslint10-plugin-sonarjs/**"

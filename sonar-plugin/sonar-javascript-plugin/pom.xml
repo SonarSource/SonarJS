@@ -137,6 +137,20 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.4.0</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${project.basedir}/src/main/resources</directory>
+              <includes>
+                <include>node-info.properties</include>
+              </includes>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
         <artifactId>sonar-packaging-maven-plugin</artifactId>
           <configuration>
@@ -182,20 +196,6 @@
               <arguments>
                 <argument>tools/sync-nodejs-versions.mjs</argument>
                 <argument>sonar-plugin/sonar-javascript-plugin</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <execution>
-            <id>Clean the resources</id>
-            <phase>clean</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>rm</executable>
-              <arguments>
-                <argument>-f</argument>
-                <argument>src/main/resources/node-info.properties</argument>
               </arguments>
             </configuration>
           </execution>

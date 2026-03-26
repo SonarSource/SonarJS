@@ -21,13 +21,13 @@ import {
   type File,
   type NormalizedAbsolutePath,
   dirnamePath,
-} from '../../jsts/src/rules/helpers/files.js';
+} from '../../../shared/src/helpers/files.js';
 import type { Configuration } from '../common/configuration.js';
 import {
   clearDependenciesCache,
   fillPackageJsonCaches,
   isPackageJson,
-} from '../../jsts/src/rules/helpers/package-jsons/index.js';
+} from '../jsts/rules/helpers/package-jsons/index.js';
 
 export const UNINITIALIZED_ERROR =
   'package.json cache has not been initialized. Call loadFiles() first.';
@@ -107,4 +107,3 @@ export class PackageJsonStore implements FileStore {
     fillPackageJsonCaches(this.packageJsons, this.dirnameToParent, this.baseDir);
   }
 }
-

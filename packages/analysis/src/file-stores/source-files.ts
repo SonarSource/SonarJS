@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { type AnalyzableFiles, createAnalyzableFiles } from '../projectAnalysis.js';
-import { JSTS_ANALYSIS_DEFAULTS } from '../../jsts/src/analysis/analysis.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../jsts/analysis/analysis.js';
 import {
   isAnalyzableFile,
   type Configuration,
@@ -128,4 +128,3 @@ export class SourceFileStore implements FileStore {
     return this.ignoredPaths.has(dirname(filePath));
   }
 }
-

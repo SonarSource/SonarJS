@@ -14,11 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type {
-  ProjectAnalysisOutput,
-} from '../../analysis/src/projectAnalysis.js';
-import type { WsIncrementalResult } from '../../analysis/src/incremental-result.js';
+import type { ProjectAnalysisOutput } from '../../analysis/src/projectAnalysis.js';
 import { type ErrorData, APIError, ErrorCode } from '../../analysis/src/contracts/error.js';
+export type { WsIncrementalResult } from '../../analysis/src/incremental-result.js';
 
 export type RequestResult =
   | {
@@ -29,8 +27,6 @@ export type RequestResult =
       type: 'failure';
       error: SerializedError;
     };
-
-export type { WsIncrementalResult };
 
 export type RequestType = BridgeRequest['type'];
 

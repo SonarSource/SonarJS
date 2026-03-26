@@ -3,8 +3,8 @@
   "include": [
     "*/src/**/*.ts",
     "*/src/**/*.json",
-    "analysis/*/src/**/*.ts",
-    "analysis/*/src/**/*.json",
+    "analysis/src/**/*.ts",
+    "analysis/src/**/*.json",
     "http/src/worker.js",
     "ruling/tools/*.ts",
     "ruling/filter/*.ts",
@@ -12,7 +12,10 @@
   ],
   "exclude": [
     "**/src/rules/**/*.test.ts",
+    "**/src/*/rules/**/*.test.ts",
     "**/src/rules/**/*.fixture.*",
-    "**/src/rules/**/fixtures"
+    "**/src/*/rules/**/*.fixture.*",
+    "**/src/rules/**/fixtures",
+    "**/src/*/rules/**/fixtures"
   ]
 }

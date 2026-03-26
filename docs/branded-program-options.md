@@ -8,9 +8,9 @@ We've implemented a **branded type** pattern to ensure that `ProgramOptions` can
 
 The architecture enforces proper option sanitization through three single points:
 
-1. **ONE call to `ts.parseJsonConfigFileContent`**: Located in `createProgramOptionsFromParsedConfig()` at `packages/analysis/jsts/src/program/tsconfig/options.ts:75`
-2. **ONE place where brand is applied**: Located in `createProgramOptionsFromParsedConfig()` at `packages/analysis/jsts/src/program/tsconfig/options.ts:95`
-3. **ONE call to `ts.createProgram`**: Located in `createStandardProgram()` at `packages/analysis/jsts/src/program/factory.ts:95`
+1. **ONE call to `ts.parseJsonConfigFileContent`**: Located in `createProgramOptionsFromParsedConfig()` at `packages/analysis/src/jsts/program/tsconfig/options.ts:75`
+2. **ONE place where brand is applied**: Located in `createProgramOptionsFromParsedConfig()` at `packages/analysis/src/jsts/program/tsconfig/options.ts:95`
+3. **ONE call to `ts.createProgram`**: Located in `createStandardProgram()` at `packages/analysis/src/jsts/program/factory.ts:95`
 
 This makes the codebase easy to audit and ensures all program creation flows through proper sanitization.
 
@@ -34,7 +34,7 @@ Without `ts.parseJsonConfigFileContent()`, programs will have broken type checki
 ### 1. Branded Type Definition
 
 ```typescript
-// In packages/analysis/jsts/src/program/tsconfig/options.ts
+// In packages/analysis/src/jsts/program/tsconfig/options.ts
 
 const PROGRAM_OPTIONS_BRAND: unique symbol = Symbol('ProgramOptions');
 
@@ -176,7 +176,7 @@ export function createProgramFromSingleFile(
 ### 4. Enforced Usage in Program Creation
 
 ```typescript
-// In packages/analysis/jsts/src/program/factory.ts
+// In packages/analysis/src/jsts/program/factory.ts
 
 export function createStandardProgram(
   programOptions: ProgramOptions, // Requires branded type from ts.parseJsonConfigFileContent!

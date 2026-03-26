@@ -27,7 +27,7 @@ const config = {
   pathRuleDoc(name) {
     return `docs/${name}.md`;
   },
-  pathRuleList: '../packages/analysis/jsts/src/rules/README.md',
+  pathRuleList: '../packages/analysis/src/jsts/rules/README.md',
   ruleListColumns: [
     'name',
     'description',

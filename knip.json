@@ -1,9 +1,9 @@
 {
   "ignore": [
-    "packages/analysis/jsts/src/rules/*/meta.ts",
-    "packages/analysis/jsts/src/rules/*/config.ts",
-    "packages/analysis/jsts/src/rules/plugin.ts",
-    "packages/analysis/jsts/src/rules/*/*.fixture.*",
+    "packages/analysis/src/jsts/rules/*/meta.ts",
+    "packages/analysis/src/jsts/rules/*/config.ts",
+    "packages/analysis/src/jsts/rules/plugin.ts",
+    "packages/analysis/src/jsts/rules/*/*.fixture.*",
     "**/fixtures/**",
     "**/fixtures-*/**",
     "packages/http/src/worker.ts",

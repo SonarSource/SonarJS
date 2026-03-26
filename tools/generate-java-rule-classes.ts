@@ -19,7 +19,7 @@ import {
   ESLintConfiguration,
   ESLintConfigurationProperty,
   ESLintConfigurationSQProperty,
-} from '../packages/analysis/jsts/src/rules/helpers/configs.js';
+} from '../packages/analysis/src/jsts/rules/helpers/configs.js';
 import assert from 'node:assert';
 import {
   getESLintDefaultConfiguration,
@@ -36,7 +36,7 @@ import {
   cssRulesMeta,
   type CssRuleMeta,
   type StylelintListParam,
-} from '../packages/analysis/css/src/rules/metadata.js';
+} from '../packages/analysis/src/css/rules/metadata.js';
 
 const JAVA_CHECKS_FOLDER = join(
   'sonar-plugin',

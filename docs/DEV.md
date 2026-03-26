@@ -358,7 +358,7 @@ Each rule can have configurable options defined in several places that serve dif
 
 ### File Structure for a Rule
 
-Each rule lives in `packages/analysis/jsts/src/rules/SXXXX/` with these key files:
+Each rule lives in `packages/analysis/src/jsts/rules/SXXXX/` with these key files:
 
 | File                | Purpose                                                                      |
 | ------------------- | ---------------------------------------------------------------------------- |

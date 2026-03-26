@@ -22,12 +22,12 @@ import { initFileStores } from '../analysis/src/file-stores/index.js';
 import { normalizePath, normalizeToAbsolutePath } from '../shared/src/helpers/files.js';
 import { createConfiguration } from '../analysis/src/common/configuration.js';
 import { compare, Result } from 'dir-compare';
-import { RuleConfig } from '../analysis/jsts/src/linter/config/rule-config.js';
+import { RuleConfig } from '../analysis/src/jsts/linter/config/rule-config.js';
 import { expect } from 'expect';
-import * as metas from '../analysis/jsts/src/rules/metas.js';
-import { SonarMeta } from '../analysis/jsts/src/rules/helpers/generate-meta.js';
-import { cssRulesMeta } from '../analysis/css/src/rules/metadata.js';
-import type { RuleConfig as CssRuleConfig } from '../analysis/css/src/linter/config.js';
+import * as metas from '../analysis/src/jsts/rules/metas.js';
+import { SonarMeta } from '../analysis/src/jsts/rules/helpers/generate-meta.js';
+import { cssRulesMeta } from '../analysis/src/css/rules/metadata.js';
+import type { RuleConfig as CssRuleConfig } from '../analysis/src/css/linter/config.js';
 
 const currentPath = normalizePath(import.meta.dirname);
 
@@ -173,4 +173,3 @@ function applyRulingConfig(rule: RuleConfig) {
   }
   return rule;
 }
-

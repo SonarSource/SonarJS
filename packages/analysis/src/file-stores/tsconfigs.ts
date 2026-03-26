@@ -18,11 +18,11 @@ import { debug, error, info } from '../../../shared/src/helpers/logging.js';
 import { basename } from 'node:path/posix';
 import { Minimatch } from 'minimatch';
 import type { FileStore } from './store-type.js';
-import type { NormalizedAbsolutePath } from '../../jsts/src/rules/helpers/files.js';
+import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 import type { Configuration } from '../common/configuration.js';
-import { clearTsConfigContentCache } from '../../jsts/src/program/cache/tsconfigCache.js';
-import { clearProgramOptionsCache } from '../../jsts/src/program/cache/programOptionsCache.js';
-import { getProgramCacheManager } from '../../jsts/src/program/cache/programCache.js';
+import { clearTsConfigContentCache } from '../jsts/program/cache/tsconfigCache.js';
+import { clearProgramOptionsCache } from '../jsts/program/cache/programOptionsCache.js';
+import { getProgramCacheManager } from '../jsts/program/cache/programCache.js';
 
 const TSCONFIG_JSON = 'tsconfig.json';
 
@@ -180,4 +180,3 @@ export class TsConfigStore implements FileStore {
     );
   }
 }
-

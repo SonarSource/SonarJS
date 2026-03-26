@@ -22,7 +22,7 @@ import {
   entriesOfFileResults,
 } from '../analysis/src/projectAnalysis.js';
 import type { ParsingError } from '../analysis/src/contracts/project-analysis.js';
-import { reverseCssRuleKeyMap } from '../analysis/css/src/rules/metadata.js';
+import { reverseCssRuleKeyMap } from '../analysis/src/css/rules/metadata.js';
 
 /**
  * LITS formatted results with extra intermediate key js/ts

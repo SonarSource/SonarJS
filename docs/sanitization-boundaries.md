@@ -209,7 +209,7 @@ analyzeFile(normalizedPath);  // OK
 
 ### Path Normalization
 
-**Location:** `packages/analysis/jsts/src/rules/helpers/files.ts`
+**Location:** `packages/analysis/src/jsts/rules/helpers/files.ts`
 
 ```typescript
 // Convert any path to Unix-normalized absolute path
@@ -395,7 +395,7 @@ const parent = dirnamePath(filePath); // Returns NormalizedAbsolutePath
 | Sanitization     | `packages/analysis/src/common/input-sanitize.ts`    | Input sanitization functions  |
 |                  | `packages/analysis/src/common/configuration.ts`     | Configuration sanitization    |
 |                  | `packages/grpc/src/transformers/request.ts`         | gRPC request transformation   |
-| Path Utilities   | `packages/analysis/jsts/src/rules/helpers/files.ts` | Branded types & normalization |
+| Path Utilities   | `packages/analysis/src/jsts/rules/helpers/files.ts` | Branded types & normalization |
 | Type Definitions | `packages/analysis/src/contracts/analysis.ts`       | Raw & sanitized input types   |
 |                  | `packages/http/src/request.ts`                      | Bridge request types          |
 

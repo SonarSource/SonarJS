@@ -316,7 +316,7 @@ jobs:
             exit 0
           fi
 
-          RULES_README="packages/analysis/jsts/src/rules/README.md"
+          RULES_README="packages/analysis/src/jsts/rules/README.md"
 
           # Make git@github.com transport use token auth during generate-meta (sync-rspec).
           git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "git@github.com:"

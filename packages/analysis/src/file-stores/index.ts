@@ -20,7 +20,11 @@ import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../common/find-files.js';
 import type { FileStore } from './store-type.js';
 import type { Configuration } from '../common/configuration.js';
-import { isRoot, type NormalizedAbsolutePath, dirnamePath } from '../../jsts/src/rules/helpers/files.js';
+import {
+  isRoot,
+  type NormalizedAbsolutePath,
+  dirnamePath,
+} from '../../../shared/src/helpers/files.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
@@ -97,4 +101,3 @@ export async function simulateFromInputFiles(
     }
   }
 }
-

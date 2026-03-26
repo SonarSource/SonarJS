@@ -14,7 +14,7 @@ New rules follow the pattern: RSPEC description → scaffold → implement → t
 npm run new-rule
 ```
 
-This interactive script generates in `packages/analysis/jsts/src/rules/SXXXX/`:
+This interactive script generates in `packages/analysis/src/jsts/rules/SXXXX/`:
 
 - `index.ts` — rule export
 - `rule.ts` — ESLint rule implementation (skeleton)
@@ -85,7 +85,7 @@ When in doubt: skip.
 
 ## Step 4: Check Shared Helpers
 
-**Before writing any utility code**, check `packages/analysis/jsts/src/rules/helpers/`:
+**Before writing any utility code**, check `packages/analysis/src/jsts/rules/helpers/`:
 
 | File                            | Contains                                                                  |
 | ------------------------------- | ------------------------------------------------------------------------- |
@@ -122,7 +122,7 @@ someFaultyCode(); // Noncompliant {{message}}
 Run:
 
 ```bash
-npx tsx --test packages/analysis/jsts/src/rules/S1234/**/*.test.ts
+npx tsx --test packages/analysis/src/jsts/rules/S1234/**/*.test.ts
 ```
 
 ## Step 7: Run Ruling

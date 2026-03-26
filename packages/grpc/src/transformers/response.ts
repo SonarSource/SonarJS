@@ -20,10 +20,10 @@ import {
   entriesOfFileResults,
 } from '../../../analysis/src/projectAnalysis.js';
 import type { ParsingErrorLanguage } from '../../../analysis/src/contracts/project-analysis.js';
-import { reverseCssRuleKeyMap } from '../../../analysis/css/src/rules/metadata.js';
-import type { JsTsIssue } from '../../../analysis/jsts/src/linter/issues/issue.js';
-import type { CssIssue } from '../../../analysis/css/src/linter/issues/issue.js';
-import type { NormalizedAbsolutePath } from '../../../analysis/jsts/src/rules/helpers/files.js';
+import { reverseCssRuleKeyMap } from '../../../analysis/src/css/rules/metadata.js';
+import type { JsTsIssue } from '../../../analysis/src/jsts/linter/issues/issue.js';
+import type { CssIssue } from '../../../analysis/src/css/linter/issues/issue.js';
+import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 /**
  * SonarQube rule key for parsing errors. When a file cannot be parsed,

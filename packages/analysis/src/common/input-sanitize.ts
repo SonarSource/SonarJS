@@ -36,9 +36,9 @@ import {
   sanitizePaths,
 } from '../../../shared/src/helpers/sanitize.js';
 import { initFileStores } from '../file-stores/index.js';
-import { type FileStatus, JSTS_ANALYSIS_DEFAULTS } from '../../jsts/src/analysis/analysis.js';
-import type { RuleConfig as CssRuleConfig } from '../../css/src/linter/config.js';
-import type { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
+import { type FileStatus, JSTS_ANALYSIS_DEFAULTS } from '../jsts/analysis/analysis.js';
+import type { RuleConfig as CssRuleConfig } from '../css/linter/config.js';
+import type { RuleConfig } from '../jsts/linter/config/rule-config.js';
 import { type AnalyzableFiles, createAnalyzableFiles } from '../projectAnalysis.js';
 
 function isFileStatus(value: unknown): value is FileStatus {

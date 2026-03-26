@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 
 /**
  * This script updates the changelog for the eslint plugin located in
- * packages/analysis/jsts/src/rules/CHANGELOG.md
+ * packages/analysis/src/jsts/rules/CHANGELOG.md
  *
  * It is automatically run as part of the release_eslint_plugin.yml workflow,
  * which creates a PR with the updated changelog after publishing.
@@ -41,8 +41,8 @@ const changelogPath = join(
   '..',
   'packages',
   'analysis',
-  'jsts',
   'src',
+  'jsts',
   'rules',
   'CHANGELOG.md',
 );

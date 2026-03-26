@@ -16,7 +16,7 @@
  */
 import type { FileResult, ProjectAnalysisOutput } from './projectAnalysis.js';
 import type { WsIncrementalResult } from './incremental-result.js';
-import type { NormalizedAbsolutePath } from '../jsts/src/rules/helpers/files.js';
+import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 
 export function handleFileResult(
   result: FileResult,

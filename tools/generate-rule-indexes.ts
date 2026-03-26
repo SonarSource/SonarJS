@@ -31,13 +31,13 @@ import { join } from 'node:path/posix';
  * sonar-plugin/javascript-checks/src/main/java/org/sonar/javascript/checks/AllChecks.java
  *
  * SonarJS rule index:
- * packages/analysis/jsts/src/rules/plugin-rules.ts
+ * packages/analysis/src/jsts/rules/plugin-rules.ts
  *
  * ESLint plugin rule index:
- * packages/analysis/jsts/src/rules/rules.ts
+ * packages/analysis/src/jsts/rules/rules.ts
  *
  * Metas rule index:
- * packages/analysis/jsts/src/rules/metas.ts
+ * packages/analysis/src/jsts/rules/metas.ts
  */
 export async function updateIndexes() {
   const allRules: string[] = [];

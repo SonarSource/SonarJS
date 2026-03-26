@@ -769,4 +769,4 @@ public List<Path> deploy(Path target) {
 | `JsTsChecks.doAddChecks()`     | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java:95-108`  | Instantiates checks via CheckFactory |
 | `JsTsChecks.ruleKey()`         | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java`         | Maps eslintKey to Sonar RuleKey      |
 | `RulesBundles`                 | `sonar-plugin/bridge/.../RulesBundles.java`                        | Deploys JS bundles                   |
-| `Linter`                       | `packages/analysis/jsts/src/linter/linter.ts`                      | Loads and executes rules             |
+| `Linter`                       | `packages/analysis/src/jsts/linter/linter.ts`                      | Loads and executes rules             |

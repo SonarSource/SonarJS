@@ -6,9 +6,9 @@ lib
 packages/*/tests/**/fixtures*
 packages/**/tests/**/fixtures*
 docs/fixtures/**
-packages/analysis/jsts/src/rules/**/*.fixture.*
-packages/analysis/jsts/src/rules/**/fixtures
-packages/analysis/jsts/src/rules/**/schema.json
+packages/analysis/src/jsts/rules/**/*.fixture.*
+packages/analysis/src/jsts/rules/**/fixtures
+packages/analysis/src/jsts/rules/**/schema.json
 packages/ruling/actual
 
 its/sources

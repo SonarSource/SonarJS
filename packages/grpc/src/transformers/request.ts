@@ -16,11 +16,11 @@
  */
 import { analyzer } from '../proto/language_analyzer.js';
 import type { ProjectAnalysisInput } from '../../../analysis/src/projectAnalysis.js';
-import { JSTS_ANALYSIS_DEFAULTS } from '../../../analysis/jsts/src/analysis/analysis.js';
-import type { RuleConfig } from '../../../analysis/jsts/src/linter/config/rule-config.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../../../analysis/src/jsts/analysis/analysis.js';
+import type { RuleConfig } from '../../../analysis/src/jsts/linter/config/rule-config.js';
 import type { FileType } from '../../../analysis/src/contracts/file.js';
 import { isString } from '../../../shared/src/helpers/sanitize.js';
-import type { RuleConfig as CssRuleConfig } from '../../../analysis/css/src/linter/config.js';
+import type { RuleConfig as CssRuleConfig } from '../../../analysis/src/css/linter/config.js';
 import { buildRuleConfigurations as buildJstsRuleConfigurations } from './rule-configurations/jsts.js';
 import { buildRuleConfigurations as buildCssRuleConfigurations } from './rule-configurations/css.js';
 

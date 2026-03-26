@@ -22,17 +22,13 @@ import {
 import { analyzeWithProgram } from './analyzeWithProgram.js';
 import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.js';
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
-import { Linter } from '../jsts/src/linter/linter.js';
-import { linter as cssLinter } from '../css/src/linter/wrapper.js';
-import {
-  type Configuration,
-  getJsTsConfigFields,
-  isJsTsFile,
-} from './common/configuration.js';
+import { Linter } from './jsts/linter/linter.js';
+import { linter as cssLinter } from './css/linter/wrapper.js';
+import { type Configuration, getJsTsConfigFields, isJsTsFile } from './common/configuration.js';
 import { info, error } from '../../shared/src/helpers/logging.js';
 import { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
-import { setSourceFilesContext } from '../jsts/src/program/cache/sourceFileCache.js';
+import { setSourceFilesContext } from './jsts/program/cache/sourceFileCache.js';
 import { sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import { getProjectAnalysisTelemetry, resetProjectAnalysisTelemetry } from './telemetry.js';
@@ -153,4 +149,3 @@ export async function analyzeProject(
   }
   return results;
 }
-

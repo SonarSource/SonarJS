@@ -50,6 +50,17 @@
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.4.0</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${maven.multiModuleProjectDirectory}/coverage/java</directory>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <configuration>
@@ -67,26 +78,9 @@
         </executions>
       </plugin>
       <plugin>
-      <groupId>org.codehaus.mojo</groupId>
+        <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.6.3</version>
-        <executions>
-          <execution>
-            <id>Clean the Java Coverage folder</id>
-            <phase>clean</phase>
-            <goals>
-              <goal>exec</goal>
-            </goals>
-            <configuration>
-              <executable>rm</executable>
-              <workingDirectory>../..</workingDirectory>
-              <arguments>
-                <argument>-rf</argument>
-                <argument>coverage/java</argument>
-              </arguments>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>

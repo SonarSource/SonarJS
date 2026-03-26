@@ -6,7 +6,7 @@ description: Write and run tests for a SonarJS rule. Use when working on rule te
 ## Running Tests
 
 ```bash
-npx tsx --test packages/analysis/jsts/src/rules/S1234/**/*.test.ts
+npx tsx --test packages/analysis/src/jsts/rules/S1234/**/*.test.ts
 ```
 
 Replace `S1234` with the actual rule number. Do not run the full test suite (`npm run bridge:test`) — it takes too long.
@@ -92,7 +92,7 @@ process.chdir(__dirname); // use local package.json for dependency detection
 For rules needing TypeScript type checking:
 
 ```typescript
-import { RuleTester } from '../../../tests/tools/sonar-rule-tester.js';
+import { RuleTester } from '../../../tests/tools/testers/rule-tester.js';
 
 const ruleTester = new RuleTester();
 ruleTester.run('rule-name', rule, {

@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { FileStatus, JsTsAnalysisOutput } from '../jsts/src/analysis/analysis.js';
-import type { RuleConfig } from '../jsts/src/linter/config/rule-config.js';
-import type { RuleConfig as CssRuleConfig } from '../css/src/linter/config.js';
-import type { EmbeddedAnalysisOutput } from '../jsts/src/embedded/analysis/analysis.js';
-import type { CssAnalysisOutput } from '../css/src/analysis/analysis.js';
+import type { FileStatus, JsTsAnalysisOutput } from './jsts/analysis/analysis.js';
+import type { RuleConfig } from './jsts/linter/config/rule-config.js';
+import type { RuleConfig as CssRuleConfig } from './css/linter/config.js';
+import type { EmbeddedAnalysisOutput } from './jsts/embedded/analysis/analysis.js';
+import type { CssAnalysisOutput } from './css/analysis/analysis.js';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import type { ProjectAnalysisTelemetry } from './telemetry.js';
 import type { ParsingError } from './contracts/project-analysis.js';

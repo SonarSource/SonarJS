@@ -19,7 +19,7 @@ import { generateMetaForRule } from './generate-eslint-meta.js';
 import { updateIndexes } from './generate-rule-indexes.js';
 
 /**
- * Generate packages/analysis/jsts/src/rules/SXXXX/generated-meta.ts on each rule
+ * Generate packages/analysis/src/jsts/rules/SXXXX/generated-meta.ts on each rule
  * with data coming from the RSPEC json files. This data fills in the Rule ESLint metadata.
  */
 for (const file of await listRulesDir()) {

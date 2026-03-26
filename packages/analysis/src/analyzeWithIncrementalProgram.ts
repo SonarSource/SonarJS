@@ -23,9 +23,9 @@ import { isAnalysisCancelled } from './analyzeProject.js';
 import { error, info, warn } from '../../shared/src/helpers/logging.js';
 import { analyzeFile } from './analyzeFile.js';
 import { dirname } from 'node:path/posix';
-import { sanitizeReferences } from '../jsts/src/program/tsconfig/utils.js';
+import { sanitizeReferences } from './jsts/program/tsconfig/utils.js';
 import ts from 'typescript';
-import { createOrGetCachedProgramForFile } from '../jsts/src/program/factory.js';
+import { createOrGetCachedProgramForFile } from './jsts/program/factory.js';
 import {
   computeLibJson,
   createProgramOptions,
@@ -34,8 +34,8 @@ import {
   esLibToYear,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
-} from '../jsts/src/program/tsconfig/options.js';
-import type { NormalizedAbsolutePath } from '../jsts/src/rules/helpers/files.js';
+} from './jsts/program/tsconfig/options.js';
+import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import type { JsTsConfigFields } from './common/configuration.js';
 
 /**
@@ -216,4 +216,3 @@ function pickBestMatchTsConfig(tsconfigs: NormalizedAbsolutePath[], file: Normal
   }
   return bestTsConfig ?? tsconfigs.at(0);
 }
-
