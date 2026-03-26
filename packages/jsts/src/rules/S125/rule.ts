@@ -200,10 +200,10 @@ function couldBeJsCode(input: string): boolean {
 function injectMissingBraces(value: string) {
   let balance = 0;
   let minBalance = 0;
-  for (let i = 0; i < value.length; i++) {
-    if (value[i] === '{') {
+  for (const char of value) {
+    if (char === '{') {
       balance++;
-    } else if (value[i] === '}') {
+    } else if (char === '}') {
       balance--;
       if (balance < minBalance) {
         minBalance = balance;
