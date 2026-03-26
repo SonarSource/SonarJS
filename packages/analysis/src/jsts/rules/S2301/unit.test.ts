@@ -1,0 +1,427 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import { rule as S2301 } from './rule.js';
+import {
+  DefaultParserRuleTester,
+  RuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { describe, it } from 'node:test';
+
+describe('S2301', () => {
+  it('S2301', () => {
+    const ruleTester = new RuleTester();
+
+    ruleTester.run('S2301:TypeScript', S2301, {
+      invalid: [
+        {
+          // JS-709: NewExpression has side effects - should still be flagged
+          code: `function createInstance(flag: boolean) {
+  return flag ? new Foo() : new Bar();
+}`,
+          errors: 1,
+        },
+        {
+          // JS-709: Array with function call inside - should still be flagged
+          code: `function getArray(flag: boolean) {
+  return flag ? [doA()] : [doB()];
+}`,
+          errors: 1,
+        },
+        {
+          // JS-709: Object with function call inside - should still be flagged
+          code: `function getObject(flag: boolean) {
+  return flag ? { a: doA() } : { b: doB() };
+}`,
+          errors: 1,
+        },
+        {
+          // JS-709: Nested ternary with side effects - should still be flagged
+          code: `function nested(flag: boolean, other: boolean) {
+  return flag ? (other ? doA() : doB()) : doC();
+}`,
+          errors: 1,
+        },
+        {
+          name: 'RSPEC non-compliant code example',
+          code: `function tempt1(name: string, ofAge: boolean) {
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
+  }
+}
+
+function tempt2(name: string, ofAge: boolean) {
+  ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt3(name: string, ofAge: boolean) {
+  return ofAge ? offerLiquor(name) : offerCandy(name);
+}
+`,
+          settings: { sonarRuntime: true },
+          errors: [
+            {
+              line: 2,
+              column: 7,
+              endLine: 2,
+              endColumn: 12,
+              messageId: 'sonarRuntime',
+              data: {
+                parameterName: 'foo',
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'Provide multiple methods instead of using "ofAge" to determine which action to take.',
+                  secondaryLocations: [
+                    {
+                      message: 'Parameter "ofAge" was declared here',
+                      column: 30,
+                      line: 1,
+                      endColumn: 44,
+                      endLine: 1,
+                    },
+                  ],
+                }),
+              },
+            },
+            {
+              line: 10,
+              column: 3,
+              endLine: 10,
+              endColumn: 8,
+              messageId: 'sonarRuntime',
+              data: {
+                parameterName: 'foo',
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'Provide multiple methods instead of using "ofAge" to determine which action to take.',
+                  secondaryLocations: [
+                    {
+                      message: 'Parameter "ofAge" was declared here',
+                      column: 30,
+                      line: 9,
+                      endColumn: 44,
+                      endLine: 9,
+                    },
+                  ],
+                }),
+              },
+            },
+            {
+              line: 14,
+              column: 10,
+              endLine: 14,
+              endColumn: 15,
+              messageId: 'sonarRuntime',
+              data: {
+                parameterName: 'foo',
+                sonarRuntimeData: JSON.stringify({
+                  message:
+                    'Provide multiple methods instead of using "ofAge" to determine which action to take.',
+                  secondaryLocations: [
+                    {
+                      message: 'Parameter "ofAge" was declared here',
+                      column: 30,
+                      line: 13,
+                      endColumn: 44,
+                      endLine: 13,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+      ],
+      valid: [
+        {
+          // JS-709: Simple value transformations should not be flagged
+          code: `
+function transform(value: boolean): string {
+    return value ? 'Yes' : 'No';
+}`,
+        },
+        {
+          // JS-709: Arrow function with simple value transformation
+          code: `
+const transform = (value: boolean): number => value ? 1 : 0;
+`,
+        },
+        {
+          // JS-709: Returning computed values (no side effects)
+          code: `
+function getValue(flag: boolean): number {
+    return flag ? 1 + 2 : 3 * 4;
+}`,
+        },
+        {
+          // JS-709: Array expressions without side effects
+          code: `
+function getArray(flag: boolean): number[] {
+    return flag ? [1, 2, 3] : [4, 5, 6];
+}`,
+        },
+        {
+          // JS-709: Object expressions without side effects
+          code: `
+function getObject(flag: boolean): object {
+    return flag ? { a: 1 } : { b: 2 };
+}`,
+        },
+        {
+          // JS-709: Member expressions without side effects
+          code: `
+function getValue(flag: boolean, obj: { a: number, b: number }): number {
+    return flag ? obj.a : obj.b;
+}`,
+        },
+        {
+          // JS-709: Unary expressions without side effects
+          code: `
+function getNegated(flag: boolean, x: number): number {
+    return flag ? -x : +x;
+}`,
+        },
+        {
+          // JS-709: Logical expressions without side effects
+          code: `
+function getLogical(flag: boolean, a: boolean, b: boolean): boolean {
+    return flag ? a && b : a || b;
+}`,
+        },
+        {
+          // JS-709: Nested ternary without side effects
+          code: `
+function getNestedValue(flag: boolean, other: boolean): string {
+    return flag ? (other ? 'a' : 'b') : 'c';
+}`,
+        },
+        {
+          code: `
+function foo({ isField }: {isField: boolean}) {
+    return isField ? console.log(1) : console.log(2);
+}`,
+        },
+        {
+          name: `RSPEC compliant code example`,
+          settings: { sonarRuntime: true },
+          code: `function temptAdult(name: string) {
+  offerLiquor(name);
+}
+
+function temptChild(name: string) {
+  offerCandy(name);
+}
+
+function tempt1(name: string, ofAge: boolean) {
+  const foo = 5;
+
+  ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt2(name: string, ofAge: boolean) {
+  const foo = 5;
+
+  ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt3(name: string, ofAge: boolean) {
+  ofAge ? offerLiquor(name) : offerCandy(name);
+
+  const foo = 5;
+}
+
+function tempt4(name: string, ofAge: boolean) {
+  const foo = 5;
+
+  return ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt5(name: string, ofAge: boolean) {
+  return ofAge ? offerLiquor(name) : offerCandy(name);
+
+  const foo = 5;
+}
+
+function tempt6(name: string, ofAge: boolean) {
+  const foo = 5;
+
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
+  }
+}
+
+function tempt7(name: string, ofAge: boolean) {
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
+  }
+
+  const foo = 5;
+}
+
+function tempt8(name: string, ofAge: boolean) {
+  if (ofAge) {
+    offerLiquor(name);
+  }
+}
+
+[true, false].map((isTrue) => {
+  if (isTrue) {
+    return 1;  
+  } else {
+    return 0;
+  }
+})`,
+        },
+        {
+          code: `[true, false].map(function(isTrue) {
+  if (isTrue) {
+    return 1;
+  } else {
+    return 0;
+  }
+})`,
+        },
+        {
+          // JSX attribute with boolean parameter (arrow function)
+          code: `
+<ToggleButton
+  onActiveChange={(isActive) => {
+    if (isActive) {
+      setActiveKey(key);
+    } else if (activeKey === key) {
+      setActiveKey(null);
+    }
+  }}
+/>`,
+        },
+        {
+          // JSX attribute with function expression
+          code: `
+<Component
+  onChange={function(isEnabled: boolean) {
+    if (isEnabled) {
+      enable();
+    } else {
+      disable();
+    }
+  }}
+/>`,
+        },
+        {
+          // JSX children with inline function
+          code: `
+<Container>
+  {(isVisible) => {
+    return isVisible ? <Content /> : <Placeholder />;
+  }}
+</Container>`,
+        },
+      ],
+    });
+
+    const javaScriptRuleTester = new DefaultParserRuleTester();
+
+    javaScriptRuleTester.run('S2301:JavaScript', S2301, {
+      invalid: [],
+      valid: [
+        {
+          name: `RSPEC compliant code example`,
+          settings: { sonarRuntime: true },
+          code: `function temptAdult(name) {
+  offerLiquor(name);
+}
+
+function temptChild(name) {
+  offerCandy(name);
+}
+
+function tempt1(name, ofAge) {
+  const foo = 5;
+
+  ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt2(name, ofAge) {
+  const foo = 5;
+
+  ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt3(name, ofAge) {
+  ofAge ? offerLiquor(name) : offerCandy(name);
+
+  const foo = 5;
+}
+
+function tempt4(name, ofAge) {
+  const foo = 5;
+
+  return ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt5(name, ofAge) {
+  return ofAge ? offerLiquor(name) : offerCandy(name);
+
+  const foo = 5;
+}
+
+function tempt6(name, ofAge) {
+  const foo = 5;
+
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
+  }
+}
+
+function tempt7(name, ofAge) {
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
+  }
+
+  const foo = 5;
+}
+
+function tempt8(name, ofAge) {
+  if (ofAge) {
+    offerLiquor(name);
+  } else {
+    offerCandy(name);
+  }
+}
+
+function tempt9(name, ofAge) {
+  ofAge ? offerLiquor(name) : offerCandy(name);
+}
+
+function tempt10(name, ofAge) {
+  return ofAge ? offerLiquor(name) : offerCandy(name);
+}
+`,
+        },
+      ],
+    });
+  });
+});

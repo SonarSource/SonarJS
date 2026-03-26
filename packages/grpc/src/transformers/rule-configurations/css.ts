@@ -17,8 +17,8 @@
 import type { analyzer } from '../../proto/language_analyzer.js';
 import { warn } from '../../../../shared/src/helpers/logging.js';
 import { isString } from '../../../../shared/src/helpers/sanitize.js';
-import { cssRulesMeta, type CssRuleMeta } from '../../../../css/src/rules/metadata.js';
-import type { RuleConfig as CssRuleConfig } from '../../../../css/src/linter/config.js';
+import { cssRulesMeta, type CssRuleMeta } from '../../../../analysis/src/css/rules/metadata.js';
+import type { RuleConfig as CssRuleConfig } from '../../../../analysis/src/css/linter/config.js';
 
 /** Map from SonarQube key to CSS rule metadata (includes param definitions) */
 const cssRuleMetaMap = new Map<string, CssRuleMeta>(cssRulesMeta.map(r => [r.sqKey, r]));

@@ -19,7 +19,7 @@ import {
   ESLintConfiguration,
   ESLintConfigurationProperty,
   ESLintConfigurationSQProperty,
-} from '../packages/jsts/src/rules/helpers/configs.js';
+} from '../packages/analysis/src/jsts/rules/helpers/configs.js';
 import assert from 'node:assert';
 import {
   getESLintDefaultConfiguration,
@@ -36,7 +36,7 @@ import {
   cssRulesMeta,
   type CssRuleMeta,
   type StylelintListParam,
-} from '../packages/css/src/rules/metadata.js';
+} from '../packages/analysis/src/css/rules/metadata.js';
 
 const JAVA_CHECKS_FOLDER = join(
   'sonar-plugin',
@@ -150,8 +150,12 @@ function generateBody(
       return;
     }
 
+    const getSQDefault = () => {
+      return property.customDefault ?? property.default;
+    };
+
     const getJavaType = () => {
-      const defaultValue = property.default;
+      const defaultValue = getSQDefault();
       switch (typeof defaultValue) {
         case 'number':
           return 'int';
@@ -165,7 +169,7 @@ function generateBody(
     };
 
     const getDefaultValueString = () => {
-      const defaultValue = property.default;
+      const defaultValue = getSQDefault();
       switch (typeof defaultValue) {
         case 'number':
         case 'boolean':
@@ -180,7 +184,7 @@ function generateBody(
     };
 
     const getDefaultValue = () => {
-      const defaultValue = property.default;
+      const defaultValue = getSQDefault();
       switch (typeof defaultValue) {
         case 'number':
         case 'boolean':
@@ -304,6 +308,9 @@ const CSS_JAVA_TEST_FOLDER = join(
   'rules',
 );
 
+const CSS_PARSING_ERROR_RULE_KEY = 'S2260';
+const CSS_PARSING_ERROR_STYLELINT_KEY = 'CssSyntaxError';
+
 function escapeJavaString(s: string): string {
   return s.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
@@ -422,6 +429,21 @@ async function generateCssJavaCheckClass(rule: CssRuleMeta): Promise<void> {
   );
 }
 
+async function generateCssParsingErrorClass(): Promise<void> {
+  await inflateTemplateToFile(
+    join(JAVA_TEMPLATES_FOLDER, 'css-check.template'),
+    join(CSS_JAVA_CHECKS_FOLDER, `${CSS_PARSING_ERROR_RULE_KEY}.java`),
+    {
+      ___HEADER___: header,
+      ___IMPORTS___: '',
+      ___RULE_KEY___: CSS_PARSING_ERROR_RULE_KEY,
+      ___CLASS_NAME___: CSS_PARSING_ERROR_RULE_KEY,
+      ___STYLELINT_KEY___: CSS_PARSING_ERROR_STYLELINT_KEY,
+      ___BODY___: '',
+    },
+  );
+}
+
 function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
   perRuleTests: string;
   rulesWithOptionsClasses: string;
@@ -522,13 +544,18 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
 for (const cssRule of cssRulesMeta) {
   await generateCssJavaCheckClass(cssRule);
 }
+await generateCssParsingErrorClass();
 
 // Generate CssRules.java
-const sortedCssRules = cssRulesMeta.toSorted((a, b) => sonarKeySorter(a.sqKey, b.sqKey));
+const sortedCssRuleKeys = [
+  ...new Set([...cssRulesMeta.map(rule => rule.sqKey), CSS_PARSING_ERROR_RULE_KEY]),
+].toSorted(sonarKeySorter);
 
-const cssRuleImports = sortedCssRules.map(r => `import org.sonar.css.rules.${r.sqKey};`).join('\n');
+const cssRuleImports = sortedCssRuleKeys
+  .map(ruleKey => `import org.sonar.css.rules.${ruleKey};`)
+  .join('\n');
 
-const cssRuleClasses = sortedCssRules.map(r => `${r.sqKey}.class`).join(',\n        ');
+const cssRuleClasses = sortedCssRuleKeys.map(ruleKey => `${ruleKey}.class`).join(',\n        ');
 
 await inflateTemplateToFile(
   join(JAVA_TEMPLATES_FOLDER, 'css-rules.template'),

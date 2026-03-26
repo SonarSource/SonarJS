@@ -17,10 +17,10 @@
 import type { analyzer } from '../../proto/language_analyzer.js';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import { isString } from '../../../../shared/src/helpers/sanitize.js';
-import type { ESLintConfiguration } from '../../../../jsts/src/rules/helpers/configs.js';
-import type { RuleConfig } from '../../../../jsts/src/linter/config/rule-config.js';
-import type { FileType } from '../../../../shared/src/helpers/files.js';
-import * as metas from '../../../../jsts/src/rules/metas.js';
+import type { ESLintConfiguration } from '../../../../analysis/src/jsts/rules/helpers/configs.js';
+import type { RuleConfig } from '../../../../analysis/src/jsts/linter/config/rule-config.js';
+import type { FileType } from '../../../../analysis/src/contracts/file.js';
+import * as metas from '../../../../analysis/src/jsts/rules/metas.js';
 
 /**
  * Metadata for a SonarQube rule, extracted from the rule's meta.ts file.
@@ -60,7 +60,7 @@ type FieldDef = {
  * Lookup map from SonarQube rule key (e.g., 'S100', 'S107') to rule metadata.
  *
  * This map is built at module load time by iterating over all exported rule
- * metadata from `packages/jsts/src/rules/metas.js`. Each rule's `meta.ts` file
+ * metadata from `packages/analysis/src/jsts/rules/metas.js`. Each rule's `meta.ts` file
  * exports a `sonarKey` which is used as the map key.
  *
  * @see docs/DEV.md "Rule Options Architecture" section for how rules are structured

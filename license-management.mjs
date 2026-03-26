@@ -20,7 +20,7 @@ import path from 'node:path/posix';
 
 // Configuration
 const MAIN_LICENSE_FILE = path.resolve('LICENSE.txt');
-const OUTPUT_DIR = path.resolve('./licenses/');
+const OUTPUT_DIR = path.resolve('./licenses');
 const THIRD_PARTY_LICENSES_DIR = path.resolve('./licenses/THIRD_PARTY_LICENSES');
 
 await fs.rm(OUTPUT_DIR, { recursive: true, force: true });

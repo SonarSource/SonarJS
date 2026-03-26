@@ -1,0 +1,225 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+// https://sonarsource.github.io/rspec/#/rspec/S4158
+
+import type { TSESTree } from '@typescript-eslint/utils';
+import { ancestorsChain, findFirstMatchingAncestor } from '../helpers/ancestor.js';
+import { collectionConstructor } from '../helpers/collection.js';
+import { generateMeta } from '../helpers/generate-meta.js';
+import { isIdentifier, isReferenceTo } from '../helpers/ast.js';
+import type { Rule, Scope } from 'eslint';
+import type estree from 'estree';
+import * as meta from './generated-meta.js';
+
+// Methods that mutate the collection but can't add elements
+const nonAdditiveMutatorMethods = [
+  // array methods
+  'copyWithin',
+  'pop',
+  'reverse',
+  'shift',
+  'sort',
+  // map, set methods
+  'clear',
+  'delete',
+];
+const accessorMethods = [
+  // array methods
+  'concat',
+  'flat',
+  'flatMap',
+  'includes',
+  'indexOf',
+  'join',
+  'lastIndexOf',
+  'slice',
+  'toSource',
+  'toString',
+  'toLocaleString',
+  // map, set methods
+  'get',
+  'has',
+];
+const iterationMethods = [
+  'entries',
+  'every',
+  'filter',
+  'find',
+  'findIndex',
+  'forEach',
+  'keys',
+  'map',
+  'reduce',
+  'reduceRight',
+  'some',
+  'values',
+];
+
+const strictlyReadingMethods = new Set([
+  ...nonAdditiveMutatorMethods,
+  ...accessorMethods,
+  ...iterationMethods,
+]);
+
+export const rule: Rule.RuleModule = {
+  meta: generateMeta(meta, {
+    messages: {
+      reviewUsageOfIdentifier:
+        'Review this usage of "{{identifierName}}" as it can only be empty here.',
+    },
+  }),
+  create(context) {
+    return {
+      'Program:exit': (node: estree.Node) => {
+        reportEmptyCollectionsUsage(context.sourceCode.getScope(node), context);
+      },
+    };
+  },
+};
+
+function reportEmptyCollectionsUsage(scope: Scope.Scope, context: Rule.RuleContext) {
+  if (scope.type !== 'global') {
+    for (const v of scope.variables) {
+      reportEmptyCollectionUsage(v, context);
+    }
+  }
+
+  for (const childScope of scope.childScopes) {
+    reportEmptyCollectionsUsage(childScope, context);
+  }
+}
+
+function reportEmptyCollectionUsage(variable: Scope.Variable, context: Rule.RuleContext) {
+  if (variable.references.length <= 1) {
+    return;
+  }
+
+  if (variable.defs.some(d => d.type === 'Parameter' || d.type === 'ImportBinding')) {
+    // Bound value initialized elsewhere, could be non-empty.
+    return;
+  }
+
+  const readingUsages = [];
+  let hasAssignmentOfEmptyCollection = false;
+
+  for (const ref of variable.references) {
+    if (ref.isWriteOnly()) {
+      if (isReferenceAssigningEmptyCollection(ref)) {
+        hasAssignmentOfEmptyCollection = true;
+      } else {
+        // There is at least one operation that might make the collection non-empty.
+        // We ignore the order of usages, and consider all reads to be safe.
+        return;
+      }
+    } else if (isReadingCollectionUsage(ref)) {
+      readingUsages.push(ref);
+    } else {
+      // some unknown operation on the collection.
+      // To avoid any FPs, we assume that it could make the collection non-empty.
+      return;
+    }
+  }
+
+  if (hasAssignmentOfEmptyCollection) {
+    for (const ref of readingUsages) {
+      context.report({
+        messageId: 'reviewUsageOfIdentifier',
+        data: {
+          identifierName: ref.identifier.name,
+        },
+        node: ref.identifier,
+      });
+    }
+  }
+}
+
+function isReferenceAssigningEmptyCollection(ref: Scope.Reference) {
+  const declOrExprStmt = findFirstMatchingAncestor(
+    ref.identifier as TSESTree.Node,
+    n => n.type === 'VariableDeclarator' || n.type === 'ExpressionStatement',
+  ) as TSESTree.Node;
+  if (declOrExprStmt) {
+    if (declOrExprStmt.type === 'VariableDeclarator' && declOrExprStmt.init) {
+      return isEmptyCollectionType(declOrExprStmt.init);
+    }
+
+    if (declOrExprStmt.type === 'ExpressionStatement') {
+      const { expression } = declOrExprStmt;
+      return (
+        expression.type === 'AssignmentExpression' &&
+        isReferenceTo(ref, expression.left as estree.Node) &&
+        isEmptyCollectionType(expression.right)
+      );
+    }
+  }
+  return false;
+}
+
+function isEmptyCollectionType(node: TSESTree.Node) {
+  if (node?.type === 'ArrayExpression') {
+    return node.elements.length === 0;
+  } else if (node?.type === 'CallExpression' || node?.type === 'NewExpression') {
+    return isIdentifier(node.callee, ...collectionConstructor) && node.arguments.length === 0;
+  }
+  return false;
+}
+
+function isReadingCollectionUsage(ref: Scope.Reference) {
+  return isStrictlyReadingMethodCall(ref) || isForIterationPattern(ref) || isElementRead(ref);
+}
+
+function isStrictlyReadingMethodCall(usage: Scope.Reference) {
+  const { parent } = usage.identifier as TSESTree.Node;
+  if (parent?.type === 'MemberExpression') {
+    const memberExpressionParent = parent.parent;
+    if (memberExpressionParent?.type === 'CallExpression') {
+      return isIdentifier(parent.property as TSESTree.Node, ...strictlyReadingMethods);
+    }
+  }
+  return false;
+}
+
+function isForIterationPattern(ref: Scope.Reference) {
+  const forInOrOfStatement = findFirstMatchingAncestor(
+    ref.identifier as TSESTree.Node,
+    n => n.type === 'ForOfStatement' || n.type === 'ForInStatement',
+  ) as TSESTree.ForOfStatement | TSESTree.ForInStatement;
+
+  return forInOrOfStatement?.right === ref.identifier;
+}
+
+function isElementRead(ref: Scope.Reference) {
+  const { parent } = ref.identifier as TSESTree.Node;
+  return (
+    parent?.type === 'MemberExpression' &&
+    parent.computed &&
+    !isElementWrite(parent as estree.MemberExpression)
+  );
+}
+
+const writingAssignmentOperators = new Set(['=', '||=', '&&=', '??=']);
+
+function isElementWrite(memberExpression: estree.MemberExpression) {
+  const ancestors = ancestorsChain(memberExpression as TSESTree.Node, new Set());
+  const assignment = ancestors.find(
+    n => n.type === 'AssignmentExpression',
+  ) as TSESTree.AssignmentExpression;
+  if (assignment && writingAssignmentOperators.has(assignment.operator)) {
+    return [memberExpression, ...ancestors].includes(assignment.left);
+  }
+  return false;
+}

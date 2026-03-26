@@ -4,14 +4,15 @@ bin/
 .flattened-pom.xml
 
 lib/
+node_modules
 node_modules/
 coverage/
 
-packages/jsts/src/rules/*/generated-meta.ts
+packages/analysis/src/jsts/rules/*/generated-meta.ts
 packages/grpc/src/proto/*.js
 packages/grpc/src/proto/*.d.ts
-packages/jsts/src/parsers/estree.js
-packages/jsts/src/parsers/estree.d.ts
+packages/analysis/src/jsts/parsers/estree.js
+packages/analysis/src/jsts/parsers/estree.d.ts
 
 # Auto-generated RSPEC rule data (by npm run sync-rspec-all)
 sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/
@@ -39,6 +40,7 @@ sonarjs-1.0.0.tgz
 .vs/
 
 # VS Code
+.vscode
 .vscode/
 
 # ---- Mac OS X
