@@ -732,4 +732,4 @@ This is why `CustomRuleRepository` rules can raise issues: their `eslintKey` is 
 | `JsTsChecks.doAddChecks()`     | `sonar-plugin/sonar-javascript-plugin/.../JsTsChecks.java`                   | Instantiates checks via CheckFactory  |
 | `JavaScriptProfilesDefinition` | `sonar-plugin/sonar-javascript-plugin/.../JavaScriptProfilesDefinition.java` | Applies default-profile contributions |
 | `RulesBundles`                 | `sonar-plugin/bridge/.../RulesBundles.java`                                  | Deploys JS bundles                    |
-| `Linter`                       | `packages/jsts/src/linter/linter.ts`                                         | Loads and executes rules              |
+| `Linter`                       | `packages/analysis/src/jsts/linter/linter.ts`                                | Loads and executes rules              |

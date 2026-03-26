@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { isMainThread } from 'node:worker_threads';
-import { start } from './lib/bridge/src/server.js';
-import { createWorker } from './lib/shared/src/helpers/worker.js';
+import { start } from './lib/http/src/server.js';
+import { createWorker } from './lib/http/src/worker/create-worker.js';
 
 // import containing code which is only executed if it's a child process
-import './lib/bridge/src/worker.js';
+import './lib/http/src/worker.js';
 
 if (isMainThread) {
   /**
