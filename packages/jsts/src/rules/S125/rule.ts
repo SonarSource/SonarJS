@@ -28,6 +28,10 @@ import path from 'node:path';
 
 const EXCLUDED_STATEMENTS = new Set(['BreakStatement', 'LabeledStatement', 'ContinueStatement']);
 
+// Documentation example prefixes that indicate a comment is an intentional usage example,
+// not commented-out dead code (e.g. "e.g. foo()", "example: bar()").
+const DOCUMENTATION_PREFIX_PATTERN = /^(e\.g[.:]|for example|examples?)/i;
+
 // Cheap prefilter: any meaningful JS statement must contain at least one of these characters,
 // or be an import/export with a string literal (side-effect imports have no punctuation)
 const CODE_CHAR_PATTERN = /[;{}()=<>]|\bimport\s+['"]|\bexport\s/;
@@ -96,6 +100,7 @@ export const rule: Rule.RuleModule = {
           const rawTextTrimmed = groupComment.value.trim();
           if (
             rawTextTrimmed !== '}' &&
+            !isDocumentationExample(rawTextTrimmed) &&
             containsCode(injectMissingBraces(rawTextTrimmed), context)
           ) {
             context.report({
@@ -239,4 +244,11 @@ function isExcludedLiteral(expression: estree.Expression) {
     return typeof expression.value === 'string' || typeof expression.value === 'number';
   }
   return false;
+}
+
+function isDocumentationExample(value: string): boolean {
+  const firstLine = value.split('\n')[0];
+  // Strip any leading '//' markers (e.g. '// foo()' in a nested comment becomes 'foo()')
+  const stripped = firstLine.replace(/^(?:\/\/\s*)+/, '').trim();
+  return DOCUMENTATION_PREFIX_PATTERN.test(stripped);
 }
