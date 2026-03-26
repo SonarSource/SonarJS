@@ -193,6 +193,12 @@ class WebSensorTest {
     return queue;
   }
 
+  private static List<String> getJsonArrayStrings(JsonObject jsonObject, String fieldName) {
+    List<String> values = new ArrayList<>();
+    jsonObject.getAsJsonArray(fieldName).forEach(value -> values.add(value.getAsString()));
+    return values;
+  }
+
   @Test
   void should_have_descriptor() {
     DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
@@ -374,7 +380,9 @@ class WebSensorTest {
 
   @Test
   void should_explode_if_no_response_from_project_analysis() {
-    doThrow(new IllegalStateException("error")).when(bridgeServerMock).analyzeProject(any());
+    doThrow(new IllegalStateException("error"))
+      .when(bridgeServerMock)
+      .analyzeProject(any(WebSocketMessageHandler.class));
     var sensor = createSensor();
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
@@ -392,7 +400,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+              "{ parsingErrors: [{ line: 3, column: 4, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"}] }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -404,6 +412,7 @@ class WebSensorTest {
     assertThat(issues).hasSize(1);
     Issue issue = issues.iterator().next();
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(3);
+    assertThat(issue.primaryLocation().textRange().start().lineOffset()).isEqualTo(4);
     assertThat(issue.primaryLocation().message()).isEqualTo("Parse error message");
     assertThat(context.allAnalysisErrors()).hasSize(1);
     assertThat(logTester.logs(Level.WARN)).contains(
@@ -419,7 +428,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { line: 3, message: \"Parse error message\", code: \"Parsing\"} }",
+              "{ parsingErrors: [{ line: 3, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"}] }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -446,7 +455,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { message: \"Parse error message\"} }",
+              "{ parsingErrors: [{ message: \"Parse error message\", language: \"ts\"}] }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -543,6 +552,133 @@ class WebSensorTest {
   }
 
   @Test
+  void should_send_skipNodeModuleLookupOutsideBaseDir_false_by_default() {
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .skipNodeModuleLookupOutsideBaseDir()
+    ).isFalse();
+  }
+
+  @Test
+  void should_send_skipNodeModuleLookupOutsideBaseDir_true_when_enabled() {
+    context.setSettings(
+      new MapSettings().setProperty(
+        "sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir",
+        "true"
+      )
+    );
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .skipNodeModuleLookupOutsideBaseDir()
+    ).isTrue();
+  }
+
+  @Test
+  void should_send_html_yaml_and_css_additional_suffixes_to_bridge_configuration() {
+    context.setSettings(
+      new MapSettings()
+        .setProperty(JavaScriptPlugin.HTML_FILE_SUFFIXES_KEY, ".custom-html")
+        .setProperty(JavaScriptPlugin.YAML_FILE_SUFFIXES_KEY, ".custom-yaml")
+        .setProperty(JavaScriptPlugin.CSS_ADDITIONAL_FILE_SUFFIXES_KEY, ".custom-style")
+    );
+
+    var configuration = executeSensorAndCaptureHandler(createSensor(), context)
+      .getRequest()
+      .getConfiguration();
+    JsonObject configurationJson = GSON.toJsonTree(configuration).getAsJsonObject();
+
+    assertThat(getJsonArrayStrings(configurationJson, "htmlSuffixes")).containsExactly(
+      ".custom-html"
+    );
+    assertThat(getJsonArrayStrings(configurationJson, "yamlSuffixes")).containsExactly(
+      ".custom-yaml"
+    );
+    assertThat(getJsonArrayStrings(configurationJson, "cssAdditionalSuffixes")).containsExactly(
+      ".custom-style"
+    );
+  }
+
+  @Test
+  void should_normalize_suffixes_before_sending_to_bridge_configuration() {
+    context.setSettings(
+      new MapSettings()
+        .setProperty(JavaScriptPlugin.HTML_FILE_SUFFIXES_KEY, " CUSTOM-HTML ")
+        .setProperty(JavaScriptPlugin.YAML_FILE_SUFFIXES_KEY, ".CUSTOM-YAML")
+        .setProperty(JavaScriptPlugin.CSS_ADDITIONAL_FILE_SUFFIXES_KEY, " custom-style ")
+    );
+
+    var configuration = executeSensorAndCaptureHandler(createSensor(), context)
+      .getRequest()
+      .getConfiguration();
+    JsonObject configurationJson = GSON.toJsonTree(configuration).getAsJsonObject();
+
+    assertThat(getJsonArrayStrings(configurationJson, "htmlSuffixes")).containsExactly(
+      ".custom-html"
+    );
+    assertThat(getJsonArrayStrings(configurationJson, "yamlSuffixes")).containsExactly(
+      ".custom-yaml"
+    );
+    assertThat(getJsonArrayStrings(configurationJson, "cssAdditionalSuffixes")).containsExactly(
+      ".custom-style"
+    );
+  }
+
+  @Test
+  void should_select_html_yaml_and_css_additional_files_using_configured_extensions() {
+    context.setSettings(
+      new MapSettings()
+        .setProperty(JavaScriptPlugin.HTML_FILE_SUFFIXES_KEY, ".custom-html")
+        .setProperty(JavaScriptPlugin.YAML_FILE_SUFFIXES_KEY, ".custom-yaml")
+        .setProperty(JavaScriptPlugin.CSS_ADDITIONAL_FILE_SUFFIXES_KEY, ".custom-style")
+    );
+
+    var htmlFile = new TestInputFileBuilder(
+      "moduleKey",
+      baseDir.toFile(),
+      baseDir.resolve("dir/template.custom-html").toFile()
+    )
+      .setLanguage("text")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("<template>{{ value }}</template>")
+      .build();
+    var yamlFile = new TestInputFileBuilder(
+      "moduleKey",
+      baseDir.toFile(),
+      baseDir.resolve("dir/template.custom-yaml").toFile()
+    )
+      .setLanguage("text")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("Transform: AWS::Serverless-2016-10-31\nRuntime: nodejs18.x\nResources: {}")
+      .build();
+    var cssAdditionalFile = new TestInputFileBuilder(
+      "moduleKey",
+      baseDir.toFile(),
+      baseDir.resolve("dir/component.custom-style").toFile()
+    )
+      .setLanguage("text")
+      .setType(InputFile.Type.MAIN)
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("<style>.a { color: red; }</style>")
+      .build();
+    context.fileSystem().add(htmlFile);
+    context.fileSystem().add(yamlFile);
+    context.fileSystem().add(cssAdditionalFile);
+
+    var requestFiles = executeSensorAndCaptureHandler(createSensor(), context)
+      .getRequest()
+      .getFiles();
+    assertThat(requestFiles).containsKeys(
+      htmlFile.absolutePath(),
+      yamlFile.absolutePath(),
+      cssAdditionalFile.absolutePath()
+    );
+  }
+
+  @Test
   void should_not_send_content() {
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)
@@ -595,9 +731,9 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { message: \"Debug Failure. False expression.\", code: \"" +
+              "{ parsingErrors: [{ message: \"Debug Failure. False expression.\", code: \"" +
                 BridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT +
-                "\"} }",
+                "\", language: \"ts\"}] }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -622,7 +758,9 @@ class WebSensorTest {
 
   @Test
   void should_fail_fast() {
-    doThrow(new IllegalStateException("error")).when(bridgeServerMock).analyzeProject(any());
+    doThrow(new IllegalStateException("error"))
+      .when(bridgeServerMock)
+      .analyzeProject(any(WebSocketMessageHandler.class));
     var sensor = createSensor();
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
@@ -639,7 +777,7 @@ class WebSensorTest {
           put(
             inputFile.absolutePath(),
             GSON.fromJson(
-              "{ parsingError: { message: \"Parse error message\"} }",
+              "{ parsingErrors: [{ message: \"Parse error message\", language: \"ts\"}] }",
               BridgeServer.AnalysisResponseDTO.class
             )
           );
@@ -653,6 +791,31 @@ class WebSensorTest {
     assertThat(logTester.logs(Level.ERROR)).contains(
       "Failed to analyze file [dir/file.ts]: Parse error message"
     );
+  }
+
+  @Test
+  void should_not_fail_fast_with_css_parsing_error_without_line() {
+    MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
+    context.setSettings(settings);
+    var expectedResponse = createProjectResponse(
+      new HashMap<>() {
+        {
+          put(
+            inputFile.absolutePath(),
+            GSON.fromJson(
+              "{ parsingErrors: [{ message: \"Parse error message\", language: \"css\"}] }",
+              BridgeServer.AnalysisResponseDTO.class
+            )
+          );
+        }
+      }
+    );
+
+    executeSensorMockingResponse(expectedResponse);
+    assertThat(logTester.logs(Level.ERROR)).contains(
+      "Failed to analyze file [dir/file.ts]: Parse error message"
+    );
+    assertThat(context.allAnalysisErrors()).hasSize(1);
   }
 
   @Test
@@ -1287,7 +1450,7 @@ class WebSensorTest {
       return handler.getFuture().join();
     })
       .when(bridgeServerMock)
-      .analyzeProject(any());
+      .analyzeProject(any(WebSocketMessageHandler.class));
     sensor.execute(context);
     assertThat(webSocketClient.getMessageHandlers()).isEmpty();
   }
@@ -1392,7 +1555,7 @@ class WebSensorTest {
     Node node
   ) {
     var analysisResponse = new BridgeServer.AnalysisResponseDTO(
-      null,
+      List.of(),
       List.of(),
       List.of(),
       List.of(),
@@ -1423,7 +1586,7 @@ class WebSensorTest {
 
   private BridgeServer.AnalysisResponseDTO createResponse(List<BridgeServer.Issue> issues) {
     return new BridgeServer.AnalysisResponseDTO(
-      null,
+      List.of(),
       issues,
       List.of(),
       List.of(),
@@ -1579,6 +1742,10 @@ class WebSensorTest {
       builder.addRule(
         new NewActiveRule.Builder()
           .setRuleKey(RuleKey.of(CheckList.TS_REPOSITORY_KEY, ruleKey))
+          .build()
+      );
+      builder.addRule(
+        new NewActiveRule.Builder()
           .setRuleKey(RuleKey.of(CheckList.JS_REPOSITORY_KEY, ruleKey))
           .build()
       );

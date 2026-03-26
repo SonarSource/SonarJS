@@ -10,12 +10,16 @@
     }
   ],
   "include": [
-    "*/tests",
-    "*/src/rules/tools",
+    "**/tests",
+    "**/src/*/rules/tools",
     "ruling/**/*",
-    "*/src/rules/**/*.test.ts",
+    "**/src/*/rules/**/*.test.ts",
     "**/ruling/projects.json",
     "../typings/**/*.d.ts"
   ],
-  "exclude": ["*/tests/**/fixtures*", "*/src/rules/**/*.fixture.*", "*/src/rules/**/fixtures"]
+  "exclude": [
+    "**/tests/**/fixtures*",
+    "**/src/*/rules/**/*.fixture.*",
+    "**/src/*/rules/**/fixtures"
+  ]
 }
