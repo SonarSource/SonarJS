@@ -1,0 +1,6 @@
+{
+  "extends": "@vue/tsconfig.json",
+  "files": [
+    "file.ts"
+  ]
+}

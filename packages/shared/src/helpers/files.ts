@@ -16,25 +16,27 @@
  */
 import fs from 'node:fs';
 import {
-  stripBOM,
-  dirnamePath,
   basenamePath,
-  type NormalizedAbsolutePath,
-} from '../../../jsts/src/rules/helpers/files.js';
-export * from '../../../jsts/src/rules/helpers/files.js';
+  dirnamePath,
+  stripBOM,
+} from '../../../analysis/src/jsts/rules/helpers/files.js';
+import type { NormalizedAbsolutePath } from '../../../analysis/src/jsts/rules/helpers/files.js';
 
-/**
- * The type of input file
- *
- * The scanner indexes input files based on the project configuration,
- * if any. It determines wheter an input file denotes a `MAIN` file,
- * i.e., a source file, or a `TEST` file.
- *
- * The type of input file is then used by the linter to select which
- * rule configurations to apply, that is, which rules the linter should
- * use to analyze the file.
- */
-export type FileType = 'MAIN' | 'TEST';
+// Accepted layer inversion: shared re-exports rules-side path helpers so non-rules code can
+// import only from shared while keeping eslint-plugin-sonarjs binary generation scoped to rules.
+export {
+  ROOT_PATH,
+  dirnamePath,
+  isAbsolutePath,
+  isRoot,
+  joinPaths,
+  normalizePath,
+  normalizeToAbsolutePath,
+} from '../../../analysis/src/jsts/rules/helpers/files.js';
+export type {
+  File,
+  NormalizedAbsolutePath,
+} from '../../../analysis/src/jsts/rules/helpers/files.js';
 
 /**
  * Asynchronous read of file contents from a file path

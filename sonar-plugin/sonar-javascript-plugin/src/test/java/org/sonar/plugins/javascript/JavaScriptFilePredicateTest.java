@@ -81,12 +81,45 @@ class JavaScriptFilePredicateTest {
       )
     );
 
-    FilePredicate predicate = JavaScriptFilePredicate.getYamlPredicate(fs);
+    FilePredicate predicate = JavaScriptFilePredicate.getYamlPredicate(
+      fs,
+      List.of(".yaml", ".yml")
+    );
     List<File> files = new ArrayList<>();
     fs.files(predicate).forEach(files::add);
 
     var filenames = files.stream().map(File::getName).toList();
     assertThat(filenames).containsExactlyInAnyOrder("sam-template.yaml");
+  }
+
+  @Test
+  void yamlPredicateShouldUseExtensionInsteadOfLanguage() {
+    var samHeader = "".concat("Transform: AWS::Serverless-2016-10-31")
+      .concat(newLine)
+      .concat("Runtime: nodejs18.x")
+      .concat(newLine);
+
+    var fs = new DefaultFileSystem(baseDir);
+    var yamlWithCustomLanguage = new TestInputFileBuilder("moduleKey", "custom-language.yaml")
+      .setModuleBaseDir(baseDir)
+      .setType(Type.MAIN)
+      .setLanguage("text")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents(samHeader.concat("kind: Deployment"))
+      .build();
+    var nonYamlWithYamlLanguage = new TestInputFileBuilder("moduleKey", "not-yaml.txt")
+      .setModuleBaseDir(baseDir)
+      .setType(Type.MAIN)
+      .setLanguage(JavaScriptFilePredicate.YAML_LANGUAGE)
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents(samHeader.concat("kind: Deployment"))
+      .build();
+    fs.add(yamlWithCustomLanguage);
+    fs.add(nonYamlWithYamlLanguage);
+
+    FilePredicate predicate = JavaScriptFilePredicate.getYamlPredicate(fs, List.of(".yaml"));
+    assertThat(predicate.apply(yamlWithCustomLanguage)).isTrue();
+    assertThat(predicate.apply(nonYamlWithYamlLanguage)).isFalse();
   }
 
   @Test

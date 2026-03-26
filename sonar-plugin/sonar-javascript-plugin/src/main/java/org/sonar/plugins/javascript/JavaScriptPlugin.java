@@ -121,11 +121,24 @@ public class JavaScriptPlugin implements Plugin {
   public static final String TSLINT_REPORT_PATHS = "sonar.typescript.tslint.reportPaths";
 
   private static final String FILE_SUFFIXES_DESCRIPTION = "List of suffixes for files to analyze.";
+  private static final String HTML_FILE_SUFFIXES_DESCRIPTION =
+    "List of suffixes for HTML files where embedded JavaScript should be analyzed.";
+  private static final String YAML_FILE_SUFFIXES_DESCRIPTION =
+    "List of suffixes for AWS SAM/CloudFormation YAML files with embedded JavaScript.";
+  private static final String CSS_ADDITIONAL_FILE_SUFFIXES_DESCRIPTION =
+    "List of non-CSS file suffixes where embedded CSS should be analyzed.";
   public static final String PROPERTY_KEY_MAX_FILE_SIZE = "sonar.javascript.maxFileSize";
   public static final long DEFAULT_MAX_FILE_SIZE_KB = 1000L; // 1MB
 
   public static final String TSCONFIG_PATHS = "sonar.typescript.tsconfigPaths";
   public static final String TSCONFIG_PATHS_ALIAS = "sonar.typescript.tsconfigPath";
+  public static final String HTML_FILE_SUFFIXES_KEY = "sonar.javascript.html.file.suffixes";
+  public static final String HTML_FILE_SUFFIXES_DEFAULT_VALUE = ".html,.htm,.xhtml";
+  public static final String YAML_FILE_SUFFIXES_KEY = "sonar.javascript.yaml.file.suffixes";
+  public static final String YAML_FILE_SUFFIXES_DEFAULT_VALUE = ".yml,.yaml";
+  public static final String CSS_ADDITIONAL_FILE_SUFFIXES_KEY =
+    "sonar.javascript.css.additional.file.suffixes";
+  public static final String CSS_ADDITIONAL_FILE_SUFFIXES_DEFAULT_VALUE = ".vue,.html,.htm,.xhtml";
 
   public static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
   public static final String DETECT_BUNDLES_PROPERTY = "sonar.javascript.detectBundles";
@@ -182,6 +195,33 @@ public class JavaScriptPlugin implements Plugin {
         .defaultValue(TypeScriptLanguage.DEFAULT_FILE_SUFFIXES)
         .name("TypeScript File Suffixes")
         .description(FILE_SUFFIXES_DESCRIPTION)
+        .subCategory(GENERAL)
+        .category(JS_TS_CATEGORY)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
+        .multiValues(true)
+        .build(),
+      PropertyDefinition.builder(HTML_FILE_SUFFIXES_KEY)
+        .defaultValue(HTML_FILE_SUFFIXES_DEFAULT_VALUE)
+        .name("HTML File Suffixes")
+        .description(HTML_FILE_SUFFIXES_DESCRIPTION)
+        .subCategory(GENERAL)
+        .category(JS_TS_CATEGORY)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
+        .multiValues(true)
+        .build(),
+      PropertyDefinition.builder(YAML_FILE_SUFFIXES_KEY)
+        .defaultValue(YAML_FILE_SUFFIXES_DEFAULT_VALUE)
+        .name("YAML File Suffixes")
+        .description(YAML_FILE_SUFFIXES_DESCRIPTION)
+        .subCategory(GENERAL)
+        .category(JS_TS_CATEGORY)
+        .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
+        .multiValues(true)
+        .build(),
+      PropertyDefinition.builder(CSS_ADDITIONAL_FILE_SUFFIXES_KEY)
+        .defaultValue(CSS_ADDITIONAL_FILE_SUFFIXES_DEFAULT_VALUE)
+        .name("CSS-in-HTML File Suffixes")
+        .description(CSS_ADDITIONAL_FILE_SUFFIXES_DESCRIPTION)
         .subCategory(GENERAL)
         .category(JS_TS_CATEGORY)
         .onConfigScopes(PropertyDefinition.ConfigScope.PROJECT)
