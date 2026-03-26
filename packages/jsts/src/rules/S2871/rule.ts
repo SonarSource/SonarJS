@@ -76,7 +76,7 @@ function isObjectKeysVariable(
   sourceCode: Rule.RuleContext['sourceCode'],
 ): boolean {
   const variable = getVariableFromScope(sourceCode.getScope(identifier), identifier.name);
-  if (!variable || variable.defs.length !== 1) {
+  if (variable?.defs.length !== 1) {
     return false;
   }
   const def = variable.defs[0];
