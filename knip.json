@@ -1,12 +1,12 @@
 {
   "ignore": [
-    "packages/jsts/src/rules/*/meta.ts",
-    "packages/jsts/src/rules/*/config.ts",
-    "packages/jsts/src/rules/plugin.ts",
-    "packages/jsts/src/rules/*/*.fixture.*",
+    "packages/analysis/src/jsts/rules/*/meta.ts",
+    "packages/analysis/src/jsts/rules/*/config.ts",
+    "packages/analysis/src/jsts/rules/plugin.ts",
+    "packages/analysis/src/jsts/rules/*/*.fixture.*",
     "**/fixtures/**",
     "**/fixtures-*/**",
-    "packages/bridge/src/worker.ts",
+    "packages/http/src/worker.ts",
     "its/**",
     "tools/header.ts",
     "tools/new-plugin.ts",

@@ -25,6 +25,10 @@ function verifyErrors(output) {
   console.log(output);
   const errorLines = output.split('\n').filter(line => line.includes('error'));
   assert(errorLines.length >= 8);
+  assert(
+    errorLines.some(line => line.includes('sonarjs/cognitive-complexity')),
+    `Expected a sonarjs/cognitive-complexity issue in output:\n${output}`,
+  );
 }
 
 test('should work with CommonJS config', async t => {

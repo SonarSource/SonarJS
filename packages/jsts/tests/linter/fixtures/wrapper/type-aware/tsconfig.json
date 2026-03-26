@@ -1,6 +1,0 @@
-{
-  "compilerOptions": {
-    "allowJs": true
-  },
-  "files": ["file.js"]
-}

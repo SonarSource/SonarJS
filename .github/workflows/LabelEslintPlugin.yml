@@ -4,7 +4,7 @@ on:
   pull_request:
     types: ["opened", "synchronize", "edited"]
     paths:
-      - 'packages/jsts/src/rules/**'
+      - 'packages/analysis/src/jsts/rules/**'
 
 jobs:
   add_eslint_plugin_label:
@@ -27,7 +27,7 @@ jobs:
         run: |
           # Get list of changed rule directories
           CHANGED_RULES=$(gh pr diff ${{ github.event.pull_request.number }} --name-only | \
-            grep -oE 'packages/jsts/src/rules/S[0-9]+' | sort -u || echo "")
+            grep -oE 'packages/analysis/src/jsts/rules/S[0-9]+' | sort -u || echo "")
 
           if [ -z "$CHANGED_RULES" ]; then
             echo "No rule directories changed"
