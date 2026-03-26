@@ -29,18 +29,17 @@ import {
 } from './configuration.js';
 import { filterPathAndGetFileType } from './filter/filter-path.js';
 import { shouldIgnoreFile } from './filter/filter.js';
-import { isObject, isString, isStringArray, sanitizePaths } from '../../../shared/src/helpers/sanitize.js';
-import { initFileStores } from '../file-stores/index.js';
 import {
-  type FileStatus,
-  JSTS_ANALYSIS_DEFAULTS,
-} from '../../jsts/src/analysis/analysis.js';
+  isObject,
+  isString,
+  isStringArray,
+  sanitizePaths,
+} from '../../../shared/src/helpers/sanitize.js';
+import { initFileStores } from '../file-stores/index.js';
+import { type FileStatus, JSTS_ANALYSIS_DEFAULTS } from '../../jsts/src/analysis/analysis.js';
 import type { RuleConfig as CssRuleConfig } from '../../css/src/linter/config.js';
 import type { RuleConfig } from '../../jsts/src/linter/config/rule-config.js';
-import {
-  type AnalyzableFiles,
-  createAnalyzableFiles,
-} from '../projectAnalysis.js';
+import { type AnalyzableFiles, createAnalyzableFiles } from '../projectAnalysis.js';
 
 function isFileStatus(value: unknown): value is FileStatus {
   return value === 'SAME' || value === 'CHANGED' || value === 'ADDED';
@@ -77,7 +76,7 @@ function isCssRuleConfigArray(value: unknown): boolean {
   return Array.isArray(value) && value.every(isCssRuleConfig);
 }
 
-export interface SanitizedProjectAnalysisInput {
+interface SanitizedProjectAnalysisInput {
   rules: RuleConfig[];
   cssRules: CssRuleConfig[];
   baseDir: NormalizedAbsolutePath;
@@ -161,4 +160,3 @@ export async function sanitizeRawInputFiles(
 
   return { files, pathMap };
 }
-

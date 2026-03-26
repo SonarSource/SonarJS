@@ -20,16 +20,11 @@ import {
   dirname as dirnamePosix,
   isAbsolute as isUnixAbsolute,
   join as joinPosix,
-  parse as parsePosix,
   resolve as resolvePosix,
 } from 'node:path/posix';
-import {
-  isAbsolute as isWinAbsolute,
-  parse as parseWin32,
-  resolve as resolveWin32,
-} from 'node:path/win32';
+import { isAbsolute as isWinAbsolute, resolve as resolveWin32 } from 'node:path/win32';
 
-export type NormalizedPath = string & { readonly __normalizedPathBrand: 'NormalizedPath' };
+type NormalizedPath = string & { readonly __normalizedPathBrand: 'NormalizedPath' };
 export type NormalizedAbsolutePath = string & {
   readonly __normalizedAbsolutePathBrand: 'NormalizedAbsolutePath';
 };
@@ -44,11 +39,6 @@ export const ROOT_PATH = '/' as NormalizedAbsolutePath;
  */
 const BOM_BYTE = 0xfeff;
 
-export type File = {
-  readonly path: NormalizedAbsolutePath;
-  readonly content: Buffer | string;
-};
-
 /**
  * Removes any Byte Order Marker (BOM) from a string's head
  *
@@ -57,7 +47,7 @@ export type File = {
  * @param str the input string
  * @returns the stripped string
  */
-export function stripBOM(str: string) {
+function stripBOM(str: string) {
   if (str.codePointAt(0) === BOM_BYTE) {
     return str.slice(1);
   }
@@ -108,18 +98,6 @@ function toUnixPath(filePath: string) {
   return filePath.replaceAll(/[\\/]+/g, '/');
 }
 
-function isParseResultRoot(result: { root: string; base: string; dir: string }) {
-  // A path is a root if it has a non-empty root and no base (filename)
-  // and dir is either empty or equals the root itself
-  return (
-    result.root !== '' && result.base === '' && (result.dir === '' || result.dir === result.root)
-  );
-}
-
-export function isRoot(file: string) {
-  return isParseResultRoot(parseWin32(file)) || isParseResultRoot(parsePosix(file));
-}
-
 export function isAbsolutePath(path: string) {
   // Check for Windows drive letter (e.g., 'c:', 'C:', 'D:')
   // Node's isAbsolute considers 'c:' as relative (drive-relative), but we treat it as absolute
@@ -135,7 +113,7 @@ export function isAbsolutePath(path: string) {
  * @param filePath the absolute path to get the directory of
  * @returns the parent directory as a branded NormalizedAbsolutePath
  */
-export function dirnamePath(filePath: NormalizedAbsolutePath): NormalizedAbsolutePath {
+function dirnamePath(filePath: NormalizedAbsolutePath): NormalizedAbsolutePath {
   return dirnamePosix(filePath) as NormalizedAbsolutePath;
 }
 
@@ -158,7 +136,7 @@ export function joinPaths(
  * @param filePath the path to extract the basename from
  * @returns the filename (last segment of the path)
  */
-export function basenamePath(filePath: NormalizedPath | NormalizedAbsolutePath): string {
+function basenamePath(filePath: NormalizedPath | NormalizedAbsolutePath): string {
   return basenamePosix(filePath);
 }
 

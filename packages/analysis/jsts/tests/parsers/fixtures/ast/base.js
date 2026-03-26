@@ -34,12 +34,12 @@ const {
   loadPackageJsons,
   analyzeProject,
 } = require('../../jsts/src/index.js');
-const { readFile, setContext } = require('../../../../../../../shared/src/helpers/index.js');
+const { readFile, setContext } = require('../../../../../shared/src/helpers/index.js');
 const { analyzeCSS } = require('../../css/src/index.js');
 const { analyzeHTML } = require('../../html/src/index.js');
 const { analyzeYAML } = require('../../yaml/src/index.js');
-const { APIError, ErrorCode } = require('../../../../../src/contracts/error.js');
-const { logHeapStatistics } = require('../../http/src/memory/index.js');
+const { APIError, ErrorCode } = require('../../../../../shared/src/errors/index.js');
+const { logHeapStatistics } = require('../../bridge/src/memory/index.js');
 
 export * from "module-name";
 /**

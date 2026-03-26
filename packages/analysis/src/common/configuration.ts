@@ -199,9 +199,7 @@ export function createConfiguration(raw: unknown): Configuration {
     allowTsParserJsFiles: isBoolean(raw.allowTsParserJsFiles)
       ? raw.allowTsParserJsFiles
       : DEFAULT_ALLOW_TS_PARSER_JS_FILES,
-    analysisMode: isAnalysisMode(raw.analysisMode)
-      ? raw.analysisMode
-      : DEFAULT_ANALYSIS_MODE,
+    analysisMode: isAnalysisMode(raw.analysisMode) ? raw.analysisMode : DEFAULT_ANALYSIS_MODE,
     skipAst: isBoolean(raw.skipAst) ? raw.skipAst : DEFAULT_SKIP_AST,
     ignoreHeaderComments: isBoolean(raw.ignoreHeaderComments)
       ? raw.ignoreHeaderComments
@@ -346,14 +344,14 @@ export function getFilterPathParams(configuration: Configuration): FilterPathPar
   };
 }
 
-export function isJsFile(
+function isJsFile(
   filePath: NormalizedAbsolutePath,
   jsSuffixes: string[] = DEFAULT_JS_EXTENSIONS,
 ): boolean {
   return jsSuffixes.includes(extname(filePath).toLowerCase());
 }
 
-export function isTsFile(
+function isTsFile(
   filePath: NormalizedAbsolutePath,
   contents: string,
   tsSuffixes: string[] = DEFAULT_TS_EXTENSIONS,
