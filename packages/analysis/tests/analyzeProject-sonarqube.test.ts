@@ -816,7 +816,7 @@ describe('SonarQube project analysis', () => {
     }
   });
 
-  it('should reproduce JSX cache collision with mixed jsx compiler options', async () => {
+  it('should analyze JSX cache collision fixture with mixed jsx compiler options', async () => {
     const baseDir = join(fixtures, 'jsx-cache-collision');
     const initialFile = join(baseDir, 'initial.ts');
     const triggerFile = join(baseDir, 'trigger.tsx');
@@ -842,11 +842,9 @@ describe('SonarQube project analysis', () => {
 
     const triggerResult = result.files[normalizeToAbsolutePath(triggerFile)];
     expect(triggerResult).toBeDefined();
-    expect('error' in triggerResult!).toBe(true);
-    if ('error' in triggerResult!) {
-      expect(triggerResult.error).toContain(
-        'Expected sourceFile.imports[0] to be the synthesized JSX runtime import',
-      );
+    expect('issues' in triggerResult!).toBe(true);
+    if ('issues' in triggerResult!) {
+      expect(triggerResult.issues.some(issue => issue.ruleId === 'S1874')).toBe(true);
     }
 
     expect(result.meta.telemetry?.compilerOptions.jsx).toEqual(
