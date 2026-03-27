@@ -30,7 +30,7 @@ export function createDelegator(
   worker: Worker | undefined,
   workerData: WorkerData,
   listeners: WorkerMessageListeners,
-): (type: RequestType) => express.RequestHandler {
+) {
   return worker
     ? (type: RequestType) => createWorkerHandler(worker, type, listeners)
     : (type: RequestType) => createHandler(type, workerData);
@@ -41,7 +41,7 @@ export function createDelegator(
  * @param type the request type, i.e. endpoint
  * @param workerData print memory usage for debugging purposes
  */
-function createHandler(type: RequestType, workerData: WorkerData): express.RequestHandler {
+function createHandler(type: RequestType, workerData: WorkerData) {
   return async (
     request: express.Request,
     response: express.Response,
@@ -51,11 +51,7 @@ function createHandler(type: RequestType, workerData: WorkerData): express.Reque
   };
 }
 
-function createWorkerHandler(
-  worker: Worker,
-  type: RequestType,
-  listeners: WorkerMessageListeners,
-): express.RequestHandler {
+function createWorkerHandler(worker: Worker, type: RequestType, listeners: WorkerMessageListeners) {
   return async (
     request: express.Request,
     response: express.Response,

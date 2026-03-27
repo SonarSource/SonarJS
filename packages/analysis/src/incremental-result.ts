@@ -22,3 +22,4 @@ type FileResultMessage = { filename: string; messageType: 'fileResult' } & FileR
 type ErrorResult = { messageType: 'error'; error: unknown };
 
 export type WsIncrementalResult = FileResultMessage | MetaResult | AnalysisCancelled | ErrorResult;
+

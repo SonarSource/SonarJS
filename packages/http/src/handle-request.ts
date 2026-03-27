@@ -14,7 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { analyzeProject, cancelAnalysis } from '../../analysis/src/analyzeProject.js';
+import {
+  analyzeProject,
+  cancelAnalysis,
+} from '../../analysis/src/analyzeProject.js';
 import { logHeapStatistics } from './memory.js';
 import {
   type BridgeRequest,
@@ -73,3 +76,4 @@ export async function handleRequest(
     return { type: 'failure', error: serializeError(err) };
   }
 }
+

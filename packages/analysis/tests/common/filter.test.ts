@@ -19,11 +19,7 @@ import { createConfiguration, getShouldIgnoreParams } from '../../src/common/con
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
-import {
-  normalizePath,
-  normalizeToAbsolutePath,
-  readFile,
-} from '../../../shared/src/helpers/files.js';
+import { normalizePath, normalizeToAbsolutePath, readFile } from '../../../shared/src/helpers/files.js';
 
 const BUNDLE_CONTENTS = '/* jQuery JavaScript Library v1.4.3*/(function(';
 const baseDir = join(normalizePath(import.meta.dirname), 'fixtures');
