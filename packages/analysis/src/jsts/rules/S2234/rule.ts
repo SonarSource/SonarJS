@@ -42,6 +42,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
     const canResolveType = isRequiredParserServices(services);
+    const COMPARISON_OPERATORS = ['==', '!=', '===', '!==', '<', '<=', '>', '>='] as const;
 
     function checkArguments(functionCall: estree.CallExpression) {
       // Extract argument names first (cheap operation)
@@ -122,7 +123,7 @@ export const rule: Rule.RuleModule = {
         switch (test.type) {
           case 'BinaryExpression': {
             const binExpr = test;
-            if (['==', '!=', '===', '!==', '<', '<=', '>', '>='].includes(binExpr.operator)) {
+            if (COMPARISON_OPERATORS.includes(binExpr.operator)) {
               const { left: lhs, right: rhs } = binExpr;
               return checkComparedArguments(lhs, rhs);
             }
@@ -309,7 +310,6 @@ export const rule: Rule.RuleModule = {
       if (test.type !== 'BinaryExpression') {
         return false;
       }
-      const COMPARISON_OPERATORS = ['==', '!=', '===', '!==', '<', '<=', '>', '>='];
       if (!COMPARISON_OPERATORS.includes(test.operator)) {
         return false;
       }
