@@ -248,7 +248,11 @@ function isForInKeyArray(
     const callParent = getNodeParent(memberParent);
 
     if (callParent?.type !== 'CallExpression') {
-      continue; // property read (e.g. arr.length, arr[0]), not a mutation — safe to ignore
+      // Reject index-assignment mutations: arr[i] = value
+      if (callParent?.type === 'AssignmentExpression' && callParent.left === memberParent) {
+        return false;
+      }
+      continue; // genuine property read (e.g. arr.length, arr[0]) — safe to ignore
     }
     if (prop.type !== 'Identifier' || prop.name !== 'push') {
       return false; // non-push method call on the array - reject

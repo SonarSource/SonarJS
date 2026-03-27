@@ -682,6 +682,16 @@ describe('S2871', () => {
           code: `Object.getOwnPropertySymbols(obj).toSorted()`,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
+        // for-in pattern with index-assignment mutation - still flagged
+        {
+          code: `
+            var arr = [];
+            for (var key in obj) arr.push(key);
+            arr[0] = 'injected';
+            arr.sort();
+          `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
         // for-in pattern with push outside the loop - still flagged
         {
           code: `
