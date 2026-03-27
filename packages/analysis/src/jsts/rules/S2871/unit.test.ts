@@ -772,6 +772,15 @@ describe('S2871', () => {
           code: `Array.from(numArr.keys()).toSorted()`,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
+        // Only one side is a sort call — not order-independent, must be flagged
+        {
+          code: `a.sort() === 'abc'`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `a.toSorted() === 'abc'`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
       ],
     });
 

@@ -152,14 +152,34 @@ function isArrayFromMapStringKeysCall(
 }
 
 /**
- * Checks if the sort() call is part of an order-independent comparison
- * e.g., arr1.sort() === arr2.sort()
+ * Checks if a node is a zero-argument .sort() or .toSorted() call.
  */
-function isInOrderIndependentComparison(parent: estree.Node | undefined): boolean {
+function isSortLikeCall(node: estree.Node): boolean {
+  return (
+    node.type === 'CallExpression' &&
+    node.arguments.length === 0 &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.property.type === 'Identifier' &&
+    ['sort', 'toSorted'].includes(node.callee.property.name)
+  );
+}
+
+/**
+ * Checks if the sort() call is part of an order-independent comparison where
+ * both operands are sort/toSorted calls, e.g., arr1.sort() === arr2.sort()
+ */
+function isInOrderIndependentComparison(
+  call: estree.CallExpression,
+  parent: estree.Node | undefined,
+): boolean {
   if (parent?.type !== 'BinaryExpression') {
     return false;
   }
-  return ['===', '!==', '==', '!='].includes(parent.operator);
+  if (!['===', '!==', '==', '!='].includes(parent.operator)) {
+    return false;
+  }
+  const other = parent.left === call ? parent.right : parent.left;
+  return isSortLikeCall(other);
 }
 
 function getEnclosingForIn(startNode: estree.Node): estree.ForInStatement | null {
@@ -316,7 +336,7 @@ export const rule: Rule.RuleModule = {
         // AST-based suppression: order-independent comparison (a.sort() === b.sort())
         // This is pattern-based, not type-based, so it applies regardless of type checker availability
         const parent = getNodeParent(call);
-        if (isInOrderIndependentComparison(parent)) {
+        if (isInOrderIndependentComparison(call, parent)) {
           return;
         }
 
