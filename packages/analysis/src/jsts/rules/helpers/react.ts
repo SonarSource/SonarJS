@@ -261,6 +261,17 @@ function matchesClassProps(
  *
  * **Why mutual assignability?** — same rationale as `matchesClassProps`: prevents
  * accidental matches when the component's props type is permissive (all-optional fields).
+ *
+ * **Two-phase strategy for arrow functions:**
+ * When the component is an arrow function typed via a VariableDeclarator annotation
+ * (e.g. `const Foo: React.FC<FooProps> = ({ ... }) => …`), TypeScript may infer the
+ * parameter type from the destructuring pattern rather than from the contextual type.
+ * This happens when imports are unresolvable (e.g. no `node_modules`), making
+ * `React.FC<FooProps>` resolve to `any`, so TypeScript infers `{ destructuredKey: any }`
+ * for the parameter — which is NOT mutually assignable with the full `FooProps` interface.
+ * Phase 1 reads the type annotation directly from the VariableDeclarator to avoid this
+ * inference problem.  Phase 2 falls back to the signature-based approach for plain typed
+ * parameters (e.g. `function Foo(props: FooProps)`).
  */
 function matchesFunctionProps(
   componentNode: estree.Node,
@@ -274,10 +285,35 @@ function matchesFunctionProps(
   if (funcName !== undefined && !/^[A-Z]/.test(funcName)) {
     return false;
   }
+
+  // Phase 1 — annotation-based approach for `const Foo: React.FC<FooProps> = ...` patterns.
+  // Use the type annotation on the parent VariableDeclarator instead of the inferred
+  // parameter type.  This is more reliable when module imports are unresolved, because
+  // TypeScript derives the parameter type from the destructuring pattern in that case,
+  // producing an incomplete type that fails the mutual-assignability check.
+  const parent = (tsFuncNode as any).parent;
+  if (parent != null && (parent as any).initializer === tsFuncNode) {
+    const typeNode = (parent as any).type;
+    if (typeNode != null) {
+      const typeArgs = (typeNode as any).typeArguments as ts.TypeNode[] | undefined;
+      if (typeArgs && typeArgs.length > 0) {
+        const annotatedParamType = checker.getTypeAtLocation(typeArgs[0]);
+        // @ts-ignore — isTypeAssignableTo is a private TypeScript API
+        if (
+          checker.isTypeAssignableTo(propsType, annotatedParamType) &&
+          checker.isTypeAssignableTo(annotatedParamType, propsType)
+        ) {
+          return true;
+        }
+      }
+    }
+  }
+
+  // Phase 2 — signature-based approach for functions typed via their parameter list
+  // (e.g. `function Foo(props: FooProps)` or `const Foo = (props: FooProps) => …`).
   const signature = checker.getSignatureFromDeclaration(tsFuncNode);
   const firstParam = signature?.parameters[0];
   if (firstParam == null) {
-    // Function has no parameters — cannot be a props-consuming component.
     return false;
   }
   const componentParamType = checker.getTypeOfSymbol(firstParam);

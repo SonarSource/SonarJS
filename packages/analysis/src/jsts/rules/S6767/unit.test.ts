@@ -650,6 +650,41 @@ export { ThemedForm };
 `,
           filename: fixtureFile,
         },
+        {
+          // FP: React.FC<Props> arrow function with destructured params exported via Pattern 1.
+          // relay is declared in Props but unused in the component body; it is injected by the HOC.
+          // matchesFunctionProps uses Phase 1 (annotation-based): reads Props from React.FC<Props>
+          // directly instead of inferring the parameter type, which would be incomplete ({tag} only)
+          // when module imports are unresolved and React.FC resolves to `any`.
+          code: `
+declare const React: any;
+interface TagProps {
+  tag: string;
+  relay: string;
+}
+const Header: React.FC<TagProps> = ({ tag }) => <div>{tag}</div>;
+declare function createFragmentContainer(comp: any, spec: any): any;
+export default createFragmentContainer(Header, {});
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: React.FC<Props> arrow function with destructured params exported via Pattern 2.
+          // contextScreenOwnerId is declared but unused; injected by the HOC.
+          // matchesFunctionProps Phase 1 (annotation) correctly matches ArtworkProps from the
+          // React.FC<ArtworkProps> annotation even when React types are unresolvable.
+          code: `
+declare const React: any;
+interface ArtworkProps {
+  artwork: string;
+  contextScreenOwnerId: string;
+}
+const SaleArtwork: React.FC<ArtworkProps> = ({ artwork }) => <div>{artwork}</div>;
+declare function createFragmentContainer(comp: any, spec: any): any;
+export const SaleArtworkContainer = createFragmentContainer(SaleArtwork, {});
+`,
+          filename: fixtureFile,
+        },
       ],
       invalid: [],
     });

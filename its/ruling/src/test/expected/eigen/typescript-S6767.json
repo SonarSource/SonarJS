@@ -14,10 +14,6 @@
 52,
 57
 ],
-"eigen:src/app/Components/ArtworkGrids/SaleArtworkGridItem.tsx": [
-24,
-25
-],
 "eigen:src/app/Components/AuctionResultsList.tsx": [
 109
 ],
@@ -96,9 +92,6 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Message.tsx": [
 26
 ],
-"eigen:src/app/Scenes/Inbox/Screens/ConversationDetails.tsx": [
-22
-],
 "eigen:src/app/Scenes/Map/MapContainer.tsx": [
 9
 ],
@@ -118,22 +111,11 @@
 "eigen:src/app/Scenes/Partner/Partner.tsx": [
 21
 ],
-"eigen:src/app/Scenes/Sale/Components/SaleArtworkList.tsx": [
-19,
-20
-],
-"eigen:src/app/Scenes/Sale/Components/SaleArtworkListItem.tsx": [
-21,
-22
-],
 "eigen:src/app/Scenes/SavedSearchAlert/Components/SavedSearchAlertSwitch.tsx": [
 9
 ],
 "eigen:src/app/Scenes/SavedSearchAlertsList/Components/SavedSearchesList.tsx": [
 25
-],
-"eigen:src/app/Scenes/Tag/TagHeader.tsx": [
-8
 ],
 "eigen:src/app/navigation/NavStack.tsx": [
 59,
