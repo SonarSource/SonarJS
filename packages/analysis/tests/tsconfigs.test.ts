@@ -22,7 +22,7 @@ import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers
 import { createConfiguration } from '../src/common/configuration.js';
 
 const fixtures = normalizeToAbsolutePath(
-  join(normalizePath(import.meta.dirname), 'jsts/analysis/fixtures-tsconfigs'),
+  join(normalizePath(import.meta.dirname), 'fixtures-tsconfigs'),
 );
 
 describe('tsconfigs', () => {

@@ -22,7 +22,7 @@ import { createConfiguration } from '../src/common/configuration.js';
 import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { UNINITIALIZED_ERROR } from '../src/file-stores/source-files.js';
 
-const fixtures = join(import.meta.dirname, 'jsts/analysis/fixtures-source-files');
+const fixtures = join(import.meta.dirname, 'fixtures-source-files');
 
 describe('files', () => {
   beforeEach(() => {

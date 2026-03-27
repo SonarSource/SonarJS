@@ -35,9 +35,7 @@ import { patternInParentsCache } from '../src/jsts/rules/helpers/find-up/all-in-
 const closestPackageJsonCache = closestPatternCache.get(PACKAGE_JSON);
 const packageJsonsInParentsCache = patternInParentsCache.get(PACKAGE_JSON);
 
-const fixtures = normalizeToAbsolutePath(
-  join(import.meta.dirname, 'jsts/analysis/fixtures-package-jsons'),
-);
+const fixtures = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures-package-jsons'));
 
 describe('files', () => {
   beforeEach(() => {
