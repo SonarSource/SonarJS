@@ -213,16 +213,35 @@ function matchesClassProps(
   // Obtain the instance type (the shape of `new Foo()`) to read its `props` property.
   const instanceType = checker.getDeclaredTypeOfSymbol(classSymbol);
   const propsSymbol = instanceType.getProperty('props');
-  if (!propsSymbol) {
-    // Not a class component with a typed `props` property — skip.
-    return false;
+  if (propsSymbol) {
+    const componentPropsType = checker.getTypeOfSymbol(propsSymbol);
+    // @ts-ignore — isTypeAssignableTo is a private TypeScript API
+    return (
+      checker.isTypeAssignableTo(propsType, componentPropsType) &&
+      checker.isTypeAssignableTo(componentPropsType, propsType)
+    );
   }
-  const componentPropsType = checker.getTypeOfSymbol(propsSymbol);
-  // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-  return (
-    checker.isTypeAssignableTo(propsType, componentPropsType) &&
-    checker.isTypeAssignableTo(componentPropsType, propsType)
-  );
+  // Fallback: when the base class is unresolved (e.g. `declare const React: any`),
+  // TypeScript cannot expose the inherited `props` property via the instance type.
+  // Instead, check if the first type argument of any heritage clause is mutually
+  // assignable with `propsType` (e.g. `class Foo extends React.Component<FooProps>`).
+  for (const clause of cls.heritageClauses ?? []) {
+    for (const type of clause.types) {
+      const typeArgs = type.typeArguments;
+      if (!typeArgs || typeArgs.length === 0) {
+        continue;
+      }
+      const firstArgType = checker.getTypeAtLocation(typeArgs[0]);
+      // @ts-ignore — isTypeAssignableTo is a private TypeScript API
+      if (
+        checker.isTypeAssignableTo(propsType, firstArgType) &&
+        checker.isTypeAssignableTo(firstArgType, propsType)
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 /**

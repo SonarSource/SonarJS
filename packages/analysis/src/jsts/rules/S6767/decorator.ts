@@ -63,6 +63,13 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       ) {
         return;
       }
+      // Suppress FP when the component is wrapped in an HOC and exported from the file.
+      if (componentNode) {
+        const componentName = getComponentName(componentNode);
+        if (componentName && isExportedViaHoc(componentName, context.sourceCode.ast.body)) {
+          return;
+        }
+      }
       context.report(descriptor);
     },
   );
@@ -180,4 +187,144 @@ function isPropTypesCheckCall(call: estree.CallExpression): boolean {
     isIdentifier(call.callee.object, 'PropTypes') &&
     isIdentifier(call.callee.property, 'checkPropTypes')
   );
+}
+
+/** Extract the component identifier name from the component node. */
+function getComponentName(node: estree.Node): string | null {
+  if (node.type === 'ClassDeclaration' || node.type === 'FunctionDeclaration') {
+    return (node as estree.ClassDeclaration | estree.FunctionDeclaration).id?.name ?? null;
+  }
+  if (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') {
+    const parent = getNodeParent(node);
+    if (parent?.type === 'VariableDeclarator') {
+      const { id } = parent as estree.VariableDeclarator;
+      if (id.type === 'Identifier') {
+        return id.name;
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Recursively extracts the wrapped component name from an HOC call expression.
+ * Handles curried HOCs like connect(mapState)(MyComponent) and single HOCs like withRouter(MyComponent).
+ */
+function getHocWrappedComponentName(call: estree.CallExpression): string | null {
+  const arg = call.arguments[0] as estree.Node | undefined;
+  if (!arg || arg.type === 'SpreadElement') {
+    return null;
+  }
+  if (arg.type === 'Identifier' && /^[A-Z]/.test((arg as estree.Identifier).name)) {
+    return (arg as estree.Identifier).name;
+  }
+  if (arg.type === 'CallExpression') {
+    return getHocWrappedComponentName(arg as estree.CallExpression);
+  }
+  return null;
+}
+
+type ProgramStatement = estree.Statement | estree.ModuleDeclaration;
+
+/** Composable HOC export pattern checkers — extend via Array.some() for future FP patterns. */
+const hocExportPatterns: Array<(stmt: ProgramStatement, name: string) => boolean> = [
+  // Pattern 1: export default HOC(Comp) or export default HOC(config)(Comp)
+  (stmt, name) => {
+    if (stmt.type !== 'ExportDefaultDeclaration') {
+      return false;
+    }
+    const { declaration } = stmt as estree.ExportDefaultDeclaration;
+    return (
+      declaration.type === 'CallExpression' &&
+      getHocWrappedComponentName(declaration as estree.CallExpression) === name
+    );
+  },
+  // Pattern 2: export const X = HOC(Comp)
+  (stmt, name) => {
+    if (stmt.type !== 'ExportNamedDeclaration') {
+      return false;
+    }
+    const { declaration } = stmt as estree.ExportNamedDeclaration;
+    if (declaration?.type !== 'VariableDeclaration') {
+      return false;
+    }
+    return declaration.declarations.some(
+      d =>
+        d.init?.type === 'CallExpression' &&
+        getHocWrappedComponentName(d.init as estree.CallExpression) === name,
+    );
+  },
+  // Pattern 3: module.exports = HOC(Comp)
+  (stmt, name) => {
+    if (stmt.type !== 'ExpressionStatement') {
+      return false;
+    }
+    const { expression } = stmt as estree.ExpressionStatement;
+    if (expression.type !== 'AssignmentExpression') {
+      return false;
+    }
+    const { left, right } = expression;
+    if (
+      left.type !== 'MemberExpression' ||
+      !isIdentifier(left.object, 'module') ||
+      !isIdentifier(left.property, 'exports')
+    ) {
+      return false;
+    }
+    return (
+      right.type === 'CallExpression' &&
+      getHocWrappedComponentName(right as estree.CallExpression) === name
+    );
+  },
+];
+
+/**
+ * Returns true if `componentName` is wrapped in an HOC and exported anywhere in the file.
+ * Phase 1 checks inline export forms; phase 2 checks the two-statement form.
+ */
+function isExportedViaHoc(componentName: string, body: ProgramStatement[]): boolean {
+  // Phase 1: inline export patterns (export default, export const, module.exports)
+  if (body.some(stmt => hocExportPatterns.some(pattern => pattern(stmt, componentName)))) {
+    return true;
+  }
+
+  // Phase 2: two-statement form — const X = HOC(Comp); export { X } or export default X
+  const hocWrappedNames = new Set<string>();
+  for (const stmt of body) {
+    if (stmt.type === 'VariableDeclaration') {
+      for (const declarator of (stmt as estree.VariableDeclaration).declarations) {
+        if (
+          declarator.id.type === 'Identifier' &&
+          declarator.init?.type === 'CallExpression' &&
+          getHocWrappedComponentName(declarator.init as estree.CallExpression) === componentName
+        ) {
+          hocWrappedNames.add(declarator.id.name);
+        }
+      }
+    }
+  }
+
+  if (hocWrappedNames.size === 0) {
+    return false;
+  }
+
+  return body.some(stmt => {
+    if (stmt.type === 'ExportNamedDeclaration') {
+      const named = stmt as estree.ExportNamedDeclaration;
+      return (
+        named.declaration == null &&
+        named.specifiers.some(
+          s => s.local.type === 'Identifier' && hocWrappedNames.has(s.local.name),
+        )
+      );
+    }
+    if (stmt.type === 'ExportDefaultDeclaration') {
+      const { declaration } = stmt as estree.ExportDefaultDeclaration;
+      return (
+        declaration.type === 'Identifier' &&
+        hocWrappedNames.has((declaration as estree.Identifier).name)
+      );
+    }
+    return false;
+  });
 }
