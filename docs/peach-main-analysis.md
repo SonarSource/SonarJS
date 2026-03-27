@@ -57,6 +57,7 @@ Any other sensor name (e.g. `Sensor Declarative Rule Engine for Shell`, `Java se
 **Verdict:** CRITICAL — must be investigated before any release.
 
 **How to identify:**
+
 - Failure occurs during the SonarScanner execution step (not during install/checkout)
 - Scanner exits with code 3
 - Java stack trace present in the logs, with frames in `org.sonar.plugins.javascript`
@@ -66,10 +67,12 @@ Any other sensor name (e.g. `Sensor Declarative Rule Engine for Shell`, `Java se
   explanation
 
 **Detection patterns:**
+
 - Phase 1: `/EXECUTION FAILURE/`, `/Process completed with exit code/` — exit code 3 with no misconfiguration signal escalates to Phase 2
 - Phase 2: `/org\.sonar\.plugins\.javascript/` — any match → CRITICAL; `/Sensor /` — confirm the failing sensor is a SonarJS sensor
 
 **Example log excerpt (sensor crash):**
+
 ```
 Sensor JavaScript/TypeScript/CSS analysis [javascript]
 ...
@@ -82,6 +85,7 @@ EXECUTION FAILURE
 ```
 
 **Example log excerpt (plugin initialization failure — can cause mass failure):**
+
 ```
 java.lang.IllegalStateException: Unable to load components interface org.sonar.api.batch.sensor.Sensor
   at org.sonar.plugins.javascript.analysis.JsTsChecks.<init>(JsTsChecks.java:...)
@@ -99,14 +103,17 @@ EXECUTION FAILURE
 **Verdict:** CRITICAL — escalate for investigation.
 
 **How to identify:**
+
 - Process exits with code 137 (SIGKILL from OOM killer)
 - No Java stack trace
 - Failure occurs during the scan step
 
 **Detection patterns:**
+
 - Phase 1: `/OutOfMemoryError/`, `/Process completed with exit code/` — exit code 137
 
 **Example log excerpt:**
+
 ```
 ##[error]Process completed with exit code 137.
 ```
@@ -120,6 +127,7 @@ EXECUTION FAILURE
 **Verdict:** IGNORE — a different SonarSource plugin crashed, not the SonarJS analyzer.
 
 **How to identify:**
+
 - Failure occurs during the SonarScanner execution step
 - Scanner exits with code 3 and a Java stack trace is present
 - The failing sensor name is **not** one of the SonarJS sensors listed above
@@ -131,10 +139,12 @@ EXECUTION FAILURE
   - Any `Security` sensor — belongs to SonarSource security plugins
 
 **Detection patterns:**
+
 - Phase 1: `/EXECUTION FAILURE/`, `/Process completed with exit code/` — exit code 3 with no misconfiguration signal escalates to Phase 2
 - Phase 2: `/Sensor /` — last sensor name is not a SonarJS sensor; `/org\.sonar\.plugins\.javascript/` absent → IGNORE
 
 **Example log excerpt (gutenberg, 2026-03-11):**
+
 ```
 java.lang.IllegalStateException: DRE analysis failed
   at com.A.A.D.H.execute(Unknown Source)       ← sonar-iac obfuscated class, not SonarJS
@@ -156,6 +166,7 @@ The class `com.A.A.D.H` is from the sonar-iac plugin (obfuscated). No `org.sonar
 **Verdict:** IGNORE — the analyzed project's sonar-project.properties is misconfigured, unrelated to SonarJS.
 
 **How to identify:**
+
 - Failure occurs during the SonarScanner execution step
 - Scanner exits with code 3 (same as an analyzer crash — read the error message carefully)
 - Error message contains phrases like:
@@ -164,9 +175,11 @@ The class `com.A.A.D.H` is from the sonar-iac plugin (obfuscated). No `org.sonar
   - `is not a valid` combined with a project path or configuration property
 
 **Detection patterns:**
+
 - Phase 1: `/Invalid value of sonar/`, `/does not exist for/`, `/Process completed with exit code/` — exit code 3 with a misconfiguration signal → classify immediately, no Phase 2 needed
 
 **Example log excerpt:**
+
 ```
 03:01:00.715 ERROR Invalid value of sonar.tests for js:open-swe
 03:01:00.744 ERROR The folder 'apps' does not exist for 'js:open-swe' (base directory = ...)
@@ -183,16 +196,19 @@ The class `com.A.A.D.H` is from the sonar-iac plugin (obfuscated). No `org.sonar
 **Verdict:** IGNORE — the Peach server timed out while receiving the analysis report; the analysis itself completed successfully.
 
 **How to identify:**
+
 - Failure occurs after the SonarScanner execution step (analysis finished, report generated)
 - Scanner exits with code 3
 - Java stack trace originates in `ReportPublisher.upload`, not in any sensor
 - Root cause is `java.net.SocketTimeoutException: timeout` during an HTTP POST to `peach.sonarsource.com/api/ce/submit`
 
 **Detection patterns:**
+
 - Phase 1: `/EXECUTION FAILURE/`, `/Process completed with exit code/` — exit code 3 with no misconfiguration signal escalates to Phase 2
 - Phase 2: `/org\.sonar\.plugins\.javascript/` absent; `/Sensor /` present (analysis ran) but no SonarJS frame → escalate to Phase 3 to confirm `ReportPublisher.upload` in stack trace
 
 **Example log excerpt (fossflow, 2026-03-13):**
+
 ```
 java.lang.IllegalStateException: Failed to upload report: Fail to request url:
   https://peach.sonarsource.com/api/ce/submit?projectKey=js%3AFossFLOW...
@@ -213,6 +229,7 @@ Multiple jobs failing this way within the same ~2-minute window is a strong indi
 **Verdict:** IGNORE — the analyzed project's dependencies are broken, unrelated to SonarJS.
 
 **How to identify:**
+
 - Failure occurs during the dependency install step (npm/pnpm/yarn install)
 - Error messages such as:
   - `ERR_PNPM_OUTDATED_LOCKFILE` — pnpm lockfile out of sync with package.json
@@ -221,9 +238,11 @@ Multiple jobs failing this way within the same ~2-minute window is a strong indi
   - `Cannot find module` — missing dependency
 
 **Detection patterns:**
+
 - Phase 1: `/ERR_PNPM/`, `/ERESOLVE/`, `/ETARGET/`, `/notarget/`, `/Process completed with exit code/` — exit code 1
 
 **Example log excerpt (pnpm lockfile mismatch):**
+
 ```
 ERR_PNPM_OUTDATED_LOCKFILE  Cannot install with "frozen-lockfile" because pnpm-lock.yaml
 is not up to date with packages/provider-telegram/package.json
@@ -231,6 +250,7 @@ is not up to date with packages/provider-telegram/package.json
 ```
 
 **Example log excerpt (npm version not found — graphql, 2026-03-22):**
+
 ```
 npm error code ETARGET
 npm error notarget No matching version found for eslint@10.1.0.
@@ -248,14 +268,17 @@ npm error notarget a package version that doesn't exist.
 **Verdict:** IGNORE — a CI infrastructure issue, unrelated to SonarJS.
 
 **How to identify:**
+
 - Failure occurs during the "Get Vault Secrets" step (before any scan or install)
 - No scan output present in the logs
 - Vault timeout or authentication error
 
 **Detection patterns:**
+
 - Phase 1: `/Process completed with exit code/` — exit code 1; no other Phase 1 pattern matches; "Get Vault Secrets" group visible in surrounding log lines confirms the step
 
 **Example log excerpt:**
+
 ```
 ##[group]Get Vault Secrets
 ##[endgroup]
@@ -271,13 +294,16 @@ npm error notarget a package version that doesn't exist.
 **Verdict:** IGNORE — a transient network failure, unrelated to SonarJS.
 
 **How to identify:**
+
 - Failure occurs during the repository clone step (before install or scan)
 - Log contains: `All 3 attempts failed` or `TIMEOUT after 15 minutes`
 
 **Detection patterns:**
+
 - Phase 1: `/All 3 attempts failed/`, `/Process completed with exit code/` — exit code 1
 
 **Example log excerpt:**
+
 ```
 === Attempt 1 of 3 ===
 Cloning into 'workspace'...
@@ -296,15 +322,18 @@ All 3 attempts failed
 **Verdict:** IGNORE — the Peach server was down or overloaded at scan start; the analyzer never ran.
 
 **How to identify:**
+
 - Failure occurs at the very start of the sonar-scanner execution step (server version query)
 - Error message: `Failed to query server version: GET https://peach.sonarsource.com/api/server/version failed with HTTP 502 Bad Gateway`
 - Scanner exits with code 1
 - Typically affects **all or most jobs** in the same run (mass failure pattern)
 
 **Detection patterns:**
+
 - Phase 1: `/502 Bad Gateway/`, `/503 Service Unavailable/`, `/Process completed with exit code/` — exit code 1
 
 **Example log excerpt:**
+
 ```
 ERROR Failed to query server version: GET https://peach.sonarsource.com/api/server/version failed with HTTP 502 Bad Gateway
 INFO  EXECUTION FAILURE
@@ -320,14 +349,17 @@ INFO  EXECUTION FAILURE
 **Verdict:** IGNORE — the SonarJS JAR artifact used by the workflow has expired; the analyzer never ran.
 
 **How to identify:**
+
 - Failure occurs during the artifact download step (before any scan)
 - Error message: `Artifact has expired (HTTP 410)`
 - Scanner exits with code 1
 
 **Detection patterns:**
+
 - Phase 1: `/Artifact has expired/`, `/Process completed with exit code/` — exit code 1
 
 **Example log excerpt:**
+
 ```
 gh: Artifact has expired (HTTP 410)
 ##[error]Process completed with exit code 1.
@@ -342,11 +374,13 @@ gh: Artifact has expired (HTTP 410)
 **Verdict:** NEEDS-MANUAL-REVIEW — cannot be automatically classified.
 
 **How to identify:**
+
 - Does not match any of the above categories
 - Exit code is not 1, 3, or 137 from a recognized step
 - Stack trace present but unrecognizable origin
 
 **Detection patterns:**
+
 - None of the Phase 1 or Phase 2 patterns produce a match that maps to a known category
 
 **Action:** A human must review the logs manually to determine if this is an analyzer issue.
