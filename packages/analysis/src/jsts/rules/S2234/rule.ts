@@ -123,7 +123,7 @@ export const rule: Rule.RuleModule = {
         switch (test.type) {
           case 'BinaryExpression': {
             const binExpr = test;
-            if (COMPARISON_OPERATORS.includes(binExpr.operator)) {
+            if ((COMPARISON_OPERATORS as readonly string[]).includes(binExpr.operator)) {
               const { left: lhs, right: rhs } = binExpr;
               return checkComparedArguments(lhs, rhs);
             }
@@ -310,7 +310,7 @@ export const rule: Rule.RuleModule = {
       if (test.type !== 'BinaryExpression') {
         return false;
       }
-      if (!COMPARISON_OPERATORS.includes(test.operator)) {
+      if (!(COMPARISON_OPERATORS as readonly string[]).includes(test.operator)) {
         return false;
       }
       const leftName = test.left.type === 'Identifier' ? test.left.name : undefined;
