@@ -56,6 +56,32 @@ describe('S2301', () => {
           errors: 1,
         },
         {
+          // JS-1481: standalone variable named onSomething is NOT exempted (only object property on[A-Z] is)
+          code: `
+const onCopy = (text: string, result: boolean) => {
+  if (result) {
+    onSuccess(text);
+  } else {
+    onFailure(text);
+  }
+};`,
+          errors: 1,
+        },
+        {
+          // JS-1481: TypeScript property setter with boolean — not an on[A-Z] object property, should still be flagged
+          code: `
+class Player {
+  set playing(playing: boolean) {
+    if (playing) {
+      this.play();
+    } else {
+      this.pause();
+    }
+  }
+}`,
+          errors: 1,
+        },
+        {
           name: 'RSPEC non-compliant code example',
           code: `function tempt1(name: string, ofAge: boolean) {
   if (ofAge) {
