@@ -293,6 +293,116 @@ Wrapper.propTypes = {
     });
   });
 
+  it('should not report props when component is exported via HOC', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: export default curried HOC — dispatch injected by connect(), never accessed in render
+          code: `
+class MyComponent extends React.Component {
+  render() {
+    return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
+  }
+}
+MyComponent.propTypes = {
+  dispatch: PropTypes.func,
+  items: PropTypes.arrayOf(PropTypes.string),
+};
+function mapStateToProps(state) { return { items: state.items }; }
+export default connect(mapStateToProps)(MyComponent);
+`,
+        },
+        {
+          // FP: export const named HOC — classes injected by withStyles(), never accessed in render
+          code: `
+class StyledButton extends React.Component {
+  render() {
+    return <button>{this.props.label}</button>;
+  }
+}
+StyledButton.propTypes = {
+  classes: PropTypes.object,
+  label: PropTypes.string,
+};
+export const Button = withStyles(styles)(StyledButton);
+`,
+        },
+        {
+          // FP: module.exports HOC — match/location injected by withRouter(), never accessed in render
+          code: `
+class PageComponent extends React.Component {
+  render() {
+    return <div><h1>{this.props.title}</h1></div>;
+  }
+}
+PageComponent.propTypes = {
+  title: PropTypes.string,
+  match: PropTypes.object,
+  location: PropTypes.object,
+};
+module.exports = withRouter(PageComponent);
+`,
+        },
+        {
+          // FP: two-statement form — theme injected by withTheme(), never accessed in render
+          code: `
+class MyForm extends React.Component {
+  render() {
+    return <form onSubmit={this.props.onSubmit} />;
+  }
+}
+MyForm.propTypes = {
+  theme: PropTypes.object,
+  onSubmit: PropTypes.func,
+};
+const ThemedForm = withTheme(MyForm);
+export { ThemedForm };
+`,
+        },
+      ],
+      invalid: [
+        {
+          // TP: unused prop, no HOC wrapping — must still be reported
+          code: `
+class Button extends React.Component {
+  render() {
+    return <button>{this.props.label}</button>;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+  color: PropTypes.string,
+};
+export default Button;
+`,
+          errors: 1,
+        },
+        {
+          // TP: HOC wraps a different component — MyComponent still has an unused prop
+          code: `
+class MyComponent extends React.Component {
+  render() {
+    return <div>{this.props.name}</div>;
+  }
+}
+MyComponent.propTypes = {
+  name: PropTypes.string,
+  unused: PropTypes.string,
+};
+class OtherComponent extends React.Component {
+  render() { return <span />; }
+}
+OtherComponent.propTypes = {};
+export default connect()(OtherComponent);
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('should exercise TypeScript type-checking paths (Strategy C in react helpers)', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
@@ -490,6 +600,61 @@ class FooComp extends React.Component<FooProps> {
     });
   });
 
+  it('should not report props when TypeScript component is exported via HOC', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: TypeScript class — dispatch not accessed in render but exported via curried HOC
+          code: `
+declare const React: any;
+interface MyComponentProps {
+  dispatch: (action: { type: string }) => void;
+  items: string[];
+}
+class MyComponent extends React.Component<MyComponentProps> {
+  render() {
+    return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
+  }
+}
+declare function connect(mapState: (state: any) => any): (comp: any) => any;
+function mapStateToProps(state: { items: string[] }) { return { items: state.items }; }
+export default connect(mapStateToProps)(MyComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: TypeScript class — theme not accessed in render but exported via two-statement HOC
+          code: `
+declare const React: any;
+interface MyFormProps {
+  theme: { spacing: (n: number) => number };
+  onSubmit: () => void;
+}
+class MyForm extends React.Component<MyFormProps> {
+  render() {
+    return <form onSubmit={this.props.onSubmit} />;
+  }
+}
+declare function withTheme(comp: any): any;
+const ThemedForm = withTheme(MyForm);
+export { ThemedForm };
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('upstream rule should report FP pattern (sentinel: remove decorator if this fails)', () => {
     // This test asserts that the upstream eslint-plugin-react no-unused-prop-types
     // rule DOES raise an issue on the wholesale props-delegation pattern.
@@ -592,6 +757,37 @@ function Wrapper(props) {
 Wrapper.propTypes = {
   label: PropTypes.string,
 };
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('upstream rule should report HOC export FP pattern (sentinel: remove decorator check if this fails)', () => {
+    // Confirms that the upstream eslint-plugin-react no-unused-prop-types rule DOES raise
+    // issues when a prop is declared but unused even though the component is exported via HOC.
+    // If this test starts failing, the upstream rule has been fixed and the HOC export
+    // suppression in the S6767 decorator can be removed.
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types (upstream, HOC export)', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // upstream cannot track props injected by HOC — reports dispatch as unused
+          code: `
+class MyComponent extends React.Component {
+  render() {
+    return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
+  }
+}
+MyComponent.propTypes = {
+  dispatch: PropTypes.func,
+  items: PropTypes.arrayOf(PropTypes.string),
+};
+export default connect()(MyComponent);
 `,
           errors: 1,
         },
