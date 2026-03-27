@@ -21,7 +21,7 @@ import {
   DefaultParserRuleTester,
   NoTypeCheckingRuleTester,
   RuleTester,
-} from '../../../tests/tools/testers/rule-tester.js';
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 import { Linter } from 'eslint';
 import type { Rule } from 'eslint';
