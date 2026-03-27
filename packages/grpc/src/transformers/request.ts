@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { analyzer } from '../proto/language_analyzer.js';
-import type { ProjectAnalysisInput } from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
-import { JSTS_ANALYSIS_DEFAULTS } from '../../../jsts/src/analysis/analysis.js';
-import type { RuleConfig } from '../../../jsts/src/linter/config/rule-config.js';
-import type { FileType } from '../../../shared/src/helpers/files.js';
+import type { ProjectAnalysisInput } from '../../../analysis/src/projectAnalysis.js';
+import { JSTS_ANALYSIS_DEFAULTS } from '../../../analysis/src/jsts/analysis/analysis.js';
+import type { RuleConfig } from '../../../analysis/src/jsts/linter/config/rule-config.js';
+import type { FileType } from '../../../analysis/src/contracts/file.js';
 import { isString } from '../../../shared/src/helpers/sanitize.js';
-import type { RuleConfig as CssRuleConfig } from '../../../css/src/linter/config.js';
+import type { RuleConfig as CssRuleConfig } from '../../../analysis/src/css/linter/config.js';
 import { buildRuleConfigurations as buildJstsRuleConfigurations } from './rule-configurations/jsts.js';
 import { buildRuleConfigurations as buildCssRuleConfigurations } from './rule-configurations/css.js';
 

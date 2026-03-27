@@ -364,7 +364,10 @@ Identifies which step failed and what exit code was produced. Run on every faile
 
 ```bash
 sed --sandbox -n '
+<<<<<<< HEAD
 /\[36;1m/b                             # skip GitHub Actions script-preview lines (ANSI-colored)
+=======
+>>>>>>> master
 /Process completed with exit code/p    # universal — exit code value drives the flowchart
 /EXECUTION FAILURE/p                   # scanner ran and failed (exit code 3)
 /OutOfMemoryError/p                    # OOM / Runner Killed
@@ -391,7 +394,10 @@ jobs where Phase 1 showed exit code 3 without a clear misconfiguration signal.
 
 ```bash
 sed --sandbox -n '
+<<<<<<< HEAD
 /\[36;1m/b                             # skip GitHub Actions script-preview lines (ANSI-colored)
+=======
+>>>>>>> master
 /Sensor /p                             # last sensor name — is it a SonarJS sensor?
 /EXECUTION FAILURE/p                   # scanner failure marker
 /OutOfMemoryError/p                    # OOM inside scanner

@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return context;
   }
 
+  @Override
   public boolean isSonarLint() {
     return context.runtime().getProduct() == SonarProduct.SONARLINT;
   }
@@ -66,6 +68,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return context.runtime().getProduct() == SonarProduct.SONARQUBE;
   }
 
+  @Override
   public boolean ignoreHeaderComments() {
     return context
       .config()
@@ -81,10 +84,19 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
   }
 
+  @Override
+  public boolean shouldSkipNodeModuleLookupOutsideBaseDir() {
+    return context
+      .config()
+      .getBoolean("sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir")
+      .orElse(false);
+  }
+
   public boolean allowTsParserJsFiles() {
     return context.config().getBoolean(ALLOW_TS_PARSER_JS_FILES).orElse(true);
   }
 
+  @Override
   public AnalysisMode getAnalysisMode() {
     var canSkipUnchangedFiles = context.canSkipUnchangedFiles();
     if (!canSkipUnchangedFiles) {
@@ -94,10 +106,12 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return AnalysisMode.SKIP_UNCHANGED;
   }
 
+  @Override
   public List<String> getEnvironments() {
     return Arrays.asList(context.config().getStringArray(JavaScriptPlugin.ENVIRONMENTS));
   }
 
+  @Override
   public List<String> getGlobals() {
     return Arrays.asList(context.config().getStringArray(JavaScriptPlugin.GLOBALS));
   }
@@ -127,6 +141,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return DEFAULT_MAX_FILE_SIZE_KB;
   }
 
+  @Override
   public long getMaxFileSizeProperty() {
     return getMaxFileSizeProperty(context.config());
   }
@@ -135,6 +150,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return (!consumers.isEnabled());
   }
 
+  @Override
   public Set<String> getTsConfigPaths() {
     if (
       !context.config().hasKey(TSCONFIG_PATHS) && !context.config().hasKey(TSCONFIG_PATHS_ALIAS)
@@ -149,13 +165,14 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
   }
 
   public static List<String> getJsExtensions(Configuration config) {
-    return List.of(
-      config.hasKey(JavaScriptLanguage.FILE_SUFFIXES_KEY)
-        ? config.getStringArray(JavaScriptLanguage.FILE_SUFFIXES_KEY)
-        : JavaScriptLanguage.DEFAULT_FILE_SUFFIXES.split(",")
+    return getNormalizedExtensions(
+      config,
+      JavaScriptLanguage.FILE_SUFFIXES_KEY,
+      JavaScriptLanguage.DEFAULT_FILE_SUFFIXES
     );
   }
 
+  @Override
   public List<String> getJsExtensions() {
     return getJsExtensions(context.config());
   }
@@ -167,13 +184,14 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
   }
 
   public static List<String> getTsExtensions(Configuration config) {
-    return List.of(
-      config.hasKey(TypeScriptLanguage.FILE_SUFFIXES_KEY)
-        ? config.getStringArray(TypeScriptLanguage.FILE_SUFFIXES_KEY)
-        : TypeScriptLanguage.DEFAULT_FILE_SUFFIXES.split(",")
+    return getNormalizedExtensions(
+      config,
+      TypeScriptLanguage.FILE_SUFFIXES_KEY,
+      TypeScriptLanguage.DEFAULT_FILE_SUFFIXES
     );
   }
 
+  @Override
   public List<String> getTsExtensions() {
     return getTsExtensions(context.config());
   }
@@ -185,18 +203,84 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return extensions;
   }
 
+  @Override
   public List<String> getCssExtensions() {
     return getCssExtensions(context.config());
   }
 
   public static List<String> getCssExtensions(Configuration config) {
-    return List.of(
-      config.hasKey(CssLanguage.FILE_SUFFIXES_KEY)
-        ? config.getStringArray(CssLanguage.FILE_SUFFIXES_KEY)
-        : CssLanguage.DEFAULT_FILE_SUFFIXES.split(",")
+    return getNormalizedExtensions(
+      config,
+      CssLanguage.FILE_SUFFIXES_KEY,
+      CssLanguage.DEFAULT_FILE_SUFFIXES
     );
   }
 
+  @Override
+  public List<String> getHtmlExtensions() {
+    return getHtmlExtensions(context.config());
+  }
+
+  public static List<String> getHtmlExtensions(Configuration config) {
+    return getNormalizedExtensions(
+      config,
+      JavaScriptPlugin.HTML_FILE_SUFFIXES_KEY,
+      JavaScriptPlugin.HTML_FILE_SUFFIXES_DEFAULT_VALUE
+    );
+  }
+
+  @Override
+  public List<String> getYamlExtensions() {
+    return getYamlExtensions(context.config());
+  }
+
+  public static List<String> getYamlExtensions(Configuration config) {
+    return getNormalizedExtensions(
+      config,
+      JavaScriptPlugin.YAML_FILE_SUFFIXES_KEY,
+      JavaScriptPlugin.YAML_FILE_SUFFIXES_DEFAULT_VALUE
+    );
+  }
+
+  @Override
+  public List<String> getCssAdditionalExtensions() {
+    return getCssAdditionalExtensions(context.config());
+  }
+
+  public static List<String> getCssAdditionalExtensions(Configuration config) {
+    return getNormalizedExtensions(
+      config,
+      JavaScriptPlugin.CSS_ADDITIONAL_FILE_SUFFIXES_KEY,
+      JavaScriptPlugin.CSS_ADDITIONAL_FILE_SUFFIXES_DEFAULT_VALUE
+    );
+  }
+
+  private static List<String> getNormalizedExtensions(
+    Configuration config,
+    String key,
+    String defaultValue
+  ) {
+    var rawExtensions = config.hasKey(key) ? config.getStringArray(key) : defaultValue.split(",");
+    var normalized = new LinkedHashSet<String>();
+    for (String raw : rawExtensions) {
+      var extension = normalizeExtension(raw);
+      if (extension != null) {
+        normalized.add(extension);
+      }
+    }
+    return List.copyOf(normalized);
+  }
+
+  private static String normalizeExtension(String extension) {
+    var trimmed = extension.trim();
+    if (trimmed.isEmpty()) {
+      return null;
+    }
+    var normalized = trimmed.toLowerCase(Locale.ROOT);
+    return normalized.startsWith(".") ? normalized : ("." + normalized);
+  }
+
+  @Override
   public List<String> getJsTsExcludedPaths() {
     return Arrays.asList(getJsTsExcludedPaths(context.config()));
   }
@@ -220,6 +304,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     );
   }
 
+  @Override
   public boolean shouldDetectBundles() {
     return shouldDetectBundles(context.config());
   }
@@ -228,6 +313,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return config.getBoolean(JavaScriptPlugin.DETECT_BUNDLES_PROPERTY).orElse(true);
   }
 
+  @Override
   public boolean canAccessFileSystem() {
     return canAccessFileSystem(context.config());
   }
@@ -236,6 +322,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
     return config.getBoolean(JavaScriptPlugin.NO_FS).orElse(true);
   }
 
+  @Override
   public boolean shouldCreateTSProgramForOrphanFiles() {
     return context
       .config()
@@ -243,6 +330,7 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
       .orElse(true);
   }
 
+  @Override
   public boolean shouldDisableTypeChecking() {
     return context.config().getBoolean(JavaScriptPlugin.DISABLE_TYPE_CHECKING).orElse(false);
   }
@@ -258,30 +346,35 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
       .toList();
   }
 
+  @Override
   public List<String> getInclusions() {
     return stream(this.context.config().getStringArray("sonar.inclusions"))
       .filter(x -> !x.isBlank())
       .toList();
   }
 
+  @Override
   public List<String> getExclusions() {
     return stream(this.context.config().getStringArray("sonar.exclusions"))
       .filter(x -> !x.isBlank())
       .toList();
   }
 
+  @Override
   public List<String> getTests() {
     return stream(this.context.config().getStringArray("sonar.tests"))
       .filter(x -> !x.isBlank())
       .toList();
   }
 
+  @Override
   public List<String> getTestInclusions() {
     return stream(this.context.config().getStringArray("sonar.test.inclusions"))
       .filter(x -> !x.isBlank())
       .toList();
   }
 
+  @Override
   public List<String> getTestExclusions() {
     return stream(this.context.config().getStringArray("sonar.test.exclusions"))
       .filter(x -> !x.isBlank())

@@ -126,6 +126,9 @@ public interface BridgeServer extends Startable {
     List<String> tsSuffixes;
     List<String> jsSuffixes;
     List<String> cssSuffixes;
+    List<String> htmlSuffixes;
+    List<String> yamlSuffixes;
+    List<String> cssAdditionalSuffixes;
     Set<String> tsConfigPaths;
     List<String> jsTsExclusions;
     List<String> sources;
@@ -138,6 +141,7 @@ public interface BridgeServer extends Startable {
     boolean canAccessFileSystem;
     boolean createTSProgramForOrphanFiles;
     boolean disableTypeChecking;
+    boolean skipNodeModuleLookupOutsideBaseDir;
     String ecmaScriptVersion;
 
     /*
@@ -170,6 +174,9 @@ public interface BridgeServer extends Startable {
         this.tsSuffixes = analysisConfiguration.getTsExtensions();
         this.jsSuffixes = analysisConfiguration.getJsExtensions();
         this.cssSuffixes = analysisConfiguration.getCssExtensions();
+        this.htmlSuffixes = analysisConfiguration.getHtmlExtensions();
+        this.yamlSuffixes = analysisConfiguration.getYamlExtensions();
+        this.cssAdditionalSuffixes = analysisConfiguration.getCssAdditionalExtensions();
       }
       this.tsConfigPaths = analysisConfiguration.getTsConfigPaths();
       this.jsTsExclusions = analysisConfiguration.getJsTsExcludedPaths();
@@ -178,6 +185,8 @@ public interface BridgeServer extends Startable {
       this.createTSProgramForOrphanFiles =
         analysisConfiguration.shouldCreateTSProgramForOrphanFiles();
       this.disableTypeChecking = analysisConfiguration.shouldDisableTypeChecking();
+      this.skipNodeModuleLookupOutsideBaseDir =
+        analysisConfiguration.shouldSkipNodeModuleLookupOutsideBaseDir();
       this.ecmaScriptVersion = analysisConfiguration.getEcmaScriptVersion();
     }
 
@@ -193,6 +202,10 @@ public interface BridgeServer extends Startable {
       return disableTypeChecking;
     }
 
+    public boolean skipNodeModuleLookupOutsideBaseDir() {
+      return skipNodeModuleLookupOutsideBaseDir;
+    }
+
     public void setSkipAst(boolean skipAst) {
       this.skipAst = skipAst;
     }
@@ -202,9 +215,38 @@ public interface BridgeServer extends Startable {
     }
   }
 
-  record ProjectAnalysisMetaResponse(List<String> warnings) {
+  record ProjectAnalysisMetaResponse(
+    List<String> warnings,
+    @Nullable ProjectAnalysisTelemetry telemetry
+  ) {
+    public ProjectAnalysisMetaResponse(List<String> warnings) {
+      this(warnings, null);
+    }
+
     public ProjectAnalysisMetaResponse() {
-      this(List.of());
+      this(List.of(), null);
+    }
+  }
+
+  record ProjectAnalysisTelemetry(
+    List<String> typescriptVersions,
+    boolean typescriptNativePreview,
+    Map<String, List<String>> compilerOptions,
+    List<String> ecmaScriptVersions,
+    @Nullable ProgramCreationTelemetry programCreation,
+    int esmFileCount,
+    int cjsFileCount
+  ) {
+    public ProjectAnalysisTelemetry {
+      typescriptVersions = typescriptVersions != null ? typescriptVersions : List.of();
+      compilerOptions = compilerOptions != null ? compilerOptions : Map.of();
+      ecmaScriptVersions = ecmaScriptVersions != null ? ecmaScriptVersions : List.of();
+    }
+  }
+
+  record ProgramCreationTelemetry(int attempted, int succeeded, int failed) {
+    public ProgramCreationTelemetry() {
+      this(0, 0, 0);
     }
   }
 

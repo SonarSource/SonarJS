@@ -17,31 +17,25 @@
 import { join, basename } from 'node:path/posix';
 import { writeResults } from './lits.js';
 import projects from './projects.json' with { type: 'json' };
-import { analyzeProject } from '../jsts/src/analysis/projectAnalysis/analyzeProject.js';
-import { initFileStores } from '../jsts/src/analysis/projectAnalysis/file-stores/index.js';
+import { analyzeProject } from '../analysis/src/analyzeProject.js';
+import { initFileStores } from '../analysis/src/file-stores/index.js';
 import { normalizePath, normalizeToAbsolutePath } from '../shared/src/helpers/files.js';
-import { createConfiguration } from '../shared/src/helpers/configuration.js';
+import { createConfiguration } from '../analysis/src/common/configuration.js';
 import { compare, Result } from 'dir-compare';
-import { RuleConfig } from '../jsts/src/linter/config/rule-config.js';
+import { RuleConfig } from '../analysis/src/jsts/linter/config/rule-config.js';
 import { expect } from 'expect';
-import * as metas from '../jsts/src/rules/metas.js';
-import { SonarMeta } from '../jsts/src/rules/helpers/generate-meta.js';
-import { symlink } from 'node:fs/promises';
-import { cssRulesMeta } from '../css/src/rules/metadata.js';
-import type { RuleConfig as CssRuleConfig } from '../css/src/linter/config.js';
+import * as metas from '../analysis/src/jsts/rules/metas.js';
+import { SonarMeta } from '../analysis/src/jsts/rules/helpers/generate-meta.js';
+import { cssRulesMeta } from '../analysis/src/css/rules/metadata.js';
+import type { RuleConfig as CssRuleConfig } from '../analysis/src/css/linter/config.js';
 
 const currentPath = normalizePath(import.meta.dirname);
 
 const SONARJS_ROOT = join(currentPath, '..', '..');
-const sourcesPath = join(SONARJS_ROOT, '..', 'sonarjs-ruling-sources');
+const sourcesPath = join(SONARJS_ROOT, 'its', 'sources');
 const expectedBase = join(SONARJS_ROOT, 'its', 'ruling', 'src', 'test', 'expected');
 const actualBase = join(currentPath, 'actual');
-
-await symlink(join(SONARJS_ROOT, 'its', 'sources'), sourcesPath).catch(err => {
-  if (err.code !== 'EEXIST') {
-    throw err;
-  }
-});
+const ruleMetas = metas as unknown as Record<string, SonarMeta>;
 
 const DEFAULT_EXCLUSIONS = ['**/.*', '**/*.d.ts'];
 
@@ -61,7 +55,7 @@ export async function testProject(projectName: string) {
   const { folder, name, exclusions, testDir } = (projects as ProjectsData[]).find(
     p => p.name === projectName,
   )!;
-  const rules = Object.entries(metas)
+  const rules = Object.entries(ruleMetas)
     .flatMap(([key, meta]: [string, SonarMeta]): RuleConfig[] => {
       return meta.languages.map(language => ({
         key,
@@ -82,6 +76,7 @@ export async function testProject(projectName: string) {
     baseDir,
     maxFileSize: 4000,
     canAccessFileSystem: true,
+    skipNodeModuleLookupOutsideBaseDir: true,
     tests: testDir ? [testDir] : undefined,
     exclusions: exclusions ? DEFAULT_EXCLUSIONS.concat(exclusions.split(',')) : DEFAULT_EXCLUSIONS,
   });
