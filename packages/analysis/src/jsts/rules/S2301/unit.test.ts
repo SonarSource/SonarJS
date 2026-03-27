@@ -335,6 +335,49 @@ function tempt8(name: string, ofAge: boolean) {
   }}
 </Container>`,
         },
+        {
+          // JS-1481: arrow function assigned to on[A-Z] property — boolean reflects external event state
+          code: `
+const inputConfig = {
+  placeholder: 'Enter value',
+  onFinish: (value: string, success: boolean) => {
+    if (success) {
+      save(value);
+    } else {
+      cancel(value);
+    }
+  },
+};`,
+        },
+        {
+          // JS-1481: arrow function assigned to on[A-Z] property — boolean reflects checkbox UI state
+          code: `
+const folderUri = '/home/user/project';
+const quickPickItem = {
+  label: 'Allow folder',
+  checked: true,
+  onDidChangeChecked: (checked: boolean) => {
+    if (checked) {
+      addFolder(folderUri);
+    } else {
+      removeFolder(folderUri);
+    }
+  },
+};`,
+        },
+        {
+          // JS-1481: function expression assigned to on[A-Z] property — boolean reflects toggle state
+          code: `
+const toggleHandler = {
+  onChange: function(isEnabled: boolean) {
+    if (isEnabled) {
+      activate();
+    } else {
+      deactivate();
+    }
+  },
+};`,
+        },
       ],
     });
 
