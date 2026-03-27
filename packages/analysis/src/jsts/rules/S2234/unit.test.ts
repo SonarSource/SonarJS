@@ -207,6 +207,18 @@ describe('S2234', () => {
         }
         `,
         },
+        {
+          // False positive: swap in consequent branch paired with normal-order call in alternate (d3-array inline-comparison style)
+          code: `
+        function tickIncrement(start, stop, count) { return Math.ceil((stop - start) / count); }
+        function computeTick(start, stop, count) {
+          const inc = stop < start
+            ? tickIncrement(stop, start, count)
+            : tickIncrement(start, stop, count);
+          return inc;
+        }
+        `,
+        },
       ],
       invalid: [
         {
