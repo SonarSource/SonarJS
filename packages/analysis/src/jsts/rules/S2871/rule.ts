@@ -200,6 +200,47 @@ function isForInKeyPush(callParent: estree.CallExpression): boolean {
 }
 
 /**
+ * Classifies a single variable reference in the context of the for-in key array pattern.
+ * Returns 'forInPush' if the reference is a valid for-in push, 'invalid' if it invalidates
+ * the pattern, or 'skip' if it is a safe read that can be ignored.
+ */
+function classifyForInKeyRef(ref: {
+  identifier: estree.Identifier;
+  isWrite: () => boolean;
+}): 'forInPush' | 'invalid' | 'skip' {
+  const refId = ref.identifier;
+  const memberParent = getNodeParent(refId);
+
+  // If reference is not used as object of a member expression, check if it's a reassignment
+  if (memberParent?.type !== 'MemberExpression' || memberParent.object !== refId) {
+    if (ref.isWrite()) {
+      return 'invalid'; // reassignment invalidates the pattern
+    }
+    return 'skip';
+  }
+
+  const prop = memberParent.property;
+  const callParent = getNodeParent(memberParent);
+
+  if (callParent?.type !== 'CallExpression') {
+    // Reject index-assignment mutations: arr[i] = value
+    if (callParent?.type === 'AssignmentExpression' && callParent.left === memberParent) {
+      return 'invalid';
+    }
+    return 'skip'; // genuine property read (e.g. arr.length, arr[0]) — safe to ignore
+  }
+  if (prop.type !== 'Identifier' || prop.name !== 'push') {
+    return 'invalid'; // non-push method call on the array — reject
+  }
+
+  // push() call - must be inside a for-in loop, pushing the loop variable
+  if (!isForInKeyPush(callParent as estree.CallExpression)) {
+    return 'invalid';
+  }
+  return 'forInPush';
+}
+
+/**
  * Checks if an identifier refers to a variable that was initialized as an empty array
  * and is only populated by pushing items from for-in loop iterations.
  * Pattern: var arr = []; for (var key in obj) arr.push(key); arr.sort()
@@ -230,40 +271,14 @@ function isForInKeyArray(
   const otherRefs = variable.references.filter(ref => !ref.init && ref.identifier !== identifier);
 
   let hasForInPush = false;
-
   for (const ref of otherRefs) {
-    const refId = ref.identifier;
-    const memberParent = getNodeParent(refId);
-
-    // If reference is not used as object of a method call, check if it's a write (reassignment)
-    if (memberParent?.type !== 'MemberExpression' || memberParent.object !== refId) {
-      if (ref.isWrite()) {
-        return false; // reassignment invalidates the pattern
-      }
-      continue;
-    }
-
-    // Reference is object of a member expression - check if it's a push() call
-    const prop = memberParent.property;
-    const callParent = getNodeParent(memberParent);
-
-    if (callParent?.type !== 'CallExpression') {
-      // Reject index-assignment mutations: arr[i] = value
-      if (callParent?.type === 'AssignmentExpression' && callParent.left === memberParent) {
-        return false;
-      }
-      continue; // genuine property read (e.g. arr.length, arr[0]) — safe to ignore
-    }
-    if (prop.type !== 'Identifier' || prop.name !== 'push') {
-      return false; // non-push method call on the array - reject
-    }
-
-    // push() call - must be inside a for-in loop, pushing the loop variable
-    if (!isForInKeyPush(callParent as estree.CallExpression)) {
+    const result = classifyForInKeyRef(ref);
+    if (result === 'invalid') {
       return false;
     }
-
-    hasForInPush = true;
+    if (result === 'forInPush') {
+      hasForInPush = true;
+    }
   }
 
   return hasForInPush; // must have at least one for-in push to confirm the pattern
