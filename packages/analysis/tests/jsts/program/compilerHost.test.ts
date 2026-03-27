@@ -17,6 +17,8 @@
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
+import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import { IncrementalCompilerHost } from '../../../src/jsts/program/compilerHost.js';
 import {
   setSourceFilesContext,
@@ -410,6 +412,88 @@ describe('IncrementalCompilerHost', () => {
 
       // Should not throw
       host.writeFile(normalizeToAbsolutePath('/project/dist/index.js'), 'content', false);
+    });
+  });
+
+  describe('cross-program SourceFile cache with different jsx options (JS-1505)', () => {
+    // Fixture: server.ts (jsx:preserve tsconfig) imports Component.tsx, which is also
+    // included in a jsx:react-jsx tsconfig. This reproduces the cross-batch crash scenario:
+    //
+    // Batch 1: server.ts is in the analysis context. Program A (jsx:preserve) is created.
+    //   TypeScript follows the import and calls getSourceFile(Component.tsx). Component.tsx
+    //   is NOT in the context → read from disk → SourceFile cached without synthesized import.
+    //
+    // Batch 2: Component.tsx is in the analysis context (same content as on disk).
+    //   Program B (jsx:react-jsx) is created. getSourceFile(Component.tsx) is called.
+    //   updateFile is a no-op (same content → same contentHash) → cache HIT → stale SourceFile.
+    //   getSuggestionDiagnostics on the stale SourceFile triggers TypeScript's internal assertion:
+    //   "Expected sourceFile.imports[0] to be the synthesized JSX runtime import"
+    //
+    // The fix: jsx is now part of the cache key, so Program B gets a cache miss and a fresh
+    // SourceFile with the correct synthesized import at file.imports[0].
+    const fixtureDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'tsx-cache-collision'),
+    );
+    const serverFile = path.join(fixtureDir, 'server.ts') as ReturnType<
+      typeof normalizeToAbsolutePath
+    >;
+    const componentFile = path.join(fixtureDir, 'Component.tsx') as ReturnType<
+      typeof normalizeToAbsolutePath
+    >;
+
+    it('should not serve a stale SourceFile to a jsx:react-jsx program when Component.tsx was first read from disk by a jsx:preserve program', () => {
+      // Read the actual file content so the "same content" invariant holds.
+      const serverContent = readFileSync(serverFile, 'utf-8');
+      const componentContent = readFileSync(componentFile, 'utf-8');
+
+      // --- Batch 1: only server.ts is in the analysis context ---
+      // Component.tsx is NOT in the context → getSourceFile reads it from disk.
+      setSourceFilesContext({ [serverFile]: { fileContent: serverContent } });
+
+      const noJsxConfig = ts.readConfigFile(
+        path.join(fixtureDir, 'tsconfig-no-jsx.json'),
+        ts.sys.readFile,
+      );
+      const noJsxOptions = ts.parseJsonConfigFileContent(
+        noJsxConfig.config,
+        ts.sys,
+        fixtureDir,
+      ).options;
+      const hostA = new IncrementalCompilerHost(noJsxOptions, fixtureDir);
+      // Creating Program A causes TypeScript to call getSourceFile(Component.tsx) transitively.
+      ts.createProgram({ rootNames: [serverFile], options: noJsxOptions, host: hostA });
+
+      // --- Batch 2: Component.tsx is now in the analysis context ---
+      // Same content as on disk → updateFile is a no-op → contentHash unchanged.
+      // Without the fix, Program B would receive Program A's stale SourceFile (wrong imports).
+      setSourceFilesContext({ [componentFile]: { fileContent: componentContent } });
+
+      const jsxConfig = ts.readConfigFile(
+        path.join(fixtureDir, 'tsconfig-jsx.json'),
+        ts.sys.readFile,
+      );
+      const jsxOptions = ts.parseJsonConfigFileContent(
+        jsxConfig.config,
+        ts.sys,
+        fixtureDir,
+      ).options;
+      const hostB = new IncrementalCompilerHost(jsxOptions, fixtureDir);
+      const programB = ts.createProgram({
+        rootNames: [componentFile],
+        options: jsxOptions,
+        host: hostB,
+      });
+      const checker = programB.getTypeChecker();
+      const sourceFile = programB.getSourceFile(componentFile);
+
+      // getSuggestionDiagnostics is the non-public API called by rule S1874.
+      // Without the fix it throws:
+      //   "Debug Failure. False expression: Expected sourceFile.imports[0] to be
+      //    the synthesized JSX runtime import"
+      expect(() => {
+        // @ts-ignore: TypeChecker#getSuggestionDiagnostics is not publicly exposed
+        checker.getSuggestionDiagnostics(sourceFile);
+      }).not.toThrow();
     });
   });
 });

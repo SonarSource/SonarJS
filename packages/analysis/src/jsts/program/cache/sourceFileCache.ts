@@ -26,31 +26,31 @@ const sourceFileContentCache = new Map<string, string>();
 /**
  * Global cache for parsed TypeScript SourceFile ASTs
  *
- * This cache stores parsed ASTs keyed by (fileName, scriptTarget).
+ * This cache stores parsed ASTs keyed by (fileName, scriptTarget, jsx, importHelpers).
  * The contentHash is stored as a value to validate cache freshness.
- * Multiple programs can share the same parsed AST if they have the same target.
+ * Multiple programs can share the same parsed AST if they have the same options.
  *
- * IMPLEMENTATION NOTE: We cache SourceFiles per ScriptTarget to preserve the
- * languageVersion metadata stored in the SourceFile object. While our testing shows
- * that the AST structure is identical across targets and type checking uses the
- * program's target (not the SourceFile's languageVersion), we keep target-specific
- * caching for these reasons:
- *
- * 1. Performance gain of target-agnostic caching may be marginal since most analysis
- *    runs use the same target configuration
- * 2. Preserves metadata integrity - SourceFile.languageVersion matches the intended target
- * 3. Future-proofing - allows filtering rules based on configured target if needed
- * 4. TypeScript API contract - creating SourceFiles with their intended target is the
- *    documented usage pattern
- *
- * If profiling shows that different targets are commonly used and parsing becomes a
- * bottleneck, we could simplify to target-agnostic caching (always use ESNext) with
- * minimal impact on functionality.
+ * IMPLEMENTATION NOTE: We key on scriptTarget, jsx, and importHelpers because all
+ * three affect the structure of SourceFile.imports (the synthesized JSX runtime import
+ * prepended by TypeScript when jsx=react-jsx, and tslib helpers when importHelpers=true).
+ * Sharing a SourceFile between programs with different values for these options causes
+ * internal TypeScript assertion failures (e.g. in getSuggestionDiagnostics).
  */
 const parsedSourceFileCache = new Map<
   string, // normalized file path
-  Map<ts.ScriptTarget, { contentHash: string; sourceFile: ts.SourceFile }>
+  Map<string, { contentHash: string; sourceFile: ts.SourceFile }> // compound key → entry
 >();
+
+/**
+ * Build a compound cache key from the options that affect SourceFile.imports structure.
+ */
+function makeParsedSourceFileCacheKey(
+  scriptTarget: ts.ScriptTarget,
+  jsx: ts.JsxEmit | undefined,
+  importHelpers = false,
+): string {
+  return `${scriptTarget}:${jsx ?? -1}:${importHelpers ? 1 : 0}`;
+}
 
 /**
  * Current files context for lazy loading
@@ -79,23 +79,28 @@ export function getCurrentFilesContext(): Record<string, { fileContent?: string 
 }
 
 /**
- * Get a cached parsed SourceFile for a given file and target
+ * Get a cached parsed SourceFile for a given file and compiler options
  * @param fileName Normalized file path
  * @param scriptTarget TypeScript ScriptTarget (e.g., ES5, ES2020, ESNext)
  * @param contentHash Hash/version of the file content
+ * @param jsx The jsx compiler option (affects SourceFile.imports structure)
+ * @param importHelpers The importHelpers compiler option (affects SourceFile.imports structure)
  * @returns Cached SourceFile if available and content matches, undefined otherwise
  */
 export function getCachedSourceFile(
   fileName: string,
   scriptTarget: ts.ScriptTarget,
   contentHash: string,
+  jsx?: ts.JsxEmit,
+  importHelpers = false,
 ): ts.SourceFile | undefined {
-  const targetCache = parsedSourceFileCache.get(fileName);
-  if (!targetCache) {
+  const fileCache = parsedSourceFileCache.get(fileName);
+  if (!fileCache) {
     return undefined;
   }
 
-  const cached = targetCache.get(scriptTarget);
+  const key = makeParsedSourceFileCacheKey(scriptTarget, jsx, importHelpers);
+  const cached = fileCache.get(key);
   // If hash doesn't match, return undefined (cache miss). The caller will parse
   // the file and call setCachedSourceFile, which overwrites the stale entry.
   // This makes the cache self-healing - stale entries cause one miss, then get fixed.
@@ -112,20 +117,25 @@ export function getCachedSourceFile(
  * @param scriptTarget TypeScript ScriptTarget used to parse the file
  * @param contentHash Hash/version of the file content
  * @param sourceFile The parsed TypeScript SourceFile
+ * @param jsx The jsx compiler option (affects SourceFile.imports structure)
+ * @param importHelpers The importHelpers compiler option (affects SourceFile.imports structure)
  */
 export function setCachedSourceFile(
   fileName: string,
   scriptTarget: ts.ScriptTarget,
   contentHash: string,
   sourceFile: ts.SourceFile,
+  jsx?: ts.JsxEmit,
+  importHelpers = false,
 ): void {
-  let targetCache = parsedSourceFileCache.get(fileName);
-  if (!targetCache) {
-    targetCache = new Map();
-    parsedSourceFileCache.set(fileName, targetCache);
+  let fileCache = parsedSourceFileCache.get(fileName);
+  if (!fileCache) {
+    fileCache = new Map();
+    parsedSourceFileCache.set(fileName, fileCache);
   }
 
-  targetCache.set(scriptTarget, { contentHash, sourceFile });
+  const key = makeParsedSourceFileCacheKey(scriptTarget, jsx, importHelpers);
+  fileCache.set(key, { contentHash, sourceFile });
 }
 
 /**

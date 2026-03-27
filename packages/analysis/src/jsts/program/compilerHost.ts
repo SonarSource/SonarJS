@@ -50,7 +50,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
   private readonly baseHost: ts.CompilerHost;
 
   constructor(
-    compilerOptions: ts.CompilerOptions,
+    private readonly compilerOptions: ts.CompilerOptions,
     private readonly baseDir: NormalizedAbsolutePath,
     private readonly skipNodeModuleLookupOutsideBaseDir = false,
   ) {
@@ -218,9 +218,11 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
         ? languageVersionOrOptions
         : languageVersionOrOptions.languageVersion;
 
+    const { jsx, importHelpers } = this.compilerOptions;
+
     // Check global cache (unless forced to create new)
     if (!shouldCreateNewSourceFile) {
-      const cached = getCachedSourceFile(normalized, scriptTarget, contentHash);
+      const cached = getCachedSourceFile(normalized, scriptTarget, contentHash, jsx, importHelpers);
       if (cached) {
         // Set version for builder programs
         (cached as ts.SourceFile & { version?: string }).version = contentHash;
@@ -241,7 +243,7 @@ export class IncrementalCompilerHost implements ts.CompilerHost {
       );
 
       // Store in global cache for reuse across programs
-      setCachedSourceFile(normalized, scriptTarget, contentHash, sourceFile);
+      setCachedSourceFile(normalized, scriptTarget, contentHash, sourceFile, jsx, importHelpers);
     } else {
       // Fallback to base host for files not in our cache/context (e.g., TypeScript lib files).
       // readFile returns undefined for these, but baseHost can resolve them.
