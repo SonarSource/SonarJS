@@ -29,6 +29,15 @@ Each rule in `packages/analysis/src/jsts/rules/SXXXX/` contains:
 | `unit.test.ts`      | Unit tests                              |
 | `cb.fixture.*`      | Comment-based test fixtures             |
 
+## Canonical Paths
+
+These paths are used by automated tools integrating with this repository. Update them here when the repository is reorganized.
+
+```sh
+RULES_DIR="packages/analysis/src/jsts/rules"
+RULING_EXPECTED_DIR="its/ruling/src/test/expected"
+```
+
 ## Rule Implementation
 
 ```typescript
