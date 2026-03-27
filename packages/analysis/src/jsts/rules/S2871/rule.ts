@@ -80,6 +80,7 @@ function isObjectKeysVariable(
     return false;
   }
   const def = variable.defs[0];
+  // 'Variable' = ESLint scope type for var/let/const declarations (not parameters, import bindings, etc.)
   if (def.type !== 'Variable' || !def.node.init) {
     return false;
   }
@@ -103,6 +104,7 @@ function isArrayFromIterableMethod(node: estree.Node): boolean {
     return false;
   }
   const arg = callExpr.arguments[0];
+  // e.g. Array.from(map.keys()) — argument must be a .keys() call
   return (
     arg?.type === 'CallExpression' &&
     arg.callee.type === 'MemberExpression' &&
@@ -167,6 +169,7 @@ function getEnclosingForIn(startNode: estree.Node): estree.ForInStatement | null
       return current;
     }
     if (functionLike.has(current.type)) {
+      // e.g. function f() {}, () => {}, method — stop at scope boundary
       return null;
     }
     current = getNodeParent(current);
@@ -183,6 +186,8 @@ function isForInKeyPush(callParent: estree.CallExpression): boolean {
   if (!forIn) {
     return false;
   }
+  // for (var key in obj) → left is VariableDeclaration, extract the declared id
+  // for (key in obj)     → left is the Identifier directly (pre-declared variable)
   const loopVar =
     forIn.left.type === 'VariableDeclaration' ? forIn.left.declarations[0].id : forIn.left;
   const pushArg = callParent.arguments[0];
@@ -210,6 +215,7 @@ function isForInKeyArray(
   }
 
   const def = variable.defs[0];
+  // 'Variable' = ESLint scope type for var/let/const declarations
   if (def.type !== 'Variable') {
     return false;
   }
