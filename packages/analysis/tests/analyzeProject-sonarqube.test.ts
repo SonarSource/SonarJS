@@ -815,4 +815,42 @@ describe('SonarQube project analysis', () => {
       });
     }
   });
+
+  it('should reproduce JSX cache collision with mixed jsx compiler options', async () => {
+    const baseDir = join(fixtures, 'jsx-cache-collision');
+    const initialFile = join(baseDir, 'initial.ts');
+    const triggerFile = join(baseDir, 'trigger.tsx');
+    const collisionRules: RuleConfig[] = [
+      {
+        key: 'S1874',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'ts',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
+    const { configuration } = await sanitizeProjectAnalysisInput({ configuration: { baseDir } });
+    const result = await analyzeProject({ rules: collisionRules, bundles: [] }, configuration);
+
+    const initialResult = result.files[normalizeToAbsolutePath(initialFile)];
+    expect(initialResult).toBeDefined();
+    expect('issues' in initialResult!).toBe(true);
+    if ('issues' in initialResult!) {
+      expect(initialResult.issues.some(issue => issue.ruleId === 'S1874')).toBe(true);
+    }
+
+    const triggerResult = result.files[normalizeToAbsolutePath(triggerFile)];
+    expect(triggerResult).toBeDefined();
+    expect('error' in triggerResult!).toBe(true);
+    if ('error' in triggerResult!) {
+      expect(triggerResult.error).toContain(
+        'Expected sourceFile.imports[0] to be the synthesized JSX runtime import',
+      );
+    }
+
+    expect(result.meta.telemetry?.compilerOptions.jsx).toEqual(
+      expect.arrayContaining(['preserve', 'react-jsx']),
+    );
+  });
 });
