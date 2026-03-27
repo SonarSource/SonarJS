@@ -23,7 +23,7 @@ await buildBundle({
     // We copy run-node into the bundle, as it's used from the java side on Mac
     {
       from: ['./run-node'],
-      to: ['./bin/'],
+      to: ['./bin'],
     },
   ],
 });

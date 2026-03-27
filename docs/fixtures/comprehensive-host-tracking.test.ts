@@ -57,12 +57,12 @@
  *    - realpath() calls: 112 (only in this scenario!)
  *    - Result: @types/node FOUND
  *
- *    Scenario C: WITH configFilePath INSIDE process.cwd() (c:/www/projects/SonarJS/packages/jsts/tsconfig.json)
+ *    Scenario C: WITH configFilePath INSIDE process.cwd() (c:/www/projects/SonarJS/packages/analysis/jsts/tsconfig.json)
  *    - Total method calls: 11,996 (similar to scenario B)
  *    - getCurrentDirectory() calls: 1 (returns C:\www\projects\SonarJS)
  *    - directoryExists() calls: 3,715
  *    - directoryExists() with @types: 1,537+
- *      * First search: c:/www/projects/SonarJS/packages/jsts/node_modules/@types => false
+ *      * First search: c:/www/projects/SonarJS/packages/analysis/jsts/node_modules/@types => false
  *      * Second search: c:/www/projects/SonarJS/node_modules/@types => true ✓
  *      * Then searches each @types package like scenario B
  *    - Result: @types/node FOUND
@@ -187,8 +187,8 @@ describe('Comprehensive CompilerHost method tracking', () => {
     },
     {
       name: 'WITH configFilePath INSIDE process.cwd()',
-      configFilePath: 'c:/www/projects/SonarJS/packages/jsts/tsconfig.json',
-      basePath: 'c:/www/projects/SonarJS/packages/jsts',
+      configFilePath: 'c:/www/projects/SonarJS/packages/analysis/jsts/tsconfig.json',
+      basePath: 'c:/www/projects/SonarJS/packages/analysis/jsts',
       expectedHasNodeTypes: true,
     },
   ];

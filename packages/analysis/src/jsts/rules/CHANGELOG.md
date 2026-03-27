@@ -1,0 +1,135 @@
+## 2026-03-10, Version 4.0.2
+
+- [[JS-1364](https://sonarsource.atlassian.net/browse/JS-1364)] - Fix FP on S2234: MD5/crypto algorithm parameter rotation patterns
+- [[JS-1361](https://sonarsource.atlassian.net/browse/JS-1361)] - Fix FP on S1119: Labels used for control flow within switch statements
+- [[JS-1360](https://sonarsource.atlassian.net/browse/JS-1360)] - Fix FP on S1119: Labels for multi-level loop exits in nested iteration
+- [[JS-1122](https://sonarsource.atlassian.net/browse/JS-1122)] - Fix FP on S2310: Array splice with compensating counter decrement pattern
+- [[JS-139](https://sonarsource.atlassian.net/browse/JS-139)] - Fix FP S2201 (`no-ignored-return`): "Return values from functions without side effects should not be ignored" triggering on `Array#find`
+
+## 2026-03-06, Version 4.0.1
+
+- [[JS-1400](https://sonarsource.atlassian.net/browse/JS-1400)] - Get rid of no-script-url for FP reduction
+- [[JS-1337](https://sonarsource.atlassian.net/browse/JS-1337)] - Use trie-based directory grouping for TypeScript program creation
+- [[JS-1336](https://sonarsource.atlassian.net/browse/JS-1336)] - Fix infinite loop in getFullyQualifiedNameTS when import is shadowed
+- [[JS-1335](https://sonarsource.atlassian.net/browse/JS-1335)] - Add ESLint v10 support; remove code-eval, enforce-trailing-comma, super-invocation from eslint-plugin-sonarjs
+- [[JS-1333](https://sonarsource.atlassian.net/browse/JS-1333)] - fix(S7790): Prevent references to target FQNs from raising
+- [[JS-1325](https://sonarsource.atlassian.net/browse/JS-1325)] - Fix FP on S3403: Parameter undefined checks flagged as always false
+- [[JS-1301](https://sonarsource.atlassian.net/browse/JS-1301)] - Fix FP on S3800: Functions with consistent return types flagged as mixed
+- [[JS-1238](https://sonarsource.atlassian.net/browse/JS-1238)] - Create JS rule
+- [[JS-1179](https://sonarsource.atlassian.net/browse/JS-1179)] - Fix FP on S5850: Regex anchors with alternation for trimming operations
+- [[JS-1135](https://sonarsource.atlassian.net/browse/JS-1135)] - Fix FP on S3735: Union types containing Promise and void/undefined
+- [[JS-1123](https://sonarsource.atlassian.net/browse/JS-1123)] - Fix FP on S7718: Minified code with auto-generated catch parameter names
+- [[JS-1115](https://sonarsource.atlassian.net/browse/JS-1115)] - Fix FP on S4335: string & {} and number & {} patterns for type autocomplete
+- [[JS-1044](https://sonarsource.atlassian.net/browse/JS-1044)] - Implement the health check gRPC API
+- [[JS-290](https://sonarsource.atlassian.net/browse/JS-290)] - Fix FP S4165 (`no-redundant-assignments`)
+
+## 2026-02-18, Version 4.0.0
+
+- [[JS-1335](https://sonarsource.atlassian.net/browse/JS-1335)] - Add ESLint v10 support; remove code-eval, enforce-trailing-comma, super-invocation from eslint-plugin-sonarjs
+- [[JS-1333](https://sonarsource.atlassian.net/browse/JS-1333)] - fix(S7790): Prevent references to target FQNs from raising
+- [[JS-1238](https://sonarsource.atlassian.net/browse/JS-1238)] - Create JS rule
+- [[JS-1121](https://sonarsource.atlassian.net/browse/JS-1121)] - Fix FP on S2310: Intentional loop counter skip-ahead in parsing code
+
+## 2026-02-11, Version 3.0.7
+
+- [[JS-1232](https://sonarsource.atlassian.net/browse/JS-1232)] - Add AWS TLS PFS policies to the valid ones
+- [[JS-1227](https://sonarsource.atlassian.net/browse/JS-1227)] - perf: Optimize S125 commented-out code detection
+- [[JS-1214](https://sonarsource.atlassian.net/browse/JS-1214)] - feat (S5247): Add support for Swig
+- [[JS-1209](https://sonarsource.atlassian.net/browse/JS-1209)] - feat(S6437): Add support for express-session
+- [[JS-1208](https://sonarsource.atlassian.net/browse/JS-1208)] - feat(S6418): Add support for MemberExpression
+- [[JS-1206](https://sonarsource.atlassian.net/browse/JS-1206)] - feat (S6437): Add ldapjs
+- [[JS-1198](https://sonarsource.atlassian.net/browse/JS-1198)] - Fix S2234 performance issue with complex destructuring patterns
+- [[JS-1197](https://sonarsource.atlassian.net/browse/JS-1197)] - feat: add branded types for Unix path handling
+- [[JS-1194](https://sonarsource.atlassian.net/browse/JS-1194)] - feat(S2077): Add use getFullyQualifiedname & add sqlite3
+- [[JS-1170](https://sonarsource.atlassian.net/browse/JS-1170)] - Test: trigger ruling failure
+- [[JS-1143](https://sonarsource.atlassian.net/browse/JS-1143)] - feat(S6437): Add support for object-based signatures
+- [[JS-946](https://sonarsource.atlassian.net/browse/JS-946)] - Implement direct TypeScript program caching
+
+## 2026-01-27, Version 3.0.6
+
+- [[JS-1143](https://sonarsource.atlassian.net/browse/JS-1143)] - feat(S6437): Add support for object-based signatures
+- [[JS-1128](https://sonarsource.atlassian.net/browse/JS-1128)] - Fix: Update crypto.verify in S6437
+- [[JS-1026](https://sonarsource.atlassian.net/browse/JS-1026)] - Fix S2137, S2424, S2703 to use globals npm package instead of internal deprecated list
+- [[JS-955](https://sonarsource.atlassian.net/browse/JS-955)] - Fix S1541: Support nullish coalescing operator
+- [[JS-926](https://sonarsource.atlassian.net/browse/JS-926)] - Fix rule S1444: Should only raise in Typescript files in eslint-plugin-sonarjs
+- [[JS-754](https://sonarsource.atlassian.net/browse/JS-754)] - S6418: Should handle ternary expression and obejct assignments
+- [[JS-638](https://sonarsource.atlassian.net/browse/JS-638)] - Fix S4721 (`os-command`) location error
+- [[JS-487](https://sonarsource.atlassian.net/browse/JS-487)] - Fix S6759: crash when using return outside of a function
+- [[JS-486](https://sonarsource.atlassian.net/browse/JS-486)] - Improve S2004 (`no-nested-functions`): ignore test functions
+- [[JS-485](https://sonarsource.atlassian.net/browse/JS-485)] - Fix rule S1135 (`todo-tag`): ignore use of todo on eslint pragma comments
+- [[JS-384](https://sonarsource.atlassian.net/browse/JS-384)] - S1854 Useless assignment false-positive when using variables in try/catch blocks
+- [[JS-106](https://sonarsource.atlassian.net/browse/JS-106)] - FP in S3801 when `throw` is in child functions
+- [[JS-90](https://sonarsource.atlassian.net/browse/JS-90)] - Fix FP S3801 (`no-inconsistent-returns`): Ignore switch handling all variants
+
+## 2025-08-25, Version 3.0.5
+
+- [[JS-834](https://sonarsource.atlassian.net/browse/JS-834)] - Add missing tailwindCSS directive @theme to rule S4662
+- [[JS-804](https://sonarsource.atlassian.net/browse/JS-804)] - Improve S2187: Add a few more test fqns
+- [[JS-719](https://sonarsource.atlassian.net/browse/JS-719)] - Replace dependency jsx-ast-utils with jsx-ast-utils-x
+- [[JS-685](https://sonarsource.atlassian.net/browse/JS-685)] - Modify S2301 (`no-selector-parameter`): Add exception when selector parameter is an object property
+- [[ESLINTJS-35](https://sonarsource.atlassian.net/browse/ESLINTJS-35)] - `prefer-immediate-return`: allow cases where a type hint is used
+- [[ESLINTJS-24](https://sonarsource.atlassian.net/browse/ESLINTJS-24)] - `no-duplicate-string` rule false positive on "isObjectPropertyKey" of Proxy
+- [[ESLINTJS-20](https://sonarsource.atlassian.net/browse/ESLINTJS-20)] - `prefer-single-boolean-return`: Do not raise on validator functions
+- [[ESLINTJS-18](https://sonarsource.atlassian.net/browse/ESLINTJS-18)] - `no-one-iteration-loop` is obsolete, recommend eslint built-in rule instead
+- [[ESLINTJS-17](https://sonarsource.atlassian.net/browse/ESLINTJS-17)] - Allow function names for `prefer-immediate-return`
+
+## 2025-06-26, Version 3.0.4
+
+- [[ESLINTJS-74](https://sonarsource.atlassian.net/browse/ESLINTJS-74)] - ESLint plugin depends on `lodash.merge`
+
+## 2025-06-17, Version 3.0.3
+
+- [[JS-707](https://sonarsource.atlassian.net/browse/JS-707)] - S2068 should be case-insensitive and support "passphrase"
+- [[JS-705](https://sonarsource.atlassian.net/browse/JS-705)] - S2699: On Typescript visit identify testing frameworks assertions
+- [[JS-634](https://sonarsource.atlassian.net/browse/JS-634)] - Fix FP S6845 (`no-noninteractive-tabindex`): add recommended option to allow for `tabpanel` role
+- [[JS-633](https://sonarsource.atlassian.net/browse/JS-633)] - Fix FP S3735 (`void-use`): detect correctly when used in front of promise calls
+- [[JS-632](https://sonarsource.atlassian.net/browse/JS-632)] - Fix FP S6848 (`no-static-element-interactions`): add exceptions for <a> and <summary>
+- [[JS-628](https://sonarsource.atlassian.net/browse/JS-628)] - Fix FP S2699 (`assertions-in-tests`): handle re-exports of assertions
+- [[JS-625](https://sonarsource.atlassian.net/browse/JS-625)] - Fix FP S1848 (`constructor-for-side-effects`): Add exceptions for infrastructure-as-code constructors
+- [[JS-33](https://sonarsource.atlassian.net/browse/JS-33)] - Fix FN S4123 (`no-invalid-await`): Remove in favor of `@typescript-eslint/await-thenable`
+
+## 2025-02-13, Version 3.0.2
+
+- [[ESLINTJS-70](https://sonarsource.atlassian.net/browse/ESLINTJS-70)] - Adapt ESLint plugin to new ESLint 9 types
+- [[ESLINTJS-60](https://sonarsource.atlassian.net/browse/ESLINTJS-60)] - Use context.parser instead of Babel for rule S125
+
+## 2024-12-05, Version 3.0.1
+
+- [[ESLINTJS-64](https://sonarsource.atlassian.net/browse/ESLINTJS-64)] - Fix `Usage` section of the documentation
+- [[ESLINTJS-61](https://sonarsource.atlassian.net/browse/ESLINTJS-61)] - Allow for wider margin of Typescript versions
+- [[ESLINTJS-55](https://sonarsource.atlassian.net/browse/ESLINTJS-55)] - Create solution for release notes
+
+## 2024-12-02, Version 3.0.0
+
+- [[JS-359](https://sonarsource.atlassian.net/browse/JS-359)] - Create rule S6418 (`no-hardcoded-secrets`): Hard-coded secrets are security-sensitive
+
+* [[ESLINTJS-65](https://sonarsource.atlassian.net/browse/ESLINTJS-65)] - Remove decorated rules from ESLint plugin
+* [[ESLINTJS-58](https://sonarsource.atlassian.net/browse/ESLINTJS-58)] - Change homepage to point to README.md in rules folder
+* [[ESLINTJS-57](https://sonarsource.atlassian.net/browse/ESLINTJS-57)] - Remove "sonar-" from eslint-plugin-sonarjs rule names
+
+## 2024-10-18, Version 2.0.4
+
+- [[ESLINTJS-62](https://sonarsource.atlassian.net/browse/ESLINTJS-62)] - Improve S3776: Do not increase complexity on short-circuiting and null coalescing
+
+## 2024-09-23, Version 2.0.3
+
+- [[ESLINTJS-56](https://sonarsource.atlassian.net/browse/ESLINTJS-56)] - Improve the performances of package manifest search
+- [[ESLINTJS-53](https://sonarsource.atlassian.net/browse/ESLINTJS-53)] - Support ESLint 9
+- [[ESLINTJS-50](https://sonarsource.atlassian.net/browse/ESLINTJS-50)] - "sonarjs/prefer-enum-initializers" fails with newer versions of typescript-eslint
+- [[ESLINTJS-49](https://sonarsource.atlassian.net/browse/ESLINTJS-49)] - Rule `no-implicit-dependencies` doesn't work
+
+## 2024-08-30, Version 2.0.2
+
+- [[ESLINTJS-52](https://sonarsource.atlassian.net/browse/ESLINTJS-52)] - Argument of type 'Config' is not assignable to parameter of type 'ConfigWithExtends'
+- [[ESLINTJS-51](https://sonarsource.atlassian.net/browse/ESLINTJS-51)] - The public APIs wrongly expose the internal helpers
+
+## 2024-08-23, Version 2.0.1
+
+- [[ESLINTJS-48](https://sonarsource.atlassian.net/browse/ESLINTJS-48)] - Add all the missing declared dependencies that prevent the plugin to be installed using yarn + pnpm
+- [[ESLINTJS-47](https://sonarsource.atlassian.net/browse/ESLINTJS-47)] - `jsx-ast-utils` is missing from the list of dependencies of the package
+- [[ESLINTJS-46](https://sonarsource.atlassian.net/browse/ESLINTJS-46)] - The plugin emits a warning when used with ESLint 8
+
+## 2024-08-22, Version 2.0.0
+
+- [[JS-194](https://sonarsource.atlassian.net/browse/JS-194)] - Provide eslint configurations based on Sonar way profile
+- [[JS-191](https://sonarsource.atlassian.net/browse/JS-191)] - Expose all rules from SonarJS

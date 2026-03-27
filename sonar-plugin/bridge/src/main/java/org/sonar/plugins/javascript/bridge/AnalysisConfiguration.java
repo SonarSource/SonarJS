@@ -61,8 +61,20 @@ public interface AnalysisConfiguration {
     return List.of();
   }
 
+  default List<String> getHtmlExtensions() {
+    return List.of();
+  }
+
+  default List<String> getYamlExtensions() {
+    return List.of();
+  }
+
+  default List<String> getCssAdditionalExtensions() {
+    return List.of();
+  }
+
   /**
-   * Controls whether JS/TS/CSS suffix arrays should be serialized in the bridge request.
+   * Controls whether file suffix arrays should be serialized in the bridge request.
    * When false, the fields are omitted so Node-side defaults are applied.
    */
   default boolean shouldSendFileSuffixes() {

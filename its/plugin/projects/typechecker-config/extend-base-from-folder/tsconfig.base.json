@@ -2,6 +2,6 @@
   "compilerOptions": {
     "outDir": "dist",
     "module": "CommonJS",
-    "baseUrl": "./src/"
+    "baseUrl": "./src"
   }
 }

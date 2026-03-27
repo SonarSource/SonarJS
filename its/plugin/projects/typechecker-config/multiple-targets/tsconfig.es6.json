@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "dist",
     "module": "CommonJS",
-    "baseUrl": "./src/",
+    "baseUrl": "./src",
     "target": "ES6"
   },
   "include": ["**/*.es6.ts"]

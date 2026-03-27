@@ -1,0 +1,62 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) 2011-2025 SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import * as express from 'express';
+import type { Worker } from 'node:worker_threads';
+import { createDelegator, createWsDelegator } from './delegate.js';
+import type { WorkerData } from './worker/create-worker.js';
+import { StatusCodes } from 'http-status-codes';
+import type { WebSocketServer } from 'ws';
+
+export type WorkerMessageListeners = {
+  permanent: ((message: any) => void)[];
+  oneTimers: ((message: any) => void)[];
+};
+
+export default function router(
+  worker: Worker | undefined,
+  workerData: WorkerData,
+  wss: WebSocketServer,
+): express.Router {
+  const workerMessageListeners: WorkerMessageListeners = { permanent: [], oneTimers: [] };
+  if (worker) {
+    worker.on('message', message => {
+      for (const listener of workerMessageListeners.permanent) {
+        listener(message);
+      }
+      for (const listener of workerMessageListeners.oneTimers) {
+        listener(message);
+      }
+      workerMessageListeners.oneTimers = [];
+    });
+  }
+
+  const router = express.Router();
+  const delegate = createDelegator(worker, workerData, workerMessageListeners);
+  const wsDelegate = createWsDelegator(worker, workerData, workerMessageListeners);
+  /** Endpoints running on the worker thread */
+  router.post('/analyze-project', delegate('on-analyze-project'));
+  router.post('/cancel-analysis', delegate('on-cancel-analysis'));
+
+  wss.on('connection', wsDelegate);
+
+  /** Endpoints running on the main thread */
+  router.get('/status', (_, response) => {
+    response.sendStatus(StatusCodes.OK);
+  });
+
+  return router;
+}

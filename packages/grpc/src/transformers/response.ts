@@ -18,12 +18,12 @@ import { analyzer } from '../proto/language_analyzer.js';
 import {
   type ProjectAnalysisOutput,
   entriesOfFileResults,
-} from '../../../jsts/src/analysis/projectAnalysis/projectAnalysis.js';
-import type { ParsingErrorLanguage } from '../../../shared/src/errors/project-analysis.js';
-import { reverseCssRuleKeyMap } from '../../../css/src/rules/metadata.js';
-import type { JsTsIssue } from '../../../jsts/src/linter/issues/issue.js';
-import type { CssIssue } from '../../../css/src/linter/issues/issue.js';
-import type { NormalizedAbsolutePath } from '../../../jsts/src/rules/helpers/files.js';
+} from '../../../analysis/src/projectAnalysis.js';
+import type { ParsingErrorLanguage } from '../../../analysis/src/contracts/project-analysis.js';
+import { reverseCssRuleKeyMap } from '../../../analysis/src/css/rules/metadata.js';
+import type { JsTsIssue } from '../../../analysis/src/jsts/linter/issues/issue.js';
+import type { CssIssue } from '../../../analysis/src/css/linter/issues/issue.js';
+import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 
 /**
  * SonarQube rule key for parsing errors. When a file cannot be parsed,
