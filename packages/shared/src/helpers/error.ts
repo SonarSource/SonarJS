@@ -14,24 +14,28 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type express from 'express';
-import { handleError } from '../../../shared/src/helpers/error.js';
+import { error } from './logging.js';
 
-/**
- * Express.js middleware for handling error while serving requests.
- *
- * The purpose of this middleware is to catch any error occurring within
- * the different layers of the bridge to centralize and customize error
- * information that is sent back.
- *
- * The fourth parameter is necessary to identify this as an error middleware.
- * @see https://expressjs.com/en/guide/error-handling.html
- */
-export function errorMiddleware(
-  err: unknown,
-  _request: express.Request,
-  response: express.Response,
-  _next: express.NextFunction,
-) {
-  response.json(handleError(err));
+type ErrorWithMessageAndStack = {
+  message?: string;
+  stack?: string;
+};
+
+export function handleError(err: unknown) {
+  const normalizedError = normalizeError(err);
+  const { message, stack } = normalizedError;
+  if (stack) {
+    error(stack);
+  }
+  return { error: message ?? 'Unexpected error' };
+}
+
+export function normalizeError(err: unknown): ErrorWithMessageAndStack {
+  if (typeof err === 'object' && err !== null) {
+    return err as ErrorWithMessageAndStack;
+  }
+  if (typeof err === 'string') {
+    return { message: err };
+  }
+  return { message: 'Unexpected error' };
 }
