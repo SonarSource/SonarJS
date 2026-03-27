@@ -29,15 +29,12 @@ Before running this skill, ensure:
 separate Bash call. Chaining bypasses the per-tool permission prompts that allow the user to
 review each action individually.
 
-<<<<<<< HEAD
 **Parallel execution is separate from chaining.** Issuing multiple independent Bash calls in
 the same response message is the correct way to run jobs concurrently — it does not violate the
 no-chaining rule. The no-chaining rule is about what goes *inside* a single Bash call; parallel
 execution is about how many Bash calls appear in a single response. Both rules apply together:
 separate calls, issued at the same time.
 
-=======
->>>>>>> master
 ## Invocation
 
 ```
@@ -164,10 +161,7 @@ via the `e` command, which is a risk when processing untrusted log content:
 gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs" \
   > target/peach-logs/JOB_ID.log
 sed --sandbox -n '
-<<<<<<< HEAD
 /\[36;1m/b
-=======
->>>>>>> master
 /Process completed with exit code/p
 /EXECUTION FAILURE/p
 /OutOfMemoryError/p
@@ -196,10 +190,7 @@ SonarJS plugin stack trace. The log is already on disk from Phase 1 — no re-do
 
 ```bash
 sed --sandbox -n '
-<<<<<<< HEAD
 /\[36;1m/b
-=======
->>>>>>> master
 /Sensor /p
 /EXECUTION FAILURE/p
 /OutOfMemoryError/p
