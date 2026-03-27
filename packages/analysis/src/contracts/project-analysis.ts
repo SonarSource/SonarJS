@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { APIError, ErrorCode } from './error.js';
+import { handleError } from '../../../shared/src/helpers/error.js';
 
 export type ParsingErrorCode =
   | ErrorCode.Parsing
@@ -52,11 +53,12 @@ export function toProjectFailureResult(
 ): ProjectFailureResult {
   if (failure instanceof APIError) {
     if (isParsingErrorCode(failure.code)) {
+      const { error } = handleError(failure);
       return {
         issues: [],
         parsingErrors: [
           {
-            message: failure.message,
+            message: error,
             code: failure.code,
             line: failure.data?.line,
             column: failure.data?.column,
@@ -65,11 +67,11 @@ export function toProjectFailureResult(
         ],
       };
     }
-    return { error: failure.message };
+    return handleError(failure);
   }
 
   if (failure instanceof Error) {
-    return { error: failure.message };
+    return handleError(failure);
   }
 
   return { error: String(failure) };

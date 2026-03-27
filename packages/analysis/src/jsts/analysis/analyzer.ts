@@ -20,7 +20,6 @@ import type { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
-import { APIError } from '../../../src/contracts/error.js';
 import { serializeInProtobuf } from '../parsers/ast.js';
 import {
   collectMainFileArtifacts,
@@ -68,52 +67,43 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
   const { filePath, fileType, analysisMode, fileStatus, language, detectedEsYear } = input;
 
   const parseResult = build(input);
-  try {
-    if (input.clearDependenciesCache) {
-      debug('Clearing dependencies cache');
-      clearDependenciesCache();
-    }
-    const { additionalRules, additionalSettings, metricsSink } = prepareLinterOptions(input);
-    const issues = Linter.lint(
-      parseResult,
-      filePath,
-      fileType,
-      fileStatus,
-      analysisMode,
-      language,
-      detectedEsYear,
-      { additionalRules, additionalSettings },
-    );
-    const extendedMetrics = computeExtendedMetrics(
-      input,
-      parseResult.sourceCode,
-      metricsSink?.cognitiveComplexity,
-    );
+  if (input.clearDependenciesCache) {
+    debug('Clearing dependencies cache');
+    clearDependenciesCache();
+  }
+  const { additionalRules, additionalSettings, metricsSink } = prepareLinterOptions(input);
+  const issues = Linter.lint(
+    parseResult,
+    filePath,
+    fileType,
+    fileStatus,
+    analysisMode,
+    language,
+    detectedEsYear,
+    { additionalRules, additionalSettings },
+  );
+  const extendedMetrics = computeExtendedMetrics(
+    input,
+    parseResult.sourceCode,
+    metricsSink?.cognitiveComplexity,
+  );
 
-    const result = {
-      issues,
-      ...extendedMetrics,
-    };
+  const result = {
+    issues,
+    ...extendedMetrics,
+  };
 
-    if (!input.skipAst) {
-      const ast = serializeAst(parseResult.sourceCode, filePath);
-      if (ast) {
-        return {
-          ast,
-          ...result,
-        };
-      }
-    }
-
-    return result;
-  } catch (e) {
-    /** Turns exceptions from TypeScript compiler into "parsing" errors */
-    if (e.stack.includes('typescript.js:')) {
-      throw APIError.failingTypeScriptError(e.message);
-    } else {
-      throw e;
+  if (!input.skipAst) {
+    const ast = serializeAst(parseResult.sourceCode, filePath);
+    if (ast) {
+      return {
+        ast,
+        ...result,
+      };
     }
   }
+
+  return result;
 }
 
 function prepareLinterOptions(input: JsTsAnalysisInput): AnalysisLinterOptions {

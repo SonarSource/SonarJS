@@ -15,12 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type express from 'express';
-import { error } from '../../../shared/src/helpers/logging.js';
-
-type ErrorWithCode = {
-  message?: string;
-  stack?: string;
-};
+import { handleError } from '../../../shared/src/helpers/error.js';
 
 /**
  * Express.js middleware for handling error while serving requests.
@@ -39,23 +34,4 @@ export function errorMiddleware(
   _next: express.NextFunction,
 ) {
   response.json(handleError(err));
-}
-
-export function handleError(err: unknown) {
-  const normalizedError = normalizeError(err);
-  const { message, stack } = normalizedError;
-  if (stack) {
-    error(stack);
-  }
-  return { error: message ?? 'Unexpected error' };
-}
-
-function normalizeError(err: unknown): ErrorWithCode {
-  if (typeof err === 'object' && err !== null) {
-    return err as ErrorWithCode;
-  }
-  if (typeof err === 'string') {
-    return { message: err };
-  }
-  return { message: 'Unexpected error' };
 }
