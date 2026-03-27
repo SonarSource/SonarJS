@@ -54,7 +54,14 @@ const compareBigIntFunctionPlaceholder = [
   '}',
 ];
 
-function isObjectStaticKeyCall(node: estree.Node): boolean {
+/**
+ * Checks for Object.keys(...) or Object.getOwnPropertyNames(...).
+ * Detection: AST only.
+ * Pseudo-code:
+ *   Object.keys(obj)
+ *   Object.getOwnPropertyNames(obj)
+ */
+function isObjectKeyExtractionCall(node: estree.Node): boolean {
   return (
     node.type === 'CallExpression' &&
     node.callee.type === 'MemberExpression' &&
@@ -66,12 +73,14 @@ function isObjectStaticKeyCall(node: estree.Node): boolean {
 }
 
 /**
- * Checks if an identifier refers to a variable initialized directly from
- * Object.keys()/Object.getOwnPropertyNames() that was never subsequently
- * reassigned.
- * Pattern: const ka = Object.keys(a); ... ka.sort()
+ * Checks whether an identifier refers to the result of
+ * Object.keys()/Object.getOwnPropertyNames().
+ * Detection: AST only.
+ * Pseudo-code:
+ *   const keys = Object.keys(obj);
+ *   keys.sort()
  */
-function isObjectKeysVariable(
+function isObjectKeyExtractionVariable(
   identifier: estree.Identifier,
   sourceCode: Rule.RuleContext['sourceCode'],
 ): boolean {
@@ -84,104 +93,18 @@ function isObjectKeysVariable(
   if (def.type !== 'Variable' || !def.node.init) {
     return false;
   }
-  if (!isObjectStaticKeyCall(def.node.init)) {
+  if (!isObjectKeyExtractionCall(def.node.init)) {
     return false;
   }
   return !variable.references.some(ref => !ref.init && ref.isWrite());
 }
 
-function isArrayFromIterableMethod(node: estree.Node): boolean {
-  if (
-    node.type !== 'CallExpression' ||
-    !isCallingMethod(node as estree.CallExpression, 1, 'from')
-  ) {
-    return false;
-  }
-  const callExpr = node as estree.CallExpression;
-  // isCallingMethod guarantees callee is a MemberExpression; verify receiver is specifically Array
-  const callee = callExpr.callee as estree.MemberExpression;
-  if (!isIdentifier(callee.object, 'Array')) {
-    return false;
-  }
-  const arg = callExpr.arguments[0];
-  // e.g. Array.from(map.keys()) — argument must be a .keys() call
-  return (
-    arg?.type === 'CallExpression' &&
-    arg.callee.type === 'MemberExpression' &&
-    arg.callee.property.type === 'Identifier' &&
-    arg.callee.property.name === 'keys'
-  );
-}
-
 /**
- * Checks if the sorted array is provably a technical string collection where
- * default alphabetical ordering is intentional (Object keys, for-in key arrays).
- * Used in both the no-type-checker and type-checker paths.
- * Does NOT include Array.from(x.keys()) — that requires type info to distinguish
- * Map<string,...>.keys() from numeric array .keys() and other iterables.
+ * Finds the nearest enclosing for-in loop.
+ * Detection: AST only.
+ * Pseudo-code:
+ *   for (const key in obj) { ... }
  */
-function isTechnicalStringSort(
-  object: estree.Node,
-  sourceCode: Rule.RuleContext['sourceCode'],
-): boolean {
-  return (
-    isObjectStaticKeyCall(object) ||
-    (object.type === 'Identifier' &&
-      (isForInKeyArray(object, sourceCode) || isObjectKeysVariable(object, sourceCode)))
-  );
-}
-
-/**
- * Checks if the node is Array.from(receiver.keys()) where receiver is a built-in Map.
- * Only valid when the type checker is available. Suppresses sort() on Map keys,
- * which are technical strings where default alphabetical ordering is intentional.
- * Does NOT suppress Set<string>.keys() or custom .keys() methods.
- */
-function isArrayFromMapStringKeysCall(
-  object: estree.Node,
-  services: RequiredParserServices,
-): boolean {
-  if (!isArrayFromIterableMethod(object)) {
-    return false;
-  }
-  const callExpr = object as estree.CallExpression;
-  const arg = callExpr.arguments[0] as estree.CallExpression;
-  const innerReceiver = (arg.callee as estree.MemberExpression).object;
-  const receiverType = getTypeFromTreeNode(innerReceiver, services);
-  return receiverType.symbol?.name === 'Map';
-}
-
-/**
- * Checks if a node is a zero-argument .sort() or .toSorted() call.
- */
-function isSortLikeCall(node: estree.Node): boolean {
-  return (
-    node.type === 'CallExpression' &&
-    node.arguments.length === 0 &&
-    node.callee.type === 'MemberExpression' &&
-    node.callee.property.type === 'Identifier' &&
-    ['sort', 'toSorted'].includes(node.callee.property.name)
-  );
-}
-
-/**
- * Checks if the sort() call is part of an order-independent comparison where
- * both operands are sort/toSorted calls, e.g., arr1.sort() === arr2.sort()
- */
-function isInOrderIndependentComparison(
-  call: estree.CallExpression,
-  parent: estree.Node | undefined,
-): boolean {
-  if (parent?.type !== 'BinaryExpression') {
-    return false;
-  }
-  if (!['===', '!==', '==', '!='].includes(parent.operator)) {
-    return false;
-  }
-  const other = parent.left === call ? parent.right : parent.left;
-  return isSortLikeCall(other);
-}
-
 function getEnclosingForIn(startNode: estree.Node): estree.ForInStatement | null {
   let current: estree.Node | undefined = getNodeParent(startNode);
   while (current) {
@@ -198,10 +121,14 @@ function getEnclosingForIn(startNode: estree.Node): estree.ForInStatement | null
 }
 
 /**
- * Verifies that a call expression is arr.push(loopVar) inside a for-in loop
- * where loopVar is the for-in iteration variable.
+ * Checks for keys.push(key) inside a for-in loop.
+ * Detection: AST only.
+ * Pseudo-code:
+ *   for (const key in obj) {
+ *     keys.push(key)
+ *   }
  */
-function isForInKeyPush(callParent: estree.CallExpression): boolean {
+function isForInVariablePushCall(callParent: estree.CallExpression): boolean {
   const forIn = getEnclosingForIn(callParent);
   if (!forIn) {
     return false;
@@ -220,9 +147,12 @@ function isForInKeyPush(callParent: estree.CallExpression): boolean {
 }
 
 /**
- * Classifies a single variable reference in the context of the for-in key array pattern.
- * Returns 'forInPush' if the reference is a valid for-in push, 'invalid' if it invalidates
- * the pattern, or 'skip' if it is a safe read that can be ignored.
+ * Classifies a reference while checking the for-in key-array pattern.
+ * Detection: AST only.
+ * Pseudo-code:
+ *   keys.push(key)   -> forInPush
+ *   keys = other     -> invalid
+ *   keys.length      -> skip
  */
 function classifyForInKeyRef(ref: {
   identifier: estree.Identifier;
@@ -254,19 +184,23 @@ function classifyForInKeyRef(ref: {
   }
 
   // push() call - must be inside a for-in loop, pushing the loop variable
-  if (!isForInKeyPush(callParent as estree.CallExpression)) {
+  if (!isForInVariablePushCall(callParent as estree.CallExpression)) {
     return 'invalid';
   }
   return 'forInPush';
 }
 
 /**
- * Checks if an identifier refers to a variable that was initialized as an empty array
- * and is only populated by pushing items from for-in loop iterations.
- * Pattern: var arr = []; for (var key in obj) arr.push(key); arr.sort()
- * This is semantically equivalent to Object.keys() and safe for default sort.
+ * Checks whether an identifier refers to an array filled from for-in keys.
+ * Detection: AST only.
+ * Pseudo-code:
+ *   const keys = [];
+ *   for (const key in obj) {
+ *     keys.push(key);
+ *   }
+ *   keys.sort()
  */
-function isForInKeyArray(
+function isForInKeyCollection(
   identifier: estree.Identifier,
   sourceCode: Rule.RuleContext['sourceCode'],
 ): boolean {
@@ -304,6 +238,116 @@ function isForInKeyArray(
   return hasForInPush; // must have at least one for-in push to confirm the pattern
 }
 
+/**
+ * Checks whether a value is an object-key collection.
+ * Detection: AST only.
+ * Pseudo-code:
+ *   Object.keys(obj).sort()
+ *   const keys = [];
+ *   for (const key in obj) { keys.push(key); }
+ *   keys.sort()
+ *
+ * Does not include Array.from(x.keys()), because that requires type
+ * information to distinguish Map<string, ...>.keys() from other iterables.
+ */
+function isObjectKeyCollection(
+  object: estree.Node,
+  sourceCode: Rule.RuleContext['sourceCode'],
+): boolean {
+  return (
+    isObjectKeyExtractionCall(object) ||
+    (object.type === 'Identifier' &&
+      (isForInKeyCollection(object, sourceCode) ||
+        isObjectKeyExtractionVariable(object, sourceCode)))
+  );
+}
+
+/**
+ * Checks for Array.from(x.keys()).
+ * Detection: AST only.
+ * Pseudo-code:
+ *   Array.from(collection.keys())
+ */
+function isArrayFromKeysCall(node: estree.Node): boolean {
+  if (
+    node.type !== 'CallExpression' ||
+    !isCallingMethod(node as estree.CallExpression, 1, 'from')
+  ) {
+    return false;
+  }
+  const callExpr = node as estree.CallExpression;
+  // isCallingMethod guarantees callee is a MemberExpression; verify receiver is specifically Array
+  const callee = callExpr.callee as estree.MemberExpression;
+  if (!isIdentifier(callee.object, 'Array')) {
+    return false;
+  }
+  const arg = callExpr.arguments[0];
+  // e.g. Array.from(map.keys()) — argument must be a .keys() call
+  return (
+    arg?.type === 'CallExpression' &&
+    arg.callee.type === 'MemberExpression' &&
+    arg.callee.property.type === 'Identifier' &&
+    arg.callee.property.name === 'keys'
+  );
+}
+
+/**
+ * Checks for Array.from(map.keys()) when map is a built-in Map.
+ * Detection: AST + type checker.
+ * Pseudo-code:
+ *   Array.from(map.keys())
+ *
+ * Does not suppress Set<string>.keys() or custom .keys() methods.
+ */
+function isArrayFromMapStringKeysCall(
+  object: estree.Node,
+  services: RequiredParserServices,
+): boolean {
+  if (!isArrayFromKeysCall(object)) {
+    return false;
+  }
+  const callExpr = object as estree.CallExpression;
+  const arg = callExpr.arguments[0] as estree.CallExpression;
+  const innerReceiver = (arg.callee as estree.MemberExpression).object;
+  const receiverType = getTypeFromTreeNode(innerReceiver, services);
+  return receiverType.symbol?.name === 'Map';
+}
+
+/**
+ * Checks for .sort() or .toSorted() with no arguments.
+ * Detection: AST only.
+ * Pseudo-code:
+ *   arr.sort()
+ *   arr.toSorted()
+ */
+function isSortLikeCall(node: estree.Node): boolean {
+  return (
+    node.type === 'CallExpression' &&
+    node.arguments.length === 0 &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.property.type === 'Identifier' &&
+    ['sort', 'toSorted'].includes(node.callee.property.name)
+  );
+}
+
+/**
+ * Checks for a comparison like left.sort() === right.sort().
+ * Detection: AST only.
+ * Pseudo-code:
+ *   left.sort() === right.sort()
+ */
+function isInOrderIndependentComparison(call: estree.CallExpression): boolean {
+  const parent = getNodeParent(call);
+  if (parent?.type !== 'BinaryExpression') {
+    return false;
+  }
+  if (!['===', '!==', '==', '!='].includes(parent.operator)) {
+    return false;
+  }
+  const other = parent.left === call ? parent.right : parent.left;
+  return isSortLikeCall(other);
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     hasSuggestions: true,
@@ -335,16 +379,15 @@ export const rule: Rule.RuleModule = {
 
         // AST-based suppression: order-independent comparison (a.sort() === b.sort())
         // This is pattern-based, not type-based, so it applies regardless of type checker availability
-        const parent = getNodeParent(call);
-        if (isInOrderIndependentComparison(call, parent)) {
+        if (isInOrderIndependentComparison(call)) {
+          return;
+        }
+
+        if (isObjectKeyCollection(object, sourceCode)) {
           return;
         }
 
         if (!hasTypeChecker) {
-          // No type checker: fall back to AST-based suppression for known string-returning patterns
-          if (isTechnicalStringSort(object, sourceCode)) {
-            return;
-          }
           context.report({ node, messageId: 'provideCompareFunction' });
           return;
         }
@@ -355,26 +398,21 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
+        const suggest = getSuggestions(call, type);
+
         // For string arrays, suppress only provably technical cases where default
         // alphabetical ordering is clearly intentional; report everything else
         // with a localeCompare suggestion.
-        if (isStringArray(type, services)) {
-          if (
-            isTechnicalStringSort(object, sourceCode) ||
-            isArrayFromMapStringKeysCall(object, services)
-          ) {
-            return; // safe: provably technical strings
-          }
-          context.report({
-            node,
-            suggest: getSuggestions(call, type),
-            messageId: 'provideCompareFunctionForArrayOfStrings',
-          });
+        if (!isStringArray(type, services)) {
+          context.report({ node, suggest, messageId: 'provideCompareFunction' });
           return;
         }
 
-        const suggest = getSuggestions(call, type);
-        context.report({ node, suggest, messageId: 'provideCompareFunction' });
+        if (isArrayFromMapStringKeysCall(object, services)) {
+          return; // safe: provably technical strings
+        }
+
+        context.report({ node, suggest, messageId: 'provideCompareFunctionForArrayOfStrings' });
       },
     };
 
