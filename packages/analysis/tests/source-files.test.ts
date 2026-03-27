@@ -17,12 +17,12 @@
 import { beforeEach, describe, it } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
-import { initFileStores, sourceFileStore } from '../../../src/file-stores/index.js';
-import { createConfiguration } from '../../../src/common/configuration.js';
-import { normalizePath, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { UNINITIALIZED_ERROR } from '../../../src/file-stores/source-files.js';
+import { initFileStores, sourceFileStore } from '../src/file-stores/index.js';
+import { createConfiguration } from '../src/common/configuration.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { UNINITIALIZED_ERROR } from '../src/file-stores/source-files.js';
 
-const fixtures = join(import.meta.dirname, 'fixtures-source-files');
+const fixtures = join(import.meta.dirname, 'jsts/analysis/fixtures-source-files');
 
 describe('files', () => {
   beforeEach(() => {

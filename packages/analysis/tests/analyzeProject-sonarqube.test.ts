@@ -18,16 +18,16 @@
 import { describe, it, beforeEach, type Mock, mock } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
-import { normalizePath, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { analyzeProject, cancelAnalysis } from '../../../src/analyzeProject.js';
-import { sourceFileStore, tsConfigStore } from '../../../src/file-stores/index.js';
-import { ErrorCode } from '../../../src/contracts/error.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { analyzeProject, cancelAnalysis } from '../src/analyzeProject.js';
+import { sourceFileStore, tsConfigStore } from '../src/file-stores/index.js';
+import { ErrorCode } from '../src/contracts/error.js';
 import ts from 'typescript';
-import type { RuleConfig } from '../../../src/jsts/linter/config/rule-config.js';
-import type { RuleConfig as CssRuleConfig } from '../../../src/css/linter/config.js';
-import { getProgramCacheManager } from '../../../src/jsts/program/cache/programCache.js';
-import { clearProgramOptionsCache } from '../../../src/jsts/program/cache/programOptionsCache.js';
-import { sanitizeProjectAnalysisInput } from '../../../src/common/input-sanitize.js';
+import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
+import type { RuleConfig as CssRuleConfig } from '../src/css/linter/config.js';
+import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
+import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
+import { sanitizeProjectAnalysisInput } from '../src/common/input-sanitize.js';
 
 // Helper to initialize file stores for tests - wraps sanitizeProjectAnalysisInput
 async function initForTest(configOptions: object, rawFiles: object) {
@@ -38,7 +38,7 @@ async function initForTest(configOptions: object, rawFiles: object) {
   return configuration;
 }
 
-const fixtures = normalizePath(join(import.meta.dirname, 'fixtures-sonarqube'));
+const fixtures = normalizePath(join(import.meta.dirname, 'jsts/analysis/fixtures-sonarqube'));
 
 const rules: RuleConfig[] = [
   {

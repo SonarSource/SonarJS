@@ -16,13 +16,13 @@
  */
 // Mock FileStore implementation
 import { describe, it } from 'node:test';
-import { simulateFromInputFiles } from '../../../src/file-stores/index.js';
+import { simulateFromInputFiles } from '../src/file-stores/index.js';
 import { expect } from 'expect';
-import { FileStore } from '../../../src/file-stores/store-type.js';
-import { normalizePath, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { createConfiguration, type Configuration } from '../../../src/common/configuration.js';
-import type { AnalyzableFiles } from '../../../src/projectAnalysis.js';
-import { sanitizeRawInputFiles } from '../../../src/common/input-sanitize.js';
+import { FileStore } from '../src/file-stores/store-type.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { createConfiguration, type Configuration } from '../src/common/configuration.js';
+import type { AnalyzableFiles } from '../src/projectAnalysis.js';
+import { sanitizeRawInputFiles } from '../src/common/input-sanitize.js';
 
 class MockFileStore implements FileStore {
   public processedDirectories: string[] = [];
