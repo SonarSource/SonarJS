@@ -17,13 +17,18 @@
 import type express from 'express';
 import { Timeout } from './timeout.js';
 
+type TimeoutMiddleware = {
+  middleware: express.RequestHandler;
+  cancel(): void;
+};
+
 /**
  * Express.js middleware that timeouts after a lapse of time and triggers a function.
  * @param f the timeout function
  * @param delay the timeout delay
  * @returns the timeout middleware with capability to stop the internal timeout
  */
-export function timeoutMiddleware(f: () => void, delay: number) {
+export function timeoutMiddleware(f: () => void, delay: number): TimeoutMiddleware {
   const timeout = new Timeout(f, delay);
   timeout.start();
   let cancelled = false;
