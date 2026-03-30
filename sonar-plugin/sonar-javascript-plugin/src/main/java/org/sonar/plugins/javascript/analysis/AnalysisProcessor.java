@@ -168,13 +168,21 @@ public class AnalysisProcessor {
       newIssue.forRule(parsingErrorRuleKey).at(primaryLocation).save();
     }
 
-    context
-      .getSensorContext()
-      .newAnalysisError()
-      .onFile(file)
-      .at(file.newPointer(line != null ? line : 1, toParsingErrorColumn(line, column)))
-      .message(message)
-      .save();
+    var newAnalysisError = context.getSensorContext().newAnalysisError().onFile(file);
+    try {
+      newAnalysisError.at(
+        file.newPointer(line != null ? line : 1, toParsingErrorColumn(line, column))
+      );
+    } catch (RuntimeException e) {
+      LOG.warn(
+        "Failed to create parsing error pointer in {} at line {}, column {}. Falling back to file start.",
+        file.uri(),
+        line,
+        column
+      );
+      newAnalysisError.at(file.newPointer(1, 0));
+    }
+    newAnalysisError.message(message).save();
   }
 
   @Nullable
