@@ -50,7 +50,7 @@ const changelog = await readFile(changelogPath, 'utf8').catch(() => '');
 
 const startDate = changelog.match(/^## (\d+-\d+-\d+)/)[1];
 
-const jql = `(project = ESLINTJS AND fixversion = ${version}) OR (project = JS AND labels = eslint-plugin AND resolutiondate > '${startDate}')`;
+const jql = `project = JS AND labels = eslint-plugin AND resolutiondate > '${startDate}'`;
 const response = await fetch(
   `https://sonarsource.atlassian.net/rest/api/3/search/jql?jql=${encodeURIComponent(jql)}&fields=key,summary`,
 );

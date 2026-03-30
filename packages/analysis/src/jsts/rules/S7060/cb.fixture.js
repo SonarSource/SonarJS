@@ -11,3 +11,4 @@ const f = require('./cb.fixture.js'); // Noncompliant [[qf2]] {{Module imports i
 // fix@qf2 {{Remove this require}}
 // edit@qf2 [[sc=0;ec=37]] {{}}
 
+
