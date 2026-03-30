@@ -14,7 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  RuleTester,
+  NoTypeCheckingRuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
@@ -147,6 +150,74 @@ describe('S2871', () => {
           },
           {
             code: `Array.prototype.sort.apply([1, 2, 10])`,
+          },
+          // Compliant: order-independent comparison suppressed before type check
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.sort() === b.sort();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.sort() !== b.sort();
+      }
+    `,
+          },
+          // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (provably technical strings)
+          {
+            code: `const keys = Object.keys({ a: 1, b: 2 }).sort();`,
+          },
+          {
+            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).sort();`,
+          },
+          // Compliant: variable initialized from Object.keys/getOwnPropertyNames and not reassigned
+          {
+            code: `var ka = Object.keys(a); ka.sort();`,
+          },
+          {
+            code: `var kb = Object.getOwnPropertyNames(b); kb.sort();`,
+          },
+          {
+            code: `
+      function f(map: Map<string, number>) {
+        return Array.from(map.keys()).sort();
+      }
+    `,
+          },
+          // Compliant: for-in key collection pattern typed as string[] by TypeScript
+          {
+            code: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      props.sort();
+    `,
+          },
+          // Compliant: for-in with property read (e.g. props.length) before sort
+          {
+            code: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      if (props.length === 0) return;
+      props.sort();
+    `,
+          },
+          // Compliant: number array in order-independent equality comparison
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.sort() === b.sort();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.sort() !== b.sort();
+      }
+    `,
           },
         ],
         invalid: [
@@ -312,6 +383,189 @@ describe('S2871', () => {
               },
             ],
           },
+          // Object.keys().map().sort() - Object.keys origin lost after map, should raise
+          {
+            code: `Object.keys({ a: 1, b: 2 }).map(k => k.toUpperCase()).sort();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `Object.keys({ a: 1, b: 2 }).map(k => k.toUpperCase()).sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          // General string arrays: reported with localeCompare suggestion
+          {
+            code: `const array = ["foo", "bar"]; array.sort();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const array = ["foo", "bar"]; array.sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      function f(a: string[]) {
+        a?.sort();
+      }
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[]) {
+        a?.sort((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `['foo', 'bar', 'baz'].sort();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `['foo', 'bar', 'baz'].sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      function f(a: string[]) {
+        a.sort();
+      }
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[]) {
+        a.sort((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      function getString() {
+        return 'foo';
+      }
+      [getString(), getString()].sort();
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function getString() {
+        return 'foo';
+      }
+      [getString(), getString()].sort((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      const foo = 'foo';
+      const bar = 'bar';
+      const baz = 'baz';
+      [foo, bar, baz].sort();
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      const foo = 'foo';
+      const bar = 'bar';
+      const baz = 'baz';
+      [foo, bar, baz].sort((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          // Array.from(arr.keys()) where arr is number[] returns number[] (array indices),
+          // TypeScript correctly identifies this as a number array that needs a comparator
+          {
+            code: `
+        function f(arr: number[]) {
+          return Array.from(arr.keys()).sort();
+        }
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+        function f(arr: number[]) {
+          return Array.from(arr.keys()).sort((a, b) => (a - b));
+        }
+      `,
+                  },
+                ],
+              },
+            ],
+          },
+          // Set<string>.keys() yields user-facing strings — not technical keys, must be reported
+          {
+            code: `
+        function f(s: Set<string>) {
+          return Array.from(s.keys()).sort();
+        }
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+        function f(s: Set<string>) {
+          return Array.from(s.keys()).sort((a, b) => a.localeCompare(b));
+        }
+      `,
+                  },
+                ],
+              },
+            ],
+          },
           {
             code: `
         function f<T extends number[]>(a: T) {
@@ -338,57 +592,197 @@ describe('S2871', () => {
               },
             ],
           },
-          {
-            code: 'const array = ["foo", "bar"]; array.sort();',
-            errors: [
-              {
-                messageId: 'provideCompareFunctionForArrayOfStrings',
-                suggestions: [
-                  {
-                    desc: 'Add a comparator function to sort in ascending language-sensitive order',
-                    output:
-                      'const array = ["foo", "bar"]; array.sort((a, b) => a.localeCompare(b));',
-                  },
-                ],
-              },
-            ],
-          },
-          // optional chain
-          {
-            code: `
-        function f(a: string[]) {
-          a?.sort();
-        }
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        ['foo', 'bar', 'baz'].sort();
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        function getString() {
-          return 'foo';
-        }
-        [getString(), getString()].sort();
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        const foo = 'foo';
-        const bar = 'bar';
-        const baz = 'baz';
-        [foo, bar, baz].sort();
-      `,
-            errors: 1,
-          },
         ],
       },
     );
+
+    const noTypeCheckingRuleTester = new NoTypeCheckingRuleTester();
+    noTypeCheckingRuleTester.run(`AST-based suppression works without type checker`, rule, {
+      valid: [
+        // AST-based suppression: Object.keys/getOwnPropertyNames always return string[]
+        { code: `Object.keys({ a: 1 }).sort()` },
+        { code: `Object.keys({ a: 1 }).toSorted()` },
+        { code: `Object.getOwnPropertyNames({ a: 1 }).sort()` },
+        { code: `Object.getOwnPropertyNames({ a: 1 }).toSorted()` },
+        // AST-based suppression: order-independent comparison
+        { code: `a.sort() === b.sort()` },
+        { code: `a.sort() !== b.sort()` },
+        { code: `a.toSorted() === b.toSorted()` },
+        { code: `a.toSorted() !== b.toSorted()` },
+        // AST-based suppression: for-in key collection pattern (semantically equivalent to Object.keys)
+        {
+          code: `
+            var props = [];
+            for (var key in obj) props.push(key);
+            props.sort();
+          `,
+        },
+        {
+          code: `
+            var props = [];
+            for (var key in this.value) props.push(key);
+            return props.sort();
+          `,
+        },
+        // for-in with plain reads (return, etc.) is also suppressed
+        {
+          code: `
+            var props = [];
+            for (var key in obj) props.push(key);
+            props.sort();
+            return props;
+          `,
+        },
+        // for-in with property read (e.g. props.length) before sort - property reads are not mutations
+        {
+          code: `
+            var props = [];
+            for (var key in obj) props.push(key);
+            if (props.length === 0) return;
+            props.sort();
+          `,
+        },
+        // for-in with conditional hasOwnProperty guard - push is still inside for-in loop
+        {
+          code: `
+            var keys = [];
+            for (var key in obj) {
+              if (obj.hasOwnProperty(key)) {
+                keys.push(key);
+              }
+            }
+            keys.sort();
+          `,
+        },
+        // Object.keys/getOwnPropertyNames variable assignment (no type checker)
+        {
+          code: `var ka = Object.keys(a); ka.sort();`,
+        },
+        {
+          code: `var kb = Object.getOwnPropertyNames(b); kb.sort();`,
+        },
+      ],
+      invalid: [
+        // Without type checker, sort on unknown arrays is still flagged (no suggestions)
+        {
+          code: `[1, 2, 3].sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        { code: `arr.sort()`, errors: [{ messageId: 'provideCompareFunction', suggestions: [] }] },
+        {
+          code: `[1, 2, 3].toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // Object.getOwnPropertySymbols returns symbol[], not string[] - must be flagged
+        {
+          code: `Object.getOwnPropertySymbols(obj).sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `Object.getOwnPropertySymbols(obj).toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // for-in pattern with index-assignment mutation - still flagged
+        {
+          code: `
+            var arr = [];
+            for (var key in obj) arr.push(key);
+            arr[0] = 'injected';
+            arr.sort();
+          `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // for-in pattern with push outside the loop - still flagged
+        {
+          code: `
+            var arr = [];
+            for (var key in obj) arr.push(key);
+            arr.push('extra');
+            arr.sort();
+          `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // for-in pattern but array not initialized as empty - still flagged
+        {
+          code: `
+            var arr = ['initial'];
+            for (var key in obj) arr.push(key);
+            arr.sort();
+          `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // for-in pattern but array is reassigned - still flagged
+        {
+          code: `
+            var arr = [];
+            for (var key in obj) arr.push(key);
+            arr = [1, 2, 3];
+            arr.sort();
+          `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // Object.keys variable that is reassigned - not suppressed
+        {
+          code: `var ka = Object.keys(a); ka = []; ka.sort();`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // for-in pattern but pushed value is not the loop variable - still flagged
+        {
+          code: `
+            var arr = [];
+            for (var key in obj) arr.push(someNumber);
+            arr.sort();
+          `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // for-in pattern with extra push argument - arr is NOT a pure key array
+        {
+          code: `
+            var arr = [];
+            for (var key in obj) arr.push(key, 42);
+            arr.sort();
+          `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // Foo.from(map.keys()).sort() - non-Array receiver is not suppressed
+        {
+          code: `Foo.from(map.keys()).sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `Foo.from(map.keys()).toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // Array.from(x.keys()) is not suppressed without type checker:
+        // x could be a numeric array or any non-Map iterable
+        {
+          code: `Array.from(map.keys()).sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `Array.from(map.keys()).toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // Regression: numeric .keys() iterators must still be reported
+        {
+          code: `Array.from(numArr.keys()).sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `Array.from(numArr.keys()).toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // Only one side is a sort call — not order-independent, must be flagged
+        {
+          code: `a.sort() === 'abc'`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `a.toSorted() === 'abc'`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+      ],
+    });
 
     ruleTester.run(
       `A compare function should be provided when using "Array.prototype.toSorted()"`,
@@ -510,6 +904,65 @@ describe('S2871', () => {
           },
           {
             code: `const sorted = Array.prototype.toSorted.apply([1, 2, 10])`,
+          },
+          // Compliant: order-independent comparison suppressed before type check
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted() === b.toSorted();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted() !== b.toSorted();
+      }
+    `,
+          },
+          // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (provably technical strings)
+          {
+            code: `const keys = Object.keys({ a: 1, b: 2 }).toSorted();`,
+          },
+          {
+            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).toSorted();`,
+          },
+          // Compliant: variable initialized from Object.keys/getOwnPropertyNames and not reassigned
+          {
+            code: `var ka = Object.keys(a); ka.toSorted();`,
+          },
+          {
+            code: `var kb = Object.getOwnPropertyNames(b); kb.toSorted();`,
+          },
+          {
+            code: `
+      function f(map: Map<string, number>) {
+        return Array.from(map.keys()).toSorted();
+      }
+    `,
+          },
+          // Compliant: for-in key collection pattern typed as string[] by TypeScript
+          {
+            code: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      const sorted = props.toSorted();
+    `,
+          },
+          // Compliant: number array in order-independent equality comparison
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted() === b.toSorted();
+      }
+    `,
+          },
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted() !== b.toSorted();
+      }
+    `,
           },
         ],
         invalid: [
@@ -678,6 +1131,193 @@ describe('S2871', () => {
               },
             ],
           },
+          // Object.keys().map().toSorted() - Object.keys origin lost after map, should raise
+          {
+            code: `Object.keys({ a: 1, b: 2 }).map(k => k.toUpperCase()).toSorted();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `Object.keys({ a: 1, b: 2 }).map(k => k.toUpperCase()).toSorted((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          // General string arrays: reported with localeCompare suggestion
+          {
+            code: `
+      function f(a: string[]) {
+        return a?.toSorted();
+      }
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[]) {
+        return a?.toSorted((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `const array = ["foo", "bar"]; const sorted = array.toSorted();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const array = ["foo", "bar"]; const sorted = array.toSorted((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      function f(a: string[]) {
+        return a.toSorted();
+      }
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[]) {
+        return a.toSorted((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      const sorted = ['foo', 'bar', 'baz'].toSorted();
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      const sorted = ['foo', 'bar', 'baz'].toSorted((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      function getString() {
+        return 'foo';
+      }
+      const sorted = [getString(), getString()].toSorted();
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function getString() {
+        return 'foo';
+      }
+      const sorted = [getString(), getString()].toSorted((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+      const foo = 'foo';
+      const bar = 'bar';
+      const baz = 'baz';
+      const sorted = [foo, bar, baz].toSorted();
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      const foo = 'foo';
+      const bar = 'bar';
+      const baz = 'baz';
+      const sorted = [foo, bar, baz].toSorted((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
+              },
+            ],
+          },
+          // Array.from(arr.keys()) where arr is number[] returns number[] (array indices),
+          // TypeScript correctly identifies this as a number array that needs a comparator
+          {
+            code: `
+        function f(arr: number[]) {
+          return Array.from(arr.keys()).toSorted();
+        }
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+        function f(arr: number[]) {
+          return Array.from(arr.keys()).toSorted((a, b) => (a - b));
+        }
+      `,
+                  },
+                ],
+              },
+            ],
+          },
+          // Set<string>.keys() yields user-facing strings — not technical keys, must be reported
+          {
+            code: `
+        function f(s: Set<string>) {
+          return Array.from(s.keys()).toSorted();
+        }
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+        function f(s: Set<string>) {
+          return Array.from(s.keys()).toSorted((a, b) => a.localeCompare(b));
+        }
+      `,
+                  },
+                ],
+              },
+            ],
+          },
           {
             code: `
         function f<T extends number[]>(a: T) {
@@ -703,55 +1343,6 @@ describe('S2871', () => {
                 suggestions: [],
               },
             ],
-          },
-          {
-            code: 'const array = ["foo", "bar"]; const sortedArray = array.toSorted();',
-            errors: [
-              {
-                message:
-                  'Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.',
-                suggestions: [
-                  {
-                    desc: 'Add a comparator function to sort in ascending language-sensitive order',
-                    output:
-                      'const array = ["foo", "bar"]; const sortedArray = array.toSorted((a, b) => a.localeCompare(b));',
-                  },
-                ],
-              },
-            ],
-          },
-          // optional chain
-          {
-            code: `
-        function f(a: string[]) {
-          return a?.toSorted();
-        }
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        const sorted = ['foo', 'bar', 'baz'].toSorted();
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        function getString() {
-          return 'foo';
-        }
-        const sorted = [getString(), getString()].toSorted();
-      `,
-            errors: 1,
-          },
-          {
-            code: `
-        const foo = 'foo';
-        const bar = 'bar';
-        const baz = 'baz';
-        const sorted = [foo, bar, baz].toSorted();
-      `,
-            errors: 1,
           },
         ],
       },
