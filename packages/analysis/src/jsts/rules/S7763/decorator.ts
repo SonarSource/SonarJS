@@ -52,7 +52,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       // - VariableDeclaration: suppress only if no declarator's init is a named/namespace import.
       //   e.g. `import {x} from '...'; export const y = x` CAN be rewritten as
       //   `export { x as y } from '...'` — this is a genuine re-export candidate.
-      if (node.type === 'ExportNamedDeclaration' && node.declaration !== null) {
+      if (node.type === 'ExportNamedDeclaration' && node.declaration != null) {
         const decl = node.declaration;
         if (decl.type !== 'VariableDeclaration') {
           // FunctionDeclaration or ClassDeclaration — always locally defined, not a re-export.

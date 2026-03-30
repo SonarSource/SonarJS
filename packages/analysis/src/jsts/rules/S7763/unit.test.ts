@@ -33,7 +33,7 @@ describe('S7763 upstream sentinel', () => {
         {
           // Default import re-exported as-is — suppressed by decorator (JS-888), raised by upstream
           code: `import foo from './foo';\nexport { foo };`,
-          output: `\n\nexport {foo} from './foo';`,
+          output: `\n\nexport {default as foo} from './foo';`,
           errors: 1,
         },
       ],
