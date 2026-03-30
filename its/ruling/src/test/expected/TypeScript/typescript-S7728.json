@@ -42,10 +42,5 @@
 "TypeScript:src/harness/test262Runner.ts": [
 113,
 118
-],
-"TypeScript:src/services/formatting/rulesMap.ts": [
-32,
-46,
-47
 ]
 }
