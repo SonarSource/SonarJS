@@ -137,7 +137,7 @@ Instead:
 
 **Step 5 — Read the classification guide and triage all logs**
 
-Read `docs/peach-main-analysis.md` once to load the failure categories and decision flowchart.
+Read `docs/peach-main-analysis.md` (at the repository root) once to load the failure categories and decision flowchart.
 
 Create the work directory where logs will be stored for inspection:
 
@@ -279,5 +279,5 @@ The release recommendation is:
 **Step 9 — Update docs if a new failure pattern was found**
 
 If any job was classified as NEEDS-MANUAL-REVIEW and you identified its root cause during this
-session, update `docs/peach-main-analysis.md` with a new category entry. This keeps the
+session, update `docs/peach-main-analysis.md` (at the repository root) with a new category entry. This keeps the
 classification guide current for future runs.
