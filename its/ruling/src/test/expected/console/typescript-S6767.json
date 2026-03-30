@@ -1,9 +1,4 @@
 {
-"console:src/components/Header/Header.tsx": [
-8,
-9,
-10
-],
 "console:src/components/InfiniteTable/InfiniteTable.tsx": [
 13,
 17,
@@ -12,9 +7,6 @@
 "console:src/components/Links.tsx": [
 9,
 12
-],
-"console:src/components/NodeSelector/NodeSelector.tsx": [
-17
 ],
 "console:src/components/ProjectSelection/ProjectSelection.tsx": [
 32,
@@ -25,9 +17,6 @@
 ],
 "console:src/components/ToggleButton/ToggleButton.tsx": [
 19
-],
-"console:src/components/onboarding/OnboardingPopup/OnboardingPopup.tsx": [
-15
 ],
 "console:src/views/FunctionsView/FunctionPopup/Trigger.tsx": [
 14
@@ -49,10 +38,6 @@
 22,
 28
 ],
-"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopupIndexes.tsx": [
-14,
-16
-],
 "console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
 34,
 35,
@@ -65,16 +50,6 @@
 35,
 36,
 40
-],
-"console:src/views/ProjectRootView/OnboardSideNav.tsx": [
-14,
-15
-],
-"console:src/views/ProjectRootView/Onboarding/FinalPopup.tsx": [
-12
-],
-"console:src/views/ProjectRootView/Onboarding/SelectExample.tsx": [
-11
 ],
 "console:src/views/ProjectRootView/ProjectRootView.tsx": [
 46
@@ -98,21 +73,8 @@
 28,
 29
 ],
-"console:src/views/SchemaView/EnumsOverview/AddEnum.tsx": [
-40,
-41,
-42
-],
 "console:src/views/SchemaView/EnumsOverview/ConfirmEnum.tsx": [
 15
-],
-"console:src/views/SchemaView/EnumsOverview/EnumBox.tsx": [
-23,
-27,
-28
-],
-"console:src/views/SchemaView/EnumsOverview/EnumsOverview.tsx": [
-12
 ],
 "console:src/views/SchemaView/EnumsOverview/EnumsOverviewHeader.tsx": [
 5
@@ -127,16 +89,10 @@
 "console:src/views/SchemaView/SchemaOverview/SchemaOverviewHeader.tsx": [
 8
 ],
-"console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
-25
-],
 "console:src/views/Settings/Billing/Billing.tsx": [
 41,
 42,
 46
-],
-"console:src/views/Settings/Billing/ChangePricingPlan.tsx": [
-11
 ],
 "console:src/views/Settings/Billing/CreditCardBack.tsx": [
 9,
@@ -163,9 +119,6 @@
 ],
 "console:src/views/models/DatabrowserView/CheckboxCell.tsx": [
 9
-],
-"console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
-20
 ],
 "console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
 66,
@@ -197,9 +150,6 @@
 "console:src/views/models/ModelHeader.tsx": [
 35,
 37
-],
-"console:src/views/playground/PlaygroundView/CodeGenerationPopup/CodeGenerationPopup.tsx": [
-19
 ],
 "console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
 67,
