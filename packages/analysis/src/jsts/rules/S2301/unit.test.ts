@@ -82,6 +82,21 @@ class Player {
           errors: 1,
         },
         {
+          // JS-1481: computed property key that happens to match on[A-Z] is NOT exempted — runtime name is unknown
+          code: `
+const onChange = 'someKey';
+const handler = {
+  [onChange]: (result: boolean) => {
+    if (result) {
+      onSuccess();
+    } else {
+      onFailure();
+    }
+  },
+};`,
+          errors: 1,
+        },
+        {
           name: 'RSPEC non-compliant code example',
           code: `function tempt1(name: string, ofAge: boolean) {
   if (ofAge) {
