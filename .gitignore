@@ -78,3 +78,6 @@ lcov.info
 .claude/*
 !.claude/*.md
 !.claude/skills/
+
+.codex/
+.mcp.json
