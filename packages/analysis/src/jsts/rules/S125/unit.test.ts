@@ -134,6 +134,31 @@ describe('S125', () => {
             // YUI().use('*'); // Comment following ';'
         `,
         },
+        {
+          // FP: "e.g." prefix is a documentation example, not dead code
+          code: `// e.g. step.where(condition === true);`,
+        },
+        {
+          // FP: multi-line block starting with "examples:" is documentation, not dead code
+          code: `
+// examples:
+// convertValue(42);
+// convertValue("hello");
+// convertValue(true);
+          `,
+        },
+        {
+          // FP: "for example" prefix is a documentation example
+          code: `// for example step.where(condition);`,
+        },
+        {
+          // FP: "Example:" prefix (case-insensitive) is a documentation example
+          code: `// Example: foo(bar);`,
+        },
+        {
+          // FP: "e.g:" colon variant is a documentation example
+          code: `// e.g: step.where(condition);`,
+        },
       ],
       invalid: [
         {
