@@ -320,14 +320,13 @@ function matchesFunctionProps(
   // TypeScript derives the parameter type from the destructuring pattern in that case,
   // producing an incomplete type that fails the mutual-assignability check.
   const annotatedParamType = getAnnotationBasedPropsType(tsFuncNode, checker);
-  if (annotatedParamType != null) {
-    // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-    if (
-      checker.isTypeAssignableTo(propsType, annotatedParamType) &&
-      checker.isTypeAssignableTo(annotatedParamType, propsType)
-    ) {
-      return true;
-    }
+  // @ts-ignore — isTypeAssignableTo is a private TypeScript API
+  if (
+    annotatedParamType != null &&
+    checker.isTypeAssignableTo(propsType, annotatedParamType) &&
+    checker.isTypeAssignableTo(annotatedParamType, propsType)
+  ) {
+    return true;
   }
 
   // Phase 2 — signature-based approach for functions typed via their parameter list
