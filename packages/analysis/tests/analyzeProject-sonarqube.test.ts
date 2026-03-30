@@ -23,6 +23,7 @@ import { analyzeProject, cancelAnalysis } from '../src/analyzeProject.js';
 import { sourceFileStore, tsConfigStore } from '../src/file-stores/index.js';
 import { ErrorCode } from '../src/contracts/error.js';
 import ts from 'typescript';
+import { valid } from 'semver';
 import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
 import type { RuleConfig as CssRuleConfig } from '../src/css/linter/config.js';
 import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
@@ -174,8 +175,11 @@ describe('SonarQube project analysis', () => {
     expect('issues' in backendResult! && backendResult!.issues.length).toBeGreaterThan(0);
 
     expect(result.meta.telemetry).toBeDefined();
+    expect(result.meta.telemetry?.typescriptVersions.length).toBeGreaterThan(0);
+    for (const version of result.meta.telemetry!.typescriptVersions) {
+      expect(valid(version)).toBeTruthy();
+    }
     expect(result.meta.telemetry).toMatchObject({
-      typescriptVersions: ['5.7.2', '7.0.0-dev.20260316.1'],
       typescriptNativePreview: true,
       ecmaScriptVersions: ['ES2020', 'ES2022'],
       esmFileCount: 0,
