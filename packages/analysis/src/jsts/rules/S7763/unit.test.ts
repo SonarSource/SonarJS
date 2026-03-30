@@ -25,18 +25,15 @@ const ruleTester = new NoTypeCheckingRuleTester();
 // If this test starts failing (i.e., the upstream rule no longer reports these patterns),
 // it signals that the decorator can be safely removed.
 describe('S7763 upstream sentinel', () => {
-  it('upstream prefer-export-from raises on export-const-alias patterns that decorator suppresses', () => {
+  it('upstream prefer-export-from raises on default-import re-export patterns that decorator suppresses', () => {
     const upstreamRule = rules['prefer-export-from'];
     ruleTester.run('prefer-export-from', upstreamRule, {
       valid: [],
       invalid: [
         {
-          // export const alias = importedThing — suppressed by decorator, raised by upstream
-          code: `import { updateStatus } from './status-service';
-export const updateStatusHandler = updateStatus;`,
-          output: `
-
-export {updateStatus as updateStatusHandler} from './status-service';`,
+          // Default import re-exported as-is — suppressed by decorator (JS-888), raised by upstream
+          code: `import foo from './foo';\nexport { foo };`,
+          output: `\n\nexport {foo} from './foo';`,
           errors: 1,
         },
       ],
@@ -61,62 +58,53 @@ describe('S7763', () => {
         },
         // Default import re-exported as default
         { code: `import foo from './foo';\nexport default foo;` },
-        // JS-1475: export const alias = importedThing should NOT be flagged
-        {
-          code: `import { updateStatus } from './status-service';
-export const updateStatusHandler = updateStatus;`,
-        },
-        // Multiple export const aliases (constants/adapter file pattern)
-        {
-          code: `import { getEscalationStatusQuery } from './escalation-queries';
-import { updateEscalationStatusMutation } from './escalation-mutations';
-export const escalationStatusQuery = getEscalationStatusQuery;
-export const escalationStatusMutation = updateEscalationStatusMutation;`,
-        },
-        // Adapter/facade: locally-defined public names for imported implementations
-        {
-          code: `import { readFile } from './file-reader';
-import { writeFile } from './file-writer';
-export const load = readFile;
-export const save = writeFile;`,
-        },
-        // Locally defined export is not a re-export candidate
+        // JS-1475: locally defined export is not a re-export candidate
         {
           code: `function processData() { return 42; }
 export { processData };`,
         },
-        // Namespace import aliased via export const should NOT be flagged
-        // Pattern: import * as _Foo from './foo'; export const Foo = _Foo
+        // JS-1475: export const alias = defaultImport should NOT be flagged
+        // Creating a named alias for a default import is intentional (meaningful naming)
         {
-          code: `import * as _AllIcons from './svgs';
-export const AllIcons = _AllIcons;`,
+          code: `import foo from './foo';
+export const bar = foo;`,
+        },
+        // JS-1475: export const with a local (non-imported) variable should NOT be flagged
+        {
+          code: `const localValue = 42;
+export const exported = localValue;`,
         },
       ],
       invalid: [
         // Named imports should still be flagged
         {
-          code: `import { named } from './foo';
-export { named };`,
-          output: `
-
-export {named} from './foo';`,
+          code: `import { named } from './foo';\nexport { named };`,
+          output: `\n\nexport {named} from './foo';`,
           errors: 1,
         },
         {
-          code: `import { named as alias } from './foo';
-export { alias };`,
-          output: `
-
-export {named as alias} from './foo';`,
+          code: `import { named as alias } from './foo';\nexport { alias };`,
+          output: `\n\nexport {named as alias} from './foo';`,
           errors: 1,
         },
         // Namespace imports should still be flagged
         {
-          code: `import * as ns from './foo';
-export { ns };`,
-          output: `
-
-export * as ns from './foo';`,
+          code: `import * as ns from './foo';\nexport { ns };`,
+          output: `\n\nexport * as ns from './foo';`,
+          errors: 1,
+        },
+        // JS-1475: export const alias = namedImport should still be flagged
+        // `import {x}...; export const y = x` CAN be rewritten as `export { x as y } from '...'`
+        {
+          code: `import { updateStatus } from './status-service';\nexport const updateStatusHandler = updateStatus;`,
+          output: `\n\nexport {updateStatus as updateStatusHandler} from './status-service';`,
+          errors: 1,
+        },
+        // Namespace import alias should still be flagged
+        // `import * as ns...; export const N = ns` CAN be rewritten as `export * as N from '...'`
+        {
+          code: `import * as _AllIcons from './svgs';\nexport const AllIcons = _AllIcons;`,
+          output: `\n\nexport * as AllIcons from './svgs';`,
           errors: 1,
         },
       ],

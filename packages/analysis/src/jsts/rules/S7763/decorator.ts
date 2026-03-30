@@ -25,10 +25,14 @@ import * as meta from './generated-meta.js';
 /**
  * S7763 is the unicorn/prefer-export-from rule.
  * This decorator suppresses false positives for locally defined exports:
- *   - `export const alias = importedThing`, `export function foo() {}`, `export class Foo {}`
- *     (ExportNamedDeclaration with any declaration — all are locally defined, not re-exports)
+ *   - `export function foo() {}`, `export class Foo {}` (always locally defined, not re-exports)
+ *   - `export const alias = defaultImport` (default import alias — intentional naming, keep as-is)
+ *   - `export const alias = localVar` (local variable — not a re-export candidate)
  *   - `export { locallyDefinedFn }` (identifier not found in any import specifier)
  *   - re-exporting default imports (e.g. `import foo from './foo'; export { foo }`)
+ *
+ * Named and namespace import aliases (e.g. `import {x}...; export const y = x` or
+ * `import * as ns...; export const N = ns`) are still reported as genuine re-export candidates.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -43,18 +47,38 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      // Suppress ExportNamedDeclaration with any declaration (e.g. `export const alias = importedThing`,
-      // `export function foo() {}`, `export class Foo {}`). All of these are locally defined bindings,
-      // not re-exports — regardless of whether the declaration is a VariableDeclaration, FunctionDeclaration,
-      // or ClassDeclaration. Suppressing all is intentional: none of these can be simplified to `export…from`.
+      // For ExportNamedDeclaration with a declaration, handle selectively:
+      // - FunctionDeclaration and ClassDeclaration are always locally defined — suppress.
+      // - VariableDeclaration: suppress only if no declarator's init is a named/namespace import.
+      //   e.g. `import {x} from '...'; export const y = x` CAN be rewritten as
+      //   `export { x as y } from '...'` — this is a genuine re-export candidate.
       if (node.type === 'ExportNamedDeclaration' && node.declaration !== null) {
+        const decl = node.declaration;
+        if (decl.type !== 'VariableDeclaration') {
+          // FunctionDeclaration or ClassDeclaration — always locally defined, not a re-export.
+          return;
+        }
+        // Check if any declarator's init identifier maps to a named/namespace import.
+        for (const declarator of decl.declarations) {
+          if (declarator.init?.type === 'Identifier') {
+            const kind = getImportKind(context.sourceCode, declarator.init.name);
+            if (kind === 'named') {
+              // Named or namespace import alias — genuine re-export candidate.
+              context.report(reportDescriptor);
+              return;
+            }
+          }
+        }
+        // No named/namespace import: local variable or default import alias — suppress.
         return;
       }
 
       const identifierName = getReportedIdentifierName(node);
 
-      // Defensive: if the identifier cannot be extracted, suppress to avoid FPs.
+      // Fail-open for unknown report node shapes: report rather than silently drop,
+      // to avoid losing detection if the upstream rule changes its reported nodes.
       if (!identifierName) {
+        context.report(reportDescriptor);
         return;
       }
 
