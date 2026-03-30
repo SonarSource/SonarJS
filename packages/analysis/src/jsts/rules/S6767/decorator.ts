@@ -144,14 +144,13 @@ function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean 
   }
 
   // Check if this is a CallExpression with props as argument
-  if (root.type === 'CallExpression') {
-    if (
-      root.callee.type !== 'Super' &&
-      !isPropTypesCheckCall(root) &&
-      root.arguments.some(a => propsArgPatterns.some(p => p(a)))
-    ) {
-      return true;
-    }
+  if (
+    root.type === 'CallExpression' &&
+    root.callee.type !== 'Super' &&
+    !isPropTypesCheckCall(root) &&
+    root.arguments.some(a => propsArgPatterns.some(p => p(a)))
+  ) {
+    return true;
   }
 
   // Check if this is a SpreadElement with props (for {...props} in JSX)
@@ -210,7 +209,7 @@ function getComponentName(node: estree.Node): string | null {
  * Handles curried HOCs like connect(mapState)(MyComponent) and single HOCs like withRouter(MyComponent).
  */
 function getHocWrappedComponentName(call: estree.CallExpression): string | null {
-  const arg = call.arguments[0] as estree.Node | undefined;
+  const arg = call.arguments[0];
   if (!arg || arg.type === 'SpreadElement') {
     return null;
   }
