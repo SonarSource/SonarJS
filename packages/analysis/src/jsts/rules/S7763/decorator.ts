@@ -24,14 +24,15 @@ import * as meta from './generated-meta.js';
 
 /**
  * S7763 is the unicorn/prefer-export-from rule.
- * This decorator adds an exception for re-exporting default imports.
+ * This decorator suppresses false positives for locally defined exports:
+ *   - `export function foo() {}`, `export class Foo {}` (always locally defined, not re-exports)
+ *   - `export const alias = defaultImport` (default import alias — intentional naming, keep as-is)
+ *   - `export const alias = localVar` (local variable — not a re-export candidate)
+ *   - `export { locallyDefinedFn }` (identifier not found in any import specifier)
+ *   - re-exporting default imports (e.g. `import foo from './foo'; export { foo }`)
  *
- * When you import a default export and give it a meaningful name during re-export,
- * the two-step pattern may provide better IDE refactoring support.
- *
- * Example that should NOT be flagged after this fix:
- *   import { default as foo } from './foo';
- *   export { foo };
+ * Named and namespace import aliases (e.g. `import {x}...; export const y = x` or
+ * `import * as ns...; export const N = ns`) are still reported as genuine re-export candidates.
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -46,10 +47,43 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
+      // For ExportNamedDeclaration with a declaration, handle selectively:
+      // - FunctionDeclaration and ClassDeclaration are always locally defined — suppress.
+      // - VariableDeclaration: suppress only if no declarator's init is a named/namespace import.
+      //   e.g. `import {x} from '...'; export const y = x` CAN be rewritten as
+      //   `export { x as y } from '...'` — this is a genuine re-export candidate.
+      if (node.type === 'ExportNamedDeclaration' && node.declaration != null) {
+        const decl = node.declaration;
+        if (decl.type !== 'VariableDeclaration') {
+          // FunctionDeclaration or ClassDeclaration — always locally defined, not a re-export.
+          return;
+        }
+        // Check if any declarator's init identifier maps to a named/namespace import.
+        for (const declarator of decl.declarations) {
+          if (declarator.init?.type === 'Identifier') {
+            const kind = getImportKind(context.sourceCode, declarator.init.name);
+            if (kind === 'named') {
+              // Named or namespace import alias — genuine re-export candidate.
+              context.report(reportDescriptor);
+              return;
+            }
+          }
+        }
+        // No named/namespace import: local variable or default import alias — suppress.
+        return;
+      }
+
       const identifierName = getReportedIdentifierName(node);
 
-      // Suppress the report for default import re-exports
-      if (identifierName && isDefaultImport(context.sourceCode, identifierName)) {
+      // Fail-open for unknown report node shapes: report rather than silently drop,
+      // to avoid losing detection if the upstream rule changes its reported nodes.
+      if (!identifierName) {
+        context.report(reportDescriptor);
+        return;
+      }
+
+      const importKind = getImportKind(context.sourceCode, identifierName);
+      if (!importKind || importKind === 'default') {
         return;
       }
 
@@ -77,56 +111,34 @@ function getReportedIdentifierName(node: estree.Node): string | undefined {
 }
 
 /**
- * Checks if the given identifier name comes from a default import.
+ * Returns the import kind for an identifier name, or null if not imported.
  *
- * Matches patterns like:
- *   import foo from './foo';           // foo is the default import
- *   import { default as foo } from './foo';  // foo is aliased from default
+ * Returns 'default' for:
+ *   import foo from './foo';                    // ImportDefaultSpecifier
+ *   import { default as foo } from './foo';     // ImportSpecifier with imported name 'default'
+ * Returns 'named' for any other import specifier.
+ * Returns null if the identifier is not found in any import declaration.
  */
-function isDefaultImport(sourceCode: SourceCode, identifierName: string): boolean {
+function getImportKind(sourceCode: SourceCode, identifierName: string): 'default' | 'named' | null {
   for (const node of sourceCode.ast.body) {
-    if (node.type === 'ImportDeclaration' && hasDefaultImportFor(node, identifierName)) {
-      return true;
+    if (node.type !== 'ImportDeclaration') {
+      continue;
+    }
+    for (const specifier of node.specifiers) {
+      if (specifier.local.name !== identifierName) {
+        continue;
+      }
+      if (
+        specifier.type === 'ImportDefaultSpecifier' ||
+        (specifier.type === 'ImportSpecifier' &&
+          (specifier.imported.type === 'Identifier'
+            ? specifier.imported.name
+            : String(specifier.imported.value)) === 'default')
+      ) {
+        return 'default';
+      }
+      return 'named';
     }
   }
-  return false;
-}
-
-/**
- * Checks if an import declaration has a default import for the given identifier name.
- */
-function hasDefaultImportFor(node: estree.ImportDeclaration, identifierName: string): boolean {
-  for (const specifier of node.specifiers) {
-    if (isMatchingDefaultImport(specifier, identifierName)) {
-      return true;
-    }
-  }
-  return false;
-}
-
-/**
- * Checks if a specifier is a default import matching the identifier name.
- */
-function isMatchingDefaultImport(
-  specifier:
-    | estree.ImportSpecifier
-    | estree.ImportDefaultSpecifier
-    | estree.ImportNamespaceSpecifier,
-  identifierName: string,
-): boolean {
-  // Check for: import foo from './foo'
-  if (specifier.type === 'ImportDefaultSpecifier') {
-    return specifier.local.name === identifierName;
-  }
-
-  // Check for: import { default as foo } from './foo'
-  if (specifier.type === 'ImportSpecifier' && specifier.local.name === identifierName) {
-    const importedName =
-      specifier.imported.type === 'Identifier'
-        ? specifier.imported.name
-        : String(specifier.imported.value);
-    return importedName === 'default';
-  }
-
-  return false;
+  return null;
 }
