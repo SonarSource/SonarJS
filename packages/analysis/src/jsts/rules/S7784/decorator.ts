@@ -87,8 +87,8 @@ function isJsonStringifyCall(node: estree.Node): boolean {
     callee.type === 'MemberExpression' &&
     !callee.computed &&
     callee.object.type === 'Identifier' &&
-    (callee.object as estree.Identifier).name === 'JSON' &&
+    callee.object.name === 'JSON' &&
     callee.property.type === 'Identifier' &&
-    (callee.property as estree.Identifier).name === 'stringify'
+    callee.property.name === 'stringify'
   );
 }
