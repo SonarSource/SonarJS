@@ -13,15 +13,10 @@
 "knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
 99
 ],
-"knockout:src/subscribables/observableArray.changeTracking.js": [
-123
-],
 "knockout:src/templating/templating.js": [
 270
 ],
 "knockout:src/utils.js": [
-232,
-252,
-252
+232
 ]
 }

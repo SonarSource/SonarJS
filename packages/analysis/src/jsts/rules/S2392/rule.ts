@@ -16,12 +16,51 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2392/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { last } from '../helpers/collection.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
+
+function isForLoopNode(node: { type?: string } | null | undefined): boolean {
+  return (
+    node?.type === 'ForStatement' ||
+    node?.type === 'ForInStatement' ||
+    node?.type === 'ForOfStatement'
+  );
+}
+
+function getOtherLoopRanges(
+  variable: Scope.Variable,
+  varDeclaration: estree.VariableDeclaration,
+): [number, number][] {
+  const ranges: [number, number][] = [];
+  for (const def of variable.defs) {
+    if (varDeclaration.declarations.includes(def.node as estree.VariableDeclarator)) {
+      continue;
+    }
+    const loopNode = (def.node as unknown as { parent?: { parent?: estree.Node } }).parent?.parent;
+    const loopRange = loopNode?.range;
+    if (isForLoopNode(loopNode) && loopRange) {
+      ranges.push(loopRange);
+    }
+  }
+  return ranges;
+}
+
+function isCoveredByOtherLoops(
+  referencesOutside: estree.Identifier[],
+  otherLoopRanges: [number, number][],
+): boolean {
+  if (otherLoopRanges.length === 0) {
+    return false;
+  }
+  return referencesOutside.every(ref => {
+    const range = ref.range;
+    return range !== undefined && otherLoopRanges.some(([s, e]) => range[0] >= s && range[1] <= e);
+  });
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
@@ -75,8 +114,18 @@ export const rule: Rule.RuleModule = {
           if (referencesOutside.length === 0) {
             continue;
           }
+
+          const varDeclParent = (varDeclaration as unknown as { parent?: { type?: string } })
+            .parent;
+          if (isForLoopNode(varDeclParent)) {
+            const otherLoopRanges = getOtherLoopRanges(variable, varDeclaration);
+            if (isCoveredByOtherLoops(referencesOutside, otherLoopRanges)) {
+              continue;
+            }
+          }
+
           const definition = variable.defs.find(def =>
-            varDeclaration.declarations.includes(def.node),
+            varDeclaration.declarations.includes(def.node as estree.VariableDeclarator),
           );
           if (definition && !reported.includes(definition.name)) {
             report(
