@@ -17,7 +17,7 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
-import type ts from 'typescript';
+import ts from 'typescript';
 import { childrenOf } from './ancestor.js';
 import { isIdentifier } from './ast.js';
 import { isRequiredParserServices } from './parser-services.js';
@@ -273,6 +273,34 @@ function matchesClassProps(
  * inference problem.  Phase 2 falls back to the signature-based approach for plain typed
  * parameters (e.g. `function Foo(props: FooProps)`).
  */
+
+/**
+ * Phase 1 helper for `matchesFunctionProps`: extracts the props type from the
+ * `React.FC<Props>` annotation on the parent VariableDeclarator when `tsFuncNode`
+ * is used as the initializer. Returns null if the pattern is not matched.
+ */
+function getAnnotationBasedPropsType(
+  tsFuncNode: ts.SignatureDeclaration,
+  checker: ts.TypeChecker,
+): ts.Type | null {
+  const parentNode = tsFuncNode.parent;
+  if (
+    !ts.isVariableDeclaration(parentNode) ||
+    parentNode.initializer !== (tsFuncNode as unknown as ts.Expression)
+  ) {
+    return null;
+  }
+  const typeNode = parentNode.type;
+  if (typeNode == null || !ts.isTypeReferenceNode(typeNode)) {
+    return null;
+  }
+  const typeArgs = typeNode.typeArguments;
+  if (typeArgs == null || typeArgs.length === 0) {
+    return null;
+  }
+  return checker.getTypeAtLocation(typeArgs[0]);
+}
+
 function matchesFunctionProps(
   componentNode: estree.Node,
   tsFuncNode: ts.SignatureDeclaration,
@@ -291,21 +319,14 @@ function matchesFunctionProps(
   // parameter type.  This is more reliable when module imports are unresolved, because
   // TypeScript derives the parameter type from the destructuring pattern in that case,
   // producing an incomplete type that fails the mutual-assignability check.
-  const parent = (tsFuncNode as any).parent;
-  if (parent != null && (parent as any).initializer === tsFuncNode) {
-    const typeNode = (parent as any).type;
-    if (typeNode != null) {
-      const typeArgs = (typeNode as any).typeArguments as ts.TypeNode[] | undefined;
-      if (typeArgs && typeArgs.length > 0) {
-        const annotatedParamType = checker.getTypeAtLocation(typeArgs[0]);
-        // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-        if (
-          checker.isTypeAssignableTo(propsType, annotatedParamType) &&
-          checker.isTypeAssignableTo(annotatedParamType, propsType)
-        ) {
-          return true;
-        }
-      }
+  const annotatedParamType = getAnnotationBasedPropsType(tsFuncNode, checker);
+  if (annotatedParamType != null) {
+    // @ts-ignore — isTypeAssignableTo is a private TypeScript API
+    if (
+      checker.isTypeAssignableTo(propsType, annotatedParamType) &&
+      checker.isTypeAssignableTo(annotatedParamType, propsType)
+    ) {
+      return true;
     }
   }
 

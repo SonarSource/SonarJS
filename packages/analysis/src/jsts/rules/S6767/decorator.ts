@@ -145,11 +145,10 @@ function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean 
 
   // Check if this is a CallExpression with props as argument
   if (root.type === 'CallExpression') {
-    const call = root as estree.CallExpression;
     if (
-      call.callee.type !== 'Super' &&
-      !isPropTypesCheckCall(call) &&
-      call.arguments.some(a => propsArgPatterns.some(p => p(a as estree.Node)))
+      root.callee.type !== 'Super' &&
+      !isPropTypesCheckCall(root) &&
+      root.arguments.some(a => propsArgPatterns.some(p => p(a)))
     ) {
       return true;
     }
@@ -192,12 +191,12 @@ function isPropTypesCheckCall(call: estree.CallExpression): boolean {
 /** Extract the component identifier name from the component node. */
 function getComponentName(node: estree.Node): string | null {
   if (node.type === 'ClassDeclaration' || node.type === 'FunctionDeclaration') {
-    return (node as estree.ClassDeclaration | estree.FunctionDeclaration).id?.name ?? null;
+    return node.id?.name ?? null;
   }
   if (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') {
     const parent = getNodeParent(node);
     if (parent?.type === 'VariableDeclarator') {
-      const { id } = parent as estree.VariableDeclarator;
+      const { id } = parent;
       if (id.type === 'Identifier') {
         return id.name;
       }
@@ -215,11 +214,11 @@ function getHocWrappedComponentName(call: estree.CallExpression): string | null 
   if (!arg || arg.type === 'SpreadElement') {
     return null;
   }
-  if (arg.type === 'Identifier' && /^[A-Z]/.test((arg as estree.Identifier).name)) {
-    return (arg as estree.Identifier).name;
+  if (arg.type === 'Identifier' && /^[A-Z]/.test(arg.name)) {
+    return arg.name;
   }
   if (arg.type === 'CallExpression') {
-    return getHocWrappedComponentName(arg as estree.CallExpression);
+    return getHocWrappedComponentName(arg);
   }
   return null;
 }
@@ -233,10 +232,9 @@ const hocExportPatterns: Array<(stmt: ProgramStatement, name: string) => boolean
     if (stmt.type !== 'ExportDefaultDeclaration') {
       return false;
     }
-    const { declaration } = stmt as estree.ExportDefaultDeclaration;
+    const { declaration } = stmt;
     return (
-      declaration.type === 'CallExpression' &&
-      getHocWrappedComponentName(declaration as estree.CallExpression) === name
+      declaration.type === 'CallExpression' && getHocWrappedComponentName(declaration) === name
     );
   },
   // Pattern 2: export const X = HOC(Comp)
@@ -244,14 +242,12 @@ const hocExportPatterns: Array<(stmt: ProgramStatement, name: string) => boolean
     if (stmt.type !== 'ExportNamedDeclaration') {
       return false;
     }
-    const { declaration } = stmt as estree.ExportNamedDeclaration;
+    const { declaration } = stmt;
     if (declaration?.type !== 'VariableDeclaration') {
       return false;
     }
     return declaration.declarations.some(
-      d =>
-        d.init?.type === 'CallExpression' &&
-        getHocWrappedComponentName(d.init as estree.CallExpression) === name,
+      d => d.init?.type === 'CallExpression' && getHocWrappedComponentName(d.init) === name,
     );
   },
   // Pattern 3: module.exports = HOC(Comp)
@@ -259,7 +255,7 @@ const hocExportPatterns: Array<(stmt: ProgramStatement, name: string) => boolean
     if (stmt.type !== 'ExpressionStatement') {
       return false;
     }
-    const { expression } = stmt as estree.ExpressionStatement;
+    const { expression } = stmt;
     if (expression.type !== 'AssignmentExpression') {
       return false;
     }
@@ -271,10 +267,7 @@ const hocExportPatterns: Array<(stmt: ProgramStatement, name: string) => boolean
     ) {
       return false;
     }
-    return (
-      right.type === 'CallExpression' &&
-      getHocWrappedComponentName(right as estree.CallExpression) === name
-    );
+    return right.type === 'CallExpression' && getHocWrappedComponentName(right) === name;
   },
 ];
 
@@ -291,15 +284,16 @@ function isExportedViaHoc(componentName: string, body: ProgramStatement[]): bool
   // Phase 2: two-statement form — const X = HOC(Comp); export { X } or export default X
   const hocWrappedNames = new Set<string>();
   for (const stmt of body) {
-    if (stmt.type === 'VariableDeclaration') {
-      for (const declarator of (stmt as estree.VariableDeclaration).declarations) {
-        if (
-          declarator.id.type === 'Identifier' &&
-          declarator.init?.type === 'CallExpression' &&
-          getHocWrappedComponentName(declarator.init as estree.CallExpression) === componentName
-        ) {
-          hocWrappedNames.add(declarator.id.name);
-        }
+    if (stmt.type !== 'VariableDeclaration') {
+      continue;
+    }
+    for (const declarator of stmt.declarations) {
+      if (
+        declarator.id.type === 'Identifier' &&
+        declarator.init?.type === 'CallExpression' &&
+        getHocWrappedComponentName(declarator.init) === componentName
+      ) {
+        hocWrappedNames.add(declarator.id.name);
       }
     }
   }
@@ -310,20 +304,16 @@ function isExportedViaHoc(componentName: string, body: ProgramStatement[]): bool
 
   return body.some(stmt => {
     if (stmt.type === 'ExportNamedDeclaration') {
-      const named = stmt as estree.ExportNamedDeclaration;
       return (
-        named.declaration == null &&
-        named.specifiers.some(
+        stmt.declaration == null &&
+        stmt.specifiers.some(
           s => s.local.type === 'Identifier' && hocWrappedNames.has(s.local.name),
         )
       );
     }
     if (stmt.type === 'ExportDefaultDeclaration') {
-      const { declaration } = stmt as estree.ExportDefaultDeclaration;
-      return (
-        declaration.type === 'Identifier' &&
-        hocWrappedNames.has((declaration as estree.Identifier).name)
-      );
+      const { declaration } = stmt;
+      return declaration.type === 'Identifier' && hocWrappedNames.has(declaration.name);
     }
     return false;
   });
