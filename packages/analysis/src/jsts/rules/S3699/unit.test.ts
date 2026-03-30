@@ -23,6 +23,7 @@ describe('S3699', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     const FUNCTION_NO_RETURN = 'function noReturn() { }\n ';
+    const FUNCTION_NO_RETURN_WITH_BODY = 'function noReturn() { 1; }\n ';
 
     ruleTester.run('no-use-of-empty-return-value', rule, {
       valid: [
@@ -53,6 +54,18 @@ describe('S3699', () => {
         { code: 'function* noReturn() { yield 1; } noReturn().next();' },
         { code: 'function* noReturn() { yield 1; } noReturn();' },
         { code: 'declare function withReturn(): number; let x = withReturn();' },
+        // sequence as ExpressionStatement: void call is last but no value is consumed
+        { code: FUNCTION_NO_RETURN_WITH_BODY + '(doSomething(), noReturn());' },
+        // sequence in ternary alternate used as statement
+        { code: FUNCTION_NO_RETURN_WITH_BODY + 'cond ? (x = 5) : (x = 0, noReturn());' },
+        // sequence in ternary consequent used as statement
+        {
+          code: FUNCTION_NO_RETURN_WITH_BODY + 'cond ? (doSomething(), noReturn()) : (x = false);',
+        },
+        // sequence as right-hand side of || used as statement
+        { code: FUNCTION_NO_RETURN_WITH_BODY + 'cond || (doSomething(), noReturn());' },
+        // sequence as right-hand side of && used as statement
+        { code: FUNCTION_NO_RETURN_WITH_BODY + 'cond && (doSomething(), noReturn());' },
       ],
       invalid: [
         invalidPrefixWithFunction('console.log(noReturn());'),
@@ -74,6 +87,8 @@ describe('S3699', () => {
         invalid('declare function noReturn(): never; let x = noReturn();'),
         invalid('declare function noReturn(): void; let x = noReturn();'),
         invalid('declare function noReturn(): undefined; let x = noReturn();'),
+        // sequence return value IS consumed: void call is last, but sequence is assigned
+        invalidPrefixWithFunction('let x = (doSomething(), noReturn());'),
       ],
     });
   });
