@@ -15,11 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { beforeEach, describe, it, Mock } from 'node:test';
-import { tsConfigStore, sourceFileStore, initFileStores } from '../../../src/file-stores/index.js';
+import { tsConfigStore, sourceFileStore, initFileStores } from '../src/file-stores/index.js';
 import { expect } from 'expect';
 import { join, relative } from 'node:path/posix';
-import { normalizePath, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { createConfiguration } from '../../../src/common/configuration.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { createConfiguration } from '../src/common/configuration.js';
 
 const fixtures = normalizeToAbsolutePath(
   join(normalizePath(import.meta.dirname), 'fixtures-tsconfigs'),

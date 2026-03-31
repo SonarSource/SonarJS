@@ -17,20 +17,20 @@
 import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { join, dirname } from 'node:path/posix';
-import { initFileStores, packageJsonStore } from '../../../src/file-stores/index.js';
+import { initFileStores, packageJsonStore } from '../src/file-stores/index.js';
 import { readFile } from 'node:fs/promises';
-import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { createConfiguration } from '../../../src/common/configuration.js';
-import { UNINITIALIZED_ERROR } from '../../../src/file-stores/package-jsons.js';
+import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { createConfiguration } from '../src/common/configuration.js';
+import { UNINITIALIZED_ERROR } from '../src/file-stores/package-jsons.js';
 import {
   dependenciesCache,
   getDependencies,
   getModuleType,
   moduleTypeCache,
-} from '../../../src/jsts/rules/helpers/package-jsons/dependencies.js';
-import { closestPatternCache } from '../../../src/jsts/rules/helpers/find-up/closest.js';
-import { PACKAGE_JSON } from '../../../src/jsts/rules/helpers/package-jsons/index.js';
-import { patternInParentsCache } from '../../../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
+} from '../src/jsts/rules/helpers/package-jsons/dependencies.js';
+import { closestPatternCache } from '../src/jsts/rules/helpers/find-up/closest.js';
+import { PACKAGE_JSON } from '../src/jsts/rules/helpers/package-jsons/index.js';
+import { patternInParentsCache } from '../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
 
 const closestPackageJsonCache = closestPatternCache.get(PACKAGE_JSON);
 const packageJsonsInParentsCache = patternInParentsCache.get(PACKAGE_JSON);
