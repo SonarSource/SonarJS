@@ -151,21 +151,6 @@ describe('S2871', () => {
           {
             code: `Array.prototype.sort.apply([1, 2, 10])`,
           },
-          // Compliant: order-independent comparison suppressed before type check
-          {
-            code: `
-      function f(a: string[], b: string[]) {
-        return a.sort() === b.sort();
-      }
-    `,
-          },
-          {
-            code: `
-      function f(a: string[], b: string[]) {
-        return a.sort() !== b.sort();
-      }
-    `,
-          },
           // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (provably technical strings)
           {
             code: `const keys = Object.keys({ a: 1, b: 2 }).sort();`,
@@ -202,21 +187,6 @@ describe('S2871', () => {
       for (var key in obj) props.push(key);
       if (props.length === 0) return;
       props.sort();
-    `,
-          },
-          // Compliant: number array in order-independent equality comparison
-          {
-            code: `
-      function f(a: number[], b: number[]) {
-        return a.sort() === b.sort();
-      }
-    `,
-          },
-          {
-            code: `
-      function f(a: number[], b: number[]) {
-        return a.sort() !== b.sort();
-      }
     `,
           },
         ],
@@ -627,6 +597,51 @@ describe('S2871', () => {
               },
             ],
           },
+          // a.sort() === b.sort() is broken code (reference comparison) — S2871 fires on both sides
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.sort() === b.sort();
+      }
+    `,
+            errors: [
+              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+            ],
+          },
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.sort() !== b.sort();
+      }
+    `,
+            errors: [
+              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+            ],
+          },
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.sort() === b.sort();
+      }
+    `,
+            errors: [
+              { messageId: 'provideCompareFunction' },
+              { messageId: 'provideCompareFunction' },
+            ],
+          },
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.sort() !== b.sort();
+      }
+    `,
+            errors: [
+              { messageId: 'provideCompareFunction' },
+              { messageId: 'provideCompareFunction' },
+            ],
+          },
         ],
       },
     );
@@ -639,11 +654,6 @@ describe('S2871', () => {
         { code: `Object.keys({ a: 1 }).toSorted()` },
         { code: `Object.getOwnPropertyNames({ a: 1 }).sort()` },
         { code: `Object.getOwnPropertyNames({ a: 1 }).toSorted()` },
-        // AST-based suppression: order-independent comparison
-        { code: `a.sort() === b.sort()` },
-        { code: `a.sort() !== b.sort()` },
-        { code: `a.toSorted() === b.toSorted()` },
-        { code: `a.toSorted() !== b.toSorted()` },
         // AST-based suppression: for-in key collection pattern (semantically equivalent to Object.keys)
         {
           code: `
@@ -807,7 +817,35 @@ describe('S2871', () => {
           code: `Array.from(numArr.keys()).toSorted()`,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
-        // Only one side is a sort call — not order-independent, must be flagged
+        // a.sort() === b.sort() is broken code (reference comparison) — S2871 fires on both sides
+        {
+          code: `a.sort() === b.sort()`,
+          errors: [
+            { messageId: 'provideCompareFunction', suggestions: [] },
+            { messageId: 'provideCompareFunction', suggestions: [] },
+          ],
+        },
+        {
+          code: `a.sort() !== b.sort()`,
+          errors: [
+            { messageId: 'provideCompareFunction', suggestions: [] },
+            { messageId: 'provideCompareFunction', suggestions: [] },
+          ],
+        },
+        {
+          code: `a.toSorted() === b.toSorted()`,
+          errors: [
+            { messageId: 'provideCompareFunction', suggestions: [] },
+            { messageId: 'provideCompareFunction', suggestions: [] },
+          ],
+        },
+        {
+          code: `a.toSorted() !== b.toSorted()`,
+          errors: [
+            { messageId: 'provideCompareFunction', suggestions: [] },
+            { messageId: 'provideCompareFunction', suggestions: [] },
+          ],
+        },
         {
           code: `a.sort() === 'abc'`,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
@@ -960,21 +998,6 @@ describe('S2871', () => {
           {
             code: `const sorted = Array.prototype.toSorted.apply([1, 2, 10])`,
           },
-          // Compliant: order-independent comparison suppressed before type check
-          {
-            code: `
-      function f(a: string[], b: string[]) {
-        return a.toSorted() === b.toSorted();
-      }
-    `,
-          },
-          {
-            code: `
-      function f(a: string[], b: string[]) {
-        return a.toSorted() !== b.toSorted();
-      }
-    `,
-          },
           // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (provably technical strings)
           {
             code: `const keys = Object.keys({ a: 1, b: 2 }).toSorted();`,
@@ -1002,21 +1025,6 @@ describe('S2871', () => {
       var props = [];
       for (var key in obj) props.push(key);
       const sorted = props.toSorted();
-    `,
-          },
-          // Compliant: number array in order-independent equality comparison
-          {
-            code: `
-      function f(a: number[], b: number[]) {
-        return a.toSorted() === b.toSorted();
-      }
-    `,
-          },
-          {
-            code: `
-      function f(a: number[], b: number[]) {
-        return a.toSorted() !== b.toSorted();
-      }
     `,
           },
         ],
@@ -1397,6 +1405,51 @@ describe('S2871', () => {
                 messageId: 'provideCompareFunction',
                 suggestions: [],
               },
+            ],
+          },
+          // a.toSorted() === b.toSorted() is broken code (reference comparison) — S2871 fires on both sides
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted() === b.toSorted();
+      }
+    `,
+            errors: [
+              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+            ],
+          },
+          {
+            code: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted() !== b.toSorted();
+      }
+    `,
+            errors: [
+              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+            ],
+          },
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted() === b.toSorted();
+      }
+    `,
+            errors: [
+              { messageId: 'provideCompareFunction' },
+              { messageId: 'provideCompareFunction' },
+            ],
+          },
+          {
+            code: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted() !== b.toSorted();
+      }
+    `,
+            errors: [
+              { messageId: 'provideCompareFunction' },
+              { messageId: 'provideCompareFunction' },
             ],
           },
         ],

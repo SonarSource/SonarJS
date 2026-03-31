@@ -337,41 +337,6 @@ function isArrayFromMapStringKeysCall(
   return receiverType.symbol?.name === 'Map';
 }
 
-/**
- * Checks for .sort() or .toSorted() with no arguments.
- * Detection: AST only.
- * Pseudo-code:
- *   arr.sort()
- *   arr.toSorted()
- */
-function isSortLikeCall(node: estree.Node): boolean {
-  return (
-    node.type === 'CallExpression' &&
-    node.arguments.length === 0 &&
-    node.callee.type === 'MemberExpression' &&
-    node.callee.property.type === 'Identifier' &&
-    ['sort', 'toSorted'].includes(node.callee.property.name)
-  );
-}
-
-/**
- * Checks for a comparison like left.sort() === right.sort().
- * Detection: AST only.
- * Pseudo-code:
- *   left.sort() === right.sort()
- */
-function isInOrderIndependentComparison(call: estree.CallExpression): boolean {
-  const parent = getNodeParent(call);
-  if (parent?.type !== 'BinaryExpression') {
-    return false;
-  }
-  if (!['===', '!==', '==', '!='].includes(parent.operator)) {
-    return false;
-  }
-  const other = parent.left === call ? parent.right : parent.left;
-  return isSortLikeCall(other);
-}
-
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     hasSuggestions: true,
@@ -398,12 +363,6 @@ export const rule: Rule.RuleModule = {
         const text = sourceCode.getText(node);
 
         if (![...sortLike, ...copyingSortLike].includes(text)) {
-          return;
-        }
-
-        // AST-based suppression: order-independent comparison (a.sort() === b.sort())
-        // This is pattern-based, not type-based, so it applies regardless of type checker availability
-        if (isInOrderIndependentComparison(call)) {
           return;
         }
 
