@@ -23,7 +23,7 @@ import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { findComponentNode } from '../helpers/react.js';
+import { findOwningComponentNode } from '../helpers/react.js';
 import * as meta from './generated-meta.js';
 
 /** Composable pattern checkers — extend via Array.some() for future FP patterns. */
@@ -49,37 +49,58 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
       const { node } = descriptor as { node: estree.Node };
-      const componentNode = findComponentNode(node, context);
-      if (componentNode && hasPropsCall(componentNode, context.sourceCode.visitorKeys)) {
+      // The React helper can resolve the owner syntactically, or via TypeScript type
+      // information when the reported node comes from a props type declaration.
+      const componentNode = findOwningComponentNode(node, context);
+
+      // All false-positive suppressions depend on resolving the enclosing component.
+      // If we cannot find it, fall back to the upstream report.
+      if (!componentNode) {
+        context.report(descriptor);
         return;
       }
-      // Suppress FP only when the specific reported prop is referenced inside a forwardRef callback.
+
+      // First suppression layer: the component uses the props object opaquely
+      // (whole-object delegation, JSX spread, or computed access).
+      if (hasOpaquePropsUsage(context.sourceCode, componentNode)) {
+        return;
+      }
+
+      // Second suppression layer: the specific reported prop is referenced
+      // inside a forwardRef callback.
       const { data } = descriptor as { data?: Record<string, string> };
       const propName = data?.name;
       if (
         propName &&
-        componentNode &&
-        hasPropMemberReference(context.sourceCode, componentNode, propName)
+        hasPropReferenceInForwardRefCallback(context.sourceCode, componentNode, propName)
       ) {
         return;
       }
-      // Suppress FP when the component is wrapped in an HOC and exported from the file.
-      if (componentNode) {
-        const componentName = getComponentName(componentNode);
-        if (componentName && isExportedViaHoc(componentName, context.sourceCode.ast.body)) {
-          return;
-        }
+
+      // Third suppression layer: the component is wrapped in an HOC and exported.
+      if (isComponentExportedViaHoc(context.sourceCode, componentNode)) {
+        return;
       }
+
       context.report(descriptor);
     },
   );
 }
 
 /**
- * Returns true only when `propName` is referenced through the component's actual
+ * `componentNode` is the enclosing React component function found for the reported prop,
+ * not the nested forwardRef callback itself.
+ *
+ * Returns true only when `propName` is referenced through that component function's
  * first parameter binding and the matching member access sits inside a forwardRef callback.
+ *
+ * Pseudo-code example:
+ * function Wrapper(props) {
+ *   const Forwarded = React.forwardRef((_, ref) => <div>{props.label}</div>);
+ *   return <Forwarded />;
+ * }
  */
-function hasPropMemberReference(
+function hasPropReferenceInForwardRefCallback(
   sourceCode: SourceCode,
   componentNode: estree.Node,
   propName: string,
@@ -103,6 +124,10 @@ function hasPropMemberReference(
   );
 }
 
+/**
+ * Returns true when a single scope reference corresponds to `props.<propName>`
+ * and that member access is located inside a forwardRef render callback.
+ */
 function isPropReferenceInForwardRefCallback(
   reference: Scope.Reference,
   propName: string,
@@ -138,7 +163,24 @@ function isPropReferenceInForwardRefCallback(
   return false;
 }
 
-function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {
+/**
+ * Returns true when the component uses the props object in an opaque way that the
+ * upstream rule may not reliably attribute to an individual prop.
+ *
+ * Pseudo-code examples:
+ * helper(props);
+ * <Child {...props} />;
+ * props[key];
+ */
+function hasOpaquePropsUsage(sourceCode: SourceCode, componentNode: estree.Node): boolean {
+  return hasOpaquePropsUsageInSubtree(componentNode, sourceCode.visitorKeys);
+}
+
+/**
+ * Recursively searches a subtree for whole-props delegation patterns that the
+ * upstream rule does not reliably map back to an individual prop.
+ */
+function hasOpaquePropsUsageInSubtree(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {
   if (!root) {
     return false;
   }
@@ -176,32 +218,16 @@ function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean 
   }
 
   // Recursively check all children
-  return childrenOf(root, keys).some(child => hasPropsCall(child, keys));
+  return childrenOf(root, keys).some(child => hasOpaquePropsUsageInSubtree(child, keys));
 }
 
+/** Excludes PropTypes.checkPropTypes(...) from the generic call-based suppression. */
 function isPropTypesCheckCall(call: estree.CallExpression): boolean {
   return (
     call.callee.type === 'MemberExpression' &&
     isIdentifier(call.callee.object, 'PropTypes') &&
     isIdentifier(call.callee.property, 'checkPropTypes')
   );
-}
-
-/** Extract the component identifier name from the component node. */
-function getComponentName(node: estree.Node): string | null {
-  if (node.type === 'ClassDeclaration' || node.type === 'FunctionDeclaration') {
-    return node.id?.name ?? null;
-  }
-  if (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') {
-    const parent = getNodeParent(node);
-    if (parent?.type === 'VariableDeclarator') {
-      const { id } = parent;
-      if (id.type === 'Identifier') {
-        return id.name;
-      }
-    }
-  }
-  return null;
 }
 
 /**
@@ -223,97 +249,153 @@ function getHocWrappedComponentName(call: estree.CallExpression): string | null 
 }
 
 type ProgramStatement = estree.Statement | estree.ModuleDeclaration;
-
-/** Composable HOC export pattern checkers — extend via Array.some() for future FP patterns. */
-const hocExportPatterns: Array<(stmt: ProgramStatement, name: string) => boolean> = [
-  // Pattern 1: export default HOC(Comp) or export default HOC(config)(Comp)
-  (stmt, name) => {
-    if (stmt.type !== 'ExportDefaultDeclaration') {
-      return false;
-    }
-    const { declaration } = stmt;
-    return (
-      declaration.type === 'CallExpression' && getHocWrappedComponentName(declaration) === name
-    );
-  },
-  // Pattern 2: export const X = HOC(Comp)
-  (stmt, name) => {
-    if (stmt.type !== 'ExportNamedDeclaration') {
-      return false;
-    }
-    const { declaration } = stmt;
-    if (declaration?.type !== 'VariableDeclaration') {
-      return false;
-    }
-    return declaration.declarations.some(
-      d => d.init?.type === 'CallExpression' && getHocWrappedComponentName(d.init) === name,
-    );
-  },
-  // Pattern 3: module.exports = HOC(Comp)
-  (stmt, name) => {
-    if (stmt.type !== 'ExpressionStatement') {
-      return false;
-    }
-    const { expression } = stmt;
-    if (expression.type !== 'AssignmentExpression') {
-      return false;
-    }
-    const { left, right } = expression;
-    if (
-      left.type !== 'MemberExpression' ||
-      !isIdentifier(left.object, 'module') ||
-      !isIdentifier(left.property, 'exports')
-    ) {
-      return false;
-    }
-    return right.type === 'CallExpression' && getHocWrappedComponentName(right) === name;
-  },
-];
+type HocExportCache = Set<string>;
+/** Per-file cache of component names exported directly via an HOC. */
+const perSourceHocExportCache = new WeakMap<SourceCode, HocExportCache>();
 
 /**
- * Returns true if `componentName` is wrapped in an HOC and exported anywhere in the file.
- * Phase 1 checks inline export forms; phase 2 checks the two-statement form.
+ * Returns true when the reported component is wrapped in an HOC and that wrapped
+ * value is exported from the file.
+ *
+ * `componentNode` is the enclosing React component found for the reported prop.
+ * This helper resolves that component's identifier and then checks direct
+ * export forms such as:
+ * export default connect(...)(MyComponent)
+ * export const Wrapped = withRouter(MyComponent)
  */
-function isExportedViaHoc(componentName: string, body: ProgramStatement[]): boolean {
-  // Phase 1: inline export patterns (export default, export const, module.exports)
-  if (body.some(stmt => hocExportPatterns.some(pattern => pattern(stmt, componentName)))) {
-    return true;
+function isComponentExportedViaHoc(sourceCode: SourceCode, componentNode: estree.Node): boolean {
+  const componentName = getComponentIdentifierFromNode(componentNode);
+  if (!componentName) {
+    return false;
   }
 
-  // Phase 2: two-statement form — const X = HOC(Comp); export { X } or export default X
-  const hocWrappedNames = new Set<string>();
-  for (const stmt of body) {
-    if (stmt.type !== 'VariableDeclaration') {
-      continue;
+  const hocExportCache = getHocExportCache(sourceCode);
+  return hocExportCache.has(componentName);
+}
+
+/**
+ * Resolves the identifier that names the reported component in the current file.
+ *
+ * Pseudo-code examples:
+ * function MyComponent() {}
+ * const MyComponent = () => {};
+ */
+function getComponentIdentifierFromNode(componentNode: estree.Node): string | null {
+  if (componentNode.type === 'ClassDeclaration' || componentNode.type === 'FunctionDeclaration') {
+    return componentNode.id?.name ?? null;
+  }
+
+  if (
+    componentNode.type === 'ArrowFunctionExpression' ||
+    componentNode.type === 'FunctionExpression'
+  ) {
+    const parent = getNodeParent(componentNode);
+    if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+      return parent.id.name;
     }
-    for (const declarator of stmt.declarations) {
-      if (
-        declarator.id.type === 'Identifier' &&
-        declarator.init?.type === 'CallExpression' &&
-        getHocWrappedComponentName(declarator.init) === componentName
-      ) {
-        hocWrappedNames.add(declarator.id.name);
+  }
+
+  return null;
+}
+
+/** Lazily computes per-file HOC export metadata and reuses it across reported issues. */
+function getHocExportCache(sourceCode: SourceCode): HocExportCache {
+  let hocExportCache = perSourceHocExportCache.get(sourceCode);
+  if (!hocExportCache) {
+    hocExportCache = buildHocExportCache(sourceCode.ast.body);
+    perSourceHocExportCache.set(sourceCode, hocExportCache);
+  }
+  return hocExportCache;
+}
+
+/** Collects component names that are wrapped by an HOC directly in an export statement. */
+function buildHocExportCache(body: ProgramStatement[]): HocExportCache {
+  const exportedComponentNames = new Set<string>();
+
+  for (const stmt of body) {
+    for (const wrappedComponentName of getDirectHocExportedComponentNamesFromStatement(stmt)) {
+      exportedComponentNames.add(wrappedComponentName);
+    }
+  }
+
+  return exportedComponentNames;
+}
+
+/**
+ * Collects directly HOC-exported component names contributed by a single statement.
+ *
+ * Pseudo-code examples:
+ * export default hoc(MyComponent);
+ * export const Wrapped = hoc(MyComponent);
+ * module.exports = hoc(MyComponent);
+ */
+function getDirectHocExportedComponentNamesFromStatement(stmt: ProgramStatement): string[] {
+  return [
+    ...getDirectHocExportedComponentNamesFromDefaultExport(stmt),
+    ...getDirectHocExportedComponentNamesFromNamedExport(stmt),
+    ...getDirectHocExportedComponentNamesFromModuleExports(stmt),
+  ];
+}
+
+/**
+ * Extracts the wrapped component name from a direct default export.
+ *
+ * Pseudo-code example:
+ * export default hoc(MyComponent);
+ */
+function getDirectHocExportedComponentNamesFromDefaultExport(stmt: ProgramStatement): string[] {
+  if (stmt.type !== 'ExportDefaultDeclaration' || stmt.declaration.type !== 'CallExpression') {
+    return [];
+  }
+
+  const wrappedComponentName = getHocWrappedComponentName(stmt.declaration);
+  return wrappedComponentName ? [wrappedComponentName] : [];
+}
+
+/**
+ * Extracts wrapped component names from a named export declaration.
+ *
+ * Pseudo-code example:
+ * export const Wrapped = hoc(MyComponent);
+ */
+function getDirectHocExportedComponentNamesFromNamedExport(stmt: ProgramStatement): string[] {
+  if (stmt.type !== 'ExportNamedDeclaration' || stmt.declaration?.type !== 'VariableDeclaration') {
+    return [];
+  }
+
+  const wrappedComponentNames: string[] = [];
+  for (const declarator of stmt.declaration.declarations) {
+    if (declarator.init?.type === 'CallExpression') {
+      const wrappedComponentName = getHocWrappedComponentName(declarator.init);
+      if (wrappedComponentName) {
+        wrappedComponentNames.push(wrappedComponentName);
       }
     }
   }
+  return wrappedComponentNames;
+}
 
-  if (hocWrappedNames.size === 0) {
-    return false;
+/**
+ * Extracts the wrapped component name from a CommonJS export assignment.
+ *
+ * Pseudo-code example:
+ * module.exports = hoc(MyComponent);
+ */
+function getDirectHocExportedComponentNamesFromModuleExports(stmt: ProgramStatement): string[] {
+  if (stmt.type !== 'ExpressionStatement' || stmt.expression.type !== 'AssignmentExpression') {
+    return [];
   }
 
-  return body.some(stmt => {
-    if (stmt.type === 'ExportNamedDeclaration') {
-      return (
-        stmt.declaration == null &&
-        stmt.specifiers.some(
-          s => s.local.type === 'Identifier' && hocWrappedNames.has(s.local.name),
-        )
-      );
-    }
-    if (stmt.type === 'ExportDefaultDeclaration') {
-      const { declaration } = stmt;
-      return declaration.type === 'Identifier' && hocWrappedNames.has(declaration.name);
-    }
-    return false;
-  });
+  const { left, right } = stmt.expression;
+  if (
+    left.type !== 'MemberExpression' ||
+    !isIdentifier(left.object, 'module') ||
+    !isIdentifier(left.property, 'exports') ||
+    right.type !== 'CallExpression'
+  ) {
+    return [];
+  }
+
+  const wrappedComponentName = getHocWrappedComponentName(right);
+  return wrappedComponentName ? [wrappedComponentName] : [];
 }

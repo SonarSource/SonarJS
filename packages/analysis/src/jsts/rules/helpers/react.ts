@@ -62,7 +62,7 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
  * Returns `undefined` if all strategies fail — callers should pass the report through
  * without suppression rather than falling back to a file-wide scan.
  */
-export function findComponentNode(
+export function findOwningComponentNode(
   node: estree.Node,
   context: Rule.RuleContext,
 ): estree.Node | undefined {

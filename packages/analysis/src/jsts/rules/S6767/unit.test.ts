@@ -345,22 +345,6 @@ PageComponent.propTypes = {
 module.exports = withRouter(PageComponent);
 `,
         },
-        {
-          // FP: two-statement form — theme injected by withTheme(), never accessed in render
-          code: `
-class MyForm extends React.Component {
-  render() {
-    return <form onSubmit={this.props.onSubmit} />;
-  }
-}
-MyForm.propTypes = {
-  theme: PropTypes.object,
-  onSubmit: PropTypes.func,
-};
-const ThemedForm = withTheme(MyForm);
-export { ThemedForm };
-`,
-        },
       ],
       invalid: [
         {
@@ -628,25 +612,6 @@ class MyComponent extends React.Component<MyComponentProps> {
 declare function connect(mapState: (state: any) => any): (comp: any) => any;
 function mapStateToProps(state: { items: string[] }) { return { items: state.items }; }
 export default connect(mapStateToProps)(MyComponent);
-`,
-          filename: fixtureFile,
-        },
-        {
-          // FP: TypeScript class — theme not accessed in render but exported via two-statement HOC
-          code: `
-declare const React: any;
-interface MyFormProps {
-  theme: { spacing: (n: number) => number };
-  onSubmit: () => void;
-}
-class MyForm extends React.Component<MyFormProps> {
-  render() {
-    return <form onSubmit={this.props.onSubmit} />;
-  }
-}
-declare function withTheme(comp: any): any;
-const ThemedForm = withTheme(MyForm);
-export { ThemedForm };
 `,
           filename: fixtureFile,
         },
