@@ -64,7 +64,10 @@ export async function analyzeCSS(
   if (isTestFile && !includeMetrics) {
     return { issues: [] };
   }
-  const sanitizedCode = fileContent.replaceAll(/[\u2000-\u200F]/g, ' ');
+  const sanitizedCode = fileContent
+    .replaceAll(/[\u2000-\u200F]/g, ' ')
+    // PostCSS tracks lines by splitting on '\n'; normalize CR-only files to keep locations stable.
+    .replaceAll(/\r(?!\n)/g, '\n');
 
   // TEST files keep highlighting (parity with old CssMetricSensor), but issues remain suppressed.
   const lintResult = await linter.lint(filePath, sanitizedCode, fileType);

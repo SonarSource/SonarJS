@@ -143,6 +143,16 @@ describe('analyzeCSS', () => {
       data: { line: 2, column: 2 },
     });
   });
+
+  it('should normalize CR-only line endings before parsing embedded CSS', async () => {
+    await expect(
+      analyzeCSS(await input('/some/fake/path.html', '<style>a { color: red; }\r\\n</style>')),
+    ).rejects.toMatchObject({
+      code: ErrorCode.Parsing,
+      message: expect.stringContaining('Unknown word'),
+      data: { line: 2, column: 0 },
+    });
+  });
 });
 
 describe('should emit correctly located issues regardless of invisible characters', () => {
