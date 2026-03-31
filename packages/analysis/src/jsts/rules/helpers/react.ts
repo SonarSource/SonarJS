@@ -225,7 +225,9 @@ function matchesClassProps(
   // TypeScript cannot expose the inherited `props` property via the instance type.
   // Instead, check if the first type argument of any heritage clause is mutually
   // assignable with `propsType` (e.g. `class Foo extends React.Component<FooProps>`).
-  for (const clause of cls.heritageClauses ?? []) {
+  for (const clause of (cls.heritageClauses ?? []).filter(
+    c => c.token === ts.SyntaxKind.ExtendsKeyword,
+  )) {
     for (const type of clause.types) {
       const typeArgs = type.typeArguments;
       if (!typeArgs || typeArgs.length === 0) {
