@@ -94,6 +94,18 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
+      // Negation patterns (!a || !a.prop): the ! operator always returns boolean,
+      // so optional chaining (!a?.prop) is always type-safe regardless of context.
+      if (
+        node.type === 'LogicalExpression' &&
+        (node as any).operator === '||' &&
+        (node as any).left?.type === 'UnaryExpression' &&
+        (node as any).left?.operator === '!'
+      ) {
+        ctx.report(descriptor);
+        return;
+      }
+
       const contextualType = checker.getContextualType(tsNode as ts.Expression);
       if (!contextualType) {
         // No contextual type (e.g. if/while boolean context) — replacement is safe
