@@ -550,6 +550,31 @@ describe('S2871', () => {
               },
             ],
           },
+          // Regression: user-defined type named Map (imported from a module) should not be exempt
+          {
+            code: `
+        class Map<K, V> { keys(): string[] { return []; } }
+        function f(map: Map<string, number>) {
+          return Array.from(map.keys()).sort();
+        }
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+        class Map<K, V> { keys(): string[] { return []; } }
+        function f(map: Map<string, number>) {
+          return Array.from(map.keys()).sort((a, b) => a.localeCompare(b));
+        }
+      `,
+                  },
+                ],
+              },
+            ],
+          },
           {
             code: `
         function f<T extends number[]>(a: T) {
@@ -1487,6 +1512,31 @@ describe('S2871', () => {
                     output: `
         function f(s: Set<string>) {
           return Array.from(s.keys()).toSorted((a, b) => a.localeCompare(b));
+        }
+      `,
+                  },
+                ],
+              },
+            ],
+          },
+          // Regression: user-defined type named Map (imported from a module) should not be exempt
+          {
+            code: `
+        class Map<K, V> { keys(): string[] { return []; } }
+        function f(map: Map<string, number>) {
+          return Array.from(map.keys()).toSorted();
+        }
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+        class Map<K, V> { keys(): string[] { return []; } }
+        function f(map: Map<string, number>) {
+          return Array.from(map.keys()).toSorted((a, b) => a.localeCompare(b));
         }
       `,
                   },

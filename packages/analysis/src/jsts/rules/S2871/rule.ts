@@ -123,7 +123,10 @@ function isArrayFromKeysCall(node: estree.Node): boolean {
  * Pseudo-code:
  *   Array.from(map.keys())
  *
- * Does not suppress Set<string>.keys() or custom .keys() methods.
+ * Does not suppress Set<string>.keys(), custom .keys() methods, or user-defined
+ * types named Map (imported from a module). Uses the checker FQN to distinguish
+ * the global built-in Map (FQN: "Map") from module-scoped user-defined types
+ * (FQN: '"path/to/module".Map').
  */
 function isArrayFromMapStringKeysCall(
   object: estree.Node,
@@ -136,7 +139,12 @@ function isArrayFromMapStringKeysCall(
   const arg = callExpr.arguments[0] as estree.CallExpression;
   const innerReceiver = (arg.callee as estree.MemberExpression).object;
   const receiverType = getTypeFromTreeNode(innerReceiver, services);
-  return receiverType.symbol?.name === 'Map';
+  const symbol = receiverType.symbol;
+  if (!symbol) {
+    return false;
+  }
+  const checker = services.program.getTypeChecker();
+  return checker.getFullyQualifiedName(symbol) === 'Map';
 }
 
 /**
