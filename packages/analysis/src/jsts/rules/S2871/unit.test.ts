@@ -538,7 +538,12 @@ describe('S2871', () => {
             errors: [
               {
                 messageId: 'provideCompareFunctionForArrayOfStrings',
-                suggestions: [{ messageId: 'suggestLanguageSensitiveOrder' }],
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const ka = Object.keys(obj); ka.push('x'); ka.sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
               },
             ],
           },
@@ -548,7 +553,12 @@ describe('S2871', () => {
             errors: [
               {
                 messageId: 'provideCompareFunctionForArrayOfStrings',
-                suggestions: [{ messageId: 'suggestLanguageSensitiveOrder' }],
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const ka = Object.keys(obj); const alias = ka; alias.push('x'); ka.sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
               },
             ],
           },
@@ -563,7 +573,17 @@ describe('S2871', () => {
             errors: [
               {
                 messageId: 'provideCompareFunctionForArrayOfStrings',
-                suggestions: [{ messageId: 'suggestLanguageSensitiveOrder' }],
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+        var props = [];
+        for (var key in obj) props.push(key);
+        mutate(props);
+        props.sort((a, b) => a.localeCompare(b));
+      `,
+                  },
+                ],
               },
             ],
           },
@@ -575,8 +595,32 @@ describe('S2871', () => {
       }
     `,
             errors: [
-              { messageId: 'provideCompareFunctionForArrayOfStrings' },
-              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[], b: string[]) {
+        return a.sort((a, b) => a.localeCompare(b)) === b.sort();
+      }
+    `,
+                  },
+                ],
+              },
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[], b: string[]) {
+        return a.sort() === b.sort((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
             ],
           },
           {
@@ -586,8 +630,32 @@ describe('S2871', () => {
       }
     `,
             errors: [
-              { messageId: 'provideCompareFunctionForArrayOfStrings' },
-              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[], b: string[]) {
+        return a.sort((a, b) => a.localeCompare(b)) !== b.sort();
+      }
+    `,
+                  },
+                ],
+              },
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[], b: string[]) {
+        return a.sort() !== b.sort((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
             ],
           },
           {
@@ -597,8 +665,32 @@ describe('S2871', () => {
       }
     `,
             errors: [
-              { messageId: 'provideCompareFunction' },
-              { messageId: 'provideCompareFunction' },
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+      function f(a: number[], b: number[]) {
+        return a.sort((a, b) => (a - b)) === b.sort();
+      }
+    `,
+                  },
+                ],
+              },
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+      function f(a: number[], b: number[]) {
+        return a.sort() === b.sort((a, b) => (a - b));
+      }
+    `,
+                  },
+                ],
+              },
             ],
           },
           {
@@ -608,26 +700,90 @@ describe('S2871', () => {
       }
     `,
             errors: [
-              { messageId: 'provideCompareFunction' },
-              { messageId: 'provideCompareFunction' },
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+      function f(a: number[], b: number[]) {
+        return a.sort((a, b) => (a - b)) !== b.sort();
+      }
+    `,
+                  },
+                ],
+              },
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+      function f(a: number[], b: number[]) {
+        return a.sort() !== b.sort((a, b) => (a - b));
+      }
+    `,
+                  },
+                ],
+              },
             ],
           },
           // Object.keys/getOwnPropertyNames are no longer suppressed
           {
             code: `const keys = Object.keys({ a: 1, b: 2 }).sort();`,
-            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const keys = Object.keys({ a: 1, b: 2 }).sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
           },
           {
             code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).sort();`,
-            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
           },
           {
             code: `var ka = Object.keys(a); ka.sort();`,
-            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `var ka = Object.keys(a); ka.sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
           },
           {
             code: `var kb = Object.getOwnPropertyNames(b); kb.sort();`,
-            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `var kb = Object.getOwnPropertyNames(b); kb.sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
           },
           // for-in key collection pattern is no longer suppressed
           {
@@ -636,7 +792,21 @@ describe('S2871', () => {
       for (var key in obj) props.push(key);
       props.sort();
     `,
-            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      props.sort((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
+              },
+            ],
           },
           {
             code: `
@@ -645,7 +815,22 @@ describe('S2871', () => {
       if (props.length === 0) return;
       props.sort();
     `,
-            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      if (props.length === 0) return;
+      props.sort((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
+              },
+            ],
           },
         ],
       },
@@ -1395,8 +1580,32 @@ describe('S2871', () => {
       }
     `,
             errors: [
-              { messageId: 'provideCompareFunctionForArrayOfStrings' },
-              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted((a, b) => a.localeCompare(b)) === b.toSorted();
+      }
+    `,
+                  },
+                ],
+              },
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted() === b.toSorted((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
             ],
           },
           {
@@ -1406,8 +1615,32 @@ describe('S2871', () => {
       }
     `,
             errors: [
-              { messageId: 'provideCompareFunctionForArrayOfStrings' },
-              { messageId: 'provideCompareFunctionForArrayOfStrings' },
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted((a, b) => a.localeCompare(b)) !== b.toSorted();
+      }
+    `,
+                  },
+                ],
+              },
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(a: string[], b: string[]) {
+        return a.toSorted() !== b.toSorted((a, b) => a.localeCompare(b));
+      }
+    `,
+                  },
+                ],
+              },
             ],
           },
           {
@@ -1417,8 +1650,32 @@ describe('S2871', () => {
       }
     `,
             errors: [
-              { messageId: 'provideCompareFunction' },
-              { messageId: 'provideCompareFunction' },
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted((a, b) => (a - b)) === b.toSorted();
+      }
+    `,
+                  },
+                ],
+              },
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted() === b.toSorted((a, b) => (a - b));
+      }
+    `,
+                  },
+                ],
+              },
             ],
           },
           {
@@ -1428,26 +1685,90 @@ describe('S2871', () => {
       }
     `,
             errors: [
-              { messageId: 'provideCompareFunction' },
-              { messageId: 'provideCompareFunction' },
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted((a, b) => (a - b)) !== b.toSorted();
+      }
+    `,
+                  },
+                ],
+              },
+              {
+                messageId: 'provideCompareFunction',
+                suggestions: [
+                  {
+                    messageId: 'suggestNumericOrder',
+                    output: `
+      function f(a: number[], b: number[]) {
+        return a.toSorted() !== b.toSorted((a, b) => (a - b));
+      }
+    `,
+                  },
+                ],
+              },
             ],
           },
           // Object.keys/getOwnPropertyNames are no longer suppressed
           {
             code: `const keys = Object.keys({ a: 1, b: 2 }).toSorted();`,
-            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const keys = Object.keys({ a: 1, b: 2 }).toSorted((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
           },
           {
             code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).toSorted();`,
-            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).toSorted((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
           },
           {
             code: `var ka = Object.keys(a); ka.toSorted();`,
-            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `var ka = Object.keys(a); ka.toSorted((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
           },
           {
             code: `var kb = Object.getOwnPropertyNames(b); kb.toSorted();`,
-            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `var kb = Object.getOwnPropertyNames(b); kb.toSorted((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
           },
           // for-in key collection pattern is no longer suppressed
           {
@@ -1456,7 +1777,21 @@ describe('S2871', () => {
       for (var key in obj) props.push(key);
       const sorted = props.toSorted();
     `,
-            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      const sorted = props.toSorted((a, b) => a.localeCompare(b));
+    `,
+                  },
+                ],
+              },
+            ],
           },
         ],
       },

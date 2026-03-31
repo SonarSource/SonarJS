@@ -33,7 +33,6 @@ import {
   type RequiredParserServices,
 } from '../helpers/parser-services.js';
 import { isCallingMethod, isIdentifier } from '../helpers/ast.js';
-import { getNodeParent } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
