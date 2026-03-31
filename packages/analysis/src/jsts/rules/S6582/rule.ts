@@ -96,11 +96,15 @@ export const rule: Rule.RuleModule = {
 
       // Negation patterns (!a || !a.prop): the ! operator always returns boolean,
       // so optional chaining (!a?.prop) is always type-safe regardless of context.
+      // Both sides must be negated — !a || (comparison) is not a negation pattern
+      // and should fall through to the contextual type check.
       if (
         node.type === 'LogicalExpression' &&
         (node as any).operator === '||' &&
         (node as any).left?.type === 'UnaryExpression' &&
-        (node as any).left?.operator === '!'
+        (node as any).left?.operator === '!' &&
+        (node as any).right?.type === 'UnaryExpression' &&
+        (node as any).right?.operator === '!'
       ) {
         ctx.report(descriptor);
         return;
