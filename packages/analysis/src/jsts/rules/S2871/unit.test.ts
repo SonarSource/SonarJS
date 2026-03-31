@@ -550,9 +550,10 @@ describe('S2871', () => {
               },
             ],
           },
-          // Regression: user-defined type named Map (imported from a module) should not be exempt
+          // Regression: user-defined type named Map (in module scope) should not be exempt
           {
             code: `
+        export {};
         class Map<K, V> { keys(): string[] { return []; } }
         function f(map: Map<string, number>) {
           return Array.from(map.keys()).sort();
@@ -565,6 +566,7 @@ describe('S2871', () => {
                   {
                     messageId: 'suggestLanguageSensitiveOrder',
                     output: `
+        export {};
         class Map<K, V> { keys(): string[] { return []; } }
         function f(map: Map<string, number>) {
           return Array.from(map.keys()).sort((a, b) => a.localeCompare(b));
@@ -1519,9 +1521,10 @@ describe('S2871', () => {
               },
             ],
           },
-          // Regression: user-defined type named Map (imported from a module) should not be exempt
+          // Regression: user-defined type named Map (in module scope) should not be exempt
           {
             code: `
+        export {};
         class Map<K, V> { keys(): string[] { return []; } }
         function f(map: Map<string, number>) {
           return Array.from(map.keys()).toSorted();
@@ -1534,6 +1537,7 @@ describe('S2871', () => {
                   {
                     messageId: 'suggestLanguageSensitiveOrder',
                     output: `
+        export {};
         class Map<K, V> { keys(): string[] { return []; } }
         function f(map: Map<string, number>) {
           return Array.from(map.keys()).toSorted((a, b) => a.localeCompare(b));

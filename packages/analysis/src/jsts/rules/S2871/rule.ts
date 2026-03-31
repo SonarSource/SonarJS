@@ -144,7 +144,18 @@ function isArrayFromMapStringKeysCall(
     return false;
   }
   const checker = services.program.getTypeChecker();
-  return checker.getFullyQualifiedName(symbol) === 'Map';
+  if (checker.getFullyQualifiedName(symbol) !== 'Map') {
+    return false;
+  }
+  // Verify the symbol is from a declaration file (TypeScript lib) to exclude
+  // user-defined types named Map declared in non-module (script) source files,
+  // which also have FQN "Map" but are not the built-in Map.
+  const declarations = symbol.declarations;
+  return (
+    declarations != null &&
+    declarations.length > 0 &&
+    declarations.every(d => d.getSourceFile().isDeclarationFile)
+  );
 }
 
 /**
