@@ -174,6 +174,12 @@ describe('S6582', () => {
           code: `interface Entry { version: string; } class Cache { getEntry(k: string): Entry | null { return null; } getInfo(k: string): { version: string | null } { const e = this.getEntry(k); return { version: e && e.version }; } }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
+        {
+          // FP: !a || (comparison) in boolean return — right side is NOT negated, so negation bypass does not
+          // apply; contextual type check sees boolean (excludes undefined) and suppresses the report
+          code: `interface Opts { module: number; } function changesAffect(a: Opts | null, b: Opts): boolean { return !a || a.module !== b.module; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
       ],
       invalid: [
         {
