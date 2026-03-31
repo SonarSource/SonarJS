@@ -185,6 +185,7 @@ describe('S6582', () => {
         {
           // negation pattern: ! always returns boolean, so !arr?.length is type-safe even in boolean return context
           code: `function f(arr: string[] | null): boolean { return !arr || !arr.length; }`,
+          output: `function f(arr: string[] | null): boolean { return !arr?.length; }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
           errors: 1,
         },
