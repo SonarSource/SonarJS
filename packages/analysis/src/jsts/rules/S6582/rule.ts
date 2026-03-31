@@ -100,11 +100,11 @@ export const rule: Rule.RuleModule = {
       // and should fall through to the contextual type check.
       if (
         node.type === 'LogicalExpression' &&
-        (node as any).operator === '||' &&
-        (node as any).left?.type === 'UnaryExpression' &&
-        (node as any).left?.operator === '!' &&
-        (node as any).right?.type === 'UnaryExpression' &&
-        (node as any).right?.operator === '!'
+        node.operator === '||' &&
+        node.left.type === 'UnaryExpression' &&
+        node.left.operator === '!' &&
+        node.right.type === 'UnaryExpression' &&
+        node.right.operator === '!'
       ) {
         ctx.report(descriptor);
         return;
