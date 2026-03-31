@@ -4,5 +4,9 @@
 ],
 "qunit:src/dump.js": [
 197
+],
+"qunit:src/equiv.js": [
+291,
+291
 ]
 }

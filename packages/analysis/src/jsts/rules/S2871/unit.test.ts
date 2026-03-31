@@ -151,42 +151,12 @@ describe('S2871', () => {
           {
             code: `Array.prototype.sort.apply([1, 2, 10])`,
           },
-          // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (provably technical strings)
-          {
-            code: `const keys = Object.keys({ a: 1, b: 2 }).sort();`,
-          },
-          {
-            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).sort();`,
-          },
-          // Compliant: variable initialized from Object.keys/getOwnPropertyNames and not reassigned
-          {
-            code: `var ka = Object.keys(a); ka.sort();`,
-          },
-          {
-            code: `var kb = Object.getOwnPropertyNames(b); kb.sort();`,
-          },
+          // Compliant: Map.keys sort (provably technical strings, type-checker only)
           {
             code: `
       function f(map: Map<string, number>) {
         return Array.from(map.keys()).sort();
       }
-    `,
-          },
-          // Compliant: for-in key collection pattern typed as string[] by TypeScript
-          {
-            code: `
-      var props = [];
-      for (var key in obj) props.push(key);
-      props.sort();
-    `,
-          },
-          // Compliant: for-in with property read (e.g. props.length) before sort
-          {
-            code: `
-      var props = [];
-      for (var key in obj) props.push(key);
-      if (props.length === 0) return;
-      props.sort();
     `,
           },
         ],
@@ -642,25 +612,82 @@ describe('S2871', () => {
               { messageId: 'provideCompareFunction' },
             ],
           },
+          // Object.keys/getOwnPropertyNames are no longer suppressed
+          {
+            code: `const keys = Object.keys({ a: 1, b: 2 }).sort();`,
+            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+          },
+          {
+            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).sort();`,
+            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+          },
+          {
+            code: `var ka = Object.keys(a); ka.sort();`,
+            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+          },
+          {
+            code: `var kb = Object.getOwnPropertyNames(b); kb.sort();`,
+            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+          },
+          // for-in key collection pattern is no longer suppressed
+          {
+            code: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      props.sort();
+    `,
+            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+          },
+          {
+            code: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      if (props.length === 0) return;
+      props.sort();
+    `,
+            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+          },
         ],
       },
     );
 
     const noTypeCheckingRuleTester = new NoTypeCheckingRuleTester();
     noTypeCheckingRuleTester.run(`AST-based suppression works without type checker`, rule, {
-      valid: [
-        // AST-based suppression: Object.keys/getOwnPropertyNames always return string[]
-        { code: `Object.keys({ a: 1 }).sort()` },
-        { code: `Object.keys({ a: 1 }).toSorted()` },
-        { code: `Object.getOwnPropertyNames({ a: 1 }).sort()` },
-        { code: `Object.getOwnPropertyNames({ a: 1 }).toSorted()` },
-        // AST-based suppression: for-in key collection pattern (semantically equivalent to Object.keys)
+      valid: [],
+      invalid: [
+        // Object.keys/getOwnPropertyNames are no longer suppressed without type checker
+        {
+          code: `Object.keys({ a: 1 }).sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `Object.keys({ a: 1 }).toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `Object.getOwnPropertyNames({ a: 1 }).sort()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `Object.getOwnPropertyNames({ a: 1 }).toSorted()`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `var ka = Object.keys(a); ka.sort();`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        {
+          code: `var kb = Object.getOwnPropertyNames(b); kb.sort();`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // for-in key collection pattern is no longer suppressed without type checker
         {
           code: `
             var props = [];
             for (var key in obj) props.push(key);
             props.sort();
           `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
         {
           code: `
@@ -668,26 +695,8 @@ describe('S2871', () => {
             for (var key in this.value) props.push(key);
             return props.sort();
           `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
-        // for-in with plain reads (return, etc.) is also suppressed
-        {
-          code: `
-            var props = [];
-            for (var key in obj) props.push(key);
-            props.sort();
-            return props;
-          `,
-        },
-        // for-in with property read (e.g. props.length) before sort - property reads are not mutations
-        {
-          code: `
-            var props = [];
-            for (var key in obj) props.push(key);
-            if (props.length === 0) return;
-            props.sort();
-          `,
-        },
-        // for-in with conditional hasOwnProperty guard - push is still inside for-in loop
         {
           code: `
             var keys = [];
@@ -698,16 +707,8 @@ describe('S2871', () => {
             }
             keys.sort();
           `,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
-        // Object.keys/getOwnPropertyNames variable assignment (no type checker)
-        {
-          code: `var ka = Object.keys(a); ka.sort();`,
-        },
-        {
-          code: `var kb = Object.getOwnPropertyNames(b); kb.sort();`,
-        },
-      ],
-      invalid: [
         // Without type checker, sort on unknown arrays is still flagged (no suggestions)
         {
           code: `[1, 2, 3].sort()`,
@@ -998,33 +999,12 @@ describe('S2871', () => {
           {
             code: `const sorted = Array.prototype.toSorted.apply([1, 2, 10])`,
           },
-          // Compliant: Object.keys/getOwnPropertyNames and Map.keys sort (provably technical strings)
-          {
-            code: `const keys = Object.keys({ a: 1, b: 2 }).toSorted();`,
-          },
-          {
-            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).toSorted();`,
-          },
-          // Compliant: variable initialized from Object.keys/getOwnPropertyNames and not reassigned
-          {
-            code: `var ka = Object.keys(a); ka.toSorted();`,
-          },
-          {
-            code: `var kb = Object.getOwnPropertyNames(b); kb.toSorted();`,
-          },
+          // Compliant: Map.keys sort (provably technical strings, type-checker only)
           {
             code: `
       function f(map: Map<string, number>) {
         return Array.from(map.keys()).toSorted();
       }
-    `,
-          },
-          // Compliant: for-in key collection pattern typed as string[] by TypeScript
-          {
-            code: `
-      var props = [];
-      for (var key in obj) props.push(key);
-      const sorted = props.toSorted();
     `,
           },
         ],
@@ -1451,6 +1431,32 @@ describe('S2871', () => {
               { messageId: 'provideCompareFunction' },
               { messageId: 'provideCompareFunction' },
             ],
+          },
+          // Object.keys/getOwnPropertyNames are no longer suppressed
+          {
+            code: `const keys = Object.keys({ a: 1, b: 2 }).toSorted();`,
+            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+          },
+          {
+            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).toSorted();`,
+            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+          },
+          {
+            code: `var ka = Object.keys(a); ka.toSorted();`,
+            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+          },
+          {
+            code: `var kb = Object.getOwnPropertyNames(b); kb.toSorted();`,
+            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
+          },
+          // for-in key collection pattern is no longer suppressed
+          {
+            code: `
+      var props = [];
+      for (var key in obj) props.push(key);
+      const sorted = props.toSorted();
+    `,
+            errors: [{ messageId: 'provideCompareFunctionForArrayOfStrings' }],
           },
         ],
       },
