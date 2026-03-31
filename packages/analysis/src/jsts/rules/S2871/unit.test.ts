@@ -592,6 +592,41 @@ describe('S2871', () => {
               },
             ],
           },
+          // Object.keys variable mutated via push — no longer a pure key array
+          {
+            code: `const ka = Object.keys(obj); ka.push('x'); ka.sort();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [{ messageId: 'suggestLanguageSensitiveOrder' }],
+              },
+            ],
+          },
+          // Object.keys variable aliased then mutated — array may be mutated through alias
+          {
+            code: `const ka = Object.keys(obj); const alias = ka; alias.push('x'); ka.sort();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [{ messageId: 'suggestLanguageSensitiveOrder' }],
+              },
+            ],
+          },
+          // for-in key array escapes to an unknown function — cannot guarantee keys-only
+          {
+            code: `
+        var props = [];
+        for (var key in obj) props.push(key);
+        mutate(props);
+        props.sort();
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [{ messageId: 'suggestLanguageSensitiveOrder' }],
+              },
+            ],
+          },
         ],
       },
     );
@@ -779,6 +814,26 @@ describe('S2871', () => {
         },
         {
           code: `a.toSorted() === 'abc'`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // Object.keys variable mutated via push — no longer a pure key array
+        {
+          code: `const ka = Object.keys(obj); ka.push('x'); ka.sort();`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // Object.keys variable aliased then mutated — array may be mutated through alias
+        {
+          code: `const ka = Object.keys(obj); const alias = ka; alias.push('x'); ka.sort();`,
+          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+        },
+        // for-in key array escapes to an unknown function — cannot guarantee keys-only
+        {
+          code: `
+            var props = [];
+            for (var key in obj) props.push(key);
+            mutate(props);
+            props.sort();
+          `,
           errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
         },
       ],

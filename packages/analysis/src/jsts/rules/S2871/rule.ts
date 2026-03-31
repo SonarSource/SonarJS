@@ -96,7 +96,28 @@ function isObjectKeyExtractionVariable(
   if (!isObjectKeyExtractionCall(def.node.init)) {
     return false;
   }
-  return !variable.references.some(ref => !ref.init && ref.isWrite());
+  // Reject if any non-init reference mutates or escapes the array
+  return !variable.references.some(ref => {
+    if (ref.init) {
+      return false;
+    }
+    if (ref.isWrite()) {
+      return true; // direct reassignment invalidates the pattern
+    }
+    const refId = ref.identifier;
+    const memberParent = getNodeParent(refId);
+    if (memberParent?.type !== 'MemberExpression' || memberParent.object !== refId) {
+      // Not used as object of a member expression: alias init or unknown call escape
+      return true;
+    }
+    const callParent = getNodeParent(memberParent);
+    if (callParent?.type !== 'CallExpression') {
+      return false; // property read (e.g. ka.length) — safe
+    }
+    const prop = memberParent.property;
+    // Any method call other than sort/toSorted is a potential mutation (e.g. ka.push('x'))
+    return !(prop.type === 'Identifier' && ['sort', 'toSorted'].includes(prop.name));
+  });
 }
 
 /**
@@ -165,6 +186,9 @@ function classifyForInKeyRef(ref: {
   if (memberParent?.type !== 'MemberExpression' || memberParent.object !== refId) {
     if (ref.isWrite()) {
       return 'invalid'; // reassignment invalidates the pattern
+    }
+    if (memberParent?.type === 'CallExpression') {
+      return 'invalid'; // array escapes to an unknown function — unknown side effects
     }
     return 'skip';
   }
