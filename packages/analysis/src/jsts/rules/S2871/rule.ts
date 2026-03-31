@@ -49,12 +49,12 @@ const compareBigIntFunctionPlaceholder = [
 ];
 
 /**
- * Checks for Array.from(x.keys()).
+ * Checks for Array.from(x).
  * Detection: AST only.
  * Pseudo-code:
- *   Array.from(collection.keys())
+ *   Array.from(source)
  */
-function isArrayFromKeysCall(node: estree.Node): boolean {
+function isArrayFromCall(node: estree.Node, predicate: (arg: estree.Node) => boolean): boolean {
   if (
     node.type !== 'CallExpression' ||
     !isCallingMethod(node as estree.CallExpression, 1, 'from')
@@ -68,12 +68,52 @@ function isArrayFromKeysCall(node: estree.Node): boolean {
     return false;
   }
   const arg = callExpr.arguments[0];
-  // e.g. Array.from(map.keys()) — argument must be a .keys() call
+  return arg != null && predicate(arg);
+}
+
+/**
+ * Checks for Object.keys(x) or Object.getOwnPropertyNames(x).
+ * Detection: AST only.
+ * Pseudo-code:
+ *   Object.keys(source)
+ *   Object.getOwnPropertyNames(source)
+ */
+function isObjectKeysLikeCall(node: estree.Node): boolean {
   return (
-    arg?.type === 'CallExpression' &&
-    arg.callee.type === 'MemberExpression' &&
-    arg.callee.property.type === 'Identifier' &&
-    arg.callee.property.name === 'keys'
+    node.type === 'CallExpression' &&
+    node.callee.type === 'MemberExpression' &&
+    isIdentifier(node.callee.object, 'Object') &&
+    node.callee.property.type === 'Identifier' &&
+    ['keys', 'getOwnPropertyNames'].includes(node.callee.property.name) &&
+    node.arguments.length === 1
+  );
+}
+
+/**
+ * Checks for Array.from(Object.keys(x)) or Array.from(Object.getOwnPropertyNames(x)).
+ * Detection: AST only.
+ * Pseudo-code:
+ *   Array.from(Object.keys(source))
+ *   Array.from(Object.getOwnPropertyNames(source))
+ */
+function isArrayFromObjectKeysLikeCall(node: estree.Node): boolean {
+  return isArrayFromCall(node, isObjectKeysLikeCall);
+}
+
+/**
+ * Checks for Array.from(x.keys()).
+ * Detection: AST only.
+ * Pseudo-code:
+ *   Array.from(collection.keys())
+ */
+function isArrayFromKeysCall(node: estree.Node): boolean {
+  return isArrayFromCall(
+    node,
+    arg =>
+      arg.type === 'CallExpression' &&
+      arg.callee.type === 'MemberExpression' &&
+      arg.callee.property.type === 'Identifier' &&
+      arg.callee.property.name === 'keys',
   );
 }
 
@@ -99,6 +139,21 @@ function isArrayFromMapStringKeysCall(
   return receiverType.symbol?.name === 'Map';
 }
 
+/**
+ * Checks for key collections that are considered technical string arrays and
+ * can be safely sorted with the default alphabetical order.
+ */
+function isTechnicalStringKeysArray(
+  object: estree.Node,
+  services: RequiredParserServices,
+): boolean {
+  return (
+    isObjectKeysLikeCall(object) ||
+    isArrayFromObjectKeysLikeCall(object) ||
+    isArrayFromMapStringKeysCall(object, services)
+  );
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     hasSuggestions: true,
@@ -109,13 +164,15 @@ export const rule: Rule.RuleModule = {
         'Provide a compare function that depends on "String.localeCompare", to reliably sort elements alphabetically.',
       suggestNumericOrder: 'Add a comparator function to sort in ascending order',
       suggestLanguageSensitiveOrder:
-        'Add a comparator function to sort in a language-sensitive way',
+        'Add a comparator function to sort in ascending language-sensitive order',
     },
   }),
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
     const services = context.sourceCode.parserServices;
-    const hasTypeChecker = isRequiredParserServices(services);
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
 
     return {
       'CallExpression[arguments.length=0][callee.type="MemberExpression"]': (
@@ -128,32 +185,19 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (!hasTypeChecker) {
-          context.report({ node, messageId: 'provideCompareFunction' });
-          return;
-        }
-
-        // TypeScript type checker available: use type information for precise suppression
         const type = getTypeFromTreeNode(object, services);
+
         if (!isArrayLikeType(type, services)) {
           return;
         }
 
-        const suggest = getSuggestions(call, type);
-
-        // For string arrays, suppress only provably technical cases where default
-        // alphabetical ordering is clearly intentional; report everything else
-        // with a localeCompare suggestion.
-        if (!isStringArray(type, services)) {
-          context.report({ node, suggest, messageId: 'provideCompareFunction' });
+        if (isStringArray(type, services) && isTechnicalStringKeysArray(object, services)) {
           return;
         }
 
-        if (isArrayFromMapStringKeysCall(object, services)) {
-          return; // safe: provably technical strings
-        }
-
-        context.report({ node, suggest, messageId: 'provideCompareFunctionForArrayOfStrings' });
+        const suggest = getSuggestions(call, type);
+        const messageId = getMessageId(type);
+        context.report({ node, suggest, messageId });
       },
     };
 
@@ -176,6 +220,14 @@ export const rule: Rule.RuleModule = {
         });
       }
       return suggestions;
+    }
+
+    function getMessageId(type: ts.Type) {
+      if (isStringArray(type, services)) {
+        return 'provideCompareFunctionForArrayOfStrings';
+      }
+
+      return 'provideCompareFunction';
     }
 
     function fixer(call: estree.CallExpression, ...placeholder: string[]): Rule.ReportFixer {

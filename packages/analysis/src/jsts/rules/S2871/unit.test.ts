@@ -159,6 +159,20 @@ describe('S2871', () => {
       }
     `,
           },
+          // Compliant: direct object-key collections
+          {
+            code: `Object.keys({ a: 1, b: 2 }).sort();`,
+          },
+          {
+            code: `Object.getOwnPropertyNames({ a: 1, b: 2 }).sort();`,
+          },
+          // Compliant: Array.from wrapper around object-key collections
+          {
+            code: `Array.from(Object.keys({ a: 1, b: 2 })).sort();`,
+          },
+          {
+            code: `Array.from(Object.getOwnPropertyNames({ a: 1, b: 2 })).sort();`,
+          },
         ],
         invalid: [
           {
@@ -333,6 +347,36 @@ describe('S2871', () => {
                   {
                     messageId: 'suggestLanguageSensitiveOrder',
                     output: `Object.keys({ a: 1, b: 2 }).map(k => k.toUpperCase()).sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          // Array.from(Object.keys()).map().sort() - transformed after wrapper, should raise
+          {
+            code: `Array.from(Object.keys({ a: 1, b: 2 })).map(k => k.toUpperCase()).sort();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `Array.from(Object.keys({ a: 1, b: 2 })).map(k => k.toUpperCase()).sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          // Aliased Array.from(Object.keys()) result is still reported
+          {
+            code: `const keys = Array.from(Object.keys(obj)); keys.sort();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const keys = Array.from(Object.keys(obj)); keys.sort((a, b) => a.localeCompare(b));`,
                   },
                 ],
               },
@@ -728,35 +772,7 @@ describe('S2871', () => {
               },
             ],
           },
-          // Object.keys/getOwnPropertyNames are no longer suppressed
-          {
-            code: `const keys = Object.keys({ a: 1, b: 2 }).sort();`,
-            errors: [
-              {
-                messageId: 'provideCompareFunctionForArrayOfStrings',
-                suggestions: [
-                  {
-                    messageId: 'suggestLanguageSensitiveOrder',
-                    output: `const keys = Object.keys({ a: 1, b: 2 }).sort((a, b) => a.localeCompare(b));`,
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).sort();`,
-            errors: [
-              {
-                messageId: 'provideCompareFunctionForArrayOfStrings',
-                suggestions: [
-                  {
-                    messageId: 'suggestLanguageSensitiveOrder',
-                    output: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).sort((a, b) => a.localeCompare(b));`,
-                  },
-                ],
-              },
-            ],
-          },
+          // Aliased object-key arrays are still reported
           {
             code: `var ka = Object.keys(a); ka.sort();`,
             errors: [
@@ -837,230 +853,118 @@ describe('S2871', () => {
     );
 
     const noTypeCheckingRuleTester = new NoTypeCheckingRuleTester();
-    noTypeCheckingRuleTester.run(`AST-based suppression works without type checker`, rule, {
-      valid: [],
-      invalid: [
-        // Object.keys/getOwnPropertyNames are no longer suppressed without type checker
-        {
-          code: `Object.keys({ a: 1 }).sort()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        {
-          code: `Object.keys({ a: 1 }).toSorted()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        {
-          code: `Object.getOwnPropertyNames({ a: 1 }).sort()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        {
-          code: `Object.getOwnPropertyNames({ a: 1 }).toSorted()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        {
-          code: `var ka = Object.keys(a); ka.sort();`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        {
-          code: `var kb = Object.getOwnPropertyNames(b); kb.sort();`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        // for-in key collection pattern is no longer suppressed without type checker
+    noTypeCheckingRuleTester.run(`No issues are raised without type checker`, rule, {
+      valid: [
+        { code: `Object.keys({ a: 1 }).sort()` },
+        { code: `Object.keys({ a: 1 }).toSorted()` },
+        { code: `Object.getOwnPropertyNames({ a: 1 }).sort()` },
+        { code: `Object.getOwnPropertyNames({ a: 1 }).toSorted()` },
+        { code: `Array.from(Object.keys({ a: 1 })).sort()` },
+        { code: `Array.from(Object.keys({ a: 1 })).toSorted()` },
+        { code: `Array.from(Object.getOwnPropertyNames({ a: 1 })).sort()` },
+        { code: `Array.from(Object.getOwnPropertyNames({ a: 1 })).toSorted()` },
+        { code: `var ka = Object.keys(a); ka.sort();` },
+        { code: `var kb = Object.getOwnPropertyNames(b); kb.sort();` },
         {
           code: `
-            var props = [];
-            for (var key in obj) props.push(key);
-            props.sort();
-          `,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+          var props = [];
+          for (var key in obj) props.push(key);
+          props.sort();
+        `,
         },
         {
           code: `
-            var props = [];
-            for (var key in this.value) props.push(key);
-            return props.sort();
-          `,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+          var props = [];
+          for (var key in this.value) props.push(key);
+          return props.sort();
+        `,
         },
         {
           code: `
-            var keys = [];
-            for (var key in obj) {
-              if (obj.hasOwnProperty(key)) {
-                keys.push(key);
-              }
+          var keys = [];
+          for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              keys.push(key);
             }
-            keys.sort();
-          `,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+          }
+          keys.sort();
+        `,
         },
-        // Without type checker, sort on unknown arrays is still flagged (no suggestions)
-        {
-          code: `[1, 2, 3].sort()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        { code: `arr.sort()`, errors: [{ messageId: 'provideCompareFunction', suggestions: [] }] },
-        {
-          code: `[1, 2, 3].toSorted()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        // Object.getOwnPropertySymbols returns symbol[], not string[] - must be flagged
-        {
-          code: `Object.getOwnPropertySymbols(obj).sort()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        {
-          code: `Object.getOwnPropertySymbols(obj).toSorted()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        // for-in pattern with index-assignment mutation - still flagged
+        { code: `[1, 2, 3].sort()` },
+        { code: `arr.sort()` },
+        { code: `[1, 2, 3].toSorted()` },
+        { code: `Object.getOwnPropertySymbols(obj).sort()` },
+        { code: `Object.getOwnPropertySymbols(obj).toSorted()` },
         {
           code: `
-            var arr = [];
-            for (var key in obj) arr.push(key);
-            arr[0] = 'injected';
-            arr.sort();
-          `,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+          var arr = [];
+          for (var key in obj) arr.push(key);
+          arr[0] = 'injected';
+          arr.sort();
+        `,
         },
-        // for-in pattern with push outside the loop - still flagged
         {
           code: `
-            var arr = [];
-            for (var key in obj) arr.push(key);
-            arr.push('extra');
-            arr.sort();
-          `,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+          var arr = [];
+          for (var key in obj) arr.push(key);
+          arr.push('extra');
+          arr.sort();
+        `,
         },
-        // for-in pattern but array not initialized as empty - still flagged
         {
           code: `
-            var arr = ['initial'];
-            for (var key in obj) arr.push(key);
-            arr.sort();
-          `,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+          var arr = ['initial'];
+          for (var key in obj) arr.push(key);
+          arr.sort();
+        `,
         },
-        // for-in pattern but array is reassigned - still flagged
         {
           code: `
-            var arr = [];
-            for (var key in obj) arr.push(key);
-            arr = [1, 2, 3];
-            arr.sort();
-          `,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+          var arr = [];
+          for (var key in obj) arr.push(key);
+          arr = [1, 2, 3];
+          arr.sort();
+        `,
         },
-        // Object.keys variable that is reassigned - not suppressed
-        {
-          code: `var ka = Object.keys(a); ka = []; ka.sort();`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        // for-in pattern but pushed value is not the loop variable - still flagged
+        { code: `var ka = Object.keys(a); ka = []; ka.sort();` },
         {
           code: `
-            var arr = [];
-            for (var key in obj) arr.push(someNumber);
-            arr.sort();
-          `,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+          var arr = [];
+          for (var key in obj) arr.push(someNumber);
+          arr.sort();
+        `,
         },
-        // for-in pattern with extra push argument - arr is NOT a pure key array
         {
           code: `
-            var arr = [];
-            for (var key in obj) arr.push(key, 42);
-            arr.sort();
-          `,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+          var arr = [];
+          for (var key in obj) arr.push(key, 42);
+          arr.sort();
+        `,
         },
-        // Foo.from(map.keys()).sort() - non-Array receiver is not suppressed
-        {
-          code: `Foo.from(map.keys()).sort()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        {
-          code: `Foo.from(map.keys()).toSorted()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        // Array.from(x.keys()) is not suppressed without type checker:
-        // x could be a numeric array or any non-Map iterable
-        {
-          code: `Array.from(map.keys()).sort()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        {
-          code: `Array.from(map.keys()).toSorted()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        // Regression: numeric .keys() iterators must still be reported
-        {
-          code: `Array.from(numArr.keys()).sort()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        {
-          code: `Array.from(numArr.keys()).toSorted()`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        // a.sort() === b.sort() is broken code (reference comparison) — S2871 fires on both sides
-        {
-          code: `a.sort() === b.sort()`,
-          errors: [
-            { messageId: 'provideCompareFunction', suggestions: [] },
-            { messageId: 'provideCompareFunction', suggestions: [] },
-          ],
-        },
-        {
-          code: `a.sort() !== b.sort()`,
-          errors: [
-            { messageId: 'provideCompareFunction', suggestions: [] },
-            { messageId: 'provideCompareFunction', suggestions: [] },
-          ],
-        },
-        {
-          code: `a.toSorted() === b.toSorted()`,
-          errors: [
-            { messageId: 'provideCompareFunction', suggestions: [] },
-            { messageId: 'provideCompareFunction', suggestions: [] },
-          ],
-        },
-        {
-          code: `a.toSorted() !== b.toSorted()`,
-          errors: [
-            { messageId: 'provideCompareFunction', suggestions: [] },
-            { messageId: 'provideCompareFunction', suggestions: [] },
-          ],
-        },
-        {
-          code: `a.sort() === 'abc'`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        {
-          code: `a.toSorted() === 'abc'`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        // Object.keys variable mutated via push — no longer a pure key array
-        {
-          code: `const ka = Object.keys(obj); ka.push('x'); ka.sort();`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        // Object.keys variable aliased then mutated — array may be mutated through alias
-        {
-          code: `const ka = Object.keys(obj); const alias = ka; alias.push('x'); ka.sort();`,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
-        },
-        // for-in key array escapes to an unknown function — cannot guarantee keys-only
+        { code: `Foo.from(map.keys()).sort()` },
+        { code: `Foo.from(map.keys()).toSorted()` },
+        { code: `Array.from(map.keys()).sort()` },
+        { code: `Array.from(map.keys()).toSorted()` },
+        { code: `Array.from(numArr.keys()).sort()` },
+        { code: `Array.from(numArr.keys()).toSorted()` },
+        { code: `a.sort() === b.sort()` },
+        { code: `a.sort() !== b.sort()` },
+        { code: `a.toSorted() === b.toSorted()` },
+        { code: `a.toSorted() !== b.toSorted()` },
+        { code: `a.sort() === 'abc'` },
+        { code: `a.toSorted() === 'abc'` },
+        { code: `const ka = Object.keys(obj); ka.push('x'); ka.sort();` },
+        { code: `const ka = Object.keys(obj); const alias = ka; alias.push('x'); ka.sort();` },
         {
           code: `
-            var props = [];
-            for (var key in obj) props.push(key);
-            mutate(props);
-            props.sort();
-          `,
-          errors: [{ messageId: 'provideCompareFunction', suggestions: [] }],
+          var props = [];
+          for (var key in obj) props.push(key);
+          mutate(props);
+          props.sort();
+        `,
         },
       ],
+      invalid: [],
     });
 
     ruleTester.run(
@@ -1191,6 +1095,20 @@ describe('S2871', () => {
         return Array.from(map.keys()).toSorted();
       }
     `,
+          },
+          // Compliant: direct object-key collections
+          {
+            code: `Object.keys({ a: 1, b: 2 }).toSorted();`,
+          },
+          {
+            code: `Object.getOwnPropertyNames({ a: 1, b: 2 }).toSorted();`,
+          },
+          // Compliant: Array.from wrapper around object-key collections
+          {
+            code: `Array.from(Object.keys({ a: 1, b: 2 })).toSorted();`,
+          },
+          {
+            code: `Array.from(Object.getOwnPropertyNames({ a: 1, b: 2 })).toSorted();`,
           },
         ],
         invalid: [
@@ -1369,6 +1287,36 @@ describe('S2871', () => {
                   {
                     messageId: 'suggestLanguageSensitiveOrder',
                     output: `Object.keys({ a: 1, b: 2 }).map(k => k.toUpperCase()).toSorted((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          // Array.from(Object.keys()).map().toSorted() - transformed after wrapper, should raise
+          {
+            code: `Array.from(Object.keys({ a: 1, b: 2 })).map(k => k.toUpperCase()).toSorted();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `Array.from(Object.keys({ a: 1, b: 2 })).map(k => k.toUpperCase()).toSorted((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          // Aliased Array.from(Object.keys()) result is still reported
+          {
+            code: `const keys = Array.from(Object.keys(obj)); keys.toSorted();`,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `const keys = Array.from(Object.keys(obj)); keys.toSorted((a, b) => a.localeCompare(b));`,
                   },
                 ],
               },
@@ -1713,35 +1661,7 @@ describe('S2871', () => {
               },
             ],
           },
-          // Object.keys/getOwnPropertyNames are no longer suppressed
-          {
-            code: `const keys = Object.keys({ a: 1, b: 2 }).toSorted();`,
-            errors: [
-              {
-                messageId: 'provideCompareFunctionForArrayOfStrings',
-                suggestions: [
-                  {
-                    messageId: 'suggestLanguageSensitiveOrder',
-                    output: `const keys = Object.keys({ a: 1, b: 2 }).toSorted((a, b) => a.localeCompare(b));`,
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            code: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).toSorted();`,
-            errors: [
-              {
-                messageId: 'provideCompareFunctionForArrayOfStrings',
-                suggestions: [
-                  {
-                    messageId: 'suggestLanguageSensitiveOrder',
-                    output: `const keys = Object.getOwnPropertyNames({ a: 1, b: 2 }).toSorted((a, b) => a.localeCompare(b));`,
-                  },
-                ],
-              },
-            ],
-          },
+          // Aliased object-key arrays are still reported
           {
             code: `var ka = Object.keys(a); ka.toSorted();`,
             errors: [
