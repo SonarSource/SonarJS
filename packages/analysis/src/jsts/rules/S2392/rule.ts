@@ -35,6 +35,7 @@ function getOtherLoopRanges(
   variable: Scope.Variable,
   varDeclaration: estree.VariableDeclaration,
 ): [number, number][] {
+  const declRange = varDeclaration.range;
   const ranges: [number, number][] = [];
   for (const def of variable.defs) {
     if (varDeclaration.declarations.includes(def.node as estree.VariableDeclarator)) {
@@ -43,6 +44,10 @@ function getOtherLoopRanges(
     const loopNode = (def.node as unknown as { parent?: { parent?: estree.Node } }).parent?.parent;
     const loopRange = loopNode?.range;
     if (isForLoopNode(loopNode) && loopRange) {
+      // Exclude enclosing loops: only collect disjoint sibling loops
+      if (declRange && loopRange[0] <= declRange[0] && loopRange[1] >= declRange[1]) {
+        continue;
+      }
       ranges.push(loopRange);
     }
   }

@@ -263,6 +263,26 @@ describe('S2392', () => {
           ],
         },
         {
+          // inner var re-declaration inside a nested loop corrupts the outer counter
+          code: `
+        function foo() {
+          for (var i = 0; i < 10; i++) {
+            doSomething();
+            for (var i = 0; i < 5; i++) {
+              doInner(i);
+            }
+          }
+        }
+        `,
+          errors: [
+            {
+              message:
+                "Consider moving declaration of 'i' as it is referenced outside current binding context.",
+              line: 5,
+            },
+          ],
+        },
+        {
           // var in block + for-in in sibling block — should raise at the block declaration
           code: `
         function process(args, themes) {
