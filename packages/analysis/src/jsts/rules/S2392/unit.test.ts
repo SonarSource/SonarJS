@@ -304,6 +304,32 @@ describe('S2392', () => {
             },
           ],
         },
+        {
+          // nested for-loop redeclaration with sibling loops — sibling loops must NOT suppress the nested report
+          code: `
+        function findPath(extensions, pathSplit) {
+          for (var i = 0; i < extensions.length; i++) {
+            var ext = extensions[i];
+            if (isSupported(ext)) {
+              for (var i = 1; i <= pathSplit.length - 2; i++) {
+                process(pathSplit[i]);
+              }
+              break;
+            }
+          }
+          for (var i = 0; i < extensions.length; i++) {
+            use(extensions[i]);
+          }
+        }
+        `,
+          errors: [
+            {
+              message:
+                "Consider moving declaration of 'i' as it is referenced outside current binding context.",
+              line: 6,
+            },
+          ],
+        },
       ],
     });
   });
