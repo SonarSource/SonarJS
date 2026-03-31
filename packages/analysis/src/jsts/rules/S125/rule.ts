@@ -30,7 +30,7 @@ const EXCLUDED_STATEMENTS = new Set(['BreakStatement', 'LabeledStatement', 'Cont
 
 // Documentation example prefixes that indicate a comment is an intentional usage example,
 // not commented-out dead code (e.g. "e.g. foo()", "example: bar()").
-const DOCUMENTATION_PREFIX_PATTERN = /^(e\.g[.:]|for example|examples?)/i;
+const DOCUMENTATION_PREFIX_PATTERN = /^(e\.g[.:]|for example\b|examples?\b)/i;
 
 // Cheap prefilter: any meaningful JS statement must contain at least one of these characters,
 // or be an import/export with a string literal (side-effect imports have no punctuation)

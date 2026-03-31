@@ -319,6 +319,26 @@ const a = 1;`,
           ],
         },
         {
+          // identifier starting with "example" is still reported as dead code
+          code: `// exampleFn();`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
+        {
+          // identifier starting with "examples" is still reported as dead code
+          code: `// examplesCount = 1;`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
+        {
           code: `let x = /* let x = 42; */ 0;`,
           errors: [
             {
