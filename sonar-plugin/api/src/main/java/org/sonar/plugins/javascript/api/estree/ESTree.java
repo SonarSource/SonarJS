@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -129,13 +129,20 @@ public class ESTree {
     Expression right
   ) implements Expression {}
 
-  public record AssignmentPattern(Location loc, Pattern left, Expression right) implements
-    Pattern {}
+  public record AssignmentPattern(
+    Location loc,
+    Pattern left,
+    Expression right
+  ) implements Pattern {}
 
   public record AwaitExpression(Location loc, Expression argument) implements Expression {}
 
-  public record BigIntLiteral(Location loc, BigInteger value, String bigint, String raw) implements
-    Literal {}
+  public record BigIntLiteral(
+    Location loc,
+    BigInteger value,
+    String bigint,
+    String raw
+  ) implements Literal {}
 
   public record BinaryExpression(
     Location loc,
@@ -144,13 +151,18 @@ public class ESTree {
     Expression right
   ) implements Expression {}
 
-  public record BlockStatement(Location loc, List<Statement> body) implements
-    BlockStatementOrExpression, Statement {}
+  public record BlockStatement(
+    Location loc,
+    List<Statement> body
+  ) implements BlockStatementOrExpression, Statement {}
 
   public record BreakStatement(Location loc, Optional<Identifier> label) implements Statement {}
 
-  public record CatchClause(Location loc, Optional<Pattern> param, BlockStatement body) implements
-    Node {}
+  public record CatchClause(
+    Location loc,
+    Optional<Pattern> param,
+    BlockStatement body
+  ) implements Node {}
 
   public record ChainExpression(Location loc, ChainElement expression) implements Expression {}
 
@@ -185,11 +197,17 @@ public class ESTree {
 
   public record DebuggerStatement(Location loc) implements Statement {}
 
-  public record Directive(Location loc, Literal expression, String directive) implements
-    Statement {}
+  public record Directive(
+    Location loc,
+    Literal expression,
+    String directive
+  ) implements Statement {}
 
-  public record DoWhileStatement(Location loc, Statement body, Expression test) implements
-    Statement {}
+  public record DoWhileStatement(
+    Location loc,
+    Statement body,
+    Expression test
+  ) implements Statement {}
 
   public record EmptyStatement(Location loc) implements Statement {}
 
@@ -217,8 +235,11 @@ public class ESTree {
     Optional<Literal> source
   ) implements ModuleDeclaration {}
 
-  public record ExportSpecifier(Location loc, Identifier exported, Identifier local) implements
-    Node {}
+  public record ExportSpecifier(
+    Location loc,
+    Identifier exported,
+    Identifier local
+  ) implements Node {}
 
   public record ExpressionStatement(Location loc, Expression expression) implements Statement {}
 
@@ -264,7 +285,10 @@ public class ESTree {
     boolean async
   ) implements FunctionExpressionOrTSEmptyBodyFunctionExpression {}
 
-  public record Identifier(Location loc, String name) implements
+  public record Identifier(
+    Location loc,
+    String name
+  ) implements
     Expression,
     Pattern,
     IdentifierOrLiteral,
@@ -283,19 +307,29 @@ public class ESTree {
     Literal source
   ) implements ModuleDeclaration {}
 
-  public record ImportDefaultSpecifier(Location loc, Identifier local) implements
-    ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier {}
+  public record ImportDefaultSpecifier(
+    Location loc,
+    Identifier local
+  ) implements ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier {}
 
   public record ImportExpression(Location loc, Expression source) implements Expression {}
 
-  public record ImportNamespaceSpecifier(Location loc, Identifier local) implements
-    ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier {}
+  public record ImportNamespaceSpecifier(
+    Location loc,
+    Identifier local
+  ) implements ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier {}
 
-  public record ImportSpecifier(Location loc, Identifier imported, Identifier local) implements
-    ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier {}
+  public record ImportSpecifier(
+    Location loc,
+    Identifier imported,
+    Identifier local
+  ) implements ImportDefaultSpecifierOrImportNamespaceSpecifierOrImportSpecifier {}
 
-  public record LabeledStatement(Location loc, Identifier label, Statement body) implements
-    Statement {}
+  public record LabeledStatement(
+    Location loc,
+    Identifier label,
+    Statement body
+  ) implements Statement {}
 
   public record LogicalExpression(
     Location loc,
@@ -312,8 +346,11 @@ public class ESTree {
     boolean optional
   ) implements ChainElement, Expression, Pattern {}
 
-  public record MetaProperty(Location loc, Identifier meta, Identifier property) implements
-    Expression {}
+  public record MetaProperty(
+    Location loc,
+    Identifier meta,
+    Identifier property
+  ) implements Expression {}
 
   public record MethodDefinition(
     Location loc,
@@ -330,14 +367,20 @@ public class ESTree {
     List<ExpressionOrSpreadElement> arguments
   ) implements CallExpression {}
 
-  public record ObjectExpression(Location loc, List<PropertyOrSpreadElement> properties) implements
-    Expression {}
+  public record ObjectExpression(
+    Location loc,
+    List<PropertyOrSpreadElement> properties
+  ) implements Expression {}
 
-  public record ObjectPattern(Location loc, List<PropertyOrRestElement> properties) implements
-    Pattern {}
+  public record ObjectPattern(
+    Location loc,
+    List<PropertyOrRestElement> properties
+  ) implements Pattern {}
 
-  public record PrivateIdentifier(Location loc, String name) implements
-    ExpressionOrPrivateIdentifier {}
+  public record PrivateIdentifier(
+    Location loc,
+    String name
+  ) implements ExpressionOrPrivateIdentifier {}
 
   public record Program(
     Location loc,
@@ -365,16 +408,24 @@ public class ESTree {
     boolean isStatic
   ) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock {}
 
-  public record RegExpLiteral(Location loc, String pattern, String flags, String raw) implements
-    Literal {}
+  public record RegExpLiteral(
+    Location loc,
+    String pattern,
+    String flags,
+    String raw
+  ) implements Literal {}
 
-  public record RestElement(Location loc, Pattern argument) implements
-    PropertyOrRestElement, Pattern {}
+  public record RestElement(
+    Location loc,
+    Pattern argument
+  ) implements PropertyOrRestElement, Pattern {}
 
   public record ReturnStatement(Location loc, Optional<Expression> argument) implements Statement {}
 
-  public record SequenceExpression(Location loc, List<Expression> expressions) implements
-    Expression {}
+  public record SequenceExpression(
+    Location loc,
+    List<Expression> expressions
+  ) implements Expression {}
 
   public record SimpleCallExpression(
     Location loc,
@@ -385,11 +436,15 @@ public class ESTree {
 
   public record SimpleLiteral(Location loc, Object value, String raw) implements Literal {}
 
-  public record SpreadElement(Location loc, Expression argument) implements
-    ExpressionOrSpreadElement, PropertyOrSpreadElement {}
+  public record SpreadElement(
+    Location loc,
+    Expression argument
+  ) implements ExpressionOrSpreadElement, PropertyOrSpreadElement {}
 
-  public record StaticBlock(Location loc, List<Statement> body) implements
-    MethodDefinitionOrPropertyDefinitionOrStaticBlock, Statement {}
+  public record StaticBlock(
+    Location loc,
+    List<Statement> body
+  ) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock, Statement {}
 
   public record Super(Location loc) implements ExpressionOrSuper {}
 
@@ -411,8 +466,12 @@ public class ESTree {
     TemplateLiteral quasi
   ) implements Expression {}
 
-  public record TemplateElement(Location loc, boolean tail, String cooked, String raw) implements
-    Node {}
+  public record TemplateElement(
+    Location loc,
+    boolean tail,
+    String cooked,
+    String raw
+  ) implements Node {}
 
   public record TemplateLiteral(
     Location loc,
@@ -451,14 +510,23 @@ public class ESTree {
     String kind
   ) implements ExpressionOrVariableDeclaration, PatternOrVariableDeclaration, Declaration {}
 
-  public record VariableDeclarator(Location loc, Pattern id, Optional<Expression> init) implements
-    Node {}
+  public record VariableDeclarator(
+    Location loc,
+    Pattern id,
+    Optional<Expression> init
+  ) implements Node {}
 
-  public record WhileStatement(Location loc, Expression test, Statement body) implements
-    Statement {}
+  public record WhileStatement(
+    Location loc,
+    Expression test,
+    Statement body
+  ) implements Statement {}
 
-  public record WithStatement(Location loc, Expression object, Statement body) implements
-    Statement {}
+  public record WithStatement(
+    Location loc,
+    Expression object,
+    Statement body
+  ) implements Statement {}
 
   public record YieldExpression(
     Location loc,
@@ -637,10 +705,13 @@ public class ESTree {
     IdentifierOrTSQualifiedName left,
     Identifier right
   ) implements
-    IdentifierOrTSQualifiedNameOrTSExternalModuleReference, IdentifierOrLiteralOrTSQualifiedName {}
+    IdentifierOrTSQualifiedNameOrTSExternalModuleReference,
+    IdentifierOrLiteralOrTSQualifiedName {}
 
-  public record TSExternalModuleReference(Location loc, Literal expression) implements
-    IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
+  public record TSExternalModuleReference(
+    Location loc,
+    Literal expression
+  ) implements IdentifierOrTSQualifiedNameOrTSExternalModuleReference {}
 
   public record TSImportEqualsDeclaration(
     Location loc,
@@ -680,11 +751,13 @@ public class ESTree {
 
   public record TSDeclareFunction(Location loc) implements Declaration {}
 
-  public record TSEmptyBodyFunctionExpression(Location loc) implements
-    FunctionExpressionOrTSEmptyBodyFunctionExpression {}
+  public record TSEmptyBodyFunctionExpression(
+    Location loc
+  ) implements FunctionExpressionOrTSEmptyBodyFunctionExpression {}
 
-  public record TSAbstractMethodDefinition(Location loc) implements
-    MethodDefinitionOrPropertyDefinitionOrStaticBlock {}
+  public record TSAbstractMethodDefinition(
+    Location loc
+  ) implements MethodDefinitionOrPropertyDefinitionOrStaticBlock {}
 
   public record TSTypeParameterInstantiation(Location loc) implements Node {}
 
@@ -736,8 +809,10 @@ public class ESTree {
 
   public sealed interface JSXAttributeName extends Node {}
 
-  public record JSXIdentifier(Location loc, String name) implements
-    JSXTagNameExpression, JSXAttributeName {}
+  public record JSXIdentifier(
+    Location loc,
+    String name
+  ) implements JSXTagNameExpression, JSXAttributeName {}
 
   public record JSXMemberExpression(
     Location loc,
@@ -751,16 +826,20 @@ public class ESTree {
     JSXIdentifier namespace
   ) implements JSXAttributeName, JSXTagNameExpression {}
 
-  public record JSXSpreadAttribute(Location loc, Expression argument) implements
-    JSXOpeningElementAttribute {}
+  public record JSXSpreadAttribute(
+    Location loc,
+    Expression argument
+  ) implements JSXOpeningElementAttribute {}
 
   public record JSXExpressionContainer(
     Location loc,
     ExpressionOrJSXEmptyExpression expression
   ) implements JSXExpression {}
 
-  public record JSXSpreadChild(Location loc, ExpressionOrJSXEmptyExpression expression) implements
-    JSXExpression {}
+  public record JSXSpreadChild(
+    Location loc,
+    ExpressionOrJSXEmptyExpression expression
+  ) implements JSXExpression {}
 
   public record JSXText(Location loc, String raw, String value) implements JSXChild {}
 
