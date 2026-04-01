@@ -198,6 +198,12 @@ function findOwnerByType(
  * Requiring the reverse direction as well (`componentPropsType → propsType`) filters
  * out unrelated interfaces that happen to satisfy a permissive props shape.
  */
+
+// @ts-ignore — isTypeAssignableTo is a private TypeScript API
+function areMutuallyAssignable(checker: ts.TypeChecker, a: ts.Type, b: ts.Type): boolean {
+  return checker.isTypeAssignableTo(a, b) && checker.isTypeAssignableTo(b, a);
+}
+
 function matchesClassProps(
   cls: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
@@ -215,11 +221,7 @@ function matchesClassProps(
   const propsSymbol = instanceType.getProperty('props');
   if (propsSymbol) {
     const componentPropsType = checker.getTypeOfSymbol(propsSymbol);
-    // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-    return (
-      checker.isTypeAssignableTo(propsType, componentPropsType) &&
-      checker.isTypeAssignableTo(componentPropsType, propsType)
-    );
+    return areMutuallyAssignable(checker, propsType, componentPropsType);
   }
   // Fallback: when the base class is unresolved (e.g. `declare const React: any`),
   // TypeScript cannot expose the inherited `props` property via the instance type.
@@ -261,11 +263,7 @@ function matchesClassPropsViaSyntax(
         continue;
       }
       const firstArgType = checker.getTypeAtLocation(typeArgs[0]);
-      // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-      if (
-        checker.isTypeAssignableTo(propsType, firstArgType) &&
-        checker.isTypeAssignableTo(firstArgType, propsType)
-      ) {
+      if (areMutuallyAssignable(checker, propsType, firstArgType)) {
         return true;
       }
     }
@@ -349,12 +347,7 @@ function matchesFunctionProps(
   // TypeScript derives the parameter type from the destructuring pattern in that case,
   // producing an incomplete type that fails the mutual-assignability check.
   const annotatedParamType = getAnnotationBasedPropsType(tsFuncNode, checker);
-  // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-  if (
-    annotatedParamType != null &&
-    checker.isTypeAssignableTo(propsType, annotatedParamType) &&
-    checker.isTypeAssignableTo(annotatedParamType, propsType)
-  ) {
+  if (annotatedParamType != null && areMutuallyAssignable(checker, propsType, annotatedParamType)) {
     return true;
   }
 
@@ -366,11 +359,7 @@ function matchesFunctionProps(
     return false;
   }
   const componentParamType = checker.getTypeOfSymbol(firstParam);
-  // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-  return (
-    checker.isTypeAssignableTo(propsType, componentParamType) &&
-    checker.isTypeAssignableTo(componentParamType, propsType)
-  );
+  return areMutuallyAssignable(checker, propsType, componentParamType);
 }
 
 /**
