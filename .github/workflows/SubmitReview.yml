@@ -7,7 +7,7 @@ on:
 jobs:
   SubmitReview_job:
     name: Submit Review
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-docker
     permissions:
       id-token: write
       pull-requests: read
