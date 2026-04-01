@@ -16,7 +16,7 @@
  */
 import * as grpc from '@grpc/grpc-js';
 import { grpc as healthProto } from './proto/health.js';
-import { info } from '../../shared/src/helpers/logging.js';
+import { info,debug } from '../../shared/src/helpers/logging.js';
 
 /**
  * gRPC handler for the Health Check RPC
@@ -32,7 +32,7 @@ export async function healthCheckHandler(
   const request = call.request;
   const serviceName = request.service || '';
 
-  info(`Health check request for service: "${serviceName}"`);
+  debug(`Health check request for service: "${serviceName}"`);
 
   const isKnownService = serviceName === '' || serviceName === 'analyzer.LanguageAnalyzerService';
 
