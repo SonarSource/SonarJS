@@ -123,6 +123,70 @@ describe('S2077', () => {
       sequelize.query(sql);
       `,
         },
+        // sqlite3 module: safe identifier
+        {
+          code: `
+      const sqlite3 = require('sqlite3');
+      const db = new sqlite3.Database(':memory:');
+      db.run(sql);
+      `,
+        },
+        // better-sqlite3 module: safe identifier
+        {
+          code: `
+      const Database = require('better-sqlite3');
+      const db = new Database(':memory:');
+      db.exec(sql);
+      `,
+        },
+        // mssql module: safe identifier
+        {
+          code: `
+      const mssql = require('mssql');
+      const pool = new mssql.ConnectionPool(config);
+      pool.query(sql);
+      `,
+        },
+        // mssql Request: safe identifier
+        {
+          code: `
+      const mssql = require('mssql');
+      const request = new mssql.Request();
+      request.query(sql);
+      `,
+        },
+        // oracledb module: safe identifier
+        {
+          code: `
+      const oracledb = require('oracledb');
+      const conn = oracledb.getConnection();
+      conn.execute(sql);
+      `,
+        },
+        // knex module: safe identifier
+        {
+          code: `
+      const knex = require('knex');
+      const db = knex(config);
+      db.raw(sql);
+      `,
+        },
+        // pg-promise module: safe identifier
+        {
+          code: `
+      const pgp = require('pg-promise');
+      const db = pgp()(config);
+      db.query(sql);
+      `,
+        },
+        // typeorm module: safe identifier
+        {
+          code: `
+      const typeorm = require('typeorm');
+      const conn = typeorm.createConnection();
+      conn.query(sql);
+      `,
+        },
         // Safe: different module, not a DB module
         {
           code: `
