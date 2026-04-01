@@ -884,4 +884,149 @@ class Anchor extends React.Component<AnchorProps, AnchorState> {
       invalid: [],
     });
   });
+
+  it('should handle edge cases in HOC pattern detection', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: Triple-nested curried HOC (e.g., compose chain)
+          code: `
+class MyComponent extends React.Component {
+  render() {
+    return <div>{this.props.items.map(i => <li>{i}</li>)}</div>;
+  }
+}
+MyComponent.propTypes = {
+  dispatch: PropTypes.func,
+  items: PropTypes.arrayOf(PropTypes.string),
+};
+export default hoc1(hoc2(hoc3(MyComponent)));
+`,
+        },
+      ],
+      invalid: [
+        {
+          // TP: non-CallExpression export — split export not recognized as direct HOC export
+          code: `
+class Button extends React.Component {
+  render() {
+    return <button>{this.props.label}</button>;
+  }
+}
+Button.propTypes = {
+  color: PropTypes.string,
+  label: PropTypes.string,
+};
+const wrapped = withRouter(Button);
+export default wrapped;
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should exclude PropTypes.checkPropTypes from props-delegation suppression', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: PropTypes.checkPropTypes() is explicitly excluded from suppression
+          // to allow checking unused props in test/validation code.
+          code: `
+function validateProps(props) {
+  return PropTypes.checkPropTypes({
+    label: PropTypes.string,
+    color: PropTypes.string,
+  }, props, 'prop', 'MyComponent');
+}
+`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should suppress unused props in multiple export patterns', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: Multiple named exports with HOC — all matching components suppressed
+          code: `
+class Button extends React.Component {
+  render() {
+    return <button>{this.props.label}</button>;
+  }
+}
+Button.propTypes = {
+  disabled: PropTypes.bool,
+  label: PropTypes.string,
+};
+
+class Input extends React.Component {
+  render() {
+    return <input />;
+  }
+}
+Input.propTypes = {
+  size: PropTypes.string,
+};
+
+export const WrappedButton = withRouter(Button);
+export const WrappedInput = withRouter(Input);
+`,
+        },
+        {
+          // FP: CommonJS module.exports with HOC
+          code: `
+class MyComponent extends React.Component {
+  render() {
+    return <div>{this.props.data}</div>;
+  }
+}
+MyComponent.propTypes = {
+  data: PropTypes.object,
+  injected: PropTypes.bool,
+};
+module.exports = connect()(MyComponent);
+`,
+        },
+      ],
+      invalid: [
+        {
+          // TP: Only wrapped component suppressed, not other components in same file
+          code: `
+class Button extends React.Component {
+  render() {
+    return <button>{this.props.label}</button>;
+  }
+}
+Button.propTypes = {
+  disabled: PropTypes.bool,
+  label: PropTypes.string,
+};
+
+class Input extends React.Component {
+  render() {
+    return <input value={this.props.value} />;
+  }
+}
+Input.propTypes = {
+  size: PropTypes.string,
+  value: PropTypes.string,
+};
+
+export const WrappedButton = withRouter(Button);
+export default Input;
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });
