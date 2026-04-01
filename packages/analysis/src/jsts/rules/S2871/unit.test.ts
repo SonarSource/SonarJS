@@ -550,6 +550,48 @@ describe('S2871', () => {
               },
             ],
           },
+          // Regression: local shadow of Object should not be exempt
+          {
+            code: `
+        const Object = { keys: (...args: any[]): string[] => [] };
+        Object.keys({ a: 1 }).sort();
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+        const Object = { keys: (...args: any[]): string[] => [] };
+        Object.keys({ a: 1 }).sort((a, b) => a.localeCompare(b));
+      `,
+                  },
+                ],
+              },
+            ],
+          },
+          // Regression: local shadow of Array should not be exempt
+          {
+            code: `
+        const Array = { from: (...args: any[]): string[] => [] };
+        Array.from({ length: 1 }).sort();
+      `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+        const Array = { from: (...args: any[]): string[] => [] };
+        Array.from({ length: 1 }).sort((a, b) => a.localeCompare(b));
+      `,
+                  },
+                ],
+              },
+            ],
+          },
           // Regression: user-defined type named Map (in module scope) should not be exempt
           {
             code: `

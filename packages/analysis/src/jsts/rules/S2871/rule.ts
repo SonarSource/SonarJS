@@ -49,12 +49,44 @@ const compareBigIntFunctionPlaceholder = [
 ];
 
 /**
+ * Checks whether an Identifier node refers to a global built-in constructor
+ * (e.g. Object, Array) by verifying that its type symbol is declared exclusively
+ * in TypeScript declaration files (.d.ts), not in user source code.
+ * This guards against local shadows such as `const Object = { keys: ... }`.
+ * Detection: AST + type checker.
+ */
+function isGlobalBuiltinIdentifier(
+  node: estree.Node,
+  name: string,
+  services: RequiredParserServices,
+): boolean {
+  if (!isIdentifier(node, name)) {
+    return false;
+  }
+  const type = getTypeFromTreeNode(node, services);
+  const symbol = type.symbol;
+  if (!symbol) {
+    return false;
+  }
+  const declarations = symbol.declarations;
+  return (
+    declarations != null &&
+    declarations.length > 0 &&
+    declarations.every(d => d.getSourceFile().isDeclarationFile)
+  );
+}
+
+/**
  * Checks for Array.from(x).
- * Detection: AST only.
+ * Detection: AST + type checker (verifies Array is the global built-in).
  * Pseudo-code:
  *   Array.from(source)
  */
-function isArrayFromCall(node: estree.Node, predicate: (arg: estree.Node) => boolean): boolean {
+function isArrayFromCall(
+  node: estree.Node,
+  predicate: (arg: estree.Node) => boolean,
+  services: RequiredParserServices,
+): boolean {
   if (
     node.type !== 'CallExpression' ||
     !isCallingMethod(node as estree.CallExpression, 1, 'from')
@@ -62,9 +94,9 @@ function isArrayFromCall(node: estree.Node, predicate: (arg: estree.Node) => boo
     return false;
   }
   const callExpr = node as estree.CallExpression;
-  // isCallingMethod guarantees callee is a MemberExpression; verify receiver is specifically Array
+  // isCallingMethod guarantees callee is a MemberExpression; verify receiver is the global Array
   const callee = callExpr.callee as estree.MemberExpression;
-  if (!isIdentifier(callee.object, 'Array')) {
+  if (!isGlobalBuiltinIdentifier(callee.object, 'Array', services)) {
     return false;
   }
   const arg = callExpr.arguments[0];
@@ -73,16 +105,16 @@ function isArrayFromCall(node: estree.Node, predicate: (arg: estree.Node) => boo
 
 /**
  * Checks for Object.keys(x) or Object.getOwnPropertyNames(x).
- * Detection: AST only.
+ * Detection: AST + type checker (verifies Object is the global built-in).
  * Pseudo-code:
  *   Object.keys(source)
  *   Object.getOwnPropertyNames(source)
  */
-function isObjectKeysLikeCall(node: estree.Node): boolean {
+function isObjectKeysLikeCall(node: estree.Node, services: RequiredParserServices): boolean {
   return (
     node.type === 'CallExpression' &&
     node.callee.type === 'MemberExpression' &&
-    isIdentifier(node.callee.object, 'Object') &&
+    isGlobalBuiltinIdentifier(node.callee.object, 'Object', services) &&
     node.callee.property.type === 'Identifier' &&
     ['keys', 'getOwnPropertyNames'].includes(node.callee.property.name) &&
     node.arguments.length === 1
@@ -91,22 +123,25 @@ function isObjectKeysLikeCall(node: estree.Node): boolean {
 
 /**
  * Checks for Array.from(Object.keys(x)) or Array.from(Object.getOwnPropertyNames(x)).
- * Detection: AST only.
+ * Detection: AST + type checker.
  * Pseudo-code:
  *   Array.from(Object.keys(source))
  *   Array.from(Object.getOwnPropertyNames(source))
  */
-function isArrayFromObjectKeysLikeCall(node: estree.Node): boolean {
-  return isArrayFromCall(node, isObjectKeysLikeCall);
+function isArrayFromObjectKeysLikeCall(
+  node: estree.Node,
+  services: RequiredParserServices,
+): boolean {
+  return isArrayFromCall(node, arg => isObjectKeysLikeCall(arg, services), services);
 }
 
 /**
  * Checks for Array.from(x.keys()).
- * Detection: AST only.
+ * Detection: AST + type checker (verifies Array is the global built-in).
  * Pseudo-code:
  *   Array.from(collection.keys())
  */
-function isArrayFromKeysCall(node: estree.Node): boolean {
+function isArrayFromKeysCall(node: estree.Node, services: RequiredParserServices): boolean {
   return isArrayFromCall(
     node,
     arg =>
@@ -114,6 +149,7 @@ function isArrayFromKeysCall(node: estree.Node): boolean {
       arg.callee.type === 'MemberExpression' &&
       arg.callee.property.type === 'Identifier' &&
       arg.callee.property.name === 'keys',
+    services,
   );
 }
 
@@ -132,7 +168,7 @@ function isArrayFromMapStringKeysCall(
   object: estree.Node,
   services: RequiredParserServices,
 ): boolean {
-  if (!isArrayFromKeysCall(object)) {
+  if (!isArrayFromKeysCall(object, services)) {
     return false;
   }
   const callExpr = object as estree.CallExpression;
@@ -167,8 +203,8 @@ function isTechnicalStringKeysArray(
   services: RequiredParserServices,
 ): boolean {
   return (
-    isObjectKeysLikeCall(object) ||
-    isArrayFromObjectKeysLikeCall(object) ||
+    isObjectKeysLikeCall(object, services) ||
+    isArrayFromObjectKeysLikeCall(object, services) ||
     isArrayFromMapStringKeysCall(object, services)
   );
 }
