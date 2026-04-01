@@ -651,7 +651,54 @@ export const SaleArtworkContainer = createFragmentContainer(SaleArtwork, {});
           filename: fixtureFile,
         },
       ],
-      invalid: [],
+      invalid: [
+        {
+          // TP boundary: split-export `const Wrapped = hoc(Comp); export { Wrapped }` is NOT
+          // a direct HOC export form — the decorator only suppresses direct exports where the
+          // HOC call appears inline in the export statement.
+          code: `
+declare const React: any;
+interface MyComponentProps {
+  dispatch: (action: { type: string }) => void;
+  items: string[];
+}
+class MyComponent extends React.Component<MyComponentProps> {
+  render() {
+    return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
+  }
+}
+declare function connect(mapState: (state: any) => any): (comp: any) => any;
+function mapStateToProps(state: { items: string[] }) { return { items: state.items }; }
+const Wrapped = connect(mapStateToProps)(MyComponent);
+export { Wrapped };
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP boundary: split-export `const Wrapped = hoc(Comp); export default Wrapped` is
+          // NOT a direct HOC export form — the decorator only suppresses direct exports where
+          // the HOC call appears inline in the export statement.
+          code: `
+declare const React: any;
+interface MyComponentProps {
+  dispatch: (action: { type: string }) => void;
+  items: string[];
+}
+class MyComponent extends React.Component<MyComponentProps> {
+  render() {
+    return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
+  }
+}
+declare function connect(mapState: (state: any) => any): (comp: any) => any;
+function mapStateToProps(state: { items: string[] }) { return { items: state.items }; }
+const Wrapped = connect(mapStateToProps)(MyComponent);
+export default Wrapped;
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
     });
   });
 
