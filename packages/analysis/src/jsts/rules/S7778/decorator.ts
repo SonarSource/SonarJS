@@ -73,17 +73,22 @@ function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescr
 }
 
 /**
- * Returns true if any TypeScript call signature of the given callee can accept
- * more than one argument — either via a rest parameter or multiple parameters.
- * Consecutive calls to such callees can legitimately be combined, so the report
- * should be kept. Single-argument callees are suppressed as false positives.
+ * Returns true if the callee can accept more than one argument.
+ * When signatures are unresolved (empty), returns true as a conservative fallback
+ * to avoid false negatives. Single-argument callees with resolved signatures are
+ * suppressed as false positives.
  */
 function calleeAcceptsMultipleArguments(
   callee: TSESTree.Node,
   services: RequiredParserServices,
 ): boolean {
   const calleeType = getTypeFromTreeNode(callee as unknown as estree.Node, services);
-  return calleeType.getCallSignatures().some(sig => {
+  const signatures = calleeType.getCallSignatures();
+  // If signatures cannot be resolved, fall back to reporting (conservative behavior)
+  if (signatures.length === 0) {
+    return true;
+  }
+  return signatures.some(sig => {
     const params = sig.parameters;
     const lastParam = params.at(-1);
     if (lastParam === undefined) {

@@ -180,6 +180,20 @@ importScripts('a.js', 'b.js');
 `,
           errors: 1,
         },
+        {
+          // TypeScript services available but callee signature is unresolved (any-typed receiver).
+          // getCallSignatures() returns [] → conservative fallback → report is kept.
+          code: `
+const unknownObj: any = {};
+unknownObj.push(1);
+unknownObj.push(2);
+`,
+          output: `
+const unknownObj: any = {};
+unknownObj.push(1, 2);
+`,
+          errors: 1,
+        },
       ],
     });
   });
