@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   get_build_number:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-docker
     name: Get build number
     permissions:
       id-token: write
@@ -32,7 +32,7 @@ jobs:
 
   build_and_publish:
     name: Build and publish Docker image
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m-docker
     needs: get_build_number
     permissions:
       id-token: write
@@ -52,20 +52,16 @@ jobs:
             [tools]
             node = "24.11.0"
 
+      - uses: SonarSource/ci-github-actions/config-npm@v1
+
       - name: Access vault secrets
         id: secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
           secrets: |
-            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_PASSWORD;
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer username | ARTIFACTORY_DEPLOY_USERNAME;
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
-
-      - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
 
       - name: Install NPM dependencies
         run: npm ci
