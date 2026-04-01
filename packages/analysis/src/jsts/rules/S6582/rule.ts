@@ -88,12 +88,6 @@ export const rule: Rule.RuleModule = {
         node = node.parent as Rule.Node & { range: [number, number] };
       }
 
-      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-      if (!tsNode) {
-        ctx.report(descriptor);
-        return;
-      }
-
       // Negation patterns (!a || !a.prop): the ! operator always returns boolean,
       // so optional chaining (!a?.prop) is always type-safe regardless of context.
       // Both sides must be negated — !a || (comparison) is not a negation pattern
@@ -106,6 +100,12 @@ export const rule: Rule.RuleModule = {
         node.right.type === 'UnaryExpression' &&
         node.right.operator === '!'
       ) {
+        ctx.report(descriptor);
+        return;
+      }
+
+      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+      if (!tsNode) {
         ctx.report(descriptor);
         return;
       }
