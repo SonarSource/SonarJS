@@ -49,6 +49,20 @@ const compareBigIntFunctionPlaceholder = [
 ];
 
 /**
+ * Returns true when every declaration of the symbol lives in a .d.ts file.
+ * Used to distinguish global built-ins (declared in TypeScript lib files) from
+ * user-defined types that happen to share the same name.
+ */
+function isSymbolFromDeclarationFiles(symbol: ts.Symbol): boolean {
+  const declarations = symbol.declarations;
+  return (
+    declarations != null &&
+    declarations.length > 0 &&
+    declarations.every(d => d.getSourceFile().isDeclarationFile)
+  );
+}
+
+/**
  * Checks whether an Identifier node refers to a global built-in constructor
  * (e.g. Object, Array) by verifying that its type symbol is declared exclusively
  * in TypeScript declaration files (.d.ts), not in user source code.
@@ -68,12 +82,7 @@ function isGlobalBuiltinIdentifier(
   if (!symbol) {
     return false;
   }
-  const declarations = symbol.declarations;
-  return (
-    declarations != null &&
-    declarations.length > 0 &&
-    declarations.every(d => d.getSourceFile().isDeclarationFile)
-  );
+  return isSymbolFromDeclarationFiles(symbol);
 }
 
 /**
@@ -186,12 +195,7 @@ function isArrayFromMapStringKeysCall(
   // Verify the symbol is from a declaration file (TypeScript lib) to exclude
   // user-defined types named Map declared in non-module (script) source files,
   // which also have FQN "Map" but are not the built-in Map.
-  const declarations = symbol.declarations;
-  return (
-    declarations != null &&
-    declarations.length > 0 &&
-    declarations.every(d => d.getSourceFile().isDeclarationFile)
-  );
+  return isSymbolFromDeclarationFiles(symbol);
 }
 
 /**
