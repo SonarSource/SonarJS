@@ -17,8 +17,8 @@
 import { beforeEach, describe, it } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
-import { ProjectAnalysisTelemetryCollector } from '../../../src/telemetry.js';
-import { packageJsonStore } from '../../../src/file-stores/index.js';
+import { ProjectAnalysisTelemetryCollector } from '../src/telemetry.js';
+import { packageJsonStore } from '../src/file-stores/index.js';
 
 describe('project analysis telemetry', () => {
   beforeEach(() => {

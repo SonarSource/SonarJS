@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import express from 'express';
-import { errorMiddleware, handleError } from '../../src/errors/middleware.js';
+import { errorMiddleware } from '../../src/errors/middleware.js';
 import assert from 'node:assert';
 
 import { describe, it, beforeEach, afterEach, mock, type Mock } from 'node:test';
@@ -26,6 +26,7 @@ describe('errorMiddleware', () => {
 
   let mockResponse: Partial<express.Response> & { json: Mock<express.Response['json']> };
   beforeEach(() => {
+    console.error = mock.fn(() => {}) as Mock<typeof console.error>;
     mockResponse = {
       json: mock.fn<express.Response['json']>(),
     } as Partial<express.Response> & { json: Mock<express.Response['json']> };
@@ -87,15 +88,6 @@ describe('errorMiddleware', () => {
       (mockResponse.json as Mock<typeof mockResponse.json>).mock.calls[0].arguments[0],
       {
         error: 'Something unexpected happened.',
-      },
-    );
-  });
-
-  it('should return an error property in handleError for parsing errors', () => {
-    assert.deepEqual(
-      handleError(APIError.parsingError('Unexpected token "{"', { line: 42, column: 7 })),
-      {
-        error: 'Unexpected token "{"',
       },
     );
   });

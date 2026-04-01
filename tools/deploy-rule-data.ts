@@ -164,8 +164,19 @@ function warnOnRulesWithoutImplementation(sourceFolder: string, ruleNames: strin
       .sort(([left], [right]) => left.localeCompare(right))
       .map(([status, ruleKeys]) => `  ${status} (${ruleKeys.length}): ${ruleKeys.join(', ')}`)
       .join('\n');
+    const ownershipHints =
+      language === 'javascript'
+        ? [
+            'Possible non-SonarJS owners for some "ready" rules:',
+            '  - sonar-architecture JS/TS rules list:',
+            '    https://github.com/SonarSource/sonar-architecture/blob/master/frontend/javascript/src/main/java/com/sonarsource/architecture/ArchitectureJsRulesDefinition.java',
+            '  - sonar-armor JS/TS rspec rules (source of truth):',
+            '    https://github.com/SonarSource/sonar-armor/tree/master/sonar-jasmin-plugin/src/main/resources/rspec/jasmin/rules',
+          ].join('\n')
+        : '';
     console.warn(
       `[deploy-rule-data] ${language}: ${missingImplementations.length} rspec rule(s) have a ${language} folder but no implementation in SonarJS:\n${statusDetails}`,
+      ownershipHints ? `\n${ownershipHints}` : '',
     );
   }
 }
