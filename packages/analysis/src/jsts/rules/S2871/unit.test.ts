@@ -553,6 +553,7 @@ describe('S2871', () => {
           // Regression: local shadow of Object should not be exempt
           {
             code: `
+        export {};
         const Object = { keys: (...args: any[]): string[] => [] };
         Object.keys({ a: 1 }).sort();
       `,
@@ -563,6 +564,7 @@ describe('S2871', () => {
                   {
                     messageId: 'suggestLanguageSensitiveOrder',
                     output: `
+        export {};
         const Object = { keys: (...args: any[]): string[] => [] };
         Object.keys({ a: 1 }).sort((a, b) => a.localeCompare(b));
       `,
@@ -574,6 +576,7 @@ describe('S2871', () => {
           // Regression: local shadow of Array should not be exempt
           {
             code: `
+        export {};
         const Array = { from: (...args: any[]): string[] => [] };
         Array.from({ length: 1 }).sort();
       `,
@@ -584,6 +587,7 @@ describe('S2871', () => {
                   {
                     messageId: 'suggestLanguageSensitiveOrder',
                     output: `
+        export {};
         const Array = { from: (...args: any[]): string[] => [] };
         Array.from({ length: 1 }).sort((a, b) => a.localeCompare(b));
       `,
