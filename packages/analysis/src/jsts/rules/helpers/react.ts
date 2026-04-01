@@ -223,23 +223,41 @@ function matchesClassProps(
   }
   // Fallback: when the base class is unresolved (e.g. `declare const React: any`),
   // TypeScript cannot expose the inherited `props` property via the instance type.
-  // Instead, check if the first type argument of any heritage clause is mutually
-  // assignable with `propsType` (e.g. `class Foo extends React.Component<FooProps>`).
-  // Only consider `extends Component<…>` or `extends React.Component<…>` to avoid
-  // false matches on unrelated generic classes like `class Store extends Model<FooProps>`.
+  // Check heritage clauses for `extends Component<…>` or `extends React.Component<…>`.
+  return matchesClassPropsViaSyntax(cls, checker, propsType);
+}
+
+/** Returns true when `expr` names the React.Component base class. */
+function isReactComponentExpression(expr: ts.Expression): boolean {
+  return (
+    (ts.isIdentifier(expr) && expr.text === 'Component') ||
+    (ts.isPropertyAccessExpression(expr) && expr.name.text === 'Component')
+  );
+}
+
+/**
+ * Fallback for `matchesClassProps` when TypeScript cannot expose the inherited `props`
+ * property via the instance type (e.g. `declare const React: any`).
+ *
+ * Checks if the first type argument of any `extends Component<…>` or
+ * `extends React.Component<…>` clause is mutually assignable with `propsType`.
+ * Only `extends` clauses are considered to avoid false matches on unrelated
+ * generic classes like `class Store extends Model<FooProps>`.
+ */
+function matchesClassPropsViaSyntax(
+  cls: ts.ClassLikeDeclaration,
+  checker: ts.TypeChecker,
+  propsType: ts.Type,
+): boolean {
   for (const clause of (cls.heritageClauses ?? []).filter(
     c => c.token === ts.SyntaxKind.ExtendsKeyword,
   )) {
     for (const type of clause.types) {
-      const expr = type.expression;
-      const isReactComponent =
-        (ts.isIdentifier(expr) && expr.text === 'Component') ||
-        (ts.isPropertyAccessExpression(expr) && expr.name.text === 'Component');
-      if (!isReactComponent) {
+      if (!isReactComponentExpression(type.expression)) {
         continue;
       }
       const typeArgs = type.typeArguments;
-      if (!typeArgs || typeArgs.length === 0) {
+      if (!typeArgs?.length) {
         continue;
       }
       const firstArgType = checker.getTypeAtLocation(typeArgs[0]);
