@@ -177,6 +177,12 @@ describe('S6582', () => {
           code: `interface Opts { module: number; } function changesAffect(a: Opts | null, b: Opts): boolean { return !a || a.module !== b.module; }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
+        {
+          // FP: angular.js line 768 pattern — a.prop || (a[0] && a[0].prop) inside a string-typed call
+          // The && is inside an || whose contextual type is string (excludes undefined)
+          code: `declare function lowercase(s: string): string; declare const el: { nodeName: string; 0?: { nodeName: string } }; function f() { return lowercase(el.nodeName || (el[0] && el[0].nodeName)); }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
       ],
       invalid: [
         {
