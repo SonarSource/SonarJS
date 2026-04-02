@@ -398,6 +398,16 @@ let x = 0;`,
             },
           ],
         },
+        {
+          // Inline task marker after commented-out code — still flagged
+          code: `// const fill = renderFill(chartConfig); // TODO: restore once palette API is stable`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
       ],
     });
   });
