@@ -231,6 +231,12 @@ describe('S6582', () => {
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
           errors: 1,
         },
+        {
+          // void contextual type: undefined is assignable to void, so arr?.length is safe
+          code: `function f(arr: string[] | null) { const fn: () => void = () => arr && arr.length; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
       ],
     });
   });

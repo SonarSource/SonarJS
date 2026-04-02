@@ -146,7 +146,8 @@ export const rule: Rule.RuleModule = {
         t =>
           (t.flags & ts.TypeFlags.Undefined) !== 0 ||
           (t.flags & ts.TypeFlags.Any) !== 0 ||
-          (t.flags & ts.TypeFlags.Unknown) !== 0,
+          (t.flags & ts.TypeFlags.Unknown) !== 0 ||
+          (t.flags & ts.TypeFlags.Void) !== 0,
       );
 
       if (undefinedAssignable) {
