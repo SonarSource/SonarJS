@@ -232,6 +232,14 @@ describe('S6582', () => {
           errors: 1,
         },
         {
+          // comparison pattern (&&): a && a.prop === b rewrites to a?.prop === b, which is always boolean — no undefined leak
+          // inspired by tsc.js ruling patterns like `node.parent.parent && node.parent.parent.kind === 163`
+          code: `interface Node { kind: number; } function f(node: Node | null): void { if (node && node.kind === 160) {} }`,
+          output: `interface Node { kind: number; } function f(node: Node | null): void { if (node?.kind === 160) {} }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
           // void contextual type: undefined is assignable to void, so arr?.length is safe
           code: `function f(arr: string[] | null) { const fn: () => void = () => arr && arr.length; }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
