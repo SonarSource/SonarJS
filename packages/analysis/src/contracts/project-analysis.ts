@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { APIError, ErrorCode } from './error.js';
+import { handleError } from '../../../shared/src/helpers/error.js';
 
 export type ParsingErrorCode =
   | ErrorCode.Parsing
@@ -52,11 +53,12 @@ export function toProjectFailureResult(
 ): ProjectFailureResult {
   if (failure instanceof APIError) {
     if (isParsingErrorCode(failure.code)) {
+      const { error } = handleError(failure);
       return {
         issues: [],
         parsingErrors: [
           {
-            message: failure.message,
+            message: error,
             code: failure.code,
             line: failure.data?.line,
             column: failure.data?.column,
@@ -65,11 +67,11 @@ export function toProjectFailureResult(
         ],
       };
     }
-    return { error: failure.message };
+    return handleError(failure);
   }
 
   if (failure instanceof Error) {
-    return { error: failure.message };
+    return handleError(failure);
   }
 
   return { error: String(failure) };

@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,8 +17,8 @@
 import { beforeEach, describe, it } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
-import { ProjectAnalysisTelemetryCollector } from '../../../src/telemetry.js';
-import { packageJsonStore } from '../../../src/file-stores/index.js';
+import { ProjectAnalysisTelemetryCollector } from '../src/telemetry.js';
+import { packageJsonStore } from '../src/file-stores/index.js';
 
 describe('project analysis telemetry', () => {
   beforeEach(() => {

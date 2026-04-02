@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,13 +16,13 @@
  */
 // Mock FileStore implementation
 import { describe, it } from 'node:test';
-import { simulateFromInputFiles } from '../../../src/file-stores/index.js';
+import { simulateFromInputFiles } from '../src/file-stores/index.js';
 import { expect } from 'expect';
-import { FileStore } from '../../../src/file-stores/store-type.js';
-import { normalizePath, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { createConfiguration, type Configuration } from '../../../src/common/configuration.js';
-import type { AnalyzableFiles } from '../../../src/projectAnalysis.js';
-import { sanitizeRawInputFiles } from '../../../src/common/input-sanitize.js';
+import { FileStore } from '../src/file-stores/store-type.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { createConfiguration, type Configuration } from '../src/common/configuration.js';
+import type { AnalyzableFiles } from '../src/projectAnalysis.js';
+import { sanitizeRawInputFiles } from '../src/common/input-sanitize.js';
 
 class MockFileStore implements FileStore {
   public processedDirectories: string[] = [];

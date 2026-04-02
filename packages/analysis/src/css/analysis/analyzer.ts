@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -64,7 +64,10 @@ export async function analyzeCSS(
   if (isTestFile && !includeMetrics) {
     return { issues: [] };
   }
-  const sanitizedCode = fileContent.replaceAll(/[\u2000-\u200F]/g, ' ');
+  const sanitizedCode = fileContent
+    .replaceAll(/[\u2000-\u200F]/g, ' ')
+    // PostCSS tracks lines by splitting on '\n'; normalize CR-only files to keep locations stable.
+    .replaceAll(/\r(?!\n)/g, '\n');
 
   // TEST files keep highlighting (parity with old CssMetricSensor), but issues remain suppressed.
   const lintResult = await linter.lint(filePath, sanitizedCode, fileType);

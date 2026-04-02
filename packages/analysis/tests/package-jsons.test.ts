@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,20 +17,20 @@
 import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { join, dirname } from 'node:path/posix';
-import { initFileStores, packageJsonStore } from '../../../src/file-stores/index.js';
+import { initFileStores, packageJsonStore } from '../src/file-stores/index.js';
 import { readFile } from 'node:fs/promises';
-import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { createConfiguration } from '../../../src/common/configuration.js';
-import { UNINITIALIZED_ERROR } from '../../../src/file-stores/package-jsons.js';
+import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { createConfiguration } from '../src/common/configuration.js';
+import { UNINITIALIZED_ERROR } from '../src/file-stores/package-jsons.js';
 import {
   dependenciesCache,
   getDependencies,
   getModuleType,
   moduleTypeCache,
-} from '../../../src/jsts/rules/helpers/package-jsons/dependencies.js';
-import { closestPatternCache } from '../../../src/jsts/rules/helpers/find-up/closest.js';
-import { PACKAGE_JSON } from '../../../src/jsts/rules/helpers/package-jsons/index.js';
-import { patternInParentsCache } from '../../../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
+} from '../src/jsts/rules/helpers/package-jsons/dependencies.js';
+import { closestPatternCache } from '../src/jsts/rules/helpers/find-up/closest.js';
+import { PACKAGE_JSON } from '../src/jsts/rules/helpers/package-jsons/index.js';
+import { patternInParentsCache } from '../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
 
 const closestPackageJsonCache = closestPatternCache.get(PACKAGE_JSON);
 const packageJsonsInParentsCache = patternInParentsCache.get(PACKAGE_JSON);

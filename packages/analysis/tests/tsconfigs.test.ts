@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,11 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { beforeEach, describe, it, Mock } from 'node:test';
-import { tsConfigStore, sourceFileStore, initFileStores } from '../../../src/file-stores/index.js';
+import { tsConfigStore, sourceFileStore, initFileStores } from '../src/file-stores/index.js';
 import { expect } from 'expect';
 import { join, relative } from 'node:path/posix';
-import { normalizePath, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { createConfiguration } from '../../../src/common/configuration.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { createConfiguration } from '../src/common/configuration.js';
 
 const fixtures = normalizeToAbsolutePath(
   join(normalizePath(import.meta.dirname), 'fixtures-tsconfigs'),

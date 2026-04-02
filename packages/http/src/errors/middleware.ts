@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,12 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type express from 'express';
-import { error } from '../../../shared/src/helpers/logging.js';
-
-type ErrorWithCode = {
-  message?: string;
-  stack?: string;
-};
+import { handleError } from '../../../shared/src/helpers/error.js';
 
 /**
  * Express.js middleware for handling error while serving requests.
@@ -39,23 +34,4 @@ export function errorMiddleware(
   _next: express.NextFunction,
 ) {
   response.json(handleError(err));
-}
-
-export function handleError(err: unknown) {
-  const normalizedError = normalizeError(err);
-  const { message, stack } = normalizedError;
-  if (stack) {
-    error(stack);
-  }
-  return { error: message ?? 'Unexpected error' };
-}
-
-function normalizeError(err: unknown): ErrorWithCode {
-  if (typeof err === 'object' && err !== null) {
-    return err as ErrorWithCode;
-  }
-  if (typeof err === 'string') {
-    return { message: err };
-  }
-  return { message: 'Unexpected error' };
 }

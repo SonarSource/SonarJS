@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -133,6 +133,57 @@ describe('sourceFileCache', () => {
         const result = getCachedSourceFile(testFileName, ts.ScriptTarget.ES2020, '1');
         expect(result).toBeUndefined();
       });
+
+      it('should return undefined when jsx option does not match', () => {
+        const sourceFile = createSourceFile(testFileName, testContent, ts.ScriptTarget.ESNext);
+
+        setCachedSourceFile(testFileName, ts.ScriptTarget.ESNext, '1', sourceFile, ts.JsxEmit.None);
+
+        const result = getCachedSourceFile(
+          testFileName,
+          ts.ScriptTarget.ESNext,
+          '1',
+          ts.JsxEmit.ReactJSX,
+        );
+        expect(result).toBeUndefined();
+      });
+
+      it('should return undefined when importHelpers option does not match', () => {
+        const sourceFile = createSourceFile(testFileName, testContent, ts.ScriptTarget.ESNext);
+
+        setCachedSourceFile(testFileName, ts.ScriptTarget.ESNext, '1', sourceFile, undefined, true);
+
+        const result = getCachedSourceFile(
+          testFileName,
+          ts.ScriptTarget.ESNext,
+          '1',
+          undefined,
+          false,
+        );
+        expect(result).toBeUndefined();
+      });
+
+      it('should return cached file when jsx and importHelpers match', () => {
+        const sourceFile = createSourceFile(testFileName, testContent, ts.ScriptTarget.ESNext);
+
+        setCachedSourceFile(
+          testFileName,
+          ts.ScriptTarget.ESNext,
+          '1',
+          sourceFile,
+          ts.JsxEmit.ReactJSX,
+          true,
+        );
+
+        const result = getCachedSourceFile(
+          testFileName,
+          ts.ScriptTarget.ESNext,
+          '1',
+          ts.JsxEmit.ReactJSX,
+          true,
+        );
+        expect(result).toBe(sourceFile);
+      });
     });
 
     describe('setCachedSourceFile', () => {
@@ -157,6 +208,37 @@ describe('sourceFileCache', () => {
         expect(getCachedSourceFile(testFileName, ts.ScriptTarget.ES2020, '1')).toBe(
           sourceFileES2020,
         );
+      });
+
+      it('should store separate entries for different jsx options', () => {
+        const sourceFileNoJsx = createSourceFile(testFileName, testContent, ts.ScriptTarget.ESNext);
+        const sourceFileReactJsx = createSourceFile(
+          testFileName,
+          testContent,
+          ts.ScriptTarget.ESNext,
+        );
+
+        setCachedSourceFile(
+          testFileName,
+          ts.ScriptTarget.ESNext,
+          '1',
+          sourceFileNoJsx,
+          ts.JsxEmit.None,
+        );
+        setCachedSourceFile(
+          testFileName,
+          ts.ScriptTarget.ESNext,
+          '1',
+          sourceFileReactJsx,
+          ts.JsxEmit.ReactJSX,
+        );
+
+        expect(
+          getCachedSourceFile(testFileName, ts.ScriptTarget.ESNext, '1', ts.JsxEmit.None),
+        ).toBe(sourceFileNoJsx);
+        expect(
+          getCachedSourceFile(testFileName, ts.ScriptTarget.ESNext, '1', ts.JsxEmit.ReactJSX),
+        ).toBe(sourceFileReactJsx);
       });
 
       it('should overwrite cached source file when content hash changes', () => {
