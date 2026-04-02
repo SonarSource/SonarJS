@@ -8,7 +8,11 @@
 126
 ],
 "Joust:ts/components/EventLog.tsx": [
-175
+171,
+175,
+226,
+330,
+424
 ],
 "Joust:ts/components/EventLogLine.tsx": [
 75,

@@ -14,7 +14,10 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { DefaultParserRuleTester, RuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  RuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { describe, it } from 'node:test';
@@ -124,6 +127,29 @@ describe('S6582 defensive guard fallback paths', () => {
     ruleTester.run('S6582-no-ts-node', noTsNodeRule, {
       valid: [],
       invalid: [{ code: triggerCode, filename: fixtureFile, errors: 1 }],
+    });
+  });
+});
+
+describe('S6582 without strictNullChecks', () => {
+  it('reports when strictNullChecks is disabled — null/undefined type reasoning is not meaningful', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures/no-strict-null-checks'),
+      },
+    });
+    ruleTester.run('S6582', rule, {
+      valid: [],
+      invalid: [
+        {
+          // Without strictNullChecks, undefined is implicitly assignable to all types,
+          // so suppressing based on contextual type is not meaningful
+          code: `function getLen(arr: string[] | null): number | null { return arr && arr.length; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/no-strict-null-checks/index.ts'),
+          errors: 1,
+        },
+      ],
     });
   });
 });
