@@ -67,6 +67,35 @@ describe('S6582 defensive guard fallback paths', () => {
   // Code that reliably triggers prefer-optional-chain in a boolean context (no suppression normally)
   const triggerCode = `function f(arr: string[] | null) { if (arr && arr.length) {} }`;
 
+  it('reports when report descriptor has no loc (defensive !loc fallback)', () => {
+    const noLocRule: Rule.RuleModule = {
+      meta: rule.meta,
+      create(context) {
+        const originalCreate = upstreamRule.create;
+        upstreamRule.create = interceptedContext => ({
+          LogicalExpression(node) {
+            interceptedContext.report({
+              node,
+              message: 'Prefer using an optional chain expression instead, as it is more concise and easier to read.',
+            });
+          },
+        });
+
+        try {
+          return rule.create(context);
+        } finally {
+          upstreamRule.create = originalCreate;
+        }
+      },
+    };
+
+    const ruleTester = new RuleTester(ruleTesterOptions);
+    ruleTester.run('S6582-no-loc', noLocRule, {
+      valid: [],
+      invalid: [{ code: triggerCode, filename: fixtureFile, errors: 1 }],
+    });
+  });
+
   it('reports when getNodeByRangeIndex returns null (defensive !node fallback)', () => {
     // Wrap sourceCode in a Proxy that overrides getNodeByRangeIndex to return null.
     // The S6582 callback falls back to ctx.report when it can't find the AST node,
@@ -242,6 +271,18 @@ describe('S6582', () => {
         {
           // void contextual type: undefined is assignable to void, so arr?.length is safe
           code: `function f(arr: string[] | null) { const fn: () => void = () => arr && arr.length; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // return type any accepts undefined — optional chaining preserves assignability
+          code: `function f(arr: string[] | null): any { return arr && arr.length; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // return type unknown accepts undefined — optional chaining preserves assignability
+          code: `function f(arr: string[] | null): unknown { return arr && arr.length; }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
           errors: 1,
         },

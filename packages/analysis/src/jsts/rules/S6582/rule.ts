@@ -29,6 +29,66 @@ import * as meta from './generated-meta.js';
 const preferOptionalChainRule = tsEslintRules['prefer-optional-chain'];
 
 /**
+ * Matches negated access guards that stay boolean after optional chaining.
+ *
+ * Pseudo code:
+ * if (!value || !value.property) {
+ *   // `value?.property` remains wrapped by `!`
+ * }
+ */
+function isNegatedOptionalChainGuard(node: Rule.Node) {
+  return (
+    node.type === 'LogicalExpression' &&
+    node.operator === '||' &&
+    node.left.type === 'UnaryExpression' &&
+    node.left.operator === '!' &&
+    node.right.type === 'UnaryExpression' &&
+    node.right.operator === '!'
+  );
+}
+
+/**
+ * Tells whether a contextual type accepts `undefined`.
+ *
+ * Pseudo code:
+ * let result: string | undefined;
+ * result = value?.property;
+ */
+function allowsUndefined(type: ts.Type): boolean {
+  const constituents: ts.Type[] = type.isUnion() ? type.types : [type];
+  return constituents.some(
+    constituent =>
+      (constituent.flags & ts.TypeFlags.Undefined) !== 0 ||
+      (constituent.flags & ts.TypeFlags.Any) !== 0 ||
+      (constituent.flags & ts.TypeFlags.Unknown) !== 0 ||
+      (constituent.flags & ts.TypeFlags.Void) !== 0,
+  );
+}
+
+/**
+ * Returns the type imposed by the surrounding context on the reported expression.
+ *
+ * Pseudo code:
+ * let result: string | null;
+ * result = value && value.property;
+ *
+ * Here, `node` is `value && value.property`, and its contextual type is `string | null`
+ * because that is the type expected by the assignment target `result`.
+ */
+function getContextualTypeOfNode(
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+  checker: ts.TypeChecker,
+  node: Rule.Node,
+): ts.Type | null {
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+  if (!tsNode) {
+    return null;
+  }
+
+  return checker.getContextualType(tsNode as ts.Expression) ?? null;
+}
+
+/**
  * Sanitized rule 'prefer-optional-chain' from TypeScript ESLint.
  *
  * TypeScript ESLint's rule raises a runtime error if the parser services of the
@@ -102,14 +162,7 @@ export const rule: Rule.RuleModule = {
       // so optional chaining (!a?.prop) is always type-safe regardless of context.
       // Both sides must be negated — !a || (comparison) is not a negation pattern
       // and should fall through to the contextual type check.
-      if (
-        node.type === 'LogicalExpression' &&
-        node.operator === '||' &&
-        node.left.type === 'UnaryExpression' &&
-        node.left.operator === '!' &&
-        node.right.type === 'UnaryExpression' &&
-        node.right.operator === '!'
-      ) {
+      if (isNegatedOptionalChainGuard(node)) {
         ctx.report(descriptor);
         return;
       }
@@ -126,31 +179,14 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-      if (!tsNode) {
-        ctx.report(descriptor);
-        return;
-      }
-
-      const contextualType = checker.getContextualType(tsNode as ts.Expression);
+      const contextualType = getContextualTypeOfNode(services, checker, node);
       if (!contextualType) {
         // No contextual type (e.g. if/while boolean context) — replacement is safe
         ctx.report(descriptor);
         return;
       }
 
-      const constituents: ts.Type[] = contextualType.isUnion()
-        ? contextualType.types
-        : [contextualType];
-      const undefinedAssignable = constituents.some(
-        t =>
-          (t.flags & ts.TypeFlags.Undefined) !== 0 ||
-          (t.flags & ts.TypeFlags.Any) !== 0 ||
-          (t.flags & ts.TypeFlags.Unknown) !== 0 ||
-          (t.flags & ts.TypeFlags.Void) !== 0,
-      );
-
-      if (undefinedAssignable) {
+      if (allowsUndefined(contextualType)) {
         // undefined is assignable to the contextual type — replacement is type-safe
         ctx.report(descriptor);
       }
