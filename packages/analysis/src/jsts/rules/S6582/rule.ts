@@ -190,7 +190,9 @@ export const rule: Rule.RuleModule = {
       if (
         node.type === 'LogicalExpression' &&
         node.right.type === 'BinaryExpression' &&
-        ['===', '!==', '<', '>', '<=', '>=', 'instanceof', 'in'].includes(node.right.operator)
+        ['==', '!=', '===', '!==', '<', '>', '<=', '>=', 'instanceof', 'in'].includes(
+          node.right.operator,
+        )
       ) {
         ctx.report(descriptor);
         return;

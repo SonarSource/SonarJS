@@ -76,7 +76,8 @@ describe('S6582 defensive guard fallback paths', () => {
           LogicalExpression(node) {
             interceptedContext.report({
               node,
-              message: 'Prefer using an optional chain expression instead, as it is more concise and easier to read.',
+              message:
+                'Prefer using an optional chain expression instead, as it is more concise and easier to read.',
             });
           },
         });
@@ -265,6 +266,20 @@ describe('S6582', () => {
           // inspired by tsc.js ruling patterns like `node.parent.parent && node.parent.parent.kind === 163`
           code: `interface Node { kind: number; } function f(node: Node | null): void { if (node && node.kind === 160) {} }`,
           output: `interface Node { kind: number; } function f(node: Node | null): void { if (node?.kind === 160) {} }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // loose equality: a && a.p == null rewrites to a?.p == null, which is always boolean — no undefined leak
+          code: `interface Item { p: string } function f(a: Item | null): boolean { return a && a.p == null; }`,
+          output: `interface Item { p: string } function f(a: Item | null): boolean { return a?.p == null; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // loose inequality: a && a.p != null rewrites to a?.p != null, which is always boolean — no undefined leak
+          code: `interface Item { p: string } function f(a: Item | null): boolean { return a && a.p != null; }`,
+          output: `interface Item { p: string } function f(a: Item | null): boolean { return a?.p != null; }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
           errors: 1,
         },
