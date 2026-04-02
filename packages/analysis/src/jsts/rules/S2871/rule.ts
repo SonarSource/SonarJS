@@ -113,10 +113,34 @@ function isArrayFromCall(
 }
 
 /**
- * Checks for Object.keys(x) or Object.getOwnPropertyNames(x).
- * Detection: AST + type checker (verifies Object is the global built-in).
+ * Returns true when the given TypeScript type has at least one explicitly named property,
+ * no index signature, and every property name is a valid ASCII identifier.
+ * This guards Object.keys() / Object.getOwnPropertyNames() calls: object types with only
+ * ASCII identifier keys (e.g. { a: 1, b: 2 }) are safe to sort alphabetically, whereas
+ * types with index signatures (Record<string, V>) or unicode property names ({ "Ångström": 1 })
+ * may hold user-facing labels that require locale-sensitive sorting.
+ */
+function hasKnownAsciiIdentifierProperties(type: ts.Type): boolean {
+  // Reject types with string or numeric index signatures (e.g. Record<string, V>)
+  if (type.getStringIndexType() != null || type.getNumberIndexType() != null) {
+    return false;
+  }
+  const properties = type.getProperties();
+  // Must have at least one known property; empty / opaque types (any, {}, object) are not safe
+  if (properties.length === 0) {
+    return false;
+  }
+  // All explicit property names must be valid ASCII identifiers
+  return properties.every(prop => /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(prop.getName()));
+}
+
+/**
+ * Checks for Object.keys(x) or Object.getOwnPropertyNames(x) where x has only
+ * ASCII-identifier property names and no index signature.
+ * Detection: AST + type checker (verifies Object is the global built-in and that
+ * the argument's type has provably technical keys).
  * Pseudo-code:
- *   Object.keys(source)
+ *   Object.keys(source)        // source has only ASCII identifier properties
  *   Object.getOwnPropertyNames(source)
  */
 function isObjectKeysLikeCall(node: estree.Node, services: RequiredParserServices): boolean {
@@ -126,7 +150,8 @@ function isObjectKeysLikeCall(node: estree.Node, services: RequiredParserService
     isGlobalBuiltinIdentifier(node.callee.object, 'Object', services) &&
     node.callee.property.type === 'Identifier' &&
     ['keys', 'getOwnPropertyNames'].includes(node.callee.property.name) &&
-    node.arguments.length === 1
+    node.arguments.length === 1 &&
+    hasKnownAsciiIdentifierProperties(getTypeFromTreeNode(node.arguments[0], services))
   );
 }
 
@@ -163,15 +188,18 @@ function isArrayFromKeysCall(node: estree.Node, services: RequiredParserServices
 }
 
 /**
- * Checks for Array.from(map.keys()) when map is a built-in Map.
+ * Checks for Array.from(map.keys()) when map is a built-in Map whose key type is
+ * a specific string literal or union of string literals.
  * Detection: AST + type checker.
  * Pseudo-code:
- *   Array.from(map.keys())
+ *   Array.from(map.keys())   // map: Map<'a' | 'b', V>
  *
- * Does not suppress Set<string>.keys(), custom .keys() methods, or user-defined
- * types named Map (imported from a module). Uses the checker FQN to distinguish
- * the global built-in Map (FQN: "Map") from module-scoped user-defined types
- * (FQN: '"path/to/module".Map').
+ * Does not suppress:
+ * - Set<string>.keys(), custom .keys() methods, or user-defined types named Map
+ * - Map<string, V> where the key type is the broad 'string' type — those keys could
+ *   be user-facing labels (e.g. city names) that require locale-sensitive sorting
+ * Only suppresses when the Map key type is a string literal or union of string literals,
+ * which are provably developer-chosen identifiers (e.g. Map<'pending'|'done', V>).
  */
 function isArrayFromMapStringKeysCall(
   object: estree.Node,
@@ -195,7 +223,21 @@ function isArrayFromMapStringKeysCall(
   // Verify the symbol is from a declaration file (TypeScript lib) to exclude
   // user-defined types named Map declared in non-module (script) source files,
   // which also have FQN "Map" but are not the built-in Map.
-  return isSymbolFromDeclarationFiles(symbol);
+  if (!isSymbolFromDeclarationFiles(symbol)) {
+    return false;
+  }
+  // Only suppress when the Map key type is a string literal or union of string literals.
+  // A plain 'string' key type (Map<string, V>) cannot prove keys are technical identifiers —
+  // they could be user-facing labels (e.g. city names) that require locale-sensitive sorting.
+  const typeArgs = checker.getTypeArguments(receiverType as ts.TypeReference);
+  if (typeArgs.length === 0) {
+    return false;
+  }
+  const keyType = typeArgs[0];
+  return (
+    keyType.isStringLiteral() ||
+    (keyType.isUnion() && (keyType as ts.UnionType).types.every(t => t.isStringLiteral()))
+  );
 }
 
 /**
