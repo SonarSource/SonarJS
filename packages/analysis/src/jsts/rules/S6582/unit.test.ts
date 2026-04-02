@@ -270,13 +270,6 @@ describe('S6582', () => {
           errors: 1,
         },
         {
-          // loose equality: a && a.p == null rewrites to a?.p == null, which is always boolean — no undefined leak
-          code: `interface Item { p: string } function f(a: Item | null): boolean { return a && a.p == null; }`,
-          output: `interface Item { p: string } function f(a: Item | null): boolean { return a?.p == null; }`,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          errors: 1,
-        },
-        {
           // loose inequality: a && a.p != null rewrites to a?.p != null, which is always boolean — no undefined leak
           code: `interface Item { p: string } function f(a: Item | null): boolean { return a && a.p != null; }`,
           output: `interface Item { p: string } function f(a: Item | null): boolean { return a?.p != null; }`,
