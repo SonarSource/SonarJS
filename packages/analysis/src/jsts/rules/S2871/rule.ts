@@ -236,7 +236,7 @@ function isArrayFromMapStringKeysCall(
   const keyType = typeArgs[0];
   return (
     keyType.isStringLiteral() ||
-    (keyType.isUnion() && (keyType as ts.UnionType).types.every(t => t.isStringLiteral()))
+    (keyType.isUnion() && keyType.types.every(t => t.isStringLiteral()))
   );
 }
 
