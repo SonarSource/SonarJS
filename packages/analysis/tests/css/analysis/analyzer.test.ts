@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -141,6 +141,16 @@ describe('analyzeCSS', () => {
       code: ErrorCode.Parsing,
       message: 'Unclosed block',
       data: { line: 2, column: 2 },
+    });
+  });
+
+  it('should normalize CR-only line endings before parsing embedded CSS', async () => {
+    await expect(
+      analyzeCSS(await input('/some/fake/path.html', '<style>a { color: red; }\r\\n</style>')),
+    ).rejects.toMatchObject({
+      code: ErrorCode.Parsing,
+      message: expect.stringContaining('Unknown word'),
+      data: { line: 2, column: 0 },
     });
   });
 });

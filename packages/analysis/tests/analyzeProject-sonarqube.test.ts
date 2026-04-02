@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -14,21 +14,20 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-
 import { describe, it, beforeEach, type Mock, mock } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
-import { normalizePath, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { analyzeProject, cancelAnalysis } from '../../../src/analyzeProject.js';
-import { sourceFileStore, tsConfigStore } from '../../../src/file-stores/index.js';
-import { ErrorCode } from '../../../src/contracts/error.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { analyzeProject, cancelAnalysis } from '../src/analyzeProject.js';
+import { sourceFileStore, tsConfigStore } from '../src/file-stores/index.js';
+import { ErrorCode } from '../src/contracts/error.js';
 import ts from 'typescript';
 import { valid } from 'semver';
-import type { RuleConfig } from '../../../src/jsts/linter/config/rule-config.js';
-import type { RuleConfig as CssRuleConfig } from '../../../src/css/linter/config.js';
-import { getProgramCacheManager } from '../../../src/jsts/program/cache/programCache.js';
-import { clearProgramOptionsCache } from '../../../src/jsts/program/cache/programOptionsCache.js';
-import { sanitizeProjectAnalysisInput } from '../../../src/common/input-sanitize.js';
+import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
+import type { RuleConfig as CssRuleConfig } from '../src/css/linter/config.js';
+import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
+import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
+import { sanitizeProjectAnalysisInput } from '../src/common/input-sanitize.js';
 
 // Helper to initialize file stores for tests - wraps sanitizeProjectAnalysisInput
 async function initForTest(configOptions: object, rawFiles: object) {
@@ -818,5 +817,41 @@ describe('SonarQube project analysis', () => {
         line: 3,
       });
     }
+  });
+
+  it('should analyze JSX cache collision fixture with mixed jsx compiler options', async () => {
+    const baseDir = join(fixtures, 'jsx-cache-collision');
+    const initialFile = join(baseDir, 'initial.ts');
+    const triggerFile = join(baseDir, 'trigger.tsx');
+    const collisionRules: RuleConfig[] = [
+      {
+        key: 'S1874',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'ts',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
+    const { configuration } = await sanitizeProjectAnalysisInput({ configuration: { baseDir } });
+    const result = await analyzeProject({ rules: collisionRules, bundles: [] }, configuration);
+
+    const initialResult = result.files[normalizeToAbsolutePath(initialFile)];
+    expect(initialResult).toBeDefined();
+    expect('issues' in initialResult!).toBe(true);
+    if ('issues' in initialResult!) {
+      expect(initialResult.issues.some(issue => issue.ruleId === 'S1874')).toBe(true);
+    }
+
+    const triggerResult = result.files[normalizeToAbsolutePath(triggerFile)];
+    expect(triggerResult).toBeDefined();
+    expect('issues' in triggerResult!).toBe(true);
+    if ('issues' in triggerResult!) {
+      expect(triggerResult.issues.some(issue => issue.ruleId === 'S1874')).toBe(true);
+    }
+
+    expect(result.meta.telemetry?.compilerOptions.jsx).toEqual(
+      expect.arrayContaining(['preserve', 'react-jsx']),
+    );
   });
 });

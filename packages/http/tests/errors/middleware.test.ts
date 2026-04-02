@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import express from 'express';
-import { errorMiddleware, handleError } from '../../src/errors/middleware.js';
+import { errorMiddleware } from '../../src/errors/middleware.js';
 import assert from 'node:assert';
 
 import { describe, it, beforeEach, afterEach, mock, type Mock } from 'node:test';
@@ -26,6 +26,7 @@ describe('errorMiddleware', () => {
 
   let mockResponse: Partial<express.Response> & { json: Mock<express.Response['json']> };
   beforeEach(() => {
+    console.error = mock.fn(() => {}) as Mock<typeof console.error>;
     mockResponse = {
       json: mock.fn<express.Response['json']>(),
     } as Partial<express.Response> & { json: Mock<express.Response['json']> };
@@ -87,15 +88,6 @@ describe('errorMiddleware', () => {
       (mockResponse.json as Mock<typeof mockResponse.json>).mock.calls[0].arguments[0],
       {
         error: 'Something unexpected happened.',
-      },
-    );
-  });
-
-  it('should return an error property in handleError for parsing errors', () => {
-    assert.deepEqual(
-      handleError(APIError.parsingError('Unexpected token "{"', { line: 42, column: 7 })),
-      {
-        error: 'Unexpected token "{"',
       },
     );
   });

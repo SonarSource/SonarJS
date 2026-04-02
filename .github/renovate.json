@@ -10,6 +10,7 @@
     "its/sources/**",
     "its/plugin/projects/**",
     "**/test/**",
+    "**/tests/**",
     "**/fixtures/**",
     "packages/analysis/src/jsts/rules/**",
     "its/eslint8-plugin-sonarjs/**",

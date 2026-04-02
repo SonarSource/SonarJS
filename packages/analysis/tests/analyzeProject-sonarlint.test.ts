@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -14,20 +14,19 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-
 import { describe, it, beforeEach, afterEach, type Mock, mock } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
 import { mkdtemp, rm, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { normalizePath, normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
-import { analyzeProject, cancelAnalysis } from '../../../src/analyzeProject.js';
-import { ErrorCode } from '../../../src/contracts/error.js';
-import { sourceFileStore, tsConfigStore } from '../../../src/file-stores/index.js';
-import type { RuleConfig } from '../../../src/jsts/linter/config/rule-config.js';
-import { getProgramCacheManager } from '../../../src/jsts/program/cache/programCache.js';
-import { clearProgramOptionsCache } from '../../../src/jsts/program/cache/programOptionsCache.js';
-import { sanitizeProjectAnalysisInput } from '../../../src/common/input-sanitize.js';
+import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
+import { analyzeProject, cancelAnalysis } from '../src/analyzeProject.js';
+import { ErrorCode } from '../src/contracts/error.js';
+import { sourceFileStore, tsConfigStore } from '../src/file-stores/index.js';
+import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
+import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
+import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
+import { sanitizeProjectAnalysisInput } from '../src/common/input-sanitize.js';
 
 // Helper to initialize file stores for tests - wraps sanitizeProjectAnalysisInput
 async function initForTest(configOptions: object, rawFiles: object) {
