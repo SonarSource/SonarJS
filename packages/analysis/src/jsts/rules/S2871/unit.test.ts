@@ -1199,10 +1199,10 @@ describe('S2871', () => {
           {
             code: `const sorted = Array.prototype.toSorted.apply([1, 2, 10])`,
           },
-          // Compliant: Map.keys sort (provably technical strings, type-checker only)
+          // Compliant: Map.keys sort with string-literal key type (provably technical identifiers)
           {
             code: `
-      function f(map: Map<string, number>) {
+      function f(map: Map<'a' | 'b', number>) {
         return Array.from(map.keys()).toSorted();
       }
     `,
@@ -1600,6 +1600,29 @@ describe('S2871', () => {
           return Array.from(s.keys()).toSorted((a, b) => a.localeCompare(b));
         }
       `,
+                  },
+                ],
+              },
+            ],
+          },
+          // Map<string, V>.keys() - plain string key type cannot guarantee technical identifiers
+          {
+            code: `
+      function f(map: Map<string, number>) {
+        return Array.from(map.keys()).toSorted();
+      }
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      function f(map: Map<string, number>) {
+        return Array.from(map.keys()).toSorted((a, b) => a.localeCompare(b));
+      }
+    `,
                   },
                 ],
               },

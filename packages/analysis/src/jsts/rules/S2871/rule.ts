@@ -292,7 +292,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        if (isStringArray(type, services) && isTechnicalStringKeysArray(object, services)) {
+        if (isTechnicalStringKeysArray(object, services)) {
           return;
         }
 
