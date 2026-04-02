@@ -233,7 +233,10 @@ function matchesClassProps(
 function isReactComponentExpression(expr: ts.Expression): boolean {
   return (
     (ts.isIdentifier(expr) && expr.text === 'Component') ||
-    (ts.isPropertyAccessExpression(expr) && expr.name.text === 'Component')
+    (ts.isPropertyAccessExpression(expr) &&
+      ts.isIdentifier(expr.expression) &&
+      expr.expression.text === 'React' &&
+      expr.name.text === 'Component')
   );
 }
 
