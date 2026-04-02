@@ -67,31 +67,35 @@ export const rule: Rule.RuleModule = {
 
     const checker = services.program.getTypeChecker();
     return interceptReport(preferOptionalChainRule, (ctx, descriptor) => {
-      const loc =
-        'loc' in descriptor
-          ? (descriptor.loc as
-              | { start: { line: number; column: number }; end: { line: number; column: number } }
-              | undefined)
-          : undefined;
+      let node: (Rule.Node & { range: [number, number] }) | null;
 
-      if (!loc || !('start' in loc)) {
-        ctx.report(descriptor);
-        return;
-      }
+      if ('node' in descriptor) {
+        node = descriptor.node as Rule.Node & { range: [number, number] };
+      } else {
+        const loc =
+          'loc' in descriptor
+            ? (descriptor.loc as
+                | { start: { line: number; column: number }; end: { line: number; column: number } }
+                | undefined)
+            : undefined;
 
-      const startIndex = ctx.sourceCode.getIndexFromLoc(loc.start);
-      const endIndex = ctx.sourceCode.getIndexFromLoc(loc.end);
-      let node = ctx.sourceCode.getNodeByRangeIndex(startIndex) as
-        | (Rule.Node & {
-            range: [number, number];
-          })
-        | null;
-      if (!node) {
-        ctx.report(descriptor);
-        return;
-      }
-      while (node.range[1] < endIndex && node.parent) {
-        node = node.parent as Rule.Node & { range: [number, number] };
+        if (!loc || !('start' in loc)) {
+          ctx.report(descriptor);
+          return;
+        }
+
+        const startIndex = ctx.sourceCode.getIndexFromLoc(loc.start);
+        const endIndex = ctx.sourceCode.getIndexFromLoc(loc.end);
+        node = ctx.sourceCode.getNodeByRangeIndex(startIndex) as
+          | (Rule.Node & { range: [number, number] })
+          | null;
+        if (!node) {
+          ctx.report(descriptor);
+          return;
+        }
+        while (node.range[1] < endIndex && node.parent) {
+          node = node.parent as Rule.Node & { range: [number, number] };
+        }
       }
 
       // Negation patterns (!a || !a.prop): the ! operator always returns boolean,
