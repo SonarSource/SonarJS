@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -39,6 +39,8 @@ import org.sonar.plugins.javascript.bridge.BridgeServer.HighlightedSymbol;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Location;
 import org.sonar.plugins.javascript.bridge.BridgeServer.Metrics;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
+import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
 
 class AnalysisProcessorTest {
 
@@ -196,5 +198,46 @@ class AnalysisProcessorTest {
     );
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs()).contains("Failed to save issue in " + file.uri() + " at line 2");
+  }
+
+  @Test
+  void should_not_fail_when_invalid_parsing_error_pointer() {
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
+    var context = new JsTsContext<SensorContextTester>(SensorContextTester.create(baseDir));
+    var file = TestInputFileBuilder.create("moduleKey", "file.js")
+      .setContents("x")
+      .setLanguage("js")
+      .build();
+
+    var parsingError = new ParsingError(
+      "Parse error message",
+      1,
+      2,
+      ParsingErrorCode.PARSING,
+      "js"
+    );
+    var response = new AnalysisResponse(
+      List.of(parsingError),
+      List.of(),
+      List.of(),
+      List.of(),
+      new Metrics(),
+      List.of(),
+      null
+    );
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+    assertThat(context.getSensorContext().allAnalysisErrors()).hasSize(1);
+    assertThat(logTester.logs()).contains(
+      "Failed to create parsing error pointer in " +
+        file.uri() +
+        " at line 1, column 2. Falling back to file start."
+    );
   }
 }

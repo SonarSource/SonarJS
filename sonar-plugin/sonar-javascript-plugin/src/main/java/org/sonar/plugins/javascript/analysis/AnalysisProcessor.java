@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -168,13 +168,21 @@ public class AnalysisProcessor {
       newIssue.forRule(parsingErrorRuleKey).at(primaryLocation).save();
     }
 
-    context
-      .getSensorContext()
-      .newAnalysisError()
-      .onFile(file)
-      .at(file.newPointer(line != null ? line : 1, toParsingErrorColumn(line, column)))
-      .message(message)
-      .save();
+    var newAnalysisError = context.getSensorContext().newAnalysisError().onFile(file);
+    try {
+      newAnalysisError.at(
+        file.newPointer(line != null ? line : 1, toParsingErrorColumn(line, column))
+      );
+    } catch (RuntimeException e) {
+      LOG.warn(
+        "Failed to create parsing error pointer in {} at line {}, column {}. Falling back to file start.",
+        file.uri(),
+        line,
+        column
+      );
+      newAnalysisError.at(file.newPointer(1, 0));
+    }
+    newAnalysisError.message(message).save();
   }
 
   @Nullable
