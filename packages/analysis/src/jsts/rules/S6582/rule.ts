@@ -110,6 +110,18 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
+      // Comparison patterns (e.g. !a || a.prop !== b): the comparison operator always
+      // returns boolean, so the optional-chain rewrite (a?.prop !== b) is also boolean —
+      // no undefined leaks into the surrounding type regardless of context.
+      if (
+        node.type === 'LogicalExpression' &&
+        node.right.type === 'BinaryExpression' &&
+        ['===', '!==', '<', '>', '<=', '>=', 'instanceof', 'in'].includes(node.right.operator)
+      ) {
+        ctx.report(descriptor);
+        return;
+      }
+
       const tsNode = services.esTreeNodeToTSNodeMap.get(node);
       if (!tsNode) {
         ctx.report(descriptor);

@@ -198,12 +198,6 @@ describe('S6582', () => {
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
         {
-          // FP: !a || (comparison) in boolean return — right side is NOT negated, so negation bypass does not
-          // apply; contextual type check sees boolean (excludes undefined) and suppresses the report
-          code: `interface Opts { module: number; } function changesAffect(a: Opts | null, b: Opts): boolean { return !a || a.module !== b.module; }`,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-        },
-        {
           // FP: angular.js line 768 pattern — a.prop || (a[0] && a[0].prop) inside a string-typed call
           // The && is inside an || whose contextual type is string (excludes undefined)
           code: `declare function lowercase(s: string): string; declare const el: { nodeName: string; 0?: { nodeName: string } }; function f() { return lowercase(el.nodeName || (el[0] && el[0].nodeName)); }`,
@@ -227,6 +221,13 @@ describe('S6582', () => {
         {
           // return type includes undefined — optional chaining preserves assignability
           code: `function f(arr: string[] | null): number | undefined { return arr && arr.length; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // comparison pattern: !a || a.prop !== b rewrites to a?.prop !== b, which is always boolean — no undefined leak
+          code: `interface Opts { module: number; } function changesAffect(a: Opts | null, b: Opts): boolean { return !a || a.module !== b.module; }`,
+          output: `interface Opts { module: number; } function changesAffect(a: Opts | null, b: Opts): boolean { return a?.module !== b.module; }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
           errors: 1,
         },
