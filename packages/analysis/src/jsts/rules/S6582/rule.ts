@@ -48,6 +48,49 @@ function isNegatedOptionalChainGuard(node: Rule.Node) {
 }
 
 /**
+ * Resolves the AST node associated with a report descriptor.
+ *
+ * When the descriptor carries a `node` directly, that node is returned.
+ * When it carries only a `loc`, the node is looked up by source range.
+ * If neither is available or the lookup fails, `ctx.report` is called
+ * immediately and `null` is returned so the caller can short-circuit.
+ */
+function findReportNode(
+  ctx: Rule.RuleContext,
+  descriptor: Rule.ReportDescriptor,
+): (Rule.Node & { range: [number, number] }) | null {
+  if ('node' in descriptor) {
+    return descriptor.node as Rule.Node & { range: [number, number] };
+  }
+
+  const loc =
+    'loc' in descriptor
+      ? (descriptor.loc as
+          | { start: { line: number; column: number }; end: { line: number; column: number } }
+          | undefined)
+      : undefined;
+
+  if (!loc || !('start' in loc)) {
+    ctx.report(descriptor);
+    return null;
+  }
+
+  const startIndex = ctx.sourceCode.getIndexFromLoc(loc.start);
+  const endIndex = ctx.sourceCode.getIndexFromLoc(loc.end);
+  let node = ctx.sourceCode.getNodeByRangeIndex(startIndex) as
+    | (Rule.Node & { range: [number, number] })
+    | null;
+  if (!node) {
+    ctx.report(descriptor);
+    return null;
+  }
+  while (node.range[1] < endIndex && node.parent) {
+    node = node.parent as Rule.Node & { range: [number, number] };
+  }
+  return node;
+}
+
+/**
  * Tells whether a contextual type accepts `undefined`.
  *
  * Pseudo code:
@@ -127,35 +170,9 @@ export const rule: Rule.RuleModule = {
 
     const checker = services.program.getTypeChecker();
     return interceptReport(preferOptionalChainRule, (ctx, descriptor) => {
-      let node: (Rule.Node & { range: [number, number] }) | null;
-
-      if ('node' in descriptor) {
-        node = descriptor.node as Rule.Node & { range: [number, number] };
-      } else {
-        const loc =
-          'loc' in descriptor
-            ? (descriptor.loc as
-                | { start: { line: number; column: number }; end: { line: number; column: number } }
-                | undefined)
-            : undefined;
-
-        if (!loc || !('start' in loc)) {
-          ctx.report(descriptor);
-          return;
-        }
-
-        const startIndex = ctx.sourceCode.getIndexFromLoc(loc.start);
-        const endIndex = ctx.sourceCode.getIndexFromLoc(loc.end);
-        node = ctx.sourceCode.getNodeByRangeIndex(startIndex) as
-          | (Rule.Node & { range: [number, number] })
-          | null;
-        if (!node) {
-          ctx.report(descriptor);
-          return;
-        }
-        while (node.range[1] < endIndex && node.parent) {
-          node = node.parent as Rule.Node & { range: [number, number] };
-        }
+      const node = findReportNode(ctx, descriptor);
+      if (!node) {
+        return;
       }
 
       // Negation patterns (!a || !a.prop): the ! operator always returns boolean,
