@@ -173,6 +173,13 @@ describe('S2871', () => {
           {
             code: `Array.from(Object.getOwnPropertyNames({ a: 1, b: 2 })).sort();`,
           },
+          // Compliant: union type where every member has only ASCII identifier properties
+          {
+            code: `
+      type T = { a: 1; b: 2 } | { a: 1; c: 3 };
+      function f(x: T) { Object.keys(x).sort(); }
+    `,
+          },
         ],
         invalid: [
           {
@@ -347,6 +354,28 @@ describe('S2871', () => {
                   {
                     messageId: 'suggestLanguageSensitiveOrder',
                     output: `Object.keys({ "Ångström": 1, "Zebra": 1 }).sort((a, b) => a.localeCompare(b));`,
+                  },
+                ],
+              },
+            ],
+          },
+          // Union type where one member has a non-ASCII property — getProperties() returns only
+          // the intersection [a], hiding 'Ångström'; must raise
+          {
+            code: `
+      type T = { a: 1; 'Ångström': 2 } | { a: 1; b: 2 };
+      function f(x: T) { Object.keys(x).sort(); }
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      type T = { a: 1; 'Ångström': 2 } | { a: 1; b: 2 };
+      function f(x: T) { Object.keys(x).sort((a, b) => a.localeCompare(b)); }
+    `,
                   },
                 ],
               },
@@ -1221,6 +1250,13 @@ describe('S2871', () => {
           {
             code: `Array.from(Object.getOwnPropertyNames({ a: 1, b: 2 })).toSorted();`,
           },
+          // Compliant: union type where every member has only ASCII identifier properties
+          {
+            code: `
+      type T = { a: 1; b: 2 } | { a: 1; c: 3 };
+      function f(x: T) { Object.keys(x).toSorted(); }
+    `,
+          },
         ],
         invalid: [
           {
@@ -1385,6 +1421,27 @@ describe('S2871', () => {
               {
                 messageId: 'provideCompareFunction',
                 suggestions: [],
+              },
+            ],
+          },
+          // Union type where one member has a non-ASCII property — must raise
+          {
+            code: `
+      type T = { a: 1; 'Ångström': 2 } | { a: 1; b: 2 };
+      function f(x: T) { Object.keys(x).toSorted(); }
+    `,
+            errors: [
+              {
+                messageId: 'provideCompareFunctionForArrayOfStrings',
+                suggestions: [
+                  {
+                    messageId: 'suggestLanguageSensitiveOrder',
+                    output: `
+      type T = { a: 1; 'Ångström': 2 } | { a: 1; b: 2 };
+      function f(x: T) { Object.keys(x).toSorted((a, b) => a.localeCompare(b)); }
+    `,
+                  },
+                ],
               },
             ],
           },

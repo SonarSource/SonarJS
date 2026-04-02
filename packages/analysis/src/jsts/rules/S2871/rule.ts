@@ -121,6 +121,12 @@ function isArrayFromCall(
  * may hold user-facing labels that require locale-sensitive sorting.
  */
 function hasKnownAsciiIdentifierProperties(type: ts.Type): boolean {
+  // For union types, every member must independently have all-ASCII-identifier properties.
+  // TypeScript's getProperties() on a union returns only the intersection, which hides
+  // non-ASCII properties that exist on only some union members.
+  if (type.isUnion()) {
+    return type.types.every(t => hasKnownAsciiIdentifierProperties(t));
+  }
   // Reject types with string or numeric index signatures (e.g. Record<string, V>)
   if (type.getStringIndexType() != null || type.getNumberIndexType() != null) {
     return false;
