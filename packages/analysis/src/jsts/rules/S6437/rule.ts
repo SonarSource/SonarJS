@@ -56,6 +56,11 @@ const secretSignatures: Record<string, [number]> = {
 const secretObjectSignatures: Record<string, { argIndex: number; propertyName: string }> = {
   'cookie-session': { argIndex: 0, propertyName: 'keys' },
   'express-session': { argIndex: 0, propertyName: 'secret' },
+  'typeorm.createConnection': { argIndex: 0, propertyName: 'password' },
+  'mysql.createConnection': { argIndex: 0, propertyName: 'password' },
+  'mysql.createPool': { argIndex: 0, propertyName: 'password' },
+  'mysql2.createConnection': { argIndex: 0, propertyName: 'password' },
+  'mysql2.createPool': { argIndex: 0, propertyName: 'password' },
 };
 
 export const rule: Rule.RuleModule = {
