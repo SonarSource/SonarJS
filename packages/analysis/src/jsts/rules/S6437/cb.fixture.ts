@@ -149,8 +149,8 @@ const cookieKey = 'hardcoded-key';
 //^^^^^^^^^^^^^
 
 import typeorm from 'typeorm';
-typeorm.createConnection({ // Noncompliant {{Revoke and change this password, as it is compromised.}}
-//     ^^^^^^^^^^^^^^^^
+  typeorm.createConnection({ // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^^^^^^^^^^^^
   name: 'mysql',
   type: 'mysql',
   host: 'localhost',
@@ -165,8 +165,8 @@ typeorm.createConnection({ // Noncompliant {{Revoke and change this password, as
 
 const typeormDbPass = 'root';
 //                    ^^^^^^ > {{Hardcoded value assigned here}}
-typeorm.createConnection({ // Noncompliant {{Revoke and change this password, as it is compromised.}}
-//     ^^^^^^^^^^^^^^^^
+  typeorm.createConnection({ // Noncompliant {{Revoke and change this password, as it is compromised.}}
+//^^^^^^^^^^^^^^^^^^^^^^^^
   type: 'mysql',
   host: 'localhost',
   password: typeormDbPass,
@@ -180,7 +180,7 @@ typeorm.createConnection({
 
 import mysql from 'mysql';
   mysql.createConnection({ password: 'root' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
-//^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^
 mysql.createConnection({ password: process.env.DB_PASSWORD });
 
   mysql.createPool({ password: 'root' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
@@ -189,7 +189,7 @@ mysql.createPool({ password: process.env.DB_PASSWORD });
 
 import mysql2 from 'mysql2';
   mysql2.createConnection({ password: 'root' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
-//^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^
 mysql2.createConnection({ password: process.env.DB_PASSWORD });
 
   mysql2.createPool({ password: 'root' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
