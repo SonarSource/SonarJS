@@ -15,7 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  DefaultParserRuleTester,
+  NoTypeCheckingRuleTester,
+  RuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S1301', () => {
@@ -60,6 +64,72 @@ describe('S1301', () => {
           ],
         },
       ],
+    });
+  });
+
+  it('should not flag switch with never type annotation in default case', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('"if" statements should be preferred over "switch" when simpler', rule, {
+      valid: [
+        {
+          // Exhaustiveness check: const _exhaustiveCheck: never = x — not replaceable with if
+          code: `
+            type Direction = 'north';
+            function describeDirection(direction: Direction): string {
+              switch (direction) {
+                case 'north':
+                  return 'heading north';
+                default:
+                  const _exhaustiveCheck: never = direction;
+                  return _exhaustiveCheck;
+              }
+            }
+          `,
+        },
+      ],
+      invalid: [
+        {
+          // Single-case switch without never assertion — still flagged
+          code: `
+            function handle(x: string): void {
+              switch (x) {
+                case 'a':
+                  console.log('a');
+                  break;
+                default:
+                  console.log('other');
+              }
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should not flag switch with assertNever call on never-typed argument in default case', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('"if" statements should be preferred over "switch" when simpler', rule, {
+      valid: [
+        {
+          // Exhaustiveness check: assertNever(x) where x is narrowed to never by TypeScript
+          code: `
+            function assertNever(x: never): never {
+              throw new Error('Unhandled discriminated union member: ' + x);
+            }
+            type Status = 'active';
+            function handleStatus(status: Status): string {
+              switch (status) {
+                case 'active':
+                  return 'processing active status';
+                default:
+                  assertNever(status);
+              }
+            }
+          `,
+        },
+      ],
+      invalid: [],
     });
   });
 });
