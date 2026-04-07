@@ -53,23 +53,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       //   e.g. `import {x} from '...'; export const y = x` CAN be rewritten as
       //   `export { x as y } from '...'` — this is a genuine re-export candidate.
       if (node.type === 'ExportNamedDeclaration' && node.declaration != null) {
-        const decl = node.declaration;
-        if (decl.type !== 'VariableDeclaration') {
-          // FunctionDeclaration or ClassDeclaration — always locally defined, not a re-export.
-          return;
+        if (isNamedImportAlias(context.sourceCode, node.declaration)) {
+          context.report(reportDescriptor);
         }
-        // Check if any declarator's init identifier maps to a named/namespace import.
-        for (const declarator of decl.declarations) {
-          if (declarator.init?.type === 'Identifier') {
-            const kind = getImportKind(context.sourceCode, declarator.init.name);
-            if (kind === 'named') {
-              // Named or namespace import alias — genuine re-export candidate.
-              context.report(reportDescriptor);
-              return;
-            }
-          }
-        }
-        // No named/namespace import: local variable or default import alias — suppress.
         return;
       }
 
@@ -89,6 +75,21 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       context.report(reportDescriptor);
     },
+  );
+}
+
+/**
+ * Returns true if the export declaration is a VariableDeclaration where at least one
+ * declarator's init is a named or namespace import (genuine re-export candidate).
+ * Returns false for FunctionDeclaration, ClassDeclaration, or VariableDeclarations
+ * whose init values are not named/namespace imports (local variables or default imports).
+ */
+function isNamedImportAlias(sourceCode: SourceCode, decl: estree.Declaration): boolean {
+  if (decl.type !== 'VariableDeclaration') {
+    return false;
+  }
+  return decl.declarations.some(
+    d => d.init?.type === 'Identifier' && getImportKind(sourceCode, d.init.name) === 'named',
   );
 }
 
