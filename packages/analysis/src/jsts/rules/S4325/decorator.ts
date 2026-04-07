@@ -113,7 +113,7 @@ function shouldSuppressTypeAssertion(
     tsExpression.type === 'TSNonNullExpression' &&
     tsExpression.expression.type === 'CallExpression'
   ) {
-    return isCalleeGeneric(tsExpression.expression, services);
+    return isNonNullWrappedGenericCall(tsExpression.expression, node, services);
   }
 
   return false;
@@ -160,6 +160,27 @@ function isCalleeGeneric(callExpression: TSESTree.Node, services: RequiredParser
 }
 
 /**
+ * Returns true when a call expression invokes a generic function and is wrapped
+ * in a non-null assertion that is itself wrapped in a type assertion (the pattern
+ * `genericCall()! as T`).  Extracted as a shared predicate so both
+ * `shouldSuppressTypeAssertion` and `shouldSuppressNonNullAssertion` describe
+ * the pattern in one place.
+ *
+ * @param callNode - the inner CallExpression
+ * @param parent   - the parent of the TSNonNullExpression (i.e. the type assertion node)
+ */
+function isNonNullWrappedGenericCall(
+  callNode: TSESTree.CallExpression,
+  parent: TSESTree.Node | undefined,
+  services: RequiredParserServices,
+): boolean {
+  return (
+    (parent?.type === 'TSAsExpression' || parent?.type === 'TSTypeAssertion') &&
+    isCalleeGeneric(callNode, services)
+  );
+}
+
+/**
  * Suppresses false positives for non-null assertions where the expression's
  * resolved type (with flow narrowing) still contains null or undefined.
  *
@@ -178,9 +199,8 @@ function shouldSuppressNonNullAssertion(
   // the `as T` drives generic type inference, so even if `!` appears redundant
   // in isolation, it is inseparable from the assertion that drives inference.
   if (
-    (node.parent?.type === 'TSAsExpression' || node.parent?.type === 'TSTypeAssertion') &&
     node.expression.type === 'CallExpression' &&
-    isCalleeGeneric(node.expression, services)
+    isNonNullWrappedGenericCall(node.expression, node.parent, services)
   ) {
     return true;
   }
