@@ -261,6 +261,18 @@ describe('S6582', () => {
           code: `declare function lowercase(s: string): string; declare const el: { nodeName: string; 0?: { nodeName: string } }; function f() { return lowercase(el.nodeName || (el[0] && el[0].nodeName)); }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
+        {
+          // FP: desktop/tutorial-assessor.ts pattern — a !== undefined && a.method() in boolean return
+          // commit?.parentSHAs.some() returns boolean|undefined, not assignable to boolean return type
+          code: `interface Commit { parentSHAs: string[] } function hasMultipleCommits(commit: Commit | undefined): boolean { return commit !== undefined && commit.parentSHAs.some(x => x.length > 0) }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          // FP: desktop/repository.ts pattern — (a && a.name) || fallback assigned to string field
+          // The && arm is the left side of || whose contextual type is string (excludes undefined)
+          code: `interface Repo { name: string } declare function getBase(p: string): string; class Repository { name: string; constructor(path: string, repo: Repo | null) { this.name = (repo && repo.name) || getBase(path) } }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
       ],
       invalid: [
         {
