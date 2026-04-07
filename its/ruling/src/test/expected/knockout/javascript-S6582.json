@@ -22,9 +22,6 @@
 "knockout:src/binding/defaultBindings/value.js": [
 38
 ],
-"knockout:src/binding/editDetection/arrayToDomNodeChildren.js": [
-89
-],
 "knockout:src/binding/expressionRewriting.js": [
 119,
 184
