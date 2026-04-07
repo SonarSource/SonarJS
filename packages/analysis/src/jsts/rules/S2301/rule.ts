@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -170,9 +170,19 @@ export const rule: Rule.RuleModule = {
 function isCallbackArgument(
   node: (ArrowFunctionExpression | FunctionExpression) & Rule.NodeParentExtension,
 ) {
+  // Check if the function is assigned to an event handler property (e.g. onChange, onFinish)
+  const isEventHandlerProperty =
+    node.parent.type === 'Property' &&
+    !node.parent.computed &&
+    (node.parent.key.type === 'Identifier' || node.parent.key.type === 'Literal') &&
+    /^on[A-Z]/.test(
+      node.parent.key.type === 'Identifier' ? node.parent.key.name : String(node.parent.key.value),
+    );
+
   return (
     (node.parent.type === 'CallExpression' && node.parent.arguments.includes(node)) ||
-    node.parent.type === 'JSXExpressionContainer'
+    node.parent.type === 'JSXExpressionContainer' ||
+    isEventHandlerProperty
   );
 }
 

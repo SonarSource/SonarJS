@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -53,6 +53,47 @@ describe('S2301', () => {
           code: `function nested(flag: boolean, other: boolean) {
   return flag ? (other ? doA() : doB()) : doC();
 }`,
+          errors: 1,
+        },
+        {
+          // JS-1481: standalone variable named onSomething is NOT exempted (only object property on[A-Z] is)
+          code: `
+const onCopy = (text: string, result: boolean) => {
+  if (result) {
+    onSuccess(text);
+  } else {
+    onFailure(text);
+  }
+};`,
+          errors: 1,
+        },
+        {
+          // JS-1481: TypeScript property setter with boolean — not an on[A-Z] object property, should still be flagged
+          code: `
+class Player {
+  set playing(playing: boolean) {
+    if (playing) {
+      this.play();
+    } else {
+      this.pause();
+    }
+  }
+}`,
+          errors: 1,
+        },
+        {
+          // JS-1481: computed property key that happens to match on[A-Z] is NOT exempted — runtime name is unknown
+          code: `
+const onChange = 'someKey';
+const handler = {
+  [onChange]: (result: boolean) => {
+    if (result) {
+      onSuccess();
+    } else {
+      onFailure();
+    }
+  },
+};`,
           errors: 1,
         },
         {
@@ -334,6 +375,49 @@ function tempt8(name: string, ofAge: boolean) {
     return isVisible ? <Content /> : <Placeholder />;
   }}
 </Container>`,
+        },
+        {
+          // JS-1481: arrow function assigned to on[A-Z] property — boolean reflects external event state
+          code: `
+const inputConfig = {
+  placeholder: 'Enter value',
+  onFinish: (value: string, success: boolean) => {
+    if (success) {
+      save(value);
+    } else {
+      cancel(value);
+    }
+  },
+};`,
+        },
+        {
+          // JS-1481: arrow function assigned to on[A-Z] property — boolean reflects checkbox UI state
+          code: `
+const folderUri = '/home/user/project';
+const quickPickItem = {
+  label: 'Allow folder',
+  checked: true,
+  onDidChangeChecked: (checked: boolean) => {
+    if (checked) {
+      addFolder(folderUri);
+    } else {
+      removeFolder(folderUri);
+    }
+  },
+};`,
+        },
+        {
+          // JS-1481: function expression assigned to on[A-Z] property — boolean reflects toggle state
+          code: `
+const toggleHandler = {
+  onChange: function(isEnabled: boolean) {
+    if (isEnabled) {
+      activate();
+    } else {
+      deactivate();
+    }
+  },
+};`,
         },
       ],
     });
