@@ -150,6 +150,9 @@
 "desktop:app/src/models/diff/diff-selection.ts": [
 103
 ],
+"desktop:app/src/models/repository.ts": [
+64
+],
 "desktop:app/src/ui/app-error.tsx": [
 168,
 299
