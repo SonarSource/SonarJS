@@ -164,7 +164,9 @@ export const rule: Rule.RuleModule = {
 
     // Without strictNullChecks, null and undefined are implicitly assignable to every type.
     // Any reasoning about whether undefined is safe to introduce is meaningless in that mode.
-    if (!services.program.getCompilerOptions().strictNullChecks) {
+    // `strict: true` implies strictNullChecks but does not materialize it as an explicit property.
+    const compilerOptions = services.program.getCompilerOptions();
+    if (!compilerOptions.strictNullChecks && !compilerOptions.strict) {
       return preferOptionalChainRule.create(context);
     }
 

@@ -161,6 +161,34 @@ describe('S6582 defensive guard fallback paths', () => {
   });
 });
 
+describe('S6582 with strict: true (no explicit strictNullChecks)', () => {
+  it('suppresses false positives when only strict: true is set — strict implies strictNullChecks', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures/strict-mode'),
+      },
+    });
+    ruleTester.run('S6582', rule, {
+      valid: [
+        {
+          // FP: return type 'number | null' excludes undefined — strict: true implies strictNullChecks
+          code: `function getLen(arr: string[] | null): number | null { return arr && arr.length; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
+        },
+      ],
+      invalid: [
+        {
+          // boolean context (if-condition): no contextual type — optional chaining is type-safe
+          code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,
+          filename: path.join(import.meta.dirname, 'fixtures/strict-mode/index.ts'),
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
+
 describe('S6582 without strictNullChecks', () => {
   it('reports when strictNullChecks is disabled — null/undefined type reasoning is not meaningful', () => {
     const ruleTester = new RuleTester({
