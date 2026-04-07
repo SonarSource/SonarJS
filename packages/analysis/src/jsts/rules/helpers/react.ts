@@ -313,11 +313,13 @@ function getAnnotationBasedPropsType(
   tsFuncNode: ts.SignatureDeclaration,
   checker: ts.TypeChecker,
 ): ts.Type | null {
+  // Only ArrowFunction and FunctionExpression can appear as a VariableDeclarator initializer.
+  // Guard on node kind first so the comparison below is type-safe without `as unknown as`.
+  if (!ts.isArrowFunction(tsFuncNode) && !ts.isFunctionExpression(tsFuncNode)) {
+    return null;
+  }
   const parentNode = tsFuncNode.parent;
-  if (
-    !ts.isVariableDeclaration(parentNode) ||
-    parentNode.initializer !== (tsFuncNode as unknown as ts.Expression)
-  ) {
+  if (!ts.isVariableDeclaration(parentNode) || parentNode.initializer !== tsFuncNode) {
     return null;
   }
   const typeNode = parentNode.type;
