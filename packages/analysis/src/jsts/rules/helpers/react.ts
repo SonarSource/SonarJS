@@ -229,14 +229,15 @@ function matchesClassProps(
   return matchesClassPropsViaSyntax(cls, checker, propsType);
 }
 
-/** Returns true when `expr` names the React.Component base class. */
+/** Returns true when `expr` names the React.Component or React.PureComponent base class. */
 function isReactComponentExpression(expr: ts.Expression): boolean {
+  const REACT_COMPONENT_NAMES = new Set(['Component', 'PureComponent']);
   return (
-    (ts.isIdentifier(expr) && expr.text === 'Component') ||
+    (ts.isIdentifier(expr) && REACT_COMPONENT_NAMES.has(expr.text)) ||
     (ts.isPropertyAccessExpression(expr) &&
       ts.isIdentifier(expr.expression) &&
       expr.expression.text === 'React' &&
-      expr.name.text === 'Component')
+      REACT_COMPONENT_NAMES.has(expr.name.text))
   );
 }
 
