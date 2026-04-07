@@ -267,12 +267,6 @@ describe('S6582', () => {
           code: `interface Commit { parentSHAs: string[] } function hasMultipleCommits(commit: Commit | undefined): boolean { return commit !== undefined && commit.parentSHAs.some(x => x.length > 0) }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
-        {
-          // FP: desktop/repository.ts pattern — (a && a.name) || fallback assigned to string field
-          // The && arm is the left side of || whose contextual type is string (excludes undefined)
-          code: `interface Repo { name: string } declare function getBase(p: string): string; class Repository { name: string; constructor(path: string, repo: Repo | null) { this.name = (repo && repo.name) || getBase(path) } }`,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-        },
       ],
       invalid: [
         {
@@ -313,6 +307,22 @@ describe('S6582', () => {
           // loose inequality: a && a.p != null rewrites to a?.p != null, which is always boolean — no undefined leak
           code: `interface Item { p: string } function f(a: Item | null): boolean { return a && a.p != null; }`,
           output: `interface Item { p: string } function f(a: Item | null): boolean { return a?.p != null; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // left operand of ||: (repo && repo.name) || fallback — repo?.name || fallback is type-safe
+          // because || absorbs the undefined introduced by optional chaining
+          code: `interface Repo { name: string } declare function getBase(p: string): string; class Repository { name: string; constructor(path: string, repo: Repo | null) { this.name = (repo && repo.name) || getBase(path) } }`,
+          output: `interface Repo { name: string } declare function getBase(p: string): string; class Repository { name: string; constructor(path: string, repo: Repo | null) { this.name = (repo?.name) || getBase(path) } }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // left operand of ??: (repo && repo.name) ?? fallback — repo?.name ?? fallback is type-safe
+          // because ?? absorbs the undefined introduced by optional chaining
+          code: `interface Repo { name: string } declare function getBase(p: string): string; function f(repo: Repo | null): string { return (repo && repo.name) ?? getBase('path'); }`,
+          output: `interface Repo { name: string } declare function getBase(p: string): string; function f(repo: Repo | null): string { return (repo?.name) ?? getBase('path'); }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
           errors: 1,
         },

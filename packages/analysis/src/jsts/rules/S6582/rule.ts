@@ -200,6 +200,21 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
+      // Left-operand-of-|| or left-operand-of-?? pattern:
+      // When (a && a.prop) is the left operand of || or ??, the enclosing operator
+      // absorbs the undefined introduced by optional chaining, making the rewrite
+      // type-safe. E.g. (repo && repo.name) || fallback → repo?.name || fallback
+      // preserves the overall type because || and ?? provide a fallback for undefined.
+      const parent = node.parent;
+      if (
+        parent?.type === 'LogicalExpression' &&
+        (parent.operator === '||' || parent.operator === '??') &&
+        parent.left === node
+      ) {
+        ctx.report(descriptor);
+        return;
+      }
+
       const contextualType = getContextualTypeOfNode(services, checker, node);
       if (!contextualType) {
         // No contextual type (e.g. if/while boolean context) — replacement is safe
