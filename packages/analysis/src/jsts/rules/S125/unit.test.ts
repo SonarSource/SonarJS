@@ -339,6 +339,26 @@ const a = 1;`,
           ],
         },
         {
+          // assignment where variable is named "example" is still reported as dead code
+          code: `// example = doSomething();`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
+        {
+          // assignment where variable is named "examples" is still reported as dead code
+          code: `// examples = doSomething();`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
+        {
           code: `let x = /* let x = 42; */ 0;`,
           errors: [
             {
