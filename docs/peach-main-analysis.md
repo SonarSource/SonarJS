@@ -28,6 +28,30 @@ log shows one of these names in the failing sensor context:
 Any other sensor name (e.g. `Sensor Declarative Rule Engine for Shell`, `Java sensor`,
 `Security SonarQube`) belongs to a **different plugin** and is not a SonarJS issue.
 
+### Last Sensor Wins
+
+When classifying a scanner failure, use the **last sensor that started before the stack trace**
+as the owner of the crash.
+
+- If `Sensor JavaScript/TypeScript/CSS analysis [javascript]` is the last active sensor and the
+  stack trace contains `org.sonar.plugins.javascript`, treat it as a SonarJS failure.
+- If the JavaScript sensor finished successfully and a later non-SonarJS sensor started, the
+  later sensor owns the failure even if JavaScript analysis ran earlier in the job.
+- Do not blame SonarJS just because the log contains earlier JavaScript sensor lines. The
+  failing sensor context matters, not the first sensor that appeared in the job.
+
+Example:
+
+```text
+Sensor JavaScript/TypeScript/CSS analysis [javascript] (done)
+Sensor JsSecuritySensorV2 [jasmin]
+...
+java.lang.OutOfMemoryError: Java heap space
+```
+
+This is **not** a SonarJS analyzer failure. The last active sensor is `JsSecuritySensorV2
+[jasmin]`, so the failure belongs to Jasmin/security.
+
 ### Decision Flowchart
 
 ```
@@ -43,11 +67,12 @@ Any other sensor name (e.g. `Sensor Declarative Rule Engine for Shell`, `Java se
    ├─ Exit code 137 → CRITICAL (out-of-memory, escalate)
    └─ Other exit code → NEEDS-MANUAL-REVIEW
 
-3. Which component crashed?
+3. Which component crashed? Use the last sensor that started before the error.
    ├─ Stack trace is in `ReportPublisher.upload` → IGNORE (Peach server / report upload timeout)
+   ├─ Log says `Node.js process running out of memory` or suggests `sonar.javascript.node.maxspace` → CRITICAL (SonarJS bridge Node heap exhausted)
    ├─ Stack trace contains `org.sonar.plugins.javascript` frames but no sensor name → CRITICAL (SonarJS plugin initialization failure)
-   ├─ Sensor name is one of the SonarJS sensors listed above → CRITICAL (SonarJS analyzer crash)
-   └─ Sensor name is something else (DRE Shell, Java, Security...) → IGNORE (different plugin, not our problem)
+   ├─ Last active sensor is one of the SonarJS sensors listed above → CRITICAL (SonarJS analyzer crash)
+   └─ Last active sensor is something else (DRE Shell, Java, Security...) → IGNORE (different plugin, not our problem)
 ```
 
 ## Failure Categories
@@ -94,6 +119,43 @@ EXECUTION FAILURE
 
 ---
 
+### CRITICAL: SonarJS Node Heap Exhaustion
+
+**Verdict:** CRITICAL — investigate analyzer memory use before release.
+
+**How to identify:**
+- Failure occurs during the SonarScanner execution step
+- The last active sensor is `JavaScript/TypeScript/CSS analysis [javascript]`
+- The log contains one or more of:
+  - `The analysis will stop due to the Node.js process running out of memory`
+  - `sonar.javascript.node.maxspace`
+  - `sonar.javascript.node.debugMemory`
+- The Java stack trace often ends with `WebSocket connection closed abnormally` and
+  `Analysis of JS/TS files failed`
+
+**Detection patterns:**
+- Phase 2: `/Node\.js process running out of memory/`,
+  `/sonar\.javascript\.node\.(maxspace|debugMemory)/`,
+  `/org\.sonar\.plugins\.javascript/`
+
+**Example log excerpt (`tape`, 2026-04-07):**
+```
+Sensor JavaScript/TypeScript/CSS analysis [javascript]
+ERROR The analysis will stop due to the Node.js process running out of memory (heap size limit 4288 MB)
+ERROR You can see how Node.js heap usage evolves during analysis with "sonar.javascript.node.debugMemory=true"
+ERROR Try setting "sonar.javascript.node.maxspace" to a higher value to increase Node.js heap size limit
+...
+java.lang.IllegalStateException: Analysis of JS/TS files failed
+  at org.sonar.plugins.javascript.analysis.WebSensor.execute(WebSensor.java:175)
+EXECUTION FAILURE
+##[error]Process completed with exit code 3.
+```
+
+**Action:** Raise the heap size for the affected project and investigate whether the analyzer
+has a memory regression or pathological input pattern.
+
+---
+
 ### CRITICAL: Out-of-Memory / Runner Killed
 
 **Verdict:** CRITICAL — escalate for investigation.
@@ -122,7 +184,7 @@ EXECUTION FAILURE
 **How to identify:**
 - Failure occurs during the SonarScanner execution step
 - Scanner exits with code 3 and a Java stack trace is present
-- The failing sensor name is **not** one of the SonarJS sensors listed above
+- The **last active** sensor name is **not** one of the SonarJS sensors listed above
 - Common non-SonarJS sensor names seen on Peach:
   - `Sensor Declarative Rule Engine for Shell` — belongs to **sonar-iac**
   - `Sensor Declarative Rule Engine for Terraform` — belongs to **sonar-iac**
@@ -132,7 +194,7 @@ EXECUTION FAILURE
 
 **Detection patterns:**
 - Phase 1: `/EXECUTION FAILURE/`, `/Process completed with exit code/` — exit code 3 with no misconfiguration signal escalates to Phase 2
-- Phase 2: `/Sensor /` — last sensor name is not a SonarJS sensor; `/org\.sonar\.plugins\.javascript/` absent → IGNORE
+- Phase 2: `/Sensor /` — last sensor name is not a SonarJS sensor and no later SonarJS sensor appears after it; `/org\.sonar\.plugins\.javascript/` absent → IGNORE
 
 **Example log excerpt (gutenberg, 2026-03-11):**
 ```
@@ -147,7 +209,7 @@ EXECUTION FAILURE
 
 The class `com.A.A.D.H` is from the sonar-iac plugin (obfuscated). No `org.sonar.plugins.javascript` frame is present — this is not a SonarJS crash.
 
-**Action:** None for the SonarJS team. Optionally notify the team responsible for the failing sensor (e.g. sonar-iac team for DRE Shell failures).
+**Action:** None for the SonarJS team. Optionally notify the team responsible for the failing sensor (e.g. sonar-iac team for DRE Shell failures). If the project should stay green on Peach, create or update a Peach tracking task.
 
 ---
 
@@ -174,7 +236,7 @@ The class `com.A.A.D.H` is from the sonar-iac plugin (obfuscated). No `org.sonar
 ##[error]Process completed with exit code 3.
 ```
 
-**Action:** None. The analyzed project's sonar-project.properties references a path that no longer exists. Not a SonarJS issue.
+**Action:** No SonarJS release blocker. The analyzed project's sonar-project.properties references a path that no longer exists. Create or update a Peach tracking task if the project should stay green.
 
 ---
 
@@ -239,7 +301,7 @@ npm error notarget a package version that doesn't exist.
 ##[error]Process completed with exit code 1.
 ```
 
-**Action:** None. The analyzed project needs to update its dependencies. Not a SonarJS issue.
+**Action:** No SonarJS release blocker. The analyzed project needs to update its dependencies. Create or update a Peach tracking task if the project should stay green.
 
 ---
 
@@ -387,7 +449,9 @@ escalate to Phase 2 — a Java stack trace may be present that Phase 1 does not 
 ### Phase 2 — Sensor and stack trace detection
 
 Identifies which sensor was running and whether the SonarJS plugin is involved. Run only for
-jobs where Phase 1 showed exit code 3 without a clear misconfiguration signal.
+jobs where Phase 1 showed exit code 3 without a clear misconfiguration signal. Apply the
+**last sensor wins** rule: the last sensor that started before the error owns the failure unless
+the stack trace proves a later phase such as `ReportPublisher.upload`.
 
 ```bash
 sed --sandbox -n '
@@ -395,10 +459,16 @@ sed --sandbox -n '
 /Sensor /p                             # last sensor name — is it a SonarJS sensor?
 /EXECUTION FAILURE/p                   # scanner failure marker
 /OutOfMemoryError/p                    # OOM inside scanner
+/Node\.js process running out of memory/p   # SonarJS bridge Node heap exhaustion
+/sonar\.javascript\.node\.maxspace/p        # SonarJS heap tuning hint
+/sonar\.javascript\.node\.debugMemory/p     # SonarJS memory debugging hint
 /Process completed with exit code/p    # exit code confirmation
 /org\.sonar\.plugins\.javascript/p     # SonarJS plugin frame in stack trace → CRITICAL
 ' target/peach-logs/JOB_ID.log
 ```
+
+This surfaces both the last sensor that ran and any `org.sonar.plugins.javascript` frames in the
+stack trace, plus the explicit Node-heap hints used by the `tape` failure pattern.
 
 ---
 
