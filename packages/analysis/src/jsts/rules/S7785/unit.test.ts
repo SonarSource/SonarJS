@@ -16,7 +16,10 @@
  */
 import { rule } from './index.js';
 import { rules } from '../external/unicorn.js';
-import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  NoTypeCheckingRuleTester,
+  RuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 const upstreamRule = rules['prefer-top-level-await'];
@@ -75,7 +78,7 @@ describe('S7785', () => {
     });
   });
 
-  it('should suppress .catch() on Zod schema objects imported from zod', () => {
+  it('should suppress .catch() on Zod schema objects imported from zod (fallback mode)', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('S7785', rule, {
       valid: [
@@ -119,6 +122,51 @@ schema.catch(console.error);`,
         {
           // Non-compliant: new expression — chain root is not an Identifier
           code: `new MyPromise().catch(console.error);`,
+          errors: [{ messageId: 'promise' }],
+        },
+      ],
+    });
+  });
+
+  it('should use type information when available (type-checker mode)', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('S7785', rule, {
+      valid: [
+        {
+          // Suppress: Zod schema .catch() — ZodOptional is not assignable to Promise
+          code: `import { z } from 'zod';
+const nameSchema = z.string().optional().catch('');`,
+        },
+        {
+          // Suppress: custom synchronous class with .catch() — not PromiseLike
+          code: `class Schema {
+  catch(defaultValue: number): this { return this; }
+}
+const schema = new Schema();
+schema.catch(0);`,
+        },
+      ],
+      invalid: [
+        {
+          // Warn: fetch returns Promise<Response> — .then() on PromiseLike
+          code: `fetch('/api').then(r => r.json());`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Warn: Promise.resolve returns Promise<number> — .catch() on Promise
+          code: `Promise.resolve(42).catch(console.error);`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Warn: async function returns Promise — .then() on PromiseLike
+          code: `async function loadData() { return 42; }
+loadData().then(console.log);`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Warn: 'any' type — warn conservatively since it may be a Promise
+          code: `declare const x: any;
+x.then(console.log);`,
           errors: [{ messageId: 'promise' }],
         },
       ],
