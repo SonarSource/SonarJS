@@ -112,6 +112,6 @@ function hasNeverTypedCallArg(stmt: TSESTree.Statement, services: RequiredParser
   }
   return callExpr.arguments.some(arg => {
     const type = getTypeFromTreeNode(arg as unknown as estree.Node, services);
-    return type.flags === ts.TypeFlags.Never;
+    return (type.flags & ts.TypeFlags.Never) !== 0;
   });
 }
