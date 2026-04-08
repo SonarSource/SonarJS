@@ -128,8 +128,64 @@ describe('S1301', () => {
             }
           `,
         },
+        {
+          // Exhaustiveness check via return statement: return assertNever(x) where x is narrowed to never
+          code: `
+            function assertNever(x: never): never {
+              throw new Error('Unhandled: ' + x);
+            }
+            type Status = 'active';
+            function handleStatus(status: Status): never {
+              switch (status) {
+                case 'active':
+                  throw new Error('active');
+                default:
+                  return assertNever(status);
+              }
+            }
+          `,
+        },
       ],
-      invalid: [],
+      invalid: [
+        {
+          // Default case has a throw statement — not an assertNever call, so still flagged
+          code: `
+            type Status = 'active';
+            function handleStatus(status: Status): string {
+              switch (status) {
+                case 'active':
+                  return 'active';
+                default:
+                  throw new Error('unreachable');
+              }
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should flag switch where default case has destructuring declaration without never annotation', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('"if" statements should be preferred over "switch" when simpler', rule, {
+      valid: [],
+      invalid: [
+        {
+          // Destructuring pattern in default — d.id.type !== 'Identifier', no never annotation
+          code: `
+            function handle(x: string): void {
+              switch (x) {
+                case 'a':
+                  break;
+                default:
+                  const [a] = [x];
+              }
+            }
+          `,
+          errors: 1,
+        },
+      ],
     });
   });
 });
