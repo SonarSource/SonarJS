@@ -104,6 +104,8 @@ function hasNeverTypedCallArg(stmt: TSESTree.Statement, services: RequiredParser
     callExpr = stmt.expression;
   } else if (stmt.type === 'ReturnStatement' && stmt.argument?.type === 'CallExpression') {
     callExpr = stmt.argument;
+  } else if (stmt.type === 'ThrowStatement' && stmt.argument?.type === 'CallExpression') {
+    callExpr = stmt.argument;
   }
   if (!callExpr) {
     return false;

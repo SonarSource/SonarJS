@@ -145,10 +145,28 @@ describe('S1301', () => {
             }
           `,
         },
+        {
+          // Exhaustiveness check via throw statement: throw assertNever(x) where x is narrowed to never
+          code: `
+            function assertNever(x: never): never {
+              throw new Error('Unhandled: ' + x);
+            }
+            type Status = 'active';
+            function handleStatus(status: Status): void {
+              switch (status) {
+                case 'active':
+                  console.log('active');
+                  break;
+                default:
+                  throw assertNever(status);
+              }
+            }
+          `,
+        },
       ],
       invalid: [
         {
-          // Default case has a throw statement — not an assertNever call, so still flagged
+          // Default case throws a plain error (argument not never-typed), so still flagged
           code: `
             type Status = 'active';
             function handleStatus(status: Status): string {
