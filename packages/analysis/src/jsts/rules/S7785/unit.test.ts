@@ -15,8 +15,35 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { rules } from '../external/unicorn.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+
+const upstreamRule = rules['prefer-top-level-await'];
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
+describe('S7785 upstream sentinel', () => {
+  it('upstream prefer-top-level-await raises on Zod .catch() that decorator suppresses', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('prefer-top-level-await', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `import { z } from 'zod';
+const nameSchema = z.string().optional().catch('');`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          code: `import { z } from 'zod';
+const layoutSchema = z.record(z.string(), z.number()).catch({});`,
+          errors: [{ messageId: 'promise' }],
+        },
+      ],
+    });
+  });
+});
 
 describe('S7785', () => {
   it('should skip CommonJS files (sourceType: script)', () => {
@@ -43,6 +70,56 @@ describe('S7785', () => {
         {
           code: `(async () => { await fetch('https://example.com'); })();`,
           errors: [{ messageId: 'iife' }],
+        },
+      ],
+    });
+  });
+
+  it('should suppress .catch() on Zod schema objects imported from zod', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('S7785', rule, {
+      valid: [
+        {
+          // Compliant: Zod string schema .catch()
+          code: `import { z } from 'zod';
+const nameSchema = z.string().optional().catch('');`,
+        },
+        {
+          // Compliant: Zod object schema with nested .catch() calls
+          code: `import { z } from 'zod';
+const QueryParams = z.object({
+  org_id: z.string().optional().catch(''),
+  is_admin_login: z.boolean().optional().catch(false),
+  port: z.coerce.number().optional().catch(undefined),
+});`,
+        },
+        {
+          // Compliant: Zod record schema .catch()
+          code: `import { z } from 'zod';
+const layoutSchema = z.record(z.string(), z.number()).catch({ left: 30, right: 30 });`,
+        },
+      ],
+      invalid: [
+        {
+          // Non-compliant: global fetch — not from an import
+          code: `fetch('/api').catch(console.error);`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Non-compliant: global Promise
+          code: `Promise.resolve(42).then(console.log);`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Non-compliant: import not from 'zod'
+          code: `import { schema } from 'my-internal-lib';
+schema.catch(console.error);`,
+          errors: [{ messageId: 'promise' }],
+        },
+        {
+          // Non-compliant: new expression — chain root is not an Identifier
+          code: `new MyPromise().catch(console.error);`,
+          errors: [{ messageId: 'promise' }],
         },
       ],
     });
