@@ -118,13 +118,16 @@ function hasNeverTypeAnnotation(
 
 /**
  * Checks if a statement contains an exhaustiveness-sentinel call with the switch discriminant as argument.
- * Both conditions must hold:
+ * All three conditions must hold:
  * - The call itself must return `never`, identifying it as a sentinel (e.g., `assertNever`).
  *   Plain helpers like `logValue(status)` or `console.log(status)` accept a `never`-typed
  *   argument only because `never` is assignable to every type — they are not sentinels.
  * - One argument must syntactically match the discriminant, narrowed to `never` by TypeScript's
  *   control flow, ruling out patterns like `assertNever(fail())` where `fail()` returns `never`
  *   but is not the discriminant.
+ * - The parameter type at the matching argument position must itself be `never`. This rules out
+ *   helpers like `failWith(x: unknown): never` where the parameter accepts any value — only an
+ *   explicit `(x: never): never` signature proves the call is an exhaustiveness sentinel.
  */
 function hasNeverTypedCallArg(
   stmt: TSESTree.Statement,
@@ -149,13 +152,31 @@ function hasNeverTypedCallArg(
   if ((callType.flags & ts.TypeFlags.Never) === 0) {
     return false;
   }
-  return callExpr.arguments.some(arg => {
+  const checker = services.program.getTypeChecker();
+  const tsCallNode = services.esTreeNodeToTSNodeMap.get(callExpr) as ts.CallLikeExpression;
+  const signature = checker.getResolvedSignature(tsCallNode);
+  return callExpr.arguments.some((arg, index) => {
     // The argument must be the switch discriminant, narrowed to `never` by TypeScript's control flow.
     if (!isSameExpression(arg, discriminant)) {
       return false;
     }
-    const type = getTypeFromTreeNode(arg as unknown as estree.Node, services);
-    return (type.flags & ts.TypeFlags.Never) !== 0;
+    const argType = getTypeFromTreeNode(arg as unknown as estree.Node, services);
+    if ((argType.flags & ts.TypeFlags.Never) === 0) {
+      return false;
+    }
+    // The declared parameter type must be `never`. This distinguishes an explicit exhaustiveness
+    // sentinel like `assertNever(x: never)` from a helper that merely accepts `never` because
+    // `never` is assignable to every type (e.g., `failWith(x: unknown)`).
+    if (!signature) {
+      return false;
+    }
+    const params = signature.getParameters();
+    const param = params[index];
+    if (!param) {
+      return false;
+    }
+    const paramType = checker.getTypeOfSymbol(param);
+    return (paramType.flags & ts.TypeFlags.Never) !== 0;
   });
 }
 

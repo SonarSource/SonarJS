@@ -245,6 +245,22 @@ describe('S1301', () => {
           `,
           errors: 1,
         },
+        {
+          // `failWith` returns `never` but its parameter is `unknown`, not `never` — not a sentinel
+          code: `
+            function failWith(x: unknown): never { throw new Error(String(x)); }
+            type Status = 'active';
+            function handleStatus(status: Status): void {
+              switch (status) {
+                case 'active':
+                  break;
+                default:
+                  failWith(status);
+              }
+            }
+          `,
+          errors: 1,
+        },
       ],
     });
   });
