@@ -86,6 +86,21 @@ describe('S1301', () => {
             }
           `,
         },
+        {
+          // Exhaustiveness check with member expression discriminant: const _: never = action.type
+          code: `
+            type Action = { type: 'load' };
+            function reduce(action: Action, state: unknown): unknown {
+              switch (action.type) {
+                case 'load':
+                  return state;
+                default:
+                  const _: never = action.type;
+                  return _;
+              }
+            }
+          `,
+        },
       ],
       invalid: [
         {
@@ -159,6 +174,23 @@ describe('S1301', () => {
                   break;
                 default:
                   throw assertNever(status);
+              }
+            }
+          `,
+        },
+        {
+          // Exhaustiveness check with member expression discriminant: assertNever(action.type)
+          code: `
+            function assertNever(x: never): never {
+              throw new Error('Unhandled action: ' + x);
+            }
+            type Action = { type: 'load' };
+            function reduce(action: Action, state: unknown): unknown {
+              switch (action.type) {
+                case 'load':
+                  return state;
+                default:
+                  assertNever(action.type);
               }
             }
           `,
