@@ -21,24 +21,21 @@ import type estree from 'estree';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getImportDeclarations, isESModule } from '../helpers/module.js';
-import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { isThenable } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 /**
- * Packages whose fluent APIs use `.then()`/`.catch()`/`.finally()` as synchronous
- * schema/configuration methods — not as Promise prototype methods.
+ * Packages whose fluent APIs use `.catch()`/`.finally()` as synchronous
+ * schema/configuration methods — not as Promise prototype methods
  */
 const ALLOWED_NON_PROMISE_PACKAGES = new Set(['zod']);
-const PROMISE_PROTOTYPE_METHODS = new Set(['then', 'catch', 'finally']);
 
 /**
- * Decorates the unicorn/prefer-top-level-await rule to:
- * 1. Skip CommonJS files (top-level await is not available in CJS).
- * 2. Suppress false positives where `.then()`/`.catch()`/`.finally()` is called on
- *    a non-Promise object (e.g. Zod schema objects), using two-mode detection:
- *    - Mode 1 (type checker available): structural PromiseLike/Promise type check.
- *    - Mode 2 (fallback): import-source allowlist heuristic.
+ * Decorates the unicorn/prefer-top-level-await rule to skip CommonJS files.
+ *
+ * Top-level await is only available in ES modules, not CommonJS.
+ * Flagging CJS files for not using top-level await is a false positive
+ * since they can't use it anyway.
+ * Suppress promise-like warnings for modules with non-PromiseLike APIs defining custom catch/finally methods
  */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   const intercepted = interceptReport(rule, suppressNonPromiseChains);
@@ -56,9 +53,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
 /**
  * Intercepts `'promise'` reports and suppresses them when the receiver of the
- * chained call is not a Promise/PromiseLike type.
- *
- * Non-`'promise'` reports (`'iife'`, `'identifier'`) are passed through unchanged.
+ * chained call comes from an `allowed` module.
  */
 function suppressNonPromiseChains(
   context: Rule.RuleContext,
@@ -82,7 +77,6 @@ function suppressNonPromiseChains(
     return;
   }
 
-  const methodName = methodNode.name;
   const parent = methodNode.parent;
 
   // parent must be a MemberExpression whose .property is the reported Identifier
@@ -92,30 +86,20 @@ function suppressNonPromiseChains(
   }
 
   const receiver = parent.object;
-  const services = context.sourceCode.parserServices;
-  if (isRequiredParserServices(services)) {
-    // Mode 1: type checker available — check that the receiver is thenable
-    if (isThenable(receiver, services) && PROMISE_PROTOTYPE_METHODS.has(methodName)) {
-      context.report(reportDescriptor);
-    }
 
-    return;
-  }
-
-  // Mode 2: fallback — import-source allowlist heuristic
-  if (!isFromAllowedPackage(receiver, context)) {
+  if (!isNonPromiseChainRoot(receiver, context)) {
     context.report(reportDescriptor);
   }
 }
 
 /**
  * Returns true when the chain root is an identifier imported from a package on
- * the allowlist. In that case, the chain is almost certainly not a Promise chain.
+ * the allowlist. In that case, the chain is almost certainly not a Promise chain nad t
  *
  * e.g. import { z } from 'zod';
  * z.number().catch(0)
  */
-function isFromAllowedPackage(receiver: estree.Node, context: Rule.RuleContext): boolean {
+function isNonPromiseChainRoot(receiver: estree.Node, context: Rule.RuleContext): boolean {
   let root: estree.Node = receiver;
 
   while (true) {

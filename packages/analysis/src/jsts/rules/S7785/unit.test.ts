@@ -15,10 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import {
-  NoTypeCheckingRuleTester,
-  RuleTester,
-} from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 describe('S7785', () => {
@@ -112,102 +109,6 @@ describe('S7785', () => {
             getPromise().catch(err => console.error(err));
           `,
           errors: [{ messageId: 'promise' }],
-        },
-      ],
-    });
-  });
-
-  it('should not report non-Promise .catch() chains on non-thenable types (with type checker)', () => {
-    // False positive: with type information, the receiver of .catch() is a ZodOptional
-    // (or similar Zod type) which does not implement PromiseLike, so the report is suppressed.
-    const ruleTester = new RuleTester();
-    ruleTester.run('S7785', rule, {
-      valid: [
-        {
-          // Zod schema .catch() — ZodOptional has no `then` property
-          code: `
-            import { z } from 'zod';
-            const schema = z.string().optional().catch('');
-          `,
-        },
-        {
-          // Zod schema .catch() with undefined default — from the real-world FP
-          code: `
-            import { z } from 'zod';
-            const schema = z.coerce.number().optional().catch(undefined);
-          `,
-        },
-        {
-          // Actual top-level await is valid
-          code: `
-            const result = await fetch('https://example.com');
-          `,
-        },
-        {
-          // Custom class with .catch() but no .then() — not a Promise, must not be flagged
-          code: `
-            class Catchable { catch(fn: (e: unknown) => void) { return this; } }
-            new Catchable().catch(() => {});
-          `,
-        },
-        {
-          // Custom class with .finally() but no .then() — not a Promise, must not be flagged
-          code: `
-            class Finalizable { finally(fn: () => void) { return this; } }
-            new Finalizable().finally(() => {});
-          `,
-        },
-        {
-          // Custom class with both .catch() and .finally() but no .then() — still not a Promise
-          code: `
-            class Resource {
-              catch(fn: (e: unknown) => void) { return this; }
-              finally(fn: () => void) { return this; }
-            }
-            new Resource().catch(() => {}).finally(() => {});
-          `,
-        },
-      ],
-      invalid: [
-        {
-          // Real promise chain — fetch() returns a Promise which has both `then` and `catch`
-          code: `
-            fetch('https://example.com').catch(err => console.error(err));
-          `,
-          errors: [{ messageId: 'promise' }],
-        },
-        {
-          // Promise.resolve().then() — PromiseLike must still be flagged
-          code: `
-            Promise.resolve(42).then(v => console.log(v));
-          `,
-          errors: [{ messageId: 'promise' }],
-        },
-        {
-          // Custom thenable (has callable .then()) — IS PromiseLike, calling .then() must be flagged
-          code: `
-            class Thenable { then(onfulfilled: (value: unknown) => void) { return this; } }
-            new Thenable().then(v => console.log(v));
-          `,
-          errors: [{ messageId: 'promise' }],
-        },
-        {
-          // Custom class with both .then() and .catch() — IS Promise-like, calling .catch() must be flagged
-          code: `
-            class PromiseLike {
-              then(resolve: (value: unknown) => void) { return this; }
-              catch(reject: (error: unknown) => void) { return this; }
-            }
-            new PromiseLike().catch(err => console.error(err));
-          `,
-          errors: [{ messageId: 'promise' }],
-        },
-        {
-          // IIFE must still be flagged regardless
-          code: `
-            (async () => { await fetch('https://example.com'); })();
-          `,
-          errors: [{ messageId: 'iife' }],
         },
       ],
     });
