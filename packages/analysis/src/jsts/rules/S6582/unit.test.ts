@@ -141,11 +141,11 @@ describe('S6582 defensive guard fallback paths', () => {
     const noTsNodeRule: Rule.RuleModule = {
       meta: rule.meta,
       create(context) {
-        const services = context.sourceCode.parserServices as any;
+        const services = context.sourceCode.parserServices;
         if (services?.esTreeNodeToTSNodeMap) {
           const origGet = services.esTreeNodeToTSNodeMap.get.bind(services.esTreeNodeToTSNodeMap);
-          services.esTreeNodeToTSNodeMap.get = (node: any) => {
-            if (node?.type === 'LogicalExpression') return undefined;
+          services.esTreeNodeToTSNodeMap.get = (node: Rule.Node) => {
+            if (node.type === 'LogicalExpression') return undefined;
             return origGet(node);
           };
         }

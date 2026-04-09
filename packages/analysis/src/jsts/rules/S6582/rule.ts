@@ -215,14 +215,12 @@ export const rule: Rule.RuleModule = {
         // operands don't include undefined, because optional chaining would change the
         // type from T|null to T|undefined in isolation. Since the enclosing ||/??
         // absorbs any undefined the rewrite introduces, the fix is safe as an autofix.
-        const suggestFix = (descriptor as any).suggest?.[0]?.fix as
-          | Rule.ReportDescriptor['fix']
-          | undefined;
-        if (suggestFix != null) {
-          const { suggest: _suggest, ...rest } = descriptor as any;
-          ctx.report({ ...rest, fix: suggestFix } as Rule.ReportDescriptor);
-        } else {
+        const suggestFix = descriptor.suggest?.[0]?.fix;
+        if (suggestFix == null) {
           ctx.report(descriptor);
+        } else {
+          const { suggest: _suggest, ...rest } = descriptor;
+          ctx.report({ ...rest, fix: suggestFix } as Rule.ReportDescriptor);
         }
         return;
       }
