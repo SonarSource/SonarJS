@@ -44,6 +44,64 @@ const forwardRefCalleePatterns: Array<(callee: estree.Expression | estree.Super)
     isIdentifier(callee.property, 'forwardRef'),
 ];
 
+/**
+ * Wrappers that do not inject props and therefore must never trigger
+ * HOC-export suppression by themselves.
+ *
+ * React teams often export components through helper wrappers, but not every
+ * wrapper behaves like a classic HOC that adds new props for the wrapped
+ * component to consume.
+ *
+ * - `memo` is React's render-optimization wrapper. It tells React to skip a
+ *   re-render when the parent passes the same props again, but it forwards the
+ *   original props unchanged. In other words, `memo(MyComponent)` affects
+ *   rendering behavior, not the component's prop shape.
+ * - `observer` is the wrapper used by MobX, a state-management library that
+ *   lets React components automatically react to changes in observable
+ *   application state. It re-renders the component when observed MobX state
+ *   changes, but it likewise forwards the caller-provided props as-is. It
+ *   subscribes the component to observable data; it does not synthesize extra
+ *   props like `theme` or `classes`.
+ *
+ * Because neither wrapper contributes new props, suppressing S6767 for a
+ * directly exported `memo(...)` or `observer(...)` component would hide genuine
+ * unused-prop findings.
+ */
+const NON_INJECTING_HOC_WRAPPERS = new Set(['memo', 'observer']);
+
+/**
+ * Wrappers whose injected props are stable and known up front, so the
+ * suppression can stay narrow and prop-specific.
+ *
+ * These wrappers are safer than generic data-binding HOCs because they usually
+ * add a small, framework-defined set of helper props regardless of the specific
+ * component being wrapped.
+ * They are also not all from one package: this list groups together common
+ * React ecosystem conventions from styling, theming, and internationalization
+ * libraries whose injected props are stable enough to recognize by wrapper name.
+ *
+ * - `withStyles` is commonly used by styling libraries to compute CSS class
+ *   names from a style definition and pass them to the component as a `classes`
+ *   prop. A well-known example is Material UI / MUI.
+ * - `withTheme` gives the component access to the current visual theme
+ *   configuration, typically through a `theme` prop. Variants of this wrapper
+ *   appear in theming systems such as Material UI / MUI and styled-components.
+ * - `withTranslation` is used by internationalization libraries to provide
+ *   translation helpers. The stable injected props are typically:
+ *   `t` for looking up localized strings, `i18n` for the translation service
+ *   instance, and sometimes `tReady` to indicate that translation resources
+ *   have finished loading. A common source is `react-i18next`.
+ *
+ * Because these injected props are known in advance, we can suppress only those
+ * prop names and still report genuinely unused component-specific props.
+ */
+const FIXED_INJECTED_PROPS_BY_HOC = new Map<string, ReadonlySet<string>>([
+  ['withStyles', new Set(['classes'])],
+  ['withTheme', new Set(['theme'])],
+  ['withTranslation', new Set(['t', 'i18n', 'tReady'])],
+]);
+const EMPTY_INJECTED_PROPS = new Set<string>();
+
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     { ...rule, meta: generateMeta(meta, rule.meta) },
@@ -66,19 +124,22 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      // Second suppression layer: the specific reported prop is referenced
-      // inside a forwardRef callback.
       const { data } = descriptor as { data?: Record<string, string> };
       const propName = data?.name;
-      if (
-        propName &&
-        hasPropReferenceInForwardRefCallback(context.sourceCode, componentNode, propName)
-      ) {
+      if (!propName) {
+        context.report(descriptor);
         return;
       }
 
-      // Third suppression layer: the component is wrapped in an HOC and exported.
-      if (isComponentExportedViaHoc(context.sourceCode, componentNode)) {
+      // Second suppression layer: the specific reported prop is referenced
+      // inside a forwardRef callback.
+      if (hasPropReferenceInForwardRefCallback(context.sourceCode, componentNode, propName)) {
+        return;
+      }
+
+      // Third suppression layer: a directly exported HOC contributes this specific
+      // prop name from the fixed injected-prop whitelist.
+      if (isPropInjectedByDirectlyExportedHoc(context.sourceCode, componentNode, propName)) {
         return;
       }
 
@@ -230,50 +291,37 @@ function isPropTypesCheckCall(call: estree.CallExpression): boolean {
   );
 }
 
-/**
- * Extracts the wrapped component name from a direct HOC application call.
- * Callers always pass the outer exported CallExpression, so for curried HOCs like
- * connect(mapState)(MyComponent) the first argument is already `MyComponent`.
- * Single HOCs like withRouter(MyComponent) follow the same shape.
- */
-function getHocWrappedComponentName(call: estree.CallExpression): string | null {
-  const arg = call.arguments[0];
-  if (!arg || arg.type === 'SpreadElement') {
-    return null;
-  }
-  if (arg.type === 'Identifier' && /^[A-Z]/.test(arg.name)) {
-    return arg.name;
-  }
-  return null;
-}
-
 type ProgramStatement = estree.Statement | estree.ModuleDeclaration;
-type HocExportCache = Set<string>;
-/** Per-file cache of component names exported directly via an HOC. */
-const perSourceHocExportCache = new WeakMap<SourceCode, HocExportCache>();
+type HocExportMetadata = Map<string, Set<string>>;
+type HocApplicationMetadata = { componentName: string; injectedProps: Set<string> };
+/** Per-file cache of directly exported components and the specific props injected into them. */
+const perSourceHocExportCache = new WeakMap<SourceCode, HocExportMetadata>();
 
 /**
- * Returns true when the reported component is wrapped in an HOC and that wrapped
- * value is exported from the file.
+ * Returns true only when the reported component is wrapped in a directly exported
+ * HOC chain and that chain is known to inject the reported prop name.
  *
  * `componentNode` is the enclosing React component found for the reported prop.
- * This helper resolves that component's identifier and then checks direct
- * export forms such as:
- * export default connect(...)(MyComponent)
- * export const Wrapped = withRouter(MyComponent)
+ * This helper resolves that component's identifier and then checks direct export
+ * forms such as:
+ * export default withStyles(styles)(MyComponent)
+ * export const Wrapped = memo(withTheme(MyComponent))
  */
-function isComponentExportedViaHoc(sourceCode: SourceCode, componentNode: estree.Node): boolean {
+function isPropInjectedByDirectlyExportedHoc(
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+  propName: string,
+): boolean {
   const componentName = getComponentIdentifierFromNode(componentNode);
   if (!componentName) {
     return false;
   }
 
-  const hocExportCache = getHocExportCache(sourceCode);
-  return hocExportCache.has(componentName);
+  return getHocExportCache(sourceCode).get(componentName)?.has(propName) ?? false;
 }
 
 /** Lazily computes per-file HOC export metadata and reuses it across reported issues. */
-function getHocExportCache(sourceCode: SourceCode): HocExportCache {
+function getHocExportCache(sourceCode: SourceCode): HocExportMetadata {
   let hocExportCache = perSourceHocExportCache.get(sourceCode);
   if (!hocExportCache) {
     hocExportCache = buildHocExportCache(sourceCode.ast.body);
@@ -282,80 +330,93 @@ function getHocExportCache(sourceCode: SourceCode): HocExportCache {
   return hocExportCache;
 }
 
-/** Collects component names that are wrapped by an HOC directly in an export statement. */
-function buildHocExportCache(body: ProgramStatement[]): HocExportCache {
-  const exportedComponentNames = new Set<string>();
+/** Collects directly exported components and the fixed injected props contributed by their HOCs. */
+function buildHocExportCache(body: ProgramStatement[]): HocExportMetadata {
+  const exportedComponents = new Map<string, Set<string>>();
 
   for (const stmt of body) {
-    for (const wrappedComponentName of getDirectHocExportedComponentNamesFromStatement(stmt)) {
-      exportedComponentNames.add(wrappedComponentName);
+    for (const { componentName, injectedProps } of getDirectHocExportMetadataFromStatement(stmt)) {
+      let existing = exportedComponents.get(componentName);
+      if (!existing) {
+        existing = new Set<string>();
+        exportedComponents.set(componentName, existing);
+      }
+      for (const prop of injectedProps) {
+        existing.add(prop);
+      }
     }
   }
 
-  return exportedComponentNames;
+  return exportedComponents;
 }
 
 /**
- * Collects directly HOC-exported component names contributed by a single statement.
+ * Collects directly HOC-exported component metadata contributed by a single statement.
  *
  * Pseudo-code examples:
- * export default hoc(MyComponent);
- * export const Wrapped = hoc(MyComponent);
- * module.exports = hoc(MyComponent);
+ * export default withStyles(styles)(MyComponent);
+ * export const Wrapped = withTheme(MyComponent);
+ * module.exports = memo(withTranslation()(MyComponent));
  */
-function getDirectHocExportedComponentNamesFromStatement(stmt: ProgramStatement): string[] {
+function getDirectHocExportMetadataFromStatement(stmt: ProgramStatement): HocApplicationMetadata[] {
   return [
-    ...getDirectHocExportedComponentNamesFromDefaultExport(stmt),
-    ...getDirectHocExportedComponentNamesFromNamedExport(stmt),
-    ...getDirectHocExportedComponentNamesFromModuleExports(stmt),
+    ...getDirectHocExportMetadataFromDefaultExport(stmt),
+    ...getDirectHocExportMetadataFromNamedExport(stmt),
+    ...getDirectHocExportMetadataFromModuleExports(stmt),
   ];
 }
 
 /**
- * Extracts the wrapped component name from a direct default export.
+ * Extracts the wrapped component metadata from a direct default export.
  *
  * Pseudo-code example:
- * export default hoc(MyComponent);
+ * export default withStyles(styles)(MyComponent);
  */
-function getDirectHocExportedComponentNamesFromDefaultExport(stmt: ProgramStatement): string[] {
+function getDirectHocExportMetadataFromDefaultExport(
+  stmt: ProgramStatement,
+): HocApplicationMetadata[] {
   if (stmt.type !== 'ExportDefaultDeclaration' || stmt.declaration.type !== 'CallExpression') {
     return [];
   }
 
-  const wrappedComponentName = getHocWrappedComponentName(stmt.declaration);
-  return wrappedComponentName ? [wrappedComponentName] : [];
+  const metadata = getHocApplicationMetadata(stmt.declaration);
+  return metadata ? [metadata] : [];
 }
 
 /**
- * Extracts wrapped component names from a named export declaration.
+ * Extracts wrapped component metadata from a named export declaration.
  *
  * Pseudo-code example:
- * export const Wrapped = hoc(MyComponent);
+ * export const Wrapped = withTheme(MyComponent);
  */
-function getDirectHocExportedComponentNamesFromNamedExport(stmt: ProgramStatement): string[] {
+function getDirectHocExportMetadataFromNamedExport(
+  stmt: ProgramStatement,
+): HocApplicationMetadata[] {
   if (stmt.type !== 'ExportNamedDeclaration' || stmt.declaration?.type !== 'VariableDeclaration') {
     return [];
   }
 
-  const wrappedComponentNames: string[] = [];
+  const wrappedComponents: HocApplicationMetadata[] = [];
   for (const declarator of stmt.declaration.declarations) {
     if (declarator.init?.type === 'CallExpression') {
-      const wrappedComponentName = getHocWrappedComponentName(declarator.init);
-      if (wrappedComponentName) {
-        wrappedComponentNames.push(wrappedComponentName);
+      const metadata = getHocApplicationMetadata(declarator.init);
+      if (metadata) {
+        wrappedComponents.push(metadata);
       }
     }
   }
-  return wrappedComponentNames;
+  return wrappedComponents;
 }
 
 /**
- * Extracts the wrapped component name from a CommonJS export assignment.
+ * Extracts wrapped component metadata from a CommonJS export assignment.
  *
  * Pseudo-code example:
- * module.exports = hoc(MyComponent);
+ * module.exports = withStyles(styles)(MyComponent);
  */
-function getDirectHocExportedComponentNamesFromModuleExports(stmt: ProgramStatement): string[] {
+function getDirectHocExportMetadataFromModuleExports(
+  stmt: ProgramStatement,
+): HocApplicationMetadata[] {
   if (stmt.type !== 'ExpressionStatement' || stmt.expression.type !== 'AssignmentExpression') {
     return [];
   }
@@ -370,6 +431,74 @@ function getDirectHocExportedComponentNamesFromModuleExports(stmt: ProgramStatem
     return [];
   }
 
-  const wrappedComponentName = getHocWrappedComponentName(right);
-  return wrappedComponentName ? [wrappedComponentName] : [];
+  const metadata = getHocApplicationMetadata(right);
+  return metadata ? [metadata] : [];
+}
+
+/**
+ * Recovers the wrapped component name and all whitelisted injected props from a
+ * direct HOC application chain.
+ *
+ * Pseudo-code examples:
+ * withStyles(styles)(MyComponent)          -> { componentName: 'MyComponent', injectedProps: ['classes'] }
+ * memo(withTheme(MyComponent))             -> { componentName: 'MyComponent', injectedProps: ['theme'] }
+ * connect(mapState)(MyComponent)           -> { componentName: 'MyComponent', injectedProps: [] }
+ */
+function getHocApplicationMetadata(call: estree.CallExpression): HocApplicationMetadata | null {
+  const wrappedValue = call.arguments[0];
+  if (!wrappedValue || wrappedValue.type === 'SpreadElement') {
+    return null;
+  }
+
+  let metadata: HocApplicationMetadata | null = null;
+  if (wrappedValue.type === 'Identifier' && /^[A-Z]/.test(wrappedValue.name)) {
+    metadata = { componentName: wrappedValue.name, injectedProps: new Set<string>() };
+  } else if (wrappedValue.type === 'CallExpression') {
+    metadata = getHocApplicationMetadata(wrappedValue);
+  }
+
+  if (!metadata) {
+    return null;
+  }
+
+  const wrapperName = getHocWrapperName(call);
+  if (!wrapperName) {
+    return metadata;
+  }
+
+  for (const injectedProp of getInjectedPropsForHocWrapper(wrapperName)) {
+    metadata.injectedProps.add(injectedProp);
+  }
+
+  return metadata;
+}
+
+/** Resolves the wrapper name from single-call and curried-call HOC forms. */
+function getHocWrapperName(call: estree.CallExpression): string | null {
+  let callee: estree.Expression | estree.Super = call.callee;
+  while (callee.type === 'CallExpression') {
+    callee = callee.callee;
+  }
+
+  if (callee.type === 'Identifier') {
+    return callee.name;
+  }
+
+  if (
+    callee.type === 'MemberExpression' &&
+    !callee.computed &&
+    callee.property.type === 'Identifier'
+  ) {
+    return callee.property.name;
+  }
+
+  return null;
+}
+
+/** Returns the fixed injected props for a wrapper, or none for blacklisted/unknown wrappers. */
+function getInjectedPropsForHocWrapper(wrapperName: string): ReadonlySet<string> {
+  if (NON_INJECTING_HOC_WRAPPERS.has(wrapperName)) {
+    return EMPTY_INJECTED_PROPS;
+  }
+  return FIXED_INJECTED_PROPS_BY_HOC.get(wrapperName) ?? EMPTY_INJECTED_PROPS;
 }

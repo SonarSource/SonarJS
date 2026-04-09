@@ -16,6 +16,7 @@
  */
 import { rule } from './index.js';
 import { rules } from '../external/react.js';
+import { getNodeParent } from '../helpers/ancestor.js';
 import { findOwningComponentNode } from '../helpers/react.js';
 import {
   NoTypeCheckingRuleTester,
@@ -36,7 +37,7 @@ function getOwnerName(node: estree.Node | undefined): string | null {
   }
 
   if (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') {
-    const parent = node.parent;
+    const parent = getNodeParent(node);
     if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
       return parent.id.name;
     }
@@ -344,27 +345,11 @@ Wrapper.propTypes = {
     });
   });
 
-  it('should not report props when component is exported via HOC', () => {
+  it('should only suppress fixed injected props when component is exported via HOC', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('no-unused-prop-types', rule, {
       valid: [
-        {
-          // FP: export default curried HOC — dispatch injected by connect(), never accessed in render
-          code: `
-class MyComponent extends React.Component {
-  render() {
-    return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
-  }
-}
-MyComponent.propTypes = {
-  dispatch: PropTypes.func,
-  items: PropTypes.arrayOf(PropTypes.string),
-};
-function mapStateToProps(state) { return { items: state.items }; }
-export default connect(mapStateToProps)(MyComponent);
-`,
-        },
         {
           // FP: export const named HOC — classes injected by withStyles(), never accessed in render
           code: `
@@ -381,54 +366,50 @@ export const Button = withStyles(styles)(StyledButton);
 `,
         },
         {
-          // FP: module.exports HOC — match/location injected by withRouter(), never accessed in render
+          // FP: export default HOC — theme injected by withTheme(), never accessed in render
           code: `
-class PageComponent extends React.Component {
+class ThemedButton extends React.Component {
   render() {
-    return <div><h1>{this.props.title}</h1></div>;
+    return <button>{this.props.label}</button>;
   }
 }
-PageComponent.propTypes = {
-  title: PropTypes.string,
-  match: PropTypes.object,
-  location: PropTypes.object,
+ThemedButton.propTypes = {
+  label: PropTypes.string,
+  theme: PropTypes.object,
 };
-module.exports = withRouter(PageComponent);
+export default withTheme(ThemedButton);
 `,
         },
         {
-          // FP: class expression assigned to a variable and exported via HOC
+          // FP: curried HOC — translation props are injected and may stay unused in render
+          code: `
+class Greeting extends React.Component {
+  render() {
+    return <div>{this.props.label}</div>;
+  }
+}
+Greeting.propTypes = {
+  i18n: PropTypes.object,
+  label: PropTypes.string,
+  t: PropTypes.func,
+  tReady: PropTypes.bool,
+};
+export default withTranslation()(Greeting);
+`,
+        },
+        {
+          // FP: blacklisted wrapper around a fixed-prop wrapper should not widen suppression
           code: `
 const MyComponent = class extends React.Component {
   render() {
-    return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
+    return <div>{this.props.label}</div>;
   }
 };
 MyComponent.propTypes = {
-  dispatch: PropTypes.func,
-  items: PropTypes.arrayOf(PropTypes.string),
+  classes: PropTypes.object,
+  label: PropTypes.string,
 };
-export default connect()(MyComponent);
-`,
-        },
-        {
-          // FP (intentional over-suppression): direct HOC export suppresses ALL prop reports
-          // for the component — both the HOC-injected prop (dispatch) AND the genuinely unused
-          // prop (unused) are silenced. The design trades potential false negatives in HOC-wrapped
-          // components for zero false positives. Future readers: this is a known boundary.
-          code: `
-class MyComponent extends React.Component {
-  render() {
-    return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
-  }
-}
-MyComponent.propTypes = {
-  dispatch: PropTypes.func,
-  items: PropTypes.arrayOf(PropTypes.string),
-  unused: PropTypes.string,
-};
-function mapStateToProps(state) { return { items: state.items }; }
-export default connect(mapStateToProps)(MyComponent);
+export default React.memo(withStyles(styles)(MyComponent));
 `,
         },
       ],
@@ -450,6 +431,56 @@ export default Button;
           errors: 1,
         },
         {
+          // TP: unknown wrapper no longer suppresses by callee name alone
+          code: `
+class MyComponent extends React.Component {
+  render() {
+    return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
+  }
+}
+MyComponent.propTypes = {
+  dispatch: PropTypes.func,
+  items: PropTypes.arrayOf(PropTypes.string),
+};
+function mapStateToProps(state) { return { items: state.items }; }
+export default connect(mapStateToProps)(MyComponent);
+`,
+          errors: 1,
+        },
+        {
+          // TP: fixed-prop wrappers should not silence unrelated genuinely unused props
+          code: `
+class StyledButton extends React.Component {
+  render() {
+    return <button>{this.props.label}</button>;
+  }
+}
+StyledButton.propTypes = {
+  classes: PropTypes.object,
+  label: PropTypes.string,
+  unused: PropTypes.string,
+};
+export default withStyles(styles)(StyledButton);
+`,
+          errors: 1,
+        },
+        {
+          // TP: blacklisted wrappers do not suppress by themselves
+          code: `
+class MemoizedButton extends React.Component {
+  render() {
+    return <button>{this.props.label}</button>;
+  }
+}
+MemoizedButton.propTypes = {
+  label: PropTypes.string,
+  theme: PropTypes.object,
+};
+export default memo(MemoizedButton);
+`,
+          errors: 1,
+        },
+        {
           // TP: HOC wraps a different component — MyComponent still has an unused prop
           code: `
 class MyComponent extends React.Component {
@@ -465,7 +496,7 @@ class OtherComponent extends React.Component {
   render() { return <span />; }
 }
 OtherComponent.propTypes = {};
-export default connect()(OtherComponent);
+export default withTheme(OtherComponent);
 `,
           errors: 1,
         },
@@ -670,7 +701,7 @@ class FooComp extends React.Component<FooProps> {
     });
   });
 
-  it('should not report props when TypeScript component is exported via HOC', () => {
+  it('should only suppress fixed injected props when TypeScript component is exported via HOC', () => {
     const ruleTester = new RuleTester({
       parserOptions: {
         project: './tsconfig.json',
@@ -683,65 +714,44 @@ class FooComp extends React.Component<FooProps> {
     ruleTester.run('no-unused-prop-types', rule, {
       valid: [
         {
-          // FP: TypeScript class — dispatch not accessed in render but exported via curried HOC.
-          // The fallback only accepts bare `Component` because it is actually imported from React.
+          // FP: TypeScript class — theme is injected by withTheme and unused in render.
           code: `
 import React, { Component } from 'react';
 interface MyComponentProps {
-  dispatch: (action: { type: string }) => void;
   items: string[];
+  theme: { palette: string };
 }
 class MyComponent extends Component<MyComponentProps> {
   render() {
     return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
   }
 }
-declare function connect(mapState: (state: any) => any): (comp: any) => any;
-function mapStateToProps(state: { items: string[] }) { return { items: state.items }; }
-export default connect(mapStateToProps)(MyComponent);
+declare function withTheme(comp: any): any;
+export default withTheme(MyComponent);
 `,
           filename: fixtureFile,
         },
         {
           // FP: React.FC<Props> arrow function with destructured params exported via Pattern 1.
-          // relay is declared in Props but unused in the component body; it is injected by the HOC.
-          // matchesFunctionProps uses Phase 1 (annotation-based): reads Props from FC<Props>
-          // only because FC is actually imported from React.
+          // t/i18n/tReady are injected by withTranslation and may stay unused in the body.
           code: `
 import React, { type FC } from 'react';
 interface TagProps {
+  i18n: { language: string };
   tag: string;
-  relay: string;
+  t: (key: string) => string;
+  tReady: boolean;
 }
 const Header: FC<TagProps> = ({ tag }) => <div>{tag}</div>;
-declare function createFragmentContainer(comp: any, spec: any): any;
-export default createFragmentContainer(Header, {});
-`,
-          filename: fixtureFile,
-        },
-        {
-          // FP: React.FunctionComponent<Props> arrow function with destructured params exported via Pattern 2.
-          // contextScreenOwnerId is declared but unused; injected by the HOC.
-          // matchesFunctionProps Phase 1 (annotation) correctly matches ArtworkProps from the
-          // React.FunctionComponent<ArtworkProps> annotation only when it comes from React.
-          code: `
-import React from 'react';
-interface ArtworkProps {
-  artwork: string;
-  contextScreenOwnerId: string;
-}
-const SaleArtwork: React.FunctionComponent<ArtworkProps> = ({ artwork }) => <div>{artwork}</div>;
-declare function createFragmentContainer(comp: any, spec: any): any;
-export const SaleArtworkContainer = createFragmentContainer(SaleArtwork, {});
+declare function withTranslation(): (comp: any) => any;
+export default withTranslation()(Header);
 `,
           filename: fixtureFile,
         },
       ],
       invalid: [
         {
-          // TP boundary: split-export `const Wrapped = hoc(Comp); export { Wrapped }` is NOT
-          // a direct HOC export form — the decorator only suppresses direct exports where the
-          // HOC call appears inline in the export statement.
+          // TP: unknown wrappers are not suppressed by callee name alone
           code: `
 declare const React: any;
 interface MyComponentProps {
@@ -755,7 +765,48 @@ class MyComponent extends React.Component<MyComponentProps> {
 }
 declare function connect(mapState: (state: any) => any): (comp: any) => any;
 function mapStateToProps(state: { items: string[] }) { return { items: state.items }; }
-const Wrapped = connect(mapStateToProps)(MyComponent);
+export default connect(mapStateToProps)(MyComponent);
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: fixed-prop wrappers should not silence unrelated unused props
+          code: `
+import React from 'react';
+interface ArtworkProps {
+  artwork: string;
+  theme: string;
+  unused: string;
+}
+class SaleArtwork extends React.Component<ArtworkProps> {
+  render() {
+    return <div>{this.props.artwork}</div>;
+  }
+}
+declare function withTheme(comp: any): any;
+export default withTheme(SaleArtwork);
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP boundary: split-export `const Wrapped = hoc(Comp); export { Wrapped }` is NOT
+          // a direct HOC export form — the decorator only suppresses direct exports where the
+          // HOC call appears inline in the export statement.
+          code: `
+declare const React: any;
+interface MyComponentProps {
+  theme: { palette: string };
+  items: string[];
+}
+class MyComponent extends React.Component<MyComponentProps> {
+  render() {
+    return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
+  }
+}
+declare function withTheme(comp: any): any;
+const Wrapped = withTheme(MyComponent);
 export { Wrapped };
 `,
           filename: fixtureFile,
@@ -768,7 +819,7 @@ export { Wrapped };
           code: `
 declare const React: any;
 interface MyComponentProps {
-  dispatch: (action: { type: string }) => void;
+  theme: { palette: string };
   items: string[];
 }
 class MyComponent extends React.Component<MyComponentProps> {
@@ -776,9 +827,8 @@ class MyComponent extends React.Component<MyComponentProps> {
     return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
   }
 }
-declare function connect(mapState: (state: any) => any): (comp: any) => any;
-function mapStateToProps(state: { items: string[] }) { return { items: state.items }; }
-const Wrapped = connect(mapStateToProps)(MyComponent);
+declare function withTheme(comp: any): any;
+const Wrapped = withTheme(MyComponent);
 export default Wrapped;
 `,
           filename: fixtureFile,
@@ -1107,7 +1157,7 @@ function validateProps(props) {
     ruleTester.run('no-unused-prop-types', rule, {
       valid: [
         {
-          // FP: Multiple named exports with HOC — all matching components suppressed
+          // FP: Multiple named exports with fixed-prop HOCs — only injected props are suppressed
           code: `
 class Button extends React.Component {
   render() {
@@ -1115,25 +1165,26 @@ class Button extends React.Component {
   }
 }
 Button.propTypes = {
-  disabled: PropTypes.bool,
+  theme: PropTypes.object,
   label: PropTypes.string,
 };
 
 class Input extends React.Component {
   render() {
-    return <input />;
+    return <input value={this.props.value} />;
   }
 }
 Input.propTypes = {
-  size: PropTypes.string,
+  t: PropTypes.func,
+  value: PropTypes.string,
 };
 
-export const WrappedButton = withRouter(Button);
-export const WrappedInput = withRouter(Input);
+export const WrappedButton = withTheme(Button);
+export const WrappedInput = withTranslation()(Input);
 `,
         },
         {
-          // FP: CommonJS module.exports with HOC
+          // FP: CommonJS module.exports with fixed-prop HOC
           code: `
 class MyComponent extends React.Component {
   render() {
@@ -1142,9 +1193,9 @@ class MyComponent extends React.Component {
 }
 MyComponent.propTypes = {
   data: PropTypes.object,
-  injected: PropTypes.bool,
+  i18n: PropTypes.object,
 };
-module.exports = connect()(MyComponent);
+module.exports = withTranslation()(MyComponent);
 `,
         },
       ],
@@ -1158,7 +1209,7 @@ class Button extends React.Component {
   }
 }
 Button.propTypes = {
-  disabled: PropTypes.bool,
+  theme: PropTypes.object,
   label: PropTypes.string,
 };
 
@@ -1172,8 +1223,36 @@ Input.propTypes = {
   value: PropTypes.string,
 };
 
-export const WrappedButton = withRouter(Button);
+export const WrappedButton = withTheme(Button);
 export default Input;
+`,
+          errors: 1,
+        },
+        {
+          // TP: unknown HOCs in other exports should not suppress
+          code: `
+class ConnectedCard extends React.Component {
+  render() {
+    return <div>{this.props.title}</div>;
+  }
+}
+ConnectedCard.propTypes = {
+  dispatch: PropTypes.func,
+  title: PropTypes.string,
+};
+
+class ThemedCard extends React.Component {
+  render() {
+    return <div>{this.props.title}</div>;
+  }
+}
+ThemedCard.propTypes = {
+  theme: PropTypes.object,
+  title: PropTypes.string,
+};
+
+export const WrappedConnectedCard = connect()(ConnectedCard);
+export const WrappedThemedCard = withTheme(ThemedCard);
 `,
           errors: 1,
         },

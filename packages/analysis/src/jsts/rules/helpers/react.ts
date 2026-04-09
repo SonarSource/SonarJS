@@ -151,6 +151,17 @@ export function findOwningComponentNode(
 }
 
 /**
+ * Backward-compatible alias kept while dependent declaration outputs still
+ * reference the older helper name.
+ */
+export function findComponentNode(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): estree.Node | undefined {
+  return findOwningComponentNode(node, context);
+}
+
+/**
  * Resolves the identifier that names a React component in the current file.
  *
  * Pseudo-code examples:
