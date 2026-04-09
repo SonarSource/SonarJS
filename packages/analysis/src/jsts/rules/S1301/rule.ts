@@ -43,6 +43,8 @@ export const rule: Rule.RuleModule = {
         if (cases.length < 2 || (cases.length === 2 && hasDefault)) {
           if (
             hasDefault &&
+            // Safe: @typescript-eslint/parser provides TSESTree nodes at runtime; ESLint types
+            // visitors with estree.SwitchStatement, but the actual object is TSESTree.SwitchStatement.
             isExhaustivenessCheck(node as unknown as TSESTree.SwitchStatement, services)
           ) {
             return;
@@ -137,9 +139,11 @@ function hasNeverTypedCallArg(
   }
   return callExpr.arguments.some(arg => {
     // The argument must be the switch discriminant, narrowed to `never` by TypeScript's control flow.
-    if (!isSameExpression(arg as unknown as TSESTree.Expression, discriminant)) {
+    if (!isSameExpression(arg, discriminant)) {
       return false;
     }
+    // Safe: TSESTree and estree describe the same runtime AST objects; the double cast is required
+    // because TypeScript cannot directly cast between the two library declarations.
     const type = getTypeFromTreeNode(arg as unknown as estree.Node, services);
     return (type.flags & ts.TypeFlags.Never) !== 0;
   });
