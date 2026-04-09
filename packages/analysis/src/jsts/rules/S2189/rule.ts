@@ -173,6 +173,71 @@ function hasFunctionCallInLoop(loop: estree.Node, context: Rule.RuleContext): bo
 }
 
 /**
+ * Collects all function AST nodes that contain a write reference to the given symbol.
+ */
+function getWritingFunctions(symbol: Scope.Variable): Set<TSESTree.Node> {
+  const writingFunctions = new Set<TSESTree.Node>();
+  for (const reference of symbol.references) {
+    if (reference.isWrite()) {
+      const enclosingFunction = findFirstMatchingAncestor(
+        reference.identifier as TSESTree.Node,
+        n => functionLike.has(n.type),
+      );
+      if (enclosingFunction) {
+        writingFunctions.add(enclosingFunction);
+      }
+    }
+  }
+  return writingFunctions;
+}
+
+/**
+ * Extracts the function AST node from a variable definition, if it represents a function.
+ */
+function getFunctionNodeFromDef(def: Scope.Definition): TSESTree.Node | null {
+  if (def.type === 'FunctionName') {
+    return def.node as unknown as TSESTree.Node;
+  }
+  if (def.type === 'Variable') {
+    const declarator = def.node as unknown as TSESTree.VariableDeclarator;
+    if (
+      declarator.init?.type === 'FunctionExpression' ||
+      declarator.init?.type === 'ArrowFunctionExpression'
+    ) {
+      return declarator.init;
+    }
+  }
+  return null;
+}
+
+/**
+ * Checks whether the given call expression calls a function that is in the set of writing functions.
+ */
+function callsWritingFunction(
+  callExpr: estree.CallExpression,
+  writingFunctions: Set<TSESTree.Node>,
+  context: Rule.RuleContext,
+): boolean {
+  const callee = callExpr.callee;
+  if (callee.type !== 'Identifier') {
+    return false;
+  }
+  const calleeVar = context.sourceCode
+    .getScope(callee)
+    .references.find(r => r.identifier === callee)?.resolved;
+  if (!calleeVar) {
+    return false;
+  }
+  for (const def of calleeVar.defs) {
+    const functionNode = getFunctionNodeFromDef(def);
+    if (functionNode && writingFunctions.has(functionNode)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Checks whether the flagged non-file-scope symbol may be modified through
  * the side effects of a function that is directly called in the loop body
  * or loop condition.
@@ -186,20 +251,7 @@ function isSymbolWrittenByCalledFunction(
   loop: estree.Node,
   context: Rule.RuleContext,
 ): boolean {
-  // Collect all function AST nodes that contain a write reference to the symbol
-  const writingFunctions = new Set<TSESTree.Node>();
-  for (const reference of symbol.references) {
-    if (reference.isWrite()) {
-      const enclosingFunction = findFirstMatchingAncestor(
-        reference.identifier as TSESTree.Node,
-        n => functionLike.has(n.type),
-      );
-      if (enclosingFunction) {
-        writingFunctions.add(enclosingFunction);
-      }
-    }
-  }
-
+  const writingFunctions = getWritingFunctions(symbol);
   if (writingFunctions.size === 0) {
     return false;
   }
@@ -225,7 +277,6 @@ function isSymbolWrittenByCalledFunction(
   let found = false;
   const visitNode = (node: estree.Node) => {
     if (found) return;
-
     // Don't traverse into nested functions
     if (
       node.type === 'FunctionExpression' ||
@@ -234,44 +285,13 @@ function isSymbolWrittenByCalledFunction(
     ) {
       return;
     }
-
-    if (node.type === 'CallExpression') {
-      const callee = (node as estree.CallExpression).callee;
-      if (callee.type === 'Identifier') {
-        // Resolve the callee identifier to its Scope.Variable
-        const calleeVar = context.sourceCode
-          .getScope(callee)
-          .references.find(r => r.identifier === callee)?.resolved;
-
-        if (calleeVar) {
-          // Extract the function AST node from each definition of the callee
-          for (const def of calleeVar.defs) {
-            let functionNode: TSESTree.Node | null = null;
-            if (def.type === 'FunctionName') {
-              // FunctionDeclaration: def.node is the FunctionDeclaration itself
-              functionNode = def.node as unknown as TSESTree.Node;
-            } else if (def.type === 'Variable') {
-              // VariableDeclarator: check if init is a function expression
-              const declarator = def.node as unknown as TSESTree.VariableDeclarator;
-              if (
-                declarator.init &&
-                (declarator.init.type === 'FunctionExpression' ||
-                  declarator.init.type === 'ArrowFunctionExpression')
-              ) {
-                functionNode = declarator.init;
-              }
-            }
-
-            // If the called function is one that writes to the symbol, suppress
-            if (functionNode && writingFunctions.has(functionNode)) {
-              found = true;
-              return;
-            }
-          }
-        }
-      }
+    if (
+      node.type === 'CallExpression' &&
+      callsWritingFunction(node as estree.CallExpression, writingFunctions, context)
+    ) {
+      found = true;
+      return;
     }
-
     for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
       visitNode(child);
     }
