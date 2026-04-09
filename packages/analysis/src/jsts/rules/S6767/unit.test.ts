@@ -397,6 +397,21 @@ module.exports = withRouter(PageComponent);
 `,
         },
         {
+          // FP: class expression assigned to a variable and exported via HOC
+          code: `
+const MyComponent = class extends React.Component {
+  render() {
+    return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
+  }
+};
+MyComponent.propTypes = {
+  dispatch: PropTypes.func,
+  items: PropTypes.arrayOf(PropTypes.string),
+};
+export default connect()(MyComponent);
+`,
+        },
+        {
           // FP (intentional over-suppression): direct HOC export suppresses ALL prop reports
           // for the component — both the HOC-injected prop (dispatch) AND the genuinely unused
           // prop (unused) are silenced. The design trades potential false negatives in HOC-wrapped

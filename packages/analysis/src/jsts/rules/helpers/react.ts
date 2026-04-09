@@ -158,11 +158,16 @@ export function findOwningComponentNode(
  * const MyComponent = () => {};
  */
 export function getComponentIdentifierFromNode(componentNode: estree.Node): string | null {
+  if (componentNode.type === 'VariableDeclarator' && componentNode.id.type === 'Identifier') {
+    return componentNode.id.name;
+  }
+
   if (componentNode.type === 'ClassDeclaration' || componentNode.type === 'FunctionDeclaration') {
     return componentNode.id?.name ?? null;
   }
 
   if (
+    componentNode.type === 'ClassExpression' ||
     componentNode.type === 'ArrowFunctionExpression' ||
     componentNode.type === 'FunctionExpression'
   ) {
@@ -317,12 +322,11 @@ function isReactComponentExpression(
   expr: ts.Expression,
   reactImports: ReactImportBindings,
 ): boolean {
-  return (
-    (ts.isIdentifier(expr) && reactImports.classTypeAliases.has(expr.text)) ||
-    (ts.isPropertyAccessExpression(expr) &&
-      ts.isIdentifier(expr.expression) &&
-      reactImports.namespaceAliases.has(expr.expression.text) &&
-      REACT_CLASS_TYPES.has(expr.name.text))
+  return matchesReactImportedSymbol(
+    getExpressionSymbolName(expr),
+    reactImports.classTypeAliases,
+    REACT_CLASS_TYPES,
+    reactImports.namespaceAliases,
   );
 }
 
@@ -428,14 +432,60 @@ function isReactFunctionComponentType(
   typeName: ts.EntityName,
   reactImports: ReactImportBindings,
 ): boolean {
+  return matchesReactImportedSymbol(
+    getEntitySymbolName(typeName),
+    reactImports.functionComponentAliases,
+    REACT_FUNCTION_COMPONENT_TYPES,
+    reactImports.namespaceAliases,
+  );
+}
+
+type SymbolNameParts =
+  | { directName: string }
+  | { namespaceName: string; memberName: string }
+  | null;
+
+function getExpressionSymbolName(expr: ts.Expression): SymbolNameParts {
+  if (ts.isIdentifier(expr)) {
+    return { directName: expr.text };
+  }
+
+  if (ts.isPropertyAccessExpression(expr) && ts.isIdentifier(expr.expression)) {
+    return { namespaceName: expr.expression.text, memberName: expr.name.text };
+  }
+
+  return null;
+}
+
+function getEntitySymbolName(typeName: ts.EntityName): SymbolNameParts {
   if (ts.isIdentifier(typeName)) {
-    return reactImports.functionComponentAliases.has(typeName.text);
+    return { directName: typeName.text };
+  }
+
+  if (ts.isIdentifier(typeName.left)) {
+    return { namespaceName: typeName.left.text, memberName: typeName.right.text };
+  }
+
+  return null;
+}
+
+function matchesReactImportedSymbol(
+  symbolName: SymbolNameParts,
+  directAliases: Set<string>,
+  allowedNamespaceMembers: Set<string>,
+  namespaceAliases: Set<string>,
+): boolean {
+  if (symbolName == null) {
+    return false;
+  }
+
+  if ('directName' in symbolName) {
+    return directAliases.has(symbolName.directName);
   }
 
   return (
-    ts.isIdentifier(typeName.left) &&
-    reactImports.namespaceAliases.has(typeName.left.text) &&
-    REACT_FUNCTION_COMPONENT_TYPES.has(typeName.right.text)
+    namespaceAliases.has(symbolName.namespaceName) &&
+    allowedNamespaceMembers.has(symbolName.memberName)
   );
 }
 
