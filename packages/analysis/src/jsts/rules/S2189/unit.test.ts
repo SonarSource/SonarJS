@@ -307,6 +307,98 @@ describe('S2189 - JS-131 false positive suppression', () => {
   });
 });
 
+describe('S2189 - JS-1476 false positive suppression for closure side effects', () => {
+  it('should not raise when closure variable is modified by a function called in the loop (while)', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          // ch is a closure variable; next() writes to ch and is called in the loop
+          code: `
+var parser = (function () {
+  var ch = '';
+  var next = function () {
+    ch = String.fromCharCode(ch.charCodeAt(0) + 1);
+  };
+  var white = function () {
+    while (ch && ch <= ' ') {
+      next();
+    }
+  };
+  return { white };
+})();
+          `,
+        },
+        {
+          // token is a closure variable; readToken() writes to token and is called in the loop
+          code: `
+function tokenize(source) {
+  var token = null;
+  var pos = 0;
+  var readToken = function () {
+    token = pos < source.length ? source[pos++] : null;
+  };
+  readToken();
+  while (token !== null) {
+    processToken(token);
+    readToken();
+  }
+}
+          `,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should not raise when closure variable is modified by a function called in a do-while loop', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          // pendingEffectsStatus is a closure variable; flushPendingEffects() writes to it and is called in the loop
+          code: `
+function commitRoot() {
+  var pendingEffectsStatus = 'PENDING';
+  var flushPendingEffects = function () {
+    pendingEffectsStatus = 'DONE';
+  };
+  do {
+    flushPendingEffects();
+  } while (pendingEffectsStatus !== 'DONE');
+}
+          `,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should still raise when the called function does not write to the condition variable', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [],
+      invalid: [
+        {
+          // doUnrelatedWork() does not write to status, so the loop is still flagged
+          code: `
+function process() {
+  var status = 'PENDING';
+  var doUnrelatedWork = function () {
+    var x = 1;
+  };
+  while (status !== 'DONE') {
+    doUnrelatedWork();
+  }
+}
+          `,
+          errors: [{ message: "'status' is not modified in this loop." }],
+        },
+      ],
+    });
+  });
+});
+
 describe('S2189 - detection of infinite loops', () => {
   it('should detect infinite loops with unmodified variables', () => {
     const ruleTester = new DefaultParserRuleTester();
