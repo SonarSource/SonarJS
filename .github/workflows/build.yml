@@ -17,7 +17,9 @@ concurrency:
 
 jobs:
   setup:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: Setup - Prepare Node.js versions and test hashes
     permissions: &read_permissions
       id-token: write
@@ -73,7 +75,9 @@ jobs:
           echo "Cache month: $MONTH"
 
   get_build_number:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: Get build number
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -85,7 +89,9 @@ jobs:
         uses: SonarSource/ci-github-actions/get-build-number@master
 
   populate_npm_cache:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: Populate NPM cache for Linux
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -126,7 +132,9 @@ jobs:
     steps: *populate_npm_cache_steps
 
   sync_rspec:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: Sync RSPEC metadata
     needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -173,7 +181,9 @@ jobs:
           retention-days: 1
 
   build:
-    runs-on: sonar-m-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-m-public
     name: Build SonarJS on Linux
     needs: [setup, get_build_number, populate_npm_cache, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -263,7 +273,9 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
   build_eslint_plugin:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     needs: [setup, populate_npm_cache, sync_rspec]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -400,7 +412,9 @@ jobs:
           key: eslint-tarball-${{ github.sha }}
 
   test_eslint_plugin:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
     needs: [setup, build_eslint_plugin]
     permissions: *read_permissions
@@ -437,7 +451,9 @@ jobs:
           npm run test
 
   knip:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: Knip
     needs: [setup, populate_npm_cache, sync_rspec]
     permissions: *read_permissions
@@ -455,7 +471,9 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
   test_js:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: Unit tests JavaScript/TypeScript
     needs: [setup, populate_npm_cache, sync_rspec]
     permissions: *read_permissions
@@ -561,7 +579,9 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
 
   analyze_primary:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: Analyze in SonarQube NEXT
     needs: [setup, test_js, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -620,7 +640,9 @@ jobs:
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
   analyze_shadows:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: Analyze in ${{ matrix.platform }}
     needs: [setup, test_js, build]
     permissions: *read_permissions
@@ -672,7 +694,9 @@ jobs:
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
   plugin_qa_with_node:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -717,7 +741,9 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_with_node:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: Fast QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -743,7 +769,9 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_without_node:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -792,7 +820,9 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_without_node_dev:
-    runs-on: sonar-xs-public
+    runs-on:
+      group: sonar-dev-public
+      labels: sonar-xs-public
     name: QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
     if: github.event_name == 'schedule'
