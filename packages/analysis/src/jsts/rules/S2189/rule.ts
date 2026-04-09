@@ -173,6 +173,103 @@ function hasFunctionCallInLoop(loop: estree.Node, context: Rule.RuleContext): bo
 }
 
 /**
+ * Checks whether the flagged non-file-scope symbol may be modified through
+ * the side effects of a function that is directly called in the loop body.
+ *
+ * Narrow check: the specific function called in the loop body must be the
+ * same function that contains a write reference to the flagged symbol.
+ * This avoids broad suppressions that would cause false negatives.
+ */
+function isSymbolWrittenByCalledFunction(
+  symbol: Scope.Variable,
+  loop: estree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  // Collect all function AST nodes that contain a write reference to the symbol
+  const writingFunctions = new Set<TSESTree.Node>();
+  for (const reference of symbol.references) {
+    if (reference.isWrite()) {
+      const enclosingFunction = findFirstMatchingAncestor(
+        reference.identifier as TSESTree.Node,
+        n => functionLike.has(n.type),
+      );
+      if (enclosingFunction) {
+        writingFunctions.add(enclosingFunction);
+      }
+    }
+  }
+
+  if (writingFunctions.size === 0) {
+    return false;
+  }
+
+  // Walk the loop body (excluding nested function bodies) for CallExpression
+  // nodes where the callee is a simple Identifier
+  const body = getLoopBody(loop);
+  if (!body) {
+    return false;
+  }
+
+  let found = false;
+  const visitNode = (node: estree.Node) => {
+    if (found) return;
+
+    // Don't traverse into nested functions
+    if (
+      node.type === 'FunctionExpression' ||
+      node.type === 'FunctionDeclaration' ||
+      node.type === 'ArrowFunctionExpression'
+    ) {
+      return;
+    }
+
+    if (node.type === 'CallExpression') {
+      const callee = (node as estree.CallExpression).callee;
+      if (callee.type === 'Identifier') {
+        // Resolve the callee identifier to its Scope.Variable
+        const calleeVar = context.sourceCode
+          .getScope(callee)
+          .references.find(r => r.identifier === callee)?.resolved;
+
+        if (calleeVar) {
+          // Extract the function AST node from each definition of the callee
+          for (const def of calleeVar.defs) {
+            let functionNode: TSESTree.Node | null = null;
+            if (def.type === 'FunctionName') {
+              // FunctionDeclaration: def.node is the FunctionDeclaration itself
+              functionNode = def.node as unknown as TSESTree.Node;
+            } else if (def.type === 'Variable') {
+              // VariableDeclarator: check if init is a function expression
+              const declarator = def.node as unknown as TSESTree.VariableDeclarator;
+              if (
+                declarator.init &&
+                (declarator.init.type === 'FunctionExpression' ||
+                  declarator.init.type === 'ArrowFunctionExpression')
+              ) {
+                functionNode = declarator.init;
+              }
+            }
+
+            // If the called function is one that writes to the symbol, suppress
+            if (functionNode && writingFunctions.has(functionNode)) {
+              found = true;
+              return;
+            }
+          }
+        }
+      }
+    }
+
+    for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
+      visitNode(child);
+    }
+  };
+
+  visitNode(body);
+  return found;
+}
+
+/**
  * Checks if a file-scope symbol should be suppressed based on FP reduction algorithm.
  */
 function shouldSuppressFileScopeSymbol(
@@ -267,9 +364,14 @@ export const rule: Rule.RuleModule = {
         }
       }
 
-      // Only filter file-scope variables; local variables should always be reported
+      // Only filter file-scope variables; local/closure variables should normally be reported
       // (unless the loop has break/return/throw checked above)
       if (!isFileScopeVariable(symbol)) {
+        // Suppress if the symbol is potentially modified via side effects of a function
+        // that is directly called in the loop body (narrow closure-variable exception)
+        if (containingLoop && isSymbolWrittenByCalledFunction(symbol, containingLoop, context)) {
+          return false;
+        }
         return true;
       }
 
