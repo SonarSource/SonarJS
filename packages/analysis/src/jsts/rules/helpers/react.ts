@@ -18,7 +18,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
-import { childrenOf } from './ancestor.js';
+import { childrenOf, getNodeParent } from './ancestor.js';
 import { isIdentifier } from './ast.js';
 import { getImportDeclarations } from './module.js';
 import { isRequiredParserServices } from './parser-services.js';
@@ -148,6 +148,31 @@ export function findOwningComponentNode(
 
   // Strategy C: TypeScript type checker — match the props interface to its owning component
   return findOwnerByType(ancestors, context, context.sourceCode.visitorKeys);
+}
+
+/**
+ * Resolves the identifier that names a React component in the current file.
+ *
+ * Pseudo-code examples:
+ * function MyComponent() {}
+ * const MyComponent = () => {};
+ */
+export function getComponentIdentifierFromNode(componentNode: estree.Node): string | null {
+  if (componentNode.type === 'ClassDeclaration' || componentNode.type === 'FunctionDeclaration') {
+    return componentNode.id?.name ?? null;
+  }
+
+  if (
+    componentNode.type === 'ArrowFunctionExpression' ||
+    componentNode.type === 'FunctionExpression'
+  ) {
+    const parent = getNodeParent(componentNode);
+    if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+      return parent.id.name;
+    }
+  }
+
+  return null;
 }
 
 /**

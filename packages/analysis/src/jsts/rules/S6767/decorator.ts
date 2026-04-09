@@ -23,7 +23,7 @@ import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { findOwningComponentNode } from '../helpers/react.js';
+import { findOwningComponentNode, getComponentIdentifierFromNode } from '../helpers/react.js';
 import * as meta from './generated-meta.js';
 
 /** Composable pattern checkers — extend via Array.some() for future FP patterns. */
@@ -231,8 +231,10 @@ function isPropTypesCheckCall(call: estree.CallExpression): boolean {
 }
 
 /**
- * Recursively extracts the wrapped component name from an HOC call expression.
- * Handles curried HOCs like connect(mapState)(MyComponent) and single HOCs like withRouter(MyComponent).
+ * Extracts the wrapped component name from a direct HOC application call.
+ * Callers always pass the outer exported CallExpression, so for curried HOCs like
+ * connect(mapState)(MyComponent) the first argument is already `MyComponent`.
+ * Single HOCs like withRouter(MyComponent) follow the same shape.
  */
 function getHocWrappedComponentName(call: estree.CallExpression): string | null {
   const arg = call.arguments[0];
@@ -241,9 +243,6 @@ function getHocWrappedComponentName(call: estree.CallExpression): string | null 
   }
   if (arg.type === 'Identifier' && /^[A-Z]/.test(arg.name)) {
     return arg.name;
-  }
-  if (arg.type === 'CallExpression') {
-    return getHocWrappedComponentName(arg);
   }
   return null;
 }
@@ -271,31 +270,6 @@ function isComponentExportedViaHoc(sourceCode: SourceCode, componentNode: estree
 
   const hocExportCache = getHocExportCache(sourceCode);
   return hocExportCache.has(componentName);
-}
-
-/**
- * Resolves the identifier that names the reported component in the current file.
- *
- * Pseudo-code examples:
- * function MyComponent() {}
- * const MyComponent = () => {};
- */
-function getComponentIdentifierFromNode(componentNode: estree.Node): string | null {
-  if (componentNode.type === 'ClassDeclaration' || componentNode.type === 'FunctionDeclaration') {
-    return componentNode.id?.name ?? null;
-  }
-
-  if (
-    componentNode.type === 'ArrowFunctionExpression' ||
-    componentNode.type === 'FunctionExpression'
-  ) {
-    const parent = getNodeParent(componentNode);
-    if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
-      return parent.id.name;
-    }
-  }
-
-  return null;
 }
 
 /** Lazily computes per-file HOC export metadata and reuses it across reported issues. */

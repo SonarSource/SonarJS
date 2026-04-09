@@ -1025,9 +1025,10 @@ class Anchor extends React.Component<AnchorProps, AnchorState> {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('no-unused-prop-types', rule, {
-      valid: [
+      valid: [],
+      invalid: [
         {
-          // FP: Triple-nested curried HOC (e.g., compose chain)
+          // TP boundary: nested call chains beyond direct HOC application are not recognized
           code: `
 class MyComponent extends React.Component {
   render() {
@@ -1040,9 +1041,8 @@ MyComponent.propTypes = {
 };
 export default hoc1(hoc2(hoc3(MyComponent)));
 `,
+          errors: 1,
         },
-      ],
-      invalid: [
         {
           // TP: non-CallExpression export — split export not recognized as direct HOC export
           code: `
