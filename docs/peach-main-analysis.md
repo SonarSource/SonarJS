@@ -56,11 +56,12 @@ This is **not** a SonarJS analyzer failure. The last active sensor is `JsSecurit
 
 ```
 1. At which step did the job fail?
-   ├─ Pre-scan step (checkout, vault secrets, dependency install) → IGNORE
-   ├─ During sonar-scanner execution → go to step 2
+   ├─ Pre-scan step (checkout, vault secrets, clone, cache, dependency install) → IGNORE
+   ├─ During `Analyze project` / sonar-scanner execution → go to step 2
+   ├─ After analysis completed (report upload / post-scan step) → usually IGNORE
    └─ Unclear / no recognizable step → NEEDS-MANUAL-REVIEW
 
-2. What is the scanner exit code?
+2. Only now inspect the scanner exit code.
    ├─ Exit code 3 → read the error message:
    │   ├─ "The folder X does not exist" or "Invalid value of sonar.X" → IGNORE (project misconfiguration)
    │   └─ Java stack trace present → go to step 3
@@ -74,6 +75,9 @@ This is **not** a SonarJS analyzer failure. The last active sensor is `JsSecurit
    ├─ Last active sensor is one of the SonarJS sensors listed above → CRITICAL (SonarJS analyzer crash)
    └─ Last active sensor is something else (DRE Shell, Java, Security...) → IGNORE (different plugin, not our problem)
 ```
+
+Do not classify by exit code before you know the failing phase. For example, exit code `1`
+during `npm install` is a dependency/setup problem, not a scanner problem.
 
 ## Failure Categories
 
@@ -276,6 +280,7 @@ Multiple jobs failing this way within the same ~2-minute window is a strong indi
 
 **How to identify:**
 - Failure occurs during the dependency install step (npm/pnpm/yarn install)
+- The `Analyze project` step never starts
 - Error messages such as:
   - `ERR_PNPM_OUTDATED_LOCKFILE` — pnpm lockfile out of sync with package.json
   - `npm error notarget No matching version found for <package>` — package version doesn't exist
@@ -283,7 +288,8 @@ Multiple jobs failing this way within the same ~2-minute window is a strong indi
   - `Cannot find module` — missing dependency
 
 **Detection patterns:**
-- Phase 1: `/ERR_PNPM/`, `/ERESOLVE/`, `/ETARGET/`, `/notarget/`, `/Process completed with exit code/` — exit code 1
+- Phase 1: `/ERR_PNPM/`, `/ERESOLVE/`, `/ETARGET/`, `/notarget/`, `/Process completed with exit code/`
+- Confirm from surrounding log lines that the failure is in the install step and not in `Analyze project`
 
 **Example log excerpt (pnpm lockfile mismatch):**
 ```
