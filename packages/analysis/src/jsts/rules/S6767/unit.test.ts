@@ -16,12 +16,63 @@
  */
 import { rule } from './index.js';
 import { rules } from '../external/react.js';
+import { findOwningComponentNode } from '../helpers/react.js';
 import {
   NoTypeCheckingRuleTester,
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import type { Rule } from 'eslint';
+import type estree from 'estree';
 import { describe, it } from 'node:test';
 import path from 'node:path';
+
+function getOwnerName(node: estree.Node | undefined): string | null {
+  if (!node) {
+    return null;
+  }
+
+  if (node.type === 'ClassDeclaration' || node.type === 'FunctionDeclaration') {
+    return node.id?.name ?? null;
+  }
+
+  if (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') {
+    const parent = node.parent;
+    if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+      return parent.id.name;
+    }
+  }
+
+  return null;
+}
+
+const ownerLookupRule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      owner: '{{name}}',
+    },
+  },
+  create(context: Rule.RuleContext) {
+    return {
+      Identifier(node) {
+        if (node.name !== 'classes') {
+          return;
+        }
+
+        const ownerName = getOwnerName(
+          findOwningComponentNode(node as unknown as estree.Node, context),
+        );
+
+        if (ownerName) {
+          context.report({
+            node,
+            messageId: 'owner',
+            data: { name: ownerName },
+          });
+        }
+      },
+    };
+  },
+};
 
 describe('S6767', () => {
   it('should not report props passed wholesale to a helper function', () => {
@@ -617,14 +668,15 @@ class FooComp extends React.Component<FooProps> {
     ruleTester.run('no-unused-prop-types', rule, {
       valid: [
         {
-          // FP: TypeScript class — dispatch not accessed in render but exported via curried HOC
+          // FP: TypeScript class — dispatch not accessed in render but exported via curried HOC.
+          // The fallback only accepts bare `Component` because it is actually imported from React.
           code: `
-declare const React: any;
+import React, { Component } from 'react';
 interface MyComponentProps {
   dispatch: (action: { type: string }) => void;
   items: string[];
 }
-class MyComponent extends React.Component<MyComponentProps> {
+class MyComponent extends Component<MyComponentProps> {
   render() {
     return <ul>{this.props.items.map(i => <li>{i}</li>)}</ul>;
   }
@@ -638,33 +690,32 @@ export default connect(mapStateToProps)(MyComponent);
         {
           // FP: React.FC<Props> arrow function with destructured params exported via Pattern 1.
           // relay is declared in Props but unused in the component body; it is injected by the HOC.
-          // matchesFunctionProps uses Phase 1 (annotation-based): reads Props from React.FC<Props>
-          // directly instead of inferring the parameter type, which would be incomplete ({tag} only)
-          // when module imports are unresolved and React.FC resolves to `any`.
+          // matchesFunctionProps uses Phase 1 (annotation-based): reads Props from FC<Props>
+          // only because FC is actually imported from React.
           code: `
-declare const React: any;
+import React, { type FC } from 'react';
 interface TagProps {
   tag: string;
   relay: string;
 }
-const Header: React.FC<TagProps> = ({ tag }) => <div>{tag}</div>;
+const Header: FC<TagProps> = ({ tag }) => <div>{tag}</div>;
 declare function createFragmentContainer(comp: any, spec: any): any;
 export default createFragmentContainer(Header, {});
 `,
           filename: fixtureFile,
         },
         {
-          // FP: React.FC<Props> arrow function with destructured params exported via Pattern 2.
+          // FP: React.FunctionComponent<Props> arrow function with destructured params exported via Pattern 2.
           // contextScreenOwnerId is declared but unused; injected by the HOC.
           // matchesFunctionProps Phase 1 (annotation) correctly matches ArtworkProps from the
-          // React.FC<ArtworkProps> annotation even when React types are unresolvable.
+          // React.FunctionComponent<ArtworkProps> annotation only when it comes from React.
           code: `
-declare const React: any;
+import React from 'react';
 interface ArtworkProps {
   artwork: string;
   contextScreenOwnerId: string;
 }
-const SaleArtwork: React.FC<ArtworkProps> = ({ artwork }) => <div>{artwork}</div>;
+const SaleArtwork: React.FunctionComponent<ArtworkProps> = ({ artwork }) => <div>{artwork}</div>;
 declare function createFragmentContainer(comp: any, spec: any): any;
 export const SaleArtworkContainer = createFragmentContainer(SaleArtwork, {});
 `,
@@ -717,6 +768,71 @@ export default Wrapped;
 `,
           filename: fixtureFile,
           errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should resolve TypeScript props owners only from actual React imports', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('owner lookup', ownerLookupRule, {
+      valid: [],
+      invalid: [
+        {
+          // The non-React `Component<Props>` import must not steal ownership
+          // from the actual React component that uses the shared props interface.
+          code: `
+import React from 'react';
+import { Component } from 'legacy-ui';
+interface SharedProps {
+  classes: Record<string, string>;
+  title: string;
+}
+class WrappedLegacyView extends Component<SharedProps> {
+  render() {
+    return <div />;
+  }
+}
+declare function withStyles(styles: object): (comp: any) => any;
+const styles = {};
+export default withStyles(styles)(WrappedLegacyView);
+
+function ActualReactView(props: SharedProps) {
+  return <div>{props.title}</div>;
+}
+`,
+          filename: fixtureFile,
+          errors: [{ message: 'ActualReactView' }],
+        },
+        {
+          // The non-React `FunctionComponent<Props>` import must not steal ownership from the actual
+          // React component that uses the shared props interface.
+          code: `
+import React from 'react';
+import type { FunctionComponent } from 'legacy-ui';
+interface SharedProps {
+  classes: Record<string, string>;
+  title: string;
+}
+const WrappedLegacyView: FunctionComponent<SharedProps> = ({ title }) => <div>{title}</div>;
+declare function withStyles(styles: object): (comp: any) => any;
+const styles = {};
+export default withStyles(styles)(WrappedLegacyView);
+
+function ActualReactView(props: SharedProps) {
+  return <div>{props.title}</div>;
+}
+`,
+          filename: fixtureFile,
+          errors: [{ message: 'ActualReactView' }],
         },
       ],
     });

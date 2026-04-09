@@ -20,6 +20,7 @@ import type estree from 'estree';
 import ts from 'typescript';
 import { childrenOf } from './ancestor.js';
 import { isIdentifier } from './ast.js';
+import { getImportDeclarations } from './module.js';
 import { isRequiredParserServices } from './parser-services.js';
 import { getTypeFromTreeNode } from './type.js';
 
@@ -31,9 +32,19 @@ const COMPONENT_NODE_TYPES = new Set([
   'ArrowFunctionExpression',
 ]);
 const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclaration']);
+const REACT_CLASS_TYPES = new Set(['Component', 'PureComponent']);
+const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
+
+type ReactImportBindings = {
+  classTypeAliases: Set<string>;
+  functionComponentAliases: Set<string>;
+  namespaceAliases: Set<string>;
+};
+
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
   ownerByTypeDecl: WeakMap<estree.Node, estree.Node | null>;
+  reactImportBindings: ReactImportBindings | undefined;
 };
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 
@@ -43,10 +54,49 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
     cache = {
       componentNodes: undefined,
       ownerByTypeDecl: new WeakMap<estree.Node, estree.Node | null>(),
+      reactImportBindings: undefined,
     };
     perSourceCache.set(sourceCode, cache);
   }
   return cache;
+}
+
+function getReactImportBindings(context: Rule.RuleContext): ReactImportBindings {
+  const sourceCache = getSourceCache(context.sourceCode);
+  if (sourceCache.reactImportBindings) {
+    return sourceCache.reactImportBindings;
+  }
+
+  const bindings: ReactImportBindings = {
+    classTypeAliases: new Set<string>(),
+    functionComponentAliases: new Set<string>(),
+    namespaceAliases: new Set<string>(),
+  };
+
+  for (const importDecl of getImportDeclarations(context)) {
+    if (importDecl.source.value !== 'react') {
+      continue;
+    }
+
+    for (const specifier of importDecl.specifiers) {
+      if (
+        specifier.type === 'ImportDefaultSpecifier' ||
+        specifier.type === 'ImportNamespaceSpecifier'
+      ) {
+        bindings.namespaceAliases.add(specifier.local.name);
+      } else if (specifier.type === 'ImportSpecifier' && specifier.imported.type === 'Identifier') {
+        if (REACT_CLASS_TYPES.has(specifier.imported.name)) {
+          bindings.classTypeAliases.add(specifier.local.name);
+        }
+        if (REACT_FUNCTION_COMPONENT_TYPES.has(specifier.imported.name)) {
+          bindings.functionComponentAliases.add(specifier.local.name);
+        }
+      }
+    }
+  }
+
+  sourceCache.reactImportBindings = bindings;
+  return bindings;
 }
 
 /**
@@ -161,17 +211,24 @@ function findOwnerByType(
     (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
 
   // Step 5: find the first component whose props type is mutually assignable to `propsType`.
+  const reactImports = getReactImportBindings(context);
   for (const componentNode of componentNodes) {
     const tsNode = services.esTreeNodeToTSNodeMap.get(
       componentNode as TSESTree.Node,
     ) as ts.Declaration;
     if (componentNode.type === 'ClassDeclaration' || componentNode.type === 'ClassExpression') {
-      if (matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, propsType)) {
+      if (matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, propsType, reactImports)) {
         sourceCache.ownerByTypeDecl.set(typeDecl, componentNode);
         return componentNode;
       }
     } else if (
-      matchesFunctionProps(componentNode, tsNode as ts.SignatureDeclaration, checker, propsType)
+      matchesFunctionProps(
+        componentNode,
+        tsNode as ts.SignatureDeclaration,
+        checker,
+        propsType,
+        reactImports,
+      )
     ) {
       sourceCache.ownerByTypeDecl.set(typeDecl, componentNode);
       return componentNode;
@@ -208,6 +265,7 @@ function matchesClassProps(
   cls: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
   propsType: ts.Type,
+  reactImports: ReactImportBindings,
 ): boolean {
   if (!cls.name) {
     return false;
@@ -226,18 +284,20 @@ function matchesClassProps(
   // Fallback: when the base class is unresolved (e.g. `declare const React: any`),
   // TypeScript cannot expose the inherited `props` property via the instance type.
   // Check heritage clauses for `extends Component<…>` or `extends React.Component<…>`.
-  return matchesClassPropsViaSyntax(cls, checker, propsType);
+  return matchesClassPropsViaSyntax(cls, checker, propsType, reactImports);
 }
 
 /** Returns true when `expr` names the React.Component or React.PureComponent base class. */
-function isReactComponentExpression(expr: ts.Expression): boolean {
-  const REACT_COMPONENT_NAMES = new Set(['Component', 'PureComponent']);
+function isReactComponentExpression(
+  expr: ts.Expression,
+  reactImports: ReactImportBindings,
+): boolean {
   return (
-    (ts.isIdentifier(expr) && REACT_COMPONENT_NAMES.has(expr.text)) ||
+    (ts.isIdentifier(expr) && reactImports.classTypeAliases.has(expr.text)) ||
     (ts.isPropertyAccessExpression(expr) &&
       ts.isIdentifier(expr.expression) &&
-      expr.expression.text === 'React' &&
-      REACT_COMPONENT_NAMES.has(expr.name.text))
+      reactImports.namespaceAliases.has(expr.expression.text) &&
+      REACT_CLASS_TYPES.has(expr.name.text))
   );
 }
 
@@ -254,12 +314,13 @@ function matchesClassPropsViaSyntax(
   cls: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
   propsType: ts.Type,
+  reactImports: ReactImportBindings,
 ): boolean {
   for (const clause of (cls.heritageClauses ?? []).filter(
     c => c.token === ts.SyntaxKind.ExtendsKeyword,
   )) {
     for (const type of clause.types) {
-      if (!isReactComponentExpression(type.expression)) {
+      if (!isReactComponentExpression(type.expression, reactImports)) {
         continue;
       }
       const typeArgs = type.typeArguments;
@@ -313,6 +374,7 @@ function matchesClassPropsViaSyntax(
 function getAnnotationBasedPropsType(
   tsFuncNode: ts.SignatureDeclaration,
   checker: ts.TypeChecker,
+  reactImports: ReactImportBindings,
 ): ts.Type | null {
   // Only ArrowFunction and FunctionExpression can appear as a VariableDeclarator initializer.
   // Guard on node kind first so the comparison below is type-safe without `as unknown as`.
@@ -327,6 +389,9 @@ function getAnnotationBasedPropsType(
   if (typeNode == null || !ts.isTypeReferenceNode(typeNode)) {
     return null;
   }
+  if (!isReactFunctionComponentType(typeNode.typeName, reactImports)) {
+    return null;
+  }
   const typeArgs = typeNode.typeArguments;
   if (typeArgs == null || typeArgs.length === 0) {
     return null;
@@ -334,11 +399,27 @@ function getAnnotationBasedPropsType(
   return checker.getTypeAtLocation(typeArgs[0]);
 }
 
+function isReactFunctionComponentType(
+  typeName: ts.EntityName,
+  reactImports: ReactImportBindings,
+): boolean {
+  if (ts.isIdentifier(typeName)) {
+    return reactImports.functionComponentAliases.has(typeName.text);
+  }
+
+  return (
+    ts.isIdentifier(typeName.left) &&
+    reactImports.namespaceAliases.has(typeName.left.text) &&
+    REACT_FUNCTION_COMPONENT_TYPES.has(typeName.right.text)
+  );
+}
+
 function matchesFunctionProps(
   componentNode: estree.Node,
   tsFuncNode: ts.SignatureDeclaration,
   checker: ts.TypeChecker,
   propsType: ts.Type,
+  reactImports: ReactImportBindings,
 ): boolean {
   // Skip non-PascalCase names to avoid matching helper functions
   // that happen to accept the same props type (React components use PascalCase by convention).
@@ -352,7 +433,7 @@ function matchesFunctionProps(
   // parameter type.  This is more reliable when module imports are unresolved, because
   // TypeScript derives the parameter type from the destructuring pattern in that case,
   // producing an incomplete type that fails the mutual-assignability check.
-  const annotatedParamType = getAnnotationBasedPropsType(tsFuncNode, checker);
+  const annotatedParamType = getAnnotationBasedPropsType(tsFuncNode, checker, reactImports);
   if (annotatedParamType != null && areMutuallyAssignable(checker, propsType, annotatedParamType)) {
     return true;
   }
