@@ -206,4 +206,53 @@ describe('S1301', () => {
       ],
     });
   });
+
+  it('should flag switch where `: never` variable is assigned from an unrelated never-returning function, not the discriminant', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('"if" statements should be preferred over "switch" when simpler', rule, {
+      valid: [],
+      invalid: [
+        {
+          // `fail()` returns `never` but is not the switch discriminant — still flagged
+          code: `
+            function fail(): never { throw new Error('boom'); }
+            function handle(x: string): void {
+              switch (x) {
+                case 'a':
+                  break;
+                default:
+                  const _exhaustiveCheck: never = fail();
+              }
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should flag switch where assertNever receives a never-returning function call instead of the discriminant', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('"if" statements should be preferred over "switch" when simpler', rule, {
+      valid: [],
+      invalid: [
+        {
+          // `fail()` returns `never` but is not the switch discriminant — still flagged
+          code: `
+            function fail(): never { throw new Error('boom'); }
+            function assertNever(x: never): never { throw new Error(String(x)); }
+            function handle(x: string): void {
+              switch (x) {
+                case 'a':
+                  break;
+                default:
+                  return assertNever(fail());
+              }
+            }
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });

@@ -62,8 +62,13 @@ export const rule: Rule.RuleModule = {
 
 /**
  * Returns true if the default case contains a TypeScript exhaustiveness pattern:
- * - A variable declaration typed as `never` (e.g., `const _exhaustiveCheck: never = x`)
- * - A call expression whose argument is narrowed to `never` by TypeScript (e.g., `assertNever(x)`)
+ * - A variable declaration typed as `never` where the init is the switch discriminant
+ *   (e.g., `const _exhaustiveCheck: never = x` where `x` is the discriminant)
+ * - A call expression whose argument is the switch discriminant narrowed to `never` by TypeScript
+ *   (e.g., `assertNever(x)` where `x` is the discriminant narrowed to `never`)
+ *
+ * Both checks require the `never`-typed value to be the switch discriminant itself, not an
+ * unrelated `never`-returning expression (e.g., `fail()`).
  */
 function isExhaustivenessCheck(
   node: TSESTree.SwitchStatement,
@@ -73,19 +78,27 @@ function isExhaustivenessCheck(
   if (!defaultCase) {
     return false;
   }
+  const discriminant = node.discriminant;
   for (const stmt of defaultCase.consequent) {
-    if (hasNeverTypeAnnotation(stmt)) {
+    if (hasNeverTypeAnnotation(stmt, discriminant)) {
       return true;
     }
-    if (isRequiredParserServices(services) && hasNeverTypedCallArg(stmt, services)) {
+    if (isRequiredParserServices(services) && hasNeverTypedCallArg(stmt, discriminant, services)) {
       return true;
     }
   }
   return false;
 }
 
-/** Checks if a statement is a VariableDeclaration with a `never` type annotation. */
-function hasNeverTypeAnnotation(stmt: TSESTree.Statement): boolean {
+/**
+ * Checks if a statement is `const _: never = <discriminant>`.
+ * The init must syntactically match the switch discriminant to rule out patterns like
+ * `const _: never = fail()` where `fail()` returns `never` but is unrelated to the discriminant.
+ */
+function hasNeverTypeAnnotation(
+  stmt: TSESTree.Statement,
+  discriminant: TSESTree.Expression,
+): boolean {
   if (stmt.type !== 'VariableDeclaration') {
     return false;
   }
@@ -93,12 +106,24 @@ function hasNeverTypeAnnotation(stmt: TSESTree.Statement): boolean {
     if (d.type !== 'VariableDeclarator' || d.id.type !== 'Identifier') {
       return false;
     }
-    return d.id.typeAnnotation?.typeAnnotation.type === 'TSNeverKeyword';
+    if (d.id.typeAnnotation?.typeAnnotation.type !== 'TSNeverKeyword') {
+      return false;
+    }
+    // The init must be the switch discriminant itself, not any other never-typed expression.
+    return d.init != null && isSameExpression(d.init, discriminant);
   });
 }
 
-/** Checks if a statement contains a call expression with a `never`-typed argument. */
-function hasNeverTypedCallArg(stmt: TSESTree.Statement, services: RequiredParserServices): boolean {
+/**
+ * Checks if a statement contains a call whose argument is the switch discriminant narrowed to `never`.
+ * The argument must syntactically match the discriminant to rule out patterns like
+ * `assertNever(fail())` where `fail()` returns `never` but is not the discriminant.
+ */
+function hasNeverTypedCallArg(
+  stmt: TSESTree.Statement,
+  discriminant: TSESTree.Expression,
+  services: RequiredParserServices,
+): boolean {
   let callExpr: TSESTree.CallExpression | null = null;
   if (stmt.type === 'ExpressionStatement' && stmt.expression.type === 'CallExpression') {
     callExpr = stmt.expression;
@@ -111,7 +136,32 @@ function hasNeverTypedCallArg(stmt: TSESTree.Statement, services: RequiredParser
     return false;
   }
   return callExpr.arguments.some(arg => {
+    // The argument must be the switch discriminant, narrowed to `never` by TypeScript's control flow.
+    if (!isSameExpression(arg as unknown as TSESTree.Expression, discriminant)) {
+      return false;
+    }
     const type = getTypeFromTreeNode(arg as unknown as estree.Node, services);
     return (type.flags & ts.TypeFlags.Never) !== 0;
   });
+}
+
+/**
+ * Returns true if two expressions refer to the same simple identifier or member expression.
+ * Handles `x` (Identifier) and `obj.prop` (non-computed MemberExpression).
+ */
+function isSameExpression(a: TSESTree.Node, b: TSESTree.Node): boolean {
+  if (a.type === 'Identifier' && b.type === 'Identifier') {
+    return a.name === b.name;
+  }
+  if (a.type === 'MemberExpression' && b.type === 'MemberExpression') {
+    return (
+      !a.computed &&
+      !b.computed &&
+      a.property.type === 'Identifier' &&
+      b.property.type === 'Identifier' &&
+      a.property.name === b.property.name &&
+      isSameExpression(a.object, b.object)
+    );
+  }
+  return false;
 }
