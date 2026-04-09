@@ -276,7 +276,9 @@ function isSymbolWrittenByCalledFunction(
 
   let found = false;
   const visitNode = (node: estree.Node) => {
-    if (found) return;
+    if (found) {
+      return;
+    }
     // Don't traverse into nested functions
     if (
       node.type === 'FunctionExpression' ||
@@ -299,7 +301,9 @@ function isSymbolWrittenByCalledFunction(
 
   for (const nodeToWalk of nodesToWalk) {
     visitNode(nodeToWalk);
-    if (found) break;
+    if (found) {
+      break;
+    }
   }
   return found;
 }
