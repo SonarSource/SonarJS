@@ -135,21 +135,19 @@ function isWrittenInsideFunction(symbol: Scope.Variable): boolean {
 }
 
 /**
- * Checks if any function is called within the loop body.
+ * Walks a set of root nodes without descending into nested function scopes,
+ * and returns true if the given predicate matches any CallExpression found.
  */
-function hasFunctionCallInLoop(loop: estree.Node, context: Rule.RuleContext): boolean {
-  let hasCall = false;
-
+function walkLoopNodes(
+  roots: estree.Node[],
+  predicate: (callExpr: estree.CallExpression) => boolean,
+  context: Rule.RuleContext,
+): boolean {
+  let found = false;
   const visitNode = (node: estree.Node) => {
-    if (hasCall) {
+    if (found) {
       return;
     }
-
-    if (node.type === 'CallExpression') {
-      hasCall = true;
-      return;
-    }
-
     // Don't traverse into nested functions
     if (
       node.type === 'FunctionExpression' ||
@@ -158,18 +156,32 @@ function hasFunctionCallInLoop(loop: estree.Node, context: Rule.RuleContext): bo
     ) {
       return;
     }
-
+    if (node.type === 'CallExpression' && predicate(node as estree.CallExpression)) {
+      found = true;
+      return;
+    }
     for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
       visitNode(child);
     }
   };
-
-  const body = getLoopBody(loop);
-  if (body) {
-    visitNode(body);
+  for (const root of roots) {
+    visitNode(root);
+    if (found) {
+      break;
+    }
   }
+  return found;
+}
 
-  return hasCall;
+/**
+ * Checks if any function is called within the loop body.
+ */
+function hasFunctionCallInLoop(loop: estree.Node, context: Rule.RuleContext): boolean {
+  const body = getLoopBody(loop);
+  if (!body) {
+    return false;
+  }
+  return walkLoopNodes([body], () => true, context);
 }
 
 /**
@@ -274,38 +286,11 @@ function isSymbolWrittenByCalledFunction(
     return false;
   }
 
-  let found = false;
-  const visitNode = (node: estree.Node) => {
-    if (found) {
-      return;
-    }
-    // Don't traverse into nested functions
-    if (
-      node.type === 'FunctionExpression' ||
-      node.type === 'FunctionDeclaration' ||
-      node.type === 'ArrowFunctionExpression'
-    ) {
-      return;
-    }
-    if (
-      node.type === 'CallExpression' &&
-      callsWritingFunction(node as estree.CallExpression, writingFunctions, context)
-    ) {
-      found = true;
-      return;
-    }
-    for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
-      visitNode(child);
-    }
-  };
-
-  for (const nodeToWalk of nodesToWalk) {
-    visitNode(nodeToWalk);
-    if (found) {
-      break;
-    }
-  }
-  return found;
+  return walkLoopNodes(
+    nodesToWalk,
+    callExpr => callsWritingFunction(callExpr, writingFunctions, context),
+    context,
+  );
 }
 
 /**
