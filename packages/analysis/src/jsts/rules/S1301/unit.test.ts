@@ -180,6 +180,39 @@ describe('S1301', () => {
           `,
           errors: 1,
         },
+        {
+          // Plain helper call — `logValue` does not return `never`, so not an exhaustiveness sentinel
+          code: `
+            function logValue(x: unknown): void { console.log(x); }
+            type Status = 'active';
+            function handleStatus(status: Status): void {
+              switch (status) {
+                case 'active':
+                  console.log('active');
+                  break;
+                default:
+                  logValue(status);
+              }
+            }
+          `,
+          errors: 1,
+        },
+        {
+          // console.log does not return `never`, so it is not an exhaustiveness sentinel
+          code: `
+            type Status = 'active';
+            function handleStatus(status: Status): void {
+              switch (status) {
+                case 'active':
+                  console.log('active');
+                  break;
+                default:
+                  console.log(status);
+              }
+            }
+          `,
+          errors: 1,
+        },
       ],
     });
   });

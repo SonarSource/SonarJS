@@ -117,9 +117,14 @@ function hasNeverTypeAnnotation(
 }
 
 /**
- * Checks if a statement contains a call whose argument is the switch discriminant narrowed to `never`.
- * The argument must syntactically match the discriminant to rule out patterns like
- * `assertNever(fail())` where `fail()` returns `never` but is not the discriminant.
+ * Checks if a statement contains an exhaustiveness-sentinel call with the switch discriminant as argument.
+ * Both conditions must hold:
+ * - The call itself must return `never`, identifying it as a sentinel (e.g., `assertNever`).
+ *   Plain helpers like `logValue(status)` or `console.log(status)` accept a `never`-typed
+ *   argument only because `never` is assignable to every type — they are not sentinels.
+ * - One argument must syntactically match the discriminant, narrowed to `never` by TypeScript's
+ *   control flow, ruling out patterns like `assertNever(fail())` where `fail()` returns `never`
+ *   but is not the discriminant.
  */
 function hasNeverTypedCallArg(
   stmt: TSESTree.Statement,
@@ -137,13 +142,18 @@ function hasNeverTypedCallArg(
   if (!callExpr) {
     return false;
   }
+  // The call itself must return `never` to qualify as an exhaustiveness sentinel.
+  // Safe: TSESTree and estree describe the same runtime AST objects; the double cast is required
+  // because TypeScript cannot directly cast between the two library declarations.
+  const callType = getTypeFromTreeNode(callExpr as unknown as estree.Node, services);
+  if ((callType.flags & ts.TypeFlags.Never) === 0) {
+    return false;
+  }
   return callExpr.arguments.some(arg => {
     // The argument must be the switch discriminant, narrowed to `never` by TypeScript's control flow.
     if (!isSameExpression(arg, discriminant)) {
       return false;
     }
-    // Safe: TSESTree and estree describe the same runtime AST objects; the double cast is required
-    // because TypeScript cannot directly cast between the two library declarations.
     const type = getTypeFromTreeNode(arg as unknown as estree.Node, services);
     return (type.flags & ts.TypeFlags.Never) !== 0;
   });
