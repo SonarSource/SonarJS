@@ -374,6 +374,33 @@ function commitRoot() {
     });
   });
 
+  it('should not raise when closure variable is modified by a function called in the loop condition', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          // ch is a closure variable; next() writes to ch and is called in the while condition
+          code: `
+var parser = (function () {
+  var ch = '';
+  var next = function () {
+    ch = String.fromCharCode(ch.charCodeAt(0) + 1);
+    return ch;
+  };
+  var number = function () {
+    while (next() && ch >= '0' && ch <= '9') {
+      processDigit(ch);
+    }
+  };
+  return { number };
+})();
+          `,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('should still raise when the called function does not write to the condition variable', () => {
     const ruleTester = new DefaultParserRuleTester();
     ruleTester.run(RULE_NAME, rule, {

@@ -174,11 +174,12 @@ function hasFunctionCallInLoop(loop: estree.Node, context: Rule.RuleContext): bo
 
 /**
  * Checks whether the flagged non-file-scope symbol may be modified through
- * the side effects of a function that is directly called in the loop body.
+ * the side effects of a function that is directly called in the loop body
+ * or loop condition.
  *
- * Narrow check: the specific function called in the loop body must be the
- * same function that contains a write reference to the flagged symbol.
- * This avoids broad suppressions that would cause false negatives.
+ * Narrow check: the specific function called in the loop (body or condition)
+ * must be the same function that contains a write reference to the flagged
+ * symbol. This avoids broad suppressions that would cause false negatives.
  */
 function isSymbolWrittenByCalledFunction(
   symbol: Scope.Variable,
@@ -203,10 +204,21 @@ function isSymbolWrittenByCalledFunction(
     return false;
   }
 
-  // Walk the loop body (excluding nested function bodies) for CallExpression
-  // nodes where the callee is a simple Identifier
+  // Collect nodes to walk: loop body and loop test condition.
+  // Function calls in either location can modify closure variables as side effects.
+  const nodesToWalk: estree.Node[] = [];
   const body = getLoopBody(loop);
-  if (!body) {
+  if (body) {
+    nodesToWalk.push(body);
+  }
+  // Also check the loop condition (test) - function calls there can also modify variables
+  // e.g. `while (next() && ch >= '0' && ch <= '9')` where next() sets ch
+  const test = (loop as estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement).test;
+  if (test) {
+    nodesToWalk.push(test);
+  }
+
+  if (nodesToWalk.length === 0) {
     return false;
   }
 
@@ -265,7 +277,10 @@ function isSymbolWrittenByCalledFunction(
     }
   };
 
-  visitNode(body);
+  for (const nodeToWalk of nodesToWalk) {
+    visitNode(nodeToWalk);
+    if (found) break;
+  }
   return found;
 }
 
