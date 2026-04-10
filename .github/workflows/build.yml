@@ -873,7 +873,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_without_node:
-    runs-on: sonar-m-docker
+    runs-on: sonar-m-public
     name: Fast QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -900,7 +900,7 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_fast_without_node_dev:
-    runs-on: sonar-m-docker
+    runs-on: sonar-xs-public
     name: Fast QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
     if: github.event_name == 'schedule'
@@ -1056,7 +1056,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   js_ts_ruling:
-    runs-on: sonar-m-docker
+    runs-on: sonar-m-public
     name: JS/TS Ruling
     needs: [setup, populate_npm_cache, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
