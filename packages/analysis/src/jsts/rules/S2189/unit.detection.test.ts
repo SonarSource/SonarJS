@@ -16,9 +16,43 @@
  */
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
+import { getESLintCoreRule } from '../external/core.js';
 import { describe, it } from 'node:test';
 
 const RULE_NAME = 'Loops should not be infinite';
+
+// Sentinel: verify that the upstream ESLint rule still raises on the closure-variable patterns our fix suppresses.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
+describe('S2189 upstream sentinel', () => {
+  it('upstream no-unmodified-loop-condition raises on closure-variable patterns that our fix suppresses', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    const upstreamRule = getESLintCoreRule('no-unmodified-loop-condition');
+    ruleTester.run('no-unmodified-loop-condition', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // ch is a closure variable modified by next(); suppressed by JS-1476 fix, raised by upstream
+          code: `
+var parser = (function () {
+  var ch = '';
+  var next = function () {
+    ch = String.fromCharCode(ch.charCodeAt(0) + 1);
+  };
+  var white = function () {
+    while (ch && ch <= ' ') {
+      next();
+    }
+  };
+  return { white };
+})();
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
 
 describe('S2189 - JS-1476 false positive suppression for closure side effects', () => {
   it('should not raise when closure variable is modified by a function called in the loop (while)', () => {
@@ -51,6 +85,23 @@ function tokenize(source) {
   var readToken = function () {
     token = pos < source.length ? source[pos++] : null;
   };
+  readToken();
+  while (token !== null) {
+    processToken(token);
+    readToken();
+  }
+}
+          `,
+        },
+        {
+          // token is modified by a function declaration (not expression); tests FunctionDeclaration branch
+          code: `
+function tokenize(source) {
+  var token = null;
+  var pos = 0;
+  function readToken() {
+    token = pos < source.length ? source[pos++] : null;
+  }
   readToken();
   while (token !== null) {
     processToken(token);
