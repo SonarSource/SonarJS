@@ -61,6 +61,42 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
   return cache;
 }
 
+/**
+ * Records the local aliases introduced by a single React import specifier.
+ *
+ * Default and namespace imports are tracked as namespace aliases so later checks can
+ * recognize `React.Component` / `React.FC` style references. Named imports are split
+ * between class-component aliases (`Component`, `PureComponent`) and function-component
+ * aliases (`FC`, `FunctionComponent`) based on the imported symbol name.
+ */
+function addReactImportBinding(
+  bindings: ReactImportBindings,
+  specifier:
+    | estree.ImportSpecifier
+    | estree.ImportDefaultSpecifier
+    | estree.ImportNamespaceSpecifier,
+): void {
+  if (
+    specifier.type === 'ImportDefaultSpecifier' ||
+    specifier.type === 'ImportNamespaceSpecifier'
+  ) {
+    bindings.namespaceAliases.add(specifier.local.name);
+    return;
+  }
+
+  if (specifier.type !== 'ImportSpecifier' || specifier.imported.type !== 'Identifier') {
+    return;
+  }
+
+  const importedName = specifier.imported.name;
+  if (REACT_CLASS_TYPES.has(importedName)) {
+    bindings.classTypeAliases.add(specifier.local.name);
+  }
+  if (REACT_FUNCTION_COMPONENT_TYPES.has(importedName)) {
+    bindings.functionComponentAliases.add(specifier.local.name);
+  }
+}
+
 function getReactImportBindings(context: Rule.RuleContext): ReactImportBindings {
   const sourceCache = getSourceCache(context.sourceCode);
   if (sourceCache.reactImportBindings) {
@@ -79,19 +115,7 @@ function getReactImportBindings(context: Rule.RuleContext): ReactImportBindings 
     }
 
     for (const specifier of importDecl.specifiers) {
-      if (
-        specifier.type === 'ImportDefaultSpecifier' ||
-        specifier.type === 'ImportNamespaceSpecifier'
-      ) {
-        bindings.namespaceAliases.add(specifier.local.name);
-      } else if (specifier.type === 'ImportSpecifier' && specifier.imported.type === 'Identifier') {
-        if (REACT_CLASS_TYPES.has(specifier.imported.name)) {
-          bindings.classTypeAliases.add(specifier.local.name);
-        }
-        if (REACT_FUNCTION_COMPONENT_TYPES.has(specifier.imported.name)) {
-          bindings.functionComponentAliases.add(specifier.local.name);
-        }
-      }
+      addReactImportBinding(bindings, specifier);
     }
   }
 
