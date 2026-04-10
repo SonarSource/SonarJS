@@ -27,7 +27,7 @@ import * as meta from './generated-meta.js';
 
 // Packages whose fluent APIs use method names that overlap with Promise (e.g. .catch())
 // but are synchronous and should not be flagged.
-const ALLOWED_IMPORT_SOURCES = ['zod'];
+const ALLOWED_IMPORT_SOURCES = new Set(['zod']);
 
 /**
  * Walks a fluent method chain to its root node.
@@ -53,7 +53,7 @@ function getChainRoot(node: estree.Node): estree.Node {
 function isFromAllowedImport(root: estree.Identifier, context: Rule.RuleContext): boolean {
   return getImportDeclarations(context).some(
     decl =>
-      ALLOWED_IMPORT_SOURCES.includes(decl.source.value as string) &&
+      ALLOWED_IMPORT_SOURCES.has(decl.source.value as string) &&
       decl.specifiers.some(spec => spec.local.name === root.name),
   );
 }
