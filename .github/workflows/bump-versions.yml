@@ -15,7 +15,7 @@ on:
 
 jobs:
   bump-version:
-    runs-on: sonar-m-docker
+    runs-on: sonar-xs-public
     permissions:
       contents: write
       pull-requests: write
