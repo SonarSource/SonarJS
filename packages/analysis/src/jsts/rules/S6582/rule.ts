@@ -146,8 +146,11 @@ function getContextualTypeOfNode(
 function isInBooleanCoercionContext(node: Rule.Node): boolean {
   let current: Rule.Node | undefined = node;
 
-  while (current?.parent) {
-    const parent: Rule.Node = current.parent as Rule.Node;
+  while (current) {
+    const parent = current.parent;
+    if (!parent) {
+      return false;
+    }
 
     if (
       parent.type === 'LogicalExpression' &&
