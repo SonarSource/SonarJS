@@ -83,7 +83,8 @@ function calleeAcceptsMultipleArguments(
   callee: TSESTree.Node,
   services: RequiredParserServices,
 ): boolean {
-  const calleeType = getTypeFromTreeNode(callee as unknown as estree.Node, services);
+  const calleeNode = callee as estree.Node;
+  const calleeType = getTypeFromTreeNode(calleeNode, services);
   return calleeType.getCallSignatures().some(sig => {
     const params = sig.parameters;
     const lastParam = params.at(-1);
