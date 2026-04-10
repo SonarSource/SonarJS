@@ -144,10 +144,10 @@ function getContextualTypeOfNode(
  * whose type must remain assignable.
  */
 function isInBooleanCoercionContext(node: Rule.Node): boolean {
-  let current: Rule.Node | undefined = node;
+  let current: Rule.Node | null = node;
 
   while (current) {
-    const parent = current.parent;
+    const parent: Rule.Node | null = current.parent;
     if (!parent) {
       return false;
     }
