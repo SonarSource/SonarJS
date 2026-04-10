@@ -84,6 +84,7 @@ function shouldSuppressTypeAssertion(
   services: RequiredParserServices,
 ): boolean {
   const expression = node.expression as estree.Node;
+  const tsExpression = node.expression;
 
   // Get the assertion's target type from the type annotation
   const assertionTargetType = getTypeFromTreeNode(node as unknown as estree.Node, services);
@@ -102,8 +103,17 @@ function shouldSuppressTypeAssertion(
   }
 
   // For call expressions, check the callee's declared return type
-  if ((expression as TSESTree.Node).type === 'CallExpression') {
-    return isCalleeGeneric(expression, services);
+  if (tsExpression.type === 'CallExpression') {
+    return isCalleeGeneric(tsExpression, services);
+  }
+
+  // For non-null assertions wrapping a generic call (e.g., `querySelector()! as T`),
+  // the `as T` drives generic type inference just as a direct call would.
+  if (
+    tsExpression.type === 'TSNonNullExpression' &&
+    tsExpression.expression.type === 'CallExpression'
+  ) {
+    return isNonNullWrappedGenericCall(tsExpression.expression, node, services);
   }
 
   return false;
@@ -119,9 +129,9 @@ function shouldSuppressTypeAssertion(
  * getResolvedSignature() returns an instantiated signature where
  * getTypeParameters() may return undefined.
  */
-function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserServices): boolean {
+function isCalleeGeneric(callExpression: TSESTree.Node, services: RequiredParserServices): boolean {
   const checker = services.program.getTypeChecker();
-  const tsNode = services.esTreeNodeToTSNodeMap.get(callExpression as TSESTree.Node);
+  const tsNode = services.esTreeNodeToTSNodeMap.get(callExpression);
   if (!ts.isCallExpression(tsNode)) {
     return false;
   }
@@ -150,6 +160,27 @@ function isCalleeGeneric(callExpression: estree.Node, services: RequiredParserSe
 }
 
 /**
+ * Returns true when a call expression invokes a generic function and is wrapped
+ * in a non-null assertion that is itself wrapped in a type assertion (the pattern
+ * `genericCall()! as T`).  Extracted as a shared predicate so both
+ * `shouldSuppressTypeAssertion` and `shouldSuppressNonNullAssertion` describe
+ * the pattern in one place.
+ *
+ * @param callNode - the inner CallExpression
+ * @param parent   - the parent of the TSNonNullExpression (i.e. the type assertion node)
+ */
+function isNonNullWrappedGenericCall(
+  callNode: TSESTree.CallExpression,
+  parent: TSESTree.Node | undefined,
+  services: RequiredParserServices,
+): boolean {
+  return (
+    (parent?.type === 'TSAsExpression' || parent?.type === 'TSTypeAssertion') &&
+    isCalleeGeneric(callNode, services)
+  );
+}
+
+/**
  * Suppresses false positives for non-null assertions where the expression's
  * resolved type (with flow narrowing) still contains null or undefined.
  *
@@ -164,9 +195,18 @@ function shouldSuppressNonNullAssertion(
   node: TSESTree.TSNonNullExpression,
   services: RequiredParserServices,
 ): boolean {
-  const expression = node.expression as estree.Node;
+  // Suppress `!` when it is part of `genericCall()! as T`:
+  // the `as T` drives generic type inference, so even if `!` appears redundant
+  // in isolation, it is inseparable from the assertion that drives inference.
+  if (
+    node.expression.type === 'CallExpression' &&
+    isNonNullWrappedGenericCall(node.expression, node.parent, services)
+  ) {
+    return true;
+  }
+
   const checker = services.program.getTypeChecker();
-  const tsNode = services.esTreeNodeToTSNodeMap.get(expression as TSESTree.Node);
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node.expression);
   const compilerOptions = services.program.getCompilerOptions();
 
   if (compilerOptions.strictNullChecks || compilerOptions.strict) {
