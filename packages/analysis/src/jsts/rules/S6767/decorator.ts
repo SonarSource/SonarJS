@@ -91,6 +91,8 @@ const NON_INJECTING_HOC_WRAPPERS = new Set(['memo', 'observer']);
  *   `t` for looking up localized strings, `i18n` for the translation service
  *   instance, and sometimes `tReady` to indicate that translation resources
  *   have finished loading. A common source is `react-i18next`.
+ * - `withLocalization` from `@fluent/react` injects a stable `getString`
+ *   helper used to resolve localized strings.
  *
  * Because these injected props are known in advance, we can suppress only those
  * prop names and still report genuinely unused component-specific props.
@@ -99,6 +101,7 @@ const FIXED_INJECTED_PROPS_BY_HOC = new Map<string, ReadonlySet<string>>([
   ['withStyles', new Set(['classes'])],
   ['withTheme', new Set(['theme'])],
   ['withTranslation', new Set(['t', 'i18n', 'tReady'])],
+  ['withLocalization', new Set(['getString'])],
 ]);
 const EMPTY_INJECTED_PROPS = new Set<string>();
 

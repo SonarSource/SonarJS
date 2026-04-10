@@ -398,6 +398,21 @@ export default withTranslation()(Greeting);
 `,
         },
         {
+          // FP: fixed-prop localization HOC injects getString and may leave it unused in render
+          code: `
+class LocalizedLabel extends React.Component {
+  render() {
+    return <span>{this.props.label}</span>;
+  }
+}
+LocalizedLabel.propTypes = {
+  getString: PropTypes.func,
+  label: PropTypes.string,
+};
+export default withLocalization(LocalizedLabel);
+`,
+        },
+        {
           // FP: blacklisted wrapper around a fixed-prop wrapper should not widen suppression
           code: `
 const MyComponent = class extends React.Component {
@@ -745,6 +760,24 @@ interface TagProps {
 const Header: FC<TagProps> = ({ tag }) => <div>{tag}</div>;
 declare function withTranslation(): (comp: any) => any;
 export default withTranslation()(Header);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: localization HOC injects getString and should suppress only that fixed prop.
+          code: `
+import React from 'react';
+interface TagProps {
+  getString: (id: string) => string;
+  tag: string;
+}
+class Header extends React.Component<TagProps> {
+  render() {
+    return <div>{this.props.tag}</div>;
+  }
+}
+declare function withLocalization(comp: any): any;
+export default withLocalization(Header);
 `,
           filename: fixtureFile,
         },
