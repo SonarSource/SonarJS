@@ -147,7 +147,7 @@ function isInBooleanCoercionContext(node: Rule.Node): boolean {
   let current: Rule.Node | undefined = node;
 
   while (current?.parent) {
-    const parent = current.parent;
+    const parent: Rule.Node = current.parent as Rule.Node;
 
     if (
       parent.type === 'LogicalExpression' &&
