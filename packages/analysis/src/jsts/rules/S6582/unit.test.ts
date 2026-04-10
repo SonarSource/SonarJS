@@ -304,6 +304,31 @@ describe('S6582', () => {
           errors: 1,
         },
         {
+          // chained boolean guard: no contextual type is imposed on the if-condition,
+          // so a typed base like Member | null must still be reported
+          code: `interface Member { uuid: string } interface Attrs { html: string } function f(member: Member | null, attrs: Attrs): void { if (member && member.uuid && attrs.html) { attrs.html = attrs.html.replace(/x/, member.uuid); } }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // ITS: TypeScript/lib/tsc.js — nested boolean guard in an if-condition must still be reported
+          code: `interface Labels { get(label: string): boolean } interface Loop { labels: Labels | null } function f(outerLoop: Loop | null, labelText: string): void { if (!outerLoop || (outerLoop.labels && outerLoop.labels.get(labelText))) {} }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // ITS: knockout — boolean guard with || around an && branch must still be reported
+          code: `interface MappingResult { _countWaitingForRemove: number } function f(editScript: string | null, lastMappingResult: MappingResult | null): void { if (!editScript || (lastMappingResult && lastMappingResult['_countWaitingForRemove'])) {} }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // ITS: paper.js — right branch of || is a plain boolean guard, not a typed-context FP
+          code: `interface Curve { hasHandles(): boolean } function getId(curve: Curve): string { return ''; } function f(curve: Curve, clearLookup: Record<string, boolean> | null): void { if (!curve.hasHandles() || (clearLookup && clearLookup[getId(curve)])) {} }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
           // loose inequality: a && a.p != null rewrites to a?.p != null, which is always boolean — no undefined leak
           code: `interface Item { p: string } function f(a: Item | null): boolean { return a && a.p != null; }`,
           output: `interface Item { p: string } function f(a: Item | null): boolean { return a?.p != null; }`,

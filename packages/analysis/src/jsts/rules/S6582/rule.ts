@@ -132,6 +132,48 @@ function getContextualTypeOfNode(
 }
 
 /**
+ * Tells whether the reported expression is only used for boolean coercion.
+ *
+ * Examples:
+ * if (!obj || (obj.prop && obj.prop.method())) {}
+ * while (value && value.next) {}
+ * const ok = !!(value && value.next);
+ *
+ * In these contexts, introducing `undefined` is harmless because the enclosing
+ * construct consumes the expression as a truthiness test rather than a value
+ * whose type must remain assignable.
+ */
+function isInBooleanCoercionContext(node: Rule.Node): boolean {
+  let current: Rule.Node | undefined = node;
+
+  while (current?.parent) {
+    const parent = current.parent;
+
+    if (
+      parent.type === 'LogicalExpression' &&
+      (parent.left === current || parent.right === current)
+    ) {
+      current = parent;
+      continue;
+    }
+
+    if (parent.type === 'UnaryExpression' && parent.operator === '!') {
+      return true;
+    }
+
+    return (
+      (parent.type === 'IfStatement' && parent.test === current) ||
+      (parent.type === 'WhileStatement' && parent.test === current) ||
+      (parent.type === 'DoWhileStatement' && parent.test === current) ||
+      (parent.type === 'ForStatement' && parent.test === current) ||
+      (parent.type === 'ConditionalExpression' && parent.test === current)
+    );
+  }
+
+  return false;
+}
+
+/**
  * Sanitized rule 'prefer-optional-chain' from TypeScript ESLint.
  *
  * TypeScript ESLint's rule raises a runtime error if the parser services of the
@@ -222,6 +264,11 @@ export const rule: Rule.RuleModule = {
           const { suggest: _suggest, ...rest } = descriptor;
           ctx.report({ ...rest, fix: suggestFix } as Rule.ReportDescriptor);
         }
+        return;
+      }
+
+      if (isInBooleanCoercionContext(node)) {
+        ctx.report(descriptor);
         return;
       }
 
