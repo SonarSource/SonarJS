@@ -251,10 +251,10 @@ function callsWritingFunction(
 
 /**
  * Checks whether the flagged non-file-scope symbol may be modified through
- * the side effects of a function that is directly called in the loop body
- * or loop condition.
+ * the side effects of a function that is directly called in the loop body,
+ * loop condition, or loop update expression.
  *
- * Narrow check: the specific function called in the loop (body or condition)
+ * Narrow check: the specific function called in the loop (body, condition, or update)
  * must be the same function that contains a write reference to the flagged
  * symbol. This avoids broad suppressions that would cause false negatives.
  */
@@ -268,8 +268,8 @@ function isSymbolWrittenByCalledFunction(
     return false;
   }
 
-  // Collect nodes to walk: loop body and loop test condition.
-  // Function calls in either location can modify closure variables as side effects.
+  // Collect nodes to walk: loop body, loop test condition, and for-loop update expression.
+  // Function calls in any of these locations can modify closure variables as side effects.
   const nodesToWalk: estree.Node[] = [];
   const body = getLoopBody(loop);
   if (body) {
@@ -280,6 +280,11 @@ function isSymbolWrittenByCalledFunction(
   const test = (loop as estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement).test;
   if (test) {
     nodesToWalk.push(test);
+  }
+  // Also check the for-loop update expression - e.g. `for (; token !== null; readToken())`
+  const update = (loop as estree.ForStatement).update;
+  if (update) {
+    nodesToWalk.push(update);
   }
 
   if (nodesToWalk.length === 0) {

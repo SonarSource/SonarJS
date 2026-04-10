@@ -87,6 +87,31 @@ function commitRoot() {
     });
   });
 
+  it('should not raise when closure variable is modified by a function called in the for-loop update expression', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run(RULE_NAME, rule, {
+      valid: [
+        {
+          // token is a closure variable; readToken() writes to token and is called in the for-loop update
+          code: `
+function tokenize(source) {
+  var token = null;
+  var pos = 0;
+  var readToken = function () {
+    token = pos < source.length ? source[pos++] : null;
+  };
+  readToken();
+  for (; token !== null; readToken()) {
+    processToken(token);
+  }
+}
+          `,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('should not raise when closure variable is modified by a function called in the loop condition', () => {
     const ruleTester = new DefaultParserRuleTester();
     ruleTester.run(RULE_NAME, rule, {
