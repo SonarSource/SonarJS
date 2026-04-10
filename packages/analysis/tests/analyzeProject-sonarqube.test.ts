@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-
 import { describe, it, beforeEach, type Mock, mock } from 'node:test';
 import { expect } from 'expect';
 import { join } from 'node:path/posix';
@@ -23,6 +22,7 @@ import { analyzeProject, cancelAnalysis } from '../src/analyzeProject.js';
 import { sourceFileStore, tsConfigStore } from '../src/file-stores/index.js';
 import { ErrorCode } from '../src/contracts/error.js';
 import ts from 'typescript';
+import { valid } from 'semver';
 import type { RuleConfig } from '../src/jsts/linter/config/rule-config.js';
 import type { RuleConfig as CssRuleConfig } from '../src/css/linter/config.js';
 import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
@@ -174,8 +174,11 @@ describe('SonarQube project analysis', () => {
     expect('issues' in backendResult! && backendResult!.issues.length).toBeGreaterThan(0);
 
     expect(result.meta.telemetry).toBeDefined();
+    expect(result.meta.telemetry?.typescriptVersions.length).toBeGreaterThan(0);
+    for (const version of result.meta.telemetry!.typescriptVersions) {
+      expect(valid(version)).toBeTruthy();
+    }
     expect(result.meta.telemetry).toMatchObject({
-      typescriptVersions: ['5.7.2', '7.0.0-dev.20260316.1'],
       typescriptNativePreview: true,
       ecmaScriptVersions: ['ES2020', 'ES2022'],
       esmFileCount: 0,

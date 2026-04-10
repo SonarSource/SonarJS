@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -43,6 +43,38 @@ const sqlQuerySignatures = new Set([
   'sqlite3.Database.exec',
   'better-sqlite3.exec',
   'better-sqlite3.prepare',
+  'mssql.ConnectionPool.query',
+  'mssql.Request.query',
+  'mssql.Request.batch',
+  'mssql.Request.execute',
+  'mysql2.createConnection.execute',
+  'oracledb.getConnection.execute',
+  'oracledb.getConnection.executeMany',
+  'oracledb.getConnection.queryStream',
+  'pg-promise.any',
+  'pg-promise.each',
+  'pg-promise.func',
+  'pg-promise.many',
+  'pg-promise.manyOrNone',
+  'pg-promise.map',
+  'pg-promise.multi',
+  'pg-promise.multiResult',
+  'pg-promise.none',
+  'pg-promise.one',
+  'pg-promise.oneOrNone',
+  'pg-promise.proc',
+  'pg-promise.query',
+  'pg-promise.result',
+  'knex.raw',
+  'knex.whereRaw',
+  'knex.havingRaw',
+  'knex.groupByRaw',
+  'knex.orderByRaw',
+  'knex.joinRaw',
+  'typeorm.createConnection.query',
+  'typeorm.getConnection.query',
+  'typeorm.getManager.query',
+  'typeorm.getRepository.query',
 ]);
 
 type Argument = estree.Expression | estree.SpreadElement;

@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,6 +23,7 @@ describe('S3699', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     const FUNCTION_NO_RETURN = 'function noReturn() { }\n ';
+    const FUNCTION_NO_RETURN_WITH_BODY = 'function noReturn() { 1; }\n ';
 
     ruleTester.run('no-use-of-empty-return-value', rule, {
       valid: [
@@ -53,6 +54,18 @@ describe('S3699', () => {
         { code: 'function* noReturn() { yield 1; } noReturn().next();' },
         { code: 'function* noReturn() { yield 1; } noReturn();' },
         { code: 'declare function withReturn(): number; let x = withReturn();' },
+        // sequence as ExpressionStatement: void call is last but no value is consumed
+        { code: FUNCTION_NO_RETURN_WITH_BODY + '(doSomething(), noReturn());' },
+        // sequence in ternary alternate used as statement
+        { code: FUNCTION_NO_RETURN_WITH_BODY + 'cond ? (x = 5) : (x = 0, noReturn());' },
+        // sequence in ternary consequent used as statement
+        {
+          code: FUNCTION_NO_RETURN_WITH_BODY + 'cond ? (doSomething(), noReturn()) : (x = false);',
+        },
+        // sequence as right-hand side of || used as statement
+        { code: FUNCTION_NO_RETURN_WITH_BODY + 'cond || (doSomething(), noReturn());' },
+        // sequence as right-hand side of && used as statement
+        { code: FUNCTION_NO_RETURN_WITH_BODY + 'cond && (doSomething(), noReturn());' },
       ],
       invalid: [
         invalidPrefixWithFunction('console.log(noReturn());'),
@@ -74,6 +87,8 @@ describe('S3699', () => {
         invalid('declare function noReturn(): never; let x = noReturn();'),
         invalid('declare function noReturn(): void; let x = noReturn();'),
         invalid('declare function noReturn(): undefined; let x = noReturn();'),
+        // sequence return value IS consumed: void call is last, but sequence is assigned
+        invalidPrefixWithFunction('let x = (doSomething(), noReturn());'),
       ],
     });
   });
