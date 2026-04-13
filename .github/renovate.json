@@ -61,5 +61,6 @@
     }
   ],
   "autoApprove": true,
+  "prCreation": "immediate",
   "rebaseWhen": "never"
 }
