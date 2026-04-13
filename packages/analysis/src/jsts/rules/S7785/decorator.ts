@@ -22,7 +22,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getImportDeclarations, isESModule } from '../helpers/module.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { getTypeFromTreeNode, isAny, typeHasMethod } from '../helpers/type.js';
+import { getTypeFromTreeNode, isAny, isThenable, typeHasMethod } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 // Packages whose fluent APIs use method names that overlap with Promise (e.g. .catch())
@@ -62,7 +62,7 @@ function isFromAllowedImport(root: estree.Identifier, context: Rule.RuleContext)
  * Decorates the unicorn/prefer-top-level-await rule to:
  * 1. Skip CommonJS files (top-level await is not available in CJS).
  * 2. Suppress false positives for synchronous fluent APIs (e.g. Zod's .catch())
- *    that share method names with the Promise API.
+ *    that share method names with the Promise API but cannot be awaited.
  *
  * Two modes are used to suppress 'promise' reports:
  * - Type-checker mode: suppresses if the receiver's static type is not PromiseLike/Promise.
@@ -83,6 +83,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         context.report(descriptor);
         return;
       }
+
       const methodNode = descriptor.node as estree.Identifier;
       const methodName = methodNode.name; // 'then', 'catch', or 'finally'
       const memberExpr = (methodNode as Rule.Node).parent;
@@ -91,9 +92,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         context.report(descriptor);
         return;
       }
-      const receiver = memberExpr.object;
 
+      const receiver = memberExpr.object;
       const services = context.sourceCode.parserServices;
+
       if (isRequiredParserServices(services)) {
         // Type-checker mode: use structural assignability to PromiseLike / Promise.
         const type = getTypeFromTreeNode(receiver, services);
@@ -102,12 +104,16 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
           context.report(descriptor);
           return;
         }
-        // PromiseLike<T> defines .then(); Promise<T> additionally defines .catch()/.finally().
-        const isPromiseLike = typeHasMethod(receiver, 'then', services);
-        const isPromise = isPromiseLike && typeHasMethod(receiver, 'catch', services);
-        if (methodName === 'then' ? isPromiseLike : isPromise) {
+
+        // Thenable types can be awaited. For `catch`/`finally`, also require
+        // that the reported method exists on the receiver type.
+        const isThenableType = isThenable(receiver, services);
+        const supportsReportedMethod =
+          methodName === 'then' || typeHasMethod(receiver, methodName, services);
+        if (isThenableType && supportsReportedMethod) {
           context.report(descriptor);
         }
+
         // Suppress otherwise (e.g. ZodString, unknown).
       } else {
         // Fallback mode: import-based heuristic when no type information is available.
@@ -115,6 +121,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         if (root.type !== 'Identifier' || !isFromAllowedImport(root, context)) {
           context.report(descriptor);
         }
+
         // Suppress if root is statically imported from an allowed package (e.g. 'zod').
       }
     },
