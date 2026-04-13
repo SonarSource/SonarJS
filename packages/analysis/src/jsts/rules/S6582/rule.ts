@@ -27,6 +27,18 @@ import * as meta from './generated-meta.js';
  * Original rule 'prefer-optional-chain' from TypeScript ESLint.
  */
 const preferOptionalChainRule = tsEslintRules['prefer-optional-chain'];
+const BOOLEAN_COMPARISON_OPERATORS = new Set([
+  '==',
+  '!=',
+  '===',
+  '!==',
+  '<',
+  '>',
+  '<=',
+  '>=',
+  'instanceof',
+  'in',
+]);
 
 /**
  * Matches negated access guards that stay boolean after optional chaining.
@@ -45,6 +57,77 @@ function isNegatedOptionalChainGuard(node: Rule.Node) {
     node.right.type === 'UnaryExpression' &&
     node.right.operator === '!'
   );
+}
+
+/**
+ * Matches guards where optional chaining feeds a comparison operator.
+ *
+ * Pseudo code:
+ * if (value && value.kind === 160) {}
+ * return !options || options.mode !== current.mode;
+ *
+ * The comparison operator determines the final value. Rewriting to
+ * `value?.kind === 160` or `options?.mode !== current.mode` still yields
+ * a boolean, so `undefined` never escapes the comparison.
+ */
+function isComparisonOptionalChainGuard(node: Rule.Node): boolean {
+  return (
+    node.type === 'LogicalExpression' &&
+    node.right.type === 'BinaryExpression' &&
+    BOOLEAN_COMPARISON_OPERATORS.has(node.right.operator)
+  );
+}
+
+/**
+ * Tells whether the optional-chain rewrite is guaranteed to produce boolean.
+ *
+ * "Boolean by construction" means the enclosing operator, not the operand type,
+ * determines the final type:
+ * - `!value` is always boolean
+ * - `left === right`, `left != right`, `left < right`, etc. are always boolean
+ *
+ * In these patterns, optional chaining may change an inner operand to include
+ * `undefined`, but the outer operator still consumes that operand and returns
+ * boolean. No contextual-type check is needed.
+ */
+function isBooleanResultByConstruction(node: Rule.Node): boolean {
+  return isNegatedOptionalChainGuard(node) || isComparisonOptionalChainGuard(node);
+}
+
+/**
+ * Reports `(a && a.prop)` when it is immediately consumed by `||` or `??`.
+ *
+ * Pseudo code:
+ * (repo && repo.name) || fallback
+ * (repo && repo.name) ?? fallback
+ *
+ * The parent operator absorbs the `undefined` introduced by `repo?.name`, so the
+ * rewrite is safe. Returns `true` when the node matches this pattern and has been
+ * reported, `false` otherwise.
+ */
+function reportIfFallbackConsumesUndefined(
+  node: Rule.Node,
+  ctx: Rule.RuleContext,
+  descriptor: Rule.ReportDescriptor,
+): boolean {
+  const parent = node.parent;
+  if (
+    parent?.type !== 'LogicalExpression' ||
+    (parent.operator !== '||' && parent.operator !== '??') ||
+    parent.left !== node
+  ) {
+    return false;
+  }
+
+  const suggestFix = descriptor.suggest?.[0]?.fix;
+  if (suggestFix == null) {
+    ctx.report(descriptor);
+    return true;
+  }
+
+  const { suggest: _suggest, ...rest } = descriptor;
+  ctx.report({ ...rest, fix: suggestFix } as Rule.ReportDescriptor);
+  return true;
 }
 
 /**
@@ -222,54 +305,22 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      // Negation patterns (!a || !a.prop): the ! operator always returns boolean,
-      // so optional chaining (!a?.prop) is always type-safe regardless of context.
-      // Both sides must be negated — !a || (comparison) is not a negation pattern
-      // and should fall through to the contextual type check.
-      if (isNegatedOptionalChainGuard(node)) {
+      // Negation and comparison operators determine the outer expression type.
+      // Even if optional chaining introduces `undefined` in an operand, `!`, `===`,
+      // `!==`, `<`, `in`, etc. still evaluate to a boolean result.
+      if (isBooleanResultByConstruction(node)) {
         ctx.report(descriptor);
         return;
       }
 
-      // Comparison patterns (e.g. !a || a.prop !== b): the comparison operator always
-      // returns boolean, so the optional-chain rewrite (a?.prop !== b) is also boolean —
-      // no undefined leaks into the surrounding type regardless of context.
-      if (
-        node.type === 'LogicalExpression' &&
-        node.right.type === 'BinaryExpression' &&
-        ['==', '!=', '===', '!==', '<', '>', '<=', '>=', 'instanceof', 'in'].includes(
-          node.right.operator,
-        )
-      ) {
-        ctx.report(descriptor);
+      // Fallback operators are safe without contextual typing because `||` / `??`
+      // absorb the `undefined` introduced by optional chaining.
+      if (reportIfFallbackConsumesUndefined(node, ctx, descriptor)) {
         return;
       }
 
-      // Left-operand-of-|| or left-operand-of-?? pattern:
-      // When (a && a.prop) is the left operand of || or ??, the enclosing operator
-      // absorbs the undefined introduced by optional chaining, making the rewrite
-      // type-safe. E.g. (repo && repo.name) || fallback → repo?.name || fallback
-      // preserves the overall type because || and ?? provide a fallback for undefined.
-      const parent = node.parent;
-      if (
-        parent?.type === 'LogicalExpression' &&
-        (parent.operator === '||' || parent.operator === '??') &&
-        parent.left === node
-      ) {
-        // The upstream rule may emit the fix as a suggestion (not autofix) when the
-        // operands don't include undefined, because optional chaining would change the
-        // type from T|null to T|undefined in isolation. Since the enclosing ||/??
-        // absorbs any undefined the rewrite introduces, the fix is safe as an autofix.
-        const suggestFix = descriptor.suggest?.[0]?.fix;
-        if (suggestFix == null) {
-          ctx.report(descriptor);
-        } else {
-          const { suggest: _suggest, ...rest } = descriptor;
-          ctx.report({ ...rest, fix: suggestFix } as Rule.ReportDescriptor);
-        }
-        return;
-      }
-
+      // Pure boolean-coercion contexts are safe without contextual typing because
+      // the enclosing construct consumes truthiness rather than a typed value.
       if (isInBooleanCoercionContext(node)) {
         ctx.report(descriptor);
         return;
@@ -277,16 +328,17 @@ export const rule: Rule.RuleModule = {
 
       const contextualType = getContextualTypeOfNode(services, checker, node);
       if (!contextualType) {
-        // No contextual type (e.g. if/while boolean context) — replacement is safe
+        // If no contextual type is imposed, the rewrite cannot violate assignability.
         ctx.report(descriptor);
         return;
       }
 
       if (allowsUndefined(contextualType)) {
-        // undefined is assignable to the contextual type — replacement is type-safe
+        // If the contextual type accepts `undefined`, the rewrite remains assignable.
         ctx.report(descriptor);
       }
-      // undefined is NOT assignable to the contextual type — suppress the report
+      // Otherwise optional chaining would introduce an unassignable `undefined`,
+      // so this report is suppressed as a false positive.
     }).create(context);
   },
 };
