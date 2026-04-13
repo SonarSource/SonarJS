@@ -32,9 +32,10 @@ runs:
         restore-keys: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
 
     # Full cache on default branch (save enabled) - uses run_id for rolling cache
-    - name: Cache Orchestrator (default branch)
+    - name: Restore Orchestrator cache (default branch)
       if: github.ref_name == github.event.repository.default_branch && inputs.save == 'true'
-      uses: SonarSource/gh-action_cache@v1
+      uses: actions/cache/restore@v5
+      id: orchestrator-cache
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}
         key: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-${{ github.run_id }}
@@ -43,3 +44,10 @@ runs:
     - name: Setup Orchestrator home directory
       shell: bash
       run: mkdir -p "$ORCHESTRATOR_HOME"
+
+    - name: Save Orchestrator cache (default branch)
+      if: github.ref_name == github.event.repository.default_branch && inputs.save == 'true' && steps.orchestrator-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v5
+      with:
+        path: ${{ env.ORCHESTRATOR_HOME }}
+        key: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-${{ github.run_id }}
