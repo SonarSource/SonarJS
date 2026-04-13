@@ -31,6 +31,27 @@
       "groupName": null
     },
     {
+      "description": "Group Babel suite updates",
+      "matchManagers": ["npm"],
+      "matchSourceUrls": ["https://github.com/babel/babel"],
+      "groupName": "babel monorepo",
+      "groupSlug": "babel-monorepo"
+    },
+    {
+      "description": "Group DefinitelyTyped suite updates",
+      "matchManagers": ["npm"],
+      "matchSourceUrls": ["https://github.com/DefinitelyTyped/DefinitelyTyped"],
+      "groupName": "DefinitelyTyped monorepo",
+      "groupSlug": "definitelytyped-monorepo"
+    },
+    {
+      "description": "Group protobuf.js suite updates",
+      "matchManagers": ["npm"],
+      "matchSourceUrls": ["https://github.com/protobufjs/protobuf.js"],
+      "groupName": "protobuf.js monorepo",
+      "groupSlug": "protobufjs-monorepo"
+    },
+    {
       "description": "Group TypeScript ESLint suite updates",
       "matchManagers": ["npm"],
       "matchSourceUrls": ["https://github.com/typescript-eslint/typescript-eslint"],
