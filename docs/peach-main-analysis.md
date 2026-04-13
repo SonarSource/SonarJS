@@ -383,6 +383,52 @@ INFO  EXECUTION FAILURE
 
 ---
 
+### IGNORE: Scanner Bootstrap / Plugin Download Timeout
+
+**Verdict:** IGNORE — the scanner timed out while provisioning its engine or downloading plugins
+from Peach; the analyzer never started.
+
+**How to identify:**
+- Failure occurs during the `Analyze project` step
+- No `Sensor ...` line appears before the stack trace, so no analyzer sensor owned the failure
+- Error message contains one of:
+  - `Fail to download plugin [javascript]`
+  - `Call to URL [https://peach.sonarsource.com/api/v2/analysis/engine] failed`
+  - `ScannerEngineLauncherFactory` or `PluginFiles.downloadBinaryTo`
+  - `SocketTimeoutException: timeout`, `Connection timed out`, or `failed: closed`
+- Scanner exits with code 1 or 3
+- No `org.sonar.plugins.javascript` frame is present from the plugin itself; the failure is in
+  scanner bootstrap / download code, not a SonarJS sensor
+
+**Detection patterns:**
+- Phase 1: `/Process completed with exit code/` — exit code 1 or 3 inside `Analyze project`
+- Phase 2/3: no `/Sensor /` match before the stack trace, plus bootstrap markers such as
+  `/Fail to download plugin \[javascript\]/`, `/api\/v2\/analysis\/engine/`,
+  `/ScannerEngineLauncherFactory/`, or `/PluginFiles\.downloadBinaryTo/`
+
+**Example log excerpt (`strapi`, 2026-04-13):**
+```
+ERROR Error during SonarScanner Engine execution
+java.lang.IllegalStateException: Fail to download plugin [javascript] into ...
+Caused by: java.net.SocketTimeoutException: timeout
+INFO  EXECUTION FAILURE
+##[error]Process completed with exit code 3.
+```
+
+**Example log excerpt (`open-lovable`, 2026-04-13):**
+```
+ERROR Error during SonarScanner CLI execution
+java.lang.IllegalStateException: Call to URL [https://peach.sonarsource.com/api/v2/analysis/engine] failed: closed
+Caused by: java.io.IOException: Connection timed out
+##[error]Process completed with exit code 1.
+```
+
+**Action:** None for the SonarJS team. Re-run the workflow if needed; if this pattern becomes
+frequent, treat it as Peach / scanner bootstrap infrastructure noise rather than an analyzer
+regression.
+
+---
+
 ### IGNORE: Artifact Expired
 
 **Verdict:** IGNORE — the SonarJS JAR artifact used by the workflow has expired; the analyzer never ran.
@@ -438,6 +484,8 @@ sed --sandbox -n '
 /OutOfMemoryError/p                    # OOM / Runner Killed
 /502 Bad Gateway/p                     # Peach Server Unreachable (502)
 /503 Service Unavailable/p             # Peach Server Unreachable (503)
+/Fail to download plugin \[javascript\]/p  # Scanner Bootstrap / Plugin Download Timeout
+/api\/v2\/analysis\/engine/p          # Scanner Bootstrap / Plugin Download Timeout
 /Artifact has expired/p                # Artifact Expired
 /All 3 attempts failed/p               # Git Clone / Network Timeout
 /ERR_PNPM/p                            # Dependency Install Failure (pnpm)
