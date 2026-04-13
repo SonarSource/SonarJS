@@ -31,6 +31,13 @@
       "groupName": null
     },
     {
+      "description": "Group TypeScript ESLint suite updates",
+      "matchManagers": ["npm"],
+      "matchSourceUrls": ["https://github.com/typescript-eslint/typescript-eslint"],
+      "groupName": "typescript-eslint monorepo",
+      "groupSlug": "typescript-eslint-monorepo"
+    },
+    {
       "matchManagers": ["github-actions"],
       "pinDigests": false,
       "groupName": "all github actions",
