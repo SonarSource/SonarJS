@@ -110,9 +110,6 @@
 "desktop:app/src/lib/stores/helpers/create-tutorial-repository.ts": [
 44
 ],
-"desktop:app/src/lib/stores/helpers/tutorial-assessor.ts": [
-112
-],
 "desktop:app/src/lib/stores/issues-store.ts": [
 54
 ],
@@ -259,8 +256,7 @@
 314
 ],
 "desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
-329,
-330
+329
 ],
 "desktop:script/changelog/parser.ts": [
 21,

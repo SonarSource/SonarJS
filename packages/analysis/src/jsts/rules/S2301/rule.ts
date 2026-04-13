@@ -170,9 +170,19 @@ export const rule: Rule.RuleModule = {
 function isCallbackArgument(
   node: (ArrowFunctionExpression | FunctionExpression) & Rule.NodeParentExtension,
 ) {
+  // Check if the function is assigned to an event handler property (e.g. onChange, onFinish)
+  const isEventHandlerProperty =
+    node.parent.type === 'Property' &&
+    !node.parent.computed &&
+    (node.parent.key.type === 'Identifier' || node.parent.key.type === 'Literal') &&
+    /^on[A-Z]/.test(
+      node.parent.key.type === 'Identifier' ? node.parent.key.name : String(node.parent.key.value),
+    );
+
   return (
     (node.parent.type === 'CallExpression' && node.parent.arguments.includes(node)) ||
-    node.parent.type === 'JSXExpressionContainer'
+    node.parent.type === 'JSXExpressionContainer' ||
+    isEventHandlerProperty
   );
 }
 
