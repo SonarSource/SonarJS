@@ -74,10 +74,11 @@ function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescr
 
 /**
  * Returns true if the callee accepts more than one argument — either via a rest
- * parameter or multiple parameters — or if type resolution is incomplete (empty
- * signatures). When signatures are unresolved, we fall back to reporting to
- * preserve the upstream behavior and avoid false negatives. Only suppress when
- * type resolution *proves* the callee accepts at most one argument.
+ * parameter or multiple parameters. Returns false when the callee type is `any`
+ * (unknown type — prefer no issue over false positive) or when type resolution
+ * confirms the callee accepts at most one argument. For other unresolved cases
+ * (empty signatures but non-any type), falls back to reporting to avoid false
+ * negatives on genuine combinable patterns.
  */
 function calleeAcceptsMultipleArguments(
   callee: TSESTree.Node,
@@ -85,8 +86,14 @@ function calleeAcceptsMultipleArguments(
 ): boolean {
   const calleeNode = callee as estree.Node;
   const calleeType = getTypeFromTreeNode(calleeNode, services);
+  // If the callee type is 'any', type information is unavailable.
+  // Per "prefer no issue over false positive", suppress the report.
+  if (calleeType.flags & ts.TypeFlags.Any) {
+    return false;
+  }
   const signatures = calleeType.getCallSignatures();
-  // If signatures are unresolved, fall back to reporting (conservative, same as no-type mode)
+  // If signatures are unresolved (but type is not 'any'), fall back to reporting
+  // to preserve upstream behavior and avoid false negatives.
   if (signatures.length === 0) {
     return true;
   }

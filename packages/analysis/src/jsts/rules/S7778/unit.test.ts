@@ -90,11 +90,34 @@ el.classList.remove('inactive'); // Compliant: not a DOMTokenList
         },
         {
           // importScripts declared with zero parameters → calleeAcceptsMultipleArguments returns false → suppressed
-          // Covers the CallExpression parent path (lines 63-64) and the zero-params early return (line 90)
+          // Covers the CallExpression parent path and the zero-params early return in calleeAcceptsMultipleArguments
           code: `
 declare function importScripts(): void;
 importScripts();
 importScripts();
+`,
+        },
+        {
+          // Callee type is 'any' (explicitly typed receiver) — type info is unavailable.
+          // Per "prefer no issue over false positive", suppress when type is unknown.
+          code: `
+const unknownObj: any = {};
+unknownObj.push(1);
+unknownObj.push(2);
+`,
+        },
+        {
+          // Callee type is 'any' (implicit any from 'let history;' without annotation).
+          // GameStateHistory.push() accepts only one argument, so combining would be wrong.
+          // TypeScript infers 'any' for unannotated 'let' variables, so we suppress to avoid FP.
+          code: `
+class GameStateHistory {
+  push(state: object): void {}
+}
+let history;
+history = new GameStateHistory();
+history.push({ id: 1 });
+history.push({ id: 2 });
 `,
         },
       ],
@@ -163,42 +186,6 @@ class CustomPusher {
 }
 const pusher = new CustomPusher();
 pusher.push(1, 2);
-`,
-          errors: 1,
-        },
-        {
-          // Regression test: TypeScript services available but callee signature is unresolved (any-typed receiver).
-          // getCallSignatures() returns [] → fallback to reporting (conservative, same as no-type mode).
-          code: `
-const unknownObj: any = {};
-unknownObj.push(1);
-unknownObj.push(2);
-`,
-          output: `
-const unknownObj: any = {};
-unknownObj.push(1, 2);
-`,
-          errors: 1,
-        },
-        {
-          // Regression test: TypeScript services available but callee is unresolved because receiver has implicit 'any'.
-          // 'let history;' gives implicit 'any', so getCallSignatures() returns [] → fall back to reporting.
-          code: `
-class GameStateHistory {
-  push(state: object): void {}
-}
-let history;
-history = new GameStateHistory();
-history.push({ id: 1 });
-history.push({ id: 2 });
-`,
-          output: `
-class GameStateHistory {
-  push(state: object): void {}
-}
-let history;
-history = new GameStateHistory();
-history.push({ id: 1 }, { id: 2 });
 `,
           errors: 1,
         },
