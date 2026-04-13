@@ -18,11 +18,11 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getImportDeclarations, isESModule } from '../helpers/module.js';
-import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
-import { getTypeFromTreeNode, isAny, isThenable, typeHasMethod } from '../helpers/type.js';
+import { getTypeFromTreeNode, isAny, isThenable } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 // Packages whose fluent APIs use method names that overlap with Promise (e.g. .catch())
@@ -85,7 +85,6 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
 
       const methodNode = descriptor.node as estree.Identifier;
-      const methodName = methodNode.name; // 'then', 'catch', or 'finally'
       const memberExpr = (methodNode as Rule.Node).parent;
 
       if (memberExpr?.type !== 'MemberExpression') {
@@ -105,12 +104,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
           return;
         }
 
-        // Thenable types can be awaited. For `catch`/`finally`, also require
-        // that the reported method exists on the receiver type.
-        const isThenableType = isThenable(receiver, services);
-        const supportsReportedMethod =
-          methodName === 'then' || typeHasMethod(receiver, methodName, services);
-        if (isThenableType && supportsReportedMethod) {
+        // if we reach this line, then the receiver is being called with 'then', 'catch', or 'finally'
+        // in all cases, we want to ensure that the receiver is awaitable, i.e. that it's thenable
+        // if not, the receiver type only defines `catch` or `finally` without being awaitable and we can suppress the warning.
+        if (isThenable(receiver, services)) {
           context.report(descriptor);
         }
 
