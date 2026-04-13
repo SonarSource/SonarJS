@@ -10,16 +10,12 @@
 41
 ],
 "TypeScript:scripts/ior.ts": [
-14,
 54
 ],
 "TypeScript:scripts/processDiagnosticMessages.ts": [
-23,
-155,
-207
+23
 ],
 "TypeScript:scripts/word2md.ts": [
-10,
 246,
 281,
 289,
