@@ -15,11 +15,31 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { rules as unicornRules } from '../external/unicorn.js';
 import {
   NoTypeCheckingRuleTester,
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+
+// Sentinel: verify that the upstream unicorn rule still raises on the Zod .catch() patterns our
+// decorator suppresses. If this test starts failing, it signals that the decorator can be removed.
+describe('S7785 upstream sentinel', () => {
+  it('upstream prefer-top-level-await raises on Zod .catch() pattern that decorator suppresses', () => {
+    const sentinelTester = new NoTypeCheckingRuleTester();
+    sentinelTester.run('prefer-top-level-await', unicornRules['prefer-top-level-await'], {
+      valid: [],
+      invalid: [
+        {
+          // Zod string schema .catch() — suppressed by decorator, raised by upstream
+          code: `import { z } from 'zod';
+                 const nameSchema = z.string().optional().catch('');`,
+          errors: [{ messageId: 'promise' }],
+        },
+      ],
+    });
+  });
+});
 
 describe('S7785', () => {
   it('should skip CommonJS files (sourceType: script)', () => {
