@@ -119,6 +119,13 @@ function reportIfFallbackConsumesUndefined(
     return false;
   }
 
+  // Upstream `prefer-optional-chain` emits only a suggestion when `?.` may union
+  // `undefined` into the result type; see `analyzeChain.ts`, where
+  // `useSuggestionFixer = true` is the defensive default and the TODO explicitly
+  // calls out missing context-sensitive checks for safe sites such as conditionals.
+  // In `(a && a.b) || fallback` / `(a && a.b) ?? fallback`, we have that missing
+  // context: the parent fallback operator immediately consumes the introduced
+  // `undefined`, so we can safely promote the upstream suggestion to a fix.
   const suggestFix = descriptor.suggest?.[0]?.fix;
   if (suggestFix == null) {
     ctx.report(descriptor);
