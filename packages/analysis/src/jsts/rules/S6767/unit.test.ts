@@ -39,9 +39,8 @@ const ownerLookupRule: Rule.RuleModule = {
           return;
         }
 
-        const ownerName = getComponentIdentifierFromNode(
-          findOwningComponentNode(node as unknown as estree.Node, context),
-        );
+        const ownerNode = findOwningComponentNode(node as unknown as estree.Node, context);
+        const ownerName = ownerNode ? getComponentIdentifierFromNode(ownerNode) : null;
 
         if (ownerName) {
           context.report({
