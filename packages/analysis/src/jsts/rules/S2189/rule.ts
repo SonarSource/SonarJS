@@ -135,21 +135,19 @@ function isWrittenInsideFunction(symbol: Scope.Variable): boolean {
 }
 
 /**
- * Checks if any function is called within the loop body.
+ * Walks a set of root nodes without descending into nested function scopes,
+ * and returns true if the given predicate matches any CallExpression found.
  */
-function hasFunctionCallInLoop(loop: estree.Node, context: Rule.RuleContext): boolean {
-  let hasCall = false;
-
+function walkLoopNodes(
+  roots: estree.Node[],
+  predicate: (callExpr: estree.CallExpression) => boolean,
+  context: Rule.RuleContext,
+): boolean {
+  let found = false;
   const visitNode = (node: estree.Node) => {
-    if (hasCall) {
+    if (found) {
       return;
     }
-
-    if (node.type === 'CallExpression') {
-      hasCall = true;
-      return;
-    }
-
     // Don't traverse into nested functions
     if (
       node.type === 'FunctionExpression' ||
@@ -158,18 +156,146 @@ function hasFunctionCallInLoop(loop: estree.Node, context: Rule.RuleContext): bo
     ) {
       return;
     }
-
+    if (node.type === 'CallExpression' && predicate(node as estree.CallExpression)) {
+      found = true;
+      return;
+    }
     for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
       visitNode(child);
     }
   };
+  for (const root of roots) {
+    visitNode(root);
+    if (found) {
+      break;
+    }
+  }
+  return found;
+}
 
+/**
+ * Checks if any function is called within the loop body.
+ */
+function hasFunctionCallInLoop(loop: estree.Node, context: Rule.RuleContext): boolean {
   const body = getLoopBody(loop);
-  if (body) {
-    visitNode(body);
+  if (!body) {
+    return false;
+  }
+  return walkLoopNodes([body], () => true, context);
+}
+
+/**
+ * Collects all function AST nodes that contain a write reference to the given symbol.
+ */
+function getWritingFunctions(symbol: Scope.Variable): Set<TSESTree.Node> {
+  const writingFunctions = new Set<TSESTree.Node>();
+  for (const reference of symbol.references) {
+    if (reference.isWrite()) {
+      const enclosingFunction = findFirstMatchingAncestor(
+        reference.identifier as TSESTree.Node,
+        n => functionLike.has(n.type),
+      );
+      if (enclosingFunction) {
+        writingFunctions.add(enclosingFunction);
+      }
+    }
+  }
+  return writingFunctions;
+}
+
+/**
+ * Extracts the function AST node from a variable definition, if it represents a function.
+ */
+function getFunctionNodeFromDef(def: Scope.Definition): TSESTree.Node | null {
+  if (def.type === 'FunctionName') {
+    return def.node as unknown as TSESTree.Node;
+  }
+  if (def.type === 'Variable') {
+    const declarator = def.node as unknown as TSESTree.VariableDeclarator;
+    if (
+      declarator.init?.type === 'FunctionExpression' ||
+      declarator.init?.type === 'ArrowFunctionExpression'
+    ) {
+      return declarator.init;
+    }
+  }
+  return null;
+}
+
+/**
+ * Checks whether the given call expression calls a function that is in the set of writing functions.
+ */
+function callsWritingFunction(
+  callExpr: estree.CallExpression,
+  writingFunctions: Set<TSESTree.Node>,
+  context: Rule.RuleContext,
+): boolean {
+  const callee = callExpr.callee;
+  if (callee.type !== 'Identifier') {
+    return false;
+  }
+  const calleeVar = context.sourceCode
+    .getScope(callee)
+    .references.find(r => r.identifier === callee)?.resolved;
+  if (!calleeVar) {
+    return false;
+  }
+  for (const def of calleeVar.defs) {
+    const functionNode = getFunctionNodeFromDef(def);
+    if (functionNode && writingFunctions.has(functionNode)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Checks whether the flagged non-file-scope symbol may be modified through
+ * the side effects of a function that is directly called in the loop body,
+ * loop condition, or loop update expression.
+ *
+ * Narrow check: the specific function called in the loop (body, condition, or update)
+ * must be the same function that contains a write reference to the flagged
+ * symbol. This avoids broad suppressions that would cause false negatives.
+ */
+function isSymbolWrittenByCalledFunction(
+  symbol: Scope.Variable,
+  loop: estree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  const writingFunctions = getWritingFunctions(symbol);
+  if (writingFunctions.size === 0) {
+    return false;
   }
 
-  return hasCall;
+  // Collect nodes to walk: loop body, loop test condition, and for-loop update expression.
+  // Function calls in any of these locations can modify closure variables as side effects.
+  const nodesToWalk: estree.Node[] = [];
+  const body = getLoopBody(loop);
+  if (body) {
+    nodesToWalk.push(body);
+  }
+  // Also check the loop condition (test) - function calls there can also modify variables
+  // e.g. `while (next() && ch >= '0' && ch <= '9')` where next() sets ch
+  const test = (loop as estree.WhileStatement | estree.DoWhileStatement | estree.ForStatement).test;
+  if (test) {
+    nodesToWalk.push(test);
+  }
+  // Also check the for-loop update expression - e.g. `for (; token !== null; readToken())`
+  const update = (loop as estree.ForStatement).update;
+  if (update) {
+    nodesToWalk.push(update);
+  }
+
+  if (nodesToWalk.length === 0) {
+    return false;
+  }
+
+  return walkLoopNodes(
+    nodesToWalk,
+    callExpr => callsWritingFunction(callExpr, writingFunctions, context),
+    context,
+  );
 }
 
 /**
@@ -267,9 +393,14 @@ export const rule: Rule.RuleModule = {
         }
       }
 
-      // Only filter file-scope variables; local variables should always be reported
+      // Only filter file-scope variables; local/closure variables should normally be reported
       // (unless the loop has break/return/throw checked above)
       if (!isFileScopeVariable(symbol)) {
+        // Suppress if the symbol is potentially modified via side effects of a function
+        // that is directly called in the loop body (narrow closure-variable exception)
+        if (containingLoop && isSymbolWrittenByCalledFunction(symbol, containingLoop, context)) {
+          return false;
+        }
         return true;
       }
 
