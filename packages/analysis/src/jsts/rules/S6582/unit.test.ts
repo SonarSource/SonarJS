@@ -276,6 +276,36 @@ describe('S6582', () => {
           errors: 1,
         },
         {
+          // boolean context (while-condition): no contextual type — optional chaining is type-safe
+          code: `function f(arr: string[] | null) { while (arr && arr.length) { break; } }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // boolean context (do/while-condition): no contextual type — optional chaining is type-safe
+          code: `function f(arr: string[] | null) { do {} while (arr && arr.length); }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // boolean context (for-condition): no contextual type — optional chaining is type-safe
+          code: `function f(arr: string[] | null) { for (; arr && arr.length; ) { break; } }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // boolean context (ternary test): no contextual type — optional chaining is type-safe
+          code: `function f(arr: string[] | null): number { return arr && arr.length ? 1 : 0; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
+          // boolean context (unary !): truthiness is consumed before the outer expression is typed
+          code: `function f(arr: string[] | null): boolean { return !!(arr && arr.length); }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+          errors: 1,
+        },
+        {
           // negation pattern: ! always returns boolean, so !arr?.length is type-safe even in boolean return context
           code: `function f(arr: string[] | null): boolean { return !arr || !arr.length; }`,
           output: `function f(arr: string[] | null): boolean { return !arr?.length; }`,
