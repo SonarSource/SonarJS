@@ -73,20 +73,6 @@ instance.push(2); // Compliant: not an Array
 `,
         },
         {
-          // Custom class with single-arg push accessed via untyped variable.
-          // 'let history;' has implicit 'any' type, so getCallSignatures() returns [].
-          // some() returns false → suppress to avoid false positives.
-          code: `
-class GameStateHistory {
-  push(state: object): void {}
-}
-let history;
-history = new GameStateHistory();
-history.push({ id: 1 });
-history.push({ id: 2 }); // Compliant: unresolved type, prefer no issue over false positive
-`,
-        },
-        {
           code: `
 class CustomTokenList {
   add(token: string): void {}
@@ -109,16 +95,6 @@ el.classList.remove('inactive'); // Compliant: not a DOMTokenList
 declare function importScripts(): void;
 importScripts();
 importScripts();
-`,
-        },
-        {
-          // TypeScript services available but callee signature is unresolved (any-typed receiver).
-          // getCallSignatures() returns [] → some() returns false → suppress to avoid false positives.
-          // Prefer no issue over false positives when type information is unavailable.
-          code: `
-const unknownObj: any = {};
-unknownObj.push(1);
-unknownObj.push(2);
 `,
         },
       ],
@@ -187,6 +163,42 @@ class CustomPusher {
 }
 const pusher = new CustomPusher();
 pusher.push(1, 2);
+`,
+          errors: 1,
+        },
+        {
+          // Regression test: TypeScript services available but callee signature is unresolved (any-typed receiver).
+          // getCallSignatures() returns [] → fallback to reporting (conservative, same as no-type mode).
+          code: `
+const unknownObj: any = {};
+unknownObj.push(1);
+unknownObj.push(2);
+`,
+          output: `
+const unknownObj: any = {};
+unknownObj.push(1, 2);
+`,
+          errors: 1,
+        },
+        {
+          // Regression test: TypeScript services available but callee is unresolved because receiver has implicit 'any'.
+          // 'let history;' gives implicit 'any', so getCallSignatures() returns [] → fall back to reporting.
+          code: `
+class GameStateHistory {
+  push(state: object): void {}
+}
+let history;
+history = new GameStateHistory();
+history.push({ id: 1 });
+history.push({ id: 2 });
+`,
+          output: `
+class GameStateHistory {
+  push(state: object): void {}
+}
+let history;
+history = new GameStateHistory();
+history.push({ id: 1 }, { id: 2 });
 `,
           errors: 1,
         },
