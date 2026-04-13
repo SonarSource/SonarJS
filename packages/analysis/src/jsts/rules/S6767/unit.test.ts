@@ -16,8 +16,7 @@
  */
 import { rule } from './index.js';
 import { rules } from '../external/react.js';
-import { getNodeParent } from '../helpers/ancestor.js';
-import { findOwningComponentNode } from '../helpers/react.js';
+import { findOwningComponentNode, getComponentIdentifierFromNode } from '../helpers/react.js';
 import {
   NoTypeCheckingRuleTester,
   RuleTester,
@@ -26,25 +25,6 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { describe, it } from 'node:test';
 import path from 'node:path';
-
-function getOwnerName(node: estree.Node | undefined): string | null {
-  if (!node) {
-    return null;
-  }
-
-  if (node.type === 'ClassDeclaration' || node.type === 'FunctionDeclaration') {
-    return node.id?.name ?? null;
-  }
-
-  if (node.type === 'ArrowFunctionExpression' || node.type === 'FunctionExpression') {
-    const parent = getNodeParent(node);
-    if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
-      return parent.id.name;
-    }
-  }
-
-  return null;
-}
 
 const ownerLookupRule: Rule.RuleModule = {
   meta: {
@@ -59,7 +39,7 @@ const ownerLookupRule: Rule.RuleModule = {
           return;
         }
 
-        const ownerName = getOwnerName(
+        const ownerName = getComponentIdentifierFromNode(
           findOwningComponentNode(node as unknown as estree.Node, context),
         );
 
