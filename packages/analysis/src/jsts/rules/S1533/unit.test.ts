@@ -60,7 +60,7 @@ describe('S1533', () => {
           code: `type T = Boolean;`,
         },
         {
-          // FP: wrapper type in generic type parameter in interface (TSTypeParameterInstantiation context)
+          // FP: wrapper type in generic type parameter in interface (TSInterfaceBody ancestor)
           code: `interface ICardArt { classes: Array<String>; }`,
         },
         {
@@ -68,11 +68,11 @@ describe('S1533', () => {
           code: `interface Props { onChange: (value: String) => void; onCountChange: (count: Number) => void; }`,
         },
         {
-          // FP: wrapper type as generic arg in function call (TSTypeParameterInstantiation context)
+          // FP: wrapper type as generic arg in call expression (type annotation only, not a runtime value)
           code: `declare function createMap<T>(): Map<T>; const x = createMap<String>();`,
         },
         {
-          // FP: wrapper types as generic args in new expression (TSTypeParameterInstantiation context)
+          // FP: wrapper types as generic args in new expression (type annotation only, not a runtime value)
           code: `const m = new Map<Number, String>();`,
         },
       ],
@@ -280,6 +280,20 @@ describe('S1533', () => {
                 {
                   desc: 'Replace "Number" with "number"',
                   output: 'function foo(): number {}',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          code: `let x: Array<String>;`,
+          errors: [
+            {
+              message: 'Replace this "String" wrapper object with primitive type "string".',
+              suggestions: [
+                {
+                  output: 'let x: Array<string>;',
+                  desc: 'Replace "String" with "string"',
                 },
               ],
             },

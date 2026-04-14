@@ -30,7 +30,6 @@ const TYPE_DEFINITION_CONTEXTS = new Set([
   'TSInterfaceBody',
   'TSTypeAliasDeclaration',
   'TSTypeLiteral',
-  'TSTypeParameterInstantiation',
 ]);
 
 export const rule: Rule.RuleModule = {
@@ -73,6 +72,15 @@ export const rule: Rule.RuleModule = {
             findFirstMatchingAncestor(node as TSESTree.Node, a =>
               TYPE_DEFINITION_CONTEXTS.has(a.type),
             )
+          ) {
+            return;
+          }
+          // Suppress wrapper types as type args directly in call/new expressions
+          // (e.g. createMap<String>(), new Map<Number, String>()) — these are pure type annotations
+          const parent = (node as TSESTree.Node).parent;
+          if (
+            parent?.type === 'TSTypeParameterInstantiation' &&
+            (parent.parent?.type === 'CallExpression' || parent.parent?.type === 'NewExpression')
           ) {
             return;
           }
