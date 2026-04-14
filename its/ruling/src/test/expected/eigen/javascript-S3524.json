@@ -54,9 +54,5 @@
 ],
 "eigen:scripts/update-metaphysics.js": [
 18
-],
-"eigen:src/storybook/storybook.requires.js": [
-18,
-25
 ]
 }

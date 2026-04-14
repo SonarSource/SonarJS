@@ -27,9 +27,6 @@
 "ace:src/mode/haml_highlight_rules.js": [
 59
 ],
-"ace:src/mode/jade_highlight_rules.js": [
-101
-],
 "ace:src/mode/javascript_highlight_rules.js": [
 188,
 194,
@@ -45,28 +42,12 @@
 85,
 184
 ],
-"ace:src/mode/mips_highlight_rules.js": [
-76
-],
 "ace:src/mode/nsis_highlight_rules.js": [
 60,
 111
 ],
 "ace:src/mode/praat_highlight_rules.js": [
 131
-],
-"ace:src/mode/prisma_highlight_rules.js": [
-282,
-282,
-282,
-282
-],
-"ace:src/mode/sparql_highlight_rules.js": [
-77,
-138
-],
-"ace:src/mode/turtle_highlight_rules.js": [
-57
 ],
 "ace:src/mode/twig_highlight_rules.js": [
 93

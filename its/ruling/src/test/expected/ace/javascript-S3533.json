@@ -739,26 +739,6 @@
 12,
 13
 ],
-"ace:src/mode/abc.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/abc_highlight_rules.js": [
-13,
-14
-],
-"ace:src/mode/actionscript.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/actionscript_highlight_rules.js": [
-9,
-10
-],
 "ace:src/mode/ada.js": [
 3,
 4,
@@ -773,26 +753,6 @@
 7,
 8,
 9
-],
-"ace:src/mode/alda.js": [
-7,
-8,
-9,
-11
-],
-"ace:src/mode/alda_highlight_rules.js": [
-9,
-10
-],
-"ace:src/mode/apache_conf.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/apache_conf_highlight_rules.js": [
-9,
-10
 ],
 "ace:src/mode/apex.js": [
 5,
@@ -845,32 +805,6 @@
 3,
 4,
 5
-],
-"ace:src/mode/assembly_x86.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/assembly_x86_highlight_rules.js": [
-9,
-10
-],
-"ace:src/mode/autohotkey.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/batchfile.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/batchfile_highlight_rules.js": [
-9,
-10
 ],
 "ace:src/mode/behaviour/behaviour_test.js": [
 8,
@@ -1082,11 +1016,6 @@
 3,
 5
 ],
-"ace:src/mode/csp.js": [
-7,
-8,
-9
-],
 "ace:src/mode/csp_highlight_rules.js": [
 11,
 12
@@ -1122,27 +1051,10 @@
 3,
 4
 ],
-"ace:src/mode/d.js": [
-7,
-8,
-9,
-10
-],
 "ace:src/mode/d_highlight_rules.js": [
 3,
 4,
 5
-],
-"ace:src/mode/dart.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/dart_highlight_rules.js": [
-6,
-7,
-8
 ],
 "ace:src/mode/diff.js": [
 3,
@@ -1228,35 +1140,9 @@
 45,
 46
 ],
-"ace:src/mode/elixir.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/elixir_highlight_rules.js": [
-9,
-10
-],
-"ace:src/mode/elm.js": [
-7,
-8,
-9,
-10
-],
 "ace:src/mode/elm_highlight_rules.js": [
 5,
 6
-],
-"ace:src/mode/erlang.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/erlang_highlight_rules.js": [
-9,
-10
 ],
 "ace:src/mode/folding/asciidoc.js": [
 3,
@@ -1430,16 +1316,6 @@
 8,
 78
 ],
-"ace:src/mode/forth.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/forth_highlight_rules.js": [
-9,
-10
-],
 "ace:src/mode/fortran.js": [
 5,
 6,
@@ -1460,12 +1336,6 @@
 "ace:src/mode/fsharp_highlight_rules.js": [
 3,
 4
-],
-"ace:src/mode/fsl.js": [
-7,
-8,
-9,
-11
 ],
 "ace:src/mode/fsl_highlight_rules.js": [
 3,
@@ -1564,12 +1434,6 @@
 4,
 5
 ],
-"ace:src/mode/haml.js": [
-7,
-8,
-9,
-10
-],
 "ace:src/mode/haml_highlight_rules.js": [
 3,
 4,
@@ -1586,12 +1450,6 @@
 5,
 6
 ],
-"ace:src/mode/haskell.js": [
-7,
-8,
-9,
-11
-],
 "ace:src/mode/haskell_cabal.js": [
 7,
 8,
@@ -1601,10 +1459,6 @@
 "ace:src/mode/haskell_cabal_highlight_rules.js": [
 7,
 8
-],
-"ace:src/mode/haskell_highlight_rules.js": [
-9,
-10
 ],
 "ace:src/mode/haxe.js": [
 3,
@@ -1624,10 +1478,6 @@
 4,
 5,
 6
-],
-"ace:src/mode/hjson_highlight_rules.js": [
-9,
-10
 ],
 "ace:src/mode/html.js": [
 3,
@@ -1689,32 +1539,6 @@
 5,
 7
 ],
-"ace:src/mode/ini_highlight_rules.js": [
-5,
-6
-],
-"ace:src/mode/io.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/io_highlight_rules.js": [
-9,
-10
-],
-"ace:src/mode/ion.js": [
-7,
-8,
-9,
-10,
-11,
-12
-],
-"ace:src/mode/ion_highlight_rules.js": [
-7,
-8
-],
 "ace:src/mode/jack.js": [
 3,
 4,
@@ -1732,15 +1556,6 @@
 4,
 5,
 6
-],
-"ace:src/mode/jade_highlight_rules.js": [
-7,
-8,
-9,
-10,
-11,
-12,
-13
 ],
 "ace:src/mode/java.js": [
 3,
@@ -1826,16 +1641,6 @@
 4,
 5
 ],
-"ace:src/mode/jssm.js": [
-7,
-8,
-9,
-11
-],
-"ace:src/mode/jssm_highlight_rules.js": [
-9,
-10
-],
 "ace:src/mode/jsx.js": [
 3,
 4,
@@ -1849,23 +1654,6 @@
 2,
 3,
 4
-],
-"ace:src/mode/julia.js": [
-7,
-8,
-9,
-11
-],
-"ace:src/mode/julia_highlight_rules.js": [
-9,
-10
-],
-"ace:src/mode/kotlin.js": [
-7,
-8,
-9,
-10,
-11
 ],
 "ace:src/mode/kotlin_highlight_rules.js": [
 3,
@@ -1921,15 +1709,6 @@
 4,
 5
 ],
-"ace:src/mode/lisp.js": [
-7,
-8,
-9
-],
-"ace:src/mode/lisp_highlight_rules.js": [
-6,
-7
-],
 "ace:src/mode/livescript.js": [
 37
 ],
@@ -1943,25 +1722,10 @@
 9,
 10
 ],
-"ace:src/mode/logiql_highlight_rules.js": [
-5,
-6
-],
 "ace:src/mode/logiql_test.js": [
 7,
 8,
 9
-],
-"ace:src/mode/logtalk.js": [
-7,
-8,
-9,
-10,
-12
-],
-"ace:src/mode/logtalk_highlight_rules.js": [
-15,
-16
 ],
 "ace:src/mode/lsl.js": [
 3,
@@ -2003,12 +1767,6 @@
 "ace:src/mode/lucene_highlight_rules.js": [
 3,
 4
-],
-"ace:src/mode/makefile.js": [
-7,
-8,
-9,
-10
 ],
 "ace:src/mode/makefile_highlight_rules.js": [
 3,
@@ -2087,16 +1845,6 @@
 6,
 7
 ],
-"ace:src/mode/mips.js": [
-7,
-8,
-9,
-11
-],
-"ace:src/mode/mips_highlight_rules.js": [
-9,
-10
-],
 "ace:src/mode/mixal.js": [
 3,
 4,
@@ -2148,21 +1896,9 @@
 3,
 4
 ],
-"ace:src/mode/nix.js": [
-7,
-8,
-9,
-10
-],
 "ace:src/mode/nix_highlight_rules.js": [
 3,
 4
-],
-"ace:src/mode/nsis.js": [
-7,
-8,
-9,
-10
 ],
 "ace:src/mode/nsis_highlight_rules.js": [
 3,
@@ -2177,12 +1913,6 @@
 3,
 4,
 5
-],
-"ace:src/mode/objectivec.js": [
-7,
-8,
-9,
-10
 ],
 "ace:src/mode/objectivec_highlight_rules.js": [
 3,
@@ -2199,25 +1929,6 @@
 "ace:src/mode/ocaml_highlight_rules.js": [
 3,
 4
-],
-"ace:src/mode/partiql.js": [
-7,
-8,
-9,
-10,
-11,
-12
-],
-"ace:src/mode/partiql_highlight_rules.js": [
-7,
-8,
-10
-],
-"ace:src/mode/pascal.js": [
-7,
-8,
-9,
-11
 ],
 "ace:src/mode/pascal_highlight_rules.js": [
 3,
@@ -2290,16 +2001,6 @@
 9,
 10
 ],
-"ace:src/mode/pig.js": [
-7,
-8,
-9,
-11
-],
-"ace:src/mode/pig_highlight_rules.js": [
-9,
-10
-],
 "ace:src/mode/plain_text.js": [
 3,
 4,
@@ -2334,26 +2035,6 @@
 3,
 4
 ],
-"ace:src/mode/prisma.js": [
-7,
-8,
-9,
-11
-],
-"ace:src/mode/prisma_highlight_rules.js": [
-9,
-10
-],
-"ace:src/mode/prolog.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/prolog_highlight_rules.js": [
-9,
-10
-],
 "ace:src/mode/properties.js": [
 3,
 4,
@@ -2362,12 +2043,6 @@
 "ace:src/mode/properties_highlight_rules.js": [
 3,
 4
-],
-"ace:src/mode/protobuf.js": [
-7,
-8,
-9,
-10
 ],
 "ace:src/mode/protobuf_highlight_rules.js": [
 3,
@@ -2397,12 +2072,6 @@
 8
 ],
 "ace:src/mode/python_test.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/qml.js": [
 7,
 8,
 9,
@@ -2541,17 +2210,6 @@
 8,
 9
 ],
-"ace:src/mode/rust.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/rust_highlight_rules.js": [
-5,
-6,
-7
-],
 "ace:src/mode/sac.js": [
 3,
 4,
@@ -2608,17 +2266,6 @@
 3,
 4
 ],
-"ace:src/mode/scrypt.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/scrypt_highlight_rules.js": [
-9,
-10,
-11
-],
 "ace:src/mode/scss.js": [
 3,
 4,
@@ -2674,10 +2321,6 @@
 4,
 5
 ],
-"ace:src/mode/smarty_highlight_rules.js": [
-9,
-10
-],
 "ace:src/mode/smithy.js": [
 3,
 4,
@@ -2685,10 +2328,6 @@
 6,
 7,
 8
-],
-"ace:src/mode/smithy_highlight_rules.js": [
-9,
-10
 ],
 "ace:src/mode/snippets.js": [
 3,
@@ -2701,10 +2340,6 @@
 4,
 5
 ],
-"ace:src/mode/soy_template_highlight_rules.js": [
-9,
-10
-],
 "ace:src/mode/space.js": [
 2,
 4,
@@ -2714,16 +2349,6 @@
 "ace:src/mode/space_highlight_rules.js": [
 3,
 4
-],
-"ace:src/mode/sparql.js": [
-7,
-8,
-9,
-11
-],
-"ace:src/mode/sparql_highlight_rules.js": [
-9,
-10
 ],
 "ace:src/mode/sql.js": [
 3,
@@ -2746,17 +2371,6 @@
 4,
 5
 ],
-"ace:src/mode/stylus.js": [
-7,
-8,
-9,
-10
-],
-"ace:src/mode/stylus_highlight_rules.js": [
-6,
-7,
-8
-],
 "ace:src/mode/svg.js": [
 3,
 4,
@@ -2770,13 +2384,6 @@
 3,
 4,
 5
-],
-"ace:src/mode/swift.js": [
-7,
-8,
-9,
-10,
-12
 ],
 "ace:src/mode/swift_highlight_rules.js": [
 3,
@@ -2858,20 +2465,6 @@
 3,
 4
 ],
-"ace:src/mode/tsx.js": [
-7,
-8
-],
-"ace:src/mode/turtle.js": [
-7,
-8,
-9,
-11
-],
-"ace:src/mode/turtle_highlight_rules.js": [
-9,
-10
-],
 "ace:src/mode/twig.js": [
 3,
 4,
@@ -2884,53 +2477,10 @@
 5,
 6
 ],
-"ace:src/mode/typescript.js": [
-7,
-8,
-9,
-10,
-11,
-12
-],
-"ace:src/mode/typescript_highlight_rules.js": [
-6,
-7
-],
-"ace:src/mode/vala.js": [
-7,
-8,
-9,
-10,
-11,
-12,
-13,
-14
-],
-"ace:src/mode/vala_highlight_rules.js": [
-9,
-10
-],
-"ace:src/mode/vbscript.js": [
-7,
-8,
-9,
-10,
-11
-],
-"ace:src/mode/vbscript_highlight_rules.js": [
-6,
-7
-],
 "ace:src/mode/vbscript_test.js": [
 7,
 8,
 9
-],
-"ace:src/mode/velocity.js": [
-7,
-8,
-9,
-10
 ],
 "ace:src/mode/velocity_highlight_rules.js": [
 3,
@@ -3008,12 +2558,6 @@
 "ace:src/mode/yaml_highlight_rules.js": [
 3,
 4
-],
-"ace:src/mode/zeek.js": [
-7,
-8,
-9,
-10
 ],
 "ace:src/mode/zeek_highlight_rules.js": [
 3,

@@ -151,37 +151,8 @@
 "ace:src/mode/abap_highlight_rules.js": [
 23
 ],
-"ace:src/mode/actionscript_highlight_rules.js": [
-18,
-20,
-22,
-50
-],
-"ace:src/mode/apache_conf_highlight_rules.js": [
-28,
-62,
-64,
-78,
-80,
-82,
-84,
-100,
-120,
-126,
-134,
-142,
-160
-],
 "ace:src/mode/aql_highlight_rules.js": [
 9
-],
-"ace:src/mode/assembly_x86_highlight_rules.js": [
-18,
-21,
-60
-],
-"ace:src/mode/batchfile_highlight_rules.js": [
-18
 ],
 "ace:src/mode/behaviour/liquid.js": [
 22
@@ -220,38 +191,12 @@
 "ace:src/mode/drools_highlight_rules.js": [
 116
 ],
-"ace:src/mode/elixir_highlight_rules.js": [
-73,
-75,
-275,
-277,
-292,
-384
-],
-"ace:src/mode/erlang_highlight_rules.js": [
-314,
-835
-],
-"ace:src/mode/forth_highlight_rules.js": [
-87,
-90
-],
 "ace:src/mode/groovy_highlight_rules.js": [
 109
-],
-"ace:src/mode/haskell_highlight_rules.js": [
-22,
-108,
-126,
-130
 ],
 "ace:src/mode/haxe_highlight_rules.js": [
 11,
 63
-],
-"ace:src/mode/hjson_highlight_rules.js": [
-179,
-180
 ],
 "ace:src/mode/html_completions.js": [
 90,
@@ -266,9 +211,6 @@
 189,
 202,
 313
-],
-"ace:src/mode/io_highlight_rules.js": [
-40
 ],
 "ace:src/mode/jack_highlight_rules.js": [
 43
@@ -292,10 +234,6 @@
 ],
 "ace:src/mode/livescript.js": [
 46
-],
-"ace:src/mode/logtalk_highlight_rules.js": [
-65,
-136
 ],
 "ace:src/mode/matlab_highlight_rules.js": [
 23,
@@ -326,9 +264,6 @@
 "ace:src/mode/mediawiki_highlight_rules.js": [
 41,
 290
-],
-"ace:src/mode/mips_highlight_rules.js": [
-41
 ],
 "ace:src/mode/mysql_highlight_rules.js": [
 8,
@@ -415,11 +350,6 @@
 "ace:src/mode/php_laravel_blade_highlight_rules.js": [
 67
 ],
-"ace:src/mode/pig_highlight_rules.js": [
-32,
-49,
-52
-],
 "ace:src/mode/powershell_highlight_rules.js": [
 21,
 25,
@@ -464,9 +394,6 @@
 147,
 149
 ],
-"ace:src/mode/prolog_highlight_rules.js": [
-44
-],
 "ace:src/mode/puppet_highlight_rules.js": [
 59,
 63
@@ -489,21 +416,8 @@
 "ace:src/mode/scala_highlight_rules.js": [
 108
 ],
-"ace:src/mode/scrypt_highlight_rules.js": [
-87
-],
 "ace:src/mode/slim_highlight_rules.js": [
 84
-],
-"ace:src/mode/smarty_highlight_rules.js": [
-47
-],
-"ace:src/mode/smithy_highlight_rules.js": [
-57
-],
-"ace:src/mode/sparql_highlight_rules.js": [
-54,
-65
 ],
 "ace:src/mode/sqlserver_highlight_rules.js": [
 27,
@@ -517,9 +431,6 @@
 69,
 96
 ],
-"ace:src/mode/stylus_highlight_rules.js": [
-63
-],
 "ace:src/mode/terraform_highlight_rules.js": [
 161
 ],
@@ -529,15 +440,6 @@
 ],
 "ace:src/mode/twig_highlight_rules.js": [
 14
-],
-"ace:src/mode/vala_highlight_rules.js": [
-353,
-356,
-360,
-415
-],
-"ace:src/mode/vbscript_highlight_rules.js": [
-125
 ],
 "ace:src/mode/wollok_highlight_rules.js": [
 11

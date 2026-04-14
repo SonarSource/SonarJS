@@ -85,12 +85,6 @@
 "ace:src/mode/gobstones_highlight_rules.js": [
 27
 ],
-"ace:src/mode/jssm_highlight_rules.js": [
-52,
-52,
-52,
-132
-],
 "ace:src/mode/jsx_highlight_rules.js": [
 75
 ],
@@ -106,13 +100,6 @@
 74,
 96
 ],
-"ace:src/mode/mips_highlight_rules.js": [
-29,
-29,
-29,
-33,
-33
-],
 "ace:src/mode/nsis_highlight_rules.js": [
 60,
 60
@@ -127,24 +114,12 @@
 115,
 215
 ],
-"ace:src/mode/prisma_highlight_rules.js": [
-282,
-282,
-282,
-282
-],
 "ace:src/mode/robot_highlight_rules.js": [
 8,
 8,
 26,
 96,
 96
-],
-"ace:src/mode/rust_highlight_rules.js": [
-190,
-193,
-193,
-193
 ],
 "ace:src/mode/sh_highlight_rules.js": [
 147

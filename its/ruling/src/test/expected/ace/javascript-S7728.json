@@ -338,9 +338,6 @@
 "ace:src/mode/php_laravel_blade_highlight_rules.js": [
 163
 ],
-"ace:src/mode/smarty_highlight_rules.js": [
-90
-],
 "ace:src/mode/sqlserver_highlight_rules.js": [
 179
 ],

@@ -122,12 +122,6 @@
 "ace:src/mode/glsl_highlight_rules.js": [
 4
 ],
-"ace:src/mode/ion_highlight_rules.js": [
-13,
-15,
-18,
-21
-],
 "ace:src/mode/mask_highlight_rules.js": [
 13,
 14,
@@ -147,21 +141,6 @@
 ],
 "ace:src/mode/objectivec_highlight_rules.js": [
 5
-],
-"ace:src/mode/partiql_highlight_rules.js": [
-14,
-16,
-18,
-21,
-24,
-44,
-47,
-49,
-52,
-55,
-57,
-60,
-63
 ],
 "ace:src/mode/raku_highlight_rules.js": [
 152,

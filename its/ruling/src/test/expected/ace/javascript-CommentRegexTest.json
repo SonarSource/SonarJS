@@ -160,17 +160,11 @@
 "ace:src/mode/_test/highlight_rules_test.js": [
 82
 ],
-"ace:src/mode/alda.js": [
-10
-],
 "ace:src/mode/behaviour/liquid.js": [
 35
 ],
 "ace:src/mode/behaviour/xml.js": [
 89
-],
-"ace:src/mode/dart_highlight_rules.js": [
-182
 ],
 "ace:src/mode/doc_comment_highlight_rules.js": [
 10
@@ -179,17 +173,11 @@
 111,
 112
 ],
-"ace:src/mode/elixir_highlight_rules.js": [
-293
-],
 "ace:src/mode/elm_highlight_rules.js": [
 1
 ],
 "ace:src/mode/folding/sqlserver.js": [
 45
-],
-"ace:src/mode/fsl.js": [
-10
 ],
 "ace:src/mode/gherkin_highlight_rules.js": [
 11
@@ -199,19 +187,12 @@
 104,
 105
 ],
-"ace:src/mode/haskell.js": [
-10
-],
 "ace:src/mode/haxe_highlight_rules.js": [
 58,
 59
 ],
 "ace:src/mode/ini.js": [
 6
-],
-"ace:src/mode/jade_highlight_rules.js": [
-137,
-162
 ],
 "ace:src/mode/java_highlight_rules.js": [
 123,
@@ -220,43 +201,22 @@
 "ace:src/mode/javascript_highlight_rules.js": [
 7
 ],
-"ace:src/mode/jssm.js": [
-10
-],
 "ace:src/mode/jsx_highlight_rules.js": [
 80,
 81
 ],
-"ace:src/mode/julia.js": [
-10
-],
-"ace:src/mode/logtalk.js": [
-11
-],
 "ace:src/mode/markdown_highlight_rules.js": [
 24
-],
-"ace:src/mode/mips.js": [
-10
 ],
 "ace:src/mode/mysql.js": [
 12
 ],
-"ace:src/mode/pascal.js": [
-10
-],
 "ace:src/mode/pgsql_highlight_rules.js": [
 429
-],
-"ace:src/mode/pig.js": [
-10
 ],
 "ace:src/mode/powershell_highlight_rules.js": [
 219,
 220
-],
-"ace:src/mode/prisma.js": [
-10
 ],
 "ace:src/mode/python_highlight_rules.js": [
 1,
@@ -281,12 +241,6 @@
 "ace:src/mode/space_highlight_rules.js": [
 8
 ],
-"ace:src/mode/sparql.js": [
-10
-],
-"ace:src/mode/swift.js": [
-11
-],
 "ace:src/mode/tcl_highlight_rules.js": [
 8
 ],
@@ -295,9 +249,6 @@
 ],
 "ace:src/mode/text.js": [
 209
-],
-"ace:src/mode/turtle.js": [
-10
 ],
 "ace:src/mode/velocity_highlight_rules.js": [
 76,
