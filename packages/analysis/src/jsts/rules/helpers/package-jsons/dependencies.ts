@@ -178,6 +178,29 @@ function getDependencyVersionSignal(
   return typeof dependencyVersion === 'string' ? dependencyVersion : null;
 }
 
+function getVersionSignalFromManifests(
+  baseDir: NormalizedAbsolutePath,
+  dependencyName: string,
+  fallbackSignal?: (packageJson: PackageJson) => string | null,
+): string | null {
+  const [packageJson] = getManifests(baseDir, baseDir, fs);
+  if (!packageJson) {
+    return null;
+  }
+
+  const dependencyVersion = getDependencyVersionSignal(packageJson, dependencyName);
+  if (isValidDependencySignal(dependencyVersion)) {
+    return dependencyVersion;
+  }
+
+  const fallbackVersion = fallbackSignal?.(packageJson);
+  if (fallbackVersion !== null && fallbackVersion !== undefined) {
+    return fallbackVersion;
+  }
+
+  return null;
+}
+
 function isValidDependencySignal(versionSignal: string | null): versionSignal is string {
   return versionSignal !== null && versionSignal !== 'latest' && versionSignal !== '*';
 }
@@ -232,17 +255,21 @@ export function getTypeScriptSignalsFromPackageJsonFiles(
  * @returns raw version string from @types/node or engines.node, or null if not found
  */
 export function getNodeVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
-  for (const packageJson of getManifests(baseDir, baseDir, fs)) {
-    const typesNode = getDependencyVersionSignal(packageJson, '@types/node');
-    if (typeof typesNode === 'string' && typesNode !== 'latest' && typesNode !== '*') {
-      return typesNode;
-    }
+  return getVersionSignalFromManifests(baseDir, '@types/node', packageJson => {
     const enginesNode = packageJson.engines?.['node'];
-    if (typeof enginesNode === 'string') {
-      return enginesNode;
-    }
-  }
-  return null;
+    return typeof enginesNode === 'string' ? enginesNode : null;
+  });
+}
+
+/**
+ * Gets a TypeScript version signal from the package.json at baseDir.
+ * Checks dependency fields for "typescript" and returns the raw version range.
+ *
+ * @param baseDir project base directory containing package.json
+ * @returns raw version string from typescript dependency, or null if not found
+ */
+export function getTypeScriptVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
+  return getVersionSignalFromManifests(baseDir, 'typescript');
 }
 
 function parsePackageJsonContent(content: string | Buffer): PackageJson | undefined {
