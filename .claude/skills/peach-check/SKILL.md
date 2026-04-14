@@ -3,7 +3,7 @@ name: peach-check
 description: Use before a SonarJS release or when the nightly Peach Main Analysis workflow shows
   failures that need triage. Classifies each failure as a critical analyzer bug or a safe-to-ignore
   infrastructure problem.
-allowed-tools: Bash(gh run list:*), Bash(gh api:*), Bash(gh run rerun:*), Bash(mkdir:*),Bash(sed --sandbox:*), Read, Agent
+allowed-tools: Bash(gh run list:*), Bash(gh api:*), Bash(mkdir:*),Bash(jq:*),Bash(sed --sandbox:*), Read, Agent
 ---
 
 # Peach Main Analysis Check
@@ -64,38 +64,55 @@ gh run list \
 
 This prints the `databaseId`, `conclusion`, and `createdAt` of the most recent completed run (meaning finished running, not necessarily passed — a completed run can have failed jobs, which is what we're looking for). Record `databaseId` as `RUN_ID`.
 
-**Step 1b — Rerun if the run was cancelled**
+**Step 1b — Stop if the run was cancelled**
 
-If the run `conclusion` is `"cancelled"`, the run did not finish normally — some jobs were cut short before they could produce results. Rerun the cancelled/failed jobs automatically:
-
-```bash
-gh run rerun RUN_ID --repo SonarSource/peachee-js --failed
-```
-
-Then print:
+If the run `conclusion` is `"cancelled"`, the run did not finish normally and is not usable for
+release triage. Print:
 
 ```
 ⚠️ Run RUN_ID (DATE) was cancelled before completion.
-Rerun triggered for all failed/cancelled jobs. Check back once the rerun completes.
+Rerun recommended for all failed/cancelled jobs. Check back once the rerun completes.
 ```
 
 Then stop — do not attempt to triage the incomplete results.
 
 **Step 2 — Collect all failed jobs**
 
-The run has ~250 jobs across 3 pages. Fetch all three pages and collect jobs where
-`conclusion == "failure"`:
+The run has ~250 jobs across 3 pages. Fetch the run jobs with the Actions API and extract failed
+jobs from the merged result. Do not use `gh run view --json jobs` for Peach Main Analysis because
+the matrix is large.
 
 ```bash
-gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100&page=1" \
-  --jq '[.jobs[] | select(.conclusion == "failure") | {name, id, completedAt}]'
-gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100&page=2" \
-  --jq '[.jobs[] | select(.conclusion == "failure") | {name, id, completedAt}]'
-gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100&page=3" \
-  --jq '[.jobs[] | select(.conclusion == "failure") | {name, id, completedAt}]'
+gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100" --paginate > jobs.json
 ```
 
-Each command outputs only the failed jobs for that page. `completedAt` may be `null` — see Step 7 for handling.
+Then slurp the paginated output with `jq -s` before querying it:
+
+```bash
+jq -s '
+  {
+    total_jobs: (map(.jobs | length) | add),
+    failed_jobs: (map([.jobs[] | select(.conclusion == "failure")] | length) | add),
+    jobs: (map(.jobs) | add)
+  }
+' jobs.json
+```
+
+Important: `gh api --paginate` emits one JSON object per page. Always slurp with `jq -s` or merge
+pages explicitly before querying `.jobs`.
+
+For each failed job, record:
+
+- job id
+- job name
+- completion time
+- job URL
+- failing step name
+- failing phase owner (`pre-scan`, `analyze`, or `post-scan`)
+
+If the job metadata shows multiple failed steps, use the earliest failed step that actually ran as
+the phase owner. Treat later failed report/cleanup steps as downstream noise unless they are the
+only failed steps.
 
 **Step 3 — Early exit if no failures**
 
@@ -145,6 +162,21 @@ Create the work directory where logs will be stored for inspection:
 mkdir -p target/peach-logs
 ```
 
+Before classifying a failed job, fetch its step metadata if the failing step is not already known:
+
+```bash
+gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID"
+```
+
+Use this to confirm whether the job failed in `Checkout project`, `Install dependencies`,
+`Analyze project`, `Report analyzer version`, or another phase boundary.
+
+When multiple steps are marked failed:
+- If `Analyze project` was skipped, classify from the earlier failed pre-scan step.
+- If an earlier step failed and later report/post steps also failed, attribute the job to the
+  earliest real failure.
+- Do not classify from `Report analyzer version` when the project was never analyzed.
+
 Then triage each failed job using a graduated approach. Work through phases as needed — stop as
 soon as a job can be classified. Run all jobs in parallel within each phase.
 
@@ -182,6 +214,14 @@ Use the decision flowchart and failure categories from `docs/peach-main-analysis
 the filtered output. If the filtered lines show exit code 3 (EXECUTION FAILURE from the
 SonarQube scanner), always continue to Phase 2 — Phase 1 does not surface Java stack traces,
 so the SonarJS plugin involvement cannot be ruled out from Phase 1 alone.
+
+Also watch for checkout failures before analysis, for example:
+
+- `fatal: could not read Username for 'https://github.com'`
+- repeated checkout retries followed by `All 3 attempts failed`
+
+These are pre-scan failures. If the upstream GitHub repository appears removed or inaccessible,
+call that out explicitly rather than leaving it as a generic auth failure.
 
 **Phase 2 — Sensor and stack trace filter (for exit code 3 failures)**
 
