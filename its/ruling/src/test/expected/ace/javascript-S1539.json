@@ -839,6 +839,12 @@
 "ace:src/mode/ini.js": [
 1
 ],
+"ace:src/mode/ion.js": [
+5
+],
+"ace:src/mode/ion_highlight_rules.js": [
+5
+],
 "ace:src/mode/jack.js": [
 1
 ],
@@ -1024,6 +1030,12 @@
 ],
 "ace:src/mode/ocaml_highlight_rules.js": [
 1
+],
+"ace:src/mode/partiql.js": [
+5
+],
+"ace:src/mode/partiql_highlight_rules.js": [
+5
 ],
 "ace:src/mode/pascal_highlight_rules.js": [
 1

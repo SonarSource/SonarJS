@@ -9635,6 +9635,28 @@
 7,
 9
 ],
+"ace:src/mode/ion.js": [
+7,
+8,
+9,
+10,
+11,
+12,
+14,
+28,
+31
+],
+"ace:src/mode/ion_highlight_rules.js": [
+7,
+8,
+11,
+13,
+15,
+18,
+21,
+24,
+29
+],
 "ace:src/mode/jack.js": [
 3,
 4,
@@ -10362,6 +10384,38 @@
 217,
 218,
 219
+],
+"ace:src/mode/partiql.js": [
+7,
+8,
+9,
+10,
+11,
+12,
+14,
+28,
+31
+],
+"ace:src/mode/partiql_highlight_rules.js": [
+7,
+8,
+10,
+12,
+14,
+16,
+18,
+21,
+24,
+44,
+47,
+49,
+52,
+55,
+57,
+60,
+63,
+66,
+74
 ],
 "ace:src/mode/pascal_highlight_rules.js": [
 3,

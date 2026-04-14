@@ -1331,6 +1331,10 @@
 312,
 312
 ],
+"ace:src/mode/ion.js": [
+40,
+44
+],
 "ace:src/mode/jack.js": [
 35,
 39
@@ -1429,6 +1433,10 @@
 21,
 54,
 58
+],
+"ace:src/mode/partiql.js": [
+40,
+44
 ],
 "ace:src/mode/perl.js": [
 47,
