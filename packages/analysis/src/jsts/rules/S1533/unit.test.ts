@@ -300,6 +300,30 @@ describe('S1533', () => {
           ],
         },
         {
+          // TP: wrapper type in constructor parameter (class body is not a type-definition context)
+          code: `class Foo { constructor(id: String, count: Number) {} }`,
+          errors: [
+            {
+              message: 'Replace this "String" wrapper object with primitive type "string".',
+              suggestions: [
+                {
+                  output: `class Foo { constructor(id: string, count: Number) {} }`,
+                  desc: 'Replace "String" with "string"',
+                },
+              ],
+            },
+            {
+              message: 'Replace this "Number" wrapper object with primitive type "number".',
+              suggestions: [
+                {
+                  output: `class Foo { constructor(id: String, count: number) {} }`,
+                  desc: 'Replace "Number" with "number"',
+                },
+              ],
+            },
+          ],
+        },
+        {
           // TP: wrapper type as generic arg in function parameter type annotation (not a type-definition context)
           code: `function foo(x: Map<String>): void {}`,
           errors: [
