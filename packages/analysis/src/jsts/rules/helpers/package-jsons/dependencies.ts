@@ -183,16 +183,21 @@ function getVersionSignalFromManifests(
   dependencyName: string,
   fallbackSignal?: (packageJson: PackageJson) => string | null,
 ): string | null {
-  for (const packageJson of getManifests(baseDir, baseDir, fs)) {
-    const dependencyVersion = getDependencyVersionSignal(packageJson, dependencyName);
-    if (isValidDependencySignal(dependencyVersion)) {
-      return dependencyVersion;
-    }
-    const fallbackVersion = fallbackSignal?.(packageJson);
-    if (fallbackVersion !== null && fallbackVersion !== undefined) {
-      return fallbackVersion;
-    }
+  const [packageJson] = getManifests(baseDir, baseDir, fs);
+  if (!packageJson) {
+    return null;
   }
+
+  const dependencyVersion = getDependencyVersionSignal(packageJson, dependencyName);
+  if (isValidDependencySignal(dependencyVersion)) {
+    return dependencyVersion;
+  }
+
+  const fallbackVersion = fallbackSignal?.(packageJson);
+  if (fallbackVersion !== null && fallbackVersion !== undefined) {
+    return fallbackVersion;
+  }
+
   return null;
 }
 

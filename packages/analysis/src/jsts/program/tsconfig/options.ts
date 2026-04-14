@@ -62,22 +62,12 @@ type CustomParseConfigHost = {
 export const defaultCompilerOptions: ts.CompilerOptions = {
   allowJs: true,
   noImplicitAny: true,
+  // Keep explicit non-strict defaults for fallback program creation paths.
+  // TS6 strictness defaults are handled when parsing project tsconfig options.
   strict: false,
 };
 
-type StrictnessCompilerOption =
-  | 'strict'
-  | 'alwaysStrict'
-  | 'noImplicitAny'
-  | 'noImplicitThis'
-  | 'strictBindCallApply'
-  | 'strictBuiltinIteratorReturn'
-  | 'strictFunctionTypes'
-  | 'strictNullChecks'
-  | 'strictPropertyInitialization'
-  | 'useUnknownInCatchVariables';
-
-const STRICTNESS_COMPILER_OPTIONS: StrictnessCompilerOption[] = [
+const STRICTNESS_COMPILER_OPTIONS = [
   'strict',
   'alwaysStrict',
   'noImplicitAny',
@@ -88,7 +78,8 @@ const STRICTNESS_COMPILER_OPTIONS: StrictnessCompilerOption[] = [
   'strictNullChecks',
   'strictPropertyInitialization',
   'useUnknownInCatchVariables',
-];
+] as const;
+type StrictnessCompilerOption = (typeof STRICTNESS_COMPILER_OPTIONS)[number];
 
 /**
  * Node.js major version to ES year mapping (descending order for lookup).
@@ -142,7 +133,7 @@ export function nodeVersionToEs(major: number): number {
 
 function addExplicitStrictnessCompilerOptions(
   compilerOptions: unknown,
-  explicitOptions: Set<string>,
+  explicitOptions: Set<StrictnessCompilerOption>,
 ) {
   if (!compilerOptions || typeof compilerOptions !== 'object') {
     return;
@@ -155,16 +146,23 @@ function addExplicitStrictnessCompilerOptions(
   }
 }
 
+function getCompilerOptions(config: unknown): unknown {
+  if (!config || typeof config !== 'object') {
+    return undefined;
+  }
+  return (config as { compilerOptions?: unknown }).compilerOptions;
+}
+
 function getExplicitStrictnessCompilerOptions(
-  rootConfig: any,
+  rootConfig: unknown,
   extendedConfigCache: Map<string, ts.ExtendedConfigCacheEntry>,
 ) {
-  const explicitOptions = new Set<string>();
+  const explicitOptions = new Set<StrictnessCompilerOption>();
 
-  addExplicitStrictnessCompilerOptions(rootConfig?.compilerOptions, explicitOptions);
+  addExplicitStrictnessCompilerOptions(getCompilerOptions(rootConfig), explicitOptions);
   for (const entry of extendedConfigCache.values()) {
     addExplicitStrictnessCompilerOptions(
-      entry.extendedConfig?.raw?.compilerOptions,
+      getCompilerOptions(entry.extendedConfig?.raw),
       explicitOptions,
     );
   }
@@ -196,7 +194,7 @@ function shouldApplyLegacyStrictnessDefaults(baseDir?: NormalizedAbsolutePath) {
 
 function applyLegacyStrictnessDefaults(
   parsedConfigFile: ts.ParsedCommandLine,
-  rootConfig: any,
+  rootConfig: unknown,
   extendedConfigCache: Map<string, ts.ExtendedConfigCacheEntry>,
 ) {
   const explicitOptions = getExplicitStrictnessCompilerOptions(rootConfig, extendedConfigCache);

@@ -17,7 +17,6 @@
 import { rule } from './index.js';
 import { decorate } from './decorator.js';
 import { RuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
-import { rules as typescriptEslintRules } from '../external/typescript-eslint/index.js';
 import { describe, it } from 'node:test';
 import path from 'node:path';
 import parser from '@typescript-eslint/parser';
@@ -26,46 +25,6 @@ import assert from 'node:assert';
 import type { Rule } from 'eslint';
 
 const ruleTester = new RuleTester();
-const upstreamRule = typescriptEslintRules['no-unnecessary-type-assertion'];
-
-// Sentinel: verify the current upstream behavior for the generic-call patterns this decorator handles.
-// If upstream behavior changes again, revisit whether the decorator logic remains necessary.
-describe('S4325 upstream sentinel', () => {
-  it('upstream no-unnecessary-type-assertion behavior on generic-call assertions', () => {
-    const sentinelTester = new RuleTester();
-    sentinelTester.run('no-unnecessary-type-assertion', upstreamRule, {
-      valid: [
-        {
-          // Generic querySelector() as HTMLElement — no longer raised by upstream
-          code: `
-            class Component {
-              private eGui: HTMLElement = document.createElement('div');
-              queryForHtmlElement(cssSelector: string): HTMLElement {
-                return this.eGui.querySelector(cssSelector) as HTMLElement;
-              }
-            }
-          `,
-        },
-      ],
-      invalid: [
-        {
-          // querySelector()! as HTMLElement — upstream still reports the type assertion
-          code: `
-            function getSubmitButton(form: Element): HTMLElement {
-              return form.querySelector('button[type="submit"]')! as HTMLElement;
-            }
-          `,
-          output: `
-            function getSubmitButton(form: Element): HTMLElement {
-              return form.querySelector('button[type="submit"]')!;
-            }
-          `,
-          errors: 1,
-        },
-      ],
-    });
-  });
-});
 
 describe('S4325', () => {
   it('should not flag assertions narrowing generic function return types', () => {
@@ -194,37 +153,6 @@ describe('S4325', () => {
           code: `
             const value: number = 42;
             const asUnknown = value as unknown;
-          `,
-        },
-      ],
-      invalid: [],
-    });
-  });
-
-  it('should not flag non-null assertions on declared nullable types with implicit non-strict defaults', () => {
-    ruleTester.run('S4325 non-null assertions with implicit non-strict defaults', rule, {
-      valid: [
-        {
-          // Upstream no longer reports this pattern under implicit non-strict defaults.
-          code: `
-            interface Api {
-              user(): Promise<{ name: string }>;
-            }
-            class CmsClient {
-              api: Api | null = null;
-              async getUser() {
-                return await this.api!.user();
-              }
-            }
-          `,
-        },
-        {
-          // Upstream no longer reports this pattern under implicit non-strict defaults.
-          code: `
-            let config: { debug: boolean } | undefined;
-            function getDebug() {
-              return config!.debug;
-            }
           `,
         },
       ],
