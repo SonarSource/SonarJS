@@ -299,6 +299,21 @@ describe('S1533', () => {
             },
           ],
         },
+        {
+          // TP: wrapper type as generic arg in function parameter type annotation (not a type-definition context)
+          code: `function foo(x: Map<String>): void {}`,
+          errors: [
+            {
+              message: 'Replace this "String" wrapper object with primitive type "string".',
+              suggestions: [
+                {
+                  output: 'function foo(x: Map<string>): void {}',
+                  desc: 'Replace "String" with "string"',
+                },
+              ],
+            },
+          ],
+        },
       ],
     });
   });
