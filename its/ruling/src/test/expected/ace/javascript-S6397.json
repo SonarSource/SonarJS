@@ -56,9 +56,6 @@
 160,
 342
 ],
-"ace:src/mode/mips_highlight_rules.js": [
-80
-],
 "ace:src/mode/nginx_highlight_rules.js": [
 88,
 88,
@@ -78,11 +75,6 @@
 "ace:src/mode/php_highlight_rules.js": [
 1022
 ],
-"ace:src/mode/prisma_highlight_rules.js": [
-39,
-63,
-87
-],
 "ace:src/mode/ruby_highlight_rules.js": [
 39,
 39,
@@ -92,9 +84,6 @@
 152,
 245,
 558
-],
-"ace:src/mode/scrypt_highlight_rules.js": [
-99
 ],
 "ace:src/tokenizer_test.js": [
 43

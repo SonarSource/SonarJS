@@ -14,8 +14,5 @@
 ],
 "ace:lib/ace/mode/javascript/jshint.js": [
 13555
-],
-"ace:src/mode/elixir_highlight_rules.js": [
-295
 ]
 }

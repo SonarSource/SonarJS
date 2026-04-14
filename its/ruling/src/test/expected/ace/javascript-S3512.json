@@ -681,9 +681,6 @@
 165,
 226
 ],
-"ace:src/mode/mips_highlight_rules.js": [
-53
-],
 "ace:src/mode/mushcode_highlight_rules.js": [
 507,
 512,
@@ -712,11 +709,6 @@
 218,
 219,
 247
-],
-"ace:src/mode/partiql_highlight_rules.js": [
-18,
-44,
-52
 ],
 "ace:src/mode/php.js": [
 29,
@@ -748,17 +740,6 @@
 ],
 "ace:src/mode/ruby_highlight_rules.js": [
 274
-],
-"ace:src/mode/rust_highlight_rules.js": [
-38,
-41,
-44,
-88,
-92,
-95,
-129,
-140,
-162
 ],
 "ace:src/mode/sac_highlight_rules.js": [
 43,

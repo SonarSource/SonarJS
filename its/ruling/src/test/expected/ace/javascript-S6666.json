@@ -133,12 +133,6 @@
 "ace:src/mode/razor_highlight_rules.js": [
 147
 ],
-"ace:src/mode/smarty_highlight_rules.js": [
-87
-],
-"ace:src/mode/soy_template_highlight_rules.js": [
-303
-],
 "ace:src/mode/text.js": [
 274,
 286

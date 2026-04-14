@@ -2828,9 +2828,6 @@
 247,
 349
 ],
-"ace:src/mode/rust_highlight_rules.js": [
-57
-],
 "ace:src/mode/sass_highlight_rules.js": [
 29
 ],
@@ -2857,9 +2854,6 @@
 ],
 "ace:src/mode/slim_highlight_rules.js": [
 19
-],
-"ace:src/mode/smarty_highlight_rules.js": [
-92
 ],
 "ace:src/mode/snippets.js": [
 19,
@@ -2937,15 +2931,6 @@
 "ace:src/mode/textile_highlight_rules.js": [
 12,
 14
-],
-"ace:src/mode/vbscript.js": [
-57,
-100,
-105,
-117,
-123,
-130,
-134
 ],
 "ace:src/mode/velocity_highlight_rules.js": [
 62,

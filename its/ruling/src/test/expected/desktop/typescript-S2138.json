@@ -110,21 +110,6 @@
 "desktop:app/src/ui/notifications/pull-request-review.tsx": [
 177
 ],
-"desktop:app/src/ui/octicons/octicons.generated.ts": [
-101,
-339,
-486,
-731,
-822,
-990,
-1382,
-1459,
-1466,
-1473,
-1480,
-1515,
-1564
-],
 "desktop:app/src/ui/preferences/preferences.tsx": [
 380
 ],

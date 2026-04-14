@@ -2489,10 +2489,6 @@
 17,
 25
 ],
-"ace:src/mode/jade_highlight_rules.js": [
-48,
-119
-],
 "ace:src/mode/javascript_highlight_rules.js": [
 384,
 460,
@@ -2651,10 +2647,6 @@
 108,
 122,
 138
-],
-"ace:src/mode/rust_highlight_rules.js": [
-47,
-54
 ],
 "ace:src/mode/sass_highlight_rules.js": [
 12,

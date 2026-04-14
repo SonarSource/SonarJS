@@ -36,9 +36,6 @@
 "ace:src/mode/javascript_highlight_rules.js": [
 445
 ],
-"ace:src/mode/typescript_highlight_rules.js": [
-35
-],
 "ace:src/multi_select.js": [
 436
 ],

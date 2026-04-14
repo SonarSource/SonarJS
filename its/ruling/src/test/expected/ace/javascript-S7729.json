@@ -28,9 +28,6 @@
 "ace:src/mode/php_laravel_blade_highlight_rules.js": [
 166
 ],
-"ace:src/mode/smarty_highlight_rules.js": [
-93
-],
 "ace:src/mode/text_highlight_rules.js": [
 176,
 192

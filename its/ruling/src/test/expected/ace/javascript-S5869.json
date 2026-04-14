@@ -36,12 +36,6 @@
 142,
 542
 ],
-"ace:src/mode/pig_highlight_rules.js": [
-58
-],
-"ace:src/mode/prisma_highlight_rules.js": [
-295
-],
 "ace:src/mode/red_highlight_rules.js": [
 17,
 17,
@@ -51,20 +45,6 @@
 "ace:src/mode/robot_highlight_rules.js": [
 86,
 86
-],
-"ace:src/mode/scrypt_highlight_rules.js": [
-99,
-99
-],
-"ace:src/mode/smithy_highlight_rules.js": [
-33,
-42,
-57,
-70,
-70,
-78,
-210,
-271
 ],
 "ace:src/mode/yaml_highlight_rules.js": [
 72

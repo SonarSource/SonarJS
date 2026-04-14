@@ -1331,16 +1331,9 @@
 312,
 312
 ],
-"ace:src/mode/ion.js": [
-40,
-44
-],
 "ace:src/mode/jack.js": [
 35,
 39
-],
-"ace:src/mode/jade_highlight_rules.js": [
-119
 ],
 "ace:src/mode/java.js": [
 17
@@ -1436,10 +1429,6 @@
 21,
 54,
 58
-],
-"ace:src/mode/partiql.js": [
-40,
-44
 ],
 "ace:src/mode/perl.js": [
 47,
@@ -1546,9 +1535,6 @@
 493,
 523
 ],
-"ace:src/mode/rust_highlight_rules.js": [
-54
-],
 "ace:src/mode/sass_highlight_rules.js": [
 27
 ],
@@ -1563,9 +1549,6 @@
 82,
 86,
 90
-],
-"ace:src/mode/scrypt.js": [
-23
 ],
 "ace:src/mode/scss.js": [
 43,
@@ -1655,16 +1638,6 @@
 "ace:src/mode/twig.js": [
 39,
 43
-],
-"ace:src/mode/typescript.js": [
-24
-],
-"ace:src/mode/vala.js": [
-61,
-65
-],
-"ace:src/mode/vbscript.js": [
-127
 ],
 "ace:src/mode/wollok.js": [
 15

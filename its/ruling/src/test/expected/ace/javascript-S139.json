@@ -442,10 +442,6 @@
 162,
 171
 ],
-"ace:src/mode/dart_highlight_rules.js": [
-49,
-144
-],
 "ace:src/mode/doc_comment_highlight_rules.js": [
 10,
 31,
@@ -782,11 +778,6 @@
 142,
 148
 ],
-"ace:src/mode/rust_highlight_rules.js": [
-35,
-137,
-172
-],
 "ace:src/mode/sac_highlight_rules.js": [
 44,
 46,
@@ -817,12 +808,6 @@
 90,
 122
 ],
-"ace:src/mode/scrypt_highlight_rules.js": [
-47,
-51,
-54,
-126
-],
 "ace:src/mode/scss_highlight_rules.js": [
 55,
 59,
@@ -845,12 +830,6 @@
 "ace:src/mode/sqlserver_highlight_rules.js": [
 15,
 130
-],
-"ace:src/mode/stylus_highlight_rules.js": [
-30,
-66,
-70,
-117
 ],
 "ace:src/mode/tcl_highlight_rules.js": [
 27,

@@ -313,17 +313,6 @@
 78,
 84
 ],
-"ace:src/mode/alda_highlight_rules.js": [
-19,
-19,
-41,
-41,
-41,
-41,
-41,
-67,
-70
-],
 "ace:src/mode/apex_highlight_rules.js": [
 112,
 112,
@@ -530,23 +519,6 @@
 34,
 34
 ],
-"ace:src/mode/hjson_highlight_rules.js": [
-74,
-74,
-74,
-115,
-115,
-115,
-143,
-153,
-153,
-153
-],
-"ace:src/mode/ion.js": [
-31,
-31,
-31
-],
 "ace:src/mode/jack.js": [
 26,
 26,
@@ -576,12 +548,6 @@
 ],
 "ace:src/mode/json_highlight_rules.js": [
 55
-],
-"ace:src/mode/jssm_highlight_rules.js": [
-136,
-136,
-140,
-140
 ],
 "ace:src/mode/jsx.js": [
 34,
@@ -673,11 +639,6 @@
 "ace:src/mode/nunjucks_highlight_rules.js": [
 131
 ],
-"ace:src/mode/partiql.js": [
-31,
-31,
-31
-],
 "ace:src/mode/perl.js": [
 38,
 38,
@@ -692,10 +653,6 @@
 1022,
 1025
 ],
-"ace:src/mode/pig_highlight_rules.js": [
-72,
-72
-],
 "ace:src/mode/powershell.js": [
 34,
 34,
@@ -705,14 +662,6 @@
 32,
 32,
 32
-],
-"ace:src/mode/prisma_highlight_rules.js": [
-132,
-170,
-185,
-295,
-295,
-295
 ],
 "ace:src/mode/puppet_highlight_rules.js": [
 99
@@ -776,9 +725,6 @@
 474,
 507
 ],
-"ace:src/mode/rust_highlight_rules.js": [
-181
-],
 "ace:src/mode/sac_highlight_rules.js": [
 114,
 114,
@@ -797,26 +743,8 @@
 33,
 33
 ],
-"ace:src/mode/smithy_highlight_rules.js": [
-33,
-42,
-57,
-70,
-70,
-78,
-83,
-103,
-110,
-199,
-210,
-271
-],
 "ace:src/mode/snippets.js": [
 14
-],
-"ace:src/mode/sparql_highlight_rules.js": [
-69,
-107
 ],
 "ace:src/mode/swift_highlight_rules.js": [
 143,
@@ -833,9 +761,6 @@
 "ace:src/mode/terraform_highlight_rules.js": [
 136
 ],
-"ace:src/mode/turtle_highlight_rules.js": [
-87
-],
 "ace:src/mode/twig.js": [
 30,
 30,
@@ -844,16 +769,6 @@
 "ace:src/mode/twig_highlight_rules.js": [
 96,
 96
-],
-"ace:src/mode/typescript_highlight_rules.js": [
-15,
-15,
-15
-],
-"ace:src/mode/vala.js": [
-41,
-41,
-41
 ],
 "ace:src/mode/visualforce_highlight_rules.js": [
 91
