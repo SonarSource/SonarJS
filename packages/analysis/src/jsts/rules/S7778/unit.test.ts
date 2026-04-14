@@ -97,29 +97,6 @@ importScripts();
 importScripts();
 `,
         },
-        {
-          // Callee type is 'any' (explicitly typed receiver) — type info is unavailable.
-          // Per "prefer no issue over false positive", suppress when type is unknown.
-          code: `
-const unknownObj: any = {};
-unknownObj.push(1);
-unknownObj.push(2);
-`,
-        },
-        {
-          // Callee type is 'any' (implicit any from 'let history;' without annotation).
-          // GameStateHistory.push() accepts only one argument, so combining would be wrong.
-          // TypeScript infers 'any' for unannotated 'let' variables, so we suppress to avoid FP.
-          code: `
-class GameStateHistory {
-  push(state: object): void {}
-}
-let history;
-history = new GameStateHistory();
-history.push({ id: 1 });
-history.push({ id: 2 });
-`,
-        },
       ],
       invalid: [
         {
@@ -200,6 +177,20 @@ importScripts('b.js');
           output: `
 declare function importScripts(...urls: string[]): void;
 importScripts('a.js', 'b.js');
+`,
+          errors: 1,
+        },
+        {
+          // TypeScript services available but callee signature is unresolved (any-typed receiver).
+          // getCallSignatures() returns [] → conservative fallback → report is kept.
+          code: `
+const unknownObj: any = {};
+unknownObj.push(1);
+unknownObj.push(2);
+`,
+          output: `
+const unknownObj: any = {};
+unknownObj.push(1, 2);
 `,
           errors: 1,
         },
