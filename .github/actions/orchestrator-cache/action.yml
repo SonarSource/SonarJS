@@ -34,7 +34,7 @@ runs:
     # Full cache on default branch (save enabled) - uses run_id for rolling cache
     - name: Cache Orchestrator (default branch)
       if: github.ref_name == github.event.repository.default_branch && inputs.save == 'true'
-      uses: SonarSource/gh-action_cache@v1
+      uses: actions/cache@v5
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}
         key: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-${{ github.run_id }}

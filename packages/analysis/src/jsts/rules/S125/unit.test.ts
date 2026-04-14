@@ -134,6 +134,31 @@ describe('S125', () => {
             // YUI().use('*'); // Comment following ';'
         `,
         },
+        {
+          // FP: "e.g." prefix is a documentation example, not dead code
+          code: `// e.g. step.where(condition === true);`,
+        },
+        {
+          // FP: multi-line block starting with "examples:" is documentation, not dead code
+          code: `
+// examples:
+// convertValue(42);
+// convertValue("hello");
+// convertValue(true);
+          `,
+        },
+        {
+          // FP: "for example" prefix is a documentation example
+          code: `// for example step.where(condition);`,
+        },
+        {
+          // FP: "Example:" prefix (case-insensitive) is a documentation example
+          code: `// Example: foo(bar);`,
+        },
+        {
+          // FP: "e.g:" colon variant is a documentation example
+          code: `// e.g: step.where(condition);`,
+        },
       ],
       invalid: [
         {
@@ -286,6 +311,46 @@ const a = 1;`,
           code: `//   }
 // foo();
 // if (x) {`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
+        {
+          // identifier starting with "example" is still reported as dead code
+          code: `// exampleFn();`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
+        {
+          // identifier starting with "examples" is still reported as dead code
+          code: `// examplesCount = 1;`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
+        {
+          // assignment where variable is named "example" is still reported as dead code
+          code: `// example = doSomething();`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [{ desc: 'Remove this commented out code', output: '' }],
+            },
+          ],
+        },
+        {
+          // assignment where variable is named "examples" is still reported as dead code
+          code: `// examples = doSomething();`,
           errors: [
             {
               messageId: 'commentedCode',
