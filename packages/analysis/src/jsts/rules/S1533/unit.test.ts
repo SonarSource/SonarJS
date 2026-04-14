@@ -31,17 +31,37 @@ describe('S1533', () => {
         x = new MyObject();
         x = new Foo.MyObject();
         x = new MyObject;
-        
+
         // OK without "new"
         x = Boolean(y);
         x = Number(y);
         x = String(y);
-        
+
         let a: string;
         let b: number | string | boolean | Array;
         const c: number = 3;
-        
+
         function myFunction(param1: boolean, param2: string): boolean { return true; }`,
+        },
+        {
+          // FP: wrapper types in interface property declarations (TSInterfaceBody context)
+          code: `interface IProps { disabled?: Boolean; label: String; count: Number; }`,
+        },
+        {
+          // FP: wrapper type in interface method parameter (TSInterfaceBody context)
+          code: `interface IApi { close(key: String): void; }`,
+        },
+        {
+          // FP: wrapper types in type alias object literal (TSTypeLiteral context)
+          code: `type Config = { size?: Number; origin?: Number; };`,
+        },
+        {
+          // FP: wrapper type as direct type alias value (TSTypeAliasDeclaration context)
+          code: `type T = Boolean;`,
+        },
+        {
+          // FP: wrapper type in generic type parameter in interface (TSTypeParameterInstantiation context)
+          code: `interface ICardArt { classes: Array<String>; }`,
         },
       ],
       invalid: [
