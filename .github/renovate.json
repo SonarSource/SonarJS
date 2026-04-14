@@ -26,8 +26,8 @@
       "matchDepNames": ["/^org\\.sonarsource\\.javascript:/"]
     },
     {
-      "description": "Group npm updates per source repository (monorepo), fallback to per dependency",
-      "matchManagers": ["npm"],
+      "description": "Group npm and maven updates per source repository (monorepo), fallback to per dependency",
+      "matchManagers": ["npm", "maven"],
       "groupName": "{{#if sourceRepo}}{{sourceRepo}} monorepo{{else}}{{depName}}{{/if}}",
       "groupSlug": "{{#if sourceRepo}}{{sourceRepo}}{{else}}{{depName}}{{/if}}"
     },
