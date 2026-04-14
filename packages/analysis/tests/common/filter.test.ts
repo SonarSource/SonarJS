@@ -26,6 +26,10 @@ import {
 } from '../../../shared/src/helpers/files.js';
 
 const BUNDLE_CONTENTS = '/* jQuery JavaScript Library v1.4.3*/(function(';
+const GENERATED_HEADER_CONTENTS = `/**
+ * @generated SignedSource<<1234567890>>
+ */
+export const generated = true;`;
 const baseDir = join(normalizePath(import.meta.dirname), 'fixtures');
 
 describe('filter.ts', () => {
@@ -50,6 +54,18 @@ describe('filter.ts', () => {
       const config = createConfiguration({ baseDir });
       const params = getShouldIgnoreParams(config);
       const result = accept(normalizeToAbsolutePath('/project/file.js'), BUNDLE_CONTENTS, params);
+
+      expect(result).toBe(false);
+    });
+
+    it('should reject JS/TS file when it contains an explicit generated header comment', () => {
+      const config = createConfiguration({ baseDir });
+      const params = getShouldIgnoreParams(config);
+      const result = accept(
+        normalizeToAbsolutePath('/project/file.js'),
+        GENERATED_HEADER_CONTENTS,
+        params,
+      );
 
       expect(result).toBe(false);
     });
