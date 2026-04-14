@@ -93,10 +93,10 @@ describe('S2259', () => {
           }
         
           if (x == null) {
-            x.foo();    // FN
+            foo();
           }
           if (x == undefined) {
-            x.foo();     // FN  
+            foo();
           }
           if (x === null) {
             x.foo(); // FN

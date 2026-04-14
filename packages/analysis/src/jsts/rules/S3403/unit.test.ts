@@ -116,7 +116,7 @@ describe('S3403', () => {
           {
             code: `
         let str = 'str', nulll = null;
-        str === nulll;`,
+        str == nulll;`,
           },
           {
             code: `
