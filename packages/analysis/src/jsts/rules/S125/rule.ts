@@ -35,6 +35,7 @@ const DOCUMENTATION_PREFIX_PATTERN = /^(e\.g[.:]|for example\b|examples?:)/i;
 // Cheap prefilter: any meaningful JS statement must contain at least one of these characters,
 // or be an import/export with a string literal (side-effect imports have no punctuation)
 const CODE_CHAR_PATTERN = /[;{}()=<>]|\bimport\s+['"]|\bexport\s/;
+const JSX_ATTRIBUTE_WRAPPER = '_S125Wrapper';
 
 const recognizer = new CodeRecognizer(0.9, new JavaScriptFootPrint());
 
@@ -174,23 +175,22 @@ function containsCode(value: string, context: Rule.RuleContext) {
     return false;
   }
 
-  try {
-    const options = {
-      ...context.languageOptions?.parserOptions,
-      filePath: `placeholder${path.extname(context.filename)}`,
-      programs: undefined,
-      project: undefined,
-    };
-    //In case of Vue parser: we will use the JS/TS parser instead of the Vue parser
-    const parser =
-      context.languageOptions?.parserOptions?.parser ?? context.languageOptions?.parser;
-    const result =
-      'parse' in parser ? parser.parse(value, options) : parser.parseForESLint(value, options).ast;
-    const program = result as AST.Program;
+  const options = {
+    ...context.languageOptions?.parserOptions,
+    filePath: `placeholder${path.extname(context.filename)}`,
+    programs: undefined,
+    project: undefined,
+  };
+  //In case of Vue parser: we will use the JS/TS parser instead of the Vue parser
+  const parser = context.languageOptions?.parserOptions?.parser ?? context.languageOptions?.parser;
+  const program = parseWithRuleParser(value, parser, options);
+
+  if (program) {
     return program.body.length > 0 && !isExclusion(program.body, value, program, context);
-  } catch {
-    return false;
   }
+
+  const wrappedProgram = parseWithRuleParser(wrapAsJsxTag(value), parser, options);
+  return hasValidJsxAttributeCode(wrappedProgram);
 }
 
 function couldBeJsCode(input: string): boolean {
@@ -251,4 +251,59 @@ function isDocumentationExample(value: string): boolean {
   // Strip any leading '//' markers (e.g. '// foo()' in a nested comment becomes 'foo()')
   const stripped = firstLine.replace(/^(?:\/\/\s*)+/, '').trim();
   return DOCUMENTATION_PREFIX_PATTERN.test(stripped);
+}
+
+function parseWithRuleParser(
+  value: string,
+  parser: NonNullable<Rule.RuleContext['languageOptions']['parser']>,
+  options: Rule.RuleContext['languageOptions']['parserOptions'],
+): AST.Program | null {
+  try {
+    return (
+      'parse' in parser ? parser.parse(value, options) : parser.parseForESLint(value, options).ast
+    ) as AST.Program;
+  } catch {
+    return null;
+  }
+}
+
+function wrapAsJsxTag(value: string): string {
+  return `<${JSX_ATTRIBUTE_WRAPPER} ${value} />`;
+}
+
+function hasValidJsxAttributeCode(program: AST.Program | null): boolean {
+  if (program?.body.length !== 1) {
+    return false;
+  }
+
+  const statement = program.body[0] as TSESTree.Statement;
+  if (statement.type !== 'ExpressionStatement' || statement.expression.type !== 'JSXElement') {
+    return false;
+  }
+
+  const jsxElement = statement.expression;
+  if (jsxElement.openingElement.name.type !== 'JSXIdentifier') {
+    return false;
+  }
+
+  if (jsxElement.openingElement.name.name !== JSX_ATTRIBUTE_WRAPPER) {
+    return false;
+  }
+
+  const attributes = jsxElement.openingElement.attributes;
+  return attributes.length > 0 && attributes.every(isValidJsxAttribute);
+}
+
+function isValidJsxAttribute(
+  attribute: TSESTree.JSXAttribute | TSESTree.JSXSpreadAttribute,
+): boolean {
+  if (attribute.type === 'JSXSpreadAttribute') {
+    return true;
+  }
+
+  if (attribute.name.type !== 'JSXIdentifier') {
+    return false;
+  }
+
+  return attribute.value !== null;
 }
