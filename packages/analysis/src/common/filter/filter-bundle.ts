@@ -140,37 +140,40 @@ function hasGeneratedByCommentLine(input: string) {
 }
 
 function stripCommentPrefix(line: string) {
-  let index = 0;
-
-  while (index < line.length && /\s/.test(line[index])) {
-    index++;
-  }
-
-  if (line.startsWith('//', index)) {
-    index += 2;
-    while (index < line.length && line[index] === '/') {
-      index++;
-    }
-  } else if (line.startsWith('/*', index)) {
-    index += 2;
-    while (index < line.length && line[index] === '*') {
-      index++;
-    }
-  } else {
-    while (index < line.length && line[index] === '*') {
-      index++;
-    }
-  }
-
-  while (index < line.length && /\s/.test(line[index])) {
-    index++;
-  }
-
+  let index = skipLeadingWhitespace(line, 0);
+  index = skipCommentPrefix(line, index);
+  index = skipLeadingWhitespace(line, index);
   return line.slice(index);
 }
 
 function skipWhitespace(input: string, index: number) {
   while (index < input.length && /\s/.test(input[index])) {
+    index++;
+  }
+  return index;
+}
+
+function skipLeadingWhitespace(input: string, index: number) {
+  while (index < input.length && /\s/.test(input[index])) {
+    index++;
+  }
+  return index;
+}
+
+function skipCommentPrefix(line: string, index: number) {
+  if (line.startsWith('//', index)) {
+    return skipRepeatedCharacter(line, index + 2, '/');
+  }
+
+  if (line.startsWith('/*', index)) {
+    return skipRepeatedCharacter(line, index + 2, '*');
+  }
+
+  return skipRepeatedCharacter(line, index, '*');
+}
+
+function skipRepeatedCharacter(input: string, index: number, character: string) {
+  while (index < input.length && input[index] === character) {
     index++;
   }
   return index;
