@@ -1539,6 +1539,18 @@
 5,
 7
 ],
+"ace:src/mode/ion.js": [
+7,
+8,
+9,
+10,
+11,
+12
+],
+"ace:src/mode/ion_highlight_rules.js": [
+7,
+8
+],
 "ace:src/mode/jack.js": [
 3,
 4,
@@ -1929,6 +1941,19 @@
 "ace:src/mode/ocaml_highlight_rules.js": [
 3,
 4
+],
+"ace:src/mode/partiql.js": [
+7,
+8,
+9,
+10,
+11,
+12
+],
+"ace:src/mode/partiql_highlight_rules.js": [
+7,
+8,
+10
 ],
 "ace:src/mode/pascal_highlight_rules.js": [
 3,

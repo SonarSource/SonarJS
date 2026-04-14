@@ -519,6 +519,11 @@
 34,
 34
 ],
+"ace:src/mode/ion.js": [
+31,
+31,
+31
+],
 "ace:src/mode/jack.js": [
 26,
 26,
@@ -638,6 +643,11 @@
 ],
 "ace:src/mode/nunjucks_highlight_rules.js": [
 131
+],
+"ace:src/mode/partiql.js": [
+31,
+31,
+31
 ],
 "ace:src/mode/perl.js": [
 38,

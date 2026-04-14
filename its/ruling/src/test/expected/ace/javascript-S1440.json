@@ -1721,6 +1721,9 @@
 "ace:src/mode/html_highlight_rules.js": [
 58
 ],
+"ace:src/mode/ion.js": [
+30
+],
 "ace:src/mode/jack.js": [
 25
 ],
@@ -1833,6 +1836,9 @@
 ],
 "ace:src/mode/nix_highlight_rules.js": [
 62
+],
+"ace:src/mode/partiql.js": [
+30
 ],
 "ace:src/mode/perl.js": [
 33,

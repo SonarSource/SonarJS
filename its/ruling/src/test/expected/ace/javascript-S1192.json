@@ -245,6 +245,9 @@
 "ace:src/mode/haml_highlight_rules.js": [
 17
 ],
+"ace:src/mode/ion_highlight_rules.js": [
+107
+],
 "ace:src/mode/javascript_highlight_rules.js": [
 66,
 74,
@@ -330,6 +333,9 @@
 ],
 "ace:src/mode/objectivec_highlight_rules.js": [
 44
+],
+"ace:src/mode/partiql_highlight_rules.js": [
+210
 ],
 "ace:src/mode/pascal_highlight_rules.js": [
 36
