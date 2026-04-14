@@ -64,6 +64,10 @@ describe('S1533', () => {
           code: `interface ICardArt { classes: Array<String>; }`,
         },
         {
+          // FP: wrapper type in interface property with function type (TSInterfaceBody context)
+          code: `interface Props { onChange: (value: String) => void; onCountChange: (count: Number) => void; }`,
+        },
+        {
           // FP: wrapper type as generic arg in function call (TSTypeParameterInstantiation context)
           code: `declare function createMap<T>(): Map<T>; const x = createMap<String>();`,
         },
