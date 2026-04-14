@@ -32,10 +32,9 @@ runs:
         restore-keys: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-
 
     # Full cache on default branch (save enabled) - uses run_id for rolling cache
-    - name: Restore Orchestrator cache (default branch)
+    - name: Cache Orchestrator (default branch)
       if: github.ref_name == github.event.repository.default_branch && inputs.save == 'true'
-      uses: actions/cache/restore@v5
-      id: orchestrator-cache
+      uses: actions/cache@v5
       with:
         path: ${{ env.ORCHESTRATOR_HOME }}
         key: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-${{ github.run_id }}
@@ -44,10 +43,3 @@ runs:
     - name: Setup Orchestrator home directory
       shell: bash
       run: mkdir -p "$ORCHESTRATOR_HOME"
-
-    - name: Save Orchestrator cache (default branch)
-      if: github.ref_name == github.event.repository.default_branch && inputs.save == 'true' && steps.orchestrator-cache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v5
-      with:
-        path: ${{ env.ORCHESTRATOR_HOME }}
-        key: ${{ inputs.key-prefix }}-${{ env.ORCHESTRATOR_CACHE_MONTH }}-${{ github.run_id }}
