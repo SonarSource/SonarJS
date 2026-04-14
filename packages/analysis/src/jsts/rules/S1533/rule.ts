@@ -18,10 +18,20 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
 const WRAPPER_TYPES = new Set(['Boolean', 'Number', 'String']);
+
+// Wrapper types in these type-definition contexts are not runtime concerns and should not be flagged
+const TYPE_DEFINITION_CONTEXTS = new Set([
+  'TSInterfaceBody',
+  'TSTypeAliasDeclaration',
+  'TSTypeLiteral',
+  'TSTypeParameterInstantiation',
+]);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -59,6 +69,13 @@ export const rule: Rule.RuleModule = {
       TSTypeReference(node: estree.Node) {
         const typeString = context.sourceCode.getText(node);
         if (WRAPPER_TYPES.has(typeString)) {
+          if (
+            findFirstMatchingAncestor(node as TSESTree.Node, a =>
+              TYPE_DEFINITION_CONTEXTS.has(a.type),
+            )
+          ) {
+            return;
+          }
           const primitiveType = typeString.toLowerCase();
           context.report({
             messageId: 'replaceWrapper',

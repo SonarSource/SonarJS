@@ -63,6 +63,14 @@ describe('S1533', () => {
           // FP: wrapper type in generic type parameter in interface (TSTypeParameterInstantiation context)
           code: `interface ICardArt { classes: Array<String>; }`,
         },
+        {
+          // FP: wrapper type as generic arg in function call (TSTypeParameterInstantiation context)
+          code: `declare function createMap<T>(): Map<T>; const x = createMap<String>();`,
+        },
+        {
+          // FP: wrapper types as generic args in new expression (TSTypeParameterInstantiation context)
+          code: `const m = new Map<Number, String>();`,
+        },
       ],
       invalid: [
         {
