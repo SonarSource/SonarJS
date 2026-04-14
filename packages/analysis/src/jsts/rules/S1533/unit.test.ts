@@ -338,6 +338,21 @@ describe('S1533', () => {
             },
           ],
         },
+        {
+          // TP: wrapper type in arrow function parameter (arrow function is not a type-definition context)
+          code: `const onChange = (value: Number) => value;`,
+          errors: [
+            {
+              message: 'Replace this "Number" wrapper object with primitive type "number".',
+              suggestions: [
+                {
+                  output: 'const onChange = (value: number) => value;',
+                  desc: 'Replace "Number" with "number"',
+                },
+              ],
+            },
+          ],
+        },
       ],
     });
   });
