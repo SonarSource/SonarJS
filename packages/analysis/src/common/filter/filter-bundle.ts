@@ -25,6 +25,7 @@ const COMMENT_OPERATOR_FUNCTION = new RegExp(
   COMMENT + String.raw`\s*` + OPERATOR + 'function ?' + OPTIONAL_FUNCTION_NAME + String.raw`\(`,
   's',
 );
+const BYTE_ORDER_MARK = 0xfeff;
 const GENERATED_HEADER_PATTERNS = [
   /@generated\b/i,
   /@auto-generated\b/i,
@@ -70,35 +71,29 @@ export function hasGeneratedHeaderComment(input: string) {
 
 function extractLeadingCommentHeader(input: string) {
   const firstCharacters = input.substring(0, READ_CHARACTERS_LIMIT);
-  let index = 0;
+  let index = startsWithBom(firstCharacters) ? 1 : 0;
   let header = '';
-
-  if (firstCharacters.charCodeAt(0) === 0xfeff) {
-    index++;
-  }
 
   while (index < firstCharacters.length) {
     index = skipWhitespace(firstCharacters, index);
 
-    if (firstCharacters.startsWith('#!', index)) {
-      const shebangEnd = firstCharacters.indexOf('\n', index);
-      index = shebangEnd === -1 ? firstCharacters.length : shebangEnd + 1;
+    const shebangEnd = findShebangEnd(firstCharacters, index);
+    if (shebangEnd !== undefined) {
+      index = shebangEnd;
       continue;
     }
 
-    if (firstCharacters.startsWith('//', index)) {
-      const lineEnd = firstCharacters.indexOf('\n', index);
-      const nextIndex = lineEnd === -1 ? firstCharacters.length : lineEnd + 1;
-      header += firstCharacters.slice(index, nextIndex);
-      index = nextIndex;
+    const lineCommentEnd = findLineCommentEnd(firstCharacters, index);
+    if (lineCommentEnd !== undefined) {
+      header += firstCharacters.slice(index, lineCommentEnd);
+      index = lineCommentEnd;
       continue;
     }
 
-    if (firstCharacters.startsWith('/*', index)) {
-      const commentEnd = firstCharacters.indexOf('*/', index + 2);
-      const nextIndex = commentEnd === -1 ? firstCharacters.length : commentEnd + 2;
-      header += firstCharacters.slice(index, nextIndex);
-      index = nextIndex;
+    const blockCommentEnd = findBlockCommentEnd(firstCharacters, index);
+    if (blockCommentEnd !== undefined) {
+      header += firstCharacters.slice(index, blockCommentEnd);
+      index = blockCommentEnd;
       continue;
     }
 
@@ -106,6 +101,38 @@ function extractLeadingCommentHeader(input: string) {
   }
 
   return header;
+}
+
+function startsWithBom(input: string) {
+  return input.codePointAt(0) === BYTE_ORDER_MARK;
+}
+
+function findShebangEnd(input: string, index: number) {
+  if (!input.startsWith('#!', index)) {
+    return undefined;
+  }
+  return nextLineIndex(input, index);
+}
+
+function findLineCommentEnd(input: string, index: number) {
+  if (!input.startsWith('//', index)) {
+    return undefined;
+  }
+  return nextLineIndex(input, index);
+}
+
+function findBlockCommentEnd(input: string, index: number) {
+  if (!input.startsWith('/*', index)) {
+    return undefined;
+  }
+
+  const commentEnd = input.indexOf('*/', index + 2);
+  return commentEnd === -1 ? input.length : commentEnd + 2;
+}
+
+function nextLineIndex(input: string, index: number) {
+  const lineEnd = input.indexOf('\n', index);
+  return lineEnd === -1 ? input.length : lineEnd + 1;
 }
 
 function skipWhitespace(input: string, index: number) {
