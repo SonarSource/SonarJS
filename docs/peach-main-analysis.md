@@ -61,6 +61,10 @@ This is **not** a SonarJS analyzer failure. The last active sensor is `JsSecurit
    ├─ After analysis completed (report upload / post-scan step) → usually IGNORE
    └─ Unclear / no recognizable step → NEEDS-MANUAL-REVIEW
 
+Before classifying from the step name, check whether multiple steps are marked failed.
+Use the earliest failed step that actually ran as the phase owner.
+If `Analyze project` was skipped, do not classify from later `Report analyzer version` noise.
+
 2. Only now inspect the scanner exit code.
    ├─ Exit code 3 → read the error message:
    │   ├─ "The folder X does not exist" or "Invalid value of sonar.X" → IGNORE (project misconfiguration)
@@ -241,6 +245,40 @@ The class `com.A.A.D.H` is from the sonar-iac plugin (obfuscated). No `org.sonar
 ```
 
 **Action:** No SonarJS release blocker. The analyzed project's sonar-project.properties references a path that no longer exists. Create or update a Peach tracking task if the project should stay green.
+
+---
+
+### IGNORE: Upstream Repository Removed / Inaccessible
+
+**Verdict:** IGNORE — the target project can no longer be fetched from GitHub, so analysis never
+started and this is not a SonarJS analyzer issue.
+
+**How to identify:**
+- Failure occurs during `Checkout project`
+- `Analyze project` is skipped
+- The checkout URL points to a repository or owner that is no longer accessible
+- The log shows repeated clone retries ending with messages such as:
+  - `fatal: could not read Username for 'https://github.com': No such device or address`
+  - `All 3 attempts failed`
+
+This can happen when the upstream owner or repository has been removed from GitHub, for example
+after abuse or malware takedowns.
+
+**Detection patterns:**
+- Phase 1: `/fatal: could not read Username for 'https:\/\/github\.com'/`
+- Phase 1: `/All 3 attempts failed/`
+
+**Example log excerpt (`vote-coin-demo`, 2026-04-14):**
+```
+Checking out vote-coin-demo at ed7b9fd5d9504311598bd05d622fc4244c78848f from https://github.com/scholtz/vote-coin-demo
+fatal: could not read Username for 'https://github.com': No such device or address
+Attempt 3 failed with exit code 128
+All 3 attempts failed
+##[error]Process completed with exit code 1.
+```
+
+**Action:** No SonarJS release blocker. Remove or replace the Peach project entry, or track it as a
+Peach maintenance issue if the matrix should remain green.
 
 ---
 
