@@ -132,6 +132,56 @@ function getContextualTypeOfNode(
 }
 
 /**
+ * Returns true when the upstream report is a known false positive that should be suppressed.
+ *
+ * We suppress only when the optional-chain rewrite would leak a type-unsafe `undefined`
+ * into the surrounding context. All other cases are reported by default.
+ */
+function isKnownFalsePositive(
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+  checker: ts.TypeChecker,
+  node: Rule.Node,
+): boolean {
+  // Negation patterns (!a || !a.prop): the ! operator always returns boolean,
+  // so optional chaining (!a?.prop) is always type-safe regardless of context.
+  // Both sides must be negated — !a || (comparison) is not a negation pattern.
+  if (isNegatedOptionalChainGuard(node)) {
+    return false;
+  }
+
+  // Comparison patterns (e.g. !a || a.prop !== b): the comparison operator always
+  // returns boolean, so the optional-chain rewrite (a?.prop !== b) is also boolean.
+  if (
+    node.type === 'LogicalExpression' &&
+    node.right.type === 'BinaryExpression' &&
+    ['==', '!=', '===', '!==', '<', '>', '<=', '>=', 'instanceof', 'in'].includes(
+      node.right.operator,
+    )
+  ) {
+    return false;
+  }
+
+  // When (a && a.prop) is the left operand of || or ??, the enclosing operator
+  // absorbs the undefined introduced by optional chaining.
+  const parent = node.parent;
+  if (
+    parent?.type === 'LogicalExpression' &&
+    (parent.operator === '||' || parent.operator === '??') &&
+    parent.left === node
+  ) {
+    return false;
+  }
+
+  const contextualType = getContextualTypeOfNode(services, checker, node);
+  if (!contextualType) {
+    // No contextual type (e.g. if/while boolean context) — replacement is safe.
+    return false;
+  }
+
+  return !allowsUndefined(contextualType);
+}
+
+/**
  * Sanitized rule 'prefer-optional-chain' from TypeScript ESLint.
  *
  * TypeScript ESLint's rule raises a runtime error if the parser services of the
@@ -177,34 +227,10 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      // Negation patterns (!a || !a.prop): the ! operator always returns boolean,
-      // so optional chaining (!a?.prop) is always type-safe regardless of context.
-      // Both sides must be negated — !a || (comparison) is not a negation pattern
-      // and should fall through to the contextual type check.
-      if (isNegatedOptionalChainGuard(node)) {
-        ctx.report(descriptor);
+      if (isKnownFalsePositive(services, checker, node)) {
         return;
       }
 
-      // Comparison patterns (e.g. !a || a.prop !== b): the comparison operator always
-      // returns boolean, so the optional-chain rewrite (a?.prop !== b) is also boolean —
-      // no undefined leaks into the surrounding type regardless of context.
-      if (
-        node.type === 'LogicalExpression' &&
-        node.right.type === 'BinaryExpression' &&
-        ['==', '!=', '===', '!==', '<', '>', '<=', '>=', 'instanceof', 'in'].includes(
-          node.right.operator,
-        )
-      ) {
-        ctx.report(descriptor);
-        return;
-      }
-
-      // Left-operand-of-|| or left-operand-of-?? pattern:
-      // When (a && a.prop) is the left operand of || or ??, the enclosing operator
-      // absorbs the undefined introduced by optional chaining, making the rewrite
-      // type-safe. E.g. (repo && repo.name) || fallback → repo?.name || fallback
-      // preserves the overall type because || and ?? provide a fallback for undefined.
       const parent = node.parent;
       if (
         parent?.type === 'LogicalExpression' &&
@@ -225,18 +251,7 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      const contextualType = getContextualTypeOfNode(services, checker, node);
-      if (!contextualType) {
-        // No contextual type (e.g. if/while boolean context) — replacement is safe
-        ctx.report(descriptor);
-        return;
-      }
-
-      if (allowsUndefined(contextualType)) {
-        // undefined is assignable to the contextual type — replacement is type-safe
-        ctx.report(descriptor);
-      }
-      // undefined is NOT assignable to the contextual type — suppress the report
+      ctx.report(descriptor);
     }).create(context);
   },
 };
