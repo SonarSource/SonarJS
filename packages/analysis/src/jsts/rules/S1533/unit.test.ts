@@ -353,6 +353,36 @@ describe('S1533', () => {
             },
           ],
         },
+        {
+          // TP: Boolean as function return type (not a type-definition context)
+          code: `function isValid(x: any): Boolean { return !!x; }`,
+          errors: [
+            {
+              message: 'Replace this "Boolean" wrapper object with primitive type "boolean".',
+              suggestions: [
+                {
+                  output: 'function isValid(x: any): boolean { return !!x; }',
+                  desc: 'Replace "Boolean" with "boolean"',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // TP: wrapper type in union type as function parameter (not a type-definition context)
+          code: `function setKey(key: string | String, value: number): void {}`,
+          errors: [
+            {
+              message: 'Replace this "String" wrapper object with primitive type "string".',
+              suggestions: [
+                {
+                  output: 'function setKey(key: string | string, value: number): void {}',
+                  desc: 'Replace "String" with "string"',
+                },
+              ],
+            },
+          ],
+        },
       ],
     });
   });
