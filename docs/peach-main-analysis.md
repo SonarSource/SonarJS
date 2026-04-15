@@ -58,6 +58,7 @@ This is **not** a SonarJS analyzer failure. The last active sensor is `JsSecurit
 1. At which step did the job fail?
    ├─ Pre-scan step (checkout, vault secrets, clone, cache, dependency install) → IGNORE
    ├─ During `Analyze project` / sonar-scanner execution → go to step 2
+   ├─ `Diff Val` / `diff-val` monitoring step or job `diff-validation-aggregated` → IGNORE
    ├─ After analysis completed (report upload / post-scan step) → usually IGNORE
    └─ Unclear / no recognizable step → NEEDS-MANUAL-REVIEW
 
@@ -84,6 +85,47 @@ Do not classify by exit code before you know the failing phase. For example, exi
 during `npm install` is a dependency/setup problem, not a scanner problem.
 
 ## Failure Categories
+
+### IGNORE: Diff Val Monitoring Failure
+
+**Verdict:** IGNORE — the failure happened in differential-validation monitoring, not in project
+analysis.
+
+**How to identify:**
+- The failing step name contains `Diff Val` or `diff-val`
+- Examples:
+  - `Setup Diff Val`
+  - `Diff Val Snapshot generation`
+  - `Diff Val aggregated snapshot generation`
+  - `Upload diff-val artifacts`
+- Or the job name is `diff-validation-aggregated`
+- These steps run after analysis or as workflow-level post-processing to compare daily snapshots
+  for monitoring purposes
+- Failures here often come from the same Peach API flakiness seen elsewhere, but they do not say
+  anything about SonarJS analyzer correctness
+
+**Detection patterns:**
+- Classify from step metadata first; do not require log inspection
+- Phase 1 log hints may include `/502 Bad Gateway/`, `/503 Service Unavailable/`,
+  `/timeout/`, `/difference is found/`, or non-zero exit codes from diff-val tooling
+
+**Example outcomes:**
+```
+Diff Val Snapshot generation
+Process failed ... SnapshotHttpException: HTTP request failed with error code '502' ...
+##[error]Process completed with exit code 1.
+```
+
+```
+Diff Val aggregated snapshot generation
+Application run failed ... ExitDiffAppException: The difference is found for projects: ...
+##[error]Process completed with exit code 2.
+```
+
+**Action:** None for SonarJS release triage. Ignore and silence these failures in the detailed
+review output. If needed, track them separately as Peach monitoring noise.
+
+---
 
 ### CRITICAL: SonarJS Plugin Failure
 
@@ -522,6 +564,8 @@ sed --sandbox -n '
 /OutOfMemoryError/p                    # OOM / Runner Killed
 /502 Bad Gateway/p                     # Peach Server Unreachable (502)
 /503 Service Unavailable/p             # Peach Server Unreachable (503)
+/Diff Val/p                           # Diff Val monitoring failure
+/diff-val/p                           # Diff Val monitoring failure
 /Fail to download plugin \[javascript\]/p  # Scanner Bootstrap / Plugin Download Timeout
 /api\/v2\/analysis\/engine/p          # Scanner Bootstrap / Plugin Download Timeout
 /Artifact has expired/p                # Artifact Expired
@@ -561,6 +605,18 @@ sed --sandbox -n '
 
 This surfaces both the last sensor that ran and any `org.sonar.plugins.javascript` frames in the
 stack trace, plus the explicit Node-heap hints used by the `tape` failure pattern.
+
+---
+
+## Output Guidance
+
+When summarizing a run for SonarJS release triage:
+
+- Treat Diff Val / `diff-validation-aggregated` failures as silenced `IGNORE` items
+- Do not emit one detailed line per ignored Diff Val failure unless they are the only failures
+- Prefer a short roll-up note such as `Ignored 4 Diff Val monitoring failures`
+- If every failed job is either a Diff Val monitoring failure or another `IGNORE` category, the
+  release verdict is `SAFE`
 
 ---
 

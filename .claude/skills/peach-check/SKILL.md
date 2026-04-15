@@ -114,6 +114,16 @@ If the job metadata shows multiple failed steps, use the earliest failed step th
 the phase owner. Treat later failed report/cleanup steps as downstream noise unless they are the
 only failed steps.
 
+Before deeper triage, check whether the failure belongs to Diff Val monitoring rather than the
+analysis itself:
+
+- If the failing step name contains `Diff Val` or `diff-val`, classify the job immediately as
+  `IGNORE`.
+- If the job name is `diff-validation-aggregated`, classify it immediately as `IGNORE` even when
+  it exits with a non-zero code or reports found differences.
+- These jobs are monitoring / post-processing only. They are not release blockers for SonarJS and
+  should be silenced from the detailed findings unless they are the only failures in the run.
+
 **Step 3 — Early exit if no failures**
 
 If there are no failed jobs, print:
@@ -180,6 +190,11 @@ When multiple steps are marked failed:
 Then triage each failed job using a graduated approach. Work through phases as needed — stop as
 soon as a job can be classified. Run all jobs in parallel within each phase.
 
+If the failing step is a Diff Val / diff-val monitoring step (`Setup Diff Val`,
+`Diff Val Snapshot generation`, `Diff Val aggregated snapshot generation`, or similar), classify
+it immediately as `IGNORE` and stop triage for that job. This includes the final
+`diff-validation-aggregated` job, which is entirely out of scope for analyzer release checks.
+
 **Phase 1 — Download log and filter for failure signals (always, all jobs in parallel)**
 
 Download the log to disk, then filter for key failure signals. Saving to disk avoids re-downloading
@@ -199,6 +214,8 @@ sed --sandbox -n '
 /OutOfMemoryError/p
 /502 Bad Gateway/p
 /503 Service Unavailable/p
+/Diff Val/p
+/diff-val/p
 /Artifact has expired/p
 /All 3 attempts failed/p
 /ERR_PNPM/p
@@ -214,6 +231,16 @@ Use the decision flowchart and failure categories from `docs/peach-main-analysis
 the filtered output. If the filtered lines show exit code 3 (EXECUTION FAILURE from the
 SonarQube scanner), always continue to Phase 2 — Phase 1 does not surface Java stack traces,
 so the SonarJS plugin involvement cannot be ruled out from Phase 1 alone.
+
+Many jobs can be classified immediately from Phase 1:
+
+- project misconfiguration
+- dependency install failure
+- Peach unavailable
+- artifact expired
+- clone/network failures
+- Diff Val monitoring failures
+- cancelled or incomplete run evidence
 
 Also watch for checkout failures before analysis, for example:
 
@@ -287,6 +314,12 @@ summary, for example:
 **Step 8 — Print summary**
 
 Sort rows by verdict: CRITICAL first, then NEEDS-MANUAL-REVIEW, then IGNORE.
+Silence Diff Val-only noise:
+
+- Do not emit one row per ignored Diff Val / `diff-validation-aggregated` failure when there are
+  other more relevant failures to report.
+- Instead, collapse them into a short note such as `Ignored N Diff Val monitoring failures`.
+
 Place the Category column first. After the verdict counts and release recommendation, list any
 general notes collected during log analysis (for example clustered failures or mass-failure
 observations):
@@ -315,6 +348,9 @@ The release recommendation is:
 - **SAFE** — zero CRITICAL or NEEDS-MANUAL-REVIEW jobs
 - **NOT SAFE** — one or more CRITICAL jobs
 - **REVIEW NEEDED** — zero CRITICAL but one or more NEEDS-MANUAL-REVIEW jobs
+
+If every failed job is either a Diff Val monitoring failure or another `IGNORE` category, the
+release recommendation is still **SAFE**.
 
 **Step 9 — Update docs if a new failure pattern was found**
 
