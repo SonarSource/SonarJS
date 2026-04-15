@@ -159,4 +159,14 @@ export const value = 1;`;
 console.log("hello");`;
     expect(hasGeneratedHeaderComment(code)).toBe(true);
   });
+
+  it('should detect generated marker in a BOM-prefixed file', () => {
+    const code = '\uFEFF// @generated\nexport const value = 1;';
+    expect(hasGeneratedHeaderComment(code)).toBe(true);
+  });
+
+  it('should not detect generated marker when BOM is followed by a regular comment', () => {
+    const code = '\uFEFF// Copyright (c) Example\nexport const value = 1;';
+    expect(hasGeneratedHeaderComment(code)).toBe(false);
+  });
 });
