@@ -65,6 +65,9 @@ This is **not** a SonarJS analyzer failure. The last active sensor is `JsSecurit
 Before classifying from the step name, check whether multiple steps are marked failed.
 Use the earliest failed step that actually ran as the phase owner.
 If `Analyze project` was skipped, do not classify from later `Report analyzer version` noise.
+Also, do not assume that the GitHub Actions step name `Analyze project` means the owning phase is
+`analyze`: if the JavaScript sensor already finished and the stack trace later shows
+`ReportPublisher.upload` or `/api/ce/submit`, the real owner is `post-scan`.
 
 2. Only now inspect the scanner exit code.
    ├─ Exit code 3 → read the error message:
@@ -83,6 +86,9 @@ If `Analyze project` was skipped, do not classify from later `Report analyzer ve
 
 Do not classify by exit code before you know the failing phase. For example, exit code `1`
 during `npm install` is a dependency/setup problem, not a scanner problem.
+Likewise, do not classify from the first matching exit-code line in the log alone: nested commands
+can emit intermediate non-fatal `Process completed with exit code 1` lines that the job then
+recovers from before the real terminal failure.
 
 ## Failure Categories
 
@@ -336,7 +342,8 @@ Peach maintenance issue if the matrix should remain green.
 
 **Detection patterns:**
 - Phase 1: `/EXECUTION FAILURE/`, `/Process completed with exit code/` — exit code 3 with no misconfiguration signal escalates to Phase 2
-- Phase 2: `/org\.sonar\.plugins\.javascript/` absent; `/Sensor /` present (analysis ran) but no SonarJS frame → escalate to Phase 3 to confirm `ReportPublisher.upload` in stack trace
+- Phase 2: `/ReportPublisher\.upload/`, `/api\/ce\/submit/`, or `/SocketTimeoutException/`
+- Phase 2: `/org\.sonar\.plugins\.javascript/` absent; `/Sensor /` present and the SonarJS sensor already finished → IGNORE
 
 **Example log excerpt (fossflow, 2026-03-13):**
 ```
@@ -349,6 +356,10 @@ Caused by: java.net.SocketTimeoutException: timeout
 ```
 
 Multiple jobs failing this way within the same ~2-minute window is a strong indicator that the Peach server was temporarily unavailable or overloaded.
+
+This can still appear under the GitHub step name `Analyze project`. If
+`Sensor JavaScript/TypeScript/CSS analysis [javascript] (done)` appears before the stack trace,
+the analysis completed and the job should be classified as `post-scan`, not as an analyzer crash.
 
 **Action:** None for the SonarJS team. Re-run the workflow if needed; the failures are unrelated to the analyzer.
 
@@ -581,6 +592,10 @@ sed --sandbox -n '
 
 If Phase 1 shows exit code 3 with `EXECUTION FAILURE` but none of the misconfiguration patterns,
 escalate to Phase 2 — a Java stack trace may be present that Phase 1 does not surface.
+Do not assume the first printed exit code is the terminal failure. Logs may contain earlier
+non-fatal subcommand failures such as `gh: Artifact has expired (HTTP 410)` followed by
+`Process completed with exit code 1`, even though the job later proceeds to a different real
+failure.
 
 ### Phase 2 — Sensor and stack trace detection
 
@@ -598,13 +613,17 @@ sed --sandbox -n '
 /Node\.js process running out of memory/p   # SonarJS bridge Node heap exhaustion
 /sonar\.javascript\.node\.maxspace/p        # SonarJS heap tuning hint
 /sonar\.javascript\.node\.debugMemory/p     # SonarJS memory debugging hint
+/ReportPublisher\.upload/p            # Peach report-upload timeout / post-scan failure
+/api\/ce\/submit/p                    # Peach report submission endpoint
+/SocketTimeoutException/p             # timeout during report upload
 /Process completed with exit code/p    # exit code confirmation
 /org\.sonar\.plugins\.javascript/p     # SonarJS plugin frame in stack trace → CRITICAL
 ' target/peach-logs/JOB_ID.log
 ```
 
 This surfaces both the last sensor that ran and any `org.sonar.plugins.javascript` frames in the
-stack trace, plus the explicit Node-heap hints used by the `tape` failure pattern.
+stack trace, plus the explicit Node-heap hints used by the `tape` failure pattern and the
+post-scan report-upload timeout pattern.
 
 ---
 

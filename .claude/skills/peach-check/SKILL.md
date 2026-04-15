@@ -114,6 +114,11 @@ If the job metadata shows multiple failed steps, use the earliest failed step th
 the phase owner. Treat later failed report/cleanup steps as downstream noise unless they are the
 only failed steps.
 
+Important: the literal GitHub step name is not always the failure phase owner. A job can show only
+`Analyze project: failure` in step metadata but still be a `post-scan` failure when the
+JavaScript sensor already completed and the stack trace later shows `ReportPublisher.upload`,
+`/api/ce/submit`, or another report-submission failure.
+
 Before deeper triage, check whether the failure belongs to Diff Val monitoring rather than the
 analysis itself:
 
@@ -186,6 +191,9 @@ When multiple steps are marked failed:
 - If an earlier step failed and later report/post steps also failed, attribute the job to the
   earliest real failure.
 - Do not classify from `Report analyzer version` when the project was never analyzed.
+- If `Analyze project` is the only failed GitHub step but the log shows
+  `JavaScript/TypeScript/CSS analysis [javascript] (done)` before a later
+  `ReportPublisher.upload` / `/api/ce/submit` failure, classify it as `post-scan`, not `analyze`.
 
 Then triage each failed job using a graduated approach. Work through phases as needed — stop as
 soon as a job can be classified. Run all jobs in parallel within each phase.
@@ -227,6 +235,12 @@ sed --sandbox -n '
 ' target/peach-logs/JOB_ID.log
 ```
 
+Do not treat the first `Process completed with exit code ...` line in the raw log as the owning
+failure by default. Nested commands can emit intermediate non-fatal exit codes that the workflow
+handles and then continues past. In particular, early `Artifact has expired (HTTP 410)` lines may
+appear before the real later failure. Trust the job step metadata first, then use the final
+failing section of the log to determine ownership.
+
 Use the decision flowchart and failure categories from `docs/peach-main-analysis.md` to classify
 the filtered output. If the filtered lines show exit code 3 (EXECUTION FAILURE from the
 SonarQube scanner), always continue to Phase 2 — Phase 1 does not surface Java stack traces,
@@ -261,14 +275,17 @@ sed --sandbox -n '
 /Sensor /p
 /EXECUTION FAILURE/p
 /OutOfMemoryError/p
+/ReportPublisher\.upload/p
+/api\/ce\/submit/p
+/SocketTimeoutException/p
 /Process completed with exit code/p
 /org\.sonar\.plugins\.javascript/p
 ' target/peach-logs/JOB_ID.log
 ```
 
 This surfaces both the last sensor that ran and any `org.sonar.plugins.javascript` frames in the
-stack trace. Apply the classification rules in `docs/peach-main-analysis.md` and run this only
-for jobs that need it, all concurrently.
+stack trace, plus the post-scan report-upload timeout pattern. Apply the classification rules in
+`docs/peach-main-analysis.md` and run this only for jobs that need it, all concurrently.
 
 **Phase 3 — Full log (only when Phase 2 is still ambiguous)**
 
