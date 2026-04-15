@@ -90,9 +90,7 @@
 16498,
 16517,
 17374,
-18291,
 18361,
-18433,
 19067,
 19263,
 19315,
@@ -121,8 +119,7 @@
 683,
 903,
 1043,
-1171,
-1606
+1171
 ],
 "TypeScript:src/compiler/comments.ts": [
 49,
@@ -131,7 +128,6 @@
 133
 ],
 "TypeScript:src/compiler/core.ts": [
-658,
 799,
 809,
 1220,
@@ -140,8 +136,6 @@
 1689,
 1806,
 1956,
-1980,
-1996,
 2083
 ],
 "TypeScript:src/compiler/declarationEmitter.ts": [
@@ -343,9 +337,6 @@
 106,
 522
 ],
-"TypeScript:src/harness/runner.ts": [
-38
-],
 "TypeScript:src/harness/virtualFileSystem.ts": [
 136,
 169,
@@ -360,7 +351,6 @@
 "TypeScript:src/server/editorServices.ts": [
 448,
 943,
-1373,
 1392,
 1432,
 1507
@@ -460,7 +450,6 @@
 1057,
 1155,
 1193,
-1292,
 1323,
 1376,
 1622
@@ -469,8 +458,7 @@
 143,
 159,
 178,
-473,
-1171
+473
 ],
 "TypeScript:src/services/formatting/formattingScanner.ts": [
 145
@@ -503,7 +491,6 @@
 533
 ],
 "TypeScript:src/services/services.ts": [
-628,
 873,
 878,
 1003,

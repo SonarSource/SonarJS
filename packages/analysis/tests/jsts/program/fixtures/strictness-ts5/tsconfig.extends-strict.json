@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.base-strict.json",
+  "compilerOptions": {
+    "target": "ES2020"
+  },
+  "files": ["file.ts"]
+}
