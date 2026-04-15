@@ -82,6 +82,6 @@ export function computeMetrics(root: Root | Document): CssMetrics {
   return {
     ncloc: Array.from(codeLines).sort((a, b) => a - b),
     commentLines: Array.from(commentCandidates).sort((a, b) => a - b),
-    nosonarLines: nosonarLines.sort((a, b) => a - b),
+    nosonarLines: nosonarLines.toSorted((a, b) => a - b),
   };
 }
