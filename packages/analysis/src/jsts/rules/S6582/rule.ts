@@ -131,6 +131,42 @@ function getContextualTypeOfNode(
   return checker.getContextualType(tsNode as ts.Expression) ?? null;
 }
 
+function isComparisonGuard(node: Rule.Node) {
+  return (
+    node.type === 'LogicalExpression' &&
+    node.right.type === 'BinaryExpression' &&
+    ['==', '!=', '===', '!==', '<', '>', '<=', '>=', 'instanceof', 'in'].includes(
+      node.right.operator,
+    )
+  );
+}
+
+function isAbsorbedByEnclosingFallback(node: Rule.Node) {
+  const parent = node.parent;
+  return (
+    parent?.type === 'LogicalExpression' &&
+    (parent.operator === '||' || parent.operator === '??') &&
+    parent.left === node
+  );
+}
+
+function preservesBooleanResultAfterOptionalChaining(node: Rule.Node) {
+  return isNegatedOptionalChainGuard(node) || isComparisonGuard(node);
+}
+
+function matchesTypeUnsafeContextualRewrite(
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+  checker: ts.TypeChecker,
+  node: Rule.Node,
+) {
+  if (preservesBooleanResultAfterOptionalChaining(node) || isAbsorbedByEnclosingFallback(node)) {
+    return false;
+  }
+
+  const contextualType = getContextualTypeOfNode(services, checker, node);
+  return contextualType != null && !allowsUndefined(contextualType);
+}
+
 /**
  * Returns true when the upstream report is a known false positive that should be suppressed.
  *
@@ -142,43 +178,11 @@ function isKnownFalsePositive(
   checker: ts.TypeChecker,
   node: Rule.Node,
 ): boolean {
-  // Negation patterns (!a || !a.prop): the ! operator always returns boolean,
-  // so optional chaining (!a?.prop) is always type-safe regardless of context.
-  // Both sides must be negated — !a || (comparison) is not a negation pattern.
-  if (isNegatedOptionalChainGuard(node)) {
-    return false;
+  if (matchesTypeUnsafeContextualRewrite(services, checker, node)) {
+    return true;
   }
 
-  // Comparison patterns (e.g. !a || a.prop !== b): the comparison operator always
-  // returns boolean, so the optional-chain rewrite (a?.prop !== b) is also boolean.
-  if (
-    node.type === 'LogicalExpression' &&
-    node.right.type === 'BinaryExpression' &&
-    ['==', '!=', '===', '!==', '<', '>', '<=', '>=', 'instanceof', 'in'].includes(
-      node.right.operator,
-    )
-  ) {
-    return false;
-  }
-
-  // When (a && a.prop) is the left operand of || or ??, the enclosing operator
-  // absorbs the undefined introduced by optional chaining.
-  const parent = node.parent;
-  if (
-    parent?.type === 'LogicalExpression' &&
-    (parent.operator === '||' || parent.operator === '??') &&
-    parent.left === node
-  ) {
-    return false;
-  }
-
-  const contextualType = getContextualTypeOfNode(services, checker, node);
-  if (!contextualType) {
-    // No contextual type (e.g. if/while boolean context) — replacement is safe.
-    return false;
-  }
-
-  return !allowsUndefined(contextualType);
+  return false;
 }
 
 /**
@@ -231,12 +235,7 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      const parent = node.parent;
-      if (
-        parent?.type === 'LogicalExpression' &&
-        (parent.operator === '||' || parent.operator === '??') &&
-        parent.left === node
-      ) {
+      if (isAbsorbedByEnclosingFallback(node)) {
         // The upstream rule may emit the fix as a suggestion (not autofix) when the
         // operands don't include undefined, because optional chaining would change the
         // type from T|null to T|undefined in isolation. Since the enclosing ||/??
