@@ -52,7 +52,7 @@ describe('S1533', () => {
           code: `interface IApi { close(key: String): void; }`,
         },
         {
-          // FP: wrapper types in type alias object literal (TSTypeLiteral context)
+          // FP: wrapper types in type alias object literal (TSTypeAliasDeclaration context)
           code: `type Config = { size?: Number; origin?: Number; };`,
         },
         {
@@ -424,6 +424,36 @@ describe('S1533', () => {
                 {
                   output: `class Component { private onValueChanged = (value: number) => { this.handleChange(value); } }`,
                   desc: 'Replace "Number" with "number"',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // TP: wrapper type in inline object type literal on variable declaration (not a type-definition context)
+          code: `let x: { count: Boolean };`,
+          errors: [
+            {
+              message: 'Replace this "Boolean" wrapper object with primitive type "boolean".',
+              suggestions: [
+                {
+                  output: 'let x: { count: boolean };',
+                  desc: 'Replace "Boolean" with "boolean"',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // TP: wrapper type in inline object type literal as function return type (not a type-definition context)
+          code: `function foo(): { label: String } {}`,
+          errors: [
+            {
+              message: 'Replace this "String" wrapper object with primitive type "string".',
+              suggestions: [
+                {
+                  output: 'function foo(): { label: string } {}',
+                  desc: 'Replace "String" with "string"',
                 },
               ],
             },

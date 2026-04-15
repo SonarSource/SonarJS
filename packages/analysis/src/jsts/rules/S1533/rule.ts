@@ -26,11 +26,7 @@ import * as meta from './generated-meta.js';
 const WRAPPER_TYPES = new Set(['Boolean', 'Number', 'String']);
 
 // Wrapper types in these type-definition contexts are not runtime concerns and should not be flagged
-const TYPE_DEFINITION_CONTEXTS = new Set([
-  'TSInterfaceBody',
-  'TSTypeAliasDeclaration',
-  'TSTypeLiteral',
-]);
+const TYPE_DEFINITION_CONTEXTS = new Set(['TSInterfaceBody', 'TSTypeAliasDeclaration']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
