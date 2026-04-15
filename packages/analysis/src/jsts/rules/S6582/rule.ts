@@ -112,6 +112,19 @@ function getContextualTypeOfNode(
   return checker.getContextualType(tsNode as ts.Expression) ?? null;
 }
 
+function getTypeOfNode(
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+  checker: ts.TypeChecker,
+  node: Rule.Node,
+): ts.Type | null {
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+  if (!tsNode) {
+    return null;
+  }
+
+  return checker.getTypeAtLocation(tsNode);
+}
+
 function getContextualTypeSubject(node: Rule.Node) {
   let current = node;
   while (
@@ -194,6 +207,32 @@ function matchesCallArgumentFalsePositive(
   return contextualType != null && !allowsUndefined(contextualType);
 }
 
+function matchesAssignmentFalsePositive(
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+  checker: ts.TypeChecker,
+  node: Rule.Node,
+) {
+  if (
+    node.type !== 'LogicalExpression' ||
+    node.operator !== '&&' ||
+    node.parent?.type !== 'AssignmentExpression' ||
+    node.parent.right !== node ||
+    node.parent.operator !== '='
+  ) {
+    return false;
+  }
+
+  const parent = node.parent;
+  if (parent.left.type !== 'Identifier' && parent.left.type !== 'MemberExpression') {
+    // Keep the matcher narrowly scoped to ordinary typed assignment targets.
+    // Broader target coverage can be added once we have concrete FP examples.
+    return false;
+  }
+
+  const targetType = getTypeOfNode(services, checker, parent.left);
+  return targetType != null && !allowsUndefined(targetType);
+}
+
 /**
  * Returns true when the upstream report is a known false positive that should be suppressed.
  *
@@ -218,6 +257,10 @@ function isKnownFalsePositive(
   }
 
   if (matchesCallArgumentFalsePositive(services, checker, node)) {
+    return true;
+  }
+
+  if (matchesAssignmentFalsePositive(services, checker, node)) {
     return true;
   }
 
