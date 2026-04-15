@@ -12,8 +12,9 @@ on:
 jobs:
   publish:
     permissions:
-      id-token: write # required for SonarSource/vault-action-wrapper
+      id-token: write # required for GitHub OIDC and SonarSource/vault-action-wrapper
     runs-on: github-ubuntu-latest-s
+    environment: release
     env:
       RELEASE_TAG: ${{ github.event.inputs.release_version }}
       NPM_REPOSITORY: "sonarsource-npm-public"
@@ -28,7 +29,6 @@ jobs:
             development/kv/data/repox url | repox_url;
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token  | qa_deployer_access_token;
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-promoter access_token  | promoter_access_token;
-            development/kv/data/npmjs sonartech_npm_token  | npm_token;
             development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
       - name: Setup JFrog for deploy
         uses: SonarSource/jfrog-setup-wrapper@e0f353c7f1bcc7b2f663063d72b5fec7948f6815 # 3.6.0
@@ -41,7 +41,6 @@ jobs:
       - run: cp .github/workflows/.npmrc .npmrc
       - name: Publish npm package
         env:
-          NPM_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).npm_token }}
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
         run: |
           jfrog rt npm-config --repo-resolve npm --repo-deploy sonarsource-npm-public-qa
@@ -50,7 +49,7 @@ jobs:
           cp .npmrc lib/.npmrc
           cd lib
           npm version $RELEASE_TAG --no-git-tag-version
-          npm publish
+          npm publish --provenance
           jfrog rt npm-publish --build-name=eslint-plugin-sonarjs --build-number=${{ github.event.inputs.release_version }}
           jfrog rt build-publish eslint-plugin-sonarjs ${{ github.event.inputs.release_version }}
       - name: Promote npm package
