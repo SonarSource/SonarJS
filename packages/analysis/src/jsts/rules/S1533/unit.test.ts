@@ -398,6 +398,22 @@ describe('S1533', () => {
             },
           ],
         },
+        {
+          // TP: wrapper type in union type inside array type annotation as class method parameter
+          // (array-of-union is the dominant pattern in real-world ruling data)
+          code: `class ColumnController { setColumnsVisible(keys: (Column | ColDef | String)[], visible: boolean): void {} }`,
+          errors: [
+            {
+              message: 'Replace this "String" wrapper object with primitive type "string".',
+              suggestions: [
+                {
+                  output: `class ColumnController { setColumnsVisible(keys: (Column | ColDef | string)[], visible: boolean): void {} }`,
+                  desc: 'Replace "String" with "string"',
+                },
+              ],
+            },
+          ],
+        },
       ],
     });
   });
