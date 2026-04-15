@@ -29,25 +29,6 @@ import * as meta from './generated-meta.js';
 const preferOptionalChainRule = tsEslintRules['prefer-optional-chain'];
 
 /**
- * Matches negated access guards that stay boolean after optional chaining.
- *
- * Pseudo code:
- * if (!value || !value.property) {
- *   // `value?.property` remains wrapped by `!`
- * }
- */
-function isNegatedOptionalChainGuard(node: Rule.Node) {
-  return (
-    node.type === 'LogicalExpression' &&
-    node.operator === '||' &&
-    node.left.type === 'UnaryExpression' &&
-    node.left.operator === '!' &&
-    node.right.type === 'UnaryExpression' &&
-    node.right.operator === '!'
-  );
-}
-
-/**
  * Resolves the AST node associated with a report descriptor.
  *
  * When the descriptor carries a `node` directly, that node is returned.
@@ -131,39 +112,85 @@ function getContextualTypeOfNode(
   return checker.getContextualType(tsNode as ts.Expression) ?? null;
 }
 
-function isComparisonGuard(node: Rule.Node) {
-  return (
-    node.type === 'LogicalExpression' &&
-    node.right.type === 'BinaryExpression' &&
-    ['==', '!=', '===', '!==', '<', '>', '<=', '>=', 'instanceof', 'in'].includes(
-      node.right.operator,
-    )
-  );
+function getContextualTypeSubject(node: Rule.Node) {
+  let current = node;
+  while (
+    current.parent?.type === 'LogicalExpression' &&
+    (current.parent.left === current || current.parent.right === current)
+  ) {
+    current = current.parent;
+  }
+  return current;
 }
 
-function isAbsorbedByEnclosingFallback(node: Rule.Node) {
-  const parent = node.parent;
-  return (
-    parent?.type === 'LogicalExpression' &&
-    (parent.operator === '||' || parent.operator === '??') &&
-    parent.left === node
-  );
-}
-
-function preservesBooleanResultAfterOptionalChaining(node: Rule.Node) {
-  return isNegatedOptionalChainGuard(node) || isComparisonGuard(node);
-}
-
-function matchesTypeUnsafeContextualRewrite(
+function hasTypeUnsafeContextualType(
   services: Rule.RuleContext['sourceCode']['parserServices'],
   checker: ts.TypeChecker,
   node: Rule.Node,
 ) {
-  if (preservesBooleanResultAfterOptionalChaining(node) || isAbsorbedByEnclosingFallback(node)) {
+  const contextualType = getContextualTypeOfNode(services, checker, getContextualTypeSubject(node));
+  return contextualType != null && !allowsUndefined(contextualType);
+}
+
+function matchesFunctionReturnFalsePositive(
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+  checker: ts.TypeChecker,
+  node: Rule.Node,
+) {
+  return (
+    node.type === 'LogicalExpression' &&
+    node.operator === '&&' &&
+    node.parent?.type === 'ReturnStatement' &&
+    node.right.type !== 'BinaryExpression' &&
+    hasTypeUnsafeContextualType(services, checker, node)
+  );
+}
+
+function matchesTypedVariableInitializerFalsePositive(
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+  checker: ts.TypeChecker,
+  node: Rule.Node,
+) {
+  return (
+    node.type === 'LogicalExpression' &&
+    node.operator === '&&' &&
+    node.parent?.type === 'VariableDeclarator' &&
+    node.parent.init === node &&
+    hasTypeUnsafeContextualType(services, checker, node)
+  );
+}
+
+function matchesObjectLiteralPropertyFalsePositive(
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+  checker: ts.TypeChecker,
+  node: Rule.Node,
+) {
+  return (
+    node.type === 'LogicalExpression' &&
+    node.operator === '&&' &&
+    node.parent?.type === 'Property' &&
+    node.parent.value === node &&
+    hasTypeUnsafeContextualType(services, checker, node)
+  );
+}
+
+function matchesCallArgumentFalsePositive(
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+  checker: ts.TypeChecker,
+  node: Rule.Node,
+) {
+  const subject = getContextualTypeSubject(node);
+  const parent = subject.parent;
+  if (
+    node.type !== 'LogicalExpression' ||
+    node.operator !== '&&' ||
+    parent?.type !== 'CallExpression' ||
+    !parent.arguments.includes(subject as never)
+  ) {
     return false;
   }
 
-  const contextualType = getContextualTypeOfNode(services, checker, node);
+  const contextualType = getContextualTypeOfNode(services, checker, subject);
   return contextualType != null && !allowsUndefined(contextualType);
 }
 
@@ -178,7 +205,19 @@ function isKnownFalsePositive(
   checker: ts.TypeChecker,
   node: Rule.Node,
 ): boolean {
-  if (matchesTypeUnsafeContextualRewrite(services, checker, node)) {
+  if (matchesFunctionReturnFalsePositive(services, checker, node)) {
+    return true;
+  }
+
+  if (matchesTypedVariableInitializerFalsePositive(services, checker, node)) {
+    return true;
+  }
+
+  if (matchesObjectLiteralPropertyFalsePositive(services, checker, node)) {
+    return true;
+  }
+
+  if (matchesCallArgumentFalsePositive(services, checker, node)) {
     return true;
   }
 
@@ -235,7 +274,12 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      if (isAbsorbedByEnclosingFallback(node)) {
+      const parent = node.parent;
+      if (
+        parent?.type === 'LogicalExpression' &&
+        (parent.operator === '||' || parent.operator === '??') &&
+        parent.left === node
+      ) {
         // The upstream rule may emit the fix as a suggestion (not autofix) when the
         // operands don't include undefined, because optional chaining would change the
         // type from T|null to T|undefined in isolation. Since the enclosing ||/??
