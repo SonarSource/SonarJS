@@ -190,6 +190,7 @@ export const rule: Rule.RuleModule = {
         node.operator === '&&' &&
         node.parent?.type === 'VariableDeclarator' &&
         node.parent.init === node &&
+        node.right.type !== 'BinaryExpression' &&
         hasTypeUnsafeContextualType(node)
       );
     }
@@ -200,6 +201,7 @@ export const rule: Rule.RuleModule = {
         node.operator === '&&' &&
         node.parent?.type === 'Property' &&
         node.parent.value === node &&
+        node.right.type !== 'BinaryExpression' &&
         hasTypeUnsafeContextualType(node)
       );
     }
@@ -210,6 +212,7 @@ export const rule: Rule.RuleModule = {
       if (
         node.type !== 'LogicalExpression' ||
         node.operator !== '&&' ||
+        node.right.type === 'BinaryExpression' ||
         parent?.type !== 'CallExpression' ||
         !parent.arguments.includes(subject as never)
       ) {
@@ -224,6 +227,7 @@ export const rule: Rule.RuleModule = {
       if (
         node.type !== 'LogicalExpression' ||
         node.operator !== '&&' ||
+        node.right.type === 'BinaryExpression' ||
         node.parent?.type !== 'AssignmentExpression' ||
         node.parent.right !== node ||
         node.parent.operator !== '='
