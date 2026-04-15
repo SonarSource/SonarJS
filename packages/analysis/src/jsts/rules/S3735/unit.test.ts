@@ -129,7 +129,7 @@ describe('S3735', () => {
             interface SomeInterface {
               someFunction(): Promise<void>;
             }
-            const maybeUndefined: SomeInterface | undefined = undefined;
+            declare const maybeUndefined: SomeInterface | undefined;
             void maybeUndefined?.someFunction();
             `,
         },
@@ -143,14 +143,14 @@ describe('S3735', () => {
         {
           code: `
             // Union with null
-            const y: Promise<void> | null = null;
+            declare const y: Promise<void> | null;
             void y;
             `,
         },
         {
           code: `
             // Union with void and undefined
-            const z: void | undefined | Promise<void> = undefined;
+            declare const z: void | undefined | Promise<void>;
             void z;
             `,
         },
