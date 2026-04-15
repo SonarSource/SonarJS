@@ -415,6 +415,21 @@ describe('S1533', () => {
           ],
         },
         {
+          // TP: wrapper type in class property arrow function parameter (class body is not a type-definition context)
+          code: `class Component { private onValueChanged = (value: Number) => { this.handleChange(value); } }`,
+          errors: [
+            {
+              message: 'Replace this "Number" wrapper object with primitive type "number".',
+              suggestions: [
+                {
+                  output: `class Component { private onValueChanged = (value: number) => { this.handleChange(value); } }`,
+                  desc: 'Replace "Number" with "number"',
+                },
+              ],
+            },
+          ],
+        },
+        {
           // TP: wrapper type in forEach callback arrow function parameter (callback is not a type-definition context)
           code: `keys.forEach((key: Column | ColDef | String) => { console.log(key); });`,
           errors: [
