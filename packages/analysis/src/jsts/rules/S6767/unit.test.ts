@@ -475,6 +475,22 @@ export default memo(MemoizedButton);
           errors: 1,
         },
         {
+          // TP: observer is also a non-injecting wrapper and must not suppress
+          code: `
+class ObservedButton extends React.Component {
+  render() {
+    return <button>{this.props.label}</button>;
+  }
+}
+ObservedButton.propTypes = {
+  label: PropTypes.string,
+  theme: PropTypes.object,
+};
+export default observer(ObservedButton);
+`,
+          errors: 1,
+        },
+        {
           // TP: HOC wraps a different component — MyComponent still has an unused prop
           code: `
 class MyComponent extends React.Component {
