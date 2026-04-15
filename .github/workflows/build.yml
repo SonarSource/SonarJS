@@ -275,7 +275,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
   build_eslint_plugin:
-    runs-on: sonar-xs-public
+    runs-on: github-ubuntu-latest-s
     needs: [setup, populate_npm_cache, sync_rspec]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -412,7 +412,7 @@ jobs:
           key: eslint-tarball-${{ github.sha }}
 
   test_eslint_plugin:
-    runs-on: sonar-xs-public
+    runs-on: github-ubuntu-latest-s
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
     needs: [setup, build_eslint_plugin]
     permissions: *read_permissions
