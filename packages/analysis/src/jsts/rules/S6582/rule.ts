@@ -29,25 +29,6 @@ import * as meta from './generated-meta.js';
 const preferOptionalChainRule = tsEslintRules['prefer-optional-chain'];
 
 /**
- * Matches negated access guards that stay boolean after optional chaining.
- *
- * Pseudo code:
- * if (!value || !value.property) {
- *   // `value?.property` remains wrapped by `!`
- * }
- */
-function isNegatedOptionalChainGuard(node: Rule.Node) {
-  return (
-    node.type === 'LogicalExpression' &&
-    node.operator === '||' &&
-    node.left.type === 'UnaryExpression' &&
-    node.left.operator === '!' &&
-    node.right.type === 'UnaryExpression' &&
-    node.right.operator === '!'
-  );
-}
-
-/**
  * Resolves the AST node associated with a report descriptor.
  *
  * When the descriptor carries a `node` directly, that node is returned.
@@ -132,49 +113,20 @@ function getContextualTypeOfNode(
 }
 
 /**
- * Returns true when the upstream report is a known false positive that should be suppressed.
+ * Returns true when the upstream report should be suppressed.
  *
- * We suppress only when the optional-chain rewrite would leak a type-unsafe `undefined`
- * into the surrounding context. All other cases are reported by default.
+ * We only use the contextual type of the reported expression. If rewriting with
+ * optional chaining would introduce `undefined` into a context that does not accept it,
+ * the upstream report is suppressed as a false positive.
  */
-function isKnownFalsePositive(
+function shouldSuppressReport(
   services: Rule.RuleContext['sourceCode']['parserServices'],
   checker: ts.TypeChecker,
   node: Rule.Node,
 ): boolean {
-  // Negation patterns (!a || !a.prop): the ! operator always returns boolean,
-  // so optional chaining (!a?.prop) is always type-safe regardless of context.
-  // Both sides must be negated — !a || (comparison) is not a negation pattern.
-  if (isNegatedOptionalChainGuard(node)) {
-    return false;
-  }
-
-  // Comparison patterns (e.g. !a || a.prop !== b): the comparison operator always
-  // returns boolean, so the optional-chain rewrite (a?.prop !== b) is also boolean.
-  if (
-    node.type === 'LogicalExpression' &&
-    node.right.type === 'BinaryExpression' &&
-    ['==', '!=', '===', '!==', '<', '>', '<=', '>=', 'instanceof', 'in'].includes(
-      node.right.operator,
-    )
-  ) {
-    return false;
-  }
-
-  // When (a && a.prop) is the left operand of || or ??, the enclosing operator
-  // absorbs the undefined introduced by optional chaining.
-  const parent = node.parent;
-  if (
-    parent?.type === 'LogicalExpression' &&
-    (parent.operator === '||' || parent.operator === '??') &&
-    parent.left === node
-  ) {
-    return false;
-  }
-
   const contextualType = getContextualTypeOfNode(services, checker, node);
   if (!contextualType) {
-    // No contextual type (e.g. if/while boolean context) — replacement is safe.
+    // No contextual type means we cannot prove the rewrite is unsafe.
     return false;
   }
 
@@ -227,27 +179,7 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      if (isKnownFalsePositive(services, checker, node)) {
-        return;
-      }
-
-      const parent = node.parent;
-      if (
-        parent?.type === 'LogicalExpression' &&
-        (parent.operator === '||' || parent.operator === '??') &&
-        parent.left === node
-      ) {
-        // The upstream rule may emit the fix as a suggestion (not autofix) when the
-        // operands don't include undefined, because optional chaining would change the
-        // type from T|null to T|undefined in isolation. Since the enclosing ||/??
-        // absorbs any undefined the rewrite introduces, the fix is safe as an autofix.
-        const suggestFix = descriptor.suggest?.[0]?.fix;
-        if (suggestFix == null) {
-          ctx.report(descriptor);
-        } else {
-          const { suggest: _suggest, ...rest } = descriptor;
-          ctx.report({ ...rest, fix: suggestFix } as Rule.ReportDescriptor);
-        }
+      if (shouldSuppressReport(services, checker, node)) {
         return;
       }
 

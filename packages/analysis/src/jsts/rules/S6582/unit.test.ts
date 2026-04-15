@@ -267,18 +267,36 @@ describe('S6582', () => {
           code: `interface Commit { parentSHAs: string[] } function hasMultipleCommits(commit: Commit | undefined): boolean { return commit !== undefined && commit.parentSHAs.some(x => x.length > 0) }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
+        {
+          // boolean return type excludes undefined, so the negated rewrite is suppressed
+          code: `function f(arr: string[] | null): boolean { return !arr || !arr.length; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          // boolean return type excludes undefined, so the comparison rewrite is suppressed
+          code: `interface Opts { module: number; } function changesAffect(a: Opts | null, b: Opts): boolean { return !a || a.module !== b.module; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          // boolean return type excludes undefined, so the loose-inequality rewrite is suppressed
+          code: `interface Item { p: string } function f(a: Item | null): boolean { return a && a.p != null; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          // the reported left operand is contextualized as string by the assignment target
+          code: `interface Repo { name: string } declare function getBase(p: string): string; class Repository { name: string; constructor(path: string, repo: Repo | null) { this.name = (repo && repo.name) || getBase(path) } }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          // the reported left operand is contextualized as string by the return type
+          code: `interface Repo { name: string } declare function getBase(p: string): string; function f(repo: Repo | null): string { return (repo && repo.name) ?? getBase('path'); }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
       ],
       invalid: [
         {
           // boolean context (if-condition): no contextual type — optional chaining is type-safe
           code: `function f(arr: string[] | null) { if (arr && arr.length) {} }`,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          errors: 1,
-        },
-        {
-          // negation pattern: ! always returns boolean, so !arr?.length is type-safe even in boolean return context
-          code: `function f(arr: string[] | null): boolean { return !arr || !arr.length; }`,
-          output: `function f(arr: string[] | null): boolean { return !arr?.length; }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
           errors: 1,
         },
@@ -289,40 +307,10 @@ describe('S6582', () => {
           errors: 1,
         },
         {
-          // comparison pattern: !a || a.prop !== b rewrites to a?.prop !== b, which is always boolean — no undefined leak
-          code: `interface Opts { module: number; } function changesAffect(a: Opts | null, b: Opts): boolean { return !a || a.module !== b.module; }`,
-          output: `interface Opts { module: number; } function changesAffect(a: Opts | null, b: Opts): boolean { return a?.module !== b.module; }`,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          errors: 1,
-        },
-        {
-          // comparison pattern (&&): a && a.prop === b rewrites to a?.prop === b, which is always boolean — no undefined leak
-          // inspired by tsc.js ruling patterns like `node.parent.parent && node.parent.parent.kind === 163`
+          // if-conditions do not provide a contextual type, so the report is preserved
+          // even when the rewritten expression would still be boolean
           code: `interface Node { kind: number; } function f(node: Node | null): void { if (node && node.kind === 160) {} }`,
           output: `interface Node { kind: number; } function f(node: Node | null): void { if (node?.kind === 160) {} }`,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          errors: 1,
-        },
-        {
-          // loose inequality: a && a.p != null rewrites to a?.p != null, which is always boolean — no undefined leak
-          code: `interface Item { p: string } function f(a: Item | null): boolean { return a && a.p != null; }`,
-          output: `interface Item { p: string } function f(a: Item | null): boolean { return a?.p != null; }`,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          errors: 1,
-        },
-        {
-          // left operand of ||: (repo && repo.name) || fallback — repo?.name || fallback is type-safe
-          // because || absorbs the undefined introduced by optional chaining
-          code: `interface Repo { name: string } declare function getBase(p: string): string; class Repository { name: string; constructor(path: string, repo: Repo | null) { this.name = (repo && repo.name) || getBase(path) } }`,
-          output: `interface Repo { name: string } declare function getBase(p: string): string; class Repository { name: string; constructor(path: string, repo: Repo | null) { this.name = (repo?.name) || getBase(path) } }`,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          errors: 1,
-        },
-        {
-          // left operand of ??: (repo && repo.name) ?? fallback — repo?.name ?? fallback is type-safe
-          // because ?? absorbs the undefined introduced by optional chaining
-          code: `interface Repo { name: string } declare function getBase(p: string): string; function f(repo: Repo | null): string { return (repo && repo.name) ?? getBase('path'); }`,
-          output: `interface Repo { name: string } declare function getBase(p: string): string; function f(repo: Repo | null): string { return (repo?.name) ?? getBase('path'); }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
           errors: 1,
         },
