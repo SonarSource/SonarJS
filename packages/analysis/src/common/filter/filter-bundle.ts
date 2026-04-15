@@ -140,20 +140,13 @@ function hasGeneratedByCommentLine(input: string) {
 }
 
 function stripCommentPrefix(line: string) {
-  let index = skipLeadingWhitespace(line, 0);
+  let index = skipWhitespace(line, 0);
   index = skipCommentPrefix(line, index);
-  index = skipLeadingWhitespace(line, index);
+  index = skipWhitespace(line, index);
   return line.slice(index);
 }
 
 function skipWhitespace(input: string, index: number) {
-  while (index < input.length && /\s/.test(input[index])) {
-    index++;
-  }
-  return index;
-}
-
-function skipLeadingWhitespace(input: string, index: number) {
   while (index < input.length && /\s/.test(input[index])) {
     index++;
   }
