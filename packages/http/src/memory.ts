@@ -42,7 +42,7 @@ export function getMemoryConfigurationMessages(
   heapSize: number,
   dockerMemLimit?: number,
 ) {
-  const dockerMem = dockerMemLimit !== undefined ? `, Docker (${dockerMemLimit} MB),` : ',';
+  const dockerMem = dockerMemLimit === undefined ? ',' : `, Docker (${dockerMemLimit} MB),`;
   const availableMem = getAvailableMemory(osMem, dockerMemLimit);
   return {
     infoMessage: `Memory configuration: OS (${osMem} MB)${dockerMem} Node.js (${heapSize} MB).`,
@@ -54,7 +54,7 @@ export function getMemoryConfigurationMessages(
 }
 
 export function getAvailableMemory(osMem: number, dockerMemLimit?: number) {
-  return dockerMemLimit !== undefined ? Math.min(osMem, dockerMemLimit) : osMem;
+  return dockerMemLimit === undefined ? osMem : Math.min(osMem, dockerMemLimit);
 }
 
 async function readDockerMemoryLimit() {
