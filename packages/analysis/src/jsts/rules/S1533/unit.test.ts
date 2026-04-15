@@ -414,6 +414,21 @@ describe('S1533', () => {
             },
           ],
         },
+        {
+          // TP: wrapper type in forEach callback arrow function parameter (callback is not a type-definition context)
+          code: `keys.forEach((key: Column | ColDef | String) => { console.log(key); });`,
+          errors: [
+            {
+              message: 'Replace this "String" wrapper object with primitive type "string".',
+              suggestions: [
+                {
+                  output: `keys.forEach((key: Column | ColDef | string) => { console.log(key); });`,
+                  desc: 'Replace "String" with "string"',
+                },
+              ],
+            },
+          ],
+        },
       ],
     });
   });
