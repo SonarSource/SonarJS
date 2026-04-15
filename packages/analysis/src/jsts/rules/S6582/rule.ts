@@ -90,184 +90,6 @@ function allowsUndefined(type: ts.Type): boolean {
 }
 
 /**
- * Returns the type imposed by the surrounding context on the reported expression.
- *
- * Pseudo code:
- * let result: string | null;
- * result = value && value.property;
- *
- * Here, `node` is `value && value.property`, and its contextual type is `string | null`
- * because that is the type expected by the assignment target `result`.
- */
-function getContextualTypeOfNode(
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-  checker: ts.TypeChecker,
-  node: Rule.Node,
-): ts.Type | null {
-  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-  if (!tsNode) {
-    return null;
-  }
-
-  return checker.getContextualType(tsNode as ts.Expression) ?? null;
-}
-
-function getTypeOfNode(
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-  checker: ts.TypeChecker,
-  node: Rule.Node,
-): ts.Type | null {
-  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-  if (!tsNode) {
-    return null;
-  }
-
-  return checker.getTypeAtLocation(tsNode);
-}
-
-function getContextualTypeSubject(node: Rule.Node) {
-  let current = node;
-  while (
-    current.parent?.type === 'LogicalExpression' &&
-    (current.parent.left === current || current.parent.right === current)
-  ) {
-    current = current.parent;
-  }
-  return current;
-}
-
-function hasTypeUnsafeContextualType(
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-  checker: ts.TypeChecker,
-  node: Rule.Node,
-) {
-  const contextualType = getContextualTypeOfNode(services, checker, getContextualTypeSubject(node));
-  return contextualType != null && !allowsUndefined(contextualType);
-}
-
-function matchesFunctionReturnFalsePositive(
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-  checker: ts.TypeChecker,
-  node: Rule.Node,
-) {
-  return (
-    node.type === 'LogicalExpression' &&
-    node.operator === '&&' &&
-    node.parent?.type === 'ReturnStatement' &&
-    node.right.type !== 'BinaryExpression' &&
-    hasTypeUnsafeContextualType(services, checker, node)
-  );
-}
-
-function matchesTypedVariableInitializerFalsePositive(
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-  checker: ts.TypeChecker,
-  node: Rule.Node,
-) {
-  return (
-    node.type === 'LogicalExpression' &&
-    node.operator === '&&' &&
-    node.parent?.type === 'VariableDeclarator' &&
-    node.parent.init === node &&
-    hasTypeUnsafeContextualType(services, checker, node)
-  );
-}
-
-function matchesObjectLiteralPropertyFalsePositive(
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-  checker: ts.TypeChecker,
-  node: Rule.Node,
-) {
-  return (
-    node.type === 'LogicalExpression' &&
-    node.operator === '&&' &&
-    node.parent?.type === 'Property' &&
-    node.parent.value === node &&
-    hasTypeUnsafeContextualType(services, checker, node)
-  );
-}
-
-function matchesCallArgumentFalsePositive(
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-  checker: ts.TypeChecker,
-  node: Rule.Node,
-) {
-  const subject = getContextualTypeSubject(node);
-  const parent = subject.parent;
-  if (
-    node.type !== 'LogicalExpression' ||
-    node.operator !== '&&' ||
-    parent?.type !== 'CallExpression' ||
-    !parent.arguments.includes(subject as never)
-  ) {
-    return false;
-  }
-
-  const contextualType = getContextualTypeOfNode(services, checker, subject);
-  return contextualType != null && !allowsUndefined(contextualType);
-}
-
-function matchesAssignmentFalsePositive(
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-  checker: ts.TypeChecker,
-  node: Rule.Node,
-) {
-  if (
-    node.type !== 'LogicalExpression' ||
-    node.operator !== '&&' ||
-    node.parent?.type !== 'AssignmentExpression' ||
-    node.parent.right !== node ||
-    node.parent.operator !== '='
-  ) {
-    return false;
-  }
-
-  const parent = node.parent;
-  if (parent.left.type !== 'Identifier' && parent.left.type !== 'MemberExpression') {
-    // Keep the matcher narrowly scoped to ordinary typed assignment targets.
-    // Broader target coverage can be added once we have concrete FP examples.
-    return false;
-  }
-
-  const targetType = getTypeOfNode(services, checker, parent.left);
-  return targetType != null && !allowsUndefined(targetType);
-}
-
-/**
- * Returns true when the upstream report is a known false positive that should be suppressed.
- *
- * We suppress only when the optional-chain rewrite would leak a type-unsafe `undefined`
- * into the surrounding context. All other cases are reported by default.
- */
-function isKnownFalsePositive(
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-  checker: ts.TypeChecker,
-  node: Rule.Node,
-): boolean {
-  if (matchesFunctionReturnFalsePositive(services, checker, node)) {
-    return true;
-  }
-
-  if (matchesTypedVariableInitializerFalsePositive(services, checker, node)) {
-    return true;
-  }
-
-  if (matchesObjectLiteralPropertyFalsePositive(services, checker, node)) {
-    return true;
-  }
-
-  if (matchesCallArgumentFalsePositive(services, checker, node)) {
-    return true;
-  }
-
-  if (matchesAssignmentFalsePositive(services, checker, node)) {
-    return true;
-  }
-
-  return false;
-}
-
-/**
  * Sanitized rule 'prefer-optional-chain' from TypeScript ESLint.
  *
  * TypeScript ESLint's rule raises a runtime error if the parser services of the
@@ -307,13 +129,156 @@ export const rule: Rule.RuleModule = {
     }
 
     const checker = services.program.getTypeChecker();
+
+    /**
+     * Returns the type imposed by the surrounding context on the reported expression.
+     *
+     * Pseudo code:
+     * let result: string | null;
+     * result = value && value.property;
+     *
+     * Here, `node` is `value && value.property`, and its contextual type is `string | null`
+     * because that is the type expected by the assignment target `result`.
+     */
+    function getContextualTypeOfNode(node: Rule.Node): ts.Type | null {
+      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+      if (!tsNode) {
+        return null;
+      }
+
+      return checker.getContextualType(tsNode as ts.Expression) ?? null;
+    }
+
+    function getTypeOfNode(node: Rule.Node): ts.Type | null {
+      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+      if (!tsNode) {
+        return null;
+      }
+
+      return checker.getTypeAtLocation(tsNode);
+    }
+
+    function getContextualTypeSubject(node: Rule.Node) {
+      let current = node;
+      while (
+        current.parent?.type === 'LogicalExpression' &&
+        (current.parent.left === current || current.parent.right === current)
+      ) {
+        current = current.parent;
+      }
+      return current;
+    }
+
+    function hasTypeUnsafeContextualType(node: Rule.Node) {
+      const contextualType = getContextualTypeOfNode(getContextualTypeSubject(node));
+      return contextualType != null && !allowsUndefined(contextualType);
+    }
+
+    function matchesFunctionReturnFalsePositive(node: Rule.Node) {
+      return (
+        node.type === 'LogicalExpression' &&
+        node.operator === '&&' &&
+        node.parent?.type === 'ReturnStatement' &&
+        node.right.type !== 'BinaryExpression' &&
+        hasTypeUnsafeContextualType(node)
+      );
+    }
+
+    function matchesTypedVariableInitializerFalsePositive(node: Rule.Node) {
+      return (
+        node.type === 'LogicalExpression' &&
+        node.operator === '&&' &&
+        node.parent?.type === 'VariableDeclarator' &&
+        node.parent.init === node &&
+        hasTypeUnsafeContextualType(node)
+      );
+    }
+
+    function matchesObjectLiteralPropertyFalsePositive(node: Rule.Node) {
+      return (
+        node.type === 'LogicalExpression' &&
+        node.operator === '&&' &&
+        node.parent?.type === 'Property' &&
+        node.parent.value === node &&
+        hasTypeUnsafeContextualType(node)
+      );
+    }
+
+    function matchesCallArgumentFalsePositive(node: Rule.Node) {
+      const subject = getContextualTypeSubject(node);
+      const parent = subject.parent;
+      if (
+        node.type !== 'LogicalExpression' ||
+        node.operator !== '&&' ||
+        parent?.type !== 'CallExpression' ||
+        !parent.arguments.includes(subject as never)
+      ) {
+        return false;
+      }
+
+      const contextualType = getContextualTypeOfNode(subject);
+      return contextualType != null && !allowsUndefined(contextualType);
+    }
+
+    function matchesAssignmentFalsePositive(node: Rule.Node) {
+      if (
+        node.type !== 'LogicalExpression' ||
+        node.operator !== '&&' ||
+        node.parent?.type !== 'AssignmentExpression' ||
+        node.parent.right !== node ||
+        node.parent.operator !== '='
+      ) {
+        return false;
+      }
+
+      const parent = node.parent;
+      if (parent.left.type !== 'Identifier' && parent.left.type !== 'MemberExpression') {
+        // Keep the matcher narrowly scoped to ordinary typed assignment targets.
+        // Broader target coverage can be added once we have concrete FP examples.
+        return false;
+      }
+
+      const targetType = getTypeOfNode(parent.left as Rule.Node);
+      return targetType != null && !allowsUndefined(targetType);
+    }
+
+    /**
+     * Returns true when the upstream report is a known false positive that should be suppressed.
+     *
+     * We suppress only when the optional-chain rewrite would leak a type-unsafe `undefined`
+     * into the surrounding context. All other cases are reported by default.
+     */
+    function isKnownFalsePositive(node: Rule.Node): boolean {
+      if (matchesFunctionReturnFalsePositive(node)) {
+        return true;
+      }
+
+      if (matchesTypedVariableInitializerFalsePositive(node)) {
+        return true;
+      }
+
+      if (matchesObjectLiteralPropertyFalsePositive(node)) {
+        return true;
+      }
+
+      if (matchesCallArgumentFalsePositive(node)) {
+        return true;
+      }
+
+      if (matchesAssignmentFalsePositive(node)) {
+        return true;
+      }
+
+      return false;
+    }
+
     return interceptReport(preferOptionalChainRule, (ctx, descriptor) => {
       const node = findReportNode(ctx, descriptor);
       if (!node) {
         return;
       }
 
-      if (isKnownFalsePositive(services, checker, node)) {
+      if (isKnownFalsePositive(node)) {
         return;
       }
 
