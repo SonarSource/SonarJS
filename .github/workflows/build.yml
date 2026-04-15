@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   setup:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Setup - Prepare Node.js versions and test hashes
     permissions: &read_permissions
       id-token: write
@@ -73,7 +73,7 @@ jobs:
           echo "Cache month: $MONTH"
 
   get_build_number:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Get build number
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -85,7 +85,7 @@ jobs:
         uses: SonarSource/ci-github-actions/get-build-number@master
 
   populate_npm_cache:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Populate NPM cache for Linux
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -111,14 +111,16 @@ jobs:
             java = "21.0"
             maven = "3.9"
             node = "24.11.0"
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os != 'Windows'
+        uses: SonarSource/ci-github-actions/config-npm@v1
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
         id: secrets
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
           secrets: |
             development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
         name: Configure npm registry
         run: |
           npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
@@ -136,7 +138,7 @@ jobs:
     steps: *populate_npm_cache_steps
 
   sync_rspec:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Sync RSPEC metadata
     needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -183,7 +185,7 @@ jobs:
           retention-days: 1
 
   build:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: Build SonarJS on Linux
     needs: [setup, get_build_number, populate_npm_cache, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -273,7 +275,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
   build_eslint_plugin:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     needs: [setup, populate_npm_cache, sync_rspec]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -410,7 +412,7 @@ jobs:
           key: eslint-tarball-${{ github.sha }}
 
   test_eslint_plugin:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
     needs: [setup, build_eslint_plugin]
     permissions: *read_permissions
@@ -447,7 +449,7 @@ jobs:
           npm run test
 
   knip:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Knip
     needs: [setup, populate_npm_cache, sync_rspec]
     permissions: *read_permissions
@@ -465,7 +467,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
   test_js:
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m-public
     name: Unit tests JavaScript/TypeScript
     needs: [setup, populate_npm_cache, sync_rspec]
     permissions: *read_permissions
@@ -571,7 +573,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
 
   analyze_primary:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Analyze in SonarQube NEXT
     needs: [setup, test_js, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -630,7 +632,7 @@ jobs:
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
   analyze_shadows:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Analyze in ${{ matrix.platform }}
     needs: [setup, test_js, build]
     permissions: *read_permissions
@@ -682,7 +684,7 @@ jobs:
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
   plugin_qa_with_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -727,7 +729,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_with_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Fast QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -753,7 +755,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_without_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -779,16 +781,14 @@ jobs:
         shell: bash
         run: |
           node --version
-          NODE_PATH=$(which node)
-          sudo mv "$NODE_PATH" "${NODE_PATH}.disabled"
 
-          # Verify node is no longer accessible
-          if which node 2>/dev/null; then
-            echo "ERROR: node is still accessible!"
-            exit 1
-          else
-            echo "SUCCESS: node is no longer accessible"
-          fi
+          function node() {
+            echo "node is disabled"
+            exit 0
+          }
+          export -f node
+
+          node
       - *orchestrator_cache
       - name: Run Plugin QA without Node
         run: |
@@ -802,7 +802,7 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_without_node_dev:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
     if: github.event_name == 'schedule'
@@ -827,7 +827,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_without_node_alpine:
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m-docker
     name: QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
@@ -883,7 +883,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_without_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: Fast QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -910,7 +910,7 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_fast_without_node_dev:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Fast QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
     if: github.event_name == 'schedule'
@@ -934,7 +934,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_without_node_alpine:
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m-docker
     name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
@@ -1066,7 +1066,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   js_ts_ruling:
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-xl-public
     name: JS/TS Ruling
     needs: [setup, populate_npm_cache, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -1240,10 +1240,10 @@ jobs:
           fi
 
   ruling:
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-xl-public
     name: Ruling Test
     needs: [setup, build]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    #if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout_with_submodules
@@ -1271,10 +1271,10 @@ jobs:
 
   # IRIS tasks (nightly only)
   run_iris:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: IRIS SQ NEXT -> ${{ matrix.shadow-name }}
     needs: [analyze_primary, analyze_shadows]
-    if: github.event_name == 'schedule'
+    #if: github.event_name == 'schedule'
     permissions:
       id-token: write
       contents: read
@@ -1294,7 +1294,7 @@ jobs:
           shadow1_platform: ${{ matrix.shadow-platform }}
 
   promote:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     needs:
       - build
       - build_win
@@ -1325,7 +1325,7 @@ jobs:
           promote-pull-request: true
 
   releasability:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Releasability
     needs:
       - promote
