@@ -383,6 +383,21 @@ describe('S1533', () => {
             },
           ],
         },
+        {
+          // TP: wrapper type in union type as class method parameter (class body is not a type-definition context)
+          code: `class ColumnController { setColumnVisible(key: Column | ColDef | String, visible: boolean): void {} }`,
+          errors: [
+            {
+              message: 'Replace this "String" wrapper object with primitive type "string".',
+              suggestions: [
+                {
+                  output: `class ColumnController { setColumnVisible(key: Column | ColDef | string, visible: boolean): void {} }`,
+                  desc: 'Replace "String" with "string"',
+                },
+              ],
+            },
+          ],
+        },
       ],
     });
   });
