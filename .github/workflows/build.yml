@@ -224,6 +224,13 @@ jobs:
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
+      - name: Setup Go and proto tools for tsgolint
+        uses: jdx/mise-action@v3.6.1
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            go = "1.26"
       - name: Build, test and deploy Maven artifacts
         run: mvn deploy -Pdeploy-sonarsource,coverage,coverage-report,sign,release -T1C
         env:
@@ -267,6 +274,13 @@ jobs:
       - *config_maven
       - *download_rspec_rule_data
       - *rspec_secrets
+      - name: Setup Go for tsgolint
+        uses: jdx/mise-action@v3.6.1
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            go = "1.26"
       - name: Build and test Maven (no deploy)
         run: mvn verify -T1C
         env:

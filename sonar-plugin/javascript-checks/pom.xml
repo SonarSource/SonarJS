@@ -72,7 +72,7 @@
         <executions>
           <execution>
             <id>Generate rule metadata</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -87,7 +87,7 @@
           </execution>
           <execution>
             <id>Generate the Java Check classes</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -102,7 +102,7 @@
           </execution>
           <execution>
             <id>Update README with rule counts</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
