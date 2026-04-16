@@ -101,14 +101,24 @@ jq -s '
 Important: `gh api --paginate` emits one JSON object per page. Always slurp with `jq -s` or merge
 pages explicitly before querying `.jobs`.
 
-For each failed job, record:
+Before counting, sampling, or triaging, fetch metadata for every failed job.
+
+Exclude the job named `diff-validation-aggregated` from the analyzed job set immediately:
+
+- do not include it in analyzed failure counts
+- do not include it in the mass-failure ratio
+- do not classify it
+- do not emit it as an ignored finding
+- mention it at most once as an excluded-by-design workflow job if that context is useful
+
+For each remaining failed job, record:
 
 - job id
 - job name
 - completion time
 - job URL
-- failing step name
-- failing phase owner (`pre-scan`, `analyze`, or `post-scan`)
+- `failing_step_name`
+- `owning_phase` (`pre-scan`, `analyze`, or `post-scan`)
 
 If the job metadata shows multiple failed steps, use the earliest failed step that actually ran as
 the phase owner. Treat later failed report/cleanup steps as downstream noise unless they are the
@@ -124,14 +134,13 @@ analysis itself:
 
 - If the failing step name contains `Diff Val` or `diff-val`, classify the job immediately as
   `IGNORE`.
-- If the job name is `diff-validation-aggregated`, classify it immediately as `IGNORE` even when
-  it exits with a non-zero code or reports found differences.
-- These jobs are monitoring / post-processing only. They are not release blockers for SonarJS and
-  should be silenced from the detailed findings unless they are the only failures in the run.
+- These jobs are monitoring / post-processing only. They are not release blockers for SonarJS.
+- Per-project Diff Val failures stay in scope as `IGNORE` findings.
+- The final `diff-validation-aggregated` job is out of scope and already excluded entirely.
 
 **Step 3 — Early exit if no failures**
 
-If there are no failed jobs, print:
+If there are no failed jobs left after exclusions, print:
 
 ```
 ✓ All jobs passed in run RUN_ID (DATE). Safe to proceed with release.
@@ -141,7 +150,7 @@ Then stop.
 
 **Step 4 — Mass failure detection**
 
-If **≥80% of jobs failed** (e.g. 200+ out of 253), this indicates a single shared root cause.
+If **≥80% of analyzed jobs failed** after exclusions, this indicates a single shared root cause.
 Do not triage every job individually.
 
 Instead:
@@ -177,7 +186,10 @@ Create the work directory where logs will be stored for inspection:
 mkdir -p target/peach-logs
 ```
 
-Before classifying a failed job, fetch its step metadata if the failing step is not already known:
+Use the metadata already collected in Step 2 to determine `failing_step_name` and `owning_phase`
+before downloading logs. Only download logs for jobs that still need log-based classification.
+
+If the metadata is missing or incomplete for a job, fetch it with:
 
 ```bash
 gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID"
@@ -195,15 +207,15 @@ When multiple steps are marked failed:
   `JavaScript/TypeScript/CSS analysis [javascript] (done)` before a later
   `ReportPublisher.upload` / `/api/ce/submit` failure, classify it as `post-scan`, not `analyze`.
 
-Then triage each failed job using a graduated approach. Work through phases as needed — stop as
+Then triage each remaining failed job using a graduated approach. Work through phases as needed — stop as
 soon as a job can be classified. Run all jobs in parallel within each phase.
 
 If the failing step is a Diff Val / diff-val monitoring step (`Setup Diff Val`,
 `Diff Val Snapshot generation`, `Diff Val aggregated snapshot generation`, or similar), classify
-it immediately as `IGNORE` and stop triage for that job. This includes the final
-`diff-validation-aggregated` job, which is entirely out of scope for analyzer release checks.
+it immediately as `IGNORE` and stop triage for that job. The final
+`diff-validation-aggregated` job should not reach this step because it is already excluded.
 
-**Phase 1 — Download log and filter for failure signals (always, all jobs in parallel)**
+**Phase 1 — Download log and filter for failure signals (only for jobs not already classified from metadata)**
 
 Download the log to disk, then filter for key failure signals. Saving to disk avoids re-downloading
 in Phase 2 and leaves logs available for manual inspection after the run. Do NOT use `tail -40` —
@@ -253,7 +265,6 @@ Many jobs can be classified immediately from Phase 1:
 - Peach unavailable
 - artifact expired
 - clone/network failures
-- Diff Val monitoring failures
 - cancelled or incomplete run evidence
 
 Also watch for checkout failures before analysis, for example:
@@ -330,25 +341,28 @@ summary, for example:
 
 **Step 8 — Print summary**
 
-Sort rows by verdict: CRITICAL first, then NEEDS-MANUAL-REVIEW, then IGNORE.
-Silence Diff Val-only noise:
+Findings should be grouped by shared cause, not emitted as a flat one-row-per-job list.
+Within each cause group, list the affected jobs and short evidence.
 
-- Do not emit one row per ignored Diff Val / `diff-validation-aggregated` failure when there are
-  other more relevant failures to report.
-- Instead, collapse them into a short note such as `Ignored N Diff Val monitoring failures`.
+Do not emit `diff-validation-aggregated` as a finding. At most, add a short note such as
+`Excluded by design: diff-validation-aggregated`.
 
-Place the Category column first. After the verdict counts and release recommendation, list any
+After the grouped findings, print verdict counts and the release recommendation. Then list any
 general notes collected during log analysis (for example clustered failures or mass-failure
-observations):
+observations).
 
 ```
 ## Peach Main Analysis — Run RUN_ID (DATE)
 
-| Category                  | Job         | Verdict               | Evidence                                     |
-|---------------------------|-------------|-----------------------|----------------------------------------------|
-| Analyzer crash            | gutenberg   | 🔴 CRITICAL           | IllegalArgumentException: invalid line offset |
-| Dep install failure       | builderbot  | ✅ IGNORE             | ERR_PNPM_OUTDATED_LOCKFILE                   |
-| Dep install failure       | hono        | ✅ IGNORE             | ETARGET: No matching version for @hono/...   |
+Excluded by design: diff-validation-aggregated
+
+### IGNORE — Peach report upload timeout
+- closure-library — `ReportPublisher.upload` to `/api/ce/submit` timed out after JS analysis completed
+- nx — `ReportPublisher.upload` to `/api/ce/submit` timed out after JS analysis completed
+
+### IGNORE — Diff Val monitoring failure
+- go-view — `Diff Val Snapshot generation`
+- ioredis — `Diff Val Snapshot generation`
 
 ### Summary
 - 🔴 CRITICAL: N jobs — investigate before release

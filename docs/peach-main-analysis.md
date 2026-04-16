@@ -58,7 +58,8 @@ This is **not** a SonarJS analyzer failure. The last active sensor is `JsSecurit
 1. At which step did the job fail?
    ├─ Pre-scan step (checkout, vault secrets, clone, cache, dependency install) → IGNORE
    ├─ During `Analyze project` / sonar-scanner execution → go to step 2
-   ├─ `Diff Val` / `diff-val` monitoring step or job `diff-validation-aggregated` → IGNORE
+   ├─ Job is `diff-validation-aggregated` → EXCLUDE from analyzed-job counts and findings
+   ├─ `Diff Val` / `diff-val` monitoring step → IGNORE
    ├─ After analysis completed (report upload / post-scan step) → usually IGNORE
    └─ Unclear / no recognizable step → NEEDS-MANUAL-REVIEW
 
@@ -104,11 +105,12 @@ analysis.
   - `Diff Val Snapshot generation`
   - `Diff Val aggregated snapshot generation`
   - `Upload diff-val artifacts`
-- Or the job name is `diff-validation-aggregated`
 - These steps run after analysis or as workflow-level post-processing to compare daily snapshots
   for monitoring purposes
 - Failures here often come from the same Peach API flakiness seen elsewhere, but they do not say
   anything about SonarJS analyzer correctness
+- This category applies to per-project jobs only. The standalone workflow job
+  `diff-validation-aggregated` is excluded entirely from analyzed-job counts and detailed findings.
 
 **Detection patterns:**
 - Classify from step metadata first; do not require log inspection
@@ -129,7 +131,8 @@ Application run failed ... ExitDiffAppException: The difference is found for pro
 ```
 
 **Action:** None for SonarJS release triage. Ignore and silence these failures in the detailed
-review output. If needed, track them separately as Peach monitoring noise.
+review output. If needed, track them separately as Peach monitoring noise. Do not use this
+category for `diff-validation-aggregated`; exclude that workflow job entirely instead.
 
 ---
 
