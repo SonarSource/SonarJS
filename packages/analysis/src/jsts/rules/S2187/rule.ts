@@ -78,6 +78,9 @@ const APIs = new Set([
   'it.runIf',
   'test.for',
   'it.for',
+  // @fast-check/vitest (property-based testing)
+  'test.prop',
+  'it.prop',
   // eslint rule tester
   'ruleTester.run',
 ]);
