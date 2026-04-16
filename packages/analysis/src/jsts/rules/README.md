@@ -23,7 +23,7 @@ If you are a [SonarQube Server](https://www.sonarsource.com/products/sonarqube/)
 
 The prerequisites for using this plugin depend on the ESLint version you are using:
 
-- For ESLint 8, you need Node.js version >= 16.
+- For ESLint 8, you need Node.js version >= 18.
 - For ESLint 9, you need Node.js version that complies with (^18.18.0 || ^20.9.0 || >=21).
 
 ## Installation

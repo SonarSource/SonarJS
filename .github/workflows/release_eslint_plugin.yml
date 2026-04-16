@@ -13,7 +13,7 @@ jobs:
   publish:
     permissions:
       id-token: write # required for GitHub OIDC and SonarSource/vault-action-wrapper
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     environment: release
     env:
       RELEASE_TAG: ${{ github.event.inputs.release_version }}

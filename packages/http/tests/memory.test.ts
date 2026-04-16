@@ -14,9 +14,30 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { logMemoryError } from '../src/memory.js';
+import { getAvailableMemory, getMemoryConfigurationMessages, logMemoryError } from '../src/memory.js';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
+
+describe('memory configuration', () => {
+  it('should prefer docker memory limit when it is lower than host memory', () => {
+    expect(getAvailableMemory(507675, 32768)).toEqual(32768);
+  });
+
+  it('should warn when node heap is higher than effective available memory', () => {
+    expect(getMemoryConfigurationMessages(507675, 500192, 32768)).toEqual({
+      infoMessage: 'Memory configuration: OS (507675 MB), Docker (32768 MB), Node.js (500192 MB).',
+      warningMessage:
+        'Node.js heap size limit 500192 is higher than available memory 32768. Check your configuration of sonar.javascript.node.maxspace',
+    });
+  });
+
+  it('should not warn when node heap fits in available memory', () => {
+    expect(getMemoryConfigurationMessages(8192, 4096)).toEqual({
+      infoMessage: 'Memory configuration: OS (8192 MB), Node.js (4096 MB).',
+      warningMessage: undefined,
+    });
+  });
+});
 
 describe('logMemoryError', () => {
   it('should log out-of-memory troubleshooting guide', ({ mock }) => {

@@ -15,7 +15,7 @@ on:
 
 jobs:
   bump-version:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     permissions:
       contents: write
       pull-requests: write
