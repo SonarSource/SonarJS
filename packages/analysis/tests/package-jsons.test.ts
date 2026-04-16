@@ -16,8 +16,8 @@
  */
 import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
-import { join, dirname } from 'node:path/posix';
-import { initFileStores, packageJsonStore } from '../src/file-stores/index.js';
+import { basename, join, dirname } from 'node:path/posix';
+import { initFileStores, dependencyManifestStore } from '../src/file-stores/index.js';
 import { readFile } from 'node:fs/promises';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { createConfiguration } from '../src/common/configuration.js';
@@ -28,21 +28,30 @@ import {
   getModuleType,
   moduleTypeCache,
 } from '../src/jsts/rules/helpers/package-jsons/dependencies.js';
+import { getDependencyManifestFiles } from '../src/jsts/rules/helpers/package-jsons/all-in-parent-dirs.js';
 import { closestPatternCache } from '../src/jsts/rules/helpers/find-up/closest.js';
-import { PACKAGE_JSON } from '../src/jsts/rules/helpers/package-jsons/index.js';
+import {
+  DENO_JSON,
+  DENO_JSONC,
+  PACKAGE_JSON,
+} from '../src/jsts/rules/helpers/package-jsons/index.js';
 import { patternInParentsCache } from '../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
 
 const closestPackageJsonCache = closestPatternCache.get(PACKAGE_JSON);
 const packageJsonsInParentsCache = patternInParentsCache.get(PACKAGE_JSON);
+const closestDenoJsonCache = closestPatternCache.get(DENO_JSON);
+const denoJsonsInParentsCache = patternInParentsCache.get(DENO_JSON);
+const closestDenoJsoncCache = closestPatternCache.get(DENO_JSONC);
+const denoJsoncsInParentsCache = patternInParentsCache.get(DENO_JSONC);
 
 const fixtures = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures-package-jsons'));
 
 describe('files', () => {
   beforeEach(() => {
-    packageJsonStore.clearCache();
+    dependencyManifestStore.clearCache();
   });
   it('should crash getting files before initializing', async () => {
-    expect(() => packageJsonStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
+    expect(() => dependencyManifestStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
   });
 
   it('should return the package.json files', async () => {
@@ -51,7 +60,7 @@ describe('files', () => {
     await initFileStores(configuration);
     const path = join(fixtures, 'dependencies', 'package.json');
     const content = await readFile(path, 'utf-8');
-    expect(packageJsonStore.getPackageJsons()).toEqual(
+    expect(dependencyManifestStore.getPackageJsons()).toEqual(
       new Map([
         [
           dirname(path),
@@ -84,6 +93,40 @@ describe('files', () => {
     expect(moduleTypeCache.has(baseDir)).toEqual(true);
   });
 
+  it('should fill deno manifest caches used for dependency lookup', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-dependencies'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    expect(denoJsonsInParentsCache.has(baseDir)).toEqual(true);
+    expect(closestDenoJsonCache.has(baseDir)).toEqual(true);
+    expect(denoJsoncsInParentsCache.has(baseDir)).toEqual(true);
+    expect(closestDenoJsoncCache.has(baseDir)).toEqual(true);
+    expect(getDependencies(baseDir, baseDir)).toEqual(new Set(['react', '@scope/pkg']));
+  });
+
+  it('should include package.json dependencies when deno.json is present in the same directory', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-precedence'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    expect(getDependencies(baseDir, baseDir)).toEqual(
+      new Set(['deno-only', 'react', 'package-only']),
+    );
+  });
+
+  it('should use deno manifest before package.json in the same directory', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-precedence'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifestFiles(baseDir, baseDir);
+    expect(manifests.map(manifest => basename(manifest.path))).toEqual([
+      'deno.json',
+      'package.json',
+    ]);
+  });
+
   it('should extract module type from package.json', async () => {
     const moduleBaseDir = normalizeToAbsolutePath(join(fixtures, 'module-type-module'));
     const moduleConfiguration = createConfiguration({ baseDir: moduleBaseDir });
@@ -92,7 +135,7 @@ describe('files', () => {
       getModuleType(normalizeToAbsolutePath(join(moduleBaseDir, 'index.js')), moduleBaseDir),
     ).toEqual('module');
 
-    packageJsonStore.clearCache();
+    dependencyManifestStore.clearCache();
 
     const commonJsBaseDir = normalizeToAbsolutePath(join(fixtures, 'module-type-commonjs'));
     const commonJsConfiguration = createConfiguration({ baseDir: commonJsBaseDir });
@@ -101,7 +144,7 @@ describe('files', () => {
       getModuleType(normalizeToAbsolutePath(join(commonJsBaseDir, 'index.js')), commonJsBaseDir),
     ).toEqual('commonjs');
 
-    packageJsonStore.clearCache();
+    dependencyManifestStore.clearCache();
 
     const unspecifiedBaseDir = normalizeToAbsolutePath(join(fixtures, 'module-type-unspecified'));
     const unspecifiedConfiguration = createConfiguration({ baseDir: unspecifiedBaseDir });
@@ -144,7 +187,7 @@ describe('files', () => {
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
     const filePath = join(baseDir, 'package.json');
-    expect(packageJsonStore.getPackageJsons().size).toEqual(1);
+    expect(dependencyManifestStore.getPackageJsons().size).toEqual(1);
     getDependencies(baseDir, baseDir);
     expect(
       consoleLogMock.calls
@@ -157,21 +200,39 @@ describe('files', () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
     let configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
-    expect(await packageJsonStore.isInitialized(configuration)).toEqual(true);
-    expect(packageJsonStore.getPackageJsons().size).toEqual(1);
+    expect(await dependencyManifestStore.isInitialized(configuration)).toEqual(true);
+    expect(dependencyManifestStore.getPackageJsons().size).toEqual(1);
     getDependencies(baseDir, baseDir);
     expect(dependenciesCache.size).toEqual(1);
 
-    packageJsonStore.dirtyCachesIfNeeded(configuration);
-    expect(packageJsonStore.getPackageJsons().size).toEqual(1);
+    dependencyManifestStore.dirtyCachesIfNeeded(configuration);
+    expect(dependencyManifestStore.getPackageJsons().size).toEqual(1);
 
     // we create a file event
     configuration = createConfiguration({
       baseDir,
       fsEvents: { [join(baseDir, 'package.json')]: 'MODIFIED' },
     });
-    packageJsonStore.dirtyCachesIfNeeded(configuration);
-    expect(() => packageJsonStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
+    dependencyManifestStore.dirtyCachesIfNeeded(configuration);
+    expect(() => dependencyManifestStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
+    expect(dependenciesCache.size).toEqual(0);
+    expect(moduleTypeCache.size).toEqual(0);
+  });
+
+  it('should clear caches when deno manifests are updated', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-dependencies'));
+    let configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+    expect(await dependencyManifestStore.isInitialized(configuration)).toEqual(true);
+    getDependencies(baseDir, baseDir);
+    expect(dependenciesCache.size).toEqual(1);
+
+    configuration = createConfiguration({
+      baseDir,
+      fsEvents: { [join(baseDir, 'deno.json')]: 'MODIFIED' },
+    });
+    dependencyManifestStore.dirtyCachesIfNeeded(configuration);
+    expect(() => dependencyManifestStore.getPackageJsons()).toThrow(new Error(UNINITIALIZED_ERROR));
     expect(dependenciesCache.size).toEqual(0);
     expect(moduleTypeCache.size).toEqual(0);
   });

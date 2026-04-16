@@ -16,6 +16,10 @@
  */
 import { Minimatch } from 'minimatch';
 import type { PackageJson } from 'type-fest';
+import type { File } from '../files.js';
+import { stripBOM } from '../files.js';
+import { DENO_JSON, DENO_JSONC, getDependencyManifestName, PACKAGE_JSON } from './index.js';
+import ts from 'typescript';
 
 const DefinitelyTyped = '@types/';
 
@@ -71,6 +75,102 @@ function addDependencies(
   })) {
     addDependency(result, name, isGlob, dependencies[name]);
   }
+}
+
+// https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap
+type ImportMap = Record<string, unknown>;
+
+type DenoManifest = {
+  imports?: ImportMap;
+};
+
+type ImportMapSpecifier = {
+  packageName: string;
+  version?: string;
+};
+
+export function getDependenciesFromManifest(file: File): Set<Dependency> {
+  const manifestName = getDependencyManifestName(file.path);
+  if (!manifestName) {
+    return new Set();
+  }
+
+  switch (manifestName) {
+    case PACKAGE_JSON:
+      return getDependenciesFromPackageJson(parsePackageJson(file) ?? {});
+    case DENO_JSON:
+    case DENO_JSONC: // intentional fallthrough
+      return getDependenciesFromDenoManifest(parseDenoManifest(file) ?? {});
+  }
+}
+
+function parsePackageJson(file: File): PackageJson | undefined {
+  try {
+    return JSON.parse(stripBOM(file.content.toString())) as PackageJson;
+  } catch (error) {
+    console.debug(`Error parsing package.json ${file.path}: ${error}`);
+    return undefined;
+  }
+}
+
+function parseDenoManifest(file: File): DenoManifest | undefined {
+  try {
+    const parsed = ts.parseConfigFileTextToJson(file.path, stripBOM(file.content.toString()));
+    if (parsed.error) {
+      const message = ts.flattenDiagnosticMessageText(parsed.error.messageText, '\n');
+      throw new Error(message);
+    }
+    return parsed.config as DenoManifest;
+  } catch (error) {
+    console.debug(`Error parsing deno manifest ${file.path}: ${error}`);
+    return undefined;
+  }
+}
+
+function getDependenciesFromDenoManifest(manifest: DenoManifest): Set<Dependency> {
+  const result = new Set<Dependency>();
+  if (!manifest.imports || typeof manifest.imports !== 'object') {
+    return result;
+  }
+
+  for (const target of Object.values(manifest.imports)) {
+    if (typeof target === 'string') {
+      const parsedSpecifier = parseImportMapSpecifier(target);
+      if (parsedSpecifier) {
+        addDependency(result, parsedSpecifier.packageName, false, parsedSpecifier.version);
+      }
+    }
+  }
+
+  return result;
+}
+
+// Captures `npm:` payload as: package name (scoped or unscoped), optional version, optional ignored subpath.
+// Examples:
+// npm:cowsay@^1.6.0
+// npm:@scopename/mypackage@~11.1.0
+const npmImportMapSpecifierPattern = /^(@[^/]*\/[^/@]*|[^/@]+)(?:@([^/]*))?(?:\/.*)?$/;
+
+/**
+ * Parses an import map URL Specifier matching Deno npm format:
+ * npm:<package>[@<version>][/<path>]
+ */
+export function parseImportMapSpecifier(value: string): ImportMapSpecifier | undefined {
+  // currently only handle npm: specifiers since rules are focused on NPM dependencies
+  if (!value.startsWith('npm:')) {
+    return undefined;
+  }
+
+  const match = npmImportMapSpecifierPattern.exec(value.slice('npm:'.length));
+  if (!match) {
+    return undefined;
+  }
+
+  const [, packageName, version] = match;
+  return {
+    packageName,
+    version: version || undefined,
+  };
 }
 
 function addDependenciesArray(result: Set<Dependency>, dependencies: string[], isGlob = true) {

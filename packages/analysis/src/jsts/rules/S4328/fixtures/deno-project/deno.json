@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "react": "npm:react@^19.1.0",
+    "scopedAlias": "npm:@namespaced/dependency@^1.0.0",
+    "jsrAlias": "jsr:@std/assert@^1.0.0"
+  }
+}

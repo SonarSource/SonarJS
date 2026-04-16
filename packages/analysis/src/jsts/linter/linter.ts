@@ -42,7 +42,7 @@ import {
   getModuleType,
   type ModuleType,
 } from '../rules/helpers/package-jsons/dependencies.js';
-import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
+import { getClosestDependencyManifestDir } from '../rules/helpers/package-jsons/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
 import type { FileType } from '../../contracts/file.js';
 
@@ -351,10 +351,13 @@ function createLinterConfigKey(
   analysisMode: AnalysisMode,
   detectedEsYear?: number,
   detectedModuleType?: string,
-) {
+): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const normalizedPath = normalizeToAbsolutePath(filePath);
-  const packageJsonDirName = getClosestPackageJSONDir(dirnamePath(normalizedPath), baseDir);
-  const linterConfigKey = `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${packageJsonDirName}`;
+  const dependencyManifestDirName = getClosestDependencyManifestDir(
+    dirnamePath(normalizedPath),
+    baseDir,
+  );
+  const linterConfigKey = `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
   return `${linterConfigKey}:${detectedEsYear ?? 'esnext'}:${detectedModuleType ?? 'unknown'}`;
 }

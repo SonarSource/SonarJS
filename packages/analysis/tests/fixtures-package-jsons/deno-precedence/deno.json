@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "deno-only": "npm:deno-only@1.2.3",
+    "react": "npm:react@^19.0.0"
+  }
+}

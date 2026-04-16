@@ -22,40 +22,76 @@ import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import { basename } from 'node:path/posix';
 
 export const PACKAGE_JSON = 'package.json';
+export const DENO_JSON = 'deno.json';
+export const DENO_JSONC = 'deno.jsonc';
+export const DENO_MANIFESTS = [DENO_JSON, DENO_JSONC] as const;
+export const DEPENDENCY_MANIFESTS = [DENO_JSON, DENO_JSONC, PACKAGE_JSON] as const;
 
-export function isPackageJson(path: NormalizedAbsolutePath) {
+export function isPackageJson(path: NormalizedAbsolutePath): boolean {
   return basename(path).toLowerCase() === PACKAGE_JSON;
 }
 
-export function fillPackageJsonCaches(
-  packageJsons: Map<NormalizedAbsolutePath, File>,
+export function isDenoJson(path: NormalizedAbsolutePath): boolean {
+  const normalizedBasename = basename(path).toLowerCase();
+  return normalizedBasename === DENO_JSON || normalizedBasename === DENO_JSONC;
+}
+
+export function isDependencyManifest(path: NormalizedAbsolutePath): boolean {
+  return isPackageJson(path) || isDenoJson(path);
+}
+
+export function fillManifestCaches(
+  manifestName: string,
+  manifests: Map<NormalizedAbsolutePath, File>,
   dirnameToParent: Map<NormalizedAbsolutePath, NormalizedAbsolutePath | undefined>,
   topDir: NormalizedAbsolutePath,
-) {
-  const closestCache = closestPatternCache.get(PACKAGE_JSON).get(topDir);
-  const allPackageJsonsCache = patternInParentsCache.get(PACKAGE_JSON).get(topDir);
+): void {
+  const closestCache = closestPatternCache.get(manifestName).get(topDir);
+  const manifestsInParentsCache = patternInParentsCache.get(manifestName).get(topDir);
 
   // We depend on the order of the paths, from parent-to-child paths (guaranteed by the use of a Map in the package-json store)
   for (const [dir, parent] of dirnameToParent) {
-    const currentPackageJson = packageJsons.get(dir);
-    closestCache.set(dir, currentPackageJson ?? (parent ? closestCache.get(parent) : undefined));
-    const allPackageJsons = [];
+    const currentManifest = manifests.get(dir);
+    closestCache.set(dir, currentManifest ?? (parent ? closestCache.get(parent) : undefined));
+    const manifestsInParents: File[] = [];
     if (parent) {
-      allPackageJsons.push(...allPackageJsonsCache.get(dir));
+      manifestsInParents.push(...manifestsInParentsCache.get(dir));
     }
-    if (currentPackageJson) {
-      allPackageJsons.push(currentPackageJson);
+    if (currentManifest) {
+      manifestsInParents.push(currentManifest);
     }
-    allPackageJsonsCache.set(dir, allPackageJsons);
+    manifestsInParentsCache.set(dir, manifestsInParents);
   }
 }
+
 /**
- * In the case of SonarIDE, when a package.json file changes, the cache can become obsolete.
+ * In the case of SonarIDE, when a dependency manifest file changes, the cache can become obsolete.
  */
-export function clearDependenciesCache() {
+export function clearDependenciesCache(): void {
   dependenciesCache.clear();
   moduleTypeCache.clear();
-  closestPatternCache.get(PACKAGE_JSON).clear();
-  patternInParentsCache.get(PACKAGE_JSON).clear();
+  for (const manifestName of DEPENDENCY_MANIFESTS) {
+    closestPatternCache.get(manifestName).clear();
+    patternInParentsCache.get(manifestName).clear();
+  }
   MinimatchCache.clear();
+}
+
+export type DependencyManifestName = (typeof DEPENDENCY_MANIFESTS)[number];
+
+export function isDependencyManifestName(value: string): value is DependencyManifestName {
+  return (DEPENDENCY_MANIFESTS as readonly string[]).includes(value);
+}
+
+/**
+ * Returns the dependency manifest filename if the path points to one.
+ */
+export function getDependencyManifestName(
+  path: NormalizedAbsolutePath,
+): DependencyManifestName | undefined {
+  const normalizedBasename = basename(path).toLowerCase();
+  if (isDependencyManifestName(normalizedBasename)) {
+    return normalizedBasename;
+  }
+  return undefined;
 }

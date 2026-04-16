@@ -212,6 +212,56 @@ describe('Linter', () => {
     expect(rules).toHaveProperty('sonarjs/S6477');
   });
 
+  it('should enable React-dependent rules when react dependency is present in deno.json', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'deno-react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S6477',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.jsx')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    expect(rules).toHaveProperty('sonarjs/S6477');
+  });
+
+  it('should merge deno and package.json dependencies for dependency filtering', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'deno-priority-no-react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S6477',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.jsx')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    expect(rules).toHaveProperty('sonarjs/S6477');
+  });
+
   it('should not force cognitive complexity metric rule by default', async () => {
     await Linter.initialize({
       baseDir: normalizeToAbsolutePath(import.meta.dirname),

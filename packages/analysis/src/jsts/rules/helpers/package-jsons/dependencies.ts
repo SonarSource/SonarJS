@@ -27,9 +27,9 @@ import {
   dirnamePath,
   stripBOM,
 } from '../files.js';
-import { getDependenciesFromPackageJson } from './parse.js';
-import { getClosestPackageJSONDir } from './closest.js';
-import { getManifests } from './all-in-parent-dirs.js';
+import { getDependenciesFromManifest } from './parse.js';
+import { getClosestDependencyManifestDir } from './closest.js';
+import { getDependencyManifestFiles, getManifests } from './all-in-parent-dirs.js';
 
 export type ModuleType = 'module' | 'commonjs';
 
@@ -45,14 +45,19 @@ const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
  */
 export const dependenciesCache = new ComputedCache(
   (dir: NormalizedAbsolutePath, topDir?: NormalizedAbsolutePath) => {
-    const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
+    const closestDependencyManifestDir = getClosestDependencyManifestDir(dir, topDir);
     const result = new Set<string | Minimatch>();
 
-    if (closestPackageJSONDirName) {
-      for (const manifest of getManifests(closestPackageJSONDirName, topDir, fs)) {
-        const manifestDependencies = getDependenciesFromPackageJson(manifest);
-
+    if (closestDependencyManifestDir) {
+      for (const manifestFile of getDependencyManifestFiles(
+        closestDependencyManifestDir,
+        topDir,
+        fs,
+      )) {
+        const manifestDependencies = getDependenciesFromManifest(manifestFile);
         for (const dependency of manifestDependencies) {
+          // Keep first-seen declaration per bare specifier:
+          // closest directory wins over parents and Deno wins over package.json in the same directory.
           result.add(dependency.name);
         }
       }
@@ -66,11 +71,11 @@ export const dependenciesCache = new ComputedCache(
  */
 export const moduleTypeCache = new ComputedCache(
   (dir: NormalizedAbsolutePath, topDir?: NormalizedAbsolutePath): ModuleType | undefined => {
-    const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
-    if (!closestPackageJSONDirName) {
+    const closestDependencyManifestDirName = getClosestDependencyManifestDir(dir, topDir);
+    if (!closestDependencyManifestDirName) {
       return undefined;
     }
-    const [firstManifest] = getManifests(closestPackageJSONDirName, topDir, fs);
+    const [firstManifest] = getManifests(closestDependencyManifestDirName, topDir, fs);
     if (firstManifest?.type === 'module' || firstManifest?.type === 'commonjs') {
       return firstManifest.type;
     }
@@ -82,16 +87,16 @@ export const moduleTypeCache = new ComputedCache(
 );
 
 /**
- * Retrieve the dependencies of all the package.json files available for the given file.
+ * Retrieve the dependencies of all the dependency manifest files available for the given file.
  *
  * @param dir dirname of the context.filename
  * @param topDir working dir, will search up to that root
  * @returns Set with the dependency names
  */
 export function getDependencies(dir: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath) {
-  const closestPackageJSONDirName = getClosestPackageJSONDir(dir, topDir);
-  if (closestPackageJSONDirName) {
-    return dependenciesCache.get(closestPackageJSONDirName, topDir);
+  const closestDependencyManifestDir = getClosestDependencyManifestDir(dir, topDir);
+  if (closestDependencyManifestDir) {
+    return dependenciesCache.get(closestDependencyManifestDir, topDir);
   }
   return new Set<string | Minimatch>();
 }

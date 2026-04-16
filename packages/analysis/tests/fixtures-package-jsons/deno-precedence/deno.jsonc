@@ -1,0 +1,6 @@
+{
+  // Should be ignored when deno.json exists
+  "imports": {
+    "jsonc-only": "npm:jsonc-only@1.0.0"
+  }
+}

@@ -14,20 +14,25 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { type NormalizedAbsolutePath, ROOT_PATH, dirnamePath } from '../files.js';
-import { PACKAGE_JSON } from './index.js';
+import { type NormalizedAbsolutePath, ROOT_PATH } from '../files.js';
+import { DEPENDENCY_MANIFESTS } from './index.js';
 import { closestPatternCache } from '../find-up/closest.js';
 
-export function getClosestPackageJSONDir(
+/**
+ * Finds the closest directory containing at least one dependency manifest.
+ */
+export function getClosestDependencyManifestDir(
   dir: NormalizedAbsolutePath,
   topDir?: NormalizedAbsolutePath,
-) {
-  const closestPackageJSONDir = closestPatternCache
-    .get(PACKAGE_JSON)
-    .get(topDir ?? ROOT_PATH)
-    .get(dir)?.path;
-  if (closestPackageJSONDir) {
-    return dirnamePath(closestPackageJSONDir);
+): NormalizedAbsolutePath | undefined {
+  for (const manifestName of DEPENDENCY_MANIFESTS) {
+    const manifestPath = closestPatternCache
+      .get(manifestName)
+      .get(topDir ?? ROOT_PATH)
+      .get(dir)?.path;
+
+    if (manifestPath) {
+      return dir;
+    }
   }
-  return undefined;
 }
