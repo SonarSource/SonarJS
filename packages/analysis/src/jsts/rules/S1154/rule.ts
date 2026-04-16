@@ -50,10 +50,6 @@ export const rule: Rule.RuleModule = {
       return variable;
     }
 
-    function isFunctionLike(arg: estree.Expression | estree.SpreadElement | undefined) {
-      return arg?.type === 'FunctionExpression' || arg?.type === 'ArrowFunctionExpression';
-    }
-
     function isFunctionType(arg: estree.Expression | estree.SpreadElement | undefined) {
       if (!arg || arg.type === 'SpreadElement') {
         return false;
@@ -94,3 +90,7 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isFunctionLike(arg: estree.Expression | estree.SpreadElement | undefined) {
+  return arg?.type === 'FunctionExpression' || arg?.type === 'ArrowFunctionExpression';
+}
