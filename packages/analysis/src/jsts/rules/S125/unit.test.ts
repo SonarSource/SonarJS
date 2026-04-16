@@ -159,6 +159,18 @@ describe('S125', () => {
           // FP: "e.g:" colon variant is a documentation example
           code: `// e.g: step.where(condition);`,
         },
+        {
+          // FP guard for JSX fallback: prose with "TODO:" and JSX-like text should not be flagged
+          code: `
+const Calendar = () => {
+  return (
+    <DateCalendar
+      // TODO: implement views={options}
+      value={1234}
+    />
+  );
+};`,
+        },
       ],
       invalid: [
         {
@@ -379,6 +391,80 @@ let x = 0;`,
                   desc: 'Remove this commented out code',
                   output: `
 let x = 0;`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // JSX attributes commented in TSX should be reported as commented-out code
+          code: `
+const Calendar: React.FC = () => {
+  return (
+    <DateCalendar
+      data-testid="header-calendar"
+      value={1234}
+      openTo="year"
+      // views={["year"]}
+      // maxDate={new Date()}
+      onChange={date => {
+        console.log(date);
+      }}
+    />
+  );
+};`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [
+                {
+                  desc: 'Remove this commented out code',
+                  output: `
+const Calendar: React.FC = () => {
+  return (
+    <DateCalendar
+      data-testid="header-calendar"
+      value={1234}
+      openTo="year"
+      
+      onChange={date => {
+        console.log(date);
+      }}
+    />
+  );
+};`,
+                },
+              ],
+            },
+          ],
+        },
+        {
+          // JSX attributes commented in JS should also be reported
+          filename: 'placeholder.js',
+          code: `
+const Calendar = () => {
+  return (
+    <DateCalendar
+      // views={["year"]}
+      value={1234}
+    />
+  );
+};`,
+          errors: [
+            {
+              messageId: 'commentedCode',
+              suggestions: [
+                {
+                  desc: 'Remove this commented out code',
+                  output: `
+const Calendar = () => {
+  return (
+    <DateCalendar
+      
+      value={1234}
+    />
+  );
+};`,
                 },
               ],
             },
