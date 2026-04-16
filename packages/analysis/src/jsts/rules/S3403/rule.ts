@@ -23,6 +23,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getTypeFromTreeNode } from '../helpers/type.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
+import { isNullLiteral, isUndefined } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -92,8 +93,8 @@ function isDefensiveIndexedNullishCheck(left: estree.Node, right: estree.Node) {
 
 function isNullishLiteral(node: estree.Node) {
   return (
-    (node.type === 'Literal' && node.value === null) ||
-    (node.type === 'Identifier' && node.name === 'undefined') ||
+    isNullLiteral(node) ||
+    isUndefined(node) ||
     (node.type === 'UnaryExpression' && node.operator === 'void')
   );
 }
