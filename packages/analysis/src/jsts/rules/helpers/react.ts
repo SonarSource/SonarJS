@@ -17,9 +17,10 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
-import type ts from 'typescript';
-import { childrenOf } from './ancestor.js';
+import ts from 'typescript';
+import { childrenOf, getNodeParent } from './ancestor.js';
 import { isIdentifier } from './ast.js';
+import { getImportDeclarations } from './module.js';
 import { isRequiredParserServices } from './parser-services.js';
 import { getTypeFromTreeNode } from './type.js';
 
@@ -31,9 +32,19 @@ const COMPONENT_NODE_TYPES = new Set([
   'ArrowFunctionExpression',
 ]);
 const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclaration']);
+const REACT_CLASS_TYPES = new Set(['Component', 'PureComponent']);
+const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
+
+type ReactImportBindings = {
+  classTypeAliases: Set<string>;
+  functionComponentAliases: Set<string>;
+  namespaceAliases: Set<string>;
+};
+
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
   ownerByTypeDecl: WeakMap<estree.Node, estree.Node | null>;
+  reactImportBindings: ReactImportBindings | undefined;
 };
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 
@@ -43,10 +54,73 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
     cache = {
       componentNodes: undefined,
       ownerByTypeDecl: new WeakMap<estree.Node, estree.Node | null>(),
+      reactImportBindings: undefined,
     };
     perSourceCache.set(sourceCode, cache);
   }
   return cache;
+}
+
+/**
+ * Records the local aliases introduced by a single React import specifier.
+ *
+ * Default and namespace imports are tracked as namespace aliases so later checks can
+ * recognize `React.Component` / `React.FC` style references. Named imports are split
+ * between class-component aliases (`Component`, `PureComponent`) and function-component
+ * aliases (`FC`, `FunctionComponent`) based on the imported symbol name.
+ */
+function addReactImportBinding(
+  bindings: ReactImportBindings,
+  specifier:
+    | estree.ImportSpecifier
+    | estree.ImportDefaultSpecifier
+    | estree.ImportNamespaceSpecifier,
+): void {
+  if (
+    specifier.type === 'ImportDefaultSpecifier' ||
+    specifier.type === 'ImportNamespaceSpecifier'
+  ) {
+    bindings.namespaceAliases.add(specifier.local.name);
+    return;
+  }
+
+  if (specifier.type !== 'ImportSpecifier' || specifier.imported.type !== 'Identifier') {
+    return;
+  }
+
+  const importedName = specifier.imported.name;
+  if (REACT_CLASS_TYPES.has(importedName)) {
+    bindings.classTypeAliases.add(specifier.local.name);
+  }
+  if (REACT_FUNCTION_COMPONENT_TYPES.has(importedName)) {
+    bindings.functionComponentAliases.add(specifier.local.name);
+  }
+}
+
+function getReactImportBindings(context: Rule.RuleContext): ReactImportBindings {
+  const sourceCache = getSourceCache(context.sourceCode);
+  if (sourceCache.reactImportBindings) {
+    return sourceCache.reactImportBindings;
+  }
+
+  const bindings: ReactImportBindings = {
+    classTypeAliases: new Set<string>(),
+    functionComponentAliases: new Set<string>(),
+    namespaceAliases: new Set<string>(),
+  };
+
+  for (const importDecl of getImportDeclarations(context)) {
+    if (importDecl.source.value !== 'react') {
+      continue;
+    }
+
+    for (const specifier of importDecl.specifiers) {
+      addReactImportBinding(bindings, specifier);
+    }
+  }
+
+  sourceCache.reactImportBindings = bindings;
+  return bindings;
 }
 
 /**
@@ -62,7 +136,7 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
  * Returns `undefined` if all strategies fail — callers should pass the report through
  * without suppression rather than falling back to a file-wide scan.
  */
-export function findComponentNode(
+export function findOwningComponentNode(
   node: estree.Node,
   context: Rule.RuleContext,
 ): estree.Node | undefined {
@@ -98,6 +172,38 @@ export function findComponentNode(
 
   // Strategy C: TypeScript type checker — match the props interface to its owning component
   return findOwnerByType(ancestors, context, context.sourceCode.visitorKeys);
+}
+
+export { findOwningComponentNode as findComponentNode };
+
+/**
+ * Resolves the identifier that names a React component in the current file.
+ *
+ * Pseudo-code examples:
+ * function MyComponent() {}
+ * const MyComponent = () => {};
+ */
+export function getComponentIdentifierFromNode(componentNode: estree.Node): string | null {
+  if (componentNode.type === 'VariableDeclarator' && componentNode.id.type === 'Identifier') {
+    return componentNode.id.name;
+  }
+
+  if (componentNode.type === 'ClassDeclaration' || componentNode.type === 'FunctionDeclaration') {
+    return componentNode.id?.name ?? null;
+  }
+
+  if (
+    componentNode.type === 'ClassExpression' ||
+    componentNode.type === 'ArrowFunctionExpression' ||
+    componentNode.type === 'FunctionExpression'
+  ) {
+    const parent = getNodeParent(componentNode);
+    if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+      return parent.id.name;
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -161,17 +267,24 @@ function findOwnerByType(
     (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
 
   // Step 5: find the first component whose props type is mutually assignable to `propsType`.
+  const reactImports = getReactImportBindings(context);
   for (const componentNode of componentNodes) {
     const tsNode = services.esTreeNodeToTSNodeMap.get(
       componentNode as TSESTree.Node,
     ) as ts.Declaration;
     if (componentNode.type === 'ClassDeclaration' || componentNode.type === 'ClassExpression') {
-      if (matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, propsType)) {
+      if (matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, propsType, reactImports)) {
         sourceCache.ownerByTypeDecl.set(typeDecl, componentNode);
         return componentNode;
       }
     } else if (
-      matchesFunctionProps(componentNode, tsNode as ts.SignatureDeclaration, checker, propsType)
+      matchesFunctionProps(
+        componentNode,
+        tsNode as ts.SignatureDeclaration,
+        checker,
+        propsType,
+        reactImports,
+      )
     ) {
       sourceCache.ownerByTypeDecl.set(typeDecl, componentNode);
       return componentNode;
@@ -198,10 +311,17 @@ function findOwnerByType(
  * Requiring the reverse direction as well (`componentPropsType → propsType`) filters
  * out unrelated interfaces that happen to satisfy a permissive props shape.
  */
+
+// @ts-ignore — isTypeAssignableTo is a private TypeScript API
+function areMutuallyAssignable(checker: ts.TypeChecker, a: ts.Type, b: ts.Type): boolean {
+  return checker.isTypeAssignableTo(a, b) && checker.isTypeAssignableTo(b, a);
+}
+
 function matchesClassProps(
   cls: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
   propsType: ts.Type,
+  reactImports: ReactImportBindings,
 ): boolean {
   if (!cls.name) {
     return false;
@@ -213,16 +333,62 @@ function matchesClassProps(
   // Obtain the instance type (the shape of `new Foo()`) to read its `props` property.
   const instanceType = checker.getDeclaredTypeOfSymbol(classSymbol);
   const propsSymbol = instanceType.getProperty('props');
-  if (!propsSymbol) {
-    // Not a class component with a typed `props` property — skip.
-    return false;
+  if (propsSymbol) {
+    const componentPropsType = checker.getTypeOfSymbol(propsSymbol);
+    return areMutuallyAssignable(checker, propsType, componentPropsType);
   }
-  const componentPropsType = checker.getTypeOfSymbol(propsSymbol);
-  // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-  return (
-    checker.isTypeAssignableTo(propsType, componentPropsType) &&
-    checker.isTypeAssignableTo(componentPropsType, propsType)
+  // Fallback: when the base class is unresolved (e.g. `declare const React: any`),
+  // TypeScript cannot expose the inherited `props` property via the instance type.
+  // Check heritage clauses for `extends Component<…>` or `extends React.Component<…>`.
+  return matchesClassPropsViaSyntax(cls, checker, propsType, reactImports);
+}
+
+/** Returns true when `expr` names the React.Component or React.PureComponent base class. */
+function isReactComponentExpression(
+  expr: ts.Expression,
+  reactImports: ReactImportBindings,
+): boolean {
+  return matchesReactImportedSymbol(
+    getExpressionSymbolName(expr),
+    reactImports.classTypeAliases,
+    REACT_CLASS_TYPES,
+    reactImports.namespaceAliases,
   );
+}
+
+/**
+ * Fallback for `matchesClassProps` when TypeScript cannot expose the inherited `props`
+ * property via the instance type (e.g. `declare const React: any`).
+ *
+ * Checks if the first type argument of any `extends Component<…>` or
+ * `extends React.Component<…>` clause is mutually assignable with `propsType`.
+ * Only `extends` clauses are considered to avoid false matches on unrelated
+ * generic classes like `class Store extends Model<FooProps>`.
+ */
+function matchesClassPropsViaSyntax(
+  cls: ts.ClassLikeDeclaration,
+  checker: ts.TypeChecker,
+  propsType: ts.Type,
+  reactImports: ReactImportBindings,
+): boolean {
+  for (const clause of (cls.heritageClauses ?? []).filter(
+    c => c.token === ts.SyntaxKind.ExtendsKeyword,
+  )) {
+    for (const type of clause.types) {
+      if (!isReactComponentExpression(type.expression, reactImports)) {
+        continue;
+      }
+      const typeArgs = type.typeArguments;
+      if (!typeArgs?.length) {
+        continue;
+      }
+      const firstArgType = checker.getTypeAtLocation(typeArgs[0]);
+      if (areMutuallyAssignable(checker, propsType, firstArgType)) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 /**
@@ -242,12 +408,119 @@ function matchesClassProps(
  *
  * **Why mutual assignability?** — same rationale as `matchesClassProps`: prevents
  * accidental matches when the component's props type is permissive (all-optional fields).
+ *
+ * **Two-phase strategy for arrow functions:**
+ * When the component is an arrow function typed via a VariableDeclarator annotation
+ * (e.g. `const Foo: React.FC<FooProps> = ({ ... }) => …`), TypeScript may infer the
+ * parameter type from the destructuring pattern rather than from the contextual type.
+ * This happens when imports are unresolvable (e.g. no `node_modules`), making
+ * `React.FC<FooProps>` resolve to `any`, so TypeScript infers `{ destructuredKey: any }`
+ * for the parameter — which is NOT mutually assignable with the full `FooProps` interface.
+ * Phase 1 reads the type annotation directly from the VariableDeclarator to avoid this
+ * inference problem.  Phase 2 falls back to the signature-based approach for plain typed
+ * parameters (e.g. `function Foo(props: FooProps)`).
  */
+
+/**
+ * Phase 1 helper for `matchesFunctionProps`: extracts the props type from the
+ * `React.FC<Props>` annotation on the parent VariableDeclarator when `tsFuncNode`
+ * is used as the initializer. Returns null if the pattern is not matched.
+ */
+function getAnnotationBasedPropsType(
+  tsFuncNode: ts.SignatureDeclaration,
+  checker: ts.TypeChecker,
+  reactImports: ReactImportBindings,
+): ts.Type | null {
+  // Only ArrowFunction and FunctionExpression can appear as a VariableDeclarator initializer.
+  // Guard on node kind first so the comparison below is type-safe without `as unknown as`.
+  if (!ts.isArrowFunction(tsFuncNode) && !ts.isFunctionExpression(tsFuncNode)) {
+    return null;
+  }
+  const parentNode = tsFuncNode.parent;
+  if (!ts.isVariableDeclaration(parentNode) || parentNode.initializer !== tsFuncNode) {
+    return null;
+  }
+  const typeNode = parentNode.type;
+  if (typeNode == null || !ts.isTypeReferenceNode(typeNode)) {
+    return null;
+  }
+  if (!isReactFunctionComponentType(typeNode.typeName, reactImports)) {
+    return null;
+  }
+  const typeArgs = typeNode.typeArguments;
+  if (typeArgs == null || typeArgs.length === 0) {
+    return null;
+  }
+  return checker.getTypeAtLocation(typeArgs[0]);
+}
+
+function isReactFunctionComponentType(
+  typeName: ts.EntityName,
+  reactImports: ReactImportBindings,
+): boolean {
+  return matchesReactImportedSymbol(
+    getEntitySymbolName(typeName),
+    reactImports.functionComponentAliases,
+    REACT_FUNCTION_COMPONENT_TYPES,
+    reactImports.namespaceAliases,
+  );
+}
+
+type SymbolNameParts =
+  | { directName: string }
+  | { namespaceName: string; memberName: string }
+  | null;
+
+function getExpressionSymbolName(expr: ts.Expression): SymbolNameParts {
+  if (ts.isIdentifier(expr)) {
+    return { directName: expr.text };
+  }
+
+  if (ts.isPropertyAccessExpression(expr) && ts.isIdentifier(expr.expression)) {
+    return { namespaceName: expr.expression.text, memberName: expr.name.text };
+  }
+
+  return null;
+}
+
+function getEntitySymbolName(typeName: ts.EntityName): SymbolNameParts {
+  if (ts.isIdentifier(typeName)) {
+    return { directName: typeName.text };
+  }
+
+  if (ts.isIdentifier(typeName.left)) {
+    return { namespaceName: typeName.left.text, memberName: typeName.right.text };
+  }
+
+  return null;
+}
+
+function matchesReactImportedSymbol(
+  symbolName: SymbolNameParts,
+  directAliases: Set<string>,
+  allowedNamespaceMembers: Set<string>,
+  namespaceAliases: Set<string>,
+): boolean {
+  if (symbolName == null) {
+    return false;
+  }
+
+  if ('directName' in symbolName) {
+    return directAliases.has(symbolName.directName);
+  }
+
+  return (
+    namespaceAliases.has(symbolName.namespaceName) &&
+    allowedNamespaceMembers.has(symbolName.memberName)
+  );
+}
+
 function matchesFunctionProps(
   componentNode: estree.Node,
   tsFuncNode: ts.SignatureDeclaration,
   checker: ts.TypeChecker,
   propsType: ts.Type,
+  reactImports: ReactImportBindings,
 ): boolean {
   // Skip non-PascalCase names to avoid matching helper functions
   // that happen to accept the same props type (React components use PascalCase by convention).
@@ -255,18 +528,26 @@ function matchesFunctionProps(
   if (funcName !== undefined && !/^[A-Z]/.test(funcName)) {
     return false;
   }
+
+  // Phase 1 — annotation-based approach for `const Foo: React.FC<FooProps> = ...` patterns.
+  // Use the type annotation on the parent VariableDeclarator instead of the inferred
+  // parameter type.  This is more reliable when module imports are unresolved, because
+  // TypeScript derives the parameter type from the destructuring pattern in that case,
+  // producing an incomplete type that fails the mutual-assignability check.
+  const annotatedParamType = getAnnotationBasedPropsType(tsFuncNode, checker, reactImports);
+  if (annotatedParamType != null && areMutuallyAssignable(checker, propsType, annotatedParamType)) {
+    return true;
+  }
+
+  // Phase 2 — signature-based approach for functions typed via their parameter list
+  // (e.g. `function Foo(props: FooProps)` or `const Foo = (props: FooProps) => …`).
   const signature = checker.getSignatureFromDeclaration(tsFuncNode);
   const firstParam = signature?.parameters[0];
   if (firstParam == null) {
-    // Function has no parameters — cannot be a props-consuming component.
     return false;
   }
   const componentParamType = checker.getTypeOfSymbol(firstParam);
-  // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-  return (
-    checker.isTypeAssignableTo(propsType, componentParamType) &&
-    checker.isTypeAssignableTo(componentParamType, propsType)
-  );
+  return areMutuallyAssignable(checker, propsType, componentParamType);
 }
 
 /**
