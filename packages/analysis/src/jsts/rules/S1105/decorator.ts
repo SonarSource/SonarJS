@@ -35,7 +35,7 @@ function reportExempting(
   exemptionCondition: (messageId: string) => boolean,
 ): (context: Rule.RuleContext, reportDescriptor: Rule.ReportDescriptor) => void {
   return (context, reportDescriptor) => {
-    if (exemptionCondition((reportDescriptor as any).messageId)) {
+    if ('messageId' in reportDescriptor && exemptionCondition(reportDescriptor.messageId)) {
       context.report(reportDescriptor);
     }
   };
