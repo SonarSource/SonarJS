@@ -131,5 +131,5 @@ export const rule: Rule.RuleModule = {
 
 //handling arrow functions without return statement
 function returnsJSX(node: estree.Function) {
-  return (node.body as any).type.startsWith('JSX');
+  return node.body.type.startsWith('JSX');
 }
