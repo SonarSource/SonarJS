@@ -3,7 +3,7 @@ name: peach-check
 description: Use before a SonarJS release or when the nightly Peach Main Analysis workflow shows
   failures that need triage. Classifies each failure as a critical analyzer bug or a safe-to-ignore
   infrastructure problem.
-allowed-tools: Bash(gh run list:*), Bash(gh api:*), Bash(mkdir:*),Bash(jq:*),Bash(sed --sandbox:*), Read, Agent
+allowed-tools: Bash(gh run list:*), Bash(gh api:*), Bash(mkdir:*), Bash(jq:*), Bash(sed --sandbox:*), Read, Agent
 ---
 
 # Peach Main Analysis Check
@@ -28,6 +28,10 @@ Before running this skill, ensure:
 **Never chain commands** with `&&`, `;`, or `|`. Each command in this skill must be issued as a
 separate Bash call. Chaining bypasses the per-tool permission prompts that allow the user to
 review each action individually.
+
+A common violation is labelling output by prepending `echo "=== name ===" &&` to a command. Do
+not do this. Job names belong in your prose response, not in the Bash call. Write the label as
+plain text, then issue the command on its own.
 
 **Parallel execution is separate from chaining.** Issuing multiple independent Bash calls in
 the same response message is the correct way to run jobs concurrently — it does not violate the
@@ -222,7 +226,10 @@ in Phase 2 and leaves logs available for manual inspection after the run. Do NOT
 cleanup steps often run after the scan step fails (e.g. always-run SHA extraction), pushing the
 exit code out of the tail window. A multi-line `sed -n` script is more reliable and easier to
 maintain than one long regular expression. `--sandbox` prevents sed from executing shell commands
-via the `e` command, which is a risk when processing untrusted log content:
+via the `e` command, which is a risk when processing untrusted log content.
+
+Write each job's name as plain text to identify the output, then issue each command as a
+standalone Bash call with no prefix:
 
 ```bash
 gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs" \
