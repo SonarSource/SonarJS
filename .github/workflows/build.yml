@@ -1274,7 +1274,7 @@ jobs:
     runs-on: sonar-xs-public
     name: IRIS SQ NEXT -> ${{ matrix.shadow-name }}
     needs: [analyze_primary, analyze_shadows]
-    #if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule'
     permissions:
       id-token: write
       contents: read
