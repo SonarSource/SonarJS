@@ -50,13 +50,38 @@ export const rule: Rule.RuleModule = {
       return variable;
     }
 
+    function isFunctionLike(arg: estree.Expression | estree.SpreadElement | undefined) {
+      return arg?.type === 'FunctionExpression' || arg?.type === 'ArrowFunctionExpression';
+    }
+
+    function isFunctionType(arg: estree.Expression | estree.SpreadElement | undefined) {
+      if (!arg || arg.type === 'SpreadElement') {
+        return false;
+      }
+      return getTypeFromTreeNode(arg, services).getCallSignatures().length > 0;
+    }
+
+    function isCallbackBasedReplacement(
+      property: estree.MemberExpression['property'],
+      args: Array<estree.Expression | estree.SpreadElement>,
+    ) {
+      if (property.type !== 'Identifier' || !['replace', 'replaceAll'].includes(property.name)) {
+        return false;
+      }
+      const replacementArg = args[1];
+      return isFunctionLike(replacementArg) || isFunctionType(replacementArg);
+    }
+
     return {
       'ExpressionStatement > CallExpression[callee.type="MemberExpression"]': (
         node: estree.Node,
       ) => {
-        const { object, property } = (node as estree.CallExpression)
-          .callee as estree.MemberExpression;
+        const callExpression = node as estree.CallExpression;
+        const { object, property } = callExpression.callee as estree.MemberExpression;
         if (isString(object) && property.type === 'Identifier') {
+          if (isCallbackBasedReplacement(property, callExpression.arguments)) {
+            return;
+          }
           context.report({
             messageId: 'uselessStringOp',
             data: {

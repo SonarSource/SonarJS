@@ -53,7 +53,11 @@ export const rule: Rule.RuleModule = {
     return {
       BinaryExpression: (node: estree.Node) => {
         const { left, operator, right } = node as estree.BinaryExpression;
-        if (['===', '!=='].includes(operator) && !isComparableTo(left, right)) {
+        if (
+          ['===', '!=='].includes(operator) &&
+          !isDefensiveIndexedNullishCheck(left, right) &&
+          !isComparableTo(left, right)
+        ) {
           const [actual, expected, outcome] =
             operator === '===' ? ['===', '==', 'false'] : ['!==', '!=', 'true'];
           const operatorToken = context.sourceCode
@@ -78,6 +82,32 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isDefensiveIndexedNullishCheck(left: estree.Node, right: estree.Node) {
+  return (
+    (isNullishLiteral(left) && isIndexedAccess(right)) ||
+    (isNullishLiteral(right) && isIndexedAccess(left))
+  );
+}
+
+function isNullishLiteral(node: estree.Node) {
+  return (
+    (node.type === 'Literal' && node.value === null) ||
+    (node.type === 'Identifier' && node.name === 'undefined') ||
+    (node.type === 'UnaryExpression' && node.operator === 'void')
+  );
+}
+
+function isIndexedAccess(node: estree.Node) {
+  if (node.type === 'MemberExpression') {
+    return node.computed;
+  }
+  return (
+    node.type === 'ChainExpression' &&
+    node.expression.type === 'MemberExpression' &&
+    node.expression.computed
+  );
+}
 
 /**
  * Checks if a type is indeterminate (its actual value cannot be determined at compile time).
