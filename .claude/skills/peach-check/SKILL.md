@@ -292,6 +292,9 @@ sed --sandbox -n '
 /\[36;1m/b
 /Sensor /p
 /EXECUTION FAILURE/p
+/Node\.js process running out of memory/p
+/sonar\.javascript\.node\.maxspace/p
+/sonar\.javascript\.node\.debugMemory/p
 /OutOfMemoryError/p
 /ReportPublisher\.upload/p
 /api\/ce\/submit/p
@@ -302,8 +305,9 @@ sed --sandbox -n '
 ```
 
 This surfaces both the last sensor that ran and any `org.sonar.plugins.javascript` frames in the
-stack trace, plus the post-scan report-upload timeout pattern. Apply the classification rules in
-`docs/peach-main-analysis.md` and run this only for jobs that need it, all concurrently.
+stack trace, plus Node-heap exhaustion hints and the post-scan report-upload timeout pattern.
+Apply the classification rules in `docs/peach-main-analysis.md` and run this only for jobs that
+need it, all concurrently.
 
 **Phase 3 — Full log (only when Phase 2 is still ambiguous)**
 
