@@ -391,7 +391,7 @@ function createBaseParseConfigHost(canAccessFileSystem: boolean): CustomParseCon
 }
 
 export function createProgramOptionsFromJson(
-  json: any,
+  json: ts.CompilerOptions,
   rootNames: NormalizedAbsolutePath[],
   baseDir: string,
 ): ProgramOptions {
