@@ -426,9 +426,6 @@ jobs:
           - eslint-version: 8
             node-version: '18.18.0'
             node-label: 'min supported'
-          - eslint-version: 8
-            node-version: '16.20.2'
-            node-label: 'node 16'
     steps:
       - *checkout
       - uses: jdx/mise-action@v4.0.1
