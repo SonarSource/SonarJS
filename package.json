@@ -12,7 +12,7 @@
     "ruling": "tsx --tsconfig packages/tsconfig.test.json --test packages/ruling/projects/*.ruling.test.ts",
     "sync-rspec": "tsx tools/sync-rspec.ts",
     "sync-rspec-all": "npm run sync-rspec -- --language javascript && npm run sync-rspec -- --language css && npm run deploy-rule-data",
-    "ruling-sync": "rsync -avh packages/ruling/actual/ its/ruling/src/test/expected/ --delete",
+    "ruling-sync": "node tools/ruling-sync.js",
     "bridge:compile:ts5": "tsc -b packages && tsx tools/generate-proto.ts --copy",
     "bridge:compile": "tsgo -p packages/tsconfig.app.json && tsgo -p packages/tsconfig.test.json && tsx tools/generate-proto.ts --copy",
     "bridge:test": "tsx --tsconfig packages/tsconfig.test.json --test --test-concurrency=4 --test-reporter=spec --test-reporter-destination stdout \"packages/**/src/*/rules/*[!node_modules]/**/*.test.ts\" \"packages/**/tests/**/*.test.ts\"",
