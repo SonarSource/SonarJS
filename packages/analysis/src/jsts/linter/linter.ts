@@ -277,6 +277,7 @@ export class Linter {
           language = 'js',
           blacklistedExtensions,
         } = ruleConfig;
+        const extensionName = extname(normalizePath(filePath));
         const ruleMeta =
           ruleConfig.key in ruleMetas
             ? ruleMetas[ruleConfig.key as keyof typeof ruleMetas]
@@ -285,6 +286,24 @@ export class Linter {
           !ruleMeta ||
           ruleMeta.requiredDependency.length === 0 ||
           ruleMeta.requiredDependency.some(dependency => dependencies.has(dependency));
+        // Rule out react rules for vue files
+        const isReactRequired =
+          ruleMeta &&
+          ruleMeta.requiredDependency.length !== 0 &&
+          ruleMeta.requiredDependency.some(
+            dependency => dependency === 'react' || dependency === 'react-native',
+          );
+        const isReactExternalPlugin =
+          ruleMeta && 'externalPlugin' in ruleMeta && ruleMeta.externalPlugin === 'react';
+        const JSX_ONLY_PLUGINS = new Set(['react', 'react-native', 'react-hooks', 'jsx-a11y']);
+        const isReactExternalRule =
+          ruleMeta &&
+          'externalRules' in ruleMeta &&
+          ruleMeta.externalRules.every(({ externalPlugin }) =>
+            JSX_ONLY_PLUGINS.has(externalPlugin),
+          );
+        const isReactRule = isReactRequired || isReactExternalPlugin || isReactExternalRule;
+        const isReactRuleInVue = isReactRule && extensionName.toLowerCase() === '.vue';
         const satisfiesEcmaVersion =
           detectedEsYear == null ||
           !ruleMeta ||
@@ -301,7 +320,8 @@ export class Linter {
           fileTypeTargets.includes(fileType) &&
           analysisModes.includes(analysisMode) &&
           fileLanguage === language &&
-          !(blacklistedExtensions || []).includes(extname(normalizePath(filePath))) &&
+          !(blacklistedExtensions || []).includes(extensionName) &&
+          !isReactRuleInVue &&
           satisfiesRequiredDependency &&
           satisfiesEcmaVersion &&
           satisfiesModuleType

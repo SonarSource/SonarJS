@@ -212,6 +212,57 @@ describe('Linter', () => {
     expect(rules).toHaveProperty('sonarjs/S6477');
   });
 
+  it('should disable React rules on .vue files even when react dependency is present', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S6477',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S6749',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S6770',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S100',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.vue')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+
+    expect(rules).not.toHaveProperty('sonarjs/S6477');
+    expect(rules).not.toHaveProperty('sonarjs/S6749');
+    expect(rules).not.toHaveProperty('sonarjs/S6770');
+    expect(rules).toHaveProperty('sonarjs/S100');
+  });
+
   it('should not force cognitive complexity metric rule by default', async () => {
     await Linter.initialize({
       baseDir: normalizeToAbsolutePath(import.meta.dirname),
