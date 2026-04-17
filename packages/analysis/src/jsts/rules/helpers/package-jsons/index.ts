@@ -24,24 +24,20 @@ import { basename } from 'node:path/posix';
 export const PACKAGE_JSON = 'package.json';
 export const DENO_JSON = 'deno.json';
 export const DENO_JSONC = 'deno.jsonc';
-export const DENO_MANIFESTS = [DENO_JSON, DENO_JSONC] as const;
 export const DEPENDENCY_MANIFESTS = [DENO_JSON, DENO_JSONC, PACKAGE_JSON] as const;
+type DependencyManifestName = (typeof DEPENDENCY_MANIFESTS)[number];
 
-export function isPackageJson(path: NormalizedAbsolutePath): boolean {
-  return basename(path).toLowerCase() === PACKAGE_JSON;
+function isDependencyManifestName(fileName: string): fileName is DependencyManifestName {
+  return (DEPENDENCY_MANIFESTS as readonly string[]).includes(fileName);
 }
 
-export function isDenoJson(path: NormalizedAbsolutePath): boolean {
+export function isDependencyManifestPath(path: NormalizedAbsolutePath): boolean {
   const normalizedBasename = basename(path).toLowerCase();
-  return normalizedBasename === DENO_JSON || normalizedBasename === DENO_JSONC;
-}
-
-export function isDependencyManifest(path: NormalizedAbsolutePath): boolean {
-  return isPackageJson(path) || isDenoJson(path);
+  return isDependencyManifestName(normalizedBasename);
 }
 
 export function fillManifestCaches(
-  manifestName: string,
+  manifestName: DependencyManifestName,
   manifests: Map<NormalizedAbsolutePath, File>,
   dirnameToParent: Map<NormalizedAbsolutePath, NormalizedAbsolutePath | undefined>,
   topDir: NormalizedAbsolutePath,
@@ -75,12 +71,6 @@ export function clearDependenciesCache(): void {
     patternInParentsCache.get(manifestName).clear();
   }
   MinimatchCache.clear();
-}
-
-export type DependencyManifestName = (typeof DEPENDENCY_MANIFESTS)[number];
-
-export function isDependencyManifestName(value: string): value is DependencyManifestName {
-  return (DEPENDENCY_MANIFESTS as readonly string[]).includes(value);
 }
 
 /**

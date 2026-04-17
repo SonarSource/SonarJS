@@ -28,7 +28,7 @@ import {
   DENO_JSON,
   DENO_JSONC,
   getDependencyManifestName,
-  isDependencyManifest,
+  isDependencyManifestPath,
   PACKAGE_JSON,
   fillManifestCaches,
 } from '../jsts/rules/helpers/package-jsons/index.js';
@@ -70,7 +70,7 @@ export class DependencyManifestStore implements FileStore {
       return;
     }
     for (const filename of fsEvents) {
-      if (isDependencyManifest(filename)) {
+      if (isDependencyManifestPath(filename)) {
         this.clearCache();
         return;
       }
@@ -96,7 +96,7 @@ export class DependencyManifestStore implements FileStore {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    if (isDependencyManifest(filename)) {
+    if (isDependencyManifestPath(filename)) {
       try {
         const content = await readFile(filename, 'utf-8');
         const file = { content, path: filename };
