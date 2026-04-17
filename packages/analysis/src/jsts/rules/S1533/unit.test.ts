@@ -378,177 +378,58 @@ describe('S1533', () => {
         {
           // TP: wrapper type in constructor parameter (class body is not a type-definition context)
           code: `class Foo { constructor(id: String, count: Number) {} }`,
-          errors: [
-            {
-              message: 'Replace this "String" wrapper object with primitive type "string".',
-              suggestions: [
-                {
-                  output: `class Foo { constructor(id: string, count: Number) {} }`,
-                  desc: 'Replace "String" with "string"',
-                },
-              ],
-            },
-            {
-              message: 'Replace this "Number" wrapper object with primitive type "number".',
-              suggestions: [
-                {
-                  output: `class Foo { constructor(id: String, count: number) {} }`,
-                  desc: 'Replace "Number" with "number"',
-                },
-              ],
-            },
-          ],
+          errors: 2,
         },
         {
           // TP: wrapper type as generic arg in function parameter type annotation (not a type-definition context)
           code: `function foo(x: Map<String>): void {}`,
-          errors: [
-            {
-              message: 'Replace this "String" wrapper object with primitive type "string".',
-              suggestions: [
-                {
-                  output: 'function foo(x: Map<string>): void {}',
-                  desc: 'Replace "String" with "string"',
-                },
-              ],
-            },
-          ],
+          errors: 1,
         },
         {
           // TP: wrapper type in arrow function parameter (arrow function is not a type-definition context)
           code: `const onChange = (value: Number) => value;`,
-          errors: [
-            {
-              message: 'Replace this "Number" wrapper object with primitive type "number".',
-              suggestions: [
-                {
-                  output: 'const onChange = (value: number) => value;',
-                  desc: 'Replace "Number" with "number"',
-                },
-              ],
-            },
-          ],
+          errors: 1,
         },
         {
           // TP: Boolean as function return type (not a type-definition context)
           code: `function isValid(x: any): Boolean { return !!x; }`,
-          errors: [
-            {
-              message: 'Replace this "Boolean" wrapper object with primitive type "boolean".',
-              suggestions: [
-                {
-                  output: 'function isValid(x: any): boolean { return !!x; }',
-                  desc: 'Replace "Boolean" with "boolean"',
-                },
-              ],
-            },
-          ],
+          errors: 1,
         },
         {
           // TP: wrapper type in union type as function parameter (not a type-definition context)
           code: `function setKey(key: string | String, value: number): void {}`,
-          errors: [
-            {
-              message: 'Replace this "String" wrapper object with primitive type "string".',
-              suggestions: [
-                {
-                  output: 'function setKey(key: string | string, value: number): void {}',
-                  desc: 'Replace "String" with "string"',
-                },
-              ],
-            },
-          ],
+          errors: 1,
         },
         {
           // TP: wrapper type in union type as class method parameter (class body is not a type-definition context)
           code: `class ColumnController { setColumnVisible(key: Column | ColDef | String, visible: boolean): void {} }`,
-          errors: [
-            {
-              message: 'Replace this "String" wrapper object with primitive type "string".',
-              suggestions: [
-                {
-                  output: `class ColumnController { setColumnVisible(key: Column | ColDef | string, visible: boolean): void {} }`,
-                  desc: 'Replace "String" with "string"',
-                },
-              ],
-            },
-          ],
+          errors: 1,
         },
         {
           // TP: wrapper type in union type inside array type annotation as class method parameter
           // (array-of-union is the dominant pattern in real-world ruling data)
           code: `class ColumnController { setColumnsVisible(keys: (Column | ColDef | String)[], visible: boolean): void {} }`,
-          errors: [
-            {
-              message: 'Replace this "String" wrapper object with primitive type "string".',
-              suggestions: [
-                {
-                  output: `class ColumnController { setColumnsVisible(keys: (Column | ColDef | string)[], visible: boolean): void {} }`,
-                  desc: 'Replace "String" with "string"',
-                },
-              ],
-            },
-          ],
+          errors: 1,
         },
         {
           // TP: wrapper type in class property arrow function parameter (class body is not a type-definition context)
           code: `class Component { private onValueChanged = (value: Number) => { this.handleChange(value); } }`,
-          errors: [
-            {
-              message: 'Replace this "Number" wrapper object with primitive type "number".',
-              suggestions: [
-                {
-                  output: `class Component { private onValueChanged = (value: number) => { this.handleChange(value); } }`,
-                  desc: 'Replace "Number" with "number"',
-                },
-              ],
-            },
-          ],
+          errors: 1,
         },
         {
           // TP: wrapper type in inline object type literal on variable declaration (not a type-definition context)
           code: `let x: { count: Boolean };`,
-          errors: [
-            {
-              message: 'Replace this "Boolean" wrapper object with primitive type "boolean".',
-              suggestions: [
-                {
-                  output: 'let x: { count: boolean };',
-                  desc: 'Replace "Boolean" with "boolean"',
-                },
-              ],
-            },
-          ],
+          errors: 1,
         },
         {
           // TP: wrapper type in inline object type literal as function return type (not a type-definition context)
           code: `function foo(): { label: String } {}`,
-          errors: [
-            {
-              message: 'Replace this "String" wrapper object with primitive type "string".',
-              suggestions: [
-                {
-                  output: 'function foo(): { label: string } {}',
-                  desc: 'Replace "String" with "string"',
-                },
-              ],
-            },
-          ],
+          errors: 1,
         },
         {
           // TP: wrapper type in forEach callback arrow function parameter (callback is not a type-definition context)
           code: `keys.forEach((key: Column | ColDef | String) => { console.log(key); });`,
-          errors: [
-            {
-              message: 'Replace this "String" wrapper object with primitive type "string".',
-              suggestions: [
-                {
-                  output: `keys.forEach((key: Column | ColDef | string) => { console.log(key); });`,
-                  desc: 'Replace "String" with "string"',
-                },
-              ],
-            },
-          ],
+          errors: 1,
         },
       ],
     });

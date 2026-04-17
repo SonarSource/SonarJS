@@ -34,6 +34,10 @@ type TraversalState = {
   hitCycle: boolean;
 };
 
+function createTraversalState(): TraversalState {
+  return { hitCycle: false };
+}
+
 function isInTypeDefinitionContext(node: TSESTree.Node) {
   return findFirstMatchingAncestor(node, ancestor => TYPE_DEFINITION_CONTEXTS.has(ancestor.type));
 }
@@ -129,39 +133,39 @@ export const rule: Rule.RuleModule = {
       return undefined;
     }
 
-    function containsWrapperType(
-      node: TSESTree.Node,
-      visitedNames = new Set<string>(),
-      state: TraversalState = { hitCycle: false },
-    ): boolean {
-      if (node.type === 'TSTypeReference') {
-        if (getWrapperTypeName(context.sourceCode, node)) {
+    function containsWrapperInTypeReference(
+      node: TSESTree.TSTypeReference,
+      visitedNames: Set<string>,
+      state: TraversalState,
+    ) {
+      if (getWrapperTypeName(context.sourceCode, node)) {
+        return true;
+      }
+
+      const localTypeDefinition = getLocalTypeDefinition(node);
+      if (localTypeDefinition?.id.type === 'Identifier') {
+        const cached = localWrapperBearingTypes.get(localTypeDefinition.id.name);
+        if (cached === true) {
           return true;
         }
-
-        const localTypeDefinition = getLocalTypeDefinition(node);
-        if (localTypeDefinition?.id.type === 'Identifier') {
-          const cached = localWrapperBearingTypes.get(localTypeDefinition.id.name);
-          if (cached === true) {
-            return true;
-          }
-          if (visitedNames.has(localTypeDefinition.id.name)) {
-            return markCycleAndReturnFalse(state);
-          }
-        }
-
-        if (
-          containsWrapperInLocalDefinition(
-            localTypeDefinition,
-            localWrapperBearingTypes,
-            visitedNames,
-            containsWrapperType,
-          )
-        ) {
-          return true;
+        if (visitedNames.has(localTypeDefinition.id.name)) {
+          return markCycleAndReturnFalse(state);
         }
       }
 
+      return containsWrapperInLocalDefinition(
+        localTypeDefinition,
+        localWrapperBearingTypes,
+        visitedNames,
+        containsWrapperType,
+      );
+    }
+
+    function containsWrapperInChildren(
+      node: TSESTree.Node,
+      visitedNames: Set<string>,
+      state: TraversalState,
+    ) {
       for (const child of childrenOf(
         node as unknown as estree.Node,
         context.sourceCode.visitorKeys,
@@ -171,6 +175,21 @@ export const rule: Rule.RuleModule = {
         }
       }
       return false;
+    }
+
+    function containsWrapperType(
+      node: TSESTree.Node,
+      visitedNames: Set<string>,
+      state: TraversalState,
+    ): boolean {
+      if (
+        node.type === 'TSTypeReference' &&
+        containsWrapperInTypeReference(node, visitedNames, state)
+      ) {
+        return true;
+      }
+
+      return containsWrapperInChildren(node, visitedNames, state);
     }
 
     function reportDirectWrapperType(node: estree.Node, wrapperType: string) {
@@ -201,7 +220,7 @@ export const rule: Rule.RuleModule = {
       }
 
       const { name } = localTypeDefinition.id;
-      if (!containsWrapperType(localTypeDefinition, new Set([name]))) {
+      if (!containsWrapperType(localTypeDefinition, new Set([name]), createTraversalState())) {
         return;
       }
 
