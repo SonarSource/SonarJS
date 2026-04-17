@@ -31,22 +31,76 @@ function isForLoopNode(node: { type?: string } | null | undefined): boolean {
   );
 }
 
-function isInsideDisjointLoop(ref: estree.Identifier, forLoopRange: [number, number]): boolean {
+function collectPatternNames(pattern: estree.Pattern, names: Set<string>): void {
+  if (pattern.type === 'Identifier') {
+    names.add(pattern.name);
+  } else if (pattern.type === 'ArrayPattern') {
+    for (const element of pattern.elements) {
+      if (element) collectPatternNames(element, names);
+    }
+  } else if (pattern.type === 'ObjectPattern') {
+    for (const prop of pattern.properties) {
+      if (prop.type === 'Property') {
+        collectPatternNames(prop.value as estree.Pattern, names);
+      } else {
+        collectPatternNames((prop as estree.RestElement).argument, names);
+      }
+    }
+  } else if (pattern.type === 'AssignmentPattern') {
+    collectPatternNames(pattern.left, names);
+  } else if (pattern.type === 'RestElement') {
+    collectPatternNames(pattern.argument, names);
+  }
+}
+
+function getForLoopVarNames(forLoop: estree.Node): Set<string> {
+  const names = new Set<string>();
+  let varDecl: estree.VariableDeclaration | undefined;
+  if (forLoop.type === 'ForStatement') {
+    const init = (forLoop as estree.ForStatement).init;
+    if (
+      init?.type === 'VariableDeclaration' &&
+      (init as estree.VariableDeclaration).kind === 'var'
+    ) {
+      varDecl = init as estree.VariableDeclaration;
+    }
+  } else if (forLoop.type === 'ForInStatement' || forLoop.type === 'ForOfStatement') {
+    const left = (forLoop as estree.ForInStatement | estree.ForOfStatement).left;
+    if (
+      left.type === 'VariableDeclaration' &&
+      (left as estree.VariableDeclaration).kind === 'var'
+    ) {
+      varDecl = left as estree.VariableDeclaration;
+    }
+  }
+  if (varDecl) {
+    for (const declarator of varDecl.declarations) {
+      collectPatternNames(declarator.id, names);
+    }
+  }
+  return names;
+}
+
+function isInsideDisjointLoop(
+  ref: estree.Identifier,
+  forLoopRange: [number, number],
+  declaringLoopVarNames: Set<string>,
+): boolean {
   let node: estree.Node | undefined = (ref as unknown as { parent?: estree.Node }).parent;
   while (node) {
-    const { type } = node;
-    if (
-      type === 'FunctionDeclaration' ||
-      type === 'FunctionExpression' ||
-      type === 'ArrowFunctionExpression' ||
-      type === 'Program'
-    ) {
+    if (node.type === 'Program') {
       return false;
     }
     if (isForLoopNode(node) && node.range) {
       const [s, e] = node.range;
       if (e < forLoopRange[0] || s > forLoopRange[1]) {
-        return true;
+        const refLoopVarNames = getForLoopVarNames(node);
+        if (
+          refLoopVarNames.size > 0 &&
+          [...refLoopVarNames].some(n => declaringLoopVarNames.has(n))
+        ) {
+          return true;
+        }
       }
     }
     node = (node as unknown as { parent?: estree.Node }).parent;
@@ -110,7 +164,14 @@ export const rule: Rule.RuleModule = {
           const varDeclParent = (varDeclaration as unknown as { parent?: estree.Node }).parent;
           if (isForLoopNode(varDeclParent) && varDeclParent!.range) {
             const forLoopRange = varDeclParent!.range as [number, number];
-            if (referencesOutside.every(ref => isInsideDisjointLoop(ref, forLoopRange))) {
+            const declaringLoopVarNames = new Set(
+              context.sourceCode.getDeclaredVariables(node).map(v => v.name),
+            );
+            if (
+              referencesOutside.every(ref =>
+                isInsideDisjointLoop(ref, forLoopRange, declaringLoopVarNames),
+              )
+            ) {
               continue;
             }
           }

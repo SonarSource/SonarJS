@@ -149,6 +149,23 @@ describe('S2392', () => {
         }
         `,
         },
+        {
+          // Compliant: counter reused across sequential for-loops where second loop uses IIFE capturing the counter
+          code: `
+        function createModeDelegates(mapping) {
+          for (var i in mapping) {
+            setup(mapping[i]);
+          }
+          var delegations = ["methodA", "methodB"];
+          for (var i = 0; i < delegations.length; i++) {
+            (function(scope) {
+              var fn = delegations[i];
+              scope[fn] = function() { return fn; };
+            }(this));
+          }
+        }
+        `,
+        },
       ],
       invalid: [
         {
@@ -325,6 +342,26 @@ describe('S2392', () => {
               message:
                 "Consider moving declaration of 'i' as it is referenced outside current binding context.",
               line: 6,
+            },
+          ],
+        },
+        {
+          // sibling for-loop reuses var without redeclaring — should raise because second loop has no var z
+          code: `
+        function processObjects(list, extra) {
+          for (var z in list) {
+            prepare(z);
+          }
+          for (z in extra) {
+            cleanup(z);
+          }
+        }
+        `,
+          errors: [
+            {
+              message:
+                "Consider moving declaration of 'z' as it is referenced outside current binding context.",
+              line: 3,
             },
           ],
         },
