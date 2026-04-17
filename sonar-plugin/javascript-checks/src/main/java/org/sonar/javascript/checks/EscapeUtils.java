@@ -21,48 +21,65 @@ public final class EscapeUtils {
   private EscapeUtils() {}
 
   public static String unescape(String value) {
-    StringBuilder result = new StringBuilder();
-    StringBuilder escapeSequence = new StringBuilder(4);
+    if (value.indexOf('\\') < 0) {
+      return value;
+    }
+
+    StringBuilder result = new StringBuilder(value.length());
     int i = 0;
     while (i < value.length()) {
       char ch = value.charAt(i);
-      if (ch == '\\') {
-        i++;
-        ch = value.charAt(i);
-        if (ch == 'u') {
-          i = consumeEscapeSequence(i, 4, value, escapeSequence, result);
-        } else if (ch == 'x') {
-          i = consumeEscapeSequence(i, 2, value, escapeSequence, result);
-        } else {
-          result.append(unescape(ch));
-          i++;
-        }
-      } else {
+      if (ch != '\\') {
         result.append(ch);
         i++;
+        continue;
+      }
+
+      if (i + 1 == value.length()) {
+        result.append(ch);
+        break;
+      }
+
+      char escaped = value.charAt(i + 1);
+      if (escaped == 'u') {
+        i = consumeEscapeSequence(i, 4, value, result);
+      } else if (escaped == 'x') {
+        i = consumeEscapeSequence(i, 2, value, result);
+      } else {
+        result.append(unescape(escaped));
+        i += 2;
       }
     }
     return result.toString();
   }
 
-  private static int consumeEscapeSequence(
-    int i,
-    int len,
-    String value,
-    StringBuilder escapeSequence,
-    StringBuilder result
-  ) {
-    int ii = i;
-    while (escapeSequence.length() != len && ii < value.length()) {
-      ii++;
-      escapeSequence.append(value.charAt(ii));
+  private static int consumeEscapeSequence(int i, int len, String value, StringBuilder result) {
+    int escapeStart = i;
+    int digitsStart = i + 2;
+    int digitsEnd = digitsStart + len;
+
+    if (digitsEnd > value.length()) {
+      result.append(value, escapeStart, value.length());
+      return value.length();
     }
-    if (escapeSequence.length() == len) {
-      result.append((char) Integer.parseInt(escapeSequence.toString(), 16));
-      escapeSequence.setLength(0);
+
+    String escapeSequence = value.substring(digitsStart, digitsEnd);
+    if (isHexadecimal(escapeSequence)) {
+      result.append((char) Integer.parseInt(escapeSequence, 16));
+    } else {
+      result.append(value, escapeStart, digitsEnd);
     }
-    ii++;
-    return ii;
+
+    return digitsEnd;
+  }
+
+  private static boolean isHexadecimal(String value) {
+    for (int i = 0; i < value.length(); i++) {
+      if (Character.digit(value.charAt(i), 16) < 0) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static char unescape(char ch) {
