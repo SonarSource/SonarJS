@@ -590,6 +590,8 @@ sed --sandbox -n '
 /notarget/p                            # Dependency Install Failure (npm version not found)
 /Invalid value of sonar/p              # Project Misconfiguration
 /does not exist for/p                  # Project Misconfiguration
+/SocketTimeoutException/p              # Peach report upload timeout (post-scan)
+/ReportPublisher\.upload/p             # Peach report upload timeout (post-scan)
 ' target/peach-logs/JOB_ID.log
 ```
 

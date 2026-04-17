@@ -86,8 +86,16 @@ The run has ~250 jobs across 3 pages. Fetch the run jobs with the Actions API an
 jobs from the merged result. Do not use `gh run view --json jobs` for Peach Main Analysis because
 the matrix is large.
 
+First, create the output directory so all artifacts land in a predictable location:
+
 ```bash
-gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100" --paginate > jobs.json
+mkdir -p target/peach-logs
+```
+
+Then download the paginated jobs list:
+
+```bash
+gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100" --paginate > target/jobs.json
 ```
 
 Then slurp the paginated output with `jq -s` before querying it:
@@ -99,7 +107,7 @@ jq -s '
     failed_jobs: (map([.jobs[] | select(.conclusion == "failure")] | length) | add),
     jobs: (map(.jobs) | add)
   }
-' jobs.json
+' target/jobs.json
 ```
 
 Important: `gh api --paginate` emits one JSON object per page. Always slurp with `jq -s` or merge
@@ -184,12 +192,6 @@ Instead:
 
 Read `docs/peach-main-analysis.md` (at the repository root) once to load the failure categories and decision flowchart.
 
-Create the work directory where logs will be stored for inspection:
-
-```bash
-mkdir -p target/peach-logs
-```
-
 Use the metadata already collected in Step 2 to determine `failing_step_name` and `owning_phase`
 before downloading logs. Only download logs for jobs that still need log-based classification.
 
@@ -251,6 +253,8 @@ sed --sandbox -n '
 /notarget/p
 /Invalid value of sonar/p
 /does not exist for/p
+/SocketTimeoutException/p
+/ReportPublisher\.upload/p
 ' target/peach-logs/JOB_ID.log
 ```
 
@@ -345,9 +349,9 @@ evidence `Agent returned no output`.
 **Step 7 — Check for clustered failures**
 
 If 2 or more jobs share the same category, check whether they failed within a
-5-minute window. Use `completedAt` timestamps if available; otherwise extract the timestamp prefix
-from log lines (format: `2026-MM-DDTHH:MM:SS.`). If clustered, record a general note for the
-summary, for example:
+5-minute window. Note: `completedAt` is reliably `null` in the paginated jobs API response —
+always extract timestamps from log lines instead (format: `2026-MM-DDTHH:MM:SS.`). If clustered,
+record a general note for the summary, for example:
 > ⚠️ N jobs failed with the same pattern within a 5-minute window — likely caused by a single infrastructure event.
 
 **Step 8 — Print summary**
