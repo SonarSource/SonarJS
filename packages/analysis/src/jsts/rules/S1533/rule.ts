@@ -30,6 +30,9 @@ const WRAPPER_TYPES = new Set(['Boolean', 'Number', 'String']);
 const TYPE_DEFINITION_CONTEXTS = new Set(['TSInterfaceBody', 'TSTypeAliasDeclaration']);
 const LOCAL_TYPE_DEFINITION_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclaration']);
 type LocalTypeDefinition = TSESTree.TSInterfaceDeclaration | TSESTree.TSTypeAliasDeclaration;
+type TraversalState = {
+  hitCycle: boolean;
+};
 
 function isInTypeDefinitionContext(node: TSESTree.Node) {
   return findFirstMatchingAncestor(node, ancestor => TYPE_DEFINITION_CONTEXTS.has(ancestor.type));
@@ -55,7 +58,11 @@ function containsWrapperInLocalDefinition(
   definition: LocalTypeDefinition | undefined,
   localWrapperBearingTypes: Map<string, boolean>,
   visitedNames: Set<string>,
-  containsWrapperType: (node: TSESTree.Node, visitedNames: Set<string>) => boolean,
+  containsWrapperType: (
+    node: TSESTree.Node,
+    visitedNames: Set<string>,
+    state: TraversalState,
+  ) => boolean,
 ) {
   if (definition?.id.type !== 'Identifier') {
     return false;
@@ -63,18 +70,27 @@ function containsWrapperInLocalDefinition(
 
   const { name } = definition.id;
   const cached = localWrapperBearingTypes.get(name);
-  if (cached !== undefined) {
-    return cached;
+  if (cached === true) {
+    return true;
   }
   if (visitedNames.has(name)) {
     return false;
   }
 
+  const state = { hitCycle: false };
   visitedNames.add(name);
-  const containsWrapper = containsWrapperType(definition, visitedNames);
+  const containsWrapper = containsWrapperType(definition, visitedNames, state);
   visitedNames.delete(name);
-  localWrapperBearingTypes.set(name, containsWrapper);
+
+  if (containsWrapper || !state.hitCycle) {
+    localWrapperBearingTypes.set(name, containsWrapper);
+  }
   return containsWrapper;
+}
+
+function markCycleAndReturnFalse(state: TraversalState) {
+  state.hitCycle = true;
+  return false;
 }
 
 export const rule: Rule.RuleModule = {
@@ -113,15 +129,30 @@ export const rule: Rule.RuleModule = {
       return undefined;
     }
 
-    function containsWrapperType(node: TSESTree.Node, visitedNames = new Set<string>()): boolean {
+    function containsWrapperType(
+      node: TSESTree.Node,
+      visitedNames = new Set<string>(),
+      state: TraversalState = { hitCycle: false },
+    ): boolean {
       if (node.type === 'TSTypeReference') {
         if (getWrapperTypeName(context.sourceCode, node)) {
           return true;
         }
 
+        const localTypeDefinition = getLocalTypeDefinition(node);
+        if (localTypeDefinition?.id.type === 'Identifier') {
+          const cached = localWrapperBearingTypes.get(localTypeDefinition.id.name);
+          if (cached === true) {
+            return true;
+          }
+          if (visitedNames.has(localTypeDefinition.id.name)) {
+            return markCycleAndReturnFalse(state);
+          }
+        }
+
         if (
           containsWrapperInLocalDefinition(
-            getLocalTypeDefinition(node),
+            localTypeDefinition,
             localWrapperBearingTypes,
             visitedNames,
             containsWrapperType,
@@ -135,7 +166,7 @@ export const rule: Rule.RuleModule = {
         node as unknown as estree.Node,
         context.sourceCode.visitorKeys,
       )) {
-        if (containsWrapperType(child as TSESTree.Node, visitedNames)) {
+        if (containsWrapperType(child as TSESTree.Node, visitedNames, state)) {
           return true;
         }
       }

@@ -352,6 +352,30 @@ describe('S1533', () => {
           ],
         },
         {
+          // TP: later generic instantiations still raise after a clean instantiation cached false first
+          code: `type Box<T> = { value: T }; type NormalBox = Box<number>; let x: NormalBox; type WrappedStringBox = Box<String>; let y: WrappedStringBox;`,
+          errors: [
+            {
+              message:
+                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
+            },
+          ],
+        },
+        {
+          // TP: recursive aliases still raise when a cycle is encountered before the wrapper is found
+          code: `type A = B | Boolean; type B = A | string; let x: A; type C = B; let y: C;`,
+          errors: [
+            {
+              message:
+                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
+            },
+            {
+              message:
+                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
+            },
+          ],
+        },
+        {
           // TP: wrapper type in constructor parameter (class body is not a type-definition context)
           code: `class Foo { constructor(id: String, count: Number) {} }`,
           errors: [
