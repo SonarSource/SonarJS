@@ -83,7 +83,7 @@ export const rule: Rule.RuleModule = {
 
     function containsWrapperType(node: TSESTree.Node, visitedNames = new Set<string>()): boolean {
       if (node.type === 'TSTypeReference') {
-        const typeName = context.sourceCode.getText(node);
+        const typeName = context.sourceCode.getText(node as unknown as estree.Node);
         if (WRAPPER_TYPES.has(typeName)) {
           return true;
         }
@@ -103,7 +103,9 @@ export const rule: Rule.RuleModule = {
           const containsWrapper = containsWrapperType(definition, visitedNames);
           visitedNames.delete(name);
           localWrapperBearingTypes.set(name, containsWrapper);
-          return containsWrapper;
+          if (containsWrapper) {
+            return true;
+          }
         }
       }
 
@@ -140,7 +142,7 @@ export const rule: Rule.RuleModule = {
         }
       },
       TSTypeReference(node: estree.Node) {
-        const typeReference = node as TSESTree.TSTypeReference;
+        const typeReference = node as unknown as TSESTree.TSTypeReference;
         const typeString = context.sourceCode.getText(node);
         if (
           isInTypeDefinitionContext(typeReference) ||
