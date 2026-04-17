@@ -60,6 +60,14 @@ describe('S1533', () => {
           code: `type T = Boolean;`,
         },
         {
+          // FP: local aliases containing wrapper types stay exempt at their definition sites
+          code: `type Alias = String; type WrappedBox = Array<Alias>;`,
+        },
+        {
+          // FP: local interfaces containing wrapper types stay exempt at their definition sites
+          code: `interface CardArtItem { classes: Array<String>; }`,
+        },
+        {
           // FP: wrapper type in generic type parameter in interface (TSInterfaceBody ancestor)
           code: `interface ICardArt { classes: Array<String>; }`,
         },
@@ -296,6 +304,50 @@ describe('S1533', () => {
                   desc: 'Replace "String" with "string"',
                 },
               ],
+            },
+          ],
+        },
+        {
+          // TP: later use of a local alias that expands to a wrapper type
+          code: `type T = String; let x: T;`,
+          errors: [
+            {
+              message:
+                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
+            },
+          ],
+        },
+        {
+          // TP: later uses of a local alias inside generic declaration annotations
+          code: `type T = String; let y: Map<T, T>;`,
+          errors: [
+            {
+              message:
+                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
+            },
+            {
+              message:
+                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
+            },
+          ],
+        },
+        {
+          // TP: later use of a local interface whose members contain wrapper types
+          code: `interface CardArtItem { classes: Array<String>; } let layers: Array<CardArtItem>;`,
+          errors: [
+            {
+              message:
+                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
+            },
+          ],
+        },
+        {
+          // TP: later use of a transitive local alias that hides wrapper types through another alias
+          code: `type Box<T> = { value: T }; type WrappedStringBox = Box<String>; let box: WrappedStringBox;`,
+          errors: [
+            {
+              message:
+                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
             },
           ],
         },
