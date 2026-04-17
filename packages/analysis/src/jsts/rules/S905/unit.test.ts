@@ -145,6 +145,14 @@ describe('S905', () => {
         {
           code: `condition && (f(), g());`,
         },
+        // nested ternary (UMD-style) where all branches are assignments or calls
+        {
+          code: `cond1 ? module.exports = factory() : cond2 ? define(factory) : (g = this, g.lib = factory());`,
+        },
+        // sequence of test-framework calls separated by commas
+        {
+          code: `it('first test', function() { assert(true); }), it('second test', function() { assert(true); });`,
+        },
       ],
       invalid: [
         {
