@@ -1,0 +1,13 @@
+{
+"vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
+66,
+98,
+141
+],
+"vuetify:packages/vuetify/src/composables/icons.tsx": [
+75,
+158,
+168,
+184
+]
+}

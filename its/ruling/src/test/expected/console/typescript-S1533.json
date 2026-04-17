@@ -1,0 +1,14 @@
+{
+"console:src/views/Integrations/Algolia/AlgoliaQuery.tsx": [
+39
+],
+"console:src/views/Integrations/Algolia/AlgoliaQueryEditor.tsx": [
+24
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaIndexPopup/AlgoliaIndexPopupQuery.tsx": [
+56
+],
+"console:src/views/models/DatabrowserView/NewRowInactive.tsx": [
+25
+]
+}

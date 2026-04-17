@@ -1,4 +1,11 @@
 {
+"desktop:app/src/ui/history/commit-summary.tsx": [
+100,
+143,
+151,
+261,
+273
+],
 "desktop:app/src/ui/history/selected-commit.tsx": [
 190
 ]
