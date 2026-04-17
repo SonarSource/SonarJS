@@ -45,6 +45,7 @@ const COMPOSITE_CHILD_ROLES = new Set([
  * 1. Custom components (not standard HTML elements)
  * 2. Valid ARIA patterns where semantic equivalents would lose functionality:
  *    - SVG with role="presentation"/"img" and aria-hidden="true" (decorative icons)
+ *    - SVG with role="img" and a <title> child, aria-label, or aria-labelledby (semantic icons)
  *    - role="status" with aria-live (live region pattern)
  *    - role="slider" with complete aria-value* attributes
  *    - role="radio" with aria-checked
@@ -113,6 +114,7 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
 
   return (
     isDecorativeSvg(elementName, role, attributes) ||
+    isSemanticSvgImg(elementName, role, attributes, node) ||
     isLiveRegionStatus(role, attributes) ||
     isCustomSlider(role, attributes) ||
     isCustomRadio(role, attributes) ||
@@ -136,6 +138,47 @@ function isDecorativeSvg(
   }
   const ariaHiddenValue = getLiteralPropValue(ariaHiddenProp);
   return ariaHiddenValue === true || ariaHiddenValue === 'true';
+}
+
+/**
+ * Checks if the element is a semantic SVG icon with role="img" and a proper accessible name.
+ *
+ * Inline SVG with role="img" is a WCAG-compliant pattern for icon components that need
+ * CSS class control, animation, or programmatic styling. It is not replaceable by <img>
+ * when the SVG provides an accessible name via <title>, aria-label, or aria-labelledby.
+ */
+function isSemanticSvgImg(
+  elementName: string | null,
+  role: string,
+  attributes: JSXOpeningElement['attributes'],
+  node: TSESTree.JSXOpeningElement,
+): boolean {
+  if (elementName !== 'svg' || role !== 'img') {
+    return false;
+  }
+  if (getProp(attributes, 'aria-label')) {
+    return true;
+  }
+  if (getProp(attributes, 'aria-labelledby')) {
+    return true;
+  }
+  return hasTitleChild(node);
+}
+
+/**
+ * Checks if the JSX element has a direct <title> child element.
+ */
+function hasTitleChild(node: TSESTree.JSXOpeningElement): boolean {
+  const parent = node.parent;
+  if (parent?.type !== 'JSXElement') {
+    return false;
+  }
+  return parent.children.some(
+    child =>
+      child.type === 'JSXElement' &&
+      child.openingElement.name.type === 'JSXIdentifier' &&
+      child.openingElement.name.name === 'title',
+  );
 }
 
 function isLiveRegionStatus(role: string, attributes: JSXOpeningElement['attributes']): boolean {
