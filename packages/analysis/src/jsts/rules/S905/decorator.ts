@@ -19,7 +19,6 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
-import { last } from '../helpers/collection.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -34,7 +33,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         containsChaiExpect(expr) ||
         containsValidChaiShould(expr) ||
         isAuraLightningComponent(expr) ||
-        isSequenceWithSideEffects(expr),
+        hasOnlySideEffects(expr),
     ),
   );
 }
@@ -91,10 +90,22 @@ function isIife(node: estree.Node): boolean {
   );
 }
 
-function isSequenceWithSideEffects(node: estree.Node): boolean {
-  return (
-    node.type === 'SequenceExpression' && last(node.expressions).type === 'AssignmentExpression'
-  );
+function hasOnlySideEffects(node: estree.Node): boolean {
+  switch (node.type) {
+    case 'AssignmentExpression':
+    case 'CallExpression':
+    case 'NewExpression':
+    case 'UpdateExpression':
+      return true;
+    case 'SequenceExpression':
+      return node.expressions.every(hasOnlySideEffects);
+    case 'ConditionalExpression':
+      return hasOnlySideEffects(node.consequent) && hasOnlySideEffects(node.alternate);
+    case 'LogicalExpression':
+      return hasOnlySideEffects(node.right);
+    default:
+      return false;
+  }
 }
 
 function isAuraLightningComponent(node: estree.Node): boolean {
