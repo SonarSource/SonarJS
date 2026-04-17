@@ -37,6 +37,24 @@ describe('S6819 upstream sentinel', () => {
       ],
     });
   });
+
+  it('upstream prefer-tag-over-role raises on svg role="img" with accessible labels that decorator suppresses', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('prefer-tag-over-role', upstreamRule, {
+      valid: [],
+      invalid: [
+        // svg role="img" with aria-label — suppressed by decorator, raised by upstream
+        { code: `<svg role="img" aria-label="Arrow Down"><path d="M12 4v16"/></svg>`, errors: 1 },
+        // svg role="img" with aria-labelledby — suppressed by decorator, raised by upstream
+        {
+          code: `<svg role="img" aria-labelledby="icon-title"><title id="icon-title">Icon</title></svg>`,
+          errors: 1,
+        },
+        // svg role="img" with <title> child — suppressed by decorator, raised by upstream
+        { code: `<svg role="img"><title>Settings</title><path d="M10 10"/></svg>`, errors: 1 },
+      ],
+    });
+  });
 });
 
 describe('S6819', () => {
@@ -279,6 +297,35 @@ describe('S6819', () => {
         },
         // Note: role="grid" is not tested as invalid because the underlying
         // eslint-plugin-jsx-a11y rule does not flag it (no semantic equivalent exists)
+      ],
+    });
+  });
+
+  // JS-1465: inline SVG with role="img" and proper accessible name
+  it('should not flag SVG with role="img" when it has an accessible name', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('prefer-tag-over-role - semantic svg img', rule, {
+      valid: [
+        // svg role="img" with <title> child — WCAG-recommended inline SVG icon pattern
+        {
+          code: `<svg role="img" viewBox="0 0 24 24"><title>Arrow Down</title><path d="M12 4v16"/></svg>`,
+        },
+        // svg role="img" with aria-label
+        {
+          code: `<svg role="img" aria-label="Settings" viewBox="0 0 24 24"><path d="M10 10"/></svg>`,
+        },
+        // svg role="img" with aria-labelledby referencing a <title> child
+        {
+          code: `<svg role="img" aria-labelledby="brand-title"><title id="brand-title">Brand Name</title></svg>`,
+        },
+      ],
+      invalid: [
+        // svg role="img" without an accessible name is still a true positive
+        {
+          code: `<svg role="img" viewBox="0 0 24 24"><path d="M5 12h14"/></svg>`,
+          errors: 1,
+        },
       ],
     });
   });
