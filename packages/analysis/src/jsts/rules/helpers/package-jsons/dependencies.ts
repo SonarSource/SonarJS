@@ -56,8 +56,6 @@ export const dependenciesCache = new ComputedCache(
       )) {
         const manifestDependencies = getDependenciesFromManifest(manifestFile);
         for (const dependency of manifestDependencies) {
-          // Keep first-seen declaration per bare specifier:
-          // closest directory wins over parents and Deno wins over package.json in the same directory.
           result.add(dependency.name);
         }
       }

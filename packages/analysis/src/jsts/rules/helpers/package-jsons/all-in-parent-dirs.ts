@@ -73,9 +73,6 @@ export const getManifestsSanitizePaths = (
  *
  * For each directory, at most one Deno manifest is selected (`deno.json` > `deno.jsonc`)
  * and `package.json` is always included when present.
- *
- * File order inside each directory is Deno then package.json so duplicate bare
- * specifiers can resolve in favor of Deno.
  */
 export const getDependencyManifestFiles = (
   dir: NormalizedAbsolutePath,

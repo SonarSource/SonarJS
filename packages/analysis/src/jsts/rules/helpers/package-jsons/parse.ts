@@ -68,11 +68,13 @@ function getDependenciesFromDenoManifest(manifest: DenoManifest): Set<Dependency
 
   if (manifest.imports && typeof manifest.imports === 'object') {
     for (const target of Object.values(manifest.imports)) {
-      if (typeof target === 'string') {
-        const parsedSpecifier = parseImportMapSpecifier(target);
-        if (parsedSpecifier) {
-          addDependency(result, parsedSpecifier.packageName, false, parsedSpecifier.version);
-        }
+      if (typeof target !== 'string') {
+        continue;
+      }
+
+      const parsedSpecifier = parseImportMapSpecifier(target);
+      if (parsedSpecifier) {
+        addDependency(result, parsedSpecifier.packageName, false, parsedSpecifier.version);
       }
     }
   }
@@ -139,6 +141,7 @@ function parsePackageJson(file: File): PackageJson | undefined {
 
 function parseDenoManifest(file: File): DenoManifest | undefined {
   try {
+    // ts.parseConfigFileTextToJson handles JSON with comments and trailing commas
     const parsed = ts.parseConfigFileTextToJson(file.path, stripBOM(file.content.toString()));
     if (parsed.error) {
       const message = ts.flattenDiagnosticMessageText(parsed.error.messageText, '\n');

@@ -80,8 +80,8 @@ export class DependencyManifestStore implements FileStore {
   clearCache() {
     this.baseDir = undefined;
     this.packageJsons.clear();
-    this.denoManifestsByName['deno.json'].clear();
-    this.denoManifestsByName['deno.jsonc'].clear();
+    this.denoManifestsByName[DENO_JSON].clear();
+    this.denoManifestsByName[DENO_JSONC].clear();
     this.dirnameToParent.clear();
     debug('Clearing dependencies cache');
     clearDependenciesCache();
