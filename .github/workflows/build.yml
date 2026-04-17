@@ -9,7 +9,7 @@ on:
   merge_group:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # Nightly for analyze and iris tasks
+    - cron: '0 0 * * *'  # Nightly for analysis, IRIS, and ESLint README freshness
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -279,10 +279,7 @@ jobs:
     needs: [setup, populate_npm_cache, sync_rspec]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions:
-      id-token: write
-      contents: write
-      pull-requests: write
+    permissions: *read_permissions
     steps:
       - *checkout
       - *mise
@@ -303,113 +300,56 @@ jobs:
         run: npm run eslint-plugin:build
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
-      - name: Check README freshness
-        if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          HEAD_REF: ${{ github.head_ref }}
-        run: |
-          # Check if last commit was already an auto-update (prevent infinite loop)
-          LAST_COMMIT_MSG=$(git log -1 --format=%B)
-          if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
-            echo "Last commit was an auto-update, skipping to prevent infinite loop"
-            exit 0
-          fi
-
-          RULES_README="packages/analysis/src/jsts/rules/README.md"
-
-          # Make git@github.com transport use token auth during generate-meta (sync-rspec).
-          git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "git@github.com:"
-
-          # Regenerate metadata and check for differences only on the rules README
-          npm run generate-meta
-
-          FIX_BRANCH="fix/update-readme-for-${HEAD_REF}"
-
-          if git diff --quiet -- "$RULES_README"; then
-            echo "README is up to date"
-
-            # Clean up stale fix PR if one exists and is still open
-            FIX_PR_STATE=$(gh pr view "$FIX_BRANCH" --json state --jq '.state' 2>/dev/null || true)
-            if [ "$FIX_PR_STATE" = "OPEN" ]; then
-              gh pr close "$FIX_BRANCH" --comment "No longer needed — the original PR is now up to date."
-              git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
-            fi
-
-            exit 0
-          fi
-
-          echo "README is stale — creating fix PR"
-
-          git stash push -m "readme-update" -- "$RULES_README"
-          git fetch origin "$HEAD_REF"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
-            git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
-            git stash pop
-            git add "$RULES_README"
-            if git diff --cached --quiet -- "$RULES_README"; then
-              echo "README is up to date on the PR head branch"
-              exit 0
-            fi
-            git commit -m "Update rules README
-
-          🤖 Generated with GitHub Actions"
-            git push --force-with-lease origin "$FIX_BRANCH"
-            FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url')
-          else
-            git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
-            git stash pop
-            git add "$RULES_README"
-            if git diff --cached --quiet -- "$RULES_README"; then
-              echo "README is up to date on the PR head branch"
-              exit 0
-            fi
-            git commit -m "Update rules README
-
-          🤖 Generated with GitHub Actions"
-            git push origin "$FIX_BRANCH"
-            FIX_PR_URL=$(gh pr create \
-              --title "Update rules README for PR #${PR_NUMBER}" \
-              --base "$HEAD_REF" \
-              --head "$FIX_BRANCH" \
-              --body "Auto-generated README update for PR #${PR_NUMBER}.
-
-          🤖 Generated with GitHub Actions")
-          fi
-
-          # Comment on original PR with link to fix PR
-          MARKER="<!-- readme-freshness -->"
-          COMMENT_BODY="${MARKER}
-          ## README Freshness Check
-
-          ❌ **The rules README is out of date.**
-
-          A fix PR has been created: ${FIX_PR_URL}
-
-          Please review and merge it into your branch."
-
-          EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
-
-          if [ -n "$EXISTING_COMMENT_ID" ]; then
-            gh api "repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT_ID" \
-              -X PATCH -F body="$COMMENT_BODY"
-          else
-            gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
-          fi
-
-          exit 1
       - &eslint_tarball_cache
         name: Cache ESLint plugin tarball
         uses: SonarSource/gh-action_cache@v1
         with:
           path: lib/*.tgz
           key: eslint-tarball-${{ github.sha }}
+
+  eslint_readme_freshness:
+    runs-on: github-ubuntu-latest-s
+    needs: [setup, populate_npm_cache, sync_rspec]
+    name: ESLint README Freshness
+    if: github.event_name == 'schedule'
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    steps:
+      - *checkout
+      - *mise
+      - id: secrets
+        name: Access vault secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - *npm_cache
+      - *download_rspec_rule_data
+      - *rspec_secrets
+      - name: Regenerate ESLint README
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+        run: |
+          git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "git@github.com:"
+          npm install --no-save builtin-modules@3.3.0
+          npm run eslint-plugin:compile
+      - name: Open or update README refresh PR
+        uses: peter-evans/create-pull-request@c0f553fe549906ede9cf27b5156039d195d2ece0 # v8
+        with:
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          commit-message: Update eslint-plugin-sonarjs README
+          title: Update eslint-plugin-sonarjs README
+          body: Automated refresh of `packages/analysis/src/jsts/rules/README.md`.
+          branch: bot/update-eslint-rules-readme
+          base: master
+          add-paths: packages/analysis/src/jsts/rules/README.md
+          delete-branch: true
 
   test_eslint_plugin:
     runs-on: github-ubuntu-latest-s
