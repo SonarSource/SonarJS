@@ -168,7 +168,7 @@ function isSemanticSvgImg(
 }
 
 /**
- * Checks if the JSX element has a direct <title> child element.
+ * Checks if the JSX element has a direct <title> child element with non-empty content.
  */
 function hasTitleChild(node: TSESTree.JSXOpeningElement): boolean {
   const parent = node.parent;
@@ -179,7 +179,10 @@ function hasTitleChild(node: TSESTree.JSXOpeningElement): boolean {
     child =>
       child.type === 'JSXElement' &&
       child.openingElement.name.type === 'JSXIdentifier' &&
-      child.openingElement.name.name === 'title',
+      child.openingElement.name.name === 'title' &&
+      child.children.some(
+        c => (c.type === 'JSXText' && c.value.trim() !== '') || c.type === 'JSXExpressionContainer',
+      ),
   );
 }
 

@@ -331,6 +331,11 @@ describe('S6819', () => {
           code: `<svg role="img" aria-label=""><path d="M5 12h14"/></svg>`,
           errors: 1,
         },
+        // svg role="img" with an empty <title> provides no accessible name
+        {
+          code: `<svg role="img"><title></title><path d="M5 12h14"/></svg>`,
+          errors: 1,
+        },
       ],
     });
   });
