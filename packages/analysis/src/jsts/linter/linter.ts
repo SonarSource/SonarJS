@@ -37,11 +37,8 @@ import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { defaultOptions, applyTransformations } from '../rules/helpers/configs.js';
 import merge from 'lodash.merge';
-import {
-  getDependencies,
-  getModuleType,
-  type ModuleType,
-} from '../rules/helpers/package-jsons/dependencies.js';
+import { getDependencies, getModuleType } from '../rules/helpers/package-jsons/dependencies.js';
+import { RULE_FILTERS, type RuleFilterContext } from './filters/index.js';
 import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
 import type { FileType } from '../../contracts/file.js';
@@ -270,62 +267,21 @@ export class Linter {
        * configurations: one per fileType/language/analysisMode combination.
        */
       const dependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
+      const context: RuleFilterContext = {
+        extensionName: extname(normalizePath(filePath)),
+        fileType,
+        fileLanguage,
+        analysisMode,
+        detectedEsYear,
+        detectedModuleType,
+        dependencies,
+      };
       const rules = Linter.ruleConfigs?.filter(ruleConfig => {
-        const {
-          fileTypeTargets,
-          analysisModes,
-          language = 'js',
-          blacklistedExtensions,
-        } = ruleConfig;
-        const extensionName = extname(normalizePath(filePath));
         const ruleMeta =
           ruleConfig.key in ruleMetas
-            ? ruleMetas[ruleConfig.key as keyof typeof ruleMetas]
+            ? (ruleMetas[ruleConfig.key as keyof typeof ruleMetas] as Record<string, unknown>)
             : undefined;
-        const satisfiesRequiredDependency =
-          !ruleMeta ||
-          ruleMeta.requiredDependency.length === 0 ||
-          ruleMeta.requiredDependency.some(dependency => dependencies.has(dependency));
-        // Rule out react rules for vue files
-        const isReactRequired =
-          ruleMeta &&
-          ruleMeta.requiredDependency.length !== 0 &&
-          ruleMeta.requiredDependency.some(
-            dependency => dependency === 'react' || dependency === 'react-native',
-          );
-        const isReactExternalPlugin =
-          ruleMeta && 'externalPlugin' in ruleMeta && ruleMeta.externalPlugin === 'react';
-        const JSX_ONLY_PLUGINS = new Set(['react', 'react-native', 'react-hooks', 'jsx-a11y']);
-        const isReactExternalRule =
-          ruleMeta &&
-          'externalRules' in ruleMeta &&
-          ruleMeta.externalRules.every(({ externalPlugin }) =>
-            JSX_ONLY_PLUGINS.has(externalPlugin),
-          );
-        const isReactRule = isReactRequired || isReactExternalPlugin || isReactExternalRule;
-        const isReactRuleInVue = isReactRule && extensionName.toLowerCase() === '.vue';
-        const satisfiesEcmaVersion =
-          detectedEsYear == null ||
-          !ruleMeta ||
-          !('requiredEcmaVersion' in ruleMeta) ||
-          ruleMeta.requiredEcmaVersion == null ||
-          (ruleMeta.requiredEcmaVersion as number) <= detectedEsYear;
-        const requiredModuleType =
-          ruleMeta && 'requiredModuleType' in ruleMeta
-            ? ((ruleMeta as { requiredModuleType?: ModuleType }).requiredModuleType ?? undefined)
-            : undefined;
-        const satisfiesModuleType =
-          !detectedModuleType || !requiredModuleType || requiredModuleType === detectedModuleType;
-        return (
-          fileTypeTargets.includes(fileType) &&
-          analysisModes.includes(analysisMode) &&
-          fileLanguage === language &&
-          !(blacklistedExtensions || []).includes(extensionName) &&
-          !isReactRuleInVue &&
-          satisfiesRequiredDependency &&
-          satisfiesEcmaVersion &&
-          satisfiesModuleType
-        );
+        return RULE_FILTERS.every(filter => filter(ruleConfig, ruleMeta, context));
       });
       Linter.rulesConfigCache.set(linterConfigKey, Linter.createRulesRecord(rules ?? []));
     }
