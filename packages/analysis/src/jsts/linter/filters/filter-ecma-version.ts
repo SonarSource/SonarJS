@@ -17,7 +17,9 @@
 import type { RuleFilter } from './rule-filter.js';
 
 export const filterEcmaVersion: RuleFilter = (_config, meta, ctx) => {
-  if (ctx.detectedEsYear == null || !meta || !('requiredEcmaVersion' in meta)) return true;
+  if (ctx.detectedEsYear == null || !meta || !('requiredEcmaVersion' in meta)) {
+    return true;
+  }
   const required = meta.requiredEcmaVersion as number | null | undefined;
   return required == null || required <= ctx.detectedEsYear;
 };

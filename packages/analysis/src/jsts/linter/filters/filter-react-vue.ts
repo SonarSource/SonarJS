@@ -29,7 +29,9 @@ const JSX_ONLY_PLUGINS = new Set(['react', 'react-native', 'react-hooks']);
  * preserving coverage from non-React delegates.
  */
 export const filterReactVue: RuleFilter = (_config, meta, ctx) => {
-  if (!meta || ctx.extensionName.toLowerCase() !== '.vue') return true;
+  if (!meta || ctx.extensionName.toLowerCase() !== '.vue') {
+    return true;
+  }
   const isReactRequired =
     'requiredDependency' in meta &&
     (meta.requiredDependency as string[]).some(d => d === 'react' || d === 'react-native');
