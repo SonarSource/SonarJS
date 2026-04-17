@@ -63,6 +63,29 @@ export function getDependenciesFromPackageJson(content: PackageJson) {
   return result;
 }
 
+function getDependenciesFromDenoManifest(manifest: DenoManifest): Set<Dependency> {
+  const result = new Set<Dependency>();
+
+  if (manifest.imports && typeof manifest.imports === 'object') {
+    for (const target of Object.values(manifest.imports)) {
+      if (typeof target === 'string') {
+        const parsedSpecifier = parseImportMapSpecifier(target);
+        if (parsedSpecifier) {
+          addDependency(result, parsedSpecifier.packageName, false, parsedSpecifier.version);
+        }
+      }
+    }
+  }
+
+  if (Array.isArray(manifest.workspace)) {
+    addDependenciesArray(result, manifest.workspace);
+  } else if (manifest.workspace?.members) {
+    addDependenciesArray(result, manifest.workspace.members);
+  }
+
+  return result;
+}
+
 function addDependencies(
   result: Set<Dependency>,
   dependencies: PackageJson.Dependency,
@@ -82,6 +105,7 @@ type ImportMap = Record<string, unknown>;
 
 type DenoManifest = {
   imports?: ImportMap;
+  workspace?: string[] | { members?: string[] };
 };
 
 type ImportMapSpecifier = {
@@ -127,29 +151,11 @@ function parseDenoManifest(file: File): DenoManifest | undefined {
   }
 }
 
-function getDependenciesFromDenoManifest(manifest: DenoManifest): Set<Dependency> {
-  const result = new Set<Dependency>();
-  if (!manifest.imports || typeof manifest.imports !== 'object') {
-    return result;
-  }
-
-  for (const target of Object.values(manifest.imports)) {
-    if (typeof target === 'string') {
-      const parsedSpecifier = parseImportMapSpecifier(target);
-      if (parsedSpecifier) {
-        addDependency(result, parsedSpecifier.packageName, false, parsedSpecifier.version);
-      }
-    }
-  }
-
-  return result;
-}
-
 // Captures `npm:` payload as: package name (scoped or unscoped), optional version, optional ignored subpath.
 // Examples:
 // npm:cowsay@^1.6.0
 // npm:@scopename/mypackage@~11.1.0
-const npmImportMapSpecifierPattern = /^(@[^/]*\/[^/@]*|[^/@]+)(?:@([^/]*))?(?:\/.*)?$/;
+const DENO_NPM_IMPORT_PATTERN = /^(@[^/]*\/[^/@]*|[^/@]+)(?:@([^/]*))?(?:\/.*)?$/;
 
 /**
  * Parses an import map URL Specifier matching Deno npm format:
@@ -161,7 +167,7 @@ export function parseImportMapSpecifier(value: string): ImportMapSpecifier | und
     return undefined;
   }
 
-  const match = npmImportMapSpecifierPattern.exec(value.slice('npm:'.length));
+  const match = DENO_NPM_IMPORT_PATTERN.exec(value.slice('npm:'.length));
   if (!match) {
     return undefined;
   }
