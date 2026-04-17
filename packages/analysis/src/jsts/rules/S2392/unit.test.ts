@@ -91,15 +91,13 @@ describe('S2392', () => {
         `,
         },
         {
-          // Compliant: three sequential for-loops reusing counter at same level
+          // Compliant: n reused across loops; e and t are init vars for loop cooperation
           code: `
-        function processAll(items) {
-          for (var i = 0; i < items.length; i++)
-            phase1(items[i]);
-          for (var i = 0; i < items.length; i++)
-            phase2(items[i]);
-          for (var i = 0; i < items.length; i++)
-            phase3(items[i]);
+        function clear() {
+          for (var e = this.projects, t = this.tools, n = e.length - 1; n >= 0; n--)
+            e[n].remove();
+          for (var n = t.length - 1; n >= 0; n--)
+            t[n].remove();
         }
         `,
         },
