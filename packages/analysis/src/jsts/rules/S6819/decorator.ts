@@ -156,10 +156,12 @@ function isSemanticSvgImg(
   if (elementName !== 'svg' || role !== 'img') {
     return false;
   }
-  if (getProp(attributes, 'aria-label')) {
+  const ariaLabelProp = getProp(attributes, 'aria-label');
+  if (ariaLabelProp && getLiteralPropValue(ariaLabelProp) !== '') {
     return true;
   }
-  if (getProp(attributes, 'aria-labelledby')) {
+  const ariaLabelledbyProp = getProp(attributes, 'aria-labelledby');
+  if (ariaLabelledbyProp && getLiteralPropValue(ariaLabelledbyProp) !== '') {
     return true;
   }
   return hasTitleChild(node);
