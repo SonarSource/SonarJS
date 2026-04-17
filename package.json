@@ -119,7 +119,7 @@
     "@typescript-eslint/type-utils": "8.58.1",
     "@typescript-eslint/utils": "8.58.1",
     "@typescript/native-preview": "7.0.0-dev.20260329.1",
-    "builtin-modules": "5.0.0",
+    "builtin-modules": "5.1.0",
     "bytes": "3.1.2",
     "color": "5.0.3",
     "css-unit-converter": "1.1.2",
