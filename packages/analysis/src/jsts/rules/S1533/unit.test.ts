@@ -83,6 +83,22 @@ describe('S1533', () => {
           // FP: wrapper types as generic args in new expression (type annotation only, not a runtime value)
           code: `const m = new Map<Number, String>();`,
         },
+        {
+          // FP: later uses of local aliases stay exempt
+          code: `type T = String; let x: T; let y: Map<T, T>;`,
+        },
+        {
+          // FP: later uses of local interfaces stay exempt
+          code: `interface CardArtItem { classes: Array<String>; } class CardArt extends React.Component<{ layers: Array<CardArtItem> }, {}> {}`,
+        },
+        {
+          // FP: local interfaces used as function parameters stay exempt
+          code: `interface FilterRestProps { confirm?: Boolean; closeDropdown?: Boolean; } const onReset = ({ confirm }: FilterRestProps = { confirm: false }) => confirm;`,
+        },
+        {
+          // FP: transitive local aliases stay exempt
+          code: `type IconProps = { disabled?: Boolean }; type IconComponent = JSXComponent<IconProps>; type IconInstance = { component: IconComponent }; const iconData: Ref<IconInstance> | undefined = undefined;`,
+        },
       ],
       invalid: [
         {
@@ -304,74 +320,6 @@ describe('S1533', () => {
                   desc: 'Replace "String" with "string"',
                 },
               ],
-            },
-          ],
-        },
-        {
-          // TP: later use of a local alias that expands to a wrapper type
-          code: `type T = String; let x: T;`,
-          errors: [
-            {
-              message:
-                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
-            },
-          ],
-        },
-        {
-          // TP: later uses of a local alias inside generic declaration annotations
-          code: `type T = String; let y: Map<T, T>;`,
-          errors: [
-            {
-              message:
-                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
-            },
-            {
-              message:
-                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
-            },
-          ],
-        },
-        {
-          // TP: later use of a local interface whose members contain wrapper types
-          code: `interface CardArtItem { classes: Array<String>; } let layers: Array<CardArtItem>;`,
-          errors: [
-            {
-              message:
-                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
-            },
-          ],
-        },
-        {
-          // TP: later use of a transitive local alias that hides wrapper types through another alias
-          code: `type Box<T> = { value: T }; type WrappedStringBox = Box<String>; let box: WrappedStringBox;`,
-          errors: [
-            {
-              message:
-                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
-            },
-          ],
-        },
-        {
-          // TP: later generic instantiations still raise after a clean instantiation cached false first
-          code: `type Box<T> = { value: T }; type NormalBox = Box<number>; let x: NormalBox; type WrappedStringBox = Box<String>; let y: WrappedStringBox;`,
-          errors: [
-            {
-              message:
-                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
-            },
-          ],
-        },
-        {
-          // TP: recursive aliases still raise when a cycle is encountered before the wrapper is found
-          code: `type A = B | Boolean; type B = A | string; let x: A; type C = B; let y: C;`,
-          errors: [
-            {
-              message:
-                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
-            },
-            {
-              message:
-                'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
             },
           ],
         },

@@ -19,24 +19,14 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { childrenOf, findFirstMatchingAncestor } from '../helpers/ancestor.js';
-import { getVariableFromScope } from '../helpers/ast.js';
+import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
 const WRAPPER_TYPES = new Set(['Boolean', 'Number', 'String']);
 
-// Wrapper types in these type-definition contexts are not runtime concerns and should not be flagged
+// Wrapper types in these type-definition contexts are not runtime concerns and should not be flagged.
 const TYPE_DEFINITION_CONTEXTS = new Set(['TSInterfaceBody', 'TSTypeAliasDeclaration']);
-const LOCAL_TYPE_DEFINITION_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclaration']);
-type LocalTypeDefinition = TSESTree.TSInterfaceDeclaration | TSESTree.TSTypeAliasDeclaration;
-type TraversalState = {
-  hitCycle: boolean;
-};
-
-function createTraversalState(): TraversalState {
-  return { hitCycle: false };
-}
 
 function isInTypeDefinitionContext(node: TSESTree.Node) {
   return findFirstMatchingAncestor(node, ancestor => TYPE_DEFINITION_CONTEXTS.has(ancestor.type));
@@ -58,51 +48,10 @@ function getWrapperTypeName(
   return WRAPPER_TYPES.has(typeName) ? typeName : undefined;
 }
 
-function containsWrapperInLocalDefinition(
-  definition: LocalTypeDefinition | undefined,
-  localWrapperBearingTypes: Map<string, boolean>,
-  visitedNames: Set<string>,
-  containsWrapperType: (
-    node: TSESTree.Node,
-    visitedNames: Set<string>,
-    state: TraversalState,
-  ) => boolean,
-) {
-  if (definition?.id.type !== 'Identifier') {
-    return false;
-  }
-
-  const { name } = definition.id;
-  const cached = localWrapperBearingTypes.get(name);
-  if (cached === true) {
-    return true;
-  }
-  if (visitedNames.has(name)) {
-    return false;
-  }
-
-  const state = { hitCycle: false };
-  visitedNames.add(name);
-  const containsWrapper = containsWrapperType(definition, visitedNames, state);
-  visitedNames.delete(name);
-
-  if (containsWrapper || !state.hitCycle) {
-    localWrapperBearingTypes.set(name, containsWrapper);
-  }
-  return containsWrapper;
-}
-
-function markCycleAndReturnFalse(state: TraversalState) {
-  state.hitCycle = true;
-  return false;
-}
-
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     hasSuggestions: true,
     messages: {
-      localWrapperType:
-        'Refactor this type so it does not rely on wrapper object types hidden behind a local type.',
       removeConstructor: 'Remove this use of "{{constructor}}" constructor.',
       replaceWrapper:
         'Replace this "{{wrapper}}" wrapper object with primitive type "{{primitive}}".',
@@ -111,87 +60,6 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    const localWrapperBearingTypes = new Map<string, boolean>();
-
-    function getLocalTypeDefinition(
-      node: TSESTree.TSTypeReference,
-    ): LocalTypeDefinition | undefined {
-      if (node.typeName.type !== 'Identifier') {
-        return undefined;
-      }
-      const scope = context.sourceCode.getScope(node as unknown as estree.Node);
-      const variable = getVariableFromScope(scope, node.typeName.name);
-      const definition = variable?.defs.find(def =>
-        LOCAL_TYPE_DEFINITION_TYPES.has(def.node.type),
-      )?.node;
-      if (
-        definition?.type === 'TSInterfaceDeclaration' ||
-        definition?.type === 'TSTypeAliasDeclaration'
-      ) {
-        return definition;
-      }
-      return undefined;
-    }
-
-    function containsWrapperInTypeReference(
-      node: TSESTree.TSTypeReference,
-      visitedNames: Set<string>,
-      state: TraversalState,
-    ) {
-      if (getWrapperTypeName(context.sourceCode, node)) {
-        return true;
-      }
-
-      const localTypeDefinition = getLocalTypeDefinition(node);
-      if (localTypeDefinition?.id.type === 'Identifier') {
-        const cached = localWrapperBearingTypes.get(localTypeDefinition.id.name);
-        if (cached === true) {
-          return true;
-        }
-        if (visitedNames.has(localTypeDefinition.id.name)) {
-          return markCycleAndReturnFalse(state);
-        }
-      }
-
-      return containsWrapperInLocalDefinition(
-        localTypeDefinition,
-        localWrapperBearingTypes,
-        visitedNames,
-        containsWrapperType,
-      );
-    }
-
-    function containsWrapperInChildren(
-      node: TSESTree.Node,
-      visitedNames: Set<string>,
-      state: TraversalState,
-    ) {
-      for (const child of childrenOf(
-        node as unknown as estree.Node,
-        context.sourceCode.visitorKeys,
-      )) {
-        if (containsWrapperType(child as TSESTree.Node, visitedNames, state)) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    function containsWrapperType(
-      node: TSESTree.Node,
-      visitedNames: Set<string>,
-      state: TraversalState,
-    ): boolean {
-      if (
-        node.type === 'TSTypeReference' &&
-        containsWrapperInTypeReference(node, visitedNames, state)
-      ) {
-        return true;
-      }
-
-      return containsWrapperInChildren(node, visitedNames, state);
-    }
-
     function reportDirectWrapperType(node: estree.Node, wrapperType: string) {
       const primitiveType = wrapperType.toLowerCase();
       context.report({
@@ -211,23 +79,6 @@ export const rule: Rule.RuleModule = {
             fix: fixer => fixer.replaceText(node, primitiveType),
           },
         ],
-      });
-    }
-
-    function reportLocalWrapperType(node: estree.Node, localTypeDefinition: LocalTypeDefinition) {
-      if (localTypeDefinition.id.type !== 'Identifier') {
-        return;
-      }
-
-      const { name } = localTypeDefinition.id;
-      if (!containsWrapperType(localTypeDefinition, new Set([name]), createTraversalState())) {
-        return;
-      }
-
-      localWrapperBearingTypes.set(name, true);
-      context.report({
-        node,
-        messageId: 'localWrapperType',
       });
     }
 
@@ -264,12 +115,6 @@ export const rule: Rule.RuleModule = {
         const wrapperType = getWrapperTypeName(context.sourceCode, typeReference);
         if (wrapperType) {
           reportDirectWrapperType(node, wrapperType);
-          return;
-        }
-
-        const localTypeDefinition = getLocalTypeDefinition(typeReference);
-        if (localTypeDefinition) {
-          reportLocalWrapperType(node, localTypeDefinition);
         }
       },
     };
