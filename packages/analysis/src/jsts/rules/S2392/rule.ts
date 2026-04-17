@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2392/javascript
 
-import type { Rule, Scope } from 'eslint';
+import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { last } from '../helpers/collection.js';
@@ -31,40 +31,27 @@ function isForLoopNode(node: { type?: string } | null | undefined): boolean {
   );
 }
 
-function getOtherLoopRanges(
-  variable: Scope.Variable,
-  varDeclaration: estree.VariableDeclaration,
-): [number, number][] {
-  const declRange = varDeclaration.range;
-  const ranges: [number, number][] = [];
-  for (const def of variable.defs) {
-    if (varDeclaration.declarations.includes(def.node as estree.VariableDeclarator)) {
-      continue;
+function isInsideDisjointLoop(ref: estree.Identifier, forLoopRange: [number, number]): boolean {
+  let node: estree.Node | undefined = (ref as unknown as { parent?: estree.Node }).parent;
+  while (node) {
+    const { type } = node;
+    if (
+      type === 'FunctionDeclaration' ||
+      type === 'FunctionExpression' ||
+      type === 'ArrowFunctionExpression' ||
+      type === 'Program'
+    ) {
+      return false;
     }
-    const loopNode = (def.node as unknown as { parent?: { parent?: estree.Node } }).parent?.parent;
-    const loopRange = loopNode?.range;
-    if (isForLoopNode(loopNode) && loopRange) {
-      // Exclude enclosing loops: only collect disjoint sibling loops
-      if (declRange && loopRange[0] <= declRange[0] && loopRange[1] >= declRange[1]) {
-        continue;
+    if (isForLoopNode(node) && node.range) {
+      const [s, e] = node.range;
+      if (e < forLoopRange[0] || s > forLoopRange[1]) {
+        return true;
       }
-      ranges.push(loopRange);
     }
+    node = (node as unknown as { parent?: estree.Node }).parent;
   }
-  return ranges;
-}
-
-function isCoveredByOtherLoops(
-  referencesOutside: estree.Identifier[],
-  otherLoopRanges: [number, number][],
-): boolean {
-  if (otherLoopRanges.length === 0) {
-    return false;
-  }
-  return referencesOutside.every(ref => {
-    const range = ref.range;
-    return range !== undefined && otherLoopRanges.some(([s, e]) => range[0] >= s && range[1] <= e);
-  });
+  return false;
 }
 
 export const rule: Rule.RuleModule = {
@@ -120,11 +107,10 @@ export const rule: Rule.RuleModule = {
             continue;
           }
 
-          const varDeclParent = (varDeclaration as unknown as { parent?: { type?: string } })
-            .parent;
-          if (isForLoopNode(varDeclParent)) {
-            const otherLoopRanges = getOtherLoopRanges(variable, varDeclaration);
-            if (isCoveredByOtherLoops(referencesOutside, otherLoopRanges)) {
+          const varDeclParent = (varDeclaration as unknown as { parent?: estree.Node }).parent;
+          if (isForLoopNode(varDeclParent) && varDeclParent!.range) {
+            const forLoopRange = varDeclParent!.range as [number, number];
+            if (referencesOutside.every(ref => isInsideDisjointLoop(ref, forLoopRange))) {
               continue;
             }
           }
