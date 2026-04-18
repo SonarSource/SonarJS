@@ -267,6 +267,16 @@ describe('S6582', () => {
           code: `interface Commit { parentSHAs: string[] } function hasMultipleCommits(commit: Commit | undefined): boolean { return commit !== undefined && commit.parentSHAs.some(x => x.length > 0) }`,
           filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
         },
+        {
+          // FP: assignment after declaration to an identifier typed as 'string | null' excludes undefined
+          code: `interface Item { name: string } function f(item: Item | null) { let value: string | null = null; value = item && item.name; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
+        {
+          // FP: assignment after declaration to a typed property excludes undefined
+          code: `interface Item { name: string } function f(item: Item | null) { const holder: { value: string | null } = { value: null }; holder.value = item && item.name; }`,
+          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+        },
       ],
       invalid: [
         {

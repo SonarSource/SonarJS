@@ -11,6 +11,7 @@
   <name>SonarQube JavaScript :: Bridge</name>
   <properties>
     <protobuf.version>4.34.1</protobuf.version>
+    <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
   <dependencies>
     <dependency>
@@ -115,6 +116,16 @@
               </includes>
             </fileset>
           </filesets>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco.version}</version>
+        <configuration>
+          <excludes>
+            <exclude>org/sonar/plugins/javascript/bridge/protobuf/*</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>

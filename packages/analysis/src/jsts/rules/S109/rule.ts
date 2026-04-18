@@ -80,9 +80,7 @@ function getNumericLiteral(node: estree.Literal) {
 }
 
 function numericLiteralValue(node: estree.Literal) {
-  if (typeof node.value === 'number') {
-    return node.value;
-  }
+  return typeof node.value === 'number' ? node.value : undefined;
 }
 
 function isNumericLiteral(node: estree.Node): node is estree.Literal {

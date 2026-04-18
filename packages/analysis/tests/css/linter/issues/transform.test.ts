@@ -116,7 +116,7 @@ describe('transform', () => {
         warnings: [
           {
             rule: 'no-empty-source',
-            text: 'Unexpected empty source',
+            text: 'Empty source',
             line: 1,
             column: 1,
             endLine: 1,
@@ -140,7 +140,7 @@ describe('transform', () => {
         warnings: [
           {
             rule: 'block-no-empty',
-            text: 'Unexpected empty block (block-no-empty)',
+            text: 'Empty block (block-no-empty)',
             line: 1,
             column: 1,
           },
@@ -153,7 +153,7 @@ describe('transform', () => {
     expect(issues).toEqual([
       {
         ruleId: 'block-no-empty',
-        message: 'Unexpected empty block',
+        message: 'Empty block',
         language: 'css',
         line: 1,
         column: 0,
@@ -198,7 +198,7 @@ describe('transform', () => {
         warnings: [
           {
             rule: 'no-empty-source',
-            text: 'Unexpected empty source',
+            text: 'Empty source',
             line: NaN,
             column: undefined,
           },
@@ -211,7 +211,7 @@ describe('transform', () => {
     expect(issues).toEqual([
       {
         ruleId: 'no-empty-source',
-        message: 'Unexpected empty source',
+        message: 'Empty source',
         language: 'css',
         line: 1,
         column: 0,
