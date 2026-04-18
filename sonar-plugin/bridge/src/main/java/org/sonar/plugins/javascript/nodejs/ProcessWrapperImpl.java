@@ -47,7 +47,9 @@ public class ProcessWrapperImpl implements ProcessWrapper {
   @Override
   public boolean waitFor(Process process, long timeout, TimeUnit unit) throws InterruptedException {
     boolean waitFor = process.waitFor(timeout, unit);
-    streamConsumer.await();
+    if (waitFor) {
+      streamConsumer.await();
+    }
     return waitFor;
   }
 

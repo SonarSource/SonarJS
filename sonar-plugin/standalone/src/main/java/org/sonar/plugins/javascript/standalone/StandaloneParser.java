@@ -34,7 +34,6 @@ import org.sonar.plugins.javascript.bridge.BundleImpl;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
-import org.sonar.plugins.javascript.bridge.Http;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -55,10 +54,6 @@ public class StandaloneParser implements AutoCloseable {
     this(builder());
   }
 
-  public StandaloneParser(Http http) {
-    this(builder().http(http));
-  }
-
   private StandaloneParser(Builder builder) {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
     NodeCommandBuilder nodeCommandBuilder = new NodeCommandBuilderImpl(processWrapper);
@@ -73,7 +68,6 @@ public class StandaloneParser implements AutoCloseable {
 
     var temporaryFolder = new StandaloneTemporaryFolder();
     baseDir = temporaryFolder.newDir().getAbsolutePath();
-    Http httpClient = builder.http != null ? builder.http : Http.getJdkHttpClient();
     bridge = new BridgeServerImpl(
       nodeCommandBuilder,
       builder.timeout,
@@ -81,8 +75,7 @@ public class StandaloneParser implements AutoCloseable {
       new RulesBundles(),
       new NodeDeprecationWarning(new AnalysisWarningsWrapper()),
       temporaryFolder,
-      new EmbeddedNode(processWrapper, new Environment(builder.configuration)),
-      httpClient
+      new EmbeddedNode(processWrapper, new Environment(builder.configuration))
     );
     parserConfiguration = new BridgeServer.ProjectAnalysisConfiguration(
       baseDir,
@@ -112,7 +105,6 @@ public class StandaloneParser implements AutoCloseable {
     private int maxOldSpaceSize = -1;
     private org.sonar.api.config.Configuration configuration = new EmptyConfiguration();
     private String[] nodeJsArgs;
-    private Http http;
 
     private Builder() {}
 
@@ -133,11 +125,6 @@ public class StandaloneParser implements AutoCloseable {
 
     public Builder nodeJsArgs(String... nodeJsArgs) {
       this.nodeJsArgs = nodeJsArgs;
-      return this;
-    }
-
-    public Builder http(Http http) {
-      this.http = http;
       return this;
     }
 

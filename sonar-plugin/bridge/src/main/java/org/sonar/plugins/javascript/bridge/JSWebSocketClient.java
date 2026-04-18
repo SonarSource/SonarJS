@@ -23,22 +23,24 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JSWebSocketClient extends WebSocketClient {
+/**
+ * Legacy in-process message dispatcher kept for existing tests and handler behavior.
+ * Runtime transport now uses gRPC (no WebSocket connection is established).
+ */
+public class JSWebSocketClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(JSWebSocketClient.class);
   private static final Gson GSON = new Gson();
 
   // We need to use CopyOnWriteArrayList as we modify the array while iterating over it
   private final List<WebSocketMessageHandler<?>> messageHandlers = new CopyOnWriteArrayList<>();
+  private final URI uri;
 
   public JSWebSocketClient(URI serverUri) {
-    super(serverUri);
-    this.setConnectionLostTimeout(0);
+    this.uri = serverUri;
   }
 
   public void registerHandler(WebSocketMessageHandler<?> handler) {
@@ -57,14 +59,12 @@ public class JSWebSocketClient extends WebSocketClient {
     return messageHandlers;
   }
 
-  @Override
-  public void onOpen(ServerHandshake handshakeData) {
-    LOG.debug("WebSocket connection opened: {}", uri);
+  public void send(String message) {
+    LOG.trace("Sending message: {}", message);
   }
 
-  @Override
   public void onMessage(String message) {
-    LOG.trace("Received WebSocket message: {}", message);
+    LOG.trace("Received message: {}", message);
     JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
 
     if ("error".equals(jsonObject.get("messageType").getAsString())) {
@@ -87,17 +87,15 @@ public class JSWebSocketClient extends WebSocketClient {
     }
   }
 
-  @Override
   public void onClose(int code, String reason, boolean remote) {
-    LOG.debug("WebSocket connection closed: {} (code: {})", reason, code);
+    LOG.debug("Connection closed: {} (code: {}) on {}", reason, code, uri);
     for (WebSocketMessageHandler<?> handler : messageHandlers) {
       handler.onClose(code, reason, remote);
     }
   }
 
-  @Override
   public void onError(Exception e) {
-    LOG.error("WebSocket error occurred", e);
+    LOG.error("Connection error occurred", e);
     for (WebSocketMessageHandler<?> handler : messageHandlers) {
       handler.onError(e);
     }

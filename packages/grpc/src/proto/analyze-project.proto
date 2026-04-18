@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.sonar.plugins.javascript.analyzeproject.grpc";
+option java_outer_classname = "AnalyzeProjectProto";
+
+package sonarjs.analyzeproject.v1;
+
+service AnalyzeProjectService {
+  rpc AnalyzeProject(AnalyzeProjectRequest) returns (stream AnalyzeProjectStreamResponse);
+  rpc AnalyzeProjectUnary(AnalyzeProjectRequest) returns (AnalyzeProjectUnaryResponse);
+  rpc CancelAnalysis(CancelAnalysisRequest) returns (CancelAnalysisResponse);
+  rpc Lease(stream LeaseRequest) returns (stream LeaseResponse);
+}
+
+message AnalyzeProjectRequest {
+  string request_json = 1;
+}
+
+message AnalyzeProjectStreamResponse {
+  string message_json = 1;
+}
+
+message AnalyzeProjectUnaryResponse {
+  string response_json = 1;
+}
+
+message CancelAnalysisRequest {}
+
+message CancelAnalysisResponse {
+  bool cancelled = 1;
+}
+
+message LeaseRequest {}
+
+message LeaseResponse {}

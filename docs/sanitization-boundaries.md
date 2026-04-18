@@ -83,33 +83,33 @@ This document describes the **trust boundary** in SonarJS where external input (
 
 ## Entry Points
 
-### 1. HTTP Bridge
+### 1. Analyze-Project gRPC Runtime
 
-**Location:** `packages/http/src/`
+**Location:** `packages/grpc/src/`
 
-| Endpoint                | Request Type               | Handler           |
-| ----------------------- | -------------------------- | ----------------- |
-| `POST /init-linter`     | `RawInitLinterInput`       | `handleRequest()` |
-| `POST /analyze-jsts`    | `RawJsTsAnalysisInput`     | `handleRequest()` |
-| `POST /analyze-css`     | `RawCssAnalysisInput`      | `handleRequest()` |
-| `POST /analyze-html`    | `RawEmbeddedAnalysisInput` | `handleRequest()` |
-| `POST /analyze-yaml`    | `RawEmbeddedAnalysisInput` | `handleRequest()` |
-| `POST /analyze-project` | `RawProjectAnalysisInput`  | `handleRequest()` |
+| Service                 | Method                  | Handler                       |
+| ----------------------- | ----------------------- | ----------------------------- |
+| `AnalyzeProjectService` | `AnalyzeProject`        | `startAnalyzeProjectServer()` |
+| `AnalyzeProjectService` | `AnalyzeProjectUnary`   | `startAnalyzeProjectServer()` |
+| `AnalyzeProjectService` | `CancelAnalysis` / Ping | `startAnalyzeProjectServer()` |
 
-**Sanitization in `handleRequest()`:**
+**Sanitization in `handleAnalyzeProjectRequest()`:**
 
 ```typescript
-// 1. Resolve and normalize base directory
-const baseDir = resolveBaseDir(filePath, configuration);
+// 1. Sanitize project payload and initialize file stores
+const sanitizedInput = await sanitizeProjectAnalysisInput(request.data);
 
-// 2. Set global configuration (sanitizes all paths internally)
-setGlobalConfiguration(configuration);
-
-// 3. Sanitize analysis input
-const input = await sanitizeJsTsAnalysisInput(rawInput, baseDir);
-
-// 4. Call internal analysis with sanitized input
-return analyzeJSTS(input);
+// 2. Run project analysis with incremental callback support
+return analyzeProject(
+  {
+    rules: sanitizedInput.rules,
+    cssRules: sanitizedInput.cssRules,
+    bundles: sanitizedInput.bundles,
+    rulesWorkdir: sanitizedInput.rulesWorkdir,
+  },
+  sanitizedInput.configuration,
+  incrementalResultsChannel,
+);
 ```
 
 ### 2. gRPC Service
@@ -388,16 +388,16 @@ const parent = dirnamePath(filePath); // Returns NormalizedAbsolutePath
 
 ## Files Reference
 
-| Category         | File                                                | Purpose                       |
-| ---------------- | --------------------------------------------------- | ----------------------------- |
-| Entry Points     | `packages/http/src/handle-request.ts`               | HTTP request handling         |
-|                  | `packages/grpc/src/service.ts`                      | gRPC request handling         |
-| Sanitization     | `packages/analysis/src/common/input-sanitize.ts`    | Input sanitization functions  |
-|                  | `packages/analysis/src/common/configuration.ts`     | Configuration sanitization    |
-|                  | `packages/grpc/src/transformers/request.ts`         | gRPC request transformation   |
-| Path Utilities   | `packages/analysis/src/jsts/rules/helpers/files.ts` | Branded types & normalization |
-| Type Definitions | `packages/analysis/src/contracts/analysis.ts`       | Raw & sanitized input types   |
-|                  | `packages/http/src/request.ts`                      | Bridge request types          |
+| Category         | File                                                  | Purpose                          |
+| ---------------- | ----------------------------------------------------- | -------------------------------- |
+| Entry Points     | `packages/grpc/src/analyze-project-handle-request.ts` | Analyze-project request handling |
+|                  | `packages/grpc/src/service.ts`                        | gRPC request handling            |
+| Sanitization     | `packages/analysis/src/common/input-sanitize.ts`      | Input sanitization functions     |
+|                  | `packages/analysis/src/common/configuration.ts`       | Configuration sanitization       |
+|                  | `packages/grpc/src/transformers/request.ts`           | gRPC request transformation      |
+| Path Utilities   | `packages/analysis/src/jsts/rules/helpers/files.ts`   | Branded types & normalization    |
+| Type Definitions | `packages/analysis/src/contracts/analysis.ts`         | Raw & sanitized input types      |
+|                  | `packages/grpc/src/analyze-project-request.ts`        | Analyze-project request types    |
 
 ## Related Documentation
 

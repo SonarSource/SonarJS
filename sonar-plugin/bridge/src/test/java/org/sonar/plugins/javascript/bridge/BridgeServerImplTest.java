@@ -20,12 +20,15 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.slf4j.event.Level.DEBUG;
 import static org.slf4j.event.Level.INFO;
@@ -34,6 +37,8 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
+import io.grpc.ConnectivityState;
+import io.grpc.ManagedChannel;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,8 +46,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -71,7 +76,7 @@ import org.sonar.plugins.javascript.nodejs.ProcessWrapperImpl;
 class BridgeServerImplTest {
 
   private static final String START_SERVER_SCRIPT = "startServer.js";
-  private static final int TEST_TIMEOUT_SECONDS = 1;
+  private static final int SHORT_STARTUP_TIMEOUT_SECONDS = 3;
   private static final AnalysisConfiguration TEST_ANALYSIS_CONFIGURATION =
     new AnalysisConfiguration() {
       @Override
@@ -170,7 +175,6 @@ class BridgeServerImplTest {
 
     bridgeServer = new BridgeServerImpl(
       nodeCommandBuilder,
-      TEST_TIMEOUT_SECONDS,
       testBundle,
       emptyRulesBundles,
       deprecationWarning,
@@ -260,11 +264,13 @@ class BridgeServerImplTest {
 
   @Test
   void should_throw_if_failed_to_start() {
-    bridgeServer = createBridgeServer("throw.js");
+    bridgeServer = createBridgeServer("throw.js", SHORT_STARTUP_TIMEOUT_SECONDS);
 
     assertThatThrownBy(() -> bridgeServer.startServer(serverConfig))
       .isInstanceOf(NodeCommandException.class)
-      .hasMessage("Failed to start the bridge server (" + TEST_TIMEOUT_SECONDS + "s timeout)");
+      .hasMessage(
+        "Failed to start the bridge server (" + SHORT_STARTUP_TIMEOUT_SECONDS + "s timeout)"
+      );
   }
 
   @Test
@@ -342,8 +348,9 @@ class BridgeServerImplTest {
     var wrongPortValue =
       "Error parsing number in environment variable SONARJS_EXISTING_NODE_PROCESS_PORT";
 
-    bridgeServer = createBridgeServer("startServer.js");
-    var bridgeServerMock = spy(bridgeServer);
+    bridgeServer = spy(createBridgeServer("startServer.js", SHORT_STARTUP_TIMEOUT_SECONDS));
+    var bridgeServerMock = bridgeServer;
+    var startupTimeoutMillis = (int) TimeUnit.SECONDS.toMillis(SHORT_STARTUP_TIMEOUT_SECONDS);
     doReturn("70000").when(bridgeServerMock).getExistingNodeProcessPort();
     assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig))
       .isInstanceOf(IllegalStateException.class)
@@ -379,19 +386,49 @@ class BridgeServerImplTest {
     ).isTrue();
     assertThat(logTester.logs(DEBUG)).doesNotContain(alreadyStarted);
     bridgeServerMock.clean();
+    clearInvocations(bridgeServerMock);
 
     doReturn("60000").when(bridgeServerMock).getExistingNodeProcessPort();
+    doReturn(true).when(bridgeServerMock).waitChannelReady(startupTimeoutMillis);
     doReturn(true).when(bridgeServerMock).isAlive();
     bridgeServerMock.startServerLazily(serverConfig);
+    verify(bridgeServerMock).waitChannelReady(startupTimeoutMillis);
+    verify(bridgeServerMock, never()).waitServerToStart(startupTimeoutMillis);
     assertThat(logTester.logs(INFO)).contains(useExisting);
     assertThat(logTester.logs(DEBUG)).contains(alreadyStarted);
   }
 
   @Test
+  void isAlive_should_not_require_a_lease_for_an_existing_node_process() throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    var channel = mock(ManagedChannel.class);
+    when(channel.isShutdown()).thenReturn(false);
+    when(channel.getState(false)).thenReturn(ConnectivityState.READY);
+
+    var statusField = BridgeServerImpl.class.getDeclaredField("status");
+    statusField.setAccessible(true);
+    var startedStatus = java.util.Arrays.stream(statusField.getType().getEnumConstants())
+      .filter(status -> "STARTED".equals(status.toString()))
+      .findFirst()
+      .orElseThrow();
+    statusField.set(bridgeServer, startedStatus);
+
+    var channelField = BridgeServerImpl.class.getDeclaredField("channel");
+    channelField.setAccessible(true);
+    channelField.set(bridgeServer, channel);
+
+    var ownsNodeProcessField = BridgeServerImpl.class.getDeclaredField("ownsNodeProcess");
+    ownsNodeProcessField.setAccessible(true);
+    ownsNodeProcessField.setBoolean(bridgeServer, false);
+
+    assertThat(bridgeServer.isAlive()).isTrue();
+  }
+
+  @Test
   void should_throw_special_exception_when_failed_start_server_before() {
-    bridgeServer = createBridgeServer("throw.js");
+    bridgeServer = createBridgeServer("throw.js", SHORT_STARTUP_TIMEOUT_SECONDS);
     String failedToStartExceptionMessage =
-      "Failed to start the bridge server (" + TEST_TIMEOUT_SECONDS + "s timeout)";
+      "Failed to start the bridge server (" + SHORT_STARTUP_TIMEOUT_SECONDS + "s timeout)";
     assertThatThrownBy(() -> bridgeServer.startServerLazily(serverConfig))
       .isInstanceOf(NodeCommandException.class)
       .hasMessage(failedToStartExceptionMessage);
@@ -450,7 +487,7 @@ class BridgeServerImplTest {
 
   @Test
   void log_error_when_timeout() throws Exception {
-    bridgeServer = createBridgeServer("timeout.js");
+    bridgeServer = createBridgeServer("timeout.js", SHORT_STARTUP_TIMEOUT_SECONDS);
     bridgeServer.startServer(serverConfig);
 
     assertThatThrownBy(() ->
@@ -526,27 +563,42 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void waitServerToStart_can_be_interrupted() throws InterruptedException {
+  void waitServerToStart_can_be_interrupted() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    // try to connect to a port that does not exists
-    Thread worker = new Thread(() -> bridgeServer.waitServerToStart(1000));
-    worker.start();
-    Awaitility.setDefaultTimeout(1, TimeUnit.SECONDS);
-    // wait for the worker thread to start and to be blocked on Thread.sleep(20);
-    await().until(() -> worker.getState() == Thread.State.TIMED_WAITING);
+    var channel = mock(ManagedChannel.class);
+    when(channel.getState(true)).thenReturn(ConnectivityState.CONNECTING);
+    when(channel.getState(false)).thenReturn(ConnectivityState.CONNECTING);
+    CountDownLatch waitingForStateChange = new CountDownLatch(1);
+    doAnswer(invocation -> {
+      waitingForStateChange.countDown();
+      return null;
+    })
+      .when(channel)
+      .notifyWhenStateChanged(any(ConnectivityState.class), any(Runnable.class));
+    var channelField = BridgeServerImpl.class.getDeclaredField("channel");
+    channelField.setAccessible(true);
+    channelField.set(bridgeServer, channel);
 
-    long start = System.currentTimeMillis();
+    CountDownLatch workerCompleted = new CountDownLatch(1);
+    Thread worker = new Thread(() -> {
+      try {
+        bridgeServer.waitServerToStart((int) TimeUnit.MINUTES.toMillis(1));
+      } finally {
+        workerCompleted.countDown();
+      }
+    });
+    worker.start();
+    assertThat(waitingForStateChange.await(1, TimeUnit.SECONDS)).isTrue();
+
     worker.interrupt();
-    worker.join();
-    long timeToInterrupt = System.currentTimeMillis() - start;
-    assertThat(timeToInterrupt).isLessThan(20);
+    assertThat(workerCompleted.await(1, TimeUnit.SECONDS)).isTrue();
+    assertThat(worker.isAlive()).isFalse();
   }
 
   @Test
   void enabled_monitoring() throws Exception {
     bridgeServer = new BridgeServerImpl(
       builder(),
-      TEST_TIMEOUT_SECONDS,
       new TestBundle(START_SERVER_SCRIPT),
       emptyRulesBundles,
       deprecationWarning,
@@ -676,18 +728,19 @@ class BridgeServerImplTest {
   @Test
   void should_start_bridge_from_path() throws IOException, InterruptedException {
     bridgeServer = createBridgeServer(new BundleImpl());
-    var deployLocation = "src/test/resources";
+    var deployLocation = Path.of("src", "test", "resources");
+    if (!deployLocation.toFile().exists()) {
+      deployLocation = Path.of("sonar-plugin", "bridge", "src", "test", "resources");
+    }
     var settings = new MapSettings().setProperty(
       BridgeServerImpl.SONARLINT_BUNDLE_PATH,
-      deployLocation
+      deployLocation.toString()
     );
     context.setSettings(settings);
 
     var config = BridgeServerConfig.fromSensorContext(context);
     bridgeServer.startServerLazily(config);
-    assertThat(logTester.logs(DEBUG)).contains(
-      "Setting deploy location to " + deployLocation.replace("/", File.separator)
-    );
+    assertThat(logTester.logs(DEBUG)).contains("Setting deploy location to " + deployLocation);
   }
 
   @Test
@@ -709,7 +762,22 @@ class BridgeServerImplTest {
   private BridgeServerImpl createBridgeServer(Bundle bundle) {
     return new BridgeServerImpl(
       builder(),
-      TEST_TIMEOUT_SECONDS,
+      bundle,
+      emptyRulesBundles,
+      deprecationWarning,
+      tempFolder,
+      unsupportedEmbeddedRuntime
+    );
+  }
+
+  private BridgeServerImpl createBridgeServer(String startServerScript, int timeoutSeconds) {
+    return createBridgeServer(timeoutSeconds, new TestBundle(startServerScript));
+  }
+
+  private BridgeServerImpl createBridgeServer(int timeoutSeconds, Bundle bundle) {
+    return new BridgeServerImpl(
+      builder(),
+      timeoutSeconds,
       bundle,
       emptyRulesBundles,
       deprecationWarning,
@@ -753,12 +821,27 @@ class BridgeServerImplTest {
 
     @Override
     public String startServerScript() {
-      return "src/test/resources/mock-bridge/" + startServerScript;
+      var relativeLocation = Path.of("src", "test", "resources", "mock-bridge", startServerScript);
+      if (relativeLocation.toFile().exists()) {
+        return relativeLocation.toString();
+      }
+      return Path.of(
+        "sonar-plugin",
+        "bridge",
+        "src",
+        "test",
+        "resources",
+        "mock-bridge",
+        startServerScript
+      ).toString();
     }
 
     @Override
     public String resolve(String relativePath) {
       File file = new File("src/test/resources");
+      if (!file.exists()) {
+        file = new File("sonar-plugin/bridge/src/test/resources");
+      }
       return new File(file.getAbsoluteFile(), relativePath).getAbsolutePath();
     }
   }
