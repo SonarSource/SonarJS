@@ -53,7 +53,7 @@ describe('analyzeCSS', () => {
             column: 2,
             endLine: 1,
             endColumn: 4,
-            message: 'Unexpected empty block',
+            message: 'Empty block',
           },
         ],
       }),

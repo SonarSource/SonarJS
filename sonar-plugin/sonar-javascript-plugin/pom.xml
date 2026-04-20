@@ -27,6 +27,7 @@
   <properties>
     <artifactoryToken/>
     <nodejs.runtime.version>24.11.0.70</nodejs.runtime.version>
+    <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
   </properties>
 
   <dependencies>

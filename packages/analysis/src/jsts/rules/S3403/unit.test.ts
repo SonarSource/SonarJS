@@ -20,6 +20,7 @@ import {
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
 
 describe('S3403', () => {
   it('S3403', () => {
@@ -38,6 +39,10 @@ describe('S3403', () => {
     );
 
     const ruleTesterTs = new RuleTester();
+    const strictProject = path.join(
+      import.meta.dirname,
+      '../../../../tests/jsts/tools/testers/fixtures/tsconfig.strict.json',
+    );
     ruleTesterTs.run(
       `Strict equality operators should not be used with dissimilar types [ts]`,
       rule,
@@ -155,6 +160,21 @@ describe('S3403', () => {
         str !== obj;`,
           },
           {
+            // Defensive check on indexed access can be intentional in strict TS configurations.
+            code: `
+      const items = ['a'];
+      if (items[0] === undefined) {
+        doSomething();
+      }
+      function doSomething() {}
+      `,
+            languageOptions: {
+              parserOptions: {
+                project: strictProject,
+              },
+            },
+          },
+          {
             code: `
       const foo = Symbol('foo');
       const symbols = [ foo ];
@@ -261,6 +281,21 @@ describe('S3403', () => {
                 ],
               },
             ],
+          },
+          {
+            code: `
+      const s: string = 'a';
+      if (s === undefined) {
+        doSomething();
+      }
+      function doSomething() {}
+      `,
+            languageOptions: {
+              parserOptions: {
+                project: strictProject,
+              },
+            },
+            errors: 1,
           },
         ],
       },
