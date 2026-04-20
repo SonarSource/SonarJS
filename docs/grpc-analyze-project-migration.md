@@ -125,7 +125,8 @@ Unify Java <-> Node.js runtime communication on gRPC for SonarQube scanner and S
 - This centralizes graceful shutdown for owned runtimes on the lease path instead of keeping a
   separate runtime-specific shutdown RPC or HTTP endpoint.
 - Added gRPC channel lifecycle management.
-- Added per-call gRPC deadlines derived from existing timeout configuration to preserve failure behavior.
+- Analyze-project RPCs now run without per-call gRPC deadlines so full-project analysis is not cut
+  off by a transport timeout.
 - On startup timeout, the Java side now closes the gRPC channel and force-stops the Node process immediately instead of waiting for later cleanup.
 - Shutdown now closes the gRPC channel before waiting for process termination, which avoids tests hanging on lingering runtime resources.
 - Removed now-unused `Http.java` transport helper.
@@ -133,7 +134,7 @@ Unify Java <-> Node.js runtime communication on gRPC for SonarQube scanner and S
 ### Java Dependency and Build Updates
 
 - `sonar-plugin/bridge/pom.xml`:
-  - added gRPC Java dependencies (`grpc-netty-shaded`, `grpc-protobuf`, `grpc-stub`),
+  - added gRPC Java dependencies (`grpc-okhttp`, `grpc-protobuf`, `grpc-stub`),
   - added `javax.annotation-api` required by generated gRPC Java stubs,
   - removed Java-WebSocket dependency,
   - added protobuf generation for `analyze-project.proto`,

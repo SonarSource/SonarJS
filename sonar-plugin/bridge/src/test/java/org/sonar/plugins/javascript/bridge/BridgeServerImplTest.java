@@ -520,7 +520,7 @@ class BridgeServerImplTest {
 
   @Test
   void should_allow_slow_streaming_analysis_without_timeout() throws Exception {
-    bridgeServer = createBridgeServer("slowStream.js", 1);
+    bridgeServer = createBridgeServer("slowStream.js", SHORT_STARTUP_TIMEOUT_SECONDS);
     bridgeServer.startServer(serverConfig);
 
     var start = System.nanoTime();
