@@ -69,13 +69,12 @@ function getDependenciesFromDenoManifest(manifest: DenoManifest): Set<Dependency
 
       const parsedSpecifier = parseImportMapSpecifier(target);
       if (parsedSpecifier) {
-        addDependency(
-          dependencies,
-          parsedSpecifier.packageName,
-          false,
-          parsedSpecifier.version,
+        addDependency(dependencies, {
+          dependency: parsedSpecifier.packageName,
+          isGlob: false,
+          version: parsedSpecifier.version,
           alias,
-        );
+        });
       }
     }
   }
@@ -99,7 +98,7 @@ function addDependencies(
     const value = dependencies[name];
     return typeof value === 'string' || value === undefined;
   })) {
-    addDependency(result, name, isGlob, dependencies[name]);
+    addDependency(result, { dependency: name, isGlob, version: dependencies[name] });
   }
 }
 
@@ -180,16 +179,20 @@ export function parseImportMapSpecifier(value: string): ImportMapSpecifier | und
 
 function addDependenciesArray(result: Set<Dependency>, dependencies: string[], isGlob = true) {
   for (const name of dependencies) {
-    addDependency(result, name, isGlob);
+    addDependency(result, { dependency: name, isGlob });
   }
 }
 
+type AddDependencyParameters = {
+  dependency: string;
+  isGlob: boolean;
+  version?: string;
+  alias?: string;
+};
+
 function addDependency(
   result: Set<Dependency>,
-  dependency: string,
-  isGlob: boolean,
-  version?: string,
-  alias?: string,
+  { dependency, isGlob, version, alias }: AddDependencyParameters,
 ) {
   if (isGlob) {
     result.add({

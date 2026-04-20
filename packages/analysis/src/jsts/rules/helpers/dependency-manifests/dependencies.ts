@@ -48,15 +48,17 @@ export const dependenciesCache = new ComputedCache(
     const closestDependencyManifestDir = getClosestDependencyManifestDir(dir, topDir);
     const result = new Set<string | Minimatch>();
 
-    if (closestDependencyManifestDir) {
-      for (const manifest of getDependencyManifests(closestDependencyManifestDir, topDir, fs)) {
-        const manifestDependencies = getDependenciesFromManifest(manifest);
-        for (const dependency of manifestDependencies) {
-          result.add(dependency.name);
-          if (dependency.alias) {
-            // Also add the alias as a dependency, so it can be resolved in rules, for instance S4328
-            result.add(dependency.alias);
-          }
+    if (!closestDependencyManifestDir) {
+      return result;
+    }
+
+    for (const manifest of getDependencyManifests(closestDependencyManifestDir, topDir, fs)) {
+      const manifestDependencies = getDependenciesFromManifest(manifest);
+      for (const dependency of manifestDependencies) {
+        result.add(dependency.name);
+        if (dependency.alias) {
+          // Also add the alias as a dependency, so it can be resolved in rules, for instance S4328
+          result.add(dependency.alias);
         }
       }
     }
