@@ -228,6 +228,11 @@ describe('S4328', () => {
           filename: filenameDenoProject,
           options,
         },
+        {
+          code: `import "lodash";`,
+          filename: filenameDenoPrecedenceProject,
+          options,
+        },
       ],
       invalid: [
         {
