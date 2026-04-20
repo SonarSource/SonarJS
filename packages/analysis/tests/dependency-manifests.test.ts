@@ -130,6 +130,16 @@ describe('files', () => {
     });
   });
 
+  it('should include react when package.json and deno.json define it at the same level', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'same-level-version-conflict'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['deno', 'npm']);
+    expect(getDependencies(baseDir, baseDir)).toEqual(new Set(['react', 'reactAlias']));
+  });
+
   it('should log when a dependency is defined in multiple manifests', async ({ mock }) => {
     mock.method(console, 'debug');
     const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
@@ -148,6 +158,26 @@ describe('files', () => {
             log.includes('19.0.0'),
         ),
     ).toEqual(true);
+  });
+
+  it('should not log when a dependency is shared between child and parent manifests', async ({
+    mock,
+  }) => {
+    mock.method(console, 'debug');
+    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+    const subDir = normalizeToAbsolutePath(join(baseDir, 'subdir'));
+
+    expect(getDependencies(subDir, baseDir)).toEqual(
+      new Set(['child-only', 'shared', 'parent-only']),
+    );
+    expect(
+      consoleLogMock.calls
+        .map(call => call.arguments[0])
+        .some(log => log.includes('Dependency "shared" is defined in multiple manifests')),
+    ).toEqual(false);
   });
 
   it('should extract module type from package.json', async () => {

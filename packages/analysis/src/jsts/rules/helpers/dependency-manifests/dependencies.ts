@@ -40,11 +40,6 @@ const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
   '.cts': 'commonjs',
 };
 
-type DependencyDefinition = {
-  manifestType: 'npm' | 'deno';
-  version?: string;
-};
-
 /**
  * Cache for the available dependencies by dirname. Exported for tests
  */
@@ -52,41 +47,16 @@ export const dependenciesCache = new ComputedCache(
   (dir: NormalizedAbsolutePath, topDir?: NormalizedAbsolutePath) => {
     const closestDependencyManifestDir = getClosestDependencyManifestDir(dir, topDir);
     const result = new Set<string | Minimatch>();
-    const dependencyDefinitionsByName = new Map<string, DependencyDefinition>();
 
     if (closestDependencyManifestDir) {
       for (const manifest of getDependencyManifests(closestDependencyManifestDir, topDir, fs)) {
         const manifestDependencies = getDependenciesFromManifest(manifest);
-        const dependencyVersionsInManifest = new Map<string, string | undefined>();
-
         for (const dependency of manifestDependencies) {
           result.add(dependency.name);
-          if (
-            typeof dependency.name === 'string' &&
-            !dependencyVersionsInManifest.has(dependency.name)
-          ) {
-            dependencyVersionsInManifest.set(dependency.name, dependency.version);
-          }
           if (dependency.alias) {
             // Also add the alias as a dependency, so it can be resolved in rules, for instance S4328
             result.add(dependency.alias);
           }
-        }
-
-        for (const [dependencyName, version] of dependencyVersionsInManifest) {
-          const firstDefinition = dependencyDefinitionsByName.get(dependencyName);
-          if (firstDefinition) {
-            logDuplicateDependencyDefinition(dependencyName, firstDefinition, {
-              manifestType: manifest.type,
-              version,
-            });
-            continue;
-          }
-
-          dependencyDefinitionsByName.set(dependencyName, {
-            manifestType: manifest.type,
-            version,
-          });
         }
       }
     }
@@ -289,29 +259,6 @@ export function getNodeVersionSignal(baseDir: NormalizedAbsolutePath): string | 
     }
   }
   return null;
-}
-
-function logDuplicateDependencyDefinition(
-  dependencyName: string,
-  firstDefinition: DependencyDefinition,
-  secondDefinition: DependencyDefinition,
-) {
-  if (firstDefinition.version === secondDefinition.version) {
-    console.debug(
-      `Dependency "${dependencyName}" is defined in multiple manifests ` +
-        `(${firstDefinition.manifestType}, ${secondDefinition.manifestType}).`,
-    );
-  } else {
-    console.debug(
-      `Dependency "${dependencyName}" is defined in multiple manifests with different versions ` +
-        `(${firstDefinition.manifestType}: ${formatVersion(firstDefinition.version)}, ` +
-        `${secondDefinition.manifestType}: ${formatVersion(secondDefinition.version)}).`,
-    );
-  }
-}
-
-function formatVersion(version?: string): string {
-  return version ?? '<unspecified>';
 }
 
 function parsePackageJsonContent(content: string | Buffer): PackageJson | undefined {

@@ -29,7 +29,12 @@ import { DENO_JSON, DENO_JSONC, PACKAGE_JSON } from './index.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import type { Rule } from 'eslint';
 import { closestPatternCache } from '../find-up/closest.js';
-import { DenoManifest, parsePackageJson, parseDenoManifest } from './parse.js';
+import {
+  DenoManifest,
+  getDependenciesFromManifest,
+  parsePackageJson,
+  parseDenoManifest,
+} from './parse.js';
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by
@@ -73,6 +78,11 @@ export type DependencyManifest =
   | { type: 'npm'; manifest: PackageJson }
   | { type: 'deno'; manifest: DenoManifest };
 
+type DependencyDefinition = {
+  manifestType: DependencyManifest['type'];
+  version?: string;
+};
+
 /**
  * Returns dependency manifest files from closest-to-file and then up to root.
  *
@@ -89,7 +99,9 @@ export const getDependencyManifests = (
   let currentDir: NormalizedAbsolutePath = dir;
 
   do {
-    manifests.push(...getDependencyManifestsInDir(currentDir, rootDir, fileSystem));
+    const manifestsInDir = getDependencyManifestsInDir(currentDir, rootDir, fileSystem);
+    logDuplicateDependenciesInManifests(manifestsInDir);
+    manifests.push(...manifestsInDir);
     if (currentDir === rootDir || isRoot(currentDir)) {
       break;
     }
@@ -122,6 +134,62 @@ function getDependencyManifestsInDir(
   }
 
   return manifests;
+}
+
+/**
+ * Checks for duplicate dependencies across manifests and logs them.
+ */
+function logDuplicateDependenciesInManifests(manifests: DependencyManifest[]): void {
+  const dependencyDefinitions = new Map<string, DependencyDefinition>();
+  for (const manifest of manifests) {
+    const dependenciesByNameInManifest = new Map<string, string | undefined>();
+    for (const dependency of getDependenciesFromManifest(manifest)) {
+      if (
+        typeof dependency.name !== 'string' ||
+        dependenciesByNameInManifest.has(dependency.name)
+      ) {
+        continue;
+      }
+      dependenciesByNameInManifest.set(dependency.name, dependency.version);
+    }
+    for (const [dependencyName, version] of dependenciesByNameInManifest) {
+      const firstDefinition = dependencyDefinitions.get(dependencyName);
+      if (firstDefinition) {
+        logDuplicateDependencyDefinition(dependencyName, firstDefinition, {
+          manifestType: manifest.type,
+          version,
+        });
+        continue;
+      }
+      dependencyDefinitions.set(dependencyName, {
+        manifestType: manifest.type,
+        version,
+      });
+    }
+  }
+}
+
+function logDuplicateDependencyDefinition(
+  dependencyName: string,
+  firstDefinition: DependencyDefinition,
+  secondDefinition: DependencyDefinition,
+): void {
+  if (firstDefinition.version === secondDefinition.version) {
+    console.debug(
+      `Dependency "${dependencyName}" is defined in multiple manifests ` +
+        `(${firstDefinition.manifestType}, ${secondDefinition.manifestType}).`,
+    );
+  } else {
+    console.debug(
+      `Dependency "${dependencyName}" is defined in multiple manifests with different versions ` +
+        `(${firstDefinition.manifestType}: ${formatVersion(firstDefinition.version)}, ` +
+        `${secondDefinition.manifestType}: ${formatVersion(secondDefinition.version)}).`,
+    );
+  }
+}
+
+function formatVersion(version?: string): string {
+  return version ?? '<unspecified>';
 }
 
 function getManifestFileInDir(
