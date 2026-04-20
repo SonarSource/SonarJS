@@ -16,9 +16,9 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1533/javascript
 
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import type { TSESTree } from '@typescript-eslint/utils';
 import { findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
@@ -40,12 +40,14 @@ function isTypeArgumentOfCallOrNewExpression(node: TSESTree.Node) {
   );
 }
 
-function getWrapperTypeName(
-  sourceCode: Rule.RuleContext['sourceCode'],
-  node: TSESTree.TSTypeReference,
-) {
-  const typeName = sourceCode.getText(node as unknown as estree.Node);
-  return WRAPPER_TYPES.has(typeName) ? typeName : undefined;
+function getWrapperTypeName(node: TSESTree.TSTypeReference) {
+  const { typeName } = node;
+  if (typeName.type !== 'Identifier') {
+    return undefined;
+  }
+
+  const wrapperType = typeName.name;
+  return WRAPPER_TYPES.has(wrapperType) ? wrapperType : undefined;
 }
 
 export const rule: Rule.RuleModule = {
@@ -103,16 +105,12 @@ export const rule: Rule.RuleModule = {
           });
         }
       },
-      TSTypeReference(node: estree.Node) {
-        const typeReference = node as unknown as TSESTree.TSTypeReference;
-        if (
-          isInTypeDefinitionContext(typeReference) ||
-          isTypeArgumentOfCallOrNewExpression(typeReference)
-        ) {
+      TSTypeReference(node: TSESTree.TSTypeReference) {
+        if (isInTypeDefinitionContext(node) || isTypeArgumentOfCallOrNewExpression(node)) {
           return;
         }
 
-        const wrapperType = getWrapperTypeName(context.sourceCode, typeReference);
+        const wrapperType = getWrapperTypeName(node);
         if (wrapperType) {
           reportDirectWrapperType(node, wrapperType);
         }
