@@ -15,8 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import { describe, it } from 'node:test';
+import { EventEmitter } from 'node:events';
 import { createServer } from 'node:net';
+import { setTimeout as delay } from 'node:timers/promises';
+import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { expect } from 'expect';
 import * as grpc from '@grpc/grpc-js';
@@ -25,6 +27,10 @@ import { normalizePath } from '../../shared/src/helpers/files.js';
 import { startAnalyzeProjectServer } from '../src/analyze-project-server.js';
 import { createAnalyzeProjectWorker } from '../src/analyze-project-worker/create-worker.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
+import type {
+  AnalyzeProjectWorkerInMessage,
+  AnalyzeProjectWorkerOutMessage,
+} from '../src/analyze-project-worker/messages.js';
 
 const SERVICE_NAME = 'sonarjs.analyzeproject.v1.AnalyzeProjectService';
 const DEFAULT_GRPC_MESSAGE_LIMIT_BYTES = 4 * 1024 * 1024;
@@ -45,6 +51,10 @@ type AnalyzeProjectStreamResponse =
   analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectStreamResponse;
 type AnalyzeProjectUnaryResponse =
   analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectUnaryResponse;
+type CancelAnalysisRequest = analyzeProjectProto.analyzeproject.v1.ICancelAnalysisRequest;
+type CancelAnalysisResponse = analyzeProjectProto.analyzeproject.v1.ICancelAnalysisResponse;
+type LeaseRequest = analyzeProjectProto.analyzeproject.v1.ILeaseRequest;
+type LeaseResponse = analyzeProjectProto.analyzeproject.v1.ILeaseResponse;
 
 function createAnalyzeProjectClient(port: number) {
   const analyzeProjectMethodDefinition: grpc.MethodDefinition<
@@ -89,9 +99,45 @@ function createAnalyzeProjectClient(port: number) {
       analyzeProjectProto.analyzeproject.v1.AnalyzeProjectUnaryResponse.decode(buffer),
   };
 
+  const cancelAnalysisMethodDefinition: grpc.MethodDefinition<
+    CancelAnalysisRequest,
+    CancelAnalysisResponse
+  > = {
+    path: `/${SERVICE_NAME}/CancelAnalysis`,
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: value =>
+      Buffer.from(
+        analyzeProjectProto.analyzeproject.v1.CancelAnalysisRequest.encode(value).finish(),
+      ),
+    requestDeserialize: buffer =>
+      analyzeProjectProto.analyzeproject.v1.CancelAnalysisRequest.decode(buffer),
+    responseSerialize: value =>
+      Buffer.from(
+        analyzeProjectProto.analyzeproject.v1.CancelAnalysisResponse.encode(value).finish(),
+      ),
+    responseDeserialize: buffer =>
+      analyzeProjectProto.analyzeproject.v1.CancelAnalysisResponse.decode(buffer),
+  };
+
+  const leaseMethodDefinition: grpc.MethodDefinition<LeaseRequest, LeaseResponse> = {
+    path: `/${SERVICE_NAME}/Lease`,
+    requestStream: true,
+    responseStream: true,
+    requestSerialize: value =>
+      Buffer.from(analyzeProjectProto.analyzeproject.v1.LeaseRequest.encode(value).finish()),
+    requestDeserialize: buffer => analyzeProjectProto.analyzeproject.v1.LeaseRequest.decode(buffer),
+    responseSerialize: value =>
+      Buffer.from(analyzeProjectProto.analyzeproject.v1.LeaseResponse.encode(value).finish()),
+    responseDeserialize: buffer =>
+      analyzeProjectProto.analyzeproject.v1.LeaseResponse.decode(buffer),
+  };
+
   const serviceDefinition = {
     AnalyzeProject: analyzeProjectMethodDefinition,
     AnalyzeProjectUnary: analyzeProjectUnaryMethodDefinition,
+    CancelAnalysis: cancelAnalysisMethodDefinition,
+    Lease: leaseMethodDefinition,
   } as grpc.ServiceDefinition<grpc.UntypedServiceImplementation>;
 
   const Client = grpc.makeGenericClientConstructor(serviceDefinition, 'AnalyzeProjectService');
@@ -102,21 +148,39 @@ function createAnalyzeProjectClient(port: number) {
   ) as grpc.Client;
 
   return {
-    analyzeProject: (request: AnalyzeProjectRequest) =>
+    startAnalyzeProject: (request: AnalyzeProjectRequest) =>
+      client.makeServerStreamRequest(
+        analyzeProjectMethodDefinition.path,
+        analyzeProjectMethodDefinition.requestSerialize,
+        analyzeProjectMethodDefinition.responseDeserialize,
+        request,
+      ),
+    readAnalyzeProject: (call: grpc.ClientReadableStream<AnalyzeProjectStreamResponse>) =>
       new Promise<AnalyzeProjectStreamResponse[]>((resolve, reject) => {
         const responses: AnalyzeProjectStreamResponse[] = [];
-        const call = client.makeServerStreamRequest(
-          analyzeProjectMethodDefinition.path,
-          analyzeProjectMethodDefinition.requestSerialize,
-          analyzeProjectMethodDefinition.responseDeserialize,
-          request,
-        );
         call.on('data', response => {
           responses.push(response);
         });
         call.on('end', () => resolve(responses));
         call.on('error', reject);
       }),
+    analyzeProject: (request: AnalyzeProjectRequest) =>
+      (() => {
+        const call = client.makeServerStreamRequest(
+          analyzeProjectMethodDefinition.path,
+          analyzeProjectMethodDefinition.requestSerialize,
+          analyzeProjectMethodDefinition.responseDeserialize,
+          request,
+        );
+        return new Promise<AnalyzeProjectStreamResponse[]>((resolve, reject) => {
+          const responses: AnalyzeProjectStreamResponse[] = [];
+          call.on('data', response => {
+            responses.push(response);
+          });
+          call.on('end', () => resolve(responses));
+          call.on('error', reject);
+        });
+      })(),
     analyzeProjectUnary: (request: AnalyzeProjectRequest) =>
       new Promise<AnalyzeProjectUnaryResponse>((resolve, reject) => {
         client.makeUnaryRequest(
@@ -133,6 +197,28 @@ function createAnalyzeProjectClient(port: number) {
           },
         );
       }),
+    cancelAnalysis: (request: CancelAnalysisRequest = {}) =>
+      new Promise<CancelAnalysisResponse>((resolve, reject) => {
+        client.makeUnaryRequest(
+          cancelAnalysisMethodDefinition.path,
+          cancelAnalysisMethodDefinition.requestSerialize,
+          cancelAnalysisMethodDefinition.responseDeserialize,
+          request,
+          (error: grpc.ServiceError | null, response?: CancelAnalysisResponse) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(response!);
+            }
+          },
+        );
+      }),
+    lease: () =>
+      client.makeBidiStreamRequest(
+        leaseMethodDefinition.path,
+        leaseMethodDefinition.requestSerialize,
+        leaseMethodDefinition.responseDeserialize,
+      ),
     close: () => client.close(),
   };
 }
@@ -185,6 +271,48 @@ function createAnalyzeProjectPayload({
     ],
     bundles: [],
   };
+}
+
+function createDeferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { promise, reject, resolve };
+}
+
+class FakeWorker extends EventEmitter {
+  private terminated = false;
+
+  constructor(private readonly handleMessage: (message: AnalyzeProjectWorkerInMessage) => void) {
+    super();
+  }
+
+  postMessage(message: AnalyzeProjectWorkerInMessage) {
+    this.handleMessage(message);
+  }
+
+  emitMessage(message: AnalyzeProjectWorkerOutMessage) {
+    this.emit('message', message);
+  }
+
+  emitFailure(error: Error) {
+    this.emit('error', error);
+  }
+
+  exit(code: number) {
+    this.emit('exit', code);
+  }
+
+  async terminate() {
+    if (!this.terminated) {
+      this.terminated = true;
+      this.emit('exit', 0);
+    }
+    return 0;
+  }
 }
 
 type ServerMode = {
@@ -297,5 +425,195 @@ describe('analyze-project gRPC server', () => {
         });
       });
     }
+  });
+
+  it('should reject invalid analyze-project requests', async t => {
+    for (const mode of serverModes) {
+      await t.test(mode.label, async () => {
+        const worker = await mode.createWorker();
+        await withAnalyzeProjectServer(worker, async client => {
+          const responses = await client.analyzeProject({});
+          const [errorResponse] = responses.map(response =>
+            JSON.parse(response.messageJson ?? '{}'),
+          );
+
+          expect(errorResponse).toMatchObject({
+            messageType: 'error',
+            error: {
+              code: 'GENERAL_ERROR',
+              message: 'Missing request_json in AnalyzeProjectRequest',
+            },
+          });
+          await expect(client.analyzeProjectUnary({})).rejects.toMatchObject({
+            code: grpc.status.INVALID_ARGUMENT,
+            details: 'Missing request_json in AnalyzeProjectRequest',
+          });
+        });
+      });
+    }
+  });
+
+  it('should reject concurrent unary requests while a stream is active', async () => {
+    const streamRequestId = createDeferred<string>();
+    const worker = new FakeWorker(message => {
+      if (message.type === 'analyze-stream') {
+        streamRequestId.resolve(message.requestId);
+      }
+    });
+
+    await withAnalyzeProjectServer(worker as unknown as Worker, async client => {
+      const streamCall = client.startAnalyzeProject({
+        requestJson: JSON.stringify(createAnalyzeProjectPayload()),
+      });
+      const responsesPromise = client.readAnalyzeProject(streamCall);
+      const requestId = await streamRequestId.promise;
+
+      await expect(
+        client.analyzeProjectUnary({
+          requestJson: JSON.stringify(createAnalyzeProjectPayload()),
+        }),
+      ).rejects.toMatchObject({
+        code: grpc.status.RESOURCE_EXHAUSTED,
+        details: 'Another analysis is already running',
+      });
+
+      worker.emitMessage({
+        requestId,
+        result: { result: '', type: 'success' },
+        type: 'stream-complete',
+      });
+      await responsesPromise;
+    });
+  });
+
+  it('should cancel an active worker analysis through the cancel RPC', async () => {
+    const streamRequestId = createDeferred<string>();
+    const worker = new FakeWorker(message => {
+      if (message.type === 'analyze-stream') {
+        streamRequestId.resolve(message.requestId);
+        return;
+      }
+      if (message.type === 'cancel') {
+        worker.emitMessage({
+          requestId: message.requestId,
+          result: { result: '', type: 'success' },
+          type: 'cancel-complete',
+        });
+        void streamRequestId.promise.then(activeRequestId => {
+          worker.emitMessage({
+            requestId: activeRequestId,
+            result: { result: '', type: 'success' },
+            type: 'stream-complete',
+          });
+        });
+        return;
+      }
+      if (message.type === 'analyze-unary') {
+        worker.emitMessage({
+          requestId: message.requestId,
+          result: {
+            result: JSON.stringify({
+              files: {
+                [basicFixtureFile]: {
+                  issues: [],
+                },
+              },
+            }),
+            type: 'success',
+          },
+          type: 'unary-complete',
+        });
+      }
+    });
+
+    await withAnalyzeProjectServer(worker as unknown as Worker, async client => {
+      const streamCall = client.startAnalyzeProject({
+        requestJson: JSON.stringify(createAnalyzeProjectPayload()),
+      });
+      const responsesPromise = client.readAnalyzeProject(streamCall);
+      await streamRequestId.promise;
+
+      const cancelResponse = await client.cancelAnalysis();
+      expect(cancelResponse.cancelled).toBe(true);
+      await responsesPromise;
+
+      const unaryResponse = await client.analyzeProjectUnary({
+        requestJson: JSON.stringify(createAnalyzeProjectPayload()),
+      });
+      expect(JSON.parse(JSON.parse(unaryResponse.responseJson ?? '""'))).toMatchObject({
+        files: {
+          [basicFixtureFile]: {
+            issues: [],
+          },
+        },
+      });
+    });
+  });
+
+  it('should shut down when the lease ends', async () => {
+    const port = await findOpenPort();
+    const { server, serverClosed } = await startAnalyzeProjectServer(port, '127.0.0.1');
+    const client = createAnalyzeProjectClient(port);
+    const leaseCall = client.lease();
+
+    try {
+      leaseCall.write({});
+      await delay(20);
+      leaseCall.end();
+      await Promise.race([
+        serverClosed,
+        delay(2_000).then(() => {
+          throw new Error('Timed out waiting for lease shutdown');
+        }),
+      ]);
+    } finally {
+      client.close();
+      await new Promise<void>(resolve => {
+        server.tryShutdown(() => resolve());
+      });
+    }
+  });
+
+  it('should shut down when the lease is never acquired', async () => {
+    const port = await findOpenPort();
+    const { server, serverClosed } = await startAnalyzeProjectServer(
+      port,
+      '127.0.0.1',
+      undefined,
+      false,
+      25,
+    );
+
+    try {
+      await Promise.race([
+        serverClosed,
+        delay(2_000).then(() => {
+          throw new Error('Timed out waiting for startup shutdown timeout');
+        }),
+      ]);
+    } finally {
+      await new Promise<void>(resolve => {
+        server.tryShutdown(() => resolve());
+      });
+    }
+  });
+
+  it('should fail unary requests when the worker exits before responding', async () => {
+    const worker = new FakeWorker(message => {
+      if (message.type === 'analyze-unary') {
+        worker.exit(2);
+      }
+    });
+
+    await withAnalyzeProjectServer(worker as unknown as Worker, async client => {
+      await expect(
+        client.analyzeProjectUnary({
+          requestJson: JSON.stringify(createAnalyzeProjectPayload()),
+        }),
+      ).rejects.toMatchObject({
+        code: grpc.status.CANCELLED,
+        details: 'Call cancelled',
+      });
+    });
   });
 });

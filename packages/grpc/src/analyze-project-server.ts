@@ -58,6 +58,45 @@ type AnalyzeProjectServerResult = {
   serverClosed: Promise<void>;
 };
 
+type HandleRequestInCurrentThread = (
+  request: AnalyzeProjectRuntimeRequest,
+  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
+) => Promise<RequestResult>;
+
+type AnalyzeProjectServerState = {
+  analysisInProgress: boolean;
+  leaseCall: grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null;
+  nextWorkerRequestId: number;
+  shuttingDown: boolean;
+  startupShutdownTimeout: NodeJS.Timeout | null;
+};
+
+type AnalyzeProjectServerLifecycle = {
+  armStartupShutdownTimeout: () => void;
+  clearStartupShutdownTimeout: () => void;
+  requestCancel: () => Promise<boolean>;
+  shutdown: (reason: string) => Promise<void>;
+};
+
+type AnalyzeProjectServerDependencies = {
+  handleRequestInCurrentThread: HandleRequestInCurrentThread;
+  newWorkerRequestId: () => string;
+  resolveClosed: () => void;
+  server: grpc.Server;
+  state: AnalyzeProjectServerState;
+  timeout: number;
+  unregisterGarbageCollectionObserver: () => void;
+  worker?: Worker;
+};
+
+type AnalyzeProjectImplementationDependencies = {
+  handleRequestInCurrentThread: HandleRequestInCurrentThread;
+  lifecycle: AnalyzeProjectServerLifecycle;
+  newWorkerRequestId: () => string;
+  state: AnalyzeProjectServerState;
+  worker?: Worker;
+};
+
 function createAnalyzeProjectServiceDefinition(): grpc.ServiceDefinition {
   return {
     AnalyzeProject: {
@@ -200,65 +239,67 @@ async function waitForWorkerCompletion(
   });
 }
 
-export async function startAnalyzeProjectServer(
-  port = 0,
-  host = '127.0.0.1',
-  worker?: Worker,
-  debugMemory = false,
-  timeout = 0,
-): Promise<AnalyzeProjectServerResult> {
-  await logMemoryConfiguration();
-  const workerData: WorkerData = { debugMemory };
-  const unregisterGarbageCollectionObserver = debugMemory
-    ? registerGarbageCollectionObserver()
-    : () => {};
+function createServerState(): AnalyzeProjectServerState {
+  return {
+    analysisInProgress: false,
+    leaseCall: null,
+    nextWorkerRequestId: 0,
+    shuttingDown: false,
+    startupShutdownTimeout: null,
+  };
+}
 
-  let resolveClosed: () => void;
-  const serverClosed = new Promise<void>(resolve => {
-    resolveClosed = resolve;
-  });
-
-  let shuttingDown = false;
-  let analysisInProgress = false;
-  let nextWorkerRequestId = 0;
-  const server = new grpc.Server(GRPC_SERVER_OPTIONS);
-  let leaseCall: grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null = null;
-  let startupShutdownTimeout: NodeJS.Timeout | null = null;
-
-  const handleRequestInCurrentThread = (
-    request: AnalyzeProjectRuntimeRequest,
-    incrementalResultsChannel?: (result: WsIncrementalResult) => void,
-  ): Promise<RequestResult> =>
+function createHandleRequestInCurrentThread(workerData: WorkerData): HandleRequestInCurrentThread {
+  return (request, incrementalResultsChannel) =>
     handleAnalyzeProjectRequest(request, workerData, incrementalResultsChannel);
+}
 
-  const newWorkerRequestId = () => {
-    nextWorkerRequestId += 1;
-    return String(nextWorkerRequestId);
-  };
+function getNextWorkerRequestId(state: AnalyzeProjectServerState): string {
+  state.nextWorkerRequestId += 1;
+  return String(state.nextWorkerRequestId);
+}
 
-  const clearStartupShutdownTimeout = () => {
-    if (startupShutdownTimeout) {
-      clearTimeout(startupShutdownTimeout);
-      startupShutdownTimeout = null;
+function clearStartupShutdownTimeout(state: AnalyzeProjectServerState) {
+  if (state.startupShutdownTimeout) {
+    clearTimeout(state.startupShutdownTimeout);
+    state.startupShutdownTimeout = null;
+  }
+}
+
+function createLifecycle({
+  handleRequestInCurrentThread,
+  newWorkerRequestId,
+  resolveClosed,
+  server,
+  state,
+  timeout,
+  unregisterGarbageCollectionObserver,
+  worker,
+}: AnalyzeProjectServerDependencies): AnalyzeProjectServerLifecycle {
+  const requestCancel = async () => {
+    if (!worker) {
+      const result = await handleRequestInCurrentThread({ type: 'on-cancel-analysis' });
+      return result.type === 'success';
     }
-  };
 
-  const armStartupShutdownTimeout = () => {
-    if (timeout <= 0) {
-      return;
-    }
-    clearStartupShutdownTimeout();
-    startupShutdownTimeout = setTimeout(() => {
-      void shutdown('lease acquisition timeout');
-    }, timeout);
+    const requestId = newWorkerRequestId();
+    const completion = await waitForWorkerCompletion(
+      worker,
+      'cancel-complete',
+      requestId,
+      () =>
+        worker.postMessage({ type: 'cancel', requestId } satisfies AnalyzeProjectWorkerInMessage),
+      WORKER_RESPONSE_TIMEOUT_MS,
+    );
+    return completion.type === 'cancel-complete' && completion.result.type === 'success';
   };
 
   const closeLeaseCall = () => {
-    if (!leaseCall) {
+    if (!state.leaseCall) {
       return;
     }
-    const currentLeaseCall = leaseCall;
-    leaseCall = null;
+    const currentLeaseCall = state.leaseCall;
+    state.leaseCall = null;
     try {
       currentLeaseCall.end();
     } catch (e) {
@@ -267,16 +308,16 @@ export async function startAnalyzeProjectServer(
   };
 
   const shutdown = async (reason: string) => {
-    if (shuttingDown) {
+    if (state.shuttingDown) {
       return;
     }
-    shuttingDown = true;
+    state.shuttingDown = true;
     debug(`Shutting down gRPC analyze-project server: ${reason}`);
-    clearStartupShutdownTimeout();
+    clearStartupShutdownTimeout(state);
     closeLeaseCall();
     unregisterGarbageCollectionObserver();
 
-    if (analysisInProgress) {
+    if (state.analysisInProgress) {
       if (worker) {
         try {
           worker.postMessage({
@@ -310,277 +351,355 @@ export async function startAnalyzeProjectServer(
     }
 
     server.forceShutdown();
-    resolveClosed!();
+    resolveClosed();
   };
 
-  if (worker) {
-    worker.on('error', error => {
-      logMemoryError(error);
-      void shutdown('worker error');
-    });
-    worker.on('exit', code => {
-      debug(`The worker thread exited with code ${code}`);
-      if (!shuttingDown) {
-        void shutdown('worker exit');
-      }
-    });
-  }
+  const armStartupShutdownTimeout = () => {
+    if (timeout <= 0) {
+      return;
+    }
+    clearStartupShutdownTimeout(state);
+    state.startupShutdownTimeout = setTimeout(() => {
+      void shutdown('lease acquisition timeout');
+    }, timeout);
+  };
 
-  const requestCancel = async () => {
-    if (!worker) {
-      const result = await handleRequestInCurrentThread({ type: 'on-cancel-analysis' });
-      return result.type === 'success';
+  return {
+    armStartupShutdownTimeout,
+    clearStartupShutdownTimeout: () => clearStartupShutdownTimeout(state),
+    requestCancel,
+    shutdown,
+  };
+}
+
+function createAnalyzeProjectStreamHandler({
+  handleRequestInCurrentThread,
+  lifecycle,
+  newWorkerRequestId,
+  state,
+  worker,
+}: AnalyzeProjectImplementationDependencies) {
+  return (call: grpc.ServerWritableStream<AnalyzeProjectRequest, AnalyzeProjectStreamResponse>) => {
+    if (state.analysisInProgress) {
+      call.write({
+        messageJson: errorEvent({
+          code: 'GENERAL_ERROR',
+          message: 'Another analysis is already running',
+        }),
+      });
+      call.end();
+      return;
     }
 
+    let request: unknown;
+    try {
+      request = parseAnalyzeRequest(call.request);
+    } catch (e) {
+      call.write({
+        messageJson: errorEvent({
+          code: 'GENERAL_ERROR',
+          message: e instanceof Error ? e.message : String(e),
+        }),
+      });
+      call.end();
+      return;
+    }
+
+    state.analysisInProgress = true;
     const requestId = newWorkerRequestId();
-    const completion = await waitForWorkerCompletion(
-      worker,
-      'cancel-complete',
-      requestId,
-      () =>
-        worker.postMessage({ type: 'cancel', requestId } satisfies AnalyzeProjectWorkerInMessage),
-      WORKER_RESPONSE_TIMEOUT_MS,
-    );
-    return completion.type === 'cancel-complete' && completion.result.type === 'success';
-  };
+    let completed = false;
+    let cancelled = false;
+    let onWorkerMessage: ((message: AnalyzeProjectWorkerOutMessage) => void) | undefined;
 
-  const analyzeProjectImplementation: grpc.UntypedServiceImplementation = {
-    AnalyzeProject: (
-      call: grpc.ServerWritableStream<AnalyzeProjectRequest, AnalyzeProjectStreamResponse>,
-    ) => {
-      if (analysisInProgress) {
-        call.write({
-          messageJson: errorEvent({
-            code: 'GENERAL_ERROR',
-            message: 'Another analysis is already running',
-          }),
-        });
-        call.end();
+    const complete = () => {
+      if (completed) {
         return;
       }
+      completed = true;
+      state.analysisInProgress = false;
+      if (worker && onWorkerMessage) {
+        worker.off('message', onWorkerMessage);
+      }
+    };
 
-      let request: unknown;
+    const writeResponse = (messageJson: string) => {
+      if (cancelled) {
+        return;
+      }
       try {
-        request = parseAnalyzeRequest(call.request);
+        call.write({ messageJson });
       } catch (e) {
-        call.write({
-          messageJson: errorEvent({
-            code: 'GENERAL_ERROR',
-            message: e instanceof Error ? e.message : String(e),
-          }),
-        });
-        call.end();
+        debug(`Failed to write analyze-project stream response: ${e}`);
+      }
+    };
+
+    const endResponse = () => {
+      if (cancelled) {
         return;
       }
+      try {
+        call.end();
+      } catch (e) {
+        debug(`Failed to end analyze-project stream response: ${e}`);
+      }
+    };
 
-      analysisInProgress = true;
-      const requestId = newWorkerRequestId();
-      let completed = false;
-      let cancelled = false;
-      let onWorkerMessage: ((message: AnalyzeProjectWorkerOutMessage) => void) | undefined;
-
-      const complete = () => {
-        if (completed) {
-          return;
-        }
-        completed = true;
-        analysisInProgress = false;
-        if (worker && onWorkerMessage) {
-          worker.off('message', onWorkerMessage);
-        }
-      };
-
-      const writeResponse = (messageJson: string) => {
-        if (cancelled) {
-          return;
-        }
-        try {
-          call.write({ messageJson });
-        } catch (e) {
-          debug(`Failed to write analyze-project stream response: ${e}`);
-        }
-      };
-
-      const endResponse = () => {
-        if (cancelled) {
-          return;
-        }
-        try {
-          call.end();
-        } catch (e) {
-          debug(`Failed to end analyze-project stream response: ${e}`);
-        }
-      };
-
-      call.on('cancelled', () => {
-        cancelled = true;
-        if (completed) {
-          return;
-        }
-        void requestCancel().catch(error => {
-          debug(`Failed to cancel analyze-project request: ${error}`);
-        });
+    call.on('cancelled', () => {
+      cancelled = true;
+      if (completed) {
+        return;
+      }
+      void lifecycle.requestCancel().catch(error => {
+        debug(`Failed to cancel analyze-project request: ${error}`);
       });
+    });
 
-      if (worker) {
-        onWorkerMessage = (message: AnalyzeProjectWorkerOutMessage) => {
-          if (message.requestId !== requestId) {
+    if (worker) {
+      onWorkerMessage = (message: AnalyzeProjectWorkerOutMessage) => {
+        if (message.requestId !== requestId) {
+          return;
+        }
+        switch (message.type) {
+          case 'event':
+            writeResponse(JSON.stringify(message.result));
             return;
-          }
-          switch (message.type) {
-            case 'event':
-              writeResponse(JSON.stringify(message.result));
-              return;
-            case 'stream-complete':
-              if (message.result.type === 'failure') {
-                writeResponse(errorEvent(message.result.error));
-              }
-              endResponse();
-              complete();
-              return;
-            default:
-              // ignore unrelated worker messages
-              return;
-          }
-        };
-
-        worker.on('message', onWorkerMessage);
-
-        worker.postMessage({
-          type: 'analyze-stream',
-          requestId,
-          request,
-        } satisfies AnalyzeProjectWorkerInMessage);
-        return;
-      }
-
-      void handleRequestInCurrentThread({ type: 'on-analyze-project', data: request }, event =>
-        writeResponse(JSON.stringify(event)),
-      )
-        .then(result => {
-          if (result.type === 'failure') {
-            writeResponse(errorEvent(result.error));
-          }
-          endResponse();
-        })
-        .catch(error => {
-          writeResponse(
-            errorEvent({
-              message: error instanceof Error ? error.message : String(error),
-            }),
-          );
-          endResponse();
-        })
-        .finally(complete);
-    },
-    AnalyzeProjectUnary: async (
-      call: grpc.ServerUnaryCall<AnalyzeProjectRequest, AnalyzeProjectUnaryResponse>,
-      callback: grpc.sendUnaryData<AnalyzeProjectUnaryResponse>,
-    ) => {
-      if (analysisInProgress) {
-        callback(
-          toGrpcError('Another analysis is already running', grpc.status.RESOURCE_EXHAUSTED),
-        );
-        return;
-      }
-
-      let request: unknown;
-      try {
-        request = parseAnalyzeRequest(call.request);
-      } catch (e) {
-        callback(
-          toGrpcError(e instanceof Error ? e.message : String(e), grpc.status.INVALID_ARGUMENT),
-        );
-        return;
-      }
-
-      analysisInProgress = true;
-      try {
-        const result = worker
-          ? (
-              await (() => {
-                const requestId = newWorkerRequestId();
-                return waitForWorkerCompletion(worker, 'unary-complete', requestId, () =>
-                  worker.postMessage({
-                    type: 'analyze-unary',
-                    requestId,
-                    request,
-                  } satisfies AnalyzeProjectWorkerInMessage),
-                ) as Promise<UnaryCompleteMessage>;
-              })()
-            ).result
-          : await handleRequestInCurrentThread({ type: 'on-analyze-project', data: request });
-        if (result.type === 'failure') {
-          callback(toGrpcError((result.error.message as string) ?? 'Analysis failed'));
-          return;
-        }
-
-        callback(null, {
-          responseJson: JSON.stringify(result.result),
-        });
-      } catch (e) {
-        callback(toGrpcError(e instanceof Error ? e.message : String(e)));
-      } finally {
-        analysisInProgress = false;
-      }
-    },
-    CancelAnalysis: async (
-      _: grpc.ServerUnaryCall<CancelAnalysisRequest, CancelAnalysisResponse>,
-      callback: grpc.sendUnaryData<CancelAnalysisResponse>,
-    ) => {
-      const hadActiveAnalysis = analysisInProgress;
-      try {
-        const cancelled = await requestCancel();
-        callback(null, {
-          cancelled: hadActiveAnalysis && cancelled,
-        });
-      } catch (e) {
-        callback(toGrpcError(e instanceof Error ? e.message : String(e)));
-      }
-    },
-    Lease: (call: grpc.ServerDuplexStream<LeaseRequest, LeaseResponse>) => {
-      if (leaseCall) {
-        call.destroy(
-          toGrpcError('Analyze-project lease already acquired', grpc.status.RESOURCE_EXHAUSTED),
-        );
-        return;
-      }
-
-      leaseCall = call;
-      clearStartupShutdownTimeout();
-
-      const shutdownOnLeaseLoss = (reason: string) => {
-        if (leaseCall !== call) {
-          return;
-        }
-        leaseCall = null;
-        if (!shuttingDown) {
-          setImmediate(() => {
-            void shutdown(reason);
-          });
+          case 'stream-complete':
+            if (message.result.type === 'failure') {
+              writeResponse(errorEvent(message.result.error));
+            }
+            endResponse();
+            complete();
+            return;
+          default:
+            return;
         }
       };
 
-      call.on('data', () => {});
-      call.on('cancelled', () => {
-        shutdownOnLeaseLoss('lease cancelled');
-      });
-      call.on('end', () => {
-        try {
-          call.end();
-        } catch (e) {
-          debug(`Failed to complete lease stream: ${e}`);
-        }
-        shutdownOnLeaseLoss('lease completed');
-      });
-      call.on('error', error => {
-        debug(`Lease stream error: ${error}`);
-        shutdownOnLeaseLoss('lease error');
-      });
-    },
-  };
+      worker.on('message', onWorkerMessage);
+      worker.postMessage({
+        type: 'analyze-stream',
+        requestId,
+        request,
+      } satisfies AnalyzeProjectWorkerInMessage);
+      return;
+    }
 
-  server.addService(createAnalyzeProjectServiceDefinition(), analyzeProjectImplementation);
+    void handleRequestInCurrentThread({ type: 'on-analyze-project', data: request }, event =>
+      writeResponse(JSON.stringify(event)),
+    )
+      .then(result => {
+        if (result.type === 'failure') {
+          writeResponse(errorEvent(result.error));
+        }
+        endResponse();
+      })
+      .catch(error => {
+        writeResponse(
+          errorEvent({
+            message: error instanceof Error ? error.message : String(error),
+          }),
+        );
+        endResponse();
+      })
+      .finally(complete);
+  };
+}
+
+function createAnalyzeProjectUnaryHandler({
+  handleRequestInCurrentThread,
+  newWorkerRequestId,
+  state,
+  worker,
+}: AnalyzeProjectImplementationDependencies) {
+  return async (
+    call: grpc.ServerUnaryCall<AnalyzeProjectRequest, AnalyzeProjectUnaryResponse>,
+    callback: grpc.sendUnaryData<AnalyzeProjectUnaryResponse>,
+  ) => {
+    if (state.analysisInProgress) {
+      callback(toGrpcError('Another analysis is already running', grpc.status.RESOURCE_EXHAUSTED));
+      return;
+    }
+
+    let request: unknown;
+    try {
+      request = parseAnalyzeRequest(call.request);
+    } catch (e) {
+      callback(
+        toGrpcError(e instanceof Error ? e.message : String(e), grpc.status.INVALID_ARGUMENT),
+      );
+      return;
+    }
+
+    state.analysisInProgress = true;
+    try {
+      const result = worker
+        ? (
+            await (() => {
+              const requestId = newWorkerRequestId();
+              return waitForWorkerCompletion(worker, 'unary-complete', requestId, () =>
+                worker.postMessage({
+                  type: 'analyze-unary',
+                  requestId,
+                  request,
+                } satisfies AnalyzeProjectWorkerInMessage),
+              ) as Promise<UnaryCompleteMessage>;
+            })()
+          ).result
+        : await handleRequestInCurrentThread({ type: 'on-analyze-project', data: request });
+      if (result.type === 'failure') {
+        callback(toGrpcError((result.error.message as string) ?? 'Analysis failed'));
+        return;
+      }
+
+      callback(null, {
+        responseJson: JSON.stringify(result.result),
+      });
+    } catch (e) {
+      callback(toGrpcError(e instanceof Error ? e.message : String(e)));
+    } finally {
+      state.analysisInProgress = false;
+    }
+  };
+}
+
+function createCancelAnalysisHandler({
+  lifecycle,
+  state,
+}: AnalyzeProjectImplementationDependencies) {
+  return async (
+    _: grpc.ServerUnaryCall<CancelAnalysisRequest, CancelAnalysisResponse>,
+    callback: grpc.sendUnaryData<CancelAnalysisResponse>,
+  ) => {
+    const hadActiveAnalysis = state.analysisInProgress;
+    try {
+      const cancelled = await lifecycle.requestCancel();
+      callback(null, {
+        cancelled: hadActiveAnalysis && cancelled,
+      });
+    } catch (e) {
+      callback(toGrpcError(e instanceof Error ? e.message : String(e)));
+    }
+  };
+}
+
+function createLeaseHandler({ lifecycle, state }: AnalyzeProjectImplementationDependencies) {
+  return (call: grpc.ServerDuplexStream<LeaseRequest, LeaseResponse>) => {
+    if (state.leaseCall) {
+      call.destroy(
+        toGrpcError('Analyze-project lease already acquired', grpc.status.RESOURCE_EXHAUSTED),
+      );
+      return;
+    }
+
+    state.leaseCall = call;
+    lifecycle.clearStartupShutdownTimeout();
+
+    const shutdownOnLeaseLoss = (reason: string) => {
+      if (state.leaseCall !== call) {
+        return;
+      }
+      state.leaseCall = null;
+      if (!state.shuttingDown) {
+        setImmediate(() => {
+          void lifecycle.shutdown(reason);
+        });
+      }
+    };
+
+    call.on('data', () => {});
+    call.on('cancelled', () => {
+      shutdownOnLeaseLoss('lease cancelled');
+    });
+    call.on('end', () => {
+      try {
+        call.end();
+      } catch (e) {
+        debug(`Failed to complete lease stream: ${e}`);
+      }
+      shutdownOnLeaseLoss('lease completed');
+    });
+    call.on('error', error => {
+      debug(`Lease stream error: ${error}`);
+      shutdownOnLeaseLoss('lease error');
+    });
+  };
+}
+
+function createAnalyzeProjectImplementation(
+  dependencies: AnalyzeProjectImplementationDependencies,
+): grpc.UntypedServiceImplementation {
+  return {
+    AnalyzeProject: createAnalyzeProjectStreamHandler(dependencies),
+    AnalyzeProjectUnary: createAnalyzeProjectUnaryHandler(dependencies),
+    CancelAnalysis: createCancelAnalysisHandler(dependencies),
+    Lease: createLeaseHandler(dependencies),
+  };
+}
+
+function attachWorkerLifecycleHandlers(
+  worker: Worker | undefined,
+  lifecycle: AnalyzeProjectServerLifecycle,
+  state: AnalyzeProjectServerState,
+) {
+  if (!worker) {
+    return;
+  }
+
+  worker.on('error', error => {
+    logMemoryError(error);
+    void lifecycle.shutdown('worker error');
+  });
+  worker.on('exit', code => {
+    debug(`The worker thread exited with code ${code}`);
+    if (!state.shuttingDown) {
+      void lifecycle.shutdown('worker exit');
+    }
+  });
+}
+
+export async function startAnalyzeProjectServer(
+  port = 0,
+  host = '127.0.0.1',
+  worker?: Worker,
+  debugMemory = false,
+  timeout = 0,
+): Promise<AnalyzeProjectServerResult> {
+  await logMemoryConfiguration();
+  const workerData: WorkerData = { debugMemory };
+  const unregisterGarbageCollectionObserver = debugMemory
+    ? registerGarbageCollectionObserver()
+    : () => {};
+
+  let resolveClosed = () => {};
+  const serverClosed = new Promise<void>(resolve => {
+    resolveClosed = resolve;
+  });
+  const server = new grpc.Server(GRPC_SERVER_OPTIONS);
+  const state = createServerState();
+  const handleRequestInCurrentThread = createHandleRequestInCurrentThread(workerData);
+  const newWorkerRequestId = () => getNextWorkerRequestId(state);
+  const lifecycle = createLifecycle({
+    handleRequestInCurrentThread,
+    newWorkerRequestId,
+    resolveClosed,
+    server,
+    state,
+    timeout,
+    unregisterGarbageCollectionObserver,
+    worker,
+  });
+
+  attachWorkerLifecycleHandlers(worker, lifecycle, state);
+  server.addService(
+    createAnalyzeProjectServiceDefinition(),
+    createAnalyzeProjectImplementation({
+      handleRequestInCurrentThread,
+      lifecycle,
+      newWorkerRequestId,
+      state,
+      worker,
+    }),
+  );
 
   return await new Promise((resolve, reject) => {
     server.bindAsync(
@@ -593,7 +712,7 @@ export async function startAnalyzeProjectServer(
         }
 
         info(`gRPC analyze-project server listening on ${host}:${boundPort}`);
-        armStartupShutdownTimeout();
+        lifecycle.armStartupShutdownTimeout();
         resolve({
           server,
           serverClosed,

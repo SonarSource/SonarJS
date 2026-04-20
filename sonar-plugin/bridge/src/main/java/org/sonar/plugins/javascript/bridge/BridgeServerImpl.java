@@ -44,6 +44,7 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarProduct;
@@ -253,11 +254,14 @@ public class BridgeServerImpl implements BridgeServer {
         }
         CountDownLatch latch = new CountDownLatch(1);
         channel.notifyWhenStateChanged(state, latch::countDown);
-        latch.await(
+        boolean stateChanged = latch.await(
           Math.min(TimeUnit.NANOSECONDS.toMillis(remainingNanos), 100),
           TimeUnit.MILLISECONDS
         );
         state = channel.getState(false);
+        if (!stateChanged) {
+          continue;
+        }
       }
       latestOKIsAliveTimestamp = System.currentTimeMillis();
       return true;
@@ -587,13 +591,13 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  private synchronized void onLeaseTerminated(Throwable throwable) {
+  private synchronized void onLeaseTerminated(@Nullable Throwable throwable) {
     if (leaseObserver == null && leaseTerminated) {
       return;
     }
     leaseObserver = null;
     leaseTerminated = true;
-    if (throwable != null && channel != null && !channel.isShutdown()) {
+    if (channel != null && !channel.isShutdown() && throwable != null) {
       LOG.debug("Analyze-project lease terminated unexpectedly", throwable);
     }
   }

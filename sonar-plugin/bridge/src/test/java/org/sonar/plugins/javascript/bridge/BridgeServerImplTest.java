@@ -40,6 +40,7 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NO
 import com.google.gson.JsonObject;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
+import io.grpc.stub.StreamObserver;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -50,6 +51,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -626,6 +628,64 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void waitChannelReady_should_continue_polling_when_state_does_not_change() throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    var channel = mock(ManagedChannel.class);
+    when(channel.getState(true)).thenReturn(ConnectivityState.CONNECTING);
+    when(channel.getState(false)).thenReturn(ConnectivityState.CONNECTING, ConnectivityState.READY);
+    var notifications = new AtomicInteger();
+    doAnswer(invocation -> {
+      var onStateChanged = invocation.getArgument(1, Runnable.class);
+      if (notifications.incrementAndGet() == 2) {
+        CompletableFuture.runAsync(onStateChanged);
+      }
+      return null;
+    })
+      .when(channel)
+      .notifyWhenStateChanged(any(ConnectivityState.class), any(Runnable.class));
+    setPrivateField(bridgeServer, "channel", channel);
+
+    assertThat(bridgeServer.waitChannelReady(500)).isTrue();
+    assertThat(notifications.get()).isEqualTo(2);
+  }
+
+  @Test
+  void onLeaseTerminated_should_ignore_duplicate_notifications() throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    logTester.clear();
+    setPrivateField(bridgeServer, "leaseObserver", null);
+    setPrivateBooleanField(bridgeServer, "leaseTerminated", true);
+
+    invokeOnLeaseTerminated(new RuntimeException("boom"));
+
+    assertThat(logTester.logs(DEBUG)).doesNotContain(
+      "Analyze-project lease terminated unexpectedly"
+    );
+  }
+
+  @Test
+  void onLeaseTerminated_should_only_log_unexpected_errors() throws Exception {
+    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    var channel = mock(ManagedChannel.class);
+    when(channel.isShutdown()).thenReturn(false);
+    logTester.clear();
+    setPrivateField(bridgeServer, "channel", channel);
+    setPrivateField(bridgeServer, "leaseObserver", mock(StreamObserver.class));
+    setPrivateBooleanField(bridgeServer, "leaseTerminated", false);
+
+    invokeOnLeaseTerminated(null);
+    assertThat(logTester.logs(DEBUG)).doesNotContain(
+      "Analyze-project lease terminated unexpectedly"
+    );
+
+    logTester.clear();
+    setPrivateField(bridgeServer, "leaseObserver", mock(StreamObserver.class));
+    setPrivateBooleanField(bridgeServer, "leaseTerminated", false);
+    invokeOnLeaseTerminated(new RuntimeException("boom"));
+    assertThat(logTester.logs(DEBUG)).contains("Analyze-project lease terminated unexpectedly");
+  }
+
+  @Test
   void enabled_monitoring() throws Exception {
     bridgeServer = new BridgeServerImpl(
       builder(),
@@ -818,6 +878,29 @@ class BridgeServerImplTest {
 
   private BridgeServerImpl createBridgeServer(String startServerScript) {
     return createBridgeServer(new TestBundle(startServerScript));
+  }
+
+  private void invokeOnLeaseTerminated(Throwable throwable) throws Exception {
+    var method = BridgeServerImpl.class.getDeclaredMethod("onLeaseTerminated", Throwable.class);
+    method.setAccessible(true);
+    method.invoke(bridgeServer, throwable);
+  }
+
+  private static void setPrivateBooleanField(
+    BridgeServerImpl bridgeServer,
+    String fieldName,
+    boolean value
+  ) throws Exception {
+    var field = BridgeServerImpl.class.getDeclaredField(fieldName);
+    field.setAccessible(true);
+    field.setBoolean(bridgeServer, value);
+  }
+
+  private static void setPrivateField(BridgeServerImpl bridgeServer, String fieldName, Object value)
+    throws Exception {
+    var field = BridgeServerImpl.class.getDeclaredField(fieldName);
+    field.setAccessible(true);
+    field.set(bridgeServer, value);
   }
 
   /**
