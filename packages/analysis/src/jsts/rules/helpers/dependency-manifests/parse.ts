@@ -18,9 +18,8 @@ import { Minimatch } from 'minimatch';
 import type { PackageJson } from 'type-fest';
 import type { File } from '../files.js';
 import { stripBOM } from '../files.js';
-import { DENO_JSON, DENO_JSONC, getDependencyManifestName, PACKAGE_JSON } from './index.js';
 import ts from 'typescript';
-import { DependencyManifest } from './all-in-parent-dirs.js';
+import { type DependencyManifest } from './all-in-parent-dirs.js';
 
 const DefinitelyTyped = '@types/';
 

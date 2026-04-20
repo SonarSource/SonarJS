@@ -31,7 +31,7 @@ import {
   isDependencyManifestPath,
   PACKAGE_JSON,
   fillManifestCaches,
-} from '../jsts/rules/helpers/depedency-manifests/index.js';
+} from '../jsts/rules/helpers/dependency-manifests/index.js';
 
 export const UNINITIALIZED_ERROR =
   'dependency manifest cache has not been initialized. Call loadFiles() first.';

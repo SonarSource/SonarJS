@@ -24,7 +24,7 @@ import {
   getDependenciesFromPackageJson,
   parseDenoManifest,
   parseImportMapSpecifier,
-} from '../../../../src/jsts/rules/helpers/depedency-manifests/parse.js';
+} from '../../../../src/jsts/rules/helpers/dependency-manifests/parse.js';
 import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 
 describe('package-json', () => {

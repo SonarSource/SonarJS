@@ -31,8 +31,8 @@ import {
 } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { getDependenciesSanitizePaths } from '../helpers/depedency-manifests/dependencies.js';
-import { getPackageJsonManifestsSanitizePaths } from '../helpers/depedency-manifests/all-in-parent-dirs.js';
+import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
+import { getPackageJsonManifestsSanitizePaths } from '../helpers/dependency-manifests/all-in-parent-dirs.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {

@@ -26,7 +26,7 @@ import {
   collectNoSonarMetrics,
   collectTestFileArtifacts,
 } from './file-artifacts.js';
-import { clearDependenciesCache } from '../rules/helpers/depedency-manifests/index.js';
+import { clearDependenciesCache } from '../rules/helpers/dependency-manifests/index.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import {
   toProjectFailureResult,

@@ -21,20 +21,20 @@ import { initFileStores, dependencyManifestStore } from '../src/file-stores/inde
 import { readFile } from 'node:fs/promises';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { createConfiguration } from '../src/common/configuration.js';
-import { UNINITIALIZED_ERROR } from '../src/file-stores/depedency-manifests.js';
+import { UNINITIALIZED_ERROR } from '../src/file-stores/dependency-manifests.js';
 import {
   dependenciesCache,
   getDependencies,
   getModuleType,
   moduleTypeCache,
-} from '../src/jsts/rules/helpers/depedency-manifests/dependencies.js';
-import { getDependencyManifests } from '../src/jsts/rules/helpers/depedency-manifests/all-in-parent-dirs.js';
+} from '../src/jsts/rules/helpers/dependency-manifests/dependencies.js';
+import { getDependencyManifests } from '../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
 import { closestPatternCache } from '../src/jsts/rules/helpers/find-up/closest.js';
 import {
   DENO_JSON,
   DENO_JSONC,
   PACKAGE_JSON,
-} from '../src/jsts/rules/helpers/depedency-manifests/index.js';
+} from '../src/jsts/rules/helpers/dependency-manifests/index.js';
 import { patternInParentsCache } from '../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
 
 const closestPackageJsonCache = closestPatternCache.get(PACKAGE_JSON);

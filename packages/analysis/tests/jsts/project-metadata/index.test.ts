@@ -23,7 +23,7 @@ import {
 import fs from 'node:fs';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
-import { getPackageJsonManifests } from '../../../src/jsts/rules/helpers/depedency-manifests/all-in-parent-dirs.js';
+import { getPackageJsonManifests } from '../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
 
 describe('initialize package.json files', () => {
   const baseDir = joinPaths(

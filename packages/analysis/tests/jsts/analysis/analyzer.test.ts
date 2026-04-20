@@ -32,7 +32,7 @@ import { deserializeProtobuf } from '../../../src/jsts/parsers/ast.js';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 import assert from 'node:assert';
-import { getPackageJsonManifests } from '../../../src/jsts/rules/helpers/depedency-manifests/all-in-parent-dirs.js';
+import { getPackageJsonManifests } from '../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
 import { createProgramOptions } from '../../../src/jsts/program/tsconfig/options.js';
 import { createStandardProgram } from '../../../src/jsts/program/factory.js';
 

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import * as semver from 'semver';
-import { getPackageJsonManifests } from './depedency-manifests/all-in-parent-dirs.js';
+import { getPackageJsonManifests } from './dependency-manifests/all-in-parent-dirs.js';
 import type { NormalizedAbsolutePath } from './files.js';
 
 /**

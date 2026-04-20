@@ -16,7 +16,7 @@
  */
 import ts from 'typescript';
 import { error, warn } from '../../../../../shared/src/helpers/logging.js';
-import { getNodeVersionSignal } from '../../rules/helpers/depedency-manifests/dependencies.js';
+import { getNodeVersionSignal } from '../../rules/helpers/dependency-manifests/dependencies.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
