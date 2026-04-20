@@ -62,7 +62,7 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    function reportDirectWrapperType(node: estree.Node, wrapperType: string) {
+    function reportDirectWrapperType(node: TSESTree.TSTypeReference, wrapperType: string) {
       const primitiveType = wrapperType.toLowerCase();
       context.report({
         messageId: 'replaceWrapper',
