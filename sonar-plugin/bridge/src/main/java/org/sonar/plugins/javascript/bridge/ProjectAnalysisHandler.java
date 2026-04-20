@@ -14,35 +14,35 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
 package org.sonar.plugins.javascript.bridge;
 
-import com.google.gson.JsonObject;
 import java.util.concurrent.CompletableFuture;
 import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 
 /**
  * Application-level handler for streamed project-analysis requests and responses.
  */
-public interface ProjectAnalysisHandler<T> {
+public interface ProjectAnalysisHandler {
   /**
-   * Get the request that needs to be sent to the server
+   * Get the request that needs to be sent to the server.
    */
-  T getRequest();
+  AnalyzeProjectRequest getRequest();
 
   /**
-   * Get the Context of the Sensor owning the handler
+   * Get the Context of the Sensor owning the handler.
    */
   SensorContext getContext();
 
   /**
-   * Get the internal Completable future
+   * Get the internal Completable future.
    */
   CompletableFuture<Void> getFuture();
 
   /**
-   * Handles a streamed JSON response from the analyzer runtime.
-   *
-   * @param message the parsed JSON object
+   * Handles a streamed protobuf response from the analyzer runtime.
    */
-  void handleMessage(JsonObject message);
+  void handleMessage(AnalyzeProjectStreamResponse message);
 }

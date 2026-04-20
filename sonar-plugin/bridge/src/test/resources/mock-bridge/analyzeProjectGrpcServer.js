@@ -109,8 +109,7 @@ function startAnalyzeProjectGrpcServer(port, host, handlers = {}) {
       (call => {
         call.end();
       }),
-    AnalyzeProjectUnary:
-      handlers.AnalyzeProjectUnary ?? ((_, callback) => callback(null, { responseJson: '{}' })),
+    AnalyzeProjectUnary: handlers.AnalyzeProjectUnary ?? ((_, callback) => callback(null, {})),
     CancelAnalysis:
       handlers.CancelAnalysis ?? ((_, callback) => callback(null, { cancelled: true })),
     Lease:

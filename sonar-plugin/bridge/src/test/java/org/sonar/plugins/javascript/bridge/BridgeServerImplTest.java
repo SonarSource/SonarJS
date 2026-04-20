@@ -37,7 +37,6 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
-import com.google.gson.JsonObject;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
@@ -69,6 +68,14 @@ import org.sonar.api.impl.utils.DefaultTempFolder;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectUnaryResponse;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FileStatus;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FileType;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectFileInput;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
@@ -227,54 +234,81 @@ class BridgeServerImplTest {
       .build();
   }
 
-  private static BridgeServer.ProjectAnalysisRequest createProjectRequest(
+  private static AnalyzeProjectRequest createProjectRequest(
     DefaultInputFile inputFile,
     boolean skipAst
   ) throws IOException {
-    var configuration = new BridgeServer.ProjectAnalysisConfiguration(
-      inputFile.absolutePath(),
-      TEST_ANALYSIS_CONFIGURATION
-    );
-    configuration.setSkipAst(skipAst);
-    return new BridgeServer.ProjectAnalysisRequest(
-      Map.of(
-        inputFile.absolutePath(),
-        new BridgeServer.JsTsFile(
+    var fileType =
+      inputFile.type() == null
+        ? FileType.FILE_TYPE_MAIN
+        : AnalyzeProjectMessages.toProtoFileType(inputFile.type());
+    var fileStatus =
+      inputFile.status() == null
+        ? FileStatus.FILE_STATUS_ADDED
+        : AnalyzeProjectMessages.toProtoFileStatus(inputFile.status());
+
+    return AnalyzeProjectRequest.newBuilder()
+      .setConfiguration(
+        AnalyzeProjectMessages.newProjectConfigurationBuilder(
           inputFile.absolutePath(),
-          inputFile.type().toString(),
-          inputFile.status(),
-          inputFile.contents()
+          TEST_ANALYSIS_CONFIGURATION
         )
-      ),
-      List.of(),
-      configuration
-    );
+          .setSkipAst(skipAst)
+          .build()
+      )
+      .putAllFiles(
+        Map.of(
+          inputFile.absolutePath(),
+          ProjectFileInput.newBuilder()
+            .setFileType(fileType)
+            .setFileStatus(fileStatus)
+            .setFileContent(inputFile.contents())
+            .build()
+        )
+      )
+      .build();
   }
 
-  private static BridgeServer.AnalysisResponse analyzeSingleFile(
+  private static AnalysisResponse analyzeSingleFile(
     BridgeServerImpl bridgeServer,
     DefaultInputFile inputFile,
     boolean skipAst
   ) throws IOException {
     var output = bridgeServer.analyzeProject(createProjectRequest(inputFile, skipAst));
-    var responseDto = output.files().get(inputFile.absolutePath());
-    if (responseDto == null && !output.files().isEmpty()) {
-      responseDto = output.files().values().iterator().next();
+    var response = toSingleFileResponse(output, inputFile.absolutePath());
+    if (response.getAst().isEmpty()) {
+      return new AnalysisResponse(response.getIssuesList(), null);
     }
-    return responseDto == null
-      ? new BridgeServer.AnalysisResponse()
-      : BridgeServer.AnalysisResponse.fromDTO(responseDto);
+    try {
+      return new AnalysisResponse(
+        response.getIssuesList(),
+        AstProtoUtils.readProtobufFromBytes(response.getAst().toByteArray())
+      );
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to parse protobuf", e);
+    }
   }
 
-  private ProjectAnalysisHandler<BridgeServer.ProjectAnalysisRequest> createStreamingHandler(
-    DefaultInputFile inputFile,
-    boolean skipAst
-  ) throws IOException {
+  private static ProjectAnalysisFileResult toSingleFileResponse(
+    AnalyzeProjectUnaryResponse output,
+    String filePath
+  ) {
+    var response = output.getFilesMap().get(filePath);
+    if (response == null && output.getFilesCount() == 1) {
+      response = output.getFilesMap().values().iterator().next();
+    }
+    return response == null ? ProjectAnalysisFileResult.getDefaultInstance() : response;
+  }
+
+  private record AnalysisResponse(List<Issue> issues, Node ast) {}
+
+  private ProjectAnalysisHandler createStreamingHandler(DefaultInputFile inputFile, boolean skipAst)
+    throws IOException {
     var request = createProjectRequest(inputFile, skipAst);
     var future = new CompletableFuture<Void>();
-    return new ProjectAnalysisHandler<>() {
+    return new ProjectAnalysisHandler() {
       @Override
-      public BridgeServer.ProjectAnalysisRequest getRequest() {
+      public AnalyzeProjectRequest getRequest() {
         return request;
       }
 
@@ -289,8 +323,8 @@ class BridgeServerImplTest {
       }
 
       @Override
-      public void handleMessage(JsonObject message) {
-        if ("meta".equals(message.get("messageType").getAsString())) {
+      public void handleMessage(AnalyzeProjectStreamResponse message) {
+        if (message.getMessageCase() == AnalyzeProjectStreamResponse.MessageCase.META) {
           future.complete(null);
         }
       }
@@ -624,6 +658,7 @@ class BridgeServerImplTest {
 
     worker.interrupt();
     assertThat(workerCompleted.await(1, TimeUnit.SECONDS)).isTrue();
+    worker.join(TimeUnit.SECONDS.toMillis(1));
     assertThat(worker.isAlive()).isFalse();
   }
 
@@ -747,7 +782,7 @@ class BridgeServerImplTest {
     var inputFile = createInputFile();
     try (MockedStatic<AstProtoUtils> mocked = mockStatic(AstProtoUtils.class)) {
       mocked
-        .when(() -> AstProtoUtils.parseProtobuf(any()))
+        .when(() -> AstProtoUtils.readProtobufFromBytes((byte[]) any()))
         .thenThrow(new IOException("Test exception"));
       assertThatThrownBy(() -> analyzeSingleFile(bridgeServer, inputFile, false))
         .isInstanceOf(IllegalStateException.class)

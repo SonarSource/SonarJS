@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.issue.NewIssue;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
 
 /**
  * QuickFix logic is separated here, because it can't be used directly in the plugin extension class, otherwise
@@ -36,28 +36,24 @@ class QuickFixSupport {
 
   static void addQuickFixes(Issue issue, NewIssue sonarLintIssue, InputFile file) {
     issue
-      .quickFixes()
+      .getQuickFixesList()
       .forEach(qf -> {
-        LOG.debug("Adding quick fix for issue {} at line {}", issue.ruleId(), issue.line());
+        LOG.debug("Adding quick fix for issue {} at line {}", issue.getRuleId(), issue.getLine());
         var quickFix = sonarLintIssue.newQuickFix();
         var fileEdit = quickFix.newInputFileEdit();
         qf
-          .edits()
+          .getEditsList()
           .forEach(e -> {
+            var loc = e.getLoc();
             var textEdit = fileEdit.newTextEdit();
             textEdit
               .at(
-                file.newRange(
-                  e.loc().line(),
-                  e.loc().column(),
-                  e.loc().endLine(),
-                  e.loc().endColumn()
-                )
+                file.newRange(loc.getLine(), loc.getColumn(), loc.getEndLine(), loc.getEndColumn())
               )
-              .withNewText(e.text());
+              .withNewText(e.getText());
             fileEdit.on(file).addTextEdit(textEdit);
           });
-        quickFix.addInputFileEdit(fileEdit).message(qf.message());
+        quickFix.addInputFileEdit(fileEdit).message(qf.getMessage());
         sonarLintIssue.addQuickFix(quickFix);
       });
   }

@@ -26,6 +26,8 @@ import type {
   AnalyzeProjectWorkerOutMessage,
 } from '../src/analyze-project-worker/messages.js';
 import type { RequestResult, WsIncrementalResult } from '../src/analyze-project-request.js';
+import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
+import type { ProjectAnalysisOutput } from '../../analysis/src/projectAnalysis.js';
 
 class FakeParentThread {
   private readonly events = new EventEmitter();
@@ -50,13 +52,39 @@ class FakeParentThread {
 }
 
 const workerData: WorkerData = { debugMemory: false };
+type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
+
+function createAnalyzeProjectRequest(): AnalyzeProjectRequest {
+  return {
+    configuration: {
+      baseDir: '/project',
+    },
+    files: {},
+    rules: [],
+    cssRules: [],
+    bundles: [],
+  };
+}
+
+function createProjectAnalysisOutput(): ProjectAnalysisOutput {
+  return {
+    files: {
+      '/project/main.ts': {
+        issues: [],
+      },
+    } as unknown as ProjectAnalysisOutput['files'],
+    meta: {
+      warnings: [],
+    },
+  };
+}
 
 describe('analyze-project worker', () => {
   it('should close the parent thread on close messages', async () => {
     const parentThread = new FakeParentThread();
 
     registerAnalyzeProjectWorkerMessageHandler(parentThread, workerData, async () => ({
-      result: 'OK',
+      result: undefined,
       type: 'success',
     }));
 
@@ -69,7 +97,7 @@ describe('analyze-project worker', () => {
 
   it('should forward cancel messages to the request handler', async () => {
     const handledRequests: unknown[] = [];
-    const result: RequestResult = { result: 'OK', type: 'success' };
+    const result: RequestResult = { result: undefined, type: 'success' };
     const parentThread = new FakeParentThread();
 
     registerAnalyzeProjectWorkerMessageHandler(parentThread, workerData, async request => {
@@ -92,9 +120,12 @@ describe('analyze-project worker', () => {
 
   it('should forward unary analysis messages to the request handler', async () => {
     const handledRequests: unknown[] = [];
-    const result: RequestResult = { result: 'OK', type: 'success' };
+    const result: RequestResult<ProjectAnalysisOutput | void> = {
+      result: createProjectAnalysisOutput(),
+      type: 'success',
+    };
     const parentThread = new FakeParentThread();
-    const request = { files: ['main.ts'] };
+    const request = createAnalyzeProjectRequest();
 
     registerAnalyzeProjectWorkerMessageHandler(parentThread, workerData, async runtimeRequest => {
       handledRequests.push(runtimeRequest);
@@ -116,12 +147,13 @@ describe('analyze-project worker', () => {
 
   it('should stream incremental events and completion messages', async () => {
     const handledRequests: unknown[] = [];
-    const incrementalEvents: WsIncrementalResult[] = [
-      { error: 'stream error', messageType: 'error' },
-    ];
-    const result: RequestResult = { result: 'OK', type: 'success' };
+    const incrementalEvents: WsIncrementalResult[] = [{ messageType: 'cancelled' }];
+    const result: RequestResult<ProjectAnalysisOutput | void> = {
+      result: createProjectAnalysisOutput(),
+      type: 'success',
+    };
     const parentThread = new FakeParentThread();
-    const request = { files: ['main.ts'] };
+    const request = createAnalyzeProjectRequest();
 
     registerAnalyzeProjectWorkerMessageHandler(
       parentThread,

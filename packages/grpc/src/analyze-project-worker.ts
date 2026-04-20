@@ -21,6 +21,8 @@ import type {
   AnalyzeProjectWorkerInMessage,
   AnalyzeProjectWorkerOutMessage,
 } from './analyze-project-worker/messages.js';
+import type { ProjectAnalysisOutput } from '../../analysis/src/projectAnalysis.js';
+import type { RequestResult } from './analyze-project-request.js';
 
 type AnalyzeProjectWorkerParentThread = {
   close: () => void;
@@ -42,7 +44,7 @@ export function registerAnalyzeProjectWorkerMessageHandler(
         parentThread.close();
         return;
       case 'cancel': {
-        const result = await handleRequest({ type: 'on-cancel-analysis' }, data);
+        const result = toVoidResult(await handleRequest({ type: 'on-cancel-analysis' }, data));
         parentThread.postMessage({
           type: 'cancel-complete',
           requestId: message.requestId,
@@ -51,9 +53,8 @@ export function registerAnalyzeProjectWorkerMessageHandler(
         return;
       }
       case 'analyze-unary': {
-        const result = await handleRequest(
-          { type: 'on-analyze-project', data: message.request },
-          data,
+        const result = toProjectAnalysisResult(
+          await handleRequest({ type: 'on-analyze-project', data: message.request }, data),
         );
         parentThread.postMessage({
           type: 'unary-complete',
@@ -63,15 +64,14 @@ export function registerAnalyzeProjectWorkerMessageHandler(
         return;
       }
       case 'analyze-stream': {
-        const result = await handleRequest(
-          { type: 'on-analyze-project', data: message.request },
-          data,
-          event =>
+        const result = toProjectAnalysisResult(
+          await handleRequest({ type: 'on-analyze-project', data: message.request }, data, event =>
             parentThread.postMessage({
               type: 'event',
               requestId: message.requestId,
               result: event,
             } satisfies AnalyzeProjectWorkerOutMessage),
+          ),
         );
         parentThread.postMessage({
           type: 'stream-complete',
@@ -81,6 +81,31 @@ export function registerAnalyzeProjectWorkerMessageHandler(
       }
     }
   });
+}
+
+function toProjectAnalysisResult(
+  result: RequestResult<ProjectAnalysisOutput | void>,
+): RequestResult<ProjectAnalysisOutput> {
+  if (result.type === 'failure') {
+    return result;
+  }
+  if (result.result == null) {
+    throw new Error('Missing analyze-project result');
+  }
+  return {
+    type: 'success',
+    result: result.result,
+  };
+}
+
+function toVoidResult(result: RequestResult<ProjectAnalysisOutput | void>): RequestResult {
+  if (result.type === 'failure') {
+    return result;
+  }
+  return {
+    type: 'success',
+    result: undefined,
+  };
 }
 
 if (parentPort) {

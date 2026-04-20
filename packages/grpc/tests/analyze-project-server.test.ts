@@ -24,6 +24,7 @@ import { expect } from 'expect';
 import * as grpc from '@grpc/grpc-js';
 import type { Worker } from 'node:worker_threads';
 import { normalizePath } from '../../shared/src/helpers/files.js';
+import type { ProjectAnalysisOutput } from '../../analysis/src/projectAnalysis.js';
 import {
   analyzeProjectServerInternals,
   startAnalyzeProjectServer,
@@ -58,6 +59,7 @@ type CancelAnalysisRequest = analyzeProjectProto.analyzeproject.v1.ICancelAnalys
 type CancelAnalysisResponse = analyzeProjectProto.analyzeproject.v1.ICancelAnalysisResponse;
 type LeaseRequest = analyzeProjectProto.analyzeproject.v1.ILeaseRequest;
 type LeaseResponse = analyzeProjectProto.analyzeproject.v1.ILeaseResponse;
+const { AnalysisMode, FileType, JsTsLanguage } = analyzeProjectProto.analyzeproject.v1;
 
 function createAnalyzeProjectClient(port: number) {
   const analyzeProjectMethodDefinition: grpc.MethodDefinition<
@@ -247,32 +249,60 @@ async function findOpenPort(): Promise<number> {
   });
 }
 
-function createAnalyzeProjectPayload({
+function createAnalyzeProjectRequest({
   fileContent,
+  files = {
+    [basicFixtureFile]: {
+      fileType: FileType.FILE_TYPE_MAIN,
+      ...(fileContent === undefined ? {} : { fileContent }),
+    },
+  },
 }: {
   fileContent?: string;
+  files?: AnalyzeProjectRequest['files'];
 } = {}) {
   return {
     configuration: {
       baseDir: basicFixtureDir,
     },
-    files: {
-      [basicFixtureFile]: {
-        filePath: basicFixtureFile,
-        fileType: 'MAIN',
-        ...(fileContent === undefined ? {} : { fileContent }),
-      },
-    },
+    files,
     rules: [
       {
         key: 'S1116',
         configurations: [],
-        fileTypeTargets: ['MAIN'],
-        language: 'ts',
-        analysisModes: ['DEFAULT'],
+        fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+        language: JsTsLanguage.JS_TS_LANGUAGE_TS,
+        analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
       },
     ],
     bundles: [],
+  } satisfies AnalyzeProjectRequest;
+}
+
+function createSparseAnalyzeProjectRequest(): AnalyzeProjectRequest {
+  return {
+    configuration: {
+      baseDir: basicFixtureDir,
+    },
+    files: {},
+    rules: [],
+    cssRules: [],
+    bundles: [],
+  };
+}
+
+function createProjectAnalysisOutput(
+  filePath = basicFixtureFile,
+  ast?: string,
+): ProjectAnalysisOutput {
+  return {
+    files: {
+      [filePath]: {
+        issues: [],
+        ...(ast === undefined ? {} : { ast }),
+      },
+    } as unknown as ProjectAnalysisOutput['files'],
+    meta: { warnings: [] },
   };
 }
 
@@ -389,15 +419,25 @@ describe('analyze-project gRPC server', () => {
       await t.test(mode.label, async () => {
         const worker = await mode.createWorker();
         await withAnalyzeProjectServer(worker, async client => {
-          const response = await client.analyzeProjectUnary({
-            requestJson: JSON.stringify(createAnalyzeProjectPayload()),
-          });
-
-          const parsedResponse = JSON.parse(response.responseJson ?? '{}');
-          const fileResult = parsedResponse.files?.[basicFixtureFile];
+          const response = await client.analyzeProjectUnary(createAnalyzeProjectRequest());
+          const fileResult = response.files?.[basicFixtureFile];
 
           expect(fileResult).toBeDefined();
-          expect(fileResult.issues.length).toBeGreaterThan(0);
+          expect(fileResult?.issues?.length ?? 0).toBeGreaterThan(0);
+          expect(response.meta).toBeDefined();
+        });
+      });
+    }
+  });
+
+  it('should support sparse typed analyze-project requests', async t => {
+    for (const mode of serverModes) {
+      await t.test(mode.label, async () => {
+        const worker = await mode.createWorker();
+        await withAnalyzeProjectServer(worker, async client => {
+          const response = await client.analyzeProjectUnary(createSparseAnalyzeProjectRequest());
+          expect(response.files).toEqual({});
+          expect(response.meta?.warnings).toEqual(expect.any(Array));
         });
       });
     }
@@ -408,16 +448,12 @@ describe('analyze-project gRPC server', () => {
       await t.test(mode.label, async () => {
         const worker = await mode.createWorker();
         await withAnalyzeProjectServer(worker, async client => {
-          const responses = await client.analyzeProject({
-            requestJson: JSON.stringify(createAnalyzeProjectPayload()),
-          });
+          const responses = await client.analyzeProject(createAnalyzeProjectRequest());
 
-          const parsedMessages = responses.map(response =>
-            JSON.parse(response.messageJson ?? '{}'),
-          );
-
-          expect(parsedMessages.some(message => message.messageType === 'fileResult')).toBe(true);
-          expect(parsedMessages.some(message => message.messageType === 'meta')).toBe(true);
+          expect(
+            responses.some(response => response.fileResult?.filePath === basicFixtureFile),
+          ).toBe(true);
+          expect(responses.some(response => response.meta != null)).toBe(true);
         });
       });
     }
@@ -430,19 +466,13 @@ describe('analyze-project gRPC server', () => {
       await t.test(mode.label, async () => {
         const worker = await mode.createWorker();
         await withAnalyzeProjectServer(worker, async client => {
-          const responses = await client.analyzeProject({
-            requestJson: JSON.stringify(
-              createAnalyzeProjectPayload({
-                fileContent: largeFileContent,
-              }),
-            ),
-          });
-
-          const parsedMessages = responses.map(response =>
-            JSON.parse(response.messageJson ?? '{}'),
+          const responses = await client.analyzeProject(
+            createAnalyzeProjectRequest({
+              fileContent: largeFileContent,
+            }),
           );
 
-          expect(parsedMessages.some(message => message.messageType === 'meta')).toBe(true);
+          expect(responses.some(response => response.meta != null)).toBe(true);
         });
       });
     }
@@ -453,21 +483,13 @@ describe('analyze-project gRPC server', () => {
       await t.test(mode.label, async () => {
         const worker = await mode.createWorker();
         await withAnalyzeProjectServer(worker, async client => {
-          const responses = await client.analyzeProject({});
-          const [errorResponse] = responses.map(response =>
-            JSON.parse(response.messageJson ?? '{}'),
-          );
-
-          expect(errorResponse).toMatchObject({
-            messageType: 'error',
-            error: {
-              code: 'GENERAL_ERROR',
-              message: 'Missing request_json in AnalyzeProjectRequest',
-            },
+          await expect(client.analyzeProject({})).rejects.toMatchObject({
+            code: grpc.status.INVALID_ARGUMENT,
+            details: 'configuration.base_dir is required',
           });
           await expect(client.analyzeProjectUnary({})).rejects.toMatchObject({
             code: grpc.status.INVALID_ARGUMENT,
-            details: 'Missing request_json in AnalyzeProjectRequest',
+            details: 'configuration.base_dir is required',
           });
         });
       });
@@ -483,24 +505,20 @@ describe('analyze-project gRPC server', () => {
     });
 
     await withAnalyzeProjectServer(worker as unknown as Worker, async client => {
-      const streamCall = client.startAnalyzeProject({
-        requestJson: JSON.stringify(createAnalyzeProjectPayload()),
-      });
+      const streamCall = client.startAnalyzeProject(createAnalyzeProjectRequest());
       const responsesPromise = client.readAnalyzeProject(streamCall);
       const requestId = await streamRequestId.promise;
 
-      await expect(
-        client.analyzeProjectUnary({
-          requestJson: JSON.stringify(createAnalyzeProjectPayload()),
-        }),
-      ).rejects.toMatchObject({
-        code: grpc.status.RESOURCE_EXHAUSTED,
-        details: 'Another analysis is already running',
-      });
+      await expect(client.analyzeProjectUnary(createAnalyzeProjectRequest())).rejects.toMatchObject(
+        {
+          code: grpc.status.RESOURCE_EXHAUSTED,
+          details: 'Another analysis is already running',
+        },
+      );
 
       worker.emitMessage({
         requestId,
-        result: { result: '', type: 'success' },
+        result: { result: createProjectAnalysisOutput(), type: 'success' },
         type: 'stream-complete',
       });
       await responsesPromise;
@@ -516,28 +534,18 @@ describe('analyze-project gRPC server', () => {
     });
 
     await withAnalyzeProjectServer(worker as unknown as Worker, async client => {
-      const streamCall = client.startAnalyzeProject({
-        requestJson: JSON.stringify(createAnalyzeProjectPayload()),
-      });
+      const streamCall = client.startAnalyzeProject(createAnalyzeProjectRequest());
       const activeResponsesPromise = client.readAnalyzeProject(streamCall);
       const requestId = await streamRequestId.promise;
 
-      const responses = await client.analyzeProject({
-        requestJson: JSON.stringify(createAnalyzeProjectPayload()),
-      });
-      const [errorResponse] = responses.map(response => JSON.parse(response.messageJson ?? '{}'));
-
-      expect(errorResponse).toMatchObject({
-        messageType: 'error',
-        error: {
-          code: 'GENERAL_ERROR',
-          message: 'Another analysis is already running',
-        },
+      await expect(client.analyzeProject(createAnalyzeProjectRequest())).rejects.toMatchObject({
+        code: grpc.status.RESOURCE_EXHAUSTED,
+        details: 'Another analysis is already running',
       });
 
       worker.emitMessage({
         requestId,
-        result: { result: '', type: 'success' },
+        result: { result: createProjectAnalysisOutput(), type: 'success' },
         type: 'stream-complete',
       });
       await activeResponsesPromise;
@@ -554,29 +562,24 @@ describe('analyze-project gRPC server', () => {
       if (message.type === 'cancel') {
         worker.emitMessage({
           requestId: message.requestId,
-          result: { result: '', type: 'success' },
+          result: { result: undefined, type: 'success' },
           type: 'cancel-complete',
         });
         void streamRequestId.promise.then(activeRequestId => {
           worker.emitMessage({
             requestId: activeRequestId,
-            result: { result: '', type: 'success' },
+            result: { result: createProjectAnalysisOutput(), type: 'success' },
             type: 'stream-complete',
           });
         });
         return;
       }
       if (message.type === 'analyze-unary') {
+        const ast = Buffer.from('typed-ast').toString('base64');
         worker.emitMessage({
           requestId: message.requestId,
           result: {
-            result: JSON.stringify({
-              files: {
-                [basicFixtureFile]: {
-                  issues: [],
-                },
-              },
-            }),
+            result: createProjectAnalysisOutput(basicFixtureFile, ast),
             type: 'success',
           },
           type: 'unary-complete',
@@ -585,9 +588,7 @@ describe('analyze-project gRPC server', () => {
     });
 
     await withAnalyzeProjectServer(worker as unknown as Worker, async client => {
-      const streamCall = client.startAnalyzeProject({
-        requestJson: JSON.stringify(createAnalyzeProjectPayload()),
-      });
+      const streamCall = client.startAnalyzeProject(createAnalyzeProjectRequest());
       const responsesPromise = client.readAnalyzeProject(streamCall);
       await streamRequestId.promise;
 
@@ -595,16 +596,10 @@ describe('analyze-project gRPC server', () => {
       expect(cancelResponse.cancelled).toBe(true);
       await responsesPromise;
 
-      const unaryResponse = await client.analyzeProjectUnary({
-        requestJson: JSON.stringify(createAnalyzeProjectPayload()),
-      });
-      expect(JSON.parse(JSON.parse(unaryResponse.responseJson ?? '""'))).toMatchObject({
-        files: {
-          [basicFixtureFile]: {
-            issues: [],
-          },
-        },
-      });
+      const unaryResponse = await client.analyzeProjectUnary(createAnalyzeProjectRequest());
+      const fileResult = unaryResponse.files?.[basicFixtureFile];
+      expect(fileResult?.issues).toEqual([]);
+      expect(Buffer.from(fileResult?.ast ?? []).toString()).toBe('typed-ast');
     });
   });
 
@@ -664,14 +659,12 @@ describe('analyze-project gRPC server', () => {
     });
 
     await withAnalyzeProjectServer(worker as unknown as Worker, async client => {
-      await expect(
-        client.analyzeProjectUnary({
-          requestJson: JSON.stringify(createAnalyzeProjectPayload()),
-        }),
-      ).rejects.toMatchObject({
-        code: grpc.status.CANCELLED,
-        details: 'Call cancelled',
-      });
+      await expect(client.analyzeProjectUnary(createAnalyzeProjectRequest())).rejects.toMatchObject(
+        {
+          code: grpc.status.CANCELLED,
+          details: 'Call cancelled',
+        },
+      );
     });
   });
 
@@ -686,12 +679,12 @@ describe('analyze-project gRPC server', () => {
         () => {
           worker.emit('message', {
             requestId: 'different-request',
-            result: { result: '', type: 'success' },
+            result: { result: createProjectAnalysisOutput(), type: 'success' },
             type: 'unary-complete',
           } satisfies AnalyzeProjectWorkerOutMessage);
           worker.emit('message', {
             requestId: 'expected-request',
-            result: { result: '', type: 'success' },
+            result: { result: createProjectAnalysisOutput(), type: 'success' },
             type: 'unary-complete',
           } satisfies AnalyzeProjectWorkerOutMessage);
         },
@@ -736,7 +729,7 @@ describe('analyze-project gRPC server', () => {
     const lifecycle = analyzeProjectServerInternals.createLifecycle({
       handleRequestInCurrentThread: async request => {
         handledRequests.push(request.type);
-        return { result: 'OK', type: 'success' };
+        return { result: undefined, type: 'success' };
       },
       newWorkerRequestId: () => 'request-1',
       resolveClosed: () => {},
@@ -800,7 +793,7 @@ describe('analyze-project gRPC server', () => {
   it('should tolerate worker shutdown failures', async () => {
     let forceShutdownCalls = 0;
     const lifecycle = analyzeProjectServerInternals.createLifecycle({
-      handleRequestInCurrentThread: async () => ({ result: 'OK', type: 'success' }),
+      handleRequestInCurrentThread: async () => ({ result: undefined, type: 'success' }),
       newWorkerRequestId: () => 'request-1',
       resolveClosed: () => {},
       server: {

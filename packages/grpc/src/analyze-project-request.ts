@@ -15,25 +15,28 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { ProjectAnalysisOutput } from '../../analysis/src/projectAnalysis.js';
 import { type ErrorData, APIError, ErrorCode } from '../../analysis/src/contracts/error.js';
+import type { sonarjs } from './proto/analyze-project.js';
 export type { WsIncrementalResult } from '../../analysis/src/incremental-result.js';
 
-export type RequestResult =
+export type AnalyzeProjectProtoRequest = sonarjs.analyzeproject.v1.IAnalyzeProjectRequest;
+
+export type RequestResult<T = void> =
   | {
       type: 'success';
-      result: string | ProjectAnalysisOutput;
+      result: T;
     }
   | {
       type: 'failure';
       error: SerializedError;
+      reason: 'invalid_request' | 'runtime';
     };
 
 export type AnalyzeProjectRuntimeRequest = ProjectAnalysisRequest | CancellationRequest;
 
 type ProjectAnalysisRequest = {
   type: 'on-analyze-project';
-  data: unknown;
+  data: AnalyzeProjectProtoRequest;
 };
 
 type CancellationRequest = {
