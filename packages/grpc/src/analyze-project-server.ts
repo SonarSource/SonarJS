@@ -37,6 +37,10 @@ import type {
 
 const ANALYZE_PROJECT_SERVICE_NAME = 'sonarjs.analyzeproject.v1.AnalyzeProjectService';
 const WORKER_RESPONSE_TIMEOUT_MS = 15_000;
+const GRPC_SERVER_OPTIONS: grpc.ServerOptions = {
+  'grpc.max_receive_message_length': -1,
+  'grpc.max_send_message_length': -1,
+};
 
 type AnalyzeProjectRequest = analyzeProjectProto.analyzeproject.v1.IAnalyzeProjectRequest;
 type AnalyzeProjectStreamResponse =
@@ -47,8 +51,9 @@ type CancelAnalysisRequest = analyzeProjectProto.analyzeproject.v1.ICancelAnalys
 type CancelAnalysisResponse = analyzeProjectProto.analyzeproject.v1.ICancelAnalysisResponse;
 type LeaseRequest = analyzeProjectProto.analyzeproject.v1.ILeaseRequest;
 type LeaseResponse = analyzeProjectProto.analyzeproject.v1.ILeaseResponse;
+type UnaryCompleteMessage = Extract<AnalyzeProjectWorkerOutMessage, { type: 'unary-complete' }>;
 
-export type AnalyzeProjectServerResult = {
+type AnalyzeProjectServerResult = {
   server: grpc.Server;
   serverClosed: Promise<void>;
 };
@@ -216,7 +221,7 @@ export async function startAnalyzeProjectServer(
   let shuttingDown = false;
   let analysisInProgress = false;
   let nextWorkerRequestId = 0;
-  const server = new grpc.Server();
+  const server = new grpc.Server(GRPC_SERVER_OPTIONS);
   let leaseCall: grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null = null;
   let startupShutdownTimeout: NodeJS.Timeout | null = null;
 
@@ -501,7 +506,7 @@ export async function startAnalyzeProjectServer(
                     requestId,
                     request,
                   } satisfies AnalyzeProjectWorkerInMessage),
-                );
+                ) as Promise<UnaryCompleteMessage>;
               })()
             ).result
           : await handleRequestInCurrentThread({ type: 'on-analyze-project', data: request });

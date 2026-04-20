@@ -37,6 +37,7 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
+import com.google.gson.JsonObject;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import java.io.File;
@@ -46,6 +47,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
@@ -260,6 +262,37 @@ class BridgeServerImplTest {
     return responseDto == null
       ? new BridgeServer.AnalysisResponse()
       : BridgeServer.AnalysisResponse.fromDTO(responseDto);
+  }
+
+  private WebSocketMessageHandler<BridgeServer.ProjectAnalysisRequest> createStreamingHandler(
+    DefaultInputFile inputFile,
+    boolean skipAst
+  ) throws IOException {
+    var request = createProjectRequest(inputFile, skipAst);
+    var future = new CompletableFuture<Void>();
+    return new WebSocketMessageHandler<>() {
+      @Override
+      public BridgeServer.ProjectAnalysisRequest getRequest() {
+        return request;
+      }
+
+      @Override
+      public SensorContextTester getContext() {
+        return context;
+      }
+
+      @Override
+      public CompletableFuture<Void> getFuture() {
+        return future;
+      }
+
+      @Override
+      public void handleMessage(JsonObject message) {
+        if ("meta".equals(message.get("messageType").getAsString())) {
+          future.complete(null);
+        }
+      }
+    };
   }
 
   @Test
@@ -486,17 +519,14 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void log_error_when_timeout() throws Exception {
-    bridgeServer = createBridgeServer("timeout.js", SHORT_STARTUP_TIMEOUT_SECONDS);
+  void should_allow_slow_streaming_analysis_without_timeout() throws Exception {
+    bridgeServer = createBridgeServer("slowStream.js", 1);
     bridgeServer.startServer(serverConfig);
 
-    assertThatThrownBy(() ->
-      bridgeServer.analyzeProject(createProjectRequest(createInputFile(), false))
-    )
-      .isInstanceOf(IllegalStateException.class)
-      .hasMessage(
-        "The bridge server is unresponsive. It might be because you don't have enough memory, so please go see the troubleshooting section: https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis"
-      );
+    var start = System.nanoTime();
+    bridgeServer.analyzeProject(createStreamingHandler(createInputFile(), false));
+
+    assertThat(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)).isGreaterThan(1_000);
   }
 
   @Test

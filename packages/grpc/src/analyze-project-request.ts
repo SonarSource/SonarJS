@@ -29,8 +29,6 @@ export type RequestResult =
       error: SerializedError;
     };
 
-export type RequestType = AnalyzeProjectRuntimeRequest['type'];
-
 export type AnalyzeProjectRuntimeRequest = ProjectAnalysisRequest | CancellationRequest;
 
 type ProjectAnalysisRequest = {

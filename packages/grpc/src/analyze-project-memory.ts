@@ -38,11 +38,7 @@ export async function logMemoryConfiguration() {
   }
 }
 
-export function getMemoryConfigurationMessages(
-  osMem: number,
-  heapSize: number,
-  dockerMemLimit?: number,
-) {
+function getMemoryConfigurationMessages(osMem: number, heapSize: number, dockerMemLimit?: number) {
   const dockerMem = dockerMemLimit === undefined ? ',' : `, Docker (${dockerMemLimit} MB),`;
   const availableMem = getAvailableMemory(osMem, dockerMemLimit);
   return {
@@ -54,7 +50,7 @@ export function getMemoryConfigurationMessages(
   };
 }
 
-export function getAvailableMemory(osMem: number, dockerMemLimit?: number) {
+function getAvailableMemory(osMem: number, dockerMemLimit?: number) {
   return dockerMemLimit === undefined ? osMem : Math.min(osMem, dockerMemLimit);
 }
 

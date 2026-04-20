@@ -27,6 +27,11 @@ import { createAnalyzeProjectWorker } from '../src/analyze-project-worker/create
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
 
 const SERVICE_NAME = 'sonarjs.analyzeproject.v1.AnalyzeProjectService';
+const DEFAULT_GRPC_MESSAGE_LIMIT_BYTES = 4 * 1024 * 1024;
+const UNLIMITED_GRPC_MESSAGE_OPTIONS = {
+  'grpc.max_receive_message_length': -1,
+  'grpc.max_send_message_length': -1,
+} satisfies grpc.ChannelOptions;
 const basicFixtureDir = normalizePath(
   fileURLToPath(new URL('../../analysis/tests/fixtures-sonarqube/basic', import.meta.url)),
 );
@@ -90,7 +95,11 @@ function createAnalyzeProjectClient(port: number) {
   } as grpc.ServiceDefinition<grpc.UntypedServiceImplementation>;
 
   const Client = grpc.makeGenericClientConstructor(serviceDefinition, 'AnalyzeProjectService');
-  const client = new Client(`127.0.0.1:${port}`, grpc.credentials.createInsecure()) as grpc.Client;
+  const client = new Client(
+    `127.0.0.1:${port}`,
+    grpc.credentials.createInsecure(),
+    UNLIMITED_GRPC_MESSAGE_OPTIONS,
+  ) as grpc.Client;
 
   return {
     analyzeProject: (request: AnalyzeProjectRequest) =>
@@ -149,7 +158,11 @@ async function findOpenPort(): Promise<number> {
   });
 }
 
-function createAnalyzeProjectPayload() {
+function createAnalyzeProjectPayload({
+  fileContent,
+}: {
+  fileContent?: string;
+} = {}) {
   return {
     configuration: {
       baseDir: basicFixtureDir,
@@ -158,6 +171,7 @@ function createAnalyzeProjectPayload() {
       [basicFixtureFile]: {
         filePath: basicFixtureFile,
         fileType: 'MAIN',
+        ...(fileContent === undefined ? {} : { fileContent }),
       },
     },
     rules: [
@@ -254,6 +268,31 @@ describe('analyze-project gRPC server', () => {
           );
 
           expect(parsedMessages.some(message => message.messageType === 'fileResult')).toBe(true);
+          expect(parsedMessages.some(message => message.messageType === 'meta')).toBe(true);
+        });
+      });
+    }
+  });
+
+  it('should accept analyze-project requests larger than the default gRPC limit', async t => {
+    const largeFileContent = `/*${'x'.repeat(DEFAULT_GRPC_MESSAGE_LIMIT_BYTES + 1_024)}*/\n`;
+
+    for (const mode of serverModes) {
+      await t.test(mode.label, async () => {
+        const worker = await mode.createWorker();
+        await withAnalyzeProjectServer(worker, async client => {
+          const responses = await client.analyzeProject({
+            requestJson: JSON.stringify(
+              createAnalyzeProjectPayload({
+                fileContent: largeFileContent,
+              }),
+            ),
+          });
+
+          const parsedMessages = responses.map(response =>
+            JSON.parse(response.messageJson ?? '{}'),
+          );
+
           expect(parsedMessages.some(message => message.messageType === 'meta')).toBe(true);
         });
       });

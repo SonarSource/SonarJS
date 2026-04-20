@@ -5,6 +5,10 @@ const grpc = require('@grpc/grpc-js');
 const protobuf = require('protobufjs');
 
 const ANALYZE_PROJECT_SERVICE_NAME = 'sonarjs.analyzeproject.v1.AnalyzeProjectService';
+const GRPC_SERVER_OPTIONS = {
+  'grpc.max_receive_message_length': -1,
+  'grpc.max_send_message_length': -1,
+};
 const PROTO_PATH = path.resolve(
   __dirname,
   '..',
@@ -95,7 +99,7 @@ function createServiceDefinition() {
 }
 
 function startAnalyzeProjectGrpcServer(port, host, handlers = {}) {
-  const server = new grpc.Server();
+  const server = new grpc.Server(GRPC_SERVER_OPTIONS);
   const serviceDefinition = createServiceDefinition();
   const onStarted = handlers.onStarted;
 

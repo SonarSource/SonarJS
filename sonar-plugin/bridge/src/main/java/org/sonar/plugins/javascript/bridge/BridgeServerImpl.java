@@ -71,6 +71,7 @@ public class BridgeServerImpl implements BridgeServer {
 
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
   private static final int TIME_AFTER_FAILURE_TO_RESTART_MS = 60 * 1000;
+  private static final int MAX_INBOUND_GRPC_MESSAGE_SIZE = Integer.MAX_VALUE;
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
@@ -524,7 +525,10 @@ public class BridgeServerImpl implements BridgeServer {
     if (channel != null && !channel.isShutdown()) {
       return;
     }
-    channel = OkHttpChannelBuilder.forAddress(hostAddress, port).usePlaintext().build();
+    channel = OkHttpChannelBuilder.forAddress(hostAddress, port)
+      .usePlaintext()
+      .maxInboundMessageSize(MAX_INBOUND_GRPC_MESSAGE_SIZE)
+      .build();
   }
 
   private void closeChannel() {
@@ -625,10 +629,7 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   private AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub blockingAnalyzeProjectStub() {
-    return AnalyzeProjectServiceGrpc.newBlockingStub(channel).withDeadlineAfter(
-      timeoutSeconds,
-      TimeUnit.SECONDS
-    );
+    return AnalyzeProjectServiceGrpc.newBlockingStub(channel);
   }
 
   private AnalyzeProjectServiceGrpc.AnalyzeProjectServiceStub asyncAnalyzeProjectStub() {
