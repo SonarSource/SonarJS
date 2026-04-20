@@ -183,7 +183,9 @@ function hasTitleChild(node: TSESTree.JSXOpeningElement): boolean {
       child.openingElement.name.type === 'JSXIdentifier' &&
       child.openingElement.name.name === 'title' &&
       child.children.some(
-        c => (c.type === 'JSXText' && c.value.trim() !== '') || c.type === 'JSXExpressionContainer',
+        c =>
+          (c.type === 'JSXText' && c.value.trim() !== '') ||
+          (c.type === 'JSXExpressionContainer' && c.expression.type !== 'JSXEmptyExpression'),
       ),
   );
 }
