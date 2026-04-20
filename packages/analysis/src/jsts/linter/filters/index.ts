@@ -14,15 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export type { RuleFilter, RuleFilterContext } from './rule-filter.js';
-export { filterFileType } from './filter-file-type.js';
-export { filterAnalysisMode } from './filter-analysis-mode.js';
-export { filterLanguage } from './filter-language.js';
-export { filterBlacklistedExtensions } from './filter-blacklisted-extensions.js';
-export { filterDependency } from './filter-dependency.js';
-export { filterReactVue } from './filter-react-vue.js';
-export { filterEcmaVersion } from './filter-ecma-version.js';
-export { filterModuleType } from './filter-module-type.js';
 
 import type { RuleFilter } from './rule-filter.js';
 import { filterFileType } from './filter-file-type.js';
