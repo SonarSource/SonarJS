@@ -34,7 +34,9 @@ export const filterReactVue: RuleFilter = (_config, meta, ctx) => {
   }
   const isReactRequired =
     'requiredDependency' in meta &&
-    (meta.requiredDependency as string[]).some(d => d === 'react' || d === 'react-native');
+    (meta.requiredDependency as string[]).some(
+      dependency => dependency === 'react' || dependency === 'react-native',
+    );
   const isReactExternalPlugin = 'externalPlugin' in meta && meta.externalPlugin === 'react';
   const isReactExternalRule =
     'externalRules' in meta &&
