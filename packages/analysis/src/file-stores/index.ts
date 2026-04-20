@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { SourceFileStore } from './source-files.js';
-import { DependencyManifestStore } from './package-jsons.js';
+import { DependencyManifestStore } from './depedency-manifests.js';
 import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../common/find-files.js';
 import type { FileStore } from './store-type.js';

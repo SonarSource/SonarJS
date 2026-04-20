@@ -22,8 +22,9 @@ import { expect } from 'expect';
 import {
   getDependenciesFromManifest,
   getDependenciesFromPackageJson,
+  parseDenoManifest,
   parseImportMapSpecifier,
-} from '../../../../src/jsts/rules/helpers/package-jsons/parse.js';
+} from '../../../../src/jsts/rules/helpers/depedency-manifests/parse.js';
 import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 
 describe('package-json', () => {
@@ -43,8 +44,8 @@ describe('package-json', () => {
 
   it('should extract npm package dependencies from deno.json imports', () => {
     const dependencies = getDependenciesFromManifest({
-      path: normalizeToAbsolutePath('/project/deno.json'),
-      content: JSON.stringify({
+      type: 'deno',
+      manifest: {
         imports: {
           reactAlias: 'npm:react@^19.1.0',
           utils: 'jsr:@std/assert@^1.0.0',
@@ -54,7 +55,7 @@ describe('package-json', () => {
           noVersion: 'npm:chalk',
           invalidVersion: 'npm:koa@not-a-semver',
         },
-      }),
+      },
     });
 
     expect(dependencies).toEqual(
@@ -69,14 +70,25 @@ describe('package-json', () => {
   });
 
   it('should parse deno.jsonc with comments and trailing commas', () => {
-    const dependencies = getDependenciesFromManifest({
+    const manifest = parseDenoManifest({
       path: normalizeToAbsolutePath('/project/deno.jsonc'),
-      content: `{
+      content: Buffer.from(`{
         // Trailing comma and comments should be accepted
         "imports": {
           "reactAlias": "npm:react@^19.1.0",
         },
-      }`,
+      }`),
+    });
+
+    expect(manifest).toEqual({
+      imports: {
+        reactAlias: 'npm:react@^19.1.0',
+      },
+    });
+
+    const dependencies = getDependenciesFromManifest({
+      type: 'deno',
+      manifest: manifest ?? {},
     });
 
     expect(dependencies).toEqual(new Set([{ name: 'react', version: '^19.1.0' }]));

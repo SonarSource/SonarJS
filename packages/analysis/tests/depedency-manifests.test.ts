@@ -16,25 +16,25 @@
  */
 import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
-import { basename, join, dirname } from 'node:path/posix';
+import { join, dirname } from 'node:path/posix';
 import { initFileStores, dependencyManifestStore } from '../src/file-stores/index.js';
 import { readFile } from 'node:fs/promises';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { createConfiguration } from '../src/common/configuration.js';
-import { UNINITIALIZED_ERROR } from '../src/file-stores/package-jsons.js';
+import { UNINITIALIZED_ERROR } from '../src/file-stores/depedency-manifests.js';
 import {
   dependenciesCache,
   getDependencies,
   getModuleType,
   moduleTypeCache,
-} from '../src/jsts/rules/helpers/package-jsons/dependencies.js';
-import { getDependencyManifestFiles } from '../src/jsts/rules/helpers/package-jsons/all-in-parent-dirs.js';
+} from '../src/jsts/rules/helpers/depedency-manifests/dependencies.js';
+import { getDependencyManifests } from '../src/jsts/rules/helpers/depedency-manifests/all-in-parent-dirs.js';
 import { closestPatternCache } from '../src/jsts/rules/helpers/find-up/closest.js';
 import {
   DENO_JSON,
   DENO_JSONC,
   PACKAGE_JSON,
-} from '../src/jsts/rules/helpers/package-jsons/index.js';
+} from '../src/jsts/rules/helpers/depedency-manifests/index.js';
 import { patternInParentsCache } from '../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
 
 const closestPackageJsonCache = closestPatternCache.get(PACKAGE_JSON);
@@ -120,11 +120,14 @@ describe('files', () => {
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
 
-    const manifests = getDependencyManifestFiles(baseDir, baseDir);
-    expect(manifests.map(manifest => basename(manifest.path))).toEqual([
-      'deno.json',
-      'package.json',
-    ]);
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['deno', 'npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      imports: {
+        'deno-only': 'npm:deno-only@1.2.3',
+        react: 'npm:react@^19.0.0',
+      },
+    });
   });
 
   it('should extract module type from package.json', async () => {

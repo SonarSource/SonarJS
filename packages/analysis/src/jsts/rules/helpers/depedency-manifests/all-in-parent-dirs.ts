@@ -29,12 +29,13 @@ import { DENO_JSON, DENO_JSONC, PACKAGE_JSON } from './index.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import type { Rule } from 'eslint';
 import { closestPatternCache } from '../find-up/closest.js';
+import { DenoManifest, parsePackageJson, parseDenoManifest } from './parse.js';
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by
  * the module named `filename`, up to the passed working directory.
  */
-export const getManifests = (
+export const getPackageJsonManifests = (
   dir: NormalizedAbsolutePath,
   topDir?: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
@@ -57,16 +58,20 @@ export const getManifests = (
   });
 };
 
-export const getManifestsSanitizePaths = (
+export const getPackageJsonManifestsSanitizePaths = (
   context: Rule.RuleContext,
   fileSystem?: Filesystem,
 ): Array<PackageJson> => {
-  return getManifests(
+  return getPackageJsonManifests(
     dirnamePath(normalizeToAbsolutePath(context.filename)),
     normalizeToAbsolutePath(context.cwd),
     fileSystem,
   );
 };
+
+export type DependencyManifest =
+  | { type: 'npm'; manifest: PackageJson }
+  | { type: 'deno'; manifest: DenoManifest };
 
 /**
  * Returns dependency manifest files from closest-to-file and then up to root.
@@ -74,17 +79,17 @@ export const getManifestsSanitizePaths = (
  * For each directory, at most one Deno manifest is selected (`deno.json` > `deno.jsonc`)
  * and `package.json` is always included when present.
  */
-export const getDependencyManifestFiles = (
+export const getDependencyManifests = (
   dir: NormalizedAbsolutePath,
   topDir?: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
-): File[] => {
+): DependencyManifest[] => {
   const rootDir = topDir ?? ROOT_PATH;
-  const manifests: File[] = [];
+  const manifests: DependencyManifest[] = [];
   let currentDir: NormalizedAbsolutePath = dir;
 
   do {
-    manifests.push(...getDependencyManifestFilesInDir(currentDir, rootDir, fileSystem));
+    manifests.push(...getDependencyManifestsInDir(currentDir, rootDir, fileSystem));
     if (currentDir === rootDir || isRoot(currentDir)) {
       break;
     }
@@ -94,26 +99,26 @@ export const getDependencyManifestFiles = (
   return manifests;
 };
 
-function getDependencyManifestFilesInDir(
+function getDependencyManifestsInDir(
   dir: NormalizedAbsolutePath,
   topDir: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
-): File[] {
-  const manifests: File[] = [];
+): DependencyManifest[] {
+  const manifests: DependencyManifest[] = [];
   const packageJson = getManifestFileInDir(PACKAGE_JSON, dir, topDir, fileSystem);
   const denoJson = getManifestFileInDir(DENO_JSON, dir, topDir, fileSystem);
   const denoJsonc = getManifestFileInDir(DENO_JSONC, dir, topDir, fileSystem);
 
   // if both `deno.json` and `deno.jsonc` are present, prefer `deno.json` and ignore `deno.jsonc`
   if (denoJsonc && denoJson === undefined) {
-    manifests.push(denoJsonc);
+    manifests.push({ type: 'deno', manifest: parseDenoManifest(denoJsonc) ?? {} });
   } else if (denoJson) {
-    manifests.push(denoJson);
+    manifests.push({ type: 'deno', manifest: parseDenoManifest(denoJson) ?? {} });
   }
 
   // always include package.json if present
   if (packageJson) {
-    manifests.push(packageJson);
+    manifests.push({ type: 'npm', manifest: parsePackageJson(packageJson) ?? {} });
   }
 
   return manifests;

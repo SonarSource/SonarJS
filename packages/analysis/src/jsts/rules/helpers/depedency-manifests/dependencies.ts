@@ -29,7 +29,7 @@ import {
 } from '../files.js';
 import { getDependenciesFromManifest } from './parse.js';
 import { getClosestDependencyManifestDir } from './closest.js';
-import { getDependencyManifestFiles, getManifests } from './all-in-parent-dirs.js';
+import { getDependencyManifests, getPackageJsonManifests } from './all-in-parent-dirs.js';
 
 export type ModuleType = 'module' | 'commonjs';
 
@@ -49,12 +49,8 @@ export const dependenciesCache = new ComputedCache(
     const result = new Set<string | Minimatch>();
 
     if (closestDependencyManifestDir) {
-      for (const manifestFile of getDependencyManifestFiles(
-        closestDependencyManifestDir,
-        topDir,
-        fs,
-      )) {
-        const manifestDependencies = getDependenciesFromManifest(manifestFile);
+      for (const manifest of getDependencyManifests(closestDependencyManifestDir, topDir, fs)) {
+        const manifestDependencies = getDependenciesFromManifest(manifest);
         for (const dependency of manifestDependencies) {
           result.add(dependency.name);
         }
@@ -73,14 +69,20 @@ export const moduleTypeCache = new ComputedCache(
     if (!closestDependencyManifestDirName) {
       return undefined;
     }
-    const [firstManifest] = getManifests(closestDependencyManifestDirName, topDir, fs);
-    if (firstManifest?.type === 'module' || firstManifest?.type === 'commonjs') {
-      return firstManifest.type;
+    const [firstManifest] = getDependencyManifests(closestDependencyManifestDirName, topDir, fs);
+    switch (firstManifest?.type) {
+      case 'npm':
+        if (firstManifest.manifest.type === 'module') {
+          return 'module';
+        }
+        // Default to CommonJS if "type" field is missing
+        return 'commonjs';
+      case 'deno':
+        // Deno treats all modules as ESM
+        return 'module';
+      default:
+        return undefined;
     }
-    if (firstManifest) {
-      return 'commonjs';
-    }
-    return undefined;
   },
 );
 
@@ -129,7 +131,11 @@ export function getDependenciesSanitizePaths(context: Rule.RuleContext) {
  */
 export function getReactVersion(context: Rule.RuleContext): string | null {
   const dir = dirnamePath(normalizeToAbsolutePath(context.filename));
-  for (const packageJson of getManifests(dir, normalizeToAbsolutePath(context.cwd), fs)) {
+  for (const packageJson of getPackageJsonManifests(
+    dir,
+    normalizeToAbsolutePath(context.cwd),
+    fs,
+  )) {
     const reactVersion = packageJson.dependencies?.react ?? packageJson.devDependencies?.react;
     if (reactVersion) {
       const parsed = parseReactVersion(reactVersion);
@@ -235,7 +241,7 @@ export function getTypeScriptSignalsFromPackageJsonFiles(
  * @returns raw version string from @types/node or engines.node, or null if not found
  */
 export function getNodeVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
-  for (const packageJson of getManifests(baseDir, baseDir, fs)) {
+  for (const packageJson of getPackageJsonManifests(baseDir, baseDir, fs)) {
     const typesNode = getDependencyVersionSignal(packageJson, '@types/node');
     if (typeof typesNode === 'string' && typesNode !== 'latest' && typesNode !== '*') {
       return typesNode;

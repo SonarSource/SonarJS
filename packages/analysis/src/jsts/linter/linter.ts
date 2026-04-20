@@ -41,8 +41,8 @@ import {
   getDependencies,
   getModuleType,
   type ModuleType,
-} from '../rules/helpers/package-jsons/dependencies.js';
-import { getClosestDependencyManifestDir } from '../rules/helpers/package-jsons/closest.js';
+} from '../rules/helpers/depedency-manifests/dependencies.js';
+import { getClosestDependencyManifestDir } from '../rules/helpers/depedency-manifests/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
 import type { FileType } from '../../contracts/file.js';
 

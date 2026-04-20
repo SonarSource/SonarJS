@@ -16,7 +16,7 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { parseReactVersion } from '../../../../src/jsts/rules/helpers/package-jsons/dependencies.js';
+import { parseReactVersion } from '../../../../src/jsts/rules/helpers/depedency-manifests/dependencies.js';
 
 describe('parseReactVersion', () => {
   it('should parse exact versions', () => {
