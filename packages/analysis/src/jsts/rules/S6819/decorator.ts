@@ -157,11 +157,13 @@ function isSemanticSvgImg(
     return false;
   }
   const ariaLabelProp = getProp(attributes, 'aria-label');
-  if (ariaLabelProp && getLiteralPropValue(ariaLabelProp) !== '') {
+  const ariaLabelValue = ariaLabelProp ? getLiteralPropValue(ariaLabelProp) : null;
+  if (typeof ariaLabelValue === 'string' && ariaLabelValue !== '') {
     return true;
   }
   const ariaLabelledbyProp = getProp(attributes, 'aria-labelledby');
-  if (ariaLabelledbyProp && getLiteralPropValue(ariaLabelledbyProp) !== '') {
+  const ariaLabelledbyValue = ariaLabelledbyProp ? getLiteralPropValue(ariaLabelledbyProp) : null;
+  if (typeof ariaLabelledbyValue === 'string' && ariaLabelledbyValue !== '') {
     return true;
   }
   return hasTitleChild(node);
