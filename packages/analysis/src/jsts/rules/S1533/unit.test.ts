@@ -68,10 +68,6 @@ describe('S1533', () => {
           code: `interface CardArtItem { classes: Array<String>; }`,
         },
         {
-          // FP: wrapper type in generic type parameter in interface (TSInterfaceBody ancestor)
-          code: `interface ICardArt { classes: Array<String>; }`,
-        },
-        {
           // FP: wrapper type in interface property with function type (TSInterfaceBody context)
           code: `interface Props { onChange: (value: String) => void; onCountChange: (count: Number) => void; }`,
         },
