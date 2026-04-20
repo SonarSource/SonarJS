@@ -16,7 +16,7 @@
  */
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { JSXOpeningElement } from 'estree-jsx';
+import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
 const { getProp, getLiteralPropValue, getPropValue } = pkg;
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
@@ -156,29 +156,44 @@ function isSemanticSvgImg(
   if (elementName !== 'svg' || role !== 'img') {
     return false;
   }
-  const ariaLabelProp = getProp(attributes, 'aria-label');
-  if (ariaLabelProp) {
-    const ariaLabelValue = getLiteralPropValue(ariaLabelProp);
-    // Accept non-empty literal strings; also accept dynamic expressions (cannot evaluate statically)
-    if (
-      (typeof ariaLabelValue === 'string' && ariaLabelValue.trim() !== '') ||
-      (ariaLabelValue === null && getPropValue(ariaLabelProp) !== null)
-    ) {
-      return true;
-    }
+  if (hasAccessibleNameAttribute(attributes, 'aria-label')) {
+    return true;
   }
-  const ariaLabelledbyProp = getProp(attributes, 'aria-labelledby');
-  if (ariaLabelledbyProp) {
-    const ariaLabelledbyValue = getLiteralPropValue(ariaLabelledbyProp);
-    // Accept non-empty literal strings; also accept dynamic expressions (cannot evaluate statically)
-    if (
-      (typeof ariaLabelledbyValue === 'string' && ariaLabelledbyValue.trim() !== '') ||
-      (ariaLabelledbyValue === null && getPropValue(ariaLabelledbyProp) !== null)
-    ) {
-      return true;
-    }
+  if (hasAccessibleNameAttribute(attributes, 'aria-labelledby')) {
+    return true;
   }
   return hasTitleChild(node);
+}
+
+function hasAccessibleNameAttribute(
+  attributes: JSXOpeningElement['attributes'],
+  name: 'aria-label' | 'aria-labelledby',
+): boolean {
+  const prop = getProp(attributes, name);
+  if (!prop) {
+    return false;
+  }
+
+  if (isNonEmptyStringAttribute(prop)) {
+    return true;
+  }
+
+  // Dynamic expressions are unknown statically, but nullish values should not suppress.
+  return getLiteralPropValue(prop) === null && getPropValue(prop) != null;
+}
+
+function isNonEmptyStringAttribute(prop: JSXAttribute): boolean {
+  if (prop.value?.type === 'Literal') {
+    return typeof prop.value.value === 'string' && prop.value.value.trim() !== '';
+  }
+
+  if (prop.value?.type === 'JSXExpressionContainer' && prop.value.expression.type === 'Literal') {
+    return (
+      typeof prop.value.expression.value === 'string' && prop.value.expression.value.trim() !== ''
+    );
+  }
+
+  return false;
 }
 
 /**
