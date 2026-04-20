@@ -511,7 +511,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
 
   analyze_primary:
-    runs-on: sonar-xs-public
+    runs-on: sonar-m-public
     name: Analyze in SonarQube NEXT
     needs: [setup, test_js, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
