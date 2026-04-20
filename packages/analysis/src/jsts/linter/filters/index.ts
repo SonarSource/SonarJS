@@ -25,6 +25,8 @@ import { filterReactVue } from './filter-react-vue.js';
 import { filterEcmaVersion } from './filter-ecma-version.js';
 import { filterModuleType } from './filter-module-type.js';
 
+export type { RuleFilterContext } from './rule-filter.js';
+
 /**
  * Ordered list of rule filters applied during getRulesForFile.
  * All filters must pass for a rule to be active.
