@@ -157,14 +157,26 @@ function isSemanticSvgImg(
     return false;
   }
   const ariaLabelProp = getProp(attributes, 'aria-label');
-  const ariaLabelValue = ariaLabelProp ? getLiteralPropValue(ariaLabelProp) : null;
-  if (typeof ariaLabelValue === 'string' && ariaLabelValue !== '') {
-    return true;
+  if (ariaLabelProp) {
+    const ariaLabelValue = getLiteralPropValue(ariaLabelProp);
+    // Accept non-empty literal strings; also accept dynamic expressions (cannot evaluate statically)
+    if (
+      (typeof ariaLabelValue === 'string' && ariaLabelValue.trim() !== '') ||
+      (ariaLabelValue === null && getPropValue(ariaLabelProp) !== null)
+    ) {
+      return true;
+    }
   }
   const ariaLabelledbyProp = getProp(attributes, 'aria-labelledby');
-  const ariaLabelledbyValue = ariaLabelledbyProp ? getLiteralPropValue(ariaLabelledbyProp) : null;
-  if (typeof ariaLabelledbyValue === 'string' && ariaLabelledbyValue !== '') {
-    return true;
+  if (ariaLabelledbyProp) {
+    const ariaLabelledbyValue = getLiteralPropValue(ariaLabelledbyProp);
+    // Accept non-empty literal strings; also accept dynamic expressions (cannot evaluate statically)
+    if (
+      (typeof ariaLabelledbyValue === 'string' && ariaLabelledbyValue.trim() !== '') ||
+      (ariaLabelledbyValue === null && getPropValue(ariaLabelledbyProp) !== null)
+    ) {
+      return true;
+    }
   }
   return hasTitleChild(node);
 }
