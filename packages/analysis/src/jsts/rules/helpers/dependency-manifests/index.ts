@@ -36,6 +36,10 @@ export function isDependencyManifestPath(path: NormalizedAbsolutePath): boolean 
   return isDependencyManifestName(normalizedBasename);
 }
 
+/**
+ * Preloads manifest lookup caches for a given manifest type (package.json/deno.json/deno.jsonc)
+ * so later rules can resolve manifests without re-walking the file system.
+ */
 export function fillManifestCaches(
   manifestName: DependencyManifestName,
   manifests: Map<NormalizedAbsolutePath, File>,
@@ -51,6 +55,7 @@ export function fillManifestCaches(
     closestCache.set(dir, currentManifest ?? (parent ? closestCache.get(parent) : undefined));
     const manifestsInParents: File[] = [];
     if (parent) {
+      // Read the current dir cache to preserve closest-first manifest precedence.
       manifestsInParents.push(...manifestsInParentsCache.get(dir));
     }
     if (currentManifest) {

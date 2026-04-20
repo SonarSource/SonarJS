@@ -53,6 +53,10 @@ export const dependenciesCache = new ComputedCache(
         const manifestDependencies = getDependenciesFromManifest(manifest);
         for (const dependency of manifestDependencies) {
           result.add(dependency.name);
+          if (dependency.alias) {
+            // Also add the alias as a dependency, so it can be resolved well in rules, for instance S4328
+            result.add(dependency.alias);
+          }
         }
       }
     }
@@ -93,12 +97,15 @@ export const moduleTypeCache = new ComputedCache(
  * @param topDir working dir, will search up to that root
  * @returns Set with the dependency names
  */
-export function getDependencies(dir: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath) {
+export function getDependencies(
+  dir: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
+): Set<string | Minimatch> {
   const closestDependencyManifestDir = getClosestDependencyManifestDir(dir, topDir);
   if (closestDependencyManifestDir) {
     return dependenciesCache.get(closestDependencyManifestDir, topDir);
   }
-  return new Set<string | Minimatch>();
+  return new Set();
 }
 
 /**
@@ -116,7 +123,7 @@ export function getModuleType(filePath: NormalizedAbsolutePath, topDir: Normaliz
   return moduleTypeCache.get(dirnamePath(filePath), topDir);
 }
 
-export function getDependenciesSanitizePaths(context: Rule.RuleContext) {
+export function getDependenciesSanitizePaths(context: Rule.RuleContext): Set<string | Minimatch> {
   return getDependencies(
     dirnamePath(normalizeToAbsolutePath(context.filename)),
     normalizeToAbsolutePath(context.cwd),

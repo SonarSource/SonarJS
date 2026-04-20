@@ -60,11 +60,11 @@ describe('package-json', () => {
 
     expect(dependencies).toEqual(
       new Set([
-        { name: 'react', version: '^19.1.0' },
-        { name: 'lodash', version: '^4.17.21' },
-        { name: '@scope/package', version: '~2.0.0' },
-        { name: 'chalk', version: undefined },
-        { name: 'koa', version: 'not-a-semver' },
+        { name: 'react', version: '^19.1.0', alias: 'reactAlias' },
+        { name: 'lodash', version: '^4.17.21', alias: 'lodashFp' },
+        { name: '@scope/package', version: '~2.0.0', alias: 'scopedAlias' },
+        { name: 'chalk', version: undefined, alias: 'noVersion' },
+        { name: 'koa', version: 'not-a-semver', alias: 'invalidVersion' },
       ]),
     );
   });
@@ -91,7 +91,9 @@ describe('package-json', () => {
       manifest: manifest ?? {},
     });
 
-    expect(dependencies).toEqual(new Set([{ name: 'react', version: '^19.1.0' }]));
+    expect(dependencies).toEqual(
+      new Set([{ name: 'react', version: '^19.1.0', alias: 'reactAlias' }]),
+    );
   });
 });
 

@@ -102,7 +102,7 @@ describe('files', () => {
     expect(closestDenoJsonCache.has(baseDir)).toEqual(true);
     expect(denoJsoncsInParentsCache.has(baseDir)).toEqual(true);
     expect(closestDenoJsoncCache.has(baseDir)).toEqual(true);
-    expect(getDependencies(baseDir, baseDir)).toEqual(new Set(['react', '@scope/pkg']));
+    expect(getDependencies(baseDir, baseDir)).toEqual(new Set(['react', '@scope/pkg', 'pkgAlias']));
   });
 
   it('should include package.json dependencies when deno.json is present in the same directory', async () => {

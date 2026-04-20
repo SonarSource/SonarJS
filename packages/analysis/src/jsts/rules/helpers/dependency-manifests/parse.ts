@@ -23,17 +23,11 @@ import { type DependencyManifest } from './all-in-parent-dirs.js';
 
 const DefinitelyTyped = '@types/';
 
-type MinimatchDependency = {
-  name: Minimatch;
+type Dependency = {
+  name: string | Minimatch;
   version?: string;
+  alias?: string;
 };
-
-type NamedDependency = {
-  name: string;
-  version?: string;
-};
-
-type Dependency = MinimatchDependency | NamedDependency;
 
 export function getDependenciesFromPackageJson(content: PackageJson) {
   const result = new Set<Dependency>();
@@ -53,6 +47,7 @@ export function getDependenciesFromPackageJson(content: PackageJson) {
     addDependencies(result, content.optionalDependencies);
   }
   if (content._moduleAliases !== undefined) {
+    // see https://www.npmjs.com/package/module-alias
     addDependencies(result, content._moduleAliases as PackageJson.Dependency);
   }
   if (Array.isArray(content.workspaces)) {
@@ -64,28 +59,34 @@ export function getDependenciesFromPackageJson(content: PackageJson) {
 }
 
 function getDependenciesFromDenoManifest(manifest: DenoManifest): Set<Dependency> {
-  const result = new Set<Dependency>();
+  const dependencies = new Set<Dependency>();
 
   if (manifest.imports && typeof manifest.imports === 'object') {
-    for (const target of Object.values(manifest.imports)) {
+    for (const [alias, target] of Object.entries(manifest.imports)) {
       if (typeof target !== 'string') {
         continue;
       }
 
       const parsedSpecifier = parseImportMapSpecifier(target);
       if (parsedSpecifier) {
-        addDependency(result, parsedSpecifier.packageName, false, parsedSpecifier.version);
+        addDependency(
+          dependencies,
+          parsedSpecifier.packageName,
+          false,
+          parsedSpecifier.version,
+          alias,
+        );
       }
     }
   }
 
   if (Array.isArray(manifest.workspace)) {
-    addDependenciesArray(result, manifest.workspace);
+    addDependenciesArray(dependencies, manifest.workspace);
   } else if (manifest.workspace?.members) {
-    addDependenciesArray(result, manifest.workspace.members);
+    addDependenciesArray(dependencies, manifest.workspace.members);
   }
 
-  return result;
+  return dependencies;
 }
 
 function addDependencies(
@@ -188,11 +189,13 @@ function addDependency(
   dependency: string,
   isGlob: boolean,
   version?: string,
+  alias?: string,
 ) {
   if (isGlob) {
     result.add({
       name: new Minimatch(dependency, { nocase: true, matchBase: true }),
       version,
+      alias,
     });
   } else {
     result.add({
@@ -200,6 +203,7 @@ function addDependency(
         ? dependency.substring(DefinitelyTyped.length)
         : dependency,
       version,
+      alias,
     });
   }
 }
