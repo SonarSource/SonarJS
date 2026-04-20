@@ -16,7 +16,7 @@
  */
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { JSXOpeningElement } from 'estree-jsx';
+import type { JSXAttribute, JSXOpeningElement } from 'estree-jsx';
 import pkg from 'jsx-ast-utils-x';
 const { getProp, getLiteralPropValue, getPropValue } = pkg;
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
@@ -45,6 +45,7 @@ const COMPOSITE_CHILD_ROLES = new Set([
  * 1. Custom components (not standard HTML elements)
  * 2. Valid ARIA patterns where semantic equivalents would lose functionality:
  *    - SVG with role="presentation"/"img" and aria-hidden="true" (decorative icons)
+ *    - SVG with role="img" and a <title> child, aria-label, or aria-labelledby (semantic icons)
  *    - role="status" with aria-live (live region pattern)
  *    - role="slider" with complete aria-value* attributes
  *    - role="radio" with aria-checked
@@ -113,6 +114,7 @@ function isValidAriaPattern(node: TSESTree.JSXOpeningElement): boolean {
 
   return (
     isDecorativeSvg(elementName, role, attributes) ||
+    isSemanticSvgImg(elementName, role, attributes, node) ||
     isLiveRegionStatus(role, attributes) ||
     isCustomSlider(role, attributes) ||
     isCustomRadio(role, attributes) ||
@@ -136,6 +138,86 @@ function isDecorativeSvg(
   }
   const ariaHiddenValue = getLiteralPropValue(ariaHiddenProp);
   return ariaHiddenValue === true || ariaHiddenValue === 'true';
+}
+
+/**
+ * Checks if the element is a semantic SVG icon with role="img" and a proper accessible name.
+ *
+ * Inline SVG with role="img" is a WCAG-compliant pattern for icon components that need
+ * CSS class control, animation, or programmatic styling. It is not replaceable by <img>
+ * when the SVG provides an accessible name via <title>, aria-label, or aria-labelledby.
+ */
+function isSemanticSvgImg(
+  elementName: string | null,
+  role: string,
+  attributes: JSXOpeningElement['attributes'],
+  node: TSESTree.JSXOpeningElement,
+): boolean {
+  if (elementName !== 'svg' || role !== 'img') {
+    return false;
+  }
+  if (hasAccessibleNameAttribute(attributes, 'aria-label')) {
+    return true;
+  }
+  if (hasAccessibleNameAttribute(attributes, 'aria-labelledby')) {
+    return true;
+  }
+  return hasTitleChild(node);
+}
+
+function hasAccessibleNameAttribute(
+  attributes: JSXOpeningElement['attributes'],
+  name: 'aria-label' | 'aria-labelledby',
+): boolean {
+  const prop = getProp(attributes, name);
+  if (!prop) {
+    return false;
+  }
+
+  if (isNonEmptyStringAttribute(prop)) {
+    return true;
+  }
+
+  // Dynamic expressions are unknown statically, but nullish values should not suppress.
+  return getLiteralPropValue(prop) === null && getPropValue(prop) != null;
+}
+
+function isNonEmptyStringAttribute(prop: JSXAttribute): boolean {
+  if (prop.value?.type === 'Literal') {
+    return typeof prop.value.value === 'string' && prop.value.value.trim() !== '';
+  }
+
+  if (prop.value?.type === 'JSXExpressionContainer' && prop.value.expression.type === 'Literal') {
+    return (
+      typeof prop.value.expression.value === 'string' && prop.value.expression.value.trim() !== ''
+    );
+  }
+
+  return false;
+}
+
+/**
+ * Checks if the JSX element has a direct <title> child element with non-empty content.
+ */
+function hasTitleChild(node: TSESTree.JSXOpeningElement): boolean {
+  const parent = node.parent;
+  if (parent?.type !== 'JSXElement') {
+    return false;
+  }
+  return parent.children.some(
+    child =>
+      child.type === 'JSXElement' &&
+      child.openingElement.name.type === 'JSXIdentifier' &&
+      child.openingElement.name.name === 'title' &&
+      child.children.some(
+        c =>
+          (c.type === 'JSXText' && c.value.trim() !== '') ||
+          (c.type === 'JSXExpressionContainer' &&
+            c.expression.type !== 'JSXEmptyExpression' &&
+            !(c.expression.type === 'Literal' && !c.expression.value) &&
+            !(c.expression.type === 'Identifier' && c.expression.name === 'undefined')),
+      ),
+  );
 }
 
 function isLiveRegionStatus(role: string, attributes: JSXOpeningElement['attributes']): boolean {
