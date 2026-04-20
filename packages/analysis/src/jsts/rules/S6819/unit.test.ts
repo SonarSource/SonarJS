@@ -323,6 +323,10 @@ describe('S6819', () => {
         {
           code: `<svg role="img" aria-label={t('icon.label')} viewBox="0 0 24 24"><path d="M10 10"/></svg>`,
         },
+        // svg role="img" with dynamic aria-labelledby — symmetric case, cannot evaluate statically, suppress
+        {
+          code: `<svg role="img" aria-labelledby={computedId}><path/></svg>`,
+        },
       ],
       invalid: [
         // svg role="img" without an accessible name is still a true positive
