@@ -258,9 +258,8 @@ public class BridgeServerImpl implements BridgeServer {
           Math.min(TimeUnit.NANOSECONDS.toMillis(remainingNanos), 100),
           TimeUnit.MILLISECONDS
         );
-        state = channel.getState(false);
-        if (!stateChanged) {
-          continue;
+        if (stateChanged) {
+          state = channel.getState(false);
         }
       }
       latestOKIsAliveTimestamp = System.currentTimeMillis();

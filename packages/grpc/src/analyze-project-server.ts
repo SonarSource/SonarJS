@@ -266,6 +266,53 @@ function clearStartupShutdownTimeout(state: AnalyzeProjectServerState) {
   }
 }
 
+async function cancelAnalysisOnShutdown(
+  handleRequestInCurrentThread: HandleRequestInCurrentThread,
+  newWorkerRequestId: () => string,
+  state: AnalyzeProjectServerState,
+  worker?: Worker,
+) {
+  if (!state.analysisInProgress) {
+    return;
+  }
+
+  if (worker) {
+    try {
+      worker.postMessage({
+        type: 'cancel',
+        requestId: newWorkerRequestId(),
+      } satisfies AnalyzeProjectWorkerInMessage);
+    } catch (e) {
+      debug(`Failed to post cancel to worker: ${e}`);
+    }
+    return;
+  }
+
+  try {
+    await handleRequestInCurrentThread({ type: 'on-cancel-analysis' });
+  } catch (e) {
+    debug(`Failed to cancel in-process analysis: ${e}`);
+  }
+}
+
+async function closeWorker(worker?: Worker) {
+  if (!worker) {
+    return;
+  }
+
+  try {
+    worker.postMessage({ type: 'close' } satisfies AnalyzeProjectWorkerInMessage);
+  } catch (e) {
+    debug(`Failed to post close to worker: ${e}`);
+  }
+
+  try {
+    await worker.terminate();
+  } catch (e) {
+    debug(`Failed to terminate worker: ${e}`);
+  }
+}
+
 function createLifecycle({
   handleRequestInCurrentThread,
   newWorkerRequestId,
@@ -316,39 +363,8 @@ function createLifecycle({
     clearStartupShutdownTimeout(state);
     closeLeaseCall();
     unregisterGarbageCollectionObserver();
-
-    if (state.analysisInProgress) {
-      if (worker) {
-        try {
-          worker.postMessage({
-            type: 'cancel',
-            requestId: newWorkerRequestId(),
-          } satisfies AnalyzeProjectWorkerInMessage);
-        } catch (e) {
-          debug(`Failed to post cancel to worker: ${e}`);
-        }
-      } else {
-        try {
-          await handleRequestInCurrentThread({ type: 'on-cancel-analysis' });
-        } catch (e) {
-          debug(`Failed to cancel in-process analysis: ${e}`);
-        }
-      }
-    }
-
-    if (worker) {
-      try {
-        worker.postMessage({ type: 'close' } satisfies AnalyzeProjectWorkerInMessage);
-      } catch (e) {
-        debug(`Failed to post close to worker: ${e}`);
-      }
-
-      try {
-        await worker.terminate();
-      } catch (e) {
-        debug(`Failed to terminate worker: ${e}`);
-      }
-    }
+    await cancelAnalysisOnShutdown(handleRequestInCurrentThread, newWorkerRequestId, state, worker);
+    await closeWorker(worker);
 
     server.forceShutdown();
     resolveClosed();

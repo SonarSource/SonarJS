@@ -632,7 +632,7 @@ class BridgeServerImplTest {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     var channel = mock(ManagedChannel.class);
     when(channel.getState(true)).thenReturn(ConnectivityState.CONNECTING);
-    when(channel.getState(false)).thenReturn(ConnectivityState.CONNECTING, ConnectivityState.READY);
+    when(channel.getState(false)).thenReturn(ConnectivityState.READY);
     var notifications = new AtomicInteger();
     doAnswer(invocation -> {
       var onStateChanged = invocation.getArgument(1, Runnable.class);
