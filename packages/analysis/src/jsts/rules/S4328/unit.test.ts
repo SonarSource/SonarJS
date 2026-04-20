@@ -223,6 +223,11 @@ describe('S4328', () => {
           filename: filenameDenoPrecedenceProject,
           options,
         },
+        {
+          code: `import "scopedAlias";`,
+          filename: filenameDenoProject,
+          options,
+        },
       ],
       invalid: [
         {
@@ -306,12 +311,6 @@ describe('S4328', () => {
         },
         {
           code: `import "jsrAlias";`,
-          filename: filenameDenoProject,
-          options,
-          errors: 1,
-        },
-        {
-          code: `import "scopedAlias";`,
           filename: filenameDenoProject,
           options,
           errors: 1,

@@ -130,6 +130,26 @@ describe('files', () => {
     });
   });
 
+  it('should log when a dependency is defined in multiple manifests', async ({ mock }) => {
+    mock.method(console, 'debug');
+    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'same-level-version-conflict'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    expect(getDependencies(baseDir, baseDir)).toEqual(new Set(['react', 'reactAlias']));
+    expect(
+      consoleLogMock.calls
+        .map(call => call.arguments[0])
+        .some(
+          log =>
+            log.includes('Dependency "react" is defined in multiple manifests') &&
+            log.includes('^19.1.0') &&
+            log.includes('19.0.0'),
+        ),
+    ).toEqual(true);
+  });
+
   it('should extract module type from package.json', async () => {
     const moduleBaseDir = normalizeToAbsolutePath(join(fixtures, 'module-type-module'));
     const moduleConfiguration = createConfiguration({ baseDir: moduleBaseDir });

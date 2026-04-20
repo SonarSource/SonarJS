@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "react": "19.0.0",
-    "same-level-only": "1.0.0"
+    "react": "19.0.0"
   }
 }
