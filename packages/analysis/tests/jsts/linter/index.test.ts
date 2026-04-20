@@ -212,13 +212,27 @@ describe('Linter', () => {
     expect(rules).toHaveProperty('sonarjs/S6477');
   });
 
-  it('should disable React rules on .vue files even when react dependency is present', async () => {
+  it('should disable React-dependent rules on .vue files even when react dependency is present', async () => {
     const baseDir = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'react'),
     );
     await Linter.initialize({
       baseDir,
       rules: [
+        {
+          key: 'S100',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S6440',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
         {
           key: 'S6477',
           configurations: [],
@@ -241,7 +255,14 @@ describe('Linter', () => {
           analysisModes: ['DEFAULT'],
         },
         {
-          key: 'S100',
+          key: 'S6790',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S6957',
           configurations: [],
           fileTypeTargets: ['MAIN'],
           language: 'js',
@@ -257,9 +278,12 @@ describe('Linter', () => {
       'js',
     );
 
-    expect(rules).not.toHaveProperty('sonarjs/S6477');
-    expect(rules).not.toHaveProperty('sonarjs/S6749');
-    expect(rules).not.toHaveProperty('sonarjs/S6770');
+    expect(rules).not.toHaveProperty('sonarjs/S6440');
+    expect(rules).not.toHaveProperty('sonarjs/S6957');
+    expect(rules).toHaveProperty('sonarjs/S6477');
+    expect(rules).toHaveProperty('sonarjs/S6749');
+    expect(rules).toHaveProperty('sonarjs/S6770');
+    expect(rules).toHaveProperty('sonarjs/S6790');
     expect(rules).toHaveProperty('sonarjs/S100');
   });
 
