@@ -16,8 +16,6 @@
  */
 import type { RuleFilter } from './rule-filter.js';
 
-const JSX_ONLY_PLUGINS = new Set(['react', 'react-native', 'react-hooks']);
-
 /**
  * Disables React-specific rules on Vue files.
  * A rule is considered React-specific when:
@@ -37,12 +35,5 @@ export const filterReactVue: RuleFilter = (_config, meta, ctx) => {
     (meta.requiredDependency as string[]).some(
       dependency => dependency === 'react' || dependency === 'react-native',
     );
-  const isReactExternalPlugin = 'externalPlugin' in meta && meta.externalPlugin === 'react';
-  const isReactExternalRule =
-    'externalRules' in meta &&
-    (meta.externalRules as { externalPlugin: string }[]).length > 0 &&
-    (meta.externalRules as { externalPlugin: string }[]).every(({ externalPlugin }) =>
-      JSX_ONLY_PLUGINS.has(externalPlugin),
-    );
-  return !(isReactRequired || isReactExternalPlugin || isReactExternalRule);
+  return !isReactRequired;
 };
