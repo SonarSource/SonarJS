@@ -18,13 +18,7 @@ import type { RuleFilter } from './rule-filter.js';
 
 /**
  * Disables React-specific rules on Vue files.
- * A rule is considered React-specific when:
- * - its requiredDependency includes 'react' or 'react-native', or
- * - its externalPlugin is 'react', or
- * - all its externalRules come from JSX-only plugins (react, react-native, react-hooks).
- *
- * Rules with mixed external plugins (e.g. eslint + react) are NOT excluded,
- * preserving coverage from non-React delegates.
+ * A rule is considered React-specific when its requiredDependency includes 'react' or 'react-native'.
  */
 export const filterReactVue: RuleFilter = (_config, meta, ctx) => {
   if (!meta || ctx.extensionName.toLowerCase() !== '.vue') {
