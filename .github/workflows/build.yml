@@ -574,7 +574,7 @@ jobs:
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
   analyze_shadows:
-    runs-on: sonar-xs-public
+    runs-on: sonar-m-public
     name: Analyze in ${{ matrix.platform }}
     needs: [setup, test_js, build]
     permissions: *read_permissions
@@ -671,7 +671,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_with_node:
-    runs-on: sonar-xs-public
+    runs-on: sonar-m-public
     name: Fast QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -744,7 +744,7 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_without_node_dev:
-    runs-on: sonar-xs-public
+    runs-on: sonar-m-public
     name: QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
     if: github.event_name == 'schedule'
@@ -852,7 +852,7 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_fast_without_node_dev:
-    runs-on: sonar-xs-public
+    runs-on: sonar-m-public
     name: Fast QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
     if: github.event_name == 'schedule'
