@@ -15,10 +15,28 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
 
 const ruleTester = new NoTypeCheckingRuleTester();
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
+describe('S905 upstream sentinel', () => {
+  it('upstream no-unused-expressions raises on comma operator sequences with side effects that decorator suppresses', () => {
+    const upstreamRule = tsEslintRules['no-unused-expressions'];
+    ruleTester.run('no-unused-expressions', upstreamRule, {
+      valid: [],
+      invalid: [
+        { code: `a(), b();`, errors: 1 }, // sequence of calls — suppressed by decorator, raised by upstream
+        { code: `++i, ++j;`, errors: 1 }, // sequence of updates — suppressed by decorator, raised by upstream
+        { code: `x = 1, f();`, errors: 1 }, // assignment then call — suppressed by decorator, raised by upstream
+      ],
+    });
+  });
+});
 
 describe('S905', () => {
   it('S905', () => {
@@ -87,6 +105,54 @@ describe('S905', () => {
         });
       `,
         },
+        // comma operator sequencing multiple function calls — all operands are calls with side effects
+        {
+          code: `
+        for (let i = 0; i < items.length; i++) {
+          output.push(items[i]), log.push(i);
+        }
+      `,
+        },
+        // comma operator sequencing increments — all operands are updates with side effects
+        {
+          code: `
+        while (index < items.length) {
+          ++index, ++total;
+        }
+      `,
+        },
+        // assignment then call — both operands have side effects
+        {
+          code: `
+        while (lexer.pos < lexer.source.length) {
+          escaped = true, advance();
+        }
+      `,
+        },
+        // call then multiple increments — all operands have side effects
+        {
+          code: `
+        while (i < j) {
+          swap(array, i, j), ++i, --j;
+        }
+      `,
+        },
+        // ternary where alternate branch is a comma-operator sequence of assignments
+        {
+          code: `condition ? (state.x = 0) : (state.y = 1, state.z = 2);`,
+        },
+        // logical expression where right side is a comma-operator sequence of calls
+        {
+          code: `condition && (f(), g());`,
+        },
+        // nested ternary (UMD-style) where all branches are assignments or calls
+        {
+          code: `cond1 ? module.exports = factory() : cond2 ? define(factory) : (g = this, g.lib = factory());`,
+        },
+        // sequence of test-framework calls separated by commas
+        {
+          code: `it('first test', function() { assert(true); }), it('second test', function() { assert(true); });`,
+        },
       ],
       invalid: [
         {
@@ -151,6 +217,11 @@ describe('S905', () => {
               endColumn: 14,
             },
           ],
+        },
+        // sequence where one element has no side effect — still flagged
+        {
+          code: `a + b, c();`,
+          errors: 1,
         },
       ],
     });

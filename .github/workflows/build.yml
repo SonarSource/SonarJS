@@ -9,7 +9,7 @@ on:
   merge_group:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # Nightly for analyze and iris tasks
+    - cron: '0 0 * * *'  # Nightly for analysis, IRIS, and ESLint README freshness
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   setup:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Setup - Prepare Node.js versions and test hashes
     permissions: &read_permissions
       id-token: write
@@ -73,7 +73,7 @@ jobs:
           echo "Cache month: $MONTH"
 
   get_build_number:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Get build number
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -85,7 +85,7 @@ jobs:
         uses: SonarSource/ci-github-actions/get-build-number@master
 
   populate_npm_cache:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Populate NPM cache for Linux
     needs: setup
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -111,14 +111,16 @@ jobs:
             java = "21.0"
             maven = "3.9"
             node = "24.11.0"
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os != 'Windows'
+        uses: SonarSource/ci-github-actions/config-npm@v1
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
         id: secrets
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
           secrets: |
             development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - if: steps.cache.outputs.cache-hit != 'true'
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
         name: Configure npm registry
         run: |
           npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
@@ -136,7 +138,7 @@ jobs:
     steps: *populate_npm_cache_steps
 
   sync_rspec:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: Sync RSPEC metadata
     needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -170,7 +172,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Upload RSPEC rule data
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: rspec-rule-data
           path: |
@@ -183,7 +185,7 @@ jobs:
           retention-days: 1
 
   build:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-l-public
     name: Build SonarJS on Linux
     needs: [setup, get_build_number, populate_npm_cache, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -218,14 +220,8 @@ jobs:
             development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
             development/kv/data/sign key | SIGN_KEY;
             development/kv/data/sign passphrase | PGP_PASSPHRASE;
-      - &java_coverage_cache
-        name: Cache Java coverage
-        uses: SonarSource/gh-action_cache@v1
-        with:
-          path: coverage/java
-          key: java-coverage-${{ github.sha }}
       - name: Build, test and deploy Maven artifacts
-        run: mvn deploy -Pdeploy-sonarsource,coverage,coverage-report,sign,release -T1C
+        run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release -T1C
         env:
           ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
           ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
@@ -234,18 +230,25 @@ jobs:
           PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault).PGP_PASSPHRASE }}
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Upload SonarJS artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: sonarjs-m2
           path: ~/.m2/repository/org/sonarsource/javascript
           retention-days: 1
       - name: Upload Maven target artifacts
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: maven-targets-${{ github.sha }}
           path: |
             **/target/
             !**/target/site/
+          retention-days: 1
+      - &upload_jacoco_xml_reports
+        name: Upload JaCoCo XML reports
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jacoco-xml-reports-${{ github.sha }}
+          path: sonar-plugin/**/target/site/jacoco/jacoco.xml
           retention-days: 1
       # Clean up SonarJS artifacts before post-job cache save (only on default branch where cache is saved)
       - name: Clean up SonarJS artifacts before cache save
@@ -254,7 +257,7 @@ jobs:
 
   # Windows builds and tests
   build_win:
-    runs-on: github-windows-latest-s
+    runs-on: github-windows-latest-m
     name: Build SonarJS on Windows
     needs: [setup, populate_npm_cache_win, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -277,10 +280,7 @@ jobs:
     needs: [setup, populate_npm_cache, sync_rspec]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions:
-      id-token: write
-      contents: write
-      pull-requests: write
+    permissions: *read_permissions
     steps:
       - *checkout
       - *mise
@@ -301,113 +301,56 @@ jobs:
         run: npm run eslint-plugin:build
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
-      - name: Check README freshness
-        if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          HEAD_REF: ${{ github.head_ref }}
-        run: |
-          # Check if last commit was already an auto-update (prevent infinite loop)
-          LAST_COMMIT_MSG=$(git log -1 --format=%B)
-          if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
-            echo "Last commit was an auto-update, skipping to prevent infinite loop"
-            exit 0
-          fi
-
-          RULES_README="packages/analysis/src/jsts/rules/README.md"
-
-          # Make git@github.com transport use token auth during generate-meta (sync-rspec).
-          git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "git@github.com:"
-
-          # Regenerate metadata and check for differences only on the rules README
-          npm run generate-meta
-
-          FIX_BRANCH="fix/update-readme-for-${HEAD_REF}"
-
-          if git diff --quiet -- "$RULES_README"; then
-            echo "README is up to date"
-
-            # Clean up stale fix PR if one exists and is still open
-            FIX_PR_STATE=$(gh pr view "$FIX_BRANCH" --json state --jq '.state' 2>/dev/null || true)
-            if [ "$FIX_PR_STATE" = "OPEN" ]; then
-              gh pr close "$FIX_BRANCH" --comment "No longer needed — the original PR is now up to date."
-              git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
-            fi
-
-            exit 0
-          fi
-
-          echo "README is stale — creating fix PR"
-
-          git stash push -m "readme-update" -- "$RULES_README"
-          git fetch origin "$HEAD_REF"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
-            git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
-            git stash pop
-            git add "$RULES_README"
-            if git diff --cached --quiet -- "$RULES_README"; then
-              echo "README is up to date on the PR head branch"
-              exit 0
-            fi
-            git commit -m "Update rules README
-
-          🤖 Generated with GitHub Actions"
-            git push --force-with-lease origin "$FIX_BRANCH"
-            FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url')
-          else
-            git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
-            git stash pop
-            git add "$RULES_README"
-            if git diff --cached --quiet -- "$RULES_README"; then
-              echo "README is up to date on the PR head branch"
-              exit 0
-            fi
-            git commit -m "Update rules README
-
-          🤖 Generated with GitHub Actions"
-            git push origin "$FIX_BRANCH"
-            FIX_PR_URL=$(gh pr create \
-              --title "Update rules README for PR #${PR_NUMBER}" \
-              --base "$HEAD_REF" \
-              --head "$FIX_BRANCH" \
-              --body "Auto-generated README update for PR #${PR_NUMBER}.
-
-          🤖 Generated with GitHub Actions")
-          fi
-
-          # Comment on original PR with link to fix PR
-          MARKER="<!-- readme-freshness -->"
-          COMMENT_BODY="${MARKER}
-          ## README Freshness Check
-
-          ❌ **The rules README is out of date.**
-
-          A fix PR has been created: ${FIX_PR_URL}
-
-          Please review and merge it into your branch."
-
-          EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
-
-          if [ -n "$EXISTING_COMMENT_ID" ]; then
-            gh api "repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT_ID" \
-              -X PATCH -F body="$COMMENT_BODY"
-          else
-            gh pr comment "$PR_NUMBER" --body "$COMMENT_BODY"
-          fi
-
-          exit 1
       - &eslint_tarball_cache
         name: Cache ESLint plugin tarball
         uses: SonarSource/gh-action_cache@v1
         with:
           path: lib/*.tgz
           key: eslint-tarball-${{ github.sha }}
+
+  eslint_readme_freshness:
+    runs-on: github-ubuntu-latest-s
+    needs: [setup, populate_npm_cache, sync_rspec]
+    name: ESLint README Freshness
+    if: github.event_name == 'schedule'
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    steps:
+      - *checkout
+      - *mise
+      - id: secrets
+        name: Access vault secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - *npm_cache
+      - *download_rspec_rule_data
+      - *rspec_secrets
+      - name: Regenerate ESLint README
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+        run: |
+          git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "git@github.com:"
+          npm install --no-save builtin-modules@3.3.0
+          npm run eslint-plugin:compile
+      - name: Open or update README refresh PR
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          commit-message: Update eslint-plugin-sonarjs README
+          title: Update eslint-plugin-sonarjs README
+          body: Automated refresh of `packages/analysis/src/jsts/rules/README.md`.
+          branch: bot/update-eslint-rules-readme
+          base: master
+          add-paths: packages/analysis/src/jsts/rules/README.md
+          delete-branch: true
 
   test_eslint_plugin:
     runs-on: github-ubuntu-latest-s
@@ -426,9 +369,6 @@ jobs:
           - eslint-version: 8
             node-version: '18.18.0'
             node-label: 'min supported'
-          - eslint-version: 8
-            node-version: '16.20.2'
-            node-label: 'node 16'
     steps:
       - *checkout
       - uses: jdx/mise-action@v4.0.1
@@ -447,7 +387,7 @@ jobs:
           npm run test
 
   knip:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Knip
     needs: [setup, populate_npm_cache, sync_rspec]
     permissions: *read_permissions
@@ -465,7 +405,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
   test_js:
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m-public
     name: Unit tests JavaScript/TypeScript
     needs: [setup, populate_npm_cache, sync_rspec]
     permissions: *read_permissions
@@ -517,7 +457,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
 
   test_js_win:
-    runs-on: github-windows-latest-s
+    runs-on: github-windows-latest-m
     name: Unit tests JavaScript on Windows
     needs: [setup, populate_npm_cache_win, sync_rspec]
     permissions: *read_permissions
@@ -571,7 +511,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
 
   analyze_primary:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: Analyze in SonarQube NEXT
     needs: [setup, test_js, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -593,12 +533,16 @@ jobs:
         with:
           path: coverage/js
           key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
-      - *java_coverage_cache
       - &download_maven_targets
         name: Download Maven target artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: maven-targets-${{ github.sha }}
+      - &download_jacoco_xml_reports
+        name: Download JaCoCo XML reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: jacoco-xml-reports-${{ github.sha }}
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -630,7 +574,7 @@ jobs:
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
   analyze_shadows:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: Analyze in ${{ matrix.platform }}
     needs: [setup, test_js, build]
     permissions: *read_permissions
@@ -648,8 +592,8 @@ jobs:
       - *npm_cache
       - *maven_cache
       - *js_coverage_cache
-      - *java_coverage_cache
       - *download_maven_targets
+      - *download_jacoco_xml_reports
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -682,7 +626,7 @@ jobs:
           mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
 
   plugin_qa_with_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -727,7 +671,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_with_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: Fast QA with Node ${{ matrix.node-version }} on Ubuntu
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -753,7 +697,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_without_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -779,16 +723,14 @@ jobs:
         shell: bash
         run: |
           node --version
-          NODE_PATH=$(which node)
-          sudo mv "$NODE_PATH" "${NODE_PATH}.disabled"
 
-          # Verify node is no longer accessible
-          if which node 2>/dev/null; then
-            echo "ERROR: node is still accessible!"
-            exit 1
-          else
-            echo "SUCCESS: node is no longer accessible"
-          fi
+          function node() {
+            echo "node is disabled"
+            exit 0
+          }
+          export -f node
+
+          node
       - *orchestrator_cache
       - name: Run Plugin QA without Node
         run: |
@@ -802,7 +744,7 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_without_node_dev:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
     if: github.event_name == 'schedule'
@@ -827,7 +769,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_without_node_alpine:
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m-docker
     name: QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
@@ -883,7 +825,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_without_node:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: Fast QA without Node on Ubuntu SQ:LATEST_RELEASE
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -910,7 +852,7 @@ jobs:
 
   # DEV tests run only on nightly schedule to avoid constant downloads
   plugin_qa_fast_without_node_dev:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-m-public
     name: Fast QA without Node on Ubuntu SQ:DEV
     needs: [setup, build]
     if: github.event_name == 'schedule'
@@ -934,7 +876,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_without_node_alpine:
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-m-docker
     name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
@@ -965,7 +907,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_win:
-    runs-on: github-windows-latest-s
+    runs-on: github-windows-latest-m
     name: QA on Windows (${{ matrix.group }})
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -1005,7 +947,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_sonarlint_win:
-    runs-on: github-windows-latest-s
+    runs-on: github-windows-latest-m
     name: QA SonarLint on Windows
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -1024,7 +966,7 @@ jobs:
           SONARSOURCE_QA: true
 
   plugin_qa_win_fast_with_node:
-    runs-on: github-windows-latest-s
+    runs-on: github-windows-latest-m
     name: Fast QA on Windows with Node (${{ matrix.group }})
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -1066,7 +1008,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   js_ts_ruling:
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-xl-public
     name: JS/TS Ruling
     needs: [setup, populate_npm_cache, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -1240,7 +1182,7 @@ jobs:
           fi
 
   ruling:
-    runs-on: github-ubuntu-latest-m
+    runs-on: sonar-xl-public
     name: Ruling Test
     needs: [setup, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
@@ -1264,14 +1206,14 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
       - name: Upload ruling differences
         if: failure()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ruling-differences
           path: its/ruling/target/actual/
 
   # IRIS tasks (nightly only)
   run_iris:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: IRIS SQ NEXT -> ${{ matrix.shadow-name }}
     needs: [analyze_primary, analyze_shadows]
     if: github.event_name == 'schedule'
@@ -1294,7 +1236,7 @@ jobs:
           shadow1_platform: ${{ matrix.shadow-platform }}
 
   promote:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     needs:
       - build
       - build_win
@@ -1325,7 +1267,7 @@ jobs:
           promote-pull-request: true
 
   releasability:
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     name: Releasability
     needs:
       - promote

@@ -54,11 +54,15 @@ function reportExempting(
 function isReduxReducer(enclosingFunction: BaseFunction) {
   if (enclosingFunction.params.length === NUM_ARGS_REDUX_REDUCER) {
     const [firstParam, secondParam] = enclosingFunction.params;
-    return (
-      firstParam.type === 'AssignmentPattern' &&
-      isIdentifier(firstParam.left, 'state') &&
-      isIdentifier(secondParam, 'action')
-    );
+    if (firstParam.type === 'AssignmentPattern' && isIdentifier(firstParam.left, 'state')) {
+      return (
+        isIdentifier(secondParam, 'action') ||
+        (secondParam.type === 'ObjectPattern' &&
+          secondParam.properties.some(
+            prop => prop.type === 'Property' && isIdentifier(prop.key, 'type'),
+          ))
+      );
+    }
   }
   return false;
 }

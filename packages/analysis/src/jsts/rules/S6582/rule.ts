@@ -29,25 +29,6 @@ import * as meta from './generated-meta.js';
 const preferOptionalChainRule = tsEslintRules['prefer-optional-chain'];
 
 /**
- * Matches negated access guards that stay boolean after optional chaining.
- *
- * Pseudo code:
- * if (!value || !value.property) {
- *   // `value?.property` remains wrapped by `!`
- * }
- */
-function isNegatedOptionalChainGuard(node: Rule.Node) {
-  return (
-    node.type === 'LogicalExpression' &&
-    node.operator === '||' &&
-    node.left.type === 'UnaryExpression' &&
-    node.left.operator === '!' &&
-    node.right.type === 'UnaryExpression' &&
-    node.right.operator === '!'
-  );
-}
-
-/**
  * Resolves the AST node associated with a report descriptor.
  *
  * When the descriptor carries a `node` directly, that node is returned.
@@ -109,29 +90,6 @@ function allowsUndefined(type: ts.Type): boolean {
 }
 
 /**
- * Returns the type imposed by the surrounding context on the reported expression.
- *
- * Pseudo code:
- * let result: string | null;
- * result = value && value.property;
- *
- * Here, `node` is `value && value.property`, and its contextual type is `string | null`
- * because that is the type expected by the assignment target `result`.
- */
-function getContextualTypeOfNode(
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-  checker: ts.TypeChecker,
-  node: Rule.Node,
-): ts.Type | null {
-  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
-  if (!tsNode) {
-    return null;
-  }
-
-  return checker.getContextualType(tsNode as ts.Expression) ?? null;
-}
-
-/**
  * Sanitized rule 'prefer-optional-chain' from TypeScript ESLint.
  *
  * TypeScript ESLint's rule raises a runtime error if the parser services of the
@@ -171,40 +129,163 @@ export const rule: Rule.RuleModule = {
     }
 
     const checker = services.program.getTypeChecker();
+
+    /**
+     * Returns the type imposed by the surrounding context on the reported expression.
+     *
+     * Pseudo code:
+     * let result: string | null;
+     * result = value && value.property;
+     *
+     * Here, `node` is `value && value.property`, and its contextual type is `string | null`
+     * because that is the type expected by the assignment target `result`.
+     */
+    function getContextualTypeOfNode(node: Rule.Node): ts.Type | null {
+      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+      if (!tsNode) {
+        return null;
+      }
+
+      return checker.getContextualType(tsNode as ts.Expression) ?? null;
+    }
+
+    function getTypeOfNode(node: Rule.Node): ts.Type | null {
+      const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+      if (!tsNode) {
+        return null;
+      }
+
+      return checker.getTypeAtLocation(tsNode);
+    }
+
+    function getContextualTypeSubject(node: Rule.Node) {
+      let current = node;
+      while (
+        current.parent?.type === 'LogicalExpression' &&
+        (current.parent.left === current || current.parent.right === current)
+      ) {
+        current = current.parent;
+      }
+      return current;
+    }
+
+    function hasTypeUnsafeContextualType(node: Rule.Node) {
+      const contextualType = getContextualTypeOfNode(getContextualTypeSubject(node));
+      return contextualType != null && !allowsUndefined(contextualType);
+    }
+
+    function matchesFunctionReturnFalsePositive(node: Rule.Node) {
+      return (
+        node.type === 'LogicalExpression' &&
+        node.operator === '&&' &&
+        node.parent?.type === 'ReturnStatement' &&
+        node.right.type !== 'BinaryExpression' &&
+        hasTypeUnsafeContextualType(node)
+      );
+    }
+
+    function matchesTypedVariableInitializerFalsePositive(node: Rule.Node) {
+      return (
+        node.type === 'LogicalExpression' &&
+        node.operator === '&&' &&
+        node.parent?.type === 'VariableDeclarator' &&
+        node.parent.init === node &&
+        node.right.type !== 'BinaryExpression' &&
+        hasTypeUnsafeContextualType(node)
+      );
+    }
+
+    function matchesObjectLiteralPropertyFalsePositive(node: Rule.Node) {
+      return (
+        node.type === 'LogicalExpression' &&
+        node.operator === '&&' &&
+        node.parent?.type === 'Property' &&
+        node.parent.value === node &&
+        node.right.type !== 'BinaryExpression' &&
+        hasTypeUnsafeContextualType(node)
+      );
+    }
+
+    function matchesCallArgumentFalsePositive(node: Rule.Node) {
+      const subject = getContextualTypeSubject(node);
+      const parent = subject.parent;
+      if (
+        node.type !== 'LogicalExpression' ||
+        node.operator !== '&&' ||
+        node.right.type === 'BinaryExpression' ||
+        parent?.type !== 'CallExpression' ||
+        !parent.arguments.includes(subject as never)
+      ) {
+        return false;
+      }
+
+      const contextualType = getContextualTypeOfNode(subject);
+      return contextualType != null && !allowsUndefined(contextualType);
+    }
+
+    function matchesAssignmentFalsePositive(node: Rule.Node) {
+      if (
+        node.type !== 'LogicalExpression' ||
+        node.operator !== '&&' ||
+        node.right.type === 'BinaryExpression' ||
+        node.parent?.type !== 'AssignmentExpression' ||
+        node.parent.right !== node ||
+        node.parent.operator !== '='
+      ) {
+        return false;
+      }
+
+      const parent = node.parent;
+      if (parent.left.type !== 'Identifier' && parent.left.type !== 'MemberExpression') {
+        // Keep the matcher narrowly scoped to ordinary typed assignment targets.
+        // Broader target coverage can be added once we have concrete FP examples.
+        return false;
+      }
+
+      const targetType = getTypeOfNode(parent.left as Rule.Node);
+      return targetType != null && !allowsUndefined(targetType);
+    }
+
+    /**
+     * Returns true when the upstream report is a known false positive that should be suppressed.
+     *
+     * We suppress only when the optional-chain rewrite would leak a type-unsafe `undefined`
+     * into the surrounding context. All other cases are reported by default.
+     */
+    function isKnownFalsePositive(node: Rule.Node): boolean {
+      if (matchesFunctionReturnFalsePositive(node)) {
+        return true;
+      }
+
+      if (matchesTypedVariableInitializerFalsePositive(node)) {
+        return true;
+      }
+
+      if (matchesObjectLiteralPropertyFalsePositive(node)) {
+        return true;
+      }
+
+      if (matchesCallArgumentFalsePositive(node)) {
+        return true;
+      }
+
+      if (matchesAssignmentFalsePositive(node)) {
+        return true;
+      }
+
+      return false;
+    }
+
     return interceptReport(preferOptionalChainRule, (ctx, descriptor) => {
       const node = findReportNode(ctx, descriptor);
       if (!node) {
         return;
       }
 
-      // Negation patterns (!a || !a.prop): the ! operator always returns boolean,
-      // so optional chaining (!a?.prop) is always type-safe regardless of context.
-      // Both sides must be negated — !a || (comparison) is not a negation pattern
-      // and should fall through to the contextual type check.
-      if (isNegatedOptionalChainGuard(node)) {
-        ctx.report(descriptor);
+      if (isKnownFalsePositive(node)) {
         return;
       }
 
-      // Comparison patterns (e.g. !a || a.prop !== b): the comparison operator always
-      // returns boolean, so the optional-chain rewrite (a?.prop !== b) is also boolean —
-      // no undefined leaks into the surrounding type regardless of context.
-      if (
-        node.type === 'LogicalExpression' &&
-        node.right.type === 'BinaryExpression' &&
-        ['==', '!=', '===', '!==', '<', '>', '<=', '>=', 'instanceof', 'in'].includes(
-          node.right.operator,
-        )
-      ) {
-        ctx.report(descriptor);
-        return;
-      }
-
-      // Left-operand-of-|| or left-operand-of-?? pattern:
-      // When (a && a.prop) is the left operand of || or ??, the enclosing operator
-      // absorbs the undefined introduced by optional chaining, making the rewrite
-      // type-safe. E.g. (repo && repo.name) || fallback → repo?.name || fallback
-      // preserves the overall type because || and ?? provide a fallback for undefined.
       const parent = node.parent;
       if (
         parent?.type === 'LogicalExpression' &&
@@ -225,18 +306,7 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      const contextualType = getContextualTypeOfNode(services, checker, node);
-      if (!contextualType) {
-        // No contextual type (e.g. if/while boolean context) — replacement is safe
-        ctx.report(descriptor);
-        return;
-      }
-
-      if (allowsUndefined(contextualType)) {
-        // undefined is assignable to the contextual type — replacement is type-safe
-        ctx.report(descriptor);
-      }
-      // undefined is NOT assignable to the contextual type — suppress the report
+      ctx.report(descriptor);
     }).create(context);
   },
 };

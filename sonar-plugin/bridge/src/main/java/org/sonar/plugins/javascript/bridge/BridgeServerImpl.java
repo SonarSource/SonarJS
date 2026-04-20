@@ -259,7 +259,7 @@ public class BridgeServerImpl implements BridgeServer {
       this.client.connectBlocking();
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw new RuntimeException(e);
+      throw new IllegalStateException("WebSocket connection interrupted", e);
     }
   }
 

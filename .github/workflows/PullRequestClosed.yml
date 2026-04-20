@@ -7,7 +7,7 @@ on:
 jobs:
   PullRequestMerged_job:
     name: Pull Request Merged
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     permissions:
       id-token: write
       pull-requests: read

@@ -7,7 +7,7 @@ on:
 jobs:
   PullRequestCreated_job:
     name: Pull Request Created
-    runs-on: github-ubuntu-latest-s
+    runs-on: sonar-xs-public
     permissions:
       id-token: write
     # For external PR, ticket should be created manually

@@ -80,8 +80,8 @@ export function computeMetrics(root: Root | Document): CssMetrics {
   // so line numbers are not necessarily added in order (e.g. a rule's closing
   // brace line is added before its children's lines).
   return {
-    ncloc: Array.from(codeLines).sort((a, b) => a - b),
-    commentLines: Array.from(commentCandidates).sort((a, b) => a - b),
-    nosonarLines: nosonarLines.sort((a, b) => a - b),
+    ncloc: Array.from(codeLines).toSorted((a, b) => a - b),
+    commentLines: Array.from(commentCandidates).toSorted((a, b) => a - b),
+    nosonarLines: nosonarLines.toSorted((a, b) => a - b),
   };
 }

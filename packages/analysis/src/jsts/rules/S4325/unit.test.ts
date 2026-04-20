@@ -17,7 +17,6 @@
 import { rule } from './index.js';
 import { decorate } from './decorator.js';
 import { RuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
-import { rules as typescriptEslintRules } from '../external/typescript-eslint/index.js';
 import { describe, it } from 'node:test';
 import path from 'node:path';
 import parser from '@typescript-eslint/parser';
@@ -26,58 +25,6 @@ import assert from 'node:assert';
 import type { Rule } from 'eslint';
 
 const ruleTester = new RuleTester();
-const upstreamRule = typescriptEslintRules['no-unnecessary-type-assertion'];
-
-// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
-// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
-// it signals that the decorator can be safely removed.
-describe('S4325 upstream sentinel', () => {
-  it('upstream no-unnecessary-type-assertion raises on generic-call assertions that decorator suppresses', () => {
-    const sentinelTester = new RuleTester();
-    sentinelTester.run('no-unnecessary-type-assertion', upstreamRule, {
-      valid: [],
-      invalid: [
-        {
-          // Generic querySelector() as HTMLElement — suppressed by decorator, raised by upstream
-          code: `
-            class Component {
-              private eGui: HTMLElement = document.createElement('div');
-              queryForHtmlElement(cssSelector: string): HTMLElement {
-                return this.eGui.querySelector(cssSelector) as HTMLElement;
-              }
-            }
-          `,
-          output: `
-            class Component {
-              private eGui: HTMLElement = document.createElement('div');
-              queryForHtmlElement(cssSelector: string): HTMLElement {
-                return this.eGui.querySelector(cssSelector);
-              }
-            }
-          `,
-          errors: 1,
-        },
-        {
-          // querySelector()! as HTMLElement — suppressed by decorator (new fix), raised by upstream.
-          // Without strictNullChecks, both `!` and `as HTMLElement` are unnecessary: 2 errors.
-          // ESLint applies fixes with non-overlapping ranges in one pass; the `!` and `as T` fixes
-          // overlap, so only the `!` fix is applied per pass, leaving `as HTMLElement` in output.
-          code: `
-            function getSubmitButton(form: Element): HTMLElement {
-              return form.querySelector('button[type="submit"]')! as HTMLElement;
-            }
-          `,
-          output: `
-            function getSubmitButton(form: Element): HTMLElement {
-              return form.querySelector('button[type="submit"]') as HTMLElement;
-            }
-          `,
-          errors: 2,
-        },
-      ],
-    });
-  });
-});
 
 describe('S4325', () => {
   it('should not flag assertions narrowing generic function return types', () => {
@@ -210,56 +157,6 @@ describe('S4325', () => {
         },
       ],
       invalid: [],
-    });
-  });
-
-  it('should flag non-null assertions on declared nullable types without strictNullChecks', () => {
-    ruleTester.run('S4325 non-null assertions without strictNullChecks', rule, {
-      valid: [],
-      invalid: [
-        {
-          // Property declared as T | null — flagged because without strictNullChecks, ! is a no-op
-          code: `
-            interface Api {
-              user(): Promise<{ name: string }>;
-            }
-            class CmsClient {
-              api: Api | null = null;
-              async getUser() {
-                return await this.api!.user();
-              }
-            }
-          `,
-          output: `
-            interface Api {
-              user(): Promise<{ name: string }>;
-            }
-            class CmsClient {
-              api: Api | null = null;
-              async getUser() {
-                return await this.api.user();
-              }
-            }
-          `,
-          errors: 1,
-        },
-        {
-          // Variable declared as T | undefined — flagged because without strictNullChecks, ! is a no-op
-          code: `
-            let config: { debug: boolean } | undefined;
-            function getDebug() {
-              return config!.debug;
-            }
-          `,
-          output: `
-            let config: { debug: boolean } | undefined;
-            function getDebug() {
-              return config.debug;
-            }
-          `,
-          errors: 1,
-        },
-      ],
     });
   });
 

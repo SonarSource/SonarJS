@@ -12,6 +12,10 @@
 
   <name>SonarQube JavaScript :: API</name>
 
+  <properties>
+    <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.sonarsource.api.plugin</groupId>

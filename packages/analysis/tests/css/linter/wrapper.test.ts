@@ -56,7 +56,7 @@ describe('LinterWrapper', () => {
         column: 2,
         endLine: 1,
         endColumn: 5,
-        message: 'Unexpected empty block',
+        message: 'Empty block',
       },
     ]);
   });
@@ -107,7 +107,7 @@ describe('LinterWrapper', () => {
         column: 17,
         endLine: 2,
         endColumn: 20,
-        message: 'Unexpected missing generic font family',
+        message: 'Missing generic font family',
       },
     ]);
   });
@@ -131,7 +131,7 @@ describe('LinterWrapper', () => {
         language: 'css',
         line: 1,
         column: 0,
-        message: 'Unexpected empty source',
+        message: 'Empty source',
       },
     ]);
   });

@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "noImplicitAny": true,
+    "strict": true,
+    "lib": ["ESNext", "DOM"],
+  },
+  "files": [
+    "placeholder.tsx"
+  ]
+}

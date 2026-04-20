@@ -23,8 +23,9 @@ import org.junit.jupiter.api.Test;
 class EscapeUtilsTest {
 
   @Test
-  void test() {
-    assertThat(EscapeUtils.unescape("foo")).isEqualTo("foo");
+  void should_unescape_known_sequences() {
+    String plainText = "foo";
+    assertThat(EscapeUtils.unescape(plainText)).isSameAs(plainText);
     assertThat(EscapeUtils.unescape("\\u000B")).isEqualTo("\u000B");
     assertThat(EscapeUtils.unescape("\\x0B")).isEqualTo("\u000B");
 
@@ -38,5 +39,15 @@ class EscapeUtilsTest {
     assertThat(EscapeUtils.unescape("\\\'")).isEqualTo("\'");
     assertThat(EscapeUtils.unescape("\\\\")).isEqualTo("\\");
     assertThat(EscapeUtils.unescape("\\|")).isEqualTo("|");
+  }
+
+  @Test
+  void should_preserve_incomplete_or_invalid_escape_sequences() {
+    assertThat(EscapeUtils.unescape("\\")).isEqualTo("\\");
+    assertThat(EscapeUtils.unescape("foo\\")).isEqualTo("foo\\");
+    assertThat(EscapeUtils.unescape("\\u00")).isEqualTo("\\u00");
+    assertThat(EscapeUtils.unescape("\\x0")).isEqualTo("\\x0");
+    assertThat(EscapeUtils.unescape("\\u00GG")).isEqualTo("\\u00GG");
+    assertThat(EscapeUtils.unescape("\\xGG")).isEqualTo("\\xGG");
   }
 }
