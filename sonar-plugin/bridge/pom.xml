@@ -145,6 +145,25 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.6.1</version>
+        <executions>
+          <execution>
+            <id>add-generated-sources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${project.build.directory}/generated-sources</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <groupId>org.xolstice.maven.plugins</groupId>
         <artifactId>protobuf-maven-plugin</artifactId>
         <version>0.6.1</version>
@@ -154,7 +173,7 @@
             <goals>
               <goal>compile</goal>
             </goals>
-            <phase>generate-sources</phase>
+            <phase>${protobuf.generation.phase}</phase>
             <configuration>
               <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
               </protocArtifact>
@@ -168,7 +187,7 @@
               <goal>compile</goal>
               <goal>compile-custom</goal>
             </goals>
-            <phase>generate-sources</phase>
+            <phase>${protobuf.generation.phase}</phase>
             <configuration>
               <protocArtifact>com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
               </protocArtifact>
@@ -200,7 +219,7 @@
         <executions>
           <execution>
             <id>Build the bridge</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -215,7 +234,7 @@
           </execution>
           <execution>
             <id>Bundle the bridge</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -230,7 +249,7 @@
           </execution>
           <execution>
             <id>Pack the bridge</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -244,7 +263,7 @@
           </execution>
           <execution>
             <id>Generate Node.js properties node-info.properties</id>
-            <phase>generate-resources</phase>
+            <phase>${node.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -265,7 +284,7 @@
         <executions>
           <execution>
             <id>Copy the bridge to the package</id>
-            <phase>process-resources</phase>
+            <phase>${node.resources.phase}</phase>
             <goals>
               <goal>copy-resources</goal>
             </goals>

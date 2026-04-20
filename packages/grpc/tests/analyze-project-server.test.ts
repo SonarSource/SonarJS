@@ -24,7 +24,10 @@ import { expect } from 'expect';
 import * as grpc from '@grpc/grpc-js';
 import type { Worker } from 'node:worker_threads';
 import { normalizePath } from '../../shared/src/helpers/files.js';
-import { startAnalyzeProjectServer } from '../src/analyze-project-server.js';
+import {
+  analyzeProjectServerInternals,
+  startAnalyzeProjectServer,
+} from '../src/analyze-project-server.js';
 import { createAnalyzeProjectWorker } from '../src/analyze-project-worker/create-worker.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
 import type {
@@ -315,6 +318,24 @@ class FakeWorker extends EventEmitter {
   }
 }
 
+function createUnitServerState({
+  analysisInProgress = false,
+  leaseCall = null,
+  startupShutdownTimeout = null,
+}: {
+  analysisInProgress?: boolean;
+  leaseCall?: { end: () => void } | null;
+  startupShutdownTimeout?: NodeJS.Timeout | null;
+} = {}) {
+  return {
+    analysisInProgress,
+    leaseCall: leaseCall as unknown as grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null,
+    nextWorkerRequestId: 0,
+    shuttingDown: false,
+    startupShutdownTimeout,
+  };
+}
+
 type ServerMode = {
   label: string;
   createWorker: () => Promise<Worker | undefined>;
@@ -486,6 +507,43 @@ describe('analyze-project gRPC server', () => {
     });
   });
 
+  it('should reject concurrent stream requests while a stream is active', async () => {
+    const streamRequestId = createDeferred<string>();
+    const worker = new FakeWorker(message => {
+      if (message.type === 'analyze-stream') {
+        streamRequestId.resolve(message.requestId);
+      }
+    });
+
+    await withAnalyzeProjectServer(worker as unknown as Worker, async client => {
+      const streamCall = client.startAnalyzeProject({
+        requestJson: JSON.stringify(createAnalyzeProjectPayload()),
+      });
+      const activeResponsesPromise = client.readAnalyzeProject(streamCall);
+      const requestId = await streamRequestId.promise;
+
+      const responses = await client.analyzeProject({
+        requestJson: JSON.stringify(createAnalyzeProjectPayload()),
+      });
+      const [errorResponse] = responses.map(response => JSON.parse(response.messageJson ?? '{}'));
+
+      expect(errorResponse).toMatchObject({
+        messageType: 'error',
+        error: {
+          code: 'GENERAL_ERROR',
+          message: 'Another analysis is already running',
+        },
+      });
+
+      worker.emitMessage({
+        requestId,
+        result: { result: '', type: 'success' },
+        type: 'stream-complete',
+      });
+      await activeResponsesPromise;
+    });
+  });
+
   it('should cancel an active worker analysis through the cancel RPC', async () => {
     const streamRequestId = createDeferred<string>();
     const worker = new FakeWorker(message => {
@@ -615,5 +673,156 @@ describe('analyze-project gRPC server', () => {
         details: 'Call cancelled',
       });
     });
+  });
+
+  it('should ignore unrelated worker messages while waiting for a completion message', async () => {
+    const worker = new EventEmitter();
+
+    await expect(
+      analyzeProjectServerInternals.waitForWorkerCompletion(
+        worker as unknown as Worker,
+        'unary-complete',
+        'expected-request',
+        () => {
+          worker.emit('message', {
+            requestId: 'different-request',
+            result: { result: '', type: 'success' },
+            type: 'unary-complete',
+          } satisfies AnalyzeProjectWorkerOutMessage);
+          worker.emit('message', {
+            requestId: 'expected-request',
+            result: { result: '', type: 'success' },
+            type: 'unary-complete',
+          } satisfies AnalyzeProjectWorkerOutMessage);
+        },
+      ),
+    ).resolves.toMatchObject({
+      requestId: 'expected-request',
+      type: 'unary-complete',
+    });
+  });
+
+  it('should fail when the worker emits an error while waiting for completion', async () => {
+    const worker = new EventEmitter();
+
+    await expect(
+      analyzeProjectServerInternals.waitForWorkerCompletion(
+        worker as unknown as Worker,
+        'unary-complete',
+        'request-1',
+        () => {
+          worker.emit('error', new Error('worker failed'));
+        },
+      ),
+    ).rejects.toThrow('worker failed');
+  });
+
+  it('should fail when the worker completion times out', async () => {
+    const worker = new EventEmitter();
+
+    await expect(
+      analyzeProjectServerInternals.waitForWorkerCompletion(
+        worker as unknown as Worker,
+        'unary-complete',
+        'request-1',
+        () => {},
+        10,
+      ),
+    ).rejects.toThrow("Timed out waiting for worker message 'unary-complete'");
+  });
+
+  it('should request in-process cancellation when no worker is configured', async () => {
+    const handledRequests: string[] = [];
+    const lifecycle = analyzeProjectServerInternals.createLifecycle({
+      handleRequestInCurrentThread: async request => {
+        handledRequests.push(request.type);
+        return { result: 'OK', type: 'success' };
+      },
+      newWorkerRequestId: () => 'request-1',
+      resolveClosed: () => {},
+      server: { forceShutdown: () => {} } as unknown as grpc.Server,
+      state: createUnitServerState(),
+      timeout: 0,
+      unregisterGarbageCollectionObserver: () => {},
+    });
+
+    await expect(lifecycle.requestCancel()).resolves.toBe(true);
+    expect(handledRequests).toEqual(['on-cancel-analysis']);
+  });
+
+  it('should tolerate in-process cancellation and lease closure failures during shutdown', async () => {
+    let cancelCalls = 0;
+    let forceShutdownCalls = 0;
+    let resolveClosedCalls = 0;
+    let unregisterCalls = 0;
+    const startupShutdownTimeout = setTimeout(() => {}, 1_000);
+    const state = createUnitServerState({
+      analysisInProgress: true,
+      leaseCall: {
+        end: () => {
+          throw new Error('lease end failed');
+        },
+      },
+      startupShutdownTimeout,
+    });
+    const lifecycle = analyzeProjectServerInternals.createLifecycle({
+      handleRequestInCurrentThread: async () => {
+        cancelCalls += 1;
+        throw new Error('cancel failed');
+      },
+      newWorkerRequestId: () => 'request-1',
+      resolveClosed: () => {
+        resolveClosedCalls += 1;
+      },
+      server: {
+        forceShutdown: () => {
+          forceShutdownCalls += 1;
+        },
+      } as unknown as grpc.Server,
+      state,
+      timeout: 0,
+      unregisterGarbageCollectionObserver: () => {
+        unregisterCalls += 1;
+      },
+    });
+
+    await lifecycle.shutdown('first shutdown');
+    await lifecycle.shutdown('second shutdown');
+
+    expect(cancelCalls).toBe(1);
+    expect(forceShutdownCalls).toBe(1);
+    expect(resolveClosedCalls).toBe(1);
+    expect(unregisterCalls).toBe(1);
+    expect(state.leaseCall).toBeNull();
+    expect(state.startupShutdownTimeout).toBeNull();
+  });
+
+  it('should tolerate worker shutdown failures', async () => {
+    let forceShutdownCalls = 0;
+    const lifecycle = analyzeProjectServerInternals.createLifecycle({
+      handleRequestInCurrentThread: async () => ({ result: 'OK', type: 'success' }),
+      newWorkerRequestId: () => 'request-1',
+      resolveClosed: () => {},
+      server: {
+        forceShutdown: () => {
+          forceShutdownCalls += 1;
+        },
+      } as unknown as grpc.Server,
+      state: createUnitServerState({ analysisInProgress: true }),
+      timeout: 0,
+      unregisterGarbageCollectionObserver: () => {},
+      worker: {
+        postMessage: () => {
+          throw new Error('worker post failed');
+        },
+        terminate: async () => {
+          throw new Error('worker terminate failed');
+        },
+      } as unknown as Worker,
+    });
+
+    await lifecycle.shutdown('worker shutdown');
+
+    expect(forceShutdownCalls).toBe(1);
   });
 });

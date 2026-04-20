@@ -673,6 +673,11 @@ function attachWorkerLifecycleHandlers(
   });
 }
 
+export const analyzeProjectServerInternals = {
+  createLifecycle,
+  waitForWorkerCompletion,
+};
+
 export async function startAnalyzeProjectServer(
   port = 0,
   host = '127.0.0.1',

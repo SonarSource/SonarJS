@@ -359,7 +359,7 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public void analyzeProject(WebSocketMessageHandler<ProjectAnalysisRequest> handler) {
+  public void analyzeProject(ProjectAnalysisHandler<ProjectAnalysisRequest> handler) {
     var request = handler.getRequest();
     request.setBundles(deployedBundles.stream().map(Path::toString).toList());
     request.setRulesWorkdir(workdir);

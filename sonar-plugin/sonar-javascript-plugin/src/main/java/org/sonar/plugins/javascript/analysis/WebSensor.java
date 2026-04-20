@@ -53,8 +53,8 @@ import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
+import org.sonar.plugins.javascript.bridge.ProjectAnalysisHandler;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
-import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssue;
@@ -238,7 +238,7 @@ public class WebSensor implements Sensor {
     }
   }
 
-  class AnalyzeProjectHandler implements WebSocketMessageHandler<ProjectAnalysisRequest> {
+  class AnalyzeProjectHandler implements ProjectAnalysisHandler<ProjectAnalysisRequest> {
 
     private final JsTsContext<?> context;
     private final Map<String, List<ExternalIssue>> externalIssues;
@@ -361,18 +361,6 @@ public class WebSensor implements Sensor {
           )
         );
       }
-    }
-
-    @Override
-    public void onClose(int code, String reason, boolean remote) {
-      handle.completeExceptionally(
-        new IllegalStateException("WebSocket connection closed abnormally: " + reason)
-      );
-    }
-
-    @Override
-    public void onError(Exception ex) {
-      handle.completeExceptionally(new IllegalStateException("WebSocket connection error", ex));
     }
 
     private void addFileToAnalyze(Map<String, BridgeServer.JsTsFile> files, InputFile inputFile)

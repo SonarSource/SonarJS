@@ -266,13 +266,13 @@ class BridgeServerImplTest {
       : BridgeServer.AnalysisResponse.fromDTO(responseDto);
   }
 
-  private WebSocketMessageHandler<BridgeServer.ProjectAnalysisRequest> createStreamingHandler(
+  private ProjectAnalysisHandler<BridgeServer.ProjectAnalysisRequest> createStreamingHandler(
     DefaultInputFile inputFile,
     boolean skipAst
   ) throws IOException {
     var request = createProjectRequest(inputFile, skipAst);
     var future = new CompletableFuture<Void>();
-    return new WebSocketMessageHandler<>() {
+    return new ProjectAnalysisHandler<>() {
       @Override
       public BridgeServer.ProjectAnalysisRequest getRequest() {
         return request;

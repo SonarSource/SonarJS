@@ -46,7 +46,7 @@ public interface BridgeServer extends Startable {
 
   TelemetryData getTelemetry();
 
-  void analyzeProject(WebSocketMessageHandler<ProjectAnalysisRequest> handler);
+  void analyzeProject(ProjectAnalysisHandler<ProjectAnalysisRequest> handler);
 
   ProjectAnalysisOutputDTO analyzeProject(ProjectAnalysisRequest request) throws IOException;
 

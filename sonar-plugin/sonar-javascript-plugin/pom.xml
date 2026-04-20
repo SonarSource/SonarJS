@@ -172,7 +172,7 @@
         <executions>
           <execution>
             <id>Validate quickfix configuration</id>
-            <phase>initialize</phase>
+            <phase>${node.init.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -187,7 +187,7 @@
           </execution>
           <execution>
             <id>Generate Node.js properties node-info.properties</id>
-            <phase>initialize</phase>
+            <phase>${node.init.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>
@@ -209,7 +209,7 @@
         <version>1.3.0</version>
         <executions>
           <execution>
-            <phase>initialize</phase>
+            <phase>${node.init.phase}</phase>
             <goals>
               <goal>read-project-properties</goal>
             </goals>
@@ -228,7 +228,7 @@
         <executions>
           <execution>
             <id>unpack-node-runtimes</id>
-            <phase>process-resources</phase>
+            <phase>${node.resources.phase}</phase>
             <goals>
               <goal>unpack</goal>
             </goals>

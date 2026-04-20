@@ -22,18 +22,27 @@ import type {
   AnalyzeProjectWorkerOutMessage,
 } from './analyze-project-worker/messages.js';
 
-if (parentPort) {
-  const parentThread = parentPort;
+type AnalyzeProjectWorkerParentThread = {
+  close: () => void;
+  on: (
+    event: 'message',
+    listener: (message: AnalyzeProjectWorkerInMessage) => void | Promise<void>,
+  ) => void;
+  postMessage: (message: AnalyzeProjectWorkerOutMessage) => void;
+};
+
+export function registerAnalyzeProjectWorkerMessageHandler(
+  parentThread: AnalyzeProjectWorkerParentThread,
+  data: WorkerData,
+  handleRequest: typeof handleAnalyzeProjectRequest = handleAnalyzeProjectRequest,
+) {
   parentThread.on('message', async (message: AnalyzeProjectWorkerInMessage) => {
     switch (message.type) {
       case 'close':
         parentThread.close();
         return;
       case 'cancel': {
-        const result = await handleAnalyzeProjectRequest(
-          { type: 'on-cancel-analysis' },
-          workerData as WorkerData,
-        );
+        const result = await handleRequest({ type: 'on-cancel-analysis' }, data);
         parentThread.postMessage({
           type: 'cancel-complete',
           requestId: message.requestId,
@@ -42,9 +51,9 @@ if (parentPort) {
         return;
       }
       case 'analyze-unary': {
-        const result = await handleAnalyzeProjectRequest(
+        const result = await handleRequest(
           { type: 'on-analyze-project', data: message.request },
-          workerData as WorkerData,
+          data,
         );
         parentThread.postMessage({
           type: 'unary-complete',
@@ -54,9 +63,9 @@ if (parentPort) {
         return;
       }
       case 'analyze-stream': {
-        const result = await handleAnalyzeProjectRequest(
+        const result = await handleRequest(
           { type: 'on-analyze-project', data: message.request },
-          workerData as WorkerData,
+          data,
           event =>
             parentThread.postMessage({
               type: 'event',
@@ -72,4 +81,8 @@ if (parentPort) {
       }
     }
   });
+}
+
+if (parentPort) {
+  registerAnalyzeProjectWorkerMessageHandler(parentPort, workerData as WorkerData);
 }

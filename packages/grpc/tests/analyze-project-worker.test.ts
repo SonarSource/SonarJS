@@ -1,0 +1,153 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+
+import { EventEmitter } from 'node:events';
+import { setImmediate as waitForImmediate } from 'node:timers/promises';
+import { describe, it } from 'node:test';
+import { expect } from 'expect';
+import type { WorkerData } from '../src/analyze-project-handle-request.js';
+import { registerAnalyzeProjectWorkerMessageHandler } from '../src/analyze-project-worker.js';
+import type {
+  AnalyzeProjectWorkerInMessage,
+  AnalyzeProjectWorkerOutMessage,
+} from '../src/analyze-project-worker/messages.js';
+import type { RequestResult, WsIncrementalResult } from '../src/analyze-project-request.js';
+
+class FakeParentThread {
+  private readonly events = new EventEmitter();
+  closed = false;
+  postedMessages: AnalyzeProjectWorkerOutMessage[] = [];
+
+  close() {
+    this.closed = true;
+  }
+
+  emitMessage(message: AnalyzeProjectWorkerInMessage) {
+    this.events.emit('message', message);
+  }
+
+  on(event: 'message', listener: (message: AnalyzeProjectWorkerInMessage) => void | Promise<void>) {
+    this.events.on(event, listener);
+  }
+
+  postMessage(message: AnalyzeProjectWorkerOutMessage) {
+    this.postedMessages.push(message);
+  }
+}
+
+const workerData: WorkerData = { debugMemory: false };
+
+describe('analyze-project worker', () => {
+  it('should close the parent thread on close messages', async () => {
+    const parentThread = new FakeParentThread();
+
+    registerAnalyzeProjectWorkerMessageHandler(parentThread, workerData, async () => ({
+      result: 'OK',
+      type: 'success',
+    }));
+
+    parentThread.emitMessage({ type: 'close' });
+    await waitForImmediate();
+
+    expect(parentThread.closed).toBe(true);
+    expect(parentThread.postedMessages).toEqual([]);
+  });
+
+  it('should forward cancel messages to the request handler', async () => {
+    const handledRequests: unknown[] = [];
+    const result: RequestResult = { result: 'OK', type: 'success' };
+    const parentThread = new FakeParentThread();
+
+    registerAnalyzeProjectWorkerMessageHandler(parentThread, workerData, async request => {
+      handledRequests.push(request);
+      return result;
+    });
+
+    parentThread.emitMessage({ requestId: 'cancel-1', type: 'cancel' });
+    await waitForImmediate();
+
+    expect(handledRequests).toEqual([{ type: 'on-cancel-analysis' }]);
+    expect(parentThread.postedMessages).toEqual([
+      {
+        requestId: 'cancel-1',
+        result,
+        type: 'cancel-complete',
+      },
+    ]);
+  });
+
+  it('should forward unary analysis messages to the request handler', async () => {
+    const handledRequests: unknown[] = [];
+    const result: RequestResult = { result: 'OK', type: 'success' };
+    const parentThread = new FakeParentThread();
+    const request = { files: ['main.ts'] };
+
+    registerAnalyzeProjectWorkerMessageHandler(parentThread, workerData, async runtimeRequest => {
+      handledRequests.push(runtimeRequest);
+      return result;
+    });
+
+    parentThread.emitMessage({ request, requestId: 'unary-1', type: 'analyze-unary' });
+    await waitForImmediate();
+
+    expect(handledRequests).toEqual([{ data: request, type: 'on-analyze-project' }]);
+    expect(parentThread.postedMessages).toEqual([
+      {
+        requestId: 'unary-1',
+        result,
+        type: 'unary-complete',
+      },
+    ]);
+  });
+
+  it('should stream incremental events and completion messages', async () => {
+    const handledRequests: unknown[] = [];
+    const incrementalEvents: WsIncrementalResult[] = [
+      { error: 'stream error', messageType: 'error' },
+    ];
+    const result: RequestResult = { result: 'OK', type: 'success' };
+    const parentThread = new FakeParentThread();
+    const request = { files: ['main.ts'] };
+
+    registerAnalyzeProjectWorkerMessageHandler(
+      parentThread,
+      workerData,
+      async (runtimeRequest, _, incrementalResultsChannel) => {
+        handledRequests.push(runtimeRequest);
+        incrementalResultsChannel?.(incrementalEvents[0]);
+        return result;
+      },
+    );
+
+    parentThread.emitMessage({ request, requestId: 'stream-1', type: 'analyze-stream' });
+    await waitForImmediate();
+
+    expect(handledRequests).toEqual([{ data: request, type: 'on-analyze-project' }]);
+    expect(parentThread.postedMessages).toEqual([
+      {
+        requestId: 'stream-1',
+        result: incrementalEvents[0],
+        type: 'event',
+      },
+      {
+        requestId: 'stream-1',
+        result,
+        type: 'stream-complete',
+      },
+    ]);
+  });
+});

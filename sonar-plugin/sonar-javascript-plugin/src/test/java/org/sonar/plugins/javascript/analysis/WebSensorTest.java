@@ -28,8 +28,8 @@ import static org.mockito.Mockito.when;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -48,7 +48,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
@@ -84,17 +83,14 @@ import org.sonar.api.utils.Version;
 import org.sonar.css.CssRules;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.analysis.WebSensor.AnalyzeProjectHandler;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.EslintRule;
-import org.sonar.plugins.javascript.bridge.JSWebSocketClient;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
+import org.sonar.plugins.javascript.bridge.ProjectAnalysisHandler;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
-import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
 import org.sonar.plugins.javascript.bridge.protobuf.Position;
@@ -115,7 +111,7 @@ class WebSensorTest {
   Path baseDir;
 
   @Mock
-  private BridgeServerImpl bridgeServerMock;
+  private BridgeServer bridgeServerMock;
 
   private final TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
   private static final Gson GSON = new Gson();
@@ -129,8 +125,6 @@ class WebSensorTest {
 
   private String nodeExceptionMessage =
     "Error while running Node.js. A supported version of Node.js is required for running the analysis of JS/TS files. Please make sure a supported version of Node.js is available in the PATH or an executable path is provided via 'sonar.nodejs.executable' property. Alternatively, you can exclude JS/TS files from your analysis using the 'sonar.exclusions' configuration property. See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/";
-
-  private JSWebSocketClient webSocketClient;
 
   @TempDir
   Path tempDir;
@@ -166,8 +160,6 @@ class WebSensorTest {
       )
     );
     inputFile = createInputFile(context);
-    webSocketClient = new JSWebSocketClient(new URI("ws://localhost:9001/"));
-
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     analysisProcessor = new AnalysisProcessor(
@@ -177,7 +169,7 @@ class WebSensorTest {
     );
   }
 
-  private List<String> getWSMessages(BridgeServer.ProjectAnalysisOutputDTO response) {
+  private List<String> getAnalysisStreamMessages(BridgeServer.ProjectAnalysisOutputDTO response) {
     List<String> queue = new ArrayList<>();
     for (Map.Entry<String, BridgeServer.AnalysisResponseDTO> entry : response.files().entrySet()) {
       String key = entry.getKey();
@@ -340,31 +332,13 @@ class WebSensorTest {
   }
 
   @Test
-  void should_ignore_ws_messages_not_related_to_project_analysis() {
-    executeSensorMockingEvents(() -> {
-      webSocketClient.onMessage("{messageType: 'unrelated_event'}");
-      for (var message : getWSMessages(createProjectResponse(List.of(inputFile)))) {
-        webSocketClient.onMessage(message);
+  void should_ignore_stream_messages_not_related_to_project_analysis() {
+    executeSensorMockingEvents(handler -> {
+      dispatchAnalysisStreamMessage(handler, "{messageType: 'unrelated_event'}");
+      for (var message : getAnalysisStreamMessages(createProjectResponse(List.of(inputFile)))) {
+        dispatchAnalysisStreamMessage(handler, message);
       }
     });
-  }
-
-  @Test
-  void should_end_analysis_error_ws_event() {
-    assertThatThrownBy(() ->
-      executeSensorMockingEvents(() -> {
-        webSocketClient.onError(new IOException("Abnormal termination"));
-      })
-    ).isInstanceOf(IllegalStateException.class);
-  }
-
-  @Test
-  void should_end_analysis_close_ws_event() {
-    assertThatThrownBy(() ->
-      executeSensorMockingEvents(() -> {
-        webSocketClient.onClose(1006, "Abnormal close event", true);
-      })
-    ).isInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -382,7 +356,7 @@ class WebSensorTest {
   void should_explode_if_no_response_from_project_analysis() {
     doThrow(new IllegalStateException("error"))
       .when(bridgeServerMock)
-      .analyzeProject(any(WebSocketMessageHandler.class));
+      .analyzeProject(any(ProjectAnalysisHandler.class));
     var sensor = createSensor();
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
@@ -760,7 +734,7 @@ class WebSensorTest {
   void should_fail_fast() {
     doThrow(new IllegalStateException("error"))
       .when(bridgeServerMock)
-      .analyzeProject(any(WebSocketMessageHandler.class));
+      .analyzeProject(any(ProjectAnalysisHandler.class));
     var sensor = createSensor();
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
@@ -830,15 +804,11 @@ class WebSensorTest {
   @Test
   void stop_analysis_if_cancelled() {
     var expectedResponse = createProjectResponse(List.of(inputFile));
-    JSWebSocketClient spyClient = Mockito.spy(webSocketClient);
-    Mockito.doNothing().when(spyClient).send(Mockito.anyString());
-
-    executeSensorMockingEvents(() -> {
-      var messages = getWSMessages(expectedResponse);
+    executeSensorMockingEvents(handler -> {
+      var messages = getAnalysisStreamMessages(expectedResponse);
       context.setCancelled(true);
-      spyClient.onMessage(messages.get(0));
-      Mockito.verify(spyClient).send(GSON.toJson(Map.of("type", "on-cancel-analysis")));
-      spyClient.onMessage("{messageType: 'cancelled'}");
+      dispatchAnalysisStreamMessage(handler, messages.get(0));
+      dispatchAnalysisStreamMessage(handler, "{messageType: 'cancelled'}");
     });
     assertThat(logTester.logs(Level.INFO)).contains(
       "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
@@ -849,19 +819,17 @@ class WebSensorTest {
   void handle_errors_gracefully_during_analyze_project() {
     var jsError = "{\"code\":\"GENERAL_ERROR\",\"message\":\"Fake error message\"}";
     var message = String.format("{messageType: 'error', error: %s}", jsError);
-    JSWebSocketClient spyClient = Mockito.spy(webSocketClient);
-    Mockito.doNothing().when(spyClient).send(Mockito.anyString());
 
     var exception = catchThrowable(() ->
-      executeSensorMockingEvents(() -> {
-        spyClient.onMessage(message);
+      executeSensorMockingEvents(handler -> {
+        dispatchAnalysisStreamMessage(handler, message);
       })
     );
     assertThat(exception)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
     assertThat(exception.getCause().getMessage()).isEqualTo(
-      String.format("java.lang.RuntimeException: Received error from bridge: %s", jsError)
+      String.format("java.lang.RuntimeException: Received error from analyzer runtime: %s", jsError)
     );
   }
 
@@ -1403,13 +1371,11 @@ class WebSensorTest {
     );
   }
 
-  private AnalyzeProjectHandler executeSensorAndCaptureHandler(
-    WebSensor sensor,
-    SensorContextTester ctx
-  ) {
-    ArgumentCaptor<AnalyzeProjectHandler> captor = ArgumentCaptor.forClass(
-      AnalyzeProjectHandler.class
-    );
+  private ProjectAnalysisHandler<
+    BridgeServer.ProjectAnalysisRequest
+  > executeSensorAndCaptureHandler(WebSensor sensor, SensorContextTester ctx) {
+    ArgumentCaptor<ProjectAnalysisHandler<BridgeServer.ProjectAnalysisRequest>> captor =
+      ArgumentCaptor.forClass(ProjectAnalysisHandler.class);
     sensor.execute(ctx);
     verify(bridgeServerMock).analyzeProject(captor.capture());
     return captor.getValue();
@@ -1429,30 +1395,52 @@ class WebSensorTest {
     WebSensor sensor,
     BridgeServer.ProjectAnalysisOutputDTO expectedResponse
   ) {
-    executeSensorMockingEvents(sensor, () -> {
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
+    executeSensorMockingEvents(sensor, handler -> {
+      for (var message : getAnalysisStreamMessages(expectedResponse)) {
+        dispatchAnalysisStreamMessage(handler, message);
       }
     });
   }
 
-  private void executeSensorMockingEvents(Runnable events) {
+  private void executeSensorMockingEvents(
+    java.util.function.Consumer<ProjectAnalysisHandler<BridgeServer.ProjectAnalysisRequest>> events
+  ) {
     executeSensorMockingEvents(createSensor(), events);
   }
 
-  private void executeSensorMockingEvents(WebSensor sensor, Runnable events) {
+  private void executeSensorMockingEvents(
+    WebSensor sensor,
+    java.util.function.Consumer<ProjectAnalysisHandler<BridgeServer.ProjectAnalysisRequest>> events
+  ) {
     doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
+      ProjectAnalysisHandler<BridgeServer.ProjectAnalysisRequest> handler = invocation.getArgument(
+        0
+      );
       handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      events.run();
+      events.accept(handler);
       return handler.getFuture().join();
     })
       .when(bridgeServerMock)
-      .analyzeProject(any(WebSocketMessageHandler.class));
+      .analyzeProject(any(ProjectAnalysisHandler.class));
     sensor.execute(context);
-    assertThat(webSocketClient.getMessageHandlers()).isEmpty();
+  }
+
+  private static void dispatchAnalysisStreamMessage(
+    ProjectAnalysisHandler<BridgeServer.ProjectAnalysisRequest> handler,
+    String message
+  ) {
+    var jsonObject = JsonParser.parseString(message).getAsJsonObject();
+    if ("error".equals(jsonObject.get("messageType").getAsString())) {
+      handler
+        .getFuture()
+        .completeExceptionally(
+          new RuntimeException(
+            String.format("Received error from analyzer runtime: %s", jsonObject.get("error"))
+          )
+        );
+      return;
+    }
+    handler.handleMessage(jsonObject);
   }
 
   private SensorContextTester createSensorContext(Path baseDir) throws IOException {

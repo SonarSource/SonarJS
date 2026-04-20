@@ -21,11 +21,9 @@ import java.util.concurrent.CompletableFuture;
 import org.sonar.api.batch.sensor.SensorContext;
 
 /**
- * Interface for handling WebSocket messages in a flexible WebSocket client architecture.
- * Implementations of this interface can provide specialized handling for different
- * types of WebSocket messages.
+ * Application-level handler for streamed project-analysis requests and responses.
  */
-public interface WebSocketMessageHandler<T> {
+public interface ProjectAnalysisHandler<T> {
   /**
    * Get the request that needs to be sent to the server
    */
@@ -42,30 +40,9 @@ public interface WebSocketMessageHandler<T> {
   CompletableFuture<Void> getFuture();
 
   /**
-   * Handles a JSON WebSocket message.
+   * Handles a streamed JSON response from the analyzer runtime.
    *
    * @param message the parsed JSON object
    */
   void handleMessage(JsonObject message);
-
-  /**
-   * Called when the WebSocket connection is closed.
-   * Implementations can use this to clean up resources.
-   *
-   * @param code   the status code
-   * @param reason the reason for closing
-   * @param remote whether the connection was closed by the remote endpoint
-   */
-  default void onClose(int code, String reason, boolean remote) {
-    // Default empty implementation
-  }
-
-  /**
-   * Called when an error occurs in the WebSocket connection.
-   *
-   * @param exception the exception that occurred
-   */
-  default void onError(Exception exception) {
-    // Default empty implementation
-  }
 }
