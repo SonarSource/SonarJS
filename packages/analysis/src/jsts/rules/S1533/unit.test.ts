@@ -80,19 +80,19 @@ describe('S1533', () => {
           code: `const m = new Map<Number, String>();`,
         },
         {
-          // FP: later uses of local aliases stay exempt
+          // FP: later uses of local aliases are not reported because the alias name is not a wrapper type
           code: `type T = String; let x: T; let y: Map<T, T>;`,
         },
         {
-          // FP: later uses of local interfaces stay exempt
+          // FP: later uses of local interfaces are not reported because the interface name is not a wrapper type
           code: `interface CardArtItem { classes: Array<String>; } class CardArt extends React.Component<{ layers: Array<CardArtItem> }, {}> {}`,
         },
         {
-          // FP: local interfaces used as function parameters stay exempt
+          // FP: local interfaces used as function parameters are not reported because the interface name is not a wrapper type
           code: `interface FilterRestProps { confirm?: Boolean; closeDropdown?: Boolean; } const onReset = ({ confirm }: FilterRestProps = { confirm: false }) => confirm;`,
         },
         {
-          // FP: transitive local aliases stay exempt
+          // FP: transitive local aliases are not reported because the alias names are not wrapper types
           code: `type IconProps = { disabled?: Boolean }; type IconComponent = JSXComponent<IconProps>; type IconInstance = { component: IconComponent }; const iconData: Ref<IconInstance> | undefined = undefined;`,
         },
       ],
