@@ -1090,6 +1090,15 @@ jobs:
           🤖 Generated with GitHub Actions"
           fi
 
+          get_open_fix_pr_url() {
+            gh pr list \
+              --head "$FIX_BRANCH" \
+              --base "$TARGET_REF" \
+              --state open \
+              --json url \
+              --jq '.[0].url'
+          }
+
           # Create/update fix PR if ruling failed and there are differences
           if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
             # Stash changes before checkout
@@ -1112,7 +1121,14 @@ jobs:
           🤖 Generated with GitHub Actions"
                 git push --force-with-lease origin "$FIX_BRANCH"
               fi
-              FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url')
+              FIX_PR_URL=$(get_open_fix_pr_url 2>/dev/null || true)
+              if [ -z "${FIX_PR_URL:-}" ]; then
+                FIX_PR_URL=$(gh pr create \
+                  --title "$FIX_PR_TITLE" \
+                  --base "$TARGET_REF" \
+                  --head "$FIX_BRANCH" \
+                  --body "$FIX_PR_BODY")
+              fi
             else
               git checkout -b "$FIX_BRANCH" "origin/$TARGET_REF"
               git stash pop
