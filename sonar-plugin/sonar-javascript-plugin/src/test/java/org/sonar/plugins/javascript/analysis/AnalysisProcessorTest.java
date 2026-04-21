@@ -62,7 +62,8 @@ class AnalysisProcessorTest {
       fileLinesContextFactory,
       mock(CssRules.class)
     );
-    var context = new JsTsContext(SensorContextTester.create(baseDir));
+    var sensorContext = SensorContextTester.create(baseDir);
+    var context = new JsTsContext(sensorContext);
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .setLanguage("js")
@@ -84,6 +85,38 @@ class AnalysisProcessorTest {
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs()).contains(
       "Failed to create highlight in " + file.uri() + " at 1:2-1:1"
+    );
+  }
+
+  @Test
+  void should_skip_unsupported_highlight_text_type() {
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
+    var sensorContext = SensorContextTester.create(baseDir);
+    var context = new JsTsContext(sensorContext);
+    var file = TestInputFileBuilder.create("moduleKey", "file.js")
+      .setContents("var x  = 1;")
+      .setLanguage("js")
+      .build();
+    var highlight = Highlight.newBuilder()
+      .setLocation(Location.newBuilder().setStartLine(1).setStartCol(0).setEndLine(1).setEndCol(3))
+      .setTextType(TextType.TEXT_TYPE_UNSPECIFIED)
+      .build();
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .addHighlights(highlight)
+      .build();
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    assertThat(sensorContext.highlightingTypeAt(file.key(), 1, 0)).isEmpty();
+    assertThat(logTester.logs()).doesNotContain(
+      "Failed to create highlight in " + file.uri() + " at 1:0-1:3"
     );
   }
 

@@ -134,18 +134,19 @@ class QuickFixSupportTest {
   }
 
   static Issue issueWithQuickFix() {
-    var quickFixEdit = QuickFixEdit.newBuilder()
-      .setText(";")
-      .setLoc(
-        IssueLocation.newBuilder()
-          .setLine(1)
-          .setColumn(2)
-          .setEndLine(3)
-          .setEndColumn(4)
-          .setMessage("")
-          .build()
-      )
-      .build();
+    return issueWithQuickFix(
+      IssueLocation.newBuilder()
+        .setLine(1)
+        .setColumn(2)
+        .setEndLine(3)
+        .setEndColumn(4)
+        .setMessage("")
+        .build()
+    );
+  }
+
+  static Issue issueWithQuickFix(IssueLocation location) {
+    var quickFixEdit = QuickFixEdit.newBuilder().setText(";").setLoc(location).build();
     var quickFix = QuickFix.newBuilder()
       .setMessage("QuickFix message")
       .addEdits(quickFixEdit)
@@ -163,6 +164,21 @@ class QuickFixSupportTest {
       .addRuleEslintKeys("foo")
       .setFilePath("index.js")
       .build();
+  }
+
+  @Test
+  void test_incomplete_quick_fix_location() {
+    var context = createContext(Version.create(6, 3));
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .addIssues(issueWithQuickFix(IssueLocation.getDefaultInstance()))
+      .setMetrics(Metrics.getDefaultInstance())
+      .build();
+
+    var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
+    doNothing().when(sensorStorage).store(issueCaptor.capture());
+    analysisProcessor.processResponse(context, checks, inputFile, response);
+
+    assertThat(issueCaptor.getValue().quickFixes()).isEmpty();
   }
 
   @Test

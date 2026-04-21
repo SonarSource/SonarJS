@@ -16,11 +16,11 @@
  */
 
 import type {
+  AnalyzeProjectIncrementalEvent,
   AnalyzeProjectProtoRequest,
+  AnalyzeProjectResponse,
   RequestResult,
-  WsIncrementalResult,
 } from '../analyze-project-request.js';
-import type { ProjectAnalysisOutput } from '../../../analysis/src/projectAnalysis.js';
 
 export type AnalyzeProjectWorkerInMessage =
   | { type: 'analyze-stream'; requestId: string; request: AnalyzeProjectProtoRequest }
@@ -29,7 +29,7 @@ export type AnalyzeProjectWorkerInMessage =
   | { type: 'close' };
 
 export type AnalyzeProjectWorkerOutMessage =
-  | { type: 'event'; requestId: string; result: WsIncrementalResult }
-  | { type: 'stream-complete'; requestId: string; result: RequestResult<ProjectAnalysisOutput> }
-  | { type: 'unary-complete'; requestId: string; result: RequestResult<ProjectAnalysisOutput> }
+  | { type: 'event'; requestId: string; result: AnalyzeProjectIncrementalEvent }
+  | { type: 'stream-complete'; requestId: string; result: RequestResult<AnalyzeProjectResponse> }
+  | { type: 'unary-complete'; requestId: string; result: RequestResult<AnalyzeProjectResponse> }
   | { type: 'cancel-complete'; requestId: string; result: RequestResult };

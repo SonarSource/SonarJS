@@ -283,12 +283,18 @@ function createSparseAnalyzeProjectRequest(): AnalyzeProjectRequest {
   return {
     configuration: {
       baseDir: basicFixtureDir,
+      canAccessFileSystem: false,
     },
     files: {},
     rules: [],
     cssRules: [],
     bundles: [],
   };
+}
+
+function createAnalyzeProjectRequestWithOmittedFiles(): AnalyzeProjectRequest {
+  const { files: _files, ...request } = createAnalyzeProjectRequest();
+  return request;
 }
 
 function createInvalidAnalyzeProjectRequestWithFiles(): AnalyzeProjectRequest {
@@ -327,6 +333,13 @@ function createAnalyzeProjectRequestWithoutFiles({
     cssRules: [],
     bundles: [],
   };
+}
+
+function createPathKeyVariant(filePath: string) {
+  if (filePath.startsWith('/')) {
+    return `/${filePath.slice(1).replaceAll('/', '\\')}`;
+  }
+  return filePath.replaceAll('/', '\\');
 }
 
 function createProjectAnalysisOutput(
@@ -492,6 +505,55 @@ describe('analyze-project gRPC server', () => {
             responses.some(response => response.fileResult?.filePath === basicFixtureFile),
           ).toBe(true);
           expect(responses.some(response => response.meta != null)).toBe(true);
+        });
+      });
+    }
+  });
+
+  it('should initialize files from disk when typed requests omit files', async t => {
+    for (const mode of serverModes) {
+      await t.test(mode.label, async () => {
+        const worker = await mode.createWorker();
+        await withAnalyzeProjectServer(worker, async client => {
+          const response = await client.analyzeProjectUnary(
+            createAnalyzeProjectRequestWithOmittedFiles(),
+          );
+          const fileResult = response.files?.[basicFixtureFile];
+
+          expect(fileResult).toBeDefined();
+          expect(fileResult?.issues?.length ?? 0).toBeGreaterThan(0);
+        });
+      });
+    }
+  });
+
+  it('should preserve original request paths in unary and streamed responses', async t => {
+    const originalFilePath = createPathKeyVariant(basicFixtureFile);
+    const request = createAnalyzeProjectRequest({
+      files: {
+        [originalFilePath]: {
+          fileType: FileType.FILE_TYPE_MAIN,
+        },
+      },
+    });
+
+    for (const mode of serverModes) {
+      await t.test(mode.label, async () => {
+        const worker = await mode.createWorker();
+        await withAnalyzeProjectServer(worker, async client => {
+          const unaryResponse = await client.analyzeProjectUnary(request);
+          expect(Object.keys(unaryResponse.files ?? {})).toEqual([originalFilePath]);
+          expect(unaryResponse.files?.[originalFilePath]?.issues?.[0]?.filePath).toBe(
+            originalFilePath,
+          );
+
+          const streamResponses = await client.analyzeProject(request);
+          const fileResult = streamResponses.find(
+            response => response.fileResult?.filePath === originalFilePath,
+          )?.fileResult;
+
+          expect(fileResult).toBeDefined();
+          expect(fileResult?.result?.issues?.[0]?.filePath).toBe(originalFilePath);
         });
       });
     }

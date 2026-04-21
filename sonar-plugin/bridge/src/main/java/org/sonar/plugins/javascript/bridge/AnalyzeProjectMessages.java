@@ -159,7 +159,7 @@ public final class AnalyzeProjectMessages {
       case SAME -> FileStatus.FILE_STATUS_SAME;
       case CHANGED -> FileStatus.FILE_STATUS_CHANGED;
       case ADDED -> FileStatus.FILE_STATUS_ADDED;
-      default -> throw new IllegalArgumentException("Unsupported file status: " + fileStatus);
+      default -> FileStatus.FILE_STATUS_UNSPECIFIED;
     };
   }
 

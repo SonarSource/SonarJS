@@ -83,6 +83,7 @@ export interface SanitizedProjectAnalysisInput {
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
   configuration: Configuration;
+  pathMap: Map<string, string>;
 }
 
 export async function sanitizeProjectAnalysisInput(
@@ -96,9 +97,10 @@ export async function sanitizeProjectAnalysisInput(
   }
 
   const configuration = createConfiguration(raw.configuration);
-  const inputFiles = isObject(raw.files)
-    ? (await sanitizeRawInputFiles(raw.files, configuration)).files
+  const sanitizedFiles = isObject(raw.files)
+    ? await sanitizeRawInputFiles(raw.files, configuration)
     : undefined;
+  const inputFiles = sanitizedFiles?.files;
 
   await initFileStores(configuration, inputFiles);
 
@@ -111,6 +113,7 @@ export async function sanitizeProjectAnalysisInput(
       ? normalizeToAbsolutePath(raw.rulesWorkdir, configuration.baseDir)
       : undefined,
     configuration,
+    pathMap: sanitizedFiles?.pathMap ?? new Map(),
   };
 }
 

@@ -35,26 +35,37 @@ class QuickFixSupport {
   }
 
   static void addQuickFixes(Issue issue, NewIssue sonarLintIssue, InputFile file) {
-    issue
-      .getQuickFixesList()
-      .forEach(qf -> {
-        LOG.debug("Adding quick fix for issue {} at line {}", issue.getRuleId(), issue.getLine());
-        var quickFix = sonarLintIssue.newQuickFix();
-        var fileEdit = quickFix.newInputFileEdit();
-        qf
-          .getEditsList()
-          .forEach(e -> {
-            var loc = e.getLoc();
-            var textEdit = fileEdit.newTextEdit();
-            textEdit
-              .at(
-                file.newRange(loc.getLine(), loc.getColumn(), loc.getEndLine(), loc.getEndColumn())
-              )
-              .withNewText(e.getText());
-            fileEdit.on(file).addTextEdit(textEdit);
-          });
-        quickFix.addInputFileEdit(fileEdit).message(qf.getMessage());
-        sonarLintIssue.addQuickFix(quickFix);
-      });
+    for (var quickFixMessage : issue.getQuickFixesList()) {
+      LOG.debug("Adding quick fix for issue {} at line {}", issue.getRuleId(), issue.getLine());
+      var quickFix = sonarLintIssue.newQuickFix();
+      var fileEdit = quickFix.newInputFileEdit();
+      var hasValidEdit = false;
+
+      for (var edit : quickFixMessage.getEditsList()) {
+        var loc = edit.getLoc();
+        if (!loc.hasLine() || !loc.hasColumn() || !loc.hasEndLine() || !loc.hasEndColumn()) {
+          LOG.debug(
+            "Skipping quick fix edit with incomplete location for rule {}",
+            issue.getRuleId()
+          );
+          continue;
+        }
+
+        var textEdit = fileEdit.newTextEdit();
+        textEdit
+          .at(file.newRange(loc.getLine(), loc.getColumn(), loc.getEndLine(), loc.getEndColumn()))
+          .withNewText(edit.getText());
+        fileEdit.on(file).addTextEdit(textEdit);
+        hasValidEdit = true;
+      }
+
+      if (!hasValidEdit) {
+        LOG.debug("Skipping quick fix without valid edits for rule {}", issue.getRuleId());
+        continue;
+      }
+
+      quickFix.addInputFileEdit(fileEdit).message(quickFixMessage.getMessage());
+      sonarLintIssue.addQuickFix(quickFix);
+    }
   }
 }

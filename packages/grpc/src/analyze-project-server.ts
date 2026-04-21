@@ -30,15 +30,15 @@ import {
   registerGarbageCollectionObserver,
 } from './analyze-project-memory.js';
 import type {
+  AnalyzeProjectIncrementalEvent,
+  AnalyzeProjectResponse,
   AnalyzeProjectRuntimeRequest,
   RequestResult,
-  WsIncrementalResult,
 } from './analyze-project-request.js';
 import {
   toAnalyzeProjectStreamResponse,
   toAnalyzeProjectUnaryResponse,
 } from './analyze-project-convert.js';
-import type { ProjectAnalysisOutput } from '../../analysis/src/projectAnalysis.js';
 
 const ANALYZE_PROJECT_SERVICE_NAME = 'sonarjs.analyzeproject.v1.AnalyzeProjectService';
 const WORKER_RESPONSE_TIMEOUT_MS = 15_000;
@@ -65,8 +65,8 @@ type AnalyzeProjectServerResult = {
 
 type HandleRequestInCurrentThread = (
   request: AnalyzeProjectRuntimeRequest,
-  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
-) => Promise<RequestResult<ProjectAnalysisOutput | void>>;
+  incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
+) => Promise<RequestResult<AnalyzeProjectResponse | void>>;
 
 type AnalyzeProjectServerState = {
   analysisInProgress: boolean;
@@ -472,7 +472,9 @@ function createAnalyzeProjectStreamHandler({
         }
         switch (message.type) {
           case 'event':
-            writeResponse(toAnalyzeProjectStreamResponse(message.result));
+            writeResponse(
+              toAnalyzeProjectStreamResponse(message.result.event, message.result.pathMap),
+            );
             return;
           case 'stream-complete':
             if (message.result.type === 'failure') {
@@ -498,7 +500,7 @@ function createAnalyzeProjectStreamHandler({
     }
 
     void handleRequestInCurrentThread({ type: 'on-analyze-project', data: call.request }, event =>
-      writeResponse(toAnalyzeProjectStreamResponse(event)),
+      writeResponse(toAnalyzeProjectStreamResponse(event.event, event.pathMap)),
     )
       .then(result => {
         if (result.type === 'failure') {
@@ -555,7 +557,7 @@ function createAnalyzeProjectUnaryHandler({
         return;
       }
 
-      callback(null, toAnalyzeProjectUnaryResponse(result.result as ProjectAnalysisOutput));
+      callback(null, toAnalyzeProjectUnaryResponse(result.result.output, result.result.pathMap));
     } catch (e) {
       callback(toGrpcError(e instanceof Error ? e.message : String(e)));
     } finally {

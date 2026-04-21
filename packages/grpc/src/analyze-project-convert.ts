@@ -18,6 +18,7 @@
 import type { ProjectAnalysisOutput, FileResult } from '../../analysis/src/projectAnalysis.js';
 import type { ProjectAnalysisTelemetry } from '../../analysis/src/telemetry.js';
 import type { WsIncrementalResult } from '../../analysis/src/incremental-result.js';
+import type { AnalyzeProjectPathMap } from './analyze-project-request.js';
 import type {
   ParsingError as InternalParsingError,
   ParsingErrorLanguage,
@@ -58,10 +59,11 @@ const { AnalysisLanguage, ParsingErrorCode, TextType } = sonarjs.analyzeproject.
 
 export function toAnalyzeProjectUnaryResponse(
   output: ProjectAnalysisOutput,
+  pathMap: AnalyzeProjectPathMap = new Map(),
 ): AnalyzeProjectUnaryResponse {
   const files: Record<string, ProjectAnalysisFileResult> = {};
   for (const [filePath, result] of Object.entries(output.files)) {
-    files[filePath] = toProjectAnalysisFileResult(result);
+    files[restorePath(filePath, pathMap)] = toProjectAnalysisFileResult(result, pathMap);
   }
   return {
     files,
@@ -71,13 +73,14 @@ export function toAnalyzeProjectUnaryResponse(
 
 export function toAnalyzeProjectStreamResponse(
   result: WsIncrementalResult,
+  pathMap: AnalyzeProjectPathMap = new Map(),
 ): AnalyzeProjectStreamResponse {
   switch (result.messageType) {
     case 'fileResult':
       return {
         fileResult: {
-          filePath: result.filename,
-          result: toProjectAnalysisFileResult(result),
+          filePath: restorePath(result.filename, pathMap),
+          result: toProjectAnalysisFileResult(result, pathMap),
         },
       };
     case 'meta':
@@ -95,7 +98,16 @@ export function toAnalyzeProjectStreamResponse(
   }
 }
 
-function toProjectAnalysisFileResult(result: FileResult): ProjectAnalysisFileResult {
+function restorePath(filePath: string, pathMap: AnalyzeProjectPathMap): string;
+function restorePath(filePath: undefined, pathMap: AnalyzeProjectPathMap): undefined;
+function restorePath(filePath: string | undefined, pathMap: AnalyzeProjectPathMap) {
+  return filePath == null ? filePath : (pathMap.get(filePath) ?? filePath);
+}
+
+function toProjectAnalysisFileResult(
+  result: FileResult,
+  pathMap: AnalyzeProjectPathMap,
+): ProjectAnalysisFileResult {
   if ('error' in result) {
     return {
       error: result.error,
@@ -104,7 +116,7 @@ function toProjectAnalysisFileResult(result: FileResult): ProjectAnalysisFileRes
 
   return {
     parsingErrors: (result.parsingErrors ?? []).map(toParsingError),
-    issues: result.issues.map(toIssue),
+    issues: result.issues.map(issue => toIssue(issue, pathMap)),
     highlights: ('highlights' in result ? result.highlights : undefined)?.map(toHighlight) ?? [],
     highlightedSymbols:
       ('highlightedSymbols' in result ? result.highlightedSymbols : undefined)?.map(
@@ -152,7 +164,10 @@ function toParsingError(error: InternalParsingError): sonarjs.analyzeproject.v1.
   };
 }
 
-function toIssue(issue: JsTsIssue | CssIssue): sonarjs.analyzeproject.v1.IIssue {
+function toIssue(
+  issue: JsTsIssue | CssIssue,
+  pathMap: AnalyzeProjectPathMap,
+): sonarjs.analyzeproject.v1.IIssue {
   return {
     line: issue.line,
     column: issue.column,
@@ -166,7 +181,7 @@ function toIssue(issue: JsTsIssue | CssIssue): sonarjs.analyzeproject.v1.IIssue 
     cost: 'cost' in issue ? issue.cost : undefined,
     quickFixes: 'quickFixes' in issue ? (issue.quickFixes ?? []).map(toQuickFix) : [],
     ruleEslintKeys: 'ruleESLintKeys' in issue ? [...issue.ruleESLintKeys] : [],
-    filePath: 'filePath' in issue ? issue.filePath : undefined,
+    filePath: 'filePath' in issue ? restorePath(issue.filePath, pathMap) : undefined,
   };
 }
 

@@ -223,10 +223,11 @@ public class AnalysisProcessor {
     NewHighlighting highlighting = context.getSensorContext().newHighlighting().onFile(file);
     for (Highlight highlight : highlights) {
       try {
-        highlighting.highlight(
-          toTextRange(highlight.getLocation(), file),
-          toTypeOfText(highlight.getTextType())
-        );
+        var typeOfText = toTypeOfText(highlight.getTextType());
+        if (typeOfText == null) {
+          continue;
+        }
+        highlighting.highlight(toTextRange(highlight.getLocation(), file), typeOfText);
       } catch (RuntimeException e) {
         LOG.warn(
           "Failed to create highlight in {} at {}",
@@ -490,6 +491,7 @@ public class AnalysisProcessor {
     );
   }
 
+  @Nullable
   private static TypeOfText toTypeOfText(TextType textType) {
     return switch (textType) {
       case TEXT_TYPE_CONSTANT -> TypeOfText.CONSTANT;
@@ -497,9 +499,10 @@ public class AnalysisProcessor {
       case TEXT_TYPE_STRUCTURED_COMMENT -> TypeOfText.STRUCTURED_COMMENT;
       case TEXT_TYPE_KEYWORD -> TypeOfText.KEYWORD;
       case TEXT_TYPE_STRING -> TypeOfText.STRING;
-      case TEXT_TYPE_UNSPECIFIED, UNRECOGNIZED -> throw new IllegalArgumentException(
-        "Unsupported text type: " + textType
-      );
+      case TEXT_TYPE_UNSPECIFIED, UNRECOGNIZED -> {
+        LOG.debug("Skipping highlight with unsupported text type: {}", textType);
+        yield null;
+      }
     };
   }
 

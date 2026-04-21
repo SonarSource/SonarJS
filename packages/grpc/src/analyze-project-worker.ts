@@ -21,8 +21,7 @@ import type {
   AnalyzeProjectWorkerInMessage,
   AnalyzeProjectWorkerOutMessage,
 } from './analyze-project-worker/messages.js';
-import type { ProjectAnalysisOutput } from '../../analysis/src/projectAnalysis.js';
-import type { RequestResult } from './analyze-project-request.js';
+import type { AnalyzeProjectResponse, RequestResult } from './analyze-project-request.js';
 
 type AnalyzeProjectWorkerParentThread = {
   close: () => void;
@@ -84,8 +83,8 @@ export function registerAnalyzeProjectWorkerMessageHandler(
 }
 
 function toProjectAnalysisResult(
-  result: RequestResult<ProjectAnalysisOutput | void>,
-): RequestResult<ProjectAnalysisOutput> {
+  result: RequestResult<AnalyzeProjectResponse | void>,
+): RequestResult<AnalyzeProjectResponse> {
   if (result.type === 'failure') {
     return result;
   }
@@ -98,7 +97,7 @@ function toProjectAnalysisResult(
   };
 }
 
-function toVoidResult(result: RequestResult<ProjectAnalysisOutput | void>): RequestResult {
+function toVoidResult(result: RequestResult<AnalyzeProjectResponse | void>): RequestResult {
   if (result.type === 'failure') {
     return result;
   }
