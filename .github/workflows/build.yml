@@ -554,6 +554,7 @@ jobs:
         env:
           SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
           SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
+          NODE_OPTIONS: --use-system-ca
         run: |
           SONAR_ARGS="-Dsonar.host.url=$SONAR_HOST_URL"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.token=$SONAR_TOKEN"
@@ -605,6 +606,7 @@ jobs:
         env:
           SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
           SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
+          NODE_OPTIONS: --use-system-ca
         run: |
           SONAR_ARGS="-Dsonar.host.url=$SONAR_HOST_URL"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.token=$SONAR_TOKEN"
