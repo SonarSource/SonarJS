@@ -170,7 +170,7 @@ describe('Linter', () => {
       baseDir,
       rules: [
         {
-          key: 'S6477',
+          key: 'S6748',
           configurations: [],
           fileTypeTargets: ['MAIN'],
           language: 'js',
@@ -184,7 +184,7 @@ describe('Linter', () => {
       'DEFAULT',
       'js',
     );
-    expect(rules).not.toHaveProperty('sonarjs/S6477');
+    expect(rules).not.toHaveProperty('sonarjs/S6748');
   });
 
   it('should enable React-dependent rules when react dependency is present', async () => {
