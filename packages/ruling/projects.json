@@ -281,15 +281,5 @@
     "folder": "custom/css",
     "testDir": null,
     "exclusions": null
-  },
-  {
-    "name": "fresh",
-    "testDir": null,
-    "exclusions": null
-  },
-  {
-    "name": "oak",
-    "testDir": null,
-    "exclusions": null
   }
 ]
