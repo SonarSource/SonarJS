@@ -250,15 +250,3 @@ Validated in this state:
 3. `mvn -pl sonar-plugin/sonar-javascript-plugin,sonar-plugin/standalone -am "-Dmaven.test.skip=true" "-Dlicense.skip=true" compile`
    - Passes.
    - Confirms the main Java plugin and standalone parser compile against the typed analyze-project contract.
-
-## Remaining Work
-
-The main code path is migrated and compiling, but Java test migration is still pending in this branch state.
-
-The remaining test work is concentrated in:
-
-- `sonar-plugin/bridge/src/test/**`
-- `sonar-plugin/sonar-javascript-plugin/src/test/**`
-- `sonar-plugin/standalone/src/test/**`
-
-These tests still need to move from removed bridge DTOs / JSON envelopes to generated protobuf messages and typed gRPC assertions.

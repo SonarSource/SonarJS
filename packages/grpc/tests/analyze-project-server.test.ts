@@ -252,6 +252,7 @@ async function findOpenPort(): Promise<number> {
 
 function createAnalyzeProjectRequest({
   fileContent,
+  configuration,
   files = {
     [basicFixtureFile]: {
       fileType: FileType.FILE_TYPE_MAIN,
@@ -260,11 +261,13 @@ function createAnalyzeProjectRequest({
   },
 }: {
   fileContent?: string;
+  configuration?: AnalyzeProjectRequest['configuration'];
   files?: AnalyzeProjectRequest['files'];
 } = {}) {
   return {
     configuration: {
       baseDir: basicFixtureDir,
+      ...configuration,
     },
     files,
     rules: [
@@ -502,6 +505,27 @@ describe('analyze-project gRPC server', () => {
         });
       });
     }
+  });
+
+  it('should preserve max_file_size across worker request cloning', async () => {
+    const worker = await createAnalyzeProjectWorker(analyzeProjectWorkerPath, {
+      debugMemory: false,
+    });
+
+    await withAnalyzeProjectServer(worker, async client => {
+      const response = await client.analyzeProjectUnary(
+        createAnalyzeProjectRequest({
+          configuration: {
+            maxFileSize: 5_000_000_000,
+          },
+        }),
+      );
+      const fileResult = response.files?.[basicFixtureFile];
+
+      expect(fileResult).toBeDefined();
+      expect(fileResult?.issues?.length ?? 0).toBeGreaterThan(0);
+      expect(response.meta).toBeDefined();
+    });
   });
 
   it('should stream incremental analyze-project results', async t => {

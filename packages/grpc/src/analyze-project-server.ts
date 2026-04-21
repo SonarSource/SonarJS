@@ -491,6 +491,8 @@ function createAnalyzeProjectStreamHandler({
       };
 
       worker.on('message', onWorkerMessage);
+      // Structured clone strips protobufjs Long helpers (for example int64 maxFileSize), so
+      // request normalization in the worker must also accept plain { low, high, unsigned } values.
       worker.postMessage({
         type: 'analyze-stream',
         requestId,

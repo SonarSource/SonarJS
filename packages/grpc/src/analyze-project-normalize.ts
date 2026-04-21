@@ -352,23 +352,58 @@ function optionalString(value: string | null | undefined): string | undefined {
   return value != null ? value : undefined;
 }
 
+type ClonedLongLike = {
+  high: number;
+  low: number;
+  unsigned: boolean;
+};
+
+type LongLike = {
+  toNumber?: () => number;
+};
+
 function toOptionalNumber(
-  value: number | { toNumber?: () => number } | null | undefined,
+  value: number | LongLike | ClonedLongLike | null | undefined,
   path: string,
 ): number | undefined {
   if (value == null) {
     return undefined;
   }
+
   const numberValue =
     typeof value === 'number'
       ? value
-      : typeof value === 'object' && typeof value.toNumber === 'function'
+      : isLongLike(value)
         ? value.toNumber()
-        : Number(value);
+        : isClonedLongLike(value)
+          ? toNumberFromClonedLong(value)
+          : Number(value);
   if (!Number.isFinite(numberValue) || !Number.isSafeInteger(numberValue)) {
     throw new InvalidAnalyzeProjectRequestError(`${path} must be a safe integer`);
   }
   return numberValue;
+}
+
+function isLongLike(value: unknown): value is Required<LongLike> {
+  return (
+    value != null && typeof value === 'object' && typeof (value as LongLike).toNumber === 'function'
+  );
+}
+
+function isClonedLongLike(value: unknown): value is ClonedLongLike {
+  return (
+    value != null &&
+    typeof value === 'object' &&
+    typeof (value as ClonedLongLike).low === 'number' &&
+    typeof (value as ClonedLongLike).high === 'number' &&
+    typeof (value as ClonedLongLike).unsigned === 'boolean'
+  );
+}
+
+function toNumberFromClonedLong(value: ClonedLongLike) {
+  const low = value.low >>> 0;
+  const high = value.unsigned ? value.high >>> 0 : value.high | 0;
+  return high * 0x1_0000_0000 + low;
 }
 
 function hasExplicitFiles(

@@ -23,6 +23,7 @@ import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -243,7 +244,19 @@ public final class AnalyzeProjectMessages {
         }
       }
       return Value.newBuilder().setStructValue(struct).build();
-    } catch (IllegalAccessException | RuntimeException e) {
+    } catch (IllegalAccessException e) {
+      throw new IllegalArgumentException(
+        "Unsupported rule configuration value: " + input.getClass(),
+        e
+      );
+    } catch (RuntimeException e) {
+      if (e instanceof InaccessibleObjectException) {
+        throw new IllegalArgumentException(
+          "Unsupported rule configuration value due to inaccessible reflective fields on " +
+            input.getClass(),
+          e
+        );
+      }
       throw new IllegalArgumentException(
         "Unsupported rule configuration value: " + input.getClass(),
         e
