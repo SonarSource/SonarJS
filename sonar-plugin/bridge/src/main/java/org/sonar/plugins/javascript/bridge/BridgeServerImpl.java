@@ -21,10 +21,6 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.StatusRuntimeException;
@@ -53,6 +49,7 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectServiceGrpc;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectUnaryResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.CancelAnalysisRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.LeaseRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.LeaseResponse;
@@ -85,7 +82,6 @@ public class BridgeServerImpl implements BridgeServer {
   public static final String NODE_TIMEOUT_PROPERTY = "sonar.javascript.node.timeout";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
-  private static final Gson GSON = new Gson();
   private static final String BRIDGE_DEPLOY_LOCATION = "bridge-bundle";
 
   private final NodeCommandBuilder nodeCommandBuilder;
@@ -359,74 +355,49 @@ public class BridgeServerImpl implements BridgeServer {
   }
 
   @Override
-  public void analyzeProject(ProjectAnalysisHandler<ProjectAnalysisRequest> handler) {
-    var request = handler.getRequest();
-    request.setBundles(deployedBundles.stream().map(Path::toString).toList());
-    request.setRulesWorkdir(workdir);
-    var grpcRequest = AnalyzeProjectRequest.newBuilder()
-      .setRequestJson(GSON.toJson(request))
-      .build();
+  public void analyzeProject(ProjectAnalysisHandler handler) {
+    var grpcRequest = enrichAnalyzeProjectRequest(handler.getRequest());
     Iterator<AnalyzeProjectStreamResponse> responses;
     try {
       responses = blockingAnalyzeProjectStub().analyzeProject(grpcRequest);
     } catch (StatusRuntimeException e) {
-      throw unresponsiveServerException(e);
+      throw analyzeProjectException(e);
     }
 
     boolean cancellationRequested = false;
     try {
       while (responses.hasNext()) {
-        var message = responses.next().getMessageJson();
-        var jsonObject = parseGrpcMessage(message);
-        if ("error".equals(jsonObject.get("messageType").getAsString())) {
-          var errorMessage = String.format(
-            "Received error from analyzer runtime: %s",
-            jsonObject.get("error")
-          );
-          handler.getFuture().completeExceptionally(new RuntimeException(errorMessage));
-          break;
-        }
-        handler.handleMessage(jsonObject);
+        handler.handleMessage(responses.next());
         if (handler.getContext().isCancelled() && !cancellationRequested) {
           cancellationRequested = true;
           cancelCurrentAnalysis();
         }
       }
     } catch (StatusRuntimeException e) {
-      throw unresponsiveServerException(e);
+      throw analyzeProjectException(e);
     }
-    handler.getFuture().join();
+    ensureProjectAnalysisCompleted(handler);
   }
 
   @Override
-  public ProjectAnalysisOutputDTO analyzeProject(ProjectAnalysisRequest request)
+  public AnalyzeProjectUnaryResponse analyzeProject(AnalyzeProjectRequest request)
     throws IOException {
-    request.setBundles(deployedBundles.stream().map(Path::toString).toList());
-    request.setRulesWorkdir(workdir);
+    var grpcRequest = enrichAnalyzeProjectRequest(request);
     try {
-      var response = blockingAnalyzeProjectStub().analyzeProjectUnary(
-        AnalyzeProjectRequest.newBuilder().setRequestJson(GSON.toJson(request)).build()
-      );
-      return projectResponse(response.getResponseJson());
+      return blockingAnalyzeProjectStub().analyzeProjectUnary(grpcRequest);
     } catch (StatusRuntimeException e) {
-      throw unresponsiveServerException(e);
+      throw analyzeProjectException(e);
     }
   }
 
-  private static JsonObject parseGrpcMessage(String message) {
-    try {
-      return JsonParser.parseString(message).getAsJsonObject();
-    } catch (RuntimeException e) {
-      throw new IllegalStateException("Failed to parse analyze-project stream message", e);
+  private AnalyzeProjectRequest enrichAnalyzeProjectRequest(AnalyzeProjectRequest request) {
+    var builder = request
+      .toBuilder()
+      .addAllBundles(deployedBundles.stream().map(Path::toString).toList());
+    if (workdir != null) {
+      builder.setRulesWorkdir(workdir);
     }
-  }
-
-  private static ProjectAnalysisOutputDTO projectResponse(String responseJson) {
-    try {
-      return GSON.fromJson(responseJson, ProjectAnalysisOutputDTO.class);
-    } catch (JsonSyntaxException e) {
-      throw new IllegalStateException("Failed to parse project analysis response", e);
-    }
+    return builder.build();
   }
 
   private static IllegalStateException unresponsiveServerException(Exception e) {
@@ -435,6 +406,33 @@ public class BridgeServerImpl implements BridgeServer {
         "https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis",
       e
     );
+  }
+
+  private static IllegalStateException analyzeProjectException(StatusRuntimeException e) {
+    return switch (e.getStatus().getCode()) {
+      case INVALID_ARGUMENT, INTERNAL, RESOURCE_EXHAUSTED -> new IllegalStateException(
+        runtimeErrorMessage(e),
+        e
+      );
+      default -> unresponsiveServerException(e);
+    };
+  }
+
+  private static String runtimeErrorMessage(StatusRuntimeException e) {
+    var description = e.getStatus().getDescription();
+    return description == null || description.isBlank()
+      ? "Received error from analyzer runtime"
+      : "Received error from analyzer runtime: " + description;
+  }
+
+  private static void ensureProjectAnalysisCompleted(ProjectAnalysisHandler handler) {
+    var future = handler.getFuture();
+    if (!future.isDone()) {
+      throw new IllegalStateException(
+        "Analyzer runtime completed the project-analysis stream without sending project metadata"
+      );
+    }
+    future.join();
   }
 
   private void cancelCurrentAnalysis() {

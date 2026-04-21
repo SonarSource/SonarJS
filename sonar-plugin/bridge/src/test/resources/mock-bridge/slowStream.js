@@ -44,7 +44,7 @@ function getFakeAnalysisResponse(skipAst) {
 
 startAnalyzeProjectGrpcServer(port, host, {
   AnalyzeProject: async call => {
-    const request = JSON.parse(call.request.requestJson);
+    const request = call.request;
     const files = request.files || {};
     const skipAst = request.configuration?.skipAst;
 
@@ -52,22 +52,17 @@ startAnalyzeProjectGrpcServer(port, host, {
 
     for (const filePath of Object.keys(files)) {
       call.write({
-        messageJson: JSON.stringify({
-          messageType: 'fileResult',
-          filename: filePath,
-          ...getFakeAnalysisResponse(skipAst),
-        }),
+        fileResult: {
+          filePath,
+          result: getFakeAnalysisResponse(skipAst),
+        },
       });
     }
 
     call.write({
-      messageJson: JSON.stringify({
-        messageType: 'meta',
-        ucfgPaths: [],
-        skippedFiles: [],
-        parsingErrorFiles: [],
-        analysisWarnings: [],
-      }),
+      meta: {
+        warnings: [],
+      },
     });
     call.end();
   },

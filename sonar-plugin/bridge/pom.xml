@@ -36,6 +36,7 @@
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
@@ -141,6 +142,7 @@
         <configuration>
           <excludes>
             <exclude>org/sonar/plugins/javascript/bridge/protobuf/*</exclude>
+            <exclude>org/sonar/plugins/javascript/analyzeproject/grpc/*</exclude>
           </excludes>
         </configuration>
       </plugin>

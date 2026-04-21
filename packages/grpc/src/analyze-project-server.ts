@@ -30,10 +30,15 @@ import {
   registerGarbageCollectionObserver,
 } from './analyze-project-memory.js';
 import type {
+  AnalyzeProjectIncrementalEvent,
+  AnalyzeProjectResponse,
   AnalyzeProjectRuntimeRequest,
   RequestResult,
-  WsIncrementalResult,
 } from './analyze-project-request.js';
+import {
+  toAnalyzeProjectStreamResponse,
+  toAnalyzeProjectUnaryResponse,
+} from './analyze-project-convert.js';
 
 const ANALYZE_PROJECT_SERVICE_NAME = 'sonarjs.analyzeproject.v1.AnalyzeProjectService';
 const WORKER_RESPONSE_TIMEOUT_MS = 15_000;
@@ -60,8 +65,8 @@ type AnalyzeProjectServerResult = {
 
 type HandleRequestInCurrentThread = (
   request: AnalyzeProjectRuntimeRequest,
-  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
-) => Promise<RequestResult>;
+  incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
+) => Promise<RequestResult<AnalyzeProjectResponse | void>>;
 
 type AnalyzeProjectServerState = {
   analysisInProgress: boolean;
@@ -166,20 +171,6 @@ function createAnalyzeProjectServiceDefinition(): grpc.ServiceDefinition {
   };
 }
 
-function errorEvent(error: unknown) {
-  return JSON.stringify({
-    messageType: 'error',
-    error,
-  });
-}
-
-function parseAnalyzeRequest(request: AnalyzeProjectRequest): unknown {
-  if (!request.requestJson) {
-    throw new Error('Missing request_json in AnalyzeProjectRequest');
-  }
-  return JSON.parse(request.requestJson);
-}
-
 function toGrpcError(message: string, code = grpc.status.INTERNAL): grpc.ServiceError {
   const error = new Error(message) as grpc.ServiceError;
   error.name = 'AnalyzeProjectServiceError';
@@ -187,6 +178,17 @@ function toGrpcError(message: string, code = grpc.status.INTERNAL): grpc.Service
   error.details = message;
   error.metadata = new grpc.Metadata();
   return error;
+}
+
+function toGrpcErrorFromFailure(result: Extract<RequestResult, { type: 'failure' }>) {
+  const message =
+    typeof result.error.message === 'string'
+      ? result.error.message
+      : JSON.stringify(result.error.message);
+  return toGrpcError(
+    message,
+    result.reason === 'invalid_request' ? grpc.status.INVALID_ARGUMENT : grpc.status.INTERNAL,
+  );
 }
 
 async function waitForWorkerCompletion(
@@ -397,27 +399,9 @@ function createAnalyzeProjectStreamHandler({
 }: AnalyzeProjectImplementationDependencies) {
   return (call: grpc.ServerWritableStream<AnalyzeProjectRequest, AnalyzeProjectStreamResponse>) => {
     if (state.analysisInProgress) {
-      call.write({
-        messageJson: errorEvent({
-          code: 'GENERAL_ERROR',
-          message: 'Another analysis is already running',
-        }),
-      });
-      call.end();
-      return;
-    }
-
-    let request: unknown;
-    try {
-      request = parseAnalyzeRequest(call.request);
-    } catch (e) {
-      call.write({
-        messageJson: errorEvent({
-          code: 'GENERAL_ERROR',
-          message: e instanceof Error ? e.message : String(e),
-        }),
-      });
-      call.end();
+      call.destroy(
+        toGrpcError('Another analysis is already running', grpc.status.RESOURCE_EXHAUSTED),
+      );
       return;
     }
 
@@ -438,14 +422,25 @@ function createAnalyzeProjectStreamHandler({
       }
     };
 
-    const writeResponse = (messageJson: string) => {
+    const writeResponse = (response: AnalyzeProjectStreamResponse) => {
       if (cancelled) {
         return;
       }
       try {
-        call.write({ messageJson });
+        call.write(response);
       } catch (e) {
         debug(`Failed to write analyze-project stream response: ${e}`);
+      }
+    };
+
+    const failResponse = (error: grpc.ServiceError) => {
+      if (cancelled) {
+        return;
+      }
+      try {
+        call.destroy(error);
+      } catch (destroyError) {
+        debug(`Failed to fail analyze-project stream response: ${destroyError}`);
       }
     };
 
@@ -477,11 +472,15 @@ function createAnalyzeProjectStreamHandler({
         }
         switch (message.type) {
           case 'event':
-            writeResponse(JSON.stringify(message.result));
+            writeResponse(
+              toAnalyzeProjectStreamResponse(message.result.event, message.result.pathMap),
+            );
             return;
           case 'stream-complete':
             if (message.result.type === 'failure') {
-              writeResponse(errorEvent(message.result.error));
+              failResponse(toGrpcErrorFromFailure(message.result));
+              complete();
+              return;
             }
             endResponse();
             complete();
@@ -492,30 +491,28 @@ function createAnalyzeProjectStreamHandler({
       };
 
       worker.on('message', onWorkerMessage);
+      // Structured clone strips protobufjs Long helpers (for example int64 maxFileSize), so
+      // request normalization in the worker must also accept plain { low, high, unsigned } values.
       worker.postMessage({
         type: 'analyze-stream',
         requestId,
-        request,
+        request: call.request,
       } satisfies AnalyzeProjectWorkerInMessage);
       return;
     }
 
-    void handleRequestInCurrentThread({ type: 'on-analyze-project', data: request }, event =>
-      writeResponse(JSON.stringify(event)),
+    void handleRequestInCurrentThread({ type: 'on-analyze-project', data: call.request }, event =>
+      writeResponse(toAnalyzeProjectStreamResponse(event.event, event.pathMap)),
     )
       .then(result => {
         if (result.type === 'failure') {
-          writeResponse(errorEvent(result.error));
+          failResponse(toGrpcErrorFromFailure(result));
+        } else {
+          endResponse();
         }
-        endResponse();
       })
       .catch(error => {
-        writeResponse(
-          errorEvent({
-            message: error instanceof Error ? error.message : String(error),
-          }),
-        );
-        endResponse();
+        failResponse(toGrpcError(error instanceof Error ? error.message : String(error)));
       })
       .finally(complete);
   };
@@ -536,16 +533,6 @@ function createAnalyzeProjectUnaryHandler({
       return;
     }
 
-    let request: unknown;
-    try {
-      request = parseAnalyzeRequest(call.request);
-    } catch (e) {
-      callback(
-        toGrpcError(e instanceof Error ? e.message : String(e), grpc.status.INVALID_ARGUMENT),
-      );
-      return;
-    }
-
     state.analysisInProgress = true;
     try {
       const result = worker
@@ -556,20 +543,23 @@ function createAnalyzeProjectUnaryHandler({
                 worker.postMessage({
                   type: 'analyze-unary',
                   requestId,
-                  request,
+                  request: call.request,
                 } satisfies AnalyzeProjectWorkerInMessage),
               ) as Promise<UnaryCompleteMessage>;
             })()
           ).result
-        : await handleRequestInCurrentThread({ type: 'on-analyze-project', data: request });
+        : await handleRequestInCurrentThread({ type: 'on-analyze-project', data: call.request });
       if (result.type === 'failure') {
-        callback(toGrpcError((result.error.message as string) ?? 'Analysis failed'));
+        callback(toGrpcErrorFromFailure(result));
         return;
       }
 
-      callback(null, {
-        responseJson: JSON.stringify(result.result),
-      });
+      if (result.result == null) {
+        callback(toGrpcError('Missing analyze-project unary result'));
+        return;
+      }
+
+      callback(null, toAnalyzeProjectUnaryResponse(result.result.output, result.result.pathMap));
     } catch (e) {
       callback(toGrpcError(e instanceof Error ? e.message : String(e)));
     } finally {

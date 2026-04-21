@@ -1,205 +1,252 @@
-# Java to Node.js Runtime Migration to gRPC
+﻿# gRPC Analyze-Project Migration
 
 ## Date
 
-2026-04-18
+2026-04-20
 
 ## Goal
 
-Unify Java <-> Node.js runtime communication on gRPC for SonarQube scanner and SonarLint contexts, and remove runtime HTTP/WebSocket transports.
+Move the internal Java -> Node.js analyze-project communication from HTTP/WebSocket to a dedicated typed gRPC contract, remove the legacy JSON envelope, and keep the runtime lifecycle semantics required by SonarQube and SonarLint.
 
-## Inputs and Clarifications
+## Scope
 
-1. Keep `LanguageAnalyzerService` unchanged (Docker/A3S path remains intact).
-2. `StandaloneParser` implementation can be refactored if needed.
-3. Prefer native gRPC patterns over preserving old HTTP/WebSocket mechanics.
-4. The runtime must shut down when Java disappears, and any remaining timeout logic should be kept only where it still adds value.
-5. Cancellation must stop in-process analysis work, not only close the client stream.
-6. Runtime remains single-flight per Node worker.
+- In scope:
+  - SonarQube traditional scanner analyze-project flow.
+  - SonarLint runtime lifecycle and cancellation semantics.
+  - Standalone parser unary analyze-project flow.
+  - Build-time proto generation and generated-artifact handling.
+- Out of scope:
+  - `LanguageAnalyzerService` and `language_analyzer.proto`.
+  - Backward compatibility with the removed HTTP/WebSocket transport.
+
+## Clarifications Captured From The Request
+
+1. `LanguageAnalyzerService` stays unchanged.
+2. `StandaloneParser` can be refactored.
+3. Native gRPC patterns are preferred over preserving old HTTP/WebSocket behavior.
+4. Any activity from Java should keep the runtime considered alive.
+5. Cancellation must stop the in-flight Node analysis work, not only close the client stream.
+6. Single-flight analysis remains the supported runtime model.
 7. Insecure loopback gRPC is acceptable.
-8. Preserve `SONARJS_EXISTING_NODE_PROCESS_PORT` behavior if feasible.
-9. No HTTP backward compatibility required.
-10. Remove HTTP/WebSocket dependencies in the same PR.
-11. Keep worker vs single-process decision pragmatic.
-12. Naming should move away from `bridge`; user explicitly suggested `analyze-project.proto`.
+8. `SONARJS_EXISTING_NODE_PROCESS_PORT` should still support attaching Java to an already running Node process for debugging.
+9. No transport backward compatibility is required. HTTP is dropped.
+10. HTTP/WebSocket runtime dependencies should be removed in the same change.
+11. Worker retention is a design choice, not a compatibility constraint.
+12. The protocol should be designed around analyze-project needs, not around the external A3S contract.
 
-## Final Architecture
+## Final Protocol Design
 
-### Services
+### Service
 
-- Existing service unchanged:
-  - `analyzer.LanguageAnalyzerService` (`language_analyzer.proto`)
-- New runtime service:
-  - `sonarjs.analyzeproject.v1.AnalyzeProjectService` (`analyze-project.proto`)
+`packages/grpc/src/proto/analyze-project.proto` defines the internal runtime API:
 
-### New Runtime gRPC API
+- `AnalyzeProject(AnalyzeProjectRequest) returns (stream AnalyzeProjectStreamResponse)`
+- `AnalyzeProjectUnary(AnalyzeProjectRequest) returns (AnalyzeProjectUnaryResponse)`
+- `CancelAnalysis(CancelAnalysisRequest) returns (CancelAnalysisResponse)`
+- `Lease(stream LeaseRequest) returns (stream LeaseResponse)`
 
-- `AnalyzeProject(AnalyzeProjectRequest) -> stream AnalyzeProjectStreamResponse`
-  - Scanner/SonarLint streaming path (incremental messages).
-- `AnalyzeProjectUnary(AnalyzeProjectRequest) -> AnalyzeProjectUnaryResponse`
-  - Unary compatibility path (used by existing unary Java call sites).
-- `CancelAnalysis(CancelAnalysisRequest) -> CancelAnalysisResponse`
-  - Requests in-worker cancellation.
-- `Lease(stream LeaseRequest) -> stream LeaseResponse`
-  - Long-lived ownership stream tying the Node.js process lifetime to the Java process lifetime.
+### Request
 
-### Payload Strategy
+`AnalyzeProjectRequest` mirrors the internal analyze-project input, not `language_analyzer.proto`:
 
-- Keep protobuf envelopes with JSON strings:
-  - `request_json`, `message_json`, `response_json`.
-- Rationale:
-  - preserves existing analysis payload shape,
-  - minimizes high-risk field-by-field schema migration,
-  - keeps Java/Node refactor focused on transport.
+- `ProjectConfiguration configuration`
+- `map<string, ProjectFileInput> files`
+- `repeated JsTsRule rules`
+- `repeated CssRule css_rules`
+- `repeated string bundles`
+- `optional string rules_workdir`
 
-### Lifecycle, Heartbeat, and Timeout Semantics
+Key choices:
 
-- Java opens a long-lived `Lease` stream as soon as the gRPC channel is ready, but only for the
-  spawned `server.mjs` runtime that Java owns.
-- The lease is transport-level ownership only: no periodic ping messages are required and no
-  application-level lease payloads need to be exchanged. Keeping the stream open is the signal.
-- If Java shuts down or the channel breaks, the `Lease` stream ends and the spawned Node runtime
-  shuts down immediately.
-- No periodic heartbeat RPC is required.
-- A startup grace timeout remains only to cover the narrow window before Java acquires the lease after spawning Node.
-- Java shutdown now uses the same lease closure mechanism to stop the owned Node runtime, replacing
-  both the previous heartbeat timeout dependency and the old dedicated `/close` HTTP endpoint.
-- `SONARJS_EXISTING_NODE_PROCESS_PORT` remains supported as a connection target for debugging, and
-  in that mode Java skips the lease entirely so the external process is not owned or shut down by
-  the scanner.
-- `grpc-server.mjs` / `LanguageAnalyzerService` remains outside this lifecycle and is unaffected.
+- The `files` map key is the canonical file path.
+- `ProjectFileInput` no longer repeats `filePath`.
+- Sparse requests remain accepted for manual clients such as `grpcurl`.
 
-### Cancellation Semantics
+### Enums And Presence
 
-- Single-flight analysis per worker.
-- Stream cancellation from Java triggers `CancelAnalysis` in Node.
-- Explicit Java `CancelAnalysis` also cancels in-worker analysis loop.
+Enums now use `_UNSPECIFIED = 0` where omission has meaning:
+
+- `FILE_TYPE_UNSPECIFIED`
+- `FILE_STATUS_UNSPECIFIED`
+- `ANALYSIS_MODE_UNSPECIFIED`
+- `JS_TS_LANGUAGE_UNSPECIFIED`
+
+Presence is used where omitted vs explicit-empty matters:
+
+- `StringList` wrapper messages are used for configuration lists such as `environments`, `globals`, suffix lists, and `js_ts_exclusions`.
+- Optional scalars remain optional in the proto where current runtime semantics depend on omission.
+
+### Responses
+
+Streaming response is typed with `oneof`:
+
+- `file_result`
+- `meta`
+- `cancelled`
+
+Unary response is typed:
+
+- `map<string, ProjectAnalysisFileResult> files`
+- `ProjectAnalysisMeta meta`
+
+`ProjectAnalysisFileResult.ast` is `bytes`, not base64.
+
+Fatal request/runtime failures are surfaced as gRPC status errors. The old streamed JSON `error` event is removed.
+
+## Node Boundary
+
+### Removed
+
+The analyze-project gRPC path no longer uses:
+
+- `request_json`
+- `message_json`
+- `response_json`
+- `JSON.parse`
+- raw-object transport validation
+- `sanitizeProjectAnalysisInput(raw)` as a gRPC entrypoint
+
+### Added
+
+`packages/grpc/src/analyze-project-normalize.ts` is now the typed adapter from protobuf input to internal analysis input.
+
+It keeps only semantic normalization that protobuf cannot provide:
+
+- normalize `base_dir`, `bundles`, `rules_workdir`, `ts_config_paths`, `fs_events`, and file-path keys
+- require absolute `base_dir`
+- initialize file stores from disk when `files` is omitted and filesystem access is allowed
+- read file contents from disk when a file entry omits `file_content`
+- infer `file_type` when it is unspecified
+- default `file_status` to `SAME` when unspecified
+- preserve existing configuration defaulting semantics
+- apply ignore filtering and file-store initialization before `analyzeProject()`
+- reject semantic invalid states protobuf cannot express, such as empty file-path keys or malformed rule entries
+
+### Response Conversion
+
+`packages/grpc/src/analyze-project-convert.ts` converts internal analysis output to typed protobuf responses.
+
+It now handles:
+
+- typed file results
+- typed meta response
+- typed cancelled response
+- AST base64 -> protobuf bytes conversion
+- per-file `error` payloads
+
+## Java Boundary
+
+### Bridge Surface
+
+The bridge interface now uses generated analyze-project protobuf messages directly:
+
+- `BridgeServer.analyzeProject(ProjectAnalysisHandler)` streams `AnalyzeProjectStreamResponse`
+- `BridgeServer.analyzeProject(AnalyzeProjectRequest)` returns `AnalyzeProjectUnaryResponse`
+
+The old analyze-project transport DTO layer has been removed from the bridge API surface.
+
+### Request Construction
+
+`sonar-plugin/bridge/src/main/java/org/sonar/plugins/javascript/bridge/AnalyzeProjectMessages.java` is the thin Java-side protobuf builder/conversion helper.
+
+It is responsible for:
+
+- building `ProjectConfiguration`
+- building `ProjectFileInput`
+- converting `EslintRule` -> `JsTsRule`
+- converting `StylelintRule` -> `CssRule`
+- converting Java rule configuration objects to `google.protobuf.Value`
+
+### Consumers Updated To Typed Messages
+
+The main Java consumers now use generated protobuf messages directly:
+
+- `WebSensor`
+- `AnalysisProcessor`
+- `PluginTelemetry`
+- `QuickFixSupport`
+- `ExternalIssueRepository`
+- cache classes under `analysis/cache`
+- `StandaloneParser`
+
+AST bytes are decoded from protobuf bytes instead of going through base64.
+
+## Runtime Lifecycle And Ownership
+
+### Lease Model
+
+The old heartbeat ping is replaced by a long-lived `Lease` stream.
+
+- Java opens the lease only for the spawned `server.mjs` runtime that it owns.
+- `grpc-server.mjs` / `LanguageAnalyzerService` is not affected.
+- If the Java process exits and the gRPC connection closes, the lease ends and the owned Node runtime shuts down.
+- When `SONARJS_EXISTING_NODE_PROCESS_PORT` is set, Java skips the lease entirely and does not own the external debug process.
+
+### Startup And Shutdown
+
+- A startup grace timeout still exists only before lease acquisition, so a freshly spawned runtime does not live forever if Java never connects.
+- Java shutdown closes the same lease used for runtime ownership.
+- This centralizes the previous heartbeat timeout and the old dedicated close endpoint into a single ownership mechanism.
+
+### Cancellation
+
+- Runtime analysis stays single-flight.
+- Java cancellation triggers `CancelAnalysis`, and the Node worker stops the active analysis.
+- Concurrent analyze-project requests are rejected with gRPC `RESOURCE_EXHAUSTED`.
 
 ### Worker Decision
 
-- Worker retained.
-- Rationale:
-  - isolates heavy analysis from gRPC control plane,
-  - keeps cancellation/timeout handling responsive,
-  - lowers risk of event-loop starvation during large scans.
-- `server.mjs` keeps using the worker-backed production mode, but `startAnalyzeProjectServer(...)`
-  also supports running without a worker for tests and debugging, matching the old HTTP server
-  behavior where requests could execute in-process.
+The worker is retained for production runtime isolation and cancellation responsiveness.
 
-## Implemented Changes
+At the same time, `startAnalyzeProjectServer(...)` supports running without a worker for unit tests and debugging, matching the old HTTP server behavior where analyze-project could execute in-process.
 
-### Node.js Runtime
+## Build And Generated Artifacts
 
-- Added new runtime proto:
-  - `packages/grpc/src/proto/analyze-project.proto`
-- Added/renamed runtime implementation to analyze-project naming:
-  - `packages/grpc/src/analyze-project-server.ts`
-  - `packages/grpc/src/analyze-project-handle-request.ts`
-  - `packages/grpc/src/analyze-project-request.ts`
-  - `packages/grpc/src/analyze-project-memory.ts`
-  - `packages/grpc/src/analyze-project-worker.ts`
-  - `packages/grpc/src/analyze-project-worker/create-worker.ts`
-  - `packages/grpc/src/analyze-project-worker/messages.ts`
-- `server.mjs` now starts analyze-project gRPC runtime server + worker.
-- `startAnalyzeProjectServer(...)` accepts an optional worker and falls back to in-process handling
-  for unary analysis, streaming analysis, cancellation, and shutdown when no worker is provided.
-- Proto generation wiring updated in `tools/generate-proto.ts`.
-- Removed obsolete generated runtime proto artifacts:
-  - `packages/grpc/src/proto/bridge.js`
-  - `packages/grpc/src/proto/bridge.d.ts`
-- Removed the old inactivity-timeout helper and replaced it with lease-driven ownership plus a startup grace timeout.
+### Java
 
-### Java Runtime Client
+- Java protobuf and gRPC sources for analyze-project are generated by `protobuf-maven-plugin` into `sonar-plugin/bridge/target/generated-sources`.
+- These files are not committed.
+- `.gitignore` already covers them via `target/`.
 
-- `BridgeServerImpl` migrated from HTTP/WebSocket runtime calls to gRPC calls against `AnalyzeProjectService`.
-- `BridgeServerImpl` now uses generated Java gRPC stubs for `AnalyzeProjectService` instead of
-  handwritten `MethodDescriptor` wiring.
-- `analyzeProject(WebSocketMessageHandler)` now consumes gRPC stream messages.
-- `analyzeProject(ProjectAnalysisRequest)` now uses gRPC unary.
-- Java now waits for channel readiness, then opens a long-lived lease stream only for spawned
-  analyzer runtimes.
-- `isAlive()` now reflects channel readiness for external debug runtimes and channel readiness plus
-  lease state for spawned runtimes.
-- `clean()` closes the lease and channel for spawned runtimes, letting Node shut itself down from
-  lease loss, while external debug runtimes are left running.
-- This centralizes graceful shutdown for owned runtimes on the lease path instead of keeping a
-  separate runtime-specific shutdown RPC or HTTP endpoint.
-- Added gRPC channel lifecycle management.
-- Analyze-project RPCs now run without per-call gRPC deadlines so full-project analysis is not cut
-  off by a transport timeout.
-- On startup timeout, the Java side now closes the gRPC channel and force-stops the Node process immediately instead of waiting for later cleanup.
-- Shutdown now closes the gRPC channel before waiting for process termination, which avoids tests hanging on lingering runtime resources.
-- Removed now-unused `Http.java` transport helper.
+### Node
 
-### Java Dependency and Build Updates
-
-- `sonar-plugin/bridge/pom.xml`:
-  - added gRPC Java dependencies (`grpc-okhttp`, `grpc-protobuf`, `grpc-stub`),
-  - added `javax.annotation-api` required by generated gRPC Java stubs,
-  - removed Java-WebSocket dependency,
-  - added protobuf generation for `analyze-project.proto`,
-  - added gRPC stub generation for `analyze-project.proto`.
-
-### Generated Protobuf Artifacts
-
-- Java protobuf sources remain build-generated only through Maven into `target/generated-sources`.
-- Java gRPC stub sources for `analyze-project.proto` are also build-generated only through Maven
-  into `target/generated-sources`.
-- Node protobuf JS/DTS artifacts remain source-tree build artifacts, but they are not tracked by git:
+- Node protobuf JS/DTS artifacts are generated by `tools/generate-proto.ts`.
+- They live in the source tree only as generated build artifacts and are gitignored:
   - `packages/grpc/src/proto/*.js`
   - `packages/grpc/src/proto/*.d.ts`
   - `packages/analysis/src/jsts/parsers/estree.js`
   - `packages/analysis/src/jsts/parsers/estree.d.ts`
-- These files are gitignored and generated by the Node build/test scripts through
-  `tools/generate-proto.ts`.
-- The compile flow then copies the generated runtime files into `lib/` for packaged execution.
+- These files are regenerated by build/test commands such as `npm run bridge:compile`.
+- They are copied into `lib/` for packaged execution.
 
-### Test Runtime Mock Servers
+### Coverage Exclusions
 
-- Reworked bridge test mock servers from HTTP to gRPC in:
-  - `sonar-plugin/bridge/src/test/resources/mock-bridge/startServer.js`
-  - `sonar-plugin/bridge/src/test/resources/mock-bridge/logging.js`
-  - `sonar-plugin/bridge/src/test/resources/mock-bridge/startAndClose.js`
-  - `sonar-plugin/bridge/src/test/resources/mock-bridge/badResponse.js`
-  - `sonar-plugin/bridge/src/test/resources/mock-bridge/timeout.js`
-- Added shared gRPC test helper:
-  - `sonar-plugin/bridge/src/test/resources/mock-bridge/analyzeProjectGrpcServer.js`
+`sonar-plugin/bridge/pom.xml` excludes both generated protobuf trees from JaCoCo:
 
-### Post-migration Stability Fixes
+- `org/sonar/plugins/javascript/bridge/protobuf/*`
+- `org/sonar/plugins/javascript/analyzeproject/grpc/*`
 
-- Bounded Java-side external process termination waits to seconds instead of minutes:
-  - `NodeCommand.waitFor()` now uses a 5 second process wait cap.
-  - `StreamConsumer.await()` now uses a 5 second executor shutdown cap.
-- Added `NodeCommand.destroy()` so startup-failure cleanup can forcibly terminate the spawned runtime when needed.
-- Updated `BridgeServerImplTest` to use realistic per-test timeouts for the heavier gRPC startup path while still keeping failures short.
-- Fixed test resource path resolution so the bridge tests work both from the module directory and the repository root.
-- Fixed analyze-project stream cleanup so post-completion client cancellation does not trigger
-  unhandled asynchronous failures while the worker is already shutting down.
+## Removed Transport Stack
 
-### Removed HTTP Runtime Stack
+The runtime HTTP/WebSocket path is intentionally dropped.
 
-- Deleted `packages/http` runtime package.
-- Removed config references to deleted package in:
-  - `packages/tsconfig.app.json`
-  - `knip.json`
-- Removed Node dependencies tied to removed runtime transport:
-  - `ws`
-  - `@types/ws`
-  - `http-status-codes`
+Removed pieces include:
 
-## Backward Compatibility
+- the legacy HTTP runtime package
+- HTTP/WebSocket transport dependencies
+- JSON envelope handling for analyze-project
+- the legacy close endpoint for runtime shutdown
 
-- Runtime HTTP/WebSocket API compatibility intentionally dropped.
-- Docker/A3S gRPC API (`LanguageAnalyzerService`) preserved unchanged.
+## Current Validation
 
-## Validation
+Validated in this state:
 
-- Verified Node compile/proto generation succeeds.
-- Verified bridge module Java compile succeeds.
-- Verified direct analyze-project gRPC tests in both execution modes:
-  - `packages/grpc/tests/analyze-project-server.test.ts`: 6 tests passing (`with worker` and `without worker`).
-- Verified targeted Java tests:
-  - `BridgeServerImplTest`: 35 tests passing.
-- Verified full `sonar-plugin/bridge` Java test slice:
-  - 157 tests passing, 0 failures, 0 errors, 0 skipped.
-- Verified `npm pack --dry-run` no longer lists stale HTTP/WebSocket-era license files such as `http-status-codes-LICENSE.txt` and `ws-LICENSE.txt`.
+1. `npm.cmd run bridge:compile`
+   - Passes.
+   - Confirms proto generation, app TypeScript compile, test TypeScript compile, and proto copy to `lib/`.
+2. `mvn -pl sonar-plugin/javascript-checks,sonar-plugin/bridge -am "-Dmaven.test.skip=true" "-Dlicense.skip=true" install`
+   - Passes.
+   - Confirms generated Java protobuf/gRPC sources and bridge main compilation/package installation.
+3. `mvn -pl sonar-plugin/sonar-javascript-plugin,sonar-plugin/standalone -am "-Dmaven.test.skip=true" "-Dlicense.skip=true" compile`
+   - Passes.
+   - Confirms the main Java plugin and standalone parser compile against the typed analyze-project contract.

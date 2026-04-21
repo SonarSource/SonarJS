@@ -17,7 +17,7 @@
 package org.sonar.plugins.javascript.analysis.cache;
 
 import java.util.List;
-import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
+import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
 
 class CpdData {
 

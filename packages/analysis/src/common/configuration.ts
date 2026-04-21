@@ -88,6 +88,42 @@ export type Configuration = {
   reportNclocForTestFiles: boolean /* In gRPC/A3S context, ncloc for test files is computed by the analyzer. In SQ context, ncloc is not computed for tests. */;
 };
 
+export type ConfigurationInput = {
+  baseDir: string;
+  canAccessFileSystem?: boolean;
+  sonarlint?: boolean;
+  clearDependenciesCache?: boolean;
+  clearTsConfigCache?: boolean;
+  fsEvents?: string[];
+  allowTsParserJsFiles?: boolean;
+  analysisMode?: AnalysisMode;
+  skipAst?: boolean;
+  ignoreHeaderComments?: boolean;
+  maxFileSize?: number;
+  environments?: string[];
+  globals?: string[];
+  tsSuffixes?: string[];
+  jsSuffixes?: string[];
+  cssSuffixes?: string[];
+  htmlSuffixes?: string[];
+  yamlSuffixes?: string[];
+  cssAdditionalSuffixes?: string[];
+  tsConfigPaths?: string[];
+  jsTsExclusions?: string[];
+  sources?: string[];
+  inclusions?: string[];
+  exclusions?: string[];
+  tests?: string[];
+  testInclusions?: string[];
+  testExclusions?: string[];
+  detectBundles?: boolean;
+  createTSProgramForOrphanFiles?: boolean;
+  disableTypeChecking?: boolean;
+  skipNodeModuleLookupOutsideBaseDir?: boolean;
+  ecmaScriptVersion?: string;
+  reportNclocForTestFiles?: boolean;
+};
+
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
 const IGNORED_PATTERNS = ['.scannerwork'];
 
@@ -182,64 +218,100 @@ export function createConfiguration(raw: unknown): Configuration {
   if (!isString(raw.baseDir)) {
     throw new Error('baseDir is required and must be a string');
   }
-  if (!isAbsolutePath(raw.baseDir)) {
-    throw new Error(`baseDir is not an absolute path: ${raw.baseDir}`);
-  }
-  // Normalize baseDir first so it can be used by other normalization functions
-  const baseDir = normalizeToAbsolutePath(raw.baseDir);
-  return {
-    baseDir,
-    canAccessFileSystem: isBoolean(raw.canAccessFileSystem) ? raw.canAccessFileSystem : true,
-    sonarlint: isBoolean(raw.sonarlint) ? raw.sonarlint : false,
+  return createConfigurationFromInput({
+    baseDir: raw.baseDir,
+    canAccessFileSystem: isBoolean(raw.canAccessFileSystem) ? raw.canAccessFileSystem : undefined,
+    sonarlint: isBoolean(raw.sonarlint) ? raw.sonarlint : undefined,
     clearDependenciesCache: isBoolean(raw.clearDependenciesCache)
       ? raw.clearDependenciesCache
-      : false,
-    clearTsConfigCache: isBoolean(raw.clearTsConfigCache) ? raw.clearTsConfigCache : false,
-    fsEvents: normalizeFsEvents(raw.fsEvents, baseDir),
+      : undefined,
+    clearTsConfigCache: isBoolean(raw.clearTsConfigCache) ? raw.clearTsConfigCache : undefined,
+    fsEvents: sanitizeFsEvents(raw.fsEvents),
     allowTsParserJsFiles: isBoolean(raw.allowTsParserJsFiles)
       ? raw.allowTsParserJsFiles
-      : DEFAULT_ALLOW_TS_PARSER_JS_FILES,
-    analysisMode: isAnalysisMode(raw.analysisMode) ? raw.analysisMode : DEFAULT_ANALYSIS_MODE,
-    skipAst: isBoolean(raw.skipAst) ? raw.skipAst : DEFAULT_SKIP_AST,
+      : undefined,
+    analysisMode: isAnalysisMode(raw.analysisMode) ? raw.analysisMode : undefined,
+    skipAst: isBoolean(raw.skipAst) ? raw.skipAst : undefined,
     ignoreHeaderComments: isBoolean(raw.ignoreHeaderComments)
       ? raw.ignoreHeaderComments
-      : DEFAULT_IGNORE_HEADER_COMMENTS,
-    maxFileSize: isNumber(raw.maxFileSize) ? raw.maxFileSize : DEFAULT_MAX_FILE_SIZE_KB,
-    environments: isStringArray(raw.environments) ? raw.environments : DEFAULT_ENVIRONMENTS,
-    globals: isStringArray(raw.globals) ? raw.globals : DEFAULT_GLOBALS,
-    tsSuffixes: isStringArray(raw.tsSuffixes) ? raw.tsSuffixes : DEFAULT_TS_EXTENSIONS,
-    jsSuffixes: isStringArray(raw.jsSuffixes) ? raw.jsSuffixes : DEFAULT_JS_EXTENSIONS,
-    cssSuffixes: isStringArray(raw.cssSuffixes) ? raw.cssSuffixes : DEFAULT_CSS_EXTENSIONS,
-    htmlSuffixes: isStringArray(raw.htmlSuffixes) ? raw.htmlSuffixes : DEFAULT_HTML_EXTENSIONS,
-    yamlSuffixes: isStringArray(raw.yamlSuffixes) ? raw.yamlSuffixes : DEFAULT_YAML_EXTENSIONS,
+      : undefined,
+    maxFileSize: isNumber(raw.maxFileSize) ? raw.maxFileSize : undefined,
+    environments: isStringArray(raw.environments) ? raw.environments : undefined,
+    globals: isStringArray(raw.globals) ? raw.globals : undefined,
+    tsSuffixes: isStringArray(raw.tsSuffixes) ? raw.tsSuffixes : undefined,
+    jsSuffixes: isStringArray(raw.jsSuffixes) ? raw.jsSuffixes : undefined,
+    cssSuffixes: isStringArray(raw.cssSuffixes) ? raw.cssSuffixes : undefined,
+    htmlSuffixes: isStringArray(raw.htmlSuffixes) ? raw.htmlSuffixes : undefined,
+    yamlSuffixes: isStringArray(raw.yamlSuffixes) ? raw.yamlSuffixes : undefined,
     cssAdditionalSuffixes: isStringArray(raw.cssAdditionalSuffixes)
       ? raw.cssAdditionalSuffixes
-      : DEFAULT_CSS_ADDITIONAL_EXTENSIONS,
-    tsConfigPaths: sanitizePaths(raw.tsConfigPaths, baseDir),
-    jsTsExclusions: normalizeGlobs(
-      (isStringArray(raw.jsTsExclusions) ? raw.jsTsExclusions : DEFAULT_EXCLUSIONS).concat(
-        IGNORED_PATTERNS,
-      ),
-      baseDir,
-    ),
-    sources: sanitizePaths(raw.sources, baseDir),
-    inclusions: normalizeGlobs(raw.inclusions, baseDir),
-    exclusions: normalizeGlobs(raw.exclusions, baseDir),
-    tests: sanitizePaths(raw.tests, baseDir),
-    testInclusions: normalizeGlobs(raw.testInclusions, baseDir),
-    testExclusions: normalizeGlobs(raw.testExclusions, baseDir),
-    detectBundles: isBoolean(raw.detectBundles) ? raw.detectBundles : true,
+      : undefined,
+    tsConfigPaths: isStringArray(raw.tsConfigPaths) ? raw.tsConfigPaths : undefined,
+    jsTsExclusions: isStringArray(raw.jsTsExclusions) ? raw.jsTsExclusions : undefined,
+    sources: isStringArray(raw.sources) ? raw.sources : undefined,
+    inclusions: isStringArray(raw.inclusions) ? raw.inclusions : undefined,
+    exclusions: isStringArray(raw.exclusions) ? raw.exclusions : undefined,
+    tests: isStringArray(raw.tests) ? raw.tests : undefined,
+    testInclusions: isStringArray(raw.testInclusions) ? raw.testInclusions : undefined,
+    testExclusions: isStringArray(raw.testExclusions) ? raw.testExclusions : undefined,
+    detectBundles: isBoolean(raw.detectBundles) ? raw.detectBundles : undefined,
     createTSProgramForOrphanFiles: isBoolean(raw.createTSProgramForOrphanFiles)
       ? raw.createTSProgramForOrphanFiles
-      : true,
-    disableTypeChecking: isBoolean(raw.disableTypeChecking) ? raw.disableTypeChecking : false,
+      : undefined,
+    disableTypeChecking: isBoolean(raw.disableTypeChecking) ? raw.disableTypeChecking : undefined,
     skipNodeModuleLookupOutsideBaseDir: isBoolean(raw.skipNodeModuleLookupOutsideBaseDir)
       ? raw.skipNodeModuleLookupOutsideBaseDir
-      : false,
+      : undefined,
     ecmaScriptVersion: isString(raw.ecmaScriptVersion) ? raw.ecmaScriptVersion : undefined,
     reportNclocForTestFiles: isBoolean(raw.reportNclocForTestFiles)
       ? raw.reportNclocForTestFiles
-      : false,
+      : undefined,
+  });
+}
+
+export function createConfigurationFromInput(input: ConfigurationInput): Configuration {
+  if (!isAbsolutePath(input.baseDir)) {
+    throw new Error(`baseDir is not an absolute path: ${input.baseDir}`);
+  }
+  // Normalize baseDir first so it can be used by other normalization functions
+  const baseDir = normalizeToAbsolutePath(input.baseDir);
+  return {
+    baseDir,
+    canAccessFileSystem: input.canAccessFileSystem ?? true,
+    sonarlint: input.sonarlint ?? false,
+    clearDependenciesCache: input.clearDependenciesCache ?? false,
+    clearTsConfigCache: input.clearTsConfigCache ?? false,
+    fsEvents: normalizeFsEvents(input.fsEvents, baseDir),
+    allowTsParserJsFiles: input.allowTsParserJsFiles ?? DEFAULT_ALLOW_TS_PARSER_JS_FILES,
+    analysisMode: input.analysisMode ?? DEFAULT_ANALYSIS_MODE,
+    skipAst: input.skipAst ?? DEFAULT_SKIP_AST,
+    ignoreHeaderComments: input.ignoreHeaderComments ?? DEFAULT_IGNORE_HEADER_COMMENTS,
+    maxFileSize: input.maxFileSize ?? DEFAULT_MAX_FILE_SIZE_KB,
+    environments: input.environments ?? DEFAULT_ENVIRONMENTS,
+    globals: input.globals ?? DEFAULT_GLOBALS,
+    tsSuffixes: input.tsSuffixes ?? DEFAULT_TS_EXTENSIONS,
+    jsSuffixes: input.jsSuffixes ?? DEFAULT_JS_EXTENSIONS,
+    cssSuffixes: input.cssSuffixes ?? DEFAULT_CSS_EXTENSIONS,
+    htmlSuffixes: input.htmlSuffixes ?? DEFAULT_HTML_EXTENSIONS,
+    yamlSuffixes: input.yamlSuffixes ?? DEFAULT_YAML_EXTENSIONS,
+    cssAdditionalSuffixes: input.cssAdditionalSuffixes ?? DEFAULT_CSS_ADDITIONAL_EXTENSIONS,
+    tsConfigPaths: sanitizePaths(input.tsConfigPaths, baseDir),
+    jsTsExclusions: normalizeGlobs(
+      (input.jsTsExclusions ?? DEFAULT_EXCLUSIONS).concat(IGNORED_PATTERNS),
+      baseDir,
+    ),
+    sources: sanitizePaths(input.sources, baseDir),
+    inclusions: normalizeGlobs(input.inclusions, baseDir),
+    exclusions: normalizeGlobs(input.exclusions, baseDir),
+    tests: sanitizePaths(input.tests, baseDir),
+    testInclusions: normalizeGlobs(input.testInclusions, baseDir),
+    testExclusions: normalizeGlobs(input.testExclusions, baseDir),
+    detectBundles: input.detectBundles ?? true,
+    createTSProgramForOrphanFiles: input.createTSProgramForOrphanFiles ?? true,
+    disableTypeChecking: input.disableTypeChecking ?? false,
+    skipNodeModuleLookupOutsideBaseDir: input.skipNodeModuleLookupOutsideBaseDir ?? false,
+    ecmaScriptVersion: input.ecmaScriptVersion,
+    reportNclocForTestFiles: input.reportNclocForTestFiles ?? false,
   };
 }
 
@@ -474,10 +546,23 @@ function normalizeFsEvents(
   raw: unknown,
   baseDir: NormalizedAbsolutePath,
 ): NormalizedAbsolutePath[] {
+  if (isStringArray(raw)) {
+    return raw.map(key => normalizeToAbsolutePath(key, baseDir));
+  }
   if (!isObject(raw)) {
     return [];
   }
   return Object.keys(raw).map(key => normalizeToAbsolutePath(key, baseDir));
+}
+
+function sanitizeFsEvents(raw: unknown): string[] | undefined {
+  if (isStringArray(raw)) {
+    return raw;
+  }
+  if (!isObject(raw)) {
+    return undefined;
+  }
+  return Object.keys(raw);
 }
 
 /**

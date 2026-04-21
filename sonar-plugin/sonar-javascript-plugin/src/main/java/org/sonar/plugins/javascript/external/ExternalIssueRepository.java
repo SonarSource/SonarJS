@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
 
 /**
  * This is the application of the Repository Pattern.
@@ -76,7 +76,7 @@ public class ExternalIssueRepository {
   public static void dedupeAndSaveESLintIssues(
     SensorContext context,
     Map<String, List<ExternalIssue>> externalIssuesMap,
-    List<BridgeServer.Issue> issues
+    List<Issue> issues
   ) {
     var externalIssues = externalIssuesMap.values().stream().flatMap(List::stream).toList();
     if (!externalIssues.isEmpty()) {
@@ -96,7 +96,7 @@ public class ExternalIssueRepository {
 
   public static List<ExternalIssue> deduplicateIssues(
     @Nullable List<ExternalIssue> externalIssues,
-    List<BridgeServer.Issue> issues
+    List<Issue> issues
   ) {
     if (externalIssues == null) {
       return List.of();
@@ -104,16 +104,16 @@ public class ExternalIssueRepository {
     var deduplicatedIssues = new ArrayList<ExternalIssue>();
     // normalize issues of JS/TS analyzer into a set of strings
     var normalizedIssues = new HashSet<>();
-    for (BridgeServer.Issue issue : issues) {
-      for (String ruleKey : issue.ruleESLintKeys()) {
+    for (Issue issue : issues) {
+      for (String ruleKey : issue.getRuleEslintKeysList()) {
         String issueKey = String.format(
           "%s-%s-%d-%d-%d-%d",
           ruleKey,
-          issue.filePath().replaceAll(Pattern.quote(File.separator), "/"),
-          issue.line(),
-          issue.column(),
-          issue.endLine(),
-          issue.endColumn()
+          issue.getFilePath().replaceAll(Pattern.quote(File.separator), "/"),
+          issue.getLine(),
+          issue.getColumn(),
+          issue.getEndLine(),
+          issue.getEndColumn()
         );
         normalizedIssues.add(issueKey);
       }

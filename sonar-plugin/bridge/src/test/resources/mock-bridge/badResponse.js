@@ -6,6 +6,6 @@ const host = process.argv[3];
 
 startAnalyzeProjectGrpcServer(port, host, {
   AnalyzeProjectUnary: (_, callback) => {
-    callback(null, { responseJson: 'Invalid response' });
+    callback(new Error('Invalid response'));
   },
 });

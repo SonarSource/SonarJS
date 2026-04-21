@@ -18,12 +18,16 @@
 import { analyzeProject, cancelAnalysis } from '../../analysis/src/analyzeProject.js';
 import { logHeapStatistics } from './analyze-project-memory.js';
 import {
+  type AnalyzeProjectIncrementalEvent,
+  type AnalyzeProjectResponse,
   type AnalyzeProjectRuntimeRequest,
   type RequestResult,
   serializeError,
-  type WsIncrementalResult,
 } from './analyze-project-request.js';
-import { sanitizeProjectAnalysisInput } from '../../analysis/src/common/input-sanitize.js';
+import {
+  InvalidAnalyzeProjectRequestError,
+  normalizeAnalyzeProjectRequest,
+} from './analyze-project-normalize.js';
 
 export type WorkerData = {
   debugMemory: boolean;
@@ -32,14 +36,20 @@ export type WorkerData = {
 export async function handleAnalyzeProjectRequest(
   request: AnalyzeProjectRuntimeRequest,
   workerData: WorkerData,
-  incrementalResultsChannel?: (result: WsIncrementalResult) => void,
-): Promise<RequestResult> {
+  incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
+): Promise<RequestResult<AnalyzeProjectResponse | void>> {
   try {
     switch (request.type) {
       case 'on-analyze-project': {
         logHeapStatistics(workerData?.debugMemory);
-        // sanitizeProjectAnalysisInput initializes file stores internally
-        const sanitizedInput = await sanitizeProjectAnalysisInput(request.data);
+        const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+        const wrappedIncrementalResultsChannel = incrementalResultsChannel
+          ? (event: AnalyzeProjectIncrementalEvent['event']) =>
+              incrementalResultsChannel({
+                event,
+                pathMap: sanitizedInput.pathMap,
+              })
+          : undefined;
 
         const output = await analyzeProject(
           {
@@ -49,14 +59,20 @@ export async function handleAnalyzeProjectRequest(
             rulesWorkdir: sanitizedInput.rulesWorkdir,
           },
           sanitizedInput.configuration,
-          incrementalResultsChannel,
+          wrappedIncrementalResultsChannel,
         );
         logHeapStatistics(workerData?.debugMemory);
-        return { type: 'success', result: output };
+        return {
+          type: 'success',
+          result: {
+            output,
+            pathMap: sanitizedInput.pathMap,
+          },
+        };
       }
       case 'on-cancel-analysis': {
         cancelAnalysis();
-        return { type: 'success', result: 'OK' };
+        return { type: 'success', result: undefined };
       }
       default: {
         // Handle unknown request types
@@ -64,16 +80,15 @@ export async function handleAnalyzeProjectRequest(
         return {
           type: 'failure',
           error: serializeError(new Error(`Unknown request type: ${unknownType}`)),
+          reason: 'runtime',
         };
       }
     }
   } catch (err) {
-    if (incrementalResultsChannel) {
-      incrementalResultsChannel({
-        messageType: 'error',
-        error: serializeError(err),
-      });
-    }
-    return { type: 'failure', error: serializeError(err) };
+    return {
+      type: 'failure',
+      error: serializeError(err),
+      reason: err instanceof InvalidAnalyzeProjectRequestError ? 'invalid_request' : 'runtime',
+    };
   }
 }

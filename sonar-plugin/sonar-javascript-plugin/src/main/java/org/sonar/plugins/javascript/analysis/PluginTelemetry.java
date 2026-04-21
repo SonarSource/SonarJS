@@ -24,8 +24,8 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisTelemetry;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisTelemetry;
 import org.sonar.plugins.javascript.bridge.BridgeServer.RuntimeTelemetry;
 
 public class PluginTelemetry {
@@ -104,45 +104,47 @@ public class PluginTelemetry {
     addValueList(
       keyMapToSave,
       TELEMETRY_PREFIX + "typescript.versions",
-      projectAnalysisTelemetry.typescriptVersions()
+      projectAnalysisTelemetry.getTypescriptVersionsList()
     );
     keyMapToSave.put(
       TELEMETRY_PREFIX + "typescript.native-preview",
-      Boolean.toString(projectAnalysisTelemetry.typescriptNativePreview())
+      Boolean.toString(projectAnalysisTelemetry.getTypescriptNativePreview())
     );
 
     projectAnalysisTelemetry
-      .compilerOptions()
-      .forEach((option, values) -> addCompilerOptionTelemetry(keyMapToSave, option, values));
+      .getCompilerOptionsMap()
+      .forEach((option, values) ->
+        addCompilerOptionTelemetry(keyMapToSave, option, values.getValuesList())
+      );
 
     addValueList(
       keyMapToSave,
       TELEMETRY_PREFIX + "ecmascript.versions",
-      projectAnalysisTelemetry.ecmaScriptVersions()
+      projectAnalysisTelemetry.getEcmaScriptVersionsList()
     );
 
-    var programCreation = projectAnalysisTelemetry.programCreation();
-    if (programCreation != null) {
+    if (projectAnalysisTelemetry.hasProgramCreation()) {
+      var programCreation = projectAnalysisTelemetry.getProgramCreation();
       keyMapToSave.put(
         TELEMETRY_PREFIX + "typescript.program-creation.attempted",
-        Integer.toString(programCreation.attempted())
+        Integer.toString(programCreation.getAttempted())
       );
       keyMapToSave.put(
         TELEMETRY_PREFIX + "typescript.program-creation.succeeded",
-        Integer.toString(programCreation.succeeded())
+        Integer.toString(programCreation.getSucceeded())
       );
       keyMapToSave.put(
         TELEMETRY_PREFIX + "typescript.program-creation.failed",
-        Integer.toString(programCreation.failed())
+        Integer.toString(programCreation.getFailed())
       );
     }
     keyMapToSave.put(
       MODULE_TYPE_PREFIX + "esm-file-count",
-      Integer.toString(projectAnalysisTelemetry.esmFileCount())
+      Integer.toString(projectAnalysisTelemetry.getEsmFileCount())
     );
     keyMapToSave.put(
       MODULE_TYPE_PREFIX + "cjs-file-count",
-      Integer.toString(projectAnalysisTelemetry.cjsFileCount())
+      Integer.toString(projectAnalysisTelemetry.getCjsFileCount())
     );
   }
 

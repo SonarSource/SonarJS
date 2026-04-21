@@ -15,16 +15,21 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { RequestResult, WsIncrementalResult } from '../analyze-project-request.js';
+import type {
+  AnalyzeProjectIncrementalEvent,
+  AnalyzeProjectProtoRequest,
+  AnalyzeProjectResponse,
+  RequestResult,
+} from '../analyze-project-request.js';
 
 export type AnalyzeProjectWorkerInMessage =
-  | { type: 'analyze-stream'; requestId: string; request: unknown }
-  | { type: 'analyze-unary'; requestId: string; request: unknown }
+  | { type: 'analyze-stream'; requestId: string; request: AnalyzeProjectProtoRequest }
+  | { type: 'analyze-unary'; requestId: string; request: AnalyzeProjectProtoRequest }
   | { type: 'cancel'; requestId: string }
   | { type: 'close' };
 
 export type AnalyzeProjectWorkerOutMessage =
-  | { type: 'event'; requestId: string; result: WsIncrementalResult }
-  | { type: 'stream-complete'; requestId: string; result: RequestResult }
-  | { type: 'unary-complete'; requestId: string; result: RequestResult }
+  | { type: 'event'; requestId: string; result: AnalyzeProjectIncrementalEvent }
+  | { type: 'stream-complete'; requestId: string; result: RequestResult<AnalyzeProjectResponse> }
+  | { type: 'unary-complete'; requestId: string; result: RequestResult<AnalyzeProjectResponse> }
   | { type: 'cancel-complete'; requestId: string; result: RequestResult };

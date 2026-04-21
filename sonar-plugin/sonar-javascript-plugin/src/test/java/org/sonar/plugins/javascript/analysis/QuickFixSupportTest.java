@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
 package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,12 +41,13 @@ import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Version;
 import org.sonar.css.CssRules;
-import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
-import org.sonar.plugins.javascript.bridge.BridgeServer.IssueLocation;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Metrics;
-import org.sonar.plugins.javascript.bridge.BridgeServer.QuickFix;
-import org.sonar.plugins.javascript.bridge.BridgeServer.QuickFixEdit;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisLanguage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
+import org.sonar.plugins.javascript.analyzeproject.grpc.IssueLocation;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Metrics;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
+import org.sonar.plugins.javascript.analyzeproject.grpc.QuickFix;
+import org.sonar.plugins.javascript.analyzeproject.grpc.QuickFixEdit;
 import org.sonarsource.sonarlint.core.analysis.api.ClientInputFile;
 import org.sonarsource.sonarlint.core.analysis.container.analysis.filesystem.SonarLintInputFile;
 import org.sonarsource.sonarlint.core.analysis.container.analysis.filesystem.SonarLintInputProject;
@@ -106,15 +108,10 @@ class QuickFixSupportTest {
   void test() {
     var context = createContext(Version.create(6, 3));
 
-    var response = new AnalysisResponse(
-      List.of(),
-      List.of(issueWithQuickFix()),
-      List.of(),
-      List.of(),
-      new Metrics(),
-      List.of(),
-      null
-    );
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .addIssues(issueWithQuickFix())
+      .setMetrics(Metrics.getDefaultInstance())
+      .build();
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());
@@ -137,37 +134,60 @@ class QuickFixSupportTest {
   }
 
   static Issue issueWithQuickFix() {
-    var quickFixEdit = new QuickFixEdit(";", new IssueLocation(1, 2, 3, 4, ""));
-    var quickFix = new QuickFix("QuickFix message", List.of(quickFixEdit));
-    var issue = new Issue(
-      1,
-      1,
-      1,
-      1,
-      "",
-      "S1116",
-      "js",
-      List.of(),
-      1.0,
-      List.of(quickFix),
-      List.of("foo"),
-      "index.js"
+    return issueWithQuickFix(
+      IssueLocation.newBuilder()
+        .setLine(1)
+        .setColumn(2)
+        .setEndLine(3)
+        .setEndColumn(4)
+        .setMessage("")
+        .build()
     );
-    return issue;
+  }
+
+  static Issue issueWithQuickFix(IssueLocation location) {
+    var quickFixEdit = QuickFixEdit.newBuilder().setText(";").setLoc(location).build();
+    var quickFix = QuickFix.newBuilder()
+      .setMessage("QuickFix message")
+      .addEdits(quickFixEdit)
+      .build();
+    return Issue.newBuilder()
+      .setLine(1)
+      .setColumn(1)
+      .setEndLine(1)
+      .setEndColumn(1)
+      .setMessage("")
+      .setRuleId("S1116")
+      .setLanguage(AnalysisLanguage.ANALYSIS_LANGUAGE_JS)
+      .setCost(1.0)
+      .addQuickFixes(quickFix)
+      .addRuleEslintKeys("foo")
+      .setFilePath("index.js")
+      .build();
+  }
+
+  @Test
+  void test_incomplete_quick_fix_location() {
+    var context = createContext(Version.create(6, 3));
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .addIssues(issueWithQuickFix(IssueLocation.getDefaultInstance()))
+      .setMetrics(Metrics.getDefaultInstance())
+      .build();
+
+    var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
+    doNothing().when(sensorStorage).store(issueCaptor.capture());
+    analysisProcessor.processResponse(context, checks, inputFile, response);
+
+    assertThat(issueCaptor.getValue().quickFixes()).isEmpty();
   }
 
   @Test
   void test_old_version() {
     var context = createContext(Version.create(6, 2));
-    var response = new AnalysisResponse(
-      List.of(),
-      List.of(issueWithQuickFix()),
-      List.of(),
-      List.of(),
-      new Metrics(),
-      List.of(),
-      null
-    );
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .addIssues(issueWithQuickFix())
+      .setMetrics(Metrics.getDefaultInstance())
+      .build();
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());
@@ -179,29 +199,22 @@ class QuickFixSupportTest {
   @Test
   void test_null() {
     var context = createContext(Version.create(6, 3));
-    var issue = new Issue(
-      1,
-      1,
-      1,
-      1,
-      "",
-      "S1116",
-      "js",
-      List.of(),
-      1.0,
-      List.of(),
-      List.of("foo"),
-      "index.js"
-    );
-    var response = new AnalysisResponse(
-      List.of(),
-      List.of(issue),
-      List.of(),
-      List.of(),
-      new Metrics(),
-      List.of(),
-      null
-    );
+    var issue = Issue.newBuilder()
+      .setLine(1)
+      .setColumn(1)
+      .setEndLine(1)
+      .setEndColumn(1)
+      .setMessage("")
+      .setRuleId("S1116")
+      .setLanguage(AnalysisLanguage.ANALYSIS_LANGUAGE_JS)
+      .setCost(1.0)
+      .addRuleEslintKeys("foo")
+      .setFilePath("index.js")
+      .build();
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .addIssues(issue)
+      .setMetrics(Metrics.getDefaultInstance())
+      .build();
 
     var issueCaptor = ArgumentCaptor.forClass(DefaultSonarLintIssue.class);
     doNothing().when(sensorStorage).store(issueCaptor.capture());

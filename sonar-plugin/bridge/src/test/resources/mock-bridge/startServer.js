@@ -45,43 +45,36 @@ function getFakeAnalysisResponse(skipAst) {
 
 startAnalyzeProjectGrpcServer(port, host, {
   AnalyzeProject: call => {
-    const request = JSON.parse(call.request.requestJson);
+    const request = call.request;
     const files = request.files || {};
     const skipAst = request.configuration?.skipAst;
 
     for (const filePath of Object.keys(files)) {
       call.write({
-        messageJson: JSON.stringify({
-          messageType: 'fileResult',
-          filename: filePath,
-          ...getFakeAnalysisResponse(skipAst),
-        }),
+        fileResult: {
+          filePath,
+          result: getFakeAnalysisResponse(skipAst),
+        },
       });
     }
 
     call.write({
-      messageJson: JSON.stringify({
-        messageType: 'meta',
-        ucfgPaths: [],
-        skippedFiles: [],
-        parsingErrorFiles: [],
-        analysisWarnings: [],
-      }),
+      meta: {
+        warnings: [],
+      },
     });
     call.end();
   },
   AnalyzeProjectUnary: (call, callback) => {
-    const request = JSON.parse(call.request.requestJson);
+    const request = call.request;
     const skipAst = request.configuration?.skipAst;
     const files = {};
     Object.keys(request.files || {}).forEach(key => {
       files[key] = getFakeAnalysisResponse(skipAst);
     });
     callback(null, {
-      responseJson: JSON.stringify({
-        files,
-        meta: {},
-      }),
+      files,
+      meta: {},
     });
   },
 });
