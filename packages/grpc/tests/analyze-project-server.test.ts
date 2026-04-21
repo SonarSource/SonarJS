@@ -291,6 +291,44 @@ function createSparseAnalyzeProjectRequest(): AnalyzeProjectRequest {
   };
 }
 
+function createInvalidAnalyzeProjectRequestWithFiles(): AnalyzeProjectRequest {
+  return {
+    configuration: {
+      baseDir: basicFixtureDir,
+    },
+    files: {
+      [basicFixtureFile]: {
+        fileType: FileType.FILE_TYPE_MAIN,
+      },
+    },
+    rules: [
+      {
+        key: 'S1116',
+        configurations: [],
+        fileTypeTargets: [FileType.FILE_TYPE_MAIN],
+        analysisModes: [AnalysisMode.ANALYSIS_MODE_DEFAULT],
+      },
+    ],
+    bundles: [],
+  };
+}
+
+function createAnalyzeProjectRequestWithoutFiles({
+  canAccessFileSystem,
+}: {
+  canAccessFileSystem?: boolean;
+} = {}): AnalyzeProjectRequest {
+  return {
+    configuration: {
+      baseDir: basicFixtureDir,
+      ...(canAccessFileSystem === undefined ? {} : { canAccessFileSystem }),
+    },
+    rules: [],
+    cssRules: [],
+    bundles: [],
+  };
+}
+
 function createProjectAnalysisOutput(
   filePath = basicFixtureFile,
   ast?: string,
@@ -491,6 +529,30 @@ describe('analyze-project gRPC server', () => {
             code: grpc.status.INVALID_ARGUMENT,
             details: 'configuration.base_dir is required',
           });
+        });
+      });
+    }
+  });
+
+  it('should not reuse files from rejected requests when later requests omit files', async t => {
+    for (const mode of serverModes) {
+      await t.test(mode.label, async () => {
+        const worker = await mode.createWorker();
+        await withAnalyzeProjectServer(worker, async client => {
+          await expect(
+            client.analyzeProjectUnary(createInvalidAnalyzeProjectRequestWithFiles()),
+          ).rejects.toMatchObject({
+            code: grpc.status.INVALID_ARGUMENT,
+            details: 'rules[0].language is required',
+          });
+
+          const response = await client.analyzeProjectUnary(
+            createAnalyzeProjectRequestWithoutFiles({
+              canAccessFileSystem: false,
+            }),
+          );
+
+          expect(response.files).toEqual({});
         });
       });
     }

@@ -37,8 +37,10 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
+import com.google.protobuf.ByteString;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +71,7 @@ import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectServiceGrpc;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectUnaryResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileStatus;
@@ -78,6 +81,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResul
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectFileInput;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
+import org.sonar.plugins.javascript.nodejs.NodeCommand;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilder;
 import org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
@@ -219,13 +223,24 @@ class BridgeServerImplTest {
 
   @Test
   void should_get_answer_from_server_for_ts_request() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
+    bridgeServer = createUnitBridgeServer();
+    var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
 
     DefaultInputFile inputFile = TestInputFileBuilder.create("foo", "foo.ts")
       .setContents("alert('Fly, you fools!')")
       .build();
-    assertThat(analyzeSingleFile(bridgeServer, inputFile, false).issues()).hasSize(1);
+
+    try (
+      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockBlockingStub(bridgeServer, stub)
+    ) {
+      var requestCaptor = org.mockito.ArgumentCaptor.forClass(AnalyzeProjectRequest.class);
+      when(stub.analyzeProjectUnary(requestCaptor.capture())).thenReturn(
+        createUnaryResponse(inputFile, false)
+      );
+
+      assertThat(analyzeSingleFile(bridgeServer, inputFile, false).issues()).hasSize(1);
+      assertThat(requestCaptor.getValue().getFilesMap()).containsKey(inputFile.absolutePath());
+    }
   }
 
   private static DefaultInputFile createInputFile() {
@@ -344,12 +359,14 @@ class BridgeServerImplTest {
 
   @Test
   void should_return_command_info() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer = createUnitBridgeServer();
     assertThat(bridgeServer.getCommandInfo()).isEqualTo(
       "Node.js command to start the bridge server was not built yet."
     );
 
-    bridgeServer.startServer(serverConfig);
+    var nodeCommand = mock(NodeCommand.class);
+    when(nodeCommand.toString()).thenReturn("node " + START_SERVER_SCRIPT);
+    setPrivateField(bridgeServer, "nodeCommand", nodeCommand);
 
     assertThat(bridgeServer.getCommandInfo()).contains(
       "Node.js command to start the bridge server was: ",
@@ -408,7 +425,8 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void test_use_existing_node() throws Exception {
+  void test_use_existing_node_should_validate_port_configuration_and_reuse_alive_process()
+    throws Exception {
     String starting = "Creating Node.js process to start the bridge server on port";
     var useExisting = "Using existing Node.js process on port 60000";
     var alreadyStarted = "The bridge server is up, no need to start.";
@@ -417,7 +435,7 @@ class BridgeServerImplTest {
     var wrongPortValue =
       "Error parsing number in environment variable SONARJS_EXISTING_NODE_PROCESS_PORT";
 
-    bridgeServer = spy(createBridgeServer("startServer.js", SHORT_STARTUP_TIMEOUT_SECONDS));
+    bridgeServer = spy(createUnitBridgeServer(SHORT_STARTUP_TIMEOUT_SECONDS));
     var bridgeServerMock = bridgeServer;
     var startupTimeoutMillis = (int) TimeUnit.SECONDS.toMillis(SHORT_STARTUP_TIMEOUT_SECONDS);
     doReturn("70000").when(bridgeServerMock).getExistingNodeProcessPort();
@@ -431,6 +449,7 @@ class BridgeServerImplTest {
         .stream()
         .noneMatch(s -> s.startsWith(starting))
     ).isTrue();
+    logTester.clear();
 
     doReturn("a").when(bridgeServerMock).getExistingNodeProcessPort();
     assertThatThrownBy(() -> bridgeServerMock.startServerLazily(serverConfig))
@@ -443,18 +462,7 @@ class BridgeServerImplTest {
         .stream()
         .noneMatch(s -> s.startsWith(starting))
     ).isTrue();
-
-    //Port 0 will be considered as not set, and a new node process will be started on a random port
-    doReturn("0").when(bridgeServerMock).getExistingNodeProcessPort();
-    bridgeServerMock.startServerLazily(serverConfig);
-    assertThat(
-      logTester
-        .logs(DEBUG)
-        .stream()
-        .anyMatch(s -> s.startsWith(starting))
-    ).isTrue();
-    assertThat(logTester.logs(DEBUG)).doesNotContain(alreadyStarted);
-    bridgeServerMock.clean();
+    logTester.clear();
     clearInvocations(bridgeServerMock);
 
     doReturn("60000").when(bridgeServerMock).getExistingNodeProcessPort();
@@ -463,13 +471,35 @@ class BridgeServerImplTest {
     bridgeServerMock.startServerLazily(serverConfig);
     verify(bridgeServerMock).waitChannelReady(startupTimeoutMillis);
     verify(bridgeServerMock, never()).waitServerToStart(startupTimeoutMillis);
+    verify(bridgeServerMock, never()).deploy(any());
+    verify(bridgeServerMock, never()).startServer(any());
     assertThat(logTester.logs(INFO)).contains(useExisting);
     assertThat(logTester.logs(DEBUG)).contains(alreadyStarted);
   }
 
   @Test
+  void test_use_existing_node_should_start_local_process_when_port_is_zero() throws Exception {
+    bridgeServer = spy(createUnitBridgeServer(SHORT_STARTUP_TIMEOUT_SECONDS));
+    var bridgeServerMock = bridgeServer;
+
+    doReturn("0").when(bridgeServerMock).getExistingNodeProcessPort();
+    doReturn(false).when(bridgeServerMock).isAlive();
+    doAnswer(invocation -> null)
+      .when(bridgeServerMock)
+      .deploy(any());
+    doAnswer(invocation -> null)
+      .when(bridgeServerMock)
+      .startServer(any());
+
+    bridgeServerMock.startServerLazily(serverConfig);
+
+    verify(bridgeServerMock).deploy(serverConfig.config());
+    verify(bridgeServerMock).startServer(serverConfig);
+  }
+
+  @Test
   void isAlive_should_not_require_a_lease_for_an_existing_node_process() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer = createUnitBridgeServer();
     var channel = mock(ManagedChannel.class);
     when(channel.isShutdown()).thenReturn(false);
     when(channel.getState(false)).thenReturn(ConnectivityState.READY);
@@ -566,6 +596,73 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void should_surface_stream_runtime_errors() throws Exception {
+    bridgeServer = createUnitBridgeServer();
+    var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
+
+    var future = new CompletableFuture<Void>();
+    var handler = new ProjectAnalysisHandler() {
+      @Override
+      public AnalyzeProjectRequest getRequest() {
+        return AnalyzeProjectRequest.getDefaultInstance();
+      }
+
+      @Override
+      public SensorContextTester getContext() {
+        return context;
+      }
+
+      @Override
+      public CompletableFuture<Void> getFuture() {
+        return future;
+      }
+
+      @Override
+      public void handleMessage(AnalyzeProjectStreamResponse message) {
+        throw new AssertionError("No streamed message should be emitted for invalid requests");
+      }
+    };
+
+    try (
+      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockBlockingStub(bridgeServer, stub)
+    ) {
+      when(stub.analyzeProject(any(AnalyzeProjectRequest.class))).thenThrow(
+        Status.INVALID_ARGUMENT.withDescription(
+          "configuration.base_dir is required"
+        ).asRuntimeException()
+      );
+
+      assertThatThrownBy(() -> bridgeServer.analyzeProject(handler))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining(
+          "Received error from analyzer runtime: configuration.base_dir is required"
+        )
+        .hasMessageNotContaining("The bridge server is unresponsive");
+    }
+  }
+
+  @Test
+  void should_surface_unary_runtime_errors() throws Exception {
+    bridgeServer = createUnitBridgeServer();
+    var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
+
+    try (
+      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockBlockingStub(bridgeServer, stub)
+    ) {
+      when(stub.analyzeProjectUnary(any(AnalyzeProjectRequest.class))).thenThrow(
+        Status.INTERNAL.withDescription("worker crashed").asRuntimeException()
+      );
+
+      assertThatThrownBy(() ->
+        bridgeServer.analyzeProject(AnalyzeProjectRequest.getDefaultInstance())
+      )
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("Received error from analyzer runtime: worker crashed")
+        .hasMessageNotContaining("The bridge server is unresponsive");
+    }
+  }
+
+  @Test
   void test_rule_tostring() {
     EslintRule rule = new EslintRule(
       "key",
@@ -630,7 +727,7 @@ class BridgeServerImplTest {
 
   @Test
   void waitServerToStart_can_be_interrupted() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer = createUnitBridgeServer();
     var channel = mock(ManagedChannel.class);
     when(channel.getState(true)).thenReturn(ConnectivityState.CONNECTING);
     when(channel.getState(false)).thenReturn(ConnectivityState.CONNECTING);
@@ -664,7 +761,7 @@ class BridgeServerImplTest {
 
   @Test
   void waitChannelReady_should_continue_polling_when_state_does_not_change() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer = createUnitBridgeServer();
     var channel = mock(ManagedChannel.class);
     when(channel.getState(true)).thenReturn(ConnectivityState.CONNECTING);
     when(channel.getState(false)).thenReturn(ConnectivityState.READY);
@@ -686,7 +783,7 @@ class BridgeServerImplTest {
 
   @Test
   void onLeaseTerminated_should_ignore_duplicate_notifications() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer = createUnitBridgeServer();
     logTester.clear();
     setPrivateField(bridgeServer, "leaseObserver", null);
     setPrivateBooleanField(bridgeServer, "leaseTerminated", true);
@@ -700,7 +797,7 @@ class BridgeServerImplTest {
 
   @Test
   void onLeaseTerminated_should_only_log_unexpected_errors() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
+    bridgeServer = createUnitBridgeServer();
     var channel = mock(ManagedChannel.class);
     when(channel.isShutdown()).thenReturn(false);
     logTester.clear();
@@ -754,34 +851,54 @@ class BridgeServerImplTest {
 
   @Test
   void should_return_telemetry() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
+    bridgeServer = createUnitBridgeServer();
+    var nodeCommand = mock(NodeCommand.class);
+    when(nodeCommand.getActualNodeVersion()).thenReturn(Version.create(20, 1));
+    when(nodeCommand.getNodeExecutableOrigin()).thenReturn("embedded");
+    setPrivateField(bridgeServer, "nodeCommand", nodeCommand);
+
     var telemetry = bridgeServer.getTelemetry();
     var runtimeTelemetry = telemetry.runtimeTelemetry();
 
-    // todo: we should test here against either a controlled version of Node.js, or the lowest version that we officially support
-    assertThat(runtimeTelemetry.version().isGreaterThanOrEqual(Version.create(18, 0))).isTrue();
-    assertThat(runtimeTelemetry.nodeExecutableOrigin()).isNotEmpty();
+    assertThat(runtimeTelemetry.version()).isEqualTo(Version.create(20, 1));
+    assertThat(runtimeTelemetry.nodeExecutableOrigin()).isEqualTo("embedded");
   }
 
   @Test
   void should_return_an_ast() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
-    var response = analyzeSingleFile(bridgeServer, createInputFile(), false);
-    assertThat(response.ast()).isNotNull();
-    Node node = response.ast();
-    assertThat(node.getProgram()).isNotNull();
-    assertThat(node.getProgram().getBodyList().get(0).getExpressionStatement()).isNotNull();
+    bridgeServer = createUnitBridgeServer();
+    var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
+    var inputFile = createInputFile();
+
+    try (
+      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockBlockingStub(bridgeServer, stub)
+    ) {
+      when(stub.analyzeProjectUnary(any(AnalyzeProjectRequest.class))).thenReturn(
+        createUnaryResponse(inputFile, true)
+      );
+
+      var response = analyzeSingleFile(bridgeServer, inputFile, false);
+      assertThat(response.ast()).isNotNull();
+      Node node = response.ast();
+      assertThat(node.getProgram()).isNotNull();
+      assertThat(node.getProgram().getBodyList().get(0).getExpressionStatement()).isNotNull();
+    }
   }
 
   @Test
   void should_handle_io_exception() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(serverConfig);
+    bridgeServer = createUnitBridgeServer();
+    var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
     var inputFile = createInputFile();
-    try (MockedStatic<AstProtoUtils> mocked = mockStatic(AstProtoUtils.class)) {
-      mocked
+
+    try (
+      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockBlockingStub(bridgeServer, stub);
+      MockedStatic<AstProtoUtils> mockedAstProtoUtils = mockStatic(AstProtoUtils.class)
+    ) {
+      when(stub.analyzeProjectUnary(any(AnalyzeProjectRequest.class))).thenReturn(
+        createUnaryResponse(inputFile, true)
+      );
+      mockedAstProtoUtils
         .when(() -> AstProtoUtils.readProtobufFromBytes((byte[]) any()))
         .thenThrow(new IOException("Test exception"));
       assertThatThrownBy(() -> analyzeSingleFile(bridgeServer, inputFile, false))
@@ -792,11 +909,22 @@ class BridgeServerImplTest {
 
   @Test
   void should_omit_an_ast_if_skipAst_flag_is_set() throws Exception {
-    bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
-    bridgeServer.startServer(BridgeServerConfig.fromSensorContext(context));
+    bridgeServer = createUnitBridgeServer();
+    var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
+    var inputFile = createInputFile();
 
-    var response = analyzeSingleFile(bridgeServer, createInputFile(), true);
-    assertThat(response.ast()).isNull();
+    try (
+      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockBlockingStub(bridgeServer, stub)
+    ) {
+      var requestCaptor = org.mockito.ArgumentCaptor.forClass(AnalyzeProjectRequest.class);
+      when(stub.analyzeProjectUnary(requestCaptor.capture())).thenReturn(
+        createUnaryResponse(inputFile, false)
+      );
+
+      var response = analyzeSingleFile(bridgeServer, inputFile, true);
+      assertThat(response.ast()).isNull();
+      assertThat(requestCaptor.getValue().getConfiguration().getSkipAst()).isTrue();
+    }
   }
 
   @Test
@@ -895,6 +1023,14 @@ class BridgeServerImplTest {
     );
   }
 
+  private BridgeServerImpl createUnitBridgeServer() {
+    return createBridgeServer(mock(Bundle.class));
+  }
+
+  private BridgeServerImpl createUnitBridgeServer(int timeoutSeconds) {
+    return createBridgeServer(timeoutSeconds, mock(Bundle.class));
+  }
+
   private BridgeServerImpl createBridgeServer(String startServerScript, int timeoutSeconds) {
     return createBridgeServer(timeoutSeconds, new TestBundle(startServerScript));
   }
@@ -913,6 +1049,44 @@ class BridgeServerImplTest {
 
   private BridgeServerImpl createBridgeServer(String startServerScript) {
     return createBridgeServer(new TestBundle(startServerScript));
+  }
+
+  private MockedStatic<AnalyzeProjectServiceGrpc> mockBlockingStub(
+    BridgeServerImpl bridgeServer,
+    AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub stub
+  ) throws Exception {
+    var channel = mock(ManagedChannel.class);
+    setPrivateField(bridgeServer, "channel", channel);
+    MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockStatic(
+      AnalyzeProjectServiceGrpc.class
+    );
+    mockedGrpc.when(() -> AnalyzeProjectServiceGrpc.newBlockingStub(channel)).thenReturn(stub);
+    return mockedGrpc;
+  }
+
+  private static AnalyzeProjectUnaryResponse createUnaryResponse(
+    DefaultInputFile inputFile,
+    boolean includeAst
+  ) throws IOException {
+    var fileResult = ProjectAnalysisFileResult.newBuilder().addIssues(Issue.newBuilder().build());
+    if (includeAst) {
+      fileResult.setAst(ByteString.copyFrom(getSerializedProtoData()));
+    }
+    return AnalyzeProjectUnaryResponse.newBuilder()
+      .putFiles(inputFile.absolutePath(), fileResult.build())
+      .build();
+  }
+
+  private static byte[] getSerializedProtoData() throws IOException {
+    return Files.readAllBytes(resolveTestFile("serialized.proto"));
+  }
+
+  private static Path resolveTestFile(String fileName) {
+    var path = Path.of("src", "test", "resources", "files", fileName);
+    if (path.toFile().exists()) {
+      return path;
+    }
+    return Path.of("sonar-plugin", "bridge", "src", "test", "resources", "files", fileName);
   }
 
   private void invokeOnLeaseTerminated(Throwable throwable) throws Exception {

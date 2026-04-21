@@ -361,7 +361,7 @@ public class BridgeServerImpl implements BridgeServer {
     try {
       responses = blockingAnalyzeProjectStub().analyzeProject(grpcRequest);
     } catch (StatusRuntimeException e) {
-      throw unresponsiveServerException(e);
+      throw analyzeProjectException(e);
     }
 
     boolean cancellationRequested = false;
@@ -374,7 +374,7 @@ public class BridgeServerImpl implements BridgeServer {
         }
       }
     } catch (StatusRuntimeException e) {
-      throw unresponsiveServerException(e);
+      throw analyzeProjectException(e);
     }
     handler.getFuture().join();
   }
@@ -386,7 +386,7 @@ public class BridgeServerImpl implements BridgeServer {
     try {
       return blockingAnalyzeProjectStub().analyzeProjectUnary(grpcRequest);
     } catch (StatusRuntimeException e) {
-      throw unresponsiveServerException(e);
+      throw analyzeProjectException(e);
     }
   }
 
@@ -406,6 +406,23 @@ public class BridgeServerImpl implements BridgeServer {
         "https://docs.sonarsource.com/sonarqube-server/latest/analyzing-source-code/languages/javascript-typescript-css/#slow-or-unresponsive-analysis",
       e
     );
+  }
+
+  private static IllegalStateException analyzeProjectException(StatusRuntimeException e) {
+    return switch (e.getStatus().getCode()) {
+      case INVALID_ARGUMENT, INTERNAL, RESOURCE_EXHAUSTED -> new IllegalStateException(
+        runtimeErrorMessage(e),
+        e
+      );
+      default -> unresponsiveServerException(e);
+    };
+  }
+
+  private static String runtimeErrorMessage(StatusRuntimeException e) {
+    var description = e.getStatus().getDescription();
+    return description == null || description.isBlank()
+      ? "Received error from analyzer runtime"
+      : "Received error from analyzer runtime: " + description;
   }
 
   private void cancelCurrentAnalysis() {

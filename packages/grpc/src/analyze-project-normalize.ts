@@ -57,15 +57,19 @@ export async function normalizeAnalyzeProjectRequest(
   const inputFiles = filesPresent
     ? (await sanitizeInputFiles(normalizeProtoInputFiles(request.files), configuration)).files
     : undefined;
+  const rules = normalizeJsTsRules(request.rules);
+  const cssRules = normalizeCssRules(request.cssRules);
+  const bundles = normalizePathList(request.bundles, configuration.baseDir);
+  const rulesWorkdir = normalizeOptionalPath(request.rulesWorkdir, configuration.baseDir);
 
   await initFileStores(configuration, inputFiles);
 
   return {
-    rules: normalizeJsTsRules(request.rules),
-    cssRules: normalizeCssRules(request.cssRules),
+    rules,
+    cssRules,
     baseDir: configuration.baseDir,
-    bundles: normalizePathList(request.bundles, configuration.baseDir),
-    rulesWorkdir: normalizeOptionalPath(request.rulesWorkdir, configuration.baseDir),
+    bundles,
+    rulesWorkdir,
     configuration,
   };
 }
