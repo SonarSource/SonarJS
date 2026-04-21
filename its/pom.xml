@@ -59,10 +59,5 @@
   <properties>
     <maven.deploy.skip>true</maven.deploy.skip>
     <skipTests>true</skipTests>
-    <!-- sonar scanner properties -->
-    <sonar.sources>src/main</sonar.sources>
-    <sonar.tests>src/test</sonar.tests>
-    <sonar.javascript.lcov.reportPaths/>
-    <sonar.typescript.tsconfigPath/>
   </properties>
 </project>

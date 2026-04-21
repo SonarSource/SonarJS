@@ -67,10 +67,4 @@
     </plugins>
   </build>
 
-  <properties>
-    <!-- sonar scanner properties -->
-    <sonar.sources>src/main</sonar.sources>
-    <sonar.tests/>
-    <sonar.coverage.exclusions>src/**/*</sonar.coverage.exclusions>
-  </properties>
 </project>

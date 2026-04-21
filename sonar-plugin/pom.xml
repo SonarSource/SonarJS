@@ -13,16 +13,6 @@
 
   <name>SonarQube JavaScript</name>
 
-  <properties>
-    <!-- sonar scanner properties -->
-    <sonar.sources>src/main</sonar.sources>
-    <sonar.tests>src/test</sonar.tests>
-    <sonar.javascript.lcov.reportPaths/>
-    <sonar.typescript.tsconfigPath/>
-    <sonar.test.exclusions>tests/**/fixtures/**/*,tests/**/rules/comment-based/**/*</sonar.test.exclusions>
-  </properties>
-
-
   <modules>
     <module>api</module>
     <module>javascript-checks</module>
