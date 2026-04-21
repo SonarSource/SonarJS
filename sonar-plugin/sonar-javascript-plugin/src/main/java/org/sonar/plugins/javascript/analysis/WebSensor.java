@@ -56,7 +56,6 @@ import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.AnalyzeProjectMessages;
-import org.sonar.plugins.javascript.bridge.AstProtoUtils;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
@@ -348,45 +347,39 @@ public class WebSensor implements Sensor {
     private void handleFileResult(FileResultMessage fileResultMessage) {
       var filePath = fileResultMessage.getFilePath();
       var response = fileResultMessage.getResult();
-      try {
-        if (response.hasError() && !response.getError().isBlank()) {
-          throw new IllegalStateException(
-            "Failed to analyze file " + filePath + ": " + response.getError()
-          );
-        }
-        var file = fileToInputFile.get(filePath);
-        if (file == null) {
-          LOG.warn("Skipping analysis result for unknown file path: {}", filePath);
-          return;
-        }
-        var issues = analysisProcessor.processResponse(context, checks, file, response);
-        var dedupedIssues = ExternalIssueRepository.deduplicateIssues(
-          externalIssues.get(filePath),
-          issues
-        );
-        if (!dedupedIssues.isEmpty()) {
-          ExternalIssueRepository.saveESLintIssues(context.getSensorContext(), dedupedIssues);
-        }
-        externalIssues.remove(filePath);
-        // Only cache JS/TS file results -- non-JS/TS files (CSS, HTML, YAML) skip caching.
-        var cacheStrategy = fileToCacheStrategy.get(filePath);
-        Node responseAst = responseAst(response);
-        if (cacheStrategy != null) {
-          try {
-            cacheStrategy.writeAnalysisToCache(
-              CacheAnalysis.fromResponse(response.getCpdTokensList(), responseAst),
-              file
-            );
-          } catch (IOException e) {
-            handle.completeExceptionally(new IllegalStateException(e));
-          }
-        }
-        acceptAstResponse(responseAst, file);
-      } catch (IOException e) {
-        handle.completeExceptionally(
-          new IllegalStateException("Failed to decode analysis AST for " + filePath, e)
+      if (response.hasError() && !response.getError().isBlank()) {
+        throw new IllegalStateException(
+          "Failed to analyze file " + filePath + ": " + response.getError()
         );
       }
+      var file = fileToInputFile.get(filePath);
+      if (file == null) {
+        LOG.warn("Skipping analysis result for unknown file path: {}", filePath);
+        return;
+      }
+      var issues = analysisProcessor.processResponse(context, checks, file, response);
+      var dedupedIssues = ExternalIssueRepository.deduplicateIssues(
+        externalIssues.get(filePath),
+        issues
+      );
+      if (!dedupedIssues.isEmpty()) {
+        ExternalIssueRepository.saveESLintIssues(context.getSensorContext(), dedupedIssues);
+      }
+      externalIssues.remove(filePath);
+      // Only cache JS/TS file results -- non-JS/TS files (CSS, HTML, YAML) skip caching.
+      var cacheStrategy = fileToCacheStrategy.get(filePath);
+      Node responseAst = responseAst(response);
+      if (cacheStrategy != null) {
+        try {
+          cacheStrategy.writeAnalysisToCache(
+            CacheAnalysis.fromResponse(response.getCpdTokensList(), responseAst),
+            file
+          );
+        } catch (IOException e) {
+          handle.completeExceptionally(new IllegalStateException(e));
+        }
+      }
+      acceptAstResponse(responseAst, file);
     }
 
     private void handleMeta(ProjectAnalysisMeta meta) {
@@ -414,10 +407,8 @@ public class WebSensor implements Sensor {
     }
 
     @Nullable
-    private Node responseAst(ProjectAnalysisFileResult response) throws IOException {
-      return response.getAst().isEmpty()
-        ? null
-        : AstProtoUtils.readProtobufFromBytes(response.getAst().toByteArray());
+    private Node responseAst(ProjectAnalysisFileResult response) {
+      return response.hasAst() ? response.getAst() : null;
     }
 
     private void acceptAstResponse(@Nullable Node responseAst, InputFile file) {

@@ -8,6 +8,7 @@ package sonarjs.analyzeproject.v1;
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
+import "analysis/src/jsts/parsers/estree.proto";
 
 service AnalyzeProjectService {
   rpc AnalyzeProject(AnalyzeProjectRequest) returns (stream AnalyzeProjectStreamResponse);
@@ -168,7 +169,7 @@ message ProjectAnalysisFileResult {
   repeated HighlightedSymbol highlighted_symbols = 4;
   Metrics metrics = 5;
   repeated CpdToken cpd_tokens = 6;
-  bytes ast = 7;
+  estree.Node ast = 7;
   optional string error = 8;
 }
 

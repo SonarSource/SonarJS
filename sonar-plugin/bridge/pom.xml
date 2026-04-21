@@ -194,11 +194,11 @@
               </protocArtifact>
               <pluginId>grpc-java</pluginId>
               <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}</pluginArtifact>
-              <protoSourceRoot>../../packages/grpc/src/proto</protoSourceRoot>
+              <protoSourceRoot>../../packages</protoSourceRoot>
               <outputDirectory>${project.build.directory}/generated-sources</outputDirectory>
               <clearOutputDirectory>false</clearOutputDirectory>
               <includes>
-                <include>analyze-project.proto</include>
+                <include>grpc/src/proto/analyze-project.proto</include>
               </includes>
             </configuration>
           </execution>

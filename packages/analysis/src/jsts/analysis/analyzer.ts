@@ -20,7 +20,7 @@ import type { JsTsAnalysisInput, JsTsAnalysisOutput } from './analysis.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
-import { serializeInProtobuf } from '../parsers/ast.js';
+import { parseInProtobuf } from '../parsers/ast.js';
 import {
   collectMainFileArtifacts,
   collectNoSonarMetrics,
@@ -94,7 +94,7 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
   };
 
   if (!input.skipAst) {
-    const ast = serializeAst(parseResult.sourceCode, filePath);
+    const ast = toProtoAst(parseResult.sourceCode, filePath);
     if (ast) {
       return {
         ast,
@@ -131,11 +131,11 @@ export async function analyzeJSTSProject(
   }
 }
 
-function serializeAst(sourceCode: SourceCode, filePath: NormalizedAbsolutePath) {
+function toProtoAst(sourceCode: SourceCode, filePath: NormalizedAbsolutePath) {
   try {
-    return serializeInProtobuf(sourceCode.ast as TSESTree.Program, filePath);
+    return parseInProtobuf(sourceCode.ast as TSESTree.Program);
   } catch {
-    info(`Failed to serialize AST for file "${filePath}"`);
+    info(`Failed to convert AST to protobuf for file "${filePath}"`);
     return null;
   }
 }

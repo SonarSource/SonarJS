@@ -37,7 +37,6 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
-import com.google.protobuf.ByteString;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
@@ -291,17 +290,10 @@ class BridgeServerImplTest {
   ) throws IOException {
     var output = bridgeServer.analyzeProject(createProjectRequest(inputFile, skipAst));
     var response = toSingleFileResponse(output, inputFile.absolutePath());
-    if (response.getAst().isEmpty()) {
+    if (!response.hasAst()) {
       return new AnalysisResponse(response.getIssuesList(), null);
     }
-    try {
-      return new AnalysisResponse(
-        response.getIssuesList(),
-        AstProtoUtils.readProtobufFromBytes(response.getAst().toByteArray())
-      );
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to parse protobuf", e);
-    }
+    return new AnalysisResponse(response.getIssuesList(), response.getAst());
   }
 
   private static ProjectAnalysisFileResult toSingleFileResponse(
@@ -908,28 +900,6 @@ class BridgeServerImplTest {
   }
 
   @Test
-  void should_handle_io_exception() throws Exception {
-    bridgeServer = createUnitBridgeServer();
-    var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
-    var inputFile = createInputFile();
-
-    try (
-      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockBlockingStub(bridgeServer, stub);
-      MockedStatic<AstProtoUtils> mockedAstProtoUtils = mockStatic(AstProtoUtils.class)
-    ) {
-      when(stub.analyzeProjectUnary(any(AnalyzeProjectRequest.class))).thenReturn(
-        createUnaryResponse(inputFile, true)
-      );
-      mockedAstProtoUtils
-        .when(() -> AstProtoUtils.readProtobufFromBytes((byte[]) any()))
-        .thenThrow(new IOException("Test exception"));
-      assertThatThrownBy(() -> analyzeSingleFile(bridgeServer, inputFile, false))
-        .isInstanceOf(IllegalStateException.class)
-        .hasMessage("Failed to parse protobuf");
-    }
-  }
-
-  @Test
   void should_omit_an_ast_if_skipAst_flag_is_set() throws Exception {
     bridgeServer = createUnitBridgeServer();
     var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
@@ -1092,7 +1062,7 @@ class BridgeServerImplTest {
   ) throws IOException {
     var fileResult = ProjectAnalysisFileResult.newBuilder().addIssues(Issue.newBuilder().build());
     if (includeAst) {
-      fileResult.setAst(ByteString.copyFrom(getSerializedProtoData()));
+      fileResult.setAst(Node.parseFrom(getSerializedProtoData()));
     }
     return AnalyzeProjectUnaryResponse.newBuilder()
       .putFiles(inputFile.absolutePath(), fileResult.build())

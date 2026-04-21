@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const path = require('node:path');
 const fs = require('node:fs');
-const { startAnalyzeProjectGrpcServer } = require('./analyzeProjectGrpcServer');
+const { deserializeAst, startAnalyzeProjectGrpcServer } = require('./analyzeProjectGrpcServer');
 
 const port = process.argv[2];
 const host = process.argv[3];
@@ -35,9 +35,9 @@ function getFakeAnalysisResponse(skipAst) {
   };
 
   if (!skipAst) {
-    res.ast = fs
-      .readFileSync(path.join(__dirname, '..', 'files', 'serialized.proto'))
-      .toString('base64');
+    res.ast = deserializeAst(
+      fs.readFileSync(path.join(__dirname, '..', 'files', 'serialized.proto')),
+    );
   }
   return res;
 }
