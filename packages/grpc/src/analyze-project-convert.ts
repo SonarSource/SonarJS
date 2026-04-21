@@ -95,7 +95,7 @@ export function toAnalyzeProjectStreamResponse(
   }
 }
 
-export function toProjectAnalysisFileResult(result: FileResult): ProjectAnalysisFileResult {
+function toProjectAnalysisFileResult(result: FileResult): ProjectAnalysisFileResult {
   if ('error' in result) {
     return {
       error: result.error,

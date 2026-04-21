@@ -121,7 +121,7 @@ export type ProjectAnalysisFileInput = {
   fileStatus?: FileStatus;
 };
 
-export type SanitizedInputFiles = {
+type SanitizedInputFiles = {
   files: AnalyzableFiles;
   pathMap: Map<string, string>;
 };

@@ -9,8 +9,7 @@
     "its/**",
     "tools/header.ts",
     "tools/new-plugin.ts",
-    "tools/sync-rspec.ts",
-    "packages/grpc/src/analyze-project-worker.ts"
+    "tools/sync-rspec.ts"
   ],
   "project": ["packages/**/*.ts", "tools/**/*.ts"],
   "ignoreDependencies": [
