@@ -237,6 +237,8 @@ public final class AnalyzeProjectMessages {
         field.setAccessible(true);
         var fieldValue = field.get(input);
         if (fieldValue != null) {
+          // Null fields are omitted to preserve Gson's default serializeNulls = false behavior for
+          // rule configs. That keeps existing JSON semantics, where null becomes an absent field.
           struct.putFields(field.getName(), toValue(fieldValue, visited));
         }
       }

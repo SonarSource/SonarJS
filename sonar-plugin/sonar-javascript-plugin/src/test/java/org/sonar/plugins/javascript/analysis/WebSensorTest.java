@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +44,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletionException;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -691,6 +693,34 @@ class WebSensorTest {
         .get(inputFile.absolutePath())
         .getFileContent()
     ).isEqualTo(content);
+  }
+
+  @Test
+  void should_fail_request_build_when_reading_file_content_fails() throws IOException {
+    context = createSensorContext(baseDir);
+    setSonarLintRuntime(context);
+    var failingInputFile = spy(
+      new TestInputFileBuilder(
+        "moduleKey",
+        baseDir.toFile(),
+        baseDir.resolve("dir/file.ts").toFile()
+      )
+        .setLanguage("ts")
+        .setCharset(StandardCharsets.UTF_8)
+        .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
+        .build()
+    );
+    doThrow(new IOException("boom")).when(failingInputFile).contents();
+    context.fileSystem().add(failingInputFile);
+
+    var handler = executeSensorAndCaptureHandler(createSensor(), context);
+
+    assertThatThrownBy(handler::getRequest)
+      .isInstanceOf(IllegalStateException.class)
+      .hasCauseInstanceOf(IOException.class);
+    assertThatThrownBy(() -> handler.getFuture().join())
+      .isInstanceOf(CompletionException.class)
+      .hasCauseInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -1347,6 +1377,36 @@ class WebSensorTest {
     createSensor().execute(context);
     assertThat(logTester.logs(Level.DEBUG)).contains(
       "Telemetry saved: {javascript.runtime.major-version=22, javascript.runtime.version=22.9, javascript.runtime.node-executable-origin=embedded}"
+    );
+  }
+
+  @Test
+  void should_ignore_results_for_unknown_files() {
+    var unknownFilePath = baseDir.resolve("dir/unknown.ts").toAbsolutePath().toString();
+
+    executeSensorMockingEvents(handler -> {
+      dispatchAnalysisStreamMessage(
+        handler,
+        AnalyzeProjectStreamResponse.newBuilder()
+          .setFileResult(
+            FileResultMessage.newBuilder()
+              .setFilePath(unknownFilePath)
+              .setResult(ProjectAnalysisFileResult.getDefaultInstance())
+              .build()
+          )
+          .build()
+      );
+      dispatchAnalysisStreamMessage(
+        handler,
+        AnalyzeProjectStreamResponse.newBuilder()
+          .setMeta(ProjectAnalysisMeta.getDefaultInstance())
+          .build()
+      );
+    });
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Skipping analysis result for unknown file path: " + unknownFilePath
     );
   }
 

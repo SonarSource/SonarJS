@@ -92,6 +92,8 @@ export function toAnalyzeProjectStreamResponse(
         cancelled: {},
       };
     case 'error':
+      // Typed gRPC currently routes request failures through RequestResult instead of the
+      // incremental channel. Keep this guard in case the analysis engine emits stream errors again.
       throw new Error('Unexpected stream error event in typed gRPC response conversion');
     default:
       return assertNever(result);

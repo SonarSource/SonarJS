@@ -596,6 +596,28 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void should_fail_when_stream_ends_without_project_metadata() throws Exception {
+    bridgeServer = createUnitBridgeServer();
+    var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
+    var handler = createStreamingHandler(createInputFile(), false);
+
+    try (
+      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockBlockingStub(bridgeServer, stub)
+    ) {
+      when(stub.analyzeProject(any(AnalyzeProjectRequest.class))).thenReturn(
+        List.<AnalyzeProjectStreamResponse>of().iterator()
+      );
+
+      assertThatThrownBy(() -> bridgeServer.analyzeProject(handler))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining(
+          "Analyzer runtime completed the project-analysis stream without sending project metadata"
+        )
+        .hasMessageNotContaining("The bridge server is unresponsive");
+    }
+  }
+
+  @Test
   void should_surface_stream_runtime_errors() throws Exception {
     bridgeServer = createUnitBridgeServer();
     var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);

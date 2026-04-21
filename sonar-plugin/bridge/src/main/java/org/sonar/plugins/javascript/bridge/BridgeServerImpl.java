@@ -376,7 +376,7 @@ public class BridgeServerImpl implements BridgeServer {
     } catch (StatusRuntimeException e) {
       throw analyzeProjectException(e);
     }
-    handler.getFuture().join();
+    ensureProjectAnalysisCompleted(handler);
   }
 
   @Override
@@ -423,6 +423,16 @@ public class BridgeServerImpl implements BridgeServer {
     return description == null || description.isBlank()
       ? "Received error from analyzer runtime"
       : "Received error from analyzer runtime: " + description;
+  }
+
+  private static void ensureProjectAnalysisCompleted(ProjectAnalysisHandler handler) {
+    var future = handler.getFuture();
+    if (!future.isDone()) {
+      throw new IllegalStateException(
+        "Analyzer runtime completed the project-analysis stream without sending project metadata"
+      );
+    }
+    future.join();
   }
 
   private void cancelCurrentAnalysis() {

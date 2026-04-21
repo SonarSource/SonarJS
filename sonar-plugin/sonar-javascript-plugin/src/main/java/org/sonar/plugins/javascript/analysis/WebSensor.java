@@ -295,7 +295,9 @@ public class WebSensor implements Sensor {
           }
         }
       } catch (IOException e) {
-        handle.completeExceptionally(new IllegalStateException(e));
+        var failure = new IllegalStateException(e);
+        handle.completeExceptionally(failure);
+        throw failure;
       }
       if (fsListener != null) {
         configurationBuilder.clearFsEvents().addAllFsEvents(fsListener.listFSEvents().keySet());
@@ -353,6 +355,10 @@ public class WebSensor implements Sensor {
           );
         }
         var file = fileToInputFile.get(filePath);
+        if (file == null) {
+          LOG.warn("Skipping analysis result for unknown file path: {}", filePath);
+          return;
+        }
         var issues = analysisProcessor.processResponse(context, checks, file, response);
         var dedupedIssues = ExternalIssueRepository.deduplicateIssues(
           externalIssues.get(filePath),
