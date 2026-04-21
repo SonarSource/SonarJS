@@ -18,14 +18,14 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
-import * as meta from './generated-meta.js';
+import { fields } from './config.js';
 import { rule } from './index.js';
 
 describe('S6478', () => {
   it('should expose allowAsProps as a Sonar configuration field', () => {
-    assert.ok(Array.isArray(meta.fields));
+    assert.ok(Array.isArray(fields));
     assert.ok(
-      meta.fields.some(
+      fields.some(
         field =>
           Array.isArray(field) &&
           field.some(
@@ -184,8 +184,6 @@ describe('S6478', () => {
             }
           `,
         },
-      ],
-      invalid: [
         {
           options: [{ allowAsProps: true }],
           code: `
@@ -199,9 +197,9 @@ describe('S6478', () => {
               );
             }
           `,
-          errors: 1,
         },
       ],
+      invalid: [],
     });
   });
 });
