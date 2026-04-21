@@ -14,8 +14,6 @@
 
   <properties>
     <surefire.argLine>-server</surefire.argLine>
-    <sonar.sources/>
-    <sonar.tests>src/test</sonar.tests>
   </properties>
 
   <dependencies>

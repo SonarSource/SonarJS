@@ -571,7 +571,7 @@ jobs:
             SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
           fi
 
-          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
+          npx @sonar/scan $SONAR_ARGS
 
   analyze_shadows:
     runs-on: sonar-m-public
@@ -623,7 +623,7 @@ jobs:
             SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
           fi
 
-          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
+          npx @sonar/scan $SONAR_ARGS
 
   plugin_qa_with_node:
     runs-on: sonar-m-public
@@ -1089,7 +1089,6 @@ jobs:
 
           🤖 Generated with GitHub Actions"
           fi
-
           get_open_fix_pr_url() {
             gh pr list \
               --head "$FIX_BRANCH" \
