@@ -1,0 +1,35 @@
+{
+"fresh:packages/fresh/src/dev/builder.ts": [
+17,
+18
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+3,
+6
+],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+3,
+4
+],
+"fresh:packages/fresh/src/middlewares/csp_test.tsx": [
+3,
+5
+],
+"fresh:packages/fresh/tests/islands_test.tsx": [
+21,
+22
+],
+"fresh:packages/init/src/create.ts": [
+2,
+3
+],
+"fresh:packages/init/src/init_test.ts": [
+10,
+11,
+12
+],
+"fresh:packages/init/src/mod.ts": [
+2,
+3
+]
+}

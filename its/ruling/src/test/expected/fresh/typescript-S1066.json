@@ -1,0 +1,27 @@
+{
+"fresh:packages/fresh/src/commands.ts": [
+37
+],
+"fresh:packages/fresh/src/dev/fs_crawl.ts": [
+68
+],
+"fresh:packages/init/src/init.ts": [
+146
+],
+"fresh:packages/plugin-vite/src/mod.ts": [
+72
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+821,
+838
+],
+"fresh:packages/update/src/update.ts": [
+95
+],
+"fresh:tools/check_links.ts": [
+174
+],
+"fresh:www/routes/_error.tsx": [
+33
+]
+}

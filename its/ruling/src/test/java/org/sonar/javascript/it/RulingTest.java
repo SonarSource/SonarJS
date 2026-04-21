@@ -137,7 +137,9 @@ class RulingTest {
       project("bulma"),
       project("normalize.css"),
       project("tailwindcss"),
-      project("custom-css", "../sources/custom/css", "", "")
+      project("custom-css", "../sources/custom/css", "", ""),
+      project("fresh"),
+      project("oak")
     );
   }
 
