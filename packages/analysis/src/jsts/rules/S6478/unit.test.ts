@@ -56,6 +56,21 @@ describe('S6478', () => {
             }
           `,
         },
+        {
+          code: `
+            function Parent() {
+              const intl = useIntl();
+              return (
+                <p>
+                  {intl.formatMessage(
+                    { id: 'test' },
+                    { b: chunks => <b>{chunks}</b> }
+                  )}
+                </p>
+              );
+            }
+          `,
+        },
       ],
       invalid: [
         {
