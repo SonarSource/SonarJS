@@ -1,0 +1,54 @@
+{
+"fresh:packages/fresh/src/context.ts": [
+376
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/overlay.tsx": [
+98
+],
+"fresh:packages/fresh/src/jsonify/stringify.ts": [
+133,
+140
+],
+"fresh:packages/fresh/src/middlewares/cors.ts": [
+187
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+301,
+320,
+430
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+513,
+525,
+646,
+655
+],
+"fresh:packages/fresh/src/segments.ts": [
+201
+],
+"fresh:packages/plugin-vite/src/client.ts": [
+20
+],
+"fresh:packages/plugin-vite/src/plugins/client_snapshot.ts": [
+72
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+241
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+67,
+440
+],
+"fresh:packages/plugin-vite/src/plugins/verify_imports.ts": [
+120
+],
+"fresh:packages/update/src/update.ts": [
+301,
+463,
+478
+],
+"fresh:www/islands/TableOfContents.tsx": [
+14,
+95
+]
+}
