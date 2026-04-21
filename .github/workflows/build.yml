@@ -1096,7 +1096,7 @@ jobs:
               --base "$TARGET_REF" \
               --state open \
               --json url \
-              --jq '.[0].url'
+              --jq '.[0].url // empty'
           }
 
           # Create/update fix PR if ruling failed and there are differences
