@@ -1076,73 +1076,63 @@ jobs:
             HAS_DIFFERENCES=false
           fi
 
-          FIX_BRANCH="fix/update-ruling-for-${TARGET_REF}"
+          if [ "$IS_PULL_REQUEST" = "true" ]; then
+            FIX_BRANCH="fix/update-ruling-for-${TARGET_REF}"
 
-          # Create/update fix PR if ruling failed and there are differences
-          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
-            # Stash changes before checkout
-            git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/
+            # Create/update fix PR if ruling failed and there are differences
+            if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
+              # Stash changes before checkout
+              git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/
 
-            git fetch origin "$TARGET_REF"
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
+              git fetch origin "$TARGET_REF"
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
 
-            if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
-              git checkout -b "$FIX_BRANCH" "origin/$TARGET_REF"
-              git stash pop
-              git add its/ruling/src/test/expected/
+              if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
+                git checkout -b "$FIX_BRANCH" "origin/$TARGET_REF"
+                git stash pop
+                git add its/ruling/src/test/expected/
 
-              if git diff --staged --quiet; then
-                echo "No ruling changes to commit"
-              else
-                git commit -m "Update ruling results
-
-          🤖 Generated with GitHub Actions"
-                git push --force-with-lease origin "$FIX_BRANCH"
-              fi
-              FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url')
-            else
-              git checkout -b "$FIX_BRANCH" "origin/$TARGET_REF"
-              git stash pop
-              git add its/ruling/src/test/expected/
-
-              if git diff --staged --quiet; then
-                echo "No ruling changes to commit"
-              else
-                git commit -m "Update ruling results
+                if git diff --staged --quiet; then
+                  echo "No ruling changes to commit"
+                else
+                  git commit -m "Update ruling results
 
           🤖 Generated with GitHub Actions"
-                if [ "$IS_PULL_REQUEST" = "true" ]; then
+                  git push --force-with-lease origin "$FIX_BRANCH"
+                fi
+                FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url')
+              else
+                git checkout -b "$FIX_BRANCH" "origin/$TARGET_REF"
+                git stash pop
+                git add its/ruling/src/test/expected/
+
+                if git diff --staged --quiet; then
+                  echo "No ruling changes to commit"
+                else
+                  git commit -m "Update ruling results
+
+          🤖 Generated with GitHub Actions"
                   FIX_PR_TITLE="Update ruling results for PR #${PR_NUMBER}"
                   FIX_PR_BODY="Auto-generated ruling update for PR #${PR_NUMBER}.
 
           🤖 Generated with GitHub Actions"
-                else
-                  FIX_PR_TITLE="Update ruling results for ${TARGET_REF}"
-                  FIX_PR_BODY="Auto-generated ruling update for ${TARGET_REF}.
 
-          🤖 Generated with GitHub Actions"
+                  git push origin "$FIX_BRANCH"
+                  FIX_PR_URL=$(gh pr create \
+                    --title "$FIX_PR_TITLE" \
+                    --base "$TARGET_REF" \
+                    --head "$FIX_BRANCH" \
+                    --body "$FIX_PR_BODY")
                 fi
-
-                git push origin "$FIX_BRANCH"
-                FIX_PR_URL=$(gh pr create \
-                  --title "$FIX_PR_TITLE" \
-                  --base "$TARGET_REF" \
-                  --head "$FIX_BRANCH" \
-                  --body "$FIX_PR_BODY")
               fi
-            fi
-          else
-            # No changes needed — clean up stale fix PR if one exists and is still open
-            FIX_PR_STATE=$(gh pr view "$FIX_BRANCH" --json state --jq '.state' 2>/dev/null || true)
-            if [ "$FIX_PR_STATE" = "OPEN" ]; then
-              if [ "$IS_PULL_REQUEST" = "true" ]; then
-                STALE_FIX_PR_COMMENT="No longer needed — the original PR is now up to date."
-              else
-                STALE_FIX_PR_COMMENT="No longer needed — ${TARGET_REF} is now up to date."
+            else
+              # No changes needed — clean up stale fix PR if one exists and is still open
+              FIX_PR_STATE=$(gh pr view "$FIX_BRANCH" --json state --jq '.state' 2>/dev/null || true)
+              if [ "$FIX_PR_STATE" = "OPEN" ]; then
+                gh pr close "$FIX_BRANCH" --comment "No longer needed — the original PR is now up to date."
+                git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
               fi
-              gh pr close "$FIX_BRANCH" --comment "$STALE_FIX_PR_COMMENT"
-              git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
             fi
           fi
 
@@ -1197,7 +1187,11 @@ jobs:
 
           # Fail CI if ruling needs updating
           if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
-            echo "::error::Ruling results are out of date. See fix PR: ${FIX_PR_URL:-}"
+            if [ -n "${FIX_PR_URL:-}" ]; then
+              echo "::error::Ruling results are out of date. See fix PR: ${FIX_PR_URL}"
+            else
+              echo "::error::Ruling results are out of date."
+            fi
             exit 1
           fi
 
