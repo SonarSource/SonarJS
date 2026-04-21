@@ -29,6 +29,7 @@ import {
   analyzeProjectServerInternals,
   startAnalyzeProjectServer,
 } from '../src/analyze-project-server.js';
+import type { AnalyzeProjectResponse } from '../src/analyze-project-request.js';
 import { createAnalyzeProjectWorker } from '../src/analyze-project-worker/create-worker.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
 import type {
@@ -357,6 +358,15 @@ function createProjectAnalysisOutput(
   };
 }
 
+function createAnalyzeProjectResponse(
+  output: ProjectAnalysisOutput = createProjectAnalysisOutput(),
+): AnalyzeProjectResponse {
+  return {
+    output,
+    pathMap: new Map(),
+  };
+}
+
 function createDeferred<T>() {
   let resolve!: (value: T | PromiseLike<T>) => void;
   let reject!: (reason?: unknown) => void;
@@ -642,7 +652,7 @@ describe('analyze-project gRPC server', () => {
 
       worker.emitMessage({
         requestId,
-        result: { result: createProjectAnalysisOutput(), type: 'success' },
+        result: { result: createAnalyzeProjectResponse(), type: 'success' },
         type: 'stream-complete',
       });
       await responsesPromise;
@@ -669,7 +679,7 @@ describe('analyze-project gRPC server', () => {
 
       worker.emitMessage({
         requestId,
-        result: { result: createProjectAnalysisOutput(), type: 'success' },
+        result: { result: createAnalyzeProjectResponse(), type: 'success' },
         type: 'stream-complete',
       });
       await activeResponsesPromise;
@@ -692,7 +702,7 @@ describe('analyze-project gRPC server', () => {
         void streamRequestId.promise.then(activeRequestId => {
           worker.emitMessage({
             requestId: activeRequestId,
-            result: { result: createProjectAnalysisOutput(), type: 'success' },
+            result: { result: createAnalyzeProjectResponse(), type: 'success' },
             type: 'stream-complete',
           });
         });
@@ -703,7 +713,9 @@ describe('analyze-project gRPC server', () => {
         worker.emitMessage({
           requestId: message.requestId,
           result: {
-            result: createProjectAnalysisOutput(basicFixtureFile, ast),
+            result: createAnalyzeProjectResponse(
+              createProjectAnalysisOutput(basicFixtureFile, ast),
+            ),
             type: 'success',
           },
           type: 'unary-complete',
@@ -803,12 +815,12 @@ describe('analyze-project gRPC server', () => {
         () => {
           worker.emit('message', {
             requestId: 'different-request',
-            result: { result: createProjectAnalysisOutput(), type: 'success' },
+            result: { result: createAnalyzeProjectResponse(), type: 'success' },
             type: 'unary-complete',
           } satisfies AnalyzeProjectWorkerOutMessage);
           worker.emit('message', {
             requestId: 'expected-request',
-            result: { result: createProjectAnalysisOutput(), type: 'success' },
+            result: { result: createAnalyzeProjectResponse(), type: 'success' },
             type: 'unary-complete',
           } satisfies AnalyzeProjectWorkerOutMessage);
         },

@@ -25,7 +25,12 @@ import type {
   AnalyzeProjectWorkerInMessage,
   AnalyzeProjectWorkerOutMessage,
 } from '../src/analyze-project-worker/messages.js';
-import type { RequestResult, WsIncrementalResult } from '../src/analyze-project-request.js';
+import type {
+  AnalyzeProjectIncrementalEvent,
+  AnalyzeProjectResponse,
+  RequestResult,
+  WsIncrementalResult,
+} from '../src/analyze-project-request.js';
 import { sonarjs as analyzeProjectProto } from '../src/proto/analyze-project.js';
 import type { ProjectAnalysisOutput } from '../../analysis/src/projectAnalysis.js';
 
@@ -79,6 +84,22 @@ function createProjectAnalysisOutput(): ProjectAnalysisOutput {
   };
 }
 
+function createAnalyzeProjectResponse(
+  output: ProjectAnalysisOutput = createProjectAnalysisOutput(),
+): AnalyzeProjectResponse {
+  return {
+    output,
+    pathMap: new Map(),
+  };
+}
+
+function createIncrementalEvent(event: WsIncrementalResult): AnalyzeProjectIncrementalEvent {
+  return {
+    event,
+    pathMap: new Map(),
+  };
+}
+
 describe('analyze-project worker', () => {
   it('should close the parent thread on close messages', async () => {
     const parentThread = new FakeParentThread();
@@ -120,8 +141,8 @@ describe('analyze-project worker', () => {
 
   it('should forward unary analysis messages to the request handler', async () => {
     const handledRequests: unknown[] = [];
-    const result: RequestResult<ProjectAnalysisOutput | void> = {
-      result: createProjectAnalysisOutput(),
+    const result: RequestResult<AnalyzeProjectResponse | void> = {
+      result: createAnalyzeProjectResponse(),
       type: 'success',
     };
     const parentThread = new FakeParentThread();
@@ -147,9 +168,11 @@ describe('analyze-project worker', () => {
 
   it('should stream incremental events and completion messages', async () => {
     const handledRequests: unknown[] = [];
-    const incrementalEvents: WsIncrementalResult[] = [{ messageType: 'cancelled' }];
-    const result: RequestResult<ProjectAnalysisOutput | void> = {
-      result: createProjectAnalysisOutput(),
+    const incrementalEvents: AnalyzeProjectIncrementalEvent[] = [
+      createIncrementalEvent({ messageType: 'cancelled' }),
+    ];
+    const result: RequestResult<AnalyzeProjectResponse | void> = {
+      result: createAnalyzeProjectResponse(),
       type: 'success',
     };
     const parentThread = new FakeParentThread();
