@@ -19,7 +19,14 @@ import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 
+// These JS/DTS files remain ignored build artifacts in the source tree so TS-based
+// compile/test flows can import them before they are copied into lib/.
 const PROTO_FILES = [
+  {
+    proto: 'packages/grpc/src/proto/analyze-project.proto',
+    js: 'packages/grpc/src/proto/analyze-project.js',
+    dts: 'packages/grpc/src/proto/analyze-project.d.ts',
+  },
   {
     proto: 'packages/grpc/src/proto/language_analyzer.proto',
     js: 'packages/grpc/src/proto/language_analyzer.js',

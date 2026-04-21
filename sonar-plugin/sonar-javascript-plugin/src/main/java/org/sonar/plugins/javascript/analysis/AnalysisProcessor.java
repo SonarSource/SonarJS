@@ -17,8 +17,6 @@
 package org.sonar.plugins.javascript.analysis;
 
 import static org.sonar.plugins.javascript.analysis.QuickFixSupport.addQuickFixes;
-import static org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
-import static org.sonar.plugins.javascript.bridge.BridgeServer.IssueLocation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -28,6 +26,7 @@ import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
@@ -48,15 +47,19 @@ import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.JavaScriptLanguage;
 import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisLanguage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Highlight;
+import org.sonar.plugins.javascript.analyzeproject.grpc.HighlightedSymbol;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
+import org.sonar.plugins.javascript.analyzeproject.grpc.IssueLocation;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Location;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Metrics;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingError;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingErrorCode;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
+import org.sonar.plugins.javascript.analyzeproject.grpc.TextType;
 import org.sonar.plugins.javascript.api.Language;
-import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Highlight;
-import org.sonar.plugins.javascript.bridge.BridgeServer.HighlightedSymbol;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Location;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Metrics;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 
@@ -86,27 +89,29 @@ public class AnalysisProcessor {
     JsTsContext<?> context,
     JsTsChecks checks,
     InputFile file,
-    AnalysisResponse response
+    ProjectAnalysisFileResult response
   ) {
     List<Issue> issues;
 
     this.checks = checks;
     this.file = file;
-    if (!response.parsingErrors().isEmpty()) {
-      response.parsingErrors().forEach(parsingError -> processParsingError(context, parsingError));
+    if (!response.getParsingErrorsList().isEmpty()) {
+      response
+        .getParsingErrorsList()
+        .forEach(parsingError -> processParsingError(context, parsingError));
       return new ArrayList<>();
     }
 
-    issues = response.issues();
+    issues = response.getIssuesList();
 
     if (isJsTsOrCss(file.language())) {
       // it's important to have an order here:
       // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
-      saveMetrics(context, response.metrics());
+      saveMetrics(context, response.getMetrics());
       saveIssues(context, issues);
-      saveHighlights(context, response.highlights());
-      saveHighlightedSymbols(context, response.highlightedSymbols());
-      saveCpd(context, response.cpdTokens());
+      saveHighlights(context, response.getHighlightsList());
+      saveHighlightedSymbols(context, response.getHighlightedSymbolsList());
+      saveCpd(context, response.getCpdTokensList());
     } else {
       // SonarQube expects that there is a single analyzer that saves analysis data like metrics, highlighting,
       // and symbols. There is an exception for issues, though. Since sonar-iac saves such data for YAML files
@@ -125,17 +130,19 @@ public class AnalysisProcessor {
   }
 
   private void processParsingError(JsTsContext<?> context, ParsingError parsingError) {
-    Integer line = parsingError.line();
-    Integer column = parsingError.column();
-    String message = parsingError.message();
+    Integer line = parsingError.hasLine() ? parsingError.getLine() : null;
+    Integer column = parsingError.hasColumn() ? parsingError.getColumn() : null;
+    String message = parsingError.getMessage();
 
     if (line != null) {
       LOG.warn("Failed to parse file [{}] at line {}: {}", file, line, message);
-    } else if (parsingError.code() == ParsingErrorCode.FAILING_TYPESCRIPT) {
+    } else if (parsingError.getCode() == ParsingErrorCode.PARSING_ERROR_CODE_FAILING_TYPESCRIPT) {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
-      if (context.failFast() && !CssLanguage.KEY.equals(parsingError.language())) {
+      if (
+        context.failFast() && parsingError.getLanguage() != AnalysisLanguage.ANALYSIS_LANGUAGE_CSS
+      ) {
         throw new IllegalStateException("Failed to analyze file " + file);
       }
     }
@@ -187,25 +194,26 @@ public class AnalysisProcessor {
 
   @Nullable
   private RuleKey parsingErrorRuleKey(ParsingError parsingError) {
-    if (CssLanguage.KEY.equals(parsingError.language())) {
+    if (parsingError.getLanguage() == AnalysisLanguage.ANALYSIS_LANGUAGE_CSS) {
       return cssRules.getActiveSonarKey(CssRules.CSS_PARSING_ERROR_STYLELINT_KEY);
     }
 
-    return checks.parsingErrorRuleKey(Language.of(parsingError.language()));
+    var language = toLanguageKey(parsingError.getLanguage());
+    return language == null ? null : checks.parsingErrorRuleKey(Language.of(language));
   }
 
   private void saveIssues(JsTsContext<?> context, List<Issue> issues) {
     for (Issue issue : issues) {
       LOG.debug(
         "Saving issue for rule {} on file {} at line {}",
-        issue.ruleId(),
+        issue.getRuleId(),
         file,
-        issue.line()
+        issue.getLine()
       );
       try {
         saveIssue(context, issue);
       } catch (RuntimeException e) {
-        LOG.warn("Failed to save issue in {} at line {}", file.uri(), issue.line());
+        LOG.warn("Failed to save issue in {} at line {}", file.uri(), issue.getLine());
         LOG.warn("Exception cause", e);
       }
     }
@@ -215,12 +223,17 @@ public class AnalysisProcessor {
     NewHighlighting highlighting = context.getSensorContext().newHighlighting().onFile(file);
     for (Highlight highlight : highlights) {
       try {
-        highlighting.highlight(
-          highlight.location().toTextRange(file),
-          TypeOfText.valueOf(highlight.textType())
-        );
+        var typeOfText = toTypeOfText(highlight.getTextType());
+        if (typeOfText == null) {
+          continue;
+        }
+        highlighting.highlight(toTextRange(highlight.getLocation(), file), typeOfText);
       } catch (RuntimeException e) {
-        LOG.warn("Failed to create highlight in {} at {}", file.uri(), highlight.location());
+        LOG.warn(
+          "Failed to create highlight in {} at {}",
+          file.uri(),
+          formatLocation(highlight.getLocation())
+        );
         LOG.warn("Exception cause", e);
         // continue processing other highlights
       }
@@ -239,63 +252,80 @@ public class AnalysisProcessor {
   ) {
     NewSymbolTable symbolTable = context.getSensorContext().newSymbolTable().onFile(file);
     for (HighlightedSymbol highlightedSymbol : highlightedSymbols) {
-      Location declaration = highlightedSymbol.declaration();
+      Location declaration = highlightedSymbol.getDeclaration();
       NewSymbol newSymbol;
       try {
         newSymbol = symbolTable.newSymbol(
-          declaration.startLine(),
-          declaration.startCol(),
-          declaration.endLine(),
-          declaration.endCol()
+          declaration.getStartLine(),
+          declaration.getStartCol(),
+          declaration.getEndLine(),
+          declaration.getEndCol()
         );
       } catch (RuntimeException e) {
-        LOG.warn("Failed to create symbol declaration in {} at {}", file.uri(), declaration);
+        LOG.warn(
+          "Failed to create symbol declaration in {} at {}",
+          file.uri(),
+          formatLocation(declaration)
+        );
         continue;
       }
-      for (Location reference : highlightedSymbol.references()) {
+      for (Location reference : highlightedSymbol.getReferencesList()) {
         try {
           newSymbol.newReference(
-            reference.startLine(),
-            reference.startCol(),
-            reference.endLine(),
-            reference.endCol()
+            reference.getStartLine(),
+            reference.getStartCol(),
+            reference.getEndLine(),
+            reference.getEndCol()
           );
         } catch (RuntimeException e) {
-          LOG.warn("Failed to create symbol reference in {} at {}", file.uri(), reference);
+          LOG.warn(
+            "Failed to create symbol reference in {} at {}",
+            file.uri(),
+            formatLocation(reference)
+          );
         }
       }
     }
     symbolTable.save();
   }
 
+  private static String formatLocation(Location location) {
+    return "%d:%d-%d:%d".formatted(
+      location.getStartLine(),
+      location.getStartCol(),
+      location.getEndLine(),
+      location.getEndCol()
+    );
+  }
+
   private void saveMetrics(JsTsContext<?> context, Metrics metrics) {
     if (file.type() == InputFile.Type.TEST || context.isSonarLint()) {
-      noSonarFilter.noSonarInFile(file, Set.copyOf(metrics.nosonarLines()));
+      noSonarFilter.noSonarInFile(file, Set.copyOf(metrics.getNosonarLinesList()));
       return;
     }
 
-    // CSS files only have NCLOC and COMMENT_LINES — the old CssMetricSensor
+    // CSS files only have NCLOC and COMMENT_LINES - the old CssMetricSensor
     // never saved FUNCTIONS, STATEMENTS, CLASSES, COMPLEXITY, or COGNITIVE_COMPLEXITY.
     if (!CssLanguage.KEY.equals(file.language())) {
-      saveMetric(context, file, CoreMetrics.FUNCTIONS, metrics.functions());
-      saveMetric(context, file, CoreMetrics.STATEMENTS, metrics.statements());
-      saveMetric(context, file, CoreMetrics.CLASSES, metrics.classes());
-      saveMetric(context, file, CoreMetrics.COMPLEXITY, metrics.complexity());
-      saveMetric(context, file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.cognitiveComplexity());
+      saveMetric(context, file, CoreMetrics.FUNCTIONS, metrics.getFunctions());
+      saveMetric(context, file, CoreMetrics.STATEMENTS, metrics.getStatements());
+      saveMetric(context, file, CoreMetrics.CLASSES, metrics.getClasses());
+      saveMetric(context, file, CoreMetrics.COMPLEXITY, metrics.getComplexity());
+      saveMetric(context, file, CoreMetrics.COGNITIVE_COMPLEXITY, metrics.getCognitiveComplexity());
     }
 
-    saveMetric(context, file, CoreMetrics.NCLOC, metrics.ncloc().size());
-    saveMetric(context, file, CoreMetrics.COMMENT_LINES, metrics.commentLines().size());
+    saveMetric(context, file, CoreMetrics.NCLOC, metrics.getNclocCount());
+    saveMetric(context, file, CoreMetrics.COMMENT_LINES, metrics.getCommentLinesCount());
 
-    noSonarFilter.noSonarInFile(file, Set.copyOf(metrics.nosonarLines()));
+    noSonarFilter.noSonarInFile(file, Set.copyOf(metrics.getNosonarLinesList()));
 
     FileLinesContext fileLinesContext = fileLinesContextFactory.createFor(file);
-    for (int line : metrics.ncloc()) {
+    for (int line : metrics.getNclocList()) {
       fileLinesContext.setIntValue(CoreMetrics.NCLOC_DATA_KEY, line, 1);
     }
 
     if (!CssLanguage.KEY.equals(file.language())) {
-      for (int line : metrics.executableLines()) {
+      for (int line : metrics.getExecutableLinesList()) {
         fileLinesContext.setIntValue(CoreMetrics.EXECUTABLE_LINES_DATA_KEY, line, 1);
       }
     }
@@ -320,7 +350,7 @@ public class AnalysisProcessor {
     try {
       NewCpdTokens newCpdTokens = context.getSensorContext().newCpdTokens().onFile(file);
       for (CpdToken cpdToken : cpdTokens) {
-        newCpdTokens.addToken(cpdToken.location().toTextRange(file), cpdToken.image());
+        newCpdTokens.addToken(toTextRange(cpdToken.getLocation(), file), cpdToken.getImage());
       }
       newCpdTokens.save();
     } catch (RuntimeException e) {
@@ -335,34 +365,32 @@ public class AnalysisProcessor {
   void saveIssue(JsTsContext<?> context, Issue issue) {
     var newIssue = context.getSensorContext().newIssue();
     var location = newIssue.newLocation().on(file);
-    if (issue.message() != null) {
-      location.message(issue.message());
+    if (!issue.getMessage().isEmpty()) {
+      location.message(issue.getMessage());
     }
 
-    if (issue.endLine() != null) {
-      location.at(file.newRange(issue.line(), issue.column(), issue.endLine(), issue.endColumn()));
-    } else {
-      if (issue.line() != 0) {
-        location.at(file.selectLine(issue.line()));
-      }
+    if (issue.hasEndLine() && issue.hasEndColumn()) {
+      location.at(
+        file.newRange(issue.getLine(), issue.getColumn(), issue.getEndLine(), issue.getEndColumn())
+      );
+    } else if (issue.getLine() != 0) {
+      location.at(file.selectLine(issue.getLine()));
     }
 
-    if (issue.secondaryLocations() != null) {
-      issue
-        .secondaryLocations()
-        .forEach(secondary -> {
-          NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
-          if (newIssueLocation != null) {
-            newIssue.addLocation(newIssueLocation);
-          }
-        });
+    issue
+      .getSecondaryLocationsList()
+      .forEach(secondary -> {
+        NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
+        if (newIssueLocation != null) {
+          newIssue.addLocation(newIssueLocation);
+        }
+      });
+
+    if (issue.hasCost()) {
+      newIssue.gap(issue.getCost());
     }
 
-    if (issue.cost() != null) {
-      newIssue.gap(issue.cost());
-    }
-
-    if (issue.quickFixes() != null && !issue.quickFixes().isEmpty()) {
+    if (!issue.getQuickFixesList().isEmpty()) {
       if (isSqQuickFixCompatible(context)) {
         newIssue.setQuickFixAvailable(true);
       }
@@ -374,16 +402,25 @@ public class AnalysisProcessor {
     var ruleKey = findRuleKey(issue);
     if (ruleKey != null) {
       newIssue.at(location).forRule(ruleKey).save();
-    } else if (CssRules.CSS_PARSING_ERROR_STYLELINT_KEY.equals(issue.ruleId())) {
-      LOG.warn("Failed to parse file {}, line {}, {}", file.uri(), issue.line(), issue.message());
+    } else if (CssRules.CSS_PARSING_ERROR_STYLELINT_KEY.equals(issue.getRuleId())) {
+      LOG.warn(
+        "Failed to parse file {}, line {}, {}",
+        file.uri(),
+        issue.getLine(),
+        issue.getMessage()
+      );
     }
   }
 
+  @Nullable
   private RuleKey findRuleKey(Issue issue) {
-    if (CssLanguage.KEY.equals(issue.language())) {
-      return cssRules != null ? cssRules.getActiveSonarKey(issue.ruleId()) : null;
+    if (issue.getLanguage() == AnalysisLanguage.ANALYSIS_LANGUAGE_CSS) {
+      return cssRules != null ? cssRules.getActiveSonarKey(issue.getRuleId()) : null;
     }
-    return checks.ruleKeyByEslintKey(issue.ruleId(), Language.of(issue.language()));
+    var language = toLanguageKey(issue.getLanguage());
+    return language == null
+      ? null
+      : checks.ruleKeyByEslintKey(issue.getRuleId(), Language.of(language));
   }
 
   private static boolean isSqQuickFixCompatible(JsTsContext<?> context) {
@@ -418,6 +455,7 @@ public class AnalysisProcessor {
     return line != null && column != null && column >= 0 ? column : 0;
   }
 
+  @Nullable
   private static NewIssueLocation newSecondaryLocation(
     InputFile inputFile,
     NewIssue issue,
@@ -426,24 +464,55 @@ public class AnalysisProcessor {
     NewIssueLocation newIssueLocation = issue.newLocation().on(inputFile);
 
     if (
-      location.line() != null &&
-      location.endLine() != null &&
-      location.column() != null &&
-      location.endColumn() != null
+      location.hasLine() && location.hasEndLine() && location.hasColumn() && location.hasEndColumn()
     ) {
       newIssueLocation.at(
         inputFile.newRange(
-          location.line(),
-          location.column(),
-          location.endLine(),
-          location.endColumn()
+          location.getLine(),
+          location.getColumn(),
+          location.getEndLine(),
+          location.getEndColumn()
         )
       );
-      if (location.message() != null) {
-        newIssueLocation.message(location.message());
+      if (location.hasMessage()) {
+        newIssueLocation.message(location.getMessage());
       }
       return newIssueLocation;
     }
     return null;
+  }
+
+  private static TextRange toTextRange(Location location, InputFile inputFile) {
+    return inputFile.newRange(
+      location.getStartLine(),
+      location.getStartCol(),
+      location.getEndLine(),
+      location.getEndCol()
+    );
+  }
+
+  @Nullable
+  private static TypeOfText toTypeOfText(TextType textType) {
+    return switch (textType) {
+      case TEXT_TYPE_CONSTANT -> TypeOfText.CONSTANT;
+      case TEXT_TYPE_COMMENT -> TypeOfText.COMMENT;
+      case TEXT_TYPE_STRUCTURED_COMMENT -> TypeOfText.STRUCTURED_COMMENT;
+      case TEXT_TYPE_KEYWORD -> TypeOfText.KEYWORD;
+      case TEXT_TYPE_STRING -> TypeOfText.STRING;
+      case TEXT_TYPE_UNSPECIFIED, UNRECOGNIZED -> {
+        LOG.debug("Skipping highlight with unsupported text type: {}", textType);
+        yield null;
+      }
+    };
+  }
+
+  @Nullable
+  private static String toLanguageKey(AnalysisLanguage language) {
+    return switch (language) {
+      case ANALYSIS_LANGUAGE_JS -> JavaScriptLanguage.KEY;
+      case ANALYSIS_LANGUAGE_TS -> TypeScriptLanguage.KEY;
+      case ANALYSIS_LANGUAGE_CSS -> CssLanguage.KEY;
+      case ANALYSIS_LANGUAGE_UNSPECIFIED, UNRECOGNIZED -> null;
+    };
   }
 }

@@ -40,6 +40,7 @@ import org.sonar.api.utils.Version;
 public class NodeCommand {
 
   private static final Logger LOG = LoggerFactory.getLogger(NodeCommand.class);
+  private static final int PROCESS_TERMINATION_TIMEOUT_SECONDS = 5;
 
   final Consumer<String> outputConsumer;
   final Consumer<String> errorConsumer;
@@ -111,7 +112,11 @@ public class NodeCommand {
   public int waitFor() {
     try {
       int exitValue;
-      boolean success = processWrapper.waitFor(process, 1, TimeUnit.MINUTES);
+      boolean success = processWrapper.waitFor(
+        process,
+        PROCESS_TERMINATION_TIMEOUT_SECONDS,
+        TimeUnit.SECONDS
+      );
       if (success) {
         exitValue = processWrapper.exitValue(process);
       } else {
@@ -124,6 +129,12 @@ public class NodeCommand {
       processWrapper.interrupt();
       LOG.error("Interrupted while waiting for Node.js process to terminate.");
       return 1;
+    }
+  }
+
+  public void destroy() {
+    if (process != null) {
+      processWrapper.destroyForcibly(process);
     }
   }
 

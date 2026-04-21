@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
 package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,24 +24,27 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.protobuf.ByteString;
+import com.google.protobuf.Empty;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletionException;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +52,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.event.Level;
 import org.sonar.api.SonarEdition;
@@ -84,17 +87,29 @@ import org.sonar.api.utils.Version;
 import org.sonar.css.CssRules;
 import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
-import org.sonar.plugins.javascript.analysis.WebSensor.AnalyzeProjectHandler;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisLanguage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
+import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Highlight;
+import org.sonar.plugins.javascript.analyzeproject.grpc.HighlightedSymbol;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Location;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Metrics;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingError;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingErrorCode;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisMeta;
+import org.sonar.plugins.javascript.analyzeproject.grpc.QuickFix;
+import org.sonar.plugins.javascript.analyzeproject.grpc.QuickFixEdit;
+import org.sonar.plugins.javascript.analyzeproject.grpc.TextType;
 import org.sonar.plugins.javascript.api.JsAnalysisConsumer;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.EslintRule;
-import org.sonar.plugins.javascript.bridge.JSWebSocketClient;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
+import org.sonar.plugins.javascript.bridge.ProjectAnalysisHandler;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
-import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
 import org.sonar.plugins.javascript.bridge.protobuf.Position;
@@ -115,7 +130,7 @@ class WebSensorTest {
   Path baseDir;
 
   @Mock
-  private BridgeServerImpl bridgeServerMock;
+  private BridgeServer bridgeServerMock;
 
   private final TestAnalysisWarnings analysisWarnings = new TestAnalysisWarnings();
   private static final Gson GSON = new Gson();
@@ -129,8 +144,6 @@ class WebSensorTest {
 
   private String nodeExceptionMessage =
     "Error while running Node.js. A supported version of Node.js is required for running the analysis of JS/TS files. Please make sure a supported version of Node.js is available in the PATH or an executable path is provided via 'sonar.nodejs.executable' property. Alternatively, you can exclude JS/TS files from your analysis using the 'sonar.exclusions' configuration property. See the docs for configuring the analysis environment: https://docs.sonarsource.com/sonarqube/latest/analyzing-source-code/languages/javascript-typescript-css/";
-
-  private JSWebSocketClient webSocketClient;
 
   @TempDir
   Path tempDir;
@@ -166,8 +179,6 @@ class WebSensorTest {
       )
     );
     inputFile = createInputFile(context);
-    webSocketClient = new JSWebSocketClient(new URI("ws://localhost:9001/"));
-
     FileLinesContext fileLinesContext = mock(FileLinesContext.class);
     when(fileLinesContextFactory.createFor(any(InputFile.class))).thenReturn(fileLinesContext);
     analysisProcessor = new AnalysisProcessor(
@@ -177,26 +188,24 @@ class WebSensorTest {
     );
   }
 
-  private List<String> getWSMessages(BridgeServer.ProjectAnalysisOutputDTO response) {
-    List<String> queue = new ArrayList<>();
-    for (Map.Entry<String, BridgeServer.AnalysisResponseDTO> entry : response.files().entrySet()) {
-      String key = entry.getKey();
-      BridgeServer.AnalysisResponseDTO value = entry.getValue();
-      JsonObject json = GSON.toJsonTree(value).getAsJsonObject();
-      json.addProperty("filename", key);
-      json.addProperty("messageType", "fileResult");
-      queue.add(GSON.toJson(json));
+  private List<AnalyzeProjectStreamResponse> getAnalysisStreamMessages(
+    ProjectAnalysisOutput response
+  ) {
+    List<AnalyzeProjectStreamResponse> queue = new ArrayList<>();
+    for (Map.Entry<String, ProjectAnalysisFileResult> entry : response.files().entrySet()) {
+      queue.add(
+        AnalyzeProjectStreamResponse.newBuilder()
+          .setFileResult(
+            FileResultMessage.newBuilder()
+              .setFilePath(entry.getKey())
+              .setResult(entry.getValue())
+              .build()
+          )
+          .build()
+      );
     }
-    JsonObject json = GSON.toJsonTree(response.meta()).getAsJsonObject();
-    json.addProperty("messageType", "meta");
-    queue.add(GSON.toJson(json));
+    queue.add(AnalyzeProjectStreamResponse.newBuilder().setMeta(response.meta()).build());
     return queue;
-  }
-
-  private static List<String> getJsonArrayStrings(JsonObject jsonObject, String fieldName) {
-    List<String> values = new ArrayList<>();
-    jsonObject.getAsJsonArray(fieldName).forEach(value -> values.add(value.getAsString()));
-    return values;
   }
 
   @Test
@@ -227,36 +236,32 @@ class WebSensorTest {
 
     var issueFilePath = Path.of(baseDir.toString(), "file.js").toAbsolutePath().toString();
 
-    BridgeServer.AnalysisResponseDTO response = createResponse(
+    ProjectAnalysisFileResult response = createResponse(
       List.of(
-        new BridgeServer.Issue(
-          1,
-          1,
-          2,
-          1,
-          "foo",
-          "S3923",
-          "js",
-          List.of(),
-          1.0,
-          List.of(),
-          List.of("foo-bar"),
-          issueFilePath
-        ),
-        new BridgeServer.Issue(
-          2,
-          8,
-          2,
-          16,
-          "foo",
-          "S3923",
-          "js",
-          List.of(),
-          1.0,
-          List.of(),
-          List.of("use-isnan"),
-          issueFilePath
-        )
+        org.sonar.plugins.javascript.analyzeproject.grpc.Issue.newBuilder()
+          .setLine(1)
+          .setColumn(1)
+          .setEndLine(2)
+          .setEndColumn(1)
+          .setMessage("foo")
+          .setRuleId("S3923")
+          .setLanguage(AnalysisLanguage.ANALYSIS_LANGUAGE_JS)
+          .setCost(1.0)
+          .addRuleEslintKeys("foo-bar")
+          .setFilePath(issueFilePath)
+          .build(),
+        org.sonar.plugins.javascript.analyzeproject.grpc.Issue.newBuilder()
+          .setLine(2)
+          .setColumn(8)
+          .setEndLine(2)
+          .setEndColumn(16)
+          .setMessage("foo")
+          .setRuleId("S3923")
+          .setLanguage(AnalysisLanguage.ANALYSIS_LANGUAGE_JS)
+          .setCost(1.0)
+          .addRuleEslintKeys("use-isnan")
+          .setFilePath(issueFilePath)
+          .build()
       )
     );
 
@@ -283,7 +288,7 @@ class WebSensorTest {
     executeSensorMockingResponse(expectedResponse);
 
     assertThat(context.allIssues()).hasSize(
-      expectedResponse.files().get(inputFile.absolutePath()).issues().size()
+      expectedResponse.files().get(inputFile.absolutePath()).getIssuesCount()
     );
     assertThat(logTester.logs(Level.DEBUG)).contains(
       String.format("Saving issue for rule S3923 on file %s at line 1", inputFile)
@@ -340,39 +345,21 @@ class WebSensorTest {
   }
 
   @Test
-  void should_ignore_ws_messages_not_related_to_project_analysis() {
-    executeSensorMockingEvents(() -> {
-      webSocketClient.onMessage("{messageType: 'unrelated_event'}");
-      for (var message : getWSMessages(createProjectResponse(List.of(inputFile)))) {
-        webSocketClient.onMessage(message);
+  void should_ignore_stream_messages_not_related_to_project_analysis() {
+    executeSensorMockingEvents(handler -> {
+      dispatchAnalysisStreamMessage(handler, AnalyzeProjectStreamResponse.getDefaultInstance());
+      for (var message : getAnalysisStreamMessages(createProjectResponse(List.of(inputFile)))) {
+        dispatchAnalysisStreamMessage(handler, message);
       }
     });
   }
 
   @Test
-  void should_end_analysis_error_ws_event() {
-    assertThatThrownBy(() ->
-      executeSensorMockingEvents(() -> {
-        webSocketClient.onError(new IOException("Abnormal termination"));
-      })
-    ).isInstanceOf(IllegalStateException.class);
-  }
-
-  @Test
-  void should_end_analysis_close_ws_event() {
-    assertThatThrownBy(() ->
-      executeSensorMockingEvents(() -> {
-        webSocketClient.onClose(1006, "Abnormal close event", true);
-      })
-    ).isInstanceOf(IllegalStateException.class);
-  }
-
-  @Test
   void should_handle_warnings() {
     var warningMessage = "warning message";
-    var expectedResponse = new BridgeServer.ProjectAnalysisOutputDTO(
+    var expectedResponse = new ProjectAnalysisOutput(
       createFilesMap(List.of(inputFile)),
-      new BridgeServer.ProjectAnalysisMetaResponse(List.of(warningMessage))
+      ProjectAnalysisMeta.newBuilder().addWarnings(warningMessage).build()
     );
     executeSensorMockingResponse(expectedResponse);
     assertThat(analysisWarnings.warnings).isEqualTo(List.of(warningMessage));
@@ -382,7 +369,7 @@ class WebSensorTest {
   void should_explode_if_no_response_from_project_analysis() {
     doThrow(new IllegalStateException("error"))
       .when(bridgeServerMock)
-      .analyzeProject(any(WebSocketMessageHandler.class));
+      .analyzeProject(any(ProjectAnalysisHandler.class));
     var sensor = createSensor();
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
@@ -399,9 +386,8 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
-              "{ parsingErrors: [{ line: 3, column: 4, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"}] }",
-              BridgeServer.AnalysisResponseDTO.class
+            parseLegacyResponse(
+              "{ parsingErrors: [{ line: 3, column: 4, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"}] }"
             )
           );
         }
@@ -427,9 +413,8 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
-              "{ parsingErrors: [{ line: 3, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"}] }",
-              BridgeServer.AnalysisResponseDTO.class
+            parseLegacyResponse(
+              "{ parsingErrors: [{ line: 3, message: \"Parse error message\", code: \"Parsing\", language: \"ts\"}] }"
             )
           );
         }
@@ -454,9 +439,8 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
-              "{ parsingErrors: [{ message: \"Parse error message\", language: \"ts\"}] }",
-              BridgeServer.AnalysisResponseDTO.class
+            parseLegacyResponse(
+              "{ parsingErrors: [{ message: \"Parse error message\", language: \"ts\"}] }"
             )
           );
         }
@@ -480,7 +464,7 @@ class WebSensorTest {
       executeSensorAndCaptureHandler(createSensor(), context)
         .getRequest()
         .getConfiguration()
-        .skipAst()
+        .getSkipAst()
     ).isTrue();
   }
 
@@ -491,7 +475,7 @@ class WebSensorTest {
       executeSensorAndCaptureHandler(createSensorWithConsumer(disabled), context)
         .getRequest()
         .getConfiguration()
-        .skipAst()
+        .getSkipAst()
     ).isTrue();
   }
 
@@ -501,7 +485,7 @@ class WebSensorTest {
       executeSensorAndCaptureHandler(createSensorWithConsumer(), context)
         .getRequest()
         .getConfiguration()
-        .skipAst()
+        .getSkipAst()
     ).isFalse();
   }
 
@@ -511,7 +495,7 @@ class WebSensorTest {
       executeSensorAndCaptureHandler(createSensor(), context)
         .getRequest()
         .getConfiguration()
-        .createTSProgramForOrphanFiles()
+        .getCreateTsProgramForOrphanFiles()
     ).isTrue();
   }
 
@@ -524,7 +508,7 @@ class WebSensorTest {
       executeSensorAndCaptureHandler(createSensor(), context)
         .getRequest()
         .getConfiguration()
-        .createTSProgramForOrphanFiles()
+        .getCreateTsProgramForOrphanFiles()
     ).isFalse();
   }
 
@@ -534,7 +518,7 @@ class WebSensorTest {
       executeSensorAndCaptureHandler(createSensor(), context)
         .getRequest()
         .getConfiguration()
-        .disableTypeChecking()
+        .getDisableTypeChecking()
     ).isFalse();
   }
 
@@ -547,7 +531,7 @@ class WebSensorTest {
       executeSensorAndCaptureHandler(createSensor(), context)
         .getRequest()
         .getConfiguration()
-        .disableTypeChecking()
+        .getDisableTypeChecking()
     ).isTrue();
   }
 
@@ -557,7 +541,7 @@ class WebSensorTest {
       executeSensorAndCaptureHandler(createSensor(), context)
         .getRequest()
         .getConfiguration()
-        .skipNodeModuleLookupOutsideBaseDir()
+        .getSkipNodeModuleLookupOutsideBaseDir()
     ).isFalse();
   }
 
@@ -573,7 +557,7 @@ class WebSensorTest {
       executeSensorAndCaptureHandler(createSensor(), context)
         .getRequest()
         .getConfiguration()
-        .skipNodeModuleLookupOutsideBaseDir()
+        .getSkipNodeModuleLookupOutsideBaseDir()
     ).isTrue();
   }
 
@@ -589,15 +573,9 @@ class WebSensorTest {
     var configuration = executeSensorAndCaptureHandler(createSensor(), context)
       .getRequest()
       .getConfiguration();
-    JsonObject configurationJson = GSON.toJsonTree(configuration).getAsJsonObject();
-
-    assertThat(getJsonArrayStrings(configurationJson, "htmlSuffixes")).containsExactly(
-      ".custom-html"
-    );
-    assertThat(getJsonArrayStrings(configurationJson, "yamlSuffixes")).containsExactly(
-      ".custom-yaml"
-    );
-    assertThat(getJsonArrayStrings(configurationJson, "cssAdditionalSuffixes")).containsExactly(
+    assertThat(configuration.getHtmlSuffixes().getValuesList()).containsExactly(".custom-html");
+    assertThat(configuration.getYamlSuffixes().getValuesList()).containsExactly(".custom-yaml");
+    assertThat(configuration.getCssAdditionalSuffixes().getValuesList()).containsExactly(
       ".custom-style"
     );
   }
@@ -614,15 +592,9 @@ class WebSensorTest {
     var configuration = executeSensorAndCaptureHandler(createSensor(), context)
       .getRequest()
       .getConfiguration();
-    JsonObject configurationJson = GSON.toJsonTree(configuration).getAsJsonObject();
-
-    assertThat(getJsonArrayStrings(configurationJson, "htmlSuffixes")).containsExactly(
-      ".custom-html"
-    );
-    assertThat(getJsonArrayStrings(configurationJson, "yamlSuffixes")).containsExactly(
-      ".custom-yaml"
-    );
-    assertThat(getJsonArrayStrings(configurationJson, "cssAdditionalSuffixes")).containsExactly(
+    assertThat(configuration.getHtmlSuffixes().getValuesList()).containsExactly(".custom-html");
+    assertThat(configuration.getYamlSuffixes().getValuesList()).containsExactly(".custom-yaml");
+    assertThat(configuration.getCssAdditionalSuffixes().getValuesList()).containsExactly(
       ".custom-style"
     );
   }
@@ -685,8 +657,8 @@ class WebSensorTest {
         .getRequest()
         .getFiles()
         .get(inputFile.absolutePath())
-        .fileContent()
-    ).isNull();
+        .hasFileContent()
+    ).isFalse();
   }
 
   @Test
@@ -697,7 +669,7 @@ class WebSensorTest {
         .getRequest()
         .getFiles()
         .get(inputFile.absolutePath())
-        .fileContent()
+        .getFileContent()
     ).isEqualTo(inputFile.contents());
   }
 
@@ -719,8 +691,36 @@ class WebSensorTest {
         .getRequest()
         .getFiles()
         .get(inputFile.absolutePath())
-        .fileContent()
+        .getFileContent()
     ).isEqualTo(content);
+  }
+
+  @Test
+  void should_fail_request_build_when_reading_file_content_fails() throws IOException {
+    context = createSensorContext(baseDir);
+    setSonarLintRuntime(context);
+    var failingInputFile = spy(
+      new TestInputFileBuilder(
+        "moduleKey",
+        baseDir.toFile(),
+        baseDir.resolve("dir/file.ts").toFile()
+      )
+        .setLanguage("ts")
+        .setCharset(StandardCharsets.UTF_8)
+        .setContents("if (cond)\ndoFoo(); \nelse \ndoFoo();")
+        .build()
+    );
+    doThrow(new IOException("boom")).when(failingInputFile).contents();
+    context.fileSystem().add(failingInputFile);
+
+    var handler = executeSensorAndCaptureHandler(createSensor(), context);
+
+    assertThatThrownBy(handler::getRequest)
+      .isInstanceOf(IllegalStateException.class)
+      .hasCauseInstanceOf(IOException.class);
+    assertThatThrownBy(() -> handler.getFuture().join())
+      .isInstanceOf(CompletionException.class)
+      .hasCauseInstanceOf(IllegalStateException.class);
   }
 
   @Test
@@ -730,11 +730,10 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
+            parseLegacyResponse(
               "{ parsingErrors: [{ message: \"Debug Failure. False expression.\", code: \"" +
-                BridgeServer.ParsingErrorCode.FAILING_TYPESCRIPT +
-                "\", language: \"ts\"}] }",
-              BridgeServer.AnalysisResponseDTO.class
+                ParsingErrorCode.PARSING_ERROR_CODE_FAILING_TYPESCRIPT +
+                "\", language: \"ts\"}] }"
             )
           );
         }
@@ -760,7 +759,7 @@ class WebSensorTest {
   void should_fail_fast() {
     doThrow(new IllegalStateException("error"))
       .when(bridgeServerMock)
-      .analyzeProject(any(WebSocketMessageHandler.class));
+      .analyzeProject(any(ProjectAnalysisHandler.class));
     var sensor = createSensor();
     assertThatThrownBy(() -> sensor.execute(context))
       .isInstanceOf(IllegalStateException.class)
@@ -776,9 +775,8 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
-              "{ parsingErrors: [{ message: \"Parse error message\", language: \"ts\"}] }",
-              BridgeServer.AnalysisResponseDTO.class
+            parseLegacyResponse(
+              "{ parsingErrors: [{ message: \"Parse error message\", language: \"ts\"}] }"
             )
           );
         }
@@ -802,9 +800,8 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
-              "{ parsingErrors: [{ message: \"Parse error message\", language: \"css\"}] }",
-              BridgeServer.AnalysisResponseDTO.class
+            parseLegacyResponse(
+              "{ parsingErrors: [{ message: \"Parse error message\", language: \"css\"}] }"
             )
           );
         }
@@ -830,15 +827,14 @@ class WebSensorTest {
   @Test
   void stop_analysis_if_cancelled() {
     var expectedResponse = createProjectResponse(List.of(inputFile));
-    JSWebSocketClient spyClient = Mockito.spy(webSocketClient);
-    Mockito.doNothing().when(spyClient).send(Mockito.anyString());
-
-    executeSensorMockingEvents(() -> {
-      var messages = getWSMessages(expectedResponse);
+    executeSensorMockingEvents(handler -> {
+      var messages = getAnalysisStreamMessages(expectedResponse);
       context.setCancelled(true);
-      spyClient.onMessage(messages.get(0));
-      Mockito.verify(spyClient).send(GSON.toJson(Map.of("type", "on-cancel-analysis")));
-      spyClient.onMessage("{messageType: 'cancelled'}");
+      dispatchAnalysisStreamMessage(handler, messages.get(0));
+      dispatchAnalysisStreamMessage(
+        handler,
+        AnalyzeProjectStreamResponse.newBuilder().setCancelled(Empty.getDefaultInstance()).build()
+      );
     });
     assertThat(logTester.logs(Level.INFO)).contains(
       "org.sonar.plugins.javascript.CancellationException: Analysis interrupted because the SensorContext is in cancelled state"
@@ -848,20 +844,17 @@ class WebSensorTest {
   @Test
   void handle_errors_gracefully_during_analyze_project() {
     var jsError = "{\"code\":\"GENERAL_ERROR\",\"message\":\"Fake error message\"}";
-    var message = String.format("{messageType: 'error', error: %s}", jsError);
-    JSWebSocketClient spyClient = Mockito.spy(webSocketClient);
-    Mockito.doNothing().when(spyClient).send(Mockito.anyString());
 
     var exception = catchThrowable(() ->
-      executeSensorMockingEvents(() -> {
-        spyClient.onMessage(message);
+      executeSensorMockingEvents(handler -> {
+        dispatchAnalysisStreamError(handler, jsError);
       })
     );
     assertThat(exception)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("Analysis of JS/TS files failed");
     assertThat(exception.getCause().getMessage()).isEqualTo(
-      String.format("java.lang.RuntimeException: Received error from bridge: %s", jsError)
+      String.format("java.lang.RuntimeException: Received error from analyzer runtime: %s", jsError)
     );
   }
 
@@ -944,13 +937,12 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
+            parseLegacyResponse(
               "{ issues: [{" +
                 "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []}," +
                 "{\"line\":1,\"column\":1,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Line issue message\", \"secondaryLocations\": []}," +
                 "{\"line\":0,\"column\":1,\"ruleId\":\"S1451\",\"language\":\"js\",\"message\":\"File issue message\", \"secondaryLocations\": []}" +
-                "]}",
-              BridgeServer.AnalysisResponseDTO.class
+                "]}"
             )
           );
         }
@@ -999,13 +991,12 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
+            parseLegacyResponse(
               "{ issues: [{" +
                 "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
                 "\"quickFixes\": [{ message: \"msg\", edits: [] }] " +
                 "}" +
-                "]}",
-              BridgeServer.AnalysisResponseDTO.class
+                "]}"
             )
           );
         }
@@ -1024,13 +1015,12 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
+            parseLegacyResponse(
               "{ issues: [{" +
                 "\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", \"secondaryLocations\": []," +
                 "\"quickFixes\": [{ message: \"msg\", edits: [] }] " +
                 "}" +
-                "]}",
-              BridgeServer.AnalysisResponseDTO.class
+                "]}"
             )
           );
         }
@@ -1056,14 +1046,13 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
+            parseLegacyResponse(
               "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", " +
                 "\"cost\": 14," +
                 "\"secondaryLocations\": [" +
                 "{ message: \"Secondary\", \"line\":2,\"column\":0,\"endLine\":2,\"endColumn\":3}," +
                 "{ message: \"Secondary\", \"line\":3,\"column\":1,\"endLine\":3,\"endColumn\":4}" +
-                "]}]}",
-              BridgeServer.AnalysisResponseDTO.class
+                "]}]}"
             )
           );
         }
@@ -1102,12 +1091,11 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
+            parseLegacyResponse(
               "{ issues: [{\"line\":1,\"column\":3,\"endLine\":3,\"endColumn\":5,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", " +
                 "\"secondaryLocations\": [" +
                 "{ message: \"Secondary\", \"line\":2,\"column\":1,\"endLine\":null,\"endColumn\":4}" +
-                "]}]}",
-              BridgeServer.AnalysisResponseDTO.class
+                "]}]}"
             )
           );
         }
@@ -1130,11 +1118,10 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
+            parseLegacyResponse(
               "{ issues: [{\"line\":1,\"column\":2,\"endLine\":3,\"endColumn\":4,\"ruleId\":\"S3923\",\"language\":\"js\",\"message\":\"Issue message\", " +
                 "\"cost\": 42," +
-                "\"secondaryLocations\": []}]}",
-              BridgeServer.AnalysisResponseDTO.class
+                "\"secondaryLocations\": []}]}"
             )
           );
         }
@@ -1165,9 +1152,8 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
-              "{ metrics: {\"ncloc\":[1, 2, 3],\"commentLines\":[4, 5, 6],\"nosonarLines\":[7, 8, 9],\"executableLines\":[10, 11, 12],\"functions\":1,\"statements\":2,\"classes\":3,\"complexity\":4,\"cognitiveComplexity\":5} }",
-              BridgeServer.AnalysisResponseDTO.class
+            parseLegacyResponse(
+              "{ metrics: {\"ncloc\":[1, 2, 3],\"commentLines\":[4, 5, 6],\"nosonarLines\":[7, 8, 9],\"executableLines\":[10, 11, 12],\"functions\":1,\"statements\":2,\"classes\":3,\"complexity\":4,\"cognitiveComplexity\":5} }"
             )
           );
         }
@@ -1193,10 +1179,7 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
-              "{ metrics: {\"nosonarLines\":[7, 8, 9]} }",
-              BridgeServer.AnalysisResponseDTO.class
-            )
+            parseLegacyResponse("{ metrics: {\"nosonarLines\":[7, 8, 9]} }")
           );
         }
       }
@@ -1218,16 +1201,14 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
-              "{ metrics: {\"nosonarLines\":[7, 8, 9], ncloc: [], commentLines: [], executableLines: []} }",
-              BridgeServer.AnalysisResponseDTO.class
+            parseLegacyResponse(
+              "{ metrics: {\"nosonarLines\":[7, 8, 9], ncloc: [], commentLines: [], executableLines: []} }"
             )
           );
           put(
             testInputFile.absolutePath(),
-            GSON.fromJson(
-              "{ metrics: {\"nosonarLines\":[7, 8, 9], ncloc: [], commentLines: [], executableLines: []} }",
-              BridgeServer.AnalysisResponseDTO.class
+            parseLegacyResponse(
+              "{ metrics: {\"nosonarLines\":[7, 8, 9], ncloc: [], commentLines: [], executableLines: []} }"
             )
           );
         }
@@ -1251,9 +1232,8 @@ class WebSensorTest {
         {
           put(
             inputFile.absolutePath(),
-            GSON.fromJson(
-              "{ highlights: [{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"textType\":\"KEYWORD\"},{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"textType\":\"CONSTANT\"}] }",
-              BridgeServer.AnalysisResponseDTO.class
+            parseLegacyResponse(
+              "{ highlights: [{\"location\": { \"startLine\":1,\"startCol\":0,\"endLine\":1,\"endCol\":4},\"textType\":\"KEYWORD\"},{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"textType\":\"CONSTANT\"}] }"
             )
           );
         }
@@ -1277,10 +1257,7 @@ class WebSensorTest {
     var expectedResponse = createProjectResponse(
       new HashMap<>() {
         {
-          put(
-            inputFile.absolutePath(),
-            GSON.fromJson(CacheTestUtils.CPD_TOKENS, BridgeServer.AnalysisResponseDTO.class)
-          );
+          put(inputFile.absolutePath(), parseLegacyResponse(CacheTestUtils.CPD_TOKENS));
         }
       }
     );
@@ -1403,12 +1380,42 @@ class WebSensorTest {
     );
   }
 
-  private AnalyzeProjectHandler executeSensorAndCaptureHandler(
+  @Test
+  void should_ignore_results_for_unknown_files() {
+    var unknownFilePath = baseDir.resolve("dir/unknown.ts").toAbsolutePath().toString();
+
+    executeSensorMockingEvents(handler -> {
+      dispatchAnalysisStreamMessage(
+        handler,
+        AnalyzeProjectStreamResponse.newBuilder()
+          .setFileResult(
+            FileResultMessage.newBuilder()
+              .setFilePath(unknownFilePath)
+              .setResult(ProjectAnalysisFileResult.getDefaultInstance())
+              .build()
+          )
+          .build()
+      );
+      dispatchAnalysisStreamMessage(
+        handler,
+        AnalyzeProjectStreamResponse.newBuilder()
+          .setMeta(ProjectAnalysisMeta.getDefaultInstance())
+          .build()
+      );
+    });
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(logTester.logs(Level.WARN)).contains(
+      "Skipping analysis result for unknown file path: " + unknownFilePath
+    );
+  }
+
+  private ProjectAnalysisHandler executeSensorAndCaptureHandler(
     WebSensor sensor,
     SensorContextTester ctx
   ) {
-    ArgumentCaptor<AnalyzeProjectHandler> captor = ArgumentCaptor.forClass(
-      AnalyzeProjectHandler.class
+    ArgumentCaptor<ProjectAnalysisHandler> captor = ArgumentCaptor.forClass(
+      ProjectAnalysisHandler.class
     );
     sensor.execute(ctx);
     verify(bridgeServerMock).analyzeProject(captor.capture());
@@ -1419,40 +1426,55 @@ class WebSensorTest {
     executeSensorMockingResponse(createSensor(), createProjectResponse(List.of()));
   }
 
-  private void executeSensorMockingResponse(
-    BridgeServer.ProjectAnalysisOutputDTO expectedResponse
-  ) {
+  private void executeSensorMockingResponse(ProjectAnalysisOutput expectedResponse) {
     executeSensorMockingResponse(createSensor(), expectedResponse);
   }
 
   private void executeSensorMockingResponse(
     WebSensor sensor,
-    BridgeServer.ProjectAnalysisOutputDTO expectedResponse
+    ProjectAnalysisOutput expectedResponse
   ) {
-    executeSensorMockingEvents(sensor, () -> {
-      for (var message : getWSMessages(expectedResponse)) {
-        webSocketClient.onMessage(message);
+    executeSensorMockingEvents(sensor, handler -> {
+      for (var message : getAnalysisStreamMessages(expectedResponse)) {
+        dispatchAnalysisStreamMessage(handler, message);
       }
     });
   }
 
-  private void executeSensorMockingEvents(Runnable events) {
+  private void executeSensorMockingEvents(
+    java.util.function.Consumer<ProjectAnalysisHandler> events
+  ) {
     executeSensorMockingEvents(createSensor(), events);
   }
 
-  private void executeSensorMockingEvents(WebSensor sensor, Runnable events) {
+  private void executeSensorMockingEvents(
+    WebSensor sensor,
+    java.util.function.Consumer<ProjectAnalysisHandler> events
+  ) {
     doAnswer(invocation -> {
-      WebSocketMessageHandler<AnalyzeProjectHandler> handler = invocation.getArgument(0);
+      ProjectAnalysisHandler handler = invocation.getArgument(0);
       handler.getRequest(); // we need to call this to prepare all the Maps in the sensor
-      webSocketClient.registerHandler(handler);
-      assertThat(webSocketClient.getMessageHandlers()).hasSize(1);
-      events.run();
+      events.accept(handler);
       return handler.getFuture().join();
     })
       .when(bridgeServerMock)
-      .analyzeProject(any(WebSocketMessageHandler.class));
+      .analyzeProject(any(ProjectAnalysisHandler.class));
     sensor.execute(context);
-    assertThat(webSocketClient.getMessageHandlers()).isEmpty();
+  }
+
+  private static void dispatchAnalysisStreamMessage(
+    ProjectAnalysisHandler handler,
+    AnalyzeProjectStreamResponse message
+  ) {
+    handler.handleMessage(message);
+  }
+
+  private static void dispatchAnalysisStreamError(ProjectAnalysisHandler handler, String error) {
+    handler
+      .getFuture()
+      .completeExceptionally(
+        new RuntimeException(String.format("Received error from analyzer runtime: %s", error))
+      );
   }
 
   private SensorContextTester createSensorContext(Path baseDir) throws IOException {
@@ -1534,49 +1556,40 @@ class WebSensorTest {
     );
   }
 
-  private BridgeServer.ProjectAnalysisOutputDTO createProjectResponse(List<InputFile> files) {
-    return new BridgeServer.ProjectAnalysisOutputDTO(
+  private record ProjectAnalysisOutput(
+    Map<String, ProjectAnalysisFileResult> files,
+    ProjectAnalysisMeta meta
+  ) {}
+
+  private ProjectAnalysisOutput createProjectResponse(List<InputFile> files) {
+    return new ProjectAnalysisOutput(
       createFilesMap(files),
-      new BridgeServer.ProjectAnalysisMetaResponse()
+      ProjectAnalysisMeta.getDefaultInstance()
     );
   }
 
-  private BridgeServer.ProjectAnalysisOutputDTO createProjectResponse(
-    Map<String, BridgeServer.AnalysisResponseDTO> results
+  private ProjectAnalysisOutput createProjectResponse(
+    Map<String, ProjectAnalysisFileResult> results
   ) {
-    return new BridgeServer.ProjectAnalysisOutputDTO(
-      results,
-      new BridgeServer.ProjectAnalysisMetaResponse()
-    );
+    return new ProjectAnalysisOutput(results, ProjectAnalysisMeta.getDefaultInstance());
   }
 
-  private BridgeServer.ProjectAnalysisOutputDTO createProjectResponseWithAst(
-    InputFile inputFile,
-    Node node
-  ) {
-    var analysisResponse = new BridgeServer.AnalysisResponseDTO(
-      List.of(),
-      List.of(),
-      List.of(),
-      List.of(),
-      new BridgeServer.Metrics(),
-      List.of(),
-      Base64.getEncoder().encodeToString(node.toByteArray())
-    );
+  private ProjectAnalysisOutput createProjectResponseWithAst(InputFile inputFile, Node node) {
+    var analysisResponse = ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .setAst(ByteString.copyFrom(node.toByteArray()))
+      .build();
 
-    var files = new HashMap<String, BridgeServer.AnalysisResponseDTO>() {
+    var files = new HashMap<String, ProjectAnalysisFileResult>() {
       {
         put(inputFile.absolutePath(), analysisResponse);
       }
     };
 
-    return new BridgeServer.ProjectAnalysisOutputDTO(
-      files,
-      new BridgeServer.ProjectAnalysisMetaResponse()
-    );
+    return new ProjectAnalysisOutput(files, ProjectAnalysisMeta.getDefaultInstance());
   }
 
-  private Map<String, BridgeServer.AnalysisResponseDTO> createFilesMap(List<InputFile> files) {
+  private Map<String, ProjectAnalysisFileResult> createFilesMap(List<InputFile> files) {
     return new HashMap<>() {
       {
         files.forEach(file -> put(file.absolutePath(), createResponse()));
@@ -1584,20 +1597,17 @@ class WebSensorTest {
     };
   }
 
-  private BridgeServer.AnalysisResponseDTO createResponse(List<BridgeServer.Issue> issues) {
-    return new BridgeServer.AnalysisResponseDTO(
-      List.of(),
-      issues,
-      List.of(),
-      List.of(),
-      new BridgeServer.Metrics(),
-      List.of(),
-      null
-    );
+  private ProjectAnalysisFileResult createResponse(
+    List<org.sonar.plugins.javascript.analyzeproject.grpc.Issue> issues
+  ) {
+    return ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .addAllIssues(issues)
+      .build();
   }
 
-  private BridgeServer.AnalysisResponseDTO createResponse() {
-    return GSON.fromJson(
+  private ProjectAnalysisFileResult createResponse() {
+    return parseLegacyResponse(
       "{" +
         createIssues() +
         "," +
@@ -1608,8 +1618,7 @@ class WebSensorTest {
         createCpdTokens() +
         "," +
         createHighlightedSymbols() +
-        "}",
-      BridgeServer.AnalysisResponseDTO.class
+        "}"
     );
   }
 
@@ -1674,6 +1683,340 @@ class WebSensorTest {
       "{\"location\": { \"startLine\":2,\"startCol\":1,\"endLine\":2,\"endCol\":5},\"image\":\"if\"}" +
       "]"
     );
+  }
+
+  private ProjectAnalysisFileResult parseLegacyResponse(String json) {
+    var builder = ProjectAnalysisFileResult.newBuilder();
+
+    JsonObject root = GSON.fromJson(json, JsonObject.class);
+    if (root == null) {
+      return builder.setMetrics(Metrics.getDefaultInstance()).build();
+    }
+
+    if (root.has("parsingErrors") && root.get("parsingErrors").isJsonArray()) {
+      root
+        .getAsJsonArray("parsingErrors")
+        .forEach(error -> {
+          if (error.isJsonObject()) {
+            builder.addParsingErrors(parseParsingError(error.getAsJsonObject()));
+          }
+        });
+    }
+
+    if (root.has("issues") && root.get("issues").isJsonArray()) {
+      root
+        .getAsJsonArray("issues")
+        .forEach(issue -> {
+          if (issue.isJsonObject()) {
+            builder.addIssues(parseIssue(issue.getAsJsonObject()));
+          }
+        });
+    }
+
+    if (root.has("highlights") && root.get("highlights").isJsonArray()) {
+      root
+        .getAsJsonArray("highlights")
+        .forEach(highlight -> {
+          if (highlight.isJsonObject()) {
+            builder.addHighlights(parseHighlight(highlight.getAsJsonObject()));
+          }
+        });
+    }
+
+    if (root.has("highlightedSymbols") && root.get("highlightedSymbols").isJsonArray()) {
+      root
+        .getAsJsonArray("highlightedSymbols")
+        .forEach(symbol -> {
+          if (symbol.isJsonObject()) {
+            builder.addHighlightedSymbols(parseHighlightedSymbol(symbol.getAsJsonObject()));
+          }
+        });
+    }
+
+    if (root.has("metrics") && root.get("metrics").isJsonObject()) {
+      builder.setMetrics(parseMetrics(root.getAsJsonObject("metrics")));
+    } else {
+      builder.setMetrics(Metrics.getDefaultInstance());
+    }
+
+    if (root.has("cpdTokens") && root.get("cpdTokens").isJsonArray()) {
+      root
+        .getAsJsonArray("cpdTokens")
+        .forEach(cpdToken -> {
+          if (cpdToken.isJsonObject()) {
+            builder.addCpdTokens(parseCpdToken(cpdToken.getAsJsonObject()));
+          }
+        });
+    }
+
+    if (root.has("error") && !root.get("error").isJsonNull()) {
+      builder.setError(root.get("error").getAsString());
+    }
+
+    return builder.build();
+  }
+
+  private static ParsingError parseParsingError(JsonObject json) {
+    var builder = ParsingError.newBuilder();
+    if (json.has("message") && !json.get("message").isJsonNull()) {
+      builder.setMessage(json.get("message").getAsString());
+    }
+    if (json.has("line") && !json.get("line").isJsonNull()) {
+      builder.setLine(json.get("line").getAsInt());
+    }
+    if (json.has("column") && !json.get("column").isJsonNull()) {
+      builder.setColumn(json.get("column").getAsInt());
+    }
+    builder.setCode(parseParsingErrorCode(json.get("code")));
+    builder.setLanguage(parseAnalysisLanguage(json.get("language")));
+    return builder.build();
+  }
+
+  private static org.sonar.plugins.javascript.analyzeproject.grpc.Issue parseIssue(
+    JsonObject json
+  ) {
+    var builder = org.sonar.plugins.javascript.analyzeproject.grpc.Issue.newBuilder()
+      .setLine(optionalInt(json.get("line")))
+      .setColumn(optionalInt(json.get("column")))
+      .setMessage(optionalString(json.get("message")))
+      .setRuleId(optionalString(json.get("ruleId")))
+      .setLanguage(parseAnalysisLanguage(json.get("language")));
+
+    if (json.has("endLine") && !json.get("endLine").isJsonNull()) {
+      builder.setEndLine(json.get("endLine").getAsInt());
+    }
+    if (json.has("endColumn") && !json.get("endColumn").isJsonNull()) {
+      builder.setEndColumn(json.get("endColumn").getAsInt());
+    }
+    if (json.has("secondaryLocations") && json.get("secondaryLocations").isJsonArray()) {
+      json
+        .getAsJsonArray("secondaryLocations")
+        .forEach(location -> {
+          if (location.isJsonObject()) {
+            builder.addSecondaryLocations(parseIssueLocation(location.getAsJsonObject()));
+          }
+        });
+    }
+    if (json.has("cost") && !json.get("cost").isJsonNull()) {
+      builder.setCost(json.get("cost").getAsDouble());
+    }
+    if (json.has("quickFixes") && json.get("quickFixes").isJsonArray()) {
+      json
+        .getAsJsonArray("quickFixes")
+        .forEach(quickFix -> {
+          if (quickFix.isJsonObject()) {
+            builder.addQuickFixes(parseQuickFix(quickFix.getAsJsonObject()));
+          }
+        });
+    }
+    String ruleEslintKeysField = json.has("ruleEslintKeys") ? "ruleEslintKeys" : "ruleESLintKeys";
+    if (json.has(ruleEslintKeysField) && json.get(ruleEslintKeysField).isJsonArray()) {
+      json
+        .getAsJsonArray(ruleEslintKeysField)
+        .forEach(key -> {
+          if (!key.isJsonNull()) {
+            builder.addRuleEslintKeys(key.getAsString());
+          }
+        });
+    }
+    if (json.has("filePath") && !json.get("filePath").isJsonNull()) {
+      builder.setFilePath(json.get("filePath").getAsString());
+    }
+    return builder.build();
+  }
+
+  private static org.sonar.plugins.javascript.analyzeproject.grpc.IssueLocation parseIssueLocation(
+    JsonObject json
+  ) {
+    var builder = org.sonar.plugins.javascript.analyzeproject.grpc.IssueLocation.newBuilder();
+    if (json.has("line") && !json.get("line").isJsonNull()) {
+      builder.setLine(json.get("line").getAsInt());
+    }
+    if (json.has("column") && !json.get("column").isJsonNull()) {
+      builder.setColumn(json.get("column").getAsInt());
+    }
+    if (json.has("endLine") && !json.get("endLine").isJsonNull()) {
+      builder.setEndLine(json.get("endLine").getAsInt());
+    }
+    if (json.has("endColumn") && !json.get("endColumn").isJsonNull()) {
+      builder.setEndColumn(json.get("endColumn").getAsInt());
+    }
+    if (json.has("message") && !json.get("message").isJsonNull()) {
+      builder.setMessage(json.get("message").getAsString());
+    }
+    return builder.build();
+  }
+
+  private static QuickFix parseQuickFix(JsonObject json) {
+    var builder = QuickFix.newBuilder();
+    if (json.has("message") && !json.get("message").isJsonNull()) {
+      builder.setMessage(json.get("message").getAsString());
+    }
+    if (json.has("edits") && json.get("edits").isJsonArray()) {
+      json
+        .getAsJsonArray("edits")
+        .forEach(edit -> {
+          if (edit.isJsonObject()) {
+            builder.addEdits(parseQuickFixEdit(edit.getAsJsonObject()));
+          }
+        });
+    }
+    return builder.build();
+  }
+
+  private static QuickFixEdit parseQuickFixEdit(JsonObject json) {
+    var builder = QuickFixEdit.newBuilder();
+    if (json.has("text") && !json.get("text").isJsonNull()) {
+      builder.setText(json.get("text").getAsString());
+    }
+    if (json.has("loc") && json.get("loc").isJsonObject()) {
+      builder.setLoc(parseIssueLocation(json.getAsJsonObject("loc")));
+    }
+    return builder.build();
+  }
+
+  private static Highlight parseHighlight(JsonObject json) {
+    var builder = Highlight.newBuilder();
+    if (json.has("location") && json.get("location").isJsonObject()) {
+      builder.setLocation(parseLocation(json.getAsJsonObject("location")));
+    }
+    builder.setTextType(parseTextType(json.get("textType")));
+    return builder.build();
+  }
+
+  private static HighlightedSymbol parseHighlightedSymbol(JsonObject json) {
+    var builder = HighlightedSymbol.newBuilder();
+    if (json.has("declaration") && json.get("declaration").isJsonObject()) {
+      builder.setDeclaration(parseLocation(json.getAsJsonObject("declaration")));
+    }
+    if (json.has("references") && json.get("references").isJsonArray()) {
+      json
+        .getAsJsonArray("references")
+        .forEach(reference -> {
+          if (reference.isJsonObject()) {
+            builder.addReferences(parseLocation(reference.getAsJsonObject()));
+          }
+        });
+    }
+    return builder.build();
+  }
+
+  private static CpdToken parseCpdToken(JsonObject json) {
+    var builder = CpdToken.newBuilder();
+    if (json.has("location") && json.get("location").isJsonObject()) {
+      builder.setLocation(parseLocation(json.getAsJsonObject("location")));
+    }
+    if (json.has("image") && !json.get("image").isJsonNull()) {
+      builder.setImage(json.get("image").getAsString());
+    }
+    return builder.build();
+  }
+
+  private static Location parseLocation(JsonObject json) {
+    return Location.newBuilder()
+      .setStartLine(optionalInt(json.get("startLine")))
+      .setStartCol(optionalInt(json.get("startCol")))
+      .setEndLine(optionalInt(json.get("endLine")))
+      .setEndCol(optionalInt(json.get("endCol")))
+      .build();
+  }
+
+  private static Metrics parseMetrics(JsonObject json) {
+    var builder = Metrics.newBuilder();
+    if (json.has("ncloc") && json.get("ncloc").isJsonArray()) {
+      json.getAsJsonArray("ncloc").forEach(value -> builder.addNcloc(value.getAsInt()));
+    }
+    if (json.has("commentLines") && json.get("commentLines").isJsonArray()) {
+      json
+        .getAsJsonArray("commentLines")
+        .forEach(value -> builder.addCommentLines(value.getAsInt()));
+    }
+    if (json.has("nosonarLines") && json.get("nosonarLines").isJsonArray()) {
+      json
+        .getAsJsonArray("nosonarLines")
+        .forEach(value -> builder.addNosonarLines(value.getAsInt()));
+    }
+    if (json.has("executableLines") && json.get("executableLines").isJsonArray()) {
+      json
+        .getAsJsonArray("executableLines")
+        .forEach(value -> builder.addExecutableLines(value.getAsInt()));
+    }
+    if (json.has("functions") && !json.get("functions").isJsonNull()) {
+      builder.setFunctions(json.get("functions").getAsInt());
+    }
+    if (json.has("statements") && !json.get("statements").isJsonNull()) {
+      builder.setStatements(json.get("statements").getAsInt());
+    }
+    if (json.has("classes") && !json.get("classes").isJsonNull()) {
+      builder.setClasses(json.get("classes").getAsInt());
+    }
+    if (json.has("complexity") && !json.get("complexity").isJsonNull()) {
+      builder.setComplexity(json.get("complexity").getAsInt());
+    }
+    if (json.has("cognitiveComplexity") && !json.get("cognitiveComplexity").isJsonNull()) {
+      builder.setCognitiveComplexity(json.get("cognitiveComplexity").getAsInt());
+    }
+    return builder.build();
+  }
+
+  private static AnalysisLanguage parseAnalysisLanguage(JsonElement value) {
+    if (value == null || value.isJsonNull()) {
+      return AnalysisLanguage.ANALYSIS_LANGUAGE_UNSPECIFIED;
+    }
+    var language = value.getAsString();
+    return switch (language) {
+      case "js", "ANALYSIS_LANGUAGE_JS" -> AnalysisLanguage.ANALYSIS_LANGUAGE_JS;
+      case "ts", "ANALYSIS_LANGUAGE_TS" -> AnalysisLanguage.ANALYSIS_LANGUAGE_TS;
+      case "css", "ANALYSIS_LANGUAGE_CSS" -> AnalysisLanguage.ANALYSIS_LANGUAGE_CSS;
+      default -> AnalysisLanguage.ANALYSIS_LANGUAGE_UNSPECIFIED;
+    };
+  }
+
+  private static ParsingErrorCode parseParsingErrorCode(JsonElement value) {
+    if (value == null || value.isJsonNull()) {
+      return ParsingErrorCode.PARSING_ERROR_CODE_UNSPECIFIED;
+    }
+    var code = value.getAsString();
+    return switch (code) {
+      case
+        "Parsing",
+        "PARSING",
+        "PARSING_ERROR_CODE_PARSING" -> ParsingErrorCode.PARSING_ERROR_CODE_PARSING;
+      case
+        "FailingTypeScript",
+        "FAILING_TYPESCRIPT",
+        "PARSING_ERROR_CODE_FAILING_TYPESCRIPT" -> ParsingErrorCode.PARSING_ERROR_CODE_FAILING_TYPESCRIPT;
+      case
+        "LinterInitialization",
+        "LINTER_INITIALIZATION",
+        "PARSING_ERROR_CODE_LINTER_INITIALIZATION" -> ParsingErrorCode.PARSING_ERROR_CODE_LINTER_INITIALIZATION;
+      default -> ParsingErrorCode.PARSING_ERROR_CODE_UNSPECIFIED;
+    };
+  }
+
+  private static TextType parseTextType(JsonElement value) {
+    if (value == null || value.isJsonNull()) {
+      return TextType.TEXT_TYPE_UNSPECIFIED;
+    }
+    var textType = value.getAsString();
+    return switch (textType) {
+      case "KEYWORD", "TEXT_TYPE_KEYWORD" -> TextType.TEXT_TYPE_KEYWORD;
+      case "CONSTANT", "TEXT_TYPE_CONSTANT" -> TextType.TEXT_TYPE_CONSTANT;
+      case "COMMENT", "TEXT_TYPE_COMMENT" -> TextType.TEXT_TYPE_COMMENT;
+      case
+        "STRUCTURED_COMMENT",
+        "TEXT_TYPE_STRUCTURED_COMMENT" -> TextType.TEXT_TYPE_STRUCTURED_COMMENT;
+      case "STRING", "TEXT_TYPE_STRING" -> TextType.TEXT_TYPE_STRING;
+      default -> TextType.TEXT_TYPE_UNSPECIFIED;
+    };
+  }
+
+  private static int optionalInt(JsonElement value) {
+    return (value == null || value.isJsonNull()) ? 0 : value.getAsInt();
+  }
+
+  private static String optionalString(JsonElement value) {
+    return (value == null || value.isJsonNull()) ? "" : value.getAsString();
   }
 
   private DefaultInputFile createInputFile(SensorContextTester context) {

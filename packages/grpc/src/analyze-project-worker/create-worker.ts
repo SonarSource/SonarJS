@@ -1,0 +1,43 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+
+import { SHARE_ENV, Worker } from 'node:worker_threads';
+import { debug } from '../../../shared/src/helpers/logging.js';
+import type { WorkerData } from '../analyze-project-handle-request.js';
+
+export async function createAnalyzeProjectWorker(url: string, workerData: WorkerData) {
+  return new Promise<Worker>((resolve, reject) => {
+    const worker = new Worker(url, {
+      workerData,
+      env: SHARE_ENV,
+    });
+
+    worker.on('online', () => {
+      debug('The worker thread is running');
+      resolve(worker);
+    });
+
+    worker.on('exit', code => {
+      debug(`The worker thread exited with code ${code}`);
+    });
+
+    worker.on('error', err => {
+      debug(`The worker thread failed: ${err}`);
+      reject(err);
+    });
+  });
+}

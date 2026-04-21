@@ -19,8 +19,8 @@ package org.sonar.plugins.javascript.analysis.cache;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Location;
+import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Location;
 
 public class CpdDeserializer {
 
@@ -61,8 +61,13 @@ public class CpdDeserializer {
   }
 
   private void readCpdToken(List<CpdToken> cpdTokens) throws IOException {
-    var location = new Location(readInt(), readInt(), readInt(), readInt());
-    var cpdToken = new CpdToken(location, readString());
+    var location = Location.newBuilder()
+      .setStartLine(readInt())
+      .setStartCol(readInt())
+      .setEndLine(readInt())
+      .setEndCol(readInt())
+      .build();
+    var cpdToken = CpdToken.newBuilder().setLocation(location).setImage(readString()).build();
     cpdTokens.add(cpdToken);
   }
 

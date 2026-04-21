@@ -30,9 +30,10 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProgramCreationTelemetry;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisTelemetry;
+import org.sonar.plugins.javascript.analyzeproject.grpc.StringList;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ProgramCreationTelemetry;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisTelemetry;
 import org.sonar.plugins.javascript.bridge.BridgeServer.RuntimeTelemetry;
 import org.sonar.plugins.javascript.bridge.BridgeServer.TelemetryData;
 
@@ -77,15 +78,24 @@ class PluginTelemetryTest {
   @Test
   void shouldReportProjectTelemetry() {
     when(ctx.runtime().getApiVersion()).thenReturn(Version.create(10, 9));
-    var projectTelemetry = new ProjectAnalysisTelemetry(
-      List.of("7.0.0-dev.20260316.1", "7.1.0"),
-      true,
-      Map.of("module", List.of("nodenext", "esnext"), "lib", List.of("dom", "es2022")),
-      List.of("ES2022", "ES2024"),
-      new ProgramCreationTelemetry(3, 2, 1),
-      4,
-      1
-    );
+    var projectTelemetry = ProjectAnalysisTelemetry.newBuilder()
+      .addAllTypescriptVersions(List.of("7.0.0-dev.20260316.1", "7.1.0"))
+      .setTypescriptNativePreview(true)
+      .putAllCompilerOptions(
+        Map.of(
+          "module",
+          StringList.newBuilder().addAllValues(List.of("nodenext", "esnext")).build(),
+          "lib",
+          StringList.newBuilder().addAllValues(List.of("dom", "es2022")).build()
+        )
+      )
+      .addAllEcmaScriptVersions(List.of("ES2022", "ES2024"))
+      .setProgramCreation(
+        ProgramCreationTelemetry.newBuilder().setAttempted(3).setSucceeded(2).setFailed(1).build()
+      )
+      .setEsmFileCount(4)
+      .setCjsFileCount(1)
+      .build();
 
     new PluginTelemetry(jsTsContext, server, projectTelemetry).reportTelemetry();
 

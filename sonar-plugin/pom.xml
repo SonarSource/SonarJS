@@ -14,6 +14,11 @@
   <name>SonarQube JavaScript</name>
 
   <properties>
+    <node.init.phase>initialize</node.init.phase>
+    <node.build.phase>generate-resources</node.build.phase>
+    <node.resources.phase>process-resources</node.resources.phase>
+    <protobuf.generation.phase>generate-sources</protobuf.generation.phase>
+    <java.generation.phase>generate-resources</java.generation.phase>
     <!-- sonar scanner properties -->
     <sonar.sources>src/main</sonar.sources>
     <sonar.tests>src/test</sonar.tests>
@@ -31,4 +36,33 @@
     <module>sonar-javascript-plugin</module>
     <module>standalone</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>skip-nodejs</id>
+      <activation>
+        <property>
+          <name>skip-nodejs</name>
+        </property>
+      </activation>
+      <properties>
+        <node.init.phase>none</node.init.phase>
+        <node.build.phase>none</node.build.phase>
+        <node.resources.phase>none</node.resources.phase>
+        <protobuf.generation.phase>none</protobuf.generation.phase>
+        <java.generation.phase>none</java.generation.phase>
+      </properties>
+    </profile>
+    <profile>
+      <id>skip-java-generation</id>
+      <activation>
+        <property>
+          <name>skip-java-generation</name>
+        </property>
+      </activation>
+      <properties>
+        <java.generation.phase>none</java.generation.phase>
+      </properties>
+    </profile>
+  </profiles>
 </project>
