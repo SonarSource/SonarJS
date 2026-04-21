@@ -262,6 +262,13 @@ describe('Linter', () => {
           analysisModes: ['DEFAULT'],
         },
         {
+          key: 'S6747',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
           key: 'S6957',
           configurations: [],
           fileTypeTargets: ['MAIN'],
@@ -280,11 +287,12 @@ describe('Linter', () => {
 
     expect(rules).not.toHaveProperty('sonarjs/S6440');
     expect(rules).not.toHaveProperty('sonarjs/S6957');
+    expect(rules).not.toHaveProperty('sonarjs/S6790');
     expect(rules).toHaveProperty('sonarjs/S6477');
     expect(rules).toHaveProperty('sonarjs/S6749');
     expect(rules).toHaveProperty('sonarjs/S6770');
-    expect(rules).toHaveProperty('sonarjs/S6790');
     expect(rules).toHaveProperty('sonarjs/S100');
+    expect(rules).toHaveProperty('sonarjs/S6747');
   });
 
   it('should not force cognitive complexity metric rule by default', async () => {
