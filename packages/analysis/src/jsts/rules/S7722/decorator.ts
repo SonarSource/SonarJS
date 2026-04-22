@@ -30,7 +30,12 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       meta: generateMeta(meta, rule.meta),
     },
     (context, reportDescriptor) => {
-      const node = (reportDescriptor as any).node as estree.Node;
+      if (!('node' in reportDescriptor)) {
+        context.report(reportDescriptor);
+        return;
+      }
+
+      const node = reportDescriptor.node;
 
       if (isStackTraceCapturePattern(node, context)) {
         return;
@@ -42,7 +47,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 }
 
 function isStackTraceCapturePattern(node: estree.Node, context: Rule.RuleContext): boolean {
-  const parent = (node as any).parent as estree.Node | undefined;
+  const parent = (node as Rule.Node).parent;
   if (!parent) {
     return false;
   }
@@ -64,7 +69,7 @@ function isStackRead(memberExpr: estree.MemberExpression): boolean {
   if (!isStackProperty(memberExpr)) {
     return false;
   }
-  const parent = (memberExpr as any).parent as estree.Node | undefined;
+  const parent = (memberExpr as Rule.Node).parent;
   if (!parent) {
     return true;
   }
@@ -113,7 +118,7 @@ function isVariableUsedExclusivelyForStackReads(
   return (
     readRefs.length > 0 &&
     readRefs.every(ref => {
-      const refParent = (ref.identifier as any).parent as estree.Node | undefined;
+      const refParent = (ref.identifier as Rule.Node).parent;
       return (
         refParent?.type === 'MemberExpression' && isStackRead(refParent as estree.MemberExpression)
       );
