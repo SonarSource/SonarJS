@@ -550,6 +550,10 @@ jobs:
           secrets: |
             development/kv/data/next url | SONAR_URL;
             development/kv/data/next token | SONAR_TOKEN;
+      - name: Install SonarQube npm scanner
+        env:
+          NODE_OPTIONS: --use-system-ca
+        run: npm install -g @sonar/scan
       - name: Run SonarQube analysis on Next
         env:
           SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
@@ -572,7 +576,7 @@ jobs:
             SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
           fi
 
-          npx @sonar/scan $SONAR_ARGS
+          sonar-scanner $SONAR_ARGS
 
   analyze_shadows:
     runs-on: sonar-m-public
@@ -602,6 +606,10 @@ jobs:
           secrets: |
             development/kv/data/${{ matrix.sonar-platform }} url | SONAR_URL;
             development/kv/data/${{ matrix.sonar-platform }} token | SONAR_TOKEN;
+      - name: Install SonarQube npm scanner
+        env:
+          NODE_OPTIONS: --use-system-ca
+        run: npm install -g @sonar/scan
       - name: Run SonarQube analysis on ${{ matrix.platform }}
         env:
           SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
@@ -625,7 +633,7 @@ jobs:
             SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
           fi
 
-          npx @sonar/scan $SONAR_ARGS
+          sonar-scanner $SONAR_ARGS
 
   plugin_qa_with_node:
     runs-on: sonar-m-public
