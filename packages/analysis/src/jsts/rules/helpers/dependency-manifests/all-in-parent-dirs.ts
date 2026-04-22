@@ -25,7 +25,7 @@ import {
   isRoot,
   type File,
 } from '../files.js';
-import { DENO_JSON, DENO_JSONC, PACKAGE_JSON } from './index.js';
+import { DENO_JSON, DENO_JSONC, PACKAGE_JSON, PNPM_WORKSPACE_YAML } from './index.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import type { Rule } from 'eslint';
 import { closestPatternCache } from '../find-up/closest.js';
@@ -34,6 +34,7 @@ import {
   getDependenciesFromManifest,
   parsePackageJson,
   parseDenoManifest,
+  parsePnpmWorkspace,
 } from './parse.js';
 
 /**
@@ -120,6 +121,7 @@ function getDependencyManifestsInDir(
   const packageJson = getManifestFileInDir(PACKAGE_JSON, dir, topDir, fileSystem);
   const denoJson = getManifestFileInDir(DENO_JSON, dir, topDir, fileSystem);
   const denoJsonc = getManifestFileInDir(DENO_JSONC, dir, topDir, fileSystem);
+  const pnpmWorkspaceYaml = getManifestFileInDir(PNPM_WORKSPACE_YAML, dir, topDir, fileSystem);
 
   // if both `deno.json` and `deno.jsonc` are present, prefer `deno.json` and ignore `deno.jsonc`
   if (denoJsonc && denoJson === undefined) {
@@ -128,6 +130,10 @@ function getDependencyManifestsInDir(
     manifests.push({ type: 'deno', manifest: parseDenoManifest(denoJson) ?? {} });
   }
 
+  if (pnpmWorkspaceYaml) {
+    const parsedWorkspace = parsePnpmWorkspace(pnpmWorkspaceYaml);
+    // TODO: PARSE PACKAGE JSON AND ITERATE OVER TO FIND REFERENCES TO CATALOGS
+  }
   // always include package.json if present
   if (packageJson) {
     manifests.push({ type: 'npm', manifest: parsePackageJson(packageJson) ?? {} });

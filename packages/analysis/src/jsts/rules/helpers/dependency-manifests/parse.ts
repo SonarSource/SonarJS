@@ -20,6 +20,7 @@ import type { File } from '../files.js';
 import { stripBOM } from '../files.js';
 import ts from 'typescript';
 import { type DependencyManifest } from './all-in-parent-dirs.js';
+import yaml from 'yaml';
 
 const DefinitelyTyped = '@types/';
 
@@ -105,6 +106,11 @@ function addDependencies(
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap
 type ImportMap = Record<string, unknown>;
 
+export type PnpmWorkspace = {
+  catalog?: Record<string, string>;
+  catalogs?: Record<string, Record<string, string>>;
+};
+
 export type DenoManifest = {
   imports?: ImportMap;
   workspace?: string[] | { members?: string[] };
@@ -146,6 +152,17 @@ export function parseDenoManifest(file: File): DenoManifest | undefined {
   } catch (error) {
     console.debug(`Error parsing deno manifest ${file.path}: ${error}`);
     return;
+  }
+}
+
+export function parsePnpmWorkspace(file: File): PnpmWorkspace | undefined {
+  try {
+    const parsedPnpm = yaml.parse(file.content.toString());
+    if (parsedPnpm && ('catalog' in parsedPnpm || 'catalogs' in parsedPnpm)) return parsedPnpm;
+    return undefined;
+  } catch (error) {
+    console.debug(`Error parsing pnpm workspace ${file.path}: ${error}`);
+    return undefined;
   }
 }
 
