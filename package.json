@@ -127,7 +127,7 @@
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react": "7.37.5",
-    "eslint-plugin-react-hooks": "7.1.0",
+    "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-unicorn": "64.0.0",
     "express": "5.2.1",
     "functional-red-black-tree": "1.0.1",
