@@ -30,14 +30,14 @@ describe('S7781 upstream sentinel', () => {
       valid: [],
       invalid: [
         {
-          code: `function normalize(input) { return input.replace(/[{}\\s]/g, ''); }`,
+          code: String.raw`function normalize(input) { return input.replace(/[{}\s]/g, ''); }`,
           errors: [{ messageId: 'method' }],
-          output: `function normalize(input) { return input.replaceAll(/[{}\\s]/g, ''); }`,
+          output: String.raw`function normalize(input) { return input.replaceAll(/[{}\s]/g, ''); }`,
         },
         {
-          code: `function compact(input) { return input.replace(/\\s+/g, ''); }`,
+          code: String.raw`function compact(input) { return input.replace(/\s+/g, ''); }`,
           errors: [{ messageId: 'method' }],
-          output: `function compact(input) { return input.replaceAll(/\\s+/g, ''); }`,
+          output: String.raw`function compact(input) { return input.replaceAll(/\s+/g, ''); }`,
         },
         {
           code: `function normalize(input) { return input.replace(/[^a-zA-Z0-9]+/g, ' '); }`,
@@ -71,11 +71,11 @@ describe('S7781', () => {
       valid: [
         {
           // Compliant: character class and shorthand escape
-          code: `function normalizeParameterName(input) { return input.replace(/[{}\\s]/g, ''); }`,
+          code: String.raw`function normalizeParameterName(input) { return input.replace(/[{}\s]/g, ''); }`,
         },
         {
           // Compliant: quantified whitespace
-          code: `function collapseWhitespace(input) { return input.replace(/\\s+/g, ''); }`,
+          code: String.raw`function collapseWhitespace(input) { return input.replace(/\s+/g, ''); }`,
         },
         {
           // Compliant: negated character class
