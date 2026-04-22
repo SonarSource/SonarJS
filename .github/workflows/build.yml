@@ -539,12 +539,17 @@ jobs:
         env:
           SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
           SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
-        run: |
+          SONAR_PROJECT_KEY: org.sonarsource.javascript:javascript
+          SONAR_ORGANIZATION: ''
+        run: &run_sonarqube_analysis |
           SONAR_ARGS="-Dsonar.host.url=$SONAR_HOST_URL"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.token=$SONAR_TOKEN"
-          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectKey=org.sonarsource.javascript:javascript"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectKey=$SONAR_PROJECT_KEY"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.projectVersion=${{ steps.config-maven.outputs.project-version }}"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.scm.revision=${{ github.sha }}"
+          if [ -n "$SONAR_ORGANIZATION" ]; then
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.organization=$SONAR_ORGANIZATION"
+          fi
           SONAR_ARGS="$SONAR_ARGS -Dsonar.java.libraries=$HOME/.m2/repository/**/*.jar"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.java.test.binaries=sonar-plugin/*/target/test-classes"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.java.test.libraries=$HOME/.m2/repository/**/*.jar"
@@ -594,28 +599,9 @@ jobs:
         env:
           SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
           SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
-        run: |
-          SONAR_ARGS="-Dsonar.host.url=$SONAR_HOST_URL"
-          SONAR_ARGS="$SONAR_ARGS -Dsonar.token=$SONAR_TOKEN"
-          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectKey=SonarSource_SonarJS"
-          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectVersion=${{ steps.config-maven.outputs.project-version }}"
-          SONAR_ARGS="$SONAR_ARGS -Dsonar.scm.revision=${{ github.sha }}"
-          SONAR_ARGS="$SONAR_ARGS -Dsonar.organization=sonarsource"
-          SONAR_ARGS="$SONAR_ARGS -Dsonar.java.libraries=$HOME/.m2/repository/**/*.jar"
-          SONAR_ARGS="$SONAR_ARGS -Dsonar.java.test.binaries=sonar-plugin/*/target/test-classes"
-          SONAR_ARGS="$SONAR_ARGS -Dsonar.java.test.libraries=$HOME/.m2/repository/**/*.jar"
-          SONAR_ARGS="$SONAR_ARGS -Dcommercial"
-
-          # Add branch/PR information
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}"
-            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.branch=${{ github.head_ref }}"
-            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.base=${{ github.base_ref }}"
-          else
-            SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
-          fi
-
-          npx @sonar/scan $SONAR_ARGS
+          SONAR_PROJECT_KEY: SonarSource_SonarJS
+          SONAR_ORGANIZATION: sonarsource
+        run: *run_sonarqube_analysis
 
   plugin_qa_with_node:
     runs-on: sonar-m-public
