@@ -143,8 +143,7 @@ export async function sanitizeInputFiles(
 
   for (const [key, fileInput] of Object.entries(inputFiles)) {
     const filePath = normalizeToAbsolutePath(fileInput.filePath, baseDir);
-    const fileContent =
-      fileInput.fileContent !== undefined ? fileInput.fileContent : await readFile(filePath);
+    const fileContent = fileInput.fileContent ?? (await readFile(filePath));
     const rawFileType =
       fileInput.fileType ?? filterPathAndGetFileType(filePath, getFilterPathParams(configuration));
     const rawFileStatus = fileInput.fileStatus;

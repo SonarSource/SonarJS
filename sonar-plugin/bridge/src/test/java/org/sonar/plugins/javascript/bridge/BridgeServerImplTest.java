@@ -21,6 +21,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -1085,6 +1086,7 @@ class BridgeServerImplTest {
     MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockStatic(
       AnalyzeProjectServiceGrpc.class
     );
+    when(stub.withDeadlineAfter(anyLong(), any(TimeUnit.class))).thenReturn(stub);
     mockedGrpc.when(() -> AnalyzeProjectServiceGrpc.newBlockingStub(channel)).thenReturn(stub);
     return mockedGrpc;
   }

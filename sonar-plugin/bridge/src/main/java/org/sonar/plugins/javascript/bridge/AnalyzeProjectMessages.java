@@ -30,6 +30,7 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisMode;
 import org.sonar.plugins.javascript.analyzeproject.grpc.CssRule;
@@ -95,9 +96,9 @@ public final class AnalyzeProjectMessages {
   }
 
   public static ProjectFileInput newProjectFileInput(
-    InputFile.Type fileType,
-    InputFile.Status fileStatus,
-    String fileContent
+    @Nullable InputFile.Type fileType,
+    @Nullable InputFile.Status fileStatus,
+    @Nullable String fileContent
   ) {
     var builder = ProjectFileInput.newBuilder()
       .setFileType(toProtoFileType(fileType))
@@ -112,11 +113,7 @@ public final class AnalyzeProjectMessages {
     return JsTsRule.newBuilder()
       .setKey(rule.getKey())
       .addAllConfigurations(
-        rule
-          .getConfigurations()
-          .stream()
-          .map(configuration -> AnalyzeProjectMessages.toValue(configuration))
-          .toList()
+        rule.getConfigurations().stream().map(AnalyzeProjectMessages::toValue).toList()
       )
       .addAllFileTypeTargets(
         rule.fileTypeTargets.stream().map(AnalyzeProjectMessages::toProtoFileType).toList()
@@ -133,10 +130,7 @@ public final class AnalyzeProjectMessages {
     return CssRule.newBuilder()
       .setKey(rule.key)
       .addAllConfigurations(
-        rule.configurations
-          .stream()
-          .map(configuration -> AnalyzeProjectMessages.toValue(configuration))
-          .toList()
+        rule.configurations.stream().map(AnalyzeProjectMessages::toValue).toList()
       )
       .build();
   }
@@ -153,14 +147,14 @@ public final class AnalyzeProjectMessages {
     };
   }
 
-  public static FileType toProtoFileType(InputFile.Type fileType) {
+  public static FileType toProtoFileType(@Nullable InputFile.Type fileType) {
     if (fileType == null) {
       return FileType.FILE_TYPE_UNSPECIFIED;
     }
     return toProtoFileType(fileType.name());
   }
 
-  public static FileStatus toProtoFileStatus(InputFile.Status fileStatus) {
+  public static FileStatus toProtoFileStatus(@Nullable InputFile.Status fileStatus) {
     if (fileStatus == null) {
       return FileStatus.FILE_STATUS_UNSPECIFIED;
     }
@@ -189,13 +183,49 @@ public final class AnalyzeProjectMessages {
     };
   }
 
-  public static Value toValue(Object input) {
+  public static Value toValue(@Nullable Object input) {
     return toValue(input, Collections.newSetFromMap(new IdentityHashMap<>()));
   }
 
-  private static Value toValue(Object input, Set<Object> visited) {
+  private static Value toValue(@Nullable Object input, Set<Object> visited) {
+    var directValue = toDirectValue(input);
+    if (directValue != null) {
+      return directValue;
+    }
+    if (!visited.add(input)) {
+      throw cyclicRuleConfigurationValue(input, null);
+    }
+    try {
+      return toStructuredValue(input, visited);
+    } catch (StackOverflowError e) {
+      throw cyclicRuleConfigurationValue(input, e);
+    } catch (RuntimeException e) {
+      if (isRuleConfigurationValueException(e)) {
+        throw e;
+      }
+      throw unsupportedRuleConfigurationValue(input, e);
+    } finally {
+      visited.remove(input);
+    }
+  }
+
+  private static Value toStructuredValue(Object input, Set<Object> visited) {
+    if (input instanceof Map<?, ?> mapValue) {
+      return toValue(mapValue, visited);
+    }
+    if (input instanceof Iterable<?> iterableValue) {
+      return toValue(iterableValue, visited);
+    }
+    if (input.getClass().isArray()) {
+      return toValueFromArray(input, visited);
+    }
+    return toValue(GSON.toJsonTree(input));
+  }
+
+  @Nullable
+  private static Value toDirectValue(@Nullable Object input) {
     if (input == null) {
-      return Value.newBuilder().setNullValue(NullValue.NULL_VALUE).build();
+      return nullValue();
     }
     if (input instanceof JsonElement jsonElement) {
       return toValue(jsonElement);
@@ -215,53 +245,66 @@ public final class AnalyzeProjectMessages {
     if (input instanceof Enum<?> enumValue) {
       return Value.newBuilder().setStringValue(enumValue.name()).build();
     }
-    if (!visited.add(input)) {
-      throw new IllegalArgumentException(
-        "Unsupported cyclic rule configuration value: " + input.getClass()
-      );
-    }
-    try {
-      if (input instanceof Map<?, ?> mapValue) {
-        var struct = Struct.newBuilder();
-        for (var entry : mapValue.entrySet()) {
-          struct.putFields(String.valueOf(entry.getKey()), toValue(entry.getValue(), visited));
-        }
-        return Value.newBuilder().setStructValue(struct).build();
-      }
-      if (input instanceof Iterable<?> iterableValue) {
-        var listValue = ListValue.newBuilder();
-        for (var item : iterableValue) {
-          listValue.addValues(toValue(item, visited));
-        }
-        return Value.newBuilder().setListValue(listValue).build();
-      }
-      if (input.getClass().isArray()) {
-        var listValue = ListValue.newBuilder();
-        var size = Array.getLength(input);
-        for (int i = 0; i < size; i++) {
-          listValue.addValues(toValue(Array.get(input, i), visited));
-        }
-        return Value.newBuilder().setListValue(listValue).build();
-      }
-      return toValue(GSON.toJsonTree(input));
-    } catch (StackOverflowError e) {
-      throw new IllegalArgumentException(
-        "Unsupported cyclic rule configuration value: " + input.getClass(),
-        e
-      );
-    } catch (RuntimeException e) {
-      throw new IllegalArgumentException(
-        "Unsupported rule configuration value: " + input.getClass(),
-        e
-      );
-    } finally {
-      visited.remove(input);
-    }
+    return null;
   }
 
-  private static Value toValue(JsonElement jsonElement) {
+  private static Value toValue(Map<?, ?> mapValue, Set<Object> visited) {
+    var struct = Struct.newBuilder();
+    for (var entry : mapValue.entrySet()) {
+      struct.putFields(String.valueOf(entry.getKey()), toValue(entry.getValue(), visited));
+    }
+    return Value.newBuilder().setStructValue(struct).build();
+  }
+
+  private static Value toValue(Iterable<?> iterableValue, Set<Object> visited) {
+    var listValue = ListValue.newBuilder();
+    for (var item : iterableValue) {
+      listValue.addValues(toValue(item, visited));
+    }
+    return Value.newBuilder().setListValue(listValue).build();
+  }
+
+  private static Value toValueFromArray(Object input, Set<Object> visited) {
+    var listValue = ListValue.newBuilder();
+    var size = Array.getLength(input);
+    for (int i = 0; i < size; i++) {
+      listValue.addValues(toValue(Array.get(input, i), visited));
+    }
+    return Value.newBuilder().setListValue(listValue).build();
+  }
+
+  private static IllegalArgumentException cyclicRuleConfigurationValue(
+    Object input,
+    @Nullable Throwable cause
+  ) {
+    return new IllegalArgumentException(
+      "Unsupported cyclic rule configuration value: " + input.getClass(),
+      cause
+    );
+  }
+
+  private static IllegalArgumentException unsupportedRuleConfigurationValue(
+    Object input,
+    RuntimeException cause
+  ) {
+    return new IllegalArgumentException(
+      "Unsupported rule configuration value: " + input.getClass(),
+      cause
+    );
+  }
+
+  private static boolean isRuleConfigurationValueException(RuntimeException exception) {
+    return (
+      exception instanceof IllegalArgumentException &&
+      exception.getMessage() != null &&
+      (exception.getMessage().startsWith("Unsupported cyclic rule configuration value: ") ||
+        exception.getMessage().startsWith("Unsupported rule configuration value: "))
+    );
+  }
+
+  private static Value toValue(@Nullable JsonElement jsonElement) {
     if (jsonElement == null || jsonElement.isJsonNull()) {
-      return Value.newBuilder().setNullValue(NullValue.NULL_VALUE).build();
+      return nullValue();
     }
     if (jsonElement.isJsonArray()) {
       var listValue = ListValue.newBuilder();
@@ -288,5 +331,9 @@ public final class AnalyzeProjectMessages {
       return Value.newBuilder().setStringValue(jsonPrimitive.getAsString()).build();
     }
     return Value.newBuilder().setNumberValue(jsonPrimitive.getAsNumber().doubleValue()).build();
+  }
+
+  private static Value nullValue() {
+    return Value.newBuilder().setNullValue(NullValue.NULL_VALUE).build();
   }
 }

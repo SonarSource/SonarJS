@@ -241,7 +241,10 @@ function normalizeOptionalPath(
   path: string | null | undefined,
   baseDir: NormalizedAbsolutePath,
 ): NormalizedAbsolutePath | undefined {
-  return path != null ? normalizeToAbsolutePath(path, baseDir) : undefined;
+  if (path == null) {
+    return undefined;
+  }
+  return normalizeToAbsolutePath(path, baseDir);
 }
 
 function normalizeAnalysisMode(
@@ -337,19 +340,25 @@ function normalizeJsTsLanguage(
 }
 
 function arrayOrUndefined(values: string[] | null | undefined): string[] | undefined {
-  return values != null ? [...values] : undefined;
+  if (values == null) {
+    return undefined;
+  }
+  return [...values];
 }
 
 function stringListValues(list: StringList | null | undefined): string[] | undefined {
-  return list != null ? [...(list.values ?? [])] : undefined;
+  if (list == null) {
+    return undefined;
+  }
+  return [...(list.values ?? [])];
 }
 
 function optionalBoolean(value: boolean | null | undefined): boolean | undefined {
-  return value != null ? value : undefined;
+  return value ?? undefined;
 }
 
 function optionalString(value: string | null | undefined): string | undefined {
-  return value != null ? value : undefined;
+  return value ?? undefined;
 }
 
 type ClonedLongLike = {
@@ -358,35 +367,32 @@ type ClonedLongLike = {
   unsigned: boolean;
 };
 
-type LongLike = {
-  toNumber?: () => number;
-};
-
-function toOptionalNumber(
-  value: number | LongLike | ClonedLongLike | null | undefined,
-  path: string,
-): number | undefined {
+function toOptionalNumber(value: unknown, path: string): number | undefined {
   if (value == null) {
     return undefined;
   }
 
-  const numberValue =
-    typeof value === 'number'
-      ? value
-      : isLongLike(value)
-        ? value.toNumber()
-        : isClonedLongLike(value)
-          ? toNumberFromClonedLong(value)
-          : Number(value);
+  let numberValue: number;
+  if (typeof value === 'number') {
+    numberValue = value;
+  } else if (isLongLike(value)) {
+    numberValue = value.toNumber();
+  } else if (isClonedLongLike(value)) {
+    numberValue = toNumberFromClonedLong(value);
+  } else {
+    numberValue = Number(value);
+  }
   if (!Number.isFinite(numberValue) || !Number.isSafeInteger(numberValue)) {
     throw new InvalidAnalyzeProjectRequestError(`${path} must be a safe integer`);
   }
   return numberValue;
 }
 
-function isLongLike(value: unknown): value is Required<LongLike> {
+function isLongLike(value: unknown): value is { toNumber: () => number } {
   return (
-    value != null && typeof value === 'object' && typeof (value as LongLike).toNumber === 'function'
+    value != null &&
+    typeof value === 'object' &&
+    typeof (value as { toNumber?: unknown }).toNumber === 'function'
   );
 }
 
@@ -402,8 +408,8 @@ function isClonedLongLike(value: unknown): value is ClonedLongLike {
 
 function toNumberFromClonedLong(value: ClonedLongLike) {
   const low = value.low >>> 0;
-  const high = value.unsigned ? value.high >>> 0 : value.high | 0;
-  return high * 0x1_0000_0000 + low;
+  const high = value.unsigned ? value.high >>> 0 : Math.trunc(value.high);
+  return high * 0x100000000 + low;
 }
 
 function hasExplicitFiles(

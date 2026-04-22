@@ -511,7 +511,7 @@ public class BridgeServerImpl implements BridgeServer {
     }
     var state = channel.getState(false);
     var result =
-      state == ConnectivityState.READY &&
+      (state == ConnectivityState.READY) &&
       (!ownsNodeProcess || (leaseObserver != null && !leaseTerminated));
     if (result) {
       latestOKIsAliveTimestamp = System.currentTimeMillis();
