@@ -546,6 +546,9 @@ jobs:
           SONAR_ARGS="$SONAR_ARGS -Dsonar.projectKey=org.sonarsource.javascript:javascript"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.projectVersion=${{ steps.config-maven.outputs.project-version }}"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.scm.revision=${{ github.sha }}"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.java.libraries=$HOME/.m2/repository/**/*.jar"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.java.test.binaries=sonar-plugin/*/target/test-classes"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.java.test.libraries=$HOME/.m2/repository/**/*.jar"
           SONAR_ARGS="$SONAR_ARGS -Dcommercial"
 
           # Add branch/PR information
@@ -600,6 +603,9 @@ jobs:
           SONAR_ARGS="$SONAR_ARGS -Dsonar.projectVersion=${{ steps.config-maven.outputs.project-version }}"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.scm.revision=${{ github.sha }}"
           SONAR_ARGS="$SONAR_ARGS -Dsonar.organization=sonarsource"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.java.libraries=$HOME/.m2/repository/**/*.jar"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.java.test.binaries=sonar-plugin/*/target/test-classes"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.java.test.libraries=$HOME/.m2/repository/**/*.jar"
           SONAR_ARGS="$SONAR_ARGS -Dcommercial"
 
           # Add branch/PR information
