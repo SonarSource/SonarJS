@@ -446,9 +446,10 @@ public class BridgeServerImpl implements BridgeServer {
 
   private static String runtimeErrorMessage(StatusRuntimeException e) {
     var description = e.getStatus().getDescription();
-    return (description == null || description.isBlank())
-      ? "Received error from analyzer runtime"
-      : "Received error from analyzer runtime: " + description;
+    if (description == null || description.isBlank()) {
+      return "Received error from analyzer runtime";
+    }
+    return "Received error from analyzer runtime: " + description;
   }
 
   private static void ensureProjectAnalysisCompleted(ProjectAnalysisHandler handler) {
