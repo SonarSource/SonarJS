@@ -32,26 +32,32 @@ describe('S7781 upstream sentinel', () => {
         {
           code: `function normalize(input) { return input.replace(/[{}\\s]/g, ''); }`,
           errors: [{ messageId: 'method' }],
+          output: `function normalize(input) { return input.replaceAll(/[{}\\s]/g, ''); }`,
         },
         {
           code: `function compact(input) { return input.replace(/\\s+/g, ''); }`,
           errors: [{ messageId: 'method' }],
+          output: `function compact(input) { return input.replaceAll(/\\s+/g, ''); }`,
         },
         {
           code: `function normalize(input) { return input.replace(/[^a-zA-Z0-9]+/g, ' '); }`,
           errors: [{ messageId: 'method' }],
+          output: `function normalize(input) { return input.replaceAll(/[^a-zA-Z0-9]+/g, ' '); }`,
         },
         {
           code: `function replace(input) { return input.replace(/foo/ig, 'bar'); }`,
           errors: [{ messageId: 'method' }],
+          output: `function replace(input) { return input.replaceAll(/foo/ig, 'bar'); }`,
         },
         {
           code: `function replace(input) { return input.replace(/(foo)/g, '$1'); }`,
           errors: [{ messageId: 'method' }],
+          output: `function replace(input) { return input.replaceAll(/(foo)/g, '$1'); }`,
         },
         {
           code: `function replace(input) { return input.replace(/(foo)/g, part => part.toUpperCase()); }`,
           errors: [{ messageId: 'method' }],
+          output: `function replace(input) { return input.replaceAll(/(foo)/g, part => part.toUpperCase()); }`,
         },
       ],
     });
@@ -92,22 +98,27 @@ describe('S7781', () => {
         {
           code: `function replace(input) { return input.replace(/hello/g, 'hi'); }`,
           errors: [{ messageId: 'method' }],
+          output: `function replace(input) { return input.replaceAll('hello', 'hi'); }`,
         },
         {
           code: `function replaceDot(input) { return input.replace(/[.]/g, '!'); }`,
           errors: [{ messageId: 'method' }],
+          output: `function replaceDot(input) { return input.replaceAll(/[.]/g, '!'); }`,
         },
         {
           code: `function replaceWord(input) { return input.replace(/(?:foo)/g, 'bar'); }`,
           errors: [{ messageId: 'method' }],
+          output: `function replaceWord(input) { return input.replaceAll(/(?:foo)/g, 'bar'); }`,
         },
         {
           code: `function replaceWrappedPrefix(input) { return input.replace(/(?:)foo/g, 'bar'); }`,
           errors: [{ messageId: 'method' }],
+          output: `function replaceWrappedPrefix(input) { return input.replaceAll(/(?:)foo/g, 'bar'); }`,
         },
         {
           code: `function replaceWrappedSuffix(input) { return input.replace(/foo(?:)/g, 'bar'); }`,
           errors: [{ messageId: 'method' }],
+          output: `function replaceWrappedSuffix(input) { return input.replaceAll(/foo(?:)/g, 'bar'); }`,
         },
       ],
     });
