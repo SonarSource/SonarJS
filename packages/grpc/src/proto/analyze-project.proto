@@ -52,12 +52,14 @@ message LeaseResponse {}
 message ProjectConfiguration {
   string base_dir = 1;
   optional bool sonarlint = 2;
+  // Omitted and empty fs events are equivalent after normalization, so plain repeated strings are enough.
   repeated string fs_events = 3;
   optional bool allow_ts_parser_js_files = 4;
   AnalysisMode analysis_mode = 5;
   optional bool skip_ast = 6;
   optional bool ignore_header_comments = 7;
   optional int64 max_file_size = 8;
+  // Wrapped lists preserve "unset" vs "explicitly empty" for settings that have runtime defaults.
   StringList environments = 9;
   StringList globals = 10;
   StringList ts_suffixes = 11;
@@ -91,6 +93,8 @@ message StringList {
 
 message ProjectFileInput {
   optional string file_content = 1;
+  // `_UNSPECIFIED` means "not provided". We keep the sentinel because the same enums are also used
+  // in repeated fields, where optional presence does not help.
   FileType file_type = 2;
   FileStatus file_status = 3;
 }
@@ -145,6 +149,8 @@ enum TextType {
 
 message JsTsRule {
   string key = 1;
+  // Existing rule configs are heterogeneous and JSON-like, so protobuf Value/Struct is the narrowest
+  // typed shape that still preserves current behavior.
   repeated google.protobuf.Value configurations = 2;
   repeated FileType file_type_targets = 3;
   JsTsLanguage language = 4;
@@ -188,6 +194,7 @@ message Issue {
   optional int32 end_column = 4;
   string message = 5;
   string rule_id = 6;
+  // Explicit because a single analyzed file can produce issues from different analyzers / embedded languages.
   AnalysisLanguage language = 7;
   repeated IssueLocation secondary_locations = 8;
   optional double cost = 9;
@@ -207,6 +214,8 @@ message QuickFixEdit {
 }
 
 message IssueLocation {
+  // Secondary locations and quick-fix edits may arrive without a full range; Java ignores incomplete
+  // locations instead of inventing bogus coordinates.
   optional int32 line = 1;
   optional int32 column = 2;
   optional int32 end_line = 3;

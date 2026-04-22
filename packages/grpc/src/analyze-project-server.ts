@@ -77,7 +77,7 @@ type AnalyzeProjectServerState = {
 };
 
 type AnalyzeProjectServerLifecycle = {
-  armStartupShutdownTimeout: () => void;
+  scheduleStartupShutdownTimeout: () => void;
   clearStartupShutdownTimeout: () => void;
   requestCancel: () => Promise<boolean>;
   shutdown: (reason: string) => Promise<void>;
@@ -190,12 +190,8 @@ function failStreamingCall(
 }
 
 function toGrpcErrorFromFailure(result: Extract<RequestResult, { type: 'failure' }>) {
-  const message =
-    typeof result.error.message === 'string'
-      ? result.error.message
-      : JSON.stringify(result.error.message);
   return toGrpcError(
-    message,
+    result.error.message,
     result.reason === 'invalid_request' ? grpc.status.INVALID_ARGUMENT : grpc.status.INTERNAL,
   );
 }
@@ -381,7 +377,7 @@ function createLifecycle({
     resolveClosed();
   };
 
-  const armStartupShutdownTimeout = () => {
+  const scheduleStartupShutdownTimeout = () => {
     if (timeout <= 0) {
       return;
     }
@@ -392,7 +388,7 @@ function createLifecycle({
   };
 
   return {
-    armStartupShutdownTimeout,
+    scheduleStartupShutdownTimeout,
     clearStartupShutdownTimeout: () => clearStartupShutdownTimeout(state),
     requestCancel,
     shutdown,
@@ -749,7 +745,7 @@ export async function startAnalyzeProjectServer(
         }
 
         info(`gRPC analyze-project server listening on ${host}:${boundPort}`);
-        lifecycle.armStartupShutdownTimeout();
+        lifecycle.scheduleStartupShutdownTimeout();
         resolve({
           server,
           serverClosed,

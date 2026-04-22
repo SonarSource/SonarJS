@@ -72,6 +72,8 @@ export async function handleAnalyzeProjectRequest(
       }
       case 'on-cancel-analysis': {
         cancelAnalysis();
+        // This internal request only acknowledges that the cancel signal was delivered.
+        // The public CancelAnalysis RPC computes the outward-facing { cancelled } response.
         return { type: 'success', result: undefined };
       }
       default: {

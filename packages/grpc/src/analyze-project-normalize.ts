@@ -92,7 +92,7 @@ function createConfigurationFromProto(configuration: ProjectConfiguration | null
   const input: ConfigurationInput = {
     baseDir: configuration.baseDir,
     sonarlint: optionalBoolean(configuration.sonarlint),
-    fsEvents: arrayOrUndefined(configuration.fsEvents),
+    fsEvents: repeatedStringValues(configuration.fsEvents),
     allowTsParserJsFiles: optionalBoolean(configuration.allowTsParserJsFiles),
     analysisMode: normalizeAnalysisMode(configuration.analysisMode),
     skipAst: optionalBoolean(configuration.skipAst),
@@ -106,14 +106,14 @@ function createConfigurationFromProto(configuration: ProjectConfiguration | null
     htmlSuffixes: stringListValues(configuration.htmlSuffixes),
     yamlSuffixes: stringListValues(configuration.yamlSuffixes),
     cssAdditionalSuffixes: stringListValues(configuration.cssAdditionalSuffixes),
-    tsConfigPaths: arrayOrUndefined(configuration.tsConfigPaths),
+    tsConfigPaths: repeatedStringValues(configuration.tsConfigPaths),
     jsTsExclusions: stringListValues(configuration.jsTsExclusions),
-    sources: arrayOrUndefined(configuration.sources),
-    inclusions: arrayOrUndefined(configuration.inclusions),
-    exclusions: arrayOrUndefined(configuration.exclusions),
-    tests: arrayOrUndefined(configuration.tests),
-    testInclusions: arrayOrUndefined(configuration.testInclusions),
-    testExclusions: arrayOrUndefined(configuration.testExclusions),
+    sources: repeatedStringValues(configuration.sources),
+    inclusions: repeatedStringValues(configuration.inclusions),
+    exclusions: repeatedStringValues(configuration.exclusions),
+    tests: repeatedStringValues(configuration.tests),
+    testInclusions: repeatedStringValues(configuration.testInclusions),
+    testExclusions: repeatedStringValues(configuration.testExclusions),
     detectBundles: optionalBoolean(configuration.detectBundles),
     canAccessFileSystem: optionalBoolean(configuration.canAccessFileSystem),
     createTSProgramForOrphanFiles: optionalBoolean(configuration.createTsProgramForOrphanFiles),
@@ -339,13 +339,15 @@ function normalizeJsTsLanguage(
   }
 }
 
-function arrayOrUndefined(values: string[] | null | undefined): string[] | undefined {
+function repeatedStringValues(values: string[] | null | undefined): string[] | undefined {
   if (values == null) {
     return undefined;
   }
   return [...values];
 }
 
+// Wrapped StringList fields preserve presence for defaulted settings. Plain repeated string fields
+// are used where omitted and empty are equivalent after request normalization.
 function stringListValues(list: StringList | null | undefined): string[] | undefined {
   if (list == null) {
     return undefined;
@@ -361,7 +363,9 @@ function optionalString(value: string | null | undefined): string | undefined {
   return value ?? undefined;
 }
 
-type ClonedLongLike = {
+// protobufjs decodes int64 values as Long-like objects with helpers such as toNumber(). After a
+// worker structured-clone hop those helpers are stripped and only the raw low/high/unsigned shape remains.
+type StructuredCloneLongLike = {
   high: number;
   low: number;
   unsigned: boolean;
@@ -377,8 +381,8 @@ function toOptionalNumber(value: unknown, path: string): number | undefined {
     numberValue = value;
   } else if (isLongLike(value)) {
     numberValue = value.toNumber();
-  } else if (isClonedLongLike(value)) {
-    numberValue = toNumberFromClonedLong(value);
+  } else if (isStructuredCloneLongLike(value)) {
+    numberValue = toNumberFromStructuredCloneLong(value);
   } else {
     numberValue = Number(value);
   }
@@ -396,17 +400,17 @@ function isLongLike(value: unknown): value is { toNumber: () => number } {
   );
 }
 
-function isClonedLongLike(value: unknown): value is ClonedLongLike {
+function isStructuredCloneLongLike(value: unknown): value is StructuredCloneLongLike {
   return (
     value != null &&
     typeof value === 'object' &&
-    typeof (value as ClonedLongLike).low === 'number' &&
-    typeof (value as ClonedLongLike).high === 'number' &&
-    typeof (value as ClonedLongLike).unsigned === 'boolean'
+    typeof (value as StructuredCloneLongLike).low === 'number' &&
+    typeof (value as StructuredCloneLongLike).high === 'number' &&
+    typeof (value as StructuredCloneLongLike).unsigned === 'boolean'
   );
 }
 
-function toNumberFromClonedLong(value: ClonedLongLike) {
+function toNumberFromStructuredCloneLong(value: StructuredCloneLongLike) {
   const low = value.low >>> 0;
   const high = value.unsigned ? value.high >>> 0 : Math.trunc(value.high);
   return high * 0x100000000 + low;

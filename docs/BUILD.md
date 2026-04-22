@@ -2,7 +2,9 @@
 
 ## Default workflow
 
-Use `mvn install` for normal development.
+Run `npm ci` first on a fresh checkout, and again after any `package.json` or lockfile change.
+
+Use `mvn install` for normal development after Node dependencies are installed.
 
 Avoid `mvn clean` while iterating. The fast Java-only loop reuses previously generated artifacts, and `clean` deletes them. Only use `mvn clean install` when you explicitly want to rebuild generated assets from scratch.
 
@@ -38,6 +40,8 @@ Bridge-only Node build:
 npm run bridge:build:fast
 ```
 
+This command also assumes `npm ci` was already run in the checkout.
+
 Regenerate rule metadata:
 
 ```bash
@@ -66,6 +70,7 @@ The `sonar-plugin` reactor builds modules in this order:
 ## Fast Java iteration flags
 
 The fast path is implemented with property-activated profiles in `sonar-plugin/pom.xml`.
+These are repo-specific toggles, not built-in Maven flags.
 
 ### `-Dskip-nodejs`
 

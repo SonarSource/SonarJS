@@ -56,7 +56,7 @@ type CancellationRequest = {
 
 export type SerializedError = {
   code: ErrorCode;
-  message: unknown;
+  message: string;
   stack?: string;
   data?: ErrorData;
 };
@@ -72,6 +72,23 @@ export function serializeError(err: unknown): SerializedError {
   } else if (err instanceof Error) {
     return { code: ErrorCode.Unexpected, message: err.message, stack: err.stack };
   } else {
-    return { code: ErrorCode.Unexpected, message: err };
+    return { code: ErrorCode.Unexpected, message: serializeUnknownErrorMessage(err) };
   }
+}
+
+function serializeUnknownErrorMessage(err: unknown): string {
+  if (typeof err === 'string') {
+    return err;
+  }
+
+  try {
+    const json = JSON.stringify(err);
+    if (json !== undefined) {
+      return json;
+    }
+  } catch {
+    // Fall through to String(err).
+  }
+
+  return String(err);
 }
