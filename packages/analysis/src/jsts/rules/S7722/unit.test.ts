@@ -66,11 +66,27 @@ hookLog.push({ primitive: hookName, stack: stackError.stack, value: value });
           errors: 1,
         },
         {
+          code: `delete new Error().stack;`, // delete — not a read
+          errors: 1,
+        },
+        {
+          code: `new Error().stack++;`, // update expression — not a read
+          errors: 1,
+        },
+        {
           code: `const err = new Error(); console.log(err.message);`, // non-stack member access
           errors: 1,
         },
         {
           code: `const err = new Error(); err.name = 'Trace'; console.log(err.stack);`, // non-stack interaction
+          errors: 1,
+        },
+        {
+          code: `const err = new Error(); delete err.stack;`, // delete on variable — not a read
+          errors: 1,
+        },
+        {
+          code: `const err = new Error(); err.stack++;`, // update on variable — not a read
           errors: 1,
         },
       ],

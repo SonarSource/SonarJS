@@ -65,10 +65,25 @@ function isStackRead(memberExpr: estree.MemberExpression): boolean {
     return false;
   }
   const parent = (memberExpr as any).parent as estree.Node | undefined;
-  return !(
-    parent?.type === 'AssignmentExpression' &&
+  if (!parent) {
+    return true;
+  }
+  if (
+    parent.type === 'AssignmentExpression' &&
     (parent as estree.AssignmentExpression).left === memberExpr
-  );
+  ) {
+    return false;
+  }
+  if (
+    parent.type === 'UnaryExpression' &&
+    (parent as estree.UnaryExpression).operator === 'delete'
+  ) {
+    return false;
+  }
+  if (parent.type === 'UpdateExpression') {
+    return false;
+  }
+  return true;
 }
 
 function isStackProperty(memberExpr: estree.MemberExpression): boolean {
