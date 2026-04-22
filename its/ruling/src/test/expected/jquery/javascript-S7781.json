@@ -19,25 +19,5 @@
 ],
 "jquery:src/attributes/val.js": [
 30
-],
-"jquery:src/core.js": [
-193
-],
-"jquery:src/core/camelCase.js": [
-11
-],
-"jquery:src/data.js": [
-51
-],
-"jquery:src/manipulation.js": [
-169,
-203
-],
-"jquery:src/selector/escapeSelector.js": [
-24
-],
-"jquery:src/serialize.js": [
-122,
-126
 ]
 }
