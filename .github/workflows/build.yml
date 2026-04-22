@@ -284,16 +284,9 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - &config_npm
+        name: Configure npm registry
+        uses: SonarSource/ci-github-actions/config-npm@v1
       - *npm_cache
       - *download_rspec_rule_data
       - *rspec_secrets
@@ -320,16 +313,7 @@ jobs:
     steps:
       - *checkout
       - *mise
-      - id: secrets
-        name: Access vault secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - name: Configure npm registry
-        run: |
-          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
-          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - *config_npm
       - *npm_cache
       - *download_rspec_rule_data
       - *rspec_secrets
@@ -550,10 +534,7 @@ jobs:
           secrets: |
             development/kv/data/next url | SONAR_URL;
             development/kv/data/next token | SONAR_TOKEN;
-      - name: Install SonarQube npm scanner
-        env:
-          NODE_OPTIONS: --use-system-ca
-        run: npm install -g @sonar/scan
+      - *config_npm
       - name: Run SonarQube analysis on Next
         env:
           SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
@@ -576,7 +557,7 @@ jobs:
             SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
           fi
 
-          sonar-scanner $SONAR_ARGS
+          npx @sonar/scan $SONAR_ARGS
 
   analyze_shadows:
     runs-on: sonar-m-public
@@ -606,10 +587,7 @@ jobs:
           secrets: |
             development/kv/data/${{ matrix.sonar-platform }} url | SONAR_URL;
             development/kv/data/${{ matrix.sonar-platform }} token | SONAR_TOKEN;
-      - name: Install SonarQube npm scanner
-        env:
-          NODE_OPTIONS: --use-system-ca
-        run: npm install -g @sonar/scan
+      - *config_npm
       - name: Run SonarQube analysis on ${{ matrix.platform }}
         env:
           SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
@@ -633,7 +611,7 @@ jobs:
             SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
           fi
 
-          sonar-scanner $SONAR_ARGS
+          npx @sonar/scan $SONAR_ARGS
 
   plugin_qa_with_node:
     runs-on: sonar-m-public
