@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "react": "catalog:",
+    "vue": "catalog:frontend"
+  }
+}

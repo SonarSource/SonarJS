@@ -110,6 +110,21 @@ describe('files', () => {
     expect(dependenciesCache.has(baseDir)).toEqual(true);
   });
 
+  it('should resolve pnpm catalog references from pnpm-workspace.yaml', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      dependencies: {
+        react: '^19.1.1',
+        vue: '^3.5.0',
+      },
+    });
+  });
+
   it('should fill deno manifest caches used for dependency lookup', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-dependencies'));
     const configuration = createConfiguration({ baseDir });
