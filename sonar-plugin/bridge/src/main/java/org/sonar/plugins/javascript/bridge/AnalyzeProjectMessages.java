@@ -188,6 +188,9 @@ public final class AnalyzeProjectMessages {
   }
 
   private static Value toValue(@Nullable Object input, Set<Object> visited) {
+    if (input == null) {
+      return nullValue();
+    }
     var directValue = toDirectValue(input);
     if (directValue != null) {
       return directValue;
@@ -223,10 +226,7 @@ public final class AnalyzeProjectMessages {
   }
 
   @Nullable
-  private static Value toDirectValue(@Nullable Object input) {
-    if (input == null) {
-      return nullValue();
-    }
+  private static Value toDirectValue(Object input) {
     if (input instanceof JsonElement jsonElement) {
       return toValue(jsonElement);
     }

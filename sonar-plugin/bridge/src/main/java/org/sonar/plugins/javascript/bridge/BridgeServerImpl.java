@@ -24,9 +24,9 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NO
 import io.grpc.ConnectivityState;
 import io.grpc.Context;
 import io.grpc.ManagedChannel;
-import io.grpc.Status;
+import io.grpc.Status.Code;
 import io.grpc.StatusRuntimeException;
-import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
+import io.grpc.okhttp.OkHttpChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +55,6 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectServiceGrpc;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectUnaryResponse;
-import org.sonar.plugins.javascript.analyzeproject.grpc.CancelAnalysisRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.LeaseRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.LeaseResponse;
 import org.sonar.plugins.javascript.nodejs.NodeCommand;
@@ -75,9 +74,7 @@ public class BridgeServerImpl implements BridgeServer {
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
   private static final int TIME_AFTER_FAILURE_TO_RESTART_MS = 60 * 1000;
   private static final int MAX_INBOUND_GRPC_MESSAGE_SIZE = Integer.MAX_VALUE;
-  private static final int CONTROL_RPC_TIMEOUT_SECONDS = 5;
   private static final int STREAM_CANCELLATION_POLL_INTERVAL_MS = 100;
-  private static volatile boolean grpcTransportClassesPreloaded;
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
@@ -392,10 +389,7 @@ public class BridgeServerImpl implements BridgeServer {
         }
       }
     } catch (StatusRuntimeException e) {
-      if (
-        handler.getContext().isCancelled() &&
-        e.getStatus().getCode() == io.grpc.Status.Code.CANCELLED
-      ) {
+      if (handler.getContext().isCancelled() && e.getStatus().getCode() == Code.CANCELLED) {
         throw cancelledStreamException();
       }
       throw analyzeProjectException(e);
@@ -452,7 +446,7 @@ public class BridgeServerImpl implements BridgeServer {
 
   private static String runtimeErrorMessage(StatusRuntimeException e) {
     var description = e.getStatus().getDescription();
-    return description == null || description.isBlank()
+    return (description == null || description.isBlank())
       ? "Received error from analyzer runtime"
       : "Received error from analyzer runtime: " + description;
   }
@@ -465,16 +459,6 @@ public class BridgeServerImpl implements BridgeServer {
       );
     }
     future.join();
-  }
-
-  private void cancelCurrentAnalysis() {
-    try {
-      blockingAnalyzeProjectControlStub().cancelAnalysis(
-        CancelAnalysisRequest.getDefaultInstance()
-      );
-    } catch (StatusRuntimeException e) {
-      LOG.debug("Failed to cancel current analysis", e);
-    }
   }
 
   private static CompletionException cancelledStreamException() {
@@ -589,51 +573,12 @@ public class BridgeServerImpl implements BridgeServer {
     if (channel != null && !channel.isShutdown()) {
       return;
     }
-    // SonarLint may tear down the plugin classloader while Netty still lazily resolves
-    // DefaultPromise helper classes, so load them up front before the channel starts.
-    preloadGrpcTransportClasses();
-    channel = NettyChannelBuilder.forAddress(hostAddress, port)
+    // OkHttp keeps the transport classloading simple inside SonarQube/SonarLint plugin
+    // classloaders and avoids the lazy shaded-Netty helper loading that broke Windows QA.
+    channel = OkHttpChannelBuilder.forAddress(hostAddress, port)
       .usePlaintext()
       .maxInboundMessageSize(MAX_INBOUND_GRPC_MESSAGE_SIZE)
       .build();
-  }
-
-  private static void preloadGrpcTransportClasses() {
-    if (grpcTransportClassesPreloaded) {
-      return;
-    }
-    synchronized (BridgeServerImpl.class) {
-      if (grpcTransportClassesPreloaded) {
-        return;
-      }
-
-      // Derive the Netty package from the actual transport class so this keeps working
-      // if the transport stays shaded or is relocated differently later.
-      String defaultPromiseClass = NettyChannelBuilder.class.getName().replace(
-        ".io.grpc.netty.NettyChannelBuilder",
-        ".io.netty.util.concurrent.DefaultPromise"
-      );
-      ClassLoader loader = NettyChannelBuilder.class.getClassLoader();
-
-      preloadClass(loader, defaultPromiseClass);
-      preloadClass(loader, defaultPromiseClass + "$1");
-      preloadClass(loader, defaultPromiseClass + "$2");
-      preloadClass(loader, defaultPromiseClass + "$3");
-      preloadClass(loader, defaultPromiseClass + "$4");
-      preloadClass(loader, defaultPromiseClass + "$CauseHolder");
-      preloadClass(loader, defaultPromiseClass + "$LeanCancellationException");
-      preloadClass(loader, defaultPromiseClass + "$StacklessCancellationException");
-
-      grpcTransportClassesPreloaded = true;
-    }
-  }
-
-  private static void preloadClass(ClassLoader loader, String className) {
-    try {
-      Class.forName(className, true, loader);
-    } catch (ClassNotFoundException e) {
-      LOG.debug("Unable to preload gRPC transport helper class {}", className, e);
-    }
   }
 
   private void closeChannel() {
@@ -755,19 +700,6 @@ public class BridgeServerImpl implements BridgeServer {
   private AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub blockingAnalyzeProjectUnaryStub() {
     var stub = blockingAnalyzeProjectStub();
     return timeoutSeconds > 0 ? stub.withDeadlineAfter(timeoutSeconds, TimeUnit.SECONDS) : stub;
-  }
-
-  /**
-   * Returns the blocking stub used for control-plane RPCs such as {@code CancelAnalysis}.
-   *
-   * <p>These calls are expected to be lightweight and must not hang indefinitely while Java is
-   * trying to cancel or tear down the runtime, so they use a short fixed deadline.
-   */
-  private AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub blockingAnalyzeProjectControlStub() {
-    return blockingAnalyzeProjectStub().withDeadlineAfter(
-      CONTROL_RPC_TIMEOUT_SECONDS,
-      TimeUnit.SECONDS
-    );
   }
 
   /**
