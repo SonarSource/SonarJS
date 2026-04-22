@@ -77,6 +77,7 @@ public class BridgeServerImpl implements BridgeServer {
   private static final int MAX_INBOUND_GRPC_MESSAGE_SIZE = Integer.MAX_VALUE;
   private static final int CONTROL_RPC_TIMEOUT_SECONDS = 5;
   private static final int STREAM_CANCELLATION_POLL_INTERVAL_MS = 100;
+  private static volatile boolean grpcTransportClassesPreloaded;
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
@@ -588,10 +589,51 @@ public class BridgeServerImpl implements BridgeServer {
     if (channel != null && !channel.isShutdown()) {
       return;
     }
+    // SonarLint may tear down the plugin classloader while Netty still lazily resolves
+    // DefaultPromise helper classes, so load them up front before the channel starts.
+    preloadGrpcTransportClasses();
     channel = NettyChannelBuilder.forAddress(hostAddress, port)
       .usePlaintext()
       .maxInboundMessageSize(MAX_INBOUND_GRPC_MESSAGE_SIZE)
       .build();
+  }
+
+  private static void preloadGrpcTransportClasses() {
+    if (grpcTransportClassesPreloaded) {
+      return;
+    }
+    synchronized (BridgeServerImpl.class) {
+      if (grpcTransportClassesPreloaded) {
+        return;
+      }
+
+      // Derive the Netty package from the actual transport class so this keeps working
+      // if the transport stays shaded or is relocated differently later.
+      String defaultPromiseClass = NettyChannelBuilder.class.getName().replace(
+        ".io.grpc.netty.NettyChannelBuilder",
+        ".io.netty.util.concurrent.DefaultPromise"
+      );
+      ClassLoader loader = NettyChannelBuilder.class.getClassLoader();
+
+      preloadClass(loader, defaultPromiseClass);
+      preloadClass(loader, defaultPromiseClass + "$1");
+      preloadClass(loader, defaultPromiseClass + "$2");
+      preloadClass(loader, defaultPromiseClass + "$3");
+      preloadClass(loader, defaultPromiseClass + "$4");
+      preloadClass(loader, defaultPromiseClass + "$CauseHolder");
+      preloadClass(loader, defaultPromiseClass + "$LeanCancellationException");
+      preloadClass(loader, defaultPromiseClass + "$StacklessCancellationException");
+
+      grpcTransportClassesPreloaded = true;
+    }
+  }
+
+  private static void preloadClass(ClassLoader loader, String className) {
+    try {
+      Class.forName(className, true, loader);
+    } catch (ClassNotFoundException e) {
+      LOG.debug("Unable to preload gRPC transport helper class {}", className, e);
+    }
   }
 
   private void closeChannel() {

@@ -21,6 +21,10 @@
   <!--
   This module doesn't depend on sonar-plugin-api to avoid conflicts with packages embedded in sonarlint-core dependency
   -->
+  <!--
+  Keep sonar-javascript-plugin out of the test classpath: the QA profile copies the built plugin artifact below,
+  and declaring it here also leaks its embedded gRPC transport jars into Surefire's parent classloader.
+  -->
   <dependencies>
     <dependency>
       <groupId>org.sonarsource.sonarlint.core</groupId>
@@ -53,11 +57,6 @@
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-javascript-plugin</artifactId>
-      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
