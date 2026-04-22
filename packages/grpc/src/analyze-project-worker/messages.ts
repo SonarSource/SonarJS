@@ -15,12 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type {
-  AnalyzeProjectIncrementalEvent,
-  AnalyzeProjectProtoRequest,
-  AnalyzeProjectResponse,
-  RequestResult,
-} from '../analyze-project-request.js';
+import type { AnalyzeProjectProtoRequest, RequestResult } from '../analyze-project-request.js';
+import type { sonarjs } from '../proto/analyze-project.js';
+
+type AnalyzeProjectStreamResponse = sonarjs.analyzeproject.v1.IAnalyzeProjectStreamResponse;
+type AnalyzeProjectUnaryResponse = sonarjs.analyzeproject.v1.IAnalyzeProjectUnaryResponse;
 
 export type AnalyzeProjectWorkerInMessage =
   | { type: 'analyze-stream'; requestId: string; request: AnalyzeProjectProtoRequest }
@@ -29,7 +28,11 @@ export type AnalyzeProjectWorkerInMessage =
   | { type: 'close' };
 
 export type AnalyzeProjectWorkerOutMessage =
-  | { type: 'event'; requestId: string; result: AnalyzeProjectIncrementalEvent }
-  | { type: 'stream-complete'; requestId: string; result: RequestResult<AnalyzeProjectResponse> }
-  | { type: 'unary-complete'; requestId: string; result: RequestResult<AnalyzeProjectResponse> }
+  | { type: 'event'; requestId: string; response: AnalyzeProjectStreamResponse }
+  | { type: 'stream-complete'; requestId: string; result: RequestResult }
+  | {
+      type: 'unary-complete';
+      requestId: string;
+      result: RequestResult<AnalyzeProjectUnaryResponse>;
+    }
   | { type: 'cancel-complete'; requestId: string; result: RequestResult };

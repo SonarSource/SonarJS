@@ -236,6 +236,11 @@ public class WebSensor implements Sensor {
       if (e.getCause() instanceof CancellationException nestedException) {
         throw nestedException;
       }
+      if (e.getCause() instanceof java.util.concurrent.CancellationException) {
+        throw new CancellationException(
+          "Analysis interrupted because the SensorContext is in cancelled state"
+        );
+      }
       throw e;
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);

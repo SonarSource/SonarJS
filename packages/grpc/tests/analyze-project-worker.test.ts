@@ -20,6 +20,10 @@ import { setImmediate as waitForImmediate } from 'node:timers/promises';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import type { WorkerData } from '../src/analyze-project-handle-request.js';
+import {
+  toAnalyzeProjectStreamResponse,
+  toAnalyzeProjectUnaryResponse,
+} from '../src/analyze-project-convert.js';
 import { registerAnalyzeProjectWorkerMessageHandler } from '../src/analyze-project-worker.js';
 import type {
   AnalyzeProjectWorkerInMessage,
@@ -160,7 +164,10 @@ describe('analyze-project worker', () => {
     expect(parentThread.postedMessages).toEqual([
       {
         requestId: 'unary-1',
-        result,
+        result: {
+          result: toAnalyzeProjectUnaryResponse(result.result!.output, result.result!.pathMap),
+          type: 'success',
+        },
         type: 'unary-complete',
       },
     ]);
@@ -195,12 +202,15 @@ describe('analyze-project worker', () => {
     expect(parentThread.postedMessages).toEqual([
       {
         requestId: 'stream-1',
-        result: incrementalEvents[0],
+        response: toAnalyzeProjectStreamResponse(
+          incrementalEvents[0].event,
+          incrementalEvents[0].pathMap,
+        ),
         type: 'event',
       },
       {
         requestId: 'stream-1',
-        result,
+        result: { result: undefined, type: 'success' },
         type: 'stream-complete',
       },
     ]);

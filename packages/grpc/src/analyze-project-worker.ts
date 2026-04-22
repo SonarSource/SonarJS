@@ -17,11 +17,16 @@
 
 import { parentPort, workerData } from 'node:worker_threads';
 import { handleAnalyzeProjectRequest, type WorkerData } from './analyze-project-handle-request.js';
+import {
+  toAnalyzeProjectStreamResponse,
+  toAnalyzeProjectUnaryResponse,
+} from './analyze-project-convert.js';
 import type {
   AnalyzeProjectWorkerInMessage,
   AnalyzeProjectWorkerOutMessage,
 } from './analyze-project-worker/messages.js';
 import type { AnalyzeProjectResponse, RequestResult } from './analyze-project-request.js';
+import type { sonarjs } from './proto/analyze-project.js';
 
 type AnalyzeProjectWorkerParentThread = {
   close: () => void;
@@ -31,6 +36,8 @@ type AnalyzeProjectWorkerParentThread = {
   ) => void;
   postMessage: (message: AnalyzeProjectWorkerOutMessage) => void;
 };
+
+type AnalyzeProjectUnaryResponse = sonarjs.analyzeproject.v1.IAnalyzeProjectUnaryResponse;
 
 export function registerAnalyzeProjectWorkerMessageHandler(
   parentThread: AnalyzeProjectWorkerParentThread,
@@ -52,7 +59,9 @@ export function registerAnalyzeProjectWorkerMessageHandler(
         return;
       }
       case 'analyze-unary': {
-        const result = toProjectAnalysisResult(
+        // Convert inside the worker so the parent thread does not clone the full
+        // analysis output plus path map before sending the unary gRPC response.
+        const result = toUnaryResponseResult(
           await handleRequest({ type: 'on-analyze-project', data: message.request }, data),
         );
         parentThread.postMessage({
@@ -63,12 +72,14 @@ export function registerAnalyzeProjectWorkerMessageHandler(
         return;
       }
       case 'analyze-stream': {
-        const result = toProjectAnalysisResult(
+        // Stream responses are converted in the worker so request-scoped path maps
+        // and the final accumulated project output stay local to this thread.
+        const result = toVoidResult(
           await handleRequest({ type: 'on-analyze-project', data: message.request }, data, event =>
             parentThread.postMessage({
               type: 'event',
               requestId: message.requestId,
-              result: event,
+              response: toAnalyzeProjectStreamResponse(event.event, event.pathMap),
             } satisfies AnalyzeProjectWorkerOutMessage),
           ),
         );
@@ -82,9 +93,9 @@ export function registerAnalyzeProjectWorkerMessageHandler(
   });
 }
 
-function toProjectAnalysisResult(
+function toUnaryResponseResult(
   result: RequestResult<AnalyzeProjectResponse | void>,
-): RequestResult<AnalyzeProjectResponse> {
+): RequestResult<AnalyzeProjectUnaryResponse> {
   if (result.type === 'failure') {
     return result;
   }
@@ -93,7 +104,7 @@ function toProjectAnalysisResult(
   }
   return {
     type: 'success',
-    result: result.result,
+    result: toAnalyzeProjectUnaryResponse(result.result.output, result.result.pathMap),
   };
 }
 

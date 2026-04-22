@@ -48,10 +48,13 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -585,6 +588,36 @@ class BridgeServerImplTest {
     bridgeServer.analyzeProject(createStreamingHandler(createInputFile(), false));
 
     assertThat(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)).isGreaterThan(1_000);
+  }
+
+  @Test
+  void should_cancel_streaming_analysis_while_waiting_for_the_next_message() throws Exception {
+    bridgeServer = createBridgeServer("slowStream.js", SHORT_STARTUP_TIMEOUT_SECONDS);
+    bridgeServer.startServer(serverConfig);
+
+    var handler = createStreamingHandler(createInputFile(), false);
+    var failure = new AtomicReference<Throwable>();
+    var completed = new CountDownLatch(1);
+    var worker = new Thread(() -> {
+      try {
+        bridgeServer.analyzeProject(handler);
+      } catch (Throwable throwable) {
+        failure.set(throwable);
+      } finally {
+        completed.countDown();
+      }
+    });
+
+    var start = System.nanoTime();
+    worker.start();
+    Thread.sleep(200);
+    context.setCancelled(true);
+
+    assertThat(completed.await(1, TimeUnit.SECONDS)).isTrue();
+    assertThat(TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start)).isLessThan(1_000);
+    assertThat(failure.get())
+      .isInstanceOf(CompletionException.class)
+      .hasCauseInstanceOf(CancellationException.class);
   }
 
   @Test

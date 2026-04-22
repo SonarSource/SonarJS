@@ -22,9 +22,11 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FO
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
 import io.grpc.ConnectivityState;
+import io.grpc.Context;
 import io.grpc.ManagedChannel;
+import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
-import io.grpc.okhttp.OkHttpChannelBuilder;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
 import java.io.File;
 import java.io.IOException;
@@ -37,8 +39,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -70,6 +75,8 @@ public class BridgeServerImpl implements BridgeServer {
   private static final int DEFAULT_TIMEOUT_SECONDS = 5 * 60;
   private static final int TIME_AFTER_FAILURE_TO_RESTART_MS = 60 * 1000;
   private static final int MAX_INBOUND_GRPC_MESSAGE_SIZE = Integer.MAX_VALUE;
+  private static final int CONTROL_RPC_TIMEOUT_SECONDS = 5;
+  private static final int STREAM_CANCELLATION_POLL_INTERVAL_MS = 100;
   // internal property to set "--max-old-space-size" for Node process running this server
   private static final String MAX_OLD_SPACE_SIZE_PROPERTY = "sonar.javascript.node.maxspace";
   private static final String DEBUG_MEMORY = "sonar.javascript.node.debugMemory";
@@ -82,6 +89,8 @@ public class BridgeServerImpl implements BridgeServer {
   public static final String NODE_TIMEOUT_PROPERTY = "sonar.javascript.node.timeout";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
+  private static final String ANALYSIS_CANCELLED_MESSAGE =
+    "Analysis interrupted because the SensorContext is in cancelled state";
   private static final String BRIDGE_DEPLOY_LOCATION = "bridge-bundle";
 
   private final NodeCommandBuilder nodeCommandBuilder;
@@ -357,34 +366,56 @@ public class BridgeServerImpl implements BridgeServer {
   @Override
   public void analyzeProject(ProjectAnalysisHandler handler) {
     var grpcRequest = enrichAnalyzeProjectRequest(handler.getRequest());
+    var analyzeContext = Context.current().withCancellation();
+    var finished = new AtomicBoolean(false);
+    var cancellationWatcher = startStreamCancellationWatcher(handler, analyzeContext, finished);
     Iterator<AnalyzeProjectStreamResponse> responses;
+    var previousContext = analyzeContext.attach();
     try {
       responses = blockingAnalyzeProjectStub().analyzeProject(grpcRequest);
     } catch (StatusRuntimeException e) {
+      finished.set(true);
+      cancellationWatcher.interrupt();
+      analyzeContext.cancel(null);
       throw analyzeProjectException(e);
+    } finally {
+      analyzeContext.detach(previousContext);
     }
 
-    boolean cancellationRequested = false;
     try {
       while (responses.hasNext()) {
         handler.handleMessage(responses.next());
-        if (handler.getContext().isCancelled() && !cancellationRequested) {
-          cancellationRequested = true;
-          cancelCurrentAnalysis();
+        if (handler.getContext().isCancelled()) {
+          analyzeContext.cancel(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
+          throw cancelledStreamException();
         }
       }
     } catch (StatusRuntimeException e) {
+      if (
+        handler.getContext().isCancelled() &&
+        e.getStatus().getCode() == io.grpc.Status.Code.CANCELLED
+      ) {
+        throw cancelledStreamException();
+      }
       throw analyzeProjectException(e);
+    } finally {
+      finished.set(true);
+      cancellationWatcher.interrupt();
+      analyzeContext.cancel(null);
     }
     ensureProjectAnalysisCompleted(handler);
   }
 
+  /**
+   * Used by the standalone parser path, which needs a fully materialized response for a single
+   * request instead of consuming the project-analysis stream incrementally.
+   */
   @Override
   public AnalyzeProjectUnaryResponse analyzeProject(AnalyzeProjectRequest request)
     throws IOException {
     var grpcRequest = enrichAnalyzeProjectRequest(request);
     try {
-      return blockingAnalyzeProjectStub().analyzeProjectUnary(grpcRequest);
+      return blockingAnalyzeProjectUnaryStub().analyzeProjectUnary(grpcRequest);
     } catch (StatusRuntimeException e) {
       throw analyzeProjectException(e);
     }
@@ -437,10 +468,41 @@ public class BridgeServerImpl implements BridgeServer {
 
   private void cancelCurrentAnalysis() {
     try {
-      blockingAnalyzeProjectStub().cancelAnalysis(CancelAnalysisRequest.getDefaultInstance());
+      blockingAnalyzeProjectControlStub().cancelAnalysis(
+        CancelAnalysisRequest.getDefaultInstance()
+      );
     } catch (StatusRuntimeException e) {
       LOG.debug("Failed to cancel current analysis", e);
     }
+  }
+
+  private static CompletionException cancelledStreamException() {
+    return new CompletionException(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
+  }
+
+  private static Thread startStreamCancellationWatcher(
+    ProjectAnalysisHandler handler,
+    Context.CancellableContext analyzeContext,
+    AtomicBoolean finished
+  ) {
+    Thread watcher = new Thread(() -> {
+      while (!finished.get()) {
+        if (handler.getContext().isCancelled()) {
+          analyzeContext.cancel(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
+          return;
+        }
+        try {
+          Thread.sleep(STREAM_CANCELLATION_POLL_INTERVAL_MS);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          return;
+        }
+      }
+    });
+    watcher.setName("bridge-analyze-project-cancel");
+    watcher.setDaemon(true);
+    watcher.start();
+    return watcher;
   }
 
   public boolean isAlive() {
@@ -526,7 +588,7 @@ public class BridgeServerImpl implements BridgeServer {
     if (channel != null && !channel.isShutdown()) {
       return;
     }
-    channel = OkHttpChannelBuilder.forAddress(hostAddress, port)
+    channel = NettyChannelBuilder.forAddress(hostAddress, port)
       .usePlaintext()
       .maxInboundMessageSize(MAX_INBOUND_GRPC_MESSAGE_SIZE)
       .build();
@@ -629,10 +691,49 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
+  /**
+   * Returns the blocking stub used for the main project-analysis RPC.
+   *
+   * <p>{@code AnalyzeProject} is a server-streaming call: Java sends one request, then consumes a
+   * stream of incremental file results plus the final metadata message. This is the transport used
+   * by {@link #analyzeProject(ProjectAnalysisHandler)}.
+   */
   private AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub blockingAnalyzeProjectStub() {
     return AnalyzeProjectServiceGrpc.newBlockingStub(channel);
   }
 
+  /**
+   * Returns the blocking stub used for the unary project-analysis RPC.
+   *
+   * <p>In gRPC, "unary" means one request and one response, as opposed to a streaming response.
+   * This path is used by {@link #analyzeProject(AnalyzeProjectRequest)}, which backs the standalone
+   * parser and expects the whole result in a single payload. A deadline is applied here because
+   * this tooling-oriented request should complete quickly.
+   */
+  private AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub blockingAnalyzeProjectUnaryStub() {
+    var stub = blockingAnalyzeProjectStub();
+    return timeoutSeconds > 0 ? stub.withDeadlineAfter(timeoutSeconds, TimeUnit.SECONDS) : stub;
+  }
+
+  /**
+   * Returns the blocking stub used for control-plane RPCs such as {@code CancelAnalysis}.
+   *
+   * <p>These calls are expected to be lightweight and must not hang indefinitely while Java is
+   * trying to cancel or tear down the runtime, so they use a short fixed deadline.
+   */
+  private AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub blockingAnalyzeProjectControlStub() {
+    return blockingAnalyzeProjectStub().withDeadlineAfter(
+      CONTROL_RPC_TIMEOUT_SECONDS,
+      TimeUnit.SECONDS
+    );
+  }
+
+  /**
+   * Returns the async stub used for the long-lived bidirectional lease stream.
+   *
+   * <p>The lease is not part of file analysis itself; it is used to tie the lifecycle of the
+   * child Node.js runtime to the Java owner without blocking the calling thread.
+   */
   private AnalyzeProjectServiceGrpc.AnalyzeProjectServiceStub asyncAnalyzeProjectStub() {
     return AnalyzeProjectServiceGrpc.newStub(channel);
   }

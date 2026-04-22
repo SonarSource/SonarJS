@@ -482,9 +482,7 @@ function createAnalyzeProjectStreamHandler({
         }
         switch (message.type) {
           case 'event':
-            writeResponse(
-              toAnalyzeProjectStreamResponse(message.result.event, message.result.pathMap),
-            );
+            writeResponse(message.response);
             return;
           case 'stream-complete':
             if (message.result.type === 'failure') {
@@ -545,20 +543,37 @@ function createAnalyzeProjectUnaryHandler({
 
     state.analysisInProgress = true;
     try {
-      const result = worker
-        ? (
-            await (() => {
-              const requestId = newWorkerRequestId();
-              return waitForWorkerCompletion(worker, 'unary-complete', requestId, () =>
-                worker.postMessage({
-                  type: 'analyze-unary',
-                  requestId,
-                  request: call.request,
-                } satisfies AnalyzeProjectWorkerInMessage),
-              ) as Promise<UnaryCompleteMessage>;
-            })()
-          ).result
-        : await handleRequestInCurrentThread({ type: 'on-analyze-project', data: call.request });
+      if (worker) {
+        const result = (
+          await (() => {
+            const requestId = newWorkerRequestId();
+            return waitForWorkerCompletion(worker, 'unary-complete', requestId, () =>
+              worker.postMessage({
+                type: 'analyze-unary',
+                requestId,
+                request: call.request,
+              } satisfies AnalyzeProjectWorkerInMessage),
+            ) as Promise<UnaryCompleteMessage>;
+          })()
+        ).result;
+        if (result.type === 'failure') {
+          callback(toGrpcErrorFromFailure(result));
+          return;
+        }
+
+        if (result.result == null) {
+          callback(toGrpcError('Missing analyze-project unary result'));
+          return;
+        }
+
+        callback(null, result.result);
+        return;
+      }
+
+      const result = await handleRequestInCurrentThread({
+        type: 'on-analyze-project',
+        data: call.request,
+      });
       if (result.type === 'failure') {
         callback(toGrpcErrorFromFailure(result));
         return;
