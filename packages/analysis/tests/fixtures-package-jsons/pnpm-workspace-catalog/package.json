@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "react": "catalog:",
+    "react-dom": "catalog:default",
     "vue": "catalog:frontend"
   }
 }

@@ -120,6 +120,7 @@ describe('files', () => {
     expect(manifests[0].manifest).toMatchObject({
       dependencies: {
         react: '^19.1.1',
+        'react-dom': '^19.1.1',
         vue: '^3.5.0',
       },
     });
