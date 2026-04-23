@@ -214,7 +214,20 @@ describe('S6478', () => {
           `,
         },
       ],
-      invalid: [],
+      invalid: [
+        {
+          options: [{ allowAsProps: true }],
+          code: `
+            function Parent() {
+              function Child() {
+                return <div />;
+              }
+              return <Child />;
+            }
+          `,
+          errors: 1,
+        },
+      ],
     });
   });
 });
