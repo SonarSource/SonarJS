@@ -106,11 +106,11 @@ function isVariableUsedExclusivelyForStackReads(
   if (parent.type !== 'VariableDeclarator') {
     return false;
   }
-  const declarator = parent as estree.VariableDeclarator;
-  if (declarator.id.type !== 'Identifier') {
+  const { id } = parent;
+  if (id.type !== 'Identifier') {
     return false;
   }
-  const variable = getVariableFromName(context, declarator.id.name, node);
+  const variable = getVariableFromName(context, id.name, node);
   if (!variable) {
     return false;
   }
