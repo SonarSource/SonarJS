@@ -167,6 +167,27 @@ class ForwardedCounterPanel extends CounterPanelBase {
 `,
           filename: fixtureFile,
         },
+        {
+          // FP: whole props are only forwarded to the custom superclass, never accessed locally.
+          // This isolates hasOwnCustomSuperclassPropsForwarding from hasPropsCall.
+          code: `
+declare const React: any;
+interface ForwardedOnlyProps {
+  initialCount: number;
+}
+class CounterPanelBase extends React.Component<ForwardedOnlyProps> {}
+class ForwardedOnlyPanel extends CounterPanelBase {
+  props: ForwardedOnlyProps;
+  constructor(props: ForwardedOnlyProps) {
+    super(props);
+  }
+  render() {
+    return <span>ready</span>;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
       ],
       invalid: [
         {
