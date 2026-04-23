@@ -50,7 +50,6 @@ describe('S6767 upstream sentinel', () => {
 declare const React: any;
 interface ForwardedCounterProps {
   initialCount: number;
-  label: string;
 }
 class CounterPanelBase extends React.Component<ForwardedCounterProps> {}
 class ForwardedCounterPanel extends CounterPanelBase {
@@ -59,7 +58,7 @@ class ForwardedCounterPanel extends CounterPanelBase {
     super(props);
   }
   render() {
-    return <span>{this.props.label}</span>;
+    return <span>ready</span>;
   }
 }
 `,
@@ -566,24 +565,27 @@ class FooComp extends React.Component<FooProps> {
           // a subclass elsewhere forwards whole props to its own custom superclass.
           code: `
 declare const React: any;
-interface SharedProps {
-  forwarded: string;
+interface BaseProps {
   used: string;
+  unused: string;
 }
-class UnusedBase extends React.Component<SharedProps> {
-  props: SharedProps;
+interface DerivedProps {
+  label: string;
+}
+class UnusedBase extends React.Component<BaseProps> {
+  props: BaseProps;
   render() {
     return <div>{this.props.used}</div>;
   }
 }
-class CustomIntermediateBase extends React.Component<SharedProps> {}
+class CustomIntermediateBase extends React.Component<DerivedProps> {}
 class DerivedForwarder extends CustomIntermediateBase {
-  props: SharedProps;
-  constructor(props: SharedProps) {
+  props: DerivedProps;
+  constructor(props: DerivedProps) {
     super(props);
   }
   render() {
-    return <div>{this.props.used}</div>;
+    return <div>{this.props.label}</div>;
   }
 }
 `,
