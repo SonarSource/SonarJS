@@ -428,6 +428,18 @@ function createAnalyzeProjectStreamHandler({
       }
     };
 
+    const finish = (error?: grpc.ServiceError) => {
+      // Release the single-analysis slot before ending the gRPC call. The Java client can
+      // observe end-of-stream and immediately start the next module analysis before this
+      // event-loop turn finishes, so ending first can transiently expose a false overlap.
+      complete();
+      if (error) {
+        failResponse(error);
+      } else {
+        endResponse();
+      }
+    };
+
     const writeResponse = (response: AnalyzeProjectStreamResponse) => {
       if (cancelled) {
         return;
@@ -482,12 +494,10 @@ function createAnalyzeProjectStreamHandler({
             return;
           case 'stream-complete':
             if (message.result.type === 'failure') {
-              failResponse(toGrpcErrorFromFailure(message.result));
-              complete();
+              finish(toGrpcErrorFromFailure(message.result));
               return;
             }
-            endResponse();
-            complete();
+            finish();
             return;
           default:
             return;
@@ -510,13 +520,13 @@ function createAnalyzeProjectStreamHandler({
     )
       .then(result => {
         if (result.type === 'failure') {
-          failResponse(toGrpcErrorFromFailure(result));
+          finish(toGrpcErrorFromFailure(result));
         } else {
-          endResponse();
+          finish();
         }
       })
       .catch(error => {
-        failResponse(toGrpcError(error instanceof Error ? error.message : String(error)));
+        finish(toGrpcError(error instanceof Error ? error.message : String(error)));
       })
       .finally(complete);
   };
@@ -686,6 +696,7 @@ function attachWorkerLifecycleHandlers(
 }
 
 export const analyzeProjectServerInternals = {
+  createAnalyzeProjectStreamHandler,
   createLifecycle,
   waitForWorkerCompletion,
 };

@@ -409,6 +409,31 @@ class FakeWorker extends EventEmitter {
   }
 }
 
+class FakeAnalyzeProjectStreamCall extends EventEmitter {
+  public ended = false;
+  public error: grpc.ServiceError | undefined;
+  public readonly responses: AnalyzeProjectStreamResponse[] = [];
+
+  constructor(
+    public readonly request: AnalyzeProjectRequest,
+    private readonly onEnd?: () => void,
+  ) {
+    super();
+    this.on('error', error => {
+      this.error = error as grpc.ServiceError;
+    });
+  }
+
+  write(response: AnalyzeProjectStreamResponse) {
+    this.responses.push(response);
+  }
+
+  end() {
+    this.onEnd?.();
+    this.ended = true;
+  }
+}
+
 function createUnitServerState({
   analysisInProgress = false,
   leaseCall = null,
@@ -705,6 +730,80 @@ describe('analyze-project gRPC server', () => {
       });
       await activeResponsesPromise;
     });
+  });
+
+  it('should release the analysis slot before ending a completed stream', async t => {
+    const worker = new FakeWorker(message => {
+      if (message.type === 'analyze-stream') {
+        worker.emitMessage({
+          requestId: message.requestId,
+          result: { result: undefined, type: 'success' },
+          type: 'stream-complete',
+        });
+      }
+    });
+    const testModes = [
+      {
+        handleRequestInCurrentThread: async () => {
+          throw new Error('Unexpected in-process analyze-project request');
+        },
+        label: 'with worker',
+        worker,
+      },
+      {
+        handleRequestInCurrentThread: async () => ({
+          result: undefined,
+          type: 'success' as const,
+        }),
+        label: 'without worker',
+        worker: undefined,
+      },
+    ] as const;
+
+    for (const mode of testModes) {
+      await t.test(mode.label, async () => {
+        const state = createUnitServerState();
+        const streamHandler = analyzeProjectServerInternals.createAnalyzeProjectStreamHandler({
+          handleRequestInCurrentThread: mode.handleRequestInCurrentThread,
+          lifecycle: {
+            clearStartupShutdownTimeout: () => {},
+            requestCancel: async () => true,
+            scheduleStartupShutdownTimeout: () => {},
+            shutdown: async () => {},
+          },
+          newWorkerRequestId: (() => {
+            let requestId = 0;
+            return () => String(++requestId);
+          })(),
+          state,
+          worker: mode.worker as Worker | undefined,
+        });
+
+        const secondCall = new FakeAnalyzeProjectStreamCall(createAnalyzeProjectRequest());
+        const firstCall = new FakeAnalyzeProjectStreamCall(createAnalyzeProjectRequest(), () => {
+          streamHandler(
+            secondCall as unknown as grpc.ServerWritableStream<
+              AnalyzeProjectRequest,
+              AnalyzeProjectStreamResponse
+            >,
+          );
+        });
+
+        streamHandler(
+          firstCall as unknown as grpc.ServerWritableStream<
+            AnalyzeProjectRequest,
+            AnalyzeProjectStreamResponse
+          >,
+        );
+        await delay(0);
+
+        expect(firstCall.error).toBeUndefined();
+        expect(firstCall.ended).toBe(true);
+        expect(secondCall.error).toBeUndefined();
+        expect(secondCall.ended).toBe(true);
+        expect(state.analysisInProgress).toBe(false);
+      });
+    }
   });
 
   it('should cancel an active worker analysis through the cancel RPC', async () => {
