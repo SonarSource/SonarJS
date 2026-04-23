@@ -377,14 +377,7 @@ public class WebSensor implements Sensor {
         var cacheStrategy = fileToCacheStrategy.get(filePath);
         Node responseAst = responseAst(response);
         if (cacheStrategy != null) {
-          try {
-            cacheStrategy.writeAnalysisToCache(
-              CacheAnalysis.fromResponse(response.getCpdTokensList(), responseAst),
-              file
-            );
-          } catch (IOException e) {
-            handle.completeExceptionally(new IllegalStateException(e));
-          }
+          writeAnalysisToCache(cacheStrategy, response, responseAst, file);
         }
         acceptAstResponse(responseAst, file);
       } catch (IOException e) {
@@ -398,6 +391,22 @@ public class WebSensor implements Sensor {
       meta.getWarningsList().forEach(analysisWarnings::addUnique);
       projectAnalysisTelemetry = meta.hasTelemetry() ? meta.getTelemetry() : null;
       handle.complete(null);
+    }
+
+    private void writeAnalysisToCache(
+      CacheStrategy cacheStrategy,
+      ProjectAnalysisFileResult response,
+      @Nullable Node responseAst,
+      InputFile file
+    ) {
+      try {
+        cacheStrategy.writeAnalysisToCache(
+          CacheAnalysis.fromResponse(response.getCpdTokensList(), responseAst),
+          file
+        );
+      } catch (IOException e) {
+        handle.completeExceptionally(new IllegalStateException(e));
+      }
     }
 
     private void addFileToAnalyze(Map<String, ProjectFileInput> files, InputFile inputFile)
