@@ -1,0 +1,63 @@
+{
+"vuetify:packages/vuetify/src/components/VAlert/__tests__/VAlert.spec.cy.tsx": [
+26
+],
+"vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
+51,
+98
+],
+"vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
+58
+],
+"vuetify:packages/vuetify/src/components/VBtnGroup/__tests__/VBtnGroup.spec.cy.tsx": [
+18,
+36,
+54
+],
+"vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerSwatches.tsx": [
+65,
+70
+],
+"vuetify:packages/vuetify/src/components/VExpansionPanel/__tests__/VExpansionPanels.spec.cy.tsx": [
+15,
+33,
+56
+],
+"vuetify:packages/vuetify/src/components/VInput/__tests__/VInput.spec.cy.tsx": [
+17,
+19
+],
+"vuetify:packages/vuetify/src/components/VLayout/__tests__/VLayout.spec.cy.tsx": [
+32,
+34,
+51,
+53
+],
+"vuetify:packages/vuetify/src/components/VList/__tests__/VList.spec.cy.tsx": [
+16,
+38
+],
+"vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
+250
+],
+"vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.cy.tsx": [
+14
+],
+"vuetify:packages/vuetify/src/components/VTextField/__tests__/VTextField.spec.cy.tsx": [
+17,
+19
+],
+"vuetify:packages/vuetify/src/components/VToolbar/__tests__/VToolbar.spec.cy.tsx": [
+26
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableGroupHeaderRow.tsx": [
+84
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
+153,
+155
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRow.tsx": [
+44
+]
+}

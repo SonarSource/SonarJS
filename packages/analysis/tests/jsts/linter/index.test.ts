@@ -170,6 +170,31 @@ describe('Linter', () => {
       baseDir,
       rules: [
         {
+          key: 'S6748',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.jsx')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    expect(rules).not.toHaveProperty('sonarjs/S6748');
+  });
+
+  it('should enable React-dependent rules when react dependency is present', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
           key: 'S6477',
           configurations: [],
           fileTypeTargets: ['MAIN'],
@@ -184,12 +209,120 @@ describe('Linter', () => {
       'DEFAULT',
       'js',
     );
-    expect(rules).not.toHaveProperty('sonarjs/S6477');
+    expect(rules).toHaveProperty('sonarjs/S6477');
   });
 
-  it('should enable React-dependent rules when react dependency is present', async () => {
+  it('should enable React-dependent rules when react dependency is present in deno.json', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'deno-react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S6477',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.jsx')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    expect(rules).toHaveProperty('sonarjs/S6477');
+  });
+
+  it('should disable React-dependent rules on .vue files even when react dependency is present', async () => {
     const baseDir = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'react'),
+    );
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S100',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S6440',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S6477',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S6749',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S6770',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S6790',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S6747',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S6957',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.vue')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+
+    expect(rules).not.toHaveProperty('sonarjs/S6440');
+    expect(rules).not.toHaveProperty('sonarjs/S6957');
+    expect(rules).not.toHaveProperty('sonarjs/S6790');
+    expect(rules).not.toHaveProperty('sonarjs/S6747');
+    expect(rules).toHaveProperty('sonarjs/S6477');
+    expect(rules).toHaveProperty('sonarjs/S6749');
+    expect(rules).toHaveProperty('sonarjs/S6770');
+    expect(rules).toHaveProperty('sonarjs/S100');
+  });
+
+  it('should merge deno and package.json dependencies for dependency filtering', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'deno-priority-no-react'),
     );
     await Linter.initialize({
       baseDir,

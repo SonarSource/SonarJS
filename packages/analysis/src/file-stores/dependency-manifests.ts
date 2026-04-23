@@ -25,15 +25,26 @@ import {
 import type { Configuration } from '../common/configuration.js';
 import {
   clearDependenciesCache,
-  fillPackageJsonCaches,
-  isPackageJson,
-} from '../jsts/rules/helpers/package-jsons/index.js';
+  DENO_JSON,
+  DENO_JSONC,
+  getDependencyManifestName,
+  isDependencyManifestPath,
+  PACKAGE_JSON,
+  fillManifestCaches,
+} from '../jsts/rules/helpers/dependency-manifests/index.js';
 
 export const UNINITIALIZED_ERROR =
-  'package.json cache has not been initialized. Call loadFiles() first.';
+  'dependency manifest cache has not been initialized. Call loadFiles() first.';
 
-export class PackageJsonStore implements FileStore {
+export class DependencyManifestStore implements FileStore {
   private readonly packageJsons: Map<NormalizedAbsolutePath, File> = new Map();
+  private readonly denoManifestsByName: Record<
+    typeof DENO_JSON | typeof DENO_JSONC,
+    Map<NormalizedAbsolutePath, File>
+  > = {
+    [DENO_JSON]: new Map(),
+    [DENO_JSONC]: new Map(),
+  };
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private readonly dirnameToParent: Map<
     NormalizedAbsolutePath,
@@ -59,7 +70,7 @@ export class PackageJsonStore implements FileStore {
       return;
     }
     for (const filename of fsEvents) {
-      if (isPackageJson(filename)) {
+      if (isDependencyManifestPath(filename)) {
         this.clearCache();
         return;
       }
@@ -69,6 +80,8 @@ export class PackageJsonStore implements FileStore {
   clearCache() {
     this.baseDir = undefined;
     this.packageJsons.clear();
+    this.denoManifestsByName[DENO_JSON].clear();
+    this.denoManifestsByName[DENO_JSONC].clear();
     this.dirnameToParent.clear();
     debug('Clearing dependencies cache');
     clearDependenciesCache();
@@ -83,15 +96,18 @@ export class PackageJsonStore implements FileStore {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    if (isPackageJson(filename)) {
+    if (isDependencyManifestPath(filename)) {
       try {
         const content = await readFile(filename, 'utf-8');
-        this.packageJsons.set(dirnamePath(filename), {
-          content,
-          path: filename,
-        });
+        const file = { content, path: filename };
+        const manifestName = getDependencyManifestName(filename);
+        if (manifestName === PACKAGE_JSON) {
+          this.packageJsons.set(dirnamePath(filename), file);
+        } else if (manifestName) {
+          this.denoManifestsByName[manifestName].set(dirnamePath(filename), file);
+        }
       } catch (e) {
-        warn(`Error reading package.json ${filename}: ${e}`);
+        warn(`Error reading dependency manifest ${filename}: ${e}`);
       }
     }
   }
@@ -104,6 +120,18 @@ export class PackageJsonStore implements FileStore {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    fillPackageJsonCaches(this.packageJsons, this.dirnameToParent, this.baseDir);
+    fillManifestCaches(PACKAGE_JSON, this.packageJsons, this.dirnameToParent, this.baseDir);
+    fillManifestCaches(
+      DENO_JSON,
+      this.denoManifestsByName[DENO_JSON],
+      this.dirnameToParent,
+      this.baseDir,
+    );
+    fillManifestCaches(
+      DENO_JSONC,
+      this.denoManifestsByName[DENO_JSONC],
+      this.dirnameToParent,
+      this.baseDir,
+    );
   }
 }

@@ -1034,13 +1034,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
       - name: Update ruling and notify
-        if: always() && github.event_name == 'pull_request'
+        if: always() && (github.event_name == 'pull_request' || github.ref_name == github.event.repository.default_branch)
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          HEAD_REF: ${{ github.head_ref }}
-          BASE_REF: ${{ github.base_ref }}
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number || '' }}
+          TARGET_REF: ${{ github.head_ref || github.ref_name }}
+          BASE_REF: ${{ github.base_ref || github.event.repository.default_branch }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+          IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
           RULING_FAILED: ${{ steps.ruling.outcome == 'failure' }}
         run: |
           git fetch origin "$BASE_REF"
@@ -1075,19 +1076,40 @@ jobs:
             HAS_DIFFERENCES=false
           fi
 
-          FIX_BRANCH="fix/update-ruling-for-${HEAD_REF}"
+          FIX_BRANCH="fix/update-ruling-for-${TARGET_REF}"
+
+          if [ "$IS_PULL_REQUEST" = "true" ]; then
+            FIX_PR_TITLE="Update ruling results for PR #${PR_NUMBER}"
+            FIX_PR_BODY="Auto-generated ruling update for PR #${PR_NUMBER}.
+
+          🤖 Generated with GitHub Actions"
+          else
+            FIX_PR_TITLE="Update ruling results for ${TARGET_REF}"
+            FIX_PR_BODY="Auto-generated ruling update for ${TARGET_REF}.
+
+          🤖 Generated with GitHub Actions"
+          fi
+
+          get_open_fix_pr_url() {
+            gh pr list \
+              --head "$FIX_BRANCH" \
+              --base "$TARGET_REF" \
+              --state open \
+              --json url \
+              --jq '.[0].url // empty'
+          }
 
           # Create/update fix PR if ruling failed and there are differences
           if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
             # Stash changes before checkout
             git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/
 
-            git fetch origin "$HEAD_REF"
+            git fetch origin "$TARGET_REF"
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
 
             if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
-              git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
+              git checkout -b "$FIX_BRANCH" "origin/$TARGET_REF"
               git stash pop
               git add its/ruling/src/test/expected/
 
@@ -1099,9 +1121,16 @@ jobs:
           🤖 Generated with GitHub Actions"
                 git push --force-with-lease origin "$FIX_BRANCH"
               fi
-              FIX_PR_URL=$(gh pr view "$FIX_BRANCH" --json url --jq '.url')
+              FIX_PR_URL=$(get_open_fix_pr_url 2>/dev/null || true)
+              if [ -z "${FIX_PR_URL:-}" ]; then
+                FIX_PR_URL=$(gh pr create \
+                  --title "$FIX_PR_TITLE" \
+                  --base "$TARGET_REF" \
+                  --head "$FIX_BRANCH" \
+                  --body "$FIX_PR_BODY")
+              fi
             else
-              git checkout -b "$FIX_BRANCH" "origin/$HEAD_REF"
+              git checkout -b "$FIX_BRANCH" "origin/$TARGET_REF"
               git stash pop
               git add its/ruling/src/test/expected/
 
@@ -1113,12 +1142,10 @@ jobs:
           🤖 Generated with GitHub Actions"
                 git push origin "$FIX_BRANCH"
                 FIX_PR_URL=$(gh pr create \
-                  --title "Update ruling results for PR #${PR_NUMBER}" \
-                  --base "$HEAD_REF" \
+                  --title "$FIX_PR_TITLE" \
+                  --base "$TARGET_REF" \
                   --head "$FIX_BRANCH" \
-                  --body "Auto-generated ruling update for PR #${PR_NUMBER}.
-
-          🤖 Generated with GitHub Actions")
+                  --body "$FIX_PR_BODY")
               fi
             fi
           else
@@ -1130,54 +1157,72 @@ jobs:
             fi
           fi
 
-          # Build comment with marker for identification
-          MARKER="<!-- ruling-report -->"
-          if [ "$HAS_DIFFERENCES" = "true" ]; then
-            # Build comment with ruling changes
-            {
-              echo "$MARKER"
-              cat ruling-report.md
-              echo ""
-              if [ "$RULING_FAILED" = "true" ] && [ -n "${FIX_PR_URL:-}" ]; then
-                echo "---"
-                echo "❌ **Ruling needs updating.** A fix PR has been created: ${FIX_PR_URL}"
+          if [ "$IS_PULL_REQUEST" = "true" ]; then
+            # Build comment with marker for identification
+            MARKER="<!-- ruling-report -->"
+            if [ "$HAS_DIFFERENCES" = "true" ]; then
+              # Build comment with ruling changes
+              {
+                echo "$MARKER"
+                cat ruling-report.md
                 echo ""
-                echo "Please review and merge it into your branch."
-              fi
-            } > comment.md
-          else
-            # Build comment for no changes
+                if [ "$RULING_FAILED" = "true" ] && [ -n "${FIX_PR_URL:-}" ]; then
+                  echo "---"
+                  echo "❌ **Ruling needs updating.** A fix PR has been created: ${FIX_PR_URL}"
+                  echo ""
+                  echo "Please review and merge it into your branch."
+                fi
+              } > comment.md
+            else
+              # Build comment for no changes
+              {
+                echo "$MARKER"
+                echo "## Ruling Report"
+                echo ""
+                echo "✅ **No changes to ruling expected issues in this PR**"
+              } > comment.md
+            fi
+
+            # Truncate comment to 50KB to stay within GitHub API limits
+            MAX_BYTES=50000
+            if [ "$(wc -c < comment.md)" -gt "$MAX_BYTES" ]; then
+              head -c "$MAX_BYTES" comment.md > comment-truncated.md
+              echo "" >> comment-truncated.md
+              echo "_(truncated — full report too large for PR comment)_" >> comment-truncated.md
+              mv comment-truncated.md comment.md
+            fi
+
+            # Find existing ruling comment and update it, or create new one
+            EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+              --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
+
+            if [ -n "$EXISTING_COMMENT_ID" ]; then
+              gh api "repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT_ID" \
+                -X PATCH -F body=@comment.md
+            else
+              gh pr comment "$PR_NUMBER" --body-file comment.md
+            fi
+          elif [ -n "${FIX_PR_URL:-}" ]; then
             {
-              echo "$MARKER"
               echo "## Ruling Report"
               echo ""
-              echo "✅ **No changes to ruling expected issues in this PR**"
-            } > comment.md
-          fi
-
-          # Truncate comment to 50KB to stay within GitHub API limits
-          MAX_BYTES=50000
-          if [ "$(wc -c < comment.md)" -gt "$MAX_BYTES" ]; then
-            head -c "$MAX_BYTES" comment.md > comment-truncated.md
-            echo "" >> comment-truncated.md
-            echo "_(truncated — full report too large for PR comment)_" >> comment-truncated.md
-            mv comment-truncated.md comment.md
-          fi
-
-          # Find existing ruling comment and update it, or create new one
-          EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
-            --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
-
-          if [ -n "$EXISTING_COMMENT_ID" ]; then
-            gh api "repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT_ID" \
-              -X PATCH -F body=@comment.md
+              echo "❌ **Ruling needs updating.** A fix PR has been created: ${FIX_PR_URL}"
+            } >> "$GITHUB_STEP_SUMMARY"
           else
-            gh pr comment "$PR_NUMBER" --body-file comment.md
+            {
+              echo "## Ruling Report"
+              echo ""
+              echo "✅ **No ruling fix PR was needed for this run.**"
+            } >> "$GITHUB_STEP_SUMMARY"
           fi
 
           # Fail CI if ruling needs updating
           if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
-            echo "::error::Ruling results are out of date. See fix PR: ${FIX_PR_URL:-}"
+            if [ -n "${FIX_PR_URL:-}" ]; then
+              echo "::error::Ruling results are out of date. See fix PR: ${FIX_PR_URL}"
+            else
+              echo "::error::Ruling results are out of date."
+            fi
             exit 1
           fi
 

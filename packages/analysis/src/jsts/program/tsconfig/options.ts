@@ -19,7 +19,7 @@ import { error, warn } from '../../../../../shared/src/helpers/logging.js';
 import {
   getNodeVersionSignal,
   getTypeScriptVersionSignal,
-} from '../../rules/helpers/package-jsons/dependencies.js';
+} from '../../rules/helpers/dependency-manifests/dependencies.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';

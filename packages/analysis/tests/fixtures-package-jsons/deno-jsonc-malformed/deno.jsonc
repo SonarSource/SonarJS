@@ -1,0 +1,9 @@
+{
+  // malformed on purpose: missing comma between properties
+  "imports": {
+    "react": "npm:react@^19.0.0",
+  }
+  "workspace": {
+    "members": ["packages/*"]
+  }
+}

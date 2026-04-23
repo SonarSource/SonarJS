@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "lodash": "npm:lodash@^4.17.21"
+  }
+}

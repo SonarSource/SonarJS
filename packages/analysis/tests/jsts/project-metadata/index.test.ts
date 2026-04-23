@@ -23,7 +23,7 @@ import {
 import fs from 'node:fs';
 import { describe, it, beforeEach } from 'node:test';
 import { expect } from 'expect';
-import { getManifests } from '../../../src/jsts/rules/helpers/package-jsons/all-in-parent-dirs.js';
+import { getPackageJsonManifests } from '../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
 
 describe('initialize package.json files', () => {
   const baseDir = joinPaths(
@@ -33,31 +33,31 @@ describe('initialize package.json files', () => {
   );
 
   it('should find all package.json files', () => {
-    const basePJList = getManifests(baseDir, baseDir, fs);
+    const basePJList = getPackageJsonManifests(baseDir, baseDir, fs);
 
-    const moduleAPJList = getManifests(joinPaths(baseDir, 'moduleA'), baseDir, fs);
+    const moduleAPJList = getPackageJsonManifests(joinPaths(baseDir, 'moduleA'), baseDir, fs);
 
-    const moduleAsubmoduleAPJList = getManifests(
+    const moduleAsubmoduleAPJList = getPackageJsonManifests(
       joinPaths(baseDir, 'moduleA', 'submoduleA'),
       baseDir,
       fs,
     );
 
-    const moduleAsubmoduleBPJList = getManifests(
+    const moduleAsubmoduleBPJList = getPackageJsonManifests(
       joinPaths(baseDir, 'moduleA', 'submoduleB'),
       baseDir,
       fs,
     );
 
-    const moduleBPJList = getManifests(joinPaths(baseDir, 'moduleB'), baseDir, fs);
+    const moduleBPJList = getPackageJsonManifests(joinPaths(baseDir, 'moduleB'), baseDir, fs);
 
-    const moduleBsubmoduleAPJList = getManifests(
+    const moduleBsubmoduleAPJList = getPackageJsonManifests(
       joinPaths(baseDir, 'moduleB', 'submoduleA'),
       baseDir,
       fs,
     );
 
-    const moduleBsubmoduleBPJList = getManifests(
+    const moduleBsubmoduleBPJList = getPackageJsonManifests(
       joinPaths(baseDir, 'moduleB', '.submoduleB'),
       baseDir,
       fs,
@@ -78,7 +78,7 @@ describe('initialize package.json files', () => {
     expect(moduleBsubmoduleBPJList).toHaveLength(3);
     expect(moduleBsubmoduleBPJList[0].name).toEqual('module-b-submodule-b');
 
-    const fakeFilePJList = getManifests(
+    const fakeFilePJList = getPackageJsonManifests(
       joinPaths(baseDir, 'moduleB', '.submoduleB', 'subfolder1', 'subfolder2', 'subfolder3'),
       baseDir,
       fs,
@@ -90,9 +90,9 @@ describe('initialize package.json files', () => {
   it('should return empty array when no package.json are in the DB or none exist in the file tree', () => {
     const anotherModuleDir = joinPaths(baseDir, '..', 'another-module');
     const parentDir = joinPaths(baseDir, '..');
-    expect(getManifests(anotherModuleDir, parentDir, fs)).toHaveLength(0);
+    expect(getPackageJsonManifests(anotherModuleDir, parentDir, fs)).toHaveLength(0);
 
-    expect(getManifests(anotherModuleDir, parentDir, fs)).toHaveLength(0);
+    expect(getPackageJsonManifests(anotherModuleDir, parentDir, fs)).toHaveLength(0);
   });
 });
 

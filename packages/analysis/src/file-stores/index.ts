@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { SourceFileStore } from './source-files.js';
-import { PackageJsonStore } from './package-jsons.js';
+import { DependencyManifestStore } from './dependency-manifests.js';
 import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../common/find-files.js';
 import type { FileStore } from './store-type.js';
@@ -28,14 +28,14 @@ import {
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
-export const packageJsonStore = new PackageJsonStore();
+export const dependencyManifestStore = new DependencyManifestStore();
 export const tsConfigStore = new TsConfigStore();
 
 export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
 
-  for (const store of [sourceFileStore, packageJsonStore, tsConfigStore]) {
+  for (const store of [sourceFileStore, dependencyManifestStore, tsConfigStore]) {
     if (!(await store.isInitialized(configuration, inputFiles))) {
       pendingStores.push(store);
     }
