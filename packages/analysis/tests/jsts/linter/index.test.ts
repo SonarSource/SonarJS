@@ -314,7 +314,7 @@ describe('Linter', () => {
     expect(rules).not.toHaveProperty('sonarjs/S6957');
     expect(rules).not.toHaveProperty('sonarjs/S6790');
     expect(rules).not.toHaveProperty('sonarjs/S6747');
-    expect(rules).not.toHaveProperty('sonarjs/S6477');
+    expect(rules).toHaveProperty('sonarjs/S6477');
     expect(rules).toHaveProperty('sonarjs/S6749');
     expect(rules).toHaveProperty('sonarjs/S6770');
     expect(rules).toHaveProperty('sonarjs/S100');
