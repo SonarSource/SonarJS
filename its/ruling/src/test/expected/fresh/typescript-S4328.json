@@ -12,15 +12,7 @@
 "fresh:packages/examples/src/app2.tsx": [
 7
 ],
-"fresh:packages/examples/src/island.tsx": [
-18,
-19
-],
-"fresh:packages/examples/src/shared.tsx": [
-1
-],
 "fresh:packages/fresh/src/app.ts": [
-1,
 3,
 4,
 11
@@ -30,11 +22,7 @@
 ],
 "fresh:packages/fresh/src/build_cache.ts": [
 1,
-5,
 7
-],
-"fresh:packages/fresh/src/compat.ts": [
-1
 ],
 "fresh:packages/fresh/src/compat_test.tsx": [
 2,
@@ -46,20 +34,11 @@
 "fresh:packages/fresh/src/config_test.ts": [
 1
 ],
-"fresh:packages/fresh/src/context.ts": [
-1,
-10,
-11,
-30
-],
 "fresh:packages/fresh/src/context_test.tsx": [
 1,
 3,
 4,
 6
-],
-"fresh:packages/fresh/src/define.ts": [
-1
 ],
 "fresh:packages/fresh/src/define_test.ts": [
 1
@@ -89,7 +68,6 @@
 ],
 "fresh:packages/fresh/src/dev/esbuild.ts": [
 1,
-2,
 3
 ],
 "fresh:packages/fresh/src/dev/file_transformer.ts": [
@@ -115,9 +93,6 @@
 1
 ],
 "fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware_test.tsx": [
-1
-],
-"fresh:packages/fresh/src/dev/middlewares/error_overlay/overlay.tsx": [
 1
 ],
 "fresh:packages/fresh/src/dev/update_check.ts": [
@@ -146,9 +121,6 @@
 "fresh:packages/fresh/src/fs.ts": [
 1
 ],
-"fresh:packages/fresh/src/fs_routes.ts": [
-1
-],
 "fresh:packages/fresh/src/fs_routes_test.tsx": [
 5,
 6,
@@ -158,8 +130,7 @@
 1
 ],
 "fresh:packages/fresh/src/jsonify/custom_test.ts": [
-1,
-4
+1
 ],
 "fresh:packages/fresh/src/jsonify/round_trip_test.ts": [
 1,
@@ -196,51 +167,18 @@
 "fresh:packages/fresh/src/middlewares/trailing_slashes_test.ts": [
 3
 ],
-"fresh:packages/fresh/src/otel.ts": [
-1
-],
-"fresh:packages/fresh/src/render.ts": [
-1
-],
 "fresh:packages/fresh/src/router_test.ts": [
 1
 ],
-"fresh:packages/fresh/src/runtime/client/dev.ts": [
-1
-],
-"fresh:packages/fresh/src/runtime/client/partials.ts": [
-1
-],
 "fresh:packages/fresh/src/runtime/client/preact_hooks_client.ts": [
-1,
-8,
-9,
-10
-],
-"fresh:packages/fresh/src/runtime/client/reviver.ts": [
-1,
-11
-],
-"fresh:packages/fresh/src/runtime/head.ts": [
-1
+8
 ],
 "fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
-1,
-12,
 27,
-32,
-37,
-38
+32
 ],
 "fresh:packages/fresh/src/runtime/shared.ts": [
-1,
 2
-],
-"fresh:packages/fresh/src/runtime/shared_internal.ts": [
-1
-],
-"fresh:packages/fresh/src/segments.ts": [
-1
 ],
 "fresh:packages/fresh/src/segments_test.ts": [
 1
@@ -260,122 +198,41 @@
 13
 ],
 "fresh:packages/fresh/tests/doc_examples_test.tsx": [
-4,
 5,
 6
 ],
 "fresh:packages/fresh/tests/fixture_head/islands/DynamicMetaIsland.tsx": [
-1,
 2
 ],
 "fresh:packages/fresh/tests/fixture_head/islands/LinkIsland.tsx": [
-1,
 2
 ],
 "fresh:packages/fresh/tests/fixture_head/islands/MetaIsland.tsx": [
-1,
 2
 ],
 "fresh:packages/fresh/tests/fixture_head/islands/MultiHeadA.tsx": [
-1,
 2
 ],
 "fresh:packages/fresh/tests/fixture_head/islands/MultiHeadB.tsx": [
-1,
 2
 ],
 "fresh:packages/fresh/tests/fixture_head/islands/StyleIdIsland.tsx": [
-1,
 2
 ],
 "fresh:packages/fresh/tests/fixture_head/islands/TemplateIsland.tsx": [
-1,
 2
 ],
 "fresh:packages/fresh/tests/fixture_head/islands/TitleIsland.tsx": [
-1,
 2
 ],
 "fresh:packages/fresh/tests/fixture_head/routes/_app.tsx": [
 1
 ],
-"fresh:packages/fresh/tests/fixture_island_groups/routes/both/(_islands)/Foo.tsx": [
-1,
-2
-],
-"fresh:packages/fresh/tests/fixture_island_groups/routes/foo/(_islands)/Foo.tsx": [
-1,
-2
-],
-"fresh:packages/fresh/tests/fixtures_islands/Computed.tsx": [
-1,
-2
-],
-"fresh:packages/fresh/tests/fixtures_islands/Counter.tsx": [
-1,
-2
-],
-"fresh:packages/fresh/tests/fixtures_islands/CounterWithSlots.tsx": [
-1,
-2,
-3
-],
-"fresh:packages/fresh/tests/fixtures_islands/EnvIsland.tsx": [
-2,
-3
-],
-"fresh:packages/fresh/tests/fixtures_islands/EscapeIsland.tsx": [
-1,
-2
-],
-"fresh:packages/fresh/tests/fixtures_islands/FnIsland.tsx": [
-1,
-4,
-5
-],
-"fresh:packages/fresh/tests/fixtures_islands/FreshAttrs.tsx": [
-1,
-2
-],
-"fresh:packages/fresh/tests/fixtures_islands/IslandInIsland.tsx": [
-1
-],
-"fresh:packages/fresh/tests/fixtures_islands/JsxChildrenIsland.tsx": [
-1,
-2,
-3
-],
-"fresh:packages/fresh/tests/fixtures_islands/JsxConditional.tsx": [
-1,
-2,
-3
-],
-"fresh:packages/fresh/tests/fixtures_islands/JsxIsland.tsx": [
-1,
-2,
-3
-],
-"fresh:packages/fresh/tests/fixtures_islands/Multiple.tsx": [
-1,
-3
-],
 "fresh:packages/fresh/tests/fixtures_islands/NodeProcess.tsx": [
-1,
-2,
 3
-],
-"fresh:packages/fresh/tests/fixtures_islands/NullIsland.tsx": [
-1
 ],
 "fresh:packages/fresh/tests/fixtures_islands/PartialInIsland.tsx": [
 1
-],
-"fresh:packages/fresh/tests/fixtures_islands/PassThrough.tsx": [
-1
-],
-"fresh:packages/fresh/tests/fixtures_islands/SelfCounter.tsx": [
-1,
-2
 ],
 "fresh:packages/fresh/tests/fresh_versions_test.ts": [
 1,
@@ -390,12 +247,10 @@
 ],
 "fresh:packages/fresh/tests/islands_test.tsx": [
 1,
-14,
 23
 ],
 "fresh:packages/fresh/tests/no_client_js_test.tsx": [
 8,
-9,
 11
 ],
 "fresh:packages/fresh/tests/partials_test.tsx": [
@@ -412,10 +267,8 @@
 "fresh:packages/fresh/tests/test_utils.tsx": [
 2,
 3,
-4,
 6,
 7,
-8,
 9,
 10
 ],
@@ -437,52 +290,19 @@
 ],
 "fresh:packages/plugin-tailwindcss-v3/src/mod.ts": [
 1,
-2,
-3,
-4,
-5,
 6
 ],
 "fresh:packages/plugin-tailwindcss/src/mod.ts": [
-1,
-2,
-3
+1
 ],
 "fresh:packages/plugin-tailwindcss/src/types.ts": [
 1
 ],
-"fresh:packages/plugin-vite/demo/islands/Bar.tsx": [
-1
-],
-"fresh:packages/plugin-vite/demo/islands/Foo.tsx": [
-1
-],
-"fresh:packages/plugin-vite/demo/islands/IslandNestedInner.tsx": [
-1
-],
-"fresh:packages/plugin-vite/demo/islands/IslandNestedOuter.tsx": [
-1
-],
-"fresh:packages/plugin-vite/demo/islands/tests/CounterHooks.tsx": [
-1
-],
-"fresh:packages/plugin-vite/demo/islands/tests/EnvIsland.tsx": [
-1
-],
 "fresh:packages/plugin-vite/demo/islands/tests/HeadCounter.tsx": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/demo/islands/tests/HeadMeta.tsx": [
-1,
 2
-],
-"fresh:packages/plugin-vite/demo/islands/tests/Mime.tsx": [
-1,
-2
-],
-"fresh:packages/plugin-vite/demo/islands/tests/Ready.tsx": [
-1
 ],
 "fresh:packages/plugin-vite/demo/main.ts": [
 1
@@ -494,12 +314,6 @@
 1
 ],
 "fresh:packages/plugin-vite/demo/routes/tests/dep_json.tsx": [
-1
-],
-"fresh:packages/plugin-vite/demo/routes/tests/feed.tsx": [
-1
-],
-"fresh:packages/plugin-vite/demo/routes/tests/ioredis.tsx": [
 1
 ],
 "fresh:packages/plugin-vite/demo/routes/tests/middlewares/_middleware.ts": [
@@ -514,134 +328,63 @@
 "fresh:packages/plugin-vite/demo/routes/tests/partial_insert.tsx": [
 1
 ],
-"fresh:packages/plugin-vite/demo/routes/tests/pg.tsx": [
-1
-],
-"fresh:packages/plugin-vite/demo/routes/tests/qs.tsx": [
-1
-],
-"fresh:packages/plugin-vite/demo/routes/tests/radix.tsx": [
-1,
-2
-],
-"fresh:packages/plugin-vite/demo/routes/tests/redis.tsx": [
-1
-],
 "fresh:packages/plugin-vite/demo/routes/tests/remote_island.tsx": [
-1
-],
-"fresh:packages/plugin-vite/demo/routes/tests/stripe.tsx": [
-1
-],
-"fresh:packages/plugin-vite/demo/routes/tests/supabase_pg.tsx": [
 1
 ],
 "fresh:packages/plugin-vite/demo/utils.ts": [
 1
 ],
 "fresh:packages/plugin-vite/demo/vite.config.ts": [
-1,
-2,
-3,
-4
-],
-"fresh:packages/plugin-vite/src/client.ts": [
-11
+2
 ],
 "fresh:packages/plugin-vite/src/mod.ts": [
-1,
-9,
 18,
 27
 ],
-"fresh:packages/plugin-vite/src/plugins/build_id.ts": [
-1
-],
-"fresh:packages/plugin-vite/src/plugins/client_entry.ts": [
-1
-],
 "fresh:packages/plugin-vite/src/plugins/client_snapshot.ts": [
-1,
 3,
 4
 ],
 "fresh:packages/plugin-vite/src/plugins/deno.ts": [
-1,
 2,
-9,
-10
+9
 ],
 "fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
-1,
 2,
 3,
-4,
-5
-],
-"fresh:packages/plugin-vite/src/plugins/patches.ts": [
-1,
-2
-],
-"fresh:packages/plugin-vite/src/plugins/patches/code_eval.ts": [
-1
+4
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/code_eval_test.ts": [
-1,
-2
-],
-"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
 1
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/commonjs_test.ts": [
-1,
-2
-],
-"fresh:packages/plugin-vite/src/plugins/patches/http_absolute.ts": [
 1
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/http_absolute_test.ts": [
-1,
-2
-],
-"fresh:packages/plugin-vite/src/plugins/patches/inline_env_vars.ts": [
 1
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/inline_env_vars_test.ts": [
-1,
-2
-],
-"fresh:packages/plugin-vite/src/plugins/patches/jsx_comment.ts": [
 1
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/jsx_comment_test.ts": [
-1,
-2
-],
-"fresh:packages/plugin-vite/src/plugins/patches/remove_polyfills.ts": [
 1
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/remove_polyfills_test.ts": [
-1,
-2
+1
 ],
 "fresh:packages/plugin-vite/src/plugins/server_entry.ts": [
-1,
 2,
 9
 ],
 "fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
-1,
 7,
 23
 ],
 "fresh:packages/plugin-vite/src/plugins/shims.ts": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/src/plugins/verify_imports.ts": [
-1,
-2,
-3
+2
 ],
 "fresh:packages/plugin-vite/src/utils.ts": [
 1,
@@ -652,8 +395,7 @@
 15
 ],
 "fresh:packages/plugin-vite/tests/config_test.ts": [
-1,
-3
+1
 ],
 "fresh:packages/plugin-vite/tests/dev_server_test.ts": [
 1,
@@ -663,60 +405,48 @@
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/basepath/vite.config.ts": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/deno_global_island/main.ts": [
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/deno_global_island/vite.config.ts": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/deno_global_ssr/main.ts": [
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/deno_global_ssr/vite.config.ts": [
-1,
-2
-],
-"fresh:packages/plugin-vite/tests/fixtures/island_global_name/islands/Map.tsx": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/island_global_name/main.ts": [
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/island_global_name/vite.config.ts": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/no_islands/main.ts": [
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/no_islands/vite.config.ts": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/no_routes/main.ts": [
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/no_routes/vite.config.ts": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/no_static/main.ts": [
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/no_static/vite.config.ts": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/node_builtin/main.ts": [
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/node_builtin/vite.config.ts": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/remote_island/main.ts": [
@@ -726,7 +456,6 @@
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/remote_island/vite.config.ts": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/tailwind_app/main.ts": [
@@ -736,35 +465,27 @@
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/tailwind_app/vite.config.ts": [
-1,
-2,
-3
+2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/tailwind_no_app/main.ts": [
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/tailwind_no_app/vite.config.ts": [
-1,
-2,
-3
+2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/test_files_exclusion/main.ts": [
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/test_files_exclusion/vite.config.ts": [
-1,
 2
 ],
 "fresh:packages/plugin-vite/tests/fixtures/vite_plugin_pwa/main.ts": [
 1
 ],
 "fresh:packages/plugin-vite/tests/fixtures/vite_plugin_pwa/vite.config.ts": [
-1,
-2,
-3
+2
 ],
 "fresh:packages/plugin-vite/tests/test_utils.ts": [
-1,
 2,
 3
 ],
@@ -776,7 +497,6 @@
 "fresh:packages/update/src/update.ts": [
 1,
 2,
-3,
 4,
 5,
 6
@@ -795,76 +515,25 @@
 20
 ],
 "fresh:tools/check_links.ts": [
-1,
 2,
 3,
 4,
-5,
-6
+5
 ],
 "fresh:tools/release.ts": [
 1,
 2,
 4
 ],
-"fresh:www/components/CodeWindow.tsx": [
-1
-],
-"fresh:www/components/FancyLink.tsx": [
-1
-],
-"fresh:www/components/Footer.tsx": [
-1
-],
-"fresh:www/components/PageSection.tsx": [
-1
-],
-"fresh:www/components/SideBySide.tsx": [
-1
-],
-"fresh:www/components/homepage/DemoBox.tsx": [
-1
-],
-"fresh:www/components/homepage/ExampleArrow.tsx": [
-1
-],
 "fresh:www/components/homepage/RecipeDemo.tsx": [
-1
-],
-"fresh:www/components/homepage/SectionHeading.tsx": [
 1
 ],
 "fresh:www/dev.ts": [
 3,
 4
 ],
-"fresh:www/islands/Counter.tsx": [
-1,
-3
-],
-"fresh:www/islands/LemonBottom.tsx": [
-1,
-2
-],
-"fresh:www/islands/LemonDrop.tsx": [
-1,
-2
-],
-"fresh:www/islands/LemonTop.tsx": [
-1,
-2
-],
-"fresh:www/islands/SearchButton.tsx": [
-1,
-2
-],
-"fresh:www/islands/TableOfContents.tsx": [
-1,
-3
-],
 "fresh:www/islands/ThemeToggle.tsx": [
-1,
-2
+1
 ],
 "fresh:www/islands/VersionSelect.tsx": [
 3
@@ -927,23 +596,9 @@
 5
 ],
 "fresh:www/utils/markdown.ts": [
-3,
 4,
 5,
-6,
-7,
-8
-],
-"fresh:www/utils/prism.ts": [
-1,
-2,
-3,
-4,
-5,
-6,
-7,
-8,
-9
+6
 ],
 "fresh:www/utils/screenshot.ts": [
 1,
@@ -956,10 +611,7 @@
 1
 ],
 "fresh:www/vite.config.ts": [
-1,
 2,
-3,
-4,
 5,
 6
 ]
