@@ -110,7 +110,7 @@ describe('files', () => {
     expect(dependenciesCache.has(baseDir)).toEqual(true);
   });
 
-  it('should resolve pnpm catalog references from pnpm-workspace.yaml', async () => {
+  it('should resolve pnpm catalog references from pnpm-workspace.yaml for same-level-directory package.json', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-catalog'));
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
@@ -121,6 +121,58 @@ describe('files', () => {
       dependencies: {
         react: '^19.1.1',
         'react-dom': '^19.1.1',
+        vue: '^3.5.0',
+      },
+      peerDependencies: {
+        typescript: '^5.8.0',
+      },
+      optionalDependencies: {
+        rollup: '^4.40.0',
+      },
+    });
+  });
+
+  it('should resolve pnpm catalog references from pnpm-workspace.yaml for lower-level-directory package.json', async () => {
+    const topDirectory = normalizeToAbsolutePath(
+      join(fixtures, 'pnpm-workspace-catalog-different-level'),
+    );
+    const currentDirectory = normalizeToAbsolutePath(
+      join(fixtures, 'pnpm-workspace-catalog-different-level/packages/app/'),
+    );
+    const configuration = createConfiguration({ baseDir: topDirectory });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(currentDirectory, topDirectory);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm', 'npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      dependencies: {
+        react: '^19.1.1',
+        'react-dom': '^19.1.1',
+      },
+      devDependencies: {
+        vue: '^3.5.0',
+      },
+    });
+  });
+
+  it('should resolve pnpm catalog references from pnpm-workspace.yaml for lower-level-directory package.json', async () => {
+    const topDirectory = normalizeToAbsolutePath(
+      join(fixtures, 'pnpm-workspace-catalog-different-level'),
+    );
+    const currentDirectory = normalizeToAbsolutePath(
+      join(fixtures, 'pnpm-workspace-catalog-different-level/packages/app/'),
+    );
+    const configuration = createConfiguration({ baseDir: topDirectory });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(currentDirectory, topDirectory);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm', 'npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      dependencies: {
+        react: '^19.1.1',
+        'react-dom': '^19.1.1',
+      },
+      devDependencies: {
         vue: '^3.5.0',
       },
     });
