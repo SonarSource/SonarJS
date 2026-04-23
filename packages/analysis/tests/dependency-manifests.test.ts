@@ -178,6 +178,28 @@ describe('files', () => {
     });
   });
 
+  it('should not resolve the dependency when pnpm catalog references are not found', async ({
+    mock,
+  }) => {
+    mock.method(console, 'debug');
+    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-catalog-unresolved'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      dependencies: {
+        react: 'catalog:',
+      },
+    });
+    console.log(consoleLogMock.calls);
+    expect(consoleLogMock.calls[0].arguments[0]).toEqual(
+      'Dependency "react" could not be resolved for catalog "default"',
+    );
+  });
+
   it('should fill deno manifest caches used for dependency lookup', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-dependencies'));
     const configuration = createConfiguration({ baseDir });

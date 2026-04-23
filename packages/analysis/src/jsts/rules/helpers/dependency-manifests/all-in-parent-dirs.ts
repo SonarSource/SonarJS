@@ -171,7 +171,10 @@ function resolveCatalogReferences(
     for (const [name, version] of Object.entries(deps)) {
       if (typeof version === 'string' && version.startsWith('catalog:')) {
         const catalogName = version.slice('catalog:'.length).trim() || 'default';
-        resolvedDeps[name] = lookupCatalog(catalogName, name, pnpmWorkspace) ?? version;
+        const resolvedDependency = lookupCatalog(catalogName, name, pnpmWorkspace);
+        resolvedDeps[name] = resolvedDependency ?? version;
+        !resolvedDependency &&
+          console.debug(`Dependency "${name}" could not be resolved for catalog "${catalogName}"`);
       } else {
         resolvedDeps[name] = version as string;
       }
