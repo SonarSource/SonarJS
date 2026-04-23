@@ -115,7 +115,7 @@ function isWholePropsSuperCallStatement(statement: estree.Statement): boolean {
   // consumption is intentionally out of scope for this decorator-based design, even
   // though that accepts a small false-negative risk when forwarded props are not read.
   return statement.expression.arguments.some(argument =>
-    propsArgPatterns.some(pattern => pattern(argument as estree.Node)),
+    isIdentifier(argument as estree.Node, 'props'),
   );
 }
 
