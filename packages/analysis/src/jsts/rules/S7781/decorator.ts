@@ -81,6 +81,14 @@ function shouldKeepReport(node: TSESTree.Identifier, context: Rule.RuleContext) 
   return literal !== null && literal.length > 0;
 }
 
+/**
+ * Finds the surrounding call for:
+ *
+ *   callExpression := memberExpression "(" ... ")"
+ *   memberExpression := receiver "." replace
+ *
+ * This matches `input.replace(...)` and rejects computed access or non-invoked members.
+ */
 function getEnclosingReplaceCall(node: TSESTree.Identifier): TSESTree.CallExpression | undefined {
   if (node.name !== 'replace') {
     return undefined;
@@ -102,6 +110,15 @@ function getEnclosingReplaceCall(node: TSESTree.Identifier): TSESTree.CallExpres
   return callExpression;
 }
 
+/**
+ * Keeps only flags that preserve plain literal matching when rewriting:
+ *
+ *   allowedFlags := "g"
+ *
+ * `replaceAll("literal", replacement)` can only replace the same text as the regex when the
+ * pattern is global and no other flag changes how characters are matched. Flags like `i`, `m`,
+ * `s`, or `y` can make the regex match a different set of substrings than the literal string.
+ */
 function hasReducibleFlags(flags: AST.Flags) {
   return (
     flags.global &&
@@ -113,6 +130,23 @@ function hasReducibleFlags(flags: AST.Flags) {
   );
 }
 
+/**
+ * Returns the plain string matched by the regex when every step is a fixed character:
+ *
+ *   pattern     := alternative
+ *   alternative := element+
+ *   element     := character
+ *                | singleCharacterClass
+ *                | nonCapturingGroup
+ *                | exactlyOnceQuantifier
+ *   singleCharacterClass := "[" character "]"
+ *   nonCapturingGroup    := "(?:" alternative ")"
+ *   exactlyOnceQuantifier:= element "{1}" | element with min = max = 1
+ *
+ * Example: `/(?:f)[o]{1}[o]/` -> `"foo"`
+ *
+ * Otherwise it returns null.
+ */
 function getEquivalentLiteral(pattern: AST.Pattern): string | null {
   if (pattern.alternatives.length !== 1) {
     return null;
