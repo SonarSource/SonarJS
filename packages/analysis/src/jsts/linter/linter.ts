@@ -38,7 +38,10 @@ import { extname } from 'node:path/posix';
 import { defaultOptions, applyTransformations } from '../rules/helpers/configs.js';
 import merge from 'lodash.merge';
 import { getClosestDependencyManifestDir } from '../rules/helpers/dependency-manifests/closest.js';
-import { getDependencies, getModuleType } from '../rules/helpers/package-jsons/dependencies.js';
+import {
+  getDependencies,
+  getModuleType,
+} from '../rules/helpers/dependency-manifests/dependencies.js';
 import { RULE_FILTERS, type RuleFilterContext } from './filters/index.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
 import type { FileType } from '../../contracts/file.js';

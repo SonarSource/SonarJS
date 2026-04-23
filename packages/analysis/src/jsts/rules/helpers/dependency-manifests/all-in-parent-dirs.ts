@@ -30,6 +30,7 @@ import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import type { Rule } from 'eslint';
 import { closestPatternCache } from '../find-up/closest.js';
 import {
+  type PnpmWorkspace,
   DenoManifest,
   getDependenciesFromManifest,
   parsePackageJson,
@@ -121,8 +122,6 @@ function getDependencyManifestsInDir(
   const packageJson = getManifestFileInDir(PACKAGE_JSON, dir, topDir, fileSystem);
   const denoJson = getManifestFileInDir(DENO_JSON, dir, topDir, fileSystem);
   const denoJsonc = getManifestFileInDir(DENO_JSONC, dir, topDir, fileSystem);
-  const pnpmWorkspaceYaml = getManifestFileInDir(PNPM_WORKSPACE_YAML, dir, topDir, fileSystem);
-
   // if both `deno.json` and `deno.jsonc` are present, prefer `deno.json` and ignore `deno.jsonc`
   if (denoJsonc && denoJson === undefined) {
     manifests.push({ type: 'deno', manifest: parseDenoManifest(denoJsonc) ?? {} });
@@ -130,40 +129,67 @@ function getDependencyManifestsInDir(
     manifests.push({ type: 'deno', manifest: parseDenoManifest(denoJson) ?? {} });
   }
 
-  if (!packageJson) {
-    return manifests;
+  // always include package.json if present, resolving any pnpm catalog references
+  if (packageJson) {
+    const parsedPackageJson = parsePackageJson(packageJson) ?? {};
+    const pnpmWorkspaceFile = closestPatternCache
+      .get(PNPM_WORKSPACE_YAML, fileSystem)
+      .get(topDir)
+      .get(dir);
+    const parsedPnpmWorkspace = pnpmWorkspaceFile
+      ? parsePnpmWorkspace(pnpmWorkspaceFile)
+      : undefined;
+    manifests.push({
+      type: 'npm',
+      manifest: parsedPnpmWorkspace
+        ? resolveCatalogReferences(parsedPackageJson, parsedPnpmWorkspace)
+        : parsedPackageJson,
+    });
   }
-
-  const parsedPackageJson = parsePackageJson(packageJson);
-  if (pnpmWorkspaceYaml) {
-    const parsedWorkspace = parsePnpmWorkspace(pnpmWorkspaceYaml);
-    // TODO: PARSE PACKAGE JSON AND ITERATE OVER TO FIND REFERENCES TO CATALOGS
-    const resolveDependency = ([dependencyName, version]: [string, string | undefined]) => {
-      if (!version?.includes('catalog:') || !parsedPackageJson?.dependencies) {
-        return;
-      }
-      const isDefault = version === 'catalog:' || version === 'catalog:default';
-
-      if (isDefault) {
-        parsedPackageJson.dependencies[dependencyName] = parsedWorkspace?.catalog
-          ? parsedWorkspace.catalog[dependencyName]
-          : // TODO: DISCUSS EDGE CASE
-            version;
-      } else {
-        const catalogName = version.replace('catalog:', '');
-        parsedPackageJson.dependencies[dependencyName] = parsedWorkspace?.catalogs
-          ? parsedWorkspace.catalogs[catalogName][dependencyName]
-          : // TODO: DISCUSS EDGE CASE
-            version;
-      }
-    };
-    Object.entries(parsedPackageJson?.dependencies ?? {}).forEach(resolveDependency);
-    Object.entries(parsedPackageJson?.devDependencies ?? {}).forEach(resolveDependency);
-  }
-  // always include package.json if present
-  manifests.push({ type: 'npm', manifest: parsedPackageJson ?? {} });
 
   return manifests;
+}
+
+function resolveCatalogReferences(
+  packageJson: PackageJson,
+  pnpmWorkspace: PnpmWorkspace,
+): PackageJson {
+  const depFields = [
+    'dependencies',
+    'devDependencies',
+    'peerDependencies',
+    'optionalDependencies',
+  ] as const;
+
+  const result = { ...packageJson };
+  for (const field of depFields) {
+    const deps = packageJson[field];
+    if (!deps) {
+      continue;
+    }
+    const resolvedDeps: Record<string, string> = {};
+    for (const [name, version] of Object.entries(deps)) {
+      if (typeof version === 'string' && version.startsWith('catalog:')) {
+        const catalogName = version.slice('catalog:'.length).trim() || 'default';
+        resolvedDeps[name] = lookupCatalog(catalogName, name, pnpmWorkspace) ?? version;
+      } else {
+        resolvedDeps[name] = version as string;
+      }
+    }
+    result[field] = resolvedDeps;
+  }
+  return result;
+}
+
+function lookupCatalog(
+  catalogName: string,
+  packageName: string,
+  workspace: PnpmWorkspace,
+): string | undefined {
+  if (catalogName === 'default') {
+    return workspace.catalog?.[packageName];
+  }
+  return workspace.catalogs?.[catalogName]?.[packageName];
 }
 
 /**
