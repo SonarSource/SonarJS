@@ -86,6 +86,10 @@ hookLog.push({ primitive: hookName, stack: stackError.stack, value: value });
           errors: 1,
         },
         {
+          code: `const err = new Error(); someFunc(err);`, // variable passed as argument — not provably stack-only
+          errors: 1,
+        },
+        {
           code: `const err = new Error(); err.stack++;`, // update on variable — not a read
           errors: 1,
         },
