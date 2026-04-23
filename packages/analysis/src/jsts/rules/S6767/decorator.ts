@@ -86,8 +86,7 @@ function hasOwnCustomSuperclassPropsForwarding(componentNode: estree.Node): bool
     member =>
       member.type === 'MethodDefinition' &&
       member.kind === 'constructor' &&
-      member.value.body != null &&
-      member.value.body.body.some(isWholePropsSuperCallStatement),
+      member.value.body?.body.some(isWholePropsSuperCallStatement) === true,
   );
 }
 
