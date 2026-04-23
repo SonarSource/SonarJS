@@ -130,14 +130,38 @@ function getDependencyManifestsInDir(
     manifests.push({ type: 'deno', manifest: parseDenoManifest(denoJson) ?? {} });
   }
 
+  if (!packageJson) {
+    return manifests;
+  }
+
+  const parsedPackageJson = parsePackageJson(packageJson);
   if (pnpmWorkspaceYaml) {
     const parsedWorkspace = parsePnpmWorkspace(pnpmWorkspaceYaml);
     // TODO: PARSE PACKAGE JSON AND ITERATE OVER TO FIND REFERENCES TO CATALOGS
+    const resolveDependency = ([dependencyName, version]: [string, string | undefined]) => {
+      if (!version?.includes('catalog:') || !parsedPackageJson?.dependencies) {
+        return;
+      }
+      const isDefault = version === 'catalog:' || version === 'catalog:default';
+
+      if (isDefault) {
+        parsedPackageJson.dependencies[dependencyName] = parsedWorkspace?.catalog
+          ? parsedWorkspace.catalog[dependencyName]
+          : // TODO: DISCUSS EDGE CASE
+            version;
+      } else {
+        const catalogName = version.replace('catalog:', '');
+        parsedPackageJson.dependencies[dependencyName] = parsedWorkspace?.catalogs
+          ? parsedWorkspace.catalogs[catalogName][dependencyName]
+          : // TODO: DISCUSS EDGE CASE
+            version;
+      }
+    };
+    Object.entries(parsedPackageJson?.dependencies ?? {}).forEach(resolveDependency);
+    Object.entries(parsedPackageJson?.devDependencies ?? {}).forEach(resolveDependency);
   }
   // always include package.json if present
-  if (packageJson) {
-    manifests.push({ type: 'npm', manifest: parsePackageJson(packageJson) ?? {} });
-  }
+  manifests.push({ type: 'npm', manifest: parsedPackageJson ?? {} });
 
   return manifests;
 }
