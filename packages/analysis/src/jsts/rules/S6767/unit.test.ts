@@ -23,6 +23,55 @@ import {
 import { describe, it } from 'node:test';
 import path from 'node:path';
 
+// Sentinel: verify that the upstream ESLint rule still raises on the custom-superclass
+// whole-props forwarding pattern that the decorator suppresses.
+// If this test starts failing, the upstream rule has been fixed and this decorator path
+// can be removed.
+describe('S6767 upstream sentinel', () => {
+  it('upstream no-unused-prop-types raises when a class forwards props to its own custom superclass', () => {
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run(
+      'no-unused-prop-types (upstream, custom superclass super(props))',
+      upstreamRule,
+      {
+        valid: [],
+        invalid: [
+          {
+            // upstream does not treat direct custom-superclass whole-props forwarding as usage
+            code: `
+declare const React: any;
+interface ForwardedCounterProps {
+  initialCount: number;
+  label: string;
+}
+class CounterPanelBase extends React.Component<ForwardedCounterProps> {}
+class ForwardedCounterPanel extends CounterPanelBase {
+  props: ForwardedCounterProps;
+  constructor(props: ForwardedCounterProps) {
+    super(props);
+  }
+  render() {
+    return <span>{this.props.label}</span>;
+  }
+}
+`,
+            filename: fixtureFile,
+            errors: 1,
+          },
+        ],
+      },
+    );
+  });
+});
+
 describe('S6767', () => {
   it('should not report props passed wholesale to a helper function', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
@@ -97,7 +146,7 @@ Button.propTypes = {
           errors: 1,
         },
         {
-          // TP: super(props) excluded — unused prop still reported
+          // TP: builtin React superclass constructor forwarding is not a suppression case
           code: `
 class Button extends React.Component {
   constructor(props) {
@@ -414,6 +463,32 @@ function InputWrapper(ownProps: InputProps) {
 `,
           filename: fixtureFile,
         },
+        {
+          // FP: the reported class itself forwards whole props to its own custom superclass.
+          // The decorator intentionally treats this narrow handoff as sufficient usage.
+          code: `
+declare const React: any;
+interface ForwardedCounterProps {
+  initialCount: number;
+  label: string;
+}
+class CounterPanelBase extends React.Component<ForwardedCounterProps> {}
+class ForwardedCounterPanel extends CounterPanelBase {
+  props: ForwardedCounterProps;
+  constructor(props: ForwardedCounterProps) {
+    super(props);
+    this.renderLabel = this.renderLabel.bind(this);
+  }
+  renderLabel() {
+    return <span>{this.props.label}</span>;
+  }
+  render() {
+    return this.renderLabel();
+  }
+}
+`,
+          filename: fixtureFile,
+        },
       ],
       invalid: [
         {
@@ -480,6 +555,35 @@ interface FooProps {
 class FooComp extends React.Component<FooProps> {
   render() {
     return <div />;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: suppression is owner-local. The base component still reports even if
+          // a subclass elsewhere forwards whole props to its own custom superclass.
+          code: `
+declare const React: any;
+interface SharedProps {
+  forwarded: string;
+  used: string;
+}
+class UnusedBase extends React.Component<SharedProps> {
+  props: SharedProps;
+  render() {
+    return <div>{this.props.used}</div>;
+  }
+}
+class CustomIntermediateBase extends React.Component<SharedProps> {}
+class DerivedForwarder extends CustomIntermediateBase {
+  props: SharedProps;
+  constructor(props: SharedProps) {
+    super(props);
+  }
+  render() {
+    return <div>{this.props.used}</div>;
   }
 }
 `,
