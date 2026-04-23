@@ -32,6 +32,7 @@ import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisConfiguration;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.AnalyzeProjectMessages;
+import org.sonar.plugins.javascript.bridge.AstProtoUtils;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
@@ -190,8 +191,10 @@ public class StandaloneParser implements AutoCloseable {
     return response == null ? ProjectAnalysisFileResult.getDefaultInstance() : response;
   }
 
-  private static Node responseAst(ProjectAnalysisFileResult response) {
-    return response.hasAst() ? response.getAst() : null;
+  private static Node responseAst(ProjectAnalysisFileResult response) throws IOException {
+    return response.getAst().isEmpty()
+      ? null
+      : AstProtoUtils.readProtobufFromBytes(response.getAst().toByteArray());
   }
 
   @Override

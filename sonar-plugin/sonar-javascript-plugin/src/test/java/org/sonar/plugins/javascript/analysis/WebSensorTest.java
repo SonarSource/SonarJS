@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -1576,7 +1577,7 @@ class WebSensorTest {
   private ProjectAnalysisOutput createProjectResponseWithAst(InputFile inputFile, Node node) {
     var analysisResponse = ProjectAnalysisFileResult.newBuilder()
       .setMetrics(Metrics.getDefaultInstance())
-      .setAst(node)
+      .setAst(ByteString.copyFrom(node.toByteArray()))
       .build();
 
     var files = new HashMap<String, ProjectAnalysisFileResult>() {

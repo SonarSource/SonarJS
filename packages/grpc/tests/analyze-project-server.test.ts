@@ -348,7 +348,7 @@ function createPathKeyVariant(filePath: string) {
 
 function createProjectAnalysisOutput(
   filePath = basicFixtureFile,
-  ast?: { type: number; program: { sourceType: string; body: unknown[] } },
+  ast?: string,
 ): ProjectAnalysisOutput {
   return {
     files: {
@@ -730,13 +730,7 @@ describe('analyze-project gRPC server', () => {
         return;
       }
       if (message.type === 'analyze-unary') {
-        const ast = {
-          type: 0,
-          program: {
-            sourceType: 'script',
-            body: [],
-          },
-        };
+        const ast = Buffer.from('typed-ast').toString('base64');
         worker.emitMessage({
           requestId: message.requestId,
           result: {
@@ -762,7 +756,7 @@ describe('analyze-project gRPC server', () => {
       const unaryResponse = await client.analyzeProjectUnary(createAnalyzeProjectRequest());
       const fileResult = unaryResponse.files?.[basicFixtureFile];
       expect(fileResult?.issues).toEqual([]);
-      expect(fileResult?.ast?.program?.sourceType).toBe('script');
+      expect(Buffer.from(fileResult?.ast ?? []).toString()).toBe('typed-ast');
     });
   });
 

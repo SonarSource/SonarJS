@@ -23,7 +23,6 @@ const PROTO_PATH = path.resolve(
   'proto',
   'analyze-project.proto',
 );
-const PACKAGES_ROOT = path.resolve(__dirname, '..', '..', '..', '..', '..', '..', 'packages');
 
 let cachedTypes;
 
@@ -33,13 +32,6 @@ function loadTypes() {
   }
 
   const root = new protobuf.Root();
-  const resolvePath = root.resolvePath;
-  root.resolvePath = (origin, target) => {
-    if (target.startsWith('analysis/')) {
-      return path.resolve(PACKAGES_ROOT, ...target.split('/'));
-    }
-    return resolvePath.call(root, origin, target);
-  };
   root.loadSync(PROTO_PATH);
   const ns = 'sonarjs.analyzeproject.v1';
   cachedTypes = {
@@ -50,13 +42,8 @@ function loadTypes() {
     CancelAnalysisResponse: root.lookupType(`${ns}.CancelAnalysisResponse`),
     LeaseRequest: root.lookupType(`${ns}.LeaseRequest`),
     LeaseResponse: root.lookupType(`${ns}.LeaseResponse`),
-    AstNode: root.lookupType('estree.Node'),
   };
   return cachedTypes;
-}
-
-function deserializeAst(buffer) {
-  return loadTypes().AstNode.decode(buffer);
 }
 
 function serializer(typeName) {
@@ -159,6 +146,5 @@ function startAnalyzeProjectGrpcServer(port, host, handlers = {}) {
 }
 
 module.exports = {
-  deserializeAst,
   startAnalyzeProjectGrpcServer,
 };

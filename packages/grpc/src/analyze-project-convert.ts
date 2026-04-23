@@ -126,7 +126,7 @@ function toProjectAnalysisFileResult(
       ) ?? [],
     metrics: result.metrics ? toMetrics(result.metrics) : undefined,
     cpdTokens: ('cpdTokens' in result ? result.cpdTokens : undefined)?.map(toCpdToken) ?? [],
-    ast: 'ast' in result ? (result.ast ?? undefined) : undefined,
+    ast: 'ast' in result && result.ast != null ? Buffer.from(result.ast, 'base64') : undefined,
   };
 }
 

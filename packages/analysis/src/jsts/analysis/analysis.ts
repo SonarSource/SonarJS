@@ -22,7 +22,6 @@ import type { CpdToken, Metrics, SymbolHighlight, SyntaxHighlight } from './file
 import type { JsTsIssue } from '../linter/issues/issue.js';
 import type { CssIssue } from '../../css/linter/issues/issue.js';
 import type { Program } from 'typescript';
-import type { estree } from '../parsers/estree.js';
 
 /**
  * A sanitized JavaScript / TypeScript analysis input with all required fields populated.
@@ -100,5 +99,5 @@ export interface JsTsAnalysisOutput extends AnalysisOutput<JsTsIssue | CssIssue>
   highlightedSymbols?: SymbolHighlight[];
   metrics?: Metrics;
   cpdTokens?: CpdToken[];
-  ast?: estree.INode;
+  ast?: string;
 }

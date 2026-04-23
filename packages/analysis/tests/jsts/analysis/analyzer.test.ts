@@ -28,6 +28,7 @@ import type { JsTsIssue } from '../../../src/jsts/linter/issues/issue.js';
 import { APIError } from '../../../src/contracts/error.js';
 import type { RuleConfig } from '../../../src/jsts/linter/config/rule-config.js';
 import { Linter } from '../../../src/jsts/linter/linter.js';
+import { deserializeProtobuf } from '../../../src/jsts/parsers/ast.js';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 import assert from 'node:assert';
@@ -1003,11 +1004,18 @@ describe('await analyzeJSTS', () => {
 
     const analysisResult = await analyzeJSTS(await jsTsInput({ filePath }));
     if (analysisResult.ast) {
-      expect(analysisResult.ast.program).toBeDefined();
-      expect(analysisResult.ast.program?.body).toHaveLength(1);
-      expect(
-        analysisResult.ast.program?.body?.[0].functionDeclaration?.id?.identifier?.name,
-      ).toEqual('f');
+      const protoMessage = deserializeProtobuf(analysisResult.ast);
+      expect(protoMessage.program).toBeDefined();
+      const program = protoMessage.program;
+      assert(program);
+      const body = program.body;
+      assert(body);
+      expect(body).toHaveLength(1);
+      const functionDeclaration = body[0]?.functionDeclaration;
+      assert(functionDeclaration);
+      const identifier = functionDeclaration.id?.identifier;
+      assert(identifier);
+      expect(identifier.name).toEqual('f');
     }
   });
 
