@@ -174,6 +174,30 @@ EXECUTION FAILURE
 ##[error]Process completed with exit code 3.
 ```
 
+**Example log excerpt (protobuf recursion limit exceeded — 2026-04-23, affected 53 projects):**
+```
+Sensor JavaScript/TypeScript/CSS analysis [javascript]
+ERROR Failed to get response from analysis
+java.lang.IllegalStateException: The bridge server is unresponsive...
+  at org.sonar.plugins.javascript.bridge.BridgeServerImpl.unresponsiveServerException(BridgeServerImpl.java:430)
+  at org.sonar.plugins.javascript.bridge.BridgeServerImpl.analyzeProject(BridgeServerImpl.java:395)
+  at org.sonar.plugins.javascript.analysis.WebSensor.execute(WebSensor.java:155)
+Caused by: io.grpc.StatusRuntimeException: INTERNAL: Invalid protobuf byte sequence
+Caused by: com.google.protobuf.InvalidProtocolBufferException:
+  Protocol message had too many levels of nesting. May be malicious.
+  Use setRecursionLimit() to increase the recursion depth limit.
+EXECUTION FAILURE
+##[error]Process completed with exit code 3.
+```
+
+This pattern occurs when a source file contains a deeply nested AST (e.g. deeply nested arrow
+functions or call expressions) that exceeds the default protobuf recursion limit when the Java
+side deserializes the gRPC response from the Node.js bridge. The fix is to call
+`setRecursionLimit()` with a higher value on the `CodedInputStream` used in
+`BridgeServerImpl.analyzeProject`. It may precede an `Artifact has expired (HTTP 410)` line
+(exit code 1) — that is pre-scan noise the scanner recovers from; the protobuf crash is the
+real terminal failure.
+
 **Action:** File a bug or investigate the SonarJS analyzer code. Do not release until resolved.
 
 ---
