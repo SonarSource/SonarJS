@@ -16,7 +16,6 @@
  */
 package org.sonar.plugins.javascript.bridge;
 
-import static org.sonar.plugins.javascript.bridge.NetUtils.findOpenPort;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
@@ -44,7 +43,9 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,10 @@ public class BridgeServerImpl implements BridgeServer {
   public static final String NODE_TIMEOUT_PROPERTY = "sonar.javascript.node.timeout";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
+  private static final Pattern STARTUP_PORT_LOG_PATTERN = Pattern.compile(
+    ".*gRPC analyze-project server listening on .*:(\\d+).*"
+  );
+  private static final int STARTUP_PORT_WAIT_POLL_INTERVAL_MS = 100;
   private static final String ANALYSIS_CANCELLED_MESSAGE =
     "Analysis interrupted because the SensorContext is in cancelled state";
   private static final String BRIDGE_DEPLOY_LOCATION = "bridge-bundle";
@@ -197,7 +202,8 @@ public class BridgeServerImpl implements BridgeServer {
   void startServer(BridgeServerConfig serverConfig) throws IOException {
     LOG.debug("Starting server");
     long start = System.currentTimeMillis();
-    port = findOpenPort();
+    long deadlineNanos = System.nanoTime() + TimeUnit.SECONDS.toNanos(timeoutSeconds);
+    port = 0;
 
     File scriptFile = new File(bundle.startServerScript());
     if (!scriptFile.exists()) {
@@ -206,13 +212,24 @@ public class BridgeServerImpl implements BridgeServer {
       );
     }
 
+    var startupPort = new AtomicInteger();
+    var startupPortReady = new CountDownLatch(1);
     LOG.debug("Creating Node.js process to start the bridge server on port {} ", port);
-    nodeCommand = initNodeCommand(serverConfig, scriptFile);
+    nodeCommand = initNodeCommand(
+      serverConfig,
+      scriptFile,
+      new StartupLogOutputConsumer(new LogOutputConsumer(), startupPort, startupPortReady)
+    );
     nodeCommand.start();
     ownsNodeProcess = true;
     try {
+      if (!waitForBoundPort(startupPort, startupPortReady, remainingTimeoutMs(deadlineNanos))) {
+        throw new NodeCommandException(
+          "Failed to start the bridge server (" + timeoutSeconds + "s timeout)"
+        );
+      }
       openChannel();
-      if (!waitServerToStart(timeoutSeconds * 1000)) {
+      if (!waitServerToStart(remainingTimeoutMs(deadlineNanos))) {
         throw new NodeCommandException(
           "Failed to start the bridge server (" + timeoutSeconds + "s timeout)"
         );
@@ -233,6 +250,10 @@ public class BridgeServerImpl implements BridgeServer {
       return false;
     }
     if (ownsNodeProcess) {
+      if (nodeCommand != null && !nodeCommand.isAlive()) {
+        LOG.debug("The Node.js process exited before the analyze-project lease was acquired.");
+        return false;
+      }
       startLease();
       return !leaseTerminated;
     }
@@ -275,6 +296,14 @@ public class BridgeServerImpl implements BridgeServer {
 
   private NodeCommand initNodeCommand(BridgeServerConfig serverConfig, File scriptFile)
     throws IOException {
+    return initNodeCommand(serverConfig, scriptFile, new LogOutputConsumer());
+  }
+
+  private NodeCommand initNodeCommand(
+    BridgeServerConfig serverConfig,
+    File scriptFile,
+    Consumer<String> outputConsumer
+  ) throws IOException {
     var config = serverConfig.config();
     if (serverConfig.product() == SonarProduct.SONARLINT) {
       LOG.info("Running in SonarLint context, metrics will not be computed.");
@@ -283,7 +312,7 @@ public class BridgeServerImpl implements BridgeServer {
     var nodeTimeout = config.getInt(NODE_TIMEOUT_PROPERTY).orElse(DEFAULT_NODE_SHUTDOWN_TIMEOUT_MS);
 
     nodeCommandBuilder
-      .outputConsumer(new LogOutputConsumer())
+      .outputConsumer(outputConsumer)
       .errorConsumer(LOG::error)
       .embeddedNode(embeddedNode)
       .pathResolver(bundle)
@@ -314,6 +343,44 @@ public class BridgeServerImpl implements BridgeServer {
     // see https://github.com/SonarSource/SonarJS/issues/2803
     env.put("BROWSERSLIST_IGNORE_OLD_DATA", "true");
     return env;
+  }
+
+  private boolean waitForBoundPort(
+    AtomicInteger startupPort,
+    CountDownLatch startupPortReady,
+    int timeoutMs
+  ) {
+    long deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMs);
+    try {
+      while (startupPort.get() == 0) {
+        if (nodeCommand != null && !nodeCommand.isAlive()) {
+          return false;
+        }
+        long remainingNanos = deadlineNanos - System.nanoTime();
+        if (remainingNanos <= 0) {
+          return false;
+        }
+        boolean bound = startupPortReady.await(
+          Math.min(
+            TimeUnit.NANOSECONDS.toMillis(remainingNanos),
+            STARTUP_PORT_WAIT_POLL_INTERVAL_MS
+          ),
+          TimeUnit.MILLISECONDS
+        );
+        if (!bound && (nodeCommand == null || nodeCommand.isAlive())) {
+          continue;
+        }
+      }
+      port = startupPort.get();
+      return true;
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      return false;
+    }
+  }
+
+  private static int remainingTimeoutMs(long deadlineNanos) {
+    return (int) Math.max(0, TimeUnit.NANOSECONDS.toMillis(deadlineNanos - System.nanoTime()));
   }
 
   @Override
@@ -731,6 +798,33 @@ public class BridgeServerImpl implements BridgeServer {
         }
       } else {
         LOG.info(message);
+      }
+    }
+  }
+
+  private static class StartupLogOutputConsumer implements Consumer<String> {
+
+    private final Consumer<String> delegate;
+    private final AtomicInteger startupPort;
+    private final CountDownLatch startupPortReady;
+
+    private StartupLogOutputConsumer(
+      Consumer<String> delegate,
+      AtomicInteger startupPort,
+      CountDownLatch startupPortReady
+    ) {
+      this.delegate = delegate;
+      this.startupPort = startupPort;
+      this.startupPortReady = startupPortReady;
+    }
+
+    @Override
+    public void accept(String message) {
+      delegate.accept(message);
+      var matcher = STARTUP_PORT_LOG_PATTERN.matcher(message);
+      if (matcher.matches()) {
+        startupPort.compareAndSet(0, Integer.parseInt(matcher.group(1)));
+        startupPortReady.countDown();
       }
     }
   }

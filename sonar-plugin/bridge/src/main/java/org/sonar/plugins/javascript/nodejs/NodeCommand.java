@@ -138,6 +138,10 @@ public class NodeCommand {
     }
   }
 
+  public boolean isAlive() {
+    return process != null && process.isAlive();
+  }
+
   @Override
   public String toString() {
     return String.join(" ", command);

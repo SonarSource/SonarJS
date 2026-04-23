@@ -132,16 +132,20 @@ function startAnalyzeProjectGrpcServer(port, host, handlers = {}) {
   };
 
   server.addService(serviceDefinition, implementation);
-  server.bindAsync(`${host}:${port}`, grpc.ServerCredentials.createInsecure(), error => {
-    if (error) {
-      console.log('something bad happened', error);
-      process.exitCode = 1;
-      return;
-    }
-    server.start();
-    console.log(`server is listening on ${host} ${port}`);
-    onStarted?.(server);
-  });
+  server.bindAsync(
+    `${host}:${port}`,
+    grpc.ServerCredentials.createInsecure(),
+    (error, boundPort) => {
+      if (error) {
+        console.log('something bad happened', error);
+        process.exitCode = 1;
+        return;
+      }
+      server.start();
+      console.log(`gRPC analyze-project server listening on ${host}:${boundPort}`);
+      onStarted?.(server);
+    },
+  );
   return server;
 }
 
