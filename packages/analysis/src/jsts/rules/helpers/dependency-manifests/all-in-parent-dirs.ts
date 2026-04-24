@@ -28,7 +28,6 @@ import { PACKAGE_JSON } from './index.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import type { Rule } from 'eslint';
 import { getDependenciesFromManifest } from './parse.js';
-export { type DependencyManifest, type ManifestResolver } from './resolvers/types.js';
 import { type DependencyManifest, type ManifestResolver } from './resolvers/types.js';
 import { denoManifestResolver } from './resolvers/deno.js';
 import { npmManifestResolver } from './resolvers/npm.js';
