@@ -38,7 +38,6 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_FORCE_HOST_PROPERTY;
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.SKIP_NODE_PROVISIONING_PROPERTY;
 
-import com.google.protobuf.ByteString;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.Status;
@@ -295,17 +294,10 @@ class BridgeServerImplTest {
   ) throws IOException {
     var output = bridgeServer.analyzeProject(createProjectRequest(inputFile, skipAst));
     var response = toSingleFileResponse(output, inputFile.absolutePath());
-    if (response.getAst().isEmpty()) {
+    if (!response.hasAst()) {
       return new AnalysisResponse(response.getIssuesList(), null);
     }
-    try {
-      return new AnalysisResponse(
-        response.getIssuesList(),
-        AstProtoUtils.readProtobufFromBytes(response.getAst().toByteArray())
-      );
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to parse protobuf", e);
-    }
+    return new AnalysisResponse(response.getIssuesList(), response.getAst());
   }
 
   private static ProjectAnalysisFileResult toSingleFileResponse(
@@ -782,6 +774,37 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void should_extract_startup_port_from_fixed_log_message() {
+    assertThat(
+      BridgeServerImpl.extractStartupPort(
+        "gRPC analyze-project server listening on 127.0.0.1:4040"
+      )
+    )
+      .isEqualTo(4040);
+    assertThat(
+      BridgeServerImpl.extractStartupPort(
+        "gRPC analyze-project server listening on 2001:db8::1:4040"
+      )
+    )
+      .isEqualTo(4040);
+  }
+
+  @Test
+  void should_ignore_malformed_startup_port_messages() {
+    assertThat(BridgeServerImpl.extractStartupPort("WARN unrelated log line")).isNull();
+    assertThat(
+      BridgeServerImpl.extractStartupPort(
+        "gRPC analyze-project server listening on localhost:not-a-port"
+      )
+    )
+      .isNull();
+    assertThat(
+      BridgeServerImpl.extractStartupPort("gRPC analyze-project server listening on localhost:")
+    )
+      .isNull();
+  }
+
+  @Test
   void waitServerToStart_can_be_interrupted() throws Exception {
     bridgeServer = createUnitBridgeServer();
     var channel = mock(ManagedChannel.class);
@@ -1105,7 +1128,7 @@ class BridgeServerImplTest {
   ) throws IOException {
     var fileResult = ProjectAnalysisFileResult.newBuilder().addIssues(Issue.newBuilder().build());
     if (includeAst) {
-      fileResult.setAst(ByteString.copyFrom(getSerializedProtoData()));
+      fileResult.setAst(Node.parseFrom(getSerializedProtoData()));
     }
     return AnalyzeProjectUnaryResponse.newBuilder()
       .putFiles(inputFile.absolutePath(), fileResult.build())

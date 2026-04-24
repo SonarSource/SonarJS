@@ -45,7 +45,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,9 +87,8 @@ public class BridgeServerImpl implements BridgeServer {
   public static final String NODE_TIMEOUT_PROPERTY = "sonar.javascript.node.timeout";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
-  private static final Pattern STARTUP_PORT_LOG_PATTERN = Pattern.compile(
-    ".*gRPC analyze-project server listening on .*:(\\d+).*"
-  );
+  private static final String STARTUP_PORT_LOG_PREFIX =
+    "gRPC analyze-project server listening on ";
   private static final int STARTUP_PORT_WAIT_POLL_INTERVAL_MS = 100;
   private static final String ANALYSIS_CANCELLED_MESSAGE =
     "Analysis interrupted because the SensorContext is in cancelled state";
@@ -360,16 +358,13 @@ public class BridgeServerImpl implements BridgeServer {
         if (remainingNanos <= 0) {
           return false;
         }
-        boolean bound = startupPortReady.await(
+        startupPortReady.await(
           Math.min(
             TimeUnit.NANOSECONDS.toMillis(remainingNanos),
             STARTUP_PORT_WAIT_POLL_INTERVAL_MS
           ),
           TimeUnit.MILLISECONDS
         );
-        if (!bound && (nodeCommand == null || nodeCommand.isAlive())) {
-          continue;
-        }
       }
       port = startupPort.get();
       return true;
@@ -381,6 +376,26 @@ public class BridgeServerImpl implements BridgeServer {
 
   private static int remainingTimeoutMs(long deadlineNanos) {
     return (int) Math.max(0, TimeUnit.NANOSECONDS.toMillis(deadlineNanos - System.nanoTime()));
+  }
+
+  @Nullable
+  static Integer extractStartupPort(String message) {
+    if (!message.startsWith(STARTUP_PORT_LOG_PREFIX)) {
+      return null;
+    }
+
+    // The Node startup log has a fixed format; parsing the trailing port keeps IPv6 support
+    // without relying on a broad regular expression over arbitrary process output.
+    int separatorIndex = message.lastIndexOf(':');
+    if (separatorIndex < STARTUP_PORT_LOG_PREFIX.length() || separatorIndex == message.length() - 1) {
+      return null;
+    }
+
+    try {
+      return Integer.parseInt(message.substring(separatorIndex + 1));
+    } catch (NumberFormatException e) {
+      return null;
+    }
   }
 
   @Override
@@ -821,9 +836,9 @@ public class BridgeServerImpl implements BridgeServer {
     @Override
     public void accept(String message) {
       delegate.accept(message);
-      var matcher = STARTUP_PORT_LOG_PATTERN.matcher(message);
-      if (matcher.matches()) {
-        startupPort.compareAndSet(0, Integer.parseInt(matcher.group(1)));
+      var parsedStartupPort = extractStartupPort(message);
+      if (parsedStartupPort != null) {
+        startupPort.compareAndSet(0, parsedStartupPort);
         startupPortReady.countDown();
       }
     }
