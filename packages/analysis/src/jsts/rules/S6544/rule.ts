@@ -134,6 +134,7 @@ const decoratedNoMisusedPromisesRule = interceptReport(
 );
 
 const MISSING_PARENT_ERROR = 'Non-null Assertion Failed: Expected node to have a parent.';
+type ReturnStatementListener = NonNullable<Rule.RuleListener['ReturnStatement']>;
 
 function isMissingParentError(error: unknown) {
   return error instanceof Error && error.message === MISSING_PARENT_ERROR;
@@ -142,16 +143,16 @@ function isMissingParentError(error: unknown) {
 export function guardNoMisusedPromisesReturnListener(
   listeners: Rule.RuleListener,
 ): Rule.RuleListener {
-  const onReturnStatement = listeners.ReturnStatement;
+  const onReturnStatement = listeners.ReturnStatement as ReturnStatementListener | undefined;
   if (!onReturnStatement) {
     return listeners;
   }
 
   return {
     ...listeners,
-    ReturnStatement: (...args: any[]) => {
+    ReturnStatement: (...args: Parameters<ReturnStatementListener>) => {
       try {
-        (onReturnStatement as (...listenerArgs: any[]) => void)(...args);
+        onReturnStatement(...args);
       } catch (error) {
         // `no-misused-promises` walks parent links from `ReturnStatement` nodes and can
         // throw on malformed parent chains from some JS/CommonJS inputs. Dropping that
