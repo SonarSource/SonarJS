@@ -188,6 +188,15 @@ describe('files', () => {
     expect(getDependencies(baseDir, baseDir)).toEqual(new Set(['react', '@scope/pkg', 'pkgAlias']));
   });
 
+  it('should parse deno.jsonc with comments and trailing commas', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-jsonc-with-comments'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['deno']);
+  });
+
   it('should include package.json dependencies when deno.json is present in the same directory', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-precedence'));
     const configuration = createConfiguration({ baseDir });

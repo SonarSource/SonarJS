@@ -1,0 +1,6 @@
+{
+  // Trailing comma and comments should be accepted
+  "imports": {
+    "reactAlias": "npm:react@^19.1.0",
+  },
+}
