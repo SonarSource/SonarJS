@@ -143,7 +143,7 @@ function isMissingParentError(error: unknown) {
 export function guardNoMisusedPromisesReturnListener(
   listeners: Rule.RuleListener,
 ): Rule.RuleListener {
-  const onReturnStatement = listeners.ReturnStatement as ReturnStatementListener | undefined;
+  const onReturnStatement = listeners.ReturnStatement;
   if (!onReturnStatement) {
     return listeners;
   }
