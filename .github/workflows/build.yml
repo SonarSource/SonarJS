@@ -773,7 +773,7 @@ jobs:
     runs-on: warp-custom-docker-m
     name: QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
-    if: github.event_name == 'schedule'
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     container:
       image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
     permissions: *read_permissions
@@ -880,7 +880,7 @@ jobs:
     runs-on: warp-custom-docker-m
     name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
-    if: github.event_name == 'schedule'
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     container:
       image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
     permissions: *read_permissions
