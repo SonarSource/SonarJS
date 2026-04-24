@@ -19,6 +19,7 @@ import * as grpc from '@grpc/grpc-js';
 import type { Worker } from 'node:worker_threads';
 import { debug } from '../../shared/src/helpers/logging.js';
 import { handleAnalyzeProjectRequest, type WorkerData } from './analyze-project-handle-request.js';
+import type { LeaseRequest, LeaseResponse } from './analyze-project-server-grpc.js';
 import { logMemoryError } from './analyze-project-memory.js';
 import type {
   AnalyzeProjectIncrementalEvent,
@@ -40,7 +41,7 @@ export type HandleRequestInCurrentThread = (
 
 export type AnalyzeProjectServerState = {
   analysisInProgress: boolean;
-  leaseCall: grpc.ServerDuplexStream<any, any> | null;
+  leaseCall: grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null;
   nextWorkerRequestId: number;
   shuttingDown: boolean;
   startupShutdownTimeout: NodeJS.Timeout | null;
