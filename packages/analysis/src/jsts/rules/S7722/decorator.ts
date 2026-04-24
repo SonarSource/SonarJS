@@ -114,6 +114,16 @@ function isVariableUsedExclusivelyForStackReads(
   if (!variable) {
     return false;
   }
+  const hasReassignment = variable.references.some(ref => {
+    if (!ref.isWrite()) {
+      return false;
+    }
+    const refParent = (ref.identifier as Rule.Node).parent;
+    return refParent?.type !== 'VariableDeclarator';
+  });
+  if (hasReassignment) {
+    return false;
+  }
   const readRefs = variable.references.filter(ref => ref.isRead());
   return (
     readRefs.length > 0 &&

@@ -93,6 +93,10 @@ hookLog.push({ primitive: hookName, stack: stackError.stack, value: value });
           code: `const err = new Error(); err.stack++;`, // update on variable — not a read
           errors: 1,
         },
+        {
+          code: `let err = new Error(); err = other; console.log(err.stack);`, // reassignment — original error not used for .stack
+          errors: 1,
+        },
       ],
     });
   });
