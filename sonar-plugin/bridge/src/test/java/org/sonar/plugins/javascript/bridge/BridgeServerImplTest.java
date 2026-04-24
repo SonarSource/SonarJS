@@ -700,60 +700,17 @@ class BridgeServerImplTest {
 
   @Test
   void should_cancel_stream_when_handler_throws_while_consuming_a_message() throws Exception {
-    bridgeServer = createUnitBridgeServer();
-    var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
-    var streamedFailure = new IllegalStateException("fail fast");
-    var future = new CompletableFuture<Void>();
-    var handler = new ProjectAnalysisHandler() {
-      @Override
-      public AnalyzeProjectRequest getRequest() {
-        return AnalyzeProjectRequest.getDefaultInstance();
-      }
-
-      @Override
-      public SensorContextTester getContext() {
-        return context;
-      }
-
-      @Override
-      public CompletableFuture<Void> getFuture() {
-        return future;
-      }
-
-      @Override
-      public void handleMessage(AnalyzeProjectStreamResponse message) {
-        throw streamedFailure;
-      }
-    };
-
-    var streamedResponse = AnalyzeProjectStreamResponse.newBuilder()
-      .setFileResult(
-        FileResultMessage.newBuilder()
-          .setFilePath("file.ts")
-          .setResult(ProjectAnalysisFileResult.getDefaultInstance())
-          .build()
-      )
-      .build();
-
-    try (
-      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockBlockingStub(bridgeServer, stub)
-    ) {
-      when(stub.analyzeProject(any(AnalyzeProjectRequest.class))).thenReturn(
-        List.of(streamedResponse).iterator()
-      );
-
-      assertThatThrownBy(() -> bridgeServer.analyzeProject(handler)).isSameAs(streamedFailure);
-      assertThatThrownBy(future::join)
-        .isInstanceOf(CompletionException.class)
-        .hasCause(streamedFailure);
-    }
+    assertStreamHandlerCancelledOnThrow(new IllegalStateException("fail fast"));
   }
 
   @Test
   void should_cancel_stream_when_handler_throws_error_while_consuming_a_message() throws Exception {
+    assertStreamHandlerCancelledOnThrow(new AssertionError("fail hard"));
+  }
+
+  private void assertStreamHandlerCancelledOnThrow(Throwable streamedFailure) throws Exception {
     bridgeServer = createUnitBridgeServer();
     var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
-    var streamedFailure = new AssertionError("fail hard");
     var future = new CompletableFuture<Void>();
     var handler = new ProjectAnalysisHandler() {
       @Override
@@ -773,7 +730,13 @@ class BridgeServerImplTest {
 
       @Override
       public void handleMessage(AnalyzeProjectStreamResponse message) {
-        throw streamedFailure;
+        if (streamedFailure instanceof RuntimeException runtimeException) {
+          throw runtimeException;
+        }
+        if (streamedFailure instanceof Error error) {
+          throw error;
+        }
+        throw new AssertionError("Unexpected throwable type", streamedFailure);
       }
     };
 
