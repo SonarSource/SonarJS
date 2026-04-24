@@ -123,6 +123,17 @@ public class AnalysisProcessor {
     return issues;
   }
 
+  void processFileError(JsTsContext<?> context, InputFile file, String message) {
+    this.file = file;
+
+    LOG.error("Failed to analyze file [{}]: {}", file, message);
+    if (context.failFast() && !CssLanguage.KEY.equals(file.language())) {
+      throw new IllegalStateException("Failed to analyze file " + file);
+    }
+
+    context.getSensorContext().newAnalysisError().onFile(file).message(message).save();
+  }
+
   void processCacheAnalysis(JsTsContext<?> context, InputFile file, CacheAnalysis cacheAnalysis) {
     this.file = file;
 

@@ -767,6 +767,74 @@ class WebSensorTest {
   }
 
   @Test
+  void should_record_file_error_without_failing_analysis() {
+    var expectedResponse = createProjectResponse(
+      new HashMap<>() {
+        {
+          put(inputFile.absolutePath(), createErrorResponse("Runtime error message"));
+        }
+      }
+    );
+
+    executeSensorMockingResponse(expectedResponse);
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(context.allAnalysisErrors()).hasSize(1);
+    assertThat(logTester.logs(Level.ERROR)).contains(
+      "Failed to analyze file [dir/file.ts]: Runtime error message"
+    );
+  }
+
+  @Test
+  void should_keep_external_issues_when_file_analysis_returns_error() throws Exception {
+    baseDir = Paths.get("src/test/resources/de-duplicate-issues");
+    context = createSensorContext(baseDir);
+    context.settings().setProperty(JavaScriptPlugin.ESLINT_REPORT_PATHS, "eslint-report.json");
+
+    inputFile = createInputFile(
+      context,
+      "file.js",
+      StandardCharsets.ISO_8859_1,
+      baseDir,
+      "function addOne(i) {\n    if (i != NaN) {\n        return i ++\n    } else {\n      return\n    }\n};"
+    );
+
+    var expectedResponse = createProjectResponse(
+      new HashMap<>() {
+        {
+          put(inputFile.absolutePath(), createErrorResponse("Runtime error message"));
+        }
+      }
+    );
+
+    executeSensorMockingResponse(expectedResponse);
+
+    assertThat(context.allIssues()).isEmpty();
+    assertThat(context.allExternalIssues()).hasSize(3);
+    assertThat(context.allAnalysisErrors()).hasSize(1);
+  }
+
+  @Test
+  void should_fail_fast_with_file_error() {
+    MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
+    context.setSettings(settings);
+    var expectedResponse = createProjectResponse(
+      new HashMap<>() {
+        {
+          put(inputFile.absolutePath(), createErrorResponse("Runtime error message"));
+        }
+      }
+    );
+
+    assertThatThrownBy(() -> executeSensorMockingResponse(expectedResponse))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessage("Analysis of JS/TS files failed");
+    assertThat(logTester.logs(Level.ERROR)).contains(
+      "Failed to analyze file [dir/file.ts]: Runtime error message"
+    );
+  }
+
+  @Test
   void should_fail_fast_with_parsing_error_without_line() {
     MapSettings settings = new MapSettings().setProperty("sonar.internal.analysis.failFast", true);
     context.setSettings(settings);
@@ -1604,6 +1672,10 @@ class WebSensorTest {
       .setMetrics(Metrics.getDefaultInstance())
       .addAllIssues(issues)
       .build();
+  }
+
+  private ProjectAnalysisFileResult createErrorResponse(String message) {
+    return ProjectAnalysisFileResult.newBuilder().setError(message).build();
   }
 
   private ProjectAnalysisFileResult createResponse() {
