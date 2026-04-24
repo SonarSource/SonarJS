@@ -1,5 +1,14 @@
 {
 "TypeScript:lib/tsc.js": [
+2332,
+2345,
 39356
+],
+"TypeScript:lib/typingsInstaller.js": [
+2342,
+2355
+],
+"TypeScript:lib/watchGuard.js": [
+25
 ]
 }

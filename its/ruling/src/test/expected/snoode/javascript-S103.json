@@ -1,0 +1,25 @@
+{
+"snoode:src/endpoints/v1.es6.js": [
+77,
+204,
+206,
+264,
+275,
+568,
+572,
+578,
+588,
+592,
+983
+],
+"snoode:src/models/report.es6.js": [
+21,
+22
+],
+"snoode:test/models/base.js": [
+123,
+127,
+137,
+141
+]
+}

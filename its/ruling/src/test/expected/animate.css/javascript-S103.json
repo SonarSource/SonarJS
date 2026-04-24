@@ -1,0 +1,21 @@
+{
+"animate.css:docs/modules/buildDocsIndex.mjs": [
+28
+],
+"animate.css:docs/modules/playground.mjs": [
+32,
+40
+],
+"animate.css:docs/modules/slowDownAnimations.mjs": [
+14
+],
+"animate.css:docsSource/compileMD.js": [
+9,
+29,
+35
+],
+"animate.css:postcss.config.js": [
+2,
+19
+]
+}

@@ -1,4 +1,22 @@
 {
+"moose:main/controllers/stream.ts": [
+42
+],
+"moose:main/utils/analytics.ts": [
+20
+],
+"moose:main/utils/autoUpdate.ts": [
+12
+],
+"moose:main/utils/opensubtitle-hash.ts": [
+55
+],
+"moose:renderer/components/CastControl/CastControl.tsx": [
+114
+],
+"moose:sample/descriptions.ts": [
+13
+],
 "moose:sample/results.ts": [
 7,
 12

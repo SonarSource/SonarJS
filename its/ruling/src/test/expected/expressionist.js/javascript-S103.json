@@ -1,0 +1,42 @@
+{
+"expressionist.js:gulpfile.js": [
+31
+],
+"expressionist.js:test/lexer.spec.js": [
+232,
+236,
+248,
+258
+],
+"expressionist.js:test/parser.spec.js": [
+80,
+104,
+108,
+112,
+113,
+117,
+142,
+148,
+152,
+287,
+458,
+483,
+556,
+722,
+726,
+748,
+765,
+766,
+770,
+771,
+772,
+823,
+826
+],
+"expressionist.js:test/watch_parser.spec.js": [
+123,
+212,
+221,
+224
+]
+}

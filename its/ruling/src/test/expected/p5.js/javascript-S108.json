@@ -1,6 +1,14 @@
 {
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+127,
+2067
+],
 "p5.js:lib/addons/p5.sound.js": [
 736,
+2231,
 3037
+],
+"p5.js:src/core/error_helpers.js": [
+608
 ]
 }

@@ -1,4 +1,7 @@
 {
+"oak:middleware.test.ts": [
+93
+],
 "oak:middleware/proxy.test.ts": [
 79,
 103,

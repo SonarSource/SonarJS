@@ -1,0 +1,44 @@
+{
+"searchkit:packages/searchkit-schema/tests/BaseFilters.test.ts": [
+7
+],
+"searchkit:packages/searchkit-schema/tests/Customisations.test.ts": [
+9
+],
+"searchkit:packages/searchkit-schema/tests/HitsResolver.test.ts": [
+15
+],
+"searchkit:packages/searchkit-schema/tests/Pagination.test.ts": [
+20
+],
+"searchkit:packages/searchkit-schema/tests/Query.test.ts": [
+44
+],
+"searchkit:packages/searchkit-schema/tests/SummaryResolver.test.ts": [
+10
+],
+"searchkit:packages/searchkit-schema/tests/VisibleWhen.test.ts": [
+16
+],
+"searchkit:packages/searchkit-schema/tests/facets/FacetResolver.test.ts": [
+10
+],
+"searchkit:packages/searchkit-schema/tests/facets/FacetsResolver.test.ts": [
+10
+],
+"searchkit:packages/searchkit-schema/tests/facets/HierarchicalMenuFacet.test.ts": [
+11
+],
+"searchkit:packages/searchkit-schema/tests/facets/RangeFilters.test.ts": [
+10
+],
+"searchkit:packages/searchkit-schema/tests/filters/GeoFilters.test.ts": [
+9
+],
+"searchkit:packages/searchkit-schema/tests/filters/NumericRangeFilter.test.ts": [
+7
+],
+"searchkit:packages/searchkit-schema/tests/filters/TermFilter.test.ts": [
+7
+]
+}

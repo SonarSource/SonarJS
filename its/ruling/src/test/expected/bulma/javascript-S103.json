@@ -1,8 +1,83 @@
 {
+"bulma:docs/_includes/global/native.html": [
+5,
+8,
+30,
+33
+],
+"bulma:docs/_includes/global/scripts.html": [
+16,
+34,
+43,
+44
+],
 "bulma:docs/_javascript/index.js": [
-65
+38,
+61,
+65,
+67,
+71
+],
+"bulma:docs/_javascript/klmn.js": [
+3,
+4
+],
+"bulma:docs/_javascript/main.js": [
+161,
+209,
+214,
+216,
+228,
+298,
+309,
+313,
+368,
+376
+],
+"bulma:docs/_scripts/plugins/02-read-derived-variables.js": [
+6,
+7,
+25
+],
+"bulma:docs/_scripts/plugins/03-read-other-variables.js": [
+6,
+7,
+29
+],
+"bulma:docs/_scripts/plugins/utils.js": [
+18,
+69,
+112,
+124,
+132,
+141,
+159
 ],
 "bulma:docs/lib/index.js": [
-67
+40,
+63,
+67,
+69,
+73
+],
+"bulma:docs/lib/klmn.js": [
+5,
+6
+],
+"bulma:docs/lib/main.js": [
+163,
+211,
+216,
+218,
+230,
+270,
+302,
+313,
+317,
+372,
+456
+],
+"bulma:test/node-sass/node-sass.js": [
+33
 ]
 }

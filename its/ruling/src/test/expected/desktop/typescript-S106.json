@@ -25,11 +25,13 @@
 "desktop:app/src/lib/logging/renderer/install.ts": [
 20,
 24,
+28,
 32
 ],
 "desktop:app/src/main-process/desktop-console-transport.ts": [
 5,
 6,
+7,
 8,
 33
 ],
@@ -38,6 +40,11 @@
 ],
 "desktop:app/src/models/app-menu.ts": [
 145
+],
+"desktop:app/src/ui/app.tsx": [
+284,
+285,
+286
 ],
 "desktop:app/src/ui/changes/sidebar.tsx": [
 186,

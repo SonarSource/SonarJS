@@ -1,4 +1,27 @@
 {
+"it-tools:scripts/create-tool.mjs": [
+16,
+100,
+102
+],
+"it-tools:scripts/release.mjs": [
+16,
+29
+],
+"it-tools:scripts/shared/changelog.mjs": [
+5,
+13
+],
+"it-tools:scripts/shared/commits.mjs": [
+18,
+21,
+26,
+39
+],
+"it-tools:src/ui/c-card/c-card.demo.vue": [
+6,
+7
+],
 "it-tools:src/ui/c-collapse/c-collapse.demo.vue": [
 3
 ]

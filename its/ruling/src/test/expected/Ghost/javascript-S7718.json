@@ -1,6 +1,16 @@
 {
+"Ghost:Gruntfile.js": [
+563,
+585
+],
 "Ghost:core/client/app/components/modals/invite-new-user.js": [
 116
+],
+"Ghost:core/client/app/components/modals/upload-image.js": [
+81
+],
+"Ghost:core/client/app/controllers/feature.js": [
+16
 ],
 "Ghost:core/client/app/controllers/post-settings-menu.js": [
 203,
@@ -14,6 +24,10 @@
 "Ghost:core/client/app/controllers/settings/labs.js": [
 35,
 76
+],
+"Ghost:core/client/app/controllers/settings/navigation.js": [
+59,
+119
 ],
 "Ghost:core/client/app/controllers/setup/two.js": [
 82
@@ -39,26 +53,135 @@
 "Ghost:core/client/app/mixins/validation-engine.js": [
 135
 ],
+"Ghost:core/client/app/services/config.js": [
+19
+],
+"Ghost:core/client/app/utils/ajax.js": [
+30
+],
+"Ghost:core/server/api/mail.js": [
+27
+],
+"Ghost:core/server/api/settings.js": [
+48,
+242
+],
+"Ghost:core/server/apps/index.js": [
+19,
+46,
+87
+],
+"Ghost:core/server/apps/loader.js": [
+68
+],
+"Ghost:core/server/config/index.js": [
+95,
+356
+],
+"Ghost:core/server/data/export/index.js": [
+24,
+56
+],
 "Ghost:core/server/data/import/index.js": [
 201
+],
+"Ghost:core/server/data/importer/handlers/json.js": [
+34
 ],
 "Ghost:core/server/data/migration/fixtures/index.js": [
 118
 ],
+"Ghost:core/server/data/migration/index.js": [
+110
+],
+"Ghost:core/server/data/xml/rss/index.js": [
+93
+],
+"Ghost:core/server/ghost-server.js": [
+46
+],
+"Ghost:core/server/helpers/get.js": [
+140
+],
+"Ghost:core/server/helpers/index.js": [
+63
+],
 "Ghost:core/server/index.js": [
 204
+],
+"Ghost:core/server/middleware/redirect-to-setup.js": [
+11
+],
+"Ghost:core/server/middleware/theme-handler.js": [
+119
+],
+"Ghost:core/server/permissions/index.js": [
+104
+],
+"Ghost:core/server/storage/index.js": [
+20
+],
+"Ghost:core/server/storage/local-file-store.js": [
+37
+],
+"Ghost:core/server/update-check.js": [
+66,
+128
+],
+"Ghost:core/server/utils/startup-check.js": [
+53,
+81,
+124,
+135,
+157,
+190,
+199
+],
+"Ghost:core/test/functional/routes/admin_spec.js": [
+49
+],
+"Ghost:core/test/functional/routes/frontend_spec.js": [
+46
+],
+"Ghost:core/test/integration/api/api_authentication_spec.js": [
+96,
+109,
+122,
+155,
+168,
+190,
+225,
+258
+],
+"Ghost:core/test/integration/api/api_posts_spec.js": [
+141,
+152,
+163,
+263,
+274,
+423,
+450,
+548
+],
+"Ghost:core/test/integration/api/api_settings_spec.js": [
+153,
+191
 ],
 "Ghost:core/test/integration/api/api_slugs_spec.js": [
 79
 ],
 "Ghost:core/test/integration/api/api_tags_spec.js": [
 72,
-118
+118,
+358
 ],
 "Ghost:core/test/integration/api/api_upload_spec.js": [
 44,
 61,
 90
+],
+"Ghost:core/test/integration/api/api_users_spec.js": [
+284
 ],
 "Ghost:core/test/integration/import_spec.js": [
 545,
@@ -67,11 +190,73 @@
 605,
 626
 ],
+"Ghost:core/test/integration/model/model_users_spec.js": [
+625,
+655
+],
+"Ghost:core/test/unit/api_utils_spec.js": [
+165,
+467
+],
+"Ghost:core/test/unit/apps_spec.js": [
+461
+],
+"Ghost:core/test/unit/config_spec.js": [
+609,
+622,
+635,
+648,
+661,
+674,
+687,
+700,
+714,
+728,
+742,
+802,
+815,
+828
+],
 "Ghost:core/test/unit/importer_spec.js": [
 339
 ],
+"Ghost:core/test/unit/middleware/oauth_spec.js": [
+78,
+186
+],
+"Ghost:core/test/unit/permissions_spec.js": [
+170,
+181,
+210,
+221,
+232,
+238,
+271
+],
+"Ghost:core/test/unit/server_helpers/next_post_spec.js": [
+57,
+88,
+114,
+148
+],
+"Ghost:core/test/unit/server_helpers/prev_post_spec.js": [
+58,
+90,
+116,
+147
+],
 "Ghost:core/test/unit/server_utils_spec.js": [
+145,
+171,
+195,
+214,
 413,
 443
+],
+"Ghost:core/test/utils/index.js": [
+325
+],
+"Ghost:index.js": [
+26
 ]
 }

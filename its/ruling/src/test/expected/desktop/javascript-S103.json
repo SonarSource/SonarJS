@@ -1,0 +1,95 @@
+{
+"desktop:app/jest.unit.config.js": [
+12
+],
+"desktop:eslint-rules/insecure-random.js": [
+14,
+17,
+19
+],
+"desktop:eslint-rules/no-loosely-typed-webcontents-ipc.js": [
+50,
+53
+],
+"desktop:eslint-rules/react-no-unbound-dispatcher-props.js": [
+39
+],
+"desktop:eslint-rules/react-proper-lifecycle-methods.js": [
+13,
+15,
+16,
+17,
+25,
+46,
+47,
+60,
+83,
+87,
+128,
+137,
+146,
+151,
+170,
+171,
+181,
+190,
+191,
+192,
+193,
+194,
+212,
+218
+],
+"desktop:eslint-rules/react-readonly-props-and-state.js": [
+16,
+17,
+25,
+26,
+40
+],
+"desktop:eslint-rules/tests/react-no-unbound-dispatcher-props.test.js": [
+14,
+16
+],
+"desktop:eslint-rules/tests/react-proper-lifecycle-methods.test.js": [
+8,
+10,
+29,
+43,
+69,
+76,
+78,
+95,
+102,
+104,
+168,
+177,
+205,
+216,
+217,
+255,
+256,
+275,
+284,
+313,
+322,
+351,
+362,
+363,
+391,
+402,
+431,
+442,
+443,
+471,
+482,
+509
+],
+"desktop:eslint-rules/tests/react-readonly-props-and-state.test.js": [
+8,
+10
+],
+"desktop:script/jest-actions-reporter.js": [
+32
+]
+}

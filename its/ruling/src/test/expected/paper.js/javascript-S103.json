@@ -1,14 +1,207 @@
 {
+"paper.js:examples/Node.js/AnimatedStar.js": [
+23
+],
+"paper.js:examples/Node.js/SvgImport.js": [
+16
+],
+"paper.js:examples/Node.js/Tadpoles.js": [
+14
+],
+"paper.js:examples/Scripts/BooleanOperations.html": [
+77,
+84,
+91,
+92,
+93,
+97,
+104,
+131,
+146,
+151,
+156,
+161,
+171,
+177,
+187,
+200,
+212,
+215,
+216,
+224,
+230,
+260,
+270,
+359
+],
+"paper.js:gulp/tasks/build.js": [
+41,
+53
+],
+"paper.js:gulp/tasks/docs.js": [
+73,
+82
+],
+"paper.js:gulp/typescript/typescript-definition-generator.js": [
+10,
+27,
+34,
+50,
+60,
+74,
+108,
+190,
+196,
+253,
+261,
+270,
+273,
+330
+],
+"paper.js:src/basic/Matrix.js": [
+196,
+689,
+690
+],
+"paper.js:src/basic/Point.js": [
+1080
+],
+"paper.js:src/basic/Rectangle.js": [
+457,
+972
+],
+"paper.js:src/canvas/BlendMode.js": [
+99,
+100,
+101,
+116,
+117,
+118,
+125,
+126,
+127,
+134,
+135,
+136
+],
+"paper.js:src/core/PaperScope.js": [
+90
+],
+"paper.js:src/core/PaperScript.js": [
+333,
+336,
+527
+],
+"paper.js:src/item/Item.js": [
+777,
+2223,
+2235,
+2237,
+2239,
+2857,
+3324,
+3876,
+4421,
+4716,
+4721
+],
+"paper.js:src/item/Project.js": [
+622
+],
+"paper.js:src/item/Shape.js": [
+214
+],
+"paper.js:src/node/extend.js": [
+18,
+30,
+43
+],
+"paper.js:src/paper.js": [
+2
+],
 "paper.js:src/path/CompoundPath.js": [
 95
 ],
+"paper.js:src/path/Curve.js": [
+850,
+1701,
+1868
+],
+"paper.js:src/path/CurveLocation.js": [
+41,
+403
+],
+"paper.js:src/path/Path.js": [
+84,
+1623,
+2491,
+2690,
+2700
+],
+"paper.js:src/path/PathFlattener.js": [
+131
+],
+"paper.js:src/path/PathItem.Boolean.js": [
+340,
+817,
+818
+],
+"paper.js:src/path/PathItem.js": [
+725,
+731
+],
+"paper.js:src/style/Color.js": [
+120,
+121,
+124,
+188,
+232,
+640,
+811
+],
+"paper.js:src/style/Style.js": [
+642
+],
+"paper.js:src/svg/SvgExport.js": [
+65,
+206
+],
+"paper.js:src/svg/SvgImport.js": [
+456
+],
+"paper.js:src/util/CollisionDetection.js": [
+152
+],
 "paper.js:src/util/Numerical.js": [
+28,
+29,
+30,
+31,
+32,
+33,
+34,
+35,
 36,
 37,
 38,
+45,
+46,
+47,
+48,
+49,
+50,
+51,
+52,
 53,
 54,
 55,
 56
+],
+"paper.js:src/view/CanvasView.js": [
+71
+],
+"paper.js:src/view/View.js": [
+491,
+816
 ]
 }

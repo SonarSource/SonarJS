@@ -1,0 +1,44 @@
+{
+"TypeScript:lib/cancellationToken.js": [
+23
+],
+"TypeScript:lib/tsc.js": [
+2198,
+2210,
+2225,
+2310,
+2332,
+2345,
+8633,
+8642,
+20008,
+53239,
+53301,
+53796,
+55362,
+55374,
+56136
+],
+"TypeScript:lib/typingsInstaller.js": [
+2208,
+2220,
+2235,
+2320,
+2342,
+2355,
+5699,
+5711,
+6498,
+7217,
+7598,
+7623,
+7650,
+7699
+],
+"TypeScript:lib/watchGuard.js": [
+25
+],
+"TypeScript:scripts/browserify-optional.js": [
+17
+]
+}

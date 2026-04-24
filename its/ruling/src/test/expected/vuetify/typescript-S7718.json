@@ -1,0 +1,27 @@
+{
+"vuetify:packages/api-generator/src/index.ts": [
+102,
+135
+],
+"vuetify:packages/api-generator/src/utils.ts": [
+104
+],
+"vuetify:packages/api-generator/src/worker.ts": [
+31
+],
+"vuetify:packages/docs/build/api-plugin.ts": [
+65
+],
+"vuetify:packages/docs/src/components/api/Section.vue": [
+79
+],
+"vuetify:packages/docs/src/components/examples/Example.vue": [
+169
+],
+"vuetify:packages/docs/src/components/introduction/EnterpriseForm.vue": [
+206
+],
+"vuetify:packages/docs/src/store/banners.ts": [
+80
+]
+}

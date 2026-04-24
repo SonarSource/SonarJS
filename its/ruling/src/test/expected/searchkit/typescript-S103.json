@@ -1,8 +1,362 @@
 {
+"searchkit:packages/searchkit-cli/src/index.ts": [
+21
+],
+"searchkit:packages/searchkit-cli/src/lib.ts": [
+6,
+90,
+130,
+171,
+179,
+196,
+200,
+219,
+260,
+280,
+282,
+322
+],
+"searchkit:packages/searchkit-client/src/__tests__/components.test.tsx": [
+17,
+34,
+68,
+140
+],
+"searchkit:packages/searchkit-client/src/__tests__/searchkit.test.tsx": [
+77,
+120,
+135,
+153,
+155,
+157,
+173,
+174,
+196,
+212,
+256,
+258
+],
+"searchkit:packages/searchkit-client/src/__tests__/withSearchkitRouting.test.tsx": [
+171
+],
+"searchkit:packages/searchkit-client/src/components.tsx": [
+34,
+49
+],
+"searchkit:packages/searchkit-client/src/history.ts": [
+25,
+33,
+44
+],
+"searchkit:packages/searchkit-client/src/searchkit.tsx": [
+47,
+53,
+123,
+144,
+300
+],
+"searchkit:packages/searchkit-client/src/withSearchkitRouting.tsx": [
+4,
+23
+],
+"searchkit:packages/searchkit-elastic-ui/src/Facets/ComboBoxFacet/index.tsx": [
+30,
+33,
+47
+],
+"searchkit:packages/searchkit-elastic-ui/src/Facets/HierarchicalMenuFacet/index.tsx": [
+26,
+32
+],
+"searchkit:packages/searchkit-elastic-ui/src/Facets/ListFacet/index.tsx": [
+16,
+22
+],
 "searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/__tests__/index.test.tsx": [
 147
 ],
+"searchkit:packages/searchkit-elastic-ui/src/Facets/RangeSliderFacet/index.tsx": [
+6,
+38,
+44
+],
+"searchkit:packages/searchkit-elastic-ui/src/Pagination/index.tsx": [
+14
+],
+"searchkit:packages/searchkit-elastic-ui/src/ResetSearchButton/__tests__/index.test.tsx": [
+50,
+52
+],
 "searchkit:packages/searchkit-elastic-ui/src/SelectedFilters/index.tsx": [
-84
+69,
+81,
+84,
+86
+],
+"searchkit:packages/searchkit-schema/src/core/__tests__/QueryManager.test.ts": [
+13,
+16
+],
+"searchkit:packages/searchkit-schema/src/resolvers/FacetResolver.ts": [
+14,
+19
+],
+"searchkit:packages/searchkit-schema/src/resolvers/ResultsResolver.ts": [
+2,
+4,
+21,
+40,
+69
+],
+"searchkit:packages/searchkit-schema/src/schema.ts": [
+194,
+204
+],
+"searchkit:packages/searchkit-schema/tests/BaseFilters.test.ts": [
+7,
+10,
+36
+],
+"searchkit:packages/searchkit-schema/tests/Customisations.test.ts": [
+9,
+59,
+78
+],
+"searchkit:packages/searchkit-schema/tests/HitsResolver.test.ts": [
+48,
+94,
+133,
+181,
+183,
+250,
+253,
+385
+],
+"searchkit:packages/searchkit-schema/tests/Pagination.test.ts": [
+17
+],
+"searchkit:packages/searchkit-schema/tests/Query.test.ts": [
+15
+],
+"searchkit:packages/searchkit-schema/tests/SummaryResolver.test.ts": [
+4,
+23,
+32,
+48,
+65
+],
+"searchkit:packages/searchkit-schema/tests/VisibleWhen.test.ts": [
+27,
+29,
+299
+],
+"searchkit:packages/searchkit-schema/tests/facets/FacetResolver.test.ts": [
+21,
+239
+],
+"searchkit:packages/searchkit-schema/tests/facets/FacetsResolver.test.ts": [
+21,
+30,
+31,
+32
+],
+"searchkit:packages/searchkit-schema/tests/facets/HierarchicalMenuFacet.test.ts": [
+22,
+25,
+131,
+141,
+289,
+299
+],
+"searchkit:packages/searchkit-schema/tests/facets/RangeFilters.test.ts": [
+21
+],
+"searchkit:packages/searchkit-schema/tests/filters/GeoFilters.test.ts": [
+3,
+20,
+47
+],
+"searchkit:packages/searchkit-schema/tests/filters/NumericRangeFilter.test.ts": [
+95
+],
+"searchkit:packages/searchkit-schema/tests/support/server.ts": [
+2,
+44,
+60,
+79,
+80
+],
+"searchkit:packages/searchkit-sdk/src/core/FacetsFns.ts": [
+38,
+50,
+75
+],
+"searchkit:packages/searchkit-sdk/src/core/RequestBodyBuilder.ts": [
+1,
+53,
+56,
+57
+],
+"searchkit:packages/searchkit-sdk/src/core/__tests__/FacetsFns.test.ts": [
+2,
+12,
+15,
+50,
+57,
+58,
+88,
+191,
+192,
+255,
+258,
+275,
+287
+],
+"searchkit:packages/searchkit-sdk/src/core/__tests__/QueryManager.test.ts": [
+17
+],
+"searchkit:packages/searchkit-sdk/src/facets/HierarchicalMenuFacet.ts": [
+35,
+95,
+101
+],
+"searchkit:packages/searchkit-sdk/src/facets/MultiQueryOptionsFacet.ts": [
+65,
+75
+],
+"searchkit:packages/searchkit-sdk/src/facets/RangeFacet.ts": [
+44
+],
+"searchkit:packages/searchkit-sdk/src/facets/RefinementSelectFacet.ts": [
+33,
+49
+],
+"searchkit:packages/searchkit-sdk/src/facets/VisibilityRules/index.ts": [
+13,
+19
+],
+"searchkit:packages/searchkit-sdk/src/facets/__tests__/RefinementSelectFacet.test.ts": [
+4
+],
+"searchkit:packages/searchkit-sdk/src/filters/TermFilter.ts": [
+24
+],
+"searchkit:packages/searchkit-sdk/src/index.ts": [
+1,
+112,
+124,
+126,
+133,
+135,
+164,
+184,
+187,
+199
+],
+"searchkit:packages/searchkit-sdk/src/suggestors/CompletionSuggestor.ts": [
+17,
+52
+],
+"searchkit:packages/searchkit-sdk/src/suggestors/HitsSuggestor.ts": [
+34
+],
+"searchkit:packages/searchkit-sdk/src/transformers/index.ts": [
+7,
+12,
+59,
+150,
+163
+],
+"searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts": [
+18,
+29,
+49
+],
+"searchkit:packages/searchkit-sdk/src/transporters/FetchClientTransporter.ts": [
+13
+],
+"searchkit:packages/searchkit-sdk/src/transporters/__tests__/ESClientTransporter.test.ts": [
+61,
+81
+],
+"searchkit:packages/searchkit-sdk/src/transporters/__tests__/FetchClientTransporter.test.ts": [
+60,
+80,
+126
+],
+"searchkit:packages/searchkit-sdk/src/transporters/index.ts": [
+6
+],
+"searchkit:packages/searchkit-sdk/tests/filters-facets/GeoDistanceOptionsFacet.test.ts": [
+2,
+3
+],
+"searchkit:packages/searchkit-sdk/tests/filters-facets/GeoFilters.test.ts": [
+2,
+14,
+68
+],
+"searchkit:packages/searchkit-sdk/tests/filters-facets/HierarchicalMenuFacet.test.ts": [
+25,
+28,
+51,
+76,
+89,
+145,
+147,
+150,
+168,
+263,
+266,
+269,
+272,
+290
+],
+"searchkit:packages/searchkit-sdk/tests/filters-facets/MultiQueryOptionsFacet.test.ts": [
+2,
+3
+],
+"searchkit:packages/searchkit-sdk/tests/filters-facets/NumericRangeFilter.test.ts": [
+2
+],
+"searchkit:packages/searchkit-sdk/tests/filters-facets/RangeFacets.test.ts": [
+18,
+61,
+160
+],
+"searchkit:packages/searchkit-sdk/tests/filters-facets/VisibleWhen.test.ts": [
+2,
+17,
+19,
+70,
+96
+],
+"searchkit:packages/searchkit-sdk/tests/filters-facets/facets.test.ts": [
+42,
+85,
+108,
+151,
+191,
+237
+],
+"searchkit:packages/searchkit-sdk/tests/postProcessRequest.test.ts": [
+8
+],
+"searchkit:packages/searchkit-sdk/tests/sortBy.test.ts": [
+11
+],
+"searchkit:packages/searchkit-sdk/tests/suggestions/HitsSuggestor.test.ts": [
+20,
+75,
+79,
+89,
+93,
+127,
+131,
+141,
+145,
+183,
+193,
+197
 ]
 }

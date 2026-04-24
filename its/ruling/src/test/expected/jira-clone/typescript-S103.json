@@ -1,12 +1,41 @@
 {
+"jira-clone:api/src/controllers/issues.ts": [
+3,
+12,
+46
+],
+"jira-clone:api/src/controllers/projects.ts": [
+19
+],
 "jira-clone:api/src/database/createGuestAccount.ts": [
+32,
 47,
 60,
+68,
 73,
 85,
 98,
+105,
 110,
+119,
 124,
-136
+136,
+150,
+160,
+165,
+175,
+185
+],
+"jira-clone:api/src/middleware/authentication.ts": [
+18
+],
+"jira-clone:api/src/utils/typeorm.ts": [
+7,
+10,
+24
+],
+"jira-clone:api/src/utils/validation.ts": [
+27,
+35
 ]
 }

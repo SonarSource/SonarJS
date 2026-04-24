@@ -1,0 +1,126 @@
+{
+"fresh:packages/fresh/src/app.ts": [
+137,
+469
+],
+"fresh:packages/fresh/src/app_test.tsx": [
+465,
+487,
+495
+],
+"fresh:packages/fresh/src/context.ts": [
+349
+],
+"fresh:packages/fresh/src/dev/builder_test.ts": [
+453,
+542
+],
+"fresh:packages/fresh/src/dev/check.ts": [
+74
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+176
+],
+"fresh:packages/fresh/src/dev/esbuild.ts": [
+43
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+95
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware.tsx": [
+16
+],
+"fresh:packages/fresh/src/dev/update_check.ts": [
+76,
+92,
+106
+],
+"fresh:packages/fresh/src/fs.ts": [
+22,
+30
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+155
+],
+"fresh:packages/fresh/src/middlewares/mod.ts": [
+124,
+148
+],
+"fresh:packages/fresh/src/middlewares/mod_test.ts": [
+95,
+103,
+111
+],
+"fresh:packages/fresh/src/render.ts": [
+42
+],
+"fresh:packages/fresh/src/runtime/client/dev_hmr.ts": [
+46
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+234,
+367
+],
+"fresh:packages/fresh/src/runtime/shared_internal.ts": [
+127
+],
+"fresh:packages/fresh/src/segments.ts": [
+118,
+184
+],
+"fresh:packages/fresh/src/test_utils.ts": [
+214
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+88,
+156,
+310,
+332
+],
+"fresh:packages/init/src/create.ts": [
+21
+],
+"fresh:packages/init/src/init.ts": [
+136,
+779
+],
+"fresh:packages/init/src/init_test.ts": [
+59,
+122,
+149
+],
+"fresh:packages/init/src/mod.ts": [
+23
+],
+"fresh:packages/plugin-tailwindcss-v3/src/mod.ts": [
+87
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+162
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+304
+],
+"fresh:packages/plugin-vite/tests/test_utils.ts": [
+41
+],
+"fresh:packages/update/src/update.ts": [
+48,
+60,
+193,
+265
+],
+"fresh:www/routes/_middleware.ts": [
+84,
+101
+],
+"fresh:www/utils/ga4.ts": [
+208
+],
+"fresh:www/utils/markdown.ts": [
+297
+],
+"fresh:www/vite.config.ts": [
+38
+]
+}

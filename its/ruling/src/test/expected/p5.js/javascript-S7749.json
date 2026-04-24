@@ -1,0 +1,95 @@
+{
+"p5.js:Gruntfile.js": [
+132
+],
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+386
+],
+"p5.js:karma.conf.js": [
+81,
+82,
+84
+],
+"p5.js:lib/addons/p5.sound.js": [
+1476,
+3594,
+4546,
+4963,
+6426,
+7337,
+7337,
+7338,
+7338,
+7339,
+7340,
+7341,
+7342,
+7346,
+7802,
+8929,
+11769,
+12756
+],
+"p5.js:src/core/constants.js": [
+236,
+242,
+248,
+254,
+260,
+266,
+272
+],
+"p5.js:src/core/error_helpers.js": [
+646
+],
+"p5.js:src/core/p5.Renderer2D.js": [
+432,
+505
+],
+"p5.js:src/core/shape/2d_primitives.js": [
+43
+],
+"p5.js:src/dom/dom.js": [
+504
+],
+"p5.js:src/image/filters.js": [
+58,
+59,
+60,
+61,
+78,
+79,
+80,
+81,
+560,
+561,
+562
+],
+"p5.js:src/io/files.js": [
+1152
+],
+"p5.js:src/math/noise.js": [
+282,
+284,
+286
+],
+"p5.js:src/math/random.js": [
+15,
+17,
+19
+],
+"p5.js:src/utilities/conversion.js": [
+280
+],
+"p5.js:src/webgl/loading.js": [
+367,
+394
+],
+"p5.js:src/webgl/p5.RendererGL.js": [
+1381
+],
+"p5.js:src/webgl/text.js": [
+482,
+482
+]
+}

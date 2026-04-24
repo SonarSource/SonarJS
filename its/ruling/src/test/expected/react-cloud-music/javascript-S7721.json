@@ -1,0 +1,27 @@
+{
+"react-cloud-music:src/application/Player/normal-player/index.jsx": [
+79
+],
+"react-cloud-music:src/application/Rank/store/index.js": [
+15
+],
+"react-cloud-music:src/application/Recommend/store/actionCreators.js": [
+21,
+32
+],
+"react-cloud-music:src/application/Search/store/actionCreators.js": [
+27
+],
+"react-cloud-music:src/application/Singers/store/actionCreators.js": [
+58,
+71,
+88,
+105
+],
+"react-cloud-music:src/application/User/Login/LoginForm/index.jsx": [
+12
+],
+"react-cloud-music:src/baseUI/music-note/index.jsx": [
+31
+]
+}

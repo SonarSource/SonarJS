@@ -1,5 +1,142 @@
 {
+"rxjs:src/Observable.ts": [
+114,
+153
+],
+"rxjs:src/Subscriber.ts": [
+255,
+264
+],
+"rxjs:src/observable/DeferObservable.ts": [
+83
+],
+"rxjs:src/observable/FromEventPatternObservable.ts": [
+97,
+106
+],
+"rxjs:src/observable/GenerateObservable.ts": [
+219,
+231,
+241,
+256,
+267,
+282
+],
+"rxjs:src/observable/IfObservable.ts": [
+55
+],
+"rxjs:src/observable/PromiseObservable.ts": [
+70,
+76,
+95,
+100
+],
+"rxjs:src/observable/UsingObservable.ts": [
+32,
+53
+],
+"rxjs:src/observable/dom/AjaxObservable.ts": [
+49,
+54
+],
+"rxjs:src/observable/dom/WebSocketSubject.ts": [
+169
+],
+"rxjs:src/operator/bufferToggle.ts": [
+134
+],
 "rxjs:src/operator/catch.ts": [
 106
+],
+"rxjs:src/operator/combineLatest.ts": [
+163
+],
+"rxjs:src/operator/count.ts": [
+96
+],
+"rxjs:src/operator/debounce.ts": [
+87
+],
+"rxjs:src/operator/delayWhen.ts": [
+114
+],
+"rxjs:src/operator/distinct.ts": [
+109
+],
+"rxjs:src/operator/every.ts": [
+61
+],
+"rxjs:src/operator/exhaustMap.ts": [
+103,
+132
+],
+"rxjs:src/operator/filter.ts": [
+91
+],
+"rxjs:src/operator/find.ts": [
+98
+],
+"rxjs:src/operator/first.ts": [
+125,
+146
+],
+"rxjs:src/operator/groupBy.ts": [
+133,
+154,
+170
+],
+"rxjs:src/operator/last.ts": [
+103,
+121
+],
+"rxjs:src/operator/map.ts": [
+76
+],
+"rxjs:src/operator/mergeMap.ts": [
+126,
+159
+],
+"rxjs:src/operator/mergeMapTo.ts": [
+145
+],
+"rxjs:src/operator/reduce.ts": [
+112
+],
+"rxjs:src/operator/scan.ts": [
+106
+],
+"rxjs:src/operator/single.ts": [
+78
+],
+"rxjs:src/operator/skipWhile.ts": [
+60
+],
+"rxjs:src/operator/switchMap.ts": [
+144
+],
+"rxjs:src/operator/switchMapTo.ts": [
+133
+],
+"rxjs:src/operator/takeWhile.ts": [
+73
+],
+"rxjs:src/operator/throttle.ts": [
+120
+],
+"rxjs:src/operator/withLatestFrom.ts": [
+140
+],
+"rxjs:src/operator/zip.ts": [
+220
+],
+"rxjs:src/scheduler/AsyncAction.ts": [
+122
+],
+"rxjs:src/util/subscribeToResult.ts": [
+50,
+52
+],
+"rxjs:src/util/tryCatch.ts": [
+8
 ]
 }

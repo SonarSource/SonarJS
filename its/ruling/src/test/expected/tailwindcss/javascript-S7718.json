@@ -1,0 +1,26 @@
+{
+"tailwindcss:__tests__/applyAtRule.test.js": [
+140,
+148,
+910,
+981,
+1002,
+1020
+],
+"tailwindcss:__tests__/responsiveAtRule.test.js": [
+414,
+437
+],
+"tailwindcss:src/index.js": [
+42
+],
+"tailwindcss:src/index.postcss7.js": [
+43
+],
+"tailwindcss:src/lib/getModuleDependencies.js": [
+32
+],
+"tailwindcss:src/util/negateValue.js": [
+6
+]
+}

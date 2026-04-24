@@ -1,11 +1,32 @@
 {
 "prettier-vscode:src/PrettierEditProvider.ts": [
-22,
-135,
-137
+13,
+14,
+21,
+32,
+38,
+38,
+45,
+47,
+61,
+69
+],
+"prettier-vscode:src/extension.ts": [
+7,
+8,
+10,
+12,
+12,
+12,
+15,
+19
 ],
 "prettier-vscode:src/requirePkg.ts": [
-37,
-37
+1,
+2,
+3,
+19,
+19,
+21
 ]
 }

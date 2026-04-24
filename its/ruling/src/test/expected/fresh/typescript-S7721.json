@@ -1,10 +1,52 @@
 {
+"fresh:packages/fresh/src/app_test.tsx": [
+688
+],
 "fresh:packages/fresh/src/context_test.tsx": [
 185,
 214,
 230
 ],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+106
+],
+"fresh:packages/fresh/src/jsonify/stringify_test.ts": [
+12
+],
+"fresh:packages/fresh/src/middlewares/mod.ts": [
+106
+],
+"fresh:packages/fresh/src/middlewares/mod_test.ts": [
+36,
+45,
+58,
+62,
+66,
+70,
+75,
+142,
+271
+],
+"fresh:packages/fresh/src/router_test.ts": [
+22,
+45,
+59,
+60,
+75,
+89,
+103,
+104,
+133,
+147,
+265,
+266,
+277,
+278
+],
 "fresh:packages/fresh/tests/partials_test.tsx": [
 3455
+],
+"fresh:packages/init/src/init_test.ts": [
+65
 ]
 }

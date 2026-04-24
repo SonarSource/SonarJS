@@ -1,0 +1,35 @@
+{
+"moose:main/background.ts": [
+42
+],
+"moose:main/controllers/details.ts": [
+24
+],
+"moose:main/helpers/Description.ts": [
+77
+],
+"moose:main/modules/cast.ts": [
+26,
+38,
+47,
+55,
+63,
+71,
+80
+],
+"moose:renderer/components/Container/Container.tsx": [
+114
+],
+"moose:renderer/components/Downloads/Downloads.tsx": [
+87
+],
+"moose:renderer/components/DragAndDrop/DragAndDrop.tsx": [
+27
+],
+"moose:renderer/components/FilesList/FilesList.tsx": [
+140
+],
+"moose:renderer/components/Header/Header.tsx": [
+121
+]
+}

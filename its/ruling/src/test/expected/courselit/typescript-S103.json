@@ -1,5 +1,301 @@
 {
+"courselit:apps/web/components/admin/base-layout.tsx": [
+17,
+146
+],
+"courselit:apps/web/components/admin/courses/course-editor/course-structure-editor.tsx": [
+138
+],
+"courselit:apps/web/components/admin/courses/course-editor/group.tsx": [
+228,
+257
+],
+"courselit:apps/web/components/admin/courses/course-editor/index.tsx": [
+496,
+501,
+513,
+514,
+515,
+516,
+521,
+529,
+532,
+534,
+539,
+540,
+542,
+544,
+545,
+546,
+547,
+548,
+549,
+554,
+557,
+558,
+559,
+560,
+562,
+563,
+564,
+565,
+566,
+567,
+568,
+569,
+570,
+587,
+589,
+596,
+597,
+600,
+602,
+604,
+608,
+609,
+610,
+611,
+612,
+613,
+615,
+616,
+627,
+628,
+631,
+635,
+636,
+637,
+640,
+647,
+649,
+654,
+656,
+662,
+663,
+664,
+667,
+670,
+672,
+673,
+674,
+677,
+680,
+689,
+694,
+697,
+698,
+701,
+703,
+704,
+714,
+715,
+718,
+719,
+720,
+721,
+725,
+726,
+727,
+728,
+729,
+730,
+732,
+733,
+743,
+752,
+757,
+773,
+775,
+780,
+782,
+788,
+789,
+791,
+800
+],
+"courselit:apps/web/components/admin/courses/index.tsx": [
+209
+],
+"courselit:apps/web/components/admin/courses/lesson-editor.tsx": [
+377,
+379,
+386,
+393,
+400
+],
+"courselit:apps/web/components/admin/design/layout-manager/add-component-dialog.tsx": [
+17
+],
+"courselit:apps/web/components/admin/design/layout-manager/compatible-components-map.ts": [
+2
+],
+"courselit:apps/web/components/admin/design/layout-manager/index.tsx": [
+265,
+266,
+276,
+332,
+334,
+339,
+344,
+345,
+346,
+347,
+349,
+350,
+352,
+353,
+355,
+356,
+363,
+364,
+365,
+366,
+367,
+397,
+399,
+409,
+410,
+415,
+417,
+418,
+421,
+429,
+431,
+479,
+487,
+490,
+491,
+500,
+502,
+522,
+530,
+533,
+534,
+543,
+545
+],
+"courselit:apps/web/components/admin/design/themes-manager/index.tsx": [
+294,
+300
+],
+"courselit:apps/web/components/admin/settings.tsx": [
+476,
+478,
+480,
+519,
+537,
+539,
+550,
+556,
+558,
+568,
+571,
+574,
+587,
+593,
+601,
+619,
+621,
+631,
+638,
+640,
+653,
+674,
+724,
+746
+],
+"courselit:apps/web/components/admin/users/index.tsx": [
+189,
+211,
+265,
+273,
+274,
+280
+],
+"courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
+266,
+277
+],
+"courselit:apps/web/components/public/base-layout/index.tsx": [
+31
+],
+"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
+230,
+241
+],
+"courselit:apps/web/components/public/base-layout/scaffold/drawer-content.tsx": [
+23,
+61
+],
+"courselit:apps/web/components/public/base-layout/scaffold/index.tsx": [
+136,
+147
+],
+"courselit:apps/web/components/public/base-layout/template/index.tsx": [
+19,
+96
+],
+"courselit:apps/web/components/public/lesson-viewer.tsx": [
+167
+],
+"courselit:apps/web/graphql/courses/logic.ts": [
+251,
+294
+],
+"courselit:apps/web/graphql/courses/query.ts": [
+71
+],
+"courselit:apps/web/graphql/lessons/mutation.ts": [
+62
+],
+"courselit:apps/web/graphql/users/logic.ts": [
+57
+],
+"courselit:apps/web/lib/passport-magic-link.ts": [
+32,
+35
+],
+"courselit:apps/web/lib/utils.ts": [
+66,
+90
+],
+"courselit:apps/web/models/Theme.ts": [
+2
+],
+"courselit:apps/web/pages/_document.tsx": [
+12,
+15,
+28,
+43
+],
+"courselit:apps/web/pages/course/[id]/[slug].tsx": [
+14,
+73
+],
+"courselit:apps/web/pages/post/[id]/[slug].tsx": [
+38
+],
+"courselit:apps/web/pages/profile/[id].tsx": [
+91,
+152,
+218
+],
+"courselit:apps/web/payments/stripe-payment.ts": [
+58
+],
 "courselit:apps/web/ui-config/strings.ts": [
-198
+130,
+158,
+198,
+215,
+280
+],
+"courselit:packages/common-models/src/index.ts": [
+4
+],
+"courselit:packages/components-library/src/image.tsx": [
+16,
+18,
+28
 ]
 }

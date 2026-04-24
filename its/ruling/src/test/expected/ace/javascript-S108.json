@@ -1,8 +1,63 @@
 {
+"ace:Makefile.dryice.js": [
+54,
+217
+],
+"ace:demo/kitchen-sink/doclist.js": [
+90
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+397,
+1533,
+1536
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+2999,
+4055,
+4205,
+5196,
+5413,
+5416
+],
+"ace:src/ace_test.js": [
+43
+],
+"ace:src/config.js": [
+98
+],
+"ace:src/ext/emmet.js": [
+390
+],
+"ace:src/keyboard/textinput.js": [
+50,
+65,
+228
+],
 "ace:src/keyboard/vim.js": [
 714
 ],
+"ace:src/lib/event.js": [
+18
+],
+"ace:src/line_widgets.js": [
+228
+],
+"ace:src/mode/_test/highlight_rules_test.js": [
+169
+],
+"ace:src/mode/c9search_highlight_rules.js": [
+10
+],
+"ace:src/mouse/dragdrop_handler.js": [
+280
+],
 "ace:src/selection.js": [
 749
+],
+"ace:src/snippets.js": [
+695
+],
+"ace:static.js": [
+84
 ]
 }

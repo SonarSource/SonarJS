@@ -1,0 +1,20 @@
+{
+"console:src/actions/databrowser/ui.ts": [
+125
+],
+"console:src/actions/gettingStarted.tsx": [
+72,
+82,
+92,
+100
+],
+"console:src/views/AuthView/AuthView.tsx": [
+12
+],
+"console:src/views/ProjectRootView/AddModelPopup.tsx": [
+175
+],
+"console:src/views/SchemaView/SchemaView.tsx": [
+28
+]
+}

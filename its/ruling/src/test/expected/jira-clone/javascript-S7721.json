@@ -1,0 +1,27 @@
+{
+"jira-clone:client/cypress/integration/issueDetails.spec.js": [
+163,
+164,
+165
+],
+"jira-clone:client/cypress/integration/issueFilters.spec.js": [
+30,
+31,
+32,
+33,
+34
+],
+"jira-clone:client/cypress/integration/issueSearch.spec.js": [
+48,
+49
+],
+"jira-clone:client/cypress/integration/issuesDragDrop.spec.js": [
+37
+],
+"jira-clone:client/src/shared/utils/validation.js": [
+4,
+10,
+13,
+15
+]
+}

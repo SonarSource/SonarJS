@@ -1,8 +1,78 @@
 {
+"reddit-mobile:assets/js/client.es6.js": [
+14,
+68,
+108,
+109,
+110,
+242,
+368,
+408
+],
+"reddit-mobile:assets/js/trackingEvents.es6.js": [
+67,
+68,
+86,
+126
+],
+"reddit-mobile:buildTasks/icons.js": [
+28
+],
+"reddit-mobile:buildTasks/js.js": [
+66,
+71
+],
+"reddit-mobile:index.js": [
+47,
+107,
+156,
+161,
+177,
+198
+],
 "reddit-mobile:src/config.es6.js": [
-7
+7,
+35
+],
+"reddit-mobile:src/lib/mobilify.es6.js": [
+3
+],
+"reddit-mobile:src/lib/timing.es6.js": [
+2,
+37
+],
+"reddit-mobile:src/propTypes.es6.js": [
+3
+],
+"reddit-mobile:src/server/console.es6.js": [
+247
 ],
 "reddit-mobile:src/server/oauth.es6.js": [
-9
+9,
+32,
+57,
+60,
+155,
+179,
+229,
+294,
+369,
+465,
+469,
+489,
+495
+],
+"reddit-mobile:src/server/routes.es6.js": [
+44
+],
+"reddit-mobile:test/helpers/components.es6.js": [
+10,
+26
+],
+"reddit-mobile:test/index.js": [
+13
+],
+"reddit-mobile:version.js": [
+5
 ]
 }

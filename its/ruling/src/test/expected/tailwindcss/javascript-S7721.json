@@ -2,10 +2,19 @@
 "tailwindcss:__tests__/parseAnimationValue.test.js": [
 187
 ],
+"tailwindcss:__tests__/prefixSelector.test.js": [
+8
+],
 "tailwindcss:jest/customMatchers.js": [
 15
 ],
+"tailwindcss:src/plugins/ringColor.js": [
+10
+],
 "tailwindcss:src/plugins/ringWidth.js": [
 7
+],
+"tailwindcss:src/util/transformThemeValue.js": [
+28
 ]
 }

@@ -1,5 +1,15 @@
 {
+"ant-design:components/_util/ActionButton.tsx": [
+53
+],
 "ant-design:components/message/__tests__/type.test.tsx": [
 21
+],
+"ant-design:components/upload/Upload.tsx": [
+178,
+203
+],
+"ant-design:site/theme/template/IconDisplay/IconPicSearcher.tsx": [
+120
 ]
 }

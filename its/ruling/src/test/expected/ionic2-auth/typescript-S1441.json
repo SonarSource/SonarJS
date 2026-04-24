@@ -1,12 +1,43 @@
 {
+"ionic2-auth:app/app.ts": [
+1,
+2,
+3,
+4,
+5,
+6,
+9,
+13
+],
 "ionic2-auth:app/pages/profile/profile.ts": [
-13,
-14,
-17,
-18,
-18
+1,
+2,
+3,
+4,
+5,
+6,
+9,
+25,
+50,
+56
 ],
 "ionic2-auth:app/pages/quotes/quotes.ts": [
-11
+1,
+2,
+3,
+4,
+5,
+8
+],
+"ionic2-auth:app/pages/tabs/tabs.ts": [
+1,
+2,
+3,
+6,
+10
+],
+"ionic2-auth:app/services/auth/auth.ts": [
+1,
+2
 ]
 }

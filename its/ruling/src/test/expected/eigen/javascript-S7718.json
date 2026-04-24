@@ -1,0 +1,24 @@
+{
+"eigen:scripts/check-flags/check-flags.js": [
+14
+],
+"eigen:scripts/detect-secrets.js": [
+81
+],
+"eigen:scripts/doctor.js": [
+40,
+57,
+66,
+75,
+84,
+93,
+118,
+130
+],
+"eigen:scripts/strictness-migration.js": [
+75
+],
+"eigen:scripts/update-metaphysics.js": [
+26
+]
+}

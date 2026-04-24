@@ -1,0 +1,114 @@
+{
+"eigen:metaphysics-queries-freshness-tests/test-freshness.ts": [
+121
+],
+"eigen:src/app/Components/ArtsyWebView.tsx": [
+196,
+329
+],
+"eigen:src/app/Components/Bidding/Screens/Registration.tsx": [
+158,
+181
+],
+"eigen:src/app/Components/Home/ArtistRails/ArtistRail.tsx": [
+117
+],
+"eigen:src/app/NativeModules/triggerCamera.tsx": [
+8
+],
+"eigen:src/app/Scenes/Artwork/Components/ArtworkHeader.tsx": [
+73
+],
+"eigen:src/app/Scenes/BottomTabs/BottomTabsModel.ts": [
+59
+],
+"eigen:src/app/Scenes/ForceUpdate/ForceUpdate.tsx": [
+22
+],
+"eigen:src/app/Scenes/MyAccount/Components/MyAccountFieldEditScreen.tsx": [
+61
+],
+"eigen:src/app/Scenes/MyAccount/MyAccountDeleteAccount.tsx": [
+122
+],
+"eigen:src/app/Scenes/MyAccount/MyAccountEditEmail.tsx": [
+50
+],
+"eigen:src/app/Scenes/MyAccount/MyAccountEditName.tsx": [
+34
+],
+"eigen:src/app/Scenes/MyAccount/MyAccountEditPhone.tsx": [
+40
+],
+"eigen:src/app/Scenes/MyAccount/updateMyUserProfile.ts": [
+68
+],
+"eigen:src/app/Scenes/MyCollection/Screens/ArtworkForm/MyCollectionArtworkForm.tsx": [
+133,
+169
+],
+"eigen:src/app/Scenes/MyProfile/MyProfileEditForm.tsx": [
+176
+],
+"eigen:src/app/Scenes/MyProfile/MyProfilePaymentNewCreditCard.tsx": [
+137
+],
+"eigen:src/app/Scenes/SavedAddresses/SavedAddressesForm.tsx": [
+141,
+173
+],
+"eigen:src/app/navigation/useReloadedDevNavigationState.ts": [
+42
+],
+"eigen:src/app/relay/middlewares/checkAuthenticationMiddleware.ts": [
+36
+],
+"eigen:src/app/relay/middlewares/errorMiddleware.tests.ts": [
+58,
+101,
+174
+],
+"eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
+125
+],
+"eigen:src/app/relay/middlewares/rateLimitMiddleware.tests.ts": [
+54
+],
+"eigen:src/app/store/AuthModel.tests.ts": [
+110,
+353,
+370,
+395,
+425,
+468,
+494,
+524,
+567,
+660
+],
+"eigen:src/app/store/persistence.ts": [
+58,
+79
+],
+"eigen:src/app/tests/createMockNetworkLayer/createMockNetworkLayer.tests.tsx": [
+68
+],
+"eigen:src/app/tests/createMockNetworkLayer/index.ts": [
+184
+],
+"eigen:src/app/utils/ExecutionQueue.ts": [
+10
+],
+"eigen:src/app/utils/isValidPhoneNumber.ts": [
+23
+],
+"eigen:src/app/utils/renderWithPlaceholder.tsx": [
+56
+],
+"eigen:src/app/utils/track/SegmentTrackingProvider.ts": [
+35
+],
+"eigen:src/palette/elements/Input/PhoneInput/PhoneInput.tsx": [
+73
+]
+}

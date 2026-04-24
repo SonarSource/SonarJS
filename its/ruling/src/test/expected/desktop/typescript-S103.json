@@ -1,69 +1,1618 @@
 {
+"desktop:app/git-info.ts": [
+62,
+72
+],
+"desktop:app/src/cli/main.ts": [
+101
+],
+"desktop:app/src/cli/open-desktop.ts": [
+14,
+19
+],
+"desktop:app/src/crash/crash-app.tsx": [
+61
+],
+"desktop:app/src/highlighter/index.ts": [
+40
+],
+"desktop:app/src/lib/2fa.ts": [
+2,
+4
+],
+"desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
+134,
+150,
+169,
+213,
+300,
+332,
+348,
+426,
+464,
+531,
+541,
+553,
+563,
+633,
+649,
+699,
+701,
+728
+],
+"desktop:app/src/lib/actions-log-parser/action-log-pipeline-commands.ts": [
+21,
+34,
+47,
+110
+],
 "desktop:app/src/lib/actions-log-parser/actions-logs-ansii.ts": [
-30
+15,
+16,
+17,
+30,
+31,
+32,
+33,
+34,
+43
 ],
 "desktop:app/src/lib/api.ts": [
-872
+78,
+520,
+527,
+552,
+702,
+770,
+771,
+780,
+797,
+872,
+880,
+896,
+1038,
+1043,
+1082,
+1109,
+1144,
+1182,
+1222,
+1244,
+1250,
+1293,
+1301,
+1303,
+1711,
+1722,
+1799
+],
+"desktop:app/src/lib/app-state.ts": [
+42,
+283,
+440,
+506,
+541,
+548,
+558,
+599,
+697,
+705,
+737,
+841,
+843,
+844,
+851
+],
+"desktop:app/src/lib/branch.ts": [
+11,
+12
+],
+"desktop:app/src/lib/ci-checks/ci-checks.ts": [
+16,
+301,
+335,
+637,
+690,
+744,
+747
+],
+"desktop:app/src/lib/compare.ts": [
+13,
+49,
+54
+],
+"desktop:app/src/lib/databases/issues-database.ts": [
+26
+],
+"desktop:app/src/lib/databases/repositories-database.ts": [
+39,
+213
+],
+"desktop:app/src/lib/diff-parser.ts": [
+16,
+17,
+18,
+21,
+61,
+67,
+75,
+76,
+208,
+235,
+237,
+321,
+327,
+330
+],
+"desktop:app/src/lib/editors/darwin.ts": [
+140
+],
+"desktop:app/src/lib/editors/launch.ts": [
+8,
+20
+],
+"desktop:app/src/lib/editors/lookup.ts": [
+36,
+61
+],
+"desktop:app/src/lib/editors/win32.ts": [
+32,
+168,
+190
+],
+"desktop:app/src/lib/endpoint-capabilities.ts": [
+130
+],
+"desktop:app/src/lib/equality.ts": [
+19
+],
+"desktop:app/src/lib/errno-exception.ts": [
+18
+],
+"desktop:app/src/lib/feature-flag.ts": [
+171,
+176
+],
+"desktop:app/src/lib/find-toast-activator-clsid.ts": [
+7
+],
+"desktop:app/src/lib/format-relative.ts": [
+23
+],
+"desktop:app/src/lib/get-os.ts": [
+58
+],
+"desktop:app/src/lib/git-error-context.ts": [
+6,
+9,
+17
+],
+"desktop:app/src/lib/git/apply.ts": [
+128
+],
+"desktop:app/src/lib/git/authentication.ts": [
+7
+],
+"desktop:app/src/lib/git/checkout.ts": [
+17
+],
+"desktop:app/src/lib/git/cherry-pick.ts": [
+18,
+28,
+38,
+307,
+368,
+394,
+434,
+453
+],
+"desktop:app/src/lib/git/commit.ts": [
+6,
+65,
+76,
+96
+],
+"desktop:app/src/lib/git/config.ts": [
+171
 ],
 "desktop:app/src/lib/git/core.ts": [
+319,
+320,
+321,
 322,
-390
+329,
+333,
+335,
+338,
+340,
+344,
+354,
+366,
+368,
+378,
+380,
+382,
+390,
+392,
+394,
+396,
+406,
+412
+],
+"desktop:app/src/lib/git/diff.ts": [
+37,
+102,
+157,
+217,
+337,
+338,
+346,
+362,
+371,
+651,
+652
+],
+"desktop:app/src/lib/git/environment.ts": [
+114
+],
+"desktop:app/src/lib/git/git-delimiter-parser.ts": [
+51
+],
+"desktop:app/src/lib/git/gitignore.ts": [
+82
+],
+"desktop:app/src/lib/git/interpret-trailers.ts": [
+160
+],
+"desktop:app/src/lib/git/merge-tree.ts": [
+13,
+14,
+15,
+36
+],
+"desktop:app/src/lib/git/merge.ts": [
+112,
+116
+],
+"desktop:app/src/lib/git/pull.ts": [
+126
+],
+"desktop:app/src/lib/git/push.ts": [
+22
+],
+"desktop:app/src/lib/git/rebase.ts": [
+13,
+162,
+172,
+187,
+264,
+271,
+377,
+420,
+445,
+457,
+501,
+576
+],
+"desktop:app/src/lib/git/reflog.ts": [
+11,
+12,
+13,
+15,
+73,
+77
+],
+"desktop:app/src/lib/git/refs.ts": [
+50
+],
+"desktop:app/src/lib/git/reorder.ts": [
+23,
+25,
+74,
+91,
+107,
+115,
+124,
+129
+],
+"desktop:app/src/lib/git/reset.ts": [
+63
+],
+"desktop:app/src/lib/git/spawn.ts": [
+22,
+23,
+24,
+50,
+51,
+52,
+137
+],
+"desktop:app/src/lib/git/squash.ts": [
+26,
+52,
+102,
+128,
+135
+],
+"desktop:app/src/lib/git/stage.ts": [
+8,
+15,
+35,
+36
+],
+"desktop:app/src/lib/git/stash.ts": [
+110,
+126,
+147,
+151,
+155,
+159,
+218,
+223
+],
+"desktop:app/src/lib/git/status.ts": [
+33,
+36,
+191,
+198,
+400,
+401
+],
+"desktop:app/src/lib/git/submodule.ts": [
+44
+],
+"desktop:app/src/lib/git/tag.ts": [
+12,
+40,
+50,
+59,
+65,
+67,
+68,
+80
+],
+"desktop:app/src/lib/git/update-ref.ts": [
+33,
+34,
+35,
+36
+],
+"desktop:app/src/lib/helpers/push-control.ts": [
+19,
+38,
+41,
+42
+],
+"desktop:app/src/lib/helpers/regex.ts": [
+31,
+46,
+47,
+49,
+58
+],
+"desktop:app/src/lib/http.ts": [
+47,
+71,
+80
+],
+"desktop:app/src/lib/ipc-shared.ts": [
+16,
+17,
+116
+],
+"desktop:app/src/lib/is-application-bundle.ts": [
+22
+],
+"desktop:app/src/lib/large-files.ts": [
+10,
+12,
+13,
+15
+],
+"desktop:app/src/lib/local-storage.ts": [
+53,
+137,
+178
+],
+"desktop:app/src/lib/markdown-filters/close-keyword-filter.ts": [
+34,
+58,
+152,
+153
+],
+"desktop:app/src/lib/markdown-filters/commit-mention-filter.ts": [
+28,
+32,
+42,
+155,
+176
 ],
 "desktop:app/src/lib/markdown-filters/commit-mention-link-filter.ts": [
-17
+7,
+12,
+13,
+14,
+17,
+20,
+23,
+32,
+95,
+98,
+99,
+121
+],
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
+12,
+32,
+52
+],
+"desktop:app/src/lib/markdown-filters/issue-link-filter.ts": [
+18,
+29,
+51,
+56,
+103
+],
+"desktop:app/src/lib/markdown-filters/issue-mention-filter.ts": [
+125,
+202
+],
+"desktop:app/src/lib/markdown-filters/mention-filter.ts": [
+85
+],
+"desktop:app/src/lib/markdown-filters/node-filter.ts": [
+20,
+23,
+24,
+29,
+32,
+48,
+79,
+80,
+81,
+82,
+83
+],
+"desktop:app/src/lib/markdown-filters/resolve-owner-repo.ts": [
+35
+],
+"desktop:app/src/lib/markdown-filters/team-mention-filter.ts": [
+18,
+21,
+70,
+72,
+98
+],
+"desktop:app/src/lib/markdown-filters/video-link-filter.ts": [
+7,
+42
+],
+"desktop:app/src/lib/markdown-filters/video-tag-filter.ts": [
+7,
+14,
+28,
+35
+],
+"desktop:app/src/lib/markdown-filters/video-url-regex.ts": [
+6
+],
+"desktop:app/src/lib/menu-item.ts": [
+112
+],
+"desktop:app/src/lib/multi-commit-operation.ts": [
+12,
+27
+],
+"desktop:app/src/lib/notifications/show-notification.ts": [
+3
 ],
 "desktop:app/src/lib/oauth.ts": [
 47
 ],
+"desktop:app/src/lib/parse-app-url.ts": [
+13,
+16,
+19,
+47
+],
+"desktop:app/src/lib/parse-pac-string.ts": [
+5,
+25,
+26,
+27,
+32,
+105
+],
+"desktop:app/src/lib/patch-formatter.ts": [
+95,
+96,
+97,
+100,
+235,
+238,
+243,
+245,
+249,
+281,
+295,
+301
+],
+"desktop:app/src/lib/process/win32.ts": [
+76,
+78
+],
+"desktop:app/src/lib/progress/git.ts": [
+10,
+70,
+104,
+113,
+119,
+233
+],
+"desktop:app/src/lib/progress/lfs.ts": [
+20,
+106
+],
+"desktop:app/src/lib/promise.ts": [
+9,
+23
+],
+"desktop:app/src/lib/queue-work.ts": [
+11,
+13,
+37,
+40
+],
+"desktop:app/src/lib/range.ts": [
+2
+],
+"desktop:app/src/lib/read-emoji.ts": [
+82
+],
+"desktop:app/src/lib/repository-matching.ts": [
+30,
+71
+],
+"desktop:app/src/lib/sanitize-ref-name.ts": [
+1,
+4
+],
+"desktop:app/src/lib/shell.ts": [
+55
+],
+"desktop:app/src/lib/shells/shared.ts": [
+88,
+107
+],
+"desktop:app/src/lib/shells/win32.ts": [
+195,
+198,
+210,
+302,
+316
+],
 "desktop:app/src/lib/squirrel-error-parser.ts": [
+1,
+6,
+10,
+22,
+27,
+32
+],
+"desktop:app/src/lib/ssh/ssh-secret-storage.ts": [
+29,
+33
+],
+"desktop:app/src/lib/ssh/ssh.ts": [
+20,
+49,
+77
+],
+"desktop:app/src/lib/stats/stats-database.ts": [
+44,
+47,
+59,
+62,
+68,
+71,
+77,
+83,
+89,
+92,
+95,
+98,
+101,
+104,
+107,
+110,
+125,
+128,
+131,
+137,
+140,
+143,
+146,
+149,
+161,
+167,
+170,
+185,
+188,
+191,
+194,
+197,
+200,
+212,
+233,
+274,
+440,
+461,
+522
+],
+"desktop:app/src/lib/stats/stats-store.ts": [
+30,
+43,
+797,
+819,
+879,
+886,
+893,
+986,
+993,
+1000,
+1019,
+1021,
+1182,
+1231,
+1245,
+1652,
+1696,
+1815
+],
+"desktop:app/src/lib/status-parser.ts": [
+57,
+61,
+95,
+110,
+134
+],
+"desktop:app/src/lib/status.ts": [
+87,
+115
+],
+"desktop:app/src/lib/stores/accounts-store.ts": [
+90
+],
+"desktop:app/src/lib/stores/ahead-behind-store.ts": [
 10
 ],
 "desktop:app/src/lib/stores/app-store.ts": [
-1807
+218,
+258,
+303,
+442,
+506,
+507,
+588,
+702,
+709,
+958,
+973,
+1009,
+1183,
+1341,
+1487,
+1515,
+1579,
+1589,
+1590,
+1683,
+1780,
+1795,
+1807,
+2279,
+2470,
+2471,
+2637,
+3600,
+3895,
+4343,
+4352,
+4358,
+4924,
+4954,
+4955,
+4957,
+4960,
+4961,
+4964,
+4966,
+5013,
+5275,
+5325,
+5484,
+5583,
+5845,
+5975,
+6177,
+6194,
+6663,
+6672,
+6680,
+6755
+],
+"desktop:app/src/lib/stores/commit-status-store.ts": [
+63,
+86,
+341,
+351,
+457
+],
+"desktop:app/src/lib/stores/git-store.ts": [
+98,
+208,
+263,
+266,
+670,
+697,
+776,
+782,
+922,
+1054,
+1135,
+1425,
+1511,
+1523,
+1530,
+1533,
+1534,
+1537,
+1538,
+1541,
+1588
 ],
 "desktop:app/src/lib/stores/helpers/branch-pruner.ts": [
-215
+75,
+215,
+235,
+251
 ],
 "desktop:app/src/lib/stores/helpers/repository-indicator-updater.ts": [
+57,
+74,
 119
+],
+"desktop:app/src/lib/stores/helpers/tutorial-assessor.ts": [
+37,
+44,
+111
+],
+"desktop:app/src/lib/stores/issues-store.ts": [
+64
+],
+"desktop:app/src/lib/stores/notifications-store.ts": [
+30,
+36,
+71,
+263
+],
+"desktop:app/src/lib/stores/pull-request-coordinator.ts": [
+239,
+257,
+258
+],
+"desktop:app/src/lib/stores/pull-request-store.ts": [
+297
+],
+"desktop:app/src/lib/stores/repositories-store.ts": [
+45,
+141,
+349,
+350,
+363,
+369,
+383,
+583,
+628,
+645
+],
+"desktop:app/src/lib/stores/repository-state-cache.ts": [
+149
 ],
 "desktop:app/src/lib/stores/sign-in-store.ts": [
 29,
 32,
-270
+270,
+316,
+392,
+505,
+535,
+539,
+569,
+598,
+650,
+662
+],
+"desktop:app/src/lib/stores/updates/changes-state.ts": [
+19,
+194,
+234,
+348
+],
+"desktop:app/src/lib/stores/updates/update-remote-url.ts": [
+12
+],
+"desktop:app/src/lib/tailer.ts": [
+35
+],
+"desktop:app/src/lib/text-token-parser.ts": [
+54,
+222
+],
+"desktop:app/src/lib/thank-you.ts": [
+64,
+67
+],
+"desktop:app/src/lib/trampoline/trampoline-askpass-handler.ts": [
+27,
+58
+],
+"desktop:app/src/lib/trampoline/trampoline-command-parser.ts": [
+119
+],
+"desktop:app/src/lib/trampoline/trampoline-environment.ts": [
+29
+],
+"desktop:app/src/lib/truncate-with-ellipsis.ts": [
+1
+],
+"desktop:app/src/lib/window-state.ts": [
+39,
+48,
+49
+],
+"desktop:app/src/main-process/app-window.ts": [
+58,
+122
+],
+"desktop:app/src/main-process/crash-window.ts": [
+35
+],
+"desktop:app/src/main-process/desktop-console-transport.ts": [
+20,
+21,
+32
+],
+"desktop:app/src/main-process/exception-reporting.ts": [
+72
+],
+"desktop:app/src/main-process/main.ts": [
+223,
+293,
+369,
+603,
+615,
+696
+],
+"desktop:app/src/main-process/menu/build-default-menu.ts": [
+473,
+493
+],
+"desktop:app/src/main-process/menu/ensure-item-ids.ts": [
+27
+],
+"desktop:app/src/main-process/notifications.ts": [
+27,
+31
+],
+"desktop:app/src/main-process/ordered-webrequest.ts": [
+111,
+124,
+131
+],
+"desktop:app/src/main-process/same-origin-filter.ts": [
+6
+],
+"desktop:app/src/main-process/shell.ts": [
+4,
+6
+],
+"desktop:app/src/main-process/show-uncaught-exception.ts": [
+34,
+35
+],
+"desktop:app/src/main-process/squirrel-updater.ts": [
+14
+],
+"desktop:app/src/models/account.ts": [
+16,
+18,
+21,
+30,
+31,
+32
+],
+"desktop:app/src/models/app-menu.ts": [
+135,
+395,
+397,
+468,
+484,
+512,
+536
+],
+"desktop:app/src/models/branch.ts": [
+54
+],
+"desktop:app/src/models/commit-identity.ts": [
+20
+],
+"desktop:app/src/models/commit.ts": [
+20
+],
+"desktop:app/src/models/computed-action.ts": [
+7,
+9
+],
+"desktop:app/src/models/diff/diff-data.ts": [
+12,
+14,
+16,
+52,
+54
+],
+"desktop:app/src/models/diff/diff-selection.ts": [
+55,
+67,
+75,
+91,
+121
+],
+"desktop:app/src/models/diff/image.ts": [
+7
+],
+"desktop:app/src/models/diff/raw-diff.ts": [
+32,
+34,
+35,
+49,
+50,
+52,
+62
+],
+"desktop:app/src/models/menu-labels.ts": [
+26,
+38
+],
+"desktop:app/src/models/multi-commit-operation.ts": [
+144,
+163,
+210
+],
+"desktop:app/src/models/owner.ts": [
+6
+],
+"desktop:app/src/models/popup.ts": [
+18,
+23
+],
+"desktop:app/src/models/pull-request.ts": [
+12,
+25
+],
+"desktop:app/src/models/repository.ts": [
+179
+],
+"desktop:app/src/models/status.ts": [
+80,
+87,
+243,
+303,
+304
+],
+"desktop:app/src/models/workflow-preferences.ts": [
+7
+],
+"desktop:app/src/ui/add-repository/add-existing-repository.tsx": [
+33,
+45,
+46,
+47,
+48
+],
+"desktop:app/src/ui/add-repository/create-repository.tsx": [
+279,
+324,
+372
+],
+"desktop:app/src/ui/add-repository/gitignores.ts": [
+42
+],
+"desktop:app/src/ui/app-menu/app-menu-bar-button.tsx": [
+146
+],
+"desktop:app/src/ui/app-menu/app-menu.tsx": [
+238
+],
+"desktop:app/src/ui/app-menu/menu-pane.tsx": [
+61,
+193
 ],
 "desktop:app/src/ui/app.tsx": [
-1350
+98,
+99,
+101,
+104,
+105,
+116,
+124,
+137,
+138,
+144,
+146,
+148,
+150,
+153,
+492,
+518,
+531,
+534,
+1350,
+2038,
+3025
+],
+"desktop:app/src/ui/autocompletion/autocompleting-text-input.tsx": [
+182,
+365,
+366,
+461
+],
+"desktop:app/src/ui/autocompletion/autocompletion-provider.ts": [
+3,
+8
+],
+"desktop:app/src/ui/banners/cherry-pick-conflicts-banner.tsx": [
+27
+],
+"desktop:app/src/ui/banners/conflicts-found-banner.tsx": [
+33
+],
+"desktop:app/src/ui/banners/open-thank-you-card.tsx": [
+35
+],
+"desktop:app/src/ui/banners/rebase-conflicts-banner.tsx": [
+30
+],
+"desktop:app/src/ui/banners/update-available.tsx": [
+61,
+74
+],
+"desktop:app/src/ui/branches/branches-container.tsx": [
+421
+],
+"desktop:app/src/ui/branches/no-branches.tsx": [
+13
+],
+"desktop:app/src/ui/branches/pull-request-list-item.tsx": [
+80
+],
+"desktop:app/src/ui/changes/changed-file-details.tsx": [
+74
+],
+"desktop:app/src/ui/changes/changes-list.tsx": [
+63,
+64,
+65,
+66,
+67,
+68,
+69,
+142,
+339,
+340,
+832,
+891
+],
+"desktop:app/src/ui/changes/commit-message-avatar.tsx": [
+140
+],
+"desktop:app/src/ui/changes/commit-message.tsx": [
+33,
+44,
+45,
+46,
+47,
+48,
+49,
+190,
+194,
+195,
+603
+],
+"desktop:app/src/ui/changes/no-changes.tsx": [
+454
+],
+"desktop:app/src/ui/changes/sidebar.tsx": [
+276,
+305,
+306,
+307
+],
+"desktop:app/src/ui/check-runs/ci-check-re-run-button.tsx": [
+17
+],
+"desktop:app/src/ui/check-runs/ci-check-run-actions-job-step-item.tsx": [
+21
+],
+"desktop:app/src/ui/check-runs/ci-check-run-actions-job-step-list.tsx": [
+4
+],
+"desktop:app/src/ui/check-runs/ci-check-run-list-item.tsx": [
+8,
+41
+],
+"desktop:app/src/ui/check-runs/ci-check-run-list.tsx": [
+32
+],
+"desktop:app/src/ui/check-runs/ci-check-run-popover.tsx": [
+307,
+326,
+335
+],
+"desktop:app/src/ui/check-runs/ci-check-run-rerun-dialog.tsx": [
+113,
+167,
+195,
+196
+],
+"desktop:app/src/ui/choose-fork-settings/choose-fork-settings-dialog.tsx": [
+14,
+68,
+86
+],
+"desktop:app/src/ui/clone-repository/clone-github-repository.tsx": [
+9,
+83
+],
+"desktop:app/src/ui/clone-repository/clone-repository.tsx": [
+70,
+533,
+644,
+718
+],
+"desktop:app/src/ui/clone-repository/cloneable-repository-filter-list.tsx": [
+114,
+215,
+259
+],
+"desktop:app/src/ui/commit-message/commit-message-dialog.tsx": [
+51,
+64
+],
+"desktop:app/src/ui/create-branch/create-branch-dialog.tsx": [
+21,
+29,
+366,
+372,
+419,
+425,
+500
+],
+"desktop:app/src/ui/dialog/default-dialog-footer.tsx": [
+17
+],
+"desktop:app/src/ui/dialog/dialog.tsx": [
+282,
+311,
+314,
+315
+],
+"desktop:app/src/ui/dialog/ok-cancel-button-group.tsx": [
+12,
+40
+],
+"desktop:app/src/ui/diff/code-mirror-host.tsx": [
+43,
+46
+],
+"desktop:app/src/ui/diff/diff-explorer.ts": [
+45
+],
+"desktop:app/src/ui/diff/diff-helpers.tsx": [
+124,
+129,
+166,
+171,
+214,
+215,
+217,
+255,
+358,
+363
+],
+"desktop:app/src/ui/diff/index.tsx": [
+77,
+198
+],
+"desktop:app/src/ui/diff/seamless-diff-switcher.tsx": [
+63,
+156
+],
+"desktop:app/src/ui/diff/side-by-side-diff-row.tsx": [
+636
+],
+"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
+174,
+737,
+838,
+941
+],
+"desktop:app/src/ui/diff/syntax-highlighting/index.ts": [
+24
+],
+"desktop:app/src/ui/diff/text-diff-expansion.ts": [
+277
 ],
 "desktop:app/src/ui/diff/text-diff.tsx": [
-66
+66,
+141,
+260,
+681,
+717,
+730,
+942,
+947,
+948
+],
+"desktop:app/src/ui/diff/whitespace-hint-popover.tsx": [
+17
+],
+"desktop:app/src/ui/discard-changes/discard-changes-retry-dialog.tsx": [
+85
+],
+"desktop:app/src/ui/dispatcher/dispatcher.ts": [
+69,
+102,
+119,
+121,
+188,
+283,
+284,
+299,
+311,
+385,
+458,
+747,
+1058,
+1066,
+1150,
+1168,
+1182,
+1196,
+1252,
+1275,
+1287,
+1289,
+1344,
+1355,
+1428,
+1478,
+1701,
+1752,
+1758,
+1798,
+1816,
+1849,
+1865,
+1882,
+2432,
+2468,
+2470,
+2498,
+2713,
+2785,
+2788,
+2926,
+2963,
+2973,
+3029,
+3087,
+3521,
+3599,
+3644,
+3789,
+3836,
+3857,
+3881
+],
+"desktop:app/src/ui/dispatcher/error-handlers.ts": [
+15,
+428,
+474,
+570
+],
+"desktop:app/src/ui/donut.tsx": [
+34
+],
+"desktop:app/src/ui/drag-elements/commit-drag-element.tsx": [
+90
+],
+"desktop:app/src/ui/generic-git-auth/generic-git-auth.tsx": [
+84
+],
+"desktop:app/src/ui/history/commit-list.tsx": [
+72,
+79,
+81,
+109,
+115,
+177,
+323,
+338
+],
+"desktop:app/src/ui/history/commit-summary.tsx": [
+13
+],
+"desktop:app/src/ui/history/committed-file-item.tsx": [
+17
+],
+"desktop:app/src/ui/history/compare.tsx": [
+26,
+30,
+31,
+62,
+69,
+283,
+629,
+678,
+679
+],
+"desktop:app/src/ui/history/merge-call-to-action-with-conflicts.tsx": [
+37,
+50,
+244
+],
+"desktop:app/src/ui/history/selected-commit.tsx": [
+93
+],
+"desktop:app/src/ui/index.tsx": [
+81,
+133,
+155,
+215
+],
+"desktop:app/src/ui/lib/access-text.tsx": [
+39
+],
+"desktop:app/src/ui/lib/application-theme.ts": [
+58,
+139,
+140
+],
+"desktop:app/src/ui/lib/authentication-form.tsx": [
+14,
+31
 ],
 "desktop:app/src/ui/lib/avatar.tsx": [
+35,
+36,
 42
+],
+"desktop:app/src/ui/lib/color-manipulation.ts": [
+14,
+82,
+89
+],
+"desktop:app/src/ui/lib/config-lock-file-exists.tsx": [
+25,
+44
+],
+"desktop:app/src/ui/lib/configure-git-user.tsx": [
+275
+],
+"desktop:app/src/ui/lib/conflicts/unmerged-file.tsx": [
+17,
+34,
+42,
+52,
+63,
+64,
+120,
+150,
+429,
+446
+],
+"desktop:app/src/ui/lib/custom-theme.ts": [
+21
+],
+"desktop:app/src/ui/lib/git-email-not-found-warning.tsx": [
+19,
+35
+],
+"desktop:app/src/ui/lib/id-pool.ts": [
+40
+],
+"desktop:app/src/ui/lib/install-cli.ts": [
+45
+],
+"desktop:app/src/ui/lib/list/list.tsx": [
+25,
+202,
+211,
+527,
+559,
+575,
+576,
+691,
+1035,
+1126,
+1169,
+1184
+],
+"desktop:app/src/ui/lib/open-file.ts": [
+13
+],
+"desktop:app/src/ui/lib/path-text.tsx": [
+139,
+173,
+371,
+380,
+417,
+437,
+449,
+450,
+451,
+452,
+453,
+454,
+472
+],
+"desktop:app/src/ui/lib/ref-name-text-box.tsx": [
+97,
+98
+],
+"desktop:app/src/ui/lib/rich-text.tsx": [
+82
+],
+"desktop:app/src/ui/lib/sandboxed-markdown.tsx": [
+19,
+38,
+41,
+345,
+350,
+356
+],
+"desktop:app/src/ui/lib/text-box.tsx": [
+51,
+52,
+64,
+140,
+159,
+160,
+199,
+200
+],
+"desktop:app/src/ui/lib/timing.ts": [
+32
+],
+"desktop:app/src/ui/lib/tooltip.tsx": [
+506
+],
+"desktop:app/src/ui/lib/tooltipped-content.tsx": [
+32
+],
+"desktop:app/src/ui/lib/update-branch.ts": [
+16,
+24,
+31
+],
+"desktop:app/src/ui/lib/update-store.ts": [
+107,
+192
+],
+"desktop:app/src/ui/lib/vertical-segmented-control/vertical-segmented-control.tsx": [
+74,
+204
+],
+"desktop:app/src/ui/local-changes-overwritten/local-changes-overwritten-dialog.tsx": [
+23,
+119
+],
+"desktop:app/src/ui/main-process-proxy.ts": [
+76,
+80,
+137,
+198,
+353,
+359
+],
+"desktop:app/src/ui/move-to-applications-folder.tsx": [
+77
+],
+"desktop:app/src/ui/multi-commit-operation/base-multi-commit-operation.tsx": [
+9,
+45,
+66
+],
+"desktop:app/src/ui/multi-commit-operation/choose-branch/base-choose-branch-dialog.tsx": [
+18,
+72
+],
+"desktop:app/src/ui/multi-commit-operation/choose-branch/merge-choose-branch-dialog.tsx": [
+8
+],
+"desktop:app/src/ui/multi-commit-operation/dialog/conflicts-dialog.tsx": [
+21
+],
+"desktop:app/src/ui/multi-commit-operation/merge.tsx": [
+11
+],
+"desktop:app/src/ui/multi-commit-operation/multi-commit-operation.tsx": [
+12
+],
+"desktop:app/src/ui/multi-commit-operation/rebase.tsx": [
+7
+],
+"desktop:app/src/ui/no-repositories/create-tutorial-repository-dialog.tsx": [
+45
+],
+"desktop:app/src/ui/no-repositories/no-repositories-view.tsx": [
+13
+],
+"desktop:app/src/ui/notifications/pull-request-checks-failed.tsx": [
+20,
+25,
+115,
+386
+],
+"desktop:app/src/ui/notifications/pull-request-review.tsx": [
+20
 ],
 "desktop:app/src/ui/octicons/octicons.generated.ts": [
 16,
 23,
 30,
+37,
+44,
+51,
+58,
+65,
+72,
+79,
+86,
 93,
+100,
 107,
 114,
+121,
 128,
 135,
+142,
 149,
 156,
 163,
 170,
+177,
 184,
 191,
+198,
 205,
+212,
 219,
+226,
+233,
+240,
+247,
+254,
+261,
 268,
+275,
 282,
 289,
 296,
 303,
 310,
+317,
 324,
 331,
 345,
@@ -73,6 +1622,7 @@
 380,
 387,
 394,
+401,
 408,
 415,
 422,
@@ -87,6 +1637,7 @@
 499,
 506,
 513,
+520,
 527,
 534,
 541,
@@ -102,6 +1653,7 @@
 611,
 618,
 625,
+632,
 639,
 646,
 653,
@@ -110,6 +1662,7 @@
 674,
 681,
 688,
+695,
 702,
 709,
 716,
@@ -123,7 +1676,10 @@
 779,
 786,
 793,
+800,
 807,
+814,
+821,
 828,
 835,
 842,
@@ -146,6 +1702,7 @@
 961,
 968,
 975,
+982,
 989,
 996,
 1003,
@@ -159,7 +1716,9 @@
 1059,
 1066,
 1073,
+1080,
 1087,
+1094,
 1101,
 1108,
 1115,
@@ -178,6 +1737,7 @@
 1206,
 1213,
 1220,
+1227,
 1234,
 1241,
 1248,
@@ -188,8 +1748,10 @@
 1283,
 1290,
 1297,
+1304,
 1311,
 1318,
+1325,
 1332,
 1339,
 1346,
@@ -206,7 +1768,12 @@
 1423,
 1430,
 1437,
+1444,
 1451,
+1458,
+1465,
+1472,
+1479,
 1486,
 1493,
 1500,
@@ -222,14 +1789,226 @@
 1570,
 1577
 ],
+"desktop:app/src/ui/octicons/sync-clockwise.ts": [
+4,
+11,
+12,
+13,
+14,
+15
+],
+"desktop:app/src/ui/preferences/advanced.tsx": [
+6
+],
+"desktop:app/src/ui/preferences/custom-theme-selector.tsx": [
+64,
+119
+],
+"desktop:app/src/ui/preferences/preferences.tsx": [
+503,
+504
+],
+"desktop:app/src/ui/publish-repository/publish-repository.tsx": [
+10
+],
+"desktop:app/src/ui/pull-request-quick-view.tsx": [
+127
+],
+"desktop:app/src/ui/release-notes/release-notes-dialog.tsx": [
+88,
+105,
+106
+],
+"desktop:app/src/ui/repositories-list/group-repositories.ts": [
+122,
+125,
+126
+],
+"desktop:app/src/ui/repositories-list/repositories-list.tsx": [
+35,
+44,
+50,
+53
+],
+"desktop:app/src/ui/repositories-list/repository-list-item.tsx": [
+15,
+20,
+26,
+29,
+56
+],
+"desktop:app/src/ui/repository-settings/fork-contribution-target-description.tsx": [
+11,
+21,
+28
+],
+"desktop:app/src/ui/repository-settings/repository-settings.tsx": [
+101,
+300,
+316
+],
+"desktop:app/src/ui/repository.tsx": [
+72
+],
+"desktop:app/src/ui/sign-in/sign-in.tsx": [
+269
+],
+"desktop:app/src/ui/stash-changes/overwrite-stashed-changes-dialog.tsx": [
+8
+],
+"desktop:app/src/ui/stash-changes/stash-and-switch-branch-dialog.tsx": [
+8,
+103,
+116
+],
+"desktop:app/src/ui/stashing/stash-diff-viewer.tsx": [
+57
+],
+"desktop:app/src/ui/terms-and-conditions/terms-and-conditions.tsx": [
+101
+],
+"desktop:app/src/ui/toolbar/branch-dropdown.tsx": [
+24
+],
+"desktop:app/src/ui/toolbar/dropdown.tsx": [
+327,
+328
+],
+"desktop:app/src/ui/toolbar/push-pull-button.tsx": [
+55,
+269,
+270,
+271
+],
+"desktop:app/src/ui/tutorial/tutorial-panel.tsx": [
+161
+],
+"desktop:app/src/ui/tutorial/tutorial-step-instruction.tsx": [
+31
+],
+"desktop:app/src/ui/upstream-already-exists/upstream-already-exists.tsx": [
+27,
+53
+],
+"desktop:app/src/ui/welcome/welcome.tsx": [
+122
+],
+"desktop:app/src/ui/window/title-bar.tsx": [
+90,
+91,
+92,
+93
+],
+"desktop:app/src/ui/window/window-controls.tsx": [
+16,
+18
+],
+"desktop:app/webpack.development.ts": [
+40
+],
+"desktop:script/build-platforms.ts": [
+31
+],
 "desktop:script/build.ts": [
-439
+64,
+95,
+150,
+180,
+214,
+437,
+439,
+447
+],
+"desktop:script/changelog/test/parser-test.ts": [
+9,
+10,
+11,
+21,
+22,
+23,
+45,
+46,
+47,
+61,
+62,
+63,
+75,
+76,
+77,
+89,
+90,
+91,
+102,
+103,
+104,
+114,
+115,
+116
+],
+"desktop:script/dist-info.ts": [
+69,
+87,
+147,
+160,
+163,
+174
+],
+"desktop:script/draft-release/run.ts": [
+85,
+88,
+97,
+120,
+221
+],
+"desktop:script/draft-release/version.ts": [
+51
+],
+"desktop:script/generate-octicons.ts": [
+116,
+122
 ],
 "desktop:script/licenses/license-overrides.ts": [
+7,
+27,
+29,
+36,
 38,
+45,
+46,
+50,
 52,
+54,
+55,
 56,
 60,
+62,
 64
+],
+"desktop:script/licenses/update-license-dump.ts": [
+34,
+53
+],
+"desktop:script/package.ts": [
+81,
+110
+],
+"desktop:script/publish.ts": [
+21,
+43,
+183
+],
+"desktop:script/review-logs.ts": [
+29
+],
+"desktop:script/start.ts": [
+29
+],
+"desktop:script/validate-changelog.ts": [
+24,
+47
+],
+"desktop:script/validate-sass/validate-all.ts": [
+30,
+46
 ]
 }

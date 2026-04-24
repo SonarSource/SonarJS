@@ -2,6 +2,9 @@
 "rxjs:src/Subscription.ts": [
 32
 ],
+"rxjs:src/observable/dom/AjaxObservable.ts": [
+127
+],
 "rxjs:src/util/Immediate.ts": [
 93,
 114,

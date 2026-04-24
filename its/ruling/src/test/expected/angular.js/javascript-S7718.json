@@ -1,5 +1,92 @@
 {
+"angular.js:scripts/compare-master-to-stable.js": [
+164
+],
+"angular.js:src/Angular.js": [
+1154,
+1378,
+1398
+],
+"angular.js:src/auto/injector.js": [
+851,
+889
+],
+"angular.js:src/ng/browser.js": [
+67
+],
+"angular.js:src/ng/compile.js": [
+1537,
+2026,
+2257,
+2319,
+2778,
+3163,
+3283,
+3290,
+4013
+],
+"angular.js:src/ng/cookieReader.js": [
+20,
+28
+],
+"angular.js:src/ng/directive/ngModel.js": [
+785
+],
+"angular.js:src/ng/http.js": [
+148
+],
+"angular.js:src/ng/httpBackend.js": [
+142
+],
+"angular.js:src/ng/interpolate.js": [
+341,
+370
+],
+"angular.js:src/ng/location.js": [
+885
+],
+"angular.js:src/ng/q.js": [
+365,
+436,
+477,
+531,
+609
+],
+"angular.js:src/ng/rootScope.js": [
+804,
+848,
+885,
+1187,
+1192,
+1340,
+1412,
+1485
+],
+"angular.js:src/ng/taskTrackerFactory.js": [
+77
+],
+"angular.js:src/ng/timeout.js": [
+58
+],
+"angular.js:src/ngMessageFormat/messageFormatService.js": [
+183
+],
+"angular.js:src/ngMock/angular-mocks.js": [
+2215,
+3373,
+3406
+],
+"angular.js:src/ngMock/browserTrigger.js": [
+108,
+120,
+143,
+188
+],
 "angular.js:src/ngResource/resource.js": [
 848
+],
+"angular.js:src/ngSanitize/sanitize.js": [
+458,
+478
 ]
 }

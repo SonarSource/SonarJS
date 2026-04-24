@@ -1,0 +1,82 @@
+{
+"http:gulpfile.js": [
+62
+],
+"http:karma.conf.js": [
+15
+],
+"http:lib/gulp/karma/index.js": [
+7,
+10,
+12,
+14,
+20
+],
+"http:src/IInterceptResolution.js": [
+5,
+9,
+19
+],
+"http:test-main.js": [
+17,
+27
+],
+"http:test/ConnectionMock.spec.js": [
+3,
+69,
+71,
+83,
+85,
+96,
+205
+],
+"http:test/Http.spec.js": [
+7,
+83,
+154,
+170,
+172,
+187,
+203,
+237,
+245,
+363,
+381,
+388
+],
+"http:test/IInterceptResolution.spec.js": [
+32,
+37,
+51,
+73
+],
+"http:test/JSONPConnection.spec.js": [
+21,
+23,
+25,
+30,
+37,
+39,
+47,
+54,
+57,
+66
+],
+"http:test/Serialize.spec.js": [
+10
+],
+"http:test/TestUtils.js": [
+3
+],
+"http:test/XHRConnection.spec.js": [
+177,
+205
+],
+"http:test/matchers.js": [
+6,
+16
+],
+"http:test/mocks/Xhr.js": [
+32
+]
+}

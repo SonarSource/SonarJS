@@ -1,0 +1,45 @@
+{
+"react-cloud-music:ts-music/src/api/request.ts": [
+15,
+17,
+64
+],
+"react-cloud-music:ts-music/src/application/Recommend/index.tsx": [
+15
+],
+"react-cloud-music:ts-music/src/application/Recommend/store/actionCreators.ts": [
+2
+],
+"react-cloud-music:ts-music/src/assets/border.ts": [
+3,
+27,
+28
+],
+"react-cloud-music:ts-music/src/baseUI/scroll/index.tsx": [
+1,
+164,
+165,
+170,
+172
+],
+"react-cloud-music:ts-music/src/components/list/index.tsx": [
+30,
+31,
+35
+],
+"react-cloud-music:ts-music/src/components/slider/index.tsx": [
+39
+],
+"react-cloud-music:ts-music/src/routes/index.tsx": [
+5
+],
+"react-cloud-music:ts-music/src/store/index.ts": [
+9
+],
+"react-cloud-music:ts-music/src/store/reducer.ts": [
+2,
+3,
+6,
+9
+]
+}

@@ -1,0 +1,12 @@
+{
+"jquery:src/selector.js": [
+116,
+129,
+130,
+130,
+130
+],
+"jquery:test/data/core/dynamic_ready.html": [
+32
+]
+}

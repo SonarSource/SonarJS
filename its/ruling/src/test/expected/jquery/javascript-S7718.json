@@ -1,5 +1,42 @@
 {
+"jquery:Gruntfile.js": [
+11
+],
+"jquery:build/tasks/amd.js": [
+39
+],
+"jquery:build/tasks/build.js": [
+142,
+281
+],
+"jquery:src/ajax.js": [
+273,
+556,
+701
+],
+"jquery:src/ajax/parseXML.js": [
+14
+],
+"jquery:src/ajax/xhr.js": [
+100
+],
+"jquery:src/data.js": [
+57
+],
 "jquery:src/deferred.js": [
-38
+38,
+187
+],
+"jquery:src/manipulation.js": [
+402
+],
+"jquery:src/selector.js": [
+462
+],
+"jquery:src/selector/support.js": [
+9
+],
+"jquery:test/data/manipulation/iframe-denied.html": [
+24
 ]
 }

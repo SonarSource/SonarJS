@@ -1,0 +1,27 @@
+{
+"searchkit:packages/searchkit-cli/src/lib.ts": [
+15,
+76,
+89,
+120,
+165
+],
+"searchkit:packages/searchkit-schema/src/resolvers/FacetResolver.ts": [
+20
+],
+"searchkit:packages/searchkit-schema/src/resolvers/FacetsResolver.ts": [
+12
+],
+"searchkit:packages/searchkit-schema/src/resolvers/HitsResolver.ts": [
+34
+],
+"searchkit:packages/searchkit-schema/src/resolvers/ResultsResolver.ts": [
+114
+],
+"searchkit:packages/searchkit-schema/src/resolvers/SummaryResolver.ts": [
+10
+],
+"searchkit:packages/searchkit-sdk/src/transporters/ESClientTransporter.ts": [
+44
+]
+}

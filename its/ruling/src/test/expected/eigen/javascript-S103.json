@@ -1,11 +1,147 @@
 {
-"eigen:babel.config.js": [
-37
+"eigen:__mocks__/react-relay.js": [
+2
 ],
-"eigen:tslint-rules/jsxSafeConditionalsRule.js": [
+"eigen:babel.config.js": [
+4,
+12,
+19,
+22,
+23,
+28,
+30,
+37,
+42
+],
+"eigen:index-common.js": [
+16
+],
+"eigen:jest.config.js": [
+24,
+26
+],
+"eigen:metro.config.js": [
+13,
+20
+],
+"eigen:scripts/changelog/cli.js": [
+8,
+11
+],
+"eigen:scripts/changelog/commitChangelog.js": [
+4,
+102
+],
+"eigen:scripts/changelog/generateChangelogSectionTemplate.js": [
+18,
+19,
+41,
+45
+],
+"eigen:scripts/changelog/generatePlatformChangelog.js": [
+8,
+84,
+93,
+100,
+144,
+146,
+152,
+168,
+200,
+225
+],
+"eigen:scripts/changelog/parsePRDescription.js": [
+3,
+28
+],
+"eigen:scripts/check-flags/check-flags.js": [
+9,
 23
 ],
+"eigen:scripts/detect-secrets.js": [
+28,
+38,
+49,
+50
+],
+"eigen:scripts/doctor.js": [
+46,
+133,
+148
+],
+"eigen:scripts/generate-cities-cache.js": [
+32
+],
+"eigen:scripts/generate-cities-objc.js": [
+18,
+31,
+36,
+43,
+49
+],
+"eigen:scripts/preheatGraphQLCache.js": [
+6,
+19,
+20,
+22,
+23,
+25,
+50,
+52,
+60,
+67
+],
+"eigen:scripts/set-storybook-environment.js": [
+17
+],
+"eigen:scripts/strictness-migration.js": [
+16,
+41,
+44,
+63,
+76,
+85,
+90,
+94,
+99,
+104
+],
+"eigen:scripts/update-metaphysics.js": [
+15,
+20,
+21,
+23,
+40
+],
+"eigen:src/app/__fixtures__/ArtistFixture.js": [
+14
+],
+"eigen:src/storybook/index.js": [
+10
+],
+"eigen:src/storybook/main.js": [
+3
+],
+"eigen:src/storybook/storybook.requires.js": [
+13,
+40
+],
+"eigen:tslint-rules/jsxSafeConditionalsRule.js": [
+11,
+21,
+23,
+60,
+61,
+62,
+96,
+110,
+146
+],
 "eigen:tslint-rules/useWrappedComponentsRule.js": [
-19
+7,
+17,
+19,
+41,
+57
 ]
 }

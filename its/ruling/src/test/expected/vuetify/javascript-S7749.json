@@ -1,0 +1,76 @@
+{
+"vuetify:packages/docs/src/examples/v-calendar/event-click.vue": [
+191,
+197,
+198
+],
+"vuetify:packages/docs/src/examples/v-calendar/misc-drag-and-drop.vue": [
+156,
+162,
+163
+],
+"vuetify:packages/docs/src/examples/v-calendar/prop-type-category.vue": [
+91,
+97,
+98
+],
+"vuetify:packages/docs/src/examples/v-calendar/usage.vue": [
+92,
+98,
+99
+],
+"vuetify:packages/docs/src/examples/v-data-table/virtual.vue": [
+112
+],
+"vuetify:packages/docs/src/examples/v-date-picker-month/usage.vue": [
+14
+],
+"vuetify:packages/docs/src/examples/v-date-picker/event-button-events.vue": [
+53
+],
+"vuetify:packages/docs/src/examples/v-date-picker/event-events.vue": [
+30,
+31
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-dialog-and-menu.vue": [
+131
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-formatting.vue": [
+77,
+78
+],
+"vuetify:packages/docs/src/examples/v-date-picker/misc-internationalization.vue": [
+20
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-colors.vue": [
+19,
+20
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-icons.vue": [
+16
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-picker-date.vue": [
+41
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-readonly.vue": [
+14
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-show-current.vue": [
+18
+],
+"vuetify:packages/docs/src/examples/v-date-picker/prop-width.vue": [
+19
+],
+"vuetify:packages/docs/src/examples/v-date-picker/usage.vue": [
+11
+],
+"vuetify:packages/docs/src/examples/v-file-input/prop-validation.vue": [
+16
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/misc-user-directory.vue": [
+80
+],
+"vuetify:packages/docs/src/examples/v-virtual-scroll/prop-dynamic-item-height.vue": [
+24
+]
+}

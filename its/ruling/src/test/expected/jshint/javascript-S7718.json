@@ -1,0 +1,14 @@
+{
+"jshint:src/cli.js": [
+135,
+150,
+553,
+649
+],
+"jshint:src/jshint.js": [
+6495
+],
+"jshint:src/lex.js": [
+1772
+]
+}

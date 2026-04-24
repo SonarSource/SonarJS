@@ -1,7 +1,12 @@
 {
+"expressionist.js:test/parser.spec.js": [
+399,
+543
+],
 "expressionist.js:test/watch_parser.spec.js": [
 42,
 47,
-52
+52,
+160
 ]
 }

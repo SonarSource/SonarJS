@@ -1,0 +1,129 @@
+{
+"redux:examples/async/server.js": [
+10,
+21
+],
+"redux:examples/buildAll.js": [
+21
+],
+"redux:examples/counter/components/Counter.js": [
+5
+],
+"redux:examples/counter/server.js": [
+10,
+21
+],
+"redux:examples/counter/test/actions/counter.spec.js": [
+15,
+62
+],
+"redux:examples/counter/test/components/Counter.spec.js": [
+13
+],
+"redux:examples/real-world/middleware/api.js": [
+23,
+25
+],
+"redux:examples/real-world/server.js": [
+10,
+21
+],
+"redux:examples/shopping-cart/components/Product.js": [
+6
+],
+"redux:examples/shopping-cart/server.js": [
+10,
+21
+],
+"redux:examples/testAll.js": [
+20
+],
+"redux:examples/todomvc/reducers/todos.js": [
+1
+],
+"redux:examples/todomvc/server.js": [
+10,
+21
+],
+"redux:examples/todomvc/test/components/MainSection.spec.js": [
+106
+],
+"redux:examples/todos-with-undo/components/Footer.js": [
+37,
+38
+],
+"redux:examples/todos-with-undo/containers/App.js": [
+4,
+21
+],
+"redux:examples/todos-with-undo/reducers.js": [
+4
+],
+"redux:examples/todos-with-undo/server.js": [
+10,
+21
+],
+"redux:examples/universal/common/api/counter.js": [
+6,
+11
+],
+"redux:examples/universal/common/components/Counter.js": [
+5
+],
+"redux:examples/universal/common/reducers/counter.js": [
+1
+],
+"redux:examples/universal/server/server.js": [
+25,
+81
+],
+"redux:src/createStore.js": [
+27
+],
+"redux:src/utils/applyMiddleware.js": [
+13
+],
+"redux:src/utils/bindActionCreators.js": [
+33,
+35,
+36
+],
+"redux:src/utils/combineReducers.js": [
+68,
+72,
+73,
+129
+],
+"redux:src/utils/isPlainObject.js": [
+13
+],
+"redux:test/createStore.spec.js": [
+3,
+346
+],
+"redux:test/helpers/actionCreators.js": [
+1
+],
+"redux:test/utils/applyMiddleware.spec.js": [
+4,
+29
+],
+"redux:test/utils/bindActionCreators.spec.js": [
+14,
+45,
+46,
+54,
+55,
+63,
+64
+],
+"redux:test/utils/combineReducers.spec.js": [
+7,
+34,
+69,
+115,
+132,
+154,
+185
+]
+}

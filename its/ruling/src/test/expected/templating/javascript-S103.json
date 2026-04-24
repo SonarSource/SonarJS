@@ -1,0 +1,84 @@
+{
+"templating:gulpfile.js": [
+84,
+85,
+97
+],
+"templating:src/lib/di/ce_di.js": [
+3,
+63
+],
+"templating:src/lib/di/ce_di_bootstrap.js": [
+14
+],
+"templating:src/lib/load_barrier.js": [
+3,
+5,
+7,
+10,
+17,
+45,
+107,
+117
+],
+"templating:src/lib/types.js": [
+29,
+46
+],
+"templating:src/util/ng_polymer.js": [
+8,
+27
+],
+"templating:test/example/shadow-dom-util.js": [
+6,
+17
+],
+"templating:test/example/tab.spec.js": [
+34,
+44,
+64,
+89,
+93
+],
+"templating:test/example/video.spec.js": [
+29
+],
+"templating:test/lib/compiler/compiler.spec.js": [
+5,
+40,
+51,
+52,
+53,
+73,
+76,
+77,
+80,
+83,
+90,
+115,
+123,
+131,
+139,
+147,
+150,
+157,
+161,
+163,
+187,
+196,
+204,
+212,
+221,
+231,
+271,
+316
+],
+"templating:test/lib/util/document_ready.spec.js": [
+33
+],
+"templating:test/lib/util/tree_array.spec.js": [
+11,
+16,
+28
+]
+}

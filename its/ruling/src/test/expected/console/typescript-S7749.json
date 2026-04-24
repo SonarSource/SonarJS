@@ -1,0 +1,26 @@
+{
+"console:src/components/RedirectOnMount/RedirectOnMount.tsx": [
+15
+],
+"console:src/views/AfterSignUpView/AfterSignUpView.tsx": [
+98
+],
+"console:src/views/AuthView/AuthView.tsx": [
+13
+],
+"console:src/views/ProjectRootView/AddProjectPopup.tsx": [
+66,
+67
+],
+"console:src/views/Settings/Billing/billing_info.ts": [
+9,
+18,
+27,
+35,
+36,
+53,
+54,
+62,
+63
+]
+}

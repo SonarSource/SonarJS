@@ -49,6 +49,7 @@
 203,
 218,
 220,
+222,
 224
 ],
 "eigen:src/app/Components/Bidding/Components/Timer.tsx": [
@@ -601,7 +602,14 @@
 38
 ],
 "eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
-63
+20,
+55,
+61,
+63,
+65,
+72,
+77,
+81
 ],
 "eigen:src/app/relay/middlewares/rateLimitMiddleware.ts": [
 15

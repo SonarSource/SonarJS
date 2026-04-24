@@ -1,0 +1,111 @@
+{
+"vuetify:packages/vuetify/src/components/VFileInput/__tests__/VFileInput.spec.cy.tsx": [
+7,
+8
+],
+"vuetify:packages/vuetify/src/composables/theme.ts": [
+240
+],
+"vuetify:packages/vuetify/src/composables/touch.ts": [
+13
+],
+"vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
+76,
+76,
+76,
+77,
+77,
+77,
+78,
+78,
+78,
+79,
+79,
+79,
+85,
+85,
+85,
+86,
+86,
+86,
+87,
+87,
+87,
+88,
+88,
+88,
+96,
+96,
+96,
+97,
+97,
+97,
+98,
+98,
+98,
+99,
+99,
+99,
+105,
+105,
+105,
+106,
+106,
+106,
+107,
+107,
+107,
+108,
+108,
+108,
+131,
+132,
+140,
+141,
+149,
+150,
+151,
+153,
+159,
+160,
+161,
+162
+],
+"vuetify:packages/vuetify/src/util/__tests__/helpers.spec.ts": [
+238,
+239,
+241,
+242,
+252,
+253,
+255,
+256
+],
+"vuetify:packages/vuetify/src/util/color/APCA.ts": [
+18,
+19,
+20,
+40
+],
+"vuetify:packages/vuetify/src/util/color/transformCIELAB.ts": [
+3,
+23,
+24,
+32,
+34
+],
+"vuetify:packages/vuetify/src/util/color/transformSRGB.ts": [
+13,
+27
+],
+"vuetify:packages/vuetify/src/util/colorUtils.ts": [
+24,
+29,
+30,
+43
+],
+"vuetify:packages/vuetify/src/util/helpers.ts": [
+429,
+429
+]
+}

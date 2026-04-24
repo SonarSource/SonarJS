@@ -1,5 +1,38 @@
 {
+"courselit:apps/web/components/admin/media/media-preview.tsx": [
+102
+],
+"courselit:apps/web/components/admin/settings.tsx": [
+154
+],
+"courselit:apps/web/components/admin/users/details.tsx": [
+100
+],
+"courselit:apps/web/components/admin/users/index.tsx": [
+122
+],
+"courselit:apps/web/components/public/article.tsx": [
+85
+],
 "courselit:apps/web/components/public/checkout/stripe.tsx": [
 78
+],
+"courselit:apps/web/components/public/lesson-viewer.tsx": [
+129
+],
+"courselit:apps/web/graphql/settings/logic.ts": [
+95
+],
+"courselit:apps/web/pages/courses.tsx": [
+75
+],
+"courselit:apps/web/pages/posts.tsx": [
+74
+],
+"courselit:apps/web/pages/profile/[id].tsx": [
+61
+],
+"courselit:apps/web/pages/tag/[tag].tsx": [
+85
 ]
 }

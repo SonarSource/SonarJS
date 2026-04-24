@@ -1,0 +1,69 @@
+{
+"Ghost:core/client/app/mixins/editor-base-controller.js": [
+56
+],
+"Ghost:core/client/tests/test-helper.js": [
+8
+],
+"Ghost:core/server/data/schema/schema.js": [
+7,
+8,
+35,
+36,
+41,
+94,
+139,
+150
+],
+"Ghost:core/server/update-check.js": [
+136
+],
+"Ghost:core/server/utils/index.js": [
+24,
+25,
+26,
+27,
+28,
+29,
+30
+],
+"Ghost:core/test/functional/base.js": [
+221
+],
+"Ghost:core/test/integration/import_spec.js": [
+168,
+332
+],
+"Ghost:core/test/integration/model/model_posts_spec.js": [
+245
+],
+"Ghost:core/test/integration/model/model_users_spec.js": [
+286,
+537,
+553,
+567,
+586,
+613,
+636,
+647
+],
+"Ghost:core/test/unit/importer_spec.js": [
+513,
+533,
+552,
+571,
+618,
+627
+],
+"Ghost:core/test/unit/middleware/spam-prevention_spec.js": [
+89,
+209
+],
+"Ghost:core/test/unit/sitemap_spec.js": [
+311
+],
+"Ghost:core/test/utils/index.js": [
+631,
+632
+]
+}

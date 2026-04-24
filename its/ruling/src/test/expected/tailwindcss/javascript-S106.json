@@ -5,6 +5,7 @@
 "tailwindcss:scripts/build.js": [
 8,
 28,
+35,
 45
 ],
 "tailwindcss:scripts/compat.js": [
@@ -21,6 +22,7 @@
 "tailwindcss:scripts/rebuildFixtures.js": [
 7,
 22,
+29,
 64,
 65
 ],

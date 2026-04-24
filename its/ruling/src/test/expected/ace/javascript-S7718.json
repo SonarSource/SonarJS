@@ -1,5 +1,181 @@
 {
+"ace:Makefile.dryice.js": [
+54,
+217
+],
+"ace:demo/kitchen-sink/demo.js": [
+142
+],
+"ace:demo/kitchen-sink/dev_util.js": [
+17
+],
+"ace:demo/kitchen-sink/doclist.js": [
+90
+],
+"ace:demo/kitchen-sink/file_drop.js": [
+27
+],
+"ace:demo/kitchen-sink/util.js": [
+18
+],
+"ace:lib/ace/mode/coffee/parser_test.js": [
+52
+],
+"ace:lib/ace/mode/coffee_worker.js": [
+55
+],
+"ace:lib/ace/mode/css/csslint.js": [
+972,
+1911,
+2557,
+3117,
+7538,
+7958
+],
+"ace:lib/ace/mode/html/saxparser.js": [
+9317,
+9394
+],
+"ace:lib/ace/mode/javascript/jshint.js": [
+397,
+1533,
+1536,
+3317,
+11095,
+13080,
+18181,
+19174,
+19183,
+19200,
+19204,
+19225,
+19229
+],
+"ace:lib/ace/mode/json_worker.js": [
+53
+],
+"ace:lib/ace/mode/lua_worker.js": [
+54
+],
+"ace:lib/ace/mode/php_worker.js": [
+61
+],
+"ace:lib/ace/mode/xml/dom.js": [
+1133
+],
+"ace:lib/ace/mode/xml/sax.js": [
+165
+],
+"ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
+4444
+],
+"ace:lib/ace/mode/xquery/xquery_lexer.js": [
+4276
+],
+"ace:lib/ace/mode/yaml/yaml-lint.js": [
+20,
+2999,
+3497,
+4055,
+4205,
+5196,
+5413,
+5416
+],
+"ace:lib/ace/worker/worker_client.js": [
+45,
+176
+],
+"ace:lib/ace/worker/worker_client_v2.js": [
+60,
+192
+],
+"ace:src/ace_test.js": [
+43
+],
+"ace:src/config.js": [
+98
+],
+"ace:src/edit_session.js": [
+922
+],
+"ace:src/ext/emmet.js": [
+340,
+390
+],
+"ace:src/incremental_search.js": [
+55
+],
+"ace:src/keyboard/textinput.js": [
+50,
+65,
+83,
+228,
+364
+],
+"ace:src/keyboard/vim.js": [
+1873,
+2273,
+2308,
+5746,
+5790,
+6202,
+6300
+],
 "ace:src/keyboard/vim_test.js": [
 253
+],
+"ace:src/lib/event.js": [
+18
+],
+"ace:src/line_widgets.js": [
+228
+],
+"ace:src/mode/_test/highlight_rules_test.js": [
+36,
+169,
+191
+],
+"ace:src/mode/c9search_highlight_rules.js": [
+10
+],
+"ace:src/mouse/dragdrop_handler.js": [
+280
+],
+"ace:src/search.js": [
+234,
+245
+],
+"ace:src/selection.js": [
+849
+],
+"ace:src/snippets.js": [
+695
+],
+"ace:src/test/asyncjs/assert.js": [
+199,
+276
+],
+"ace:src/test/asyncjs/async.js": [
+432
+],
+"ace:static.js": [
+84,
+129
+],
+"ace:tool/lib.js": [
+25,
+111
+],
+"ace:tool/mode_creator.js": [
+218,
+226
+],
+"ace:tool/tmlanguage.js": [
+432,
+590
+],
+"ace:tool/tmtheme.js": [
+359
 ]
 }

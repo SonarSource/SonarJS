@@ -1,0 +1,81 @@
+{
+"sonar-web:src/main/js/apps/coding-rules/facets/language-facet.js": [
+15
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/repository-facet.js": [
+15
+],
+"sonar-web:src/main/js/apps/coding-rules/facets/tag-facet.js": [
+14
+],
+"sonar-web:src/main/js/apps/issues/facets/assignee-facet.js": [
+90
+],
+"sonar-web:src/main/js/apps/issues/models/issues.js": [
+57
+],
+"sonar-web:src/main/js/apps/users/list-item-view.js": [
+68,
+73
+],
+"sonar-web:src/main/js/components/issue/collections/issues.js": [
+57
+],
+"sonar-web:src/main/js/components/issue/models/issue.js": [
+85,
+244
+],
+"sonar-web:src/main/js/components/shared/favorite.js": [
+36
+],
+"sonar-web:src/main/js/components/source-viewer/main.js": [
+782
+],
+"sonar-web:src/main/js/helpers/handlebars-helpers.js": [
+357,
+360
+],
+"sonar-web:src/main/js/helpers/measures.js": [
+116
+],
+"sonar-web:test/helpers/test-page.js": [
+8
+],
+"sonar-web:tests/apps/background-tasks-test.js": [
+219,
+223,
+227,
+231
+],
+"sonar-web:tests/apps/overview/components/complexity-distribution-test.js": [
+24
+],
+"sonar-web:tests/apps/overview/components/language-distribution-test.js": [
+9,
+25,
+26,
+27
+],
+"sonar-web:tests/components/issue-test.js": [
+141,
+155,
+159
+],
+"sonar-web:tests/helpers/measures-test.js": [
+52,
+53,
+62,
+63,
+64,
+75,
+76,
+117,
+118,
+141,
+142,
+169,
+170,
+214,
+215
+]
+}

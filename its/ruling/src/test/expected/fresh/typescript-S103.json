@@ -1,44 +1,303 @@
 {
+"fresh:packages/fresh/src/app.ts": [
+223,
+380
+],
+"fresh:packages/fresh/src/app_test.tsx": [
+948
+],
+"fresh:packages/fresh/src/build_cache.ts": [
+40
+],
+"fresh:packages/fresh/src/config.ts": [
+27
+],
+"fresh:packages/fresh/src/context_test.tsx": [
+73,
+111
+],
 "fresh:packages/fresh/src/define.ts": [
+54,
+55,
+73,
 104,
-105
+105,
+134,
+149,
+168
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+28
 ],
 "fresh:packages/fresh/src/dev/builder_test.ts": [
 99,
-107
+107,
+233,
+642,
+967,
+968,
+969
+],
+"fresh:packages/fresh/src/dev/check.ts": [
+21,
+46,
+86
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+16,
+496,
+514
+],
+"fresh:packages/fresh/src/dev/dev_build_cache_test.ts": [
+53,
+67
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+165
+],
+"fresh:packages/fresh/src/dev/middlewares/automatic_workspace_folders.ts": [
+20
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware_test.tsx": [
+26
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/overlay.tsx": [
+156,
+172
+],
+"fresh:packages/fresh/src/error.ts": [
+7
 ],
 "fresh:packages/fresh/src/fs_routes.ts": [
+90,
 314,
-315
+315,
+324
+],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+590,
+1350,
+1379,
+1420,
+1510,
+1629
+],
+"fresh:packages/fresh/src/handlers.ts": [
+31,
+32
+],
+"fresh:packages/fresh/src/jsonify/stringify.ts": [
+214,
+215
 ],
 "fresh:packages/fresh/src/middlewares/cors.ts": [
+6,
 13,
-17
+17,
+21,
+25,
+29,
+35,
+183
+],
+"fresh:packages/fresh/src/middlewares/csp.ts": [
+5,
+96
 ],
 "fresh:packages/fresh/src/middlewares/csp_test.tsx": [
 16,
+87,
+154,
+218,
+235
+],
+"fresh:packages/fresh/src/middlewares/csrf.ts": [
+40,
+50
+],
+"fresh:packages/fresh/src/middlewares/ip_filter.ts": [
 87
 ],
+"fresh:packages/fresh/src/middlewares/mod.ts": [
+24
+],
+"fresh:packages/fresh/src/middlewares/mod_test.ts": [
+35,
+202,
+256
+],
+"fresh:packages/fresh/src/middlewares/static_files_test.ts": [
+235
+],
+"fresh:packages/fresh/src/router.ts": [
+224,
+244,
+259
+],
+"fresh:packages/fresh/src/router_test.ts": [
+73,
+87,
+101,
+131
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+521
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+34,
+245,
+246,
+455,
+699,
+756,
+814
+],
+"fresh:packages/fresh/src/runtime/shared.ts": [
+8,
+17,
+21
+],
+"fresh:packages/fresh/src/runtime/shared_internal.ts": [
+139
+],
+"fresh:packages/fresh/src/server/tailwind_aot_error_page.tsx": [
+6
+],
+"fresh:packages/fresh/src/utils.ts": [
+43,
+78,
+79
+],
+"fresh:packages/fresh/tests/fixtures_islands/JsxIsland.tsx": [
+29
+],
+"fresh:packages/fresh/tests/islands_test.tsx": [
+802
+],
+"fresh:packages/fresh/tests/no_client_js_test.tsx": [
+6,
+42,
+62,
+78,
+99,
+123,
+161,
+171
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+1279,
+1363
+],
 "fresh:packages/fresh/tests/test_utils.tsx": [
-26
+26,
+317
 ],
 "fresh:packages/init/src/init.ts": [
-380
+69,
+371,
+375,
+380,
+384,
+411,
+444,
+476,
+711
+],
+"fresh:packages/init/src/mod.ts": [
+5
+],
+"fresh:packages/plugin-tailwindcss-v3/src/mod.ts": [
+40,
+97
+],
+"fresh:packages/plugin-tailwindcss/src/types.ts": [
+3,
+10
+],
+"fresh:packages/plugin-vite/src/mod.ts": [
+78
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+3
+],
+"fresh:packages/plugin-vite/src/plugins/patches/code_eval_test.ts": [
+28,
+99,
+126,
+135
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+699,
+814
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/commonjs_test.ts": [
+303,
+318,
 375,
+483,
+485,
+491,
+497,
+510,
 517,
+728,
+823,
 832
 ],
 "fresh:packages/plugin-vite/src/plugins/patches/jsx_comment_test.ts": [
 19
+],
+"fresh:packages/plugin-vite/src/plugins/server_entry.ts": [
+29
+],
+"fresh:packages/plugin-vite/src/plugins/verify_imports.ts": [
+79
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+533,
+534,
+535,
+571
+],
+"fresh:packages/update/src/update.ts": [
+17,
+159,
+172
+],
+"fresh:packages/update/src/update_test.ts": [
+99,
+100
+],
+"fresh:packages/update/src/utils.ts": [
+14,
+18
+],
+"fresh:tools/check_docs_lib.ts": [
+28,
+105,
+148,
+289
+],
+"fresh:tools/release.ts": [
+111
+],
+"fresh:www/components/CodeBlock.tsx": [
+8,
+11
+],
+"fresh:www/components/CodeWindow.tsx": [
+11
+],
+"fresh:www/components/CopyButton.tsx": [
+10
 ],
 "fresh:www/components/DocsSidebar.tsx": [
 15,
 39
 ],
 "fresh:www/components/FancyLink.tsx": [
-9
+9,
+17
 ],
 "fresh:www/components/FeatureIcons.tsx": [
 11,
@@ -52,49 +311,173 @@
 111,
 115,
 121,
+127,
 133,
 155,
 175,
 182,
 187,
+219,
 235,
 248
 ],
+"fresh:www/components/Footer.tsx": [
+22,
+24
+],
 "fresh:www/components/Header.tsx": [
+12,
+41,
 45
 ],
 "fresh:www/components/Icons.tsx": [
+51,
 68,
 126,
 145,
 162
 ],
+"fresh:www/components/NavigationBar.tsx": [
+21
+],
+"fresh:www/components/PageSection.tsx": [
+7
+],
 "fresh:www/components/homepage/CTA.tsx": [
-6
+6,
+10,
+11,
+13
+],
+"fresh:www/components/homepage/DemoBox.tsx": [
+12
+],
+"fresh:www/components/homepage/ExampleArrow.tsx": [
+15,
+23,
+32
+],
+"fresh:www/components/homepage/Hero.tsx": [
+9,
+10,
+11,
+12,
+15,
+32
 ],
 "fresh:www/components/homepage/IslandsSection.tsx": [
+54,
+55,
 57
 ],
+"fresh:www/components/homepage/RecipeDemo.tsx": [
+6,
+8
+],
+"fresh:www/components/homepage/RenderingSection.tsx": [
+38,
+39
+],
+"fresh:www/components/homepage/SectionHeading.tsx": [
+7
+],
+"fresh:www/components/homepage/Simple.tsx": [
+34,
+47,
+53,
+59,
+73,
+79
+],
 "fresh:www/components/homepage/SocialProof.tsx": [
-29
+9,
+19,
+27,
+29,
+30,
+41,
+47
 ],
 "fresh:www/islands/Counter.tsx": [
 52
 ],
+"fresh:www/islands/FormSubmitDemo.tsx": [
+49
+],
 "fresh:www/islands/LemonDrop.tsx": [
-110
+110,
+114,
+119
 ],
 "fresh:www/islands/LemonTop.tsx": [
-104
+104,
+108,
+113
+],
+"fresh:www/islands/SearchButton.tsx": [
+12
+],
+"fresh:www/islands/TableOfContents.tsx": [
+94,
+116,
+120,
+128,
+154,
+156,
+172
 ],
 "fresh:www/islands/ThemeToggle.tsx": [
+29,
 40
 ],
+"fresh:www/islands/VersionSelect.tsx": [
+22,
+23,
+29,
+30,
+37,
+39
+],
+"fresh:www/routes/_error.tsx": [
+10
+],
+"fresh:www/routes/_middleware.ts": [
+21
+],
 "fresh:www/routes/docs/[...slug].tsx": [
-237
+161,
+164,
+204,
+210,
+216,
+236,
+237,
+272,
+304,
+309,
+324
+],
+"fresh:www/routes/index.tsx": [
+33,
+76
+],
+"fresh:www/routes/thanks.tsx": [
+38,
+43
 ],
 "fresh:www/utils/markdown.ts": [
+141,
+151,
+178,
 194,
-222
+222,
+242,
+265
+],
+"fresh:www/utils/prism.ts": [
+27
+],
+"fresh:www/utils/screenshot_test.ts": [
+9
 ]
 }

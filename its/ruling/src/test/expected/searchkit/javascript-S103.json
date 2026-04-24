@@ -1,27 +1,144 @@
 {
+"searchkit:docs/docusaurus.config.js": [
+29,
+61
+],
 "searchkit:docs/src/pages/index.js": [
+22,
+24,
+25,
 27,
 30,
 33,
 36,
 41,
+42,
+52,
+55,
+67,
 72,
 74,
+75,
 77,
 80,
+92,
+207,
+208,
 209,
+213,
 214,
+218,
 222,
 225,
+232,
+233,
+236,
+237,
+243,
+246,
 247,
+311,
+312,
+316,
+317,
+321,
 325,
 328,
+335,
+336,
+339,
+340,
+346,
+349,
 350,
+367,
+371,
 372,
+374,
 378,
 381,
+397,
+398,
+403,
+404,
 408,
 411,
-437
+429,
+430,
+432,
+435,
+437,
+438,
+440,
+451
+],
+"searchkit:examples/next/components/geosearch-examples/Input.jsx": [
+38
+],
+"searchkit:examples/next/components/geosearch-examples/maps.jsx": [
+100
+],
+"searchkit:examples/next/components/geosearch-examples/parks.jsx": [
+32,
+104,
+127,
+140
+],
+"searchkit:examples/next/components/index.jsx": [
+32,
+99,
+153
+],
+"searchkit:examples/next/components/products.jsx": [
+33,
+117
+],
+"searchkit:examples/next/components/sdk-example/index.jsx": [
+1,
+38,
+41,
+44,
+128
+],
+"searchkit:examples/next/components/searchkit/Hits.jsx": [
+2,
+11,
+29
+],
+"searchkit:examples/next/hocs/withApollo.js": [
+3
+],
+"searchkit:examples/next/pages/_document.jsx": [
+13
+],
+"searchkit:examples/next/pages/api/graphql.js": [
+19,
+22,
+25,
+138,
+215,
+216,
+238
+],
+"searchkit:examples/next/pages/graphql/index.jsx": [
+41,
+44
+],
+"searchkit:examples/next/pages/graphql/products.jsx": [
+5
+],
+"searchkit:examples/next/pages/graphql/ssr-example.jsx": [
+2,
+30,
+68,
+84
+],
+"searchkit:examples/next/pages/graphql/us-parks.jsx": [
+5
+],
+"searchkit:examples/next/pages/index.jsx": [
+4,
+40,
+43
 ]
 }

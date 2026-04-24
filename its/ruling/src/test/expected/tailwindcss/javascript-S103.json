@@ -1,12 +1,549 @@
 {
 "tailwindcss:__tests__/applyAtRule.test.js": [
+68,
+323,
+340,
+496,
+529,
+691,
+731,
+760,
+870,
+967,
+984,
+989,
 1006,
-1024
+1011,
+1024,
+1054,
+1080,
+1141,
+1145,
+1183,
+1342,
+1367
 ],
-"tailwindcss:src/lib/purgeUnusedStyles.js": [
+"tailwindcss:__tests__/cli.test.js": [
+11,
+14,
+25,
+33,
+55,
+60,
+64,
+90,
+91,
+92,
+97,
+104,
+112,
+118
+],
+"tailwindcss:__tests__/cli.utils.test.js": [
+20,
+34,
 52
 ],
+"tailwindcss:__tests__/customConfig.test.js": [
+9,
+71,
+72,
+214,
+253,
+392
+],
+"tailwindcss:__tests__/darkMode.test.js": [
+76,
+254,
+262,
+352
+],
+"tailwindcss:__tests__/layerAtRule.test.js": [
+5
+],
+"tailwindcss:__tests__/parseAnimationValue.test.js": [
+8,
+28,
+51,
+92,
+93,
+94,
+97,
+98,
+99,
+100,
+169,
+193,
+207
+],
+"tailwindcss:__tests__/plugins/animation.test.js": [
+45,
+88,
+94,
+127
+],
+"tailwindcss:__tests__/plugins/boxShadow.test.js": [
+11,
+12,
+14,
+22,
+26,
+56,
+58,
+61,
+63,
+68,
+71,
+73
+],
+"tailwindcss:__tests__/plugins/divideWidth.test.js": [
+26,
+32,
+36,
+42,
+46,
+52,
+56,
+62
+],
+"tailwindcss:__tests__/plugins/fontSize.test.js": [
+60,
+80,
+81
+],
+"tailwindcss:__tests__/plugins/gradientColorStops.test.js": [
+45,
+48
+],
+"tailwindcss:__tests__/plugins/letterSpacing.test.js": [
+20,
+24
+],
+"tailwindcss:__tests__/plugins/ringWidth.test.js": [
+49,
+51,
+53
+],
+"tailwindcss:__tests__/plugins/zIndex.test.js": [
+22,
+26
+],
+"tailwindcss:__tests__/prefixNegativeModifiers.test.js": [
+11
+],
+"tailwindcss:__tests__/processPlugins.test.js": [
+148,
+390,
+442,
+498,
+751,
+827,
+985,
+1019,
+1053,
+1086,
+1246,
+1274,
+1301,
+1328,
+1434,
+1588,
+1673,
+1772,
+1789,
+1818,
+1914,
+1918,
+2115,
+2146,
+2177,
+2208,
+2239,
+2270,
+2301,
+2332,
+2363,
+2394,
+2456
+],
+"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
+187,
+225,
+541,
+662
+],
+"tailwindcss:__tests__/resolveConfig.test.js": [
+186,
+217,
+302,
+335,
+372,
+405,
+749,
+813,
+859,
+914,
+1464,
+1663,
+1718,
+1788,
+1895,
+1950,
+2009,
+2015,
+2019,
+2054,
+2063,
+2069,
+2112
+],
+"tailwindcss:__tests__/responsiveAtRule.test.js": [
+93
+],
+"tailwindcss:__tests__/sanity.test.js": [
+40,
+96,
+122
+],
+"tailwindcss:__tests__/themeFunction.test.js": [
+94,
+127,
+146,
+150,
+164,
+182,
+199,
+230,
+255
+],
+"tailwindcss:__tests__/util/invokePlugin.js": [
+7,
+11
+],
+"tailwindcss:__tests__/util/produce.js": [
+9
+],
+"tailwindcss:__tests__/variantsAtRule.test.js": [
+9,
+551,
+576,
+628,
+638,
+639,
+642,
+784,
+817,
+847
+],
+"tailwindcss:__tests__/withAlphaVariable.test.js": [
+5
+],
+"tailwindcss:jest/customMatchers.js": [
+30,
+45
+],
+"tailwindcss:plugin.js": [
+3
+],
+"tailwindcss:scripts/build.js": [
+43
+],
+"tailwindcss:scripts/compat.js": [
+29,
+32,
+47,
+51,
+82
+],
+"tailwindcss:scripts/rebuildFixtures.js": [
+66
+],
+"tailwindcss:src/cli/commands/build.js": [
+54,
+74,
+108
+],
+"tailwindcss:src/cli/commands/help.js": [
+25,
+48
+],
+"tailwindcss:src/cli/commands/init.js": [
+40,
+45,
+53
+],
+"tailwindcss:src/cli/main.js": [
+14
+],
+"tailwindcss:src/cli/utils.js": [
+1,
+33,
+34
+],
+"tailwindcss:src/constants.js": [
+10,
+12,
+13
+],
+"tailwindcss:src/corePlugins.js": [
+7
+],
+"tailwindcss:src/featureFlags.js": [
+16,
+28,
+44
+],
+"tailwindcss:src/index.js": [
+17,
+22,
+27,
+53,
+62
+],
+"tailwindcss:src/index.postcss7.js": [
+18,
+23,
+28,
+54,
+63
+],
+"tailwindcss:src/lib/evaluateTailwindFunctions.js": [
+34,
+49,
+51,
+60,
+67,
+94
+],
+"tailwindcss:src/lib/formatCSS.js": [
+5
+],
+"tailwindcss:src/lib/purgeUnusedStyles.js": [
+28,
+31,
+33,
+40,
+51,
+52,
+53,
+74,
+107
+],
+"tailwindcss:src/lib/registerConfigAsDependency.js": [
+6
+],
 "tailwindcss:src/lib/substituteClassApplyAtRules.js": [
-204
+9,
+53,
+64,
+65,
+68,
+143,
+192,
+196,
+201,
+204,
+236,
+242,
+245,
+247,
+251,
+259,
+264,
+265,
+278,
+284,
+289,
+301,
+313,
+315,
+352
+],
+"tailwindcss:src/lib/substituteResponsiveAtRules.js": [
+46,
+47
+],
+"tailwindcss:src/lib/substituteTailwindAtRules.js": [
+5,
+16,
+37,
+61
+],
+"tailwindcss:src/lib/substituteVariantsAtRules.js": [
+13,
+35,
+50,
+64,
+71,
+87,
+106,
+118,
+158,
+176,
+184,
+186,
+189
+],
+"tailwindcss:src/plugins/animation.js": [
+18,
+21
+],
+"tailwindcss:src/plugins/backgroundOpacity.js": [
+4
+],
+"tailwindcss:src/plugins/borderOpacity.js": [
+4
+],
+"tailwindcss:src/plugins/borderRadius.js": [
+29,
+30,
+31,
+32
+],
+"tailwindcss:src/plugins/container.js": [
+73,
+76,
+108
+],
+"tailwindcss:src/plugins/divideOpacity.js": [
+9
+],
+"tailwindcss:src/plugins/divideWidth.js": [
+10,
+12,
+15,
+18
+],
+"tailwindcss:src/plugins/fontVariantNumeric.js": [
+5,
+12
+],
+"tailwindcss:src/plugins/gradientColorStops.js": [
+31
+],
+"tailwindcss:src/plugins/gridAutoColumns.js": [
+4
+],
+"tailwindcss:src/plugins/gridColumnStart.js": [
+4
+],
+"tailwindcss:src/plugins/gridTemplateColumns.js": [
+4
+],
+"tailwindcss:src/plugins/gridTemplateRows.js": [
+4
+],
+"tailwindcss:src/plugins/outline.js": [
+8
+],
+"tailwindcss:src/plugins/padding.js": [
+11,
+12
+],
+"tailwindcss:src/plugins/placeholderColor.js": [
+25
+],
+"tailwindcss:src/plugins/preflight.js": [
+10,
+14
+],
+"tailwindcss:src/plugins/ringWidth.js": [
+17,
+38,
+39
+],
+"tailwindcss:src/plugins/space.js": [
+10,
+15,
+18
+],
+"tailwindcss:src/plugins/textOpacity.js": [
+4
+],
+"tailwindcss:src/plugins/transformOrigin.js": [
+4
+],
+"tailwindcss:src/plugins/transitionDelay.js": [
+4
+],
+"tailwindcss:src/plugins/transitionDuration.js": [
+4
+],
+"tailwindcss:src/plugins/transitionTimingFunction.js": [
+4
+],
+"tailwindcss:src/processTailwindFeatures.js": [
+8,
+38
+],
+"tailwindcss:src/util/buildSelectorVariant.js": [
+8,
+10,
+18
+],
+"tailwindcss:src/util/createPlugin.js": [
+8
+],
+"tailwindcss:src/util/createUtilityPlugin.js": [
+24
+],
+"tailwindcss:src/util/getAllConfigs.js": [
+6
+],
+"tailwindcss:src/util/parseAnimationValue.js": [
+1,
+5,
+8,
+9,
+25,
+26
+],
+"tailwindcss:src/util/prefixSelector.js": [
+6
+],
+"tailwindcss:src/util/processPlugins.js": [
+18,
+31,
+44,
+51,
+58,
+79,
+101,
+120,
+127
+],
+"tailwindcss:src/util/resolveConfig.js": [
+66,
+78,
+79,
+94,
+102,
+126,
+147,
+162,
+179,
+196,
+222,
+239,
+273
+],
+"tailwindcss:stubs/defaultConfig.stub.js": [
+78,
+80,
+82,
+84,
+128,
+129,
+130,
+131,
+182,
+644,
+744,
+746,
+751,
+752,
+835,
+836,
+837
 ]
 }

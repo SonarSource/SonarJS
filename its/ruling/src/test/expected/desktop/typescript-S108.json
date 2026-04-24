@@ -1,0 +1,24 @@
+{
+"desktop:app/src/lib/get-main-guid.ts": [
+37
+],
+"desktop:app/src/lib/git/rebase.ts": [
+117,
+205
+],
+"desktop:app/src/lib/git/status.ts": [
+386
+],
+"desktop:app/src/lib/markdown-filters/emoji-filter.ts": [
+112
+],
+"desktop:app/src/main-process/desktop-console-transport.ts": [
+42
+],
+"desktop:app/src/main-process/main.ts": [
+737
+],
+"desktop:app/src/ui/add-repository/create-repository.tsx": [
+241
+]
+}

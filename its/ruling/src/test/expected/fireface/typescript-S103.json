@@ -1,0 +1,50 @@
+{
+"fireface:src/app/app.component.ts": [
+22,
+26,
+30,
+34,
+38,
+42
+],
+"fireface:src/auth/auth.service.ts": [
+72
+],
+"fireface:src/avatar/avatar.component.ts": [
+1
+],
+"fireface:src/common/asset.service.ts": [
+276
+],
+"fireface:src/common/avatar.service.ts": [
+5
+],
+"fireface:src/create/create.component.ts": [
+59,
+65,
+83,
+99,
+118,
+125,
+129
+],
+"fireface:src/environments/environment.ts": [
+1,
+2
+],
+"fireface:src/firebase/firebase.module.ts": [
+16
+],
+"fireface:src/storage/storage.component.ts": [
+63,
+71,
+85,
+92,
+114,
+118
+],
+"fireface:src/test.ts": [
+1,
+17
+]
+}

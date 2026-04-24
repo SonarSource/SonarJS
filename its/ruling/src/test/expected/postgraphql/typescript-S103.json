@@ -1,24 +1,829 @@
 {
+"postgraphql:src/__tests__/utils/createTestInParallel.ts": [
+8,
+13
+],
+"postgraphql:src/__tests__/utils/pgPool.ts": [
+4
+],
+"postgraphql:src/__tests__/utils/withPgClient.ts": [
+10
+],
+"postgraphql:src/graphql/__tests__/fixtures/forumInventory.ts": [
+66,
+101,
+126,
+156
+],
+"postgraphql:src/graphql/schema/BuildToken.ts": [
+45,
+46,
+47
+],
+"postgraphql:src/graphql/schema/collection/createCollectionGqlType.ts": [
+1,
+2,
+8,
+38,
+46,
+47,
+53,
+65,
+71,
+73,
+83,
+86,
+87,
+90,
+96
+],
+"postgraphql:src/graphql/schema/collection/createCollectionKeyInputHelpers.ts": [
+1,
+28,
+29,
+31,
+36,
+52,
+54,
+68,
+75
+],
+"postgraphql:src/graphql/schema/collection/createCollectionMutationFieldEntries.ts": [
+4,
+5,
+6,
+7,
+8,
+21,
+27,
+31,
+34
+],
+"postgraphql:src/graphql/schema/collection/createCollectionQueryFieldEntries.ts": [
+26,
+33,
+37,
+62,
+83,
+86,
+91,
+97,
+98,
+99,
+120,
+121
+],
+"postgraphql:src/graphql/schema/collection/createCollectionRelationTailGqlFieldEntries.ts": [
+12,
+17,
+26,
+38,
+41,
+46,
+48,
+50
+],
+"postgraphql:src/graphql/schema/collection/getConditionGqlType.ts": [
+2,
+9,
+16,
+17,
+21,
+38,
+45,
+49
+],
+"postgraphql:src/graphql/schema/collection/mutations/createCreateCollectionMutationFieldEntry.ts": [
+8,
+9,
+25,
+26,
+37,
+47,
+58,
+59,
+61,
+71
+],
+"postgraphql:src/graphql/schema/collection/mutations/createDeleteCollectionKeyMutationFieldEntry.ts": [
+7,
+14,
+24,
+28
+],
+"postgraphql:src/graphql/schema/collection/mutations/createDeleteCollectionMutationFieldEntry.ts": [
+1,
+8,
+31,
+36,
+44,
+47,
+54,
+64,
+81
+],
+"postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionKeyMutationFieldEntry.ts": [
+7,
+14,
+24,
+26,
+30,
+40,
+46
+],
+"postgraphql:src/graphql/schema/collection/mutations/createUpdateCollectionMutationFieldEntry.ts": [
+16,
+37,
+41,
+46,
+54,
+62,
+65,
+67,
+84,
+92,
+107,
+112,
+126,
+137,
+148
+],
+"postgraphql:src/graphql/schema/connection/createConnectionGqlField.ts": [
+26,
+42,
+47,
+65,
+93,
+95,
+98,
+114,
+151,
+157,
+159,
+160,
+165,
+190,
+216,
+247,
+262,
+264,
+265,
+274,
+284,
+322
+],
+"postgraphql:src/graphql/schema/createGqlSchema.ts": [
+3,
+28,
+29
+],
+"postgraphql:src/graphql/schema/createMutationGqlField.ts": [
+21,
+22,
+50,
+61,
+64,
+70
+],
+"postgraphql:src/graphql/schema/createMutationPayloadGqlType.ts": [
+15,
+20,
+26,
+56
+],
+"postgraphql:src/graphql/schema/getMutationGqlType.ts": [
+4,
+20,
+24,
+38,
+49,
+50
+],
+"postgraphql:src/graphql/schema/getQueryGqlType.ts": [
+1,
+5,
+22,
+24,
+26,
+37,
+43,
+50
+],
+"postgraphql:src/graphql/schema/node/createNodeFieldEntry.ts": [
+10,
+13,
+21,
+22,
+37,
+44,
+47
+],
+"postgraphql:src/graphql/schema/node/getNodeInterfaceType.ts": [
+1,
+12,
+17,
+20
+],
+"postgraphql:src/graphql/schema/type/aliasGqlType.ts": [
+1,
+4,
+5,
+6
+],
+"postgraphql:src/graphql/schema/type/getGqlInputType.ts": [
+46,
+51,
+57,
+58,
+71,
+72,
+77,
+88,
+106,
+122,
+134,
+135,
+158,
+159,
+182,
+189,
+203,
+209
+],
+"postgraphql:src/graphql/schema/type/getGqlOutputType.ts": [
+33,
+55,
+60,
+70,
+71,
+86,
+87,
+100,
+102,
+145,
+157,
+158,
+164,
+190,
+191,
+192,
+193,
+194,
+204,
+226,
+260,
+261
+],
+"postgraphql:src/graphql/utils/__tests__/buildObject-test.ts": [
+4,
+8,
+17
+],
+"postgraphql:src/graphql/utils/__tests__/memoize-test.ts": [
+3
+],
+"postgraphql:src/graphql/utils/buildObject.ts": [
+33,
+54
+],
+"postgraphql:src/graphql/utils/formatName.ts": [
+3,
+8,
+9
+],
+"postgraphql:src/graphql/utils/idSerde.ts": [
+1,
+14,
+18,
+26,
+32,
+33,
+50,
+51,
+53,
+59,
+69
+],
+"postgraphql:src/graphql/utils/memoize.ts": [
+46,
+81,
+82,
+83
+],
+"postgraphql:src/index.ts": [
+1
+],
 "postgraphql:src/interface/Inventory.ts": [
+31,
+69,
+70,
+80,
+83,
+86,
 89
 ],
-"postgraphql:src/postgraphql/cli.ts": [
+"postgraphql:src/interface/__ideas__/01-new-types.ts": [
+72,
+90
+],
+"postgraphql:src/interface/collection/CollectionKey.ts": [
+57,
+70
+],
+"postgraphql:src/interface/collection/Condition.ts": [
+59
+],
+"postgraphql:src/interface/collection/__tests__/Condition-test.ts": [
+4,
+8,
+16,
+17,
+21,
+22,
+30
+],
+"postgraphql:src/interface/type/BasicObjectType.ts": [
+13,
+27,
+43
+],
+"postgraphql:src/interface/type/ListType.ts": [
+25
+],
+"postgraphql:src/interface/type/NullableType.ts": [
+34,
+50
+],
+"postgraphql:src/interface/type/ObjectType.ts": [
+15
+],
+"postgraphql:src/interface/type/ScalarType.ts": [
+15
+],
+"postgraphql:src/interface/type/Type.ts": [
+39
+],
+"postgraphql:src/interface/type/getNamedType.ts": [
+12
+],
+"postgraphql:src/interface/type/scalar/booleanType.ts": [
+18
+],
+"postgraphql:src/interface/type/scalar/floatType.ts": [
+13,
+21
+],
+"postgraphql:src/interface/type/scalar/integerType.ts": [
+11,
+19,
+22
+],
+"postgraphql:src/interface/type/scalar/jsonType.ts": [
+12
+],
+"postgraphql:src/interface/type/scalar/stringType.ts": [
+19
+],
+"postgraphql:src/interface/type/switchType.ts": [
 39,
+44,
+48,
+49,
+54
+],
+"postgraphql:src/postgraphql/cli.ts": [
+16,
+24,
+25,
+26,
+27,
+28,
+29,
+30,
+31,
+32,
+33,
+34,
+35,
+36,
+37,
+38,
+39,
+41,
 42,
 43,
 44,
-136
+45,
+90,
+99,
+134,
+136,
+137,
+138,
+141
+],
+"postgraphql:src/postgraphql/postgraphql.ts": [
+7,
+37,
+38,
+56,
+101,
+110,
+138
+],
+"postgraphql:src/postgraphql/schema/auth/getJwtGqlType.ts": [
+12,
+20,
+24
 ],
 "postgraphql:src/postgraphql/schema/auth/getPgTokenTypeFromIdentifier.ts": [
-19
+1,
+19,
+23,
+32,
+33,
+45,
+46,
+49
+],
+"postgraphql:src/postgraphql/schema/createPostGraphQLSchema.ts": [
+3,
+5,
+10,
+11,
+12,
+13,
+41,
+65,
+79,
+88,
+115,
+118,
+120,
+127,
+131,
+135,
+137
+],
+"postgraphql:src/postgraphql/schema/exportPostGraphQLSchema.ts": [
+30
+],
+"postgraphql:src/postgraphql/schema/procedures/PgProcedurePaginator.ts": [
+4,
+21,
+29,
+37,
+47
+],
+"postgraphql:src/postgraphql/schema/procedures/createPgProcedureFixtures.ts": [
+5,
+6
+],
+"postgraphql:src/postgraphql/schema/procedures/createPgProcedureMutationGqlFieldEntry.ts": [
+12,
+13,
+17,
+20,
+39,
+48,
+52,
+80,
+83,
+94,
+102,
+113,
+118
+],
+"postgraphql:src/postgraphql/schema/procedures/createPgProcedureObjectTypeGqlFieldEntry.ts": [
+1,
+4,
+7,
+25,
+26,
+44,
+48,
+52,
+59,
+60,
+62,
+82,
+86,
+90,
+94
+],
+"postgraphql:src/postgraphql/schema/procedures/createPgProcedureQueryGqlFieldEntry.ts": [
+1,
+4,
+7,
+23,
+24,
+45,
+56,
+57,
+59,
+82,
+88,
+92
+],
+"postgraphql:src/postgraphql/schema/procedures/createPgProcedureSqlCall.ts": [
+20,
+35,
+38
+],
+"postgraphql:src/postgraphql/schema/procedures/getPgProcedureComputedClass.ts": [
+1
+],
+"postgraphql:src/postgraphql/watch/watchPgSchemas.ts": [
+12,
+44,
+45,
+46,
+88,
+95
+],
+"postgraphql:src/postgraphql/withPostGraphQLContext.ts": [
+133,
+173,
+203
+],
+"postgraphql:src/postgres/introspection/PgCatalog.ts": [
+80,
+81,
+116,
+119,
+132,
+145,
+157,
+163,
+171,
+174,
+216,
+219,
+241,
+244
+],
+"postgraphql:src/postgres/introspection/introspectDatabase.ts": [
+13,
+24
+],
+"postgraphql:src/postgres/introspection/object/PgCatalogConstraint.ts": [
+17
+],
+"postgraphql:src/postgres/introspection/object/PgCatalogObject.ts": [
+9
+],
+"postgraphql:src/postgres/introspection/object/PgCatalogType.ts": [
+78,
+79
+],
+"postgraphql:src/postgres/inventory/__tests__/conditionToSql-test.ts": [
+13,
+19,
+24,
+32,
+40,
+48,
+54,
+56,
+61,
+63,
+74,
+93
+],
+"postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts": [
+58,
+65,
+74
+],
+"postgraphql:src/postgres/inventory/collection/PgCollection.ts": [
+6,
+29,
+109,
+115,
+118,
+130,
+132,
+138,
+153,
+155,
+157,
+166,
+173,
+174,
+178
+],
+"postgraphql:src/postgres/inventory/collection/PgCollectionKey.ts": [
+3,
+5,
+17,
+20,
+26,
+27,
+28,
+37,
+38,
+39,
+103,
+115,
+123,
+126,
+137,
+139,
+163,
+166,
+172,
+177,
+192,
+194,
+199,
+213,
+216,
+233,
+237,
+243,
+249,
+251,
+261,
+264,
+273,
+277,
+283,
+286
 ],
 "postgraphql:src/postgres/inventory/collection/PgRelation.ts": [
-18
+2,
+9,
+17,
+18,
+19,
+31,
+42,
+43,
+44
+],
+"postgraphql:src/postgres/inventory/conditionToSql.ts": [
+7,
+13,
+15,
+17,
+20,
+22,
+24,
+26,
+33,
+35
+],
+"postgraphql:src/postgres/inventory/paginator/PgCollectionPaginator.ts": [
+2,
+27,
+38,
+46,
+53,
+55,
+56,
+57,
+100,
+106,
+111,
+116,
+124
 ],
 "postgraphql:src/postgres/inventory/paginator/PgPaginator.ts": [
+10,
+13,
 37
 ],
+"postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingAttributes.ts": [
+64,
+66,
+83,
+84,
+85,
+92,
+96,
+114,
+133,
+150,
+164,
+166
+],
+"postgraphql:src/postgres/inventory/paginator/PgPaginatorOrderingOffset.ts": [
+95,
+105,
+116,
+155
+],
+"postgraphql:src/postgres/inventory/type/PgAliasType.ts": [
+11
+],
+"postgraphql:src/postgres/inventory/type/PgClassType.ts": [
+2,
+24,
+32,
+33,
+81,
+83,
+84,
+94
+],
+"postgraphql:src/postgres/inventory/type/PgEnumType.ts": [
+11
+],
+"postgraphql:src/postgres/inventory/type/PgListType.ts": [
+5,
+18,
+31,
+40
+],
+"postgraphql:src/postgres/inventory/type/PgNullableType.ts": [
+5,
+22,
+37,
+38,
+44,
+45
+],
+"postgraphql:src/postgres/inventory/type/PgRangeType.ts": [
+1,
+37,
+57,
+64,
+94,
+95,
+139,
+140,
+141,
+151,
+152,
+160,
+164
+],
+"postgraphql:src/postgres/inventory/type/custom/pgBigIntType.ts": [
+7,
+8
+],
+"postgraphql:src/postgres/inventory/type/custom/pgDatetimeType.ts": [
+7
+],
 "postgraphql:src/postgres/inventory/type/custom/pgIntervalType.ts": [
+30,
 37
+],
+"postgraphql:src/postgres/inventory/type/custom/pgTimeType.ts": [
+6
+],
+"postgraphql:src/postgres/inventory/type/custom/pgUuidType.ts": [
+11
+],
+"postgraphql:src/postgres/inventory/type/getTypeFromPgType.ts": [
+63,
+71,
+81,
+83,
+134,
+138
+],
+"postgraphql:src/postgres/inventory/type/scalar/pgFloatType.ts": [
+8
+],
+"postgraphql:src/postgres/inventory/type/scalar/pgJsonType.ts": [
+10
+],
+"postgraphql:src/postgres/utils/__tests__/mapToObject-test.ts": [
+4
+],
+"postgraphql:src/postgres/utils/__tests__/objectToMap-test.ts": [
+4
+],
+"postgraphql:src/postgres/utils/__tests__/sql-test.ts": [
+15,
+19,
+33,
+53,
+65,
+72,
+90,
+119,
+138,
+147,
+154
+],
+"postgraphql:src/postgres/utils/mapToObject.ts": [
+4
+],
+"postgraphql:src/postgres/utils/memoizeMethod.ts": [
+11,
+27
+],
+"postgraphql:src/postgres/utils/objectToMap.ts": [
+4
+],
+"postgraphql:src/postgres/utils/sql.ts": [
+5,
+27,
+30,
+118,
+130,
+159
 ]
 }

@@ -1,9 +1,67 @@
 {
+"p5.js:docs/yuidoc-p5-theme/assets/js/reference.js": [
+127,
+321,
+442,
+671,
+2067,
+3850
+],
+"p5.js:lib/addons/p5.sound.js": [
+964,
+980,
+2231,
+2601,
+2610,
+2889,
+7564,
+7971
+],
+"p5.js:src/core/error_helpers.js": [
+608
+],
 "p5.js:src/core/main.js": [
 473,
-481
+481,
+657
+],
+"p5.js:src/core/p5.Renderer2D.js": [
+174
+],
+"p5.js:src/core/rendering.js": [
+160
+],
+"p5.js:src/dom/dom.js": [
+1322,
+1326,
+2354,
+3055
+],
+"p5.js:src/image/loading_displaying.js": [
+99,
+170
 ],
 "p5.js:src/webgl/p5.RendererGL.js": [
 268
+],
+"p5.js:src/webgl/text.js": [
+83
+],
+"p5.js:tasks/release/release-bower.js": [
+78
+],
+"p5.js:tasks/release/release-docs.js": [
+77
+],
+"p5.js:tasks/release/release-github.js": [
+111
+],
+"p5.js:tasks/test/mocha-chrome.js": [
+80,
+97
+],
+"p5.js:test/test-reference.html": [
+154,
+176
 ]
 }

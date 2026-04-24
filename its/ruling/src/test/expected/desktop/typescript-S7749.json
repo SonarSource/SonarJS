@@ -1,0 +1,42 @@
+{
+"desktop:app/src/lib/format-duration.ts": [
+2,
+3,
+4
+],
+"desktop:app/src/lib/offset-from.ts": [
+2,
+3,
+4,
+5,
+6,
+7,
+8,
+9
+],
+"desktop:app/src/lib/read-emoji.ts": [
+71
+],
+"desktop:app/src/main-process/now.ts": [
+10
+],
+"desktop:app/src/models/diff/diff-data.ts": [
+7
+],
+"desktop:app/src/ui/banners/render-banner.tsx": [
+135
+],
+"desktop:app/src/ui/banners/successful-cherry-pick.tsx": [
+22
+],
+"desktop:app/src/ui/banners/successful-squash.tsx": [
+20
+],
+"desktop:app/src/ui/lib/color-manipulation.ts": [
+29,
+30
+],
+"desktop:app/src/ui/relative-time.tsx": [
+44
+]
+}
