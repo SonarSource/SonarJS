@@ -195,6 +195,11 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['deno']);
+    expect(manifests[0].manifest).toMatchObject({
+      imports: {
+        reactAlias: 'npm:react@^19.1.0',
+      },
+    });
   });
 
   it('should include package.json dependencies when deno.json is present in the same directory', async () => {
