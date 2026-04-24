@@ -76,6 +76,7 @@ export function clearDependenciesCache(): void {
     closestPatternCache.get(manifestName).clear();
     patternInParentsCache.get(manifestName).clear();
   }
+  closestPatternCache.get(PNPM_WORKSPACE_YAML).clear();
   MinimatchCache.clear();
 }
 

@@ -31,6 +31,7 @@ import {
   isDependencyManifestPath,
   PACKAGE_JSON,
   fillManifestCaches,
+  PNPM_WORKSPACE_YAML,
 } from '../jsts/rules/helpers/dependency-manifests/index.js';
 
 export const UNINITIALIZED_ERROR =
@@ -70,7 +71,7 @@ export class DependencyManifestStore implements FileStore {
       return;
     }
     for (const filename of fsEvents) {
-      if (isDependencyManifestPath(filename)) {
+      if (isDependencyManifestPath(filename) || filename === PNPM_WORKSPACE_YAML) {
         this.clearCache();
         return;
       }
