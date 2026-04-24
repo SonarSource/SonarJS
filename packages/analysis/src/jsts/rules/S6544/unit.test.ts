@@ -17,7 +17,33 @@
 import type { Rule } from 'eslint';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { RuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { guardNoMisusedPromisesReturnListener } from './rule.js';
+
+const upstreamRule = tsEslintRules['no-misused-promises'];
+
+describe('S6544 upstream sentinel', () => {
+  it('upstream no-misused-promises crashes on a top-level return statement', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        sourceType: 'script',
+      },
+    });
+
+    expect(() =>
+      ruleTester.run('no-misused-promises-crash', upstreamRule, {
+        valid: [],
+        invalid: [
+          {
+            code: 'return Promise.resolve(42);',
+            errors: 1,
+          },
+        ],
+      }),
+    ).toThrow('Non-null Assertion Failed: Expected node to have a parent.');
+  });
+});
 
 describe('S6544 hardening', () => {
   it('should ignore missing parent errors from the upstream return listener', () => {
