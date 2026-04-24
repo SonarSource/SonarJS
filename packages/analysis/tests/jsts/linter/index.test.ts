@@ -162,27 +162,7 @@ describe('Linter', () => {
     );
   });
 
-  it('should materialize runtime default options for external rules without Sonar config fields', async () => {
-    await Linter.initialize({
-      baseDir: normalizeToAbsolutePath(import.meta.dirname),
-      rules: [
-        {
-          key: 'S878',
-          configurations: [],
-          fileTypeTargets: ['MAIN'],
-          language: 'js',
-          analysisModes: ['DEFAULT'],
-        },
-      ],
-    });
-    expect(
-      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
-    ).toEqual({
-      'sonarjs/S878': ['error', { allowInParentheses: true }],
-    });
-  });
-
-  it('should materialize merged runtime defaults for configurable external rules', async () => {
+  it('should keep Sonar defaults from config.ts when no explicit configuration is provided', async () => {
     await Linter.initialize({
       baseDir: normalizeToAbsolutePath(import.meta.dirname),
       rules: [
@@ -205,6 +185,26 @@ describe('Linter', () => {
           ignoreReadBeforeAssign: true,
         },
       ],
+    });
+  });
+
+  it('should not synthesize options for rules without config fields', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S878',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    expect(
+      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+    ).toEqual({
+      'sonarjs/S878': ['error'],
     });
   });
 
