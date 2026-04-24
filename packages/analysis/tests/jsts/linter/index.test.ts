@@ -162,6 +162,52 @@ describe('Linter', () => {
     );
   });
 
+  it('should materialize runtime default options for external rules without Sonar config fields', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S878',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    expect(
+      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+    ).toEqual({
+      'sonarjs/S878': ['error', { allowInParentheses: true }],
+    });
+  });
+
+  it('should materialize merged runtime defaults for configurable external rules', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S3353',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    expect(
+      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+    ).toEqual({
+      'sonarjs/S3353': [
+        'error',
+        {
+          destructuring: 'all',
+          ignoreReadBeforeAssign: true,
+        },
+      ],
+    });
+  });
+
   it('should disable React-dependent rules when react dependency is missing', async () => {
     const baseDir = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'no-react'),

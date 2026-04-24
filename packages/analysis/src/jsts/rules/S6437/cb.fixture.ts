@@ -195,3 +195,5 @@ mysql2.createConnection({ password: process.env.DB_PASSWORD });
   mysql2.createPool({ password: 'root' }); // Noncompliant {{Revoke and change this password, as it is compromised.}}
 //^^^^^^^^^^^^^^^^^
 mysql2.createPool({ password: process.env.DB_PASSWORD });
+
+toString('not a secret'); // Compliant

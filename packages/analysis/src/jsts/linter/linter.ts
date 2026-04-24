@@ -60,6 +60,18 @@ interface LintOptions {
   additionalRules?: ESLintLinter.RulesRecord;
 }
 
+type RuleMetadata = {
+  fields?: Parameters<typeof defaultOptions>[0];
+};
+
+function getRuleDefaultOptions(ruleKey: string, ruleMeta?: RuleMetadata) {
+  const implementationDefaults = Linter.rules[ruleKey]?.meta?.defaultOptions;
+  if (Array.isArray(implementationDefaults)) {
+    return implementationDefaults;
+  }
+  return defaultOptions(ruleMeta?.fields) ?? [];
+}
+
 /**
  * A singleton ESLint linter
  *
@@ -305,18 +317,16 @@ export class Linter {
     return rules.reduce((rules, rule) => {
       // in the case of bundles, rule.key will not be present in the ruleMetas
       const ruleMeta =
-        rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
-      if (ruleMeta && 'fields' in ruleMeta) {
-        rules[`sonarjs/${rule.key}`] = [
-          'error',
-          ...applyTransformations(
-            ruleMeta.fields,
-            merge(defaultOptions(ruleMeta.fields), rule.configurations),
-          ),
-        ];
-      } else {
-        rules[`sonarjs/${rule.key}`] = ['error'];
-      }
+        rule.key in ruleMetas
+          ? (ruleMetas[rule.key as keyof typeof ruleMetas] as RuleMetadata)
+          : undefined;
+      // Materialize runtime defaults ourselves so analyzer stability does not depend on
+      // ESLint injecting `meta.defaultOptions` for external/core rules at execution time.
+      const mergedOptions = applyTransformations(
+        ruleMeta?.fields,
+        merge([], getRuleDefaultOptions(rule.key, ruleMeta), rule.configurations),
+      );
+      rules[`sonarjs/${rule.key}`] = ['error', ...mergedOptions];
       return rules;
     }, {} as ESLintLinter.RulesRecord);
   }
