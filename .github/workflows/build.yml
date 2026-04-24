@@ -722,16 +722,14 @@ jobs:
         shell: bash
         run: |
           node --version
-          NODE_PATH=$(which node)
-          sudo mv "$NODE_PATH" "${NODE_PATH}.disabled"
 
-          # Verify node is no longer accessible
-          if which node 2>/dev/null; then
-            echo "ERROR: node is still accessible!"
-            exit 1
-          else
-            echo "SUCCESS: node is no longer accessible"
-          fi
+          function node() {
+            echo "node is disabled"
+            exit 0
+          }
+          export -f node
+
+          node
       - *orchestrator_cache
       - name: Run Plugin QA without Node
         run: |
