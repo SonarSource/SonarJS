@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.issue.NewIssue;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
 
 /**
  * QuickFix logic is separated here, because it can't be used directly in the plugin extension class, otherwise
@@ -35,30 +35,37 @@ class QuickFixSupport {
   }
 
   static void addQuickFixes(Issue issue, NewIssue sonarLintIssue, InputFile file) {
-    issue
-      .quickFixes()
-      .forEach(qf -> {
-        LOG.debug("Adding quick fix for issue {} at line {}", issue.ruleId(), issue.line());
-        var quickFix = sonarLintIssue.newQuickFix();
-        var fileEdit = quickFix.newInputFileEdit();
-        qf
-          .edits()
-          .forEach(e -> {
-            var textEdit = fileEdit.newTextEdit();
-            textEdit
-              .at(
-                file.newRange(
-                  e.loc().line(),
-                  e.loc().column(),
-                  e.loc().endLine(),
-                  e.loc().endColumn()
-                )
-              )
-              .withNewText(e.text());
-            fileEdit.on(file).addTextEdit(textEdit);
-          });
-        quickFix.addInputFileEdit(fileEdit).message(qf.message());
-        sonarLintIssue.addQuickFix(quickFix);
-      });
+    for (var quickFixMessage : issue.getQuickFixesList()) {
+      LOG.debug("Adding quick fix for issue {} at line {}", issue.getRuleId(), issue.getLine());
+      var quickFix = sonarLintIssue.newQuickFix();
+      var fileEdit = quickFix.newInputFileEdit();
+      var hasValidEdit = false;
+
+      for (var edit : quickFixMessage.getEditsList()) {
+        var loc = edit.getLoc();
+        if (!loc.hasLine() || !loc.hasColumn() || !loc.hasEndLine() || !loc.hasEndColumn()) {
+          LOG.debug(
+            "Skipping quick fix edit with incomplete location for rule {}",
+            issue.getRuleId()
+          );
+          continue;
+        }
+
+        var textEdit = fileEdit.newTextEdit();
+        textEdit
+          .at(file.newRange(loc.getLine(), loc.getColumn(), loc.getEndLine(), loc.getEndColumn()))
+          .withNewText(edit.getText());
+        fileEdit.on(file).addTextEdit(textEdit);
+        hasValidEdit = true;
+      }
+
+      if (!hasValidEdit) {
+        LOG.debug("Skipping quick fix without valid edits for rule {}", issue.getRuleId());
+        continue;
+      }
+
+      quickFix.addInputFileEdit(fileEdit).message(quickFixMessage.getMessage());
+      sonarLintIssue.addQuickFix(quickFix);
+    }
   }
 }

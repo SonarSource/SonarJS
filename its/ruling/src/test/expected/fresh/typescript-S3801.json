@@ -1,0 +1,66 @@
+{
+"fresh:packages/fresh/src/dev/esbuild.ts": [
+229
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
+115
+],
+"fresh:packages/fresh/src/jsonify/parse.ts": [
+25
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+618
+],
+"fresh:packages/plugin-vite/src/mod.ts": [
+71,
+181
+],
+"fresh:packages/plugin-vite/src/plugins/build_id.ts": [
+25
+],
+"fresh:packages/plugin-vite/src/plugins/client_entry.ts": [
+27
+],
+"fresh:packages/plugin-vite/src/plugins/client_snapshot.ts": [
+108,
+151
+],
+"fresh:packages/plugin-vite/src/plugins/deno.ts": [
+56,
+170,
+248
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+31
+],
+"fresh:packages/plugin-vite/src/plugins/patches.ts": [
+29
+],
+"fresh:packages/plugin-vite/src/plugins/server_entry.ts": [
+63
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+129,
+453,
+494,
+561
+],
+"fresh:packages/plugin-vite/src/plugins/shims.ts": [
+27
+],
+"fresh:www/islands/LemonBottom.tsx": [
+80
+],
+"fresh:www/islands/LemonDrop.tsx": [
+76
+],
+"fresh:www/islands/LemonTop.tsx": [
+68
+],
+"fresh:www/islands/TableOfContents.tsx": [
+45
+],
+"fresh:www/utils/ga4.ts": [
+104
+]
+}

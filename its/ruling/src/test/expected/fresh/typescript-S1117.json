@@ -1,0 +1,127 @@
+{
+"fresh:packages/fresh/src/commands.ts": [
+310
+],
+"fresh:packages/fresh/src/context.ts": [
+308,
+483
+],
+"fresh:packages/fresh/src/define.ts": [
+110,
+111
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+408,
+417
+],
+"fresh:packages/fresh/src/dev/esbuild.ts": [
+127
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+161,
+189,
+190
+],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+92
+],
+"fresh:packages/fresh/src/middlewares/cors.ts": [
+78
+],
+"fresh:packages/fresh/src/middlewares/csp.ts": [
+65
+],
+"fresh:packages/fresh/src/middlewares/ip_filter.ts": [
+100,
+100
+],
+"fresh:packages/fresh/src/middlewares/mod_test.ts": [
+18,
+187
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+261,
+427,
+701
+],
+"fresh:packages/fresh/src/test_utils.ts": [
+21,
+26,
+31,
+36,
+41,
+46,
+51,
+61,
+132
+],
+"fresh:packages/fresh/tests/head_test.tsx": [
+220
+],
+"fresh:packages/plugin-vite/demo/islands/tests/HeadCounter.tsx": [
+18
+],
+"fresh:packages/plugin-vite/src/mod.ts": [
+90,
+144,
+146
+],
+"fresh:packages/plugin-vite/src/plugins/deno.ts": [
+178,
+183,
+185
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+141
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+41,
+44,
+47,
+50,
+53
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+425
+],
+"fresh:packages/plugin-vite/src/plugins/verify_imports.ts": [
+32
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+96,
+110,
+124,
+262
+],
+"fresh:packages/update/src/update.ts": [
+358,
+372,
+403,
+665
+],
+"fresh:tools/check_docs_lib.ts": [
+72,
+90,
+114,
+132,
+183
+],
+"fresh:tools/release.ts": [
+100,
+152
+],
+"fresh:www/data/docs.ts": [
+74,
+78,
+80,
+81
+],
+"fresh:www/islands/VersionSelect.tsx": [
+43
+],
+"fresh:www/routes/docs/[...slug].tsx": [
+86,
+151,
+258
+]
+}

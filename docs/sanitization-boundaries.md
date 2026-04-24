@@ -2,117 +2,87 @@
 
 ## Overview
 
-This document describes the **trust boundary** in SonarJS where external input (raw strings, optional fields) is transformed into validated internal types (branded paths, required fields). All sanitization happens at well-defined entry points, ensuring internal code can trust its inputs.
+This document describes the trust boundary in SonarJS where external payloads
+(JSON strings, protobuf messages, optional fields) are converted into validated
+internal state. Sanitization happens at entry points so deeper analysis code can
+assume normalized paths, initialized file stores, and fully shaped
+configuration objects.
 
 ## Architecture Diagram
 
-```
-                            EXTERNAL INPUT
-                                  â”‚
-    â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-    â”‚                             â”‚                             â”‚
-    â–¼                             â–¼                             â–¼
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”               â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”              â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚  HTTP   â”‚               â”‚    gRPC      â”‚              â”‚    CLI      â”‚
-â”‚ Bridge  â”‚               â”‚   Service    â”‚              â”‚  (future)   â”‚
-â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”˜               â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”˜              â””â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”˜
-     â”‚                           â”‚                             â”‚
-     â”‚ RawConfiguration          â”‚ IAnalyzeRequest             â”‚
-     â”‚ RawJsTsAnalysisInput      â”‚ ISourceFile[]               â”‚
-     â”‚ RawProjectAnalysisInput   â”‚ IActiveRule[]               â”‚
-     â”‚                           â”‚                             â”‚
-     â–¼                           â–¼                             â–¼
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                      SANITIZATION LAYER                            â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
-â”‚  â”‚                    Entry Point Functions                      â”‚  â”‚
-â”‚  â”‚                                                               â”‚  â”‚
-â”‚  â”‚  â€¢ handle-request.ts:handleRequest()      â† HTTP Bridge       â”‚  â”‚
-â”‚  â”‚  â€¢ service.ts:analyzeFileHandler()        â† gRPC              â”‚  â”‚
-â”‚  â”‚  â€¢ configuration.ts:setGlobalConfiguration()                  â”‚  â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
-â”‚                              â”‚                                     â”‚
-â”‚                              â–¼                                     â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
-â”‚  â”‚                  Sanitization Functions                       â”‚  â”‚
-â”‚  â”‚                                                               â”‚  â”‚
-â”‚  â”‚  Path Normalization:                                          â”‚  â”‚
-â”‚  â”‚    â€¢ normalizeToAbsolutePath(string) â†’ NormalizedAbsolutePath â”‚  â”‚
-â”‚  â”‚    â€¢ sanitizePaths(string[]) â†’ NormalizedAbsolutePath[]       â”‚  â”‚
-â”‚  â”‚                                                               â”‚  â”‚
-â”‚  â”‚  Input Sanitization:                                          â”‚  â”‚
-â”‚  â”‚    â€¢ sanitizeAnalysisInput() â†’ AnalysisInput                  â”‚  â”‚
-â”‚  â”‚    â€¢ sanitizeJsTsAnalysisInput() â†’ JsTsAnalysisInput          â”‚  â”‚
-â”‚  â”‚                                                               â”‚  â”‚
-â”‚  â”‚  Glob Compilation:                                            â”‚  â”‚
-â”‚  â”‚    â€¢ normalizeGlobs(string[]) â†’ Minimatch[]                   â”‚  â”‚
-â”‚  â”‚                                                               â”‚  â”‚
-â”‚  â”‚  gRPC Transformation:                                         â”‚  â”‚
-â”‚  â”‚    â€¢ transformRequestToProjectInput() â†’ ProjectAnalysisInput  â”‚  â”‚
-â”‚  â”‚    â€¢ transformSourceFiles() â†’ JsTsFiles                       â”‚  â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-                              â”‚
-                              â”‚ Configuration (global state)
-                              â”‚ AnalysisInput / JsTsAnalysisInput
-                              â”‚ ProjectAnalysisInput
-                              â–¼
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                        INTERNAL ANALYSIS                           â”‚
-â”‚                                                                    â”‚
-â”‚   All paths: NormalizedAbsolutePath (branded)                      â”‚
-â”‚   All fields: Required with defaults                               â”‚
-â”‚   All globs: Compiled Minimatch objects                            â”‚
-â”‚                                                                    â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
-â”‚  â”‚  analyzeCSS  â”‚  â”‚ analyzeJSTS  â”‚  â”‚    analyzeProject        â”‚  â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
-â”‚          â”‚                 â”‚                      â”‚                â”‚
-â”‚          â–¼                 â–¼                      â–¼                â”‚
-â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”  â”‚
-â”‚  â”‚                    Internal Components                        â”‚  â”‚
-â”‚  â”‚                                                               â”‚  â”‚
-â”‚  â”‚  â€¢ Linter (expects NormalizedAbsolutePath)                    â”‚  â”‚
-â”‚  â”‚  â€¢ Parser (expects sanitized input)                           â”‚  â”‚
-â”‚  â”‚  â€¢ Rules (trust all paths are normalized)                     â”‚  â”‚
-â”‚  â”‚  â€¢ File stores (use branded JsTsFiles)                        â”‚  â”‚
-â”‚  â”‚  â€¢ Package.json helpers (use NormalizedAbsolutePath)          â”‚  â”‚
-â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜  â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+```text
+External input
+  |
+  +-- AnalyzeProjectService (gRPC runtime)
+  |     - AnalyzeProject
+  |     - AnalyzeProjectUnary
+  |     - CancelAnalysis
+  |     -> startAnalyzeProjectServer()
+  |     -> handleAnalyzeProjectRequest()
+  |
+  +-- LanguageAnalyzerService (gRPC)
+  |     - Analyze
+  |     -> analyzeFileHandler()
+  |
+  `-- CLI (future)
+        -> same sanitization layer
+
+Sanitization layer
+  - createConfiguration()
+  - sanitizeProjectAnalysisInput()
+  - sanitizeRawInputFiles()
+  - transformRequestToProjectInput()
+  - transformSourceFilesToRawInputFiles()
+  - normalizeToAbsolutePath()
+  - sanitizePaths()
+
+Internal analysis
+  - analyzeProject()
+  - analyzeJSTS()
+  - analyzeCSS()
 ```
 
 ## Entry Points
 
-### 1. HTTP Bridge
+### 1. Analyze-Project gRPC Runtime
 
-**Location:** `packages/http/src/`
+**Location:** `packages/grpc/src/`
 
-| Endpoint                | Request Type               | Handler           |
-| ----------------------- | -------------------------- | ----------------- |
-| `POST /init-linter`     | `RawInitLinterInput`       | `handleRequest()` |
-| `POST /analyze-jsts`    | `RawJsTsAnalysisInput`     | `handleRequest()` |
-| `POST /analyze-css`     | `RawCssAnalysisInput`      | `handleRequest()` |
-| `POST /analyze-html`    | `RawEmbeddedAnalysisInput` | `handleRequest()` |
-| `POST /analyze-yaml`    | `RawEmbeddedAnalysisInput` | `handleRequest()` |
-| `POST /analyze-project` | `RawProjectAnalysisInput`  | `handleRequest()` |
+| Service                 | Method                | Handler                       |
+| ----------------------- | --------------------- | ----------------------------- |
+| `AnalyzeProjectService` | `AnalyzeProject`      | `startAnalyzeProjectServer()` |
+| `AnalyzeProjectService` | `AnalyzeProjectUnary` | `startAnalyzeProjectServer()` |
+| `AnalyzeProjectService` | `CancelAnalysis`      | `startAnalyzeProjectServer()` |
 
-**Sanitization in `handleRequest()`:**
+**Sanitization in `handleAnalyzeProjectRequest()`:**
 
 ```typescript
-// 1. Resolve and normalize base directory
-const baseDir = resolveBaseDir(filePath, configuration);
+const sanitizedInput = await normalizeAnalyzeProjectRequest(request.data);
+const wrappedIncrementalResultsChannel = incrementalResultsChannel
+  ? event => incrementalResultsChannel({ event, pathMap: sanitizedInput.pathMap })
+  : undefined;
 
-// 2. Set global configuration (sanitizes all paths internally)
-setGlobalConfiguration(configuration);
-
-// 3. Sanitize analysis input
-const input = await sanitizeJsTsAnalysisInput(rawInput, baseDir);
-
-// 4. Call internal analysis with sanitized input
-return analyzeJSTS(input);
+const output = await analyzeProject(
+  {
+    rules: sanitizedInput.rules,
+    cssRules: sanitizedInput.cssRules,
+    bundles: sanitizedInput.bundles,
+    rulesWorkdir: sanitizedInput.rulesWorkdir,
+  },
+  sanitizedInput.configuration,
+  wrappedIncrementalResultsChannel,
+);
 ```
 
-### 2. gRPC Service
+`normalizeAnalyzeProjectRequest()` performs the main boundary crossing for the
+analyze-project runtime:
+
+- validates the typed gRPC `AnalyzeProjectRequest` payload,
+- creates a sanitized `Configuration` via `createConfigurationFromProto()`,
+- normalizes project file paths and bundle paths,
+- initializes the analysis file stores before `analyzeProject()` runs.
+
+### 2. LanguageAnalyzerService
 
 **Location:** `packages/grpc/src/`
 
@@ -123,283 +93,175 @@ return analyzeJSTS(input);
 **Sanitization in `analyzeFileHandler()`:**
 
 ```typescript
-// 1. Set configuration (gRPC runs without filesystem access)
-setGlobalConfiguration({ baseDir: ROOT_PATH, canAccessFileSystem: false });
+const configuration = createConfiguration({
+  baseDir: ROOT_PATH,
+  canAccessFileSystem: false,
+  reportNclocForTestFiles: true,
+});
 
-// 2. Transform protobuf request to internal types
+const rawFiles = transformSourceFilesToRawInputFiles(request.sourceFiles || []);
+const { files: inputFiles, pathMap } = await sanitizeRawInputFiles(rawFiles, configuration);
+await initFileStores(configuration, inputFiles);
+
 const projectInput = transformRequestToProjectInput(request);
-//    â””â”€ transformSourceFiles() normalizes all paths
-//    â””â”€ transformActiveRules() parses string params to typed values
-
-// 3. Run analysis with sanitized input
-return analyzeProject(projectInput);
 ```
+
+This path uses the same sanitization helpers as the analyze-project runtime, but
+starts from protobuf request data instead of a JSON payload.
 
 ## Type Transformations
 
-### Raw Types â†’ Sanitized Types
+### External payloads to sanitized internal state
 
-| Raw Type                  | Sanitized Type         | Key Transformations                                                        |
-| ------------------------- | ---------------------- | -------------------------------------------------------------------------- |
-| `RawConfiguration`        | `Configuration`        | `baseDir: string` â†’ `NormalizedAbsolutePath`, globs â†’ `Minimatch[]`    |
-| `RawAnalysisInput`        | `AnalysisInput`        | `filePath: string` â†’ `NormalizedAbsolutePath`, optional â†’ required     |
-| `RawJsTsAnalysisInput`    | `JsTsAnalysisInput`    | + `tsConfigs: string[]` â†’ `NormalizedAbsolutePath[]`, language inference |
-| `RawProjectAnalysisInput` | `ProjectAnalysisInput` | `files` â†’ `JsTsFiles` (branded), all paths normalized                    |
-| `IAnalyzeRequest` (gRPC)  | `ProjectAnalysisInput` | protobuf â†’ TypeScript types, path normalization                          |
+| External input                               | Internal state                            | Key transformations                                                  |
+| -------------------------------------------- | ----------------------------------------- | -------------------------------------------------------------------- |
+| Analyze-project gRPC `AnalyzeProjectRequest` | `Configuration` + initialized file stores | `normalizeAnalyzeProjectRequest()`, `createConfigurationFromProto()` |
+| gRPC `sourceFiles[]`                         | sanitized analyzable files                | `transformSourceFilesToRawInputFiles()`, `sanitizeRawInputFiles()`   |
+| gRPC `activeRules[]`                         | `RuleConfig[]` and `CssRuleConfig[]`      | `transformRequestToProjectInput()`                                   |
+| path strings                                 | `NormalizedAbsolutePath`                  | `normalizeToAbsolutePath()`, `sanitizePaths()`                       |
+| protobuf configuration fields                | validated `Configuration`                 | `createConfigurationFromProto()`, `createConfigurationFromInput()`   |
 
-### Field Transformations
+### Important boundary details
 
-```
-â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
-â”‚                        RAW INPUT                                    â”‚
-â”‚                                                                     â”‚
-â”‚  filePath: string              â”€â”¬â”€â–º  NormalizedAbsolutePath         â”‚
-â”‚  baseDir: string               â”€â”¤    (Unix slashes, absolute)       â”‚
-â”‚  tsConfigs: string[]           â”€â”¤                                   â”‚
-â”‚  bundles: string[]             â”€â”˜                                   â”‚
-â”‚                                                                     â”‚
-â”‚  fileContent?: string          â”€â”€â”€â–º  string (read from disk)        â”‚
-â”‚  sonarlint?: boolean           â”€â”€â”€â–º  boolean (default: false)       â”‚
-â”‚  language?: 'js' | 'ts'        â”€â”€â”€â–º  'js' | 'ts' (inferred)         â”‚
-â”‚  fileType?: FileType           â”€â”€â”€â–º  FileType (inferred from path)  â”‚
-â”‚                                                                     â”‚
-â”‚  jsTsExclusions?: string[]     â”€â”€â”€â–º  Minimatch[] (compiled)         â”‚
-â”‚  inclusions?: string[]         â”€â”€â”€â–º  Minimatch[] (compiled)         â”‚
-â”‚                                                                     â”‚
-â”‚  params: {key,value}[] (gRPC)  â”€â”€â”€â–º  typed values (number, bool)    â”‚
-â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
-```
-
-## Branded Types
-
-### What Are Branded Types?
-
-Branded types use TypeScript's type system to create distinct types that are structurally identical to strings but treated as incompatible:
-
-```typescript
-declare const NormalizedAbsolutePathBrand: unique symbol;
-export type NormalizedAbsolutePath = string & {
-  readonly [NormalizedAbsolutePathBrand]: never;
-};
-```
-
-**At runtime:** Branded paths are regular strings (zero overhead)
-**At compile time:** TypeScript prevents passing raw strings where branded types are expected
-
-### Path Types
-
-| Type                     | Description                      | Example                                    |
-| ------------------------ | -------------------------------- | ------------------------------------------ |
-| `NormalizedPath`         | Unix-normalized, may be relative | `./src/foo.ts`                             |
-| `NormalizedAbsolutePath` | Unix-normalized AND absolute     | `/home/user/src/foo.ts`, `C:/Users/foo.ts` |
-
-### Why This Matters
-
-```typescript
-// âŒ This will NOT compile
-function analyzeFile(path: NormalizedAbsolutePath) { ... }
-analyzeFile("./src/foo.ts");  // Error: string not assignable to NormalizedAbsolutePath
-
-// âœ… Must go through normalization
-const normalizedPath = normalizeToAbsolutePath("./src/foo.ts", baseDir);
-analyzeFile(normalizedPath);  // OK
-```
+- The analyze-project runtime stores sanitized files in the shared file stores
+  during sanitization. `analyzeProject()` then reads from those stores rather
+  than from the original raw payload.
+- `LanguageAnalyzerService` receives file contents inline over gRPC, converts
+  them into the same raw-file shape, and then reuses `sanitizeRawInputFiles()`.
+- Rule transformation stays at the transport edge:
+  `transformRequestToProjectInput()` converts protobuf rule payloads into the
+  internal JS/TS and CSS rule configuration types expected by analysis.
 
 ## Sanitization Functions
 
-### Path Normalization
-
-**Location:** `packages/analysis/src/jsts/rules/helpers/files.ts`
-
-```typescript
-// Convert any path to Unix-normalized absolute path
-normalizeToAbsolutePath(filePath: string, baseDir?: NormalizedAbsolutePath): NormalizedAbsolutePath
-
-// Normalize array of paths
-sanitizePaths(paths: string[], baseDir: NormalizedAbsolutePath): NormalizedAbsolutePath[]
-
-// Type-safe path operations (preserve branded type)
-dirnamePath(filePath: NormalizedAbsolutePath): NormalizedAbsolutePath
-joinPaths(base: NormalizedAbsolutePath, ...segments: string[]): NormalizedAbsolutePath
-```
-
-### Input Sanitization
-
-**Location:** `packages/analysis/src/common/input-sanitize.ts`
-
-```typescript
-// Sanitize base analysis input
-async function sanitizeAnalysisInput(
-  raw: RawAnalysisInput,
-  baseDir: NormalizedAbsolutePath,
-): Promise<AnalysisInput>;
-
-// Sanitize JS/TS analysis input (includes language inference)
-async function sanitizeJsTsAnalysisInput(
-  raw: RawJsTsAnalysisInput,
-  baseDir: NormalizedAbsolutePath,
-): Promise<JsTsAnalysisInput>;
-```
-
-### Configuration Sanitization
+### Configuration creation
 
 **Location:** `packages/analysis/src/common/configuration.ts`
 
 ```typescript
-// Set and sanitize global configuration
-function setGlobalConfiguration(config?: RawConfiguration): void;
-// Internally:
-//   - normalizeToAbsolutePath(baseDir)
-//   - sanitizePaths(tsConfigPaths, sources, tests)
-//   - normalizeGlobs(jsTsExclusions, inclusions, exclusions)
-//   - normalizeFsEvents(fsEvents)
+createConfiguration(raw: unknown): Configuration
 ```
+
+Responsibilities:
+
+- validates that the incoming value is an object,
+- normalizes `baseDir` and path arrays,
+- compiles glob-based filters,
+- applies defaults for omitted configuration fields.
+
+### Project payload sanitization
+
+**Location:** `packages/analysis/src/common/input-sanitize.ts`
+
+```typescript
+sanitizeProjectAnalysisInput(raw: unknown): Promise<SanitizedProjectAnalysisInput>
+sanitizeRawInputFiles(rawFiles, configuration): Promise<SanitizedInputFiles>
+```
+
+Responsibilities:
+
+- validate raw project payloads,
+- normalize file paths and optional `rulesWorkdir`,
+- validate file metadata such as `fileType` and `fileStatus`,
+- initialize file stores before analysis starts.
+
+### gRPC request transformation
+
+**Location:** `packages/grpc/src/transformers/request.ts`
+
+```typescript
+transformSourceFilesToRawInputFiles(sourceFiles);
+transformRequestToProjectInput(request);
+```
+
+Responsibilities:
+
+- convert protobuf source files into the raw file structure expected by the
+  shared sanitization helpers,
+- split active rules into JS/TS and CSS rule configurations,
+- keep transport-specific translation out of core analysis code.
+
+### Path utilities
+
+**Location:** `packages/shared/src/helpers/files.ts` and
+`packages/shared/src/helpers/sanitize.ts`
+
+Key helpers:
+
+- `normalizeToAbsolutePath()`
+- `sanitizePaths()`
+- `ROOT_PATH`
+- `NormalizedAbsolutePath`
 
 ## Flow Examples
 
-### Single-File JS/TS Analysis
+### Analyze-project runtime
 
-```
-HTTP POST /analyze-jsts
-    â”‚
-    â”‚  { filePath: "src\\foo.ts", fileContent: "..." }
-    â”‚
-    â–¼
-handleRequest()
-    â”œâ”€â”€ resolveBaseDir() â†’ NormalizedAbsolutePath
-    â””â”€â”€ sanitizeJsTsAnalysisInput()
-            â”œâ”€â”€ normalizeToAbsolutePath(filePath)
-            â”œâ”€â”€ inferLanguage() â†’ 'ts'
-            â”œâ”€â”€ inferFileType() â†’ 'MAIN'
-            â””â”€â”€ apply defaults
-    â”‚
-    â”‚  JsTsAnalysisInput {
-    â”‚    filePath: NormalizedAbsolutePath,
-    â”‚    fileContent: string,
-    â”‚    language: 'ts',
-    â”‚    fileType: 'MAIN',
-    â”‚    ... (all required)
-    â”‚  }
-    â”‚
-    â–¼
-analyzeJSTS() â†’ JsTsAnalysisOutput
+```text
+gRPC AnalyzeProject() / AnalyzeProjectUnary()
+  requestJson
+    -> startAnalyzeProjectServer()
+    -> handleAnalyzeProjectRequest()
+       -> sanitizeProjectAnalysisInput()
+          -> createConfiguration()
+          -> sanitizeRawInputFiles()
+          -> initFileStores()
+       -> analyzeProject()
 ```
 
-### Project Analysis
+### LanguageAnalyzerService
 
-```
-HTTP POST /analyze-project
-    â”‚
-    â”‚  {
-    â”‚    configuration: { baseDir: "C:\\project", ... },
-    â”‚    files: { "src\\foo.ts": {...}, ... },
-    â”‚    bundles: ["node_modules\\lib"]
-    â”‚  }
-    â”‚
-    â–¼
-handleRequest()
-    â”œâ”€â”€ setGlobalConfiguration()
-    â”‚       â”œâ”€â”€ normalizeToAbsolutePath(baseDir)
-    â”‚       â”œâ”€â”€ sanitizePaths(tsConfigPaths)
-    â”‚       â””â”€â”€ normalizeGlobs(exclusions)
-    â”‚
-    â”œâ”€â”€ getFilesToAnalyze()
-    â”‚       â””â”€â”€ normalize all file paths in 'files'
-    â”‚
-    â””â”€â”€ sanitizePaths(bundles)
-    â”‚
-    â”‚  ProjectAnalysisInput {
-    â”‚    filesToAnalyze: JsTsFiles (branded),
-    â”‚    bundles: NormalizedAbsolutePath[],
-    â”‚    ... (all sanitized)
-    â”‚  }
-    â”‚
-    â–¼
-analyzeProject() â†’ ProjectAnalysisOutput
-```
-
-### gRPC Analysis
-
-```
+```text
 gRPC Analyze()
-    â”‚
-    â”‚  IAnalyzeRequest {
-    â”‚    sourceFiles: [{ relativePath: "src/foo.ts", content: "..." }],
-    â”‚    activeRules: [{ ruleKey: "S100", params: [{key:"max",value:"10"}] }]
-    â”‚  }
-    â”‚
-    â–¼
-analyzeFileHandler()
-    â”œâ”€â”€ setGlobalConfiguration({ baseDir: ROOT_PATH, canAccessFileSystem: false })
-    â”‚
-    â””â”€â”€ transformRequestToProjectInput()
-            â”œâ”€â”€ transformSourceFiles()
-            â”‚       â””â”€â”€ normalizeToAbsolutePath(relativePath)
-            â”‚
-            â””â”€â”€ transformActiveRules()
-                    â””â”€â”€ parseParamValue() â†’ number/boolean/array
-    â”‚
-    â”‚  ProjectAnalysisInput (sanitized)
-    â”‚
-    â–¼
-analyzeProject() â†’ ProjectAnalysisOutput
-    â”‚
-    â–¼
-transformProjectOutputToResponse() â†’ gRPC IAnalyzeResponse
+  IAnalyzeRequest
+    -> analyzeFileHandler()
+       -> createConfiguration({ baseDir: ROOT_PATH, canAccessFileSystem: false, ... })
+       -> transformSourceFilesToRawInputFiles()
+       -> sanitizeRawInputFiles()
+       -> initFileStores()
+       -> transformRequestToProjectInput()
+       -> analyzeProject()
+       -> transformProjectOutputToResponse()
 ```
 
 ## Key Principles
 
-### 1. Sanitize at Entry Points
+### 1. Sanitize at entry points
 
-All sanitization happens in request handlers (`handleRequest`, `analyzeFileHandler`), **not** scattered throughout the codebase.
+All sanitization happens in request handlers
+(`handleAnalyzeProjectRequest()` and `analyzeFileHandler()`), not in deeper
+analysis code.
 
-### 2. Internal Code Trusts Its Inputs
+### 2. Normalize paths once
 
-Once past the sanitization layer, internal functions can assume:
+External paths become `NormalizedAbsolutePath` before internal analysis logic
+sees them.
 
-- All paths are `NormalizedAbsolutePath`
-- All required fields are present
-- All values have correct types
+### 3. Initialize file stores before analysis
 
-### 3. No Double Sanitization
+`analyzeProject()` expects callers to have loaded sanitized files into the file
+stores first.
 
-If a value is already a branded type, don't normalize it again:
+### 4. Keep transport translation at the edges
 
-```typescript
-// âŒ Wrong - redundant normalization
-const path = normalizeToAbsolutePath(Linter.baseDir); // Already branded!
-
-// âœ… Correct - use directly
-const path = Linter.baseDir;
-```
-
-### 4. Type-Safe Path Operations
-
-Use wrapper functions that preserve branded types:
-
-```typescript
-// âŒ Wrong - loses branded type
-const parent = dirname(filePath) as NormalizedAbsolutePath;
-
-// âœ… Correct - type-safe wrapper
-const parent = dirnamePath(filePath); // Returns NormalizedAbsolutePath
-```
+JSON and protobuf shape conversion belongs in runtime handlers and transformer
+code, not in analysis modules.
 
 ## Files Reference
 
-| Category         | File                                                | Purpose                       |
-| ---------------- | --------------------------------------------------- | ----------------------------- |
-| Entry Points     | `packages/http/src/handle-request.ts`               | HTTP request handling         |
-|                  | `packages/grpc/src/service.ts`                      | gRPC request handling         |
-| Sanitization     | `packages/analysis/src/common/input-sanitize.ts`    | Input sanitization functions  |
-|                  | `packages/analysis/src/common/configuration.ts`     | Configuration sanitization    |
-|                  | `packages/grpc/src/transformers/request.ts`         | gRPC request transformation   |
-| Path Utilities   | `packages/analysis/src/jsts/rules/helpers/files.ts` | Branded types & normalization |
-| Type Definitions | `packages/analysis/src/contracts/analysis.ts`       | Raw & sanitized input types   |
-|                  | `packages/http/src/request.ts`                      | Bridge request types          |
+| Category        | File                                                  | Purpose                                   |
+| --------------- | ----------------------------------------------------- | ----------------------------------------- |
+| Entry points    | `packages/grpc/src/analyze-project-server.ts`         | Analyze-project gRPC runtime              |
+|                 | `packages/grpc/src/analyze-project-handle-request.ts` | Analyze-project request handling          |
+|                 | `packages/grpc/src/service.ts`                        | `LanguageAnalyzerService` handler         |
+| Sanitization    | `packages/analysis/src/common/configuration.ts`       | Configuration validation and defaults     |
+|                 | `packages/analysis/src/common/input-sanitize.ts`      | Project payload and raw-file sanitization |
+| Transport layer | `packages/grpc/src/transformers/request.ts`           | gRPC request transformation               |
+| Path utilities  | `packages/shared/src/helpers/files.ts`                | Path normalization helpers                |
+|                 | `packages/shared/src/helpers/sanitize.ts`             | Shared path-array sanitization            |
+| Internal types  | `packages/analysis/src/projectAnalysis.ts`            | `ProjectAnalysisInput`                    |
 
 ## Related Documentation
 
-- [Branded ProgramOptions](./branded-program-options.md) - Similar pattern for TypeScript program creation
-- [TypeScript Program Creation Guide](./typescript-program-creation-guide.md) - How TypeScript programs are created and managed
+- [Branded ProgramOptions](./branded-program-options.md)
+- [TypeScript Program Creation Guide](./typescript-program-creation-guide.md)

@@ -18,8 +18,6 @@ package org.sonar.plugins.javascript.analysis;
 
 import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EXECUTABLE_PROPERTY;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -45,16 +43,25 @@ import org.sonar.plugins.javascript.TypeScriptLanguage;
 import org.sonar.plugins.javascript.analysis.cache.CacheAnalysis;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategies;
 import org.sonar.plugins.javascript.analysis.cache.CacheStrategy;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisMeta;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisTelemetry;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectConfiguration;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectFileInput;
 import org.sonar.plugins.javascript.api.AnalysisMode;
 import org.sonar.plugins.javascript.api.JsFile;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
+import org.sonar.plugins.javascript.bridge.AnalyzeProjectMessages;
+import org.sonar.plugins.javascript.bridge.AstProtoUtils;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ProjectAnalysisRequest;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
+import org.sonar.plugins.javascript.bridge.ProjectAnalysisHandler;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
-import org.sonar.plugins.javascript.bridge.WebSocketMessageHandler;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssue;
@@ -66,7 +73,6 @@ import org.sonar.plugins.javascript.sonarlint.FSListener;
 public class WebSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(WebSensor.class);
-  private static final Gson GSON = new Gson();
   private static final String LANG = "JS/TS";
 
   private final JsTsChecks checks;
@@ -75,7 +81,7 @@ public class WebSensor implements Sensor {
   private final AnalysisWarningsWrapper analysisWarnings;
   private final CssRules cssRules;
   private final BridgeServer bridgeServer;
-  private BridgeServer.ProjectAnalysisConfiguration configuration;
+  private ProjectConfiguration.Builder configurationBuilder;
   private JsTsContext<?> context;
   FSListener fsListener;
 
@@ -142,7 +148,7 @@ public class WebSensor implements Sensor {
           ? "Files which didn't change will only be analyzed for architecture rules, other rules will not be executed"
           : "Analysis of unchanged files will not be skipped (current analysis requires all files to be analyzed)";
       LOG.debug(msg);
-      configuration = new BridgeServer.ProjectAnalysisConfiguration(
+      configurationBuilder = AnalyzeProjectMessages.newProjectConfigurationBuilder(
         sensorContext.fileSystem().baseDir().getAbsolutePath(),
         context
       );
@@ -231,6 +237,11 @@ public class WebSensor implements Sensor {
       if (e.getCause() instanceof CancellationException nestedException) {
         throw nestedException;
       }
+      if (e.getCause() instanceof java.util.concurrent.CancellationException) {
+        throw new CancellationException(
+          "Analysis interrupted because the SensorContext is in cancelled state"
+        );
+      }
       throw e;
     } catch (Exception e) {
       LOG.error("Failed to get response from analysis", e);
@@ -238,7 +249,7 @@ public class WebSensor implements Sensor {
     }
   }
 
-  class AnalyzeProjectHandler implements WebSocketMessageHandler<ProjectAnalysisRequest> {
+  class AnalyzeProjectHandler implements ProjectAnalysisHandler {
 
     private final JsTsContext<?> context;
     private final Map<String, List<ExternalIssue>> externalIssues;
@@ -248,7 +259,7 @@ public class WebSensor implements Sensor {
     private final CompletableFuture<Void> handle;
 
     @Nullable
-    private BridgeServer.ProjectAnalysisTelemetry projectAnalysisTelemetry;
+    private ProjectAnalysisTelemetry projectAnalysisTelemetry;
 
     AnalyzeProjectHandler(
       JsTsContext<?> context,
@@ -262,8 +273,8 @@ public class WebSensor implements Sensor {
     }
 
     @Override
-    public ProjectAnalysisRequest getRequest() {
-      var files = new HashMap<String, BridgeServer.JsTsFile>();
+    public AnalyzeProjectRequest getRequest() {
+      var files = new HashMap<String, ProjectFileInput>();
       try {
         for (InputFile inputFile : inputFiles) {
           var language = inputFile.language();
@@ -289,19 +300,24 @@ public class WebSensor implements Sensor {
           }
         }
       } catch (IOException e) {
-        handle.completeExceptionally(new IllegalStateException(e));
+        var failure = new IllegalStateException(e);
+        handle.completeExceptionally(failure);
+        throw failure;
       }
       if (fsListener != null) {
-        configuration.setFsEvents(fsListener.listFSEvents());
+        configurationBuilder.clearFsEvents().addAllFsEvents(fsListener.listFSEvents().keySet());
       }
-      configuration.setSkipAst(context.skipAst(consumers));
-      var request = new BridgeServer.ProjectAnalysisRequest(
-        files,
-        checks.enabledEslintRules(),
-        configuration
-      );
-      request.setCssRules(cssRules.getStylelintRules());
-      return request;
+      configurationBuilder.setSkipAst(context.skipAst(consumers));
+      return AnalyzeProjectRequest.newBuilder()
+        .setConfiguration(configurationBuilder.build())
+        .putAllFiles(files)
+        .addAllRules(
+          checks.enabledEslintRules().stream().map(AnalyzeProjectMessages::toProtoRule).toList()
+        )
+        .addAllCssRules(
+          cssRules.getStylelintRules().stream().map(AnalyzeProjectMessages::toProtoRule).toList()
+        )
+        .build();
     }
 
     public CompletableFuture<Void> getFuture() {
@@ -309,7 +325,7 @@ public class WebSensor implements Sensor {
     }
 
     @Nullable
-    BridgeServer.ProjectAnalysisTelemetry getProjectAnalysisTelemetry() {
+    ProjectAnalysisTelemetry getProjectAnalysisTelemetry() {
       return projectAnalysisTelemetry;
     }
 
@@ -319,14 +335,35 @@ public class WebSensor implements Sensor {
     }
 
     @Override
-    public void handleMessage(JsonObject jsonObject) {
-      var messageType = jsonObject.get("messageType").getAsString();
-      if ("fileResult".equals(messageType)) {
-        var filePath = jsonObject.get("filename").getAsString();
-        var response = BridgeServer.AnalysisResponse.fromDTO(
-          GSON.fromJson(jsonObject, BridgeServer.AnalysisResponseDTO.class)
+    public void handleMessage(AnalyzeProjectStreamResponse message) {
+      switch (message.getMessageCase()) {
+        case FILE_RESULT -> handleFileResult(message.getFileResult());
+        case META -> handleMeta(message.getMeta());
+        case CANCELLED -> handle.completeExceptionally(
+          new CancellationException(
+            "Analysis interrupted because the SensorContext is in cancelled state"
+          )
         );
+        case MESSAGE_NOT_SET -> {
+          // no-op
+        }
+      }
+    }
+
+    private void handleFileResult(FileResultMessage fileResultMessage) {
+      var filePath = fileResultMessage.getFilePath();
+      var response = fileResultMessage.getResult();
+      try {
+        if (response.hasError() && !response.getError().isBlank()) {
+          throw new IllegalStateException(
+            "Failed to analyze file " + filePath + ": " + response.getError()
+          );
+        }
         var file = fileToInputFile.get(filePath);
+        if (file == null) {
+          LOG.warn("Skipping analysis result for unknown file path: {}", filePath);
+          return;
+        }
         var issues = analysisProcessor.processResponse(context, checks, file, response);
         var dedupedIssues = ExternalIssueRepository.deduplicateIssues(
           externalIssues.get(filePath),
@@ -336,52 +373,48 @@ public class WebSensor implements Sensor {
           ExternalIssueRepository.saveESLintIssues(context.getSensorContext(), dedupedIssues);
         }
         externalIssues.remove(filePath);
-        // Only cache JS/TS file results — non-JS/TS files (CSS, HTML, YAML) skip caching
+        // Only cache JS/TS file results -- non-JS/TS files (CSS, HTML, YAML) skip caching.
         var cacheStrategy = fileToCacheStrategy.get(filePath);
+        Node responseAst = responseAst(response);
         if (cacheStrategy != null) {
-          try {
-            cacheStrategy.writeAnalysisToCache(
-              CacheAnalysis.fromResponse(response.cpdTokens(), response.ast()),
-              file
-            );
-          } catch (IOException e) {
-            handle.completeExceptionally(new IllegalStateException(e));
-          }
+          writeAnalysisToCache(cacheStrategy, response, responseAst, file);
         }
-        acceptAstResponse(response.ast(), file);
-      } else if ("meta".equals(messageType)) {
-        var meta = GSON.fromJson(jsonObject, BridgeServer.ProjectAnalysisMetaResponse.class);
-        meta.warnings().forEach(analysisWarnings::addUnique);
-        projectAnalysisTelemetry = meta.telemetry();
-        handle.complete(null);
-      } else if ("cancelled".equals(messageType)) {
+        acceptAstResponse(responseAst, file);
+      } catch (IOException e) {
         handle.completeExceptionally(
-          new CancellationException(
-            "Analysis interrupted because the SensorContext is in cancelled state"
-          )
+          new IllegalStateException("Failed to decode analysis AST for " + filePath, e)
         );
       }
     }
 
-    @Override
-    public void onClose(int code, String reason, boolean remote) {
-      handle.completeExceptionally(
-        new IllegalStateException("WebSocket connection closed abnormally: " + reason)
-      );
+    private void handleMeta(ProjectAnalysisMeta meta) {
+      meta.getWarningsList().forEach(analysisWarnings::addUnique);
+      projectAnalysisTelemetry = meta.hasTelemetry() ? meta.getTelemetry() : null;
+      handle.complete(null);
     }
 
-    @Override
-    public void onError(Exception ex) {
-      handle.completeExceptionally(new IllegalStateException("WebSocket connection error", ex));
+    private void writeAnalysisToCache(
+      CacheStrategy cacheStrategy,
+      ProjectAnalysisFileResult response,
+      @Nullable Node responseAst,
+      InputFile file
+    ) {
+      try {
+        cacheStrategy.writeAnalysisToCache(
+          CacheAnalysis.fromResponse(response.getCpdTokensList(), responseAst),
+          file
+        );
+      } catch (IOException e) {
+        handle.completeExceptionally(new IllegalStateException(e));
+      }
     }
 
-    private void addFileToAnalyze(Map<String, BridgeServer.JsTsFile> files, InputFile inputFile)
+    private void addFileToAnalyze(Map<String, ProjectFileInput> files, InputFile inputFile)
       throws IOException {
       files.put(
         inputFile.absolutePath(),
-        new BridgeServer.JsTsFile(
-          inputFile.absolutePath(),
-          inputFile.type().toString(),
+        AnalyzeProjectMessages.newProjectFileInput(
+          inputFile.type(),
           inputFile.status(),
           context.shouldSendFileContent(inputFile) ? inputFile.contents() : null
         )
@@ -392,6 +425,13 @@ public class WebSensor implements Sensor {
     private static boolean isJsTsFile(InputFile inputFile) {
       var lang = inputFile.language();
       return JavaScriptLanguage.KEY.equals(lang) || TypeScriptLanguage.KEY.equals(lang);
+    }
+
+    @Nullable
+    private Node responseAst(ProjectAnalysisFileResult response) throws IOException {
+      return response.getAst().isEmpty()
+        ? null
+        : AstProtoUtils.readProtobufFromBytes(response.getAst().toByteArray());
     }
 
     private void acceptAstResponse(@Nullable Node responseAst, InputFile file) {

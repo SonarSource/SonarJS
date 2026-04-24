@@ -1,0 +1,21 @@
+{
+"fresh:packages/fresh/src/commands.ts": [
+289
+],
+"fresh:packages/fresh/src/router.ts": [
+108
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+118
+],
+"fresh:packages/fresh/src/runtime/client/preact_hooks_client.ts": [
+60
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+279
+],
+"fresh:packages/init/src/init.ts": [
+132,
+154
+]
+}

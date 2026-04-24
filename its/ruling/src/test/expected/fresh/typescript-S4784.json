@@ -1,0 +1,78 @@
+{
+"fresh:docs/check_images_test.ts": [
+15
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+409,
+418,
+431
+],
+"fresh:packages/fresh/src/dev/builder_test.ts": [
+970,
+971
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+248
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
+78
+],
+"fresh:packages/fresh/src/middlewares/cors.ts": [
+146,
+187
+],
+"fresh:packages/fresh/src/middlewares/cors_test.ts": [
+64,
+67,
+72,
+78
+],
+"fresh:packages/fresh/src/router.ts": [
+53,
+313
+],
+"fresh:packages/fresh/tests/islands_test.tsx": [
+802
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+138
+],
+"fresh:packages/plugin-vite/src/mod.ts": [
+261
+],
+"fresh:packages/plugin-vite/src/plugins/deno.ts": [
+332,
+336
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+228
+],
+"fresh:packages/plugin-vite/src/plugins/patches/jsx_comment.ts": [
+13
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+105
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+188,
+536,
+537,
+674,
+688
+],
+"fresh:packages/plugin-vite/tests/test_utils.ts": [
+31
+],
+"fresh:tools/check_docs_lib.ts": [
+28
+],
+"fresh:tools/check_links.ts": [
+67
+],
+"fresh:www/utils/ga4.ts": [
+230
+],
+"fresh:www/utils/markdown.ts": [
+164
+]
+}

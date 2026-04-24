@@ -1006,8 +1006,16 @@ describe('await analyzeJSTS', () => {
     if (analysisResult.ast) {
       const protoMessage = deserializeProtobuf(analysisResult.ast);
       expect(protoMessage.program).toBeDefined();
-      expect(protoMessage.program.body).toHaveLength(1);
-      expect(protoMessage.program.body[0].functionDeclaration.id.identifier.name).toEqual('f');
+      const program = protoMessage.program;
+      assert(program);
+      const body = program.body;
+      assert(body);
+      expect(body).toHaveLength(1);
+      const functionDeclaration = body[0]?.functionDeclaration;
+      assert(functionDeclaration);
+      const identifier = functionDeclaration.id?.identifier;
+      assert(identifier);
+      expect(identifier.name).toEqual('f');
     }
   });
 
