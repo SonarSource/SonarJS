@@ -14,7 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { getAvailableMemory, getMemoryConfigurationMessages, logMemoryError } from '../src/memory.js';
+import {
+  getAvailableMemory,
+  getMemoryConfigurationMessages,
+  logMemoryError,
+} from '../src/memory.js';
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 

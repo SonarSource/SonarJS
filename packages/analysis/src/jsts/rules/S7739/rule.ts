@@ -23,7 +23,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isIdentifier } from '../helpers/ast.js';
-import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
+import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import * as meta from './generated-meta.js';
 
 const noThenable = rules['no-thenable'];

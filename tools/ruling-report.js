@@ -35,7 +35,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
 const SOURCES_DIR = join(ROOT_DIR, 'its/sources');
-const BASE_COMMIT = process.env.BASE_SHA ?? `origin/${process.env.BASE_REF ?? 'master'}`;
+const BASE_COMMIT = process.env.BASE_SHA || `origin/${process.env.BASE_REF ?? 'master'}`;
 const SOURCES_REPO_URL = 'https://github.com/SonarSource/jsts-test-sources/blob/master';
 const RSPEC_URL = 'https://musical-adventure-r9qk65j.pages.github.io/rspec/#';
 

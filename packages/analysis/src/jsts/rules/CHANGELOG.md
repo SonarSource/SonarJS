@@ -1,33 +1,33 @@
 ## 2026-04-16, Version 4.0.3
 
-* [[JS-1540](https://sonarsource.atlassian.net/browse/JS-1540)] - Strengthen Rule S2077 with new detection
-* [[JS-1518](https://sonarsource.atlassian.net/browse/JS-1518)] - Fix FP on S1301: TypeScript exhaustiveness checking with never type assertions
-* [[JS-1505](https://sonarsource.atlassian.net/browse/JS-1505)] - Fix S1874: crash when analyzing TSX files with react-jsx in monorepos
-* [[JS-1500](https://sonarsource.atlassian.net/browse/JS-1500)] - Refactor analysis artifact computation to reduce redundant AST traversals
-* [[JS-1494](https://sonarsource.atlassian.net/browse/JS-1494)] - Fix S6418 legacy decimal parameter crash and add scanner smoke tests
-* [[JS-1493](https://sonarsource.atlassian.net/browse/JS-1493)] - Fix open SonarCloud maintainability issues
-* [[JS-1489](https://sonarsource.atlassian.net/browse/JS-1489)] - Fix FP on S3699: void functions flagged when called as statements
-* [[JS-1488](https://sonarsource.atlassian.net/browse/JS-1488)] - Fix FP on S125: Documentation examples and API usage patterns flagged as dead code
-* [[JS-1487](https://sonarsource.atlassian.net/browse/JS-1487)] - Fix FP on S125: Commented code with TODO/FIXME markers incorrectly flagged
-* [[JS-1481](https://sonarsource.atlassian.net/browse/JS-1481)] - Fix FP on S2301: Event handler callbacks with boolean state parameters
-* [[JS-1466](https://sonarsource.atlassian.net/browse/JS-1466)] - Fix FP on S1121: Assignment in conditional expressions for idiomatic patterns
-* [[JS-1460](https://sonarsource.atlassian.net/browse/JS-1460)] - chore: evaluate TypeScript 6.0.1-rc
-* [[JS-1439](https://sonarsource.atlassian.net/browse/JS-1439)] - Fix S2068: hardcoded credentials in template literals are not detected
-* [[JS-1436](https://sonarsource.atlassian.net/browse/JS-1436)] - Fix S1126: suggestion drops comments inside if block
-* [[JS-1429](https://sonarsource.atlassian.net/browse/JS-1429)] - Fix S4030: crash when linting Svelte use: directives
-* [[JS-1422](https://sonarsource.atlassian.net/browse/JS-1422)] - Fix FP on S2234: Intentional parameter swap in ternary branch with paired normal-order call
-* [[JS-1421](https://sonarsource.atlassian.net/browse/JS-1421)] - Fix FP on S2234: Intentional argument reversal in comparator wrapper functions
-* [[JS-1406](https://sonarsource.atlassian.net/browse/JS-1406)] - Improve S2068: Fix FPs due to transition from hotspot to vuln
-* [[JS-1404](https://sonarsource.atlassian.net/browse/JS-1404)] - Create a DOMPurify analysis rule
-* [[JS-1365](https://sonarsource.atlassian.net/browse/JS-1365)] - Fix FP on S2234: Intentional parameter swap in RTL/LTR direction handlers
-* [[JS-1360](https://sonarsource.atlassian.net/browse/JS-1360)] - Fix FP on S1119: Labels for multi-level loop exits in nested iteration
-* [[JS-1321](https://sonarsource.atlassian.net/browse/JS-1321)] - Fix FP on S101: Dollar sign prefix convention for internal types not recognized
-* [[JS-1308](https://sonarsource.atlassian.net/browse/JS-1308)] - Fix FP on S3516: Same return value with different semantic meanings
-* [[JS-1307](https://sonarsource.atlassian.net/browse/JS-1307)] - Fix FP on S3516: Functions with intentional invariant returns for chaining
-* [[JS-1302](https://sonarsource.atlassian.net/browse/JS-1302)] - Fix FP on S3800: Functions wrapping external calls with unknown return types
-* [[JS-1300](https://sonarsource.atlassian.net/browse/JS-1300)] - Fix FP on S2871: Default sort for string arrays in logging and data structures
-* [[JS-1193](https://sonarsource.atlassian.net/browse/JS-1193)] - Improve generate-java-rule-classes.ts to escape backslashes in generated Java classes
-* [[JS-606](https://sonarsource.atlassian.net/browse/JS-606)] - Rule S6440 running endlessly
+- [[JS-1540](https://sonarsource.atlassian.net/browse/JS-1540)] - Strengthen Rule S2077 with new detection
+- [[JS-1518](https://sonarsource.atlassian.net/browse/JS-1518)] - Fix FP on S1301: TypeScript exhaustiveness checking with never type assertions
+- [[JS-1505](https://sonarsource.atlassian.net/browse/JS-1505)] - Fix S1874: crash when analyzing TSX files with react-jsx in monorepos
+- [[JS-1500](https://sonarsource.atlassian.net/browse/JS-1500)] - Refactor analysis artifact computation to reduce redundant AST traversals
+- [[JS-1494](https://sonarsource.atlassian.net/browse/JS-1494)] - Fix S6418 legacy decimal parameter crash and add scanner smoke tests
+- [[JS-1493](https://sonarsource.atlassian.net/browse/JS-1493)] - Fix open SonarCloud maintainability issues
+- [[JS-1489](https://sonarsource.atlassian.net/browse/JS-1489)] - Fix FP on S3699: void functions flagged when called as statements
+- [[JS-1488](https://sonarsource.atlassian.net/browse/JS-1488)] - Fix FP on S125: Documentation examples and API usage patterns flagged as dead code
+- [[JS-1487](https://sonarsource.atlassian.net/browse/JS-1487)] - Fix FP on S125: Commented code with TODO/FIXME markers incorrectly flagged
+- [[JS-1481](https://sonarsource.atlassian.net/browse/JS-1481)] - Fix FP on S2301: Event handler callbacks with boolean state parameters
+- [[JS-1466](https://sonarsource.atlassian.net/browse/JS-1466)] - Fix FP on S1121: Assignment in conditional expressions for idiomatic patterns
+- [[JS-1460](https://sonarsource.atlassian.net/browse/JS-1460)] - chore: evaluate TypeScript 6.0.1-rc
+- [[JS-1439](https://sonarsource.atlassian.net/browse/JS-1439)] - Fix S2068: hardcoded credentials in template literals are not detected
+- [[JS-1436](https://sonarsource.atlassian.net/browse/JS-1436)] - Fix S1126: suggestion drops comments inside if block
+- [[JS-1429](https://sonarsource.atlassian.net/browse/JS-1429)] - Fix S4030: crash when linting Svelte use: directives
+- [[JS-1422](https://sonarsource.atlassian.net/browse/JS-1422)] - Fix FP on S2234: Intentional parameter swap in ternary branch with paired normal-order call
+- [[JS-1421](https://sonarsource.atlassian.net/browse/JS-1421)] - Fix FP on S2234: Intentional argument reversal in comparator wrapper functions
+- [[JS-1406](https://sonarsource.atlassian.net/browse/JS-1406)] - Improve S2068: Fix FPs due to transition from hotspot to vuln
+- [[JS-1404](https://sonarsource.atlassian.net/browse/JS-1404)] - Create a DOMPurify analysis rule
+- [[JS-1365](https://sonarsource.atlassian.net/browse/JS-1365)] - Fix FP on S2234: Intentional parameter swap in RTL/LTR direction handlers
+- [[JS-1360](https://sonarsource.atlassian.net/browse/JS-1360)] - Fix FP on S1119: Labels for multi-level loop exits in nested iteration
+- [[JS-1321](https://sonarsource.atlassian.net/browse/JS-1321)] - Fix FP on S101: Dollar sign prefix convention for internal types not recognized
+- [[JS-1308](https://sonarsource.atlassian.net/browse/JS-1308)] - Fix FP on S3516: Same return value with different semantic meanings
+- [[JS-1307](https://sonarsource.atlassian.net/browse/JS-1307)] - Fix FP on S3516: Functions with intentional invariant returns for chaining
+- [[JS-1302](https://sonarsource.atlassian.net/browse/JS-1302)] - Fix FP on S3800: Functions wrapping external calls with unknown return types
+- [[JS-1300](https://sonarsource.atlassian.net/browse/JS-1300)] - Fix FP on S2871: Default sort for string arrays in logging and data structures
+- [[JS-1193](https://sonarsource.atlassian.net/browse/JS-1193)] - Improve generate-java-rule-classes.ts to escape backslashes in generated Java classes
+- [[JS-606](https://sonarsource.atlassian.net/browse/JS-606)] - Rule S6440 running endlessly
 
 ## 2026-03-10, Version 4.0.2
 

@@ -14,20 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { type NormalizedAbsolutePath, ROOT_PATH, dirnamePath } from '../files.js';
-import { PACKAGE_JSON } from './index.js';
-import { closestPatternCache } from '../find-up/closest.js';
+import type { RuleFilter } from './rule-filter.js';
 
-export function getClosestPackageJSONDir(
-  dir: NormalizedAbsolutePath,
-  topDir?: NormalizedAbsolutePath,
-) {
-  const closestPackageJSONDir = closestPatternCache
-    .get(PACKAGE_JSON)
-    .get(topDir ?? ROOT_PATH)
-    .get(dir)?.path;
-  if (closestPackageJSONDir) {
-    return dirnamePath(closestPackageJSONDir);
-  }
-  return undefined;
-}
+/**
+ * Reads blacklistedExtensions from RuleConfig (server-sent), not from ruleMeta.
+ * Both shapes have this field, but the linter only uses the RuleConfig value.
+ */
+export const filterBlacklistedExtensions: RuleFilter = (ruleConfig, _meta, ctx) =>
+  !(ruleConfig.blacklistedExtensions ?? []).includes(ctx.extensionName);
