@@ -14,30 +14,57 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { deepStrictEqual } from 'node:assert';
+import { describe, it } from 'node:test';
+import { defaultOptions } from '../helpers/configs.js';
+import { fields } from './config.js';
 import { rule } from './index.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
-import { describe, it } from 'node:test';
 
-const OPTIONS = [{ ul: ['listbox'], li: ['option'] }];
+const OPTIONS = [
+  {
+    ul: ['menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid'],
+    ol: ['menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid'],
+    li: ['tab', 'menuitem', 'menuitemcheckbox', 'menuitemradio', 'row', 'treeitem'],
+  },
+];
+
+const VALID_CASES = [
+  ...OPTIONS[0].ul.map(role => ({
+    code: `<ul role="${role}"><li>Item</li></ul>`,
+    options: OPTIONS,
+  })),
+  ...OPTIONS[0].ol.map(role => ({
+    code: `<ol role="${role}"><li>Item</li></ol>`,
+    options: OPTIONS,
+  })),
+  ...OPTIONS[0].li.map(role => ({
+    code: `<li role="${role}">Item</li>`,
+    options: OPTIONS,
+  })),
+];
 
 describe('S6842', () => {
-  it('should not flag ul role="listbox" with li role="option" (valid WAI-ARIA composite widget)', () => {
+  it('should expose the upstream recommended allowlist as default options', () => {
+    deepStrictEqual(defaultOptions(fields), OPTIONS);
+  });
+
+  it('should not flag upstream recommended element/role combinations', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('no-noninteractive-element-to-interactive-role', rule, {
-      valid: [
-        {
-          // ul/li listbox/option is a valid WAI-ARIA composite widget for accessible dropdowns
-          code: `<ul role="listbox" aria-label="Select an option"><li role="option" aria-selected={false}>Item</li></ul>`,
-          options: OPTIONS,
-        },
-        {
-          code: `<ul role="listbox"><li role="option">Item</li></ul>`,
-          options: OPTIONS,
-        },
-      ],
+      valid: VALID_CASES,
       invalid: [
         {
-          // li role="button" is not a valid ARIA pattern — still reported
+          code: `<ul role="button"><li>Item</li></ul>`,
+          options: OPTIONS,
+          errors: 1,
+        },
+        {
+          code: `<ol role="button"><li>Item</li></ol>`,
+          options: OPTIONS,
+          errors: 1,
+        },
+        {
           code: `<li role="button">Foo</li>`,
           options: OPTIONS,
           errors: 1,
