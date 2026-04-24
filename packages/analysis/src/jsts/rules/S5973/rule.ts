@@ -23,7 +23,7 @@ import { isIdentifier, isMethodInvocation } from '../helpers/ast.js';
 import { isDescribeCase } from '../helpers/mocha.js';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
-import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
+import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {

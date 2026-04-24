@@ -1,0 +1,154 @@
+{
+"fresh:packages/fresh/src/app.ts": [
+140
+],
+"fresh:packages/fresh/src/commands.ts": [
+289,
+293,
+301,
+325
+],
+"fresh:packages/fresh/src/context.ts": [
+325
+],
+"fresh:packages/fresh/src/dev/check.ts": [
+66,
+71,
+72,
+75
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+155,
+171,
+177,
+338,
+350
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+131,
+160
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
+100
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware.tsx": [
+20
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+152,
+169,
+248
+],
+"fresh:packages/fresh/src/jsonify/parse.ts": [
+76,
+84,
+118
+],
+"fresh:packages/fresh/src/jsonify/stringify.ts": [
+104,
+107,
+190
+],
+"fresh:packages/fresh/src/middlewares/mod.ts": [
+128
+],
+"fresh:packages/fresh/src/router.ts": [
+240,
+255,
+266
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+169,
+311,
+446,
+458,
+546,
+556,
+585
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+104,
+280,
+303,
+364,
+400
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+222,
+232,
+239,
+255,
+274,
+286,
+325,
+341,
+357,
+384,
+393,
+423,
+430,
+517
+],
+"fresh:packages/init/src/init_test.ts": [
+123
+],
+"fresh:packages/plugin-tailwindcss-v3/src/mod.ts": [
+84,
+88
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+73,
+83,
+142
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+524,
+550,
+725,
+744,
+790,
+817,
+834
+],
+"fresh:packages/plugin-vite/src/plugins/server_entry.ts": [
+129,
+142
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+178,
+226,
+249,
+263,
+295,
+300,
+317,
+361,
+422
+],
+"fresh:packages/plugin-vite/src/plugins/verify_imports.ts": [
+121
+],
+"fresh:packages/plugin-vite/tests/test_utils.ts": [
+42
+],
+"fresh:packages/update/src/update.ts": [
+97,
+350,
+400,
+446,
+457,
+553,
+561,
+605,
+613,
+618,
+659,
+668
+],
+"fresh:tools/check_links.ts": [
+176
+],
+"fresh:www/data/docs.ts": [
+67
+]
+}

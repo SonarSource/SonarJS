@@ -19,7 +19,15 @@ import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 
+// These JS/DTS files remain ignored build artifacts in the source tree so TS-based
+// compile/test flows can import them before they are copied into lib/.
 const PROTO_FILES = [
+  {
+    proto: 'packages/grpc/src/proto/analyze-project.proto',
+    js: 'packages/grpc/src/proto/analyze-project.js',
+    dts: 'packages/grpc/src/proto/analyze-project.d.ts',
+    paths: ['packages'],
+  },
   {
     proto: 'packages/grpc/src/proto/language_analyzer.proto',
     js: 'packages/grpc/src/proto/language_analyzer.js',
@@ -57,12 +65,24 @@ if (process.argv.includes('--copy')) {
 
   const LICENSE_HEADER = fs.readFileSync(path.join(ROOT, 'tools/header.ts'), 'utf-8');
 
-  function runPbjs(proto: string, output: string): Promise<void> {
+  function runPbjs(proto: string, output: string, paths: string[] = []): Promise<void> {
     return new Promise((resolve, reject) => {
-      pbjs.main(['-t', 'static-module', '-w', 'es6', '-o', output, proto], (err: Error | null) => {
-        if (err) reject(err);
-        else resolve();
-      });
+      pbjs.main(
+        [
+          '-t',
+          'static-module',
+          '-w',
+          'es6',
+          ...paths.flatMap(includePath => ['-p', path.join(ROOT, includePath)]),
+          '-o',
+          output,
+          proto,
+        ],
+        (err: Error | null) => {
+          if (err) reject(err);
+          else resolve();
+        },
+      );
     });
   }
 
@@ -114,13 +134,13 @@ if (process.argv.includes('--copy')) {
     }
   }
 
-  for (const { proto, js, dts } of PROTO_FILES) {
+  for (const { proto, js, dts, paths } of PROTO_FILES) {
     const protoPath = path.join(ROOT, proto);
     const jsPath = path.join(ROOT, js);
     const dtsPath = path.join(ROOT, dts);
 
     console.log(`Generating ${js} from ${proto}`);
-    await runPbjs(protoPath, jsPath);
+    await runPbjs(protoPath, jsPath, paths);
     fixGeneratedJs(jsPath);
     prependLicenseHeader(jsPath);
 

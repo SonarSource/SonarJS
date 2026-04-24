@@ -1,0 +1,52 @@
+{
+"fresh:packages/fresh/src/fs_routes.ts": [
+48,
+295
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+124
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+599,
+606
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+47
+],
+"fresh:packages/plugin-vite/src/plugins/patches/code_eval.ts": [
+73,
+86,
+112,
+128
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+498,
+614,
+670,
+700,
+718,
+738,
+760,
+854,
+886,
+912,
+933
+],
+"fresh:packages/plugin-vite/src/plugins/patches/inline_env_vars.ts": [
+34,
+47,
+60
+],
+"fresh:packages/plugin-vite/src/plugins/patches/remove_polyfills.ts": [
+11
+],
+"fresh:packages/update/src/update.ts": [
+360
+],
+"fresh:tools/check_docs_lib.ts": [
+55
+],
+"fresh:www/utils/ga4.ts": [
+403
+]
+}

@@ -1,0 +1,278 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.sonar.plugins.javascript.analyzeproject.grpc";
+option java_outer_classname = "AnalyzeProjectProto";
+
+package sonarjs.analyzeproject.v1;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+
+service AnalyzeProjectService {
+  rpc AnalyzeProject(AnalyzeProjectRequest) returns (stream AnalyzeProjectStreamResponse);
+  rpc AnalyzeProjectUnary(AnalyzeProjectRequest) returns (AnalyzeProjectUnaryResponse);
+  rpc CancelAnalysis(CancelAnalysisRequest) returns (CancelAnalysisResponse);
+  rpc Lease(stream LeaseRequest) returns (stream LeaseResponse);
+}
+
+message AnalyzeProjectRequest {
+  ProjectConfiguration configuration = 1;
+  map<string, ProjectFileInput> files = 2;
+  repeated JsTsRule rules = 3;
+  repeated CssRule css_rules = 4;
+  repeated string bundles = 5;
+  optional string rules_workdir = 6;
+}
+
+message AnalyzeProjectStreamResponse {
+  oneof message {
+    FileResultMessage file_result = 1;
+    ProjectAnalysisMeta meta = 2;
+    google.protobuf.Empty cancelled = 3;
+  }
+}
+
+message AnalyzeProjectUnaryResponse {
+  map<string, ProjectAnalysisFileResult> files = 1;
+  ProjectAnalysisMeta meta = 2;
+}
+
+message CancelAnalysisRequest {}
+
+message CancelAnalysisResponse {
+  bool cancelled = 1;
+}
+
+message LeaseRequest {}
+
+message LeaseResponse {}
+
+message ProjectConfiguration {
+  string base_dir = 1;
+  optional bool sonarlint = 2;
+  // Omitted and empty fs events are equivalent after normalization, so plain repeated strings are enough.
+  repeated string fs_events = 3;
+  optional bool allow_ts_parser_js_files = 4;
+  AnalysisMode analysis_mode = 5;
+  optional bool skip_ast = 6;
+  optional bool ignore_header_comments = 7;
+  optional int64 max_file_size = 8;
+  // Wrapped lists preserve "unset" vs "explicitly empty" for settings that have runtime defaults.
+  StringList environments = 9;
+  StringList globals = 10;
+  StringList ts_suffixes = 11;
+  StringList js_suffixes = 12;
+  StringList css_suffixes = 13;
+  StringList html_suffixes = 14;
+  StringList yaml_suffixes = 15;
+  StringList css_additional_suffixes = 16;
+  repeated string ts_config_paths = 17;
+  StringList js_ts_exclusions = 18;
+  repeated string sources = 19;
+  repeated string inclusions = 20;
+  repeated string exclusions = 21;
+  repeated string tests = 22;
+  repeated string test_inclusions = 23;
+  repeated string test_exclusions = 24;
+  optional bool detect_bundles = 25;
+  optional bool can_access_file_system = 26;
+  optional bool create_ts_program_for_orphan_files = 27;
+  optional bool disable_type_checking = 28;
+  optional bool skip_node_module_lookup_outside_base_dir = 29;
+  optional string ecma_script_version = 30;
+  optional bool clear_dependencies_cache = 31;
+  optional bool clear_ts_config_cache = 32;
+  optional bool report_ncloc_for_test_files = 33;
+}
+
+message StringList {
+  repeated string values = 1;
+}
+
+message ProjectFileInput {
+  optional string file_content = 1;
+  // `_UNSPECIFIED` means "not provided". We keep the sentinel because the same enums are also used
+  // in repeated fields, where optional presence does not help.
+  FileType file_type = 2;
+  FileStatus file_status = 3;
+}
+
+enum FileType {
+  FILE_TYPE_UNSPECIFIED = 0;
+  FILE_TYPE_MAIN = 1;
+  FILE_TYPE_TEST = 2;
+}
+
+enum FileStatus {
+  FILE_STATUS_UNSPECIFIED = 0;
+  FILE_STATUS_SAME = 1;
+  FILE_STATUS_CHANGED = 2;
+  FILE_STATUS_ADDED = 3;
+}
+
+enum AnalysisMode {
+  ANALYSIS_MODE_UNSPECIFIED = 0;
+  ANALYSIS_MODE_DEFAULT = 1;
+  ANALYSIS_MODE_SKIP_UNCHANGED = 2;
+}
+
+enum JsTsLanguage {
+  JS_TS_LANGUAGE_UNSPECIFIED = 0;
+  JS_TS_LANGUAGE_JS = 1;
+  JS_TS_LANGUAGE_TS = 2;
+}
+
+enum AnalysisLanguage {
+  ANALYSIS_LANGUAGE_UNSPECIFIED = 0;
+  ANALYSIS_LANGUAGE_JS = 1;
+  ANALYSIS_LANGUAGE_TS = 2;
+  ANALYSIS_LANGUAGE_CSS = 3;
+}
+
+enum ParsingErrorCode {
+  PARSING_ERROR_CODE_UNSPECIFIED = 0;
+  PARSING_ERROR_CODE_PARSING = 1;
+  PARSING_ERROR_CODE_FAILING_TYPESCRIPT = 2;
+  PARSING_ERROR_CODE_LINTER_INITIALIZATION = 3;
+}
+
+enum TextType {
+  TEXT_TYPE_UNSPECIFIED = 0;
+  TEXT_TYPE_CONSTANT = 1;
+  TEXT_TYPE_COMMENT = 2;
+  TEXT_TYPE_STRUCTURED_COMMENT = 3;
+  TEXT_TYPE_KEYWORD = 4;
+  TEXT_TYPE_STRING = 5;
+}
+
+message JsTsRule {
+  string key = 1;
+  // Existing rule configs are heterogeneous and JSON-like, so protobuf Value/Struct is the narrowest
+  // typed shape that still preserves current behavior.
+  repeated google.protobuf.Value configurations = 2;
+  repeated FileType file_type_targets = 3;
+  JsTsLanguage language = 4;
+  repeated AnalysisMode analysis_modes = 5;
+  repeated string blacklisted_extensions = 6;
+}
+
+message CssRule {
+  string key = 1;
+  repeated google.protobuf.Value configurations = 2;
+}
+
+message FileResultMessage {
+  string file_path = 1;
+  ProjectAnalysisFileResult result = 2;
+}
+
+message ProjectAnalysisFileResult {
+  repeated ParsingError parsing_errors = 1;
+  repeated Issue issues = 2;
+  repeated Highlight highlights = 3;
+  repeated HighlightedSymbol highlighted_symbols = 4;
+  Metrics metrics = 5;
+  repeated CpdToken cpd_tokens = 6;
+  bytes ast = 7;
+  optional string error = 8;
+}
+
+message ParsingError {
+  string message = 1;
+  optional int32 line = 2;
+  optional int32 column = 3;
+  ParsingErrorCode code = 4;
+  AnalysisLanguage language = 5;
+}
+
+message Issue {
+  int32 line = 1;
+  int32 column = 2;
+  optional int32 end_line = 3;
+  optional int32 end_column = 4;
+  string message = 5;
+  string rule_id = 6;
+  // Explicit because a single analyzed file can produce issues from different analyzers / embedded languages.
+  AnalysisLanguage language = 7;
+  repeated IssueLocation secondary_locations = 8;
+  optional double cost = 9;
+  repeated QuickFix quick_fixes = 10;
+  repeated string rule_eslint_keys = 11;
+  string file_path = 12;
+}
+
+message QuickFix {
+  string message = 1;
+  repeated QuickFixEdit edits = 2;
+}
+
+message QuickFixEdit {
+  string text = 1;
+  IssueLocation loc = 2;
+}
+
+message IssueLocation {
+  // Secondary locations and quick-fix edits may arrive without a full range; Java ignores incomplete
+  // locations instead of inventing bogus coordinates.
+  optional int32 line = 1;
+  optional int32 column = 2;
+  optional int32 end_line = 3;
+  optional int32 end_column = 4;
+  optional string message = 5;
+}
+
+message Location {
+  int32 start_line = 1;
+  int32 start_col = 2;
+  int32 end_line = 3;
+  int32 end_col = 4;
+}
+
+message Highlight {
+  Location location = 1;
+  TextType text_type = 2;
+}
+
+message HighlightedSymbol {
+  Location declaration = 1;
+  repeated Location references = 2;
+}
+
+message Metrics {
+  repeated int32 ncloc = 1;
+  repeated int32 comment_lines = 2;
+  repeated int32 nosonar_lines = 3;
+  repeated int32 executable_lines = 4;
+  int32 functions = 5;
+  int32 statements = 6;
+  int32 classes = 7;
+  int32 complexity = 8;
+  int32 cognitive_complexity = 9;
+}
+
+message CpdToken {
+  Location location = 1;
+  string image = 2;
+}
+
+message ProjectAnalysisMeta {
+  repeated string warnings = 1;
+  ProjectAnalysisTelemetry telemetry = 2;
+}
+
+message ProjectAnalysisTelemetry {
+  repeated string typescript_versions = 1;
+  bool typescript_native_preview = 2;
+  map<string, StringList> compiler_options = 3;
+  repeated string ecma_script_versions = 4;
+  ProgramCreationTelemetry program_creation = 5;
+  int32 esm_file_count = 6;
+  int32 cjs_file_count = 7;
+}
+
+message ProgramCreationTelemetry {
+  int32 attempted = 1;
+  int32 succeeded = 2;
+  int32 failed = 3;
+}

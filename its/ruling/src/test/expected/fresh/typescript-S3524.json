@@ -1,0 +1,888 @@
+{
+"fresh:packages/examples/src/app1.tsx": [
+12
+],
+"fresh:packages/examples/src/app2.tsx": [
+12
+],
+"fresh:packages/fresh/src/app.ts": [
+75,
+172
+],
+"fresh:packages/fresh/src/app_test.tsx": [
+8,
+12,
+16,
+222,
+226,
+227,
+240,
+244,
+245,
+265,
+269,
+286,
+290,
+291,
+317,
+318,
+349,
+350,
+375,
+379,
+398,
+420,
+442,
+461,
+484,
+492,
+515,
+688,
+693,
+819,
+839,
+859,
+879
+],
+"fresh:packages/fresh/src/commands.ts": [
+132,
+288,
+316
+],
+"fresh:packages/fresh/src/context.ts": [
+290,
+376
+],
+"fresh:packages/fresh/src/context_test.tsx": [
+32,
+54,
+65,
+75,
+90,
+101,
+114,
+129,
+150,
+162,
+174,
+191,
+201,
+220,
+236
+],
+"fresh:packages/fresh/src/define_test.ts": [
+9,
+18,
+37
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+134,
+207,
+211,
+280
+],
+"fresh:packages/fresh/src/dev/builder_test.ts": [
+183,
+191,
+199,
+302,
+337,
+484,
+578,
+610,
+688,
+729,
+814,
+963
+],
+"fresh:packages/fresh/src/dev/check.ts": [
+44,
+47
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+229,
+387,
+387,
+477,
+492,
+519,
+519,
+524,
+541,
+557,
+558
+],
+"fresh:packages/fresh/src/dev/esbuild.ts": [
+117,
+173,
+213,
+229
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+254
+],
+"fresh:packages/fresh/src/dev/file_transformer_test.ts": [
+13,
+20,
+62,
+80,
+117,
+122,
+147,
+153,
+187,
+218,
+239
+],
+"fresh:packages/fresh/src/dev/fs_crawl.ts": [
+20,
+133,
+142
+],
+"fresh:packages/fresh/src/dev/fs_crawl_test.ts": [
+13,
+15,
+35
+],
+"fresh:packages/fresh/src/dev/middlewares/automatic_workspace_folders.ts": [
+27
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
+4
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware.tsx": [
+8
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware_test.tsx": [
+66
+],
+"fresh:packages/fresh/src/dev/middlewares/live_reload.ts": [
+8
+],
+"fresh:packages/fresh/src/dev/update_check_test.ts": [
+40,
+110
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+151
+],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+24,
+176,
+177,
+178,
+200,
+229,
+241,
+245,
+252,
+258,
+270,
+273,
+279,
+300,
+326,
+333,
+377,
+402,
+421,
+431,
+441,
+451,
+473,
+480,
+501,
+512,
+519,
+526,
+551,
+573,
+597,
+604,
+643,
+646,
+646,
+661,
+702,
+741,
+765,
+765,
+783,
+783,
+826,
+826,
+853,
+867,
+904,
+941,
+948,
+965,
+972,
+1050,
+1085,
+1098,
+1111,
+1181,
+1202,
+1205,
+1205,
+1353,
+1353,
+1382,
+1388,
+1394,
+1394,
+1423,
+1423,
+1428,
+1521,
+1549,
+1558,
+1558,
+1631,
+1632,
+1635,
+1638,
+1639,
+1640,
+1641
+],
+"fresh:packages/fresh/src/jsonify/custom_test.ts": [
+15,
+29,
+38,
+48,
+57,
+67,
+76,
+87
+],
+"fresh:packages/fresh/src/jsonify/round_trip_test.ts": [
+55
+],
+"fresh:packages/fresh/src/jsonify/stringify.ts": [
+133
+],
+"fresh:packages/fresh/src/middlewares/cors.ts": [
+98,
+187
+],
+"fresh:packages/fresh/src/middlewares/csp.ts": [
+87,
+89,
+105,
+116,
+123
+],
+"fresh:packages/fresh/src/middlewares/csp_test.tsx": [
+94,
+130,
+171,
+199,
+220,
+246
+],
+"fresh:packages/fresh/src/middlewares/csrf.ts": [
+80
+],
+"fresh:packages/fresh/src/middlewares/csrf_test.ts": [
+95
+],
+"fresh:packages/fresh/src/middlewares/ip_filter_test.ts": [
+86
+],
+"fresh:packages/fresh/src/middlewares/mod.ts": [
+95,
+141,
+145
+],
+"fresh:packages/fresh/src/middlewares/mod_test.ts": [
+9,
+13,
+17,
+22,
+22,
+36,
+45,
+58,
+62,
+66,
+70,
+75,
+92,
+100,
+108,
+142,
+149,
+154,
+186,
+208,
+212,
+217,
+225,
+226,
+227,
+243,
+268
+],
+"fresh:packages/fresh/src/middlewares/static_files_test.ts": [
+238,
+270,
+276,
+281
+],
+"fresh:packages/fresh/src/render.ts": [
+33
+],
+"fresh:packages/fresh/src/router_test.ts": [
+161
+],
+"fresh:packages/fresh/src/runtime/client/dev_hmr.ts": [
+116
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+109,
+193,
+247,
+320,
+411,
+430,
+472,
+497
+],
+"fresh:packages/fresh/src/runtime/client/preact_hooks_client.ts": [
+79,
+120
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+134,
+213,
+262,
+285,
+480,
+491,
+513,
+525,
+612,
+615,
+646,
+655,
+667,
+701,
+730,
+743
+],
+"fresh:packages/fresh/src/segments.ts": [
+168
+],
+"fresh:packages/fresh/src/test_utils.ts": [
+82,
+110,
+126,
+138,
+208
+],
+"fresh:packages/fresh/tests/active_links_test.tsx": [
+51,
+51,
+54,
+54,
+102,
+102,
+148,
+148,
+194,
+194,
+197,
+197
+],
+"fresh:packages/fresh/tests/doc_examples_test.tsx": [
+108
+],
+"fresh:packages/fresh/tests/fixture_head/islands/DynamicMetaIsland.tsx": [
+17
+],
+"fresh:packages/fresh/tests/fixture_head/islands/TitleIsland.tsx": [
+17
+],
+"fresh:packages/fresh/tests/fixture_precompile/valid/main.tsx": [
+5
+],
+"fresh:packages/fresh/tests/head_test.tsx": [
+33,
+69,
+104,
+140,
+174
+],
+"fresh:packages/fresh/tests/islands_test.tsx": [
+63,
+85,
+110,
+137,
+158,
+171,
+182,
+201,
+225,
+249,
+265,
+275,
+291,
+296,
+306,
+332,
+369,
+405,
+442,
+487,
+492,
+497,
+502,
+512,
+526,
+536,
+543,
+550,
+565,
+571,
+583,
+588,
+600,
+605,
+617,
+629,
+643,
+653,
+674,
+686,
+688,
+700,
+712,
+714,
+716,
+721,
+725,
+729,
+754,
+773,
+778,
+788,
+811,
+826,
+833,
+837,
+843
+],
+"fresh:packages/fresh/tests/no_client_js_test.tsx": [
+26,
+43,
+63,
+79,
+111,
+135
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+45,
+52,
+79,
+88,
+121,
+130,
+147,
+153,
+163,
+204,
+214,
+248,
+261,
+288,
+321,
+330,
+363,
+373,
+409,
+419,
+457,
+466,
+498,
+513,
+551,
+563,
+612,
+630,
+686,
+704,
+764,
+776,
+827,
+851,
+861,
+897,
+909,
+947,
+957,
+995,
+1007,
+1046,
+1056,
+1093,
+1105,
+1143,
+1153,
+1199,
+1209,
+1254,
+1264,
+1338,
+1348,
+1419,
+1428,
+1437,
+1485,
+1494,
+1503,
+1550,
+1559,
+1568,
+1610,
+1619,
+1624,
+1624,
+1666,
+1677,
+1718,
+1729,
+1773,
+1785,
+1829,
+1865,
+1872,
+1908,
+1917,
+1926,
+1962,
+1974,
+2021,
+2033,
+2082,
+2094,
+2149,
+2159,
+2187,
+2190,
+2193,
+2207,
+2220,
+2235,
+2239,
+2239,
+2270,
+2276,
+2298,
+2321,
+2345,
+2393,
+2393,
+2403,
+2403,
+2423,
+2450,
+2504,
+2544,
+2554,
+2597,
+2606,
+2607,
+2635,
+2649,
+2672,
+2681,
+2712,
+2721,
+2752,
+2762,
+2795,
+2806,
+2827,
+2859,
+2887,
+2915,
+2941,
+2992,
+3018,
+3064,
+3073,
+3119,
+3128,
+3174,
+3183,
+3228,
+3237,
+3289,
+3298,
+3356,
+3365,
+3423,
+3432
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+337
+],
+"fresh:packages/init/src/init_test.ts": [
+19,
+31,
+166,
+171,
+297,
+298,
+330,
+331,
+380,
+381,
+413,
+414
+],
+"fresh:packages/plugin-tailwindcss-v3/src/mod.ts": [
+61
+],
+"fresh:packages/plugin-tailwindcss/src/mod.ts": [
+21
+],
+"fresh:packages/plugin-vite/demo/islands/Bar.tsx": [
+8
+],
+"fresh:packages/plugin-vite/demo/islands/tests/CounterHooks.tsx": [
+8
+],
+"fresh:packages/plugin-vite/demo/islands/tests/HeadCounter.tsx": [
+18
+],
+"fresh:packages/plugin-vite/demo/routes/_error.tsx": [
+3
+],
+"fresh:packages/plugin-vite/demo/routes/tests/middlewares/_middleware.ts": [
+3,
+8
+],
+"fresh:packages/plugin-vite/demo/routes/tests/middlewares/index.tsx": [
+3
+],
+"fresh:packages/plugin-vite/src/client.ts": [
+20
+],
+"fresh:packages/plugin-vite/src/mod.ts": [
+144,
+146,
+230,
+234
+],
+"fresh:packages/plugin-vite/src/plugins/client_snapshot.ts": [
+89,
+96
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+241
+],
+"fresh:packages/plugin-vite/src/plugins/server_entry.ts": [
+156
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+92,
+254,
+267,
+342,
+386,
+440,
+504,
+530
+],
+"fresh:packages/plugin-vite/src/plugins/verify_imports.ts": [
+120
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+22,
+41,
+58,
+59,
+76,
+77,
+95,
+109,
+123,
+134,
+135,
+149,
+150,
+175,
+176,
+183,
+183,
+200,
+201,
+208,
+208,
+222,
+223,
+261,
+281,
+293,
+304,
+305,
+313,
+319,
+325,
+332,
+345,
+346,
+356,
+372,
+373,
+383,
+394,
+395,
+404,
+419,
+420,
+447,
+497,
+513,
+529,
+566,
+567,
+568,
+584,
+585,
+636,
+667
+],
+"fresh:packages/plugin-vite/tests/config_test.ts": [
+7
+],
+"fresh:packages/plugin-vite/tests/dev_server_test.ts": [
+43,
+56,
+65,
+74,
+85,
+101,
+111,
+120,
+151,
+152,
+164,
+165,
+176,
+203,
+212,
+218,
+224,
+231,
+242,
+251,
+263,
+277,
+286,
+295,
+303,
+315,
+316,
+331,
+460,
+475
+],
+"fresh:packages/plugin-vite/tests/fixtures/test_files_exclusion/routes/foo.test.ts": [
+2
+],
+"fresh:packages/plugin-vite/tests/test_utils.ts": [
+87,
+106,
+118
+],
+"fresh:packages/update/src/update.ts": [
+132,
+301,
+463,
+478
+],
+"fresh:tools/check_docs_lib.ts": [
+72,
+90,
+114,
+158,
+183,
+240,
+367
+],
+"fresh:tools/check_links.ts": [
+153
+],
+"fresh:www/client.ts": [
+3
+],
+"fresh:www/components/DocsSidebar.tsx": [
+21
+],
+"fresh:www/components/Footer.tsx": [
+30
+],
+"fresh:www/components/NavigationBar.tsx": [
+22
+],
+"fresh:www/data/docs.ts": [
+31
+],
+"fresh:www/islands/LemonBottom.tsx": [
+29
+],
+"fresh:www/islands/LemonDrop.tsx": [
+27
+],
+"fresh:www/islands/TableOfContents.tsx": [
+14,
+53,
+95,
+131,
+165
+],
+"fresh:www/islands/VersionSelect.tsx": [
+41,
+43,
+53
+],
+"fresh:www/main_test.ts": [
+26,
+41,
+42,
+57,
+58,
+64,
+71,
+83,
+88
+],
+"fresh:www/routes/_middleware.ts": [
+84
+],
+"fresh:www/routes/docs/[...slug].tsx": [
+103,
+194,
+283
+],
+"fresh:www/routes/recipes/_middleware.ts": [
+3
+],
+"fresh:www/utils/ga4.ts": [
+170,
+183,
+269,
+270,
+271,
+378
+],
+"fresh:www/utils/markdown.ts": [
+171,
+172,
+258
+]
+}

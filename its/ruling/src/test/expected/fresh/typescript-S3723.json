@@ -1,0 +1,56 @@
+{
+"fresh:packages/fresh/src/dev/builder_test.ts": [
+730
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+542
+],
+"fresh:packages/fresh/src/middlewares/csp.ts": [
+90
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+498
+],
+"fresh:packages/fresh/tests/islands_test.tsx": [
+833,
+844
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+153,
+2188,
+2191,
+2194
+],
+"fresh:packages/plugin-vite/src/mod.ts": [
+145,
+231
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+343
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+157,
+357
+],
+"fresh:packages/plugin-vite/tests/dev_server_test.ts": [
+128
+],
+"fresh:packages/update/src/update_test.ts": [
+732
+],
+"fresh:tools/check_docs_lib.ts": [
+115,
+159,
+184
+],
+"fresh:www/islands/TableOfContents.tsx": [
+15
+],
+"fresh:www/islands/VersionSelect.tsx": [
+44
+],
+"fresh:www/utils/ga4.ts": [
+184,
+379
+]
+}

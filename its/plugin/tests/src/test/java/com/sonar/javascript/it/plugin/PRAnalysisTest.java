@@ -52,6 +52,9 @@ import org.sonarqube.ws.Issues;
 
 class PRAnalysisTest {
 
+  // This test intentionally does not reuse OrchestratorStarter.ORCHESTRATOR.
+  // It needs a dedicated SonarQube instance with PR-specific plugins and profiles,
+  // and we do not want that extra configuration to leak into the rest of the suite.
   private static Orchestrator orchestrator;
 
   @TempDir
@@ -197,6 +200,9 @@ class PRAnalysisTest {
     var builder = OrchestratorExtension.builderEnv()
       .useDefaultAdminCredentialsForBuilds(true)
       .setSonarVersion(version)
+      // The shared suite orchestrator may already be running on the default web port.
+      // Reserve a dedicated port for this private instance to avoid test order dependent clashes.
+      .setServerProperty("sonar.web.port", Integer.toString(TestUtils.findOpenPort()))
       .addPlugin(JAVASCRIPT_PLUGIN_LOCATION)
       .addPlugin(
         FileLocation.byWildcardMavenFilename(

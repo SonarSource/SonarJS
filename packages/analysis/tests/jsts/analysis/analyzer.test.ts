@@ -32,7 +32,7 @@ import { deserializeProtobuf } from '../../../src/jsts/parsers/ast.js';
 import { jsTsInput } from '../tools/helpers/input.js';
 import { parseJavaScriptSourceFile } from '../tools/helpers/parsing.js';
 import assert from 'node:assert';
-import { getManifests } from '../../../src/jsts/rules/helpers/package-jsons/all-in-parent-dirs.js';
+import { getPackageJsonManifests } from '../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
 import { createProgramOptions } from '../../../src/jsts/program/tsconfig/options.js';
 import { createStandardProgram } from '../../../src/jsts/program/factory.js';
 
@@ -948,7 +948,7 @@ describe('await analyzeJSTS', () => {
               create(context) {
                 return {
                   CallExpression(node) {
-                    const packageJsons = getManifests(
+                    const packageJsons = getPackageJsonManifests(
                       dirnamePath(normalizeToAbsolutePath(context.filename)),
                       normalizeToAbsolutePath(baseDir),
                     );
@@ -1006,8 +1006,16 @@ describe('await analyzeJSTS', () => {
     if (analysisResult.ast) {
       const protoMessage = deserializeProtobuf(analysisResult.ast);
       expect(protoMessage.program).toBeDefined();
-      expect(protoMessage.program.body).toHaveLength(1);
-      expect(protoMessage.program.body[0].functionDeclaration.id.identifier.name).toEqual('f');
+      const program = protoMessage.program;
+      assert(program);
+      const body = program.body;
+      assert(body);
+      expect(body).toHaveLength(1);
+      const functionDeclaration = body[0]?.functionDeclaration;
+      assert(functionDeclaration);
+      const identifier = functionDeclaration.id?.identifier;
+      assert(identifier);
+      expect(identifier.name).toEqual('f');
     }
   });
 

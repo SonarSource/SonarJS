@@ -36,7 +36,8 @@ import org.sonar.api.batch.sensor.cache.WriteCache;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.utils.Version;
-import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
+import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Location;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.bridge.protobuf.Program;
 
@@ -53,7 +54,20 @@ public class CacheTestUtils {
   }
 
   public static List<CpdToken> getCpdTokens() {
-    return new Gson().fromJson(CPD_TOKENS, CpdData.class).getCpdTokens();
+    return List.of(
+      CpdToken.newBuilder()
+        .setLocation(
+          Location.newBuilder().setStartLine(1).setStartCol(0).setEndLine(1).setEndCol(4).build()
+        )
+        .setImage("LITERAL")
+        .build(),
+      CpdToken.newBuilder()
+        .setLocation(
+          Location.newBuilder().setStartLine(2).setStartCol(1).setEndLine(2).setEndCol(5).build()
+        )
+        .setImage("if")
+        .build()
+    );
   }
 
   public static SensorContextTester createContextWithCache(

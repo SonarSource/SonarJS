@@ -1,0 +1,19 @@
+{
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+213
+],
+"fresh:packages/init/src/init.ts": [
+78
+],
+"fresh:packages/plugin-vite/src/plugins/deno.ts": [
+24
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+6,
+58
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+26,
+140
+]
+}

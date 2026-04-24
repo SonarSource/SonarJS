@@ -1,0 +1,149 @@
+{
+"fresh:docs/toc.ts": [
+36
+],
+"fresh:packages/fresh/src/app_test.tsx": [
+64,
+563,
+579,
+672
+],
+"fresh:packages/fresh/src/config_test.ts": [
+10
+],
+"fresh:packages/fresh/src/context_test.tsx": [
+84,
+155
+],
+"fresh:packages/fresh/src/dev/builder_test.ts": [
+301,
+483
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware_test.tsx": [
+23
+],
+"fresh:packages/fresh/src/dev/update_check_test.ts": [
+16,
+22,
+237
+],
+"fresh:packages/fresh/src/file_url_test.ts": [
+5
+],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+145,
+145,
+347,
+410,
+1021,
+1280,
+1281,
+1365
+],
+"fresh:packages/fresh/src/middlewares/cors_test.ts": [
+11,
+14,
+43,
+44,
+44,
+46,
+46,
+117,
+125
+],
+"fresh:packages/fresh/src/middlewares/csp_test.tsx": [
+12,
+14
+],
+"fresh:packages/fresh/src/middlewares/csrf_test.ts": [
+33,
+53,
+58,
+68
+],
+"fresh:packages/fresh/src/middlewares/ip_filter_test.ts": [
+40,
+44
+],
+"fresh:packages/fresh/src/middlewares/static_files.ts": [
+55
+],
+"fresh:packages/fresh/src/middlewares/static_files_test.ts": [
+68,
+114
+],
+"fresh:packages/fresh/src/router_test.ts": [
+23,
+25
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+326
+],
+"fresh:packages/fresh/tests/active_links_test.tsx": [
+62
+],
+"fresh:packages/fresh/tests/head_test.tsx": [
+84
+],
+"fresh:packages/fresh/tests/islands_test.tsx": [
+34,
+75,
+570
+],
+"fresh:packages/fresh/tests/no_client_js_test.tsx": [
+56,
+74
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+108,
+585,
+587,
+590,
+594,
+595,
+596,
+1709,
+2970
+],
+"fresh:packages/init/src/init.ts": [
+675,
+721
+],
+"fresh:packages/init/src/init_test.ts": [
+176,
+301,
+373
+],
+"fresh:packages/plugin-vite/src/plugins/client_snapshot.ts": [
+7
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+81
+],
+"fresh:packages/plugin-vite/src/plugins/patches/http_absolute_test.ts": [
+20
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+314,
+640
+],
+"fresh:packages/plugin-vite/tests/dev_server_test.ts": [
+213,
+400
+],
+"fresh:packages/plugin-vite/tests/test_utils.ts": [
+84
+],
+"fresh:tools/release.ts": [
+120
+],
+"fresh:www/routes/raw.ts": [
+10
+],
+"fresh:www/utils/ga4.ts": [
+124
+],
+"fresh:www/utils/screenshot_test.ts": [
+5
+]
+}

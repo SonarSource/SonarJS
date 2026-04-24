@@ -21,7 +21,7 @@ import { rules } from '../external/react.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
-import { getReactVersion } from '../helpers/package-jsons/dependencies.js';
+import { getReactVersion } from '../helpers/dependency-manifests/dependencies.js';
 
 const reactNoDeprecated = rules['no-deprecated'];
 

@@ -1,0 +1,113 @@
+{
+"fresh:packages/fresh/src/server/tailwind_aot_error_page.tsx": [
+0
+],
+"fresh:packages/fresh/tests/fixture_head/routes/_app.tsx": [
+0
+],
+"fresh:packages/fresh/tests/fixture_head/routes/dynamic_meta.tsx": [
+0
+],
+"fresh:packages/fresh/tests/fixture_head/routes/id.tsx": [
+0
+],
+"fresh:packages/fresh/tests/fixture_head/routes/key.tsx": [
+0
+],
+"fresh:packages/fresh/tests/fixture_head/routes/link.tsx": [
+0
+],
+"fresh:packages/fresh/tests/fixture_head/routes/meta.tsx": [
+0
+],
+"fresh:packages/fresh/tests/fixture_head/routes/multi.tsx": [
+0
+],
+"fresh:packages/fresh/tests/fixture_head/routes/title.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/assets.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/commonjs.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/css.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/css_modules.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/css_modules_page2.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/env.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/feed.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/head_counter.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/head_meta.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/ioredis.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/island_assets.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/island_hooks.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/island_nested.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/it_works.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/jsx_namespace.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/maxmind.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/mime.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/partial.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/partial_insert.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/pg.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/qs.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/radix.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/redis.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/remote_island.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/stripe.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/supabase_pg.tsx": [
+0
+],
+"fresh:packages/plugin-vite/demo/routes/tests/tailwind.tsx": [
+0
+],
+"fresh:packages/plugin-vite/tests/fixtures/test_files_exclusion/routes/index_test.tsx": [
+0
+]
+}
