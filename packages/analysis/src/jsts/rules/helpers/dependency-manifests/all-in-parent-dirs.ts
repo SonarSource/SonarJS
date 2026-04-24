@@ -122,6 +122,7 @@ function getDependencyManifestsInDir(
   const packageJson = getManifestFileInDir(PACKAGE_JSON, dir, topDir, fileSystem);
   const denoJson = getManifestFileInDir(DENO_JSON, dir, topDir, fileSystem);
   const denoJsonc = getManifestFileInDir(DENO_JSONC, dir, topDir, fileSystem);
+
   // if both `deno.json` and `deno.jsonc` are present, prefer `deno.json` and ignore `deno.jsonc`
   if (denoJsonc && denoJson === undefined) {
     manifests.push({ type: 'deno', manifest: parseDenoManifest(denoJsonc) ?? {} });
