@@ -158,7 +158,9 @@ export function parseDenoManifest(file: File): DenoManifest | undefined {
 export function parsePnpmWorkspace(file: File): PnpmWorkspace | undefined {
   try {
     const parsedPnpm = yaml.parse(file.content.toString());
-    if (parsedPnpm && ('catalog' in parsedPnpm || 'catalogs' in parsedPnpm)) return parsedPnpm;
+    if (parsedPnpm && ('catalog' in parsedPnpm || 'catalogs' in parsedPnpm)) {
+      return parsedPnpm;
+    }
     return undefined;
   } catch (error) {
     console.debug(`Error parsing pnpm workspace ${file.path}: ${error}`);
