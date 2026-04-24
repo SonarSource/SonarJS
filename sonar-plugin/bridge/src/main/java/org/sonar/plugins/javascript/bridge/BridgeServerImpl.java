@@ -87,8 +87,7 @@ public class BridgeServerImpl implements BridgeServer {
   public static final String NODE_TIMEOUT_PROPERTY = "sonar.javascript.node.timeout";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
-  private static final String STARTUP_PORT_LOG_PREFIX =
-    "gRPC analyze-project server listening on ";
+  private static final String STARTUP_PORT_LOG_PREFIX = "gRPC analyze-project server listening on ";
   private static final int STARTUP_PORT_WAIT_POLL_INTERVAL_MS = 100;
   private static final String ANALYSIS_CANCELLED_MESSAGE =
     "Analysis interrupted because the SensorContext is in cancelled state";
@@ -292,11 +291,6 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  private NodeCommand initNodeCommand(BridgeServerConfig serverConfig, File scriptFile)
-    throws IOException {
-    return initNodeCommand(serverConfig, scriptFile, new LogOutputConsumer());
-  }
-
   private NodeCommand initNodeCommand(
     BridgeServerConfig serverConfig,
     File scriptFile,
@@ -387,7 +381,9 @@ public class BridgeServerImpl implements BridgeServer {
     // The Node startup log has a fixed format; parsing the trailing port keeps IPv6 support
     // without relying on a broad regular expression over arbitrary process output.
     int separatorIndex = message.lastIndexOf(':');
-    if (separatorIndex < STARTUP_PORT_LOG_PREFIX.length() || separatorIndex == message.length() - 1) {
+    if (
+      separatorIndex < STARTUP_PORT_LOG_PREFIX.length() || separatorIndex == message.length() - 1
+    ) {
       return null;
     }
 
