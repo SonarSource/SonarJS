@@ -127,9 +127,7 @@ public class AnalysisProcessor {
     this.file = file;
 
     LOG.error("Failed to analyze file [{}]: {}", file, message);
-    if (context.failFast() && !CssLanguage.KEY.equals(file.language())) {
-      throw new IllegalStateException("Failed to analyze file " + file);
-    }
+    failFastOnNonCssAnalysisError(context, CssLanguage.KEY.equals(file.language()));
 
     context.getSensorContext().newAnalysisError().onFile(file).message(message).save();
   }
@@ -151,11 +149,10 @@ public class AnalysisProcessor {
       LOG.error("Failed to analyze file [{}] from TypeScript: {}", file, message);
     } else {
       LOG.error("Failed to analyze file [{}]: {}", file, message);
-      if (
-        context.failFast() && parsingError.getLanguage() != AnalysisLanguage.ANALYSIS_LANGUAGE_CSS
-      ) {
-        throw new IllegalStateException("Failed to analyze file " + file);
-      }
+      failFastOnNonCssAnalysisError(
+        context,
+        parsingError.getLanguage() == AnalysisLanguage.ANALYSIS_LANGUAGE_CSS
+      );
     }
 
     var parsingErrorRuleKey = parsingErrorRuleKey(parsingError);
@@ -201,6 +198,12 @@ public class AnalysisProcessor {
       newAnalysisError.at(file.newPointer(1, 0));
     }
     newAnalysisError.message(message).save();
+  }
+
+  private void failFastOnNonCssAnalysisError(JsTsContext<?> context, boolean isCss) {
+    if (context.failFast() && !isCss) {
+      throw new IllegalStateException("Failed to analyze file " + file);
+    }
   }
 
   @Nullable
