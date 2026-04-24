@@ -22,8 +22,8 @@ import {
   type JsTsLanguage as InternalJsTsLanguage,
 } from '../../analysis/src/common/configuration.js';
 import {
+  dependencyManifestStore,
   initFileStores,
-  packageJsonStore,
   sourceFileStore,
   tsConfigStore,
 } from '../../analysis/src/file-stores/index.js';
@@ -431,6 +431,6 @@ function hasExplicitFiles(
 
 function resetFileStoresForFileSystemDiscovery() {
   sourceFileStore.clearCache();
-  packageJsonStore.clearCache();
+  dependencyManifestStore.clearCache();
   tsConfigStore.clearCache();
 }
