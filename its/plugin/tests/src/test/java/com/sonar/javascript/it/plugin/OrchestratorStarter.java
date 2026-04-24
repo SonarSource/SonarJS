@@ -84,6 +84,9 @@ public final class OrchestratorStarter
     .setEdition(Edition.ENTERPRISE_LW)
     .activateLicense()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+    // AI CodeFix is outside the scope of analyzer ITs and can emit unrelated startup noise when
+    // the test SonarQube instance has no valid fix-suggestion service endpoint configured.
+    .setServerProperty("sonar.ai.codefix.hidden", "true")
     .addPlugin(MavenLocation.of("org.sonarsource.php", "sonar-php-plugin", "LATEST_RELEASE"))
     .addPlugin(MavenLocation.of("org.sonarsource.html", "sonar-html-plugin", "LATEST_RELEASE"))
     // required to load YAML files
