@@ -551,7 +551,7 @@ public class BridgeServerImpl implements BridgeServer {
   ) {
     try {
       handler.handleMessage(response);
-    } catch (RuntimeException e) {
+    } catch (RuntimeException | Error e) {
       // Abort the transport as soon as Java stops consuming the stream. Otherwise the
       // analyzer runtime can keep producing file results after a fail-fast error and buffer
       // work that nobody will ever read.
