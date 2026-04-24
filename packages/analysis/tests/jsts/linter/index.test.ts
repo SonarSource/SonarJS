@@ -850,6 +850,52 @@ describe('Linter', () => {
     expect(issues).toHaveLength(0);
   });
 
+  it('should let external inline configs override Sonar defaults for wrapped rules', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'inline-eslint-prefer-const.js'),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S3353',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const issues = Linter.lint(parseResult, filePath);
+
+    expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3353', line: 3 })]);
+  });
+
+  it('should keep external rule defaults when remapping inline configs', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'inline-eslint-no-sequences.ts'),
+    );
+    const parseResult = await parseTypeScriptSourceFile(filePath, []);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S878',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'ts',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'ts');
+
+    expect(issues).toEqual([expect.objectContaining({ ruleId: 'S878', line: 7 })]);
+  });
+
   it('should take into account comment-based eslint configurations', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-config.js'),

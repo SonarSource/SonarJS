@@ -22,29 +22,11 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { pathToFileURL } from 'node:url';
 
-import { rules as a11yRules } from '../../../src/jsts/rules/external/a11y.js';
-import { rules as reactRules } from '../../../src/jsts/rules/external/react.js';
-import { getESLintCoreRule } from '../../../src/jsts/rules/external/core.js';
-import { rules as tsEslintRules } from '../../../src/jsts/rules/external/typescript-eslint/index.js';
-import { rules as importRules } from 'eslint-plugin-import';
-import reactHooksRules from 'eslint-plugin-react-hooks';
-import angularPlugin from '@angular-eslint/eslint-plugin';
-const { rules: angularRules } = angularPlugin;
-import { rules as unicornRules } from '../../../src/jsts/rules/external/unicorn.js';
+import {
+  externalPlugins,
+  getExternalRuleDefinition,
+} from '../../../src/jsts/rules/external/registry.js';
 import { SonarMeta } from '../../../src/jsts/rules/helpers/generate-meta.js';
-
-const allExternalRules = {
-  eslint: key => getESLintCoreRule(key),
-  'typescript-eslint': key => tsEslintRules[key],
-  'jsx-a11y': key => a11yRules[key],
-  import: key => importRules[key],
-  react: key => reactRules[key],
-  'react-hooks': key => (reactHooksRules as any).rules[key],
-  '@stylistic/eslint-plugin': async key => await import(`@stylistic/eslint-plugin/rules/${key}`),
-  '@angular-eslint': key => angularRules[key],
-  unicorn: key => unicornRules[key],
-};
-const externalPlugins = Object.keys(allExternalRules);
 
 describe('Plugin public API', () => {
   it('should map keys to rules definitions', async () => {
@@ -83,7 +65,7 @@ describe('Plugin public API', () => {
         if (!allowedDuplicateExternalRules.has(externalKey)) {
           expect(usedExternalEslintIds).not.toContain(externalKey);
         }
-        expect(await allExternalRules[metadata.externalPlugin!](metadata.eslintId)).toBeDefined();
+        expect(getExternalRuleDefinition(metadata.externalPlugin, metadata.eslintId)).toBeDefined();
         usedExternalEslintIds.push(externalKey);
       } else if (metadata.implementation === 'decorated') {
         expect(metadata.externalRules!.length).toBeGreaterThan(0);
@@ -95,7 +77,7 @@ describe('Plugin public API', () => {
           usedExternalEslintIds.push(externalKey);
           expect(externalPlugins).toContain(externalRule.externalPlugin);
           expect(
-            await allExternalRules[externalRule.externalPlugin](externalRule.externalRule),
+            getExternalRuleDefinition(externalRule.externalPlugin, externalRule.externalRule),
           ).toBeDefined();
         }
       }
