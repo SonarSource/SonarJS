@@ -66,6 +66,9 @@
 "eigen:src/app/Components/Bidding/Helpers/FakeNavigator.tsx": [
 39
 ],
+"eigen:src/app/Components/Bidding/Screens/BidResult.tests.tsx": [
+18
+],
 "eigen:src/app/Components/Bidding/Screens/ConfirmBid/index.tsx": [
 601,
 613
@@ -142,6 +145,9 @@
 ],
 "eigen:src/app/Scenes/Artwork/Components/ContextCard.tsx": [
 160
+],
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/ImageCarouselContext.tsx": [
+69
 ],
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/ImageCarouselEmbedded.tsx": [
 49
@@ -222,6 +228,10 @@
 "eigen:src/app/Scenes/Inbox/Components/Conversations/Preview/Attachment/AttachmentPreview.tsx": [
 33
 ],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/utils/groupConversationItems.ts": [
+24,
+25
+],
 "eigen:src/app/Scenes/Inbox/Components/Typography/index.tsx": [
 8,
 19,
@@ -235,6 +245,7 @@
 168
 ],
 "eigen:src/app/Scenes/Map/GlobalMap.tsx": [
+257,
 266,
 403
 ],
@@ -337,6 +348,11 @@
 "eigen:src/app/Scenes/SavedSearchAlert/containers/CreateSavedSearchContentContainer.tsx": [
 145
 ],
+"eigen:src/app/Scenes/SavedSearchAlert/pillExtractors.ts": [
+52,
+170,
+178
+],
 "eigen:src/app/Scenes/SavedSearchAlertsList/Components/SavedSearchesList.tsx": [
 111
 ],
@@ -418,6 +434,14 @@
 "eigen:src/app/relay/middlewares/metaphysicsMiddleware.ts": [
 114
 ],
+"eigen:src/app/store/GlobalStoreModel.ts": [
+141
+],
+"eigen:src/app/store/NativeModel.tests.ts": [
+15,
+25,
+38
+],
 "eigen:src/app/utils/LocalImageStore.tests.ts": [
 70
 ],
@@ -426,6 +450,10 @@
 ],
 "eigen:src/app/utils/hideBackButtonOnScroll.tests.tsx": [
 15
+],
+"eigen:src/app/utils/placeholders.tsx": [
+13,
+72
 ],
 "eigen:src/app/utils/renderWithLoadProgress.tests.tsx": [
 9,
@@ -445,5 +473,11 @@
 ],
 "eigen:src/palette/elements/PhotoRow/PhotoRow.tests.tsx": [
 13
+],
+"eigen:src/palette/elements/Select/index.tsx": [
+23
+],
+"eigen:src/palette/elements/VisualClue/VisualClueText.tsx": [
+18
 ]
 }
