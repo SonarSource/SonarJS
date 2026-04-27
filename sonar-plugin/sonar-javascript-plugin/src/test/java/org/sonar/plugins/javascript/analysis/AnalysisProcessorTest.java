@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+
 package org.sonar.plugins.javascript.analysis;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,15 +33,17 @@ import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.css.CssRules;
-import org.sonar.plugins.javascript.bridge.BridgeServer.AnalysisResponse;
-import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Highlight;
-import org.sonar.plugins.javascript.bridge.BridgeServer.HighlightedSymbol;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Issue;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Location;
-import org.sonar.plugins.javascript.bridge.BridgeServer.Metrics;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingError;
-import org.sonar.plugins.javascript.bridge.BridgeServer.ParsingErrorCode;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisLanguage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Highlight;
+import org.sonar.plugins.javascript.analyzeproject.grpc.HighlightedSymbol;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Location;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Metrics;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingError;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingErrorCode;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
+import org.sonar.plugins.javascript.analyzeproject.grpc.TextType;
 
 class AnalysisProcessorTest {
 
@@ -59,25 +62,61 @@ class AnalysisProcessorTest {
       fileLinesContextFactory,
       mock(CssRules.class)
     );
-    var context = new JsTsContext(SensorContextTester.create(baseDir));
+    var sensorContext = SensorContextTester.create(baseDir);
+    var context = new JsTsContext(sensorContext);
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .setLanguage("js")
       .build();
-    var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
-    var highlight = new Highlight(location, "");
-    var response = new AnalysisResponse(
-      List.of(),
-      List.of(),
-      List.of(highlight),
-      List.of(),
-      new Metrics(),
-      List.of(),
-      null
-    );
+    var location = Location.newBuilder()
+      .setStartLine(1)
+      .setStartCol(2)
+      .setEndLine(1)
+      .setEndCol(1)
+      .build();
+    var highlight = Highlight.newBuilder()
+      .setLocation(location)
+      .setTextType(TextType.TEXT_TYPE_KEYWORD)
+      .build();
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .addHighlights(highlight)
+      .build();
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs()).contains(
       "Failed to create highlight in " + file.uri() + " at 1:2-1:1"
+    );
+  }
+
+  @Test
+  void should_skip_unsupported_highlight_text_type() {
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
+    var processor = new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
+    var sensorContext = SensorContextTester.create(baseDir);
+    var context = new JsTsContext(sensorContext);
+    var file = TestInputFileBuilder.create("moduleKey", "file.js")
+      .setContents("var x  = 1;")
+      .setLanguage("js")
+      .build();
+    var highlight = Highlight.newBuilder()
+      .setLocation(Location.newBuilder().setStartLine(1).setStartCol(0).setEndLine(1).setEndCol(3))
+      .setTextType(TextType.TEXT_TYPE_UNSPECIFIED)
+      .build();
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .addHighlights(highlight)
+      .build();
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    assertThat(sensorContext.highlightingTypeAt(file.key(), 1, 0)).isEmpty();
+    assertThat(logTester.logs()).doesNotContain(
+      "Failed to create highlight in " + file.uri() + " at 1:0-1:3"
     );
   }
 
@@ -95,33 +134,35 @@ class AnalysisProcessorTest {
       .setContents("var x  = 1;")
       .setLanguage("js")
       .build();
-    var declaration = new Location(1, 2, 1, 1); // invalid range startCol > endCol
-    var symbol = new HighlightedSymbol(declaration, List.of());
-    var response = new AnalysisResponse(
-      List.of(),
-      List.of(),
-      List.of(),
-      List.of(symbol),
-      new Metrics(),
-      List.of(),
-      null
-    );
+    var declaration = Location.newBuilder()
+      .setStartLine(1)
+      .setStartCol(2)
+      .setEndLine(1)
+      .setEndCol(1)
+      .build();
+    var symbol = HighlightedSymbol.newBuilder().setDeclaration(declaration).build();
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .addHighlightedSymbols(symbol)
+      .build();
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs()).contains(
       "Failed to create symbol declaration in " + file.uri() + " at 1:2-1:1"
     );
 
     context = new JsTsContext(SensorContextTester.create(baseDir));
-    symbol = new HighlightedSymbol(new Location(1, 1, 1, 2), List.of(new Location(2, 2, 2, 1)));
-    response = new AnalysisResponse(
-      List.of(),
-      List.of(),
-      List.of(),
-      List.of(symbol),
-      new Metrics(),
-      List.of(),
-      null
-    );
+    symbol = HighlightedSymbol.newBuilder()
+      .setDeclaration(
+        Location.newBuilder().setStartLine(1).setStartCol(1).setEndLine(1).setEndCol(2)
+      )
+      .addReferences(
+        Location.newBuilder().setStartLine(2).setStartCol(2).setEndLine(2).setEndCol(1)
+      )
+      .build();
+    response = ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .addHighlightedSymbols(symbol)
+      .build();
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs()).contains(
       "Failed to create symbol reference in " + file.uri() + " at 2:2-2:1"
@@ -142,17 +183,17 @@ class AnalysisProcessorTest {
       .setContents("var x  = 1;")
       .setLanguage("js")
       .build();
-    var location = new Location(1, 2, 1, 1); // invalid range startCol > endCol
-    var cpd = new CpdToken(location, "img");
-    var response = new AnalysisResponse(
-      List.of(),
-      List.of(),
-      List.of(),
-      List.of(),
-      new Metrics(),
-      List.of(cpd),
-      null
-    );
+    var location = Location.newBuilder()
+      .setStartLine(1)
+      .setStartCol(2)
+      .setEndLine(1)
+      .setEndCol(1)
+      .build();
+    var cpd = CpdToken.newBuilder().setLocation(location).setImage("img").build();
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .addCpdTokens(cpd)
+      .build();
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(context.getSensorContext().cpdTokens(file.key())).isNull();
     assertThat(logTester.logs()).contains(
@@ -173,29 +214,22 @@ class AnalysisProcessorTest {
     var file = TestInputFileBuilder.create("moduleKey", "file.js")
       .setContents("var x  = 1;")
       .build();
-    var issue = new Issue(
-      2,
-      1,
-      1,
-      2,
-      "message",
-      "ruleId",
-      "js",
-      List.of(),
-      3.14,
-      List.of(),
-      List.of("foo"),
-      "file.js"
-    ); // invalid location startLine > endLine
-    var response = new AnalysisResponse(
-      List.of(),
-      List.of(issue),
-      List.of(),
-      List.of(),
-      new Metrics(),
-      List.of(),
-      null
-    );
+    var issue = Issue.newBuilder()
+      .setLine(2)
+      .setColumn(1)
+      .setEndLine(1)
+      .setEndColumn(2)
+      .setMessage("message")
+      .setRuleId("ruleId")
+      .setLanguage(AnalysisLanguage.ANALYSIS_LANGUAGE_JS)
+      .setCost(3.14)
+      .addRuleEslintKeys("foo")
+      .setFilePath("file.js")
+      .build(); // invalid location startLine > endLine
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .addIssues(issue)
+      .build();
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(logTester.logs()).contains("Failed to save issue in " + file.uri() + " at line 2");
   }
@@ -215,22 +249,17 @@ class AnalysisProcessorTest {
       .setLanguage("js")
       .build();
 
-    var parsingError = new ParsingError(
-      "Parse error message",
-      1,
-      2,
-      ParsingErrorCode.PARSING,
-      "js"
-    );
-    var response = new AnalysisResponse(
-      List.of(parsingError),
-      List.of(),
-      List.of(),
-      List.of(),
-      new Metrics(),
-      List.of(),
-      null
-    );
+    var parsingError = ParsingError.newBuilder()
+      .setMessage("Parse error message")
+      .setLine(1)
+      .setColumn(2)
+      .setCode(ParsingErrorCode.PARSING_ERROR_CODE_PARSING)
+      .setLanguage(AnalysisLanguage.ANALYSIS_LANGUAGE_JS)
+      .build();
+    var response = ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .addParsingErrors(parsingError)
+      .build();
 
     processor.processResponse(context, mock(JsTsChecks.class), file, response);
     assertThat(context.getSensorContext().allAnalysisErrors()).hasSize(1);

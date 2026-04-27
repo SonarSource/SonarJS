@@ -1,0 +1,18 @@
+{
+"fresh:packages/fresh/src/fs_routes.ts": [
+224,
+227
+],
+"fresh:packages/plugin-vite/src/plugins/patches/code_eval.ts": [
+156,
+160
+],
+"fresh:www/components/Header.tsx": [
+4,
+5
+],
+"fresh:www/components/NavigationBar.tsx": [
+17,
+18
+]
+}

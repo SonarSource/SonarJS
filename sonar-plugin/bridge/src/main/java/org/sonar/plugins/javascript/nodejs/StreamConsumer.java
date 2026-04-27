@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 class StreamConsumer {
 
   private static final Logger LOG = LoggerFactory.getLogger(StreamConsumer.class);
+  private static final int TERMINATION_TIMEOUT_SECONDS = 5;
   private final ExecutorService executorService;
 
   StreamConsumer() {
@@ -59,7 +60,7 @@ class StreamConsumer {
 
   void await() throws InterruptedException {
     executorService.shutdown();
-    if (!executorService.awaitTermination(5, TimeUnit.MINUTES)) {
+    if (!executorService.awaitTermination(TERMINATION_TIMEOUT_SECONDS, TimeUnit.SECONDS)) {
       LOG.error("External process stream consumer timed out");
       executorService.shutdownNow();
     }

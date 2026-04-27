@@ -20,7 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
+import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
 
 class CpdSerializer {
 
@@ -56,12 +56,12 @@ class CpdSerializer {
   }
 
   private void write(CpdToken cpdToken) throws IOException {
-    var location = cpdToken.location();
-    writeInt(location.startLine());
-    writeInt(location.startCol());
-    writeInt(location.endLine());
-    writeInt(location.endCol());
-    writeText(cpdToken.image());
+    var location = cpdToken.getLocation();
+    writeInt(location.getStartLine());
+    writeInt(location.getStartCol());
+    writeInt(location.getEndLine());
+    writeInt(location.getEndCol());
+    writeText(cpdToken.getImage());
   }
 
   private void writeText(@Nullable String text) throws IOException {

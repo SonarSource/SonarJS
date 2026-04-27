@@ -99,5 +99,5 @@ export interface JsTsAnalysisOutput extends AnalysisOutput<JsTsIssue | CssIssue>
   highlightedSymbols?: SymbolHighlight[];
   metrics?: Metrics;
   cpdTokens?: CpdToken[];
-  ast?: string; // Base64 encoded Protobuf binary representation
+  ast?: string;
 }

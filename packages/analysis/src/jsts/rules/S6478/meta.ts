@@ -19,3 +19,4 @@ export const eslintId = 'no-unstable-nested-components';
 export const externalRules = [
   { externalPlugin: 'react', externalRule: 'no-unstable-nested-components' },
 ];
+export * from './config.js';

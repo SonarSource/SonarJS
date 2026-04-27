@@ -47,7 +47,7 @@ export function serializeInProtobuf(
 /**
  * Only used for tests
  */
-export function parseInProtobuf(ast: TSESTree.Program) {
+export function parseInProtobuf(ast: TSESTree.Program): estree.INode {
   const protobufShapedAST = visitNode(ast);
   return NODE_TYPE.create(protobufShapedAST);
 }
@@ -55,7 +55,7 @@ export function parseInProtobuf(ast: TSESTree.Program) {
 /**
  * Only used for tests
  */
-export function deserializeProtobuf(serialized: string): any {
+export function deserializeProtobuf(serialized: string): estree.Node {
   const computedLength = base64.length(serialized);
   const buffer = new Uint8Array(computedLength);
   base64.decode(serialized, buffer, 0);

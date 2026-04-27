@@ -16,11 +16,21 @@
  */
 import type { Linter, Rule } from 'eslint';
 import type estree from 'estree';
+import merge from 'lodash.merge';
 import * as ruleMetas from '../rules/metas.js';
 import * as rules from '../rules/rules.js';
+import { getExternalRuleDefinition } from '../rules/external/registry.js';
+import type { SonarMeta } from '../rules/helpers/generate-meta.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 
-const eslintMapping: { [key: string]: { ruleId: string; ruleModule: Rule.RuleModule } } = {};
+const sonarRules = rules as Record<string, Rule.RuleModule>;
+
+type MappingEntry = {
+  ruleId: string;
+  directiveRuleDefinition: Rule.RuleModule;
+};
+
+const eslintMapping: Record<string, MappingEntry> = {};
 
 type Directive = {
   parentDirective: {
@@ -35,16 +45,54 @@ type Directive = {
   justification: string;
 };
 
-for (const [sonarKey, meta] of Object.entries(ruleMetas)) {
+for (const [sonarKey, rawMeta] of Object.entries(ruleMetas)) {
+  const meta = rawMeta as SonarMeta;
   const ruleId = `sonarjs/${sonarKey}`;
-  const ruleModule = rules[sonarKey as keyof typeof rules];
-  eslintMapping[sonarKey] = { ruleId, ruleModule };
-  eslintMapping[meta.eslintId] = { ruleId, ruleModule };
+  const ruleModule = sonarRules[sonarKey];
+  registerRuleAlias(sonarKey, ruleId, ruleModule);
+  registerRuleAlias(
+    meta.eslintId,
+    ruleId,
+    meta.externalPlugin
+      ? getExternalRuleDefinition(meta.externalPlugin, meta.eslintId)
+      : ruleModule,
+  );
   if (meta.implementation === 'decorated') {
-    for (const externalRule of meta.externalRules) {
-      eslintMapping[externalRule.externalRule] = { ruleId, ruleModule };
+    for (const externalRule of meta.externalRules ?? []) {
+      registerRuleAlias(
+        externalRule.externalRule,
+        ruleId,
+        getExternalRuleDefinition(externalRule.externalPlugin, externalRule.externalRule),
+      );
     }
   }
+}
+
+function registerRuleAlias(
+  alias: string,
+  ruleId: string,
+  directiveRuleDefinition?: Rule.RuleModule,
+) {
+  if (directiveRuleDefinition) {
+    eslintMapping[alias] = { ruleId, directiveRuleDefinition };
+  }
+}
+
+function normalizeInlineRuleOptions(
+  options: Linter.RuleEntry,
+  directiveRuleDefinition: Rule.RuleModule,
+): Linter.RuleEntry {
+  if (!Array.isArray(options) || options.length === 0) {
+    return options;
+  }
+
+  const [severity, ...ruleOptions] = options;
+  const defaultOptions = directiveRuleDefinition.meta?.defaultOptions;
+  if (!defaultOptions?.length) {
+    return options;
+  }
+
+  return [severity, ...merge([], defaultOptions, ruleOptions)];
 }
 
 /**
@@ -57,7 +105,7 @@ function getRuleId(ruleId: string | null) {
 }
 
 export function createOptions(filename: NormalizedAbsolutePath): Linter.LintOptions & {
-  getRule: (ruleId: string) => string;
+  getRule: (ruleId: string) => Rule.RuleModule | undefined;
   patchDirectives: (disableDirectives: Directive[]) => void;
   patchInlineOptions: (config: { rules: Linter.RulesRecord }) => void;
 } {
@@ -66,7 +114,11 @@ export function createOptions(filename: NormalizedAbsolutePath): Linter.LintOpti
   return {
     filename,
     allowInlineConfig: true,
-    getRule: (ruleId: string) => eslintMapping[getRuleId(ruleId)]?.ruleId,
+    // ESLint resolves directive comments before our runtime rule id remap happens. For aliases
+    // such as `prefer-const`, we therefore expose the rule definition that matches the alias
+    // seen in the file, while `patchInlineOptions` and `patchDirectives` later remap everything
+    // back onto the internal `sonarjs/Sxxxx` rule id that we actually execute.
+    getRule: (ruleId: string) => eslintMapping[getRuleId(ruleId)]?.directiveRuleDefinition,
     patchDirectives: (disableDirectives: Directive[]) => {
       for (const directive of disableDirectives) {
         if (!eslintMapping[getRuleId(directive.ruleId)]) {
@@ -92,9 +144,16 @@ export function createOptions(filename: NormalizedAbsolutePath): Linter.LintOpti
     patchInlineOptions: (config: { rules: Linter.RulesRecord }) => {
       const patchedOptions: Linter.RulesRecord = {};
       for (const [ruleId, options] of Object.entries(config.rules)) {
-        const sonarKey = eslintMapping[getRuleId(ruleId)]?.ruleId;
-        if (sonarKey) {
-          patchedOptions[sonarKey] = options;
+        const mapping = eslintMapping[getRuleId(ruleId)];
+        if (mapping) {
+          // ESLint has already parsed the inline directive at this point, but once we remap the
+          // rule id we must reapply the defaults for the alias used in the file. Otherwise a
+          // severity-only pragma such as `/* eslint prefer-const: 2 */` drops the option object
+          // that external rules expect and can crash during rule creation.
+          patchedOptions[mapping.ruleId] = normalizeInlineRuleOptions(
+            options,
+            mapping.directiveRuleDefinition,
+          );
         }
       }
       config.rules = patchedOptions;

@@ -1,0 +1,100 @@
+{
+"fresh:packages/fresh/src/define.ts": [
+104,
+105
+],
+"fresh:packages/fresh/src/dev/builder_test.ts": [
+99,
+107
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+314,
+315
+],
+"fresh:packages/fresh/src/middlewares/cors.ts": [
+13,
+17
+],
+"fresh:packages/fresh/src/middlewares/csp_test.tsx": [
+16,
+87
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+26
+],
+"fresh:packages/init/src/init.ts": [
+380
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs_test.ts": [
+375,
+517,
+832
+],
+"fresh:packages/plugin-vite/src/plugins/patches/jsx_comment_test.ts": [
+19
+],
+"fresh:www/components/DocsSidebar.tsx": [
+15,
+39
+],
+"fresh:www/components/FancyLink.tsx": [
+9
+],
+"fresh:www/components/FeatureIcons.tsx": [
+11,
+18,
+24,
+51,
+58,
+80,
+87,
+94,
+111,
+115,
+121,
+133,
+155,
+175,
+182,
+187,
+235,
+248
+],
+"fresh:www/components/Header.tsx": [
+45
+],
+"fresh:www/components/Icons.tsx": [
+68,
+126,
+145,
+162
+],
+"fresh:www/components/homepage/CTA.tsx": [
+6
+],
+"fresh:www/components/homepage/IslandsSection.tsx": [
+57
+],
+"fresh:www/components/homepage/SocialProof.tsx": [
+29
+],
+"fresh:www/islands/Counter.tsx": [
+52
+],
+"fresh:www/islands/LemonDrop.tsx": [
+110
+],
+"fresh:www/islands/LemonTop.tsx": [
+104
+],
+"fresh:www/islands/ThemeToggle.tsx": [
+40
+],
+"fresh:www/routes/docs/[...slug].tsx": [
+237
+],
+"fresh:www/utils/markdown.ts": [
+194,
+222
+]
+}

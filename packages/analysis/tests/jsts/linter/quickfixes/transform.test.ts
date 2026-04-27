@@ -129,4 +129,22 @@ describe('transformFixes', () => {
     const quickFixes = transformFixes(sourceCode, message);
     expect(quickFixes).toEqual([]);
   });
+
+  it('should drop malformed quick-fix ranges', async () => {
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'eslint.js');
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
+
+    const quickFixes = transformFixes(sourceCode, {
+      ruleId: 'sonarjs/S1116',
+      message: 'Remove extra semicolon',
+      line: 1,
+      column: 1,
+      fix: {
+        range: [-2, 1],
+        text: '',
+      },
+    } as Linter.LintMessage);
+
+    expect(quickFixes).toEqual([]);
+  });
 });

@@ -143,6 +143,12 @@ describe('isSupported()', () => {
         expect(isSupported(projectDir, { node: '6.0.0' })).toBe(true);
       });
     });
+    describe('when package.json#engine.node is malformed', () => {
+      it('should not crash on non-canonical ranges', () => {
+        const projectDir = joinPaths(baseDir, 'with-invalid-node-range');
+        expect(isSupported(projectDir, { node: '8.3.0' })).toBe(true);
+      });
+    });
     describe('when no package.json is found', () => {
       // we simply don't load the package.json files
       it('should return true', () => {

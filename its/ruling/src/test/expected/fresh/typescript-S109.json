@@ -1,0 +1,419 @@
+{
+"fresh:packages/fresh/src/app.ts": [
+51,
+99,
+134
+],
+"fresh:packages/fresh/src/app_test.tsx": [
+58,
+60,
+63,
+65,
+92,
+94,
+97,
+99,
+126,
+128,
+131,
+133,
+160,
+162,
+165,
+167,
+194,
+196,
+199,
+201,
+212,
+216,
+477,
+525,
+540,
+549,
+565,
+582,
+585,
+609,
+613,
+617,
+727,
+731,
+735,
+739,
+743,
+747,
+768,
+772,
+784,
+788,
+808,
+910,
+931,
+957,
+960
+],
+"fresh:packages/fresh/src/commands.ts": [
+22,
+25
+],
+"fresh:packages/fresh/src/constants.ts": [
+10
+],
+"fresh:packages/fresh/src/context.ts": [
+278
+],
+"fresh:packages/fresh/src/context_test.tsx": [
+11,
+15,
+19,
+23,
+26,
+27,
+59,
+70,
+80,
+85,
+94,
+105
+],
+"fresh:packages/fresh/src/define_test.ts": [
+16
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+411,
+415,
+421,
+425,
+428,
+435
+],
+"fresh:packages/fresh/src/dev/builder_test.ts": [
+239,
+277,
+412,
+538,
+737
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
+95
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware.tsx": [
+20
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware_test.tsx": [
+33,
+36,
+47,
+56,
+74,
+93,
+104
+],
+"fresh:packages/fresh/src/dev/update_check.ts": [
+127,
+128
+],
+"fresh:packages/fresh/src/error_test.ts": [
+5,
+6,
+9,
+10,
+15,
+21
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+284,
+286,
+296,
+298
+],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+66,
+80,
+97,
+99,
+115,
+128,
+144,
+211,
+876,
+881,
+1152,
+1164,
+1168,
+1172,
+1193,
+1215,
+1363,
+1370,
+1404,
+1411,
+1437,
+1444
+],
+"fresh:packages/fresh/src/jsonify/custom_test.ts": [
+14,
+14,
+24,
+24
+],
+"fresh:packages/fresh/src/jsonify/round_trip_test.ts": [
+18,
+24,
+25,
+31,
+32,
+34,
+38,
+39,
+40
+],
+"fresh:packages/fresh/src/jsonify/stringify.ts": [
+222
+],
+"fresh:packages/fresh/src/middlewares/cors_test.ts": [
+13,
+32,
+175
+],
+"fresh:packages/fresh/src/middlewares/csp_test.tsx": [
+13,
+35,
+84
+],
+"fresh:packages/fresh/src/middlewares/csrf.ts": [
+99,
+111
+],
+"fresh:packages/fresh/src/middlewares/csrf_test.ts": [
+18,
+18,
+43,
+44,
+45,
+51,
+52,
+53,
+54,
+56,
+57,
+58,
+59,
+61,
+62,
+63,
+64,
+70,
+71,
+76,
+77,
+88,
+89,
+90,
+98,
+99,
+100
+],
+"fresh:packages/fresh/src/middlewares/ip_filter_test.ts": [
+40,
+47,
+48,
+49,
+50,
+57,
+58,
+59,
+60,
+69,
+70,
+77,
+92
+],
+"fresh:packages/fresh/src/middlewares/static_files_test.ts": [
+65,
+85,
+117,
+123,
+153,
+164,
+180,
+203,
+228,
+259
+],
+"fresh:packages/fresh/src/middlewares/trailing_slashes_test.ts": [
+14,
+19,
+24,
+29,
+41,
+46,
+51
+],
+"fresh:packages/fresh/src/runtime/client/dev_hmr.ts": [
+11,
+12,
+13,
+14,
+15,
+16,
+17,
+18,
+19,
+20,
+21,
+23,
+24,
+25,
+26
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+549
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+270,
+286,
+295,
+405,
+424,
+442
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+785
+],
+"fresh:packages/fresh/src/segments.ts": [
+119,
+120
+],
+"fresh:packages/fresh/tests/islands_test.tsx": [
+64
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+187,
+305
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+192,
+327,
+337
+],
+"fresh:packages/init/src/init.ts": [
+40,
+43,
+51,
+54,
+56,
+57,
+59,
+103
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+661,
+947
+],
+"fresh:packages/plugin-vite/src/plugins/shims/supports-color/index.ts": [
+2,
+8,
+11,
+21
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+162,
+296,
+639,
+647,
+655,
+680,
+701
+],
+"fresh:packages/plugin-vite/tests/dev_server_test.ts": [
+145,
+199,
+338,
+463
+],
+"fresh:packages/update/src/mod.ts": [
+28
+],
+"fresh:packages/update/src/update.ts": [
+614
+],
+"fresh:tools/check_links.ts": [
+103,
+132
+],
+"fresh:www/islands/LemonBottom.tsx": [
+33,
+35,
+40,
+40,
+50,
+51,
+61,
+61,
+66,
+70
+],
+"fresh:www/islands/LemonDrop.tsx": [
+28,
+28,
+29,
+31,
+32,
+32,
+36,
+38,
+43,
+43,
+53,
+54,
+67
+],
+"fresh:www/islands/LemonTop.tsx": [
+20,
+20,
+21,
+23,
+24,
+24,
+28,
+30,
+35,
+35,
+45,
+46,
+59
+],
+"fresh:www/islands/TableOfContents.tsx": [
+35
+],
+"fresh:www/routes/_error.tsx": [
+34
+],
+"fresh:www/routes/docs/[...slug].tsx": [
+63,
+68,
+81
+],
+"fresh:www/routes/raw.ts": [
+39
+],
+"fresh:www/utils/ga4.ts": [
+202,
+313,
+313,
+318,
+318,
+323,
+323
+],
+"fresh:www/utils/markdown.ts": [
+135,
+298
+],
+"fresh:www/utils/screenshot.ts": [
+41,
+43
+]
+}

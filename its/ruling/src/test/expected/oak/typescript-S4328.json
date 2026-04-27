@@ -1,0 +1,29 @@
+{
+"oak:examples/closeServer.ts": [
+6
+],
+"oak:examples/cookieServer.ts": [
+6
+],
+"oak:examples/countingServer.ts": [
+5
+],
+"oak:examples/httpsServer.ts": [
+11
+],
+"oak:examples/proxyServer.ts": [
+5
+],
+"oak:examples/routingServer.ts": [
+6
+],
+"oak:examples/server.ts": [
+7
+],
+"oak:examples/sseServer.ts": [
+6
+],
+"oak:examples/staticServer.ts": [
+6
+]
+}
