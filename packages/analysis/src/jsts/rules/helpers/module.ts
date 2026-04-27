@@ -36,7 +36,7 @@ export function getImportDeclarations(context: Rule.RuleContext): estree.ImportD
   return [];
 }
 
-export type ModuleCall = {
+type RequireOrDynamicImport = {
   type: 'require' | 'import';
   moduleName: string;
 };
@@ -53,8 +53,10 @@ export type ModuleCall = {
  * require('lodash'); // not stored in variable
  * import('lodash').then(...); // not stored in variable
  */
-export function getRequireAndDynamicImportCalls(context: Rule.RuleContext): ModuleCall[] {
-  const imports: ModuleCall[] = [];
+export function getRequireAndDynamicImportCalls(
+  context: Rule.RuleContext,
+): RequireOrDynamicImport[] {
+  const imports: RequireOrDynamicImport[] = [];
   const { scopeManager } = context.sourceCode;
   for (const scope of scopeManager.scopes) {
     for (const variable of scope.variables) {
@@ -72,7 +74,7 @@ export function getRequireAndDynamicImportCalls(context: Rule.RuleContext): Modu
   return imports;
 }
 
-function getImport(node: estree.Node): ModuleCall | undefined {
+function getImport(node: estree.Node): RequireOrDynamicImport | undefined {
   const requireModuleName = getRequireModuleName(node);
   if (requireModuleName !== undefined) {
     return { type: 'require', moduleName: requireModuleName };
@@ -120,26 +122,6 @@ function getDynamicImportExpression(node: estree.Node): estree.ImportExpression 
     return node.argument;
   }
   return undefined;
-}
-
-/**
- * Checks if the file imports any of the specified modules, either via require() calls, import declarations.
- */
-export function importsModule(context: Rule.RuleContext, moduleNames: string[]): boolean {
-  if (moduleNames.length === 0) {
-    return false;
-  }
-
-  return (
-    getRequireAndDynamicImportCalls(context).some(module =>
-      moduleNames.includes(module.moduleName),
-    ) ||
-    getImportDeclarations(context).some(
-      declaration =>
-        typeof declaration.source.value === 'string' &&
-        moduleNames.includes(declaration.source.value),
-    )
-  );
 }
 
 export function isRequire(node: Node): node is estree.CallExpression {
