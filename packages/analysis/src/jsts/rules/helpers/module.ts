@@ -124,6 +124,26 @@ function getDynamicImportExpression(node: estree.Node): estree.ImportExpression 
   return undefined;
 }
 
+/**
+ * Checks if the file imports any of the specified modules, either via require() calls or import declarations.
+ */
+export function importsModule(context: Rule.RuleContext, moduleNames: string[]): boolean {
+  if (moduleNames.length === 0) {
+    return false;
+  }
+
+  return (
+    getRequireAndDynamicImportCalls(context).some(module =>
+      moduleNames.includes(module.moduleName),
+    ) ||
+    getImportDeclarations(context).some(
+      declaration =>
+        typeof declaration.source.value === 'string' &&
+        moduleNames.includes(declaration.source.value),
+    )
+  );
+}
+
 export function isRequire(node: Node): node is estree.CallExpression {
   return (
     node.type === 'CallExpression' &&

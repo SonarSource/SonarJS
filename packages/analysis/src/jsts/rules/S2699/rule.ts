@@ -19,8 +19,9 @@ import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import * as Chai from '../helpers/chai.js';
 import { childrenOf } from '../helpers/ancestor.js';
+import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getFullyQualifiedName } from '../helpers/module.js';
+import { getFullyQualifiedName, importsModule } from '../helpers/module.js';
 import { getFullyQualifiedNameTS } from '../helpers/module-ts.js';
 import {
   getProperty,
@@ -38,6 +39,10 @@ import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
+const ASSERTION_LIBRARIES = ['chai', 'sinon', 'vitest', 'supertest'];
+// jasmine's runner provides global assertion functions
+const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine'];
+
 /**
  * We assume that the user is using a single assertion library per file,
  * this is why we are not saving if an assertion has been performed for
@@ -46,14 +51,7 @@ import ts from 'typescript';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    if (
-      !(
-        Chai.isImported(context) ||
-        Sinon.isImported(context) ||
-        Vitest.isImported(context) ||
-        Supertest.isImported(context)
-      )
-    ) {
+    if (!hasSupportedAssertionLibrary(context)) {
       return {};
     }
     const visitedNodes: Map<estree.Node, boolean> = new Map();
@@ -68,6 +66,15 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function hasSupportedAssertionLibrary(context: Rule.RuleContext): boolean {
+  if (importsModule(context, ASSERTION_LIBRARIES)) {
+    return true;
+  }
+
+  const dependencies = getDependenciesSanitizePaths(context);
+  return GLOBAL_ASSERTION_DEPENDENCIES.some(dependency => dependencies.has(dependency));
+}
 
 /**
  * Checks if a test uses the Mocha done callback as an assertion mechanism.

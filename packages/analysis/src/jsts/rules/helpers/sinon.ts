@@ -16,20 +16,13 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import {
-  getFullyQualifiedName,
-  getImportDeclarations,
-  getRequireAndDynamicImportCalls,
-} from './module.js';
+import { getFullyQualifiedName, importsModule as isModuleImported } from './module.js';
 import { getFullyQualifiedNameTS } from './module-ts.js';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
 
 export function isImported(context: Rule.RuleContext): boolean {
-  return (
-    getRequireAndDynamicImportCalls(context).some(module => module.moduleName === 'sinon') ||
-    getImportDeclarations(context).some(i => i.source.value === 'sinon')
-  );
+  return isModuleImported(context, ['sinon']);
 }
 
 export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
