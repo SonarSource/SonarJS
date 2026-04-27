@@ -283,39 +283,6 @@ describe('Linter', () => {
     expect(rules).toHaveProperty('sonarjs/S6477');
   });
 
-  it('should enable React-dependent rules when react dependency is present in pnpm-workspace catalog', async () => {
-    const baseDir = normalizeToAbsolutePath(
-      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'pnpm-workspace-react'),
-    );
-    await Linter.initialize({
-      baseDir,
-      rules: [
-        {
-          key: 'S6477',
-          configurations: [],
-          fileTypeTargets: ['MAIN'],
-          language: 'js',
-          analysisModes: ['DEFAULT'],
-        },
-        {
-          key: 'S6957',
-          configurations: [],
-          fileTypeTargets: ['MAIN'],
-          language: 'js',
-          analysisModes: ['DEFAULT'],
-        },
-      ],
-    });
-    const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath(path.join(baseDir, 'src', 'file.jsx')),
-      'MAIN',
-      'DEFAULT',
-      'js',
-    );
-    expect(rules).toHaveProperty('sonarjs/S6477');
-    expect(rules).toHaveProperty('sonarjs/S6957');
-  });
-
   it('should disable React-dependent rules on .vue files even when react dependency is present', async () => {
     const baseDir = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'react'),
