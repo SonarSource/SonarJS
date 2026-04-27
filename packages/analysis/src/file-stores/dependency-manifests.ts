@@ -97,19 +97,20 @@ export class DependencyManifestStore implements FileStore {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    if (isDependencyManifestPath(filename)) {
-      try {
-        const content = await readFile(filename, 'utf-8');
-        const file = { content, path: filename };
-        const manifestName = getDependencyManifestName(filename);
-        if (manifestName === PACKAGE_JSON) {
-          this.packageJsons.set(dirnamePath(filename), file);
-        } else if (manifestName) {
-          this.denoManifestsByName[manifestName].set(dirnamePath(filename), file);
-        }
-      } catch (e) {
-        warn(`Error reading dependency manifest ${filename}: ${e}`);
+    if (!isDependencyManifestPath(filename)) {
+      return;
+    }
+    try {
+      const content = await readFile(filename, 'utf-8');
+      const file = { content, path: filename };
+      const manifestName = getDependencyManifestName(filename);
+      if (manifestName === PACKAGE_JSON) {
+        this.packageJsons.set(dirnamePath(filename), file);
+      } else if (manifestName) {
+        this.denoManifestsByName[manifestName].set(dirnamePath(filename), file);
       }
+    } catch (e) {
+      warn(`Error reading dependency manifest ${filename}: ${e}`);
     }
   }
 

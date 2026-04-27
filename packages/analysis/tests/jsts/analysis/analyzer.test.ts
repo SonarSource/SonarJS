@@ -1035,4 +1035,22 @@ describe('await analyzeJSTS', () => {
     const analysisResult = await analyzeJSTS(await jsTsInput({ filePath, skipAst: true }));
     assert(!('ast' in analysisResult));
   });
+
+  it('should resolve the package.json dependencies when they refer to a pnpm workspace catalog', async () => {
+    const rules: RuleConfig[] = [
+      {
+        // This rule will only apply when React version is bigger than 0.14.0
+        key: 'S6957',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+    const filePath = path.join(fixtures, 'pnpm-workspace/index.jsx');
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
+
+    const analysisResult = await analyzeJSTS(await jsTsInput({ filePath, skipAst: true }));
+    expect(analysisResult.issues.length).toBe(0);
+  });
 });
