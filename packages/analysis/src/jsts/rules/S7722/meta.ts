@@ -17,4 +17,4 @@
 // https://sonarsource.github.io/rspec/#/rspec/S7722/javascript
 export const implementation = 'decorated';
 export const eslintId = 'error-message';
-export const externalRules = [{ externalPlugin: 'unicorn', externalRule: 'error-message' }];
+export const externalRules = [{ externalPlugin: 'unicorn', externalRule: eslintId }];
