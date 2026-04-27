@@ -16,14 +16,10 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { getFullyQualifiedName, importsModule as isModuleImported } from './module.js';
+import { getFullyQualifiedName } from './module.js';
 import { getFullyQualifiedNameTS } from './module-ts.js';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
-
-export function isImported(context: Rule.RuleContext): boolean {
-  return isModuleImported(context, ['vitest']);
-}
 
 export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   const fullyQualifiedName = extractFQNforCallExpression(context, node);
