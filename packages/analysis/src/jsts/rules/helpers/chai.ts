@@ -16,7 +16,11 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './module.js';
+import {
+  getFullyQualifiedName,
+  getImportDeclarations,
+  getRequireAndDynamicImportCalls,
+} from './module.js';
 import { getFullyQualifiedNameTS } from './module-ts.js';
 import { isIdentifier } from './ast.js';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
@@ -24,9 +28,8 @@ import ts from 'typescript';
 
 export function isImported(context: Rule.RuleContext): boolean {
   return (
-    getRequireCalls(context).some(
-      r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'chai',
-    ) || getImportDeclarations(context).some(i => i.source.value === 'chai')
+    getRequireAndDynamicImportCalls(context).some(module => module.moduleName === 'chai') ||
+    getImportDeclarations(context).some(i => i.source.value === 'chai')
   );
 }
 
