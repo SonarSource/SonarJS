@@ -97,6 +97,18 @@ hookLog.push({ primitive: hookName, stack: stackError.stack, value: value });
           code: `let err = new Error(); err = other; console.log(err.stack);`, // reassignment — original error not used for .stack
           errors: 1,
         },
+        {
+          code: `const hasStack = Boolean(new Error().stack);`, // .stack used as boolean — not stack capture
+          errors: 1,
+        },
+        {
+          code: `if (new Error().stack) { doSomething(); }`, // .stack used as condition — not stack capture
+          errors: 1,
+        },
+        {
+          code: `const stackLength = new Error().stack.length;`, // .stack used to access property — not stack capture
+          errors: 1,
+        },
       ],
     });
   });

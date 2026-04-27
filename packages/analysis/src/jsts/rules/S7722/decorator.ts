@@ -73,22 +73,35 @@ function isStackRead(memberExpr: estree.MemberExpression): boolean {
   if (!parent) {
     return true;
   }
+  // Bare expression statement: new Error().stack;
+  if (parent.type === 'ExpressionStatement') {
+    return true;
+  }
+  // Direct assignment RHS: x = new Error().stack
   if (
     parent.type === 'AssignmentExpression' &&
-    (parent as estree.AssignmentExpression).left === memberExpr
+    (parent as estree.AssignmentExpression).right === memberExpr
   ) {
-    return false;
+    return true;
   }
-  if (
-    parent.type === 'UnaryExpression' &&
-    (parent as estree.UnaryExpression).operator === 'delete'
-  ) {
-    return false;
+  // Variable declarator init: const stack = new Error().stack
+  if (parent.type === 'VariableDeclarator') {
+    return true;
   }
-  if (parent.type === 'UpdateExpression') {
-    return false;
+  // Return statement: return new Error().stack
+  if (parent.type === 'ReturnStatement') {
+    return true;
   }
-  return true;
+  // Argument to a call used as a statement (side-effect calls like logging)
+  if (parent.type === 'CallExpression') {
+    const callParent = (parent as Rule.Node).parent;
+    return callParent?.type === 'ExpressionStatement';
+  }
+  // Object property value: { stack: new Error().stack }
+  if (parent.type === 'Property' && (parent as estree.Property).value === memberExpr) {
+    return true;
+  }
+  return false;
 }
 
 function isStackProperty(memberExpr: estree.MemberExpression): boolean {
