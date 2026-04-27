@@ -341,5 +341,8 @@ function isPlaywrightDescribe(node: estree.Node | undefined): boolean {
 
 function hasStringFirstArgument(node: estree.CallExpression) {
   const firstArgument = node.arguments[0];
-  return firstArgument !== undefined && isStringLiteral(firstArgument);
+  return (
+    firstArgument !== undefined &&
+    (isStringLiteral(firstArgument) || firstArgument.type === 'TemplateLiteral')
+  );
 }
