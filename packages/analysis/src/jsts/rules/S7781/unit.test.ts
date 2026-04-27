@@ -135,6 +135,20 @@ describe('S7781', () => {
           errors: [{ messageId: 'method' }],
           output: `function replaceRepeatedGroup(input) { return input.replaceAll(/(?:ab){2}/g, 'x'); }`,
         },
+        {
+          code: String.raw`const whitespaceRegex = /\n {2}/g;
+function normalizeIndentation(input) { return input.replace(whitespaceRegex, '\n'); }`,
+          errors: [{ messageId: 'method' }],
+          output: String.raw`const whitespaceRegex = /\n {2}/g;
+function normalizeIndentation(input) { return input.replaceAll(whitespaceRegex, '\n'); }`,
+        },
+        {
+          code: `const spaceRegex = / /g;
+function trimSpaces(input) { return input.replace(spaceRegex, ''); }`,
+          errors: [{ messageId: 'method' }],
+          output: `const spaceRegex = / /g;
+function trimSpaces(input) { return input.replaceAll(spaceRegex, ''); }`,
+        },
       ],
     });
   });
