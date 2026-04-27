@@ -68,6 +68,7 @@ function shouldKeepReport(node: TSESTree.Identifier, context: Rule.RuleContext) 
 
   const [pattern] = callExpression.arguments;
   if (!pattern || pattern.type === 'SpreadElement') {
+    // If the pattern is unavailable or opaque, we cannot prove plain-string equivalence.
     return false;
   }
 
