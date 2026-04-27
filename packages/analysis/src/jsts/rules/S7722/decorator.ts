@@ -71,7 +71,7 @@ function isStackRead(memberExpr: estree.MemberExpression): boolean {
   }
   const parent = (memberExpr as Rule.Node).parent;
   if (!parent) {
-    return true;
+    return false;
   }
   // Bare expression statement: new Error().stack;
   if (parent.type === 'ExpressionStatement') {
@@ -139,7 +139,7 @@ function isVariableUsedExclusivelyForStackReads(
       return false;
     }
     const refParent = (ref.identifier as Rule.Node).parent;
-    return refParent?.type !== 'VariableDeclarator';
+    return refParent !== parent;
   });
   if (hasReassignment) {
     return false;

@@ -100,6 +100,10 @@ hookLog.push({ primitive: hookName, stack: stackError.stack, value: value });
           errors: 1,
         },
         {
+          code: `var err = new Error(); var err = other; console.log(err.stack);`, // redeclaration — original error not used for .stack
+          errors: 1,
+        },
+        {
           code: `const hasStack = Boolean(new Error().stack);`, // .stack used as boolean — not stack capture
           errors: 1,
         },
