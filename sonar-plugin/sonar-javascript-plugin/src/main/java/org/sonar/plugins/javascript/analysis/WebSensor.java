@@ -64,6 +64,7 @@ import org.sonar.plugins.javascript.bridge.AstProtoUtils;
 import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
+import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.bridge.ProjectAnalysisHandler;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
 import org.sonar.plugins.javascript.bridge.TsgolintBundle;
@@ -269,7 +270,7 @@ public class WebSensor implements ProjectSensor {
         LOG.info("tsgolint binary not available, skipping tsgolint analysis");
         return;
       }
-      var enabledRules = checks.enabledTsgolintRuleNames();
+      var enabledRules = checks.enabledTsgolintRules();
       if (enabledRules.isEmpty()) {
         LOG.debug("No tsgolint rules enabled in quality profile");
         return;
@@ -301,12 +302,12 @@ public class WebSensor implements ProjectSensor {
     if (tsgolintServer == null || !tsgolintServer.isAlive()) {
       return;
     }
-    var enabledRules = checks.enabledTsgolintRuleNames();
+    var enabledRules = checks.enabledTsgolintRules();
     if (enabledRules.isEmpty()) {
       return;
     }
 
-    // Collect JS/TS file paths for tsgolint analysis (exclude CSS, HTML, YAML)
+    // Collect JS/TS files for tsgolint analysis (exclude CSS, HTML, YAML).
     var jstsFiles = inputFiles
       .stream()
       .filter(f -> {
@@ -324,16 +325,7 @@ public class WebSensor implements ProjectSensor {
       enabledRules.size()
     );
 
-    var filePaths = jstsFiles.stream().map(InputFile::absolutePath).toList();
-
-    var request = org.sonar.plugins.javascript.bridge.grpc.AnalyzeProjectRequest.newBuilder()
-      .setBaseDir(context.getSensorContext().fileSystem().baseDir().getAbsolutePath())
-      .addAllFilePaths(filePaths)
-      .addAllRules(enabledRules)
-      .addAllTsconfigPaths(
-        context.getTsConfigPaths() != null ? context.getTsConfigPaths() : List.of()
-      )
-      .build();
+    var request = createTsgolintRequest(jstsFiles, enabledRules);
 
     var fileMap = new HashMap<String, InputFile>();
     for (var f : jstsFiles) {
@@ -343,14 +335,41 @@ public class WebSensor implements ProjectSensor {
     }
 
     tsgolintServer.analyzeProject(request, issue -> {
-      var inputFile = fileMap.get(issue.filePath());
+      var inputFile = fileMap.get(issue.getFilePath());
       if (inputFile == null) {
-        inputFile = fileMap.get(normalizePathKey(issue.filePath()));
+        inputFile = fileMap.get(normalizePathKey(issue.getFilePath()));
       }
       if (inputFile != null) {
         analysisProcessor.saveIssue(context, checks, inputFile, issue);
       }
     });
+  }
+
+  private AnalyzeProjectRequest createTsgolintRequest(
+    List<InputFile> inputFiles,
+    List<EslintRule> enabledRules
+  ) {
+    var files = new HashMap<String, ProjectFileInput>();
+    try {
+      for (InputFile inputFile : inputFiles) {
+        files.put(
+          inputFile.absolutePath(),
+          AnalyzeProjectMessages.newProjectFileInput(
+            inputFile.type(),
+            inputFile.status(),
+            context.shouldSendFileContent(inputFile) ? inputFile.contents() : null
+          )
+        );
+      }
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to prepare tsgolint analysis request", e);
+    }
+
+    return AnalyzeProjectRequest.newBuilder()
+      .setConfiguration(configurationBuilder.build())
+      .putAllFiles(files)
+      .addAllRules(enabledRules.stream().map(AnalyzeProjectMessages::toProtoRule).toList())
+      .build();
   }
 
   private List<InputFile> getInputFiles() {
@@ -401,7 +420,11 @@ public class WebSensor implements ProjectSensor {
       bridgeServer.analyzeProject(handler);
       // Run tsgolint analysis after bridge analysis
       runTsgolintAnalysis(inputFiles);
-      new PluginTelemetry(context, bridgeServer, handler.getProjectAnalysisTelemetry()).reportTelemetry();
+      new PluginTelemetry(
+        context,
+        bridgeServer,
+        handler.getProjectAnalysisTelemetry()
+      ).reportTelemetry();
       consumers.doneAnalysis(context.getSensorContext());
     } catch (CompletionException e) {
       if (e.getCause() instanceof CancellationException nestedException) {

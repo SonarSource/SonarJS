@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -16,6 +16,7 @@
  */
 package org.sonar.plugins.javascript.bridge.grpc;
 
+import io.grpc.ConnectivityState;
 import io.grpc.LoadBalancerRegistry;
 import io.grpc.ManagedChannel;
 import io.grpc.internal.PickFirstLoadBalancerProvider;
@@ -25,14 +26,19 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.Iterator;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.scanner.ScannerSide;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectServiceGrpc;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
 import org.sonar.plugins.javascript.bridge.NetUtils;
-import org.sonar.plugins.javascript.bridge.TsgolintIssueConverter;
 
 @ScannerSide
 public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
@@ -40,11 +46,13 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
   private static final Logger LOG = LoggerFactory.getLogger(AnalyzerGrpcServerImpl.class);
   private static final int STARTUP_TIMEOUT_MS = 10_000;
   private static final int STARTUP_POLL_INTERVAL_MS = 200;
+  private static final int MAX_INBOUND_GRPC_MESSAGE_SIZE = Integer.MAX_VALUE;
+  private static final AtomicBoolean PICK_FIRST_REGISTERED = new AtomicBoolean();
 
   private final Path binaryPath;
   private Process process;
   private ManagedChannel channel;
-  private AnalyzerServiceGrpc.AnalyzerServiceBlockingStub blockingStub;
+  private AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub blockingStub;
   private int port;
 
   public AnalyzerGrpcServerImpl(Path binaryPath) {
@@ -53,103 +61,127 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
 
   @Override
   public void start() throws IOException {
-    port = NetUtils.findOpenPort();
-    LOG.info("Starting tsgolint gRPC server on port {}", port);
+    try {
+      port = NetUtils.findOpenPort();
+      LOG.info("Starting tsgolint gRPC server on port {}", port);
 
-    ProcessBuilder pb = new ProcessBuilder(binaryPath.toString(), "--port", String.valueOf(port));
-    pb.redirectErrorStream(false);
-    process = pb.start();
+      ProcessBuilder pb = new ProcessBuilder(binaryPath.toString(), "--port", String.valueOf(port));
+      pb.redirectErrorStream(false);
+      process = pb.start();
 
-    // Log stderr in background thread
-    var stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-    Thread stderrThread = new Thread(
-      () -> {
-        try {
-          String line;
-          while ((line = stderr.readLine()) != null) {
-            LOG.info("[tsgolint] {}", line);
+      // The Go runtime logs on stderr by default, so mirror that into the scanner logs.
+      var stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+      Thread stderrThread = new Thread(
+        () -> {
+          try {
+            String line;
+            while ((line = stderr.readLine()) != null) {
+              LOG.info("[tsgolint] {}", line);
+            }
+          } catch (IOException e) {
+            LOG.debug("tsgolint stderr reader stopped", e);
           }
-        } catch (IOException e) {
-          LOG.debug("tsgolint stderr reader stopped", e);
-        }
-      },
-      "tsgolint-stderr"
-    );
-    stderrThread.setDaemon(true);
-    stderrThread.start();
+        },
+        "tsgolint-stderr"
+      );
+      stderrThread.setDaemon(true);
+      stderrThread.start();
 
-    // gRPC core bundled in scanner runtime is missing pick_first registration, so force it.
-    LoadBalancerRegistry.getDefaultRegistry().register(new PickFirstLoadBalancerProvider());
+      registerPickFirstLoadBalancer();
 
-    // Create gRPC channel.
-    channel = OkHttpChannelBuilder.forAddress("127.0.0.1", port)
-      .usePlaintext()
-      .build();
-    blockingStub = AnalyzerServiceGrpc.newBlockingStub(channel);
+      channel = OkHttpChannelBuilder.forAddress("127.0.0.1", port)
+        .usePlaintext()
+        .maxInboundMessageSize(MAX_INBOUND_GRPC_MESSAGE_SIZE)
+        .build();
+      blockingStub = AnalyzeProjectServiceGrpc.newBlockingStub(channel);
 
-    // Poll until alive
-    waitForStartup();
+      waitForStartup();
+    } catch (IOException | RuntimeException e) {
+      stop();
+      throw e;
+    }
+  }
+
+  private static void registerPickFirstLoadBalancer() {
+    if (PICK_FIRST_REGISTERED.compareAndSet(false, true)) {
+      LoadBalancerRegistry.getDefaultRegistry().register(new PickFirstLoadBalancerProvider());
+    }
   }
 
   private void waitForStartup() throws IOException {
-    long deadline = System.currentTimeMillis() + STARTUP_TIMEOUT_MS;
-    while (System.currentTimeMillis() < deadline) {
-      try {
-        if (isAlive()) {
-          LOG.info("tsgolint gRPC server is ready on port {}", port);
-          return;
-        }
-      } catch (Exception e) {
-        // expected during startup
-      }
-      try {
-        Thread.sleep(STARTUP_POLL_INTERVAL_MS);
-      } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
-        throw new IOException("Interrupted while waiting for tsgolint to start", e);
-      }
+    if (waitChannelReady(STARTUP_TIMEOUT_MS)) {
+      LOG.info("tsgolint gRPC server is ready on port {}", port);
+      return;
     }
     throw new IOException(
       "tsgolint gRPC server failed to start within " + STARTUP_TIMEOUT_MS + "ms"
     );
   }
 
+  private boolean waitChannelReady(int timeoutMs) throws IOException {
+    if (channel == null) {
+      return false;
+    }
+    long deadlineNanos = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMs);
+    ConnectivityState state = channel.getState(true);
+    try {
+      while (state != ConnectivityState.READY) {
+        if (state == ConnectivityState.SHUTDOWN || (process != null && !process.isAlive())) {
+          return false;
+        }
+        long remainingNanos = deadlineNanos - System.nanoTime();
+        if (remainingNanos <= 0) {
+          return false;
+        }
+        CountDownLatch latch = new CountDownLatch(1);
+        channel.notifyWhenStateChanged(state, latch::countDown);
+        boolean stateChanged = latch.await(
+          Math.min(TimeUnit.NANOSECONDS.toMillis(remainingNanos), STARTUP_POLL_INTERVAL_MS),
+          TimeUnit.MILLISECONDS
+        );
+        if (stateChanged) {
+          state = channel.getState(false);
+        }
+      }
+      return true;
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IOException("Interrupted while waiting for tsgolint to start", e);
+    }
+  }
+
   @Override
-  public void analyzeProject(
-    AnalyzeProjectRequest request,
-    Consumer<BridgeServer.Issue> issueConsumer
-  ) {
-    Iterator<AnalyzeProjectResponse> responses = blockingStub
+  public void analyzeProject(AnalyzeProjectRequest request, Consumer<Issue> issueConsumer) {
+    Iterator<AnalyzeProjectStreamResponse> responses = blockingStub
       .withDeadlineAfter(5, TimeUnit.MINUTES)
       .analyzeProject(request);
 
     while (responses.hasNext()) {
-      AnalyzeProjectResponse response = responses.next();
-      if (response.hasFileResult()) {
-        FileResult fileResult = response.getFileResult();
-        for (Issue protoIssue : fileResult.getIssuesList()) {
-          issueConsumer.accept(
-            TsgolintIssueConverter.convert(protoIssue, fileResult.getFilePath())
-          );
-        }
-      } else if (response.hasComplete()) {
-        AnalysisComplete complete = response.getComplete();
-        for (String warning : complete.getWarningsList()) {
-          LOG.warn("[tsgolint] {}", warning);
+      AnalyzeProjectStreamResponse response = responses.next();
+      switch (response.getMessageCase()) {
+        case FILE_RESULT -> handleFileResult(response.getFileResult(), issueConsumer);
+        case META -> response
+          .getMeta()
+          .getWarningsList()
+          .forEach(warning -> LOG.warn("[tsgolint] {}", warning));
+        case CANCELLED -> LOG.warn("tsgolint analysis was cancelled");
+        case MESSAGE_NOT_SET -> {
+          // no-op
         }
       }
     }
   }
 
-  @Override
-  public boolean isAlive() {
-    try {
-      AliveResponse resp = blockingStub
-        .withDeadlineAfter(5, TimeUnit.SECONDS)
-        .isAlive(AliveRequest.getDefaultInstance());
-      return "ok".equals(resp.getStatus());
-    } catch (Exception e) {
-      return false;
+  private static void handleFileResult(
+    FileResultMessage fileResult,
+    Consumer<Issue> issueConsumer
+  ) {
+    for (Issue issue : fileResult.getResult().getIssuesList()) {
+      if (issue.getFilePath().isBlank()) {
+        issueConsumer.accept(issue.toBuilder().setFilePath(fileResult.getFilePath()).build());
+      } else {
+        issueConsumer.accept(issue);
+      }
     }
   }
 
@@ -162,6 +194,9 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
       } catch (InterruptedException e) {
         channel.shutdownNow();
         Thread.currentThread().interrupt();
+      } finally {
+        channel = null;
+        blockingStub = null;
       }
     }
     if (process != null && process.isAlive()) {
@@ -175,5 +210,12 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
         Thread.currentThread().interrupt();
       }
     }
+    process = null;
+    port = 0;
+  }
+
+  @Override
+  public boolean isAlive() {
+    return process != null && process.isAlive() && channel != null && !channel.isShutdown();
   }
 }

@@ -1,10 +1,10 @@
 /*
  * SonarQube JavaScript Plugin
- * Copyright (C) 2011-2025 SonarSource Sàrl
+ * Copyright (C) SonarSource Sàrl
  * mailto:info AT sonarsource DOT com
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,11 +18,12 @@ package org.sonar.plugins.javascript.bridge.grpc;
 
 import java.io.IOException;
 import java.util.function.Consumer;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
+import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
 
 public interface AnalyzerGrpcServer {
   void start() throws IOException;
-  void analyzeProject(AnalyzeProjectRequest request, Consumer<BridgeServer.Issue> issueConsumer);
+  void analyzeProject(AnalyzeProjectRequest request, Consumer<Issue> issueConsumer);
   boolean isAlive();
   void stop();
 }

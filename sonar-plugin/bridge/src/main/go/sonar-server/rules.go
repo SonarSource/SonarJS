@@ -23,3 +23,33 @@ var allRules = []rule.Rule{
 	prefer_promise_reject_errors.PreferPromiseRejectErrorsRule,
 	NoArrayDeleteRule,
 }
+
+var tsgolintRuleNameBySonarKey = map[string]string{
+	"S4123": "await-thenable",
+	"S2933": "prefer-readonly",
+	"S4157": "no-unnecessary-type-arguments",
+	"S4325": "no-unnecessary-type-assertion",
+	"S6565": "prefer-return-this-type",
+	"S6583": "no-mixed-enums",
+	"S6671": "prefer-promise-reject-errors",
+	"S2870": "no-array-delete",
+}
+
+var sonarRuleKeyByTsgolintRuleName = map[string]string{}
+var allRulesByName = map[string]rule.Rule{}
+
+func init() {
+	for _, availableRule := range allRules {
+		allRulesByName[availableRule.Name] = availableRule
+	}
+	for sonarRuleKey, tsgolintRuleName := range tsgolintRuleNameBySonarKey {
+		sonarRuleKeyByTsgolintRuleName[tsgolintRuleName] = sonarRuleKey
+	}
+}
+
+func sonarRuleKeyFor(ruleName string) string {
+	if sonarRuleKey, ok := sonarRuleKeyByTsgolintRuleName[ruleName]; ok {
+		return sonarRuleKey
+	}
+	return ruleName
+}

@@ -24,7 +24,7 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterAnalyzerServiceServer(s, NewAnalyzerService())
+	pb.RegisterAnalyzeProjectServiceServer(s, NewAnalyzerService())
 
 	log.Printf("tsgolint gRPC server listening on port %d", *port)
 	if err := s.Serve(lis); err != nil {

@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -79,9 +78,8 @@ public class JsTsChecks {
 
   /**
    * Sonar rule keys for rules offloaded to tsgolint (Go-based linter).
-   * These rules are excluded from the Node.js bridge and run via gRPC instead.
-   * The eslintKey() for these checks returns the Sonar key (e.g., "S4123"),
-   * while tsgolint uses the eslint name (e.g., "await-thenable").
+   * These rules are excluded from the Node.js bridge and run via the shared
+   * analyze-project gRPC contract against the Go sidecar.
    */
   static final Set<String> TSGOLINT_RULES = Set.of(
     "S4123", // await-thenable
@@ -92,28 +90,6 @@ public class JsTsChecks {
     "S6583", // no-mixed-enums
     "S6671", // prefer-promise-reject-errors
     "S2870" // no-array-delete
-  );
-
-  /**
-   * Maps Sonar rule keys to tsgolint rule names (eslint IDs).
-   */
-  static final Map<String, String> TSGOLINT_RULE_NAMES = Map.of(
-    "S4123",
-    "await-thenable",
-    "S2933",
-    "prefer-readonly",
-    "S4157",
-    "no-unnecessary-type-arguments",
-    "S4325",
-    "no-unnecessary-type-assertion",
-    "S6565",
-    "prefer-return-this-type",
-    "S6583",
-    "no-mixed-enums",
-    "S6671",
-    "prefer-promise-reject-errors",
-    "S2870",
-    "no-array-delete"
   );
 
   /**
@@ -408,15 +384,13 @@ public class JsTsChecks {
   }
 
   /**
-   * Returns the tsgolint rule names (eslint IDs) that are active in the current quality profile.
+   * Returns the active rules that are offloaded to the tsgolint sidecar.
    */
-  List<String> enabledTsgolintRuleNames() {
+  List<EslintRule> enabledTsgolintRules() {
     return enabledEslintRules()
       .stream()
-      .map(EslintRule::getKey)
-      .filter(TSGOLINT_RULES::contains)
-      .map(TSGOLINT_RULE_NAMES::get)
-      .collect(Collectors.toList());
+      .filter(rule -> TSGOLINT_RULES.contains(rule.getKey()))
+      .toList();
   }
 
   static class LanguageAndRepository {

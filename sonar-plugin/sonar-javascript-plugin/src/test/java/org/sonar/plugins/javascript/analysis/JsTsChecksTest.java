@@ -41,6 +41,7 @@ import org.sonar.plugins.javascript.api.EslintHookRegistrar;
 import org.sonar.plugins.javascript.api.JavaScriptRule;
 import org.sonar.plugins.javascript.api.Language;
 import org.sonar.plugins.javascript.api.TypeScriptRule;
+import org.sonar.plugins.javascript.bridge.EslintRule;
 
 class JsTsChecksTest {
 
@@ -158,6 +159,28 @@ class JsTsChecksTest {
       )
     );
     assertThat(checks.all()).hasSize(expectedBuiltinRuleCount());
+  }
+
+  @Test
+  void should_partition_tsgolint_rules_from_bridge_rules() {
+    JsTsChecks checks = new JsTsChecks(
+      checkFactory(
+        List.of(
+          RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S4123"),
+          RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S2870"),
+          RuleKey.of("repo", "customcheck")
+        )
+      ),
+      new CustomRuleRepository[] { new TsRepository() }
+    );
+
+    assertThat(checks.enabledTsgolintRules())
+      .extracting(EslintRule::getKey)
+      .containsExactlyInAnyOrder("S4123", "S2870");
+    assertThat(checks.enabledBridgeEslintRules())
+      .extracting(EslintRule::getKey)
+      .contains("customcheck")
+      .doesNotContain("S4123", "S2870");
   }
 
   @Test

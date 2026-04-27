@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"runtime"
+	"sort"
 	"sync"
 
 	"github.com/microsoft/typescript-go/shim/ast"
@@ -21,7 +23,7 @@ import (
 )
 
 type analyzerService struct {
-	pb.UnimplementedAnalyzerServiceServer
+	pb.UnimplementedAnalyzeProjectServiceServer
 }
 
 func NewAnalyzerService() *analyzerService {
@@ -30,28 +32,85 @@ func NewAnalyzerService() *analyzerService {
 
 func (s *analyzerService) AnalyzeProject(
 	req *pb.AnalyzeProjectRequest,
-	stream pb.AnalyzerService_AnalyzeProjectServer,
+	stream pb.AnalyzeProjectService_AnalyzeProjectServer,
 ) error {
-	log.Printf("AnalyzeProject: baseDir=%s, files=%d, rules=%v",
-		req.BaseDir, len(req.FilePaths), req.Rules)
+	results, meta := analyzeProject(req)
+	for _, filePath := range orderedFilePaths(req.GetFiles()) {
+		if err := stream.Send(&pb.AnalyzeProjectStreamResponse{
+			Message: &pb.AnalyzeProjectStreamResponse_FileResult{
+				FileResult: &pb.FileResultMessage{
+					FilePath: filePath,
+					Result:   results[filePath],
+				},
+			},
+		}); err != nil {
+			return err
+		}
+	}
+	return stream.Send(&pb.AnalyzeProjectStreamResponse{
+		Message: &pb.AnalyzeProjectStreamResponse_Meta{
+			Meta: meta,
+		},
+	})
+}
 
-	baseFS := bundled.WrapFS(cachedvfs.From(osvfs.FS()))
-	tsConfigResolver := utils.NewTsConfigResolver(baseFS, req.BaseDir)
+func (s *analyzerService) AnalyzeProjectUnary(
+	ctx context.Context,
+	req *pb.AnalyzeProjectRequest,
+) (*pb.AnalyzeProjectUnaryResponse, error) {
+	results, meta := analyzeProject(req)
+	return &pb.AnalyzeProjectUnaryResponse{
+		Files: results,
+		Meta:  meta,
+	}, nil
+}
 
-	// Normalize file paths
-	normalizedFiles := make([]string, len(req.FilePaths))
-	for i, fp := range req.FilePaths {
-		normalizedFiles[i] = tspath.NormalizeSlashes(fp)
+func (s *analyzerService) CancelAnalysis(
+	ctx context.Context,
+	req *pb.CancelAnalysisRequest,
+) (*pb.CancelAnalysisResponse, error) {
+	return &pb.CancelAnalysisResponse{Cancelled: false}, nil
+}
+
+func (s *analyzerService) Lease(stream pb.AnalyzeProjectService_LeaseServer) error {
+	for {
+		_, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+	}
+}
+
+func analyzeProject(
+	req *pb.AnalyzeProjectRequest,
+) (map[string]*pb.ProjectAnalysisFileResult, *pb.ProjectAnalysisMeta) {
+	filePaths := orderedFilePaths(req.GetFiles())
+	results := make(map[string]*pb.ProjectAnalysisFileResult, len(filePaths))
+	for _, filePath := range filePaths {
+		results[filePath] = &pb.ProjectAnalysisFileResult{}
 	}
 
-	// Resolve tsconfigs for files
+	requestedRules := requestedRuleNames(req.GetRules())
+	if len(filePaths) == 0 || len(requestedRules) == 0 {
+		return results, &pb.ProjectAnalysisMeta{}
+	}
+
+	baseDir := requestBaseDir(req)
+	log.Printf("AnalyzeProject: baseDir=%s, files=%d, rules=%d", baseDir, len(filePaths), len(requestedRules))
+
+	baseFS := bundled.WrapFS(cachedvfs.From(osvfs.FS()))
+	tsConfigResolver := utils.NewTsConfigResolver(baseFS, baseDir)
+
 	workload := linter.Workload{
 		Programs:       make(map[string][]string),
 		UnmatchedFiles: []string{},
 	}
 
-	result := tsConfigResolver.FindTsConfigParallel(normalizedFiles)
-	for file, tsconfig := range result {
+	resolution := tsConfigResolver.FindTsConfigParallel(filePaths)
+	for file, tsconfig := range resolution {
 		if tsconfig == "" {
 			workload.UnmatchedFiles = append(workload.UnmatchedFiles, file)
 		} else {
@@ -59,45 +118,25 @@ func (s *analyzerService) AnalyzeProject(
 		}
 	}
 
-	log.Printf("Resolved %d programs, %d unmatched files",
-		len(workload.Programs), len(workload.UnmatchedFiles))
+	log.Printf("Resolved %d programs, %d unmatched files", len(workload.Programs), len(workload.UnmatchedFiles))
 
-	// Build rule set from request
-	requestedRules := make(map[string]struct{}, len(req.Rules))
-	for _, r := range req.Rules {
-		requestedRules[r] = struct{}{}
-	}
-
-	// Collect diagnostics grouped by file
+	configuredRules := configuredRulesFor(requestedRules)
 	var mu sync.Mutex
-	diagnosticsByFile := make(map[string][]*pb.Issue)
+	diagnosticsByFile := make(map[string][]*pb.Issue, len(filePaths))
 
 	err := linter.RunLinter(
 		utils.GetLogLevel(),
-		req.BaseDir,
+		baseDir,
 		workload,
 		runtime.GOMAXPROCS(0),
 		baseFS,
 		func(sourceFile *ast.SourceFile) []linter.ConfiguredRule {
-			var rules []linter.ConfiguredRule
-			for _, r := range allRules {
-				if _, ok := requestedRules[r.Name]; ok {
-					capturedRule := r
-					rules = append(rules, linter.ConfiguredRule{
-						Name: capturedRule.Name,
-						Run: func(ctx rule.RuleContext) rule.RuleListeners {
-							return capturedRule.Run(ctx, nil)
-						},
-					})
-				}
-			}
-			return rules
+			return configuredRules
 		},
 		func(d rule.RuleDiagnostic) {
 			issue := ConvertDiagnostic(d)
-			filePath := d.SourceFile.FileName()
 			mu.Lock()
-			diagnosticsByFile[filePath] = append(diagnosticsByFile[filePath], issue)
+			diagnosticsByFile[issue.GetFilePath()] = append(diagnosticsByFile[issue.GetFilePath()], issue)
 			mu.Unlock()
 		},
 		func(d diagnostic.Internal) {
@@ -112,42 +151,71 @@ func (s *analyzerService) AnalyzeProject(
 		false, // suppressProgramDiagnostics
 	)
 
+	warnings := []string{}
 	if err != nil {
 		log.Printf("Linter error: %v", err)
-		return stream.Send(&pb.AnalyzeProjectResponse{
-			Payload: &pb.AnalyzeProjectResponse_Complete{
-				Complete: &pb.AnalysisComplete{
-					Warnings: []string{fmt.Sprintf("tsgolint linter error: %v", err)},
-				},
-			},
-		})
+		warnings = append(warnings, fmt.Sprintf("tsgolint linter error: %v", err))
 	}
 
-	// Stream results per file
-	for filePath, issues := range diagnosticsByFile {
-		if err := stream.Send(&pb.AnalyzeProjectResponse{
-			Payload: &pb.AnalyzeProjectResponse_FileResult{
-				FileResult: &pb.FileResult{
-					FilePath: filePath,
-					Issues:   issues,
-				},
-			},
-		}); err != nil {
-			return err
+	for _, filePath := range filePaths {
+		results[filePath] = &pb.ProjectAnalysisFileResult{
+			Issues: diagnosticsByFile[filePath],
 		}
 	}
 
-	// Send completion
-	return stream.Send(&pb.AnalyzeProjectResponse{
-		Payload: &pb.AnalyzeProjectResponse_Complete{
-			Complete: &pb.AnalysisComplete{},
-		},
-	})
+	return results, &pb.ProjectAnalysisMeta{Warnings: warnings}
 }
 
-func (s *analyzerService) IsAlive(
-	ctx context.Context,
-	req *pb.AliveRequest,
-) (*pb.AliveResponse, error) {
-	return &pb.AliveResponse{Status: "ok"}, nil
+func configuredRulesFor(requestedRules map[string]struct{}) []linter.ConfiguredRule {
+	rules := make([]linter.ConfiguredRule, 0, len(requestedRules))
+	for _, availableRule := range allRules {
+		if _, ok := requestedRules[availableRule.Name]; !ok {
+			continue
+		}
+		capturedRule := availableRule
+		rules = append(rules, linter.ConfiguredRule{
+			Name: capturedRule.Name,
+			Run: func(ctx rule.RuleContext) rule.RuleListeners {
+				return capturedRule.Run(ctx, nil)
+			},
+		})
+	}
+	return rules
+}
+
+func orderedFilePaths(files map[string]*pb.ProjectFileInput) []string {
+	ordered := make([]string, 0, len(files))
+	seen := make(map[string]struct{}, len(files))
+	for filePath := range files {
+		normalizedPath := tspath.NormalizeSlashes(filePath)
+		if _, ok := seen[normalizedPath]; ok {
+			continue
+		}
+		seen[normalizedPath] = struct{}{}
+		ordered = append(ordered, normalizedPath)
+	}
+	sort.Strings(ordered)
+	return ordered
+}
+
+func requestedRuleNames(rules []*pb.JsTsRule) map[string]struct{} {
+	requested := make(map[string]struct{}, len(rules))
+	for _, requestedRule := range rules {
+		ruleName := requestedRule.GetKey()
+		if mappedRuleName, ok := tsgolintRuleNameBySonarKey[ruleName]; ok {
+			requested[mappedRuleName] = struct{}{}
+			continue
+		}
+		if _, ok := allRulesByName[ruleName]; ok {
+			requested[ruleName] = struct{}{}
+		}
+	}
+	return requested
+}
+
+func requestBaseDir(req *pb.AnalyzeProjectRequest) string {
+	if configuration := req.GetConfiguration(); configuration != nil && configuration.GetBaseDir() != "" {
+		return configuration.GetBaseDir()
+	}
+	return "."
 }
