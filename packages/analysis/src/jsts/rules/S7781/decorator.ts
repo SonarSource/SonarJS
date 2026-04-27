@@ -138,10 +138,10 @@ function hasReducibleFlags(flags: AST.Flags) {
  *   element     := character
  *                | singleCharacterClass
  *                | nonCapturingGroup
- *                | exactlyOnceQuantifier
+ *                | fixedQuantifier
  *   singleCharacterClass := "[" character "]"
  *   nonCapturingGroup    := "(?:" alternative ")"
- *   exactlyOnceQuantifier:= element "{1}" | element with min = max = 1
+ *   fixedQuantifier      := element "{n}" | element with min = max = n
  *
  * Example: `/(?:f)[o]{1}[o]/` -> `"foo"`
  *
@@ -180,10 +180,19 @@ function reduceElement(element: AST.Element): string | null {
     case 'Group':
       return element.alternatives.length === 1 ? reduceAlternative(element.alternatives[0]) : null;
     case 'Quantifier':
-      return element.min === 1 && element.max === 1 ? reduceElement(element.element) : null;
+      return reduceQuantifier(element);
     default:
       return null;
   }
+}
+
+function reduceQuantifier(quantifier: AST.Quantifier): string | null {
+  if (quantifier.min !== quantifier.max) {
+    return null;
+  }
+
+  const fragment = reduceElement(quantifier.element);
+  return fragment === null ? null : fragment.repeat(quantifier.min);
 }
 
 function reduceCharacterClass(characterClass: AST.CharacterClass): string | null {

@@ -120,6 +120,21 @@ describe('S7781', () => {
           errors: [{ messageId: 'method' }],
           output: `function replaceWrappedSuffix(input) { return input.replaceAll(/foo(?:)/g, 'bar'); }`,
         },
+        {
+          code: String.raw`function replaceEllipsis(input) { return input.replace(/\.{3}/g, '…'); }`,
+          errors: [{ messageId: 'method' }],
+          output: String.raw`function replaceEllipsis(input) { return input.replaceAll(/\.{3}/g, '…'); }`,
+        },
+        {
+          code: `function replaceTriplet(input) { return input.replace(/a{3}/g, 'x'); }`,
+          errors: [{ messageId: 'method' }],
+          output: `function replaceTriplet(input) { return input.replaceAll(/a{3}/g, 'x'); }`,
+        },
+        {
+          code: `function replaceRepeatedGroup(input) { return input.replace(/(?:ab){2}/g, 'x'); }`,
+          errors: [{ messageId: 'method' }],
+          output: `function replaceRepeatedGroup(input) { return input.replaceAll(/(?:ab){2}/g, 'x'); }`,
+        },
       ],
     });
   });
