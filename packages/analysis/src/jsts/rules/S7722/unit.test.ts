@@ -44,10 +44,12 @@ describe('S7722', () => {
         { code: `throw new Error('Something went wrong');` },
         { code: `new Error().stack;` }, // Pattern 1: direct .stack read
         { code: `new Error()['stack'];` }, // Pattern 1: computed .stack read
-        { code: `logger.debug('call site:', new Error().stack);` }, // Pattern 1: inline in call
+        { code: `logger.debug('call site:', new Error().stack);` }, // Pattern 1: inline in sync call
+        { code: `await logger.debug('call site:', new Error().stack);` }, // Pattern 1: inline in async call
         { code: `const stack = new Error().stack;` }, // Pattern 1: .stack stored in variable
         { code: `const err = new Error(); log(err.stack);` }, // Pattern 2: variable, only .stack reads
         { code: `const err = new Error(); log(err['stack']);` }, // Pattern 2: computed .stack read
+        { code: `const err = new Error(); await logger.debug(err.stack);` }, // Pattern 2: async call
         {
           // Pattern 2: real-world hookLog pattern
           code: `

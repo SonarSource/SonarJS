@@ -95,7 +95,14 @@ function isStackRead(memberExpr: estree.MemberExpression): boolean {
   // Argument to a call used as a statement (side-effect calls like logging)
   if (parent.type === 'CallExpression') {
     const callParent = (parent as Rule.Node).parent;
-    return callParent?.type === 'ExpressionStatement';
+    if (callParent?.type === 'ExpressionStatement') {
+      return true;
+    }
+    // Also handle: await fn(new Error().stack) as a statement
+    if (callParent?.type === 'AwaitExpression') {
+      return (callParent as Rule.Node).parent?.type === 'ExpressionStatement';
+    }
+    return false;
   }
   // Object property value: { stack: new Error().stack }
   if (parent.type === 'Property' && (parent as estree.Property).value === memberExpr) {
