@@ -68,6 +68,30 @@ describe('S2187', () => {
           filename: 'foo.spec.js',
         },
         {
+          code: `
+        /* a Cypress file using 'specify' */
+        specify('1 + 2 should give 3', () => {
+            expect(1 + 2).toBe(3)
+        });`,
+          filename: 'foo.cy.js',
+        },
+        {
+          code: `
+        /* a spec file using 'specify.skip' */
+        specify.skip('1 + 2 should give 3', () => {
+            expect(1 + 2).toBe(3)
+        });`,
+          filename: 'foo.spec.js',
+        },
+        {
+          code: `
+        /* a spec file using 'xspecify' */
+        xspecify('1 + 2 should give 3', () => {
+            expect(1 + 2).toBe(3)
+        });`,
+          filename: 'foo.spec.js',
+        },
+        {
           code: `test.for([
           [1, 1, 2],
           [1, 2, 3],
@@ -76,6 +100,38 @@ describe('S2187', () => {
           expect(a + b).toBe(expected)
         })`,
           filename: 'foo.spec.js',
+        },
+        {
+          code: `
+        /* a test file using 'test.skipIf' from Vitest */
+        test.skipIf(isWindows)('uses POSIX paths', () => {
+            expect(path).toBe('/tmp')
+        });`,
+          filename: 'foo.test.js',
+        },
+        {
+          code: `
+        /* a test file using 'test.fails' from Vitest */
+        test.fails('documents a known failure', () => {
+            expect(fn).toThrow()
+        });`,
+          filename: 'foo.test.js',
+        },
+        {
+          code: `
+        /* a test file using 'test.fixme' from Playwright */
+        test.fixme('should do something', async ({ page }) => {
+            await page.goto('https://example.com')
+        });`,
+          filename: 'foo.spec.ts',
+        },
+        {
+          code: `
+        /* a test file using 'test.fail' from Playwright */
+        test.fail('should do something', async ({ page }) => {
+            await page.goto('https://example.com')
+        });`,
+          filename: 'foo.spec.ts',
         },
         {
           code: `
@@ -141,6 +197,16 @@ describe('S2187', () => {
         {
           code: `/* empty spec file */`,
           filename: 'foo.spec.js',
+          errors: 1,
+        },
+        {
+          code: `/* empty Cypress test file */`,
+          filename: 'foo.cy.ts',
+          errors: 1,
+        },
+        {
+          code: `test.fail(browserName === 'webkit', 'reason');`,
+          filename: 'foo.spec.ts',
           errors: 1,
         },
         {
