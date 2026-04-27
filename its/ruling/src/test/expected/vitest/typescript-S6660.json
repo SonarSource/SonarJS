@@ -1,0 +1,28 @@
+{
+"vitest:packages/expect/src/jest-utils.ts": [
+796
+],
+"vitest:packages/mocker/src/node/parsers.ts": [
+151
+],
+"vitest:packages/runner/src/suite.ts": [
+695,
+790,
+866
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+369
+],
+"vitest:packages/ui/client/composables/explorer/filter.ts": [
+163
+],
+"vitest:packages/utils/src/diff/cleanupSemantic.ts": [
+300
+],
+"vitest:packages/vitest/src/node/logger.ts": [
+177
+],
+"vitest:packages/vitest/src/node/resolver.ts": [
+247
+]
+}

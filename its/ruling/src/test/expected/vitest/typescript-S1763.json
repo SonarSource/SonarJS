@@ -1,0 +1,11 @@
+{
+"vitest:test/cli/fixtures/list/describe-error.test.ts": [
+6
+],
+"vitest:test/cli/fixtures/no-module-runner/src/redirect.ts": [
+2
+],
+"vitest:test/cli/fixtures/reporters/import-durations-25ms-throws.ts": [
+5
+]
+}

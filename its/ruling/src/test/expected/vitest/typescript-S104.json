@@ -1,0 +1,35 @@
+{
+"vitest:packages/expect/src/jest-expect.ts": [
+0
+],
+"vitest:packages/vitest/src/node/core.ts": [
+0
+],
+"vitest:test/cli/test/around-each.test.ts": [
+0
+],
+"vitest:test/cli/test/config/browser-configs.test.ts": [
+0
+],
+"vitest:test/cli/test/reporters/test-run.test.ts": [
+0
+],
+"vitest:test/cli/test/scoped-fixtures.test.ts": [
+0
+],
+"vitest:test/cli/test/static-collect.test.ts": [
+0
+],
+"vitest:test/cli/test/test-tags.test.ts": [
+0
+],
+"vitest:test/core/test/fixtures/timers.suite.ts": [
+0
+],
+"vitest:test/core/test/injector-mock.test.ts": [
+0
+],
+"vitest:test/core/test/jest-expect.test.ts": [
+0
+]
+}

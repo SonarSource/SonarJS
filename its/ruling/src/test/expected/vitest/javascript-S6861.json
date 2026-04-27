@@ -1,0 +1,12 @@
+{
+"vitest:test/cli/fixtures/inspect/vitest.config.ts.timestamp-1713887058308-b154731a64b17.mjs": [
+3
+],
+"vitest:test/coverage-test/fixtures/src/pre-bundle/bundle.js": [
+9,
+23
+],
+"vitest:test/coverage-test/fixtures/src/pre-transpiled/transpiled.js": [
+1
+]
+}

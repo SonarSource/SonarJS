@@ -1,0 +1,132 @@
+{
+"vitest:packages/browser/src/node/plugin.ts": [
+14,
+144,
+367
+],
+"vitest:packages/ui/node/index.ts": [
+69
+],
+"vitest:packages/vitest/src/api/setup.ts": [
+112,
+128
+],
+"vitest:packages/vitest/src/integrations/env/loader.ts": [
+81,
+82,
+83,
+87,
+90,
+93
+],
+"vitest:packages/vitest/src/node/cache/results.ts": [
+32
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+647,
+665,
+770,
+880
+],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+9,
+60,
+224
+],
+"vitest:packages/vitest/src/node/plugins/workspace.ts": [
+70,
+72,
+72
+],
+"vitest:test/cli/test/config/bail.test.ts": [
+63
+],
+"vitest:test/core/test/fixture-initialization.test.ts": [
+61,
+76,
+77,
+78,
+97,
+98,
+99,
+108,
+109,
+110,
+111,
+119,
+120,
+121,
+122,
+123,
+132,
+133,
+134,
+135,
+136
+],
+"vitest:test/core/test/fixture-options.test.ts": [
+24,
+28,
+29,
+33
+],
+"vitest:test/core/test/jest-expect.test.ts": [
+773
+],
+"vitest:test/core/test/mocked-class.test.ts": [
+16,
+17,
+18,
+35,
+36,
+37,
+57,
+58,
+59,
+97,
+98,
+99
+],
+"vitest:test/core/test/mocked.test.ts": [
+156,
+162,
+170,
+180
+],
+"vitest:test/core/test/test-extend.test.ts": [
+73,
+74,
+128,
+140,
+141,
+153,
+167,
+168,
+183,
+187,
+194,
+198,
+228,
+229,
+234,
+240,
+241,
+247,
+248,
+252,
+253,
+254,
+287,
+288,
+300,
+301,
+319,
+355
+],
+"vitest:test/core/test/vi.spec.ts": [
+207
+],
+"vitest:test/core/test/web-worker-node.test.ts": [
+102
+]
+}

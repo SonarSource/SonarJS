@@ -1,0 +1,53 @@
+{
+"vitest:test/browser/fixtures/multiple-different-configs/basic.test.js": [
+23
+],
+"vitest:test/cli/fixtures/git-changed/related/vitest.config.js": [
+1
+],
+"vitest:test/cli/fixtures/mocker/redirect/__mocks__/test.js": [
+3
+],
+"vitest:test/cli/fixtures/reporters/basic/vitest.config.override.js": [
+13
+],
+"vitest:test/cli/fixtures/workspace/api/vite.custom.config.js": [
+7
+],
+"vitest:test/config/fixtures/shard-4-files/test/1.test.js": [
+5
+],
+"vitest:test/config/fixtures/shard-4-files/test/2.test.js": [
+5
+],
+"vitest:test/config/fixtures/shard-4-files/test/3.test.js": [
+5
+],
+"vitest:test/config/fixtures/shard-4-files/test/4.test.js": [
+5
+],
+"vitest:test/config/fixtures/shard-4-files/vitest.config.js": [
+7
+],
+"vitest:test/config/fixtures/shard/vitest.config.js": [
+1
+],
+"vitest:test/config/fixtures/test/vitest.config.js": [
+7
+],
+"vitest:test/config/fixtures/vitest.config.js": [
+3
+],
+"vitest:test/config/fixtures/workers-option/vitest.config.js": [
+1
+],
+"vitest:test/config/fixtures/workspace-flags/projects/vitest.config.js": [
+1
+],
+"vitest:test/config/fixtures/workspace-flags/vitest.config.js": [
+7
+],
+"vitest:test/coverage-test/fixtures/src/pre-transpiled/transpiled.js": [
+18
+]
+}

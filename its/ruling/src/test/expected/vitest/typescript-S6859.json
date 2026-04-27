@@ -1,0 +1,9 @@
+{
+"vitest:test/core/test/import-client.test.ts": [
+3
+],
+"vitest:test/core/test/unmock-import.test.ts": [
+18,
+25
+]
+}

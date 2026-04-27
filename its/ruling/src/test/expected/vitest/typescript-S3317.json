@@ -1,0 +1,41 @@
+{
+"vitest:examples/profiling/src/prime-number.ts": [
+0
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/codecs/png.ts": [
+0
+],
+"vitest:packages/browser/src/node/plugins/pluginContext.ts": [
+0
+],
+"vitest:packages/coverage-v8/src/browser.ts": [
+0
+],
+"vitest:packages/ui/node/reporter.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/init-forks.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/init-threads.ts": [
+0
+],
+"vitest:test/browser/src/blog-app/blog.tsx": [
+0
+],
+"vitest:test/cli/fixtures/custom-runner/test-runner.ts": [
+0
+],
+"vitest:test/cli/fixtures/reporters/implementations/custom-reporter.ts": [
+0
+],
+"vitest:test/core/src/mocks/log.ts": [
+0
+],
+"vitest:test/coverage-test/fixtures/custom-provider.ts": [
+0
+],
+"vitest:test/coverage-test/fixtures/src/cjs-dependency.ts": [
+0
+]
+}

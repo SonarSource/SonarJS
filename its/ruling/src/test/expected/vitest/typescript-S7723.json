@@ -1,0 +1,8 @@
+{
+"vitest:test/cli/fixtures/reporters/many-errors/basic.test.ts": [
+3
+],
+"vitest:test/config/fixtures/diff/basic.test.ts": [
+4
+]
+}

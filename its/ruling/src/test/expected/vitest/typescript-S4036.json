@@ -1,0 +1,10 @@
+{
+"vitest:test/cli/fixtures/cancel-run/blocked-thread.test.ts": [
+6
+],
+"vitest:test/core/src/exec.ts": [
+7,
+11,
+15
+]
+}

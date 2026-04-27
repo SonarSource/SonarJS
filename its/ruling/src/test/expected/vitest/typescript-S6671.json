@@ -1,0 +1,11 @@
+{
+"vitest:packages/vitest/src/node/pools/poolRunner.ts": [
+381
+],
+"vitest:test/browser/fixtures/worker/src/basic.test.ts": [
+7
+],
+"vitest:test/cli/fixtures/fails/unhandled-suite.test.ts": [
+6
+]
+}

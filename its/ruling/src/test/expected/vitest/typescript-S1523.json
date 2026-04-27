@@ -1,0 +1,25 @@
+{
+"vitest:packages/snapshot/src/port/utils.ts": [
+46,
+47
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
+72,
+333,
+334,
+476
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleMocker.ts": [
+26
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+44,
+112
+],
+"vitest:packages/vitest/src/runtime/workers/base.ts": [
+88
+],
+"vitest:packages/vitest/src/runtime/workers/vm.ts": [
+124
+]
+}

@@ -1,0 +1,64 @@
+{
+"vitest:packages/browser/src/node/projectParent.ts": [
+253
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+306
+],
+"vitest:packages/coverage-istanbul/src/provider.ts": [
+291
+],
+"vitest:packages/coverage-v8/src/provider.ts": [
+210
+],
+"vitest:packages/mocker/src/browser/interceptor-msw.ts": [
+118
+],
+"vitest:packages/vitest/src/integrations/vi.ts": [
+619
+],
+"vitest:packages/vitest/src/node/core.ts": [
+995,
+1166
+],
+"vitest:packages/vitest/src/node/environments/serverRunner.ts": [
+25
+],
+"vitest:packages/vitest/src/node/pools/rpc.ts": [
+44
+],
+"vitest:packages/vitest/src/node/test-run.ts": [
+206,
+210,
+239,
+243
+],
+"vitest:packages/vitest/src/runtime/external-executor.ts": [
+96,
+108
+],
+"vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
+160
+],
+"vitest:test/browser/specs/playwright-trace-mark.test.ts": [
+358
+],
+"vitest:test/cli/test/init.test.ts": [
+81,
+85
+],
+"vitest:test/cli/test/setup-files.test.ts": [
+22
+],
+"vitest:test/cli/test/watch/reporter-failed.test.ts": [
+54
+],
+"vitest:test/core/src/mocks/retry-dynamic-import.ts": [
+12,
+16
+],
+"vitest:test/core/test/jest-expect.test.ts": [
+306,
+307
+]
+}

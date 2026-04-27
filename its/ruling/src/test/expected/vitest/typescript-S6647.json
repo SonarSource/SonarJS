@@ -1,0 +1,9 @@
+{
+"vitest:test/core/test/jest-expect.test.ts": [
+567,
+573
+],
+"vitest:test/core/test/mocking/vi-fn.test-d.ts": [
+8
+]
+}

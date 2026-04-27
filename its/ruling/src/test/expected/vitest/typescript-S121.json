@@ -1,0 +1,22 @@
+{
+"vitest:test/browser/fixtures/mocking/src/calculator.ts": [
+5
+],
+"vitest:test/browser/fixtures/mocking/src/mocks_calculator.ts": [
+5
+],
+"vitest:test/cli/fixtures/config/bail/vitest.config.ts": [
+8,
+11
+],
+"vitest:test/snapshots/test/fixtures/domain-poll-inline/basic.test.ts": [
+35
+],
+"vitest:test/snapshots/test/fixtures/domain-poll/basic.test.ts": [
+29
+],
+"vitest:test/snapshots/test/fixtures/obsolete/src/test1.test.ts": [
+4,
+9
+]
+}

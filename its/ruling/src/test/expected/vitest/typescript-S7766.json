@@ -1,0 +1,8 @@
+{
+"vitest:packages/utils/src/diff/index.ts": [
+392
+],
+"vitest:packages/vitest/src/node/cache/results.ts": [
+82
+]
+}

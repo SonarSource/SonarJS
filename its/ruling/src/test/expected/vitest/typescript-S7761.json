@@ -1,0 +1,26 @@
+{
+"vitest:packages/browser/src/client/orchestrator.ts": [
+71,
+317
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+231
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
+433
+],
+"vitest:test/browser/fixtures/aria-snapshot/basic.test.ts": [
+40,
+51
+],
+"vitest:test/browser/test/iframe.test.ts": [
+6
+],
+"vitest:test/browser/test/snapshot.test.ts": [
+18
+],
+"vitest:test/browser/test/utils.test.ts": [
+65,
+86
+]
+}

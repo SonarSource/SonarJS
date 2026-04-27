@@ -1,0 +1,42 @@
+{
+"vitest:packages/browser-webdriverio/src/locators.ts": [
+302
+],
+"vitest:packages/browser/src/client/utils.ts": [
+54,
+58,
+62
+],
+"vitest:packages/mocker/src/node/parsers.ts": [
+73
+],
+"vitest:packages/mocker/src/registry.ts": [
+288,
+298
+],
+"vitest:packages/snapshot/src/port/utils.ts": [
+268
+],
+"vitest:packages/utils/src/helpers.ts": [
+211
+],
+"vitest:packages/vitest/src/integrations/chai/poll.ts": [
+199,
+203,
+207
+],
+"vitest:test/cli/fixtures/expect-soft/expects/soft.test.ts": [
+109,
+110,
+115,
+116
+],
+"vitest:test/cli/fixtures/plugin/vitest.config.ts": [
+4
+],
+"vitest:test/core/test/hoisted-async-simple.test.ts": [
+10,
+33,
+40
+]
+}

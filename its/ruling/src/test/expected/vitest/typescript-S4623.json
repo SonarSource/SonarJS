@@ -1,0 +1,16 @@
+{
+"vitest:test/core/test/parse-cjs-conditions.test.ts": [
+6,
+11,
+16,
+21,
+26,
+56,
+63,
+71,
+77
+],
+"vitest:test/core/test/utils.spec.ts": [
+117
+]
+}

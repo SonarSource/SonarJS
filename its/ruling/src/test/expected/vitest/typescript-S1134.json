@@ -1,0 +1,8 @@
+{
+"vitest:packages/expect/src/jest-asymmetric-matchers.ts": [
+64
+],
+"vitest:test/browser/fixtures/expect-dom/toBePartiallyChecked.test.ts": [
+4
+]
+}

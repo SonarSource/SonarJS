@@ -1,0 +1,185 @@
+{
+"vitest:test/browser/fixtures/expect-dom/toBeChecked.test.ts": [
+207
+],
+"vitest:test/browser/fixtures/expect-dom/toBeDisabled.test.ts": [
+291
+],
+"vitest:test/browser/fixtures/expect-dom/toBeEmptyDOMElement.test.ts": [
+63
+],
+"vitest:test/browser/fixtures/expect-dom/toBeInTheDocument.test.ts": [
+65
+],
+"vitest:test/browser/fixtures/expect-dom/toBeInViewport.test.ts": [
+51
+],
+"vitest:test/browser/fixtures/expect-dom/toBeInvalid.test.ts": [
+180
+],
+"vitest:test/browser/fixtures/expect-dom/toBePartiallyChecked.test.ts": [
+126
+],
+"vitest:test/browser/fixtures/expect-dom/toBeRequired.test.ts": [
+62
+],
+"vitest:test/browser/fixtures/expect-dom/toBeVisible.test.ts": [
+427
+],
+"vitest:test/browser/fixtures/expect-dom/toContainElement.test.ts": [
+69
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveAccessibleDescription.test.ts": [
+130
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveAccessibleErrorMessage.test.ts": [
+237
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveAttribute.test.ts": [
+64
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveClass.test.ts": [
+233
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveDisplayValue.test.ts": [
+166
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveFocus.test.ts": [
+23
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveFormValues.test.ts": [
+352
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveSelection.test.ts": [
+183
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveTextContent.test.ts": [
+109
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveValue.test.ts": [
+221
+],
+"vitest:test/browser/fixtures/mocking/import-actual-query.test.ts": [
+19
+],
+"vitest:test/browser/fixtures/mocking/src/nested_child.ts": [
+3
+],
+"vitest:test/cli/fixtures/browser-init/vitest.config.ts": [
+1
+],
+"vitest:test/cli/fixtures/browser-multiple/vitest.config.ts": [
+38
+],
+"vitest:test/cli/fixtures/cancel-run/blocked-test-cases.test.ts": [
+26
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.correct.ts": [
+15
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.custom-transformIndexHtml.ts": [
+41
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.default-transformIndexHtml.ts": [
+40
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.error-hook.ts": [
+23
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.non-existing.ts": [
+14
+],
+"vitest:test/cli/fixtures/config/watch-trigger-pattern/vitest.config.ts": [
+14
+],
+"vitest:test/cli/fixtures/console/vitest.config.ts": [
+7
+],
+"vitest:test/cli/fixtures/fails/no-assertions.test.ts": [
+3
+],
+"vitest:test/cli/fixtures/forks-channel/vitest.config.ts": [
+1
+],
+"vitest:test/cli/fixtures/inspect/math.test.ts": [
+5
+],
+"vitest:test/cli/fixtures/list/describe-error.test.ts": [
+9
+],
+"vitest:test/cli/fixtures/reporters/basic/basic.test.ts": [
+5
+],
+"vitest:test/cli/fixtures/reporters/metadata/vitest.config.ts": [
+1
+],
+"vitest:test/cli/fixtures/reporters/pass-and-skip-test-suites.test.ts": [
+15
+],
+"vitest:test/cli/fixtures/reporters/project-name/example.test.ts": [
+5
+],
+"vitest:test/cli/fixtures/workspace/config-import-analysis/vitest.config.ts": [
+11
+],
+"vitest:test/cli/fixtures/workspace/invalid-duplicate-configs/vitest.config.ts": [
+10
+],
+"vitest:test/cli/fixtures/workspace/invalid-duplicate-inline/vitest.config.ts": [
+18
+],
+"vitest:test/cli/fixtures/workspace/invalid-non-existing-config/vitest.config.ts": [
+9
+],
+"vitest:test/cli/fixtures/workspace/several-configs/vitest.config.ts": [
+9
+],
+"vitest:test/cli/fixtures/workspace/several-folders/apps/b/test.test.ts": [
+3
+],
+"vitest:test/cli/fixtures/workspace/several-folders/projects/a/test.test.ts": [
+3
+],
+"vitest:test/cli/fixtures/workspace/several-folders/vitest.config.ts": [
+10
+],
+"vitest:test/config/fixtures/browser-no-config/vitest.config.ts": [
+10
+],
+"vitest:test/config/fixtures/coverage-test/example.ts": [
+3
+],
+"vitest:test/config/fixtures/no-browser-workspace/vitest.config.ts": [
+13
+],
+"vitest:test/config/fixtures/pool/write-to-stdout-and-stderr.test.ts": [
+19
+],
+"vitest:test/config/fixtures/public-config/vitest.config.ts": [
+7
+],
+"vitest:test/config/fixtures/public-config/vitest.custom.config.ts": [
+7
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.query-param-transform.ts": [
+54
+],
+"vitest:test/coverage-test/fixtures/src/conditional/ssr.ts": [
+3
+],
+"vitest:test/coverage-test/fixtures/src/conditional/web.ts": [
+3
+],
+"vitest:test/coverage-test/fixtures/src/even.ts": [
+7
+],
+"vitest:test/coverage-test/fixtures/src/test-that-looks-like-source-file.ts": [
+6
+],
+"vitest:test/coverage-test/fixtures/test/ignore-hints-fixture.test.ts": [
+7
+],
+"vitest:test/snapshots/test/fixtures/custom-snapshot-environment/vitest.config.ts": [
+7
+]
+}

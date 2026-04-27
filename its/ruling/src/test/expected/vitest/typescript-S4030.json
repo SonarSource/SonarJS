@@ -1,0 +1,8 @@
+{
+"vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
+124
+],
+"vitest:test/cli/fixtures/benchmarking/basic/base.bench.ts": [
+5
+]
+}

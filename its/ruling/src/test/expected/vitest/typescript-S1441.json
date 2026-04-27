@@ -1,0 +1,1179 @@
+{
+"vitest:test/browser/fixtures/benchmark/vitest.config.ts": [
+14
+],
+"vitest:test/browser/fixtures/broken-iframe/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/browser-crash/vitest.config.ts": [
+33
+],
+"vitest:test/browser/fixtures/expect-dom/toMatchScreenshot.test.ts": [
+328
+],
+"vitest:test/browser/fixtures/failing/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/insecure-context/src/basic.test.ts": [
+1,
+3,
+5
+],
+"vitest:test/browser/fixtures/insecure-context/vitest.config.ts": [
+1,
+2,
+3,
+4,
+7
+],
+"vitest:test/browser/fixtures/inspect/math.test.ts": [
+1,
+3
+],
+"vitest:test/browser/fixtures/inspect/vitest.config.ts": [
+12,
+12
+],
+"vitest:test/browser/fixtures/inspect/vitest.config.with-workspace.ts": [
+1,
+12,
+18,
+18
+],
+"vitest:test/browser/fixtures/isolate-and-setup-file/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/locators-custom/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/locators-exact/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/locators/vitest.config.ts": [
+9
+],
+"vitest:test/browser/fixtures/mocking-out-of-root/project1/vitest.config.ts": [
+8
+],
+"vitest:test/browser/fixtures/mocking-watch/vitest.config.ts": [
+9
+],
+"vitest:test/browser/fixtures/mocking/mocked-factory.test.ts": [
+13,
+16,
+24,
+24,
+25,
+25
+],
+"vitest:test/browser/fixtures/mocking/service-worker.test.ts": [
+1,
+4,
+9,
+11,
+17,
+24,
+25,
+28,
+32,
+36
+],
+"vitest:test/browser/fixtures/mocking/src/mocks_factory_many.ts": [
+1,
+2
+],
+"vitest:test/browser/fixtures/mocking/src/mocks_factory_many_dep1.ts": [
+1
+],
+"vitest:test/browser/fixtures/mocking/src/mocks_factory_many_dep2.ts": [
+1
+],
+"vitest:test/browser/fixtures/mocking/vitest.config.ts": [
+10
+],
+"vitest:test/browser/fixtures/print-logs/test/logs.test.ts": [
+73,
+74
+],
+"vitest:test/browser/fixtures/print-logs/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/server-url/basic.test.ts": [
+1,
+3
+],
+"vitest:test/browser/fixtures/server-url/vitest.config.ts": [
+37
+],
+"vitest:test/browser/fixtures/setup-file/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/timeout-hooks/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/timeout/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/trace-mark/basic.test.ts": [
+1,
+2,
+5,
+8,
+9,
+10,
+10,
+13,
+14,
+15,
+18,
+19,
+20,
+20,
+23,
+24,
+25,
+26,
+26,
+29,
+30,
+31,
+34,
+35,
+36,
+41,
+44,
+45,
+48,
+49,
+50,
+51,
+51,
+54,
+55,
+56
+],
+"vitest:test/browser/fixtures/trace-mark/vitest.config.ts": [
+1,
+2,
+3,
+6
+],
+"vitest:test/browser/fixtures/trace-view/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/unhandled-non-error/basic.test.ts": [
+1,
+3,
+4,
+5,
+6,
+16,
+17
+],
+"vitest:test/browser/fixtures/unhandled-non-error/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/unhandled/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/user-event-hover/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/user-event/cleanup-retry.test.ts": [
+15,
+17,
+22,
+26
+],
+"vitest:test/browser/fixtures/user-event/cleanup1.test.ts": [
+15,
+42
+],
+"vitest:test/browser/fixtures/user-event/cleanup2.test.ts": [
+17
+],
+"vitest:test/browser/fixtures/user-event/keyboard.test.ts": [
+12,
+13,
+14,
+15,
+21,
+23,
+25,
+29,
+32,
+33,
+41,
+42,
+45,
+49,
+50,
+58,
+59,
+61,
+69
+],
+"vitest:test/browser/fixtures/user-event/vitest.config.ts": [
+6
+],
+"vitest:test/browser/fixtures/user-event/wheel.test.ts": [
+24,
+54,
+63,
+74
+],
+"vitest:test/browser/fixtures/viewport/basic.test.ts": [
+1,
+2,
+4,
+8,
+9,
+15,
+30,
+31,
+32,
+34,
+36,
+37,
+39,
+41,
+50,
+50,
+54,
+55
+],
+"vitest:test/browser/fixtures/viewport/vitest.config.ts": [
+20
+],
+"vitest:test/browser/fixtures/worker/src/basic.test.ts": [
+6,
+7,
+8
+],
+"vitest:test/browser/fixtures/worker/src/worker-dynamic-dep.ts": [
+1
+],
+"vitest:test/browser/fixtures/worker/src/worker.ts": [
+2
+],
+"vitest:test/browser/fixtures/worker/vitest.config.ts": [
+6
+],
+"vitest:test/cli/deps/error/transpiled-inline.ts": [
+4
+],
+"vitest:test/cli/deps/error/transpiled.ts": [
+4
+],
+"vitest:test/cli/deps/error/ts.ts": [
+4
+],
+"vitest:test/cli/fixtures/assertion-helper/basic.test.ts": [
+1,
+21,
+22,
+22,
+25,
+26,
+26,
+29,
+30,
+30,
+33,
+34,
+34,
+45,
+46,
+46,
+50,
+54,
+67,
+71,
+76,
+77,
+77,
+78,
+78,
+83,
+86,
+95,
+96,
+96,
+101,
+104,
+119,
+123,
+127,
+131
+],
+"vitest:test/cli/fixtures/bail-race/b.test.ts": [
+4
+],
+"vitest:test/cli/fixtures/benchmarking/basic/should-not-run.test-d.ts": [
+5
+],
+"vitest:test/cli/fixtures/benchmarking/sequential/f1.bench.ts": [
+1,
+2,
+4,
+5,
+9,
+10,
+11,
+15,
+16,
+21,
+22,
+23
+],
+"vitest:test/cli/fixtures/benchmarking/sequential/f2.bench.ts": [
+1,
+2,
+4,
+5,
+6
+],
+"vitest:test/cli/fixtures/benchmarking/sequential/helper.ts": [
+1,
+3,
+4,
+8,
+11
+],
+"vitest:test/cli/fixtures/benchmarking/sequential/setup.ts": [
+1,
+2
+],
+"vitest:test/cli/fixtures/benchmarking/sequential/vitest.config.ts": [
+1,
+8
+],
+"vitest:test/cli/fixtures/cancel-run/blocked-test-cases.test.ts": [
+21
+],
+"vitest:test/cli/fixtures/cancel-run/blocked-thread.test.ts": [
+6
+],
+"vitest:test/cli/fixtures/config-loader/browser/basic.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/config-loader/browser/vitest.config.ts": [
+1,
+2
+],
+"vitest:test/cli/fixtures/config-loader/node/basic.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/config-loader/node/vitest.config.ts": [
+1,
+2
+],
+"vitest:test/cli/fixtures/config-loader/vitest.config.ts": [
+1,
+2,
+7,
+8
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.custom-transformIndexHtml.ts": [
+17,
+18,
+18
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.default-transformIndexHtml.ts": [
+17,
+18,
+18
+],
+"vitest:test/cli/fixtures/config/browser-define/vitest.config.ts": [
+21
+],
+"vitest:test/cli/fixtures/create-vitest/basic.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/custom-runner/custom-runner.test.ts": [
+6,
+11,
+12,
+17,
+18
+],
+"vitest:test/cli/fixtures/custom-runner/utils.ts": [
+1
+],
+"vitest:test/cli/fixtures/fails/async-assertion.test.ts": [
+1,
+4,
+4,
+5,
+5
+],
+"vitest:test/cli/fixtures/fails/hooks-timeout-before-hook-cleanup-callback.test.ts": [
+5,
+12
+],
+"vitest:test/cli/fixtures/fails/snapshot-with-not.test.ts": [
+1
+],
+"vitest:test/cli/fixtures/fails/test-extend/fixture-error.test.ts": [
+60,
+66
+],
+"vitest:test/cli/fixtures/fails/test-timeout.test.ts": [
+20,
+29
+],
+"vitest:test/cli/fixtures/forks-channel/process-send.test.ts": [
+1,
+3,
+5,
+8,
+8
+],
+"vitest:test/cli/fixtures/inspect/math.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/list/vitest.config.ts": [
+6
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-1.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-10.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-11.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-12.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-2.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-3.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-4.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-5.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-6.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-7.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-8.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/no-unexpected-logging/fixture-9.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/optimize-deps/vitest.config.ts": [
+1,
+5,
+9
+],
+"vitest:test/cli/fixtures/path-filter/basic.test.ts": [
+1,
+4,
+7
+],
+"vitest:test/cli/fixtures/plugin/basic.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/plugin/vitest.config.ts": [
+6,
+14,
+16,
+19,
+22,
+25,
+29,
+30,
+32,
+35,
+38,
+41
+],
+"vitest:test/cli/fixtures/project/packages/project_1/base.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/project/packages/project_2/base.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/project/packages/space_1/base.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/project/vitest.config.ts": [
+1
+],
+"vitest:test/cli/fixtures/reporters/better-testsuite-name/space-1/test/base.test.ts": [
+1
+],
+"vitest:test/cli/fixtures/reporters/better-testsuite-name/space-2/test/base.test.ts": [
+1
+],
+"vitest:test/cli/fixtures/reporters/code-frame-line-limit.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/reporters/console-some-failing.test.ts": [
+1,
+3,
+5,
+6,
+9,
+10,
+14,
+16,
+19,
+20,
+23,
+24,
+29,
+31,
+34,
+35
+],
+"vitest:test/cli/fixtures/reporters/custom-error/basic.test.ts": [
+8
+],
+"vitest:test/cli/fixtures/reporters/default/print-index.test.ts": [
+1
+],
+"vitest:test/cli/fixtures/reporters/error-to-json.test.ts": [
+1,
+3,
+4
+],
+"vitest:test/cli/fixtures/reporters/error.test.ts": [
+1,
+24
+],
+"vitest:test/cli/fixtures/reporters/many-errors/basic.test.ts": [
+1
+],
+"vitest:test/cli/fixtures/reporters/merge-errors/basic.test.ts": [
+1,
+4,
+9,
+16,
+17,
+20,
+21,
+23
+],
+"vitest:test/cli/fixtures/reporters/merge-reports-module-graph/second.test.ts": [
+3
+],
+"vitest:test/cli/fixtures/reporters/metadata/metadata.test.ts": [
+4,
+9
+],
+"vitest:test/cli/fixtures/reporters/ok.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/reporters/pass-and-skip-test-suites.test.ts": [
+5,
+13
+],
+"vitest:test/cli/fixtures/reporters/project-name/example.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/reporters/project-name/vitest.config.ts": [
+1,
+7,
+8
+],
+"vitest:test/cli/fixtures/reporters/test-for-title.test.ts": [
+1,
+4,
+5,
+5,
+5,
+5,
+9,
+10,
+10,
+10,
+10,
+14,
+15,
+19,
+20,
+40,
+40,
+44,
+44,
+48,
+49,
+53,
+54,
+57,
+58,
+59,
+65,
+65,
+65,
+66,
+66,
+67,
+67,
+68,
+68,
+69,
+69
+],
+"vitest:test/cli/fixtures/reporters/verbose/example-1.test.ts": [
+1,
+3,
+5,
+7,
+8,
+10,
+12,
+13,
+15,
+17,
+18,
+19,
+19,
+25,
+26,
+28,
+29,
+31,
+32,
+32
+],
+"vitest:test/cli/fixtures/reporters/verbose/example-2.test.ts": [
+1,
+3,
+5,
+7,
+8
+],
+"vitest:test/cli/fixtures/rollup-error/not-found-export.test.ts": [
+1
+],
+"vitest:test/cli/fixtures/rollup-error/vitest.config.ts": [
+1
+],
+"vitest:test/cli/fixtures/setup-files-resolve/nested-bare/basic.test.ts": [
+1,
+3,
+4
+],
+"vitest:test/cli/fixtures/setup-files-resolve/nested-bare/setup.ts": [
+1
+],
+"vitest:test/cli/fixtures/setup-files-resolve/nested-bare/vitest.config.ts": [
+1,
+5
+],
+"vitest:test/cli/fixtures/setup-files-resolve/nested-no-ext/basic.test.ts": [
+1,
+3,
+4
+],
+"vitest:test/cli/fixtures/setup-files-resolve/nested-no-ext/setup.ts": [
+1
+],
+"vitest:test/cli/fixtures/setup-files-resolve/nested-no-ext/vitest.config.ts": [
+1,
+5
+],
+"vitest:test/cli/fixtures/setup-files-resolve/nested/basic.test.ts": [
+1,
+3,
+4
+],
+"vitest:test/cli/fixtures/setup-files-resolve/nested/setup.ts": [
+1
+],
+"vitest:test/cli/fixtures/setup-files-resolve/nested/vitest.config.ts": [
+1,
+5
+],
+"vitest:test/cli/fixtures/setup-files-resolve/setup.ts": [
+1
+],
+"vitest:test/cli/fixtures/ssr-runner-project/project/vitest.config.ts": [
+14
+],
+"vitest:test/cli/fixtures/ssr-runner-project/vitest.config.ts": [
+1,
+5
+],
+"vitest:test/cli/fixtures/ssr-runner/vitest.config.ts": [
+14
+],
+"vitest:test/cli/fixtures/stacktraces-custom-helper/basic.test.ts": [
+1,
+2,
+4,
+8,
+12
+],
+"vitest:test/cli/fixtures/stacktraces-custom-helper/helper.ts": [
+1
+],
+"vitest:test/cli/fixtures/standalone/basic.test.ts": [
+1,
+3
+],
+"vitest:test/cli/fixtures/workspace/config-import-analysis/vitest.config.ts": [
+2,
+7
+],
+"vitest:test/config/fixtures/browser-persistent-context/basic.test.ts": [
+1,
+3,
+7,
+7,
+10,
+12
+],
+"vitest:test/config/fixtures/browser-persistent-context/vitest.config.ts": [
+1,
+2,
+3,
+14,
+16
+],
+"vitest:test/config/fixtures/cache/basic.test.ts": [
+1
+],
+"vitest:test/config/fixtures/cache/second.test.ts": [
+1
+],
+"vitest:test/config/fixtures/conditions-projects/project-a/vitest.config.ts": [
+1,
+2,
+6,
+6,
+10,
+10
+],
+"vitest:test/config/fixtures/conditions-projects/project-b/vitest.config.ts": [
+1,
+5,
+5
+],
+"vitest:test/config/fixtures/conditions-projects/vite.config.ts": [
+1,
+5,
+5
+],
+"vitest:test/config/fixtures/conditions/vite.config.ts": [
+1
+],
+"vitest:test/config/fixtures/console-color/basic.test.ts": [
+3
+],
+"vitest:test/config/fixtures/console/basic.test.ts": [
+4
+],
+"vitest:test/config/fixtures/diff/basic.test.ts": [
+12,
+14,
+17
+],
+"vitest:test/config/fixtures/fixture-no-async/basic.test.ts": [
+1,
+13,
+16,
+19,
+22,
+25,
+29,
+30,
+31,
+34,
+35,
+36,
+39,
+40,
+41,
+42,
+45,
+46,
+47,
+48,
+51
+],
+"vitest:test/config/fixtures/fixture-no-async/vitest.config.ts": [
+1,
+6
+],
+"vitest:test/config/fixtures/hook-timeout/basic.test.ts": [
+1,
+52
+],
+"vitest:test/config/fixtures/pool/a.test.ts": [
+1,
+3
+],
+"vitest:test/config/fixtures/pool/b.test.ts": [
+1,
+3
+],
+"vitest:test/config/fixtures/pool/c.test.ts": [
+1,
+3
+],
+"vitest:test/config/fixtures/run-mode/example.test.ts": [
+1,
+3
+],
+"vitest:test/core/test/fixtures/timers.suite.ts": [
+133,
+133
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.conditional.ts": [
+11
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.configure-vitest-hook.ts": [
+6,
+9,
+9,
+12,
+13,
+15
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.decorators.ts": [
+1,
+2,
+3,
+5,
+18,
+20,
+31,
+32,
+34
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.multi-transforms.ts": [
+1,
+2,
+3,
+11,
+12,
+14,
+20,
+21,
+28,
+29,
+31,
+40,
+40,
+43,
+52,
+60,
+60,
+61,
+61,
+67,
+70,
+77
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.query-param-transform.ts": [
+26,
+28,
+30,
+31,
+31,
+33,
+35,
+36,
+36,
+40
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.ts": [
+1,
+7,
+7
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.virtual-files.ts": [
+30,
+49,
+50,
+51
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.workspace.ts": [
+1,
+2,
+6,
+12,
+13,
+19,
+20
+],
+"vitest:test/coverage-test/fixtures/custom-provider.ts": [
+120
+],
+"vitest:test/coverage-test/fixtures/setup.isolation.ts": [
+1,
+2
+],
+"vitest:test/coverage-test/fixtures/src/conditional/ssr.ts": [
+2
+],
+"vitest:test/coverage-test/fixtures/src/conditional/web.ts": [
+2
+],
+"vitest:test/coverage-test/fixtures/src/dynamic-files.ts": [
+33,
+62
+],
+"vitest:test/coverage-test/fixtures/src/ignore-hints.ts": [
+4,
+8,
+13,
+17
+],
+"vitest:test/coverage-test/fixtures/src/json-data-import.ts": [
+1,
+1,
+1
+],
+"vitest:test/coverage-test/fixtures/src/pre-bundle/bundle.ts": [
+1,
+2
+],
+"vitest:test/coverage-test/fixtures/src/pre-bundle/first.ts": [
+2,
+6
+],
+"vitest:test/coverage-test/fixtures/src/pre-bundle/second.ts": [
+2,
+6
+],
+"vitest:test/coverage-test/fixtures/src/query-param-transformed.ts": [
+2,
+7,
+13,
+18
+],
+"vitest:test/coverage-test/fixtures/src/test-that-looks-like-source-file.ts": [
+2,
+4
+],
+"vitest:test/coverage-test/fixtures/src/throws-error.ts": [
+5,
+29,
+41
+],
+"vitest:test/coverage-test/fixtures/src/worker-wrapper.ts": [
+2,
+3,
+11,
+24,
+28
+],
+"vitest:test/coverage-test/fixtures/src/worker.ts": [
+6,
+11,
+20,
+24
+],
+"vitest:test/coverage-test/fixtures/test/cjs-dependency.test.ts": [
+1,
+2,
+4
+],
+"vitest:test/coverage-test/fixtures/test/error-location.test.ts": [
+1,
+2,
+4
+],
+"vitest:test/coverage-test/fixtures/test/ignore-hints-fixture.test.ts": [
+1,
+4,
+5,
+6
+],
+"vitest:test/coverage-test/fixtures/test/import-attributes-fixture.test.ts": [
+1,
+2,
+3,
+5
+],
+"vitest:test/coverage-test/fixtures/test/isolation-1-fixture.test.ts": [
+1,
+2,
+4
+],
+"vitest:test/coverage-test/fixtures/test/isolation-2-fixture.test.ts": [
+1,
+2,
+4,
+8
+],
+"vitest:test/coverage-test/fixtures/test/multi-suite-fixture.test.ts": [
+1
+],
+"vitest:test/coverage-test/fixtures/test/query-param.test.ts": [
+7,
+16,
+18,
+25,
+26
+],
+"vitest:test/coverage-test/fixtures/test/sources-with-]-in-filenames.test.ts": [
+1,
+3,
+4
+],
+"vitest:test/coverage-test/fixtures/test/virtual-files-fixture.test.ts": [
+4
+],
+"vitest:test/coverage-test/fixtures/workspaces/project/project1/src/id.ts": [
+1,
+4
+],
+"vitest:test/coverage-test/fixtures/workspaces/project/project2/src/konst.ts": [
+1,
+4
+],
+"vitest:test/snapshots/test/fixtures/ci/basic.test.ts": [
+1,
+3,
+4
+],
+"vitest:test/snapshots/test/fixtures/compare-keys/vitest.config.ts": [
+1
+],
+"vitest:test/snapshots/test/fixtures/custom-serializers/custom-serializers.test.ts": [
+1,
+3
+],
+"vitest:test/snapshots/test/fixtures/custom-serializers/vitest.config.ts": [
+1
+],
+"vitest:test/snapshots/test/fixtures/domain-aria-inline/vitest.config.ts": [
+1,
+2,
+12
+],
+"vitest:test/snapshots/test/fixtures/domain-aria/vitest.config.ts": [
+1,
+2,
+12
+],
+"vitest:test/snapshots/test/fixtures/domain-error/basic.test.ts": [
+2
+],
+"vitest:test/snapshots/test/fixtures/domain-inline/basic.test.ts": [
+2
+],
+"vitest:test/snapshots/test/fixtures/domain-poll-inline/basic.test.ts": [
+2
+],
+"vitest:test/snapshots/test/fixtures/domain-poll/basic.test.ts": [
+2
+],
+"vitest:test/snapshots/test/fixtures/domain/basic-extend.ts": [
+1,
+2,
+3
+],
+"vitest:test/snapshots/test/fixtures/domain/basic.test.ts": [
+2
+],
+"vitest:test/snapshots/test/fixtures/file/basic.test.ts": [
+1
+],
+"vitest:test/snapshots/test/fixtures/indent/basic.test.ts": [
+1
+],
+"vitest:test/snapshots/test/fixtures/inline-multiple-calls/different.test.ts": [
+4,
+4
+],
+"vitest:test/snapshots/test/fixtures/inline-multiple-calls/each.test.ts": [
+1,
+3,
+3,
+3,
+7,
+7,
+7,
+8,
+13,
+13,
+13
+],
+"vitest:test/snapshots/test/fixtures/inline-multiple-calls/same.test.ts": [
+4,
+4
+],
+"vitest:test/snapshots/test/fixtures/jest-image-snapshot/basic.test.ts": [
+1,
+2,
+5,
+16,
+17
+],
+"vitest:test/snapshots/test/fixtures/obsolete/src/test1.test.ts": [
+5,
+10,
+14
+],
+"vitest:test/snapshots/test/fixtures/obsolete/src/test2.test.ts": [
+4,
+8
+],
+"vitest:test/snapshots/test/fixtures/properties/basic.test.ts": [
+1,
+3,
+4,
+7,
+8,
+15,
+16,
+20,
+21
+],
+"vitest:test/snapshots/test/fixtures/workspace/packages/space/test/basic.test.ts": [
+1,
+3
+],
+"vitest:test/ui/fixtures/console.test.ts": [
+3,
+4,
+24,
+31
+],
+"vitest:test/ui/fixtures/error.test.ts": [
+1,
+5
+],
+"vitest:test/ui/fixtures/task-name.test.ts": [
+1
+]
+}

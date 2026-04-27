@@ -1,0 +1,14 @@
+{
+"vitest:test/core/test/jest-expect.test.ts": [
+1301,
+1302,
+1305,
+1313
+],
+"vitest:test/core/test/mocking/factory.test.ts": [
+11
+],
+"vitest:test/core/test/mocking/vi-fn.test-d.ts": [
+112
+]
+}

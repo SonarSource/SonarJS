@@ -1,0 +1,32 @@
+{
+"vitest:packages/browser-playwright/src/playwright.ts": [
+621
+],
+"vitest:packages/browser-webdriverio/src/webdriverio.ts": [
+323
+],
+"vitest:packages/browser/src/node/utils.ts": [
+19
+],
+"vitest:packages/vitest/src/node/types/browser.ts": [
+54
+],
+"vitest:packages/vitest/src/public/runtime.ts": [
+27
+],
+"vitest:test/browser/fixtures/failing/src/error.ts": [
+1
+],
+"vitest:test/browser/fixtures/unhandled/throw-unhandled-error.test.ts": [
+3
+],
+"vitest:test/browser/fixtures/update-snapshot/basic-fixture.ts": [
+3
+],
+"vitest:test/cli/fixtures/global-setup-fail/globalSetup/error.ts": [
+1
+],
+"vitest:test/core/test/jest-mock.test.ts": [
+540
+]
+}

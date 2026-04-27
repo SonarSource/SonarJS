@@ -1,0 +1,12 @@
+{
+"vitest:packages/mocker/src/node/parsers.ts": [
+169
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+53,
+163
+],
+"vitest:packages/vitest/src/node/plugins/normalizeURL.ts": [
+28
+]
+}

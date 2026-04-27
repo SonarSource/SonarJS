@@ -1,0 +1,25 @@
+{
+"vitest:examples/profiling/src/prime-number.ts": [
+30
+],
+"vitest:packages/utils/src/nanoid.ts": [
+9
+],
+"vitest:packages/vitest/src/node/cache/fsModuleCache.ts": [
+346
+],
+"vitest:test/core/test/mock-internals.test.ts": [
+45,
+56
+],
+"vitest:test/core/test/snapshot-concurrent.test.ts": [
+12
+],
+"vitest:test/core/test/snapshot-inline.test.ts": [
+133
+],
+"vitest:test/core/test/snapshot.test.ts": [
+84,
+98
+]
+}

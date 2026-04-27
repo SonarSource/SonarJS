@@ -1,0 +1,13 @@
+{
+"vitest:test/snapshots/test/fixtures/custom-matcher/basic.test.ts": [
+74
+],
+"vitest:test/snapshots/test/fixtures/soft-inline/basic.test.ts": [
+9,
+10
+],
+"vitest:test/snapshots/test/fixtures/soft/basic.test.ts": [
+14,
+15
+]
+}

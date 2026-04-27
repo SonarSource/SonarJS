@@ -1,0 +1,467 @@
+{
+"vitest:eslint.config.js": [
+35,
+36,
+51,
+52,
+71,
+72,
+75,
+76,
+81,
+82,
+90,
+91,
+92,
+93,
+102,
+103,
+104,
+105,
+111,
+123,
+124,
+130,
+133,
+134,
+138,
+142,
+143,
+144
+],
+"vitest:examples/opentelemetry/otel-browser.js": [
+7,
+10,
+14
+],
+"vitest:examples/opentelemetry/otel.js": [
+5
+],
+"vitest:packages/browser-playwright/rollup.config.js": [
+16,
+23,
+28,
+29,
+37,
+41,
+47,
+48,
+55,
+59,
+60
+],
+"vitest:packages/browser-preview/rollup.config.js": [
+15,
+22,
+27,
+28,
+36,
+40,
+46,
+47,
+54,
+58,
+59
+],
+"vitest:packages/browser-webdriverio/rollup.config.js": [
+15,
+22,
+27,
+28,
+36,
+40,
+46,
+47,
+54,
+58,
+59
+],
+"vitest:packages/browser/context.js": [
+19
+],
+"vitest:packages/browser/rollup.config.js": [
+23,
+30,
+35,
+40,
+41,
+45,
+54,
+67,
+70,
+73,
+74,
+79,
+83,
+91,
+92,
+93,
+99,
+104,
+105,
+106,
+112,
+116,
+119,
+120,
+121,
+127,
+131,
+133,
+134,
+141,
+145,
+149,
+154,
+158,
+159
+],
+"vitest:packages/browser/scripts/build-client.js": [
+6
+],
+"vitest:packages/browser/src/client/public/error-catcher.js": [
+14,
+23,
+74
+],
+"vitest:packages/browser/src/client/public/esm-client-injector.js": [
+44
+],
+"vitest:packages/coverage-istanbul/rollup.config.js": [
+15,
+25,
+37,
+40,
+41,
+49,
+52,
+59,
+74,
+75
+],
+"vitest:packages/coverage-v8/rollup.config.js": [
+15,
+23,
+34,
+35,
+43,
+46,
+53,
+57,
+58
+],
+"vitest:packages/expect/rollup.config.js": [
+13,
+21,
+22,
+32,
+36,
+43,
+48,
+49
+],
+"vitest:packages/mocker/rollup.config.js": [
+20,
+27,
+36,
+40,
+42,
+52,
+56,
+63,
+68,
+69
+],
+"vitest:packages/pretty-format/rollup.config.js": [
+13,
+19,
+27,
+37,
+42,
+43,
+44,
+54,
+58,
+65,
+70,
+71
+],
+"vitest:packages/runner/rollup.config.js": [
+14,
+20,
+28,
+30,
+40,
+44,
+51,
+56,
+57
+],
+"vitest:packages/snapshot/rollup.config.js": [
+15,
+21,
+29,
+33,
+34,
+44,
+48,
+55,
+60,
+61
+],
+"vitest:packages/spy/rollup.config.js": [
+13,
+21,
+22,
+32,
+36,
+43,
+48,
+49
+],
+"vitest:packages/ui/browser.dev.js": [
+5,
+6,
+10
+],
+"vitest:packages/ui/rollup.config.js": [
+19,
+29,
+33,
+45,
+50,
+51,
+53,
+60,
+64,
+65
+],
+"vitest:packages/utils/rollup.config.js": [
+25,
+31,
+39,
+43,
+45,
+55,
+56,
+57,
+63,
+67,
+74,
+79,
+80
+],
+"vitest:packages/vitest/browser/context.js": [
+19
+],
+"vitest:packages/vitest/index.cjs": [
+4
+],
+"vitest:packages/vitest/rollup.config.js": [
+45,
+61,
+94,
+103,
+117,
+119,
+120,
+122,
+123,
+134,
+146,
+148,
+155,
+156,
+159,
+168,
+172,
+173,
+186,
+196,
+225,
+226,
+230,
+248,
+262,
+263,
+266
+],
+"vitest:packages/vitest/suppress-warnings.cjs": [
+10
+],
+"vitest:packages/web-worker/rollup.config.js": [
+14,
+20,
+31,
+32,
+40,
+43,
+50,
+54,
+55
+],
+"vitest:packages/ws-client/rollup.config.js": [
+19,
+29,
+35,
+40,
+41,
+42,
+49,
+53,
+54
+],
+"vitest:scripts/build-utils.js": [
+9,
+22,
+31,
+32,
+48,
+49,
+62,
+63,
+65
+],
+"vitest:test/browser/cjs-lib/index.js": [
+5,
+6
+],
+"vitest:test/browser/fixtures/expect-dom/vitest.config.js": [
+16,
+17,
+18,
+19,
+21,
+22
+],
+"vitest:test/browser/fixtures/mocking/service-worker.js": [
+14
+],
+"vitest:test/browser/fixtures/multiple-different-configs/vitest.config.js": [
+19,
+21,
+26,
+27,
+28,
+29,
+30,
+31
+],
+"vitest:test/browser/fixtures/playwright-connect/vitest.config.js": [
+11,
+12,
+13
+],
+"vitest:test/cli/fixtures/caching/dynamic-cache-key/vitest.config.bails.js": [
+14,
+15,
+16
+],
+"vitest:test/cli/fixtures/caching/dynamic-cache-key/vitest.config.fails.js": [
+9,
+10,
+11
+],
+"vitest:test/cli/fixtures/caching/dynamic-cache-key/vitest.config.passes.js": [
+14,
+15,
+16
+],
+"vitest:test/cli/fixtures/git-changed/workspace/vitest.config.mjs": [
+6,
+8
+],
+"vitest:test/cli/fixtures/otel-tests/otel.browser.sdk.js": [
+4,
+9,
+10
+],
+"vitest:test/cli/fixtures/otel-tests/otel.sdk.js": [
+4
+],
+"vitest:test/cli/fixtures/reporters/basic/vitest.config.override.js": [
+9,
+10,
+11,
+12
+],
+"vitest:test/cli/fixtures/workspace/api/vite.custom.config.js": [
+4,
+5,
+6
+],
+"vitest:test/cli/fixtures/workspace/invalid-duplicate-configs/vitest.config.one.js": [
+3
+],
+"vitest:test/cli/fixtures/workspace/invalid-duplicate-configs/vitest.config.two.js": [
+3
+],
+"vitest:test/config/deps/test-dep-conditions/indirect.js": [
+12
+],
+"vitest:test/config/fixtures/conditions-projects/project-a/basic.test.js": [
+21,
+34,
+35
+],
+"vitest:test/config/fixtures/conditions-projects/project-b/basic.test.js": [
+21,
+34,
+35
+],
+"vitest:test/config/fixtures/conditions/basic.test.js": [
+33,
+34
+],
+"vitest:test/config/fixtures/shard-4-files/vitest.config.js": [
+5,
+6
+],
+"vitest:test/config/fixtures/test/vitest.config.js": [
+4,
+5
+],
+"vitest:test/config/fixtures/workspace-flags/vitest.config.js": [
+5,
+6
+],
+"vitest:test/core/src/cjs/nested-default-cjs.js": [
+5,
+6
+],
+"vitest:test/core/src/wasm/wasm-bindgen/index_bg.js": [
+20,
+56,
+81,
+139
+],
+"vitest:test/core/test/mocked.test.js": [
+30,
+31
+],
+"vitest:test/core/test/strict.test.js": [
+21
+],
+"vitest:test/coverage-test/fixtures/test/mocking-in-js-file.test.js": [
+5
+],
+"vitest:test/node-runner/test/cli.test.js": [
+8,
+10
+],
+"vitest:test/snapshots/test/fixtures/custom-serializers/serializer-1.js": [
+8,
+13
+],
+"vitest:test/workspaces-browser/space_1/vitest.config.ts.timestamp-4345324-324424.mjs": [
+6,
+7
+],
+"vitest:test/workspaces/cwdPlugin.js": [
+11
+],
+"vitest:test/workspaces/space_1/vite.config.ts.timestamp-4345324-324424.mjs": [
+6,
+7
+]
+}

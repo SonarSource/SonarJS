@@ -1,0 +1,131 @@
+{
+"vitest:packages/browser/src/client/tester/expect/utils.ts": [
+134
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+248,
+248
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+410
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+464
+],
+"vitest:packages/pretty-format/src/index.ts": [
+135,
+172
+],
+"vitest:packages/runner/src/utils/tags.ts": [
+264
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+56,
+202
+],
+"vitest:packages/snapshot/src/port/utils.ts": [
+127
+],
+"vitest:packages/utils/src/constants.ts": [
+40
+],
+"vitest:packages/utils/src/source-map.ts": [
+45
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+543,
+547,
+548,
+549,
+550
+],
+"vitest:packages/vitest/src/node/plugins/cssEnabler.ts": [
+7,
+9
+],
+"vitest:packages/vitest/src/node/plugins/runnerTransform.ts": [
+173
+],
+"vitest:packages/vitest/src/node/pools/browser.ts": [
+183
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+76,
+77,
+78,
+80,
+82,
+84
+],
+"vitest:packages/vitest/src/node/reporters/tap.ts": [
+13,
+19
+],
+"vitest:packages/vitest/src/runtime/nodejsWorkerLoader.ts": [
+18
+],
+"vitest:packages/vitest/src/runtime/workers/native.ts": [
+17,
+142
+],
+"vitest:packages/vitest/src/utils/base.ts": [
+25
+],
+"vitest:test/browser/fixtures/expect-dom/setup.ts": [
+4,
+6,
+7
+],
+"vitest:test/browser/fixtures/expect-dom/utils.ts": [
+5
+],
+"vitest:test/browser/specs/aria-snapshot.test.ts": [
+99,
+100
+],
+"vitest:test/browser/test/commands.test.ts": [
+16,
+37
+],
+"vitest:test/cli/fixtures/network-imports/basic.test.ts": [
+10
+],
+"vitest:test/cli/test/config/watchTriggerPattern.test.ts": [
+24
+],
+"vitest:test/cli/test/expect-task.test.ts": [
+4
+],
+"vitest:test/cli/test/mocking.test.ts": [
+184,
+248
+],
+"vitest:test/core/test/basic.test.ts": [
+68,
+68,
+69,
+69
+],
+"vitest:test/core/test/cli-test.test.ts": [
+50
+],
+"vitest:test/core/test/file-path.test.ts": [
+47,
+54
+],
+"vitest:test/snapshots/test/domain-aria-inline.test.ts": [
+61
+],
+"vitest:test/snapshots/test/domain-aria.test.ts": [
+60
+],
+"vitest:test/snapshots/test/domain-inline.test.ts": [
+43
+],
+"vitest:test/snapshots/test/domain.test.ts": [
+45
+],
+"vitest:test/ui/test/ui.spec.ts": [
+116
+]
+}

@@ -1,0 +1,172 @@
+{
+"vitest:packages/browser/src/client/public/esm-client-injector.js": [
+3,
+7
+],
+"vitest:packages/ui/index.html": [
+19,
+20,
+20,
+21,
+21,
+22
+],
+"vitest:test/browser/fixtures/expect-dom/vitest.config.js": [
+6
+],
+"vitest:test/browser/fixtures/mocking-out-of-root/project1/basic.test.js": [
+2,
+3,
+4,
+6,
+10
+],
+"vitest:test/browser/fixtures/mocking-out-of-root/project1/imported-test.js": [
+1,
+2,
+4,
+4,
+6,
+7
+],
+"vitest:test/browser/fixtures/mocking-out-of-root/project1/lib.js": [
+1
+],
+"vitest:test/browser/fixtures/mocking-out-of-root/project2/index.js": [
+1
+],
+"vitest:test/browser/fixtures/mocking-out-of-root/project3/imported-test.js": [
+1,
+2,
+4,
+4,
+6,
+7
+],
+"vitest:test/browser/fixtures/mocking-out-of-root/project3/lib.js": [
+1
+],
+"vitest:test/browser/fixtures/mocking/service-worker.js": [
+1,
+5,
+9,
+10,
+12,
+14,
+14,
+24,
+25,
+26
+],
+"vitest:test/browser/fixtures/multiple-different-configs/vitest.config.js": [
+7
+],
+"vitest:test/browser/fixtures/playwright-connect/basic.test.js": [
+8
+],
+"vitest:test/browser/fixtures/playwright-connect/vitest.config.js": [
+6
+],
+"vitest:test/cli/deps/error/transpiled-inline.js": [
+1,
+5,
+7
+],
+"vitest:test/cli/deps/error/transpiled.js": [
+1,
+5,
+7
+],
+"vitest:test/cli/fixtures/git-changed/workspace/packages/packageA/vitest.config.mjs": [
+1
+],
+"vitest:test/cli/fixtures/git-changed/workspace/packages/packageB/vitest.config.mjs": [
+1
+],
+"vitest:test/cli/fixtures/git-changed/workspace/vitest.config.mjs": [
+6
+],
+"vitest:test/cli/fixtures/inspect/vitest.config.ts.timestamp-1713887058308-b154731a64b17.mjs": [
+2,
+5
+],
+"vitest:test/cli/fixtures/reporters/merge-reports-module-graph/vitest.config.js": [
+1
+],
+"vitest:test/cli/fixtures/stacktraces/error-in-package.test.js": [
+2,
+3,
+4,
+5
+],
+"vitest:test/cli/test/fixtures/reporters/html/all-passing-or-skipped/index.html": [
+19,
+20,
+20,
+21,
+21,
+22,
+25
+],
+"vitest:test/cli/test/fixtures/reporters/html/fail/index.html": [
+19,
+20,
+20,
+21,
+21,
+22,
+25
+],
+"vitest:test/config/fixtures/conditions-projects/project-a/basic.test.js": [
+1,
+2,
+3,
+4,
+5,
+6,
+7,
+8,
+10,
+11,
+13
+],
+"vitest:test/config/fixtures/conditions-projects/project-b/basic.test.js": [
+1,
+2,
+3,
+4,
+5,
+6,
+7,
+8,
+10,
+11,
+13
+],
+"vitest:test/config/fixtures/conditions/basic.test.js": [
+24,
+25,
+26,
+27,
+28,
+30,
+31,
+32,
+33
+],
+"vitest:test/core/src/wasm/wasm-bindgen-no-cyclic/index.js": [
+1,
+2,
+4
+],
+"vitest:test/core/src/wasm/wasm-bindgen-no-cyclic/index_bg.js": [
+35,
+38
+],
+"vitest:test/coverage-test/fixtures/src/pre-bundle/bundle.js": [
+2,
+6,
+16,
+20
+]
+}

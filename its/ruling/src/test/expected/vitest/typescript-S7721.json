@@ -1,0 +1,93 @@
+{
+"vitest:packages/browser-playwright/src/playwright.ts": [
+303
+],
+"vitest:packages/browser/src/client/tester/context.ts": [
+153
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+124
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+679
+],
+"vitest:packages/runner/src/suite.ts": [
+585
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveDisplayValue.test.ts": [
+30
+],
+"vitest:test/browser/fixtures/user-event/keyboard.test.ts": [
+78
+],
+"vitest:test/browser/specs/playwright-trace-mark.test.ts": [
+78
+],
+"vitest:test/cli/test/git-changed.test.ts": [
+13
+],
+"vitest:test/cli/test/init.test.ts": [
+15
+],
+"vitest:test/cli/test/setup-files.test.ts": [
+21
+],
+"vitest:test/cli/test/unhandled-rejections.test.ts": [
+35
+],
+"vitest:test/core/test/diff.test.ts": [
+328
+],
+"vitest:test/core/test/expect-circular.test.ts": [
+6,
+20,
+34,
+46
+],
+"vitest:test/core/test/expect.test.ts": [
+96,
+486,
+496
+],
+"vitest:test/core/test/handled-unhandled.test.ts": [
+43
+],
+"vitest:test/core/test/jest-expect.test.ts": [
+1891
+],
+"vitest:test/core/test/jest-mock.test.ts": [
+102,
+106,
+123,
+186
+],
+"vitest:test/core/test/mocking/vi-fn.test-d.ts": [
+54
+],
+"vitest:test/core/test/mocking/vi-fn.test.ts": [
+25
+],
+"vitest:test/core/test/mocking/vi-spyOn.test.ts": [
+46
+],
+"vitest:test/core/test/pretty-format.test.ts": [
+5,
+295,
+304,
+621,
+859,
+864
+],
+"vitest:test/core/test/utils.spec.ts": [
+259
+],
+"vitest:test/core/test/vi.spec.ts": [
+103
+],
+"vitest:test/coverage-test/fixtures/src/throws-error.ts": [
+28
+],
+"vitest:test/coverage-test/fixtures/src/worker-wrapper.ts": [
+10
+]
+}

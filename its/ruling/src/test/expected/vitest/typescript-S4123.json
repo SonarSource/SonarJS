@@ -1,0 +1,49 @@
+{
+"vitest:packages/browser/src/client/client.ts": [
+79
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+142
+],
+"vitest:packages/vitest/src/node/core.ts": [
+281,
+293
+],
+"vitest:packages/vitest/src/runtime/rpc.ts": [
+80
+],
+"vitest:packages/vitest/src/runtime/worker.ts": [
+64
+],
+"vitest:test/browser/fixtures/mocking/src/example.ts": [
+5
+],
+"vitest:test/core/src/mocks/example.ts": [
+5
+],
+"vitest:test/core/test/fixtures/timers.suite.ts": [
+732,
+736,
+740,
+744,
+768,
+772,
+802,
+811
+],
+"vitest:test/core/test/jest-expect.test.ts": [
+307,
+401,
+402,
+403,
+411,
+412,
+413
+],
+"vitest:test/core/test/jest-mock.test.ts": [
+483
+],
+"vitest:test/core/test/task-collector.test.ts": [
+37
+]
+}

@@ -1,0 +1,373 @@
+{
+"vitest:packages/ui/client/components/AnnotationAttachmentImage.vue": [
+4
+],
+"vitest:packages/ui/client/components/BrowserIframe.vue": [
+2,
+5,
+6,
+7
+],
+"vitest:packages/ui/client/components/ClosedDetailsHeader.vue": [
+2
+],
+"vitest:packages/ui/client/components/CodeMirrorContainer.vue": [
+5
+],
+"vitest:packages/ui/client/components/ConnectionOverlay.vue": [
+2
+],
+"vitest:packages/ui/client/components/Coverage.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/Dashboard.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/DetailsHeaderButtons.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/FailureScreenshot.vue": [
+4,
+5
+],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+3,
+4,
+8,
+9,
+16,
+17,
+18,
+19,
+20,
+21
+],
+"vitest:packages/ui/client/components/ModuleGraphImportBreakdown.vue": [
+2,
+5,
+6,
+7
+],
+"vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
+4,
+9,
+10,
+11
+],
+"vitest:packages/ui/client/components/Navigation.vue": [
+5,
+6,
+7,
+8,
+9
+],
+"vitest:packages/ui/client/components/ProgressBar.vue": [
+4,
+5
+],
+"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
+5
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.vue": [
+2,
+4
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabsPane.vue": [
+2,
+4
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImage.vue": [
+4
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.vue": [
+4
+],
+"vitest:packages/ui/client/components/dashboard/TestFilesEntry.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/dashboard/TestsEntry.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/dashboard/TestsFilesContainer.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/explorer/Explorer.vue": [
+8,
+9,
+10,
+11
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+3,
+6,
+7,
+8,
+9,
+10,
+11,
+12
+],
+"vitest:packages/ui/client/components/views/ViewConsoleOutput.vue": [
+4,
+5,
+6,
+7
+],
+"vitest:packages/ui/client/components/views/ViewEditor.vue": [
+8,
+9,
+10,
+11,
+12,
+13
+],
+"vitest:packages/ui/client/components/views/ViewModuleGraph.vue": [
+4,
+20,
+21
+],
+"vitest:packages/ui/client/components/views/ViewReport.vue": [
+4,
+5,
+6
+],
+"vitest:packages/ui/client/components/views/ViewReportError.vue": [
+4,
+5,
+6,
+7
+],
+"vitest:packages/ui/client/components/views/ViewTestReport.vue": [
+4,
+5,
+6,
+7,
+8
+],
+"vitest:packages/ui/client/global-setup.ts": [
+5,
+17
+],
+"vitest:packages/ui/client/pages/index.vue": [
+5,
+6,
+7,
+8,
+9,
+10,
+11,
+12,
+13,
+14
+],
+"vitest:packages/vitest/src/node/environments/serverRunner.ts": [
+5
+],
+"vitest:test/browser/test/dom.test.ts": [
+1
+],
+"vitest:test/cli/fixtures/network-imports/basic.test.ts": [
+4
+],
+"vitest:test/cli/fixtures/rollup-error/not-found-package.test.ts": [
+1
+],
+"vitest:test/cli/test/config/bail.test.ts": [
+2
+],
+"vitest:test/cli/test/config/browser-configs.test.ts": [
+1,
+5
+],
+"vitest:test/cli/test/config/sequence-shuffle.test.ts": [
+2
+],
+"vitest:test/cli/test/config/watchTriggerPattern.test.ts": [
+2
+],
+"vitest:test/cli/test/fs-cached-check.test.ts": [
+1
+],
+"vitest:test/cli/test/get-state.test.ts": [
+2
+],
+"vitest:test/cli/test/list-changed.test.ts": [
+1
+],
+"vitest:test/cli/test/no-module-runner.test.ts": [
+1,
+4
+],
+"vitest:test/cli/test/node-builtins.test.ts": [
+1
+],
+"vitest:test/cli/test/oxc.test.ts": [
+1
+],
+"vitest:test/cli/test/projects.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/agent.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/code-frame-line-limit.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/console.test.ts": [
+3
+],
+"vitest:test/cli/test/reporters/custom-diff-config.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/custom-reporter.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/default.test.ts": [
+2
+],
+"vitest:test/cli/test/reporters/dot.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/error-to-json.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/function-as-name.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/github-actions.test.ts": [
+5
+],
+"vitest:test/cli/test/reporters/html.test.ts": [
+3
+],
+"vitest:test/cli/test/reporters/import-durations.test.ts": [
+2
+],
+"vitest:test/cli/test/reporters/indicator-position.test.ts": [
+2
+],
+"vitest:test/cli/test/reporters/json.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/junit.test.ts": [
+3
+],
+"vitest:test/cli/test/reporters/logger.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/merge-reports.test.ts": [
+5
+],
+"vitest:test/cli/test/reporters/reporter-error.test.ts": [
+3
+],
+"vitest:test/cli/test/reporters/silent.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/tap.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/test-run.test.ts": [
+16
+],
+"vitest:test/cli/test/reporters/tree.test.ts": [
+1
+],
+"vitest:test/cli/test/reporters/verbose.test.ts": [
+2
+],
+"vitest:test/cli/test/retry-condition.test.ts": [
+1,
+2
+],
+"vitest:test/cli/test/rollup-error.test.ts": [
+1
+],
+"vitest:test/cli/test/static-collect.test.ts": [
+2
+],
+"vitest:test/cli/test/test-meta.test.ts": [
+2
+],
+"vitest:test/cli/test/test-tags.test.ts": [
+2
+],
+"vitest:test/cli/test/unhandled-rejections.test.ts": [
+1,
+2
+],
+"vitest:test/cli/test/vcs-provider.test.ts": [
+2
+],
+"vitest:test/cli/test/watch/change-project.test.ts": [
+1
+],
+"vitest:test/cli/test/watch/config-watching.test.ts": [
+1
+],
+"vitest:test/cli/test/watch/file-watching.test.ts": [
+2
+],
+"vitest:test/cli/test/watch/global-setup-rerun.test.ts": [
+1
+],
+"vitest:test/cli/test/watch/related.test.ts": [
+1
+],
+"vitest:test/cli/test/watch/reporter-failed.test.ts": [
+1
+],
+"vitest:test/cli/test/watch/stdin.test.ts": [
+2
+],
+"vitest:test/cli/test/watch/stdout.test.ts": [
+2
+],
+"vitest:test/cli/test/watch/workspaces.test.ts": [
+3
+],
+"vitest:test/cli/test/workers-option.test.ts": [
+1
+],
+"vitest:test/core/test/alias.test.ts": [
+2
+],
+"vitest:test/core/test/external-module-directory.test.ts": [
+2
+],
+"vitest:test/core/test/fixtures/virtual-module-indirect.ts": [
+2
+],
+"vitest:test/core/test/inlined.test.ts": [
+2
+],
+"vitest:test/core/test/mocked.test.ts": [
+3
+],
+"vitest:test/core/test/mocking/custom-module-directory.spec.ts": [
+2
+],
+"vitest:test/core/test/mocking/has-extension.spec.ts": [
+2
+],
+"vitest:test/core/test/mocking/virtual.test.ts": [
+2,
+7,
+9
+],
+"vitest:test/coverage-test/fixtures/src/virtual-files.ts": [
+2,
+5,
+8
+],
+"vitest:test/workspaces-browser/space_browser_inline/test/basic.test.ts": [
+2,
+5
+]
+}

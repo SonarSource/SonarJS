@@ -1,0 +1,274 @@
+{
+"vitest:test/browser/fixtures/aria-snapshot/basic.test.ts": [
+1
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveSelection.test.ts": [
+180
+],
+"vitest:test/browser/fixtures/expect-dom/toMatchScreenshot.test.ts": [
+290,
+294,
+437,
+511
+],
+"vitest:test/browser/fixtures/locators/query.test.ts": [
+34,
+66,
+97,
+110,
+127,
+133,
+142,
+156
+],
+"vitest:test/browser/fixtures/locators/vitest.config.ts": [
+22
+],
+"vitest:test/browser/fixtures/mocking-watch/1_mocked-on-watch-change.test.ts": [
+6
+],
+"vitest:test/browser/fixtures/mocking/import-mock.test.ts": [
+48,
+56
+],
+"vitest:test/browser/fixtures/mocking/mocked-factory.test.ts": [
+13,
+16
+],
+"vitest:test/browser/fixtures/mocking/service-worker.test.ts": [
+11
+],
+"vitest:test/browser/fixtures/server-url/vitest.config.ts": [
+37
+],
+"vitest:test/browser/fixtures/update-snapshot/vitest.config.ts": [
+21
+],
+"vitest:test/browser/fixtures/user-event/cleanup-retry.test.ts": [
+29
+],
+"vitest:test/browser/fixtures/user-event/keyboard.test.ts": [
+29,
+45
+],
+"vitest:test/browser/fixtures/user-event/wheel.test.ts": [
+6,
+12,
+37
+],
+"vitest:test/browser/fixtures/viewport/vitest.config.ts": [
+15
+],
+"vitest:test/cli/fixtures/benchmarking/basic/base.bench.ts": [
+41
+],
+"vitest:test/cli/fixtures/benchmarking/sequential/vitest.config.ts": [
+8,
+9
+],
+"vitest:test/cli/fixtures/browser-multiple/vitest.config.ts": [
+19,
+20,
+33,
+34
+],
+"vitest:test/cli/fixtures/config-loader/browser/vitest.config.ts": [
+14,
+15,
+16,
+17
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.correct.ts": [
+12
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.custom-transformIndexHtml.ts": [
+14,
+20
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.default-transformIndexHtml.ts": [
+14,
+20,
+26
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.error-hook.ts": [
+20
+],
+"vitest:test/cli/fixtures/config/browser-custom-html/vitest.config.non-existing.ts": [
+11
+],
+"vitest:test/cli/fixtures/config/watch-trigger-pattern/vitest.config.ts": [
+11,
+12,
+13
+],
+"vitest:test/cli/fixtures/console/vitest.config.ts": [
+6
+],
+"vitest:test/cli/fixtures/custom-pool/pool/custom-pool.ts": [
+82
+],
+"vitest:test/cli/fixtures/custom-pool/vitest.config.ts": [
+26
+],
+"vitest:test/cli/fixtures/fails/vite.config.ts": [
+9
+],
+"vitest:test/cli/fixtures/list/vitest.config.ts": [
+14
+],
+"vitest:test/cli/fixtures/no-module-runner/vitest.config.ts": [
+16
+],
+"vitest:test/cli/fixtures/otel-tests/vitest.config.ts": [
+9
+],
+"vitest:test/cli/fixtures/plugin/vitest.config.ts": [
+43,
+44
+],
+"vitest:test/cli/fixtures/project/vitest.config.ts": [
+6,
+7,
+8
+],
+"vitest:test/cli/fixtures/reporters/duration/vitest.config.ts": [
+5,
+6
+],
+"vitest:test/cli/fixtures/retry-config/vitest.config.ts": [
+8,
+9,
+10
+],
+"vitest:test/cli/fixtures/workspace/config-import-analysis/vitest.config.ts": [
+10
+],
+"vitest:test/cli/fixtures/workspace/invalid-duplicate-configs/vitest.config.ts": [
+9
+],
+"vitest:test/cli/fixtures/workspace/invalid-duplicate-inline/vitest.config.ts": [
+16,
+17
+],
+"vitest:test/cli/fixtures/workspace/invalid-non-existing-config/vitest.config.ts": [
+6
+],
+"vitest:test/cli/fixtures/workspace/negated/vitest.config.ts": [
+7
+],
+"vitest:test/cli/fixtures/workspace/several-configs/test/vitest.config.one.ts": [
+7
+],
+"vitest:test/cli/fixtures/workspace/several-configs/test/vitest.config.two.ts": [
+7
+],
+"vitest:test/cli/fixtures/workspace/several-folders/vitest.config.ts": [
+7
+],
+"vitest:test/config/fixtures/conditions/vite.config.ts": [
+14
+],
+"vitest:test/config/fixtures/diff/basic.test.ts": [
+15,
+18
+],
+"vitest:test/config/fixtures/diff/vite.config.ts": [
+8,
+9
+],
+"vitest:test/config/fixtures/fixture-no-async/basic.test.ts": [
+26
+],
+"vitest:test/config/fixtures/mixed-environments/vitest.config.ts": [
+19
+],
+"vitest:test/config/fixtures/public-config/vitest.config.ts": [
+5,
+6
+],
+"vitest:test/config/fixtures/public-config/vitest.custom.config.ts": [
+5,
+6
+],
+"vitest:test/config/fixtures/snapshot-path-context/vitest.config.ts": [
+11,
+20,
+27,
+28
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.conditional.ts": [
+17,
+19,
+20
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.decorators.ts": [
+12
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.multi-transform.ts": [
+12,
+13
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.multi-transforms.ts": [
+33,
+34,
+48,
+57
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.query-param-transform.ts": [
+12,
+13
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.thresholds-auto-update.ts": [
+20,
+21,
+22
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.ts": [
+7,
+8
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.virtual-files.ts": [
+12,
+13
+],
+"vitest:test/coverage-test/fixtures/configs/vitest.config.workspace.ts": [
+28,
+29,
+30,
+31
+],
+"vitest:test/snapshots/test/fixtures/compare-keys/vitest.config.ts": [
+8
+],
+"vitest:test/snapshots/test/fixtures/custom-matcher/basic.test.ts": [
+62
+],
+"vitest:test/snapshots/test/fixtures/custom-serializers/custom-serializers.test.ts": [
+6,
+16
+],
+"vitest:test/snapshots/test/fixtures/custom-serializers/vitest.config.ts": [
+5,
+6
+],
+"vitest:test/snapshots/test/fixtures/custom-snapshot-environment/vitest.config.ts": [
+5,
+6
+],
+"vitest:test/snapshots/test/fixtures/domain-aria-inline/vitest.config.ts": [
+13,
+14,
+15,
+16
+],
+"vitest:test/snapshots/test/fixtures/domain-aria/vitest.config.ts": [
+13,
+14,
+15,
+16
+],
+"vitest:test/ui/fixtures/annotated.test.ts": [
+14,
+20
+]
+}

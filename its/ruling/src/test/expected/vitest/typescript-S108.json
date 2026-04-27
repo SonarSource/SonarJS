@@ -1,0 +1,10 @@
+{
+"vitest:test/cli/fixtures/browser-init/vitest.config.ts": [
+1
+],
+"vitest:test/cli/fixtures/fails/test-timeout.test.ts": [
+10,
+17,
+26
+]
+}

@@ -1,0 +1,8 @@
+{
+"vitest:packages/vitest/src/integrations/mock/date.ts": [
+78
+],
+"vitest:test/core/test/utils.spec.ts": [
+174
+]
+}

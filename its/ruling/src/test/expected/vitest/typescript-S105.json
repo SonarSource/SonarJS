@@ -1,0 +1,17 @@
+{
+"vitest:test/browser/fixtures/expect-dom/setup.ts": [
+13
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveSelection.test.ts": [
+129
+],
+"vitest:test/browser/fixtures/unhandled-non-error/basic.test.ts": [
+4
+],
+"vitest:test/cli/fixtures/custom-runner/custom-runner.test.ts": [
+7
+],
+"vitest:test/cli/fixtures/custom-runner/test-runner.ts": [
+6
+]
+}

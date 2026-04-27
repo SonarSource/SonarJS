@@ -1,0 +1,35 @@
+{
+"vitest:packages/browser/src/client/tester/expect/toBeInvalid.ts": [
+20
+],
+"vitest:packages/browser/src/client/tester/expect/toBeRequired.ts": [
+21,
+23,
+25,
+34
+],
+"vitest:packages/browser/src/client/tester/expect/utils.ts": [
+270
+],
+"vitest:packages/vitest/src/integrations/chai/poll.ts": [
+9
+],
+"vitest:packages/vitest/src/integrations/vi.ts": [
+496
+],
+"vitest:packages/vitest/src/node/reporters/github-actions.ts": [
+196
+],
+"vitest:packages/vitest/src/node/stdin.ts": [
+25
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
+391
+],
+"vitest:packages/vitest/src/runtime/worker.ts": [
+84
+],
+"vitest:packages/vitest/src/utils/modules.ts": [
+12
+]
+}

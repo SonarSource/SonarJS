@@ -1,0 +1,29 @@
+{
+"vitest:packages/browser/src/node/commands/screenshotMatcher/utils.ts": [
+2
+],
+"vitest:packages/expect/src/types.ts": [
+934
+],
+"vitest:packages/vitest/src/node/types/vite.ts": [
+22
+],
+"vitest:test/browser/setup.unit.ts": [
+69
+],
+"vitest:test/browser/src/dynamic.ts": [
+3
+],
+"vitest:test/browser/test/cdp.test-d.ts": [
+4
+],
+"vitest:test/cli/fixtures/reporters/import-durations-25ms-throws.ts": [
+5
+],
+"vitest:test/cli/fixtures/reporters/import-durations-25ms.ts": [
+3
+],
+"vitest:test/coverage-test/setup.native.ts": [
+15
+]
+}

@@ -1,0 +1,38 @@
+{
+"vitest:packages/browser/src/client/public/error-catcher.js": [
+77
+],
+"vitest:packages/ui/rollup.config.js": [
+35
+],
+"vitest:packages/vitest/rollup.config.js": [
+137,
+280
+],
+"vitest:test/browser/fixtures/mocking/service-worker.js": [
+1,
+5,
+9,
+24
+],
+"vitest:test/cli/fixtures/caching/dynamic-cache-key/vitest.config.bails.js": [
+11
+],
+"vitest:test/cli/fixtures/caching/dynamic-cache-key/vitest.config.passes.js": [
+11
+],
+"vitest:test/core/src/cjs/prototype-cjs.js": [
+1,
+5
+],
+"vitest:test/core/test/hooks.test.js": [
+32
+],
+"vitest:test/node-runner/test/cli.test.js": [
+4
+],
+"vitest:test/workspaces/space_3/fake-vitest/config.js": [
+1,
+1
+]
+}

@@ -1,0 +1,156 @@
+{
+"vitest:packages/browser/src/client/public/error-catcher.js": [
+3,
+27,
+61,
+72
+],
+"vitest:packages/expect/rollup.config.js": [
+52
+],
+"vitest:packages/mocker/rollup.config.js": [
+72
+],
+"vitest:packages/pretty-format/rollup.config.js": [
+74
+],
+"vitest:packages/runner/rollup.config.js": [
+60
+],
+"vitest:packages/snapshot/rollup.config.js": [
+64
+],
+"vitest:packages/spy/rollup.config.js": [
+52
+],
+"vitest:packages/ui/rollup.config.js": [
+69
+],
+"vitest:packages/utils/rollup.config.js": [
+83
+],
+"vitest:packages/vitest/rollup.config.js": [
+176,
+270,
+277
+],
+"vitest:scripts/build-utils.js": [
+7
+],
+"vitest:test/browser/bundled-lib/src/a.js": [
+1
+],
+"vitest:test/browser/bundled-lib/src/b.js": [
+1
+],
+"vitest:test/browser/bundled-lib/src/index.js": [
+4
+],
+"vitest:test/browser/cjs-lib/lib.mjs": [
+1
+],
+"vitest:test/browser/deps/test-dep-error/index.js": [
+1
+],
+"vitest:test/browser/fixtures/multiple-different-configs/customTester.html": [
+10
+],
+"vitest:test/cli/deps/error/index.js": [
+3,
+9
+],
+"vitest:test/cli/deps/error/transpiled-inline.js": [
+2,
+6
+],
+"vitest:test/cli/deps/error/transpiled.js": [
+2,
+6
+],
+"vitest:test/cli/fixtures/git-changed/workspace/packages/packageA/index.js": [
+1
+],
+"vitest:test/cli/fixtures/git-changed/workspace/packages/packageB/index.js": [
+1
+],
+"vitest:test/cli/fixtures/global-setup/globalSetup/default-export.js": [
+1
+],
+"vitest:test/cli/fixtures/global-setup/globalSetup/named-exports.js": [
+1
+],
+"vitest:test/cli/fixtures/inspect/vitest.config.ts.timestamp-1713887058308-b154731a64b17.mjs": [
+3
+],
+"vitest:test/cli/fixtures/mocker/automock/test.js": [
+1
+],
+"vitest:test/cli/fixtures/mocker/autospy/test.js": [
+1
+],
+"vitest:test/cli/fixtures/mocker/redirect/__mocks__/test.js": [
+1
+],
+"vitest:test/cli/fixtures/mocker/redirect/test.js": [
+1
+],
+"vitest:test/cli/fixtures/no-module-runner/src/mock-js.js": [
+1
+],
+"vitest:test/cli/fixtures/restricted-fs/src/math.js": [
+1
+],
+"vitest:test/cli/fixtures/stacktraces/error-with-stack.test.js": [
+7,
+11,
+15,
+19
+],
+"vitest:test/cli/fixtures/stacktraces/foo.js": [
+1
+],
+"vitest:test/core/src/cjs/default-function.js": [
+3
+],
+"vitest:test/core/src/mocks/main.js": [
+4,
+8
+],
+"vitest:test/core/src/mocks/squared.js": [
+1
+],
+"vitest:test/core/src/wasm/wasm-bindgen-no-cyclic/index_bg.js": [
+2,
+15,
+22,
+27,
+62,
+104,
+110,
+114
+],
+"vitest:test/core/src/wasm/wasm-bindgen/index_bg.js": [
+27,
+35,
+39,
+85,
+135,
+145,
+151
+],
+"vitest:test/coverage-test/fixtures/src/pre-bundle/bundle.js": [
+1,
+5,
+9,
+15,
+19,
+23
+],
+"vitest:test/coverage-test/fixtures/src/pre-transpiled/transpiled.js": [
+1,
+17
+],
+"vitest:test/workspaces/cwdPlugin.js": [
+3
+]
+}

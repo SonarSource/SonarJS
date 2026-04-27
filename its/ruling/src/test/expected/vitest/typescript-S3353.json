@@ -1,0 +1,12 @@
+{
+"vitest:test/browser/fixtures/user-event/cleanup-retry.test.ts": [
+5
+],
+"vitest:test/browser/fixtures/user-event/cleanup1.test.ts": [
+5,
+32
+],
+"vitest:test/browser/fixtures/user-event/cleanup2.test.ts": [
+7
+]
+}

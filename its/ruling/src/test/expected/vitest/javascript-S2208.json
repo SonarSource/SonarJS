@@ -1,0 +1,29 @@
+{
+"vitest:test/cli/fixtures/ssr-runner-project/project/test-runner.js": [
+1
+],
+"vitest:test/cli/fixtures/ssr-runner/test-runner.js": [
+1
+],
+"vitest:test/config/deps/test-dep-virtual/index.js": [
+1
+],
+"vitest:test/core/src/esm/internal-esm.mjs": [
+1
+],
+"vitest:test/core/src/wasm/wasm-bindgen-no-cyclic/index.js": [
+1,
+4
+],
+"vitest:test/core/src/wasm/wasm-bindgen/index.js": [
+12,
+13
+],
+"vitest:test/core/src/wasm/wasm-bindgen/index_bg.js": [
+11
+],
+"vitest:test/core/test/fixtures/named-overwrite-all/main.js": [
+2,
+4
+]
+}

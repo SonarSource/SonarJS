@@ -1,0 +1,610 @@
+{
+"vitest:packages/browser-webdriverio/src/webdriverio.ts": [
+185,
+187
+],
+"vitest:packages/browser/src/client/tester/tester.ts": [
+72
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/index.ts": [
+154,
+167
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+97
+],
+"vitest:packages/coverage-v8/src/provider.ts": [
+277
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+102
+],
+"vitest:packages/runner/src/run.ts": [
+589,
+864
+],
+"vitest:packages/snapshot/src/client.ts": [
+140
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.spec.ts": [
+36,
+37
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+105
+],
+"vitest:packages/ui/client/components/views/ViewReport.spec.ts": [
+39,
+41,
+47
+],
+"vitest:packages/vitest/src/create/browser/examples.ts": [
+6
+],
+"vitest:packages/vitest/src/node/cli/cli-config.ts": [
+285,
+620,
+624
+],
+"vitest:packages/vitest/src/node/core.ts": [
+659
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+704,
+838
+],
+"vitest:packages/vitest/src/node/environments/fetchModule.ts": [
+42
+],
+"vitest:packages/vitest/src/node/plugins/runnerTransform.ts": [
+53
+],
+"vitest:test/browser/fixtures/expect-dom/toBeChecked.test.ts": [
+32
+],
+"vitest:test/browser/fixtures/expect-dom/toBeDisabled.test.ts": [
+43,
+67,
+131,
+136
+],
+"vitest:test/browser/fixtures/expect-dom/toBeInvalid.test.ts": [
+31,
+32,
+33,
+34
+],
+"vitest:test/browser/fixtures/expect-dom/toBePartiallyChecked.test.ts": [
+15
+],
+"vitest:test/browser/fixtures/expect-dom/toBeVisible.test.ts": [
+62,
+70,
+74,
+77,
+222,
+228,
+233,
+236,
+238,
+338,
+348
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveAccessibleDescription.test.ts": [
+48
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveAttribute.test.ts": [
+17
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveClass.test.ts": [
+24,
+25,
+39,
+42,
+180
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveDisplayValue.test.ts": [
+107
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveFormValues.test.ts": [
+15
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveRole.test.ts": [
+12
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveStyle.test.ts": [
+127
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveTextContent.test.ts": [
+8,
+53
+],
+"vitest:test/browser/fixtures/expect-dom/toMatchScreenshot.test.ts": [
+40,
+49,
+50,
+51,
+98
+],
+"vitest:test/browser/fixtures/locators-custom/basic.test.tsx": [
+41,
+72
+],
+"vitest:test/browser/fixtures/locators-exact/basic.test.ts": [
+10
+],
+"vitest:test/browser/fixtures/locators/query.test.ts": [
+23
+],
+"vitest:test/browser/fixtures/timeout-hooks/hooks-timeout.test.ts": [
+15
+],
+"vitest:test/browser/fixtures/timeout/timeout.test.ts": [
+9
+],
+"vitest:test/browser/fixtures/trace-mark/basic.test.ts": [
+9
+],
+"vitest:test/browser/fixtures/user-event/keyboard.test.ts": [
+21,
+41,
+96,
+97,
+99,
+100
+],
+"vitest:test/browser/specs/aria-snapshot.test.ts": [
+36
+],
+"vitest:test/browser/specs/errors.test.ts": [
+9
+],
+"vitest:test/browser/specs/failure-screenshot.test.ts": [
+53
+],
+"vitest:test/browser/specs/playwright-trace.test.ts": [
+7,
+16
+],
+"vitest:test/browser/specs/to-match-screenshot.test.ts": [
+81,
+83
+],
+"vitest:test/browser/test/iframe.test.ts": [
+13
+],
+"vitest:test/browser/test/userEvent.test.ts": [
+13,
+45,
+76,
+465,
+488,
+939
+],
+"vitest:test/cli/fixtures/reporters/console-some-failing.test.ts": [
+6
+],
+"vitest:test/cli/test/caching.test.ts": [
+17,
+59
+],
+"vitest:test/cli/test/config/browser-configs.test.ts": [
+103,
+217,
+255,
+255,
+255,
+303,
+510,
+847
+],
+"vitest:test/cli/test/configureVitest.test.ts": [
+20,
+197
+],
+"vitest:test/cli/test/detect-async-leaks.test.ts": [
+89
+],
+"vitest:test/cli/test/git-changed.test.ts": [
+16
+],
+"vitest:test/cli/test/list-changed.test.ts": [
+8,
+11,
+12,
+13
+],
+"vitest:test/cli/test/list.test.ts": [
+14,
+22,
+65,
+83,
+139,
+158
+],
+"vitest:test/cli/test/location-filters.test.ts": [
+134
+],
+"vitest:test/cli/test/no-module-runner.test.ts": [
+111,
+111,
+286,
+351
+],
+"vitest:test/cli/test/public-mocker.test.ts": [
+22,
+58
+],
+"vitest:test/cli/test/reported-tasks.test.ts": [
+77,
+107,
+143,
+169
+],
+"vitest:test/cli/test/reporters/configuration-options.test-d.ts": [
+18
+],
+"vitest:test/cli/test/reporters/custom-reporter.test.ts": [
+12,
+15
+],
+"vitest:test/cli/test/reporters/default.test.ts": [
+11,
+117
+],
+"vitest:test/cli/test/reporters/dot.test.ts": [
+7
+],
+"vitest:test/cli/test/reporters/github-actions.test.ts": [
+13,
+13,
+84,
+89
+],
+"vitest:test/cli/test/reporters/import-durations.test.ts": [
+12,
+35
+],
+"vitest:test/cli/test/reporters/merge-reports.test.ts": [
+23
+],
+"vitest:test/cli/test/reporters/reporter-error.test.ts": [
+21
+],
+"vitest:test/cli/test/reporters/silent.test.ts": [
+8
+],
+"vitest:test/cli/test/reporters/tree.test.ts": [
+9
+],
+"vitest:test/cli/test/reporters/verbose.test.ts": [
+82
+],
+"vitest:test/cli/test/scoped-fixtures.test.ts": [
+33,
+112,
+144,
+146,
+535,
+628,
+629,
+632,
+633,
+639,
+789,
+933,
+938,
+1426,
+1477,
+1953,
+2154,
+2687,
+2697,
+2825,
+2826,
+2830,
+2880,
+2881,
+2902
+],
+"vitest:test/cli/test/setup-files.test.ts": [
+8
+],
+"vitest:test/cli/test/signal.test.ts": [
+19
+],
+"vitest:test/cli/test/stacktraces.test.ts": [
+11
+],
+"vitest:test/cli/test/test-tags.test.ts": [
+7,
+229,
+238,
+249,
+494,
+499,
+856,
+892,
+1600
+],
+"vitest:test/cli/test/watch/config-watching.test.ts": [
+30,
+39
+],
+"vitest:test/cli/test/watch/file-watching.test.ts": [
+40,
+62
+],
+"vitest:test/cli/test/watch/reporter-failed.test.ts": [
+12
+],
+"vitest:test/cli/test/watch/stdin.test.ts": [
+27,
+32
+],
+"vitest:test/cli/test/watch/workspaces.test.ts": [
+59,
+99
+],
+"vitest:test/config/fixtures/fixture-no-async/basic.test.ts": [
+31
+],
+"vitest:test/config/test/cache.test.ts": [
+15,
+65
+],
+"vitest:test/config/test/chai-config.test.ts": [
+7
+],
+"vitest:test/config/test/conditions-cli.test.ts": [
+7,
+74
+],
+"vitest:test/config/test/console-color.test.ts": [
+6,
+15
+],
+"vitest:test/config/test/failures.test.ts": [
+20,
+77,
+416,
+418
+],
+"vitest:test/config/test/override.test.ts": [
+127,
+157
+],
+"vitest:test/config/test/pool.test.ts": [
+16,
+67
+],
+"vitest:test/config/test/public.test.ts": [
+48,
+51,
+89
+],
+"vitest:test/config/test/shard.test.ts": [
+71
+],
+"vitest:test/config/test/testname-pattern.test.ts": [
+11,
+13,
+14,
+56
+],
+"vitest:test/config/test/vite-ssr-resolve.test.ts": [
+14,
+184
+],
+"vitest:test/core/test/cli-test.test.ts": [
+308,
+311
+],
+"vitest:test/core/test/do-mock-reset-modules.test.ts": [
+4
+],
+"vitest:test/core/test/do-mock.test.ts": [
+7
+],
+"vitest:test/core/test/each.test.ts": [
+200
+],
+"vitest:test/core/test/environments/jsdom.spec.ts": [
+27,
+63
+],
+"vitest:test/core/test/expect-poll.test.ts": [
+43
+],
+"vitest:test/core/test/expect.test-d.ts": [
+22
+],
+"vitest:test/core/test/expect.test.ts": [
+400,
+404
+],
+"vitest:test/core/test/file-path.test.ts": [
+23
+],
+"vitest:test/core/test/fixtures/timers.suite.ts": [
+213,
+240,
+284,
+514,
+856
+],
+"vitest:test/core/test/hooks.test.ts": [
+111,
+118
+],
+"vitest:test/core/test/jest-expect.test.ts": [
+60,
+64,
+99,
+696,
+819,
+1217
+],
+"vitest:test/core/test/jest-mock.test.ts": [
+157,
+239,
+558
+],
+"vitest:test/core/test/mocking/vi-fn.test.ts": [
+206,
+425
+],
+"vitest:test/core/test/mocking/vi-mockObject.test.ts": [
+94
+],
+"vitest:test/core/test/mocking/vi-spyOn.test.ts": [
+550
+],
+"vitest:test/core/test/modes.test.ts": [
+6
+],
+"vitest:test/core/test/nested-test.test.ts": [
+5
+],
+"vitest:test/core/test/parse-cjs-conditions.test.ts": [
+7,
+11
+],
+"vitest:test/core/test/serialize.test.ts": [
+57
+],
+"vitest:test/core/test/spy.test.ts": [
+20
+],
+"vitest:test/core/test/task-collector.test.ts": [
+54
+],
+"vitest:test/core/test/task-names.test.ts": [
+11,
+84,
+87,
+124,
+127,
+154,
+157,
+198,
+201,
+256,
+259
+],
+"vitest:test/core/test/test-extend.test.ts": [
+363,
+365,
+404,
+647,
+656,
+657,
+661
+],
+"vitest:test/core/test/test-name-pattern.test.ts": [
+8
+],
+"vitest:test/core/test/test-tags-filter.test.ts": [
+327,
+347,
+359
+],
+"vitest:test/core/test/utils-display.spec.ts": [
+94
+],
+"vitest:test/core/test/utils.spec.ts": [
+332
+],
+"vitest:test/coverage-test/fixtures/custom-provider.ts": [
+88
+],
+"vitest:test/coverage-test/fixtures/test/query-param.test.ts": [
+7
+],
+"vitest:test/coverage-test/test/changed.test.ts": [
+75,
+76,
+80,
+81,
+84,
+85
+],
+"vitest:test/coverage-test/test/configuration-options.test-d.ts": [
+126,
+133,
+135
+],
+"vitest:test/coverage-test/test/custom-reporter.test.ts": [
+12
+],
+"vitest:test/coverage-test/test/exclude-after-remap.test.ts": [
+9
+],
+"vitest:test/coverage-test/test/include-exclude.test.ts": [
+7,
+7,
+27,
+63,
+240,
+305
+],
+"vitest:test/coverage-test/test/isolation.test.ts": [
+45
+],
+"vitest:test/coverage-test/test/reporters.test.ts": [
+16,
+17,
+54
+],
+"vitest:test/coverage-test/test/run-dynamic-coverage.test.ts": [
+18
+],
+"vitest:test/coverage-test/utils.ts": [
+92
+],
+"vitest:test/coverage-test/vitest.config.ts": [
+80,
+88,
+90
+],
+"vitest:test/snapshots/test/domain-aria-inline.test.ts": [
+9
+],
+"vitest:test/snapshots/test/inline-multiple-calls.test.ts": [
+12,
+14,
+41,
+206,
+259
+],
+"vitest:test/snapshots/test/skip-test.test.ts": [
+10
+],
+"vitest:test/snapshots/test/summary.test.ts": [
+20
+],
+"vitest:test/typescript/test/runner.test.ts": [
+95
+],
+"vitest:test/ui/test/html-report.spec.ts": [
+71,
+105
+],
+"vitest:test/ui/test/ui-security.spec.ts": [
+42
+],
+"vitest:test/ui/test/ui.spec.ts": [
+74,
+75,
+76,
+88,
+90,
+128,
+265,
+306
+],
+"vitest:test/workspaces/vitest.config.ts": [
+54,
+85
+]
+}

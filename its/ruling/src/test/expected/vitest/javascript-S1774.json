@@ -1,0 +1,35 @@
+{
+"vitest:packages/browser/context.js": [
+17
+],
+"vitest:packages/browser/src/client/public/error-catcher.js": [
+5,
+8,
+38
+],
+"vitest:packages/vitest/browser/context.js": [
+17
+],
+"vitest:packages/vitest/rollup.config.js": [
+114,
+115,
+186,
+186,
+243
+],
+"vitest:test/browser/fixtures/multiple-different-configs/vitest.config.js": [
+16
+],
+"vitest:test/core/src/wasm/wasm-bindgen-no-cyclic/index_bg.js": [
+7,
+33,
+45,
+49
+],
+"vitest:test/core/src/wasm/wasm-bindgen/index_bg.js": [
+14,
+46,
+65,
+72
+]
+}

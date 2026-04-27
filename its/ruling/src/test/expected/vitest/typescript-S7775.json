@@ -1,0 +1,38 @@
+{
+"vitest:packages/browser/src/client/tester/runner.ts": [
+272
+],
+"vitest:packages/coverage-v8/src/provider.ts": [
+341
+],
+"vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
+31
+],
+"vitest:packages/runner/src/utils/collect.ts": [
+72
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+502,
+503
+],
+"vitest:packages/utils/src/source-map.ts": [
+269
+],
+"vitest:packages/vitest/src/node/cli/filter.ts": [
+15,
+21
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+56,
+215,
+218,
+221
+],
+"vitest:packages/vitest/src/node/resolver.ts": [
+104,
+116
+],
+"vitest:packages/vitest/src/node/stdin.ts": [
+45
+]
+}

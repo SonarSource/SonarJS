@@ -1,0 +1,133 @@
+{
+"vitest:packages/browser/src/client/tester/runner.ts": [
+51
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+28
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+23,
+133
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+38
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+78
+],
+"vitest:packages/runner/src/suite.ts": [
+304
+],
+"vitest:packages/vitest/src/integrations/vi.ts": [
+477
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+148
+],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+26
+],
+"vitest:test/browser/fixtures/expect-dom/toBeVisible.test.ts": [
+4,
+45
+],
+"vitest:test/browser/fixtures/expect-dom/toHaveStyle.test.ts": [
+4
+],
+"vitest:test/browser/fixtures/expect-dom/toMatchScreenshot.test.ts": [
+35
+],
+"vitest:test/browser/specs/aria-snapshot.test.ts": [
+25
+],
+"vitest:test/browser/specs/playwright-trace-mark.test.ts": [
+14,
+19
+],
+"vitest:test/cli/test/annotations.test.ts": [
+38,
+53,
+303
+],
+"vitest:test/cli/test/artifacts.test.ts": [
+34
+],
+"vitest:test/cli/test/config/browser-configs.test.ts": [
+724
+],
+"vitest:test/cli/test/no-module-runner.test.ts": [
+8
+],
+"vitest:test/cli/test/reporters/default.test.ts": [
+7
+],
+"vitest:test/cli/test/reporters/merge-reports.test.ts": [
+21
+],
+"vitest:test/cli/test/reporters/reporter-error.test.ts": [
+13
+],
+"vitest:test/cli/test/reporters/test-run.test.ts": [
+573
+],
+"vitest:test/cli/test/scoped-fixtures.test.ts": [
+1401,
+1714,
+2502
+],
+"vitest:test/config/test/vite-ssr-resolve.test.ts": [
+9
+],
+"vitest:test/core/test/chai-style-assertions.test.ts": [
+4
+],
+"vitest:test/core/test/expect.test.ts": [
+485,
+522
+],
+"vitest:test/core/test/fixtures/timers.suite.ts": [
+20
+],
+"vitest:test/core/test/injector-mock.test.ts": [
+112,
+1442
+],
+"vitest:test/core/test/jest-expect.test.ts": [
+32,
+1085,
+1509
+],
+"vitest:test/core/test/jest-mock.test.ts": [
+3
+],
+"vitest:test/core/test/mocking/vi-fn.test.ts": [
+422
+],
+"vitest:test/core/test/task-names.test.ts": [
+11
+],
+"vitest:test/core/test/test-extend.test.ts": [
+42
+],
+"vitest:test/core/test/test-tags-filter.test.ts": [
+9
+],
+"vitest:test/core/test/vi.spec.ts": [
+13
+],
+"vitest:test/snapshots/test/custom-matcher.test.ts": [
+8
+],
+"vitest:test/snapshots/test/domain-poll-inline.test.ts": [
+6
+],
+"vitest:test/snapshots/test/inline-multiple-calls.test.ts": [
+388
+],
+"vitest:test/snapshots/test/properties.test.ts": [
+12
+],
+"vitest:test/ui/test/ui.spec.ts": [
+10
+]
+}
