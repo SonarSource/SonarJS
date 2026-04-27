@@ -32,6 +32,9 @@ describe('S5852', () => {
       /a*b*/;
       `,
         },
+        {
+          code: String.raw`/\p{EMod}/u;`,
+        },
       ],
       invalid: [
         {

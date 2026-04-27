@@ -540,10 +540,10 @@ This is extracted using the `defaultOptions()` helper from `helpers/configs.ts`.
 
 ### How Options Flow at Runtime
 
-#### SonarQube workflow (HTTP/WebSocket)
+#### SonarQube workflow (gRPC)
 
 1. **Java Side**: `@RuleProperty` fields are read, `configurations()` returns typed `List<Object>` (e.g., `Map.of("max", 7)`)
-2. **Transport**: Gson serializes to JSON with proper types preserved
+2. **Transport**: `AnalyzeProjectMessages` converts those Java values to protobuf `Struct`/`Value` while preserving their types
 3. **Linter**: `linter.ts:createRulesRecord()` merges defaults with user config:
    ```typescript
    rules[`sonarjs/${rule.key}`] = [

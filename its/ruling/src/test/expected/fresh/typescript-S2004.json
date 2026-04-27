@@ -1,0 +1,25 @@
+{
+"fresh:packages/fresh/tests/head_test.tsx": [
+226,
+257,
+288
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+3458,
+3461
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+404,
+595
+],
+"fresh:www/main_test.ts": [
+47,
+57,
+64,
+71,
+75,
+83,
+88,
+91
+]
+}

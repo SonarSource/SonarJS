@@ -133,6 +133,39 @@ const decoratedNoMisusedPromisesRule = interceptReport(
   },
 );
 
+const MISSING_PARENT_ERROR = 'Non-null Assertion Failed: Expected node to have a parent.';
+type ReturnStatementListener = NonNullable<Rule.RuleListener['ReturnStatement']>;
+
+function isMissingParentError(error: unknown) {
+  return error instanceof Error && error.message === MISSING_PARENT_ERROR;
+}
+
+export function guardNoMisusedPromisesReturnListener(
+  listeners: Rule.RuleListener,
+): Rule.RuleListener {
+  const onReturnStatement = listeners.ReturnStatement;
+  if (!onReturnStatement) {
+    return listeners;
+  }
+
+  return {
+    ...listeners,
+    ReturnStatement: (...args: Parameters<ReturnStatementListener>) => {
+      try {
+        onReturnStatement(...args);
+      } catch (error) {
+        // `no-misused-promises` walks parent links from `ReturnStatement` nodes and can
+        // throw on malformed parent chains from some JS/CommonJS inputs. Dropping that
+        // single callback preserves the rest of the rule and avoids aborting file analysis.
+        if (isMissingParentError(error)) {
+          return;
+        }
+        throw error;
+      }
+    },
+  };
+}
+
 const noAsyncPromiseExecutorRule = getESLintCoreRule('no-async-promise-executor');
 const decoratedNoAsyncPromiseExecutorRule = interceptReport(
   noAsyncPromiseExecutorRule,
@@ -160,13 +193,17 @@ export const rule: Rule.RuleModule = {
     ],
   }),
   create(context: Rule.RuleContext) {
+    const noMisusedPromisesListeners = guardNoMisusedPromisesReturnListener(
+      decoratedNoMisusedPromisesRule.create(context),
+    );
+
     return {
       'Program:exit': () => {
         flaggedNodeStarts.clear();
       },
       ...mergeRules(
         decoratedNoAsyncPromiseExecutorRule.create(context),
-        decoratedNoMisusedPromisesRule.create(context),
+        noMisusedPromisesListeners,
       ),
     };
   },

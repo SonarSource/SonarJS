@@ -1,0 +1,8 @@
+{
+"fresh:packages/init/src/init.ts": [
+40
+],
+"fresh:packages/plugin-vite/src/plugins/verify_imports.ts": [
+118
+]
+}

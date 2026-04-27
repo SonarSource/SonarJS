@@ -1,0 +1,72 @@
+{
+"fresh:packages/fresh/src/runtime/client/polyfills.ts": [
+6,
+6
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+118
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+1178,
+1184,
+1188,
+1234,
+1239,
+1243,
+1325,
+1470,
+1652,
+1763,
+1952,
+2741,
+2782,
+2784,
+2812,
+2813,
+2817,
+3093,
+3097,
+3108,
+3148,
+3152,
+3163,
+3202,
+3206,
+3217,
+3257,
+3261,
+3272,
+3278,
+3335,
+3343,
+3402,
+3410,
+3467,
+3484
+],
+"fresh:packages/plugin-vite/src/client.ts": [
+16
+],
+"fresh:packages/plugin-vite/tests/build_test.ts": [
+313,
+319,
+325,
+332,
+357,
+383,
+404
+],
+"fresh:packages/plugin-vite/tests/dev_server_test.ts": [
+212,
+218,
+224,
+231,
+251,
+277,
+295
+],
+"fresh:www/main_test.ts": [
+48,
+92
+]
+}

@@ -36,6 +36,9 @@ describe('S4328', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     const filenameNestedPackage = path.join(fixtures, 'nested-package-json-project/dir/file.js');
+    const filenameDenoProject = path.join(fixtures, 'deno-project/file.js');
+    const filenameDenoJsoncProject = path.join(fixtures, 'deno-jsonc-project/file.js');
+    const filenameDenoPrecedenceProject = path.join(fixtures, 'deno-precedence-project/file.js');
 
     ruleTester.run('Dependencies should be explicit', rule, {
       valid: [
@@ -200,6 +203,36 @@ describe('S4328', () => {
           filename,
           options,
         },
+        {
+          code: `import "react";`,
+          filename: filenameDenoProject,
+          options,
+        },
+        {
+          code: `import "@namespaced/dependency/subpath";`,
+          filename: filenameDenoProject,
+          options,
+        },
+        {
+          code: `import "react";`,
+          filename: filenameDenoJsoncProject,
+          options,
+        },
+        {
+          code: `import "react";`,
+          filename: filenameDenoPrecedenceProject,
+          options,
+        },
+        {
+          code: `import "scopedAlias";`,
+          filename: filenameDenoProject,
+          options,
+        },
+        {
+          code: `import "lodash";`,
+          filename: filenameDenoPrecedenceProject,
+          options,
+        },
       ],
       invalid: [
         {
@@ -278,6 +311,12 @@ describe('S4328', () => {
         {
           code: `require("not-a-dependency?transform");`,
           filename,
+          options,
+          errors: 1,
+        },
+        {
+          code: `import "jsrAlias";`,
+          filename: filenameDenoProject,
           options,
           errors: 1,
         },

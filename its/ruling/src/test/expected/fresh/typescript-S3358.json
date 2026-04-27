@@ -1,0 +1,22 @@
+{
+"fresh:packages/fresh/src/context.ts": [
+500
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+174,
+216
+],
+"fresh:packages/fresh/src/dev/file_transformer_test.ts": [
+46
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+527
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+153,
+733
+],
+"fresh:www/components/NavigationBar.tsx": [
+29
+]
+}

@@ -79,6 +79,22 @@ describe('S2187', () => {
         },
         {
           code: `
+        /* a test file using 'test.prop' from @fast-check/vitest */
+        test.prop([fc.string(), fc.string(), fc.string()])('should detect substrings', (a, b, c) => {
+            expect((a + b + c).includes(b)).toBe(true)
+        });`,
+          filename: 'foo.test.js',
+        },
+        {
+          code: `
+        /* a test file using 'it.prop' from @fast-check/vitest */
+        it.prop([fc.nat()])('should be positive', (n) => {
+            expect(n).toBeGreaterThanOrEqual(0)
+        });`,
+          filename: 'foo.test.js',
+        },
+        {
+          code: `
         const ruleTester = new NoTypeCheckingRuleTester();
         ruleTester.run('Sections of code should not be commented out', rule, {
           valid: [

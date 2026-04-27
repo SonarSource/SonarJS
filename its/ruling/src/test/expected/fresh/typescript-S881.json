@@ -1,0 +1,28 @@
+{
+"fresh:packages/fresh/src/jsonify/parse.ts": [
+85
+],
+"fresh:packages/fresh/src/jsonify/stringify.ts": [
+134,
+141,
+142
+],
+"fresh:packages/fresh/src/router.ts": [
+266
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+546,
+556
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+852,
+898,
+948,
+996,
+1047,
+1094
+],
+"fresh:packages/plugin-vite/demo/islands/Foo.tsx": [
+8
+]
+}

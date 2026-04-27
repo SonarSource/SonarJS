@@ -18,11 +18,11 @@ import { beforeEach, describe, it } from 'node:test';
 import { expect } from 'expect';
 import ts from 'typescript';
 import { ProjectAnalysisTelemetryCollector } from '../src/telemetry.js';
-import { packageJsonStore } from '../src/file-stores/index.js';
+import { dependencyManifestStore } from '../src/file-stores/index.js';
 
 describe('project analysis telemetry', () => {
   beforeEach(() => {
-    packageJsonStore.clearCache();
+    dependencyManifestStore.clearCache();
   });
 
   it('should normalize and merge compiler options across programs', () => {

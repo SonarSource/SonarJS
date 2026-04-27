@@ -1,0 +1,135 @@
+{
+"fresh:packages/fresh/src/commands.ts": [
+37,
+309,
+333
+],
+"fresh:packages/fresh/src/config.ts": [
+57
+],
+"fresh:packages/fresh/src/context.ts": [
+218
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+416
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+142
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+208,
+226,
+267,
+287
+],
+"fresh:packages/fresh/src/jsonify/parse.ts": [
+126
+],
+"fresh:packages/fresh/src/jsonify/stringify.ts": [
+196
+],
+"fresh:packages/fresh/src/middlewares/static_files.ts": [
+82
+],
+"fresh:packages/fresh/src/middlewares/trailing_slashes.ts": [
+21
+],
+"fresh:packages/fresh/src/router.ts": [
+344
+],
+"fresh:packages/fresh/src/runtime/client/dev_hmr.ts": [
+96
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+173,
+503,
+507,
+552,
+603,
+618
+],
+"fresh:packages/fresh/src/runtime/client/preact_hooks_client.ts": [
+55,
+90
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+202,
+262,
+293,
+314,
+463,
+480,
+498,
+502
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+162,
+197,
+250,
+314,
+409,
+434,
+724
+],
+"fresh:packages/fresh/src/runtime/shared_internal.ts": [
+71,
+97
+],
+"fresh:packages/fresh/src/segments.ts": [
+174
+],
+"fresh:packages/fresh/src/utils.ts": [
+255
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+194
+],
+"fresh:packages/init/src/init.ts": [
+626
+],
+"fresh:packages/init/src/init_test.ts": [
+128
+],
+"fresh:packages/plugin-vite/src/plugins/client_entry.ts": [
+32
+],
+"fresh:packages/plugin-vite/src/plugins/patches/code_eval.ts": [
+80,
+126,
+142
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+27,
+468,
+613,
+644,
+737,
+812,
+838
+],
+"fresh:packages/plugin-vite/src/plugins/patches/http_absolute.ts": [
+18
+],
+"fresh:packages/update/src/update.ts": [
+371,
+389,
+398,
+426,
+469,
+682,
+703
+],
+"fresh:tools/check_docs_lib.ts": [
+95
+],
+"fresh:tools/check_links.ts": [
+174
+],
+"fresh:tools/release.ts": [
+22
+],
+"fresh:www/components/SideBySide.tsx": [
+17,
+23
+]
+}

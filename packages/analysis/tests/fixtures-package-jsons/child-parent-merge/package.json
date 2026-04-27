@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "parent-only": "1.0.0",
+    "shared": "1.0.0"
+  }
+}

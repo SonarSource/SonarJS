@@ -31,17 +31,23 @@ export function transformFixes(source: SourceCode, messages: Linter.LintMessage)
   }
   const quickFixes: QuickFix[] = [];
   if (messages.fix) {
-    quickFixes.push({
-      message: getQuickFixMessage(messages.ruleId!.slice('sonarjs/'.length)),
-      edits: [fixToEdit(source, messages.fix)],
-    });
+    const edit = fixToEdit(source, messages.fix);
+    if (edit) {
+      quickFixes.push({
+        message: getQuickFixMessage(messages.ruleId!.slice('sonarjs/'.length)),
+        edits: [edit],
+      });
+    }
   }
   if (messages.suggestions) {
     for (const suggestion of messages.suggestions) {
-      quickFixes.push({
-        message: suggestion.desc,
-        edits: [fixToEdit(source, suggestion.fix)],
-      });
+      const edit = fixToEdit(source, suggestion.fix);
+      if (edit) {
+        quickFixes.push({
+          message: suggestion.desc,
+          edits: [edit],
+        });
+      }
     }
   }
   return quickFixes;
@@ -83,8 +89,13 @@ function hasSuggestion(message: Linter.LintMessage): boolean {
  * @param fix the ESLint fix to transform
  * @returns the transformed SonarLint quick fix edit
  */
-function fixToEdit(source: SourceCode, fix: Rule.Fix): QuickFixEdit {
+function fixToEdit(source: SourceCode, fix: Rule.Fix): QuickFixEdit | null {
   const [start, end] = fix.range;
+  // Third-party rules can occasionally emit malformed fix ranges.
+  // Drop the quick fix instead of aborting the whole file analysis.
+  if (start < 0 || end < start || end > source.text.length) {
+    return null;
+  }
   const startPos = source.getLocFromIndex(start);
   const endPos = source.getLocFromIndex(end);
   return {

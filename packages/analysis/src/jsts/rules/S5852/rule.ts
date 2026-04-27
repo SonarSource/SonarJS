@@ -28,7 +28,14 @@ const message = `Make sure the regex used here, which is vulnerable to super-lin
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
     onRegExpLiteralEnter: (node: AST.RegExpLiteral) => {
-      const { reports } = analyse(node);
+      let reports;
+      try {
+        ({ reports } = analyse(node));
+      } catch {
+        // `scslre` does not understand every regexp accepted by the JS parser.
+        // Skip the S5852 check for those literals instead of aborting analysis for the whole file.
+        return;
+      }
       if (reports.length > 0) {
         context.report({
           message,

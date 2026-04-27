@@ -37,9 +37,12 @@ import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { defaultOptions, applyTransformations } from '../rules/helpers/configs.js';
 import merge from 'lodash.merge';
-import { getDependencies, getModuleType } from '../rules/helpers/package-jsons/dependencies.js';
+import {
+  getDependencies,
+  getModuleType,
+} from '../rules/helpers/dependency-manifests/dependencies.js';
 import { RULE_FILTERS, type RuleFilterContext } from './filters/index.js';
-import { getClosestPackageJSONDir } from '../rules/helpers/package-jsons/closest.js';
+import { getClosestDependencyManifestDir } from '../rules/helpers/dependency-manifests/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
 import type { FileType } from '../../contracts/file.js';
 
@@ -327,10 +330,13 @@ function createLinterConfigKey(
   analysisMode: AnalysisMode,
   detectedEsYear?: number,
   detectedModuleType?: string,
-) {
+): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const normalizedPath = normalizeToAbsolutePath(filePath);
-  const packageJsonDirName = getClosestPackageJSONDir(dirnamePath(normalizedPath), baseDir);
-  const linterConfigKey = `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${packageJsonDirName}`;
+  const dependencyManifestDirName = getClosestDependencyManifestDir(
+    dirnamePath(normalizedPath),
+    baseDir,
+  );
+  const linterConfigKey = `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
   return `${linterConfigKey}:${detectedEsYear ?? 'esnext'}:${detectedModuleType ?? 'unknown'}`;
 }

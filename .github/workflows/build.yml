@@ -543,6 +543,7 @@ jobs:
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: jacoco-xml-reports-${{ github.sha }}
+          path: sonar-plugin
       - *config_maven
       - id: secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -1245,7 +1246,9 @@ jobs:
       - name: Run Ruling Tests
         run: |
           cd its/ruling
-          mvn test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.dynamic.factor=1 -B -e -V
+          # Cap ruling parallelism explicitly: using all CPUs on sonar-xl-public can
+          # overwhelm the shared SonarQube/Node workload and make the runner drop.
+          mvn test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=8 -B -e -V
         env:
           SONARSOURCE_QA: true
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}

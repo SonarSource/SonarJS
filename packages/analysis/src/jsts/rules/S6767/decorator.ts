@@ -50,7 +50,11 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     (context, descriptor) => {
       const { node } = descriptor as { node: estree.Node };
       const componentNode = findComponentNode(node, context);
-      if (componentNode && hasPropsCall(componentNode, context.sourceCode.visitorKeys)) {
+      if (
+        componentNode &&
+        (hasPropsCall(componentNode, context.sourceCode.visitorKeys) ||
+          hasOwnCustomSuperclassPropsForwarding(componentNode))
+      ) {
         return;
       }
       // Suppress FP only when the specific reported prop is referenced inside a forwardRef callback.
@@ -65,6 +69,53 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       }
       context.report(descriptor);
     },
+  );
+}
+
+function hasOwnCustomSuperclassPropsForwarding(componentNode: estree.Node): boolean {
+  if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
+    return false;
+  }
+
+  const superClass = componentNode.superClass;
+  if (superClass == null || isBuiltinReactSuperclass(superClass)) {
+    return false;
+  }
+
+  return componentNode.body.body.some(
+    member =>
+      member.type === 'MethodDefinition' &&
+      member.kind === 'constructor' &&
+      member.value.body?.body.some(isWholePropsSuperCallStatement) === true,
+  );
+}
+
+function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
+  return (
+    isIdentifier(superClass, 'Component') ||
+    isIdentifier(superClass, 'PureComponent') ||
+    (superClass.type === 'MemberExpression' &&
+      isIdentifier(superClass.object, 'React') &&
+      (isIdentifier(superClass.property, 'Component') ||
+        isIdentifier(superClass.property, 'PureComponent')))
+  );
+}
+
+function isWholePropsSuperCallStatement(statement: estree.Statement): boolean {
+  if (
+    statement.type !== 'ExpressionStatement' ||
+    statement.expression.type !== 'CallExpression' ||
+    statement.expression.callee.type !== 'Super'
+  ) {
+    return false;
+  }
+
+  // This decorator intentionally treats direct whole-props forwarding to a custom
+  // superclass as sufficient usage. Deeper validation of actual superclass prop
+  // consumption is intentionally out of scope for this decorator-based design, even
+  // though that accepts a small false-negative risk when forwarded props are not read.
+  return statement.expression.arguments.some(argument =>
+    isIdentifier(argument as estree.Node, 'props'),
   );
 }
 

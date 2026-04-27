@@ -1,0 +1,20 @@
+{
+"fresh:packages/fresh/src/otel.ts": [
+15
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+198,
+208,
+795,
+806
+],
+"fresh:packages/fresh/src/test_utils.ts": [
+133
+],
+"fresh:www/routes/_middleware.ts": [
+55
+],
+"fresh:www/utils/ga4.ts": [
+215
+]
+}

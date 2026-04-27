@@ -6,7 +6,6 @@
     "packages/analysis/src/jsts/rules/*/*.fixture.*",
     "**/fixtures/**",
     "**/fixtures-*/**",
-    "packages/http/src/worker.ts",
     "its/**",
     "tools/header.ts",
     "tools/new-plugin.ts",

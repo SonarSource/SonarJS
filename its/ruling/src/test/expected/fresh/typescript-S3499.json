@@ -1,0 +1,81 @@
+{
+"fresh:packages/fresh/src/app.ts": [
+318
+],
+"fresh:packages/fresh/src/build_cache.ts": [
+114
+],
+"fresh:packages/fresh/src/commands.ts": [
+71,
+160
+],
+"fresh:packages/fresh/src/context.ts": [
+277
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+142,
+348
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+382,
+577
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+103,
+148
+],
+"fresh:packages/fresh/src/dev/fs_crawl.ts": [
+87
+],
+"fresh:packages/fresh/src/dev/update_check_test.ts": [
+18,
+46,
+81,
+114,
+136,
+158,
+192,
+226,
+261,
+313,
+355
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+91
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+272,
+296,
+427,
+445
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+293,
+762
+],
+"fresh:packages/fresh/src/segments.ts": [
+37
+],
+"fresh:packages/plugin-vite/src/plugins/deno.ts": [
+185
+],
+"fresh:packages/plugin-vite/src/plugins/patches.ts": [
+50
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+231,
+378
+],
+"fresh:tools/check_links.ts": [
+104,
+109
+],
+"fresh:www/data/docs.ts": [
+60,
+81
+],
+"fresh:www/routes/docs/[...slug].tsx": [
+113,
+119
+]
+}

@@ -24,7 +24,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 import type { Minimatch } from 'minimatch';
-import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
+import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 
 const messages = {
   removeOrAddDependency: 'Either remove this import or add it as a dependency.',

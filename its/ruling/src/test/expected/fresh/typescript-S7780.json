@@ -1,0 +1,36 @@
+{
+"fresh:packages/fresh/src/dev/dev_build_cache_test.ts": [
+55,
+56,
+57
+],
+"fresh:packages/fresh/src/router_test.ts": [
+16
+],
+"fresh:packages/fresh/src/utils.ts": [
+49,
+50,
+50
+],
+"fresh:packages/fresh/src/utils_test.ts": [
+26,
+33,
+38,
+39,
+46,
+54,
+57
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+28
+],
+"fresh:packages/update/src/update.ts": [
+159
+],
+"fresh:packages/update/src/update_test.ts": [
+96
+],
+"fresh:tools/release.ts": [
+156
+]
+}

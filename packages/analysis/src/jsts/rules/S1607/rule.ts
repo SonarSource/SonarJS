@@ -31,8 +31,8 @@ import {
 } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
-import { getDependenciesSanitizePaths } from '../helpers/package-jsons/dependencies.js';
-import { getManifestsSanitizePaths } from '../helpers/package-jsons/all-in-parent-dirs.js';
+import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
+import { getPackageJsonManifestsSanitizePaths } from '../helpers/dependency-manifests/all-in-parent-dirs.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -49,7 +49,7 @@ export const rule: Rule.RuleModule = {
         return jestListener();
       case dependencies.has('mocha'):
         return mochaListener();
-      case getManifestsSanitizePaths(context).length > 0:
+      case getPackageJsonManifestsSanitizePaths(context).length > 0:
         return nodejsListener();
       default:
         return {};

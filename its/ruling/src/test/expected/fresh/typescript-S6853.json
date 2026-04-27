@@ -1,0 +1,13 @@
+{
+"fresh:packages/fresh/tests/islands_test.tsx": [
+448,
+452,
+456,
+460,
+464
+],
+"fresh:www/routes/docs/[...slug].tsx": [
+162,
+268
+]
+}
