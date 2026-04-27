@@ -354,25 +354,20 @@ public class WebSensor implements Sensor {
       var filePath = fileResultMessage.getFilePath();
       var response = fileResultMessage.getResult();
       try {
-        if (response.hasError() && !response.getError().isBlank()) {
-          throw new IllegalStateException(
-            "Failed to analyze file " + filePath + ": " + response.getError()
-          );
-        }
         var file = fileToInputFile.get(filePath);
         if (file == null) {
           LOG.warn("Skipping analysis result for unknown file path: {}", filePath);
           return;
         }
-        var issues = analysisProcessor.processResponse(context, checks, file, response);
-        var dedupedIssues = ExternalIssueRepository.deduplicateIssues(
-          externalIssues.get(filePath),
-          issues
-        );
-        if (!dedupedIssues.isEmpty()) {
-          ExternalIssueRepository.saveESLintIssues(context.getSensorContext(), dedupedIssues);
+        if (response.hasError() && !response.getError().isBlank()) {
+          // The HTTP transport used to drop per-file runtime errors after logging them in Node.js.
+          // Keep the project analysis running, but surface the failure explicitly on the file.
+          analysisProcessor.processFileError(context, file, response.getError());
+          saveExternalIssues(filePath, List.of());
+          return;
         }
-        externalIssues.remove(filePath);
+        var issues = analysisProcessor.processResponse(context, checks, file, response);
+        saveExternalIssues(filePath, issues);
         // Only cache JS/TS file results -- non-JS/TS files (CSS, HTML, YAML) skip caching.
         var cacheStrategy = fileToCacheStrategy.get(filePath);
         Node responseAst = responseAst(response);
@@ -385,6 +380,20 @@ public class WebSensor implements Sensor {
           new IllegalStateException("Failed to decode analysis AST for " + filePath, e)
         );
       }
+    }
+
+    private void saveExternalIssues(
+      String filePath,
+      List<org.sonar.plugins.javascript.analyzeproject.grpc.Issue> issues
+    ) {
+      var dedupedIssues = ExternalIssueRepository.deduplicateIssues(
+        externalIssues.get(filePath),
+        issues
+      );
+      if (!dedupedIssues.isEmpty()) {
+        ExternalIssueRepository.saveESLintIssues(context.getSensorContext(), dedupedIssues);
+      }
+      externalIssues.remove(filePath);
     }
 
     private void handleMeta(ProjectAnalysisMeta meta) {

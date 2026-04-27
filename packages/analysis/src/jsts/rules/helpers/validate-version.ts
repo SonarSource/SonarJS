@@ -67,9 +67,23 @@ function isSupportedNodeVersion(
   if (!versionRange) {
     return true;
   }
-  const projectMinVersion = semver.minVersion(versionRange);
+  const projectMinVersion = getProjectMinVersion(versionRange);
   if (!projectMinVersion) {
     return true;
   }
   return semver.gte(projectMinVersion, requiredVersion);
+}
+
+function getProjectMinVersion(versionRange: string) {
+  try {
+    return semver.minVersion(versionRange);
+  } catch {
+    // Some projects publish non-canonical engine ranges such as ">=10.00.0".
+    // Loose parsing keeps the rule resilient instead of crashing the whole analysis.
+    try {
+      return semver.minVersion(versionRange, { loose: true });
+    } catch {
+      return null;
+    }
+  }
 }

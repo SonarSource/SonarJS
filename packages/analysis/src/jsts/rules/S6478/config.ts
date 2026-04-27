@@ -14,7 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'external';
-export const eslintId = 'no-noninteractive-element-to-interactive-role';
-export const externalPlugin = 'jsx-a11y';
-export * from './config.js';
+// https://sonarsource.github.io/rspec/#/rspec/S6478/javascript
+
+import type { ESLintConfiguration } from '../helpers/configs.js';
+
+export const fields = [
+  [
+    {
+      field: 'allowAsProps',
+      default: false,
+      description: 'Allow React components defined inline when they are passed as props.',
+    },
+  ],
+] as const satisfies ESLintConfiguration;

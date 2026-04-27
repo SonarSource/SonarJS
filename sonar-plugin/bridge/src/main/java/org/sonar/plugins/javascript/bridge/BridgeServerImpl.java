@@ -87,8 +87,7 @@ public class BridgeServerImpl implements BridgeServer {
   public static final String NODE_TIMEOUT_PROPERTY = "sonar.javascript.node.timeout";
   public static final String SONARJS_EXISTING_NODE_PROCESS_PORT =
     "SONARJS_EXISTING_NODE_PROCESS_PORT";
-  private static final String STARTUP_PORT_LOG_PREFIX =
-    "gRPC analyze-project server listening on ";
+  private static final String STARTUP_PORT_LOG_PREFIX = "gRPC analyze-project server listening on ";
   private static final int STARTUP_PORT_WAIT_POLL_INTERVAL_MS = 100;
   private static final String ANALYSIS_CANCELLED_MESSAGE =
     "Analysis interrupted because the SensorContext is in cancelled state";
@@ -292,11 +291,6 @@ public class BridgeServerImpl implements BridgeServer {
     }
   }
 
-  private NodeCommand initNodeCommand(BridgeServerConfig serverConfig, File scriptFile)
-    throws IOException {
-    return initNodeCommand(serverConfig, scriptFile, new LogOutputConsumer());
-  }
-
   private NodeCommand initNodeCommand(
     BridgeServerConfig serverConfig,
     File scriptFile,
@@ -387,7 +381,9 @@ public class BridgeServerImpl implements BridgeServer {
     // The Node startup log has a fixed format; parsing the trailing port keeps IPv6 support
     // without relying on a broad regular expression over arbitrary process output.
     int separatorIndex = message.lastIndexOf(':');
-    if (separatorIndex < STARTUP_PORT_LOG_PREFIX.length() || separatorIndex == message.length() - 1) {
+    if (
+      separatorIndex < STARTUP_PORT_LOG_PREFIX.length() || separatorIndex == message.length() - 1
+    ) {
       return null;
     }
 
@@ -464,7 +460,7 @@ public class BridgeServerImpl implements BridgeServer {
 
     try {
       while (responses.hasNext()) {
-        handler.handleMessage(responses.next());
+        handleStreamMessage(handler, responses.next(), analyzeContext);
         if (handler.getContext().isCancelled()) {
           analyzeContext.cancel(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
           throw cancelledStreamException();
@@ -546,6 +542,24 @@ public class BridgeServerImpl implements BridgeServer {
 
   private static CompletionException cancelledStreamException() {
     return new CompletionException(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
+  }
+
+  private static void handleStreamMessage(
+    ProjectAnalysisHandler handler,
+    AnalyzeProjectStreamResponse response,
+    Context.CancellableContext analyzeContext
+  ) {
+    try {
+      handler.handleMessage(response);
+    } catch (RuntimeException | Error e) {
+      // Abort the transport as soon as Java stops consuming the stream. Otherwise the
+      // analyzer runtime can keep producing file results after a fail-fast error and buffer
+      // work that nobody will ever read. Errors are included intentionally here because any
+      // unchecked failure means Java stopped consuming the stream and the runtime must stop.
+      handler.getFuture().completeExceptionally(e);
+      analyzeContext.cancel(e);
+      throw e;
+    }
   }
 
   private static Thread startStreamCancellationWatcher(
