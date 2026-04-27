@@ -14,17 +14,36 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { RuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
-import { rule } from './index.js';
+import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
+import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { fields } from './config.js';
+import { rule } from './index.js';
+
 describe('S6478', () => {
-  it('should exclude react-intl formatting values from reports', () => {
-    const ruleTester = new RuleTester();
+  it('should expose allowAsProps as a Sonar configuration field', () => {
+    assert.ok(Array.isArray(fields));
+    assert.ok(
+      fields.some(
+        field =>
+          Array.isArray(field) &&
+          field.some(
+            option =>
+              option.field === 'allowAsProps' &&
+              option.default === false &&
+              typeof option.description === 'string',
+          ),
+      ),
+    );
+  });
+
+  it('should keep prop-based inline components noncompliant by default', () => {
+    const ruleTester = new DefaultParserRuleTester();
+
     ruleTester.run('S6478', rule, {
       valid: [
         {
-          // FormattedMessage with values - should not be flagged
           code: `
             function Parent() {
               return (
@@ -38,7 +57,6 @@ describe('S6478', () => {
           `,
         },
         {
-          // intl.formatMessage with values inside JSX - should not be flagged
           code: `
             function Parent() {
               const intl = useIntl();
@@ -46,25 +64,9 @@ describe('S6478', () => {
                 <p>
                   {intl.formatMessage(
                     { id: 'test' },
-                    {
-                      b: chunks => <b>{chunks}</b>,
-                    }
+                    { b: chunks => <b>{chunks}</b> }
                   )}
                 </p>
-              );
-            }
-          `,
-        },
-        {
-          // FormattedMessage with function expression - should not be flagged
-          code: `
-            function Parent() {
-              return (
-                <FormattedMessage
-                  values={{
-                    b: function(chunks) { return <b>{chunks}</b>; },
-                  }}
-                />
               );
             }
           `,
@@ -72,7 +74,50 @@ describe('S6478', () => {
       ],
       invalid: [
         {
-          // Nested function component - should be flagged
+          code: `
+            function Parent() {
+              return (
+                <ReactMarkdown
+                  components={{
+                    a: ({ href, children }) => <a href={href}>{children}</a>,
+                  }}
+                />
+              );
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            function Parent() {
+              return (
+                <Select
+                  formatOptionLabel={user => (
+                    <div>
+                      <span>{user.name}</span>
+                    </div>
+                  )}
+                />
+              );
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            function Parent() {
+              return (
+                <Stack.Screen
+                  options={{
+                    headerLeft: () => <BackButton />,
+                  }}
+                />
+              );
+            }
+          `,
+          errors: 1,
+        },
+        {
           code: `
             function Parent() {
               function Child() {
@@ -83,8 +128,79 @@ describe('S6478', () => {
           `,
           errors: 1,
         },
+      ],
+    });
+  });
+
+  it('should suppress prop-based inline components when allowAsProps is enabled', () => {
+    const ruleTester = new DefaultParserRuleTester();
+
+    ruleTester.run('S6478', rule, {
+      valid: [
         {
-          // Non-react-intl component with values - should be flagged
+          options: [{ allowAsProps: true }],
+          code: `
+            function Parent() {
+              return (
+                <ReactMarkdown
+                  components={{
+                    a: ({ href, children }) => <a href={href}>{children}</a>,
+                    code: ({ children }) => <code>{children}</code>,
+                  }}
+                />
+              );
+            }
+          `,
+        },
+        {
+          options: [{ allowAsProps: true }],
+          code: `
+            function Parent() {
+              return (
+                <Select
+                  formatOptionLabel={user => (
+                    <div>
+                      <span>{user.name}</span>
+                    </div>
+                  )}
+                />
+              );
+            }
+          `,
+        },
+        {
+          options: [{ allowAsProps: true }],
+          code: `
+            function Parent() {
+              return (
+                <Stack.Screen
+                  options={{
+                    headerLeft: () => <BackButton />,
+                    headerRight: () => <SettingsIcon />,
+                  }}
+                />
+              );
+            }
+          `,
+        },
+        {
+          options: [{ allowAsProps: true }],
+          code: `
+            function Parent() {
+              return (
+                <DatePicker
+                  overrides={{
+                    PrevButton: ({ children, ...rest }) => (
+                      <button {...rest}>{children}</button>
+                    ),
+                  }}
+                />
+              );
+            }
+          `,
+        },
+        {
+          options: [{ allowAsProps: true }],
           code: `
             function Parent() {
               return (
@@ -96,16 +212,17 @@ describe('S6478', () => {
               );
             }
           `,
-          errors: 1,
         },
+      ],
+      invalid: [
         {
-          // Object not in JSX or formatMessage context - should be flagged
+          options: [{ allowAsProps: true }],
           code: `
             function Parent() {
-              const obj = {
-                Render: () => <div />,
-              };
-              return <Something render={obj.Render} />;
+              function Child() {
+                return <div />;
+              }
+              return <Child />;
             }
           `,
           errors: 1,

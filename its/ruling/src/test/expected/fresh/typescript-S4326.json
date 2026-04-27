@@ -1,0 +1,64 @@
+{
+"fresh:packages/fresh/src/app.ts": [
+471
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+520
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+149
+],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+1545,
+1549,
+1554
+],
+"fresh:packages/fresh/src/middlewares/csrf.ts": [
+85,
+96,
+104,
+108
+],
+"fresh:packages/fresh/src/middlewares/mod_test.ts": [
+151
+],
+"fresh:packages/fresh/src/middlewares/static_files.ts": [
+19,
+36
+],
+"fresh:packages/fresh/src/render.ts": [
+31
+],
+"fresh:packages/fresh/src/test_utils.ts": [
+24,
+29,
+34,
+39,
+44,
+49,
+54,
+58,
+99
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+61
+],
+"fresh:packages/init/src/init.ts": [
+165
+],
+"fresh:packages/init/src/init_test.ts": [
+20
+],
+"fresh:packages/plugin-vite/demo/routes/tests/middlewares/_middleware.ts": [
+5,
+10
+],
+"fresh:packages/plugin-vite/tests/test_utils.ts": [
+87,
+180,
+210
+],
+"fresh:www/routes/docs/_middleware.ts": [
+32
+]
+}

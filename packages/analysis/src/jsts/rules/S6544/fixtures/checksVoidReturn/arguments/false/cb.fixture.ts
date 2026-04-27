@@ -20,9 +20,8 @@ if (Promise.resolve(42)) { // Noncompliant {{Expected non-Promise value in a boo
   console.log('yolo');
 }
 
-import { EventEmitter } from 'events';
+declare function onSomeEvent(eventName: string, listener: () => void): void;
 
-const eventEmitter = new EventEmitter();
-eventEmitter.on('some-event', async () => { // Compliant
+onSomeEvent('some-event', async () => { // Compliant
   await Promise.resolve();
 });

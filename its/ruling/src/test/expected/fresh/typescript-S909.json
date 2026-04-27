@@ -1,0 +1,124 @@
+{
+"fresh:docs/check_images_test.ts": [
+34
+],
+"fresh:packages/fresh/src/app.ts": [
+141,
+352
+],
+"fresh:packages/fresh/src/build_cache.ts": [
+108
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+314,
+328,
+366
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+116,
+126,
+135,
+140,
+143,
+181,
+222
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/code_frame.ts": [
+101
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+78,
+86,
+92,
+100,
+107,
+110,
+124,
+134,
+138,
+141,
+177,
+239,
+252
+],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+89
+],
+"fresh:packages/fresh/src/jsonify/parse.ts": [
+119
+],
+"fresh:packages/fresh/src/jsonify/stringify.ts": [
+104,
+107
+],
+"fresh:packages/fresh/src/router.ts": [
+158,
+208,
+217
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+558
+],
+"fresh:packages/fresh/src/runtime/client/preact_hooks_client.ts": [
+132
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+167,
+187,
+366,
+489
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+403,
+406,
+408,
+410
+],
+"fresh:packages/fresh/src/test_utils.ts": [
+111
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+205,
+360
+],
+"fresh:packages/init/src/init_test.ts": [
+116
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+207,
+218
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+275,
+824
+],
+"fresh:packages/plugin-vite/src/plugins/server_snapshot.ts": [
+202,
+281,
+295,
+366
+],
+"fresh:packages/update/src/update.ts": [
+639,
+647,
+656
+],
+"fresh:tools/check_docs_lib.ts": [
+169,
+245,
+256,
+265,
+309,
+330
+],
+"fresh:tools/check_links.ts": [
+152,
+153,
+154,
+160
+],
+"fresh:www/utils/markdown.ts": [
+119,
+122
+]
+}

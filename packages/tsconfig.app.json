@@ -5,7 +5,6 @@
     "*/src/**/*.json",
     "analysis/src/**/*.ts",
     "analysis/src/**/*.json",
-    "http/src/worker.js",
     "ruling/tools/*.ts",
     "ruling/filter/*.ts",
     "../typings/**/*.d.ts"

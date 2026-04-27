@@ -1,0 +1,55 @@
+{
+"fresh:packages/fresh/src/app.ts": [
+30
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+396
+],
+"fresh:packages/fresh/src/dev/file_transformer.ts": [
+233
+],
+"fresh:packages/fresh/src/dev/fs_crawl.ts": [
+79
+],
+"fresh:packages/fresh/src/dev/middlewares/live_reload.ts": [
+18
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+249,
+259
+],
+"fresh:packages/fresh/src/runtime/client/dev_hmr.ts": [
+106
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+298,
+509
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+113
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+82
+],
+"fresh:packages/fresh/src/types.ts": [
+74
+],
+"fresh:packages/fresh/tests/doc_examples_test.tsx": [
+76
+],
+"fresh:packages/fresh/tests/partials_test.tsx": [
+195,
+313,
+1416,
+1482
+],
+"fresh:packages/init/src/init_test.ts": [
+281
+],
+"fresh:packages/plugin-vite/src/plugins/deno.ts": [
+41
+],
+"fresh:packages/plugin-vite/src/plugins/dev_server.ts": [
+189
+]
+}

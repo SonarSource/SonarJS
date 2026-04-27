@@ -286,6 +286,18 @@ class NodeCommandTest {
   }
 
   @Test
+  void test_destroy() throws Exception {
+    NodeCommand nodeCommand = builder(mockProcessWrapper)
+      .script(resourceScript(PATH_TO_SCRIPT))
+      .build();
+    nodeCommand.start();
+
+    nodeCommand.destroy();
+
+    verify(mockProcessWrapper).destroyForcibly(any());
+  }
+
+  @Test
   void test_no_args() {
     NodeCommandBuilder commandBuilder = builder(mockProcessWrapper);
     assertThatThrownBy(commandBuilder::build)

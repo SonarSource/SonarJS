@@ -1,0 +1,204 @@
+{
+"fresh:packages/fresh/src/app.ts": [
+53,
+60,
+96,
+98,
+112,
+117
+],
+"fresh:packages/fresh/src/dev/builder.ts": [
+389
+],
+"fresh:packages/fresh/src/dev/builder_test.ts": [
+802,
+804
+],
+"fresh:packages/fresh/src/dev/dev_build_cache.ts": [
+604
+],
+"fresh:packages/fresh/src/dev/middlewares/error_overlay/middleware.tsx": [
+26
+],
+"fresh:packages/fresh/src/dev/update_check.ts": [
+110,
+130,
+134,
+138
+],
+"fresh:packages/fresh/src/dev/update_check_test.ts": [
+281
+],
+"fresh:packages/fresh/src/fs_routes.ts": [
+193
+],
+"fresh:packages/fresh/src/runtime/client/dev_hmr.ts": [
+35,
+87
+],
+"fresh:packages/fresh/src/runtime/client/partials.ts": [
+587
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+178
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+244
+],
+"fresh:packages/fresh/src/runtime/shared_internal.ts": [
+129
+],
+"fresh:packages/fresh/src/test_utils.ts": [
+155
+],
+"fresh:packages/fresh/tests/doc_examples_test.tsx": [
+74
+],
+"fresh:packages/fresh/tests/fixture_precompile/valid/main.tsx": [
+31
+],
+"fresh:packages/fresh/tests/fixture_update_check/mod.ts": [
+7
+],
+"fresh:packages/fresh/tests/test_utils.tsx": [
+93,
+149,
+158,
+170,
+246,
+287,
+316
+],
+"fresh:packages/init/src/init.ts": [
+32,
+95,
+99,
+100,
+106,
+107,
+703,
+708,
+713,
+719,
+725,
+732,
+733,
+738,
+739,
+821
+],
+"fresh:packages/init/src/init_test.ts": [
+98,
+100
+],
+"fresh:packages/plugin-vite/demo/islands/tests/Mime.tsx": [
+8
+],
+"fresh:packages/plugin-vite/demo/routes/tests/feed.tsx": [
+5
+],
+"fresh:packages/plugin-vite/demo/routes/tests/ioredis.tsx": [
+5
+],
+"fresh:packages/plugin-vite/demo/routes/tests/maxmind.tsx": [
+5
+],
+"fresh:packages/plugin-vite/demo/routes/tests/pg.tsx": [
+5
+],
+"fresh:packages/plugin-vite/demo/routes/tests/qs.tsx": [
+5
+],
+"fresh:packages/plugin-vite/demo/routes/tests/redis.tsx": [
+5
+],
+"fresh:packages/plugin-vite/demo/routes/tests/stripe.tsx": [
+5
+],
+"fresh:packages/plugin-vite/demo/routes/tests/supabase_pg.tsx": [
+5
+],
+"fresh:packages/plugin-vite/src/plugins/verify_imports.ts": [
+104,
+106,
+108,
+110,
+117,
+125,
+129,
+135,
+137
+],
+"fresh:packages/update/src/mod.ts": [
+26,
+31
+],
+"fresh:packages/update/src/update.ts": [
+114,
+117,
+119,
+125,
+129,
+185,
+192,
+196,
+206,
+225,
+231,
+242,
+267,
+282,
+287,
+289,
+291,
+300,
+307,
+312,
+578
+],
+"fresh:packages/update/src/utils.ts": [
+29
+],
+"fresh:tools/check_docs_lib.ts": [
+370,
+379
+],
+"fresh:tools/check_links.ts": [
+13,
+18,
+42,
+76,
+82,
+208,
+214,
+216,
+222,
+224,
+226,
+236,
+239,
+247
+],
+"fresh:tools/release.ts": [
+8,
+15,
+75,
+77
+],
+"fresh:www/client.ts": [
+25
+],
+"fresh:www/routes/_error.tsx": [
+43
+],
+"fresh:www/routes/_middleware.ts": [
+20,
+86
+],
+"fresh:www/utils/ga4.ts": [
+215
+],
+"fresh:www/utils/screenshot.ts": [
+55
+]
+}

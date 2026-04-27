@@ -76,13 +76,14 @@ function isCssRuleConfigArray(value: unknown): boolean {
   return Array.isArray(value) && value.every(isCssRuleConfig);
 }
 
-interface SanitizedProjectAnalysisInput {
+export interface SanitizedProjectAnalysisInput {
   rules: RuleConfig[];
   cssRules: CssRuleConfig[];
   baseDir: NormalizedAbsolutePath;
   bundles: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
   configuration: Configuration;
+  pathMap: Map<string, string>;
 }
 
 export async function sanitizeProjectAnalysisInput(
@@ -96,9 +97,10 @@ export async function sanitizeProjectAnalysisInput(
   }
 
   const configuration = createConfiguration(raw.configuration);
-  const inputFiles = isObject(raw.files)
-    ? (await sanitizeRawInputFiles(raw.files, configuration)).files
+  const sanitizedFiles = isObject(raw.files)
+    ? await sanitizeRawInputFiles(raw.files, configuration)
     : undefined;
+  const inputFiles = sanitizedFiles?.files;
 
   await initFileStores(configuration, inputFiles);
 
@@ -111,39 +113,40 @@ export async function sanitizeProjectAnalysisInput(
       ? normalizeToAbsolutePath(raw.rulesWorkdir, configuration.baseDir)
       : undefined,
     configuration,
+    pathMap: sanitizedFiles?.pathMap ?? new Map(),
   };
 }
+
+export type ProjectAnalysisFileInput = {
+  filePath: string;
+  fileContent?: string;
+  fileType?: FileType;
+  fileStatus?: FileStatus;
+};
 
 type SanitizedInputFiles = {
   files: AnalyzableFiles;
   pathMap: Map<string, string>;
 };
 
-export async function sanitizeRawInputFiles(
-  rawFiles: Record<string, unknown> | undefined,
+export async function sanitizeInputFiles(
+  inputFiles: Record<string, ProjectAnalysisFileInput> | undefined,
   configuration: Configuration,
 ): Promise<SanitizedInputFiles> {
   const { baseDir } = configuration;
   const files = createAnalyzableFiles();
   const pathMap = new Map<string, string>();
 
-  if (!rawFiles) {
+  if (!inputFiles) {
     return { files, pathMap };
   }
 
-  for (const [key, rawFile] of Object.entries(rawFiles)) {
-    if (!isObject(rawFile) || !isString(rawFile.filePath)) {
-      warn(`Skipping invalid file entry '${key}': missing or invalid filePath`);
-      continue;
-    }
-    const filePath = normalizeToAbsolutePath(rawFile.filePath, baseDir);
-    const fileContent = isString(rawFile.fileContent)
-      ? rawFile.fileContent
-      : await readFile(filePath);
-    const rawFileType = isFileType(rawFile.fileType)
-      ? rawFile.fileType
-      : filterPathAndGetFileType(filePath, getFilterPathParams(configuration));
-    const rawFileStatus = isFileStatus(rawFile.fileStatus) ? rawFile.fileStatus : undefined;
+  for (const [key, fileInput] of Object.entries(inputFiles)) {
+    const filePath = normalizeToAbsolutePath(fileInput.filePath, baseDir);
+    const fileContent = fileInput.fileContent ?? (await readFile(filePath));
+    const rawFileType =
+      fileInput.fileType ?? filterPathAndGetFileType(filePath, getFilterPathParams(configuration));
+    const rawFileStatus = fileInput.fileStatus;
 
     if (await shouldIgnoreFile({ filePath, fileContent }, getShouldIgnoreParams(configuration))) {
       continue;
@@ -159,4 +162,28 @@ export async function sanitizeRawInputFiles(
   }
 
   return { files, pathMap };
+}
+
+export async function sanitizeRawInputFiles(
+  rawFiles: Record<string, unknown> | undefined,
+  configuration: Configuration,
+): Promise<SanitizedInputFiles> {
+  if (!rawFiles) {
+    return sanitizeInputFiles(undefined, configuration);
+  }
+
+  const typedFiles: Record<string, ProjectAnalysisFileInput> = {};
+  for (const [key, rawFile] of Object.entries(rawFiles)) {
+    if (!isObject(rawFile) || !isString(rawFile.filePath)) {
+      warn(`Skipping invalid file entry '${key}': missing or invalid filePath`);
+      continue;
+    }
+    typedFiles[key] = {
+      filePath: rawFile.filePath,
+      fileContent: isString(rawFile.fileContent) ? rawFile.fileContent : undefined,
+      fileType: isFileType(rawFile.fileType) ? rawFile.fileType : undefined,
+      fileStatus: isFileStatus(rawFile.fileStatus) ? rawFile.fileStatus : undefined,
+    };
+  }
+  return sanitizeInputFiles(typedFiles, configuration);
 }

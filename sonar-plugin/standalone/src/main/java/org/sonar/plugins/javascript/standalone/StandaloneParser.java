@@ -19,22 +19,26 @@ package org.sonar.plugins.javascript.standalone;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.sonar.api.SonarProduct;
-import org.sonar.api.batch.fs.InputFile;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectUnaryResponse;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FileStatus;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FileType;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectConfiguration;
+import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectFileInput;
 import org.sonar.plugins.javascript.api.estree.ESTree;
 import org.sonar.plugins.javascript.bridge.AnalysisConfiguration;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
-import org.sonar.plugins.javascript.bridge.BridgeServer;
+import org.sonar.plugins.javascript.bridge.AnalyzeProjectMessages;
+import org.sonar.plugins.javascript.bridge.AstProtoUtils;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
-import org.sonar.plugins.javascript.bridge.Http;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -49,14 +53,10 @@ public class StandaloneParser implements AutoCloseable {
 
   private final BridgeServerImpl bridge;
   private final String baseDir;
-  private final BridgeServer.ProjectAnalysisConfiguration parserConfiguration;
+  private final ProjectConfiguration.Builder parserConfigurationBuilder;
 
   public StandaloneParser() {
     this(builder());
-  }
-
-  public StandaloneParser(Http http) {
-    this(builder().http(http));
   }
 
   private StandaloneParser(Builder builder) {
@@ -73,7 +73,6 @@ public class StandaloneParser implements AutoCloseable {
 
     var temporaryFolder = new StandaloneTemporaryFolder();
     baseDir = temporaryFolder.newDir().getAbsolutePath();
-    Http httpClient = builder.http != null ? builder.http : Http.getJdkHttpClient();
     bridge = new BridgeServerImpl(
       nodeCommandBuilder,
       builder.timeout,
@@ -81,14 +80,12 @@ public class StandaloneParser implements AutoCloseable {
       new RulesBundles(),
       new NodeDeprecationWarning(new AnalysisWarningsWrapper()),
       temporaryFolder,
-      new EmbeddedNode(processWrapper, new Environment(builder.configuration)),
-      httpClient
+      new EmbeddedNode(processWrapper, new Environment(builder.configuration))
     );
-    parserConfiguration = new BridgeServer.ProjectAnalysisConfiguration(
+    parserConfigurationBuilder = AnalyzeProjectMessages.newProjectConfigurationBuilder(
       baseDir,
       new StandaloneAnalysisConfiguration()
-    );
-    parserConfiguration.setSkipAst(false);
+    ).setSkipAst(false);
     try {
       bridge.startServerLazily(
         new BridgeServerConfig(
@@ -112,7 +109,6 @@ public class StandaloneParser implements AutoCloseable {
     private int maxOldSpaceSize = -1;
     private org.sonar.api.config.Configuration configuration = new EmptyConfiguration();
     private String[] nodeJsArgs;
-    private Http http;
 
     private Builder() {}
 
@@ -136,11 +132,6 @@ public class StandaloneParser implements AutoCloseable {
       return this;
     }
 
-    public Builder http(Http http) {
-      this.http = http;
-      return this;
-    }
-
     public StandaloneParser build() {
       return new StandaloneParser(this);
     }
@@ -152,22 +143,28 @@ public class StandaloneParser implements AutoCloseable {
 
   public ESTree.Program parse(String code, String filename) {
     String filePath = toAbsolutePath(filename);
-    var request = new BridgeServer.ProjectAnalysisRequest(
-      Map.of(filePath, new BridgeServer.JsTsFile(filePath, "MAIN", InputFile.Status.ADDED, code)),
-      List.of(),
-      parserConfiguration
-    );
+    var request = AnalyzeProjectRequest.newBuilder()
+      .setConfiguration(parserConfigurationBuilder.build())
+      .putFiles(
+        filePath,
+        ProjectFileInput.newBuilder()
+          .setFileType(FileType.FILE_TYPE_MAIN)
+          .setFileStatus(FileStatus.FILE_STATUS_ADDED)
+          .setFileContent(code)
+          .build()
+      )
+      .build();
     try {
       var output = bridge.analyzeProject(request);
       var result = toSingleFileResponse(output, filePath);
-      Node ast = result.ast();
+      Node ast = responseAst(result);
       if (ast == null) {
-        var parsingErrors = result.parsingErrors();
+        var parsingErrors = result.getParsingErrorsList();
         var message =
-          !parsingErrors.isEmpty() && parsingErrors.get(0).message() != null
+          !parsingErrors.isEmpty() && !parsingErrors.get(0).getMessage().isBlank()
             ? String.format(
                 "Failed to parse the code: [%s] in [%s]",
-                parsingErrors.get(0).message(),
+                parsingErrors.get(0).getMessage(),
                 filename
               )
             : "Failed to parse the code";
@@ -183,17 +180,21 @@ public class StandaloneParser implements AutoCloseable {
     return Path.of(filename).isAbsolute() ? filename : Path.of(baseDir, filename).toString();
   }
 
-  private static BridgeServer.AnalysisResponse toSingleFileResponse(
-    BridgeServer.ProjectAnalysisOutputDTO output,
+  private static ProjectAnalysisFileResult toSingleFileResponse(
+    AnalyzeProjectUnaryResponse output,
     String filePath
   ) {
-    var responseDTO = output.files().get(filePath);
-    if (responseDTO == null && output.files().size() == 1) {
-      responseDTO = output.files().values().iterator().next();
+    var response = output.getFilesMap().get(filePath);
+    if (response == null && output.getFilesCount() == 1) {
+      response = output.getFilesMap().values().iterator().next();
     }
-    return responseDTO == null
-      ? new BridgeServer.AnalysisResponse()
-      : BridgeServer.AnalysisResponse.fromDTO(responseDTO);
+    return response == null ? ProjectAnalysisFileResult.getDefaultInstance() : response;
+  }
+
+  private static Node responseAst(ProjectAnalysisFileResult response) throws IOException {
+    return response.getAst().isEmpty()
+      ? null
+      : AstProtoUtils.readProtobufFromBytes(response.getAst().toByteArray());
   }
 
   @Override

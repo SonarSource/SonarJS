@@ -1,0 +1,166 @@
+{
+"fresh:packages/fresh/src/app.ts": [
+47,
+160
+],
+"fresh:packages/fresh/src/app_test.tsx": [
+797
+],
+"fresh:packages/fresh/src/commands.ts": [
+21,
+24,
+28
+],
+"fresh:packages/fresh/src/context.ts": [
+257
+],
+"fresh:packages/fresh/src/define_test.ts": [
+14,
+18
+],
+"fresh:packages/fresh/src/fs_routes_test.tsx": [
+45,
+46,
+47,
+48,
+49,
+50,
+681,
+688,
+722,
+807,
+1357,
+1398,
+1427,
+1428,
+1502,
+1578,
+1583,
+1648,
+1653
+],
+"fresh:packages/fresh/src/jsonify/custom_test.ts": [
+15,
+22,
+29,
+38,
+48,
+57,
+67,
+76,
+87
+],
+"fresh:packages/fresh/src/middlewares/mod_test.ts": [
+36,
+58,
+62,
+66,
+70
+],
+"fresh:packages/fresh/src/router_test.ts": [
+22,
+45,
+59,
+60,
+75,
+89,
+103,
+104,
+133,
+147
+],
+"fresh:packages/fresh/src/runtime/client/preact_hooks_client.ts": [
+16
+],
+"fresh:packages/fresh/src/runtime/client/reviver.ts": [
+130,
+131,
+132,
+337
+],
+"fresh:packages/fresh/src/runtime/head.ts": [
+9
+],
+"fresh:packages/fresh/src/runtime/server/preact_hooks.ts": [
+505,
+544,
+612,
+615,
+618,
+631,
+690,
+776
+],
+"fresh:packages/fresh/src/runtime/shared.ts": [
+52
+],
+"fresh:packages/fresh/tests/fixtures_islands/FnIsland.tsx": [
+7
+],
+"fresh:packages/fresh/tests/fixtures_islands/NullIsland.tsx": [
+3
+],
+"fresh:packages/plugin-vite/demo/routes/tests/throw.tsx": [
+4
+],
+"fresh:packages/plugin-vite/src/plugins/patches/commonjs.ts": [
+41,
+44,
+47,
+50,
+53,
+487,
+628,
+845,
+850,
+864,
+878
+],
+"fresh:packages/plugin-vite/src/plugins/patches/http_absolute.ts": [
+28,
+32,
+36,
+43
+],
+"fresh:packages/plugin-vite/src/plugins/patches/inline_env_vars.ts": [
+31,
+57
+],
+"fresh:packages/plugin-vite/src/plugins/patches/jsx_comment.ts": [
+7
+],
+"fresh:packages/plugin-vite/src/plugins/patches/remove_polyfills.ts": [
+9
+],
+"fresh:www/routes/_error.tsx": [
+31
+],
+"fresh:www/routes/docs/[...slug].tsx": [
+49
+],
+"fresh:www/routes/docs/index.tsx": [
+4
+],
+"fresh:www/routes/index.tsx": [
+18,
+38
+],
+"fresh:www/routes/raw.ts": [
+20
+],
+"fresh:www/routes/recipes/lemon-honey-tea.tsx": [
+6
+],
+"fresh:www/routes/recipes/lemonade.tsx": [
+6
+],
+"fresh:www/routes/recipes/lemondrop.tsx": [
+6
+],
+"fresh:www/routes/thanks.tsx": [
+7
+],
+"fresh:www/routes/update.tsx": [
+5
+]
+}

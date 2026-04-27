@@ -56,7 +56,7 @@ import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
 import org.sonar.api.utils.Version;
 import org.sonar.plugins.javascript.analysis.JsTsContext;
-import org.sonar.plugins.javascript.bridge.BridgeServer.CpdToken;
+import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
 
 @SuppressWarnings("resource")
 class CacheStrategyTest {

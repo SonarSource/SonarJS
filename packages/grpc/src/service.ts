@@ -25,7 +25,7 @@ import { analyzeProject } from '../../analysis/src/analyzeProject.js';
 import {
   initFileStores,
   sourceFileStore,
-  packageJsonStore,
+  dependencyManifestStore,
   tsConfigStore,
 } from '../../analysis/src/file-stores/index.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
@@ -40,7 +40,7 @@ import { clearSourceFileContentCache } from '../../analysis/src/jsts/program/cac
  */
 function resetGrpcCaches() {
   sourceFileStore.clearCache();
-  packageJsonStore.clearCache();
+  dependencyManifestStore.clearCache();
   tsConfigStore.clearCache();
   clearSourceFileContentCache();
 }

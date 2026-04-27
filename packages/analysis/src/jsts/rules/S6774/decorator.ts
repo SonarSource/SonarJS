@@ -21,7 +21,7 @@ import type estree from 'estree';
 import { parse as parseSemver } from 'semver';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
-import { getReactVersion } from '../helpers/package-jsons/dependencies.js';
+import { getReactVersion } from '../helpers/dependency-manifests/dependencies.js';
 import * as meta from './generated-meta.js';
 
 /**

@@ -1,0 +1,6 @@
+{
+  // JSONC support is required for deno.jsonc
+  "imports": {
+    "react": "npm:react@^19.1.0", // trailing comma on purpose
+  },
+}

@@ -26,7 +26,7 @@ import * as meta from './generated-meta.js';
 
 // Dictionary with fully qualified names of functions and indices of their
 // parameters to analyze for hardcoded credentials.
-const secretSignatures: Record<string, [number]> = {
+const secretSignatures: Record<string, readonly number[]> = {
   'cookie-parser': [0],
   'cookie-parser.JSONCookie': [1],
   'cookie-parser.signedCookies': [1],
@@ -156,10 +156,12 @@ export const rule: Rule.RuleModule = {
         if (!fqn) {
           return;
         }
-        if (node.arguments.length > 0 && fqn in secretSignatures) {
+        // `getFullyQualifiedName()` can resolve built-ins such as `toString`.
+        // Restrict lookups to own keys so prototype members never masquerade as configured signatures.
+        if (node.arguments.length > 0 && Object.hasOwn(secretSignatures, fqn)) {
           checkSecretArgument(node, fqn);
         }
-        if (fqn in secretObjectSignatures) {
+        if (Object.hasOwn(secretObjectSignatures, fqn)) {
           checkSecretProperty(node, fqn);
         }
       },
