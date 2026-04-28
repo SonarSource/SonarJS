@@ -7,8 +7,7 @@
 ],
 "ant-design:components/col/index.tsx": [
 3,
-3,
-5
+3
 ],
 "ant-design:components/form/Form.tsx": [
 152,
@@ -31,8 +30,7 @@
 25
 ],
 "ant-design:components/row/index.tsx": [
-3,
-4
+3
 ],
 "ant-design:components/select/index.tsx": [
 25
