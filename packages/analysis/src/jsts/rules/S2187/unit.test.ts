@@ -85,6 +85,14 @@ describe('S2187', () => {
         },
         {
           code: `
+        /* a Cypress file using 'specify.only' */
+        specify.only('1 + 2 should give 3', () => {
+            expect(1 + 2).toBe(3)
+        });`,
+          filename: 'foo.cy.ts',
+        },
+        {
+          code: `
         /* a spec file using 'xspecify' */
         xspecify('1 + 2 should give 3', () => {
             expect(1 + 2).toBe(3)
