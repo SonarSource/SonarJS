@@ -119,8 +119,10 @@ function getReportedIdentifierName(node: estree.Node): string | undefined {
 }
 
 /**
- * Returns true if the named import identifier is referenced outside of export specifiers.
- * When true, replacing import+export with export…from would break the local usage.
+ * Returns true if the named import identifier is referenced outside of export statements.
+ * ExportSpecifier and ExportDefaultDeclaration references are both considered re-exports, not
+ * local usage. Only references in non-export contexts (array literals, function calls, etc.)
+ * count as local usage; those indicate that export…from would break the code.
  */
 function hasLocalUsage(sourceCode: SourceCode, identifierName: string): boolean {
   for (const node of sourceCode.ast.body) {
@@ -146,7 +148,7 @@ function hasNonExportReference(
     }
     for (const ref of variable.references) {
       const parent = (ref.identifier as TSESTree.Identifier).parent;
-      if (parent.type !== 'ExportSpecifier') {
+      if (parent.type !== 'ExportSpecifier' && parent.type !== 'ExportDefaultDeclaration') {
         return true;
       }
     }

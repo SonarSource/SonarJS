@@ -116,9 +116,11 @@ export { schema };`,
 export function setup() { reset(); }
 export { reset };`,
         },
-        // JS-1644: named import used as export default — export…from would break the default export
+        // JS-1644: named import used locally AND re-exported as both named and default
+        // The local usage (arr) means export…from cannot be used for the named export
         {
           code: `import { foo } from './foo';
+export const arr = [foo];
 export default foo;
 export { foo };`,
         },
@@ -153,6 +155,12 @@ export { foo };`,
         {
           code: `import * as _AllIcons from './svgs';\nexport const AllIcons = _AllIcons;`,
           output: `\n\nexport * as AllIcons from './svgs';`,
+          errors: 1,
+        },
+        // Named import re-exported only as default (no local usage) should be flagged
+        {
+          code: `import { foo } from './foo';\nexport default foo;`,
+          output: `\n\nexport {foo as default} from './foo';`,
           errors: 1,
         },
       ],
