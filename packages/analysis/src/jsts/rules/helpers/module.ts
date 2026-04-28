@@ -53,9 +53,7 @@ type RequireOrDynamicImport = {
  * require('lodash'); // not stored in variable
  * import('lodash').then(...); // not stored in variable
  */
-export function getRequireAndDynamicImportCalls(
-  context: Rule.RuleContext,
-): RequireOrDynamicImport[] {
+function getRequireAndDynamicImportCalls(context: Rule.RuleContext): RequireOrDynamicImport[] {
   const imports: RequireOrDynamicImport[] = [];
   const { scopeManager } = context.sourceCode;
   for (const scope of scopeManager.scopes) {
