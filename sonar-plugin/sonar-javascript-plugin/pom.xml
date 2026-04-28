@@ -336,9 +336,10 @@
               <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
               <arguments>
                 <argument>-c</argument>
-                <argument>chmod +x "${0}" &amp;&amp; rm -rf cmd/sonar-server/grpc &amp;&amp; "${0}" --proto_path="${1}" --go_out=. --go_opt=module=github.com/typescript-eslint/tsgolint --go_opt=Mpackages/grpc/src/proto/analyze-project.proto=github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc --go-grpc_out=. --go-grpc_opt=module=github.com/typescript-eslint/tsgolint --go-grpc_opt=Mpackages/grpc/src/proto/analyze-project.proto=github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc packages/grpc/src/proto/analyze-project.proto</argument>
+                <argument>set -e; chmod +x "${0}" &amp;&amp; rm -rf cmd/sonar-server/grpc; PROTOC_INCLUDE_FILE="$(find "${2}" -path '*/google/protobuf/empty.proto' -print -quit)"; if [ -z "${PROTOC_INCLUDE_FILE}" ]; then echo "Failed to locate google/protobuf/empty.proto under ${2}" &gt;&amp;2; exit 1; fi; PROTOC_INCLUDE_ROOT="$(dirname "$(dirname "$(dirname "${PROTOC_INCLUDE_FILE}")")")"; "${0}" --proto_path="${1}" --proto_path="${PROTOC_INCLUDE_ROOT}" --go_out=. --go_opt=module=github.com/typescript-eslint/tsgolint --go_opt=Mpackages/grpc/src/proto/analyze-project.proto=github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc --go-grpc_out=. --go-grpc_opt=module=github.com/typescript-eslint/tsgolint --go-grpc_opt=Mpackages/grpc/src/proto/analyze-project.proto=github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc packages/grpc/src/proto/analyze-project.proto</argument>
                 <argument>${project.build.directory}/protoc.exe</argument>
                 <argument>${project.basedir}/../..</argument>
+                <argument>${project.basedir}/../bridge/target/protoc-dependencies</argument>
               </arguments>
             </configuration>
           </execution>
