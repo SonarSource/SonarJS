@@ -32,6 +32,22 @@ import {
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
+function isJsonStringifyCall(node: estree.Node): boolean {
+  if (node.type !== 'CallExpression') return false;
+  const callExpr = node as estree.CallExpression;
+  if (callExpr.arguments.length !== 1) return false;
+  const callee = callExpr.callee;
+  if (callee.type !== 'MemberExpression') return false;
+  const member = callee as estree.MemberExpression;
+  return (
+    !member.computed &&
+    member.object.type === 'Identifier' &&
+    (member.object as estree.Identifier).name === 'JSON' &&
+    member.property.type === 'Identifier' &&
+    (member.property as estree.Identifier).name === 'stringify'
+  );
+}
+
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
 const compareBigIntFunctionPlaceholder = [
   '(a, b) => {',
@@ -105,22 +121,6 @@ export const rule: Rule.RuleModule = {
         return false;
       }
       return isBareSort((sibling as estree.CallExpression).arguments[0]);
-    }
-
-    function isJsonStringifyCall(node: estree.Node): boolean {
-      if (node.type !== 'CallExpression') return false;
-      const callExpr = node as estree.CallExpression;
-      if (callExpr.arguments.length !== 1) return false;
-      const callee = callExpr.callee;
-      if (callee.type !== 'MemberExpression') return false;
-      const member = callee as estree.MemberExpression;
-      return (
-        !member.computed &&
-        member.object.type === 'Identifier' &&
-        (member.object as estree.Identifier).name === 'JSON' &&
-        member.property.type === 'Identifier' &&
-        (member.property as estree.Identifier).name === 'stringify'
-      );
     }
 
     function isBareSort(node: estree.Node): boolean {
