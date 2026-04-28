@@ -135,6 +135,14 @@ describe('S2187', () => {
         },
         {
           code: `
+        /* a test file using 'test.fixme' with a template-literal title from Playwright */
+        test.fixme(\`should do something\`, async ({ page }) => {
+            await page.goto('https://example.com')
+        });`,
+          filename: 'foo.spec.ts',
+        },
+        {
+          code: `
         /* a test file using 'test.prop' from @fast-check/vitest */
         test.prop([fc.string(), fc.string(), fc.string()])('should detect substrings', (a, b, c) => {
             expect((a + b + c).includes(b)).toBe(true)

@@ -27,15 +27,14 @@ import {
   isIdentifier,
   isLiteral,
   isMethodInvocation,
-  isStringLiteral,
   resolveFunction,
 } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import { getPackageJsonManifestsSanitizePaths } from '../helpers/dependency-manifests/all-in-parent-dirs.js';
+import * as Playwright from '../helpers/playwright.js';
 
-const playwrightDescribeModifiers = ['parallel', 'serial'];
 const mochaSkipFunctionNames = ['it', 'describe', 'context', 'specify'];
 const mochaXFunctionNames = ['xit', 'xdescribe', 'xcontext', 'xspecify'];
 const vitestSkipFunctionNames = ['it', 'test', 'describe', 'suite'];
@@ -309,12 +308,12 @@ function isVitestIgnoredTest(node: estree.CallExpression) {
 function isPlaywrightIgnoredTest(node: estree.CallExpression) {
   // Playwright definition-style skips start with a test title: test.skip('title', async () => {}).
   return (
-    (isMethodInvocation(node, 'test', 'skip', 0) && hasStringFirstArgument(node)) ||
+    (isMethodInvocation(node, 'test', 'skip', 0) && Playwright.hasTestTitleArgument(node)) ||
     isPlaywrightSkippedDescribe(node)
   );
 }
 
-function isPlaywrightSkippedDescribe(node: estree.CallExpression) {
+function isPlaywrightSkippedDescribe(node: estree.CallExpression): boolean {
   // Playwright skipped suites can be plain or modifier chains: test.describe.parallel.skip('title', ...).
   if (
     node.callee.type !== 'MemberExpression' ||
@@ -324,25 +323,5 @@ function isPlaywrightSkippedDescribe(node: estree.CallExpression) {
     return false;
   }
 
-  return isPlaywrightDescribe(node.callee.object) && hasStringFirstArgument(node);
-}
-
-function isPlaywrightDescribe(node: estree.Node | undefined): boolean {
-  if (node?.type !== 'MemberExpression' || node.computed) {
-    return false;
-  }
-
-  const { object, property } = node;
-  return (
-    (isIdentifier(object, 'test') && isIdentifier(property, 'describe')) ||
-    (isIdentifier(property, ...playwrightDescribeModifiers) && isPlaywrightDescribe(object))
-  );
-}
-
-function hasStringFirstArgument(node: estree.CallExpression) {
-  const firstArgument = node.arguments[0];
-  return (
-    firstArgument !== undefined &&
-    (isStringLiteral(firstArgument) || firstArgument.type === 'TemplateLiteral')
-  );
+  return Playwright.isDescribe(node.callee.object) && Playwright.hasTestTitleArgument(node);
 }

@@ -19,6 +19,7 @@
 import type { Rule } from 'eslint';
 import type { CallExpression, Node } from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
+import * as Playwright from '../helpers/playwright.js';
 import * as meta from './generated-meta.js';
 
 const TEST_FILE_PATTERN = /\.(?:spec|test|cy)\./;
@@ -134,7 +135,10 @@ export const rule: Rule.RuleModule = {
       }
 
       const fqn = fullyQualifiedName(node.callee);
-      if (APIs.has(fqn) || (APIS_WITH_TEST_TITLE.has(fqn) && hasStringFirstArgument(node))) {
+      if (
+        APIs.has(fqn) ||
+        (APIS_WITH_TEST_TITLE.has(fqn) && Playwright.hasTestTitleArgument(node))
+      ) {
         hasTest = true;
       }
     }
@@ -177,9 +181,4 @@ function fullyQualifiedName(node: Node): string {
     default:
       return '';
   }
-}
-
-function hasStringFirstArgument(node: CallExpression) {
-  const firstArgument = node.arguments[0];
-  return firstArgument?.type === 'Literal' && typeof firstArgument.value === 'string';
 }

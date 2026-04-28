@@ -20,10 +20,10 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isMethodCall } from '../helpers/ast.js';
+import * as Playwright from '../helpers/playwright.js';
 import * as meta from './generated-meta.js';
 
 const exclusiveTestFunctionNames = ['context', 'describe', 'it', 'specify', 'test'];
-const playwrightDescribeModifiers = ['parallel', 'serial'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -64,17 +64,5 @@ export const rule: Rule.RuleModule = {
 };
 
 function isExclusiveTestFunction(node: estree.Node | undefined): boolean {
-  return isIdentifier(node, ...exclusiveTestFunctionNames) || isPlaywrightDescribe(node);
-}
-
-function isPlaywrightDescribe(node: estree.Node | undefined): boolean {
-  if (node?.type !== 'MemberExpression' || node.computed) {
-    return false;
-  }
-
-  const { object, property } = node;
-  return (
-    (isIdentifier(object, 'test') && isIdentifier(property, 'describe')) ||
-    (isIdentifier(property, ...playwrightDescribeModifiers) && isPlaywrightDescribe(object))
-  );
+  return isIdentifier(node, ...exclusiveTestFunctionNames) || Playwright.isDescribe(node);
 }
