@@ -148,6 +148,13 @@ describe('S2871', () => {
           {
             code: `Array.prototype.sort.apply([1, 2, 10])`,
           },
+          // JSON.stringify equality: sort order is irrelevant when both arrays are serialized before comparison
+          {
+            code: `function f(a: string[], b: string[]) { return JSON.stringify(a.sort()) === JSON.stringify(b.sort()); }`,
+          },
+          {
+            code: `function f(a: number[], b: number[]) { return JSON.stringify(a.sort()) !== JSON.stringify(b.sort()); }`,
+          },
         ],
         invalid: [
           {
@@ -386,6 +393,21 @@ describe('S2871', () => {
       `,
             errors: 1,
           },
+          // direct array reference comparison: sort order still matters (not suppressed)
+          {
+            code: `function f(a: number[], b: number[]) { return a.sort() === b.sort(); }`,
+            errors: 2,
+          },
+          // only one side has JSON.stringify: sort still flagged
+          {
+            code: `function f(a: number[], b: number[]) { return JSON.stringify(a.sort()) === b; }`,
+            errors: 1,
+          },
+          // sibling JSON.stringify argument is not a bare sort: sort still flagged
+          {
+            code: `function f(a: number[], b: number[]) { return JSON.stringify(a) === JSON.stringify(b.sort()); }`,
+            errors: 1,
+          },
         ],
       },
     );
@@ -510,6 +532,13 @@ describe('S2871', () => {
           },
           {
             code: `const sorted = Array.prototype.toSorted.apply([1, 2, 10])`,
+          },
+          // JSON.stringify equality: sort order is irrelevant when both arrays are serialized before comparison
+          {
+            code: `function f(a: string[], b: string[]) { return JSON.stringify(a.toSorted()) === JSON.stringify(b.toSorted()); }`,
+          },
+          {
+            code: `function f(a: number[], b: number[]) { return JSON.stringify(a.toSorted()) !== JSON.stringify(b.toSorted()); }`,
           },
         ],
         invalid: [
@@ -752,6 +781,11 @@ describe('S2871', () => {
         const sorted = [foo, bar, baz].toSorted();
       `,
             errors: 1,
+          },
+          // direct array reference comparison: sort order still matters (not suppressed)
+          {
+            code: `function f(a: number[], b: number[]) { return a.toSorted() === b.toSorted(); }`,
+            errors: 2,
           },
         ],
       },
