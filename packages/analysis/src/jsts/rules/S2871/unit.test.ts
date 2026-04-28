@@ -155,6 +155,10 @@ describe('S2871', () => {
           {
             code: `function f(a: number[], b: number[]) { return JSON.stringify(a.sort()) !== JSON.stringify(b.sort()); }`,
           },
+          // mixed sort/toSorted families: still suppressed since both produce sorted-string representations
+          {
+            code: `function f(a: number[], b: number[]) { return JSON.stringify(a.sort()) === JSON.stringify(b.toSorted()); }`,
+          },
         ],
         invalid: [
           {
