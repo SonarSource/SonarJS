@@ -18,6 +18,7 @@
 
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import * as meta from './generated-meta.js';
@@ -30,6 +31,7 @@ import * as meta from './generated-meta.js';
  *   - `export const alias = localVar` (local variable — not a re-export candidate)
  *   - `export { locallyDefinedFn }` (identifier not found in any import specifier)
  *   - re-exporting default imports (e.g. `import foo from './foo'; export { foo }`)
+ *   - named imports also used locally (e.g. in arrays, calls, object literals) — export…from would break local usage
  *
  * Named and namespace import aliases (e.g. `import {x}...; export const y = x` or
  * `import * as ns...; export const N = ns`) are still reported as genuine re-export candidates.
@@ -53,9 +55,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       //   e.g. `import {x} from '...'; export const y = x` CAN be rewritten as
       //   `export { x as y } from '...'` — this is a genuine re-export candidate.
       if (node.type === 'ExportNamedDeclaration' && node.declaration != null) {
-        if (isNamedImportAlias(context.sourceCode, node.declaration)) {
-          context.report(reportDescriptor);
+        if (!isNamedImportAlias(context.sourceCode, node.declaration)) {
+          return;
         }
+        context.report(reportDescriptor);
         return;
       }
 
@@ -70,6 +73,10 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 
       const importKind = getImportKind(context.sourceCode, identifierName);
       if (!importKind || importKind === 'default') {
+        return;
+      }
+
+      if (hasLocalUsage(context.sourceCode, identifierName)) {
         return;
       }
 
@@ -109,6 +116,36 @@ function getReportedIdentifierName(node: estree.Node): string | undefined {
     default:
       return undefined;
   }
+}
+
+/**
+ * Returns true if the named import identifier is referenced outside of export specifiers.
+ * When true, replacing import+export with export…from would break the local usage.
+ */
+function hasLocalUsage(sourceCode: SourceCode, identifierName: string): boolean {
+  for (const node of sourceCode.ast.body) {
+    if (node.type !== 'ImportDeclaration') {
+      continue;
+    }
+    for (const specifier of node.specifiers) {
+      if (specifier.local.name !== identifierName) {
+        continue;
+      }
+      const variables = sourceCode.getDeclaredVariables(node);
+      for (const variable of variables) {
+        if (variable.name !== identifierName) {
+          continue;
+        }
+        for (const ref of variable.references) {
+          const parent = (ref.identifier as TSESTree.Identifier).parent;
+          if (parent.type !== 'ExportSpecifier' && parent.type !== 'ExportDefaultDeclaration') {
+            return true;
+          }
+        }
+      }
+    }
+  }
+  return false;
 }
 
 /**
