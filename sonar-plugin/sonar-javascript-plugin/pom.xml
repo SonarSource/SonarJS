@@ -34,6 +34,7 @@
     <tsgolint.go.protobuf.version>v1.36.6</tsgolint.go.protobuf.version>
     <tsgolint.go.grpc.version>v1.72.0</tsgolint.go.grpc.version>
     <tsgolint.protoc.gen.go.grpc.version>v1.6.1</tsgolint.protoc.gen.go.grpc.version>
+    <tsgolint.executable.suffix></tsgolint.executable.suffix>
   </properties>
 
   <dependencies>
@@ -308,6 +309,9 @@
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
+              <environmentVariables>
+                <GOBIN>${project.build.directory}/go-bin</GOBIN>
+              </environmentVariables>
               <arguments>
                 <argument>install</argument>
                 <argument>google.golang.org/protobuf/cmd/protoc-gen-go@${tsgolint.go.protobuf.version}</argument>
@@ -320,6 +324,9 @@
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
+              <environmentVariables>
+                <GOBIN>${project.build.directory}/go-bin</GOBIN>
+              </environmentVariables>
               <arguments>
                 <argument>install</argument>
                 <argument>google.golang.org/grpc/cmd/protoc-gen-go-grpc@${tsgolint.protoc.gen.go.grpc.version}</argument>
@@ -332,14 +339,20 @@
             <phase>${tsgolint.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
-              <executable>bash</executable>
+              <executable>${project.build.directory}/protoc${tsgolint.executable.suffix}</executable>
               <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
               <arguments>
-                <argument>-c</argument>
-                <argument>set -e; chmod +x "${0}" &amp;&amp; rm -rf cmd/sonar-server/grpc; PROTOC_INCLUDE_FILE="$(find "${2}" -path '*/google/protobuf/empty.proto' -print -quit)"; if [ -z "${PROTOC_INCLUDE_FILE}" ]; then echo "Failed to locate google/protobuf/empty.proto under ${2}" &gt;&amp;2; exit 1; fi; PROTOC_INCLUDE_ROOT="$(dirname "$(dirname "$(dirname "${PROTOC_INCLUDE_FILE}")")")"; "${0}" --proto_path="${1}" --proto_path="${PROTOC_INCLUDE_ROOT}" --go_out=. --go_opt=module=github.com/typescript-eslint/tsgolint --go_opt=Mpackages/grpc/src/proto/analyze-project.proto=github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc --go-grpc_out=. --go-grpc_opt=module=github.com/typescript-eslint/tsgolint --go-grpc_opt=Mpackages/grpc/src/proto/analyze-project.proto=github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc packages/grpc/src/proto/analyze-project.proto</argument>
-                <argument>${project.build.directory}/protoc.exe</argument>
-                <argument>${project.basedir}/../..</argument>
-                <argument>${project.basedir}/../bridge/target/protoc-dependencies</argument>
+                <argument>--plugin=protoc-gen-go=${project.build.directory}/go-bin/protoc-gen-go${tsgolint.executable.suffix}</argument>
+                <argument>--plugin=protoc-gen-go-grpc=${project.build.directory}/go-bin/protoc-gen-go-grpc${tsgolint.executable.suffix}</argument>
+                <argument>--proto_path=${project.basedir}/../..</argument>
+                <argument>--proto_path=${project.build.directory}/protoc-include</argument>
+                <argument>--go_out=.</argument>
+                <argument>--go_opt=module=github.com/typescript-eslint/tsgolint</argument>
+                <argument>--go_opt=Mpackages/grpc/src/proto/analyze-project.proto=github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc</argument>
+                <argument>--go-grpc_out=.</argument>
+                <argument>--go-grpc_opt=module=github.com/typescript-eslint/tsgolint</argument>
+                <argument>--go-grpc_opt=Mpackages/grpc/src/proto/analyze-project.proto=github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc</argument>
+                <argument>packages/grpc/src/proto/analyze-project.proto</argument>
               </arguments>
             </configuration>
           </execution>
@@ -587,6 +600,27 @@
       </plugin>
 
       <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>prepare-tsgolint-proto-gen</id>
+            <phase>${protobuf.generation.phase}</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <delete dir="${project.basedir}/../../tsgolint/cmd/sonar-server/grpc"/>
+                <mkdir dir="${project.build.directory}/go-bin"/>
+                <chmod file="${project.build.directory}/protoc${tsgolint.executable.suffix}" perm="ugo+rx"/>
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
@@ -605,7 +639,26 @@
                   <type>exe</type>
                   <classifier>${os.detected.classifier}</classifier>
                   <outputDirectory>${project.build.directory}</outputDirectory>
-                  <destFileName>protoc.exe</destFileName>
+                  <destFileName>protoc${tsgolint.executable.suffix}</destFileName>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-protobuf-includes</id>
+            <phase>${tsgolint.init.phase}</phase>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.google.protobuf</groupId>
+                  <artifactId>protobuf-java</artifactId>
+                  <version>${protobuf.version}</version>
+                  <type>jar</type>
+                  <outputDirectory>${project.build.directory}/protoc-include</outputDirectory>
+                  <includes>google/protobuf/*.proto</includes>
                 </artifactItem>
               </artifactItems>
             </configuration>
@@ -959,6 +1012,17 @@
     </plugins>
   </build>
   <profiles>
+    <profile>
+      <id>windows-executables</id>
+      <activation>
+        <os>
+          <family>Windows</family>
+        </os>
+      </activation>
+      <properties>
+        <tsgolint.executable.suffix>.exe</tsgolint.executable.suffix>
+      </properties>
+    </profile>
     <profile>
       <id>skip-tsgolint</id>
       <properties>
