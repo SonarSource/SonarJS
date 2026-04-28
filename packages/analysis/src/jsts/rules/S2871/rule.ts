@@ -33,18 +33,23 @@ import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 function isJsonStringifyCall(node: estree.Node): boolean {
-  if (node.type !== 'CallExpression') return false;
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
   const callExpr = node as estree.CallExpression;
-  if (callExpr.arguments.length !== 1) return false;
+  if (callExpr.arguments.length !== 1) {
+    return false;
+  }
   const callee = callExpr.callee;
-  if (callee.type !== 'MemberExpression') return false;
-  const member = callee as estree.MemberExpression;
+  if (callee.type !== 'MemberExpression') {
+    return false;
+  }
   return (
-    !member.computed &&
-    member.object.type === 'Identifier' &&
-    (member.object as estree.Identifier).name === 'JSON' &&
-    member.property.type === 'Identifier' &&
-    (member.property as estree.Identifier).name === 'stringify'
+    !callee.computed &&
+    callee.object.type === 'Identifier' &&
+    callee.object.name === 'JSON' &&
+    callee.property.type === 'Identifier' &&
+    callee.property.name === 'stringify'
   );
 }
 
@@ -103,20 +108,18 @@ export const rule: Rule.RuleModule = {
 
     // Suppresses when both sides of === / !== are JSON.stringify(arr.sort()) — sort order is irrelevant.
     function isJsonStringifySortComparison(call: estree.CallExpression): boolean {
-      const parent = getNodeParent(call) as estree.Node;
+      const parent = getNodeParent(call);
       if (!isJsonStringifyCall(parent) || (parent as estree.CallExpression).arguments[0] !== call) {
         return false;
       }
-      const grandparent = getNodeParent(parent) as estree.Node;
+      const grandparent = getNodeParent(parent);
       if (
         grandparent.type !== 'BinaryExpression' ||
-        ((grandparent as estree.BinaryExpression).operator !== '===' &&
-          (grandparent as estree.BinaryExpression).operator !== '!==')
+        (grandparent.operator !== '===' && grandparent.operator !== '!==')
       ) {
         return false;
       }
-      const binaryExpr = grandparent as estree.BinaryExpression;
-      const sibling = binaryExpr.left === parent ? binaryExpr.right : binaryExpr.left;
+      const sibling = grandparent.left === parent ? grandparent.right : grandparent.left;
       if (!isJsonStringifyCall(sibling)) {
         return false;
       }
@@ -124,12 +127,17 @@ export const rule: Rule.RuleModule = {
     }
 
     function isBareSort(node: estree.Node): boolean {
-      if (node.type !== 'CallExpression') return false;
+      if (node.type !== 'CallExpression') {
+        return false;
+      }
       const callExpr = node as estree.CallExpression;
-      if (callExpr.arguments.length !== 0) return false;
-      if (callExpr.callee.type !== 'MemberExpression') return false;
-      const member = callExpr.callee as estree.MemberExpression;
-      const text = sourceCode.getText(member.property);
+      if (callExpr.arguments.length !== 0) {
+        return false;
+      }
+      if (callExpr.callee.type !== 'MemberExpression') {
+        return false;
+      }
+      const text = sourceCode.getText(callExpr.callee.property);
       return [...sortLike, ...copyingSortLike].includes(text);
     }
 
