@@ -32,6 +32,8 @@ import {
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
+const allSortLike = [...sortLike, ...copyingSortLike];
+
 function isJsonStringifyCall(node: estree.Node): boolean {
   if (node.type !== 'CallExpression') {
     return false;
@@ -95,7 +97,7 @@ export const rule: Rule.RuleModule = {
         const text = sourceCode.getText(node);
         const type = getTypeFromTreeNode(object, services);
 
-        if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
+        if (allSortLike.includes(text) && isArrayLikeType(type, services)) {
           if (isJsonStringifySortComparison(call)) {
             return;
           }
@@ -138,7 +140,7 @@ export const rule: Rule.RuleModule = {
         return false;
       }
       const text = sourceCode.getText(callExpr.callee.property);
-      return [...sortLike, ...copyingSortLike].includes(text);
+      return allSortLike.includes(text);
     }
 
     function getSuggestions(call: estree.CallExpression, type: ts.Type) {
