@@ -116,6 +116,12 @@ export { schema };`,
 export function setup() { reset(); }
 export { reset };`,
         },
+        // JS-1644: named import used as export default — export…from would break the default export
+        {
+          code: `import { foo } from './foo';
+export default foo;
+export { foo };`,
+        },
       ],
       invalid: [
         // Named imports should still be flagged

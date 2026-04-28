@@ -146,7 +146,7 @@ function hasNonExportReference(
     }
     for (const ref of variable.references) {
       const parent = (ref.identifier as TSESTree.Identifier).parent;
-      if (parent.type !== 'ExportSpecifier' && parent.type !== 'ExportDefaultDeclaration') {
+      if (parent.type !== 'ExportSpecifier') {
         return true;
       }
     }
