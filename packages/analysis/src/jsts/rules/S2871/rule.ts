@@ -19,6 +19,7 @@
 import type { Rule } from 'eslint';
 import type ts from 'typescript';
 import type estree from 'estree';
+import { getNodeParent } from '../helpers/ancestor.js';
 import { copyingSortLike, sortLike } from '../helpers/collection.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
@@ -74,12 +75,63 @@ export const rule: Rule.RuleModule = {
         const type = getTypeFromTreeNode(object, services);
 
         if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
+          if (isJsonStringifySortComparison(call)) {
+            return;
+          }
           const suggest = getSuggestions(call, type);
           const messageId = getMessageId(type);
           context.report({ node, suggest, messageId });
         }
       },
     };
+
+    // Suppresses when both sides of === / !== are JSON.stringify(arr.sort()) — sort order is irrelevant.
+    function isJsonStringifySortComparison(call: estree.CallExpression): boolean {
+      const parent = getNodeParent(call) as estree.Node;
+      if (!isJsonStringifyCall(parent) || (parent as estree.CallExpression).arguments[0] !== call) {
+        return false;
+      }
+      const grandparent = getNodeParent(parent) as estree.Node;
+      if (
+        grandparent.type !== 'BinaryExpression' ||
+        ((grandparent as estree.BinaryExpression).operator !== '===' &&
+          (grandparent as estree.BinaryExpression).operator !== '!==')
+      ) {
+        return false;
+      }
+      const binaryExpr = grandparent as estree.BinaryExpression;
+      const sibling = binaryExpr.left === parent ? binaryExpr.right : binaryExpr.left;
+      if (!isJsonStringifyCall(sibling)) {
+        return false;
+      }
+      return isBareSort((sibling as estree.CallExpression).arguments[0]);
+    }
+
+    function isJsonStringifyCall(node: estree.Node): boolean {
+      if (node.type !== 'CallExpression') return false;
+      const callExpr = node as estree.CallExpression;
+      if (callExpr.arguments.length !== 1) return false;
+      const callee = callExpr.callee;
+      if (callee.type !== 'MemberExpression') return false;
+      const member = callee as estree.MemberExpression;
+      return (
+        !member.computed &&
+        member.object.type === 'Identifier' &&
+        (member.object as estree.Identifier).name === 'JSON' &&
+        member.property.type === 'Identifier' &&
+        (member.property as estree.Identifier).name === 'stringify'
+      );
+    }
+
+    function isBareSort(node: estree.Node): boolean {
+      if (node.type !== 'CallExpression') return false;
+      const callExpr = node as estree.CallExpression;
+      if (callExpr.arguments.length !== 0) return false;
+      if (callExpr.callee.type !== 'MemberExpression') return false;
+      const member = callExpr.callee as estree.MemberExpression;
+      const text = sourceCode.getText(member.property);
+      return [...sortLike, ...copyingSortLike].includes(text);
+    }
 
     function getSuggestions(call: estree.CallExpression, type: ts.Type) {
       const suggestions: Rule.SuggestionReportDescriptor[] = [];
