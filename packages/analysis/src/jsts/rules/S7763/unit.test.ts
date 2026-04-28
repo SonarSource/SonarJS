@@ -199,10 +199,9 @@ describe('S7763 decorator edge cases', () => {
     });
   });
 
-  // Test lines 126 and 144: outer loop continue and return null in getImportKind
   // When the exported identifier is not found in any import declaration, getImportKind returns
-  // null (line 144). Non-import body nodes (VariableDeclaration, ExportNamedDeclaration) cause
-  // the outer loop to continue (line 126).
+  // null. Non-import body nodes (VariableDeclaration, ExportNamedDeclaration) cause
+  // the outer loop to continue.
   it('suppresses when exported identifier is not found in any import (getImportKind returns null)', () => {
     const mockRule: Rule.RuleModule = {
       meta: { type: 'suggestion', fixable: 'code' },
@@ -218,8 +217,8 @@ describe('S7763 decorator edge cases', () => {
     ruleTester.run('null-import-kind', decoratedMock, {
       valid: [
         {
-          // localVar is not imported: outer loop skips VariableDeclaration and ExportNamedDeclaration
-          // (both trigger line 126 continue), then loop ends and returns null (line 144)
+          // localVar is not imported: outer loop skips VariableDeclaration and ExportNamedDeclaration,
+          // then loop ends and returns null
           code: 'const localVar = 1;\nexport { localVar };',
         },
       ],
@@ -227,8 +226,7 @@ describe('S7763 decorator edge cases', () => {
     });
   });
 
-  // Test line 130: inner loop continue in getImportKind when specifier doesn't match
-  // When an import has multiple specifiers, the inner loop skips non-matching ones (line 130)
+  // When an import has multiple specifiers, the inner loop skips non-matching ones
   // before finding the target.
   it('reports named import when import has multiple specifiers (inner loop continue)', () => {
     const mockRule: Rule.RuleModule = {
@@ -248,7 +246,7 @@ describe('S7763 decorator edge cases', () => {
       valid: [],
       invalid: [
         {
-          // import { a, named }: inner loop skips 'a' (line 130 continue) before matching 'named'
+          // import { a, named }: inner loop skips 'a' before matching 'named'
           code: 'import { a, named } from "./foo";\nexport { named };',
           errors: 1,
         },

@@ -127,21 +127,27 @@ function hasLocalUsage(sourceCode: SourceCode, identifierName: string): boolean 
     if (node.type !== 'ImportDeclaration') {
       continue;
     }
-    for (const specifier of node.specifiers) {
-      if (specifier.local.name !== identifierName) {
-        continue;
-      }
-      const variables = sourceCode.getDeclaredVariables(node);
-      for (const variable of variables) {
-        if (variable.name !== identifierName) {
-          continue;
-        }
-        for (const ref of variable.references) {
-          const parent = (ref.identifier as TSESTree.Identifier).parent;
-          if (parent.type !== 'ExportSpecifier' && parent.type !== 'ExportDefaultDeclaration') {
-            return true;
-          }
-        }
+    if (hasNonExportReference(sourceCode, node, identifierName)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function hasNonExportReference(
+  sourceCode: SourceCode,
+  importDecl: estree.ImportDeclaration,
+  identifierName: string,
+): boolean {
+  const variables = sourceCode.getDeclaredVariables(importDecl);
+  for (const variable of variables) {
+    if (variable.name !== identifierName) {
+      continue;
+    }
+    for (const ref of variable.references) {
+      const parent = (ref.identifier as TSESTree.Identifier).parent;
+      if (parent.type !== 'ExportSpecifier' && parent.type !== 'ExportDefaultDeclaration') {
+        return true;
       }
     }
   }
