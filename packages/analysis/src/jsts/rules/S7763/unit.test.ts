@@ -41,6 +41,21 @@ describe('S7763 upstream sentinel', () => {
       ],
     });
   });
+
+  it('upstream prefer-export-from raises on locally-used named import re-export that decorator suppresses', () => {
+    const upstreamRule = rules['prefer-export-from'];
+    ruleTester.run('prefer-export-from', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // Named import used locally AND re-exported — suppressed by decorator (JS-1644), raised by upstream
+          code: `import { foo } from './foo';\nexport const arr = [foo];\nexport { foo };`,
+          output: `import { foo } from './foo';\nexport const arr = [foo];\n\nexport {foo} from './foo';`,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });
 
 describe('S7763', () => {
@@ -75,6 +90,31 @@ export const bar = foo;`,
         {
           code: `const localValue = 42;
 export const exported = localValue;`,
+        },
+        // JS-1644: named import used locally in array literal — export…from would break local usage
+        {
+          code: `import { foo } from './foo';
+export const arr = [foo];
+export { foo };`,
+        },
+        // JS-1644: multiple named imports each used locally in array
+        {
+          code: `import { a } from './a';
+import { b } from './b';
+export const arr = [a, b];
+export { a, b };`,
+        },
+        // JS-1644: named import used in object literal
+        {
+          code: `import { schema } from './schemas';
+export const registry = { schema };
+export { schema };`,
+        },
+        // JS-1644: named import called locally
+        {
+          code: `import { reset } from './util';
+export function setup() { reset(); }
+export { reset };`,
         },
       ],
       invalid: [
