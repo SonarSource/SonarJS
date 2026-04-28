@@ -19,7 +19,7 @@
 import type { Rule } from 'eslint';
 import type { CallExpression, Node } from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
-import * as Playwright from '../helpers/playwright.js';
+import { hasStringFirstArgument } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const TEST_FILE_PATTERN = /\.(?:spec|test|cy)\./;
@@ -61,7 +61,6 @@ const APIs = new Set([
   'test.skip.failing',
   'test.only',
   'test.only.each',
-  'test.skip',
   'test.skip.each',
   'test.todo',
   // Mocha and Cypress test cases
@@ -73,7 +72,6 @@ const APIs = new Set([
   'specify.only',
   'xspecify',
   'test',
-  'test.skip',
   'test.only',
   // Node.js test runner
   'it',
@@ -81,7 +79,6 @@ const APIs = new Set([
   'it.todo',
   'it.only',
   'test',
-  'test.skip',
   'test.todo',
   'test.only',
   // vitest
@@ -107,9 +104,10 @@ const APIs = new Set([
 ]);
 
 const APIS_WITH_TEST_TITLE = new Set([
-  // Playwright overloads these APIs for both test declarations and runtime annotations.
-  // Count only declaration-style calls with a string title: test.fail('title', ...).
-  // see https://playwright.dev/docs/api/class-test#test-fail
+  // These APIs are overloaded for both test declarations and runtime annotations.
+  // Count only declaration-style calls with a string title: test.skip('title', ...).
+  // see https://playwright.dev/docs/api/class-test#test-skip
+  'test.skip',
   'test.fail',
   'test.fail.only',
   'test.fixme',
@@ -135,10 +133,7 @@ export const rule: Rule.RuleModule = {
       }
 
       const fqn = fullyQualifiedName(node.callee);
-      if (
-        APIs.has(fqn) ||
-        (APIS_WITH_TEST_TITLE.has(fqn) && Playwright.hasTestTitleArgument(node))
-      ) {
+      if (APIs.has(fqn) || (APIS_WITH_TEST_TITLE.has(fqn) && hasStringFirstArgument(node))) {
         hasTest = true;
       }
     }

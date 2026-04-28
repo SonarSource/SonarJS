@@ -16,7 +16,11 @@
  */
 import esprima from 'esprima';
 import type estree from 'estree';
-import { isTestConstruct } from '../../../../src/jsts/rules/helpers/mocha.js';
+import {
+  extractTestCase,
+  isTestCase,
+  isTestConstruct,
+} from '../../../../src/jsts/rules/helpers/mocha.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 
@@ -31,6 +35,18 @@ describe('Mocha.js', () => {
     const program = esprima.parse(`it.only('foo', () => {})`);
     const node: estree.Node = program.body[0].expression;
     expect(isTestConstruct(node)).toEqual(true);
+  });
+
+  it('should recognize test case aliases', () => {
+    const program = esprima.parse(`test.only('foo', () => {})`);
+    const node: estree.Node = program.body[0].expression;
+    expect(isTestCase(node)).toEqual(true);
+  });
+
+  it('should extract test case aliases', () => {
+    const program = esprima.parse(`test('foo', () => {})`);
+    const node: estree.Node = program.body[0].expression;
+    expect(extractTestCase(node)?.callback.type).toEqual('ArrowFunctionExpression');
   });
 
   it('should not recognize garbage', () => {

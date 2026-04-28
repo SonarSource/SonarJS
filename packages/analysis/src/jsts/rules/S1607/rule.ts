@@ -23,6 +23,7 @@ import { getFullyQualifiedName } from '../helpers/module.js';
 import {
   getProperty,
   getValueOfExpression,
+  hasStringFirstArgument,
   isFunctionInvocation,
   isIdentifier,
   isLiteral,
@@ -308,7 +309,7 @@ function isVitestIgnoredTest(node: estree.CallExpression) {
 function isPlaywrightIgnoredTest(node: estree.CallExpression) {
   // Playwright definition-style skips start with a test title: test.skip('title', async () => {}).
   return (
-    (isMethodInvocation(node, 'test', 'skip', 0) && Playwright.hasTestTitleArgument(node)) ||
+    (isMethodInvocation(node, 'test', 'skip', 0) && hasStringFirstArgument(node)) ||
     isPlaywrightSkippedDescribe(node)
   );
 }
@@ -323,5 +324,5 @@ function isPlaywrightSkippedDescribe(node: estree.CallExpression): boolean {
     return false;
   }
 
-  return Playwright.isDescribe(node.callee.object) && Playwright.hasTestTitleArgument(node);
+  return Playwright.isDescribe(node.callee.object) && hasStringFirstArgument(node);
 }

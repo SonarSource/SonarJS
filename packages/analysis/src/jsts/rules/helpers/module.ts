@@ -130,15 +130,14 @@ export function importsModule(context: Rule.RuleContext, moduleNames: string[]):
     return false;
   }
 
+  // check import declarations first as they are more common nowadays
   return (
-    getRequireAndDynamicImportCalls(context).some(module =>
-      moduleNames.includes(module.moduleName),
-    ) ||
     getImportDeclarations(context).some(
       declaration =>
         typeof declaration.source.value === 'string' &&
         moduleNames.includes(declaration.source.value),
-    )
+    ) ||
+    getRequireAndDynamicImportCalls(context).some(module => moduleNames.includes(module.moduleName))
   );
 }
 

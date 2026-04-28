@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type estree from 'estree';
-import { isIdentifier, isStringLiteral } from './ast.js';
+import { isIdentifier } from './ast.js';
 
 const describeModifiers = ['parallel', 'serial'];
 
@@ -28,15 +28,5 @@ export function isDescribe(node: estree.Node | undefined): boolean {
   return (
     (isIdentifier(object, 'test') && isIdentifier(property, 'describe')) ||
     (isIdentifier(property, ...describeModifiers) && isDescribe(object))
-  );
-}
-
-// Playwright uses the first argument shape to distinguish test declarations
-// from runtime annotations for overloaded APIs such as test.skip/fail/fixme.
-export function hasTestTitleArgument(node: estree.CallExpression): boolean {
-  const firstArgument = node.arguments[0];
-  return (
-    firstArgument !== undefined &&
-    (isStringLiteral(firstArgument) || firstArgument.type === 'TemplateLiteral')
   );
 }

@@ -127,6 +127,14 @@ describe('S2187', () => {
         },
         {
           code: `
+        /* a test file using 'test.skip' from Playwright */
+        test.skip('should do something', async ({ page }) => {
+            await page.goto('https://example.com')
+        });`,
+          filename: 'foo.spec.ts',
+        },
+        {
+          code: `
         /* a test file using 'test.fixme' from Playwright */
         test.fixme('should do something', async ({ page }) => {
             await page.goto('https://example.com')
@@ -218,6 +226,16 @@ describe('S2187', () => {
         {
           code: `/* empty Cypress test file */`,
           filename: 'foo.cy.ts',
+          errors: 1,
+        },
+        {
+          code: `test.skip(browserName === 'webkit', 'reason');`,
+          filename: 'foo.spec.ts',
+          errors: 1,
+        },
+        {
+          code: `test.skip(({ browserName }) => browserName === 'webkit', 'reason');`,
+          filename: 'foo.spec.ts',
           errors: 1,
         },
         {
