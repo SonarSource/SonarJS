@@ -412,6 +412,11 @@ describe('S2871', () => {
             code: `function f(a: number[], b: number[]) { return JSON.stringify(a) === JSON.stringify(b.sort()); }`,
             errors: 1,
           },
+          // sibling sort is on a user-defined type, not an array: not suppressed
+          {
+            code: `function f(a: number[], b: { sort(): number[] }) { return JSON.stringify(a.sort()) === JSON.stringify(b.sort()); }`,
+            errors: 1,
+          },
         ],
       },
     );
@@ -790,6 +795,11 @@ describe('S2871', () => {
           {
             code: `function f(a: number[], b: number[]) { return a.toSorted() === b.toSorted(); }`,
             errors: 2,
+          },
+          // sibling toSorted is on a user-defined type, not an array: not suppressed
+          {
+            code: `function f(a: number[], b: { toSorted(): number[] }) { return JSON.stringify(a.toSorted()) === JSON.stringify(b.toSorted()); }`,
+            errors: 1,
           },
         ],
       },

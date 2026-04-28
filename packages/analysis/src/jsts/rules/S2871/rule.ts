@@ -139,8 +139,13 @@ export const rule: Rule.RuleModule = {
       if (callExpr.callee.type !== 'MemberExpression') {
         return false;
       }
-      const text = sourceCode.getText(callExpr.callee.property);
-      return allSortLike.has(text);
+      const callee = callExpr.callee;
+      const text = sourceCode.getText(callee.property);
+      if (!allSortLike.has(text)) {
+        return false;
+      }
+      const receiverType = getTypeFromTreeNode(callee.object, services);
+      return isArrayLikeType(receiverType, services);
     }
 
     function getSuggestions(call: estree.CallExpression, type: ts.Type) {
