@@ -80,6 +80,7 @@ Also, do not assume that the GitHub Actions step name `Analyze project` means th
 3. Which component crashed? Use the last sensor that started before the error.
    ├─ Stack trace is in `ReportPublisher.upload` → IGNORE (Peach server / report upload timeout)
    ├─ Log says `Node.js process running out of memory` or suggests `sonar.javascript.node.maxspace` → CRITICAL (SonarJS bridge Node heap exhausted)
+   ├─ Log says `Failed to get response from analysis` and then `Failed to analyze file ...` with `Rule: "sonarjs/Sxxxx"` → CRITICAL (SonarJS rule crash)
    ├─ Stack trace contains `org.sonar.plugins.javascript` frames but no sensor name → CRITICAL (SonarJS plugin initialization failure)
    ├─ Last active sensor is one of the SonarJS sensors listed above → CRITICAL (SonarJS analyzer crash)
    └─ Last active sensor is something else (DRE Shell, Java, Security...) → IGNORE (different plugin, not our problem)
@@ -152,6 +153,7 @@ category for `diff-validation-aggregated`; exclude that workflow job entirely in
 **Detection patterns:**
 - Phase 1: `/EXECUTION FAILURE/`, `/Process completed with exit code/` — exit code 3 with no misconfiguration signal escalates to Phase 2
 - Phase 2: `/org\.sonar\.plugins\.javascript/` — any match → CRITICAL; `/Sensor /` — confirm the failing sensor is a SonarJS sensor
+- Phase 2: `/Failed to get response from analysis/`, `/Failed to analyze file/`, `/Rule: "sonarjs\/S[0-9]+"/` — rule crash inside the JavaScript sensor → CRITICAL
 
 **Example log excerpt (sensor crash):**
 ```
@@ -190,7 +192,19 @@ EXECUTION FAILURE
 ##[error]Process completed with exit code 3.
 ```
 
-This pattern occurs when a source file contains a deeply nested AST (e.g. deeply nested arrow
+**Example log excerpt (rule crash inside the JavaScript sensor):**
+```
+Sensor JavaScript/TypeScript/CSS analysis [javascript]
+ERROR Failed to get response from analysis
+java.lang.IllegalStateException: Failed to analyze file ...: <rule-specific error>
+Occurred while linting ...:<line>
+Rule: "sonarjs/S6437"
+  at org.sonar.plugins.javascript.analysis.WebSensor$AnalyzeProjectHandler.handleFileResult(...)
+EXECUTION FAILURE
+##[error]Process completed with exit code 3.
+```
+
+The protobuf recursion-limit pattern above occurs when a source file contains a deeply nested AST (e.g. deeply nested arrow
 functions or call expressions) that exceeds the default protobuf recursion limit when the Java
 side deserializes the gRPC response from the Node.js bridge. The fix is to call
 `setRecursionLimit()` with a higher value on the `CodedInputStream` used in

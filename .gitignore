@@ -79,5 +79,8 @@ lcov.info
 !.claude/*.md
 !.claude/skills/
 
-.codex/
+.codex/*
+!.codex/skills/
+!.codex/skills/peach-check/
+!.codex/skills/peach-check/SKILL.md
 .mcp.json
