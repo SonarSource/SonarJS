@@ -147,4 +147,40 @@ describe('transformFixes', () => {
 
     expect(quickFixes).toEqual([]);
   });
+
+  it('should drop S7780 quick fixes that would introduce nested template literals', async () => {
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'prefer-string-raw.js');
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
+
+    const ruleId = 'S7780';
+
+    const linter = new Linter();
+    const messages = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules: { [ruleId]: allRules[ruleId] } },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
+
+    expect(messages).toHaveLength(2);
+
+    const safeMessage = messages.find(message => message.line === 1);
+    const unsafeMessage = messages.find(message => message.line === 2);
+
+    expect(safeMessage).toBeDefined();
+    expect(unsafeMessage).toBeDefined();
+
+    expect(transformFixes(sourceCode, safeMessage!)).toEqual([
+      {
+        message: `Use 'String.raw' template literal`,
+        edits: [
+          {
+            loc: { line: 1, column: 10, endLine: 1, endColumn: 16 },
+            text: 'String.raw`\\d+`',
+          },
+        ],
+      },
+    ]);
+    expect(transformFixes(sourceCode, unsafeMessage!)).toEqual([]);
+  });
 });
