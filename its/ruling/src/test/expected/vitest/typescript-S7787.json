@@ -1,0 +1,11 @@
+{
+"vitest:packages/browser/src/node/commands/screenshotMatcher/utils.ts": [
+2
+],
+"vitest:packages/expect/src/types.ts": [
+934
+],
+"vitest:packages/vitest/src/node/types/vite.ts": [
+22
+]
+}

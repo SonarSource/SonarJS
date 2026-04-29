@@ -1,0 +1,23 @@
+{
+"vitest:packages/browser/src/client/tester/state.ts": [
+6
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+24
+],
+"vitest:packages/runner/src/run.ts": [
+135
+],
+"vitest:packages/utils/src/diff/getAlignedDiffs.ts": [
+154
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+153
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+609
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+200
+]
+}

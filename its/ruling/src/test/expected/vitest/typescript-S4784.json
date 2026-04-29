@@ -1,0 +1,96 @@
+{
+"vitest:packages/browser/src/node/utils.ts": [
+42
+],
+"vitest:packages/expect/src/jest-asymmetric-matchers.ts": [
+248
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+341
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+74
+],
+"vitest:packages/mocker/src/node/parsers.ts": [
+169
+],
+"vitest:packages/pretty-format/src/index.ts": [
+54,
+172
+],
+"vitest:packages/runner/src/fixture.ts": [
+653,
+656,
+687
+],
+"vitest:packages/runner/src/utils/tags.ts": [
+264
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+53,
+56,
+163
+],
+"vitest:packages/utils/src/serialize.ts": [
+141
+],
+"vitest:packages/utils/src/source-map.ts": [
+14,
+53,
+87,
+157,
+163,
+202
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+217,
+543
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+44,
+106,
+121
+],
+"vitest:packages/vitest/src/node/cli/filter.ts": [
+21
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+221
+],
+"vitest:packages/vitest/src/node/plugins/normalizeURL.ts": [
+28
+],
+"vitest:packages/vitest/src/node/pools/browser.ts": [
+183
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/tableRender.ts": [
+16
+],
+"vitest:packages/vitest/src/node/resolver.ts": [
+92,
+93,
+154
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+249
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+245,
+354
+],
+"vitest:packages/vitest/src/utils/base.ts": [
+25
+],
+"vitest:packages/vitest/src/utils/memory-limit.ts": [
+50
+],
+"vitest:packages/vitest/src/utils/test-helpers.ts": [
+55,
+56,
+65
+],
+"vitest:scripts/explain-types.ts": [
+17,
+18
+]
+}

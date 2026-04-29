@@ -1,0 +1,11 @@
+{
+"vitest:packages/ui/client/composables/explorer/filter.ts": [
+143
+],
+"vitest:packages/ui/client/composables/explorer/tree.ts": [
+121
+],
+"vitest:packages/vitest/src/utils/environments.ts": [
+5
+]
+}

@@ -1,0 +1,117 @@
+{
+"vitest:packages/browser-webdriverio/src/webdriverio.ts": [
+249
+],
+"vitest:packages/browser/src/client/orchestrator.ts": [
+276
+],
+"vitest:packages/browser/src/node/index.ts": [
+32,
+32
+],
+"vitest:packages/browser/src/node/projectParent.ts": [
+231
+],
+"vitest:packages/coverage-istanbul/src/provider.ts": [
+251
+],
+"vitest:packages/coverage-v8/src/provider.ts": [
+191,
+453
+],
+"vitest:packages/expect/src/jest-matcher-utils.ts": [
+48
+],
+"vitest:packages/mocker/src/browser/interceptor-msw.ts": [
+149
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+51
+],
+"vitest:packages/runner/src/fixture.ts": [
+677
+],
+"vitest:packages/runner/src/utils/collect.ts": [
+128
+],
+"vitest:packages/runner/src/utils/tags.ts": [
+41
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+270
+],
+"vitest:packages/ui/node/index.ts": [
+14,
+14
+],
+"vitest:packages/utils/src/diff/index.ts": [
+113,
+114
+],
+"vitest:packages/vitest/src/create/browser/examples.ts": [
+351
+],
+"vitest:packages/vitest/src/integrations/chai/index.ts": [
+74
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+97,
+97,
+532,
+554
+],
+"vitest:packages/vitest/src/node/logger.ts": [
+159
+],
+"vitest:packages/vitest/src/node/pools/browser.ts": [
+95
+],
+"vitest:packages/vitest/src/node/printError.ts": [
+185,
+409
+],
+"vitest:packages/vitest/src/node/projects/resolveProjects.ts": [
+240
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+269,
+309,
+494,
+785,
+788,
+793,
+830,
+879
+],
+"vitest:packages/vitest/src/node/reporters/blob.ts": [
+150
+],
+"vitest:packages/vitest/src/node/reporters/github-actions.ts": [
+457,
+457
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+182
+],
+"vitest:packages/vitest/src/node/reporters/renderers/utils.ts": [
+273
+],
+"vitest:packages/vitest/src/node/reporters/tap.ts": [
+55
+],
+"vitest:packages/vitest/src/node/test-run.ts": [
+286
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleTransport.ts": [
+40
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
+264
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/startVitestModuleRunner.ts": [
+164
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/utils.ts": [
+14
+]
+}

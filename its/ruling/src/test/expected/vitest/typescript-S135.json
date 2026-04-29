@@ -1,0 +1,45 @@
+{
+"vitest:packages/expect/src/jest-asymmetric-matchers.ts": [
+163
+],
+"vitest:packages/mocker/src/automocker.ts": [
+58
+],
+"vitest:packages/runner/src/fixture.ts": [
+208
+],
+"vitest:packages/runner/src/run.ts": [
+619
+],
+"vitest:packages/runner/src/utils/tags.ts": [
+84
+],
+"vitest:packages/snapshot/src/client.ts": [
+405
+],
+"vitest:packages/ui/client/composables/explorer/collapse.ts": [
+88
+],
+"vitest:packages/ui/client/composables/explorer/collector.ts": [
+167,
+208
+],
+"vitest:packages/vitest/src/node/module-diagnostic.ts": [
+46
+],
+"vitest:packages/vitest/src/node/printError.ts": [
+456
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+813
+],
+"vitest:packages/vitest/src/node/reporters/renderers/windowedRenderer.ts": [
+103
+],
+"vitest:packages/vitest/src/node/watcher.ts": [
+202
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleRunner.ts": [
+205
+]
+}

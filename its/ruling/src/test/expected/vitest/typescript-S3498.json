@@ -1,0 +1,10 @@
+{
+"vitest:packages/ui/client/components/CodeMirrorContainer.vue": [
+45,
+51
+],
+"vitest:packages/vitest/src/node/cli/completions.ts": [
+31,
+42
+]
+}

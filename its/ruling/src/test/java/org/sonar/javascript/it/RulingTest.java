@@ -142,7 +142,8 @@ class RulingTest {
       project("tailwindcss"),
       project("custom-css", "../sources/custom/css", "", ""),
       project("fresh"), // todo: mixed *_test.ts(x) files and tests/** dirs
-      project("oak") // todo: files **/*.test.ts and **/*_test.ts
+      project("oak"), // todo: files **/*.test.ts and **/*_test.ts
+      project("vitest", "test")
     );
   }
 

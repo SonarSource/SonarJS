@@ -1,0 +1,13 @@
+{
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+309,
+348,
+366
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/tableRender.ts": [
+63
+],
+"vitest:packages/vitest/src/node/stdin.ts": [
+35
+]
+}

@@ -1,0 +1,15 @@
+{
+"vitest:packages/browser/src/node/plugin.ts": [
+26,
+423
+],
+"vitest:packages/mocker/src/browser/mocker.ts": [
+275
+],
+"vitest:packages/pretty-format/src/index.ts": [
+135
+],
+"vitest:packages/snapshot/src/port/utils.ts": [
+123
+]
+}

@@ -1,0 +1,33 @@
+{
+"vitest:packages/browser-playwright/src/playwright.ts": [
+520
+],
+"vitest:packages/browser/src/client/orchestrator.ts": [
+66,
+160,
+168
+],
+"vitest:packages/ui/client/composables/error.ts": [
+40,
+41
+],
+"vitest:packages/utils/src/diff/getType.ts": [
+65
+],
+"vitest:packages/utils/src/display.ts": [
+169
+],
+"vitest:packages/vitest/src/node/cli/cli-config.ts": [
+785,
+795
+],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+258
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleTransport.ts": [
+40
+],
+"vitest:packages/vitest/src/runtime/workers/init.ts": [
+247
+]
+}

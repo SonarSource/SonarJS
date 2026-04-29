@@ -1,0 +1,26 @@
+{
+"vitest:packages/ui/client/composables/explorer/tree.ts": [
+30
+],
+"vitest:packages/ui/node/index.ts": [
+21
+],
+"vitest:packages/vitest/src/integrations/env/edge-runtime.ts": [
+5
+],
+"vitest:packages/vitest/src/integrations/env/happy-dom.ts": [
+17
+],
+"vitest:packages/vitest/src/integrations/env/jsdom.ts": [
+43
+],
+"vitest:packages/vitest/src/integrations/env/node.ts": [
+41
+],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+38
+],
+"vitest:packages/vitest/src/node/plugins/workspace.ts": [
+35
+]
+}

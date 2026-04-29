@@ -1,0 +1,62 @@
+{
+"vitest:packages/browser/src/client/tester/context.ts": [
+451
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+46,
+176
+],
+"vitest:packages/browser/src/node/serverOrchestrator.ts": [
+61
+],
+"vitest:packages/coverage-istanbul/src/index.ts": [
+22
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+1063
+],
+"vitest:packages/mocker/src/node/resolver.ts": [
+162
+],
+"vitest:packages/runner/src/collect.ts": [
+151
+],
+"vitest:packages/ui/client/components/ModuleGraphImportBreakdown.vue": [
+34
+],
+"vitest:packages/ui/client/components/views/ViewModuleGraph.vue": [
+51
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+56
+],
+"vitest:packages/vitest/src/node/plugins/utils.ts": [
+74
+],
+"vitest:packages/vitest/src/node/pool.ts": [
+437
+],
+"vitest:packages/vitest/src/node/printError.ts": [
+429
+],
+"vitest:packages/vitest/src/node/project.ts": [
+555,
+701
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+319,
+661
+],
+"vitest:packages/vitest/src/node/reporters/json.ts": [
+170
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+172
+],
+"vitest:packages/vitest/src/node/test-run.ts": [
+127
+],
+"vitest:packages/vitest/src/utils/environments.ts": [
+9
+]
+}

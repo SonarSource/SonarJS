@@ -1,0 +1,29 @@
+{
+"vitest:packages/browser-playwright/rollup.config.js": [
+32
+],
+"vitest:packages/browser-preview/rollup.config.js": [
+31
+],
+"vitest:packages/browser-webdriverio/rollup.config.js": [
+31
+],
+"vitest:packages/browser/rollup.config.js": [
+48
+],
+"vitest:packages/coverage-v8/rollup.config.js": [
+38
+],
+"vitest:packages/ui/rollup.config.js": [
+24
+],
+"vitest:packages/vitest/rollup.config.js": [
+126
+],
+"vitest:packages/web-worker/rollup.config.js": [
+35
+],
+"vitest:packages/ws-client/rollup.config.js": [
+24
+]
+}

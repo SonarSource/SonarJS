@@ -1,0 +1,15 @@
+{
+"vitest:packages/ui/node/reporter.ts": [
+53
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/reporter.ts": [
+18,
+89
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+133
+],
+"vitest:packages/vitest/src/node/watch-filter.ts": [
+54
+]
+}

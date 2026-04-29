@@ -1,0 +1,41 @@
+{
+"vitest:packages/browser/src/node/plugin.ts": [
+14,
+144,
+367
+],
+"vitest:packages/ui/node/index.ts": [
+69
+],
+"vitest:packages/vitest/src/api/setup.ts": [
+112,
+128
+],
+"vitest:packages/vitest/src/integrations/env/loader.ts": [
+81,
+82,
+83,
+87,
+90,
+93
+],
+"vitest:packages/vitest/src/node/cache/results.ts": [
+32
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+647,
+665,
+770,
+880
+],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+9,
+60,
+224
+],
+"vitest:packages/vitest/src/node/plugins/workspace.ts": [
+70,
+72,
+72
+]
+}

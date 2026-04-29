@@ -1,0 +1,5 @@
+{
+"vitest:packages/vitest/suppress-warnings.cjs": [
+21
+]
+}
