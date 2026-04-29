@@ -596,6 +596,10 @@ function getChaiPropertyPredicate(
       return { predicate: 'null', negated: false };
     case 'undefined':
       return { predicate: 'undefined', negated: false };
+    // chai BDD `.exist` (with `.exists` alias) — checks neither null nor undefined
+    case 'exist':
+    case 'exists':
+      return { predicate: 'defined', negated: false };
     default:
       return null;
   }

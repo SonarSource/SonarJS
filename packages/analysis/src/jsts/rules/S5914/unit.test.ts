@@ -587,6 +587,21 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'issue' }],
         },
+        // chai BDD `.exist` (and its `.exists` alias) — equivalent to assert-style `.exists()`
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(null).to.exist;
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(undefined).to.exists;
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
       ],
     });
   });
