@@ -155,6 +155,63 @@ describe('files', () => {
     });
   });
 
+  it('should inject pnpm workspace packages into manifest workspaces', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-packages'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      workspaces: ['packages/*', 'apps/*'],
+      dependencies: { react: '^19.0.0' },
+    });
+  });
+
+  it('should inject workspace packages alongside catalog reference resolution', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-packages-and-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      workspaces: ['packages/*'],
+      dependencies: { react: '^19.1.1' },
+    });
+  });
+
+  it('should not set workspaces when pnpm-workspace.yaml has no packages field', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    const [manifest] = manifests;
+    expect(manifest.type).toEqual('npm');
+    if (manifest.type === 'npm') {
+      expect(manifest.manifest.workspaces).toBeUndefined();
+    }
+  });
+
+  it('should not overwrite existing workspaces when pnpm-workspace.yaml also defines packages', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'pnpm-workspace-packages-existing-workspaces'),
+    );
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      workspaces: ['existing/*'],
+    });
+    const [manifest] = manifests;
+    if (manifest.type === 'npm') {
+      expect(manifest.manifest.workspaces).not.toContain('new-packages/*');
+    }
+  });
+
   it('should not resolve the dependency when pnpm catalog references are not found', async ({
     mock,
   }) => {

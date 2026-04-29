@@ -23,6 +23,7 @@ import { closestPatternCache } from '../../find-up/closest.js';
 import { getManifestFileInDir } from './helpers.js';
 
 type PnpmWorkspace = {
+  packages?: string[];
   catalog?: Record<string, string>;
   catalogs?: Record<string, Record<string, string>>;
 };
@@ -41,14 +42,12 @@ export const npmManifestResolver: ManifestResolver = {
     const parsedPnpmWorkspace = pnpmWorkspaceFile
       ? parsePnpmWorkspace(pnpmWorkspaceFile)
       : undefined;
-    return [
-      {
-        type: 'npm',
-        manifest: parsedPnpmWorkspace
-          ? resolveCatalogReferences(parsedPackageJson, parsedPnpmWorkspace)
-          : parsedPackageJson,
-      },
-    ];
+    let manifest = parsedPackageJson;
+    if (parsedPnpmWorkspace) {
+      manifest = injectWorkspacePackages(manifest, parsedPnpmWorkspace);
+      manifest = resolveCatalogReferences(manifest, parsedPnpmWorkspace);
+    }
+    return [{ type: 'npm', manifest }];
   },
 };
 
@@ -64,7 +63,10 @@ function parsePackageJson(file: File): PackageJson | undefined {
 function parsePnpmWorkspace(file: File): PnpmWorkspace | undefined {
   try {
     const parsedPnpm = yaml.parse(file.content.toString());
-    if (parsedPnpm && ('catalog' in parsedPnpm || 'catalogs' in parsedPnpm)) {
+    if (
+      parsedPnpm &&
+      ('catalog' in parsedPnpm || 'catalogs' in parsedPnpm || 'packages' in parsedPnpm)
+    ) {
       return parsedPnpm;
     }
     return undefined;
@@ -85,7 +87,7 @@ function resolveCatalogReferences(
     'optionalDependencies',
   ] as const;
 
-  const result = { ...packageJson };
+  const modifiedPackageJson = { ...packageJson };
   for (const field of depFields) {
     const deps = packageJson[field];
     if (!deps) {
@@ -108,7 +110,19 @@ function resolveCatalogReferences(
         resolvedDeps[depName] = depVersion ?? '';
       }
     }
-    result[field] = resolvedDeps;
+    modifiedPackageJson[field] = resolvedDeps;
   }
-  return result;
+  return modifiedPackageJson;
+}
+
+function injectWorkspacePackages(
+  packageJson: PackageJson,
+  pnpmWorkspace: PnpmWorkspace,
+): PackageJson {
+  if (!pnpmWorkspace.packages || packageJson.workspaces) {
+    return packageJson;
+  }
+  const modifiedPackageJson = { ...packageJson };
+  modifiedPackageJson.workspaces = pnpmWorkspace.packages;
+  return modifiedPackageJson;
 }
