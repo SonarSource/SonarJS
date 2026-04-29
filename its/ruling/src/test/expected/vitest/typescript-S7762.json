@@ -1,9 +1,5 @@
 {
 "vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
 444
-],
-"vitest:test/browser/fixtures/expect-dom/toHaveStyle.test.ts": [
-119,
-120
 ]
 }

@@ -16,20 +16,5 @@
 186,
 186,
 243
-],
-"vitest:test/browser/fixtures/multiple-different-configs/vitest.config.js": [
-16
-],
-"vitest:test/core/src/wasm/wasm-bindgen-no-cyclic/index_bg.js": [
-7,
-33,
-45,
-49
-],
-"vitest:test/core/src/wasm/wasm-bindgen/index_bg.js": [
-14,
-46,
-65,
-72
 ]
 }

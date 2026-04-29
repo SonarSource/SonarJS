@@ -18,33 +18,5 @@
 ],
 "vitest:packages/vitest/src/node/errors.ts": [
 21
-],
-"vitest:test/browser/test/utils.test.ts": [
-200,
-200
-],
-"vitest:test/cli/test/annotations.test.ts": [
-385
-],
-"vitest:test/cli/test/artifacts.test.ts": [
-326
-],
-"vitest:test/cli/test/concurrent.test.ts": [
-628,
-628,
-771,
-771,
-846,
-846
-],
-"vitest:test/cli/test/fails.test.ts": [
-250,
-250
-],
-"vitest:test/cli/test/network-imports.test.ts": [
-25
-],
-"vitest:test/cli/test/watch/workspaces.test.ts": [
-133
 ]
 }

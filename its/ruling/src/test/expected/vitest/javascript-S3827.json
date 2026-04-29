@@ -14,17 +14,5 @@
 ],
 "vitest:test/browser/custom-tester.html": [
 11
-],
-"vitest:test/cli/fixtures/caching/dynamic-cache-key/replaced.test.js": [
-4
-],
-"vitest:test/cli/fixtures/stacktraces/foo.js": [
-3
-],
-"vitest:test/cli/fixtures/stacktraces/mocked-global.test.js": [
-3
-],
-"vitest:test/config/fixtures/conditions-test/conditions.test.js": [
-5
 ]
 }

@@ -85,14 +85,5 @@
 ],
 "vitest:packages/vitest/src/typecheck/typechecker.ts": [
 471
-],
-"vitest:test/cli/test/config/bail.test.ts": [
-61
-],
-"vitest:test/cli/test/fails.test.ts": [
-18
-],
-"vitest:test/core/test/expect.test.ts": [
-516
 ]
 }

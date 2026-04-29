@@ -19,23 +19,5 @@
 ],
 "vitest:packages/vitest/src/runtime/workers/init-threads.ts": [
 0
-],
-"vitest:test/browser/src/blog-app/blog.tsx": [
-0
-],
-"vitest:test/cli/fixtures/custom-runner/test-runner.ts": [
-0
-],
-"vitest:test/cli/fixtures/reporters/implementations/custom-reporter.ts": [
-0
-],
-"vitest:test/core/src/mocks/log.ts": [
-0
-],
-"vitest:test/coverage-test/fixtures/custom-provider.ts": [
-0
-],
-"vitest:test/coverage-test/fixtures/src/cjs-dependency.ts": [
-0
 ]
 }

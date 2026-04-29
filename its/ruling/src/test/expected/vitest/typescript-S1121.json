@@ -24,19 +24,5 @@
 199,
 203,
 207
-],
-"vitest:test/cli/fixtures/expect-soft/expects/soft.test.ts": [
-109,
-110,
-115,
-116
-],
-"vitest:test/cli/fixtures/plugin/vitest.config.ts": [
-4
-],
-"vitest:test/core/test/hoisted-async-simple.test.ts": [
-10,
-33,
-40
 ]
 }

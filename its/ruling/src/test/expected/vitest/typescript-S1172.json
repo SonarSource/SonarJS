@@ -23,55 +23,5 @@
 ],
 "vitest:packages/vitest/src/utils/serialization.ts": [
 19
-],
-"vitest:test/cli/fixtures/config/watch-trigger-pattern/vitest.config.ts": [
-8
-],
-"vitest:test/cli/fixtures/fails/test-extend/fixture-error.test.ts": [
-11,
-26,
-42
-],
-"vitest:test/cli/fixtures/fails/test-extend/fixture-rest-params.test.ts": [
-5
-],
-"vitest:test/cli/fixtures/fails/test-extend/fixture-rest-props.test.ts": [
-5
-],
-"vitest:test/cli/fixtures/fails/test-extend/fixture-without-destructuring.test.ts": [
-5
-],
-"vitest:test/cli/fixtures/fails/test-extend/test-rest-params.test.ts": [
-6
-],
-"vitest:test/cli/fixtures/fails/test-extend/test-rest-props.test.ts": [
-6
-],
-"vitest:test/cli/fixtures/fails/test-extend/test-without-destructuring.test.ts": [
-6
-],
-"vitest:test/cli/fixtures/fails/unhandled-suite.test.ts": [
-5
-],
-"vitest:test/cli/fixtures/global-setup/globalSetup/server.ts": [
-5
-],
-"vitest:test/cli/fixtures/reporters/merge-errors/basic.test.ts": [
-9
-],
-"vitest:test/core/test/injector-mock.test.ts": [
-13
-],
-"vitest:test/core/test/jest-expect.test.ts": [
-1253
-],
-"vitest:test/core/test/unhandled-skip.test.ts": [
-9
-],
-"vitest:test/core/test/utils.spec.ts": [
-178
-],
-"vitest:test/coverage-test/fixtures/custom-provider.ts": [
-79
 ]
 }

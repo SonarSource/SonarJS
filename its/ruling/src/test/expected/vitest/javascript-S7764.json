@@ -16,19 +16,6 @@
 18,
 19
 ],
-"vitest:test/browser/fixtures/mocking/service-worker.js": [
-2,
-6
-],
-"vitest:test/browser/fixtures/multiple-different-configs/basic.test.js": [
-12,
-13
-],
-"vitest:test/cli/fixtures/vm-threads/import-external-css-assets.test.js": [
-19,
-26,
-33
-],
 "vitest:test/cli/test/fixtures/reporters/html/all-passing-or-skipped/index.html": [
 18,
 19,

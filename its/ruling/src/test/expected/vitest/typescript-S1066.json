@@ -42,14 +42,5 @@
 ],
 "vitest:packages/vitest/src/runtime/moduleRunner/startVitestModuleRunner.ts": [
 82
-],
-"vitest:test/cli/test/reported-tasks.test.ts": [
-346
-],
-"vitest:test/config/test/exec-args.test.ts": [
-16
-],
-"vitest:test/coverage-test/utils.ts": [
-83
 ]
 }

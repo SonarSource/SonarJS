@@ -159,16 +159,5 @@
 "vitest:scripts/explain-types.ts": [
 13,
 33
-],
-"vitest:test/browser/specs/playwright-trace.test.ts": [
-75
-],
-"vitest:test/config/test/failures.test.ts": [
-110,
-113
-],
-"vitest:test/snapshots/test/fixtures/domain/basic.ts": [
-55,
-61
 ]
 }

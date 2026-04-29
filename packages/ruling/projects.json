@@ -294,7 +294,7 @@
   },
   {
     "name": "vitest",
-    "testDir": null,
+    "testDir": "test",
     "exclusions": null
   }
 ]

@@ -22,11 +22,5 @@
 ],
 "vitest:packages/vitest/src/node/plugins/workspace.ts": [
 35
-],
-"vitest:test/cli/custom.ts": [
-8
-],
-"vitest:test/core/vitest-environment-custom/index.ts": [
-8
 ]
 }

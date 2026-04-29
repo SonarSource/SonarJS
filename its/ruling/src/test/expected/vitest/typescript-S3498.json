@@ -6,14 +6,5 @@
 "vitest:packages/vitest/src/node/cli/completions.ts": [
 31,
 42
-],
-"vitest:test/browser/fixtures/mocking-out-of-root/project1/vitest.config.ts": [
-13
-],
-"vitest:test/cli/fixtures/expect-soft/expects/soft.test.ts": [
-13
-],
-"vitest:test/config/fixtures/fixture-no-async/basic.test.ts": [
-21
 ]
 }

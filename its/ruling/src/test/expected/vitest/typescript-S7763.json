@@ -81,11 +81,5 @@
 35,
 35,
 35
-],
-"vitest:test/cli/fixtures/git-changed/related/src/sourceD.ts": [
-4
-],
-"vitest:test/core/src/mockedD.ts": [
-3
 ]
 }

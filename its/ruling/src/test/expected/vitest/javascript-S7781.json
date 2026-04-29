@@ -1,8 +1,5 @@
 {
 "vitest:packages/pretty-format/rollup.config.js": [
 35
-],
-"vitest:packages/vitest/rollup.config.js": [
-241
 ]
 }

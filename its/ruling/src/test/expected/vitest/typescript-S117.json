@@ -104,35 +104,5 @@
 30,
 35,
 36
-],
-"vitest:test/cli/fixtures/custom-pool/pool/custom-pool.ts": [
-59
-],
-"vitest:test/cli/test/browser-multiple.test.ts": [
-19
-],
-"vitest:test/cli/test/reporters/test-run.test.ts": [
-1047,
-1071,
-1099
-],
-"vitest:test/core/test/dom.test.ts": [
-12
-],
-"vitest:test/core/test/happy-dom.test.ts": [
-11
-],
-"vitest:test/core/test/stubs.test.ts": [
-7,
-9
-],
-"vitest:test/core/test/utils.spec.ts": [
-12,
-18,
-19,
-20
-],
-"vitest:test/test-utils/index.ts": [
-47
 ]
 }

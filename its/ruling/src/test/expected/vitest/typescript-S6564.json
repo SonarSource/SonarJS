@@ -7,8 +7,5 @@
 ],
 "vitest:packages/vitest/src/node/types/coverage.ts": [
 14
-],
-"vitest:test/coverage-test/fixtures/src/decorators.ts": [
-23
 ]
 }

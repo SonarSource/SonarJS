@@ -1,11 +1,5 @@
 {
 "vitest:packages/vitest/suppress-warnings.cjs": [
 21
-],
-"vitest:test/core/src/wasm/wasm-bindgen-no-cyclic/index_bg.js": [
-112
-],
-"vitest:test/core/src/wasm/wasm-bindgen/index_bg.js": [
-148
 ]
 }

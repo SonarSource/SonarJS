@@ -16,11 +16,5 @@
 ],
 "vitest:packages/vitest/src/types/general.ts": [
 28
-],
-"vitest:test/core/test/jest-mock.test.ts": [
-75
-],
-"vitest:test/core/test/mocking/vi-fn.test-d.ts": [
-89
 ]
 }

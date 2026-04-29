@@ -25,17 +25,5 @@
 ],
 "vitest:packages/ws-client/rollup.config.js": [
 24
-],
-"vitest:test/cli/fixtures/global-setup/globalSetup/default-export.js": [
-7
-],
-"vitest:test/core/deps/dep-fn/index.js": [
-1
-],
-"vitest:test/core/projects/custom-lib/index.js": [
-1
-],
-"vitest:test/core/projects/inline-lib/index.js": [
-1
 ]
 }

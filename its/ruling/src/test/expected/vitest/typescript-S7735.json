@@ -154,21 +154,5 @@
 ],
 "vitest:packages/ws-client/src/state.ts": [
 90
-],
-"vitest:test/cli/test/reporters/test-run.test.ts": [
-1219,
-1225,
-1256
-],
-"vitest:test/core/test/lot-of-tests.test.ts": [
-7
-],
-"vitest:test/coverage-test/utils.ts": [
-17,
-21,
-25
-],
-"vitest:test/test-utils/index.ts": [
-298
 ]
 }

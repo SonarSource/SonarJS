@@ -11,8 +11,5 @@
 ],
 "vitest:packages/snapshot/src/port/utils.ts": [
 123
-],
-"vitest:test/browser/specs/runner.test.ts": [
-275
 ]
 }

@@ -4,29 +4,5 @@
 ],
 "vitest:packages/ui/node/index.ts": [
 10
-],
-"vitest:test/cli/fixtures/global-setup-fail/globalSetup/error.ts": [
-5
-],
-"vitest:test/cli/fixtures/global-setup/globalSetup/ts-with-imports.ts": [
-5
-],
-"vitest:test/cli/fixtures/global-setup/globalSetup/update-env.ts": [
-1
-],
-"vitest:test/cli/fixtures/watch/global-setup.ts": [
-7
-],
-"vitest:test/core/__mocks__/custom-lib.ts": [
-1
-],
-"vitest:test/core/src/mocks/export-default-circle-b.ts": [
-3
-],
-"vitest:test/core/src/mocks/export-default-circle-index.ts": [
-3
-],
-"vitest:test/node-runner/fixtures/globalSetup/failing.ts": [
-10
 ]
 }

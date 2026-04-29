@@ -41,11 +41,5 @@
 ],
 "vitest:packages/vitest/src/runtime/moduleRunner/moduleRunner.ts": [
 205
-],
-"vitest:test/config/test/failures.test.ts": [
-108
-],
-"vitest:test/snapshots/test/fixtures/domain/basic.ts": [
-50
 ]
 }

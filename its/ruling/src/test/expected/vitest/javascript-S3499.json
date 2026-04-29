@@ -58,8 +58,5 @@
 "vitest:packages/ws-client/rollup.config.js": [
 25,
 44
-],
-"vitest:test/browser/fixtures/expect-dom/vitest.config.js": [
-8
 ]
 }

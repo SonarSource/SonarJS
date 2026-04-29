@@ -61,8 +61,5 @@
 ],
 "vitest:packages/vitest/src/utils/config-helpers.ts": [
 81
-],
-"vitest:test/snapshots/test/fixtures/domain/basic.ts": [
-54
 ]
 }

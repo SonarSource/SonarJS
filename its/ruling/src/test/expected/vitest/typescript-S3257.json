@@ -50,14 +50,5 @@
 ],
 "vitest:packages/vitest/src/runtime/moduleRunner/startVitestModuleRunner.ts": [
 19
-],
-"vitest:test/browser/fixtures/mocking/src/mocks_factory.ts": [
-5
-],
-"vitest:test/browser/fixtures/mocking/src/mocks_factory_many_dep1.ts": [
-1
-],
-"vitest:test/browser/fixtures/mocking/src/mocks_factory_many_dep2.ts": [
-1
 ]
 }

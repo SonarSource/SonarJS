@@ -95,40 +95,5 @@
 ],
 "vitest:packages/vitest/src/utils/traces.ts": [
 239
-],
-"vitest:test/core/test/define-ssr.test.ts": [
-18,
-21,
-24
-],
-"vitest:test/core/test/define-web.test.ts": [
-20,
-23,
-26
-],
-"vitest:test/core/test/local-context.test.ts": [
-42
-],
-"vitest:test/core/test/mocking/vi-fn.test-d.ts": [
-36,
-54
-],
-"vitest:test/core/test/mocking/vi-fn.test.ts": [
-25
-],
-"vitest:test/coverage-test/fixtures/configs/vitest.config.decorators.ts": [
-15
-],
-"vitest:test/coverage-test/fixtures/configs/vitest.config.multi-transform.ts": [
-21
-],
-"vitest:test/coverage-test/fixtures/configs/vitest.config.query-param-transform.ts": [
-19
-],
-"vitest:test/coverage-test/fixtures/configs/vitest.config.virtual-files.ts": [
-17
-],
-"vitest:test/coverage-test/fixtures/src/decorators.ts": [
-17
 ]
 }

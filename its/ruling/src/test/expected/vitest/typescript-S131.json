@@ -44,8 +44,5 @@
 ],
 "vitest:packages/vitest/src/utils/memory-limit.ts": [
 56
-],
-"vitest:test/cli/fixtures/custom-pool/pool/custom-pool.ts": [
-67
 ]
 }

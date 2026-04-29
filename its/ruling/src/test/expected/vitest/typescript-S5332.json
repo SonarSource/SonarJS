@@ -1,17 +1,5 @@
 {
 "vitest:examples/projects/packages/client/test/basic.test.tsx": [
 9
-],
-"vitest:test/cli/fixtures/global-setup/test/global-setup.test.ts": [
-20
-],
-"vitest:test/cli/fixtures/network-imports/basic.test.ts": [
-15
-],
-"vitest:test/cli/test/scoped-fixtures.test.ts": [
-2972
-],
-"vitest:test/core/test/happy-dom-custom.test.ts": [
-16
 ]
 }

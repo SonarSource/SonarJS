@@ -7,25 +7,5 @@
 ],
 "vitest:packages/vitest/src/node/reporters/base.ts": [
 643
-],
-"vitest:test/browser/fixtures/user-event/cleanup-retry.test.ts": [
-8
-],
-"vitest:test/browser/fixtures/user-event/cleanup1.test.ts": [
-8,
-35
-],
-"vitest:test/browser/fixtures/user-event/cleanup2.test.ts": [
-10
-],
-"vitest:test/core/test/jest-expect.test.ts": [
-489,
-490
-],
-"vitest:test/core/test/vi.spec.ts": [
-105
-],
-"vitest:test/coverage-test/fixtures/src/json-data-import.ts": [
-5
 ]
 }

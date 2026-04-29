@@ -10,8 +10,5 @@
 ],
 "vitest:packages/ws-client/src/state.ts": [
 24
-],
-"vitest:test/config/test/failures.test.ts": [
-16
 ]
 }

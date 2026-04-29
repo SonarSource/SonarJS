@@ -1,11 +1,5 @@
 {
 "vitest:packages/expect/src/types.ts": [
 111
-],
-"vitest:test/core/src/self/foo.ts": [
-1
-],
-"vitest:test/core/src/self/index.ts": [
-1
 ]
 }

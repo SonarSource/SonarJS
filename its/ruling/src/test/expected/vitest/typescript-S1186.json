@@ -7,53 +7,5 @@
 ],
 "vitest:packages/vitest/src/typecheck/assertType.ts": [
 5
-],
-"vitest:test/browser/fixtures/mocking/src/example.ts": [
-14
-],
-"vitest:test/cli/fixtures/reporters/function-as-name.bench.ts": [
-10
-],
-"vitest:test/cli/fixtures/reporters/function-as-name.test.ts": [
-3
-],
-"vitest:test/core/src/mockedC.ts": [
-22
-],
-"vitest:test/core/src/mocks/example.ts": [
-14
-],
-"vitest:test/core/test/jest-mock.test.ts": [
-594,
-615
-],
-"vitest:test/core/test/mocking/automocking-class-inheritance.test.ts": [
-46,
-50
-],
-"vitest:test/core/test/mocking/vi-fn.test.ts": [
-25
-],
-"vitest:test/core/test/mocking/vi-spyOn.test.ts": [
-46
-],
-"vitest:test/core/test/pretty-format.test.ts": [
-295,
-859,
-864
-],
-"vitest:test/core/test/vi.spec.ts": [
-217,
-235,
-236
-],
-"vitest:test/coverage-test/fixtures/src/decorators.ts": [
-21
-],
-"vitest:test/coverage-test/fixtures/workspaces/project/project1/src/untested.ts": [
-1
-],
-"vitest:test/coverage-test/fixtures/workspaces/project/project2/src/untested.ts": [
-1
 ]
 }

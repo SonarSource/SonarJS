@@ -4,20 +4,5 @@
 ],
 "vitest:examples/opentelemetry/otel.js": [
 0
-],
-"vitest:test/cli/deps/error/transpiled-inline.js": [
-0
-],
-"vitest:test/cli/deps/error/transpiled.js": [
-0
-],
-"vitest:test/cli/fixtures/otel-tests/otel.browser.sdk.js": [
-0
-],
-"vitest:test/cli/fixtures/otel-tests/otel.sdk.js": [
-0
-],
-"vitest:test/cli/fixtures/reporters/implementations/custom-reporter.js": [
-0
 ]
 }

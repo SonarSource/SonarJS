@@ -27,11 +27,5 @@
 "vitest:packages/vitest/src/typecheck/typechecker.ts": [
 161,
 479
-],
-"vitest:test/cli/fixtures/benchmarking/basic/base.bench.ts": [
-13
-],
-"vitest:test/coverage-test/test/threshold-auto-update.unit.test.ts": [
-156
 ]
 }

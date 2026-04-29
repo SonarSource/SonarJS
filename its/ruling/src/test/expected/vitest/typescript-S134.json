@@ -160,16 +160,5 @@
 ],
 "vitest:packages/vitest/src/utils/memory-limit.ts": [
 56
-],
-"vitest:test/browser/specs/playwright-trace-mark.test.ts": [
-109,
-131,
-156,
-185,
-196,
-223,
-246,
-264,
-282
 ]
 }

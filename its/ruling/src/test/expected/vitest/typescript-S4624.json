@@ -113,11 +113,5 @@
 ],
 "vitest:packages/vitest/src/runtime/moduleRunner/utils.ts": [
 14
-],
-"vitest:test/snapshots/test/fixtures/domain/basic.ts": [
-13
-],
-"vitest:test/typescript/fixtures/dynamic-title/test/dynamic-title.test-d.ts": [
-23
 ]
 }

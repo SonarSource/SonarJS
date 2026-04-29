@@ -97,12 +97,5 @@
 ],
 "vitest:scripts/publish-ci.ts": [
 32
-],
-"vitest:test/browser/settings.ts": [
-46,
-49
-],
-"vitest:test/test-utils/index.ts": [
-173
 ]
 }

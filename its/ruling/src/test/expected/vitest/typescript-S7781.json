@@ -1,52 +1,23 @@
 {
-"vitest:packages/browser-playwright/src/commands/trace.ts": [
-143,
-153
-],
-"vitest:packages/browser/src/client/tester/context.ts": [
-332
-],
 "vitest:packages/browser/src/client/tester/expect/toHaveStyle.ts": [
 126
 ],
 "vitest:packages/browser/src/client/tester/expect/toHaveTextContent.ts": [
 30
 ],
-"vitest:packages/browser/src/client/tester/expect/utils.ts": [
-114,
-279
-],
-"vitest:packages/browser/src/client/tester/runner.ts": [
-300,
-407
-],
 "vitest:packages/browser/src/client/tester/tester-utils.ts": [
-248,
 248
 ],
 "vitest:packages/browser/src/client/utils.ts": [
 8,
 13
 ],
-"vitest:packages/browser/src/node/commands/screenshotMatcher/utils.ts": [
-201,
-202,
-203
-],
 "vitest:packages/browser/src/node/plugin.ts": [
 306,
 410
 ],
 "vitest:packages/browser/src/node/utils.ts": [
-42,
-96,
 96
-],
-"vitest:packages/expect/src/jest-expect.ts": [
-464
-],
-"vitest:packages/expect/src/jest-matcher-utils.ts": [
-90
 ],
 "vitest:packages/mocker/src/browser/interceptor-msw.ts": [
 144
@@ -54,44 +25,23 @@
 "vitest:packages/mocker/src/node/mockerPlugin.ts": [
 69
 ],
-"vitest:packages/mocker/src/node/parsers.ts": [
-43
-],
-"vitest:packages/runner/src/fixture.ts": [
-685,
-687
-],
 "vitest:packages/runner/src/suite.ts": [
 1001,
 1002,
 1003,
 1004,
 1014,
-1024,
 1083
 ],
 "vitest:packages/runner/src/utils/tags.ts": [
-264,
 264
 ],
 "vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
-56,
 126,
 133,
 134,
 139,
 140
-],
-"vitest:packages/snapshot/src/port/utils.ts": [
-123,
-127,
-135
-],
-"vitest:packages/ui/client/composables/attachments.ts": [
-25
-],
-"vitest:packages/ui/client/composables/explorer/state.ts": [
-85
 ],
 "vitest:packages/ui/client/utils/escape.ts": [
 3,
@@ -100,43 +50,15 @@
 6,
 7
 ],
-"vitest:packages/utils/src/diff/index.ts": [
-401
-],
-"vitest:packages/utils/src/display.ts": [
-151
-],
 "vitest:packages/utils/src/helpers.ts": [
-60,
-267
-],
-"vitest:packages/utils/src/serialize.ts": [
-141,
-143,
-145
+60
 ],
 "vitest:packages/utils/src/source-map.ts": [
-54,
-86,
 156,
-157,
-162,
-202,
-204,
-205
-],
-"vitest:packages/vitest/src/node/ast-collect.ts": [
-217,
-219,
-221,
-543,
-563,
-566
+162
 ],
 "vitest:packages/vitest/src/node/cli/cac.ts": [
 44,
-226,
-226,
 228
 ],
 "vitest:packages/vitest/src/node/coverage.ts": [
@@ -149,14 +71,8 @@
 "vitest:packages/vitest/src/node/plugins/runnerTransform.ts": [
 173
 ],
-"vitest:packages/vitest/src/node/pools/browser.ts": [
-183
-],
 "vitest:packages/vitest/src/node/printError.ts": [
 473
-],
-"vitest:packages/vitest/src/node/reporters/benchmark/tableRender.ts": [
-16
 ],
 "vitest:packages/vitest/src/node/reporters/github-actions.ts": [
 238,
@@ -183,9 +99,6 @@
 19,
 20
 ],
-"vitest:packages/vitest/src/node/test-run.ts": [
-317
-],
 "vitest:packages/vitest/src/runtime/moduleRunner/bareModuleMocker.ts": [
 374
 ],
@@ -194,161 +107,5 @@
 ],
 "vitest:packages/vitest/src/runtime/workers/native.ts": [
 142
-],
-"vitest:packages/vitest/src/typecheck/typechecker.ts": [
-244
-],
-"vitest:packages/vitest/src/utils/base.ts": [
-25
-],
-"vitest:test/browser/fixtures/expect-dom/setup.ts": [
-13
-],
-"vitest:test/browser/specs/aria-snapshot.test.ts": [
-32
-],
-"vitest:test/browser/specs/errors.test.ts": [
-154
-],
-"vitest:test/cli/test/annotations.test.ts": [
-314,
-351,
-383,
-384,
-385,
-443,
-444,
-485
-],
-"vitest:test/cli/test/artifacts.test.ts": [
-279,
-304,
-324,
-325,
-326,
-372,
-404
-],
-"vitest:test/cli/test/console.test.ts": [
-67,
-67
-],
-"vitest:test/cli/test/detect-async-leaks.test.ts": [
-346
-],
-"vitest:test/cli/test/expect-task.test.ts": [
-187,
-228,
-281
-],
-"vitest:test/cli/test/group-order.test.ts": [
-45
-],
-"vitest:test/cli/test/list.test.ts": [
-238,
-242
-],
-"vitest:test/cli/test/no-unexpected-logging.test.ts": [
-43
-],
-"vitest:test/cli/test/reporters/agent.test.ts": [
-26
-],
-"vitest:test/cli/test/reporters/github-actions.test.ts": [
-15,
-33
-],
-"vitest:test/cli/test/reporters/html.test.ts": [
-31,
-74
-],
-"vitest:test/cli/test/reporters/import-durations.test.ts": [
-22,
-24,
-26
-],
-"vitest:test/cli/test/reporters/json.test.ts": [
-37
-],
-"vitest:test/cli/test/reporters/merge-reports.test.ts": [
-123,
-125,
-446,
-447,
-448,
-453,
-454
-],
-"vitest:test/cli/test/reporters/utils.ts": [
-11
-],
-"vitest:test/cli/test/reporters/verbose.test.ts": [
-189
-],
-"vitest:test/cli/test/stacktraces.test.ts": [
-106,
-110
-],
-"vitest:test/config/fixtures/exec-args-fixtures/vmThreads.test.ts": [
-5
-],
-"vitest:test/config/test/failures.test.ts": [
-354
-],
-"vitest:test/core/test/cli-test.test.ts": [
-13
-],
-"vitest:test/core/test/dynamic-import.test.ts": [
-10
-],
-"vitest:test/core/test/expect.test.ts": [
-58,
-59
-],
-"vitest:test/snapshots/test/custom-matcher.test.ts": [
-16
-],
-"vitest:test/snapshots/test/domain-aria-inline.test.ts": [
-13
-],
-"vitest:test/snapshots/test/domain-inline.test.ts": [
-12
-],
-"vitest:test/snapshots/test/domain-poll-inline.test.ts": [
-12
-],
-"vitest:test/snapshots/test/inline-multiple-calls.test.ts": [
-14,
-103,
-192,
-293,
-394,
-395
-],
-"vitest:test/snapshots/test/properties.test.ts": [
-20
-],
-"vitest:test/snapshots/test/soft-inline.test.ts": [
-12,
-13
-],
-"vitest:test/snapshots/test/summary.test.ts": [
-15
-],
-"vitest:test/test-utils/index.ts": [
-403,
-412,
-547,
-548,
-550,
-558,
-559,
-560
-],
-"vitest:test/typescript/test/runner.test.ts": [
-157
-],
-"vitest:test/typescript/test/typecheck-error.test.ts": [
-35
 ]
 }

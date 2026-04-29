@@ -13,10 +13,5 @@
 ],
 "vitest:test/cli/test/fixtures/reporters/html/fail/index.html": [
 22
-],
-"vitest:test/core/src/wasm/wasm-bindgen-no-cyclic/index_bg.js": [
-64,
-83,
-94
 ]
 }

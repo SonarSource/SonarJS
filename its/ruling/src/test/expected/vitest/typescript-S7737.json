@@ -1,8 +1,5 @@
 {
 "vitest:packages/browser/src/client/tester/expect/toHaveTextContent.ts": [
 24
-],
-"vitest:test/coverage-test/utils.ts": [
-29
 ]
 }

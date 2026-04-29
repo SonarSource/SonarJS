@@ -2,8 +2,5 @@
 "vitest:packages/vitest/src/node/reporters/summary.ts": [
 382,
 386
-],
-"vitest:test/core/test/pretty-format.test.ts": [
-793
 ]
 }

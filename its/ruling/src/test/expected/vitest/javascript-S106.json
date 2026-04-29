@@ -30,14 +30,5 @@
 "vitest:packages/vitest/rollup.config.js": [
 260,
 274
-],
-"vitest:test/browser/fixtures/multiple-different-configs/basic.test.js": [
-12
-],
-"vitest:test/core/src/wasm/wasm-bindgen-no-cyclic/index_bg.js": [
-38
-],
-"vitest:test/core/src/wasm/wasm-bindgen/index_bg.js": [
-54
 ]
 }

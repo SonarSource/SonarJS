@@ -7,20 +7,5 @@
 ],
 "vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
 458
-],
-"vitest:test/browser/test/userEvent.test.ts": [
-705
-],
-"vitest:test/browser/test/utils.test.ts": [
-82
-],
-"vitest:test/core/test/each.test.ts": [
-113
-],
-"vitest:test/core/test/modes.test.ts": [
-71
-],
-"vitest:test/coverage-test/fixtures/src/tested-with-]-in-filename.ts": [
-9
 ]
 }

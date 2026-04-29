@@ -46,14 +46,5 @@
 ],
 "vitest:packages/web-worker/rollup.config.js": [
 10
-],
-"vitest:test/core/__mocks__/fs.cjs": [
-4
-],
-"vitest:test/core/__mocks__/fs/promises.cjs": [
-4
-],
-"vitest:test/coverage-test/fixtures/custom-reporter.cjs": [
-4
 ]
 }

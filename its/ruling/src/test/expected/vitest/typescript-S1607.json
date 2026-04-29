@@ -1,0 +1,50 @@
+{
+"vitest:test/browser/fixtures/trace-view/basic.test.ts": [
+28
+],
+"vitest:test/cli/fixtures/benchmarking/basic/mode.bench.ts": [
+5
+],
+"vitest:test/cli/fixtures/reported-tasks/1_first.test.ts": [
+20,
+69
+],
+"vitest:test/cli/fixtures/reporters/all-passing-or-skipped.test.ts": [
+7
+],
+"vitest:test/cli/fixtures/reporters/all-skipped.test.ts": [
+7
+],
+"vitest:test/cli/fixtures/reporters/github-actions/flaky/math.spec.ts": [
+29
+],
+"vitest:test/cli/fixtures/reporters/pass-and-skip-test-suites.test.ts": [
+9,
+13
+],
+"vitest:test/cli/fixtures/reporters/suite-hook-failure/basic.test.ts": [
+15,
+25
+],
+"vitest:test/cli/fixtures/reporters/verbose/example-1.test.ts": [
+5,
+25
+],
+"vitest:test/cli/fixtures/reporters/verbose/example-2.test.ts": [
+5
+],
+"vitest:test/core/test/modes.test.ts": [
+4,
+29
+],
+"vitest:test/core/test/only.test.ts": [
+47
+],
+"vitest:test/core/test/test-extend.test.ts": [
+447
+],
+"vitest:test/core/test/test-options.test.ts": [
+8,
+9
+]
+}

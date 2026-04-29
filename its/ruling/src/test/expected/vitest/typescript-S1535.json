@@ -58,8 +58,5 @@
 ],
 "vitest:packages/vitest/src/utils/environments.ts": [
 9
-],
-"vitest:test/test-utils/index.ts": [
-450
 ]
 }

@@ -198,21 +198,5 @@
 ],
 "vitest:packages/vitest/src/utils/traces.ts": [
 75
-],
-"vitest:test/browser/specs/inspect.test.ts": [
-78
-],
-"vitest:test/coverage-test/fixtures/src/multi-environment.ts": [
-24
-],
-"vitest:test/test-utils/cli.ts": [
-30,
-54
-],
-"vitest:test/test-utils/index.ts": [
-642
-],
-"vitest:test/workspaces/space-multi-transform/src/multi-transform.ts": [
-24
 ]
 }

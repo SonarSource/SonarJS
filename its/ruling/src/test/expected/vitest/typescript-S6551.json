@@ -29,11 +29,5 @@
 ],
 "vitest:packages/vitest/src/runtime/workers/init.ts": [
 247
-],
-"vitest:test/core/test/utils-display.spec.ts": [
-77
-],
-"vitest:test/test-utils/index.ts": [
-427
 ]
 }

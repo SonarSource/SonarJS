@@ -24,35 +24,5 @@
 ],
 "vitest:packages/vitest/src/utils/config-helpers.ts": [
 68
-],
-"vitest:test/browser/specs/assertion-helper.test.ts": [
-10,
-10
-],
-"vitest:test/browser/specs/errors.test.ts": [
-163,
-163
-],
-"vitest:test/browser/specs/playwright-trace-mark.test.ts": [
-35,
-35
-],
-"vitest:test/browser/specs/runner.test.ts": [
-385
-],
-"vitest:test/config/test/shard.test.ts": [
-16,
-85
-],
-"vitest:test/core/test/expect.test.ts": [
-61,
-62
-],
-"vitest:test/coverage-test/fixtures/custom-provider.ts": [
-84,
-85
-],
-"vitest:test/coverage-test/test/threshold-auto-update.unit.test.ts": [
-156
 ]
 }

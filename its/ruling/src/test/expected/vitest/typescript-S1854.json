@@ -1,11 +1,5 @@
 {
 "vitest:packages/ui/client/components/views/ViewModuleGraph.vue": [
 296
-],
-"vitest:test/core/test/esnext.test.ts": [
-11
-],
-"vitest:test/snapshots/test/skip-test.test.ts": [
-34
 ]
 }

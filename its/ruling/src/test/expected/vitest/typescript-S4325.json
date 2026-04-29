@@ -225,41 +225,5 @@
 ],
 "vitest:packages/vitest/src/utils/traces.ts": [
 67
-],
-"vitest:test/browser/specs/aria-snapshot.test.ts": [
-15
-],
-"vitest:test/cli/test/config/browser-configs.test.ts": [
-513,
-542,
-579
-],
-"vitest:test/cli/test/reported-tasks.test.ts": [
-40,
-48,
-56,
-127,
-163,
-231,
-265,
-274,
-285
-],
-"vitest:test/cli/test/reporters/utils.ts": [
-37,
-45,
-46,
-47,
-56,
-62
-],
-"vitest:test/core/test/module-diagnostic.test.ts": [
-22
-],
-"vitest:test/snapshots/test/utils.ts": [
-12
-],
-"vitest:test/test-utils/index.ts": [
-94
 ]
 }

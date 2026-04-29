@@ -76,11 +76,5 @@
 55,
 56,
 65
-],
-"vitest:test/cli/test/reporters/junit.test.ts": [
-133
-],
-"vitest:test/core/test/cli-test.test.ts": [
-534
 ]
 }

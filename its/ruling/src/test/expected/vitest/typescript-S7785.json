@@ -7,8 +7,5 @@
 ],
 "vitest:scripts/update-contributors.ts": [
 26
-],
-"vitest:test/core/vite.config.ts": [
-39
 ]
 }

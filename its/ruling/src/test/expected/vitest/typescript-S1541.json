@@ -344,19 +344,5 @@
 ],
 "vitest:packages/vitest/src/utils/memory-limit.ts": [
 38
-],
-"vitest:test/browser/specs/playwright-trace-mark.test.ts": [
-19
-],
-"vitest:test/config/test/failures.test.ts": [
-104
-],
-"vitest:test/core/vite.config.ts": [
-170
-],
-"vitest:test/test-utils/index.ts": [
-59,
-275,
-415
 ]
 }

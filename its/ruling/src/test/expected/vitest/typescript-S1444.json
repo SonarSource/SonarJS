@@ -54,19 +54,5 @@
 ],
 "vitest:packages/web-worker/src/worker.ts": [
 22
-],
-"vitest:test/core/test/esnext-decorator.test.ts": [
-20
-],
-"vitest:test/core/test/jest-mock.test.ts": [
-577
-],
-"vitest:test/core/test/mocking/vi-fn.test.ts": [
-35,
-46
-],
-"vitest:test/core/test/mocking/vi-spyOn.test.ts": [
-60,
-75
 ]
 }

@@ -73,24 +73,5 @@
 ],
 "vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
 153
-],
-"vitest:test/browser/fixtures/mocking/src/example.ts": [
-5
-],
-"vitest:test/core/src/dynamic-import.ts": [
-2
-],
-"vitest:test/core/src/mocks/example.ts": [
-5
-],
-"vitest:test/core/test/snapshot.test.ts": [
-139
-],
-"vitest:test/snapshots/test/fixtures/custom-matcher/basic.test.ts": [
-60
-],
-"vitest:test/test-utils/index.ts": [
-420,
-425
 ]
 }

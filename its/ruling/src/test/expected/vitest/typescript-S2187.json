@@ -1,0 +1,74 @@
+{
+"vitest:test/cli/fixtures/custom-pool/tests/custom-not-run.spec.ts": [
+0
+],
+"vitest:test/cli/fixtures/fails/empty.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/fails/expect-soft.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/fails/node-browser-context.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/fails/test-extend/circular-dependency.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/fails/test-extend/fixture-error.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/fails/test-extend/fixture-rest-params.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/fails/test-extend/fixture-rest-props.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/fails/test-extend/fixture-without-destructuring.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/fails/test-extend/test-rest-params.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/fails/test-extend/test-rest-props.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/fails/test-extend/test-without-destructuring.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/list/top-level-error.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/reporters/json-fail-import.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/rollup-error/not-found-export.test.ts": [
+0
+],
+"vitest:test/cli/fixtures/rollup-error/not-found-package.test.ts": [
+0
+],
+"vitest:test/config/fixtures/mode/vitest.test.config.ts": [
+0
+],
+"vitest:test/core/test/fixture-concurrent-beforeEach.test.ts": [
+0
+],
+"vitest:test/core/test/fixture-concurrent.test.ts": [
+0
+],
+"vitest:test/core/test/fixture-initialization.test.ts": [
+0
+],
+"vitest:test/core/test/fixture-options.test.ts": [
+0
+],
+"vitest:test/core/test/test-extend-with-top-level-hooks.test.ts": [
+0
+],
+"vitest:test/core/test/timers-jsdom.test.ts": [
+0
+],
+"vitest:test/core/test/timers-node.test.ts": [
+0
+]
+}

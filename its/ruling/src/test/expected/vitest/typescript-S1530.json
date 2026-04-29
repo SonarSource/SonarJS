@@ -10,8 +10,5 @@
 ],
 "vitest:packages/vitest/src/node/pools/pool.ts": [
 85
-],
-"vitest:test/browser/specs/playwright-trace-mark.test.ts": [
-78
 ]
 }

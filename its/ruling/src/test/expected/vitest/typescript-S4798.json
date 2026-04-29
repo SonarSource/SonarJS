@@ -44,15 +44,5 @@
 ],
 "vitest:packages/vitest/src/runtime/vm/utils.ts": [
 5
-],
-"vitest:test/cli/test/static-collect.test.ts": [
-1691,
-1708
-],
-"vitest:test/coverage-test/fixtures/custom-provider.ts": [
-58
-],
-"vitest:test/coverage-test/test/configuration-options.test-d.ts": [
-106
 ]
 }

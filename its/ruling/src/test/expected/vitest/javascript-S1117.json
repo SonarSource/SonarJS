@@ -3,11 +3,5 @@
 191,
 192,
 280
-],
-"vitest:test/core/src/wasm/wasm-bindgen-no-cyclic/index_bg.js": [
-68
-],
-"vitest:test/core/src/wasm/wasm-bindgen/index_bg.js": [
-92
 ]
 }
