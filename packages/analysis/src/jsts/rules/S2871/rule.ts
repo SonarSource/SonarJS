@@ -33,6 +33,7 @@ import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 const allSortLike = new Set([...sortLike, ...copyingSortLike]);
+const equalityOperators = new Set(['==', '!=', '===', '!==']);
 
 // Matches JSON.stringify(<expr>) — exactly one argument, non-computed property access.
 // Does not match: JSON.stringify(x, replacer, space), JSON['stringify'](x), myObj.stringify(x).
@@ -110,7 +111,7 @@ export const rule: Rule.RuleModule = {
       },
     };
 
-    // Matches JSON.stringify(arr.sort()) === JSON.stringify(arr.sort()) — sort order is irrelevant when both sides serialize after an identical bare sort.
+    // Matches JSON.stringify(arr.sort()) == JSON.stringify(arr.sort()) — sort order is irrelevant when both sides serialize after an identical bare sort.
     // Does not match: a.sort() === b.sort(), JSON.stringify(a.sort()) === b, JSON.stringify(a) === JSON.stringify(b.sort()).
     function isJsonStringifySortComparison(call: estree.CallExpression): boolean {
       const parent = getNodeParent(call);
@@ -118,10 +119,7 @@ export const rule: Rule.RuleModule = {
         return false;
       }
       const grandparent = getNodeParent(parent);
-      if (
-        grandparent.type !== 'BinaryExpression' ||
-        (grandparent.operator !== '===' && grandparent.operator !== '!==')
-      ) {
+      if (grandparent.type !== 'BinaryExpression' || !equalityOperators.has(grandparent.operator)) {
         return false;
       }
       const sibling = grandparent.left === parent ? grandparent.right : grandparent.left;
