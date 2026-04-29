@@ -28,6 +28,8 @@ const TEST_CONSTRUCTS = [
   'afterEach',
 ];
 
+const TEST_CASE_CONSTRUCTS = ['it', 'specify', 'test'];
+
 export interface TestCase {
   node: estree.Node;
   callback: estree.Function;
@@ -66,7 +68,7 @@ export function extractTestCase(node: estree.Node): TestCase | null {
  * @returns
  */
 export function isTestCase(node: estree.Node): boolean {
-  return isTestConstruct(node, ['it', 'specify']);
+  return isTestConstruct(node, TEST_CASE_CONSTRUCTS);
 }
 
 /**

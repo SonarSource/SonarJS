@@ -1,54 +1,20 @@
 {
-"TypeScript:Gulpfile.ts": [
-412,
-428
-],
-"TypeScript:scripts/configureNightly.ts": [
-68
-],
 "TypeScript:scripts/ior.ts": [
 80
 ],
 "TypeScript:scripts/processDiagnosticMessages.ts": [
 28,
 101,
-119,
-144
+119
 ],
 "TypeScript:scripts/word2md.ts": [
-315,
 315,
 325,
 393,
 394,
 395
 ],
-"TypeScript:src/compiler/commandLineParser.ts": [
-1075,
-1399
-],
 "TypeScript:src/compiler/core.ts": [
-1214,
-1415,
-1894
-],
-"TypeScript:src/compiler/program.ts": [
-298,
-313,
-314,
-317,
-321
-],
-"TypeScript:src/compiler/transformers/es2015.ts": [
-3536
-],
-"TypeScript:src/compiler/transformers/jsx.ts": [
-228
-],
-"TypeScript:src/compiler/utilities.ts": [
-363,
-2446,
-2469,
-3002
+1415
 ]
 }

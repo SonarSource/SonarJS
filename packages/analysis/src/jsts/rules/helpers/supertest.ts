@@ -15,19 +15,11 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
-import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './module.js';
+import { getFullyQualifiedName } from './module.js';
 import { getFullyQualifiedNameTS } from './module-ts.js';
 import type estree from 'estree';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
-
-export function isImported(context: Rule.RuleContext): boolean {
-  return (
-    getRequireCalls(context).some(
-      r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'supertest',
-    ) || getImportDeclarations(context).some(i => i.source.value === 'supertest')
-  );
-}
 
 export function isAssertion(context: Rule.RuleContext, node: estree.Node) {
   const fqn = extractFQNForCallExpression(context, node);

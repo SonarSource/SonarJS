@@ -29,31 +29,116 @@ export function isESModule(context: Rule.RuleContext): boolean {
   return context.sourceCode.ast.sourceType === 'module';
 }
 
-export function getImportDeclarations(context: Rule.RuleContext) {
+export function getImportDeclarations(context: Rule.RuleContext): estree.ImportDeclaration[] {
   if (isESModule(context)) {
     return context.sourceCode.ast.body.filter(node => node.type === 'ImportDeclaration');
   }
   return [];
 }
 
-export function getRequireCalls(context: Rule.RuleContext) {
-  const required: estree.CallExpression[] = [];
+type RequireOrDynamicImport = {
+  type: 'require' | 'import';
+  moduleName: string;
+};
+
+/**
+ * Returns all calls to require() and dynamic imports whose result is stored in a variable.
+ * e.g.:
+ * const lodash = require('lodash');
+ * const partition = require('lodash').partition;
+ * const lodash = import('lodash');
+ * const lodash = await import('lodash');
+ *
+ * Unsupported patterns:
+ * require('lodash'); // not stored in variable
+ * import('lodash').then(...); // not stored in variable
+ */
+function getRequireAndDynamicImportCalls(context: Rule.RuleContext): RequireOrDynamicImport[] {
+  const imports: RequireOrDynamicImport[] = [];
   const { scopeManager } = context.sourceCode;
   for (const scope of scopeManager.scopes) {
     for (const variable of scope.variables) {
       for (const def of variable.defs) {
         if (def.type === 'Variable' && def.node.init) {
-          if (isRequire(def.node.init)) {
-            required.push(def.node.init);
-          } else if (def.node.init.type === 'MemberExpression' && isRequire(def.node.init.object)) {
-            required.push(def.node.init.object);
+          const importedModule = getImport(def.node.init);
+          if (importedModule) {
+            imports.push(importedModule);
           }
         }
       }
     }
   }
 
-  return required;
+  return imports;
+}
+
+function getImport(node: estree.Node): RequireOrDynamicImport | undefined {
+  const requireModuleName = getRequireModuleName(node);
+  if (requireModuleName !== undefined) {
+    return { type: 'require', moduleName: requireModuleName };
+  }
+  const dynamicImportModuleName = getDynamicImportModuleName(node);
+  if (dynamicImportModuleName !== undefined) {
+    return { type: 'import', moduleName: dynamicImportModuleName };
+  }
+  return undefined;
+}
+
+function getRequireModuleName(node: estree.Node): string | undefined {
+  const requireCall = getRequireCall(node);
+  const moduleName = requireCall?.arguments[0];
+  if (moduleName?.type === 'Literal' && typeof moduleName.value === 'string') {
+    return moduleName.value;
+  }
+  return undefined;
+}
+
+function getRequireCall(node: estree.Node): estree.CallExpression | undefined {
+  if (isRequire(node)) {
+    return node;
+  }
+  if (node.type === 'MemberExpression' && isRequire(node.object)) {
+    return node.object;
+  }
+  return undefined;
+}
+
+function getDynamicImportModuleName(node: estree.Node): string | undefined {
+  const dynamicImportExpression = getDynamicImportExpression(node);
+  const moduleName = dynamicImportExpression?.source;
+  if (moduleName?.type === 'Literal' && typeof moduleName.value === 'string') {
+    return moduleName.value;
+  }
+  return undefined;
+}
+
+function getDynamicImportExpression(node: estree.Node): estree.ImportExpression | undefined {
+  if (node.type === 'ImportExpression') {
+    return node;
+  }
+  if (node.type === 'AwaitExpression' && node.argument.type === 'ImportExpression') {
+    return node.argument;
+  }
+  return undefined;
+}
+
+/**
+ * Checks if the file imports any of the specified modules, either via require() calls or import declarations.
+ */
+export function importsModule(context: Rule.RuleContext, moduleNames: string[]): boolean {
+  if (moduleNames.length === 0) {
+    return false;
+  }
+
+  // check import declarations first as they are more common nowadays
+  return (
+    getImportDeclarations(context).some(
+      declaration =>
+        typeof declaration.source.value === 'string' &&
+        moduleNames.includes(declaration.source.value),
+    ) ||
+    getRequireAndDynamicImportCalls(context).some(module => moduleNames.includes(module.moduleName))
+  );
 }
 
 export function isRequire(node: Node): node is estree.CallExpression {
@@ -327,6 +412,8 @@ function reduceTo<T extends estree.Node['type']>(
       nodeToCheck = nodeToCheck.object;
     } else if (nodeToCheck.type === 'CallExpression' && !getModuleNameFromRequire(nodeToCheck)) {
       nodeToCheck = nodeToCheck.callee;
+    } else if (nodeToCheck.type === 'TaggedTemplateExpression') {
+      nodeToCheck = nodeToCheck.tag;
     } else if (nodeToCheck.type === 'NewExpression') {
       nodeToCheck = nodeToCheck.callee;
     } else if (nodeToCheck.type === 'ChainExpression') {

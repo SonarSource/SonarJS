@@ -11,6 +11,14 @@ describe('vitest test cases', () => {
     expect(1).toEqual(2);
   });
 
+  test('no assertion', () => { // Noncompliant {{Add at least one assertion to this test case.}}
+    alert('msg');
+  });
+
+  test.only('expect', () => { // Compliant
+    expect(1).toEqual(2);
+  });
+
   it('vitest.expect', () => { // Compliant
     vitest.expect(1).toEqual(2);
   });

@@ -16,18 +16,10 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { getFullyQualifiedName, getImportDeclarations, getRequireCalls } from './module.js';
+import { getFullyQualifiedName } from './module.js';
 import { getFullyQualifiedNameTS } from './module-ts.js';
 import type { ParserServicesWithTypeInformation } from '@typescript-eslint/utils';
 import ts from 'typescript';
-
-export function isImported(context: Rule.RuleContext): boolean {
-  return (
-    getRequireCalls(context).some(
-      r => r.arguments[0].type === 'Literal' && r.arguments[0].value === 'vitest',
-    ) || getImportDeclarations(context).some(i => i.source.value === 'vitest')
-  );
-}
 
 export function isAssertion(context: Rule.RuleContext, node: estree.Node): boolean {
   const fullyQualifiedName = extractFQNforCallExpression(context, node);
