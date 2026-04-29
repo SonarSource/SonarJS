@@ -247,13 +247,23 @@
               <executable>bash</executable>
               <arguments>
                 <argument>-c</argument>
-                <argument>mkdir -p "${0}" &amp;&amp; cp -f "${1}" "${2}" "${3}" "${4}" "${5}" "${0}"</argument>
+                <argument>mkdir -p "${0}" &amp;&amp; cp -f "$@" "${0}"</argument>
                 <argument>${project.basedir}/../../tsgolint/cmd/sonar-server/</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/main.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/service.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/converter.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/rules.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/requested_rules.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/no_array_delete_rule.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/no_async_promise_executor_rule.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/decorator.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/no_base_to_string_decorator.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/no_misused_promises_decorator.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/no_redundant_type_constituents_decorator.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/prefer_nullish_coalescing_decorator.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/prefer_optional_chain_decorator.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/prefer_string_starts_ends_with_decorator.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/decorator_test.go</argument>
               </arguments>
             </configuration>
           </execution>

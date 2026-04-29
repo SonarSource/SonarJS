@@ -93,7 +93,7 @@ func analyzeProject(
 		results[filePath] = &pb.ProjectAnalysisFileResult{}
 	}
 
-	requestedRules := requestedRuleNames(req.GetRules())
+	requestedRules := requestedRuleConfigs(req.GetRules())
 	if len(filePaths) == 0 || len(requestedRules) == 0 {
 		return results, &pb.ProjectAnalysisMeta{}
 	}
@@ -166,17 +166,19 @@ func analyzeProject(
 	return results, &pb.ProjectAnalysisMeta{Warnings: warnings}
 }
 
-func configuredRulesFor(requestedRules map[string]struct{}) []linter.ConfiguredRule {
+func configuredRulesFor(requestedRules map[string]requestedRuleConfig) []linter.ConfiguredRule {
 	rules := make([]linter.ConfiguredRule, 0, len(requestedRules))
 	for _, availableRule := range allRules {
-		if _, ok := requestedRules[availableRule.Name]; !ok {
+		requestedRuleConfig, ok := requestedRules[availableRule.Name]
+		if !ok {
 			continue
 		}
 		capturedRule := availableRule
+		ruleOptions := requestedRuleConfig.Options
 		rules = append(rules, linter.ConfiguredRule{
 			Name: capturedRule.Name,
 			Run: func(ctx rule.RuleContext) rule.RuleListeners {
-				return capturedRule.Run(ctx, nil)
+				return capturedRule.Run(ctx, ruleOptions)
 			},
 		})
 	}
@@ -196,21 +198,6 @@ func orderedFilePaths(files map[string]*pb.ProjectFileInput) []string {
 	}
 	sort.Strings(ordered)
 	return ordered
-}
-
-func requestedRuleNames(rules []*pb.JsTsRule) map[string]struct{} {
-	requested := make(map[string]struct{}, len(rules))
-	for _, requestedRule := range rules {
-		ruleName := requestedRule.GetKey()
-		if mappedRuleName, ok := tsgolintRuleNameBySonarKey[ruleName]; ok {
-			requested[mappedRuleName] = struct{}{}
-			continue
-		}
-		if _, ok := allRulesByName[ruleName]; ok {
-			requested[ruleName] = struct{}{}
-		}
-	}
-	return requested
 }
 
 func requestBaseDir(req *pb.AnalyzeProjectRequest) string {
