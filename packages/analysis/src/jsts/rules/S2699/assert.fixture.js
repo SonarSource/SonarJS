@@ -1,7 +1,6 @@
 const assert = require('assert');
 const { expectEquals } = require('jest');
 const { ok } = require('assert');
-const vitest = require('vitest');
 
 describe('global assert', () => {
   it('should recognize assert', () => { // Compliant

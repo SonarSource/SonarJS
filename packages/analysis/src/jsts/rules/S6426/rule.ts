@@ -20,7 +20,10 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isMethodCall } from '../helpers/ast.js';
+import * as Playwright from '../helpers/playwright.js';
 import * as meta from './generated-meta.js';
+
+const exclusiveTestFunctionNames = ['context', 'describe', 'it', 'specify', 'test'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -35,7 +38,7 @@ export const rule: Rule.RuleModule = {
       CallExpression: (node: estree.CallExpression) => {
         if (isMethodCall(node)) {
           const { property, object } = node.callee;
-          if (isIdentifier(property, 'only') && isIdentifier(object, 'describe', 'it', 'test')) {
+          if (isIdentifier(property, 'only') && isExclusiveTestFunction(object)) {
             context.report({
               messageId: 'issue',
               node: property,
@@ -59,3 +62,7 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function isExclusiveTestFunction(node: estree.Node | undefined): boolean {
+  return isIdentifier(node, ...exclusiveTestFunctionNames) || Playwright.isDescribe(node);
+}

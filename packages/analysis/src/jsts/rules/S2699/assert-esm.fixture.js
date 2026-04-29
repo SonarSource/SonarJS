@@ -1,5 +1,4 @@
 import assert, { deepStrictEqual } from 'node:assert';
-import vitest from 'vitest';
 
 describe('global assert', () => {
   it('should recognize assert', () => { // Compliant

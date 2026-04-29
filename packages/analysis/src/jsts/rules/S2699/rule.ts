@@ -19,8 +19,9 @@ import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import * as Chai from '../helpers/chai.js';
 import { childrenOf } from '../helpers/ancestor.js';
+import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { getFullyQualifiedName } from '../helpers/module.js';
+import { getFullyQualifiedName, importsModule } from '../helpers/module.js';
 import { getFullyQualifiedNameTS } from '../helpers/module-ts.js';
 import {
   getProperty,
@@ -34,9 +35,22 @@ import * as Mocha from '../helpers/mocha.js';
 import * as Sinon from '../helpers/sinon.js';
 import * as Vitest from '../helpers/vitest.js';
 import * as Supertest from '../helpers/supertest.js';
+import * as Cypress from '../helpers/cypress.js';
 import * as meta from './generated-meta.js';
 import type { ParserServicesWithTypeInformation, TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
+
+const ASSERTION_LIBRARIES = [
+  'chai',
+  'sinon',
+  'vitest',
+  'supertest',
+  '@playwright/test',
+  'assert',
+  'node:assert',
+];
+// runners that expose assertion APIs as globals (no import required).
+const GLOBAL_ASSERTION_DEPENDENCIES = ['jasmine', 'jest', 'cypress', '@playwright/test'];
 
 /**
  * We assume that the user is using a single assertion library per file,
@@ -46,14 +60,7 @@ import ts from 'typescript';
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
-    if (
-      !(
-        Chai.isImported(context) ||
-        Sinon.isImported(context) ||
-        Vitest.isImported(context) ||
-        Supertest.isImported(context)
-      )
-    ) {
+    if (!hasSupportedAssertionLibrary(context)) {
       return {};
     }
     const visitedNodes: Map<estree.Node, boolean> = new Map();
@@ -68,6 +75,15 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function hasSupportedAssertionLibrary(context: Rule.RuleContext): boolean {
+  if (importsModule(context, ASSERTION_LIBRARIES)) {
+    return true;
+  }
+
+  const dependencies = getDependenciesSanitizePaths(context);
+  return GLOBAL_ASSERTION_DEPENDENCIES.some(dependency => dependencies.has(dependency));
+}
 
 /**
  * Checks if a test uses the Mocha done callback as an assertion mechanism.
@@ -235,7 +251,8 @@ class TestCaseAssertionVisitor {
       Chai.isTSAssertion(services, node) ||
       Sinon.isTSAssertion(services, node) ||
       Supertest.isTSAssertion(services, node) ||
-      Vitest.isTSAssertion(services, node)
+      Vitest.isTSAssertion(services, node) ||
+      Cypress.isTSAssertion(node)
     ) {
       visitedTSNodes.set(node, true);
       return true;
@@ -271,6 +288,7 @@ class TestCaseAssertionVisitor {
       Sinon.isAssertion(context, node) ||
       Vitest.isAssertion(context, node) ||
       Supertest.isAssertion(context, node) ||
+      Cypress.isAssertion(node) ||
       isGlobalAssertion(context, node)
     ) {
       visitedNodes.set(node, true);

@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "vitest": "1.2.3"
+  }
+}
