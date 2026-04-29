@@ -148,7 +148,7 @@ describe('transformFixes', () => {
     expect(quickFixes).toEqual([]);
   });
 
-  it('should drop S7780 quick fixes that would introduce nested template literals', async () => {
+  it('should drop only the S7780 quick fixes that would introduce S4624 issues', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'prefer-string-raw.js');
     const { sourceCode } = await parseJavaScriptSourceFile(filePath);
 
@@ -162,13 +162,15 @@ describe('transformFixes', () => {
       rules: { [`sonarjs/${ruleId}`]: 'error' },
     });
 
-    expect(messages).toHaveLength(2);
+    expect(messages).toHaveLength(3);
 
     const safeMessage = messages.find(message => message.line === 1);
     const unsafeMessage = messages.find(message => message.line === 2);
+    const multilineSafeMessage = messages.find(message => message.line === 5);
 
     expect(safeMessage).toBeDefined();
     expect(unsafeMessage).toBeDefined();
+    expect(multilineSafeMessage).toBeDefined();
 
     expect(transformFixes(sourceCode, safeMessage!)).toEqual([
       {
@@ -182,5 +184,16 @@ describe('transformFixes', () => {
       },
     ]);
     expect(transformFixes(sourceCode, unsafeMessage!)).toEqual([]);
+    expect(transformFixes(sourceCode, multilineSafeMessage!)).toEqual([
+      {
+        message: `Use 'String.raw' template literal`,
+        edits: [
+          {
+            loc: { line: 5, column: 4, endLine: 5, endColumn: 10 },
+            text: 'String.raw`\\s+`',
+          },
+        ],
+      },
+    ]);
   });
 });

@@ -37,8 +37,8 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      // Replacing a string literal with String.raw`...` inside another template literal
-      // creates a nested template literal that S4624 reports on.
+      // Mirror S4624: only drop the quick fix when the replacement creates a nested
+      // template literal that shares the enclosing template's boundary line.
       const { fix: _fix, ...rest } = descriptor as Rule.ReportDescriptor & { fix?: unknown };
       _context.report(rest);
     },
@@ -56,6 +56,8 @@ function shouldDropQuickFix(descriptor: Rule.ReportDescriptor) {
   }
 
   const nestingTemplate = findEnclosingTemplateLiteral(node);
+  // S4624 only reports nested template literals that start on the enclosing
+  // template's first line or end on its last line.
   return (
     !!nestingTemplate?.loc &&
     (node.loc.start.line === nestingTemplate.loc.start.line ||
