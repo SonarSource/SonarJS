@@ -70,6 +70,14 @@ function getTrivialAssertionNode(assertion: Assertion): estree.Node | null {
         if (isFreshReferenceExpression(assertion.expected)) {
           return assertion.expected;
         }
+
+        // if both sides are syntactically constant, the comparison result is statically known
+        if (
+          isConstantPrimitiveValue(assertion.actual) &&
+          isConstantPrimitiveValue(assertion.expected)
+        ) {
+          return assertion.actual;
+        }
       }
 
       return null;
@@ -93,9 +101,11 @@ export function isConstantPrimitiveValue(node: estree.Node): boolean {
     case 'TemplateLiteral':
       return node.expressions.length === 0;
     case 'UnaryExpression':
+      // `void X` is always undefined regardless of X; the other operators preserve constness
       return (
-        (node.operator === '!' || node.operator === '+' || node.operator === '-') &&
-        isConstantPrimitiveValue(node.argument)
+        node.operator === 'void' ||
+        (['!', '+', '-', 'typeof'].includes(node.operator) &&
+          isConstantPrimitiveValue(node.argument))
       );
     case 'BinaryExpression':
     case 'LogicalExpression':
@@ -108,7 +118,7 @@ export function isConstantPrimitiveValue(node: estree.Node): boolean {
 /**
  * These expression types create a new reference on each evaluation, so they are always different from any other value
  */
-const FRESH_REFERENCE_EXPRESSIONS = new Set([
+const FRESH_REFERENCE_EXPRESSIONS = new Set<estree.Node['type']>([
   'ArrayExpression',
   'ObjectExpression',
   'FunctionExpression',
@@ -121,5 +131,9 @@ const FRESH_REFERENCE_EXPRESSIONS = new Set([
  * Checks if the given node is an expression that creates a new reference on each evaluation, and thus is always different from any other value.
  */
 function isFreshReferenceExpression(node: estree.Node): boolean {
+  // regex literals create a fresh RegExp object on each evaluation
+  if (node.type === 'Literal' && 'regex' in node) {
+    return true;
+  }
   return FRESH_REFERENCE_EXPRESSIONS.has(node.type);
 }

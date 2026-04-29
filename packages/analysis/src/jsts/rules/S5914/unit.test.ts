@@ -84,6 +84,12 @@ describe('S5914', () => {
         {
           code: `
             import assert from 'node:assert';
+            assert.fail("should not be called");
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
             assert.deepStrictEqual(getUser(), {});
           `,
         },
@@ -155,6 +161,39 @@ describe('S5914', () => {
             getValue().should.not.be.null;
           `,
         },
+        // identity comparison with non-fresh primitives is meaningful across libraries
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(getValue()).to.equal(null);
+          `,
+        },
+        {
+          code: `
+            import 'chai/register-should';
+            getValue().should.equal(undefined);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.strictEqual(getValue(), null);
+          `,
+        },
+        // chai expect with optional message argument
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(getValue(), 'should match').to.equal(null);
+          `,
+        },
+        // typeof on a non-constant identifier is not a constant
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(typeof getValue()).toBeTruthy();
+          `,
+        },
       ],
       invalid: [
         {
@@ -175,6 +214,13 @@ describe('S5914', () => {
           code: `
             import { expect } from 'vitest';
             expect(undefined).toBeDefined();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(undefined).not.toBeDefined();
           `,
           errors: [{ messageId: 'issue' }],
         },
@@ -238,6 +284,13 @@ describe('S5914', () => {
         {
           code: `
             import assert from 'node:assert';
+            assert.ok(function handler() {});
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import assert from 'node:assert';
             assert(false);
           `,
           errors: [{ messageId: 'issue' }],
@@ -279,6 +332,20 @@ describe('S5914', () => {
         },
         {
           code: `
+            import { expect } from 'chai';
+            expect(true).to.be.ok;
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(getValue()).to.equal({});
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
             import { assert } from 'chai';
             assert.ok("ready");
           `,
@@ -288,6 +355,13 @@ describe('S5914', () => {
           code: `
             import { assert } from 'chai';
             assert.strictEqual(getValue(), {});
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import 'chai/register-should';
+            "done".should.be.ok;
           `,
           errors: [{ messageId: 'issue' }],
         },
@@ -434,6 +508,82 @@ describe('S5914', () => {
           code: `
             import 'chai/register-should';
             getValue().should.not.equal({});
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // chai assert.equal / assert.notEqual (loose equality is just as trivial against fresh refs)
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.equal(getValue(), {});
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.notEqual(getItems(), []);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // chai expect with optional message argument is still analyzed
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(true, 'should be true').to.be.true;
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(getValue(), 'msg').to.equal({});
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // identity comparison of two constant primitives is statically known
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(true).toBe(true);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.strictEqual(1, 2);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // regex literals create a fresh RegExp on each evaluation
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(/foo/).toBeTruthy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(getValue()).toBe(/foo/);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // void X is always undefined
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(void getValue()).toBeUndefined();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // typeof of a constant is constant
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(typeof undefined).toBe('undefined');
           `,
           errors: [{ messageId: 'issue' }],
         },

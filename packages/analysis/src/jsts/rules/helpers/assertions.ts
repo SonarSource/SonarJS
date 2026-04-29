@@ -99,6 +99,8 @@ type ChaiAssertMethod =
   | 'isDefined'
   | 'exists'
   | 'notExists'
+  | 'equal'
+  | 'notEqual'
   | 'strictEqual'
   | 'notStrictEqual';
 
@@ -277,7 +279,7 @@ function extractChaiAssertAssertion(
     comparison: 'identity',
     actual,
     expected,
-    negated: assertCall.method === 'notStrictEqual',
+    negated: assertCall.method === 'notStrictEqual' || assertCall.method === 'notEqual',
     node,
     reportNode: assertCall.reportNode,
   };
@@ -330,6 +332,8 @@ function getChaiAssertMethodFromName(name: string): ChaiAssertMethod | null {
     case 'isDefined':
     case 'exists':
     case 'notExists':
+    case 'equal':
+    case 'notEqual':
     case 'strictEqual':
     case 'notStrictEqual':
       return name;
@@ -445,7 +449,8 @@ function extractChaiExpectChain(
   }
 
   const { base, properties } = chain;
-  if (base.type !== 'CallExpression' || base.arguments.length !== 1) {
+  // chai supports `expect(target [, message])`
+  if (base.type !== 'CallExpression' || base.arguments.length < 1) {
     return null;
   }
 
