@@ -33,6 +33,7 @@ import {
   fillManifestCaches,
   PNPM_WORKSPACE_YAML,
 } from '../jsts/rules/helpers/dependency-manifests/index.js';
+import { basename } from 'node:path/posix';
 
 export const UNINITIALIZED_ERROR =
   'dependency manifest cache has not been initialized. Call loadFiles() first.';
@@ -71,7 +72,10 @@ export class DependencyManifestStore implements FileStore {
       return;
     }
     for (const filename of fsEvents) {
-      if (isDependencyManifestPath(filename) || filename === PNPM_WORKSPACE_YAML) {
+      if (
+        isDependencyManifestPath(filename) ||
+        basename(filename).toLowerCase() === PNPM_WORKSPACE_YAML
+      ) {
         this.clearCache();
         return;
       }
