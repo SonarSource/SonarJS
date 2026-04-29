@@ -19,6 +19,7 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { type Assertion, extractTestAssertion } from '../helpers/assertions.js';
+import { getVariableFromName } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
@@ -39,7 +40,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     function checkAssertion(node: estree.Node) {
       const assertion = extractTestAssertion(context, node);
-      const trivial = assertion ? getTrivialAssertion(assertion) : null;
+      const trivial = assertion ? getTrivialAssertion(context, assertion) : null;
       if (trivial) {
         context.report({ node: trivial.reportNode, messageId: trivial.messageId });
       }
@@ -61,10 +62,13 @@ export const rule: Rule.RuleModule = {
  * informative message for the underlying cause.
  * @returns the node to report and the corresponding message id, or null if the assertion is not trivial.
  */
-function getTrivialAssertion(assertion: Assertion): TrivialAssertion | null {
+function getTrivialAssertion(
+  context: Rule.RuleContext,
+  assertion: Assertion,
+): TrivialAssertion | null {
   switch (assertion.kind) {
     case 'predicate':
-      if (isConstantPrimitiveValue(assertion.actual)) {
+      if (isConstantPrimitiveValue(context, assertion.actual)) {
         return { reportNode: assertion.actual, messageId: 'issue' };
       }
       if (isFreshReferenceExpression(assertion.actual)) {
@@ -80,10 +84,10 @@ function getTrivialAssertion(assertion: Assertion): TrivialAssertion | null {
         if (isFreshReferenceExpression(assertion.expected)) {
           return { reportNode: assertion.expected, messageId: 'freshIdentity' };
         }
-        // both sides are syntactically constant: the comparison result is statically determined
+        // both sides are constant (syntactically or via a resolved binding): the comparison result is statically determined
         if (
-          isConstantPrimitiveValue(assertion.actual) &&
-          isConstantPrimitiveValue(assertion.expected)
+          isConstantPrimitiveValue(context, assertion.actual) &&
+          isConstantPrimitiveValue(context, assertion.expected)
         ) {
           return { reportNode: assertion.actual, messageId: 'issue' };
         }
@@ -101,7 +105,15 @@ const UNARY_OPERATORS_PRESERVING_CONSTNESS = new Set<estree.UnaryOperator>([
   'typeof',
 ]);
 
-export function isConstantPrimitiveValue(node: estree.Node): boolean {
+export function isConstantPrimitiveValue(context: Rule.RuleContext, node: estree.Node): boolean {
+  // resolve `const` bindings (other than `undefined`) through their initializer so that
+  // identifiers bound to a constant primitive are treated as constants too.
+  if (node.type === 'Identifier' && node.name !== 'undefined') {
+    const initializer = getConstInitializer(context, node);
+    if (initializer) {
+      return isConstantPrimitiveValue(context, initializer);
+    }
+  }
   switch (node.type) {
     case 'Literal':
       return (
@@ -120,14 +132,40 @@ export function isConstantPrimitiveValue(node: estree.Node): boolean {
       return (
         node.operator === 'void' ||
         (UNARY_OPERATORS_PRESERVING_CONSTNESS.has(node.operator) &&
-          isConstantPrimitiveValue(node.argument))
+          isConstantPrimitiveValue(context, node.argument))
       );
     case 'BinaryExpression':
     case 'LogicalExpression':
-      return isConstantPrimitiveValue(node.left) && isConstantPrimitiveValue(node.right);
+      return (
+        isConstantPrimitiveValue(context, node.left) &&
+        isConstantPrimitiveValue(context, node.right)
+      );
     default:
       return false;
   }
+}
+
+/**
+ * Returns the initializer of `node` if it refers to a `const` binding declared with a plain identifier
+ * pattern (no destructuring), otherwise undefined. Restricting to `const` ensures the binding's value
+ * is statically equal to the initializer at every read.
+ */
+function getConstInitializer(
+  context: Rule.RuleContext,
+  node: estree.Identifier,
+): estree.Expression | null | undefined {
+  const variable = getVariableFromName(context, node.name, node);
+  if (variable?.defs.length !== 1) {
+    return undefined;
+  }
+  const def = variable.defs[0];
+  if (def.type !== 'Variable' || def.parent?.type !== 'VariableDeclaration') {
+    return undefined;
+  }
+  if (def.parent.kind !== 'const' || def.node.id.type !== 'Identifier') {
+    return undefined;
+  }
+  return def.node.init;
 }
 
 /**

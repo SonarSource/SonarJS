@@ -54,13 +54,47 @@ describe('S5914', () => {
           filename: mochaFixture,
         },
         {
-          code: `const value = true; expect(value).toBeTruthy();`,
-          filename: jestFixture,
-        },
-        {
           code: `
             import { expect } from 'vitest';
             expect(isReady()).toBeTruthy();
+          `,
+        },
+        // multi-write let cannot be resolved to a constant
+        {
+          code: `let value = true; value = false; expect(value).toBeTruthy();`,
+          filename: jestFixture,
+        },
+        // single-write let is not resolved either (the write may run after the read inside a callback)
+        {
+          code: `
+            import { expect } from 'vitest';
+            let flag;
+            const observer = { complete: () => { flag = true; } };
+            observer.complete();
+            expect(flag).toBeTruthy();
+          `,
+        },
+        // var with a single write follows the same rule
+        {
+          code: `var value = true; expect(value).toBeTruthy();`,
+          filename: jestFixture,
+        },
+        // const with a destructuring pattern is not resolved
+        {
+          code: `const { value } = { value: true }; expect(value).toBeTruthy();`,
+          filename: jestFixture,
+        },
+        // function parameter has no write expression
+        {
+          code: `function f(x) { expect(x).toBeTruthy(); }`,
+          filename: jestFixture,
+        },
+        // import binding has no write expression
+        {
+          code: `
+            import { expect } from 'vitest';
+            import { CONST } from './constants';
+            expect(CONST).toBeTruthy();
           `,
         },
         {
@@ -92,10 +126,6 @@ describe('S5914', () => {
             import assert from 'node:assert';
             assert.deepStrictEqual(getUser(), {});
           `,
-        },
-        {
-          code: `const value: boolean = true; expect(value).toBeTruthy();`,
-          filename: path.join(import.meta.dirname, 'fixtures', 'jest', 'test.ts'),
         },
         {
           code: `
@@ -599,6 +629,70 @@ describe('S5914', () => {
           code: `
             import { expect } from 'chai';
             expect(undefined).to.exists;
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // const-bound boolean primitive (jest fixture, predicate)
+        {
+          code: `const value = true; expect(value).toBeTruthy();`,
+          filename: jestFixture,
+          errors: [{ messageId: 'issue' }],
+        },
+        // TypeScript-annotated const with a binary expression initializer
+        {
+          code: `const limit: number = 10 + 5; expect(limit).toBeTruthy();`,
+          filename: path.join(import.meta.dirname, 'fixtures', 'jest', 'test.ts'),
+          errors: [{ messageId: 'issue' }],
+        },
+        // const bound to a unary expression on a constant
+        {
+          code: `
+            import { expect } from 'vitest';
+            const negated = !true;
+            expect(negated).toBeFalsy();
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // const bound to a logical expression on constants (chai)
+        {
+          code: `
+            import { expect } from 'chai';
+            const both = true && false;
+            expect(both).to.be.false;
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // const bound to a template literal without interpolation (jasmine)
+        {
+          code: `const greeting = \`hello\`; expect(greeting).toBeTruthy();`,
+          filename: jasmineFixture,
+          errors: [{ messageId: 'issue' }],
+        },
+        // identity comparison following a chain of consts
+        {
+          code: `
+            import { expect } from 'vitest';
+            const a = 1;
+            const b = a;
+            expect(b).toBe(1);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // expected-side const with a binary expression initializer (chai)
+        {
+          code: `
+            import { expect } from 'chai';
+            const total = 4 * 25;
+            expect(100).to.equal(total);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        // node:assert predicate on a const-bound primitive
+        {
+          code: `
+            import assert from 'node:assert';
+            const flag = false;
+            assert(flag);
           `,
           errors: [{ messageId: 'issue' }],
         },
