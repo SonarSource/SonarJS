@@ -19,10 +19,17 @@ import type estree from 'estree';
 import { isIdentifier, isMethodCall } from './ast.js';
 import { getFullyQualifiedName, importsModule, importsOrDependsOnModule } from './module.js';
 
-const JEST_LIKE_MODULES = ['vitest', 'bun:test', '@jest/globals'];
+const JEST_LIKE_MODULES = ['vitest', 'bun:test', '@jest/globals', '@playwright/test'];
 // Jest-like test runners which expose global methods that can be used in assertions
-const JEST_LIKE_GLOBAL_MODULES = ['jest'];
-const NODE_ASSERT_MODULES = ['assert', 'node:assert'];
+const JEST_LIKE_GLOBAL_MODULES = ['jest', 'jasmine', '@playwright/test'];
+const CHAI_LIKE_GLOBAL_MODULES = [
+  'chai',
+  'chai/register-assert',
+  'chai/register-expect',
+  'chai/register-should',
+  'cypress',
+];
+const NODE_ASSERT_MODULES = ['assert', 'node:assert', 'assert/strict', 'node:assert/strict'];
 
 export type AssertionPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
 
@@ -32,7 +39,7 @@ export type AssertionPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 
 export type Assertion = PredicateAssertion | ComparisonAssertion;
 
 type AssertionBase = {
-  node: estree.CallExpression;
+  node: estree.Node;
   reportNode: estree.Node;
   negated: boolean;
 };
@@ -73,26 +80,58 @@ const JEST_PREDICATES_MAPPING: Record<string, AssertionPredicate> = {
   toBeNull: 'null',
 };
 
+// https://nodejs.org/api/assert.html
 type NodeAssertMethod = 'assert' | 'ok' | 'strictEqual' | 'notStrictEqual';
+
+// https://www.chaijs.com/api/assert/
+type ChaiAssertMethod =
+  | 'assert'
+  | 'ok'
+  | 'isOk'
+  | 'isNotOk'
+  | 'isTrue'
+  | 'isFalse'
+  | 'isNull'
+  | 'isNotNull'
+  | 'isUndefined'
+  | 'isDefined'
+  | 'exists'
+  | 'notExists'
+  | 'strictEqual'
+  | 'notStrictEqual';
 
 export function extractTestAssertion(
   context: Rule.RuleContext,
-  node: estree.CallExpression,
+  node: estree.Node,
 ): Assertion | null {
   // covers Jest-like assertion libraries
   if (importsOrDependsOnModule(context, JEST_LIKE_MODULES, JEST_LIKE_GLOBAL_MODULES)) {
-    return extractExpectAssertion(node);
+    const assertion = extractExpectAssertion(node);
+    if (assertion) {
+      return assertion;
+    }
+  }
+
+  // covers Chai-like assertion libraries
+  if (importsOrDependsOnModule(context, CHAI_LIKE_GLOBAL_MODULES, CHAI_LIKE_GLOBAL_MODULES)) {
+    const assertion = extractChaiAssertion(context, node, true);
+    if (assertion) {
+      return assertion;
+    }
   }
 
   // covers Node.js assert
-  if (importsModule(context, NODE_ASSERT_MODULES)) {
+  if (node.type === 'CallExpression' && importsModule(context, NODE_ASSERT_MODULES)) {
     return extractNodeJSAssertion(context, node);
   }
 
   return null;
 }
 
-function extractExpectAssertion(expectCall: estree.CallExpression): Assertion | null {
+function extractExpectAssertion(expectCall: estree.Node): Assertion | null {
+  if (expectCall.type !== 'CallExpression') {
+    return null;
+  }
   if (!isMethodCall(expectCall)) {
     return null;
   }
@@ -169,6 +208,390 @@ function extractExpectChain(node: estree.Node): {
   return { expectCall: current, negated };
 }
 
+function extractChaiAssertion(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  allowGlobal: boolean,
+): Assertion | null {
+  // chai supports three assertion styles:
+  // assert-style (`assert.strictEqual(value, value)`)
+  // expect-style (`expect(value).toBeTruthy()`)
+  // should-style (`value.should.be.truthy`)
+  if (node.type === 'CallExpression') {
+    return (
+      extractChaiAssertAssertion(context, node, allowGlobal) ??
+      extractChaiExpectCallAssertion(context, node, allowGlobal) ??
+      extractChaiShouldCallAssertion(node)
+    );
+  }
+
+  if (node.type === 'MemberExpression') {
+    return (
+      extractChaiExpectPropertyAssertion(context, node, allowGlobal) ??
+      extractChaiShouldPropertyAssertion(node)
+    );
+  }
+
+  return null;
+}
+
+/**
+ * Covers Chai's assert style assertions like `assert.strictEqual(value, value)` or `assert.ok(value)`
+ */
+function extractChaiAssertAssertion(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+  allowGlobal: boolean,
+): Assertion | null {
+  const assertCall = getChaiAssertCall(context, node, allowGlobal);
+  if (!assertCall) {
+    return null;
+  }
+
+  const predicate = getChaiAssertPredicate(assertCall.method);
+  if (predicate) {
+    const actual = getArgumentAtIndex(node, 0);
+    if (!actual) {
+      return null;
+    }
+    return {
+      kind: 'predicate',
+      predicate: predicate.predicate,
+      actual,
+      negated: predicate.negated,
+      node,
+      reportNode: actual,
+    };
+  }
+
+  const actual = getArgumentAtIndex(node, 0);
+  const expected = getArgumentAtIndex(node, 1);
+  if (!actual || !expected) {
+    return null;
+  }
+
+  return {
+    kind: 'comparison',
+    comparison: 'identity',
+    actual,
+    expected,
+    negated: assertCall.method === 'notStrictEqual',
+    node,
+    reportNode: assertCall.reportNode,
+  };
+}
+
+function getChaiAssertCall(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+  allowGlobal: boolean,
+): { method: ChaiAssertMethod; reportNode: estree.Node } | null {
+  const fqnMethod = getChaiAssertMethodFromFqn(getFullyQualifiedName(context, node.callee));
+  if (fqnMethod) {
+    return { method: fqnMethod, reportNode: node.callee };
+  }
+
+  if (allowGlobal && isIdentifier(node.callee, 'assert')) {
+    return { method: 'assert', reportNode: node.callee };
+  }
+
+  if (allowGlobal && isMethodCall(node) && isIdentifier(node.callee.object, 'assert')) {
+    const method = getChaiAssertMethodFromName(node.callee.property.name);
+    if (method) {
+      return { method, reportNode: node.callee.property };
+    }
+  }
+
+  return null;
+}
+
+function getChaiAssertMethodFromFqn(fqn: string | null): ChaiAssertMethod | null {
+  if (!fqn?.startsWith('chai.assert')) {
+    return null;
+  }
+
+  const [, , method] = fqn.split('.');
+  return getChaiAssertMethodFromName(method ?? 'assert');
+}
+
+function getChaiAssertMethodFromName(name: string): ChaiAssertMethod | null {
+  switch (name) {
+    case 'assert':
+    case 'ok':
+    case 'isOk':
+    case 'isNotOk':
+    case 'isTrue':
+    case 'isFalse':
+    case 'isNull':
+    case 'isNotNull':
+    case 'isUndefined':
+    case 'isDefined':
+    case 'exists':
+    case 'notExists':
+    case 'strictEqual':
+    case 'notStrictEqual':
+      return name;
+    default:
+      return null;
+  }
+}
+
+function getChaiAssertPredicate(
+  method: ChaiAssertMethod,
+): { predicate: AssertionPredicate; negated: boolean } | null {
+  switch (method) {
+    case 'assert':
+    case 'ok':
+    case 'isOk':
+    case 'isTrue':
+      return { predicate: 'truthy', negated: false };
+    case 'isNotOk':
+      return { predicate: 'truthy', negated: true };
+    case 'isFalse':
+      return { predicate: 'falsy', negated: false };
+    case 'isNull':
+      return { predicate: 'null', negated: false };
+    case 'isNotNull':
+      return { predicate: 'null', negated: true };
+    case 'isUndefined':
+      return { predicate: 'undefined', negated: false };
+    case 'isDefined':
+    case 'exists':
+      return { predicate: 'defined', negated: false };
+    case 'notExists':
+      return { predicate: 'defined', negated: true };
+    default:
+      return null;
+  }
+}
+
+/**
+ * Covers Chai's expect style assertions like `expect(value).toBeTruthy()` or `expect(value).toBeNull()`
+ */
+function extractChaiExpectCallAssertion(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+  allowGlobal: boolean,
+): Assertion | null {
+  if (!isMethodCall(node)) {
+    return null;
+  }
+
+  const matcher = node.callee.property.name;
+  if (!isChaiIdentityMatcher(matcher)) {
+    return null;
+  }
+
+  const chain = extractChaiExpectChain(context, node.callee.object, allowGlobal);
+  if (!chain || chain.properties.includes('deep')) {
+    return null;
+  }
+
+  const expected = getArgumentAtIndex(node, 0);
+  if (!expected) {
+    return null;
+  }
+
+  return {
+    kind: 'comparison',
+    comparison: 'identity',
+    actual: chain.actual,
+    expected,
+    negated: chain.negated,
+    node,
+    reportNode: node.callee.property,
+  };
+}
+
+function extractChaiExpectPropertyAssertion(
+  context: Rule.RuleContext,
+  node: estree.MemberExpression,
+  allowGlobal: boolean,
+): Assertion | null {
+  if (node.computed || node.property.type !== 'Identifier') {
+    return null;
+  }
+
+  const predicate = getChaiPropertyPredicate(node.property.name);
+  if (!predicate) {
+    return null;
+  }
+
+  const chain = extractChaiExpectChain(context, node.object, allowGlobal);
+  if (!chain) {
+    return null;
+  }
+
+  return {
+    kind: 'predicate',
+    predicate: predicate.predicate,
+    actual: chain.actual,
+    negated: chain.negated !== predicate.negated,
+    node,
+    reportNode: chain.actual,
+  };
+}
+
+function extractChaiExpectChain(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  allowGlobal: boolean,
+): { actual: estree.Node; negated: boolean; properties: string[] } | null {
+  const chain = extractMemberChain(node);
+  if (!chain) {
+    return null;
+  }
+
+  const { base, properties } = chain;
+  if (base.type !== 'CallExpression' || base.arguments.length !== 1) {
+    return null;
+  }
+
+  if (!isChaiExpectCall(context, base, allowGlobal)) {
+    return null;
+  }
+
+  const actual = getArgumentAtIndex(base, 0);
+  if (!actual) {
+    return null;
+  }
+
+  return {
+    actual,
+    negated: properties.includes('not'),
+    properties,
+  };
+}
+
+function isChaiExpectCall(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+  allowGlobal: boolean,
+): boolean {
+  return (
+    getFullyQualifiedName(context, node.callee) === 'chai.expect' ||
+    (allowGlobal && isIdentifier(node.callee, 'expect'))
+  );
+}
+
+// covers chai's should-style assertions like `value.should.be.truthy` or `value.should.be.null`
+function extractChaiShouldCallAssertion(node: estree.CallExpression): Assertion | null {
+  if (!isMethodCall(node)) {
+    return null;
+  }
+
+  const matcher = node.callee.property.name;
+  if (!isChaiIdentityMatcher(matcher)) {
+    return null;
+  }
+
+  const chain = extractChaiShouldChain(node.callee.object);
+  if (!chain || chain.properties.includes('deep')) {
+    return null;
+  }
+
+  const expected = getArgumentAtIndex(node, 0);
+  if (!expected) {
+    return null;
+  }
+
+  return {
+    kind: 'comparison',
+    comparison: 'identity',
+    actual: chain.actual,
+    expected,
+    negated: chain.negated,
+    node,
+    reportNode: node.callee.property,
+  };
+}
+
+function extractChaiShouldPropertyAssertion(node: estree.MemberExpression): Assertion | null {
+  if (node.computed || node.property.type !== 'Identifier') {
+    return null;
+  }
+
+  const predicate = getChaiPropertyPredicate(node.property.name);
+  if (!predicate) {
+    return null;
+  }
+
+  const chain = extractChaiShouldChain(node.object);
+  if (!chain) {
+    return null;
+  }
+
+  return {
+    kind: 'predicate',
+    predicate: predicate.predicate,
+    actual: chain.actual,
+    negated: chain.negated !== predicate.negated,
+    node,
+    reportNode: chain.actual,
+  };
+}
+
+function extractChaiShouldChain(
+  node: estree.Node,
+): { actual: estree.Node; negated: boolean; properties: string[] } | null {
+  const properties: string[] = [];
+  let current = node;
+
+  while (current.type === 'MemberExpression' && !current.computed) {
+    if (current.property.type !== 'Identifier') {
+      return null;
+    }
+    if (current.property.name === 'should') {
+      return {
+        actual: current.object,
+        negated: properties.includes('not'),
+        properties,
+      };
+    }
+    properties.unshift(current.property.name);
+    current = current.object;
+  }
+
+  return null;
+}
+
+function extractMemberChain(node: estree.Node): { base: estree.Node; properties: string[] } | null {
+  const properties: string[] = [];
+  let current = node;
+
+  while (current.type === 'MemberExpression' && !current.computed) {
+    if (current.property.type !== 'Identifier') {
+      return null;
+    }
+    properties.unshift(current.property.name);
+    current = current.object;
+  }
+
+  return { base: current, properties };
+}
+
+function isChaiIdentityMatcher(name: string): boolean {
+  return name === 'equal' || name === 'equals' || name === 'eq';
+}
+
+function getChaiPropertyPredicate(
+  name: string,
+): { predicate: AssertionPredicate; negated: boolean } | null {
+  switch (name) {
+    case 'true':
+    case 'ok':
+      return { predicate: 'truthy', negated: false };
+    case 'false':
+      return { predicate: 'falsy', negated: false };
+    case 'null':
+      return { predicate: 'null', negated: false };
+    case 'undefined':
+      return { predicate: 'undefined', negated: false };
+    default:
+      return null;
+  }
+}
+
 function extractNodeJSAssertion(
   context: Rule.RuleContext,
   node: estree.CallExpression,
@@ -218,11 +641,6 @@ function getNodeJSAssertCall(
   const fqnMethod = getNodeJSAssertMethodFromFqn(getFullyQualifiedName(context, node.callee));
   if (fqnMethod) {
     return { method: fqnMethod, reportNode: node.callee };
-  }
-
-  // `assert` called directly
-  if (isIdentifier(node.callee, 'assert')) {
-    return { method: 'assert', reportNode: node.callee };
   }
 
   // assert method from destructured import like `const { strictEqual } = require('assert');`

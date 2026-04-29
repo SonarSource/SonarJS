@@ -38,13 +38,20 @@ const messages = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
+    function checkAssertion(node: estree.Node) {
+      const assertion = extractTestAssertion(context, node);
+      const reportNode = assertion ? getTrivialAssertionNode(assertion) : null;
+      if (reportNode) {
+        context.report({ node: reportNode, messageId: 'issue' });
+      }
+    }
+
     return {
       CallExpression(node: estree.Node) {
-        const assertion = extractTestAssertion(context, node as estree.CallExpression);
-        const reportNode = assertion ? getTrivialAssertionNode(assertion) : null;
-        if (reportNode) {
-          context.report({ node: reportNode, messageId: 'issue' });
-        }
+        checkAssertion(node);
+      },
+      MemberExpression(node: estree.Node) {
+        checkAssertion(node);
       },
     };
   },
@@ -107,21 +114,16 @@ function isConstantPrimitiveValue(node: estree.Node): boolean {
     return true;
   }
   if (node.type === 'UnaryExpression') {
-    return isConstantUnaryExpression(node);
+    return (
+      (node.operator === '!' || node.operator === '+' || node.operator === '-') &&
+      isConstantPrimitiveValue(node.argument)
+    );
   }
   if (node.type === 'BinaryExpression') {
     return isConstantPrimitiveValue(node.left) && isConstantPrimitiveValue(node.right);
   }
-  return false;
-}
-
-function isConstantUnaryExpression(node: estree.UnaryExpression): boolean {
-  if (node.operator !== '-' && node.operator !== '+' && node.operator !== '!') {
-    return false;
-  }
-  const argument = node.argument;
-  if (isNumberLiteral(argument) || isBooleanLiteral(argument) || isBigIntLiteral(argument)) {
-    return true;
+  if (node.type === 'LogicalExpression') {
+    return isConstantPrimitiveValue(node.left) && isConstantPrimitiveValue(node.right);
   }
   return false;
 }
@@ -135,6 +137,7 @@ const FRESH_REFERENCE_EXPRESSIONS = new Set([
   'FunctionExpression',
   'ArrowFunctionExpression',
   'ClassExpression',
+  'NewExpression',
 ]);
 
 /**
