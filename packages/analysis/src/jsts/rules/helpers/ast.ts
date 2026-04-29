@@ -601,6 +601,10 @@ export function isStringLiteral(node: estree.Node): node is StringLiteral {
   return isLiteral(node) && typeof node.value === 'string';
 }
 
+export function isBigIntLiteral(node: estree.Node): node is estree.BigIntLiteral {
+  return node.type === 'Literal' && typeof (node as estree.BigIntLiteral).bigint === 'string';
+}
+
 // checks if a call expression has a string literal as first argument
 export function hasStringFirstArgument(node: estree.CallExpression): boolean {
   const firstArgument = node.arguments[0];

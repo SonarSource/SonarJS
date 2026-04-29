@@ -18,6 +18,7 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { type Node, getUniqueWriteReference, getVariableFromScope, isIdentifier } from './ast.js';
+import { getDependenciesSanitizePaths } from './dependency-manifests/dependencies.js';
 
 /**
  * Checks if the current file is an ES module based on sourceType.
@@ -139,6 +140,23 @@ export function importsModule(context: Rule.RuleContext, moduleNames: string[]):
     ) ||
     getRequireAndDynamicImportCalls(context).some(module => moduleNames.includes(module.moduleName))
   );
+}
+
+/**
+ * Checks if at least one of the specified imports is imported (via import or require) in the file
+ * or if at least one of the specified dependencies is listed in the corresponding dependency manifest.
+ */
+export function importsOrDependsOnModule(
+  context: Rule.RuleContext,
+  imports: string[],
+  dependencies: string[],
+): boolean {
+  if (importsModule(context, imports)) {
+    return true;
+  }
+
+  const sanitizedDeps = getDependenciesSanitizePaths(context);
+  return dependencies.some(dependency => sanitizedDeps.has(dependency));
 }
 
 export function isRequire(node: Node): node is estree.CallExpression {
