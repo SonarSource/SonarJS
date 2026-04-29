@@ -1,8 +1,0 @@
-{
-"vitest:test/core/src/wasm/wasm-bindgen-no-cyclic/index_bg.js": [
-91
-],
-"vitest:test/core/src/wasm/wasm-bindgen/index_bg.js": [
-120
-]
-}

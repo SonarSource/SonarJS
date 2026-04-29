@@ -1,8 +1,0 @@
-{
-"vitest:test/core/test/snapshot-custom-serializer.test.ts": [
-35
-],
-"vitest:test/snapshots/test/fixtures/custom-serializers/serializer-2.ts": [
-14
-]
-}

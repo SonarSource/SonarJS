@@ -1,8 +1,0 @@
-{
-"vitest:test/core/src/cjs/default-function.js": [
-1
-],
-"vitest:test/coverage-test/fixtures/custom-reporter.cjs": [
-3
-]
-}
