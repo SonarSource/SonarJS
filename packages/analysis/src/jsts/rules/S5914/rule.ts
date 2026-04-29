@@ -20,15 +20,6 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { type Assertion, extractTestAssertion } from '../helpers/assertions.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import {
-  isBigIntLiteral,
-  isBooleanLiteral,
-  isNullLiteral,
-  isNumberLiteral,
-  isStaticTemplateLiteral,
-  isStringLiteral,
-  isUndefined,
-} from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -87,45 +78,31 @@ function getTrivialAssertionNode(assertion: Assertion): estree.Node | null {
   }
 }
 
-/**
- * Checks if the given node is a literal or an expression that can be determined syntactically as always having the same value
- * such as `undefined`, `null`, numeric/string/bigint literals, or simple unary/binary expressions.
- */
-function isConstantPrimitiveValue(node: estree.Node): boolean {
-  if (isBooleanLiteral(node)) {
-    return true;
+export function isConstantPrimitiveValue(node: estree.Node): boolean {
+  switch (node.type) {
+    case 'Literal':
+      return (
+        node.value === null ||
+        typeof node.value === 'boolean' ||
+        typeof node.value === 'string' ||
+        typeof node.value === 'number' ||
+        ('bigint' in node && typeof node.bigint === 'string')
+      );
+    case 'Identifier':
+      return node.name === 'undefined';
+    case 'TemplateLiteral':
+      return node.expressions.length === 0;
+    case 'UnaryExpression':
+      return (
+        (node.operator === '!' || node.operator === '+' || node.operator === '-') &&
+        isConstantPrimitiveValue(node.argument)
+      );
+    case 'BinaryExpression':
+    case 'LogicalExpression':
+      return isConstantPrimitiveValue(node.left) && isConstantPrimitiveValue(node.right);
+    default:
+      return false;
   }
-  if (isStringLiteral(node)) {
-    return true;
-  }
-  if (isNumberLiteral(node)) {
-    return true;
-  }
-  if (isBigIntLiteral(node)) {
-    return true;
-  }
-  if (isNullLiteral(node)) {
-    return true;
-  }
-  if (isUndefined(node)) {
-    return true;
-  }
-  if (isStaticTemplateLiteral(node)) {
-    return true;
-  }
-  if (node.type === 'UnaryExpression') {
-    return (
-      (node.operator === '!' || node.operator === '+' || node.operator === '-') &&
-      isConstantPrimitiveValue(node.argument)
-    );
-  }
-  if (node.type === 'BinaryExpression') {
-    return isConstantPrimitiveValue(node.left) && isConstantPrimitiveValue(node.right);
-  }
-  if (node.type === 'LogicalExpression') {
-    return isConstantPrimitiveValue(node.left) && isConstantPrimitiveValue(node.right);
-  }
-  return false;
 }
 
 /**

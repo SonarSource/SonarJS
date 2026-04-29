@@ -19,6 +19,7 @@ import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { type Node, getUniqueWriteReference, getVariableFromScope, isIdentifier } from './ast.js';
 import { getDependenciesSanitizePaths } from './dependency-manifests/dependencies.js';
+import { ComputedCache } from './cache.js';
 
 /**
  * Checks if the current file is an ES module based on sourceType.
@@ -37,53 +38,48 @@ export function getImportDeclarations(context: Rule.RuleContext): estree.ImportD
   return [];
 }
 
-type RequireOrDynamicImport = {
-  type: 'require' | 'import';
-  moduleName: string;
-};
-
 /**
- * Returns all calls to require() and dynamic imports whose result is stored in a variable.
- * e.g.:
+ * Per-file cache mapping a SourceCode object to the set of all module names imported or required
+ * in that file (via import declarations, require(), or dynamic import()).
+ *
+ * Supported patterns:
+ * import foo from 'lodash';
  * const lodash = require('lodash');
  * const partition = require('lodash').partition;
  * const lodash = import('lodash');
  * const lodash = await import('lodash');
  *
- * Unsupported patterns:
- * require('lodash'); // not stored in variable
- * import('lodash').then(...); // not stored in variable
+ * Unsupported patterns (not stored in a variable):
+ * require('lodash');
+ * import('lodash').then(lodash => ...);
  */
-function getRequireAndDynamicImportCalls(context: Rule.RuleContext): RequireOrDynamicImport[] {
-  const imports: RequireOrDynamicImport[] = [];
-  const { scopeManager } = context.sourceCode;
-  for (const scope of scopeManager.scopes) {
+const importedModulesCache = new ComputedCache((sourceCode: Rule.RuleContext['sourceCode']) => {
+  const modules = new Set<string>();
+
+  if (sourceCode.ast.sourceType === 'module') {
+    for (const node of sourceCode.ast.body) {
+      if (node.type === 'ImportDeclaration' && typeof node.source.value === 'string') {
+        modules.add(node.source.value);
+      }
+    }
+  }
+
+  for (const scope of sourceCode.scopeManager.scopes) {
     for (const variable of scope.variables) {
       for (const def of variable.defs) {
         if (def.type === 'Variable' && def.node.init) {
-          const importedModule = getImport(def.node.init);
-          if (importedModule) {
-            imports.push(importedModule);
+          const name =
+            getRequireModuleName(def.node.init) ?? getDynamicImportModuleName(def.node.init);
+          if (name !== undefined) {
+            modules.add(name);
           }
         }
       }
     }
   }
 
-  return imports;
-}
-
-function getImport(node: estree.Node): RequireOrDynamicImport | undefined {
-  const requireModuleName = getRequireModuleName(node);
-  if (requireModuleName !== undefined) {
-    return { type: 'require', moduleName: requireModuleName };
-  }
-  const dynamicImportModuleName = getDynamicImportModuleName(node);
-  if (dynamicImportModuleName !== undefined) {
-    return { type: 'import', moduleName: dynamicImportModuleName };
-  }
-  return undefined;
-}
+  return modules;
+});
 
 function getRequireModuleName(node: estree.Node): string | undefined {
   const requireCall = getRequireCall(node);
@@ -130,16 +126,8 @@ export function importsModule(context: Rule.RuleContext, moduleNames: string[]):
   if (moduleNames.length === 0) {
     return false;
   }
-
-  // check import declarations first as they are more common nowadays
-  return (
-    getImportDeclarations(context).some(
-      declaration =>
-        typeof declaration.source.value === 'string' &&
-        moduleNames.includes(declaration.source.value),
-    ) ||
-    getRequireAndDynamicImportCalls(context).some(module => moduleNames.includes(module.moduleName))
-  );
+  const imported = importedModulesCache.get(context.sourceCode);
+  return moduleNames.some(name => imported.has(name));
 }
 
 /**

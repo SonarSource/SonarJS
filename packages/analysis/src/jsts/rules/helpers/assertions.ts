@@ -46,8 +46,9 @@ type AssertionBase = {
 
 /**
  * Covers predicate assertions:
- * Jest: `expect(value).toBeTruthy()` or `expect(value).toBeNull()`
- * Node.js: `assert.ok(value)` or `assert.strictEqual(value, null)`
+ * Jest: `expect(value).toBeTruthy()`, `expect(value).toBeNull()`, ...
+ * Node.js: `assert.ok(value)`, `assert.strictEqual(value, null)`, ...
+ * chai: `assert.ok(value)`, `assert.isNull(value)`, ...
  */
 export type PredicateAssertion = AssertionBase & {
   kind: 'predicate';
@@ -59,6 +60,7 @@ export type PredicateAssertion = AssertionBase & {
  * Covers comparision assertions:
  * Jest: `expect(value).toBe(value)`
  * Node.js: `assert.strictEqual(value, value)`
+ * chai: `assert.strictEqual(value, value)`, `expect(value).toEqual(value)`, `value.should.equal(value)`, ...
  */
 export type ComparisonAssertion = AssertionBase & {
   kind: 'comparison';

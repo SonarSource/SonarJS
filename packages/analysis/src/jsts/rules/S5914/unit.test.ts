@@ -119,6 +119,15 @@ describe('S5914', () => {
             expect(page.locator('h1')).toHaveText('Hello');
           `,
         },
+        // awaited dynamic imports: non-constant actual must not be flagged
+        {
+          code: `const { expect } = await import('vitest');
+            expect(getValue()).toBeTruthy();`,
+        },
+        {
+          code: `const assert = await import('node:assert');
+            assert.ok(getValue());`,
+        },
         // identity comparison with primitives is meaningful — null/undefined are not fresh references
         {
           code: `
@@ -316,6 +325,32 @@ describe('S5914', () => {
         {
           code: `assert.strictEqual(getValue(), {});`,
           filename: cypressFixture,
+          errors: [{ messageId: 'issue' }],
+        },
+        // awaited dynamic imports are detected the same as static imports
+        {
+          code: `const { expect } = await import('vitest');
+            expect(true).toBeTruthy();`,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `const { expect } = await import('vitest');
+            expect(null).not.toBeNull();`,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `const { expect } = await import('vitest');
+            expect(getValue()).toBe({});`,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `const assert = await import('node:assert');
+            assert.ok(false);`,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `const assert = await import('node:assert');
+            assert.strictEqual(getValue(), {});`,
           errors: [{ messageId: 'issue' }],
         },
         // unary expressions produce constant values
