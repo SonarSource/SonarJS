@@ -100,6 +100,10 @@ Immediately exclude `diff-validation-aggregated` from the analyzed failure set:
 - do not classify it
 - do not emit it as a finding
 - mention it at most once as excluded-by-design context
+- record `excluded_workflow_jobs` for excluded non-project workflow jobs such as
+  `diff-validation-aggregated`
+- record `excluded_project_jobs` separately so the summary makes it explicit how many actual
+  project scans were excluded; this is normally `0`
 
 For each remaining failed job, record:
 
@@ -124,7 +128,8 @@ If the failing step name contains `Diff Val` or `diff-val`, classify the job imm
 
 ### 3. Early exit if no failures
 
-If there are no failed jobs after exclusions, report the run as safe and stop.
+If there are no failed jobs after exclusions, report the run as safe, include the exclusion
+counts, and stop.
 
 ### 4. Watch for mass failure
 
@@ -271,15 +276,16 @@ If clustered, add a note that the jobs likely came from a single infrastructure 
 
 Group findings by shared cause, not one row per job.
 
-Do not emit `diff-validation-aggregated` as a finding. At most, add a note such as
-`Excluded by design: diff-validation-aggregated`.
+Do not emit `diff-validation-aggregated` as a finding. Add a single exclusion line that names the
+excluded workflow job and prints both exclusion counts, for example
+`Excluded by design: diff-validation-aggregated (workflow jobs excluded: 1, project jobs excluded: 0)`.
 
 Use this structure:
 
 ```text
 ## Peach Main Analysis — Run RUN_ID (DATE)
 
-Excluded by design: diff-validation-aggregated
+Excluded by design: diff-validation-aggregated (workflow jobs excluded: WORKFLOW_EXCLUDED, project jobs excluded: PROJECT_EXCLUDED)
 
 ### IGNORE — Peach report upload timeout
 - closure-library — `ReportPublisher.upload` to `/api/ce/submit` timed out after JS analysis completed
