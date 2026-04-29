@@ -236,28 +236,28 @@ describe('S5914', () => {
             import { expect } from 'vitest';
             expect({}).toBeTruthy();
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshPredicate' }],
         },
         {
           code: `
             import { expect } from 'vitest';
             expect(class {}).toBeDefined();
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshPredicate' }],
         },
         {
           code: `
             import { expect } from 'vitest';
             expect(getValue()).toBe({});
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
             import { expect } from 'vitest';
             expect([]).not.toBe(getValue());
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `expect(true).toBeTruthy();`,
@@ -272,7 +272,7 @@ describe('S5914', () => {
         {
           code: `expect(getValue()).toBe({});`,
           filename: jasmineFixture,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
@@ -286,7 +286,7 @@ describe('S5914', () => {
             import assert from 'node:assert';
             assert.ok(function handler() {});
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshPredicate' }],
         },
         {
           code: `
@@ -300,28 +300,28 @@ describe('S5914', () => {
             import assert from 'node:assert';
             assert.strictEqual(getValue(), {});
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
             import assert from 'node:assert';
             assert.notStrictEqual(getItems(), []);
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
             import assert from 'node:assert';
             assert.strictEqual(getValue(), new Value());
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
             import { strictEqual as same } from 'node:assert';
             same(getValue(), {});
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
@@ -342,7 +342,7 @@ describe('S5914', () => {
             import { expect } from 'chai';
             expect(getValue()).to.equal({});
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
@@ -356,7 +356,7 @@ describe('S5914', () => {
             import { assert } from 'chai';
             assert.strictEqual(getValue(), {});
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
@@ -370,14 +370,14 @@ describe('S5914', () => {
             import 'chai/register-should';
             getValue().should.equal({});
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
             import 'chai/register-should';
             ({}).should.be.ok;
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshPredicate' }],
         },
         {
           code: `
@@ -399,7 +399,7 @@ describe('S5914', () => {
         {
           code: `assert.strictEqual(getValue(), {});`,
           filename: cypressFixture,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         // awaited dynamic imports are detected the same as static imports
         {
@@ -415,7 +415,7 @@ describe('S5914', () => {
         {
           code: `const { expect } = await import('vitest');
             expect(getValue()).toBe({});`,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `const assert = await import('node:assert');
@@ -425,7 +425,7 @@ describe('S5914', () => {
         {
           code: `const assert = await import('node:assert');
             assert.strictEqual(getValue(), {});`,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         // unary expressions produce constant values
         {
@@ -470,7 +470,7 @@ describe('S5914', () => {
             import { expect } from 'vitest';
             expect(new Map()).toBeTruthy();
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshPredicate' }],
         },
         // template literal
         {
@@ -493,7 +493,7 @@ describe('S5914', () => {
             import assert from 'node:assert/strict';
             assert.strictEqual(getValue(), {});
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         // chai assert: fresh reference on the actual side
         {
@@ -501,7 +501,7 @@ describe('S5914', () => {
             import { assert } from 'chai';
             assert.notStrictEqual({}, getValue());
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         // chai should-style with negation
         {
@@ -509,7 +509,7 @@ describe('S5914', () => {
             import 'chai/register-should';
             getValue().should.not.equal({});
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         // chai assert.equal / assert.notEqual (loose equality is just as trivial against fresh refs)
         {
@@ -517,14 +517,14 @@ describe('S5914', () => {
             import { assert } from 'chai';
             assert.equal(getValue(), {});
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
             import { assert } from 'chai';
             assert.notEqual(getItems(), []);
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         // chai expect with optional message argument is still analyzed
         {
@@ -539,7 +539,7 @@ describe('S5914', () => {
             import { expect } from 'chai';
             expect(getValue(), 'msg').to.equal({});
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         // identity comparison of two constant primitives is statically known
         {
@@ -562,14 +562,14 @@ describe('S5914', () => {
             import { expect } from 'vitest';
             expect(/foo/).toBeTruthy();
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshPredicate' }],
         },
         {
           code: `
             import { expect } from 'vitest';
             expect(getValue()).toBe(/foo/);
           `,
-          errors: [{ messageId: 'issue' }],
+          errors: [{ messageId: 'freshIdentity' }],
         },
         // void X is always undefined
         {

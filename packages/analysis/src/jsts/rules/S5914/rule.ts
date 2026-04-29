@@ -24,16 +24,24 @@ import * as meta from './generated-meta.js';
 
 const messages = {
   issue: 'Replace this assertion; it always succeeds or fails.',
+  // hint targeted at identity comparisons against a freshly-created value: a deep equality matcher is almost always what was meant
+  freshIdentity:
+    'Use a deep equality matcher; freshly-created values are never identical to other values.',
+  // hint for predicate assertions on a freshly-created value, where the truthiness/nullishness is statically known
+  freshPredicate:
+    'Replace this assertion; the value is freshly created here, so the result is independent of the code under test.',
 };
+
+type TrivialAssertion = { reportNode: estree.Node; messageId: keyof typeof messages };
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     function checkAssertion(node: estree.Node) {
       const assertion = extractTestAssertion(context, node);
-      const reportNode = assertion ? getTrivialAssertionNode(assertion) : null;
-      if (reportNode) {
-        context.report({ node: reportNode, messageId: 'issue' });
+      const trivial = assertion ? getTrivialAssertion(assertion) : null;
+      if (trivial) {
+        context.report({ node: trivial.reportNode, messageId: trivial.messageId });
       }
     }
 
@@ -49,42 +57,49 @@ export const rule: Rule.RuleModule = {
 };
 
 /**
- * Checks if the given assertion is trivial, meaning that it will always succeed or always fail
- * @returns the node to report if so.
+ * Classifies the assertion as trivial (always succeeds or always fails) and picks the most
+ * informative message for the underlying cause.
+ * @returns the node to report and the corresponding message id, or null if the assertion is not trivial.
  */
-function getTrivialAssertionNode(assertion: Assertion): estree.Node | null {
+function getTrivialAssertion(assertion: Assertion): TrivialAssertion | null {
   switch (assertion.kind) {
     case 'predicate':
-      return isConstantPrimitiveValue(assertion.actual) ||
-        isFreshReferenceExpression(assertion.actual)
-        ? assertion.actual
-        : null;
+      if (isConstantPrimitiveValue(assertion.actual)) {
+        return { reportNode: assertion.actual, messageId: 'issue' };
+      }
+      if (isFreshReferenceExpression(assertion.actual)) {
+        return { reportNode: assertion.actual, messageId: 'freshPredicate' };
+      }
+      return null;
     case 'comparison':
-      // if the actual or expected expression produces a fresh reference
-      // then the identity comparison will always fail or always succeed
       if (assertion.comparison === 'identity') {
+        // a freshly-created value on either side makes the identity check trivially fail (or trivially succeed when negated)
         if (isFreshReferenceExpression(assertion.actual)) {
-          return assertion.actual;
+          return { reportNode: assertion.actual, messageId: 'freshIdentity' };
         }
-
         if (isFreshReferenceExpression(assertion.expected)) {
-          return assertion.expected;
+          return { reportNode: assertion.expected, messageId: 'freshIdentity' };
         }
-
-        // if both sides are syntactically constant, the comparison result is statically known
+        // both sides are syntactically constant: the comparison result is statically determined
         if (
           isConstantPrimitiveValue(assertion.actual) &&
           isConstantPrimitiveValue(assertion.expected)
         ) {
-          return assertion.actual;
+          return { reportNode: assertion.actual, messageId: 'issue' };
         }
       }
-
       return null;
     default:
       return null;
   }
 }
+
+const UNARY_OPERATORS_PRESERVING_CONSTNESS = new Set<estree.UnaryOperator>([
+  '!',
+  '+',
+  '-',
+  'typeof',
+]);
 
 export function isConstantPrimitiveValue(node: estree.Node): boolean {
   switch (node.type) {
@@ -104,7 +119,7 @@ export function isConstantPrimitiveValue(node: estree.Node): boolean {
       // `void X` is always undefined regardless of X; the other operators preserve constness
       return (
         node.operator === 'void' ||
-        (['!', '+', '-', 'typeof'].includes(node.operator) &&
+        (UNARY_OPERATORS_PRESERVING_CONSTNESS.has(node.operator) &&
           isConstantPrimitiveValue(node.argument))
       );
     case 'BinaryExpression':

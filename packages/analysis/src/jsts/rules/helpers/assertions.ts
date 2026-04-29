@@ -86,6 +86,8 @@ const JEST_PREDICATES_MAPPING: Record<string, AssertionPredicate> = {
 type NodeAssertMethod = 'assert' | 'ok' | 'strictEqual' | 'notStrictEqual';
 
 // https://www.chaijs.com/api/assert/
+// `equal` / `notEqual` use `==` while `strictEqual` / `notStrictEqual` use `===`; both are still
+// trivially decidable when one side is a freshly-created reference.
 type ChaiAssertMethod =
   | 'assert'
   | 'ok'
