@@ -1047,10 +1047,26 @@ describe('await analyzeJSTS', () => {
         analysisModes: ['DEFAULT'],
       },
     ];
-    const filePath = path.join(fixtures, 'pnpm-workspace/index.jsx');
-    await Linter.initialize({ baseDir: normalizeToAbsolutePath(path.dirname(filePath)), rules });
+    const oldReactFilePath = path.join(fixtures, 'pnpm-workspace/old-react/index.jsx');
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(oldReactFilePath)),
+      rules,
+    });
 
-    const analysisResult = await analyzeJSTS(await jsTsInput({ filePath, skipAst: true }));
-    expect(analysisResult.issues.length).toBe(0);
+    const oldReactAnalysisResult = await analyzeJSTS(
+      await jsTsInput({ filePath: oldReactFilePath, skipAst: true }),
+    );
+    expect(oldReactAnalysisResult.issues.length).toBe(0);
+
+    const updatedReactFilePath = path.join(fixtures, 'pnpm-workspace/updated-react/index.jsx');
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(updatedReactFilePath)),
+      rules,
+    });
+
+    const analysisResult = await analyzeJSTS(
+      await jsTsInput({ filePath: updatedReactFilePath, skipAst: true }),
+    );
+    expect(analysisResult.issues.length).toBe(1);
   });
 });
