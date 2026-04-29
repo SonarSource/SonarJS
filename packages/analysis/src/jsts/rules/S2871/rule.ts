@@ -34,6 +34,8 @@ import * as meta from './generated-meta.js';
 
 const allSortLike = new Set([...sortLike, ...copyingSortLike]);
 
+// Matches JSON.stringify(<expr>) — exactly one argument, non-computed property access.
+// Does not match: JSON.stringify(x, replacer, space), JSON['stringify'](x), myObj.stringify(x).
 function isJsonStringifyCall(node: estree.Node): boolean {
   if (node.type !== 'CallExpression') {
     return false;
@@ -108,7 +110,8 @@ export const rule: Rule.RuleModule = {
       },
     };
 
-    // Suppresses when both sides of === / !== are JSON.stringify(arr.sort()) — sort order is irrelevant.
+    // Matches JSON.stringify(arr.sort()) === JSON.stringify(arr.sort()) — sort order is irrelevant when both sides serialize after an identical bare sort.
+    // Does not match: a.sort() === b.sort(), JSON.stringify(a.sort()) === b, JSON.stringify(a) === JSON.stringify(b.sort()).
     function isJsonStringifySortComparison(call: estree.CallExpression): boolean {
       const parent = getNodeParent(call);
       if (!isJsonStringifyCall(parent) || (parent as estree.CallExpression).arguments[0] !== call) {
@@ -128,6 +131,8 @@ export const rule: Rule.RuleModule = {
       return isBareSort((sibling as estree.CallExpression).arguments[0]);
     }
 
+    // Matches arr.sort() or arr.toSorted() — no arguments, receiver is an array-like type.
+    // Does not match: arr.sort((a, b) => a - b), obj.sort() where obj is a user-defined type.
     function isBareSort(node: estree.Node): boolean {
       if (node.type !== 'CallExpression') {
         return false;
