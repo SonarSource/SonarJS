@@ -12,8 +12,8 @@ import (
 
 // ConvertDiagnostic converts a tsgolint diagnostic to the shared analyze-project Issue.
 func ConvertDiagnostic(d rule.RuleDiagnostic) *pb.Issue {
-	startLine, startCol := scanner.GetECMALineAndCharacterOfPosition(d.SourceFile, d.Range.Pos())
-	endLine, endCol := scanner.GetECMALineAndCharacterOfPosition(d.SourceFile, d.Range.End())
+	startLine, startCol := scanner.GetECMALineAndUTF16CharacterOfPosition(d.SourceFile, d.Range.Pos())
+	endLine, endCol := scanner.GetECMALineAndUTF16CharacterOfPosition(d.SourceFile, d.Range.End())
 	filePath := tspath.NormalizeSlashes(d.SourceFile.FileName())
 
 	issue := &pb.Issue{
@@ -28,8 +28,8 @@ func ConvertDiagnostic(d rule.RuleDiagnostic) *pb.Issue {
 	}
 
 	for _, lr := range d.LabeledRanges {
-		lrStartLine, lrStartCol := scanner.GetECMALineAndCharacterOfPosition(d.SourceFile, lr.Range.Pos())
-		lrEndLine, lrEndCol := scanner.GetECMALineAndCharacterOfPosition(d.SourceFile, lr.Range.End())
+		lrStartLine, lrStartCol := scanner.GetECMALineAndUTF16CharacterOfPosition(d.SourceFile, lr.Range.Pos())
+		lrEndLine, lrEndCol := scanner.GetECMALineAndUTF16CharacterOfPosition(d.SourceFile, lr.Range.End())
 
 		issue.SecondaryLocations = append(issue.SecondaryLocations, &pb.IssueLocation{
 			Line:      int32Ptr(int32(lrStartLine + 1)),
