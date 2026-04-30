@@ -17,12 +17,15 @@
 import * as grpc from '@grpc/grpc-js';
 import { analyzer } from './proto/language_analyzer.js';
 import { grpc as healthProto } from './proto/health.js';
+import { sonarjs } from './proto/parser.js';
 import { analyzeFileHandler } from './service.js';
 import { healthCheckHandler } from './health-service.js';
+import { parseFileHandler } from './parser-service.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
 
 const ANALYZER_SERVICE_NAME = 'analyzer.LanguageAnalyzerService';
 const HEALTH_SERVICE_NAME = 'grpc.health.v1.Health';
+const PARSER_SERVICE_NAME = 'sonarjs.parser.v1.ParserService';
 
 /**
  * Create gRPC service definition for LanguageAnalyzerService
@@ -65,6 +68,25 @@ function createHealthServiceDefinition(): grpc.ServiceDefinition {
 }
 
 /**
+ * Create gRPC service definition for ParserService
+ */
+function createParserServiceDefinition(): grpc.ServiceDefinition {
+  return {
+    Parse: {
+      path: `/${PARSER_SERVICE_NAME}/Parse`,
+      requestStream: false,
+      responseStream: false,
+      requestSerialize: (value: sonarjs.parser.v1.IParseRequest) =>
+        Buffer.from(sonarjs.parser.v1.ParseRequest.encode(value).finish()),
+      requestDeserialize: (buffer: Buffer) => sonarjs.parser.v1.ParseRequest.decode(buffer),
+      responseSerialize: (value: sonarjs.parser.v1.IParseResponse) =>
+        Buffer.from(sonarjs.parser.v1.ParseResponse.encode(value).finish()),
+      responseDeserialize: (buffer: Buffer) => sonarjs.parser.v1.ParseResponse.decode(buffer),
+    },
+  };
+}
+
+/**
  * Create and start the gRPC server
  */
 export function createGrpcServer(): grpc.Server {
@@ -95,6 +117,17 @@ export function createGrpcServer(): grpc.Server {
   };
   server.addService(healthServiceDefinition, healthImplementation);
 
+  const parserServiceDefinition = createParserServiceDefinition();
+  const parserImplementation: grpc.UntypedServiceImplementation = {
+    Parse: (
+      call: grpc.ServerUnaryCall<sonarjs.parser.v1.IParseRequest, sonarjs.parser.v1.IParseResponse>,
+      callback: grpc.sendUnaryData<sonarjs.parser.v1.IParseResponse>,
+    ) => {
+      parseFileHandler(call, callback);
+    },
+  };
+  server.addService(parserServiceDefinition, parserImplementation);
+
   return server;
 }
 
@@ -116,7 +149,7 @@ export function startServer(port: number): Promise<grpc.Server> {
         }
 
         info(`gRPC server listening on port ${boundPort}`);
-        info(`Services: ${ANALYZER_SERVICE_NAME}, ${HEALTH_SERVICE_NAME}`);
+        info(`Services: ${ANALYZER_SERVICE_NAME}, ${HEALTH_SERVICE_NAME}, ${PARSER_SERVICE_NAME}`);
         resolve(server);
       },
     );
