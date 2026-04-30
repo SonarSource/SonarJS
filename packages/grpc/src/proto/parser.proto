@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.sonar.plugins.javascript.parser.grpc";
+option java_outer_classname = "ParserProto";
+
+package sonarjs.parser.v1;
+
+// Parser Service
+service ParserService {
+  // Parses a single source file and returns its AST as serialized estree.Node bytes.
+  // No rules are run; this is a pure parse operation.
+  // This RPC may be called concurrently by multiple clients — implementations must be thread-safe.
+  rpc Parse(ParseRequest) returns (ParseResponse);
+}
+
+// Request to parse a single source file
+message ParseRequest {
+  ParseSourceFile source_file = 1;
+}
+
+// Represents a source file to be parsed.
+//
+// Mirrors the shape of analyzer.SourceFile (language_analyzer.proto), duplicated here
+// to keep ParserService schema independent of LanguageAnalyzerService.
+message ParseSourceFile {
+  string relative_path = 1;
+  string content = 2;
+  // FILE_TYPE_UNSPECIFIED means "not provided"; the parser will default to MAIN.
+  FileType file_type = 3;
+  optional string sonar_language = 4;
+}
+
+enum FileType {
+  FILE_TYPE_UNSPECIFIED = 0;
+  FILE_TYPE_MAIN = 1;
+  FILE_TYPE_TEST = 2;
+}
+
+// Response containing parse result
+message ParseResponse {
+  // The serialized estree.Node bytes (wire-format of estree.Node from estree.proto).
+  // Decode on the consumer side with `estree.Node.parseFrom(bytes)`.
+  // Empty when parsing failed; check `parsing_errors` for details.
+  bytes ast = 1;
+  repeated ParsingError parsing_errors = 2;
+}
+
+// Represents an error encountered during parsing
+message ParsingError {
+  string message = 1;
+  optional int32 line = 2;
+  optional int32 column = 3;
+  ParsingErrorCode code = 4;
+}
+
+enum ParsingErrorCode {
+  PARSING_ERROR_CODE_UNSPECIFIED = 0;
+  PARSING_ERROR_CODE_PARSING = 1;
+  PARSING_ERROR_CODE_FAILING_TYPESCRIPT = 2;
+}
