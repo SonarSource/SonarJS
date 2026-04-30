@@ -1,15 +1,6 @@
 {
-"fresh:packages/fresh/src/error.ts": [
-3
-],
 "fresh:packages/fresh/src/internals.ts": [
 5
-],
-"fresh:packages/fresh/src/otel.ts": [
-7
-],
-"fresh:packages/plugin-vite/src/mod.ts": [
-30
 ],
 "fresh:packages/plugin-vite/tests/test_utils.ts": [
 7

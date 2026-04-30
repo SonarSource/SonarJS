@@ -1,11 +1,4 @@
 {
-"vuetify:packages/vuetify/src/entry-bundler.ts": [
-15,
-16
-],
-"vuetify:packages/vuetify/src/labs/entry-bundler.ts": [
-7
-],
 "vuetify:packages/vuetify/src/labs/index.ts": [
 4
 ]
