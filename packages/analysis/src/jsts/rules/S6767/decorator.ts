@@ -23,7 +23,7 @@ import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { findComponentNode } from '../helpers/react.js';
+import { findComponentNode, getComponentVariable } from '../helpers/react.js';
 import * as meta from './generated-meta.js';
 
 /** Composable pattern checkers — extend via Array.some() for future FP patterns. */
@@ -57,13 +57,13 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       ) {
         return;
       }
-      // Suppress FP only when the specific reported prop is referenced inside a forwardRef callback.
+      // Suppress only when the reported prop is consumed through a known indirect usage pattern.
       const { data } = descriptor as { data?: Record<string, string> };
       const propName = data?.name;
       if (
         propName &&
         componentNode &&
-        hasPropMemberReference(context.sourceCode, componentNode, propName)
+        propUsagePatterns.some(pattern => pattern(context.sourceCode, componentNode, propName))
       ) {
         return;
       }
@@ -118,6 +118,10 @@ function isWholePropsSuperCallStatement(statement: estree.Statement): boolean {
     isIdentifier(argument as estree.Node, 'props'),
   );
 }
+
+const propUsagePatterns: Array<
+  (sourceCode: SourceCode, componentNode: estree.Node, propName: string) => boolean
+> = [hasPropMemberReference, hasDecoratorPropUsage];
 
 /**
  * Returns true only when `propName` is referenced through the component's actual
@@ -180,6 +184,93 @@ function isPropReferenceInForwardRefCallback(
     current = getNodeParent(current);
   }
   return false;
+}
+
+function hasDecoratorPropUsage(
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+  propName: string,
+): boolean {
+  return hasDecoratorFactoryCallPropUsage(sourceCode, componentNode, propName);
+}
+
+function hasDecoratorFactoryCallPropUsage(
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+  propName: string,
+): boolean {
+  const componentVariable = getComponentVariable(sourceCode, componentNode);
+  if (!componentVariable) {
+    return false;
+  }
+
+  return componentVariable.references.some(reference => {
+    const decoratorApplication = getNodeParent(reference.identifier);
+    return (
+      decoratorApplication?.type === 'CallExpression' &&
+      decoratorApplication.arguments[0] === reference.identifier &&
+      decoratorApplication.callee.type === 'CallExpression' &&
+      decoratorApplication.callee.arguments.some(argument =>
+        isPropsCallbackUsingProp(sourceCode, argument as estree.Node, propName),
+      )
+    );
+  });
+}
+
+function isPropsCallbackUsingProp(
+  sourceCode: SourceCode,
+  callbackNode: estree.Node,
+  propName: string,
+): boolean {
+  if (!isFunctionNode(callbackNode)) {
+    return false;
+  }
+
+  const firstParam = callbackNode.params[0];
+  if (!isIdentifier(firstParam)) {
+    return false;
+  }
+
+  const variable = sourceCode.getScope(callbackNode).set.get(firstParam.name);
+  if (!variable) {
+    return false;
+  }
+
+  return variable.references.some(reference => isTrackedPropsReference(reference, propName));
+}
+
+function isTrackedPropsReference(reference: Scope.Reference, propName: string): boolean {
+  const parent = getNodeParent(reference.identifier);
+  if (!parent) {
+    return false;
+  }
+
+  if (
+    parent.type === 'MemberExpression' &&
+    parent.object === reference.identifier &&
+    !parent.computed &&
+    isIdentifier(parent.property, propName)
+  ) {
+    return true;
+  }
+
+  return isWholePropsUsage(parent, reference.identifier) && !isIgnoredWholePropsUsage(parent);
+}
+
+function isWholePropsUsage(parent: estree.Node, propsIdentifier: estree.Identifier): boolean {
+  return (
+    (parent.type === 'CallExpression' &&
+      parent.callee.type !== 'Super' &&
+      parent.arguments.includes(propsIdentifier)) ||
+    (parent.type === 'SpreadElement' && parent.argument === propsIdentifier) ||
+    (parent.type === 'JSXSpreadAttribute' &&
+      (parent as unknown as JSXSpreadAttribute).argument === propsIdentifier) ||
+    (parent.type === 'MemberExpression' && parent.object === propsIdentifier && parent.computed)
+  );
+}
+
+function isIgnoredWholePropsUsage(node: estree.Node): boolean {
+  return node.type === 'CallExpression' && isPropTypesCheckCall(node);
 }
 
 function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {

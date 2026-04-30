@@ -15,10 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { Rule, SourceCode } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type ts from 'typescript';
-import { childrenOf } from './ancestor.js';
+import { childrenOf, getNodeParent } from './ancestor.js';
 import { isIdentifier } from './ast.js';
 import { isRequiredParserServices } from './parser-services.js';
 import { getTypeFromTreeNode } from './type.js';
@@ -98,6 +98,48 @@ export function findComponentNode(
 
   // Strategy C: TypeScript type checker — match the props interface to its owning component
   return findOwnerByType(ancestors, context, context.sourceCode.visitorKeys);
+}
+
+export function getComponentVariable(
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+): Scope.Variable | undefined {
+  const componentIdentifier = getComponentIdentifier(componentNode);
+  if (!componentIdentifier) {
+    return undefined;
+  }
+
+  let scope: Scope.Scope | null = sourceCode.getScope(componentNode);
+  while (scope) {
+    const variable = scope.set.get(componentIdentifier.name);
+    if (variable) {
+      return variable;
+    }
+    scope = scope.upper;
+  }
+
+  return undefined;
+}
+
+export function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
+  if (
+    (componentNode.type === 'ClassDeclaration' || componentNode.type === 'FunctionDeclaration') &&
+    componentNode.id
+  ) {
+    return componentNode.id;
+  }
+
+  if (
+    (componentNode.type === 'ClassExpression' || componentNode.type === 'FunctionExpression') &&
+    componentNode.id
+  ) {
+    return componentNode.id;
+  }
+
+  const parent = getNodeParent(componentNode);
+  return parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier'
+    ? parent.id
+    : undefined;
 }
 
 /**
