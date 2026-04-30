@@ -18,9 +18,9 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
+import { isOnEnclosingTemplateDelimiterLine } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { sharesBoundaryLineWithEnclosingTemplate } from '../helpers/nested-template-literals.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -60,7 +60,7 @@ function shouldDropQuickFix(descriptor: Rule.ReportDescriptor) {
     return false;
   }
 
-  return sharesBoundaryLineWithEnclosingTemplate(node);
+  return isOnEnclosingTemplateDelimiterLine(node);
 }
 
 function hasQuickFix(descriptor: Rule.ReportDescriptor) {
