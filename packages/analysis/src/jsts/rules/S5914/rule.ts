@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5914/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { type Assertion, extractTestAssertion } from '../helpers/assertions.js';
 import { getVariableFromName } from '../helpers/ast.js';
@@ -105,13 +105,19 @@ const UNARY_OPERATORS_PRESERVING_CONSTNESS = new Set<estree.UnaryOperator>([
   'typeof',
 ]);
 
-export function isConstantPrimitiveValue(context: Rule.RuleContext, node: estree.Node): boolean {
+export function isConstantPrimitiveValue(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  visited?: Set<Scope.Variable>,
+): boolean {
   // resolve `const` bindings (other than `undefined`) through their initializer so that
-  // identifiers bound to a constant primitive are treated as constants too.
+  // identifiers bound to a constant primitive are treated as constants too. `visited` guards
+  // against mutually-recursive const references like `const a = b; const b = a;` (TDZ at runtime).
   if (node.type === 'Identifier' && node.name !== 'undefined') {
-    const initializer = getConstInitializer(context, node);
-    if (initializer) {
-      return isConstantPrimitiveValue(context, initializer);
+    visited ??= new Set();
+    const resolved = resolveConstBinding(context, node, visited);
+    if (resolved) {
+      return isConstantPrimitiveValue(context, resolved, visited);
     }
   }
   switch (node.type) {
@@ -132,13 +138,13 @@ export function isConstantPrimitiveValue(context: Rule.RuleContext, node: estree
       return (
         node.operator === 'void' ||
         (UNARY_OPERATORS_PRESERVING_CONSTNESS.has(node.operator) &&
-          isConstantPrimitiveValue(context, node.argument))
+          isConstantPrimitiveValue(context, node.argument, visited))
       );
     case 'BinaryExpression':
     case 'LogicalExpression':
       return (
-        isConstantPrimitiveValue(context, node.left) &&
-        isConstantPrimitiveValue(context, node.right)
+        isConstantPrimitiveValue(context, node.left, visited) &&
+        isConstantPrimitiveValue(context, node.right, visited)
       );
     default:
       return false;
@@ -147,15 +153,17 @@ export function isConstantPrimitiveValue(context: Rule.RuleContext, node: estree
 
 /**
  * Returns the initializer of `node` if it refers to a `const` binding declared with a plain identifier
- * pattern (no destructuring), otherwise undefined. Restricting to `const` ensures the binding's value
- * is statically equal to the initializer at every read.
+ * pattern (no destructuring) and that binding has not been visited already, otherwise undefined.
+ * Restricting to `const` ensures the binding's value is statically equal to the initializer at every read.
+ * The variable is added to `visited` so mutually-recursive references cannot loop forever.
  */
-function getConstInitializer(
+function resolveConstBinding(
   context: Rule.RuleContext,
   node: estree.Identifier,
+  visited: Set<Scope.Variable>,
 ): estree.Expression | null | undefined {
   const variable = getVariableFromName(context, node.name, node);
-  if (variable?.defs.length !== 1) {
+  if (!variable || visited.has(variable) || variable.defs.length !== 1) {
     return undefined;
   }
   const def = variable.defs[0];
@@ -165,6 +173,7 @@ function getConstInitializer(
   if (def.parent.kind !== 'const' || def.node.id.type !== 'Identifier') {
     return undefined;
   }
+  visited.add(variable);
   return def.node.init;
 }
 

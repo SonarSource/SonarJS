@@ -84,6 +84,15 @@ describe('S5914', () => {
           code: `const { value } = { value: true }; expect(value).toBeTruthy();`,
           filename: jestFixture,
         },
+        // mutually-recursive const references must not cause a stack overflow
+        {
+          code: `
+            import { expect } from 'vitest';
+            const a = b;
+            const b = a;
+            expect(a).toBeTruthy();
+          `,
+        },
         // function parameter has no write expression
         {
           code: `function f(x) { expect(x).toBeTruthy(); }`,
