@@ -22,10 +22,8 @@ import { expect } from 'expect';
 import {
   getDependenciesFromManifest,
   getDependenciesFromPackageJson,
-  parseDenoManifest,
   parseImportMapSpecifier,
 } from '../../../../src/jsts/rules/helpers/dependency-manifests/parse.js';
-import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 
 describe('package-json', () => {
   it('should handle arrays in package-jsons dependency versions', async () => {
@@ -66,33 +64,6 @@ describe('package-json', () => {
         { name: 'chalk', version: undefined, alias: 'noVersion' },
         { name: 'koa', version: 'not-a-semver', alias: 'invalidVersion' },
       ]),
-    );
-  });
-
-  it('should parse deno.jsonc with comments and trailing commas', () => {
-    const manifest = parseDenoManifest({
-      path: normalizeToAbsolutePath('/project/deno.jsonc'),
-      content: Buffer.from(`{
-        // Trailing comma and comments should be accepted
-        "imports": {
-          "reactAlias": "npm:react@^19.1.0",
-        },
-      }`),
-    });
-
-    expect(manifest).toEqual({
-      imports: {
-        reactAlias: 'npm:react@^19.1.0',
-      },
-    });
-
-    const dependencies = getDependenciesFromManifest({
-      type: 'deno',
-      manifest: manifest ?? {},
-    });
-
-    expect(dependencies).toEqual(
-      new Set([{ name: 'react', version: '^19.1.0', alias: 'reactAlias' }]),
     );
   });
 });

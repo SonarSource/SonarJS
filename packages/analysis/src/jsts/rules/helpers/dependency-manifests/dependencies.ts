@@ -29,7 +29,7 @@ import {
 } from '../files.js';
 import { getDependenciesFromManifest } from './parse.js';
 import { getClosestDependencyManifestDir } from './closest.js';
-import { getDependencyManifests, getPackageJsonManifests } from './all-in-parent-dirs.js';
+import { getDependencyManifests } from './all-in-parent-dirs.js';
 
 export type ModuleType = 'module' | 'commonjs';
 
@@ -140,11 +140,15 @@ export function getDependenciesSanitizePaths(context: Rule.RuleContext): Set<str
  */
 export function getReactVersion(context: Rule.RuleContext): string | null {
   const dir = dirnamePath(normalizeToAbsolutePath(context.filename));
-  for (const packageJson of getPackageJsonManifests(
+  for (const dependencyManifest of getDependencyManifests(
     dir,
     normalizeToAbsolutePath(context.cwd),
     fs,
   )) {
+    if (dependencyManifest.type !== 'npm') {
+      continue;
+    }
+    const packageJson = dependencyManifest.manifest;
     const reactVersion = packageJson.dependencies?.react ?? packageJson.devDependencies?.react;
     if (reactVersion) {
       const parsed = parseReactVersion(reactVersion);

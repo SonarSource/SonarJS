@@ -110,6 +110,129 @@ describe('files', () => {
     expect(dependenciesCache.has(baseDir)).toEqual(true);
   });
 
+  it('should resolve pnpm catalog references from pnpm-workspace.yaml for same-level-directory package.json', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      dependencies: {
+        react: '^19.1.1',
+        'react-dom': '^19.1.1',
+        vue: '^3.5.0',
+      },
+      peerDependencies: {
+        typescript: '^5.8.0',
+      },
+      optionalDependencies: {
+        rollup: '^4.40.0',
+      },
+    });
+  });
+
+  it('should resolve pnpm catalog references from pnpm-workspace.yaml for lower-level-directory package.json', async () => {
+    const topDirectory = normalizeToAbsolutePath(
+      join(fixtures, 'pnpm-workspace-catalog-different-level'),
+    );
+    const currentDirectory = normalizeToAbsolutePath(
+      join(fixtures, 'pnpm-workspace-catalog-different-level/packages/app/'),
+    );
+    const configuration = createConfiguration({ baseDir: topDirectory });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(currentDirectory, topDirectory);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm', 'npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      dependencies: {
+        react: '^19.1.1',
+        'react-dom': '^19.1.1',
+      },
+      devDependencies: {
+        vue: '^3.5.0',
+      },
+    });
+  });
+
+  it('should inject pnpm workspace packages into manifest workspaces', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-packages'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      workspaces: ['packages/*', 'apps/*'],
+      dependencies: { react: '^19.0.0' },
+    });
+  });
+
+  it('should inject workspace packages alongside catalog reference resolution', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-packages-and-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      workspaces: ['packages/*'],
+      dependencies: { react: '^19.1.1' },
+    });
+  });
+
+  it('should not set workspaces when pnpm-workspace.yaml has no packages field', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    const [manifest] = manifests;
+    expect(manifest.type).toEqual('npm');
+    if (manifest.type === 'npm') {
+      expect(manifest.manifest.workspaces).toBeUndefined();
+    }
+  });
+
+  it('should not overwrite existing workspaces when pnpm-workspace.yaml also defines packages', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'pnpm-workspace-packages-existing-workspaces'),
+    );
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      workspaces: ['existing/*'],
+    });
+    const [manifest] = manifests;
+    if (manifest.type === 'npm') {
+      expect(manifest.manifest.workspaces).not.toContain('new-packages/*');
+    }
+  });
+
+  it('should not resolve the dependency when pnpm catalog references are not found', async ({
+    mock,
+  }) => {
+    mock.method(console, 'debug');
+    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-catalog-unresolved'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests[0].manifest).toMatchObject({
+      dependencies: {
+        react: 'catalog:',
+      },
+    });
+    expect(consoleLogMock.calls[0].arguments[0]).toEqual(
+      'Dependency "react" could not be resolved for catalog "default"',
+    );
+  });
+
   it('should fill deno manifest caches used for dependency lookup', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-dependencies'));
     const configuration = createConfiguration({ baseDir });
@@ -120,6 +243,20 @@ describe('files', () => {
     expect(denoJsoncsInParentsCache.has(baseDir)).toEqual(true);
     expect(closestDenoJsoncCache.has(baseDir)).toEqual(true);
     expect(getDependencies(baseDir, baseDir)).toEqual(new Set(['react', '@scope/pkg', 'pkgAlias']));
+  });
+
+  it('should parse deno.jsonc with comments and trailing commas', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-jsonc-with-comments'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['deno']);
+    expect(manifests[0].manifest).toMatchObject({
+      imports: {
+        reactAlias: 'npm:react@^19.1.0',
+      },
+    });
   });
 
   it('should include package.json dependencies when deno.json is present in the same directory', async () => {
