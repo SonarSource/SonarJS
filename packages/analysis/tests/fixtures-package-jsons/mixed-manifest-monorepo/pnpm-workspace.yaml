@@ -1,0 +1,5 @@
+packages:
+  - packages/*
+
+catalog:
+  shared-lib: ^2.3.4

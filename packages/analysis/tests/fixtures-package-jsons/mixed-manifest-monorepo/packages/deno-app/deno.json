@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "deno-only": "npm:deno-only@^5.0.0",
+    "sharedAlias": "npm:shared-lib@^2.3.4"
+  }
+}

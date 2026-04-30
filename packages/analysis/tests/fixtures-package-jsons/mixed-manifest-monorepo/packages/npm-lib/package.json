@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "lib-only": "^4.0.0",
+    "shared-lib": "catalog:"
+  }
+}

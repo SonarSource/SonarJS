@@ -34,6 +34,7 @@ import {
   DENO_JSON,
   DENO_JSONC,
   PACKAGE_JSON,
+  PNPM_WORKSPACE_YAML,
 } from '../src/jsts/rules/helpers/dependency-manifests/index.js';
 import { patternInParentsCache } from '../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
 
@@ -43,6 +44,7 @@ const closestDenoJsonCache = closestPatternCache.get(DENO_JSON);
 const denoJsonsInParentsCache = patternInParentsCache.get(DENO_JSON);
 const closestDenoJsoncCache = closestPatternCache.get(DENO_JSONC);
 const denoJsoncsInParentsCache = patternInParentsCache.get(DENO_JSONC);
+const closestPnpmWorkspaceCache = closestPatternCache.get(PNPM_WORKSPACE_YAML);
 
 const fixtures = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures-package-jsons'));
 
@@ -210,6 +212,137 @@ describe('files', () => {
     if (manifest.type === 'npm') {
       expect(manifest.manifest.workspaces).not.toContain('new-packages/*');
     }
+  });
+
+  it('should resolve dependencies across a mixed pnpm, npm, and deno monorepo', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'mixed-manifest-monorepo'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const npmAppDir = normalizeToAbsolutePath(join(baseDir, 'packages/npm-app'));
+    const npmAppSrcDir = normalizeToAbsolutePath(join(npmAppDir, 'src'));
+    const npmAppNestedDir = normalizeToAbsolutePath(join(npmAppSrcDir, 'nested'));
+    const npmLibDir = normalizeToAbsolutePath(join(baseDir, 'packages/npm-lib'));
+    const denoAppDir = normalizeToAbsolutePath(join(baseDir, 'packages/deno-app'));
+
+    const npmAppManifests = getDependencyManifests(npmAppDir, baseDir);
+    expect(npmAppManifests.map(manifest => manifest.type)).toEqual(['npm', 'npm']);
+    expect(npmAppManifests[0].manifest).toMatchObject({
+      dependencies: {
+        'npm-only': '^3.0.0',
+        'shared-lib': '^2.3.4',
+      },
+      type: 'module',
+    });
+    expect(npmAppManifests[1].manifest).toMatchObject({
+      dependencies: {
+        'root-only': '^1.0.0',
+      },
+      workspaces: ['packages/*'],
+    });
+
+    const denoAppManifests = getDependencyManifests(denoAppDir, baseDir);
+    expect(denoAppManifests.map(manifest => manifest.type)).toEqual(['deno', 'npm']);
+    expect(denoAppManifests[0].manifest).toMatchObject({
+      imports: {
+        'deno-only': 'npm:deno-only@^5.0.0',
+        sharedAlias: 'npm:shared-lib@^2.3.4',
+      },
+    });
+    expect(denoAppManifests[1].manifest).toMatchObject({
+      dependencies: {
+        'root-only': '^1.0.0',
+      },
+      workspaces: ['packages/*'],
+    });
+
+    expect(dependenciesCache.size).toEqual(0);
+    const npmAppDependencies = getDependencies(npmAppSrcDir, baseDir);
+    expect(getStringDependencies(npmAppDependencies)).toEqual([
+      'npm-only',
+      'root-only',
+      'shared-lib',
+    ]);
+    expect(getWorkspacePatterns(npmAppDependencies)).toEqual(['packages/*', 'packages/*']);
+    expect(dependenciesCache.size).toEqual(1);
+    expect(dependenciesCache.has(npmAppDir)).toEqual(true);
+
+    expect(getDependencies(npmAppNestedDir, baseDir)).toBe(npmAppDependencies);
+    expect(dependenciesCache.size).toEqual(1);
+
+    const npmLibDependencies = getDependencies(npmLibDir, baseDir);
+    expect(getStringDependencies(npmLibDependencies)).toEqual([
+      'lib-only',
+      'root-only',
+      'shared-lib',
+    ]);
+    expect(getWorkspacePatterns(npmLibDependencies)).toEqual(['packages/*', 'packages/*']);
+    expect(dependenciesCache.size).toEqual(2);
+    expect(dependenciesCache.has(npmLibDir)).toEqual(true);
+
+    const denoDependencies = getDependencies(denoAppDir, baseDir);
+    expect(getStringDependencies(denoDependencies)).toEqual([
+      'deno-only',
+      'root-only',
+      'shared-lib',
+      'sharedAlias',
+    ]);
+    expect(getWorkspacePatterns(denoDependencies)).toEqual(['packages/*']);
+    expect(dependenciesCache.size).toEqual(3);
+    expect(dependenciesCache.has(denoAppDir)).toEqual(true);
+
+    expect(moduleTypeCache.size).toEqual(0);
+    const npmAppEntry = normalizeToAbsolutePath(join(npmAppSrcDir, 'index.js'));
+    expect(getModuleType(npmAppEntry, baseDir)).toEqual('module');
+    expect(moduleTypeCache.size).toEqual(1);
+    expect(getModuleType(npmAppEntry, baseDir)).toEqual('module');
+    expect(moduleTypeCache.size).toEqual(1);
+
+    expect(
+      getModuleType(normalizeToAbsolutePath(join(npmLibDir, 'src/index.js')), baseDir),
+    ).toEqual('commonjs');
+    expect(moduleTypeCache.size).toEqual(2);
+
+    expect(getModuleType(normalizeToAbsolutePath(join(denoAppDir, 'src/mod.ts')), baseDir)).toEqual(
+      'module',
+    );
+    expect(moduleTypeCache.size).toEqual(3);
+  });
+
+  it('should cache pnpm workspace lookups across sibling packages', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'mixed-manifest-monorepo'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const npmAppDir = normalizeToAbsolutePath(join(baseDir, 'packages/npm-app'));
+    const npmLibDir = normalizeToAbsolutePath(join(baseDir, 'packages/npm-lib'));
+    const denoAppDir = normalizeToAbsolutePath(join(baseDir, 'packages/deno-app'));
+    const packagesDir = normalizeToAbsolutePath(join(baseDir, 'packages'));
+    const pnpmWorkspaceCache = closestPnpmWorkspaceCache.get(baseDir);
+
+    expect(pnpmWorkspaceCache.size).toEqual(0);
+
+    getDependencyManifests(npmAppDir, baseDir);
+    expect(pnpmWorkspaceCache.size).toEqual(3);
+    expect(pnpmWorkspaceCache.has(npmAppDir)).toEqual(true);
+    expect(pnpmWorkspaceCache.has(packagesDir)).toEqual(true);
+    expect(pnpmWorkspaceCache.has(baseDir)).toEqual(true);
+    const cachedPnpmWorkspace = pnpmWorkspaceCache.get(npmAppDir);
+    expect(cachedPnpmWorkspace?.path).toEqual(
+      normalizeToAbsolutePath(join(baseDir, 'pnpm-workspace.yaml')),
+    );
+
+    getDependencyManifests(npmAppDir, baseDir);
+    expect(pnpmWorkspaceCache.size).toEqual(3);
+    expect(pnpmWorkspaceCache.get(npmAppDir)).toBe(cachedPnpmWorkspace);
+
+    getDependencyManifests(npmLibDir, baseDir);
+    expect(pnpmWorkspaceCache.size).toEqual(4);
+    expect(pnpmWorkspaceCache.has(npmLibDir)).toEqual(true);
+    expect(pnpmWorkspaceCache.get(npmLibDir)).toBe(cachedPnpmWorkspace);
+
+    getDependencyManifests(denoAppDir, baseDir);
+    expect(pnpmWorkspaceCache.size).toEqual(4);
   });
 
   it('should not resolve the dependency when pnpm catalog references are not found', async ({
@@ -459,3 +592,16 @@ describe('files', () => {
     expect(moduleTypeCache.size).toEqual(0);
   });
 });
+
+function getStringDependencies(dependencies: Set<unknown>): string[] {
+  return [...dependencies]
+    .filter((dependency): dependency is string => typeof dependency === 'string')
+    .sort();
+}
+
+function getWorkspacePatterns(dependencies: Set<unknown>): string[] {
+  return [...dependencies]
+    .filter((dependency): dependency is { pattern: string } => typeof dependency !== 'string')
+    .map(dependency => dependency.pattern)
+    .sort();
+}

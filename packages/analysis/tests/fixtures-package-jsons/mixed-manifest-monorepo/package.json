@@ -1,0 +1,6 @@
+{
+  "private": true,
+  "dependencies": {
+    "root-only": "^1.0.0"
+  }
+}

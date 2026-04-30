@@ -1,0 +1,7 @@
+{
+  "type": "module",
+  "dependencies": {
+    "npm-only": "^3.0.0",
+    "shared-lib": "catalog:"
+  }
+}
