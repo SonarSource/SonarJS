@@ -214,7 +214,9 @@ describe('files', () => {
     }
   });
 
-  it('should resolve dependencies across a mixed pnpm, npm, and deno monorepo', async () => {
+  it('should resolve dependencies across a mixed pnpm, npm, and deno monorepo', async ({
+    mock,
+  }) => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'mixed-manifest-monorepo'));
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
@@ -224,6 +226,22 @@ describe('files', () => {
     const npmAppNestedDir = normalizeToAbsolutePath(join(npmAppSrcDir, 'nested'));
     const npmLibDir = normalizeToAbsolutePath(join(baseDir, 'packages/npm-lib'));
     const denoAppDir = normalizeToAbsolutePath(join(baseDir, 'packages/deno-app'));
+    const dependenciesCacheWithComputeFn = dependenciesCache as unknown as {
+      computeFn: (dir: string, topDir?: string) => Set<string>;
+    };
+    mock.method(dependenciesCacheWithComputeFn, 'computeFn');
+    const dependenciesComputeMock = (
+      dependenciesCacheWithComputeFn.computeFn as Mock<
+        typeof dependenciesCacheWithComputeFn.computeFn
+      >
+    ).mock;
+    const moduleTypeCacheWithComputeFn = moduleTypeCache as unknown as {
+      computeFn: (dir: string, topDir?: string) => string | undefined;
+    };
+    mock.method(moduleTypeCacheWithComputeFn, 'computeFn');
+    const moduleTypeComputeMock = (
+      moduleTypeCacheWithComputeFn.computeFn as Mock<typeof moduleTypeCacheWithComputeFn.computeFn>
+    ).mock;
 
     const npmAppManifests = getDependencyManifests(npmAppDir, baseDir);
     expect(npmAppManifests.map(manifest => manifest.type)).toEqual(['npm', 'npm']);
@@ -266,9 +284,13 @@ describe('files', () => {
     expect(getWorkspacePatterns(npmAppDependencies)).toEqual(['packages/*', 'packages/*']);
     expect(dependenciesCache.size).toEqual(1);
     expect(dependenciesCache.has(npmAppDir)).toEqual(true);
+    expect(dependenciesComputeMock.calls.map(call => call.arguments)).toEqual([
+      [npmAppDir, baseDir],
+    ]);
 
     expect(getDependencies(npmAppNestedDir, baseDir)).toBe(npmAppDependencies);
     expect(dependenciesCache.size).toEqual(1);
+    expect(dependenciesComputeMock.calls.length).toEqual(1);
 
     const npmLibDependencies = getDependencies(npmLibDir, baseDir);
     expect(getStringDependencies(npmLibDependencies)).toEqual([
@@ -279,6 +301,10 @@ describe('files', () => {
     expect(getWorkspacePatterns(npmLibDependencies)).toEqual(['packages/*', 'packages/*']);
     expect(dependenciesCache.size).toEqual(2);
     expect(dependenciesCache.has(npmLibDir)).toEqual(true);
+    expect(dependenciesComputeMock.calls.map(call => call.arguments)).toEqual([
+      [npmAppDir, baseDir],
+      [npmLibDir, baseDir],
+    ]);
 
     const denoDependencies = getDependencies(denoAppDir, baseDir);
     expect(getStringDependencies(denoDependencies)).toEqual([
@@ -290,26 +316,44 @@ describe('files', () => {
     expect(getWorkspacePatterns(denoDependencies)).toEqual(['packages/*']);
     expect(dependenciesCache.size).toEqual(3);
     expect(dependenciesCache.has(denoAppDir)).toEqual(true);
+    expect(dependenciesComputeMock.calls.map(call => call.arguments)).toEqual([
+      [npmAppDir, baseDir],
+      [npmLibDir, baseDir],
+      [denoAppDir, baseDir],
+    ]);
 
     expect(moduleTypeCache.size).toEqual(0);
     const npmAppEntry = normalizeToAbsolutePath(join(npmAppSrcDir, 'index.js'));
     expect(getModuleType(npmAppEntry, baseDir)).toEqual('module');
     expect(moduleTypeCache.size).toEqual(1);
+    expect(moduleTypeComputeMock.calls.map(call => call.arguments)).toEqual([
+      [npmAppSrcDir, baseDir],
+    ]);
     expect(getModuleType(npmAppEntry, baseDir)).toEqual('module');
     expect(moduleTypeCache.size).toEqual(1);
+    expect(moduleTypeComputeMock.calls.length).toEqual(1);
 
     expect(
       getModuleType(normalizeToAbsolutePath(join(npmLibDir, 'src/index.js')), baseDir),
     ).toEqual('commonjs');
     expect(moduleTypeCache.size).toEqual(2);
+    expect(moduleTypeComputeMock.calls.map(call => call.arguments)).toEqual([
+      [npmAppSrcDir, baseDir],
+      [normalizeToAbsolutePath(join(npmLibDir, 'src')), baseDir],
+    ]);
 
     expect(getModuleType(normalizeToAbsolutePath(join(denoAppDir, 'src/mod.ts')), baseDir)).toEqual(
       'module',
     );
     expect(moduleTypeCache.size).toEqual(3);
+    expect(moduleTypeComputeMock.calls.map(call => call.arguments)).toEqual([
+      [npmAppSrcDir, baseDir],
+      [normalizeToAbsolutePath(join(npmLibDir, 'src')), baseDir],
+      [normalizeToAbsolutePath(join(denoAppDir, 'src')), baseDir],
+    ]);
   });
 
-  it('should cache pnpm workspace lookups across sibling packages', async () => {
+  it('should cache pnpm workspace lookups across sibling packages', async ({ mock }) => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'mixed-manifest-monorepo'));
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
@@ -319,6 +363,15 @@ describe('files', () => {
     const denoAppDir = normalizeToAbsolutePath(join(baseDir, 'packages/deno-app'));
     const packagesDir = normalizeToAbsolutePath(join(baseDir, 'packages'));
     const pnpmWorkspaceCache = closestPnpmWorkspaceCache.get(baseDir);
+    const pnpmWorkspaceCacheWithComputeFn = pnpmWorkspaceCache as unknown as {
+      computeFn: (dir: string) => { path: string } | undefined;
+    };
+    mock.method(pnpmWorkspaceCacheWithComputeFn, 'computeFn');
+    const pnpmWorkspaceComputeMock = (
+      pnpmWorkspaceCacheWithComputeFn.computeFn as Mock<
+        typeof pnpmWorkspaceCacheWithComputeFn.computeFn
+      >
+    ).mock;
 
     expect(pnpmWorkspaceCache.size).toEqual(0);
 
@@ -331,18 +384,31 @@ describe('files', () => {
     expect(cachedPnpmWorkspace?.path).toEqual(
       normalizeToAbsolutePath(join(baseDir, 'pnpm-workspace.yaml')),
     );
+    expect(pnpmWorkspaceComputeMock.calls.map(call => call.arguments[0])).toEqual([
+      baseDir,
+      packagesDir,
+      npmAppDir,
+    ]);
 
     getDependencyManifests(npmAppDir, baseDir);
     expect(pnpmWorkspaceCache.size).toEqual(3);
     expect(pnpmWorkspaceCache.get(npmAppDir)).toBe(cachedPnpmWorkspace);
+    expect(pnpmWorkspaceComputeMock.calls.length).toEqual(3);
 
     getDependencyManifests(npmLibDir, baseDir);
     expect(pnpmWorkspaceCache.size).toEqual(4);
     expect(pnpmWorkspaceCache.has(npmLibDir)).toEqual(true);
     expect(pnpmWorkspaceCache.get(npmLibDir)).toBe(cachedPnpmWorkspace);
+    expect(pnpmWorkspaceComputeMock.calls.map(call => call.arguments[0])).toEqual([
+      baseDir,
+      packagesDir,
+      npmAppDir,
+      npmLibDir,
+    ]);
 
     getDependencyManifests(denoAppDir, baseDir);
     expect(pnpmWorkspaceCache.size).toEqual(4);
+    expect(pnpmWorkspaceComputeMock.calls.length).toEqual(4);
   });
 
   it('should not resolve the dependency when pnpm catalog references are not found', async ({
