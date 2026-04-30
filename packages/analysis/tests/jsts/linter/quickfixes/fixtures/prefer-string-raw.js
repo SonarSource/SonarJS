@@ -5,3 +5,7 @@ const c = `
     '\\s+'
   } z
 `;
+const d = `${'\\D+'}
+  z`;
+const e = `x
+  ${'\\S+'}`;

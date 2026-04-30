@@ -162,15 +162,19 @@ describe('transformFixes', () => {
       rules: { [`sonarjs/${ruleId}`]: 'error' },
     });
 
-    expect(messages).toHaveLength(3);
+    expect(messages).toHaveLength(5);
 
     const safeMessage = messages.find(message => message.line === 1);
-    const unsafeMessage = messages.find(message => message.line === 2);
+    const bothBoundariesUnsafeMessage = messages.find(message => message.line === 2);
     const multilineSafeMessage = messages.find(message => message.line === 5);
+    const startBoundaryUnsafeMessage = messages.find(message => message.line === 8);
+    const endBoundaryUnsafeMessage = messages.find(message => message.line === 11);
 
     expect(safeMessage).toBeDefined();
-    expect(unsafeMessage).toBeDefined();
+    expect(bothBoundariesUnsafeMessage).toBeDefined();
     expect(multilineSafeMessage).toBeDefined();
+    expect(startBoundaryUnsafeMessage).toBeDefined();
+    expect(endBoundaryUnsafeMessage).toBeDefined();
 
     expect(transformFixes(sourceCode, safeMessage!)).toEqual([
       {
@@ -183,7 +187,7 @@ describe('transformFixes', () => {
         ],
       },
     ]);
-    expect(transformFixes(sourceCode, unsafeMessage!)).toEqual([]);
+    expect(transformFixes(sourceCode, bothBoundariesUnsafeMessage!)).toEqual([]);
     expect(transformFixes(sourceCode, multilineSafeMessage!)).toEqual([
       {
         message: `Use 'String.raw' template literal`,
@@ -195,5 +199,7 @@ describe('transformFixes', () => {
         ],
       },
     ]);
+    expect(transformFixes(sourceCode, startBoundaryUnsafeMessage!)).toEqual([]);
+    expect(transformFixes(sourceCode, endBoundaryUnsafeMessage!)).toEqual([]);
   });
 });
