@@ -98,6 +98,11 @@ describe('S5914', () => {
           code: `function f(x) { expect(x).toBeTruthy(); }`,
           filename: jestFixture,
         },
+        // shadowed `undefined` must not be treated as the global constant
+        {
+          code: `function f(undefined) { expect(undefined).toBeTruthy(); }`,
+          filename: jestFixture,
+        },
         // import binding has no write expression
         {
           code: `
@@ -155,7 +160,11 @@ describe('S5914', () => {
           `,
         },
         {
-          code: `cy.wrap(true).should('be.true');`,
+          code: `cy.wrap(getValue()).should('be.true');`,
+          filename: cypressFixture,
+        },
+        {
+          code: `cy.wrap(getValue()).should('be.null');`,
           filename: cypressFixture,
         },
         {
@@ -439,6 +448,31 @@ describe('S5914', () => {
           code: `assert.strictEqual(getValue(), {});`,
           filename: cypressFixture,
           errors: [{ messageId: 'freshIdentity' }],
+        },
+        {
+          code: `cy.wrap(true).should('be.true');`,
+          filename: cypressFixture,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `cy.wrap(null).should('be.null');`,
+          filename: cypressFixture,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `cy.wrap(undefined).should('be.undefined');`,
+          filename: cypressFixture,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `cy.wrap(false).should('not.be.ok');`,
+          filename: cypressFixture,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `cy.wrap(true).should('exist').and('be.true');`,
+          filename: cypressFixture,
+          errors: [{ messageId: 'issue' }, { messageId: 'issue' }],
         },
         // awaited dynamic imports are detected the same as static imports
         {

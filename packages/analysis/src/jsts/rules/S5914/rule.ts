@@ -110,9 +110,9 @@ export function isConstantPrimitiveValue(
   node: estree.Node,
   visited?: Set<Scope.Variable>,
 ): boolean {
-  // resolve `const` bindings (other than `undefined`) through their initializer so that
-  // identifiers bound to a constant primitive are treated as constants too. `visited` guards
-  // against mutually-recursive const references like `const a = b; const b = a;` (TDZ at runtime).
+  // resolve `const` bindings through their initializer so that identifiers bound to a constant
+  // primitive are treated as constants too. `visited` guards against mutually-recursive const
+  // references like `const a = b; const b = a;` (TDZ at runtime).
   if (node.type === 'Identifier' && node.name !== 'undefined') {
     visited ??= new Set();
     const resolved = resolveConstBinding(context, node, visited);
@@ -130,7 +130,12 @@ export function isConstantPrimitiveValue(
         ('bigint' in node && typeof node.bigint === 'string')
       );
     case 'Identifier':
-      return node.name === 'undefined';
+      if (node.name === 'undefined') {
+        const variable = getVariableFromName(context, 'undefined', node);
+        // global `undefined` has no user definitions; a shadowed binding does
+        return !variable || variable.defs.length === 0;
+      }
+      return false;
     case 'TemplateLiteral':
       return node.expressions.length === 0;
     case 'UnaryExpression':

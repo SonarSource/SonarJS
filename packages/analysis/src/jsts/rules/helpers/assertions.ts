@@ -118,9 +118,10 @@ export function extractTestAssertion(
     }
   }
 
-  // covers Chai-like assertion libraries
+  // covers Chai-like assertion libraries (including Cypress expect/assert and cy.wrap().should() chains)
   if (importsOrDependsOnModule(context, CHAI_LIKE_GLOBAL_MODULES, CHAI_LIKE_GLOBAL_MODULES)) {
-    const assertion = extractChaiAssertion(context, node, true);
+    const assertion =
+      extractChaiAssertion(context, node, true) ?? extractCypressChainAssertion(node);
     if (assertion) {
       return assertion;
     }
@@ -695,6 +696,90 @@ function getNodeJSAssertMethodFromName(name: string): NodeAssertMethod | null {
     case 'strictEqual':
     case 'notStrictEqual':
       return name;
+    default:
+      return null;
+  }
+}
+
+/**
+ * Covers Cypress chain assertions like `cy.wrap(value).should('be.true')` or `cy.wrap(value).and('be.null')`.
+ * The predicate is a Chai assertion string (dot-separated, optional `not.` prefix).
+ */
+function extractCypressChainAssertion(node: estree.Node): Assertion | null {
+  if (node.type !== 'CallExpression' || !isMethodCall(node)) {
+    return null;
+  }
+  if (!isIdentifier(node.callee.property, 'should', 'and')) {
+    return null;
+  }
+
+  const predicateArg = node.arguments[0];
+  if (predicateArg?.type !== 'Literal' || typeof predicateArg.value !== 'string') {
+    return null;
+  }
+
+  const subject = extractCyWrapSubject(node.callee.object);
+  if (!subject) {
+    return null;
+  }
+
+  const parsed = parseCypressPredicateString(predicateArg.value);
+  if (!parsed) {
+    return null;
+  }
+
+  return {
+    kind: 'predicate',
+    predicate: parsed.predicate,
+    actual: subject,
+    negated: parsed.negated,
+    node,
+    reportNode: subject,
+  };
+}
+
+function extractCyWrapSubject(node: estree.Node): estree.Node | null {
+  if (node.type === 'CallExpression' && isMethodCall(node)) {
+    if (isIdentifier(node.callee.object, 'cy') && isIdentifier(node.callee.property, 'wrap')) {
+      const arg = node.arguments[0];
+      return arg && arg.type !== 'SpreadElement' ? arg : null;
+    }
+    return extractCyWrapSubject(node.callee.object);
+  }
+  if (node.type === 'MemberExpression' && !node.computed) {
+    return extractCyWrapSubject(node.object);
+  }
+  return null;
+}
+
+function parseCypressPredicateString(
+  predicate: string,
+): { predicate: AssertionPredicate; negated: boolean } | null {
+  const parts = predicate.split('.');
+  let idx = 0;
+
+  const negated = parts[idx] === 'not';
+  if (negated) {
+    idx++;
+  }
+
+  // skip the `be` language chain if present
+  if (parts[idx] === 'be') {
+    idx++;
+  }
+
+  switch (parts[idx]) {
+    case 'true':
+    case 'ok':
+      return { predicate: 'truthy', negated };
+    case 'false':
+      return { predicate: 'falsy', negated };
+    case 'null':
+      return { predicate: 'null', negated };
+    case 'undefined':
+      return { predicate: 'undefined', negated };
+    case 'exist':
+      return { predicate: 'defined', negated };
     default:
       return null;
   }
