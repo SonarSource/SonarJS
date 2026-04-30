@@ -20,10 +20,8 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { ancestorsChain } from '../helpers/ancestor.js';
+import { sharesBoundaryLineWithEnclosingTemplate } from '../helpers/nested-template-literals.js';
 import * as meta from './generated-meta.js';
-
-const TEMPLATE_LITERAL_TYPES = new Set(['TemplateLiteral']);
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -37,16 +35,23 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      // Mirror S4624: only drop the quick fix when the replacement creates a nested
-      // template literal that shares the enclosing template's boundary line.
-      const { fix: _fix, ...rest } = descriptor as Rule.ReportDescriptor & { fix?: unknown };
+      // Mirror S4624: only drop fixes that create a nested template literal
+      // on the enclosing template's start or end line.
+      const {
+        fix: _fix,
+        suggest: _suggest,
+        ...rest
+      } = descriptor as Rule.ReportDescriptor & {
+        fix?: unknown;
+        suggest?: unknown;
+      };
       _context.report(rest);
     },
   );
 }
 
 function shouldDropQuickFix(descriptor: Rule.ReportDescriptor) {
-  if (!('fix' in descriptor) || !('node' in descriptor)) {
+  if (!hasQuickFix(descriptor) || !('node' in descriptor)) {
     return false;
   }
 
@@ -55,18 +60,9 @@ function shouldDropQuickFix(descriptor: Rule.ReportDescriptor) {
     return false;
   }
 
-  const nestingTemplate = findEnclosingTemplateLiteral(node);
-  // S4624 only reports nested template literals that start on the enclosing
-  // template's first line or end on its last line.
-  return (
-    !!nestingTemplate?.loc &&
-    (node.loc.start.line === nestingTemplate.loc.start.line ||
-      node.loc.end.line === nestingTemplate.loc.end.line)
-  );
+  return sharesBoundaryLineWithEnclosingTemplate(node);
 }
 
-function findEnclosingTemplateLiteral(node: TSESTree.Node) {
-  const ancestors = ancestorsChain(node, TEMPLATE_LITERAL_TYPES);
-  const candidate = ancestors.at(-1);
-  return candidate?.type === 'TemplateLiteral' ? candidate : undefined;
+function hasQuickFix(descriptor: Rule.ReportDescriptor) {
+  return 'fix' in descriptor || ('suggest' in descriptor && Array.isArray(descriptor.suggest));
 }
