@@ -768,21 +768,8 @@ function parseCypressPredicateString(
     idx++;
   }
 
-  switch (parts[idx]) {
-    case 'true':
-    case 'ok':
-      return { predicate: 'truthy', negated };
-    case 'false':
-      return { predicate: 'falsy', negated };
-    case 'null':
-      return { predicate: 'null', negated };
-    case 'undefined':
-      return { predicate: 'undefined', negated };
-    case 'exist':
-      return { predicate: 'defined', negated };
-    default:
-      return null;
-  }
+  const result = getChaiPropertyPredicate(parts[idx]);
+  return result ? { predicate: result.predicate, negated } : null;
 }
 
 function getArgumentAtIndex(node: estree.CallExpression, index: number): estree.Node | null {
