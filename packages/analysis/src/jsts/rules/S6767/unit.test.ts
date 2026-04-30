@@ -49,7 +49,46 @@ track(function (props) {
 `,
         },
       ],
-      invalid: [],
+      invalid: [
+        {
+          // TP: decorator factory receives no callback that can consume props
+          code: `
+function track(config) {
+  return function applyDecorator(target) {
+    return target;
+  };
+}
+function DecoratorConfigComponent(props) {
+  return <div />;
+}
+DecoratorConfigComponent.propTypes = {
+  contextModule: PropTypes.string,
+};
+track({ event: 'view' })(DecoratorConfigComponent);
+`,
+          errors: 1,
+        },
+        {
+          // TP: destructured callback parameter is not tracked as whole props usage
+          code: `
+function track(mapper) {
+  return function applyDecorator(target) {
+    return target;
+  };
+}
+function DecoratorDestructureComponent(props) {
+  return <div />;
+}
+DecoratorDestructureComponent.propTypes = {
+  contextModule: PropTypes.string,
+};
+track(({ contextModule }) => ({
+  context_module: contextModule,
+}))(DecoratorDestructureComponent);
+`,
+          errors: 1,
+        },
+      ],
     });
   });
 
@@ -154,6 +193,34 @@ class Button extends React.Component {
     return <button>{this.props.label}</button>;
   }
 }
+`,
+          errors: 1,
+        },
+        {
+          // TP: anonymous class component cannot be resolved for decorator usage
+          code: `
+export default class extends React.Component {
+  static propTypes = {
+    color: PropTypes.string,
+  };
+  render() {
+    return <button />;
+  }
+}
+`,
+          errors: 1,
+        },
+        {
+          // TP: named class expression remains reportable without decorator usage
+          code: `
+const Button = class InnerButton extends React.Component {
+  static propTypes = {
+    color: PropTypes.string,
+  };
+  render() {
+    return <button />;
+  }
+};
 `,
           errors: 1,
         },

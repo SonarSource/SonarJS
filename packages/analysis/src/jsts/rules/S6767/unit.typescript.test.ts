@@ -302,6 +302,38 @@ class FooComp extends React.Component<FooProps> {
           errors: 1,
         },
         {
+          // TP: default anonymous function component has no component identifier.
+          code: `
+declare const React: any;
+interface DefaultProps {
+  used: string;
+  unused: string;
+}
+export default function (props: DefaultProps) {
+  return <div>{props.used}</div>;
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: named function expression remains reportable without decorator usage.
+          code: `
+declare const React: any;
+interface FunctionExpressionProps {
+  used: string;
+  unused: string;
+}
+const FunctionExpressionComponent = function InnerFunctionExpression(
+  props: FunctionExpressionProps,
+) {
+  return <div>{props.used}</div>;
+};
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
           // TP: suppression is owner-local. The base component still reports even if
           // a subclass elsewhere forwards whole props to its own custom superclass.
           code: `
