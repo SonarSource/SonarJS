@@ -121,7 +121,7 @@ export function getComponentVariable(
   return undefined;
 }
 
-export function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
+function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
   if (
     (componentNode.type === 'ClassDeclaration' || componentNode.type === 'FunctionDeclaration') &&
     componentNode.id
