@@ -19,6 +19,40 @@ import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/r
 import { describe, it } from 'node:test';
 
 describe('S6767', () => {
+  it('should not report props consumed through decorator-factory callbacks', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // FP: decorator-factory callback uses props
+          code: `
+function track(mapper) {
+  return function applyDecorator(target) {
+    return target;
+  };
+}
+function DecoratorFactoryJsComponent(props) {
+  return <div>{props.label}</div>;
+}
+DecoratorFactoryJsComponent.propTypes = {
+  contextModule: PropTypes.string,
+  userId: PropTypes.string,
+  label: PropTypes.string,
+};
+track(function (props) {
+  return {
+    context_module: props.contextModule,
+    user_id: props.userId,
+  };
+})(DecoratorFactoryJsComponent);
+`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('should not report props passed wholesale to a helper function', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 

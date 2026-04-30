@@ -188,6 +188,47 @@ class ForwardedOnlyPanel extends CounterPanelBase {
 `,
           filename: fixtureFile,
         },
+        {
+          // FP: decorator-factory callback uses props
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorFactoryProps {
+  contextModule: string;
+  userId: string;
+}
+function DecoratorFactoryComponent(props: DecoratorFactoryProps) {
+  return <div />;
+}
+track((props: DecoratorFactoryProps) => ({
+  context_module: props.contextModule,
+  user_id: props.userId,
+}))(DecoratorFactoryComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: decorator callback forwards typed props
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function screenTrack<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorHelperProps {
+  screenName: string;
+}
+function DecoratorHelperComponent(props: DecoratorHelperProps) {
+  return <main />;
+}
+screenTrack(function (props: DecoratorHelperProps) {
+  return buildPayload(props);
+})(DecoratorHelperComponent);
+`,
+          filename: fixtureFile,
+        },
       ],
       invalid: [
         {
@@ -287,6 +328,33 @@ class DerivedForwarder extends CustomIntermediateBase {
   render() {
     return <div>{this.props.label}</div>;
   }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: unrelated decorator callback
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratedProps {
+  contextModule: string;
+}
+interface PlainProps {
+  title: string;
+  color: string;
+}
+function DecoratedComponent(props: DecoratedProps) {
+  return <div />;
+}
+track((props: DecoratedProps) => ({
+  context_module: props.contextModule,
+}))(DecoratedComponent);
+function PlainComponent(props: PlainProps) {
+  return <div>{props.title}</div>;
 }
 `,
           filename: fixtureFile,
