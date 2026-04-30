@@ -17,7 +17,7 @@
 import { APIError, ErrorCode } from './error.js';
 import { handleError } from '../../../shared/src/helpers/error.js';
 
-export type ParsingErrorCode =
+type ParsingErrorCode =
   | ErrorCode.Parsing
   | ErrorCode.FailingTypeScript
   | ErrorCode.LinterInitialization;
@@ -32,7 +32,7 @@ export type ParsingError = {
   language: ParsingErrorLanguage;
 };
 
-export type ProjectParsingResult = {
+type ProjectParsingResult = {
   issues: [];
   parsingErrors: ParsingError[];
 };

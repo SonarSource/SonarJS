@@ -328,7 +328,7 @@ const HELM_DIRECTIVE_IN_COMMENT_OR_STRING = new RegExp(
 /**
  * File suffix configuration for determining file types.
  */
-export type FileSuffixes = {
+type FileSuffixes = {
   jsSuffixes: string[];
   tsSuffixes: string[];
   cssSuffixes: string[];
