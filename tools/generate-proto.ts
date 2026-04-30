@@ -39,6 +39,11 @@ const PROTO_FILES = [
     dts: 'packages/grpc/src/proto/health.d.ts',
   },
   {
+    proto: 'packages/grpc/src/proto/parser.proto',
+    js: 'packages/grpc/src/proto/parser.js',
+    dts: 'packages/grpc/src/proto/parser.d.ts',
+  },
+  {
     proto: 'packages/analysis/src/jsts/parsers/estree.proto',
     js: 'packages/analysis/src/jsts/parsers/estree.js',
     dts: 'packages/analysis/src/jsts/parsers/estree.d.ts',
