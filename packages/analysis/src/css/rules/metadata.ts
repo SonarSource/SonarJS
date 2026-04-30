@@ -32,7 +32,7 @@ export type StylelintListParam = {
  * When javaField is true, emits [true, { onTrue[i].stylelintOptionKey: onTrue[i].values }]
  * When false, emits []
  */
-export type StylelintBooleanParam = {
+type StylelintBooleanParam = {
   sqKey: string;
   javaField: string;
   description: string;
