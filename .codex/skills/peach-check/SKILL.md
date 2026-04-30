@@ -1,6 +1,6 @@
 ---
 name: peach-check
-description: Use before a SonarJS release or when the Peach Main Analysis workflow on SonarSource/peachee-js shows failures that need triage. Classify each failed Peach job as a SonarJS-critical analyzer bug, an ignore-worthy infrastructure or project failure, or a manual-review case using docs/peach-main-analysis.md.
+description: Use before a SonarJS release or when the Peach Main Analysis workflow on SonarSource/peachee-js shows failed jobs or suspicious project issue-count drops that need triage. Classify failed Peach jobs and flag likely project-configuration regressions using docs/peach-main-analysis.md.
 ---
 
 # Peach Main Analysis Check
@@ -15,14 +15,16 @@ failures, or decide whether Peach blocks a SonarJS release.
 - Branch: `js-ts-css-html`
 - Classification guide: `docs/peach-main-analysis.md`
 
-This skill fetches the target run, collects failed jobs, classifies them with the guide, and
-prints a summary focused on SonarJS ownership.
+This skill fetches the target run, collects failed jobs, checks for suspicious issue-count drops
+across successful project scans, classifies the findings with the guide, and prints a summary
+focused on SonarJS ownership.
 
 ## Prerequisites
 
 - Run from the SonarJS repository.
 - Verify GitHub auth first with `gh auth status`.
 - Ensure the current GitHub identity can access `SonarSource/peachee-js`.
+- Ensure `mc peach issue-history` is available and a local `peachee-js` checkout exists.
 - Save failed-job logs under `target/peach-logs/`.
 - Parallelize independent job triage work, but do not chain shell commands.
 
@@ -67,7 +69,7 @@ Record:
 If the chosen run has `conclusion == "cancelled"`, stop and report that the run is incomplete and
 not usable for release triage. Recommend a rerun and do not classify jobs from that run.
 
-### 2. Collect failed jobs
+### 2. Collect project jobs
 
 First create the output directory:
 
@@ -91,17 +93,23 @@ jq -s '
     failed_jobs: (map([.jobs[] | select(.conclusion == "failure")] | length) | add),
     jobs: (map(.jobs) | add)
   }
-' target/jobs.json
+' target/jobs.json > target/jobs-merged.json
 ```
 
-Immediately exclude `diff-validation-aggregated` from the analyzed failure set:
+Sanity-check the merged total before trusting it. Compare `total_jobs` from
+`target/jobs-merged.json` with `.total_count` from the first API response in `target/jobs.json`.
+If the merged file still contains only the first 100 jobs even though `total_count` is larger,
+fetch `?page=N` responses explicitly and rebuild `target/jobs-merged.json` before continuing.
 
-- do not count it as an analyzed failure
-- do not classify it
-- do not emit it as a finding
-- mention it at most once as excluded-by-design context
+Immediately exclude workflow-only jobs such as `prepare-project-matrix` and
+`diff-validation-aggregated` from the analyzed set:
+
+- do not count them as analyzed failures
+- do not classify them
+- do not emit them as findings
+- mention them at most once as excluded-by-design context
 - record `excluded_workflow_jobs` for excluded non-project workflow jobs such as
-  `diff-validation-aggregated`
+  `prepare-project-matrix` and `diff-validation-aggregated`
 - record `excluded_project_jobs` separately so the summary makes it explicit how many actual
   project scans were excluded; this is normally `0`
 
@@ -126,12 +134,73 @@ Treat later cleanup or report failures as downstream noise unless they are the o
 If the failing step name contains `Diff Val` or `diff-val`, classify the job immediately as
 `IGNORE`. These monitoring failures are not SonarJS release blockers.
 
-### 3. Early exit if no failures
+Also build a filtered JSON containing only successful project scans. Exclude non-project
+workflow jobs such as `prepare-project-matrix` and `diff-validation-aggregated` before running
+the issue-count check:
 
-If there are no failed jobs after exclusions, report the run as safe, include the exclusion
-counts, and stop.
+```bash
+jq '
+  {
+    total_jobs: ([.jobs[] | select(
+      .conclusion == "success" and
+      .name != "prepare-project-matrix" and
+      .name != "diff-validation-aggregated"
+    )] | length),
+    jobs: [.jobs[] | select(
+      .conclusion == "success" and
+      .name != "prepare-project-matrix" and
+      .name != "diff-validation-aggregated"
+    )]
+  }
+' target/jobs-merged.json > target/project-jobs.json
+```
 
-### 4. Watch for mass failure
+### 3. Run the issue-count drop check
+
+Before any early-safe exit, compare the latest issue count of each successful project against its
+recent SonarQube history:
+
+```bash
+mc peach issue-history \
+  --jobs-json target/project-jobs.json \
+  --peachee-root /home/francois/git/peachee-js \
+  --metric violations \
+  --baseline median:5 \
+  --threshold-pct "${PEACH_ISSUE_DROP_THRESHOLD_PCT:-5}" \
+  --threshold-abs "${PEACH_ISSUE_DROP_MIN_ABS:-20}" \
+  --concurrency "${PEACH_ISSUE_HISTORY_CONCURRENCY:-8}" \
+  --format json \
+  --output target/peach-issue-history.json
+```
+
+Interpret the result like this:
+
+- `DROP` → record one `NEEDS-MANUAL-REVIEW` finding per flagged project
+- `INSUFFICIENT_HISTORY` → mention only in the summary; do not block a `SAFE` verdict by itself
+- `UNRESOLVED_PROJECT` for excluded workflow jobs such as `prepare-project-matrix` → ignore it
+- other `UNRESOLVED_PROJECT` rows → treat as `NEEDS-MANUAL-REVIEW`; the issue-count check is incomplete
+- `ERROR` → treat as `NEEDS-MANUAL-REVIEW`
+
+Each `DROP` finding should include:
+
+- SonarQube project key
+- latest analysis date
+- current metric value
+- baseline value
+- absolute drop
+- percentage drop
+
+Treat `threshold-abs` only as a small-project noise floor. The practical trigger is:
+
+- `max(threshold-abs, baseline * threshold_pct / 100)`
+
+### 4. Early exit if no failures and no suspicious drops
+
+If there are no failed jobs after exclusions and the issue-history check found no `DROP`,
+no non-excluded `UNRESOLVED_PROJECT`, and no `ERROR` items, report the run as safe, include
+the exclusion counts plus the issue-history summary, and stop.
+
+### 5. Watch for mass failure
 
 If at least 80% of analyzed jobs failed after exclusions, treat it as a probable shared root cause.
 Do not fully triage every job first.
@@ -150,12 +219,12 @@ Mass-failure verdict rules, in this order:
 - `IGNORE` if the shared error is a Peach infrastructure failure with no SonarJS involvement
 - `NEEDS-MANUAL-REVIEW` otherwise
 
-### 5. Read the classification guide
+### 6. Read the classification guide
 
 Read `docs/peach-main-analysis.md` once before classifying jobs. Use the guide's flowchart and
 failure categories as the source of truth.
 
-### 6. Triage logs in phases
+### 7. Triage logs in phases
 
 Only download logs for jobs that still need log-based classification.
 
@@ -248,7 +317,7 @@ Apply the last-sensor-wins rule from the guide:
 
 If the failure is still ambiguous, read the full saved log and classify manually.
 
-### 7. Classify each job
+### 8. Classify each job
 
 Classify each failed job as one of:
 
@@ -264,7 +333,7 @@ If a subagent returns no structured assessment, record:
 - verdict: `NEEDS-MANUAL-REVIEW`
 - evidence: `Agent returned no output`
 
-### 8. Check for clustered failures
+### 9. Check for clustered failures
 
 If two or more jobs share the same category, check whether they failed within a five-minute
 window. Use timestamps from log lines rather than `completedAt` from the paginated jobs API,
@@ -272,43 +341,47 @@ because `completedAt` may be `null`.
 
 If clustered, add a note that the jobs likely came from a single infrastructure event.
 
-### 9. Print summary
+### 10. Print summary
 
 Group findings by shared cause, not one row per job.
 
-Do not emit `diff-validation-aggregated` as a finding. Add a single exclusion line that names the
-excluded workflow job and prints both exclusion counts, for example
-`Excluded by design: diff-validation-aggregated (workflow jobs excluded: 1, project jobs excluded: 0)`.
+Do not emit `prepare-project-matrix` or `diff-validation-aggregated` as findings. Add a single
+exclusion line that names the excluded workflow jobs and prints both exclusion counts, for example
+`Excluded by design: prepare-project-matrix, diff-validation-aggregated (workflow jobs excluded: 2, project jobs excluded: 0)`.
 
 Use this structure:
 
 ```text
 ## Peach Main Analysis — Run RUN_ID (DATE)
 
-Excluded by design: diff-validation-aggregated (workflow jobs excluded: WORKFLOW_EXCLUDED, project jobs excluded: PROJECT_EXCLUDED)
+Excluded by design: prepare-project-matrix, diff-validation-aggregated (workflow jobs excluded: WORKFLOW_EXCLUDED, project jobs excluded: PROJECT_EXCLUDED)
 
 ### IGNORE — Peach report upload timeout
 - closure-library — `ReportPublisher.upload` to `/api/ce/submit` timed out after JS analysis completed
 - nx — `ReportPublisher.upload` to `/api/ce/submit` timed out after JS analysis completed
 
+### NEEDS-MANUAL-REVIEW — Suspicious issue count drop
+- js:FreeCodeCamp — `violations` dropped from median baseline 4150 to 3821 (-7.9%, -329)
+
 ### Summary
 - CRITICAL: N jobs
-- NEEDS-MANUAL-REVIEW: N jobs
+- NEEDS-MANUAL-REVIEW: N items
 - IGNORE: N jobs
+- Issue-count check: DROP=N, OK=N, INSUFFICIENT_HISTORY=N, UNRESOLVED_PROJECT=N
 
 Release recommendation: SAFE | NOT SAFE | REVIEW NEEDED
 ```
 
 Release recommendation rules:
 
-- `SAFE` when there are zero `CRITICAL` and zero `NEEDS-MANUAL-REVIEW` jobs
+- `SAFE` when there are zero `CRITICAL` and zero `NEEDS-MANUAL-REVIEW` items
 - `NOT SAFE` when there is one or more `CRITICAL` jobs
-- `REVIEW NEEDED` when there are zero `CRITICAL` but one or more `NEEDS-MANUAL-REVIEW` jobs
+- `REVIEW NEEDED` when there are zero `CRITICAL` but one or more `NEEDS-MANUAL-REVIEW` items
 
 If every failed job is either Diff Val monitoring or another `IGNORE` category, the run is still
-`SAFE`.
+`SAFE` only when the issue-history check is also clean.
 
-### 10. Update docs when needed
+### 11. Update docs when needed
 
 If you identify a new failure pattern during the session, update
 `docs/peach-main-analysis.md` so the guide stays current for future runs.
