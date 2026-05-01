@@ -1,0 +1,20 @@
+{
+"vitest:packages/browser/rollup.config.js": [
+61
+],
+"vitest:packages/pretty-format/rollup.config.js": [
+32
+],
+"vitest:packages/ui/rollup.config.js": [
+35
+],
+"vitest:packages/vitest/rollup.config.js": [
+137
+],
+"vitest:packages/vitest/suppress-warnings.cjs": [
+15
+],
+"vitest:scripts/build-utils.js": [
+26
+]
+}

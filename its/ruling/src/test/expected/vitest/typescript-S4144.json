@@ -1,0 +1,11 @@
+{
+"vitest:packages/browser-playwright/src/locators.ts": [
+148
+],
+"vitest:packages/mocker/src/registry.ts": [
+305
+],
+"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
+458
+]
+}

@@ -1035,4 +1035,38 @@ describe('await analyzeJSTS', () => {
     const analysisResult = await analyzeJSTS(await jsTsInput({ filePath, skipAst: true }));
     assert(!('ast' in analysisResult));
   });
+
+  it('should resolve the package.json dependencies when they refer to a pnpm workspace catalog', async () => {
+    const rules: RuleConfig[] = [
+      {
+        // This rule will only apply when React version is bigger than 0.14.0
+        key: 'S6957',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+    const oldReactFilePath = path.join(fixtures, 'pnpm-workspace/old-react/index.jsx');
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(oldReactFilePath)),
+      rules,
+    });
+
+    const oldReactAnalysisResult = await analyzeJSTS(
+      await jsTsInput({ filePath: oldReactFilePath, skipAst: true }),
+    );
+    expect(oldReactAnalysisResult.issues.length).toBe(0);
+
+    const updatedReactFilePath = path.join(fixtures, 'pnpm-workspace/updated-react/index.jsx');
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(updatedReactFilePath)),
+      rules,
+    });
+
+    const analysisResult = await analyzeJSTS(
+      await jsTsInput({ filePath: updatedReactFilePath, skipAst: true }),
+    );
+    expect(analysisResult.issues.length).toBe(1);
+  });
 });

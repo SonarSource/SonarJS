@@ -1,0 +1,29 @@
+{
+"vitest:packages/browser/src/client/public/error-catcher.js": [
+41,
+42,
+43,
+57
+],
+"vitest:packages/browser/src/client/public/esm-client-injector.js": [
+31,
+46
+],
+"vitest:packages/ui/browser.dev.js": [
+1
+],
+"vitest:packages/ui/index.html": [
+18,
+19
+],
+"vitest:test/cli/test/fixtures/reporters/html/all-passing-or-skipped/index.html": [
+18,
+19,
+25
+],
+"vitest:test/cli/test/fixtures/reporters/html/fail/index.html": [
+18,
+19,
+25
+]
+}

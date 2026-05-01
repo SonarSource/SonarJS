@@ -291,5 +291,10 @@
     "name": "oak",
     "testDir": null,
     "exclusions": null
+  },
+  {
+    "name": "vitest",
+    "testDir": "test",
+    "exclusions": null
   }
 ]

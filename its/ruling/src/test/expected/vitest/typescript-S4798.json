@@ -1,0 +1,48 @@
+{
+"vitest:packages/browser/src/client/tester/logger.ts": [
+123
+],
+"vitest:packages/coverage-istanbul/src/provider.ts": [
+185
+],
+"vitest:packages/coverage-v8/src/provider.ts": [
+103
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+35
+],
+"vitest:packages/expect/src/utils.ts": [
+24
+],
+"vitest:packages/pretty-format/src/index.ts": [
+194,
+381
+],
+"vitest:packages/runner/src/suite.ts": [
+308
+],
+"vitest:packages/runner/src/utils/collect.ts": [
+16,
+17,
+18,
+22,
+22,
+158
+],
+"vitest:packages/snapshot/src/client.ts": [
+9
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+223,
+397
+],
+"vitest:packages/vitest/src/node/environments/fetchModule.ts": [
+38
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+760
+],
+"vitest:packages/vitest/src/runtime/vm/utils.ts": [
+5
+]
+}

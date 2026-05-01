@@ -1,0 +1,108 @@
+{
+"vitest:packages/browser-playwright/src/commands/dragAndDrop.ts": [
+8
+],
+"vitest:packages/browser-webdriverio/src/commands/dragAndDrop.ts": [
+8
+],
+"vitest:packages/browser/src/client/tester/context.ts": [
+35
+],
+"vitest:packages/browser/src/client/tester/locators/index.ts": [
+334
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+193
+],
+"vitest:packages/browser/src/node/plugins/pluginContext.ts": [
+17
+],
+"vitest:packages/expect/src/jest-extend.ts": [
+79
+],
+"vitest:packages/mocker/src/node/mockerPlugin.ts": [
+41
+],
+"vitest:packages/mocker/src/node/parsers.ts": [
+40,
+40,
+52,
+71,
+162
+],
+"vitest:packages/runner/src/context.ts": [
+59,
+59
+],
+"vitest:packages/runner/src/suite.ts": [
+725
+],
+"vitest:packages/utils/src/diff/cleanupSemantic.ts": [
+144,
+145,
+159,
+201,
+202,
+204,
+205,
+278,
+279,
+328,
+329,
+330,
+331,
+332,
+417,
+418,
+419,
+420
+],
+"vitest:packages/utils/src/source-map.ts": [
+327
+],
+"vitest:packages/vitest/src/integrations/env/jsdom.ts": [
+39,
+40,
+41
+],
+"vitest:packages/vitest/src/node/cli/filter.ts": [
+35
+],
+"vitest:packages/vitest/src/node/packageInstaller.ts": [
+8
+],
+"vitest:packages/vitest/src/node/pools/poolRunner.ts": [
+394,
+394
+],
+"vitest:packages/vitest/src/node/pools/workers/typecheckWorker.ts": [
+57
+],
+"vitest:packages/vitest/src/node/resolver.ts": [
+148
+],
+"vitest:packages/vitest/src/runtime/inspector.ts": [
+6
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
+269
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+119
+],
+"vitest:packages/vitest/src/runtime/workers/init.ts": [
+16
+],
+"vitest:packages/web-worker/src/shared-worker.ts": [
+56,
+57,
+58
+],
+"vitest:packages/web-worker/src/worker.ts": [
+24,
+25,
+30,
+35,
+36
+]
+}

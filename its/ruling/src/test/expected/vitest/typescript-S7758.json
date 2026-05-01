@@ -1,0 +1,24 @@
+{
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+20
+],
+"vitest:packages/runner/src/artifact.ts": [
+87,
+90
+],
+"vitest:packages/runner/src/utils/collect.ts": [
+180
+],
+"vitest:packages/ui/client/utils/task.ts": [
+145
+],
+"vitest:packages/utils/src/resolver.ts": [
+38
+],
+"vitest:packages/vitest/src/node/project.ts": [
+799
+],
+"vitest:packages/vitest/src/node/reporters/renderers/utils.ts": [
+263
+]
+}

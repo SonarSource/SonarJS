@@ -1,0 +1,501 @@
+{
+"vitest:packages/browser-playwright/src/commands/keyboard.ts": [
+26,
+60
+],
+"vitest:packages/browser-playwright/src/commands/screenshot.ts": [
+50
+],
+"vitest:packages/browser-playwright/src/playwright.ts": [
+172,
+268,
+456,
+466,
+483,
+566,
+662
+],
+"vitest:packages/browser-webdriverio/src/commands/keyboard.ts": [
+46,
+58,
+64
+],
+"vitest:packages/browser-webdriverio/src/commands/type.ts": [
+27
+],
+"vitest:packages/browser-webdriverio/src/locators.ts": [
+219
+],
+"vitest:packages/browser/src/client/orchestrator.ts": [
+485
+],
+"vitest:packages/browser/src/client/tester/context.ts": [
+66,
+69,
+72,
+75,
+78,
+81,
+84,
+87,
+90,
+95,
+98,
+105,
+120,
+158,
+177,
+226,
+229,
+245
+],
+"vitest:packages/browser/src/client/tester/expect-element.ts": [
+17
+],
+"vitest:packages/browser/src/client/tester/expect/toMatchScreenshot.ts": [
+121
+],
+"vitest:packages/browser/src/client/tester/logger.ts": [
+44
+],
+"vitest:packages/browser/src/client/tester/runner.ts": [
+249
+],
+"vitest:packages/browser/src/client/vite.config.ts": [
+92
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/utils.ts": [
+42,
+264
+],
+"vitest:packages/browser/src/node/index.ts": [
+60
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+221,
+599
+],
+"vitest:packages/browser/src/node/plugins/pluginContext.ts": [
+99
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+141
+],
+"vitest:packages/browser/src/node/serverTester.ts": [
+67
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+813
+],
+"vitest:packages/expect/src/jest-extend.ts": [
+107,
+107,
+107,
+107,
+107
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+112,
+267,
+292,
+293,
+475,
+475,
+620,
+620,
+751,
+751
+],
+"vitest:packages/mocker/src/automocker.ts": [
+110
+],
+"vitest:packages/mocker/src/browser/hints.ts": [
+141
+],
+"vitest:packages/mocker/src/browser/interceptor-msw.ts": [
+91
+],
+"vitest:packages/mocker/src/browser/utils.ts": [
+21
+],
+"vitest:packages/mocker/src/node/automock.ts": [
+137
+],
+"vitest:packages/mocker/src/node/esmWalker.ts": [
+189
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+259
+],
+"vitest:packages/mocker/src/node/mockerPlugin.ts": [
+48
+],
+"vitest:packages/mocker/src/node/parsers.ts": [
+103
+],
+"vitest:packages/mocker/src/node/redirect.ts": [
+26,
+26,
+31
+],
+"vitest:packages/pretty-format/src/index.ts": [
+287,
+360
+],
+"vitest:packages/runner/src/collect.ts": [
+108
+],
+"vitest:packages/runner/src/context.ts": [
+203
+],
+"vitest:packages/runner/src/run.ts": [
+456,
+507,
+804,
+805
+],
+"vitest:packages/runner/src/suite.ts": [
+218,
+313,
+316,
+333,
+333,
+359,
+440,
+441,
+463,
+487,
+661,
+755,
+809,
+890,
+948,
+950,
+1010
+],
+"vitest:packages/runner/src/utils/chain.ts": [
+27,
+28
+],
+"vitest:packages/runner/src/utils/collect.ts": [
+22
+],
+"vitest:packages/runner/src/utils/limit-concurrency.ts": [
+65
+],
+"vitest:packages/spy/src/index.ts": [
+17,
+81,
+499,
+500
+],
+"vitest:packages/ui/client/components/FailureScreenshot.vue": [
+17,
+17
+],
+"vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
+85
+],
+"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
+17
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.vue": [
+15,
+24
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+78,
+93
+],
+"vitest:packages/ui/client/components/views/ViewEditor.vue": [
+94,
+108,
+261,
+261
+],
+"vitest:packages/ui/client/components/views/ViewReport.spec.ts": [
+196
+],
+"vitest:packages/ui/client/composables/explorer/filter.ts": [
+130,
+274
+],
+"vitest:packages/ui/client/composables/explorer/search.ts": [
+128,
+128
+],
+"vitest:packages/ui/client/composables/explorer/state.ts": [
+49
+],
+"vitest:packages/utils/src/diff/diffLines.ts": [
+196,
+196
+],
+"vitest:packages/utils/src/diff/diffStrings.ts": [
+46,
+46
+],
+"vitest:packages/utils/src/diff/index.ts": [
+268,
+413
+],
+"vitest:packages/utils/src/diff/joinAlignedDiffs.ts": [
+304
+],
+"vitest:packages/utils/src/display.ts": [
+142
+],
+"vitest:packages/utils/src/helpers.ts": [
+224
+],
+"vitest:packages/utils/src/source-map.ts": [
+248
+],
+"vitest:packages/vitest/src/api/setup.ts": [
+179
+],
+"vitest:packages/vitest/src/create/browser/creator.ts": [
+424
+],
+"vitest:packages/vitest/src/integrations/chai/index.ts": [
+21
+],
+"vitest:packages/vitest/src/integrations/css/css-modules.ts": [
+20
+],
+"vitest:packages/vitest/src/integrations/env/edge-runtime.ts": [
+44
+],
+"vitest:packages/vitest/src/integrations/env/happy-dom.ts": [
+82
+],
+"vitest:packages/vitest/src/integrations/env/jsdom.ts": [
+222
+],
+"vitest:packages/vitest/src/integrations/env/node.ts": [
+126
+],
+"vitest:packages/vitest/src/integrations/snapshot/chai.ts": [
+78
+],
+"vitest:packages/vitest/src/integrations/vi.ts": [
+614,
+618,
+726,
+856
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+226,
+425
+],
+"vitest:packages/vitest/src/node/cache/fsModuleCache.ts": [
+464
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+56,
+95,
+196,
+202
+],
+"vitest:packages/vitest/src/node/cli/filter.ts": [
+38
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+74,
+355,
+469,
+471
+],
+"vitest:packages/vitest/src/node/core.ts": [
+762,
+1270
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+160,
+167,
+445,
+636,
+698
+],
+"vitest:packages/vitest/src/node/environments/fetchModule.ts": [
+90,
+113,
+122
+],
+"vitest:packages/vitest/src/node/logger.ts": [
+198
+],
+"vitest:packages/vitest/src/node/plugins/runnerTransform.ts": [
+120
+],
+"vitest:packages/vitest/src/node/plugins/workspace.ts": [
+88,
+225,
+250
+],
+"vitest:packages/vitest/src/node/pool.ts": [
+109,
+110,
+405
+],
+"vitest:packages/vitest/src/node/pools/browser.ts": [
+337
+],
+"vitest:packages/vitest/src/node/pools/workers/forksWorker.ts": [
+64,
+65
+],
+"vitest:packages/vitest/src/node/pools/workers/typecheckWorker.ts": [
+80,
+88,
+164
+],
+"vitest:packages/vitest/src/node/printError.ts": [
+79,
+126
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+152,
+276,
+577,
+694,
+695,
+756,
+762,
+927
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/reporter.ts": [
+42
+],
+"vitest:packages/vitest/src/node/reporters/blob.ts": [
+129,
+129
+],
+"vitest:packages/vitest/src/node/reporters/json.ts": [
+129
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+300,
+301,
+357
+],
+"vitest:packages/vitest/src/node/reporters/renderers/utils.ts": [
+51,
+51,
+142,
+162,
+163
+],
+"vitest:packages/vitest/src/node/sequencers/BaseSequencer.ts": [
+95,
+96
+],
+"vitest:packages/vitest/src/node/specifications.ts": [
+124
+],
+"vitest:packages/vitest/src/node/state.ts": [
+59,
+213
+],
+"vitest:packages/vitest/src/node/stdin.ts": [
+78
+],
+"vitest:packages/vitest/src/node/test-run.ts": [
+182
+],
+"vitest:packages/vitest/src/node/vcs/git.ts": [
+38,
+38
+],
+"vitest:packages/vitest/src/node/viteLogger.ts": [
+50,
+70
+],
+"vitest:packages/vitest/src/runtime/console.ts": [
+19,
+90
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/bareModuleMocker.ts": [
+118
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
+140,
+146,
+152,
+467
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleMocker.ts": [
+162
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
+97
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/startVitestModuleRunner.ts": [
+46,
+79
+],
+"vitest:packages/vitest/src/runtime/rpc.ts": [
+94,
+121
+],
+"vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
+74,
+97
+],
+"vitest:packages/vitest/src/runtime/runners/index.ts": [
+37
+],
+"vitest:packages/vitest/src/runtime/setup-common.ts": [
+86
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+83,
+215
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+69
+],
+"vitest:packages/vitest/src/runtime/vm/utils.ts": [
+32
+],
+"vitest:packages/vitest/src/runtime/worker.ts": [
+24
+],
+"vitest:packages/vitest/src/runtime/workers/init.ts": [
+132,
+190,
+219,
+219
+],
+"vitest:packages/vitest/src/runtime/workers/native.ts": [
+206
+],
+"vitest:packages/vitest/src/typecheck/collect.ts": [
+182
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+197,
+332
+],
+"vitest:packages/vitest/src/utils/colors.ts": [
+27
+],
+"vitest:packages/vitest/src/utils/graph.ts": [
+45
+],
+"vitest:packages/web-worker/src/shared-worker.ts": [
+121
+],
+"vitest:packages/web-worker/src/worker.ts": [
+42,
+120,
+155
+],
+"vitest:packages/ws-client/src/state.ts": [
+105
+],
+"vitest:scripts/explain-types.ts": [
+11,
+37
+]
+}

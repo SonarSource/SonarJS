@@ -1,0 +1,17 @@
+{
+"vitest:packages/browser-playwright/src/playwright.ts": [
+621
+],
+"vitest:packages/browser-webdriverio/src/webdriverio.ts": [
+323
+],
+"vitest:packages/browser/src/node/utils.ts": [
+19
+],
+"vitest:packages/vitest/src/node/types/browser.ts": [
+54
+],
+"vitest:packages/vitest/src/public/runtime.ts": [
+27
+]
+}

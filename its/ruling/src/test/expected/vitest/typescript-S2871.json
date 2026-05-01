@@ -1,0 +1,28 @@
+{
+"vitest:packages/browser/src/client/tester/expect/toHaveStyle.ts": [
+143
+],
+"vitest:packages/pretty-format/src/plugins/DOMElement.ts": [
+131
+],
+"vitest:packages/pretty-format/src/plugins/ReactElement.ts": [
+104
+],
+"vitest:packages/pretty-format/src/plugins/ReactTestComponent.ts": [
+37
+],
+"vitest:packages/utils/src/diff/index.ts": [
+150,
+154
+],
+"vitest:packages/vitest/src/node/resolver.ts": [
+21,
+25
+],
+"vitest:packages/vitest/src/runtime/runners/index.ts": [
+132
+],
+"vitest:packages/vitest/src/utils/config-helpers.ts": [
+68
+]
+}

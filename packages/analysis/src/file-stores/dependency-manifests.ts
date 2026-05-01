@@ -31,7 +31,9 @@ import {
   isDependencyManifestPath,
   PACKAGE_JSON,
   fillManifestCaches,
+  PNPM_WORKSPACE_YAML,
 } from '../jsts/rules/helpers/dependency-manifests/index.js';
+import { basename } from 'node:path/posix';
 
 export const UNINITIALIZED_ERROR =
   'dependency manifest cache has not been initialized. Call loadFiles() first.';
@@ -70,7 +72,10 @@ export class DependencyManifestStore implements FileStore {
       return;
     }
     for (const filename of fsEvents) {
-      if (isDependencyManifestPath(filename)) {
+      if (
+        isDependencyManifestPath(filename) ||
+        basename(filename).toLowerCase() === PNPM_WORKSPACE_YAML
+      ) {
         this.clearCache();
         return;
       }
@@ -96,19 +101,20 @@ export class DependencyManifestStore implements FileStore {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    if (isDependencyManifestPath(filename)) {
-      try {
-        const content = await readFile(filename, 'utf-8');
-        const file = { content, path: filename };
-        const manifestName = getDependencyManifestName(filename);
-        if (manifestName === PACKAGE_JSON) {
-          this.packageJsons.set(dirnamePath(filename), file);
-        } else if (manifestName) {
-          this.denoManifestsByName[manifestName].set(dirnamePath(filename), file);
-        }
-      } catch (e) {
-        warn(`Error reading dependency manifest ${filename}: ${e}`);
+    if (!isDependencyManifestPath(filename)) {
+      return;
+    }
+    try {
+      const content = await readFile(filename, 'utf-8');
+      const file = { content, path: filename };
+      const manifestName = getDependencyManifestName(filename);
+      if (manifestName === PACKAGE_JSON) {
+        this.packageJsons.set(dirnamePath(filename), file);
+      } else if (manifestName) {
+        this.denoManifestsByName[manifestName].set(dirnamePath(filename), file);
       }
+    } catch (e) {
+      warn(`Error reading dependency manifest ${filename}: ${e}`);
     }
   }
 

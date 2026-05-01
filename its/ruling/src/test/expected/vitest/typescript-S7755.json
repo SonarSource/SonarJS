@@ -1,0 +1,16 @@
+{
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+272
+],
+"vitest:packages/runner/src/run.ts": [
+572
+],
+"vitest:packages/ui/client/composables/module-graph.ts": [
+37
+],
+"vitest:packages/utils/src/diff/cleanupSemantic.ts": [
+107,
+107,
+578
+]
+}

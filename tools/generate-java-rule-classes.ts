@@ -221,7 +221,7 @@ function generateBody(
           if (typeof namedProperty.default === 'object') {
             const castTo = namedProperty.items.type === 'string' ? 'String' : 'Integer';
             imports.add('import java.util.Arrays;');
-            value = `Arrays.stream(${fieldName}.split(",")).map(String::trim).toArray(${castTo}[]::new)`;
+            value = `Arrays.stream(${fieldName}.split(",")).map(String::trim).filter(s -> !s.isEmpty()).toArray(${castTo}[]::new)`;
           } else {
             value = fieldName;
           }

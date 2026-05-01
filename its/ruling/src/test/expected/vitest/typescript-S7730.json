@@ -1,0 +1,34 @@
+{
+"vitest:packages/browser/src/node/commands/screenshotMatcher/index.ts": [
+441
+],
+"vitest:packages/browser/src/node/projectParent.ts": [
+230,
+235
+],
+"vitest:packages/browser/src/node/serverOrchestrator.ts": [
+59
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+27
+],
+"vitest:packages/vitest/src/integrations/env/loader.ts": [
+121
+],
+"vitest:packages/vitest/src/node/packageInstaller.ts": [
+54
+],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+34,
+272
+],
+"vitest:packages/vitest/src/runtime/setup-common.ts": [
+23
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+89
+],
+"vitest:scripts/update-contributors.ts": [
+13
+]
+}

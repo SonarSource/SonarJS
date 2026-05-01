@@ -1,0 +1,8 @@
+{
+"vitest:packages/ui/client/components/views/ViewEditor.vue": [
+151
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/tableRender.ts": [
+195
+]
+}

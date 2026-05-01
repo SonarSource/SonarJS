@@ -1,0 +1,172 @@
+{
+"vitest:packages/ui/client/components/AnnotationAttachmentImage.vue": [
+4
+],
+"vitest:packages/ui/client/components/BrowserIframe.vue": [
+2,
+5,
+6,
+7
+],
+"vitest:packages/ui/client/components/ClosedDetailsHeader.vue": [
+2
+],
+"vitest:packages/ui/client/components/CodeMirrorContainer.vue": [
+5
+],
+"vitest:packages/ui/client/components/ConnectionOverlay.vue": [
+2
+],
+"vitest:packages/ui/client/components/Coverage.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/Dashboard.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/DetailsHeaderButtons.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/FailureScreenshot.vue": [
+4,
+5
+],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+3,
+4,
+8,
+9,
+16,
+17,
+18,
+19,
+20,
+21
+],
+"vitest:packages/ui/client/components/ModuleGraphImportBreakdown.vue": [
+2,
+5,
+6,
+7
+],
+"vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
+4,
+9,
+10,
+11
+],
+"vitest:packages/ui/client/components/Navigation.vue": [
+5,
+6,
+7,
+8,
+9
+],
+"vitest:packages/ui/client/components/ProgressBar.vue": [
+4,
+5
+],
+"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
+5
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.vue": [
+2,
+4
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabsPane.vue": [
+2,
+4
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImage.vue": [
+4
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.vue": [
+4
+],
+"vitest:packages/ui/client/components/dashboard/TestFilesEntry.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/dashboard/TestsEntry.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/dashboard/TestsFilesContainer.vue": [
+2,
+3
+],
+"vitest:packages/ui/client/components/explorer/Explorer.vue": [
+8,
+9,
+10,
+11
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+3,
+6,
+7,
+8,
+9,
+10,
+11,
+12
+],
+"vitest:packages/ui/client/components/views/ViewConsoleOutput.vue": [
+4,
+5,
+6,
+7
+],
+"vitest:packages/ui/client/components/views/ViewEditor.vue": [
+8,
+9,
+10,
+11,
+12,
+13
+],
+"vitest:packages/ui/client/components/views/ViewModuleGraph.vue": [
+4,
+20,
+21
+],
+"vitest:packages/ui/client/components/views/ViewReport.vue": [
+4,
+5,
+6
+],
+"vitest:packages/ui/client/components/views/ViewReportError.vue": [
+4,
+5,
+6,
+7
+],
+"vitest:packages/ui/client/components/views/ViewTestReport.vue": [
+4,
+5,
+6,
+7,
+8
+],
+"vitest:packages/ui/client/global-setup.ts": [
+5,
+17
+],
+"vitest:packages/ui/client/pages/index.vue": [
+5,
+6,
+7,
+8,
+9,
+10,
+11,
+12,
+13,
+14
+],
+"vitest:packages/vitest/src/node/environments/serverRunner.ts": [
+5
+]
+}

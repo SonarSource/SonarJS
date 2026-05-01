@@ -16,10 +16,7 @@
  */
 import { Minimatch } from 'minimatch';
 import type { PackageJson } from 'type-fest';
-import type { File } from '../files.js';
-import { stripBOM } from '../files.js';
-import ts from 'typescript';
-import { type DependencyManifest } from './all-in-parent-dirs.js';
+import { type DependencyManifest, type DenoManifest } from './resolvers/types.js';
 
 const DefinitelyTyped = '@types/';
 
@@ -102,14 +99,6 @@ function addDependencies(
   }
 }
 
-// https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap
-type ImportMap = Record<string, unknown>;
-
-export type DenoManifest = {
-  imports?: ImportMap;
-  workspace?: string[] | { members?: string[] };
-};
-
 type ImportMapSpecifier = {
   packageName: string;
   version?: string;
@@ -121,31 +110,6 @@ export function getDependenciesFromManifest(manifest: DependencyManifest): Set<D
       return getDependenciesFromPackageJson(manifest.manifest);
     case 'deno':
       return getDependenciesFromDenoManifest(manifest.manifest);
-  }
-}
-
-export function parsePackageJson(file: File): PackageJson | undefined {
-  try {
-    return JSON.parse(stripBOM(file.content.toString())) as PackageJson;
-  } catch (error) {
-    console.debug(`Error parsing package.json ${file.path}: ${error}`);
-    return undefined;
-  }
-}
-
-export function parseDenoManifest(file: File): DenoManifest | undefined {
-  try {
-    // ts.parseConfigFileTextToJson handles JSON with comments and trailing commas
-    const parsed = ts.parseConfigFileTextToJson(file.path, stripBOM(file.content.toString()));
-    if (parsed.error) {
-      const message = ts.flattenDiagnosticMessageText(parsed.error.messageText, '\n');
-      console.debug(`Error parsing deno manifest ${file.path}: ${message}`);
-      return;
-    }
-    return parsed.config as DenoManifest;
-  } catch (error) {
-    console.debug(`Error parsing deno manifest ${file.path}: ${error}`);
-    return;
   }
 }
 
