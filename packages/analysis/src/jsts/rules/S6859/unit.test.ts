@@ -20,6 +20,7 @@ import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/ru
 import { describe, it } from 'node:test';
 
 const upstreamRule = getExternalRuleDefinition('import', 'no-absolute-path')!;
+const filename = '/home/user/project/index.js';
 
 // Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
 // If this test starts failing (i.e., the upstream rule no longer reports these patterns),
@@ -30,9 +31,24 @@ describe('S6859 upstream sentinel', () => {
     ruleTester.run('no-absolute-path', upstreamRule, {
       valid: [],
       invalid: [
-        { code: `import { useCool } from '/@/cool';`, errors: 1 },
-        { code: `import { useDict } from '/$/dict';`, errors: 1 },
-        { code: `import { Plugins } from '/#/crud';`, errors: 1 },
+        {
+          code: `import { useCool } from '/@/cool';`,
+          filename,
+          errors: 1,
+          output: `import { useCool } from "../../../@/cool";`,
+        },
+        {
+          code: `import { useDict } from '/$/dict';`,
+          filename,
+          errors: 1,
+          output: `import { useDict } from "../../../$/dict";`,
+        },
+        {
+          code: `import { Plugins } from '/#/crud';`,
+          filename,
+          errors: 1,
+          output: `import { Plugins } from "../../../#/crud";`,
+        },
       ],
     });
   });
@@ -53,27 +69,39 @@ describe('S6859', () => {
       invalid: [
         {
           code: `import foo from '/usr/local/lib/foo';`,
+          filename,
           errors: 1,
+          output: `import foo from "../../../usr/local/lib/foo";`,
         },
         {
           code: `import bar from '/home/user/project/bar';`,
+          filename,
           errors: 1,
+          output: `import bar from "./bar";`,
         },
         {
           code: `import { helper } from '/@utils/date';`,
+          filename,
           errors: 1,
+          output: `import { helper } from "../../../@utils/date";`,
         },
         {
           code: `import { helper } from '/~/utils/date';`,
+          filename,
           errors: 1,
+          output: `import { helper } from "../../../~/utils/date";`,
         },
         {
           code: `import foo from '/imports/api/foo';`,
+          filename,
           errors: 1,
+          output: `import foo from "../../../imports/api/foo";`,
         },
         {
           code: `import logo from '/static/images/logo.png';`,
+          filename,
           errors: 1,
+          output: `import logo from "../../../static/images/logo.png";`,
         },
       ],
     });
