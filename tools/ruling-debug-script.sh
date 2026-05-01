@@ -1,8 +1,8 @@
 #!/bin/bash
 
-default_actual_dir="packages/ruling/actual/jsts"
+default_actual_dir="packages/ruling/actual"
 
-expected_dir="its/ruling/src/test/expected/jsts"
+expected_dir="its/ruling/src/test/expected"
 actual_dir="${1:-$default_actual_dir}"
 
 # Differing files

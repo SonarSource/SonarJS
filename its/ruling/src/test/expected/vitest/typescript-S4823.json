@@ -1,0 +1,12 @@
+{
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+101,
+102
+],
+"vitest:scripts/explain-types.ts": [
+5
+],
+"vitest:scripts/publish-ci.ts": [
+11
+]
+}

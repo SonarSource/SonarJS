@@ -1,0 +1,14 @@
+{
+"vitest:packages/ui/client/composables/client/index.ts": [
+78
+],
+"vitest:packages/vitest/src/node/state.ts": [
+109
+],
+"vitest:packages/vitest/src/node/stdin.ts": [
+25
+],
+"vitest:packages/ws-client/src/state.ts": [
+24
+]
+}

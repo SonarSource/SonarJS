@@ -1,0 +1,172 @@
+{
+"vitest:packages/browser-playwright/src/commands/keyboard.ts": [
+53
+],
+"vitest:packages/browser-preview/src/preview.ts": [
+34
+],
+"vitest:packages/browser/src/client/client.ts": [
+21
+],
+"vitest:packages/browser/src/client/tester/dialog.ts": [
+5
+],
+"vitest:packages/browser/src/client/tester/expect/toBeChecked.ts": [
+47
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+410
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+177
+],
+"vitest:packages/mocker/src/node/parsers.ts": [
+26,
+138
+],
+"vitest:packages/runner/src/fixture.ts": [
+179,
+649,
+677
+],
+"vitest:packages/runner/src/hooks.ts": [
+61,
+103,
+139,
+186,
+261,
+267
+],
+"vitest:packages/runner/src/types/tasks.ts": [
+1308,
+1310
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+53,
+163
+],
+"vitest:packages/spy/src/index.ts": [
+519,
+699
+],
+"vitest:packages/spy/src/types.ts": [
+78,
+106,
+227,
+265,
+267,
+311,
+353
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImageContainer.vue": [
+9
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.vue": [
+55
+],
+"vitest:packages/ui/client/components/dashboard/ErrorEntry.vue": [
+17
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+218,
+270
+],
+"vitest:packages/vitest/src/integrations/chai/poll.ts": [
+188
+],
+"vitest:packages/vitest/src/integrations/env/loader.ts": [
+91
+],
+"vitest:packages/vitest/src/integrations/vi.ts": [
+47,
+51,
+52,
+64,
+76,
+84,
+129,
+207,
+209,
+455
+],
+"vitest:packages/vitest/src/node/cli/cli-config.ts": [
+36,
+112,
+151,
+195,
+218,
+222,
+237,
+242,
+247,
+252,
+263,
+274,
+376,
+504,
+521,
+526,
+531,
+724,
+826,
+831,
+852,
+880,
+916
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+123,
+197,
+225,
+362
+],
+"vitest:packages/vitest/src/node/core.ts": [
+1672
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+266,
+702
+],
+"vitest:packages/vitest/src/node/pools/browser.ts": [
+95
+],
+"vitest:packages/vitest/src/node/project.ts": [
+476
+],
+"vitest:packages/vitest/src/node/projects/resolveProjects.ts": [
+240,
+248
+],
+"vitest:packages/vitest/src/node/reporters/github-actions.ts": [
+45,
+457
+],
+"vitest:packages/vitest/src/node/reporters/utils.ts": [
+6
+],
+"vitest:packages/vitest/src/node/types/benchmark.ts": [
+16
+],
+"vitest:packages/vitest/src/node/types/config.ts": [
+996
+],
+"vitest:packages/vitest/src/public/suite.ts": [
+14
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
+285
+],
+"vitest:packages/vitest/src/runtime/workers/native.ts": [
+93,
+142
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+243
+],
+"vitest:packages/vitest/src/utils/traces.ts": [
+76
+],
+"vitest:scripts/publish-ci.ts": [
+8
+]
+}

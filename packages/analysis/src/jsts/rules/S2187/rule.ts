@@ -17,18 +17,23 @@
 // https://sonarsource.github.io/rspec/#/rspec/S2187/javascript
 
 import type { Rule } from 'eslint';
-import type { Node } from 'estree';
+import type { CallExpression, Node } from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { hasStringFirstArgument } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
 
+const TEST_FILE_PATTERN = /\.(?:spec|test|cy)\./;
+
 const APIs = new Set([
-  // Jasmine
+  // Jasmine test cases: it(...), fit(...), xit(...).
   'it',
   'fit',
   'xit',
-  // Jest
+  // Jest test cases: test(...), it.only(...), test.concurrent.each(...).
   'it',
   'it.concurrent',
+  'it.concurrent.only',
+  'it.concurrent.skip',
   'it.concurrent.each',
   'it.concurrent.only.each',
   'it.concurrent.skip.each',
@@ -44,6 +49,8 @@ const APIs = new Set([
   'it.todo',
   'test',
   'test.concurrent',
+  'test.concurrent.only',
+  'test.concurrent.skip',
   'test.concurrent.each',
   'test.concurrent.only.each',
   'test.concurrent.skip.each',
@@ -54,28 +61,39 @@ const APIs = new Set([
   'test.skip.failing',
   'test.only',
   'test.only.each',
-  'test.skip',
   'test.skip.each',
   'test.todo',
-  // Mocha
+  // Mocha and Cypress test cases
   'it',
   'it.skip',
   'it.only',
+  'specify',
+  'specify.skip',
+  'specify.only',
+  'xspecify',
   'test',
-  'test.skip',
   'test.only',
-  // Node.js
+  // Node.js test runner
   'it',
   'it.skip',
   'it.todo',
   'it.only',
   'test',
-  'test.skip',
   'test.todo',
   'test.only',
   // vitest
   'test.runIf',
   'it.runIf',
+  'test.skipIf',
+  'it.skipIf',
+  'test.fails',
+  'it.fails',
+  'test.fails.each',
+  'it.fails.each',
+  'test.sequential',
+  'it.sequential',
+  'test.sequential.each',
+  'it.sequential.each',
   'test.for',
   'it.for',
   // @fast-check/vitest (property-based testing)
@@ -83,6 +101,16 @@ const APIs = new Set([
   'it.prop',
   // eslint rule tester
   'ruleTester.run',
+]);
+
+const APIS_WITH_TEST_TITLE = new Set([
+  // These APIs are overloaded for both test declarations and runtime annotations.
+  // Count only declaration-style calls with a string title: test.skip('title', ...).
+  // see https://playwright.dev/docs/api/class-test#test-skip
+  'test.skip',
+  'test.fail',
+  'test.fail.only',
+  'test.fixme',
 ]);
 
 export const rule: Rule.RuleModule = {
@@ -93,29 +121,39 @@ export const rule: Rule.RuleModule = {
   }),
   create(context: Rule.RuleContext) {
     const { filename } = context;
-    if (!/\.spec\.|\.test\./.test(filename)) {
+    if (!TEST_FILE_PATTERN.test(filename)) {
       return {};
     }
 
     let hasTest = false;
 
-    function checkIfTestCall(node: Node) {
+    function checkIfTestCall(node: CallExpression) {
       if (hasTest) {
         return;
       }
 
-      const fqn = fullyQualifiedName(node);
-      if (APIs.has(fqn)) {
+      const fqn = fullyQualifiedName(node.callee);
+      if (APIs.has(fqn) || (APIS_WITH_TEST_TITLE.has(fqn) && hasStringFirstArgument(node))) {
+        hasTest = true;
+      }
+    }
+
+    function checkIfTestTag(node: Node) {
+      if (hasTest) {
+        return;
+      }
+
+      if (APIs.has(fullyQualifiedName(node))) {
         hasTest = true;
       }
     }
 
     return {
       CallExpression(node) {
-        checkIfTestCall(node.callee);
+        checkIfTestCall(node);
       },
       TaggedTemplateExpression(node) {
-        checkIfTestCall(node.tag);
+        checkIfTestTag(node.tag);
       },
       'Program:exit'() {
         if (!hasTest) {

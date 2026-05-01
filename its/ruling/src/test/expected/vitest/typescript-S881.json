@@ -1,0 +1,112 @@
+{
+"vitest:packages/browser/src/client/tester/locators/index.ts": [
+356
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+365
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+899,
+908
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+201,
+242,
+458
+],
+"vitest:packages/mocker/src/node/automock.ts": [
+166
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+140
+],
+"vitest:packages/pretty-format/src/collections.ts": [
+53,
+116
+],
+"vitest:packages/pretty-format/src/index.ts": [
+202,
+292
+],
+"vitest:packages/pretty-format/src/plugins/AsymmetricMatcher.ts": [
+31,
+48
+],
+"vitest:packages/pretty-format/src/plugins/DOMCollection.ts": [
+39
+],
+"vitest:packages/pretty-format/src/plugins/DOMElement.ts": [
+114
+],
+"vitest:packages/pretty-format/src/plugins/Immutable.ts": [
+36,
+55,
+67,
+82,
+120
+],
+"vitest:packages/pretty-format/src/plugins/ReactElement.ts": [
+115
+],
+"vitest:packages/pretty-format/src/plugins/ReactTestComponent.ts": [
+49
+],
+"vitest:packages/runner/src/suite.ts": [
+1045
+],
+"vitest:packages/runner/src/utils/limit-concurrency.ts": [
+48
+],
+"vitest:packages/runner/src/utils/tags.ts": [
+174
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+109
+],
+"vitest:packages/spy/src/index.ts": [
+451
+],
+"vitest:packages/utils/src/diff/cleanupSemantic.ts": [
+209
+],
+"vitest:packages/utils/src/display.ts": [
+160,
+176,
+186,
+193,
+195,
+197,
+204,
+225
+],
+"vitest:packages/utils/src/helpers.ts": [
+213
+],
+"vitest:packages/utils/src/nanoid.ts": [
+8
+],
+"vitest:packages/utils/src/random.ts": [
+4,
+12
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+289
+],
+"vitest:packages/vitest/src/node/pool.ts": [
+162
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+416,
+785
+],
+"vitest:packages/vitest/src/node/reporters/dot.ts": [
+125
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+427
+],
+"vitest:packages/vitest/src/utils/base.ts": [
+50,
+68
+]
+}

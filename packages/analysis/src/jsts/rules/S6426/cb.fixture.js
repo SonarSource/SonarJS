@@ -25,6 +25,26 @@ describe("no exclusive tests", function() {
 // fix@qf5 {{Remove ."only()".}}
 // edit@qf5 [[sc=4;ec=9]] {{}}
 
+    context.only("is a Cypress context using .only()", function () {}); // Noncompliant [[qf6]] {{Remove ".only()" from your test case.}}
+//          ^^^^
+// fix@qf6 {{Remove ."only()".}}
+// edit@qf6 {{    context("is a Cypress context using .only()", function () {});}}
+    specify.only("is a Cypress test using .only()", function () {}); // Noncompliant [[qf7]] {{Remove ".only()" from your test case.}}
+//          ^^^^
+// fix@qf7 {{Remove ."only()".}}
+// edit@qf7 {{    specify("is a Cypress test using .only()", function () {});}}
+    test.describe.only("is a Playwright suite using .only()", () => {}); // Noncompliant [[qf8]] {{Remove ".only()" from your test case.}}
+//                ^^^^
+// fix@qf8 {{Remove ."only()".}}
+// edit@qf8 {{    test.describe("is a Playwright suite using .only()", () => {});}}
+    test.describe.parallel.only("is a Playwright parallel suite using .only()", () => {}); // Noncompliant [[qf9]] {{Remove ".only()" from your test case.}}
+//                         ^^^^
+// fix@qf9 {{Remove ."only()".}}
+// edit@qf9 {{    test.describe.parallel("is a Playwright parallel suite using .only()", () => {});}}
+    test.describe.serial.only("is a Playwright serial suite using .only()", () => {}); // Noncompliant [[qf10]] {{Remove ".only()" from your test case.}}
+//                       ^^^^
+// fix@qf10 {{Remove ."only()".}}
+// edit@qf10 {{    test.describe.serial("is a Playwright serial suite using .only()", () => {});}}
 
     it("works fine");
 });

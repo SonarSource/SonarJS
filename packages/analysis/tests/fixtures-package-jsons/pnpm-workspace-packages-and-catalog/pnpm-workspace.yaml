@@ -1,0 +1,4 @@
+packages:
+  - packages/*
+catalog:
+  react: ^19.1.1

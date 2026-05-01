@@ -1,0 +1,18 @@
+{
+"vitest:packages/browser/src/client/public/esm-client-injector.js": [
+36,
+37,
+38,
+39,
+40,
+41,
+42,
+43,
+44,
+46,
+48
+],
+"vitest:test/browser/custom-tester.html": [
+11
+]
+}

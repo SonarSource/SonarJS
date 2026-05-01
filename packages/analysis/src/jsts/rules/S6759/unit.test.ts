@@ -141,6 +141,24 @@ function DerivedComponent(props: DerivedProps) {
 }
           `,
         },
+        {
+          // Community: interface extending a Readonly-wrapped alias should preserve readonly props
+          code: `
+type PropsWithClassName<Props extends Record<string, unknown> = {}> = Readonly<
+  Props & {
+    className?: string;
+  }
+>;
+
+interface ContentRendererProps extends PropsWithClassName {
+  readonly chatId: string;
+}
+
+function ErrorRenderer({ chatId }: ContentRendererProps) {
+  return <div>{chatId}</div>;
+}
+          `,
+        },
       ],
       invalid: [
         {

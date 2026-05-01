@@ -1,0 +1,158 @@
+{
+"vitest:packages/browser-webdriverio/src/commands/screenshot.ts": [
+55
+],
+"vitest:packages/browser/src/client/tester/expect/toBeEnabled.ts": [
+54
+],
+"vitest:packages/browser/src/client/tester/expect/toBeInViewport.ts": [
+34
+],
+"vitest:packages/browser/src/client/tester/expect/toContainElement.ts": [
+26
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveAccessibleErrorMessage.ts": [
+61
+],
+"vitest:packages/browser/src/client/tester/locators/index.ts": [
+357
+],
+"vitest:packages/browser/src/client/tester/logger.ts": [
+60
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+451
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+82,
+767
+],
+"vitest:packages/mocker/src/browser/hints.ts": [
+36
+],
+"vitest:packages/pretty-format/src/index.ts": [
+296,
+300,
+386,
+396
+],
+"vitest:packages/runner/src/suite.ts": [
+858
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+218,
+332,
+369,
+550,
+587,
+618
+],
+"vitest:packages/snapshot/src/port/utils.ts": [
+216
+],
+"vitest:packages/spy/src/index.ts": [
+323
+],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+122
+],
+"vitest:packages/ui/client/components/views/ViewEditor.vue": [
+65
+],
+"vitest:packages/ui/client/composables/module-graph.ts": [
+68,
+72
+],
+"vitest:packages/utils/src/diff/getAlignedDiffs.ts": [
+58
+],
+"vitest:packages/utils/src/diff/joinAlignedDiffs.ts": [
+27,
+31
+],
+"vitest:packages/utils/src/display.ts": [
+261
+],
+"vitest:packages/utils/src/source-map.ts": [
+231
+],
+"vitest:packages/vitest/src/api/setup.ts": [
+167
+],
+"vitest:packages/vitest/src/create/browser/creator.ts": [
+290
+],
+"vitest:packages/vitest/src/integrations/env/jsdom.ts": [
+238
+],
+"vitest:packages/vitest/src/integrations/mock/date.ts": [
+56
+],
+"vitest:packages/vitest/src/integrations/vi.ts": [
+780,
+836
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+385
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+346
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+237,
+684
+],
+"vitest:packages/vitest/src/node/core.ts": [
+384
+],
+"vitest:packages/vitest/src/node/logger.ts": [
+350
+],
+"vitest:packages/vitest/src/node/plugins/utils.ts": [
+17
+],
+"vitest:packages/vitest/src/node/pools/workers/forksWorker.ts": [
+66
+],
+"vitest:packages/vitest/src/node/projects/resolveProjects.ts": [
+340
+],
+"vitest:packages/vitest/src/node/reporters/github-actions.ts": [
+374
+],
+"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
+133,
+460
+],
+"vitest:packages/vitest/src/node/reporters/tap.ts": [
+39
+],
+"vitest:packages/vitest/src/node/state.ts": [
+187
+],
+"vitest:packages/vitest/src/node/test-specification.ts": [
+60
+],
+"vitest:packages/vitest/src/runtime/utils.ts": [
+61
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+90
+],
+"vitest:packages/vitest/src/runtime/workers/native.ts": [
+246
+],
+"vitest:packages/vitest/src/typecheck/parse.ts": [
+70,
+86
+],
+"vitest:packages/web-worker/src/shared-worker.ts": [
+80
+],
+"vitest:packages/web-worker/src/worker.ts": [
+58
+],
+"vitest:packages/ws-client/src/state.ts": [
+90
+]
+}

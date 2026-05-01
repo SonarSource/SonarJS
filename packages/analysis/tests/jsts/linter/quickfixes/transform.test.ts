@@ -14,11 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { Linter } from 'eslint';
+import { Linter, type Rule } from 'eslint';
 import path from 'node:path';
 import { transformFixes } from '../../../../src/jsts/linter/quickfixes/transform.js';
 import { parseJavaScriptSourceFile } from '../../tools/helpers/parsing.js';
 import * as allRules from '../../../../src/jsts/rules/rules.js';
+import { decorate as decorateS7780 } from '../../../../src/jsts/rules/S7780/decorator.js';
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 
@@ -146,5 +147,125 @@ describe('transformFixes', () => {
     } as Linter.LintMessage);
 
     expect(quickFixes).toEqual([]);
+  });
+
+  it('should drop only the S7780 quick fixes that would introduce S4624 issues', async () => {
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'prefer-string-raw.js');
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
+
+    const ruleId = 'S7780';
+
+    const linter = new Linter();
+    const messages = linter.verify(sourceCode, {
+      plugins: {
+        sonarjs: { rules: { [ruleId]: allRules[ruleId] } },
+      },
+      rules: { [`sonarjs/${ruleId}`]: 'error' },
+    });
+
+    expect(messages).toHaveLength(5);
+
+    const safeMessage = messages.find(message => message.line === 1);
+    const bothBoundariesUnsafeMessage = messages.find(message => message.line === 2);
+    const multilineSafeMessage = messages.find(message => message.line === 5);
+    const startBoundaryUnsafeMessage = messages.find(message => message.line === 8);
+    const endBoundaryUnsafeMessage = messages.find(message => message.line === 11);
+
+    expect(safeMessage).toBeDefined();
+    expect(bothBoundariesUnsafeMessage).toBeDefined();
+    expect(multilineSafeMessage).toBeDefined();
+    expect(startBoundaryUnsafeMessage).toBeDefined();
+    expect(endBoundaryUnsafeMessage).toBeDefined();
+
+    expect(transformFixes(sourceCode, safeMessage!)).toEqual([
+      {
+        message: `Use 'String.raw' template literal`,
+        edits: [
+          {
+            loc: { line: 1, column: 10, endLine: 1, endColumn: 16 },
+            text: 'String.raw`\\d+`',
+          },
+        ],
+      },
+    ]);
+    expect(transformFixes(sourceCode, bothBoundariesUnsafeMessage!)).toEqual([]);
+    expect(transformFixes(sourceCode, multilineSafeMessage!)).toEqual([
+      {
+        message: `Use 'String.raw' template literal`,
+        edits: [
+          {
+            loc: { line: 5, column: 4, endLine: 5, endColumn: 10 },
+            text: 'String.raw`\\s+`',
+          },
+        ],
+      },
+    ]);
+    expect(transformFixes(sourceCode, startBoundaryUnsafeMessage!)).toEqual([]);
+    expect(transformFixes(sourceCode, endBoundaryUnsafeMessage!)).toEqual([]);
+  });
+
+  it('should also drop S7780 suggestions that would introduce S4624 issues', async () => {
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'prefer-string-raw.js');
+    const { sourceCode } = await parseJavaScriptSourceFile(filePath);
+
+    const ruleId = 'test/s7780-suggestion';
+    const rule: Rule.RuleModule = decorateS7780({
+      meta: {
+        hasSuggestions: true,
+        messages: {
+          preferStringRaw: `Use 'String.raw' template literal`,
+        },
+      },
+      create(context) {
+        return {
+          Literal(node) {
+            if (typeof node.value !== 'string') {
+              return;
+            }
+
+            const raw = context.sourceCode.getText(node).slice(1, -1);
+            context.report({
+              node,
+              messageId: 'preferStringRaw',
+              suggest: [
+                {
+                  desc: `Use 'String.raw' template literal`,
+                  fix: fixer => fixer.replaceText(node, `String.raw\`${raw}\``),
+                },
+              ],
+            });
+          },
+        };
+      },
+    });
+
+    const linter = new Linter();
+    const messages = linter.verify(sourceCode, {
+      plugins: {
+        test: { rules: { 's7780-suggestion': rule } },
+      },
+      rules: { [ruleId]: 'error' },
+    });
+
+    expect(messages).toHaveLength(5);
+
+    const safeMessage = messages.find(message => message.line === 1);
+    const bothBoundariesUnsafeMessage = messages.find(message => message.line === 2);
+
+    expect(safeMessage).toBeDefined();
+    expect(bothBoundariesUnsafeMessage).toBeDefined();
+
+    expect(transformFixes(sourceCode, safeMessage!)).toEqual([
+      {
+        message: `Use 'String.raw' template literal`,
+        edits: [
+          {
+            loc: { line: 1, column: 10, endLine: 1, endColumn: 16 },
+            text: 'String.raw`\\\\d+`',
+          },
+        ],
+      },
+    ]);
+    expect(transformFixes(sourceCode, bothBoundariesUnsafeMessage!)).toEqual([]);
   });
 });

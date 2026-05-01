@@ -1,0 +1,48 @@
+{
+"vitest:docs/pwa-assets.config.ts": [
+10
+],
+"vitest:packages/browser/src/client/orchestrator.ts": [
+330
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+293
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/index.ts": [
+234
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+152
+],
+"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
+20
+],
+"vitest:packages/utils/src/diff/cleanupSemantic.ts": [
+423
+],
+"vitest:packages/utils/src/diff/diffLines.ts": [
+31
+],
+"vitest:packages/vitest/src/create/browser/creator.ts": [
+95,
+119,
+221
+],
+"vitest:packages/vitest/src/node/pools/workers/typecheckWorker.ts": [
+73
+],
+"vitest:packages/vitest/src/node/reporters/github-actions.ts": [
+294,
+316
+],
+"vitest:packages/vitest/src/node/watch-filter.ts": [
+71,
+71
+],
+"vitest:packages/vitest/src/runtime/workers/init.ts": [
+47
+],
+"vitest:packages/vitest/src/utils/memory-limit.ts": [
+56
+]
+}

@@ -1,0 +1,21 @@
+{
+"vitest:packages/browser/src/client/orchestrator.ts": [
+330,
+340
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveFormValues.ts": [
+99
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/codecs/index.ts": [
+6
+],
+"vitest:packages/runner/src/utils/tags.ts": [
+65
+],
+"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
+20
+],
+"vitest:packages/vitest/src/runtime/workers/native.ts": [
+103
+]
+}

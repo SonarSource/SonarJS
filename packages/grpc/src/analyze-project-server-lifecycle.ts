@@ -34,12 +34,12 @@ import type {
 
 const WORKER_RESPONSE_TIMEOUT_MS = 15_000;
 
-export type HandleRequestInCurrentThread = (
+type HandleRequestInCurrentThread = (
   request: AnalyzeProjectRuntimeRequest,
   incrementalResultsChannel?: (result: AnalyzeProjectIncrementalEvent) => void,
 ) => Promise<RequestResult<AnalyzeProjectResponse | void>>;
 
-export type AnalyzeProjectServerState = {
+type AnalyzeProjectServerState = {
   analysisInProgress: boolean;
   leaseCall: grpc.ServerDuplexStream<LeaseRequest, LeaseResponse> | null;
   nextWorkerRequestId: number;
@@ -47,7 +47,7 @@ export type AnalyzeProjectServerState = {
   startupShutdownTimeout: NodeJS.Timeout | null;
 };
 
-export type AnalyzeProjectServerLifecycle = {
+type AnalyzeProjectServerLifecycle = {
   scheduleStartupShutdownTimeout: () => void;
   clearStartupShutdownTimeout: () => void;
   requestCancel: () => Promise<boolean>;
