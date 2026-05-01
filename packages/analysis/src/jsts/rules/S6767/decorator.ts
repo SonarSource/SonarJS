@@ -44,6 +44,25 @@ const forwardRefCalleePatterns: Array<(callee: estree.Expression | estree.Super)
     isIdentifier(callee.property, 'forwardRef'),
 ];
 
+type PropsUsageMatcher = (
+  node: estree.Node,
+  isPropsArgument: (arg: estree.Node) => boolean,
+) => boolean;
+
+/** Keep the whole-props usage taxonomy shared between recursive and reference-based checks. */
+const wholePropsUsagePatterns: PropsUsageMatcher[] = [
+  (node, isPropsArgument) =>
+    node.type === 'CallExpression' &&
+    node.callee.type !== 'Super' &&
+    node.arguments.some(argument => isPropsArgument(argument as estree.Node)),
+  (node, isPropsArgument) => node.type === 'SpreadElement' && isPropsArgument(node.argument),
+  (node, isPropsArgument) =>
+    node.type === 'JSXSpreadAttribute' &&
+    isPropsArgument((node as unknown as JSXSpreadAttribute).argument),
+  (node, isPropsArgument) =>
+    node.type === 'MemberExpression' && node.computed && isPropsArgument(node.object),
+];
+
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     { ...rule, meta: generateMeta(meta, rule.meta) },
@@ -258,15 +277,7 @@ function isTrackedPropsReference(reference: Scope.Reference, propName: string): 
 }
 
 function isWholePropsUsage(parent: estree.Node, propsIdentifier: estree.Identifier): boolean {
-  return (
-    (parent.type === 'CallExpression' &&
-      parent.callee.type !== 'Super' &&
-      parent.arguments.includes(propsIdentifier)) ||
-    (parent.type === 'SpreadElement' && parent.argument === propsIdentifier) ||
-    (parent.type === 'JSXSpreadAttribute' &&
-      (parent as unknown as JSXSpreadAttribute).argument === propsIdentifier) ||
-    (parent.type === 'MemberExpression' && parent.object === propsIdentifier && parent.computed)
-  );
+  return matchesWholePropsUsage(parent, argument => argument === propsIdentifier);
 }
 
 function isIgnoredWholePropsUsage(node: estree.Node): boolean {
@@ -278,42 +289,22 @@ function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean 
     return false;
   }
 
-  // Check if this is a CallExpression with props as argument
-  if (root.type === 'CallExpression') {
-    const call = root as estree.CallExpression;
-    if (
-      call.callee.type !== 'Super' &&
-      !isPropTypesCheckCall(call) &&
-      call.arguments.some(a => propsArgPatterns.some(p => p(a as estree.Node)))
-    ) {
-      return true;
-    }
-  }
-
-  // Check if this is a SpreadElement with props (for {...props} in JSX)
-  if (root.type === 'SpreadElement' && propsArgPatterns.some(p => p(root.argument))) {
-    return true;
-  }
-
-  // Check if this is a JSXSpreadAttribute with props (for {...props} or {...this.props} in JSX elements)
   if (
-    root.type === 'JSXSpreadAttribute' &&
-    propsArgPatterns.some(p => p((root as unknown as JSXSpreadAttribute).argument))
-  ) {
-    return true;
-  }
-
-  // Check if this is a computed MemberExpression with props (for props[key] or this.props[key])
-  if (
-    root.type === 'MemberExpression' &&
-    root.computed &&
-    propsArgPatterns.some(p => p(root.object))
+    matchesWholePropsUsage(root, argument => propsArgPatterns.some(pattern => pattern(argument))) &&
+    !isIgnoredWholePropsUsage(root)
   ) {
     return true;
   }
 
   // Recursively check all children
   return childrenOf(root, keys).some(child => hasPropsCall(child, keys));
+}
+
+function matchesWholePropsUsage(
+  node: estree.Node,
+  isPropsArgument: (argument: estree.Node) => boolean,
+): boolean {
+  return wholePropsUsagePatterns.some(pattern => pattern(node, isPropsArgument));
 }
 
 function isPropTypesCheckCall(call: estree.CallExpression): boolean {
