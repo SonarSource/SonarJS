@@ -20,6 +20,7 @@ import {
   DependenciesList,
   type DependencyManifest,
   type ManifestResolver,
+  type ModuleType,
 } from './types.js';
 import { type File, stripBOM } from '../../files.js';
 import { DENO_JSON, DENO_JSONC } from '../index.js';
@@ -36,13 +37,22 @@ export const denoManifestResolver: ManifestResolver = {
     // if both `deno.json` and `deno.jsonc` are present, prefer `deno.json` and ignore `deno.jsonc`
     const denoJson = getManifestFileInDir(DENO_JSON, dir, topDir, fileSystem);
     const denoJsonc = getManifestFileInDir(DENO_JSONC, dir, topDir, fileSystem);
+    const denoModuleType: ModuleType = 'module';
     if (denoJsonc && denoJson === undefined) {
       return [
-        { type: 'deno', getDependencies: buildDependencies(parseDenoManifest(denoJsonc) ?? {}) },
+        {
+          type: 'deno',
+          getDependencies: buildDependencies(parseDenoManifest(denoJsonc) ?? {}),
+          getModuleType: () => denoModuleType,
+        },
       ];
     } else if (denoJson) {
       return [
-        { type: 'deno', getDependencies: buildDependencies(parseDenoManifest(denoJson) ?? {}) },
+        {
+          type: 'deno',
+          getDependencies: buildDependencies(parseDenoManifest(denoJson) ?? {}),
+          getModuleType: () => denoModuleType,
+        },
       ];
     }
     return [];

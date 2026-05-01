@@ -23,6 +23,8 @@ type ImportMap = Record<string, unknown>;
 
 export type DependenciesList = Map<string | Minimatch, string | undefined>;
 
+export type ModuleType = 'module' | 'commonjs';
+
 export type DenoManifest = {
   imports?: ImportMap;
   workspace?: string[] | { members?: string[] };
@@ -31,6 +33,7 @@ export type DenoManifest = {
 export interface DependencyManifest {
   readonly type: 'npm' | 'deno';
   getDependencies: () => DependenciesList;
+  getModuleType: () => ModuleType | undefined;
 }
 
 /**

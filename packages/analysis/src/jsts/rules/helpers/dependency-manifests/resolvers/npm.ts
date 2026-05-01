@@ -16,7 +16,12 @@
  */
 import type { PackageJson } from 'type-fest';
 import yaml from 'yaml';
-import { type ManifestResolver, type DependencyManifest, DependenciesList } from './types.js';
+import {
+  type ManifestResolver,
+  type DependencyManifest,
+  type ModuleType,
+  DependenciesList,
+} from './types.js';
 import { type File, stripBOM } from '../../files.js';
 import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
@@ -48,7 +53,14 @@ export const npmManifestResolver: ManifestResolver = {
       manifest = injectWorkspacePackages(manifest, parsedPnpmWorkspace);
       manifest = resolveCatalogReferences(manifest, parsedPnpmWorkspace);
     }
-    return [{ type: 'npm', getDependencies: buildDependencies(manifest) }];
+    const moduleType: ModuleType = manifest.type === 'module' ? 'module' : 'commonjs';
+    return [
+      {
+        type: 'npm',
+        getDependencies: buildDependencies(manifest),
+        getModuleType: () => moduleType,
+      },
+    ];
   },
 };
 
