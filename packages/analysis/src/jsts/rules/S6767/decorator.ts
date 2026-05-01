@@ -16,6 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6767/javascript
 
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { JSXSpreadAttribute } from 'estree-jsx';
@@ -210,7 +211,10 @@ function hasDecoratorPropUsage(
   componentNode: estree.Node,
   propName: string,
 ): boolean {
-  return hasDecoratorFactoryCallPropUsage(sourceCode, componentNode, propName);
+  return (
+    hasDecoratorFactoryCallPropUsage(sourceCode, componentNode, propName) ||
+    hasDecoratorAnnotationPropUsage(sourceCode, componentNode, propName)
+  );
 }
 
 function hasDecoratorFactoryCallPropUsage(
@@ -234,6 +238,30 @@ function hasDecoratorFactoryCallPropUsage(
       )
     );
   });
+}
+
+function hasDecoratorAnnotationPropUsage(
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+  propName: string,
+): boolean {
+  if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
+    return false;
+  }
+
+  return (
+    (componentNode as TSESTree.ClassDeclaration | TSESTree.ClassExpression).decorators?.some(
+      decorator => {
+        const { expression } = decorator;
+        return (
+          expression.type === 'CallExpression' &&
+          expression.arguments.some(argument =>
+            isPropsCallbackUsingProp(sourceCode, argument as estree.Node, propName),
+          )
+        );
+      },
+    ) ?? false
+  );
 }
 
 function isPropsCallbackUsingProp(

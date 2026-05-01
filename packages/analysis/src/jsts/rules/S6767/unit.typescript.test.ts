@@ -230,6 +230,30 @@ track((props: NamedExpressionProps) => ({
           filename: fixtureFile,
         },
         {
+          // FP: class decorator callback uses props
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAnnotationProps {
+  contextModule: string;
+  userId: string;
+}
+@track((props: DecoratorAnnotationProps) => ({
+  context_module: props.contextModule,
+  user_id: props.userId,
+}))
+class DecoratorAnnotationComponent extends React.Component<DecoratorAnnotationProps> {
+  props: DecoratorAnnotationProps;
+  render() {
+    return <div />;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: decorator callback forwards typed props
           code: `
 declare const React: any;
