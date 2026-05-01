@@ -271,7 +271,9 @@ export class Linter {
        * The wrapper's linting configuration includes multiple ESLint
        * configurations: one per fileType/language/analysisMode combination.
        */
-      const dependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
+      const dependencies = new Set(
+        getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir).keys(),
+      );
       const context: RuleFilterContext = {
         extensionName: extname(normalizePath(filePath)),
         fileType,

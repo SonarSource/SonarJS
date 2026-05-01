@@ -27,7 +27,6 @@ import {
 import { PACKAGE_JSON } from './index.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import type { Rule } from 'eslint';
-import { getDependenciesFromManifest } from './parse.js';
 import { type DependencyManifest, type ManifestResolver } from './resolvers/types.js';
 import { denoManifestResolver } from './resolvers/deno.js';
 import { npmManifestResolver } from './resolvers/npm.js';
@@ -118,14 +117,11 @@ function logDuplicateDependenciesInManifests(manifests: DependencyManifest[]): v
   const dependencyDefinitions = new Map<string, DependencyDefinition>();
   for (const manifest of manifests) {
     const dependenciesByNameInManifest = new Map<string, string | undefined>();
-    for (const dependency of getDependenciesFromManifest(manifest)) {
-      if (
-        typeof dependency.name !== 'string' ||
-        dependenciesByNameInManifest.has(dependency.name)
-      ) {
+    for (const [name, version] of manifest.getDependencies()) {
+      if (typeof name !== 'string' || dependenciesByNameInManifest.has(name)) {
         continue;
       }
-      dependenciesByNameInManifest.set(dependency.name, dependency.version);
+      dependenciesByNameInManifest.set(name, version);
     }
     for (const [dependencyName, version] of dependenciesByNameInManifest) {
       const firstDefinition = dependencyDefinitions.get(dependencyName);
