@@ -16,11 +16,13 @@
  */
 import type { PackageJson } from 'type-fest';
 import yaml from 'yaml';
-import { type ManifestResolver, type DependencyManifest } from './types.js';
+import { type ManifestResolver, type DependencyManifest, DependenciesList } from './types.js';
 import { type File, stripBOM } from '../../files.js';
 import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
 import { getManifestFileInDir } from './helpers.js';
+import { Minimatch } from 'minimatch';
+import { addDependencies, addDependenciesArray } from '../parse.js';
 
 type PnpmWorkspace = {
   packages?: string[];
@@ -47,9 +49,46 @@ export const npmManifestResolver: ManifestResolver = {
       manifest = injectWorkspacePackages(manifest, parsedPnpmWorkspace);
       manifest = resolveCatalogReferences(manifest, parsedPnpmWorkspace);
     }
-    return [{ type: 'npm', manifest }];
+    return [{ type: 'npm', getDependencies: wrapGetDependencies(manifest) }];
   },
 };
+
+function wrapGetDependencies(
+  packageJson: PackageJson,
+): () => Map<string | Minimatch, string | undefined> {
+  const result: DependenciesList = new Map();
+  const fieldsToVisit = [
+    'name',
+    'dependencies',
+    'devDependencies',
+    'peerDependencies',
+    'optionalDependencies',
+    '_moduleAliases',
+    'workspaces',
+  ] as const;
+
+  fieldsToVisit.forEach(field => {
+    if (!packageJson[field]) {
+      return;
+    }
+    if (field === 'name') {
+      addDependencies(result, { [packageJson[field]]: '*' });
+      return;
+    }
+    if (field === 'workspaces') {
+      addDependenciesArray(
+        result,
+        Array.isArray(packageJson[field])
+          ? packageJson[field]
+          : (packageJson[field]?.packages ?? []),
+      );
+      return;
+    }
+    addDependencies(result, packageJson[field] as PackageJson.Dependency);
+  });
+
+  return () => result;
+}
 
 function parsePackageJson(file: File): PackageJson | undefined {
   try {
