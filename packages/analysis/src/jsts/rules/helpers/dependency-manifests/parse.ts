@@ -40,39 +40,6 @@ export function addDependencies(
   }
 }
 
-type ImportMapSpecifier = {
-  packageName: string;
-  version?: string;
-};
-
-// Captures `npm:` payload as: package name (scoped or unscoped), optional version, optional ignored subpath.
-// Examples:
-// npm:cowsay@^1.6.0
-// npm:@scopename/mypackage@~11.1.0
-const DENO_NPM_IMPORT_PATTERN = /^(@[^/]*\/[^/@]*|[^/@]+)(?:@([^/]*))?(?:\/.*)?$/;
-
-/**
- * Parses an import map URL Specifier matching Deno npm format:
- * npm:<package>[@<version>][/<path>]
- */
-export function parseImportMapSpecifier(value: string): ImportMapSpecifier | undefined {
-  // currently only handle npm: specifiers since rules are focused on NPM dependencies
-  if (!value.startsWith('npm:')) {
-    return undefined;
-  }
-
-  const match = DENO_NPM_IMPORT_PATTERN.exec(value.slice('npm:'.length));
-  if (!match) {
-    return undefined;
-  }
-
-  const [, packageName, version] = match;
-  return {
-    packageName,
-    version: version || undefined,
-  };
-}
-
 export function addDependenciesArray(
   result: DependenciesList,
   dependencies: string[],
