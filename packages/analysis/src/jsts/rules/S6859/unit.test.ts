@@ -15,12 +15,15 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { decorate } from './decorator.js';
 import { getExternalRuleDefinition } from '../external/registry.js';
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import type { Rule } from 'eslint';
 
 const upstreamRule = getExternalRuleDefinition('import', 'no-absolute-path')!;
 const filename = '/home/user/project/index.js';
+const mockUpstreamMeta: Rule.RuleMetaData = { type: 'suggestion', fixable: 'code', messages: {} };
 
 // Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
 // If this test starts failing (i.e., the upstream rule no longer reports these patterns),
@@ -108,6 +111,84 @@ describe('S6859', () => {
           filename,
           errors: 1,
           output: `import logo from "../../../static/images/logo.png";`,
+        },
+      ],
+    });
+  });
+});
+
+describe('S6859 decorator edge cases', () => {
+  it('should pass through a report descriptor without a node', () => {
+    const mockUpstream: Rule.RuleModule = {
+      meta: mockUpstreamMeta,
+      create(context) {
+        return {
+          Program(node) {
+            (context as any).report({ loc: node.loc!, message: 'no-node descriptor forwarded' });
+          },
+        };
+      },
+    };
+
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('no-node descriptor', decorate(mockUpstream), {
+      valid: [],
+      invalid: [
+        {
+          code: `const x = 1;`,
+          errors: [{ message: 'no-node descriptor forwarded' }],
+        },
+      ],
+    });
+  });
+
+  it('should pass through a report descriptor whose node is not a literal', () => {
+    const mockUpstream: Rule.RuleModule = {
+      meta: mockUpstreamMeta,
+      create(context) {
+        return {
+          Program(node) {
+            context.report({ node, message: 'non-literal node forwarded' });
+          },
+        };
+      },
+    };
+
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('non-literal node', decorate(mockUpstream), {
+      valid: [],
+      invalid: [
+        {
+          code: `const x = 1;`,
+          errors: [{ message: 'non-literal node forwarded' }],
+        },
+      ],
+    });
+  });
+
+  it('should pass through one-segment absolute paths', () => {
+    const mockUpstream: Rule.RuleModule = {
+      meta: mockUpstreamMeta,
+      create(context) {
+        return {
+          Literal(node) {
+            context.report({ node, message: 'one-segment path forwarded' });
+          },
+        };
+      },
+    };
+
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('one-segment absolute path', decorate(mockUpstream), {
+      valid: [
+        {
+          code: `import foo from '/@/foo';`,
+        },
+      ],
+      invalid: [
+        {
+          code: `import foo from '/@';`,
+          errors: [{ message: 'one-segment path forwarded' }],
         },
       ],
     });
