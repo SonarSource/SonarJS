@@ -189,7 +189,32 @@ Wrapper.propTypes = {
     const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
 
     ruleTester.run('no-unused-prop-types (upstream, decorator factory)', upstreamRule, {
-      valid: [],
+      valid: [
+        {
+          // upstream tracks typed class decorator callback member reads
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAnnotationProps {
+  contextModule: string;
+  userId: string;
+}
+@track((props: DecoratorAnnotationProps) => ({
+  context_module: props.contextModule,
+  user_id: props.userId,
+}))
+class DecoratorAnnotationComponent extends React.Component<DecoratorAnnotationProps> {
+  props: DecoratorAnnotationProps;
+  render() {
+    return <div />;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
+      ],
       invalid: [
         {
           // decorator-factory callback member reads
@@ -233,31 +258,6 @@ screenTrack(function (props: DecoratorHelperProps) {
 `,
           filename: fixtureFile,
           errors: 1,
-        },
-        {
-          // class decorator callback member reads
-          code: `
-declare const React: any;
-declare function track<P>(
-  mapper: (props: P) => Record<string, unknown>,
-): <TComponent>(target: TComponent) => TComponent;
-interface DecoratorAnnotationProps {
-  contextModule: string;
-  userId: string;
-}
-@track((props: DecoratorAnnotationProps) => ({
-  context_module: props.contextModule,
-  user_id: props.userId,
-}))
-class DecoratorAnnotationComponent extends React.Component<DecoratorAnnotationProps> {
-  props: DecoratorAnnotationProps;
-  render() {
-    return <div />;
-  }
-}
-`,
-          filename: fixtureFile,
-          errors: 2,
         },
       ],
     });
