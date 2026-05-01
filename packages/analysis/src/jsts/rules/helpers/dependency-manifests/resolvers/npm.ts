@@ -21,7 +21,6 @@ import { type File, stripBOM } from '../../files.js';
 import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
 import { getManifestFileInDir } from './helpers.js';
-import { Minimatch } from 'minimatch';
 import { addDependencies, addDependenciesArray } from '../parse.js';
 
 type PnpmWorkspace = {
@@ -53,10 +52,8 @@ export const npmManifestResolver: ManifestResolver = {
   },
 };
 
-function wrapGetDependencies(
-  packageJson: PackageJson,
-): () => Map<string | Minimatch, string | undefined> {
-  const result: DependenciesList = new Map();
+function wrapGetDependencies(packageJson: PackageJson): () => DependenciesList {
+  const dependencies: DependenciesList = new Map();
   const fieldsToVisit = [
     'name',
     'dependencies',
@@ -72,22 +69,22 @@ function wrapGetDependencies(
       return;
     }
     if (field === 'name') {
-      addDependencies(result, { [packageJson[field]]: '*' });
+      addDependencies(dependencies, { [packageJson[field]]: '*' });
       return;
     }
     if (field === 'workspaces') {
       addDependenciesArray(
-        result,
+        dependencies,
         Array.isArray(packageJson[field])
           ? packageJson[field]
           : (packageJson[field]?.packages ?? []),
       );
       return;
     }
-    addDependencies(result, packageJson[field] as PackageJson.Dependency);
+    addDependencies(dependencies, packageJson[field] as PackageJson.Dependency);
   });
 
-  return () => result;
+  return () => dependencies;
 }
 
 function parsePackageJson(file: File): PackageJson | undefined {

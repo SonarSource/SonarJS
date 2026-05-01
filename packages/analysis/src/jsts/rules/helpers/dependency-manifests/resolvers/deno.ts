@@ -15,10 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
-import { type ManifestResolver, type DependencyManifest, type DenoManifest } from './types.js';
+import {
+  type ManifestResolver,
+  type DependencyManifest,
+  type DenoManifest,
+  DependenciesList,
+} from './types.js';
 import { type File, stripBOM } from '../../files.js';
 import { DENO_JSON, DENO_JSONC } from '../index.js';
 import { getManifestFileInDir } from './helpers.js';
+import { addDependenciesArray, addDependency, parseImportMapSpecifier } from '../parse.js';
 
 export const denoManifestResolver: ManifestResolver = {
   resolve(dir, topDir, fileSystem): DependencyManifest[] {
@@ -26,13 +32,47 @@ export const denoManifestResolver: ManifestResolver = {
     const denoJson = getManifestFileInDir(DENO_JSON, dir, topDir, fileSystem);
     const denoJsonc = getManifestFileInDir(DENO_JSONC, dir, topDir, fileSystem);
     if (denoJsonc && denoJson === undefined) {
-      return [{ type: 'deno', manifest: parseDenoManifest(denoJsonc) ?? {} }];
+      return [
+        { type: 'deno', getDependencies: wrapGetDependencies(parseDenoManifest(denoJsonc) ?? {}) },
+      ];
     } else if (denoJson) {
-      return [{ type: 'deno', manifest: parseDenoManifest(denoJson) ?? {} }];
+      return [
+        { type: 'deno', getDependencies: wrapGetDependencies(parseDenoManifest(denoJson) ?? {}) },
+      ];
     }
     return [];
   },
 };
+
+function wrapGetDependencies(manifest: DenoManifest): () => DependenciesList {
+  const dependencies: DependenciesList = new Map();
+
+  if (manifest.imports && typeof manifest.imports === 'object') {
+    for (const [alias, target] of Object.entries(manifest.imports)) {
+      if (typeof target !== 'string') {
+        continue;
+      }
+
+      const parsedSpecifier = parseImportMapSpecifier(target);
+      if (parsedSpecifier) {
+        addDependency(dependencies, {
+          dependency: parsedSpecifier.packageName,
+          isGlob: false,
+          version: parsedSpecifier.version,
+          alias,
+        });
+      }
+    }
+  }
+
+  if (Array.isArray(manifest.workspace)) {
+    addDependenciesArray(dependencies, manifest.workspace);
+  } else if (manifest.workspace?.members) {
+    addDependenciesArray(dependencies, manifest.workspace.members);
+  }
+
+  return () => dependencies;
+}
 
 function parseDenoManifest(file: File): DenoManifest | undefined {
   try {
