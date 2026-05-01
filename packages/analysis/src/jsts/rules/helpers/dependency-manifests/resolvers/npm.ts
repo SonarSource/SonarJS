@@ -48,11 +48,11 @@ export const npmManifestResolver: ManifestResolver = {
       manifest = injectWorkspacePackages(manifest, parsedPnpmWorkspace);
       manifest = resolveCatalogReferences(manifest, parsedPnpmWorkspace);
     }
-    return [{ type: 'npm', getDependencies: wrapGetDependencies(manifest) }];
+    return [{ type: 'npm', getDependencies: buildDependencies(manifest) }];
   },
 };
 
-function wrapGetDependencies(packageJson: PackageJson): () => DependenciesList {
+function buildDependencies(packageJson: PackageJson): () => DependenciesList {
   const dependencies: DependenciesList = new Map();
   const fieldsToVisit = [
     'name',
@@ -64,13 +64,13 @@ function wrapGetDependencies(packageJson: PackageJson): () => DependenciesList {
     'workspaces',
   ] as const;
 
-  fieldsToVisit.forEach(field => {
+  for (const field of fieldsToVisit) {
     if (!packageJson[field]) {
-      return;
+      continue;
     }
     if (field === 'name') {
       addDependencies(dependencies, { [packageJson[field]]: '*' });
-      return;
+      continue;
     }
     if (field === 'workspaces') {
       addDependenciesArray(
@@ -79,10 +79,10 @@ function wrapGetDependencies(packageJson: PackageJson): () => DependenciesList {
           ? packageJson[field]
           : (packageJson[field]?.packages ?? []),
       );
-      return;
+      continue;
     }
     addDependencies(dependencies, packageJson[field] as PackageJson.Dependency);
-  });
+  }
 
   return () => dependencies;
 }

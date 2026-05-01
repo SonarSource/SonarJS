@@ -20,12 +20,6 @@ import { DependenciesList } from './resolvers/types.js';
 
 const DefinitelyTyped = '@types/';
 
-export type Dependency = {
-  name: string | Minimatch;
-  version?: string;
-  alias?: string;
-};
-
 export function addDependencies(
   result: DependenciesList,
   dependencies: PackageJson.Dependency,

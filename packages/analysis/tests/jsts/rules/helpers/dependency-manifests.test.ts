@@ -19,7 +19,6 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { normalizeToAbsolutePath } from '../../../../src/jsts/rules/helpers/files.js';
 import { getDependencyManifests } from '../../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
-import { parseImportMapSpecifier } from '../../../../src/jsts/rules/helpers/dependency-manifests/resolvers/deno.js';
 
 describe('package-json', () => {
   it('should handle arrays in package-jsons dependency versions', async () => {
@@ -47,70 +46,14 @@ describe('package-json', () => {
         ['noVersion', undefined],
         ['koa', 'not-a-semver'],
         ['invalidVersion', 'not-a-semver'],
+        ['@scope/subpkg', '1.0.0'],
+        ['scopedSubpathAlias', '1.0.0'],
+        ['@scope/noversion', undefined],
+        ['scopedNoVersionAlias', undefined],
+        ['cowsay', undefined],
+        ['emptyVersionAlias', undefined],
+        // 'invalidScoped' ("npm:@scope") is filtered out — not added to the map
       ]),
     );
-  });
-});
-
-describe('parseImportMapSpecifier', () => {
-  it('should parse unscoped package without version', () => {
-    expect(parseImportMapSpecifier('npm:chalk')).toEqual({
-      packageName: 'chalk',
-      version: undefined,
-    });
-  });
-
-  it('should parse unscoped package with version and subpath', () => {
-    expect(parseImportMapSpecifier('npm:lodash@^4.17.21/fp')).toEqual({
-      packageName: 'lodash',
-      version: '^4.17.21',
-    });
-  });
-
-  it('should parse scoped package with version and subpath', () => {
-    expect(parseImportMapSpecifier('npm:@scope/package@~2.0.0/feature')).toEqual({
-      packageName: '@scope/package',
-      version: '~2.0.0',
-    });
-  });
-
-  it('should parse scoped package with subpath and no version', () => {
-    expect(parseImportMapSpecifier('npm:@scope/package/utils')).toEqual({
-      packageName: '@scope/package',
-      version: undefined,
-    });
-  });
-
-  it('should return undefined for missing scheme separator', () => {
-    expect(parseImportMapSpecifier('react@19')).toBeUndefined();
-  });
-
-  it('should return undefined for empty specifier', () => {
-    expect(parseImportMapSpecifier('npm:')).toBeUndefined();
-  });
-
-  it('should return undefined for non-npm package specifiers', () => {
-    expect(parseImportMapSpecifier('jsr:@std/assert@^1.0.0')).toBeUndefined();
-  });
-
-  it('should return undefined for URL targets', () => {
-    expect(parseImportMapSpecifier('https://deno.land/x/case/mod.ts')).toBeUndefined();
-  });
-
-  it('should return undefined for invalid scoped package format', () => {
-    expect(parseImportMapSpecifier('npm:@scope')).toBeUndefined();
-  });
-
-  it('should return package without version when version is empty', () => {
-    expect(parseImportMapSpecifier('npm:react@')).toEqual({
-      packageName: 'react',
-      version: undefined,
-    });
-  });
-  it('should return package without version when version is empty before path', () => {
-    expect(parseImportMapSpecifier('npm:react@/jsx-runtime')).toEqual({
-      packageName: 'react',
-      version: undefined,
-    });
   });
 });

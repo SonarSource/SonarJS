@@ -38,18 +38,18 @@ export const denoManifestResolver: ManifestResolver = {
     const denoJsonc = getManifestFileInDir(DENO_JSONC, dir, topDir, fileSystem);
     if (denoJsonc && denoJson === undefined) {
       return [
-        { type: 'deno', getDependencies: wrapGetDependencies(parseDenoManifest(denoJsonc) ?? {}) },
+        { type: 'deno', getDependencies: buildDependencies(parseDenoManifest(denoJsonc) ?? {}) },
       ];
     } else if (denoJson) {
       return [
-        { type: 'deno', getDependencies: wrapGetDependencies(parseDenoManifest(denoJson) ?? {}) },
+        { type: 'deno', getDependencies: buildDependencies(parseDenoManifest(denoJson) ?? {}) },
       ];
     }
     return [];
   },
 };
 
-function wrapGetDependencies(manifest: DenoManifest): () => DependenciesList {
+function buildDependencies(manifest: DenoManifest): () => DependenciesList {
   const dependencies: DependenciesList = new Map();
 
   if (manifest.imports && typeof manifest.imports === 'object') {
@@ -105,7 +105,7 @@ const DENO_NPM_IMPORT_PATTERN = /^(@[^/]*\/[^/@]*|[^/@]+)(?:@([^/]*))?(?:\/.*)?$
  * Parses an import map URL Specifier matching Deno npm format:
  * npm:<package>[@<version>][/<path>]
  */
-export function parseImportMapSpecifier(value: string): ImportMapSpecifier | undefined {
+function parseImportMapSpecifier(value: string): ImportMapSpecifier | undefined {
   // currently only handle npm: specifiers since rules are focused on NPM dependencies
   if (!value.startsWith('npm:')) {
     return undefined;
