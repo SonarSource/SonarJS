@@ -82,6 +82,7 @@ public class JsTsChecks {
    * analyze-project gRPC contract against the Go sidecar.
    */
   static final Set<String> TSGOLINT_RULES = Set.of(
+    "S131", // switch-exhaustiveness-check with Sonar defaults/decorator on Go side
     "S4123", // await-thenable
     "S2933", // prefer-readonly
     "S4157", // no-unnecessary-type-arguments

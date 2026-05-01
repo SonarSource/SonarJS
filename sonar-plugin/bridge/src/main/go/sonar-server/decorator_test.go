@@ -337,6 +337,27 @@ func TestRequestedRuleConfigsExpandS6544AndMergeDefaults(t *testing.T) {
 	}
 }
 
+func TestRequestedRuleConfigsMergeS131Defaults(t *testing.T) {
+	t.Parallel()
+
+	requested := requestedRuleConfigs([]*pb.JsTsRule{{Key: "S131"}})
+	config, ok := requested["switch-exhaustiveness-check"]
+	if !ok {
+		t.Fatal("expected S131 to request switch-exhaustiveness-check")
+	}
+
+	options, ok := config.Options.(map[string]any)
+	if !ok {
+		t.Fatalf("expected S131 options to be a map, got %#v", config.Options)
+	}
+	if options["considerDefaultExhaustiveForUnions"] != true {
+		t.Fatalf("expected considerDefaultExhaustiveForUnions=true, got %#v", options["considerDefaultExhaustiveForUnions"])
+	}
+	if options["requireDefaultForNonUnion"] != true {
+		t.Fatalf("expected requireDefaultForNonUnion=true, got %#v", options["requireDefaultForNonUnion"])
+	}
+}
+
 func TestS6544DefaultOptionsSuppressVoidReturnArguments(t *testing.T) {
 	t.Parallel()
 
@@ -494,6 +515,60 @@ func TestPreferNullishCoalescingDecoratorSuppressesOnlyTheNoStrictDiagnostic(t *
 	}
 	if diagnostics[0].Message.Id == "noStrictNullCheck" {
 		t.Fatalf("expected noStrictNullCheck diagnostic to be suppressed, got %#v", diagnostics)
+	}
+}
+
+func TestS131DefaultOptionsRelocateMissingDefaultDiagnostic(t *testing.T) {
+	t.Parallel()
+
+	code := "switch (value) {\n  case 0:\n    break;\n}"
+	diagnostics := runNamedRuleOnCode(
+		t,
+		"switch-exhaustiveness-check",
+		optionsForRequestedRule(&pb.JsTsRule{Key: "S131"}),
+		"file.ts",
+		code,
+		"tsconfig.minimal.json",
+		"",
+	)
+
+	if len(diagnostics) != 1 {
+		t.Fatalf("expected one diagnostic, got %#v", diagnostics)
+	}
+	if diagnostics[0].Message.Id != "switchDefault" {
+		t.Fatalf("expected switchDefault message id, got %#v", diagnostics[0].Message)
+	}
+	if diagnostics[0].Message.Description != s131MissingDefaultDescription {
+		t.Fatalf("expected S131 missing-default message, got %#v", diagnostics[0].Message.Description)
+	}
+	if diagnostics[0].Range.Pos() != 0 {
+		t.Fatalf("expected diagnostic to start at the switch keyword, got %#v", diagnostics[0].Range)
+	}
+}
+
+func TestS131DefaultOptionsRelocateUnionDiagnosticToSwitchKeyword(t *testing.T) {
+	t.Parallel()
+
+	code := "type T = 'foo' | 'bar';\nconst value = 'foo' as T;\nswitch (value) {\n  case 'foo':\n    break;\n}"
+	diagnostics := runNamedRuleOnCode(
+		t,
+		"switch-exhaustiveness-check",
+		optionsForRequestedRule(&pb.JsTsRule{Key: "S131"}),
+		"file.ts",
+		code,
+		"tsconfig.minimal.json",
+		"",
+	)
+
+	if len(diagnostics) != 1 {
+		t.Fatalf("expected one diagnostic, got %#v", diagnostics)
+	}
+	if diagnostics[0].Message.Id != "switchIsNotExhaustive" {
+		t.Fatalf("expected switchIsNotExhaustive message id, got %#v", diagnostics[0].Message)
+	}
+	expectedPos := strings.Index(code, "switch")
+	if diagnostics[0].Range.Pos() != expectedPos {
+		t.Fatalf("expected diagnostic at switch keyword %d, got %#v", expectedPos, diagnostics[0].Range)
 	}
 }
 

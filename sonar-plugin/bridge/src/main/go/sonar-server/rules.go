@@ -15,6 +15,7 @@ import (
 	"github.com/typescript-eslint/tsgolint/internal/rules/prefer_readonly"
 	"github.com/typescript-eslint/tsgolint/internal/rules/prefer_return_this_type"
 	"github.com/typescript-eslint/tsgolint/internal/rules/prefer_string_starts_ends_with"
+	"github.com/typescript-eslint/tsgolint/internal/rules/switch_exhaustiveness_check"
 )
 
 // allRules contains the rules available in the sonar-server.
@@ -25,6 +26,7 @@ var ruleDecoratorsByName = map[string][]RuleDecorator{
 	"prefer-nullish-coalescing":      {PreferNullishCoalescingDecorator},
 	"prefer-optional-chain":          {PreferOptionalChainDecorator},
 	"prefer-string-starts-ends-with": {PreferStringStartsEndsWithDecorator},
+	"switch-exhaustiveness-check":    {SwitchExhaustivenessCheckDecorator},
 }
 
 var allRules = decorateRules([]rule.Rule{
@@ -41,11 +43,13 @@ var allRules = decorateRules([]rule.Rule{
 	prefer_optional_chain.PreferOptionalChainRule,
 	prefer_nullish_coalescing.PreferNullishCoalescingRule,
 	prefer_promise_reject_errors.PreferPromiseRejectErrorsRule,
+	switch_exhaustiveness_check.SwitchExhaustivenessCheckRule,
 	NoAsyncPromiseExecutorRule,
 	NoArrayDeleteRule,
 })
 
 var tsgolintRuleNameBySonarKey = map[string]string{
+	"S131":  "switch-exhaustiveness-check",
 	"S4123": "await-thenable",
 	"S2933": "prefer-readonly",
 	"S4157": "no-unnecessary-type-arguments",

@@ -263,6 +263,7 @@
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/prefer_nullish_coalescing_decorator.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/prefer_optional_chain_decorator.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/prefer_string_starts_ends_with_decorator.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/switch_exhaustiveness_check_decorator.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/decorator_test.go</argument>
               </arguments>
             </configuration>

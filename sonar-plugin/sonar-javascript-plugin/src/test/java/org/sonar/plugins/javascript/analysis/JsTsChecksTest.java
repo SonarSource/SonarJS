@@ -166,6 +166,7 @@ class JsTsChecksTest {
     JsTsChecks checks = new JsTsChecks(
       checkFactory(
         List.of(
+          RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S131"),
           RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S4123"),
           RuleKey.of(CheckList.TS_REPOSITORY_KEY, "S2870"),
           RuleKey.of("repo", "customcheck")
@@ -176,11 +177,11 @@ class JsTsChecksTest {
 
     assertThat(checks.enabledTsgolintRules())
       .extracting(EslintRule::getKey)
-      .containsExactlyInAnyOrder("S4123", "S2870");
+      .containsExactlyInAnyOrder("S131", "S4123", "S2870");
     assertThat(checks.enabledBridgeEslintRules())
       .extracting(EslintRule::getKey)
       .contains("customcheck")
-      .doesNotContain("S4123", "S2870");
+      .doesNotContain("S131", "S4123", "S2870");
   }
 
   @Test

@@ -14,6 +14,11 @@ var s6544DefaultOptions = map[string]any{
 	"ignoreIIFE": true,
 }
 
+var s131DefaultOptions = map[string]any{
+	"considerDefaultExhaustiveForUnions": true,
+	"requireDefaultForNonUnion":          true,
+}
+
 var s6606DefaultOptions = map[string]any{
 	allowNoStrictNullChecksOption:   true,
 	"ignoreConditionalTests":        true,
@@ -58,6 +63,8 @@ func optionsForRequestedRule(requestedRule *pb.JsTsRule) any {
 	}
 
 	switch requestedRule.GetKey() {
+	case "S131":
+		return mergeDefaultObjectOptions(s131DefaultOptions, options)
 	case "S6544":
 		return mergeDefaultObjectOptions(s6544DefaultOptions, options)
 	case "S6606":
