@@ -334,7 +334,7 @@ export function isBooleanTrueType(type: ts.Type) {
 }
 
 export function isBooleanType({ flags }: ts.Type) {
-  return flags & ts.TypeFlags.BooleanLike;
+  return (flags & ts.TypeFlags.BooleanLike) !== 0;
 }
 
 export function isNullOrUndefinedType({ flags }: ts.Type) {

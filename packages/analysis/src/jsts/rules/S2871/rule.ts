@@ -169,12 +169,6 @@ export const rule: Rule.RuleModule = {
       );
     }
 
-    // Matches arr.sort() or arr.toSorted() — no arguments, receiver is an array-like type.
-    // Does not match: arr.sort((a, b) => a - b), obj.sort() where obj is a user-defined type.
-    function isBareSort(node: estree.Node): boolean {
-      return getBareSortInfo(node) !== null;
-    }
-
     function getBareSortInfo(node: estree.Node): BareSortInfo | null {
       if (node.type !== 'CallExpression') {
         return null;
