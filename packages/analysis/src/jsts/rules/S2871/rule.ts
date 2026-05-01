@@ -41,6 +41,8 @@ type BareSortInfo = {
   receiver: estree.Node;
 };
 
+type SortNormalizationClass = 'entries' | 'primitive-array';
+
 // Matches JSON.stringify(<expr>) — exactly one argument, non-computed property access.
 // Does not match: JSON.stringify(x, replacer, space), JSON['stringify'](x), myObj.stringify(x).
 function isJsonStringifyCall(node: estree.Node): boolean {
@@ -141,8 +143,9 @@ export const rule: Rule.RuleModule = {
 
     // Matches JSON.stringify(arr.sort()) == JSON.stringify(arr.sort()) or
     // JSON.stringify(arr.toSorted()) == JSON.stringify(arr.toSorted()) when both
-    // sides use the same sort family over exact Object.entries(...) receivers or
-    // primitive arrays with known-safe default sort semantics.
+    // sides use the same sort family and the same allowed normalization class:
+    // exact Object.entries(...) receivers or primitive arrays with known-safe
+    // default sort semantics.
     function isJsonStringifySortComparison(call: estree.CallExpression): boolean {
       const parent = getNodeParent(call);
       if (!isJsonStringifyCall(parent) || (parent as estree.CallExpression).arguments[0] !== call) {
@@ -159,13 +162,17 @@ export const rule: Rule.RuleModule = {
 
       const callInfo = getBareSortInfo(call);
       const siblingInfo = getBareSortInfo((sibling as estree.CallExpression).arguments[0]);
+      if (callInfo === null || siblingInfo === null) {
+        return false;
+      }
+
+      const callNormalizationClass = getAllowedSortNormalizationClass(callInfo.receiver);
+      const siblingNormalizationClass = getAllowedSortNormalizationClass(siblingInfo.receiver);
 
       return (
-        callInfo !== null &&
-        siblingInfo !== null &&
         callInfo.methodName === siblingInfo.methodName &&
-        isAllowedSortNormalization(callInfo.receiver) &&
-        isAllowedSortNormalization(siblingInfo.receiver)
+        callNormalizationClass !== null &&
+        callNormalizationClass === siblingNormalizationClass
       );
     }
 
@@ -195,18 +202,24 @@ export const rule: Rule.RuleModule = {
       };
     }
 
-    function isAllowedSortNormalization(receiver: estree.Node): boolean {
+    function getAllowedSortNormalizationClass(
+      receiver: estree.Node,
+    ): SortNormalizationClass | null {
       if (isExactObjectEntriesCall(receiver)) {
-        return true;
+        return 'entries';
       }
 
       const receiverType = getTypeFromTreeNode(receiver, services);
-      return (
+      if (
         isNumberArray(receiverType, services) ||
         isBigIntArray(receiverType, services) ||
         isStringArray(receiverType, services) ||
         isBooleanArray(receiverType, services)
-      );
+      ) {
+        return 'primitive-array';
+      }
+
+      return null;
     }
 
     function getSuggestions(call: estree.CallExpression, type: ts.Type) {

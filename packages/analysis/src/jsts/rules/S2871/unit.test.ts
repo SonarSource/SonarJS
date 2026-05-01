@@ -430,6 +430,11 @@ describe('S2871', () => {
             code: `function f(a: number[], b: number[]) { return JSON.stringify(a.sort()) === JSON.stringify(b.toSorted()); }`,
             errors: 2,
           },
+          // mixed normalization classes are not suppressed
+          {
+            code: `function f(a: Record<string, unknown>, b: string[]) { return JSON.stringify(Object.entries(a).sort()) === JSON.stringify(b.sort()); }`,
+            errors: 2,
+          },
           {
             code: `function f(a: { a: number }[], b: { a: number }[]) { return JSON.stringify(a.sort()) === JSON.stringify(b.sort()); }`,
             errors: 2,
@@ -837,6 +842,11 @@ describe('S2871', () => {
           {
             code: `function f(a: number[], b: { toSorted(): number[] }) { return JSON.stringify(a.toSorted()) === JSON.stringify(b.toSorted()); }`,
             errors: 1,
+          },
+          // mixed normalization classes are not suppressed
+          {
+            code: `function f(a: Record<string, unknown>, b: string[]) { return JSON.stringify(Object.entries(a).toSorted()) === JSON.stringify(b.toSorted()); }`,
+            errors: 2,
           },
           {
             code: `function f(a: { a: number }[], b: { a: number }[]) { return JSON.stringify(a.toSorted()) === JSON.stringify(b.toSorted()); }`,
