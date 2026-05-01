@@ -122,6 +122,15 @@ export function getComponentVariable(
 }
 
 function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
+  const parent = getNodeParent(componentNode);
+  if (
+    (componentNode.type === 'ClassExpression' || componentNode.type === 'FunctionExpression') &&
+    parent?.type === 'VariableDeclarator' &&
+    parent.id.type === 'Identifier'
+  ) {
+    return parent.id;
+  }
+
   if (
     (componentNode.type === 'ClassDeclaration' ||
       componentNode.type === 'FunctionDeclaration' ||
@@ -132,7 +141,6 @@ function getComponentIdentifier(componentNode: estree.Node): estree.Identifier |
     return componentNode.id;
   }
 
-  const parent = getNodeParent(componentNode);
   return parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier'
     ? parent.id
     : undefined;

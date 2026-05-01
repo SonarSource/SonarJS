@@ -210,6 +210,26 @@ track((props: DecoratorFactoryProps) => ({
           filename: fixtureFile,
         },
         {
+          // FP: decorator-factory callback uses outer binding of named function expression
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface NamedExpressionProps {
+  label: string;
+  contextModule: string;
+}
+const WrappedComponent = function InnerWrappedComponent(props: NamedExpressionProps) {
+  return <div>{props.label}</div>;
+};
+track((props: NamedExpressionProps) => ({
+  context_module: props.contextModule,
+}))(WrappedComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: decorator callback forwards typed props
           code: `
 declare const React: any;
