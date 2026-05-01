@@ -181,19 +181,25 @@ function getVersionSignalFromManifests(
   dependencyName: string,
   fallbackSignal?: (packageJson: PackageJson) => string | null,
 ): string | null {
-  const dependenciesList = getDependencies(
-    normalizeToAbsolutePath(baseDir),
-    normalizeToAbsolutePath(baseDir),
-  );
-
-  // TODO: REVIEW TYPE STRIPPING
+  // Only look at npm manifests: Deno `npm:` imports are download aliases and don't carry
+  // meaningful version signals for the project's actual npm dependency resolution.
   const DEFINITELY_TYPED = '@types/';
   const lookupKey = dependencyName.startsWith(DEFINITELY_TYPED)
     ? dependencyName.substring(DEFINITELY_TYPED.length)
     : dependencyName;
-  const dependencyVersion = dependenciesList.get(lookupKey) ?? null;
-  if (isValidDependencySignal(dependencyVersion)) {
-    return dependencyVersion;
+
+  for (const manifest of getDependencyManifests(
+    normalizeToAbsolutePath(baseDir),
+    normalizeToAbsolutePath(baseDir),
+    fs,
+  )) {
+    if (manifest.type !== 'npm') {
+      continue;
+    }
+    const version = manifest.getDependencies().get(lookupKey) ?? null;
+    if (isValidDependencySignal(version)) {
+      return version;
+    }
   }
 
   if (fallbackSignal) {
