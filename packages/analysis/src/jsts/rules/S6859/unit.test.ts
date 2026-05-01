@@ -86,6 +86,12 @@ describe('S6859', () => {
           output: `import { helper } from "../../../@utils/date";`,
         },
         {
+          code: `import foo from '/@';`,
+          filename,
+          errors: 1,
+          output: `import foo from "../../../@";`,
+        },
+        {
           code: `import { helper } from '/~/utils/date';`,
           filename,
           errors: 1,

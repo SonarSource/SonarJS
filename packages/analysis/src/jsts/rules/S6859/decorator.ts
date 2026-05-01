@@ -57,6 +57,10 @@ function isBuildToolRootAlias(node: estree.Literal): boolean {
     return false;
   }
 
-  const firstSegment = importPath.slice(1).split('/')[0];
+  const [firstSegment, secondSegment] = importPath.slice(1).split('/');
+  if (secondSegment === undefined) {
+    return false;
+  }
+
   return buildToolRootAliases.has(firstSegment);
 }
