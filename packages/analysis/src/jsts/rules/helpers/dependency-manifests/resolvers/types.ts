@@ -30,7 +30,7 @@ export type DenoManifest = {
 
 export interface DependencyManifest {
   readonly type: 'npm' | 'deno';
-  getDependencies: () => Map<string | Minimatch, string | undefined>;
+  getDependencies: () => DependenciesList;
 }
 
 /**

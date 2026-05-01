@@ -16,15 +16,20 @@
  */
 import ts from 'typescript';
 import {
-  type ManifestResolver,
-  type DependencyManifest,
   type DenoManifest,
   DependenciesList,
+  type DependencyManifest,
+  type ManifestResolver,
 } from './types.js';
 import { type File, stripBOM } from '../../files.js';
 import { DENO_JSON, DENO_JSONC } from '../index.js';
 import { getManifestFileInDir } from './helpers.js';
-import { addDependenciesArray, addDependency, parseImportMapSpecifier } from '../parse.js';
+import { addDependenciesArray, addDependency } from '../parse.js';
+
+type ImportMapSpecifier = {
+  packageName: string;
+  version?: string;
+};
 
 export const denoManifestResolver: ManifestResolver = {
   resolve(dir, topDir, fileSystem): DependencyManifest[] {
@@ -88,4 +93,32 @@ function parseDenoManifest(file: File): DenoManifest | undefined {
     console.debug(`Error parsing deno manifest ${file.path}: ${error}`);
     return;
   }
+}
+
+// Captures `npm:` payload as: package name (scoped or unscoped), optional version, optional ignored subpath.
+// Examples:
+// npm:cowsay@^1.6.0
+// npm:@scopename/mypackage@~11.1.0
+const DENO_NPM_IMPORT_PATTERN = /^(@[^/]*\/[^/@]*|[^/@]+)(?:@([^/]*))?(?:\/.*)?$/;
+
+/**
+ * Parses an import map URL Specifier matching Deno npm format:
+ * npm:<package>[@<version>][/<path>]
+ */
+export function parseImportMapSpecifier(value: string): ImportMapSpecifier | undefined {
+  // currently only handle npm: specifiers since rules are focused on NPM dependencies
+  if (!value.startsWith('npm:')) {
+    return undefined;
+  }
+
+  const match = DENO_NPM_IMPORT_PATTERN.exec(value.slice('npm:'.length));
+  if (!match) {
+    return undefined;
+  }
+
+  const [, packageName, version] = match;
+  return {
+    packageName,
+    version: version || undefined,
+  };
 }
