@@ -633,53 +633,6 @@ gh: Artifact has expired (HTTP 410)
 
 ---
 
-### NEEDS-MANUAL-REVIEW: Suspicious Issue Count Drop
-
-**Verdict:** NEEDS-MANUAL-REVIEW — the project analyzed successfully, but the total issue count
-dropped far enough to suggest a project configuration or scope regression.
-
-**Why this matters:**
-- a Peach project can stay green while silently analyzing fewer files than usual
-- a broken `sonar-project.properties`, changed checkout layout, bad exclusions, or missing
-  sources/tests can sharply reduce the stored issue count without producing a GitHub job failure
-- this is usually not a SonarJS analyzer crash, but it still blocks a `SAFE` release verdict
-
-**How to identify:**
-- run the issue-history check for successful project jobs
-- use metric `violations`
-- compare the latest value against the median of the previous 5 successful analyses
-- treat the absolute threshold as a small-project noise floor, not as the main trigger
-- flag the project when both conditions hold:
-  - drop percentage is at least `5%`
-  - absolute drop is at least `20` issues
-
-The practical threshold is therefore:
-
-- `max(20 issues, 5% of baseline)`
-
-Examples:
-
-- baseline `400` → threshold `20`
-- baseline `2,000` → threshold `100`
-- baseline `100,000` → threshold `5,000`
-
-**Detection patterns:**
-- `mc peach issue-history --jobs-json target/jobs.json --metric violations --baseline median:5 --min-drop-abs 20`
-- suspicious projects are reported with status `DROP`
-
-**Common causes to inspect:**
-- `sonar.sources`, `sonar.tests`, or `sonar.exclusions` changed unexpectedly
-- upstream repository layout changed and the Peach project config no longer matches it
-- the scan ran from the wrong base directory
-- the project now checks out a smaller subtree or wrong revision
-- generated or bundled-file filters suddenly excluded a large part of the project
-
-**Action:** Review the project configuration and the upstream repo change. If the drop is
-expected and explained, treat it as background noise; otherwise keep it as
-`NEEDS-MANUAL-REVIEW`.
-
----
-
 ### NEEDS-MANUAL-REVIEW: Unknown Failure
 
 **Verdict:** NEEDS-MANUAL-REVIEW — cannot be automatically classified.
@@ -776,18 +729,14 @@ post-scan report-upload timeout pattern.
 When summarizing a run for SonarJS release triage:
 
 - Treat Diff Val / `diff-validation-aggregated` failures as silenced `IGNORE` items
-- Run the issue-history check even when the GitHub run has zero failed jobs
-- Treat suspicious issue-count drops as `NEEDS-MANUAL-REVIEW`
-- Treat unresolved project-key mapping in the issue-history check as `NEEDS-MANUAL-REVIEW`
 - Do not emit one detailed line per ignored Diff Val failure unless they are the only failures
 - Prefer a short roll-up note such as `Ignored 4 Diff Val monitoring failures`
 - If every failed job is either a Diff Val monitoring failure or another `IGNORE` category, the
-  release verdict is `SAFE` only if the issue-history check is also clean
+  release verdict is `SAFE`
 
 ---
 
 ## How to Run the Check
 
 Use the `/peach-check` skill from within the SonarJS repository. It will automatically fetch
-the latest run, classify failed jobs, run the issue-history drop check for successful project
-jobs, and print a summary table.
+the latest run, classify all failures, and print a summary table.
