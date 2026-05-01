@@ -123,14 +123,10 @@ export function getComponentVariable(
 
 function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
   if (
-    (componentNode.type === 'ClassDeclaration' || componentNode.type === 'FunctionDeclaration') &&
-    componentNode.id
-  ) {
-    return componentNode.id;
-  }
-
-  if (
-    (componentNode.type === 'ClassExpression' || componentNode.type === 'FunctionExpression') &&
+    (componentNode.type === 'ClassDeclaration' ||
+      componentNode.type === 'FunctionDeclaration' ||
+      componentNode.type === 'ClassExpression' ||
+      componentNode.type === 'FunctionExpression') &&
     componentNode.id
   ) {
     return componentNode.id;
