@@ -1,5 +1,6 @@
 {
 "ant-design:components/affix/index.tsx": [
+201,
 274
 ],
 "ant-design:components/alert/__tests__/index.test.tsx": [
@@ -11,6 +12,8 @@
 27
 ],
 "ant-design:components/anchor/__tests__/Anchor.test.tsx": [
+35,
+40,
 61,
 78,
 79,
@@ -18,6 +21,8 @@
 228,
 317,
 533,
+540,
+603,
 734,
 736
 ],
@@ -61,7 +66,8 @@
 203
 ],
 "ant-design:components/date-picker/generatePicker/generateRangePicker.tsx": [
-47
+47,
+132
 ],
 "ant-design:components/date-picker/generatePicker/generateSinglePicker.tsx": [
 57
@@ -124,6 +130,12 @@
 "ant-design:components/layout/Sider.tsx": [
 122
 ],
+"ant-design:components/list/index.tsx": [
+74
+],
+"ant-design:components/locale-provider/LocaleReceiver.tsx": [
+63
+],
 "ant-design:components/mentions/index.tsx": [
 142
 ],
@@ -132,6 +144,12 @@
 ],
 "ant-design:components/popover/index.tsx": [
 37
+],
+"ant-design:components/progress/Line.tsx": [
+60
+],
+"ant-design:components/select/index.tsx": [
+139
 ],
 "ant-design:components/slider/SliderTooltip.tsx": [
 15
@@ -154,6 +172,7 @@
 174
 ],
 "ant-design:components/table/hooks/useSelection.tsx": [
+154,
 342
 ],
 "ant-design:components/tag/index.tsx": [
@@ -173,6 +192,9 @@
 282,
 284
 ],
+"ant-design:components/tree-select/index.tsx": [
+141
+],
 "ant-design:components/tree/DirectoryTree.tsx": [
 86
 ],
@@ -186,7 +208,12 @@
 "ant-design:components/upload/Upload.tsx": [
 102,
 126,
-148
+148,
+175,
+179
+],
+"ant-design:components/upload/UploadList/index.tsx": [
+73
 ],
 "ant-design:components/upload/utils.tsx": [
 57
