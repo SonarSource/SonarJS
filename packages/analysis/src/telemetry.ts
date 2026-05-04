@@ -17,7 +17,7 @@
 import { minVersion } from 'semver';
 import ts from 'typescript';
 import { getTypeScriptSignalsFromPackageJsonFiles } from './jsts/rules/helpers/dependency-manifests/dependencies.js';
-import type { ModuleType } from './jsts/rules/helpers/dependency-manifests/dependencies.js';
+import type { ModuleType } from './jsts/rules/helpers/dependency-manifests/resolvers/types.js';
 import { dependencyManifestStore } from './file-stores/index.js';
 
 const NOT_DETECTED = 'not-detected';
