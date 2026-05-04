@@ -230,7 +230,7 @@ track((props: NamedExpressionProps) => ({
           filename: fixtureFile,
         },
         {
-          // FP: class decorator callback uses props
+          // Compliant: upstream tracks class decorator member reads
           code: `
 declare const React: any;
 declare function track<P>(
@@ -254,7 +254,7 @@ class DecoratorAnnotationComponent extends React.Component<DecoratorAnnotationPr
           filename: fixtureFile,
         },
         {
-          // FP: decorator callback forwards typed props
+          // FP: decorator-factory callback forwards typed props
           code: `
 declare const React: any;
 declare function buildPayload<P>(props: P): Record<string, unknown>;
@@ -270,6 +270,29 @@ function DecoratorHelperComponent(props: DecoratorHelperProps) {
 screenTrack(function (props: DecoratorHelperProps) {
   return buildPayload(props);
 })(DecoratorHelperComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: class decorator callback forwards typed props
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function screenTrack<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAnnotationHelperProps {
+  screenName: string;
+}
+@screenTrack(function (props: DecoratorAnnotationHelperProps) {
+  return buildPayload(props);
+})
+class DecoratorAnnotationHelperComponent extends React.Component<DecoratorAnnotationHelperProps> {
+  props: DecoratorAnnotationHelperProps;
+  render() {
+    return <main />;
+  }
+}
 `,
           filename: fixtureFile,
         },

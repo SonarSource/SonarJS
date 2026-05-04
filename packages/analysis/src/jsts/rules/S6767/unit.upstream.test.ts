@@ -178,7 +178,7 @@ Wrapper.propTypes = {
     });
   });
 
-  it('upstream rule should report decorator-factory callback FP patterns', () => {
+  it('upstream rule should report decorator callback FP patterns', () => {
     const upstreamRule = rules['no-unused-prop-types'];
     const ruleTester = new RuleTester({
       parserOptions: {
@@ -188,7 +188,7 @@ Wrapper.propTypes = {
     });
     const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
 
-    ruleTester.run('no-unused-prop-types (upstream, decorator factory)', upstreamRule, {
+    ruleTester.run('no-unused-prop-types (upstream, decorator callbacks)', upstreamRule, {
       valid: [
         {
           // upstream tracks typed class decorator callback member reads
@@ -255,6 +255,30 @@ function DecoratorHelperComponent(props: DecoratorHelperProps) {
 screenTrack(function (props: DecoratorHelperProps) {
   return buildPayload(props);
 })(DecoratorHelperComponent);
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // class decorator callback whole-props forwarding
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function screenTrack<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAnnotationHelperProps {
+  screenName: string;
+}
+@screenTrack(function (props: DecoratorAnnotationHelperProps) {
+  return buildPayload(props);
+})
+class DecoratorAnnotationHelperComponent extends React.Component<DecoratorAnnotationHelperProps> {
+  props: DecoratorAnnotationHelperProps;
+  render() {
+    return <main />;
+  }
+}
 `,
           filename: fixtureFile,
           errors: 1,
