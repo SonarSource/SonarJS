@@ -26,7 +26,7 @@ describe('package-json', () => {
     const manifests = getDependencyManifests(currentDirectory, currentDirectory);
     const npmManifest = manifests.find(({ type }) => type === 'npm');
     expect(npmManifest?.type).toBe('npm');
-    expect(npmManifest?.getDependencies()).toEqual(new Map([['foo', 'file:bar']]));
+    expect(npmManifest?.dependencies).toEqual(new Map([['foo', 'file:bar']]));
   });
 
   it('should extract npm package dependencies from deno.json imports', () => {
@@ -34,7 +34,7 @@ describe('package-json', () => {
     const manifests = getDependencyManifests(currentDirectory, currentDirectory);
     const denoManifest = manifests.find(({ type }) => type === 'deno');
     expect(denoManifest?.type).toBe('deno');
-    expect(denoManifest?.getDependencies()).toEqual(
+    expect(denoManifest?.dependencies).toEqual(
       new Map([
         ['react', '^19.1.0'],
         ['reactAlias', '^19.1.0'],
