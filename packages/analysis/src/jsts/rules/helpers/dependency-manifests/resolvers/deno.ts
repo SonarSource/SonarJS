@@ -38,19 +38,13 @@ export const denoManifestResolver: ManifestResolver = {
     const denoJson = getManifestFileInDir(DENO_JSON, dir, topDir, fileSystem);
     const denoJsonc = getManifestFileInDir(DENO_JSONC, dir, topDir, fileSystem);
     const denoModuleType: ModuleType = 'module';
-    if (denoJsonc && denoJson === undefined) {
+    const effectiveDenoJson = denoJson ?? denoJsonc;
+
+    if (effectiveDenoJson) {
       return [
         {
           type: 'deno',
-          getDependencies: buildDependencies(parseDenoManifest(denoJsonc) ?? {}),
-          getModuleType: () => denoModuleType,
-        },
-      ];
-    } else if (denoJson) {
-      return [
-        {
-          type: 'deno',
-          getDependencies: buildDependencies(parseDenoManifest(denoJson) ?? {}),
+          getDependencies: buildDependencies(parseDenoManifest(effectiveDenoJson) ?? {}),
           getModuleType: () => denoModuleType,
         },
       ];
