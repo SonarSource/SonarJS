@@ -58,7 +58,7 @@ export const npmManifestResolver: ManifestResolver = {
       {
         type: 'npm',
         dependencies: buildDependencies(manifest),
-        moduleType: moduleType,
+        moduleType,
       },
     ];
   },
