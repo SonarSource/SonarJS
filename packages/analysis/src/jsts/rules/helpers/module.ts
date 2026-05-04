@@ -14,12 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule, Scope } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { type Node, getUniqueWriteReference, getVariableFromScope, isIdentifier } from './ast.js';
 import { getDependenciesSanitizePaths } from './dependency-manifests/dependencies.js';
-import { ComputedCache } from './cache.js';
 
 /**
  * Checks if the current file is an ES module based on sourceType.
@@ -39,8 +38,24 @@ export function getImportDeclarations(context: Rule.RuleContext): estree.ImportD
 }
 
 /**
- * Per-file cache mapping a SourceCode object to the set of all module names imported or required
- * in that file (via import declarations, require(), or dynamic import()).
+ * Cache for storing the set of all module names imported or required in the file currently being analyzed.
+ * This set is only needed while the current file is being analyzed.
+ *
+ * Keyed by the `sourceCode` object reference rather than a boolean flag so that the cache
+ * self-invalidates when ESLint's RuleTester switches between test cases (each case gets a fresh
+ * SourceCode instance).
+ */
+const CURRENT_FILE_DEPS: {
+  sourceCode: SourceCode | null;
+  deps: Set<string>;
+} = {
+  sourceCode: null,
+  deps: new Set(),
+};
+
+/**
+ * Compute the set of all module names imported or required
+ * in the file currently being analyzed (via import declarations, require(), or dynamic import()).
  *
  * Supported patterns:
  * import foo from 'lodash';
@@ -53,13 +68,18 @@ export function getImportDeclarations(context: Rule.RuleContext): estree.ImportD
  * require('lodash');
  * import('lodash').then(lodash => ...);
  */
-const importedModulesCache = new ComputedCache((sourceCode: Rule.RuleContext['sourceCode']) => {
-  const modules = new Set<string>();
+function computeCurrentFileDependencies(sourceCode: SourceCode): void {
+  if (CURRENT_FILE_DEPS.sourceCode === sourceCode) {
+    return;
+  }
+
+  CURRENT_FILE_DEPS.sourceCode = sourceCode;
+  CURRENT_FILE_DEPS.deps.clear();
 
   if (sourceCode.ast.sourceType === 'module') {
     for (const node of sourceCode.ast.body) {
       if (node.type === 'ImportDeclaration' && typeof node.source.value === 'string') {
-        modules.add(node.source.value);
+        CURRENT_FILE_DEPS.deps.add(node.source.value);
       }
     }
   }
@@ -71,15 +91,21 @@ const importedModulesCache = new ComputedCache((sourceCode: Rule.RuleContext['so
           const name =
             getRequireModuleName(def.node.init) ?? getDynamicImportModuleName(def.node.init);
           if (name !== undefined) {
-            modules.add(name);
+            CURRENT_FILE_DEPS.deps.add(name);
           }
         }
       }
     }
   }
+}
 
-  return modules;
-});
+/**
+ * Clears the caches related to the given source file
+ */
+export function clearFileCaches(): void {
+  CURRENT_FILE_DEPS.sourceCode = null;
+  CURRENT_FILE_DEPS.deps.clear();
+}
 
 function getRequireModuleName(node: estree.Node): string | undefined {
   const requireCall = getRequireCall(node);
@@ -126,8 +152,8 @@ export function importsModule(context: Rule.RuleContext, moduleNames: string[]):
   if (moduleNames.length === 0) {
     return false;
   }
-  const imported = importedModulesCache.get(context.sourceCode);
-  return moduleNames.some(name => imported.has(name));
+  computeCurrentFileDependencies(context.sourceCode);
+  return moduleNames.some(name => CURRENT_FILE_DEPS.deps.has(name));
 }
 
 /**
