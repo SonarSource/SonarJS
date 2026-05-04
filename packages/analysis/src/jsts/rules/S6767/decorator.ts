@@ -20,11 +20,17 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { JSXSpreadAttribute } from 'estree-jsx';
+import ts from 'typescript';
 import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import {
+  isRequiredParserServices,
+  type RequiredParserServices,
+} from '../helpers/parser-services.js';
 import { findComponentNode, getComponentVariable } from '../helpers/react.js';
+import { getTypeFromTreeNode } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 /** Composable pattern checkers — extend via Array.some() for future FP patterns. */
@@ -234,7 +240,7 @@ function hasDecoratorFactoryCallPropUsage(
       decoratorApplication.arguments[0] === reference.identifier &&
       decoratorApplication.callee.type === 'CallExpression' &&
       decoratorApplication.callee.arguments.some(argument =>
-        isPropsCallbackUsingProp(sourceCode, argument as estree.Node, propName),
+        isPropsCallbackUsingProp(sourceCode, componentNode, argument as estree.Node, propName),
       )
     );
   });
@@ -256,7 +262,7 @@ function hasDecoratorAnnotationPropUsage(
         return (
           expression.type === 'CallExpression' &&
           expression.arguments.some(argument =>
-            isPropsCallbackUsingProp(sourceCode, argument as estree.Node, propName),
+            isPropsCallbackUsingProp(sourceCode, componentNode, argument as estree.Node, propName),
           )
         );
       },
@@ -266,6 +272,7 @@ function hasDecoratorAnnotationPropUsage(
 
 function isPropsCallbackUsingProp(
   sourceCode: SourceCode,
+  componentNode: estree.Node,
   callbackNode: estree.Node,
   propName: string,
 ): boolean {
@@ -277,6 +284,9 @@ function isPropsCallbackUsingProp(
   if (!isIdentifier(firstParam)) {
     return false;
   }
+  if (!isSameDeclaredPropsType(sourceCode, componentNode, firstParam)) {
+    return false;
+  }
 
   const variable = sourceCode.getScope(callbackNode).set.get(firstParam.name);
   if (!variable) {
@@ -284,6 +294,94 @@ function isPropsCallbackUsingProp(
   }
 
   return variable.references.some(reference => isTrackedPropsReference(reference, propName));
+}
+
+function isSameDeclaredPropsType(
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+  callbackPropsParam: estree.Identifier,
+): boolean {
+  const services = sourceCode.parserServices;
+  if (!isRequiredParserServices(services)) {
+    return false;
+  }
+
+  const componentPropsType = getComponentPropsType(componentNode, services);
+  if (!componentPropsType || !hasSpecificTypeSymbol(componentPropsType)) {
+    return false;
+  }
+
+  const callbackPropsType = getTypeFromTreeNode(callbackPropsParam, services);
+  return (
+    hasSpecificTypeSymbol(callbackPropsType) &&
+    getTypeSymbol(callbackPropsType) === getTypeSymbol(componentPropsType)
+  );
+}
+
+function getComponentPropsType(
+  componentNode: estree.Node,
+  services: RequiredParserServices,
+): ts.Type | undefined {
+  const checker = services.program.getTypeChecker();
+  if (isFunctionNode(componentNode)) {
+    const firstParam = componentNode.params[0];
+    return firstParam ? getTypeFromTreeNode(firstParam, services) : undefined;
+  }
+
+  if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
+    return undefined;
+  }
+
+  const tsNode = services.esTreeNodeToTSNodeMap.get(
+    componentNode as TSESTree.Node,
+  ) as ts.ClassLikeDeclaration;
+  const declaredPropsType = getDeclaredClassPropsType(tsNode, checker);
+  if (declaredPropsType) {
+    return declaredPropsType;
+  }
+
+  if (!tsNode.name) {
+    return undefined;
+  }
+
+  const classSymbol = checker.getSymbolAtLocation(tsNode.name);
+  const propsSymbol = classSymbol
+    ? checker.getDeclaredTypeOfSymbol(classSymbol).getProperty('props')
+    : undefined;
+  return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
+}
+
+function getDeclaredClassPropsType(
+  classNode: ts.ClassLikeDeclaration,
+  checker: ts.TypeChecker,
+): ts.Type | undefined {
+  const extendsClause = classNode.heritageClauses?.find(
+    clause => clause.token === ts.SyntaxKind.ExtendsKeyword,
+  );
+  const reactSuperclass = extendsClause?.types.find(type => isReactComponentSuperclass(type));
+  const propsTypeNode = reactSuperclass?.typeArguments?.[0];
+  return propsTypeNode ? checker.getTypeAtLocation(propsTypeNode) : undefined;
+}
+
+function isReactComponentSuperclass(superclass: ts.ExpressionWithTypeArguments): boolean {
+  const expression = superclass.expression;
+  if (ts.isIdentifier(expression)) {
+    return expression.text === 'Component' || expression.text === 'PureComponent';
+  }
+  return (
+    ts.isPropertyAccessExpression(expression) &&
+    ts.isIdentifier(expression.expression) &&
+    expression.expression.text === 'React' &&
+    (expression.name.text === 'Component' || expression.name.text === 'PureComponent')
+  );
+}
+
+function hasSpecificTypeSymbol(type: ts.Type): boolean {
+  return (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) === 0 && !!getTypeSymbol(type);
+}
+
+function getTypeSymbol(type: ts.Type): ts.Symbol | undefined {
+  return type.aliasSymbol ?? type.symbol;
 }
 
 function isTrackedPropsReference(reference: Scope.Reference, propName: string): boolean {

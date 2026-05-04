@@ -19,37 +19,34 @@ import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/r
 import { describe, it } from 'node:test';
 
 describe('S6767', () => {
-  it('should not report props consumed through decorator-factory callbacks', () => {
+  it('should report decorator-factory callbacks without provable props', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
     ruleTester.run('no-unused-prop-types', rule, {
-      valid: [
+      valid: [],
+      invalid: [
         {
-          // FP: decorator-factory callback uses props
+          // TP: untyped decorator callback parameter might not be component props
           code: `
-function track(mapper) {
+function decorate(metadataMapper) {
   return function applyDecorator(target) {
     return target;
   };
 }
-function DecoratorFactoryJsComponent(props) {
-  return <div>{props.label}</div>;
+function DecoratedComponent(props) {
+  return <div />;
 }
-DecoratorFactoryJsComponent.propTypes = {
+DecoratedComponent.propTypes = {
   contextModule: PropTypes.string,
-  userId: PropTypes.string,
-  label: PropTypes.string,
 };
-track(function (props) {
+decorate(function (metadata) {
   return {
-    context_module: props.contextModule,
-    user_id: props.userId,
+    context_module: metadata.contextModule,
   };
-})(DecoratorFactoryJsComponent);
+})(DecoratedComponent);
 `,
+          errors: 1,
         },
-      ],
-      invalid: [
         {
           // TP: decorator factory receives no callback that can consume props
           code: `

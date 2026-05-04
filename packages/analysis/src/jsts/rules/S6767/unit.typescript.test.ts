@@ -459,6 +459,54 @@ function PlainComponent(props: PlainProps) {
           filename: fixtureFile,
           errors: 1,
         },
+        {
+          // TP: decorator callback parameter is not the component props type.
+          code: `
+declare const React: any;
+declare function decorate<TMetadata>(
+  mapper: (metadata: TMetadata) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratedProps {
+  contextModule: string;
+}
+interface Metadata {
+  contextModule: string;
+}
+function DecoratedComponent(props: DecoratedProps) {
+  return <div />;
+}
+decorate((metadata: Metadata) => ({
+  context_module: metadata.contextModule,
+}))(DecoratedComponent);
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: class decorator callback forwards metadata, not component props.
+          code: `
+declare const React: any;
+declare function buildPayload<TMetadata>(metadata: TMetadata): Record<string, unknown>;
+declare function decorate<TMetadata>(
+  mapper: (metadata: TMetadata) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratedProps {
+  contextModule: string;
+}
+interface Metadata {
+  contextModule: string;
+}
+@decorate((metadata: Metadata) => buildPayload(metadata))
+class DecoratedComponent extends React.Component<DecoratedProps> {
+  props: DecoratedProps;
+  render() {
+    return <div />;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
       ],
     });
   });
