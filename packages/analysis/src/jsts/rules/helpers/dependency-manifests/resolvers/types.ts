@@ -34,8 +34,8 @@ export type DenoManifest = {
 
 export interface DependencyManifest {
   readonly type: 'npm' | 'deno';
-  getDependencies: () => DependenciesList;
-  getModuleType: () => ModuleType | undefined;
+  readonly dependencies: DependenciesList;
+  readonly moduleType: ModuleType | undefined;
 }
 
 /**

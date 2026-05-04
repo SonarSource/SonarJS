@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
-import {
-  type DenoManifest,
+import type {
+  DenoManifest,
   DependenciesList,
-  type DependencyManifest,
-  type ManifestResolver,
-  type ModuleType,
+  DependencyManifest,
+  ManifestResolver,
+  ModuleType,
 } from './types.js';
 import { type File, stripBOM } from '../../files.js';
 import { DENO_JSON, DENO_JSONC } from '../index.js';
@@ -44,8 +44,8 @@ export const denoManifestResolver: ManifestResolver = {
       return [
         {
           type: 'deno',
-          getDependencies: buildDependencies(parseDenoManifest(effectiveDenoJson) ?? {}),
-          getModuleType: () => denoModuleType,
+          dependencies: buildDependencies(parseDenoManifest(effectiveDenoJson) ?? {}),
+          moduleType: denoModuleType,
         },
       ];
     }
@@ -53,7 +53,7 @@ export const denoManifestResolver: ManifestResolver = {
   },
 };
 
-function buildDependencies(manifest: DenoManifest): () => DependenciesList {
+function buildDependencies(manifest: DenoManifest): DependenciesList {
   const dependencies: DependenciesList = new Map();
 
   if (manifest.imports && typeof manifest.imports === 'object') {
@@ -80,7 +80,7 @@ function buildDependencies(manifest: DenoManifest): () => DependenciesList {
     addDependenciesArray(dependencies, manifest.workspace.members);
   }
 
-  return () => dependencies;
+  return dependencies;
 }
 
 function parseDenoManifest(file: File): DenoManifest | undefined {

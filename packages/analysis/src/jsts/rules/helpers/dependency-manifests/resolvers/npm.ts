@@ -57,14 +57,14 @@ export const npmManifestResolver: ManifestResolver = {
     return [
       {
         type: 'npm',
-        getDependencies: buildDependencies(manifest),
-        getModuleType: () => moduleType,
+        dependencies: buildDependencies(manifest),
+        moduleType: moduleType,
       },
     ];
   },
 };
 
-function buildDependencies(packageJson: PackageJson): () => DependenciesList {
+function buildDependencies(packageJson: PackageJson): DependenciesList {
   const dependencies: DependenciesList = new Map();
   const fieldsToVisit = [
     'name',
@@ -96,7 +96,7 @@ function buildDependencies(packageJson: PackageJson): () => DependenciesList {
     addDependencies(dependencies, packageJson[field] as PackageJson.Dependency);
   }
 
-  return () => dependencies;
+  return dependencies;
 }
 
 function parsePackageJson(file: File): PackageJson | undefined {

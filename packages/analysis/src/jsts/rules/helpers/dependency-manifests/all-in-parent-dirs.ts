@@ -115,9 +115,9 @@ export const getDependencyManifests = (
  */
 function logDuplicateDependenciesInManifests(manifests: DependencyManifest[]): void {
   const dependencyDefinitions = new Map<string, DependencyDefinition>();
-  for (const manifest of manifests) {
+  for (const { dependencies, type: manifestType } of manifests) {
     const dependenciesByNameInManifest = new Map<string, string | undefined>();
-    for (const [name, version] of manifest.getDependencies()) {
+    for (const [name, version] of dependencies) {
       if (typeof name !== 'string' || dependenciesByNameInManifest.has(name)) {
         continue;
       }
@@ -127,15 +127,12 @@ function logDuplicateDependenciesInManifests(manifests: DependencyManifest[]): v
       const firstDefinition = dependencyDefinitions.get(dependencyName);
       if (firstDefinition) {
         logDuplicateDependencyDefinition(dependencyName, firstDefinition, {
-          manifestType: manifest.type,
+          manifestType,
           version,
         });
         continue;
       }
-      dependencyDefinitions.set(dependencyName, {
-        manifestType: manifest.type,
-        version,
-      });
+      dependencyDefinitions.set(dependencyName, { manifestType, version });
     }
   }
 }

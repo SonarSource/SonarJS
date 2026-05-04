@@ -16,7 +16,7 @@
  */
 import { Minimatch } from 'minimatch';
 import type { PackageJson } from 'type-fest';
-import { DEFINITELY_TYPED, DependenciesList } from './resolvers/types.js';
+import { DEFINITELY_TYPED, type DependenciesList } from './resolvers/types.js';
 
 export function addDependencies(
   result: DependenciesList,
@@ -64,7 +64,6 @@ export function addDependency(
     );
   }
   if (alias) {
-    // TODO: REVIEW ALIAS ACCESS IN RULES
     // Also add the alias as a dependency, so it can be resolved in rules, for instance S4328
     result.set(alias, version);
   }

@@ -49,8 +49,12 @@ export const dependenciesCache = new ComputedCache(
       return result;
     }
 
-    for (const manifest of getDependencyManifests(closestDependencyManifestDir, topDir, fs)) {
-      for (const [name, version] of manifest.getDependencies()) {
+    for (const { dependencies } of getDependencyManifests(
+      closestDependencyManifestDir,
+      topDir,
+      fs,
+    )) {
+      for (const [name, version] of dependencies) {
         if (!result.has(name)) {
           result.set(name, version);
         }
@@ -71,7 +75,7 @@ export const moduleTypeCache = new ComputedCache(
       return undefined;
     }
     const [firstManifest] = getDependencyManifests(closestDependencyManifestDirName, topDir, fs);
-    return firstManifest?.getModuleType();
+    return firstManifest?.moduleType;
   },
 );
 
@@ -193,7 +197,7 @@ function getVersionSignalFromManifests(
     if (manifest.type !== 'npm') {
       continue;
     }
-    const version = manifest.getDependencies().get(lookupKey) ?? null;
+    const version = manifest.dependencies.get(lookupKey) ?? null;
     if (isValidDependencySignal(version)) {
       return version;
     }
