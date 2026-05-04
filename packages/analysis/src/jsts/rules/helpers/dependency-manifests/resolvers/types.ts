@@ -25,6 +25,8 @@ export type DependenciesList = Map<string | Minimatch, string | undefined>;
 
 export type ModuleType = 'module' | 'commonjs';
 
+export const DEFINITELY_TYPED = '@types/';
+
 export type DenoManifest = {
   imports?: ImportMap;
   workspace?: string[] | { members?: string[] };

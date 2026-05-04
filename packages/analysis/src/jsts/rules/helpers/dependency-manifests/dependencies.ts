@@ -28,7 +28,7 @@ import {
 } from '../files.js';
 import { getClosestDependencyManifestDir } from './closest.js';
 import { getDependencyManifests, getPackageJsonManifests } from './all-in-parent-dirs.js';
-import { DependenciesList, type ModuleType } from './resolvers/types.js';
+import { DEFINITELY_TYPED, DependenciesList, type ModuleType } from './resolvers/types.js';
 
 export type { ModuleType } from './resolvers/types.js';
 
@@ -183,7 +183,6 @@ function getVersionSignalFromManifests(
 ): string | null {
   // Only look at npm manifests: Deno `npm:` imports are download aliases and don't carry
   // meaningful version signals for the project's actual npm dependency resolution.
-  const DEFINITELY_TYPED = '@types/';
   const lookupKey = dependencyName.startsWith(DEFINITELY_TYPED)
     ? dependencyName.substring(DEFINITELY_TYPED.length)
     : dependencyName;

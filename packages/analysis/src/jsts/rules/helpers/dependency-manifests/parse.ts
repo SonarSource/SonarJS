@@ -16,9 +16,7 @@
  */
 import { Minimatch } from 'minimatch';
 import type { PackageJson } from 'type-fest';
-import { DependenciesList } from './resolvers/types.js';
-
-const DefinitelyTyped = '@types/';
+import { DEFINITELY_TYPED, DependenciesList } from './resolvers/types.js';
 
 export function addDependencies(
   result: DependenciesList,
@@ -59,8 +57,8 @@ export function addDependency(
     result.set(new Minimatch(dependency, { nocase: true, matchBase: true }), version);
   } else {
     result.set(
-      dependency.startsWith(DefinitelyTyped)
-        ? dependency.substring(DefinitelyTyped.length)
+      dependency.startsWith(DEFINITELY_TYPED)
+        ? dependency.substring(DEFINITELY_TYPED.length)
         : dependency,
       version,
     );
