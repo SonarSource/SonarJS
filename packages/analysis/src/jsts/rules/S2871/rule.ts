@@ -41,8 +41,6 @@ type BareSortInfo = {
   receiver: estree.Node;
 };
 
-type SortNormalizationClass = 'entries' | 'primitive-array';
-
 // Matches JSON.stringify(<expr>) — exactly one argument, non-computed property access.
 // Does not match: JSON.stringify(x, replacer, space), JSON['stringify'](x), myObj.stringify(x).
 function isJsonStringifyCall(node: estree.Node): boolean {
@@ -63,28 +61,6 @@ function isJsonStringifyCall(node: estree.Node): boolean {
     callee.object.name === 'JSON' &&
     callee.property.type === 'Identifier' &&
     callee.property.name === 'stringify'
-  );
-}
-
-// Matches Object.entries(<expr>) — exactly one argument, non-computed property access.
-// Example: Object.entries(a)
-// Does not match: Object.entries(a, b), Object['entries'](a), entries(a), myObject.entries(a).
-function isExactObjectEntriesCall(node: estree.Node): boolean {
-  if (node.type !== 'CallExpression') {
-    return false;
-  }
-  const callExpr = node as estree.CallExpression;
-  if (callExpr.arguments.length !== 1) {
-    return false;
-  }
-  const callee = callExpr.callee;
-  return (
-    callee.type === 'MemberExpression' &&
-    !callee.computed &&
-    callee.object.type === 'Identifier' &&
-    callee.object.name === 'Object' &&
-    callee.property.type === 'Identifier' &&
-    callee.property.name === 'entries'
   );
 }
 
@@ -143,9 +119,8 @@ export const rule: Rule.RuleModule = {
 
     // Matches JSON.stringify(arr.sort()) == JSON.stringify(arr.sort()) or
     // JSON.stringify(arr.toSorted()) == JSON.stringify(arr.toSorted()) when both
-    // sides use the same sort family and the same allowed normalization class:
-    // exact Object.entries(...) receivers or primitive arrays with known-safe
-    // default sort semantics.
+    // sides use the same sort family over primitive arrays with known-safe
+    // default sort semantics (number, string, boolean, bigint).
     function isJsonStringifySortComparison(call: estree.CallExpression): boolean {
       const parent = getNodeParent(call);
       if (!isJsonStringifyCall(parent) || (parent as estree.CallExpression).arguments[0] !== call) {
@@ -166,13 +141,10 @@ export const rule: Rule.RuleModule = {
         return false;
       }
 
-      const callNormalizationClass = getAllowedSortNormalizationClass(callInfo.receiver);
-      const siblingNormalizationClass = getAllowedSortNormalizationClass(siblingInfo.receiver);
-
       return (
         callInfo.methodName === siblingInfo.methodName &&
-        callNormalizationClass !== null &&
-        callNormalizationClass === siblingNormalizationClass
+        isPrimitiveSortReceiver(callInfo.receiver) &&
+        isPrimitiveSortReceiver(siblingInfo.receiver)
       );
     }
 
@@ -202,24 +174,14 @@ export const rule: Rule.RuleModule = {
       };
     }
 
-    function getAllowedSortNormalizationClass(
-      receiver: estree.Node,
-    ): SortNormalizationClass | null {
-      if (isExactObjectEntriesCall(receiver)) {
-        return 'entries';
-      }
-
+    function isPrimitiveSortReceiver(receiver: estree.Node): boolean {
       const receiverType = getTypeFromTreeNode(receiver, services);
-      if (
+      return (
         isNumberArray(receiverType, services) ||
         isBigIntArray(receiverType, services) ||
         isStringArray(receiverType, services) ||
         isBooleanArray(receiverType, services)
-      ) {
-        return 'primitive-array';
-      }
-
-      return null;
+      );
     }
 
     function getSuggestions(call: estree.CallExpression, type: ts.Type) {

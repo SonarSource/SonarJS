@@ -164,9 +164,6 @@ describe('S2871', () => {
           {
             code: `function f(a: bigint[], b: bigint[]) { return JSON.stringify(a.sort()) === JSON.stringify(b.sort()); }`,
           },
-          {
-            code: `function f(a: Record<string, unknown>, b: Record<string, unknown>) { return JSON.stringify(Object.entries(a).sort()) === JSON.stringify(Object.entries(b).sort()); }`,
-          },
         ],
         invalid: [
           {
@@ -430,7 +427,11 @@ describe('S2871', () => {
             code: `function f(a: number[], b: number[]) { return JSON.stringify(a.sort()) === JSON.stringify(b.toSorted()); }`,
             errors: 2,
           },
-          // mixed normalization classes are not suppressed
+          // Object.entries arrays are not suppressed: default sort uses string conversion and can collide
+          {
+            code: `function f(a: Record<string, unknown>, b: Record<string, unknown>) { return JSON.stringify(Object.entries(a).sort()) === JSON.stringify(Object.entries(b).sort()); }`,
+            errors: 2,
+          },
           {
             code: `function f(a: Record<string, unknown>, b: string[]) { return JSON.stringify(Object.entries(a).sort()) === JSON.stringify(b.sort()); }`,
             errors: 2,
@@ -587,9 +588,6 @@ describe('S2871', () => {
           },
           {
             code: `function f(a: bigint[], b: bigint[]) { return JSON.stringify(a.toSorted()) === JSON.stringify(b.toSorted()); }`,
-          },
-          {
-            code: `function f(a: Record<string, unknown>, b: Record<string, unknown>) { return JSON.stringify(Object.entries(a).toSorted()) === JSON.stringify(Object.entries(b).toSorted()); }`,
           },
         ],
         invalid: [
@@ -843,7 +841,11 @@ describe('S2871', () => {
             code: `function f(a: number[], b: { toSorted(): number[] }) { return JSON.stringify(a.toSorted()) === JSON.stringify(b.toSorted()); }`,
             errors: 1,
           },
-          // mixed normalization classes are not suppressed
+          // Object.entries arrays are not suppressed: default sort uses string conversion and can collide
+          {
+            code: `function f(a: Record<string, unknown>, b: Record<string, unknown>) { return JSON.stringify(Object.entries(a).toSorted()) === JSON.stringify(Object.entries(b).toSorted()); }`,
+            errors: 2,
+          },
           {
             code: `function f(a: Record<string, unknown>, b: string[]) { return JSON.stringify(Object.entries(a).toSorted()) === JSON.stringify(b.toSorted()); }`,
             errors: 2,
