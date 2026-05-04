@@ -118,7 +118,7 @@ function logDuplicateDependenciesInManifests(manifests: DependencyManifest[]): v
   for (const { dependencies, type: manifestType } of manifests) {
     const dependenciesByNameInManifest = new Map<string, string | undefined>();
     for (const [name, version] of dependencies) {
-      if (typeof name !== 'string' || dependenciesByNameInManifest.has(name)) {
+      if (typeof name !== 'string') {
         continue;
       }
       dependenciesByNameInManifest.set(name, version);
