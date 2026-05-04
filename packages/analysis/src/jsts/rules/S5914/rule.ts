@@ -105,7 +105,7 @@ const UNARY_OPERATORS_PRESERVING_CONSTNESS = new Set<estree.UnaryOperator>([
   'typeof',
 ]);
 
-export function isConstantPrimitiveValue(
+function isConstantPrimitiveValue(
   context: Rule.RuleContext,
   node: estree.Node,
   visited?: Set<Scope.Variable>,

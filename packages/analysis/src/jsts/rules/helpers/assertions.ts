@@ -31,7 +31,7 @@ const CHAI_LIKE_GLOBAL_MODULES = [
 ];
 const NODE_ASSERT_MODULES = ['assert', 'node:assert', 'assert/strict', 'node:assert/strict'];
 
-export type AssertionPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
+type AssertionPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
 
 /**
  * Cross-framework representation of a test assertion
@@ -50,7 +50,7 @@ type AssertionBase = {
  * Node.js: `assert.ok(value)`, `assert.strictEqual(value, null)`, ...
  * chai: `assert.ok(value)`, `assert.isNull(value)`, ...
  */
-export type PredicateAssertion = AssertionBase & {
+type PredicateAssertion = AssertionBase & {
   kind: 'predicate';
   predicate: AssertionPredicate;
   actual: estree.Node;
@@ -62,7 +62,7 @@ export type PredicateAssertion = AssertionBase & {
  * Node.js: `assert.strictEqual(value, value)`
  * chai: `assert.strictEqual(value, value)`, `expect(value).toEqual(value)`, `value.should.equal(value)`, ...
  */
-export type ComparisonAssertion = AssertionBase & {
+type ComparisonAssertion = AssertionBase & {
   kind: 'comparison';
   comparison: 'identity';
   actual: estree.Node;
