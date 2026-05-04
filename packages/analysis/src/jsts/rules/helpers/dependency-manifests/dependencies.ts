@@ -28,9 +28,7 @@ import {
 } from '../files.js';
 import { getClosestDependencyManifestDir } from './closest.js';
 import { getDependencyManifests, getPackageJsonManifests } from './all-in-parent-dirs.js';
-import { DEFINITELY_TYPED, DependenciesList, type ModuleType } from './resolvers/types.js';
-
-export type { ModuleType } from './resolvers/types.js';
+import { DEFINITELY_TYPED, type DependenciesList, type ModuleType } from './resolvers/types.js';
 
 const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
   '.mjs': 'module',

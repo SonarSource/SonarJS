@@ -16,10 +16,10 @@
  */
 import type { PackageJson } from 'type-fest';
 import yaml from 'yaml';
-import {
-  type ManifestResolver,
-  type DependencyManifest,
-  type ModuleType,
+import type {
+  ManifestResolver,
+  DependencyManifest,
+  ModuleType,
   DependenciesList,
 } from './types.js';
 import { type File, stripBOM } from '../../files.js';
