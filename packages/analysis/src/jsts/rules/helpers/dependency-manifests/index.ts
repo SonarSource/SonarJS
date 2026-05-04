@@ -24,6 +24,7 @@ import { basename } from 'node:path/posix';
 export const PACKAGE_JSON = 'package.json';
 export const DENO_JSON = 'deno.json';
 export const DENO_JSONC = 'deno.jsonc';
+export const PNPM_WORKSPACE_YAML = 'pnpm-workspace.yaml';
 export const DEPENDENCY_MANIFESTS = [DENO_JSON, DENO_JSONC, PACKAGE_JSON] as const;
 type DependencyManifestName = (typeof DEPENDENCY_MANIFESTS)[number];
 
@@ -75,6 +76,7 @@ export function clearDependenciesCache(): void {
     closestPatternCache.get(manifestName).clear();
     patternInParentsCache.get(manifestName).clear();
   }
+  closestPatternCache.get(PNPM_WORKSPACE_YAML).clear();
   MinimatchCache.clear();
 }
 
