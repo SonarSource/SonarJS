@@ -132,7 +132,7 @@ export function getReactVersion(context: Rule.RuleContext): string | null {
   const dir = dirnamePath(normalizeToAbsolutePath(context.filename));
   const dependencies = getDependencies(dir, normalizeToAbsolutePath(context.cwd));
   const reactVersion = dependencies.get('react');
-
+  // Deno npm: imports reflect the actual runtime version and are intentionally included here, unlike the TypeScript/Node.js version signals
   if (!reactVersion) {
     return null;
   }
