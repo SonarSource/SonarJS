@@ -54,7 +54,7 @@ type CancellationRequest = {
   type: 'on-cancel-analysis';
 };
 
-export type SerializedError = {
+type SerializedError = {
   code: ErrorCode;
   message: string;
   stack?: string;

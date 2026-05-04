@@ -221,6 +221,25 @@ export function isFunctionNode(node: estree.Node): node is FunctionNodeType {
   return FUNCTION_NODES.includes(node.type);
 }
 
+/**
+ * Returns whether a node shares its start or end line with an enclosing
+ * template literal.
+ */
+export function isOnEnclosingTemplateDelimiterLine(node: TSESTree.Node) {
+  if (!node.loc) {
+    return false;
+  }
+
+  const enclosingTemplate = findFirstMatchingAncestor(
+    node,
+    ancestor => ancestor.type === 'TemplateLiteral',
+  );
+  return (
+    node.loc.start.line === enclosingTemplate?.loc?.start.line ||
+    node.loc.end.line === enclosingTemplate?.loc?.end.line
+  );
+}
+
 // we have similar function in eslint-plugin-sonarjs, however this one accepts null
 // eventually we should update eslint-plugin-sonarjs
 export function isLiteral(n: estree.Node | null): n is estree.Literal {

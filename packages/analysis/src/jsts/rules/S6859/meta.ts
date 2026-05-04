@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export const implementation = 'external';
+export const implementation = 'decorated';
 export const eslintId = 'no-absolute-path';
-export const externalPlugin = 'import';
+export const externalRules = [{ externalPlugin: 'import', externalRule: 'no-absolute-path' }];
 export const quickFixMessage = 'Replace with a relative path';

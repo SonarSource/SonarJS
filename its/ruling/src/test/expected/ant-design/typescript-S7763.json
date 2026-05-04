@@ -2,31 +2,15 @@
 "ant-design:components/_util/styleChecker.tsx": [
 6
 ],
-"ant-design:components/_util/warning.ts": [
-3
-],
 "ant-design:components/calendar/index.tsx": [
 7
-],
-"ant-design:components/cascader/index.tsx": [
-35,
-35
 ],
 "ant-design:components/col/index.tsx": [
 3,
 3,
 5
 ],
-"ant-design:components/config-provider/index.tsx": [
-28,
-29,
-30,
-31,
-32,
-33
-],
 "ant-design:components/form/Form.tsx": [
-152,
 152,
 152
 ],
@@ -42,36 +26,19 @@
 51,
 52
 ],
-"ant-design:components/image/index.tsx": [
-54
-],
-"ant-design:components/input/Input.tsx": [
-21
-],
 "ant-design:components/menu/index.tsx": [
 25,
-25,
 25
-],
-"ant-design:components/pagination/Pagination.tsx": [
-29
 ],
 "ant-design:components/row/index.tsx": [
 3,
 4
 ],
 "ant-design:components/select/index.tsx": [
-25,
-25,
-25,
 25
 ],
 "ant-design:components/statistic/index.tsx": [
 6
-],
-"ant-design:components/table/Table.tsx": [
-53,
-53
 ],
 "ant-design:components/table/index.tsx": [
 5,
@@ -85,13 +52,6 @@
 18
 ],
 "ant-design:components/tooltip/index.tsx": [
-15,
 15
-],
-"ant-design:components/tree-select/index.tsx": [
-243
-],
-"ant-design:components/upload/Upload.tsx": [
-25
 ]
 }

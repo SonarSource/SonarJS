@@ -73,8 +73,8 @@ The "Ruling Test" is an integration test which launches the analysis of a large 
 npm run ruling
 ```
 
-You can copy the files with the actual issues located at `packages/ruling/actual/`
-into the directory with the expected issues `its/ruling/src/test/resources/expected/`.
+The generated issues are written under `packages/ruling/actual/<project>/`.
+The expected issues are stored under `its/ruling/src/test/expected/<project>/`.
 
 From the project root, run: `npm run ruling-sync`
 

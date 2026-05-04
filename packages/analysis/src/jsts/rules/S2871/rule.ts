@@ -19,17 +19,50 @@
 import type { Rule } from 'eslint';
 import type ts from 'typescript';
 import type estree from 'estree';
+import { getNodeParent } from '../helpers/ancestor.js';
 import { copyingSortLike, sortLike } from '../helpers/collection.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
   getTypeFromTreeNode,
   isArrayLikeType,
   isBigIntArray,
+  isBooleanArray,
   isNumberArray,
   isStringArray,
 } from '../helpers/type.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
+
+const allSortLike = new Set([...sortLike, ...copyingSortLike]);
+const equalityOperators = new Set(['==', '!=', '===', '!==']);
+
+type BareSortInfo = {
+  methodName: string;
+  receiver: estree.Node;
+};
+
+// Matches JSON.stringify(<expr>) — exactly one argument, non-computed property access.
+// Does not match: JSON.stringify(x, replacer, space), JSON['stringify'](x), myObj.stringify(x).
+function isJsonStringifyCall(node: estree.Node): boolean {
+  if (node.type !== 'CallExpression') {
+    return false;
+  }
+  const callExpr = node as estree.CallExpression;
+  if (callExpr.arguments.length !== 1) {
+    return false;
+  }
+  const callee = callExpr.callee;
+  if (callee.type !== 'MemberExpression') {
+    return false;
+  }
+  return (
+    !callee.computed &&
+    callee.object.type === 'Identifier' &&
+    callee.object.name === 'JSON' &&
+    callee.property.type === 'Identifier' &&
+    callee.property.name === 'stringify'
+  );
+}
 
 const compareNumberFunctionPlaceholder = '(a, b) => (a - b)';
 const compareBigIntFunctionPlaceholder = [
@@ -73,13 +106,83 @@ export const rule: Rule.RuleModule = {
         const text = sourceCode.getText(node);
         const type = getTypeFromTreeNode(object, services);
 
-        if ([...sortLike, ...copyingSortLike].includes(text) && isArrayLikeType(type, services)) {
+        if (allSortLike.has(text) && isArrayLikeType(type, services)) {
+          if (isJsonStringifySortComparison(call)) {
+            return;
+          }
           const suggest = getSuggestions(call, type);
           const messageId = getMessageId(type);
           context.report({ node, suggest, messageId });
         }
       },
     };
+
+    // Matches JSON.stringify(arr.sort()) == JSON.stringify(arr.sort()) or
+    // JSON.stringify(arr.toSorted()) == JSON.stringify(arr.toSorted()) when both
+    // sides use the same sort family over primitive arrays with known-safe
+    // default sort semantics (number, string, boolean, bigint).
+    function isJsonStringifySortComparison(call: estree.CallExpression): boolean {
+      const parent = getNodeParent(call);
+      if (!isJsonStringifyCall(parent) || (parent as estree.CallExpression).arguments[0] !== call) {
+        return false;
+      }
+      const grandparent = getNodeParent(parent);
+      if (grandparent.type !== 'BinaryExpression' || !equalityOperators.has(grandparent.operator)) {
+        return false;
+      }
+      const sibling = grandparent.left === parent ? grandparent.right : grandparent.left;
+      if (!isJsonStringifyCall(sibling)) {
+        return false;
+      }
+
+      const callInfo = getBareSortInfo(call);
+      const siblingInfo = getBareSortInfo((sibling as estree.CallExpression).arguments[0]);
+      if (callInfo === null || siblingInfo === null) {
+        return false;
+      }
+
+      return (
+        callInfo.methodName === siblingInfo.methodName &&
+        isPrimitiveSortReceiver(callInfo.receiver) &&
+        isPrimitiveSortReceiver(siblingInfo.receiver)
+      );
+    }
+
+    function getBareSortInfo(node: estree.Node): BareSortInfo | null {
+      if (node.type !== 'CallExpression') {
+        return null;
+      }
+      const callExpr = node as estree.CallExpression;
+      if (callExpr.arguments.length !== 0) {
+        return null;
+      }
+      if (callExpr.callee.type !== 'MemberExpression') {
+        return null;
+      }
+      const callee = callExpr.callee;
+      const text = sourceCode.getText(callee.property);
+      if (!allSortLike.has(text)) {
+        return null;
+      }
+      const receiverType = getTypeFromTreeNode(callee.object, services);
+      if (!isArrayLikeType(receiverType, services)) {
+        return null;
+      }
+      return {
+        methodName: text,
+        receiver: callee.object,
+      };
+    }
+
+    function isPrimitiveSortReceiver(receiver: estree.Node): boolean {
+      const receiverType = getTypeFromTreeNode(receiver, services);
+      return (
+        isNumberArray(receiverType, services) ||
+        isBigIntArray(receiverType, services) ||
+        isStringArray(receiverType, services) ||
+        isBooleanArray(receiverType, services)
+      );
+    }
 
     function getSuggestions(call: estree.CallExpression, type: ts.Type) {
       const suggestions: Rule.SuggestionReportDescriptor[] = [];
