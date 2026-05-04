@@ -82,7 +82,7 @@ export const moduleTypeCache = new ComputedCache(
  *
  * @param dir dirname of the context.filename
  * @param topDir working dir, will search up to that root
- * @returns Set with the dependency names
+ * @returns Map of dependency names to their version strings
  */
 export function getDependencies(
   dir: NormalizedAbsolutePath,
