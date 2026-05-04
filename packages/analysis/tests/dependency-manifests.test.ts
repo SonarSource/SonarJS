@@ -128,7 +128,7 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
-    expect(manifests[0].getDependencies()).toEqual(
+    expect(manifests[0].dependencies).toEqual(
       new Map([
         ['react', '^19.1.1'],
         ['react-dom', '^19.1.1'],
@@ -151,7 +151,7 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(currentDirectory, topDirectory);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm', 'npm']);
-    expect(manifests[0].getDependencies()).toEqual(
+    expect(manifests[0].dependencies).toEqual(
       new Map([
         ['react', '^19.1.1'],
         ['react-dom', '^19.1.1'],
@@ -167,7 +167,7 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
-    expect(manifests[0].getDependencies()).toEqual(
+    expect(manifests[0].dependencies).toEqual(
       new Map<string | Minimatch, string | undefined>([
         ['react', '^19.0.0'],
         ['root', '*'],
@@ -184,7 +184,7 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
-    expect(manifests[0].getDependencies()).toEqual(
+    expect(manifests[0].dependencies).toEqual(
       new Map<string | Minimatch, string | undefined>([
         ['react', '^19.1.1'],
         [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
@@ -201,7 +201,7 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
-    expect(manifests[0].getDependencies()).toEqual(
+    expect(manifests[0].dependencies).toEqual(
       new Map([[new Minimatch('existing/*', { nocase: true, matchBase: true }), undefined]]),
     );
   });
@@ -217,7 +217,7 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
-    expect(manifests[0].getDependencies()).toEqual(new Map([['react', 'catalog:']]));
+    expect(manifests[0].dependencies).toEqual(new Map([['react', 'catalog:']]));
     expect(consoleLogMock.calls[0].arguments[0]).toEqual(
       'Dependency "react" could not be resolved for catalog "default"',
     );
@@ -248,7 +248,7 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['deno']);
-    expect(manifests[0].getDependencies()).toEqual(
+    expect(manifests[0].dependencies).toEqual(
       new Map([
         ['reactAlias', '^19.1.0'],
         ['react', '^19.1.0'],
@@ -277,7 +277,7 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['deno', 'npm']);
-    expect(manifests[0].getDependencies()).toEqual(
+    expect(manifests[0].dependencies).toEqual(
       new Map([
         ['deno-only', '1.2.3'],
         ['react', '^19.0.0'],
