@@ -1,0 +1,85 @@
+{
+"vitest:packages/expect/src/jest-matcher-utils.ts": [
+10
+],
+"vitest:packages/snapshot/src/types/index.ts": [
+13,
+13
+],
+"vitest:packages/ui/client/composables/explorer/collector.ts": [
+28
+],
+"vitest:packages/utils/src/diff/index.ts": [
+28,
+28,
+28,
+29,
+29,
+30,
+30,
+30,
+30
+],
+"vitest:packages/utils/src/error.ts": [
+7
+],
+"vitest:packages/vitest/src/integrations/chai/index.ts": [
+125
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/index.ts": [
+5,
+6
+],
+"vitest:packages/vitest/src/node/reporters/index.ts": [
+23,
+24,
+25,
+26,
+27,
+28,
+29,
+30,
+31,
+32,
+33,
+34,
+36,
+36,
+36
+],
+"vitest:packages/vitest/src/node/types/browser.ts": [
+12
+],
+"vitest:packages/vitest/src/node/types/config.ts": [
+27,
+27,
+28,
+74,
+74
+],
+"vitest:packages/vitest/src/public/config.ts": [
+26,
+26,
+26,
+28,
+29,
+30,
+31,
+32
+],
+"vitest:packages/vitest/src/public/index.ts": [
+15,
+16,
+17,
+18,
+19,
+20,
+186
+],
+"vitest:packages/vitest/src/runtime/types/benchmark.ts": [
+35,
+35,
+35,
+35
+]
+}

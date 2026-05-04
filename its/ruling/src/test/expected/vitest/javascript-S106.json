@@ -1,0 +1,34 @@
+{
+"vitest:packages/browser/src/client/public/error-catcher.js": [
+38,
+79
+],
+"vitest:packages/expect/rollup.config.js": [
+56
+],
+"vitest:packages/mocker/rollup.config.js": [
+76
+],
+"vitest:packages/pretty-format/rollup.config.js": [
+78
+],
+"vitest:packages/runner/rollup.config.js": [
+64
+],
+"vitest:packages/snapshot/rollup.config.js": [
+68
+],
+"vitest:packages/spy/rollup.config.js": [
+56
+],
+"vitest:packages/ui/rollup.config.js": [
+73
+],
+"vitest:packages/utils/rollup.config.js": [
+87
+],
+"vitest:packages/vitest/rollup.config.js": [
+260,
+274
+]
+}

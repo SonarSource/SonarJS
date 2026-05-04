@@ -1,0 +1,74 @@
+{
+"vitest:packages/browser/src/client/client.ts": [
+21
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveAccessibleDescription.ts": [
+28
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveAccessibleErrorMessage.ts": [
+28
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveAccessibleName.ts": [
+29
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveFormValues.ts": [
+28
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveStyle.ts": [
+104,
+129
+],
+"vitest:packages/browser/src/client/tester/expect/utils.ts": [
+46,
+71
+],
+"vitest:packages/browser/src/client/tester/state.ts": [
+117
+],
+"vitest:packages/browser/src/client/tester/tester.ts": [
+242
+],
+"vitest:packages/browser/src/client/ui.ts": [
+6
+],
+"vitest:packages/browser/src/client/utils.ts": [
+103,
+109
+],
+"vitest:packages/coverage-v8/src/browser.ts": [
+36,
+55,
+71
+],
+"vitest:packages/pretty-format/src/index.ts": [
+50,
+50
+],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+122,
+123
+],
+"vitest:packages/ui/client/composables/attachments.ts": [
+13
+],
+"vitest:packages/ui/client/composables/client/index.ts": [
+159,
+164
+],
+"vitest:packages/ui/client/composables/client/static.ts": [
+92
+],
+"vitest:packages/ui/client/composables/navigation.ts": [
+31
+],
+"vitest:packages/ui/client/constants.ts": [
+5,
+6
+],
+"vitest:packages/vitest/src/utils/env.ts": [
+13
+],
+"vitest:packages/web-worker/src/utils.ts": [
+107
+]
+}

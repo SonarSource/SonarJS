@@ -1,0 +1,1781 @@
+{
+"vitest:docs/pwa-assets.config.ts": [
+0
+],
+"vitest:docs/vite.config.ts": [
+0
+],
+"vitest:examples/basic/src/basic.ts": [
+0
+],
+"vitest:examples/basic/test/basic.test.ts": [
+0
+],
+"vitest:examples/basic/test/suite.test.ts": [
+0
+],
+"vitest:examples/fastify/mockData.ts": [
+0
+],
+"vitest:examples/fastify/src/app.ts": [
+0
+],
+"vitest:examples/fastify/src/index.ts": [
+0
+],
+"vitest:examples/fastify/test/app.test.ts": [
+0
+],
+"vitest:examples/in-source-test/vitest.config.ts": [
+0
+],
+"vitest:examples/lit/src/my-button.ts": [
+0
+],
+"vitest:examples/lit/test/basic.test.ts": [
+0
+],
+"vitest:examples/opentelemetry/src/basic.test.ts": [
+0
+],
+"vitest:examples/opentelemetry/src/basic.ts": [
+0
+],
+"vitest:examples/opentelemetry/src/other.test.ts": [
+0
+],
+"vitest:examples/opentelemetry/vite.config.ts": [
+0
+],
+"vitest:examples/profiling/global-setup.ts": [
+0
+],
+"vitest:examples/profiling/src/prime-number.ts": [
+0
+],
+"vitest:examples/profiling/test/prime-number.test.ts": [
+0
+],
+"vitest:examples/profiling/vitest.config.ts": [
+0
+],
+"vitest:examples/projects/packages/client/components/Link.tsx": [
+0
+],
+"vitest:examples/projects/packages/client/test/basic.test.tsx": [
+0
+],
+"vitest:examples/projects/packages/client/vitest.config.ts": [
+0
+],
+"vitest:examples/projects/packages/client/vitest.setup.ts": [
+0
+],
+"vitest:examples/projects/packages/server/mockData.ts": [
+0
+],
+"vitest:examples/projects/packages/server/src/app.ts": [
+0
+],
+"vitest:examples/projects/packages/server/src/index.ts": [
+0
+],
+"vitest:examples/projects/packages/server/test/app.test.ts": [
+0
+],
+"vitest:examples/projects/vitest.config.ts": [
+0
+],
+"vitest:examples/typecheck/test/normal.test.ts": [
+0
+],
+"vitest:examples/typecheck/test/type.test-d.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/clear.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/click.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/dragAndDrop.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/fill.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/hover.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/index.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/keyboard.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/screenshot.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/select.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/tab.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/trace.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/type.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/upload.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/utils.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/commands/wheel.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/constants.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/index.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/locators.ts": [
+0
+],
+"vitest:packages/browser-playwright/src/playwright.ts": [
+0
+],
+"vitest:packages/browser-preview/src/constants.ts": [
+0
+],
+"vitest:packages/browser-preview/src/index.ts": [
+0
+],
+"vitest:packages/browser-preview/src/locators.ts": [
+0
+],
+"vitest:packages/browser-preview/src/preview.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/clear.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/click.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/dragAndDrop.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/fill.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/hover.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/index.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/keyboard.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/screenshot.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/select.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/tab.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/type.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/upload.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/utils.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/viewport.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/commands/wheel.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/constants.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/index.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/locators.ts": [
+0
+],
+"vitest:packages/browser-webdriverio/src/webdriverio.ts": [
+0
+],
+"vitest:packages/browser/src/client/channel.ts": [
+0
+],
+"vitest:packages/browser/src/client/client.ts": [
+0
+],
+"vitest:packages/browser/src/client/orchestrator.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/aria.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/context.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/dialog.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect-element.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/index.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toBeChecked.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toBeEmptyDOMElement.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toBeEnabled.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toBeInTheDocument.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toBeInViewport.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toBeInvalid.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toBePartiallyChecked.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toBeRequired.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toBeVisible.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toContainElement.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toContainHTML.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveAccessibleDescription.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveAccessibleErrorMessage.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveAccessibleName.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveAttribute.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveClass.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveDisplayValue.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveFocus.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveFormValues.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveRole.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveSelection.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveStyle.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveTextContent.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toHaveValue.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/toMatchScreenshot.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/expect/utils.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/locators/index.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/logger.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/mocker-interceptor.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/mocker.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/rpc.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/runner.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/snapshot.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/state.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+0
+],
+"vitest:packages/browser/src/client/tester/tester.ts": [
+0
+],
+"vitest:packages/browser/src/client/ui.ts": [
+0
+],
+"vitest:packages/browser/src/client/utils.ts": [
+0
+],
+"vitest:packages/browser/src/client/vite.config.ts": [
+0
+],
+"vitest:packages/browser/src/node/cdp.ts": [
+0
+],
+"vitest:packages/browser/src/node/commands/fs.ts": [
+0
+],
+"vitest:packages/browser/src/node/commands/index.ts": [
+0
+],
+"vitest:packages/browser/src/node/commands/screenshot.ts": [
+0
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/codecs/index.ts": [
+0
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/codecs/png.ts": [
+0
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/comparators/index.ts": [
+0
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/comparators/pixelmatch.ts": [
+0
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/index.ts": [
+0
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/types.ts": [
+0
+],
+"vitest:packages/browser/src/node/commands/trace.ts": [
+0
+],
+"vitest:packages/browser/src/node/constants.ts": [
+0
+],
+"vitest:packages/browser/src/node/index.ts": [
+0
+],
+"vitest:packages/browser/src/node/middlewares/orchestratorMiddleware.ts": [
+0
+],
+"vitest:packages/browser/src/node/middlewares/testerMiddleware.ts": [
+0
+],
+"vitest:packages/browser/src/node/middlewares/utils.ts": [
+0
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+0
+],
+"vitest:packages/browser/src/node/plugins/pluginContext.ts": [
+0
+],
+"vitest:packages/browser/src/node/project.ts": [
+0
+],
+"vitest:packages/browser/src/node/projectParent.ts": [
+0
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+0
+],
+"vitest:packages/browser/src/node/serverOrchestrator.ts": [
+0
+],
+"vitest:packages/browser/src/node/serverTester.ts": [
+0
+],
+"vitest:packages/browser/src/node/state.ts": [
+0
+],
+"vitest:packages/browser/src/node/utils.ts": [
+0
+],
+"vitest:packages/browser/src/shared/screenshotMatcher/types.ts": [
+0
+],
+"vitest:packages/browser/src/types.ts": [
+0
+],
+"vitest:packages/coverage-istanbul/src/constants.ts": [
+0
+],
+"vitest:packages/coverage-istanbul/src/index.ts": [
+0
+],
+"vitest:packages/coverage-istanbul/src/provider.ts": [
+0
+],
+"vitest:packages/coverage-v8/src/browser.ts": [
+0
+],
+"vitest:packages/coverage-v8/src/index.ts": [
+0
+],
+"vitest:packages/coverage-v8/src/load-provider.ts": [
+0
+],
+"vitest:packages/coverage-v8/src/provider.ts": [
+0
+],
+"vitest:packages/expect/src/chai-style-assertions.ts": [
+0
+],
+"vitest:packages/expect/src/constants.ts": [
+0
+],
+"vitest:packages/expect/src/custom-matchers.ts": [
+0
+],
+"vitest:packages/expect/src/index.ts": [
+0
+],
+"vitest:packages/expect/src/jest-asymmetric-matchers.ts": [
+0
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+0
+],
+"vitest:packages/expect/src/jest-extend.ts": [
+0
+],
+"vitest:packages/expect/src/jest-matcher-utils.ts": [
+0
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+0
+],
+"vitest:packages/expect/src/state.ts": [
+0
+],
+"vitest:packages/expect/src/types.ts": [
+0
+],
+"vitest:packages/expect/src/utils.ts": [
+0
+],
+"vitest:packages/mocker/src/automocker.ts": [
+0
+],
+"vitest:packages/mocker/src/browser/auto-register.ts": [
+0
+],
+"vitest:packages/mocker/src/browser/hints.ts": [
+0
+],
+"vitest:packages/mocker/src/browser/index.ts": [
+0
+],
+"vitest:packages/mocker/src/browser/interceptor-msw.ts": [
+0
+],
+"vitest:packages/mocker/src/browser/interceptor-native.ts": [
+0
+],
+"vitest:packages/mocker/src/browser/interceptor.ts": [
+0
+],
+"vitest:packages/mocker/src/browser/mocker.ts": [
+0
+],
+"vitest:packages/mocker/src/browser/register.ts": [
+0
+],
+"vitest:packages/mocker/src/browser/utils.ts": [
+0
+],
+"vitest:packages/mocker/src/index.ts": [
+0
+],
+"vitest:packages/mocker/src/node/automock.ts": [
+0
+],
+"vitest:packages/mocker/src/node/automockPlugin.ts": [
+0
+],
+"vitest:packages/mocker/src/node/dynamicImportPlugin.ts": [
+0
+],
+"vitest:packages/mocker/src/node/esmWalker.ts": [
+0
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+0
+],
+"vitest:packages/mocker/src/node/hoistMocksPlugin.ts": [
+0
+],
+"vitest:packages/mocker/src/node/index.ts": [
+0
+],
+"vitest:packages/mocker/src/node/interceptorPlugin.ts": [
+0
+],
+"vitest:packages/mocker/src/node/mockerPlugin.ts": [
+0
+],
+"vitest:packages/mocker/src/node/parsers.ts": [
+0
+],
+"vitest:packages/mocker/src/node/redirect.ts": [
+0
+],
+"vitest:packages/mocker/src/node/resolver.ts": [
+0
+],
+"vitest:packages/mocker/src/node/transforms.ts": [
+0
+],
+"vitest:packages/mocker/src/registry.ts": [
+0
+],
+"vitest:packages/mocker/src/types.ts": [
+0
+],
+"vitest:packages/mocker/src/utils.ts": [
+0
+],
+"vitest:packages/pretty-format/src/collections.ts": [
+0
+],
+"vitest:packages/pretty-format/src/index.ts": [
+0
+],
+"vitest:packages/pretty-format/src/plugins/AsymmetricMatcher.ts": [
+0
+],
+"vitest:packages/pretty-format/src/plugins/DOMCollection.ts": [
+0
+],
+"vitest:packages/pretty-format/src/plugins/DOMElement.ts": [
+0
+],
+"vitest:packages/pretty-format/src/plugins/Immutable.ts": [
+0
+],
+"vitest:packages/pretty-format/src/plugins/ReactElement.ts": [
+0
+],
+"vitest:packages/pretty-format/src/plugins/ReactTestComponent.ts": [
+0
+],
+"vitest:packages/pretty-format/src/plugins/lib/escapeHTML.ts": [
+0
+],
+"vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
+0
+],
+"vitest:packages/pretty-format/src/types.ts": [
+0
+],
+"vitest:packages/runner/src/artifact.ts": [
+0
+],
+"vitest:packages/runner/src/collect.ts": [
+0
+],
+"vitest:packages/runner/src/context.ts": [
+0
+],
+"vitest:packages/runner/src/errors.ts": [
+0
+],
+"vitest:packages/runner/src/fixture.ts": [
+0
+],
+"vitest:packages/runner/src/hooks.ts": [
+0
+],
+"vitest:packages/runner/src/index.ts": [
+0
+],
+"vitest:packages/runner/src/map.ts": [
+0
+],
+"vitest:packages/runner/src/run.ts": [
+0
+],
+"vitest:packages/runner/src/setup.ts": [
+0
+],
+"vitest:packages/runner/src/suite.ts": [
+0
+],
+"vitest:packages/runner/src/test-state.ts": [
+0
+],
+"vitest:packages/runner/src/types.ts": [
+0
+],
+"vitest:packages/runner/src/types/runner.ts": [
+0
+],
+"vitest:packages/runner/src/types/tasks.ts": [
+0
+],
+"vitest:packages/runner/src/utils/chain.ts": [
+0
+],
+"vitest:packages/runner/src/utils/collect.ts": [
+0
+],
+"vitest:packages/runner/src/utils/index.ts": [
+0
+],
+"vitest:packages/runner/src/utils/suite.ts": [
+0
+],
+"vitest:packages/runner/src/utils/tags.ts": [
+0
+],
+"vitest:packages/runner/src/utils/tasks.ts": [
+0
+],
+"vitest:packages/snapshot/src/client.ts": [
+0
+],
+"vitest:packages/snapshot/src/domain.ts": [
+0
+],
+"vitest:packages/snapshot/src/env/node.ts": [
+0
+],
+"vitest:packages/snapshot/src/environment.ts": [
+0
+],
+"vitest:packages/snapshot/src/index.ts": [
+0
+],
+"vitest:packages/snapshot/src/manager.ts": [
+0
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+0
+],
+"vitest:packages/snapshot/src/port/mockSerializer.ts": [
+0
+],
+"vitest:packages/snapshot/src/port/plugins.ts": [
+0
+],
+"vitest:packages/snapshot/src/port/rawSnapshot.ts": [
+0
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+0
+],
+"vitest:packages/snapshot/src/port/utils.ts": [
+0
+],
+"vitest:packages/snapshot/src/types/environment.ts": [
+0
+],
+"vitest:packages/snapshot/src/types/index.ts": [
+0
+],
+"vitest:packages/spy/src/index.ts": [
+0
+],
+"vitest:packages/spy/src/types.ts": [
+0
+],
+"vitest:packages/ui/client/components/AnnotationAttachmentImage.vue": [
+0
+],
+"vitest:packages/ui/client/components/Badge.vue": [
+0
+],
+"vitest:packages/ui/client/components/BrowserIframe.vue": [
+0
+],
+"vitest:packages/ui/client/components/ClosedDetailsHeader.vue": [
+0
+],
+"vitest:packages/ui/client/components/CodeMirrorContainer.vue": [
+0
+],
+"vitest:packages/ui/client/components/ConnectionOverlay.vue": [
+0
+],
+"vitest:packages/ui/client/components/Coverage.vue": [
+0
+],
+"vitest:packages/ui/client/components/Dashboard.vue": [
+0
+],
+"vitest:packages/ui/client/components/DetailsHeaderButtons.vue": [
+0
+],
+"vitest:packages/ui/client/components/FailureScreenshot.vue": [
+0
+],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+0
+],
+"vitest:packages/ui/client/components/FilterStatus.vue": [
+0
+],
+"vitest:packages/ui/client/components/IconAction.vue": [
+0
+],
+"vitest:packages/ui/client/components/IconButton.vue": [
+0
+],
+"vitest:packages/ui/client/components/Modal.vue": [
+0
+],
+"vitest:packages/ui/client/components/ModuleGraphImportBreakdown.vue": [
+0
+],
+"vitest:packages/ui/client/components/ModuleTransformResultView.vue": [
+0
+],
+"vitest:packages/ui/client/components/Navigation.vue": [
+0
+],
+"vitest:packages/ui/client/components/ProgressBar.vue": [
+0
+],
+"vitest:packages/ui/client/components/ResultsPanel.vue": [
+0
+],
+"vitest:packages/ui/client/components/StatusIcon.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/ArtifactTemplate.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/Artifacts.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.spec.ts": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabs.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/SmallTabsPane.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.spec.ts": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImage.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImageContainer.vue": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.spec.ts": [
+0
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionSlider.vue": [
+0
+],
+"vitest:packages/ui/client/components/dashboard/DashboardEntry.spec.ts": [
+0
+],
+"vitest:packages/ui/client/components/dashboard/DashboardEntry.vue": [
+0
+],
+"vitest:packages/ui/client/components/dashboard/ErrorEntry.vue": [
+0
+],
+"vitest:packages/ui/client/components/dashboard/TestFilesEntry.vue": [
+0
+],
+"vitest:packages/ui/client/components/dashboard/TestsEntry.vue": [
+0
+],
+"vitest:packages/ui/client/components/dashboard/TestsFilesContainer.vue": [
+0
+],
+"vitest:packages/ui/client/components/explorer/Explorer.vue": [
+0
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+0
+],
+"vitest:packages/ui/client/components/views/ScreenshotError.vue": [
+0
+],
+"vitest:packages/ui/client/components/views/ViewConsoleOutput.vue": [
+0
+],
+"vitest:packages/ui/client/components/views/ViewConsoleOutputEntry.spec.ts": [
+0
+],
+"vitest:packages/ui/client/components/views/ViewConsoleOutputEntry.vue": [
+0
+],
+"vitest:packages/ui/client/components/views/ViewEditor.vue": [
+0
+],
+"vitest:packages/ui/client/components/views/ViewModuleGraph.vue": [
+0
+],
+"vitest:packages/ui/client/components/views/ViewReport.spec.ts": [
+0
+],
+"vitest:packages/ui/client/components/views/ViewReport.vue": [
+0
+],
+"vitest:packages/ui/client/components/views/ViewReportError.vue": [
+0
+],
+"vitest:packages/ui/client/components/views/ViewTestReport.vue": [
+0
+],
+"vitest:packages/ui/client/composables/api.ts": [
+0
+],
+"vitest:packages/ui/client/composables/attachments.ts": [
+0
+],
+"vitest:packages/ui/client/composables/browser.ts": [
+0
+],
+"vitest:packages/ui/client/composables/client/index.ts": [
+0
+],
+"vitest:packages/ui/client/composables/client/state.ts": [
+0
+],
+"vitest:packages/ui/client/composables/client/static.ts": [
+0
+],
+"vitest:packages/ui/client/composables/codemirror.ts": [
+0
+],
+"vitest:packages/ui/client/composables/dark.ts": [
+0
+],
+"vitest:packages/ui/client/composables/error.ts": [
+0
+],
+"vitest:packages/ui/client/composables/explorer/collapse.ts": [
+0
+],
+"vitest:packages/ui/client/composables/explorer/collector.ts": [
+0
+],
+"vitest:packages/ui/client/composables/explorer/expand.ts": [
+0
+],
+"vitest:packages/ui/client/composables/explorer/filter.ts": [
+0
+],
+"vitest:packages/ui/client/composables/explorer/index.ts": [
+0
+],
+"vitest:packages/ui/client/composables/explorer/search.ts": [
+0
+],
+"vitest:packages/ui/client/composables/explorer/state.ts": [
+0
+],
+"vitest:packages/ui/client/composables/explorer/tree.ts": [
+0
+],
+"vitest:packages/ui/client/composables/explorer/types.ts": [
+0
+],
+"vitest:packages/ui/client/composables/explorer/utils.ts": [
+0
+],
+"vitest:packages/ui/client/composables/index.ts": [
+0
+],
+"vitest:packages/ui/client/composables/location.ts": [
+0
+],
+"vitest:packages/ui/client/composables/module-graph.ts": [
+0
+],
+"vitest:packages/ui/client/composables/navigation.ts": [
+0
+],
+"vitest:packages/ui/client/composables/params.ts": [
+0
+],
+"vitest:packages/ui/client/composables/small-tabs.ts": [
+0
+],
+"vitest:packages/ui/client/constants.ts": [
+0
+],
+"vitest:packages/ui/client/main.ts": [
+0
+],
+"vitest:packages/ui/client/pages/index.vue": [
+0
+],
+"vitest:packages/ui/client/test.ts": [
+0
+],
+"vitest:packages/ui/client/utils/escape.ts": [
+0
+],
+"vitest:packages/ui/client/utils/task.ts": [
+0
+],
+"vitest:packages/ui/node/index.ts": [
+0
+],
+"vitest:packages/ui/node/reporter.ts": [
+0
+],
+"vitest:packages/ui/types.ts": [
+0
+],
+"vitest:packages/ui/vite.config.ts": [
+0
+],
+"vitest:packages/ui/vitest.config.ts": [
+0
+],
+"vitest:packages/utils/source-map.ts": [
+0
+],
+"vitest:packages/utils/src/diff/cleanupSemantic.ts": [
+0
+],
+"vitest:packages/utils/src/diff/constants.ts": [
+0
+],
+"vitest:packages/utils/src/diff/diffLines.ts": [
+0
+],
+"vitest:packages/utils/src/diff/diffStrings.ts": [
+0
+],
+"vitest:packages/utils/src/diff/getAlignedDiffs.ts": [
+0
+],
+"vitest:packages/utils/src/diff/getType.ts": [
+0
+],
+"vitest:packages/utils/src/diff/index.ts": [
+0
+],
+"vitest:packages/utils/src/diff/joinAlignedDiffs.ts": [
+0
+],
+"vitest:packages/utils/src/diff/normalizeDiffOptions.ts": [
+0
+],
+"vitest:packages/utils/src/diff/printDiffs.ts": [
+0
+],
+"vitest:packages/utils/src/diff/types.ts": [
+0
+],
+"vitest:packages/utils/src/display.ts": [
+0
+],
+"vitest:packages/utils/src/error.ts": [
+0
+],
+"vitest:packages/utils/src/helpers.ts": [
+0
+],
+"vitest:packages/utils/src/index.ts": [
+0
+],
+"vitest:packages/utils/src/offset.ts": [
+0
+],
+"vitest:packages/utils/src/random.ts": [
+0
+],
+"vitest:packages/utils/src/resolver.ts": [
+0
+],
+"vitest:packages/utils/src/source-map.ts": [
+0
+],
+"vitest:packages/utils/src/source-map/node.ts": [
+0
+],
+"vitest:packages/utils/src/timers.ts": [
+0
+],
+"vitest:packages/utils/src/types.ts": [
+0
+],
+"vitest:packages/vitest/index.d.cts": [
+0
+],
+"vitest:packages/vitest/src/api/check.ts": [
+0
+],
+"vitest:packages/vitest/src/api/setup.ts": [
+0
+],
+"vitest:packages/vitest/src/api/types.ts": [
+0
+],
+"vitest:packages/vitest/src/create/browser/creator.ts": [
+0
+],
+"vitest:packages/vitest/src/create/browser/examples.ts": [
+0
+],
+"vitest:packages/vitest/src/defaults.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/chai/config.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/chai/index.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/chai/poll.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/chai/setup.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/coverage.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/css/css-modules.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/env/edge-runtime.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/env/happy-dom.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/env/index.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/env/jsdom.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/env/loader.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/env/node.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/env/utils.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/globals.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/inject.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/mock/date.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/mock/timers.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/snapshot/chai.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/snapshot/environments/node.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/snapshot/environments/resolveSnapshotEnvironment.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/spy.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/vi.ts": [
+0
+],
+"vitest:packages/vitest/src/integrations/wait.ts": [
+0
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+0
+],
+"vitest:packages/vitest/src/node/browser/sessions.ts": [
+0
+],
+"vitest:packages/vitest/src/node/cache/files.ts": [
+0
+],
+"vitest:packages/vitest/src/node/cache/fsModuleCache.ts": [
+0
+],
+"vitest:packages/vitest/src/node/cache/index.ts": [
+0
+],
+"vitest:packages/vitest/src/node/cache/results.ts": [
+0
+],
+"vitest:packages/vitest/src/node/cli.ts": [
+0
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+0
+],
+"vitest:packages/vitest/src/node/cli/cli-api.ts": [
+0
+],
+"vitest:packages/vitest/src/node/cli/cli-config.ts": [
+0
+],
+"vitest:packages/vitest/src/node/cli/completions.ts": [
+0
+],
+"vitest:packages/vitest/src/node/cli/filter.ts": [
+0
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+0
+],
+"vitest:packages/vitest/src/node/config/serializeConfig.ts": [
+0
+],
+"vitest:packages/vitest/src/node/core.ts": [
+0
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+0
+],
+"vitest:packages/vitest/src/node/create.ts": [
+0
+],
+"vitest:packages/vitest/src/node/environments/fetchModule.ts": [
+0
+],
+"vitest:packages/vitest/src/node/environments/normalizeUrl.ts": [
+0
+],
+"vitest:packages/vitest/src/node/environments/serverRunner.ts": [
+0
+],
+"vitest:packages/vitest/src/node/errors.ts": [
+0
+],
+"vitest:packages/vitest/src/node/globalSetup.ts": [
+0
+],
+"vitest:packages/vitest/src/node/hash.ts": [
+0
+],
+"vitest:packages/vitest/src/node/logger.ts": [
+0
+],
+"vitest:packages/vitest/src/node/module-diagnostic.ts": [
+0
+],
+"vitest:packages/vitest/src/node/packageInstaller.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/coverageTransform.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/cssEnabler.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/metaEnvReplacer.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/mocks.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/normalizeURL.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/optimizer.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/publicConfig.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/runnerTransform.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/utils.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/vitestResolver.ts": [
+0
+],
+"vitest:packages/vitest/src/node/plugins/workspace.ts": [
+0
+],
+"vitest:packages/vitest/src/node/pool.ts": [
+0
+],
+"vitest:packages/vitest/src/node/pools/browser.ts": [
+0
+],
+"vitest:packages/vitest/src/node/pools/pool.ts": [
+0
+],
+"vitest:packages/vitest/src/node/pools/poolRunner.ts": [
+0
+],
+"vitest:packages/vitest/src/node/pools/rpc.ts": [
+0
+],
+"vitest:packages/vitest/src/node/pools/types.ts": [
+0
+],
+"vitest:packages/vitest/src/node/pools/workers/forksWorker.ts": [
+0
+],
+"vitest:packages/vitest/src/node/pools/workers/threadsWorker.ts": [
+0
+],
+"vitest:packages/vitest/src/node/pools/workers/typecheckWorker.ts": [
+0
+],
+"vitest:packages/vitest/src/node/pools/workers/vmForksWorker.ts": [
+0
+],
+"vitest:packages/vitest/src/node/pools/workers/vmThreadsWorker.ts": [
+0
+],
+"vitest:packages/vitest/src/node/printError.ts": [
+0
+],
+"vitest:packages/vitest/src/node/project.ts": [
+0
+],
+"vitest:packages/vitest/src/node/projects/resolveProjects.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/index.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/json-formatter.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/reporter.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/tableRender.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/verbose.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/blob.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/default.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/dot.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/github-actions.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/hanging-process.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/html.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/index.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/json.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/minimal.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/renderers/figures.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/renderers/indented-logger.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/renderers/utils.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/renderers/windowedRenderer.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/reported-tasks.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/summary.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/tap-flat.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/tap.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/tree.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/utils.ts": [
+0
+],
+"vitest:packages/vitest/src/node/reporters/verbose.ts": [
+0
+],
+"vitest:packages/vitest/src/node/resolver.ts": [
+0
+],
+"vitest:packages/vitest/src/node/sequencers/BaseSequencer.ts": [
+0
+],
+"vitest:packages/vitest/src/node/sequencers/RandomSequencer.ts": [
+0
+],
+"vitest:packages/vitest/src/node/sequencers/types.ts": [
+0
+],
+"vitest:packages/vitest/src/node/specifications.ts": [
+0
+],
+"vitest:packages/vitest/src/node/state.ts": [
+0
+],
+"vitest:packages/vitest/src/node/stdin.ts": [
+0
+],
+"vitest:packages/vitest/src/node/tags.ts": [
+0
+],
+"vitest:packages/vitest/src/node/test-run.ts": [
+0
+],
+"vitest:packages/vitest/src/node/test-specification.ts": [
+0
+],
+"vitest:packages/vitest/src/node/types/benchmark.ts": [
+0
+],
+"vitest:packages/vitest/src/node/types/browser.ts": [
+0
+],
+"vitest:packages/vitest/src/node/types/config.ts": [
+0
+],
+"vitest:packages/vitest/src/node/types/coverage.ts": [
+0
+],
+"vitest:packages/vitest/src/node/types/plugin.ts": [
+0
+],
+"vitest:packages/vitest/src/node/types/reporter.ts": [
+0
+],
+"vitest:packages/vitest/src/node/types/tests.ts": [
+0
+],
+"vitest:packages/vitest/src/node/types/vite.ts": [
+0
+],
+"vitest:packages/vitest/src/node/types/worker.ts": [
+0
+],
+"vitest:packages/vitest/src/node/vcs/git.ts": [
+0
+],
+"vitest:packages/vitest/src/node/vcs/vcs.ts": [
+0
+],
+"vitest:packages/vitest/src/node/vite.ts": [
+0
+],
+"vitest:packages/vitest/src/node/viteLogger.ts": [
+0
+],
+"vitest:packages/vitest/src/node/watch-filter.ts": [
+0
+],
+"vitest:packages/vitest/src/node/watcher.ts": [
+0
+],
+"vitest:packages/vitest/src/paths.ts": [
+0
+],
+"vitest:packages/vitest/src/public/browser.ts": [
+0
+],
+"vitest:packages/vitest/src/public/config.ts": [
+0
+],
+"vitest:packages/vitest/src/public/coverage.ts": [
+0
+],
+"vitest:packages/vitest/src/public/environments.ts": [
+0
+],
+"vitest:packages/vitest/src/public/index.ts": [
+0
+],
+"vitest:packages/vitest/src/public/node.ts": [
+0
+],
+"vitest:packages/vitest/src/public/reporters.ts": [
+0
+],
+"vitest:packages/vitest/src/public/runners.ts": [
+0
+],
+"vitest:packages/vitest/src/public/snapshot.ts": [
+0
+],
+"vitest:packages/vitest/src/public/suite.ts": [
+0
+],
+"vitest:packages/vitest/src/public/worker.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/benchmark.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/cleanup.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/config.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/console.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/detect-async-leaks.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/external-executor.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/inspector.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/listeners.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/bareModuleMocker.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/cachedResolver.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/errorCatcher.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/evaluatedModules.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleDebug.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleMocker.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleRunner.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleTransport.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/nativeModuleMocker.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/startVitestModuleRunner.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/testModuleRunner.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/types.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/nodejsWorkerLoader.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/rpc.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/runBaseTests.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/runVmTests.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/runners/benchmark.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/runners/index.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/runners/test.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/setup-common.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/setup-node.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/types/benchmark.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/types/utils.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/utils.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/vm/file-map.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/vm/types.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/vm/utils.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/vm/vite-executor.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/worker.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/base.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/forks.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/init-forks.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/init-threads.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/init.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/native.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/threads.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/types.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/vm.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/vmForks.ts": [
+0
+],
+"vitest:packages/vitest/src/runtime/workers/vmThreads.ts": [
+0
+],
+"vitest:packages/vitest/src/typecheck/assertType.ts": [
+0
+],
+"vitest:packages/vitest/src/typecheck/collect.ts": [
+0
+],
+"vitest:packages/vitest/src/typecheck/expectTypeOf.ts": [
+0
+],
+"vitest:packages/vitest/src/typecheck/parse.ts": [
+0
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+0
+],
+"vitest:packages/vitest/src/typecheck/types.ts": [
+0
+],
+"vitest:packages/vitest/src/types/browser.ts": [
+0
+],
+"vitest:packages/vitest/src/types/environment.ts": [
+0
+],
+"vitest:packages/vitest/src/types/general.ts": [
+0
+],
+"vitest:packages/vitest/src/types/global.ts": [
+0
+],
+"vitest:packages/vitest/src/types/happy-dom-options.ts": [
+0
+],
+"vitest:packages/vitest/src/types/jsdom-options.ts": [
+0
+],
+"vitest:packages/vitest/src/types/mocker.ts": [
+0
+],
+"vitest:packages/vitest/src/types/module-locations.ts": [
+0
+],
+"vitest:packages/vitest/src/types/rpc.ts": [
+0
+],
+"vitest:packages/vitest/src/types/ui.ts": [
+0
+],
+"vitest:packages/vitest/src/types/worker.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/base.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/colors.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/config-helpers.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/coverage.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/debugger.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/env.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/environments.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/graph.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/memory-limit.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/nativeModuleRunner.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/source-map.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/tasks.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/test-helpers.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/timers.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/traces.ts": [
+0
+],
+"vitest:packages/vitest/src/utils/workers.ts": [
+0
+],
+"vitest:packages/web-worker/src/index.ts": [
+0
+],
+"vitest:packages/web-worker/src/pure.ts": [
+0
+],
+"vitest:packages/web-worker/src/runner.ts": [
+0
+],
+"vitest:packages/web-worker/src/shared-worker.ts": [
+0
+],
+"vitest:packages/web-worker/src/types.ts": [
+0
+],
+"vitest:packages/web-worker/src/utils.ts": [
+0
+],
+"vitest:packages/web-worker/src/worker.ts": [
+0
+],
+"vitest:packages/ws-client/src/index.ts": [
+0
+],
+"vitest:packages/ws-client/src/state.ts": [
+0
+],
+"vitest:scripts/explain-types.ts": [
+0
+],
+"vitest:scripts/publish-ci.ts": [
+0
+],
+"vitest:scripts/release.ts": [
+0
+],
+"vitest:scripts/update-contributors.ts": [
+0
+]
+}

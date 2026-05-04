@@ -1,0 +1,8 @@
+{
+"vitest:packages/ui/rollup.config.js": [
+37
+],
+"vitest:packages/vitest/rollup.config.js": [
+139
+]
+}

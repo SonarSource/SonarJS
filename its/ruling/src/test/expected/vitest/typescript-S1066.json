@@ -1,0 +1,46 @@
+{
+"vitest:packages/browser-webdriverio/src/webdriverio.ts": [
+154
+],
+"vitest:packages/browser/src/client/tester/expect/toBePartiallyChecked.ts": [
+67
+],
+"vitest:packages/browser/src/client/tester/logger.ts": [
+101
+],
+"vitest:packages/runner/src/run.ts": [
+1012
+],
+"vitest:packages/runner/src/utils/collect.ts": [
+96
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+498
+],
+"vitest:packages/ui/client/composables/explorer/filter.ts": [
+223,
+232
+],
+"vitest:packages/vitest/src/integrations/vi.ts": [
+500
+],
+"vitest:packages/vitest/src/node/cli/cli-api.ts": [
+77
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+119,
+308
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+947
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/tableRender.ts": [
+207
+],
+"vitest:packages/vitest/src/node/reporters/renderers/utils.ts": [
+198
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/startVitestModuleRunner.ts": [
+82
+]
+}

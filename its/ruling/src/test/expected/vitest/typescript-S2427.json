@@ -1,0 +1,20 @@
+{
+"vitest:packages/utils/src/display.ts": [
+190
+],
+"vitest:packages/utils/src/source-map.ts": [
+132,
+133,
+211,
+212
+],
+"vitest:packages/vitest/src/node/cli/filter.ts": [
+18
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+618
+],
+"vitest:packages/vitest/src/utils/workers.ts": [
+5
+]
+}

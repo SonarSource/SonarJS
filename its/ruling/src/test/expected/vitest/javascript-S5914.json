@@ -1,0 +1,40 @@
+{
+"vitest:test/browser/fixtures/playwright-connect/basic.test.js": [
+4
+],
+"vitest:test/cli/fixtures/reporters/indicator-position.test.js": [
+12,
+13,
+14
+],
+"vitest:test/cli/fixtures/stacktraces/mocked-global.test.js": [
+6
+],
+"vitest:test/cli/fixtures/stacktraces/mocked-imported.test.js": [
+6
+],
+"vitest:test/config/fixtures/shard-4-files/test/1.test.js": [
+4
+],
+"vitest:test/config/fixtures/shard-4-files/test/2.test.js": [
+4
+],
+"vitest:test/config/fixtures/shard-4-files/test/3.test.js": [
+4
+],
+"vitest:test/config/fixtures/shard-4-files/test/4.test.js": [
+4
+],
+"vitest:test/config/fixtures/shard/test/1.test.js": [
+3
+],
+"vitest:test/config/fixtures/shard/test/2.test.js": [
+3
+],
+"vitest:test/config/fixtures/shard/test/3.test.js": [
+3
+],
+"vitest:test/node-runner/fixtures/globalSetup/basic.test.js": [
+4
+]
+}

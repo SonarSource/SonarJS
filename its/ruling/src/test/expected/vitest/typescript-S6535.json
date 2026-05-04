@@ -1,0 +1,22 @@
+{
+"vitest:packages/browser/src/node/index.ts": [
+66,
+66,
+66
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+316,
+322
+],
+"vitest:packages/mocker/src/node/hoistMocksPlugin.ts": [
+34
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+538,
+539,
+772
+],
+"vitest:packages/vitest/src/node/errors.ts": [
+21
+]
+}

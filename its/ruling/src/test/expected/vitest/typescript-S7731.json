@@ -1,0 +1,19 @@
+{
+"vitest:packages/ui/client/components/views/ViewReport.spec.ts": [
+81
+],
+"vitest:packages/ui/client/composables/explorer/collector.ts": [
+159,
+167,
+197,
+208,
+273,
+503
+],
+"vitest:packages/utils/src/display.ts": [
+142
+],
+"vitest:packages/vitest/src/node/cli/cac.ts": [
+133
+]
+}

@@ -1,0 +1,32 @@
+{
+"vitest:test/cli/fixtures/benchmarking/basic/only.bench.ts": [
+27,
+37,
+49
+],
+"vitest:test/core/test/modes.test.ts": [
+103
+],
+"vitest:test/core/test/nested-only.test.ts": [
+4,
+5
+],
+"vitest:test/core/test/only.test.ts": [
+5,
+10,
+21,
+31,
+41,
+53,
+65
+],
+"vitest:test/core/test/retry-only.test.ts": [
+3
+],
+"vitest:test/core/test/test-options.test.ts": [
+23
+],
+"vitest:test/typescript/failing/only.test-d.ts": [
+3
+]
+}

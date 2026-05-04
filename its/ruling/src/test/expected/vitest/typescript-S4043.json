@@ -1,0 +1,31 @@
+{
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+87
+],
+"vitest:packages/pretty-format/src/collections.ts": [
+14
+],
+"vitest:packages/runner/src/fixture.ts": [
+247,
+274
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+369
+],
+"vitest:packages/vitest/src/node/core.ts": [
+1498
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+689
+],
+"vitest:packages/vitest/src/runtime/runners/test.ts": [
+247
+],
+"vitest:packages/vitest/src/typecheck/collect.ts": [
+172
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+161,
+479
+]
+}

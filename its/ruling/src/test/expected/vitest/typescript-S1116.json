@@ -1,0 +1,11 @@
+{
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+86
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+102
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+643
+]
+}

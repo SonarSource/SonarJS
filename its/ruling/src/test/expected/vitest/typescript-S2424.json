@@ -1,0 +1,36 @@
+{
+"vitest:packages/browser/src/client/tester/logger.ts": [
+6
+],
+"vitest:packages/expect/src/types.ts": [
+128
+],
+"vitest:packages/mocker/src/automocker.ts": [
+249,
+249,
+249,
+249,
+249
+],
+"vitest:packages/pretty-format/src/index.ts": [
+35
+],
+"vitest:packages/utils/src/helpers.ts": [
+356
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/bareModuleMocker.ts": [
+95
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
+137,
+137,
+185,
+185,
+185
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleMocker.ts": [
+32,
+164,
+203
+]
+}

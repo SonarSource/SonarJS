@@ -1,0 +1,164 @@
+{
+"vitest:packages/browser-playwright/src/commands/keyboard.ts": [
+86,
+95
+],
+"vitest:packages/browser-playwright/src/commands/trace.ts": [
+80
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+70,
+73
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+486,
+509,
+796
+],
+"vitest:packages/mocker/src/automocker.ts": [
+66,
+111,
+116
+],
+"vitest:packages/mocker/src/node/automock.ts": [
+89,
+98,
+133
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+157,
+333,
+342
+],
+"vitest:packages/mocker/src/node/redirect.ts": [
+33
+],
+"vitest:packages/runner/src/collect.ts": [
+87
+],
+"vitest:packages/runner/src/run.ts": [
+642,
+660,
+680,
+746,
+754,
+879,
+895,
+925,
+952
+],
+"vitest:packages/runner/src/utils/tasks.ts": [
+18
+],
+"vitest:packages/snapshot/src/client.ts": [
+415
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+333
+],
+"vitest:packages/spy/src/index.ts": [
+494,
+539,
+542
+],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+120
+],
+"vitest:packages/ui/client/composables/explorer/collector.ts": [
+60,
+418
+],
+"vitest:packages/ui/client/composables/explorer/filter.ts": [
+78,
+191
+],
+"vitest:packages/utils/src/diff/cleanupSemantic.ts": [
+281,
+300,
+377,
+387,
+395,
+437,
+479,
+483
+],
+"vitest:packages/utils/src/diff/joinAlignedDiffs.ts": [
+137,
+145,
+153,
+218,
+226,
+234,
+242
+],
+"vitest:packages/vitest/src/integrations/chai/poll.ts": [
+164,
+170
+],
+"vitest:packages/vitest/src/node/ast-collect.ts": [
+241,
+253
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+479,
+699,
+736
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+322,
+513,
+521,
+604,
+614
+],
+"vitest:packages/vitest/src/node/pool.ts": [
+131
+],
+"vitest:packages/vitest/src/node/printError.ts": [
+457,
+464,
+469,
+476
+],
+"vitest:packages/vitest/src/node/projects/resolveProjects.ts": [
+343,
+353
+],
+"vitest:packages/vitest/src/node/reporters/base.ts": [
+169,
+947
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/json-formatter.ts": [
+31,
+39
+],
+"vitest:packages/vitest/src/node/reporters/benchmark/tableRender.ts": [
+154,
+176,
+180,
+196
+],
+"vitest:packages/vitest/src/node/reporters/github-actions.ts": [
+316
+],
+"vitest:packages/vitest/src/node/reporters/junit.ts": [
+271
+],
+"vitest:packages/vitest/src/node/reporters/tap.ts": [
+115,
+123
+],
+"vitest:packages/vitest/src/node/viteLogger.ts": [
+90
+],
+"vitest:packages/vitest/src/node/watcher.ts": [
+221,
+226
+],
+"vitest:packages/vitest/src/runtime/inspector.ts": [
+36
+],
+"vitest:packages/vitest/src/utils/memory-limit.ts": [
+56
+]
+}

@@ -1,0 +1,24 @@
+{
+"vitest:packages/ui/client/components/AnnotationAttachmentImage.vue": [
+28
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegressionImage.vue": [
+18
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+223
+],
+"vitest:packages/ui/client/components/views/ViewConsoleOutputEntry.vue": [
+25
+],
+"vitest:packages/ui/client/components/views/ViewReport.vue": [
+87
+],
+"vitest:packages/ui/client/components/views/ViewReportError.vue": [
+63
+],
+"vitest:packages/ui/client/components/views/ViewTestReport.vue": [
+52,
+91
+]
+}

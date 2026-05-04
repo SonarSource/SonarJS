@@ -1,0 +1,80 @@
+{
+"vitest:packages/coverage-v8/src/provider.ts": [
+341
+],
+"vitest:packages/expect/src/jest-asymmetric-matchers.ts": [
+248
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+234
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+341
+],
+"vitest:packages/pretty-format/src/plugins/lib/markup.ts": [
+31
+],
+"vitest:packages/runner/src/fixture.ts": [
+656
+],
+"vitest:packages/runner/src/utils/collect.ts": [
+72
+],
+"vitest:packages/snapshot/src/port/inlineSnapshot.ts": [
+123,
+216
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+181,
+189,
+198,
+502,
+503
+],
+"vitest:packages/utils/src/diff/cleanupSemantic.ts": [
+580,
+581,
+582,
+583,
+584,
+585,
+586,
+587
+],
+"vitest:packages/utils/src/source-map.ts": [
+167,
+290
+],
+"vitest:packages/vitest/src/node/cli/filter.ts": [
+15,
+21
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+56
+],
+"vitest:packages/vitest/src/node/reporters/renderers/utils.ts": [
+75
+],
+"vitest:packages/vitest/src/node/resolver.ts": [
+104,
+116
+],
+"vitest:packages/vitest/src/runtime/console.ts": [
+26
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+422
+],
+"vitest:packages/vitest/src/runtime/vm/esm-executor.ts": [
+194,
+249
+],
+"vitest:packages/vitest/src/utils/memory-limit.ts": [
+50
+],
+"vitest:packages/vitest/src/utils/test-helpers.ts": [
+55,
+56,
+65
+]
+}

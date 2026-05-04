@@ -1,0 +1,58 @@
+{
+"vitest:examples/lit/src/my-button.ts": [
+11
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/bareModuleMocker.ts": [
+25
+],
+"vitest:packages/vitest/src/runtime/runners/test.ts": [
+273,
+274,
+275,
+276,
+277,
+278,
+279,
+280,
+281,
+286,
+290
+],
+"vitest:packages/vitest/src/runtime/vm/commonjs-executor.ts": [
+88,
+94,
+98,
+104,
+131,
+140,
+144,
+149,
+150,
+151,
+152,
+154,
+155,
+157,
+161,
+166,
+168,
+170,
+172,
+174,
+176,
+177,
+179,
+180,
+181,
+182,
+183,
+184,
+186
+],
+"vitest:packages/web-worker/src/shared-worker.ts": [
+54
+],
+"vitest:packages/web-worker/src/worker.ts": [
+22
+]
+}

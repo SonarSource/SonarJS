@@ -1,0 +1,62 @@
+{
+"vitest:packages/browser-webdriverio/src/webdriverio.ts": [
+185,
+187
+],
+"vitest:packages/browser/src/client/tester/tester.ts": [
+72
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/index.ts": [
+154,
+167
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+97
+],
+"vitest:packages/coverage-v8/src/provider.ts": [
+277
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+102
+],
+"vitest:packages/runner/src/run.ts": [
+589,
+864
+],
+"vitest:packages/snapshot/src/client.ts": [
+140
+],
+"vitest:packages/ui/client/components/artifacts/visual-regression/VisualRegression.spec.ts": [
+36,
+37
+],
+"vitest:packages/ui/client/components/explorer/ExplorerItem.vue": [
+105
+],
+"vitest:packages/ui/client/components/views/ViewReport.spec.ts": [
+39,
+41,
+47
+],
+"vitest:packages/vitest/src/create/browser/examples.ts": [
+6
+],
+"vitest:packages/vitest/src/node/cli/cli-config.ts": [
+285,
+620,
+624
+],
+"vitest:packages/vitest/src/node/core.ts": [
+659
+],
+"vitest:packages/vitest/src/node/coverage.ts": [
+704,
+838
+],
+"vitest:packages/vitest/src/node/environments/fetchModule.ts": [
+42
+],
+"vitest:packages/vitest/src/node/plugins/runnerTransform.ts": [
+53
+]
+}

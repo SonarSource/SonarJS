@@ -1,0 +1,38 @@
+{
+"vitest:test/cli/fixtures/browser-multiple/basic.test.js": [
+3
+],
+"vitest:test/cli/fixtures/fails/exports-error.test.js": [
+3
+],
+"vitest:test/cli/fixtures/stacktraces/error-in-deps.test.js": [
+4
+],
+"vitest:test/cli/fixtures/stacktraces/error-in-package.test.js": [
+7,
+11,
+15,
+19
+],
+"vitest:test/cli/fixtures/stacktraces/error-with-stack.test.js": [
+3
+],
+"vitest:test/cli/fixtures/stacktraces/require-assertions.test.js": [
+3
+],
+"vitest:test/config/fixtures/inline-setup-file/test.test.js": [
+3
+],
+"vitest:test/core/test/hooks.test.js": [
+39,
+44,
+49,
+53
+],
+"vitest:test/core/test/mocked.test.js": [
+36
+],
+"vitest:test/node-runner/test/cli.test.js": [
+4
+]
+}

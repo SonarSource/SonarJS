@@ -1,0 +1,8 @@
+{
+"vitest:packages/expect/src/jest-expect.ts": [
+0
+],
+"vitest:packages/vitest/src/node/core.ts": [
+0
+]
+}

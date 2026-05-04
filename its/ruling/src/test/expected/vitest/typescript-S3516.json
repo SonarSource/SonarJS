@@ -1,0 +1,14 @@
+{
+"vitest:packages/browser/src/client/tester/runner.ts": [
+382
+],
+"vitest:packages/vitest/src/node/environments/fetchModule.ts": [
+307
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
+402
+],
+"vitest:packages/vitest/src/runtime/worker.ts": [
+95
+]
+}
