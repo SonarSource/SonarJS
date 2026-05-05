@@ -9,6 +9,7 @@ const DEFAULT_BASELINE_WINDOW = 5;
 const DEFAULT_THRESHOLD_PCT = 5;
 const DEFAULT_THRESHOLD_ABS = 20;
 const DEFAULT_CONCURRENCY = 8;
+const DEFAULT_HISTORY_PAGE_SIZE = 100;
 const DEFAULT_RETRY_ATTEMPTS = 3;
 const RETRYABLE_STATUS_CODES = new Set([429, 502, 503]);
 const WORKFLOW_ONLY_JOBS = new Set(['prepare-project-matrix', 'diff-validation-aggregated']);
@@ -240,7 +241,13 @@ function extractProjectKeyFromProperties(content) {
 
 async function evaluateProjectHistory(options, runtime) {
   try {
-    const history = await fetchMeasureHistoryWithRetry(options.projectKey, options.metric, options.apiToken, runtime);
+    const history = await fetchMeasureHistoryWithRetry(
+      options.projectKey,
+      options.metric,
+      options.apiToken,
+      options.baselineWindow + 1,
+      runtime,
+    );
     const sortedHistory = toDatedHistory(history);
 
     if (sortedHistory.length === 0) {
@@ -317,14 +324,14 @@ async function evaluateProjectHistory(options, runtime) {
   }
 }
 
-async function fetchMeasureHistoryWithRetry(projectKey, metric, apiToken, runtime) {
+async function fetchMeasureHistoryWithRetry(projectKey, metric, apiToken, requiredHistoryPoints, runtime) {
   const fetchMeasureHistory = runtime.fetchMeasureHistory ?? defaultFetchMeasureHistory;
   const sleep = runtime.sleep ?? (ms => new Promise(resolve => setTimeout(resolve, ms)));
   const random = runtime.random ?? Math.random;
 
   for (let attempt = 0; attempt < DEFAULT_RETRY_ATTEMPTS; attempt += 1) {
     try {
-      return await fetchMeasureHistory(projectKey, metric, apiToken);
+      return await fetchMeasureHistory(projectKey, metric, apiToken, requiredHistoryPoints);
     } catch (error) {
       const statusCode = getStatusCode(error);
       const isRetryable = statusCode !== undefined && RETRYABLE_STATUS_CODES.has(statusCode);
@@ -340,21 +347,48 @@ async function fetchMeasureHistoryWithRetry(projectKey, metric, apiToken, runtim
   throw new Error(`Failed to fetch measure history for ${projectKey}`);
 }
 
-async function defaultFetchMeasureHistory(projectKey, metric, apiToken) {
+async function defaultFetchMeasureHistory(projectKey, metric, apiToken, requiredHistoryPoints = DEFAULT_BASELINE_WINDOW + 1) {
+  const pageSize = Math.max(DEFAULT_HISTORY_PAGE_SIZE, requiredHistoryPoints);
+  const firstPage = await fetchMeasureHistoryPage(projectKey, metric, apiToken, 1, pageSize);
+
+  if (firstPage.total <= firstPage.history.length) {
+    return firstPage.history;
+  }
+
+  const lastPageIndex = Math.ceil(firstPage.total / pageSize);
+  const lastPageSize = firstPage.total % pageSize || pageSize;
+  const tailPages = [];
+
+  if (lastPageSize < requiredHistoryPoints && lastPageIndex > 1) {
+    const previousPageIndex = lastPageIndex - 1;
+    tailPages.push(
+      previousPageIndex === 1 ? firstPage : await fetchMeasureHistoryPage(projectKey, metric, apiToken, previousPageIndex, pageSize),
+    );
+  }
+
+  tailPages.push(lastPageIndex === 1 ? firstPage : await fetchMeasureHistoryPage(projectKey, metric, apiToken, lastPageIndex, pageSize));
+  return tailPages.flatMap(page => page.history);
+}
+
+async function fetchMeasureHistoryPage(projectKey, metric, apiToken, pageIndex, pageSize) {
   const params = new URLSearchParams({
     component: projectKey,
     metrics: metric,
-    ps: '20',
+    p: String(pageIndex),
+    ps: String(pageSize),
   });
   const response = await fetchPeachJson(`/api/measures/search_history?${params.toString()}`, apiToken);
   const measure = response.measures?.find(entry => entry.metric === metric) ?? response.measures?.[0];
 
-  return (measure?.history ?? [])
-    .map(entry => ({
-      date: entry.date ?? '',
-      value: Number(entry.value),
-    }))
-    .filter(entry => entry.date.length > 0 && Number.isFinite(entry.value));
+  return {
+    total: response.paging?.total ?? measure?.history?.length ?? 0,
+    history: (measure?.history ?? [])
+      .map(entry => ({
+        date: entry.date ?? '',
+        value: Number(entry.value),
+      }))
+      .filter(entry => entry.date.length > 0 && Number.isFinite(entry.value)),
+  };
 }
 
 async function fetchPeachJson(pathname, apiToken) {

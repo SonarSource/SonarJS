@@ -178,6 +178,7 @@ Interpret the result like this:
 
 - `DROP` → record one `NEEDS-MANUAL-REVIEW` finding per flagged project
 - `INSUFFICIENT_HISTORY` → mention only in the summary; do not block a `SAFE` verdict by itself
+- `STALE` → treat as `NEEDS-MANUAL-REVIEW`; the issue-count check did not observe a fresh analysis for that project within the run window
 - `UNRESOLVED_PROJECT` for excluded workflow jobs such as `prepare-project-matrix` → ignore it
 - other `UNRESOLVED_PROJECT` rows → treat as `NEEDS-MANUAL-REVIEW`; the issue-count check is incomplete
 - `ERROR` → treat as `NEEDS-MANUAL-REVIEW`
@@ -198,7 +199,7 @@ Treat `threshold-abs` only as a small-project noise floor. The practical trigger
 ### 4. Early exit if no failures and no suspicious drops
 
 If there are no failed jobs after exclusions and the issue-history check found no `DROP`,
-no non-excluded `UNRESOLVED_PROJECT`, and no `ERROR` items, report the run as safe, include
+no `STALE`, no non-excluded `UNRESOLVED_PROJECT`, and no `ERROR` items, report the run as safe, include
 the exclusion counts plus the issue-history summary, and stop.
 
 ### 5. Watch for mass failure
