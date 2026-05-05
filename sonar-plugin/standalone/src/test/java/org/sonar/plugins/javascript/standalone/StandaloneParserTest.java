@@ -66,6 +66,11 @@ class StandaloneParserTest {
   }
 
   @Test
+  void should_be_alive_after_creation() {
+    assertThat(parser.isAlive()).isTrue();
+  }
+
+  @Test
   void should_throw_exception_when_fail_to_parse_code() {
     assertThatThrownBy(() -> parser.parse("..."))
       .isInstanceOf(IllegalArgumentException.class)
