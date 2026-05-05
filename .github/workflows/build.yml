@@ -312,7 +312,7 @@ jobs:
     runs-on: github-ubuntu-latest-s
     needs: [setup, populate_npm_cache, sync_rspec]
     name: ESLint README Freshness
-    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     permissions:
       id-token: write
       contents: write
