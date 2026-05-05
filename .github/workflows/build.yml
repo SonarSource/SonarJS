@@ -333,23 +333,26 @@ jobs:
       - *npm_cache
       - *download_rspec_rule_data
       - *rspec_secrets
-      - name: Regenerate ESLint README
+      - name: Regenerate README files
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
         run: |
           git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "git@github.com:"
           npm install --no-save builtin-modules@3.3.0
           npm run eslint-plugin:compile
+          npm run count-rules
       - name: Open or update README refresh PR
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          commit-message: Update eslint-plugin-sonarjs README
-          title: Update eslint-plugin-sonarjs README
-          body: Automated refresh of `packages/analysis/src/jsts/rules/README.md`.
+          commit-message: Update generated README files
+          title: Update generated README files
+          body: Automated refresh of `packages/analysis/src/jsts/rules/README.md` and rule counts in `README.md`.
           branch: bot/update-eslint-rules-readme
           base: master
-          add-paths: packages/analysis/src/jsts/rules/README.md
+          add-paths: |
+            README.md
+            packages/analysis/src/jsts/rules/README.md
           delete-branch: true
 
   test_eslint_plugin:
