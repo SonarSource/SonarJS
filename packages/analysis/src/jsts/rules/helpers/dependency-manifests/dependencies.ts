@@ -104,10 +104,7 @@ export function getDependencies(
  * take precedence. Otherwise, package.json#type from the closest manifest only
  * is used. If that closest manifest exists but omits "type", default to CommonJS.
  */
-export function getModuleType(
-  filePath: NormalizedAbsolutePath,
-  topDir: NormalizedAbsolutePath,
-): ModuleType | undefined {
+export function getModuleType(filePath: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath) {
   const extensionSignal = MODULE_TYPE_BY_EXTENSION[extname(filePath).toLowerCase()];
   if (extensionSignal) {
     return extensionSignal;
