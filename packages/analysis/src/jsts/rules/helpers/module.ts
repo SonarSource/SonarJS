@@ -14,10 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule, Scope } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { type Node, getUniqueWriteReference, getVariableFromScope, isIdentifier } from './ast.js';
+import { getDependenciesSanitizePaths } from './dependency-manifests/dependencies.js';
 
 /**
  * Checks if the current file is an ES module based on sourceType.
@@ -36,52 +37,74 @@ export function getImportDeclarations(context: Rule.RuleContext): estree.ImportD
   return [];
 }
 
-type RequireOrDynamicImport = {
-  type: 'require' | 'import';
-  moduleName: string;
+/**
+ * Cache for storing the set of all module names imported or required in the file currently being analyzed.
+ * This set is only needed while the current file is being analyzed.
+ *
+ * Keyed by the `sourceCode` object reference rather than a boolean flag so that the cache
+ * self-invalidates when ESLint's RuleTester switches between test cases (each case gets a fresh
+ * SourceCode instance).
+ */
+const CURRENT_FILE_DEPS: {
+  sourceCode: SourceCode | null;
+  deps: Set<string>;
+} = {
+  sourceCode: null,
+  deps: new Set(),
 };
 
 /**
- * Returns all calls to require() and dynamic imports whose result is stored in a variable.
- * e.g.:
+ * Compute the set of all module names imported or required
+ * in the file currently being analyzed (via import declarations, require(), or dynamic import()).
+ *
+ * Supported patterns:
+ * import foo from 'lodash';
  * const lodash = require('lodash');
  * const partition = require('lodash').partition;
  * const lodash = import('lodash');
  * const lodash = await import('lodash');
  *
- * Unsupported patterns:
- * require('lodash'); // not stored in variable
- * import('lodash').then(...); // not stored in variable
+ * Unsupported patterns (not stored in a variable):
+ * require('lodash');
+ * import('lodash').then(lodash => ...);
  */
-function getRequireAndDynamicImportCalls(context: Rule.RuleContext): RequireOrDynamicImport[] {
-  const imports: RequireOrDynamicImport[] = [];
-  const { scopeManager } = context.sourceCode;
-  for (const scope of scopeManager.scopes) {
+function computeCurrentFileDependencies(sourceCode: SourceCode): void {
+  if (CURRENT_FILE_DEPS.sourceCode === sourceCode) {
+    return;
+  }
+
+  CURRENT_FILE_DEPS.sourceCode = sourceCode;
+  CURRENT_FILE_DEPS.deps.clear();
+
+  if (sourceCode.ast.sourceType === 'module') {
+    for (const node of sourceCode.ast.body) {
+      if (node.type === 'ImportDeclaration' && typeof node.source.value === 'string') {
+        CURRENT_FILE_DEPS.deps.add(node.source.value);
+      }
+    }
+  }
+
+  for (const scope of sourceCode.scopeManager.scopes) {
     for (const variable of scope.variables) {
       for (const def of variable.defs) {
         if (def.type === 'Variable' && def.node.init) {
-          const importedModule = getImport(def.node.init);
-          if (importedModule) {
-            imports.push(importedModule);
+          const name =
+            getRequireModuleName(def.node.init) ?? getDynamicImportModuleName(def.node.init);
+          if (name !== undefined) {
+            CURRENT_FILE_DEPS.deps.add(name);
           }
         }
       }
     }
   }
-
-  return imports;
 }
 
-function getImport(node: estree.Node): RequireOrDynamicImport | undefined {
-  const requireModuleName = getRequireModuleName(node);
-  if (requireModuleName !== undefined) {
-    return { type: 'require', moduleName: requireModuleName };
-  }
-  const dynamicImportModuleName = getDynamicImportModuleName(node);
-  if (dynamicImportModuleName !== undefined) {
-    return { type: 'import', moduleName: dynamicImportModuleName };
-  }
-  return undefined;
+/**
+ * Clears the caches related to the given source file
+ */
+export function clearFileCaches(): void {
+  CURRENT_FILE_DEPS.sourceCode = null;
+  CURRENT_FILE_DEPS.deps.clear();
 }
 
 function getRequireModuleName(node: estree.Node): string | undefined {
@@ -129,16 +152,25 @@ export function importsModule(context: Rule.RuleContext, moduleNames: string[]):
   if (moduleNames.length === 0) {
     return false;
   }
+  computeCurrentFileDependencies(context.sourceCode);
+  return moduleNames.some(name => CURRENT_FILE_DEPS.deps.has(name));
+}
 
-  // check import declarations first as they are more common nowadays
-  return (
-    getImportDeclarations(context).some(
-      declaration =>
-        typeof declaration.source.value === 'string' &&
-        moduleNames.includes(declaration.source.value),
-    ) ||
-    getRequireAndDynamicImportCalls(context).some(module => moduleNames.includes(module.moduleName))
-  );
+/**
+ * Checks if at least one of the specified imports is imported (via import or require) in the file
+ * or if at least one of the specified dependencies is listed in the corresponding dependency manifest.
+ */
+export function importsOrDependsOnModule(
+  context: Rule.RuleContext,
+  imports: string[],
+  dependencies: string[],
+): boolean {
+  if (importsModule(context, imports)) {
+    return true;
+  }
+
+  const sanitizedDeps = getDependenciesSanitizePaths(context);
+  return dependencies.some(dependency => sanitizedDeps.has(dependency));
 }
 
 export function isRequire(node: Node): node is estree.CallExpression {

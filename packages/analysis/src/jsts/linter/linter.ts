@@ -45,6 +45,7 @@ import { RULE_FILTERS, type RuleFilterContext } from './filters/index.js';
 import { getClosestDependencyManifestDir } from '../rules/helpers/dependency-manifests/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
 import type { FileType } from '../../contracts/file.js';
+import { clearFileCaches } from '../rules/helpers/module.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -215,6 +216,7 @@ export class Linter {
     };
 
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
+    clearFileCaches();
     return transformMessages(messages, language, {
       sourceCode,
       ruleMetas,

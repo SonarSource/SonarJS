@@ -14,7 +14,4 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rules } from '../external/unicorn.js';
-import { decorate } from './decorator.js';
-
-export const rule = decorate(rules['prefer-string-raw']);
+export { rule } from './rule.js';

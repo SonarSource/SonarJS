@@ -15,5 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rules } from 'eslint-plugin-import';
-import type { Rule } from 'eslint';
-export const rule: Rule.RuleModule = rules['no-absolute-path'];
+import { decorate } from './decorator.js';
+
+export const rule = decorate(rules['no-absolute-path']);

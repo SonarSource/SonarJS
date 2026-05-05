@@ -273,6 +273,15 @@ export function isBigIntArray(type: ts.Type, services: RequiredParserServices) {
   return isArrayElementTypeMatching(type, services, isBigIntType);
 }
 
+/**
+ * Test if the provided type is an array of booleans.
+ * @param type A TypeScript type.
+ * @param services The services used to get access to the TypeScript type checker
+ */
+export function isBooleanArray(type: ts.Type, services: RequiredParserServices) {
+  return isArrayElementTypeMatching(type, services, isBooleanType);
+}
+
 function isArrayElementTypeMatching(
   type: ts.Type,
   services: RequiredParserServices,
@@ -325,7 +334,7 @@ export function isBooleanTrueType(type: ts.Type) {
 }
 
 export function isBooleanType({ flags }: ts.Type) {
-  return flags & ts.TypeFlags.BooleanLike;
+  return (flags & ts.TypeFlags.BooleanLike) !== 0;
 }
 
 export function isNullOrUndefinedType({ flags }: ts.Type) {
