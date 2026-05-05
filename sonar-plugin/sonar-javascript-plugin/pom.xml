@@ -250,6 +250,12 @@
                 <argument>mkdir -p "${0}" &amp;&amp; cp -f "$@" "${0}"</argument>
                 <argument>${project.basedir}/../../tsgolint/cmd/sonar-server/</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/main.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/filesystem.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/normalize.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/path_patterns.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/file_stores.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/dependency_signals.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/generated_rule_metadata.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/service.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/converter.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/rules.go</argument>
@@ -265,6 +271,21 @@
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/prefer_string_starts_ends_with_decorator.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/switch_exhaustiveness_check_decorator.go</argument>
                 <argument>${project.basedir}/../bridge/src/main/go/sonar-server/decorator_test.go</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/file_stores_test.go</argument>
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>tsgolint-copy-linter-overlay</id>
+            <phase>${tsgolint.build.phase}</phase>
+            <goals><goal>exec</goal></goals>
+            <configuration>
+              <executable>bash</executable>
+              <arguments>
+                <argument>-c</argument>
+                <argument>mkdir -p "${0}" &amp;&amp; cp -f "$@" "${0}"</argument>
+                <argument>${project.basedir}/../../tsgolint/internal/linter/</argument>
+                <argument>${project.basedir}/../bridge/src/main/go/tsgolint/internal/linter/run_linter_on_file.go</argument>
               </arguments>
             </configuration>
           </execution>

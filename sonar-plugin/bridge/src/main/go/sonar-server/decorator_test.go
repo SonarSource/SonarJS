@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strings"
 	"sync"
 	"testing"
@@ -633,6 +634,141 @@ func TestNoRedundantTypeConstituentsDecoratorSuppressesUnresolvedTopTypes(t *tes
 	}
 }
 
+func TestAnalyzeProjectUsesVirtualFiles(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizeSlashes(t.TempDir())
+	filePath := tspath.ResolvePath(baseDir, "virtual/file.ts")
+	source := "const arr: number[] = []; delete arr[0];"
+	canAccessFileSystem := false
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:             baseDir,
+			CanAccessFileSystem: &canAccessFileSystem,
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			filePath: {
+				FileContent: &source,
+			},
+		},
+		Rules: []*pb.JsTsRule{
+			{Key: "S2870"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+
+	fileResult, ok := results[filePath]
+	if !ok {
+		t.Fatalf("expected analysis result for %q", filePath)
+	}
+	if len(fileResult.GetIssues()) != 1 {
+		t.Fatalf("expected one issue from virtual file analysis, got %#v", fileResult.GetIssues())
+	}
+	if fileResult.GetIssues()[0].GetRuleId() != "S2870" {
+		t.Fatalf("expected S2870 issue, got %#v", fileResult.GetIssues()[0])
+	}
+}
+
+func TestAnalyzeProjectFiltersRulesPerFile(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizeSlashes(t.TempDir())
+	mainFilePath := tspath.ResolvePath(baseDir, "src/main.ts")
+	testFilePath := tspath.ResolvePath(baseDir, "src/test.ts")
+	source := "const arr: number[] = []; delete arr[0];"
+	canAccessFileSystem := false
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:             baseDir,
+			CanAccessFileSystem: &canAccessFileSystem,
+			AnalysisMode:        pb.AnalysisMode_ANALYSIS_MODE_DEFAULT,
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			mainFilePath: {
+				FileContent: &source,
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+			testFilePath: {
+				FileContent: &source,
+				FileType:    pb.FileType_FILE_TYPE_TEST,
+			},
+		},
+		Rules: []*pb.JsTsRule{
+			{
+				Key:             "S2870",
+				FileTypeTargets: []pb.FileType{pb.FileType_FILE_TYPE_MAIN},
+				AnalysisModes:   []pb.AnalysisMode{pb.AnalysisMode_ANALYSIS_MODE_DEFAULT},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+
+	if len(results[mainFilePath].GetIssues()) != 1 {
+		t.Fatalf("expected one issue for main file, got %#v", results[mainFilePath].GetIssues())
+	}
+	if len(results[testFilePath].GetIssues()) != 0 {
+		t.Fatalf("expected no issues for test file, got %#v", results[testFilePath].GetIssues())
+	}
+}
+
+func TestBuildAnalyzeProjectFSBlocksHostFilesystemWhenDisabled(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizeSlashes(t.TempDir())
+	hostFilePath := tspath.ResolvePath(baseDir, "on-disk.ts")
+	virtualFilePath := tspath.ResolvePath(baseDir, "virtual/file.ts")
+	virtualContent := "const arr: number[] = []; delete arr[0];"
+	canAccessFileSystem := false
+
+	if err := os.WriteFile(hostFilePath, []byte("const onDisk = true;"), 0o600); err != nil {
+		t.Fatalf("could not write host file: %v", err)
+	}
+
+	fsys := BuildAnalyzeProjectFS(&NormalizedAnalyzeProjectInput{
+		Config: NormalizedProjectConfiguration{
+			CanAccessFileSystem: &canAccessFileSystem,
+		},
+		VirtualFiles: map[string]string{
+			virtualFilePath: virtualContent,
+		},
+	})
+
+	if fsys.FileExists(hostFilePath) {
+		t.Fatalf("expected host filesystem file %q to be hidden", hostFilePath)
+	}
+	if _, ok := fsys.ReadFile(hostFilePath); ok {
+		t.Fatalf("expected host filesystem file %q to be unreadable", hostFilePath)
+	}
+	if !fsys.FileExists(virtualFilePath) {
+		t.Fatalf("expected virtual file %q to exist", virtualFilePath)
+	}
+	if contents, ok := fsys.ReadFile(virtualFilePath); !ok || contents != virtualContent {
+		t.Fatalf("expected virtual file content %q, got %q (ok=%v)", virtualContent, contents, ok)
+	}
+	if !fsys.DirectoryExists(baseDir) {
+		t.Fatalf("expected synthetic base directory %q to exist", baseDir)
+	}
+	if !fsys.DirectoryExists(tspath.ResolvePath(baseDir, "virtual")) {
+		t.Fatalf("expected synthetic virtual directory to exist")
+	}
+}
+
 func programForCode(t *testing.T, code string) (*ast.SourceFile, *checker.Checker, func()) {
 	t.Helper()
 
@@ -689,19 +825,16 @@ func runNamedRuleOnCode(
 		mu          sync.Mutex
 		diagnostics []rule.RuleDiagnostic
 	)
-	err = linter.RunLinterOnProgram(
+	err = linter.RunLinterOnFile(
 		utils.LogLevelNormal,
 		program,
-		[]*ast.SourceFile{sourceFile},
-		1,
-		func(sourceFile *ast.SourceFile) []linter.ConfiguredRule {
-			return []linter.ConfiguredRule{{
-				Name: ruleName,
-				Run: func(ctx rule.RuleContext) rule.RuleListeners {
-					return ruleToRun.Run(ctx, options)
-				},
-			}}
-		},
+		sourceFile,
+		[]linter.ConfiguredRule{{
+			Name: ruleName,
+			Run: func(ctx rule.RuleContext) rule.RuleListeners {
+				return ruleToRun.Run(ctx, options)
+			},
+		}},
 		func(diagnostic rule.RuleDiagnostic) {
 			mu.Lock()
 			defer mu.Unlock()
