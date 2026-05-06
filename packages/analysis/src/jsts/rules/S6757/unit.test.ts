@@ -95,6 +95,18 @@ class MethodReturnsArrowRendererExample extends Component {
           `,
         },
         {
+          // Compliant: class property
+          code: `
+const React = { Component: class {} };
+
+class PropertyArrowRendererExample extends React.Component {
+  renderItem = () => (
+    <li>{this.props.value}</li>
+  );
+}
+          `,
+        },
+        {
           // Compliant: class props
           code: `
 const React = { PureComponent: class {} };
