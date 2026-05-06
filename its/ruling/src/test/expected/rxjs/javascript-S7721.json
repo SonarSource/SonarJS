@@ -1,7 +1,6 @@
 {
 "rxjs:doc/decision-tree-widget/src/main.js": [
-50,
-61
+50
 ],
 "rxjs:perf/micro/current-thread-scheduler/observable/defer.js": [
 14,

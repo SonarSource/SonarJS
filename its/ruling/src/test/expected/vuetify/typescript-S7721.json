@@ -14,10 +14,6 @@
 "vuetify:packages/vuetify/src/components/VList/__tests__/VListItem.spec.cy.tsx": [
 8
 ],
-"vuetify:packages/vuetify/src/components/VRating/VRating.tsx": [
-125,
-137
-],
 "vuetify:packages/vuetify/src/components/VToolbar/__tests__/VToolbar.spec.cy.tsx": [
 11
 ],
@@ -32,9 +28,6 @@
 ],
 "vuetify:packages/vuetify/src/composables/items.ts": [
 99
-],
-"vuetify:packages/vuetify/src/composables/location.ts": [
-41
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/composables/group.ts": [
 51

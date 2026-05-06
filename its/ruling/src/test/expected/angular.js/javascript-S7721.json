@@ -38,23 +38,17 @@
 ],
 "angular.js:src/auto/injector.js": [
 756,
-827,
 917
 ],
 "angular.js:src/loader.js": [
-17,
-85
+17
 ],
 "angular.js:src/ng/anchorScroll.js": [
 180
 ],
 "angular.js:src/ng/animate.js": [
 101,
-116,
 315
-],
-"angular.js:src/ng/animateRunner.js": [
-82
 ],
 "angular.js:src/ng/cacheFactory.js": [
 311
@@ -68,15 +62,12 @@
 2587,
 2613,
 2793,
-3387,
 3472,
 3550,
 3708,
 3715,
 3717,
-3804,
-4005,
-4018
+4005
 ],
 "angular.js:src/ng/controller.js": [
 163
@@ -96,9 +87,6 @@
 105,
 123,
 127
-],
-"angular.js:src/ng/directive/ngInclude.js": [
-225
 ],
 "angular.js:src/ng/directive/ngModelOptions.js": [
 549
@@ -131,7 +119,6 @@
 "angular.js:src/ng/http.js": [
 1081,
 1098,
-1425,
 1505,
 1512
 ],
@@ -171,14 +158,10 @@
 292,
 293
 ],
-"angular.js:src/ngAnimate/animateCss.js": [
-974
-],
 "angular.js:src/ngAnimate/animateCssDriver.js": [
 12,
 41,
 46,
-119,
 153
 ],
 "angular.js:src/ngAnimate/animateQueue.js": [
@@ -190,7 +173,6 @@
 ],
 "angular.js:src/ngAnimate/animation.js": [
 77,
-270,
 368,
 412
 ],

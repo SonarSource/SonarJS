@@ -21,7 +21,6 @@
 ],
 "TypeScript:src/compiler/checker.ts": [
 523,
-668,
 684,
 1869,
 1913,
@@ -33,7 +32,6 @@
 2902,
 2928,
 2959,
-2968,
 3294,
 3518,
 3887,
@@ -67,7 +65,6 @@
 9618,
 9718,
 10044,
-10592,
 10831,
 10873,
 10896,
@@ -75,7 +72,6 @@
 10958,
 10962,
 11382,
-11514,
 11586,
 12938,
 13027,
@@ -120,10 +116,7 @@
 176
 ],
 "TypeScript:src/compiler/declarationEmitter.ts": [
-455,
-574,
 993,
-998,
 1137,
 1403,
 1890
@@ -136,9 +129,6 @@
 2701,
 2851
 ],
-"TypeScript:src/compiler/moduleNameResolver.ts": [
-385
-],
 "TypeScript:src/compiler/parser.ts": [
 6457,
 6463,
@@ -148,7 +138,6 @@
 "TypeScript:src/compiler/program.ts": [
 85,
 182,
-1072,
 1332,
 1336,
 1340
@@ -193,7 +182,6 @@
 2433
 ],
 "TypeScript:src/compiler/transformers/jsx.ts": [
-227,
 249,
 269
 ],
@@ -255,18 +243,11 @@
 "TypeScript:src/harness/rwcRunner.ts": [
 147
 ],
-"TypeScript:src/harness/sourceMapRecorder.ts": [
-333,
-358
-],
 "TypeScript:src/server/editorServices.ts": [
 869
 ],
 "TypeScript:src/server/scriptVersionCache.ts": [
 522
-],
-"TypeScript:src/server/server.ts": [
-506
 ],
 "TypeScript:src/server/session.ts": [
 890,
@@ -276,7 +257,6 @@
 1468
 ],
 "TypeScript:src/services/breakpoints.ts": [
-373,
 414,
 442
 ],
@@ -294,7 +274,6 @@
 194,
 216,
 300,
-307,
 540
 ],
 "TypeScript:src/services/completions.ts": [

@@ -64,9 +64,6 @@
 39,
 44
 ],
-"Ghost:core/server/permissions/index.js": [
-151
-],
 "Ghost:core/server/routes/frontend.js": [
 19
 ],
@@ -113,9 +110,6 @@
 ],
 "Ghost:core/test/unit/error_handling_spec.js": [
 41
-],
-"Ghost:core/test/unit/server_helpers/body_class_spec.js": [
-59
 ],
 "Ghost:core/test/unit/server_helpers/foreach_spec.js": [
 41,
