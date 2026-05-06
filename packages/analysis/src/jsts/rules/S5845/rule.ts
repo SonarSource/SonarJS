@@ -68,7 +68,7 @@ export const rule: Rule.RuleModule = {
         return;
       }
 
-      const incompatibility = getIncompatibility(assertion, services, checker);
+      const incompatibility = getIncompatibility(assertion, context, services, checker);
       if (!incompatibility) {
         return;
       }
@@ -92,9 +92,18 @@ export const rule: Rule.RuleModule = {
 
 function getIncompatibility(
   assertion: Extract<Assertion, { kind: 'comparison' }>,
+  context: Rule.RuleContext,
   services: RequiredParserServices,
   checker: ts.TypeChecker,
 ): Incompatibility | null {
+  if (
+    isUnreliableExpressionType(assertion.actual, context, services, checker) ||
+    isUnreliableExpressionType(assertion.expected, context, services, checker) ||
+    isMockAffectedComparison(assertion, context)
+  ) {
+    return null;
+  }
+
   const actualType = checker.getBaseTypeOfLiteralType(
     getTypeFromTreeNode(assertion.actual, services),
   );
@@ -133,6 +142,160 @@ function getIncompatibility(
 
 function getUnionMembers(type: ts.Type): ts.Type[] {
   return type.isUnion() ? type.types : [type];
+}
+
+function isUnreliableExpressionType(
+  node: estree.Node,
+  context: Rule.RuleContext,
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+): boolean {
+  if (node.type !== 'Identifier') {
+    return false;
+  }
+
+  return (
+    isUntypedUninitializedVariable(node, services, checker) ||
+    hasAnyLikeAssignment(node, context, services, checker)
+  );
+}
+
+function isUntypedUninitializedVariable(
+  node: estree.Identifier,
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+): boolean {
+  const symbol = getSymbol(node, services, checker);
+  return Boolean(
+    symbol?.declarations?.some(
+      declaration =>
+        ts.isVariableDeclaration(declaration) &&
+        declaration.type === undefined &&
+        !declaration.initializer,
+    ),
+  );
+}
+
+function hasAnyLikeAssignment(
+  node: estree.Identifier,
+  context: Rule.RuleContext,
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+): boolean {
+  const symbol = getSymbol(node, services, checker);
+  if (!symbol) {
+    return false;
+  }
+
+  let found = false;
+  traverse(context.sourceCode.ast, current => {
+    if (found || current.type !== 'AssignmentExpression' || current.left.type !== 'Identifier') {
+      return;
+    }
+    if (getSymbol(current.left, services, checker) !== symbol) {
+      return;
+    }
+    const rightType = getTypeFromTreeNode(current.right, services);
+    found = isAnyLike(rightType);
+  });
+  return found;
+}
+
+function getSymbol(
+  node: estree.Identifier,
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+) {
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+  return checker.getSymbolAtLocation(tsNode);
+}
+
+function isAnyLike(type: ts.Type): boolean {
+  return Boolean(type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown));
+}
+
+const astHasMockSetup = new WeakMap<estree.Program, boolean>();
+
+function isMockAffectedComparison(
+  assertion: Extract<Assertion, { kind: 'comparison' }>,
+  context: Rule.RuleContext,
+): boolean {
+  if (!hasMockSetup(context.sourceCode.ast)) {
+    return false;
+  }
+
+  return (
+    isPotentialMockRuntimeExpression(assertion.actual) ||
+    isPotentialMockRuntimeExpression(assertion.expected)
+  );
+}
+
+function hasMockSetup(program: estree.Program): boolean {
+  const cached = astHasMockSetup.get(program);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  let found = false;
+  traverse(program, node => {
+    if (found || node.type !== 'CallExpression') {
+      return;
+    }
+    found = isMockSetupCall(node);
+  });
+  astHasMockSetup.set(program, found);
+  return found;
+}
+
+function isMockSetupCall(node: estree.CallExpression): boolean {
+  const callee = node.callee;
+  if (callee.type !== 'MemberExpression') {
+    return false;
+  }
+  const object = callee.object;
+  const property = callee.property;
+  const propertyName =
+    property.type === 'Identifier'
+      ? property.name
+      : property.type === 'Literal'
+        ? property.value
+        : null;
+
+  return (
+    object.type === 'Identifier' &&
+    ['vi', 'vitest', 'jest'].includes(object.name) &&
+    typeof propertyName === 'string' &&
+    ['mock', 'doMock', 'fn', 'spyOn', 'mockObject', 'mocked', 'hoisted', 'importMock'].includes(
+      propertyName,
+    )
+  );
+}
+
+function isPotentialMockRuntimeExpression(node: estree.Node): boolean {
+  return node.type === 'CallExpression' || node.type === 'MemberExpression';
+}
+
+function traverse(node: estree.Node, callback: (node: estree.Node) => void) {
+  callback(node);
+
+  for (const [key, value] of Object.entries(node)) {
+    if (['parent', 'loc', 'range'].includes(key)) {
+      continue;
+    }
+    if (isNode(value)) {
+      traverse(value, callback);
+    } else if (Array.isArray(value)) {
+      for (const element of value) {
+        if (isNode(element)) {
+          traverse(element, callback);
+        }
+      }
+    }
+  }
+}
+
+function isNode(value: unknown): value is estree.Node {
+  return typeof value === 'object' && value !== null && 'type' in value;
 }
 
 function getPrimitiveCategory(type: ts.Type): PrimitiveCategory | null {

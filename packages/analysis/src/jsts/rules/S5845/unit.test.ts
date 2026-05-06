@@ -120,6 +120,42 @@ describe('S5845', () => {
             expect(value).toBeTruthy();
           `,
         },
+        {
+          code: `
+            import assert from 'node:assert';
+
+            let result;
+            const expected = [true, [], {}];
+            runLater(() => {
+              result = expected;
+            });
+            assert.deepEqual(result, expected);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+
+            let messageErrorValue = false;
+            try {
+              throw 'boo!';
+            } catch (e) {
+              messageErrorValue = e;
+            }
+            expect(messageErrorValue).to.equal('boo!');
+          `,
+        },
+        {
+          code: `
+            import { expect, test, vi } from 'vitest';
+
+            test('mocked return value', () => {
+              const total = vi.fn(() => 1);
+              total.mockReturnValue('mocked' as never);
+              expect(total()).toBe('mocked');
+            });
+          `,
+        },
       ],
       invalid: [
         {
