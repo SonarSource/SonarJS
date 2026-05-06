@@ -44,6 +44,14 @@
 "vitest:test/cli/fixtures/custom-pool/tests/custom-run.threads.spec.ts": [
 4
 ],
+"vitest:test/cli/fixtures/expect-soft/expects/soft.test.ts": [
+62,
+69,
+103
+],
+"vitest:test/cli/fixtures/fails/expect.test.ts": [
+4
+],
 "vitest:test/cli/fixtures/fails/hook-timeout.test.ts": [
 8
 ],
@@ -53,6 +61,9 @@
 "vitest:test/cli/fixtures/fails/hooks-timeout-before-hook-cleanup-callback.test.ts": [
 6,
 13
+],
+"vitest:test/cli/fixtures/fails/mock-import-proxy-module.test.ts": [
+7
 ],
 "vitest:test/cli/fixtures/fails/nested-suite.test.ts": [
 9
@@ -181,6 +192,9 @@
 "vitest:test/cli/fixtures/reporters/import-durations.test.ts": [
 5
 ],
+"vitest:test/cli/fixtures/reporters/json-fail.test.ts": [
+8
+],
 "vitest:test/cli/fixtures/reporters/junit-cli-options/sample.test.ts": [
 4
 ],
@@ -269,7 +283,8 @@
 ],
 "vitest:test/core/test/basic.test.ts": [
 46,
-47
+47,
+69
 ],
 "vitest:test/core/test/env-jsdom.test.ts": [
 50
@@ -283,6 +298,10 @@
 ],
 "vitest:test/core/test/hoisted-async-simple.test.ts": [
 30
+],
+"vitest:test/core/test/jest-expect-no-url.test.ts": [
+6,
+9
 ],
 "vitest:test/core/test/jest-expect.test.ts": [
 34,
@@ -381,6 +400,9 @@
 ],
 "vitest:test/ui/fixtures/error.test.ts": [
 5
+],
+"vitest:test/ui/fixtures/sample.test.ts": [
+12
 ],
 "vitest:test/ui/fixtures/task-name.test.ts": [
 4,

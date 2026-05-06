@@ -1,0 +1,13 @@
+{
+"rxjs:spec/Observable-spec.ts": [
+354,
+382,
+539
+],
+"rxjs:spec/Subject-spec.ts": [
+268
+],
+"rxjs:spec/observables/IteratorObservable-spec.ts": [
+152
+]
+}

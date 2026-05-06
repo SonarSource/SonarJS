@@ -1,0 +1,42 @@
+{
+"vitest:test/browser/fixtures/mocking/mocked-nested.test.ts": [
+14
+],
+"vitest:test/cli/fixtures/no-module-runner/test/automock.test.ts": [
+11,
+12
+],
+"vitest:test/core/test/jest-expect.test.ts": [
+432,
+433
+],
+"vitest:test/core/test/mocked.test.ts": [
+94,
+111
+],
+"vitest:test/core/test/mocking/automocking.spec.ts": [
+60,
+61
+],
+"vitest:test/core/test/mocking/vi-fn.test.ts": [
+50
+],
+"vitest:test/core/test/mocking/vi-mockObject.test.ts": [
+8,
+36,
+45,
+55,
+59,
+143,
+144,
+156,
+170
+],
+"vitest:test/core/test/mocking/vi-spyOn.test.ts": [
+81
+],
+"vitest:test/core/test/vi.spec.ts": [
+297,
+298
+]
+}
