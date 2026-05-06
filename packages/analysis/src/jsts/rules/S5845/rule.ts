@@ -16,11 +16,12 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5845/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 import { type Assertion, extractTestAssertion } from '../helpers/assertions.js';
+import { childrenOf } from '../helpers/ancestor.js';
 import {
   isRequiredParserServices,
   type RequiredParserServices,
@@ -189,16 +190,20 @@ function hasAnyLikeAssignment(
   }
 
   let found = false;
-  traverse(context.sourceCode.ast, current => {
-    if (found || current.type !== 'AssignmentExpression' || current.left.type !== 'Identifier') {
-      return;
-    }
-    if (getSymbol(current.left, services, checker) !== symbol) {
-      return;
-    }
-    const rightType = getTypeFromTreeNode(current.right, services);
-    found = isAnyLike(rightType);
-  });
+  traverse(
+    context.sourceCode.ast,
+    current => {
+      if (found || current.type !== 'AssignmentExpression' || current.left.type !== 'Identifier') {
+        return;
+      }
+      if (getSymbol(current.left, services, checker) !== symbol) {
+        return;
+      }
+      const rightType = getTypeFromTreeNode(current.right, services);
+      found = isAnyLike(rightType);
+    },
+    context.sourceCode.visitorKeys,
+  );
   return found;
 }
 
@@ -221,7 +226,7 @@ function isMockAffectedComparison(
   assertion: Extract<Assertion, { kind: 'comparison' }>,
   context: Rule.RuleContext,
 ): boolean {
-  if (!hasMockSetup(context.sourceCode.ast)) {
+  if (!hasMockSetup(context.sourceCode.ast, context.sourceCode.visitorKeys)) {
     return false;
   }
 
@@ -231,19 +236,23 @@ function isMockAffectedComparison(
   );
 }
 
-function hasMockSetup(program: estree.Program): boolean {
+function hasMockSetup(program: estree.Program, visitorKeys: SourceCode.VisitorKeys): boolean {
   const cached = astHasMockSetup.get(program);
   if (cached !== undefined) {
     return cached;
   }
 
   let found = false;
-  traverse(program, node => {
-    if (found || node.type !== 'CallExpression') {
-      return;
-    }
-    found = isMockSetupCall(node);
-  });
+  traverse(
+    program,
+    node => {
+      if (found || node.type !== 'CallExpression') {
+        return;
+      }
+      found = isMockSetupCall(node);
+    },
+    visitorKeys,
+  );
   astHasMockSetup.set(program, found);
   return found;
 }
@@ -253,50 +262,43 @@ function isMockSetupCall(node: estree.CallExpression): boolean {
   if (callee.type !== 'MemberExpression') {
     return false;
   }
-  const object = callee.object;
-  const property = callee.property;
-  const propertyName =
-    property.type === 'Identifier'
-      ? property.name
-      : property.type === 'Literal'
-        ? property.value
-        : null;
+  const { object, property } = callee;
+  const propertyName = getStaticPropertyName(property);
 
   return (
     object.type === 'Identifier' &&
     ['vi', 'vitest', 'jest'].includes(object.name) &&
-    typeof propertyName === 'string' &&
+    propertyName !== null &&
     ['mock', 'doMock', 'fn', 'spyOn', 'mockObject', 'mocked', 'hoisted', 'importMock'].includes(
       propertyName,
     )
   );
 }
 
+function getStaticPropertyName(property: estree.MemberExpression['property']): string | null {
+  if (property.type === 'Identifier') {
+    return property.name;
+  }
+  if (property.type === 'Literal' && typeof property.value === 'string') {
+    return property.value;
+  }
+  return null;
+}
+
 function isPotentialMockRuntimeExpression(node: estree.Node): boolean {
   return node.type === 'CallExpression' || node.type === 'MemberExpression';
 }
 
-function traverse(node: estree.Node, callback: (node: estree.Node) => void) {
+function traverse(
+  node: estree.Node,
+  callback: (node: estree.Node) => void,
+  visitorKeys: SourceCode.VisitorKeys,
+) {
   callback(node);
 
-  for (const [key, value] of Object.entries(node)) {
-    if (['parent', 'loc', 'range'].includes(key)) {
-      continue;
-    }
-    if (isNode(value)) {
-      traverse(value, callback);
-    } else if (Array.isArray(value)) {
-      for (const element of value) {
-        if (isNode(element)) {
-          traverse(element, callback);
-        }
-      }
-    }
+  for (const child of childrenOf(node, visitorKeys)) {
+    traverse(child, callback, visitorKeys);
   }
-}
-
-function isNode(value: unknown): value is estree.Node {
-  return typeof value === 'object' && value !== null && 'type' in value;
 }
 
 function getPrimitiveCategory(type: ts.Type): PrimitiveCategory | null {
