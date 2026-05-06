@@ -36,6 +36,7 @@ import {
   PACKAGE_JSON,
 } from '../src/jsts/rules/helpers/dependency-manifests/index.js';
 import { patternInParentsCache } from '../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
+import { Minimatch } from 'minimatch';
 
 const closestPackageJsonCache = closestPatternCache.get(PACKAGE_JSON);
 const packageJsonsInParentsCache = patternInParentsCache.get(PACKAGE_JSON);
@@ -100,11 +101,21 @@ describe('files', () => {
     const subDir = normalizeToAbsolutePath(join(baseDir, 'src'));
     const nestedSubDir = normalizeToAbsolutePath(join(subDir, 'nested'));
 
-    expect(getDependencies(subDir, baseDir)).toEqual(new Set(['test-module', 'pkg1', 'pkg2']));
+    expect(getDependencies(subDir, baseDir)).toEqual(
+      new Map([
+        ['test-module', '*'],
+        ['pkg1', '1.0.7'],
+        ['pkg2', '2.0.0'],
+      ]),
+    );
     expect(dependenciesCache.size).toEqual(1);
 
     expect(getDependencies(nestedSubDir, baseDir)).toEqual(
-      new Set(['test-module', 'pkg1', 'pkg2']),
+      new Map([
+        ['test-module', '*'],
+        ['pkg1', '1.0.7'],
+        ['pkg2', '2.0.0'],
+      ]),
     );
     expect(dependenciesCache.size).toEqual(1);
     expect(dependenciesCache.has(baseDir)).toEqual(true);
@@ -117,19 +128,15 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
-    expect(manifests[0].manifest).toMatchObject({
-      dependencies: {
-        react: '^19.1.1',
-        'react-dom': '^19.1.1',
-        vue: '^3.5.0',
-      },
-      peerDependencies: {
-        typescript: '^5.8.0',
-      },
-      optionalDependencies: {
-        rollup: '^4.40.0',
-      },
-    });
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['react', '^19.1.1'],
+        ['react-dom', '^19.1.1'],
+        ['vue', '^3.5.0'],
+        ['typescript', '^5.8.0'],
+        ['rollup', '^4.40.0'],
+      ]),
+    );
   });
 
   it('should resolve pnpm catalog references from pnpm-workspace.yaml for lower-level-directory package.json', async () => {
@@ -144,15 +151,13 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(currentDirectory, topDirectory);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm', 'npm']);
-    expect(manifests[0].manifest).toMatchObject({
-      dependencies: {
-        react: '^19.1.1',
-        'react-dom': '^19.1.1',
-      },
-      devDependencies: {
-        vue: '^3.5.0',
-      },
-    });
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['react', '^19.1.1'],
+        ['react-dom', '^19.1.1'],
+        ['vue', '^3.5.0'],
+      ]),
+    );
   });
 
   it('should inject pnpm workspace packages into manifest workspaces', async () => {
@@ -162,10 +167,14 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
-    expect(manifests[0].manifest).toMatchObject({
-      workspaces: ['packages/*', 'apps/*'],
-      dependencies: { react: '^19.0.0' },
-    });
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['react', '^19.0.0'],
+        ['root', '*'],
+        [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+        [new Minimatch('apps/*', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
   });
 
   it('should inject workspace packages alongside catalog reference resolution', async () => {
@@ -175,23 +184,12 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
-    expect(manifests[0].manifest).toMatchObject({
-      workspaces: ['packages/*'],
-      dependencies: { react: '^19.1.1' },
-    });
-  });
-
-  it('should not set workspaces when pnpm-workspace.yaml has no packages field', async () => {
-    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-catalog'));
-    const configuration = createConfiguration({ baseDir });
-    await initFileStores(configuration);
-
-    const manifests = getDependencyManifests(baseDir, baseDir);
-    const [manifest] = manifests;
-    expect(manifest.type).toEqual('npm');
-    if (manifest.type === 'npm') {
-      expect(manifest.manifest.workspaces).toBeUndefined();
-    }
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['react', '^19.1.1'],
+        [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
   });
 
   it('should not overwrite existing workspaces when pnpm-workspace.yaml also defines packages', async () => {
@@ -203,13 +201,9 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
-    expect(manifests[0].manifest).toMatchObject({
-      workspaces: ['existing/*'],
-    });
-    const [manifest] = manifests;
-    if (manifest.type === 'npm') {
-      expect(manifest.manifest.workspaces).not.toContain('new-packages/*');
-    }
+    expect(manifests[0].dependencies).toEqual(
+      new Map([[new Minimatch('existing/*', { nocase: true, matchBase: true }), undefined]]),
+    );
   });
 
   it('should not resolve the dependency when pnpm catalog references are not found', async ({
@@ -223,11 +217,7 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
-    expect(manifests[0].manifest).toMatchObject({
-      dependencies: {
-        react: 'catalog:',
-      },
-    });
+    expect(manifests[0].dependencies).toEqual(new Map([['react', 'catalog:']]));
     expect(consoleLogMock.calls[0].arguments[0]).toEqual(
       'Dependency "react" could not be resolved for catalog "default"',
     );
@@ -242,7 +232,13 @@ describe('files', () => {
     expect(closestDenoJsonCache.has(baseDir)).toEqual(true);
     expect(denoJsoncsInParentsCache.has(baseDir)).toEqual(true);
     expect(closestDenoJsoncCache.has(baseDir)).toEqual(true);
-    expect(getDependencies(baseDir, baseDir)).toEqual(new Set(['react', '@scope/pkg', 'pkgAlias']));
+    expect(getDependencies(baseDir, baseDir)).toEqual(
+      new Map([
+        ['react', '^19.1.0'],
+        ['@scope/pkg', '~2.0.0'],
+        ['pkgAlias', '~2.0.0'],
+      ]),
+    );
   });
 
   it('should parse deno.jsonc with comments and trailing commas', async () => {
@@ -252,11 +248,12 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['deno']);
-    expect(manifests[0].manifest).toMatchObject({
-      imports: {
-        reactAlias: 'npm:react@^19.1.0',
-      },
-    });
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['reactAlias', '^19.1.0'],
+        ['react', '^19.1.0'],
+      ]),
+    );
   });
 
   it('should include package.json dependencies when deno.json is present in the same directory', async () => {
@@ -265,7 +262,11 @@ describe('files', () => {
     await initFileStores(configuration);
 
     expect(getDependencies(baseDir, baseDir)).toEqual(
-      new Set(['deno-only', 'react', 'package-only']),
+      new Map([
+        ['deno-only', '1.2.3'],
+        ['react', '^19.0.0'],
+        ['package-only', '1.0.0'],
+      ]),
     );
   });
 
@@ -276,12 +277,12 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['deno', 'npm']);
-    expect(manifests[0].manifest).toMatchObject({
-      imports: {
-        'deno-only': 'npm:deno-only@1.2.3',
-        react: 'npm:react@^19.0.0',
-      },
-    });
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['deno-only', '1.2.3'],
+        ['react', '^19.0.0'],
+      ]),
+    );
   });
 
   it('should include react when package.json and deno.json define it at the same level', async () => {
@@ -291,7 +292,12 @@ describe('files', () => {
 
     const manifests = getDependencyManifests(baseDir, baseDir);
     expect(manifests.map(manifest => manifest.type)).toEqual(['deno', 'npm']);
-    expect(getDependencies(baseDir, baseDir)).toEqual(new Set(['react', 'reactAlias']));
+    expect(getDependencies(baseDir, baseDir)).toEqual(
+      new Map([
+        ['react', '^19.1.0'],
+        ['reactAlias', '^19.1.0'],
+      ]),
+    );
   });
 
   it('should log when a dependency is defined in multiple manifests', async ({ mock }) => {
@@ -301,7 +307,12 @@ describe('files', () => {
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
 
-    expect(getDependencies(baseDir, baseDir)).toEqual(new Set(['react', 'reactAlias']));
+    expect(getDependencies(baseDir, baseDir)).toEqual(
+      new Map([
+        ['react', '^19.1.0'],
+        ['reactAlias', '^19.1.0'],
+      ]),
+    );
     expect(
       consoleLogMock.calls
         .map(call => call.arguments[0])
@@ -325,7 +336,11 @@ describe('files', () => {
     const subDir = normalizeToAbsolutePath(join(baseDir, 'subdir'));
 
     expect(getDependencies(subDir, baseDir)).toEqual(
-      new Set(['child-only', 'shared', 'parent-only']),
+      new Map([
+        ['child-only', '1.0.0'],
+        ['shared', '2.0.0'],
+        ['parent-only', '1.0.0'],
+      ]),
     );
     expect(
       consoleLogMock.calls
@@ -410,7 +425,7 @@ describe('files', () => {
     const configuration = createConfiguration({ baseDir });
     await initFileStores(configuration);
     const filePath = join(baseDir, 'deno.jsonc');
-    expect(getDependencies(baseDir, baseDir)).toEqual(new Set());
+    expect(getDependencies(baseDir, baseDir)).toEqual(new Map());
     expect(
       consoleLogMock.calls
         .map(call => call.arguments[0])

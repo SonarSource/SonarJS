@@ -16,7 +16,6 @@
  */
 import type { Rule } from 'eslint';
 import { ComputedCache } from '../cache.js';
-import type { Minimatch } from 'minimatch';
 import fs from 'node:fs';
 import { extname } from 'node:path/posix';
 import { minVersion } from 'semver';
@@ -27,11 +26,9 @@ import {
   dirnamePath,
   stripBOM,
 } from '../files.js';
-import { getDependenciesFromManifest } from './parse.js';
 import { getClosestDependencyManifestDir } from './closest.js';
-import { getDependencyManifests } from './all-in-parent-dirs.js';
-
-export type ModuleType = 'module' | 'commonjs';
+import { getDependencyManifests, getPackageJsonManifests } from './all-in-parent-dirs.js';
+import { DEFINITELY_TYPED, type DependenciesList, type ModuleType } from './resolvers/types.js';
 
 const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
   '.mjs': 'module',
@@ -46,22 +43,24 @@ const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
 export const dependenciesCache = new ComputedCache(
   (dir: NormalizedAbsolutePath, topDir?: NormalizedAbsolutePath) => {
     const closestDependencyManifestDir = getClosestDependencyManifestDir(dir, topDir);
-    const result = new Set<string | Minimatch>();
+    const result: DependenciesList = new Map();
 
     if (!closestDependencyManifestDir) {
       return result;
     }
 
-    for (const manifest of getDependencyManifests(closestDependencyManifestDir, topDir, fs)) {
-      const manifestDependencies = getDependenciesFromManifest(manifest);
-      for (const dependency of manifestDependencies) {
-        result.add(dependency.name);
-        if (dependency.alias) {
-          // Also add the alias as a dependency, so it can be resolved in rules, for instance S4328
-          result.add(dependency.alias);
+    for (const { dependencies } of getDependencyManifests(
+      closestDependencyManifestDir,
+      topDir,
+      fs,
+    )) {
+      for (const [name, version] of dependencies) {
+        if (!result.has(name)) {
+          result.set(name, version);
         }
       }
     }
+
     return result;
   },
 );
@@ -76,19 +75,7 @@ export const moduleTypeCache = new ComputedCache(
       return undefined;
     }
     const [firstManifest] = getDependencyManifests(closestDependencyManifestDirName, topDir, fs);
-    switch (firstManifest?.type) {
-      case 'npm':
-        if (firstManifest.manifest.type === 'module') {
-          return 'module';
-        }
-        // Default to CommonJS if "type" field is missing
-        return 'commonjs';
-      case 'deno':
-        // Deno treats all modules as ESM
-        return 'module';
-      default:
-        return undefined;
-    }
+    return firstManifest?.moduleType;
   },
 );
 
@@ -97,17 +84,17 @@ export const moduleTypeCache = new ComputedCache(
  *
  * @param dir dirname of the context.filename
  * @param topDir working dir, will search up to that root
- * @returns Set with the dependency names
+ * @returns Map of dependency names to their version strings
  */
 export function getDependencies(
   dir: NormalizedAbsolutePath,
   topDir: NormalizedAbsolutePath,
-): Set<string | Minimatch> {
+): DependenciesList {
   const closestDependencyManifestDir = getClosestDependencyManifestDir(dir, topDir);
   if (closestDependencyManifestDir) {
     return dependenciesCache.get(closestDependencyManifestDir, topDir);
   }
-  return new Set();
+  return new Map();
 }
 
 /**
@@ -125,7 +112,7 @@ export function getModuleType(filePath: NormalizedAbsolutePath, topDir: Normaliz
   return moduleTypeCache.get(dirnamePath(filePath), topDir);
 }
 
-export function getDependenciesSanitizePaths(context: Rule.RuleContext): Set<string | Minimatch> {
+export function getDependenciesSanitizePaths(context: Rule.RuleContext): DependenciesList {
   return getDependencies(
     dirnamePath(normalizeToAbsolutePath(context.filename)),
     normalizeToAbsolutePath(context.cwd),
@@ -140,25 +127,13 @@ export function getDependenciesSanitizePaths(context: Rule.RuleContext): Set<str
  */
 export function getReactVersion(context: Rule.RuleContext): string | null {
   const dir = dirnamePath(normalizeToAbsolutePath(context.filename));
-  for (const dependencyManifest of getDependencyManifests(
-    dir,
-    normalizeToAbsolutePath(context.cwd),
-    fs,
-  )) {
-    if (dependencyManifest.type !== 'npm') {
-      continue;
-    }
-    const packageJson = dependencyManifest.manifest;
-    const reactVersion = packageJson.dependencies?.react ?? packageJson.devDependencies?.react;
-    if (reactVersion) {
-      const parsed = parseReactVersion(reactVersion);
-      if (parsed) {
-        return parsed;
-      }
-      // Continue searching in parent package.json files if parsing fails
-    }
+  const dependencies = getDependencies(dir, normalizeToAbsolutePath(context.cwd));
+  const reactVersion = dependencies.get('react');
+  // Deno npm: imports reflect the actual runtime version and are intentionally included here, unlike the TypeScript/Node.js version signals
+  if (!reactVersion) {
+    return null;
   }
-  return null;
+  return parseReactVersion(reactVersion);
 }
 
 /**
@@ -205,21 +180,34 @@ function getVersionSignalFromManifests(
   dependencyName: string,
   fallbackSignal?: (packageJson: PackageJson) => string | null,
 ): string | null {
-  const packageJson = getDependencyManifests(baseDir, baseDir, fs).find(
-    manifest => manifest.type === 'npm',
-  )?.manifest;
-  if (!packageJson) {
-    return null;
+  // Only look at npm manifests: Deno `npm:` imports are download aliases and don't carry
+  // meaningful version signals for the project's actual npm dependency resolution.
+  const lookupKey = dependencyName.startsWith(DEFINITELY_TYPED)
+    ? dependencyName.substring(DEFINITELY_TYPED.length)
+    : dependencyName;
+
+  for (const manifest of getDependencyManifests(
+    normalizeToAbsolutePath(baseDir),
+    normalizeToAbsolutePath(baseDir),
+    fs,
+  )) {
+    if (manifest.type !== 'npm') {
+      continue;
+    }
+    const version = manifest.dependencies.get(lookupKey) ?? null;
+    if (isValidDependencySignal(version)) {
+      return version;
+    }
   }
 
-  const dependencyVersion = getDependencyVersionSignal(packageJson, dependencyName);
-  if (isValidDependencySignal(dependencyVersion)) {
-    return dependencyVersion;
-  }
-
-  const fallbackVersion = fallbackSignal?.(packageJson);
-  if (fallbackVersion !== null && fallbackVersion !== undefined) {
-    return fallbackVersion;
+  if (fallbackSignal) {
+    const packageJson = getPackageJsonManifests(baseDir, baseDir, fs)[0];
+    if (packageJson) {
+      const fallbackVersion = fallbackSignal(packageJson);
+      if (fallbackVersion !== null && fallbackVersion !== undefined) {
+        return fallbackVersion;
+      }
+    }
   }
 
   return null;

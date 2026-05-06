@@ -15,24 +15,73 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import ts from 'typescript';
-import { type ManifestResolver, type DependencyManifest, type DenoManifest } from './types.js';
+import type {
+  DenoManifest,
+  DependenciesList,
+  DependencyManifest,
+  ManifestResolver,
+  ModuleType,
+} from './types.js';
 import { type File, stripBOM } from '../../files.js';
 import { DENO_JSON, DENO_JSONC } from '../index.js';
 import { getManifestFileInDir } from './helpers.js';
+import { addDependenciesArray, addDependency } from '../parse.js';
+
+type ImportMapSpecifier = {
+  packageName: string;
+  version?: string;
+};
 
 export const denoManifestResolver: ManifestResolver = {
   resolve(dir, topDir, fileSystem): DependencyManifest[] {
     // if both `deno.json` and `deno.jsonc` are present, prefer `deno.json` and ignore `deno.jsonc`
     const denoJson = getManifestFileInDir(DENO_JSON, dir, topDir, fileSystem);
     const denoJsonc = getManifestFileInDir(DENO_JSONC, dir, topDir, fileSystem);
-    if (denoJsonc && denoJson === undefined) {
-      return [{ type: 'deno', manifest: parseDenoManifest(denoJsonc) ?? {} }];
-    } else if (denoJson) {
-      return [{ type: 'deno', manifest: parseDenoManifest(denoJson) ?? {} }];
+    const denoModuleType: ModuleType = 'module';
+    const effectiveDenoJson = denoJson ?? denoJsonc;
+
+    if (effectiveDenoJson) {
+      return [
+        {
+          type: 'deno',
+          dependencies: buildDependencies(parseDenoManifest(effectiveDenoJson) ?? {}),
+          moduleType: denoModuleType,
+        },
+      ];
     }
     return [];
   },
 };
+
+function buildDependencies(manifest: DenoManifest): DependenciesList {
+  const dependencies: DependenciesList = new Map();
+
+  if (manifest.imports && typeof manifest.imports === 'object') {
+    for (const [alias, target] of Object.entries(manifest.imports)) {
+      if (typeof target !== 'string') {
+        continue;
+      }
+
+      const parsedSpecifier = parseImportMapSpecifier(target);
+      if (parsedSpecifier) {
+        addDependency(dependencies, {
+          dependency: parsedSpecifier.packageName,
+          isGlob: false,
+          version: parsedSpecifier.version,
+          alias,
+        });
+      }
+    }
+  }
+
+  if (Array.isArray(manifest.workspace)) {
+    addDependenciesArray(dependencies, manifest.workspace);
+  } else if (manifest.workspace?.members) {
+    addDependenciesArray(dependencies, manifest.workspace.members);
+  }
+
+  return dependencies;
+}
 
 function parseDenoManifest(file: File): DenoManifest | undefined {
   try {
@@ -48,4 +97,32 @@ function parseDenoManifest(file: File): DenoManifest | undefined {
     console.debug(`Error parsing deno manifest ${file.path}: ${error}`);
     return;
   }
+}
+
+// Captures `npm:` payload as: package name (scoped or unscoped), optional version, optional ignored subpath.
+// Examples:
+// npm:cowsay@^1.6.0
+// npm:@scopename/mypackage@~11.1.0
+const DENO_NPM_IMPORT_PATTERN = /^(@[^/]*\/[^/@]*|[^/@]+)(?:@([^/]*))?(?:\/.*)?$/;
+
+/**
+ * Parses an import map URL Specifier matching Deno npm format:
+ * npm:<package>[@<version>][/<path>]
+ */
+function parseImportMapSpecifier(value: string): ImportMapSpecifier | undefined {
+  // currently only handle npm: specifiers since rules are focused on NPM dependencies
+  if (!value.startsWith('npm:')) {
+    return undefined;
+  }
+
+  const match = DENO_NPM_IMPORT_PATTERN.exec(value.slice('npm:'.length));
+  if (!match) {
+    return undefined;
+  }
+
+  const [, packageName, version] = match;
+  return {
+    packageName,
+    version: version || undefined,
+  };
 }

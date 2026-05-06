@@ -27,7 +27,6 @@ import {
 import { PACKAGE_JSON } from './index.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import type { Rule } from 'eslint';
-import { getDependenciesFromManifest } from './parse.js';
 import { type DependencyManifest, type ManifestResolver } from './resolvers/types.js';
 import { denoManifestResolver } from './resolvers/deno.js';
 import { npmManifestResolver } from './resolvers/npm.js';
@@ -116,30 +115,24 @@ export const getDependencyManifests = (
  */
 function logDuplicateDependenciesInManifests(manifests: DependencyManifest[]): void {
   const dependencyDefinitions = new Map<string, DependencyDefinition>();
-  for (const manifest of manifests) {
+  for (const { dependencies, type: manifestType } of manifests) {
     const dependenciesByNameInManifest = new Map<string, string | undefined>();
-    for (const dependency of getDependenciesFromManifest(manifest)) {
-      if (
-        typeof dependency.name !== 'string' ||
-        dependenciesByNameInManifest.has(dependency.name)
-      ) {
+    for (const [name, version] of dependencies) {
+      if (typeof name !== 'string') {
         continue;
       }
-      dependenciesByNameInManifest.set(dependency.name, dependency.version);
+      dependenciesByNameInManifest.set(name, version);
     }
     for (const [dependencyName, version] of dependenciesByNameInManifest) {
       const firstDefinition = dependencyDefinitions.get(dependencyName);
       if (firstDefinition) {
         logDuplicateDependencyDefinition(dependencyName, firstDefinition, {
-          manifestType: manifest.type,
+          manifestType,
           version,
         });
         continue;
       }
-      dependencyDefinitions.set(dependencyName, {
-        manifestType: manifest.type,
-        version,
-      });
+      dependencyDefinitions.set(dependencyName, { manifestType, version });
     }
   }
 }

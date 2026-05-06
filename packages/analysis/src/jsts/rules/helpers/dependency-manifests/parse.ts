@@ -16,77 +16,10 @@
  */
 import { Minimatch } from 'minimatch';
 import type { PackageJson } from 'type-fest';
-import { type DependencyManifest, type DenoManifest } from './resolvers/types.js';
+import { DEFINITELY_TYPED, type DependenciesList } from './resolvers/types.js';
 
-const DefinitelyTyped = '@types/';
-
-type Dependency = {
-  name: string | Minimatch;
-  version?: string;
-  alias?: string;
-};
-
-export function getDependenciesFromPackageJson(content: PackageJson) {
-  const result = new Set<Dependency>();
-  if (content.name) {
-    addDependencies(result, { [content.name]: '*' });
-  }
-  if (content.dependencies !== undefined) {
-    addDependencies(result, content.dependencies);
-  }
-  if (content.devDependencies !== undefined) {
-    addDependencies(result, content.devDependencies);
-  }
-  if (content.peerDependencies !== undefined) {
-    addDependencies(result, content.peerDependencies);
-  }
-  if (content.optionalDependencies !== undefined) {
-    addDependencies(result, content.optionalDependencies);
-  }
-  if (content._moduleAliases !== undefined) {
-    // see https://www.npmjs.com/package/module-alias
-    addDependencies(result, content._moduleAliases as PackageJson.Dependency);
-  }
-  if (Array.isArray(content.workspaces)) {
-    addDependenciesArray(result, content.workspaces);
-  } else if (content.workspaces?.packages) {
-    addDependenciesArray(result, content.workspaces?.packages);
-  }
-  return result;
-}
-
-function getDependenciesFromDenoManifest(manifest: DenoManifest): Set<Dependency> {
-  const dependencies = new Set<Dependency>();
-
-  if (manifest.imports && typeof manifest.imports === 'object') {
-    for (const [alias, target] of Object.entries(manifest.imports)) {
-      if (typeof target !== 'string') {
-        continue;
-      }
-
-      const parsedSpecifier = parseImportMapSpecifier(target);
-      if (parsedSpecifier) {
-        addDependency(dependencies, {
-          dependency: parsedSpecifier.packageName,
-          isGlob: false,
-          version: parsedSpecifier.version,
-          alias,
-        });
-      }
-    }
-  }
-
-  if (Array.isArray(manifest.workspace)) {
-    addDependenciesArray(dependencies, manifest.workspace);
-  } else if (manifest.workspace?.members) {
-    addDependenciesArray(dependencies, manifest.workspace.members);
-  }
-
-  return dependencies;
-}
-
-function addDependencies(
-  result: Set<Dependency>,
+export function addDependencies(
+  result: DependenciesList,
   dependencies: PackageJson.Dependency,
   isGlob = false,
 ) {
@@ -99,49 +32,11 @@ function addDependencies(
   }
 }
 
-type ImportMapSpecifier = {
-  packageName: string;
-  version?: string;
-};
-
-export function getDependenciesFromManifest(manifest: DependencyManifest): Set<Dependency> {
-  switch (manifest.type) {
-    case 'npm':
-      return getDependenciesFromPackageJson(manifest.manifest);
-    case 'deno':
-      return getDependenciesFromDenoManifest(manifest.manifest);
-  }
-}
-
-// Captures `npm:` payload as: package name (scoped or unscoped), optional version, optional ignored subpath.
-// Examples:
-// npm:cowsay@^1.6.0
-// npm:@scopename/mypackage@~11.1.0
-const DENO_NPM_IMPORT_PATTERN = /^(@[^/]*\/[^/@]*|[^/@]+)(?:@([^/]*))?(?:\/.*)?$/;
-
-/**
- * Parses an import map URL Specifier matching Deno npm format:
- * npm:<package>[@<version>][/<path>]
- */
-export function parseImportMapSpecifier(value: string): ImportMapSpecifier | undefined {
-  // currently only handle npm: specifiers since rules are focused on NPM dependencies
-  if (!value.startsWith('npm:')) {
-    return undefined;
-  }
-
-  const match = DENO_NPM_IMPORT_PATTERN.exec(value.slice('npm:'.length));
-  if (!match) {
-    return undefined;
-  }
-
-  const [, packageName, version] = match;
-  return {
-    packageName,
-    version: version || undefined,
-  };
-}
-
-function addDependenciesArray(result: Set<Dependency>, dependencies: string[], isGlob = true) {
+export function addDependenciesArray(
+  result: DependenciesList,
+  dependencies: string[],
+  isGlob = true,
+) {
   for (const name of dependencies) {
     addDependency(result, { dependency: name, isGlob });
   }
@@ -154,23 +49,22 @@ type AddDependencyParameters = {
   alias?: string;
 };
 
-function addDependency(
-  result: Set<Dependency>,
+export function addDependency(
+  result: DependenciesList,
   { dependency, isGlob, version, alias }: AddDependencyParameters,
 ) {
   if (isGlob) {
-    result.add({
-      name: new Minimatch(dependency, { nocase: true, matchBase: true }),
-      version,
-      alias,
-    });
+    result.set(new Minimatch(dependency, { nocase: true, matchBase: true }), version);
   } else {
-    result.add({
-      name: dependency.startsWith(DefinitelyTyped)
-        ? dependency.substring(DefinitelyTyped.length)
+    result.set(
+      dependency.startsWith(DEFINITELY_TYPED)
+        ? dependency.substring(DEFINITELY_TYPED.length)
         : dependency,
       version,
-      alias,
-    });
+    );
+  }
+  if (alias) {
+    // Also add the alias as a dependency, so it can be resolved in rules, for instance S4328
+    result.set(alias, version);
   }
 }

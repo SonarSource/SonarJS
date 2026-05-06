@@ -14,120 +14,46 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it } from 'node:test';
 import path from 'node:path';
-import { stripBOM } from '../../../../src/jsts/rules/helpers/files.js';
-import { readFile } from 'node:fs/promises';
+import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import {
-  getDependenciesFromManifest,
-  getDependenciesFromPackageJson,
-  parseImportMapSpecifier,
-} from '../../../../src/jsts/rules/helpers/dependency-manifests/parse.js';
+import { normalizeToAbsolutePath } from '../../../../src/jsts/rules/helpers/files.js';
+import { getDependencyManifests } from '../../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
 
 describe('package-json', () => {
   it('should handle arrays in package-jsons dependency versions', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'package.json');
-    const fileContent = JSON.parse(stripBOM(await readFile(filePath, 'utf8')));
-    const dependencies = getDependenciesFromPackageJson(fileContent);
-    expect(dependencies).toEqual(
-      new Set([
-        {
-          name: 'foo',
-          version: 'file:bar',
-        },
-      ]),
-    );
+    const currentDirectory = normalizeToAbsolutePath(path.join(import.meta.dirname, 'fixtures'));
+    const manifests = getDependencyManifests(currentDirectory, currentDirectory);
+    const npmManifest = manifests.find(({ type }) => type === 'npm');
+    expect(npmManifest?.type).toBe('npm');
+    expect(npmManifest?.dependencies).toEqual(new Map([['foo', 'file:bar']]));
   });
 
   it('should extract npm package dependencies from deno.json imports', () => {
-    const dependencies = getDependenciesFromManifest({
-      type: 'deno',
-      manifest: {
-        imports: {
-          reactAlias: 'npm:react@^19.1.0',
-          utils: 'jsr:@std/assert@^1.0.0',
-          lodashFp: 'npm:lodash@^4.17.21/fp',
-          remote: 'https://deno.land/x/case/mod.ts',
-          scopedAlias: 'npm:@scope/package@~2.0.0',
-          noVersion: 'npm:chalk',
-          invalidVersion: 'npm:koa@not-a-semver',
-        },
-      },
-    });
-
-    expect(dependencies).toEqual(
-      new Set([
-        { name: 'react', version: '^19.1.0', alias: 'reactAlias' },
-        { name: 'lodash', version: '^4.17.21', alias: 'lodashFp' },
-        { name: '@scope/package', version: '~2.0.0', alias: 'scopedAlias' },
-        { name: 'chalk', version: undefined, alias: 'noVersion' },
-        { name: 'koa', version: 'not-a-semver', alias: 'invalidVersion' },
+    const currentDirectory = normalizeToAbsolutePath(path.join(import.meta.dirname, 'fixtures'));
+    const manifests = getDependencyManifests(currentDirectory, currentDirectory);
+    const denoManifest = manifests.find(({ type }) => type === 'deno');
+    expect(denoManifest?.type).toBe('deno');
+    expect(denoManifest?.dependencies).toEqual(
+      new Map([
+        ['react', '^19.1.0'],
+        ['reactAlias', '^19.1.0'],
+        ['lodash', '^4.17.21'],
+        ['lodashFp', '^4.17.21'],
+        ['@scope/package', '~2.0.0'],
+        ['scopedAlias', '~2.0.0'],
+        ['chalk', undefined],
+        ['noVersion', undefined],
+        ['koa', 'not-a-semver'],
+        ['invalidVersion', 'not-a-semver'],
+        ['@scope/subpkg', '1.0.0'],
+        ['scopedSubpathAlias', '1.0.0'],
+        ['@scope/noversion', undefined],
+        ['scopedNoVersionAlias', undefined],
+        ['cowsay', undefined],
+        ['emptyVersionAlias', undefined],
+        // 'invalidScoped' ("npm:@scope") is filtered out — not added to the map
       ]),
     );
-  });
-});
-
-describe('parseImportMapSpecifier', () => {
-  it('should parse unscoped package without version', () => {
-    expect(parseImportMapSpecifier('npm:chalk')).toEqual({
-      packageName: 'chalk',
-      version: undefined,
-    });
-  });
-
-  it('should parse unscoped package with version and subpath', () => {
-    expect(parseImportMapSpecifier('npm:lodash@^4.17.21/fp')).toEqual({
-      packageName: 'lodash',
-      version: '^4.17.21',
-    });
-  });
-
-  it('should parse scoped package with version and subpath', () => {
-    expect(parseImportMapSpecifier('npm:@scope/package@~2.0.0/feature')).toEqual({
-      packageName: '@scope/package',
-      version: '~2.0.0',
-    });
-  });
-
-  it('should parse scoped package with subpath and no version', () => {
-    expect(parseImportMapSpecifier('npm:@scope/package/utils')).toEqual({
-      packageName: '@scope/package',
-      version: undefined,
-    });
-  });
-
-  it('should return undefined for missing scheme separator', () => {
-    expect(parseImportMapSpecifier('react@19')).toBeUndefined();
-  });
-
-  it('should return undefined for empty specifier', () => {
-    expect(parseImportMapSpecifier('npm:')).toBeUndefined();
-  });
-
-  it('should return undefined for non-npm package specifiers', () => {
-    expect(parseImportMapSpecifier('jsr:@std/assert@^1.0.0')).toBeUndefined();
-  });
-
-  it('should return undefined for URL targets', () => {
-    expect(parseImportMapSpecifier('https://deno.land/x/case/mod.ts')).toBeUndefined();
-  });
-
-  it('should return undefined for invalid scoped package format', () => {
-    expect(parseImportMapSpecifier('npm:@scope')).toBeUndefined();
-  });
-
-  it('should return package without version when version is empty', () => {
-    expect(parseImportMapSpecifier('npm:react@')).toEqual({
-      packageName: 'react',
-      version: undefined,
-    });
-  });
-
-  it('should return package without version when version is empty before path', () => {
-    expect(parseImportMapSpecifier('npm:react@/jsx-runtime')).toEqual({
-      packageName: 'react',
-      version: undefined,
-    });
   });
 });

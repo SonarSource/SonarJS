@@ -16,11 +16,17 @@
  */
 import type { PackageJson } from 'type-fest';
 import yaml from 'yaml';
-import { type ManifestResolver, type DependencyManifest } from './types.js';
+import type {
+  ManifestResolver,
+  DependencyManifest,
+  ModuleType,
+  DependenciesList,
+} from './types.js';
 import { type File, stripBOM } from '../../files.js';
 import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
 import { getManifestFileInDir } from './helpers.js';
+import { addDependencies, addDependenciesArray } from '../parse.js';
 
 type PnpmWorkspace = {
   packages?: string[];
@@ -47,9 +53,51 @@ export const npmManifestResolver: ManifestResolver = {
       manifest = injectWorkspacePackages(manifest, parsedPnpmWorkspace);
       manifest = resolveCatalogReferences(manifest, parsedPnpmWorkspace);
     }
-    return [{ type: 'npm', manifest }];
+    const moduleType: ModuleType = manifest.type === 'module' ? 'module' : 'commonjs';
+    return [
+      {
+        type: 'npm',
+        dependencies: buildDependencies(manifest),
+        moduleType,
+      },
+    ];
   },
 };
+
+function buildDependencies(packageJson: PackageJson): DependenciesList {
+  const dependencies: DependenciesList = new Map();
+  const fieldsToVisit = [
+    'name',
+    'dependencies',
+    'devDependencies',
+    'peerDependencies',
+    'optionalDependencies',
+    '_moduleAliases',
+    'workspaces',
+  ] as const;
+
+  for (const field of fieldsToVisit) {
+    if (!packageJson[field]) {
+      continue;
+    }
+    if (field === 'name') {
+      addDependencies(dependencies, { [packageJson[field]]: '*' });
+      continue;
+    }
+    if (field === 'workspaces') {
+      addDependenciesArray(
+        dependencies,
+        Array.isArray(packageJson[field])
+          ? packageJson[field]
+          : (packageJson[field]?.packages ?? []),
+      );
+      continue;
+    }
+    addDependencies(dependencies, packageJson[field] as PackageJson.Dependency);
+  }
+
+  return dependencies;
+}
 
 function parsePackageJson(file: File): PackageJson | undefined {
   try {

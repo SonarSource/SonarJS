@@ -23,8 +23,8 @@ import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
-import type { Minimatch } from 'minimatch';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
+import type { DependenciesList } from '../helpers/dependency-manifests/resolvers/types.js';
 
 const messages = {
   removeOrAddDependency: 'Either remove this import or add it as a dependency.',
@@ -88,7 +88,7 @@ export const rule: Rule.RuleModule = {
 function raiseOnImplicitImport(
   module: estree.Literal,
   loc: estree.SourceLocation,
-  dependencies: Set<string | Minimatch>,
+  dependencies: DependenciesList,
   filename: string,
   host: ts.ModuleResolutionHost | undefined,
   options: ts.CompilerOptions | undefined,
@@ -121,7 +121,7 @@ function raiseOnImplicitImport(
     return;
   }
 
-  for (const dependency of dependencies) {
+  for (const dependency of dependencies.keys()) {
     if (typeof dependency === 'string') {
       if (dependency === packageName) {
         return;
