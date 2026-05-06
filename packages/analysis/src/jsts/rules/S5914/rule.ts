@@ -76,7 +76,7 @@ function getTrivialAssertion(
       }
       return null;
     case 'comparison':
-      if (assertion.comparison === 'identity') {
+      if (assertion.comparison === 'strict') {
         // a freshly-created value on either side makes the identity check trivially fail (or trivially succeed when negated)
         if (isFreshReferenceExpression(assertion.actual)) {
           return { reportNode: assertion.actual, messageId: 'freshIdentity' };
@@ -84,13 +84,13 @@ function getTrivialAssertion(
         if (isFreshReferenceExpression(assertion.expected)) {
           return { reportNode: assertion.expected, messageId: 'freshIdentity' };
         }
-        // both sides are constant (syntactically or via a resolved binding): the comparison result is statically determined
-        if (
-          isConstantPrimitiveValue(context, assertion.actual) &&
-          isConstantPrimitiveValue(context, assertion.expected)
-        ) {
-          return { reportNode: assertion.actual, messageId: 'issue' };
-        }
+      }
+      // both sides are constant (syntactically or via a resolved binding): the comparison result is statically determined
+      if (
+        isConstantPrimitiveValue(context, assertion.actual) &&
+        isConstantPrimitiveValue(context, assertion.expected)
+      ) {
+        return { reportNode: assertion.actual, messageId: 'issue' };
       }
       return null;
     default:

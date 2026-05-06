@@ -159,6 +159,19 @@ describe('S5914', () => {
             assert.deepEqual(getValue(), {});
           `,
         },
+        // chai assert.equal / assert.notEqual are loose equality APIs, not identity checks
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.equal(getValue(), {});
+          `,
+        },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.notEqual(getItems(), []);
+          `,
+        },
         {
           code: `cy.wrap(getValue()).should('be.true');`,
           filename: cypressFixture,
@@ -581,21 +594,6 @@ describe('S5914', () => {
           code: `
             import 'chai/register-should';
             getValue().should.not.equal({});
-          `,
-          errors: [{ messageId: 'freshIdentity' }],
-        },
-        // chai assert.equal / assert.notEqual (loose equality is just as trivial against fresh refs)
-        {
-          code: `
-            import { assert } from 'chai';
-            assert.equal(getValue(), {});
-          `,
-          errors: [{ messageId: 'freshIdentity' }],
-        },
-        {
-          code: `
-            import { assert } from 'chai';
-            assert.notEqual(getItems(), []);
           `,
           errors: [{ messageId: 'freshIdentity' }],
         },
