@@ -9,11 +9,14 @@ on:
         description: 'Version (semver)'
         required: true
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   publish:
     permissions:
       id-token: write # required for GitHub OIDC and SonarSource/vault-action-wrapper
-    runs-on: sonar-xs-public
+    runs-on: sonar-xs
     environment: release
     env:
       RELEASE_TAG: ${{ github.event.inputs.release_version }}
