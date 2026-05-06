@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 import { type Assertion, extractTestAssertion } from '../helpers/assertions.js';
 import {
@@ -206,7 +207,7 @@ function getSymbol(
   services: RequiredParserServices,
   checker: ts.TypeChecker,
 ) {
-  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
   return checker.getSymbolAtLocation(tsNode);
 }
 
