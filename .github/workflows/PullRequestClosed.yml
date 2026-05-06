@@ -4,10 +4,13 @@ on:
   pull_request:
     types: [closed]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   PullRequestMerged_job:
     name: Pull Request Merged
-    runs-on: sonar-xs-public
+    runs-on: sonar-xs
     permissions:
       id-token: write
       pull-requests: read
@@ -23,6 +26,6 @@ jobs:
             development/kv/data/jira token | JIRA_TOKEN;
       - uses: sonarsource/gh-action-lt-backlog/PullRequestClosed@v2
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           jira-user:  ${{ fromJSON(steps.secrets.outputs.vault).JIRA_USER }}
           jira-token: ${{ fromJSON(steps.secrets.outputs.vault).JIRA_TOKEN }}

@@ -11,6 +11,9 @@ on:
     branches:
       - 'dogfood/*'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   dogfood_merge:
     # Run if triggered by push to dogfood/*, or if Build workflow succeeded on master
