@@ -75,6 +75,7 @@ function isNonLexicalFunctionBoundary(node: TSESTree.Node): boolean {
     return false;
   }
 
+  // Method bodies are transparent so traversal can reach the enclosing MethodDefinition.
   return node.parent?.type !== 'MethodDefinition';
 }
 
