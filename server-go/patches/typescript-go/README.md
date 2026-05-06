@@ -1,5 +1,7 @@
 # Patches
 
+See `server-go/UPSTREAM.md` for the broader provenance and upstream-sync policy around `typescript-go`, `tsgolint`, and the Sonar-owned shims.
+
 These patches do not change the behavior of typescript-go.
 The main purpose of the patches is to tune tsgo performance a bit.
 

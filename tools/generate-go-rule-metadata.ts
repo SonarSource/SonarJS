@@ -16,11 +16,9 @@
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import merge from 'lodash.merge';
 import { header, listRulesDir, RULES_FOLDER } from './helpers.js';
-import * as generatedMetas from '../packages/analysis/src/jsts/rules/metas.js';
-import * as ruleModules from '../packages/analysis/src/jsts/rules/rules.js';
 
 type GeneratedRuleMetaModule = {
   sonarKey: string;
@@ -50,11 +48,7 @@ const DIRNAME = dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = join(DIRNAME, '..');
 const OUTPUT_PATH = join(
   REPOSITORY_ROOT,
-  'sonar-plugin',
-  'bridge',
-  'src',
-  'main',
-  'go',
+  'server-go',
   'sonar-server',
   'generated_rule_metadata.go',
 );
@@ -84,18 +78,10 @@ ${metadata.map(formatRuleMetadata).join('\n')}
 
 async function collectBridgeRuleMetadata(): Promise<BridgeRuleMetadata[]> {
   const metadata: BridgeRuleMetadata[] = [];
-  const generatedMetaBySonarKey = generatedMetas as Record<string, GeneratedRuleMetaModule>;
-  const ruleModuleBySonarKey = ruleModules as Record<string, RuleModule>;
 
   for (const sonarKey of await listRulesDir()) {
-    const module = generatedMetaBySonarKey[sonarKey];
-    const ruleModule = ruleModuleBySonarKey[sonarKey];
-    if (!module) {
-      throw new Error(`Missing generated meta module for ${sonarKey}`);
-    }
-    if (!ruleModule) {
-      throw new Error(`Missing rule module for ${sonarKey}`);
-    }
+    const module = await loadGeneratedMetaModule(sonarKey);
+    const ruleModule = await loadRuleModule(sonarKey);
 
     const requiredDependency = module.requiredDependency ?? [];
     const requiredModuleType = module.requiredModuleType;
@@ -126,6 +112,29 @@ async function collectBridgeRuleMetadata(): Promise<BridgeRuleMetadata[]> {
   }
 
   return metadata;
+}
+
+async function loadGeneratedMetaModule(sonarKey: string): Promise<GeneratedRuleMetaModule> {
+  const generatedMetaPath = join(RULES_FOLDER, sonarKey, 'generated-meta.ts');
+  try {
+    return (await import(pathToFileURL(generatedMetaPath).toString())) as GeneratedRuleMetaModule;
+  } catch (error) {
+    throw new Error(
+      `Missing generated meta module for ${sonarKey}. Run "npm run generate-meta" first.`,
+      { cause: error },
+    );
+  }
+}
+
+async function loadRuleModule(sonarKey: string): Promise<RuleModule> {
+  const indexPath = join(RULES_FOLDER, sonarKey, 'index.ts');
+  const indexModule = (await import(pathToFileURL(indexPath).toString())) as {
+    rule?: RuleModule;
+  };
+  if (!indexModule.rule) {
+    throw new Error(`Missing rule module for ${sonarKey}`);
+  }
+  return indexModule.rule;
 }
 
 function formatRuleMetadata(ruleMeta: BridgeRuleMetadata) {

@@ -383,6 +383,72 @@ func TestAnalyzeProjectSonarLintFallsBackToAstOnlyRulesWhenNoProgramCanBeCreated
 	}
 }
 
+func TestAnalyzeProjectBatchDisableTypeCheckingRunsOnlyAstOnlyRules(t *testing.T) {
+	t.Parallel()
+
+	testAnalyzeProjectDisableTypeCheckingRunsOnlyAstOnlyRules(t, false)
+}
+
+func TestAnalyzeProjectSonarLintDisableTypeCheckingRunsOnlyAstOnlyRules(t *testing.T) {
+	t.Parallel()
+
+	testAnalyzeProjectDisableTypeCheckingRunsOnlyAstOnlyRules(t, true)
+}
+
+func testAnalyzeProjectDisableTypeCheckingRunsOnlyAstOnlyRules(t *testing.T, sonarLint bool) {
+	t.Helper()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	tsconfigPath := tspath.ResolvePath(baseDir, "tsconfig.json")
+	typedPath := tspath.ResolvePath(baseDir, "src/typed.ts")
+	astOnlyPath := tspath.ResolvePath(baseDir, "src/ast-only.js")
+	canAccessFileSystem := false
+	disableTypeChecking := true
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:                       baseDir,
+			CanAccessFileSystem:           &canAccessFileSystem,
+			DisableTypeChecking:           &disableTypeChecking,
+			Sonarlint:                     &sonarLint,
+			EcmaScriptVersion:             stringPtr("ES2017"),
+			TsConfigPaths:                 []string{tsconfigPath},
+			CreateTsProgramForOrphanFiles: boolPtr(true),
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			tsconfigPath: {
+				FileContent: stringPtr(`{"compilerOptions":{"allowJs":true,"checkJs":true},"include":["src/**/*"]}`),
+			},
+			typedPath: {
+				FileContent: stringPtr(`const arr: number[] = []; delete arr[0];`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+			astOnlyPath: {
+				FileContent: stringPtr(`new Promise(async resolve => { resolve(1); });`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+		},
+		Rules: []*pb.JsTsRule{
+			{Key: "S2870"},
+			{Key: "S6544"},
+		},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[typedPath].GetIssues()) != 0 {
+		t.Fatalf("expected typed-only rule to be skipped without a program, got %#v", results[typedPath].GetIssues())
+	}
+	if len(results[astOnlyPath].GetIssues()) != 1 {
+		t.Fatalf("expected one AST-only issue when type checking is disabled, got %#v", results[astOnlyPath].GetIssues())
+	}
+}
+
 func TestRuleAppliesToFileFiltersOnRequiredDependency(t *testing.T) {
 	t.Parallel()
 
@@ -603,6 +669,10 @@ func writeTestFile(t *testing.T, filePath string, content string) {
 }
 
 func stringPtr(value string) *string {
+	return &value
+}
+
+func boolPtr(value bool) *bool {
 	return &value
 }
 

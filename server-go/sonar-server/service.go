@@ -132,12 +132,13 @@ func analyzeProject(
 
 	baseDir := input.Config.BaseDir
 	log.Printf(
-		"AnalyzeProject: baseDir=%s, files=%d, jsTsFiles=%d, rules=%d, tsconfigs=%d",
+		"AnalyzeProject: baseDir=%s, files=%d, jsTsFiles=%d, rules=%d, tsconfigs=%d, disableTypeChecking=%t",
 		baseDir,
 		len(orderedFiles),
 		len(filePaths),
 		len(requestedRules),
 		len(stores.tsConfigs()),
+		boolValue(input.Config.DisableTypeChecking, false),
 	)
 
 	configuredRules := configuredRulesFor(requestedRules)
@@ -185,7 +186,22 @@ func analyzeProject(
 	}
 
 	var analysisErr error
-	if boolValue(input.Config.SonarLint, false) {
+	if boolValue(input.Config.DisableTypeChecking, false) {
+		log.Printf(
+			"Type checking is disabled; analyzing %d JS/TS file(s) without a TypeScript program",
+			len(filePaths),
+		)
+		analysisErr = analyzeSourceFilesWithoutProgram(
+			logLevel,
+			input.Config,
+			analysisTargetFilesMap(input, stores),
+			filePaths,
+			fsys,
+			rulesForFile,
+			onRuleDiagnostic,
+			onInternalDiagnostic,
+		)
+	} else if boolValue(input.Config.SonarLint, false) {
 		analysisErr = analyzeIncrementalPrograms(
 			logLevel,
 			input,
