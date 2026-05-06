@@ -129,7 +129,7 @@
     "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-unicorn": "64.0.0",
     "functional-red-black-tree": "1.0.1",
-    "globals": "17.5.0",
+    "globals": "17.6.0",
     "htmlparser2": "12.0.0",
     "jsx-ast-utils-x": "0.1.0",
     "lodash.merge": "4.6.2",
