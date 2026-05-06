@@ -2,6 +2,17 @@
 "courselit:apps/web/components/admin/media/media-preview.tsx": [
 98
 ],
+"courselit:apps/web/components/public/base-layout/component-scaffold.tsx": [
+221,
+231
+],
+"courselit:apps/web/components/public/base-layout/route-based-component-scaffold.tsx": [
+188,
+199
+],
+"courselit:apps/web/components/public/code-injector.tsx": [
+37
+],
 "courselit:apps/web/pages/api/payment/initiate.ts": [
 55,
 65

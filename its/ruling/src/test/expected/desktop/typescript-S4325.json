@@ -2,8 +2,21 @@
 "desktop:app/src/lib/actions-log-parser/action-log-parser.ts": [
 528
 ],
+"desktop:app/src/lib/http.ts": [
+149
+],
+"desktop:app/src/lib/logging/main/install.ts": [
+6
+],
+"desktop:app/src/lib/logging/renderer/install.ts": [
+17
+],
+"desktop:app/src/lib/process/win32.ts": [
+51
+],
 "desktop:app/src/lib/stores/app-store.ts": [
-2274
+2274,
+5408
 ],
 "desktop:app/src/lib/stores/issues-store.ts": [
 127,
@@ -12,9 +25,17 @@
 "desktop:app/src/lib/stores/repositories-store.ts": [
 122
 ],
+"desktop:app/src/ui/add-repository/create-repository.tsx": [
+54
+],
 "desktop:app/src/ui/dispatcher/dispatcher.ts": [
 3222,
 3226
+],
+"desktop:app/src/ui/lib/author-input.tsx": [
+193,
+341,
+696
 ],
 "desktop:app/src/ui/repositories-list/repositories-list.tsx": [
 169
