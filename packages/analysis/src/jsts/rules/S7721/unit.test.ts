@@ -153,6 +153,20 @@ function createNormalizer() {
           errors: 1,
         },
         {
+          // Direct this usage
+          code: `
+function createGetter() {
+  function getValue() {
+    return this.value;
+  }
+
+  return getValue;
+}
+          `,
+          options,
+          errors: 1,
+        },
+        {
           // Module-scope capture
           code: `
 const separator = '-';
