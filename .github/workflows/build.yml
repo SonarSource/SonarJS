@@ -229,7 +229,7 @@ jobs:
         with:
           path: coverage/java
           key: java-coverage-${{ github.sha }}
-      - name: Setup Go and proto tools for tsgolint
+      - name: Setup Go and proto tools for jsts-go
         uses: jdx/mise-action@v3.6.1
         with:
           version: 2025.11.2
@@ -286,7 +286,7 @@ jobs:
       - *config_maven
       - *download_rspec_rule_data
       - *rspec_secrets
-      - name: Setup Go for tsgolint
+      - name: Setup Go for jsts-go
         uses: jdx/mise-action@v3.6.1
         with:
           version: 2025.11.2

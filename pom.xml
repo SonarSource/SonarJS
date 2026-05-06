@@ -321,7 +321,7 @@
                 <exclude>**/*.d.ts</exclude>
                 <!-- Folders -->
                 <exclude>its/**/*</exclude>
-                <exclude>tsgolint/**/*</exclude>
+                <exclude>server-go/typescript-go/**/*</exclude>
                 <!-- Generated -->
                 <exclude>**/bin/**/*</exclude>
                 <exclude>**/dist/**/*</exclude>
@@ -334,8 +334,7 @@
                 <!-- Resources -->
                 <exclude>**/src/test/resources/**/*</exclude>
                 <exclude>coverage/**/*</exclude>
-                <!-- tsgolint submodule (separate project, own license) -->
-                <exclude>tsgolint/**/*</exclude>
+                <exclude>server-go/typescript-go/**/*</exclude>
               </excludes>
             </licenseSet>
           </licenseSets>

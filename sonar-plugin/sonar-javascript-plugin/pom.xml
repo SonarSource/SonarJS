@@ -28,13 +28,16 @@
     <artifactoryToken/>
     <nodejs.runtime.version>24.11.0.70</nodejs.runtime.version>
     <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-    <!-- Override to 'none' via -Pskip-tsgolint to skip Go build/compress steps -->
-    <tsgolint.build.phase>generate-resources</tsgolint.build.phase>
-    <tsgolint.init.phase>initialize</tsgolint.init.phase>
-    <tsgolint.go.protobuf.version>v1.36.6</tsgolint.go.protobuf.version>
-    <tsgolint.go.grpc.version>v1.72.0</tsgolint.go.grpc.version>
-    <tsgolint.protoc.gen.go.grpc.version>v1.6.1</tsgolint.protoc.gen.go.grpc.version>
-    <tsgolint.executable.suffix></tsgolint.executable.suffix>
+    <!-- Override to 'none' via -Pskip-jsts-go to skip Go build/compress steps -->
+    <jsts.go.build.phase>generate-resources</jsts.go.build.phase>
+    <jsts.go.init.phase>initialize</jsts.go.init.phase>
+    <jsts.go.protobuf.version>v1.36.6</jsts.go.protobuf.version>
+    <jsts.go.grpc.version>v1.72.0</jsts.go.grpc.version>
+    <jsts.go.protoc.gen.go.grpc.version>v1.6.1</jsts.go.protoc.gen.go.grpc.version>
+    <jsts.go.executable.suffix></jsts.go.executable.suffix>
+    <jsts.go.bridge.go.dir>${project.basedir}/../../server-go/sonar-server</jsts.go.bridge.go.dir>
+    <jsts.go.bridge.go.module>github.com/SonarSource/SonarJS/server-go/sonar-server</jsts.go.bridge.go.module>
+    <jsts.go.typescript.go.dir>${project.basedir}/../../server-go/typescript-go</jsts.go.typescript.go.dir>
   </properties>
 
   <dependencies>
@@ -222,122 +225,39 @@
             </configuration>
           </execution>
 
-          <!-- tsgolint: ensure submodule is initialized (no-op if already done by checkout) -->
+          <!-- typescript-go: init top-level submodule only when the checkout is absent -->
           <execution>
-            <id>tsgolint-submodule-init</id>
-            <phase>${tsgolint.init.phase}</phase>
+            <id>typescript-go-submodule-init</id>
+            <phase>${jsts.go.init.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
-              <executable>git</executable>
+              <executable>bash</executable>
               <workingDirectory>${project.basedir}/../..</workingDirectory>
               <arguments>
-                <argument>submodule</argument>
-                <argument>update</argument>
-                <argument>--init</argument>
-                <argument>tsgolint</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <!-- tsgolint: copy sonar-server overlay into submodule -->
-          <execution>
-            <id>tsgolint-copy-overlay</id>
-            <phase>${tsgolint.build.phase}</phase>
-            <goals><goal>exec</goal></goals>
-            <configuration>
-              <executable>bash</executable>
-              <arguments>
                 <argument>-c</argument>
-                <argument>mkdir -p "${0}" &amp;&amp; cp -f "$@" "${0}"</argument>
-                <argument>${project.basedir}/../../tsgolint/cmd/sonar-server/</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/main.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/filesystem.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/normalize.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/path_patterns.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/file_stores.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/dependency_signals.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/generated_rule_metadata.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/service.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/converter.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/rules.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/requested_rules.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/no_array_delete_rule.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/no_async_promise_executor_rule.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/decorator.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/no_base_to_string_decorator.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/no_misused_promises_decorator.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/no_redundant_type_constituents_decorator.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/prefer_nullish_coalescing_decorator.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/prefer_optional_chain_decorator.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/prefer_string_starts_ends_with_decorator.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/switch_exhaustiveness_check_decorator.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/decorator_test.go</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/sonar-server/file_stores_test.go</argument>
+                <argument>if [ ! -e "server-go/typescript-go/.git" ]; then git submodule update --init server-go/typescript-go; fi</argument>
               </arguments>
             </configuration>
           </execution>
+          <!-- Sonar-owned patches applied to the local typescript-go submodule -->
           <execution>
-            <id>tsgolint-copy-linter-overlay</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>typescript-go-apply-patches</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>bash</executable>
-              <arguments>
-                <argument>-c</argument>
-                <argument>mkdir -p "${0}" &amp;&amp; cp -f "$@" "${0}"</argument>
-                <argument>${project.basedir}/../../tsgolint/internal/linter/</argument>
-                <argument>${project.basedir}/../bridge/src/main/go/tsgolint/internal/linter/run_linter_on_file.go</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <!-- tsgolint: init typescript-go submodule -->
-          <execution>
-            <id>tsgolint-init-typescript-go</id>
-            <phase>${tsgolint.build.phase}</phase>
-            <goals><goal>exec</goal></goals>
-            <configuration>
-              <executable>git</executable>
-              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
-              <arguments>
-                <argument>submodule</argument>
-                <argument>update</argument>
-                <argument>--init</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <!-- tsgolint: apply patches to typescript-go -->
-          <execution>
-            <id>tsgolint-apply-patches</id>
-            <phase>${tsgolint.build.phase}</phase>
-            <goals><goal>exec</goal></goals>
-            <configuration>
-              <executable>bash</executable>
-              <workingDirectory>${project.basedir}/../../tsgolint/typescript-go</workingDirectory>
+              <workingDirectory>${jsts.go.typescript.go.dir}</workingDirectory>
               <arguments>
                 <argument>-c</argument>
                 <argument>set -e; for patch in $(find "${0}" -name '*.patch' | sort); do if git apply --reverse --check "$patch" &gt;/dev/null 2&gt;&amp;1; then :; else GIT_COMMITTER_NAME='SonarJS CI' GIT_COMMITTER_EMAIL='sonarjs-ci@sonarsource.com' GIT_AUTHOR_NAME='SonarJS CI' GIT_AUTHOR_EMAIL='sonarjs-ci@sonarsource.com' git am --3way --no-gpg-sign "$patch"; fi; done</argument>
-                <argument>${project.basedir}/../../tsgolint/patches</argument>
+                <argument>${project.basedir}/../../server-go/patches/typescript-go</argument>
               </arguments>
             </configuration>
           </execution>
-          <!-- tsgolint: copy collections from patched typescript-go -->
+          <!-- jsts-go: install Go proto generators (idempotent) -->
           <execution>
-            <id>tsgolint-copy-collections</id>
-            <phase>${tsgolint.build.phase}</phase>
-            <goals><goal>exec</goal></goals>
-            <configuration>
-              <executable>bash</executable>
-              <arguments>
-                <argument>-c</argument>
-                <argument>mkdir -p "${0}" &amp;&amp; find "${1}" -type f ! -name '*_test.go' -exec cp {} "${0}" \;</argument>
-                <argument>${project.basedir}/../../tsgolint/internal/collections</argument>
-                <argument>${project.basedir}/../../tsgolint/typescript-go/internal/collections</argument>
-              </arguments>
-            </configuration>
-          </execution>
-          <!-- tsgolint: install Go proto generators (idempotent) -->
-          <execution>
-            <id>tsgolint-install-proto-gen</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>jsts-go-install-proto-gen</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
@@ -346,13 +266,13 @@
               </environmentVariables>
               <arguments>
                 <argument>install</argument>
-                <argument>google.golang.org/protobuf/cmd/protoc-gen-go@${tsgolint.go.protobuf.version}</argument>
+                <argument>google.golang.org/protobuf/cmd/protoc-gen-go@${jsts.go.protobuf.version}</argument>
               </arguments>
             </configuration>
           </execution>
           <execution>
-            <id>tsgolint-install-proto-gen-grpc</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>jsts-go-install-proto-gen-grpc</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
@@ -361,56 +281,55 @@
               </environmentVariables>
               <arguments>
                 <argument>install</argument>
-                <argument>google.golang.org/grpc/cmd/protoc-gen-go-grpc@${tsgolint.protoc.gen.go.grpc.version}</argument>
+                <argument>google.golang.org/grpc/cmd/protoc-gen-go-grpc@${jsts.go.protoc.gen.go.grpc.version}</argument>
               </arguments>
             </configuration>
           </execution>
-          <!-- tsgolint: generate Go proto stubs -->
+          <!-- jsts-go: generate Go proto stubs -->
           <execution>
-            <id>tsgolint-proto-gen-go</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>jsts-go-proto-gen-go</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
-              <executable>${project.build.directory}/protoc${tsgolint.executable.suffix}</executable>
-              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <executable>${project.build.directory}/protoc${jsts.go.executable.suffix}</executable>
+              <workingDirectory>${jsts.go.bridge.go.dir}</workingDirectory>
               <arguments>
-                <argument>--plugin=protoc-gen-go=${project.build.directory}/go-bin/protoc-gen-go${tsgolint.executable.suffix}</argument>
-                <argument>--plugin=protoc-gen-go-grpc=${project.build.directory}/go-bin/protoc-gen-go-grpc${tsgolint.executable.suffix}</argument>
+                <argument>--plugin=protoc-gen-go=${project.build.directory}/go-bin/protoc-gen-go${jsts.go.executable.suffix}</argument>
+                <argument>--plugin=protoc-gen-go-grpc=${project.build.directory}/go-bin/protoc-gen-go-grpc${jsts.go.executable.suffix}</argument>
                 <argument>--proto_path=${project.basedir}/../..</argument>
                 <argument>--proto_path=${project.build.directory}/protoc-include</argument>
                 <argument>--go_out=.</argument>
-                <argument>--go_opt=module=github.com/typescript-eslint/tsgolint</argument>
-                <argument>--go_opt=Mpackages/grpc/src/proto/analyze-project.proto=github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc</argument>
+                <argument>--go_opt=module=${jsts.go.bridge.go.module}</argument>
+                <argument>--go_opt=Mpackages/grpc/src/proto/analyze-project.proto=${jsts.go.bridge.go.module}/grpc</argument>
                 <argument>--go-grpc_out=.</argument>
-                <argument>--go-grpc_opt=module=github.com/typescript-eslint/tsgolint</argument>
-                <argument>--go-grpc_opt=Mpackages/grpc/src/proto/analyze-project.proto=github.com/typescript-eslint/tsgolint/cmd/sonar-server/grpc</argument>
+                <argument>--go-grpc_opt=module=${jsts.go.bridge.go.module}</argument>
+                <argument>--go-grpc_opt=Mpackages/grpc/src/proto/analyze-project.proto=${jsts.go.bridge.go.module}/grpc</argument>
                 <argument>packages/grpc/src/proto/analyze-project.proto</argument>
               </arguments>
             </configuration>
           </execution>
-          <!-- tsgolint: add gRPC dependencies to go.mod -->
+          <!-- jsts-go: download bridge module dependencies -->
           <execution>
-            <id>tsgolint-go-get-grpc</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>jsts-go-go-get-grpc</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
-              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <workingDirectory>${jsts.go.bridge.go.dir}</workingDirectory>
               <arguments>
-                <argument>get</argument>
-                <argument>google.golang.org/grpc@${tsgolint.go.grpc.version}</argument>
-                <argument>google.golang.org/protobuf@${tsgolint.go.protobuf.version}</argument>
+                <argument>mod</argument>
+                <argument>download</argument>
               </arguments>
             </configuration>
           </execution>
-          <!-- tsgolint Go cross-compilation -->
+          <!-- jsts-go Go cross-compilation -->
           <execution>
-            <id>build-tsgolint-linux-x64</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>build-jsts-go-linux-x64</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
-              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <workingDirectory>${jsts.go.bridge.go.dir}</workingDirectory>
               <environmentVariables>
                 <GOOS>linux</GOOS>
                 <GOARCH>amd64</GOARCH>
@@ -420,18 +339,18 @@
                 <argument>build</argument>
                 <argument>-ldflags=-s -w</argument>
                 <argument>-o</argument>
-                <argument>${project.build.directory}/tsgolint/linux-x64/tsgolint</argument>
-                <argument>./cmd/sonar-server</argument>
+                <argument>${project.build.directory}/jsts-go/linux-x64/jsts-go</argument>
+                <argument>.</argument>
               </arguments>
             </configuration>
           </execution>
           <execution>
-            <id>build-tsgolint-linux-arm64</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>build-jsts-go-linux-arm64</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
-              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <workingDirectory>${jsts.go.bridge.go.dir}</workingDirectory>
               <environmentVariables>
                 <GOOS>linux</GOOS>
                 <GOARCH>arm64</GOARCH>
@@ -441,18 +360,18 @@
                 <argument>build</argument>
                 <argument>-ldflags=-s -w</argument>
                 <argument>-o</argument>
-                <argument>${project.build.directory}/tsgolint/linux-arm64/tsgolint</argument>
-                <argument>./cmd/sonar-server</argument>
+                <argument>${project.build.directory}/jsts-go/linux-arm64/jsts-go</argument>
+                <argument>.</argument>
               </arguments>
             </configuration>
           </execution>
           <execution>
-            <id>build-tsgolint-linux-x64-musl</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>build-jsts-go-linux-x64-musl</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
-              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <workingDirectory>${jsts.go.bridge.go.dir}</workingDirectory>
               <environmentVariables>
                 <GOOS>linux</GOOS>
                 <GOARCH>amd64</GOARCH>
@@ -462,18 +381,18 @@
                 <argument>build</argument>
                 <argument>-ldflags=-s -w</argument>
                 <argument>-o</argument>
-                <argument>${project.build.directory}/tsgolint/linux-x64-musl/tsgolint</argument>
-                <argument>./cmd/sonar-server</argument>
+                <argument>${project.build.directory}/jsts-go/linux-x64-musl/jsts-go</argument>
+                <argument>.</argument>
               </arguments>
             </configuration>
           </execution>
           <execution>
-            <id>build-tsgolint-win-x64</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>build-jsts-go-win-x64</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
-              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <workingDirectory>${jsts.go.bridge.go.dir}</workingDirectory>
               <environmentVariables>
                 <GOOS>windows</GOOS>
                 <GOARCH>amd64</GOARCH>
@@ -483,18 +402,18 @@
                 <argument>build</argument>
                 <argument>-ldflags=-s -w</argument>
                 <argument>-o</argument>
-                <argument>${project.build.directory}/tsgolint/win-x64/tsgolint.exe</argument>
-                <argument>./cmd/sonar-server</argument>
+                <argument>${project.build.directory}/jsts-go/win-x64/jsts-go.exe</argument>
+                <argument>.</argument>
               </arguments>
             </configuration>
           </execution>
           <execution>
-            <id>build-tsgolint-darwin-arm64</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>build-jsts-go-darwin-arm64</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
-              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <workingDirectory>${jsts.go.bridge.go.dir}</workingDirectory>
               <environmentVariables>
                 <GOOS>darwin</GOOS>
                 <GOARCH>arm64</GOARCH>
@@ -504,18 +423,18 @@
                 <argument>build</argument>
                 <argument>-ldflags=-s -w</argument>
                 <argument>-o</argument>
-                <argument>${project.build.directory}/tsgolint/darwin-arm64/tsgolint</argument>
-                <argument>./cmd/sonar-server</argument>
+                <argument>${project.build.directory}/jsts-go/darwin-arm64/jsts-go</argument>
+                <argument>.</argument>
               </arguments>
             </configuration>
           </execution>
           <execution>
-            <id>build-tsgolint-darwin-x64</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>build-jsts-go-darwin-x64</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>go</executable>
-              <workingDirectory>${project.basedir}/../../tsgolint</workingDirectory>
+              <workingDirectory>${jsts.go.bridge.go.dir}</workingDirectory>
               <environmentVariables>
                 <GOOS>darwin</GOOS>
                 <GOARCH>amd64</GOARCH>
@@ -525,87 +444,87 @@
                 <argument>build</argument>
                 <argument>-ldflags=-s -w</argument>
                 <argument>-o</argument>
-                <argument>${project.build.directory}/tsgolint/darwin-x64/tsgolint</argument>
-                <argument>./cmd/sonar-server</argument>
+                <argument>${project.build.directory}/jsts-go/darwin-x64/jsts-go</argument>
+                <argument>.</argument>
               </arguments>
             </configuration>
           </execution>
-          <!-- tsgolint xz compression -->
+          <!-- jsts-go xz compression -->
           <execution>
-            <id>compress-tsgolint-linux-x64</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>compress-jsts-go-linux-x64</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
               <arguments>
                 <argument>-k</argument>
                 <argument>-f</argument>
-                <argument>${project.build.directory}/tsgolint/linux-x64/tsgolint</argument>
+                <argument>${project.build.directory}/jsts-go/linux-x64/jsts-go</argument>
               </arguments>
             </configuration>
           </execution>
           <execution>
-            <id>compress-tsgolint-linux-arm64</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>compress-jsts-go-linux-arm64</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
               <arguments>
                 <argument>-k</argument>
                 <argument>-f</argument>
-                <argument>${project.build.directory}/tsgolint/linux-arm64/tsgolint</argument>
+                <argument>${project.build.directory}/jsts-go/linux-arm64/jsts-go</argument>
               </arguments>
             </configuration>
           </execution>
           <execution>
-            <id>compress-tsgolint-linux-x64-musl</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>compress-jsts-go-linux-x64-musl</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
               <arguments>
                 <argument>-k</argument>
                 <argument>-f</argument>
-                <argument>${project.build.directory}/tsgolint/linux-x64-musl/tsgolint</argument>
+                <argument>${project.build.directory}/jsts-go/linux-x64-musl/jsts-go</argument>
               </arguments>
             </configuration>
           </execution>
           <execution>
-            <id>compress-tsgolint-win-x64</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>compress-jsts-go-win-x64</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
               <arguments>
                 <argument>-k</argument>
                 <argument>-f</argument>
-                <argument>${project.build.directory}/tsgolint/win-x64/tsgolint.exe</argument>
+                <argument>${project.build.directory}/jsts-go/win-x64/jsts-go.exe</argument>
               </arguments>
             </configuration>
           </execution>
           <execution>
-            <id>compress-tsgolint-darwin-arm64</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>compress-jsts-go-darwin-arm64</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
               <arguments>
                 <argument>-k</argument>
                 <argument>-f</argument>
-                <argument>${project.build.directory}/tsgolint/darwin-arm64/tsgolint</argument>
+                <argument>${project.build.directory}/jsts-go/darwin-arm64/jsts-go</argument>
               </arguments>
             </configuration>
           </execution>
           <execution>
-            <id>compress-tsgolint-darwin-x64</id>
-            <phase>${tsgolint.build.phase}</phase>
+            <id>compress-jsts-go-darwin-x64</id>
+            <phase>${jsts.go.build.phase}</phase>
             <goals><goal>exec</goal></goals>
             <configuration>
               <executable>xz</executable>
               <arguments>
                 <argument>-k</argument>
                 <argument>-f</argument>
-                <argument>${project.build.directory}/tsgolint/darwin-x64/tsgolint</argument>
+                <argument>${project.build.directory}/jsts-go/darwin-x64/jsts-go</argument>
               </arguments>
             </configuration>
           </execution>
@@ -636,16 +555,16 @@
         <version>3.1.0</version>
         <executions>
           <execution>
-            <id>prepare-tsgolint-proto-gen</id>
+            <id>prepare-jsts-go-proto-gen</id>
             <phase>${protobuf.generation.phase}</phase>
             <goals>
               <goal>run</goal>
             </goals>
             <configuration>
               <target>
-                <delete dir="${project.basedir}/../../tsgolint/cmd/sonar-server/grpc"/>
+                <delete dir="${jsts.go.bridge.go.dir}/grpc"/>
                 <mkdir dir="${project.build.directory}/go-bin"/>
-                <chmod file="${project.build.directory}/protoc${tsgolint.executable.suffix}" perm="ugo+rx"/>
+                <chmod file="${project.build.directory}/protoc${jsts.go.executable.suffix}" perm="ugo+rx"/>
               </target>
             </configuration>
           </execution>
@@ -658,7 +577,7 @@
         <executions>
           <execution>
             <id>copy-protoc</id>
-            <phase>${tsgolint.init.phase}</phase>
+            <phase>${jsts.go.init.phase}</phase>
             <goals>
               <goal>copy</goal>
             </goals>
@@ -671,14 +590,14 @@
                   <type>exe</type>
                   <classifier>${os.detected.classifier}</classifier>
                   <outputDirectory>${project.build.directory}</outputDirectory>
-                  <destFileName>protoc${tsgolint.executable.suffix}</destFileName>
+                  <destFileName>protoc${jsts.go.executable.suffix}</destFileName>
                 </artifactItem>
               </artifactItems>
             </configuration>
           </execution>
           <execution>
             <id>unpack-protobuf-includes</id>
-            <phase>${tsgolint.init.phase}</phase>
+            <phase>${jsts.go.init.phase}</phase>
             <goals>
               <goal>unpack</goal>
             </goals>
@@ -764,8 +683,8 @@
                   <file>${project.build.directory}/downloads/runtimes/win-x64/version.txt</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/win-x64/tsgolint.exe.xz</resource>
-                  <file>${project.build.directory}/tsgolint/win-x64/tsgolint.exe.xz</file>
+                  <resource>jsts-go/win-x64/jsts-go.exe.xz</resource>
+                  <file>${project.build.directory}/jsts-go/win-x64/jsts-go.exe.xz</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -796,8 +715,8 @@
                   <file>${project.build.directory}/downloads/runtimes/linux-x64/version.txt</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/linux-x64/tsgolint.xz</resource>
-                  <file>${project.build.directory}/tsgolint/linux-x64/tsgolint.xz</file>
+                  <resource>jsts-go/linux-x64/jsts-go.xz</resource>
+                  <file>${project.build.directory}/jsts-go/linux-x64/jsts-go.xz</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -828,8 +747,8 @@
                   <file>${project.build.directory}/downloads/runtimes/linux-x64-musl/version.txt</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/linux-x64-musl/tsgolint.xz</resource>
-                  <file>${project.build.directory}/tsgolint/linux-x64-musl/tsgolint.xz</file>
+                  <resource>jsts-go/linux-x64-musl/jsts-go.xz</resource>
+                  <file>${project.build.directory}/jsts-go/linux-x64-musl/jsts-go.xz</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -860,8 +779,8 @@
                   <file>${project.build.directory}/downloads/runtimes/darwin-arm64/version.txt</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/darwin-arm64/tsgolint.xz</resource>
-                  <file>${project.build.directory}/tsgolint/darwin-arm64/tsgolint.xz</file>
+                  <resource>jsts-go/darwin-arm64/jsts-go.xz</resource>
+                  <file>${project.build.directory}/jsts-go/darwin-arm64/jsts-go.xz</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -892,8 +811,8 @@
                   <file>${project.build.directory}/downloads/runtimes/darwin-x64/version.txt</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/darwin-x64/tsgolint.xz</resource>
-                  <file>${project.build.directory}/tsgolint/darwin-x64/tsgolint.xz</file>
+                  <resource>jsts-go/darwin-x64/jsts-go.xz</resource>
+                  <file>${project.build.directory}/jsts-go/darwin-x64/jsts-go.xz</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -924,8 +843,8 @@
                   <file>${project.build.directory}/downloads/runtimes/linux-arm64/version.txt</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/linux-arm64/tsgolint.xz</resource>
-                  <file>${project.build.directory}/tsgolint/linux-arm64/tsgolint.xz</file>
+                  <resource>jsts-go/linux-arm64/jsts-go.xz</resource>
+                  <file>${project.build.directory}/jsts-go/linux-arm64/jsts-go.xz</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -980,28 +899,28 @@
                   <file>${project.build.directory}/downloads/runtimes/darwin-arm64/version.txt</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/win-x64/tsgolint.exe.xz</resource>
-                  <file>${project.build.directory}/tsgolint/win-x64/tsgolint.exe.xz</file>
+                  <resource>jsts-go/win-x64/jsts-go.exe.xz</resource>
+                  <file>${project.build.directory}/jsts-go/win-x64/jsts-go.exe.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/linux-x64/tsgolint.xz</resource>
-                  <file>${project.build.directory}/tsgolint/linux-x64/tsgolint.xz</file>
+                  <resource>jsts-go/linux-x64/jsts-go.xz</resource>
+                  <file>${project.build.directory}/jsts-go/linux-x64/jsts-go.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/linux-x64-musl/tsgolint.xz</resource>
-                  <file>${project.build.directory}/tsgolint/linux-x64-musl/tsgolint.xz</file>
+                  <resource>jsts-go/linux-x64-musl/jsts-go.xz</resource>
+                  <file>${project.build.directory}/jsts-go/linux-x64-musl/jsts-go.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/linux-arm64/tsgolint.xz</resource>
-                  <file>${project.build.directory}/tsgolint/linux-arm64/tsgolint.xz</file>
+                  <resource>jsts-go/linux-arm64/jsts-go.xz</resource>
+                  <file>${project.build.directory}/jsts-go/linux-arm64/jsts-go.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/darwin-arm64/tsgolint.xz</resource>
-                  <file>${project.build.directory}/tsgolint/darwin-arm64/tsgolint.xz</file>
+                  <resource>jsts-go/darwin-arm64/jsts-go.xz</resource>
+                  <file>${project.build.directory}/jsts-go/darwin-arm64/jsts-go.xz</file>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.IncludeResourceTransformer">
-                  <resource>tsgolint/darwin-x64/tsgolint.xz</resource>
-                  <file>${project.build.directory}/tsgolint/darwin-x64/tsgolint.xz</file>
+                  <resource>jsts-go/darwin-x64/jsts-go.xz</resource>
+                  <file>${project.build.directory}/jsts-go/darwin-x64/jsts-go.xz</file>
                 </transformer>
               </transformers>
             </configuration>
@@ -1033,7 +952,7 @@
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
         <executions>
-          <!-- TODO: re-enable after PoC — tsgolint binaries increase JAR sizes -->
+          <!-- TODO: re-enable after PoC — jsts-go binaries increase JAR sizes -->
           <execution>
             <id>enforce-plugin-size</id>
             <phase>none</phase>
@@ -1052,14 +971,14 @@
         </os>
       </activation>
       <properties>
-        <tsgolint.executable.suffix>.exe</tsgolint.executable.suffix>
+        <jsts.go.executable.suffix>.exe</jsts.go.executable.suffix>
       </properties>
     </profile>
     <profile>
-      <id>skip-tsgolint</id>
+      <id>skip-jsts-go</id>
       <properties>
-        <tsgolint.build.phase>none</tsgolint.build.phase>
-        <tsgolint.init.phase>none</tsgolint.init.phase>
+        <jsts.go.build.phase>none</jsts.go.build.phase>
+        <jsts.go.init.phase>none</jsts.go.init.phase>
       </properties>
     </profile>
     <profile>

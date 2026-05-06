@@ -1,0 +1,31 @@
+From 402c3d9a5fd17f8df9da826eccede6b84a781421 Mon Sep 17 00:00:00 2001
+From: Cameron Clark <cameron.clark@hey.com>
+Date: Mon, 3 Nov 2025 12:44:32 +0000
+Subject: [PATCH 3/5] fix: early return from invalid tsconfig for better errors
+
+---
+ internal/tsoptions/tsconfigparsing.go | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/internal/tsoptions/tsconfigparsing.go b/internal/tsoptions/tsconfigparsing.go
+index 15118ae27..e12cb0e86 100644
+--- a/internal/tsoptions/tsconfigparsing.go
++++ b/internal/tsoptions/tsconfigparsing.go
+@@ -189,6 +189,17 @@ func parseOwnConfigOfJsonSourceFile(
+ 	var extendedConfigPath any
+ 	var rootCompilerOptions []*ast.PropertyName
+ 	var errors []*ast.Diagnostic
++
++	// If there are parsing errors, return only the first one
++	if len(sourceFile.Diagnostics()) > 0 {
++		return &parsedTsconfig{
++			raw:                &collections.OrderedMap[string, any]{},
++			options:            compilerOptions,
++			typeAcquisition:    typeAcquisition,
++			extendedConfigPath: extendedConfigPath,
++		}, []*ast.Diagnostic{sourceFile.Diagnostics()[0]}
++	}
++
+ 	onPropertySet := func(
+ 		keyText string,
+ 		value any,

@@ -65,9 +65,9 @@ import org.sonar.plugins.javascript.bridge.BridgeServer;
 import org.sonar.plugins.javascript.bridge.BridgeServerConfig;
 import org.sonar.plugins.javascript.bridge.ESTreeFactory;
 import org.sonar.plugins.javascript.bridge.EslintRule;
+import org.sonar.plugins.javascript.bridge.JstsGoBundle;
 import org.sonar.plugins.javascript.bridge.ProjectAnalysisHandler;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
-import org.sonar.plugins.javascript.bridge.TsgolintBundle;
 import org.sonar.plugins.javascript.bridge.grpc.AnalyzerGrpcServer;
 import org.sonar.plugins.javascript.bridge.grpc.AnalyzerGrpcServerImpl;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
@@ -98,11 +98,11 @@ public class WebSensor implements ProjectSensor {
   private final BridgeServer bridgeServer;
   private final WebSensorModuleConfiguration moduleConfiguration;
   @Nullable
-  private final TsgolintBundle tsgolintBundle;
+  private final JstsGoBundle jstsGoBundle;
   private ProjectConfiguration.Builder configurationBuilder;
   private JsTsContext<?> context;
   @Nullable
-  private AnalyzerGrpcServer tsgolintServer;
+  private AnalyzerGrpcServer jstsGoServer;
   FSListener fsListener;
 
   public WebSensor(
@@ -112,7 +112,7 @@ public class WebSensor implements ProjectSensor {
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
     CssRules cssRules,
-    TsgolintBundle tsgolintBundle,
+    JstsGoBundle jstsGoBundle,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
     this(
@@ -122,7 +122,7 @@ public class WebSensor implements ProjectSensor {
       analysisWarnings,
       consumers,
       cssRules,
-      tsgolintBundle,
+      jstsGoBundle,
       null,
       moduleConfiguration
     );
@@ -158,7 +158,7 @@ public class WebSensor implements ProjectSensor {
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
     CssRules cssRules,
-    @Nullable TsgolintBundle tsgolintBundle,
+    @Nullable JstsGoBundle jstsGoBundle,
     @Nullable FSListener fsListener,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
@@ -170,7 +170,7 @@ public class WebSensor implements ProjectSensor {
     this.cssRules = cssRules;
     this.bridgeServer = bridgeServer;
     this.moduleConfiguration = moduleConfiguration;
-    this.tsgolintBundle = tsgolintBundle;
+    this.jstsGoBundle = jstsGoBundle;
   }
 
   @Override
@@ -213,7 +213,7 @@ public class WebSensor implements ProjectSensor {
         context
       );
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
-      startTsgolint();
+      startJstsGo();
       analyzeFiles(inputFiles);
     } catch (CancellationException e) {
       // do not propagate the exception
@@ -241,7 +241,7 @@ public class WebSensor implements ProjectSensor {
       LOG.error("Failure during analysis", e);
       throw new IllegalStateException("Analysis of " + LANG + " files failed", e);
     } finally {
-      stopTsgolint();
+      stopJstsGo();
       moduleConfiguration.clear();
       CacheStrategies.logReport();
     }
@@ -260,33 +260,33 @@ public class WebSensor implements ProjectSensor {
     };
   }
 
-  private void startTsgolint() {
-    if (tsgolintBundle == null) {
+  private void startJstsGo() {
+    if (jstsGoBundle == null) {
       return;
     }
     try {
-      tsgolintBundle.deploy();
-      if (!tsgolintBundle.isAvailable()) {
-        LOG.info("tsgolint binary not available, skipping tsgolint analysis");
+      jstsGoBundle.deploy();
+      if (!jstsGoBundle.isAvailable()) {
+        LOG.info("jsts-go binary not available, skipping jsts-go analysis");
         return;
       }
-      var enabledRules = checks.enabledTsgolintRules();
+      var enabledRules = checks.enabledJstsGoRules();
       if (enabledRules.isEmpty()) {
-        LOG.debug("No tsgolint rules enabled in quality profile");
+        LOG.debug("No jsts-go rules enabled in quality profile");
         return;
       }
-      tsgolintServer = new AnalyzerGrpcServerImpl(tsgolintBundle.binary());
-      tsgolintServer.start();
+      jstsGoServer = new AnalyzerGrpcServerImpl(jstsGoBundle.binary());
+      jstsGoServer.start();
     } catch (Exception e) {
-      LOG.error("Failed to start tsgolint, its rules will produce no issues", e);
-      tsgolintServer = null;
+      LOG.error("Failed to start jsts-go, its rules will produce no issues", e);
+      jstsGoServer = null;
     }
   }
 
-  private void stopTsgolint() {
-    if (tsgolintServer != null) {
-      tsgolintServer.stop();
-      tsgolintServer = null;
+  private void stopJstsGo() {
+    if (jstsGoServer != null) {
+      jstsGoServer.stop();
+      jstsGoServer = null;
     }
   }
 
@@ -298,16 +298,16 @@ public class WebSensor implements ProjectSensor {
     }
   }
 
-  private void runTsgolintAnalysis(List<InputFile> inputFiles) {
-    if (tsgolintServer == null || !tsgolintServer.isAlive()) {
+  private void runJstsGoAnalysis(List<InputFile> inputFiles) {
+    if (jstsGoServer == null || !jstsGoServer.isAlive()) {
       return;
     }
-    var enabledRules = checks.enabledTsgolintRules();
+    var enabledRules = checks.enabledJstsGoRules();
     if (enabledRules.isEmpty()) {
       return;
     }
 
-    // Collect JS/TS files for tsgolint analysis (exclude CSS, HTML, YAML).
+    // Collect JS/TS files for jsts-go analysis (exclude CSS, HTML, YAML).
     var jstsFiles = inputFiles
       .stream()
       .filter(f -> {
@@ -320,12 +320,12 @@ public class WebSensor implements ProjectSensor {
     }
 
     LOG.info(
-      "Running tsgolint analysis on {} JS/TS files with {} rules",
+      "Running jsts-go analysis on {} JS/TS files with {} rules",
       jstsFiles.size(),
       enabledRules.size()
     );
 
-    var request = createTsgolintRequest(jstsFiles, enabledRules);
+    var request = createJstsGoRequest(jstsFiles, enabledRules);
 
     var fileMap = new HashMap<String, InputFile>();
     for (var f : jstsFiles) {
@@ -334,7 +334,7 @@ public class WebSensor implements ProjectSensor {
       fileMap.put(normalizePathKey(absolutePath), f);
     }
 
-    tsgolintServer.analyzeProject(request, issue -> {
+    jstsGoServer.analyzeProject(request, issue -> {
       var inputFile = fileMap.get(issue.getFilePath());
       if (inputFile == null) {
         inputFile = fileMap.get(normalizePathKey(issue.getFilePath()));
@@ -345,7 +345,7 @@ public class WebSensor implements ProjectSensor {
     });
   }
 
-  private AnalyzeProjectRequest createTsgolintRequest(
+  private AnalyzeProjectRequest createJstsGoRequest(
     List<InputFile> inputFiles,
     List<EslintRule> enabledRules
   ) {
@@ -362,7 +362,7 @@ public class WebSensor implements ProjectSensor {
         );
       }
     } catch (IOException e) {
-      throw new IllegalStateException("Failed to prepare tsgolint analysis request", e);
+      throw new IllegalStateException("Failed to prepare jsts-go analysis request", e);
     }
 
     return AnalyzeProjectRequest.newBuilder()
@@ -418,8 +418,8 @@ public class WebSensor implements ProjectSensor {
     try {
       var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);
-      // Run tsgolint analysis after bridge analysis
-      runTsgolintAnalysis(inputFiles);
+      // Run jsts-go analysis after bridge analysis
+      runJstsGoAnalysis(inputFiles);
       new PluginTelemetry(
         context,
         bridgeServer,
@@ -485,7 +485,7 @@ public class WebSensor implements ProjectSensor {
       }
       configurationBuilder.setSkipAst(context.skipAst(consumers));
       var bridgeRules =
-        tsgolintServer != null && tsgolintServer.isAlive()
+        jstsGoServer != null && jstsGoServer.isAlive()
           ? checks.enabledBridgeEslintRules()
           : checks.enabledEslintRules();
       return AnalyzeProjectRequest.newBuilder()

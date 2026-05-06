@@ -162,7 +162,7 @@ class JsTsChecksTest {
   }
 
   @Test
-  void should_partition_tsgolint_rules_from_bridge_rules() {
+  void should_partition_jsts_go_rules_from_bridge_rules() {
     JsTsChecks checks = new JsTsChecks(
       checkFactory(
         List.of(
@@ -175,7 +175,7 @@ class JsTsChecksTest {
       new CustomRuleRepository[] { new TsRepository() }
     );
 
-    assertThat(checks.enabledTsgolintRules())
+    assertThat(checks.enabledJstsGoRules())
       .extracting(EslintRule::getKey)
       .containsExactlyInAnyOrder("S131", "S4123", "S2870");
     assertThat(checks.enabledBridgeEslintRules())

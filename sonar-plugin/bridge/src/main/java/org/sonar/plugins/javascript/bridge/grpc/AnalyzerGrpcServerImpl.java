@@ -63,7 +63,7 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
   public void start() throws IOException {
     try {
       port = NetUtils.findOpenPort();
-      LOG.info("Starting tsgolint gRPC server on port {}", port);
+      LOG.info("Starting jsts-go gRPC server on port {}", port);
 
       ProcessBuilder pb = new ProcessBuilder(binaryPath.toString(), "--port", String.valueOf(port));
       pb.redirectErrorStream(false);
@@ -76,13 +76,13 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
           try {
             String line;
             while ((line = stderr.readLine()) != null) {
-              LOG.info("[tsgolint] {}", line);
+              LOG.info("[jsts-go] {}", line);
             }
           } catch (IOException e) {
-            LOG.debug("tsgolint stderr reader stopped", e);
+            LOG.debug("jsts-go stderr reader stopped", e);
           }
         },
-        "tsgolint-stderr"
+        "jsts-go-stderr"
       );
       stderrThread.setDaemon(true);
       stderrThread.start();
@@ -110,11 +110,11 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
 
   private void waitForStartup() throws IOException {
     if (waitChannelReady(STARTUP_TIMEOUT_MS)) {
-      LOG.info("tsgolint gRPC server is ready on port {}", port);
+      LOG.info("jsts-go gRPC server is ready on port {}", port);
       return;
     }
     throw new IOException(
-      "tsgolint gRPC server failed to start within " + STARTUP_TIMEOUT_MS + "ms"
+      "jsts-go gRPC server failed to start within " + STARTUP_TIMEOUT_MS + "ms"
     );
   }
 
@@ -146,7 +146,7 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
       return true;
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
-      throw new IOException("Interrupted while waiting for tsgolint to start", e);
+      throw new IOException("Interrupted while waiting for jsts-go to start", e);
     }
   }
 
@@ -163,8 +163,8 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
         case META -> response
           .getMeta()
           .getWarningsList()
-          .forEach(warning -> LOG.warn("[tsgolint] {}", warning));
-        case CANCELLED -> LOG.warn("tsgolint analysis was cancelled");
+          .forEach(warning -> LOG.warn("[jsts-go] {}", warning));
+        case CANCELLED -> LOG.warn("jsts-go analysis was cancelled");
         case MESSAGE_NOT_SET -> {
           // no-op
         }
@@ -187,7 +187,7 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
 
   @Override
   public void stop() {
-    LOG.info("Stopping tsgolint gRPC server");
+    LOG.info("Stopping jsts-go gRPC server");
     if (channel != null) {
       try {
         channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);

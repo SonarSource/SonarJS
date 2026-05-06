@@ -1,0 +1,1048 @@
+From 5cb842094809c1a698c4310c2598a6b00b135878 Mon Sep 17 00:00:00 2001
+From: Cameron Clark <cameron.clark@hey.com>
+Date: Fri, 17 Apr 2026 10:40:11 +0100
+Subject: [PATCH 2/5] patch: expose more functions via the shim with type fixes
+
+---
+ internal/project/autoimport.go                |   4 +-
+ internal/project/compilerhost.go              |   2 +-
+ internal/project/configfileregistrybuilder.go |  70 +++++-----
+ internal/project/overlayfs.go                 |  20 +--
+ internal/project/projectcollectionbuilder.go  |  68 ++++-----
+ internal/project/snapshot.go                  |   4 +-
+ internal/project/snapshotfs.go                | 130 ++++++++++--------
+ 7 files changed, 155 insertions(+), 143 deletions(-)
+
+diff --git a/internal/project/autoimport.go b/internal/project/autoimport.go
+index 861123827..eb7356c0e 100644
+--- a/internal/project/autoimport.go
++++ b/internal/project/autoimport.go
+@@ -13,7 +13,7 @@ import (
+ )
+ 
+ type autoImportBuilderFS struct {
+-	snapshotFSBuilder *snapshotFSBuilder
++	snapshotFSBuilder *SnapshotFSBuilder
+ 	untrackedFiles    collections.SyncMap[tspath.Path, FileHandle]
+ }
+ 
+@@ -79,7 +79,7 @@ var _ autoimport.RegistryCloneHost = (*autoImportRegistryCloneHost)(nil)
+ func newAutoImportRegistryCloneHost(
+ 	projectCollection *ProjectCollection,
+ 	parseCache *ParseCache,
+-	snapshotFSBuilder *snapshotFSBuilder,
++	snapshotFSBuilder *SnapshotFSBuilder,
+ 	currentDirectory string,
+ 	toPath func(fileName string) tspath.Path,
+ ) *autoImportRegistryCloneHost {
+diff --git a/internal/project/compilerhost.go b/internal/project/compilerhost.go
+index 212601d4b..73e4b4316 100644
+--- a/internal/project/compilerhost.go
++++ b/internal/project/compilerhost.go
+@@ -87,7 +87,7 @@ func (c *compilerHost) GetResolvedProjectReference(fileName string, path tspath.
+ 	} else {
+ 		// acquireConfigForProject will bypass sourceFS, so track the file here.
+ 		c.sourceFS.Track(fileName)
+-		return c.builder.configFileRegistryBuilder.acquireConfigForProject(fileName, path, c.project, c.logger)
++		return c.builder.ConfigFileRegistryBuilder.acquireConfigForProject(fileName, path, c.project, c.logger)
+ 	}
+ }
+ 
+diff --git a/internal/project/configfileregistrybuilder.go b/internal/project/configfileregistrybuilder.go
+index f543951f1..1660cda40 100644
+--- a/internal/project/configfileregistrybuilder.go
++++ b/internal/project/configfileregistrybuilder.go
+@@ -16,14 +16,14 @@ import (
+ )
+ 
+ var (
+-	_ tsoptions.ParseConfigHost     = (*configFileRegistryBuilder)(nil)
+-	_ tsoptions.ExtendedConfigCache = (*configFileRegistryBuilder)(nil)
++	_ tsoptions.ParseConfigHost     = (*ConfigFileRegistryBuilder)(nil)
++	_ tsoptions.ExtendedConfigCache = (*ConfigFileRegistryBuilder)(nil)
+ )
+ 
+-// configFileRegistryBuilder tracks changes made on top of a previous
++// ConfigFileRegistryBuilder tracks changes made on top of a previous
+ // configFileRegistry, producing a new clone with `finalize()` after
+ // all changes have been made.
+-type configFileRegistryBuilder struct {
++type ConfigFileRegistryBuilder struct {
+ 	hasRelativePatternCapability bool
+ 	fs                           *sourceFS
+ 	isOpenFile                   func(tspath.Path) bool
+@@ -38,17 +38,17 @@ type configFileRegistryBuilder struct {
+ 	customConfigFileNameChanged bool
+ }
+ 
+-func newConfigFileRegistryBuilder(
++func NewConfigFileRegistryBuilder(
+ 	hasRelativePatternCapability bool,
+-	fs *snapshotFSBuilder,
++	fs *SnapshotFSBuilder,
+ 	oldConfigFileRegistry *ConfigFileRegistry,
+ 	extendedConfigCache *ExtendedConfigCache,
+ 	snapshotID uint64,
+ 	sessionOptions *SessionOptions,
+ 	customConfigFileName string,
+ 	logger *logging.LogTree,
+-) *configFileRegistryBuilder {
+-	return &configFileRegistryBuilder{
++) *ConfigFileRegistryBuilder {
++	return &ConfigFileRegistryBuilder{
+ 		hasRelativePatternCapability: hasRelativePatternCapability,
+ 		fs:                           newSourceFS(false, fs, fs.toPath),
+ 		isOpenFile:                   fs.isOpenFile,
+@@ -66,7 +66,7 @@ func newConfigFileRegistryBuilder(
+ 
+ // Finalize creates a new configFileRegistry based on the changes made in the builder.
+ // If no changes were made, it returns the original base registry.
+-func (c *configFileRegistryBuilder) Finalize() *ConfigFileRegistry {
++func (c *ConfigFileRegistryBuilder) Finalize() *ConfigFileRegistry {
+ 	var changed bool
+ 	newRegistry := c.base
+ 	ensureCloned := func() {
+@@ -94,20 +94,20 @@ func (c *configFileRegistryBuilder) Finalize() *ConfigFileRegistry {
+ 	return newRegistry
+ }
+ 
+-func (c *configFileRegistryBuilder) findOrAcquireConfigForFile(
++func (c *ConfigFileRegistryBuilder) FindOrAcquireConfigForFile(
+ 	configFileName string,
+ 	configFilePath tspath.Path,
+ 	filePath tspath.Path,
+-	loadKind projectLoadKind,
++	loadKind ProjectLoadKind,
+ 	logger *logging.LogTree,
+ ) *tsoptions.ParsedCommandLine {
+ 	switch loadKind {
+-	case projectLoadKindFind:
++	case ProjectLoadKindFind:
+ 		if entry, ok := c.configs.Load(configFilePath); ok {
+ 			return entry.Value().commandLine
+ 		}
+ 		return nil
+-	case projectLoadKindCreate:
++	case ProjectLoadKindCreate:
+ 		return c.acquireConfigForFile(configFileName, configFilePath, filePath, logger)
+ 	default:
+ 		panic(fmt.Sprintf("unknown project load kind: %d", loadKind))
+@@ -117,7 +117,7 @@ func (c *configFileRegistryBuilder) findOrAcquireConfigForFile(
+ // reloadIfNeeded updates the command line of the config file entry based on its
+ // pending reload state. This function should only be called from within the
+ // Change() method of a dirty map entry.
+-func (c *configFileRegistryBuilder) reloadIfNeeded(entry *configFileEntry, fileName string, path tspath.Path, logger *logging.LogTree) {
++func (c *ConfigFileRegistryBuilder) reloadIfNeeded(entry *configFileEntry, fileName string, path tspath.Path, logger *logging.LogTree) {
+ 	switch entry.pendingReload {
+ 	case PendingReloadFileNames:
+ 		logger.Log("Reloading file names for config: " + fileName)
+@@ -135,7 +135,7 @@ func (c *configFileRegistryBuilder) reloadIfNeeded(entry *configFileEntry, fileN
+ 	entry.pendingReload = PendingReloadNone
+ }
+ 
+-func (c *configFileRegistryBuilder) updateExtendingConfigs(extendingConfigPath tspath.Path, newCommandLine *tsoptions.ParsedCommandLine, oldCommandLine *tsoptions.ParsedCommandLine) {
++func (c *ConfigFileRegistryBuilder) updateExtendingConfigs(extendingConfigPath tspath.Path, newCommandLine *tsoptions.ParsedCommandLine, oldCommandLine *tsoptions.ParsedCommandLine) {
+ 	var newExtendedConfigPaths collections.Set[tspath.Path]
+ 	if newCommandLine != nil {
+ 		for _, extendedConfig := range newCommandLine.ExtendedSourceFiles() {
+@@ -179,7 +179,7 @@ func (c *configFileRegistryBuilder) updateExtendingConfigs(extendingConfigPath t
+ 	}
+ }
+ 
+-func (c *configFileRegistryBuilder) updateRootFilesWatch(fileName string, entry *configFileEntry) {
++func (c *ConfigFileRegistryBuilder) updateRootFilesWatch(fileName string, entry *configFileEntry) {
+ 	if entry.rootFilesWatch == nil {
+ 		return
+ 	}
+@@ -245,7 +245,7 @@ func (c *configFileRegistryBuilder) updateRootFilesWatch(fileName string, entry
+ // cached, then adds the project (if provided) to `retainingProjects` to keep it alive
+ // in the cache. Each `acquireConfigForProject` call that passes a `project` should be accompanied
+ // by an eventual `releaseConfigForProject` call with the same project.
+-func (c *configFileRegistryBuilder) acquireConfigForProject(fileName string, path tspath.Path, project *Project, logger *logging.LogTree) *tsoptions.ParsedCommandLine {
++func (c *ConfigFileRegistryBuilder) acquireConfigForProject(fileName string, path tspath.Path, project *Project, logger *logging.LogTree) *tsoptions.ParsedCommandLine {
+ 	entry, _ := c.configs.LoadOrStore(path, newConfigFileEntry(c.hasRelativePatternCapability, fileName))
+ 	var needsRetainProject bool
+ 	entry.ChangeIf(
+@@ -271,7 +271,7 @@ func (c *configFileRegistryBuilder) acquireConfigForProject(fileName string, pat
+ // cached, then adds the open file to `retainingOpenFiles` to keep it alive in the cache.
+ // Each `acquireConfigForFile` call that passes an `openFilePath`
+ // should be accompanied by an eventual `releaseConfigForOpenFile` call with the same open file.
+-func (c *configFileRegistryBuilder) acquireConfigForFile(configFileName string, configFilePath tspath.Path, filePath tspath.Path, logger *logging.LogTree) *tsoptions.ParsedCommandLine {
++func (c *ConfigFileRegistryBuilder) acquireConfigForFile(configFileName string, configFilePath tspath.Path, filePath tspath.Path, logger *logging.LogTree) *tsoptions.ParsedCommandLine {
+ 	entry, _ := c.configs.LoadOrStore(configFilePath, newConfigFileEntry(c.hasRelativePatternCapability, configFileName))
+ 	var needsRetainOpenFile bool
+ 	entry.ChangeIf(
+@@ -297,7 +297,7 @@ func (c *configFileRegistryBuilder) acquireConfigForFile(configFileName string,
+ 
+ // releaseConfigForProject removes the project from the config entry. Once no projects
+ // or files are associated with the config entry, it will be removed on the next call to `cleanup`.
+-func (c *configFileRegistryBuilder) releaseConfigForProject(configFilePath tspath.Path, projectPath tspath.Path) {
++func (c *ConfigFileRegistryBuilder) releaseConfigForProject(configFilePath tspath.Path, projectPath tspath.Path) {
+ 	if entry, ok := c.configs.Load(configFilePath); ok {
+ 		entry.ChangeIf(
+ 			func(config *configFileEntry) bool {
+@@ -313,7 +313,7 @@ func (c *configFileRegistryBuilder) releaseConfigForProject(configFilePath tspat
+ 
+ // didCloseFile removes the open file from the config entry. Once no projects
+ // or files are associated with the config entry, it will be removed on the next call to `cleanup`.
+-func (c *configFileRegistryBuilder) didCloseFile(path tspath.Path) {
++func (c *ConfigFileRegistryBuilder) didCloseFile(path tspath.Path) {
+ 	if tspath.IsDynamicFileName(string(path)) {
+ 		return
+ 	}
+@@ -341,7 +341,7 @@ func (r changeFileResult) IsEmpty() bool {
+ 	return len(r.affectedProjects) == 0 && len(r.affectedFiles) == 0
+ }
+ 
+-func (c *configFileRegistryBuilder) DidChangeCustomConfigFileName(logger *logging.LogTree) bool {
++func (c *ConfigFileRegistryBuilder) DidChangeCustomConfigFileName(logger *logging.LogTree) bool {
+ 	if !c.customConfigFileNameChanged {
+ 		return false
+ 	}
+@@ -350,7 +350,7 @@ func (c *configFileRegistryBuilder) DidChangeCustomConfigFileName(logger *loggin
+ 	return true
+ }
+ 
+-func (c *configFileRegistryBuilder) invalidateCache(logger *logging.LogTree) changeFileResult {
++func (c *ConfigFileRegistryBuilder) invalidateCache(logger *logging.LogTree) changeFileResult {
+ 	var affectedProjects map[tspath.Path]struct{}
+ 	var affectedFiles map[tspath.Path]struct{}
+ 
+@@ -385,12 +385,12 @@ func (c *configFileRegistryBuilder) invalidateCache(logger *logging.LogTree) cha
+ 	}
+ }
+ 
+-func (c *configFileRegistryBuilder) isConfigBaseName(baseName string) bool {
++func (c *ConfigFileRegistryBuilder) isConfigBaseName(baseName string) bool {
+ 	return baseName == "tsconfig.json" || baseName == "jsconfig.json" ||
+ 		(c.customConfigFileName != "" && baseName == c.customConfigFileName)
+ }
+ 
+-func (c *configFileRegistryBuilder) DidChangeFiles(summary FileChangeSummary, logger *logging.LogTree) changeFileResult {
++func (c *ConfigFileRegistryBuilder) DidChangeFiles(summary FileChangeSummary, logger *logging.LogTree) changeFileResult {
+ 	var affectedProjects map[tspath.Path]struct{}
+ 	var affectedFiles map[tspath.Path]struct{}
+ 	var shouldInvalidateCache bool
+@@ -564,7 +564,7 @@ func (c *configFileRegistryBuilder) DidChangeFiles(summary FileChangeSummary, lo
+ 	}
+ }
+ 
+-func (c *configFileRegistryBuilder) handleConfigChange(entry *dirty.SyncMapEntry[tspath.Path, *configFileEntry], logger *logging.LogTree) map[tspath.Path]struct{} {
++func (c *ConfigFileRegistryBuilder) handleConfigChange(entry *dirty.SyncMapEntry[tspath.Path, *configFileEntry], logger *logging.LogTree) map[tspath.Path]struct{} {
+ 	var affectedProjects map[tspath.Path]struct{}
+ 	changed := entry.ChangeIf(
+ 		func(config *configFileEntry) bool { return config.pendingReload != PendingReloadFull },
+@@ -578,7 +578,7 @@ func (c *configFileRegistryBuilder) handleConfigChange(entry *dirty.SyncMapEntry
+ 	return affectedProjects
+ }
+ 
+-func (c *configFileRegistryBuilder) computeConfigFileName(fileName string, skipSearchInDirectoryOfFile bool, logger *logging.LogTree) string {
++func (c *ConfigFileRegistryBuilder) ComputeConfigFileName(fileName string, skipSearchInDirectoryOfFile bool, logger *logging.LogTree) string {
+ 	searchPath := tspath.GetDirectoryPath(fileName)
+ 	// Prefer custom config file if provided; search ancestors with correct skip behavior.
+ 	if c.customConfigFileName != "" {
+@@ -623,7 +623,7 @@ func (c *configFileRegistryBuilder) computeConfigFileName(fileName string, skipS
+ 	return result
+ }
+ 
+-func (c *configFileRegistryBuilder) getConfigFileNameForFile(fileName string, path tspath.Path, logger *logging.LogTree) string {
++func (c *ConfigFileRegistryBuilder) getConfigFileNameForFile(fileName string, path tspath.Path, logger *logging.LogTree) string {
+ 	if tspath.IsDynamicFileName(fileName) {
+ 		return ""
+ 	}
+@@ -632,7 +632,7 @@ func (c *configFileRegistryBuilder) getConfigFileNameForFile(fileName string, pa
+ 		return entry.Value().nearestConfigFileName
+ 	}
+ 
+-	configName := c.computeConfigFileName(fileName, false, logger)
++	configName := c.ComputeConfigFileName(fileName, false, logger)
+ 	if c.isOpenFile(path) {
+ 		c.configFileNames.Add(path, &configFileNames{
+ 			nearestConfigFileName: configName,
+@@ -641,7 +641,7 @@ func (c *configFileRegistryBuilder) getConfigFileNameForFile(fileName string, pa
+ 	return configName
+ }
+ 
+-func (c *configFileRegistryBuilder) forEachConfigFileNameFor(path tspath.Path, cb func(configFileName string)) {
++func (c *ConfigFileRegistryBuilder) forEachConfigFileNameFor(path tspath.Path, cb func(configFileName string)) {
+ 	if tspath.IsDynamicFileName(string(path)) {
+ 		return
+ 	}
+@@ -659,7 +659,7 @@ func (c *configFileRegistryBuilder) forEachConfigFileNameFor(path tspath.Path, c
+ 	}
+ }
+ 
+-func (c *configFileRegistryBuilder) getAncestorConfigFileName(fileName string, path tspath.Path, configFileName string, logger *logging.LogTree) string {
++func (c *ConfigFileRegistryBuilder) GetAncestorConfigFileName(fileName string, path tspath.Path, configFileName string, logger *logging.LogTree) string {
+ 	if tspath.IsDynamicFileName(fileName) {
+ 		return ""
+ 	}
+@@ -674,7 +674,7 @@ func (c *configFileRegistryBuilder) getAncestorConfigFileName(fileName string, p
+ 	}
+ 
+ 	// Look for config in parent folders of config file
+-	result := c.computeConfigFileName(configFileName, true, logger)
++	result := c.ComputeConfigFileName(configFileName, true, logger)
+ 
+ 	if c.isOpenFile(path) {
+ 		entry.Change(func(value *configFileNames) {
+@@ -688,17 +688,17 @@ func (c *configFileRegistryBuilder) getAncestorConfigFileName(fileName string, p
+ }
+ 
+ // FS implements tsoptions.ParseConfigHost.
+-func (c *configFileRegistryBuilder) FS() vfs.FS {
++func (c *ConfigFileRegistryBuilder) FS() vfs.FS {
+ 	return c.fs
+ }
+ 
+ // GetCurrentDirectory implements tsoptions.ParseConfigHost.
+-func (c *configFileRegistryBuilder) GetCurrentDirectory() string {
++func (c *ConfigFileRegistryBuilder) GetCurrentDirectory() string {
+ 	return c.sessionOptions.CurrentDirectory
+ }
+ 
+ // GetExtendedConfig implements tsoptions.ExtendedConfigCache.
+-func (c *configFileRegistryBuilder) GetExtendedConfig(fileName string, path tspath.Path, resolutionStack []string, host tsoptions.ParseConfigHost) *tsoptions.ExtendedConfigCacheEntry {
++func (c *ConfigFileRegistryBuilder) GetExtendedConfig(fileName string, path tspath.Path, resolutionStack []string, host tsoptions.ParseConfigHost) *tsoptions.ExtendedConfigCacheEntry {
+ 	var content string
+ 	fh := c.fs.GetFileByPath(fileName, path)
+ 	if fh != nil {
+@@ -715,7 +715,7 @@ func (c *configFileRegistryBuilder) GetExtendedConfig(fileName string, path tspa
+ 	}).ExtendedConfigCacheEntry
+ }
+ 
+-func (c *configFileRegistryBuilder) Cleanup() {
++func (c *ConfigFileRegistryBuilder) Cleanup() {
+ 	c.configs.Range(func(entry *dirty.SyncMapEntry[tspath.Path, *configFileEntry]) bool {
+ 		entry.DeleteIf(func(value *configFileEntry) bool {
+ 			return len(value.retainingProjects) == 0 && len(value.retainingOpenFiles) == 0 && len(value.retainingConfigs) == 0
+diff --git a/internal/project/overlayfs.go b/internal/project/overlayfs.go
+index a1ddd225a..33057c6be 100644
+--- a/internal/project/overlayfs.go
++++ b/internal/project/overlayfs.go
+@@ -68,14 +68,14 @@ func (f *fileBase) ECMALineInfo() *sourcemap.ECMALineInfo {
+ 	return f.lineInfo
+ }
+ 
+-type diskFile struct {
++type DiskFile struct {
+ 	fileBase
+ 	needsReload  bool
+ 	realpathPath tspath.Path
+ }
+ 
+-func newDiskFile(fileName string, content string) *diskFile {
+-	return &diskFile{
++func newDiskFile(fileName string, content string) *DiskFile {
++	return &DiskFile{
+ 		fileBase: fileBase{
+ 			fileName: fileName,
+ 			content:  content,
+@@ -84,26 +84,26 @@ func newDiskFile(fileName string, content string) *diskFile {
+ 	}
+ }
+ 
+-var _ FileHandle = (*diskFile)(nil)
++var _ FileHandle = (*DiskFile)(nil)
+ 
+-func (f *diskFile) Version() int32 {
++func (f *DiskFile) Version() int32 {
+ 	return 0
+ }
+ 
+-func (f *diskFile) MatchesDiskText() bool {
++func (f *DiskFile) MatchesDiskText() bool {
+ 	return !f.needsReload
+ }
+ 
+-func (f *diskFile) IsOverlay() bool {
++func (f *DiskFile) IsOverlay() bool {
+ 	return false
+ }
+ 
+-func (f *diskFile) Kind() core.ScriptKind {
++func (f *DiskFile) Kind() core.ScriptKind {
+ 	return core.GetScriptKindFromFileName(f.fileName)
+ }
+ 
+-func (f *diskFile) Clone() *diskFile {
+-	return &diskFile{
++func (f *DiskFile) Clone() *DiskFile {
++	return &DiskFile{
+ 		realpathPath: f.realpathPath,
+ 		fileBase: fileBase{
+ 			fileName: f.fileName,
+diff --git a/internal/project/projectcollectionbuilder.go b/internal/project/projectcollectionbuilder.go
+index 349653848..caf5d4967 100644
+--- a/internal/project/projectcollectionbuilder.go
++++ b/internal/project/projectcollectionbuilder.go
+@@ -17,13 +17,13 @@ import (
+ 	"github.com/microsoft/typescript-go/internal/tspath"
+ )
+ 
+-type projectLoadKind int
++type ProjectLoadKind int
+ 
+ const (
+ 	// Project is not created or updated, only looked up in cache
+-	projectLoadKindFind projectLoadKind = iota
++	ProjectLoadKindFind ProjectLoadKind = iota
+ 	// Project is created and then its graph is updated
+-	projectLoadKindCreate
++	ProjectLoadKindCreate
+ )
+ 
+ type ProjectCollectionBuilder struct {
+@@ -33,10 +33,10 @@ type ProjectCollectionBuilder struct {
+ 	toPath              func(fileName string) tspath.Path
+ 
+ 	ctx                                context.Context
+-	fs                                 *snapshotFSBuilder
++	fs                                 *SnapshotFSBuilder
+ 	base                               *ProjectCollection
+ 	compilerOptionsForInferredProjects *core.CompilerOptions
+-	configFileRegistryBuilder          *configFileRegistryBuilder
++	ConfigFileRegistryBuilder          *ConfigFileRegistryBuilder
+ 
+ 	client Client // optional; used for project loading notifications
+ 
+@@ -54,7 +54,7 @@ type ProjectCollectionBuilder struct {
+ func newProjectCollectionBuilder(
+ 	ctx context.Context,
+ 	newSnapshotID uint64,
+-	fs *snapshotFSBuilder,
++	fs *SnapshotFSBuilder,
+ 	oldProjectCollection *ProjectCollection,
+ 	oldConfigFileRegistry *ConfigFileRegistry,
+ 	oldAPIOpenedProjects map[tspath.Path]struct{},
+@@ -74,7 +74,7 @@ func newProjectCollectionBuilder(
+ 		parseCache:                         parseCache,
+ 		extendedConfigCache:                extendedConfigCache,
+ 		base:                               oldProjectCollection,
+-		configFileRegistryBuilder:          newConfigFileRegistryBuilder(lsproto.GetClientCapabilities(ctx).Workspace.DidChangeWatchedFiles.RelativePatternSupport, fs, oldConfigFileRegistry, extendedConfigCache, newSnapshotID, sessionOptions, customConfigFileName, nil),
++		ConfigFileRegistryBuilder:          NewConfigFileRegistryBuilder(lsproto.GetClientCapabilities(ctx).Workspace.DidChangeWatchedFiles.RelativePatternSupport, fs, oldConfigFileRegistry, extendedConfigCache, newSnapshotID, sessionOptions, customConfigFileName, nil),
+ 		newSnapshotID:                      newSnapshotID,
+ 		configuredProjects:                 dirty.NewSyncMap(oldProjectCollection.configuredProjects),
+ 		inferredProject:                    dirty.NewBox(oldProjectCollection.inferredProject),
+@@ -108,7 +108,7 @@ func (b *ProjectCollectionBuilder) Finalize(logger *logging.LogTree) (*ProjectCo
+ 		newProjectCollection.inferredProject = newInferredProject
+ 	}
+ 
+-	configFileRegistry := b.configFileRegistryBuilder.Finalize()
++	configFileRegistry := b.ConfigFileRegistryBuilder.Finalize()
+ 	if configFileRegistry != b.base.configFileRegistry {
+ 		ensureCloned()
+ 		newProjectCollection.configFileRegistry = configFileRegistry
+@@ -148,7 +148,7 @@ func (b *ProjectCollectionBuilder) HandleAPIRequest(apiRequest *APISnapshotReque
+ 	if apiRequest.OpenProjects != nil {
+ 		for configFileName := range apiRequest.OpenProjects.Keys() {
+ 			configPath := b.toPath(configFileName)
+-			if entry := b.findOrCreateProject(configFileName, configPath, projectLoadKindCreate, logger); entry != nil {
++			if entry := b.findOrCreateProject(configFileName, configPath, ProjectLoadKindCreate, logger); entry != nil {
+ 				if b.apiOpenedProjects == nil {
+ 					b.apiOpenedProjects = make(map[tspath.Path]struct{})
+ 				}
+@@ -191,7 +191,7 @@ func (b *ProjectCollectionBuilder) DidChangeFiles(summary FileChangeSummary, log
+ 	}
+ 
+ 	configChangeLogger := logger.Fork("Checking for changes affecting config files")
+-	configChangeResult := b.configFileRegistryBuilder.DidChangeFiles(summary, configChangeLogger)
++	configChangeResult := b.ConfigFileRegistryBuilder.DidChangeFiles(summary, configChangeLogger)
+ 	logChangeFileResult(configChangeResult, configChangeLogger)
+ 
+ 	b.programStructureChanged = b.markProjectsAffectedByConfigChanges(configChangeResult, logger)
+@@ -302,8 +302,8 @@ func (b *ProjectCollectionBuilder) DidChangeFiles(summary FileChangeSummary, log
+ 			retainProjectAndReferences(project)
+ 
+ 			// Retain all the ancestor projects
+-			b.configFileRegistryBuilder.forEachConfigFileNameFor(openFilePath, func(configFileName string) {
+-				if ancestor := b.findOrCreateProject(configFileName, b.toPath(configFileName), projectLoadKindFind, logger); ancestor != nil {
++			b.ConfigFileRegistryBuilder.forEachConfigFileNameFor(openFilePath, func(configFileName string) {
++				if ancestor := b.findOrCreateProject(configFileName, b.toPath(configFileName), ProjectLoadKindFind, logger); ancestor != nil {
+ 					retainProjectAndReferences(ancestor.Value())
+ 				}
+ 			})
+@@ -332,7 +332,7 @@ func (b *ProjectCollectionBuilder) DidChangeFiles(summary FileChangeSummary, log
+ 			}
+ 		}
+ 		b.updateInferredProjectRoots(inferredProjectFiles, logger)
+-		b.configFileRegistryBuilder.Cleanup()
++		b.ConfigFileRegistryBuilder.Cleanup()
+ 	}
+ }
+ 
+@@ -532,7 +532,7 @@ func (b *ProjectCollectionBuilder) ensureProjectTree(
+ 			}
+ 
+ 			// Load this child project since this is referenced
+-			childProjectEntry := b.findOrCreateProject(childConfig.ConfigName(), childConfig.ConfigFile.SourceFile.Path(), projectLoadKindCreate, logger)
++			childProjectEntry := b.findOrCreateProject(childConfig.ConfigName(), childConfig.ConfigFile.SourceFile.Path(), ProjectLoadKindCreate, logger)
+ 			b.updateProgram(childProjectEntry, logger)
+ 
+ 			// Ensure children for this project
+@@ -588,7 +588,7 @@ func (b *ProjectCollectionBuilder) DidUpdateATAState(ataChanges map[tspath.Path]
+ 
+ // if customConfigFileName changes, invalidate default projects.
+ func (b *ProjectCollectionBuilder) DidChangeCustomConfigFileName(logger *logging.LogTree) {
+-	if !b.configFileRegistryBuilder.DidChangeCustomConfigFileName(logger) {
++	if !b.ConfigFileRegistryBuilder.DidChangeCustomConfigFileName(logger) {
+ 		return
+ 	}
+ 
+@@ -667,7 +667,7 @@ func (b *ProjectCollectionBuilder) findDefaultConfiguredProject(fileName string,
+ 	})
+ 
+ 	if multipleCandidates {
+-		if p := b.findOrCreateDefaultConfiguredProjectForFile(fileName, path, projectLoadKindFind, nil).project; p != nil {
++		if p := b.findOrCreateDefaultConfiguredProjectForFile(fileName, path, ProjectLoadKindFind, nil).project; p != nil {
+ 			return p
+ 		}
+ 	}
+@@ -676,7 +676,7 @@ func (b *ProjectCollectionBuilder) findDefaultConfiguredProject(fileName string,
+ }
+ 
+ func (b *ProjectCollectionBuilder) ensureConfiguredProjectAndAncestorsForFile(fileName string, path tspath.Path, logger *logging.LogTree) searchResult {
+-	result := b.findOrCreateDefaultConfiguredProjectForFile(fileName, path, projectLoadKindCreate, logger)
++	result := b.findOrCreateDefaultConfiguredProjectForFile(fileName, path, ProjectLoadKindCreate, logger)
+ 	if result.project != nil && b.fs.isOpenFile(path) {
+ 		b.createAncestorTree(fileName, path, &result, logger)
+ 	}
+@@ -694,14 +694,14 @@ func (b *ProjectCollectionBuilder) createAncestorTree(fileName string, path tspa
+ 		}
+ 
+ 		// Get config file name
+-		ancestorConfigName := b.configFileRegistryBuilder.getAncestorConfigFileName(fileName, path, project.configFileName, logger)
++		ancestorConfigName := b.ConfigFileRegistryBuilder.GetAncestorConfigFileName(fileName, path, project.configFileName, logger)
+ 		if ancestorConfigName == "" {
+ 			return
+ 		}
+ 
+ 		// find or delay load the project
+ 		ancestorPath := b.toPath(ancestorConfigName)
+-		ancestor := b.findOrCreateProject(ancestorConfigName, ancestorPath, projectLoadKindCreate, logger)
++		ancestor := b.findOrCreateProject(ancestorConfigName, ancestorPath, ProjectLoadKindCreate, logger)
+ 		if ancestor == nil {
+ 			return
+ 		}
+@@ -724,13 +724,13 @@ func (b *ProjectCollectionBuilder) createAncestorTree(fileName string, path tspa
+ 
+ type searchNode struct {
+ 	configFileName string
+-	loadKind       projectLoadKind
++	loadKind       ProjectLoadKind
+ 	logger         *logging.LogTree
+ }
+ 
+ type searchNodeKey struct {
+ 	configFileName string
+-	loadKind       projectLoadKind
++	loadKind       ProjectLoadKind
+ }
+ 
+ type searchResult struct {
+@@ -742,7 +742,7 @@ func (b *ProjectCollectionBuilder) findOrCreateDefaultConfiguredProjectWorker(
+ 	fileName string,
+ 	path tspath.Path,
+ 	configFileName string,
+-	loadKind projectLoadKind,
++	loadKind ProjectLoadKind,
+ 	visited *collections.SyncSet[searchNodeKey],
+ 	fallback *searchResult,
+ 	logger *logging.LogTree,
+@@ -758,7 +758,7 @@ func (b *ProjectCollectionBuilder) findOrCreateDefaultConfiguredProjectWorker(
+ 			if config, ok := configs.Load(b.toPath(node.configFileName)); ok && len(config.ProjectReferences()) > 0 {
+ 				referenceLoadKind := node.loadKind
+ 				if config.CompilerOptions().DisableReferencedProjectLoad.IsTrue() {
+-					referenceLoadKind = projectLoadKindFind
++					referenceLoadKind = ProjectLoadKindFind
+ 				}
+ 
+ 				var refLogger *logging.LogTree
+@@ -774,7 +774,7 @@ func (b *ProjectCollectionBuilder) findOrCreateDefaultConfiguredProjectWorker(
+ 		},
+ 		func(node searchNode) (isResult bool, stop bool) {
+ 			configFilePath := b.toPath(node.configFileName)
+-			config := b.configFileRegistryBuilder.findOrAcquireConfigForFile(node.configFileName, configFilePath, path, node.loadKind, node.logger.Fork("Acquiring config for open file"))
++			config := b.ConfigFileRegistryBuilder.FindOrAcquireConfigForFile(node.configFileName, configFilePath, path, node.loadKind, node.logger.Fork("Acquiring config for open file"))
+ 			if config == nil {
+ 				node.logger.Log("Config file for project does not already exist")
+ 				return false, false
+@@ -802,7 +802,7 @@ func (b *ProjectCollectionBuilder) findOrCreateDefaultConfiguredProjectWorker(
+ 				return false, false
+ 			}
+ 
+-			if node.loadKind == projectLoadKindCreate {
++			if node.loadKind == ProjectLoadKindCreate {
+ 				// Ensure project is up to date before checking for file inclusion
+ 				b.updateProgram(project, node.logger)
+ 			}
+@@ -822,7 +822,7 @@ func (b *ProjectCollectionBuilder) findOrCreateDefaultConfiguredProjectWorker(
+ 			Visited: visited,
+ 			PreprocessLevel: func(level *core.BreadthFirstSearchLevel[searchNodeKey, searchNode]) {
+ 				level.Range(func(node searchNode) bool {
+-					if node.loadKind == projectLoadKindFind && level.Has(searchNodeKey{configFileName: node.configFileName, loadKind: projectLoadKindCreate}) {
++					if node.loadKind == ProjectLoadKindFind && level.Has(searchNodeKey{configFileName: node.configFileName, loadKind: ProjectLoadKindCreate}) {
+ 						// Remove find requests when a create request for the same project is already present.
+ 						level.Delete(searchNodeKey{configFileName: node.configFileName, loadKind: node.loadKind})
+ 					}
+@@ -872,7 +872,7 @@ func (b *ProjectCollectionBuilder) findOrCreateDefaultConfiguredProjectWorker(
+ 			return *fallback
+ 		}
+ 	}
+-	if ancestorConfigName := b.configFileRegistryBuilder.getAncestorConfigFileName(fileName, path, configFileName, logger); ancestorConfigName != "" {
++	if ancestorConfigName := b.ConfigFileRegistryBuilder.GetAncestorConfigFileName(fileName, path, configFileName, logger); ancestorConfigName != "" {
+ 		return b.findOrCreateDefaultConfiguredProjectWorker(
+ 			fileName,
+ 			path,
+@@ -899,7 +899,7 @@ func (b *ProjectCollectionBuilder) findOrCreateDefaultConfiguredProjectWorker(
+ func (b *ProjectCollectionBuilder) findOrCreateDefaultConfiguredProjectForFile(
+ 	fileName string,
+ 	path tspath.Path,
+-	loadKind projectLoadKind,
++	loadKind ProjectLoadKind,
+ 	logger *logging.LogTree,
+ ) searchResult {
+ 	if key, ok := b.fileDefaultProjects[path]; ok {
+@@ -910,7 +910,7 @@ func (b *ProjectCollectionBuilder) findOrCreateDefaultConfiguredProjectForFile(
+ 		entry, _ := b.configuredProjects.Load(key)
+ 		return searchResult{project: entry}
+ 	}
+-	if configFileName := b.configFileRegistryBuilder.getConfigFileNameForFile(fileName, path, logger); configFileName != "" {
++	if configFileName := b.ConfigFileRegistryBuilder.getConfigFileNameForFile(fileName, path, logger); configFileName != "" {
+ 		startTime := time.Now()
+ 		result := b.findOrCreateDefaultConfiguredProjectWorker(
+ 			fileName,
+@@ -943,10 +943,10 @@ func (b *ProjectCollectionBuilder) findOrCreateDefaultConfiguredProjectForFile(
+ func (b *ProjectCollectionBuilder) findOrCreateProject(
+ 	configFileName string,
+ 	configFilePath tspath.Path,
+-	loadKind projectLoadKind,
++	loadKind ProjectLoadKind,
+ 	logger *logging.LogTree,
+ ) *dirty.SyncMapEntry[tspath.Path, *Project] {
+-	if loadKind == projectLoadKindFind {
++	if loadKind == ProjectLoadKindFind {
+ 		entry, _ := b.configuredProjects.Load(configFilePath)
+ 		return entry
+ 	}
+@@ -1011,7 +1011,7 @@ func (b *ProjectCollectionBuilder) updateProgram(entry dirty.Value[*Project], lo
+ 	var displayName string
+ 	entry.Locked(func(entry dirty.Value[*Project]) {
+ 		if entry.Value().Kind == KindConfigured {
+-			commandLine := b.configFileRegistryBuilder.acquireConfigForProject(
++			commandLine := b.ConfigFileRegistryBuilder.acquireConfigForProject(
+ 				entry.Value().configFileName,
+ 				entry.Value().configFilePath,
+ 				entry.Value(),
+@@ -1140,10 +1140,10 @@ func (b *ProjectCollectionBuilder) deleteConfiguredProject(project dirty.Value[*
+ 	}
+ 	if program := project.Value().Program; program != nil {
+ 		program.RangeResolvedProjectReference(func(referencePath tspath.Path, config *tsoptions.ParsedCommandLine, _ *tsoptions.ParsedCommandLine, _ int) bool {
+-			b.configFileRegistryBuilder.releaseConfigForProject(referencePath, projectPath)
++			b.ConfigFileRegistryBuilder.releaseConfigForProject(referencePath, projectPath)
+ 			return true
+ 		})
+ 	}
+-	b.configFileRegistryBuilder.releaseConfigForProject(projectPath, projectPath)
++	b.ConfigFileRegistryBuilder.releaseConfigForProject(projectPath, projectPath)
+ 	project.Delete()
+ }
+diff --git a/internal/project/snapshot.go b/internal/project/snapshot.go
+index a632f05a2..1cb3172c2 100644
+--- a/internal/project/snapshot.go
++++ b/internal/project/snapshot.go
+@@ -282,7 +282,7 @@ func (s *Snapshot) Clone(ctx context.Context, change SnapshotChange, overlays ma
+ 	}
+ 
+ 	start := time.Now()
+-	fs := newSnapshotFSBuilder(session.fs.fs, s.fs.overlays, overlays, s.fs.diskFiles, s.fs.diskDirectories, s.fs.nodeModulesRealpathAliases, session.options.PositionEncoding, s.toPath)
++	fs := NewSnapshotFSBuilder(session.fs.fs, s.fs.overlays, overlays, s.fs.diskFiles, s.fs.diskDirectories, s.fs.nodeModulesRealpathAliases, session.options.PositionEncoding, s.toPath)
+ 	if change.fileChanges.HasExcessiveWatchEvents() {
+ 		invalidateStart := time.Now()
+ 		if change.fileChanges.InvalidateAll {
+@@ -387,7 +387,7 @@ func (s *Snapshot) Clone(ctx context.Context, change SnapshotChange, overlays ma
+ 		if len(projectsWithNewProgramStructure) > 0 || change.cleanDiskCache {
+ 			cleanFilesStart := time.Now()
+ 			removedFiles := 0
+-			fs.diskFiles.Range(func(entry *dirty.SyncMapEntry[tspath.Path, *diskFile]) bool {
++			fs.diskFiles.Range(func(entry *dirty.SyncMapEntry[tspath.Path, *DiskFile]) bool {
+ 				for _, project := range projectCollection.Projects() {
+ 					if project.host != nil && project.host.sourceFS.SeenFile(entry.Key()) {
+ 						return true
+diff --git a/internal/project/snapshotfs.go b/internal/project/snapshotfs.go
+index e39e75471..c8e7ab656 100644
+--- a/internal/project/snapshotfs.go
++++ b/internal/project/snapshotfs.go
+@@ -25,27 +25,27 @@ type FileSource interface {
+ }
+ 
+ var (
+-	_ FileSource = (*snapshotFSBuilder)(nil)
++	_ FileSource = (*SnapshotFSBuilder)(nil)
+ 	_ FileSource = (*SnapshotFS)(nil)
+ )
+ 
+-// realpathAliasSet is a thread-safe set of symlink paths that alias a single realpath.
++// RealpathAliasSet is a thread-safe set of symlink paths that alias a single realpath.
+ // It implements dirty.Cloneable so it can be used as a value in dirty.SyncMap.
+-type realpathAliasSet struct {
++type RealpathAliasSet struct {
+ 	mu    sync.Mutex
+ 	paths collections.Set[tspath.Path]
+ }
+ 
+-func (s *realpathAliasSet) Add(path tspath.Path) {
++func (s *RealpathAliasSet) Add(path tspath.Path) {
+ 	s.mu.Lock()
+ 	defer s.mu.Unlock()
+ 	s.paths.Add(path)
+ }
+ 
+-func (s *realpathAliasSet) Clone() *realpathAliasSet {
++func (s *RealpathAliasSet) Clone() *RealpathAliasSet {
+ 	s.mu.Lock()
+ 	defer s.mu.Unlock()
+-	clone := &realpathAliasSet{}
++	clone := &RealpathAliasSet{}
+ 	if s.paths.Len() > 0 {
+ 		clone.paths = *s.paths.Clone()
+ 	}
+@@ -57,13 +57,13 @@ type SnapshotFS struct {
+ 	fs                 vfs.FS
+ 	overlays           map[tspath.Path]*Overlay
+ 	overlayDirectories map[tspath.Path]map[tspath.Path]string
+-	diskFiles          map[tspath.Path]*diskFile
++	diskFiles          map[tspath.Path]*DiskFile
+ 	diskDirectories    map[tspath.Path]dirty.CloneableMap[tspath.Path, string]
+ 	readFiles          collections.SyncMap[tspath.Path, memoizedDiskFile]
+ 	// nodeModulesRealpathAliases maps realpath-based keys to sets of symlink-based keys,
+ 	// for files inside node_modules that are accessed through directory symlinks.
+ 	// This allows watch events (which use realpaths) to invalidate files cached under symlink paths.
+-	nodeModulesRealpathAliases map[tspath.Path]*realpathAliasSet
++	nodeModulesRealpathAliases map[tspath.Path]*RealpathAliasSet
+ }
+ 
+ type memoizedDiskFile func() FileHandle
+@@ -131,27 +131,27 @@ func (s *SnapshotFS) isFile(path tspath.Path) bool {
+ 	return false
+ }
+ 
+-type snapshotFSBuilder struct {
++type SnapshotFSBuilder struct {
+ 	fs                         vfs.FS
+ 	prevOverlays               map[tspath.Path]*Overlay
+ 	overlays                   map[tspath.Path]*Overlay
+ 	overlayDirectories         map[tspath.Path]map[tspath.Path]string
+-	diskFiles                  *dirty.SyncMap[tspath.Path, *diskFile]
++	diskFiles                  *dirty.SyncMap[tspath.Path, *DiskFile]
+ 	diskDirectories            *dirty.Map[tspath.Path, dirty.CloneableMap[tspath.Path, string]]
+-	nodeModulesRealpathAliases *dirty.SyncMap[tspath.Path, *realpathAliasSet]
++	nodeModulesRealpathAliases *dirty.SyncMap[tspath.Path, *RealpathAliasSet]
+ 	toPath                     func(string) tspath.Path
+ }
+ 
+-func newSnapshotFSBuilder(
++func NewSnapshotFSBuilder(
+ 	fs vfs.FS,
+ 	prevOverlays map[tspath.Path]*Overlay,
+ 	overlays map[tspath.Path]*Overlay,
+-	diskFiles map[tspath.Path]*diskFile,
++	diskFiles map[tspath.Path]*DiskFile,
+ 	diskDirectories map[tspath.Path]dirty.CloneableMap[tspath.Path, string],
+-	nodeModulesRealpathAliases map[tspath.Path]*realpathAliasSet,
++	nodeModulesRealpathAliases map[tspath.Path]*RealpathAliasSet,
+ 	positionEncoding lsproto.PositionEncodingKind,
+ 	toPath func(fileName string) tspath.Path,
+-) *snapshotFSBuilder {
++) *SnapshotFSBuilder {
+ 	cachedFS := cachedvfs.From(fs)
+ 	cachedFS.Enable()
+ 
+@@ -178,7 +178,7 @@ func newSnapshotFSBuilder(
+ 		}
+ 	}
+ 
+-	return &snapshotFSBuilder{
++	return &SnapshotFSBuilder{
+ 		fs:                         cachedFS,
+ 		prevOverlays:               prevOverlays,
+ 		overlays:                   overlays,
+@@ -190,14 +190,14 @@ func newSnapshotFSBuilder(
+ 	}
+ }
+ 
+-func (s *snapshotFSBuilder) FS() vfs.FS {
++func (s *SnapshotFSBuilder) FS() vfs.FS {
+ 	return s.fs
+ }
+ 
+-func (s *snapshotFSBuilder) Finalize() (*SnapshotFS, bool) {
++func (s *SnapshotFSBuilder) Finalize() (*SnapshotFS, bool) {
+ 	// Synchronize directory structure based on added and deleted files (including overlays)
+ 	var onDeletedFileOrDirectory func(path tspath.Path)
+-	var deleted map[tspath.Path]*diskFile
++	var deleted map[tspath.Path]*DiskFile
+ 
+ 	onAddedFile := func(path tspath.Path, fileName string) {
+ 		childPath := path
+@@ -238,14 +238,14 @@ func (s *snapshotFSBuilder) Finalize() (*SnapshotFS, bool) {
+ 		})
+ 	}
+ 
+-	diskFiles, changed := s.diskFiles.FinalizeWith(dirty.FinalizationHooks[tspath.Path, *diskFile]{
+-		OnDelete: func(key tspath.Path, value *diskFile) {
++	diskFiles, changed := s.diskFiles.FinalizeWith(dirty.FinalizationHooks[tspath.Path, *DiskFile]{
++		OnDelete: func(key tspath.Path, value *DiskFile) {
+ 			if deleted == nil {
+-				deleted = make(map[tspath.Path]*diskFile)
++				deleted = make(map[tspath.Path]*DiskFile)
+ 			}
+ 			deleted[key] = value
+ 		},
+-		OnAdd: func(key tspath.Path, value *diskFile) {
++		OnAdd: func(key tspath.Path, value *DiskFile) {
+ 			onAddedFile(key, value.FileName())
+ 		},
+ 	})
+@@ -261,8 +261,8 @@ func (s *snapshotFSBuilder) Finalize() (*SnapshotFS, bool) {
+ 			continue
+ 		}
+ 		if entry, ok := s.nodeModulesRealpathAliases.Load(deletedFile.realpathPath); ok {
+-			entry.Locked(func(e dirty.Value[*realpathAliasSet]) {
+-				e.Change(func(aliasSet *realpathAliasSet) {
++			entry.Locked(func(e dirty.Value[*RealpathAliasSet]) {
++				e.Change(func(aliasSet *RealpathAliasSet) {
+ 					aliasSet.paths.Delete(deletedPath)
+ 				})
+ 				if e.Value().paths.Len() == 0 {
+@@ -285,17 +285,17 @@ func (s *snapshotFSBuilder) Finalize() (*SnapshotFS, bool) {
+ 	}, changed || aliasesChanged
+ }
+ 
+-func (s *snapshotFSBuilder) isOpenFile(path tspath.Path) bool {
++func (s *SnapshotFSBuilder) isOpenFile(path tspath.Path) bool {
+ 	_, ok := s.overlays[path]
+ 	return ok
+ }
+ 
+-func (s *snapshotFSBuilder) GetFile(fileName string) FileHandle {
++func (s *SnapshotFSBuilder) GetFile(fileName string) FileHandle {
+ 	path := s.toPath(fileName)
+ 	return s.GetFileByPath(fileName, path)
+ }
+ 
+-func (s *snapshotFSBuilder) FileExists(fileName string, path tspath.Path) bool {
++func (s *SnapshotFSBuilder) FileExists(fileName string, path tspath.Path) bool {
+ 	if _, ok := s.overlays[path]; ok {
+ 		return true
+ 	}
+@@ -304,21 +304,24 @@ func (s *snapshotFSBuilder) FileExists(fileName string, path tspath.Path) bool {
+ 		if val == nil {
+ 			return false
+ 		}
+-		// Entry may be dirty - reload to check current state on disk.
++		if val.MatchesDiskText() {
++			return true
++		}
++		// Entry is dirty; reload to check current state on disk.
+ 		return s.reloadEntryIfNeeded(entry) != nil
+ 	}
+-	// Path never loaded into diskFiles - use cached stat (no file read).
++	// Path never loaded into diskFiles; use cached stat without forcing a read.
+ 	return s.fs.FileExists(fileName)
+ }
+ 
+-func (s *snapshotFSBuilder) GetFileByPath(fileName string, path tspath.Path) FileHandle {
++func (s *SnapshotFSBuilder) GetFileByPath(fileName string, path tspath.Path) FileHandle {
+ 	if file, ok := s.overlays[path]; ok {
+ 		return file
+ 	}
+ 	return s.getDiskFile(fileName, path, false)
+ }
+ 
+-func (s *snapshotFSBuilder) GetAccessibleEntries(path string) vfs.Entries {
++func (s *SnapshotFSBuilder) GetAccessibleEntries(path string) vfs.Entries {
+ 	entries := s.fs.GetAccessibleEntries(path)
+ 	overlayDirectories, ok := s.overlayDirectories[s.toPath(path)]
+ 	if !ok {
+@@ -329,8 +332,8 @@ func (s *snapshotFSBuilder) GetAccessibleEntries(path string) vfs.Entries {
+ 	return entries
+ }
+ 
+-func (s *snapshotFSBuilder) getDiskFile(fileName string, path tspath.Path, forceReload bool) FileHandle {
+-	entry, loaded := s.diskFiles.LoadOrStore(path, &diskFile{fileBase: fileBase{fileName: fileName}, needsReload: true})
++func (s *SnapshotFSBuilder) getDiskFile(fileName string, path tspath.Path, forceReload bool) FileHandle {
++	entry, loaded := s.diskFiles.LoadOrStore(path, &DiskFile{fileBase: fileBase{fileName: fileName}, needsReload: true})
+ 	if entry != nil {
+ 		if !loaded && strings.Contains(string(path), "/node_modules/") {
+ 			s.recordRealpathAlias(entry, fileName, path)
+@@ -346,23 +349,23 @@ func (s *snapshotFSBuilder) getDiskFile(fileName string, path tspath.Path, force
+ // recordRealpathAlias checks if fileName is accessed through a symlink and, if so,
+ // records a mapping from the realpath-based key to the symlink-based key.
+ // This is only called for files inside node_modules where symlinks are common.
+-func (s *snapshotFSBuilder) recordRealpathAlias(diskFileEntry *dirty.SyncMapEntry[tspath.Path, *diskFile], symlinkFileName string, symlinkPath tspath.Path) {
++func (s *SnapshotFSBuilder) recordRealpathAlias(diskFileEntry *dirty.SyncMapEntry[tspath.Path, *DiskFile], symlinkFileName string, symlinkPath tspath.Path) {
+ 	realpath := s.fs.Realpath(symlinkFileName)
+ 	realpathPath := s.toPath(realpath)
+ 	if realpathPath != symlinkPath {
+-		diskFileEntry.Change(func(file *diskFile) {
++		diskFileEntry.Change(func(file *DiskFile) {
+ 			file.realpathPath = realpathPath
+ 		})
+-		entry, _ := s.nodeModulesRealpathAliases.LoadOrStore(realpathPath, &realpathAliasSet{})
+-		entry.Change(func(aliasSet *realpathAliasSet) {
++		entry, _ := s.nodeModulesRealpathAliases.LoadOrStore(realpathPath, &RealpathAliasSet{})
++		entry.Change(func(aliasSet *RealpathAliasSet) {
+ 			aliasSet.Add(symlinkPath)
+ 		})
+ 	}
+ }
+ 
+-func (s *snapshotFSBuilder) reloadEntry(entry *dirty.SyncMapEntry[tspath.Path, *diskFile]) FileHandle {
++func (s *SnapshotFSBuilder) reloadEntry(entry *dirty.SyncMapEntry[tspath.Path, *DiskFile]) FileHandle {
+ 	var fileName string
+-	entry.Locked(func(e dirty.Value[*diskFile]) {
++	entry.Locked(func(e dirty.Value[*DiskFile]) {
+ 		if e.Value() != nil {
+ 			fileName = e.Value().fileName
+ 		}
+@@ -372,12 +375,12 @@ func (s *snapshotFSBuilder) reloadEntry(entry *dirty.SyncMapEntry[tspath.Path, *
+ 	}
+ 	// Read file outside the lock to avoid blocking other goroutines.
+ 	content, ok := s.fs.ReadFile(fileName)
+-	entry.Locked(func(e dirty.Value[*diskFile]) {
++	entry.Locked(func(e dirty.Value[*DiskFile]) {
+ 		if e.Value() == nil {
+ 			return
+ 		}
+ 		if ok {
+-			e.Change(func(file *diskFile) {
++			e.Change(func(file *DiskFile) {
+ 				file.content = content
+ 				file.hash = xxh3.HashString128(content)
+ 				file.needsReload = false
+@@ -392,9 +395,9 @@ func (s *snapshotFSBuilder) reloadEntry(entry *dirty.SyncMapEntry[tspath.Path, *
+ 	return entry.Value()
+ }
+ 
+-func (s *snapshotFSBuilder) reloadEntryIfNeeded(entry *dirty.SyncMapEntry[tspath.Path, *diskFile]) FileHandle {
++func (s *SnapshotFSBuilder) reloadEntryIfNeeded(entry *dirty.SyncMapEntry[tspath.Path, *DiskFile]) FileHandle {
+ 	var fileName string
+-	entry.Locked(func(e dirty.Value[*diskFile]) {
++	entry.Locked(func(e dirty.Value[*DiskFile]) {
+ 		if e.Value() != nil && !e.Value().MatchesDiskText() {
+ 			fileName = e.Value().fileName
+ 		}
+@@ -402,12 +405,12 @@ func (s *snapshotFSBuilder) reloadEntryIfNeeded(entry *dirty.SyncMapEntry[tspath
+ 	if fileName != "" {
+ 		// Read file outside the lock to avoid blocking other goroutines.
+ 		content, ok := s.fs.ReadFile(fileName)
+-		entry.Locked(func(e dirty.Value[*diskFile]) {
++		entry.Locked(func(e dirty.Value[*DiskFile]) {
+ 			if e.Value() == nil || e.Value().MatchesDiskText() {
+ 				return // another goroutine already reloaded it
+ 			}
+ 			if ok {
+-				e.Change(func(file *diskFile) {
++				e.Change(func(file *DiskFile) {
+ 					file.content = content
+ 					file.hash = xxh3.HashString128(content)
+ 					file.needsReload = false
+@@ -423,7 +426,7 @@ func (s *snapshotFSBuilder) reloadEntryIfNeeded(entry *dirty.SyncMapEntry[tspath
+ 	return entry.Value()
+ }
+ 
+-func (s *snapshotFSBuilder) watchChangesOverlapCache(change FileChangeSummary) bool {
++func (s *SnapshotFSBuilder) watchChangesOverlapCache(change FileChangeSummary) bool {
+ 	for uri := range change.Changed.Keys() {
+ 		path := s.toPath(uri.FileName())
+ 		if _, ok := s.diskFiles.Load(path); ok {
+@@ -445,19 +448,19 @@ func (s *snapshotFSBuilder) watchChangesOverlapCache(change FileChangeSummary) b
+ 	return false
+ }
+ 
+-func (s *snapshotFSBuilder) invalidateCache() {
+-	s.diskFiles.Range(func(entry *dirty.SyncMapEntry[tspath.Path, *diskFile]) bool {
+-		entry.Change(func(file *diskFile) {
++func (s *SnapshotFSBuilder) invalidateCache() {
++	s.diskFiles.Range(func(entry *dirty.SyncMapEntry[tspath.Path, *DiskFile]) bool {
++		entry.Change(func(file *DiskFile) {
+ 			file.needsReload = true
+ 		})
+ 		return true
+ 	})
+ }
+ 
+-func (s *snapshotFSBuilder) invalidateNodeModulesCache() {
+-	s.diskFiles.Range(func(entry *dirty.SyncMapEntry[tspath.Path, *diskFile]) bool {
++func (s *SnapshotFSBuilder) invalidateNodeModulesCache() {
++	s.diskFiles.Range(func(entry *dirty.SyncMapEntry[tspath.Path, *DiskFile]) bool {
+ 		if strings.Contains(string(entry.Key()), "/node_modules/") {
+-			entry.Change(func(file *diskFile) {
++			entry.Change(func(file *DiskFile) {
+ 				file.needsReload = true
+ 			})
+ 		}
+@@ -465,11 +468,11 @@ func (s *snapshotFSBuilder) invalidateNodeModulesCache() {
+ 	})
+ }
+ 
+-func (s *snapshotFSBuilder) markDirtyFiles(change FileChangeSummary) {
++func (s *SnapshotFSBuilder) markDirtyFiles(change FileChangeSummary) {
+ 	for uri := range change.Changed.Keys() {
+ 		path := s.toPath(uri.FileName())
+ 		if entry, ok := s.diskFiles.Load(path); ok {
+-			entry.Change(func(file *diskFile) {
++			entry.Change(func(file *DiskFile) {
+ 				file.needsReload = true
+ 			})
+ 		}
+@@ -523,7 +526,7 @@ func (s *SnapshotFS) expandRealpathAliases(change FileChangeSummary) FileChangeS
+ // isRelevantFileName returns true if the given URI refers to a file that
+ // could affect the project: it has a TypeScript-relevant extension, is a
+ // dynamic (e.g. untitled) file, or is currently open as an overlay.
+-func (s *snapshotFSBuilder) isRelevantFileName(uri lsproto.DocumentUri) bool {
++func (s *SnapshotFSBuilder) isRelevantFileName(uri lsproto.DocumentUri) bool {
+ 	fileName := uri.FileName()
+ 	if tspath.IsDynamicFileName(fileName) {
+ 		return true
+@@ -547,7 +550,7 @@ func (s *snapshotFSBuilder) isRelevantFileName(uri lsproto.DocumentUri) bool {
+ // file deletion URIs using the cached directory structure, and filters out
+ // watch events for paths that are neither known directories nor have relevant
+ // file extensions.
+-func (s *snapshotFSBuilder) expandAndFilterWatchEvents(change FileChangeSummary) FileChangeSummary {
++func (s *SnapshotFSBuilder) expandAndFilterWatchEvents(change FileChangeSummary) FileChangeSummary {
+ 	if change.Deleted.Len() > 0 {
+ 		var filteredDeleted collections.Set[lsproto.DocumentUri]
+ 		for uri := range change.Deleted.Keys() {
+@@ -580,7 +583,7 @@ func (s *snapshotFSBuilder) expandAndFilterWatchEvents(change FileChangeSummary)
+ 
+ // collectFilesRecursive recursively collects all cached file URIs under the
+ // given directory path using the diskDirectories and diskFiles maps.
+-func (s *snapshotFSBuilder) collectFilesRecursive(dirPath tspath.Path, files *collections.Set[lsproto.DocumentUri]) {
++func (s *SnapshotFSBuilder) collectFilesRecursive(dirPath tspath.Path, files *collections.Set[lsproto.DocumentUri]) {
+ 	dirEntry, ok := s.diskDirectories.Get(dirPath)
+ 	if !ok {
+ 		return
+@@ -595,7 +598,7 @@ func (s *snapshotFSBuilder) collectFilesRecursive(dirPath tspath.Path, files *co
+ 	}
+ }
+ 
+-func (s *snapshotFSBuilder) convertOpenAndCloseToChanges(change FileChangeSummary) FileChangeSummary {
++func (s *SnapshotFSBuilder) convertOpenAndCloseToChanges(change FileChangeSummary) FileChangeSummary {
+ 	if change.Opened != "" && !tspath.IsDynamicFileName(change.Opened.FileName()) {
+ 		path := s.toPath(change.Opened.FileName())
+ 		if entry, ok := s.diskFiles.Load(path); !ok || entry.Original() == nil {
+@@ -772,3 +775,12 @@ func readDirectoryIntoEntries[M ~map[tspath.Path]string](directories M, isFile f
+ 		}
+ 	}
+ }
++
++// TsGoLintNewSnapshotFSBuilder creates a SnapshotFSBuilder with sensible defaults for TSGolint use.
++// This is a convenience wrapper around NewSnapshotFSBuilder.
++func TsGoLintNewSnapshotFSBuilder(fs vfs.FS, currentDirectory string) *SnapshotFSBuilder {
++	toPath := func(fileName string) tspath.Path {
++		return tspath.ToPath(fileName, currentDirectory, fs.UseCaseSensitiveFileNames())
++	}
++	return NewSnapshotFSBuilder(fs, nil, nil, nil, nil, nil, lsproto.PositionEncodingKindUTF16, toPath)
++}

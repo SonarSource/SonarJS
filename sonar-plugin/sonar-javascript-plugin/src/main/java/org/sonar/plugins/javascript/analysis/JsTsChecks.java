@@ -77,11 +77,11 @@ public class JsTsChecks {
   private static final Logger LOG = LoggerFactory.getLogger(JsTsChecks.class);
 
   /**
-   * Sonar rule keys for rules offloaded to tsgolint (Go-based linter).
+   * Sonar rule keys for rules offloaded to jsts-go (Go-based linter).
    * These rules are excluded from the Node.js bridge and run via the shared
    * analyze-project gRPC contract against the Go sidecar.
    */
-  static final Set<String> TSGOLINT_RULES = Set.of(
+  static final Set<String> JSTS_GO_RULES = Set.of(
     "S131", // switch-exhaustiveness-check with Sonar defaults/decorator on Go side
     "S4123", // await-thenable
     "S2933", // prefer-readonly
@@ -384,19 +384,19 @@ public class JsTsChecks {
   }
 
   /**
-   * Returns ESLint rules for the bridge, excluding rules offloaded to tsgolint.
+   * Returns ESLint rules for the bridge, excluding rules offloaded to jsts-go.
    */
   List<EslintRule> enabledBridgeEslintRules() {
-    return EslintRule.findAllBut(enabledEslintRules(), TSGOLINT_RULES);
+    return EslintRule.findAllBut(enabledEslintRules(), JSTS_GO_RULES);
   }
 
   /**
-   * Returns the active rules that are offloaded to the tsgolint sidecar.
+   * Returns the active rules that are offloaded to the jsts-go sidecar.
    */
-  List<EslintRule> enabledTsgolintRules() {
+  List<EslintRule> enabledJstsGoRules() {
     return enabledEslintRules()
       .stream()
-      .filter(rule -> TSGOLINT_RULES.contains(rule.getKey()))
+      .filter(rule -> JSTS_GO_RULES.contains(rule.getKey()))
       .toList();
   }
 
