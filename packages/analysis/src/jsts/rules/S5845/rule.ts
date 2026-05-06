@@ -64,7 +64,7 @@ export const rule: Rule.RuleModule = {
 
     function checkAssertion(node: estree.Node) {
       const assertion = extractTestAssertion(context, node);
-      if (!assertion || assertion.kind !== 'comparison' || assertion.comparison === 'loose') {
+      if (assertion?.kind !== 'comparison' || assertion.comparison === 'loose') {
         return;
       }
 

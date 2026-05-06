@@ -683,14 +683,11 @@ function extractNodeJSAssertion(
     return null;
   }
 
+  const comparison = getNodeJSAssertComparison(assertCall.method);
+
   return {
     kind: 'comparison',
-    comparison:
-      assertCall.method === 'equal' || assertCall.method === 'notEqual'
-        ? 'loose'
-        : assertCall.method === 'deepStrictEqual' || assertCall.method === 'notDeepStrictEqual'
-          ? 'deep'
-          : 'strict',
+    comparison,
     actual,
     expected,
     negated:
@@ -700,6 +697,19 @@ function extractNodeJSAssertion(
     node,
     reportNode: assertCall.reportNode,
   };
+}
+
+function getNodeJSAssertComparison(method: NodeAssertMethod): ComparisonAssertion['comparison'] {
+  switch (method) {
+    case 'equal':
+    case 'notEqual':
+      return 'loose';
+    case 'deepStrictEqual':
+    case 'notDeepStrictEqual':
+      return 'deep';
+    default:
+      return 'strict';
+  }
 }
 
 function getNodeJSAssertCall(
