@@ -69,6 +69,26 @@ function makeScopedFormatter(options) {
           options,
           errors: 1,
         },
+        {
+          // Ancestor callback parameter capture: suppressed by decorator, raised by upstream
+          code: `
+function createHandlers(values) {
+  return values.map(value => {
+    function createGetter() {
+      function getValue() {
+        return value;
+      }
+
+      return getValue;
+    }
+
+    return createGetter();
+  });
+}
+          `,
+          options,
+          errors: 1,
+        },
       ],
     });
   });
@@ -132,6 +152,25 @@ function makeReader(sharedValue) {
   }
 
   return createReader();
+}
+          `,
+          options,
+        },
+        {
+          // Compliant: ancestor callback parameter
+          code: `
+function createHandlers(values) {
+  return values.map(value => {
+    function createGetter() {
+      function getValue() {
+        return value;
+      }
+
+      return getValue;
+    }
+
+    return createGetter();
+  });
 }
           `,
           options,
