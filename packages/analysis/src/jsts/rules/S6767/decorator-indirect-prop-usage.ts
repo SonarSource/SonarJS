@@ -18,12 +18,11 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
-import ts from 'typescript';
 import { getNodeParent } from '../helpers/ancestor.js';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import { getComponentPropsType, getComponentVariable } from '../helpers/react.js';
-import { getTypeFromTreeNode } from '../helpers/type.js';
+import { areSameTypeDeclarations, getTypeFromTreeNode } from '../helpers/type.js';
 import { isSupportedWholePropsUsage } from './whole-props-usage.js';
 
 /**
@@ -136,7 +135,9 @@ function isDecoratorCallUsingProp(
  *   return buildPayload(props);
  * }
  *
- * The callback first parameter must be the component props type, not just any object.
+ * The callback first parameter must be provably the same component props type,
+ * including the same generic instantiation, not just any object with a matching
+ * alias symbol.
  */
 function isComponentPropsCallbackUsingProp(
   sourceCode: SourceCode,
@@ -178,26 +179,11 @@ function isSameDeclaredPropsType(
   if (!isRequiredParserServices(services)) {
     return false;
   }
+  const checker = services.program.getTypeChecker();
 
   const componentPropsType = getComponentPropsType(componentNode, services);
-  if (!componentPropsType || !hasSpecificTypeSymbol(componentPropsType)) {
-    return false;
-  }
-
   const callbackPropsType = getTypeFromTreeNode(callbackPropsParam, services);
-  if (!hasSpecificTypeSymbol(callbackPropsType)) {
-    return false;
-  }
-
-  return getTypeSymbol(callbackPropsType) === getTypeSymbol(componentPropsType);
-}
-
-function hasSpecificTypeSymbol(type: ts.Type): boolean {
-  return (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) === 0 && !!getTypeSymbol(type);
-}
-
-function getTypeSymbol(type: ts.Type): ts.Symbol | undefined {
-  return type.aliasSymbol ?? type.symbol;
+  return areSameTypeDeclarations(checker, callbackPropsType, componentPropsType);
 }
 
 /**

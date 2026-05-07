@@ -483,6 +483,33 @@ decorate((metadata: Metadata) => ({
           errors: 1,
         },
         {
+          // TP: a generic alias with a different instantiation is not the same props type.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface UserEntity {
+  userName: string;
+}
+interface ProductEntity {
+  sku: string;
+}
+type WithEntity<T> = {
+  id: string;
+  data: T;
+};
+function ComponentA(props: WithEntity<UserEntity>) {
+  return <div>{props.data.userName}</div>;
+}
+track((props: WithEntity<ProductEntity>) => ({
+  id: props.id,
+}))(ComponentA);
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
           // TP: class decorator callback forwards metadata, not component props.
           code: `
 declare const React: any;

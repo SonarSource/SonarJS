@@ -22,7 +22,7 @@ import { childrenOf, getNodeParent } from './ancestor.js';
 import { isIdentifier } from './ast.js';
 import { getFullyQualifiedName } from './module.js';
 import { isRequiredParserServices, type RequiredParserServices } from './parser-services.js';
-import { getTypeFromTreeNode } from './type.js';
+import { areMutuallyAssignableTypes, getTypeFromTreeNode } from './type.js';
 
 const COMPONENT_NODE_TYPES = new Set([
   'ClassDeclaration',
@@ -131,7 +131,8 @@ export function getComponentVariable(
  *
  * For function components, this is the type of the first parameter. For class
  * components, the helper first prefers the explicit `React.Component<Props>`
- * type argument and falls back to the resolved `props` instance property type.
+ * type argument and falls back to the shared resolver for the `props` instance
+ * property type.
  *
  * Returns `undefined` for unsupported nodes or when the component does not
  * expose a statically recoverable props type.
@@ -161,20 +162,7 @@ export function getComponentPropsType(
   const tsNode = services.esTreeNodeToTSNodeMap.get(
     componentNode as TSESTree.Node,
   ) as ts.ClassLikeDeclaration;
-  const declaredPropsType = getDeclaredClassPropsType(tsNode, checker);
-  if (declaredPropsType) {
-    return declaredPropsType;
-  }
-
-  if (!tsNode.name) {
-    return undefined;
-  }
-
-  const classSymbol = checker.getSymbolAtLocation(tsNode.name);
-  const propsSymbol = classSymbol
-    ? checker.getDeclaredTypeOfSymbol(classSymbol).getProperty('props')
-    : undefined;
-  return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
+  return getDeclaredClassPropsType(tsNode, checker) ?? getClassPropsPropertyType(tsNode, checker);
 }
 
 /**
@@ -281,6 +269,21 @@ function getDeclaredClassPropsType(
   );
   const propsTypeNode = reactSuperclass?.typeArguments?.[0];
   return propsTypeNode ? checker.getTypeAtLocation(propsTypeNode) : undefined;
+}
+
+function getClassPropsPropertyType(
+  classNode: ts.ClassLikeDeclaration,
+  checker: ts.TypeChecker,
+): ts.Type | undefined {
+  if (!classNode.name) {
+    return undefined;
+  }
+
+  const classSymbol = checker.getSymbolAtLocation(classNode.name);
+  const propsSymbol = classSymbol
+    ? checker.getDeclaredTypeOfSymbol(classSymbol).getProperty('props')
+    : undefined;
+  return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
 }
 
 /**
@@ -414,9 +417,10 @@ function collectComponentNodes(root: estree.Node, keys: SourceCode.VisitorKeys):
  * Returns `true` when the class component's declared `props` property type is mutually
  * assignable to `propsType`.
  *
- * For a class component `class Foo extends React.Component<FooProps>`, TypeScript
- * exposes the props via the instance property `this.props`.  We resolve that property's
- * type from the class symbol and compare it with the candidate `propsType`.
+ * For Strategy C owner matching, we intentionally key off the resolved instance
+ * `props` property instead of the heritage-clause type argument alone. That keeps
+ * abstract or intermediate base classes from stealing ownership from subclasses
+ * that are the actual components using the props inside the file.
  *
  * **Why mutual assignability?**
  * One-directional assignability (`propsType → componentPropsType`) would return `true`
@@ -430,26 +434,7 @@ function matchesClassProps(
   checker: ts.TypeChecker,
   propsType: ts.Type,
 ): boolean {
-  if (!cls.name) {
-    return false;
-  }
-  const classSymbol = checker.getSymbolAtLocation(cls.name);
-  if (!classSymbol) {
-    return false;
-  }
-  // Obtain the instance type (the shape of `new Foo()`) to read its `props` property.
-  const instanceType = checker.getDeclaredTypeOfSymbol(classSymbol);
-  const propsSymbol = instanceType.getProperty('props');
-  if (!propsSymbol) {
-    // Not a class component with a typed `props` property — skip.
-    return false;
-  }
-  const componentPropsType = checker.getTypeOfSymbol(propsSymbol);
-  // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-  return (
-    checker.isTypeAssignableTo(propsType, componentPropsType) &&
-    checker.isTypeAssignableTo(componentPropsType, propsType)
-  );
+  return areMutuallyAssignableTypes(checker, propsType, getClassPropsPropertyType(cls, checker));
 }
 
 /**
@@ -489,11 +474,7 @@ function matchesFunctionProps(
     return false;
   }
   const componentParamType = checker.getTypeOfSymbol(firstParam);
-  // @ts-ignore — isTypeAssignableTo is a private TypeScript API
-  return (
-    checker.isTypeAssignableTo(propsType, componentParamType) &&
-    checker.isTypeAssignableTo(componentParamType, propsType)
-  );
+  return areMutuallyAssignableTypes(checker, propsType, componentParamType);
 }
 
 /**
