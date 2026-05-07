@@ -61,6 +61,17 @@ describe('S2094 upstream sentinel', () => {
           options,
           errors: 1, // this.* inside for...in loop — suppressed by decorator, raised by upstream
         },
+        {
+          code: `class DataStore {
+  constructor(items) {
+    items.forEach(item => {
+      this[item.key] = item.value;
+    });
+  }
+}`,
+          options,
+          errors: 1, // this.* inside arrow callback — suppressed by decorator, raised by upstream
+        },
       ],
     });
   });
@@ -129,6 +140,17 @@ describe('S2094', () => {
           options,
         },
         {
+          // Compliant: this.* inside arrow function (arrow preserves constructor `this`)
+          code: `class DataStore {
+  constructor(items) {
+    items.forEach(item => {
+      this[item.key] = item.value;
+    });
+  }
+}`,
+          options,
+        },
+        {
           // Compliant: static members allowed by config
           code: `class Utils {
   static helper() { return 42; }
@@ -157,18 +179,6 @@ describe('S2094', () => {
           code: `class NotADataContainer {
   constructor(items) {
     items.forEach(function(item) {
-      this.value = item;
-    });
-  }
-}`,
-          options,
-          errors: 1,
-        },
-        {
-          // Noncompliant: this.* inside arrow function
-          code: `class NotADataContainerArrow {
-  constructor(items) {
-    items.forEach(item => {
       this.value = item;
     });
   }
