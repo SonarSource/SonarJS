@@ -33,3 +33,13 @@ export function getManifestFileInDir(
   }
   return undefined;
 }
+
+/**
+ * Get the parent directory of the given path.
+ * @param path Path to get the parent directory of.
+ * @returns The parent directory or `null` if it is the root directory.
+ */
+export function getParentDirPath(path: NormalizedAbsolutePath): NormalizedAbsolutePath | null {
+  const parentDir = dirnamePath(path);
+  return parentDir === path ? null : parentDir;
+}

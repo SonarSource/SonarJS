@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Minimatch } from 'minimatch';
+import { PackageJson } from 'type-fest';
 import type { NormalizedAbsolutePath } from '../../files.js';
 import type { Filesystem } from '../../find-up/find-minimatch.js';
 
@@ -33,7 +34,7 @@ export type DenoManifest = {
 };
 
 export interface DependencyManifest {
-  readonly type: 'npm' | 'deno';
+  readonly type: 'package-json' | 'deno';
   readonly dependencies: DependenciesList;
   readonly moduleType: ModuleType | undefined;
 }
@@ -50,3 +51,21 @@ export interface ManifestResolver {
     fileSystem?: Filesystem,
   ): DependencyManifest[];
 }
+
+// Catalog is a mapping of package names to versions, used in some package managers' workspaces (e.g., Bun).
+type Catalog = Record<string, string>;
+
+export type CatalogSource = {
+  catalog?: Catalog;
+  catalogs?: Record<string, Catalog>;
+}
+
+// Workspace type as defined by Bun and Pnpm.
+export type Workspace = CatalogSource & {
+  packages?: string[];
+};
+
+export type ExtendedPackageJson = PackageJson &
+  CatalogSource & {
+    workspaces?: PackageJson.WorkspacePattern[] | Workspace;
+  };

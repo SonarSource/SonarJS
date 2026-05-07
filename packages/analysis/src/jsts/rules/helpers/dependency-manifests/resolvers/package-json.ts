@@ -14,57 +14,75 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { PackageJson } from 'type-fest';
+import { PackageJson } from 'type-fest';
 import yaml from 'yaml';
 import type {
-  ManifestResolver,
-  DependencyManifest,
-  ModuleType,
+  CatalogSource,
   DependenciesList,
+  DependencyManifest,
+  ExtendedPackageJson,
+  ManifestResolver,
+  ModuleType,
+  Workspace,
 } from './types.js';
-import { type File, stripBOM } from '../../files.js';
+import { type File, NormalizedAbsolutePath, stripBOM } from '../../files.js';
 import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
-import { getManifestFileInDir } from './helpers.js';
+import { getManifestFileInDir, getParentDirPath } from './helpers.js';
 import { addDependencies, addDependenciesArray } from '../parse.js';
+import { Filesystem } from '../../find-up/find-minimatch.js';
 
-type PnpmWorkspace = {
-  packages?: string[];
-  catalog?: Record<string, string>;
-  catalogs?: Record<string, Record<string, string>>;
-};
-
-export const npmManifestResolver: ManifestResolver = {
+export const packageJsonManifestResolver: ManifestResolver = {
   resolve(dir, topDir, fileSystem): DependencyManifest[] {
     const packageJson = getManifestFileInDir(PACKAGE_JSON, dir, topDir, fileSystem);
     if (!packageJson) {
       return [];
     }
-    const parsedPackageJson = parsePackageJson(packageJson) ?? {};
+    let parsedPackageJson = parsePackageJson(packageJson) ?? {};
     const pnpmWorkspaceFile = closestPatternCache
       .get(PNPM_WORKSPACE_YAML, fileSystem)
       .get(topDir)
       .get(dir);
+
     const parsedPnpmWorkspace = pnpmWorkspaceFile
       ? parsePnpmWorkspace(pnpmWorkspaceFile)
       : undefined;
-    let manifest = parsedPackageJson;
     if (parsedPnpmWorkspace) {
-      manifest = injectWorkspacePackages(manifest, parsedPnpmWorkspace);
-      manifest = resolveCatalogReferences(manifest, parsedPnpmWorkspace);
+      parsedPackageJson = injectWorkspacePackages(parsedPackageJson, parsedPnpmWorkspace);
     }
-    const moduleType: ModuleType = manifest.type === 'module' ? 'module' : 'commonjs';
+
+    let catalogSource: CatalogSource | undefined = undefined;
+    if (parsedPnpmWorkspace) {
+      catalogSource = parsedPnpmWorkspace;
+    } else {
+      const closestParent = findClosestParentPackageJson(dir, topDir, fileSystem);
+      if (closestParent) {
+        const workspaces = Array.isArray(closestParent.workspaces)
+          ? undefined
+          : closestParent.workspaces;
+        catalogSource = {
+          catalog: workspaces?.catalog ?? closestParent.catalog,
+          catalogs: workspaces?.catalogs ?? closestParent.catalogs,
+        };
+      }
+    }
+
+    if (catalogSource) {
+      parsedPackageJson = resolveCatalogReferences(parsedPackageJson, catalogSource);
+    }
+
+    const moduleType: ModuleType = parsedPackageJson.type === 'module' ? 'module' : 'commonjs';
     return [
       {
-        type: 'npm',
-        dependencies: buildDependencies(manifest),
+        type: 'package-json',
+        dependencies: buildDependencies(parsedPackageJson),
         moduleType,
       },
     ];
   },
 };
 
-function buildDependencies(packageJson: PackageJson): DependenciesList {
+function buildDependencies(packageJson: ExtendedPackageJson): DependenciesList {
   const dependencies: DependenciesList = new Map();
   const fieldsToVisit = [
     'name',
@@ -99,16 +117,16 @@ function buildDependencies(packageJson: PackageJson): DependenciesList {
   return dependencies;
 }
 
-function parsePackageJson(file: File): PackageJson | undefined {
+function parsePackageJson(file: File): ExtendedPackageJson | undefined {
   try {
-    return JSON.parse(stripBOM(file.content.toString())) as PackageJson;
+    return JSON.parse(stripBOM(file.content.toString())) as ExtendedPackageJson;
   } catch (error) {
     console.debug(`Error parsing package.json ${file.path}: ${error}`);
     return undefined;
   }
 }
 
-function parsePnpmWorkspace(file: File): PnpmWorkspace | undefined {
+function parsePnpmWorkspace(file: File): Workspace | undefined {
   try {
     const parsedPnpm = yaml.parse(file.content.toString());
     if (
@@ -125,9 +143,9 @@ function parsePnpmWorkspace(file: File): PnpmWorkspace | undefined {
 }
 
 function resolveCatalogReferences(
-  packageJson: PackageJson,
-  pnpmWorkspace: PnpmWorkspace,
-): PackageJson {
+  packageJson: ExtendedPackageJson,
+  catalogSource: CatalogSource,
+): ExtendedPackageJson {
   const depFields = [
     'dependencies',
     'devDependencies',
@@ -147,8 +165,8 @@ function resolveCatalogReferences(
         const catalogName = depVersion.slice('catalog:'.length).trim() || 'default';
         const resolvedDep =
           catalogName === 'default'
-            ? pnpmWorkspace.catalog?.[depName]
-            : pnpmWorkspace.catalogs?.[catalogName]?.[depName];
+            ? catalogSource.catalog?.[depName]
+            : catalogSource.catalogs?.[catalogName]?.[depName];
         resolvedDeps[depName] = resolvedDep ?? depVersion;
         !resolvedDep &&
           console.debug(
@@ -164,13 +182,34 @@ function resolveCatalogReferences(
 }
 
 function injectWorkspacePackages(
-  packageJson: PackageJson,
-  pnpmWorkspace: PnpmWorkspace,
-): PackageJson {
+  packageJson: ExtendedPackageJson,
+  pnpmWorkspace: Workspace,
+): ExtendedPackageJson {
   if (!pnpmWorkspace.packages || packageJson.workspaces) {
     return packageJson;
   }
-  const modifiedPackageJson = { ...packageJson };
-  modifiedPackageJson.workspaces = pnpmWorkspace.packages;
-  return modifiedPackageJson;
+  return {
+    ...packageJson,
+    workspaces: pnpmWorkspace.packages,
+  } as ExtendedPackageJson;
+}
+
+/**
+ * Find the closest parent package.json file and parse it.
+ * @param dir Directory to start searching from (exclusive)
+ * @param topDir Upper bound for the search (inclusive)
+ * @param fileSystem Filesystem to use for searching.
+ * @returns Parsed package.json content, or undefined if no package.json file is found in any parent directory.
+ */
+function findClosestParentPackageJson(
+  dir: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
+  fileSystem?: Filesystem,
+): ExtendedPackageJson | undefined {
+  const parentDir = getParentDirPath(dir);
+  if (!parentDir) {
+    return undefined;
+  }
+  const file = closestPatternCache.get(PACKAGE_JSON, fileSystem).get(topDir).get(parentDir);
+  return file ? parsePackageJson(file) : undefined;
 }

@@ -24,13 +24,32 @@ import {
   setCurrentFileInlineDependencies,
   withCurrentFileInlineDependencies,
 } from '../../../../src/jsts/rules/helpers/dependency-manifests/dependencies.js';
+import { getParentDirPath } from '../../../../src/jsts/rules/helpers/dependency-manifests/resolvers/helpers.js';
+
+describe('getParentDirPath', () => {
+  it('should return the parent directory of a nested path', () => {
+    const parent = normalizeToAbsolutePath(import.meta.dirname);
+    const child = normalizeToAbsolutePath(path.join(import.meta.dirname, 'fixtures'));
+    expect(getParentDirPath(child)).toBe(parent);
+  });
+
+  it('should return null for the filesystem root', () => {
+    let current = normalizeToAbsolutePath(import.meta.dirname);
+    let parent = getParentDirPath(current);
+    while (parent !== null) {
+      current = parent;
+      parent = getParentDirPath(current);
+    }
+    expect(getParentDirPath(current)).toBeNull();
+  });
+});
 
 describe('package-json', () => {
   it('should handle arrays in package-jsons dependency versions', async () => {
     const currentDirectory = normalizeToAbsolutePath(path.join(import.meta.dirname, 'fixtures'));
     const manifests = getDependencyManifests(currentDirectory, currentDirectory);
-    const npmManifest = manifests.find(({ type }) => type === 'npm');
-    expect(npmManifest?.type).toBe('npm');
+    const npmManifest = manifests.find(({ type }) => type === 'package-json');
+    expect(npmManifest?.type).toBe('package-json');
     expect(npmManifest?.dependencies).toEqual(new Map([['foo', 'file:bar']]));
   });
 
