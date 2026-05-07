@@ -140,6 +140,19 @@ describe('S2094', () => {
           options,
         },
         {
+          // Compliant: this.* inside try/catch
+          code: `class SafeContainer {
+  constructor(source) {
+    try {
+      this.value = source.value;
+    } catch (e) {
+      this.value = null;
+    }
+  }
+}`,
+          options,
+        },
+        {
           // Compliant: this.* inside arrow function (arrow preserves constructor `this`)
           code: `class DataStore {
   constructor(items) {
