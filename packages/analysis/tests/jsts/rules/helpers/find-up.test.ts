@@ -15,9 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { Volume } from 'memfs';
-import { equal } from 'node:assert';
+import { equal, throws } from 'node:assert';
 import type { Filesystem } from '../../../../src/jsts/rules/helpers/find-up/find-minimatch.js';
 import { patternInParentsCache } from '../../../../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
+import { closestPatternCache } from '../../../../src/jsts/rules/helpers/find-up/closest.js';
 import {
   type NormalizedAbsolutePath,
   joinPaths,
@@ -28,7 +29,10 @@ import { beforeEach, describe, it } from 'node:test';
 const ROOT = '/' as NormalizedAbsolutePath;
 
 describe('findUp', () => {
-  beforeEach(() => patternInParentsCache.clear());
+  beforeEach(() => {
+    patternInParentsCache.clear();
+    closestPatternCache.clear();
+  });
   it('only touches the filesystem when needed', ({ mock }) => {
     const filesystem = Volume.fromJSON({
       '/a/b/c/d/foo.bar': '/a/b/c/d/foo.bar content',
@@ -135,5 +139,23 @@ describe('findUp', () => {
     equal(entriesUpToA[1].path, joinPaths(ROOT, 'a', 'foo.x.bar'));
     equal(entriesUpToAB.length, 1);
     equal(entriesUpToAB[0].path, joinPaths(ROOT, 'a', 'b', 'c', 'foo.bar'));
+  });
+
+  it('patternInParentsCache throws when from is outside topDir', () => {
+    const filesystem = Volume.fromJSON({});
+    const topDir = joinPaths(ROOT, 'a', 'b');
+    const findUp = patternInParentsCache.get('foo.bar', filesystem as Filesystem).get(topDir);
+
+    throws(() => findUp.get(joinPaths(ROOT, 'c', 'd')), /is not nested under topDir/);
+    throws(() => findUp.get(joinPaths(ROOT, 'a', 'b2')), /is not nested under topDir/);
+  });
+
+  it('closestPatternCache throws when from is outside topDir', () => {
+    const filesystem = Volume.fromJSON({});
+    const topDir = joinPaths(ROOT, 'a', 'b');
+    const findUp = closestPatternCache.get('foo.bar', filesystem as Filesystem).get(topDir);
+
+    throws(() => findUp.get(joinPaths(ROOT, 'c', 'd')), /is not nested under topDir/);
+    throws(() => findUp.get(joinPaths(ROOT, 'a', 'b2')), /is not nested under topDir/);
   });
 });

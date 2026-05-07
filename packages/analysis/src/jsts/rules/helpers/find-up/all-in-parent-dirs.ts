@@ -16,7 +16,13 @@
  */
 import type { Filesystem } from './find-minimatch.js';
 import { MinimatchCache } from './find-minimatch.js';
-import { isRoot, type File, type NormalizedAbsolutePath, dirnamePath } from '../files.js';
+import {
+  isRoot,
+  assertNestedPath,
+  type File,
+  type NormalizedAbsolutePath,
+  dirnamePath,
+} from '../files.js';
 import { ComputedCache } from '../cache.js';
 import fs from 'node:fs';
 import { Minimatch } from 'minimatch';
@@ -32,6 +38,7 @@ export const patternInParentsCache = new ComputedCache(
             // handle path.dirname returning "." in windows
             return [];
           }
+          assertNestedPath(from, topDir);
 
           if (!isRoot(from) && from !== topDir) {
             const parent = dirnamePath(from);

@@ -14,7 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { isRoot, type File, type NormalizedAbsolutePath, dirnamePath } from '../files.js';
+import {
+  isRoot,
+  assertNestedPath,
+  type File,
+  type NormalizedAbsolutePath,
+  dirnamePath,
+} from '../files.js';
 import { ComputedCache } from '../cache.js';
 import { type Filesystem, MinimatchCache } from './find-minimatch.js';
 import fs from 'node:fs';
@@ -30,6 +36,7 @@ export const closestPatternCache = new ComputedCache(
           // handle path.dirname returning "." in windows
           return undefined;
         }
+        assertNestedPath(from, topDir);
         const matchingFiles = readDir.get(from);
 
         if (matchingFiles.length > 0) {
