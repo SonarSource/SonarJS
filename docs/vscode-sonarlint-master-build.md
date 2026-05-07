@@ -86,7 +86,7 @@ Optional sanity check:
 
 ```bash
 unzip -p "$SONARLINT_EXT/analyzers/sonarjs.jar" META-INF/MANIFEST.MF \
-  | rg 'Plugin-Version|Plugin-Display-Version|Implementation-Build'
+  | grep -E 'Plugin-Version|Plugin-Display-Version|Implementation-Build'
 ```
 
 ## 5. Rebuild `eslint-bridge` from the patched jar
@@ -132,7 +132,7 @@ LATEST_LOG="$(find "$HOME/.vscode-server/data/logs" \
 Then inspect the lines that matter:
 
 ```bash
-rg -n 'Starting analysis with configuration|sonar\.js\.internal\.bundlePath|server\.cjs' \
+grep -En 'Starting analysis with configuration|sonar\.js\.internal\.bundlePath|server\.cjs' \
   "$LATEST_LOG"
 ```
 
@@ -144,13 +144,18 @@ What you want to see:
 
 ## 8. Restore the official extension files
 
+If you open a new shell before restoring, re-export `SONARLINT_EXT` and set `STAMP` to the backup timestamp first. To find it, list the backup jar names and reuse the suffix after `sonarjs.jar.bak-`:
+
+```bash
+ls "$SONARLINT_EXT"/analyzers/sonarjs.jar.bak-*
+```
+
 ```bash
 cp "$SONARLINT_EXT/analyzers/sonarjs.jar.bak-$STAMP" \
   "$SONARLINT_EXT/analyzers/sonarjs.jar"
 
-rm -rf "$SONARLINT_EXT/eslint-bridge"
-
 if [ -d "$SONARLINT_EXT/eslint-bridge.bak-$STAMP" ]; then
+  rm -rf "$SONARLINT_EXT/eslint-bridge"
   mv "$SONARLINT_EXT/eslint-bridge.bak-$STAMP" \
     "$SONARLINT_EXT/eslint-bridge"
 fi
