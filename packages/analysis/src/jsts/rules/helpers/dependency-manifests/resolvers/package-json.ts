@@ -24,7 +24,7 @@ import type {
   ModuleType,
   Workspace,
 } from './types.js';
-import { NormalizedAbsolutePath } from '../../files.js';
+import { NormalizedAbsolutePath, dirnamePath } from '../../files.js';
 import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
 import { getManifestFileInDir, getParentDirPath } from './helpers.js';
@@ -40,37 +40,35 @@ export const packageJsonManifestResolver: ManifestResolver = {
       return [];
     }
     let parsedPackageJson = parsePackageJson(packageJson) ?? {};
-    const pnpmWorkspaceFile = closestPatternCache
-      .get(PNPM_WORKSPACE_YAML, fileSystem)
-      .get(topDir)
-      .get(dir);
-
-    const parsedPnpmWorkspace = pnpmWorkspaceFile
-      ? parsePnpmWorkspace(pnpmWorkspaceFile)
-      : undefined;
-    if (parsedPnpmWorkspace) {
-      parsedPackageJson = injectWorkspacePackages(parsedPackageJson, parsedPnpmWorkspace);
-    }
 
     let catalogSource: CatalogSource | undefined = undefined;
-    if (parsedPnpmWorkspace) {
-      catalogSource = parsedPnpmWorkspace;
+    const closestParent = findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
+
+    if (closestParent) {
+      // If the closest parent package.json has catalogs defined, we use it as the catalog source for resolving catalog references.
+      const workspaces = Array.isArray(closestParent.workspaces)
+        ? undefined
+        : closestParent.workspaces;
+      catalogSource = {
+        catalog: workspaces?.catalog ?? closestParent.catalog,
+        catalogs: workspaces?.catalogs ?? closestParent.catalogs,
+      };
     } else {
-      const closestParent = findClosestParentPackageJson(dir, topDir, fileSystem);
-      if (closestParent) {
-        const workspaces = Array.isArray(closestParent.workspaces)
-          ? undefined
-          : closestParent.workspaces;
-        catalogSource = {
-          catalog: workspaces?.catalog ?? closestParent.catalog,
-          catalogs: workspaces?.catalogs ?? closestParent.catalogs,
-        };
+      // No parent package.json with catalogs found, we check if there's a pnpm workspace file that we can use as a catalog source.
+      const pnpmWorkspaceFile = closestPatternCache
+        .get(PNPM_WORKSPACE_YAML, fileSystem)
+        .get(topDir)
+        .get(dir);
+      const parsedPnpmWorkspace = pnpmWorkspaceFile
+        ? parsePnpmWorkspace(pnpmWorkspaceFile)
+        : undefined;
+      if (parsedPnpmWorkspace) {
+        parsedPackageJson = injectWorkspacePackages(parsedPackageJson, parsedPnpmWorkspace);
+        catalogSource = parsedPnpmWorkspace;
       }
     }
 
-    if (catalogSource) {
-      parsedPackageJson = resolveCatalogReferences(parsedPackageJson, catalogSource);
-    }
+    parsedPackageJson = resolveCatalogReferences(parsedPackageJson, catalogSource);
 
     const moduleType: ModuleType = parsedPackageJson.type === 'module' ? 'module' : 'commonjs';
     return [
@@ -120,7 +118,7 @@ function buildDependencies(packageJson: ExtendedPackageJson): DependenciesList {
 
 function resolveCatalogReferences(
   packageJson: ExtendedPackageJson,
-  catalogSource: CatalogSource,
+  catalogSource: CatalogSource | undefined,
 ): ExtendedPackageJson {
   const depFields = [
     'dependencies',
@@ -141,8 +139,8 @@ function resolveCatalogReferences(
         const catalogName = depVersion.slice('catalog:'.length).trim() || 'default';
         const resolvedDep =
           catalogName === 'default'
-            ? catalogSource.catalog?.[depName]
-            : catalogSource.catalogs?.[catalogName]?.[depName];
+            ? catalogSource?.catalog?.[depName]
+            : catalogSource?.catalogs?.[catalogName]?.[depName];
         resolvedDeps[depName] = resolvedDep ?? depVersion;
         !resolvedDep &&
           console.debug(
@@ -171,21 +169,53 @@ function injectWorkspacePackages(
 }
 
 /**
- * Find the closest parent package.json file and parse it.
- * @param dir Directory to start searching from (exclusive)
- * @param topDir Upper bound for the search (inclusive)
- * @param fileSystem Filesystem to use for searching.
- * @returns Parsed package.json content, or undefined if no package.json file is found in any parent directory.
+ * Find the closest parent package.json with catalogs defined.
+ * @param dir Directory to start the search from
+ * @param topDir Top directory to stop the search at
+ * @param fileSystem Filesystem to use for the search
+ * @returns The closest parent package.json with catalogs, or undefined if no package.json with catalogs is found
  */
-function findClosestParentPackageJson(
+function findClosestParentPackageJsonWithCatalogs(
   dir: NormalizedAbsolutePath,
   topDir: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
 ): ExtendedPackageJson | undefined {
-  const parentDir = getParentDirPath(dir);
-  if (!parentDir) {
+  if (dir === topDir) {
+    // No point in searching for parent package.json if we're already at the top directory.
     return undefined;
   }
-  const file = closestPatternCache.get(PACKAGE_JSON, fileSystem).get(topDir).get(parentDir);
-  return file ? parsePackageJson(file) : undefined;
+
+  let currentDir = getParentDirPath(dir);
+  const cache = closestPatternCache.get(PACKAGE_JSON, fileSystem).get(topDir);
+
+  while (currentDir !== null) {
+    const file = cache.get(currentDir);
+    if (!file) {
+      return undefined;
+    }
+
+    const parsed = parsePackageJson(file);
+    if (parsed && hasCatalogs(parsed)) {
+      return parsed;
+    }
+
+    const fileDir = dirnamePath(file.path);
+    if (fileDir === topDir) {
+      return undefined;
+    }
+    currentDir = getParentDirPath(fileDir);
+  }
+
+  return undefined;
+}
+
+function hasCatalogs(packageJson: ExtendedPackageJson): boolean {
+  if (packageJson.catalog || packageJson.catalogs) {
+    return true;
+  }
+  const { workspaces } = packageJson;
+  if (workspaces && !Array.isArray(workspaces)) {
+    return !!(workspaces.catalog || workspaces.catalogs);
+  }
+  return false;
 }

@@ -293,7 +293,7 @@ describe('S4328', () => {
         },
         {
           code: `import "foo";`,
-          filename: '/file.js',
+          filename: path.join(fixtures, 'no-manifest/file.js'),
           options,
           errors: 1,
         },

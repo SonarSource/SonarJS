@@ -117,6 +117,14 @@ export function isRoot(file: string) {
   return isParseResultRoot(parseWin32(file)) || isParseResultRoot(parsePosix(file));
 }
 
+export function assertNestedPath(from: NormalizedAbsolutePath, topDir: NormalizedAbsolutePath) {
+  const fromSanitized = from.endsWith('/') ? from : from + '/';
+  const topDirSanitized = topDir.endsWith('/') ? topDir : topDir + '/';
+  if (!fromSanitized.startsWith(topDirSanitized)) {
+    throw new Error(`"${from}" is not nested under topDir "${topDir}"`);
+  }
+}
+
 export function isAbsolutePath(path: string) {
   // Check for Windows drive letter (e.g., 'c:', 'C:', 'D:')
   // Node's isAbsolute considers 'c:' as relative (drive-relative), but we treat it as absolute
