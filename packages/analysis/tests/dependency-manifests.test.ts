@@ -208,7 +208,7 @@ describe('files', () => {
     await initFileStores(configuration);
 
     const manifests = getDependencyManifests(baseDir, baseDir);
-    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
     expect(manifests[0].dependencies).toEqual(
       new Map([
         ['react', '^19.1.1'],
@@ -231,7 +231,7 @@ describe('files', () => {
     await initFileStores(configuration);
 
     const manifests = getDependencyManifests(currentDirectory, topDirectory);
-    expect(manifests.map(manifest => manifest.type)).toEqual(['npm', 'npm']);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json', 'package-json']);
     expect(manifests[0].dependencies).toEqual(
       new Map([
         ['react', '^19.1.1'],
@@ -247,7 +247,7 @@ describe('files', () => {
     await initFileStores(configuration);
 
     const manifests = getDependencyManifests(baseDir, baseDir);
-    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
     expect(manifests[0].dependencies).toEqual(
       new Map<string | Minimatch, string | undefined>([
         ['react', '^19.0.0'],
@@ -264,7 +264,7 @@ describe('files', () => {
     await initFileStores(configuration);
 
     const manifests = getDependencyManifests(baseDir, baseDir);
-    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
     expect(manifests[0].dependencies).toEqual(
       new Map<string | Minimatch, string | undefined>([
         ['react', '^19.1.1'],
@@ -281,7 +281,7 @@ describe('files', () => {
     await initFileStores(configuration);
 
     const manifests = getDependencyManifests(baseDir, baseDir);
-    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
     expect(manifests[0].dependencies).toEqual(
       new Map([[new Minimatch('existing/*', { nocase: true, matchBase: true }), undefined]]),
     );
@@ -297,11 +297,167 @@ describe('files', () => {
     await initFileStores(configuration);
 
     const manifests = getDependencyManifests(baseDir, baseDir);
-    expect(manifests.map(manifest => manifest.type)).toEqual(['npm']);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
     expect(manifests[0].dependencies).toEqual(new Map([['react', 'catalog:']]));
     expect(consoleLogMock.calls[0].arguments[0]).toEqual(
       'Dependency "react" could not be resolved for catalog "default"',
     );
+  });
+
+  for (const fixture of ['bun-workspace-default-catalog', 'bun-workspace-default-root-catalog']) {
+    it(`should resolve bun catalog default references (${fixture})`, async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const appBaseDir = normalizeToAbsolutePath(join(fixtures, `${fixture}/packages/my-app`));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(appBaseDir, baseDir);
+      expect(manifests.map(manifest => manifest.type)).toEqual(['package-json', 'package-json']);
+      expect(manifests[0].dependencies).toEqual(
+        new Map([
+          ['my-app', '*'],
+          ['react', '^18.0.0'],
+          ['react-dom', '^19.0.0'],
+        ]),
+      );
+    });
+  }
+
+  for (const fixture of ['bun-workspace-named-catalog', 'bun-workspace-named-root-catalog']) {
+    it(`should resolve bun catalog named references (${fixture})`, async () => {
+      const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
+      const appBaseDir = normalizeToAbsolutePath(join(fixtures, `${fixture}/packages/my-app`));
+      const configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      const manifests = getDependencyManifests(appBaseDir, baseDir);
+      expect(manifests.map(manifest => manifest.type)).toEqual(['package-json', 'package-json']);
+      expect(manifests[0].dependencies).toEqual(
+        new Map([
+          ['my-app', '*'],
+          ['react', '^18.0.0'],
+          ['react-dom', '^19.0.0'],
+          ['jest', '30.0.0'],
+          ['testing-library', '14.0.0'],
+          ['webpack', '5.0.0'],
+        ]),
+      );
+    });
+  }
+
+  it('should not resolve bun named catalog references when catalog is missing', async ({
+    mock,
+  }) => {
+    mock.method(console, 'debug');
+    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'bun-workspace-unresolved-named-catalog'),
+    );
+    const appBaseDir = normalizeToAbsolutePath(join(baseDir, 'packages/my-app'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(appBaseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json', 'package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['my-app', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', '^19.0.0'],
+        ['jest', '30.0.0'],
+        ['testing-library', '14.0.0'],
+        ['webpack', 'catalog:unknown'],
+      ]),
+    );
+    expect(consoleLogMock.calls.map(call => call.arguments)).toEqual([
+      ['Dependency "webpack" could not be resolved for catalog "unknown"'],
+    ]);
+  });
+
+  it('should not resolve bun default catalog references when catalog is missing', async ({
+    mock,
+  }) => {
+    mock.method(console, 'debug');
+    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'bun-workspace-unresolved-default-catalog'),
+    );
+    const appBaseDir = normalizeToAbsolutePath(join(baseDir, 'packages/my-app'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(appBaseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json', 'package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['my-app', '*'],
+        ['react', 'catalog:'],
+        ['react-dom', 'catalog:'],
+      ]),
+    );
+    expect(consoleLogMock.calls.map(call => call.arguments)).toEqual([
+      ['Dependency "react" could not be resolved for catalog "default"'],
+      ['Dependency "react-dom" could not be resolved for catalog "default"'],
+    ]);
+  });
+
+  it('should not resolve bun catalog references when the dependency missing is not in the catalog', async ({
+    mock,
+  }) => {
+    mock.method(console, 'debug');
+    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'bun-workspace-catalog-missing-dependency'),
+    );
+    const appBaseDir = normalizeToAbsolutePath(join(baseDir, 'packages/my-app'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(appBaseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json', 'package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['my-app', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', 'catalog:'],
+        ['jest', 'catalog:testing'],
+        ['testing-library', '14.0.0'],
+      ]),
+    );
+    expect(consoleLogMock.calls.map(call => call.arguments)).toEqual([
+      ['Dependency "react-dom" could not be resolved for catalog "default"'],
+      ['Dependency "jest" could not be resolved for catalog "testing"'],
+    ]);
+  });
+
+  it('should resolve bun catalog references when the workspace root is not the scan root', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'bun-nested-workspace'));
+    const appBaseDir = normalizeToAbsolutePath(join(baseDir, 'bun-app/packages/my-app'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(appBaseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json', 'package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['my-app', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', '^19.0.0'],
+      ]),
+    );
+  });
+
+  it('should reuse cache for multiple calls on the same bun workspace package', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'bun-workspace-named-catalog'));
+    const appBaseDir = normalizeToAbsolutePath(join(baseDir, 'packages/my-app'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    getDependencies(appBaseDir, baseDir);
+    const sizeAfterFirst = dependenciesCache.size;
+
+    getDependencies(appBaseDir, baseDir);
+    expect(dependenciesCache.size).toEqual(sizeAfterFirst);
   });
 
   it('should fill deno manifest caches used for dependency lookup', async () => {
@@ -357,7 +513,7 @@ describe('files', () => {
     await initFileStores(configuration);
 
     const manifests = getDependencyManifests(baseDir, baseDir);
-    expect(manifests.map(manifest => manifest.type)).toEqual(['deno', 'npm']);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['deno', 'package-json']);
     expect(manifests[0].dependencies).toEqual(
       new Map([
         ['deno-only', '1.2.3'],
@@ -372,7 +528,7 @@ describe('files', () => {
     await initFileStores(configuration);
 
     const manifests = getDependencyManifests(baseDir, baseDir);
-    expect(manifests.map(manifest => manifest.type)).toEqual(['deno', 'npm']);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['deno', 'package-json']);
     expect(getDependencies(baseDir, baseDir)).toEqual(
       new Map([
         ['react', '^19.1.0'],

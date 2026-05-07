@@ -28,8 +28,8 @@ import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import type { Rule } from 'eslint';
 import { type DependencyManifest, type ManifestResolver } from './resolvers/types.js';
 import { denoManifestResolver } from './resolvers/deno.js';
-import { npmManifestResolver } from './resolvers/npm.js';
 import { parsePackageJson } from './parsed-dependency-files.js';
+import { packageJsonManifestResolver } from './resolvers/package-json.js';
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by
@@ -68,7 +68,7 @@ type DependencyDefinition = {
  * Registry of manifest resolvers. Add a new entry here to support a new package manager
  * or manifest format (e.g., Bun).
  */
-const MANIFEST_RESOLVERS: ManifestResolver[] = [denoManifestResolver, npmManifestResolver];
+const MANIFEST_RESOLVERS: ManifestResolver[] = [denoManifestResolver, packageJsonManifestResolver];
 
 /**
  * Returns dependency manifest files from closest-to-file and then up to root.
