@@ -19,6 +19,7 @@ import type { Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { getNodeParent } from '../helpers/ancestor.js';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
+import { isForwardRefCallee } from '../helpers/react.js';
 
 /**
  * False-positive remediation escape:
@@ -94,13 +95,4 @@ function isPropReferenceInForwardRefCallback(
     current = getNodeParent(current);
   }
   return false;
-}
-
-function isForwardRefCallee(callee: estree.Expression | estree.Super): boolean {
-  return (
-    isIdentifier(callee, 'forwardRef') ||
-    (callee.type === 'MemberExpression' &&
-      isIdentifier(callee.object, 'React') &&
-      isIdentifier(callee.property, 'forwardRef'))
-  );
 }
