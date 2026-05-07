@@ -17,10 +17,11 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
-import type ts from 'typescript';
+import ts from 'typescript';
 import { childrenOf, getNodeParent } from './ancestor.js';
 import { isIdentifier } from './ast.js';
-import { isRequiredParserServices } from './parser-services.js';
+import { getFullyQualifiedName } from './module.js';
+import { isRequiredParserServices, type RequiredParserServices } from './parser-services.js';
 import { getTypeFromTreeNode } from './type.js';
 
 const COMPONENT_NODE_TYPES = new Set([
@@ -36,31 +37,24 @@ type SourceCache = {
   ownerByTypeDecl: WeakMap<estree.Node, estree.Node | null>;
 };
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
-
-function getSourceCache(sourceCode: SourceCode): SourceCache {
-  let cache = perSourceCache.get(sourceCode);
-  if (!cache) {
-    cache = {
-      componentNodes: undefined,
-      ownerByTypeDecl: new WeakMap<estree.Node, estree.Node | null>(),
-    };
-    perSourceCache.set(sourceCode, cache);
-  }
-  return cache;
-}
+const REACT_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
 
 /**
  * Given a reported AST node (e.g., a prop name inside an interface/propTypes),
  * returns the React component node that owns it, or `undefined` if no owner can be identified.
  *
  * Uses three strategies:
- *   A. Walk ancestors for a direct component ancestor.
- *   B. Walk ancestors for a `Foo.propTypes = {...}` assignment; resolve Foo's declaration.
- *   C. Use the TypeScript type checker to match the props interface to its owning
- *      class or function component (identified by PascalCase convention).
+ * - Walk ancestors for a direct component ancestor.
+ * - Walk ancestors for a `Foo.propTypes = {...}` assignment and resolve `Foo`'s declaration.
+ * - Use the TypeScript type checker to match the props interface to its owning
+ *   class or function component (identified by PascalCase convention).
  *
- * Returns `undefined` if all strategies fail — callers should pass the report through
- * without suppression rather than falling back to a file-wide scan.
+ * Returns `undefined` if all strategies fail so callers can keep the original report
+ * instead of falling back to a file-wide scan.
+ *
+ * @param node the reported node located inside a React-related construct
+ * @param context the current ESLint rule context
+ * @returns the component node that owns `node`, if it can be resolved
  */
 export function findComponentNode(
   node: estree.Node,
@@ -91,7 +85,7 @@ export function findComponentNode(
       const defNode = context.sourceCode.getScope(node).variables.find(v => v.name === name)
         ?.defs[0]?.node;
       if (defNode) {
-        return defNode as estree.Node;
+        return defNode;
       }
     }
   }
@@ -100,6 +94,17 @@ export function findComponentNode(
   return findOwnerByType(ancestors, context, context.sourceCode.visitorKeys);
 }
 
+/**
+ * Resolves the ESLint scope variable corresponding to a React component node.
+ *
+ * The helper first derives the component identifier from its declaration form
+ * (`function Foo()`, `class Foo extends ...`, `const Foo = () => ...`, etc.),
+ * then walks the enclosing scope chain until it finds the matching variable.
+ *
+ * @param sourceCode the source file whose scope manager should be queried
+ * @param componentNode the component node whose variable should be resolved
+ * @returns the matching scope variable, or `undefined` for anonymous/unresolved components
+ */
 export function getComponentVariable(
   sourceCode: SourceCode,
   componentNode: estree.Node,
@@ -121,29 +126,161 @@ export function getComponentVariable(
   return undefined;
 }
 
-function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
-  const parent = getNodeParent(componentNode);
+/**
+ * Resolves the declared props type for a React component node.
+ *
+ * For function components, this is the type of the first parameter. For class
+ * components, the helper first prefers the explicit `React.Component<Props>`
+ * type argument and falls back to the resolved `props` instance property type.
+ *
+ * Returns `undefined` for unsupported nodes or when the component does not
+ * expose a statically recoverable props type.
+ *
+ * @param componentNode the React component node whose props type should be resolved
+ * @param services the required parser services used to access TypeScript type information
+ * @returns the component props type, or `undefined` when it cannot be recovered
+ */
+export function getComponentPropsType(
+  componentNode: estree.Node,
+  services: RequiredParserServices,
+): ts.Type | undefined {
+  const checker = services.program.getTypeChecker();
   if (
-    (componentNode.type === 'ClassExpression' || componentNode.type === 'FunctionExpression') &&
-    parent?.type === 'VariableDeclarator' &&
-    parent.id.type === 'Identifier'
+    componentNode.type === 'FunctionDeclaration' ||
+    componentNode.type === 'FunctionExpression' ||
+    componentNode.type === 'ArrowFunctionExpression'
   ) {
-    return parent.id;
+    const firstParam = componentNode.params[0];
+    return firstParam ? getTypeFromTreeNode(firstParam, services) : undefined;
   }
 
-  if (
-    (componentNode.type === 'ClassDeclaration' ||
-      componentNode.type === 'FunctionDeclaration' ||
-      componentNode.type === 'ClassExpression' ||
-      componentNode.type === 'FunctionExpression') &&
-    componentNode.id
-  ) {
-    return componentNode.id;
+  if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
+    return undefined;
   }
 
-  return parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier'
-    ? parent.id
+  const tsNode = services.esTreeNodeToTSNodeMap.get(
+    componentNode as TSESTree.Node,
+  ) as ts.ClassLikeDeclaration;
+  const declaredPropsType = getDeclaredClassPropsType(tsNode, checker);
+  if (declaredPropsType) {
+    return declaredPropsType;
+  }
+
+  if (!tsNode.name) {
+    return undefined;
+  }
+
+  const classSymbol = checker.getSymbolAtLocation(tsNode.name);
+  const propsSymbol = classSymbol
+    ? checker.getDeclaredTypeOfSymbol(classSymbol).getProperty('props')
     : undefined;
+  return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
+}
+
+/**
+ * Returns true when an ESTree superclass expression resolves to one of React's
+ * built-in component base classes.
+ *
+ * This recognizes imported aliases such as:
+ * - `import { Component as BaseComponent } from 'react';`
+ * - `import * as UI from 'react';`
+ *
+ * and preserves the existing syntax-based fallback for bare `Component` /
+ * `PureComponent` and `React.Component` / `React.PureComponent`.
+ *
+ * @param context the current ESLint rule context, used to resolve imported aliases
+ * @param superClass the ESTree superclass expression to inspect
+ * @returns `true` when `superClass` denotes a React component base class
+ */
+export function isReactComponentSuperclass(
+  context: Rule.RuleContext,
+  superClass: estree.Expression,
+): boolean {
+  return (
+    REACT_CLASS_SUPERS.has(getFullyQualifiedName(context, superClass) ?? '') ||
+    isBuiltinReactSuperclass(superClass)
+  );
+}
+
+/**
+ * Returns true when an ESTree superclass expression syntactically refers to one of React's
+ * built-in component base classes:
+ * - `Component`
+ * - `PureComponent`
+ * - `React.Component`
+ * - `React.PureComponent`
+ *
+ * Unlike `isReactComponentSuperclass`, this helper only inspects the syntax and
+ * does not resolve imported aliases.
+ *
+ * @param superClass the ESTree superclass expression to inspect
+ * @returns `true` when `superClass` syntactically denotes a React base class
+ */
+export function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
+  return (
+    isIdentifier(superClass, 'Component') ||
+    isIdentifier(superClass, 'PureComponent') ||
+    (superClass.type === 'MemberExpression' &&
+      isIdentifier(superClass.object, 'React') &&
+      (isIdentifier(superClass.property, 'Component') ||
+        isIdentifier(superClass.property, 'PureComponent')))
+  );
+}
+
+/**
+ * Returns true when a TypeScript heritage-clause entry refers to one of React's
+ * built-in component base classes:
+ * - `Component`
+ * - `PureComponent`
+ * - `React.Component`
+ * - `React.PureComponent`
+ *
+ * @param superclass the TypeScript heritage-clause entry to inspect
+ * @returns `true` when `superclass` denotes a React component base class
+ */
+export function isReactComponentHeritageSuperclass(
+  superclass: ts.ExpressionWithTypeArguments,
+): boolean {
+  const expression = superclass.expression;
+  if (ts.isIdentifier(expression)) {
+    return expression.text === 'Component' || expression.text === 'PureComponent';
+  }
+  return (
+    ts.isPropertyAccessExpression(expression) &&
+    ts.isIdentifier(expression.expression) &&
+    expression.expression.text === 'React' &&
+    (expression.name.text === 'Component' || expression.name.text === 'PureComponent')
+  );
+}
+
+/**
+ * Returns true when a callee expression refers to React's `forwardRef`, either as
+ * a bare identifier or as `React.forwardRef`.
+ *
+ * @param callee the ESTree callee expression to inspect
+ * @returns `true` when `callee` denotes React's `forwardRef`
+ */
+export function isForwardRefCallee(callee: estree.Expression | estree.Super): boolean {
+  return (
+    isIdentifier(callee, 'forwardRef') ||
+    (callee.type === 'MemberExpression' &&
+      isIdentifier(callee.object, 'React') &&
+      isIdentifier(callee.property, 'forwardRef'))
+  );
+}
+
+function getDeclaredClassPropsType(
+  classNode: ts.ClassLikeDeclaration,
+  checker: ts.TypeChecker,
+): ts.Type | undefined {
+  const extendsClause = classNode.heritageClauses?.find(
+    clause => clause.token === ts.SyntaxKind.ExtendsKeyword,
+  );
+  const reactSuperclass = extendsClause?.types.find(type =>
+    isReactComponentHeritageSuperclass(type),
+  );
+  const propsTypeNode = reactSuperclass?.typeArguments?.[0];
+  return propsTypeNode ? checker.getTypeAtLocation(propsTypeNode) : undefined;
 }
 
 /**
@@ -227,6 +364,50 @@ function findOwnerByType(
   // No component matched — record the negative result so we don't search again.
   sourceCache.ownerByTypeDecl.set(typeDecl, null);
   return undefined;
+}
+
+function getSourceCache(sourceCode: SourceCode): SourceCache {
+  let cache = perSourceCache.get(sourceCode);
+  if (!cache) {
+    cache = {
+      componentNodes: undefined,
+      ownerByTypeDecl: new WeakMap<estree.Node, estree.Node | null>(),
+    };
+    perSourceCache.set(sourceCode, cache);
+  }
+  return cache;
+}
+
+/**
+ * Performs a shallow AST walk from `root` and returns every top-level component node
+ * (`ClassDeclaration`, `ClassExpression`, `FunctionDeclaration`, `FunctionExpression`,
+ * `ArrowFunctionExpression`).
+ *
+ * "Shallow" means the walk **stops** when it reaches a component node — it does not
+ * recurse into the component's body.  This is intentional: nested component definitions
+ * are an antipattern in React, and skipping their bodies keeps the traversal bounded.
+ * The children are pushed in reverse order so that the leftmost child is processed first
+ * (stack is LIFO), preserving document order in the result array.
+ */
+function collectComponentNodes(root: estree.Node, keys: SourceCode.VisitorKeys): estree.Node[] {
+  const result: estree.Node[] = [];
+  const stack = [root];
+  while (stack.length > 0) {
+    const node = stack.pop();
+    if (node === undefined) {
+      continue;
+    }
+    if (COMPONENT_NODE_TYPES.has(node.type)) {
+      result.push(node);
+      continue; // don't recurse into component bodies — nested components are an antipattern
+    }
+    const children = childrenOf(node, keys);
+    // Push in reverse so the first child is on top and processed next (preserves order).
+    for (let i = children.length - 1; i >= 0; i--) {
+      stack.push(children[i]);
+    }
+  }
+  return result;
 }
 
 /**
@@ -335,34 +516,27 @@ function getFunctionName(node: estree.Node): string | undefined {
   return undefined;
 }
 
-/**
- * Performs a shallow AST walk from `root` and returns every top-level component node
- * (`ClassDeclaration`, `ClassExpression`, `FunctionDeclaration`, `FunctionExpression`,
- * `ArrowFunctionExpression`).
- *
- * "Shallow" means the walk **stops** when it reaches a component node — it does not
- * recurse into the component's body.  This is intentional: nested component definitions
- * are an antipattern in React, and skipping their bodies keeps the traversal bounded.
- * The children are pushed in reverse order so that the leftmost child is processed first
- * (stack is LIFO), preserving document order in the result array.
- */
-function collectComponentNodes(root: estree.Node, keys: SourceCode.VisitorKeys): estree.Node[] {
-  const result: estree.Node[] = [];
-  const stack = [root];
-  while (stack.length > 0) {
-    const node = stack.pop();
-    if (node === undefined) {
-      continue;
-    }
-    if (COMPONENT_NODE_TYPES.has(node.type)) {
-      result.push(node);
-      continue; // don't recurse into component bodies — nested components are an antipattern
-    }
-    const children = childrenOf(node, keys);
-    // Push in reverse so the first child is on top and processed next (preserves order).
-    for (let i = children.length - 1; i >= 0; i--) {
-      stack.push(children[i]);
-    }
+function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
+  const parent = getNodeParent(componentNode);
+  if (
+    (componentNode.type === 'ClassExpression' || componentNode.type === 'FunctionExpression') &&
+    parent?.type === 'VariableDeclarator' &&
+    parent.id.type === 'Identifier'
+  ) {
+    return parent.id;
   }
-  return result;
+
+  if (
+    (componentNode.type === 'ClassDeclaration' ||
+      componentNode.type === 'FunctionDeclaration' ||
+      componentNode.type === 'ClassExpression' ||
+      componentNode.type === 'FunctionExpression') &&
+    componentNode.id
+  ) {
+    return componentNode.id;
+  }
+
+  return parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier'
+    ? parent.id
+    : undefined;
 }

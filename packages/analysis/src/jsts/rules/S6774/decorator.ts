@@ -22,6 +22,7 @@ import { parse as parseSemver } from 'semver';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { getReactVersion } from '../helpers/dependency-manifests/dependencies.js';
+import { isForwardRefCallee } from '../helpers/react.js';
 import * as meta from './generated-meta.js';
 
 /**
@@ -86,21 +87,5 @@ function isInsideForwardRef(node: estree.Node, context: Rule.RuleContext): boole
  * Checks if a CallExpression is a React.forwardRef() or forwardRef() call.
  */
 function isForwardRefCall(node: estree.CallExpression): boolean {
-  const { callee } = node;
-
-  // Direct call: forwardRef(...)
-  if (callee.type === 'Identifier' && callee.name === 'forwardRef') {
-    return true;
-  }
-
-  // Member expression: React.forwardRef(...)
-  if (
-    callee.type === 'MemberExpression' &&
-    callee.property.type === 'Identifier' &&
-    callee.property.name === 'forwardRef'
-  ) {
-    return true;
-  }
-
-  return false;
+  return isForwardRefCallee(node.callee);
 }
