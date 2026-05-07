@@ -1326,9 +1326,13 @@ jobs:
     needs:
       - promote
     if: >-
-      github.ref_name == github.event.repository.default_branch ||
-      startsWith(github.ref_name, 'branch-') ||
-      startsWith(github.ref_name, 'dogfood-')
+      !failure() && !cancelled() &&
+      needs.promote.result == 'success' &&
+      (
+        github.ref_name == github.event.repository.default_branch ||
+        startsWith(github.ref_name, 'branch-') ||
+        startsWith(github.ref_name, 'dogfood-')
+      )
     permissions:
       id-token: write
       statuses: write
