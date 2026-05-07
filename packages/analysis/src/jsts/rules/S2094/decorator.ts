@@ -55,7 +55,7 @@ function getClassNode(
   node: estree.Node & Rule.NodeParentExtension,
 ): estree.ClassDeclaration | estree.ClassExpression | null {
   if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') {
-    return node as estree.ClassDeclaration | estree.ClassExpression;
+    return node;
   }
   if (node.type === 'Identifier') {
     const parent = node.parent as estree.Node;
@@ -70,16 +70,16 @@ function hasThisPropertyAssignmentInConstructor(
   classNode: estree.ClassDeclaration | estree.ClassExpression,
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
-  const constructor = classNode.body.body.find(
+  const ctor = classNode.body.body.find(
     (member): member is estree.MethodDefinition =>
       member.type === 'MethodDefinition' && member.kind === 'constructor',
   );
 
-  if (!constructor) {
+  if (!ctor) {
     return false;
   }
 
-  const constructorBody = (constructor.value as estree.FunctionExpression).body;
+  const constructorBody = ctor.value.body;
   return walkForThisAssignment(constructorBody, visitorKeys);
 }
 
@@ -101,9 +101,6 @@ function isThisPropertyAssignment(node: Node): boolean {
   if (node.type !== 'AssignmentExpression') {
     return false;
   }
-  const { left } = node as estree.AssignmentExpression;
-  return (
-    left.type === 'MemberExpression' &&
-    (left as estree.MemberExpression).object.type === 'ThisExpression'
-  );
+  const { left } = node;
+  return left.type === 'MemberExpression' && left.object.type === 'ThisExpression';
 }
