@@ -58,7 +58,7 @@ type Catalog = Record<string, string>;
 export type CatalogSource = {
   catalog?: Catalog;
   catalogs?: Record<string, Catalog>;
-}
+};
 
 // Workspace type as defined by Bun and Pnpm.
 export type Workspace = CatalogSource & {

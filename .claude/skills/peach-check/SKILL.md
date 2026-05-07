@@ -107,6 +107,7 @@ If **≥80% of jobs failed** (e.g. 200+ out of 253), this indicates a single sha
 Do not triage every job individually.
 
 Instead:
+
 1. Sample 5 representative jobs (spread across pages 1–3)
 2. Run Phase 2 grep on each (see below) to classify each sampled job individually, including sensor and stack trace origin
 3. If **any** sampled job is CRITICAL, the mass verdict is CRITICAL — CRITICAL takes priority regardless of how many other jobs match an IGNORE pattern
@@ -234,6 +235,7 @@ If 2 or more jobs share the same category, check whether they failed within a
 5-minute window. Use `completedAt` timestamps if available; otherwise extract the timestamp prefix
 from log lines (format: `2026-MM-DDTHH:MM:SS.`). If clustered, record a general note for the
 summary, for example:
+
 > ⚠️ N jobs failed with the same pattern within a 5-minute window — likely caused by a single infrastructure event.
 
 **Step 8 — Print summary**
@@ -264,6 +266,7 @@ observations):
 ```
 
 The release recommendation is:
+
 - **SAFE** — zero CRITICAL or NEEDS-MANUAL-REVIEW jobs
 - **NOT SAFE** — one or more CRITICAL jobs
 - **REVIEW NEEDED** — zero CRITICAL but one or more NEEDS-MANUAL-REVIEW jobs

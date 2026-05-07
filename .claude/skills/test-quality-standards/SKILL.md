@@ -51,12 +51,14 @@ When writing or reviewing test cases, follow these standards:
 ## Examples
 
 **Minimal code:**
+
 ```csharp
 [TestMethod]
 public void ForLoop_NoIssue() => builder.AddSnippet("for (int i = 0; i < 10; i++) { }");
 ```
 
 **Brief comment:**
+
 ```javascript
 foreach (int x in items) { } // Compliant: collection iteration
 ```
