@@ -60,7 +60,7 @@ function getClassNode(
   if (node.type === 'Identifier') {
     const parent = node.parent as estree.Node;
     if (parent.type === 'ClassDeclaration' || parent.type === 'ClassExpression') {
-      return parent as estree.ClassDeclaration | estree.ClassExpression;
+      return parent;
     }
   }
   return null;
@@ -71,8 +71,9 @@ function hasThisPropertyAssignmentInConstructor(
   visitorKeys: SourceCode.VisitorKeys,
 ): boolean {
   const constructor = classNode.body.body.find(
-    member => member.type === 'MethodDefinition' && member.kind === 'constructor',
-  ) as estree.MethodDefinition | undefined;
+    (member): member is estree.MethodDefinition =>
+      member.type === 'MethodDefinition' && member.kind === 'constructor',
+  );
 
   if (!constructor) {
     return false;
