@@ -17,7 +17,6 @@
 
 import type { SourceCode } from 'eslint';
 import type estree from 'estree';
-import type { JSXSpreadAttribute } from 'estree-jsx';
 import { childrenOf } from '../helpers/ancestor.js';
 import { isIdentifier } from '../helpers/ast.js';
 
@@ -142,10 +141,7 @@ function isWholePropsJsxSpreadAttribute(
   node: estree.Node,
   isPropsArgument: (arg: estree.Node) => boolean,
 ): boolean {
-  return (
-    node.type === 'JSXSpreadAttribute' &&
-    isPropsArgument((node as unknown as JSXSpreadAttribute).argument)
-  );
+  return node.type === 'JSXSpreadAttribute' && isPropsArgument(node.argument);
 }
 
 /**
