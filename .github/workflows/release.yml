@@ -29,5 +29,4 @@ jobs:
       mavenCentralSync: true
       slackChannel: ask-squad-web
       version: ${{ inputs.version }}
-      releaseId: ${{ inputs.releaseId }}
       dryRun: ${{ inputs.dryRun == true }}
