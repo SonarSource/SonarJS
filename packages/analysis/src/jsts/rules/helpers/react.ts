@@ -204,7 +204,7 @@ export function isReactComponentSuperclass(
  * @param superClass the ESTree superclass expression to inspect
  * @returns `true` when `superClass` syntactically denotes a React base class
  */
-export function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
+function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
   return (
     isIdentifier(superClass, 'Component') ||
     isIdentifier(superClass, 'PureComponent') ||
@@ -226,9 +226,7 @@ export function isBuiltinReactSuperclass(superClass: estree.Expression): boolean
  * @param superclass the TypeScript heritage-clause entry to inspect
  * @returns `true` when `superclass` denotes a React component base class
  */
-export function isReactComponentHeritageSuperclass(
-  superclass: ts.ExpressionWithTypeArguments,
-): boolean {
+function isReactComponentHeritageSuperclass(superclass: ts.ExpressionWithTypeArguments): boolean {
   const expression = superclass.expression;
   if (ts.isIdentifier(expression)) {
     return expression.text === 'Component' || expression.text === 'PureComponent';
