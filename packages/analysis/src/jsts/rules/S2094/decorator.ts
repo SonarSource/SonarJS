@@ -84,6 +84,10 @@ function hasThisPropertyAssignmentInConstructor(
 }
 
 function walkForThisAssignment(node: Node, visitorKeys: SourceCode.VisitorKeys): boolean {
+  if (isClassNode(node)) {
+    return false;
+  }
+
   // Stop at all function boundaries (FunctionDeclaration, FunctionExpression, and
   // ArrowFunctionExpression): `this.*` assignments nested inside any callback, even
   // arrow callbacks whose `this` is bound to the constructor, are not considered direct
@@ -97,6 +101,10 @@ function walkForThisAssignment(node: Node, visitorKeys: SourceCode.VisitorKeys):
   }
 
   return childrenOf(node, visitorKeys).some(child => walkForThisAssignment(child, visitorKeys));
+}
+
+function isClassNode(node: Node): boolean {
+  return node.type === 'ClassDeclaration' || node.type === 'ClassExpression';
 }
 
 function isThisPropertyAssignment(node: Node): boolean {

@@ -214,6 +214,18 @@ describe('S2094', () => {
           options,
           errors: 1,
         },
+        {
+          // Noncompliant: this.* inside nested class field
+          code: `class Outer {
+  constructor() {
+    class Inner {
+      field = (this.value = 1);
+    }
+  }
+}`,
+          options,
+          errors: 1,
+        },
       ],
     });
   });
