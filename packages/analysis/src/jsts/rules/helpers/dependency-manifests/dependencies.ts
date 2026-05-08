@@ -24,7 +24,7 @@ import { type NormalizedAbsolutePath, normalizeToAbsolutePath, dirnamePath } fro
 import { getClosestDependencyManifestDir } from './closest.js';
 import { getDependencyManifests, getPackageJsonManifests } from './all-in-parent-dirs.js';
 import { DEFINITELY_TYPED, type DependenciesList, type ModuleType } from './resolvers/types.js';
-import { parsePackageJsonContent } from './parsed-manifests.js';
+import { parsePackageJsonContent } from './parsed-dependency-files.js';
 
 const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
   '.mjs': 'module',

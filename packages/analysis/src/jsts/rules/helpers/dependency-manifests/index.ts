@@ -20,7 +20,7 @@ import { dependenciesCache, moduleTypeCache } from './dependencies.js';
 import { closestPatternCache } from '../find-up/closest.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import { basename } from 'node:path/posix';
-import { clearParsedManifestCache } from './parsed-manifests.js';
+import { clearParsedDependencyFileCache } from './parsed-dependency-files.js';
 
 export const PACKAGE_JSON = 'package.json';
 export const DENO_JSON = 'deno.json';
@@ -79,7 +79,7 @@ export function fillManifestCaches(
 export function clearDependenciesCache(): void {
   dependenciesCache.clear();
   moduleTypeCache.clear();
-  clearParsedManifestCache();
+  clearParsedDependencyFileCache();
   for (const manifestName of PRELOADABLE_DEPENDENCY_MANIFESTS) {
     closestPatternCache.get(manifestName).clear();
     patternInParentsCache.get(manifestName).clear();

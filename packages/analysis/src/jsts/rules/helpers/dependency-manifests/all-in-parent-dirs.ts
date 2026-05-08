@@ -29,7 +29,7 @@ import type { Rule } from 'eslint';
 import { type DependencyManifest, type ManifestResolver } from './resolvers/types.js';
 import { denoManifestResolver } from './resolvers/deno.js';
 import { npmManifestResolver } from './resolvers/npm.js';
-import { parsePackageJson } from './parsed-manifests.js';
+import { parsePackageJson } from './parsed-dependency-files.js';
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by

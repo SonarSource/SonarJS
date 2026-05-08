@@ -30,20 +30,29 @@ const parsedPackageJsonCache = new Map<string, PackageJson | undefined>();
 const parsedPnpmWorkspaceCache = new Map<string, PnpmWorkspace | undefined>();
 const parsedDenoManifestCache = new Map<string, DenoManifest | undefined>();
 
-export function clearParsedManifestCache(): void {
+export function clearParsedDependencyFileCache(): void {
   parsedPackageJsonCache.clear();
   parsedPnpmWorkspaceCache.clear();
   parsedDenoManifestCache.clear();
 }
 
-export function parsePackageJson(file: File): PackageJson | undefined {
-  const cached = parsedPackageJsonCache.get(file.path);
-  if (cached || parsedPackageJsonCache.has(file.path)) {
-    return cached;
+function getOrSetParsedDependencyFile<T>(
+  cache: Map<string, T | undefined>,
+  file: File,
+  parse: (file: File) => T | undefined,
+): T | undefined {
+  if (cache.has(file.path)) {
+    return cache.get(file.path);
   }
-  const parsed = parsePackageJsonContent(file.content, file.path);
-  parsedPackageJsonCache.set(file.path, parsed);
+  const parsed = parse(file);
+  cache.set(file.path, parsed);
   return parsed;
+}
+
+export function parsePackageJson(file: File): PackageJson | undefined {
+  return getOrSetParsedDependencyFile(parsedPackageJsonCache, file, file =>
+    parsePackageJsonContent(file.content, file.path),
+  );
 }
 
 export function parsePackageJsonContent(
@@ -62,13 +71,7 @@ export function parsePackageJsonContent(
 }
 
 export function parsePnpmWorkspace(file: File): PnpmWorkspace | undefined {
-  const cached = parsedPnpmWorkspaceCache.get(file.path);
-  if (cached || parsedPnpmWorkspaceCache.has(file.path)) {
-    return cached;
-  }
-  const parsed = parsePnpmWorkspaceContent(file);
-  parsedPnpmWorkspaceCache.set(file.path, parsed);
-  return parsed;
+  return getOrSetParsedDependencyFile(parsedPnpmWorkspaceCache, file, parsePnpmWorkspaceContent);
 }
 
 function parsePnpmWorkspaceContent(file: File): PnpmWorkspace | undefined {
@@ -88,13 +91,7 @@ function parsePnpmWorkspaceContent(file: File): PnpmWorkspace | undefined {
 }
 
 export function parseDenoManifest(file: File): DenoManifest | undefined {
-  const cached = parsedDenoManifestCache.get(file.path);
-  if (cached || parsedDenoManifestCache.has(file.path)) {
-    return cached;
-  }
-  const parsed = parseDenoManifestContent(file);
-  parsedDenoManifestCache.set(file.path, parsed);
-  return parsed;
+  return getOrSetParsedDependencyFile(parsedDenoManifestCache, file, parseDenoManifestContent);
 }
 
 function parseDenoManifestContent(file: File): DenoManifest | undefined {

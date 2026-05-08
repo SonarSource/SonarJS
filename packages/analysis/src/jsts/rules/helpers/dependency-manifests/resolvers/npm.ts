@@ -25,7 +25,11 @@ import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
 import { getManifestFileInDir } from './helpers.js';
 import { addDependencies, addDependenciesArray } from '../parse.js';
-import { parsePackageJson, parsePnpmWorkspace, type PnpmWorkspace } from '../parsed-manifests.js';
+import {
+  parsePackageJson,
+  parsePnpmWorkspace,
+  type PnpmWorkspace,
+} from '../parsed-dependency-files.js';
 
 export const npmManifestResolver: ManifestResolver = {
   resolve(dir, topDir, fileSystem): DependencyManifest[] {
