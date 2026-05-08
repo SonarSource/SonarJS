@@ -27,7 +27,7 @@ import { DENO_JSON, DENO_JSONC } from '../index.js';
 import { getManifestFileInDir } from './helpers.js';
 import { addDependenciesArray, addDependency } from '../parse.js';
 
-export type ImportMapSpecifier = {
+type ImportMapSpecifier = {
   packageName: string;
   version?: string;
 };

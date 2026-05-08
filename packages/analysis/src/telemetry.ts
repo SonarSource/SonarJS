@@ -93,6 +93,7 @@ export type ProjectAnalysisTelemetry = {
   programCreation: ProgramCreationTelemetry;
   esmFileCount: number;
   cjsFileCount: number;
+  denoImportCounts: Record<string, number>;
 };
 
 export function resetProjectAnalysisTelemetry() {
@@ -126,6 +127,7 @@ export class ProjectAnalysisTelemetryCollector {
   };
   private esmFileCount = 0;
   private cjsFileCount = 0;
+  private readonly denoImportCountsByProtocol = new Map<string, number>();
 
   constructor() {
     const { typeScriptVersionSignals, hasTypeScriptNativePreview } =
@@ -163,6 +165,11 @@ export class ProjectAnalysisTelemetryCollector {
     this.programCreation.failed += 1;
   }
 
+  recordDenoImport(protocol: string): void {
+    const currentCount = this.denoImportCountsByProtocol.get(protocol) ?? 0;
+    this.denoImportCountsByProtocol.set(protocol, currentCount + 1);
+  }
+
   recordModuleType(moduleType: ModuleType | undefined) {
     if (moduleType === 'module') {
       this.esmFileCount += 1;
@@ -191,6 +198,7 @@ export class ProjectAnalysisTelemetryCollector {
       programCreation: this.programCreation,
       esmFileCount: this.esmFileCount,
       cjsFileCount: this.cjsFileCount,
+      denoImportCounts: Object.fromEntries(this.denoImportCountsByProtocol),
     };
   }
 

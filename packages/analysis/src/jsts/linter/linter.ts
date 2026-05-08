@@ -399,6 +399,14 @@ function hasRequiredDependencies(ruleMeta: SonarMeta | undefined): boolean {
   return (ruleMeta?.requiredDependency.length ?? 0) > 0;
 }
 
+// Matches a valid URL scheme per RFC 3986: letter followed by letters, digits, '+', '-', or '.'
+// Minimum length of 2 avoids matching Windows drive letters (e.g. "C:").
+const URL_SCHEME_RE = /^([a-z][a-z0-9+.-]+):/;
+
+function getURLScheme(moduleName: string): string | undefined {
+  return URL_SCHEME_RE.exec(moduleName)?.[1];
+}
+
 /**
  * Merges the dependencies from the dependency manifest with inline npm dependencies declared in the file imports
  * without mutating the original manifest dependencies
@@ -415,6 +423,10 @@ function mergedInlineNpmDependencies(
   // to avoid unnecessary allocations for files without inline npm dependencies
   let inlineNpmDependencies: Set<string | Minimatch> | null = null;
   for (const moduleName of getCurrentFileImports(sourceCode)) {
+    const protocol = getURLScheme(moduleName);
+    if (protocol !== undefined) {
+      getOptionalProjectAnalysisTelemetryCollector()?.recordDenoImport(protocol);
+    }
     const parsedSpecifier = parseInlineNPMImport(moduleName);
     if (parsedSpecifier) {
       inlineNpmDependencies ??= new Set();
