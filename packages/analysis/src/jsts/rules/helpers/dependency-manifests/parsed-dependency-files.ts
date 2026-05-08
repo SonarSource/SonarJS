@@ -17,7 +17,7 @@
 import type { PackageJson } from 'type-fest';
 import ts from 'typescript';
 import yaml from 'yaml';
-import { type File, stripBOM } from '../files.js';
+import { type File, normalizeToAbsolutePath, stripBOM } from '../files.js';
 import type { DenoManifest } from './resolvers/types.js';
 
 export type PnpmWorkspace = {
@@ -41,11 +41,12 @@ function getOrSetParsedDependencyFile<T>(
   file: File,
   parse: (file: File) => T | undefined,
 ): T | undefined {
-  if (cache.has(file.path)) {
-    return cache.get(file.path);
+  const cacheKey = normalizeToAbsolutePath(file.path);
+  if (cache.has(cacheKey)) {
+    return cache.get(cacheKey);
   }
   const parsed = parse(file);
-  cache.set(file.path, parsed);
+  cache.set(cacheKey, parsed);
   return parsed;
 }
 
