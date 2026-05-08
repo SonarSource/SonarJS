@@ -136,6 +136,24 @@ describe('isSupported()', () => {
           expect(isSupported(projectDir, { node: '5.0.0' })).toBe(true);
         });
       });
+
+      describe('when the node engine range is malformed', () => {
+        it('should ignore invalid ranges seen in dogfood logs', () => {
+          const fixtures = [
+            'invalid-leading-zero',
+            'invalid-double-ampersand',
+            'invalid-comma-range',
+            'invalid-node-literal',
+            'invalid-compact-range',
+            'invalid-pipe',
+          ];
+
+          for (const fixture of fixtures) {
+            const projectDir = joinPaths(baseDir, fixture);
+            expect(isSupported(projectDir, { node: '8.3.0' })).toBe(true);
+          }
+        });
+      });
     });
     describe('when package.json#engine.node is undefined', () => {
       it('should return true', () => {

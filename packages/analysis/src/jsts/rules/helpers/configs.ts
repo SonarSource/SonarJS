@@ -14,6 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { Rule } from 'eslint';
+import merge from 'lodash.merge';
+
 type Default = string | boolean | number | string[] | number[] | Object;
 
 type ESLintConfigurationDefaultProperty = {
@@ -62,6 +65,25 @@ export function defaultOptions(configuration?: ESLintConfiguration) {
       return element.default;
     }
   });
+}
+
+type RuleMetaWithFields = {
+  fields?: ESLintConfiguration;
+};
+
+export function materializeRuleOptions(
+  ruleMeta: RuleMetaWithFields | undefined,
+  ruleModule: Rule.RuleModule | undefined,
+  configurations: unknown[] = [],
+): unknown[] {
+  const mergedOptions = merge(
+    [],
+    ruleModule?.meta?.defaultOptions,
+    ruleMeta?.fields ? defaultOptions(ruleMeta.fields) : undefined,
+    configurations,
+  );
+
+  return ruleMeta?.fields ? applyTransformations(ruleMeta.fields, mergedOptions) : mergedOptions;
 }
 
 /**
