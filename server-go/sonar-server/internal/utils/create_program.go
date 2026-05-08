@@ -14,6 +14,8 @@ import (
 	"github.com/microsoft/typescript-go/shim/vfs"
 )
 
+type ParsedCommandLineTransform func(config *tsoptions.ParsedCommandLine)
+
 func CreateCompilerHost(cwd string, fs vfs.FS) compiler.CompilerHost {
 	defaultLibraryPath := bundled.LibPath()
 	return NewCompilerHost(cwd, fs, defaultLibraryPath, nil, nil)
@@ -27,7 +29,15 @@ func enhanceHelpDiagnosticMessage(msg string) string {
 	return msg
 }
 
-func CreateProgram(singleThreaded bool, fs vfs.FS, cwd string, tsconfigPath string, host compiler.CompilerHost, suppressProgramDiagnostics bool) (*compiler.Program, []diagnostic.Internal, error) {
+func CreateProgram(
+	singleThreaded bool,
+	fs vfs.FS,
+	cwd string,
+	tsconfigPath string,
+	host compiler.CompilerHost,
+	suppressProgramDiagnostics bool,
+	transforms ...ParsedCommandLineTransform,
+) (*compiler.Program, []diagnostic.Internal, error) {
 	resolvedConfigPath := tspath.ResolvePath(cwd, tsconfigPath)
 	if !fs.FileExists(resolvedConfigPath) {
 		return nil, nil, fmt.Errorf("couldn't read tsconfig at %v", resolvedConfigPath)
@@ -52,6 +62,12 @@ func CreateProgram(singleThreaded bool, fs vfs.FS, cwd string, tsconfigPath stri
 			}
 		}
 		return nil, internalDiags, nil
+	}
+
+	for _, transform := range transforms {
+		if transform != nil {
+			transform(configParseResult)
+		}
 	}
 
 	if len(configParseResult.Errors) > 0 && !suppressProgramDiagnostics {
@@ -117,25 +133,29 @@ func CreateProgram(singleThreaded bool, fs vfs.FS, cwd string, tsconfigPath stri
 	return program, nil, nil
 }
 
-func CreateInferredProjectProgram(singleThreaded bool, fs vfs.FS, cwd string, host compiler.CompilerHost, fileNames []string) (*compiler.Program, []diagnostic.Internal, error) {
+func CreateInferredProjectProgram(
+	singleThreaded bool,
+	fs vfs.FS,
+	cwd string,
+	host compiler.CompilerHost,
+	fileNames []string,
+	inferredOptions ...*core.CompilerOptions,
+) (*compiler.Program, []diagnostic.Internal, error) {
+	compilerOptions := &core.CompilerOptions{
+		AllowJs:       core.TSTrue,
+		NoImplicitAny: core.TSTrue,
+		Strict:        core.TSFalse,
+		Lib:           []string{"lib.esnext.d.ts", "lib.dom.d.ts"},
+	}
+	if len(inferredOptions) > 0 && inferredOptions[0] != nil {
+		compilerOptions = inferredOptions[0].Clone()
+	}
+
 	opts := compiler.ProgramOptions{
 		Config: &tsoptions.ParsedCommandLine{
 			ParsedConfig: &core.ParsedOptions{
-				CompilerOptions: &core.CompilerOptions{
-					AllowJs:                    core.TSTrue,
-					Module:                     core.ModuleKindESNext,
-					ModuleResolution:           core.ModuleResolutionKindBundler,
-					Target:                     core.ScriptTargetES2022,
-					Jsx:                        core.JsxEmitReactJSX,
-					AllowImportingTsExtensions: core.TSTrue,
-					StrictNullChecks:           core.TSTrue,
-					StrictFunctionTypes:        core.TSTrue,
-					SourceMap:                  core.TSTrue,
-					ESModuleInterop:            core.TSTrue,
-					AllowNonTsExtensions:       core.TSTrue,
-					ResolveJsonModule:          core.TSTrue,
-				},
-				FileNames: fileNames,
+				CompilerOptions: compilerOptions,
+				FileNames:       fileNames,
 			},
 		},
 		SingleThreaded: core.TSTrue,

@@ -38,6 +38,7 @@ type rawPackageJSONManifest struct {
 	PeerDependencies     map[string]any `json:"peerDependencies"`
 	OptionalDependencies map[string]any `json:"optionalDependencies"`
 	ModuleAliases        map[string]any `json:"_moduleAliases"`
+	Engines              map[string]any `json:"engines"`
 }
 
 type rawDenoManifest struct {
@@ -47,15 +48,20 @@ type rawDenoManifest struct {
 func (s *projectFileStores) buildDependencySignals() {
 	s.DependenciesByDir = make(map[string]map[string]struct{}, len(s.DirnameToParent))
 	s.ModuleTypeByDir = make(map[string]string, len(s.DirnameToParent))
+	s.NodeVersionSignalByDir = make(map[string]string, len(s.DirnameToParent))
 
 	for _, dir := range s.directoriesInParentOrder() {
 		parent := s.DirnameToParent[dir]
 		dependencies := cloneDependencySet(s.DependenciesByDir[parent])
 		moduleType := s.ModuleTypeByDir[parent]
+		nodeVersionSignal := s.NodeVersionSignalByDir[parent]
 
 		if packageJSON, ok := s.PackageJSONs[dir]; ok {
 			addPackageJSONDependencies(dependencies, packageJSON.Content)
 			moduleType = detectPackageJSONModuleType(packageJSON.Content)
+			if signal := detectPackageJSONNodeVersionSignal(packageJSON.Content); signal != "" {
+				nodeVersionSignal = signal
+			}
 		}
 
 		if denoManifest, ok := s.effectiveDenoManifest(dir); ok {
@@ -66,6 +72,9 @@ func (s *projectFileStores) buildDependencySignals() {
 		s.DependenciesByDir[dir] = dependencies
 		if moduleType != "" {
 			s.ModuleTypeByDir[dir] = moduleType
+		}
+		if nodeVersionSignal != "" {
+			s.NodeVersionSignalByDir[dir] = nodeVersionSignal
 		}
 	}
 }
@@ -116,6 +125,27 @@ func (s *projectFileStores) activationSignalsForFile(filePath string) ruleActiva
 	}
 }
 
+func (s *projectFileStores) nodeVersionSignalForPath(filePath string) string {
+	return s.nodeVersionSignalForDir(tspath.GetDirectoryPath(filePath))
+}
+
+func (s *projectFileStores) nodeVersionSignalForDir(dir string) string {
+	dir = tspath.NormalizePath(dir)
+	for dir != "" {
+		if signal, ok := s.NodeVersionSignalByDir[dir]; ok {
+			return signal
+		}
+
+		parent := tspath.GetDirectoryPath(dir)
+		if parent == dir || parent == "" {
+			break
+		}
+		dir = parent
+	}
+
+	return ""
+}
+
 func addPackageJSONDependencies(target map[string]struct{}, content string) {
 	manifest := rawPackageJSONManifest{}
 	if err := json.Unmarshal([]byte(stripBOM(content)), &manifest); err != nil {
@@ -139,6 +169,33 @@ func detectPackageJSONModuleType(content string) string {
 		return moduleTypeModule
 	}
 	return moduleTypeCommonJS
+}
+
+func detectPackageJSONNodeVersionSignal(content string) string {
+	manifest := rawPackageJSONManifest{}
+	if err := json.Unmarshal([]byte(stripBOM(content)), &manifest); err != nil {
+		return ""
+	}
+
+	for _, dependencies := range []map[string]any{
+		manifest.Dependencies,
+		manifest.DevDependencies,
+		manifest.PeerDependencies,
+		manifest.OptionalDependencies,
+	} {
+		if version := dependencyVersionSignal(dependencies, "@types/node"); version != "" {
+			return version
+		}
+	}
+
+	engineNode, ok := manifest.Engines["node"].(string)
+	if !ok {
+		return ""
+	}
+	if !isValidDependencySignal(engineNode) {
+		return ""
+	}
+	return strings.TrimSpace(engineNode)
 }
 
 func addDenoDependencies(target map[string]struct{}, content string) {
@@ -189,6 +246,23 @@ func parseDenoNpmImport(specifier string) (string, bool) {
 		return "", false
 	}
 	return match[1], true
+}
+
+func dependencyVersionSignal(dependencies map[string]any, dependency string) string {
+	if len(dependencies) == 0 {
+		return ""
+	}
+
+	value, ok := dependencies[dependency].(string)
+	if !ok || !isValidDependencySignal(value) {
+		return ""
+	}
+	return strings.TrimSpace(value)
+}
+
+func isValidDependencySignal(versionSignal string) bool {
+	trimmed := strings.TrimSpace(versionSignal)
+	return trimmed != "" && trimmed != "*" && !strings.EqualFold(trimmed, "latest")
 }
 
 func cloneDependencySet(dependencies map[string]struct{}) map[string]struct{} {

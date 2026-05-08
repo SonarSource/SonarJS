@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -18,50 +19,70 @@ import (
 	"github.com/microsoft/typescript-go/shim/compiler"
 	"github.com/microsoft/typescript-go/shim/core"
 	"github.com/microsoft/typescript-go/shim/parser"
+	"github.com/microsoft/typescript-go/shim/tsoptions"
 	"github.com/microsoft/typescript-go/shim/tspath"
 	"github.com/microsoft/typescript-go/shim/vfs"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 
 	pb "github.com/SonarSource/SonarJS/server-go/sonar-server/grpc"
 )
-
-type analyzerService struct {
-	pb.UnimplementedAnalyzeProjectServiceServer
-}
 
 type fileRuleCacheKey struct {
 	FilePath            string
 	DetectedEcmaVersion int
 }
 
-func NewAnalyzerService() *analyzerService {
-	return &analyzerService{}
+type compilerOptionsGroup struct {
+	filePaths       []string
+	compilerOptions *core.CompilerOptions
 }
 
 func (s *analyzerService) AnalyzeProject(
 	req *pb.AnalyzeProjectRequest,
 	stream pb.AnalyzeProjectService_AnalyzeProjectServer,
 ) error {
+	analysis, err := s.beginAnalysis(stream.Context())
+	if err != nil {
+		return err
+	}
+	defer s.finishAnalysis(analysis)
+
 	input, err := NormalizeAnalyzeProjectRequest(req)
 	if err != nil {
 		return err
 	}
 
-	results, meta := analyzeProject(input)
-	for _, filePath := range input.OrderedFiles {
+	run := s.analyze(analysis.ctx, input)
+	if err := grpcCallCancelled(stream.Context()); err != nil {
+		return err
+	}
+
+	for _, filePath := range run.orderedFiles {
 		if err := stream.Send(&pb.AnalyzeProjectStreamResponse{
 			Message: &pb.AnalyzeProjectStreamResponse_FileResult{
 				FileResult: &pb.FileResultMessage{
 					FilePath: filePath,
-					Result:   results[filePath],
+					Result:   run.results[filePath],
 				},
 			},
 		}); err != nil {
 			return err
 		}
 	}
+
+	if run.cancelled {
+		return stream.Send(&pb.AnalyzeProjectStreamResponse{
+			Message: &pb.AnalyzeProjectStreamResponse_Cancelled{
+				Cancelled: &emptypb.Empty{},
+			},
+		})
+	}
+
 	return stream.Send(&pb.AnalyzeProjectStreamResponse{
 		Message: &pb.AnalyzeProjectStreamResponse_Meta{
-			Meta: meta,
+			Meta: run.meta,
 		},
 	})
 }
@@ -70,15 +91,25 @@ func (s *analyzerService) AnalyzeProjectUnary(
 	ctx context.Context,
 	req *pb.AnalyzeProjectRequest,
 ) (*pb.AnalyzeProjectUnaryResponse, error) {
+	analysis, err := s.beginAnalysis(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer s.finishAnalysis(analysis)
+
 	input, err := NormalizeAnalyzeProjectRequest(req)
 	if err != nil {
 		return nil, err
 	}
 
-	results, meta := analyzeProject(input)
+	run := s.analyze(analysis.ctx, input)
+	if err := grpcCallCancelled(ctx); err != nil {
+		return nil, err
+	}
+
 	return &pb.AnalyzeProjectUnaryResponse{
-		Files: results,
-		Meta:  meta,
+		Files: run.results,
+		Meta:  run.meta,
 	}, nil
 }
 
@@ -86,26 +117,46 @@ func (s *analyzerService) CancelAnalysis(
 	ctx context.Context,
 	req *pb.CancelAnalysisRequest,
 ) (*pb.CancelAnalysisResponse, error) {
-	return &pb.CancelAnalysisResponse{Cancelled: false}, nil
+	return &pb.CancelAnalysisResponse{Cancelled: s.cancelActiveAnalysis()}, nil
 }
 
 func (s *analyzerService) Lease(stream pb.AnalyzeProjectService_LeaseServer) error {
+	leaseID, err := s.beginLease()
+	if err != nil {
+		return err
+	}
+
 	for {
 		_, err := stream.Recv()
 		if err == io.EOF {
+			s.releaseLease(leaseID, "lease completed")
 			return nil
 		}
 		if err != nil {
+			if stream.Context().Err() != nil || status.Code(err) == codes.Canceled {
+				s.releaseLease(leaseID, "lease cancelled")
+				return nil
+			}
+			s.releaseLease(leaseID, "lease error")
 			return err
 		}
 	}
 }
 
-func analyzeProject(
+func (s *analyzerService) runProjectAnalysis(
+	ctx context.Context,
 	input *NormalizedAnalyzeProjectInput,
-) (map[string]*pb.ProjectAnalysisFileResult, *pb.ProjectAnalysisMeta) {
+) projectAnalysisRun {
+	return runProjectAnalysisWithState(ctx, input, s.sonarlintState)
+}
+
+func runProjectAnalysisWithState(
+	ctx context.Context,
+	input *NormalizedAnalyzeProjectInput,
+	state *sonarlintState,
+) projectAnalysisRun {
 	fsys := BuildAnalyzeProjectFS(input)
-	stores, storeErr := initializeProjectFileStores(input, fsys)
+	stores, storeErr := projectStoresForAnalysis(input, fsys, state)
 
 	analysisFiles, orderedFiles := analysisTargetFiles(input, stores)
 	results := make(map[string]*pb.ProjectAnalysisFileResult, len(orderedFiles))
@@ -116,18 +167,38 @@ func analyzeProject(
 	warnings := []string{}
 	if storeErr != nil {
 		warnings = append(warnings, fmt.Sprintf("jsts-go project discovery error: %v", storeErr))
-		return results, &pb.ProjectAnalysisMeta{Warnings: warnings}
+		return projectAnalysisRun{
+			orderedFiles: orderedFiles,
+			results:      results,
+			meta:         &pb.ProjectAnalysisMeta{Warnings: warnings},
+		}
 	}
 	warnings = append(warnings, stores.Warnings...)
+	if err := checkAnalysisCancelled(ctx); err != nil {
+		return projectAnalysisRun{
+			orderedFiles: orderedFiles,
+			results:      results,
+			meta:         &pb.ProjectAnalysisMeta{Warnings: warnings},
+			cancelled:    true,
+		}
+	}
 
 	requestedRules := input.RequestedRules
 	if len(orderedFiles) == 0 || len(requestedRules) == 0 {
-		return results, &pb.ProjectAnalysisMeta{Warnings: warnings}
+		return projectAnalysisRun{
+			orderedFiles: orderedFiles,
+			results:      results,
+			meta:         &pb.ProjectAnalysisMeta{Warnings: warnings},
+		}
 	}
 
 	filePaths := jsTsAnalysisTargets(orderedFiles, input.Config)
 	if len(filePaths) == 0 {
-		return results, &pb.ProjectAnalysisMeta{Warnings: warnings}
+		return projectAnalysisRun{
+			orderedFiles: orderedFiles,
+			results:      results,
+			meta:         &pb.ProjectAnalysisMeta{Warnings: warnings},
+		}
 	}
 
 	baseDir := input.Config.BaseDir
@@ -192,6 +263,7 @@ func analyzeProject(
 			len(filePaths),
 		)
 		analysisErr = analyzeSourceFilesWithoutProgram(
+			ctx,
 			logLevel,
 			input.Config,
 			analysisTargetFilesMap(input, stores),
@@ -203,17 +275,20 @@ func analyzeProject(
 		)
 	} else if boolValue(input.Config.SonarLint, false) {
 		analysisErr = analyzeIncrementalPrograms(
+			ctx,
 			logLevel,
 			input,
 			stores,
 			fsys,
 			filePaths,
+			state,
 			rulesForFile,
 			onRuleDiagnostic,
 			onInternalDiagnostic,
 		)
 	} else {
 		analysisErr = analyzeBatchPrograms(
+			ctx,
 			logLevel,
 			input,
 			stores,
@@ -224,7 +299,8 @@ func analyzeProject(
 			onInternalDiagnostic,
 		)
 	}
-	if analysisErr != nil {
+	analysisCancelled := errors.Is(analysisErr, errAnalysisCancelled)
+	if analysisErr != nil && !analysisCancelled {
 		log.Printf("Linter error: %v", analysisErr)
 		warnings = append(warnings, fmt.Sprintf("jsts-go linter error: %v", analysisErr))
 	}
@@ -235,7 +311,19 @@ func analyzeProject(
 		}
 	}
 
-	return results, &pb.ProjectAnalysisMeta{Warnings: warnings}
+	return projectAnalysisRun{
+		orderedFiles: orderedFiles,
+		results:      results,
+		meta:         &pb.ProjectAnalysisMeta{Warnings: warnings},
+		cancelled:    analysisCancelled,
+	}
+}
+
+func analyzeProject(
+	input *NormalizedAnalyzeProjectInput,
+) (map[string]*pb.ProjectAnalysisFileResult, *pb.ProjectAnalysisMeta) {
+	run := runProjectAnalysisWithState(context.Background(), input, nil)
+	return run.results, run.meta
 }
 
 func analysisTargetFiles(
@@ -290,6 +378,7 @@ func configuredRulesFor(requestedRules map[string]requestedRuleConfig) []linter.
 }
 
 func analyzeBatchPrograms(
+	ctx context.Context,
 	logLevel utils.LogLevel,
 	input *NormalizedAnalyzeProjectInput,
 	stores *projectFileStores,
@@ -303,14 +392,26 @@ func analyzeBatchPrograms(
 	for _, filePath := range filePaths {
 		pending[filePath] = struct{}{}
 	}
+	foundOptions := newCompilerOptionsAccumulator()
 
-	for _, tsconfig := range stores.tsConfigs() {
+	if err := checkAnalysisCancelled(ctx); err != nil {
+		return err
+	}
+
+	for tsconfigIndex := 0; tsconfigIndex < len(stores.tsConfigs()); tsconfigIndex++ {
+		if err := checkAnalysisCancelled(ctx); err != nil {
+			return err
+		}
 		if len(pending) == 0 {
 			break
 		}
-		analyzed, err := analyzeConfiguredProgramFiles(
+
+		tsconfig := stores.tsConfigs()[tsconfigIndex]
+		program, analyzed, err := analyzeConfiguredProgramFiles(
+			ctx,
 			logLevel,
 			input.Config,
+			stores,
 			tsconfig,
 			orderedPendingFiles(filePaths, pending),
 			fsys,
@@ -321,6 +422,10 @@ func analyzeBatchPrograms(
 		if err != nil {
 			return err
 		}
+		if program != nil {
+			foundOptions.add(configuredProgramOptionsForOrphans(program, tsconfig, fsys))
+		}
+		addConfiguredProjectReferences(tsconfig, stores, fsys)
 		for _, filePath := range analyzed {
 			delete(pending, filePath)
 		}
@@ -328,34 +433,43 @@ func analyzeBatchPrograms(
 
 	orphans := orderedPendingFiles(filePaths, pending)
 	if len(orphans) == 0 {
-		return nil
+		return checkAnalysisCancelled(ctx)
 	}
 
 	unmatchedOrphans := orphans
 	if boolValue(input.Config.CreateTSProgramForOrphanFiles, defaultCreateTSProgramForOrphanFiles) {
-		analyzed, err := analyzeInferredProgramFiles(
-			logLevel,
-			input.Config,
-			input.Config.BaseDir,
-			orphans,
-			fsys,
-			rulesForFile,
-			onRuleDiagnostic,
-			onInternalDiagnostic,
-		)
-		if err != nil {
-			return err
+		unmatchedOrphans = nil
+		mergedOptions := foundOptions.merged()
+		for _, group := range groupFilePathsByCompilerOptions(orphans, func(filePath string) *core.CompilerOptions {
+			return buildInferredCompilerOptions(input.Config, mergedOptions, stores.nodeVersionSignalForPath(filePath))
+		}) {
+			analyzed, err := analyzeInferredProgramFiles(
+				ctx,
+				logLevel,
+				input.Config,
+				input.Config.BaseDir,
+				group.filePaths,
+				group.compilerOptions,
+				fsys,
+				rulesForFile,
+				onRuleDiagnostic,
+				onInternalDiagnostic,
+			)
+			if err != nil {
+				return err
+			}
+			unmatchedOrphans = append(unmatchedOrphans, unmatchedFilePaths(group.filePaths, analyzed)...)
 		}
-		unmatchedOrphans = unmatchedFilePaths(orphans, analyzed)
 	} else {
 		log.Printf("Skipping TypeScript program creation for %d orphan file(s)", len(orphans))
 	}
 
 	if len(unmatchedOrphans) == 0 {
-		return nil
+		return checkAnalysisCancelled(ctx)
 	}
 
 	return analyzeSourceFilesWithoutProgram(
+		ctx,
 		logLevel,
 		input.Config,
 		analysisTargetFilesMap(input, stores),
@@ -368,22 +482,37 @@ func analyzeBatchPrograms(
 }
 
 func analyzeIncrementalPrograms(
+	ctx context.Context,
 	logLevel utils.LogLevel,
 	input *NormalizedAnalyzeProjectInput,
 	stores *projectFileStores,
 	fsys vfs.FS,
 	filePaths []string,
+	state *sonarlintState,
 	rulesForFile func(filePath string, detectedEcmaVersion int) []linter.ConfiguredRule,
 	onRuleDiagnostic func(d rule.RuleDiagnostic),
 	onInternalDiagnostic func(d diagnostic.Internal),
 ) error {
 	programCache := make(map[string]*compiler.Program)
-	var orphanProgram *compiler.Program
-	orphanProgramInitialized := false
-	fallbackFiles := make([]string, 0)
+	foundOptions := newCompilerOptionsAccumulator()
+	orphanFiles := make([]string, 0)
 
 	for _, filePath := range filePaths {
-		program, err := incrementalProgramForFile(filePath, stores, fsys, programCache, onInternalDiagnostic)
+		if err := checkAnalysisCancelled(ctx); err != nil {
+			return err
+		}
+
+		program, err := incrementalProgramForFile(
+			ctx,
+			input.Config,
+			filePath,
+			stores,
+			fsys,
+			programCache,
+			foundOptions,
+			state,
+			onInternalDiagnostic,
+		)
 		if err != nil {
 			return err
 		}
@@ -391,6 +520,7 @@ func analyzeIncrementalPrograms(
 			sourceFile := program.GetSourceFile(filePath)
 			if sourceFile != nil {
 				if err := lintSourceFiles(
+					ctx,
 					logLevel,
 					input.Config,
 					program,
@@ -405,45 +535,65 @@ func analyzeIncrementalPrograms(
 			}
 		}
 
-		if !boolValue(input.Config.CreateTSProgramForOrphanFiles, defaultCreateTSProgramForOrphanFiles) {
-			fallbackFiles = append(fallbackFiles, filePath)
-			continue
-		}
-		if !orphanProgramInitialized {
-			orphanProgramInitialized = true
-			var orphanErr error
-			orphanProgram, orphanErr = createInferredProgram(input.Config.BaseDir, filePaths, fsys, onInternalDiagnostic)
-			if orphanErr != nil {
-				return orphanErr
+		orphanFiles = append(orphanFiles, filePath)
+	}
+
+	if len(orphanFiles) == 0 {
+		return checkAnalysisCancelled(ctx)
+	}
+
+	fallbackFiles := append([]string(nil), orphanFiles...)
+	if boolValue(input.Config.CreateTSProgramForOrphanFiles, defaultCreateTSProgramForOrphanFiles) {
+		fallbackFiles = nil
+		mergedOptions := foundOptions.merged()
+		for _, group := range groupFilePathsByCompilerOptions(orphanFiles, func(filePath string) *core.CompilerOptions {
+			return buildInferredCompilerOptions(input.Config, mergedOptions, stores.nodeVersionSignalForPath(filePath))
+		}) {
+			program, _, err := inferredProgramForFile(
+				group.filePaths[0],
+				group.filePaths,
+				input.Config.BaseDir,
+				fsys,
+				nil,
+				nil,
+				group.compilerOptions,
+				state,
+				onInternalDiagnostic,
+			)
+			if err != nil {
+				return err
 			}
-		}
-		if orphanProgram == nil {
-			fallbackFiles = append(fallbackFiles, filePath)
-			continue
-		}
-		sourceFile := orphanProgram.GetSourceFile(filePath)
-		if sourceFile == nil {
-			fallbackFiles = append(fallbackFiles, filePath)
-			continue
-		}
-		if err := lintSourceFiles(
-			logLevel,
-			input.Config,
-			orphanProgram,
-			[]*ast.SourceFile{sourceFile},
-			rulesForFile,
-			onRuleDiagnostic,
-			onInternalDiagnostic,
-		); err != nil {
-			return err
+			if program == nil {
+				fallbackFiles = append(fallbackFiles, group.filePaths...)
+				continue
+			}
+
+			sourceFiles, matchedPaths := programSourceFilesMatchingPaths(program, group.filePaths)
+			if len(sourceFiles) > 0 {
+				if err := lintSourceFiles(
+					ctx,
+					logLevel,
+					input.Config,
+					program,
+					sourceFiles,
+					rulesForFile,
+					onRuleDiagnostic,
+					onInternalDiagnostic,
+				); err != nil {
+					return err
+				}
+			}
+
+			fallbackFiles = append(fallbackFiles, unmatchedFilePaths(group.filePaths, matchedPaths)...)
 		}
 	}
 
 	if len(fallbackFiles) == 0 {
-		return nil
+		return checkAnalysisCancelled(ctx)
 	}
 
 	return analyzeSourceFilesWithoutProgram(
+		ctx,
 		logLevel,
 		input.Config,
 		analysisTargetFilesMap(input, stores),
@@ -456,45 +606,63 @@ func analyzeIncrementalPrograms(
 }
 
 func analyzeConfiguredProgramFiles(
+	ctx context.Context,
 	logLevel utils.LogLevel,
 	analysisConfig NormalizedProjectConfiguration,
+	stores *projectFileStores,
 	configFileName string,
 	filePaths []string,
 	fsys vfs.FS,
 	rulesForFile func(filePath string, detectedEcmaVersion int) []linter.ConfiguredRule,
 	onRuleDiagnostic func(d rule.RuleDiagnostic),
 	onInternalDiagnostic func(d diagnostic.Internal),
-) ([]string, error) {
-	program, err := createConfiguredProgram(configFileName, fsys, onInternalDiagnostic)
+) (*compiler.Program, []string, error) {
+	if err := checkAnalysisCancelled(ctx); err != nil {
+		return nil, nil, err
+	}
+
+	program, err := createConfiguredProgram(
+		analysisConfig,
+		configFileName,
+		stores.nodeVersionSignalForDir(tspath.GetDirectoryPath(configFileName)),
+		fsys,
+		onInternalDiagnostic,
+	)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	if program == nil {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	sourceFiles, matchedPaths := programSourceFilesMatchingPaths(program, filePaths)
 	if len(matchedPaths) == 0 {
-		return nil, nil
+		return program, nil, nil
 	}
 
-	if err := lintSourceFiles(logLevel, analysisConfig, program, sourceFiles, rulesForFile, onRuleDiagnostic, onInternalDiagnostic); err != nil {
-		return nil, err
+	if err := lintSourceFiles(ctx, logLevel, analysisConfig, program, sourceFiles, rulesForFile, onRuleDiagnostic, onInternalDiagnostic); err != nil {
+		return nil, nil, err
 	}
-	return matchedPaths, nil
+	return program, matchedPaths, nil
 }
 
 func analyzeInferredProgramFiles(
+	ctx context.Context,
 	logLevel utils.LogLevel,
 	analysisConfig NormalizedProjectConfiguration,
 	baseDir string,
 	filePaths []string,
+	compilerOptions *core.CompilerOptions,
 	fsys vfs.FS,
 	rulesForFile func(filePath string, detectedEcmaVersion int) []linter.ConfiguredRule,
 	onRuleDiagnostic func(d rule.RuleDiagnostic),
 	onInternalDiagnostic func(d diagnostic.Internal),
 ) ([]string, error) {
-	program, err := createInferredProgram(baseDir, filePaths, fsys, onInternalDiagnostic)
+	if err := checkAnalysisCancelled(ctx); err != nil {
+		return nil, err
+	}
+
+	program, err := createInferredProgram(baseDir, filePaths, compilerOptions, fsys, onInternalDiagnostic)
 	if err != nil {
 		return nil, err
 	}
@@ -507,21 +675,37 @@ func analyzeInferredProgramFiles(
 		return nil, nil
 	}
 
-	if err := lintSourceFiles(logLevel, analysisConfig, program, sourceFiles, rulesForFile, onRuleDiagnostic, onInternalDiagnostic); err != nil {
+	if err := lintSourceFiles(ctx, logLevel, analysisConfig, program, sourceFiles, rulesForFile, onRuleDiagnostic, onInternalDiagnostic); err != nil {
 		return nil, err
 	}
 	return matchedPaths, nil
 }
 
 func createConfiguredProgram(
+	analysisConfig NormalizedProjectConfiguration,
 	configFileName string,
+	nodeVersionSignal string,
 	fsys vfs.FS,
 	onInternalDiagnostic func(d diagnostic.Internal),
 ) (*compiler.Program, error) {
 	currentDirectory := tspath.GetDirectoryPath(configFileName)
 	host := utils.NewCachedFSCompilerHost(currentDirectory, fsys, bundled.LibPath(), nil, nil)
 
-	program, diagnostics, err := utils.CreateProgram(false, fsys, currentDirectory, configFileName, host, false)
+	program, diagnostics, err := utils.CreateProgram(
+		false,
+		fsys,
+		currentDirectory,
+		configFileName,
+		host,
+		false,
+		func(config *tsoptions.ParsedCommandLine) {
+			options := config.CompilerOptions()
+			if options == nil || len(options.Lib) > 0 {
+				return
+			}
+			options.Lib = computedLibFiles(nil, options.Target, nodeVersionSignal)
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -538,6 +722,7 @@ func createConfiguredProgram(
 func createInferredProgram(
 	baseDir string,
 	filePaths []string,
+	compilerOptions *core.CompilerOptions,
 	fsys vfs.FS,
 	onInternalDiagnostic func(d diagnostic.Internal),
 ) (*compiler.Program, error) {
@@ -546,7 +731,7 @@ func createInferredProgram(
 	}
 
 	host := utils.NewCachedFSCompilerHost(baseDir, fsys, bundled.LibPath(), nil, nil)
-	program, diagnostics, err := utils.CreateInferredProjectProgram(false, fsys, baseDir, host, filePaths)
+	program, diagnostics, err := utils.CreateInferredProjectProgram(false, fsys, baseDir, host, filePaths, compilerOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -560,7 +745,154 @@ func createInferredProgram(
 	return program, nil
 }
 
+func reuseConfiguredProgramForFile(
+	filePath string,
+	analysisConfig NormalizedProjectConfiguration,
+	tsconfig string,
+	nodeVersionSignal string,
+	program *compiler.Program,
+	fsys vfs.FS,
+	onInternalDiagnostic func(d diagnostic.Internal),
+) (*compiler.Program, error) {
+	if program == nil {
+		return nil, nil
+	}
+
+	sourceFile := program.GetSourceFile(filePath)
+	if sourceFile == nil {
+		return createConfiguredProgram(analysisConfig, tsconfig, nodeVersionSignal, fsys, onInternalDiagnostic)
+	}
+
+	currentText, ok := fsys.ReadFile(filePath)
+	if !ok || sourceFile.Text() == currentText {
+		return program, nil
+	}
+
+	currentDirectory := tspath.GetDirectoryPath(tsconfig)
+	host := utils.NewCachedFSCompilerHost(currentDirectory, fsys, bundled.LibPath(), nil, nil)
+	updated, reused := program.UpdateProgram(sourceFile.Path(), host)
+	if reused {
+		return updated, nil
+	}
+
+	return createConfiguredProgram(analysisConfig, tsconfig, nodeVersionSignal, fsys, onInternalDiagnostic)
+}
+
+func addConfiguredProjectReferences(
+	tsconfig string,
+	stores *projectFileStores,
+	fsys vfs.FS,
+) {
+	if stores == nil {
+		return
+	}
+
+	currentDirectory := tspath.GetDirectoryPath(tsconfig)
+	host := utils.NewCachedFSCompilerHost(currentDirectory, fsys, bundled.LibPath(), nil, nil)
+	config, diagnostics := tsoptions.GetParsedCommandLineOfConfigFile(
+		tsconfig,
+		&core.CompilerOptions{},
+		nil,
+		host,
+		nil,
+	)
+	if len(diagnostics) > 0 || config == nil {
+		return
+	}
+
+	for _, reference := range config.ResolvedProjectReferencePaths() {
+		if normalized := tspath.NormalizePath(reference); normalized != "" {
+			stores.addDiscoveredTSConfig(normalized)
+		}
+	}
+}
+
+func configuredProgramOptionsForOrphans(
+	program *compiler.Program,
+	tsconfig string,
+	fsys vfs.FS,
+) *core.CompilerOptions {
+	options := cloneCompilerOptions(program.Options())
+	if options == nil {
+		return nil
+	}
+	if configuredProgramHasExplicitLib(tsconfig, fsys) {
+		return options
+	}
+	options.Lib = nil
+	return options
+}
+
+func configuredProgramHasExplicitLib(tsconfig string, fsys vfs.FS) bool {
+	currentDirectory := tspath.GetDirectoryPath(tsconfig)
+	host := utils.NewCachedFSCompilerHost(currentDirectory, fsys, bundled.LibPath(), nil, nil)
+	config, diagnostics := tsoptions.GetParsedCommandLineOfConfigFile(
+		tsconfig,
+		&core.CompilerOptions{},
+		nil,
+		host,
+		nil,
+	)
+	if len(diagnostics) > 0 || config == nil {
+		return false
+	}
+	return len(config.CompilerOptions().Lib) > 0
+}
+
+func inferredProgramForFile(
+	filePath string,
+	allFilePaths []string,
+	baseDir string,
+	fsys vfs.FS,
+	program *compiler.Program,
+	programOptions *core.CompilerOptions,
+	compilerOptions *core.CompilerOptions,
+	state *sonarlintState,
+	onInternalDiagnostic func(d diagnostic.Internal),
+) (*compiler.Program, *core.CompilerOptions, error) {
+	if program == nil && state != nil {
+		program, programOptions = state.getOrphanProgramForFile(filePath, compilerOptions)
+	}
+
+	if program != nil && !compilerOptionsEqual(programOptions, compilerOptions) {
+		program = nil
+		programOptions = nil
+	}
+
+	if program != nil {
+		sourceFile := program.GetSourceFile(filePath)
+		if sourceFile == nil {
+			program = nil
+			programOptions = nil
+		} else if currentText, ok := fsys.ReadFile(filePath); ok && sourceFile.Text() != currentText {
+			host := utils.NewCachedFSCompilerHost(baseDir, fsys, bundled.LibPath(), nil, nil)
+			updated, reused := program.UpdateProgram(sourceFile.Path(), host)
+			if reused {
+				program = updated
+			} else {
+				program = nil
+				programOptions = nil
+			}
+		}
+	}
+
+	if program == nil {
+		var err error
+		program, err = createInferredProgram(baseDir, allFilePaths, compilerOptions, fsys, onInternalDiagnostic)
+		if err != nil {
+			return nil, nil, err
+		}
+		programOptions = cloneCompilerOptions(compilerOptions)
+	}
+
+	if state != nil && program != nil {
+		state.setOrphanProgram(program, programOptions)
+	}
+	return program, programOptions, nil
+}
+
 func lintSourceFiles(
+	ctx context.Context,
 	logLevel utils.LogLevel,
 	analysisConfig NormalizedProjectConfiguration,
 	program *compiler.Program,
@@ -571,6 +903,10 @@ func lintSourceFiles(
 ) error {
 	detectedEcmaVersion := detectedEcmaVersionForProgram(program, analysisConfig)
 	for _, sourceFile := range sourceFiles {
+		if err := checkAnalysisCancelled(ctx); err != nil {
+			return err
+		}
+
 		rules := rulesForFile(sourceFile.FileName(), detectedEcmaVersion)
 		if len(rules) == 0 {
 			continue
@@ -593,6 +929,7 @@ func lintSourceFiles(
 }
 
 func analyzeSourceFilesWithoutProgram(
+	ctx context.Context,
 	logLevel utils.LogLevel,
 	analysisConfig NormalizedProjectConfiguration,
 	analysisFiles map[string]NormalizedProjectFile,
@@ -604,6 +941,10 @@ func analyzeSourceFilesWithoutProgram(
 ) error {
 	detectedEcmaVersion := detectedEcmaVersionForProgram(nil, analysisConfig)
 	for _, filePath := range filePaths {
+		if err := checkAnalysisCancelled(ctx); err != nil {
+			return err
+		}
+
 		rules := runnableWithoutProgramRules(rulesForFile(filePath, detectedEcmaVersion))
 		if len(rules) == 0 {
 			continue
@@ -667,29 +1008,69 @@ func runnableWithoutProgramRules(rules []linter.ConfiguredRule) []linter.Configu
 }
 
 func incrementalProgramForFile(
+	ctx context.Context,
+	analysisConfig NormalizedProjectConfiguration,
 	filePath string,
 	stores *projectFileStores,
 	fsys vfs.FS,
 	cache map[string]*compiler.Program,
+	foundOptions *compilerOptionsAccumulator,
+	state *sonarlintState,
 	onInternalDiagnostic func(d diagnostic.Internal),
 ) (*compiler.Program, error) {
 	attempted := map[string]struct{}{}
 	for {
+		if err := checkAnalysisCancelled(ctx); err != nil {
+			return nil, err
+		}
+
 		tsconfig := pickBestMatchTSConfig(unattemptedTSConfigs(stores.tsConfigs(), attempted), filePath)
 		if tsconfig == "" {
 			return nil, nil
 		}
 		attempted[tsconfig] = struct{}{}
+		nodeVersionSignal := stores.nodeVersionSignalForDir(tspath.GetDirectoryPath(tsconfig))
 
 		program, ok := cache[tsconfig]
+		if !ok && state != nil {
+			program, ok = state.getConfiguredProgram(tsconfig)
+			if ok {
+				cache[tsconfig] = program
+			}
+		}
 		if !ok {
 			var err error
-			program, err = createConfiguredProgram(tsconfig, fsys, onInternalDiagnostic)
+			program, err = createConfiguredProgram(analysisConfig, tsconfig, nodeVersionSignal, fsys, onInternalDiagnostic)
 			if err != nil {
 				return nil, err
 			}
 			cache[tsconfig] = program
+			if state != nil {
+				state.setConfiguredProgram(tsconfig, program)
+			}
+		} else {
+			updatedProgram, err := reuseConfiguredProgramForFile(
+				filePath,
+				analysisConfig,
+				tsconfig,
+				nodeVersionSignal,
+				program,
+				fsys,
+				onInternalDiagnostic,
+			)
+			if err != nil {
+				return nil, err
+			}
+			program = updatedProgram
+			cache[tsconfig] = program
+			if state != nil {
+				state.setConfiguredProgram(tsconfig, program)
+			}
 		}
+		if program != nil {
+			foundOptions.add(configuredProgramOptionsForOrphans(program, tsconfig, fsys))
+		}
+		addConfiguredProjectReferences(tsconfig, stores, fsys)
 		if program != nil && program.GetSourceFile(filePath) != nil {
 			return program, nil
 		}
@@ -741,6 +1122,32 @@ func unmatchedFilePaths(filePaths []string, matchedPaths []string) []string {
 		unmatched = append(unmatched, filePath)
 	}
 	return unmatched
+}
+
+func groupFilePathsByCompilerOptions(
+	filePaths []string,
+	resolve func(filePath string) *core.CompilerOptions,
+) []compilerOptionsGroup {
+	groups := make([]compilerOptionsGroup, 0)
+	for _, filePath := range filePaths {
+		options := resolve(filePath)
+		grouped := false
+		for index := range groups {
+			if compilerOptionsEqual(groups[index].compilerOptions, options) {
+				groups[index].filePaths = append(groups[index].filePaths, filePath)
+				grouped = true
+				break
+			}
+		}
+		if grouped {
+			continue
+		}
+		groups = append(groups, compilerOptionsGroup{
+			filePaths:       []string{filePath},
+			compilerOptions: cloneCompilerOptions(options),
+		})
+	}
+	return groups
 }
 
 func unattemptedTSConfigs(tsconfigs []string, attempted map[string]struct{}) []string {

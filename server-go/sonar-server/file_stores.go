@@ -34,6 +34,7 @@ type projectFileStores struct {
 	DenoJSONCs               map[string]dependencyManifest
 	DependenciesByDir        map[string]map[string]struct{}
 	ModuleTypeByDir          map[string]string
+	NodeVersionSignalByDir   map[string]string
 	DirnameToParent          map[string]string
 	Warnings                 []string
 	usingExplicitSourceFiles bool
@@ -69,6 +70,7 @@ func newProjectFileStores(input *NormalizedAnalyzeProjectInput, filters analyzeP
 		PackageJSONs:             map[string]dependencyManifest{},
 		DenoJSONs:                map[string]dependencyManifest{},
 		DenoJSONCs:               map[string]dependencyManifest{},
+		NodeVersionSignalByDir:   map[string]string{},
 		DirnameToParent:          map[string]string{},
 		usingExplicitSourceFiles: len(input.Files) > 0,
 	}

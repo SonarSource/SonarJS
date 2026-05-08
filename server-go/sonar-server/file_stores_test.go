@@ -174,6 +174,49 @@ func TestInitializeProjectFileStoresMergesParentDependenciesAndUsesClosestModule
 	}
 }
 
+func TestInitializeProjectFileStoresTracksClosestNodeVersionSignal(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	rootPackageJSONPath := tspath.ResolvePath(baseDir, "package.json")
+	legacyPackageJSONPath := tspath.ResolvePath(baseDir, "packages/legacy/package.json")
+	rootSourcePath := tspath.ResolvePath(baseDir, "src/root.ts")
+	inheritedSourcePath := tspath.ResolvePath(baseDir, "packages/inherited/src/file.ts")
+	legacySourcePath := tspath.ResolvePath(baseDir, "packages/legacy/src/file.ts")
+
+	writeTestFile(t, rootPackageJSONPath, `{
+  "devDependencies": { "@types/node": "^22.0.0" }
+}`)
+	writeTestFile(t, legacyPackageJSONPath, `{
+  "engines": { "node": "12.x" }
+}`)
+	writeTestFile(t, rootSourcePath, `export const root = 42;`)
+	writeTestFile(t, inheritedSourcePath, `export const inherited = 42;`)
+	writeTestFile(t, legacySourcePath, `export const legacy = 42;`)
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{BaseDir: baseDir},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	stores, err := initializeProjectFileStores(input, BuildAnalyzeProjectFS(input))
+	if err != nil {
+		t.Fatalf("unexpected store initialization error: %v", err)
+	}
+
+	if got := stores.nodeVersionSignalForPath(rootSourcePath); got != "^22.0.0" {
+		t.Fatalf("expected root node version signal ^22.0.0, got %q", got)
+	}
+	if got := stores.nodeVersionSignalForPath(inheritedSourcePath); got != "^22.0.0" {
+		t.Fatalf("expected inherited node version signal ^22.0.0, got %q", got)
+	}
+	if got := stores.nodeVersionSignalForPath(legacySourcePath); got != "12.x" {
+		t.Fatalf("expected closest node version signal 12.x, got %q", got)
+	}
+}
+
 func TestInitializeProjectFileStoresUsesDenoManifestSignals(t *testing.T) {
 	t.Parallel()
 
@@ -261,6 +304,196 @@ func TestAnalyzeProjectBatchProgramsAlsoAnalyzeOrphans(t *testing.T) {
 	}
 }
 
+func TestAnalyzeProjectBatchOrphanProgramUsesDiscoveredCompilerOptionsForRuleGating(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	tsconfigPath := tspath.ResolvePath(baseDir, "tsconfig.json")
+	includedPath := tspath.ResolvePath(baseDir, "a/included.ts")
+	orphanPath := tspath.ResolvePath(baseDir, "z-orphan.ts")
+	canAccessFileSystem := false
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:             baseDir,
+			CanAccessFileSystem: &canAccessFileSystem,
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			tsconfigPath: {
+				FileContent: stringPtr(`{"compilerOptions":{"strict":true,"lib":["es2015","dom"]},"include":["a/**/*.ts"]}`),
+			},
+			includedPath: {
+				FileContent: stringPtr(`export const value: number = 42;`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+			orphanPath: {
+				FileContent: stringPtr(`new Promise(async resolve => { resolve(1); });`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+		},
+		Rules: []*pb.JsTsRule{{Key: "S6544"}},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[orphanPath].GetIssues()) != 0 {
+		t.Fatalf("expected discovered ES2015 compiler options to filter out S6544 on orphan file, got %#v", results[orphanPath].GetIssues())
+	}
+}
+
+func TestAnalyzeProjectBatchConfiguredProgramUsesClosestNodeVersionSignalForRuleGating(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	rootPackageJSONPath := tspath.ResolvePath(baseDir, "package.json")
+	legacyPackageJSONPath := tspath.ResolvePath(baseDir, "packages/legacy/package.json")
+	legacyTSConfigPath := tspath.ResolvePath(baseDir, "packages/legacy/tsconfig.json")
+	legacyFilePath := tspath.ResolvePath(baseDir, "packages/legacy/src/file.ts")
+	canAccessFileSystem := false
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:             baseDir,
+			CanAccessFileSystem: &canAccessFileSystem,
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			rootPackageJSONPath: {
+				FileContent: stringPtr(`{"devDependencies":{"@types/node":"^22.0.0"}}`),
+			},
+			legacyPackageJSONPath: {
+				FileContent: stringPtr(`{"engines":{"node":"12.x"}}`),
+			},
+			legacyTSConfigPath: {
+				FileContent: stringPtr(`{"compilerOptions":{"strict":true},"include":["src/**/*.ts"]}`),
+			},
+			legacyFilePath: {
+				FileContent: stringPtr(`const x: null | undefined = undefined; const y = x || '';`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+		},
+		Rules: []*pb.JsTsRule{{Key: "S6606"}},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[legacyFilePath].GetIssues()) != 0 {
+		t.Fatalf("expected closest Node 12 signal to filter out S6606, got %#v", results[legacyFilePath].GetIssues())
+	}
+}
+
+func TestAnalyzeProjectBatchOrphanProgramsUsePerPackageNodeVersionSignals(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	rootPackageJSONPath := tspath.ResolvePath(baseDir, "package.json")
+	legacyPackageJSONPath := tspath.ResolvePath(baseDir, "packages/legacy/package.json")
+	tsconfigPath := tspath.ResolvePath(baseDir, "tsconfig.json")
+	includedPath := tspath.ResolvePath(baseDir, "src/included.ts")
+	rootOrphanPath := tspath.ResolvePath(baseDir, "orphans/root.ts")
+	legacyOrphanPath := tspath.ResolvePath(baseDir, "packages/legacy/orphan.ts")
+	canAccessFileSystem := false
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:             baseDir,
+			CanAccessFileSystem: &canAccessFileSystem,
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			rootPackageJSONPath: {
+				FileContent: stringPtr(`{"devDependencies":{"@types/node":"^22.0.0"}}`),
+			},
+			legacyPackageJSONPath: {
+				FileContent: stringPtr(`{"engines":{"node":"12.x"}}`),
+			},
+			tsconfigPath: {
+				FileContent: stringPtr(`{"compilerOptions":{"strict":true},"include":["src/**/*.ts"]}`),
+			},
+			includedPath: {
+				FileContent: stringPtr(`export const included = 42;`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+			rootOrphanPath: {
+				FileContent: stringPtr(`const x: null | undefined = undefined; const y = x || '';`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+			legacyOrphanPath: {
+				FileContent: stringPtr(`const x: null | undefined = undefined; const y = x || '';`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+		},
+		Rules: []*pb.JsTsRule{{Key: "S6606"}},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[rootOrphanPath].GetIssues()) != 1 {
+		t.Fatalf("expected root orphan to keep S6606 enabled, got %#v", results[rootOrphanPath].GetIssues())
+	}
+	if len(results[legacyOrphanPath].GetIssues()) != 0 {
+		t.Fatalf("expected legacy orphan Node 12 signal to filter out S6606, got %#v", results[legacyOrphanPath].GetIssues())
+	}
+}
+
+func TestAnalyzeProjectBatchProcessesReferencedPropertyTSConfigsDuringIteration(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	solutionTSConfig := tspath.ResolvePath(baseDir, "tsconfig.solution.json")
+	projectTSConfig := tspath.ResolvePath(baseDir, "packages/app/tsconfig.json")
+	sourcePath := tspath.ResolvePath(baseDir, "packages/app/src/main.ts")
+	canAccessFileSystem := false
+	createTsProgramForOrphanFiles := false
+	source := "const arr: number[] = []; delete arr[0];"
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:                       baseDir,
+			CanAccessFileSystem:           &canAccessFileSystem,
+			CreateTsProgramForOrphanFiles: &createTsProgramForOrphanFiles,
+			TsConfigPaths:                 []string{solutionTSConfig},
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			solutionTSConfig: {
+				FileContent: stringPtr(`{"files":[],"references":[{"path":"./packages/app"}]}`),
+			},
+			projectTSConfig: {
+				FileContent: stringPtr(`{"compilerOptions":{"composite":true,"strict":true},"include":["src/**/*.ts"]}`),
+			},
+			sourcePath: {
+				FileContent: stringPtr(source),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+		},
+		Rules: []*pb.JsTsRule{{Key: "S2870"}},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[sourcePath].GetIssues()) != 1 {
+		t.Fatalf("expected one issue for referenced tsconfig-managed file, got %#v", results[sourcePath].GetIssues())
+	}
+}
+
 func TestAnalyzeProjectSonarLintProgramsAlsoAnalyzeOrphans(t *testing.T) {
 	t.Parallel()
 
@@ -306,6 +539,110 @@ func TestAnalyzeProjectSonarLintProgramsAlsoAnalyzeOrphans(t *testing.T) {
 	}
 	if len(results[orphanPath].GetIssues()) != 1 {
 		t.Fatalf("expected one issue for SonarLint orphan file, got %#v", results[orphanPath].GetIssues())
+	}
+}
+
+func TestAnalyzeProjectSonarLintOrphanProgramUsesDiscoveredCompilerOptionsForRuleGating(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	tsconfigPath := tspath.ResolvePath(baseDir, "tsconfig.json")
+	includedPath := tspath.ResolvePath(baseDir, "a/included.ts")
+	orphanPath := tspath.ResolvePath(baseDir, "z-orphan.ts")
+	canAccessFileSystem := false
+	sonarLint := true
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:             baseDir,
+			CanAccessFileSystem: &canAccessFileSystem,
+			Sonarlint:           &sonarLint,
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			tsconfigPath: {
+				FileContent: stringPtr(`{"compilerOptions":{"strict":true,"lib":["es2015","dom"]},"include":["a/**/*.ts"]}`),
+			},
+			includedPath: {
+				FileContent: stringPtr(`export const value: number = 42;`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+			orphanPath: {
+				FileContent: stringPtr(`new Promise(async resolve => { resolve(1); });`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+		},
+		Rules: []*pb.JsTsRule{{Key: "S6544"}},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[orphanPath].GetIssues()) != 0 {
+		t.Fatalf("expected SonarLint orphan program to inherit discovered ES2015 compiler options and filter out S6544, got %#v", results[orphanPath].GetIssues())
+	}
+}
+
+func TestAnalyzeProjectSonarLintOrphanProgramsUsePerPackageNodeVersionSignals(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	rootPackageJSONPath := tspath.ResolvePath(baseDir, "package.json")
+	legacyPackageJSONPath := tspath.ResolvePath(baseDir, "packages/legacy/package.json")
+	tsconfigPath := tspath.ResolvePath(baseDir, "tsconfig.json")
+	includedPath := tspath.ResolvePath(baseDir, "src/included.ts")
+	rootOrphanPath := tspath.ResolvePath(baseDir, "orphans/root.ts")
+	legacyOrphanPath := tspath.ResolvePath(baseDir, "packages/legacy/orphan.ts")
+	canAccessFileSystem := false
+	sonarLint := true
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:             baseDir,
+			CanAccessFileSystem: &canAccessFileSystem,
+			Sonarlint:           &sonarLint,
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			rootPackageJSONPath: {
+				FileContent: stringPtr(`{"devDependencies":{"@types/node":"^22.0.0"}}`),
+			},
+			legacyPackageJSONPath: {
+				FileContent: stringPtr(`{"engines":{"node":"12.x"}}`),
+			},
+			tsconfigPath: {
+				FileContent: stringPtr(`{"compilerOptions":{"strict":true},"include":["src/**/*.ts"]}`),
+			},
+			includedPath: {
+				FileContent: stringPtr(`export const included = 42;`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+			rootOrphanPath: {
+				FileContent: stringPtr(`const x: null | undefined = undefined; const y = x || '';`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+			legacyOrphanPath: {
+				FileContent: stringPtr(`const x: null | undefined = undefined; const y = x || '';`),
+				FileType:    pb.FileType_FILE_TYPE_MAIN,
+			},
+		},
+		Rules: []*pb.JsTsRule{{Key: "S6606"}},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[rootOrphanPath].GetIssues()) != 1 {
+		t.Fatalf("expected SonarLint root orphan to keep S6606 enabled, got %#v", results[rootOrphanPath].GetIssues())
+	}
+	if len(results[legacyOrphanPath].GetIssues()) != 0 {
+		t.Fatalf("expected SonarLint legacy orphan Node 12 signal to filter out S6606, got %#v", results[legacyOrphanPath].GetIssues())
 	}
 }
 

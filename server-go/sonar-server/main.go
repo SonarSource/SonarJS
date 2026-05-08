@@ -24,7 +24,10 @@ func main() {
 	}
 
 	s := grpc.NewServer()
-	pb.RegisterAnalyzeProjectServiceServer(s, NewAnalyzerService())
+	pb.RegisterAnalyzeProjectServiceServer(s, NewAnalyzerServiceWithShutdown(func(reason string) {
+		log.Printf("Analyze-project lease shutdown requested: %s", reason)
+		s.Stop()
+	}))
 
 	log.Printf("jsts-go gRPC server listening on port %d", *port)
 	if err := s.Serve(lis); err != nil {
