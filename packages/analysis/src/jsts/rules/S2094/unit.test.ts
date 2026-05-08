@@ -62,15 +62,17 @@ describe('S2094 upstream sentinel', () => {
           errors: 1, // this.* inside for...in loop — suppressed by decorator, raised by upstream
         },
         {
-          code: `class DataStore {
-  constructor(items) {
-    items.forEach(item => {
-      this[item.key] = item.value;
-    });
+          code: `class SafeContainer {
+  constructor(source) {
+    try {
+      this.value = source.value;
+    } catch (e) {
+      this.value = null;
+    }
   }
 }`,
           options,
-          errors: 1, // this.* inside arrow callback — suppressed by decorator, raised by upstream
+          errors: 1, // this.* inside try/catch — suppressed by decorator, raised by upstream
         },
       ],
     });
@@ -153,17 +155,6 @@ describe('S2094', () => {
           options,
         },
         {
-          // Compliant: this.* inside arrow function (arrow preserves constructor `this`)
-          code: `class DataStore {
-  constructor(items) {
-    items.forEach(item => {
-      this[item.key] = item.value;
-    });
-  }
-}`,
-          options,
-        },
-        {
           // Compliant: static members allowed by config
           code: `class Utils {
   static helper() { return 42; }
@@ -194,6 +185,18 @@ describe('S2094', () => {
     items.forEach(function(item) {
       this.value = item;
     });
+  }
+}`,
+          options,
+          errors: 1,
+        },
+        {
+          // Noncompliant: this.* inside deferred arrow callback
+          code: `class DeferredInit {
+  constructor() {
+    setTimeout(() => {
+      this.value = 1;
+    }, 0);
   }
 }`,
           options,

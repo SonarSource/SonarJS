@@ -20,6 +20,7 @@ import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { Node } from 'estree';
 import { childrenOf } from '../helpers/ancestor.js';
+import { isFunctionNode } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
@@ -83,11 +84,9 @@ function hasThisPropertyAssignmentInConstructor(
 }
 
 function walkForThisAssignment(node: Node, visitorKeys: SourceCode.VisitorKeys): boolean {
-  // Stop at regular function boundaries — assignments in nested functions don't count as
-  // constructor-level initialization. Arrow functions are intentionally excluded from this
-  // stop condition: they preserve the enclosing `this` binding, so `this.x = y` inside an
-  // arrow callback still initializes the class instance, just like a loop body would.
-  if (node.type === 'FunctionExpression' || node.type === 'FunctionDeclaration') {
+  // Stop at function boundaries: assignments in callbacks do not count as direct
+  // constructor-level state initialization.
+  if (isFunctionNode(node)) {
     return false;
   }
 
