@@ -15,9 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Rule } from 'eslint';
+import type estree from 'estree';
 import { DefaultParserRuleTester, RuleTester } from '../../tools/testers/rule-tester.js';
 import { isRequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
 import {
+  findComponentNode,
+  getComponentVariable,
   getComponentPropsType,
   isReactComponentSuperclass,
 } from '../../../../src/jsts/rules/helpers/react.js';
@@ -93,27 +96,77 @@ const propsTypeRule: Rule.RuleModule = {
     }
 
     const checker = services.program.getTypeChecker();
-    type ComponentDeclarationNode =
-      | Parameters<NonNullable<Rule.RuleListener['FunctionDeclaration']>>[0]
-      | Parameters<NonNullable<Rule.RuleListener['ClassDeclaration']>>[0];
-
-    const validateComponentPropsType = (node: ComponentDeclarationNode) => {
-      if (!node.id) {
-        return;
-      }
-
-      const propsType = getComponentPropsType(node, services);
-      if (checker.typeToString(propsType ?? checker.getNeverType()) !== `${node.id.name}Props`) {
+    const validateComponentPropsType = (
+      componentNode: estree.Node,
+      expectedName: string,
+      reportNode: estree.Node,
+    ) => {
+      const propsType = getComponentPropsType(componentNode, services);
+      if (checker.typeToString(propsType ?? checker.getNeverType()) !== `${expectedName}Props`) {
         context.report({
-          node,
+          node: reportNode,
           messageId: 'unresolvedComponentPropsType',
         });
       }
     };
 
     return {
-      FunctionDeclaration: validateComponentPropsType,
-      ClassDeclaration: validateComponentPropsType,
+      FunctionDeclaration(node) {
+        if (node.id) {
+          validateComponentPropsType(node, node.id.name, node);
+        }
+      },
+      ClassDeclaration(node) {
+        if (node.id) {
+          validateComponentPropsType(node, node.id.name, node);
+        }
+      },
+      VariableDeclarator(node) {
+        if (
+          node.id.type !== 'Identifier' ||
+          (node.init?.type !== 'ArrowFunctionExpression' &&
+            node.init?.type !== 'FunctionExpression')
+        ) {
+          return;
+        }
+
+        validateComponentPropsType(node.init, node.id.name, node);
+      },
+    };
+  },
+};
+
+const findComponentNodeRule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      unresolvedComponentOwner: 'Component owner could not be resolved from the props type',
+    },
+  },
+  create(context: Rule.RuleContext) {
+    const services = context.sourceCode.parserServices;
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
+
+    const validateComponentOwner = (reportedNode: estree.Node, expectedName: string) => {
+      const componentNode = findComponentNode(reportedNode, context);
+      const componentName = componentNode
+        ? getComponentVariable(context.sourceCode, componentNode)?.name
+        : undefined;
+      if (componentName !== expectedName) {
+        context.report({
+          node: reportedNode,
+          messageId: 'unresolvedComponentOwner',
+        });
+      }
+    };
+
+    return {
+      TSPropertySignature(node) {
+        if (node.key.type === 'Identifier' && node.key.name === 'label') {
+          validateComponentOwner(node.key, 'Button');
+        }
+      },
     };
   },
 };
@@ -159,6 +212,39 @@ class Button extends React.Component {
 }
 `,
     },
+    {
+      code: `
+import * as React from 'react';
+
+interface ButtonProps {
+  label: string;
+}
+
+const Button: React.FC<ButtonProps> = props => props.label;
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+interface ButtonProps {
+  label: string;
+}
+
+const Button: React.FC<ButtonProps> & { Group?: string } = props => props.label;
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+interface ButtonProps {
+  label: string;
+}
+
+const Button: React.ForwardRefRenderFunction<unknown, ButtonProps> = (props, ref) => props.label;
+`,
+    },
   ],
   invalid: [
     {
@@ -169,6 +255,56 @@ class Button extends React.Component {
     return <div />;
   }
 }
+`,
+      errors: 1,
+    },
+  ],
+});
+
+typeCheckingRuleTester.run('findComponentNode', findComponentNodeRule, {
+  valid: [
+    {
+      code: `
+import * as React from 'react';
+
+interface ButtonProps {
+  label: string;
+}
+
+const Button: React.FC<ButtonProps> = props => props.label;
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+interface ButtonProps {
+  label: string;
+}
+
+const Button: React.FC<ButtonProps> & { Group?: string } = props => props.label;
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+interface ButtonProps {
+  label: string;
+}
+
+const Button: React.ForwardRefRenderFunction<unknown, ButtonProps> = (props, ref) => props.label;
+`,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+interface ButtonProps {
+  label: string;
+}
+
+const renderButton = (props: ButtonProps) => props.label;
 `,
       errors: 1,
     },

@@ -45,6 +45,8 @@ type SourceCache = {
 type ReactNonPropsTypeUsage = 'mixed' | 'non-props' | 'other';
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 const REACT_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
+const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
+const REACT_FORWARD_REF_RENDER_FUNCTION_TYPES = new Set(['ForwardRefRenderFunction']);
 
 /**
  * Given a reported AST node (e.g., a prop name inside an interface/propTypes),
@@ -139,7 +141,9 @@ export function getComponentVariable(
  * For function components, this is the type of the first parameter. For class
  * components, the helper first prefers the explicit `React.Component<Props>`
  * type argument and falls back to the shared resolver for the `props` instance
- * property type.
+ * property type. For typed function expressions assigned to variables, it also
+ * falls back to the variable's declared React wrapper type when contextual
+ * typing causes the parameter to resolve to `any` or `unknown`.
  *
  * Returns `undefined` for unsupported nodes or when the component does not
  * expose a statically recoverable props type.
@@ -159,7 +163,11 @@ export function getComponentPropsType(
     componentNode.type === 'ArrowFunctionExpression'
   ) {
     const firstParam = componentNode.params[0];
-    return firstParam ? getTypeFromTreeNode(firstParam, services) : undefined;
+    const propsType = firstParam ? getTypeFromTreeNode(firstParam, services) : undefined;
+    if (isSpecificPropsType(propsType)) {
+      return propsType;
+    }
+    return getTypedVariableComponentPropsType(componentNode, services);
   }
 
   if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
@@ -170,6 +178,67 @@ export function getComponentPropsType(
     componentNode as TSESTree.Node,
   ) as ts.ClassLikeDeclaration;
   return getDeclaredClassPropsType(tsNode, checker) ?? getClassPropsPropertyType(tsNode, checker);
+}
+
+function isSpecificPropsType(type: ts.Type | undefined): type is ts.Type {
+  return !!type && (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) === 0;
+}
+
+function getTypedVariableComponentPropsType(
+  componentNode: estree.Node,
+  services: RequiredParserServices,
+): ts.Type | undefined {
+  const parent = getNodeParent(componentNode);
+  if (parent?.type !== 'VariableDeclarator' || parent.id.type !== 'Identifier') {
+    return undefined;
+  }
+
+  const declaredType = parent.id.typeAnnotation?.typeAnnotation;
+  if (!declaredType) {
+    return undefined;
+  }
+
+  const propsTypeNode = findDeclaredFunctionComponentPropsType(declaredType);
+  return propsTypeNode ? getTypeFromTreeNode(propsTypeNode, services) : undefined;
+}
+
+function findDeclaredFunctionComponentPropsType(
+  typeNode: TSESTree.TypeNode,
+): TSESTree.TypeNode | undefined {
+  if (typeNode.type === 'TSIntersectionType') {
+    for (const type of typeNode.types) {
+      const propsType = findDeclaredFunctionComponentPropsType(type);
+      if (propsType) {
+        return propsType;
+      }
+    }
+    return undefined;
+  }
+
+  if (typeNode.type === 'TSParenthesizedType') {
+    return findDeclaredFunctionComponentPropsType(typeNode.typeAnnotation);
+  }
+
+  if (typeNode.type !== 'TSTypeReference') {
+    return undefined;
+  }
+
+  const typeName = getRightmostTypeName(typeNode.typeName);
+  const typeArguments = typeNode.typeArguments?.params ?? [];
+
+  if (typeName && REACT_FUNCTION_COMPONENT_TYPES.has(typeName)) {
+    return typeArguments[0];
+  }
+
+  if (typeName && REACT_FORWARD_REF_RENDER_FUNCTION_TYPES.has(typeName)) {
+    return typeArguments[1];
+  }
+
+  return undefined;
+}
+
+function getRightmostTypeName(typeName: TSESTree.TSEntityName): string | undefined {
+  return typeName.type === 'Identifier' ? typeName.name : typeName.right.name;
 }
 
 /**
@@ -390,17 +459,15 @@ function findOwnerByType(
 
   // Step 5: find the first component whose props type is mutually assignable to `propsType`.
   for (const componentNode of componentNodes) {
-    const tsNode = services.esTreeNodeToTSNodeMap.get(
-      componentNode as TSESTree.Node,
-    ) as ts.Declaration;
     if (componentNode.type === 'ClassDeclaration' || componentNode.type === 'ClassExpression') {
+      const tsNode = services.esTreeNodeToTSNodeMap.get(
+        componentNode as TSESTree.Node,
+      ) as ts.ClassLikeDeclaration;
       if (matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, propsType)) {
         sourceCache.ownerByTypeDecl.set(typeDecl, componentNode);
         return componentNode;
       }
-    } else if (
-      matchesFunctionProps(componentNode, tsNode as ts.SignatureDeclaration, checker, propsType)
-    ) {
+    } else if (matchesFunctionProps(componentNode, services, checker, propsType)) {
       sourceCache.ownerByTypeDecl.set(typeDecl, componentNode);
       return componentNode;
     }
@@ -588,12 +655,12 @@ function matchesClassProps(
 }
 
 /**
- * Returns `true` when the function component's first parameter type is mutually
+ * Returns `true` when the function component's resolved props type is mutually
  * assignable to `propsType`.
  *
- * For a function component `function Foo(props: FooProps)`, we inspect the type of
- * its first parameter via the TypeScript checker and compare it with the candidate
- * `propsType`.
+ * This delegates to `getComponentPropsType` so Strategy C shares the same props
+ * recovery logic used elsewhere, including fallbacks for contextually typed
+ * function expressions such as `const Foo: React.FC<Props> = props => ...`.
  *
  * **PascalCase guard:** React components are conventionally PascalCase.  If the function
  * has a resolvable name that starts with a lowercase letter, it is almost certainly a
@@ -607,7 +674,7 @@ function matchesClassProps(
  */
 function matchesFunctionProps(
   componentNode: estree.Node,
-  tsFuncNode: ts.SignatureDeclaration,
+  services: RequiredParserServices,
   checker: ts.TypeChecker,
   propsType: ts.Type,
 ): boolean {
@@ -616,13 +683,7 @@ function matchesFunctionProps(
   if (!isPascalCaseFunctionComponent(componentNode)) {
     return false;
   }
-  const signature = checker.getSignatureFromDeclaration(tsFuncNode);
-  const firstParam = signature?.parameters[0];
-  if (firstParam == null) {
-    // Function has no parameters — cannot be a props-consuming component.
-    return false;
-  }
-  const componentParamType = checker.getTypeOfSymbol(firstParam);
+  const componentParamType = getComponentPropsType(componentNode, services);
   return areMutuallyAssignableTypes(checker, propsType, componentParamType);
 }
 
