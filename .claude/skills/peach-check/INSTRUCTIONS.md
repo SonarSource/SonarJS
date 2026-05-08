@@ -69,29 +69,49 @@ not usable for release triage. Recommend a rerun and do not classify jobs from t
 
 ### 2. Collect project jobs
 
-Fetch the paginated run jobs. Do not use `gh run view --json jobs` for Peach Main Analysis
-because the matrix is large.
+Create the output directory first because the paginated run response is written via shell
+redirection:
 
 ```bash
-gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100" --paginate > target/jobs.json
+mkdir -p target
 ```
 
-Merge the paginated responses before querying them:
+Fetch the paginated run jobs. Do not use `gh run view --json jobs` for Peach Main Analysis
+because the matrix is large. The paginated output is newline-delimited top-level JSON documents,
+not a single JSON array, so store it with an `.ndjson` name and always read it with `jq -s`.
+
+```bash
+gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100" --paginate > target/jobs-pages.ndjson
+```
+
+Merge the paginated responses before querying them and carry the expected job count forward from
+the first page:
 
 ```bash
 jq -s '
   {
+    expected_total: (.[0].total_count // 0),
     total_jobs: (map(.jobs | length) | add),
     failed_jobs: (map([.jobs[] | select(.conclusion == "failure")] | length) | add),
     jobs: (map(.jobs) | add)
   }
-' target/jobs.json > target/jobs-merged.json
+' target/jobs-pages.ndjson > target/jobs-merged.json
 ```
 
-Sanity-check the merged total before trusting it. Compare `total_jobs` from
-`target/jobs-merged.json` with `.total_count` from the first API response in `target/jobs.json`.
-If the merged file still contains only the first 100 jobs even though `total_count` is larger,
-fetch `?page=N` responses explicitly and rebuild `target/jobs-merged.json` before continuing.
+Sanity-check the merged total before trusting it:
+
+```bash
+jq '
+  {
+    expected_total,
+    total_jobs,
+    counts_match: (.expected_total == .total_jobs)
+  }
+' target/jobs-merged.json
+```
+
+If `counts_match` is `false` and `expected_total` is larger than `total_jobs`, fetch `?page=N`
+responses explicitly and rebuild `target/jobs-merged.json` before continuing.
 
 Immediately exclude workflow-only jobs such as `prepare-project-matrix` and
 `diff-validation-aggregated` by building a single analyzed-job set first:
@@ -110,6 +130,23 @@ jq '
   }
 ' target/jobs-merged.json > target/analyzed-jobs.json
 ```
+
+Record the exclusion counts immediately so the final summary can reuse them mechanically:
+
+```bash
+jq '
+  {
+    excluded_workflow_jobs: ([.jobs[] | select(
+      .name == "prepare-project-matrix" or
+      .name == "diff-validation-aggregated"
+    )] | length),
+    excluded_project_jobs: 0
+  }
+' target/jobs-merged.json > target/exclusion-counts.json
+```
+
+If you intentionally exclude any real project scans beyond those two workflow jobs, replace
+`excluded_project_jobs: 0` with the count from that additional exclusion filter and mention why.
 
 For excluded jobs:
 
@@ -209,6 +246,24 @@ Interpret the helper statuses like this:
 - `ERROR` → treat as `NEEDS-MANUAL-REVIEW`; describe it as "analysis-consistency check failed for
   this project"
 
+Use this query to isolate the history rows that block the clean early exit:
+
+```bash
+jq '
+  [.rows[] | select(
+    .status != "OK" and
+    .status != "INSUFFICIENT_HISTORY" and
+    (
+      .status != "UNRESOLVED_PROJECT" or
+      (
+        .source_job_name != "prepare-project-matrix" and
+        .source_job_name != "diff-validation-aggregated"
+      )
+    )
+  )]
+' target/peach-issue-history.json
+```
+
 Each `DROP` finding should include:
 
 - SonarQube project key
@@ -224,17 +279,19 @@ Treat `threshold-abs` only as a small-project noise floor. The practical trigger
 
 ### 4. Early exit if no failures and the analysis state looks consistent
 
-If there are no failed jobs after exclusions and the consistency check found only `OK` or
-`INSUFFICIENT_HISTORY` rows, report the run as safe, include the exclusion counts plus the
-consistency summary, and stop.
+This is the normal green path. If `target/failed-jobs.json` reports `0` failed jobs and the
+problematic-history query above returns `[]`, stop here: Sections 5 through 9 do not apply.
+Report the run as safe, include the exclusion counts plus the consistency summary, and stop.
 
 If any project is `DROP`, `STALE`, non-excluded `UNRESOLVED_PROJECT`, or `ERROR`, do not call the
 run safe even if the GitHub workflow has no failed project jobs.
 
+If one or more failed jobs remain after exclusions, continue to Section 5.
+
 ### 5. Read the classification guide
 
-Read `docs/peach-main-analysis.md` once before classifying jobs. Use the guide's flowchart and
-failure categories as the source of truth.
+Read `docs/peach-main-analysis.md` once before classifying the jobs that made it past the early
+exit. Use the guide's flowchart and failure categories as the source of truth.
 
 ### 6. Watch for mass failure
 
