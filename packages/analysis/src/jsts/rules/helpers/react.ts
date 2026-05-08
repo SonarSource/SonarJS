@@ -22,7 +22,11 @@ import { childrenOf, getNodeParent } from './ancestor.js';
 import { isIdentifier } from './ast.js';
 import { getFullyQualifiedName } from './module.js';
 import { isRequiredParserServices, type RequiredParserServices } from './parser-services.js';
-import { areMutuallyAssignableTypes, getTypeFromTreeNode } from './type.js';
+import {
+  areMutuallyAssignableTypes,
+  areSameTypeDeclarations,
+  getTypeFromTreeNode,
+} from './type.js';
 
 const COMPONENT_NODE_TYPES = new Set([
   'ClassDeclaration',
@@ -35,6 +39,7 @@ const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclar
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
   ownerByTypeDecl: WeakMap<estree.Node, estree.Node | null>;
+  reactNonPropsTypeDecl: WeakMap<estree.Node, boolean>;
 };
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 const REACT_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
@@ -166,6 +171,31 @@ export function getComponentPropsType(
 }
 
 /**
+ * Returns true when the reported node belongs to a TypeScript type declaration that is
+ * used as a non-props generic argument of a React class component, such as:
+ * - `React.Component<Props, State>`
+ * - `React.Component<Props, State, Snapshot>`
+ *
+ * These declarations are not props contracts, so `react/no-unused-prop-types` reports
+ * on them are false positives and should be suppressed conservatively.
+ *
+ * @param node the reported node located inside a TypeScript type declaration
+ * @param context the current ESLint rule context
+ * @returns `true` when the declaration is used as a non-props React class type
+ */
+export function isUsedAsReactComponentNonPropsType(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  const ancestors = context.sourceCode.getAncestors(node);
+  return isReactComponentNonPropsTypeDeclaration(
+    ancestors,
+    context,
+    context.sourceCode.visitorKeys,
+  );
+}
+
+/**
  * Returns true when an ESTree superclass expression resolves to one of React's
  * built-in component base classes.
  *
@@ -284,6 +314,23 @@ function getClassPropsPropertyType(
   return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
 }
 
+function getDeclaredClassNonPropsTypes(
+  classNode: ts.ClassLikeDeclaration,
+  checker: ts.TypeChecker,
+): ts.Type[] {
+  const extendsClause = classNode.heritageClauses?.find(
+    clause => clause.token === ts.SyntaxKind.ExtendsKeyword,
+  );
+  const reactSuperclass = extendsClause?.types.find(type =>
+    isReactComponentHeritageSuperclass(type),
+  );
+  return (
+    reactSuperclass?.typeArguments
+      ?.slice(1)
+      .map(typeArgument => checker.getTypeAtLocation(typeArgument)) ?? []
+  );
+}
+
 /**
  * Strategy C: use the TypeScript type checker to find which React component owns a given
  * props type declaration (`interface FooProps` or `type FooProps = ...`).
@@ -313,13 +360,7 @@ function findOwnerByType(
   // Step 1: locate the nearest enclosing TypeScript type declaration in the ancestor chain.
   // The reported node (e.g. a prop name) lives inside `interface FooProps { ... }` or
   // `type FooProps = { ... }` — we need that declaration node to look up its TS type.
-  let typeDecl: estree.Node | undefined;
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    if (TS_TYPE_DECL_TYPES.has(ancestors[i].type)) {
-      typeDecl = ancestors[i];
-      break;
-    }
-  }
+  const typeDecl = findEnclosingTypeDeclaration(ancestors);
   if (!typeDecl) {
     // Not inside a type declaration — Strategy C cannot apply.
     return undefined;
@@ -373,10 +414,64 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
     cache = {
       componentNodes: undefined,
       ownerByTypeDecl: new WeakMap<estree.Node, estree.Node | null>(),
+      reactNonPropsTypeDecl: new WeakMap<estree.Node, boolean>(),
     };
     perSourceCache.set(sourceCode, cache);
   }
   return cache;
+}
+
+function isReactComponentNonPropsTypeDeclaration(
+  ancestors: estree.Node[],
+  context: Rule.RuleContext,
+  keys: SourceCode.VisitorKeys,
+): boolean {
+  const services = context.sourceCode.parserServices;
+  if (!isRequiredParserServices(services)) {
+    return false;
+  }
+
+  const typeDecl = findEnclosingTypeDeclaration(ancestors);
+  if (!typeDecl) {
+    return false;
+  }
+
+  const sourceCache = getSourceCache(context.sourceCode);
+  const cached = sourceCache.reactNonPropsTypeDecl.get(typeDecl);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const checker = services.program.getTypeChecker();
+  const candidateType = getTypeFromTreeNode(typeDecl, services);
+  const componentNodes =
+    sourceCache.componentNodes ??
+    (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
+
+  const isNonPropsType = componentNodes.some(componentNode => {
+    if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
+      return false;
+    }
+
+    const tsNode = services.esTreeNodeToTSNodeMap.get(
+      componentNode as TSESTree.Node,
+    ) as ts.ClassLikeDeclaration;
+    return getDeclaredClassNonPropsTypes(tsNode, checker).some(nonPropsType =>
+      areSameTypeDeclarations(checker, candidateType, nonPropsType),
+    );
+  });
+
+  sourceCache.reactNonPropsTypeDecl.set(typeDecl, isNonPropsType);
+  return isNonPropsType;
+}
+
+function findEnclosingTypeDeclaration(ancestors: estree.Node[]): estree.Node | undefined {
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    if (TS_TYPE_DECL_TYPES.has(ancestors[i].type)) {
+      return ancestors[i];
+    }
+  }
+  return undefined;
 }
 
 /**

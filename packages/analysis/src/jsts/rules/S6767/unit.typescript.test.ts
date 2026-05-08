@@ -189,6 +189,30 @@ class ForwardedOnlyPanel extends CounterPanelBase {
           filename: fixtureFile,
         },
         {
+          // FP: upstream can misreport the second React class type parameter when a
+          // third type parameter is also present. The decorator suppresses these
+          // non-props generic declarations explicitly.
+          code: `
+declare const React: any;
+interface AnchorState {
+  activeLink: null | string;
+}
+interface AnchorProps {
+  href?: string;
+}
+interface AnchorSnapshot {
+  scrollTop: number;
+}
+class Anchor extends React.Component<AnchorProps, AnchorState, AnchorSnapshot> {
+  render() {
+    const { activeLink } = this.state;
+    return <a href={this.props.href}>{activeLink}</a>;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: decorator-factory callback uses props
           code: `
 declare const React: any;

@@ -20,7 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { findComponentNode } from '../helpers/react.js';
+import { findComponentNode, isUsedAsReactComponentNonPropsType } from '../helpers/react.js';
 import { hasOwnCustomSuperclassPropsForwarding } from './custom-superclass-forwarding.js';
 import { hasDecoratorPropUsage } from './decorator-indirect-prop-usage.js';
 import { hasForwardRefCallbackPropUsage } from './forward-ref-indirect-prop-usage.js';
@@ -30,6 +30,7 @@ import { hasSupportedWholePropsUsage } from './whole-props-usage.js';
 /**
  * Decorates `react/no-unused-prop-types` with SonarJS-specific false-positive
  * remediations for indirect props usage patterns:
+ * - React class state/snapshot type declarations misreported as props by upstream
  * - supported whole-props handoff patterns
  * - forwarding to a custom non-React superclass
  * - `forwardRef` callbacks that close over the component props binding
@@ -40,6 +41,14 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
     { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
       const { node, data } = descriptor as { node: estree.Node; data?: Record<string, string> };
+
+      // FP remediation escape 0:
+      // upstream can misreport React class non-props generic declarations such as
+      // state or snapshot types as unused props; these declarations are never props contracts.
+      if (isUsedAsReactComponentNonPropsType(node, context)) {
+        return;
+      }
+
       const componentNode = findComponentNode(node, context);
       const propName = data?.name;
 
