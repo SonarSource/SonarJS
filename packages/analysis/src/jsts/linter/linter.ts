@@ -52,7 +52,7 @@ import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js
 import type { FileType } from '../../contracts/file.js';
 import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/deno.js';
-import { Minimatch } from 'minimatch';
+import type { DependenciesList } from '../rules/helpers/dependency-manifests/resolvers/types.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -269,9 +269,7 @@ export class Linter {
     const normalizedFilePath = normalizeToAbsolutePath(filePath);
     const detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
     getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
-    const manifestDependencies = new Set(
-      getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir).keys(),
-    );
+    const manifestDependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
     const linterConfigKey = createLinterConfigKey(
       filePath,
       Linter.baseDir,
@@ -284,21 +282,22 @@ export class Linter {
     let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
     let dependencySensitiveRules = Linter.dependencySensitiveRulesCache.get(linterConfigKey);
 
+    const baseContext = {
+      extensionName: extname(normalizePath(filePath)),
+      fileType,
+      fileLanguage,
+      analysisMode,
+      detectedEsYear,
+      detectedModuleType,
+    };
+
     if (baseRules === undefined || dependencySensitiveRules === undefined) {
       /**
        * Creates the wrapper's linting configurations
        * The wrapper's linting configuration includes multiple ESLint
        * configurations: one per fileType/language/analysisMode combination.
        */
-      const context: RuleFilterContext = {
-        extensionName: extname(normalizePath(filePath)),
-        fileType,
-        fileLanguage,
-        analysisMode,
-        detectedEsYear,
-        detectedModuleType,
-        dependencies: manifestDependencies,
-      };
+      const context: RuleFilterContext = { ...baseContext, dependencies: manifestDependencies };
       // Partition rules into dependency-independent rules and dependency-sensitive rules based on the presence of required dependencies
       // in their meta, as well as the result of dependency-independent filters
       const dependencyIndependentRules: RuleConfig[] = [];
@@ -324,17 +323,14 @@ export class Linter {
     }
 
     if (dependencySensitiveRules.length === 0) {
+      // Note: denoImportCounts telemetry is not recorded for files with no dependency-sensitive rules,
+      // since mergedInlineNpmDependencies (where counting happens) is only called below.
       return baseRules;
     }
 
     // if there are rules with required dependencies, we need to check if the dependencies are present in the file imports before enabling them
     const context: RuleFilterContext = {
-      extensionName: extname(normalizePath(filePath)),
-      fileType,
-      fileLanguage,
-      analysisMode,
-      detectedEsYear,
-      detectedModuleType,
+      ...baseContext,
       dependencies: mergedInlineNpmDependencies(manifestDependencies, sourceCode),
     };
     const activeDependencySensitiveRules = dependencySensitiveRules.filter(ruleConfig => {
@@ -407,16 +403,16 @@ function getURLScheme(moduleName: string): string | undefined {
  * without mutating the original manifest dependencies
  */
 function mergedInlineNpmDependencies(
-  dependencies: RuleFilterContext['dependencies'],
+  manifestDependencies: DependenciesList,
   sourceCode?: SourceCode,
-): RuleFilterContext['dependencies'] {
+): DependenciesList {
   if (!sourceCode) {
-    return dependencies;
+    return manifestDependencies;
   }
 
-  // Only allocate the Set if we find an inline npm dependency
-  // to avoid unnecessary allocations for files without inline npm dependencies
-  let inlineNpmDependencies: Set<string | Minimatch> | null = null;
+  // Only copy the manifest Map when we actually find an inline npm import,
+  // to avoid unnecessary allocations for files without inline npm imports.
+  let merged: DependenciesList | null = null;
   for (const moduleName of getCurrentFileImports(sourceCode)) {
     const protocol = getURLScheme(moduleName);
     if (protocol !== undefined) {
@@ -424,22 +420,12 @@ function mergedInlineNpmDependencies(
     }
     const parsedSpecifier = parseInlineNPMImport(moduleName);
     if (parsedSpecifier) {
-      inlineNpmDependencies ??= new Set();
-      inlineNpmDependencies.add(parsedSpecifier.packageName);
+      merged ??= new Map(manifestDependencies);
+      merged.set(parsedSpecifier.packageName, parsedSpecifier.version);
     }
   }
 
-  if (inlineNpmDependencies === null || inlineNpmDependencies.size === 0) {
-    return dependencies;
-  }
-
-  // If there are inline npm dependencies, we merge manifest dependencies with inline npm dependencies
-  // to avoid mutating the original manifest dependencies Set
-  for (const dependency of dependencies) {
-    inlineNpmDependencies.add(dependency);
-  }
-
-  return inlineNpmDependencies;
+  return merged ?? manifestDependencies;
 }
 
 function createLinterConfigKey(

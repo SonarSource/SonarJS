@@ -296,6 +296,7 @@ describe('SonarQube project analysis', () => {
           ecmaScriptVersions: ['not-detected'],
           esmFileCount: 0,
           cjsFileCount: 0,
+          denoImportCounts: {},
           programCreation: {
             attempted: 0,
             succeeded: 0,

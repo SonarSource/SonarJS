@@ -18,9 +18,11 @@ import type { RuleConfig } from '../config/rule-config.js';
 import type { FileType } from '../../../contracts/file.js';
 import type { JsTsLanguage } from '../../../common/configuration.js';
 import type { AnalysisMode } from '../../analysis/analysis.js';
-import type { ModuleType } from '../../rules/helpers/dependency-manifests/resolvers/types.js';
+import type {
+  DependenciesList,
+  ModuleType,
+} from '../../rules/helpers/dependency-manifests/resolvers/types.js';
 import type { SonarMeta } from '../../rules/helpers/generate-meta.js';
-import type { Minimatch } from 'minimatch';
 
 export interface RuleFilterContext {
   extensionName: string;
@@ -29,7 +31,7 @@ export interface RuleFilterContext {
   analysisMode: AnalysisMode;
   detectedEsYear: number | undefined;
   detectedModuleType: ModuleType | undefined;
-  dependencies: Set<string | Minimatch>;
+  dependencies: DependenciesList;
 }
 
 /**
