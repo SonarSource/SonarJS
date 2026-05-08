@@ -179,19 +179,6 @@ export function findComponentNodes(node: estree.Node, context: Rule.RuleContext)
 }
 
 /**
- * Convenience wrapper for callers that only care about the first resolved owner.
- *
- * Prefer `findComponentNodes()` when suppression logic must consider every matching
- * component before deciding whether to keep or drop a report.
- */
-export function findComponentNode(
-  node: estree.Node,
-  context: Rule.RuleContext,
-): estree.Node | undefined {
-  return findComponentNodes(node, context)[0];
-}
-
-/**
  * Resolves the ESLint scope variable corresponding to a React component node.
  *
  * The helper first derives the component identifier from its declaration form
