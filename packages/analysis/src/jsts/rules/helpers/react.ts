@@ -480,8 +480,10 @@ function isReactComponentNonPropsTypeDeclaration(
     );
   });
 
-  const usage: ReactNonPropsTypeUsage =
-    isPropsTypeSomewhere && isNonPropsType ? 'mixed' : isNonPropsType ? 'non-props' : 'other';
+  let usage: ReactNonPropsTypeUsage = 'other';
+  if (isNonPropsType) {
+    usage = isPropsTypeSomewhere ? 'mixed' : 'non-props';
+  }
   sourceCache.reactNonPropsTypeDecl.set(typeDecl, usage);
   return shouldSuppressReactNonPropsReport(node, typeDecl, usage, sourceCache);
 }
