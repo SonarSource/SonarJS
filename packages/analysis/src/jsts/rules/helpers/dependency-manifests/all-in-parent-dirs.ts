@@ -19,10 +19,10 @@ import type { PackageJson } from 'type-fest';
 import {
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
-  ROOT_PATH,
   stripBOM,
   dirnamePath,
   isRoot,
+  getPathRoot,
 } from '../files.js';
 import { PACKAGE_JSON } from './index.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
@@ -42,7 +42,7 @@ export const getPackageJsonManifests = (
 ): Array<PackageJson> => {
   const files = patternInParentsCache
     .get(PACKAGE_JSON, fileSystem)
-    .get(topDir ?? ROOT_PATH)
+    .get(topDir ?? getPathRoot(dir))
     .get(dir);
 
   return files.map(file => {
@@ -91,7 +91,7 @@ export const getDependencyManifests = (
   topDir?: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
 ): DependencyManifest[] => {
-  const rootDir = topDir ?? ROOT_PATH;
+  const rootDir = topDir ?? getPathRoot(dir);
   const manifests: DependencyManifest[] = [];
   let currentDir: NormalizedAbsolutePath = dir;
 

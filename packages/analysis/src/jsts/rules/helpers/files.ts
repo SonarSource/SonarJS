@@ -125,6 +125,19 @@ export function assertNestedPath(from: NormalizedAbsolutePath, topDir: Normalize
   }
 }
 
+/**
+ * Returns the filesystem root that contains the given absolute path.
+ * Examples: '/a/b' -> '/', 'C:/a/b' -> 'C:/', 'D:/foo' -> 'D:/'.
+ * Used as a cross-platform "no upper bound" sentinel for find-up callers.
+ */
+export function getPathRoot(filePath: NormalizedAbsolutePath): NormalizedAbsolutePath {
+  const winRoot = parseWin32(filePath).root;
+  if (winRoot) {
+    return toUnixPath(winRoot) as NormalizedAbsolutePath;
+  }
+  return ROOT_PATH;
+}
+
 export function isAbsolutePath(path: string) {
   // Check for Windows drive letter (e.g., 'c:', 'C:', 'D:')
   // Node's isAbsolute considers 'c:' as relative (drive-relative), but we treat it as absolute
