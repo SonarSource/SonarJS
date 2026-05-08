@@ -84,7 +84,9 @@ function hasThisPropertyAssignmentInConstructor(
 }
 
 function walkForThisAssignment(node: Node, visitorKeys: SourceCode.VisitorKeys): boolean {
-  // Stop at function boundaries: assignments in callbacks do not count as direct
+  // Stop at all function boundaries (FunctionDeclaration, FunctionExpression, and
+  // ArrowFunctionExpression): `this.*` assignments nested inside any callback, even
+  // arrow callbacks whose `this` is bound to the constructor, are not considered direct
   // constructor-level state initialization.
   if (isFunctionNode(node)) {
     return false;
