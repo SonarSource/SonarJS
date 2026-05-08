@@ -283,6 +283,40 @@ describe('Linter', () => {
     expect(rules).toHaveProperty('sonarjs/S6477');
   });
 
+  it('should not leak inline npm imports between files in the same directory', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'inline-react'),
+    );
+    const withInlineReact = normalizeToAbsolutePath(
+      path.join(baseDir, 'src', 'with-inline-react.jsx'),
+    );
+    const withoutInlineReact = normalizeToAbsolutePath(
+      path.join(baseDir, 'src', 'without-inline-react.jsx'),
+    );
+    const rules: RuleConfig[] = [
+      {
+        key: 'S6748',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
+    const getRulesFor = async (filePath: ReturnType<typeof normalizeToAbsolutePath>) => {
+      const { sourceCode } = await parseJavaScriptSourceFile(filePath);
+      return Linter.getRulesForFile(filePath, 'MAIN', 'DEFAULT', 'js', undefined, sourceCode);
+    };
+
+    await Linter.initialize({ baseDir, rules });
+    expect(await getRulesFor(withInlineReact)).toHaveProperty('sonarjs/S6748');
+    expect(await getRulesFor(withoutInlineReact)).not.toHaveProperty('sonarjs/S6748');
+
+    await Linter.initialize({ baseDir, rules });
+    expect(await getRulesFor(withoutInlineReact)).not.toHaveProperty('sonarjs/S6748');
+    expect(await getRulesFor(withInlineReact)).toHaveProperty('sonarjs/S6748');
+  });
+
   it('should disable React-dependent rules on .vue files even when react dependency is present', async () => {
     const baseDir = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'react'),

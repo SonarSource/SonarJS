@@ -19,6 +19,7 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { normalizeToAbsolutePath } from '../../../../src/jsts/rules/helpers/files.js';
 import { getDependencyManifests } from '../../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
+import { parseInlineNPMImport } from '../../../../src/jsts/rules/helpers/dependency-manifests/resolvers/deno.js';
 
 describe('package-json', () => {
   it('should handle arrays in package-jsons dependency versions', async () => {
@@ -55,5 +56,29 @@ describe('package-json', () => {
         // 'invalidScoped' ("npm:@scope") is filtered out — not added to the map
       ]),
     );
+  });
+});
+
+describe('parseInlineNPMImport', () => {
+  it('should parse package with version', () => {
+    expect(parseInlineNPMImport('npm:zod@4.3.6')).toEqual({
+      packageName: 'zod',
+      version: '4.3.6',
+    });
+  });
+
+  it('should parse scoped package with version and subpath', () => {
+    expect(parseInlineNPMImport('npm:@scope/pkg@1.2.3/subpath')).toEqual({
+      packageName: '@scope/pkg',
+      version: '1.2.3',
+    });
+  });
+
+  it('should return undefined for jsr package specifiers', () => {
+    expect(parseInlineNPMImport('jsr:@std/assert@^1.0.0')).toBeUndefined();
+  });
+
+  it('should return undefined for https package specifiers', () => {
+    expect(parseInlineNPMImport('https://example.com/package')).toBeUndefined();
   });
 });

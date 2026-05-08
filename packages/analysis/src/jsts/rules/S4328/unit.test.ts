@@ -138,6 +138,16 @@ describe('S4328', () => {
           options,
         },
         {
+          code: `import z from 'npm:zod@4.3.6';`,
+          filename: '/file.js',
+          options,
+        },
+        {
+          code: `import scoped from 'npm:@scope/pkg@1.2.3/subpath';`,
+          filename: '/file.js',
+          options,
+        },
+        {
           code: `
         import { f as f1 } from 'top-dependency';
         import { f as f2 } from 'nested-dependency';
@@ -311,6 +321,12 @@ describe('S4328', () => {
         {
           code: `require("not-a-dependency?transform");`,
           filename,
+          options,
+          errors: 1,
+        },
+        {
+          code: `import assert from 'jsr:@std/assert@^1.0.0';`,
+          filename: '/file.js',
           options,
           errors: 1,
         },

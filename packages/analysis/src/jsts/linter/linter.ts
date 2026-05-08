@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { debug } from '../../../../shared/src/helpers/logging.js';
-import { type Rule, Linter as ESLintLinter } from 'eslint';
+import { type Rule, Linter as ESLintLinter, type SourceCode } from 'eslint';
 import type { RuleConfig } from './config/rule-config.js';
 import type { JsTsLanguage } from '../../common/configuration.js';
 import { transformMessages } from './issues/transform.js';
@@ -36,16 +36,23 @@ import { pathToFileURL } from 'node:url';
 import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { defaultOptions, applyTransformations } from '../rules/helpers/configs.js';
+import type { SonarMeta } from '../rules/helpers/generate-meta.js';
 import merge from 'lodash.merge';
 import {
   getDependencies,
   getModuleType,
 } from '../rules/helpers/dependency-manifests/dependencies.js';
-import { RULE_FILTERS, type RuleFilterContext } from './filters/index.js';
+import {
+  DEPENDENCY_INDEPENDENT_RULE_FILTERS,
+  DEPENDENCY_SENSITIVE_RULE_FILTERS,
+  type RuleFilterContext,
+} from './filters/index.js';
 import { getClosestDependencyManifestDir } from '../rules/helpers/dependency-manifests/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
 import type { FileType } from '../../contracts/file.js';
-import { clearFileCaches } from '../rules/helpers/module.js';
+import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
+import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/deno.js';
+import { Minimatch } from 'minimatch';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -92,8 +99,11 @@ export class Linter {
 
   /** The rules configuration */
   private static ruleConfigs: RuleConfig[] | undefined;
-  /** The rules configuration */
-  public static readonly rulesConfigCache: Map<string, ESLintLinter.RulesRecord> = new Map();
+  /** Rule configurations for each file context, for rules whose activation does not depend on dependencies */
+  public static readonly dependencyIndependentRulesCache: Map<string, ESLintLinter.RulesRecord> =
+    new Map();
+  /** Rules whose activation still depends on dependencies */
+  public static readonly dependencySensitiveRulesCache: Map<string, RuleConfig[]> = new Map();
   /** The global variables */
   public static readonly globals: Map<string, ESLintLinter.GlobalConf> = new Map();
   /** The rules working directory (used for architecture, dbd...) */
@@ -134,7 +144,8 @@ export class Linter {
     Linter.linter = new ESLintLinter({ cwd: baseDir });
     Linter.rulesWorkdir = rulesWorkdir;
     Linter.setGlobals(globals, environments);
-    Linter.rulesConfigCache.clear();
+    Linter.dependencyIndependentRulesCache.clear();
+    Linter.dependencySensitiveRulesCache.clear();
     Linter.baseDir = baseDir;
     /**
      * Context bundles define a set of external custom rules (like the architecture rule)
@@ -190,6 +201,7 @@ export class Linter {
       fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
       language,
       detectedEsYear,
+      sourceCode,
     );
     const rules = lintOptions.additionalRules
       ? { ...lintOptions.additionalRules, ...baseRules }
@@ -252,10 +264,14 @@ export class Linter {
     analysisMode: AnalysisMode,
     fileLanguage: JsTsLanguage,
     detectedEsYear?: number,
+    sourceCode?: SourceCode,
   ): ESLintLinter.RulesRecord {
     const normalizedFilePath = normalizeToAbsolutePath(filePath);
     const detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
     getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
+    const manifestDependencies = new Set(
+      getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir).keys(),
+    );
     const linterConfigKey = createLinterConfigKey(
       filePath,
       Linter.baseDir,
@@ -265,15 +281,15 @@ export class Linter {
       detectedEsYear,
       detectedModuleType,
     );
-    if (!Linter.rulesConfigCache.has(linterConfigKey)) {
+    if (
+      !Linter.dependencyIndependentRulesCache.has(linterConfigKey) ||
+      !Linter.dependencySensitiveRulesCache.has(linterConfigKey)
+    ) {
       /**
        * Creates the wrapper's linting configurations
        * The wrapper's linting configuration includes multiple ESLint
        * configurations: one per fileType/language/analysisMode combination.
        */
-      const dependencies = new Set(
-        getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir).keys(),
-      );
       const context: RuleFilterContext = {
         extensionName: extname(normalizePath(filePath)),
         fileType,
@@ -281,18 +297,66 @@ export class Linter {
         analysisMode,
         detectedEsYear,
         detectedModuleType,
-        dependencies,
+        dependencies: manifestDependencies,
       };
-      const rules = Linter.ruleConfigs?.filter(ruleConfig => {
-        const ruleMeta =
-          ruleConfig.key in ruleMetas
-            ? (ruleMetas[ruleConfig.key as keyof typeof ruleMetas] as Record<string, unknown>)
-            : undefined;
-        return RULE_FILTERS.every(filter => filter(ruleConfig, ruleMeta, context));
-      });
-      Linter.rulesConfigCache.set(linterConfigKey, Linter.createRulesRecord(rules ?? []));
+      // Partition rules into dependency-independent rules and dependency-sensitive rules based on the presence of required dependencies
+      // in their meta, as well as the result of dependency-independent filters
+      const dependencyIndependentRules: RuleConfig[] = [];
+      const dependencySensitiveRules: RuleConfig[] = [];
+
+      for (const ruleConfig of Linter.ruleConfigs ?? []) {
+        const ruleMeta = getRuleMeta(ruleConfig);
+        if (
+          DEPENDENCY_INDEPENDENT_RULE_FILTERS.every(predicate =>
+            predicate(ruleConfig, ruleMeta, context),
+          )
+        ) {
+          const ruleArray = hasRequiredDependencies(ruleMeta)
+            ? dependencySensitiveRules
+            : dependencyIndependentRules;
+          ruleArray.push(ruleConfig);
+        }
+      }
+
+      Linter.dependencyIndependentRulesCache.set(
+        linterConfigKey,
+        Linter.createRulesRecord(dependencyIndependentRules),
+      );
+      Linter.dependencySensitiveRulesCache.set(linterConfigKey, dependencySensitiveRules);
     }
-    return Linter.rulesConfigCache.get(linterConfigKey)!;
+
+    const baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey)!;
+    const dependencySensitiveRules = Linter.dependencySensitiveRulesCache.get(linterConfigKey)!;
+
+    if (dependencySensitiveRules.length === 0) {
+      return baseRules;
+    }
+
+    // if there are rules with required dependencies, we need to check if the dependencies are present in the file imports before enabling them
+    const context: RuleFilterContext = {
+      extensionName: extname(normalizePath(filePath)),
+      fileType,
+      fileLanguage,
+      analysisMode,
+      detectedEsYear,
+      detectedModuleType,
+      dependencies: mergedInlineNpmDependencies(manifestDependencies, sourceCode),
+    };
+    const activeDependencySensitiveRules = dependencySensitiveRules.filter(ruleConfig => {
+      const ruleMeta = getRuleMeta(ruleConfig);
+      return DEPENDENCY_SENSITIVE_RULE_FILTERS.every(predicate =>
+        predicate(ruleConfig, ruleMeta, context),
+      );
+    });
+
+    if (activeDependencySensitiveRules.length === 0) {
+      return baseRules;
+    }
+
+    return {
+      ...baseRules,
+      ...Linter.createRulesRecord(activeDependencySensitiveRules),
+    };
   }
 
   /**
@@ -308,9 +372,8 @@ export class Linter {
   private static createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
     return rules.reduce((rules, rule) => {
       // in the case of bundles, rule.key will not be present in the ruleMetas
-      const ruleMeta =
-        rule.key in ruleMetas ? ruleMetas[rule.key as keyof typeof ruleMetas] : undefined;
-      if (ruleMeta && 'fields' in ruleMeta) {
+      const ruleMeta = getRuleMeta(rule);
+      if (ruleMeta?.fields) {
         rules[`sonarjs/${rule.key}`] = [
           'error',
           ...applyTransformations(
@@ -324,6 +387,52 @@ export class Linter {
       return rules;
     }, {} as ESLintLinter.RulesRecord);
   }
+}
+
+function getRuleMeta(ruleConfig: RuleConfig): SonarMeta | undefined {
+  return ruleConfig.key in ruleMetas
+    ? (ruleMetas[ruleConfig.key as keyof typeof ruleMetas] as SonarMeta)
+    : undefined;
+}
+
+function hasRequiredDependencies(ruleMeta: SonarMeta | undefined): boolean {
+  return (ruleMeta?.requiredDependency.length ?? 0) > 0;
+}
+
+/**
+ * Merges the dependencies from the dependency manifest with inline npm dependencies declared in the file imports
+ * without mutating the original manifest dependencies
+ */
+function mergedInlineNpmDependencies(
+  dependencies: RuleFilterContext['dependencies'],
+  sourceCode?: SourceCode,
+): RuleFilterContext['dependencies'] {
+  if (!sourceCode) {
+    return dependencies;
+  }
+
+  // Only allocate the Set if we find an inline npm dependency
+  // to avoid unnecessary allocations for files without inline npm dependencies
+  let inlineNpmDependencies: Set<string | Minimatch> | null = null;
+  for (const moduleName of getCurrentFileImports(sourceCode)) {
+    const parsedSpecifier = parseInlineNPMImport(moduleName);
+    if (parsedSpecifier) {
+      inlineNpmDependencies ??= new Set();
+      inlineNpmDependencies.add(parsedSpecifier.packageName);
+    }
+  }
+
+  if (inlineNpmDependencies === null || inlineNpmDependencies.size === 0) {
+    return dependencies;
+  }
+
+  // If there are inline npm dependencies, we merge manifest dependencies with inline npm dependencies
+  // to avoid mutating the original manifest dependencies Set
+  for (const dependency of dependencies) {
+    inlineNpmDependencies.add(dependency);
+  }
+
+  return inlineNpmDependencies;
 }
 
 function createLinterConfigKey(

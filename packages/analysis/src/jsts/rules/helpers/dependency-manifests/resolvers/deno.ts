@@ -27,7 +27,7 @@ import { DENO_JSON, DENO_JSONC } from '../index.js';
 import { getManifestFileInDir } from './helpers.js';
 import { addDependenciesArray, addDependency } from '../parse.js';
 
-type ImportMapSpecifier = {
+export type ImportMapSpecifier = {
   packageName: string;
   version?: string;
 };
@@ -62,7 +62,7 @@ function buildDependencies(manifest: DenoManifest): DependenciesList {
         continue;
       }
 
-      const parsedSpecifier = parseImportMapSpecifier(target);
+      const parsedSpecifier = parseInlineNPMImport(target);
       if (parsedSpecifier) {
         addDependency(dependencies, {
           dependency: parsedSpecifier.packageName,
@@ -109,7 +109,7 @@ const DENO_NPM_IMPORT_PATTERN = /^(@[^/]*\/[^/@]*|[^/@]+)(?:@([^/]*))?(?:\/.*)?$
  * Parses an import map URL Specifier matching Deno npm format:
  * npm:<package>[@<version>][/<path>]
  */
-function parseImportMapSpecifier(value: string): ImportMapSpecifier | undefined {
+export function parseInlineNPMImport(value: string): ImportMapSpecifier | undefined {
   // currently only handle npm: specifiers since rules are focused on NPM dependencies
   if (!value.startsWith('npm:')) {
     return undefined;

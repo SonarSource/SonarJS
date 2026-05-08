@@ -19,6 +19,7 @@ import type { FileType } from '../../../contracts/file.js';
 import type { JsTsLanguage } from '../../../common/configuration.js';
 import type { AnalysisMode } from '../../analysis/analysis.js';
 import type { ModuleType } from '../../rules/helpers/dependency-manifests/resolvers/types.js';
+import type { SonarMeta } from '../../rules/helpers/generate-meta.js';
 import type { Minimatch } from 'minimatch';
 
 export interface RuleFilterContext {
@@ -36,11 +37,10 @@ export interface RuleFilterContext {
  * Returns true to keep the rule, false to exclude it.
  *
  * ruleMeta is the namespace export from metas.ts for the rule key, or undefined for
- * bundle rules that have no entry in metas. Each filter narrows it with 'field' in
- * ruleMeta guards.
+ * bundle rules that have no entry in metas.
  */
 export type RuleFilter = (
   ruleConfig: RuleConfig,
-  ruleMeta: Record<string, unknown> | undefined,
+  ruleMeta: SonarMeta | undefined,
   context: RuleFilterContext,
 ) => boolean;
