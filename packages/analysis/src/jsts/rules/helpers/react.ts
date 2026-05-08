@@ -39,8 +39,10 @@ const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclar
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
   ownerByTypeDecl: WeakMap<estree.Node, estree.Node | null>;
-  reactNonPropsTypeDecl: WeakMap<estree.Node, boolean>;
+  reactNonPropsTypeDecl: WeakMap<estree.Node, ReactNonPropsTypeUsage>;
+  mixedReactNonPropsReportNodes: WeakMap<estree.Node, WeakSet<estree.Node>>;
 };
+type ReactNonPropsTypeUsage = 'mixed' | 'non-props' | 'other';
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 const REACT_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
 
@@ -189,6 +191,7 @@ export function isUsedAsReactComponentNonPropsType(
 ): boolean {
   const ancestors = context.sourceCode.getAncestors(node);
   return isReactComponentNonPropsTypeDeclaration(
+    node,
     ancestors,
     context,
     context.sourceCode.visitorKeys,
@@ -414,7 +417,8 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
     cache = {
       componentNodes: undefined,
       ownerByTypeDecl: new WeakMap<estree.Node, estree.Node | null>(),
-      reactNonPropsTypeDecl: new WeakMap<estree.Node, boolean>(),
+      reactNonPropsTypeDecl: new WeakMap<estree.Node, ReactNonPropsTypeUsage>(),
+      mixedReactNonPropsReportNodes: new WeakMap<estree.Node, WeakSet<estree.Node>>(),
     };
     perSourceCache.set(sourceCode, cache);
   }
@@ -422,6 +426,7 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
 }
 
 function isReactComponentNonPropsTypeDeclaration(
+  node: estree.Node,
   ancestors: estree.Node[],
   context: Rule.RuleContext,
   keys: SourceCode.VisitorKeys,
@@ -439,7 +444,7 @@ function isReactComponentNonPropsTypeDeclaration(
   const sourceCache = getSourceCache(context.sourceCode);
   const cached = sourceCache.reactNonPropsTypeDecl.get(typeDecl);
   if (cached !== undefined) {
-    return cached;
+    return shouldSuppressReactNonPropsReport(node, typeDecl, cached, sourceCache);
   }
 
   const checker = services.program.getTypeChecker();
@@ -447,6 +452,20 @@ function isReactComponentNonPropsTypeDeclaration(
   const componentNodes =
     sourceCache.componentNodes ??
     (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
+
+  const isPropsTypeSomewhere = componentNodes.some(componentNode => {
+    if (
+      (componentNode.type === 'FunctionDeclaration' ||
+        componentNode.type === 'FunctionExpression' ||
+        componentNode.type === 'ArrowFunctionExpression') &&
+      !isPascalCaseFunctionComponent(componentNode)
+    ) {
+      return false;
+    }
+
+    const propsType = getComponentPropsType(componentNode, services);
+    return propsType ? areSameTypeDeclarations(checker, candidateType, propsType) : false;
+  });
 
   const isNonPropsType = componentNodes.some(componentNode => {
     if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
@@ -461,8 +480,39 @@ function isReactComponentNonPropsTypeDeclaration(
     );
   });
 
-  sourceCache.reactNonPropsTypeDecl.set(typeDecl, isNonPropsType);
-  return isNonPropsType;
+  const usage: ReactNonPropsTypeUsage =
+    isPropsTypeSomewhere && isNonPropsType ? 'mixed' : isNonPropsType ? 'non-props' : 'other';
+  sourceCache.reactNonPropsTypeDecl.set(typeDecl, usage);
+  return shouldSuppressReactNonPropsReport(node, typeDecl, usage, sourceCache);
+}
+
+function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
+  const functionName = getFunctionName(componentNode);
+  return functionName === undefined || /^[A-Z]/.test(functionName);
+}
+
+function shouldSuppressReactNonPropsReport(
+  node: estree.Node,
+  typeDecl: estree.Node,
+  usage: ReactNonPropsTypeUsage,
+  sourceCache: SourceCache,
+): boolean {
+  if (usage === 'non-props') {
+    return true;
+  }
+  if (usage !== 'mixed') {
+    return false;
+  }
+
+  let reportedNodes = sourceCache.mixedReactNonPropsReportNodes.get(typeDecl);
+  if (!reportedNodes) {
+    reportedNodes = new WeakSet<estree.Node>();
+    sourceCache.mixedReactNonPropsReportNodes.set(typeDecl, reportedNodes);
+  }
+
+  const shouldSuppress = reportedNodes.has(node);
+  reportedNodes.add(node);
+  return shouldSuppress;
 }
 
 function findEnclosingTypeDeclaration(ancestors: estree.Node[]): estree.Node | undefined {

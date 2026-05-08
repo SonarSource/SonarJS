@@ -457,6 +457,31 @@ class DerivedForwarder extends CustomIntermediateBase {
           errors: 1,
         },
         {
+          // TP: the non-props safeguard stays local to state/snapshot usage and
+          // must not suppress when the same declaration is used as props elsewhere.
+          code: `
+declare const React: any;
+interface SharedType {
+  unused: string;
+}
+interface Snapshot {
+  scrollTop: number;
+}
+class PropsOwner extends React.Component<SharedType> {
+  render() {
+    return <div />;
+  }
+}
+class StateOwner extends React.Component<{}, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
           // TP: unrelated decorator callback
           code: `
 declare const React: any;
