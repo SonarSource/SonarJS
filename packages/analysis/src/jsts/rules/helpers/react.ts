@@ -510,6 +510,11 @@ function shouldSuppressReactNonPropsReport(
     sourceCache.mixedReactNonPropsReportNodes.set(typeDecl, reportedNodes);
   }
 
+  // First report for this node is allowed through; subsequent ones (from non-props
+  // components that trigger the upstream false positive) are suppressed.
+  // This relies on ESLint reporting components in source order, so the
+  // props-owning component — which should appear before state-owning ones
+  // in conventional file layouts — wins.
   const shouldSuppress = reportedNodes.has(node);
   reportedNodes.add(node);
   return shouldSuppress;
@@ -606,8 +611,7 @@ function matchesFunctionProps(
 ): boolean {
   // Skip non-PascalCase names to avoid matching helper functions
   // that happen to accept the same props type (React components use PascalCase by convention).
-  const funcName = getFunctionName(componentNode);
-  if (funcName !== undefined && !/^[A-Z]/.test(funcName)) {
+  if (!isPascalCaseFunctionComponent(componentNode)) {
     return false;
   }
   const signature = checker.getSignatureFromDeclaration(tsFuncNode);
