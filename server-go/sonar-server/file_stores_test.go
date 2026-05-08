@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	pb "github.com/SonarSource/SonarJS/server-go/sonar-server/grpc"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/linter"
 	"github.com/microsoft/typescript-go/shim/tspath"
 )
 
@@ -964,6 +965,44 @@ func TestRuleAppliesToFileFiltersOnRequiredEcmaVersionOnlyWhenKnown(t *testing.T
 		ruleActivationSignals{Dependencies: map[string]struct{}{}, DetectedEcmaVersion: 2020},
 	) {
 		t.Fatal("expected matching ECMAScript version to keep the rule enabled")
+	}
+}
+
+func TestConfiguredRulesForFileKeepsSameSonarKeyEnabledForJsAndTs(t *testing.T) {
+	t.Parallel()
+
+	requestedRules := requestedJsTsRulesByKey([]NormalizedJsTsRule{
+		{
+			Key:      "S2870",
+			Language: pb.JsTsLanguage_JS_TS_LANGUAGE_JS,
+		},
+		{
+			Key:      "S2870",
+			Language: pb.JsTsLanguage_JS_TS_LANGUAGE_TS,
+		},
+	})
+	configuredRules := []linter.ConfiguredRule{{Name: "no-array-delete"}}
+
+	jsRules := configuredRulesForFile(
+		configuredRules,
+		requestedRules,
+		NormalizedProjectConfiguration{},
+		NormalizedProjectFile{CanonicalPath: "/project/file.js"},
+		ruleActivationSignals{},
+	)
+	if len(jsRules) != 1 {
+		t.Fatalf("expected JS file to keep S2870 enabled, got %#v", jsRules)
+	}
+
+	tsRules := configuredRulesForFile(
+		configuredRules,
+		requestedRules,
+		NormalizedProjectConfiguration{},
+		NormalizedProjectFile{CanonicalPath: "/project/file.ts"},
+		ruleActivationSignals{},
+	)
+	if len(tsRules) != 1 {
+		t.Fatalf("expected TS file to keep S2870 enabled, got %#v", tsRules)
 	}
 }
 

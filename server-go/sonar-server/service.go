@@ -1181,17 +1181,17 @@ func pickBestMatchTSConfig(tsconfigs []string, filePath string) string {
 	return tsconfigs[0]
 }
 
-func requestedJsTsRulesByKey(rules []NormalizedJsTsRule) map[string]NormalizedJsTsRule {
-	byKey := make(map[string]NormalizedJsTsRule, len(rules))
+func requestedJsTsRulesByKey(rules []NormalizedJsTsRule) map[string][]NormalizedJsTsRule {
+	byKey := make(map[string][]NormalizedJsTsRule, len(rules))
 	for _, configuredRule := range rules {
-		byKey[configuredRule.Key] = configuredRule
+		byKey[configuredRule.Key] = append(byKey[configuredRule.Key], configuredRule)
 	}
 	return byKey
 }
 
 func configuredRulesForFile(
 	configuredRules []linter.ConfiguredRule,
-	requestedRules map[string]NormalizedJsTsRule,
+	requestedRules map[string][]NormalizedJsTsRule,
 	analysisConfig NormalizedProjectConfiguration,
 	file NormalizedProjectFile,
 	activationSignals ruleActivationSignals,
@@ -1199,9 +1199,23 @@ func configuredRulesForFile(
 	filtered := make([]linter.ConfiguredRule, 0, len(configuredRules))
 	for _, configuredRule := range configuredRules {
 		sonarRuleKey := sonarRuleKeyFor(configuredRule.Name)
-		requestedRule, ok := requestedRules[sonarRuleKey]
-		if ok && !ruleAppliesToFile(requestedRule, ruleMetadataBySonarKey[sonarRuleKey], analysisConfig, file, activationSignals) {
-			continue
+		if requestedRuleVariants, ok := requestedRules[sonarRuleKey]; ok {
+			applies := false
+			for _, requestedRule := range requestedRuleVariants {
+				if ruleAppliesToFile(
+					requestedRule,
+					ruleMetadataBySonarKey[sonarRuleKey],
+					analysisConfig,
+					file,
+					activationSignals,
+				) {
+					applies = true
+					break
+				}
+			}
+			if !applies {
+				continue
+			}
 		}
 		filtered = append(filtered, configuredRule)
 	}
