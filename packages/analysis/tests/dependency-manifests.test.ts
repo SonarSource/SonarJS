@@ -154,6 +154,27 @@ describe('files', () => {
     expect(yamlParseMock.calls).toHaveLength(0);
   });
 
+  it('should reuse failed deno manifest parses after warmup', async ({ mock }) => {
+    mock.method(console, 'debug');
+    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-jsonc-malformed'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+    const filePath = join(baseDir, 'deno.jsonc');
+
+    expect(getDependencyManifests(baseDir, baseDir)[0].dependencies).toEqual(new Map());
+    expect(
+      consoleLogMock.calls
+        .map(call => call.arguments[0])
+        .some(log => log.startsWith(`Error parsing deno manifest ${filePath}:`)),
+    ).toEqual(true);
+
+    consoleLogMock.resetCalls();
+
+    expect(getDependencyManifests(baseDir, baseDir)[0].dependencies).toEqual(new Map());
+    expect(consoleLogMock.calls).toHaveLength(0);
+  });
+
   it('should reuse dependency cache entries for subdirectories sharing the same manifest', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'dependencies'));
     const configuration = createConfiguration({ baseDir });
