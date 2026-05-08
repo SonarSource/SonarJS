@@ -4,10 +4,13 @@ on:
   pull_request_review:
     types: [submitted]
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   SubmitReview_job:
     name: Submit Review
-    runs-on: sonar-xs-public
+    runs-on: sonar-xs
     permissions:
       id-token: write
     # For external PR, ticket should be moved manually

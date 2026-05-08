@@ -57,7 +57,7 @@
   </issueManagement>
 
   <properties>
-    <revision>12.4.0-SNAPSHOT</revision>
+    <revision>12.5.0-SNAPSHOT</revision>
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- Version corresponds to SQ 9.9 LTS -->
@@ -76,7 +76,7 @@
     <gson.version>2.14.0</gson.version>
     <analyzer-commons.version>2.22.0.4796</analyzer-commons.version>
     <sslr.version>1.25.1.3886</sslr.version>
-    <sonarlint.plugin.api.version>11.2.2.85453</sonarlint.plugin.api.version>
+    <sonarlint.plugin.api.version>11.3.0.85510</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>

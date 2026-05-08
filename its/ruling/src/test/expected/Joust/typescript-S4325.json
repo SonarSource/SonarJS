@@ -8,5 +8,8 @@
 "Joust:ts/components/game/TwoPlayerGame.tsx": [
 40,
 58
+],
+"Joust:ts/protocol/HSReplayDecoder.ts": [
+214
 ]
 }

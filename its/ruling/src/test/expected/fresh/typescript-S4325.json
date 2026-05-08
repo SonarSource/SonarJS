@@ -60,6 +60,9 @@
 862,
 1207
 ],
+"fresh:packages/fresh/src/handlers.ts": [
+44
+],
 "fresh:packages/fresh/src/middlewares/csp_test.tsx": [
 33,
 65,
@@ -79,17 +82,20 @@
 ],
 "fresh:packages/fresh/src/runtime/client/partials.ts": [
 398,
-403
+403,
+549
 ],
 "fresh:packages/fresh/src/runtime/client/reviver.ts": [
 90,
 97,
+114,
 123,
 209,
 238,
 318,
 382,
 417,
+442,
 487,
 505
 ],
