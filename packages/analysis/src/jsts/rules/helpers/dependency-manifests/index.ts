@@ -55,12 +55,18 @@ export function fillManifestCaches(
   topDir: NormalizedAbsolutePath,
 ): void {
   const closestCache = closestPatternCache.get(manifestName).get(topDir);
-  const manifestsInParentsCache = patternInParentsCache.get(manifestName).get(topDir);
+  const manifestsInParentsCache =
+    manifestName === PNPM_WORKSPACE_YAML
+      ? undefined
+      : patternInParentsCache.get(manifestName).get(topDir);
 
   // We depend on the order of the paths, from parent-to-child paths (guaranteed by the use of a Map in the package-json store)
   for (const [dir, parent] of dirnameToParent) {
     const currentManifest = manifests.get(dir);
     closestCache.set(dir, currentManifest ?? (parent ? closestCache.get(parent) : undefined));
+    if (!manifestsInParentsCache) {
+      continue;
+    }
     const manifestsInParents: File[] = [];
     if (parent) {
       // Read the current dir cache to preserve closest-first manifest precedence.
@@ -82,7 +88,9 @@ export function clearDependenciesCache(): void {
   clearParsedDependencyFileCache();
   for (const manifestName of PRELOADABLE_DEPENDENCY_MANIFESTS) {
     closestPatternCache.get(manifestName).clear();
-    patternInParentsCache.get(manifestName).clear();
+    if (manifestName !== PNPM_WORKSPACE_YAML) {
+      patternInParentsCache.get(manifestName).clear();
+    }
   }
   MinimatchCache.clear();
 }
