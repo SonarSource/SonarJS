@@ -15,24 +15,17 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { PackageJson } from 'type-fest';
-import yaml from 'yaml';
 import type {
   ManifestResolver,
   DependencyManifest,
   ModuleType,
   DependenciesList,
 } from './types.js';
-import { type File, stripBOM } from '../../files.js';
 import { PACKAGE_JSON, PNPM_WORKSPACE_YAML } from '../index.js';
 import { closestPatternCache } from '../../find-up/closest.js';
 import { getManifestFileInDir } from './helpers.js';
 import { addDependencies, addDependenciesArray } from '../parse.js';
-
-type PnpmWorkspace = {
-  packages?: string[];
-  catalog?: Record<string, string>;
-  catalogs?: Record<string, Record<string, string>>;
-};
+import { parsePackageJson, parsePnpmWorkspace, type PnpmWorkspace } from '../parsed-manifests.js';
 
 export const npmManifestResolver: ManifestResolver = {
   resolve(dir, topDir, fileSystem): DependencyManifest[] {
@@ -97,31 +90,6 @@ function buildDependencies(packageJson: PackageJson): DependenciesList {
   }
 
   return dependencies;
-}
-
-function parsePackageJson(file: File): PackageJson | undefined {
-  try {
-    return JSON.parse(stripBOM(file.content.toString())) as PackageJson;
-  } catch (error) {
-    console.debug(`Error parsing package.json ${file.path}: ${error}`);
-    return undefined;
-  }
-}
-
-function parsePnpmWorkspace(file: File): PnpmWorkspace | undefined {
-  try {
-    const parsedPnpm = yaml.parse(file.content.toString());
-    if (
-      parsedPnpm &&
-      ('catalog' in parsedPnpm || 'catalogs' in parsedPnpm || 'packages' in parsedPnpm)
-    ) {
-      return parsedPnpm;
-    }
-    return undefined;
-  } catch (error) {
-    console.debug(`Error parsing pnpm workspace ${file.path}: ${error}`);
-    return undefined;
-  }
 }
 
 function resolveCatalogReferences(

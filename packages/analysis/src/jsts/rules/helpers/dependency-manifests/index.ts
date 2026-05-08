@@ -20,29 +20,36 @@ import { dependenciesCache, moduleTypeCache } from './dependencies.js';
 import { closestPatternCache } from '../find-up/closest.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import { basename } from 'node:path/posix';
+import { clearParsedManifestCache } from './parsed-manifests.js';
 
 export const PACKAGE_JSON = 'package.json';
 export const DENO_JSON = 'deno.json';
 export const DENO_JSONC = 'deno.jsonc';
 export const PNPM_WORKSPACE_YAML = 'pnpm-workspace.yaml';
 export const DEPENDENCY_MANIFESTS = [DENO_JSON, DENO_JSONC, PACKAGE_JSON] as const;
-type DependencyManifestName = (typeof DEPENDENCY_MANIFESTS)[number];
+export const PRELOADABLE_DEPENDENCY_MANIFESTS = [
+  ...DEPENDENCY_MANIFESTS,
+  PNPM_WORKSPACE_YAML,
+] as const;
+export type PreloadableDependencyManifestName = (typeof PRELOADABLE_DEPENDENCY_MANIFESTS)[number];
 
-function isDependencyManifestName(fileName: string): fileName is DependencyManifestName {
-  return (DEPENDENCY_MANIFESTS as readonly string[]).includes(fileName);
+function isPreloadableDependencyManifestName(
+  fileName: string,
+): fileName is PreloadableDependencyManifestName {
+  return (PRELOADABLE_DEPENDENCY_MANIFESTS as readonly string[]).includes(fileName);
 }
 
-export function isDependencyManifestPath(path: NormalizedAbsolutePath): boolean {
+export function isPreloadableDependencyManifestPath(path: NormalizedAbsolutePath): boolean {
   const normalizedBasename = basename(path).toLowerCase();
-  return isDependencyManifestName(normalizedBasename);
+  return isPreloadableDependencyManifestName(normalizedBasename);
 }
 
 /**
- * Preloads manifest lookup caches for a given manifest type (package.json/deno.json/deno.jsonc)
- * so later rules can resolve manifests without re-walking the file system.
+ * Preloads manifest lookup caches so later rules can resolve manifests
+ * without re-walking the file system.
  */
 export function fillManifestCaches(
-  manifestName: DependencyManifestName,
+  manifestName: PreloadableDependencyManifestName,
   manifests: Map<NormalizedAbsolutePath, File>,
   dirnameToParent: Map<NormalizedAbsolutePath, NormalizedAbsolutePath | undefined>,
   topDir: NormalizedAbsolutePath,
@@ -72,22 +79,22 @@ export function fillManifestCaches(
 export function clearDependenciesCache(): void {
   dependenciesCache.clear();
   moduleTypeCache.clear();
-  for (const manifestName of DEPENDENCY_MANIFESTS) {
+  clearParsedManifestCache();
+  for (const manifestName of PRELOADABLE_DEPENDENCY_MANIFESTS) {
     closestPatternCache.get(manifestName).clear();
     patternInParentsCache.get(manifestName).clear();
   }
-  closestPatternCache.get(PNPM_WORKSPACE_YAML).clear();
   MinimatchCache.clear();
 }
 
 /**
- * Returns the dependency manifest filename if the path points to one.
+ * Returns the preloadable dependency manifest filename if the path points to one.
  */
-export function getDependencyManifestName(
+export function getPreloadableDependencyManifestName(
   path: NormalizedAbsolutePath,
-): DependencyManifestName | undefined {
+): PreloadableDependencyManifestName | undefined {
   const normalizedBasename = basename(path).toLowerCase();
-  if (isDependencyManifestName(normalizedBasename)) {
+  if (isPreloadableDependencyManifestName(normalizedBasename)) {
     return normalizedBasename;
   }
   return undefined;

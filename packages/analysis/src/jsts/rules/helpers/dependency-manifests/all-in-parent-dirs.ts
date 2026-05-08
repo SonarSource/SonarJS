@@ -20,7 +20,6 @@ import {
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
   ROOT_PATH,
-  stripBOM,
   dirnamePath,
   isRoot,
 } from '../files.js';
@@ -30,6 +29,7 @@ import type { Rule } from 'eslint';
 import { type DependencyManifest, type ManifestResolver } from './resolvers/types.js';
 import { denoManifestResolver } from './resolvers/deno.js';
 import { npmManifestResolver } from './resolvers/npm.js';
+import { parsePackageJson } from './parsed-manifests.js';
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by
@@ -45,17 +45,7 @@ export const getPackageJsonManifests = (
     .get(topDir ?? ROOT_PATH)
     .get(dir);
 
-  return files.map(file => {
-    const content = file.content;
-
-    try {
-      return JSON.parse(stripBOM(content.toString()));
-    } catch (error) {
-      console.debug(`Error parsing package.json ${file.path}: ${error}`);
-
-      return {};
-    }
-  });
+  return files.map(file => parsePackageJson(file) ?? {});
 };
 
 export const getPackageJsonManifestsSanitizePaths = (

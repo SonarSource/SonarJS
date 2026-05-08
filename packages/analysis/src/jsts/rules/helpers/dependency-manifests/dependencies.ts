@@ -20,15 +20,11 @@ import fs from 'node:fs';
 import { extname } from 'node:path/posix';
 import { minVersion } from 'semver';
 import type { PackageJson } from 'type-fest';
-import {
-  type NormalizedAbsolutePath,
-  normalizeToAbsolutePath,
-  dirnamePath,
-  stripBOM,
-} from '../files.js';
+import { type NormalizedAbsolutePath, normalizeToAbsolutePath, dirnamePath } from '../files.js';
 import { getClosestDependencyManifestDir } from './closest.js';
 import { getDependencyManifests, getPackageJsonManifests } from './all-in-parent-dirs.js';
 import { DEFINITELY_TYPED, type DependenciesList, type ModuleType } from './resolvers/types.js';
+import { parsePackageJsonContent } from './parsed-manifests.js';
 
 const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
   '.mjs': 'module',
@@ -324,13 +320,4 @@ export function getNodeVersionSignal(baseDir: NormalizedAbsolutePath): string | 
  */
 export function getTypeScriptVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
   return getVersionSignalFromManifests(baseDir, 'typescript');
-}
-
-function parsePackageJsonContent(content: string | Buffer): PackageJson | undefined {
-  const packageJsonContent = typeof content === 'string' ? content : content.toString();
-  try {
-    return JSON.parse(stripBOM(packageJsonContent)) as PackageJson;
-  } catch {
-    return undefined;
-  }
 }
