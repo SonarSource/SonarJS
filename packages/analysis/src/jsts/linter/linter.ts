@@ -41,6 +41,8 @@ import merge from 'lodash.merge';
 import {
   getDependencies,
   getModuleType,
+  setCurrentFileInlineDependencies,
+  withCurrentFileInlineDependencies,
 } from '../rules/helpers/dependency-manifests/dependencies.js';
 import {
   DEPENDENCY_INDEPENDENT_RULE_FILTERS,
@@ -270,6 +272,10 @@ export class Linter {
     const detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
     getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
     const manifestDependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
+    // Make inline npm: imports visible to both rule activation and to dependency helpers
+    // (getReactVersion, getDependenciesSanitizePaths) called from rules during linting.
+    // Cleared by clearFileCaches() once linting completes.
+    setCurrentFileInlineDependencies(sourceCode ? extractInlineNpmDependencies(sourceCode) : null);
     const linterConfigKey = createLinterConfigKey(
       filePath,
       Linter.baseDir,
@@ -323,15 +329,13 @@ export class Linter {
     }
 
     if (dependencySensitiveRules.length === 0) {
-      // Note: denoImportCounts telemetry is not recorded for files with no dependency-sensitive rules,
-      // since mergedInlineNpmDependencies (where counting happens) is only called below.
       return baseRules;
     }
 
     // if there are rules with required dependencies, we need to check if the dependencies are present in the file imports before enabling them
     const context: RuleFilterContext = {
       ...baseContext,
-      dependencies: mergedInlineNpmDependencies(manifestDependencies, sourceCode),
+      dependencies: withCurrentFileInlineDependencies(manifestDependencies),
     };
     const activeDependencySensitiveRules = dependencySensitiveRules.filter(ruleConfig => {
       const ruleMeta = getRuleMeta(ruleConfig);
@@ -399,20 +403,12 @@ function getURLScheme(moduleName: string): string | undefined {
 }
 
 /**
- * Merges the dependencies from the dependency manifest with inline npm dependencies declared in the file imports
- * without mutating the original manifest dependencies
+ * Extracts inline npm: import specifiers from the file's imports as a DependenciesList,
+ * and records telemetry for any URL-scheme imports (npm:, jsr:, https:, ...).
+ * Returns null if the file has no inline npm imports.
  */
-function mergedInlineNpmDependencies(
-  manifestDependencies: DependenciesList,
-  sourceCode?: SourceCode,
-): DependenciesList {
-  if (!sourceCode) {
-    return manifestDependencies;
-  }
-
-  // Only copy the manifest Map when we actually find an inline npm import,
-  // to avoid unnecessary allocations for files without inline npm imports.
-  let merged: DependenciesList | null = null;
+function extractInlineNpmDependencies(sourceCode: SourceCode): DependenciesList | null {
+  let inlineDependencies: DependenciesList | null = null;
   for (const moduleName of getCurrentFileImports(sourceCode)) {
     const protocol = getURLScheme(moduleName);
     if (protocol !== undefined) {
@@ -420,12 +416,11 @@ function mergedInlineNpmDependencies(
     }
     const parsedSpecifier = parseInlineNPMImport(moduleName);
     if (parsedSpecifier) {
-      merged ??= new Map(manifestDependencies);
-      merged.set(parsedSpecifier.packageName, parsedSpecifier.version);
+      inlineDependencies ??= new Map();
+      inlineDependencies.set(parsedSpecifier.packageName, parsedSpecifier.version);
     }
   }
-
-  return merged ?? manifestDependencies;
+  return inlineDependencies;
 }
 
 function createLinterConfigKey(

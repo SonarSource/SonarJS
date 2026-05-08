@@ -112,10 +112,50 @@ export function getModuleType(filePath: NormalizedAbsolutePath, topDir: Normaliz
   return moduleTypeCache.get(dirnamePath(filePath), topDir);
 }
 
+/**
+ * Inline npm: imports parsed from the source file currently being linted (Deno-style).
+ * Set by the linter before each file is verified, cleared afterwards via clearFileCaches().
+ * Allows dependency-helper consumers (getReactVersion, getDependenciesSanitizePaths)
+ * to see the same dependency picture as rule-activation filtering.
+ */
+let currentFileInlineDependencies: DependenciesList | null = null;
+
+export function setCurrentFileInlineDependencies(deps: DependenciesList | null): void {
+  currentFileInlineDependencies = deps;
+}
+
+/**
+ * Merges inline npm: imports with manifest dependencies, giving precedence to inline imports.
+ */
+export function withCurrentFileInlineDependencies(manifest: DependenciesList): DependenciesList {
+  if (!currentFileInlineDependencies || currentFileInlineDependencies.size === 0) {
+    return manifest;
+  }
+  const merged: DependenciesList = new Map(manifest);
+  for (const [name, inlineVersion] of currentFileInlineDependencies) {
+    // Inline npm: imports are the version actually loaded at runtime for this file,
+    // so they take precedence over the project-wide manifest version.
+    if (merged.has(name)) {
+      const manifestVersion = merged.get(name);
+      if (manifestVersion !== inlineVersion) {
+        console.debug(
+          `Dependency "${typeof name === 'string' ? name : name.pattern}" has a version conflict between the manifest ` +
+            `(${manifestVersion ?? '<unspecified>'}) and an inline npm: import ` +
+            `(${inlineVersion ?? '<unspecified>'}). Using the inline version.`,
+        );
+      }
+    }
+    merged.set(name, inlineVersion);
+  }
+  return merged;
+}
+
 export function getDependenciesSanitizePaths(context: Rule.RuleContext): DependenciesList {
-  return getDependencies(
-    dirnamePath(normalizeToAbsolutePath(context.filename)),
-    normalizeToAbsolutePath(context.cwd),
+  return withCurrentFileInlineDependencies(
+    getDependencies(
+      dirnamePath(normalizeToAbsolutePath(context.filename)),
+      normalizeToAbsolutePath(context.cwd),
+    ),
   );
 }
 
@@ -127,7 +167,9 @@ export function getDependenciesSanitizePaths(context: Rule.RuleContext): Depende
  */
 export function getReactVersion(context: Rule.RuleContext): string | null {
   const dir = dirnamePath(normalizeToAbsolutePath(context.filename));
-  const dependencies = getDependencies(dir, normalizeToAbsolutePath(context.cwd));
+  const dependencies = withCurrentFileInlineDependencies(
+    getDependencies(dir, normalizeToAbsolutePath(context.cwd)),
+  );
   const reactVersion = dependencies.get('react');
   // Deno npm: imports reflect the actual runtime version and are intentionally included here, unlike the TypeScript/Node.js version signals
   if (!reactVersion) {

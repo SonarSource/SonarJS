@@ -18,7 +18,10 @@ import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { type Node, getUniqueWriteReference, getVariableFromScope, isIdentifier } from './ast.js';
-import { getDependenciesSanitizePaths } from './dependency-manifests/dependencies.js';
+import {
+  getDependenciesSanitizePaths,
+  setCurrentFileInlineDependencies,
+} from './dependency-manifests/dependencies.js';
 
 /**
  * Checks if the current file is an ES module based on sourceType.
@@ -105,6 +108,7 @@ function computeCurrentFileImports(sourceCode: SourceCode): void {
 export function clearFileCaches(): void {
   CURRENT_FILE_IMPORTS.sourceCode = null;
   CURRENT_FILE_IMPORTS.imports.clear();
+  setCurrentFileInlineDependencies(null);
 }
 
 export function getCurrentFileImports(sourceCode: SourceCode): ReadonlySet<string> {
