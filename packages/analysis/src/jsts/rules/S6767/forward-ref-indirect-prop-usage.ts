@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { Scope, SourceCode } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { getNodeParent } from '../helpers/ancestor.js';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
@@ -31,11 +31,11 @@ import { isForwardRefCallee } from '../helpers/react.js';
  * }
  */
 export function hasForwardRefCallbackPropUsage(
-  sourceCode: SourceCode,
-  componentNode: estree.Node | undefined,
+  componentNode: estree.Node,
+  context: Rule.RuleContext,
   propName: string | undefined,
 ): boolean {
-  if (!componentNode || !propName || !isFunctionNode(componentNode)) {
+  if (!propName || !isFunctionNode(componentNode)) {
     return false;
   }
 
@@ -44,7 +44,7 @@ export function hasForwardRefCallbackPropUsage(
     return false;
   }
 
-  const variable = sourceCode.getScope(componentNode).set.get(propsParam.name);
+  const variable = context.sourceCode.getScope(componentNode).set.get(propsParam.name);
   if (!variable) {
     return false;
   }

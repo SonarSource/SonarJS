@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { SourceCode } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { childrenOf } from '../helpers/ancestor.js';
 import { isIdentifier } from '../helpers/ast.js';
@@ -26,19 +26,23 @@ import { isIdentifier } from '../helpers/ast.js';
  * indirect pattern such as helper-call forwarding, spread usage, or computed access.
  */
 export function hasSupportedWholePropsUsage(
-  root: estree.Node | undefined,
+  componentNode: estree.Node,
+  context: Rule.RuleContext,
+  _propName: string | undefined,
+): boolean {
+  return hasSupportedWholePropsUsageInSubtree(componentNode, context.sourceCode.visitorKeys);
+}
+
+function hasSupportedWholePropsUsageInSubtree(
+  root: estree.Node,
   keys: SourceCode.VisitorKeys,
 ): boolean {
-  if (!root) {
-    return false;
-  }
-
   if (isSupportedWholePropsUsage(root, isWholePropsArgument)) {
     return true;
   }
 
   // Recursively check all children
-  return childrenOf(root, keys).some(child => hasSupportedWholePropsUsage(child, keys));
+  return childrenOf(root, keys).some(child => hasSupportedWholePropsUsageInSubtree(child, keys));
 }
 
 /**

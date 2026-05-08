@@ -19,7 +19,7 @@ import type estree from 'estree';
 import { DefaultParserRuleTester, RuleTester } from '../../tools/testers/rule-tester.js';
 import { isRequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
 import {
-  findComponentNode,
+  findComponentNodes,
   getComponentVariable,
   getComponentPropsType,
   isReactComponentSuperclass,
@@ -136,10 +136,10 @@ const propsTypeRule: Rule.RuleModule = {
   },
 };
 
-const findComponentNodeRule: Rule.RuleModule = {
+const findComponentNodesRule: Rule.RuleModule = {
   meta: {
     messages: {
-      unresolvedComponentOwner: 'Component owner could not be resolved from the props type',
+      unresolvedComponentOwners: 'Component owners could not be resolved from the props type',
     },
   },
   create(context: Rule.RuleContext) {
@@ -148,15 +148,16 @@ const findComponentNodeRule: Rule.RuleModule = {
       return {};
     }
 
-    const validateComponentOwner = (reportedNode: estree.Node, expectedName: string) => {
-      const componentNode = findComponentNode(reportedNode, context);
-      const componentName = componentNode
-        ? getComponentVariable(context.sourceCode, componentNode)?.name
-        : undefined;
-      if (componentName !== expectedName) {
+    const validateComponentOwners = (reportedNode: estree.Node, expectedNames: string[]) => {
+      const componentNames = findComponentNodes(reportedNode, context)
+        .map(componentNode => getComponentVariable(context.sourceCode, componentNode)?.name)
+        .filter((name): name is string => name !== undefined)
+        .sort();
+      const sortedExpectedNames = [...expectedNames].sort();
+      if (JSON.stringify(componentNames) !== JSON.stringify(sortedExpectedNames)) {
         context.report({
           node: reportedNode,
-          messageId: 'unresolvedComponentOwner',
+          messageId: 'unresolvedComponentOwners',
         });
       }
     };
@@ -164,7 +165,22 @@ const findComponentNodeRule: Rule.RuleModule = {
     return {
       TSPropertySignature(node) {
         if (node.key.type === 'Identifier' && node.key.name === 'label') {
-          validateComponentOwner(node.key, 'Button');
+          validateComponentOwners(node.key, ['Button']);
+        }
+        if (node.key.type === 'Identifier' && node.key.name === 'relay') {
+          validateComponentOwners(node.key, ['SavedSearchesList', 'SavedSearchesListWrapper']);
+        }
+        if (
+          node.key.type === 'Identifier' &&
+          node.key.name === 'relayMismatch' &&
+          context.sourceCode
+            .getAncestors(node)
+            .some(ancestor => (ancestor as { type: string }).type === 'TSInterfaceDeclaration')
+        ) {
+          validateComponentOwners(node.key, ['SavedSearchesListWrapper']);
+        }
+        if (node.key.type === 'Identifier' && node.key.name === 'moduleName') {
+          validateComponentOwners(node.key, ['InnerPageWrapper', 'PageWrapper']);
         }
       },
     };
@@ -261,7 +277,7 @@ class Button extends React.Component {
   ],
 });
 
-typeCheckingRuleTester.run('findComponentNode', findComponentNodeRule, {
+typeCheckingRuleTester.run('findComponentNodes', findComponentNodesRule, {
   valid: [
     {
       code: `
@@ -294,6 +310,65 @@ interface ButtonProps {
 }
 
 const Button: React.ForwardRefRenderFunction<unknown, ButtonProps> = (props, ref) => props.label;
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+interface SharedProps {
+  relay: string;
+}
+
+interface ChildProps extends SharedProps {
+  title: string;
+}
+
+const SavedSearchesList: React.FC<ChildProps> = props => props.title;
+const SavedSearchesListWrapper: React.FC<SharedProps> = props => props.relay;
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+interface SharedProps {
+  relayMismatch: string;
+}
+
+type ChildProps = SharedProps & {
+  relayMismatch: number;
+  title: string;
+};
+
+const SavedSearchesList: React.FC<ChildProps> = props => props.title;
+const SavedSearchesListWrapper: React.FC<SharedProps> = props => props.relayMismatch;
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+interface PageWrapperProps {
+  moduleName: string;
+  viewProps: { isVisible: boolean };
+}
+
+const InnerPageWrapper: React.FC<PageWrapperProps> = ({ viewProps }) => {
+  return <div>{String(viewProps.isVisible)}</div>;
+};
+
+class PageWrapper extends React.Component<PageWrapperProps> {
+  componentDidUpdate() {
+    if (this.props.moduleName === 'Map') {
+      return;
+    }
+  }
+
+  render() {
+    return <InnerPageWrapper {...this.props} />;
+  }
+}
 `,
     },
   ],

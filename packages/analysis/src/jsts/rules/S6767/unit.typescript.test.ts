@@ -482,6 +482,58 @@ class StateOwner extends React.Component<{}, SharedType, Snapshot> {
           errors: 1,
         },
         {
+          // TP: a shared base props declaration can belong to multiple components.
+          // The wrapper forwards whole props to the child, but the child still leaves
+          // the inherited prop unused. The decorator must keep the issue unless every
+          // owning component matches an FP suppression pattern.
+          code: `
+import * as React from 'react';
+interface SharedProps {
+  relay: string;
+}
+interface ChildProps extends SharedProps {
+  title: string;
+}
+const SavedSearchesList: React.FC<ChildProps> = props => {
+  const { title } = props;
+  return <div>{title}</div>;
+};
+const SavedSearchesListWrapper: React.FC<SharedProps> = props => {
+  const { relay } = props;
+  return <div data-id={relay}><SavedSearchesList {...props} title="x" /></div>;
+};
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: an exact shared props contract can belong to both a destructuring React.FC
+          // and a class component that forwards whole props. The issue must remain until
+          // every owner proves the prop is consumed through an FP remediation pattern.
+          code: `
+import * as React from 'react';
+interface PageWrapperProps {
+  moduleName: string;
+  viewProps: { isVisible: boolean };
+}
+const InnerPageWrapper: React.FC<PageWrapperProps> = ({ viewProps }) => {
+  return <div>{String(viewProps.isVisible)}</div>;
+};
+class PageWrapper extends React.Component<PageWrapperProps> {
+  componentDidUpdate() {
+    if (this.props.moduleName === 'Map') {
+      return;
+    }
+  }
+  render() {
+    return <InnerPageWrapper {...this.props} />;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
           // TP: unrelated decorator callback
           code: `
 declare const React: any;

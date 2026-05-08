@@ -16,7 +16,7 @@
  */
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { Scope, SourceCode } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { getNodeParent } from '../helpers/ancestor.js';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
@@ -36,17 +36,17 @@ import { isSupportedWholePropsUsage } from './whole-props-usage.js';
  * class Component extends React.Component<ComponentProps> {}
  */
 export function hasDecoratorPropUsage(
-  sourceCode: SourceCode,
-  componentNode: estree.Node | undefined,
+  componentNode: estree.Node,
+  context: Rule.RuleContext,
   propName: string | undefined,
 ): boolean {
-  if (!componentNode || !propName) {
+  if (!propName) {
     return false;
   }
 
   return (
-    hasDecoratorFactoryCallPropUsage(sourceCode, componentNode, propName) ||
-    hasDecoratorAnnotationPropUsage(sourceCode, componentNode, propName)
+    hasDecoratorFactoryCallPropUsage(context.sourceCode, componentNode, propName) ||
+    hasDecoratorAnnotationPropUsage(context.sourceCode, componentNode, propName)
   );
 }
 

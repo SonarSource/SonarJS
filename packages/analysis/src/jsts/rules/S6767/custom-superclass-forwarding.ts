@@ -26,10 +26,11 @@ import { isReactComponentSuperclass } from '../helpers/react.js';
  * non-React superclass, which this decorator treats as sufficient usage.
  */
 export function hasOwnCustomSuperclassPropsForwarding(
-  componentNode: estree.Node | undefined,
+  componentNode: estree.Node,
   context: Rule.RuleContext,
+  _propName: string | undefined,
 ): boolean {
-  if (componentNode?.type !== 'ClassDeclaration' && componentNode?.type !== 'ClassExpression') {
+  if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
     return false;
   }
 

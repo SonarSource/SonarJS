@@ -36,9 +36,10 @@ const COMPONENT_NODE_TYPES = new Set([
   'ArrowFunctionExpression',
 ]);
 const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclaration']);
+type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
-  ownerByTypeDecl: WeakMap<estree.Node, estree.Node | null>;
+  ownersByReportNode: WeakMap<estree.Node, estree.Node[] | null>;
   reactNonPropsTypeDecl: WeakMap<estree.Node, ReactNonPropsTypeUsage>;
   mixedReactNonPropsReportNodes: WeakMap<estree.Node, WeakSet<estree.Node>>;
 };
@@ -48,59 +49,146 @@ const REACT_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
 const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
 const REACT_FORWARD_REF_RENDER_FUNCTION_TYPES = new Set(['ForwardRefRenderFunction']);
 
+function isClassComponentNode(
+  node: estree.Node,
+): node is estree.ClassDeclaration | estree.ClassExpression {
+  return node.type === 'ClassDeclaration' || node.type === 'ClassExpression';
+}
+
+function isFunctionComponentNode(
+  node: estree.Node,
+): node is estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression {
+  return (
+    node.type === 'FunctionDeclaration' ||
+    node.type === 'FunctionExpression' ||
+    node.type === 'ArrowFunctionExpression'
+  );
+}
+
+function isNamedComponentNode(
+  node: estree.Node,
+): node is
+  | estree.ClassDeclaration
+  | estree.FunctionDeclaration
+  | estree.ClassExpression
+  | estree.FunctionExpression {
+  return (
+    node.type === 'ClassDeclaration' ||
+    node.type === 'FunctionDeclaration' ||
+    node.type === 'ClassExpression' ||
+    node.type === 'FunctionExpression'
+  );
+}
+
+function isVariableDeclaratorWithIdentifierId(
+  node: unknown,
+): node is estree.VariableDeclarator & { id: estree.Identifier } {
+  return (
+    !!node &&
+    typeof node === 'object' &&
+    'type' in node &&
+    node.type === 'VariableDeclarator' &&
+    'id' in node &&
+    !!node.id &&
+    typeof node.id === 'object' &&
+    'type' in node.id &&
+    node.id.type === 'Identifier'
+  );
+}
+
+function isReactPropTypesAssignment(node: estree.Node): node is estree.AssignmentExpression & {
+  left: estree.MemberExpression & { object: estree.Identifier };
+} {
+  return (
+    node.type === 'AssignmentExpression' &&
+    node.left.type === 'MemberExpression' &&
+    isIdentifier(node.left.property, 'propTypes') &&
+    node.left.object.type === 'Identifier'
+  );
+}
+
+function isTypeMemberNode(node: TSESTree.Node): node is TypeMemberNode {
+  return node.type === 'TSPropertySignature' || node.type === 'TSMethodSignature';
+}
+
+function isVariableAssignedFunctionOrClassExpression(
+  componentNode: estree.Node,
+  parent: unknown,
+): parent is estree.VariableDeclarator & { id: estree.Identifier } {
+  return (
+    (componentNode.type === 'ClassExpression' || componentNode.type === 'FunctionExpression') &&
+    isVariableDeclaratorWithIdentifierId(parent)
+  );
+}
+
 /**
- * Given a reported AST node (e.g., a prop name inside an interface/propTypes),
- * returns the React component node that owns it, or `undefined` if no owner can be identified.
+ * Returns the React components that own a reported node.
  *
- * Uses three strategies:
- * - Walk ancestors for a direct component ancestor.
- * - Walk ancestors for a `Foo.propTypes = {...}` assignment and resolve `Foo`'s declaration.
- * - Use the TypeScript type checker to match the props interface to its owning
- *   class or function component (identified by PascalCase convention).
+ * Example:
+ * ```tsx
+ * interface SharedProps {
+ *   sharedValue: string;
+ * }
  *
- * Returns `undefined` if all strategies fail so callers can keep the original report
- * instead of falling back to a file-wide scan.
+ * interface ChildProps extends SharedProps {
+ *   title: string;
+ * }
+ *
+ * const Child: React.FC<ChildProps> = props => <div>{props.title}</div>;
+ * const Wrapper: React.FC<SharedProps> = props => <Child {...props} title="x" />;
+ * ```
+ *
+ * A report raised on `sharedValue` inside `SharedProps` belongs to both `Child` and `Wrapper`.
+ * This helper returns both component nodes.
+ *
+ * It tries, in order:
+ * - a direct enclosing component
+ * - a `Foo.propTypes = { ... }` assignment
+ * - TypeScript props-type matching
  *
  * @param node the reported node located inside a React-related construct
  * @param context the current ESLint rule context
- * @returns the component node that owns `node`, if it can be resolved
+ * @returns every component node that owns `node`
  */
-export function findComponentNode(
-  node: estree.Node,
-  context: Rule.RuleContext,
-): estree.Node | undefined {
+export function findComponentNodes(node: estree.Node, context: Rule.RuleContext): estree.Node[] {
   const ancestors = context.sourceCode.getAncestors(node);
 
   // Strategy A: direct component ancestor
   for (let i = ancestors.length - 1; i >= 0; i--) {
     if (COMPONENT_NODE_TYPES.has(ancestors[i].type)) {
-      return ancestors[i];
+      return [ancestors[i]];
     }
   }
 
   // Strategy B: Foo.propTypes = {...} assignment ancestor
   for (let i = ancestors.length - 1; i >= 0; i--) {
     const anc = ancestors[i];
-    if (anc.type !== 'AssignmentExpression') {
+    if (!isReactPropTypesAssignment(anc)) {
       continue;
     }
-    const { left } = anc;
-    if (
-      left.type === 'MemberExpression' &&
-      isIdentifier(left.property, 'propTypes') &&
-      left.object.type === 'Identifier'
-    ) {
-      const name = left.object.name;
-      const defNode = context.sourceCode.getScope(node).variables.find(v => v.name === name)
-        ?.defs[0]?.node;
-      if (defNode) {
-        return defNode;
-      }
+    const name = anc.left.object.name;
+    const defNode = context.sourceCode.getScope(node).variables.find(v => v.name === name)
+      ?.defs[0]?.node;
+    if (defNode) {
+      return [defNode];
     }
   }
 
   // Strategy C: TypeScript type checker — match the props interface to its owning component
-  return findOwnerByType(ancestors, context, context.sourceCode.visitorKeys);
+  return findComponentOwnersByType(node, ancestors, context, context.sourceCode.visitorKeys);
+}
+
+/**
+ * Convenience wrapper for callers that only care about the first resolved owner.
+ *
+ * Prefer `findComponentNodes()` when suppression logic must consider every matching
+ * component before deciding whether to keep or drop a report.
+ */
+export function findComponentNode(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): estree.Node | undefined {
+  return findComponentNodes(node, context)[0];
 }
 
 /**
@@ -157,20 +245,16 @@ export function getComponentPropsType(
   services: RequiredParserServices,
 ): ts.Type | undefined {
   const checker = services.program.getTypeChecker();
-  if (
-    componentNode.type === 'FunctionDeclaration' ||
-    componentNode.type === 'FunctionExpression' ||
-    componentNode.type === 'ArrowFunctionExpression'
-  ) {
+  if (isFunctionComponentNode(componentNode)) {
     const firstParam = componentNode.params[0];
     const propsType = firstParam ? getTypeFromTreeNode(firstParam, services) : undefined;
     if (isSpecificPropsType(propsType)) {
       return propsType;
     }
-    return getTypedVariableComponentPropsType(componentNode, services);
+    return getComponentPropsTypeFromVariableDeclaration(componentNode, services);
   }
 
-  if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
+  if (!isClassComponentNode(componentNode)) {
     return undefined;
   }
 
@@ -180,20 +264,66 @@ export function getComponentPropsType(
   return getDeclaredClassPropsType(tsNode, checker) ?? getClassPropsPropertyType(tsNode, checker);
 }
 
+/**
+ * Returns the props-type candidates for a component.
+ *
+ * Most components contribute one props type. Function expressions can contribute a
+ * second one from the variable declaration when the parameter itself is not typed enough.
+ *
+ * Example:
+ * ```tsx
+ * const Button: React.FC<Props> = props => <button>{props.label}</button>;
+ * ```
+ *
+ * In that case we look at both the parameter type and the declared `React.FC<Props>`.
+ */
+function getComponentPropsTypeCandidates(
+  componentNode: estree.Node,
+  services: RequiredParserServices,
+): ts.Type[] {
+  const propsTypes: ts.Type[] = [];
+  const primaryPropsType = getComponentPropsType(componentNode, services);
+  if (primaryPropsType) {
+    propsTypes.push(primaryPropsType);
+  }
+
+  if (isFunctionComponentNode(componentNode)) {
+    const declaredVariablePropsType = getComponentPropsTypeFromVariableDeclaration(
+      componentNode,
+      services,
+    );
+    if (declaredVariablePropsType && !propsTypes.includes(declaredVariablePropsType)) {
+      propsTypes.push(declaredVariablePropsType);
+    }
+  }
+
+  return propsTypes;
+}
+
 function isSpecificPropsType(type: ts.Type | undefined): type is ts.Type {
   return !!type && (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) === 0;
 }
 
-function getTypedVariableComponentPropsType(
+/**
+ * Returns the props type declared on the variable that holds a function component.
+ *
+ * Example:
+ * ```tsx
+ * const Button: React.FC<Props> = props => <button>{props.label}</button>;
+ * ```
+ *
+ * This reads `Props` from the variable declaration, not from the `props` parameter.
+ */
+function getComponentPropsTypeFromVariableDeclaration(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type | undefined {
-  const parent = getNodeParent(componentNode) as TSESTree.VariableDeclarator | undefined;
-  if (parent?.type !== 'VariableDeclarator' || parent.id.type !== 'Identifier') {
+  const parent = getNodeParent(componentNode);
+  if (!isVariableDeclaratorWithIdentifierId(parent)) {
     return undefined;
   }
 
-  const declaredType = parent.id.typeAnnotation?.typeAnnotation;
+  const declaredType = (parent.id as TSESTree.Identifier).typeAnnotation?.typeAnnotation;
   if (!declaredType) {
     return undefined;
   }
@@ -204,6 +334,18 @@ function getTypedVariableComponentPropsType(
     : undefined;
 }
 
+/**
+ * Extracts the props type from a React function-component wrapper type.
+ *
+ * Examples:
+ * ```tsx
+ * const Foo: React.FC<Props> = props => <div />;
+ * const Foo: React.FC<Props> & { Group?: string } = props => <div />;
+ * const Foo: React.ForwardRefRenderFunction<HTMLInputElement, Props> = (props, ref) => <div />;
+ * ```
+ *
+ * In each case this returns the `Props` node.
+ */
 function findDeclaredFunctionComponentPropsType(
   typeNode: TSESTree.TypeNode,
 ): TSESTree.TypeNode | undefined {
@@ -408,78 +550,94 @@ function getDeclaredClassNonPropsTypes(
 }
 
 /**
- * Strategy C: use the TypeScript type checker to find which React component owns a given
- * props type declaration (`interface FooProps` or `type FooProps = ...`).
+ * TypeScript fallback for finding component owners.
  *
- * The idea: the reported node is inside a TypeScript interface or type alias.  We resolve
- * that type with the TS checker, then scan every component node in the file and ask whether
- * its props parameter type is *mutually assignable* to the reported type.  Mutual assignability
- * (A ↔ B) is stricter than one-directional subtyping and avoids false matches such as an empty
- * or all-optional props type accidentally matching an unrelated state interface.
+ * The reported node is inside a TypeScript props declaration such as
+ * `interface FooProps { ... }` or `type FooProps = ...`.
  *
- * Results are cached per source-file and per type-declaration node so the expensive
- * type-checker calls are only made once per unique `(file, typeDecl)` pair.
+ * We scan the components in the file and keep the ones whose props match that declaration.
+ * If the report is on a specific member such as `sharedValue`, we first try to match that
+ * member. If that is not possible, we fall back to matching the whole props type.
  *
- * @returns The component node that owns the props type, or `undefined` if no match is found.
+ * @returns Every component that owns the props type. Returns an empty array when no match is found.
  */
-function findOwnerByType(
+function findComponentOwnersByType(
+  node: estree.Node,
   ancestors: estree.Node[],
   context: Rule.RuleContext,
   keys: SourceCode.VisitorKeys,
-): estree.Node | undefined {
+): estree.Node[] {
   // Strategy C requires TypeScript type information — bail out without it.
   const services = context.sourceCode.parserServices;
   if (!isRequiredParserServices(services)) {
-    return undefined;
+    return [];
   }
 
-  // Step 1: locate the nearest enclosing TypeScript type declaration in the ancestor chain.
-  // The reported node (e.g. a prop name) lives inside `interface FooProps { ... }` or
-  // `type FooProps = { ... }` — we need that declaration node to look up its TS type.
+  // Step 1: reuse the cached result when we already computed it for this node.
+  const sourceCache = getSourceCache(context.sourceCode);
+  const cachedOwners = sourceCache.ownersByReportNode.get(node);
+  if (cachedOwners !== undefined) {
+    return cachedOwners ?? [];
+  }
+
+  // Step 2: find the enclosing TypeScript type declaration.
   const typeDecl = findEnclosingTypeDeclaration(ancestors);
   if (!typeDecl) {
-    // Not inside a type declaration — Strategy C cannot apply.
-    return undefined;
+    sourceCache.ownersByReportNode.set(node, null);
+    return [];
   }
 
-  // Step 2: check the per-file cache before doing any type-checker work.
-  // `null` in the cache means "we already searched and found no owner".
-  const sourceCache = getSourceCache(context.sourceCode);
-  const cachedOwner = sourceCache.ownerByTypeDecl.get(typeDecl);
-  if (cachedOwner !== undefined) {
-    return cachedOwner ?? undefined; // convert null → undefined for callers
-  }
-
-  // Step 3: resolve the TS type for the type declaration (e.g. the shape of `FooProps`).
-  const checker = services.program.getTypeChecker();
-  const propsType = getTypeFromTreeNode(typeDecl, services);
-
-  // Step 4: collect all top-level component nodes in the file (also cached).
-  // We intentionally stop at component boundaries and do not recurse into their bodies,
-  // because nested components are an antipattern and scanning them would be expensive.
+  // Step 3: collect the components in the file.
   const componentNodes =
     sourceCache.componentNodes ??
     (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
+  const checker = services.program.getTypeChecker();
+  const candidateType = getTypeFromTreeNode(typeDecl, services);
+  const candidateTypeSymbol = candidateType.aliasSymbol ?? candidateType.symbol;
 
-  // Step 5: find the first component whose props type is mutually assignable to `propsType`.
+  // Step 4: if the report is on a specific member such as `sharedValue`, keep only the
+  // components whose props contain that member with a compatible type.
+  const typeMember = findEnclosingTypeMember(ancestors);
+  const typeMemberName = getTypeMemberName(typeMember);
+  const reportedTypeMember = typeMember
+    ? services.esTreeNodeToTSNodeMap.get(typeMember)
+    : undefined;
+  if (typeMemberName && reportedTypeMember && ts.isTypeElement(reportedTypeMember)) {
+    const owners = componentNodes.filter(componentNode =>
+      componentPropsIncludeReportedTypeMember(
+        componentNode,
+        services,
+        checker,
+        candidateType,
+        candidateTypeSymbol,
+        typeMemberName,
+        reportedTypeMember,
+      ),
+    );
+    sourceCache.ownersByReportNode.set(node, owners.length > 0 ? owners : null);
+    return owners;
+  }
+
+  // Step 5: otherwise, match the whole props type.
+  const owners: estree.Node[] = [];
   for (const componentNode of componentNodes) {
-    if (componentNode.type === 'ClassDeclaration' || componentNode.type === 'ClassExpression') {
+    if (isClassComponentNode(componentNode) && !hasRenderMethodOrProperty(componentNode)) {
+      continue;
+    }
+    if (isClassComponentNode(componentNode)) {
       const tsNode = services.esTreeNodeToTSNodeMap.get(
         componentNode as TSESTree.Node,
       ) as ts.ClassLikeDeclaration;
-      if (matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, propsType)) {
-        sourceCache.ownerByTypeDecl.set(typeDecl, componentNode);
-        return componentNode;
+      if (matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, candidateType)) {
+        owners.push(componentNode);
       }
-    } else if (matchesFunctionProps(componentNode, services, checker, propsType)) {
-      sourceCache.ownerByTypeDecl.set(typeDecl, componentNode);
-      return componentNode;
+    } else if (matchesFunctionProps(componentNode, services, checker, candidateType)) {
+      owners.push(componentNode);
     }
   }
 
-  // No component matched — record the negative result so we don't search again.
-  sourceCache.ownerByTypeDecl.set(typeDecl, null);
-  return undefined;
+  sourceCache.ownersByReportNode.set(node, owners.length > 0 ? owners : null);
+  return owners;
 }
 
 function getSourceCache(sourceCode: SourceCode): SourceCache {
@@ -487,7 +645,7 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
   if (!cache) {
     cache = {
       componentNodes: undefined,
-      ownerByTypeDecl: new WeakMap<estree.Node, estree.Node | null>(),
+      ownersByReportNode: new WeakMap<estree.Node, estree.Node[] | null>(),
       reactNonPropsTypeDecl: new WeakMap<estree.Node, ReactNonPropsTypeUsage>(),
       mixedReactNonPropsReportNodes: new WeakMap<estree.Node, WeakSet<estree.Node>>(),
     };
@@ -525,21 +683,17 @@ function isReactComponentNonPropsTypeDeclaration(
     (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
 
   const isPropsTypeSomewhere = componentNodes.some(componentNode => {
-    if (
-      (componentNode.type === 'FunctionDeclaration' ||
-        componentNode.type === 'FunctionExpression' ||
-        componentNode.type === 'ArrowFunctionExpression') &&
-      !isPascalCaseFunctionComponent(componentNode)
-    ) {
+    if (isFunctionComponentNode(componentNode) && !isPascalCaseFunctionComponent(componentNode)) {
       return false;
     }
 
-    const propsType = getComponentPropsType(componentNode, services);
-    return propsType ? areSameTypeDeclarations(checker, candidateType, propsType) : false;
+    return getComponentPropsTypeCandidates(componentNode, services).some(propsType =>
+      areSameTypeDeclarations(checker, candidateType, propsType),
+    );
   });
 
   const isNonPropsType = componentNodes.some(componentNode => {
-    if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
+    if (!isClassComponentNode(componentNode)) {
       return false;
     }
 
@@ -559,9 +713,34 @@ function isReactComponentNonPropsTypeDeclaration(
   return shouldSuppressReactNonPropsReport(node, typeDecl, usage, sourceCache);
 }
 
+/**
+ * Returns the closest enclosing TypeScript type member around a reported node.
+ *
+ * Example:
+ * ```ts
+ * interface Props {
+ *   title: string;
+ *   onSelect(): void;
+ *   'data-id': string;
+ *   0: string;
+ * }
+ * ```
+ *
+ * A report raised inside one of those members resolves to that property or method.
+ */
+function findEnclosingTypeMember(ancestors: estree.Node[]): TypeMemberNode | undefined {
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    const ancestor = ancestors[i] as TSESTree.Node;
+    if (isTypeMemberNode(ancestor)) {
+      return ancestor;
+    }
+  }
+  return undefined;
+}
+
 function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
-  const functionName = getFunctionName(componentNode);
-  return functionName === undefined || /^[A-Z]/.test(functionName);
+  const componentIdentifier = getComponentIdentifier(componentNode);
+  return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
 }
 
 function shouldSuppressReactNonPropsReport(
@@ -593,6 +772,11 @@ function shouldSuppressReactNonPropsReport(
   return shouldSuppress;
 }
 
+/**
+ * Returns the closest enclosing TypeScript type declaration around a reported node.
+ *
+ * This recognizes both `interface Props { ... }` and `type Props = ...` declarations.
+ */
 function findEnclosingTypeDeclaration(ancestors: estree.Node[]): estree.Node | undefined {
   for (let i = ancestors.length - 1; i >= 0; i--) {
     if (TS_TYPE_DECL_TYPES.has(ancestors[i].type)) {
@@ -603,15 +787,338 @@ function findEnclosingTypeDeclaration(ancestors: estree.Node[]): estree.Node | u
 }
 
 /**
+ * Returns the runtime string name for a TypeScript type member key.
+ *
+ * Example:
+ * ```ts
+ * interface Props {
+ *   title: string;
+ *   onSelect(): void;
+ *   'data-id': string;
+ *   0: string;
+ * }
+ * ```
+ *
+ * This returns `"title"`, `"onSelect"`, `"data-id"`, and `"0"`.
+ */
+function getTypeMemberName(typeMember: TypeMemberNode | undefined): string | undefined {
+  if (!typeMember) {
+    return undefined;
+  }
+
+  const { key } = typeMember;
+  if (key.type === 'Identifier') {
+    return key.name;
+  }
+  if (key.type === 'Literal' && (typeof key.value === 'string' || typeof key.value === 'number')) {
+    return String(key.value);
+  }
+
+  return undefined;
+}
+
+/**
+ * Returns true when a component's props type contains the reported type member.
+ *
+ * First we try to match the exact TypeScript member declaration.
+ * If that fails, we check whether the component props type still references the
+ * enclosing type declaration.
+ *
+ * In both cases the final prop type on the component must stay compatible with the
+ * reported member type.
+ */
+function componentPropsIncludeReportedTypeMember(
+  componentNode: estree.Node,
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+  candidateType: ts.Type,
+  candidateTypeSymbol: ts.Symbol | undefined,
+  typeMemberName: string,
+  reportedTypeMember: ts.TypeElement,
+): boolean {
+  if (isClassComponentNode(componentNode) && !hasRenderMethodOrProperty(componentNode)) {
+    return false;
+  }
+
+  if (isFunctionComponentNode(componentNode) && !isPascalCaseFunctionComponent(componentNode)) {
+    return false;
+  }
+
+  const componentPropsTypes = getComponentPropsTypeCandidates(componentNode, services);
+  const reportedTypeMemberType = checker.getTypeAtLocation(reportedTypeMember);
+  if (
+    // The exact member match already proves that the component uses the
+    // declaration that contains `reportedTypeMember`.
+    componentPropsTypes.some(componentPropsType =>
+      hasExactCompatibleReportedTypeMember(
+        componentPropsType,
+        typeMemberName,
+        reportedTypeMemberType,
+        reportedTypeMember,
+        checker,
+      ),
+    )
+  ) {
+    return true;
+  }
+
+  return (
+    !!candidateTypeSymbol &&
+    componentPropsTypes.some(
+      componentPropsType =>
+        hasCompatibleReportedTypeMember(
+          componentPropsType,
+          typeMemberName,
+          reportedTypeMemberType,
+          checker,
+        ) &&
+        typeUsesTypeDeclaration(componentPropsType, candidateType, candidateTypeSymbol, checker),
+    )
+  );
+}
+
+function hasExactCompatibleReportedTypeMember(
+  componentPropsType: ts.Type,
+  typeMemberName: string,
+  reportedTypeMemberType: ts.Type,
+  reportedTypeMember: ts.TypeElement,
+  checker: ts.TypeChecker,
+): boolean {
+  const componentPropSymbol = getCompatibleReportedTypeMemberSymbol(
+    componentPropsType,
+    typeMemberName,
+    reportedTypeMemberType,
+    checker,
+  );
+  return (
+    componentPropSymbol?.declarations?.some(
+      declaration => ts.isTypeElement(declaration) && declaration === reportedTypeMember,
+    ) === true
+  );
+}
+
+function hasCompatibleReportedTypeMember(
+  componentPropsType: ts.Type,
+  typeMemberName: string,
+  reportedTypeMemberType: ts.Type,
+  checker: ts.TypeChecker,
+): boolean {
+  return (
+    getCompatibleReportedTypeMemberSymbol(
+      componentPropsType,
+      typeMemberName,
+      reportedTypeMemberType,
+      checker,
+    ) !== undefined
+  );
+}
+
+function getCompatibleReportedTypeMemberSymbol(
+  componentPropsType: ts.Type,
+  typeMemberName: string,
+  reportedTypeMemberType: ts.Type,
+  checker: ts.TypeChecker,
+): ts.Symbol | undefined {
+  const componentPropSymbol = componentPropsType.getProperty(typeMemberName);
+  if (!componentPropSymbol) {
+    return undefined;
+  }
+
+  const componentPropType = checker.getTypeOfSymbol(componentPropSymbol);
+  return checker.isTypeAssignableTo(reportedTypeMemberType, componentPropType)
+    ? componentPropSymbol
+    : undefined;
+}
+
+/**
+ * Returns true when a class component declares a `render` member.
+ *
+ * Examples:
+ * ```tsx
+ * class Panel extends React.Component {
+ *   render() {
+ *     return <div />;
+ *   }
+ * }
+ *
+ * class Panel extends React.Component {
+ *   render = () => <div />;
+ * }
+ * ```
+ *
+ * Both declarations count.
+ */
+function hasRenderMethodOrProperty(componentNode: estree.Node): boolean {
+  if (!isClassComponentNode(componentNode)) {
+    return false;
+  }
+
+  return componentNode.body.body.some(
+    member =>
+      (member.type === 'MethodDefinition' || member.type === 'PropertyDefinition') &&
+      member.key.type === 'Identifier' &&
+      member.key.name === 'render',
+  );
+}
+
+/**
+ * Returns true when a type uses the candidate type declaration, directly or through
+ * another type.
+ *
+ * Example:
+ * ```ts
+ * interface SharedProps {
+ *   sharedValue: string;
+ * }
+ *
+ * interface ChildProps extends SharedProps {
+ *   title: string;
+ * }
+ *
+ * type WrappedProps = ChildProps & {
+ *   compact: boolean;
+ * };
+ * ```
+ *
+ * `ChildProps` and `WrappedProps` both use `SharedProps`.
+ */
+function typeUsesTypeDeclaration(
+  type: ts.Type,
+  candidateType: ts.Type,
+  candidateTypeSymbol: ts.Symbol,
+  checker: ts.TypeChecker,
+  seen = new Set<ts.Symbol>(),
+): boolean {
+  if (areSameTypeDeclarations(checker, type, candidateType)) {
+    return true;
+  }
+
+  const typeSymbol = type.aliasSymbol ?? type.symbol;
+  if (!typeSymbol || seen.has(typeSymbol)) {
+    return false;
+  }
+  if (typeSymbol === candidateTypeSymbol) {
+    return true;
+  }
+
+  seen.add(typeSymbol);
+  return (
+    typeSymbol.declarations?.some(declaration =>
+      declarationUsesTypeDeclaration(
+        declaration,
+        candidateType,
+        candidateTypeSymbol,
+        checker,
+        seen,
+      ),
+    ) === true
+  );
+}
+
+/**
+ * Returns true when a declaration uses the candidate type through `extends`,
+ * intersections, unions, or nested references.
+ */
+function declarationUsesTypeDeclaration(
+  declaration: ts.Declaration,
+  candidateType: ts.Type,
+  candidateTypeSymbol: ts.Symbol,
+  checker: ts.TypeChecker,
+  seen: Set<ts.Symbol>,
+): boolean {
+  if (ts.isInterfaceDeclaration(declaration)) {
+    return (
+      declaration.heritageClauses?.some(clause =>
+        clause.types.some(type =>
+          typeUsesTypeDeclaration(
+            checker.getTypeAtLocation(type),
+            candidateType,
+            candidateTypeSymbol,
+            checker,
+            seen,
+          ),
+        ),
+      ) === true
+    );
+  }
+
+  if (ts.isTypeAliasDeclaration(declaration)) {
+    return typeNodeUsesTypeDeclaration(
+      declaration.type,
+      candidateType,
+      candidateTypeSymbol,
+      checker,
+      seen,
+    );
+  }
+
+  return false;
+}
+
+/**
+ * Returns true when a TypeScript type node references the candidate type declaration.
+ *
+ * It unwraps parentheses, intersections, unions, and type references until it can
+ * tell whether the candidate declaration is used.
+ */
+function typeNodeUsesTypeDeclaration(
+  typeNode: ts.TypeNode,
+  candidateType: ts.Type,
+  candidateTypeSymbol: ts.Symbol,
+  checker: ts.TypeChecker,
+  seen: Set<ts.Symbol>,
+): boolean {
+  if (ts.isParenthesizedTypeNode(typeNode)) {
+    return typeNodeUsesTypeDeclaration(
+      typeNode.type,
+      candidateType,
+      candidateTypeSymbol,
+      checker,
+      seen,
+    );
+  }
+
+  if (ts.isIntersectionTypeNode(typeNode) || ts.isUnionTypeNode(typeNode)) {
+    return typeNode.types.some(type =>
+      typeNodeUsesTypeDeclaration(type, candidateType, candidateTypeSymbol, checker, seen),
+    );
+  }
+
+  if (ts.isTypeReferenceNode(typeNode)) {
+    return typeUsesTypeDeclaration(
+      checker.getTypeAtLocation(typeNode),
+      candidateType,
+      candidateTypeSymbol,
+      checker,
+      seen,
+    );
+  }
+
+  return false;
+}
+
+/**
  * Performs a shallow AST walk from `root` and returns every top-level component node
  * (`ClassDeclaration`, `ClassExpression`, `FunctionDeclaration`, `FunctionExpression`,
  * `ArrowFunctionExpression`).
  *
- * "Shallow" means the walk **stops** when it reaches a component node — it does not
- * recurse into the component's body.  This is intentional: nested component definitions
- * are an antipattern in React, and skipping their bodies keeps the traversal bounded.
- * The children are pushed in reverse order so that the leftmost child is processed first
- * (stack is LIFO), preserving document order in the result array.
+ * Example:
+ * ```tsx
+ * function Header() {
+ *   return <div />;
+ * }
+ *
+ * const Footer = () => <div />;
+ * const Sidebar = function () {
+ *   return <div />;
+ * };
+ * const Panel = class extends React.Component {};
+ * ```
+ *
+ * These four component definitions are collected.
+ *
+ * "Shallow" means the walk stops when it reaches a component node. It does not go
+ * inside the component body.
  */
 function collectComponentNodes(root: estree.Node, keys: SourceCode.VisitorKeys): estree.Node[] {
   const result: estree.Node[] = [];
@@ -635,20 +1142,12 @@ function collectComponentNodes(root: estree.Node, keys: SourceCode.VisitorKeys):
 }
 
 /**
- * Returns `true` when the class component's declared `props` property type is mutually
- * assignable to `propsType`.
+ * Returns `true` when a class component uses `propsType` as its props type.
  *
- * For Strategy C owner matching, we intentionally key off the resolved instance
- * `props` property instead of the heritage-clause type argument alone. That keeps
- * abstract or intermediate base classes from stealing ownership from subclasses
- * that are the actual components using the props inside the file.
+ * We compare against the resolved `props` property, not just the type argument in
+ * `extends React.Component<...>`, so subclasses keep the ownership.
  *
- * **Why mutual assignability?**
- * One-directional assignability (`propsType → componentPropsType`) would return `true`
- * whenever `propsType` is a structural subtype of `componentPropsType`, which is
- * trivially satisfied when the component's props interface has only optional fields.
- * Requiring the reverse direction as well (`componentPropsType → propsType`) filters
- * out unrelated interfaces that happen to satisfy a permissive props shape.
+ * We use mutual assignability to avoid loose matches on unrelated optional shapes.
  */
 function matchesClassProps(
   cls: ts.ClassLikeDeclaration,
@@ -659,22 +1158,13 @@ function matchesClassProps(
 }
 
 /**
- * Returns `true` when the function component's resolved props type is mutually
- * assignable to `propsType`.
+ * Returns `true` when a function component uses `propsType` as its props type.
  *
- * This delegates to `getComponentPropsType` so Strategy C shares the same props
- * recovery logic used elsewhere, including fallbacks for contextually typed
- * function expressions such as `const Foo: React.FC<Props> = props => ...`.
+ * This reuses `getComponentPropsType`, so it benefits from the same fallback logic
+ * for contextually typed function expressions.
  *
- * **PascalCase guard:** React components are conventionally PascalCase.  If the function
- * has a resolvable name that starts with a lowercase letter, it is almost certainly a
- * helper (e.g. `getStyle(props)`) rather than a component — skip it to avoid false
- * matches.  Unnamed functions (e.g. anonymous arrow functions) are not filtered out
- * because they could still be valid component expressions assigned to a PascalCase
- * variable.
- *
- * **Why mutual assignability?** — same rationale as `matchesClassProps`: prevents
- * accidental matches when the component's props type is permissive (all-optional fields).
+ * Lowercase function names are ignored because they are usually helpers, not components.
+ * We use mutual assignability to avoid loose matches.
  */
 function matchesFunctionProps(
   componentNode: estree.Node,
@@ -687,51 +1177,35 @@ function matchesFunctionProps(
   if (!isPascalCaseFunctionComponent(componentNode)) {
     return false;
   }
-  const componentParamType = getComponentPropsType(componentNode, services);
-  return areMutuallyAssignableTypes(checker, propsType, componentParamType);
+  return getComponentPropsTypeCandidates(componentNode, services).some(componentParamType =>
+    areMutuallyAssignableTypes(checker, propsType, componentParamType),
+  );
 }
 
 /**
- * Returns the name of a function/arrow-function node if it can be statically determined,
- * or `undefined` for anonymous functions.
+ * Returns the identifier that names a component, regardless of declaration form.
  *
- * - `FunctionDeclaration` / `FunctionExpression`: use the node's own `id`.
- * - `ArrowFunctionExpression`: look at the parent `VariableDeclarator` (e.g. `const Foo = () => …`).
+ * Examples:
+ * ```tsx
+ * function Header() {}
+ * const Footer = () => <div />;
+ * const Modal = function () {
+ *   return <div />;
+ * };
+ * const Panel = class extends React.Component {};
+ * ```
+ *
+ * This resolves to `Header`, `Footer`, `Modal`, and `Panel`.
  */
-function getFunctionName(node: estree.Node): string | undefined {
-  if (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') {
-    return (node as estree.Function as { id?: estree.Identifier }).id?.name;
-  }
-  if (node.type === 'ArrowFunctionExpression') {
-    const parent = (node as TSESTree.ArrowFunctionExpression).parent;
-    if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
-      return parent.id.name;
-    }
-  }
-  return undefined;
-}
-
 function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
   const parent = getNodeParent(componentNode);
-  if (
-    (componentNode.type === 'ClassExpression' || componentNode.type === 'FunctionExpression') &&
-    parent?.type === 'VariableDeclarator' &&
-    parent.id.type === 'Identifier'
-  ) {
+  if (isVariableAssignedFunctionOrClassExpression(componentNode, parent)) {
     return parent.id;
   }
 
-  if (
-    (componentNode.type === 'ClassDeclaration' ||
-      componentNode.type === 'FunctionDeclaration' ||
-      componentNode.type === 'ClassExpression' ||
-      componentNode.type === 'FunctionExpression') &&
-    componentNode.id
-  ) {
+  if (isNamedComponentNode(componentNode) && componentNode.id) {
     return componentNode.id;
   }
 
-  return parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier'
-    ? parent.id
-    : undefined;
+  return isVariableDeclaratorWithIdentifierId(parent) ? parent.id : undefined;
 }

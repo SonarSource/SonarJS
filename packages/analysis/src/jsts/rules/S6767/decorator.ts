@@ -20,12 +20,30 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { findComponentNode, isUsedAsReactComponentNonPropsType } from '../helpers/react.js';
+import { findComponentNodes, isUsedAsReactComponentNonPropsType } from '../helpers/react.js';
 import { hasOwnCustomSuperclassPropsForwarding } from './custom-superclass-forwarding.js';
 import { hasDecoratorPropUsage } from './decorator-indirect-prop-usage.js';
 import { hasForwardRefCallbackPropUsage } from './forward-ref-indirect-prop-usage.js';
 import * as meta from './generated-meta.js';
 import { hasSupportedWholePropsUsage } from './whole-props-usage.js';
+
+type ComponentNodePredicate = (
+  componentNode: estree.Node,
+  context: Rule.RuleContext,
+  propName: string | undefined,
+) => boolean;
+
+function allMatch(
+  componentNodes: estree.Node[],
+  predicate: ComponentNodePredicate,
+  context: Rule.RuleContext,
+  propName: string | undefined,
+): boolean {
+  return (
+    componentNodes.length > 0 &&
+    componentNodes.every(componentNode => predicate(componentNode, context, propName))
+  );
+}
 
 /**
  * Decorates `react/no-unused-prop-types` with SonarJS-specific false-positive
@@ -49,34 +67,34 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         return;
       }
 
-      const componentNode = findComponentNode(node, context);
+      const componentNodes = findComponentNodes(node, context);
       const propName = data?.name;
 
       // FP remediation escape 1:
       // the component already consumes whole props through a supported pattern such as
       // helper-call forwarding, spread usage, or computed access.
-      if (hasSupportedWholePropsUsage(componentNode, context.sourceCode.visitorKeys)) {
+      if (allMatch(componentNodes, hasSupportedWholePropsUsage, context, propName)) {
         return;
       }
 
       // FP remediation escape 2:
       // the component constructor forwards `props` to its own non-React superclass,
       // which this decorator treats as sufficient indirect usage.
-      if (hasOwnCustomSuperclassPropsForwarding(componentNode, context)) {
+      if (allMatch(componentNodes, hasOwnCustomSuperclassPropsForwarding, context, propName)) {
         return;
       }
 
       // FP remediation escape 3:
       // the specific reported prop is consumed inside a `forwardRef` callback that
       // closes over the component's original props binding.
-      if (hasForwardRefCallbackPropUsage(context.sourceCode, componentNode, propName)) {
+      if (allMatch(componentNodes, hasForwardRefCallbackPropUsage, context, propName)) {
         return;
       }
 
       // FP remediation escape 4:
       // the specific reported prop is consumed through a typed decorator callback,
       // either on a decorator factory call or on a class decorator annotation.
-      if (hasDecoratorPropUsage(context.sourceCode, componentNode, propName)) {
+      if (allMatch(componentNodes, hasDecoratorPropUsage, context, propName)) {
         return;
       }
 
