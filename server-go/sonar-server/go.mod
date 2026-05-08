@@ -21,30 +21,30 @@ require (
 	google.golang.org/protobuf v1.36.6
 )
 
-replace github.com/microsoft/typescript-go/shim/ast => ..\shim\ast
+replace github.com/microsoft/typescript-go/shim/ast => ../shim/ast
 
-replace github.com/microsoft/typescript-go/shim/bundled => ..\shim\bundled
+replace github.com/microsoft/typescript-go/shim/bundled => ../shim/bundled
 
-replace github.com/microsoft/typescript-go/shim/checker => ..\shim\checker
+replace github.com/microsoft/typescript-go/shim/checker => ../shim/checker
 
-replace github.com/microsoft/typescript-go/shim/compiler => ..\shim\compiler
+replace github.com/microsoft/typescript-go/shim/compiler => ../shim/compiler
 
-replace github.com/microsoft/typescript-go/shim/core => ..\shim\core
+replace github.com/microsoft/typescript-go/shim/core => ../shim/core
 
-replace github.com/microsoft/typescript-go/shim/jsnum => ..\shim\jsnum
+replace github.com/microsoft/typescript-go/shim/jsnum => ../shim/jsnum
 
-replace github.com/microsoft/typescript-go/shim/parser => ..\shim\parser
+replace github.com/microsoft/typescript-go/shim/parser => ../shim/parser
 
-replace github.com/microsoft/typescript-go/shim/project => ..\shim\project
+replace github.com/microsoft/typescript-go/shim/project => ../shim/project
 
-replace github.com/microsoft/typescript-go/shim/scanner => ..\shim\scanner
+replace github.com/microsoft/typescript-go/shim/scanner => ../shim/scanner
 
-replace github.com/microsoft/typescript-go/shim/tsoptions => ..\shim\tsoptions
+replace github.com/microsoft/typescript-go/shim/tsoptions => ../shim/tsoptions
 
-replace github.com/microsoft/typescript-go/shim/tspath => ..\shim\tspath
+replace github.com/microsoft/typescript-go/shim/tspath => ../shim/tspath
 
-replace github.com/microsoft/typescript-go/shim/vfs => ..\shim\vfs
+replace github.com/microsoft/typescript-go/shim/vfs => ../shim/vfs
 
-replace github.com/microsoft/typescript-go/shim/vfs/cachedvfs => ..\shim\vfs\cachedvfs
+replace github.com/microsoft/typescript-go/shim/vfs/cachedvfs => ../shim/vfs/cachedvfs
 
-replace github.com/microsoft/typescript-go/shim/vfs/osvfs => ..\shim\vfs\osvfs
+replace github.com/microsoft/typescript-go/shim/vfs/osvfs => ../shim/vfs/osvfs
