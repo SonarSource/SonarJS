@@ -447,6 +447,29 @@ describe('files', () => {
     );
   });
 
+  it('should skip intermediate package.json without catalogs and resolve from a higher ancestor', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      join(fixtures, 'bun-workspace-intermediate-no-catalog'),
+    );
+    const appBaseDir = normalizeToAbsolutePath(join(baseDir, 'packages/my-app'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(appBaseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual([
+      'package-json',
+      'package-json',
+      'package-json',
+    ]);
+    expect(manifests[0].dependencies).toEqual(
+      new Map([
+        ['my-app', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', '^19.0.0'],
+      ]),
+    );
+  });
+
   it('should reuse cache for multiple calls on the same bun workspace package', async () => {
     const baseDir = normalizeToAbsolutePath(join(fixtures, 'bun-workspace-named-catalog'));
     const appBaseDir = normalizeToAbsolutePath(join(baseDir, 'packages/my-app'));
