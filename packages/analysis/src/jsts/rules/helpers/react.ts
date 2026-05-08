@@ -188,7 +188,7 @@ function getTypedVariableComponentPropsType(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type | undefined {
-  const parent = getNodeParent(componentNode);
+  const parent = getNodeParent(componentNode) as TSESTree.VariableDeclarator | undefined;
   if (parent?.type !== 'VariableDeclarator' || parent.id.type !== 'Identifier') {
     return undefined;
   }
@@ -199,7 +199,9 @@ function getTypedVariableComponentPropsType(
   }
 
   const propsTypeNode = findDeclaredFunctionComponentPropsType(declaredType);
-  return propsTypeNode ? getTypeFromTreeNode(propsTypeNode, services) : undefined;
+  return propsTypeNode
+    ? getTypeFromTreeNode(propsTypeNode as unknown as estree.Node, services)
+    : undefined;
 }
 
 function findDeclaredFunctionComponentPropsType(
@@ -213,10 +215,6 @@ function findDeclaredFunctionComponentPropsType(
       }
     }
     return undefined;
-  }
-
-  if (typeNode.type === 'TSParenthesizedType') {
-    return findDeclaredFunctionComponentPropsType(typeNode.typeAnnotation);
   }
 
   if (typeNode.type !== 'TSTypeReference') {
@@ -237,8 +235,14 @@ function findDeclaredFunctionComponentPropsType(
   return undefined;
 }
 
-function getRightmostTypeName(typeName: TSESTree.TSEntityName): string | undefined {
-  return typeName.type === 'Identifier' ? typeName.name : typeName.right.name;
+function getRightmostTypeName(typeName: TSESTree.EntityName): string | undefined {
+  if (typeName.type === 'Identifier') {
+    return typeName.name;
+  }
+  if (typeName.type === 'TSQualifiedName') {
+    return typeName.right.name;
+  }
+  return undefined;
 }
 
 /**
