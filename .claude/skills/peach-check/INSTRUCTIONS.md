@@ -23,7 +23,8 @@ ownership.
 - Run from the SonarJS repository.
 - Verify GitHub auth first with `gh auth status`.
 - Ensure the current GitHub identity can access `SonarSource/peachee-js`.
-- Ensure `PEACH_KEY` is set and a local `peachee-js` checkout exists at `/home/francois/git/peachee-js`.
+- Ensure `PEACH_KEY` and `PEACHEE_ROOT` are set, and that `PEACHEE_ROOT` points to a local
+  `peachee-js` checkout.
 - Parallelize independent job triage work when the runtime permits it, but do not chain shell commands.
 
 ## Command Discipline
@@ -217,7 +218,7 @@ The helper uses recent SonarQube history as the baseline:
 ```bash
 node .claude/skills/peach-check/peach-issue-history.js \
   target/project-jobs.json \
-  /home/francois/git/peachee-js \
+  "${PEACHEE_ROOT}" \
   target/peach-issue-history.json
 ```
 

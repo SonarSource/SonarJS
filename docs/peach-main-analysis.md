@@ -209,9 +209,9 @@ The protobuf recursion-limit pattern above occurs when a source file contains a 
 functions or call expressions) that exceeds the default protobuf recursion limit when the Java
 side deserializes the gRPC response from the Node.js bridge. The fix is to call
 `setRecursionLimit()` with a higher value on the `CodedInputStream` used in
-`BridgeServerImpl.analyzeProject`. It may precede an `Artifact has expired (HTTP 410)` line
-(exit code 1) — that is pre-scan noise the scanner recovers from; the protobuf crash is the
-real terminal failure.
+`BridgeServerImpl.analyzeProject`. In the log, an `Artifact has expired (HTTP 410)` line may
+appear earlier (exit code 1) — that is pre-scan noise the scanner recovers from; the protobuf
+crash is the real terminal failure.
 
 **Action:** File a bug or investigate the SonarJS analyzer code. Do not release until resolved.
 
