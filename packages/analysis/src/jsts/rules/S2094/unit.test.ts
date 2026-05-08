@@ -191,6 +191,18 @@ describe('S2094', () => {
           errors: 1,
         },
         {
+          // Noncompliant: this.* inside arrow callback
+          code: `class CallbackInit {
+  constructor(items) {
+    items.forEach(item => {
+      this[item.key] = item.value;
+    });
+  }
+}`,
+          options,
+          errors: 1,
+        },
+        {
           // Noncompliant: this.* inside deferred arrow callback
           code: `class DeferredInit {
   constructor() {
