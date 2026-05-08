@@ -281,10 +281,10 @@ export class Linter {
       detectedEsYear,
       detectedModuleType,
     );
-    if (
-      !Linter.dependencyIndependentRulesCache.has(linterConfigKey) ||
-      !Linter.dependencySensitiveRulesCache.has(linterConfigKey)
-    ) {
+    let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
+    let dependencySensitiveRules = Linter.dependencySensitiveRulesCache.get(linterConfigKey);
+
+    if (baseRules === undefined || dependencySensitiveRules === undefined) {
       /**
        * Creates the wrapper's linting configurations
        * The wrapper's linting configuration includes multiple ESLint
@@ -302,7 +302,7 @@ export class Linter {
       // Partition rules into dependency-independent rules and dependency-sensitive rules based on the presence of required dependencies
       // in their meta, as well as the result of dependency-independent filters
       const dependencyIndependentRules: RuleConfig[] = [];
-      const dependencySensitiveRules: RuleConfig[] = [];
+      dependencySensitiveRules = [];
 
       for (const ruleConfig of Linter.ruleConfigs ?? []) {
         const ruleMeta = getRuleMeta(ruleConfig);
@@ -318,15 +318,10 @@ export class Linter {
         }
       }
 
-      Linter.dependencyIndependentRulesCache.set(
-        linterConfigKey,
-        Linter.createRulesRecord(dependencyIndependentRules),
-      );
+      baseRules = Linter.createRulesRecord(dependencyIndependentRules);
+      Linter.dependencyIndependentRulesCache.set(linterConfigKey, baseRules);
       Linter.dependencySensitiveRulesCache.set(linterConfigKey, dependencySensitiveRules);
     }
-
-    const baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey)!;
-    const dependencySensitiveRules = Linter.dependencySensitiveRulesCache.get(linterConfigKey)!;
 
     if (dependencySensitiveRules.length === 0) {
       return baseRules;
