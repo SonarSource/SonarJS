@@ -89,6 +89,26 @@ function createHandlers(values) {
           options,
           errors: 1,
         },
+        {
+          // Ancestor local variable write capture: suppressed by decorator, raised by upstream
+          code: `
+function outer() {
+  let x = 0;
+
+  function middle() {
+    function inner() {
+      x = 1;
+    }
+
+    return inner;
+  }
+
+  return middle();
+}
+          `,
+          options,
+          errors: 1,
+        },
       ],
     });
   });
@@ -171,6 +191,25 @@ function createHandlers(values) {
 
     return createGetter();
   });
+}
+          `,
+          options,
+        },
+        {
+          // Compliant: ancestor variable write
+          code: `
+function outer() {
+  let x = 0;
+
+  function middle() {
+    function inner() {
+      x = 1;
+    }
+
+    return inner;
+  }
+
+  return middle();
 }
           `,
           options,

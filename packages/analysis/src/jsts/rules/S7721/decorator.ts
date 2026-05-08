@@ -42,19 +42,19 @@ function reportExemptingAncestorLocalCaptures(
     return;
   }
 
-  if (!readsFromAncestorLocalScope(reportDescriptor.node, context.sourceCode)) {
+  if (!capturesAncestorLocalScope(reportDescriptor.node, context.sourceCode)) {
     context.report(reportDescriptor);
   }
 }
 
-function readsFromAncestorLocalScope(node: estree.Function, sourceCode: SourceCode): boolean {
+function capturesAncestorLocalScope(node: estree.Function, sourceCode: SourceCode): boolean {
   const functionScope = sourceCode.scopeManager.acquire(node);
   if (!functionScope) {
     return false;
   }
 
   const ancestorScopes = getAncestorLocalScopes(functionScope);
-  return ancestorScopes.size > 0 && scopeReadsFromAncestorLocalScope(functionScope, ancestorScopes);
+  return ancestorScopes.size > 0 && scopeCapturesAncestorLocalScope(functionScope, ancestorScopes);
 }
 
 function getAncestorLocalScopes(scope: Scope.Scope): Set<Scope.Scope> {
@@ -72,27 +72,27 @@ function getAncestorLocalScopes(scope: Scope.Scope): Set<Scope.Scope> {
   return ancestorScopes;
 }
 
-function scopeReadsFromAncestorLocalScope(
+function scopeCapturesAncestorLocalScope(
   scope: Scope.Scope,
   ancestorScopes: Set<Scope.Scope>,
 ): boolean {
   return (
     scope.references.some(reference =>
-      referenceReadsAncestorLocalVariable(reference, ancestorScopes),
+      referenceCapturesAncestorLocalVariable(reference, ancestorScopes),
     ) ||
     scope.childScopes.some(childScope =>
-      scopeReadsFromAncestorLocalScope(childScope, ancestorScopes),
+      scopeCapturesAncestorLocalScope(childScope, ancestorScopes),
     )
   );
 }
 
-function referenceReadsAncestorLocalVariable(
+function referenceCapturesAncestorLocalVariable(
   reference: Scope.Reference,
   ancestorScopes: Set<Scope.Scope>,
 ): boolean {
   const variable = reference.resolved;
   return (
-    reference.isRead() &&
+    (reference.isRead() || reference.isWrite()) &&
     variable !== null &&
     ancestorScopes.has(variable.scope) &&
     variable.defs.some(
