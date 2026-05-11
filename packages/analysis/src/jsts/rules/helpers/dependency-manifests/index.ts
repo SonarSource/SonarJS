@@ -60,20 +60,21 @@ export function fillManifestCaches(
       ? undefined
       : patternInParentsCache.get(manifestName).get(topDir);
 
-  // We depend on the order of the paths, from parent-to-child paths (guaranteed by the use of a Map in the package-json store)
-  for (const [dir, parent] of dirnameToParent) {
+  const sortedDirs = Array.from(dirnameToParent.entries()).sort(
+    ([leftDir], [rightDir]) =>
+      leftDir.split('/').length - rightDir.split('/').length || leftDir.localeCompare(rightDir),
+  );
+
+  for (const [dir, parent] of sortedDirs) {
     const currentManifest = manifests.get(dir);
-    closestCache.set(dir, currentManifest ?? (parent ? closestCache.get(parent) : undefined));
+    const inheritedClosestManifest = parent ? closestCache.get(parent) : undefined;
+    closestCache.set(dir, currentManifest ?? inheritedClosestManifest);
     if (!manifestsInParentsCache) {
       continue;
     }
-    const manifestsInParents: File[] = [];
-    if (parent) {
-      // Read the current dir cache to preserve closest-first manifest precedence.
-      manifestsInParents.push(...manifestsInParentsCache.get(dir));
-    }
+    const manifestsInParents = parent ? [...manifestsInParentsCache.get(parent)] : [];
     if (currentManifest) {
-      manifestsInParents.push(currentManifest);
+      manifestsInParents.unshift(currentManifest);
     }
     manifestsInParentsCache.set(dir, manifestsInParents);
   }

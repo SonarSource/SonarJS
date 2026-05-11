@@ -17,6 +17,7 @@
 import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { join, dirname } from 'node:path/posix';
+import fs from 'node:fs';
 import yaml from 'yaml';
 import { initFileStores, dependencyManifestStore } from '../src/file-stores/index.js';
 import { readFile } from 'node:fs/promises';
@@ -40,6 +41,7 @@ import {
   DENO_JSONC,
   PACKAGE_JSON,
   PNPM_WORKSPACE_YAML,
+  fillManifestCaches,
 } from '../src/jsts/rules/helpers/dependency-manifests/index.js';
 import { patternInParentsCache } from '../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
 import { Minimatch } from 'minimatch';
@@ -110,6 +112,69 @@ describe('files', () => {
     expect(closestPnpmWorkspaceCache.get(baseDir).get(baseDir)?.path).toEqual(
       join(baseDir, PNPM_WORKSPACE_YAML),
     );
+  });
+
+  it('should warm package.json caches without sync filesystem fallbacks', async ({ mock }) => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
+    const configuration = createConfiguration({ baseDir });
+    const readdirSyncSpy = mock.method(fs, 'readdirSync');
+    const readFileSyncSpy = mock.method(fs, 'readFileSync');
+    const statSyncSpy = mock.method(fs, 'statSync');
+
+    dependencyManifestStore.setup(configuration);
+    dependencyManifestStore.processDirectory(normalizeToAbsolutePath(join(baseDir, 'subdir')));
+    await dependencyManifestStore.processFile(
+      normalizeToAbsolutePath(join(baseDir, 'package.json')),
+    );
+    await dependencyManifestStore.processFile(
+      normalizeToAbsolutePath(join(baseDir, 'subdir/package.json')),
+    );
+    await dependencyManifestStore.postProcess();
+
+    expect(readdirSyncSpy.mock.calls).toHaveLength(0);
+    expect(readFileSyncSpy.mock.calls).toHaveLength(0);
+    expect(statSyncSpy.mock.calls).toHaveLength(0);
+  });
+
+  it('should fill package.json parent caches correctly even when dirs are registered child-first', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
+    const subDir = normalizeToAbsolutePath(join(baseDir, 'subdir'));
+    const parentContent = await readFile(join(baseDir, 'package.json'), 'utf-8');
+    const childContent = await readFile(join(subDir, 'package.json'), 'utf-8');
+
+    fillManifestCaches(
+      PACKAGE_JSON,
+      new Map([
+        [
+          subDir,
+          {
+            path: normalizeToAbsolutePath(join(subDir, 'package.json')),
+            content: childContent,
+          },
+        ],
+        [
+          baseDir,
+          {
+            path: normalizeToAbsolutePath(join(baseDir, 'package.json')),
+            content: parentContent,
+          },
+        ],
+      ]),
+      new Map([
+        [subDir, baseDir],
+        [baseDir, undefined],
+      ]),
+      baseDir,
+    );
+
+    const packageJsons = getPackageJsonManifests(subDir, baseDir);
+    expect(packageJsons).toHaveLength(2);
+    expect(packageJsons.map(packageJson => packageJson.dependencies?.shared)).toEqual([
+      '2.0.0',
+      '1.0.0',
+    ]);
+    expect(packageJsons[0].dependencies?.['child-only']).toEqual('1.0.0');
+    expect(packageJsons[1].dependencies?.['parent-only']).toEqual('1.0.0');
   });
 
   it('should reuse parsed package.json and pnpm workspace manifests after warmup', async ({
