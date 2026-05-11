@@ -614,8 +614,7 @@ function findComponentOwnersByType(
         componentNode,
         services,
         checker,
-        reportedEnclosingType.tsType,
-        reportedEnclosingType.tsTypeSymbol,
+        reportedEnclosingType,
         reportedTypeMember,
       ),
     );
@@ -922,8 +921,7 @@ function componentPropsIncludeReportedTypeMember(
   componentNode: estree.Node,
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-  reportedEnclosingType: ts.Type,
-  reportedEnclosingTypeSymbol: ts.Symbol | undefined,
+  reportedEnclosingType: ReportedEnclosingType,
   reportedTypeMember: ReportedTypeMember,
 ): boolean {
   if (isClassComponentNode(componentNode) && !hasRenderMethodOrProperty(componentNode)) {
@@ -935,92 +933,63 @@ function componentPropsIncludeReportedTypeMember(
   }
 
   const componentPropsTypeCandidates = getComponentPropsTypeCandidates(componentNode, services);
-  const reportedTypeMemberType = reportedTypeMember.tsType;
   if (
     // The exact member match already proves that the component uses the
     // declaration that contains the reported type member.
     componentPropsTypeCandidates.some(componentPropsType =>
-      hasExactCompatibleReportedTypeMember(
-        componentPropsType,
-        reportedTypeMember.name,
-        reportedTypeMemberType,
-        reportedTypeMember.tsNode,
-        checker,
-      ),
+      hasExactCompatibleReportedTypeMember(componentPropsType, reportedTypeMember, checker),
     )
   ) {
     return true;
   }
 
-  return (
-    !!reportedEnclosingTypeSymbol &&
-    componentPropsTypeCandidates.some(
-      componentPropsType =>
-        hasCompatibleReportedTypeMember(
-          componentPropsType,
-          reportedTypeMember.name,
-          reportedTypeMemberType,
-          checker,
-        ) &&
-        typeUsesTypeDeclaration(
-          componentPropsType,
-          reportedEnclosingType,
-          reportedEnclosingTypeSymbol,
-          checker,
-        ),
-    )
+  return componentPropsTypeCandidates.some(
+    componentPropsType =>
+      hasCompatibleReportedTypeMember(componentPropsType, reportedTypeMember, checker) &&
+      typeUsesTypeDeclaration(componentPropsType, reportedEnclosingType, checker),
   );
 }
 
 function hasExactCompatibleReportedTypeMember(
   componentPropsType: ts.Type,
-  typeMemberName: string,
-  reportedTypeMemberType: ts.Type,
-  reportedTypeMember: ts.TypeElement,
+  reportedTypeMember: ReportedTypeMember,
   checker: ts.TypeChecker,
 ): boolean {
   const componentPropSymbol = getCompatibleReportedTypeMemberSymbol(
     componentPropsType,
-    typeMemberName,
-    reportedTypeMemberType,
+    reportedTypeMember,
     checker,
   );
   return (
     componentPropSymbol?.declarations?.some(
-      declaration => ts.isTypeElement(declaration) && declaration === reportedTypeMember,
+      declaration => ts.isTypeElement(declaration) && declaration === reportedTypeMember.tsNode,
     ) === true
   );
 }
 
 function hasCompatibleReportedTypeMember(
   componentPropsType: ts.Type,
-  typeMemberName: string,
-  reportedTypeMemberType: ts.Type,
+  reportedTypeMember: ReportedTypeMember,
   checker: ts.TypeChecker,
 ): boolean {
   return (
-    getCompatibleReportedTypeMemberSymbol(
-      componentPropsType,
-      typeMemberName,
-      reportedTypeMemberType,
-      checker,
-    ) !== undefined
+    getCompatibleReportedTypeMemberSymbol(componentPropsType, reportedTypeMember, checker) !==
+    undefined
   );
 }
 
 function getCompatibleReportedTypeMemberSymbol(
   componentPropsType: ts.Type,
-  typeMemberName: string,
-  reportedTypeMemberType: ts.Type,
+  reportedTypeMember: ReportedTypeMember,
   checker: ts.TypeChecker,
 ): ts.Symbol | undefined {
-  const componentPropSymbol = componentPropsType.getProperty(typeMemberName);
+  const componentPropSymbol = componentPropsType.getProperty(reportedTypeMember.name);
   if (!componentPropSymbol) {
     return undefined;
   }
 
   const componentPropType = checker.getTypeOfSymbol(componentPropSymbol);
-  return checker.isTypeAssignableTo(reportedTypeMemberType, componentPropType)
+  return checker.isTypeAssignableTo(reportedTypeMember.tsType, componentPropType)
     ? componentPropSymbol
     : undefined;
 }
@@ -1079,13 +1048,17 @@ function hasRenderMethodOrProperty(componentNode: estree.Node): boolean {
  */
 function typeUsesTypeDeclaration(
   type: ts.Type,
-  reportedEnclosingType: ts.Type,
-  reportedEnclosingTypeSymbol: ts.Symbol,
+  reportedEnclosingType: ReportedEnclosingType,
   checker: ts.TypeChecker,
   seen = new Set<ts.Symbol>(),
 ): boolean {
-  if (areSameTypeDeclarations(checker, type, reportedEnclosingType)) {
+  if (areSameTypeDeclarations(checker, type, reportedEnclosingType.tsType)) {
     return true;
+  }
+
+  const reportedEnclosingTypeSymbol = reportedEnclosingType.tsTypeSymbol;
+  if (!reportedEnclosingTypeSymbol) {
+    return false;
   }
 
   const typeSymbol = type.aliasSymbol ?? type.symbol;
@@ -1099,13 +1072,7 @@ function typeUsesTypeDeclaration(
   seen.add(typeSymbol);
   return (
     typeSymbol.declarations?.some(declaration =>
-      declarationUsesTypeDeclaration(
-        declaration,
-        reportedEnclosingType,
-        reportedEnclosingTypeSymbol,
-        checker,
-        seen,
-      ),
+      declarationUsesTypeDeclaration(declaration, reportedEnclosingType, checker, seen),
     ) === true
   );
 }
@@ -1116,8 +1083,7 @@ function typeUsesTypeDeclaration(
  */
 function declarationUsesTypeDeclaration(
   declaration: ts.Declaration,
-  reportedEnclosingType: ts.Type,
-  reportedEnclosingTypeSymbol: ts.Symbol,
+  reportedEnclosingType: ReportedEnclosingType,
   checker: ts.TypeChecker,
   seen: Set<ts.Symbol>,
 ): boolean {
@@ -1128,7 +1094,6 @@ function declarationUsesTypeDeclaration(
           typeUsesTypeDeclaration(
             checker.getTypeAtLocation(type),
             reportedEnclosingType,
-            reportedEnclosingTypeSymbol,
             checker,
             seen,
           ),
@@ -1138,13 +1103,7 @@ function declarationUsesTypeDeclaration(
   }
 
   if (ts.isTypeAliasDeclaration(declaration)) {
-    return typeNodeUsesTypeDeclaration(
-      declaration.type,
-      reportedEnclosingType,
-      reportedEnclosingTypeSymbol,
-      checker,
-      seen,
-    );
+    return typeNodeUsesTypeDeclaration(declaration.type, reportedEnclosingType, checker, seen);
   }
 
   return false;
@@ -1158,30 +1117,17 @@ function declarationUsesTypeDeclaration(
  */
 function typeNodeUsesTypeDeclaration(
   typeNode: ts.TypeNode,
-  reportedEnclosingType: ts.Type,
-  reportedEnclosingTypeSymbol: ts.Symbol,
+  reportedEnclosingType: ReportedEnclosingType,
   checker: ts.TypeChecker,
   seen: Set<ts.Symbol>,
 ): boolean {
   if (ts.isParenthesizedTypeNode(typeNode)) {
-    return typeNodeUsesTypeDeclaration(
-      typeNode.type,
-      reportedEnclosingType,
-      reportedEnclosingTypeSymbol,
-      checker,
-      seen,
-    );
+    return typeNodeUsesTypeDeclaration(typeNode.type, reportedEnclosingType, checker, seen);
   }
 
   if (ts.isIntersectionTypeNode(typeNode) || ts.isUnionTypeNode(typeNode)) {
     return typeNode.types.some(type =>
-      typeNodeUsesTypeDeclaration(
-        type,
-        reportedEnclosingType,
-        reportedEnclosingTypeSymbol,
-        checker,
-        seen,
-      ),
+      typeNodeUsesTypeDeclaration(type, reportedEnclosingType, checker, seen),
     );
   }
 
@@ -1189,7 +1135,6 @@ function typeNodeUsesTypeDeclaration(
     return typeUsesTypeDeclaration(
       checker.getTypeAtLocation(typeNode),
       reportedEnclosingType,
-      reportedEnclosingTypeSymbol,
       checker,
       seen,
     );
