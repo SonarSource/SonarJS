@@ -23,11 +23,7 @@ import { isIdentifier } from './ast.js';
 import { getFullyQualifiedName } from './module.js';
 import { isRequiredParserServices, type RequiredParserServices } from './parser-services.js';
 import { ReportedTypeDetails } from './reported-type.js';
-import {
-  areMutuallyAssignableTypes,
-  areSameTypeDeclarations,
-  getTypeFromTreeNode,
-} from './type.js';
+import { areMutuallyAssignableTypes, getTypeFromTreeNode } from './type.js';
 
 type TypeDeclarationNode = TSESTree.TSInterfaceDeclaration | TSESTree.TSTypeAliasDeclaration;
 type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
@@ -750,37 +746,6 @@ function getReportedTypeMember(
 function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
   const componentIdentifier = getComponentIdentifier(componentNode);
   return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
-}
-
-function shouldSuppressReactNonPropsReport(
-  node: estree.Node,
-  reportedEnclosingTypeDeclaration: TypeDeclarationNode,
-  usage: ReactNonPropsTypeUsage,
-  sourceCache: SourceCache,
-): boolean {
-  if (usage === 'non-props') {
-    return true;
-  }
-  if (usage !== 'mixed') {
-    return false;
-  }
-
-  let reportedNodes = sourceCache.mixedReactNonPropsReportNodes.get(
-    reportedEnclosingTypeDeclaration,
-  );
-  if (!reportedNodes) {
-    reportedNodes = new WeakSet<estree.Node>();
-    sourceCache.mixedReactNonPropsReportNodes.set(reportedEnclosingTypeDeclaration, reportedNodes);
-  }
-
-  // First report for this node is allowed through; subsequent ones (from non-props
-  // components that trigger the upstream false positive) are suppressed.
-  // This relies on ESLint reporting components in source order, so the
-  // props-owning component — which should appear before state-owning ones
-  // in conventional file layouts — wins.
-  const shouldSuppress = reportedNodes.has(node);
-  reportedNodes.add(node);
-  return shouldSuppress;
 }
 
 /**
