@@ -36,12 +36,25 @@ const COMPONENT_NODE_TYPES = new Set([
   'ArrowFunctionExpression',
 ]);
 const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclaration']);
+type TypeDeclarationNode = TSESTree.TSInterfaceDeclaration | TSESTree.TSTypeAliasDeclaration;
 type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
+type ReportedTypeDetails<TDeclaration extends TSESTree.Node, TTsNode extends ts.Node> = {
+  name: string;
+  declaration: TDeclaration;
+  tsNode: TTsNode;
+  tsType: ts.Type;
+  tsTypeSymbol: ts.Symbol | undefined;
+};
+type ReportedEnclosingType = ReportedTypeDetails<
+  TypeDeclarationNode,
+  ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+>;
+type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
   ownersByReportNode: WeakMap<estree.Node, estree.Node[] | null>;
-  reactNonPropsTypeDecl: WeakMap<estree.Node, ReactNonPropsTypeUsage>;
-  mixedReactNonPropsReportNodes: WeakMap<estree.Node, WeakSet<estree.Node>>;
+  reactNonPropsTypeDecl: WeakMap<TypeDeclarationNode, ReactNonPropsTypeUsage>;
+  mixedReactNonPropsReportNodes: WeakMap<TypeDeclarationNode, WeakSet<estree.Node>>;
 };
 type ReactNonPropsTypeUsage = 'mixed' | 'non-props' | 'other';
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
@@ -109,6 +122,10 @@ function isReactPropTypesAssignment(node: estree.Node): node is estree.Assignmen
 
 function isTypeMemberNode(node: TSESTree.Node): node is TypeMemberNode {
   return node.type === 'TSPropertySignature' || node.type === 'TSMethodSignature';
+}
+
+function isTypeDeclarationNode(node: TSESTree.Node): node is TypeDeclarationNode {
+  return TS_TYPE_DECL_TYPES.has(node.type);
 }
 
 function isVariableAssignedFunctionOrClassExpression(
@@ -539,14 +556,18 @@ function getDeclaredClassNonPropsTypes(
 /**
  * TypeScript fallback for finding component owners.
  *
- * The reported node is inside a TypeScript props declaration such as
+ * The reported node is inside a reported enclosing type that acts as a React props
+ * type, such as
  * `interface FooProps { ... }` or `type FooProps = ...`.
  *
- * We scan the components in the file and keep the ones whose props match that declaration.
+ * We scan the components in the file and keep the ones whose props match that
+ * reported enclosing type declaration.
  * If the report is on a specific member such as `sharedValue`, we first try to match that
- * member. If that is not possible, we fall back to matching the whole props type.
+ * member. If that is not possible, we fall back to matching the whole reported
+ * enclosing type.
  *
- * @returns Every component that owns the props type. Returns an empty array when no match is found.
+ * @returns Every component that owns the reported enclosing type. Returns an empty array when
+ * no match is found.
  */
 function findComponentOwnersByType(
   node: estree.Node,
@@ -567,9 +588,11 @@ function findComponentOwnersByType(
     return cachedOwners ?? [];
   }
 
-  // Step 2: find the enclosing TypeScript type declaration.
-  const typeDecl = findEnclosingTypeDeclaration(ancestors);
-  if (!typeDecl) {
+  const checker = services.program.getTypeChecker();
+
+  // Step 2: collect the reported enclosing type details.
+  const reportedEnclosingType = getReportedEnclosingType(ancestors, services, checker);
+  if (!reportedEnclosingType) {
     sourceCache.ownersByReportNode.set(node, null);
     return [];
   }
@@ -578,26 +601,21 @@ function findComponentOwnersByType(
   const componentNodes =
     sourceCache.componentNodes ??
     (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
-  const checker = services.program.getTypeChecker();
-  const candidateType = getTypeFromTreeNode(typeDecl, services);
-  const candidateTypeSymbol = candidateType.aliasSymbol ?? candidateType.symbol;
+  if (componentNodes.length === 0) {
+    return [];
+  }
 
-  // Step 4: if the report is on a specific member such as `sharedValue`, keep only the
-  // components whose props contain that member with a compatible type.
-  const typeMember = findEnclosingTypeMember(ancestors);
-  const typeMemberName = getTypeMemberName(typeMember);
-  const reportedTypeMember = typeMember
-    ? services.esTreeNodeToTSNodeMap.get(typeMember)
-    : undefined;
-  if (typeMemberName && reportedTypeMember && ts.isTypeElement(reportedTypeMember)) {
+  // Step 4: if the report is on a specific type member such as `sharedValue`, keep only
+  // the components whose props contain that member with a compatible type.
+  const reportedTypeMember = getReportedTypeMember(ancestors, services, checker);
+  if (reportedTypeMember) {
     const owners = componentNodes.filter(componentNode =>
       componentPropsIncludeReportedTypeMember(
         componentNode,
         services,
         checker,
-        candidateType,
-        candidateTypeSymbol,
-        typeMemberName,
+        reportedEnclosingType.tsType,
+        reportedEnclosingType.tsTypeSymbol,
         reportedTypeMember,
       ),
     );
@@ -605,7 +623,7 @@ function findComponentOwnersByType(
     return owners;
   }
 
-  // Step 5: otherwise, match the whole props type.
+  // Step 5: otherwise, match the whole reported enclosing type.
   const owners: estree.Node[] = [];
   for (const componentNode of componentNodes) {
     if (isClassComponentNode(componentNode) && !hasRenderMethodOrProperty(componentNode)) {
@@ -615,10 +633,14 @@ function findComponentOwnersByType(
       const tsNode = services.esTreeNodeToTSNodeMap.get(
         componentNode as TSESTree.Node,
       ) as ts.ClassLikeDeclaration;
-      if (matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, candidateType)) {
+      if (
+        matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, reportedEnclosingType.tsType)
+      ) {
         owners.push(componentNode);
       }
-    } else if (matchesFunctionProps(componentNode, services, checker, candidateType)) {
+    } else if (
+      matchesFunctionProps(componentNode, services, checker, reportedEnclosingType.tsType)
+    ) {
       owners.push(componentNode);
     }
   }
@@ -633,8 +655,8 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
     cache = {
       componentNodes: undefined,
       ownersByReportNode: new WeakMap<estree.Node, estree.Node[] | null>(),
-      reactNonPropsTypeDecl: new WeakMap<estree.Node, ReactNonPropsTypeUsage>(),
-      mixedReactNonPropsReportNodes: new WeakMap<estree.Node, WeakSet<estree.Node>>(),
+      reactNonPropsTypeDecl: new WeakMap<TypeDeclarationNode, ReactNonPropsTypeUsage>(),
+      mixedReactNonPropsReportNodes: new WeakMap<TypeDeclarationNode, WeakSet<estree.Node>>(),
     };
     perSourceCache.set(sourceCode, cache);
   }
@@ -652,19 +674,23 @@ function isReactComponentNonPropsTypeDeclaration(
     return false;
   }
 
-  const typeDecl = findEnclosingTypeDeclaration(ancestors);
-  if (!typeDecl) {
+  const checker = services.program.getTypeChecker();
+  const reportedEnclosingType = getReportedEnclosingType(ancestors, services, checker);
+  if (!reportedEnclosingType) {
     return false;
   }
 
   const sourceCache = getSourceCache(context.sourceCode);
-  const cached = sourceCache.reactNonPropsTypeDecl.get(typeDecl);
+  const cached = sourceCache.reactNonPropsTypeDecl.get(reportedEnclosingType.declaration);
   if (cached !== undefined) {
-    return shouldSuppressReactNonPropsReport(node, typeDecl, cached, sourceCache);
+    return shouldSuppressReactNonPropsReport(
+      node,
+      reportedEnclosingType.declaration,
+      cached,
+      sourceCache,
+    );
   }
 
-  const checker = services.program.getTypeChecker();
-  const candidateType = getTypeFromTreeNode(typeDecl, services);
   const componentNodes =
     sourceCache.componentNodes ??
     (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
@@ -675,7 +701,7 @@ function isReactComponentNonPropsTypeDeclaration(
     }
 
     return getComponentPropsTypeCandidates(componentNode, services).some(propsType =>
-      areSameTypeDeclarations(checker, candidateType, propsType),
+      areSameTypeDeclarations(checker, reportedEnclosingType.tsType, propsType),
     );
   });
 
@@ -688,7 +714,7 @@ function isReactComponentNonPropsTypeDeclaration(
       componentNode as TSESTree.Node,
     ) as ts.ClassLikeDeclaration;
     return getDeclaredClassNonPropsTypes(tsNode, checker).some(nonPropsType =>
-      areSameTypeDeclarations(checker, candidateType, nonPropsType),
+      areSameTypeDeclarations(checker, reportedEnclosingType.tsType, nonPropsType),
     );
   });
 
@@ -696,8 +722,13 @@ function isReactComponentNonPropsTypeDeclaration(
   if (isNonPropsType) {
     usage = isPropsTypeSomewhere ? 'mixed' : 'non-props';
   }
-  sourceCache.reactNonPropsTypeDecl.set(typeDecl, usage);
-  return shouldSuppressReactNonPropsReport(node, typeDecl, usage, sourceCache);
+  sourceCache.reactNonPropsTypeDecl.set(reportedEnclosingType.declaration, usage);
+  return shouldSuppressReactNonPropsReport(
+    node,
+    reportedEnclosingType.declaration,
+    usage,
+    sourceCache,
+  );
 }
 
 /**
@@ -725,6 +756,68 @@ function findEnclosingTypeMember(ancestors: estree.Node[]): TypeMemberNode | und
   return undefined;
 }
 
+function isTypeDeclarationTsNode(
+  node: ts.Node,
+): node is ts.InterfaceDeclaration | ts.TypeAliasDeclaration {
+  return ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node);
+}
+
+function buildReportedTypeDetails<TDeclaration extends TSESTree.Node, TTsNode extends ts.Node>(
+  declaration: TDeclaration | undefined,
+  name: string | undefined,
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+  isTsNode: (node: ts.Node) => node is TTsNode,
+): ReportedTypeDetails<TDeclaration, TTsNode> | undefined {
+  if (!declaration || !name) {
+    return undefined;
+  }
+
+  const tsNode = services.esTreeNodeToTSNodeMap.get(declaration);
+  if (!isTsNode(tsNode)) {
+    return undefined;
+  }
+
+  const tsType = checker.getTypeAtLocation(tsNode);
+  return {
+    name,
+    declaration,
+    tsNode,
+    tsType,
+    tsTypeSymbol: tsType.aliasSymbol ?? tsType.symbol,
+  };
+}
+
+function getReportedEnclosingType(
+  ancestors: estree.Node[],
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+): ReportedEnclosingType | undefined {
+  const declaration = findEnclosingTypeDeclaration(ancestors);
+  return buildReportedTypeDetails(
+    declaration,
+    getTypeDeclarationName(declaration),
+    services,
+    checker,
+    isTypeDeclarationTsNode,
+  );
+}
+
+function getReportedTypeMember(
+  ancestors: estree.Node[],
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+): ReportedTypeMember | undefined {
+  const declaration = findEnclosingTypeMember(ancestors);
+  return buildReportedTypeDetails(
+    declaration,
+    getTypeMemberName(declaration),
+    services,
+    checker,
+    ts.isTypeElement,
+  );
+}
+
 function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
   const componentIdentifier = getComponentIdentifier(componentNode);
   return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
@@ -732,7 +825,7 @@ function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
 
 function shouldSuppressReactNonPropsReport(
   node: estree.Node,
-  typeDecl: estree.Node,
+  reportedEnclosingTypeDeclaration: TypeDeclarationNode,
   usage: ReactNonPropsTypeUsage,
   sourceCache: SourceCache,
 ): boolean {
@@ -743,10 +836,12 @@ function shouldSuppressReactNonPropsReport(
     return false;
   }
 
-  let reportedNodes = sourceCache.mixedReactNonPropsReportNodes.get(typeDecl);
+  let reportedNodes = sourceCache.mixedReactNonPropsReportNodes.get(
+    reportedEnclosingTypeDeclaration,
+  );
   if (!reportedNodes) {
     reportedNodes = new WeakSet<estree.Node>();
-    sourceCache.mixedReactNonPropsReportNodes.set(typeDecl, reportedNodes);
+    sourceCache.mixedReactNonPropsReportNodes.set(reportedEnclosingTypeDeclaration, reportedNodes);
   }
 
   // First report for this node is allowed through; subsequent ones (from non-props
@@ -762,15 +857,24 @@ function shouldSuppressReactNonPropsReport(
 /**
  * Returns the closest enclosing TypeScript type declaration around a reported node.
  *
+ * This is the reported enclosing type declaration.
+ *
  * This recognizes both `interface Props { ... }` and `type Props = ...` declarations.
  */
-function findEnclosingTypeDeclaration(ancestors: estree.Node[]): estree.Node | undefined {
+function findEnclosingTypeDeclaration(ancestors: estree.Node[]): TypeDeclarationNode | undefined {
   for (let i = ancestors.length - 1; i >= 0; i--) {
-    if (TS_TYPE_DECL_TYPES.has(ancestors[i].type)) {
-      return ancestors[i];
+    const ancestor = ancestors[i] as TSESTree.Node;
+    if (isTypeDeclarationNode(ancestor)) {
+      return ancestor;
     }
   }
   return undefined;
+}
+
+function getTypeDeclarationName(
+  typeDeclaration: TypeDeclarationNode | undefined,
+): string | undefined {
+  return typeDeclaration?.id.name;
 }
 
 /**
@@ -805,11 +909,11 @@ function getTypeMemberName(typeMember: TypeMemberNode | undefined): string | und
 }
 
 /**
- * Returns true when a component's props type contains the reported type member.
+ * Returns true when a component props type candidate contains the reported type member.
  *
  * First we try to match the exact TypeScript member declaration.
- * If that fails, we check whether the component props type still references the
- * enclosing type declaration.
+ * If that fails, we check whether the component props type candidate still references the
+ * reported enclosing type.
  *
  * In both cases the final prop type on the component must stay compatible with the
  * reported member type.
@@ -818,10 +922,9 @@ function componentPropsIncludeReportedTypeMember(
   componentNode: estree.Node,
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-  candidateType: ts.Type,
-  candidateTypeSymbol: ts.Symbol | undefined,
-  typeMemberName: string,
-  reportedTypeMember: ts.TypeElement,
+  reportedEnclosingType: ts.Type,
+  reportedEnclosingTypeSymbol: ts.Symbol | undefined,
+  reportedTypeMember: ReportedTypeMember,
 ): boolean {
   if (isClassComponentNode(componentNode) && !hasRenderMethodOrProperty(componentNode)) {
     return false;
@@ -831,17 +934,17 @@ function componentPropsIncludeReportedTypeMember(
     return false;
   }
 
-  const componentPropsTypes = getComponentPropsTypeCandidates(componentNode, services);
-  const reportedTypeMemberType = checker.getTypeAtLocation(reportedTypeMember);
+  const componentPropsTypeCandidates = getComponentPropsTypeCandidates(componentNode, services);
+  const reportedTypeMemberType = reportedTypeMember.tsType;
   if (
     // The exact member match already proves that the component uses the
-    // declaration that contains `reportedTypeMember`.
-    componentPropsTypes.some(componentPropsType =>
+    // declaration that contains the reported type member.
+    componentPropsTypeCandidates.some(componentPropsType =>
       hasExactCompatibleReportedTypeMember(
         componentPropsType,
-        typeMemberName,
+        reportedTypeMember.name,
         reportedTypeMemberType,
-        reportedTypeMember,
+        reportedTypeMember.tsNode,
         checker,
       ),
     )
@@ -850,16 +953,21 @@ function componentPropsIncludeReportedTypeMember(
   }
 
   return (
-    !!candidateTypeSymbol &&
-    componentPropsTypes.some(
+    !!reportedEnclosingTypeSymbol &&
+    componentPropsTypeCandidates.some(
       componentPropsType =>
         hasCompatibleReportedTypeMember(
           componentPropsType,
-          typeMemberName,
+          reportedTypeMember.name,
           reportedTypeMemberType,
           checker,
         ) &&
-        typeUsesTypeDeclaration(componentPropsType, candidateType, candidateTypeSymbol, checker),
+        typeUsesTypeDeclaration(
+          componentPropsType,
+          reportedEnclosingType,
+          reportedEnclosingTypeSymbol,
+          checker,
+        ),
     )
   );
 }
@@ -949,7 +1057,7 @@ function hasRenderMethodOrProperty(componentNode: estree.Node): boolean {
 }
 
 /**
- * Returns true when a type uses the candidate type declaration, directly or through
+ * Returns true when a type uses the reported enclosing type declaration, directly or through
  * another type.
  *
  * Example:
@@ -971,12 +1079,12 @@ function hasRenderMethodOrProperty(componentNode: estree.Node): boolean {
  */
 function typeUsesTypeDeclaration(
   type: ts.Type,
-  candidateType: ts.Type,
-  candidateTypeSymbol: ts.Symbol,
+  reportedEnclosingType: ts.Type,
+  reportedEnclosingTypeSymbol: ts.Symbol,
   checker: ts.TypeChecker,
   seen = new Set<ts.Symbol>(),
 ): boolean {
-  if (areSameTypeDeclarations(checker, type, candidateType)) {
+  if (areSameTypeDeclarations(checker, type, reportedEnclosingType)) {
     return true;
   }
 
@@ -984,7 +1092,7 @@ function typeUsesTypeDeclaration(
   if (!typeSymbol || seen.has(typeSymbol)) {
     return false;
   }
-  if (typeSymbol === candidateTypeSymbol) {
+  if (typeSymbol === reportedEnclosingTypeSymbol) {
     return true;
   }
 
@@ -993,8 +1101,8 @@ function typeUsesTypeDeclaration(
     typeSymbol.declarations?.some(declaration =>
       declarationUsesTypeDeclaration(
         declaration,
-        candidateType,
-        candidateTypeSymbol,
+        reportedEnclosingType,
+        reportedEnclosingTypeSymbol,
         checker,
         seen,
       ),
@@ -1003,13 +1111,13 @@ function typeUsesTypeDeclaration(
 }
 
 /**
- * Returns true when a declaration uses the candidate type through `extends`,
+ * Returns true when a declaration uses the reported enclosing type through `extends`,
  * intersections, unions, or nested references.
  */
 function declarationUsesTypeDeclaration(
   declaration: ts.Declaration,
-  candidateType: ts.Type,
-  candidateTypeSymbol: ts.Symbol,
+  reportedEnclosingType: ts.Type,
+  reportedEnclosingTypeSymbol: ts.Symbol,
   checker: ts.TypeChecker,
   seen: Set<ts.Symbol>,
 ): boolean {
@@ -1019,8 +1127,8 @@ function declarationUsesTypeDeclaration(
         clause.types.some(type =>
           typeUsesTypeDeclaration(
             checker.getTypeAtLocation(type),
-            candidateType,
-            candidateTypeSymbol,
+            reportedEnclosingType,
+            reportedEnclosingTypeSymbol,
             checker,
             seen,
           ),
@@ -1032,8 +1140,8 @@ function declarationUsesTypeDeclaration(
   if (ts.isTypeAliasDeclaration(declaration)) {
     return typeNodeUsesTypeDeclaration(
       declaration.type,
-      candidateType,
-      candidateTypeSymbol,
+      reportedEnclosingType,
+      reportedEnclosingTypeSymbol,
       checker,
       seen,
     );
@@ -1043,23 +1151,23 @@ function declarationUsesTypeDeclaration(
 }
 
 /**
- * Returns true when a TypeScript type node references the candidate type declaration.
+ * Returns true when a TypeScript type node references the reported enclosing type.
  *
  * It unwraps parentheses, intersections, unions, and type references until it can
- * tell whether the candidate declaration is used.
+ * tell whether that declaration is used.
  */
 function typeNodeUsesTypeDeclaration(
   typeNode: ts.TypeNode,
-  candidateType: ts.Type,
-  candidateTypeSymbol: ts.Symbol,
+  reportedEnclosingType: ts.Type,
+  reportedEnclosingTypeSymbol: ts.Symbol,
   checker: ts.TypeChecker,
   seen: Set<ts.Symbol>,
 ): boolean {
   if (ts.isParenthesizedTypeNode(typeNode)) {
     return typeNodeUsesTypeDeclaration(
       typeNode.type,
-      candidateType,
-      candidateTypeSymbol,
+      reportedEnclosingType,
+      reportedEnclosingTypeSymbol,
       checker,
       seen,
     );
@@ -1067,15 +1175,21 @@ function typeNodeUsesTypeDeclaration(
 
   if (ts.isIntersectionTypeNode(typeNode) || ts.isUnionTypeNode(typeNode)) {
     return typeNode.types.some(type =>
-      typeNodeUsesTypeDeclaration(type, candidateType, candidateTypeSymbol, checker, seen),
+      typeNodeUsesTypeDeclaration(
+        type,
+        reportedEnclosingType,
+        reportedEnclosingTypeSymbol,
+        checker,
+        seen,
+      ),
     );
   }
 
   if (ts.isTypeReferenceNode(typeNode)) {
     return typeUsesTypeDeclaration(
       checker.getTypeAtLocation(typeNode),
-      candidateType,
-      candidateTypeSymbol,
+      reportedEnclosingType,
+      reportedEnclosingTypeSymbol,
       checker,
       seen,
     );
