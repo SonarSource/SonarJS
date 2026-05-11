@@ -19,5 +19,5 @@ export const TEST_FILE_PATTERN = /\.(?:test|spec|cy)\.[cm]?[jt]sx?$/;
 
 // Matches "test-related files" — superset of TEST_FILE_PATTERN that also covers e2e/mock suffixes and __tests__/ / __mocks__/ directories.
 export const TEST_RELATED_FILE_PATTERN = new RegExp(
-  `${TEST_FILE_PATTERN.source}|\\.(?:e2e|mock)\\.[cm]?[jt]sx?$|[\\\\/](?:__tests__|__mocks__)[\\\\/]`,
+  String.raw`${TEST_FILE_PATTERN.source}|\.(?:e2e|mock)\.[cm]?[jt]sx?$|[\\/](?:__tests__|__mocks__)[\\/]`,
 );
