@@ -231,6 +231,37 @@ describe('Linter', () => {
     });
   });
 
+  it('should override provided nested array options instead of merging them', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S106',
+          configurations: [{ allow: ['log'] }],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    expect(
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
+    ).toEqual({
+      'sonarjs/S106': [
+        'error',
+        {
+          allow: ['log'],
+        },
+      ],
+    });
+  });
+
   it('should disable React-dependent rules when react dependency is missing', async () => {
     const baseDir = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'no-react'),
@@ -752,7 +783,7 @@ describe('Linter', () => {
     });
 
     const jsRules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.js'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -798,7 +829,7 @@ describe('Linter', () => {
     );
 
     const tsRules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.ts'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.ts')),
       'MAIN',
       'DEFAULT',
       'ts',
