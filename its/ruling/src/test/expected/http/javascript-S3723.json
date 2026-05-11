@@ -25,45 +25,6 @@
 23,
 30
 ],
-"http:test/Http.spec.js": [
-33,
-132,
-148,
-176,
-191,
-224,
-232,
-256,
-261,
-280,
-286,
-305,
-311,
-316,
-335,
-340,
-356,
-360
-],
-"http:test/IInterceptResolution.spec.js": [
-14,
-22,
-30,
-35,
-45,
-56,
-67,
-78
-],
-"http:test/IRequest.spec.js": [
-12
-],
-"http:test/IResponse.spec.js": [
-12
-],
-"http:test/Public.spec.js": [
-12
-],
 "http:test/matchers.js": [
 17,
 19,

@@ -1,22 +1,4 @@
 {
-"tailwindcss:__tests__/cli.compile.test.js": [
-1
-],
-"tailwindcss:__tests__/cli.test.js": [
-1
-],
-"tailwindcss:__tests__/customConfig.test.js": [
-1,
-2
-],
-"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
-1,
-2
-],
-"tailwindcss:__tests__/sanity.test.js": [
-1,
-2
-],
 "tailwindcss:jest/runInTempDirectory.js": [
 1,
 2

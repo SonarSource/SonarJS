@@ -791,9 +791,6 @@
 460,
 475
 ],
-"fresh:packages/plugin-vite/tests/fixtures/test_files_exclusion/routes/foo.test.ts": [
-2
-],
 "fresh:packages/plugin-vite/tests/test_utils.ts": [
 87,
 106,

@@ -1,16 +1,10 @@
 {
-"console:src/__mocks__/lokka.ts": [
-5
-],
 "console:src/actions/databrowser/data.ts": [
 82
 ],
 "console:src/actions/gettingStarted.tsx": [
 75,
 85
-],
-"console:src/reducers/databrowser/__tests__/data.ts": [
-135
 ],
 "console:src/utils/relay.ts": [
 41,

@@ -2,27 +2,6 @@
 "jira-clone:api/tsconfig-paths.js": [
 0
 ],
-"jira-clone:client/cypress/integration/authentication.spec.js": [
-0
-],
-"jira-clone:client/cypress/integration/issueCreate.spec.js": [
-0
-],
-"jira-clone:client/cypress/integration/issueDetails.spec.js": [
-0
-],
-"jira-clone:client/cypress/integration/issueFilters.spec.js": [
-0
-],
-"jira-clone:client/cypress/integration/issueSearch.spec.js": [
-0
-],
-"jira-clone:client/cypress/integration/issuesDragDrop.spec.js": [
-0
-],
-"jira-clone:client/cypress/integration/projectSettings.spec.js": [
-0
-],
 "jira-clone:client/cypress/plugins/index.js": [
 0
 ],

@@ -1,8 +1,5 @@
 {
 "templating:src/lib/util/module_annotator.js": [
 14
-],
-"templating:test/lib/compiler/compiler.spec.js": [
-309
 ]
 }

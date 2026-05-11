@@ -40,15 +40,9 @@
 "vuetify:packages/docs/src/util/routes.ts": [
 9
 ],
-"vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
-130
-],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 120,
 140
-],
-"vuetify:packages/vuetify/src/composables/__tests__/theme.spec.ts": [
-147
 ],
 "vuetify:packages/vuetify/src/composables/touch.ts": [
 26

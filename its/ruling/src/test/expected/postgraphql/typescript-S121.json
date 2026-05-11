@@ -1,11 +1,4 @@
 {
-"postgraphql:src/__tests__/utils/kitchenSinkSchemaSql.ts": [
-6,
-7
-],
-"postgraphql:src/__tests__/utils/withPgClient.ts": [
-22
-],
 "postgraphql:src/graphql/schema/collection/createCollectionGqlType.ts": [
 81
 ],

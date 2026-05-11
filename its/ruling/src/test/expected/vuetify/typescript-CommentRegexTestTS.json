@@ -23,26 +23,11 @@
 "vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
 87
 ],
-"vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
-9,
-61,
-108
-],
-"vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
-12,
-82
-],
-"vuetify:packages/vuetify/src/components/VBtnGroup/__tests__/VBtnGroup.spec.cy.tsx": [
-11
-],
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 89
 ],
 "vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 353
-],
-"vuetify:packages/vuetify/src/components/VForm/__tests__/VForm.spec.cy.tsx": [
-209
 ],
 "vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 120

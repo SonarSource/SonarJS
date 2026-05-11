@@ -1,8 +1,4 @@
 {
-"tailwindcss:__tests__/applyAtRule.test.js": [
-1006,
-1024
-],
 "tailwindcss:src/lib/purgeUnusedStyles.js": [
 52
 ],

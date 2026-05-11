@@ -2,9 +2,6 @@
 "redux:examples/async/containers/App.js": [
 66
 ],
-"redux:examples/counter/test/actions/counter.spec.js": [
-22
-],
 "redux:examples/real-world/components/List.js": [
 10
 ],
@@ -35,11 +32,6 @@
 30,
 37
 ],
-"redux:examples/todomvc/test/components/Footer.spec.js": [
-27,
-32,
-65
-],
 "redux:examples/todos-with-undo/components/Todo.js": [
 9,
 10
@@ -55,18 +47,10 @@
 "redux:src/utils/isPlainObject.js": [
 13
 ],
-"redux:test/createStore.spec.js": [
-319,
-323
-],
 "redux:test/helpers/middleware.js": [
 3
 ],
 "redux:test/helpers/reducers.js": [
 6
-],
-"redux:test/utils/combineReducers.spec.js": [
-10,
-12
 ]
 }

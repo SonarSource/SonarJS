@@ -1,0 +1,22 @@
+{
+"postgraphql:src/postgraphql/http/__tests__/createPostGraphQLHttpRequestHandler-test.js": [
+124,
+182,
+195,
+208,
+221,
+233,
+245,
+318,
+338,
+359,
+370,
+381,
+534
+],
+"postgraphql:src/postgraphql/http/__tests__/setupServerSentEvents-test.js": [
+24,
+41,
+54
+]
+}
