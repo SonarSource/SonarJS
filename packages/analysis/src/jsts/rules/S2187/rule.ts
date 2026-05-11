@@ -21,8 +21,7 @@ import type { CallExpression, Node } from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { hasStringFirstArgument } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
-
-const TEST_FILE_PATTERN = /\.(?:spec|test|cy)\./;
+import { TEST_FILE_PATTERN } from '../helpers/test-file-pattern.js';
 
 const APIs = new Set([
   // Jasmine test cases: it(...), fit(...), xit(...).

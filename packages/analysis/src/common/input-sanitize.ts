@@ -144,8 +144,17 @@ export async function sanitizeInputFiles(
   for (const [key, fileInput] of Object.entries(inputFiles)) {
     const filePath = normalizeToAbsolutePath(fileInput.filePath, baseDir);
     const fileContent = fileInput.fileContent ?? (await readFile(filePath));
-    const rawFileType =
-      fileInput.fileType ?? filterPathAndGetFileType(filePath, getFilterPathParams(configuration));
+    let rawFileType: FileType | undefined = fileInput.fileType;
+    if (rawFileType !== 'TEST') {
+      // We cannot trust the caller to provide the correct fileType, so we attempt to infer it from the file path if not explicitly set to 'TEST'.
+      const inferredFileType = filterPathAndGetFileType(
+        filePath,
+        getFilterPathParams(configuration),
+      );
+      if (inferredFileType) {
+        rawFileType = inferredFileType;
+      }
+    }
     const rawFileStatus = fileInput.fileStatus;
 
     if (await shouldIgnoreFile({ filePath, fileContent }, getShouldIgnoreParams(configuration))) {
