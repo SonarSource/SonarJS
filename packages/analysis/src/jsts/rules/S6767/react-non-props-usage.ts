@@ -19,8 +19,6 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
-import { getNodeParent } from '../helpers/ancestor.js';
-import { isIdentifier } from '../helpers/ast.js';
 import {
   isRequiredParserServices,
   type RequiredParserServices,
@@ -30,6 +28,9 @@ import {
   getComponentPropsTypeCandidates,
   getDeclaredClassNonPropsTypes,
   getReactComponentNodes,
+  isClassComponentNode,
+  isFunctionComponentNode,
+  isPascalCaseFunctionComponent,
 } from '../helpers/react.js';
 import { areSameTypeDeclarations } from '../helpers/type.js';
 
@@ -237,68 +238,4 @@ function getReportedEnclosingType(
 
 function isTypeDeclarationNode(node: TSESTree.Node): node is TypeDeclarationNode {
   return node.type === 'TSInterfaceDeclaration' || node.type === 'TSTypeAliasDeclaration';
-}
-
-function isClassComponentNode(
-  node: estree.Node,
-): node is estree.ClassDeclaration | estree.ClassExpression {
-  return node.type === 'ClassDeclaration' || node.type === 'ClassExpression';
-}
-
-function isFunctionComponentNode(
-  node: estree.Node,
-): node is estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression {
-  return (
-    node.type === 'FunctionDeclaration' ||
-    node.type === 'FunctionExpression' ||
-    node.type === 'ArrowFunctionExpression'
-  );
-}
-
-function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
-  const componentIdentifier = getComponentIdentifier(componentNode);
-  return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
-}
-
-function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
-  const parent = getNodeParent(componentNode);
-  if (isVariableAssignedFunctionOrClassExpression(componentNode, parent)) {
-    return parent.id;
-  }
-
-  if (hasIdentifierId(componentNode)) {
-    return componentNode.id;
-  }
-
-  return isVariableDeclaratorWithIdentifierId(parent) ? parent.id : undefined;
-}
-
-function isVariableAssignedFunctionOrClassExpression(
-  componentNode: estree.Node,
-  parent: unknown,
-): parent is estree.VariableDeclarator & { id: estree.Identifier } {
-  return (
-    (componentNode.type === 'ClassExpression' || componentNode.type === 'FunctionExpression') &&
-    isVariableDeclaratorWithIdentifierId(parent)
-  );
-}
-
-function hasIdentifierId(node: estree.Node): node is estree.Node & { id: estree.Identifier } {
-  return 'id' in node && node.id != null && isIdentifier(node.id);
-}
-
-function isVariableDeclaratorWithIdentifierId(
-  node: unknown,
-): node is estree.VariableDeclarator & { id: estree.Identifier } {
-  return (
-    !!node &&
-    typeof node === 'object' &&
-    'type' in node &&
-    node.type === 'VariableDeclarator' &&
-    'id' in node &&
-    !!node.id &&
-    typeof node.id === 'object' &&
-    'type' in node.id &&
-    node.id.type === 'Identifier'
-  );
 }
