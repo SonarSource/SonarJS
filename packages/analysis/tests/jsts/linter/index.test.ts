@@ -22,7 +22,10 @@ import { Linter } from '../../../src/jsts/linter/linter.js';
 import { RuleConfig } from '../../../src/jsts/linter/config/rule-config.js';
 import { JsTsLanguage } from '../../../src/common/configuration.js';
 import { AnalysisMode } from '../../../src/jsts/analysis/analysis.js';
-import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import {
+  normalizeToAbsolutePath,
+  type NormalizedAbsolutePath,
+} from '../../../../shared/src/helpers/files.js';
 import {
   getProjectAnalysisTelemetry,
   resetProjectAnalysisTelemetry,
@@ -823,7 +826,7 @@ describe('Linter', () => {
   });
 
   it('should lint wrapped and external rules that depend on upstream default options', async () => {
-    const cases: { rule: RuleConfig; filePath: string }[] = [
+    const cases: { rule: RuleConfig; filePath: NormalizedAbsolutePath }[] = [
       {
         rule: {
           key: 'S2430',
@@ -891,7 +894,7 @@ describe('Linter', () => {
     const cases: {
       parser: 'js' | 'ts';
       rule: RuleConfig;
-      filePath: string;
+      filePath: NormalizedAbsolutePath;
     }[] = [
       {
         parser: 'js',
