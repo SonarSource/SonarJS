@@ -27,16 +27,14 @@ import { sanitizeReferences } from './jsts/program/tsconfig/utils.js';
 import ts from 'typescript';
 import { createOrGetCachedProgramForFile } from './jsts/program/factory.js';
 import {
-  computeLibJson,
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
   esLibToYear,
+  groupFilesByResolvedLib,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from './jsts/program/tsconfig/options.js';
-import { getClosestDependencyManifestDir } from './jsts/rules/helpers/dependency-manifests/closest.js';
-import { dirnamePath } from './jsts/rules/helpers/files.js';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import type { JsTsConfigFields } from './common/configuration.js';
 
@@ -187,14 +185,27 @@ function programOptionsFromClosestTsconfig(
 
   try {
     // TODO(JS-1138): File order can affect program combinations - improve strategy
-    // Anchor the Node.js signal at the orphan file's package, not the analysis root.
-    const pkgDir = getClosestDependencyManifestDir(dirnamePath(file), baseDir) ?? baseDir;
+    // Restrict the orphan program to files that resolve to the same lib as `file`.
+    // Without this, the program would contain rootNames from other packages too —
+    // the membership-keyed program cache would then replay this program for those
+    // files and apply the wrong Node.js signal to them in later requests.
+    const groups = groupFilesByResolvedLib(
+      pendingFiles,
+      baseDir,
+      jsTsConfigFields.ecmaScriptVersion,
+    );
+    const fileGroup = groups.find(g => g.files.includes(file));
+    if (!fileGroup) {
+      // Defensive: `file` is in `pendingFiles`, so grouping must yield a bucket for it.
+      error(`Failed to resolve lib group for orphan file ${file}`);
+      return undefined;
+    }
     const programOptions = createProgramOptionsFromJson(
       {
         ...defaultCompilerOptions,
-        lib: computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, pkgDir, baseDir),
+        lib: fileGroup.lib,
       },
-      [...pendingFiles],
+      fileGroup.files,
       baseDir,
     );
     info(

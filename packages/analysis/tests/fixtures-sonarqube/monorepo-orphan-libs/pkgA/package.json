@@ -1,0 +1,6 @@
+{
+  "name": "pkg-a",
+  "devDependencies": {
+    "@types/node": "^22.0.0"
+  }
+}

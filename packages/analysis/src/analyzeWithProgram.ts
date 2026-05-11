@@ -27,16 +27,14 @@ import merge from 'lodash.merge';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from './jsts/program/compilerHost.js';
 import {
-  computeLibJson,
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
   esLibToYear,
+  groupFilesByResolvedLib,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from './jsts/program/tsconfig/options.js';
-import { getClosestDependencyManifestDir } from './jsts/rules/helpers/dependency-manifests/closest.js';
-import { dirnamePath } from './jsts/rules/helpers/files.js';
 import { getProgramCacheManager } from './jsts/program/cache/programCache.js';
 import { clearSourceFileContentCache } from './jsts/program/cache/sourceFileCache.js';
 import { createStandardProgram } from './jsts/program/factory.js';
@@ -204,49 +202,46 @@ async function analyzeFilesFromEntryPoint(
     }
   };
 
-  if (foundProgramOptions.length) {
-    // Merged path: lib already inherited from per-tsconfig program options.
-    const programOptions = merge({}, ...foundProgramOptions);
-    await runProgram(programOptions, rootNames, 'merged compiler options');
-    return;
-  }
+  // Partition orphans by resolved lib so files in different packages don't share a
+  // single Node.js signal. Files producing the same lib share a program — best case
+  // (uniform signals) collapses back to a single program.
+  //
+  // When some tsconfigs were already processed, use the merged tsconfig options as a
+  // baseline for non-lib settings (strict, target, paths, etc.) but override .options.lib
+  // per group. The merged baseline is built once outside the loop.
+  const groups = groupFilesByResolvedLib(rootNames, baseDir, jsTsConfigFields.ecmaScriptVersion);
+  const mergedBaseline = foundProgramOptions.length
+    ? (merge({}, ...foundProgramOptions) as ProgramOptions)
+    : undefined;
+  const label = mergedBaseline ? 'merged compiler options' : 'default options';
 
-  // Default-options path: bucket files by their resolved lib so files in different
-  // packages don't share a single signal. Files producing the same lib share a program
-  // — best case (uniform signals) collapses back to a single program.
-  const libByPkgDir = new Map<NormalizedAbsolutePath, { lib: string[]; key: string }>();
-  // Group files by their resolved lib, so that we create one program per lib configuration. This way,
-  // files with the same lib configuration share a program and its type information, while files with different
-  // lib configurations don't cause type errors in each other and don't share the same (potentially wrong) signals.
-  const groups = new Map<string, { lib: string[]; files: NormalizedAbsolutePath[] }>();
-
-  for (const file of rootNames) {
-    const pkgDir = getClosestDependencyManifestDir(dirnamePath(file), baseDir) ?? baseDir;
-    let entry = libByPkgDir.get(pkgDir);
-    if (!entry) {
-      const lib = computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, pkgDir, baseDir);
-      entry = { lib, key: lib.join('|') };
-      libByPkgDir.set(pkgDir, entry);
-    }
-    let bucket = groups.get(entry.key);
-    if (!bucket) {
-      bucket = { lib: entry.lib, files: [] };
-      groups.set(entry.key, bucket);
-    }
-    bucket.files.push(file);
-  }
-
-  for (const { lib, files: groupRootNames } of groups.values()) {
+  for (const { lib, files: groupRootNames } of groups) {
     if (isAnalysisCancelled()) {
       return;
     }
-    const programOptions = createProgramOptionsFromJson(
-      { ...defaultCompilerOptions, lib },
-      groupRootNames,
-      baseDir,
-    );
-    await runProgram(programOptions, groupRootNames, 'default options');
+    const programOptions = mergedBaseline
+      ? withOverriddenLib(mergedBaseline, lib, baseDir)
+      : createProgramOptionsFromJson({ ...defaultCompilerOptions, lib }, groupRootNames, baseDir);
+    await runProgram(programOptions, groupRootNames, label);
   }
+}
+
+/**
+ * Builds a fresh ProgramOptions from a merged tsconfig baseline, replacing only
+ * `options.lib` with the per-package value converted to TypeScript's internal format.
+ * `rootNames` and `host` are owned by the caller (set in runProgram).
+ */
+function withOverriddenLib(
+  baseline: ProgramOptions,
+  lib: string[],
+  baseDir: NormalizedAbsolutePath,
+): ProgramOptions {
+  const { options: libOptions } = ts.convertCompilerOptionsFromJson({ lib }, baseDir);
+  return {
+    ...baseline,
+    options: { ...baseline.options, lib: libOptions.lib },
+    rootNames: [],
+  };
 }
 
 async function analyzeFilesFromTsConfig(

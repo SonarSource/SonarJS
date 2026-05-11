@@ -21,6 +21,7 @@ import {
   getTypeScriptVersionSignal,
 } from '../../rules/helpers/dependency-manifests/dependencies.js';
 import { getClosestDependencyManifestDir } from '../../rules/helpers/dependency-manifests/closest.js';
+import { dirnamePath } from '../../rules/helpers/files.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
@@ -349,6 +350,47 @@ export function computeLibJson(
   }
 
   return [`es${Math.max(...years)}`, 'dom'];
+}
+
+export type LibGroup = {
+  lib: string[];
+  libKey: string;
+  files: NormalizedAbsolutePath[];
+};
+
+/**
+ * Buckets a set of files by the `lib` each one resolves to (via its closest
+ * package.json's Node.js signal). Files producing the same lib share a bucket;
+ * files in packages with different signals end up in separate buckets, so the
+ * caller can build one TypeScript program per bucket and avoid leaking the
+ * wrong lib across packages in a monorepo.
+ *
+ * Cheap by construction: each unique pkgDir runs `computeLibJson` once.
+ */
+export function groupFilesByResolvedLib(
+  files: Iterable<NormalizedAbsolutePath>,
+  baseDir: NormalizedAbsolutePath,
+  ecmaScriptVersion: string | undefined,
+): LibGroup[] {
+  const libByPkgDir = new Map<NormalizedAbsolutePath, { lib: string[]; libKey: string }>();
+  const groups = new Map<string, LibGroup>();
+
+  for (const file of files) {
+    const pkgDir = getClosestDependencyManifestDir(dirnamePath(file), baseDir) ?? baseDir;
+    let cached = libByPkgDir.get(pkgDir);
+    if (!cached) {
+      const lib = computeLibJson(ecmaScriptVersion, undefined, pkgDir, baseDir);
+      cached = { lib, libKey: lib.join('|') };
+      libByPkgDir.set(pkgDir, cached);
+    }
+    let bucket = groups.get(cached.libKey);
+    if (!bucket) {
+      bucket = { lib: cached.lib, libKey: cached.libKey, files: [] };
+      groups.set(cached.libKey, bucket);
+    }
+    bucket.files.push(file);
+  }
+  return [...groups.values()];
 }
 
 /**
