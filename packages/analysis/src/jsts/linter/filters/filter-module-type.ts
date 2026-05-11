@@ -17,9 +17,9 @@
 import type { RuleFilter } from './rule-filter.js';
 
 export const filterModuleType: RuleFilter = (_config, meta, ctx) => {
-  if (!ctx.detectedModuleType || !meta || !('requiredModuleType' in meta)) {
+  if (!ctx.detectedModuleType || !meta) {
     return true;
   }
-  const required = meta.requiredModuleType as string | undefined;
+  const required = meta.requiredModuleType;
   return !required || required === ctx.detectedModuleType;
 };

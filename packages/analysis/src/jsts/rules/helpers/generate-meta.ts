@@ -18,6 +18,7 @@ import type { Rule } from 'eslint';
 import type { RulesMeta } from '@eslint/core';
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 import type { ESLintConfiguration } from './configs.js';
+import type { ModuleType } from './dependency-manifests/resolvers/types.js';
 import merge from 'lodash.merge';
 
 export type SonarMeta = {
@@ -37,6 +38,9 @@ export type SonarMeta = {
     externalRule: string;
   }[];
   quickFixMessage?: string;
+  requiredDependency: readonly string[];
+  requiredEcmaVersion?: number;
+  requiredModuleType?: ModuleType;
 };
 
 export function generateMeta(sonarMeta: SonarMeta, ruleMeta?: RulesMeta): RulesMeta {

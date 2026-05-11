@@ -23,8 +23,9 @@ import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
-import type { Minimatch } from 'minimatch';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
+import { parseInlineNPMImport } from '../helpers/dependency-manifests/resolvers/deno.js';
+import type { DependenciesList } from '../helpers/dependency-manifests/resolvers/types.js';
 
 const messages = {
   removeOrAddDependency: 'Either remove this import or add it as a dependency.',
@@ -88,7 +89,7 @@ export const rule: Rule.RuleModule = {
 function raiseOnImplicitImport(
   module: estree.Literal,
   loc: estree.SourceLocation,
-  dependencies: Set<string | Minimatch>,
+  dependencies: DependenciesList,
   filename: string,
   host: ts.ModuleResolutionHost | undefined,
   options: ts.CompilerOptions | undefined,
@@ -112,6 +113,11 @@ function raiseOnImplicitImport(
     return;
   }
 
+  // Deno inline npm imports (e.g. 'npm:zod@4.3.6') are self-declaring — no manifest entry needed.
+  if (parseInlineNPMImport(moduleName) !== undefined) {
+    return;
+  }
+
   const packageName = getPackageName(moduleName);
   if (whitelist.includes(packageName)) {
     return;
@@ -121,7 +127,7 @@ function raiseOnImplicitImport(
     return;
   }
 
-  for (const dependency of dependencies) {
+  for (const dependency of dependencies.keys()) {
     if (typeof dependency === 'string') {
       if (dependency === packageName) {
         return;

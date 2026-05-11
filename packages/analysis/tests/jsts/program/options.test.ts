@@ -200,6 +200,24 @@ describe('createProgramOptions', () => {
       expect(options.lib!.some(l => l.includes('es5'))).toBe(true);
       expect(options.lib!.some(l => l.includes('es2022'))).toBe(false);
     });
+
+    it('should use the effective target inherited through extends when computing lib', () => {
+      const tsConfig = path.join(nodeSignalsBaseDir, 'inherited-target', 'tsconfig.child.json');
+
+      const { options } = createProgramOptions(
+        tsConfig,
+        undefined,
+        true,
+        undefined,
+        nodeSignalsBaseDir,
+      );
+
+      // Root node-signals fixture has @types/node ^18 → ES2022, while the base config
+      // contributes target ES2024 through extends. The computed lib must keep the max.
+      expect(options.lib).toBeDefined();
+      expect(options.lib!.some(l => l.includes('es2024'))).toBe(true);
+      expect(options.lib!.some(l => l.includes('es2022'))).toBe(false);
+    });
   });
 
   describe('strictness compatibility', () => {
@@ -371,6 +389,93 @@ describe('computeLibJson', () => {
       path.join(import.meta.dirname, 'fixtures/node-signals'),
     );
     expect(computeLibJson(undefined, 'ES2020', fixturesBaseDir)).toEqual(['es2022', 'dom']);
+  });
+
+  describe('per-package node signal resolution (monorepo)', () => {
+    const monorepoBaseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures/node-signals/monorepo'),
+    );
+    const pkgADir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures/node-signals/monorepo/packages/a'),
+    );
+    const pkgBDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures/node-signals/monorepo/packages/b'),
+    );
+    const pkgCDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures/node-signals/monorepo/packages/c'),
+    );
+    const pkgDDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures/node-signals/monorepo/packages/d'),
+    );
+
+    it('should use nested @types/node when packageDir points to nested package', () => {
+      // Root has @types/node ^16 → ES2021. Nested package a has @types/node ^20 → ES2023.
+      // packageDir = nested → ES2023 wins.
+      expect(computeLibJson(undefined, undefined, pkgADir, monorepoBaseDir)).toEqual([
+        'es2023',
+        'dom',
+      ]);
+    });
+
+    it('should use nested engines.node when nested package has no @types/node', () => {
+      // Nested package b has only engines.node >=22 → ES2024. Root has @types/node ^16.
+      // packageDir = nested → ES2024 wins (closest package, engines.node fallback).
+      expect(computeLibJson(undefined, undefined, pkgBDir, monorepoBaseDir)).toEqual([
+        'es2024',
+        'dom',
+      ]);
+    });
+
+    it('should fall through to root when nested package has no node signal', () => {
+      // Nested package c has no node signal. Root has @types/node ^16 → ES2021.
+      // Walk up reaches root → ES2021.
+      expect(computeLibJson(undefined, undefined, pkgCDir, monorepoBaseDir)).toEqual([
+        'es2021',
+        'dom',
+      ]);
+    });
+
+    it('should ignore invalid nested engines.node values and continue to a valid parent signal', () => {
+      // Nested package d has engines.node "*", which is not a usable Node signal.
+      // Walk continues to the root @types/node ^16 → ES2021.
+      expect(computeLibJson(undefined, undefined, pkgDDir, monorepoBaseDir)).toEqual([
+        'es2021',
+        'dom',
+      ]);
+    });
+
+    it('should still take max of target and per-package node signal', () => {
+      // Nested package a → @types/node ^20 → ES2023. Target ES2024 wins.
+      expect(computeLibJson(undefined, 'ES2024', pkgADir, monorepoBaseDir)).toEqual([
+        'es2024',
+        'dom',
+      ]);
+      // Nested package a → ES2023, target ES2020 → ES2023 wins.
+      expect(computeLibJson(undefined, 'ES2020', pkgADir, monorepoBaseDir)).toEqual([
+        'es2023',
+        'dom',
+      ]);
+    });
+
+    it('should use root signal when packageDir is the analysis baseDir', () => {
+      // packageDir == baseDir == monorepo root → root @types/node ^16 → ES2021.
+      expect(computeLibJson(undefined, undefined, monorepoBaseDir, monorepoBaseDir)).toEqual([
+        'es2021',
+        'dom',
+      ]);
+    });
+
+    it('should walk up from a subdirectory to find the closest package signal', () => {
+      // Subdirectory inside packages/a (has no package.json itself).
+      // Walk up reaches packages/a/package.json with @types/node ^20 → ES2023.
+      const subDir = normalizeToAbsolutePath(
+        path.join(import.meta.dirname, 'fixtures/node-signals/monorepo/packages/a/src'),
+      );
+      expect(computeLibJson(undefined, undefined, subDir, monorepoBaseDir)).toEqual([
+        'es2023',
+        'dom',
+      ]);
+    });
   });
 });
 

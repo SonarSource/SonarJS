@@ -54,12 +54,21 @@
 30,
 31
 ],
+"vitest:packages/browser-webdriverio/src/webdriverio.ts": [
+266
+],
 "vitest:packages/browser/src/client/tester/context.ts": [
 430,
 453
 ],
+"vitest:packages/browser/src/client/tester/expect-element.ts": [
+31
+],
 "vitest:packages/browser/src/client/tester/expect/toBePartiallyChecked.ts": [
 71
+],
+"vitest:packages/browser/src/client/tester/mocker-interceptor.ts": [
+23
 ],
 "vitest:packages/browser/src/client/tester/runner.ts": [
 121,
@@ -138,6 +147,7 @@
 ],
 "vitest:packages/runner/src/suite.ts": [
 294,
+463,
 873,
 986,
 1090
@@ -150,6 +160,12 @@
 ],
 "vitest:packages/spy/src/index.ts": [
 569
+],
+"vitest:packages/ui/client/composables/client/state.ts": [
+16
+],
+"vitest:packages/ui/client/composables/client/static.ts": [
+83
 ],
 "vitest:packages/ui/client/composables/codemirror.ts": [
 27
@@ -169,6 +185,9 @@
 "vitest:packages/vitest/src/node/ast-collect.ts": [
 146
 ],
+"vitest:packages/vitest/src/node/cache/fsModuleCache.ts": [
+462
+],
 "vitest:packages/vitest/src/node/core.ts": [
 1449
 ],
@@ -181,12 +200,19 @@
 52,
 339
 ],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+55
+],
 "vitest:packages/vitest/src/node/plugins/runnerTransform.ts": [
 149
 ],
 "vitest:packages/vitest/src/node/pools/browser.ts": [
 106,
 110
+],
+"vitest:packages/vitest/src/node/pools/poolRunner.ts": [
+279,
+365
 ],
 "vitest:packages/vitest/src/node/projects/resolveProjects.ts": [
 102
@@ -212,6 +238,9 @@
 "vitest:packages/vitest/src/runtime/benchmark.ts": [
 61
 ],
+"vitest:packages/vitest/src/runtime/moduleRunner/errorCatcher.ts": [
+18
+],
 "vitest:packages/vitest/src/runtime/nodejsWorkerLoader.ts": [
 43
 ],
@@ -223,7 +252,13 @@
 114,
 241
 ],
+"vitest:packages/vitest/src/utils/test-helpers.ts": [
+39
+],
 "vitest:packages/vitest/src/utils/traces.ts": [
 67
+],
+"vitest:packages/web-worker/src/shared-worker.ts": [
+49
 ]
 }

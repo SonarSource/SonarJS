@@ -71,6 +71,7 @@ export async function testProject(projectName: string) {
   const actualPath = join(actualBase, name);
 
   const baseDir = normalizeToAbsolutePath(join(sourcesPath, folder ?? join('projects', name)));
+  const defaultTestExclusions = testDir ? DEFAULT_EXCLUSIONS : undefined;
 
   const configuration = createConfiguration({
     baseDir,
@@ -78,6 +79,7 @@ export async function testProject(projectName: string) {
     canAccessFileSystem: true,
     skipNodeModuleLookupOutsideBaseDir: true,
     tests: testDir ? [testDir] : undefined,
+    testExclusions: defaultTestExclusions,
     exclusions: exclusions ? DEFAULT_EXCLUSIONS.concat(exclusions.split(',')) : DEFAULT_EXCLUSIONS,
   });
 

@@ -1,0 +1,6 @@
+{
+  "name": "pkg-b",
+  "engines": {
+    "node": "10"
+  }
+}

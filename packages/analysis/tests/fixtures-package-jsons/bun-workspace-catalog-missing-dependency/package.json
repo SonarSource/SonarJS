@@ -1,0 +1,14 @@
+{
+  "name": "my-monorepo",
+  "workspaces": {
+    "packages": ["packages/*"],
+    "catalog": {
+      "react": "^18.0.0"
+    },
+    "catalogs": {
+      "testing": {
+        "testing-library": "14.0.0"
+      }
+    }
+  }
+}

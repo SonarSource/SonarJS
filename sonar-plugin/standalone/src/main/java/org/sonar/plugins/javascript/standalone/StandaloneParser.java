@@ -137,6 +137,10 @@ public class StandaloneParser implements AutoCloseable {
     }
   }
 
+  public boolean isAlive() {
+    return bridge.isAlive();
+  }
+
   public ESTree.Program parse(String code) {
     return parse(code, "file.js");
   }

@@ -1,0 +1,19 @@
+{
+  "name": "my-monorepo",
+  "workspaces": {
+    "packages": ["packages/*"]
+  },
+  "catalogs": {
+    "build": {
+      "webpack": "5.0.0"
+    },
+    "testing": {
+      "jest": "30.0.0",
+      "testing-library": "14.0.0"
+    },
+    "ui": {
+      "react": "^18.0.0",
+      "react-dom": "^19.0.0"
+    }
+  }
+}

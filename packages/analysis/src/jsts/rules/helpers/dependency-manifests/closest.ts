@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { type NormalizedAbsolutePath, ROOT_PATH, dirnamePath } from '../files.js';
+import { type NormalizedAbsolutePath, dirnamePath, getPathRoot } from '../files.js';
 import { DEPENDENCY_MANIFESTS } from './index.js';
 import { closestPatternCache } from '../find-up/closest.js';
 
@@ -29,7 +29,7 @@ export function getClosestDependencyManifestDir(
   for (const manifestName of DEPENDENCY_MANIFESTS) {
     const manifestPath = closestPatternCache
       .get(manifestName)
-      .get(topDir ?? ROOT_PATH)
+      .get(topDir ?? getPathRoot(dir))
       .get(dir)?.path;
 
     // All candidates are on the same ancestor chain of `dir`, so the longest path is the closest.

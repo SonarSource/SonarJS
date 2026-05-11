@@ -24,10 +24,8 @@ export const filterReactVue: RuleFilter = (_config, meta, ctx) => {
   if (!meta || ctx.extensionName.toLowerCase() !== '.vue') {
     return true;
   }
-  const isReactRequired =
-    'requiredDependency' in meta &&
-    (meta.requiredDependency as string[]).some(
-      dependency => dependency === 'react' || dependency === 'react-native',
-    );
+  const isReactRequired = meta.requiredDependency.some(
+    dependency => dependency === 'react' || dependency === 'react-native',
+  );
   return !isReactRequired;
 };

@@ -153,6 +153,7 @@ function toTelemetry(
     programCreation: telemetry.programCreation,
     esmFileCount: telemetry.esmFileCount,
     cjsFileCount: telemetry.cjsFileCount,
+    denoImportCounts: telemetry.denoImportCounts,
   };
 }
 
