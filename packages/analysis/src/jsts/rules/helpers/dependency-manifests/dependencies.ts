@@ -222,8 +222,10 @@ function getVersionSignalFromManifests(
   // Walk up nearest-first. At each node manifest, prefer the primary signal
   // (e.g. @types/node — catalog/workspace-resolved by the npm resolver) over the
   // fallback (engines.node, read from the same manifest's PackageJson).
-  // First manifest producing any valid signal wins. Deno manifests are skipped —
-  // @types/node and engines.node are npm concepts.
+  // First manifest producing any valid signal wins — both signals are walked
+  // across levels, so a parent package's engines.node can be picked up when the
+  // nested package declares neither @types/node nor engines.node.
+  // Deno manifests are skipped — @types/node and engines.node are npm concepts.
   const lookupKey = dependencyName.startsWith(DEFINITELY_TYPED)
     ? dependencyName.substring(DEFINITELY_TYPED.length)
     : dependencyName;
