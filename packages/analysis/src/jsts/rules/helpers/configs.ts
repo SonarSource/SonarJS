@@ -123,7 +123,7 @@ export function materializeRuleOptions(
  * applyTransformations(fields, [{secretWords: 'api_key', randomnessSensibility: '5.0'}])
  * // → [{secretWords: 'api_key', randomnessSensibility: 5}]
  */
-export function applyTransformations(
+function applyTransformations(
   fields: ESLintConfiguration | undefined,
   mergedValues: unknown[] | undefined,
 ): unknown[] {
