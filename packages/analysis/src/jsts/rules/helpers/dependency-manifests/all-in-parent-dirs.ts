@@ -19,17 +19,17 @@ import type { PackageJson } from 'type-fest';
 import {
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
-  ROOT_PATH,
   dirnamePath,
   isRoot,
+  getPathRoot,
 } from '../files.js';
 import { PACKAGE_JSON } from './index.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import type { Rule } from 'eslint';
 import { type DependencyManifest, type ManifestResolver } from './resolvers/types.js';
 import { denoManifestResolver } from './resolvers/deno.js';
-import { nodeManifestResolver } from './resolvers/node.js';
 import { parsePackageJson } from './parsed-dependency-files.js';
+import { packageJsonManifestResolver } from './resolvers/package-json.js';
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by
@@ -42,7 +42,7 @@ export const getPackageJsonManifests = (
 ): Array<PackageJson> => {
   const files = patternInParentsCache
     .get(PACKAGE_JSON, fileSystem)
-    .get(topDir ?? ROOT_PATH)
+    .get(topDir ?? getPathRoot(dir))
     .get(dir);
 
   return files.map(file => parsePackageJson(file) ?? {});
@@ -68,7 +68,7 @@ type DependencyDefinition = {
  * Registry of manifest resolvers. Add a new entry here to support a new package manager
  * or manifest format (e.g., Bun).
  */
-const MANIFEST_RESOLVERS: ManifestResolver[] = [denoManifestResolver, nodeManifestResolver];
+const MANIFEST_RESOLVERS: ManifestResolver[] = [denoManifestResolver, packageJsonManifestResolver];
 
 /**
  * Returns dependency manifest files from closest-to-file and then up to root.
@@ -81,7 +81,7 @@ export const getDependencyManifests = (
   topDir?: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
 ): DependencyManifest[] => {
-  const rootDir = topDir ?? ROOT_PATH;
+  const rootDir = topDir ?? getPathRoot(dir);
   const manifests: DependencyManifest[] = [];
   let currentDir: NormalizedAbsolutePath = dir;
 

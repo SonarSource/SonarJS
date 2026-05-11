@@ -233,7 +233,7 @@ function getVersionSignalFromManifests(
     normalizeToAbsolutePath(topDir),
     fs,
   )) {
-    if (manifest.type !== 'node') {
+    if (manifest.type !== 'package-json') {
       continue;
     }
     const version = manifest.dependencies.get(lookupKey) ?? null;

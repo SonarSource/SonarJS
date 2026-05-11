@@ -523,9 +523,15 @@ export function createProgramOptions(
   // internal format, avoiding hardcoded lib file names.
   if (baseDir && !parsedConfigFile.options.lib) {
     // Anchor the Node.js signal lookup at the tsconfig's package, not the analysis root,
-    // so nested packages in a monorepo get their own signal.
+    // so nested packages in a monorepo get their own signal. When the tsconfig path is
+    // not nested under baseDir (e.g. virtual/relative paths used in tests), fall back to
+    // the analysis root.
     const tsconfigDir = normalizeToAbsolutePath(dirname(tsConfig));
-    const packageDir = getClosestDependencyManifestDir(tsconfigDir, baseDir) ?? baseDir;
+    const tsconfigDirUnderBase =
+      tsconfigDir === baseDir || (tsconfigDir + '/').startsWith(baseDir + '/');
+    const packageDir = tsconfigDirUnderBase
+      ? (getClosestDependencyManifestDir(tsconfigDir, baseDir) ?? baseDir)
+      : baseDir;
     const jsonLib = computeLibJson(
       ecmaScriptVersion,
       config.config?.compilerOptions?.target,

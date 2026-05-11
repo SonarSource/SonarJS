@@ -139,12 +139,12 @@ describe('S4328', () => {
         },
         {
           code: `import z from 'npm:zod@4.3.6';`,
-          filename: '/file.js',
+          filename: path.join(fixtures, 'no-manifest/file.js'),
           options,
         },
         {
           code: `import scoped from 'npm:@scope/pkg@1.2.3/subpath';`,
-          filename: '/file.js',
+          filename: path.join(fixtures, 'no-manifest/file.js'),
           options,
         },
         {
@@ -293,7 +293,7 @@ describe('S4328', () => {
         },
         {
           code: `import "foo";`,
-          filename: '/file.js',
+          filename: path.join(fixtures, 'no-manifest/file.js'),
           options,
           errors: 1,
         },
@@ -326,7 +326,7 @@ describe('S4328', () => {
         },
         {
           code: `import assert from 'jsr:@std/assert@^1.0.0';`,
-          filename: '/file.js',
+          filename: path.join(fixtures, 'no-manifest/file.js'),
           options,
           errors: 1,
         },

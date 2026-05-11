@@ -149,7 +149,12 @@ describe('Linter', () => {
       ],
     });
     expect(
-      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
     ).toEqual(
       expect.objectContaining({
         'sonarjs/S100': [
@@ -176,7 +181,12 @@ describe('Linter', () => {
       ],
     });
     expect(
-      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
     ).toEqual({
       'sonarjs/S3353': [
         'error',
@@ -202,7 +212,12 @@ describe('Linter', () => {
       ],
     });
     expect(
-      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
     ).toEqual({
       'sonarjs/S878': ['error'],
     });
@@ -430,7 +445,12 @@ describe('Linter', () => {
       baseDir: normalizeToAbsolutePath(import.meta.dirname),
     });
     expect(
-      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
     ).toEqual({});
   });
 
@@ -448,7 +468,12 @@ describe('Linter', () => {
       ],
     });
     expect(
-      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
     ).toEqual({
       'sonarjs/S3776': ['error', 0],
     });
@@ -469,7 +494,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.js'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -493,7 +518,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.js'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -517,7 +542,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.js'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -541,7 +566,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.cjs'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.cjs')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -565,7 +590,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.mjs'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.mjs')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -589,7 +614,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.js'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -605,9 +630,24 @@ describe('Linter', () => {
       rules: [],
     });
 
-    Linter.getRulesForFile(normalizeToAbsolutePath('/file.mjs'), 'MAIN', 'DEFAULT', 'js');
-    Linter.getRulesForFile(normalizeToAbsolutePath('/file.cjs'), 'MAIN', 'DEFAULT', 'js');
-    Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js');
+    Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.mjs')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.cjs')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
 
     expect(getProjectAnalysisTelemetry()).toMatchObject({
       esmFileCount: 1,
@@ -631,7 +671,12 @@ describe('Linter', () => {
       globals: [],
     });
     expect(
-      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
     ).toEqual({
       'sonarjs/S100': [
         'error',

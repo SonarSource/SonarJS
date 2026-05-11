@@ -28,8 +28,8 @@ export type ModuleType = 'module' | 'commonjs';
 
 export const DEFINITELY_TYPED = '@types/';
 
-type NodeManifest = {
-  type: 'node';
+type PackageJsonManifest = {
+  type: 'package-json';
   manifest: PackageJson;
 };
 
@@ -43,7 +43,7 @@ type DenoManifest = {
   manifest: DenoJson;
 };
 
-export type DependencyManifest = (NodeManifest | DenoManifest) & {
+export type DependencyManifest = (PackageJsonManifest | DenoManifest) & {
   readonly dependencies: DependenciesList;
   readonly moduleType: ModuleType | undefined;
 };
@@ -60,3 +60,21 @@ export interface ManifestResolver {
     fileSystem?: Filesystem,
   ): DependencyManifest[];
 }
+
+// Catalog is a mapping of package names to versions, used in some package managers' workspaces (e.g., Bun).
+type Catalog = Record<string, string>;
+
+export type CatalogSource = {
+  catalog?: Catalog;
+  catalogs?: Record<string, Catalog>;
+};
+
+// Workspace type as defined by Bun and Pnpm.
+export type Workspace = CatalogSource & {
+  packages?: string[];
+};
+
+export type ExtendedPackageJson = PackageJson &
+  CatalogSource & {
+    workspaces?: PackageJson.WorkspacePattern[] | Workspace;
+  };
