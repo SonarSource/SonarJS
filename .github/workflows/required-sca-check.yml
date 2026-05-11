@@ -1,0 +1,19 @@
+name: Required SCA Check
+
+on:
+  pull_request:
+  merge_group:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  verify-sca:
+    name: Verify SCA
+    runs-on: sonar-xs
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Verify SonarQube SCA ran
+        uses: SonarSource/ci-github-actions/check-sca@v1
