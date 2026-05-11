@@ -234,6 +234,48 @@ track((props: DecoratorFactoryProps) => ({
           filename: fixtureFile,
         },
         {
+          // FP: identical generic alias instantiations with primitive type arguments
+          // must still count as the same declared props type.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+type Box<T> = {
+  contextModule: string;
+  payload: T;
+};
+function PrimitiveGenericComponent(props: Box<string>) {
+  return <div>{props.payload}</div>;
+}
+track((props: Box<string>) => ({
+  context_module: props.contextModule,
+}))(PrimitiveGenericComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: identical generic alias instantiations with anonymous object type
+          // arguments must still count as the same declared props type.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+type Box<T> = {
+  contextModule: string;
+  payload: T;
+};
+function ObjectGenericComponent(props: Box<{ x: number }>) {
+  return <div>{props.payload.x}</div>;
+}
+track((props: Box<{ x: number }>) => ({
+  context_module: props.contextModule,
+}))(ObjectGenericComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: decorator-factory callback uses outer binding of named function expression
           code: `
 declare const React: any;

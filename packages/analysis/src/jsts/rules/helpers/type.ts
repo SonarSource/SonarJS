@@ -224,8 +224,8 @@ export function areSameTypeDeclarations(
     return false;
   }
 
-  const leftSymbol = left.aliasSymbol ?? left.symbol;
-  const rightSymbol = right.aliasSymbol ?? right.symbol;
+  const leftSymbol = getComparableDeclaredTypeSymbol(left);
+  const rightSymbol = getComparableDeclaredTypeSymbol(right);
   if (!leftSymbol || leftSymbol !== rightSymbol) {
     return false;
   }
@@ -234,14 +234,39 @@ export function areSameTypeDeclarations(
   const rightArgs = getDeclaredTypeArguments(right, checker);
   return (
     leftArgs.length === rightArgs.length &&
-    leftArgs.every((argument, index) =>
-      areSameTypeDeclarations(checker, argument, rightArgs[index]),
-    )
+    leftArgs.every((argument, index) => areSameTypeArguments(checker, argument, rightArgs[index]))
   );
+}
+
+function areSameTypeArguments(
+  checker: ts.TypeChecker,
+  left: ts.Type | undefined,
+  right: ts.Type | undefined,
+): boolean {
+  if (!left || !right || isAnyOrUnknownType(left) || isAnyOrUnknownType(right)) {
+    return false;
+  }
+
+  const leftSymbol = getComparableDeclaredTypeSymbol(left);
+  const rightSymbol = getComparableDeclaredTypeSymbol(right);
+  if (leftSymbol || rightSymbol) {
+    return leftSymbol !== undefined && leftSymbol === rightSymbol
+      ? areSameTypeDeclarations(checker, left, right)
+      : false;
+  }
+
+  // Primitives, unions, tuples, and anonymous object literals do not have a
+  // stable declared type symbol, so compare their effective instantiated form.
+  return checker.typeToString(left) === checker.typeToString(right);
 }
 
 function isAnyOrUnknownType(type: ts.Type): boolean {
   return (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0;
+}
+
+function getComparableDeclaredTypeSymbol(type: ts.Type): ts.Symbol | undefined {
+  const symbol = type.aliasSymbol ?? type.symbol;
+  return symbol && (symbol.flags & ts.SymbolFlags.TypeLiteral) === 0 ? symbol : undefined;
 }
 
 function getDeclaredTypeArguments(type: ts.Type, checker: ts.TypeChecker): readonly ts.Type[] {

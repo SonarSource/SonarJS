@@ -22,29 +22,15 @@ import { childrenOf, getNodeParent } from './ancestor.js';
 import { isIdentifier } from './ast.js';
 import { getFullyQualifiedName } from './module.js';
 import { isRequiredParserServices, type RequiredParserServices } from './parser-services.js';
+import { ReportedTypeDetails } from './reported-type.js';
 import {
   areMutuallyAssignableTypes,
   areSameTypeDeclarations,
   getTypeFromTreeNode,
 } from './type.js';
 
-const COMPONENT_NODE_TYPES = new Set([
-  'ClassDeclaration',
-  'ClassExpression',
-  'FunctionDeclaration',
-  'FunctionExpression',
-  'ArrowFunctionExpression',
-]);
-const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclaration']);
 type TypeDeclarationNode = TSESTree.TSInterfaceDeclaration | TSESTree.TSTypeAliasDeclaration;
 type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
-type ReportedTypeDetails<TDeclaration extends TSESTree.Node, TTsNode extends ts.Node> = {
-  name: string;
-  declaration: TDeclaration;
-  tsNode: TTsNode;
-  tsType: ts.Type;
-  tsTypeSymbol: ts.Symbol | undefined;
-};
 type ReportedEnclosingType = ReportedTypeDetails<
   TypeDeclarationNode,
   ts.InterfaceDeclaration | ts.TypeAliasDeclaration
@@ -57,10 +43,20 @@ type SourceCache = {
   mixedReactNonPropsReportNodes: WeakMap<TypeDeclarationNode, WeakSet<estree.Node>>;
 };
 type ReactNonPropsTypeUsage = 'mixed' | 'non-props' | 'other';
-const perSourceCache = new WeakMap<SourceCode, SourceCache>();
+
+const COMPONENT_NODE_TYPES = new Set([
+  'ClassDeclaration',
+  'ClassExpression',
+  'FunctionDeclaration',
+  'FunctionExpression',
+  'ArrowFunctionExpression',
+]);
+const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclaration']);
 const REACT_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
 const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
 const REACT_FORWARD_REF_RENDER_FUNCTION_TYPES = new Set(['ForwardRefRenderFunction']);
+
+const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 
 function isClassComponentNode(
   node: estree.Node,
@@ -517,6 +513,13 @@ function getDeclaredClassPropsType(
   return propsTypeNode ? checker.getTypeAtLocation(propsTypeNode) : undefined;
 }
 
+/**
+ * Returns the resolved type of the class instance's `props` property.
+ *
+ * This is the fallback for class components when the `extends React.Component<Props, ...>`
+ * clause does not give us a usable props type directly. By reading the class symbol's
+ * inherited `props` property, we can still recover the effective props type seen on `this.props`.
+ */
 function getClassPropsPropertyType(
   classNode: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
@@ -800,39 +803,13 @@ function isTypeDeclarationTsNode(
   return ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node);
 }
 
-function buildReportedTypeDetails<TDeclaration extends TSESTree.Node, TTsNode extends ts.Node>(
-  declaration: TDeclaration | undefined,
-  name: string | undefined,
-  services: RequiredParserServices,
-  checker: ts.TypeChecker,
-  isTsNode: (node: ts.Node) => node is TTsNode,
-): ReportedTypeDetails<TDeclaration, TTsNode> | undefined {
-  if (!declaration || !name) {
-    return undefined;
-  }
-
-  const tsNode = services.esTreeNodeToTSNodeMap.get(declaration);
-  if (!isTsNode(tsNode)) {
-    return undefined;
-  }
-
-  const tsType = checker.getTypeAtLocation(tsNode);
-  return {
-    name,
-    declaration,
-    tsNode,
-    tsType,
-    tsTypeSymbol: tsType.aliasSymbol ?? tsType.symbol,
-  };
-}
-
 function getReportedEnclosingType(
   ancestors: estree.Node[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
 ): ReportedEnclosingType | undefined {
   const declaration = findEnclosingTypeDeclaration(ancestors);
-  return buildReportedTypeDetails(
+  return ReportedTypeDetails.fromDeclaration(
     declaration,
     getTypeDeclarationName(declaration),
     services,
@@ -847,7 +824,7 @@ function getReportedTypeMember(
   checker: ts.TypeChecker,
 ): ReportedTypeMember | undefined {
   const declaration = findEnclosingTypeMember(ancestors);
-  return buildReportedTypeDetails(
+  return ReportedTypeDetails.fromDeclaration(
     declaration,
     getTypeMemberName(declaration),
     services,
@@ -985,7 +962,7 @@ function componentPropsIncludeReportedTypeMember(
   return componentPropsTypeCandidates.some(
     componentPropsType =>
       hasAssignableReportedTypeMember(componentPropsType, reportedTypeMember, checker) &&
-      typeUsesTypeDeclaration(componentPropsType, reportedEnclosingType, checker),
+      reportedEnclosingType.isUsedByType(componentPropsType, checker),
   );
 }
 
@@ -1082,124 +1059,6 @@ function hasRenderMethodOrProperty(componentNode: estree.Node): boolean {
       member.key.type === 'Identifier' &&
       member.key.name === 'render',
   );
-}
-
-/**
- * Returns true when a type uses the reported enclosing type declaration, directly or through
- * another type.
- *
- * Example:
- * ```ts
- * interface SharedProps {
- *   sharedValue: string;
- * }
- *
- * interface ChildProps extends SharedProps {
- *   title: string;
- * }
- *
- * type WrappedProps = ChildProps & {
- *   compact: boolean;
- * };
- * ```
- *
- * `ChildProps` and `WrappedProps` both use `SharedProps`.
- */
-function typeUsesTypeDeclaration(
-  type: ts.Type,
-  reportedEnclosingType: ReportedEnclosingType,
-  checker: ts.TypeChecker,
-  seen = new Set<ts.Symbol>(),
-): boolean {
-  if (areSameTypeDeclarations(checker, type, reportedEnclosingType.tsType)) {
-    return true;
-  }
-
-  const reportedEnclosingTypeSymbol = reportedEnclosingType.tsTypeSymbol;
-  if (!reportedEnclosingTypeSymbol) {
-    return false;
-  }
-
-  const typeSymbol = type.aliasSymbol ?? type.symbol;
-  if (!typeSymbol || seen.has(typeSymbol)) {
-    return false;
-  }
-  if (typeSymbol === reportedEnclosingTypeSymbol) {
-    return true;
-  }
-
-  seen.add(typeSymbol);
-  return (
-    typeSymbol.declarations?.some(declaration =>
-      declarationUsesTypeDeclaration(declaration, reportedEnclosingType, checker, seen),
-    ) === true
-  );
-}
-
-/**
- * Returns true when a declaration uses the reported enclosing type through `extends`,
- * intersections, unions, or nested references.
- */
-function declarationUsesTypeDeclaration(
-  declaration: ts.Declaration,
-  reportedEnclosingType: ReportedEnclosingType,
-  checker: ts.TypeChecker,
-  seen: Set<ts.Symbol>,
-): boolean {
-  if (ts.isInterfaceDeclaration(declaration)) {
-    return (
-      declaration.heritageClauses?.some(clause =>
-        clause.types.some(type =>
-          typeUsesTypeDeclaration(
-            checker.getTypeAtLocation(type),
-            reportedEnclosingType,
-            checker,
-            seen,
-          ),
-        ),
-      ) === true
-    );
-  }
-
-  if (ts.isTypeAliasDeclaration(declaration)) {
-    return typeNodeUsesTypeDeclaration(declaration.type, reportedEnclosingType, checker, seen);
-  }
-
-  return false;
-}
-
-/**
- * Returns true when a TypeScript type node references the reported enclosing type.
- *
- * It unwraps parentheses, intersections, unions, and type references until it can
- * tell whether that declaration is used.
- */
-function typeNodeUsesTypeDeclaration(
-  typeNode: ts.TypeNode,
-  reportedEnclosingType: ReportedEnclosingType,
-  checker: ts.TypeChecker,
-  seen: Set<ts.Symbol>,
-): boolean {
-  if (ts.isParenthesizedTypeNode(typeNode)) {
-    return typeNodeUsesTypeDeclaration(typeNode.type, reportedEnclosingType, checker, seen);
-  }
-
-  if (ts.isIntersectionTypeNode(typeNode) || ts.isUnionTypeNode(typeNode)) {
-    return typeNode.types.some(type =>
-      typeNodeUsesTypeDeclaration(type, reportedEnclosingType, checker, seen),
-    );
-  }
-
-  if (ts.isTypeReferenceNode(typeNode)) {
-    return typeUsesTypeDeclaration(
-      checker.getTypeAtLocation(typeNode),
-      reportedEnclosingType,
-      checker,
-      seen,
-    );
-  }
-
-  return false;
 }
 
 /**
