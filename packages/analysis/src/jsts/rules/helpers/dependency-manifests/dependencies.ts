@@ -221,10 +221,11 @@ function getVersionSignalFromManifests(
 ): string | null {
   // Walk up nearest-first. At each node manifest, prefer the primary signal
   // (e.g. @types/node — catalog/workspace-resolved by the npm resolver) over the
-  // fallback (engines.node, read from the same manifest's PackageJson).
-  // First manifest producing any valid signal wins — both signals are walked
-  // across levels, so a parent package's engines.node can be picked up when the
-  // nested package declares neither @types/node nor engines.node.
+  // fallback (engines.node, read from the same manifest's PackageJson). The
+  // first valid primary signal wins; otherwise the first valid fallback wins; if
+  // neither is valid, continue walking parents. This lets a parent package's
+  // engines.node be picked up when the nested package declares neither signal,
+  // or only unusable fallbacks like "*" / "latest".
   // Deno manifests are skipped — @types/node and engines.node are npm concepts.
   const lookupKey = dependencyName.startsWith(DEFINITELY_TYPED)
     ? dependencyName.substring(DEFINITELY_TYPED.length)
@@ -244,7 +245,7 @@ function getVersionSignalFromManifests(
     }
     if (fallbackSignal) {
       const fb = fallbackSignal(manifest.manifest);
-      if (fb !== null && fb !== undefined) {
+      if (isValidDependencySignal(fb)) {
         return fb;
       }
     }

@@ -898,8 +898,8 @@ describe('SonarQube project analysis', () => {
     expect([...orphanLibs].some(lib => lib.includes('es2024'))).toBe(true);
     expect([...orphanLibs].some(lib => lib.includes('es2018'))).toBe(true);
 
-    // Telemetry should record both ES versions (the tsconfig-covered file's lib is
-    // ES2020 from `target`, plus ES2024 and ES2018 from the per-package orphan programs).
+    // Telemetry should record both ES versions (the tsconfig-covered file shares
+    // ES2024 with pkgA from `target`, and pkgB contributes ES2018).
     const esVersions = result.meta.telemetry?.ecmaScriptVersions ?? [];
     expect(esVersions).toEqual(expect.arrayContaining(['ES2018', 'ES2024']));
   });

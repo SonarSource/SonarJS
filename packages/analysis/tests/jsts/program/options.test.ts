@@ -386,6 +386,9 @@ describe('computeLibJson', () => {
     const pkgCDir = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures/node-signals/monorepo/packages/c'),
     );
+    const pkgDDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures/node-signals/monorepo/packages/d'),
+    );
 
     it('should use nested @types/node when packageDir points to nested package', () => {
       // Root has @types/node ^16 → ES2021. Nested package a has @types/node ^20 → ES2023.
@@ -409,6 +412,15 @@ describe('computeLibJson', () => {
       // Nested package c has no node signal. Root has @types/node ^16 → ES2021.
       // Walk up reaches root → ES2021.
       expect(computeLibJson(undefined, undefined, pkgCDir, monorepoBaseDir)).toEqual([
+        'es2021',
+        'dom',
+      ]);
+    });
+
+    it('should ignore invalid nested engines.node values and continue to a valid parent signal', () => {
+      // Nested package d has engines.node "*", which is not a usable Node signal.
+      // Walk continues to the root @types/node ^16 → ES2021.
+      expect(computeLibJson(undefined, undefined, pkgDDir, monorepoBaseDir)).toEqual([
         'es2021',
         'dom',
       ]);

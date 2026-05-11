@@ -185,12 +185,20 @@ function programOptionsFromClosestTsconfig(
 
   try {
     // TODO(JS-1138): File order can affect program combinations - improve strategy
+    const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
+    const coveredRootNames = new Set(foundProgramOptions.flatMap(program => program.rootNames));
+    const orphanCandidates = Array.from(pendingFiles).filter(
+      pendingFile =>
+        isJsTsFile(pendingFile, { jsSuffixes, tsSuffixes }) && !coveredRootNames.has(pendingFile),
+    );
+
     // Restrict the orphan program to files that resolve to the same lib as `file`.
-    // Without this, the program would contain rootNames from other packages too —
+    // Without this, the program could contain rootNames from other orphan packages
+    // or even tsconfig-covered files that happen to share the same effective lib —
     // the membership-keyed program cache would then replay this program for those
-    // files and apply the wrong Node.js signal to them in later requests.
+    // files instead of letting them build against the correct configuration.
     const groups = groupFilesByResolvedLib(
-      pendingFiles,
+      orphanCandidates,
       baseDir,
       jsTsConfigFields.ecmaScriptVersion,
     );
@@ -213,7 +221,7 @@ function programOptionsFromClosestTsconfig(
     );
     return programOptions;
   } catch (e) {
-    error(`Failed to generate program from merged config: ${e}`);
+    error(`Failed to generate program for orphan file fallback: ${e}`);
   }
 }
 

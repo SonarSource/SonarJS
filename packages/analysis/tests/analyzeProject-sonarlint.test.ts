@@ -627,4 +627,55 @@ describe('SonarLint tsconfig change detection', () => {
     const stats = cacheManager.getCacheStats();
     expect(stats.size).toBeGreaterThanOrEqual(2);
   });
+
+  it('should not let an orphan fallback program capture tsconfig-covered files with the same lib (JS-1723)', async () => {
+    const baseDir = normalizePath(join(fixtures, 'monorepo-orphan-libs'));
+    const tsconfigPath = join(baseDir, 'tsconfig.json');
+    const orphanA = join(baseDir, 'pkgA/orphan-a.js');
+    const coveredFile = join(baseDir, 'covered.ts');
+
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const cacheManager = getProgramCacheManager();
+    cacheManager.clear();
+
+    const configuration = await initForTest(
+      { baseDir, sonarlint: true, createTSProgramForOrphanFiles: true },
+      {
+        [orphanA]: { filePath: orphanA, fileContent: 'const a = 1;\n' },
+        [coveredFile]: {
+          filePath: coveredFile,
+          fileContent: 'export const covered: number = 1;\n',
+        },
+      },
+    );
+
+    await analyzeProject({ rules, bundles: [] }, configuration);
+
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes(
+          'No tsconfig found for files, using default options',
+        ),
+      ),
+    ).toBe(true);
+
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes(
+          `Using tsconfig ${tsconfigPath} for ${coveredFile}`,
+        ),
+      ),
+    ).toBe(true);
+
+    const coveredHitLogs = consoleLogMock.calls.filter(call => {
+      const msg = call.arguments[0] as string;
+      return typeof msg === 'string' && msg.includes('Cache HIT') && msg.includes(coveredFile);
+    });
+    expect(coveredHitLogs).toEqual([]);
+
+    const stats = cacheManager.getCacheStats();
+    expect(stats.size).toEqual(2);
+  });
 });
