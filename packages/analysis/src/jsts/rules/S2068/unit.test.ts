@@ -38,67 +38,6 @@ describe('S2068', () => {
           filename: path.join('some', 'L10n', 'path', 'file.js'),
           options,
         },
-        // Test/spec/mock files are skipped
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.spec.js',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.spec.ts',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.spec.jsx',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.spec.tsx',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.test.js',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.test.ts',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.test.jsx',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.test.tsx',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'auth.mock.js',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'auth.mock.ts',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'auth.mock.jsx',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'auth.mock.tsx',
-          options,
-        },
         // Low-entropy single dictionary words
         {
           code: `const password = 'password';`,

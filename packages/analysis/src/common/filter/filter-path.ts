@@ -19,6 +19,7 @@ import { type NormalizedAbsolutePath } from '../../../../shared/src/helpers/file
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { FileType } from '../../contracts/file.js';
 import { type FilterPathParams } from '../configuration.js';
+import { TEST_RELATED_FILE_PATTERN } from '../../jsts/rules/helpers/test-file-pattern.js';
 
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
@@ -71,8 +72,15 @@ export function filterPathAndGetFileType(
   debug(`File ignored due to analysis scope filters: ${filePath}`);
 }
 
+function looksLikeTestFile(filePath: NormalizedAbsolutePath): boolean {
+  return TEST_RELATED_FILE_PATTERN.test(filePath);
+}
+
 function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
   const { testPaths, testExclusions, testInclusions } = params;
+  if (!testPaths?.length && !testInclusions?.length && !testExclusions?.length) {
+    return looksLikeTestFile(filePath);
+  }
   if (!testPaths?.some(testPath => filePath === testPath || filePath.startsWith(`${testPath}/`))) {
     return false;
   }
