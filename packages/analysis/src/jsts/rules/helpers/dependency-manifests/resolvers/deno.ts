@@ -16,7 +16,7 @@
  */
 import ts from 'typescript';
 import type {
-  DenoManifest,
+  DenoJson,
   DependenciesList,
   DependencyManifest,
   ManifestResolver,
@@ -41,10 +41,12 @@ export const denoManifestResolver: ManifestResolver = {
     const effectiveDenoJson = denoJson ?? denoJsonc;
 
     if (effectiveDenoJson) {
+      const manifest = parseDenoManifest(effectiveDenoJson) ?? {};
       return [
         {
           type: 'deno',
-          dependencies: buildDependencies(parseDenoManifest(effectiveDenoJson) ?? {}),
+          manifest,
+          dependencies: buildDependencies(manifest),
           moduleType: denoModuleType,
         },
       ];
@@ -53,7 +55,7 @@ export const denoManifestResolver: ManifestResolver = {
   },
 };
 
-function buildDependencies(manifest: DenoManifest): DependenciesList {
+function buildDependencies(manifest: DenoJson): DependenciesList {
   const dependencies: DependenciesList = new Map();
 
   if (manifest.imports && typeof manifest.imports === 'object') {
@@ -83,7 +85,7 @@ function buildDependencies(manifest: DenoManifest): DependenciesList {
   return dependencies;
 }
 
-function parseDenoManifest(file: File): DenoManifest | undefined {
+function parseDenoManifest(file: File): DenoJson | undefined {
   try {
     // ts.parseConfigFileTextToJson handles JSON with comments and trailing commas
     const parsed = ts.parseConfigFileTextToJson(file.path, stripBOM(file.content.toString()));
@@ -92,7 +94,7 @@ function parseDenoManifest(file: File): DenoManifest | undefined {
       console.debug(`Error parsing deno manifest ${file.path}: ${message}`);
       return;
     }
-    return parsed.config as DenoManifest;
+    return parsed.config as DenoJson;
   } catch (error) {
     console.debug(`Error parsing deno manifest ${file.path}: ${error}`);
     return;

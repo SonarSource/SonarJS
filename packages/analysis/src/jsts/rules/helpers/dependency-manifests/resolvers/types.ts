@@ -17,6 +17,7 @@
 import { Minimatch } from 'minimatch';
 import type { NormalizedAbsolutePath } from '../../files.js';
 import type { Filesystem } from '../../find-up/find-minimatch.js';
+import { PackageJson } from 'type-fest';
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap
 type ImportMap = Record<string, unknown>;
@@ -27,16 +28,25 @@ export type ModuleType = 'module' | 'commonjs';
 
 export const DEFINITELY_TYPED = '@types/';
 
-export type DenoManifest = {
+type NodeManifest = {
+  type: 'node';
+  manifest: PackageJson;
+};
+
+export type DenoJson = {
   imports?: ImportMap;
   workspace?: string[] | { members?: string[] };
 };
 
-export interface DependencyManifest {
-  readonly type: 'npm' | 'deno';
+type DenoManifest = {
+  type: 'deno';
+  manifest: DenoJson;
+};
+
+export type DependencyManifest = (NodeManifest | DenoManifest) & {
   readonly dependencies: DependenciesList;
   readonly moduleType: ModuleType | undefined;
-}
+};
 
 /**
  * Strategy interface for resolving dependency manifests of a specific type from a single

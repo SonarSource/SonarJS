@@ -35,6 +35,8 @@ import {
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from './jsts/program/tsconfig/options.js';
+import { getClosestDependencyManifestDir } from './jsts/rules/helpers/dependency-manifests/closest.js';
+import { dirnamePath } from './jsts/rules/helpers/files.js';
 import { getProgramCacheManager } from './jsts/program/cache/programCache.js';
 import { clearSourceFileContentCache } from './jsts/program/cache/sourceFileCache.js';
 import { createStandardProgram } from './jsts/program/factory.js';
@@ -161,49 +163,89 @@ async function analyzeFilesFromEntryPoint(
     return;
   }
 
-  const programOptions = foundProgramOptions.length
-    ? merge({}, ...foundProgramOptions)
-    : createProgramOptionsFromJson(
-        {
-          ...defaultCompilerOptions,
-          lib: computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, baseDir),
-        },
-        rootNames,
-        baseDir,
+  const runProgram = async (
+    programOptions: ProgramOptions,
+    groupRootNames: NormalizedAbsolutePath[],
+    label: string,
+  ): Promise<void> => {
+    programOptions.rootNames = groupRootNames;
+    telemetry.recordCompilerOptions(programOptions.options);
+
+    info(
+      `Analyzing ${groupRootNames.length} file(s) using ${label} [lib: ${programOptions.options.lib?.join(', ')}]`,
+    );
+    programOptions.host = new IncrementalCompilerHost(
+      programOptions.options,
+      baseDir,
+      jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
+    );
+
+    telemetry.recordProgramCreationAttempt();
+    const tsProgram = createStandardProgram(programOptions);
+    const detectedEsYear = esLibToYear(programOptions.options.lib);
+    telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
+
+    for (const fileName of groupRootNames) {
+      if (isAnalysisCancelled()) {
+        return;
+      }
+
+      await analyzeFile(
+        fileName,
+        files[fileName],
+        jsTsConfigFields,
+        tsProgram,
+        results,
+        pendingFiles,
+        progressReport,
+        incrementalResultsChannel,
+        detectedEsYear ?? undefined,
       );
-  programOptions.rootNames = rootNames;
-  telemetry.recordCompilerOptions(programOptions.options);
+    }
+  };
 
-  info(
-    `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'} [lib: ${programOptions.options.lib?.join(', ')}]`,
-  );
-  programOptions.host = new IncrementalCompilerHost(
-    programOptions.options,
-    baseDir,
-    jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
-  );
+  if (foundProgramOptions.length) {
+    // Merged path: lib already inherited from per-tsconfig program options.
+    const programOptions = merge({}, ...foundProgramOptions);
+    await runProgram(programOptions, rootNames, 'merged compiler options');
+    return;
+  }
 
-  telemetry.recordProgramCreationAttempt();
-  const tsProgram = createStandardProgram(programOptions);
-  const detectedEsYear = esLibToYear(programOptions.options.lib);
-  telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
+  // Default-options path: bucket files by their resolved lib so files in different
+  // packages don't share a single signal. Files producing the same lib share a program
+  // — best case (uniform signals) collapses back to a single program.
+  const libByPkgDir = new Map<NormalizedAbsolutePath, { lib: string[]; key: string }>();
+  // Group files by their resolved lib, so that we create one program per lib configuration. This way,
+  // files with the same lib configuration share a program and its type information, while files with different
+  // lib configurations don't cause type errors in each other and don't share the same (potentially wrong) signals.
+  const groups = new Map<string, { lib: string[]; files: NormalizedAbsolutePath[] }>();
 
-  for (const fileName of rootNames) {
+  for (const file of rootNames) {
+    const pkgDir = getClosestDependencyManifestDir(dirnamePath(file), baseDir) ?? baseDir;
+    let entry = libByPkgDir.get(pkgDir);
+    if (!entry) {
+      const lib = computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, pkgDir, baseDir);
+      entry = { lib, key: lib.join('|') };
+      libByPkgDir.set(pkgDir, entry);
+    }
+    let bucket = groups.get(entry.key);
+    if (!bucket) {
+      bucket = { lib: entry.lib, files: [] };
+      groups.set(entry.key, bucket);
+    }
+    bucket.files.push(file);
+  }
+
+  for (const { lib, files: groupRootNames } of groups.values()) {
     if (isAnalysisCancelled()) {
       return;
     }
-
-    await analyzeFile(
-      fileName,
-      files[fileName],
-      jsTsConfigFields,
-      tsProgram,
-      results,
-      pendingFiles,
-      progressReport,
-      incrementalResultsChannel,
-      detectedEsYear ?? undefined,
+    const programOptions = createProgramOptionsFromJson(
+      { ...defaultCompilerOptions, lib },
+      groupRootNames,
+      baseDir,
     );
+    await runProgram(programOptions, groupRootNames, 'default options');
   }
 }
 

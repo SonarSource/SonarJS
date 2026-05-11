@@ -20,6 +20,7 @@ import {
   getNodeVersionSignal,
   getTypeScriptVersionSignal,
 } from '../../rules/helpers/dependency-manifests/dependencies.js';
+import { getClosestDependencyManifestDir } from '../../rules/helpers/dependency-manifests/closest.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
@@ -278,7 +279,10 @@ function targetStringToEsYear(target: string): number | null {
  *
  * @param ecmaScriptVersion explicit ES version override from sonar.javascript.ecmaScriptVersion
  * @param targetJson raw JSON target string from tsconfig (e.g. 'ES2022', 'ES5', 'ESNext')
- * @param baseDir project base directory used to locate package.json
+ * @param packageDir directory to start the upward search for the closest package.json
+ *   carrying a Node.js signal (typically the tsconfig directory or an orphan file's directory)
+ * @param baseDir analysis base directory; upper bound for the upward walk. Defaults to
+ *   `packageDir` for backward compatibility with single-arg call sites.
  * @returns raw JSON lib string array (e.g. ['es2022', 'dom'])
  */
 /**
@@ -309,10 +313,15 @@ export function esLibToYear(lib: string[] | undefined): number | null {
   return maxYear;
 }
 
+/**
+ * Computes the config's lib array to use for a TypeScript program based on available signals.
+ * see https://www.typescriptlang.org/tsconfig/#lib
+ */
 export function computeLibJson(
   ecmaScriptVersion: string | undefined,
   targetJson: string | undefined,
-  baseDir: NormalizedAbsolutePath,
+  packageDir: NormalizedAbsolutePath,
+  baseDir: NormalizedAbsolutePath = packageDir,
 ): string[] {
   if (ecmaScriptVersion) {
     const year = esYearFromEsPrefix(ecmaScriptVersion);
@@ -330,7 +339,7 @@ export function computeLibJson(
     }
   }
 
-  const nodeSignal = getNodeVersionSignal(baseDir);
+  const nodeSignal = getNodeVersionSignal(packageDir, baseDir);
   if (nodeSignal) {
     const major = parseMaxNodeMajor(nodeSignal);
     if (major !== null) {
@@ -516,9 +525,14 @@ export function createProgramOptions(
   // Uses ts.convertCompilerOptionsFromJson to convert raw JSON strings to TypeScript's
   // internal format, avoiding hardcoded lib file names.
   if (baseDir && !parsedConfigFile.options.lib) {
+    // Anchor the Node.js signal lookup at the tsconfig's package, not the analysis root,
+    // so nested packages in a monorepo get their own signal.
+    const tsconfigDir = normalizeToAbsolutePath(dirname(tsConfig));
+    const packageDir = getClosestDependencyManifestDir(tsconfigDir, baseDir) ?? baseDir;
     const jsonLib = computeLibJson(
       ecmaScriptVersion,
       config.config?.compilerOptions?.target,
+      packageDir,
       baseDir,
     );
     const { options: libOptions } = ts.convertCompilerOptionsFromJson({ lib: jsonLib }, baseDir);

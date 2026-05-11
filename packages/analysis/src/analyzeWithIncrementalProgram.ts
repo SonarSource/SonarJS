@@ -35,6 +35,8 @@ import {
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from './jsts/program/tsconfig/options.js';
+import { getClosestDependencyManifestDir } from './jsts/rules/helpers/dependency-manifests/closest.js';
+import { dirnamePath } from './jsts/rules/helpers/files.js';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import type { JsTsConfigFields } from './common/configuration.js';
 
@@ -185,10 +187,12 @@ function programOptionsFromClosestTsconfig(
 
   try {
     // TODO(JS-1138): File order can affect program combinations - improve strategy
+    // Anchor the Node.js signal at the orphan file's package, not the analysis root.
+    const pkgDir = getClosestDependencyManifestDir(dirnamePath(file), baseDir) ?? baseDir;
     const programOptions = createProgramOptionsFromJson(
       {
         ...defaultCompilerOptions,
-        lib: computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, baseDir),
+        lib: computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, pkgDir, baseDir),
       },
       [...pendingFiles],
       baseDir,

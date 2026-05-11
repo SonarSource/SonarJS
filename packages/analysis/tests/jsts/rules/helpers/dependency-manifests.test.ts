@@ -29,8 +29,8 @@ describe('package-json', () => {
   it('should handle arrays in package-jsons dependency versions', async () => {
     const currentDirectory = normalizeToAbsolutePath(path.join(import.meta.dirname, 'fixtures'));
     const manifests = getDependencyManifests(currentDirectory, currentDirectory);
-    const npmManifest = manifests.find(({ type }) => type === 'npm');
-    expect(npmManifest?.type).toBe('npm');
+    const npmManifest = manifests.find(({ type }) => type === 'node');
+    expect(npmManifest?.type).toBe('node');
     expect(npmManifest?.dependencies).toEqual(new Map([['foo', 'file:bar']]));
   });
 

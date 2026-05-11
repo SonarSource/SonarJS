@@ -34,7 +34,7 @@ type PnpmWorkspace = {
   catalogs?: Record<string, Record<string, string>>;
 };
 
-export const npmManifestResolver: ManifestResolver = {
+export const nodeManifestResolver: ManifestResolver = {
   resolve(dir, topDir, fileSystem): DependencyManifest[] {
     const packageJson = getManifestFileInDir(PACKAGE_JSON, dir, topDir, fileSystem);
     if (!packageJson) {
@@ -56,7 +56,8 @@ export const npmManifestResolver: ManifestResolver = {
     const moduleType: ModuleType = manifest.type === 'module' ? 'module' : 'commonjs';
     return [
       {
-        type: 'npm',
+        type: 'node',
+        manifest,
         dependencies: buildDependencies(manifest),
         moduleType,
       },
