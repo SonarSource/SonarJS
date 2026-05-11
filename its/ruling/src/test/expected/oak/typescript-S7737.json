@@ -2,9 +2,6 @@
 "oak:application.ts": [
 791
 ],
-"oak:middleware/serve.test.ts": [
-15
-],
 "oak:send.ts": [
 171
 ]

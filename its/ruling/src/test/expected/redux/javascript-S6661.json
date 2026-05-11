@@ -14,15 +14,6 @@
 38,
 44
 ],
-"redux:examples/todomvc/test/components/Footer.spec.js": [
-8
-],
-"redux:examples/todomvc/test/components/MainSection.spec.js": [
-10
-],
-"redux:examples/todomvc/test/components/TodoTextInput.spec.js": [
-7
-],
 "redux:examples/todos-with-undo/reducers.js": [
 29
 ]

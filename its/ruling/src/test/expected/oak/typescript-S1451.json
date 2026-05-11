@@ -1,7 +1,4 @@
 {
-"oak:body.test.ts": [
-0
-],
 "oak:examples/closeServer.ts": [
 0
 ],
@@ -33,9 +30,6 @@
 0
 ],
 "oak:examples/staticServer.ts": [
-0
-],
-"oak:middleware/serve.test.ts": [
 0
 ],
 "oak:router.ts": [

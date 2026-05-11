@@ -1,18 +1,4 @@
 {
-"oak:application.test.ts": [
-61,
-124,
-669,
-676,
-720,
-731,
-731,
-747,
-747,
-779,
-779,
-1003
-],
 "oak:application.ts": [
 341,
 452,
@@ -26,14 +12,6 @@
 250,
 253
 ],
-"oak:context.test.ts": [
-18,
-21,
-34,
-48,
-274,
-367
-],
 "oak:context.ts": [
 32,
 92,
@@ -46,18 +24,10 @@
 "oak:examples/staticServer.ts": [
 19
 ],
-"oak:http_server_bun.test.ts": [
-78,
-79,
-86
-],
 "oak:http_server_bun.ts": [
 71,
 92,
 146
-],
-"oak:http_server_native.test.ts": [
-79
 ],
 "oak:http_server_native.ts": [
 33
@@ -68,16 +38,6 @@
 36,
 98
 ],
-"oak:http_server_node.test.ts": [
-16,
-17,
-18,
-19,
-44,
-47,
-55,
-64
-],
 "oak:http_server_node.ts": [
 58,
 82,
@@ -85,23 +45,12 @@
 173,
 173
 ],
-"oak:middleware.test.ts": [
-44,
-44,
-66,
-85
-],
 "oak:middleware.ts": [
 24,
 33,
 46,
 53,
 61
-],
-"oak:middleware/etag.test.ts": [
-19,
-19,
-29
 ],
 "oak:middleware/etag.ts": [
 19,
@@ -121,29 +70,14 @@
 9,
 24
 ],
-"oak:request.test.ts": [
-21
-],
 "oak:request.ts": [
 320,
 323
-],
-"oak:response.test.ts": [
-19
 ],
 "oak:response.ts": [
 73,
 386,
 389
-],
-"oak:router.test.ts": [
-16,
-16,
-26,
-30,
-30,
-61,
-61
 ],
 "oak:router.ts": [
 86,
@@ -171,11 +105,6 @@
 1313,
 1454,
 1457
-],
-"oak:send.test.ts": [
-24,
-24,
-34
 ],
 "oak:send.ts": [
 169

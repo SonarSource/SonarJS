@@ -942,9 +942,6 @@
 75,
 76
 ],
-"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
-30
-],
 "vuetify:packages/vuetify/src/directives/scroll/index.ts": [
 17,
 19,
@@ -1006,17 +1003,11 @@
 "vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScrollItem.tsx": [
 39
 ],
-"vuetify:packages/vuetify/src/locale/__tests__/index.spec.ts": [
-19
-],
 "vuetify:packages/vuetify/src/services/goto/easing-patterns.ts": [
 10,
 16,
 22,
 28
-],
-"vuetify:packages/vuetify/src/util/__tests__/propsFactory.spec.ts": [
-19
 ],
 "vuetify:packages/vuetify/src/util/anchor.ts": [
 24,

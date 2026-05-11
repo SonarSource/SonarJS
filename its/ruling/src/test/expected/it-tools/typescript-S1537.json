@@ -47,9 +47,6 @@
 18,
 33
 ],
-"it-tools:src/composable/validation.test.ts": [
-14
-],
 "it-tools:src/composable/validation.ts": [
 35,
 52,
@@ -240,44 +237,6 @@
 22,
 25
 ],
-"it-tools:src/tools/chmod-calculator/chmod-calculator.service.test.ts": [
-12,
-13,
-14,
-22,
-23,
-24,
-32,
-33,
-34,
-42,
-43,
-44,
-52,
-53,
-54,
-62,
-63,
-64,
-74,
-75,
-76,
-84,
-85,
-86,
-94,
-95,
-96,
-104,
-105,
-106,
-114,
-115,
-116,
-124,
-125,
-126
-],
 "it-tools:src/tools/chmod-calculator/chmod-calculator.service.ts": [
 15,
 28
@@ -338,12 +297,6 @@
 "it-tools:src/tools/crontab-generator/index.ts": [
 22,
 25
-],
-"it-tools:src/tools/date-time-converter/date-time-converter.e2e.spec.ts": [
-22
-],
-"it-tools:src/tools/date-time-converter/date-time-converter.models.test.ts": [
-13
 ],
 "it-tools:src/tools/date-time-converter/date-time-converter.models.ts": [
 14
@@ -424,9 +377,6 @@
 11
 ],
 "it-tools:src/tools/git-memo/index.ts": [
-11
-],
-"it-tools:src/tools/hash-text/hash-text.service.test.ts": [
 11
 ],
 "it-tools:src/tools/hash-text/hash-text.vue": [
@@ -560,12 +510,6 @@
 15,
 19
 ],
-"it-tools:src/tools/iban-validator-and-parser/iban-validator-and-parser.e2e.spec.ts": [
-10,
-11,
-34,
-49
-],
 "it-tools:src/tools/iban-validator-and-parser/iban-validator-and-parser.service.ts": [
 13
 ],
@@ -676,18 +620,6 @@
 "it-tools:src/tools/json-diff/index.ts": [
 12
 ],
-"it-tools:src/tools/json-diff/json-diff.models.test.ts": [
-20,
-27,
-34,
-35,
-39,
-57,
-64,
-71,
-72,
-76
-],
 "it-tools:src/tools/json-diff/json-diff.models.ts": [
 9,
 18,
@@ -716,26 +648,12 @@
 "it-tools:src/tools/json-to-csv/index.ts": [
 12
 ],
-"it-tools:src/tools/json-to-csv/json-to-csv.e2e.spec.ts": [
-26
-],
-"it-tools:src/tools/json-to-csv/json-to-csv.service.test.ts": [
-19,
-33,
-45,
-57,
-69,
-80
-],
 "it-tools:src/tools/json-to-csv/json-to-csv.vue": [
 19,
 20
 ],
 "it-tools:src/tools/json-to-toml/index.ts": [
 12
-],
-"it-tools:src/tools/json-to-toml/json-to-toml.e2e.spec.ts": [
-36
 ],
 "it-tools:src/tools/json-to-toml/json-to-toml.vue": [
 14,
@@ -755,9 +673,6 @@
 21,
 22,
 23
-],
-"it-tools:src/tools/json-viewer/json.models.test.ts": [
-12
 ],
 "it-tools:src/tools/json-viewer/json.models.ts": [
 26
@@ -797,11 +712,6 @@
 ],
 "it-tools:src/tools/list-converter/index.ts": [
 12
-],
-"it-tools:src/tools/list-converter/list-converter.models.test.ts": [
-19,
-44,
-61
 ],
 "it-tools:src/tools/list-converter/list-converter.vue": [
 10,
@@ -956,15 +866,6 @@
 45,
 49,
 50
-],
-"it-tools:src/tools/otp-code-generator-and-validator/otp.service.test.ts": [
-9,
-74,
-90,
-111,
-121,
-122,
-124
 ],
 "it-tools:src/tools/otp-code-generator-and-validator/otp.service.ts": [
 14,
@@ -1134,15 +1035,6 @@
 "it-tools:src/tools/token-generator/index.ts": [
 11
 ],
-"it-tools:src/tools/token-generator/token-generator.service.test.ts": [
-12,
-25,
-39,
-52,
-65,
-78,
-91
-],
 "it-tools:src/tools/token-generator/token-generator.service.ts": [
 9,
 22
@@ -1154,18 +1046,12 @@
 "it-tools:src/tools/toml-to-json/index.ts": [
 13
 ],
-"it-tools:src/tools/toml-to-json/toml-to-json.e2e.spec.ts": [
-37
-],
 "it-tools:src/tools/toml-to-json/toml-to-json.vue": [
 12,
 13
 ],
 "it-tools:src/tools/toml-to-yaml/index.ts": [
 12
-],
-"it-tools:src/tools/toml-to-yaml/toml-to-yaml.e2e.spec.ts": [
-33
 ],
 "it-tools:src/tools/toml-to-yaml/toml-to-yaml.vue": [
 13,
@@ -1264,18 +1150,12 @@
 "it-tools:src/tools/yaml-to-json-converter/index.ts": [
 12
 ],
-"it-tools:src/tools/yaml-to-json-converter/yaml-to-json.e2e.spec.ts": [
-28
-],
 "it-tools:src/tools/yaml-to-json-converter/yaml-to-json.vue": [
 17,
 18
 ],
 "it-tools:src/tools/yaml-to-toml/index.ts": [
 12
-],
-"it-tools:src/tools/yaml-to-toml/yaml-to-toml.e2e.spec.ts": [
-34
 ],
 "it-tools:src/tools/yaml-to-toml/yaml-to-toml.vue": [
 14,
@@ -1356,31 +1236,6 @@
 "it-tools:src/ui/c-input-text/c-input-text.demo.vue": [
 6,
 13
-],
-"it-tools:src/ui/c-input-text/c-input-text.test.ts": [
-16,
-17,
-26,
-27,
-36,
-37,
-46,
-47,
-64,
-65,
-75,
-86,
-87,
-101,
-110,
-111,
-122,
-123,
-135,
-136,
-137,
-154,
-155
 ],
 "it-tools:src/ui/c-input-text/c-input-text.theme.ts": [
 9,
@@ -1487,20 +1342,6 @@
 73,
 74,
 75
-],
-"it-tools:src/utils/base64.test.ts": [
-80
-],
-"it-tools:src/utils/boolean.test.ts": [
-12
-],
-"it-tools:src/utils/defaults.test.ts": [
-13
-],
-"it-tools:src/utils/error.test.ts": [
-11,
-17,
-24
 ],
 "it-tools:src/utils/macAddress.ts": [
 7,

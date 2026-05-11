@@ -1,9 +1,5 @@
 {
 "oak:router.ts": [
 364
-],
-"oak:utils/resolve_path.test.ts": [
-12,
-66
 ]
 }

@@ -1,15 +1,4 @@
 {
-"tailwindcss:__tests__/applyAtRule.test.js": [
-1380,
-1390,
-1391
-],
-"tailwindcss:__tests__/util/produce.js": [
-4,
-14,
-20,
-23
-],
 "tailwindcss:src/cli/utils.js": [
 29
 ],

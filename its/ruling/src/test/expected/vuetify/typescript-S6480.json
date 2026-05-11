@@ -49,9 +49,6 @@
 394,
 410
 ],
-"vuetify:packages/vuetify/src/components/VExpansionPanel/__tests__/VExpansionPanels.spec.cy.tsx": [
-139
-],
 "vuetify:packages/vuetify/src/components/VFileInput/VFileInput.tsx": [
 169,
 188,
@@ -60,10 +57,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VList/VListItem.tsx": [
 208
-],
-"vuetify:packages/vuetify/src/components/VList/__tests__/VListItem.spec.cy.tsx": [
-34,
-35
 ],
 "vuetify:packages/vuetify/src/components/VMenu/VMenu.tsx": [
 103
@@ -93,9 +86,6 @@
 267,
 288
 ],
-"vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
-23
-],
 "vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
 149
 ],
@@ -104,9 +94,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 147
-],
-"vuetify:packages/vuetify/src/components/VTabs/__tests__/VTabs.spec.cy.tsx": [
-135
 ],
 "vuetify:packages/vuetify/src/components/VTextField/VTextField.tsx": [
 184,
@@ -147,9 +134,6 @@
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableVirtual.tsx": [
 149
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/VDataTableServer.spec.cy.tsx": [
-135
 ],
 "vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScroll.tsx": [
 179

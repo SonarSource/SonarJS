@@ -1,8 +1,4 @@
 {
-"Joust:ts/Entity.spec.ts": [
-8,
-15
-],
 "Joust:ts/Entity.ts": [
 133,
 173
@@ -20,11 +16,6 @@
 311,
 346,
 408
-],
-"Joust:ts/Player.spec.ts": [
-7,
-8,
-19
 ],
 "Joust:ts/TexturePreloader.ts": [
 26,
@@ -308,11 +299,6 @@
 10,
 11
 ],
-"Joust:ts/protocol/HSReplayDecoder.spec.ts": [
-47,
-129,
-132
-],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 96,
 131,
@@ -363,21 +349,6 @@
 96,
 98
 ],
-"Joust:ts/state/GameState.spec.ts": [
-6
-],
-"Joust:ts/state/GameStateHistory.spec.ts": [
-10,
-11,
-12,
-13,
-14,
-15,
-19,
-23,
-27,
-31
-],
 "Joust:ts/state/GameStateHistory.ts": [
 16,
 22,
@@ -421,18 +392,6 @@
 "Joust:ts/state/mutators/HideEntityMutator.ts": [
 16,
 25
-],
-"Joust:ts/state/mutators/IncrementTimeMutator.spec.ts": [
-7,
-12,
-13,
-18,
-19,
-25,
-26,
-27,
-34,
-35
 ],
 "Joust:ts/state/mutators/PopDescriptorMutator.ts": [
 6

@@ -3450,10 +3450,6 @@
 "eigen:src/palette/elements/Button/Button.tsx": [
 234
 ],
-"eigen:src/palette/elements/Collapse/Collapse.test.tsx": [
-8,
-15
-],
 "eigen:src/palette/elements/CollapsibleMenuItem/CollapsibleMenuItem.tsx": [
 28,
 63,
@@ -3501,11 +3497,6 @@
 ],
 "eigen:src/palette/elements/Input/PhoneInput/getCountryIso2FromPhoneNumber.ts": [
 26
-],
-"eigen:src/palette/elements/Join/Join.test.tsx": [
-15,
-29,
-42
 ],
 "eigen:src/palette/elements/Join/Join.tsx": [
 37,

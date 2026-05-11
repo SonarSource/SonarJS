@@ -67,9 +67,6 @@
 "vuetify:packages/vuetify/src/components/VAppBar/VAppBar.tsx": [
 58
 ],
-"vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
-28
-],
 "vuetify:packages/vuetify/src/components/VCarousel/VCarousel.tsx": [
 126
 ],
@@ -125,14 +122,6 @@
 "vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
 44,
 75
-],
-"vuetify:packages/vuetify/src/composables/__tests__/filter.spec.ts": [
-54,
-136,
-142
-],
-"vuetify:packages/vuetify/src/composables/__tests__/validation.spec.ts": [
-17
 ],
 "vuetify:packages/vuetify/src/composables/form.ts": [
 143,
@@ -193,11 +182,6 @@
 "vuetify:packages/vuetify/src/directives/ripple/index.ts": [
 132,
 148
-],
-"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
-28,
-50,
-66
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
 64,

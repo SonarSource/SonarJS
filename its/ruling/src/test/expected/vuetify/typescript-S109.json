@@ -63,16 +63,8 @@
 "vuetify:packages/vuetify/src/components/VBadge/VBadge.tsx": [
 72
 ],
-"vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
-10
-],
 "vuetify:packages/vuetify/src/components/VCarousel/VCarousel.tsx": [
 77
-],
-"vuetify:packages/vuetify/src/components/VColorPicker/__tests__/VColorPicker.spec.cy.tsx": [
-107,
-130,
-153
 ],
 "vuetify:packages/vuetify/src/components/VColorPicker/util/index.ts": [
 57,
@@ -85,30 +77,11 @@
 155,
 162
 ],
-"vuetify:packages/vuetify/src/components/VFileInput/__tests__/VFileInput.spec.cy.tsx": [
-7,
-8
-],
-"vuetify:packages/vuetify/src/components/VList/__tests__/VList.spec.cy.tsx": [
-83
-],
 "vuetify:packages/vuetify/src/components/VMenu/VMenu.tsx": [
 70
 ],
 "vuetify:packages/vuetify/src/components/VNavigationDrawer/VNavigationDrawer.tsx": [
 183
-],
-"vuetify:packages/vuetify/src/components/VNavigationDrawer/__tests__/VNavigationDrawer.spec.cy.tsx": [
-10,
-10,
-14,
-14,
-87,
-87,
-101,
-101,
-115,
-115
 ],
 "vuetify:packages/vuetify/src/components/VNavigationDrawer/touch.ts": [
 111,
@@ -123,61 +96,6 @@
 164,
 192
 ],
-"vuetify:packages/vuetify/src/components/VPagination/__tests__/VPagination.spec.cy.tsx": [
-17,
-82,
-86,
-86,
-92,
-116,
-122,
-129,
-135,
-146,
-154,
-162,
-165,
-170,
-173,
-185,
-191,
-201,
-207
-],
-"vuetify:packages/vuetify/src/components/VRating/__tests__/VRating.spec.cy.tsx": [
-14,
-83,
-93,
-107,
-121,
-133,
-135,
-147,
-149
-],
-"vuetify:packages/vuetify/src/components/VResponsive/__tests__/VResponsive.spec.ts": [
-22
-],
-"vuetify:packages/vuetify/src/components/VSlideGroup/__tests__/VSlideGroup.spec.cy.tsx": [
-35,
-121,
-121,
-126,
-126,
-133,
-133,
-156,
-156,
-163,
-163,
-180,
-180,
-201,
-219,
-219,
-219,
-219
-],
 "vuetify:packages/vuetify/src/components/VSlideGroup/helpers.ts": [
 28
 ],
@@ -185,31 +103,8 @@
 83,
 84
 ],
-"vuetify:packages/vuetify/src/components/VSlider/__tests__/VSlider.spec.cy.tsx": [
-17,
-36,
-36,
-36,
-81,
-85
-],
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 104
-],
-"vuetify:packages/vuetify/src/components/VTextField/__tests__/VTextField.spec.cy.tsx": [
-30
-],
-"vuetify:packages/vuetify/src/components/VTextarea/__tests__/VTextarea.spec.cy.tsx": [
-8,
-8,
-12,
-15,
-17,
-21,
-21,
-25,
-28,
-30
 ],
 "vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
 41,
@@ -219,56 +114,6 @@
 141,
 142,
 142
-],
-"vuetify:packages/vuetify/src/composables/__tests__/delay.spec.ts": [
-34,
-37,
-52,
-67
-],
-"vuetify:packages/vuetify/src/composables/__tests__/display.spec.ts": [
-281,
-284,
-291,
-294
-],
-"vuetify:packages/vuetify/src/composables/__tests__/elevation.spec.ts": [
-11
-],
-"vuetify:packages/vuetify/src/composables/__tests__/filter.spec.ts": [
-31,
-31,
-32,
-32,
-41,
-86,
-124,
-125,
-126
-],
-"vuetify:packages/vuetify/src/composables/__tests__/forwardRefs.spec.tsx": [
-90,
-99
-],
-"vuetify:packages/vuetify/src/composables/__tests__/proxiedModel.spec.ts": [
-166,
-176,
-181,
-190
-],
-"vuetify:packages/vuetify/src/composables/__tests__/scroll.spec.ts": [
-113,
-114
-],
-"vuetify:packages/vuetify/src/composables/__tests__/validation.spec.ts": [
-47,
-47,
-49,
-66,
-66,
-68,
-97,
-104
 ],
 "vuetify:packages/vuetify/src/composables/layout.ts": [
 291
@@ -286,19 +131,6 @@
 141,
 155
 ],
-"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
-95
-],
-"vuetify:packages/vuetify/src/directives/touch/__tests__/touch.spec.ts": [
-28,
-32,
-36,
-40,
-59,
-59,
-70,
-74
-],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableHeaders.tsx": [
 57
 ],
@@ -310,10 +142,6 @@
 75,
 118
 ],
-"vuetify:packages/vuetify/src/labs/VVirtualScroll/__tests__/VVirtualScroll.spec.cy.tsx": [
-20,
-26
-],
 "vuetify:packages/vuetify/src/services/goto/easing-patterns.ts": [
 12,
 14,
@@ -322,165 +150,6 @@
 26,
 28,
 28
-],
-"vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
-75,
-75,
-76,
-76,
-76,
-76,
-77,
-77,
-77,
-77,
-78,
-78,
-78,
-78,
-79,
-79,
-79,
-79,
-84,
-84,
-85,
-85,
-85,
-86,
-86,
-86,
-87,
-87,
-87,
-88,
-88,
-88,
-95,
-95,
-95,
-95,
-96,
-96,
-96,
-96,
-96,
-96,
-96,
-97,
-97,
-97,
-97,
-97,
-97,
-97,
-98,
-98,
-98,
-98,
-98,
-98,
-98,
-99,
-99,
-99,
-99,
-99,
-99,
-99,
-104,
-104,
-104,
-104,
-105,
-105,
-105,
-105,
-105,
-105,
-106,
-106,
-106,
-106,
-106,
-106,
-107,
-107,
-107,
-107,
-107,
-107,
-108,
-108,
-108,
-108,
-108,
-108,
-129,
-130,
-131,
-132,
-138,
-139,
-140,
-141,
-149,
-149,
-150,
-150,
-151,
-151,
-153,
-159,
-160,
-161,
-162
-],
-"vuetify:packages/vuetify/src/util/__tests__/dateTimeUtils.spec.ts": [
-6,
-6,
-7,
-7,
-8,
-8,
-9,
-9,
-9,
-9,
-10,
-11,
-12,
-12,
-12,
-13,
-14,
-15,
-16,
-17,
-17,
-19,
-19,
-21
-],
-"vuetify:packages/vuetify/src/util/__tests__/helpers.spec.ts": [
-69,
-69,
-72,
-72,
-171,
-171,
-182,
-192,
-217,
-218,
-221,
-222,
-250,
-253,
-256
-],
-"vuetify:packages/vuetify/src/util/__tests__/propsFactory.spec.ts": [
-12
 ],
 "vuetify:packages/vuetify/src/util/animation.ts": [
 12,

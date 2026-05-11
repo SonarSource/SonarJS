@@ -220,10 +220,6 @@
 "console:src/views/models/DatabrowserView/NewRow.tsx": [
 154
 ],
-"console:src/views/models/DatabrowserView/__tests__/Cell.tsx": [
-121,
-195
-],
 "console:src/views/models/FieldPopup/BaseSettings.tsx": [
 143,
 227

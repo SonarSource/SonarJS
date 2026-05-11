@@ -1,9 +1,4 @@
 {
-"oak:application.test.ts": [
-1057,
-1099,
-1136
-],
 "oak:application.ts": [
 569,
 571,
@@ -20,11 +15,6 @@
 79,
 84,
 259
-],
-"oak:context.test.ts": [
-42,
-76,
-394
 ],
 "oak:context.ts": [
 100,
@@ -49,16 +39,9 @@
 "oak:middleware/proxy.ts": [
 167
 ],
-"oak:middleware/serve.test.ts": [
-78,
-136
-],
 "oak:middleware/serve.ts": [
 140,
 250
-],
-"oak:request.test.ts": [
-285
 ],
 "oak:request.ts": [
 78,
@@ -70,10 +53,6 @@
 236,
 255,
 329
-],
-"oak:response.test.ts": [
-356,
-464
 ],
 "oak:response.ts": [
 65,
@@ -92,9 +71,6 @@
 795,
 808,
 1463
-],
-"oak:send.test.ts": [
-262
 ],
 "oak:send.ts": [
 253,
