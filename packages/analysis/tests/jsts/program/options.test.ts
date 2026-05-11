@@ -200,6 +200,24 @@ describe('createProgramOptions', () => {
       expect(options.lib!.some(l => l.includes('es5'))).toBe(true);
       expect(options.lib!.some(l => l.includes('es2022'))).toBe(false);
     });
+
+    it('should use the effective target inherited through extends when computing lib', () => {
+      const tsConfig = path.join(nodeSignalsBaseDir, 'inherited-target', 'tsconfig.child.json');
+
+      const { options } = createProgramOptions(
+        tsConfig,
+        undefined,
+        true,
+        undefined,
+        nodeSignalsBaseDir,
+      );
+
+      // Root node-signals fixture has @types/node ^18 → ES2022, while the base config
+      // contributes target ES2024 through extends. The computed lib must keep the max.
+      expect(options.lib).toBeDefined();
+      expect(options.lib!.some(l => l.includes('es2024'))).toBe(true);
+      expect(options.lib!.some(l => l.includes('es2022'))).toBe(false);
+    });
   });
 
   describe('strictness compatibility', () => {

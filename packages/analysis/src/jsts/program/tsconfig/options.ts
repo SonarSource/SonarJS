@@ -249,6 +249,10 @@ function targetStringToEsYear(target: string): number | null {
   return null;
 }
 
+function targetOptionToString(target: ts.ScriptTarget | undefined): string | undefined {
+  return target === undefined ? undefined : ts.ScriptTarget[target];
+}
+
 /**
  * Extracts the ES year from a normalized TypeScript lib array.
  * Returns null for esnext (no ES version restriction applies).
@@ -308,7 +312,7 @@ export function esLibToYear(lib: string[] | undefined): number | null {
  * 3. esnext fallback when no signals are found at all
  *
  * @param ecmaScriptVersion explicit ES version override from sonar.javascript.ecmaScriptVersion
- * @param targetJson raw JSON target string from tsconfig (e.g. 'ES2022', 'ES5', 'ESNext')
+ * @param targetJson tsconfig target string (raw or post-extends-resolved, e.g. 'ES2022', 'ES5', 'ESNext')
  * @param packageDir directory to start the upward search for the closest package.json
  *   carrying a Node.js signal (typically the tsconfig directory or an orphan file's directory)
  * @param baseDir analysis base directory; upper bound for the upward walk. Defaults to
@@ -576,7 +580,7 @@ export function createProgramOptions(
       : baseDir;
     const jsonLib = computeLibJson(
       ecmaScriptVersion,
-      config.config?.compilerOptions?.target,
+      targetOptionToString(parsedConfigFile.options.target),
       packageDir,
       baseDir,
     );
