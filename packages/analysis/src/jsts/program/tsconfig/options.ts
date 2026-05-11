@@ -249,9 +249,38 @@ function targetStringToEsYear(target: string): number | null {
 }
 
 /**
+ * Extracts the ES year from a normalized TypeScript lib array.
+ * Returns null for esnext (no ES version restriction applies).
+ *
+ * @param lib normalized lib file names (e.g. ['lib.es2022.d.ts', 'lib.dom.d.ts'])
+ * @returns ES year (e.g. 2022) or null if esnext/not found
+ */
+export function esLibToYear(lib: string[] | undefined): number | null {
+  if (!lib) {
+    return null;
+  }
+  // esnext means no ES version restriction — return null regardless of other entries
+  if (lib.some(entry => /lib\.esnext(\..*)?\.d\.ts$/.test(entry))) {
+    return null;
+  }
+  let maxYear: number | null = null;
+  for (const entry of lib) {
+    const match = /lib\.es(\d{4})(\..*)?\.d\.ts$/.exec(entry);
+    if (match) {
+      const year = Number.parseInt(match[1], 10);
+      if (maxYear === null || year > maxYear) {
+        maxYear = year;
+      }
+    }
+  }
+  return maxYear;
+}
+
+/**
  * Computes the best lib JSON string array for the project from available signals,
  * returning values suitable for passing directly to createProgramOptionsFromJson
  * or injecting into a raw tsconfig JSON before ts.parseJsonConfigFileContent.
+ * See https://www.typescriptlang.org/tsconfig/#lib.
  *
  * ## Background: target vs lib
  *
@@ -284,38 +313,6 @@ function targetStringToEsYear(target: string): number | null {
  * @param baseDir analysis base directory; upper bound for the upward walk. Defaults to
  *   `packageDir` for backward compatibility with single-arg call sites.
  * @returns raw JSON lib string array (e.g. ['es2022', 'dom'])
- */
-/**
- * Extracts the ES year from a normalized TypeScript lib array.
- * Returns null for esnext (no ES version restriction applies).
- *
- * @param lib normalized lib file names (e.g. ['lib.es2022.d.ts', 'lib.dom.d.ts'])
- * @returns ES year (e.g. 2022) or null if esnext/not found
- */
-export function esLibToYear(lib: string[] | undefined): number | null {
-  if (!lib) {
-    return null;
-  }
-  // esnext means no ES version restriction — return null regardless of other entries
-  if (lib.some(entry => /lib\.esnext(\..*)?\.d\.ts$/.test(entry))) {
-    return null;
-  }
-  let maxYear: number | null = null;
-  for (const entry of lib) {
-    const match = /lib\.es(\d{4})(\..*)?\.d\.ts$/.exec(entry);
-    if (match) {
-      const year = Number.parseInt(match[1], 10);
-      if (maxYear === null || year > maxYear) {
-        maxYear = year;
-      }
-    }
-  }
-  return maxYear;
-}
-
-/**
- * Computes the config's lib array to use for a TypeScript program based on available signals.
- * see https://www.typescriptlang.org/tsconfig/#lib
  */
 export function computeLibJson(
   ecmaScriptVersion: string | undefined,

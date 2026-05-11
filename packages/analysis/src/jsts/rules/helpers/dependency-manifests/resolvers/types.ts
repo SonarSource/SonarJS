@@ -17,7 +17,7 @@
 import { Minimatch } from 'minimatch';
 import type { NormalizedAbsolutePath } from '../../files.js';
 import type { Filesystem } from '../../find-up/find-minimatch.js';
-import { PackageJson } from 'type-fest';
+import type { PackageJson } from 'type-fest';
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap
 type ImportMap = Record<string, unknown>;
