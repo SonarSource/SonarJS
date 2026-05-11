@@ -18,16 +18,10 @@ import type { PackageJson } from 'type-fest';
 import ts from 'typescript';
 import yaml from 'yaml';
 import { type File, normalizeToAbsolutePath, stripBOM } from '../files.js';
-import type { DenoManifest } from './resolvers/types.js';
-
-export type PnpmWorkspace = {
-  packages?: string[];
-  catalog?: Record<string, string>;
-  catalogs?: Record<string, Record<string, string>>;
-};
+import type { DenoManifest, Workspace } from './resolvers/types.js';
 
 const parsedPackageJsonCache = new Map<string, PackageJson | undefined>();
-const parsedPnpmWorkspaceCache = new Map<string, PnpmWorkspace | undefined>();
+const parsedPnpmWorkspaceCache = new Map<string, Workspace | undefined>();
 const parsedDenoManifestCache = new Map<string, DenoManifest | undefined>();
 
 export function clearParsedDependencyFileCache(): void {
@@ -71,11 +65,11 @@ export function parsePackageJsonContent(
   }
 }
 
-export function parsePnpmWorkspace(file: File): PnpmWorkspace | undefined {
+export function parsePnpmWorkspace(file: File): Workspace | undefined {
   return getOrSetParsedDependencyFile(parsedPnpmWorkspaceCache, file, parsePnpmWorkspaceContent);
 }
 
-function parsePnpmWorkspaceContent(file: File): PnpmWorkspace | undefined {
+function parsePnpmWorkspaceContent(file: File): Workspace | undefined {
   try {
     const parsedPnpm = yaml.parse(file.content.toString());
     if (
