@@ -39,10 +39,7 @@ type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
   ownersByReportNode: WeakMap<estree.Node, estree.Node[] | null>;
-  reactNonPropsTypeDecl: WeakMap<TypeDeclarationNode, ReactNonPropsTypeUsage>;
-  mixedReactNonPropsReportNodes: WeakMap<TypeDeclarationNode, WeakSet<estree.Node>>;
 };
-type ReactNonPropsTypeUsage = 'mixed' | 'non-props' | 'other';
 
 const COMPONENT_NODE_TYPES = new Set([
   'ClassDeclaration',
@@ -189,6 +186,17 @@ export function findComponentNodes(node: estree.Node, context: Rule.RuleContext)
   return findComponentOwnersByType(node, ancestors, context, context.sourceCode.visitorKeys);
 }
 
+export function getReactComponentNodes(context: Rule.RuleContext): estree.Node[] {
+  const sourceCache = getSourceCache(context.sourceCode);
+  return (
+    sourceCache.componentNodes ??
+    (sourceCache.componentNodes = collectComponentNodes(
+      context.sourceCode.ast,
+      context.sourceCode.visitorKeys,
+    ))
+  );
+}
+
 /**
  * Resolves the ESLint scope variable corresponding to a React component node.
  *
@@ -273,7 +281,7 @@ export function getComponentPropsType(
  *
  * In that case we look at both the parameter type and the declared `React.FC<Props>`.
  */
-function getComponentPropsTypeCandidates(
+export function getComponentPropsTypeCandidates(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type[] {
@@ -381,32 +389,6 @@ function getRightmostTypeName(typeName: TSESTree.EntityName): string | undefined
     return typeName.right.name;
   }
   return undefined;
-}
-
-/**
- * Returns true when the reported node belongs to a TypeScript type declaration that is
- * used as a non-props generic argument of a React class component, such as:
- * - `React.Component<Props, State>`
- * - `React.Component<Props, State, Snapshot>`
- *
- * These declarations are not props contracts, so `react/no-unused-prop-types` reports
- * on them are false positives and should be suppressed conservatively.
- *
- * @param node the reported node located inside a TypeScript type declaration
- * @param context the current ESLint rule context
- * @returns `true` when the declaration is used as a non-props React class type
- */
-export function isUsedAsReactComponentNonPropsType(
-  node: estree.Node,
-  context: Rule.RuleContext,
-): boolean {
-  const ancestors = context.sourceCode.getAncestors(node);
-  return isReactComponentNonPropsTypeDeclaration(
-    node,
-    ancestors,
-    context,
-    context.sourceCode.visitorKeys,
-  );
 }
 
 /**
@@ -535,7 +517,7 @@ function getClassPropsPropertyType(
   return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
 }
 
-function getDeclaredClassNonPropsTypes(
+export function getDeclaredClassNonPropsTypes(
   classNode: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
 ): ts.Type[] {
@@ -698,78 +680,10 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
     cache = {
       componentNodes: undefined,
       ownersByReportNode: new WeakMap<estree.Node, estree.Node[] | null>(),
-      reactNonPropsTypeDecl: new WeakMap<TypeDeclarationNode, ReactNonPropsTypeUsage>(),
-      mixedReactNonPropsReportNodes: new WeakMap<TypeDeclarationNode, WeakSet<estree.Node>>(),
     };
     perSourceCache.set(sourceCode, cache);
   }
   return cache;
-}
-
-function isReactComponentNonPropsTypeDeclaration(
-  node: estree.Node,
-  ancestors: estree.Node[],
-  context: Rule.RuleContext,
-  keys: SourceCode.VisitorKeys,
-): boolean {
-  const services = context.sourceCode.parserServices;
-  if (!isRequiredParserServices(services)) {
-    return false;
-  }
-
-  const checker = services.program.getTypeChecker();
-  const reportedEnclosingType = getReportedEnclosingType(ancestors, services, checker);
-  if (!reportedEnclosingType) {
-    return false;
-  }
-
-  const sourceCache = getSourceCache(context.sourceCode);
-  const cached = sourceCache.reactNonPropsTypeDecl.get(reportedEnclosingType.declaration);
-  if (cached !== undefined) {
-    return shouldSuppressReactNonPropsReport(
-      node,
-      reportedEnclosingType.declaration,
-      cached,
-      sourceCache,
-    );
-  }
-
-  const componentNodes =
-    sourceCache.componentNodes ??
-    (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
-
-  const isPropsTypeSomewhere = componentNodes.some(componentNode => {
-    if (isFunctionComponentNode(componentNode) && !isPascalCaseFunctionComponent(componentNode)) {
-      return false;
-    }
-
-    return getComponentPropsTypeCandidates(componentNode, services).some(propsType =>
-      areSameTypeDeclarations(checker, reportedEnclosingType.tsType, propsType),
-    );
-  });
-
-  const isNonPropsType = componentNodes.some(componentNode => {
-    if (!isClassComponentNode(componentNode)) {
-      return false;
-    }
-
-    const tsNode = getClassComponentTsNode(componentNode, services);
-    return getDeclaredClassNonPropsTypes(tsNode, checker).some(nonPropsType =>
-      areSameTypeDeclarations(checker, reportedEnclosingType.tsType, nonPropsType),
-    );
-  });
-
-  let usage: ReactNonPropsTypeUsage = 'other';
-  if (isNonPropsType) {
-    usage = isPropsTypeSomewhere ? 'mixed' : 'non-props';
-  }
-  sourceCache.reactNonPropsTypeDecl.set(reportedEnclosingType.declaration, usage);
-  return shouldSuppressReactNonPropsReport(
-    node,
-    reportedEnclosingType.declaration,
-    usage,
-    sourceCache,
-  );
 }
 
 /**
