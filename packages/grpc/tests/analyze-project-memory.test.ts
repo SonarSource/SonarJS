@@ -14,13 +14,13 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it, type Mock } from 'node:test';
-import { expect } from 'expect';
 import {
   getAvailableMemory,
   getMemoryConfigurationMessages,
   logMemoryError,
 } from '../src/analyze-project-memory.js';
+import { describe, it, type Mock } from 'node:test';
+import { expect } from 'expect';
 
 describe('memory configuration', () => {
   it('should prefer docker memory limit when it is lower than host memory', () => {

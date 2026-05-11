@@ -114,16 +114,14 @@ jobs:
             java = "21.0"
             maven = "3.9"
             node = "24.11.0"
-      - if: steps.cache.outputs.cache-hit != 'true' && runner.os != 'Windows'
-        uses: SonarSource/ci-github-actions/config-npm@v1
-      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
+      - if: steps.cache.outputs.cache-hit != 'true'
         id: secrets
         name: Access vault secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
           secrets: |
             development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
-      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
+      - if: steps.cache.outputs.cache-hit != 'true'
         name: Configure npm registry
         run: |
           npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
@@ -776,10 +774,10 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_without_node_alpine:
-    runs-on: sonar-m-docker
+    runs-on: warp-custom-docker-m
     name: QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
-    if: github.event_name == 'schedule'
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     container:
       image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
     permissions: *read_permissions
@@ -883,10 +881,10 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_without_node_alpine:
-    runs-on: sonar-m-docker
+    runs-on: warp-custom-docker-m
     name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
-    if: github.event_name == 'schedule'
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     container:
       image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
     permissions: *read_permissions
