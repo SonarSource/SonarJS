@@ -17,6 +17,7 @@
 import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { join, dirname } from 'node:path/posix';
+import yaml from 'yaml';
 import { initFileStores, dependencyManifestStore } from '../src/file-stores/index.js';
 import { readFile } from 'node:fs/promises';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
@@ -26,14 +27,19 @@ import {
   dependenciesCache,
   getDependencies,
   getModuleType,
+  getTypeScriptVersionSignal,
   moduleTypeCache,
 } from '../src/jsts/rules/helpers/dependency-manifests/dependencies.js';
-import { getDependencyManifests } from '../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
+import {
+  getDependencyManifests,
+  getPackageJsonManifests,
+} from '../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
 import { closestPatternCache } from '../src/jsts/rules/helpers/find-up/closest.js';
 import {
   DENO_JSON,
   DENO_JSONC,
   PACKAGE_JSON,
+  PNPM_WORKSPACE_YAML,
 } from '../src/jsts/rules/helpers/dependency-manifests/index.js';
 import { patternInParentsCache } from '../src/jsts/rules/helpers/find-up/all-in-parent-dirs.js';
 import { Minimatch } from 'minimatch';
@@ -44,6 +50,7 @@ const closestDenoJsonCache = closestPatternCache.get(DENO_JSON);
 const denoJsonsInParentsCache = patternInParentsCache.get(DENO_JSON);
 const closestDenoJsoncCache = closestPatternCache.get(DENO_JSONC);
 const denoJsoncsInParentsCache = patternInParentsCache.get(DENO_JSONC);
+const closestPnpmWorkspaceCache = closestPatternCache.get(PNPM_WORKSPACE_YAML);
 
 const fixtures = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures-package-jsons'));
 
@@ -92,6 +99,80 @@ describe('files', () => {
     getModuleType(normalizeToAbsolutePath(join(baseDir, 'index.js')), baseDir);
     expect(moduleTypeCache.size).toEqual(1);
     expect(moduleTypeCache.has(baseDir)).toEqual(true);
+  });
+
+  it('should fill the pnpm workspace cache used for rules', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    expect(closestPnpmWorkspaceCache.has(baseDir)).toEqual(true);
+    expect(closestPnpmWorkspaceCache.get(baseDir).get(baseDir)?.path).toEqual(
+      join(baseDir, PNPM_WORKSPACE_YAML),
+    );
+  });
+
+  it('should reuse parsed package.json and pnpm workspace manifests after warmup', async ({
+    mock,
+  }) => {
+    mock.method(JSON, 'parse');
+    mock.method(yaml, 'parse');
+    const jsonParseMock = (JSON.parse as Mock<typeof JSON.parse>).mock;
+    const yamlParseMock = (yaml.parse as Mock<typeof yaml.parse>).mock;
+
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'pnpm-workspace-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    expect(getDependencyManifests(baseDir, baseDir)[0].dependencies).toEqual(
+      new Map([
+        ['react', '^19.1.1'],
+        ['react-dom', '^19.1.1'],
+        ['vue', '^3.5.0'],
+        ['typescript', '^5.8.0'],
+        ['rollup', '^4.40.0'],
+      ]),
+    );
+    expect(jsonParseMock.calls.length).toBeGreaterThan(0);
+    expect(yamlParseMock.calls.length).toBeGreaterThan(0);
+
+    jsonParseMock.resetCalls();
+    yamlParseMock.resetCalls();
+
+    expect(getDependencyManifests(baseDir, baseDir)[0].dependencies).toEqual(
+      new Map([
+        ['react', '^19.1.1'],
+        ['react-dom', '^19.1.1'],
+        ['vue', '^3.5.0'],
+        ['typescript', '^5.8.0'],
+        ['rollup', '^4.40.0'],
+      ]),
+    );
+    expect(getPackageJsonManifests(baseDir, baseDir)).toHaveLength(1);
+    expect(getTypeScriptVersionSignal(baseDir)).toEqual('^5.8.0');
+    expect(jsonParseMock.calls).toHaveLength(0);
+    expect(yamlParseMock.calls).toHaveLength(0);
+  });
+
+  it('should reuse failed deno manifest parses after warmup', async ({ mock }) => {
+    mock.method(console, 'debug');
+    const consoleLogMock = (console.debug as Mock<typeof console.debug>).mock;
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'deno-jsonc-malformed'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+    const filePath = join(baseDir, 'deno.jsonc');
+
+    expect(getDependencyManifests(baseDir, baseDir)[0].dependencies).toEqual(new Map());
+    expect(
+      consoleLogMock.calls
+        .map(call => call.arguments[0])
+        .some(log => log.startsWith(`Error parsing deno manifest ${filePath}:`)),
+    ).toEqual(true);
+
+    consoleLogMock.resetCalls();
+
+    expect(getDependencyManifests(baseDir, baseDir)[0].dependencies).toEqual(new Map());
+    expect(consoleLogMock.calls).toHaveLength(0);
   });
 
   it('should reuse dependency cache entries for subdirectories sharing the same manifest', async () => {

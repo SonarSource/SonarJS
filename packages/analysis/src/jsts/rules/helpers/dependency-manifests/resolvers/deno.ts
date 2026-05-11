@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import ts from 'typescript';
 import type {
   DenoJson,
   DependenciesList,
@@ -22,10 +21,10 @@ import type {
   ManifestResolver,
   ModuleType,
 } from './types.js';
-import { type File, stripBOM } from '../../files.js';
 import { DENO_JSON, DENO_JSONC } from '../index.js';
 import { getManifestFileInDir } from './helpers.js';
 import { addDependenciesArray, addDependency } from '../parse.js';
+import { parseDenoManifest } from '../parsed-dependency-files.js';
 
 type ImportMapSpecifier = {
   packageName: string;
@@ -83,22 +82,6 @@ function buildDependencies(manifest: DenoJson): DependenciesList {
   }
 
   return dependencies;
-}
-
-function parseDenoManifest(file: File): DenoJson | undefined {
-  try {
-    // ts.parseConfigFileTextToJson handles JSON with comments and trailing commas
-    const parsed = ts.parseConfigFileTextToJson(file.path, stripBOM(file.content.toString()));
-    if (parsed.error) {
-      const message = ts.flattenDiagnosticMessageText(parsed.error.messageText, '\n');
-      console.debug(`Error parsing deno manifest ${file.path}: ${message}`);
-      return;
-    }
-    return parsed.config as DenoJson;
-  } catch (error) {
-    console.debug(`Error parsing deno manifest ${file.path}: ${error}`);
-    return;
-  }
 }
 
 // Captures `npm:` payload as: package name (scoped or unscoped), optional version, optional ignored subpath.
