@@ -126,8 +126,8 @@ When `meta.ts` contains `implementation = 'decorated'`, add an upstream sentinel
        const ruleTester = new DefaultParserRuleTester();
        ruleTester.run('{ESLINT_ID}', upstreamRule, {
          valid: [],
-         invalid: [
-           { code: `...`, errors: 1 }, // {pattern description} — suppressed by decorator, raised by upstream
+          { code: `...`, errors: 1, output: `...` }, // include output if the upstream rule has autofix; omit if the rule is not fixable
+          // one entry per distinct FP pattern
            // one entry per distinct FP pattern
          ],
        });
