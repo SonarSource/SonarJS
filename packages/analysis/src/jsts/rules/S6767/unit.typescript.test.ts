@@ -254,6 +254,47 @@ track((props: NamedExpressionProps) => ({
           filename: fixtureFile,
         },
         {
+          // FP: parenthesized aliases and quoted member keys still resolve back to the
+          // reported enclosing type and reported type member.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface SharedLiteralProps {
+  'data-id': string;
+}
+type WrappedLiteralProps = (SharedLiteralProps);
+function LiteralKeyComponent(props: WrappedLiteralProps) {
+  return <div />;
+}
+track((props: SharedLiteralProps) => ({
+  data_id: props['data-id'],
+}))(LiteralKeyComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: method-signature props follow the same reported type member path as
+          // property signatures.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface CallbackProps {
+  onSelect(): void;
+}
+function CallbackComponent(props: CallbackProps) {
+  return <div />;
+}
+track((props: CallbackProps) => ({
+  on_select: props.onSelect,
+}))(CallbackComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
           // Compliant: upstream tracks class decorator member reads
           code: `
 declare const React: any;

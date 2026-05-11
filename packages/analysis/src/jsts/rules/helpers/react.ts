@@ -78,19 +78,17 @@ function isFunctionComponentNode(
   );
 }
 
-function isNamedComponentNode(
-  node: estree.Node,
-): node is
-  | estree.ClassDeclaration
-  | estree.FunctionDeclaration
-  | estree.ClassExpression
-  | estree.FunctionExpression {
-  return (
-    node.type === 'ClassDeclaration' ||
-    node.type === 'FunctionDeclaration' ||
-    node.type === 'ClassExpression' ||
-    node.type === 'FunctionExpression'
-  );
+function hasIdentifierId(node: estree.Node): node is estree.Node & { id: estree.Identifier } {
+  return 'id' in node && node.id != null && isIdentifier(node.id);
+}
+
+function getClassComponentTsNode(
+  componentNode: estree.ClassDeclaration | estree.ClassExpression,
+  services: RequiredParserServices,
+): ts.ClassLikeDeclaration {
+  return services.esTreeNodeToTSNodeMap.get(
+    componentNode as TSESTree.Node,
+  ) as ts.ClassLikeDeclaration;
 }
 
 function isVariableDeclaratorWithIdentifierId(
@@ -262,9 +260,7 @@ export function getComponentPropsType(
     return undefined;
   }
 
-  const tsNode = services.esTreeNodeToTSNodeMap.get(
-    componentNode as TSESTree.Node,
-  ) as ts.ClassLikeDeclaration;
+  const tsNode = getClassComponentTsNode(componentNode, services);
   return getDeclaredClassPropsType(tsNode, checker) ?? getClassPropsPropertyType(tsNode, checker);
 }
 
@@ -593,8 +589,7 @@ function findComponentOwnersByType(
   // Step 2: collect the reported enclosing type details.
   const reportedEnclosingType = getReportedEnclosingType(ancestors, services, checker);
   if (!reportedEnclosingType) {
-    sourceCache.ownersByReportNode.set(node, null);
-    return [];
+    return storeComponentOwnersByReportNode(sourceCache, node, []);
   }
 
   // Step 3: collect the components in the file.
@@ -602,50 +597,96 @@ function findComponentOwnersByType(
     sourceCache.componentNodes ??
     (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
   if (componentNodes.length === 0) {
-    return [];
+    return storeComponentOwnersByReportNode(sourceCache, node, []);
   }
 
   // Step 4: if the report is on a specific type member such as `sharedValue`, keep only
-  // the components whose props contain that member with a compatible type.
+  // the components whose props contain that member with an assignable type.
   const reportedTypeMember = getReportedTypeMember(ancestors, services, checker);
   if (reportedTypeMember) {
-    const owners = componentNodes.filter(componentNode =>
-      componentPropsIncludeReportedTypeMember(
-        componentNode,
+    return storeComponentOwnersByReportNode(
+      sourceCache,
+      node,
+      findComponentOwnersByReportedTypeMember(
+        componentNodes,
         services,
         checker,
         reportedEnclosingType,
         reportedTypeMember,
       ),
     );
-    sourceCache.ownersByReportNode.set(node, owners.length > 0 ? owners : null);
-    return owners;
   }
 
   // Step 5: otherwise, match the whole reported enclosing type.
-  const owners: estree.Node[] = [];
-  for (const componentNode of componentNodes) {
-    if (isClassComponentNode(componentNode) && !hasRenderMethodOrProperty(componentNode)) {
-      continue;
-    }
-    if (isClassComponentNode(componentNode)) {
-      const tsNode = services.esTreeNodeToTSNodeMap.get(
-        componentNode as TSESTree.Node,
-      ) as ts.ClassLikeDeclaration;
-      if (
-        matchesClassProps(tsNode as ts.ClassLikeDeclaration, checker, reportedEnclosingType.tsType)
-      ) {
-        owners.push(componentNode);
-      }
-    } else if (
-      matchesFunctionProps(componentNode, services, checker, reportedEnclosingType.tsType)
-    ) {
-      owners.push(componentNode);
-    }
+  return storeComponentOwnersByReportNode(
+    sourceCache,
+    node,
+    findComponentOwnersByReportedEnclosingType(
+      componentNodes,
+      services,
+      checker,
+      reportedEnclosingType,
+    ),
+  );
+}
+
+function storeComponentOwnersByReportNode(
+  sourceCache: SourceCache,
+  reportNode: estree.Node,
+  owners: estree.Node[],
+): estree.Node[] {
+  sourceCache.ownersByReportNode.set(reportNode, owners.length > 0 ? owners : null);
+  return owners;
+}
+
+function findComponentOwnersByReportedTypeMember(
+  componentNodes: estree.Node[],
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+  reportedEnclosingType: ReportedEnclosingType,
+  reportedTypeMember: ReportedTypeMember,
+): estree.Node[] {
+  return componentNodes.filter(componentNode =>
+    componentPropsIncludeReportedTypeMember(
+      componentNode,
+      services,
+      checker,
+      reportedEnclosingType,
+      reportedTypeMember,
+    ),
+  );
+}
+
+function findComponentOwnersByReportedEnclosingType(
+  componentNodes: estree.Node[],
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+  reportedEnclosingType: ReportedEnclosingType,
+): estree.Node[] {
+  return componentNodes.filter(componentNode =>
+    componentUsesReportedEnclosingType(componentNode, services, checker, reportedEnclosingType),
+  );
+}
+
+function componentUsesReportedEnclosingType(
+  componentNode: estree.Node,
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+  reportedEnclosingType: ReportedEnclosingType,
+): boolean {
+  if (!isClassComponentNode(componentNode)) {
+    return matchesFunctionProps(componentNode, services, checker, reportedEnclosingType.tsType);
   }
 
-  sourceCache.ownersByReportNode.set(node, owners.length > 0 ? owners : null);
-  return owners;
+  if (!hasRenderMethodOrProperty(componentNode)) {
+    return false;
+  }
+
+  return matchesClassProps(
+    getClassComponentTsNode(componentNode, services),
+    checker,
+    reportedEnclosingType.tsType,
+  );
 }
 
 function getSourceCache(sourceCode: SourceCode): SourceCache {
@@ -709,9 +750,7 @@ function isReactComponentNonPropsTypeDeclaration(
       return false;
     }
 
-    const tsNode = services.esTreeNodeToTSNodeMap.get(
-      componentNode as TSESTree.Node,
-    ) as ts.ClassLikeDeclaration;
+    const tsNode = getClassComponentTsNode(componentNode, services);
     return getDeclaredClassNonPropsTypes(tsNode, checker).some(nonPropsType =>
       areSameTypeDeclarations(checker, reportedEnclosingType.tsType, nonPropsType),
     );
@@ -914,7 +953,7 @@ function getTypeMemberName(typeMember: TypeMemberNode | undefined): string | und
  * If that fails, we check whether the component props type candidate still references the
  * reported enclosing type.
  *
- * In both cases the final prop type on the component must stay compatible with the
+ * In both cases the final prop type on the component must stay assignable from the
  * reported member type.
  */
 function componentPropsIncludeReportedTypeMember(
@@ -937,7 +976,7 @@ function componentPropsIncludeReportedTypeMember(
     // The exact member match already proves that the component uses the
     // declaration that contains the reported type member.
     componentPropsTypeCandidates.some(componentPropsType =>
-      hasExactCompatibleReportedTypeMember(componentPropsType, reportedTypeMember, checker),
+      hasExactAssignableReportedTypeMember(componentPropsType, reportedTypeMember, checker),
     )
   ) {
     return true;
@@ -945,40 +984,37 @@ function componentPropsIncludeReportedTypeMember(
 
   return componentPropsTypeCandidates.some(
     componentPropsType =>
-      hasCompatibleReportedTypeMember(componentPropsType, reportedTypeMember, checker) &&
+      hasAssignableReportedTypeMember(componentPropsType, reportedTypeMember, checker) &&
       typeUsesTypeDeclaration(componentPropsType, reportedEnclosingType, checker),
   );
 }
 
-function hasExactCompatibleReportedTypeMember(
+function hasExactAssignableReportedTypeMember(
   componentPropsType: ts.Type,
   reportedTypeMember: ReportedTypeMember,
   checker: ts.TypeChecker,
 ): boolean {
-  const componentPropSymbol = getCompatibleReportedTypeMemberSymbol(
+  const componentPropSymbol = getAssignableComponentPropSymbol(
     componentPropsType,
     reportedTypeMember,
     checker,
   );
-  return (
-    componentPropSymbol?.declarations?.some(
-      declaration => ts.isTypeElement(declaration) && declaration === reportedTypeMember.tsNode,
-    ) === true
-  );
+  return componentPropSymbol
+    ? hasExactReportedTypeMemberDeclaration(componentPropSymbol, reportedTypeMember)
+    : false;
 }
 
-function hasCompatibleReportedTypeMember(
+function hasAssignableReportedTypeMember(
   componentPropsType: ts.Type,
   reportedTypeMember: ReportedTypeMember,
   checker: ts.TypeChecker,
 ): boolean {
   return (
-    getCompatibleReportedTypeMemberSymbol(componentPropsType, reportedTypeMember, checker) !==
-    undefined
+    getAssignableComponentPropSymbol(componentPropsType, reportedTypeMember, checker) !== undefined
   );
 }
 
-function getCompatibleReportedTypeMemberSymbol(
+function getAssignableComponentPropSymbol(
   componentPropsType: ts.Type,
   reportedTypeMember: ReportedTypeMember,
   checker: ts.TypeChecker,
@@ -988,10 +1024,33 @@ function getCompatibleReportedTypeMemberSymbol(
     return undefined;
   }
 
-  const componentPropType = checker.getTypeOfSymbol(componentPropSymbol);
-  return checker.isTypeAssignableTo(reportedTypeMember.tsType, componentPropType)
+  return isReportedTypeMemberTypeAssignableToComponentProp(
+    componentPropSymbol,
+    reportedTypeMember,
+    checker,
+  )
     ? componentPropSymbol
     : undefined;
+}
+
+function isReportedTypeMemberTypeAssignableToComponentProp(
+  componentPropSymbol: ts.Symbol,
+  reportedTypeMember: ReportedTypeMember,
+  checker: ts.TypeChecker,
+): boolean {
+  const componentPropType = checker.getTypeOfSymbol(componentPropSymbol);
+  return checker.isTypeAssignableTo(reportedTypeMember.tsType, componentPropType);
+}
+
+function hasExactReportedTypeMemberDeclaration(
+  componentPropSymbol: ts.Symbol,
+  reportedTypeMember: ReportedTypeMember,
+): boolean {
+  return (
+    componentPropSymbol.declarations?.some(
+      declaration => ts.isTypeElement(declaration) && declaration === reportedTypeMember.tsNode,
+    ) === true
+  );
 }
 
 /**
@@ -1249,7 +1308,7 @@ function getComponentIdentifier(componentNode: estree.Node): estree.Identifier |
     return parent.id;
   }
 
-  if (isNamedComponentNode(componentNode) && componentNode.id) {
+  if (hasIdentifierId(componentNode)) {
     return componentNode.id;
   }
 
