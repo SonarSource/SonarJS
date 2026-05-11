@@ -352,7 +352,7 @@ export function computeLibJson(
   return [`es${Math.max(...years)}`, 'dom'];
 }
 
-export type LibGroup = {
+type LibGroup = {
   lib: string[];
   libKey: string;
   files: NormalizedAbsolutePath[];
