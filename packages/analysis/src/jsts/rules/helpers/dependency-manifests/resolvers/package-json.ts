@@ -40,30 +40,27 @@ export const packageJsonManifestResolver: ManifestResolver = {
       return [];
     }
     let parsedPackageJson = parsePackageJson(packageJson) ?? {};
+    const pnpmWorkspaceFile = closestPatternCache
+      .get(PNPM_WORKSPACE_YAML, fileSystem)
+      .get(topDir)
+      .get(dir);
+    const parsedPnpmWorkspace = pnpmWorkspaceFile
+      ? parsePnpmWorkspace(pnpmWorkspaceFile)
+      : undefined;
 
-    let catalogSource: CatalogSource | undefined = undefined;
-    const closestParent = findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
+    if (parsedPnpmWorkspace) {
+      parsedPackageJson = injectWorkspacePackages(parsedPackageJson, parsedPnpmWorkspace);
+    }
 
-    if (closestParent) {
-      // If the closest parent package.json has catalogs defined, we use it as the catalog source for resolving catalog references.
-      const workspaces = Array.isArray(closestParent.workspaces)
-        ? undefined
-        : closestParent.workspaces;
-      catalogSource = {
-        catalog: workspaces?.catalog ?? closestParent.catalog,
-        catalogs: workspaces?.catalogs ?? closestParent.catalogs,
-      };
-    } else {
-      // No parent package.json with catalogs found, we check if there's a pnpm workspace file that we can use as a catalog source.
-      const pnpmWorkspaceFile = closestPatternCache
-        .get(PNPM_WORKSPACE_YAML, fileSystem)
-        .get(topDir)
-        .get(dir);
-      const parsedPnpmWorkspace = pnpmWorkspaceFile
-        ? parsePnpmWorkspace(pnpmWorkspaceFile)
-        : undefined;
-      if (parsedPnpmWorkspace) {
-        parsedPackageJson = injectWorkspacePackages(parsedPackageJson, parsedPnpmWorkspace);
+    // Bun allows catalogs to be defined in the current root package.json.
+    let catalogSource = getCatalogSource(parsedPackageJson);
+    if (!catalogSource) {
+      const closestParent = findClosestParentPackageJsonWithCatalogs(dir, topDir, fileSystem);
+      if (closestParent) {
+        // If the closest parent package.json has catalogs defined, we use it as the catalog source for resolving catalog references.
+        catalogSource = getCatalogSource(closestParent);
+      } else if (parsedPnpmWorkspace) {
+        // No package.json with catalogs found, we check if there's a pnpm workspace file that we can use as a catalog source.
         catalogSource = parsedPnpmWorkspace;
       }
     }
@@ -218,4 +215,15 @@ function hasCatalogs(packageJson: ExtendedPackageJson): boolean {
     return !!(workspaces.catalog || workspaces.catalogs);
   }
   return false;
+}
+
+function getCatalogSource(packageJson: ExtendedPackageJson): CatalogSource | undefined {
+  if (!hasCatalogs(packageJson)) {
+    return undefined;
+  }
+  const workspaces = Array.isArray(packageJson.workspaces) ? undefined : packageJson.workspaces;
+  return {
+    catalog: workspaces?.catalog ?? packageJson.catalog,
+    catalogs: workspaces?.catalogs ?? packageJson.catalogs,
+  };
 }

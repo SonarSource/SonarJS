@@ -323,6 +323,23 @@ describe('files', () => {
     });
   }
 
+  it('should resolve bun catalog default references for the root package.json consuming its own catalog', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'bun-workspace-default-root-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['my-monorepo', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', '^19.0.0'],
+        [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
+  });
+
   for (const fixture of ['bun-workspace-named-catalog', 'bun-workspace-named-root-catalog']) {
     it(`should resolve bun catalog named references (${fixture})`, async () => {
       const baseDir = normalizeToAbsolutePath(join(fixtures, fixture));
@@ -344,6 +361,26 @@ describe('files', () => {
       );
     });
   }
+
+  it('should resolve bun catalog named references for the root package.json consuming its own catalogs', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'bun-workspace-named-root-catalog'));
+    const configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    const manifests = getDependencyManifests(baseDir, baseDir);
+    expect(manifests.map(manifest => manifest.type)).toEqual(['package-json']);
+    expect(manifests[0].dependencies).toEqual(
+      new Map<string | Minimatch, string | undefined>([
+        ['my-monorepo', '*'],
+        ['react', '^18.0.0'],
+        ['react-dom', '^19.0.0'],
+        ['jest', '30.0.0'],
+        ['testing-library', '14.0.0'],
+        ['webpack', '5.0.0'],
+        [new Minimatch('packages/*', { nocase: true, matchBase: true }), undefined],
+      ]),
+    );
+  });
 
   it('should not resolve bun named catalog references when catalog is missing', async ({
     mock,
