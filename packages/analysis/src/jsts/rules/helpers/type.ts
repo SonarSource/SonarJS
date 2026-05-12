@@ -243,7 +243,7 @@ function areSameTypeArguments(
   left: ts.Type | undefined,
   right: ts.Type | undefined,
 ): boolean {
-  if (!left || !right || isAnyOrUnknownType(left) || isAnyOrUnknownType(right)) {
+  if (!left || !right) {
     return false;
   }
 

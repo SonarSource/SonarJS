@@ -22,15 +22,14 @@ import { childrenOf, getNodeParent } from './ancestor.js';
 import { isIdentifier } from './ast.js';
 import { getFullyQualifiedName } from './module.js';
 import { isRequiredParserServices, type RequiredParserServices } from './parser-services.js';
-import { ReportedTypeDetails } from './reported-type.js';
+import {
+  getReportedEnclosingType,
+  ReportedTypeDetails,
+  type ReportedEnclosingType,
+} from './reported-type.js';
 import { areMutuallyAssignableTypes, getTypeFromTreeNode } from './type.js';
 
-type TypeDeclarationNode = TSESTree.TSInterfaceDeclaration | TSESTree.TSTypeAliasDeclaration;
 type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
-type ReportedEnclosingType = ReportedTypeDetails<
-  TypeDeclarationNode,
-  ts.InterfaceDeclaration | ts.TypeAliasDeclaration
->;
 type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
@@ -44,8 +43,8 @@ const COMPONENT_NODE_TYPES = new Set([
   'FunctionExpression',
   'ArrowFunctionExpression',
 ]);
-const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclaration']);
-const REACT_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
+const REACT_QUALIFIED_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
+const REACT_LOCAL_CLASS_SUPERS = new Set(['Component', 'PureComponent']);
 const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
 const REACT_FORWARD_REF_RENDER_FUNCTION_TYPES = new Set(['ForwardRefRenderFunction']);
 
@@ -111,10 +110,6 @@ function isReactPropTypesAssignment(node: estree.Node): node is estree.Assignmen
 
 function isTypeMemberNode(node: TSESTree.Node): node is TypeMemberNode {
   return node.type === 'TSPropertySignature' || node.type === 'TSMethodSignature';
-}
-
-function isTypeDeclarationNode(node: TSESTree.Node): node is TypeDeclarationNode {
-  return TS_TYPE_DECL_TYPES.has(node.type);
 }
 
 export function isVariableAssignedFunctionOrClassExpression(
@@ -409,7 +404,7 @@ export function isReactComponentSuperclass(
   superClass: estree.Expression,
 ): boolean {
   return (
-    REACT_CLASS_SUPERS.has(getFullyQualifiedName(context, superClass) ?? '') ||
+    REACT_QUALIFIED_CLASS_SUPERS.has(getFullyQualifiedName(context, superClass) ?? '') ||
     isBuiltinReactSuperclass(superClass)
   );
 }
@@ -428,14 +423,17 @@ export function isReactComponentSuperclass(
  * @param superClass the ESTree superclass expression to inspect
  * @returns `true` when `superClass` syntactically denotes a React base class
  */
+function isReactClassSuperName(name: string): boolean {
+  return REACT_LOCAL_CLASS_SUPERS.has(name);
+}
+
 function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
   return (
-    isIdentifier(superClass, 'Component') ||
-    isIdentifier(superClass, 'PureComponent') ||
+    (superClass.type === 'Identifier' && isReactClassSuperName(superClass.name)) ||
     (superClass.type === 'MemberExpression' &&
       isIdentifier(superClass.object, 'React') &&
-      (isIdentifier(superClass.property, 'Component') ||
-        isIdentifier(superClass.property, 'PureComponent')))
+      superClass.property.type === 'Identifier' &&
+      isReactClassSuperName(superClass.property.name))
   );
 }
 
@@ -453,19 +451,23 @@ function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
 function isReactComponentHeritageSuperclass(superclass: ts.ExpressionWithTypeArguments): boolean {
   const expression = superclass.expression;
   if (ts.isIdentifier(expression)) {
-    return expression.text === 'Component' || expression.text === 'PureComponent';
+    return isReactClassSuperName(expression.text);
   }
   return (
     ts.isPropertyAccessExpression(expression) &&
     ts.isIdentifier(expression.expression) &&
     expression.expression.text === 'React' &&
-    (expression.name.text === 'Component' || expression.name.text === 'PureComponent')
+    isReactClassSuperName(expression.name.text)
   );
 }
 
 /**
  * Returns true when a callee expression refers to React's `forwardRef`, either as
  * a bare identifier or as `React.forwardRef`.
+ *
+ * **Limitation:** this is a syntax-only check and does not resolve import aliases.
+ * Calls such as `import { forwardRef as fwdRef } from 'react'; fwdRef(...)` are
+ * intentionally left unmatched here.
  *
  * @param callee the ESTree callee expression to inspect
  * @returns `true` when `callee` denotes React's `forwardRef`
@@ -709,27 +711,6 @@ function findEnclosingTypeMember(ancestors: estree.Node[]): TypeMemberNode | und
   return undefined;
 }
 
-function isTypeDeclarationTsNode(
-  node: ts.Node,
-): node is ts.InterfaceDeclaration | ts.TypeAliasDeclaration {
-  return ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node);
-}
-
-function getReportedEnclosingType(
-  ancestors: estree.Node[],
-  services: RequiredParserServices,
-  checker: ts.TypeChecker,
-): ReportedEnclosingType | undefined {
-  const declaration = findEnclosingTypeDeclaration(ancestors);
-  return ReportedTypeDetails.fromDeclaration(
-    declaration,
-    getTypeDeclarationName(declaration),
-    services,
-    checker,
-    isTypeDeclarationTsNode,
-  );
-}
-
 function getReportedTypeMember(
   ancestors: estree.Node[],
   services: RequiredParserServices,
@@ -748,29 +729,6 @@ function getReportedTypeMember(
 export function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
   const componentIdentifier = getComponentIdentifier(componentNode);
   return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
-}
-
-/**
- * Returns the closest enclosing TypeScript type declaration around a reported node.
- *
- * This is the reported enclosing type declaration.
- *
- * This recognizes both `interface Props { ... }` and `type Props = ...` declarations.
- */
-function findEnclosingTypeDeclaration(ancestors: estree.Node[]): TypeDeclarationNode | undefined {
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    const ancestor = ancestors[i] as TSESTree.Node;
-    if (isTypeDeclarationNode(ancestor)) {
-      return ancestor;
-    }
-  }
-  return undefined;
-}
-
-function getTypeDeclarationName(
-  typeDeclaration: TypeDeclarationNode | undefined,
-): string | undefined {
-  return typeDeclaration?.id.name;
 }
 
 /**

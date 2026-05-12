@@ -15,9 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
+import type estree from 'estree';
 import ts from 'typescript';
 import type { RequiredParserServices } from './parser-services.js';
 import { areSameTypeDeclarations } from './type.js';
+
+export type TypeDeclarationNode = TSESTree.TSInterfaceDeclaration | TSESTree.TSTypeAliasDeclaration;
+export type ReportedEnclosingType = ReportedTypeDetails<
+  TypeDeclarationNode,
+  ts.InterfaceDeclaration | ts.TypeAliasDeclaration
+>;
 
 /**
  * Stores both ESTree and TypeScript views of a reported type-related construct.
@@ -165,4 +172,45 @@ export class ReportedTypeDetails<TDeclaration extends TSESTree.Node, TTsNode ext
 
     return false;
   }
+}
+
+function isTypeDeclarationNode(node: TSESTree.Node): node is TypeDeclarationNode {
+  return node.type === 'TSInterfaceDeclaration' || node.type === 'TSTypeAliasDeclaration';
+}
+
+function isTypeDeclarationTsNode(
+  node: ts.Node,
+): node is ts.InterfaceDeclaration | ts.TypeAliasDeclaration {
+  return ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node);
+}
+
+function findEnclosingTypeDeclaration(ancestors: estree.Node[]): TypeDeclarationNode | undefined {
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    const ancestor = ancestors[i] as TSESTree.Node;
+    if (isTypeDeclarationNode(ancestor)) {
+      return ancestor;
+    }
+  }
+  return undefined;
+}
+
+function getTypeDeclarationName(
+  typeDeclaration: TypeDeclarationNode | undefined,
+): string | undefined {
+  return typeDeclaration?.id.name;
+}
+
+export function getReportedEnclosingType(
+  ancestors: estree.Node[],
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+): ReportedEnclosingType | undefined {
+  const declaration = findEnclosingTypeDeclaration(ancestors);
+  return ReportedTypeDetails.fromDeclaration(
+    declaration,
+    getTypeDeclarationName(declaration),
+    services,
+    checker,
+    isTypeDeclarationTsNode,
+  );
 }

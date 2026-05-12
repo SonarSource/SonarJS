@@ -234,6 +234,48 @@ track((props: DecoratorFactoryProps) => ({
           filename: fixtureFile,
         },
         {
+          // FP: identical generic alias instantiations with `any` type arguments
+          // must still count as the same declared props type.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+type Box<T> = {
+  contextModule: string;
+  payload: T;
+};
+function AnyGenericComponent(props: Box<any>) {
+  return <div>{String(props.payload)}</div>;
+}
+track((props: Box<any>) => ({
+  context_module: props.contextModule,
+}))(AnyGenericComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: identical generic alias instantiations with `unknown` type arguments
+          // must still count as the same declared props type.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+type Box<T> = {
+  contextModule: string;
+  payload: T;
+};
+function UnknownGenericComponent(props: Box<unknown>) {
+  return <div>{String(props.payload)}</div>;
+}
+track((props: Box<unknown>) => ({
+  context_module: props.contextModule,
+}))(UnknownGenericComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: identical generic alias instantiations with primitive type arguments
           // must still count as the same declared props type.
           code: `
@@ -533,6 +575,31 @@ class DerivedForwarder extends CustomIntermediateBase {
   }
   render() {
     return <div>{this.props.label}</div>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: a mixed props/state declaration must keep the props-side report
+          // even when the state-owning class appears first in source order.
+          code: `
+declare const React: any;
+interface SharedType {
+  unused: string;
+}
+interface Snapshot {
+  scrollTop: number;
+}
+class StateOwner extends React.Component<{}, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+class PropsOwner extends React.Component<SharedType> {
+  render() {
+    return <div />;
   }
 }
 `,
