@@ -104,8 +104,10 @@ function hasDecoratorAnnotationPropUsage(
     return false;
   }
 
-  return componentTsNode.decorators.some(({ expression }) =>
-    isDecoratorCallUsingProp(expression, sourceCode, componentNode, propName),
+  return (
+    componentTsNode.decorators?.some(({ expression }) =>
+      isDecoratorCallUsingProp(expression, sourceCode, componentNode, propName),
+    ) === true
   );
 }
 

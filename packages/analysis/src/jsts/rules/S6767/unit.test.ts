@@ -15,8 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { buildParserOptions } from '../../parsers/options.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import parser from '@babel/eslint-parser';
+import { Linter } from 'eslint';
 import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('S6767', () => {
   it('should report decorator-factory callbacks without provable props', () => {
@@ -383,6 +387,47 @@ Wrapper.propTypes = {
           errors: 1,
         },
       ],
+    });
+  });
+
+  it('should not crash on Flow React classes parsed with Babel when no decorators are present', () => {
+    const linter = new Linter();
+
+    const messages = linter.verify(
+      `// @flow
+const React = require('react');
+class RootViewSizeFlexibilityExampleApp extends React.Component<
+  {toggled: boolean, ...},
+  any,
+> {
+  constructor(props: {toggled: boolean, ...}) {
+    super(props);
+  }
+
+  render() {
+    return null;
+  }
+}
+`,
+      {
+        languageOptions: {
+          parser,
+          parserOptions: buildParserOptions({}, true),
+        },
+        settings: { react: { version: '999.999.999' } },
+        files: ['**/*.js'],
+        plugins: { sonarjs: { rules: { S6767: rule } } },
+        rules: { 'sonarjs/S6767': 'error' },
+      },
+      { filename: 'minimal-flow-class.js', allowInlineConfig: false },
+    );
+
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toMatchObject({
+      ruleId: 'sonarjs/S6767',
+      message: "'toggled' PropType is defined but prop is never used",
+      line: 4,
+      column: 4,
     });
   });
 });
