@@ -280,9 +280,11 @@ only when the measured drop clears both gates:
 - `drop_abs >= threshold-abs`
 - `drop_pct >= threshold_pct`
 
-Equivalent absolute-drop threshold:
+Equivalent single-condition restatement after converting the percentage gate into absolute units:
 
-- `max(threshold-abs, baseline * threshold_pct / 100)`
+- `drop_abs >= max(threshold-abs, baseline * threshold_pct / 100)`
+
+That `max(...)` form is the same two-gate rule above, not an OR trigger.
 
 ### 4. Early exit if no failures and the analysis state looks consistent
 

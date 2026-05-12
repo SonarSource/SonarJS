@@ -319,6 +319,7 @@ async function evaluateProjectHistory(options, runtime) {
     const dropPct = baselineValue && baselineValue > 0 ? (dropAbs / baselineValue) * 100 : 0;
     const clearsPctThreshold = dropPct >= options.thresholdPct;
     const clearsAbsNoiseFloor = dropAbs >= options.thresholdAbs;
+    // The absolute threshold is a noise floor, not an alternative trigger.
     const status =
       (baselineValue ?? 0) > 0 && clearsPctThreshold && clearsAbsNoiseFloor ? 'DROP' : 'OK';
 

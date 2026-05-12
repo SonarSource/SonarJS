@@ -203,6 +203,27 @@ test('runIssueHistory keeps high-percentage drops OK below the absolute noise fl
   assert.equal(row.drop_pct, 10);
 });
 
+test('runIssueHistory keeps large absolute drops OK below the percentage threshold', async () => {
+  const report = await runSingleProjectIssueHistory({
+    baselineValues: [100, 100, 100, 100, 100],
+    currentValue: 79,
+    headSha: '6666666666666666666666666666666666666666',
+    projectKey: 'js:LargeProject',
+    projectName: 'large-project',
+    thresholdPct: 25,
+    thresholdAbs: 20,
+  });
+
+  assert.deepEqual(report.summary, { OK: 1 });
+
+  const row = report.rows[0];
+  assert.equal(row.status, 'OK');
+  assert.equal(row.baseline_value, 100);
+  assert.equal(row.current_value, 79);
+  assert.equal(row.drop_abs, 21);
+  assert.equal(row.drop_pct, 21);
+});
+
 test('runIssueHistory marks DROP when both drop thresholds are exceeded', async () => {
   const report = await runSingleProjectIssueHistory({
     baselineValues: [10, 10, 10, 10, 10],
