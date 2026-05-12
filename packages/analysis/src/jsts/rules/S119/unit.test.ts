@@ -63,6 +63,9 @@ describe('S119', () => {
           code: `
         class EventBus<Event1, HandlerType> {}
         type Dictionary<K extends string, V = string> = Record<K, V>;
+        function tuple<const Items extends readonly unknown[]>(items: Items): Items {
+          return items;
+        }
         type PickValues<Source> = { [Property in keyof Source]: Source[Property] };
         type ExtractValue<Source> = Source extends Promise<infer Value> ? Value : Source;
         interface Box {
@@ -84,8 +87,8 @@ describe('S119', () => {
           code: `
         const value: Promise<result_data> = getValue();
         type UsesOnly = Map<key, value>;
+        type Extracted = Promise<value_type>;
         `,
-          options: [{ format: CUSTOM_FORMAT }],
         },
       ],
       invalid: [
@@ -149,8 +152,11 @@ describe('S119', () => {
           get<item>(): item;
         }
         type Constrained<item extends string = string> = item;
+        function tuple<const items extends readonly unknown[]>(value: items): items {
+          return value;
+        }
         `,
-          errors: [error(), error(), error(), error(), error(), error()],
+          errors: [error(), error(), error(), error(), error(), error(), error()],
         },
         {
           filename: TYPESCRIPT_FILENAME,

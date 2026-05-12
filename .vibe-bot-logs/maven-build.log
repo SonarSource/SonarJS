@@ -1,0 +1,2349 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Detecting the operating system and CPU architecture
+[INFO] ------------------------------------------------------------------------
+[INFO] os.detected.name: linux
+[INFO] os.detected.arch: aarch_64
+[INFO] os.detected.bitness: 64
+[INFO] os.detected.version: 6.8
+[INFO] os.detected.version.major: 6
+[INFO] os.detected.version.minor: 8
+[INFO] os.detected.release: ubuntu
+[INFO] os.detected.release.version: 24.04
+[INFO] os.detected.release.like.ubuntu: true
+[INFO] os.detected.release.like.debian: true
+[INFO] os.detected.classifier: linux-aarch_64
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] SonarJS                                                            [pom]
+[INFO] SonarQube JavaScript                                               [pom]
+[INFO] SonarQube JavaScript :: API                                        [jar]
+[INFO] SonarQube JavaScript :: Checks                                     [jar]
+[INFO] SonarQube JavaScript :: Bridge                                     [jar]
+[INFO] SonarQube JavaScript :: CSS                                        [jar]
+[INFO] SonarQube JavaScript :: Plugin                            [sonar-plugin]
+[INFO] SonarQube JavaScript :: Standalone                                 [jar]
+[INFO] JavaScript :: IT                                                   [pom]
+[INFO] JavaScript :: IT :: Plugin                                         [pom]
+[INFO] JavaScript :: IT :: Plugin :: Plugins                              [pom]
+[INFO] JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules [sonar-plugin]
+[INFO] JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules [sonar-plugin]
+[INFO] JavaScript :: IT :: Plugin :: Plugins :: Consumer Plugin  [sonar-plugin]
+[INFO] JavaScript :: IT :: Plugin :: Tests                                [jar]
+[INFO] JavaScript :: IT :: Plugin :: Fast :: Tests                        [jar]
+[INFO] JavaScript :: IT :: Plugin :: SonarLint Tests                      [jar]
+[INFO] JavaScript :: IT :: Ruling                                         [jar]
+[INFO] 
+[INFO] ---------------< org.sonarsource.javascript:javascript >----------------
+[INFO] Building SonarJS 12.5.0-SNAPSHOT                                  [1/18]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ javascript ---
+[INFO] Executing: /bin/sh -c cd '/workspace/SonarJS' && 'git' 'log' '-1' '--no-merges' '--format=format:%H %aI %aE %aN'
+[INFO] Working directory: /workspace/SonarJS
+[INFO] Storing buildNumber: e937667b9e5ab5c2a7d6994b67f61f2c1a69456c at timestamp: 1778621625854
+[INFO] Executing: /bin/sh -c cd '/workspace/SonarJS' && 'git' 'symbolic-ref' 'HEAD'
+[INFO] Working directory: /workspace/SonarJS
+[INFO] Storing scmBranch: new-rule/JS-1759-S119
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ javascript ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 6: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] Rule 7: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ javascript ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ javascript ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ javascript ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:javascript:pom:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ javascript ---
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ javascript ---
+[INFO] Installing /workspace/SonarJS/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript/12.5.0-SNAPSHOT/javascript-12.5.0-SNAPSHOT.pom
+[INFO] 
+[INFO] --------------< org.sonarsource.javascript:sonar-plugin >---------------
+[INFO] Building SonarQube JavaScript 12.5.0-SNAPSHOT                     [2/18]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ sonar-plugin ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ sonar-plugin ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ sonar-plugin ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ sonar-plugin ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ sonar-plugin ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:sonar-plugin:pom:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ sonar-plugin ---
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ sonar-plugin ---
+[INFO] Installing /workspace/SonarJS/sonar-plugin/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/sonar-plugin/12.5.0-SNAPSHOT/sonar-plugin-12.5.0-SNAPSHOT.pom
+[INFO] 
+[INFO] -------------------< org.sonarsource.javascript:api >-------------------
+[INFO] Building SonarQube JavaScript :: API 12.5.0-SNAPSHOT              [3/18]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ api ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ api ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ api ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ api ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ api ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/sonar-plugin/api/src/main/resources
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ api ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:api:jar:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ api ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 18 source files with javac [debug release 17] to target/classes
+[WARNING] /workspace/SonarJS/sonar-plugin/api/src/main/java/org/sonar/plugins/javascript/api/Check.java:[25,31] org.sonar.plugins.javascript.api.EslintBasedCheck in org.sonar.plugins.javascript.api has been deprecated and marked for removal
+[WARNING] /workspace/SonarJS/sonar-plugin/api/src/main/java/org/sonar/plugins/javascript/api/EslintBasedCheck.java:[23,55] org.sonar.plugins.javascript.api.JavaScriptCheck in org.sonar.plugins.javascript.api has been deprecated and marked for removal
+[WARNING] /workspace/SonarJS/sonar-plugin/api/src/main/java/org/sonar/plugins/javascript/api/TestFileCheck.java:[27,45] org.sonar.plugins.javascript.api.Check in org.sonar.plugins.javascript.api has been deprecated and marked for removal
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ api ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/sonar-plugin/api/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ api ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 3 source files with javac [debug release 17] to target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ api ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.4.2:jar (default-jar) @ api ---
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/api/target/api-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ api ---
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/api/target/api-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ api ---
+[INFO] Installing /workspace/SonarJS/sonar-plugin/api/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/api/12.5.0-SNAPSHOT/api-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/sonar-plugin/api/target/api-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/api/12.5.0-SNAPSHOT/api-12.5.0-SNAPSHOT.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/api/target/api-12.5.0-SNAPSHOT-sources.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/api/12.5.0-SNAPSHOT/api-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] ------------< org.sonarsource.javascript:javascript-checks >------------
+[INFO] Building SonarQube JavaScript :: Checks 12.5.0-SNAPSHOT           [4/18]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ javascript-checks ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ javascript-checks ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ javascript-checks ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ javascript-checks ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- exec-maven-plugin:3.6.3:exec (Generate rule metadata) @ javascript-checks ---
+
+> sonarjs@1.0.0 generate-meta
+> npm run sync-rspec-all && npm run grpc:generate-proto && tsx tools/generate-meta.ts
+
+
+> sonarjs@1.0.0 sync-rspec-all
+> npm run sync-rspec -- --language javascript && npm run sync-rspec -- --language css && npm run deploy-rule-data
+
+
+> sonarjs@1.0.0 sync-rspec
+> tsx tools/sync-rspec.ts --language javascript
+
+Using pinned rspec SHA: S119-JS (from rspec.sha)
+Fetching rspec (S119-JS) into /workspace/SonarJS/resources/rspec...
+Synced 706 javascript rules to /workspace/SonarJS/resources/rule-data/javascript (rspec@2beb93be)
+
+> sonarjs@1.0.0 sync-rspec
+> tsx tools/sync-rspec.ts --language css
+
+Using pinned rspec SHA: S119-JS (from rspec.sha)
+Fetching rspec (S119-JS) into /workspace/SonarJS/resources/rspec...
+Synced 31 css rules to /workspace/SonarJS/resources/rule-data/css (rspec@2beb93be)
+
+> sonarjs@1.0.0 deploy-rule-data
+> tsx tools/deploy-rule-data.ts
+
+
+> sonarjs@1.0.0 grpc:generate-proto
+> tsx tools/generate-proto.ts
+
+Generating packages/grpc/src/proto/analyze-project.js from packages/grpc/src/proto/analyze-project.proto
+Generating packages/grpc/src/proto/analyze-project.d.ts from packages/grpc/src/proto/analyze-project.js
+Generating packages/grpc/src/proto/language_analyzer.js from packages/grpc/src/proto/language_analyzer.proto
+Generating packages/grpc/src/proto/language_analyzer.d.ts from packages/grpc/src/proto/language_analyzer.js
+Generating packages/grpc/src/proto/health.js from packages/grpc/src/proto/health.proto
+Generating packages/grpc/src/proto/health.d.ts from packages/grpc/src/proto/health.js
+Generating packages/analysis/src/jsts/parsers/estree.js from packages/analysis/src/jsts/parsers/estree.proto
+Generating packages/analysis/src/jsts/parsers/estree.d.ts from packages/analysis/src/jsts/parsers/estree.js
+Proto generation complete.
+[INFO] 
+[INFO] --- exec-maven-plugin:3.6.3:exec (Generate the Java Check classes) @ javascript-checks ---
+
+> sonarjs@1.0.0 generate-java-rule-classes
+> tsx tools/generate-java-rule-classes.ts
+
+[INFO] 
+[INFO] --- exec-maven-plugin:3.6.3:exec (Update README with rule counts) @ javascript-checks ---
+
+> sonarjs@1.0.0 count-rules
+> tsx tools/count-rules.ts
+
+Checking rule counts
+JS/TS rules: 529
+JS rules: 481
+TS rules: 499
+CSS rules: 30
+Updating README.md with new rule counts
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ javascript-checks ---
+[INFO] Copying 1078 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ javascript-checks ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:javascript-checks:jar:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ javascript-checks ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 536 source files with javac [debug release 17] to target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ javascript-checks ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/sonar-plugin/javascript-checks/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ javascript-checks ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug release 17] to target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ javascript-checks ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.4.2:jar (default-jar) @ javascript-checks ---
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/javascript-checks/target/javascript-checks-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ javascript-checks ---
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/javascript-checks/target/javascript-checks-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ javascript-checks ---
+[INFO] Installing /workspace/SonarJS/sonar-plugin/javascript-checks/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-checks/12.5.0-SNAPSHOT/javascript-checks-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/sonar-plugin/javascript-checks/target/javascript-checks-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-checks/12.5.0-SNAPSHOT/javascript-checks-12.5.0-SNAPSHOT.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/javascript-checks/target/javascript-checks-12.5.0-SNAPSHOT-sources.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-checks/12.5.0-SNAPSHOT/javascript-checks-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] -----------------< org.sonarsource.javascript:bridge >------------------
+[INFO] Building SonarQube JavaScript :: Bridge 12.5.0-SNAPSHOT           [5/18]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ bridge ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ bridge ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 6: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] Rule 7: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ bridge ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- build-helper-maven-plugin:3.6.1:add-source (add-generated-sources) @ bridge ---
+[INFO] Source directory: /workspace/SonarJS/sonar-plugin/bridge/target/generated-sources added.
+[INFO] 
+[INFO] --- protobuf-maven-plugin:0.6.1:compile (Generate Protobuf Java Sources) @ bridge ---
+[INFO] Compiling 1 proto file(s) to /workspace/SonarJS/sonar-plugin/bridge/target/generated-sources
+[INFO] 
+[INFO] --- protobuf-maven-plugin:0.6.1:compile (Generate Analyze-Project Protobuf Java Sources) @ bridge ---
+[INFO] Compiling 1 proto file(s) to /workspace/SonarJS/sonar-plugin/bridge/target/generated-sources
+[INFO] 
+[INFO] --- protobuf-maven-plugin:0.6.1:compile-custom (Generate Analyze-Project Protobuf Java Sources) @ bridge ---
+[INFO] Compiling 1 proto file(s) to /workspace/SonarJS/sonar-plugin/bridge/target/generated-sources
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ bridge ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- exec-maven-plugin:3.6.3:exec (Build the bridge) @ bridge ---
+
+> sonarjs@1.0.0 bridge:compile
+> npm run grpc:generate-proto && tsgo -p packages/tsconfig.app.json && tsgo -p packages/tsconfig.test.json && npm run grpc:copy-proto
+
+
+> sonarjs@1.0.0 grpc:generate-proto
+> tsx tools/generate-proto.ts
+
+Generating packages/grpc/src/proto/analyze-project.js from packages/grpc/src/proto/analyze-project.proto
+Generating packages/grpc/src/proto/analyze-project.d.ts from packages/grpc/src/proto/analyze-project.js
+Generating packages/grpc/src/proto/language_analyzer.js from packages/grpc/src/proto/language_analyzer.proto
+Generating packages/grpc/src/proto/language_analyzer.d.ts from packages/grpc/src/proto/language_analyzer.js
+Generating packages/grpc/src/proto/health.js from packages/grpc/src/proto/health.proto
+Generating packages/grpc/src/proto/health.d.ts from packages/grpc/src/proto/health.js
+Generating packages/analysis/src/jsts/parsers/estree.js from packages/analysis/src/jsts/parsers/estree.proto
+Generating packages/analysis/src/jsts/parsers/estree.d.ts from packages/analysis/src/jsts/parsers/estree.js
+Proto generation complete.
+
+> sonarjs@1.0.0 grpc:copy-proto
+> tsx tools/generate-proto.ts --copy
+
+Proto files copied to lib/.
+[INFO] 
+[INFO] --- exec-maven-plugin:3.6.3:exec (Bundle the bridge) @ bridge ---
+
+> sonarjs@1.0.0 bridge:bundle
+> node esbuild.mjs
+
+[INFO] 
+[INFO] --- exec-maven-plugin:3.6.3:exec (Pack the bridge) @ bridge ---
+
+> sonarjs@1.0.0 prepare
+> husky
+
+sonarjs-1.0.0.tgz
+[INFO] 
+[INFO] --- exec-maven-plugin:3.6.3:exec (Generate Node.js properties node-info.properties) @ bridge ---
+org/sonar/plugins/javascript/bridge/node-info.properties for sonar-plugin/bridge updated with versions=^20.12.0 || ^22.11.0 || ^24.0.0
+[INFO] 
+[INFO] --- maven-resources-plugin:3.5.0:resources (default-resources) @ bridge ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from ../../packages/analysis/src/jsts/parsers to target/classes
+[INFO] Copying 1 resource from ../../packages to target/classes
+[INFO] Copying 1 resource from ../../packages to target/classes
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ bridge ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:bridge:jar:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-resources-plugin:3.5.0:copy-resources (Copy the bridge to the package) @ bridge ---
+[INFO] Copying 1 resource from ../.. to target/classes
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ bridge ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 294 source files with javac [debug release 17] to target/classes
+[INFO] /workspace/SonarJS/sonar-plugin/bridge/src/main/java/org/sonar/plugins/javascript/bridge/BundleUtils.java: /workspace/SonarJS/sonar-plugin/bridge/src/main/java/org/sonar/plugins/javascript/bridge/BundleUtils.java uses or overrides a deprecated API.
+[INFO] /workspace/SonarJS/sonar-plugin/bridge/src/main/java/org/sonar/plugins/javascript/bridge/BundleUtils.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- maven-resources-plugin:3.5.0:testResources (default-testResources) @ bridge ---
+[INFO] Copying 22 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ bridge ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 13 source files with javac [debug release 17] to target/test-classes
+[INFO] /workspace/SonarJS/sonar-plugin/bridge/src/test/java/org/sonar/plugins/javascript/nodejs/NodeCommandTest.java: /workspace/SonarJS/sonar-plugin/bridge/src/test/java/org/sonar/plugins/javascript/nodejs/NodeCommandTest.java uses or overrides a deprecated API.
+[INFO] /workspace/SonarJS/sonar-plugin/bridge/src/test/java/org/sonar/plugins/javascript/nodejs/NodeCommandTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /workspace/SonarJS/sonar-plugin/bridge/src/test/java/org/sonar/plugins/javascript/nodejs/NodeCommandTest.java: /workspace/SonarJS/sonar-plugin/bridge/src/test/java/org/sonar/plugins/javascript/nodejs/NodeCommandTest.java uses unchecked or unsafe operations.
+[INFO] /workspace/SonarJS/sonar-plugin/bridge/src/test/java/org/sonar/plugins/javascript/nodejs/NodeCommandTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ bridge ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.4.2:jar (default-jar) @ bridge ---
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/bridge/target/bridge-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ bridge ---
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/bridge/target/bridge-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ bridge ---
+[INFO] Installing /workspace/SonarJS/sonar-plugin/bridge/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/bridge/12.5.0-SNAPSHOT/bridge-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/sonar-plugin/bridge/target/bridge-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/bridge/12.5.0-SNAPSHOT/bridge-12.5.0-SNAPSHOT.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/bridge/target/bridge-12.5.0-SNAPSHOT-sources.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/bridge/12.5.0-SNAPSHOT/bridge-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] -------------------< org.sonarsource.javascript:css >-------------------
+[INFO] Building SonarQube JavaScript :: CSS 12.5.0-SNAPSHOT              [6/18]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ css ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ css ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ css ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ css ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ css ---
+[INFO] Copying 63 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ css ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:css:jar:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ css ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 40 source files with javac [debug release 17] to target/classes
+[INFO] /workspace/SonarJS/sonar-plugin/css/src/main/java/org/sonar/css/StylelintReportSensor.java: /workspace/SonarJS/sonar-plugin/css/src/main/java/org/sonar/css/StylelintReportSensor.java uses or overrides a deprecated API.
+[INFO] /workspace/SonarJS/sonar-plugin/css/src/main/java/org/sonar/css/StylelintReportSensor.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ css ---
+[INFO] Copying 5 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ css ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 6 source files with javac [debug release 17] to target/test-classes
+[INFO] /workspace/SonarJS/sonar-plugin/css/src/test/java/org/sonar/css/rules/CssRuleTest.java: /workspace/SonarJS/sonar-plugin/css/src/test/java/org/sonar/css/rules/CssRuleTest.java uses unchecked or unsafe operations.
+[INFO] /workspace/SonarJS/sonar-plugin/css/src/test/java/org/sonar/css/rules/CssRuleTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ css ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.4.2:jar (default-jar) @ css ---
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/css/target/css-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ css ---
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/css/target/css-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ css ---
+[INFO] Installing /workspace/SonarJS/sonar-plugin/css/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/css/12.5.0-SNAPSHOT/css-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/sonar-plugin/css/target/css-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/css/12.5.0-SNAPSHOT/css-12.5.0-SNAPSHOT.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/css/target/css-12.5.0-SNAPSHOT-sources.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/css/12.5.0-SNAPSHOT/css-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] ---------< org.sonarsource.javascript:sonar-javascript-plugin >---------
+[INFO] Building SonarQube JavaScript :: Plugin 12.5.0-SNAPSHOT           [7/18]
+[INFO] ----------------------------[ sonar-plugin ]----------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ sonar-javascript-plugin ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ sonar-javascript-plugin ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ sonar-javascript-plugin ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- sonar-packaging-maven-plugin:1.25.0.11:check (default-check) @ sonar-javascript-plugin ---
+[INFO] 
+[INFO] --- exec-maven-plugin:3.6.3:exec (Validate quickfix configuration) @ sonar-javascript-plugin ---
+
+> sonarjs@1.0.0 validate-quickfix
+> tsx tools/validate-quickfix.ts
+
+Validating quickfix configuration...
+
+✓ All quickfix configurations are valid.
+[INFO] 
+[INFO] --- exec-maven-plugin:3.6.3:exec (Generate Node.js properties node-info.properties) @ sonar-javascript-plugin ---
+node-info.properties for sonar-plugin/sonar-javascript-plugin updated with versions=^20.12.0 || ^22.11.0 || ^24.0.0
+[INFO] 
+[INFO] --- properties-maven-plugin:1.3.0:read-project-properties (default) @ sonar-javascript-plugin ---
+[INFO] Loading 1 properties from File: /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/src/main/resources/node-info.properties
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ sonar-javascript-plugin ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ sonar-javascript-plugin ---
+[INFO] Copying 35 resources from src/main/resources to target/classes
+[INFO] 
+[INFO] --- maven-dependency-plugin:3.8.1:unpack (unpack-node-runtimes) @ sonar-javascript-plugin ---
+[INFO] Configured Artifact: org.sonarsource.nodejs:nodejs-runtime:24.11.0.70:jar
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ sonar-javascript-plugin ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:sonar-javascript-plugin:sonar-plugin:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ sonar-javascript-plugin ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 59 source files with javac [debug release 17] to target/classes
+[INFO] /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/analysis/JsTsExclusionsFilter.java: Some input files use or override a deprecated API.
+[INFO] /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/analysis/JsTsExclusionsFilter.java: Recompile with -Xlint:deprecation for details.
+[INFO] /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/JavaScriptProfilesDefinition.java: /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/JavaScriptProfilesDefinition.java uses unchecked or unsafe operations.
+[INFO] /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/JavaScriptProfilesDefinition.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ sonar-javascript-plugin ---
+[INFO] Copying 61 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ sonar-javascript-plugin ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 35 source files with javac [debug release 17] to target/test-classes
+[INFO] /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/src/test/java/org/sonar/plugins/javascript/analysis/FSListenerTest.java: Some input files use or override a deprecated API.
+[INFO] /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/src/test/java/org/sonar/plugins/javascript/analysis/FSListenerTest.java: Recompile with -Xlint:deprecation for details.
+[INFO] /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/src/test/java/org/sonar/plugins/javascript/JavaScriptPluginTest.java: Some input files use unchecked or unsafe operations.
+[INFO] /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/src/test/java/org/sonar/plugins/javascript/JavaScriptPluginTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ sonar-javascript-plugin ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- sonar-packaging-maven-plugin:1.25.0.11:sonar-plugin (default-sonar-plugin) @ sonar-javascript-plugin ---
+[INFO] -------------------------------------------------------
+[INFO] Plugin definition in update center
+[INFO]     Key: javascript
+[INFO]     Name: JavaScript/TypeScript/CSS Code Quality and Security
+[INFO]     Description: Code Analyzer for JavaScript/TypeScript/CSS
+[INFO]     Version: 12.5.0-SNAPSHOT
+[INFO]     Display Version: 12.5.0-SNAPSHOT
+[INFO]     Entry-point Class: org.sonar.plugins.javascript.JavaScriptPlugin
+[INFO]     Required Plugins: 
+[INFO]     Does the plugin support SonarLint?: true
+[INFO]     Use Child-first ClassLoader: false
+[INFO]     Base Plugin: 
+[INFO]     Homepage URL: http://redirect.sonarsource.com/plugins/javascript.html
+[INFO]     Minimal Sonar Plugin API Version: 9.14.0.375
+[INFO]     Licensing: SSALv1
+[INFO]     Organization: SonarSource
+[INFO]     Organization URL: https://www.sonarsource.com
+[INFO]     Terms and Conditions: 
+[INFO]     Issue Tracker URL: https://github.com/SonarSource/sonar-javascript/issues
+[INFO]     Build date: 2026-05-12T21:34:13+0000
+[INFO]     Sources URL: https://github.com/SonarSource/sonar-javascript
+[INFO]     Developers: Michał Zgliczyński,Victor Diez
+[INFO]     Minimal JRE Specification Version: 17
+[INFO]     Minimal Node.js Version: 
+[INFO]     Languages for which this plugin should be downloaded: js,ts,css,web,yaml
+[INFO] Skip packaging of dependencies
+[INFO] -------------------------------------------------------
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-shade-plugin:3.6.2:shade (win-x64) @ sonar-javascript-plugin ---
+[INFO] Minimizing jar org.sonarsource.javascript:sonar-javascript-plugin:sonar-plugin:12.5.0-SNAPSHOT
+[WARNING] Removing module-info from sonar-javascript-plugin-12.5.0-SNAPSHOT.jar
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] animal-sniffer-annotations-1.27.jar, annotations-4.1.1.4.jar, asm-9.0.jar, bridge-12.5.0-SNAPSHOT.jar, commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, css-12.5.0-SNAPSHOT.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, grpc-api-1.81.0.jar, grpc-context-1.81.0.jar, grpc-core-1.81.0.jar, grpc-okhttp-1.81.0.jar, grpc-protobuf-1.81.0.jar, grpc-protobuf-lite-1.81.0.jar, grpc-stub-1.81.0.jar, grpc-util-1.81.0.jar, gson-2.14.0.jar, guava-33.5.0-android.jar, j2objc-annotations-3.1.jar, javascript-checks-12.5.0-SNAPSHOT.jar, javax.annotation-api-1.3.2.jar, jspecify-1.0.0.jar, jsr305-3.0.2.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-common-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar, okio-3.4.0.jar, okio-jvm-3.4.0.jar, perfmark-api-0.27.0.jar, proto-google-common-protos-2.64.1.jar, protobuf-java-4.34.1.jar, sonar-analyzer-commons-2.22.0.4796.jar, sonar-javascript-plugin-12.5.0-SNAPSHOT.jar, sslr-core-1.25.1.3886.jar, xz-1.12.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/MANIFEST.MF
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, gson-2.14.0.jar, j2objc-annotations-3.1.jar, jspecify-1.0.0.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, xz-1.12.jar define 1 overlapping classes: 
+[WARNING]   - META-INF.versions.9.module-info
+[WARNING] okio-3.4.0.jar, okio-jvm-3.4.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/okio.kotlin_module
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/NOTICE.txt
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, javax.annotation-api-1.3.2.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/LICENSE.txt
+[WARNING] jsr305-3.0.2.jar, sonar-analyzer-commons-2.22.0.4796.jar define 13 overlapping classes and resources: 
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.properties
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.xml
+[WARNING]   - javax.annotation.CheckForNull
+[WARNING]   - javax.annotation.Nonnull
+[WARNING]   - javax.annotation.Nonnull$Checker
+[WARNING]   - javax.annotation.Nullable
+[WARNING]   - javax.annotation.concurrent.Immutable
+[WARNING]   - javax.annotation.concurrent.NotThreadSafe
+[WARNING]   - javax.annotation.concurrent.ThreadSafe
+[WARNING]   - javax.annotation.meta.TypeQualifier
+[WARNING]   - 3 more...
+[WARNING] maven-shade-plugin has detected that some files are
+[WARNING] present in two or more JARs. When this happens, only one
+[WARNING] single version of the file is copied to the uber jar.
+[WARNING] Usually this is not harmful and you can skip these warnings,
+[WARNING] otherwise try to manually exclude artifacts based on
+[WARNING] mvn dependency:tree -Ddetail=true and the above output.
+[WARNING] See https://maven.apache.org/plugins/maven-shade-plugin/
+[INFO] Minimized 11478 -> 7466 (65%)
+[INFO] Attaching shaded artifact.
+[INFO] 
+[INFO] --- maven-shade-plugin:3.6.2:shade (linux-x64) @ sonar-javascript-plugin ---
+[INFO] Minimizing jar org.sonarsource.javascript:sonar-javascript-plugin:sonar-plugin:12.5.0-SNAPSHOT
+[WARNING] Removing module-info from sonar-javascript-plugin-12.5.0-SNAPSHOT.jar
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] animal-sniffer-annotations-1.27.jar, annotations-4.1.1.4.jar, asm-9.0.jar, bridge-12.5.0-SNAPSHOT.jar, commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, css-12.5.0-SNAPSHOT.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, grpc-api-1.81.0.jar, grpc-context-1.81.0.jar, grpc-core-1.81.0.jar, grpc-okhttp-1.81.0.jar, grpc-protobuf-1.81.0.jar, grpc-protobuf-lite-1.81.0.jar, grpc-stub-1.81.0.jar, grpc-util-1.81.0.jar, gson-2.14.0.jar, guava-33.5.0-android.jar, j2objc-annotations-3.1.jar, javascript-checks-12.5.0-SNAPSHOT.jar, javax.annotation-api-1.3.2.jar, jspecify-1.0.0.jar, jsr305-3.0.2.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-common-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar, okio-3.4.0.jar, okio-jvm-3.4.0.jar, perfmark-api-0.27.0.jar, proto-google-common-protos-2.64.1.jar, protobuf-java-4.34.1.jar, sonar-analyzer-commons-2.22.0.4796.jar, sonar-javascript-plugin-12.5.0-SNAPSHOT.jar, sslr-core-1.25.1.3886.jar, xz-1.12.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/MANIFEST.MF
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, gson-2.14.0.jar, j2objc-annotations-3.1.jar, jspecify-1.0.0.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, xz-1.12.jar define 1 overlapping classes: 
+[WARNING]   - META-INF.versions.9.module-info
+[WARNING] okio-3.4.0.jar, okio-jvm-3.4.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/okio.kotlin_module
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/NOTICE.txt
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, javax.annotation-api-1.3.2.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/LICENSE.txt
+[WARNING] jsr305-3.0.2.jar, sonar-analyzer-commons-2.22.0.4796.jar define 13 overlapping classes and resources: 
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.properties
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.xml
+[WARNING]   - javax.annotation.CheckForNull
+[WARNING]   - javax.annotation.Nonnull
+[WARNING]   - javax.annotation.Nonnull$Checker
+[WARNING]   - javax.annotation.Nullable
+[WARNING]   - javax.annotation.concurrent.Immutable
+[WARNING]   - javax.annotation.concurrent.NotThreadSafe
+[WARNING]   - javax.annotation.concurrent.ThreadSafe
+[WARNING]   - javax.annotation.meta.TypeQualifier
+[WARNING]   - 3 more...
+[WARNING] maven-shade-plugin has detected that some files are
+[WARNING] present in two or more JARs. When this happens, only one
+[WARNING] single version of the file is copied to the uber jar.
+[WARNING] Usually this is not harmful and you can skip these warnings,
+[WARNING] otherwise try to manually exclude artifacts based on
+[WARNING] mvn dependency:tree -Ddetail=true and the above output.
+[WARNING] See https://maven.apache.org/plugins/maven-shade-plugin/
+[INFO] Minimized 11478 -> 7466 (65%)
+[INFO] Attaching shaded artifact.
+[INFO] 
+[INFO] --- maven-shade-plugin:3.6.2:shade (linux-x64-musl) @ sonar-javascript-plugin ---
+[INFO] Minimizing jar org.sonarsource.javascript:sonar-javascript-plugin:sonar-plugin:12.5.0-SNAPSHOT
+[WARNING] Removing module-info from sonar-javascript-plugin-12.5.0-SNAPSHOT.jar
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] animal-sniffer-annotations-1.27.jar, annotations-4.1.1.4.jar, asm-9.0.jar, bridge-12.5.0-SNAPSHOT.jar, commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, css-12.5.0-SNAPSHOT.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, grpc-api-1.81.0.jar, grpc-context-1.81.0.jar, grpc-core-1.81.0.jar, grpc-okhttp-1.81.0.jar, grpc-protobuf-1.81.0.jar, grpc-protobuf-lite-1.81.0.jar, grpc-stub-1.81.0.jar, grpc-util-1.81.0.jar, gson-2.14.0.jar, guava-33.5.0-android.jar, j2objc-annotations-3.1.jar, javascript-checks-12.5.0-SNAPSHOT.jar, javax.annotation-api-1.3.2.jar, jspecify-1.0.0.jar, jsr305-3.0.2.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-common-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar, okio-3.4.0.jar, okio-jvm-3.4.0.jar, perfmark-api-0.27.0.jar, proto-google-common-protos-2.64.1.jar, protobuf-java-4.34.1.jar, sonar-analyzer-commons-2.22.0.4796.jar, sonar-javascript-plugin-12.5.0-SNAPSHOT.jar, sslr-core-1.25.1.3886.jar, xz-1.12.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/MANIFEST.MF
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, gson-2.14.0.jar, j2objc-annotations-3.1.jar, jspecify-1.0.0.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, xz-1.12.jar define 1 overlapping classes: 
+[WARNING]   - META-INF.versions.9.module-info
+[WARNING] okio-3.4.0.jar, okio-jvm-3.4.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/okio.kotlin_module
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/NOTICE.txt
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, javax.annotation-api-1.3.2.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/LICENSE.txt
+[WARNING] jsr305-3.0.2.jar, sonar-analyzer-commons-2.22.0.4796.jar define 13 overlapping classes and resources: 
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.properties
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.xml
+[WARNING]   - javax.annotation.CheckForNull
+[WARNING]   - javax.annotation.Nonnull
+[WARNING]   - javax.annotation.Nonnull$Checker
+[WARNING]   - javax.annotation.Nullable
+[WARNING]   - javax.annotation.concurrent.Immutable
+[WARNING]   - javax.annotation.concurrent.NotThreadSafe
+[WARNING]   - javax.annotation.concurrent.ThreadSafe
+[WARNING]   - javax.annotation.meta.TypeQualifier
+[WARNING]   - 3 more...
+[WARNING] maven-shade-plugin has detected that some files are
+[WARNING] present in two or more JARs. When this happens, only one
+[WARNING] single version of the file is copied to the uber jar.
+[WARNING] Usually this is not harmful and you can skip these warnings,
+[WARNING] otherwise try to manually exclude artifacts based on
+[WARNING] mvn dependency:tree -Ddetail=true and the above output.
+[WARNING] See https://maven.apache.org/plugins/maven-shade-plugin/
+[INFO] Minimized 11478 -> 7466 (65%)
+[INFO] Attaching shaded artifact.
+[INFO] 
+[INFO] --- maven-shade-plugin:3.6.2:shade (darwin-arm64) @ sonar-javascript-plugin ---
+[INFO] Minimizing jar org.sonarsource.javascript:sonar-javascript-plugin:sonar-plugin:12.5.0-SNAPSHOT
+[WARNING] Removing module-info from sonar-javascript-plugin-12.5.0-SNAPSHOT.jar
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] animal-sniffer-annotations-1.27.jar, annotations-4.1.1.4.jar, asm-9.0.jar, bridge-12.5.0-SNAPSHOT.jar, commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, css-12.5.0-SNAPSHOT.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, grpc-api-1.81.0.jar, grpc-context-1.81.0.jar, grpc-core-1.81.0.jar, grpc-okhttp-1.81.0.jar, grpc-protobuf-1.81.0.jar, grpc-protobuf-lite-1.81.0.jar, grpc-stub-1.81.0.jar, grpc-util-1.81.0.jar, gson-2.14.0.jar, guava-33.5.0-android.jar, j2objc-annotations-3.1.jar, javascript-checks-12.5.0-SNAPSHOT.jar, javax.annotation-api-1.3.2.jar, jspecify-1.0.0.jar, jsr305-3.0.2.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-common-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar, okio-3.4.0.jar, okio-jvm-3.4.0.jar, perfmark-api-0.27.0.jar, proto-google-common-protos-2.64.1.jar, protobuf-java-4.34.1.jar, sonar-analyzer-commons-2.22.0.4796.jar, sonar-javascript-plugin-12.5.0-SNAPSHOT.jar, sslr-core-1.25.1.3886.jar, xz-1.12.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/MANIFEST.MF
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, gson-2.14.0.jar, j2objc-annotations-3.1.jar, jspecify-1.0.0.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, xz-1.12.jar define 1 overlapping classes: 
+[WARNING]   - META-INF.versions.9.module-info
+[WARNING] okio-3.4.0.jar, okio-jvm-3.4.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/okio.kotlin_module
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/NOTICE.txt
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, javax.annotation-api-1.3.2.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/LICENSE.txt
+[WARNING] jsr305-3.0.2.jar, sonar-analyzer-commons-2.22.0.4796.jar define 13 overlapping classes and resources: 
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.properties
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.xml
+[WARNING]   - javax.annotation.CheckForNull
+[WARNING]   - javax.annotation.Nonnull
+[WARNING]   - javax.annotation.Nonnull$Checker
+[WARNING]   - javax.annotation.Nullable
+[WARNING]   - javax.annotation.concurrent.Immutable
+[WARNING]   - javax.annotation.concurrent.NotThreadSafe
+[WARNING]   - javax.annotation.concurrent.ThreadSafe
+[WARNING]   - javax.annotation.meta.TypeQualifier
+[WARNING]   - 3 more...
+[WARNING] maven-shade-plugin has detected that some files are
+[WARNING] present in two or more JARs. When this happens, only one
+[WARNING] single version of the file is copied to the uber jar.
+[WARNING] Usually this is not harmful and you can skip these warnings,
+[WARNING] otherwise try to manually exclude artifacts based on
+[WARNING] mvn dependency:tree -Ddetail=true and the above output.
+[WARNING] See https://maven.apache.org/plugins/maven-shade-plugin/
+[INFO] Minimized 11478 -> 7466 (65%)
+[INFO] Attaching shaded artifact.
+[INFO] 
+[INFO] --- maven-shade-plugin:3.6.2:shade (darwin-x64) @ sonar-javascript-plugin ---
+[INFO] Minimizing jar org.sonarsource.javascript:sonar-javascript-plugin:sonar-plugin:12.5.0-SNAPSHOT
+[WARNING] Removing module-info from sonar-javascript-plugin-12.5.0-SNAPSHOT.jar
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] animal-sniffer-annotations-1.27.jar, annotations-4.1.1.4.jar, asm-9.0.jar, bridge-12.5.0-SNAPSHOT.jar, commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, css-12.5.0-SNAPSHOT.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, grpc-api-1.81.0.jar, grpc-context-1.81.0.jar, grpc-core-1.81.0.jar, grpc-okhttp-1.81.0.jar, grpc-protobuf-1.81.0.jar, grpc-protobuf-lite-1.81.0.jar, grpc-stub-1.81.0.jar, grpc-util-1.81.0.jar, gson-2.14.0.jar, guava-33.5.0-android.jar, j2objc-annotations-3.1.jar, javascript-checks-12.5.0-SNAPSHOT.jar, javax.annotation-api-1.3.2.jar, jspecify-1.0.0.jar, jsr305-3.0.2.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-common-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar, okio-3.4.0.jar, okio-jvm-3.4.0.jar, perfmark-api-0.27.0.jar, proto-google-common-protos-2.64.1.jar, protobuf-java-4.34.1.jar, sonar-analyzer-commons-2.22.0.4796.jar, sonar-javascript-plugin-12.5.0-SNAPSHOT.jar, sslr-core-1.25.1.3886.jar, xz-1.12.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/MANIFEST.MF
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, gson-2.14.0.jar, j2objc-annotations-3.1.jar, jspecify-1.0.0.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, xz-1.12.jar define 1 overlapping classes: 
+[WARNING]   - META-INF.versions.9.module-info
+[WARNING] okio-3.4.0.jar, okio-jvm-3.4.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/okio.kotlin_module
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/NOTICE.txt
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, javax.annotation-api-1.3.2.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/LICENSE.txt
+[WARNING] jsr305-3.0.2.jar, sonar-analyzer-commons-2.22.0.4796.jar define 13 overlapping classes and resources: 
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.properties
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.xml
+[WARNING]   - javax.annotation.CheckForNull
+[WARNING]   - javax.annotation.Nonnull
+[WARNING]   - javax.annotation.Nonnull$Checker
+[WARNING]   - javax.annotation.Nullable
+[WARNING]   - javax.annotation.concurrent.Immutable
+[WARNING]   - javax.annotation.concurrent.NotThreadSafe
+[WARNING]   - javax.annotation.concurrent.ThreadSafe
+[WARNING]   - javax.annotation.meta.TypeQualifier
+[WARNING]   - 3 more...
+[WARNING] maven-shade-plugin has detected that some files are
+[WARNING] present in two or more JARs. When this happens, only one
+[WARNING] single version of the file is copied to the uber jar.
+[WARNING] Usually this is not harmful and you can skip these warnings,
+[WARNING] otherwise try to manually exclude artifacts based on
+[WARNING] mvn dependency:tree -Ddetail=true and the above output.
+[WARNING] See https://maven.apache.org/plugins/maven-shade-plugin/
+[INFO] Minimized 11478 -> 7466 (65%)
+[INFO] Attaching shaded artifact.
+[INFO] 
+[INFO] --- maven-shade-plugin:3.6.2:shade (linux-arm64) @ sonar-javascript-plugin ---
+[INFO] Minimizing jar org.sonarsource.javascript:sonar-javascript-plugin:sonar-plugin:12.5.0-SNAPSHOT
+[WARNING] Removing module-info from sonar-javascript-plugin-12.5.0-SNAPSHOT.jar
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] animal-sniffer-annotations-1.27.jar, annotations-4.1.1.4.jar, asm-9.0.jar, bridge-12.5.0-SNAPSHOT.jar, commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, css-12.5.0-SNAPSHOT.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, grpc-api-1.81.0.jar, grpc-context-1.81.0.jar, grpc-core-1.81.0.jar, grpc-okhttp-1.81.0.jar, grpc-protobuf-1.81.0.jar, grpc-protobuf-lite-1.81.0.jar, grpc-stub-1.81.0.jar, grpc-util-1.81.0.jar, gson-2.14.0.jar, guava-33.5.0-android.jar, j2objc-annotations-3.1.jar, javascript-checks-12.5.0-SNAPSHOT.jar, javax.annotation-api-1.3.2.jar, jspecify-1.0.0.jar, jsr305-3.0.2.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-common-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar, okio-3.4.0.jar, okio-jvm-3.4.0.jar, perfmark-api-0.27.0.jar, proto-google-common-protos-2.64.1.jar, protobuf-java-4.34.1.jar, sonar-analyzer-commons-2.22.0.4796.jar, sonar-javascript-plugin-12.5.0-SNAPSHOT.jar, sslr-core-1.25.1.3886.jar, xz-1.12.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/MANIFEST.MF
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, gson-2.14.0.jar, j2objc-annotations-3.1.jar, jspecify-1.0.0.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, xz-1.12.jar define 1 overlapping classes: 
+[WARNING]   - META-INF.versions.9.module-info
+[WARNING] okio-3.4.0.jar, okio-jvm-3.4.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/okio.kotlin_module
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/NOTICE.txt
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, javax.annotation-api-1.3.2.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/LICENSE.txt
+[WARNING] jsr305-3.0.2.jar, sonar-analyzer-commons-2.22.0.4796.jar define 13 overlapping classes and resources: 
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.properties
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.xml
+[WARNING]   - javax.annotation.CheckForNull
+[WARNING]   - javax.annotation.Nonnull
+[WARNING]   - javax.annotation.Nonnull$Checker
+[WARNING]   - javax.annotation.Nullable
+[WARNING]   - javax.annotation.concurrent.Immutable
+[WARNING]   - javax.annotation.concurrent.NotThreadSafe
+[WARNING]   - javax.annotation.concurrent.ThreadSafe
+[WARNING]   - javax.annotation.meta.TypeQualifier
+[WARNING]   - 3 more...
+[WARNING] maven-shade-plugin has detected that some files are
+[WARNING] present in two or more JARs. When this happens, only one
+[WARNING] single version of the file is copied to the uber jar.
+[WARNING] Usually this is not harmful and you can skip these warnings,
+[WARNING] otherwise try to manually exclude artifacts based on
+[WARNING] mvn dependency:tree -Ddetail=true and the above output.
+[WARNING] See https://maven.apache.org/plugins/maven-shade-plugin/
+[INFO] Minimized 11478 -> 7466 (65%)
+[INFO] Attaching shaded artifact.
+[INFO] 
+[INFO] --- maven-shade-plugin:3.6.2:shade (multi) @ sonar-javascript-plugin ---
+[INFO] Minimizing jar org.sonarsource.javascript:sonar-javascript-plugin:sonar-plugin:12.5.0-SNAPSHOT
+[WARNING] Removing module-info from sonar-javascript-plugin-12.5.0-SNAPSHOT.jar
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] animal-sniffer-annotations-1.27.jar, annotations-4.1.1.4.jar, asm-9.0.jar, bridge-12.5.0-SNAPSHOT.jar, commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, css-12.5.0-SNAPSHOT.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, grpc-api-1.81.0.jar, grpc-context-1.81.0.jar, grpc-core-1.81.0.jar, grpc-okhttp-1.81.0.jar, grpc-protobuf-1.81.0.jar, grpc-protobuf-lite-1.81.0.jar, grpc-stub-1.81.0.jar, grpc-util-1.81.0.jar, gson-2.14.0.jar, guava-33.5.0-android.jar, j2objc-annotations-3.1.jar, javascript-checks-12.5.0-SNAPSHOT.jar, javax.annotation-api-1.3.2.jar, jspecify-1.0.0.jar, jsr305-3.0.2.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-common-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar, okio-3.4.0.jar, okio-jvm-3.4.0.jar, perfmark-api-0.27.0.jar, proto-google-common-protos-2.64.1.jar, protobuf-java-4.34.1.jar, sonar-analyzer-commons-2.22.0.4796.jar, sonar-javascript-plugin-12.5.0-SNAPSHOT.jar, sslr-core-1.25.1.3886.jar, xz-1.12.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/MANIFEST.MF
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, gson-2.14.0.jar, j2objc-annotations-3.1.jar, jspecify-1.0.0.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, xz-1.12.jar define 1 overlapping classes: 
+[WARNING]   - META-INF.versions.9.module-info
+[WARNING] okio-3.4.0.jar, okio-jvm-3.4.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/okio.kotlin_module
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/NOTICE.txt
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, javax.annotation-api-1.3.2.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/LICENSE.txt
+[WARNING] jsr305-3.0.2.jar, sonar-analyzer-commons-2.22.0.4796.jar define 13 overlapping classes and resources: 
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.properties
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.xml
+[WARNING]   - javax.annotation.CheckForNull
+[WARNING]   - javax.annotation.Nonnull
+[WARNING]   - javax.annotation.Nonnull$Checker
+[WARNING]   - javax.annotation.Nullable
+[WARNING]   - javax.annotation.concurrent.Immutable
+[WARNING]   - javax.annotation.concurrent.NotThreadSafe
+[WARNING]   - javax.annotation.concurrent.ThreadSafe
+[WARNING]   - javax.annotation.meta.TypeQualifier
+[WARNING]   - 3 more...
+[WARNING] maven-shade-plugin has detected that some files are
+[WARNING] present in two or more JARs. When this happens, only one
+[WARNING] single version of the file is copied to the uber jar.
+[WARNING] Usually this is not harmful and you can skip these warnings,
+[WARNING] otherwise try to manually exclude artifacts based on
+[WARNING] mvn dependency:tree -Ddetail=true and the above output.
+[WARNING] See https://maven.apache.org/plugins/maven-shade-plugin/
+[INFO] Minimized 11478 -> 7466 (65%)
+[INFO] Attaching shaded artifact.
+[INFO] 
+[INFO] --- maven-shade-plugin:3.6.2:shade (Add manifest entries) @ sonar-javascript-plugin ---
+[INFO] Minimizing jar org.sonarsource.javascript:sonar-javascript-plugin:sonar-plugin:12.5.0-SNAPSHOT
+[WARNING] Removing module-info from sonar-javascript-plugin-12.5.0-SNAPSHOT.jar
+[WARNING] Discovered module-info.class. Shading will break its strong encapsulation.
+[WARNING] animal-sniffer-annotations-1.27.jar, annotations-4.1.1.4.jar, asm-9.0.jar, bridge-12.5.0-SNAPSHOT.jar, commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, css-12.5.0-SNAPSHOT.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, grpc-api-1.81.0.jar, grpc-context-1.81.0.jar, grpc-core-1.81.0.jar, grpc-okhttp-1.81.0.jar, grpc-protobuf-1.81.0.jar, grpc-protobuf-lite-1.81.0.jar, grpc-stub-1.81.0.jar, grpc-util-1.81.0.jar, gson-2.14.0.jar, guava-33.5.0-android.jar, j2objc-annotations-3.1.jar, javascript-checks-12.5.0-SNAPSHOT.jar, javax.annotation-api-1.3.2.jar, jspecify-1.0.0.jar, jsr305-3.0.2.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-common-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar, okio-3.4.0.jar, okio-jvm-3.4.0.jar, perfmark-api-0.27.0.jar, proto-google-common-protos-2.64.1.jar, protobuf-java-4.34.1.jar, sonar-analyzer-commons-2.22.0.4796.jar, sonar-javascript-plugin-12.5.0-SNAPSHOT.jar, sslr-core-1.25.1.3886.jar, xz-1.12.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/MANIFEST.MF
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, error_prone_annotations-2.48.0.jar, failureaccess-1.0.3.jar, gson-2.14.0.jar, j2objc-annotations-3.1.jar, jspecify-1.0.0.jar, kotlin-stdlib-1.8.0.jar, kotlin-stdlib-jdk7-1.8.0.jar, kotlin-stdlib-jdk8-1.8.0.jar, xz-1.12.jar define 1 overlapping classes: 
+[WARNING]   - META-INF.versions.9.module-info
+[WARNING] okio-3.4.0.jar, okio-jvm-3.4.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/okio.kotlin_module
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/NOTICE.txt
+[WARNING] commons-codec-1.19.0.jar, commons-compress-1.28.0.jar, commons-io-2.22.0.jar, commons-lang3-3.20.0.jar, javax.annotation-api-1.3.2.jar define 1 overlapping resource: 
+[WARNING]   - META-INF/LICENSE.txt
+[WARNING] jsr305-3.0.2.jar, sonar-analyzer-commons-2.22.0.4796.jar define 13 overlapping classes and resources: 
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.properties
+[WARNING]   - META-INF/maven/com.google.code.findbugs/jsr305/pom.xml
+[WARNING]   - javax.annotation.CheckForNull
+[WARNING]   - javax.annotation.Nonnull
+[WARNING]   - javax.annotation.Nonnull$Checker
+[WARNING]   - javax.annotation.Nullable
+[WARNING]   - javax.annotation.concurrent.Immutable
+[WARNING]   - javax.annotation.concurrent.NotThreadSafe
+[WARNING]   - javax.annotation.concurrent.ThreadSafe
+[WARNING]   - javax.annotation.meta.TypeQualifier
+[WARNING]   - 3 more...
+[WARNING] maven-shade-plugin has detected that some files are
+[WARNING] present in two or more JARs. When this happens, only one
+[WARNING] single version of the file is copied to the uber jar.
+[WARNING] Usually this is not harmful and you can skip these warnings,
+[WARNING] otherwise try to manually exclude artifacts based on
+[WARNING] mvn dependency:tree -Ddetail=true and the above output.
+[WARNING] See https://maven.apache.org/plugins/maven-shade-plugin/
+[INFO] Minimized 11478 -> 7466 (65%)
+[INFO] Replacing original artifact with shaded artifact.
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce-plugin-size) @ sonar-javascript-plugin ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.files.RequireFilesSize passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.files.RequireFilesSize passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.files.RequireFilesSize passed
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ sonar-javascript-plugin ---
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ sonar-javascript-plugin ---
+[INFO] Installing /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin/12.5.0-SNAPSHOT/sonar-javascript-plugin-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin/12.5.0-SNAPSHOT/sonar-javascript-plugin-12.5.0-SNAPSHOT.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-12.5.0-SNAPSHOT-win-x64.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin/12.5.0-SNAPSHOT/sonar-javascript-plugin-12.5.0-SNAPSHOT-win-x64.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-12.5.0-SNAPSHOT-linux-x64.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin/12.5.0-SNAPSHOT/sonar-javascript-plugin-12.5.0-SNAPSHOT-linux-x64.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-12.5.0-SNAPSHOT-linux-x64-musl.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin/12.5.0-SNAPSHOT/sonar-javascript-plugin-12.5.0-SNAPSHOT-linux-x64-musl.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-12.5.0-SNAPSHOT-darwin-arm64.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin/12.5.0-SNAPSHOT/sonar-javascript-plugin-12.5.0-SNAPSHOT-darwin-arm64.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-12.5.0-SNAPSHOT-darwin-x64.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin/12.5.0-SNAPSHOT/sonar-javascript-plugin-12.5.0-SNAPSHOT-darwin-x64.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-12.5.0-SNAPSHOT-linux-arm64.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin/12.5.0-SNAPSHOT/sonar-javascript-plugin-12.5.0-SNAPSHOT-linux-arm64.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-12.5.0-SNAPSHOT-multi.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin/12.5.0-SNAPSHOT/sonar-javascript-plugin-12.5.0-SNAPSHOT-multi.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-12.5.0-SNAPSHOT-sources.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/sonar-javascript-plugin/12.5.0-SNAPSHOT/sonar-javascript-plugin-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] ---------------< org.sonarsource.javascript:standalone >----------------
+[INFO] Building SonarQube JavaScript :: Standalone 12.5.0-SNAPSHOT       [8/18]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ standalone ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ standalone ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ standalone ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ standalone ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ standalone ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/sonar-plugin/standalone/src/main/resources
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ standalone ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:standalone:jar:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ standalone ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 3 source files with javac [debug release 17] to target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ standalone ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/sonar-plugin/standalone/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ standalone ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug release 17] to target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ standalone ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.4.2:jar (default-jar) @ standalone ---
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/standalone/target/standalone-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ standalone ---
+[INFO] Building jar: /workspace/SonarJS/sonar-plugin/standalone/target/standalone-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ standalone ---
+[INFO] Installing /workspace/SonarJS/sonar-plugin/standalone/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/standalone/12.5.0-SNAPSHOT/standalone-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/sonar-plugin/standalone/target/standalone-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/standalone/12.5.0-SNAPSHOT/standalone-12.5.0-SNAPSHOT.jar
+[INFO] Installing /workspace/SonarJS/sonar-plugin/standalone/target/standalone-12.5.0-SNAPSHOT-sources.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/standalone/12.5.0-SNAPSHOT/standalone-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] -------------< org.sonarsource.javascript:javascript-its >--------------
+[INFO] Building JavaScript :: IT 12.5.0-SNAPSHOT                         [9/18]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ javascript-its ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ javascript-its ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ javascript-its ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ javascript-its ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ javascript-its ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:javascript-its:pom:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ javascript-its ---
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ javascript-its ---
+[INFO] Installing /workspace/SonarJS/its/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-its/12.5.0-SNAPSHOT/javascript-its-12.5.0-SNAPSHOT.pom
+[INFO] 
+[INFO] ----------< org.sonarsource.javascript:javascript-it-plugin >-----------
+[INFO] Building JavaScript :: IT :: Plugin 12.5.0-SNAPSHOT              [10/18]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ javascript-it-plugin ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ javascript-it-plugin ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ javascript-it-plugin ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ javascript-it-plugin ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ javascript-it-plugin ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:javascript-it-plugin:pom:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ javascript-it-plugin ---
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ javascript-it-plugin ---
+[INFO] Installing /workspace/SonarJS/its/plugin/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-it-plugin/12.5.0-SNAPSHOT/javascript-it-plugin-12.5.0-SNAPSHOT.pom
+[INFO] 
+[INFO] ------< org.sonarsource.javascript:javascript-it-plugin-plugins >-------
+[INFO] Building JavaScript :: IT :: Plugin :: Plugins 12.5.0-SNAPSHOT   [11/18]
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ javascript-it-plugin-plugins ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ javascript-it-plugin-plugins ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ javascript-it-plugin-plugins ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ javascript-it-plugin-plugins ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ javascript-it-plugin-plugins ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:javascript-it-plugin-plugins:pom:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ javascript-it-plugin-plugins ---
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ javascript-it-plugin-plugins ---
+[INFO] Installing /workspace/SonarJS/its/plugin/plugins/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-it-plugin-plugins/12.5.0-SNAPSHOT/javascript-it-plugin-plugins-12.5.0-SNAPSHOT.pom
+[INFO] 
+[INFO] -------< org.sonarsource.javascript:eslint-custom-rules-plugin >--------
+[INFO] Building JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules 12.5.0-SNAPSHOT [12/18]
+[INFO] ----------------------------[ sonar-plugin ]----------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ eslint-custom-rules-plugin ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ eslint-custom-rules-plugin ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ eslint-custom-rules-plugin ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- sonar-packaging-maven-plugin:1.25.0.11:check (default-check) @ eslint-custom-rules-plugin ---
+[INFO] 
+[INFO] --- exec-maven-plugin:3.6.3:exec (npm pack) @ eslint-custom-rules-plugin ---
+custom-eslint-based-rules-1.0.0.tgz
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ eslint-custom-rules-plugin ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ eslint-custom-rules-plugin ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin/src/main/resources
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ eslint-custom-rules-plugin ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:eslint-custom-rules-plugin:sonar-plugin:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ eslint-custom-rules-plugin ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 8 source files with javac [debug release 17] to target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ eslint-custom-rules-plugin ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ eslint-custom-rules-plugin ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ eslint-custom-rules-plugin ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- sonar-packaging-maven-plugin:1.25.0.11:sonar-plugin (default-sonar-plugin) @ eslint-custom-rules-plugin ---
+[INFO] -------------------------------------------------------
+[INFO] Plugin definition in update center
+[INFO]     Key: eslintcustomrulesplugin
+[INFO]     Name: JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules
+[INFO]     Description: ESLint based custom rules
+[INFO]     Version: 12.5.0-SNAPSHOT
+[INFO]     Display Version: 12.5.0-SNAPSHOT
+[INFO]     Entry-point Class: org.sonar.samples.javascript.EslintCustomRulesPlugin
+[INFO]     Required Plugins: 
+[INFO]     Does the plugin support SonarLint?: false
+[INFO]     Use Child-first ClassLoader: false
+[INFO]     Base Plugin: javascript
+[INFO]     Homepage URL: https://docs.sonarsource.com/sonarqube-server/latest/extension-guide/developing-a-plugin/plugin-basics/javascript/javascript-its/javascript-it-plugin/javascript-it-plugin-plugins/eslint-custom-rules-plugin/
+[INFO]     Minimal Sonar Plugin API Version: 9.14.0.375
+[INFO]     Licensing: SSALv1
+[INFO]     Organization: SonarSource
+[INFO]     Organization URL: http://www.sonarsource.com
+[INFO]     Terms and Conditions: 
+[INFO]     Issue Tracker URL: https://github.com/SonarSource/sonar-javascript/issues
+[INFO]     Build date: 2026-05-12T21:34:27+0000
+[INFO]     Sources URL: https://github.com/SonarSource/sonar-javascript/javascript-its/javascript-it-plugin/javascript-it-plugin-plugins/eslint-custom-rules-plugin
+[INFO]     Developers: Michał Zgliczyński,Victor Diez
+[INFO]     Minimal JRE Specification Version: 
+[INFO]     Minimal Node.js Version: 
+[INFO]     Languages for which this plugin should be downloaded: js
+[INFO]     Dependencies: META-INF/lib/jsr305-3.0.2.jar META-INF/lib/api-12.5.0-SNAPSHOT.jar
+[INFO] -------------------------------------------------------
+[INFO] Building jar: /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin/target/eslint-custom-rules-plugin-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ eslint-custom-rules-plugin ---
+[INFO] Building jar: /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin/target/eslint-custom-rules-plugin-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ eslint-custom-rules-plugin ---
+[INFO] Installing /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/eslint-custom-rules-plugin/12.5.0-SNAPSHOT/eslint-custom-rules-plugin-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin/target/eslint-custom-rules-plugin-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/eslint-custom-rules-plugin/12.5.0-SNAPSHOT/eslint-custom-rules-plugin-12.5.0-SNAPSHOT.jar
+[INFO] Installing /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin/target/eslint-custom-rules-plugin-12.5.0-SNAPSHOT-sources.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/eslint-custom-rules-plugin/12.5.0-SNAPSHOT/eslint-custom-rules-plugin-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] ----< org.sonarsource.javascript:eslint-custom-rules-plugin-legacy >----
+[INFO] Building JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules 12.5.0-SNAPSHOT [13/18]
+[INFO] ----------------------------[ sonar-plugin ]----------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ eslint-custom-rules-plugin-legacy ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ eslint-custom-rules-plugin-legacy ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ eslint-custom-rules-plugin-legacy ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- sonar-packaging-maven-plugin:1.25.0.11:check (default-check) @ eslint-custom-rules-plugin-legacy ---
+[INFO] 
+[INFO] --- exec-maven-plugin:3.6.3:exec (npm pack) @ eslint-custom-rules-plugin-legacy ---
+custom-eslint-based-rules-1.0.0.tgz
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ eslint-custom-rules-plugin-legacy ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ eslint-custom-rules-plugin-legacy ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin-legacy/src/main/resources
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ eslint-custom-rules-plugin-legacy ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:eslint-custom-rules-plugin-legacy:sonar-plugin:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ eslint-custom-rules-plugin-legacy ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 8 source files with javac [debug release 17] to target/classes
+[WARNING] /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin-legacy/src/main/java/org/sonar/samples/javascript/CustomRule.java:[27,36] org.sonar.plugins.javascript.api.EslintBasedCheck in org.sonar.plugins.javascript.api has been deprecated and marked for removal
+[WARNING] /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin-legacy/src/main/java/org/sonar/samples/javascript/RuleRepository.java:[45,31] org.sonar.plugins.javascript.api.JavaScriptCheck in org.sonar.plugins.javascript.api has been deprecated and marked for removal
+[WARNING] /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin-legacy/src/main/java/org/sonar/samples/javascript/TsRepository.java:[45,31] org.sonar.plugins.javascript.api.JavaScriptCheck in org.sonar.plugins.javascript.api has been deprecated and marked for removal
+[WARNING] /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin-legacy/src/main/java/org/sonar/samples/javascript/TsRule.java:[25,32] org.sonar.plugins.javascript.api.EslintBasedCheck in org.sonar.plugins.javascript.api has been deprecated and marked for removal
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ eslint-custom-rules-plugin-legacy ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin-legacy/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ eslint-custom-rules-plugin-legacy ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ eslint-custom-rules-plugin-legacy ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- sonar-packaging-maven-plugin:1.25.0.11:sonar-plugin (default-sonar-plugin) @ eslint-custom-rules-plugin-legacy ---
+[INFO] -------------------------------------------------------
+[INFO] Plugin definition in update center
+[INFO]     Key: eslintcustomrulespluginlegacy
+[INFO]     Name: JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules
+[INFO]     Description: ESLint based custom rules
+[INFO]     Version: 12.5.0-SNAPSHOT
+[INFO]     Display Version: 12.5.0-SNAPSHOT
+[INFO]     Entry-point Class: org.sonar.samples.javascript.EslintCustomRulesPlugin
+[INFO]     Required Plugins: 
+[INFO]     Does the plugin support SonarLint?: false
+[INFO]     Use Child-first ClassLoader: false
+[INFO]     Base Plugin: javascript
+[INFO]     Homepage URL: https://docs.sonarsource.com/sonarqube-server/latest/extension-guide/developing-a-plugin/plugin-basics/javascript/javascript-its/javascript-it-plugin/javascript-it-plugin-plugins/eslint-custom-rules-plugin-legacy/
+[INFO]     Minimal Sonar Plugin API Version: 9.14.0.375
+[INFO]     Licensing: SSALv1
+[INFO]     Organization: SonarSource
+[INFO]     Organization URL: http://www.sonarsource.com
+[INFO]     Terms and Conditions: 
+[INFO]     Issue Tracker URL: https://github.com/SonarSource/sonar-javascript/issues
+[INFO]     Build date: 2026-05-12T21:34:28+0000
+[INFO]     Sources URL: https://github.com/SonarSource/sonar-javascript/javascript-its/javascript-it-plugin/javascript-it-plugin-plugins/eslint-custom-rules-plugin-legacy
+[INFO]     Developers: Michał Zgliczyński,Victor Diez
+[INFO]     Minimal JRE Specification Version: 
+[INFO]     Minimal Node.js Version: 
+[INFO]     Languages for which this plugin should be downloaded: js
+[INFO]     Dependencies: META-INF/lib/jsr305-3.0.2.jar META-INF/lib/api-12.5.0-SNAPSHOT.jar
+[INFO] -------------------------------------------------------
+[INFO] Building jar: /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin-legacy/target/eslint-custom-rules-plugin-legacy-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ eslint-custom-rules-plugin-legacy ---
+[INFO] Building jar: /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin-legacy/target/eslint-custom-rules-plugin-legacy-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ eslint-custom-rules-plugin-legacy ---
+[INFO] Installing /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin-legacy/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/eslint-custom-rules-plugin-legacy/12.5.0-SNAPSHOT/eslint-custom-rules-plugin-legacy-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin-legacy/target/eslint-custom-rules-plugin-legacy-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/eslint-custom-rules-plugin-legacy/12.5.0-SNAPSHOT/eslint-custom-rules-plugin-legacy-12.5.0-SNAPSHOT.jar
+[INFO] Installing /workspace/SonarJS/its/plugin/plugins/eslint-custom-rules-plugin-legacy/target/eslint-custom-rules-plugin-legacy-12.5.0-SNAPSHOT-sources.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/eslint-custom-rules-plugin-legacy/12.5.0-SNAPSHOT/eslint-custom-rules-plugin-legacy-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] -------------< org.sonarsource.javascript:consumer-plugin >-------------
+[INFO] Building JavaScript :: IT :: Plugin :: Plugins :: Consumer Plugin 12.5.0-SNAPSHOT [14/18]
+[INFO] ----------------------------[ sonar-plugin ]----------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ consumer-plugin ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ consumer-plugin ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ consumer-plugin ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- sonar-packaging-maven-plugin:1.25.0.11:check (default-check) @ consumer-plugin ---
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ consumer-plugin ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ consumer-plugin ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/its/plugin/plugins/consumer-plugin/src/main/resources
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ consumer-plugin ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:consumer-plugin:sonar-plugin:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ consumer-plugin ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 4 source files with javac [debug release 17] to target/classes
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ consumer-plugin ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/its/plugin/plugins/consumer-plugin/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ consumer-plugin ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug release 17] to target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ consumer-plugin ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- sonar-packaging-maven-plugin:1.25.0.11:sonar-plugin (default-sonar-plugin) @ consumer-plugin ---
+[INFO] -------------------------------------------------------
+[INFO] Plugin definition in update center
+[INFO]     Key: consumerplugin
+[INFO]     Name: JavaScript :: IT :: Plugin :: Plugins :: Consumer Plugin
+[INFO]     Description: Consumer Plugin
+[INFO]     Version: 12.5.0-SNAPSHOT
+[INFO]     Display Version: 12.5.0-SNAPSHOT
+[INFO]     Entry-point Class: org.sonar.samples.javascript.consumer.ConsumerPlugin
+[INFO]     Required Plugins: 
+[INFO]     Does the plugin support SonarLint?: false
+[INFO]     Use Child-first ClassLoader: false
+[INFO]     Base Plugin: 
+[INFO]     Homepage URL: https://docs.sonarsource.com/sonarqube-server/latest/extension-guide/developing-a-plugin/plugin-basics/javascript/javascript-its/javascript-it-plugin/javascript-it-plugin-plugins/consumer-plugin/
+[INFO]     Minimal Sonar Plugin API Version: 9.14.0.375
+[INFO]     Licensing: SSALv1
+[INFO]     Organization: SonarSource
+[INFO]     Organization URL: http://www.sonarsource.com
+[INFO]     Terms and Conditions: 
+[INFO]     Issue Tracker URL: https://github.com/SonarSource/sonar-javascript/issues
+[INFO]     Build date: 2026-05-12T21:34:28+0000
+[INFO]     Sources URL: https://github.com/SonarSource/sonar-javascript/javascript-its/javascript-it-plugin/javascript-it-plugin-plugins/consumer-plugin
+[INFO]     Developers: Michał Zgliczyński,Victor Diez
+[INFO]     Minimal JRE Specification Version: 
+[INFO]     Minimal Node.js Version: 
+[INFO]     Languages for which this plugin should be downloaded: js,ts
+[INFO]     Dependencies: META-INF/lib/jsr305-3.0.2.jar META-INF/lib/api-12.5.0-SNAPSHOT.jar
+[INFO] -------------------------------------------------------
+[INFO] Building jar: /workspace/SonarJS/its/plugin/plugins/consumer-plugin/target/consumer-plugin-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ consumer-plugin ---
+[INFO] Building jar: /workspace/SonarJS/its/plugin/plugins/consumer-plugin/target/consumer-plugin-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ consumer-plugin ---
+[INFO] Installing /workspace/SonarJS/its/plugin/plugins/consumer-plugin/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/consumer-plugin/12.5.0-SNAPSHOT/consumer-plugin-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/its/plugin/plugins/consumer-plugin/target/consumer-plugin-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/consumer-plugin/12.5.0-SNAPSHOT/consumer-plugin-12.5.0-SNAPSHOT.jar
+[INFO] Installing /workspace/SonarJS/its/plugin/plugins/consumer-plugin/target/consumer-plugin-12.5.0-SNAPSHOT-sources.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/consumer-plugin/12.5.0-SNAPSHOT/consumer-plugin-12.5.0-SNAPSHOT-sources.jar
+[INFO] 
+[INFO] -------< org.sonarsource.javascript:javascript-it-plugin-tests >--------
+[INFO] Building JavaScript :: IT :: Plugin :: Tests 12.5.0-SNAPSHOT     [15/18]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ javascript-it-plugin-tests ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ javascript-it-plugin-tests ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ javascript-it-plugin-tests ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ javascript-it-plugin-tests ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ javascript-it-plugin-tests ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/its/plugin/tests/src/main/resources
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ javascript-it-plugin-tests ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:javascript-it-plugin-tests:jar:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ javascript-it-plugin-tests ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ javascript-it-plugin-tests ---
+[INFO] Copying 22 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ javascript-it-plugin-tests ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 13 source files with javac [debug release 17] to target/test-classes
+[INFO] /workspace/SonarJS/its/plugin/tests/src/test/java/com/sonar/javascript/it/plugin/OrchestratorStarter.java: /workspace/SonarJS/its/plugin/tests/src/test/java/com/sonar/javascript/it/plugin/OrchestratorStarter.java uses or overrides a deprecated API.
+[INFO] /workspace/SonarJS/its/plugin/tests/src/test/java/com/sonar/javascript/it/plugin/OrchestratorStarter.java: Recompile with -Xlint:deprecation for details.
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ javascript-it-plugin-tests ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.4.2:jar (default-jar) @ javascript-it-plugin-tests ---
+[WARNING] JAR will be empty - no content was marked for inclusion!
+[INFO] Building jar: /workspace/SonarJS/its/plugin/tests/target/javascript-it-plugin-tests-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ javascript-it-plugin-tests ---
+[INFO] No sources in project. Archive not created.
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ javascript-it-plugin-tests ---
+[INFO] Installing /workspace/SonarJS/its/plugin/tests/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-it-plugin-tests/12.5.0-SNAPSHOT/javascript-it-plugin-tests-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/its/plugin/tests/target/javascript-it-plugin-tests-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-it-plugin-tests/12.5.0-SNAPSHOT/javascript-it-plugin-tests-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] -----< org.sonarsource.javascript:javascript-it-plugin-fast-tests >-----
+[INFO] Building JavaScript :: IT :: Plugin :: Fast :: Tests 12.5.0-SNAPSHOT [16/18]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ javascript-it-plugin-fast-tests ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ javascript-it-plugin-fast-tests ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ javascript-it-plugin-fast-tests ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ javascript-it-plugin-fast-tests ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ javascript-it-plugin-fast-tests ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/its/plugin/fast-tests/src/main/resources
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ javascript-it-plugin-fast-tests ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:javascript-it-plugin-fast-tests:jar:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ javascript-it-plugin-fast-tests ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ javascript-it-plugin-fast-tests ---
+[INFO] Copying 17 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ javascript-it-plugin-fast-tests ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 28 source files with javac [debug release 17] to target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ javascript-it-plugin-fast-tests ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.4.2:jar (default-jar) @ javascript-it-plugin-fast-tests ---
+[WARNING] JAR will be empty - no content was marked for inclusion!
+[INFO] Building jar: /workspace/SonarJS/its/plugin/fast-tests/target/javascript-it-plugin-fast-tests-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ javascript-it-plugin-fast-tests ---
+[INFO] No sources in project. Archive not created.
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ javascript-it-plugin-fast-tests ---
+[INFO] Installing /workspace/SonarJS/its/plugin/fast-tests/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-it-plugin-fast-tests/12.5.0-SNAPSHOT/javascript-it-plugin-fast-tests-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/its/plugin/fast-tests/target/javascript-it-plugin-fast-tests-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-it-plugin-fast-tests/12.5.0-SNAPSHOT/javascript-it-plugin-fast-tests-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --< org.sonarsource.javascript:javascript-it-plugin-sonarlint-tests >---
+[INFO] Building JavaScript :: IT :: Plugin :: SonarLint Tests 12.5.0-SNAPSHOT [17/18]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/its/plugin/sonarlint-tests/src/main/resources
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:javascript-it-plugin-sonarlint-tests:jar:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/its/plugin/sonarlint-tests/src/test/resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug release 17] to target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.4.2:jar (default-jar) @ javascript-it-plugin-sonarlint-tests ---
+[WARNING] JAR will be empty - no content was marked for inclusion!
+[INFO] Building jar: /workspace/SonarJS/its/plugin/sonarlint-tests/target/javascript-it-plugin-sonarlint-tests-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] No sources in project. Archive not created.
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ javascript-it-plugin-sonarlint-tests ---
+[INFO] Installing /workspace/SonarJS/its/plugin/sonarlint-tests/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-it-plugin-sonarlint-tests/12.5.0-SNAPSHOT/javascript-it-plugin-sonarlint-tests-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/its/plugin/sonarlint-tests/target/javascript-it-plugin-sonarlint-tests-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-it-plugin-sonarlint-tests/12.5.0-SNAPSHOT/javascript-it-plugin-sonarlint-tests-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] ----------< org.sonarsource.javascript:javascript-it-ruling >-----------
+[INFO] Building JavaScript :: IT :: Ruling 12.5.0-SNAPSHOT              [18/18]
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ javascript-it-ruling ---
+[INFO] 
+[INFO] --- maven-enforcer-plugin:3.5.0:enforce (enforce) @ javascript-it-ruling ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 2: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 3: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 4: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 5: org.apache.maven.enforcer.rules.property.RequireProperty passed
+[INFO] Rule 8: org.apache.maven.enforcer.rules.RequirePluginVersions passed
+[INFO] 
+[INFO] --- license-maven-plugin:4.6:check (enforce-license-headers) @ javascript-it-ruling ---
+[INFO] Checking licenses...
+[INFO] 
+[INFO] --- beanshell-maven-plugin:1.4:run (compute-artifact-display-version) @ javascript-it-ruling ---
+[INFO] Executing Script
+[INFO] file class java.lang.Object
+[INFO] script class java.lang.String
+[INFO] evaluating script if (! "12.5.0-SNAPSHOT".endsWith("-SNAPSHOT")) { [+ 14 omitted line(s)]
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ javascript-it-ruling ---
+[INFO] skip non existing resourceDirectory /workspace/SonarJS/its/ruling/src/main/resources
+[INFO] 
+[INFO] --- flatten-maven-plugin:1.7.3:flatten (flatten) @ javascript-it-ruling ---
+[INFO] Generating flattened POM of project org.sonarsource.javascript:javascript-it-ruling:jar:12.5.0-SNAPSHOT...
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:compile (default-compile) @ javascript-it-ruling ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- maven-resources-plugin:3.3.1:testResources (default-testResources) @ javascript-it-ruling ---
+[INFO] Copying 5 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ javascript-it-ruling ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug release 17] to target/test-classes
+[INFO] 
+[INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ javascript-it-ruling ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- maven-jar-plugin:3.4.2:jar (default-jar) @ javascript-it-ruling ---
+[WARNING] JAR will be empty - no content was marked for inclusion!
+[INFO] Building jar: /workspace/SonarJS/its/ruling/target/javascript-it-ruling-12.5.0-SNAPSHOT.jar
+[INFO] 
+[INFO] --- maven-source-plugin:3.3.1:jar-no-fork (attach-sources) @ javascript-it-ruling ---
+[INFO] No sources in project. Archive not created.
+[INFO] 
+[INFO] --- maven-install-plugin:3.1.3:install (default-install) @ javascript-it-ruling ---
+[INFO] Installing /workspace/SonarJS/its/ruling/.flattened-pom.xml to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-it-ruling/12.5.0-SNAPSHOT/javascript-it-ruling-12.5.0-SNAPSHOT.pom
+[INFO] Installing /workspace/SonarJS/its/ruling/target/javascript-it-ruling-12.5.0-SNAPSHOT.jar to /home/vibe-bot/.m2/repository/org/sonarsource/javascript/javascript-it-ruling/12.5.0-SNAPSHOT/javascript-it-ruling-12.5.0-SNAPSHOT.jar
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for SonarJS 12.5.0-SNAPSHOT:
+[INFO] 
+[INFO] SonarJS ............................................ SUCCESS [  1.426 s]
+[INFO] SonarQube JavaScript ............................... SUCCESS [  0.012 s]
+[INFO] SonarQube JavaScript :: API ........................ SUCCESS [  0.911 s]
+[INFO] SonarQube JavaScript :: Checks ..................... SUCCESS [ 11.404 s]
+[INFO] SonarQube JavaScript :: Bridge ..................... SUCCESS [  9.440 s]
+[INFO] SonarQube JavaScript :: CSS ........................ SUCCESS [  0.267 s]
+[INFO] SonarQube JavaScript :: Plugin ..................... SUCCESS [ 17.298 s]
+[INFO] SonarQube JavaScript :: Standalone ................. SUCCESS [  0.594 s]
+[INFO] JavaScript :: IT ................................... SUCCESS [  0.405 s]
+[INFO] JavaScript :: IT :: Plugin ......................... SUCCESS [  0.010 s]
+[INFO] JavaScript :: IT :: Plugin :: Plugins .............. SUCCESS [  0.006 s]
+[INFO] JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules SUCCESS [  0.361 s]
+[INFO] JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules SUCCESS [  0.265 s]
+[INFO] JavaScript :: IT :: Plugin :: Plugins :: Consumer Plugin SUCCESS [  0.062 s]
+[INFO] JavaScript :: IT :: Plugin :: Tests ................ SUCCESS [  8.883 s]
+[INFO] JavaScript :: IT :: Plugin :: Fast :: Tests ........ SUCCESS [  2.031 s]
+[INFO] JavaScript :: IT :: Plugin :: SonarLint Tests ...... SUCCESS [ 32.180 s]
+[INFO] JavaScript :: IT :: Ruling ......................... SUCCESS [  0.085 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  01:25 min
+[INFO] Finished at: 2026-05-12T21:35:11Z
+[INFO] ------------------------------------------------------------------------
+From https://github.com/SonarSource/rspec
+ * branch              S119-JS    -> FETCH_HEAD
+HEAD is now at 2beb93be JS-1759 Add JS coverage for S119
+From https://github.com/SonarSource/rspec
+ * branch              S119-JS    -> FETCH_HEAD
+HEAD is now at 2beb93be JS-1759 Add JS coverage for S119
+[deploy-rule-data] javascript: 177 rspec rule(s) have a javascript folder but no implementation in SonarJS:
+  beta (1): S7518
+  closed (93): S127, S136, S800, S903, S935, S1244, S1477, S1482, S1483, S1484, S1517, S1542, S1606, S1677, S2126, S2197, S2210, S2224, S2325, S2429, S2431, S2433, S2434, S2494, S2495, S2496, S2497, S2498, S2583, S2595, S2630, S2644, S2662, S2684, S2701, S2751, S2787, S2872, S2915, S3045, S3271, S3273, S3424, S3502, S3554, S3759, S3817, S3831, S3832, S3835, S3837, S3856, S3862, S3931, S3955, S4172, S4343, S4412, S4437, S4438, S4439, S4441, S4442, S4443, S4444, S4445, S4446, S4447, S4473, S5750, S6108, S6109, S7063, S7071, S7072, S7073, S7074, S7076, S7077, S7080, S7081, S7085, S7657, S7659, S7662, S7663, S7664, S7665, S7666, S7667, S7668, S7669, S7670
+  deprecated (34): S1145, S1514, S1524, S1531, S1532, S1697, S2070, S2228, S2508, S2549, S2550, S2611, S2658, S2713, S2714, S2715, S2716, S2762, S2769, S2770, S2873, S2898, S3002, S3509, S3828, S3833, S4529, S4797, S4825, S6849, S6854, S6855, S7134, S7197
+  ready (49): S2076, S2078, S2083, S2091, S2631, S3649, S4684, S5131, S5144, S5145, S5146, S5147, S5334, S5335, S5496, S5696, S5845, S5883, S6096, S6105, S6287, S6350, S6547, S6549, S6641, S6776, S7044, S7788, S7789, S8134, S8348, S8349, S8378, S8387, S8464, S8466, S8475, S8476, S8477, S8478, S8480, S8483, S8484, S8487, S8573, S8678, S8689, S8690, S8691 
+Possible non-SonarJS owners for some "ready" rules:
+  - sonar-architecture JS/TS rules list:
+    https://github.com/SonarSource/sonar-architecture/blob/master/frontend/javascript/src/main/java/com/sonarsource/architecture/ArchitectureJsRulesDefinition.java
+  - sonar-armor JS/TS rspec rules (source of truth):
+    https://github.com/SonarSource/sonar-armor/tree/master/sonar-jasmin-plugin/src/main/resources/rspec/jasmin/rules
+[deploy-rule-data] css: 1 rspec rule(s) have a css folder but no implementation in SonarJS:
+  deprecated (1): S5240 
+npm notice
+npm notice 📦  sonarjs@1.0.0
+npm notice Tarball Contents
+npm notice 9.7kB LICENSE.txt
+npm notice 3.5kB README.md
+npm notice 2.7kB bin/all-SNBWZZ3D.json
+npm notice 3.0kB bin/api-2QDX2ZE4.json
+npm notice 19.1kB bin/at-rules-VEENXQGJ.json
+npm notice 19.9kB bin/browser-upper-XUERH35H.json
+npm notice 203B bin/builtin-lower-7XRX2CZV.json
+npm notice 1.8kB bin/builtin-modules-3PODRAU4.json
+npm notice 718B bin/builtin-upper-JDPABI5Q.json
+npm notice 6.0kB bin/core-56I4E53D.json
+npm notice 41.3kB bin/corejs2-built-ins-DY6QECH5.json
+npm notice 551B bin/data-ECLJQNES.json
+npm notice 187.9kB bin/data-XLNNI6MU.json
+npm notice 41.5kB bin/descriptor-H2OQHJLO.json
+npm notice 596.4kB bin/entries-GZEXZN3H.json
+npm notice 37.7kB bin/envs-T37PNQNO.json
+npm notice 394B bin/external-YN6RGTN7.json
+npm notice 102.7kB bin/globals-EF32B5JB.json
+npm notice 48.0kB bin/globals-XSB3W6DC.json
+npm notice 1.1kB bin/html-tags-LQZIXEZ7.json
+npm notice 118B bin/html-tags-void-ROVMHXVW.json
+npm notice 12.4kB bin/index-2MD2JUVH.json
+npm notice 299.0kB bin/index-3RGLJM7U.json
+npm notice 76.4kB bin/index-R2GZJPLX.json
+npm notice 4.4kB bin/json-schema-draft-04-JKLPTVPL.json
+npm notice 4.9kB bin/json-schema-draft-07-CH6E2TGX.json
+npm notice 953B bin/lib.d.ts
+npm notice 13.2kB bin/lib.decorators.d.ts
+npm notice 1.3kB bin/lib.decorators.legacy.d.ts
+npm notice 933B bin/lib.dom.asynciterable.d.ts
+npm notice 2.3MB bin/lib.dom.d.ts
+npm notice 933B bin/lib.dom.iterable.d.ts
+npm notice 219.0kB bin/lib.es5.d.ts
+npm notice 993B bin/lib.es6.d.ts
+npm notice 5.3kB bin/lib.es2015.collection.d.ts
+npm notice 22.8kB bin/lib.es2015.core.d.ts
+npm notice 1.2kB bin/lib.es2015.d.ts
+npm notice 2.5kB bin/lib.es2015.generator.d.ts
+npm notice 18.2kB bin/lib.es2015.iterable.d.ts
+npm notice 3.2kB bin/lib.es2015.promise.d.ts
+npm notice 5.2kB bin/lib.es2015.proxy.d.ts
+npm notice 6.5kB bin/lib.es2015.reflect.d.ts
+npm notice 1.6kB bin/lib.es2015.symbol.d.ts
+npm notice 11.0kB bin/lib.es2015.symbol.wellknown.d.ts
+npm notice 5.2kB bin/lib.es2016.array.include.d.ts
+npm notice 926B bin/lib.es2016.d.ts
+npm notice 993B bin/lib.es2016.full.d.ts
+npm notice 1.4kB bin/lib.es2016.intl.d.ts
+npm notice 876B bin/lib.es2017.arraybuffer.d.ts
+npm notice 1.1kB bin/lib.es2017.d.ts
+npm notice 1.9kB bin/lib.es2017.date.d.ts
+npm notice 993B bin/lib.es2017.full.d.ts
+npm notice 1.4kB bin/lib.es2017.intl.d.ts
+npm notice 2.4kB bin/lib.es2017.object.d.ts
+npm notice 7.2kB bin/lib.es2017.sharedmemory.d.ts
+npm notice 2.3kB bin/lib.es2017.string.d.ts
+npm notice 1.5kB bin/lib.es2017.typedarrays.d.ts
+npm notice 2.7kB bin/lib.es2018.asyncgenerator.d.ts
+npm notice 2.2kB bin/lib.es2018.asynciterable.d.ts
+npm notice 1.0kB bin/lib.es2018.d.ts
+npm notice 1.0kB bin/lib.es2018.full.d.ts
+npm notice 3.0kB bin/lib.es2018.intl.d.ts
+npm notice 1.3kB bin/lib.es2018.promise.d.ts
+npm notice 1.2kB bin/lib.es2018.regexp.d.ts
+npm notice 3.1kB bin/lib.es2019.array.d.ts
+npm notice 1.0kB bin/lib.es2019.d.ts
+npm notice 1.0kB bin/lib.es2019.full.d.ts
+npm notice 919B bin/lib.es2019.intl.d.ts
+npm notice 1.4kB bin/lib.es2019.object.d.ts
+npm notice 1.5kB bin/lib.es2019.string.d.ts
+npm notice 967B bin/lib.es2019.symbol.d.ts
+npm notice 38.3kB bin/lib.es2020.bigint.d.ts
+npm notice 1.2kB bin/lib.es2020.d.ts
+npm notice 2.9kB bin/lib.es2020.date.d.ts
+npm notice 1.0kB bin/lib.es2020.full.d.ts
+npm notice 22.4kB bin/lib.es2020.intl.d.ts
+npm notice 1.5kB bin/lib.es2020.number.d.ts
+npm notice 1.8kB bin/lib.es2020.promise.d.ts
+npm notice 5.1kB bin/lib.es2020.sharedmemory.d.ts
+npm notice 2.5kB bin/lib.es2020.string.d.ts
+npm notice 1.6kB bin/lib.es2020.symbol.wellknown.d.ts
+npm notice 997B bin/lib.es2021.d.ts
+npm notice 1.0kB bin/lib.es2021.full.d.ts
+npm notice 8.2kB bin/lib.es2021.intl.d.ts
+npm notice 2.2kB bin/lib.es2021.promise.d.ts
+npm notice 1.6kB bin/lib.es2021.string.d.ts
+npm notice 3.1kB bin/lib.es2021.weakref.d.ts
+npm notice 4.6kB bin/lib.es2022.array.d.ts
+npm notice 1.1kB bin/lib.es2022.d.ts
+npm notice 2.3kB bin/lib.es2022.error.d.ts
+npm notice 1.0kB bin/lib.es2022.full.d.ts
+npm notice 7.7kB bin/lib.es2022.intl.d.ts
+npm notice 1.0kB bin/lib.es2022.object.d.ts
+npm notice 1.3kB bin/lib.es2022.regexp.d.ts
+npm notice 1.1kB bin/lib.es2022.string.d.ts
+npm notice 40.2kB bin/lib.es2023.array.d.ts
+npm notice 861B bin/lib.es2023.collection.d.ts
+npm notice 960B bin/lib.es2023.d.ts
+npm notice 1.0kB bin/lib.es2023.full.d.ts
+npm notice 2.9kB bin/lib.es2023.intl.d.ts
+npm notice 2.6kB bin/lib.es2024.arraybuffer.d.ts
+npm notice 1.2kB bin/lib.es2024.collection.d.ts
+npm notice 1.1kB bin/lib.es2024.d.ts
+npm notice 1.0kB bin/lib.es2024.full.d.ts
+npm notice 1.2kB bin/lib.es2024.object.d.ts
+npm notice 1.4kB bin/lib.es2024.promise.d.ts
+npm notice 1.0kB bin/lib.es2024.regexp.d.ts
+npm notice 3.0kB bin/lib.es2024.sharedmemory.d.ts
+npm notice 1.2kB bin/lib.es2024.string.d.ts
+npm notice 3.8kB bin/lib.es2025.collection.d.ts
+npm notice 1.1kB bin/lib.es2025.d.ts
+npm notice 20.5kB bin/lib.es2025.float16.d.ts
+npm notice 1.0kB bin/lib.es2025.full.d.ts
+npm notice 9.4kB bin/lib.es2025.intl.d.ts
+npm notice 8.6kB bin/lib.es2025.iterator.d.ts
+npm notice 1.6kB bin/lib.es2025.promise.d.ts
+npm notice 1.3kB bin/lib.es2025.regexp.d.ts
+npm notice 1.8kB bin/lib.esnext.array.d.ts
+npm notice 2.6kB bin/lib.esnext.collection.d.ts
+npm notice 1.2kB bin/lib.esnext.d.ts
+npm notice 917B bin/lib.esnext.date.d.ts
+npm notice 1.0kB bin/lib.esnext.decorators.d.ts
+npm notice 6.8kB bin/lib.esnext.disposable.d.ts
+npm notice 990B bin/lib.esnext.error.d.ts
+npm notice 1.0kB bin/lib.esnext.full.d.ts
+npm notice 5.3kB bin/lib.esnext.intl.d.ts
+npm notice 1.0kB bin/lib.esnext.sharedmemory.d.ts
+npm notice 22.0kB bin/lib.esnext.temporal.d.ts
+npm notice 3.4kB bin/lib.esnext.typedarrays.d.ts
+npm notice 9.4kB bin/lib.scripthost.d.ts
+npm notice 933B bin/lib.webworker.asynciterable.d.ts
+npm notice 787.1kB bin/lib.webworker.d.ts
+npm notice 1.0kB bin/lib.webworker.importscripts.d.ts
+npm notice 933B bin/lib.webworker.iterable.d.ts
+npm notice 796B bin/macrolanguage-OOBZHYKT.json
+npm notice 31B bin/meta-ZTYU3KU4.json
+npm notice 14.5kB bin/modules-5FMQXTT5.json
+npm notice 16.2kB bin/modules-by-versions-7BZNQUXN.json
+npm notice 316B bin/native-modules-XZ5GMXSD.json
+npm notice 1.3kB bin/overlapping-plugins-LV6R7FWN.json
+npm notice 1.2kB bin/package-4CWIDVH2.json
+npm notice 3.5kB bin/package-7GN3RIJV.json
+npm notice 783B bin/package-2237RVCK.json
+npm notice 2.3kB bin/package-BWXILVHY.json
+npm notice 1.3kB bin/package-DCNM5FLE.json
+npm notice 3.5kB bin/package-DE2DK3XE.json
+npm notice 4.2kB bin/package-EKIRN63J.json
+npm notice 1.0kB bin/package-J5HNDTQY.json
+npm notice 1.2kB bin/package-KRYS7BED.json
+npm notice 3.9kB bin/package-MXHDVNFK.json
+npm notice 3.3kB bin/package-NAUIP6S3.json
+npm notice 3.3kB bin/package-O3HD3GHR.json
+npm notice 5.0kB bin/package-Q3HNG7KY.json
+npm notice 1.4kB bin/package-TSQJBHO4.json
+npm notice 2.0kB bin/package-V3HKHFXB.json
+npm notice 7.2kB bin/package-ZIV4BEY3.json
+npm notice 46.7kB bin/patch-MGW6ZQOK.json
+npm notice 4.7kB bin/plugin-bugfixes-QCUUBN23.json
+npm notice 17.1kB bin/plugins-IPM4JCCH.json
+npm notice 340.6kB bin/properties-QZ6C3PTQ.json
+npm notice 737B bin/recommended-CUUBORCR.json
+npm notice 1.1MB bin/registry-TU76IYRI.json
+npm notice 2.3kB bin/release-schedule-7O2KG4PV.json
+npm notice 987B bin/replacements-6W6YWCNS.json
+npm notice 1.1kB bin/run-node
+npm notice 19.7MB bin/server.cjs
+npm notice 332B bin/source_context-MFFJ4ZUY.json
+npm notice 1.1kB bin/svg-tags-5W75WLNW.json
+npm notice 40.3kB bin/syntaxes-IOFOJ3N2.json
+npm notice 866B bin/tsserverlibrary.d.ts
+npm notice 5.5kB bin/type-XCLULKVM.json
+npm notice 588.5kB bin/typescript.d.ts
+npm notice 6.5kB bin/vendors-INR2TDFW.json
+npm notice 5.0kB bin/visitor-keys-PQQEXEVH.json
+npm notice 9.7kB licenses/LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@angular-eslint-bundled-angular-compiler-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@angular-eslint-eslint-plugin-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@angular-eslint-utils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-code-frame-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-compat-data-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-core-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-eslint-parser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-generator-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-annotate-as-pure-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-compilation-targets-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-create-class-features-plugin-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-create-regexp-features-plugin-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-define-polyfill-provider-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-globals-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-member-expression-to-functions-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-module-imports-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-module-transforms-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-optimise-call-expression-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-plugin-utils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-remap-async-to-generator-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-replace-supers-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-skip-transparent-expression-wrappers-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-string-parser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-validator-identifier-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-validator-option-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-helper-wrap-function-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/@babel-helpers-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-parser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-bugfix-firefox-class-in-computed-class-key-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-bugfix-safari-class-field-initializer-scope-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-bugfix-safari-id-destructuring-collision-in-function-expression-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-bugfix-v8-spread-parameters-in-optional-chaining-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-bugfix-v8-static-class-fields-redefine-readonly-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-proposal-decorators-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-proposal-private-property-in-object-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-syntax-decorators-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-syntax-flow-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-syntax-import-assertions-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-syntax-import-attributes-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-syntax-jsx-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-syntax-unicode-sets-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-arrow-functions-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-async-generator-functions-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-async-to-generator-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-block-scoped-functions-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-block-scoping-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-class-properties-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-class-static-block-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-classes-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-computed-properties-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-destructuring-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-dotall-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-duplicate-keys-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-duplicate-named-capturing-groups-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-dynamic-import-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-explicit-resource-management-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-exponentiation-operator-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-export-namespace-from-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-flow-strip-types-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-for-of-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-function-name-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-json-strings-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-literals-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-logical-assignment-operators-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-member-expression-literals-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-modules-amd-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-modules-commonjs-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-modules-systemjs-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-modules-umd-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-named-capturing-groups-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-new-target-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-nullish-coalescing-operator-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-numeric-separator-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-object-rest-spread-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-object-super-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-optional-catch-binding-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-optional-chaining-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-parameters-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-private-methods-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-private-property-in-object-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-property-literals-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-react-display-name-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-react-jsx-development-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-react-jsx-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-react-pure-annotations-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-regenerator-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-regexp-modifiers-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-reserved-words-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-shorthand-properties-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-spread-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-sticky-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-template-literals-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-typeof-symbol-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-unicode-escapes-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-unicode-property-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-unicode-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-plugin-transform-unicode-sets-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-preset-env-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-preset-flow-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-preset-modules-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-preset-react-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-template-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-traverse-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@babel-types-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@cacheable-memory-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@cacheable-utils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@csstools-css-calc-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@csstools-css-parser-algorithms-LICENSE.txt
+npm notice 930B licenses/THIRD_PARTY_LICENSES/@csstools-css-syntax-patches-for-csstree-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@csstools-css-tokenizer-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@csstools-media-query-list-parser-LICENSE.txt
+npm notice 930B licenses/THIRD_PARTY_LICENSES/@csstools-selector-resolve-nested-LICENSE.txt
+npm notice 930B licenses/THIRD_PARTY_LICENSES/@csstools-selector-specificity-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@eslint-community-eslint-utils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@eslint-community-regexpp-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/@eslint-config-array-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/@eslint-config-helpers-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/@eslint-core-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@eslint-eslintrc-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@eslint-js-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/@eslint-object-schema-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/@eslint-plugin-kit-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/@grpc-grpc-js-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/@grpc-proto-loader-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/@humanfs-core-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/@humanfs-node-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/@humanwhocodes-module-importer-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/@humanwhocodes-retry-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@jridgewell-gen-mapping-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@jridgewell-remapping-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@jridgewell-resolve-uri-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@jridgewell-sourcemap-codec-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@jridgewell-trace-mapping-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@js-sdsl-ordered-map-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@keyv-bigmap-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@keyv-serialize-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@nicolo-ribaudo-eslint-scope-5-internals-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@nodelib-fs.scandir-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@nodelib-fs.stat-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@nodelib-fs.walk-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/@protobufjs-aspromise-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/@protobufjs-base64-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/@protobufjs-codegen-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/@protobufjs-eventemitter-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/@protobufjs-fetch-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/@protobufjs-float-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/@protobufjs-inquire-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/@protobufjs-path-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/@protobufjs-pool-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/@protobufjs-utf8-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@rtsao-scc-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@sindresorhus-merge-streams-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/@stylistic-eslint-plugin-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@stylistic-stylelint-plugin-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@types-esrecurse-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@types-estree-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@types-json-schema-LICENSE.txt
+npm notice 525B licenses/THIRD_PARTY_LICENSES/@types-json5-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@types-node-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@typescript-eslint-eslint-plugin-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@typescript-eslint-parser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@typescript-eslint-project-service-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@typescript-eslint-scope-manager-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@typescript-eslint-tsconfig-utils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@typescript-eslint-type-utils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@typescript-eslint-types-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@typescript-eslint-typescript-estree-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@typescript-eslint-utils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/@typescript-eslint-visitor-keys-LICENSE.txt
+npm notice 9.1kB licenses/THIRD_PARTY_LICENSES/@typescript-native-preview-LICENSE.txt
+npm notice 9.2kB licenses/THIRD_PARTY_LICENSES/@typescript-native-preview-win32-x64-LICENSE.txt
+npm notice 408B licenses/THIRD_PARTY_LICENSES/@yarnpkg-lockfile-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/accepts-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/acorn-jsx-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/acorn-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/ajv-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/ansi-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/ansi-styles-LICENSE.txt
+npm notice 12.8kB licenses/THIRD_PARTY_LICENSES/argparse-LICENSE.txt
+npm notice 10.2kB licenses/THIRD_PARTY_LICENSES/aria-query-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/array-buffer-byte-length-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/array-includes-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/array.prototype.findlast-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/array.prototype.findlastindex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/array.prototype.flat-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/array.prototype.flatmap-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/array.prototype.tosorted-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/arraybuffer.prototype.slice-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/ast-types-flow-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/astral-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/async-function-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/available-typed-arrays-LICENSE.txt
+npm notice 15.9kB licenses/THIRD_PARTY_LICENSES/axe-core-LICENSE.txt
+npm notice 10.2kB licenses/THIRD_PARTY_LICENSES/axobject-query-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/babel-plugin-polyfill-corejs2-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/babel-plugin-polyfill-corejs3-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/babel-plugin-polyfill-regenerator-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/balanced-match-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/baseline-browser-mapping-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/body-parser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/brace-expansion-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/braces-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/browserslist-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/builtin-modules-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/bytes-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/cacheable-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/call-bind-apply-helpers-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/call-bind-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/call-bound-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/callsites-LICENSE.txt
+npm notice 18.7kB licenses/THIRD_PARTY_LICENSES/caniuse-lite-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/chalk-LICENSE.txt
+npm notice 2.7kB licenses/THIRD_PARTY_LICENSES/change-case-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/ci-info-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/clean-regexp-LICENSE.txt
+npm notice 731B licenses/THIRD_PARTY_LICENSES/cliui-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/color-convert-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/color-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/color-name-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/color-string-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/colord-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/concat-map-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/content-disposition-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/content-type-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/convert-source-map-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/cookie-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/cookie-signature-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/core-js-compat-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/cosmiconfig-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/cross-spawn-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/css-functions-list-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/css-tree-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/css-unit-converter-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/cssesc-LICENSE.txt
+npm notice 1.3kB licenses/THIRD_PARTY_LICENSES/damerau-levenshtein-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/data-view-buffer-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/data-view-byte-length-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/data-view-byte-offset-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/debug-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/deep-is-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/define-data-property-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/define-properties-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/depd-LICENSE.txt
+npm notice 9.6kB licenses/THIRD_PARTY_LICENSES/doctrine-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/dom-serializer-LICENSE.txt
+npm notice 1.3kB licenses/THIRD_PARTY_LICENSES/domelementtype-LICENSE.txt
+npm notice 1.3kB licenses/THIRD_PARTY_LICENSES/domhandler-LICENSE.txt
+npm notice 1.3kB licenses/THIRD_PARTY_LICENSES/domutils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/dunder-proto-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/ee-first-LICENSE.txt
+npm notice 728B licenses/THIRD_PARTY_LICENSES/electron-to-chromium-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/emoji-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/encodeurl-LICENSE.txt
+npm notice 1.3kB licenses/THIRD_PARTY_LICENSES/entities-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/env-paths-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/error-ex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/es-abstract-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/es-define-property-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/es-errors-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/es-iterator-helpers-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/es-object-atoms-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/es-set-tostringtag-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/es-shim-unscopables-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/es-to-primitive-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/escalade-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/escape-html-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/escape-string-regexp-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/eslint-import-resolver-node-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/eslint-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/eslint-module-utils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/eslint-plugin-import-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/eslint-plugin-jsx-a11y-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/eslint-plugin-react-hooks-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/eslint-plugin-react-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/eslint-plugin-unicorn-LICENSE.txt
+npm notice 1.4kB licenses/THIRD_PARTY_LICENSES/eslint-scope-LICENSE.txt
+npm notice 11.3kB licenses/THIRD_PARTY_LICENSES/eslint-visitor-keys-LICENSE.txt
+npm notice 1.3kB licenses/THIRD_PARTY_LICENSES/espree-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/esquery-LICENSE.txt
+npm notice 5.1kB licenses/THIRD_PARTY_LICENSES/esrecurse-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/estraverse-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/esutils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/etag-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/express-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/fast-deep-equal-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/fast-glob-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/fast-json-stable-stringify-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/fast-levenshtein-LICENSE.txt
+npm notice 1.9kB licenses/THIRD_PARTY_LICENSES/fast-uri-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/fastest-levenshtein-LICENSE.txt
+npm notice 765B licenses/THIRD_PARTY_LICENSES/fastq-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/fdir-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/file-entry-cache-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/fill-range-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/finalhandler-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/find-up-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/find-up-simple-LICENSE.txt
+npm notice 11.3kB licenses/THIRD_PARTY_LICENSES/find-yarn-workspace-root-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/flat-cache-LICENSE.txt
+npm notice 770B licenses/THIRD_PARTY_LICENSES/flatted-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/for-each-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/forwarded-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/fresh-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/fs-extra-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/function-bind-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/function.prototype.name-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/functional-red-black-tree-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/functions-have-names-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/generator-function-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/gensync-LICENSE.txt
+npm notice 745B licenses/THIRD_PARTY_LICENSES/get-caller-file-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/get-east-asian-width-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/get-intrinsic-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/get-proto-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/get-symbol-description-LICENSE.txt
+npm notice 857B licenses/THIRD_PARTY_LICENSES/glob-parent-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/global-modules-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/global-prefix-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/globals-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/globalthis-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/globby-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/globjoin-LICENSE.txt
+npm notice 16.5kB licenses/THIRD_PARTY_LICENSES/gonzales-pe-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/gopd-LICENSE.txt
+npm notice 791B licenses/THIRD_PARTY_LICENSES/graceful-fs-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/has-bigints-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/has-flag-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/has-property-descriptors-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/has-proto-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/has-symbols-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/has-tostringtag-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/hashery-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/hasown-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/hermes-estree-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/hermes-parser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/hookified-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/html-tags-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/htmlparser2-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/http-errors-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/iconv-lite-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/ignore-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/import-fresh-LICENSE.txt
+npm notice 3.5kB licenses/THIRD_PARTY_LICENSES/import-meta-resolve-LICENSE.txt
+npm notice 4.8kB licenses/THIRD_PARTY_LICENSES/imurmurhash-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/indent-string-LICENSE.txt
+npm notice 749B licenses/THIRD_PARTY_LICENSES/inherits-LICENSE.txt
+npm notice 765B licenses/THIRD_PARTY_LICENSES/ini-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/internal-slot-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/ipaddr.js-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-array-buffer-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-arrayish-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-async-function-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-bigint-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-boolean-object-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-builtin-module-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-callable-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-core-module-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-data-view-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-date-object-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-docker-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-extglob-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-finalizationregistry-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-fullwidth-code-point-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-generator-function-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-glob-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-map-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-negative-zero-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-number-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-number-object-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-path-inside-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-plain-object-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-promise-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-set-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-shared-array-buffer-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-string-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-symbol-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-typed-array-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-weakmap-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-weakref-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-weakset-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/is-wsl-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/isarray-LICENSE.txt
+npm notice 765B licenses/THIRD_PARTY_LICENSES/isexe-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/iterator.prototype-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/jiti-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/js-tokens-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/js-yaml-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/jsesc-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/json-buffer-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/json-parse-even-better-errors-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/json-schema-traverse-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/json-stable-stringify-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/json-stable-stringify-without-jsonify-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/json5-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/jsonfile-LICENSE.txt
+npm notice 2.5kB licenses/THIRD_PARTY_LICENSES/jsonify-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/jsx-ast-utils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/jsx-ast-utils-x-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/keyv-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/kind-of-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/klaw-sync-LICENSE.txt
+npm notice 1.6kB licenses/THIRD_PARTY_LICENSES/language-subtag-registry-LICENSE.txt
+npm notice 8.4kB licenses/THIRD_PARTY_LICENSES/language-tags-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/levn-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/lines-and-columns-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/locate-path-LICENSE.txt
+npm notice 2.0kB licenses/THIRD_PARTY_LICENSES/lodash.camelcase-LICENSE.txt
+npm notice 2.0kB licenses/THIRD_PARTY_LICENSES/lodash.debounce-LICENSE.txt
+npm notice 2.0kB licenses/THIRD_PARTY_LICENSES/lodash.merge-LICENSE.txt
+npm notice 2.0kB licenses/THIRD_PARTY_LICENSES/lodash.truncate-LICENSE.txt
+npm notice 11.4kB licenses/THIRD_PARTY_LICENSES/long-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/loose-envify-LICENSE.txt
+npm notice 765B licenses/THIRD_PARTY_LICENSES/lru-cache-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/math-intrinsics-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/mathml-tag-names-LICENSE.txt
+npm notice 6.6kB licenses/THIRD_PARTY_LICENSES/mdn-data-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/media-typer-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/meow-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/merge-descriptors-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/merge2-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/micromatch-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/mime-db-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/mime-types-LICENSE.txt
+npm notice 765B licenses/THIRD_PARTY_LICENSES/minimatch-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/minimist-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/ms-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/nanoid-LICENSE.txt
+npm notice 3.4kB licenses/THIRD_PARTY_LICENSES/natural-compare-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/negotiator-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/node-exports-info-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/node-releases-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/normalize-path-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/object-assign-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/object-inspect-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/object-keys-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/object.assign-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/object.entries-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/object.fromentries-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/object.groupby-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/object.values-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/on-finished-LICENSE.txt
+npm notice 765B licenses/THIRD_PARTY_LICENSES/once-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/open-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/optionator-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/own-keys-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/p-limit-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/p-locate-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/parent-module-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/parse-json-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/parseurl-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/patch-package-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/path-exists-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/path-key-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/path-parse-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/path-to-regexp-LICENSE.txt
+npm notice 787B licenses/THIRD_PARTY_LICENSES/picocolors-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/picomatch-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/pluralize-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/possible-typed-array-names-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/postcss-html-LICENSE.txt
+npm notice 1.3kB licenses/THIRD_PARTY_LICENSES/postcss-less-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/postcss-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/postcss-safe-parser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/postcss-sass-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/postcss-scss-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/postcss-selector-parser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/postcss-value-parser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/prelude-ls-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/prop-types-LICENSE.txt
+npm notice 1.9kB licenses/THIRD_PARTY_LICENSES/protobufjs-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/proxy-addr-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/punycode-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/qified-LICENSE.txt
+npm notice 1.6kB licenses/THIRD_PARTY_LICENSES/qs-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/queue-microtask-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/range-parser-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/raw-body-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/react-is-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/refa-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/reflect.getprototypeof-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/regenerate-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/regenerate-unicode-properties-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/regexp-ast-analysis-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/regexp-tree-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/regexp.prototype.flags-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/regexpu-core-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/regjsgen-LICENSE.txt
+npm notice 1.3kB licenses/THIRD_PARTY_LICENSES/regjsparser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/require-directory-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/require-from-string-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/resolve-from-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/resolve-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/reusify-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/router-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/run-parallel-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/safe-array-concat-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/safe-push-apply-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/safe-regex-test-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/safer-buffer-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/scslre-LICENSE.txt
+npm notice 765B licenses/THIRD_PARTY_LICENSES/semver-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/send-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/serve-static-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/set-function-length-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/set-function-name-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/set-proto-LICENSE.txt
+npm notice 727B licenses/THIRD_PARTY_LICENSES/setprototypeof-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/shebang-command-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/shebang-regex-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/side-channel-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/side-channel-list-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/side-channel-map-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/side-channel-weakmap-LICENSE.txt
+npm notice 790B licenses/THIRD_PARTY_LICENSES/signal-exit-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/slash-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/slice-ansi-LICENSE.txt
+npm notice 9.7kB licenses/THIRD_PARTY_LICENSES/sonarjs-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/source-map-js-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/statuses-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/stop-iteration-iterator-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/string-width-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/string.prototype.includes-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/string.prototype.matchall-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/string.prototype.repeat-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/string.prototype.trim-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/string.prototype.trimend-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/string.prototype.trimstart-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/strip-ansi-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/strip-bom-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/strip-indent-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/strip-json-comments-LICENSE.txt
+npm notice 730B licenses/THIRD_PARTY_LICENSES/style-search-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/stylelint-config-html-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/stylelint-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/supports-color-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/supports-hyperlinks-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/supports-preserve-symlinks-flag-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/svg-tags-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/table-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/tinyglobby-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/tmp-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/to-regex-range-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/toidentifier-LICENSE.txt
+npm notice 1.0kB licenses/THIRD_PARTY_LICENSES/ts-api-utils-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/tsconfig-paths-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/type-check-LICENSE.txt
+npm notice 1.2kB licenses/THIRD_PARTY_LICENSES/type-is-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/typed-array-buffer-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/typed-array-byte-length-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/typed-array-byte-offset-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/typed-array-length-LICENSE.txt
+npm notice 9.1kB licenses/THIRD_PARTY_LICENSES/typescript-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/unbox-primitive-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/undici-types-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/unicode-canonical-property-names-ecmascript-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/unicode-match-property-ecmascript-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/unicode-match-property-value-ecmascript-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/unicode-property-aliases-ecmascript-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/unicorn-magic-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/universalify-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/unpipe-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/update-browserslist-db-LICENSE.txt
+npm notice 1.5kB licenses/THIRD_PARTY_LICENSES/uri-js-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/util-deprecate-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/vary-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/vue-eslint-parser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/which-boxed-primitive-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/which-builtin-type-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/which-collection-LICENSE.txt
+npm notice 765B licenses/THIRD_PARTY_LICENSES/which-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/which-typed-array-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/word-wrap-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/wrap-ansi-LICENSE.txt
+npm notice 765B licenses/THIRD_PARTY_LICENSES/wrappy-LICENSE.txt
+npm notice 734B licenses/THIRD_PARTY_LICENSES/write-file-atomic-LICENSE.txt
+npm notice 731B licenses/THIRD_PARTY_LICENSES/y18n-LICENSE.txt
+npm notice 765B licenses/THIRD_PARTY_LICENSES/yallist-LICENSE.txt
+npm notice 738B licenses/THIRD_PARTY_LICENSES/yaml-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/yargs-LICENSE.txt
+npm notice 731B licenses/THIRD_PARTY_LICENSES/yargs-parser-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/yocto-queue-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/zod-LICENSE.txt
+npm notice 1.1kB licenses/THIRD_PARTY_LICENSES/zod-validation-error-LICENSE.txt
+npm notice 7.7kB package.json
+npm notice Tarball Details
+npm notice name: sonarjs
+npm notice version: 1.0.0
+npm notice filename: sonarjs-1.0.0.tgz
+npm notice package size: 6.3 MB
+npm notice unpacked size: 28.3 MB
+npm notice shasum: 347ee15943015e3c236f98199567e0932fe8849c
+npm notice integrity: sha512-iucDqEx7ewiJ7[...]zImhywqa0E5XA==
+npm notice total files: 760
+npm notice
+npm warn gitignore-fallback No .npmignore file found, using .gitignore for file exclusion. Consider creating a .npmignore file to explicitly control published files.
+npm notice
+npm notice 📦  custom-eslint-based-rules@1.0.0
+npm notice Tarball Contents
+npm notice 1.0kB dist/rules.js
+npm notice 149B package.json
+npm notice Tarball Details
+npm notice name: custom-eslint-based-rules
+npm notice version: 1.0.0
+npm notice filename: custom-eslint-based-rules-1.0.0.tgz
+npm notice package size: 492 B
+npm notice unpacked size: 1.2 kB
+npm notice shasum: d402cda5b364028025f280d5c35977d42876d6d1
+npm notice integrity: sha512-p2DG/vua1329y[...]rVDhlrtrTYO4Q==
+npm notice total files: 2
+npm notice
+npm warn gitignore-fallback No .npmignore file found, using .gitignore for file exclusion. Consider creating a .npmignore file to explicitly control published files.
+npm notice
+npm notice 📦  custom-eslint-based-rules@1.0.0
+npm notice Tarball Contents
+npm notice 880B dist/rules.js
+npm notice 149B package.json
+npm notice Tarball Details
+npm notice name: custom-eslint-based-rules
+npm notice version: 1.0.0
+npm notice filename: custom-eslint-based-rules-1.0.0.tgz
+npm notice package size: 494 B
+npm notice unpacked size: 1.0 kB
+npm notice shasum: d8c1fbf173f6dbce753e4c735611468face1fd40
+npm notice integrity: sha512-p6avcLVyNNrfC[...]OTaJ5ZLq+pk4g==
+npm notice total files: 2
+npm notice

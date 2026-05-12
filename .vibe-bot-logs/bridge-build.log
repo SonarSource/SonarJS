@@ -18,12 +18,16 @@
 > sonarjs@1.0.0 sync-rspec
 > tsx tools/sync-rspec.ts --language javascript
 
-RSPEC javascript rules are up to date (995cd77e), skipping sync
+Using pinned rspec SHA: S119-JS (from rspec.sha)
+Fetching rspec (S119-JS) into /workspace/SonarJS/resources/rspec...
+Synced 706 javascript rules to /workspace/SonarJS/resources/rule-data/javascript (rspec@2beb93be)
 
 > sonarjs@1.0.0 sync-rspec
 > tsx tools/sync-rspec.ts --language css
 
-RSPEC css rules are up to date (995cd77e), skipping sync
+Using pinned rspec SHA: S119-JS (from rspec.sha)
+Fetching rspec (S119-JS) into /workspace/SonarJS/resources/rspec...
+Synced 31 css rules to /workspace/SonarJS/resources/rule-data/css (rspec@2beb93be)
 
 > sonarjs@1.0.0 deploy-rule-data
 > tsx tools/deploy-rule-data.ts
@@ -63,6 +67,12 @@ Proto generation complete.
 > tsx tools/generate-proto.ts --copy
 
 Proto files copied to lib/.
+From https://github.com/SonarSource/rspec
+ * branch              S119-JS    -> FETCH_HEAD
+HEAD is now at 2beb93be JS-1759 Add JS coverage for S119
+From https://github.com/SonarSource/rspec
+ * branch              S119-JS    -> FETCH_HEAD
+HEAD is now at 2beb93be JS-1759 Add JS coverage for S119
 [deploy-rule-data] javascript: 177 rspec rule(s) have a javascript folder but no implementation in SonarJS:
   beta (1): S7518
   closed (93): S127, S136, S800, S903, S935, S1244, S1477, S1482, S1483, S1484, S1517, S1542, S1606, S1677, S2126, S2197, S2210, S2224, S2325, S2429, S2431, S2433, S2434, S2494, S2495, S2496, S2497, S2498, S2583, S2595, S2630, S2644, S2662, S2684, S2701, S2751, S2787, S2872, S2915, S3045, S3271, S3273, S3424, S3502, S3554, S3759, S3817, S3831, S3832, S3835, S3837, S3856, S3862, S3931, S3955, S4172, S4343, S4412, S4437, S4438, S4439, S4441, S4442, S4443, S4444, S4445, S4446, S4447, S4473, S5750, S6108, S6109, S7063, S7071, S7072, S7073, S7074, S7076, S7077, S7080, S7081, S7085, S7657, S7659, S7662, S7663, S7664, S7665, S7666, S7667, S7668, S7669, S7670

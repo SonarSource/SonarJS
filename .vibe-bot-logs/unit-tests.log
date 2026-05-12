@@ -1,6 +1,6 @@
 ▶ S119
-  ✔ S119 (33.768049ms)
-✔ S119 (34.033648ms)
+  ✔ S119 (34.435577ms)
+✔ S119 (34.735933ms)
 ℹ tests 1
 ℹ suites 1
 ℹ pass 1
@@ -8,4 +8,4 @@
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 404.03377
+ℹ duration_ms 476.619625
