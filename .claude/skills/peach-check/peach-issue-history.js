@@ -379,6 +379,8 @@ async function defaultFetchMeasureHistory(projectKey, metric, apiToken, required
 
   // Freshness-window matching can target an older analysis when newer scans exist, so the
   // caller needs the full ordered series rather than only the tail pages.
+  // Any later-page failure bubbles to fetchMeasureHistoryWithRetry(), which retries the
+  // full pagination pass so every page gets identical retry handling.
   for (let pageIndex = 2; pageIndex <= lastPageIndex; pageIndex += 1) {
     const page = await fetchMeasureHistoryPage(projectKey, metric, apiToken, pageIndex, pageSize);
     history.push(...page.history);
