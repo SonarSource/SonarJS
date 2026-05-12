@@ -22,7 +22,7 @@ env:
 
 jobs:
   get_build_number:
-    runs-on: sonar-m-docker
+    runs-on: warp-custom-ubuntu-24-04
     name: Get build number
     permissions:
       id-token: write
@@ -35,7 +35,7 @@ jobs:
 
   build_and_publish:
     name: Build and publish Docker image
-    runs-on: sonar-m-docker
+    runs-on: warp-custom-ubuntu-24-04
     needs: get_build_number
     environment: ${{ inputs.environment == 'Prod' && 'Prod' || 'Dev5' }}
     permissions:

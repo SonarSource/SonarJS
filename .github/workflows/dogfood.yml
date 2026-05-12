@@ -18,7 +18,7 @@ jobs:
   dogfood_merge:
     # Run if triggered by push to dogfood/*, or if Build workflow succeeded on master
     if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
-    runs-on: sonar-m-docker
+    runs-on: warp-custom-ubuntu-24-04
     name: Update dogfood branch
     permissions:
       id-token: write # required for SonarSource/vault-action-wrapper
