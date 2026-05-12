@@ -1,8 +1,23 @@
-# TypeScript 7 / jsts-go gRPC PoC Report ([JS-1140](https://sonarsource.atlassian.net/browse/JS-1140))
+# TypeScript 7 / jsts-go gRPC PoC Report (Historical Baseline for [JS-1140](https://sonarsource.atlassian.net/browse/JS-1140))
 
 Date: 2026-03-10  
 Branch: `feat/tsgolint-grpc-poc`  
 Issue: [JS-1140](https://sonarsource.atlassian.net/browse/JS-1140) (`Investigate migration to TypeScript 7`)
+
+> Historical note:
+> This report records the original 2026-03-10 PoC checkpoint.
+> It does not describe the full current branch state anymore.
+> For current behavior and ownership, use:
+> [node-vs-jsts-go-equivalence-assessment.md](./node-vs-jsts-go-equivalence-assessment.md),
+> [jsts-go-migration-progress.md](./jsts-go-migration-progress.md),
+> [jsts-go-typescript-go-api-surface.md](./jsts-go-typescript-go-api-surface.md),
+> and [../server-go/UPSTREAM.md](../server-go/UPSTREAM.md).
+> Since this report was written:
+>
+> - `JS-1140` was split into `JS-1737` through `JS-1750`
+> - `JSTS_GO_RULES` grew from the original 7-rule pilot to 15 routed Sonar keys
+> - the shared proto contract grew beyond the original pilot shape and now includes `AnalyzeProject`, `AnalyzeProjectUnary`, `CancelAnalysis`, and `Lease`
+> - `tsgolint` stopped being a submodule/dependency; `server-go/typescript-go` plus Sonar-owned shims and patches are now the live upstream inputs
 
 ## 1. Executive Summary
 
@@ -11,8 +26,8 @@ This PoC validated that SonarJS can offload a subset of type-aware TypeScript ru
 What is proven:
 
 - End-to-end integration works in SonarJS: Java sensor -> Go gRPC server -> jsts-go rule execution -> Sonar issue import.
-- 7 real type-aware rules are offloaded and reported with correct Sonar rule keys.
-- A fast integration test (`JstsGoIntegrationTest`) validates that the offloaded rules actually raise issues on fixture code.
+- At the PoC checkpoint, 7 real type-aware rules were offloaded and reported with correct Sonar rule keys.
+- A fast integration test (`JstsGoIntegrationTest`) validated that the initially offloaded rules actually raised issues on fixture code.
 - Packaging/deployment path for platform-specific `jsts-go` binaries is integrated in the plugin build and runtime extraction flow.
 
 What is not yet proven:
@@ -42,9 +57,9 @@ Detailed source inventory is in the appendix. Conclusions here are based on [JS-
 
 ### 3.1 Runtime integration
 
-- Added a gRPC analyzer contract (`analyzer.proto`) with:
+- At the PoC checkpoint, the sidecar contract centered on:
   - `AnalyzeProject` (server-streaming results)
-  - `IsAlive`
+  - a separate `IsAlive` health-check concept
 - Implemented Go server in `server-go/sonar-server`:
   - Request handling
   - tsconfig resolution via jsts-go utilities
@@ -65,7 +80,7 @@ Detailed source inventory is in the appendix. Conclusions here are based on [JS-
 
 ### 3.3 Rule mapping and conversion
 
-- Added explicit mapping between Sonar keys and jsts-go rule names for 7 rules:
+- Added explicit mapping between Sonar keys and jsts-go rule names for the initial 7-rule pilot:
   - S4123, S2933, S4157, S4325, S6565, S6583, S6671
 - Added reverse conversion for incoming jsts-go diagnostics to Sonar issue keys/language.
 
@@ -93,7 +108,7 @@ Detailed source inventory is in the appendix. Conclusions here are based on [JS-
 - The test asserts:
   - analysis exit code = 0
   - no ERROR logs
-  - all 7 offloaded rules produce issues
+  - all 7 initially offloaded rules produce issues
   - issues are associated to expected files for sampled rules
 
 ## 4. What This PoC Proves
@@ -308,7 +323,7 @@ Mitigation:
 
 ## 8. Bundle Size and Per-Platform Artifact Impact
 
-Current packaging model embeds `jsts-go` binaries for:
+Packaging model measured in this PoC snapshot embeds `jsts-go` binaries for:
 
 - `win-x64`
 - `linux-x64`
@@ -367,7 +382,7 @@ Given the current artifact layout:
 
 ## 9. Build Ownership and Maintainability
 
-Current state:
+PoC snapshot state:
 
 - SonarJS owns a significant part of the `jsts-go` build orchestration.
 - This increases maintenance cost and upgrade friction over time.
@@ -399,7 +414,7 @@ Decision matrix:
   - analysis latency targets
   - memory targets
   - artifact-size budgets per classifier
-- Build parity suite for the 7 migrated TypeScript type-checked rules versus current Node typed behavior.
+- Build parity suite for the initial migrated TypeScript type-checked rules versus current Node typed behavior.
 - Add CI lane that validates Go path with `skip-jsts-go` enabled elsewhere to control build cost.
 - Measure real artifact sizes from CI outputs and re-enable size guardrails with updated thresholds.
 - Improve scanner-side observability in ITS/ruling runs (capture or emit Go-path diagnostics reliably).

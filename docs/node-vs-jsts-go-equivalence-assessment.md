@@ -18,6 +18,15 @@ The goal is to identify:
 - what still differs from Node today
 - what would still be required if the Go path were expected to match Node more closely
 
+## Jira Alignment
+
+`JS-1140` is now split. This assessment is the current branch-level reference for:
+
+- `JS-1739` - implement `analyze-project` core semantics in Go
+- `JS-1745` - close remaining `analyze-project` and runtime parity gaps for migrated rules
+- `JS-1743` - add a Node-vs-Go parity corpus and differential test harness for shared JS/TS rules
+- `JS-1744` - benchmark Node-vs-Go performance on shared JS/TS workloads
+
 ## High-Level Conclusion
 
 The assessment from before the rebase was stale. The current Go path is no longer just a thin fixed-rule pass. It now mirrors several important parts of the Node pipeline for the migrated JS/TS issue subset:
@@ -73,7 +82,7 @@ Main code paths checked for this update:
   - `server-go/sonar-server/service_lifecycle.go`
   - `server-go/sonar-server/service_test.go`
   - `server-go/sonar-server/requested_rules.go`
-  - `server-go/sonar-server/generated_rule_metadata.go`
+  - `server-go/sonar-server/dependency_signals.go`
   - `tools/generate-go-rule-metadata.ts`
 
 ## Matrix Legend

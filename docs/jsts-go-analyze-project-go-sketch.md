@@ -3,9 +3,15 @@
 Date: 2026-05-05
 Branch: `feat/tsgolint-grpc-poc`
 
+> Historical note:
+> This design sketch was written before the current runtime-parity refactors landed.
+> Much of the normalization/filesystem/store split proposed here is now implemented on the branch.
+> Use [node-vs-jsts-go-equivalence-assessment.md](./node-vs-jsts-go-equivalence-assessment.md) for current behavior.
+> The work sketched here now lines up primarily with `JS-1739` and `JS-1745`.
+
 ## Goal
 
-This document turns the gap analysis in [node-vs-jsts-go-equivalence-assessment.md](/C:/Users/victor.diez/projects/SonarJS/docs/node-vs-jsts-go-equivalence-assessment.md) into a concrete Go-side starting point.
+This document turns the gap analysis in [node-vs-jsts-go-equivalence-assessment.md](./node-vs-jsts-go-equivalence-assessment.md) into a concrete Go-side starting point.
 
 The intent is to answer one question:
 
@@ -22,7 +28,7 @@ Do not start by growing `service.go` piecemeal around the current `analyzeProjec
 
 ## Current Call Chain
 
-Today the Go side does this in [service.go](/C:/Users/victor.diez/projects/SonarJS/server-go/sonar-server/service.go:87):
+At the time of this sketch, the Go side did this in [service.go](../server-go/sonar-server/service.go):
 
 ```go
 func analyzeProject(req *pb.AnalyzeProjectRequest) (...) {
@@ -37,7 +43,7 @@ func analyzeProject(req *pb.AnalyzeProjectRequest) (...) {
 }
 ```
 
-The first refactor should make that look like this instead:
+The sketch proposed a first refactor that would make that look like this instead:
 
 ```go
 func analyzeProject(ctx context.Context, req *pb.AnalyzeProjectRequest) (
@@ -85,14 +91,14 @@ Suggested first split:
 
 The existing files can then shrink to:
 
-- [service.go](/C:/Users/victor.diez/projects/SonarJS/server-go/sonar-server/service.go): RPC wiring + top-level orchestration
-- [requested_rules.go](/C:/Users/victor.diez/projects/SonarJS/server-go/sonar-server/requested_rules.go): rule option conversion and Sonar defaults
-- [converter.go](/C:/Users/victor.diez/projects/SonarJS/server-go/sonar-server/converter.go): issue/result conversion
-- [rules.go](/C:/Users/victor.diez/projects/SonarJS/server-go/sonar-server/rules.go): available rules and Sonar key mapping
+- [service.go](../server-go/sonar-server/service.go): RPC wiring + top-level orchestration
+- [requested_rules.go](../server-go/sonar-server/requested_rules.go): rule option conversion and Sonar defaults
+- [converter.go](../server-go/sonar-server/converter.go): issue/result conversion
+- [rules.go](../server-go/sonar-server/rules.go): available rules and Sonar key mapping
 
 ## Core Normalized Model
 
-The first concrete target should be an internal model equivalent to the semantic output of Node's normalization layer in [analyze-project-normalize.ts](/C:/Users/victor.diez/projects/SonarJS/packages/grpc/src/analyze-project-normalize.ts:57).
+The first concrete target should be an internal model equivalent to the semantic output of Node's normalization layer in [analyze-project-normalize.ts](../packages/grpc/src/analyze-project-normalize.ts).
 
 ### Internal enums
 
@@ -250,7 +256,7 @@ type NormalizedProjectFile struct {
 
 ### Normalized rules
 
-This should be the output of the current [requested_rules.go](/C:/Users/victor.diez/projects/SonarJS/server-go/sonar-server/requested_rules.go:34) logic plus the missing request fields already used by Node for filtering.
+This should be the output of the current [requested_rules.go](../server-go/sonar-server/requested_rules.go) logic plus the missing request fields already used by Node for filtering.
 
 ```go
 type NormalizedJsTsRule struct {
@@ -292,7 +298,7 @@ For the first iteration this can be hardcoded for migrated/offloaded rules. Late
 
 The Go side should stop reading request files only from `osvfs`.
 
-Use the existing overlay VFS support in [overlay_vfs.go](/C:/Users/victor.diez/projects/SonarJS/jsts-go/internal/utils/overlay_vfs.go:14) and make it part of the standard request path.
+Use the existing overlay VFS support in [overlay_vfs.go](../server-go/sonar-server/internal/utils/overlay_vfs.go) and make it part of the standard request path.
 
 ```go
 type AnalyzeProjectFS struct {
@@ -325,7 +331,7 @@ That is not enough for full parity, but it is the correct starting boundary.
 
 ## Execution Plan
 
-The plan must mirror Node's top-level branching in [analyzeProject.ts](/C:/Users/victor.diez/projects/SonarJS/packages/analysis/src/analyzeProject.ts:56), not the current single `FindTsConfigParallel -> RunLinter` path.
+The plan must mirror Node's top-level branching in [analyzeProject.ts](../packages/analysis/src/analyzeProject.ts), not the current single `FindTsConfigParallel -> RunLinter` path.
 
 ```go
 type ExecutionPlan struct {

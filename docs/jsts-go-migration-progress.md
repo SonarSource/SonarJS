@@ -25,6 +25,21 @@ Generated from the current branch state.
 | Wrapped external rules with any migration signal |    94 | Local wrapper or direct upstream rule depends on TS facilities                      |
 | Bundled upstream scans needing review            |     1 | `S6440` upstream file is bundled; local wrapper already gives it a migration signal |
 
+## Jira Alignment
+
+`JS-1140` is now split. This inventory primarily supports:
+
+- `JS-1746` - migrate remaining type-service external and decorated rules
+- `JS-1747` - migrate remaining type-service original SonarJS rules
+- `JS-1748` - decide the target runtime for AST-only TypeScript rules
+
+Current `typescript-eslint` slice on this branch:
+
+- `39` Sonar rules map to `typescript-eslint` upstream rules
+- `15` of those have a hard type-service dependency (`Subject to migration = Yes`)
+- `14` are already routed through `JSTS_GO_RULES`
+- `S4137` is the only `typescript-eslint`-backed rule with `Type svc = Yes` that is not yet migrated
+
 ## How To Read The Table
 
 - `Sonar`: Sonar rule key.
