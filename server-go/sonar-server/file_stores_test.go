@@ -16,11 +16,13 @@ func TestInitializeProjectFileStoresDiscoversProjectMetadataOnDisk(t *testing.T)
 	baseDir := tspath.NormalizePath(t.TempDir())
 	tsconfigPath := tspath.ResolvePath(baseDir, "tsconfig.json")
 	packageJSONPath := tspath.ResolvePath(baseDir, "package.json")
+	pnpmWorkspacePath := tspath.ResolvePath(baseDir, "pnpm-workspace.yaml")
 	denoJSONPath := tspath.ResolvePath(baseDir, "sub/deno.json")
 	sourcePath := tspath.ResolvePath(baseDir, "src/main.ts")
 
 	writeTestFile(t, tsconfigPath, `{"compilerOptions":{"strict":true},"include":["src/**/*.ts"]}`)
 	writeTestFile(t, packageJSONPath, `{"name":"test-project"}`)
+	writeTestFile(t, pnpmWorkspacePath, "packages:\n  - packages/*\n")
 	writeTestFile(t, denoJSONPath, `{"lock":false}`)
 	writeTestFile(t, sourcePath, `const value = 42;`)
 
@@ -41,6 +43,9 @@ func TestInitializeProjectFileStoresDiscoversProjectMetadataOnDisk(t *testing.T)
 	}
 	if got, ok := stores.PackageJSONs[baseDir]; !ok || got.Path != packageJSONPath {
 		t.Fatalf("expected package.json discovery at %q, got %#v", packageJSONPath, got)
+	}
+	if got, ok := stores.PnpmWorkspaceYAMLs[baseDir]; !ok || got.Path != pnpmWorkspacePath {
+		t.Fatalf("expected pnpm-workspace.yaml discovery at %q, got %#v", pnpmWorkspacePath, got)
 	}
 	denoDir := tspath.GetDirectoryPath(denoJSONPath)
 	if got, ok := stores.DenoJSONs[denoDir]; !ok || got.Path != denoJSONPath {
@@ -215,6 +220,79 @@ func TestInitializeProjectFileStoresTracksClosestNodeVersionSignal(t *testing.T)
 	}
 	if got := stores.nodeVersionSignalForPath(legacySourcePath); got != "12.x" {
 		t.Fatalf("expected closest node version signal 12.x, got %q", got)
+	}
+}
+
+func TestInitializeProjectFileStoresUsesPnpmWorkspaceCatalogForNodeVersionSignals(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	packageJSONPath := tspath.ResolvePath(baseDir, "package.json")
+	pnpmWorkspacePath := tspath.ResolvePath(baseDir, "pnpm-workspace.yaml")
+	sourcePath := tspath.ResolvePath(baseDir, "src/file.ts")
+
+	writeTestFile(t, packageJSONPath, `{
+  "devDependencies": { "@types/node": "catalog:" }
+}`)
+	writeTestFile(t, pnpmWorkspacePath, "catalog:\n  '@types/node': ^22.14.0\n")
+	writeTestFile(t, sourcePath, `export const value = 42;`)
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{BaseDir: baseDir},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	stores, err := initializeProjectFileStores(input, BuildAnalyzeProjectFS(input))
+	if err != nil {
+		t.Fatalf("unexpected store initialization error: %v", err)
+	}
+
+	if got := stores.nodeVersionSignalForPath(sourcePath); got != "^22.14.0" {
+		t.Fatalf("expected pnpm workspace catalog node version signal ^22.14.0, got %q", got)
+	}
+}
+
+func TestInitializeProjectFileStoresUsesClosestParentPackageJSONCatalogsForNodeVersionSignals(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	rootPackageJSONPath := tspath.ResolvePath(baseDir, "package.json")
+	intermediatePackageJSONPath := tspath.ResolvePath(baseDir, "packages/package.json")
+	appPackageJSONPath := tspath.ResolvePath(baseDir, "packages/app/package.json")
+	sourcePath := tspath.ResolvePath(baseDir, "packages/app/src/file.ts")
+
+	writeTestFile(t, rootPackageJSONPath, `{
+  "workspaces": {
+    "packages": ["packages/*"],
+    "catalogs": {
+      "runtime": {
+        "@types/node": "20.x"
+      }
+    }
+  }
+}`)
+	writeTestFile(t, intermediatePackageJSONPath, `{"name":"packages-intermediate"}`)
+	writeTestFile(t, appPackageJSONPath, `{
+  "devDependencies": { "@types/node": "catalog:runtime" }
+}`)
+	writeTestFile(t, sourcePath, `export const value = 42;`)
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{BaseDir: baseDir},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	stores, err := initializeProjectFileStores(input, BuildAnalyzeProjectFS(input))
+	if err != nil {
+		t.Fatalf("unexpected store initialization error: %v", err)
+	}
+
+	if got := stores.nodeVersionSignalForPath(sourcePath); got != "20.x" {
+		t.Fatalf("expected closest parent catalog node version signal 20.x, got %q", got)
 	}
 }
 

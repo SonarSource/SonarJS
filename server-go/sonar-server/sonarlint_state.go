@@ -9,7 +9,6 @@ import (
 	"github.com/microsoft/typescript-go/shim/vfs"
 )
 
-const pnpmWorkspaceYAMLName = "pnpm-workspace.yaml"
 const maxSonarlintOrphanPrograms = 10
 
 type cachedProjectStores struct {

@@ -17,6 +17,7 @@ require (
 	github.com/microsoft/typescript-go/shim/vfs v0.0.0
 	github.com/microsoft/typescript-go/shim/vfs/cachedvfs v0.0.0
 	github.com/microsoft/typescript-go/shim/vfs/osvfs v0.0.0
+	gopkg.in/yaml.v3 v3.0.1
 	google.golang.org/grpc v1.72.0
 	google.golang.org/protobuf v1.36.6
 )

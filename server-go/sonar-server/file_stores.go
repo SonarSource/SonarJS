@@ -10,10 +10,11 @@ import (
 )
 
 const (
-	tsconfigJSONName = "tsconfig.json"
-	packageJSONName  = "package.json"
-	denoJSONName     = "deno.json"
-	denoJSONCName    = "deno.jsonc"
+	tsconfigJSONName      = "tsconfig.json"
+	packageJSONName       = "package.json"
+	denoJSONName          = "deno.json"
+	denoJSONCName         = "deno.jsonc"
+	pnpmWorkspaceYAMLName = "pnpm-workspace.yaml"
 )
 
 type dependencyManifest struct {
@@ -30,6 +31,7 @@ type projectFileStores struct {
 	propertyTSConfigSet      map[string]struct{}
 	providedTSConfigPatterns []pathPattern
 	PackageJSONs             map[string]dependencyManifest
+	PnpmWorkspaceYAMLs       map[string]dependencyManifest
 	DenoJSONs                map[string]dependencyManifest
 	DenoJSONCs               map[string]dependencyManifest
 	DependenciesByDir        map[string]map[string]struct{}
@@ -68,6 +70,7 @@ func newProjectFileStores(input *NormalizedAnalyzeProjectInput, filters analyzeP
 		propertyTSConfigSet:      map[string]struct{}{},
 		providedTSConfigPatterns: append([]pathPattern(nil), filters.providedTSPaths...),
 		PackageJSONs:             map[string]dependencyManifest{},
+		PnpmWorkspaceYAMLs:       map[string]dependencyManifest{},
 		DenoJSONs:                map[string]dependencyManifest{},
 		DenoJSONCs:               map[string]dependencyManifest{},
 		NodeVersionSignalByDir:   map[string]string{},
@@ -128,7 +131,7 @@ func (s *projectFileStores) processFile(
 	}
 
 	switch baseName {
-	case packageJSONName, denoJSONName, denoJSONCName:
+	case packageJSONName, pnpmWorkspaceYAMLName, denoJSONName, denoJSONCName:
 		if content, ok := fsys.ReadFile(normalized); ok {
 			s.recordManifest(normalized, baseName, content)
 		}
@@ -174,6 +177,8 @@ func (s *projectFileStores) recordManifest(filePath string, manifestName string,
 	switch manifestName {
 	case packageJSONName:
 		s.PackageJSONs[dir] = manifest
+	case pnpmWorkspaceYAMLName:
+		s.PnpmWorkspaceYAMLs[dir] = manifest
 	case denoJSONName:
 		s.DenoJSONs[dir] = manifest
 	case denoJSONCName:
