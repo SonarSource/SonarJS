@@ -25,28 +25,30 @@ import {
 import type { Configuration } from '../common/configuration.js';
 import {
   clearDependenciesCache,
-  DENO_JSON,
-  DENO_JSONC,
-  getDependencyManifestName,
-  isDependencyManifestPath,
+  getPreloadableDependencyManifestName,
   PACKAGE_JSON,
   fillManifestCaches,
-  PNPM_WORKSPACE_YAML,
+  PRELOADABLE_DEPENDENCY_MANIFESTS,
+  type PreloadableDependencyManifestName,
+  isPreloadableDependencyManifestPath,
 } from '../jsts/rules/helpers/dependency-manifests/index.js';
-import { basename } from 'node:path/posix';
 
 export const UNINITIALIZED_ERROR =
   'dependency manifest cache has not been initialized. Call loadFiles() first.';
 
+type ManifestFilesByName = Record<
+  PreloadableDependencyManifestName,
+  Map<NormalizedAbsolutePath, File>
+>;
+
+function createManifestFilesByName(): ManifestFilesByName {
+  return Object.fromEntries(
+    PRELOADABLE_DEPENDENCY_MANIFESTS.map(manifestName => [manifestName, new Map()]),
+  ) as ManifestFilesByName;
+}
+
 export class DependencyManifestStore implements FileStore {
-  private readonly packageJsons: Map<NormalizedAbsolutePath, File> = new Map();
-  private readonly denoManifestsByName: Record<
-    typeof DENO_JSON | typeof DENO_JSONC,
-    Map<NormalizedAbsolutePath, File>
-  > = {
-    [DENO_JSON]: new Map(),
-    [DENO_JSONC]: new Map(),
-  };
+  private readonly manifestsByName = createManifestFilesByName();
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private readonly dirnameToParent: Map<
     NormalizedAbsolutePath,
@@ -62,7 +64,7 @@ export class DependencyManifestStore implements FileStore {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    return this.packageJsons;
+    return this.manifestsByName[PACKAGE_JSON];
   }
 
   dirtyCachesIfNeeded(configuration: Configuration) {
@@ -72,10 +74,7 @@ export class DependencyManifestStore implements FileStore {
       return;
     }
     for (const filename of fsEvents) {
-      if (
-        isDependencyManifestPath(filename) ||
-        basename(filename).toLowerCase() === PNPM_WORKSPACE_YAML
-      ) {
+      if (isPreloadableDependencyManifestPath(filename)) {
         this.clearCache();
         return;
       }
@@ -84,9 +83,9 @@ export class DependencyManifestStore implements FileStore {
 
   clearCache() {
     this.baseDir = undefined;
-    this.packageJsons.clear();
-    this.denoManifestsByName[DENO_JSON].clear();
-    this.denoManifestsByName[DENO_JSONC].clear();
+    for (const manifestFiles of Object.values(this.manifestsByName)) {
+      manifestFiles.clear();
+    }
     this.dirnameToParent.clear();
     debug('Clearing dependencies cache');
     clearDependenciesCache();
@@ -101,17 +100,15 @@ export class DependencyManifestStore implements FileStore {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    if (!isDependencyManifestPath(filename)) {
+    if (!isPreloadableDependencyManifestPath(filename)) {
       return;
     }
     try {
       const content = await readFile(filename, 'utf-8');
       const file = { content, path: filename };
-      const manifestName = getDependencyManifestName(filename);
-      if (manifestName === PACKAGE_JSON) {
-        this.packageJsons.set(dirnamePath(filename), file);
-      } else if (manifestName) {
-        this.denoManifestsByName[manifestName].set(dirnamePath(filename), file);
+      const manifestName = getPreloadableDependencyManifestName(filename);
+      if (manifestName) {
+        this.manifestsByName[manifestName].set(dirnamePath(filename), file);
       }
     } catch (e) {
       warn(`Error reading dependency manifest ${filename}: ${e}`);
@@ -126,18 +123,13 @@ export class DependencyManifestStore implements FileStore {
     if (!this.baseDir) {
       throw new Error(UNINITIALIZED_ERROR);
     }
-    fillManifestCaches(PACKAGE_JSON, this.packageJsons, this.dirnameToParent, this.baseDir);
-    fillManifestCaches(
-      DENO_JSON,
-      this.denoManifestsByName[DENO_JSON],
-      this.dirnameToParent,
-      this.baseDir,
-    );
-    fillManifestCaches(
-      DENO_JSONC,
-      this.denoManifestsByName[DENO_JSONC],
-      this.dirnameToParent,
-      this.baseDir,
-    );
+    for (const manifestName of PRELOADABLE_DEPENDENCY_MANIFESTS) {
+      fillManifestCaches(
+        manifestName,
+        this.manifestsByName[manifestName],
+        this.dirnameToParent,
+        this.baseDir,
+      );
+    }
   }
 }

@@ -128,7 +128,7 @@
             <fileset>
               <directory>${project.basedir}/src/main/resources</directory>
               <includes>
-                <include>node-info.properties</include>
+                <include>org/sonar/plugins/javascript/bridge/node-info.properties</include>
               </includes>
             </fileset>
           </filesets>

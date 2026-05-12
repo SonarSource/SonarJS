@@ -21,7 +21,6 @@ import { rule } from './rule.js';
 
 describe('S5914', () => {
   it('reports assertions that always succeed or fail', () => {
-    process.chdir(import.meta.dirname);
     const ruleTester = new NoTypeCheckingRuleTester();
     const jestFixture = path.join(import.meta.dirname, 'fixtures', 'jest', 'test.js');
     const jasmineFixture = path.join(import.meta.dirname, 'fixtures', 'jasmine', 'test.js');

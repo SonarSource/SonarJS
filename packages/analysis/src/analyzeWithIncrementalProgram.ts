@@ -27,11 +27,11 @@ import { sanitizeReferences } from './jsts/program/tsconfig/utils.js';
 import ts from 'typescript';
 import { createOrGetCachedProgramForFile } from './jsts/program/factory.js';
 import {
-  computeLibJson,
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
   esLibToYear,
+  groupFilesByResolvedLib,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from './jsts/program/tsconfig/options.js';
@@ -185,12 +185,35 @@ function programOptionsFromClosestTsconfig(
 
   try {
     // TODO(JS-1138): File order can affect program combinations - improve strategy
+    const { jsSuffixes, tsSuffixes } = jsTsConfigFields.shouldIgnoreParams;
+    const coveredRootNames = new Set(foundProgramOptions.flatMap(program => program.rootNames));
+    const orphanCandidates = Array.from(pendingFiles).filter(
+      pendingFile =>
+        isJsTsFile(pendingFile, { jsSuffixes, tsSuffixes }) && !coveredRootNames.has(pendingFile),
+    );
+
+    // Restrict the orphan program to files that resolve to the same lib as `file`.
+    // Without this, the program could contain rootNames from other orphan packages
+    // or even tsconfig-covered files that happen to share the same effective lib —
+    // the membership-keyed program cache would then replay this program for those
+    // files instead of letting them build against the correct configuration.
+    const groups = groupFilesByResolvedLib(
+      orphanCandidates,
+      baseDir,
+      jsTsConfigFields.ecmaScriptVersion,
+    );
+    const fileGroup = groups.find(g => g.files.includes(file));
+    if (!fileGroup) {
+      // Defensive: `file` is in `pendingFiles`, so grouping must yield a bucket for it.
+      error(`Failed to resolve lib group for orphan file ${file}`);
+      return undefined;
+    }
     const programOptions = createProgramOptionsFromJson(
       {
         ...defaultCompilerOptions,
-        lib: computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, baseDir),
+        lib: fileGroup.lib,
       },
-      [...pendingFiles],
+      fileGroup.files,
       baseDir,
     );
     info(
@@ -198,7 +221,7 @@ function programOptionsFromClosestTsconfig(
     );
     return programOptions;
   } catch (e) {
-    error(`Failed to generate program from merged config: ${e}`);
+    error(`Failed to generate program for orphan file fallback: ${e}`);
   }
 }
 

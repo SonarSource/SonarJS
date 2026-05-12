@@ -587,4 +587,95 @@ describe('SonarLint tsconfig change detection', () => {
     const errorMessages = consoleErrorMock.calls.map(call => call.arguments[0] as string);
     expect(errorMessages.some(msg => msg?.startsWith(expectedPrefix))).toBe(true);
   });
+
+  it('should isolate orphan-file programs per package in a single request (JS-1723)', async () => {
+    // One SonarLint request that includes orphan JS files from two packages with different
+    // Node.js signals. Before the fix, the first orphan creates a program whose rootNames
+    // include the other package's file → `findProgramForFile` returns the same program for
+    // the second orphan (Cache HIT against the wrong-lib program). After the fix, each
+    // package gets its own program: the second orphan is a Cache MISS, and the program
+    // cache ends up with one entry per resolved lib.
+    const baseDir = normalizePath(join(fixtures, 'monorepo-orphan-libs'));
+    const orphanA = join(baseDir, 'pkgA/orphan-a.js');
+    const orphanB = join(baseDir, 'pkgB/orphan-b.js');
+
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const cacheManager = getProgramCacheManager();
+    cacheManager.clear();
+
+    const configuration = await initForTest(
+      { baseDir, sonarlint: true, createTSProgramForOrphanFiles: true },
+      {
+        [orphanA]: { filePath: orphanA, fileContent: 'const a = 1;\n' },
+        [orphanB]: { filePath: orphanB, fileContent: 'const b = 1;\n' },
+      },
+    );
+
+    await analyzeProject({ rules, bundles: [] }, configuration);
+
+    // The second orphan must NOT hit the program created for the first orphan.
+    const hitLogsForOrphanB = consoleLogMock.calls.filter(call => {
+      const msg = call.arguments[0] as string;
+      return typeof msg === 'string' && msg.includes('Cache HIT') && msg.includes(orphanB);
+    });
+    expect(hitLogsForOrphanB).toEqual([]);
+
+    // After the request, the program cache holds one entry per distinct lib group (≥2),
+    // not a single shared program serving both packages.
+    const stats = cacheManager.getCacheStats();
+    expect(stats.size).toBeGreaterThanOrEqual(2);
+  });
+
+  it('should not let an orphan fallback program capture tsconfig-covered files with the same lib (JS-1723)', async () => {
+    const baseDir = normalizePath(join(fixtures, 'monorepo-orphan-libs'));
+    const tsconfigPath = join(baseDir, 'tsconfig.json');
+    const orphanA = join(baseDir, 'pkgA/orphan-a.js');
+    const coveredFile = join(baseDir, 'covered.ts');
+
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const cacheManager = getProgramCacheManager();
+    cacheManager.clear();
+
+    const configuration = await initForTest(
+      { baseDir, sonarlint: true, createTSProgramForOrphanFiles: true },
+      {
+        [orphanA]: { filePath: orphanA, fileContent: 'const a = 1;\n' },
+        [coveredFile]: {
+          filePath: coveredFile,
+          fileContent: 'export const covered: number = 1;\n',
+        },
+      },
+    );
+
+    await analyzeProject({ rules, bundles: [] }, configuration);
+
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes(
+          'No tsconfig found for files, using default options',
+        ),
+      ),
+    ).toBe(true);
+
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes(
+          `Using tsconfig ${tsconfigPath} for ${coveredFile}`,
+        ),
+      ),
+    ).toBe(true);
+
+    const coveredHitLogs = consoleLogMock.calls.filter(call => {
+      const msg = call.arguments[0] as string;
+      return typeof msg === 'string' && msg.includes('Cache HIT') && msg.includes(coveredFile);
+    });
+    expect(coveredHitLogs).toEqual([]);
+
+    const stats = cacheManager.getCacheStats();
+    expect(stats.size).toEqual(2);
+  });
 });

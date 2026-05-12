@@ -24,6 +24,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
+import { parseInlineNPMImport } from '../helpers/dependency-manifests/resolvers/deno.js';
 import type { DependenciesList } from '../helpers/dependency-manifests/resolvers/types.js';
 
 const messages = {
@@ -109,6 +110,11 @@ function raiseOnImplicitImport(
   }
 
   if (['node:', 'data:', 'file:'].some(prefix => moduleName.startsWith(prefix))) {
+    return;
+  }
+
+  // Deno inline npm imports (e.g. 'npm:zod@4.3.6') are self-declaring — no manifest entry needed.
+  if (parseInlineNPMImport(moduleName) !== undefined) {
     return;
   }
 

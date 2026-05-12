@@ -296,6 +296,7 @@ describe('SonarQube project analysis', () => {
           ecmaScriptVersions: ['not-detected'],
           esmFileCount: 0,
           cjsFileCount: 0,
+          denoImportCounts: {},
           programCreation: {
             attempted: 0,
             succeeded: 0,
@@ -853,5 +854,53 @@ describe('SonarQube project analysis', () => {
     expect(result.meta.telemetry?.compilerOptions.jsx).toEqual(
       expect.arrayContaining(['preserve', 'react-jsx']),
     );
+  });
+
+  it('should resolve orphan-file lib per package even when tsconfigs are present (JS-1723)', async () => {
+    // Monorepo with one tsconfig-covered file (populates foundProgramOptions) plus orphan
+    // JS files in nested packages with distinct Node.js signals:
+    //   pkgA: @types/node ^22 → ES2024
+    //   pkgB: engines.node "10" → ES2018
+    // Each orphan must be analyzed under its own package's lib, not a merged/global one.
+    const baseDir = join(fixtures, 'monorepo-orphan-libs');
+    const coveredFile = join(baseDir, 'covered.ts');
+    const orphanA = join(baseDir, 'pkgA/orphan-a.js');
+    const orphanB = join(baseDir, 'pkgB/orphan-b.js');
+
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const configuration = await initForTest(
+      { baseDir, createTSProgramForOrphanFiles: true },
+      {
+        [coveredFile]: { filePath: coveredFile, fileType: 'MAIN' },
+        [orphanA]: { filePath: orphanA, fileType: 'MAIN' },
+        [orphanB]: { filePath: orphanB, fileType: 'MAIN' },
+      },
+    );
+
+    const result = await analyzeProject({ rules, bundles: [] }, configuration);
+
+    // Orphan analysis emits `Analyzing N file(s) using <label> [lib: ...]` per program.
+    // tsconfig-covered analysis emits `Analyzing N file(s) from tsconfig ...` (no `using`).
+    const orphanAnalyzingLogs = consoleLogMock.calls
+      .map(call => call.arguments[0] as string)
+      .filter(line => /Analyzing \d+ file\(s\) using .* \[lib: .*\]/.test(line));
+
+    // The orphan phase must split into at least two programs (one per resolved lib).
+    expect(orphanAnalyzingLogs.length).toBeGreaterThanOrEqual(2);
+
+    // Distinct libs across orphan programs — assert as a set, not by order.
+    const orphanLibs = new Set(
+      orphanAnalyzingLogs.map(line => /\[lib: ([^\]]+)\]/.exec(line)?.[1] ?? ''),
+    );
+    expect(orphanLibs.size).toBeGreaterThanOrEqual(2);
+    expect([...orphanLibs].some(lib => lib.includes('es2024'))).toBe(true);
+    expect([...orphanLibs].some(lib => lib.includes('es2018'))).toBe(true);
+
+    // Telemetry should record both ES versions (the tsconfig-covered file shares
+    // ES2024 with pkgA from `target`, and pkgB contributes ES2018).
+    const esVersions = result.meta.telemetry?.ecmaScriptVersions ?? [];
+    expect(esVersions).toEqual(expect.arrayContaining(['ES2018', 'ES2024']));
   });
 });

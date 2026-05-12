@@ -20,10 +20,10 @@ import { filterFileType } from './filter-file-type.js';
 import { filterAnalysisMode } from './filter-analysis-mode.js';
 import { filterLanguage } from './filter-language.js';
 import { filterBlacklistedExtensions } from './filter-blacklisted-extensions.js';
-import { filterDependency } from './filter-dependency.js';
 import { filterReactVue } from './filter-react-vue.js';
 import { filterEcmaVersion } from './filter-ecma-version.js';
 import { filterModuleType } from './filter-module-type.js';
+import { filterDependency } from './filter-dependency.js';
 
 export type { RuleFilterContext } from './rule-filter.js';
 
@@ -33,13 +33,16 @@ export type { RuleFilterContext } from './rule-filter.js';
  * Cheap config-based filters are ordered first to short-circuit early.
  * To add a new filter: create a filter-*.ts file and append it here.
  */
-export const RULE_FILTERS: readonly RuleFilter[] = [
+export const DEPENDENCY_INDEPENDENT_RULE_FILTERS: readonly RuleFilter[] = [
   filterFileType,
   filterAnalysisMode,
   filterLanguage,
   filterBlacklistedExtensions,
-  filterDependency,
-  filterReactVue,
   filterEcmaVersion,
   filterModuleType,
+];
+
+export const DEPENDENCY_SENSITIVE_RULE_FILTERS: readonly RuleFilter[] = [
+  filterReactVue,
+  filterDependency,
 ];

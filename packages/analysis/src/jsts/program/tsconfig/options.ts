@@ -20,6 +20,8 @@ import {
   getNodeVersionSignal,
   getTypeScriptVersionSignal,
 } from '../../rules/helpers/dependency-manifests/dependencies.js';
+import { getClosestDependencyManifestDir } from '../../rules/helpers/dependency-manifests/closest.js';
+import { dirnamePath } from '../../rules/helpers/files.js';
 import { dirname } from 'node:path/posix';
 import { getTsConfigContentCache } from '../cache/tsconfigCache.js';
 import { isLastTsConfigCheck } from './utils.js';
@@ -247,40 +249,10 @@ function targetStringToEsYear(target: string): number | null {
   return null;
 }
 
-/**
- * Computes the best lib JSON string array for the project from available signals,
- * returning values suitable for passing directly to createProgramOptionsFromJson
- * or injecting into a raw tsconfig JSON before ts.parseJsonConfigFileContent.
- *
- * ## Background: target vs lib
- *
- * TypeScript separates two independent concerns:
- * - `target` controls *output syntax* (e.g. ES5 → transpile classes, arrow functions, etc.)
- * - `lib` controls *type definitions* — what built-in APIs TypeScript knows about
- *
- * ## Why we take the maximum
- *
- * Two signals are relevant: `tsconfig.target` and the Node.js version inferred from
- * package.json (`@types/node`, `engines.node`, `.nvmrc`).
- *
- * Neither signal alone is sufficient:
- * - target alone misses the case where a project compiles to ES5 for broad browser
- *   support but runs on Node 22 at build time, where modern APIs (e.g. `Array.at()`)
- *   are available. Using target ES5 → ES2020 would suppress valid findings.
- * - node signals alone miss the case where target is set to ES2022 but the only
- *   package.json node signal is `@types/node@16` (ES2021), which would suppress valid
- *   ES2022 findings (e.g. `Array.at()` which requires `lib.es2022.array.d.ts`).
- *
- * ## Resolution order
- * 1. `sonar.javascript.ecmaScriptVersion` override → always wins when provided
- * 2. max(tsconfig.target, package.json node signals) → use the higher ES year
- * 3. esnext fallback when no signals are found at all
- *
- * @param ecmaScriptVersion explicit ES version override from sonar.javascript.ecmaScriptVersion
- * @param targetJson raw JSON target string from tsconfig (e.g. 'ES2022', 'ES5', 'ESNext')
- * @param baseDir project base directory used to locate package.json
- * @returns raw JSON lib string array (e.g. ['es2022', 'dom'])
- */
+function targetOptionToString(target: ts.ScriptTarget | undefined): string | undefined {
+  return target === undefined ? undefined : ts.ScriptTarget[target];
+}
+
 /**
  * Extracts the ES year from a normalized TypeScript lib array.
  * Returns null for esnext (no ES version restriction applies).
@@ -309,10 +281,49 @@ export function esLibToYear(lib: string[] | undefined): number | null {
   return maxYear;
 }
 
+/**
+ * Computes the best lib JSON string array for the project from available signals,
+ * returning values suitable for passing directly to createProgramOptionsFromJson
+ * or injecting into a raw tsconfig JSON before ts.parseJsonConfigFileContent.
+ * See https://www.typescriptlang.org/tsconfig/#lib.
+ *
+ * ## Background: target vs lib
+ *
+ * TypeScript separates two independent concerns:
+ * - `target` controls *output syntax* (e.g. ES5 → transpile classes, arrow functions, etc.)
+ * - `lib` controls *type definitions* — what built-in APIs TypeScript knows about
+ *
+ * ## Why we take the maximum
+ *
+ * Two signals are relevant: `tsconfig.target` and the Node.js version inferred from
+ * package.json (`@types/node`, `engines.node`, `.nvmrc`).
+ *
+ * Neither signal alone is sufficient:
+ * - target alone misses the case where a project compiles to ES5 for broad browser
+ *   support but runs on Node 22 at build time, where modern APIs (e.g. `Array.at()`)
+ *   are available. Using target ES5 → ES2020 would suppress valid findings.
+ * - node signals alone miss the case where target is set to ES2022 but the only
+ *   package.json node signal is `@types/node@16` (ES2021), which would suppress valid
+ *   ES2022 findings (e.g. `Array.at()` which requires `lib.es2022.array.d.ts`).
+ *
+ * ## Resolution order
+ * 1. `sonar.javascript.ecmaScriptVersion` override → always wins when provided
+ * 2. max(tsconfig.target, package.json node signals) → use the higher ES year
+ * 3. esnext fallback when no signals are found at all
+ *
+ * @param ecmaScriptVersion explicit ES version override from sonar.javascript.ecmaScriptVersion
+ * @param targetJson tsconfig target string (raw or post-extends-resolved, e.g. 'ES2022', 'ES5', 'ESNext')
+ * @param packageDir directory to start the upward search for the closest package.json
+ *   carrying a Node.js signal (typically the tsconfig directory or an orphan file's directory)
+ * @param baseDir analysis base directory; upper bound for the upward walk. Defaults to
+ *   `packageDir` for backward compatibility with single-arg call sites.
+ * @returns raw JSON lib string array (e.g. ['es2022', 'dom'])
+ */
 export function computeLibJson(
   ecmaScriptVersion: string | undefined,
   targetJson: string | undefined,
-  baseDir: NormalizedAbsolutePath,
+  packageDir: NormalizedAbsolutePath,
+  baseDir: NormalizedAbsolutePath = packageDir,
 ): string[] {
   if (ecmaScriptVersion) {
     const year = esYearFromEsPrefix(ecmaScriptVersion);
@@ -330,7 +341,7 @@ export function computeLibJson(
     }
   }
 
-  const nodeSignal = getNodeVersionSignal(baseDir);
+  const nodeSignal = getNodeVersionSignal(packageDir, baseDir);
   if (nodeSignal) {
     const major = parseMaxNodeMajor(nodeSignal);
     if (major !== null) {
@@ -343,6 +354,47 @@ export function computeLibJson(
   }
 
   return [`es${Math.max(...years)}`, 'dom'];
+}
+
+type LibGroup = {
+  lib: string[];
+  libKey: string;
+  files: NormalizedAbsolutePath[];
+};
+
+/**
+ * Buckets a set of files by the `lib` each one resolves to (via its closest
+ * package.json's Node.js signal). Files producing the same lib share a bucket;
+ * files in packages with different signals end up in separate buckets, so the
+ * caller can build one TypeScript program per bucket and avoid leaking the
+ * wrong lib across packages in a monorepo.
+ *
+ * Cheap by construction: each unique pkgDir runs `computeLibJson` once.
+ */
+export function groupFilesByResolvedLib(
+  files: Iterable<NormalizedAbsolutePath>,
+  baseDir: NormalizedAbsolutePath,
+  ecmaScriptVersion: string | undefined,
+): LibGroup[] {
+  const libByPkgDir = new Map<NormalizedAbsolutePath, { lib: string[]; libKey: string }>();
+  const groups = new Map<string, LibGroup>();
+
+  for (const file of files) {
+    const pkgDir = getClosestDependencyManifestDir(dirnamePath(file), baseDir) ?? baseDir;
+    let cached = libByPkgDir.get(pkgDir);
+    if (!cached) {
+      const lib = computeLibJson(ecmaScriptVersion, undefined, pkgDir, baseDir);
+      cached = { lib, libKey: lib.join('|') };
+      libByPkgDir.set(pkgDir, cached);
+    }
+    let bucket = groups.get(cached.libKey);
+    if (!bucket) {
+      bucket = { lib: cached.lib, libKey: cached.libKey, files: [] };
+      groups.set(cached.libKey, bucket);
+    }
+    bucket.files.push(file);
+  }
+  return [...groups.values()];
 }
 
 /**
@@ -516,9 +568,20 @@ export function createProgramOptions(
   // Uses ts.convertCompilerOptionsFromJson to convert raw JSON strings to TypeScript's
   // internal format, avoiding hardcoded lib file names.
   if (baseDir && !parsedConfigFile.options.lib) {
+    // Anchor the Node.js signal lookup at the tsconfig's package, not the analysis root,
+    // so nested packages in a monorepo get their own signal. When the tsconfig path is
+    // not nested under baseDir (e.g. virtual/relative paths used in tests), fall back to
+    // the analysis root.
+    const tsconfigDir = normalizeToAbsolutePath(dirname(tsConfig));
+    const tsconfigDirUnderBase =
+      tsconfigDir === baseDir || (tsconfigDir + '/').startsWith(baseDir + '/');
+    const packageDir = tsconfigDirUnderBase
+      ? (getClosestDependencyManifestDir(tsconfigDir, baseDir) ?? baseDir)
+      : baseDir;
     const jsonLib = computeLibJson(
       ecmaScriptVersion,
-      config.config?.compilerOptions?.target,
+      targetOptionToString(parsedConfigFile.options.target),
+      packageDir,
       baseDir,
     );
     const { options: libOptions } = ts.convertCompilerOptionsFromJson({ lib: jsonLib }, baseDir);

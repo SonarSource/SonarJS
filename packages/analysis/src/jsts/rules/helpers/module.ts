@@ -18,7 +18,10 @@ import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { type Node, getUniqueWriteReference, getVariableFromScope, isIdentifier } from './ast.js';
-import { getDependenciesSanitizePaths } from './dependency-manifests/dependencies.js';
+import {
+  getDependenciesSanitizePaths,
+  setCurrentFileInlineDependencies,
+} from './dependency-manifests/dependencies.js';
 
 /**
  * Checks if the current file is an ES module based on sourceType.
@@ -45,12 +48,12 @@ export function getImportDeclarations(context: Rule.RuleContext): estree.ImportD
  * self-invalidates when ESLint's RuleTester switches between test cases (each case gets a fresh
  * SourceCode instance).
  */
-const CURRENT_FILE_DEPS: {
+const CURRENT_FILE_IMPORTS: {
   sourceCode: SourceCode | null;
-  deps: Set<string>;
+  imports: Set<string>;
 } = {
   sourceCode: null,
-  deps: new Set(),
+  imports: new Set(),
 };
 
 /**
@@ -68,18 +71,18 @@ const CURRENT_FILE_DEPS: {
  * require('lodash');
  * import('lodash').then(lodash => ...);
  */
-function computeCurrentFileDependencies(sourceCode: SourceCode): void {
-  if (CURRENT_FILE_DEPS.sourceCode === sourceCode) {
+function computeCurrentFileImports(sourceCode: SourceCode): void {
+  if (CURRENT_FILE_IMPORTS.sourceCode === sourceCode) {
     return;
   }
 
-  CURRENT_FILE_DEPS.sourceCode = sourceCode;
-  CURRENT_FILE_DEPS.deps.clear();
+  CURRENT_FILE_IMPORTS.sourceCode = sourceCode;
+  CURRENT_FILE_IMPORTS.imports.clear();
 
   if (sourceCode.ast.sourceType === 'module') {
     for (const node of sourceCode.ast.body) {
       if (node.type === 'ImportDeclaration' && typeof node.source.value === 'string') {
-        CURRENT_FILE_DEPS.deps.add(node.source.value);
+        CURRENT_FILE_IMPORTS.imports.add(node.source.value);
       }
     }
   }
@@ -91,7 +94,7 @@ function computeCurrentFileDependencies(sourceCode: SourceCode): void {
           const name =
             getRequireModuleName(def.node.init) ?? getDynamicImportModuleName(def.node.init);
           if (name !== undefined) {
-            CURRENT_FILE_DEPS.deps.add(name);
+            CURRENT_FILE_IMPORTS.imports.add(name);
           }
         }
       }
@@ -103,8 +106,14 @@ function computeCurrentFileDependencies(sourceCode: SourceCode): void {
  * Clears the caches related to the given source file
  */
 export function clearFileCaches(): void {
-  CURRENT_FILE_DEPS.sourceCode = null;
-  CURRENT_FILE_DEPS.deps.clear();
+  CURRENT_FILE_IMPORTS.sourceCode = null;
+  CURRENT_FILE_IMPORTS.imports.clear();
+  setCurrentFileInlineDependencies(null);
+}
+
+export function getCurrentFileImports(sourceCode: SourceCode): ReadonlySet<string> {
+  computeCurrentFileImports(sourceCode);
+  return CURRENT_FILE_IMPORTS.imports;
 }
 
 function getRequireModuleName(node: estree.Node): string | undefined {
@@ -152,8 +161,8 @@ export function importsModule(context: Rule.RuleContext, moduleNames: string[]):
   if (moduleNames.length === 0) {
     return false;
   }
-  computeCurrentFileDependencies(context.sourceCode);
-  return moduleNames.some(name => CURRENT_FILE_DEPS.deps.has(name));
+  const imports = getCurrentFileImports(context.sourceCode);
+  return moduleNames.some(name => imports.has(name));
 }
 
 /**

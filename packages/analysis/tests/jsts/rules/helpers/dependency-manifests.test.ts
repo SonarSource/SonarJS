@@ -19,13 +19,37 @@ import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { normalizeToAbsolutePath } from '../../../../src/jsts/rules/helpers/files.js';
 import { getDependencyManifests } from '../../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
+import { parseInlineNPMImport } from '../../../../src/jsts/rules/helpers/dependency-manifests/resolvers/deno.js';
+import {
+  setCurrentFileInlineDependencies,
+  withCurrentFileInlineDependencies,
+} from '../../../../src/jsts/rules/helpers/dependency-manifests/dependencies.js';
+import { getParentDirPath } from '../../../../src/jsts/rules/helpers/dependency-manifests/resolvers/helpers.js';
+
+describe('getParentDirPath', () => {
+  it('should return the parent directory of a nested path', () => {
+    const parent = normalizeToAbsolutePath(import.meta.dirname);
+    const child = normalizeToAbsolutePath(path.join(import.meta.dirname, 'fixtures'));
+    expect(getParentDirPath(child)).toBe(parent);
+  });
+
+  it('should return null for the filesystem root', () => {
+    let current = normalizeToAbsolutePath(import.meta.dirname);
+    let parent = getParentDirPath(current);
+    while (parent !== null) {
+      current = parent;
+      parent = getParentDirPath(current);
+    }
+    expect(getParentDirPath(current)).toBeNull();
+  });
+});
 
 describe('package-json', () => {
   it('should handle arrays in package-jsons dependency versions', async () => {
     const currentDirectory = normalizeToAbsolutePath(path.join(import.meta.dirname, 'fixtures'));
     const manifests = getDependencyManifests(currentDirectory, currentDirectory);
-    const npmManifest = manifests.find(({ type }) => type === 'npm');
-    expect(npmManifest?.type).toBe('npm');
+    const npmManifest = manifests.find(({ type }) => type === 'package-json');
+    expect(npmManifest?.type).toBe('package-json');
     expect(npmManifest?.dependencies).toEqual(new Map([['foo', 'file:bar']]));
   });
 
@@ -55,5 +79,79 @@ describe('package-json', () => {
         // 'invalidScoped' ("npm:@scope") is filtered out — not added to the map
       ]),
     );
+  });
+});
+
+describe('parseInlineNPMImport', () => {
+  it('should parse package with version', () => {
+    expect(parseInlineNPMImport('npm:zod@4.3.6')).toEqual({
+      packageName: 'zod',
+      version: '4.3.6',
+    });
+  });
+
+  it('should parse scoped package with version and subpath', () => {
+    expect(parseInlineNPMImport('npm:@scope/pkg@1.2.3/subpath')).toEqual({
+      packageName: '@scope/pkg',
+      version: '1.2.3',
+    });
+  });
+
+  it('should return undefined for jsr package specifiers', () => {
+    expect(parseInlineNPMImport('jsr:@std/assert@^1.0.0')).toBeUndefined();
+  });
+
+  it('should return undefined for https package specifiers', () => {
+    expect(parseInlineNPMImport('https://example.com/package')).toBeUndefined();
+  });
+});
+
+describe('withCurrentFileInlineDependencies', () => {
+  it('should register the version of inline imports in the merged map', () => {
+    setCurrentFileInlineDependencies(new Map([['react', '18.2.0']]));
+    try {
+      const merged = withCurrentFileInlineDependencies(new Map());
+      expect(merged.get('react')).toBe('18.2.0');
+    } finally {
+      setCurrentFileInlineDependencies(null);
+    }
+  });
+
+  it('should preserve undefined version for inline imports without a version', () => {
+    setCurrentFileInlineDependencies(new Map([['react', undefined]]));
+    try {
+      const merged = withCurrentFileInlineDependencies(new Map());
+      expect(merged.has('react')).toBe(true);
+      expect(merged.get('react')).toBeUndefined();
+    } finally {
+      setCurrentFileInlineDependencies(null);
+    }
+  });
+
+  it('should give precedence to the inline version over the manifest version on conflict', () => {
+    setCurrentFileInlineDependencies(new Map([['react', '19.1.0']]));
+    try {
+      const merged = withCurrentFileInlineDependencies(new Map([['react', '^18.0.0']]));
+      expect(merged.get('react')).toBe('19.1.0');
+    } finally {
+      setCurrentFileInlineDependencies(null);
+    }
+  });
+
+  it('should preserve unrelated manifest entries when merging', () => {
+    setCurrentFileInlineDependencies(new Map([['zod', '4.3.6']]));
+    try {
+      const merged = withCurrentFileInlineDependencies(new Map([['react', '^18.0.0']]));
+      expect(merged.get('react')).toBe('^18.0.0');
+      expect(merged.get('zod')).toBe('4.3.6');
+    } finally {
+      setCurrentFileInlineDependencies(null);
+    }
+  });
+
+  it('should return the manifest unchanged when there are no inline imports', () => {
+    setCurrentFileInlineDependencies(null);
+    const manifest = new Map([['react', '^18.0.0']]);
+    expect(withCurrentFileInlineDependencies(manifest)).toBe(manifest);
   });
 });

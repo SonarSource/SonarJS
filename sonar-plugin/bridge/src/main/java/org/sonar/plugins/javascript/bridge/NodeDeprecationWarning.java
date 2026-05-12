@@ -33,7 +33,8 @@ import org.sonarsource.api.sonarlint.SonarLintSide;
 public class NodeDeprecationWarning {
 
   private static final Logger LOG = LoggerFactory.getLogger(NodeDeprecationWarning.class);
-  private static final String NODE_PROPERTIES_FILE = "/node-info.properties";
+  private static final String NODE_PROPERTIES_FILE = "node-info.properties";
+  private static final String NODE_SUPPORTED_VERSIONS_PROPERTY = "node.supported.versions";
   static final Version MIN_SUPPORTED_NODE_VERSION;
   private static final List<String> RECOMMENDED_NODE_VERSIONS;
   public static final Version RECOMMENDED_NODE_VERSION;
@@ -41,10 +42,17 @@ public class NodeDeprecationWarning {
 
   static {
     Properties props = loadProperties(NODE_PROPERTIES_FILE);
-    MIN_SUPPORTED_NODE_VERSION = Version.parse(props.getProperty("node.version.min"));
-    RECOMMENDED_NODE_VERSIONS = Arrays.asList(
-      props.getProperty("node.recommended.versions").split(",")
-    );
+    String supportedVersions = props.getProperty(NODE_SUPPORTED_VERSIONS_PROPERTY);
+    if (supportedVersions == null || supportedVersions.isBlank()) {
+      throw new ExceptionInInitializerError(
+        "Failed to load " +
+          NODE_PROPERTIES_FILE +
+          ": missing required property " +
+          NODE_SUPPORTED_VERSIONS_PROPERTY
+      );
+    }
+    RECOMMENDED_NODE_VERSIONS = Arrays.asList(supportedVersions.split(","));
+    MIN_SUPPORTED_NODE_VERSION = Version.parse(RECOMMENDED_NODE_VERSIONS.get(0));
     RECOMMENDED_NODE_VERSION = Version.parse(
       RECOMMENDED_NODE_VERSIONS.get(RECOMMENDED_NODE_VERSIONS.size() - 1)
     );
@@ -58,7 +66,7 @@ public class NodeDeprecationWarning {
     try (InputStream inputStream = NodeDeprecationWarning.class.getResourceAsStream(resourceName)) {
       return loadProperties(inputStream);
     } catch (IOException ex) {
-      throw new ExceptionInInitializerError("Failed to load " + NODE_PROPERTIES_FILE + ": " + ex);
+      throw new ExceptionInInitializerError("Failed to load " + resourceName + ": " + ex);
     }
   }
 
