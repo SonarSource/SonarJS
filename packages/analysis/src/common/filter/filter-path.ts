@@ -76,12 +76,34 @@ function looksLikeTestFile(filePath: NormalizedAbsolutePath): boolean {
   return TEST_RELATED_FILE_PATTERN.test(filePath);
 }
 
+function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolutePath[]): boolean {
+  return paths.some(path => filePath === path || filePath.startsWith(`${path}/`));
+}
+
 function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
-  const { testPaths, testExclusions, testInclusions } = params;
-  if (!testPaths?.length && !testInclusions?.length && !testExclusions?.length) {
-    return looksLikeTestFile(filePath);
+  const { testPaths, testExclusions, testInclusions, inclusions, sourcesPaths } = params;
+
+  // If `sonar.tests` is not configured, fall back to the filename heuristic — unless the file
+  // qualifies as MAIN via the user's `sonar.inclusions` (which narrows `sonar.sources`), in which
+  // case the user has explicitly opted it into MAIN scope and we should not second-guess them.
+  if (!testPaths.length) {
+    if (
+      inclusions.length > 0 &&
+      fileIsUnder(filePath, sourcesPaths) &&
+      inclusions.some(inclusion => inclusion.match(filePath))
+    ) {
+      return false;
+    }
+    const doesLookLikeTestFile = looksLikeTestFile(filePath);
+    if (doesLookLikeTestFile) {
+      debug(
+        `Test file detected: ${filePath}. If this file should not be treated as a test, please configure sonar.tests or adjust your sonar.sources/sonar.inclusions to explicitly include it as MAIN.`,
+      );
+    }
+    return doesLookLikeTestFile;
   }
-  if (!testPaths?.some(testPath => filePath === testPath || filePath.startsWith(`${testPath}/`))) {
+
+  if (!fileIsUnder(filePath, testPaths)) {
     return false;
   }
   if (testExclusions?.some(exclusion => exclusion.match(filePath))) {
@@ -95,11 +117,7 @@ function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams):
 
 function fileIsMain(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
   const { sourcesPaths, exclusions, inclusions } = params;
-  if (
-    !sourcesPaths.some(
-      sourcePath => filePath === sourcePath || filePath.startsWith(`${sourcePath}/`),
-    )
-  ) {
+  if (!fileIsUnder(filePath, sourcesPaths)) {
     return false;
   }
 

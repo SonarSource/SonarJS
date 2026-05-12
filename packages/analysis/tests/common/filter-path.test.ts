@@ -242,7 +242,9 @@ describe('filter path', () => {
       expect(result).toBe('MAIN');
     });
 
-    it('should NOT apply heuristic when testInclusions is configured', ({ mock }) => {
+    it('should still apply heuristic when only testInclusions is set (inert without testPaths)', ({
+      mock,
+    }) => {
       console.log = mock.fn(console.log);
       const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
       const config = createConfiguration({
@@ -251,16 +253,30 @@ describe('filter path', () => {
         testInclusions: ['**/*IntegrationTest.ts'],
       });
       const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
-      expect(result).toBe('MAIN');
+      expect(result).toBe('TEST');
     });
 
-    it('should NOT apply heuristic when testExclusions is configured', ({ mock }) => {
+    it('should still apply heuristic when only testExclusions is set (inert without testPaths)', ({
+      mock,
+    }) => {
       console.log = mock.fn(console.log);
       const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
       const config = createConfiguration({
         baseDir: '/project',
         sources: ['src'],
         testExclusions: ['**/fixtures/**'],
+      });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+
+    it('should NOT apply heuristic when inclusions is configured', ({ mock }) => {
+      console.log = mock.fn(console.log);
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
+      const config = createConfiguration({
+        baseDir: '/project',
+        sources: ['src'],
+        inclusions: ['**/*.test.ts'],
       });
       const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
       expect(result).toBe('MAIN');

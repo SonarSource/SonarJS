@@ -45,7 +45,7 @@ async function resolveFileType(
 }
 
 describe('sanitizeInputFiles fileType resolution', () => {
-  describe('regression fix: no sonar.tests configured', () => {
+  describe('No sonar.tests configured', () => {
     it('upgrades MAIN to TEST when filename matches heuristic', async () => {
       const result = await resolveFileType(
         '/project/src/login.test.ts',
@@ -92,26 +92,13 @@ describe('sanitizeInputFiles fileType resolution', () => {
       expect(result).toBe('MAIN');
     });
 
-    it('preserves explicit MAIN for a test-named file when sonar.test.inclusions is configured', async () => {
+    it('preserves explicit MAIN for a test-named file when sonar.inclusions is configured', async () => {
       const result = await resolveFileType(
         '/project/src/login.test.ts',
         {
           baseDir: '/project',
           sources: ['src'],
-          testInclusions: ['**/*IntegrationTest.ts'],
-        },
-        'MAIN',
-      );
-      expect(result).toBe('MAIN');
-    });
-
-    it('preserves explicit MAIN for a test-named file when sonar.test.exclusions is configured', async () => {
-      const result = await resolveFileType(
-        '/project/src/login.test.ts',
-        {
-          baseDir: '/project',
-          sources: ['src'],
-          testExclusions: ['**/fixtures/**'],
+          inclusions: ['**/*.test.ts'],
         },
         'MAIN',
       );
