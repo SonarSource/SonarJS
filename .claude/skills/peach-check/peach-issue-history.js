@@ -375,20 +375,16 @@ async function defaultFetchMeasureHistory(projectKey, metric, apiToken, required
   }
 
   const lastPageIndex = Math.ceil(firstPage.total / pageSize);
-  const lastPageSize = firstPage.total % pageSize || pageSize;
-  const tailPages = [];
+  const history = [...firstPage.history];
 
-  // The baseline only needs the latest `requiredHistoryPoints`, so fetch the tail pages
-  // instead of walking the entire history for long-lived projects.
-  if (lastPageSize < requiredHistoryPoints && lastPageIndex > 1) {
-    const previousPageIndex = lastPageIndex - 1;
-    tailPages.push(
-      previousPageIndex === 1 ? firstPage : await fetchMeasureHistoryPage(projectKey, metric, apiToken, previousPageIndex, pageSize),
-    );
+  // Freshness-window matching can target an older analysis when newer scans exist, so the
+  // caller needs the full ordered series rather than only the tail pages.
+  for (let pageIndex = 2; pageIndex <= lastPageIndex; pageIndex += 1) {
+    const page = await fetchMeasureHistoryPage(projectKey, metric, apiToken, pageIndex, pageSize);
+    history.push(...page.history);
   }
 
-  tailPages.push(lastPageIndex === 1 ? firstPage : await fetchMeasureHistoryPage(projectKey, metric, apiToken, lastPageIndex, pageSize));
-  return tailPages.flatMap(page => page.history);
+  return history;
 }
 
 async function fetchMeasureHistoryPage(projectKey, metric, apiToken, pageIndex, pageSize) {

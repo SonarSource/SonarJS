@@ -338,7 +338,7 @@ test('runIssueHistory reads the newest history page for long-lived projects', as
   assert.equal(row.baseline_value, 1000);
 });
 
-test('runIssueHistory computes the baseline from tail history across three pages', async t => {
+test('runIssueHistory computes the baseline across three history pages', async t => {
   const headSha = '7777777777777777777777777777777777777777';
   const output = {};
   const requestedPages = [];
@@ -429,6 +429,102 @@ test('runIssueHistory computes the baseline from tail history across three pages
   assert.equal(row.analysis_date, '2026-05-05T03:00:00.000Z');
   assert.equal(row.current_value, 203);
   assert.equal(row.baseline_value, 200);
+});
+
+test('runIssueHistory keeps enough three-page history when later analyses are outside the freshness window', async t => {
+  const headSha = '9999999999999999999999999999999999999999';
+  const output = {};
+  const requestedPages = [];
+  const originalFetch = globalThis.fetch;
+  const endTimestamp = Date.UTC(2026, 4, 5, 3, 0, 0);
+  const history = Array.from({ length: 203 }, (_, index) => ({
+    date: new Date(endTimestamp - (202 - index) * 24 * 60 * 60 * 1000).toISOString(),
+    value: String(index + 1),
+  }));
+  const currentEntry = history[102];
+
+  t.after(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  globalThis.fetch = async url => {
+    const parsedUrl = new URL(url);
+    assert.equal(parsedUrl.hostname, 'peach.sonarsource.com');
+    assert.equal(parsedUrl.pathname, '/api/measures/search_history');
+    assert.equal(parsedUrl.searchParams.get('component'), 'js:ThreePageProject');
+    assert.equal(parsedUrl.searchParams.get('metrics'), 'violations');
+
+    const pageIndex = Number(parsedUrl.searchParams.get('p') ?? '1');
+    const pageSize = Number(parsedUrl.searchParams.get('ps') ?? '100');
+    const start = (pageIndex - 1) * pageSize;
+    requestedPages.push(pageIndex);
+
+    return createFetchResponse({
+      paging: {
+        pageIndex,
+        pageSize,
+        total: history.length,
+      },
+      measures: [
+        {
+          metric: 'violations',
+          history: history.slice(start, start + pageSize),
+        },
+      ],
+    });
+  };
+
+  await runIssueHistory(
+    {
+      jobsJsonPath: '/tmp/project-jobs.json',
+      peacheeRoot: '/tmp/peachee-js',
+      outputPath: '/tmp/peach-issue-history.json',
+      apiToken: 'test-token',
+    },
+    {
+      readFileSync: filePath => {
+        assert.equal(filePath, '/tmp/project-jobs.json');
+        return JSON.stringify({
+          total_jobs: 1,
+          jobs: [
+            {
+              name: 'three-page-project',
+              conclusion: 'success',
+              head_sha: headSha,
+              started_at: currentEntry.date,
+              completed_at: new Date(Date.parse(currentEntry.date) + 10 * 60 * 1000).toISOString(),
+            },
+          ],
+        });
+      },
+      writeFileSync: (filePath, content) => {
+        output[filePath] = content;
+      },
+      existsSync: filePath => {
+        assert.equal(filePath, '/tmp/peachee-js/three-page-project/sonar-project.properties');
+        return true;
+      },
+      execFileSync: createGitExecFileSyncStub(headSha, {
+        'three-page-project/sonar-project.properties': 'sonar.projectKey=js:ThreePageProject\n',
+      }),
+      sleep: async () => {},
+      random: () => 0,
+    },
+  );
+
+  assert.deepEqual(requestedPages, [1, 2, 3]);
+
+  const report = JSON.parse(output['/tmp/peach-issue-history.json']);
+  assert.deepEqual(report.summary, { OK: 1 });
+
+  const row = report.rows[0];
+  assert.equal(row.project_key, 'js:ThreePageProject');
+  assert.equal(row.status, 'OK');
+  assert.equal(row.analysis_date, currentEntry.date);
+  assert.equal(row.current_value, 103);
+  assert.equal(row.baseline_value, 100);
+  assert.equal(row.history_points, 103);
+  assert.equal(row.history_truncated, false);
 });
 
 test('runIssueHistory omits drop metrics when a row has no measured drop', async () => {
