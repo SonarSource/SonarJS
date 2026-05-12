@@ -1,0 +1,77 @@
+
+> sonarjs@1.0.0 bridge:build:fast
+> npm run _:bridge:clear && npm run generate-meta && npm run bridge:compile
+
+
+> sonarjs@1.0.0 _:bridge:clear
+> rimraf --glob lib/*
+
+
+> sonarjs@1.0.0 generate-meta
+> npm run sync-rspec-all && npm run grpc:generate-proto && tsx tools/generate-meta.ts
+
+
+> sonarjs@1.0.0 sync-rspec-all
+> npm run sync-rspec -- --language javascript && npm run sync-rspec -- --language css && npm run deploy-rule-data
+
+
+> sonarjs@1.0.0 sync-rspec
+> tsx tools/sync-rspec.ts --language javascript
+
+RSPEC javascript rules are up to date (995cd77e), skipping sync
+
+> sonarjs@1.0.0 sync-rspec
+> tsx tools/sync-rspec.ts --language css
+
+RSPEC css rules are up to date (995cd77e), skipping sync
+
+> sonarjs@1.0.0 deploy-rule-data
+> tsx tools/deploy-rule-data.ts
+
+
+> sonarjs@1.0.0 grpc:generate-proto
+> tsx tools/generate-proto.ts
+
+Generating packages/grpc/src/proto/analyze-project.js from packages/grpc/src/proto/analyze-project.proto
+Generating packages/grpc/src/proto/analyze-project.d.ts from packages/grpc/src/proto/analyze-project.js
+Generating packages/grpc/src/proto/language_analyzer.js from packages/grpc/src/proto/language_analyzer.proto
+Generating packages/grpc/src/proto/language_analyzer.d.ts from packages/grpc/src/proto/language_analyzer.js
+Generating packages/grpc/src/proto/health.js from packages/grpc/src/proto/health.proto
+Generating packages/grpc/src/proto/health.d.ts from packages/grpc/src/proto/health.js
+Generating packages/analysis/src/jsts/parsers/estree.js from packages/analysis/src/jsts/parsers/estree.proto
+Generating packages/analysis/src/jsts/parsers/estree.d.ts from packages/analysis/src/jsts/parsers/estree.js
+Proto generation complete.
+
+> sonarjs@1.0.0 bridge:compile
+> npm run grpc:generate-proto && tsgo -p packages/tsconfig.app.json && tsgo -p packages/tsconfig.test.json && npm run grpc:copy-proto
+
+
+> sonarjs@1.0.0 grpc:generate-proto
+> tsx tools/generate-proto.ts
+
+Generating packages/grpc/src/proto/analyze-project.js from packages/grpc/src/proto/analyze-project.proto
+Generating packages/grpc/src/proto/analyze-project.d.ts from packages/grpc/src/proto/analyze-project.js
+Generating packages/grpc/src/proto/language_analyzer.js from packages/grpc/src/proto/language_analyzer.proto
+Generating packages/grpc/src/proto/language_analyzer.d.ts from packages/grpc/src/proto/language_analyzer.js
+Generating packages/grpc/src/proto/health.js from packages/grpc/src/proto/health.proto
+Generating packages/grpc/src/proto/health.d.ts from packages/grpc/src/proto/health.js
+Generating packages/analysis/src/jsts/parsers/estree.js from packages/analysis/src/jsts/parsers/estree.proto
+Generating packages/analysis/src/jsts/parsers/estree.d.ts from packages/analysis/src/jsts/parsers/estree.js
+Proto generation complete.
+
+> sonarjs@1.0.0 grpc:copy-proto
+> tsx tools/generate-proto.ts --copy
+
+Proto files copied to lib/.
+[deploy-rule-data] javascript: 177 rspec rule(s) have a javascript folder but no implementation in SonarJS:
+  beta (1): S7518
+  closed (93): S127, S136, S800, S903, S935, S1244, S1477, S1482, S1483, S1484, S1517, S1542, S1606, S1677, S2126, S2197, S2210, S2224, S2325, S2429, S2431, S2433, S2434, S2494, S2495, S2496, S2497, S2498, S2583, S2595, S2630, S2644, S2662, S2684, S2701, S2751, S2787, S2872, S2915, S3045, S3271, S3273, S3424, S3502, S3554, S3759, S3817, S3831, S3832, S3835, S3837, S3856, S3862, S3931, S3955, S4172, S4343, S4412, S4437, S4438, S4439, S4441, S4442, S4443, S4444, S4445, S4446, S4447, S4473, S5750, S6108, S6109, S7063, S7071, S7072, S7073, S7074, S7076, S7077, S7080, S7081, S7085, S7657, S7659, S7662, S7663, S7664, S7665, S7666, S7667, S7668, S7669, S7670
+  deprecated (34): S1145, S1514, S1524, S1531, S1532, S1697, S2070, S2228, S2508, S2549, S2550, S2611, S2658, S2713, S2714, S2715, S2716, S2762, S2769, S2770, S2873, S2898, S3002, S3509, S3828, S3833, S4529, S4797, S4825, S6849, S6854, S6855, S7134, S7197
+  ready (49): S2076, S2078, S2083, S2091, S2631, S3649, S4684, S5131, S5144, S5145, S5146, S5147, S5334, S5335, S5496, S5696, S5845, S5883, S6096, S6105, S6287, S6350, S6547, S6549, S6641, S6776, S7044, S7788, S7789, S8134, S8348, S8349, S8378, S8387, S8464, S8466, S8475, S8476, S8477, S8478, S8480, S8483, S8484, S8487, S8573, S8678, S8689, S8690, S8691 
+Possible non-SonarJS owners for some "ready" rules:
+  - sonar-architecture JS/TS rules list:
+    https://github.com/SonarSource/sonar-architecture/blob/master/frontend/javascript/src/main/java/com/sonarsource/architecture/ArchitectureJsRulesDefinition.java
+  - sonar-armor JS/TS rspec rules (source of truth):
+    https://github.com/SonarSource/sonar-armor/tree/master/sonar-jasmin-plugin/src/main/resources/rspec/jasmin/rules
+[deploy-rule-data] css: 1 rspec rule(s) have a css folder but no implementation in SonarJS:
+  deprecated (1): S5240 
