@@ -247,6 +247,14 @@ function areSameTypeArguments(
     return false;
   }
 
+  if (isAnyOrUnknownType(left) || isAnyOrUnknownType(right)) {
+    return (
+      isAnyOrUnknownType(left) &&
+      isAnyOrUnknownType(right) &&
+      checker.typeToString(left) === checker.typeToString(right)
+    );
+  }
+
   const leftSymbol = getComparableDeclaredTypeSymbol(left);
   const rightSymbol = getComparableDeclaredTypeSymbol(right);
   if (leftSymbol || rightSymbol) {

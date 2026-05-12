@@ -143,6 +143,9 @@ function getReactNonPropsTypeUsage(
   checker: ts.TypeChecker,
   sourceCache: SourceCache,
 ): ReactNonPropsTypeUsage {
+  // The decorator now evaluates reports while iterating the upstream React
+  // component registry, so `componentNode` is the exact component currently
+  // being reported rather than a later owner lookup derived from `node`.
   let usagesByComponent = sourceCache.reactNonPropsTypeDeclByComponent.get(
     reportedEnclosingType.declaration,
   );

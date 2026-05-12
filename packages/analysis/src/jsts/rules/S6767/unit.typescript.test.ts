@@ -276,6 +276,31 @@ track((props: Box<unknown>) => ({
           filename: fixtureFile,
         },
         {
+          // FP: nested generic instantiations stay equal when their innermost type
+          // argument is an alias to `any`.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+type AnyAlias = any;
+type Inner<T> = {
+  value: T;
+};
+type Box<T> = {
+  contextModule: string;
+  payload: T;
+};
+function NestedAnyAliasComponent(props: Box<Inner<AnyAlias>>) {
+  return <div>{String(props.payload.value)}</div>;
+}
+track((props: Box<Inner<AnyAlias>>) => ({
+  context_module: props.contextModule,
+}))(NestedAnyAliasComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: identical generic alias instantiations with primitive type arguments
           // must still count as the same declared props type.
           code: `
