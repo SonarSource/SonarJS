@@ -378,6 +378,8 @@ async function defaultFetchMeasureHistory(projectKey, metric, apiToken, required
   const lastPageSize = firstPage.total % pageSize || pageSize;
   const tailPages = [];
 
+  // The baseline only needs the latest `requiredHistoryPoints`, so fetch the tail pages
+  // instead of walking the entire history for long-lived projects.
   if (lastPageSize < requiredHistoryPoints && lastPageIndex > 1) {
     const previousPageIndex = lastPageIndex - 1;
     tailPages.push(
