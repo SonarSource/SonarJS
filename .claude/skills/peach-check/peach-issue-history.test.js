@@ -203,7 +203,7 @@ test('runIssueHistory keeps high-percentage drops OK below the absolute noise fl
   assert.equal(row.drop_pct, 10);
 });
 
-test('runIssueHistory keeps large absolute drops OK below the percentage threshold', async () => {
+test('runIssueHistory keeps drops OK when only the absolute threshold is exceeded', async () => {
   const report = await runSingleProjectIssueHistory({
     baselineValues: [100, 100, 100, 100, 100],
     currentValue: 79,
