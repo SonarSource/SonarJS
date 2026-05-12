@@ -179,17 +179,6 @@ export function findComponentNodes(node: estree.Node, context: Rule.RuleContext)
   return findComponentOwnersByType(node, ancestors, context, context.sourceCode.visitorKeys);
 }
 
-export function getReactComponentNodes(context: Rule.RuleContext): estree.Node[] {
-  const sourceCache = getSourceCache(context.sourceCode);
-  return (
-    sourceCache.componentNodes ??
-    (sourceCache.componentNodes = collectComponentNodes(
-      context.sourceCode.ast,
-      context.sourceCode.visitorKeys,
-    ))
-  );
-}
-
 /**
  * Resolves the ESLint scope variable corresponding to a React component node.
  *
