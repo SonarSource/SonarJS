@@ -101,7 +101,7 @@ describe('S119', () => {
         `,
           errors: [
             {
-              message: `Rename this type parameter name to match the regular expression ${DEFAULT_FORMAT}.`,
+              message: `Rename this type parameter name to match the regular expression ${DEFAULT_FORMAT}`,
               line: 2,
               endLine: 2,
               column: 26,
@@ -167,10 +167,10 @@ describe('S119', () => {
           options: [{ format: CUSTOM_FORMAT }],
           errors: [
             {
-              message: `Rename this type parameter name to match the regular expression ${CUSTOM_FORMAT}.`,
+              message: `Rename this type parameter name to match the regular expression ${CUSTOM_FORMAT}`,
             },
             {
-              message: `Rename this type parameter name to match the regular expression ${CUSTOM_FORMAT}.`,
+              message: `Rename this type parameter name to match the regular expression ${CUSTOM_FORMAT}`,
             },
           ],
         },

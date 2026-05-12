@@ -24,8 +24,7 @@ import * as meta from './generated-meta.js';
 
 const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
 const messages = {
-  renameTypeParameter:
-    'Rename this type parameter name to match the regular expression {{format}}.',
+  renameTypeParameter: 'Rename this type parameter name to match the regular expression {{format}}',
 };
 
 export const rule: Rule.RuleModule = {
