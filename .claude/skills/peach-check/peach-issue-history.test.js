@@ -51,6 +51,70 @@ function createFetchResponse(payload) {
   };
 }
 
+async function runSingleProjectIssueHistory({
+  baselineValues,
+  currentValue,
+  headSha,
+  projectKey,
+  projectName,
+  thresholdPct = 5,
+  thresholdAbs = 20,
+}) {
+  const output = {};
+
+  await runIssueHistory(
+    {
+      jobsJsonPath: '/tmp/project-jobs.json',
+      peacheeRoot: '/tmp/peachee-js',
+      outputPath: '/tmp/peach-issue-history.json',
+      apiToken: 'test-token',
+      thresholdPct,
+      thresholdAbs,
+    },
+    {
+      readFileSync: filePath => {
+        assert.equal(filePath, '/tmp/project-jobs.json');
+        return JSON.stringify({
+          total_jobs: 1,
+          jobs: [
+            {
+              name: projectName,
+              conclusion: 'success',
+              head_sha: headSha,
+              started_at: '2026-05-01T08:10:46Z',
+              completed_at: '2026-05-01T08:16:08Z',
+            },
+          ],
+        });
+      },
+      writeFileSync: (filePath, content) => {
+        output[filePath] = content;
+      },
+      existsSync: filePath => {
+        assert.equal(filePath, `/tmp/peachee-js/${projectName}/sonar-project.properties`);
+        return true;
+      },
+      execFileSync: createGitExecFileSyncStub(headSha, {
+        [`${projectName}/sonar-project.properties`]: `sonar.projectKey=${projectKey}\n`,
+      }),
+      fetchMeasureHistory: async requestedProjectKey => {
+        assert.equal(requestedProjectKey, projectKey);
+        return [
+          ...baselineValues.map((value, index) => ({
+            date: `2026-04-${String(index + 26).padStart(2, '0')}T03:10:35Z`,
+            value,
+          })),
+          { date: '2026-05-01T08:15:00Z', value: currentValue },
+        ];
+      },
+      sleep: async () => {},
+      random: () => 0,
+    },
+  );
+
+  return JSON.parse(output['/tmp/peach-issue-history.json']);
+}
+
 test('runIssueHistory uses snake_case job metadata and ignores later stale zeroes', async () => {
   const headSha = '2222222222222222222222222222222222222222';
   const output = {};
@@ -116,6 +180,48 @@ test('runIssueHistory uses snake_case job metadata and ignores later stale zeroe
   assert.equal(row.analysis_date, '2026-05-01T08:15:00Z');
   assert.equal(row.current_value, 24940);
   assert.equal(row.baseline_value, 25040);
+});
+
+test('runIssueHistory keeps high-percentage drops OK below the absolute noise floor', async () => {
+  const report = await runSingleProjectIssueHistory({
+    baselineValues: [10, 10, 10, 10, 10],
+    currentValue: 9,
+    headSha: '4444444444444444444444444444444444444444',
+    projectKey: 'js:SmallProject',
+    projectName: 'small-project',
+    thresholdPct: 5,
+    thresholdAbs: 2,
+  });
+
+  assert.deepEqual(report.summary, { OK: 1 });
+
+  const row = report.rows[0];
+  assert.equal(row.status, 'OK');
+  assert.equal(row.baseline_value, 10);
+  assert.equal(row.current_value, 9);
+  assert.equal(row.drop_abs, 1);
+  assert.equal(row.drop_pct, 10);
+});
+
+test('runIssueHistory marks DROP when both drop thresholds are exceeded', async () => {
+  const report = await runSingleProjectIssueHistory({
+    baselineValues: [10, 10, 10, 10, 10],
+    currentValue: 7,
+    headSha: '5555555555555555555555555555555555555555',
+    projectKey: 'js:DropProject',
+    projectName: 'drop-project',
+    thresholdPct: 5,
+    thresholdAbs: 2,
+  });
+
+  assert.deepEqual(report.summary, { DROP: 1 });
+
+  const row = report.rows[0];
+  assert.equal(row.status, 'DROP');
+  assert.equal(row.baseline_value, 10);
+  assert.equal(row.current_value, 7);
+  assert.equal(row.drop_abs, 3);
+  assert.equal(row.drop_pct, 30);
 });
 
 test('runIssueHistory reads the newest history page for long-lived projects', async t => {

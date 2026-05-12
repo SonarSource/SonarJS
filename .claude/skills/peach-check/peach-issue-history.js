@@ -317,8 +317,10 @@ async function evaluateProjectHistory(options, runtime) {
 
     const dropAbs = (baselineValue ?? 0) - current.value;
     const dropPct = baselineValue && baselineValue > 0 ? (dropAbs / baselineValue) * 100 : 0;
+    const clearsPctThreshold = dropPct >= options.thresholdPct;
+    const clearsAbsNoiseFloor = dropAbs >= options.thresholdAbs;
     const status =
-      (baselineValue ?? 0) > 0 && dropPct >= options.thresholdPct && dropAbs >= options.thresholdAbs ? 'DROP' : 'OK';
+      (baselineValue ?? 0) > 0 && clearsPctThreshold && clearsAbsNoiseFloor ? 'DROP' : 'OK';
 
     return {
       status,

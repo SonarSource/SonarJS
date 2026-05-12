@@ -274,7 +274,13 @@ Each `DROP` finding should include:
 - absolute drop
 - percentage drop
 
-Treat `threshold-abs` only as a small-project noise floor. The practical trigger is:
+Treat `threshold-abs` as a small-project noise floor, not an alternative trigger. Flag `DROP`
+only when the measured drop clears both gates:
+
+- `drop_abs >= threshold-abs`
+- `drop_pct >= threshold_pct`
+
+Equivalent absolute-drop threshold:
 
 - `max(threshold-abs, baseline * threshold_pct / 100)`
 
