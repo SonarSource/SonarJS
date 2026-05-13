@@ -247,6 +247,105 @@ func TestIncrementalProgramForFileRefreshesConfiguredProgramWhenContentChanges(t
 	}
 }
 
+func TestIncrementalProgramForFileRefreshesConfiguredProgramWhenSiblingFsEventChangesSource(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	tsconfigPath := tspath.ResolvePath(baseDir, "tsconfig.json")
+	sourcePath := tspath.ResolvePath(baseDir, "src/main.ts")
+	dependencyPath := tspath.ResolvePath(baseDir, "src/dependency.ts")
+
+	writeTestFile(t, tsconfigPath, `{"compilerOptions":{"strict":true},"include":["src/**/*.ts"]}`)
+	writeTestFile(t, sourcePath, `import { dependency } from "./dependency"; export const value: number = dependency;`)
+	writeTestFile(t, dependencyPath, `export const dependency: number = 42;`)
+
+	state := newSonarlintState()
+	firstRequest := mustNormalizeAnalyzeProjectRequest(t, &pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:   baseDir,
+			Sonarlint: boolPtr(true),
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			sourcePath: {
+				FileType: pb.FileType_FILE_TYPE_MAIN,
+			},
+		},
+	})
+
+	firstStores, err := projectStoresForAnalysis(firstRequest, BuildAnalyzeProjectFS(firstRequest), state)
+	if err != nil {
+		t.Fatalf("expected initial SonarLint store discovery to succeed, got %v", err)
+	}
+
+	firstProgram, err := incrementalProgramForFile(
+		context.Background(),
+		firstRequest.Config,
+		sourcePath,
+		firstStores,
+		BuildAnalyzeProjectFS(firstRequest),
+		map[string]*compiler.Program{},
+		newCompilerOptionsAccumulator(),
+		state,
+		func(d diagnostic.Internal) {},
+	)
+	if err != nil {
+		t.Fatalf("expected initial configured program creation to succeed, got %v", err)
+	}
+	if firstProgram == nil {
+		t.Fatal("expected initial configured program")
+	}
+
+	updatedDependencyContent := `export const dependency: string = "forty-two";`
+	writeTestFile(t, dependencyPath, updatedDependencyContent)
+
+	secondRequest := mustNormalizeAnalyzeProjectRequest(t, &pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:   baseDir,
+			Sonarlint: boolPtr(true),
+			FsEvents:  []string{dependencyPath},
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			sourcePath: {
+				FileType: pb.FileType_FILE_TYPE_MAIN,
+			},
+		},
+	})
+
+	secondStores, err := projectStoresForAnalysis(secondRequest, BuildAnalyzeProjectFS(secondRequest), state)
+	if err != nil {
+		t.Fatalf("expected cached SonarLint store lookup to succeed, got %v", err)
+	}
+	if secondStores != firstStores {
+		t.Fatal("expected non-tsconfig fs event to keep SonarLint project stores warm")
+	}
+
+	secondProgram, err := incrementalProgramForFile(
+		context.Background(),
+		secondRequest.Config,
+		sourcePath,
+		secondStores,
+		BuildAnalyzeProjectFS(secondRequest),
+		map[string]*compiler.Program{},
+		newCompilerOptionsAccumulator(),
+		state,
+		func(d diagnostic.Internal) {},
+	)
+	if err != nil {
+		t.Fatalf("expected configured program refresh to succeed after sibling fs event, got %v", err)
+	}
+	if secondProgram == nil {
+		t.Fatal("expected refreshed configured program")
+	}
+
+	dependencySourceFile := secondProgram.GetSourceFile(dependencyPath)
+	if dependencySourceFile == nil {
+		t.Fatalf("expected refreshed configured program to include %s", dependencyPath)
+	}
+	if dependencySourceFile.Text() != updatedDependencyContent {
+		t.Fatalf("expected refreshed dependency text %q, got %q", updatedDependencyContent, dependencySourceFile.Text())
+	}
+}
+
 func TestIncrementalProgramForFileDiscoversReferencedPropertyTSConfigs(t *testing.T) {
 	t.Parallel()
 
@@ -302,7 +401,7 @@ func TestIncrementalProgramForFileDiscoversReferencedPropertyTSConfigs(t *testin
 		t.Fatalf("expected configured program to include %s", sourcePath)
 	}
 
-	if _, ok := state.getConfiguredProgram(projectTSConfig); !ok {
+	if _, ok := state.getConfiguredProgram(projectTSConfig, sourcePath, nil); !ok {
 		t.Fatalf("expected referenced child tsconfig %q to be cached", projectTSConfig)
 	}
 
@@ -353,6 +452,7 @@ func TestInferredProgramForFileRetainsMultipleSonarlintOrphanPrograms(t *testing
 	})
 
 	firstProgram, _, err := inferredProgramForFile(
+		firstInput.Config,
 		firstPath,
 		[]string{firstPath},
 		baseDir,
@@ -360,6 +460,7 @@ func TestInferredProgramForFileRetainsMultipleSonarlintOrphanPrograms(t *testing
 		nil,
 		nil,
 		buildInferredCompilerOptions(firstInput.Config, nil, ""),
+		firstInput.Config.FsEvents,
 		state,
 		func(d diagnostic.Internal) {},
 	)
@@ -371,6 +472,7 @@ func TestInferredProgramForFileRetainsMultipleSonarlintOrphanPrograms(t *testing
 	}
 
 	secondProgram, _, err := inferredProgramForFile(
+		secondInput.Config,
 		secondPath,
 		[]string{secondPath},
 		baseDir,
@@ -378,6 +480,7 @@ func TestInferredProgramForFileRetainsMultipleSonarlintOrphanPrograms(t *testing
 		nil,
 		nil,
 		buildInferredCompilerOptions(secondInput.Config, nil, ""),
+		secondInput.Config.FsEvents,
 		state,
 		func(d diagnostic.Internal) {},
 	)
@@ -392,6 +495,7 @@ func TestInferredProgramForFileRetainsMultipleSonarlintOrphanPrograms(t *testing
 	}
 
 	reusedFirstProgram, _, err := inferredProgramForFile(
+		firstInput.Config,
 		firstPath,
 		[]string{firstPath},
 		baseDir,
@@ -399,6 +503,7 @@ func TestInferredProgramForFileRetainsMultipleSonarlintOrphanPrograms(t *testing
 		nil,
 		nil,
 		buildInferredCompilerOptions(firstInput.Config, nil, ""),
+		firstInput.Config.FsEvents,
 		state,
 		func(d diagnostic.Internal) {},
 	)
@@ -446,6 +551,7 @@ func TestInferredProgramForFileDoesNotReuseSonarlintOrphanProgramWhenCompilerOpt
 
 	firstOptions := buildInferredCompilerOptions(firstInput.Config, nil, "")
 	firstProgram, _, err := inferredProgramForFile(
+		firstInput.Config,
 		orphanPath,
 		[]string{orphanPath},
 		baseDir,
@@ -453,6 +559,7 @@ func TestInferredProgramForFileDoesNotReuseSonarlintOrphanProgramWhenCompilerOpt
 		nil,
 		nil,
 		firstOptions,
+		firstInput.Config.FsEvents,
 		state,
 		func(d diagnostic.Internal) {},
 	)
@@ -465,6 +572,7 @@ func TestInferredProgramForFileDoesNotReuseSonarlintOrphanProgramWhenCompilerOpt
 
 	secondOptions := buildInferredCompilerOptions(secondInput.Config, nil, "")
 	secondProgram, _, err := inferredProgramForFile(
+		secondInput.Config,
 		orphanPath,
 		[]string{orphanPath},
 		baseDir,
@@ -472,6 +580,7 @@ func TestInferredProgramForFileDoesNotReuseSonarlintOrphanProgramWhenCompilerOpt
 		nil,
 		nil,
 		secondOptions,
+		secondInput.Config.FsEvents,
 		state,
 		func(d diagnostic.Internal) {},
 	)
@@ -486,6 +595,107 @@ func TestInferredProgramForFileDoesNotReuseSonarlintOrphanProgramWhenCompilerOpt
 	}
 	if len(state.orphanPrograms) != 2 {
 		t.Fatalf("expected SonarLint orphan cache to keep both option variants, got %d cached program(s)", len(state.orphanPrograms))
+	}
+}
+
+func TestInferredProgramForFileRefreshesCachedOrphanProgramWhenSiblingFsEventChangesSource(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	firstPath := tspath.ResolvePath(baseDir, "orphans/first.ts")
+	secondPath := tspath.ResolvePath(baseDir, "orphans/second.ts")
+
+	writeTestFile(t, firstPath, `import { sibling } from "./second"; export const value: number = sibling;`)
+	writeTestFile(t, secondPath, `export const sibling: number = 2;`)
+
+	state := newSonarlintState()
+	firstRequest := mustNormalizeAnalyzeProjectRequest(t, &pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:   baseDir,
+			Sonarlint: boolPtr(true),
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			firstPath: {
+				FileType: pb.FileType_FILE_TYPE_MAIN,
+			},
+		},
+	})
+
+	firstStores, err := projectStoresForAnalysis(firstRequest, BuildAnalyzeProjectFS(firstRequest), state)
+	if err != nil {
+		t.Fatalf("expected initial SonarLint store discovery to succeed, got %v", err)
+	}
+
+	firstProgram, _, err := inferredProgramForFile(
+		firstRequest.Config,
+		firstPath,
+		[]string{firstPath, secondPath},
+		baseDir,
+		BuildAnalyzeProjectFS(firstRequest),
+		nil,
+		nil,
+		buildInferredCompilerOptions(firstRequest.Config, nil, ""),
+		firstRequest.Config.FsEvents,
+		state,
+		func(d diagnostic.Internal) {},
+	)
+	if err != nil {
+		t.Fatalf("expected initial orphan program creation to succeed, got %v", err)
+	}
+	if firstProgram == nil {
+		t.Fatal("expected initial orphan program")
+	}
+
+	updatedSiblingContent := `export const sibling: string = "two";`
+	writeTestFile(t, secondPath, updatedSiblingContent)
+
+	secondRequest := mustNormalizeAnalyzeProjectRequest(t, &pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:   baseDir,
+			Sonarlint: boolPtr(true),
+			FsEvents:  []string{secondPath},
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			firstPath: {
+				FileType: pb.FileType_FILE_TYPE_MAIN,
+			},
+		},
+	})
+
+	secondStores, err := projectStoresForAnalysis(secondRequest, BuildAnalyzeProjectFS(secondRequest), state)
+	if err != nil {
+		t.Fatalf("expected cached SonarLint store lookup to succeed, got %v", err)
+	}
+	if secondStores != firstStores {
+		t.Fatal("expected non-tsconfig fs event to keep SonarLint project stores warm")
+	}
+
+	secondProgram, _, err := inferredProgramForFile(
+		secondRequest.Config,
+		firstPath,
+		[]string{firstPath, secondPath},
+		baseDir,
+		BuildAnalyzeProjectFS(secondRequest),
+		nil,
+		nil,
+		buildInferredCompilerOptions(secondRequest.Config, nil, ""),
+		secondRequest.Config.FsEvents,
+		state,
+		func(d diagnostic.Internal) {},
+	)
+	if err != nil {
+		t.Fatalf("expected orphan program refresh to succeed after sibling fs event, got %v", err)
+	}
+	if secondProgram == nil {
+		t.Fatal("expected refreshed orphan program")
+	}
+
+	siblingSourceFile := secondProgram.GetSourceFile(secondPath)
+	if siblingSourceFile == nil {
+		t.Fatalf("expected refreshed orphan program to include %s", secondPath)
+	}
+	if siblingSourceFile.Text() != updatedSiblingContent {
+		t.Fatalf("expected refreshed sibling text %q, got %q", updatedSiblingContent, siblingSourceFile.Text())
 	}
 }
 
@@ -608,6 +818,7 @@ func TestProjectStoresForAnalysisClearsProgramsOnDependencyReset(t *testing.T) {
 	}
 
 	_, _, err = inferredProgramForFile(
+		firstRequest.Config,
 		orphanPath,
 		[]string{orphanPath},
 		baseDir,
@@ -615,6 +826,7 @@ func TestProjectStoresForAnalysisClearsProgramsOnDependencyReset(t *testing.T) {
 		nil,
 		nil,
 		buildInferredCompilerOptions(firstRequest.Config, nil, ""),
+		firstRequest.Config.FsEvents,
 		state,
 		func(d diagnostic.Internal) {},
 	)

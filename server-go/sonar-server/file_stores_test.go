@@ -1100,6 +1100,16 @@ func TestGeneratedRuleMetadataIncludesBridgeFilterFields(t *testing.T) {
 		t.Fatalf("expected S6544 to include generated default options, got %#v", s6544)
 	}
 
+	s1441 := ruleMetadataBySonarKey["S1441"]
+	if !strings.Contains(s1441.ConfigurationTransformsJSON, "singleQuotesToQuoteStyle") {
+		t.Fatalf("expected S1441 to include primitive configuration transforms, got %#v", s1441)
+	}
+
+	s6418 := ruleMetadataBySonarKey["S6418"]
+	if !strings.Contains(s6418.ConfigurationTransformsJSON, "randomnessSensibility") {
+		t.Fatalf("expected S6418 to include object configuration transforms, got %#v", s6418)
+	}
+
 	s7785 := ruleMetadataBySonarKey["S7785"]
 	if s7785.RequiredModuleType != moduleTypeModule {
 		t.Fatalf("expected S7785 to require %q module type, got %#v", moduleTypeModule, s7785)

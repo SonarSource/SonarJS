@@ -359,6 +359,48 @@ func TestRequestedRuleConfigsMergeS131Defaults(t *testing.T) {
 	}
 }
 
+func TestOptionsForRequestedRuleApplyPrimitiveConfigurationTransform(t *testing.T) {
+	t.Parallel()
+
+	options := optionsForRequestedRule(&pb.JsTsRule{
+		Key:            "S1441",
+		Configurations: []*structpb.Value{mustValue(t, false)},
+	})
+
+	transformedOptions, ok := options.([]any)
+	if !ok {
+		t.Fatalf("expected S1441 options to be a slice, got %#v", options)
+	}
+	if len(transformedOptions) != 2 {
+		t.Fatalf("expected merged S1441 options, got %#v", transformedOptions)
+	}
+	if transformedOptions[0] != "double" {
+		t.Fatalf("expected S1441 primitive config to be transformed to double, got %#v", transformedOptions[0])
+	}
+}
+
+func TestOptionsForRequestedRuleApplyObjectFieldConfigurationTransform(t *testing.T) {
+	t.Parallel()
+
+	options := optionsForRequestedRule(&pb.JsTsRule{
+		Key: "S6418",
+		Configurations: []*structpb.Value{
+			mustValue(t, map[string]any{"randomnessSensibility": "2.5"}),
+		},
+	})
+
+	transformedOptions, ok := options.(map[string]any)
+	if !ok {
+		t.Fatalf("expected S6418 options to collapse to a map, got %#v", options)
+	}
+	if transformedOptions["randomnessSensibility"] != 2.5 {
+		t.Fatalf(
+			"expected randomnessSensibility to be transformed to number, got %#v",
+			transformedOptions["randomnessSensibility"],
+		)
+	}
+}
+
 func TestS6544DefaultOptionsSuppressVoidReturnArguments(t *testing.T) {
 	t.Parallel()
 

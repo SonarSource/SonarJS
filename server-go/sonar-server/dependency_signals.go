@@ -32,10 +32,11 @@ const (
 var denoNpmImportPattern = regexp.MustCompile(`^(@[^/]+/[^/@]+|[^/@]+)(?:@([^/]+))?(?:/.*)?$`)
 
 type ruleMetadata struct {
-	DefaultOptionsJSON   string
-	RequiredDependencies []string
-	RequiredModuleType   string
-	RequiredEcmaVersion  int
+	DefaultOptionsJSON          string
+	ConfigurationTransformsJSON string
+	RequiredDependencies        []string
+	RequiredModuleType          string
+	RequiredEcmaVersion         int
 }
 
 type ruleActivationSignals struct {

@@ -423,9 +423,9 @@ func analyzeBatchPrograms(
 			return err
 		}
 		if program != nil {
-			foundOptions.add(configuredProgramOptionsForOrphans(program, tsconfig, fsys))
+			foundOptions.add(configuredProgramOptionsForOrphans(input.Config, program, tsconfig, fsys))
 		}
-		addConfiguredProjectReferences(tsconfig, stores, fsys)
+		addConfiguredProjectReferences(input.Config, tsconfig, stores, fsys)
 		for _, filePath := range analyzed {
 			delete(pending, filePath)
 		}
@@ -550,6 +550,7 @@ func analyzeIncrementalPrograms(
 			return buildInferredCompilerOptions(input.Config, mergedOptions, stores.nodeVersionSignalForPath(filePath))
 		}) {
 			program, _, err := inferredProgramForFile(
+				input.Config,
 				group.filePaths[0],
 				group.filePaths,
 				input.Config.BaseDir,
@@ -557,6 +558,7 @@ func analyzeIncrementalPrograms(
 				nil,
 				nil,
 				group.compilerOptions,
+				input.Config.FsEvents,
 				state,
 				onInternalDiagnostic,
 			)
@@ -662,7 +664,13 @@ func analyzeInferredProgramFiles(
 		return nil, err
 	}
 
-	program, err := createInferredProgram(baseDir, filePaths, compilerOptions, fsys, onInternalDiagnostic)
+	program, err := createInferredProgram(
+		analysisConfig,
+		filePaths,
+		compilerOptions,
+		fsys,
+		onInternalDiagnostic,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -689,7 +697,7 @@ func createConfiguredProgram(
 	onInternalDiagnostic func(d diagnostic.Internal),
 ) (*compiler.Program, error) {
 	currentDirectory := tspath.GetDirectoryPath(configFileName)
-	host := utils.NewCachedFSCompilerHost(currentDirectory, fsys, bundled.LibPath(), nil, nil)
+	host := newAnalysisCompilerHost(analysisConfig, currentDirectory, fsys)
 
 	program, diagnostics, err := utils.CreateProgram(
 		false,
@@ -720,7 +728,7 @@ func createConfiguredProgram(
 }
 
 func createInferredProgram(
-	baseDir string,
+	analysisConfig NormalizedProjectConfiguration,
 	filePaths []string,
 	compilerOptions *core.CompilerOptions,
 	fsys vfs.FS,
@@ -730,8 +738,15 @@ func createInferredProgram(
 		return nil, nil
 	}
 
-	host := utils.NewCachedFSCompilerHost(baseDir, fsys, bundled.LibPath(), nil, nil)
-	program, diagnostics, err := utils.CreateInferredProjectProgram(false, fsys, baseDir, host, filePaths, compilerOptions)
+	host := newAnalysisCompilerHost(analysisConfig, analysisConfig.BaseDir, fsys)
+	program, diagnostics, err := utils.CreateInferredProjectProgram(
+		false,
+		fsys,
+		analysisConfig.BaseDir,
+		host,
+		filePaths,
+		compilerOptions,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -743,6 +758,24 @@ func createInferredProgram(
 		return nil, nil
 	}
 	return program, nil
+}
+
+func newAnalysisCompilerHost(
+	analysisConfig NormalizedProjectConfiguration,
+	currentDirectory string,
+	fsys vfs.FS,
+) compiler.CompilerHost {
+	if boolValue(analysisConfig.SkipNodeModuleLookupOutsideBaseDir, false) {
+		return utils.NewCachedFSCompilerHost(
+			currentDirectory,
+			fsys,
+			bundled.LibPath(),
+			nil,
+			nil,
+			utils.WithSkipNodeModuleLookupOutsideBaseDir(analysisConfig.BaseDir),
+		)
+	}
+	return utils.NewCachedFSCompilerHost(currentDirectory, fsys, bundled.LibPath(), nil, nil)
 }
 
 func reuseConfiguredProgramForFile(
@@ -769,7 +802,7 @@ func reuseConfiguredProgramForFile(
 	}
 
 	currentDirectory := tspath.GetDirectoryPath(tsconfig)
-	host := utils.NewCachedFSCompilerHost(currentDirectory, fsys, bundled.LibPath(), nil, nil)
+	host := newAnalysisCompilerHost(analysisConfig, currentDirectory, fsys)
 	updated, reused := program.UpdateProgram(sourceFile.Path(), host)
 	if reused {
 		return updated, nil
@@ -779,6 +812,7 @@ func reuseConfiguredProgramForFile(
 }
 
 func addConfiguredProjectReferences(
+	analysisConfig NormalizedProjectConfiguration,
 	tsconfig string,
 	stores *projectFileStores,
 	fsys vfs.FS,
@@ -788,7 +822,7 @@ func addConfiguredProjectReferences(
 	}
 
 	currentDirectory := tspath.GetDirectoryPath(tsconfig)
-	host := utils.NewCachedFSCompilerHost(currentDirectory, fsys, bundled.LibPath(), nil, nil)
+	host := newAnalysisCompilerHost(analysisConfig, currentDirectory, fsys)
 	config, diagnostics := tsoptions.GetParsedCommandLineOfConfigFile(
 		tsconfig,
 		&core.CompilerOptions{},
@@ -808,6 +842,7 @@ func addConfiguredProjectReferences(
 }
 
 func configuredProgramOptionsForOrphans(
+	analysisConfig NormalizedProjectConfiguration,
 	program *compiler.Program,
 	tsconfig string,
 	fsys vfs.FS,
@@ -816,16 +851,20 @@ func configuredProgramOptionsForOrphans(
 	if options == nil {
 		return nil
 	}
-	if configuredProgramHasExplicitLib(tsconfig, fsys) {
+	if configuredProgramHasExplicitLib(analysisConfig, tsconfig, fsys) {
 		return options
 	}
 	options.Lib = nil
 	return options
 }
 
-func configuredProgramHasExplicitLib(tsconfig string, fsys vfs.FS) bool {
+func configuredProgramHasExplicitLib(
+	analysisConfig NormalizedProjectConfiguration,
+	tsconfig string,
+	fsys vfs.FS,
+) bool {
 	currentDirectory := tspath.GetDirectoryPath(tsconfig)
-	host := utils.NewCachedFSCompilerHost(currentDirectory, fsys, bundled.LibPath(), nil, nil)
+	host := newAnalysisCompilerHost(analysisConfig, currentDirectory, fsys)
 	config, diagnostics := tsoptions.GetParsedCommandLineOfConfigFile(
 		tsconfig,
 		&core.CompilerOptions{},
@@ -840,6 +879,7 @@ func configuredProgramHasExplicitLib(tsconfig string, fsys vfs.FS) bool {
 }
 
 func inferredProgramForFile(
+	analysisConfig NormalizedProjectConfiguration,
 	filePath string,
 	allFilePaths []string,
 	baseDir string,
@@ -847,11 +887,12 @@ func inferredProgramForFile(
 	program *compiler.Program,
 	programOptions *core.CompilerOptions,
 	compilerOptions *core.CompilerOptions,
+	fsEvents []string,
 	state *sonarlintState,
 	onInternalDiagnostic func(d diagnostic.Internal),
 ) (*compiler.Program, *core.CompilerOptions, error) {
 	if program == nil && state != nil {
-		program, programOptions = state.getOrphanProgramForFile(filePath, compilerOptions)
+		program, programOptions = state.getOrphanProgramForFile(filePath, compilerOptions, fsEvents)
 	}
 
 	if program != nil && !compilerOptionsEqual(programOptions, compilerOptions) {
@@ -865,7 +906,7 @@ func inferredProgramForFile(
 			program = nil
 			programOptions = nil
 		} else if currentText, ok := fsys.ReadFile(filePath); ok && sourceFile.Text() != currentText {
-			host := utils.NewCachedFSCompilerHost(baseDir, fsys, bundled.LibPath(), nil, nil)
+			host := newAnalysisCompilerHost(analysisConfig, baseDir, fsys)
 			updated, reused := program.UpdateProgram(sourceFile.Path(), host)
 			if reused {
 				program = updated
@@ -878,7 +919,13 @@ func inferredProgramForFile(
 
 	if program == nil {
 		var err error
-		program, err = createInferredProgram(baseDir, allFilePaths, compilerOptions, fsys, onInternalDiagnostic)
+		program, err = createInferredProgram(
+			analysisConfig,
+			allFilePaths,
+			compilerOptions,
+			fsys,
+			onInternalDiagnostic,
+		)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -1033,7 +1080,7 @@ func incrementalProgramForFile(
 
 		program, ok := cache[tsconfig]
 		if !ok && state != nil {
-			program, ok = state.getConfiguredProgram(tsconfig)
+			program, ok = state.getConfiguredProgram(tsconfig, filePath, analysisConfig.FsEvents)
 			if ok {
 				cache[tsconfig] = program
 			}
@@ -1068,9 +1115,9 @@ func incrementalProgramForFile(
 			}
 		}
 		if program != nil {
-			foundOptions.add(configuredProgramOptionsForOrphans(program, tsconfig, fsys))
+			foundOptions.add(configuredProgramOptionsForOrphans(analysisConfig, program, tsconfig, fsys))
 		}
-		addConfiguredProjectReferences(tsconfig, stores, fsys)
+		addConfiguredProjectReferences(analysisConfig, tsconfig, stores, fsys)
 		if program != nil && program.GetSourceFile(filePath) != nil {
 			return program, nil
 		}

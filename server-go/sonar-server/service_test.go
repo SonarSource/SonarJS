@@ -3,10 +3,19 @@ package main
 import (
 	"context"
 	"io"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
 	pb "github.com/SonarSource/SonarJS/server-go/sonar-server/grpc"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/diagnostic"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/utils"
+	"github.com/microsoft/typescript-go/shim/ast"
+	"github.com/microsoft/typescript-go/shim/compiler"
+	"github.com/microsoft/typescript-go/shim/core"
+	"github.com/microsoft/typescript-go/shim/tspath"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
@@ -324,6 +333,123 @@ func TestLeaseCompletionTriggersShutdownCallback(t *testing.T) {
 	}
 }
 
+func TestCreateConfiguredProgramSkipsAncestorNodeModulesWhenRequested(t *testing.T) {
+	rootDir := tspath.NormalizePath(t.TempDir())
+	baseDir := tspath.CombinePaths(rootDir, "project")
+	sourceFile := tspath.CombinePaths(baseDir, "src", "main.ts")
+	tsconfigPath := tspath.CombinePaths(baseDir, "tsconfig.json")
+	dependencyFile := tspath.CombinePaths(rootDir, "node_modules", "foo", "index.d.ts")
+
+	writeNormalizedTestFile(t, sourceFile, "import { answer } from \"foo\";\nconst value: number = answer;\n")
+	writeNormalizedTestFile(
+		t,
+		tsconfigPath,
+		"{\"compilerOptions\":{\"module\":\"nodenext\",\"moduleResolution\":\"nodenext\",\"target\":\"es2020\"},\"include\":[\"src/main.ts\"]}\n",
+	)
+	writeNormalizedTestFile(t, dependencyFile, "export declare const answer: number;\n")
+
+	baseConfig := NormalizedProjectConfiguration{BaseDir: baseDir}
+	program, diagnostics, err := configuredProgramForTest(baseConfig, tsconfigPath)
+	if err != nil {
+		t.Fatalf("expected configured program creation without the skip flag to succeed, got %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("expected no diagnostics without the skip flag, got %#v", diagnostics)
+	}
+	if program == nil {
+		t.Fatal("expected configured program creation without the skip flag to produce a program")
+	}
+	if program.GetSourceFile(sourceFile) == nil {
+		t.Fatalf("expected configured program to include %s", sourceFile)
+	}
+	if program.GetSourceFile(dependencyFile) == nil {
+		t.Fatalf("expected configured program to resolve ancestor dependency %s", dependencyFile)
+	}
+
+	skipConfig := baseConfig
+	skipConfig.SkipNodeModuleLookupOutsideBaseDir = testBoolPtr(true)
+	program, diagnostics, err = configuredProgramForTest(skipConfig, tsconfigPath)
+	if err != nil {
+		t.Fatalf("expected configured program creation with the skip flag to complete, got %v", err)
+	}
+	if program == nil {
+		t.Fatal("expected configured program creation with the skip flag to still return a program")
+	}
+	if program.GetSourceFile(dependencyFile) != nil {
+		t.Fatalf("expected configured program to stop resolving ancestor dependency %s", dependencyFile)
+	}
+	source := program.GetSourceFile(sourceFile)
+	if source == nil {
+		t.Fatalf("expected configured program to include %s", sourceFile)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("expected no internal diagnostics from configured program creation, got %#v", diagnostics)
+	}
+}
+
+func TestCreateInferredProgramSkipsAncestorNodeModulesWhenRequested(t *testing.T) {
+	rootDir := tspath.NormalizePath(t.TempDir())
+	baseDir := tspath.CombinePaths(rootDir, "project")
+	sourceFile := tspath.CombinePaths(baseDir, "src", "main.ts")
+	dependencyFile := tspath.CombinePaths(rootDir, "node_modules", "foo", "index.d.ts")
+
+	writeNormalizedTestFile(t, sourceFile, "import { answer } from \"foo\";\nconst value: number = answer;\n")
+	writeNormalizedTestFile(t, dependencyFile, "export declare const answer: number;\n")
+
+	baseConfig := NormalizedProjectConfiguration{BaseDir: baseDir}
+	options := buildInferredCompilerOptions(baseConfig, nil, "")
+	options.Target = core.ScriptTargetES2020
+	options.Module = core.ModuleKindNodeNext
+	options.ModuleResolution = core.ModuleResolutionKindNodeNext
+
+	program, err := createInferredProgram(
+		baseConfig,
+		[]string{sourceFile},
+		options.Clone(),
+		BuildAnalyzeProjectFS(&NormalizedAnalyzeProjectInput{Config: baseConfig}),
+		func(d diagnostic.Internal) {},
+	)
+	if err != nil {
+		t.Fatalf("expected inferred program creation without the skip flag to succeed, got %v", err)
+	}
+	if program == nil {
+		t.Fatal("expected inferred program creation without the skip flag to produce a program")
+	}
+	if program.GetSourceFile(dependencyFile) == nil {
+		t.Fatalf("expected inferred program to resolve ancestor dependency %s", dependencyFile)
+	}
+	source := program.GetSourceFile(sourceFile)
+	if source == nil {
+		t.Fatalf("expected inferred program to include %s", sourceFile)
+	}
+	if hasSemanticDiagnosticContaining(program, source, "Cannot find module 'foo'") {
+		t.Fatal("expected inferred program creation without the skip flag to resolve the dependency")
+	}
+
+	skipConfig := baseConfig
+	skipConfig.SkipNodeModuleLookupOutsideBaseDir = testBoolPtr(true)
+	program, err = createInferredProgram(
+		skipConfig,
+		[]string{sourceFile},
+		options.Clone(),
+		BuildAnalyzeProjectFS(&NormalizedAnalyzeProjectInput{Config: skipConfig}),
+		func(d diagnostic.Internal) {},
+	)
+	if err != nil {
+		t.Fatalf("expected inferred program creation with the skip flag to complete, got %v", err)
+	}
+	if program == nil {
+		t.Fatal("expected inferred program creation with the skip flag to still return a program")
+	}
+	if program.GetSourceFile(dependencyFile) != nil {
+		t.Fatalf("expected inferred program to stop resolving ancestor dependency %s", dependencyFile)
+	}
+	source = program.GetSourceFile(sourceFile)
+	if source == nil {
+		t.Fatalf("expected inferred program to include %s", sourceFile)
+	}
+}
+
 func createTestAnalyzeProjectRequest(t *testing.T) *pb.AnalyzeProjectRequest {
 	t.Helper()
 
@@ -379,4 +505,61 @@ func waitForError(t *testing.T, ch <-chan error, label string) error {
 
 func testBoolPtr(value bool) *bool {
 	return &value
+}
+
+func configuredProgramForTest(
+	config NormalizedProjectConfiguration,
+	tsconfigPath string,
+) (*compiler.Program, []string, error) {
+	messages := []string{}
+	program, err := createConfiguredProgram(
+		config,
+		tsconfigPath,
+		"",
+		BuildAnalyzeProjectFS(&NormalizedAnalyzeProjectInput{Config: config}),
+		func(d diagnostic.Internal) {
+			messages = append(messages, d.Help)
+		},
+	)
+	return program, messages, err
+}
+
+func containsSubstring(values []string, target string) bool {
+	for _, value := range values {
+		if strings.Contains(value, target) {
+			return true
+		}
+	}
+	return false
+}
+
+func hasSemanticDiagnosticContaining(program *compiler.Program, sourceFile *ast.SourceFile, target string) bool {
+	return containsSubstring(semanticDiagnosticMessages(program, sourceFile), target)
+}
+
+func diagnosticMessages(diagnostics []*ast.Diagnostic) []string {
+	messages := make([]string, 0, len(diagnostics))
+	for _, diagnostic := range diagnostics {
+		messages = append(messages, utils.GetDiagnosticMessage(diagnostic))
+	}
+	return messages
+}
+
+func semanticDiagnosticMessages(program *compiler.Program, sourceFile *ast.SourceFile) []string {
+	if program == nil || sourceFile == nil {
+		return nil
+	}
+	return diagnosticMessages(compiler.Program_GetSemanticDiagnostics(program, context.Background(), sourceFile))
+}
+
+func writeNormalizedTestFile(t *testing.T, normalizedPath string, content string) {
+	t.Helper()
+
+	nativePath := filepath.FromSlash(normalizedPath)
+	if err := os.MkdirAll(filepath.Dir(nativePath), 0o755); err != nil {
+		t.Fatalf("failed to create %s: %v", normalizedPath, err)
+	}
+	if err := os.WriteFile(nativePath, []byte(content), 0o600); err != nil {
+		t.Fatalf("failed to write %s: %v", normalizedPath, err)
+	}
 }

@@ -39,9 +39,19 @@ type RuleModule = {
 type BridgeRuleMetadata = {
   sonarKey: string;
   defaultOptions: unknown[];
+  configurationTransforms: BridgeConfigurationTransformSpec[];
   requiredDependency: string[];
   requiredModuleType?: 'module' | 'commonjs';
   requiredEcmaVersion?: number;
+};
+
+type BridgePrimitiveTransformKind = 'singleQuotesToQuoteStyle';
+
+type BridgeObjectFieldTransformKind = 'number';
+
+type BridgeConfigurationTransformSpec = {
+  primitive?: BridgePrimitiveTransformKind;
+  objectFields?: Record<string, BridgeObjectFieldTransformKind>;
 };
 
 const DIRNAME = dirname(fileURLToPath(import.meta.url));
@@ -57,6 +67,15 @@ const bridgeDefaultOptionsOverrides: Record<string, unknown[]> = {
   // The Go bridge maps S131 to a single underlying rule, so it needs the
   // non-union "missing default" behavior encoded in the options.
   S131: [{ requireDefaultForNonUnion: true }],
+};
+
+// Opt-in compatibility metadata for rules whose Go-side option shape still
+// matches an upstream/community implementation instead of a Sonar-owned API.
+// We keep this explicit rather than inferring every Node transform, because
+// Sonar-owned Go ports may choose to consume Sonar parameter shapes directly.
+const bridgeConfigurationTransformOverrides: Record<string, BridgeConfigurationTransformSpec[]> = {
+  S1441: [{ primitive: 'singleQuotesToQuoteStyle' }],
+  S6418: [{ objectFields: { randomnessSensibility: 'number' } }],
 };
 
 export async function generateGoRuleMetadata() {
@@ -86,6 +105,8 @@ async function collectBridgeRuleMetadata(): Promise<BridgeRuleMetadata[]> {
     const requiredDependency = module.requiredDependency ?? [];
     const requiredModuleType = module.requiredModuleType;
     const requiredEcmaVersion = module.requiredEcmaVersion;
+    const configurationTransforms =
+      bridgeConfigurationTransformOverrides[module.sonarKey ?? sonarKey] ?? [];
     const baseDefaultOptions = ruleModule.meta?.defaultOptions ?? module.meta?.defaultOptions ?? [];
     const defaultOptions = merge(
       [],
@@ -95,6 +116,7 @@ async function collectBridgeRuleMetadata(): Promise<BridgeRuleMetadata[]> {
 
     if (
       defaultOptions.length === 0 &&
+      configurationTransforms.length === 0 &&
       requiredDependency.length === 0 &&
       requiredModuleType === undefined &&
       requiredEcmaVersion === undefined
@@ -105,6 +127,7 @@ async function collectBridgeRuleMetadata(): Promise<BridgeRuleMetadata[]> {
     metadata.push({
       sonarKey: module.sonarKey ?? sonarKey,
       defaultOptions,
+      configurationTransforms,
       requiredDependency,
       requiredModuleType,
       requiredEcmaVersion,
@@ -142,6 +165,13 @@ function formatRuleMetadata(ruleMeta: BridgeRuleMetadata) {
 
   if (ruleMeta.defaultOptions.length > 0) {
     fields.push(`DefaultOptionsJSON: ${JSON.stringify(JSON.stringify(ruleMeta.defaultOptions))},`);
+  }
+  if (ruleMeta.configurationTransforms.length > 0) {
+    fields.push(
+      `ConfigurationTransformsJSON: ${JSON.stringify(
+        JSON.stringify(ruleMeta.configurationTransforms),
+      )},`,
+    );
   }
   if (ruleMeta.requiredDependency.length > 0) {
     fields.push(`RequiredDependencies: ${formatStringSlice(ruleMeta.requiredDependency)},`);

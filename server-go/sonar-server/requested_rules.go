@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"strconv"
 
 	pb "github.com/SonarSource/SonarJS/server-go/sonar-server/grpc"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -9,6 +10,11 @@ import (
 
 type requestedRuleConfig struct {
 	Options any
+}
+
+type configurationTransformSpec struct {
+	Primitive    string            `json:"primitive,omitempty"`
+	ObjectFields map[string]string `json:"objectFields,omitempty"`
 }
 
 func requestedRuleConfigs(rules []*pb.JsTsRule) map[string]requestedRuleConfig {
@@ -34,13 +40,17 @@ func optionsForRequestedRule(requestedRule *pb.JsTsRule) any {
 	configurations := configurationInterfaces(requestedRule.GetConfigurations())
 	defaultOptions := defaultOptionsForRule(requestedRule.GetKey())
 	merged := mergeOptionSlices(defaultOptions, configurations)
-	switch len(merged) {
+	transformed := applyConfigurationTransforms(
+		merged,
+		configurationTransformsForRule(requestedRule.GetKey()),
+	)
+	switch len(transformed) {
 	case 0:
 		return nil
 	case 1:
-		return cloneOptionValue(merged[0])
+		return cloneOptionValue(transformed[0])
 	default:
-		return merged
+		return transformed
 	}
 }
 
@@ -66,6 +76,18 @@ func defaultOptionsForRule(sonarKey string) []any {
 		panic("invalid generated default options for rule " + sonarKey + ": " + err.Error())
 	}
 	return defaultOptions
+}
+
+func configurationTransformsForRule(sonarKey string) []configurationTransformSpec {
+	ruleMeta := ruleMetadataBySonarKey[sonarKey]
+	if ruleMeta.ConfigurationTransformsJSON == "" {
+		return nil
+	}
+	var transforms []configurationTransformSpec
+	if err := json.Unmarshal([]byte(ruleMeta.ConfigurationTransformsJSON), &transforms); err != nil {
+		panic("invalid generated configuration transforms for rule " + sonarKey + ": " + err.Error())
+	}
+	return transforms
 }
 
 func mergeOptionSlices(defaults, overrides []any) []any {
@@ -103,6 +125,103 @@ func mergeOptionValues(defaultValue, override any) any {
 		}
 	}
 	return cloneOptionValue(override)
+}
+
+func applyConfigurationTransforms(
+	options []any,
+	transforms []configurationTransformSpec,
+) []any {
+	if len(options) == 0 || len(transforms) == 0 {
+		return options
+	}
+
+	transformed := cloneOptionSlice(options)
+	for index, transform := range transforms {
+		if index >= len(transformed) {
+			break
+		}
+		transformed[index] = applyConfigurationTransform(transformed[index], transform)
+	}
+	return transformed
+}
+
+func applyConfigurationTransform(value any, transform configurationTransformSpec) any {
+	if transform.Primitive != "" {
+		return applyConfigurationTransformKind(transform.Primitive, value)
+	}
+	if len(transform.ObjectFields) == 0 {
+		return value
+	}
+
+	optionMap, ok := value.(map[string]any)
+	if !ok {
+		return value
+	}
+
+	transformed := cloneOptionMap(optionMap)
+	for field, kind := range transform.ObjectFields {
+		fieldValue, ok := transformed[field]
+		if !ok {
+			continue
+		}
+		transformed[field] = applyConfigurationTransformKind(kind, fieldValue)
+	}
+	return transformed
+}
+
+func applyConfigurationTransformKind(kind string, value any) any {
+	switch kind {
+	case "singleQuotesToQuoteStyle":
+		switch typed := value.(type) {
+		case bool:
+			if typed {
+				return "single"
+			}
+			return "double"
+		case string:
+			if typed == "false" || typed == "double" {
+				return "double"
+			}
+			return "single"
+		default:
+			return "single"
+		}
+	case "number":
+		switch typed := value.(type) {
+		case float64:
+			return typed
+		case float32:
+			return float64(typed)
+		case int:
+			return float64(typed)
+		case int8:
+			return float64(typed)
+		case int16:
+			return float64(typed)
+		case int32:
+			return float64(typed)
+		case int64:
+			return float64(typed)
+		case uint:
+			return float64(typed)
+		case uint8:
+			return float64(typed)
+		case uint16:
+			return float64(typed)
+		case uint32:
+			return float64(typed)
+		case uint64:
+			return float64(typed)
+		case string:
+			parsed, err := strconv.ParseFloat(typed, 64)
+			if err == nil {
+				return parsed
+			}
+		}
+		return value
+	default:
+		return value
+	}
 }
 
 func cloneOptionMap(optionMap map[string]any) map[string]any {
