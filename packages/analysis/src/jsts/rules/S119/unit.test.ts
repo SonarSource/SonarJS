@@ -91,6 +91,13 @@ describe('S119', () => {
         type Extracted = Promise<value_type>;
         `,
         },
+        {
+          filename: TYPESCRIPT_FILENAME,
+          code: `
+        type PickValues<Source> = { [property_name in keyof Source]: Source[property_name] };
+        type Dictionary = { [key in string]?: string };
+        `,
+        },
       ],
       invalid: [
         {
@@ -147,7 +154,6 @@ describe('S119', () => {
           filename: TYPESCRIPT_FILENAME,
           code: `
         class EventBus<event_1, handlerType> {}
-        type PickValues<Source> = { [property_name in keyof Source]: Source[property_name] };
         type ExtractValue<Source> = Source extends Promise<infer value_type> ? value_type : Source;
         interface Box {
           get<item>(): item;
@@ -157,12 +163,7 @@ describe('S119', () => {
           return value;
         }
         `,
-          errors: [error(), error(), error(), error(), error(), error(), error()],
-        },
-        {
-          filename: TYPESCRIPT_FILENAME,
-          code: `type PickValues<Source> = { [property_name in keyof Source]: Source[property_name] };`,
-          errors: [error()],
+          errors: [error(), error(), error(), error(), error(), error()],
         },
         {
           filename: TYPESCRIPT_FILENAME,

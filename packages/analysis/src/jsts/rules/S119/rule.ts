@@ -55,7 +55,10 @@ export const rule: Rule.RuleModule = {
       TSTypeParameter: (node: unknown) => {
         // Safe: ESLint invokes this visitor only for TSTypeParameter nodes.
         const typeParameter = node as TSESTree.TSTypeParameter;
-        if (typeParameter.parent?.type === 'TSInferType') {
+        if (
+          typeParameter.parent?.type === 'TSInferType' ||
+          typeParameter.parent?.type === 'TSMappedType'
+        ) {
           return;
         }
         checkIdentifier(typeParameter.name, format, regexp, context);
@@ -64,11 +67,6 @@ export const rule: Rule.RuleModule = {
         // Safe: ESLint invokes this visitor only for TSInferType nodes.
         const inferType = node as TSESTree.TSInferType;
         checkIdentifier(inferType.typeParameter.name, format, regexp, context);
-      },
-      TSMappedType: (node: unknown) => {
-        // Safe: ESLint invokes this visitor only for TSMappedType nodes.
-        const mappedType = node as TSESTree.TSMappedType;
-        checkIdentifier(mappedType.key, format, regexp, context);
       },
     };
   },
