@@ -17,7 +17,7 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { collectNoSonarMetrics } from '../../../../src/jsts/analysis/file-artifacts.js';
-import { buildParserOptions } from '../../../../src/jsts/parsers/options.js';
+import { buildTsParserOptions } from '../../../../src/jsts/parsers/options.js';
 import { parse } from '../../../../src/jsts/parsers/parse.js';
 import { parsersMap } from '../../../../src/jsts/parsers/eslint.js';
 
@@ -34,5 +34,5 @@ z; // some comment`);
 });
 
 function parseJavaScriptSource(source: string) {
-  return parse(source, parsersMap.typescript, buildParserOptions({}, false)).sourceCode;
+  return parse(source, parsersMap.typescript, buildTsParserOptions()).sourceCode;
 }
