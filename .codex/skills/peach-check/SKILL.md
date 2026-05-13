@@ -1,6 +1,6 @@
 ---
 name: peach-check
-description: Use when checking whether a Peach Main Analysis run blocks a SonarJS release, or when a Peach run shows failed jobs or suspicious analysis-result variations such as issue-count drops.
+description: Use before a SonarJS release or when the Peach Main Analysis workflow on SonarSource/peachee-js shows failed jobs or suspicious project issue-count drops that need triage. Classify failed Peach jobs and flag likely project-configuration regressions using docs/peach-main-analysis.md.
 allowed-tools: Bash(gh auth status:*), Bash(gh run list:*), Bash(gh api:*), Bash(mkdir:*), Bash(jq:*), Bash(sed --sandbox:*), Bash(node:*), Read, Agent
 ---
 

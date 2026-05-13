@@ -70,81 +70,35 @@ not usable for release triage. Recommend a rerun and do not classify jobs from t
 
 ### 2. Collect project jobs
 
-Create the output directory first because the paginated run response is written via shell
-redirection:
+Use the helper script to fetch the Peach run jobs and materialize the working sets consumed by the
+rest of the workflow:
 
 ```bash
-mkdir -p target
+node .claude/skills/peach-check/peach-run-jobs.js RUN_ID target
 ```
 
-Fetch the paginated run jobs. Do not use `gh run view --json jobs` for Peach Main Analysis
-because the matrix is large. The paginated output is newline-delimited top-level JSON documents,
-not a single JSON array, so store it with an `.ndjson` name and always read it with `jq -s`.
+The script calls `gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100"`
+from Node.js, falls back to explicit `?page=N` fetches if the paginated response comes back short,
+and writes these files:
 
-```bash
-gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100" --paginate > target/jobs-pages.ndjson
-```
+- `target/jobs-merged.json`
+- `target/analyzed-jobs.json`
+- `target/exclusion-counts.json`
+- `target/failed-jobs.json`
+- `target/project-jobs.json`
 
-Merge the paginated responses before querying them and carry the expected job count forward from
-the first page:
+`target/jobs-merged.json` includes `expected_total`, `total_jobs`, `failed_jobs`, and
+`counts_match`. If the script still cannot reconcile `expected_total` with `total_jobs` after the
+explicit page fallback, it exits non-zero. Stop there and report the mismatch instead of
+classifying partial data.
 
-```bash
-jq -s '
-  {
-    expected_total: (.[0].total_count // 0),
-    total_jobs: (map(.jobs | length) | add),
-    failed_jobs: (map([.jobs[] | select(.conclusion == "failure")] | length) | add),
-    jobs: (map(.jobs) | add)
-  }
-' target/jobs-pages.ndjson > target/jobs-merged.json
-```
+`target/analyzed-jobs.json` excludes workflow-only jobs such as `prepare-project-matrix` and
+`diff-validation-aggregated`.
 
-Sanity-check the merged total before trusting it:
+`target/exclusion-counts.json` records:
 
-```bash
-jq '
-  {
-    expected_total,
-    total_jobs,
-    counts_match: (.expected_total == .total_jobs)
-  }
-' target/jobs-merged.json
-```
-
-If `counts_match` is `false` and `expected_total` is larger than `total_jobs`, fetch `?page=N`
-responses explicitly and rebuild `target/jobs-merged.json` before continuing.
-
-Immediately exclude workflow-only jobs such as `prepare-project-matrix` and
-`diff-validation-aggregated` by building a single analyzed-job set first:
-
-```bash
-jq '
-  {
-    total_jobs: ([.jobs[] | select(
-      .name != "prepare-project-matrix" and
-      .name != "diff-validation-aggregated"
-    )] | length),
-    jobs: [.jobs[] | select(
-      .name != "prepare-project-matrix" and
-      .name != "diff-validation-aggregated"
-    )]
-  }
-' target/jobs-merged.json > target/analyzed-jobs.json
-```
-
-Record the exclusion counts immediately so the final summary can reuse them mechanically:
-
-```bash
-jq '
-  {
-    excluded_workflow_jobs: ([.jobs[] | select(
-      .name == "prepare-project-matrix" or
-      .name == "diff-validation-aggregated"
-    )] | length),
-    excluded_project_jobs: 0
-  }
-' target/jobs-merged.json > target/exclusion-counts.json
-```
+- `excluded_workflow_jobs`
+- `excluded_project_jobs`
 
 If you intentionally exclude any real project scans beyond those two workflow jobs, replace
 `excluded_project_jobs: 0` with the count from that additional exclusion filter and mention why.
@@ -159,26 +113,6 @@ For excluded jobs:
   `prepare-project-matrix` and `diff-validation-aggregated`
 - record `excluded_project_jobs` separately so the summary makes it explicit how many actual
   project scans were excluded; this is normally `0` unless you intentionally exclude a real project scan
-
-Build the two working sets from `target/analyzed-jobs.json`:
-
-```bash
-jq '
-  {
-    total_jobs: ([.jobs[] | select(.conclusion == "failure")] | length),
-    jobs: [.jobs[] | select(.conclusion == "failure")]
-  }
-' target/analyzed-jobs.json > target/failed-jobs.json
-```
-
-```bash
-jq '
-  {
-    total_jobs: ([.jobs[] | select(.conclusion == "success")] | length),
-    jobs: [.jobs[] | select(.conclusion == "success")]
-  }
-' target/analyzed-jobs.json > target/project-jobs.json
-```
 
 Use `target/failed-jobs.json` for failure triage and `target/project-jobs.json` for the
 analysis-consistency check.
