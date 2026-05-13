@@ -14,6 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { EcmaVersion } from '@eslint/core';
+import type ts from 'typescript';
 import type { JsTsAnalysisInput } from './jsts/analysis/analysis.js';
 import { analyzeHTMLProject } from './html/index.js';
 import { analyzeYAMLProject } from './yaml/index.js';
@@ -31,7 +33,6 @@ import type { WsIncrementalResult } from './incremental-result.js';
 import type { AnalyzableFile, FileResult, ProjectAnalysisOutput } from './projectAnalysis.js';
 import type { ProgressReport } from './common/progress-report.js';
 import { handleFileResult } from './handleFileResult.js';
-import type ts from 'typescript';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import type { EmbeddedAnalysisInput } from './jsts/embedded/analysis/analysis.js';
 import { analyzeCSSProject } from './css/analysis/analyzer.js';
@@ -67,7 +68,7 @@ export async function analyzeFile(
   pendingFiles: Set<NormalizedAbsolutePath> | undefined,
   progressReport: ProgressReport,
   incrementalResultsChannel?: (result: WsIncrementalResult) => void,
-  detectedEsYear?: number,
+  detectedEsYear?: EcmaVersion,
 ) {
   progressReport.nextFile(fileName);
 

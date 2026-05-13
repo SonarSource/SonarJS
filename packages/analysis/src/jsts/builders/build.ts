@@ -14,16 +14,17 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { Linter } from 'eslint';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { JsTsAnalysisInput } from '../analysis/analysis.js';
 import {
   buildBabelParserOptions,
   buildTsParserOptions,
   buildVueParserOptions,
+  type ParserContext,
 } from '../parsers/options.js';
 import { parse } from '../parsers/parse.js';
 import { type Parser, parsersMap } from '../parsers/eslint.js';
-import type { Linter } from 'eslint';
 
 /**
  * Builds an ESLint SourceCode for JavaScript / TypeScript
@@ -36,16 +37,22 @@ import type { Linter } from 'eslint';
  */
 export function build(input: JsTsAnalysisInput) {
   const vueFile = isVueFile(input.filePath);
+  const parserContext: ParserContext = {
+    detectedEsYear: input.detectedEsYear,
+  };
 
   let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
   if (shouldUseTypescriptParser(input)) {
     const parserOptions: Linter.ParserOptions = vueFile
-      ? buildVueParserOptions('ts', { filePath: input.filePath })
-      : buildTsParserOptions({
-          filePath: input.filePath,
-          programs: input.program ? [input.program] : undefined,
-          project: input.tsConfigs,
-        });
+      ? buildVueParserOptions('ts', { filePath: input.filePath }, parserContext)
+      : buildTsParserOptions(
+          {
+            filePath: input.filePath,
+            programs: input.program ? [input.program] : undefined,
+            project: input.tsConfigs,
+          },
+          parserContext,
+        );
     try {
       debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
       return parse(input.fileContent, parser, parserOptions);
@@ -64,7 +71,9 @@ export function build(input: JsTsAnalysisInput) {
     return parse(
       input.fileContent,
       parser,
-      vueFile ? buildVueParserOptions('js') : buildBabelParserOptions(),
+      vueFile
+        ? buildVueParserOptions('js', {}, parserContext)
+        : buildBabelParserOptions({}, parserContext),
     );
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
@@ -79,7 +88,7 @@ export function build(input: JsTsAnalysisInput) {
     return parse(
       input.fileContent,
       parsersMap.javascript,
-      buildBabelParserOptions({ sourceType: 'script' }),
+      buildBabelParserOptions({ sourceType: 'script' }, parserContext),
     );
   } catch (error) {
     debug(
