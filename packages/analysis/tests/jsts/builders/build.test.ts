@@ -249,11 +249,19 @@ describe('buildSourceCode', () => {
     const analysisInput = await jsTsInput({ filePath, language: 'ts' });
     expect(() => build(analysisInput)).toThrow(new Error('Expression expected.'));
 
-    const log = `DEBUG Failed to parse ${normalizeToAbsolutePath(filePath)} with vue-eslint-parser: Expression expected.`;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );
-    expect(logs).toContain(log);
+    expect(logs).toContain(
+      `DEBUG Failed to parse ${normalizeToAbsolutePath(filePath)} with vue-eslint-parser: Expression expected.`,
+    );
+    // Both attempts failed; the JSX retry was tried then the original error was thrown.
+    expect(logs).toContain(`DEBUG Retrying ${normalizeToAbsolutePath(filePath)} with JSX disabled`);
+    expect(
+      logs.some(l =>
+        l.startsWith(`DEBUG JSX-disabled retry failed for ${normalizeToAbsolutePath(filePath)}:`),
+      ),
+    ).toBe(true);
   });
 
   it('should parse Vue+TS file containing a TS angle-bracket assertion', async ({ mock }) => {
