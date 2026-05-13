@@ -54,7 +54,7 @@ function checkIdentifier(
 ) {
   const { name } = identifier;
 
-  if (!name.match(format)) {
+  if (!new RegExp(format).test(name)) {
     context.report({
       messageId: 'renameTypeParameter',
       data: {
