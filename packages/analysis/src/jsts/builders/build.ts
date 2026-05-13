@@ -35,11 +35,8 @@ import { type Parser, parsersMap } from '../parsers/eslint.js';
  * @param input the sanitized JavaScript / TypeScript analysis input (all fields required)
  * @returns the parsed source code
  */
-export function build(input: JsTsAnalysisInput) {
+export function build(input: JsTsAnalysisInput, parserContext: ParserContext = {}) {
   const vueFile = isVueFile(input.filePath);
-  const parserContext: ParserContext = {
-    detectedEsYear: input.detectedEsYear,
-  };
 
   let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
   if (shouldUseTypescriptParser(input)) {
