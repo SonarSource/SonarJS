@@ -42,7 +42,7 @@
 [INFO] --- buildnumber-maven-plugin:3.2.1:create (default) @ javascript ---
 [INFO] Executing: /bin/sh -c cd '/workspace/SonarJS' && 'git' 'log' '-1' '--no-merges' '--format=format:%H %aI %aE %aN'
 [INFO] Working directory: /workspace/SonarJS
-[INFO] Storing buildNumber: e937667b9e5ab5c2a7d6994b67f61f2c1a69456c at timestamp: 1778621625854
+[INFO] Storing buildNumber: 226aa91387eb68d26e9a419f840d9e89257c014b at timestamp: 1778654415618
 [INFO] Executing: /bin/sh -c cd '/workspace/SonarJS' && 'git' 'symbolic-ref' 'HEAD'
 [INFO] Working directory: /workspace/SonarJS
 [INFO] Storing scmBranch: new-rule/JS-1759-S119
@@ -246,7 +246,6 @@ JS/TS rules: 529
 JS rules: 481
 TS rules: 499
 CSS rules: 30
-Updating README.md with new rule counts
 [INFO] 
 [INFO] --- maven-resources-plugin:3.3.1:resources (default-resources) @ javascript-checks ---
 [INFO] Copying 1078 resources from src/main/resources to target/classes
@@ -551,7 +550,7 @@ node-info.properties for sonar-plugin/sonar-javascript-plugin updated with versi
 [INFO]     Organization URL: https://www.sonarsource.com
 [INFO]     Terms and Conditions: 
 [INFO]     Issue Tracker URL: https://github.com/SonarSource/sonar-javascript/issues
-[INFO]     Build date: 2026-05-12T21:34:13+0000
+[INFO]     Build date: 2026-05-13T06:40:41+0000
 [INFO]     Sources URL: https://github.com/SonarSource/sonar-javascript
 [INFO]     Developers: Michał Zgliczyński,Victor Diez
 [INFO]     Minimal JRE Specification Version: 17
@@ -1088,7 +1087,7 @@ custom-eslint-based-rules-1.0.0.tgz
 [INFO]     Organization URL: http://www.sonarsource.com
 [INFO]     Terms and Conditions: 
 [INFO]     Issue Tracker URL: https://github.com/SonarSource/sonar-javascript/issues
-[INFO]     Build date: 2026-05-12T21:34:27+0000
+[INFO]     Build date: 2026-05-13T06:40:55+0000
 [INFO]     Sources URL: https://github.com/SonarSource/sonar-javascript/javascript-its/javascript-it-plugin/javascript-it-plugin-plugins/eslint-custom-rules-plugin
 [INFO]     Developers: Michał Zgliczyński,Victor Diez
 [INFO]     Minimal JRE Specification Version: 
@@ -1178,7 +1177,7 @@ custom-eslint-based-rules-1.0.0.tgz
 [INFO]     Organization URL: http://www.sonarsource.com
 [INFO]     Terms and Conditions: 
 [INFO]     Issue Tracker URL: https://github.com/SonarSource/sonar-javascript/issues
-[INFO]     Build date: 2026-05-12T21:34:28+0000
+[INFO]     Build date: 2026-05-13T06:40:55+0000
 [INFO]     Sources URL: https://github.com/SonarSource/sonar-javascript/javascript-its/javascript-it-plugin/javascript-it-plugin-plugins/eslint-custom-rules-plugin-legacy
 [INFO]     Developers: Michał Zgliczyński,Victor Diez
 [INFO]     Minimal JRE Specification Version: 
@@ -1262,7 +1261,7 @@ custom-eslint-based-rules-1.0.0.tgz
 [INFO]     Organization URL: http://www.sonarsource.com
 [INFO]     Terms and Conditions: 
 [INFO]     Issue Tracker URL: https://github.com/SonarSource/sonar-javascript/issues
-[INFO]     Build date: 2026-05-12T21:34:28+0000
+[INFO]     Build date: 2026-05-13T06:40:55+0000
 [INFO]     Sources URL: https://github.com/SonarSource/sonar-javascript/javascript-its/javascript-it-plugin/javascript-it-plugin-plugins/consumer-plugin
 [INFO]     Developers: Michał Zgliczyński,Victor Diez
 [INFO]     Minimal JRE Specification Version: 
@@ -1427,7 +1426,7 @@ custom-eslint-based-rules-1.0.0.tgz
 [INFO] skip non existing resourceDirectory /workspace/SonarJS/its/plugin/sonarlint-tests/src/test/resources
 [INFO] 
 [INFO] --- maven-compiler-plugin:3.13.0:testCompile (default-testCompile) @ javascript-it-plugin-sonarlint-tests ---
-[INFO] Recompiling the module because of changed dependency.
+[INFO] Recompiling the module because of changed source code.
 [INFO] Compiling 2 source files with javac [debug release 17] to target/test-classes
 [INFO] 
 [INFO] --- maven-surefire-plugin:3.1.2:test (default-test) @ javascript-it-plugin-sonarlint-tests ---
@@ -1500,29 +1499,29 @@ custom-eslint-based-rules-1.0.0.tgz
 [INFO] ------------------------------------------------------------------------
 [INFO] Reactor Summary for SonarJS 12.5.0-SNAPSHOT:
 [INFO] 
-[INFO] SonarJS ............................................ SUCCESS [  1.426 s]
-[INFO] SonarQube JavaScript ............................... SUCCESS [  0.012 s]
-[INFO] SonarQube JavaScript :: API ........................ SUCCESS [  0.911 s]
-[INFO] SonarQube JavaScript :: Checks ..................... SUCCESS [ 11.404 s]
-[INFO] SonarQube JavaScript :: Bridge ..................... SUCCESS [  9.440 s]
-[INFO] SonarQube JavaScript :: CSS ........................ SUCCESS [  0.267 s]
-[INFO] SonarQube JavaScript :: Plugin ..................... SUCCESS [ 17.298 s]
-[INFO] SonarQube JavaScript :: Standalone ................. SUCCESS [  0.594 s]
-[INFO] JavaScript :: IT ................................... SUCCESS [  0.405 s]
-[INFO] JavaScript :: IT :: Plugin ......................... SUCCESS [  0.010 s]
-[INFO] JavaScript :: IT :: Plugin :: Plugins .............. SUCCESS [  0.006 s]
-[INFO] JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules SUCCESS [  0.361 s]
-[INFO] JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules SUCCESS [  0.265 s]
-[INFO] JavaScript :: IT :: Plugin :: Plugins :: Consumer Plugin SUCCESS [  0.062 s]
-[INFO] JavaScript :: IT :: Plugin :: Tests ................ SUCCESS [  8.883 s]
-[INFO] JavaScript :: IT :: Plugin :: Fast :: Tests ........ SUCCESS [  2.031 s]
-[INFO] JavaScript :: IT :: Plugin :: SonarLint Tests ...... SUCCESS [ 32.180 s]
-[INFO] JavaScript :: IT :: Ruling ......................... SUCCESS [  0.085 s]
+[INFO] SonarJS ............................................ SUCCESS [  1.291 s]
+[INFO] SonarQube JavaScript ............................... SUCCESS [  0.019 s]
+[INFO] SonarQube JavaScript :: API ........................ SUCCESS [  0.971 s]
+[INFO] SonarQube JavaScript :: Checks ..................... SUCCESS [ 10.984 s]
+[INFO] SonarQube JavaScript :: Bridge ..................... SUCCESS [  9.001 s]
+[INFO] SonarQube JavaScript :: CSS ........................ SUCCESS [  0.284 s]
+[INFO] SonarQube JavaScript :: Plugin ..................... SUCCESS [ 15.806 s]
+[INFO] SonarQube JavaScript :: Standalone ................. SUCCESS [  0.175 s]
+[INFO] JavaScript :: IT ................................... SUCCESS [  0.663 s]
+[INFO] JavaScript :: IT :: Plugin ......................... SUCCESS [  0.017 s]
+[INFO] JavaScript :: IT :: Plugin :: Plugins .............. SUCCESS [  0.011 s]
+[INFO] JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules SUCCESS [  0.391 s]
+[INFO] JavaScript :: IT :: Plugin :: Plugins :: ESLint Custom Rules SUCCESS [  0.264 s]
+[INFO] JavaScript :: IT :: Plugin :: Plugins :: Consumer Plugin SUCCESS [  0.065 s]
+[INFO] JavaScript :: IT :: Plugin :: Tests ................ SUCCESS [  0.234 s]
+[INFO] JavaScript :: IT :: Plugin :: Fast :: Tests ........ SUCCESS [  0.198 s]
+[INFO] JavaScript :: IT :: Plugin :: SonarLint Tests ...... SUCCESS [  0.266 s]
+[INFO] JavaScript :: IT :: Ruling ......................... SUCCESS [  0.123 s]
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  01:25 min
-[INFO] Finished at: 2026-05-12T21:35:11Z
+[INFO] Total time:  41.045 s
+[INFO] Finished at: 2026-05-13T06:40:56Z
 [INFO] ------------------------------------------------------------------------
 From https://github.com/SonarSource/rspec
  * branch              S119-JS    -> FETCH_HEAD
@@ -2311,8 +2310,8 @@ npm notice version: 1.0.0
 npm notice filename: sonarjs-1.0.0.tgz
 npm notice package size: 6.3 MB
 npm notice unpacked size: 28.3 MB
-npm notice shasum: 347ee15943015e3c236f98199567e0932fe8849c
-npm notice integrity: sha512-iucDqEx7ewiJ7[...]zImhywqa0E5XA==
+npm notice shasum: d28b90e9bbf105429c361b53964beb58e35b150d
+npm notice integrity: sha512-3951KqGN3eKZJ[...]3mChijsXNZgZg==
 npm notice total files: 760
 npm notice
 npm warn gitignore-fallback No .npmignore file found, using .gitignore for file exclusion. Consider creating a .npmignore file to explicitly control published files.
