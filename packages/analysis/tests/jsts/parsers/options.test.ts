@@ -109,6 +109,22 @@ describe('buildTsParserOptions', () => {
       buildTsParserOptions({ sourceType: 'script' }, { detectedModuleType: 'commonjs' }),
     ).toEqual(expect.objectContaining({ sourceType: 'script' }));
   });
+
+  it('should disable jsx in ecmaFeatures when context.jsx is false', () => {
+    expect(buildTsParserOptions({}, { jsx: false })).toEqual(
+      expect.objectContaining({
+        ecmaFeatures: expect.objectContaining({ jsx: false }),
+      }),
+    );
+  });
+
+  it('should default jsx to true when not specified in context', () => {
+    expect(buildTsParserOptions()).toEqual(
+      expect.objectContaining({
+        ecmaFeatures: expect.objectContaining({ jsx: true }),
+      }),
+    );
+  });
 });
 
 describe('buildBabelParserOptions', () => {
