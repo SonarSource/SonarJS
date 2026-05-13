@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { Linter } from 'eslint';
+import ts from 'typescript';
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { JsTsAnalysisInput } from '../analysis/analysis.js';
 import {
@@ -37,24 +38,49 @@ import { type Parser, parsersMap } from '../parsers/eslint.js';
  */
 export function build(input: JsTsAnalysisInput, parserContext: ParserContext = {}) {
   const vueFile = isVueFile(input.filePath);
+  const context: ParserContext = {
+    ...parserContext,
+    jsx: parserContext.jsx ?? jsxEnabledFor(input.program),
+  };
 
   let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
   if (shouldUseTypescriptParser(input)) {
     const parserOptions: Linter.ParserOptions = vueFile
-      ? buildVueParserOptions('ts', { filePath: input.filePath }, parserContext)
+      ? buildVueParserOptions('ts', { filePath: input.filePath }, context)
       : buildTsParserOptions(
           {
             filePath: input.filePath,
             programs: input.program ? [input.program] : undefined,
             project: input.tsConfigs,
           },
-          parserContext,
+          context,
         );
     try {
       debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
       return parse(input.fileContent, parser, parserOptions);
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
+      // Vue+TS: JSX-vs-TS ambiguity. Retry with the opposite jsx setting.
+      if (vueFile && input.language === 'ts') {
+        const retryJsx = !(context.jsx ?? true);
+        try {
+          debug(`Retrying ${input.filePath} with JSX ${retryJsx ? 'enabled' : 'disabled'}`);
+          return parse(
+            input.fileContent,
+            parser,
+            buildVueParserOptions(
+              'ts',
+              { filePath: input.filePath },
+              { ...context, jsx: retryJsx },
+            ),
+          );
+        } catch (retryError) {
+          debug(
+            `JSX-${retryJsx ? 'enabled' : 'disabled'} retry failed for ${input.filePath}: ${retryError.message}`,
+          );
+          throw error;
+        }
+      }
       if (input.language === 'ts') {
         throw error;
       }
@@ -68,9 +94,7 @@ export function build(input: JsTsAnalysisInput, parserContext: ParserContext = {
     return parse(
       input.fileContent,
       parser,
-      vueFile
-        ? buildVueParserOptions('js', {}, parserContext)
-        : buildBabelParserOptions({}, parserContext),
+      vueFile ? buildVueParserOptions('js', {}, context) : buildBabelParserOptions({}, context),
     );
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
@@ -85,7 +109,7 @@ export function build(input: JsTsAnalysisInput, parserContext: ParserContext = {
     return parse(
       input.fileContent,
       parsersMap.javascript,
-      buildBabelParserOptions({ sourceType: 'script' }, parserContext),
+      buildBabelParserOptions({ sourceType: 'script' }, context),
     );
   } catch (error) {
     debug(
@@ -105,4 +129,17 @@ function shouldUseTypescriptParser({ allowTsParserJsFiles, language }: JsTsAnaly
 
 function isVueFile(file: string) {
   return file.toLowerCase().endsWith('.vue');
+}
+
+/**
+ * Whether JSX should be enabled based on the project's tsconfig. Undefined when unknown.
+ * @param program the TypeScript Program instance
+ * @return true if JSX is enabled, false if disabled, or undefined if unknown
+ * */
+function jsxEnabledFor(program?: ts.Program): boolean | undefined {
+  if (!program) {
+    return undefined;
+  }
+  const jsx = program.getCompilerOptions().jsx;
+  return jsx !== undefined && jsx !== ts.JsxEmit.None;
 }

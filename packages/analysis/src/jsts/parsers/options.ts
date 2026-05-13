@@ -33,6 +33,7 @@ const DEFAULT_SOURCE_TYPE: ModuleType = 'module';
 export interface ParserContext {
   detectedEsYear?: EcmaVersion;
   detectedModuleType?: ModuleType;
+  jsx?: boolean;
 }
 
 /**
@@ -50,7 +51,7 @@ function commonParserOptions(context: ParserContext = {}): Linter.ParserOptions 
     sourceType: context.detectedModuleType ?? DEFAULT_SOURCE_TYPE,
     codeFrame: false,
     ecmaFeatures: {
-      jsx: true,
+      jsx: context.jsx ?? true,
       globalReturn: false,
       legacyDecorators: true,
     },
