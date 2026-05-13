@@ -36,6 +36,8 @@ import {
   type InternalMetricsSink,
   toInternalMetricsSettings,
 } from '../rules/helpers/internal-metrics.js';
+import type { ParserContext } from '../parsers/options.js';
+import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'sonarjs/S3776';
 const COGNITIVE_COMPLEXITY_SILENCE_ISSUES_OPTION = 'silence-issues';
@@ -65,8 +67,11 @@ interface AnalysisLinterOptions {
 export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysisOutput> {
   debug(`Analyzing file "${input.filePath}"`);
   const { filePath, fileType, analysisMode, fileStatus, language, detectedEsYear } = input;
+  const detectedModuleType = Linter.detectModuleType(filePath);
+  getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
 
-  const parseResult = build(input);
+  const parserContext: ParserContext = { detectedEsYear, detectedModuleType };
+  const parseResult = build(input, parserContext);
   if (input.clearDependenciesCache) {
     debug('Clearing dependencies cache');
     clearDependenciesCache();
@@ -80,6 +85,7 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     analysisMode,
     language,
     detectedEsYear as number | undefined,
+    detectedModuleType,
     { additionalRules, additionalSettings },
   );
   const extendedMetrics = computeExtendedMetrics(
