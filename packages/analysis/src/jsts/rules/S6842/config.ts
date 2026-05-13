@@ -31,14 +31,17 @@ export const fields = [
     {
       field: 'li',
       default: [
-        'option',
-        'tab',
         'menuitem',
-        'menuitemcheckbox',
         'menuitemradio',
+        'menuitemcheckbox',
+        'option',
         'row',
+        'tab',
         'treeitem',
       ],
     },
+    { field: 'table', default: ['grid'] },
+    { field: 'td', default: ['gridcell'] },
+    { field: 'fieldset', default: ['radiogroup', 'presentation'] },
   ],
 ] as const satisfies ESLintConfiguration;

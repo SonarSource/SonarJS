@@ -16,12 +16,26 @@
  */
 import { deepStrictEqual, ok } from 'node:assert';
 import { describe, it } from 'node:test';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import { defaultOptions } from '../helpers/configs.js';
 import { fields } from './config.js';
 import { rule } from './index.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 
-const OPTIONS = defaultOptions(fields) as [{ ul: string[]; ol: string[]; li: string[] }];
+type Allowlist = {
+  ul: string[];
+  ol: string[];
+  li: string[];
+  table: string[];
+  td: string[];
+  fieldset: string[];
+};
+
+const UPSTREAM_ALLOWLIST = jsxA11yPlugin.configs.recommended.rules[
+  'jsx-a11y/no-noninteractive-element-to-interactive-role'
+][1] as Allowlist;
+
+const OPTIONS = defaultOptions(fields) as [Allowlist];
 const [allowlist] = OPTIONS;
 const COMPOSITE_VALID_CASES = [
   {
@@ -30,6 +44,22 @@ const COMPOSITE_VALID_CASES = [
   },
   {
     code: `<ol role="listbox"><li role="option">Item</li></ol>`,
+    options: OPTIONS,
+  },
+  {
+    code: `<table role="grid"><tr><td>Item</td></tr></table>`,
+    options: OPTIONS,
+  },
+  {
+    code: `<table><tr><td role="gridcell">Item</td></tr></table>`,
+    options: OPTIONS,
+  },
+  {
+    code: `<fieldset role="radiogroup"><legend>Label</legend></fieldset>`,
+    options: OPTIONS,
+  },
+  {
+    code: `<fieldset role="presentation"><legend>Label</legend></fieldset>`,
     options: OPTIONS,
   },
 ];
@@ -51,14 +81,8 @@ const VALID_CASES = [
 ];
 
 describe('S6842', () => {
-  it('should expose the upstream recommended allowlist shape as default options', () => {
-    deepStrictEqual(Object.keys(allowlist), ['ul', 'ol', 'li']);
-    ok(allowlist.ul.includes('listbox'));
-    ok(allowlist.ol.includes('listbox'));
-    ok(allowlist.li.includes('option'));
-    ok(allowlist.ul.length > 0);
-    ok(allowlist.ol.length > 0);
-    ok(allowlist.li.length > 0);
+  it('should expose the upstream recommended allowlist as default options', () => {
+    deepStrictEqual(allowlist, UPSTREAM_ALLOWLIST);
   });
 
   it('should not flag upstream recommended element/role combinations', () => {
