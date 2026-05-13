@@ -30,7 +30,7 @@ import {
 import { areMutuallyAssignableTypes, getTypeFromTreeNode } from './type.js';
 
 type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
-type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
+export type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
   ownersByReportNode: WeakMap<estree.Node, estree.Node[] | null>;
@@ -705,7 +705,7 @@ function findEnclosingTypeMember(ancestors: estree.Node[]): TypeMemberNode | und
   return undefined;
 }
 
-function getReportedTypeMember(
+export function getReportedTypeMember(
   ancestors: estree.Node[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,

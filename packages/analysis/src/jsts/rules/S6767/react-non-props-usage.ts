@@ -31,9 +31,11 @@ import {
 import {
   getComponentPropsTypeCandidates,
   getDeclaredClassNonPropsTypes,
+  getReportedTypeMember,
   isClassComponentNode,
   isFunctionComponentNode,
   isPascalCaseFunctionComponent,
+  type ReportedTypeMember,
 } from '../helpers/react.js';
 import { areSameTypeDeclarations } from '../helpers/type.js';
 
@@ -92,10 +94,12 @@ function isReactComponentNonPropsTypeDeclaration(
   if (!reportedEnclosingType) {
     return false;
   }
+  const reportedTypeMember = getReportedTypeMember(ancestors, services, checker);
 
   const usage = getReactNonPropsTypeUsage(
     componentNode,
     reportedEnclosingType,
+    reportedTypeMember,
     services,
     checker,
     getSourceCache(context.sourceCode),
@@ -108,13 +112,14 @@ function usesReportedTypeAsComponentProps(
   services: RequiredParserServices,
   checker: ts.TypeChecker,
   reportedEnclosingType: ReportedEnclosingType,
+  reportedTypeMember: ReportedTypeMember | undefined,
 ): boolean {
   if (isFunctionComponentNode(componentNode) && !isPascalCaseFunctionComponent(componentNode)) {
     return false;
   }
 
   return getComponentPropsTypeCandidates(componentNode, services).some(propsType =>
-    areSameTypeDeclarations(checker, reportedEnclosingType.tsType, propsType),
+    doesSlotExposeReportedMember(propsType, reportedEnclosingType, reportedTypeMember, checker),
   );
 }
 
@@ -123,6 +128,7 @@ function usesReportedTypeAsReactClassNonProps(
   services: RequiredParserServices,
   checker: ts.TypeChecker,
   reportedEnclosingType: ReportedEnclosingType,
+  reportedTypeMember: ReportedTypeMember | undefined,
 ): boolean {
   if (!isClassComponentNode(componentNode)) {
     return false;
@@ -132,13 +138,14 @@ function usesReportedTypeAsReactClassNonProps(
     componentNode as TSESTree.Node,
   ) as ts.ClassLikeDeclaration;
   return getDeclaredClassNonPropsTypes(tsNode, checker).some(nonPropsType =>
-    areSameTypeDeclarations(checker, reportedEnclosingType.tsType, nonPropsType),
+    doesSlotExposeReportedMember(nonPropsType, reportedEnclosingType, reportedTypeMember, checker),
   );
 }
 
 function getReactNonPropsTypeUsage(
   componentNode: estree.Node,
   reportedEnclosingType: ReportedEnclosingType,
+  reportedTypeMember: ReportedTypeMember | undefined,
   services: RequiredParserServices,
   checker: ts.TypeChecker,
   sourceCache: SourceCache,
@@ -167,12 +174,14 @@ function getReactNonPropsTypeUsage(
     services,
     checker,
     reportedEnclosingType,
+    reportedTypeMember,
   );
   const isNonPropsType = usesReportedTypeAsReactClassNonProps(
     componentNode,
     services,
     checker,
     reportedEnclosingType,
+    reportedTypeMember,
   );
 
   let usage: ReactNonPropsTypeUsage = 'other';
@@ -184,4 +193,58 @@ function getReactNonPropsTypeUsage(
 
   usagesByComponent.set(componentNode, usage);
   return usage;
+}
+
+function doesSlotExposeReportedMember(
+  slotType: ts.Type,
+  reportedEnclosingType: ReportedEnclosingType,
+  reportedTypeMember: ReportedTypeMember | undefined,
+  checker: ts.TypeChecker,
+): boolean {
+  if (!reportedTypeMember) {
+    return areSameTypeDeclarations(checker, reportedEnclosingType.tsType, slotType);
+  }
+
+  const slotPropSymbol = getAssignableSlotPropSymbol(slotType, reportedTypeMember, checker);
+  return (
+    slotPropSymbol !== undefined &&
+    (hasExactReportedTypeMemberDeclaration(slotPropSymbol, reportedTypeMember) ||
+      reportedEnclosingType.isUsedByType(slotType, checker))
+  );
+}
+
+function getAssignableSlotPropSymbol(
+  slotType: ts.Type,
+  reportedTypeMember: ReportedTypeMember,
+  checker: ts.TypeChecker,
+): ts.Symbol | undefined {
+  const slotPropSymbol = slotType.getProperty(reportedTypeMember.name);
+  if (!slotPropSymbol) {
+    return undefined;
+  }
+
+  return isReportedTypeMemberTypeAssignableToSlotProp(slotPropSymbol, reportedTypeMember, checker)
+    ? slotPropSymbol
+    : undefined;
+}
+
+function isReportedTypeMemberTypeAssignableToSlotProp(
+  slotPropSymbol: ts.Symbol,
+  reportedTypeMember: ReportedTypeMember,
+  checker: ts.TypeChecker,
+): boolean {
+  return checker.isTypeAssignableTo(
+    reportedTypeMember.tsType,
+    checker.getTypeOfSymbol(slotPropSymbol),
+  );
+}
+
+function hasExactReportedTypeMemberDeclaration(
+  slotPropSymbol: ts.Symbol,
+  reportedTypeMember: ReportedTypeMember,
+): boolean {
+  return (
+    slotPropSymbol.declarations?.some(declaration => declaration === reportedTypeMember.tsNode) ===
+    true
+  );
 }

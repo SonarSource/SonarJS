@@ -657,6 +657,26 @@ class StateOwner extends React.Component<{}, SharedType, Snapshot> {
           errors: 1,
         },
         {
+          // TP: wrapped props contracts still count as props, so a class that also
+          // reuses the same declaration for state must keep the props-side report.
+          code: `
+declare const React: any;
+interface SharedType {
+  unused: string;
+}
+interface Snapshot {
+  scrollTop: number;
+}
+class WrappedPropsOwner extends React.Component<Readonly<SharedType>, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
           // TP: a shared base props declaration can belong to multiple components.
           // The wrapper forwards whole props to the child, but the child still leaves
           // the inherited prop unused. The decorator must keep the issue unless every
