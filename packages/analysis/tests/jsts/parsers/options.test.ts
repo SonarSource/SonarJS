@@ -93,6 +93,22 @@ describe('buildTsParserOptions', () => {
       expect.objectContaining({ ecmaVersion: 2020 }),
     );
   });
+
+  it('should use detectedModuleType as sourceType when provided', () => {
+    expect(buildTsParserOptions({}, { detectedModuleType: 'commonjs' })).toEqual(
+      expect.objectContaining({ sourceType: 'commonjs' }),
+    );
+  });
+
+  it('should fall back to module sourceType when detectedModuleType is undefined', () => {
+    expect(buildTsParserOptions()).toEqual(expect.objectContaining({ sourceType: 'module' }));
+  });
+
+  it('should let an explicit sourceType override win over detectedModuleType', () => {
+    expect(
+      buildTsParserOptions({ sourceType: 'script' }, { detectedModuleType: 'commonjs' }),
+    ).toEqual(expect.objectContaining({ sourceType: 'script' }));
+  });
 });
 
 describe('buildBabelParserOptions', () => {

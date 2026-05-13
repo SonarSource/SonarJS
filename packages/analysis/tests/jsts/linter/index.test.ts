@@ -359,7 +359,15 @@ describe('Linter', () => {
 
     const getRulesFor = async (filePath: ReturnType<typeof normalizeToAbsolutePath>) => {
       const { sourceCode } = await parseJavaScriptSourceFile(filePath);
-      return Linter.getRulesForFile(filePath, 'MAIN', 'DEFAULT', 'js', undefined, sourceCode);
+      return Linter.getRulesForFile(
+        filePath,
+        'MAIN',
+        'DEFAULT',
+        'js',
+        undefined,
+        undefined,
+        sourceCode,
+      );
     };
 
     await Linter.initialize({ baseDir, rules });
@@ -1458,11 +1466,21 @@ describe('Linter', () => {
       baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
       rules: [],
     });
-    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', 2022, {
-      additionalRules: {
-        'sonarjs/S3776': ['error', 0],
+    const issues = Linter.lint(
+      parseResult,
+      filePath,
+      'MAIN',
+      'CHANGED',
+      'DEFAULT',
+      'js',
+      2022,
+      undefined,
+      {
+        additionalRules: {
+          'sonarjs/S3776': ['error', 0],
+        },
       },
-    });
+    );
 
     expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3776' })]);
   });
@@ -1485,11 +1503,21 @@ describe('Linter', () => {
         },
       ],
     });
-    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', 2022, {
-      additionalRules: {
-        'sonarjs/S3776': ['error', 'silence-issues'],
+    const issues = Linter.lint(
+      parseResult,
+      filePath,
+      'MAIN',
+      'CHANGED',
+      'DEFAULT',
+      'js',
+      2022,
+      undefined,
+      {
+        additionalRules: {
+          'sonarjs/S3776': ['error', 'silence-issues'],
+        },
       },
-    });
+    );
 
     expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3776' })]);
   });
@@ -1505,12 +1533,22 @@ describe('Linter', () => {
       rules: [],
     });
     const sink = {};
-    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', 2022, {
-      additionalRules: {
-        'sonarjs/S3776': ['error', 'silence-issues'],
+    const issues = Linter.lint(
+      parseResult,
+      filePath,
+      'MAIN',
+      'CHANGED',
+      'DEFAULT',
+      'js',
+      2022,
+      undefined,
+      {
+        additionalRules: {
+          'sonarjs/S3776': ['error', 'silence-issues'],
+        },
+        additionalSettings: toInternalMetricsSettings(sink),
       },
-      additionalSettings: toInternalMetricsSettings(sink),
-    });
+    );
 
     expect(sink).toEqual({ cognitiveComplexity: 1 });
     expect(issues).toEqual([]);

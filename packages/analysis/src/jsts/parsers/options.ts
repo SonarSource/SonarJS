@@ -22,12 +22,17 @@ import babelPluginDecorators from '@babel/plugin-proposal-decorators';
 import { EcmaVersion } from '@eslint/core';
 import { parsersMap } from './eslint.js';
 import type { JsTsLanguage } from '../../common/configuration.js';
+import type { ModuleType } from '../rules/helpers/dependency-manifests/resolvers/types.js';
 
 /** Fallback ECMAScript version when none is detected. */
 const DEFAULT_ECMA_VERSION = 2018;
 
+/** Fallback source type when no module type is detected. */
+const DEFAULT_SOURCE_TYPE: ModuleType = 'module';
+
 export interface ParserContext {
   detectedEsYear?: EcmaVersion;
+  detectedModuleType?: ModuleType;
 }
 
 /**
@@ -42,7 +47,7 @@ function commonParserOptions(context: ParserContext = {}): Linter.ParserOptions 
     loc: true,
     range: true,
     ecmaVersion: context.detectedEsYear ?? DEFAULT_ECMA_VERSION,
-    sourceType: 'module',
+    sourceType: context.detectedModuleType ?? DEFAULT_SOURCE_TYPE,
     codeFrame: false,
     ecmaFeatures: {
       jsx: true,
