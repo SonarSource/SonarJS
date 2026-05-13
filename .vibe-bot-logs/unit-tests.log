@@ -1,0 +1,12 @@
+▶ S5845
+  ✔ reports assertions comparing incompatible types (311.420088ms)
+  ✔ does not report without type information (1.576411ms)
+✔ S5845 (313.310498ms)
+ℹ tests 2
+ℹ suites 1
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 874.845995
