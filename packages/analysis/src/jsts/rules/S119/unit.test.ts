@@ -40,6 +40,7 @@ describe('S119', () => {
         }
 
         type ApiResponse<ResultData> = { data: ResultData };
+        type Alias<MyParam> = MyParam | null;
         `,
         },
         {
