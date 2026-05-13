@@ -26,9 +26,10 @@ import { getTypeFromTreeNode } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
-  issue: 'Change this assertion to not compare dissimilar types.',
-  issueWithTypes:
-    'Change this assertion to not compare dissimilar types ("{{actual}}" and "{{expected}}").',
+  alwaysFails:
+    'Change this assertion; it always fails because it compares dissimilar types ("{{actual}}" and "{{expected}}").',
+  alwaysSucceeds:
+    'Change this assertion; it always succeeds because it compares dissimilar types ("{{actual}}" and "{{expected}}").',
 };
 
 type PrimitiveCategory =
@@ -66,7 +67,7 @@ export const rule: Rule.RuleModule = {
       if (incompatibility) {
         context.report({
           node: assertion.reportNode,
-          messageId: 'issueWithTypes',
+          messageId: assertion.negated ? 'alwaysSucceeds' : 'alwaysFails',
           data: incompatibility,
         });
       }

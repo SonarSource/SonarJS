@@ -128,7 +128,7 @@ describe('S5845', () => {
               expect(enabled).not.toEqual('true');
             });
           `,
-          errors: [{ messageId: 'issueWithTypes' }, { messageId: 'issueWithTypes' }],
+          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysSucceeds' }],
         },
         {
           code: `
@@ -147,9 +147,9 @@ describe('S5845', () => {
             });
           `,
           errors: [
-            { messageId: 'issueWithTypes' },
-            { messageId: 'issueWithTypes' },
-            { messageId: 'issueWithTypes' },
+            { messageId: 'alwaysFails' },
+            { messageId: 'alwaysSucceeds' },
+            { messageId: 'alwaysFails' },
           ],
         },
         {
@@ -164,7 +164,7 @@ describe('S5845', () => {
             expect(id).toEqual(name);
             expect(score).toStrictEqual(scoreText);
           `,
-          errors: [{ messageId: 'issueWithTypes' }, { messageId: 'issueWithTypes' }],
+          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
         },
         {
           code: `
@@ -177,7 +177,7 @@ describe('S5845', () => {
             assert.deepStrictEqual(port, portText);
             assert.notDeepStrictEqual(active, 0);
           `,
-          errors: [{ messageId: 'issueWithTypes' }, { messageId: 'issueWithTypes' }],
+          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysSucceeds' }],
         },
         {
           code: `
@@ -192,9 +192,9 @@ describe('S5845', () => {
             assert.deepEqual(quantity, inStock);
           `,
           errors: [
-            { messageId: 'issueWithTypes' },
-            { messageId: 'issueWithTypes' },
-            { messageId: 'issueWithTypes' },
+            { messageId: 'alwaysFails' },
+            { messageId: 'alwaysSucceeds' },
+            { messageId: 'alwaysFails' },
           ],
         },
         {
@@ -210,9 +210,9 @@ describe('S5845', () => {
             expect(deprecated).to.eql(version);
           `,
           errors: [
-            { messageId: 'issueWithTypes' },
-            { messageId: 'issueWithTypes' },
-            { messageId: 'issueWithTypes' },
+            { messageId: 'alwaysFails' },
+            { messageId: 'alwaysFails' },
+            { messageId: 'alwaysFails' },
           ],
         },
         {
@@ -225,7 +225,7 @@ describe('S5845', () => {
             timeout.should.equal(timeoutText);
             timeoutText.should.deep.equal(timeout);
           `,
-          errors: [{ messageId: 'issueWithTypes' }, { messageId: 'issueWithTypes' }],
+          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
         },
         {
           code: `
@@ -235,7 +235,7 @@ describe('S5845', () => {
             const expectedCount: number = 1;
             expect(pageTitle).toBe(expectedCount);
           `,
-          errors: [{ messageId: 'issueWithTypes' }],
+          errors: [{ messageId: 'alwaysFails' }],
         },
         {
           code: `
@@ -246,7 +246,7 @@ describe('S5845', () => {
             cy.wrap(id).should('equal', idText);
             cy.wrap(idText).should('deep.equal', id);
           `,
-          errors: [{ messageId: 'issueWithTypes' }, { messageId: 'issueWithTypes' }],
+          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
         },
       ],
     });
