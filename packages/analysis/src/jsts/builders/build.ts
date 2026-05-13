@@ -16,7 +16,11 @@
  */
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { JsTsAnalysisInput } from '../analysis/analysis.js';
-import { buildParserOptions } from '../parsers/options.js';
+import {
+  buildBabelParserOptions,
+  buildTsParserOptions,
+  buildVueParserOptions,
+} from '../parsers/options.js';
 import { parse } from '../parsers/parse.js';
 import { type Parser, parsersMap } from '../parsers/eslint.js';
 import type { Linter } from 'eslint';
@@ -35,19 +39,16 @@ export function build(input: JsTsAnalysisInput) {
 
   let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
   if (shouldUseTypescriptParser(input)) {
-    const options: Linter.ParserOptions = {
-      // enable logs for @typescript-eslint
-      // debugLevel: true,
-      filePath: input.filePath,
-      parser: vueFile ? parsersMap.typescript : undefined,
-    };
-    if (!vueFile) {
-      options.programs = input.program ? [input.program] : undefined;
-      options.project = input.tsConfigs;
-    }
+    const parserOptions: Linter.ParserOptions = vueFile
+      ? buildVueParserOptions('ts', { filePath: input.filePath })
+      : buildTsParserOptions({
+          filePath: input.filePath,
+          programs: input.program ? [input.program] : undefined,
+          project: input.tsConfigs,
+        });
     try {
       debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
-      return parse(input.fileContent, parser, buildParserOptions(options, false));
+      return parse(input.fileContent, parser, parserOptions);
     } catch (error) {
       debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
       if (input.language === 'ts') {
@@ -63,7 +64,7 @@ export function build(input: JsTsAnalysisInput) {
     return parse(
       input.fileContent,
       parser,
-      buildParserOptions({ parser: vueFile ? parsersMap.javascript : undefined }, true),
+      vueFile ? buildVueParserOptions('js') : buildBabelParserOptions(),
     );
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
@@ -78,7 +79,7 @@ export function build(input: JsTsAnalysisInput) {
     return parse(
       input.fileContent,
       parsersMap.javascript,
-      buildParserOptions({ sourceType: 'script' }, true),
+      buildBabelParserOptions({ sourceType: 'script' }),
     );
   } catch (error) {
     debug(
