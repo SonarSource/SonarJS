@@ -79,7 +79,7 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     fileStatus,
     analysisMode,
     language,
-    detectedEsYear,
+    detectedEsYear as number | undefined,
     { additionalRules, additionalSettings },
   );
   const extendedMetrics = computeExtendedMetrics(

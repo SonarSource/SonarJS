@@ -14,6 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { EcmaVersion } from '@eslint/core';
+import type { Program } from 'typescript';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import type { JsTsLanguage } from '../../../src/common/configuration.js';
 import type { AnalysisInput, AnalysisOutput } from '../../../src/contracts/analysis.js';
@@ -21,7 +23,6 @@ import type { FileType } from '../../../src/contracts/file.js';
 import type { CpdToken, Metrics, SymbolHighlight, SyntaxHighlight } from './file-artifacts.js';
 import type { JsTsIssue } from '../linter/issues/issue.js';
 import type { CssIssue } from '../../css/linter/issues/issue.js';
-import type { Program } from 'typescript';
 
 /**
  * A sanitized JavaScript / TypeScript analysis input with all required fields populated.
@@ -60,7 +61,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   skipAst: boolean;
   clearDependenciesCache: boolean;
   reportNclocForTestFiles: boolean;
-  detectedEsYear?: number;
+  detectedEsYear?: EcmaVersion;
 }
 
 export type AnalysisMode = 'DEFAULT' | 'SKIP_UNCHANGED';

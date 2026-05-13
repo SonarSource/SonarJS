@@ -76,6 +76,23 @@ describe('buildTsParserOptions', () => {
       expect.objectContaining({ sourceType: 'script' }),
     );
   });
+
+  it('should use detectedEsYear as ecmaVersion when provided', () => {
+    expect(buildTsParserOptions({}, { detectedEsYear: 2022 })).toEqual(
+      expect.objectContaining({ ecmaVersion: 2022 }),
+    );
+  });
+
+  it('should fall back to the default ecmaVersion when detectedEsYear is undefined', () => {
+    expect(buildTsParserOptions({}, {})).toEqual(expect.objectContaining({ ecmaVersion: 2018 }));
+    expect(buildTsParserOptions()).toEqual(expect.objectContaining({ ecmaVersion: 2018 }));
+  });
+
+  it('should let an explicit ecmaVersion override win over detectedEsYear', () => {
+    expect(buildTsParserOptions({ ecmaVersion: 2020 }, { detectedEsYear: 2022 })).toEqual(
+      expect.objectContaining({ ecmaVersion: 2020 }),
+    );
+  });
 });
 
 describe('buildBabelParserOptions', () => {
@@ -99,6 +116,13 @@ describe('buildBabelParserOptions', () => {
     const parserOptions = buildBabelParserOptions();
     expect(parserOptions).not.toHaveProperty('disallowAutomaticSingleRunInference');
     expect(parserOptions).not.toHaveProperty('extraFileExtensions');
+  });
+
+  it('should propagate detectedEsYear and fall back to the default', () => {
+    expect(buildBabelParserOptions({}, { detectedEsYear: 2022 })).toEqual(
+      expect.objectContaining({ ecmaVersion: 2022 }),
+    );
+    expect(buildBabelParserOptions()).toEqual(expect.objectContaining({ ecmaVersion: 2018 }));
   });
 });
 
@@ -129,6 +153,15 @@ describe('buildVueParserOptions', () => {
   it('should let overrides win over defaults', () => {
     expect(buildVueParserOptions('ts', { filePath: '/some/file.vue' })).toEqual(
       expect.objectContaining({ filePath: '/some/file.vue' }),
+    );
+  });
+
+  it('should propagate detectedEsYear to both scriptLang variants', () => {
+    expect(buildVueParserOptions('ts', {}, { detectedEsYear: 2022 })).toEqual(
+      expect.objectContaining({ ecmaVersion: 2022 }),
+    );
+    expect(buildVueParserOptions('js', {}, { detectedEsYear: 2022 })).toEqual(
+      expect.objectContaining({ ecmaVersion: 2022 }),
     );
   });
 });
