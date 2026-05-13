@@ -25,10 +25,10 @@ import type { JsTsLanguage } from '../../common/configuration.js';
 import type { ModuleType } from '../rules/helpers/dependency-manifests/resolvers/types.js';
 
 /** Fallback ECMAScript version when none is detected. */
-const DEFAULT_ECMA_VERSION = 2018;
+export const DEFAULT_ECMA_VERSION = 2018;
 
 /** Fallback source type when no module type is detected. */
-const DEFAULT_SOURCE_TYPE: ModuleType = 'module';
+export const DEFAULT_SOURCE_TYPE: ModuleType = 'module';
 
 export interface ParserContext {
   detectedEsYear?: EcmaVersion;
