@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { deepStrictEqual, ok } from 'node:assert';
+import { deepStrictEqual, doesNotThrow, ok } from 'node:assert';
 import { describe, it } from 'node:test';
 import { defaultOptions } from '../helpers/configs.js';
 import { fields } from './config.js';
@@ -49,25 +49,27 @@ describe('S6842', () => {
 
   it('should not flag upstream recommended element/role combinations', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
-    ruleTester.run('no-noninteractive-element-to-interactive-role', rule, {
-      valid: VALID_CASES,
-      invalid: [
-        {
-          code: `<ul role="button"><li>Item</li></ul>`,
-          options: OPTIONS,
-          errors: 1,
-        },
-        {
-          code: `<ol role="button"><li>Item</li></ol>`,
-          options: OPTIONS,
-          errors: 1,
-        },
-        {
-          code: `<li role="button">Foo</li>`,
-          options: OPTIONS,
-          errors: 1,
-        },
-      ],
+    doesNotThrow(() => {
+      ruleTester.run('no-noninteractive-element-to-interactive-role', rule, {
+        valid: VALID_CASES,
+        invalid: [
+          {
+            code: `<ul role="button"><li>Item</li></ul>`,
+            options: OPTIONS,
+            errors: 1,
+          },
+          {
+            code: `<ol role="button"><li>Item</li></ol>`,
+            options: OPTIONS,
+            errors: 1,
+          },
+          {
+            code: `<li role="button">Foo</li>`,
+            options: OPTIONS,
+            errors: 1,
+          },
+        ],
+      });
     });
   });
 });
