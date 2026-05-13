@@ -31,12 +31,13 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     const format = (context.options as FromSchema<typeof meta.schema>)[0]?.format ?? DEFAULT_FORMAT;
+    const { effectiveFormat, regexp } = buildRegExp(format);
 
     return {
       TSTypeParameter: (node: unknown) => {
         // Safe: ESLint invokes this visitor only for TSTypeParameter nodes.
         const typeParameter = node as TSESTree.TSTypeParameter;
-        checkIdentifier(typeParameter.name, format, context);
+        checkIdentifier(typeParameter.name, effectiveFormat, regexp, context);
       },
     };
   },
@@ -45,11 +46,12 @@ export const rule: Rule.RuleModule = {
 function checkIdentifier(
   identifier: TSESTree.Identifier,
   format: string,
+  regexp: RegExp,
   context: Rule.RuleContext,
 ) {
   const { name } = identifier;
 
-  if (!new RegExp(format).test(name)) {
+  if (!regexp.test(name)) {
     context.report({
       messageId: 'renameTypeParameter',
       data: {
@@ -57,5 +59,13 @@ function checkIdentifier(
       },
       node: identifier,
     });
+  }
+}
+
+function buildRegExp(format: string): { effectiveFormat: string; regexp: RegExp } {
+  try {
+    return { effectiveFormat: format, regexp: new RegExp(format) };
+  } catch {
+    return { effectiveFormat: DEFAULT_FORMAT, regexp: new RegExp(DEFAULT_FORMAT) };
   }
 }
