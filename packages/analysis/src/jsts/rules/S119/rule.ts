@@ -25,7 +25,8 @@ import { DEFAULT_FORMAT } from './config.js';
 
 const messages = {
   invalidFormat: 'The regular expression {{format}} is invalid.',
-  renameTypeParameter: 'Rename this type parameter name to match the regular expression {{format}}',
+  renameTypeParameter:
+    'Rename this type parameter name to match the regular expression {{format}}.',
 };
 
 export const rule: Rule.RuleModule = {
