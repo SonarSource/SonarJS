@@ -57,11 +57,6 @@ export const rule: Rule.RuleModule = {
         const typeParameter = node as TSESTree.TSTypeParameter;
         checkIdentifier(typeParameter.name, format, regexp, context);
       },
-      TSMappedType: (node: unknown) => {
-        // Safe: ESLint invokes this visitor only for TSMappedType nodes.
-        const mappedType = node as TSESTree.TSMappedType;
-        checkIdentifier(mappedType.key, format, regexp, context);
-      },
     };
   },
 };
