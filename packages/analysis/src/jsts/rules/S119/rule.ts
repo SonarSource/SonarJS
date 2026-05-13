@@ -24,6 +24,7 @@ import * as meta from './generated-meta.js';
 
 const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
 const messages = {
+  invalidFormat: 'The regular expression {{format}} is invalid.',
   renameTypeParameter: 'Rename this type parameter name to match the regular expression {{format}}',
 };
 
@@ -31,18 +32,34 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     const format = (context.options as FromSchema<typeof meta.schema>)[0]?.format ?? DEFAULT_FORMAT;
-    const { effectiveFormat, regexp } = buildRegExp(format);
+    let regexp: RegExp;
+
+    try {
+      regexp = new RegExp(format);
+    } catch {
+      return {
+        Program: node => {
+          context.report({
+            messageId: 'invalidFormat',
+            data: {
+              format,
+            },
+            node,
+          });
+        },
+      };
+    }
 
     return {
       TSTypeParameter: (node: unknown) => {
         // Safe: ESLint invokes this visitor only for TSTypeParameter nodes.
         const typeParameter = node as TSESTree.TSTypeParameter;
-        checkIdentifier(typeParameter.name, effectiveFormat, regexp, context);
+        checkIdentifier(typeParameter.name, format, regexp, context);
       },
       TSMappedType: (node: unknown) => {
         // Safe: ESLint invokes this visitor only for TSMappedType nodes.
         const mappedType = node as TSESTree.TSMappedType;
-        checkIdentifier(mappedType.key, effectiveFormat, regexp, context);
+        checkIdentifier(mappedType.key, format, regexp, context);
       },
     };
   },
@@ -64,13 +81,5 @@ function checkIdentifier(
       },
       node: identifier,
     });
-  }
-}
-
-function buildRegExp(format: string): { effectiveFormat: string; regexp: RegExp } {
-  try {
-    return { effectiveFormat: format, regexp: new RegExp(format) };
-  } catch {
-    return { effectiveFormat: DEFAULT_FORMAT, regexp: new RegExp(DEFAULT_FORMAT) };
   }
 }
