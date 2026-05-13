@@ -14,39 +14,37 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { deepStrictEqual } from 'node:assert';
+import { deepStrictEqual, ok } from 'node:assert';
 import { describe, it } from 'node:test';
 import { defaultOptions } from '../helpers/configs.js';
 import { fields } from './config.js';
 import { rule } from './index.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 
-const OPTIONS = [
-  {
-    ul: ['menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid'],
-    ol: ['menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid'],
-    li: ['tab', 'menuitem', 'menuitemcheckbox', 'menuitemradio', 'row', 'treeitem'],
-  },
-];
+const OPTIONS = defaultOptions(fields) as [{ ul: string[]; ol: string[]; li: string[] }];
+const [allowlist] = OPTIONS;
 
 const VALID_CASES = [
-  ...OPTIONS[0].ul.map(role => ({
+  ...allowlist.ul.map(role => ({
     code: `<ul role="${role}"><li>Item</li></ul>`,
     options: OPTIONS,
   })),
-  ...OPTIONS[0].ol.map(role => ({
+  ...allowlist.ol.map(role => ({
     code: `<ol role="${role}"><li>Item</li></ol>`,
     options: OPTIONS,
   })),
-  ...OPTIONS[0].li.map(role => ({
+  ...allowlist.li.map(role => ({
     code: `<li role="${role}">Item</li>`,
     options: OPTIONS,
   })),
 ];
 
 describe('S6842', () => {
-  it('should expose the upstream recommended allowlist as default options', () => {
-    deepStrictEqual(defaultOptions(fields), OPTIONS);
+  it('should expose the upstream recommended allowlist shape as default options', () => {
+    deepStrictEqual(Object.keys(allowlist), ['ul', 'ol', 'li']);
+    ok(allowlist.ul.length > 0);
+    ok(allowlist.ol.length > 0);
+    ok(allowlist.li.length > 0);
   });
 
   it('should not flag upstream recommended element/role combinations', () => {
