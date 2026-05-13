@@ -21,8 +21,8 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
+import { DEFAULT_FORMAT } from './config.js';
 
-const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
 const messages = {
   invalidFormat: 'The regular expression {{format}} is invalid.',
   renameTypeParameter: 'Rename this type parameter name to match the regular expression {{format}}',

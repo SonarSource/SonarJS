@@ -18,12 +18,14 @@
 
 import type { ESLintConfiguration } from '../helpers/configs.js';
 
+export const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
+
 export const fields = [
   [
     {
       field: 'format',
       description: 'Regular expression used to check the type parameter names against.',
-      default: '^[A-Z][a-zA-Z0-9]*$',
+      default: DEFAULT_FORMAT,
     },
   ],
 ] as const satisfies ESLintConfiguration;

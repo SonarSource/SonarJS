@@ -17,10 +17,10 @@
 import { rule } from './rule.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import { DEFAULT_FORMAT } from './config.js';
 
 const ruleTester = new NoTypeCheckingRuleTester();
 
-const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
 const CUSTOM_FORMAT = '^[_a-z][a-zA-Z0-9]*$';
 const TYPESCRIPT_FILENAME = 'file.ts';
 
