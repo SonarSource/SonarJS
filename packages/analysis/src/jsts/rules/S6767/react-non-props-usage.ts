@@ -243,8 +243,5 @@ function hasExactReportedTypeMemberDeclaration(
   slotPropSymbol: ts.Symbol,
   reportedTypeMember: ReportedTypeMember,
 ): boolean {
-  return (
-    slotPropSymbol.declarations?.some(declaration => declaration === reportedTypeMember.tsNode) ===
-    true
-  );
+  return slotPropSymbol.declarations?.includes(reportedTypeMember.tsNode) === true;
 }
