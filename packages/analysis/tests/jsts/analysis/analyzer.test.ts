@@ -16,7 +16,7 @@
  */
 import path from 'node:path/posix';
 import { Linter as ESLintLinter } from 'eslint';
-import { describe, it } from 'node:test';
+import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import {
   normalizePath,
@@ -35,6 +35,8 @@ import assert from 'node:assert';
 import { getPackageJsonManifests } from '../../../src/jsts/rules/helpers/dependency-manifests/all-in-parent-dirs.js';
 import { createProgramOptions } from '../../../src/jsts/program/tsconfig/options.js';
 import { createStandardProgram } from '../../../src/jsts/program/factory.js';
+import { clearDependenciesCache } from '../../../src/jsts/rules/helpers/dependency-manifests/index.js';
+import { DEFAULT_ECMA_VERSION, DEFAULT_SOURCE_TYPE } from '../../../src/jsts/parsers/options.js';
 
 const currentPath = normalizePath(import.meta.dirname);
 
@@ -1068,5 +1070,30 @@ describe('await analyzeJSTS', () => {
       await jsTsInput({ filePath: updatedReactFilePath, skipAst: true }),
     );
     expect(analysisResult.issues.length).toBe(1);
+  });
+
+  it('should log when ECMAScript version and module type fall back to defaults', async ({
+    mock,
+  }) => {
+    console.log = mock.fn(console.log);
+
+    const filePath = path.join(fixtures, 'code.js');
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [],
+    });
+    clearDependenciesCache();
+
+    await analyzeJSTS(await jsTsInput({ filePath }));
+
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain(
+      `DEBUG No ECMAScript version detected for "${normalizeToAbsolutePath(filePath)}"; using default ${DEFAULT_ECMA_VERSION}`,
+    );
+    expect(logs).toContain(
+      `DEBUG No module type detected for "${normalizeToAbsolutePath(filePath)}"; using default '${DEFAULT_SOURCE_TYPE}'`,
+    );
   });
 });
