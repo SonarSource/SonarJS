@@ -20,8 +20,25 @@ import type { ESLintConfiguration } from '../helpers/configs.js';
 
 export const fields = [
   [
-    { field: 'ul', default: ['menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid'] },
-    { field: 'ol', default: ['menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid'] },
-    { field: 'li', default: ['tab', 'menuitem', 'menuitemcheckbox', 'menuitemradio', 'row', 'treeitem'] },
+    {
+      field: 'ul',
+      default: ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid'],
+    },
+    {
+      field: 'ol',
+      default: ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid'],
+    },
+    {
+      field: 'li',
+      default: [
+        'option',
+        'tab',
+        'menuitem',
+        'menuitemcheckbox',
+        'menuitemradio',
+        'row',
+        'treeitem',
+      ],
+    },
   ],
 ] as const satisfies ESLintConfiguration;

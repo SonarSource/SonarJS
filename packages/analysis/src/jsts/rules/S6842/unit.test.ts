@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { deepStrictEqual, doesNotThrow, ok } from 'node:assert';
+import { deepStrictEqual, ok } from 'node:assert';
 import { describe, it } from 'node:test';
 import { defaultOptions } from '../helpers/configs.js';
 import { fields } from './config.js';
@@ -23,6 +23,16 @@ import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/r
 
 const OPTIONS = defaultOptions(fields) as [{ ul: string[]; ol: string[]; li: string[] }];
 const [allowlist] = OPTIONS;
+const COMPOSITE_VALID_CASES = [
+  {
+    code: `<ul role="listbox"><li role="option">Item</li></ul>`,
+    options: OPTIONS,
+  },
+  {
+    code: `<ol role="listbox"><li role="option">Item</li></ol>`,
+    options: OPTIONS,
+  },
+];
 
 const VALID_CASES = [
   ...allowlist.ul.map(role => ({
@@ -37,11 +47,15 @@ const VALID_CASES = [
     code: `<li role="${role}">Item</li>`,
     options: OPTIONS,
   })),
+  ...COMPOSITE_VALID_CASES,
 ];
 
 describe('S6842', () => {
   it('should expose the upstream recommended allowlist shape as default options', () => {
     deepStrictEqual(Object.keys(allowlist), ['ul', 'ol', 'li']);
+    ok(allowlist.ul.includes('listbox'));
+    ok(allowlist.ol.includes('listbox'));
+    ok(allowlist.li.includes('option'));
     ok(allowlist.ul.length > 0);
     ok(allowlist.ol.length > 0);
     ok(allowlist.li.length > 0);
@@ -49,27 +63,35 @@ describe('S6842', () => {
 
   it('should not flag upstream recommended element/role combinations', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
-    doesNotThrow(() => {
-      ruleTester.run('no-noninteractive-element-to-interactive-role', rule, {
-        valid: VALID_CASES,
-        invalid: [
-          {
-            code: `<ul role="button"><li>Item</li></ul>`,
-            options: OPTIONS,
-            errors: 1,
-          },
-          {
-            code: `<ol role="button"><li>Item</li></ol>`,
-            options: OPTIONS,
-            errors: 1,
-          },
-          {
-            code: `<li role="button">Foo</li>`,
-            options: OPTIONS,
-            errors: 1,
-          },
-        ],
-      });
+    ok(
+      VALID_CASES.some(
+        ({ code }) => code === `<ul role="listbox"><li role="option">Item</li></ul>`,
+      ),
+    );
+    ok(
+      VALID_CASES.some(
+        ({ code }) => code === `<ol role="listbox"><li role="option">Item</li></ol>`,
+      ),
+    );
+    ruleTester.run('no-noninteractive-element-to-interactive-role', rule, {
+      valid: VALID_CASES,
+      invalid: [
+        {
+          code: `<ul role="button"><li>Item</li></ul>`,
+          options: OPTIONS,
+          errors: 1,
+        },
+        {
+          code: `<ol role="button"><li>Item</li></ol>`,
+          options: OPTIONS,
+          errors: 1,
+        },
+        {
+          code: `<li role="button">Foo</li>`,
+          options: OPTIONS,
+          errors: 1,
+        },
+      ],
     });
   });
 });
