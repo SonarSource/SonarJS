@@ -31,9 +31,16 @@ type Allowlist = {
   fieldset: string[];
 };
 
-const UPSTREAM_ALLOWLIST = jsxA11yPlugin.configs.recommended.rules[
-  'jsx-a11y/no-noninteractive-element-to-interactive-role'
-][1] as Allowlist;
+const { configs } = jsxA11yPlugin as unknown as {
+  configs: {
+    recommended: {
+      rules: Record<string, [string, Allowlist]>;
+    };
+  };
+};
+
+const UPSTREAM_ALLOWLIST =
+  configs.recommended.rules['jsx-a11y/no-noninteractive-element-to-interactive-role'][1];
 
 const OPTIONS = defaultOptions(fields) as [Allowlist];
 const [allowlist] = OPTIONS;
