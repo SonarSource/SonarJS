@@ -161,6 +161,11 @@ describe('S119', () => {
         },
         {
           filename: TYPESCRIPT_FILENAME,
+          code: `type PickValues<Source> = { [property_name in keyof Source]: Source[property_name] };`,
+          errors: [error()],
+        },
+        {
+          filename: TYPESCRIPT_FILENAME,
           code: `
         type Lowercase<ValidName> = ValidName;
         type Uppercase<Item> = Item;

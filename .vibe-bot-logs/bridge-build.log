@@ -19,7 +19,7 @@
 > tsx tools/sync-rspec.ts --language javascript
 
 Using pinned rspec SHA: S119-JS (from rspec.sha)
-Fetching rspec (S119-JS) into /workspace/SonarJS/resources/rspec...
+Cloning rspec repo (sparse) to /workspace/SonarJS/resources/rspec...
 Synced 706 javascript rules to /workspace/SonarJS/resources/rule-data/javascript (rspec@2beb93be)
 
 > sonarjs@1.0.0 sync-rspec
@@ -67,6 +67,7 @@ Proto generation complete.
 > tsx tools/generate-proto.ts --copy
 
 Proto files copied to lib/.
+Cloning into '/workspace/SonarJS/resources/rspec'...
 From https://github.com/SonarSource/rspec
  * branch              S119-JS    -> FETCH_HEAD
 HEAD is now at 2beb93be JS-1759 Add JS coverage for S119
