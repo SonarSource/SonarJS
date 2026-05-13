@@ -10,6 +10,7 @@ on:
         default: master
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
   DOCKER_REPOX_BUILDS_REGISTRY: repox-sonarsource-docker-builds.jfrog.io
   DOCKER_IMAGE: "a3s/analysis/javascript"
 

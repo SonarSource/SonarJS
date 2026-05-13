@@ -20,6 +20,7 @@ import static java.util.Collections.emptyMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
@@ -41,14 +42,26 @@ class ProcessWrapperImplTest {
   @Test
   void test_destroyforcibly() throws Exception {
     ProcessWrapperImpl processWrapper = new ProcessWrapperImpl();
-    Process ping = processWrapper.startProcess(
-      Arrays.asList("ping", "127.0.0.1"),
+    Process blockingProcess = processWrapper.startProcess(
+      Arrays.asList(
+        Path.of(System.getProperty("java.home"), "bin", "java").toString(),
+        "-cp",
+        System.getProperty("java.class.path"),
+        BlockingProcess.class.getName()
+      ),
       emptyMap(),
       System.out::println,
       System.out::println
     );
-    processWrapper.destroyForcibly(ping);
-    await().until(() -> !ping.isAlive());
-    assertThat(ping.isAlive()).isFalse();
+    processWrapper.destroyForcibly(blockingProcess);
+    await().until(() -> !blockingProcess.isAlive());
+    assertThat(blockingProcess.isAlive()).isFalse();
+  }
+
+  static class BlockingProcess {
+
+    public static void main(String[] args) throws InterruptedException {
+      Thread.sleep(60_000);
+    }
   }
 }

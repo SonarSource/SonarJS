@@ -1,0 +1,20 @@
+{
+"TypeScript:src/harness/unittests/cachingInServerLSHost.ts": [
+134
+],
+"TypeScript:src/harness/unittests/moduleResolution.ts": [
+1076
+],
+"TypeScript:src/harness/unittests/services/preProcessFile.ts": [
+21
+],
+"TypeScript:src/harness/unittests/tsserverProjectSystem.ts": [
+3648
+],
+"TypeScript:src/harness/unittests/typingsInstaller.ts": [
+77,
+199,
+227,
+1000
+]
+}

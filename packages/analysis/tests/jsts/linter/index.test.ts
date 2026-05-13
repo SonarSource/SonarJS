@@ -149,7 +149,12 @@ describe('Linter', () => {
       ],
     });
     expect(
-      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
     ).toEqual(
       expect.objectContaining({
         'sonarjs/S100': [
@@ -160,6 +165,62 @@ describe('Linter', () => {
         ],
       }),
     );
+  });
+
+  it('should keep Sonar defaults from config.ts when no explicit configuration is provided', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S3353',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    expect(
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
+    ).toEqual({
+      'sonarjs/S3353': [
+        'error',
+        {
+          destructuring: 'all',
+          ignoreReadBeforeAssign: true,
+        },
+      ],
+    });
+  });
+
+  it('should not synthesize options for rules without config fields', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [
+        {
+          key: 'S878',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    expect(
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
+    ).toEqual({
+      'sonarjs/S878': ['error'],
+    });
   });
 
   it('should disable React-dependent rules when react dependency is missing', async () => {
@@ -235,6 +296,40 @@ describe('Linter', () => {
       'js',
     );
     expect(rules).toHaveProperty('sonarjs/S6477');
+  });
+
+  it('should not leak inline npm imports between files in the same directory', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'dependency-filter', 'inline-react'),
+    );
+    const withInlineReact = normalizeToAbsolutePath(
+      path.join(baseDir, 'src', 'with-inline-react.jsx'),
+    );
+    const withoutInlineReact = normalizeToAbsolutePath(
+      path.join(baseDir, 'src', 'without-inline-react.jsx'),
+    );
+    const rules: RuleConfig[] = [
+      {
+        key: 'S6748',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
+    const getRulesFor = async (filePath: ReturnType<typeof normalizeToAbsolutePath>) => {
+      const { sourceCode } = await parseJavaScriptSourceFile(filePath);
+      return Linter.getRulesForFile(filePath, 'MAIN', 'DEFAULT', 'js', undefined, sourceCode);
+    };
+
+    await Linter.initialize({ baseDir, rules });
+    expect(await getRulesFor(withInlineReact)).toHaveProperty('sonarjs/S6748');
+    expect(await getRulesFor(withoutInlineReact)).not.toHaveProperty('sonarjs/S6748');
+
+    await Linter.initialize({ baseDir, rules });
+    expect(await getRulesFor(withoutInlineReact)).not.toHaveProperty('sonarjs/S6748');
+    expect(await getRulesFor(withInlineReact)).toHaveProperty('sonarjs/S6748');
   });
 
   it('should disable React-dependent rules on .vue files even when react dependency is present', async () => {
@@ -350,7 +445,12 @@ describe('Linter', () => {
       baseDir: normalizeToAbsolutePath(import.meta.dirname),
     });
     expect(
-      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
     ).toEqual({});
   });
 
@@ -368,7 +468,12 @@ describe('Linter', () => {
       ],
     });
     expect(
-      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
     ).toEqual({
       'sonarjs/S3776': ['error', 0],
     });
@@ -389,7 +494,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.js'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -413,7 +518,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.js'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -437,7 +542,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.js'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -461,7 +566,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.cjs'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.cjs')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -485,7 +590,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.mjs'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.mjs')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -509,7 +614,7 @@ describe('Linter', () => {
       ],
     });
     const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath('/file.js'),
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
       'MAIN',
       'DEFAULT',
       'js',
@@ -525,9 +630,24 @@ describe('Linter', () => {
       rules: [],
     });
 
-    Linter.getRulesForFile(normalizeToAbsolutePath('/file.mjs'), 'MAIN', 'DEFAULT', 'js');
-    Linter.getRulesForFile(normalizeToAbsolutePath('/file.cjs'), 'MAIN', 'DEFAULT', 'js');
-    Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js');
+    Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.mjs')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.cjs')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
+    Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+      'MAIN',
+      'DEFAULT',
+      'js',
+    );
 
     expect(getProjectAnalysisTelemetry()).toMatchObject({
       esmFileCount: 1,
@@ -551,7 +671,12 @@ describe('Linter', () => {
       globals: [],
     });
     expect(
-      Linter.getRulesForFile(normalizeToAbsolutePath('/file.js'), 'MAIN', 'DEFAULT', 'js'),
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
     ).toEqual({
       'sonarjs/S100': [
         'error',
@@ -802,6 +927,52 @@ describe('Linter', () => {
     const issues = Linter.lint(parseResult, filePath);
 
     expect(issues).toHaveLength(0);
+  });
+
+  it('should let external inline configs override Sonar defaults for wrapped rules', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'inline-eslint-prefer-const.js'),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S3353',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const issues = Linter.lint(parseResult, filePath);
+
+    expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3353', line: 3 })]);
+  });
+
+  it('should keep external rule defaults when remapping inline configs', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'inline-eslint-no-sequences.ts'),
+    );
+    const parseResult = await parseTypeScriptSourceFile(filePath, []);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S878',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'ts',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'ts');
+
+    expect(issues).toEqual([expect.objectContaining({ ruleId: 'S878', line: 7 })]);
   });
 
   it('should take into account comment-based eslint configurations', async () => {

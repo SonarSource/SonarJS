@@ -1,0 +1,16 @@
+{
+"vitest:packages/utils/src/diff/diffLines.ts": [
+208,
+212,
+216,
+224,
+228
+],
+"vitest:packages/utils/src/diff/joinAlignedDiffs.ts": [
+226,
+234,
+245,
+265,
+270
+]
+}

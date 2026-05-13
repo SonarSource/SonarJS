@@ -1,0 +1,30 @@
+{
+"vitest:packages/browser-playwright/src/commands/trace.ts": [
+8,
+117
+],
+"vitest:packages/browser/src/node/commands/screenshotMatcher/types.ts": [
+10,
+11
+],
+"vitest:packages/browser/src/node/commands/trace.ts": [
+49
+],
+"vitest:packages/browser/src/node/project.ts": [
+57
+],
+"vitest:packages/runner/src/suite.ts": [
+204
+],
+"vitest:packages/runner/src/types/tasks.ts": [
+620,
+1075
+],
+"vitest:packages/vitest/src/integrations/chai/index.ts": [
+34,
+40
+],
+"vitest:packages/vitest/src/node/types/browser.ts": [
+344
+]
+}

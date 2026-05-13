@@ -460,7 +460,7 @@ public class BridgeServerImpl implements BridgeServer {
 
     try {
       while (responses.hasNext()) {
-        handler.handleMessage(responses.next());
+        handleStreamMessage(handler, responses.next(), analyzeContext);
         if (handler.getContext().isCancelled()) {
           analyzeContext.cancel(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
           throw cancelledStreamException();
@@ -542,6 +542,24 @@ public class BridgeServerImpl implements BridgeServer {
 
   private static CompletionException cancelledStreamException() {
     return new CompletionException(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
+  }
+
+  private static void handleStreamMessage(
+    ProjectAnalysisHandler handler,
+    AnalyzeProjectStreamResponse response,
+    Context.CancellableContext analyzeContext
+  ) {
+    try {
+      handler.handleMessage(response);
+    } catch (RuntimeException | Error e) {
+      // Abort the transport as soon as Java stops consuming the stream. Otherwise the
+      // analyzer runtime can keep producing file results after a fail-fast error and buffer
+      // work that nobody will ever read. Errors are included intentionally here because any
+      // unchecked failure means Java stopped consuming the stream and the runtime must stop.
+      handler.getFuture().completeExceptionally(e);
+      analyzeContext.cancel(e);
+      throw e;
+    }
   }
 
   private static Thread startStreamCancellationWatcher(

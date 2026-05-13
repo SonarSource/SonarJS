@@ -1,0 +1,7 @@
+{
+  "name": "my-app",
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  }
+}

@@ -17,9 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S4624
 
 import type { TSESTree } from '@typescript-eslint/utils';
-import { ancestorsChain } from '../helpers/ancestor.js';
+import { isOnEnclosingTemplateDelimiterLine } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { last } from '../helpers/collection.js';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import * as meta from './generated-meta.js';
@@ -33,13 +32,7 @@ export const rule: Rule.RuleModule = {
   create(context) {
     return {
       'TemplateLiteral TemplateLiteral': (node: estree.Node) => {
-        const ancestors = ancestorsChain(node as TSESTree.Node, new Set(['TemplateLiteral']));
-        const nestingTemplate = last(ancestors);
-
-        const { start: nestingStart, end: nestingEnd } = nestingTemplate.loc;
-        const { start: nestedStart, end: nestedEnd } = (node as TSESTree.Node).loc;
-
-        if (nestedStart.line === nestingStart.line || nestedEnd.line === nestingEnd.line) {
+        if (isOnEnclosingTemplateDelimiterLine(node as TSESTree.Node)) {
           context.report({
             messageId: 'nestedTemplateLiterals',
             node,

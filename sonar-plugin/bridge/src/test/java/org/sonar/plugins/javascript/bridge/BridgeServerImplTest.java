@@ -78,6 +78,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectServiceGrpc;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectUnaryResponse;
+import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileStatus;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileType;
 import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
@@ -698,6 +699,71 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void should_cancel_stream_when_handler_throws_while_consuming_a_message() throws Exception {
+    assertStreamHandlerCancelledOnThrow(new IllegalStateException("fail fast"));
+  }
+
+  @Test
+  void should_cancel_stream_when_handler_throws_error_while_consuming_a_message() throws Exception {
+    assertStreamHandlerCancelledOnThrow(new AssertionError("fail hard"));
+  }
+
+  private void assertStreamHandlerCancelledOnThrow(Throwable streamedFailure) throws Exception {
+    bridgeServer = createUnitBridgeServer();
+    var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
+    var future = new CompletableFuture<Void>();
+    var handler = new ProjectAnalysisHandler() {
+      @Override
+      public AnalyzeProjectRequest getRequest() {
+        return AnalyzeProjectRequest.getDefaultInstance();
+      }
+
+      @Override
+      public SensorContextTester getContext() {
+        return context;
+      }
+
+      @Override
+      public CompletableFuture<Void> getFuture() {
+        return future;
+      }
+
+      @Override
+      public void handleMessage(AnalyzeProjectStreamResponse message) {
+        if (streamedFailure instanceof RuntimeException runtimeException) {
+          throw runtimeException;
+        }
+        if (streamedFailure instanceof Error error) {
+          throw error;
+        }
+        throw new AssertionError("Unexpected throwable type", streamedFailure);
+      }
+    };
+
+    var streamedResponse = AnalyzeProjectStreamResponse.newBuilder()
+      .setFileResult(
+        FileResultMessage.newBuilder()
+          .setFilePath("file.ts")
+          .setResult(ProjectAnalysisFileResult.getDefaultInstance())
+          .build()
+      )
+      .build();
+
+    try (
+      MockedStatic<AnalyzeProjectServiceGrpc> mockedGrpc = mockBlockingStub(bridgeServer, stub)
+    ) {
+      when(stub.analyzeProject(any(AnalyzeProjectRequest.class))).thenReturn(
+        List.of(streamedResponse).iterator()
+      );
+
+      assertThatThrownBy(() -> bridgeServer.analyzeProject(handler)).isSameAs(streamedFailure);
+      assertThatThrownBy(future::join)
+        .isInstanceOf(CompletionException.class)
+        .hasCause(streamedFailure);
+    }
+  }
+
+  @Test
   void should_surface_unary_runtime_errors() throws Exception {
     bridgeServer = createUnitBridgeServer();
     var stub = mock(AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub.class);
@@ -784,17 +850,13 @@ class BridgeServerImplTest {
   @Test
   void should_extract_startup_port_from_fixed_log_message() {
     assertThat(
-      BridgeServerImpl.extractStartupPort(
-        "gRPC analyze-project server listening on 127.0.0.1:4040"
-      )
-    )
-      .isEqualTo(4040);
+      BridgeServerImpl.extractStartupPort("gRPC analyze-project server listening on 127.0.0.1:4040")
+    ).isEqualTo(4040);
     assertThat(
       BridgeServerImpl.extractStartupPort(
         "gRPC analyze-project server listening on 2001:db8::1:4040"
       )
-    )
-      .isEqualTo(4040);
+    ).isEqualTo(4040);
   }
 
   @Test
@@ -804,12 +866,10 @@ class BridgeServerImplTest {
       BridgeServerImpl.extractStartupPort(
         "gRPC analyze-project server listening on localhost:not-a-port"
       )
-    )
-      .isNull();
+    ).isNull();
     assertThat(
       BridgeServerImpl.extractStartupPort("gRPC analyze-project server listening on localhost:")
-    )
-      .isNull();
+    ).isNull();
   }
 
   @Test

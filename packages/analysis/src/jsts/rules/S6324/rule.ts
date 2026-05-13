@@ -40,15 +40,17 @@ function isCharacterClassRangeBoundary(character: AST.Character): boolean {
 }
 
 /**
- * Control characters inside character classes that contain ranges indicate intentional
- * character set construction (e.g., [\x00-\x08\x0b\x0c] for YAML/CSS non-printables).
+ * Standalone control characters are exempt only when the character class contains
+ * a range that starts in the control-character block (e.g., [\x00-\x08\x0b\x0c]).
  */
-function isInCharacterClassWithRanges(character: AST.Character): boolean {
+function isInCharacterClassWithControlCharRange(character: AST.Character): boolean {
   const parent = character.parent;
   if (parent.type !== 'CharacterClass') {
     return false;
   }
-  return parent.elements.some(element => element.type === 'CharacterClassRange');
+  return parent.elements.some(
+    element => element.type === 'CharacterClassRange' && element.min.value <= MAX_CONTROL_CHAR_CODE,
+  );
 }
 
 /**
@@ -117,7 +119,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
           raw.startsWith(String.raw`\u`)) &&
         !EXCEPTIONS.has(raw) &&
         !isCharacterClassRangeBoundary(character) &&
-        !isInCharacterClassWithRanges(character) &&
+        !isInCharacterClassWithControlCharRange(character) &&
         !isAnsiSequenceStart(character) &&
         !isOscTerminator(character)
       ) {

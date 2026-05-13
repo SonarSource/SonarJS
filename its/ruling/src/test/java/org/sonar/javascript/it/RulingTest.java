@@ -67,6 +67,9 @@ class RulingTest {
     .setEdition(Edition.ENTERPRISE_LW)
     .activateLicense()
     .setSonarVersion(System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+    // Ruling validates analyzer behavior, not AI CodeFix integration; disable it to avoid
+    // unrelated token-refresh warnings in the orchestrated SonarQube server.
+    .setServerProperty("sonar.ai.codefix.hidden", "true")
     .addPlugin(
       FileLocation.byWildcardMavenFilename(
         new File("../../sonar-plugin/sonar-javascript-plugin/target"),
@@ -92,6 +95,7 @@ class RulingTest {
       project("ecmascript6-today"),
       project("expressionist.js"),
       project("Ghost"),
+      project("hs-template"),
       project("http"),
       project("reddit-mobile"),
       project("redux"),
@@ -139,7 +143,8 @@ class RulingTest {
       project("tailwindcss"),
       project("custom-css", "../sources/custom/css", "", ""),
       project("fresh"), // todo: mixed *_test.ts(x) files and tests/** dirs
-      project("oak") // todo: files **/*.test.ts and **/*_test.ts
+      project("oak"), // todo: files **/*.test.ts and **/*_test.ts
+      project("vitest", "test")
     );
   }
 

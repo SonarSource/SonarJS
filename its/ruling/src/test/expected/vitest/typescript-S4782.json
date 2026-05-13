@@ -1,0 +1,65 @@
+{
+"vitest:packages/browser-playwright/src/playwright.ts": [
+659
+],
+"vitest:packages/browser/src/client/tester/locators/index.ts": [
+77,
+78,
+384
+],
+"vitest:packages/runner/src/fixture.ts": [
+633
+],
+"vitest:packages/runner/src/types/runner.ts": [
+58,
+59,
+60,
+61,
+235
+],
+"vitest:packages/runner/src/types/tasks.ts": [
+237,
+238,
+1266,
+1365
+],
+"vitest:packages/vitest/src/node/cli/filter.ts": [
+31
+],
+"vitest:packages/vitest/src/node/core.ts": [
+142
+],
+"vitest:packages/vitest/src/node/reporters/github-actions.ts": [
+53,
+59,
+67
+],
+"vitest:packages/vitest/src/node/reporters/json.ts": [
+70
+],
+"vitest:packages/vitest/src/node/types/config.ts": [
+565,
+1027
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
+28
+],
+"vitest:packages/vitest/src/runtime/types/utils.ts": [
+6,
+7,
+8,
+9
+],
+"vitest:packages/vitest/src/runtime/vm/types.ts": [
+7,
+8,
+38,
+42,
+71,
+72,
+73,
+74,
+75,
+79
+]
+}

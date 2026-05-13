@@ -19,22 +19,17 @@ import type { PackageJson } from 'type-fest';
 import {
   type NormalizedAbsolutePath,
   normalizeToAbsolutePath,
-  ROOT_PATH,
-  stripBOM,
   dirnamePath,
   isRoot,
-  type File,
+  getPathRoot,
 } from '../files.js';
-import { DENO_JSON, DENO_JSONC, PACKAGE_JSON } from './index.js';
+import { PACKAGE_JSON } from './index.js';
 import { patternInParentsCache } from '../find-up/all-in-parent-dirs.js';
 import type { Rule } from 'eslint';
-import { closestPatternCache } from '../find-up/closest.js';
-import {
-  DenoManifest,
-  getDependenciesFromManifest,
-  parsePackageJson,
-  parseDenoManifest,
-} from './parse.js';
+import { type DependencyManifest, type ManifestResolver } from './resolvers/types.js';
+import { denoManifestResolver } from './resolvers/deno.js';
+import { parsePackageJson } from './parsed-dependency-files.js';
+import { packageJsonManifestResolver } from './resolvers/package-json.js';
 
 /**
  * Returns the project manifests that are used to resolve the dependencies imported by
@@ -47,20 +42,10 @@ export const getPackageJsonManifests = (
 ): Array<PackageJson> => {
   const files = patternInParentsCache
     .get(PACKAGE_JSON, fileSystem)
-    .get(topDir ?? ROOT_PATH)
+    .get(topDir ?? getPathRoot(dir))
     .get(dir);
 
-  return files.map(file => {
-    const content = file.content;
-
-    try {
-      return JSON.parse(stripBOM(content.toString()));
-    } catch (error) {
-      console.debug(`Error parsing package.json ${file.path}: ${error}`);
-
-      return {};
-    }
-  });
+  return files.map(file => parsePackageJson(file) ?? {});
 };
 
 export const getPackageJsonManifestsSanitizePaths = (
@@ -74,14 +59,16 @@ export const getPackageJsonManifestsSanitizePaths = (
   );
 };
 
-export type DependencyManifest =
-  | { type: 'npm'; manifest: PackageJson }
-  | { type: 'deno'; manifest: DenoManifest };
-
 type DependencyDefinition = {
   manifestType: DependencyManifest['type'];
   version?: string;
 };
+
+/**
+ * Registry of manifest resolvers. Add a new entry here to support a new package manager
+ * or manifest format (e.g., Bun).
+ */
+const MANIFEST_RESOLVERS: ManifestResolver[] = [denoManifestResolver, packageJsonManifestResolver];
 
 /**
  * Returns dependency manifest files from closest-to-file and then up to root.
@@ -94,12 +81,14 @@ export const getDependencyManifests = (
   topDir?: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
 ): DependencyManifest[] => {
-  const rootDir = topDir ?? ROOT_PATH;
+  const rootDir = topDir ?? getPathRoot(dir);
   const manifests: DependencyManifest[] = [];
   let currentDir: NormalizedAbsolutePath = dir;
 
   do {
-    const manifestsInDir = getDependencyManifestsInDir(currentDir, rootDir, fileSystem);
+    const manifestsInDir = MANIFEST_RESOLVERS.flatMap(manifestResolver =>
+      manifestResolver.resolve(currentDir, rootDir, fileSystem),
+    );
     logDuplicateDependenciesInManifests(manifestsInDir);
     manifests.push(...manifestsInDir);
     if (currentDir === rootDir || isRoot(currentDir)) {
@@ -111,60 +100,29 @@ export const getDependencyManifests = (
   return manifests;
 };
 
-function getDependencyManifestsInDir(
-  dir: NormalizedAbsolutePath,
-  topDir: NormalizedAbsolutePath,
-  fileSystem?: Filesystem,
-): DependencyManifest[] {
-  const manifests: DependencyManifest[] = [];
-  const packageJson = getManifestFileInDir(PACKAGE_JSON, dir, topDir, fileSystem);
-  const denoJson = getManifestFileInDir(DENO_JSON, dir, topDir, fileSystem);
-  const denoJsonc = getManifestFileInDir(DENO_JSONC, dir, topDir, fileSystem);
-
-  // if both `deno.json` and `deno.jsonc` are present, prefer `deno.json` and ignore `deno.jsonc`
-  if (denoJsonc && denoJson === undefined) {
-    manifests.push({ type: 'deno', manifest: parseDenoManifest(denoJsonc) ?? {} });
-  } else if (denoJson) {
-    manifests.push({ type: 'deno', manifest: parseDenoManifest(denoJson) ?? {} });
-  }
-
-  // always include package.json if present
-  if (packageJson) {
-    manifests.push({ type: 'npm', manifest: parsePackageJson(packageJson) ?? {} });
-  }
-
-  return manifests;
-}
-
 /**
  * Checks for duplicate dependencies across manifests and logs them.
  */
 function logDuplicateDependenciesInManifests(manifests: DependencyManifest[]): void {
   const dependencyDefinitions = new Map<string, DependencyDefinition>();
-  for (const manifest of manifests) {
+  for (const { dependencies, type: manifestType } of manifests) {
     const dependenciesByNameInManifest = new Map<string, string | undefined>();
-    for (const dependency of getDependenciesFromManifest(manifest)) {
-      if (
-        typeof dependency.name !== 'string' ||
-        dependenciesByNameInManifest.has(dependency.name)
-      ) {
+    for (const [name, version] of dependencies) {
+      if (typeof name !== 'string') {
         continue;
       }
-      dependenciesByNameInManifest.set(dependency.name, dependency.version);
+      dependenciesByNameInManifest.set(name, version);
     }
     for (const [dependencyName, version] of dependenciesByNameInManifest) {
       const firstDefinition = dependencyDefinitions.get(dependencyName);
       if (firstDefinition) {
         logDuplicateDependencyDefinition(dependencyName, firstDefinition, {
-          manifestType: manifest.type,
+          manifestType,
           version,
         });
         continue;
       }
-      dependencyDefinitions.set(dependencyName, {
-        manifestType: manifest.type,
-        version,
-      });
+      dependencyDefinitions.set(dependencyName, { manifestType, version });
     }
   }
 }
@@ -190,17 +148,4 @@ function logDuplicateDependencyDefinition(
 
 function formatVersion(version?: string): string {
   return version ?? '<unspecified>';
-}
-
-function getManifestFileInDir(
-  manifestName: string,
-  dir: NormalizedAbsolutePath,
-  topDir: NormalizedAbsolutePath,
-  fileSystem?: Filesystem,
-): File | undefined {
-  const file = closestPatternCache.get(manifestName, fileSystem).get(topDir).get(dir);
-  if (file && dirnamePath(file.path) === dir) {
-    return file;
-  }
-  return undefined;
 }

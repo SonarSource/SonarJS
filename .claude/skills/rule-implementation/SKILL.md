@@ -73,13 +73,18 @@ Rule configuration flows through multiple layers: `TypeScript config.ts` → `Ja
 ### Configuration Layers
 
 1. **TypeScript Configuration (`config.ts`)**: Defines parameters
+
 ```typescript
-export const fields = [[{
-  field: 'format',
-  description: 'Description visible in SonarQube.', // REQUIRED for visibility
-  default: '^[_a-z][a-zA-Z0-9]*$',
-  items: { type: 'string' } // REQUIRED for arrays
-}]] as const satisfies ESLintConfiguration;
+export const fields = [
+  [
+    {
+      field: 'format',
+      description: 'Description visible in SonarQube.', // REQUIRED for visibility
+      default: '^[_a-z][a-zA-Z0-9]*$',
+      items: { type: 'string' }, // REQUIRED for arrays
+    },
+  ],
+] as const satisfies ESLintConfiguration;
 ```
 
 2. **ESLint Schema (`meta.ts`)**: Defines JSON schema for validation
@@ -176,9 +181,12 @@ If you must traverse a subtree recursively inside a helper (e.g. `containsAssign
 // ❌ Manual switch — silently drops unlisted node types
 function containsReturn(node: estree.Node): boolean {
   switch (node.type) {
-    case 'ReturnStatement': return true;
-    case 'BlockStatement': return node.body.some(containsReturn);
-    default: return false; // silently misses loops, try/catch, switch bodies...
+    case 'ReturnStatement':
+      return true;
+    case 'BlockStatement':
+      return node.body.some(containsReturn);
+    default:
+      return false; // silently misses loops, try/catch, switch bodies...
   }
 }
 
@@ -226,7 +234,9 @@ When writing a decorator, inspect **every** `context.report()` call in the upstr
 const node = descriptor.node as TSESTree.TSCallSignatureDeclaration;
 
 // ✅ After auditing all context.report() calls in the upstream source
-const node = descriptor.node as TSESTree.TSCallSignatureDeclaration | TSESTree.TSConstructSignatureDeclaration;
+const node = descriptor.node as
+  | TSESTree.TSCallSignatureDeclaration
+  | TSESTree.TSConstructSignatureDeclaration;
 ```
 
 This audit is the natural follow-on to Step 1 ("Find All Report Calls") in the FP tracing workflow above.
@@ -253,7 +263,9 @@ One-directional `isTypeAssignableTo(A, B)` only proves that `A` is a structural 
 
 ```typescript
 // ❌ One-directional — false matches when B has extra optional fields
-if (checker.isTypeAssignableTo(typeA, typeB)) { suppress(); }
+if (checker.isTypeAssignableTo(typeA, typeB)) {
+  suppress();
+}
 
 // ✅ Mutual — true only when both types are structurally equivalent
 if (checker.isTypeAssignableTo(typeA, typeB) && checker.isTypeAssignableTo(typeB, typeA)) {
@@ -292,7 +304,9 @@ When adding a suppression exception for one method, identify all semantically eq
 
 ```typescript
 // ❌ Only covers Object.keys — Object.getOwnPropertyNames users still get FPs
-if (isCallingMethod(node, 1, 'keys')) { suppress(); }
+if (isCallingMethod(node, 1, 'keys')) {
+  suppress();
+}
 
 // ✅ Covers the full family
 if (isCallingMethod(node, 1, 'keys', 'getOwnPropertyNames', 'getOwnPropertySymbols')) {
@@ -333,7 +347,7 @@ let fileHasSuppressibleProps = false;
 return {
   'Program:exit'() {
     if (fileHasSuppressibleProps) return; // suppresses everything in file
-  }
+  },
 };
 
 // ✅ Per-report decision scoped to the component
@@ -341,7 +355,7 @@ return {
   const owner = findOwner(descriptor.node);
   if (owner && isSuppressible(descriptor.node, owner)) return;
   context.report(descriptor);
-}
+};
 ```
 
 ### Resolve spread expressions before suppressing

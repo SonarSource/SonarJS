@@ -95,6 +95,11 @@
     "exclusions": null
   },
   {
+    "name": "hs-template",
+    "testDir": null,
+    "exclusions": null
+  },
+  {
     "name": "http",
     "testDir": null,
     "exclusions": null
@@ -290,6 +295,11 @@
   {
     "name": "oak",
     "testDir": null,
+    "exclusions": null
+  },
+  {
+    "name": "vitest",
+    "testDir": "test",
     "exclusions": null
   }
 ]

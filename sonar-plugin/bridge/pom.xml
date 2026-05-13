@@ -12,7 +12,7 @@
   <properties>
     <protobuf.version>4.34.1</protobuf.version>
     <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-    <grpc.version>1.72.0</grpc.version>
+    <grpc.version>1.81.0</grpc.version>
   </properties>
   <dependencies>
     <dependency>
@@ -128,7 +128,7 @@
             <fileset>
               <directory>${project.basedir}/src/main/resources</directory>
               <includes>
-                <include>node-info.properties</include>
+                <include>org/sonar/plugins/javascript/bridge/node-info.properties</include>
               </includes>
             </fileset>
           </filesets>

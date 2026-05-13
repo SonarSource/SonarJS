@@ -1,0 +1,15 @@
+{
+"vitest:packages/browser/src/node/projectParent.ts": [
+116
+],
+"vitest:packages/vitest/src/utils/traces.ts": [
+53,
+70
+],
+"vitest:packages/web-worker/src/shared-worker.ts": [
+121
+],
+"vitest:packages/web-worker/src/worker.ts": [
+120
+]
+}

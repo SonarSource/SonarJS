@@ -1,0 +1,14 @@
+{
+"vitest:packages/mocker/src/node/automock.ts": [
+81
+],
+"vitest:packages/mocker/src/node/redirect.ts": [
+26
+],
+"vitest:packages/utils/src/diff/index.ts": [
+108
+],
+"vitest:packages/vitest/src/node/pools/pool.ts": [
+85
+]
+}

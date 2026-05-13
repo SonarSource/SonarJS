@@ -1,0 +1,61 @@
+{
+"vitest:packages/browser/src/client/tester/runner.ts": [
+52,
+56
+],
+"vitest:packages/expect/src/types.ts": [
+106
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+556
+],
+"vitest:packages/runner/src/types/runner.ts": [
+86
+],
+"vitest:packages/runner/src/types/tasks.ts": [
+1081,
+1085,
+1089,
+1096,
+1103,
+1111,
+1120,
+1124,
+1242
+],
+"vitest:packages/spy/src/types.ts": [
+178,
+181,
+400,
+416,
+419,
+447,
+450,
+507
+],
+"vitest:packages/ui/client/composables/explorer/types.ts": [
+13
+],
+"vitest:packages/utils/src/types.ts": [
+21
+],
+"vitest:packages/vitest/src/node/cache/fsModuleCache.ts": [
+378
+],
+"vitest:packages/vitest/src/node/environments/fetchModule.ts": [
+350
+],
+"vitest:packages/vitest/src/node/sequencers/types.ts": [
+15
+],
+"vitest:packages/vitest/src/node/types/browser.ts": [
+36,
+355
+],
+"vitest:packages/vitest/src/runtime/vm/types.ts": [
+65
+],
+"vitest:packages/vitest/src/typecheck/assertType.ts": [
+2
+]
+}

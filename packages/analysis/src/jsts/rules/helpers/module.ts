@@ -14,10 +14,14 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Rule, Scope } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { type Node, getUniqueWriteReference, getVariableFromScope, isIdentifier } from './ast.js';
+import {
+  getDependenciesSanitizePaths,
+  setCurrentFileInlineDependencies,
+} from './dependency-manifests/dependencies.js';
 
 /**
  * Checks if the current file is an ES module based on sourceType.
@@ -29,31 +33,153 @@ export function isESModule(context: Rule.RuleContext): boolean {
   return context.sourceCode.ast.sourceType === 'module';
 }
 
-export function getImportDeclarations(context: Rule.RuleContext) {
+export function getImportDeclarations(context: Rule.RuleContext): estree.ImportDeclaration[] {
   if (isESModule(context)) {
     return context.sourceCode.ast.body.filter(node => node.type === 'ImportDeclaration');
   }
   return [];
 }
 
-export function getRequireCalls(context: Rule.RuleContext) {
-  const required: estree.CallExpression[] = [];
-  const { scopeManager } = context.sourceCode;
-  for (const scope of scopeManager.scopes) {
+/**
+ * Cache for storing the set of all module names imported or required in the file currently being analyzed.
+ * This set is only needed while the current file is being analyzed.
+ *
+ * Keyed by the `sourceCode` object reference rather than a boolean flag so that the cache
+ * self-invalidates when ESLint's RuleTester switches between test cases (each case gets a fresh
+ * SourceCode instance).
+ */
+const CURRENT_FILE_IMPORTS: {
+  sourceCode: SourceCode | null;
+  imports: Set<string>;
+} = {
+  sourceCode: null,
+  imports: new Set(),
+};
+
+/**
+ * Compute the set of all module names imported or required
+ * in the file currently being analyzed (via import declarations, require(), or dynamic import()).
+ *
+ * Supported patterns:
+ * import foo from 'lodash';
+ * const lodash = require('lodash');
+ * const partition = require('lodash').partition;
+ * const lodash = import('lodash');
+ * const lodash = await import('lodash');
+ *
+ * Unsupported patterns (not stored in a variable):
+ * require('lodash');
+ * import('lodash').then(lodash => ...);
+ */
+function computeCurrentFileImports(sourceCode: SourceCode): void {
+  if (CURRENT_FILE_IMPORTS.sourceCode === sourceCode) {
+    return;
+  }
+
+  CURRENT_FILE_IMPORTS.sourceCode = sourceCode;
+  CURRENT_FILE_IMPORTS.imports.clear();
+
+  if (sourceCode.ast.sourceType === 'module') {
+    for (const node of sourceCode.ast.body) {
+      if (node.type === 'ImportDeclaration' && typeof node.source.value === 'string') {
+        CURRENT_FILE_IMPORTS.imports.add(node.source.value);
+      }
+    }
+  }
+
+  for (const scope of sourceCode.scopeManager.scopes) {
     for (const variable of scope.variables) {
       for (const def of variable.defs) {
         if (def.type === 'Variable' && def.node.init) {
-          if (isRequire(def.node.init)) {
-            required.push(def.node.init);
-          } else if (def.node.init.type === 'MemberExpression' && isRequire(def.node.init.object)) {
-            required.push(def.node.init.object);
+          const name =
+            getRequireModuleName(def.node.init) ?? getDynamicImportModuleName(def.node.init);
+          if (name !== undefined) {
+            CURRENT_FILE_IMPORTS.imports.add(name);
           }
         }
       }
     }
   }
+}
 
-  return required;
+/**
+ * Clears the caches related to the given source file
+ */
+export function clearFileCaches(): void {
+  CURRENT_FILE_IMPORTS.sourceCode = null;
+  CURRENT_FILE_IMPORTS.imports.clear();
+  setCurrentFileInlineDependencies(null);
+}
+
+export function getCurrentFileImports(sourceCode: SourceCode): ReadonlySet<string> {
+  computeCurrentFileImports(sourceCode);
+  return CURRENT_FILE_IMPORTS.imports;
+}
+
+function getRequireModuleName(node: estree.Node): string | undefined {
+  const requireCall = getRequireCall(node);
+  const moduleName = requireCall?.arguments[0];
+  if (moduleName?.type === 'Literal' && typeof moduleName.value === 'string') {
+    return moduleName.value;
+  }
+  return undefined;
+}
+
+function getRequireCall(node: estree.Node): estree.CallExpression | undefined {
+  if (isRequire(node)) {
+    return node;
+  }
+  if (node.type === 'MemberExpression' && isRequire(node.object)) {
+    return node.object;
+  }
+  return undefined;
+}
+
+function getDynamicImportModuleName(node: estree.Node): string | undefined {
+  const dynamicImportExpression = getDynamicImportExpression(node);
+  const moduleName = dynamicImportExpression?.source;
+  if (moduleName?.type === 'Literal' && typeof moduleName.value === 'string') {
+    return moduleName.value;
+  }
+  return undefined;
+}
+
+function getDynamicImportExpression(node: estree.Node): estree.ImportExpression | undefined {
+  if (node.type === 'ImportExpression') {
+    return node;
+  }
+  if (node.type === 'AwaitExpression' && node.argument.type === 'ImportExpression') {
+    return node.argument;
+  }
+  return undefined;
+}
+
+/**
+ * Checks if the file imports any of the specified modules, either via require() calls or import declarations.
+ */
+export function importsModule(context: Rule.RuleContext, moduleNames: string[]): boolean {
+  if (moduleNames.length === 0) {
+    return false;
+  }
+  const imports = getCurrentFileImports(context.sourceCode);
+  return moduleNames.some(name => imports.has(name));
+}
+
+/**
+ * Checks if at least one of the specified imports is imported (via import or require) in the file
+ * or if at least one of the specified dependencies is listed in the corresponding dependency manifest.
+ */
+export function importsOrDependsOnModule(
+  context: Rule.RuleContext,
+  imports: string[],
+  dependencies: string[],
+): boolean {
+  if (importsModule(context, imports)) {
+    return true;
+  }
+
+  const sanitizedDeps = getDependenciesSanitizePaths(context);
+  return dependencies.some(dependency => sanitizedDeps.has(dependency));
 }
 
 export function isRequire(node: Node): node is estree.CallExpression {
@@ -327,6 +453,8 @@ function reduceTo<T extends estree.Node['type']>(
       nodeToCheck = nodeToCheck.object;
     } else if (nodeToCheck.type === 'CallExpression' && !getModuleNameFromRequire(nodeToCheck)) {
       nodeToCheck = nodeToCheck.callee;
+    } else if (nodeToCheck.type === 'TaggedTemplateExpression') {
+      nodeToCheck = nodeToCheck.tag;
     } else if (nodeToCheck.type === 'NewExpression') {
       nodeToCheck = nodeToCheck.callee;
     } else if (nodeToCheck.type === 'ChainExpression') {

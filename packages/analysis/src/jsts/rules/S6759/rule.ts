@@ -173,6 +173,51 @@ function isReadOnly(props: Node, services: RequiredParserServices) {
 
   /* All properties must be read-only */
   return properties.every(property =>
-    isPropertyReadonlyInType(type, property.getEscapedName(), checker),
+    isPropertyReadonlyIncludingBaseTypes(type, property, checker),
   );
+}
+
+function isPropertyReadonlyIncludingBaseTypes(
+  type: ts.Type,
+  property: ts.Symbol,
+  checker: ts.TypeChecker,
+  seen = new Set<ts.Type>(),
+): boolean {
+  const name = property.getEscapedName();
+  if (isPropertyReadonlyInType(type, name, checker)) {
+    return true;
+  }
+
+  // Inherited properties can be exposed as transient symbols whose declarations
+  // no longer carry readonly modifiers from mapped base types like Readonly<T>.
+  if (!(property.flags & ts.SymbolFlags.Transient)) {
+    return false;
+  }
+
+  if (!(type.flags & ts.TypeFlags.Object) || seen.has(type)) {
+    return false;
+  }
+  seen.add(type);
+
+  const objectType = type as ts.ObjectType;
+  if (!(objectType.objectFlags & ts.ObjectFlags.ClassOrInterface)) {
+    return false;
+  }
+
+  const baseTypes = checker.getBaseTypes(objectType as ts.InterfaceType);
+  return (
+    baseTypes?.some(baseType => {
+      const baseProperty = getPropertyFromType(baseType, name);
+      return (
+        baseProperty !== undefined &&
+        isPropertyReadonlyIncludingBaseTypes(baseType, baseProperty, checker, seen)
+      );
+    }) ?? false
+  );
+}
+
+function getPropertyFromType(type: ts.Type, name: ts.__String) {
+  return String(name).startsWith('__')
+    ? type.getProperties().find(property => property.getEscapedName() === name)
+    : type.getProperty(String(name));
 }

@@ -8,11 +8,13 @@ description: Add or modify rule options in SonarJS, including the fields array, 
 Rule options flow through two parallel paths:
 
 **SonarQube (HTTP/WebSocket):**
+
 ```
 SonarQube UI → Java Check Class → configurations() → analyzeProject() → ESLint Linter
 ```
 
 **External/gRPC:**
+
 ```
 External Client → gRPC → transformers.ts → parseParamValue() → ESLint Linter
 ```
@@ -21,12 +23,12 @@ SonarQube sends typed values; gRPC sends string key-value pairs that need type p
 
 ## Key Files per Rule
 
-| File | Purpose |
-|------|---------|
-| `rule.ts` | ESLint rule implementation |
-| `meta.ts` | `implementation`, `eslintId`, `schema`, re-exports `fields` |
-| `config.ts` | `fields` array — source of truth for options |
-| `generated-meta.ts` | Auto-generated `defaultOptions` — do not edit |
+| File                | Purpose                                                     |
+| ------------------- | ----------------------------------------------------------- |
+| `rule.ts`           | ESLint rule implementation                                  |
+| `meta.ts`           | `implementation`, `eslintId`, `schema`, re-exports `fields` |
+| `config.ts`         | `fields` array — source of truth for options                |
+| `generated-meta.ts` | Auto-generated `defaultOptions` — do not edit               |
 
 ## The `fields` Array (`config.ts`)
 
@@ -36,16 +38,17 @@ The `fields` array defines options for SonarQube integration and default values.
 import type { ESLintConfiguration } from '../helpers/configs.js';
 
 export const fields = [
-  [                         // outer array = one ESLint options object
+  [
+    // outer array = one ESLint options object
     {
-      field: 'max',                         // ESLint option name
+      field: 'max', // ESLint option name
       displayName: 'maximumFunctionParameters', // SonarQube key (if different)
       description: 'Maximum authorized...', // REQUIRED for SQ visibility
-      default: 7,                           // default value; determines type
+      default: 7, // default value; determines type
     },
     {
       field: 'ignoreIIFE',
-      default: false,                       // no description = internal only
+      default: false, // no description = internal only
     },
   ],
 ] as const satisfies ESLintConfiguration;
@@ -53,15 +56,15 @@ export const fields = [
 
 ### Field Properties
 
-| Property | Required | Purpose |
-|----------|----------|---------|
-| `field` | Yes | ESLint/schema key name |
-| `default` | Yes | Default value; also determines type (`number`, `string`, `boolean`, array) |
-| `description` | **For SQ visibility** | Makes option visible in SonarQube UI |
-| `displayName` | No | SonarQube key if different from `field` |
-| `items` | For arrays | `{ type: 'string' }` or `{ type: 'integer' }` |
-| `customDefault` | No | Different default for SQ than ESLint |
-| `fieldType` | No | Override SQ field type (e.g., `'TEXT'`) |
+| Property        | Required              | Purpose                                                                    |
+| --------------- | --------------------- | -------------------------------------------------------------------------- |
+| `field`         | Yes                   | ESLint/schema key name                                                     |
+| `default`       | Yes                   | Default value; also determines type (`number`, `string`, `boolean`, array) |
+| `description`   | **For SQ visibility** | Makes option visible in SonarQube UI                                       |
+| `displayName`   | No                    | SonarQube key if different from `field`                                    |
+| `items`         | For arrays            | `{ type: 'string' }` or `{ type: 'integer' }`                              |
+| `customDefault` | No                    | Different default for SQ than ESLint                                       |
+| `fieldType`     | No                    | Override SQ field type (e.g., `'TEXT'`)                                    |
 
 ## Making Options Visible in SonarQube
 
@@ -108,9 +111,7 @@ export const fields = [
 ### Primitive (single value)
 
 ```typescript
-export const fields = [
-  { default: '^[a-z]+$' },
-] as const satisfies ESLintConfiguration;
+export const fields = [{ default: '^[a-z]+$' }] as const satisfies ESLintConfiguration;
 // ESLint receives: ['^[a-z]+$']
 ```
 
@@ -121,7 +122,7 @@ export const fields = [
   [
     {
       field: 'passwordWords',
-      items: { type: 'string' },          // required for Java codegen
+      items: { type: 'string' }, // required for Java codegen
       description: 'Comma separated list...',
       default: ['password', 'pwd'],
     },
@@ -134,21 +135,21 @@ export const fields = [
 
 String params from gRPC are parsed based on `default` type:
 
-| Default Type | Input | Parsed |
-|-------------|-------|--------|
-| `number` | `"5"` | `5` |
-| `boolean` | `"true"` | `true` |
-| `string` | `"pattern"` | `"pattern"` |
-| `string[]` | `"a,b,c"` | `["a","b","c"]` |
-| `number[]` | `"1,2,3"` | `[1,2,3]` |
+| Default Type | Input       | Parsed          |
+| ------------ | ----------- | --------------- |
+| `number`     | `"5"`       | `5`             |
+| `boolean`    | `"true"`    | `true`          |
+| `string`     | `"pattern"` | `"pattern"`     |
+| `string[]`   | `"a,b,c"`   | `["a","b","c"]` |
+| `number[]`   | `"1,2,3"`   | `[1,2,3]`       |
 
 ## JSON Schema vs `fields`
 
-| Aspect | JSON Schema (`meta.ts`) | `fields` (`config.ts`) |
-|--------|------------------------|----------------------|
-| Purpose | ESLint validation | SQ UI + defaults + key mapping |
-| Used by | ESLint at runtime | Java codegen, meta generation, linter |
-| Required for | `original` rules with options | All rules with options |
+| Aspect       | JSON Schema (`meta.ts`)       | `fields` (`config.ts`)                |
+| ------------ | ----------------------------- | ------------------------------------- |
+| Purpose      | ESLint validation             | SQ UI + defaults + key mapping        |
+| Used by      | ESLint at runtime             | Java codegen, meta generation, linter |
+| Required for | `original` rules with options | All rules with options                |
 
 For `original` rules, schema and fields must be kept in sync manually.
 For `decorated`/`external` rules, schema is inherited from the external rule.
@@ -180,6 +181,7 @@ private int maximum = DEFAULT_MAX;
 ```
 
 Use `MyRuleCheckTest.java` to verify serialization:
+
 ```java
 assertThat(new MyRuleCheck().configurations()).containsExactly(Map.of("max", 7));
 ```

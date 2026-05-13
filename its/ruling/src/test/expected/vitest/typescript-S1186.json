@@ -1,0 +1,11 @@
+{
+"vitest:packages/browser-preview/src/preview.ts": [
+62
+],
+"vitest:packages/vitest/src/node/reporters/dot.ts": [
+38
+],
+"vitest:packages/vitest/src/typecheck/assertType.ts": [
+5
+]
+}

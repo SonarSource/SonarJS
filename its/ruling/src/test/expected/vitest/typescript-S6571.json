@@ -1,0 +1,45 @@
+{
+"vitest:packages/pretty-format/src/plugins/DOMCollection.ts": [
+31
+],
+"vitest:packages/runner/src/fixture.ts": [
+128
+],
+"vitest:packages/runner/src/types/tasks.ts": [
+580,
+1463
+],
+"vitest:packages/snapshot/src/client.ts": [
+61,
+395
+],
+"vitest:packages/vitest/src/integrations/inject.ts": [
+8
+],
+"vitest:packages/vitest/src/integrations/snapshot/chai.ts": [
+199
+],
+"vitest:packages/vitest/src/node/cli/cli-config.ts": [
+6
+],
+"vitest:packages/vitest/src/node/core.ts": [
+476
+],
+"vitest:packages/vitest/src/node/project.ts": [
+112
+],
+"vitest:packages/vitest/src/node/reporters/blob.ts": [
+22
+],
+"vitest:packages/vitest/src/node/reporters/utils.ts": [
+74
+],
+"vitest:packages/vitest/src/node/types/browser.ts": [
+274
+],
+"vitest:packages/vitest/src/utils/coverage.ts": [
+18,
+23,
+28
+]
+}

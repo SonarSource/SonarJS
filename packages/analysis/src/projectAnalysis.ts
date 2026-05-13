@@ -36,7 +36,7 @@ declare const FileResultsBrand: unique symbol;
  * Branded type for file analysis results keyed by NormalizedAbsolutePath.
  * The brand ensures compile-time type safety when iterating over the object.
  */
-export type FileResults = { [key: NormalizedAbsolutePath]: FileResult } & {
+type FileResults = { [key: NormalizedAbsolutePath]: FileResult } & {
   readonly [FileResultsBrand]: never;
 };
 
@@ -47,12 +47,12 @@ export type ProjectAnalysisOutput = {
 
 export type FileResult = FileSuccessResult | FileErrorResult;
 
-export type FileSuccessResult =
+type FileSuccessResult =
   | (JsTsAnalysisOutput & { parsingErrors?: ParsingError[] })
   | (EmbeddedAnalysisOutput & { parsingErrors?: ParsingError[] })
   | (CssAnalysisOutput & { parsingErrors?: ParsingError[] });
 
-export type FileErrorResult = { error: string };
+type FileErrorResult = { error: string };
 
 /**
  * Partial file input used for intermediate storage during project analysis.

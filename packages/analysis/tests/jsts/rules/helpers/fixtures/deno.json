@@ -1,0 +1,15 @@
+{
+  "imports": {
+    "reactAlias": "npm:react@^19.1.0",
+    "utils": "jsr:@std/assert@^1.0.0",
+    "lodashFp": "npm:lodash@^4.17.21/fp",
+    "remote": "https://deno.land/x/case/mod.ts",
+    "scopedAlias": "npm:@scope/package@~2.0.0",
+    "noVersion": "npm:chalk",
+    "invalidVersion": "npm:koa@not-a-semver",
+    "scopedSubpathAlias": "npm:@scope/subpkg@1.0.0/utils",
+    "scopedNoVersionAlias": "npm:@scope/noversion/feature",
+    "emptyVersionAlias": "npm:cowsay@",
+    "invalidScoped": "npm:@scope"
+  }
+}

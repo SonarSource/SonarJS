@@ -1,0 +1,89 @@
+{
+"vitest:packages/browser/src/client/tester/expect/toBeRequired.ts": [
+51,
+61
+],
+"vitest:packages/browser/src/client/tester/runner.ts": [
+85,
+162
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+22
+],
+"vitest:packages/coverage-v8/src/provider.ts": [
+230,
+253,
+266,
+292,
+307,
+319
+],
+"vitest:packages/expect/src/jest-utils.ts": [
+323,
+443,
+598,
+826
+],
+"vitest:packages/mocker/src/automocker.ts": [
+209
+],
+"vitest:packages/pretty-format/src/index.ts": [
+67,
+206,
+229,
+267
+],
+"vitest:packages/pretty-format/src/plugins/DOMElement.ts": [
+43
+],
+"vitest:packages/pretty-format/src/plugins/Immutable.ts": [
+103
+],
+"vitest:packages/runner/src/suite.ts": [
+619
+],
+"vitest:packages/runner/src/utils/collect.ts": [
+33
+],
+"vitest:packages/runner/src/utils/tags.ts": [
+139
+],
+"vitest:packages/snapshot/src/port/state.ts": [
+327
+],
+"vitest:packages/spy/src/index.ts": [
+387,
+471
+],
+"vitest:packages/ui/client/components/FileDetails.vue": [
+107
+],
+"vitest:packages/ui/client/composables/explorer/filter.ts": [
+184
+],
+"vitest:packages/ui/client/utils/task.ts": [
+12
+],
+"vitest:packages/utils/src/diff/index.ts": [
+255
+],
+"vitest:packages/utils/src/diff/joinAlignedDiffs.ts": [
+27
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+472,
+588
+],
+"vitest:packages/vitest/src/node/sequencers/BaseSequencer.ts": [
+69
+],
+"vitest:packages/vitest/src/node/stdin.ts": [
+86
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/startVitestModuleRunner.ts": [
+159
+],
+"vitest:packages/vitest/src/typecheck/typechecker.ts": [
+471
+]
+}

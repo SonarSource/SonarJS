@@ -183,7 +183,7 @@ ReactDOM.render(<div></div>, container);
     // JS-1192: Test that pnpm catalog references (e.g., "catalog:frontend") don't crash the rule
     const filenamePnpmCatalog = path.join(fixtures, 'pnpm-catalog/file.js');
 
-    ruleTester.run('pnpm catalog reference', rule, {
+    ruleTester.run('pnpm catalog reference unresolved', rule, {
       valid: [
         {
           // When React version cannot be determined (pnpm catalog), non-deprecated code should pass
@@ -214,6 +214,20 @@ ReactDOM.render(<div></div>, container);
       ],
     });
 
+    const filenamePnpmCatalogResolved = path.join(fixtures, 'pnpm-catalog-resolved/index.jsx');
+    ruleTester.run('pnpm catalog reference resolved', rule, {
+      valid: [
+        {
+          code: `
+import React from 'react';
+
+React.render(<MyComponent />, root);
+`,
+          filename: filenamePnpmCatalogResolved,
+        },
+      ],
+      invalid: [],
+    });
     shouldRaiseAllIssues(path.join(fixtures, 'noreact1/file.js'));
     shouldRaiseAllIssues(path.join(fixtures, 'noreact2/file.js'));
 

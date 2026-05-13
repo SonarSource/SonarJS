@@ -8,10 +8,6 @@ on:
         type: string
         description: Version
         required: true
-      releaseId:
-        type: string
-        description: Release ID
-        required: true
       dryRun:
         type: boolean
         description: Flag to enable the dry-run execution
@@ -23,11 +19,10 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@v6
+    uses: SonarSource/gh-action_release/.github/workflows/main.yaml@7.0.1
     with:
       publishToBinaries: true
       mavenCentralSync: true
       slackChannel: ask-squad-web
       version: ${{ inputs.version }}
-      releaseId: ${{ inputs.releaseId }}
       dryRun: ${{ inputs.dryRun == true }}

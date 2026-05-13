@@ -221,6 +221,31 @@ describe('S6324', () => {
           errors: 2,
         },
         {
+          // Standalone control char should still be flagged when the only range is printable.
+          code: String.raw`/[\x01a-z]/`,
+          errors: 1,
+        },
+        {
+          // Multiple standalone control chars should still be flagged when mixed with a printable range.
+          code: String.raw`/[\x02\x03A-Z]/`,
+          errors: 2,
+        },
+        {
+          // Printable digit ranges must not exempt standalone control chars.
+          code: String.raw`/[0-9\x01]/`,
+          errors: 1,
+        },
+        {
+          // Existing VT/FF standalone cases stay noncompliant even when mixed with printable ranges.
+          code: String.raw`/[\x0b\x0ca-z]/`,
+          errors: 2,
+        },
+        {
+          // Interpreted control chars should also be reported when the only range is printable.
+          code: '/[\u0001A-Z]/',
+          errors: 1,
+        },
+        {
           // Standalone NULL byte replacement (like saxparser.js)
           code: String.raw`str.replace(/\u0000/g, '')`,
           errors: 1,

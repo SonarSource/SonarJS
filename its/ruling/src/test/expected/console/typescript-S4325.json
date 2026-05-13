@@ -1,8 +1,587 @@
 {
+"console:src/actions/databrowser/__tests__/data.ts": [
+226
+],
+"console:src/actions/databrowser/data.ts": [
+256,
+283
+],
+"console:src/components/ApiLayover/ApiLayover.tsx": [
+58,
+63
+],
+"console:src/components/Datepicker/Datepicker.tsx": [
+87,
+124,
+129,
+135
+],
+"console:src/components/ModalDocs/ModalDocs.tsx": [
+159,
+163
+],
+"console:src/components/NodeSelector/NodeSelector.tsx": [
+49,
+55,
+92
+],
+"console:src/components/ProjectSelection/ProjectSelection.tsx": [
+363,
+368,
+378,
+382,
+386
+],
+"console:src/components/QueryHistory/QueryHistory.tsx": [
+58
+],
+"console:src/components/Window/Alert.tsx": [
+39,
+128
+],
+"console:src/components/onboarding/Steps.tsx": [
+91,
+97,
+101
+],
+"console:src/views/ActionsView/ActionBoxes.tsx": [
+108,
+175,
+272,
+273,
+297,
+298
+],
+"console:src/views/ActionsView/ActionsView.tsx": [
+57,
+77,
+149,
+153
+],
+"console:src/views/AfterSignUpView/AfterSignUpView.tsx": [
+243,
+257
+],
+"console:src/views/FunctionsView/FunctionPopup/FunctionPopup.tsx": [
+296,
+300,
+342,
+347,
+373,
+432,
+563,
+567
+],
+"console:src/views/FunctionsView/FunctionPopup/RequestPipeline.tsx": [
+66
+],
+"console:src/views/FunctionsView/FunctionPopup/RequestPipelineFunctionInput.tsx": [
+112,
+297,
+301
+],
+"console:src/views/FunctionsView/FunctionPopup/TestPopup.tsx": [
+90,
+94,
+264,
+268,
+317
+],
+"console:src/views/FunctionsView/FunctionPopup/WebhookEditor.tsx": [
+173,
+189,
+193
+],
+"console:src/views/FunctionsView/FunctionRow.tsx": [
+44
+],
+"console:src/views/Integrations/Algolia/AlgoliaView.tsx": [
+163,
+172,
+178,
+184,
+194,
+200,
+207,
+213,
+221,
+230,
+305
+],
+"console:src/views/Integrations/Algolia/ConfirmOperationsPopup.tsx": [
+112
+],
+"console:src/views/Integrations/Algolia/CreateAlgoliaIndex.tsx": [
+200,
+206,
+212
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaIndexPopup/AlgoliaIndexPopup.tsx": [
+123,
+127,
+131
+],
+"console:src/views/Integrations/AlgoliaPopup/AlgoliaPopup.tsx": [
+109,
+113,
+117,
+123
+],
+"console:src/views/PermissionsView/PermissionPopup/OperationChooser.tsx": [
+104
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionConditions.tsx": [
+75,
+271,
+276
+],
+"console:src/views/PermissionsView/PermissionPopup/PermissionPopup.tsx": [
+327,
+333,
+341,
+355,
+362,
+369,
+392,
+396,
+403,
+410,
+415,
+420,
+439,
+446,
+458,
+474,
+485,
+495
+],
+"console:src/views/PermissionsView/RelationPermissionPopup/RelationPermissionPopup.tsx": [
+280,
+304,
+312,
+325,
+329,
+333,
+337,
+356,
+363,
+375,
+390,
+401,
+411
+],
+"console:src/views/ProjectRootView/AddModelPopup.tsx": [
+165
+],
+"console:src/views/ProjectRootView/AddProjectPopup.tsx": [
+85,
+215,
+219,
+225,
+228,
+240,
+244
+],
+"console:src/views/ProjectRootView/CloneProjectPopup.tsx": [
+213,
+217,
+221,
+237,
+249
+],
+"console:src/views/ProjectRootView/EditModelPopup.tsx": [
+190
+],
+"console:src/views/ProjectRootView/EndpointPopup.tsx": [
+309,
+314,
+316
+],
+"console:src/views/ProjectRootView/ProjectRootView.tsx": [
+294,
+296,
+323,
+327
+],
+"console:src/views/ProjectRootView/SideNav.tsx": [
+175,
+450,
+461
+],
+"console:src/views/ProjectSettingsView/CreateRelationHeaderTab.tsx": [
+47,
+49
+],
+"console:src/views/ProjectSettingsView/PermanentAuthTokenRow.tsx": [
+42,
+46,
+47
+],
+"console:src/views/ProjectSettingsView/ProjectSettingsView.tsx": [
+88,
+209
+],
+"console:src/views/RelationsPopup/ConfirmPopup.tsx": [
+133,
+167
+],
+"console:src/views/RelationsPopup/FieldNameInput.tsx": [
+45,
+46,
+47,
+126,
+127,
+128,
+162
+],
+"console:src/views/RelationsPopup/RelationFooter.tsx": [
+63,
+93
+],
+"console:src/views/RelationsPopup/RelationInfo.tsx": [
+66
+],
+"console:src/views/RelationsPopup/RelationPopup.tsx": [
+308,
+315,
+319,
+328,
+332,
+339,
+345,
+353,
+365,
+407,
+413,
+521,
+525,
+532,
+545,
+623,
+627,
+646,
+667,
+678,
+701,
+708,
+722
+],
+"console:src/views/RelationsPopup/SetMutation.tsx": [
+90,
+91,
+92,
+116,
+123,
+134,
+152,
+153,
+154,
+188,
+196,
+205,
+210,
+235,
+241,
+247,
+272,
+279,
+285
+],
+"console:src/views/SchemaView/EnumsOverview/AddEnum.tsx": [
+255,
+265,
+269,
+273,
+283,
+289,
+292,
+295,
+305,
+317,
+339,
+360
+],
+"console:src/views/SchemaView/EnumsOverview/ConfirmEnum.tsx": [
+145,
+179
+],
+"console:src/views/SchemaView/EnumsOverview/EnumBox.tsx": [
+54,
+61,
+264,
+304,
+326
+],
+"console:src/views/SchemaView/EnumsOverview/EnumEditor.tsx": [
+98,
+105,
+118
+],
+"console:src/views/SchemaView/EnumsOverview/EnumsOverview.tsx": [
+104,
+107,
+110,
+113
+],
+"console:src/views/SchemaView/SchemaEditor.tsx": [
+109,
+112,
+266,
+276,
+283,
+289,
+296,
+355
+],
+"console:src/views/SchemaView/SchemaOverview/AddType.tsx": [
+293,
+297,
+301,
+306,
+311,
+327,
+331,
+337,
+340,
+350,
+362,
+392,
+413
+],
+"console:src/views/SchemaView/SchemaOverview/ConfirmModel.tsx": [
+145,
+179
+],
+"console:src/views/SchemaView/SchemaOverview/SchemaOverview.tsx": [
+107,
+110,
+113,
+116
+],
+"console:src/views/SchemaView/SchemaOverview/TypeBox.tsx": [
+54,
+61,
+429,
+448,
+470
+],
+"console:src/views/SchemaView/SchemaView.tsx": [
+116,
+119,
+123,
+127
+],
+"console:src/views/Settings/Authentication/TokenRow.tsx": [
+33,
+34,
+126,
+128
+],
+"console:src/views/Settings/Authentication/Tokens.tsx": [
+83,
+92,
+111,
+140,
+157
+],
+"console:src/views/Settings/Billing/Billing.tsx": [
+187,
+230,
+240,
+256,
+281,
+287,
+297,
+305,
+312,
+318,
+324,
+330,
+336,
+342,
+357,
+385,
+398,
+406
+],
+"console:src/views/Settings/Billing/CreditCardInputSection.tsx": [
+204,
+214,
+225,
+235,
+248,
+259,
+280,
+307,
+335,
+347,
+369,
+373,
+379,
+480,
+487,
+496,
+505
+],
+"console:src/views/Settings/Billing/EditCreditCard.tsx": [
+84,
+206,
+230
+],
+"console:src/views/Settings/General/DangerZone.tsx": [
+111,
+112,
+134,
+135,
+157,
+158
+],
+"console:src/views/Settings/General/ProjectInfo.tsx": [
+125,
+140,
+159,
+160,
+161,
+229,
+245,
+269,
+270,
+271,
+340,
+347,
+349,
+355,
+357
+],
+"console:src/views/Settings/Team/EmptyRow.tsx": [
+86,
+95,
+116,
+161,
+175
+],
+"console:src/views/Tooltip/Tooltip.tsx": [
+54,
+55,
+56
+],
+"console:src/views/account/AccountView/SettingsTab.tsx": [
+58,
+115
+],
+"console:src/views/account/ResetPasswordView/ResetPasswordView.tsx": [
+26,
+47,
+82
+],
 "console:src/views/models/AuthProviderPopup/AuthProviderSidePanel.tsx": [
-399
+66,
+328,
+377,
+383,
+399,
+424,
+436
+],
+"console:src/views/models/DatabrowserView/Cell.tsx": [
+375
+],
+"console:src/views/models/DatabrowserView/Cell/ScalarListCell.tsx": [
+224,
+326,
+364,
+371,
+375,
+390
+],
+"console:src/views/models/DatabrowserView/Cell/SelectNodesCell/SelectNodesCell.tsx": [
+275,
+279,
+419,
+428
 ],
 "console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/Table.tsx": [
 215
+],
+"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
+188,
+707
+],
+"console:src/views/models/DatabrowserView/NewRow.tsx": [
+180
+],
+"console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
+108,
+114,
+120,
+126,
+199,
+250,
+255
+],
+"console:src/views/models/DatabrowserView/__tests__/Cell.tsx": [
+104,
+178
+],
+"console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
+245,
+249,
+261,
+265
+],
+"console:src/views/models/FieldPopup/BaseSettings.tsx": [
+143,
+325
+],
+"console:src/views/models/FieldPopup/ConfirmFieldPopup.tsx": [
+224,
+258
+],
+"console:src/views/models/FieldPopup/Constraints.tsx": [
+44,
+305,
+311
+],
+"console:src/views/models/FieldPopup/EditValueInput.tsx": [
+74,
+91,
+92,
+93,
+134,
+138,
+151,
+155
+],
+"console:src/views/models/FieldPopup/FieldLabel.tsx": [
+101,
+134,
+147,
+148,
+149,
+172,
+176
+],
+"console:src/views/models/FieldPopup/FieldPopup.tsx": [
+347,
+353,
+373,
+396,
+401,
+413,
+447,
+470,
+516,
+526
+],
+"console:src/views/models/ModelDescription.tsx": [
+58,
+68,
+73
+],
+"console:src/views/models/ModelHeader.tsx": [
+314
+],
+"console:src/views/playground/PlaygroundView/PlaygroundView.tsx": [
+160
 ]
 }

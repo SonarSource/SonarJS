@@ -1,6 +1,30 @@
 {
+"vuetify:packages/api-generator/src/types.ts": [
+332,
+341,
+345,
+349,
+353,
+362,
+369,
+395,
+398,
+414,
+422,
+427,
+432
+],
+"vuetify:packages/docs/src/store/locale.ts": [
+14
+],
+"vuetify:packages/docs/src/util/markdown-it-rules.ts": [
+20
+],
 "vuetify:packages/vuetify/cypress/support/mount.ts": [
 32
+],
+"vuetify:packages/vuetify/src/components/VBtnToggle/VBtnToggle.tsx": [
+49
 ],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 114,
@@ -13,6 +37,9 @@
 "vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 155
 ],
+"vuetify:packages/vuetify/src/components/VList/VList.tsx": [
+172
+],
 "vuetify:packages/vuetify/src/components/VList/VListChildren.tsx": [
 61
 ],
@@ -20,8 +47,20 @@
 55,
 57
 ],
+"vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
+206
+],
+"vuetify:packages/vuetify/src/components/VSelectionControl/VSelectionControl.tsx": [
+251
+],
 "vuetify:packages/vuetify/src/components/VSelectionControl/__tests__/VSelectionControl.spec.tsx": [
 17
+],
+"vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
+221
+],
+"vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
+235
 ],
 "vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 163,
@@ -38,6 +77,12 @@
 25,
 65
 ],
+"vuetify:packages/vuetify/src/composables/display.ts": [
+150
+],
+"vuetify:packages/vuetify/src/composables/loader.tsx": [
+49
+],
 "vuetify:packages/vuetify/src/composables/router.tsx": [
 53
 ],
@@ -49,11 +94,24 @@
 27,
 27
 ],
+"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside-shadow-dom.spec.ts": [
+45
+],
+"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside.spec.ts": [
+29
+],
 "vuetify:packages/vuetify/src/directives/resize/__tests__/resize.spec.ts": [
 19,
 23,
 38,
 42
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRows.tsx": [
+106,
+125
+],
+"vuetify:packages/vuetify/src/labs/VDataTable/composables/items.ts": [
+31
 ],
 "vuetify:packages/vuetify/src/util/helpers.ts": [
 121,

@@ -1,0 +1,14 @@
+{
+"vitest:packages/vitest/src/defaults.ts": [
+104
+],
+"vitest:packages/vitest/src/node/cli/cli-api.ts": [
+87
+],
+"vitest:packages/vitest/src/node/stdin.ts": [
+77
+],
+"vitest:packages/vitest/src/node/watch-filter.ts": [
+32
+]
+}

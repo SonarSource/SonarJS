@@ -23,6 +23,7 @@ import { getFullyQualifiedName } from '../helpers/module.js';
 import {
   getProperty,
   getValueOfExpression,
+  hasStringFirstArgument,
   isFunctionInvocation,
   isIdentifier,
   isLiteral,
@@ -33,6 +34,11 @@ import * as meta from './generated-meta.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import { getPackageJsonManifestsSanitizePaths } from '../helpers/dependency-manifests/all-in-parent-dirs.js';
+import * as Playwright from '../helpers/playwright.js';
+
+const mochaSkipFunctionNames = ['it', 'describe', 'context', 'specify'];
+const mochaXFunctionNames = ['xit', 'xdescribe', 'xcontext', 'xspecify'];
+const vitestSkipFunctionNames = ['it', 'test', 'describe', 'suite'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -47,8 +53,14 @@ export const rule: Rule.RuleModule = {
         return jasmineListener();
       case dependencies.has('jest'):
         return jestListener();
+      case dependencies.has('vitest'):
+        return vitestListener();
       case dependencies.has('mocha'):
         return mochaListener();
+      case dependencies.has('cypress'):
+        return mochaListener();
+      case dependencies.has('@playwright/test'):
+        return playwrightListener();
       case getPackageJsonManifestsSanitizePaths(context).length > 0:
         return nodejsListener();
       default:
@@ -92,14 +104,51 @@ export const rule: Rule.RuleModule = {
     }
 
     /**
+     * Returns a rule listener specific to Vitest.
+     *
+     * Ignoring tests with Vitest is done by using `test.skip`, `it.skip`, `describe.skip`, or `suite.skip`.
+     */
+    function vitestListener(): Rule.RuleListener {
+      return {
+        CallExpression(node: estree.CallExpression) {
+          if (isVitestIgnoredTest(node) && !hasExplanationComment(node)) {
+            context.report({
+              node: node.callee,
+              messageId: 'removeOrExplainTest',
+            });
+          }
+        },
+      };
+    }
+
+    /**
      * Returns a rule listener specific to Mocha.
      *
-     * Ignoring tests with Mocha is done by using `it.skip`, `describe.skip`, or `context.skip`.
+     * Ignoring tests with Mocha is done by using `it.skip`, `describe.skip`, `context.skip`, `specify.skip`,
+     * or x-prefixed aliases.
      */
     function mochaListener(): Rule.RuleListener {
       return {
         CallExpression(node: estree.CallExpression) {
           if (isMochaIgnoredTest(node) && !hasExplanationComment(node)) {
+            context.report({
+              node: node.callee,
+              messageId: 'removeOrExplainTest',
+            });
+          }
+        },
+      };
+    }
+
+    /**
+     * Returns a rule listener specific to Playwright.
+     *
+     * Ignoring tests with Playwright is done by definition-style APIs like `test.skip` and `test.describe.skip`.
+     */
+    function playwrightListener(): Rule.RuleListener {
+      return {
+        CallExpression(node: estree.CallExpression) {
+          if (isPlaywrightIgnoredTest(node) && !hasExplanationComment(node)) {
             context.report({
               node: node.callee,
               messageId: 'removeOrExplainTest',
@@ -228,10 +277,12 @@ export const rule: Rule.RuleModule = {
 };
 
 function isJasmineIgnoredTest(node: estree.CallExpression) {
+  // Jasmine uses x-prefixed globals to disable tests: xit(...), xdescribe(...), xcontext(...).
   return isIdentifier(node.callee, 'xit', 'xdescribe', 'xcontext');
 }
 
 function isJestIgnoredTest(node: estree.CallExpression) {
+  // Jest supports .skip calls and x-prefixed aliases: test.skip(...), it.skip(...), xtest(...).
   return (
     isMethodInvocation(node, 'test', 'skip', 0) ||
     isMethodInvocation(node, 'it', 'skip', 0) ||
@@ -243,9 +294,35 @@ function isJestIgnoredTest(node: estree.CallExpression) {
 }
 
 function isMochaIgnoredTest(node: estree.CallExpression) {
+  // Mocha and Cypress use .skip on BDD globals and x-prefixed aliases: specify.skip(...), xspecify(...).
   return (
-    isMethodInvocation(node, 'it', 'skip', 0) ||
-    isMethodInvocation(node, 'describe', 'skip', 0) ||
-    isMethodInvocation(node, 'context', 'skip', 0)
+    mochaSkipFunctionNames.some(name => isMethodInvocation(node, name, 'skip', 0)) ||
+    mochaXFunctionNames.some(name => isFunctionInvocation(node, name, 0))
   );
+}
+
+function isVitestIgnoredTest(node: estree.CallExpression) {
+  // Vitest mirrors Jest-style .skip calls and also supports suite.skip(...).
+  return vitestSkipFunctionNames.some(name => isMethodInvocation(node, name, 'skip', 0));
+}
+
+function isPlaywrightIgnoredTest(node: estree.CallExpression) {
+  // Playwright definition-style skips start with a test title: test.skip('title', async () => {}).
+  return (
+    (isMethodInvocation(node, 'test', 'skip', 0) && hasStringFirstArgument(node)) ||
+    isPlaywrightSkippedDescribe(node)
+  );
+}
+
+function isPlaywrightSkippedDescribe(node: estree.CallExpression): boolean {
+  // Playwright skipped suites can be plain or modifier chains: test.describe.parallel.skip('title', ...).
+  if (
+    node.callee.type !== 'MemberExpression' ||
+    node.callee.computed ||
+    !isIdentifier(node.callee.property, 'skip')
+  ) {
+    return false;
+  }
+
+  return Playwright.isDescribe(node.callee.object) && hasStringFirstArgument(node);
 }

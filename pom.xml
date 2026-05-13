@@ -57,7 +57,7 @@
   </issueManagement>
 
   <properties>
-    <revision>12.4.0-SNAPSHOT</revision>
+    <revision>12.5.0-SNAPSHOT</revision>
     <gitRepositoryName>SonarJS</gitRepositoryName>
     <license.title>SonarQube JavaScript Plugin</license.title>
     <!-- Version corresponds to SQ 9.9 LTS -->
@@ -69,14 +69,14 @@
     <mockito.version>5.23.0</mockito.version>
     <slf4j.version>2.0.17</slf4j.version>
     <jetbrains.annotations.version>26.1.0</jetbrains.annotations.version>
-    <sonar.version>26.4.0.121862</sonar.version>
-    <sonar.api.version>13.5.0.4319</sonar.api.version>
+    <sonar.version>26.5.0.122743</sonar.version>
+    <sonar.api.version>13.6.0.4371</sonar.api.version>
     <sonar-orchestrator.version>6.1.0.3962</sonar-orchestrator.version>
     <sonar.sca.exclusions>its/**,packages/**/*.fixture.*,packages/**/fixtures/**/*</sonar.sca.exclusions>
-    <gson.version>2.13.2</gson.version>
+    <gson.version>2.14.0</gson.version>
     <analyzer-commons.version>2.22.0.4796</analyzer-commons.version>
     <sslr.version>1.25.1.3886</sslr.version>
-    <sonarlint.plugin.api.version>11.1.0.85284</sonarlint.plugin.api.version>
+    <sonarlint.plugin.api.version>11.3.0.85510</sonarlint.plugin.api.version>
 
     <artifactsToPublish>${project.groupId}:sonar-javascript-plugin:jar</artifactsToPublish>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
@@ -154,7 +154,7 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.21.0</version>
+        <version>2.22.0</version>
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sslr</groupId>

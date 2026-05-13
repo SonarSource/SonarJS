@@ -1,0 +1,30 @@
+{
+"vitest:packages/browser/src/client/tester/runner.ts": [
+51
+],
+"vitest:packages/browser/src/node/plugin.ts": [
+28
+],
+"vitest:packages/browser/src/node/rpc.ts": [
+23,
+133
+],
+"vitest:packages/expect/src/jest-expect.ts": [
+38
+],
+"vitest:packages/mocker/src/node/hoistMocks.ts": [
+78
+],
+"vitest:packages/runner/src/suite.ts": [
+304
+],
+"vitest:packages/vitest/src/integrations/vi.ts": [
+477
+],
+"vitest:packages/vitest/src/node/config/resolveConfig.ts": [
+148
+],
+"vitest:packages/vitest/src/node/plugins/index.ts": [
+26
+]
+}
