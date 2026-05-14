@@ -194,7 +194,7 @@ export const rule: Rule.RuleModule = {
         if (callee.type === 'MemberExpression') {
           const { parent } = node as TSESTree.MemberExpression;
           if (parent?.type === 'ExpressionStatement') {
-            const methodName = context.sourceCode.getText(callee.property as estree.Node);
+            const methodName = context.sourceCode.getText(callee.property);
             const objectType = services.program
               .getTypeChecker()
               .getTypeAtLocation(
