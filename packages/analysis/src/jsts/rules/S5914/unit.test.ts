@@ -124,6 +124,18 @@ describe('S5914', () => {
         },
         {
           code: `
+            import { expect } from 'vitest';
+            expect(1 + 1).toEqual(2);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(Math.sqrt(144)).toStrictEqual(12);
+          `,
+        },
+        {
+          code: `
             import assert from 'node:assert';
             assert.ok(loadConfig());
           `,

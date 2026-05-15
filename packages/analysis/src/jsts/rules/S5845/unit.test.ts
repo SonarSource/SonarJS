@@ -89,6 +89,30 @@ describe('S5845', () => {
         },
         {
           code: `
+            import { expect, vi } from 'vitest';
+
+            const mockedNumber = vi.fn((): number => 1);
+            mockedNumber.mockReturnValue(undefined as never);
+            expect(mockedNumber()).toBe(undefined);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            expect(null).toBe(true);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+
+            const startedAt: Date = new Date();
+            assert.strictEqual(startedAt, 1);
+          `,
+        },
+        {
+          code: `
             import assert from 'node:assert';
 
             const count = 1;
@@ -103,6 +127,24 @@ describe('S5845', () => {
 
             const price = 19.99;
             assert.equal(price, '19.99');
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+
+            const version: number = 3;
+            const versionText: string = '3';
+            expect(version).to.equal(versionText);
+          `,
+        },
+        {
+          code: `
+            import 'chai/register-should';
+
+            const timeout: number = 1000;
+            const timeoutText: string = '1000';
+            timeout.should.equal(timeoutText);
           `,
         },
         {
@@ -139,18 +181,12 @@ describe('S5845', () => {
               const count: number = 1;
               const title: string = '1';
               const enabled: boolean = true;
-              const startedAt: Date = new Date();
 
               assert.strictEqual(count, title);
               assert.notStrictEqual(enabled, 1);
-              assert.strictEqual(startedAt, 1);
             });
           `,
-          errors: [
-            { messageId: 'alwaysFails' },
-            { messageId: 'alwaysSucceeds' },
-            { messageId: 'alwaysFails' },
-          ],
+          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysSucceeds' }],
         },
         {
           code: `
@@ -205,15 +241,10 @@ describe('S5845', () => {
             const versionText: string = '3';
             const deprecated: boolean = false;
 
-            expect(version).to.equal(versionText);
             expect(versionText).to.deep.equal(version);
             expect(deprecated).to.eql(version);
           `,
-          errors: [
-            { messageId: 'alwaysFails' },
-            { messageId: 'alwaysFails' },
-            { messageId: 'alwaysFails' },
-          ],
+          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
         },
         {
           code: `
@@ -222,10 +253,9 @@ describe('S5845', () => {
             const timeout: number = 1000;
             const timeoutText: string = '1000';
 
-            timeout.should.equal(timeoutText);
             timeoutText.should.deep.equal(timeout);
           `,
-          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
+          errors: [{ messageId: 'alwaysFails' }],
         },
         {
           code: `

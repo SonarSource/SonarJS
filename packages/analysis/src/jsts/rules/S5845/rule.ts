@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
-    if (!isRequiredParserServices(services)) {
+    if (!isRequiredParserServices(services) || !/\.tsx?$/i.test(context.filename)) {
       return {};
     }
 
@@ -54,6 +54,12 @@ export const rule: Rule.RuleModule = {
     function checkAssertion(node: estree.Node) {
       const assertion = extractTestAssertion(context, node);
       if (!isRelevantAssertion(assertion)) {
+        return;
+      }
+      if (
+        assertion.actual.type === 'CallExpression' ||
+        assertion.expected.type === 'CallExpression'
+      ) {
         return;
       }
 
@@ -87,7 +93,41 @@ export const rule: Rule.RuleModule = {
 function isRelevantAssertion(assertion: Assertion | null): assertion is Assertion & {
   kind: 'comparison';
 } {
-  return assertion?.kind === 'comparison' && assertion.comparison !== 'loose';
+  return (
+    assertion?.kind === 'comparison' &&
+    assertion.comparison !== 'loose' &&
+    !isChaiBddEqualAssertion(assertion)
+  );
+}
+
+function isChaiBddEqualAssertion(assertion: Assertion & { kind: 'comparison' }): boolean {
+  if (
+    assertion.reportNode.type !== 'Identifier' ||
+    !['equal', 'equals', 'eq'].includes(assertion.reportNode.name)
+  ) {
+    return false;
+  }
+  if (
+    assertion.node.type !== 'CallExpression' ||
+    assertion.node.callee.type !== 'MemberExpression'
+  ) {
+    return false;
+  }
+  const chain = extractPropertyChain(assertion.node.callee.object);
+  return !chain.includes('deep') && (chain.includes('to') || chain.includes('should'));
+}
+
+function extractPropertyChain(node: estree.Node): string[] {
+  const properties: string[] = [];
+  let current = node;
+  while (current.type === 'MemberExpression' && !current.computed) {
+    if (current.property.type !== 'Identifier') {
+      return properties;
+    }
+    properties.unshift(current.property.name);
+    current = current.object;
+  }
+  return properties;
 }
 
 function getIncompatibility(
@@ -108,7 +148,8 @@ function getIncompatibility(
     for (const expectedCategory of expectedCategories) {
       if (
         actualCategory === expectedCategory ||
-        (actualCategory === 'object' && expectedCategory === 'object')
+        isConservativeCategory(actualCategory) ||
+        isConservativeCategory(expectedCategory)
       ) {
         return null;
       }
@@ -119,6 +160,10 @@ function getIncompatibility(
     actual: checker.typeToString(actualType),
     expected: checker.typeToString(expectedType),
   };
+}
+
+function isConservativeCategory(category: PrimitiveCategory | null): boolean {
+  return category === 'object' || category === 'null' || category === 'undefined';
 }
 
 function getUnionMembers(type: ts.Type): ts.Type[] {

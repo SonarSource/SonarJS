@@ -975,6 +975,36 @@ describe('Linter', () => {
     expect(issues).toEqual([expect.objectContaining({ ruleId: 'S878', line: 7 })]);
   });
 
+  it('should honor ESLint rule aliases in disable directives', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'scoped-eslint-disable.ts'),
+    );
+    const parseResult = await parseTypeScriptSourceFile(filePath, []);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S4023',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'ts',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S4144',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'ts',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'ts');
+
+    expect(issues).toEqual([expect.objectContaining({ ruleId: 'S4023', line: 4 })]);
+  });
+
   it('should take into account comment-based eslint configurations', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'wrapper', 'eslint-config.js'),
