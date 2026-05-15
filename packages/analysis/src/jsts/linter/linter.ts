@@ -43,7 +43,10 @@ import {
   setCurrentFileInlineDependencies,
   withCurrentFileInlineDependencies,
 } from '../rules/helpers/dependency-manifests/dependencies.js';
-import type { ModuleType } from '../rules/helpers/dependency-manifests/resolvers/types.js';
+import type {
+  DependenciesList,
+  ModuleType,
+} from '../rules/helpers/dependency-manifests/resolvers/types.js';
 import {
   DEPENDENCY_INDEPENDENT_RULE_FILTERS,
   DEPENDENCY_SENSITIVE_RULE_FILTERS,
@@ -54,7 +57,6 @@ import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js
 import type { FileType } from '../../contracts/file.js';
 import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/deno.js';
-import type { DependenciesList } from '../rules/helpers/dependency-manifests/resolvers/types.js';
 import { EcmaVersion } from '@eslint/core';
 
 interface InitializeParams {

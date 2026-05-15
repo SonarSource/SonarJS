@@ -43,52 +43,73 @@ export function build(input: JsTsAnalysisInput, parserContext: ParserContext = {
     jsx: parserContext.jsx ?? jsxEnabledFor(input.program),
   };
 
-  let parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
   if (shouldUseTypescriptParser(input)) {
-    const parserOptions: Linter.ParserOptions = vueFile
-      ? buildVueParserOptions('ts', { filePath: input.filePath }, context)
-      : buildTsParserOptions(
-          {
-            filePath: input.filePath,
-            programs: input.program ? [input.program] : undefined,
-            project: input.tsConfigs,
-          },
-          context,
-        );
-    try {
-      debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
-      return parse(input.fileContent, parser, parserOptions);
-    } catch (error) {
-      debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
-      // Vue+TS: JSX-vs-TS ambiguity. Retry with the opposite jsx setting.
-      if (vueFile && input.language === 'ts') {
-        const retryJsx = !(context.jsx ?? true);
-        try {
-          debug(`Retrying ${input.filePath} with JSX ${retryJsx ? 'enabled' : 'disabled'}`);
-          return parse(
-            input.fileContent,
-            parser,
-            buildVueParserOptions(
-              'ts',
-              { filePath: input.filePath },
-              { ...context, jsx: retryJsx },
-            ),
-          );
-        } catch (retryError) {
-          debug(
-            `JSX-${retryJsx ? 'enabled' : 'disabled'} retry failed for ${input.filePath}: ${retryError.message}`,
-          );
-          throw error;
-        }
-      }
-      if (input.language === 'ts') {
-        throw error;
-      }
+    const result = parseAsTypescript(input, vueFile, context);
+    if (result) {
+      return result;
     }
   }
 
+  return parseAsJavascript(input, vueFile, context);
+}
+
+/**
+ * Returns the parse result, or undefined to signal the caller should fall back to JS parsing.
+ * Throws when the input is TS or a Vue+TS retry fails.
+ */
+function parseAsTypescript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
+  const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.typescript;
+  const parserOptions: Linter.ParserOptions = vueFile
+    ? buildVueParserOptions('ts', { filePath: input.filePath }, context)
+    : buildTsParserOptions(
+        {
+          filePath: input.filePath,
+          programs: input.program ? [input.program] : undefined,
+          project: input.tsConfigs,
+        },
+        context,
+      );
+  try {
+    debug(`Parsing ${input.filePath} with ${parser.meta.name}`);
+    return parse(input.fileContent, parser, parserOptions);
+  } catch (error) {
+    debug(`Failed to parse ${input.filePath} with ${parser.meta.name}: ${error.message}`);
+    if (vueFile && input.language === 'ts') {
+      return retryVueTsWithFlippedJsx(input, parser, context, error);
+    }
+    if (input.language === 'ts') {
+      throw error;
+    }
+    return undefined;
+  }
+}
+
+// Vue+TS: JSX-vs-TS ambiguity. Retry with the opposite jsx setting.
+function retryVueTsWithFlippedJsx(
+  input: JsTsAnalysisInput,
+  parser: Parser,
+  context: ParserContext,
+  originalError: Error,
+) {
+  const retryJsx = !(context.jsx ?? true);
+  try {
+    debug(`Retrying ${input.filePath} with JSX ${retryJsx ? 'enabled' : 'disabled'}`);
+    return parse(
+      input.fileContent,
+      parser,
+      buildVueParserOptions('ts', { filePath: input.filePath }, { ...context, jsx: retryJsx }),
+    );
+  } catch (retryError) {
+    debug(
+      `JSX-${retryJsx ? 'enabled' : 'disabled'} retry failed for ${input.filePath}: ${retryError.message}`,
+    );
+    throw originalError;
+  }
+}
+
+function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
+  const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
   let moduleError;
-  parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
   try {
     debug(`Parsing ${input.filePath} with ${parser.meta?.name}`);
     return parse(
