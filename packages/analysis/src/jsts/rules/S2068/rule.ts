@@ -22,7 +22,6 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isLogicalExpression, isStaticTemplateLiteral, isStringLiteral } from '../helpers/ast.js';
 import { shannonEntropy } from '../helpers/entropy.js';
-import path from 'node:path';
 import type { FromSchema } from 'json-schema-to-ts';
 import * as meta from './generated-meta.js';
 
@@ -38,13 +37,6 @@ const messages = {
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
-    const filename = context.physicalFilename;
-    const dir = path.dirname(filename);
-    const parts = dir.split(path.sep).map(part => part.toLowerCase());
-    if (parts.includes('l10n')) {
-      return {};
-    }
-
     const variableNames =
       (context.options as FromSchema<typeof meta.schema>)[0]?.passwordWords ?? DEFAULT_NAMES;
     const lowerCaseVariableNames = variableNames.map(name => name.toLowerCase());
