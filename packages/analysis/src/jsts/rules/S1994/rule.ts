@@ -22,7 +22,6 @@ import { areEquivalent } from '../helpers/equivalence.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getParent } from '../helpers/ancestor.js';
 import { last } from '../helpers/collection.js';
-import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 
 class ForInfo {
@@ -85,8 +84,8 @@ export const rule: Rule.RuleModule = {
         const hasIntersection = forInfo.testedExpressions.some(testedExpr =>
           forInfo.updatedExpressions.some(updatedExpr =>
             areEquivalent(
-              updatedExpr as TSESTree.Node,
-              testedExpr as TSESTree.Node,
+              updatedExpr,
+              testedExpr,
               context.sourceCode,
             ),
           ),

@@ -16,7 +16,6 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5863/javascript
 
-import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { areEquivalent } from '../helpers/equivalence.js';
@@ -103,8 +102,8 @@ function findDuplicates(context: Rule.RuleContext, args: estree.Node[]) {
   for (let i = 0; i < args.length; i++) {
     for (let j = i + 1; j < args.length; j++) {
       const duplicates = areEquivalent(
-        args[i] as TSESTree.Node,
-        args[j] as TSESTree.Node,
+        args[i],
+        args[j],
         context.sourceCode,
       );
       if (duplicates && !isLiteral(args[i])) {
