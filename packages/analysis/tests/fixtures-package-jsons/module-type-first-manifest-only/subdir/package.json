@@ -1,3 +1,4 @@
 {
-  "name": "nested-subdir-without-module-type"
+  "name": "nested-subdir-with-commonjs",
+  "type": "commonjs"
 }

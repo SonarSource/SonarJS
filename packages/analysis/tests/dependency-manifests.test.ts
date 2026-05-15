@@ -701,7 +701,7 @@ describe('files', () => {
         normalizeToAbsolutePath(join(unspecifiedBaseDir, 'index.js')),
         unspecifiedBaseDir,
       ),
-    ).toEqual('commonjs');
+    ).toBeUndefined();
   });
 
   it('should use only the first manifest when extracting module type', async () => {
