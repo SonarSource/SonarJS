@@ -44,7 +44,7 @@ export const rule: Rule.RuleModule = {
           isEqualityOperator(node.operator) &&
           (isFloatSensitiveExpression(node.left) || isFloatSensitiveExpression(node.right))
         ) {
-          context.report({ node, messageId: 'issue' });
+          reportBinaryComparison(context, node);
         }
       },
       LogicalExpression(node: estree.LogicalExpression) {
@@ -61,6 +61,19 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function reportBinaryComparison(context: Rule.RuleContext, node: estree.BinaryExpression) {
+  const operator = context.sourceCode.getFirstTokenBetween(
+    node.left,
+    node.right,
+    token => token.value === node.operator,
+  );
+
+  context.report({
+    loc: operator!.loc,
+    messageId: 'issue',
+  });
+}
 
 function isExactFloatAssertion(
   assertion: Assertion | null,
