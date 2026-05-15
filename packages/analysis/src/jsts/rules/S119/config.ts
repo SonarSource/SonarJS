@@ -18,7 +18,7 @@
 
 import type { ESLintConfiguration } from '../helpers/configs.js';
 
-export const DEFAULT_FORMAT = '^[A-Z][a-zA-Z0-9]*$';
+export const DEFAULT_FORMAT = '^_?[A-Z][a-zA-Z0-9]*$';
 
 export const fields = [
   [
