@@ -55,6 +55,7 @@ import type { FileType } from '../../contracts/file.js';
 import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/deno.js';
 import type { DependenciesList } from '../rules/helpers/dependency-manifests/resolvers/types.js';
+import { EcmaVersion } from '@eslint/core';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -203,7 +204,7 @@ export class Linter {
     fileStatus: FileStatus = 'CHANGED',
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
-    detectedEsYear?: number,
+    detectedEsYear?: EcmaVersion,
     detectedModuleType?: ModuleType,
     lintOptions: LintOptions = {},
   ) {
@@ -280,7 +281,7 @@ export class Linter {
     fileType: FileType,
     analysisMode: AnalysisMode,
     fileLanguage: JsTsLanguage,
-    detectedEsYear?: number,
+    detectedEsYear?: EcmaVersion,
     detectedModuleType?: ModuleType,
     sourceCode?: SourceCode,
   ): ESLintLinter.RulesRecord {
@@ -442,7 +443,7 @@ function createLinterConfigKey(
   fileType: FileType,
   language: JsTsLanguage,
   analysisMode: AnalysisMode,
-  detectedEsYear?: number,
+  detectedEsYear?: EcmaVersion,
   detectedModuleType?: ModuleType,
 ): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
