@@ -124,6 +124,18 @@ describe('S1244', () => {
             expect(2 * 3).to.equal(6);
           `,
         },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.equal(2 * 3, 6);
+          `,
+        },
+        {
+          code: `
+            import 'chai/register-should';
+            (2 * 3).should.equal(6);
+          `,
+        },
       ],
       invalid: [
         {
@@ -281,6 +293,27 @@ describe('S1244', () => {
           code: `
             import { expect } from 'chai';
             expect(10 / 3).to.equal(3.333);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.equal(0.1 + 0.2, 0.3);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.notEqual(0.1 + 0.2, 0.3);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import 'chai/register-should';
+            (0.1 + 0.2).should.equal(0.3);
           `,
           errors: 1,
         },
