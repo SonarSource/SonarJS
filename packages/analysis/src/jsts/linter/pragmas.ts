@@ -177,7 +177,7 @@ export function createOptions(
 
       for (const [ruleId, options] of Object.entries(config.rules)) {
         const mapping = eslintMapping[getRuleId(ruleId)];
-        if (mapping && ruleId === mapping.ruleId && !aliasedRuleIds.has(ruleId)) {
+        if (ruleId === mapping?.ruleId && !aliasedRuleIds.has(ruleId)) {
           patchedOptions[ruleId] = normalizeInlineRuleOptions(
             options,
             mapping,
