@@ -79,7 +79,7 @@ function isEqualityOperator(operator: estree.BinaryOperator) {
 function isFloatSensitiveExpression(node: estree.Node): boolean {
   switch (node.type) {
     case 'Literal':
-      return typeof node.value === 'number' && node.raw?.includes('.') === true;
+      return typeof node.value === 'number' && isFloatSensitiveNumericLiteral(node.raw);
     case 'BinaryExpression':
       if (node.operator === '/') {
         return true;
@@ -96,6 +96,10 @@ function isFloatSensitiveExpression(node: estree.Node): boolean {
     default:
       return false;
   }
+}
+
+function isFloatSensitiveNumericLiteral(raw: string | undefined): boolean {
+  return raw?.includes('.') === true || /e-\d/i.test(raw ?? '');
 }
 
 function isFloatPropagatingOperator(operator: estree.BinaryOperator) {

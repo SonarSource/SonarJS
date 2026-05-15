@@ -54,6 +54,13 @@ describe('S1244', () => {
         },
         {
           code: `
+            if (count === 1e3) {
+              publish(count);
+            }
+          `,
+        },
+        {
+          code: `
             if (Math.abs(total - 0.3) < Number.EPSILON) {
               publish(total);
             }
@@ -162,6 +169,22 @@ describe('S1244', () => {
         },
         {
           code: `
+            if (ratio === 1e-3) {
+              publish(ratio);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            if ((1e-3 + tolerance) === expected) {
+              publish(expected);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             const status = total === 0.3 ? "done" : "retry";
           `,
           errors: 1,
@@ -235,8 +258,22 @@ describe('S1244', () => {
         },
         {
           code: `
+            import assert from 'node:assert/strict';
+            assert.notStrictEqual(0.1 + 0.2, 0.3);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             import { expect } from 'chai';
             expect(0.1 + 0.2).to.equal(0.3);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(0.1 + 0.2).not.to.equal(0.3);
           `,
           errors: 1,
         },
