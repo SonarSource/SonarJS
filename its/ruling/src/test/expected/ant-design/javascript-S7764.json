@@ -105,7 +105,9 @@
 20
 ],
 "ant-design:scripts/print-changelog.js": [
-16
+14,
+16,
+18
 ],
 "ant-design:site/theme/static/template.html": [
 121,

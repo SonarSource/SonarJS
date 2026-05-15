@@ -4,6 +4,13 @@
 8,
 9
 ],
+"rxjs:perf/macro/bufferCount/perf.js": [
+10,
+19,
+19,
+23,
+23
+],
 "rxjs:perf/macro/combineLatest/index.html": [
 8,
 8,
@@ -42,6 +49,13 @@
 8,
 8,
 9
+],
+"rxjs:perf/macro/windowCount/perf.js": [
+10,
+19,
+19,
+23,
+23
 ],
 "rxjs:perf/macro/zip/index.html": [
 8,
