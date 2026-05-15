@@ -19,7 +19,11 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
-import { type Assertion, extractTestAssertion } from '../helpers/assertions.js';
+import {
+  type Assertion,
+  extractMemberChain,
+  extractTestAssertion,
+} from '../helpers/assertions.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import { getTypeFromTreeNode } from '../helpers/type.js';
@@ -113,21 +117,8 @@ function isChaiBddEqualAssertion(assertion: Assertion & { kind: 'comparison' }):
   ) {
     return false;
   }
-  const chain = extractPropertyChain(assertion.node.callee.object);
+  const chain = extractMemberChain(assertion.node.callee.object)?.properties ?? [];
   return !chain.includes('deep') && (chain.includes('to') || chain.includes('should'));
-}
-
-function extractPropertyChain(node: estree.Node): string[] {
-  const properties: string[] = [];
-  let current = node;
-  while (current.type === 'MemberExpression' && !current.computed) {
-    if (current.property.type !== 'Identifier') {
-      return properties;
-    }
-    properties.unshift(current.property.name);
-    current = current.object;
-  }
-  return properties;
 }
 
 function getIncompatibility(
