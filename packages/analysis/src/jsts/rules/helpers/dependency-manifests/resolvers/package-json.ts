@@ -70,7 +70,14 @@ export const packageJsonManifestResolver: ManifestResolver = {
 
     parsedPackageJson = resolveCatalogReferences(parsedPackageJson, catalogSource);
 
-    const moduleType: ModuleType = parsedPackageJson.type === 'module' ? 'module' : 'commonjs';
+    // Only propagate an explicit module type signal; absence stays undefined so the parser
+    // falls back to its default ('module') instead of inferring CommonJS.
+    const moduleType: ModuleType | undefined =
+      parsedPackageJson.type === 'module'
+        ? 'module'
+        : parsedPackageJson.type === 'commonjs'
+          ? 'commonjs'
+          : undefined;
     return [
       {
         type: 'package-json',

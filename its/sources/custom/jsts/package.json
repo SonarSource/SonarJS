@@ -1,7 +1,9 @@
 {
   "name": "custom",
+  "type": "module",
   "dependencies": {
     "react": "19.1.0",
-    "aws-cdk-lib": "2.200.1"
+    "aws-cdk-lib": "2.200.1",
+    "vue": "3.5.0"
   }
 }
