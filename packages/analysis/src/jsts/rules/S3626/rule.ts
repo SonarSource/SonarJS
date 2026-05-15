@@ -50,7 +50,7 @@ export const rule: Rule.RuleModule = {
 
           context.report({
             messageId: 'removeRedundantJump',
-            node: node as estree.ContinueStatement,
+            node,
             suggest: [
               {
                 messageId: 'suggestJumpRemoval',
