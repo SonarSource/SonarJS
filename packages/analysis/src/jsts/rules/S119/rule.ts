@@ -80,7 +80,7 @@ function checkIdentifier(
 ) {
   const { name } = identifier;
 
-  if (!regexp.test(name)) {
+  if (!matchesFormat(name, regexp)) {
     context.report({
       messageId: 'renameTypeParameter',
       data: {
@@ -89,4 +89,12 @@ function checkIdentifier(
       node: identifier,
     });
   }
+}
+
+function matchesFormat(name: string, regexp: RegExp) {
+  const nameWithoutLeadingUnderscores = name.replace(/^_+/, '');
+  return (
+    regexp.test(name) ||
+    (name !== nameWithoutLeadingUnderscores && regexp.test(nameWithoutLeadingUnderscores))
+  );
 }

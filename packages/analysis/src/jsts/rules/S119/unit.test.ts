@@ -78,6 +78,13 @@ describe('S119', () => {
         {
           filename: TYPESCRIPT_FILENAME,
           code: `
+        type AppProps<_Data = unknown, T = unknown> = Context<T>;
+        type RouteContext<_T = never, S = Record<string, unknown>> = Context<S>;
+        `,
+        },
+        {
+          filename: TYPESCRIPT_FILENAME,
+          code: `
         type Nullable<item> = item | null;
         const identity = <_value>(value: _value): _value => value;
         `,
@@ -154,7 +161,6 @@ describe('S119', () => {
           filename: TYPESCRIPT_FILENAME,
           code: `
         class EventBus<event_1, handlerType> {}
-        type AppProps<_Data = unknown, T = unknown> = Context<T>;
         type ExtractValue<Source> = Source extends Promise<infer value_type> ? value_type : Source;
         interface Box {
           get<item>(): item;
@@ -164,7 +170,7 @@ describe('S119', () => {
           return value;
         }
         `,
-          errors: [error(), error(), error(), error(), error(), error(), error()],
+          errors: [error(), error(), error(), error(), error(), error()],
         },
         {
           filename: TYPESCRIPT_FILENAME,
