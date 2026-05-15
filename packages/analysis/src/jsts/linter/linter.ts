@@ -228,7 +228,7 @@ export class Linter {
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
-    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
+    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath, rules));
     clearFileCaches();
     return transformMessages(messages, language, {
       sourceCode,

@@ -84,7 +84,7 @@ export function materializeRuleOptions(
   return ruleMeta?.fields ? applyTransformations(ruleMeta.fields, mergedOptions) : mergedOptions;
 }
 
-function mergeRuleOptions(...optionSets: (unknown[] | undefined)[]): unknown[] {
+export function mergeRuleOptions(...optionSets: (unknown[] | undefined)[]): unknown[] {
   const mergedOptions: unknown[] = [];
 
   for (const optionSet of optionSets) {

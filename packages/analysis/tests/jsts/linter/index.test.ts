@@ -1020,6 +1020,59 @@ describe('Linter', () => {
     }
   });
 
+  it('should preserve Sonar defaults for severity-only inline configs on wrapped rules', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'inline-config-no-console-info.js'),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S106',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const issues = Linter.lint(parseResult, filePath);
+
+    expect(issues).toHaveLength(0);
+  });
+
+  it('should replace array-valued inline overrides instead of merging them', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(
+        import.meta.dirname,
+        'fixtures',
+        'wrapper',
+        'inline-config-no-hardcoded-passwords.js',
+      ),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S2068',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const issues = Linter.lint(parseResult, filePath);
+
+    expect(issues).toHaveLength(0);
+  });
+
   it('should report issues from internal rules', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'wrapper', 'internal.js'),
