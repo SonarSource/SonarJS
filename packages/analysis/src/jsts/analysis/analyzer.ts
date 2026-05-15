@@ -97,7 +97,7 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     fileStatus,
     analysisMode,
     language,
-    detectedEsYear as number | undefined,
+    detectedEsYear,
     detectedModuleType,
     { additionalRules, additionalSettings },
   );
