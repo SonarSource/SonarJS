@@ -122,7 +122,7 @@ function findValueSuspect(node: estree.Node | undefined | null): boolean {
     );
   }
   if (isStringLiteral(node)) {
-    const value = node.value as string;
+    const value = node.value;
     return (
       value.length >= MIN_PASSWORD_LENGTH &&
       !NON_CREDENTIAL_CHARS.test(value) &&
@@ -145,7 +145,7 @@ function checkLiteral(context: Rule.RuleContext, patterns: RegExp[], literal: es
   if (!isStringLiteral(literal)) {
     return;
   }
-  const value = literal.value as string;
+  const value = literal.value;
   checkStringValue(context, patterns, value, literal);
 }
 

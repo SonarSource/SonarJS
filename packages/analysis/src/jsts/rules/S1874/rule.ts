@@ -51,7 +51,7 @@ export const rule: Rule.RuleModule = {
               loc,
               messageId: 'deprecation',
               data: {
-                deprecation: diagnostic.messageText as string,
+                deprecation: diagnostic.messageText,
               },
             });
           }

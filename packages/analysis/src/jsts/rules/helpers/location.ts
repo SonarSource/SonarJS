@@ -151,7 +151,7 @@ export function report(
     context.report({
       ...rest,
       message: expandMessage(rest.message, data),
-    } as Rule.ReportDescriptor);
+    });
   } else {
     context.report(reportDescriptor);
   }
