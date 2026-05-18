@@ -30,7 +30,7 @@ import {
 import { areMutuallyAssignableTypes, areSameTypeDeclarations, getTypeFromTreeNode } from './type.js';
 
 type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
-type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
+export type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
   ownersByReportNode: WeakMap<estree.Node, estree.Node[] | null>;
@@ -50,13 +50,13 @@ const REACT_FORWARD_REF_RENDER_FUNCTION_TYPES = new Set(['ForwardRefRenderFuncti
 
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 
-function isClassComponentNode(
+export function isClassComponentNode(
   node: estree.Node,
 ): node is estree.ClassDeclaration | estree.ClassExpression {
   return node.type === 'ClassDeclaration' || node.type === 'ClassExpression';
 }
 
-function isFunctionComponentNode(
+export function isFunctionComponentNode(
   node: estree.Node,
 ): node is estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression {
   return (
@@ -281,7 +281,7 @@ export function getComponentPropsType(
  *
  * In that case we look at both the parameter type and the declared `React.FC<Props>`.
  */
-function getComponentPropsTypeCandidates(
+export function getComponentPropsTypeCandidates(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type[] {
@@ -522,6 +522,23 @@ function getClassPropsPropertyType(
   return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
 }
 
+export function getDeclaredClassNonPropsTypes(
+  classNode: ts.ClassLikeDeclaration,
+  checker: ts.TypeChecker,
+): ts.Type[] {
+  const extendsClause = classNode.heritageClauses?.find(
+    clause => clause.token === ts.SyntaxKind.ExtendsKeyword,
+  );
+  const reactSuperclass = extendsClause?.types.find(type =>
+    isReactComponentHeritageSuperclass(type),
+  );
+  return (
+    reactSuperclass?.typeArguments
+      ?.slice(1)
+      .map(typeArgument => checker.getTypeAtLocation(typeArgument)) ?? []
+  );
+}
+
 /**
  * TypeScript fallback for finding component owners.
  *
@@ -699,7 +716,7 @@ function findEnclosingTypeMember(ancestors: estree.Node[]): TypeMemberNode | und
   return undefined;
 }
 
-function getReportedTypeMember(
+export function getReportedTypeMember(
   ancestors: estree.Node[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
@@ -714,7 +731,7 @@ function getReportedTypeMember(
   );
 }
 
-function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
+export function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
   const componentIdentifier = getComponentIdentifier(componentNode);
   return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
 }

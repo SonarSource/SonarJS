@@ -189,6 +189,30 @@ class ForwardedOnlyPanel extends CounterPanelBase {
           filename: fixtureFile,
         },
         {
+          // FP: upstream can misreport the second React class type parameter when a
+          // third type parameter is also present. The decorator suppresses these
+          // non-props generic declarations explicitly.
+          code: `
+declare const React: any;
+interface AnchorState {
+  activeLink: null | string;
+}
+interface AnchorProps {
+  href?: string;
+}
+interface AnchorSnapshot {
+  scrollTop: number;
+}
+class Anchor extends React.Component<AnchorProps, AnchorState, AnchorSnapshot> {
+  render() {
+    const { activeLink } = this.state;
+    return <a href={this.props.href}>{activeLink}</a>;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: decorator-factory callback uses props
           code: `
 declare const React: any;
@@ -603,9 +627,80 @@ class DerivedForwarder extends CustomIntermediateBase {
           errors: 1,
         },
         {
+          // TP: a mixed props/state declaration must keep the props-side report
+          // even when the state-owning class appears first in source order.
+          code: `
+declare const React: any;
+interface SharedType {
+  unused: string;
+}
+interface Snapshot {
+  scrollTop: number;
+}
+class StateOwner extends React.Component<{}, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+class PropsOwner extends React.Component<SharedType> {
+  render() {
+    return <div />;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: the non-props safeguard stays local to state/snapshot usage and
+          // must not suppress when the same declaration is used as props elsewhere.
+          code: `
+declare const React: any;
+interface SharedType {
+  unused: string;
+}
+interface Snapshot {
+  scrollTop: number;
+}
+class PropsOwner extends React.Component<SharedType> {
+  render() {
+    return <div />;
+  }
+}
+class StateOwner extends React.Component<{}, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: wrapped props contracts still count as props, so a class that also
+          // reuses the same declaration for state must keep the props-side report.
+          code: `
+declare const React: any;
+interface SharedType {
+  unused: string;
+}
+interface Snapshot {
+  scrollTop: number;
+}
+class WrappedPropsOwner extends React.Component<Readonly<SharedType>, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
           // TP: a shared base props declaration can belong to multiple components.
           // The wrapper forwards whole props to the child, but the child still leaves
-          // the inherited prop unused, so the report must remain.
+          // the inherited prop unused. The decorator must keep the issue unless every
+          // owning component matches an FP suppression pattern.
           code: `
 import * as React from 'react';
 interface SharedProps {

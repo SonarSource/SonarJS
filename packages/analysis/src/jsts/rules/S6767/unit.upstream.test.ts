@@ -287,13 +287,9 @@ class DecoratorAnnotationHelperComponent extends React.Component<DecoratorAnnota
     });
   });
 
-  it('upstream rule should NOT report state interface properties when TypeScript type info is available', () => {
-    // Confirms that the upstream rule uses TypeScript type information to distinguish
-    // state types from props types. AnchorState (used as the second type parameter of
-    // React.Component) should not be reported as unused props.
-    // This explains why the ant-design/Anchor.tsx:70 ruling entry was correctly removed:
-    // the upstream rule handles it on its own with TypeScript — the decorator does not
-    // need to suppress it.
+  it('upstream rule should NOT report state interface properties for React.Component<Props, State>', () => {
+    // Confirms that the upstream rule handles the basic React.Component<Props, State>
+    // case correctly when type information is available.
     const upstreamRule = rules['no-unused-prop-types'];
     const ruleTester = new RuleTester({
       parserOptions: {
@@ -306,8 +302,7 @@ class DecoratorAnnotationHelperComponent extends React.Component<DecoratorAnnota
     ruleTester.run('no-unused-prop-types (upstream, with TypeScript)', upstreamRule, {
       valid: [
         {
-          // AnchorState is the second type parameter (state), not props — upstream rule
-          // correctly does not flag activeLink as an unused prop when type info is present.
+          // AnchorState is the second type parameter (state), not props.
           code: `
 declare const React: any;
 interface AnchorState {
@@ -327,6 +322,47 @@ class Anchor extends React.Component<AnchorProps, AnchorState> {
         },
       ],
       invalid: [],
+    });
+  });
+
+  it('upstream rule should report state interface properties when a third React class type parameter is present', () => {
+    // Sentinel: upstream still misreports the second type parameter as props when
+    // React.Component is instantiated with three generic arguments.
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types (upstream, with TypeScript third generic)', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+declare const React: any;
+interface AnchorState {
+  activeLink: null | string;
+}
+interface AnchorProps {
+  href?: string;
+}
+interface AnchorSnapshot {
+  scrollTop: number;
+}
+class Anchor extends React.Component<AnchorProps, AnchorState, AnchorSnapshot> {
+  render() {
+    const { activeLink } = this.state;
+    return <a href={this.props.href}>{activeLink}</a>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
     });
   });
 });
