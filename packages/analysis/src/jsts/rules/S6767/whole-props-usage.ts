@@ -28,7 +28,6 @@ import { isIdentifier } from '../helpers/ast.js';
 export function hasSupportedWholePropsUsage(
   componentNode: estree.Node,
   context: Rule.RuleContext,
-  _propName: string | undefined,
 ): boolean {
   return hasSupportedWholePropsUsageInSubtree(componentNode, context.sourceCode.visitorKeys);
 }

@@ -34,8 +34,8 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       const componentNode = findComponentNode(node, context);
       if (
         componentNode &&
-        (hasSupportedWholePropsUsage(componentNode, context, undefined) ||
-          hasOwnCustomSuperclassPropsForwarding(componentNode, context, undefined))
+        (hasSupportedWholePropsUsage(componentNode, context) ||
+          hasOwnCustomSuperclassPropsForwarding(componentNode))
       ) {
         return;
       }

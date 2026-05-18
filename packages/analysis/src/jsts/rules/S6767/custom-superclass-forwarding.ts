@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { isIdentifier } from '../helpers/ast.js';
 
@@ -24,11 +23,7 @@ import { isIdentifier } from '../helpers/ast.js';
  * returns true when the component constructor forwards `props` to its own
  * non-React superclass, which this decorator treats as sufficient usage.
  */
-export function hasOwnCustomSuperclassPropsForwarding(
-  componentNode: estree.Node,
-  _context: Rule.RuleContext,
-  _propName: string | undefined,
-): boolean {
+export function hasOwnCustomSuperclassPropsForwarding(componentNode: estree.Node): boolean {
   if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
     return false;
   }
