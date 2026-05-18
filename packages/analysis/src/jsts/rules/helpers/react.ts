@@ -30,7 +30,7 @@ import {
 import { areMutuallyAssignableTypes, getTypeFromTreeNode } from './type.js';
 
 type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
-export type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
+type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
   ownersByReportNode: WeakMap<estree.Node, estree.Node[] | null>;
@@ -52,13 +52,13 @@ const REACT_FORWARD_REF_RENDER_FUNCTION_TYPES = new Set(['ForwardRefRenderFuncti
 
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 
-export function isClassComponentNode(
+function isClassComponentNode(
   node: estree.Node,
 ): node is estree.ClassDeclaration | estree.ClassExpression {
   return node.type === 'ClassDeclaration' || node.type === 'ClassExpression';
 }
 
-export function isFunctionComponentNode(
+function isFunctionComponentNode(
   node: estree.Node,
 ): node is estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression {
   return (
@@ -68,7 +68,7 @@ export function isFunctionComponentNode(
   );
 }
 
-export function hasIdentifierId(
+function hasIdentifierId(
   node: estree.Node,
 ): node is estree.Node & { id: estree.Identifier } {
   return 'id' in node && node.id != null && isIdentifier(node.id);
@@ -83,7 +83,7 @@ function getClassComponentTsNode(
   ) as ts.ClassLikeDeclaration;
 }
 
-export function isVariableDeclaratorWithIdentifierId(
+function isVariableDeclaratorWithIdentifierId(
   node: unknown,
 ): node is estree.VariableDeclarator & { id: estree.Identifier } {
   return (
@@ -114,7 +114,7 @@ function isTypeMemberNode(node: TSESTree.Node): node is TypeMemberNode {
   return node.type === 'TSPropertySignature' || node.type === 'TSMethodSignature';
 }
 
-export function isVariableAssignedFunctionOrClassExpression(
+function isVariableAssignedFunctionOrClassExpression(
   componentNode: estree.Node,
   parent: unknown,
 ): parent is estree.VariableDeclarator & { id: estree.Identifier } {
@@ -303,7 +303,7 @@ export function getComponentPropsType(
  *
  * In that case we look at both the parameter type and the declared `React.FC<Props>`.
  */
-export function getComponentPropsTypeCandidates(
+function getComponentPropsTypeCandidates(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type[] {
@@ -506,7 +506,7 @@ function isReactComponentHeritageSuperclass(superclass: ts.ExpressionWithTypeArg
  * @param callee the ESTree callee expression to inspect
  * @returns `true` when `callee` denotes React's `forwardRef`
  */
-export function isForwardRefCallee(callee: estree.Expression | estree.Super): boolean {
+function isForwardRefCallee(callee: estree.Expression | estree.Super): boolean {
   return (
     isIdentifier(callee, 'forwardRef') ||
     (callee.type === 'MemberExpression' &&
@@ -551,7 +551,7 @@ function getClassPropsPropertyType(
   return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
 }
 
-export function getDeclaredClassNonPropsTypes(
+function getDeclaredClassNonPropsTypes(
   classNode: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
 ): ts.Type[] {
@@ -843,7 +843,7 @@ function findEnclosingTypeMember(ancestors: estree.Node[]): TypeMemberNode | und
   return undefined;
 }
 
-export function getReportedTypeMember(
+function getReportedTypeMember(
   ancestors: estree.Node[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
@@ -858,7 +858,7 @@ export function getReportedTypeMember(
   );
 }
 
-export function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
+function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
   const componentIdentifier = getComponentIdentifier(componentNode);
   return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
 }
@@ -1132,7 +1132,7 @@ function matchesFunctionProps(
  *
  * This resolves to `Header`, `Footer`, `Modal`, and `Panel`.
  */
-export function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
+function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
   const parent = getNodeParent(componentNode);
   if (isVariableAssignedFunctionOrClassExpression(componentNode, parent)) {
     return parent.id;

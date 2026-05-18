@@ -20,7 +20,7 @@ import ts from 'typescript';
 import type { RequiredParserServices } from './parser-services.js';
 import { areSameTypeDeclarations } from './type.js';
 
-export type TypeDeclarationNode = TSESTree.TSInterfaceDeclaration | TSESTree.TSTypeAliasDeclaration;
+type TypeDeclarationNode = TSESTree.TSInterfaceDeclaration | TSESTree.TSTypeAliasDeclaration;
 export type ReportedEnclosingType = ReportedTypeDetails<
   TypeDeclarationNode,
   ts.InterfaceDeclaration | ts.TypeAliasDeclaration
