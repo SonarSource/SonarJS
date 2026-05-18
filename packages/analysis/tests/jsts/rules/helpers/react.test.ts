@@ -182,6 +182,9 @@ const findComponentNodesRule: Rule.RuleModule = {
         if (node.key.type === 'Identifier' && node.key.name === 'moduleName') {
           validateComponentOwners(node.key, ['InnerPageWrapper', 'PageWrapper']);
         }
+        if (node.key.type === 'Identifier' && node.key.name === 'aliasRelay') {
+          validateComponentOwners(node.key, ['AliasChild', 'AliasWrapper']);
+        }
       },
     };
   },
@@ -369,6 +372,22 @@ class PageWrapper extends React.Component<PageWrapperProps> {
     return <InnerPageWrapper {...this.props} />;
   }
 }
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+type SharedAlias = {
+  aliasRelay: string;
+};
+
+type AliasChildProps = SharedAlias & {
+  title: string;
+};
+
+const AliasChild: React.FC<AliasChildProps> = props => props.title;
+const AliasWrapper: React.FC<SharedAlias> = props => props.aliasRelay;
 `,
     },
   ],
