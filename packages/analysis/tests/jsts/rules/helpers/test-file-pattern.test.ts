@@ -82,6 +82,10 @@ describe('isTestRelatedFile', () => {
     expect(isTestRelatedFile('foo.ts')).toBe(false);
     expect(isTestRelatedFile('foo.test.js', ['.dummy'])).toBe(false);
     expect(isTestRelatedFile('data.mock.js', ['.dummy'])).toBe(false);
-    expect(isTestRelatedFile('__tests__/foo.ts', ['.dummy'])).toBe(false);
+  });
+
+  it('matches files under __tests__ / __mocks__ regardless of the configured extensions', () => {
+    expect(isTestRelatedFile('__tests__/foo.ts', ['.dummy'])).toBe(true);
+    expect(isTestRelatedFile('src/__mocks__/style.css', ['.dummy'])).toBe(true);
   });
 });

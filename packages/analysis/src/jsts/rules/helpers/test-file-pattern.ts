@@ -38,7 +38,7 @@ function testFilePattern(extensions?: string[]): RegExp {
 function testRelatedFilePattern(extensions?: string[]): RegExp {
   const alternation = suffixAlternation(extensions);
   return new RegExp(
-    String.raw`\.(?:test|spec|cy)\.(?:${alternation})$|\.(?:e2e|mock)\.(?:${alternation})$|(?:^|[\\/])(?:__tests__|__mocks__)[\\/].*\.(?:${alternation})$`,
+    String.raw`\.(?:test|spec|cy)\.(?:${alternation})$|\.(?:e2e|mock)\.(?:${alternation})$|(?:^|[\\/])(?:__tests__|__mocks__)[\\/]`,
   );
 }
 
