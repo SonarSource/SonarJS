@@ -59,7 +59,8 @@ export function hasDecoratorPropUsage(
  *   },
  * )(Component);
  *
- * The decorated target must be the component reference passed as the outer call argument.
+ * The decorated target must be the component reference passed as the sole outer
+ * call argument.
  */
 function hasDecoratorFactoryCallPropUsage(
   sourceCode: SourceCode,
@@ -75,6 +76,7 @@ function hasDecoratorFactoryCallPropUsage(
     const decoratorApplication = getNodeParent(reference.identifier);
     return (
       decoratorApplication?.type === 'CallExpression' &&
+      decoratorApplication.arguments.length === 1 &&
       decoratorApplication.arguments[0] === reference.identifier &&
       decoratorApplication.callee.type === 'CallExpression' &&
       decoratorApplication.callee.arguments.some(argument =>
@@ -107,7 +109,7 @@ function hasDecoratorAnnotationPropUsage(
   return (
     componentTsNode.decorators?.some(({ expression }) =>
       isDecoratorCallUsingProp(expression, sourceCode, componentNode, propName),
-    ) === true
+    ) ?? false
   );
 }
 
@@ -185,6 +187,8 @@ function isSameDeclaredPropsType(
 
   const componentPropsType = getComponentPropsType(componentNode, services);
   const callbackPropsType = getTypeFromTreeNode(callbackPropsParam, services);
+  // Keep the escape conservative when either side collapses to top-level `any`
+  // or `unknown`: without a declared props shape, we cannot prove equivalence.
   return areSameTypeDeclarations(checker, callbackPropsType, componentPropsType);
 }
 

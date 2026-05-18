@@ -681,6 +681,27 @@ function PlainComponent(props: PlainProps) {
           errors: 1,
         },
         {
+          // TP: decorator-factory application with extra outer arguments is not the
+          // conservative one-target pattern that this escape recognizes.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent, ...extraArgs: unknown[]) => TComponent;
+interface DecoratedProps {
+  contextModule: string;
+}
+function DecoratedComponent(props: DecoratedProps) {
+  return <div />;
+}
+track((props: DecoratedProps) => ({
+  context_module: props.contextModule,
+}))(DecoratedComponent, { unexpected: true });
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
           // TP: decorator callback parameter is not the component props type.
           code: `
 declare const React: any;
