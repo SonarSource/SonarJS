@@ -26,7 +26,6 @@ import {
 import {
   getReportedEnclosingType,
   type ReportedEnclosingType,
-  type TypeDeclarationNode,
 } from '../helpers/reported-type.js';
 import {
   getComponentPropsTypeCandidates,
@@ -40,9 +39,10 @@ import {
 import { areSameTypeDeclarations } from '../helpers/type.js';
 
 type ReactNonPropsTypeUsage = 'mixed' | 'non-props' | 'other' | 'props';
+type ReactNonPropsTypeDeclaration = ReportedEnclosingType['declaration'];
 type SourceCache = {
   reactNonPropsTypeDeclByComponent: WeakMap<
-    TypeDeclarationNode,
+    ReactNonPropsTypeDeclaration,
     WeakMap<estree.Node, ReactNonPropsTypeUsage>
   >;
 };
@@ -68,7 +68,7 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
   if (!cache) {
     cache = {
       reactNonPropsTypeDeclByComponent: new WeakMap<
-        TypeDeclarationNode,
+        ReactNonPropsTypeDeclaration,
         WeakMap<estree.Node, ReactNonPropsTypeUsage>
       >(),
     };
