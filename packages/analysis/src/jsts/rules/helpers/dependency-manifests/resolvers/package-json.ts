@@ -72,12 +72,9 @@ export const packageJsonManifestResolver: ManifestResolver = {
 
     // Only propagate an explicit module type signal; absence stays undefined so the parser
     // falls back to its default ('module') instead of inferring CommonJS.
+    const { type } = parsedPackageJson;
     const moduleType: ModuleType | undefined =
-      parsedPackageJson.type === 'module'
-        ? 'module'
-        : parsedPackageJson.type === 'commonjs'
-          ? 'commonjs'
-          : undefined;
+      type === 'module' || type === 'commonjs' ? type : undefined;
     return [
       {
         type: 'package-json',
