@@ -444,6 +444,10 @@ describe('areSameTypeDeclarations', () => {
       const anyBox = {} as Box<any>;
       const sameAnyBox = {} as Box<any>;
       const unknownBox = {} as Box<unknown>;
+      interface NamedShape {
+        id: string;
+      }
+      const namedObjectBox = {} as Box<NamedShape>;
       const objectBox = {} as Box<{ id: string }>;
       const sameObjectBox = {} as Box<{ id: string }>;
       const differentObjectBox = {} as Box<{ id: number }>;
@@ -460,6 +464,7 @@ describe('areSameTypeDeclarations', () => {
     const anyBoxType = getTypeByText(ast, services, 'anyBox');
     const sameAnyBoxType = getTypeByText(ast, services, 'sameAnyBox');
     const unknownBoxType = getTypeByText(ast, services, 'unknownBox');
+    const namedObjectBoxType = getTypeByText(ast, services, 'namedObjectBox');
     const objectBoxType = getTypeByText(ast, services, 'objectBox');
     const sameObjectBoxType = getTypeByText(ast, services, 'sameObjectBox');
     const differentObjectBoxType = getTypeByText(ast, services, 'differentObjectBox');
@@ -469,6 +474,7 @@ describe('areSameTypeDeclarations', () => {
     expect(areSameTypeDeclarations(checker, stringBoxType, numberBoxType)).toBe(false);
     expect(areSameTypeDeclarations(checker, anyBoxType, sameAnyBoxType)).toBe(true);
     expect(areSameTypeDeclarations(checker, anyBoxType, unknownBoxType)).toBe(false);
+    expect(areSameTypeDeclarations(checker, namedObjectBoxType, objectBoxType)).toBe(false);
     expect(areSameTypeDeclarations(checker, objectBoxType, sameObjectBoxType)).toBe(true);
     expect(areSameTypeDeclarations(checker, objectBoxType, differentObjectBoxType)).toBe(false);
     expect(areSameTypeDeclarations(checker, undefined, stringBoxType)).toBe(false);

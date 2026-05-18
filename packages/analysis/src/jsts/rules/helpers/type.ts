@@ -212,8 +212,9 @@ export function areMutuallyAssignableTypes(
  * generic declarations, the same instantiated type arguments.
  *
  * Unlike structural assignability, this keeps unrelated declarations with the
- * same shape distinct, while still distinguishing `Props<User>` from
- * `Props<Product>`.
+ * same shape distinct. That nominal-ish behavior is intentional: `Props<User>`
+ * and `Props<{ id: string }>` remain different when only one side points at a
+ * declared symbol, while `Props<User>` and `Props<Product>` still stay distinct.
  */
 export function areSameTypeDeclarations(
   checker: ts.TypeChecker,
@@ -258,6 +259,7 @@ function areSameTypeArguments(
   const leftSymbol = getComparableDeclaredTypeSymbol(left);
   const rightSymbol = getComparableDeclaredTypeSymbol(right);
   if (leftSymbol || rightSymbol) {
+    // Keep named type arguments distinct from anonymous structural literals.
     return leftSymbol !== undefined && leftSymbol === rightSymbol
       ? areSameTypeDeclarations(checker, left, right)
       : false;

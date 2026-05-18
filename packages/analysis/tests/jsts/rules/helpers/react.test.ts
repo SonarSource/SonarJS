@@ -19,6 +19,7 @@ import type estree from 'estree';
 import { DefaultParserRuleTester, RuleTester } from '../../tools/testers/rule-tester.js';
 import { isRequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
 import {
+  findComponentNode,
   findComponentNodes,
   getComponentVariable,
   getComponentPropsType,
@@ -184,6 +185,69 @@ const findComponentNodesRule: Rule.RuleModule = {
         }
         if (node.key.type === 'Identifier' && node.key.name === 'aliasRelay') {
           validateComponentOwners(node.key, ['AliasChild', 'AliasWrapper']);
+        }
+      },
+    };
+  },
+};
+
+const legacyComponentNodeRule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      unresolvedLegacyComponentOwner:
+        'Legacy component owner could not be resolved from the props type',
+    },
+  },
+  create(context: Rule.RuleContext) {
+    const services = context.sourceCode.parserServices;
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
+
+    return {
+      TSPropertySignature(node) {
+        if (node.key.type !== 'Identifier' || node.key.name !== 'baseRelay') {
+          return;
+        }
+
+        const componentNode = findComponentNode(node.key, context);
+        const componentName = componentNode
+          ? getComponentVariable(context.sourceCode, componentNode)?.name
+          : undefined;
+        if (componentName !== 'Button') {
+          context.report({
+            node: node.key,
+            messageId: 'unresolvedLegacyComponentOwner',
+          });
+        }
+      },
+    };
+  },
+};
+
+const propTypesOwnerRule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      unresolvedPropTypesOwner: 'Component owner could not be resolved from propTypes',
+    },
+  },
+  create(context: Rule.RuleContext) {
+    return {
+      Property(node) {
+        if (node.key.type !== 'Identifier' || node.key.name !== 'label') {
+          return;
+        }
+
+        const componentNames = findComponentNodes(node.key, context)
+          .map(componentNode => getComponentVariable(context.sourceCode, componentNode)?.name)
+          .filter((name): name is string => name !== undefined)
+          .sort();
+
+        if (JSON.stringify(componentNames) !== JSON.stringify(['Button'])) {
+          context.report({
+            node: node.key,
+            messageId: 'unresolvedPropTypesOwner',
+          });
         }
       },
     };
@@ -390,6 +454,23 @@ const AliasChild: React.FC<AliasChildProps> = props => props.title;
 const AliasWrapper: React.FC<SharedAlias> = props => props.aliasRelay;
 `,
     },
+    {
+      code: `
+declare const React: any;
+
+interface ButtonProps {
+  label: string;
+}
+
+class Button extends React.Component {
+  props: ButtonProps;
+
+  render() {
+    return <div>{this.props.label}</div>;
+  }
+}
+`,
+    },
   ],
   invalid: [
     {
@@ -403,4 +484,48 @@ const renderButton = (props: ButtonProps) => props.label;
       errors: 1,
     },
   ],
+});
+
+typeCheckingRuleTester.run('findComponentNode', legacyComponentNodeRule, {
+  valid: [
+    {
+      code: `
+declare const React: any;
+
+interface SharedProps {
+  baseRelay: string;
+}
+
+class Base extends React.Component {
+  props: SharedProps;
+}
+
+class Button extends React.Component {
+  props: SharedProps;
+
+  render() {
+    return <div>{this.props.baseRelay}</div>;
+  }
+}
+`,
+    },
+  ],
+  invalid: [],
+});
+
+ruleTester.run('findComponentNodes / propTypes', propTypesOwnerRule, {
+  valid: [
+    {
+      code: `
+function Button() {
+  return null;
+}
+
+Button.propTypes = {
+  label: true,
+};
+`,
+    },
+  ],
+  invalid: [],
 });

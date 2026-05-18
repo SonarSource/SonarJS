@@ -178,6 +178,28 @@ describe('ReportedTypeDetails', () => {
     );
   });
 
+  it('handles recursive type aliases without looping', () => {
+    const sourceCode = `
+      type Tree = {
+        value: string;
+        left?: Tree;
+        right?: Tree;
+      };
+
+      const treeValue = {} as Tree;
+    `;
+    const { services, ast } = createProgramFromSource(sourceCode);
+    const checker = services.program.getTypeChecker();
+    const value = findNodeWithAncestorsByText(ast, 'value');
+    expect(value).toBeTruthy();
+
+    const reportedType = getReportedEnclosingType(value!.ancestors, services, checker);
+    expect(reportedType?.name).toBe('Tree');
+    expect(reportedType?.isUsedByType(getTypeByIdentifierText(ast, services, 'treeValue'), checker)).toBe(
+      true,
+    );
+  });
+
   it('handles missing symbols, previously-seen symbols, and symbol short-circuits', () => {
     const sourceCode = `
       interface SharedProps {

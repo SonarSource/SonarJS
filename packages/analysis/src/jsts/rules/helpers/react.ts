@@ -19,7 +19,7 @@ import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import { childrenOf, getNodeParent } from './ancestor.js';
-import { isIdentifier } from './ast.js';
+import { getVariableFromScope, isIdentifier } from './ast.js';
 import { getFullyQualifiedName } from './module.js';
 import { isRequiredParserServices, type RequiredParserServices } from './parser-services.js';
 import {
@@ -27,7 +27,7 @@ import {
   ReportedTypeDetails,
   type ReportedEnclosingType,
 } from './reported-type.js';
-import { areMutuallyAssignableTypes, getTypeFromTreeNode } from './type.js';
+import { areMutuallyAssignableTypes, areSameTypeDeclarations, getTypeFromTreeNode } from './type.js';
 
 type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
 type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
@@ -124,6 +124,17 @@ function isVariableAssignedFunctionOrClassExpression(
   );
 }
 
+function findPropTypesAssignmentOwner(
+  reportedNode: estree.Node,
+  sourceCode: SourceCode,
+  propTypesAssignment: estree.AssignmentExpression & {
+    left: estree.MemberExpression & { object: estree.Identifier };
+  },
+): estree.Node | undefined {
+  return getVariableFromScope(sourceCode.getScope(reportedNode), propTypesAssignment.left.object.name)
+    ?.defs[0]?.node as estree.Node | undefined;
+}
+
 /**
  * Returns the React components that own a reported node.
  *
@@ -169,9 +180,7 @@ export function findComponentNodes(node: estree.Node, context: Rule.RuleContext)
     if (!isReactPropTypesAssignment(anc)) {
       continue;
     }
-    const name = anc.left.object.name;
-    const defNode = context.sourceCode.getScope(node).variables.find(v => v.name === name)
-      ?.defs[0]?.node;
+    const defNode = findPropTypesAssignmentOwner(node, context.sourceCode, anc);
     if (defNode) {
       return [defNode];
     }
@@ -208,11 +217,9 @@ export function findComponentNode(
       continue;
     }
 
-    const name = ancestor.left.object.name;
-    const definition = context.sourceCode.getScope(node).variables.find(variable => variable.name === name)
-      ?.defs[0]?.node;
+    const definition = findPropTypesAssignmentOwner(node, context.sourceCode, ancestor);
     if (definition) {
-      return definition as estree.Node;
+      return definition;
     }
   }
 
@@ -274,12 +281,10 @@ export function getComponentPropsType(
 ): ts.Type | undefined {
   const checker = services.program.getTypeChecker();
   if (isFunctionComponentNode(componentNode)) {
-    const firstParam = componentNode.params[0];
-    const propsType = firstParam ? getTypeFromTreeNode(firstParam, services) : undefined;
-    if (isSpecificPropsType(propsType)) {
-      return propsType;
-    }
-    return getComponentPropsTypeFromVariableDeclaration(componentNode, services);
+    return (
+      getFunctionComponentParamPropsType(componentNode, services) ??
+      getComponentPropsTypeFromVariableDeclaration(componentNode, services)
+    );
   }
 
   if (!isClassComponentNode(componentNode)) {
@@ -307,20 +312,24 @@ function getComponentPropsTypeCandidates(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type[] {
+  if (!isFunctionComponentNode(componentNode)) {
+    const propsType = getComponentPropsType(componentNode, services);
+    return propsType ? [propsType] : [];
+  }
+
+  const checker = services.program.getTypeChecker();
   const propsTypes: ts.Type[] = [];
-  const primaryPropsType = getComponentPropsType(componentNode, services);
+  const primaryPropsType = getFunctionComponentParamPropsType(componentNode, services);
   if (primaryPropsType) {
     propsTypes.push(primaryPropsType);
   }
 
-  if (isFunctionComponentNode(componentNode)) {
-    const declaredVariablePropsType = getComponentPropsTypeFromVariableDeclaration(
-      componentNode,
-      services,
-    );
-    if (declaredVariablePropsType && !propsTypes.includes(declaredVariablePropsType)) {
-      propsTypes.push(declaredVariablePropsType);
-    }
+  const declaredVariablePropsType = getComponentPropsTypeFromVariableDeclaration(componentNode, services);
+  if (
+    declaredVariablePropsType &&
+    !(primaryPropsType && areSameTypeDeclarations(checker, primaryPropsType, declaredVariablePropsType))
+  ) {
+    propsTypes.push(declaredVariablePropsType);
   }
 
   return propsTypes;
@@ -328,6 +337,15 @@ function getComponentPropsTypeCandidates(
 
 function isSpecificPropsType(type: ts.Type | undefined): type is ts.Type {
   return !!type && (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) === 0;
+}
+
+function getFunctionComponentParamPropsType(
+  componentNode: estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression,
+  services: RequiredParserServices,
+): ts.Type | undefined {
+  const firstParam = componentNode.params[0];
+  const propsType = firstParam ? getTypeFromTreeNode(firstParam, services) : undefined;
+  return isSpecificPropsType(propsType) ? propsType : undefined;
 }
 
 /**
@@ -438,6 +456,16 @@ export function isReactComponentSuperclass(
   );
 }
 
+function isReactClassSuperName(name: string): boolean {
+  return REACT_LOCAL_CLASS_SUPERS.has(name);
+}
+
+function isQualifiedReactClassSuper(objectName: string | undefined, propertyName: string): boolean {
+  return objectName === undefined
+    ? isReactClassSuperName(propertyName)
+    : objectName === 'React' && isReactClassSuperName(propertyName);
+}
+
 /**
  * Returns true when an ESTree superclass expression syntactically refers to one of React's
  * built-in component base classes:
@@ -452,16 +480,6 @@ export function isReactComponentSuperclass(
  * @param superClass the ESTree superclass expression to inspect
  * @returns `true` when `superClass` syntactically denotes a React base class
  */
-function isReactClassSuperName(name: string): boolean {
-  return REACT_LOCAL_CLASS_SUPERS.has(name);
-}
-
-function isQualifiedReactClassSuper(objectName: string | undefined, propertyName: string): boolean {
-  return objectName === undefined
-    ? isReactClassSuperName(propertyName)
-    : objectName === 'React' && isReactClassSuperName(propertyName);
-}
-
 function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
   return (
     (superClass.type === 'Identifier' && isQualifiedReactClassSuper(undefined, superClass.name)) ||
@@ -723,6 +741,9 @@ function findLegacyOwnerByType(
     ) as ts.Declaration;
 
     if (isClassComponentNode(componentNode)) {
+      if (!hasRenderMethodOrProperty(componentNode)) {
+        continue;
+      }
       if (matchesLegacyClassProps(getClassComponentTsNode(componentNode, services), checker, propsType)) {
         sourceCache.legacyOwnerByTypeDecl.set(typeDecl, componentNode);
         return componentNode;
@@ -754,18 +775,24 @@ function matchesLegacyFunctionProps(
   checker: ts.TypeChecker,
   propsType: ts.Type | undefined,
 ): boolean {
-  const functionName = getComponentIdentifier(componentNode)?.name;
-  if (functionName !== undefined && !/^[A-Z]/.test(functionName)) {
+  if (hasExplicitlyNonComponentFunctionName(componentNode)) {
     return false;
   }
 
+  return areLooselyMutuallyAssignableTypes(
+    checker,
+    propsType,
+    getLegacyFunctionPropsType(tsFuncNode, checker),
+  );
+}
+
+function getLegacyFunctionPropsType(
+  tsFuncNode: ts.SignatureDeclaration,
+  checker: ts.TypeChecker,
+): ts.Type | undefined {
   const signature = checker.getSignatureFromDeclaration(tsFuncNode);
   const firstParam = signature?.parameters[0];
-  if (!firstParam) {
-    return false;
-  }
-
-  return areLooselyMutuallyAssignableTypes(checker, propsType, checker.getTypeOfSymbol(firstParam));
+  return firstParam ? checker.getTypeOfSymbol(firstParam) : undefined;
 }
 
 function areLooselyMutuallyAssignableTypes(
@@ -824,6 +851,11 @@ function getReportedTypeMember(
 function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
   const componentIdentifier = getComponentIdentifier(componentNode);
   return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
+}
+
+function hasExplicitlyNonComponentFunctionName(componentNode: estree.Node): boolean {
+  const componentIdentifier = getComponentIdentifier(componentNode);
+  return componentIdentifier !== undefined && !/^[A-Z]/.test(componentIdentifier.name);
 }
 
 /**
