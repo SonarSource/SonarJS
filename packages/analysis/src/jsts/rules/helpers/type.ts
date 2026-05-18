@@ -187,6 +187,112 @@ export function isAny(type: ts.Type) {
 }
 
 /**
+ * Returns true when both types are specific enough to compare (neither `any`
+ * nor `unknown`) and are mutually assignable.
+ *
+ * Mutual assignability is stricter than symbol equality for generic aliases:
+ * `Props<User>` and `Props<Product>` share the same alias symbol, but they are
+ * not mutually assignable and therefore do not represent the same effective type.
+ */
+export function areMutuallyAssignableTypes(
+  checker: ts.TypeChecker,
+  left: ts.Type | undefined,
+  right: ts.Type | undefined,
+): boolean {
+  if (!left || !right || isAnyOrUnknownType(left) || isAnyOrUnknownType(right)) {
+    return false;
+  }
+
+  // @ts-ignore -- isTypeAssignableTo is a private TypeScript API
+  return checker.isTypeAssignableTo(left, right) && checker.isTypeAssignableTo(right, left);
+}
+
+/**
+ * Returns true when both types resolve to the same declared type symbol and, for
+ * generic declarations, the same instantiated type arguments.
+ *
+ * Unlike structural assignability, this keeps unrelated declarations with the
+ * same shape distinct, while still distinguishing `Props<User>` from
+ * `Props<Product>`.
+ */
+export function areSameTypeDeclarations(
+  checker: ts.TypeChecker,
+  left: ts.Type | undefined,
+  right: ts.Type | undefined,
+): boolean {
+  if (!left || !right || isAnyOrUnknownType(left) || isAnyOrUnknownType(right)) {
+    return false;
+  }
+
+  const leftSymbol = getComparableDeclaredTypeSymbol(left);
+  const rightSymbol = getComparableDeclaredTypeSymbol(right);
+  if (!leftSymbol || leftSymbol !== rightSymbol) {
+    return false;
+  }
+
+  const leftArgs = getDeclaredTypeArguments(left, checker);
+  const rightArgs = getDeclaredTypeArguments(right, checker);
+  return (
+    leftArgs.length === rightArgs.length &&
+    leftArgs.every((argument, index) => areSameTypeArguments(checker, argument, rightArgs[index]))
+  );
+}
+
+function areSameTypeArguments(
+  checker: ts.TypeChecker,
+  left: ts.Type | undefined,
+  right: ts.Type | undefined,
+): boolean {
+  if (!left || !right) {
+    return false;
+  }
+
+  if (isAnyOrUnknownType(left) || isAnyOrUnknownType(right)) {
+    return (
+      isAnyOrUnknownType(left) &&
+      isAnyOrUnknownType(right) &&
+      checker.typeToString(left) === checker.typeToString(right)
+    );
+  }
+
+  const leftSymbol = getComparableDeclaredTypeSymbol(left);
+  const rightSymbol = getComparableDeclaredTypeSymbol(right);
+  if (leftSymbol || rightSymbol) {
+    return leftSymbol !== undefined && leftSymbol === rightSymbol
+      ? areSameTypeDeclarations(checker, left, right)
+      : false;
+  }
+
+  // Primitives, unions, tuples, and anonymous object literals do not have a
+  // stable declared type symbol, so compare their effective instantiated form.
+  return checker.typeToString(left) === checker.typeToString(right);
+}
+
+function isAnyOrUnknownType(type: ts.Type): boolean {
+  return (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0;
+}
+
+function getComparableDeclaredTypeSymbol(type: ts.Type): ts.Symbol | undefined {
+  const symbol = type.aliasSymbol ?? type.symbol;
+  return symbol && (symbol.flags & ts.SymbolFlags.TypeLiteral) === 0 ? symbol : undefined;
+}
+
+function getDeclaredTypeArguments(type: ts.Type, checker: ts.TypeChecker): readonly ts.Type[] {
+  if (type.aliasTypeArguments?.length) {
+    return type.aliasTypeArguments;
+  }
+
+  return isTypeReference(type) ? checker.getTypeArguments(type) : [];
+}
+
+function isTypeReference(type: ts.Type): type is ts.TypeReference {
+  return (
+    (type.flags & ts.TypeFlags.Object) !== 0 &&
+    ((type as ts.ObjectType).objectFlags & ts.ObjectFlags.Reference) !== 0
+  );
+}
+
+/**
  * Checks if a node has a generic type like:
  *
  * function foo<T> (bar: T) {

@@ -20,32 +20,52 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { findComponentNode } from '../helpers/react.js';
+import { findComponentNode, findComponentNodes } from '../helpers/react.js';
 import { hasOwnCustomSuperclassPropsForwarding } from './custom-superclass-forwarding.js';
 import { hasForwardRefCallbackPropUsage } from './forward-ref-indirect-prop-usage.js';
 import * as meta from './generated-meta.js';
 import { hasSupportedWholePropsUsage } from './whole-props-usage.js';
+
+function allMatch(componentNodes: estree.Node[], predicate: (componentNode: estree.Node) => boolean) {
+  return componentNodes.length > 0 && componentNodes.every(predicate);
+}
+
+function matchesExistingEscape(
+  componentNode: estree.Node,
+  context: Rule.RuleContext,
+  propName: string | undefined,
+): boolean {
+  return (
+    hasSupportedWholePropsUsage(componentNode, context) ||
+    hasOwnCustomSuperclassPropsForwarding(componentNode) ||
+    hasForwardRefCallbackPropUsage(componentNode, context, propName)
+  );
+}
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
       const { node } = descriptor as { node: estree.Node };
-      const componentNode = findComponentNode(node, context);
-      if (
-        componentNode &&
-        (hasSupportedWholePropsUsage(componentNode, context) ||
-          hasOwnCustomSuperclassPropsForwarding(componentNode))
-      ) {
-        return;
-      }
-      // Suppress FP only when the specific reported prop is referenced inside a forwardRef callback.
       const { data } = descriptor as { data?: Record<string, string> };
       const propName = data?.name;
+      const componentNodes = findComponentNodes(node, context);
+      if (componentNodes.length === 0) {
+        const legacyComponentNode = findComponentNode(node, context);
+        if (legacyComponentNode && matchesExistingEscape(legacyComponentNode, context, propName)) {
+          return;
+        }
+      }
+      if (allMatch(componentNodes, componentNode => hasSupportedWholePropsUsage(componentNode, context))) {
+        return;
+      }
+      if (allMatch(componentNodes, componentNode => hasOwnCustomSuperclassPropsForwarding(componentNode))) {
+        return;
+      }
       if (
-        propName &&
-        componentNode &&
-        hasForwardRefCallbackPropUsage(componentNode, context, propName)
+        allMatch(componentNodes, componentNode =>
+          hasForwardRefCallbackPropUsage(componentNode, context, propName),
+        )
       ) {
         return;
       }
