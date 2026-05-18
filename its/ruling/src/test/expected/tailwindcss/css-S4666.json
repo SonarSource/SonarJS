@@ -1,22 +1,42 @@
 {
 "tailwindcss:__tests__/fixtures/tailwind-output-flagged.css": [
-448,
-485
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+19542
 ],
 "tailwindcss:__tests__/fixtures/tailwind-output-important.css": [
-448,
-485
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+19542
 ],
 "tailwindcss:__tests__/fixtures/tailwind-output-no-color-opacity.css": [
-448,
-485
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+17696
 ],
 "tailwindcss:__tests__/fixtures/tailwind-output.css": [
-448,
-485
-],
-"tailwindcss:src/plugins/css/preflight.css": [
-148,
-185
+56,
+366,
+376,
+420,
+453,
+485,
+502,
+19542
 ]
 }
