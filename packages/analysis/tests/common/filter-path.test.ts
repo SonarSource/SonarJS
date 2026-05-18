@@ -17,19 +17,8 @@
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { filterPathAndGetFileType, isJsTsExcluded } from '../../src/common/filter/filter-path.js';
-import { createConfiguration, type Configuration } from '../../src/common/configuration.js';
+import { createConfiguration, getFilterPathParams } from '../../src/common/configuration.js';
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
-
-function getFilterPathParams(config: Configuration) {
-  return {
-    sourcesPaths: config.sources.length ? config.sources : [config.baseDir],
-    testPaths: config.tests,
-    inclusions: config.inclusions,
-    exclusions: config.exclusions,
-    testInclusions: config.testInclusions,
-    testExclusions: config.testExclusions,
-  };
-}
 
 function logsContain(message: string) {
   return expect(
@@ -280,6 +269,48 @@ describe('filter path', () => {
       });
       const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
       expect(result).toBe('MAIN');
+    });
+
+    it('should classify .test.<customSuffix> as TEST when jsSuffixes is extended', () => {
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.dummy');
+      const config = createConfiguration({
+        baseDir: '/project',
+        sources: ['src'],
+        jsSuffixes: ['.js', '.dummy'],
+      });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+
+    it('should not classify .test.<unconfiguredSuffix> as TEST', () => {
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.dummy');
+      const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('MAIN');
+    });
+
+    it('should fall back to default TS extensions when TS suffixes are empty', () => {
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
+      const config = createConfiguration({
+        baseDir: '/project',
+        sources: ['src'],
+        jsSuffixes: ['.js'],
+        tsSuffixes: [],
+      });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+
+    it('should fall back to default JS extensions when JS suffixes are empty', () => {
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.js');
+      const config = createConfiguration({
+        baseDir: '/project',
+        sources: ['src'],
+        jsSuffixes: [],
+        tsSuffixes: ['.ts'],
+      });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
     });
   });
 });

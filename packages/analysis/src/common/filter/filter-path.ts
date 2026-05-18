@@ -19,7 +19,7 @@ import { type NormalizedAbsolutePath } from '../../../../shared/src/helpers/file
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { FileType } from '../../contracts/file.js';
 import { type FilterPathParams } from '../configuration.js';
-import { TEST_RELATED_FILE_PATTERN } from '../../jsts/rules/helpers/test-file-pattern.js';
+import { isTestRelatedFile } from '../../jsts/rules/helpers/test-file-pattern.js';
 
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
@@ -72,16 +72,19 @@ export function filterPathAndGetFileType(
   debug(`File ignored due to analysis scope filters: ${filePath}`);
 }
 
-function looksLikeTestFile(filePath: NormalizedAbsolutePath): boolean {
-  return TEST_RELATED_FILE_PATTERN.test(filePath);
-}
-
 function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolutePath[]): boolean {
   return paths.some(path => filePath === path || filePath.startsWith(`${path}/`));
 }
 
 function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
-  const { testPaths, testExclusions, testInclusions, inclusions, sourcesPaths } = params;
+  const {
+    testPaths,
+    testExclusions,
+    testInclusions,
+    inclusions,
+    sourcesPaths,
+    testFileExtensions,
+  } = params;
 
   // If `sonar.tests` is not configured, fall back to the filename heuristic — unless the file
   // qualifies as MAIN via the user's `sonar.inclusions` (which narrows `sonar.sources`), in which
@@ -94,7 +97,7 @@ function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams):
     ) {
       return false;
     }
-    const doesLookLikeTestFile = looksLikeTestFile(filePath);
+    const doesLookLikeTestFile = isTestRelatedFile(filePath, testFileExtensions);
     if (doesLookLikeTestFile) {
       debug(
         `Test file detected: ${filePath}. If this file should not be treated as a test, please configure sonar.tests or adjust your sonar.sources/sonar.inclusions to explicitly include it as MAIN.`,
