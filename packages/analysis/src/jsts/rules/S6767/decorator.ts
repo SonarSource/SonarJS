@@ -16,219 +16,229 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6767/javascript
 
-import type { Rule, Scope, SourceCode } from 'eslint';
+import type { TSESTree } from '@typescript-eslint/utils';
+import type { Rule } from 'eslint';
 import type estree from 'estree';
-import type { JSXSpreadAttribute } from 'estree-jsx';
-import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
-import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
-import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
+// eslint-disable-next-line import/no-internal-modules
+import ReactComponents from 'eslint-plugin-react/lib/util/Components.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { findComponentNode } from '../helpers/react.js';
+import { findComponentNodes } from '../helpers/react.js';
+import { hasOwnCustomSuperclassPropsForwarding } from './custom-superclass-forwarding.js';
+import { hasDecoratorPropUsage } from './decorator-indirect-prop-usage.js';
+import { hasForwardRefCallbackPropUsage } from './forward-ref-indirect-prop-usage.js';
 import * as meta from './generated-meta.js';
+import { isUsedAsReactComponentNonPropsType } from './react-non-props-usage.js';
+import { hasSupportedWholePropsUsage } from './whole-props-usage.js';
 
-/** Composable pattern checkers — extend via Array.some() for future FP patterns. */
-const propsArgPatterns: Array<(arg: estree.Node) => boolean> = [
-  arg => isIdentifier(arg, 'props'),
-  arg =>
-    arg.type === 'MemberExpression' &&
-    arg.object.type === 'ThisExpression' &&
-    isIdentifier(arg.property, 'props'),
-];
+type RuleConfiguration = {
+  ignore: string[];
+  skipShapeProps: boolean;
+};
+type UsedPropType = {
+  allNames?: string[];
+  name: string;
+};
+type ReportedPropNode = TSESTree.Node & {
+  key?: estree.Node;
+  typeAnnotation?: TSESTree.TSTypeAnnotation;
+};
+type ReportedProp = {
+  children?: ReportedProps;
+  fullName?: string;
+  name: string;
+  node?: ReportedPropNode;
+  type?: string;
+};
+type ReportedProps = Record<string, ReportedProp | true> | true;
+type ReactComponent = {
+  declaredPropTypes?: ReportedProps;
+  ignoreUnusedPropTypesValidation?: boolean;
+  node: estree.Node;
+  usedPropTypes?: UsedPropType[];
+};
+type ReactComponentsRegistry = {
+  list(): Record<string, ReactComponent>;
+};
+type ComponentNodePredicate = (
+  componentNode: estree.Node,
+  context: Rule.RuleContext,
+  propName: string | undefined,
+) => boolean;
 
-/** Composable callee checkers for forwardRef call detection. */
-const forwardRefCalleePatterns: Array<(callee: estree.Expression | estree.Super) => boolean> = [
-  callee => isIdentifier(callee, 'forwardRef'),
-  callee =>
-    callee.type === 'MemberExpression' &&
-    isIdentifier(callee.object, 'React') &&
-    isIdentifier(callee.property, 'forwardRef'),
-];
+const Components = ReactComponents as unknown as {
+  detect(
+    rule: (context: Rule.RuleContext, components: ReactComponentsRegistry) => Rule.RuleListener,
+  ): (context: Rule.RuleContext) => Rule.RuleListener;
+};
 
-export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return interceptReportForReact(
-    { ...rule, meta: generateMeta(meta, rule.meta) },
-    (context, descriptor) => {
-      const { node } = descriptor as { node: estree.Node };
-      const componentNode = findComponentNode(node, context);
-      if (
-        componentNode &&
-        (hasPropsCall(componentNode, context.sourceCode.visitorKeys) ||
-          hasOwnCustomSuperclassPropsForwarding(componentNode))
-      ) {
-        return;
-      }
-      // Suppress FP only when the specific reported prop is referenced inside a forwardRef callback.
-      const { data } = descriptor as { data?: Record<string, string> };
-      const propName = data?.name;
-      if (
-        propName &&
-        componentNode &&
-        hasPropMemberReference(context.sourceCode, componentNode, propName)
-      ) {
-        return;
-      }
-      context.report(descriptor);
-    },
-  );
-}
-
-function hasOwnCustomSuperclassPropsForwarding(componentNode: estree.Node): boolean {
-  if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
-    return false;
-  }
-
-  const superClass = componentNode.superClass;
-  if (superClass == null || isBuiltinReactSuperclass(superClass)) {
-    return false;
-  }
-
-  return componentNode.body.body.some(
-    member =>
-      member.type === 'MethodDefinition' &&
-      member.kind === 'constructor' &&
-      member.value.body?.body.some(isWholePropsSuperCallStatement) === true,
-  );
-}
-
-function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
+function allMatch(
+  componentNodes: estree.Node[],
+  predicate: ComponentNodePredicate,
+  context: Rule.RuleContext,
+  propName: string | undefined,
+): boolean {
   return (
-    isIdentifier(superClass, 'Component') ||
-    isIdentifier(superClass, 'PureComponent') ||
-    (superClass.type === 'MemberExpression' &&
-      isIdentifier(superClass.object, 'React') &&
-      (isIdentifier(superClass.property, 'Component') ||
-        isIdentifier(superClass.property, 'PureComponent')))
+    componentNodes.length > 0 &&
+    componentNodes.every(componentNode => predicate(componentNode, context, propName))
   );
 }
 
-function isWholePropsSuperCallStatement(statement: estree.Statement): boolean {
-  if (
-    statement.type !== 'ExpressionStatement' ||
-    statement.expression.type !== 'CallExpression' ||
-    statement.expression.callee.type !== 'Super'
-  ) {
-    return false;
+function mustBeValidated(component: ReactComponent): boolean {
+  return !component.ignoreUnusedPropTypesValidation;
+}
+
+function getConfiguration(context: Rule.RuleContext): RuleConfiguration {
+  return {
+    ignore: [],
+    skipShapeProps: true,
+    ...(context.options[0] as Partial<RuleConfiguration> | undefined),
+  };
+}
+
+function isIgnored(name: string, configuration: RuleConfiguration): boolean {
+  return configuration.ignore.includes(name);
+}
+
+function isPropUsed(component: ReactComponent, prop: ReportedProp): boolean {
+  const usedPropTypes = component.usedPropTypes ?? [];
+  return usedPropTypes.some(
+    usedProp =>
+      prop.type === 'shape' ||
+      prop.type === 'exact' ||
+      prop.name === '__ANY_KEY__' ||
+      usedProp.name === prop.name,
+  );
+}
+
+function shouldSuppressUnusedPropType(
+  componentNode: estree.Node,
+  node: estree.Node,
+  context: Rule.RuleContext,
+  propName: string,
+): boolean {
+  // FP remediation escape 1:
+  // upstream can misreport React class non-props generic declarations such as
+  // state or snapshot types as unused props; suppress only for the component
+  // whose current report comes from that non-props slot.
+  if (isUsedAsReactComponentNonPropsType(node, componentNode, context)) {
+    return true;
   }
 
-  // This decorator intentionally treats direct whole-props forwarding to a custom
-  // superclass as sufficient usage. Deeper validation of actual superclass prop
-  // consumption is intentionally out of scope for this decorator-based design, even
-  // though that accepts a small false-negative risk when forwarded props are not read.
-  return statement.expression.arguments.some(argument =>
-    isIdentifier(argument as estree.Node, 'props'),
-  );
+  const componentNodes = findComponentNodes(node, context);
+
+  // FP remediation escape 2:
+  // the component already consumes whole props through a supported pattern such as
+  // helper-call forwarding, spread usage, or computed access.
+  if (allMatch(componentNodes, hasSupportedWholePropsUsage, context, propName)) {
+    return true;
+  }
+
+  // FP remediation escape 3:
+  // the component constructor forwards `props` to its own non-React superclass,
+  // which this decorator treats as sufficient indirect usage.
+  if (allMatch(componentNodes, hasOwnCustomSuperclassPropsForwarding, context, propName)) {
+    return true;
+  }
+
+  // FP remediation escape 4:
+  // the specific reported prop is consumed inside a `forwardRef` callback that
+  // closes over the component's original props binding.
+  if (allMatch(componentNodes, hasForwardRefCallbackPropUsage, context, propName)) {
+    return true;
+  }
+
+  // FP remediation escape 5:
+  // the specific reported prop is consumed through a typed decorator callback,
+  // either on a decorator factory call or on a class decorator annotation.
+  return allMatch(componentNodes, hasDecoratorPropUsage, context, propName);
+}
+
+function reportUnusedPropType(
+  context: Rule.RuleContext,
+  component: ReactComponent,
+  props: ReportedProps,
+  configuration: RuleConfiguration,
+): void {
+  if (props === true) {
+    return;
+  }
+
+  Object.values(props ?? {}).forEach(prop => {
+    if (prop === true) {
+      return;
+    }
+
+    if ((prop.type === 'shape' || prop.type === 'exact') && configuration.skipShapeProps) {
+      return;
+    }
+
+    if (
+      prop.node?.typeAnnotation?.typeAnnotation.type === 'TSNeverKeyword' ||
+      !prop.node ||
+      isPropUsed(component, prop)
+    ) {
+      if (prop.children) {
+        reportUnusedPropType(context, component, prop.children, configuration);
+      }
+      return;
+    }
+
+    const propName = prop.fullName ?? prop.name;
+    if (isIgnored(propName, configuration)) {
+      if (prop.children) {
+        reportUnusedPropType(context, component, prop.children, configuration);
+      }
+      return;
+    }
+
+    const reportNode = (prop.node.key ?? prop.node) as unknown as estree.Node;
+    if (!shouldSuppressUnusedPropType(component.node, reportNode, context, propName)) {
+      context.report({
+        messageId: 'unusedPropType',
+        node: reportNode,
+        data: { name: propName },
+      });
+    }
+
+    if (prop.children) {
+      reportUnusedPropType(context, component, prop.children, configuration);
+    }
+  });
 }
 
 /**
- * Returns true only when `propName` is referenced through the component's actual
- * first parameter binding and the matching member access sits inside a forwardRef callback.
+ * Decorates `react/no-unused-prop-types` with SonarJS-specific false-positive
+ * remediations for indirect props usage patterns:
+ * - React class state/snapshot type declarations misreported as props by upstream
+ * - supported whole-props handoff patterns
+ * - forwarding to a custom non-React superclass
+ * - `forwardRef` callbacks that close over the component props binding
+ * - typed decorator callbacks that consume component props indirectly
  */
-function hasPropMemberReference(
-  sourceCode: SourceCode,
-  componentNode: estree.Node,
-  propName: string,
-): boolean {
-  if (!isFunctionNode(componentNode)) {
-    return false;
-  }
+export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
+  return {
+    meta: generateMeta(meta, rule.meta),
+    create: Components.detect((context, components) => {
+      const configuration = getConfiguration(context);
 
-  const propsParam = componentNode.params[0];
-  if (!isIdentifier(propsParam)) {
-    return false;
-  }
-
-  const variable = sourceCode.getScope(componentNode).set.get(propsParam.name);
-  if (!variable) {
-    return false;
-  }
-
-  return variable.references.some(reference =>
-    isPropReferenceInForwardRefCallback(reference, propName),
-  );
-}
-
-function isPropReferenceInForwardRefCallback(
-  reference: Scope.Reference,
-  propName: string,
-): boolean {
-  const memberExpression = getNodeParent(reference.identifier);
-  if (
-    memberExpression?.type !== 'MemberExpression' ||
-    memberExpression.object !== reference.identifier ||
-    memberExpression.computed ||
-    !isIdentifier(memberExpression.property, propName)
-  ) {
-    return false;
-  }
-
-  // Walk up ancestors. Track `prev` so that when we find a forwardRef CallExpression
-  // we can confirm the reference sits inside its first argument (the render callback),
-  // not in the callee position or a later argument.
-  let prev: estree.Node = memberExpression;
-  let current: estree.Node | undefined = getNodeParent(memberExpression);
-  while (current) {
-    if (current.type === 'CallExpression') {
-      const call = current;
-      if (
-        forwardRefCalleePatterns.some(pattern => pattern(call.callee)) &&
-        call.arguments[0] === prev
-      ) {
-        return true;
+      function reportUnusedPropTypes(component: ReactComponent) {
+        reportUnusedPropType(
+          context,
+          component,
+          component.declaredPropTypes ?? true,
+          configuration,
+        );
       }
-    }
-    prev = current;
-    current = getNodeParent(current);
-  }
-  return false;
-}
 
-function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {
-  if (!root) {
-    return false;
-  }
-
-  // Check if this is a CallExpression with props as argument
-  if (root.type === 'CallExpression') {
-    const call = root as estree.CallExpression;
-    if (
-      call.callee.type !== 'Super' &&
-      !isPropTypesCheckCall(call) &&
-      call.arguments.some(a => propsArgPatterns.some(p => p(a as estree.Node)))
-    ) {
-      return true;
-    }
-  }
-
-  // Check if this is a SpreadElement with props (for {...props} in JSX)
-  if (root.type === 'SpreadElement' && propsArgPatterns.some(p => p(root.argument))) {
-    return true;
-  }
-
-  // Check if this is a JSXSpreadAttribute with props (for {...props} or {...this.props} in JSX elements)
-  if (
-    root.type === 'JSXSpreadAttribute' &&
-    propsArgPatterns.some(p => p((root as unknown as JSXSpreadAttribute).argument))
-  ) {
-    return true;
-  }
-
-  // Check if this is a computed MemberExpression with props (for props[key] or this.props[key])
-  if (
-    root.type === 'MemberExpression' &&
-    root.computed &&
-    propsArgPatterns.some(p => p(root.object))
-  ) {
-    return true;
-  }
-
-  // Recursively check all children
-  return childrenOf(root, keys).some(child => hasPropsCall(child, keys));
-}
-
-function isPropTypesCheckCall(call: estree.CallExpression): boolean {
-  return (
-    call.callee.type === 'MemberExpression' &&
-    isIdentifier(call.callee.object, 'PropTypes') &&
-    isIdentifier(call.callee.property, 'checkPropTypes')
-  );
+      return {
+        'Program:exit'() {
+          Object.values(components.list())
+            .filter(component => mustBeValidated(component))
+            .forEach(component => {
+              reportUnusedPropTypes(component);
+            });
+        },
+      };
+    }),
+  };
 }
