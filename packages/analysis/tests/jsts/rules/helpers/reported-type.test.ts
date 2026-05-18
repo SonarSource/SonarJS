@@ -177,4 +177,49 @@ describe('ReportedTypeDetails', () => {
       true,
     );
   });
+
+  it('handles missing symbols, previously-seen symbols, and symbol short-circuits', () => {
+    const sourceCode = `
+      interface SharedProps {
+        sharedValue: string;
+      }
+
+      interface ChildProps extends SharedProps {
+        title: string;
+      }
+
+      const childPropsValue = {} as ChildProps;
+    `;
+    const { services, ast } = createProgramFromSource(sourceCode);
+    const checker = services.program.getTypeChecker();
+    const sharedValue = findNodeWithAncestorsByText(ast, 'sharedValue');
+    expect(sharedValue).toBeTruthy();
+
+    const reportedType = getReportedEnclosingType(sharedValue!.ancestors, services, checker);
+    expect(reportedType).toBeDefined();
+
+    const childPropsType = getTypeByIdentifierText(ast, services, 'childPropsValue');
+    const childPropsSymbol = childPropsType.aliasSymbol ?? childPropsType.symbol;
+    expect(childPropsSymbol).toBeDefined();
+
+    const withoutReportedSymbol = new ReportedTypeDetails(
+      reportedType!.name,
+      reportedType!.declaration,
+      reportedType!.tsNode,
+      reportedType!.tsType,
+      undefined,
+    );
+    expect(withoutReportedSymbol.isUsedByType(childPropsType, checker)).toBe(false);
+
+    expect(reportedType!.isUsedByType(childPropsType, checker, new Set([childPropsSymbol!]))).toBe(false);
+
+    const sameSymbolShortcut = new ReportedTypeDetails(
+      reportedType!.name,
+      reportedType!.declaration,
+      reportedType!.tsNode,
+      checker.getNeverType(),
+      reportedType!.tsTypeSymbol,
+    );
+    expect(sameSymbolShortcut.isUsedByType(reportedType!.tsType, checker)).toBe(true);
+  });
 });

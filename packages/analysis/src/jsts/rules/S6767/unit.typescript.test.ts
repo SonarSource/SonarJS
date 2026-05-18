@@ -188,6 +188,24 @@ class ForwardedOnlyPanel extends CounterPanelBase {
 `,
           filename: fixtureFile,
         },
+        {
+          // FP: anonymous function components wrapped in a HOC still need the legacy
+          // single-owner fallback until the stacked non-props escape lands. The
+          // actual suppression still comes from the forwardRef callback escape.
+          code: `
+declare const React: any;
+interface WrappedProps {
+  label: string;
+}
+const Wrapped = React.memo(function (props: WrappedProps) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label ref={ref}>{props.label}</label>
+  ));
+  return <ForwardedInput />;
+});
+`,
+          filename: fixtureFile,
+        },
       ],
       invalid: [
         {
