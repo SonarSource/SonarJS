@@ -495,26 +495,6 @@ function isReactComponentHeritageSuperclass(superclass: ts.ExpressionWithTypeArg
   );
 }
 
-/**
- * Returns true when a callee expression refers to React's `forwardRef`, either as
- * a bare identifier or as `React.forwardRef`.
- *
- * **Limitation:** this is a syntax-only check and does not resolve import aliases.
- * Calls such as `import { forwardRef as fwdRef } from 'react'; fwdRef(...)` are
- * intentionally left unmatched here.
- *
- * @param callee the ESTree callee expression to inspect
- * @returns `true` when `callee` denotes React's `forwardRef`
- */
-function isForwardRefCallee(callee: estree.Expression | estree.Super): boolean {
-  return (
-    isIdentifier(callee, 'forwardRef') ||
-    (callee.type === 'MemberExpression' &&
-      isIdentifier(callee.object, 'React') &&
-      isIdentifier(callee.property, 'forwardRef'))
-  );
-}
-
 function getDeclaredClassPropsType(
   classNode: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
@@ -549,23 +529,6 @@ function getClassPropsPropertyType(
     ? checker.getDeclaredTypeOfSymbol(classSymbol).getProperty('props')
     : undefined;
   return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
-}
-
-function getDeclaredClassNonPropsTypes(
-  classNode: ts.ClassLikeDeclaration,
-  checker: ts.TypeChecker,
-): ts.Type[] {
-  const extendsClause = classNode.heritageClauses?.find(
-    clause => clause.token === ts.SyntaxKind.ExtendsKeyword,
-  );
-  const reactSuperclass = extendsClause?.types.find(type =>
-    isReactComponentHeritageSuperclass(type),
-  );
-  return (
-    reactSuperclass?.typeArguments
-      ?.slice(1)
-      .map(typeArgument => checker.getTypeAtLocation(typeArgument)) ?? []
-  );
 }
 
 /**
