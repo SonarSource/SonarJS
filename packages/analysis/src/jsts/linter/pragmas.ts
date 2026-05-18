@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Linter, Rule } from 'eslint';
+import { SourceCode as ESLintSourceCode, type Linter, type Rule, type SourceCode } from 'eslint';
 import type estree from 'estree';
 import merge from 'lodash.merge';
 import * as ruleMetas from '../rules/metas.js';
@@ -53,16 +53,27 @@ for (const [sonarKey, rawMeta] of Object.entries(ruleMetas)) {
   registerRuleAlias(
     meta.eslintId,
     ruleId,
-    meta.externalPlugin
-      ? getExternalRuleDefinition(meta.externalPlugin, meta.eslintId)
-      : ruleModule,
+    (meta.externalPlugin ? getExternalRuleDefinition(meta.externalPlugin, meta.eslintId) : ruleModule) ??
+      ruleModule,
   );
+  if (meta.externalPlugin) {
+    registerRuleAlias(
+      getScopedExternalRuleId(meta.externalPlugin, meta.eslintId),
+      ruleId,
+      getExternalRuleDefinition(meta.externalPlugin, meta.eslintId) ?? ruleModule,
+    );
+  }
   if (meta.implementation === 'decorated') {
     for (const externalRule of meta.externalRules ?? []) {
       registerRuleAlias(
         externalRule.externalRule,
         ruleId,
-        getExternalRuleDefinition(externalRule.externalPlugin, externalRule.externalRule),
+        getExternalRuleDefinition(externalRule.externalPlugin, externalRule.externalRule) ?? ruleModule,
+      );
+      registerRuleAlias(
+        getScopedExternalRuleId(externalRule.externalPlugin, externalRule.externalRule),
+        ruleId,
+        getExternalRuleDefinition(externalRule.externalPlugin, externalRule.externalRule) ?? ruleModule,
       );
     }
   }
@@ -76,6 +87,10 @@ function registerRuleAlias(
   if (directiveRuleDefinition) {
     eslintMapping[alias] = { ruleId, directiveRuleDefinition };
   }
+}
+
+function getScopedExternalRuleId(externalPlugin: string, externalRule: string): string {
+  return `${externalPlugin === 'typescript-eslint' ? '@typescript-eslint' : externalPlugin}/${externalRule}`;
 }
 
 function normalizeInlineRuleOptions(
@@ -102,6 +117,109 @@ function normalizeInlineRuleOptions(
  */
 function getRuleId(ruleId: string | null) {
   return ruleId?.split('/').at(-1)!;
+}
+
+export function patchSourceCodeComments(sourceCode: SourceCode): SourceCode {
+  const patchedSourceCode = new ESLintSourceCode({
+    text: sourceCode.text,
+    ast: sourceCode.ast,
+    hasBOM: sourceCode.hasBOM,
+    parserServices: sourceCode.parserServices,
+    visitorKeys: sourceCode.visitorKeys,
+    scopeManager: sourceCode.scopeManager,
+  });
+
+  for (const comment of patchedSourceCode.getAllComments()) {
+    if (!comment.value.includes('eslint')) {
+      continue;
+    }
+    comment.value = replaceRuleAliases(comment.value);
+  }
+  return patchedSourceCode;
+}
+
+export function filterMessagesSuppressedByRuleAlias(
+  sourceCode: SourceCode,
+  messages: Linter.LintMessage[],
+): Linter.LintMessage[] {
+  return messages.filter(message => {
+    if (!message.ruleId?.startsWith('sonarjs/')) {
+      return true;
+    }
+    const sonarKey = message.ruleId.slice('sonarjs/'.length);
+    const aliases = getRuleAliases(sonarKey);
+    if (aliases.length === 0) {
+      return true;
+    }
+    const lines = sourceCode.getLines();
+    const sameLineComment = lines[message.line - 1] ?? '';
+    const previousLineComment = lines[message.line - 2] ?? '';
+    return !(
+      disablesRuleAlias(sameLineComment, 'eslint-disable-line', aliases) ||
+      disablesRuleAlias(previousLineComment, 'eslint-disable-next-line', aliases)
+    );
+  });
+}
+
+function getRuleAliases(sonarKey: string): string[] {
+  const ruleMeta = ruleMetas[sonarKey as keyof typeof ruleMetas] as SonarMeta | undefined;
+  if (!ruleMeta) {
+    return [];
+  }
+  const aliases = [ruleMeta.eslintId, `sonarjs/${ruleMeta.eslintId}`];
+  if (ruleMeta.externalPlugin) {
+    const scopedExternalRuleId = getScopedExternalRuleId(ruleMeta.externalPlugin, ruleMeta.eslintId);
+    aliases.push(scopedExternalRuleId, `sonarjs/${scopedExternalRuleId}`);
+  }
+  if (ruleMeta.implementation === 'decorated') {
+    for (const externalRule of ruleMeta.externalRules ?? []) {
+      const scopedExternalRuleId = getScopedExternalRuleId(
+        externalRule.externalPlugin,
+        externalRule.externalRule,
+      );
+      aliases.push(externalRule.externalRule);
+      aliases.push(`sonarjs/${externalRule.externalRule}`);
+      aliases.push(scopedExternalRuleId);
+      aliases.push(`sonarjs/${scopedExternalRuleId}`);
+    }
+  }
+  return aliases;
+}
+
+function disablesRuleAlias(line: string, directive: string, aliases: string[]): boolean {
+  if (!line.includes(directive)) {
+    return false;
+  }
+  return aliases.some(alias => line.includes(alias));
+}
+
+function replaceRuleAliases(value: string): string {
+  let patchedValue = value;
+  for (const [alias, mapping] of Object.entries(eslintMapping)) {
+    const defaultOptions = mapping.directiveRuleDefinition.meta?.defaultOptions;
+    if (!defaultOptions?.length) {
+      continue;
+    }
+    patchedValue = patchedValue.replace(
+      new RegExp(`(?<![/\\w@-])${escapeRegExp(alias)}\\s*:\\s*([012]|error|warn|off)\\b`, 'g'),
+      `${mapping.ruleId}: [$1, ${defaultOptions.map(option => JSON.stringify(option)).join(', ')}]`,
+    );
+  }
+  return patchedValue.replaceAll(/(?:@[\w-]+\/)?[\w-]+\/[\w-]+|\b[\w-]+\b/g, ruleId => {
+    const sonarJsAlias = ruleId.startsWith('sonarjs/') ? ruleId.slice('sonarjs/'.length) : undefined;
+    if (sonarJsAlias && /^S\d+$/.test(sonarJsAlias)) {
+      return ruleId;
+    }
+    const mappedRule =
+      eslintMapping[ruleId] ??
+      (sonarJsAlias ? eslintMapping[sonarJsAlias] : undefined) ??
+      eslintMapping[getRuleId(ruleId)];
+    return mappedRule ? mappedRule.ruleId : ruleId;
+  });
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 export function createOptions(filename: NormalizedAbsolutePath): Linter.LintOptions & {

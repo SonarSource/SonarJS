@@ -64,7 +64,7 @@ type PredicateAssertion = AssertionBase & {
  */
 type ComparisonAssertion = AssertionBase & {
   kind: 'comparison';
-  comparison: 'identity';
+  comparison: 'strict' | 'deep' | 'loose';
   actual: estree.Node;
   expected: estree.Node;
 };
@@ -83,7 +83,13 @@ const JEST_PREDICATES_MAPPING: Record<string, AssertionPredicate> = {
 };
 
 // https://nodejs.org/api/assert.html
-type NodeAssertMethod = 'assert' | 'ok' | 'strictEqual' | 'notStrictEqual';
+type NodeAssertMethod =
+  | 'assert'
+  | 'ok'
+  | 'strictEqual'
+  | 'notStrictEqual'
+  | 'deepStrictEqual'
+  | 'notDeepStrictEqual';
 
 // https://www.chaijs.com/api/assert/
 // `equal` / `notEqual` use `==` while `strictEqual` / `notStrictEqual` use `===`; both are still
@@ -104,7 +110,9 @@ type ChaiAssertMethod =
   | 'equal'
   | 'notEqual'
   | 'strictEqual'
-  | 'notStrictEqual';
+  | 'notStrictEqual'
+  | 'deepEqual'
+  | 'notDeepEqual';
 
 export function extractTestAssertion(
   context: Rule.RuleContext,
@@ -166,14 +174,15 @@ function extractExpectAssertion(expectCall: estree.Node): Assertion | null {
     };
   }
 
-  if (matcher.name === 'toBe' && expectCall.arguments.length === 1) {
+  const comparison = getJestComparison(matcher.name);
+  if (comparison && expectCall.arguments.length === 1) {
     const expected = getArgumentAtIndex(expectCall, 0);
     if (!expected) {
       return null;
     }
     return {
       kind: 'comparison',
-      comparison: 'identity',
+      comparison,
       actual,
       expected,
       negated: chain.negated,
@@ -183,6 +192,18 @@ function extractExpectAssertion(expectCall: estree.Node): Assertion | null {
   }
 
   return null;
+}
+
+function getJestComparison(name: string): ComparisonAssertion['comparison'] | null {
+  switch (name) {
+    case 'toBe':
+      return 'strict';
+    case 'toEqual':
+    case 'toStrictEqual':
+      return 'deep';
+    default:
+      return null;
+  }
 }
 
 function extractExpectChain(node: estree.Node): {
@@ -279,13 +300,26 @@ function extractChaiAssertAssertion(
 
   return {
     kind: 'comparison',
-    comparison: 'identity',
+    comparison: getChaiAssertComparison(assertCall.method),
     actual,
     expected,
-    negated: assertCall.method === 'notStrictEqual' || assertCall.method === 'notEqual',
+    negated: assertCall.method.startsWith('not'),
     node,
     reportNode: assertCall.reportNode,
   };
+}
+
+function getChaiAssertComparison(method: ChaiAssertMethod): ComparisonAssertion['comparison'] {
+  switch (method) {
+    case 'equal':
+    case 'notEqual':
+      return 'loose';
+    case 'deepEqual':
+    case 'notDeepEqual':
+      return 'deep';
+    default:
+      return 'strict';
+  }
 }
 
 function getChaiAssertCall(
@@ -339,6 +373,8 @@ function getChaiAssertMethodFromName(name: string): ChaiAssertMethod | null {
     case 'notEqual':
     case 'strictEqual':
     case 'notStrictEqual':
+    case 'deepEqual':
+    case 'notDeepEqual':
       return name;
     default:
       return null;
@@ -387,12 +423,13 @@ function extractChaiExpectCallAssertion(
   }
 
   const matcher = node.callee.property.name;
-  if (!isChaiIdentityMatcher(matcher)) {
+  const comparison = getChaiComparison(matcher, node.callee.object);
+  if (!comparison) {
     return null;
   }
 
   const chain = extractChaiExpectChain(context, node.callee.object, allowGlobal);
-  if (!chain || chain.properties.includes('deep')) {
+  if (!chain) {
     return null;
   }
 
@@ -403,7 +440,7 @@ function extractChaiExpectCallAssertion(
 
   return {
     kind: 'comparison',
-    comparison: 'identity',
+    comparison,
     actual: chain.actual,
     expected,
     negated: chain.negated,
@@ -491,12 +528,13 @@ function extractChaiShouldCallAssertion(node: estree.CallExpression): Assertion 
   }
 
   const matcher = node.callee.property.name;
-  if (!isChaiIdentityMatcher(matcher)) {
+  const comparison = getChaiComparison(matcher, node.callee.object);
+  if (!comparison) {
     return null;
   }
 
   const chain = extractChaiShouldChain(node.callee.object);
-  if (!chain || chain.properties.includes('deep')) {
+  if (!chain) {
     return null;
   }
 
@@ -507,7 +545,7 @@ function extractChaiShouldCallAssertion(node: estree.CallExpression): Assertion 
 
   return {
     kind: 'comparison',
-    comparison: 'identity',
+    comparison,
     actual: chain.actual,
     expected,
     negated: chain.negated,
@@ -565,7 +603,9 @@ function extractChaiShouldChain(
   return null;
 }
 
-function extractMemberChain(node: estree.Node): { base: estree.Node; properties: string[] } | null {
+export function extractMemberChain(
+  node: estree.Node,
+): { base: estree.Node; properties: string[] } | null {
   const properties: string[] = [];
   let current = node;
 
@@ -580,8 +620,18 @@ function extractMemberChain(node: estree.Node): { base: estree.Node; properties:
   return { base: current, properties };
 }
 
-function isChaiIdentityMatcher(name: string): boolean {
-  return name === 'equal' || name === 'equals' || name === 'eq';
+function getChaiComparison(
+  matcher: string,
+  chainNode: estree.Node,
+): ComparisonAssertion['comparison'] | null {
+  if (matcher === 'eql' || matcher === 'eqls') {
+    return 'deep';
+  }
+  if (matcher === 'equal' || matcher === 'equals' || matcher === 'eq') {
+    const chain = extractMemberChain(chainNode);
+    return chain?.properties.includes('deep') ? 'deep' : 'strict';
+  }
+  return null;
 }
 
 function getChaiPropertyPredicate(
@@ -638,13 +688,23 @@ function extractNodeJSAssertion(
 
   return {
     kind: 'comparison',
-    comparison: 'identity',
+    comparison: getNodeJSComparison(assertCall.method),
     actual,
     expected,
-    negated: assertCall.method === 'notStrictEqual',
+    negated: assertCall.method.startsWith('not'),
     node,
     reportNode: assertCall.reportNode,
   };
+}
+
+function getNodeJSComparison(method: NodeAssertMethod): ComparisonAssertion['comparison'] {
+  switch (method) {
+    case 'deepStrictEqual':
+    case 'notDeepStrictEqual':
+      return 'deep';
+    default:
+      return 'strict';
+  }
 }
 
 function getNodeJSAssertCall(
@@ -682,6 +742,12 @@ function getNodeJSAssertMethodFromFqn(fqn: string | null): NodeAssertMethod | nu
     case 'assert.notStrictEqual':
     case 'assert.strict.notStrictEqual':
       return 'notStrictEqual';
+    case 'assert.deepStrictEqual':
+    case 'assert.strict.deepStrictEqual':
+      return 'deepStrictEqual';
+    case 'assert.notDeepStrictEqual':
+    case 'assert.strict.notDeepStrictEqual':
+      return 'notDeepStrictEqual';
     default:
       return null;
   }
@@ -695,6 +761,8 @@ function getNodeJSAssertMethodFromName(name: string): NodeAssertMethod | null {
     case 'ok':
     case 'strictEqual':
     case 'notStrictEqual':
+    case 'deepStrictEqual':
+    case 'notDeepStrictEqual':
       return name;
     default:
       return null;
@@ -723,6 +791,23 @@ function extractCypressChainAssertion(node: estree.Node): Assertion | null {
     return null;
   }
 
+  const comparison = parseCypressComparisonString(predicateArg.value);
+  if (comparison) {
+    const expected = getArgumentAtIndex(node, 1);
+    if (!expected) {
+      return null;
+    }
+    return {
+      kind: 'comparison',
+      comparison,
+      actual: subject,
+      expected,
+      negated: predicateArg.value.split('.').includes('not'),
+      node,
+      reportNode: node.callee.property,
+    };
+  }
+
   const parsed = parseCypressPredicateString(predicateArg.value);
   if (!parsed) {
     return null;
@@ -736,6 +821,21 @@ function extractCypressChainAssertion(node: estree.Node): Assertion | null {
     node,
     reportNode: subject,
   };
+}
+
+function parseCypressComparisonString(predicate: string): ComparisonAssertion['comparison'] | null {
+  const parts = predicate.split('.');
+  let idx = 0;
+  if (parts[idx] === 'not') {
+    idx++;
+  }
+  if (parts[idx] === 'deep' && parts[idx + 1] === 'equal') {
+    return 'deep';
+  }
+  if (parts[idx] === 'equal') {
+    return 'strict';
+  }
+  return null;
 }
 
 function extractCyWrapSubject(node: estree.Node): estree.Node | null {
