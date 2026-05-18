@@ -178,6 +178,115 @@ Wrapper.propTypes = {
     });
   });
 
+  it('upstream rule should report decorator callback FP patterns', () => {
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types (upstream, decorator callbacks)', upstreamRule, {
+      valid: [
+        {
+          // upstream tracks typed class decorator callback member reads
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAnnotationProps {
+  contextModule: string;
+  userId: string;
+}
+@track((props: DecoratorAnnotationProps) => ({
+  context_module: props.contextModule,
+  user_id: props.userId,
+}))
+class DecoratorAnnotationComponent extends React.Component<DecoratorAnnotationProps> {
+  props: DecoratorAnnotationProps;
+  render() {
+    return <div />;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [
+        {
+          // decorator-factory callback member reads
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorFactoryProps {
+  contextModule: string;
+  userId: string;
+}
+function DecoratorFactoryComponent(props: DecoratorFactoryProps) {
+  return <div />;
+}
+track((props: DecoratorFactoryProps) => ({
+  context_module: props.contextModule,
+  user_id: props.userId,
+}))(DecoratorFactoryComponent);
+`,
+          filename: fixtureFile,
+          errors: 2,
+        },
+        {
+          // decorator-factory callback whole-props forwarding
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function screenTrack<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorHelperProps {
+  screenName: string;
+}
+function DecoratorHelperComponent(props: DecoratorHelperProps) {
+  return <main />;
+}
+screenTrack(function (props: DecoratorHelperProps) {
+  return buildPayload(props);
+})(DecoratorHelperComponent);
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // class decorator callback whole-props forwarding
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function screenTrack<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAnnotationHelperProps {
+  screenName: string;
+}
+@screenTrack(function (props: DecoratorAnnotationHelperProps) {
+  return buildPayload(props);
+})
+class DecoratorAnnotationHelperComponent extends React.Component<DecoratorAnnotationHelperProps> {
+  props: DecoratorAnnotationHelperProps;
+  render() {
+    return <main />;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('upstream rule should NOT report state interface properties when TypeScript type info is available', () => {
     // Confirms that the upstream rule uses TypeScript type information to distinguish
     // state types from props types. AnchorState (used as the second type parameter of

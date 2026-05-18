@@ -57,7 +57,7 @@ function hasSupportedWholePropsUsageInSubtree(
  * Ignored pseudo code:
  *   PropTypes.checkPropTypes(props, ...)
  */
-function isSupportedWholePropsUsage(
+export function isSupportedWholePropsUsage(
   node: estree.Node,
   isPropsArgument: (argument: estree.Node) => boolean,
 ): boolean {
