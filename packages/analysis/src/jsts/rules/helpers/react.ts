@@ -712,13 +712,7 @@ function findLegacyOwnerByType(
     return undefined;
   }
 
-  let typeDecl: estree.Node | undefined;
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    if (TS_TYPE_DECL_TYPES.has(ancestors[i].type)) {
-      typeDecl = ancestors[i];
-      break;
-    }
-  }
+  const typeDecl = findLegacyOwnerTypeDeclaration(ancestors);
   if (!typeDecl) {
     return undefined;
   }
@@ -734,31 +728,52 @@ function findLegacyOwnerByType(
   const componentNodes =
     sourceCache.componentNodes ??
     (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
+  const legacyOwner = findMatchingLegacyOwner(componentNodes, services, checker, propsType);
+  sourceCache.legacyOwnerByTypeDecl.set(typeDecl, legacyOwner ?? null);
+  return legacyOwner ?? undefined;
+}
 
-  for (const componentNode of componentNodes) {
-    const tsNode = services.esTreeNodeToTSNodeMap.get(
-      componentNode as TSESTree.Node,
-    ) as ts.Declaration;
-
-    if (isClassComponentNode(componentNode)) {
-      if (!hasRenderMethodOrProperty(componentNode)) {
-        continue;
-      }
-      if (matchesLegacyClassProps(getClassComponentTsNode(componentNode, services), checker, propsType)) {
-        sourceCache.legacyOwnerByTypeDecl.set(typeDecl, componentNode);
-        return componentNode;
-      }
-    } else if (
-      isFunctionComponentNode(componentNode) &&
-      matchesLegacyFunctionProps(componentNode, tsNode as ts.SignatureDeclaration, checker, propsType)
-    ) {
-      sourceCache.legacyOwnerByTypeDecl.set(typeDecl, componentNode);
-      return componentNode;
+function findLegacyOwnerTypeDeclaration(ancestors: estree.Node[]): estree.Node | undefined {
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    if (TS_TYPE_DECL_TYPES.has(ancestors[i].type)) {
+      return ancestors[i];
     }
   }
-
-  sourceCache.legacyOwnerByTypeDecl.set(typeDecl, null);
   return undefined;
+}
+
+function findMatchingLegacyOwner(
+  componentNodes: estree.Node[],
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+  propsType: ts.Type | undefined,
+): estree.Node | undefined {
+  return componentNodes.find(componentNode =>
+    isMatchingLegacyOwner(componentNode, services, checker, propsType),
+  );
+}
+
+function isMatchingLegacyOwner(
+  componentNode: estree.Node,
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+  propsType: ts.Type | undefined,
+): boolean {
+  if (isClassComponentNode(componentNode)) {
+    return (
+      hasRenderMethodOrProperty(componentNode) &&
+      matchesLegacyClassProps(getClassComponentTsNode(componentNode, services), checker, propsType)
+    );
+  }
+
+  if (!isFunctionComponentNode(componentNode)) {
+    return false;
+  }
+
+  const tsNode = services.esTreeNodeToTSNodeMap.get(
+    componentNode as TSESTree.Node,
+  ) as ts.SignatureDeclaration;
+  return matchesLegacyFunctionProps(componentNode, tsNode, checker, propsType);
 }
 
 function matchesLegacyClassProps(
