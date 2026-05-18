@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
       const statements = node.body;
 
       if (statements.length === 1) {
-        suspectBodies.push(statements[0] as Node);
+        suspectBodies.push(statements[0]);
       }
     };
 
@@ -140,7 +140,7 @@ export const rule: Rule.RuleModule = {
           if (!hasSideEffects(node.consequent) && !hasSideEffects(node.alternate)) {
             return;
           }
-          suspectTestNodes.push(node.test as Node);
+          suspectTestNodes.push(node.test);
         }
       },
       IfStatement: node => {
