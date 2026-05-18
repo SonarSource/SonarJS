@@ -67,7 +67,7 @@
     <jgit.version>7.6.0.202603022253-r</jgit.version>
     <junit.version>6.0.3</junit.version>
     <mockito.version>5.23.0</mockito.version>
-    <slf4j.version>2.0.17</slf4j.version>
+    <slf4j.version>2.0.18</slf4j.version>
     <jetbrains.annotations.version>26.1.0</jetbrains.annotations.version>
     <sonar.version>26.5.0.122743</sonar.version>
     <sonar.api.version>13.6.0.4371</sonar.api.version>
