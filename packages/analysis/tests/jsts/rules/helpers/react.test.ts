@@ -19,7 +19,6 @@ import type estree from 'estree';
 import { DefaultParserRuleTester, RuleTester } from '../../tools/testers/rule-tester.js';
 import { isRequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
 import {
-  findComponentNode,
   findComponentNodes,
   getComponentVariable,
   getComponentPropsType,
@@ -185,40 +184,6 @@ const findComponentNodesRule: Rule.RuleModule = {
         }
         if (node.key.type === 'Identifier' && node.key.name === 'aliasRelay') {
           validateComponentOwners(node.key, ['AliasChild', 'AliasWrapper']);
-        }
-      },
-    };
-  },
-};
-
-const legacyComponentNodeRule: Rule.RuleModule = {
-  meta: {
-    messages: {
-      unresolvedLegacyComponentOwner:
-        'Legacy component owner could not be resolved from the props type',
-    },
-  },
-  create(context: Rule.RuleContext) {
-    const services = context.sourceCode.parserServices;
-    if (!isRequiredParserServices(services)) {
-      return {};
-    }
-
-    return {
-      TSPropertySignature(node) {
-        if (node.key.type !== 'Identifier' || node.key.name !== 'baseRelay') {
-          return;
-        }
-
-        const componentNode = findComponentNode(node.key, context);
-        const componentName = componentNode
-          ? getComponentVariable(context.sourceCode, componentNode)?.name
-          : undefined;
-        if (componentName !== 'Button') {
-          context.report({
-            node: node.key,
-            messageId: 'unresolvedLegacyComponentOwner',
-          });
         }
       },
     };
@@ -484,33 +449,6 @@ const renderButton = (props: ButtonProps) => props.label;
       errors: 1,
     },
   ],
-});
-
-typeCheckingRuleTester.run('findComponentNode', legacyComponentNodeRule, {
-  valid: [
-    {
-      code: `
-declare const React: any;
-
-interface SharedProps {
-  baseRelay: string;
-}
-
-class Base extends React.Component {
-  props: SharedProps;
-}
-
-class Button extends React.Component {
-  props: SharedProps;
-
-  render() {
-    return <div>{this.props.baseRelay}</div>;
-  }
-}
-`,
-    },
-  ],
-  invalid: [],
 });
 
 ruleTester.run('findComponentNodes / propTypes', propTypesOwnerRule, {

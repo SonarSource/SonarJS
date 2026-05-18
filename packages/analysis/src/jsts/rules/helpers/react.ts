@@ -34,7 +34,6 @@ type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
 type SourceCache = {
   componentNodes: estree.Node[] | undefined;
   ownersByReportNode: WeakMap<estree.Node, estree.Node[] | null>;
-  legacyOwnerByTypeDecl: WeakMap<estree.Node, estree.Node | null>;
 };
 
 const COMPONENT_NODE_TYPES = new Set([
@@ -44,7 +43,6 @@ const COMPONENT_NODE_TYPES = new Set([
   'FunctionExpression',
   'ArrowFunctionExpression',
 ]);
-const TS_TYPE_DECL_TYPES = new Set(['TSInterfaceDeclaration', 'TSTypeAliasDeclaration']);
 const REACT_QUALIFIED_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
 const REACT_LOCAL_CLASS_SUPERS = new Set(['Component', 'PureComponent']);
 const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
@@ -188,42 +186,6 @@ export function findComponentNodes(node: estree.Node, context: Rule.RuleContext)
 
   // Strategy C: TypeScript type checker — match the props interface to its owning component
   return findComponentOwnersByType(node, ancestors, context, context.sourceCode.visitorKeys);
-}
-
-/**
- * Legacy single-owner resolution kept as a compatibility fallback.
- *
- * The PR2 owner-resolution fix intentionally stops matching contextually typed
- * function components through `any` / `unknown`, but some pre-existing
- * suppressions still depend on that behavior until the dedicated non-props
- * escape lands in a later stacked PR. Callers should prefer `findComponentNodes`
- * and only use this when the new multi-owner lookup found no owners.
- */
-export function findComponentNode(
-  node: estree.Node,
-  context: Rule.RuleContext,
-): estree.Node | undefined {
-  const ancestors = context.sourceCode.getAncestors(node);
-
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    if (COMPONENT_NODE_TYPES.has(ancestors[i].type)) {
-      return ancestors[i];
-    }
-  }
-
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    const ancestor = ancestors[i];
-    if (!isReactPropTypesAssignment(ancestor)) {
-      continue;
-    }
-
-    const definition = findPropTypesAssignmentOwner(node, context.sourceCode, ancestor);
-    if (definition) {
-      return definition;
-    }
-  }
-
-  return findLegacyOwnerByType(ancestors, context, context.sourceCode.visitorKeys);
 }
 
 /**
@@ -695,132 +657,10 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
     cache = {
       componentNodes: undefined,
       ownersByReportNode: new WeakMap<estree.Node, estree.Node[] | null>(),
-      legacyOwnerByTypeDecl: new WeakMap<estree.Node, estree.Node | null>(),
     };
     perSourceCache.set(sourceCode, cache);
   }
   return cache;
-}
-
-function findLegacyOwnerByType(
-  ancestors: estree.Node[],
-  context: Rule.RuleContext,
-  keys: SourceCode.VisitorKeys,
-): estree.Node | undefined {
-  const services = context.sourceCode.parserServices;
-  if (!isRequiredParserServices(services)) {
-    return undefined;
-  }
-
-  const typeDecl = findLegacyOwnerTypeDeclaration(ancestors);
-  if (!typeDecl) {
-    return undefined;
-  }
-
-  const sourceCache = getSourceCache(context.sourceCode);
-  const cachedOwner = sourceCache.legacyOwnerByTypeDecl.get(typeDecl);
-  if (cachedOwner !== undefined) {
-    return cachedOwner ?? undefined;
-  }
-
-  const checker = services.program.getTypeChecker();
-  const propsType = getTypeFromTreeNode(typeDecl, services);
-  const componentNodes =
-    sourceCache.componentNodes ??
-    (sourceCache.componentNodes = collectComponentNodes(context.sourceCode.ast, keys));
-  const legacyOwner = findMatchingLegacyOwner(componentNodes, services, checker, propsType);
-  sourceCache.legacyOwnerByTypeDecl.set(typeDecl, legacyOwner ?? null);
-  return legacyOwner ?? undefined;
-}
-
-function findLegacyOwnerTypeDeclaration(ancestors: estree.Node[]): estree.Node | undefined {
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    if (TS_TYPE_DECL_TYPES.has(ancestors[i].type)) {
-      return ancestors[i];
-    }
-  }
-  return undefined;
-}
-
-function findMatchingLegacyOwner(
-  componentNodes: estree.Node[],
-  services: RequiredParserServices,
-  checker: ts.TypeChecker,
-  propsType: ts.Type | undefined,
-): estree.Node | undefined {
-  return componentNodes.find(componentNode =>
-    isMatchingLegacyOwner(componentNode, services, checker, propsType),
-  );
-}
-
-function isMatchingLegacyOwner(
-  componentNode: estree.Node,
-  services: RequiredParserServices,
-  checker: ts.TypeChecker,
-  propsType: ts.Type | undefined,
-): boolean {
-  if (isClassComponentNode(componentNode)) {
-    return (
-      hasRenderMethodOrProperty(componentNode) &&
-      matchesLegacyClassProps(getClassComponentTsNode(componentNode, services), checker, propsType)
-    );
-  }
-
-  if (!isFunctionComponentNode(componentNode)) {
-    return false;
-  }
-
-  const tsNode = services.esTreeNodeToTSNodeMap.get(
-    componentNode as TSESTree.Node,
-  ) as ts.SignatureDeclaration;
-  return matchesLegacyFunctionProps(componentNode, tsNode, checker, propsType);
-}
-
-function matchesLegacyClassProps(
-  classNode: ts.ClassLikeDeclaration,
-  checker: ts.TypeChecker,
-  propsType: ts.Type | undefined,
-): boolean {
-  return areLooselyMutuallyAssignableTypes(checker, propsType, getClassPropsPropertyType(classNode, checker));
-}
-
-function matchesLegacyFunctionProps(
-  componentNode: estree.Node,
-  tsFuncNode: ts.SignatureDeclaration,
-  checker: ts.TypeChecker,
-  propsType: ts.Type | undefined,
-): boolean {
-  if (hasExplicitlyNonComponentFunctionName(componentNode)) {
-    return false;
-  }
-
-  return areLooselyMutuallyAssignableTypes(
-    checker,
-    propsType,
-    getLegacyFunctionPropsType(tsFuncNode, checker),
-  );
-}
-
-function getLegacyFunctionPropsType(
-  tsFuncNode: ts.SignatureDeclaration,
-  checker: ts.TypeChecker,
-): ts.Type | undefined {
-  const signature = checker.getSignatureFromDeclaration(tsFuncNode);
-  const firstParam = signature?.parameters[0];
-  return firstParam ? checker.getTypeOfSymbol(firstParam) : undefined;
-}
-
-function areLooselyMutuallyAssignableTypes(
-  checker: ts.TypeChecker,
-  left: ts.Type | undefined,
-  right: ts.Type | undefined,
-): boolean {
-  if (!left || !right) {
-    return false;
-  }
-
-  // @ts-ignore -- isTypeAssignableTo is a private TypeScript API
-  return checker.isTypeAssignableTo(left, right) && checker.isTypeAssignableTo(right, left);
 }
 
 /**
@@ -866,11 +706,6 @@ function getReportedTypeMember(
 function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
   const componentIdentifier = getComponentIdentifier(componentNode);
   return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
-}
-
-function hasExplicitlyNonComponentFunctionName(componentNode: estree.Node): boolean {
-  const componentIdentifier = getComponentIdentifier(componentNode);
-  return componentIdentifier !== undefined && !/^[A-Z]/.test(componentIdentifier.name);
 }
 
 /**
