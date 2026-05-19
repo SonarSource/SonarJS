@@ -1,28 +1,6 @@
 {
-"tailwindcss:__tests__/containerPlugin.test.js": [
-6
-],
 "tailwindcss:__tests__/fixtures/purge-example.html": [
 18
-],
-"tailwindcss:__tests__/parseObjectStyles.test.js": [
-4
-],
-"tailwindcss:__tests__/plugins/animation.test.js": [
-5
-],
-"tailwindcss:__tests__/processPlugins.test.js": [
-7,
-11
-],
-"tailwindcss:__tests__/purgeUnusedStyles.test.js": [
-8,
-22,
-32,
-64
-],
-"tailwindcss:__tests__/util/produce.js": [
-3
 ],
 "tailwindcss:jest/customMatchers.js": [
 4

@@ -2,19 +2,7 @@
 "console:sortSchema.ts": [
 0
 ],
-"console:src/__mocks__/cookiestore.ts": [
-0
-],
-"console:src/__mocks__/lokka.ts": [
-0
-],
-"console:src/__mocks__/redux-mock-store.ts": [
-0
-],
 "console:src/actions/codeGeneration.ts": [
-0
-],
-"console:src/actions/databrowser/__tests__/data.ts": [
 0
 ],
 "console:src/actions/databrowser/data.ts": [
@@ -389,9 +377,6 @@
 "console:src/reducers/codeGeneration.ts": [
 0
 ],
-"console:src/reducers/databrowser/__tests__/data.ts": [
-0
-],
 "console:src/reducers/databrowser/data.ts": [
 0
 ],
@@ -459,12 +444,6 @@
 0
 ],
 "console:src/utils/QueryHistoryStorage.ts": [
-0
-],
-"console:src/utils/__tests__/graphql.ts": [
-0
-],
-"console:src/utils/__tests__/nameValidator.ts": [
 0
 ],
 "console:src/utils/change.ts": [
@@ -1178,36 +1157,6 @@
 "console:src/views/models/DatabrowserView/Cell/StringCell.tsx": [
 0
 ],
-"console:src/views/models/DatabrowserView/Cell/__tests__/BooleanCell.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/DateTimeCell.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/DefaultCell.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/EnumCell.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/FloatCell.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/IntCell.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/JsonCell.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/NullableCell.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/ScalarListCell.tsx": [
-0
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/StringCell.tsx": [
-0
-],
 "console:src/views/models/DatabrowserView/Cell/cellgenerator.tsx": [
 0
 ],
@@ -1250,9 +1199,6 @@
 "console:src/views/models/DatabrowserView/RelationsPopup.tsx": [
 0
 ],
-"console:src/views/models/DatabrowserView/__tests__/Cell.tsx": [
-0
-],
 "console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
 0
 ],
@@ -1293,9 +1239,6 @@
 0
 ],
 "console:src/views/models/FieldPopup/OptionInput.tsx": [
-0
-],
-"console:src/views/models/FieldPopup/__tests__/FieldPopupStateTest.ts": [
 0
 ],
 "console:src/views/models/FieldPopup/constants.ts": [

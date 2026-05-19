@@ -53,34 +53,10 @@
 "templating:src/util/ng_polymer.js": [
 0
 ],
-"templating:test/example/greet.spec.js": [
-0
-],
-"templating:test/example/ngmodel.spec.js": [
-0
-],
 "templating:test/example/shadow-dom-util.js": [
 0
 ],
-"templating:test/example/tab.spec.js": [
-0
-],
-"templating:test/example/todo.spec.js": [
-0
-],
-"templating:test/example/video.spec.js": [
-0
-],
-"templating:test/lib/compiler/compiler.spec.js": [
-0
-],
 "templating:test/lib/dom_mocks.js": [
-0
-],
-"templating:test/lib/util/document_ready.spec.js": [
-0
-],
-"templating:test/lib/util/tree_array.spec.js": [
 0
 ],
 "templating:test/unit-test-main.js": [

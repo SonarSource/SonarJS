@@ -1,8 +1,4 @@
 {
-"console:src/actions/databrowser/__tests__/data.ts": [
-3,
-4
-],
 "console:src/actions/databrowser/data.ts": [
 6,
 13
@@ -357,9 +353,6 @@
 "console:src/mutations/UpdateSearchProviderAlgolia.ts": [
 1
 ],
-"console:src/reducers/databrowser/__tests__/data.ts": [
-6
-],
 "console:src/reducers/databrowser/data.ts": [
 4
 ],
@@ -385,9 +378,6 @@
 ],
 "console:src/types/reducers.ts": [
 6
-],
-"console:src/utils/__tests__/nameValidator.ts": [
-3
 ],
 "console:src/utils/classnames.ts": [
 1
@@ -1237,36 +1227,6 @@
 "console:src/views/models/DatabrowserView/Cell/StringCell.tsx": [
 1
 ],
-"console:src/views/models/DatabrowserView/Cell/__tests__/BooleanCell.tsx": [
-1
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/DateTimeCell.tsx": [
-1
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/DefaultCell.tsx": [
-1
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/EnumCell.tsx": [
-1
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/FloatCell.tsx": [
-1
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/IntCell.tsx": [
-1
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/JsonCell.tsx": [
-1
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/NullableCell.tsx": [
-1
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/ScalarListCell.tsx": [
-1
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/StringCell.tsx": [
-1
-],
 "console:src/views/models/DatabrowserView/Cell/cellgenerator.tsx": [
 2
 ],
@@ -1313,9 +1273,6 @@
 2,
 3,
 8
-],
-"console:src/views/models/DatabrowserView/__tests__/Cell.tsx": [
-1
 ],
 "console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
 1

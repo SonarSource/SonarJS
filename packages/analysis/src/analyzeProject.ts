@@ -24,7 +24,12 @@ import { analyzeWithIncrementalProgram } from './analyzeWithIncrementalProgram.j
 import { analyzeWithoutProgram } from './analyzeWithoutProgram.js';
 import { Linter } from './jsts/linter/linter.js';
 import { linter as cssLinter } from './css/linter/wrapper.js';
-import { type Configuration, getJsTsConfigFields, isJsTsFile } from './common/configuration.js';
+import {
+  type Configuration,
+  getFilterPathParams,
+  getJsTsConfigFields,
+  isJsTsFile,
+} from './common/configuration.js';
 import { info, error } from '../../shared/src/helpers/logging.js';
 import { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
@@ -76,6 +81,7 @@ export async function analyzeProject(
   resetProjectAnalysisTelemetry();
   const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);
+  const { testFileExtensions } = getFilterPathParams(configuration);
   await Linter.initialize({
     rules,
     environments,
@@ -83,6 +89,7 @@ export async function analyzeProject(
     bundles,
     baseDir,
     rulesWorkdir,
+    testFileExtensions,
   });
 
   // Initialize CSS linter with active CSS rules (mirrors Linter.initialize for JS/TS).

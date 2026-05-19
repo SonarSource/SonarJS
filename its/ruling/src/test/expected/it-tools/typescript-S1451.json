@@ -44,9 +44,6 @@
 "it-tools:src/composable/computedRefreshable.ts": [
 0
 ],
-"it-tools:src/composable/downloadBase64.test.ts": [
-0
-],
 "it-tools:src/composable/downloadBase64.ts": [
 0
 ],
@@ -54,9 +51,6 @@
 0
 ],
 "it-tools:src/composable/queryParams.ts": [
-0
-],
-"it-tools:src/composable/validation.test.ts": [
 0
 ],
 "it-tools:src/composable/validation.ts": [
@@ -194,9 +188,6 @@
 "it-tools:src/tools/case-converter/index.ts": [
 0
 ],
-"it-tools:src/tools/chmod-calculator/chmod-calculator.service.test.ts": [
-0
-],
 "it-tools:src/tools/chmod-calculator/chmod-calculator.service.ts": [
 0
 ],
@@ -209,9 +200,6 @@
 "it-tools:src/tools/chmod-calculator/index.ts": [
 0
 ],
-"it-tools:src/tools/chronometer/chronometer.service.test.ts": [
-0
-],
 "it-tools:src/tools/chronometer/chronometer.service.ts": [
 0
 ],
@@ -219,12 +207,6 @@
 0
 ],
 "it-tools:src/tools/chronometer/index.ts": [
-0
-],
-"it-tools:src/tools/color-converter/color-converter.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/color-converter/color-converter.models.test.ts": [
 0
 ],
 "it-tools:src/tools/color-converter/color-converter.models.ts": [
@@ -240,12 +222,6 @@
 0
 ],
 "it-tools:src/tools/crontab-generator/index.ts": [
-0
-],
-"it-tools:src/tools/date-time-converter/date-time-converter.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/date-time-converter/date-time-converter.models.test.ts": [
 0
 ],
 "it-tools:src/tools/date-time-converter/date-time-converter.models.ts": [
@@ -308,9 +284,6 @@
 "it-tools:src/tools/git-memo/index.ts": [
 0
 ],
-"it-tools:src/tools/hash-text/hash-text.service.test.ts": [
-0
-],
 "it-tools:src/tools/hash-text/hash-text.service.ts": [
 0
 ],
@@ -350,16 +323,10 @@
 "it-tools:src/tools/http-status-codes/http-status-codes.constants.ts": [
 0
 ],
-"it-tools:src/tools/http-status-codes/http-status-codes.e2e.spec.ts": [
-0
-],
 "it-tools:src/tools/http-status-codes/http-status-codes.vue": [
 0
 ],
 "it-tools:src/tools/http-status-codes/index.ts": [
-0
-],
-"it-tools:src/tools/iban-validator-and-parser/iban-validator-and-parser.e2e.spec.ts": [
 0
 ],
 "it-tools:src/tools/iban-validator-and-parser/iban-validator-and-parser.service.ts": [
@@ -377,9 +344,6 @@
 "it-tools:src/tools/integer-base-converter/index.ts": [
 0
 ],
-"it-tools:src/tools/integer-base-converter/integer-base-converter.model.test.ts": [
-0
-],
 "it-tools:src/tools/integer-base-converter/integer-base-converter.model.ts": [
 0
 ],
@@ -389,9 +353,6 @@
 "it-tools:src/tools/ipv4-address-converter/index.ts": [
 0
 ],
-"it-tools:src/tools/ipv4-address-converter/ipv4-address-converter.service.test.ts": [
-0
-],
 "it-tools:src/tools/ipv4-address-converter/ipv4-address-converter.service.ts": [
 0
 ],
@@ -399,12 +360,6 @@
 0
 ],
 "it-tools:src/tools/ipv4-range-expander/index.ts": [
-0
-],
-"it-tools:src/tools/ipv4-range-expander/ipv4-range-expander.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/ipv4-range-expander/ipv4-range-expander.service.test.ts": [
 0
 ],
 "it-tools:src/tools/ipv4-range-expander/ipv4-range-expander.service.ts": [
@@ -443,12 +398,6 @@
 "it-tools:src/tools/json-diff/index.ts": [
 0
 ],
-"it-tools:src/tools/json-diff/json-diff.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/json-diff/json-diff.models.test.ts": [
-0
-],
 "it-tools:src/tools/json-diff/json-diff.models.ts": [
 0
 ],
@@ -467,12 +416,6 @@
 "it-tools:src/tools/json-to-csv/index.ts": [
 0
 ],
-"it-tools:src/tools/json-to-csv/json-to-csv.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/json-to-csv/json-to-csv.service.test.ts": [
-0
-],
 "it-tools:src/tools/json-to-csv/json-to-csv.service.ts": [
 0
 ],
@@ -482,16 +425,10 @@
 "it-tools:src/tools/json-to-toml/index.ts": [
 0
 ],
-"it-tools:src/tools/json-to-toml/json-to-toml.e2e.spec.ts": [
-0
-],
 "it-tools:src/tools/json-to-toml/json-to-toml.vue": [
 0
 ],
 "it-tools:src/tools/json-to-yaml-converter/index.ts": [
-0
-],
-"it-tools:src/tools/json-to-yaml-converter/json-to-yaml.e2e.spec.ts": [
 0
 ],
 "it-tools:src/tools/json-to-yaml-converter/json-to-yaml.vue": [
@@ -501,9 +438,6 @@
 0
 ],
 "it-tools:src/tools/json-viewer/json-viewer.vue": [
-0
-],
-"it-tools:src/tools/json-viewer/json.models.test.ts": [
 0
 ],
 "it-tools:src/tools/json-viewer/json.models.ts": [
@@ -527,12 +461,6 @@
 "it-tools:src/tools/list-converter/index.ts": [
 0
 ],
-"it-tools:src/tools/list-converter/list-converter.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/list-converter/list-converter.models.test.ts": [
-0
-],
 "it-tools:src/tools/list-converter/list-converter.models.ts": [
 0
 ],
@@ -554,13 +482,7 @@
 "it-tools:src/tools/mac-address-generator/index.ts": [
 0
 ],
-"it-tools:src/tools/mac-address-generator/mac-address-generator.e2e.spec.ts": [
-0
-],
 "it-tools:src/tools/mac-address-generator/mac-address-generator.vue": [
-0
-],
-"it-tools:src/tools/mac-address-generator/mac-adress-generator.models.test.ts": [
 0
 ],
 "it-tools:src/tools/mac-address-generator/mac-adress-generator.models.ts": [
@@ -641,12 +563,6 @@
 "it-tools:src/tools/numeronym-generator/index.ts": [
 0
 ],
-"it-tools:src/tools/numeronym-generator/numeronym-generator.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/numeronym-generator/numeronym-generator.service.test.ts": [
-0
-],
 "it-tools:src/tools/numeronym-generator/numeronym-generator.service.ts": [
 0
 ],
@@ -659,12 +575,6 @@
 "it-tools:src/tools/otp-code-generator-and-validator/otp-code-generator-and-validator.vue": [
 0
 ],
-"it-tools:src/tools/otp-code-generator-and-validator/otp-code-generator.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/otp-code-generator-and-validator/otp.service.test.ts": [
-0
-],
 "it-tools:src/tools/otp-code-generator-and-validator/otp.service.ts": [
 0
 ],
@@ -672,12 +582,6 @@
 0
 ],
 "it-tools:src/tools/password-strength-analyser/index.ts": [
-0
-],
-"it-tools:src/tools/password-strength-analyser/password-strength-analyser.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/password-strength-analyser/password-strength-analyser.service.test.ts": [
 0
 ],
 "it-tools:src/tools/password-strength-analyser/password-strength-analyser.service.ts": [
@@ -692,9 +596,6 @@
 "it-tools:src/tools/pdf-signature-checker/index.ts": [
 0
 ],
-"it-tools:src/tools/pdf-signature-checker/pdf-signature-checker.e2e.spec.ts": [
-0
-],
 "it-tools:src/tools/pdf-signature-checker/pdf-signature-checker.types.ts": [
 0
 ],
@@ -704,16 +605,10 @@
 "it-tools:src/tools/percentage-calculator/index.ts": [
 0
 ],
-"it-tools:src/tools/percentage-calculator/percentage-calculator.e2e.spec.ts": [
-0
-],
 "it-tools:src/tools/percentage-calculator/percentage-calculator.vue": [
 0
 ],
 "it-tools:src/tools/phone-parser-and-formatter/index.ts": [
-0
-],
-"it-tools:src/tools/phone-parser-and-formatter/phone-parser-and-formatter.e2e.spec.ts": [
 0
 ],
 "it-tools:src/tools/phone-parser-and-formatter/phone-parser-and-formatter.models.ts": [
@@ -743,9 +638,6 @@
 "it-tools:src/tools/roman-numeral-converter/index.ts": [
 0
 ],
-"it-tools:src/tools/roman-numeral-converter/roman-numeral-converter.service.test.ts": [
-0
-],
 "it-tools:src/tools/roman-numeral-converter/roman-numeral-converter.service.ts": [
 0
 ],
@@ -762,9 +654,6 @@
 0
 ],
 "it-tools:src/tools/safelink-decoder/index.ts": [
-0
-],
-"it-tools:src/tools/safelink-decoder/safelink-decoder.service.test.ts": [
 0
 ],
 "it-tools:src/tools/safelink-decoder/safelink-decoder.service.ts": [
@@ -786,9 +675,6 @@
 0
 ],
 "it-tools:src/tools/string-obfuscator/index.ts": [
-0
-],
-"it-tools:src/tools/string-obfuscator/string-obfuscator.model.test.ts": [
 0
 ],
 "it-tools:src/tools/string-obfuscator/string-obfuscator.model.ts": [
@@ -818,9 +704,6 @@
 "it-tools:src/tools/text-statistics/index.ts": [
 0
 ],
-"it-tools:src/tools/text-statistics/text-statistics.service.test.ts": [
-0
-],
 "it-tools:src/tools/text-statistics/text-statistics.service.ts": [
 0
 ],
@@ -828,12 +711,6 @@
 0
 ],
 "it-tools:src/tools/text-to-binary/index.ts": [
-0
-],
-"it-tools:src/tools/text-to-binary/text-to-binary.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/text-to-binary/text-to-binary.models.test.ts": [
 0
 ],
 "it-tools:src/tools/text-to-binary/text-to-binary.models.ts": [
@@ -857,12 +734,6 @@
 "it-tools:src/tools/text-to-unicode/index.ts": [
 0
 ],
-"it-tools:src/tools/text-to-unicode/text-to-unicode.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/text-to-unicode/text-to-unicode.service.test.ts": [
-0
-],
 "it-tools:src/tools/text-to-unicode/text-to-unicode.service.ts": [
 0
 ],
@@ -870,12 +741,6 @@
 0
 ],
 "it-tools:src/tools/token-generator/index.ts": [
-0
-],
-"it-tools:src/tools/token-generator/token-generator.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/token-generator/token-generator.service.test.ts": [
 0
 ],
 "it-tools:src/tools/token-generator/token-generator.service.ts": [
@@ -887,9 +752,6 @@
 "it-tools:src/tools/toml-to-json/index.ts": [
 0
 ],
-"it-tools:src/tools/toml-to-json/toml-to-json.e2e.spec.ts": [
-0
-],
 "it-tools:src/tools/toml-to-json/toml-to-json.vue": [
 0
 ],
@@ -897,9 +759,6 @@
 0
 ],
 "it-tools:src/tools/toml-to-yaml/index.ts": [
-0
-],
-"it-tools:src/tools/toml-to-yaml/toml-to-yaml.e2e.spec.ts": [
 0
 ],
 "it-tools:src/tools/toml-to-yaml/toml-to-yaml.vue": [
@@ -915,9 +774,6 @@
 0
 ],
 "it-tools:src/tools/ulid-generator/index.ts": [
-0
-],
-"it-tools:src/tools/ulid-generator/ulid-generator.e2e.spec.ts": [
 0
 ],
 "it-tools:src/tools/ulid-generator/ulid-generator.vue": [
@@ -965,12 +821,6 @@
 "it-tools:src/tools/xml-formatter/index.ts": [
 0
 ],
-"it-tools:src/tools/xml-formatter/xml-formatter.e2e.spec.ts": [
-0
-],
-"it-tools:src/tools/xml-formatter/xml-formatter.service.test.ts": [
-0
-],
 "it-tools:src/tools/xml-formatter/xml-formatter.service.ts": [
 0
 ],
@@ -980,16 +830,10 @@
 "it-tools:src/tools/yaml-to-json-converter/index.ts": [
 0
 ],
-"it-tools:src/tools/yaml-to-json-converter/yaml-to-json.e2e.spec.ts": [
-0
-],
 "it-tools:src/tools/yaml-to-json-converter/yaml-to-json.vue": [
 0
 ],
 "it-tools:src/tools/yaml-to-toml/index.ts": [
-0
-],
-"it-tools:src/tools/yaml-to-toml/yaml-to-toml.e2e.spec.ts": [
 0
 ],
 "it-tools:src/tools/yaml-to-toml/yaml-to-toml.vue": [
@@ -1047,9 +891,6 @@
 0
 ],
 "it-tools:src/ui/c-input-text/c-input-text.demo.vue": [
-0
-],
-"it-tools:src/ui/c-input-text/c-input-text.test.ts": [
 0
 ],
 "it-tools:src/ui/c-input-text/c-input-text.theme.ts": [
@@ -1130,9 +971,6 @@
 "it-tools:src/ui/c-tooltip/c-tooltip.vue": [
 0
 ],
-"it-tools:src/ui/color/color.models.test.ts": [
-0
-],
 "it-tools:src/ui/color/color.models.ts": [
 0
 ],
@@ -1154,13 +992,7 @@
 "it-tools:src/utils/array.ts": [
 0
 ],
-"it-tools:src/utils/base64.test.ts": [
-0
-],
 "it-tools:src/utils/base64.ts": [
-0
-],
-"it-tools:src/utils/boolean.test.ts": [
 0
 ],
 "it-tools:src/utils/boolean.ts": [
@@ -1169,13 +1001,7 @@
 "it-tools:src/utils/convert.ts": [
 0
 ],
-"it-tools:src/utils/defaults.test.ts": [
-0
-],
 "it-tools:src/utils/defaults.ts": [
-0
-],
-"it-tools:src/utils/error.test.ts": [
 0
 ],
 "it-tools:src/utils/error.ts": [

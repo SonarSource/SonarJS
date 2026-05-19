@@ -1,16 +1,4 @@
 {
-"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationMutations-test.js": [
-13,
-14,
-42,
-43
-],
-"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationQueries-test.js": [
-13,
-14,
-61,
-62
-],
 "postgraphql:src/postgraphql/graphiql/src/components/PostGraphiQL.js": [
 124
 ],
@@ -41,15 +29,5 @@
 "postgraphql:src/postgraphql/http/setupServerSentEvents.js": [
 21,
 31
-],
-"postgraphql:src/postgraphql/watch/__tests__/watchPgSchemas-test.js": [
-23
-],
-"postgraphql:src/postgres/introspection/__tests__/introspectDatabase-test.js": [
-17,
-31,
-32,
-44,
-45
 ]
 }

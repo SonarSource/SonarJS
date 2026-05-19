@@ -53,9 +53,6 @@
 "redux:examples/counter/store/configureStore.js": [
 9
 ],
-"redux:examples/counter/test/actions/counter.spec.js": [
-11
-],
 "redux:examples/counter/webpack.config.js": [
 35,
 36
@@ -171,9 +168,6 @@
 ],
 "redux:examples/todomvc/store/configureStore.js": [
 4
-],
-"redux:examples/todomvc/test/components/Footer.spec.js": [
-26
 ],
 "redux:examples/todomvc/webpack.config.js": [
 37,

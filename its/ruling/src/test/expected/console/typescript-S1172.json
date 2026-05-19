@@ -1,11 +1,4 @@
 {
-"console:src/__mocks__/lokka.ts": [
-7
-],
-"console:src/actions/databrowser/__tests__/data.ts": [
-215,
-231
-],
 "console:src/actions/databrowser/data.ts": [
 68,
 142,
@@ -135,36 +128,6 @@
 9,
 11,
 14
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/BooleanCell.tsx": [
-10
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/DateTimeCell.tsx": [
-10
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/DefaultCell.tsx": [
-10
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/EnumCell.tsx": [
-10
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/FloatCell.tsx": [
-10
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/IntCell.tsx": [
-10
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/JsonCell.tsx": [
-10
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/NullableCell.tsx": [
-10
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/ScalarListCell.tsx": [
-10
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/StringCell.tsx": [
-10
 ],
 "console:src/views/models/DatabrowserView/NewRow.tsx": [
 167

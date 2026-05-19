@@ -13,13 +13,6 @@
 "templating:src/lib/util/module_annotator.js": [
 15
 ],
-"templating:test/lib/compiler/compiler.spec.js": [
-256,
-288,
-299,
-325,
-349
-],
 "templating:test/unit-test-main.js": [
 8
 ]

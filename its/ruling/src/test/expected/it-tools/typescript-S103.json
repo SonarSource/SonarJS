@@ -24,19 +24,11 @@
 "it-tools:src/tools/password-strength-analyser/password-strength-analyser.vue": [
 59
 ],
-"it-tools:src/tools/safelink-decoder/safelink-decoder.service.test.ts": [
-8,
-12
-],
 "it-tools:src/tools/text-to-binary/text-to-binary.vue": [
 24,
 25,
 34,
 35
-],
-"it-tools:src/tools/text-to-unicode/text-to-unicode.service.test.ts": [
-8,
-16
 ],
 "it-tools:src/tools/text-to-unicode/text-to-unicode.vue": [
 16,

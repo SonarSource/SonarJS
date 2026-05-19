@@ -9,18 +9,6 @@
 "oak:http_server_node.ts": [
 182
 ],
-"oak:middleware/etag.test.ts": [
-93
-],
-"oak:middleware/serve.test.ts": [
-50,
-99
-],
-"oak:send.test.ts": [
-280,
-303,
-431
-],
 "oak:send.ts": [
 259,
 294,

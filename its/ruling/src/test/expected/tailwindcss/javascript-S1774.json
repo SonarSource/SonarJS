@@ -1,13 +1,4 @@
 {
-"tailwindcss:__tests__/prefixSelector.test.js": [
-9
-],
-"tailwindcss:__tests__/processPlugins.test.js": [
-803,
-804,
-833,
-834
-],
 "tailwindcss:jest/customMatchers.js": [
 27,
 47

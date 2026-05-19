@@ -63,6 +63,8 @@ interface InitializeParams {
   baseDir: NormalizedAbsolutePath;
   bundles?: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
+  /** Union of jsSuffixes and tsSuffixes; exposed to rules via context.settings.testFileExtensions */
+  testFileExtensions?: string[];
 }
 
 interface LintOptions {
@@ -111,6 +113,8 @@ export class Linter {
   /** The rules working directory (used for architecture, dbd...) */
   private static rulesWorkdir?: NormalizedAbsolutePath;
   private static baseDir: NormalizedAbsolutePath;
+  /** Union of jsSuffixes and tsSuffixes, surfaced to rules through ESLint settings. */
+  private static testFileExtensions: string[] = [];
 
   /** Linter is a static class and cannot be instantiated */
   private constructor() {
@@ -140,6 +144,7 @@ export class Linter {
     bundles = [],
     baseDir,
     rulesWorkdir,
+    testFileExtensions = [],
   }: InitializeParams) {
     debug(`Initializing linter with ${rules?.map(rule => rule.key)}`);
     Linter.ruleConfigs = rules;
@@ -149,6 +154,7 @@ export class Linter {
     Linter.dependencyIndependentRulesCache.clear();
     Linter.dependencySensitiveRulesCache.clear();
     Linter.baseDir = baseDir;
+    Linter.testFileExtensions = testFileExtensions;
     /**
      * Context bundles define a set of external custom rules (like the architecture rule)
      * including rule keys and rule definitions that cannot be provided to the linter
@@ -224,6 +230,7 @@ export class Linter {
         fileType,
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
+        testFileExtensions: Linter.testFileExtensions,
         ...lintOptions.additionalSettings,
       },
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],

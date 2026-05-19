@@ -1,7 +1,4 @@
 {
-"postgraphql:src/__tests__/utils/withPgClient.ts": [
-36
-],
 "postgraphql:src/graphql/schema/getMutationGqlType.ts": [
 34
 ],

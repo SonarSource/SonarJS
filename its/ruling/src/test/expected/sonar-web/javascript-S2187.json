@@ -1,0 +1,44 @@
+{
+"sonar-web:test/medium/api-documentation.spec.js": [
+0
+],
+"sonar-web:test/medium/coding-rules.spec.js": [
+0
+],
+"sonar-web:test/medium/custom-measures.spec.js": [
+0
+],
+"sonar-web:test/medium/global-permissions.spec.js": [
+0
+],
+"sonar-web:test/medium/groups.spec.js": [
+0
+],
+"sonar-web:test/medium/issues.spec.js": [
+0
+],
+"sonar-web:test/medium/maintenance.spec.js": [
+0
+],
+"sonar-web:test/medium/metrics.spec.js": [
+0
+],
+"sonar-web:test/medium/project-permissions.spec.js": [
+0
+],
+"sonar-web:test/medium/quality-gates.spec.js": [
+0
+],
+"sonar-web:test/medium/quality-profiles.spec.js": [
+0
+],
+"sonar-web:test/medium/source-viewer.spec.js": [
+0
+],
+"sonar-web:test/medium/update-center.spec.js": [
+0
+],
+"sonar-web:test/medium/users.spec.js": [
+0
+]
+}

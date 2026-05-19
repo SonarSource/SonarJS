@@ -2,9 +2,6 @@
 "Joust:ts/Choices.ts": [
 2
 ],
-"Joust:ts/Entity.spec.ts": [
-2
-],
 "Joust:ts/Entity.ts": [
 1
 ],
@@ -13,9 +10,6 @@
 4
 ],
 "Joust:ts/MetaData.ts": [
-1
-],
-"Joust:ts/Player.spec.ts": [
 1
 ],
 "Joust:ts/Player.ts": [
@@ -204,9 +198,6 @@
 ],
 "Joust:ts/state/GameStateDescriptor.ts": [
 1
-],
-"Joust:ts/state/GameStateHistory.spec.ts": [
-4
 ],
 "Joust:ts/state/GameStateHistory.ts": [
 3

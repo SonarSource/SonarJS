@@ -37,9 +37,6 @@
 326,
 327
 ],
-"watchtower.js:test/dirtychecking.spec.js": [
-584
-],
 "watchtower.js:test/matchers.js": [
 1,
 27,
@@ -48,11 +45,5 @@
 48,
 54,
 77
-],
-"watchtower.js:test/observer.spec.js": [
-183
-],
-"watchtower.js:test/watchgroup.spec.js": [
-943
 ]
 }

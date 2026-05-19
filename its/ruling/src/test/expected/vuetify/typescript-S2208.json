@@ -115,13 +115,6 @@
 "vuetify:packages/vuetify/src/labs/index.ts": [
 1
 ],
-"vuetify:packages/vuetify/src/locale/__tests__/index.spec.ts": [
-2
-],
-"vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
-10,
-11
-],
 "vuetify:packages/vuetify/src/util/colorUtils.ts": [
 4,
 5

@@ -17,19 +17,8 @@
 import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { filterPathAndGetFileType, isJsTsExcluded } from '../../src/common/filter/filter-path.js';
-import { createConfiguration, type Configuration } from '../../src/common/configuration.js';
+import { createConfiguration, getFilterPathParams } from '../../src/common/configuration.js';
 import { normalizeToAbsolutePath } from '../../../shared/src/helpers/files.js';
-
-function getFilterPathParams(config: Configuration) {
-  return {
-    sourcesPaths: config.sources.length ? config.sources : [config.baseDir],
-    testPaths: config.tests,
-    inclusions: config.inclusions,
-    exclusions: config.exclusions,
-    testInclusions: config.testInclusions,
-    testExclusions: config.testExclusions,
-  };
-}
 
 function logsContain(message: string) {
   return expect(
@@ -192,5 +181,136 @@ describe('filter path', () => {
 
     const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
     expect(result).toBe('MAIN');
+  });
+
+  describe('test-file heuristic fallback (no sonar.tests configured)', () => {
+    const testLikeFilenames = [
+      '/project/src/foo.test.ts',
+      '/project/src/bar.spec.js',
+      '/project/src/baz.cy.ts',
+      '/project/src/qux.e2e.tsx',
+      '/project/src/data.mock.js',
+      '/project/src/foo.test.mjs',
+      '/project/src/foo.spec.cjs',
+      '/project/src/__tests__/anything.ts',
+      '/project/src/__mocks__/api.js',
+    ];
+
+    for (const path of testLikeFilenames) {
+      it(`should classify ${path} as TEST via heuristic when no test config is set`, () => {
+        const filePath = normalizeToAbsolutePath(path);
+        const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
+        const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+        expect(result).toBe('TEST');
+      });
+    }
+
+    it('should classify a non-test filename as MAIN when no test config is set', () => {
+      const filePath = normalizeToAbsolutePath('/project/src/regular.ts');
+      const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('MAIN');
+    });
+
+    it('should not be fooled by filenames that merely contain "test"', () => {
+      const filePath = normalizeToAbsolutePath('/project/src/testimony.ts');
+      const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('MAIN');
+    });
+
+    it('should NOT apply heuristic when testPaths is configured', ({ mock }) => {
+      console.log = mock.fn(console.log);
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
+      const config = createConfiguration({
+        baseDir: '/project',
+        sources: ['src'],
+        tests: ['test'],
+      });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('MAIN');
+    });
+
+    it('should still apply heuristic when only testInclusions is set (inert without testPaths)', ({
+      mock,
+    }) => {
+      console.log = mock.fn(console.log);
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
+      const config = createConfiguration({
+        baseDir: '/project',
+        sources: ['src'],
+        testInclusions: ['**/*IntegrationTest.ts'],
+      });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+
+    it('should still apply heuristic when only testExclusions is set (inert without testPaths)', ({
+      mock,
+    }) => {
+      console.log = mock.fn(console.log);
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
+      const config = createConfiguration({
+        baseDir: '/project',
+        sources: ['src'],
+        testExclusions: ['**/fixtures/**'],
+      });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+
+    it('should NOT apply heuristic when inclusions is configured', ({ mock }) => {
+      console.log = mock.fn(console.log);
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
+      const config = createConfiguration({
+        baseDir: '/project',
+        sources: ['src'],
+        inclusions: ['**/*.test.ts'],
+      });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('MAIN');
+    });
+
+    it('should classify .test.<customSuffix> as TEST when jsSuffixes is extended', () => {
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.dummy');
+      const config = createConfiguration({
+        baseDir: '/project',
+        sources: ['src'],
+        jsSuffixes: ['.js', '.dummy'],
+      });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+
+    it('should not classify .test.<unconfiguredSuffix> as TEST', () => {
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.dummy');
+      const config = createConfiguration({ baseDir: '/project', sources: ['src'] });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('MAIN');
+    });
+
+    it('should fall back to default TS extensions when TS suffixes are empty', () => {
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.ts');
+      const config = createConfiguration({
+        baseDir: '/project',
+        sources: ['src'],
+        jsSuffixes: ['.js'],
+        tsSuffixes: [],
+      });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
+
+    it('should fall back to default JS extensions when JS suffixes are empty', () => {
+      const filePath = normalizeToAbsolutePath('/project/src/foo.test.js');
+      const config = createConfiguration({
+        baseDir: '/project',
+        sources: ['src'],
+        jsSuffixes: [],
+        tsSuffixes: ['.ts'],
+      });
+      const result = filterPathAndGetFileType(filePath, getFilterPathParams(config));
+      expect(result).toBe('TEST');
+    });
   });
 });
