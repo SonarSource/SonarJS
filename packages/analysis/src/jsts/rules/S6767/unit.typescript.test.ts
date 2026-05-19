@@ -34,7 +34,7 @@ describe('S6767 TypeScript coverage', () => {
       valid: [
         {
           // FP: TypeScript function component with props delegation — Strategy C finds
-          // the component and hasPropsCall suppresses the report.
+          // the component and recognizes the whole props object as used.
           code: `
 declare const React: any;
 interface CardProps {
@@ -49,7 +49,7 @@ function Card(props: CardProps) {
         },
         {
           // FP: TypeScript class component with this.props delegation — Strategy C
-          // matches BarProps to Bar via matchesClassProps, hasPropsCall finds getStyle(this.props).
+          // matches BarProps to Bar via matchesClassProps and recognizes getStyle(this.props).
           code: `
 declare const React: any;
 interface BarProps {
@@ -66,7 +66,7 @@ class Bar extends React.Component<BarProps> {
         },
         {
           // FP: TypeScript function component spreads props — Strategy C matches
-          // MyComponentProps to MyComponent, hasPropsCall finds the SpreadElement.
+          // MyComponentProps to MyComponent and recognizes the SpreadElement.
           code: `
 declare const React: any;
 interface MyComponentProps {
@@ -81,7 +81,7 @@ function MyComponent(props: MyComponentProps) {
         },
         {
           // FP: TypeScript class component with this.props[key] — Strategy C matches
-          // VictoryAxisProps to VictoryAxis via matchesClassProps, hasPropsCall finds computed MemberExpression.
+          // VictoryAxisProps to VictoryAxis via matchesClassProps and recognizes computed member access.
           code: `
 declare const React: any;
 interface VictoryAxisProps {
@@ -169,7 +169,7 @@ class ForwardedCounterPanel extends CounterPanelBase {
         },
         {
           // FP: whole props are only forwarded to the custom superclass, never accessed locally.
-          // This isolates hasOwnCustomSuperclassPropsForwarding from hasPropsCall.
+          // This isolates hasOwnCustomSuperclassPropsForwarding from other whole-props escapes.
           code: `
 declare const React: any;
 interface ForwardedOnlyProps {
