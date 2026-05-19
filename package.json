@@ -8,7 +8,7 @@
     "new-rule": "tsx tools/new-rule.mts",
     "generate-meta": "node tools/generate-meta.mjs",
     "generate-meta:raw": "npm run grpc:generate-proto && tsx tools/generate-meta.ts",
-    "generate-rule-data:maven": "mvn -q -ntp -f pom.xml -pl sonar-plugin/api -am install -DskipTests && mvn -q -ntp -f sonar-plugin/javascript-checks/pom.xml rspec:generate-rule-data@generate-rspec-javascript rspec:generate-rule-data@generate-rspec-css exec:exec@deploy-rule-data",
+    "generate-rule-data:maven": "mvn -q -ntp -f pom.xml -pl sonar-plugin/javascript-checks -am -DskipTests -Dskip-nodejs -Drule.data.build.phase=generate-resources generate-resources",
     "validate-quickfix": "tsx tools/validate-quickfix.ts",
     "generate-java-rule-classes": "tsx tools/generate-java-rule-classes.ts",
     "ruling": "tsx --tsconfig packages/tsconfig.test.json --test packages/ruling/projects/*.ruling.test.ts",

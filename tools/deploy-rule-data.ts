@@ -14,9 +14,12 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { join, resolve } from 'node:path/posix';
+import { execFileSync } from 'node:child_process';
 import { listRulesDir } from './helpers.js';
 import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join as joinNative } from 'node:path';
+import { dirname, join, resolve } from 'node:path/posix';
 import { cssRulesMeta } from '../packages/analysis/src/css/rules/metadata.js';
 
 const sourceFolder = resolve('resources/rule-data');
@@ -49,6 +52,15 @@ const CSS_RULE_DATA_FOLDER = join(
   'css',
 );
 
+const RSPEC_SHA_FILE = join(
+  'sonar-plugin',
+  'javascript-checks',
+  'src',
+  'main',
+  'resources',
+  'rspec.sha',
+);
+
 const jsRuleNames = [...new Set([...(await listRulesDir()), 'S2260'])].sort(sortRuleKeys);
 const cssRuleNames = [...new Set([...cssRulesMeta.map(rule => rule.sqKey), 'S2260'])].sort(
   sortRuleKeys,
@@ -70,6 +82,7 @@ type GeneratedProfile = {
 
 syncRuleData(join(sourceFolder, 'javascript'), JS_RULE_DATA_FOLDER, jsRuleNames);
 syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
+syncRspecSha();
 
 function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
   warnOnRulesWithoutImplementation(sourceFolder, ruleNames);
@@ -143,6 +156,26 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
       })),
     ),
   );
+}
+
+function syncRspecSha() {
+  const sonarUserHome = process.env.SONAR_USER_HOME ?? joinNative(homedir(), '.sonar');
+  const rspecRepository = joinNative(sonarUserHome, 'rule-api', 'rspec');
+
+  let sha: string;
+  try {
+    sha = execFileSync('git', ['rev-parse', 'HEAD'], {
+      cwd: rspecRepository,
+      encoding: 'utf-8',
+    }).trim();
+  } catch (error) {
+    throw new Error(`Failed to read RSPEC SHA from ${rspecRepository}`, { cause: error });
+  }
+
+  mkdirSync(dirname(RSPEC_SHA_FILE), {
+    recursive: true,
+  });
+  writeFileSync(RSPEC_SHA_FILE, `${sha}\n`);
 }
 
 function warnOnRulesWithoutImplementation(sourceFolder: string, ruleNames: string[]) {
