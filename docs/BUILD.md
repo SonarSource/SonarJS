@@ -92,7 +92,7 @@ It skips:
 
 Important details:
 
-- `npm run generate-meta` already includes RSPEC sync and JS/TS proto generation, so those are skipped too.
+- `npm run generate-meta` already includes Maven-backed RSPEC refresh and JS/TS proto generation, so those are skipped too.
 - The `bridge` module still adds `target/generated-sources` to the Java source roots, so an existing generated stub directory can be reused without re-running protobuf generation.
 - This flag is intended for Java-only loops after a previous non-skipped build.
 

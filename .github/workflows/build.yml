@@ -140,12 +140,15 @@ jobs:
     permissions: *read_permissions
     steps: *populate_npm_cache_steps
 
-  sync_rspec:
-    runs-on: sonar-m
-    name: Sync RSPEC metadata
-    needs: [setup, populate_npm_cache]
+  build:
+    runs-on: sonar-l
+    name: Build SonarJS on Linux
+    needs: [setup, get_build_number, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: &shared_build_number
+      # Reuse the build number minted once in get_build_number across every config-maven caller.
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     steps:
       - *checkout
       - &mise
@@ -164,42 +167,6 @@ jobs:
         with:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
-      - &rspec_secrets
-        id: rspec-secrets
-        uses: SonarSource/vault-action-wrapper@v3
-        with:
-          secrets: |
-            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
-      - name: Sync RSPEC rule data
-        run: npm run sync-rspec-all
-        env:
-          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
-      - name: Upload RSPEC rule data
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: rspec-rule-data
-          path: |
-            sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript
-            sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
-            resources/rule-data/javascript
-            resources/rule-data/css
-            resources/rule-data/.synced-sha-javascript
-            resources/rule-data/.synced-sha-css
-          retention-days: 1
-
-  build:
-    runs-on: sonar-l
-    name: Build SonarJS on Linux
-    needs: [setup, get_build_number, populate_npm_cache, sync_rspec]
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
-    permissions: *read_permissions
-    env: &shared_build_number
-      # Reuse the build number minted once in get_build_number across every config-maven caller.
-      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
-    steps:
-      - *checkout
-      - *mise
-      - *npm_cache
       - &maven_cache
         uses: ./.github/actions/maven-cache
         with:
@@ -212,12 +179,12 @@ jobs:
         with:
           artifactory-reader-role: private-reader
           disable-caching: 'true'
-      - &download_rspec_rule_data
-        name: Download RSPEC rule data
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      - &rspec_secrets
+        id: rspec-secrets
+        uses: SonarSource/vault-action-wrapper@v3
         with:
-          name: rspec-rule-data
-      - *rspec_secrets
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
       - id: deployer-secrets
         uses: SonarSource/vault-action-wrapper@v3
         with:
@@ -265,7 +232,7 @@ jobs:
   build_win:
     runs-on: github-windows-latest-m
     name: Build SonarJS on Windows
-    needs: [setup, get_build_number, populate_npm_cache_win, sync_rspec]
+    needs: [setup, get_build_number, populate_npm_cache_win]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     env: *shared_build_number
@@ -275,7 +242,6 @@ jobs:
       - *npm_cache
       - *maven_cache
       - *config_maven
-      - *download_rspec_rule_data
       - *rspec_secrets
       - name: Build and test Maven (no deploy)
         run: mvn verify -T1C
@@ -284,7 +250,7 @@ jobs:
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
-    needs: [setup, populate_npm_cache, sync_rspec]
+    needs: [setup, populate_npm_cache]
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
@@ -302,7 +268,8 @@ jobs:
           npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
           npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - *npm_cache
-      - *download_rspec_rule_data
+      - *maven_cache
+      - *config_maven
       - *rspec_secrets
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
@@ -315,10 +282,10 @@ jobs:
           path: lib/*.tgz
           key: eslint-tarball-${{ github.sha }}
 
-  generated_files_freshness:
+  eslint_readme_freshness:
     runs-on: github-ubuntu-latest-s
-    needs: [setup, populate_npm_cache, sync_rspec]
-    name: Generated Files Freshness
+    needs: [setup, populate_npm_cache]
+    name: ESLint README Freshness
     if: github.event_name == 'schedule'
     permissions:
       id-token: write
@@ -338,7 +305,8 @@ jobs:
           npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
           npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
       - *npm_cache
-      - *download_rspec_rule_data
+      - *maven_cache
+      - *config_maven
       - *rspec_secrets
       - name: Regenerate tracked generated files
         env:
@@ -411,13 +379,14 @@ jobs:
   knip:
     runs-on: sonar-xs
     name: Knip
-    needs: [setup, populate_npm_cache, sync_rspec]
+    needs: [setup, populate_npm_cache]
     permissions: *read_permissions
     steps:
       - *checkout
       - *mise
       - *npm_cache
-      - *download_rspec_rule_data
+      - *maven_cache
+      - *config_maven
       - *rspec_secrets
       - name: Run knip
         run: |
@@ -429,7 +398,7 @@ jobs:
   test_js:
     runs-on: sonar-m
     name: Unit tests JavaScript/TypeScript
-    needs: [setup, populate_npm_cache, sync_rspec]
+    needs: [setup, populate_npm_cache]
     permissions: *read_permissions
     steps:
       - name: Check JS coverage cache
@@ -459,10 +428,16 @@ jobs:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - if: steps.cache.outputs.cache-hit != 'true'
-        name: Download RSPEC rule data
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: ./.github/actions/maven-cache
         with:
-          name: rspec-rule-data
+          cache-month: ${{ needs.setup.outputs.cache-month }}
+          maven-hash: ${{ needs.setup.outputs.maven-hash }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Configure Maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
       - if: steps.cache.outputs.cache-hit != 'true'
         id: rspec-secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -481,7 +456,7 @@ jobs:
   test_js_win:
     runs-on: github-windows-latest-m
     name: Unit tests JavaScript on Windows
-    needs: [setup, populate_npm_cache_win, sync_rspec]
+    needs: [setup, populate_npm_cache_win]
     permissions: *read_permissions
     steps:
       - name: Cache JS test results marker (Windows)
@@ -511,10 +486,16 @@ jobs:
           path: node_modules
           key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
       - if: steps.cache.outputs.cache-hit != 'true'
-        name: Download RSPEC rule data
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: ./.github/actions/maven-cache
         with:
-          name: rspec-rule-data
+          cache-month: ${{ needs.setup.outputs.cache-month }}
+          maven-hash: ${{ needs.setup.outputs.maven-hash }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Configure Maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
       - if: steps.cache.outputs.cache-hit != 'true'
         id: rspec-secrets
         uses: SonarSource/vault-action-wrapper@v3
@@ -1044,7 +1025,7 @@ jobs:
   js_ts_ruling:
     runs-on: sonar-xl
     name: JS/TS Ruling
-    needs: [setup, populate_npm_cache, sync_rspec]
+    needs: [setup, populate_npm_cache]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions:
       id-token: write
@@ -1058,7 +1039,8 @@ jobs:
           submodules: true
       - *mise
       - *npm_cache
-      - *download_rspec_rule_data
+      - *maven_cache
+      - *config_maven
       - *rspec_secrets
       - name: Run JS/TS Ruling
         id: ruling

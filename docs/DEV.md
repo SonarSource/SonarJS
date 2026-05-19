@@ -9,27 +9,26 @@ To work on this project, it is required to have the following tools installed:
 - [npm](https://www.npmjs.com/) >= 8
 - [Maven](https://maven.apache.org/) >= 3.8
 
-### RSPEC Rule Metadata
+### GitHub Token for RSPEC Access
 
-Rule metadata is automatically fetched from the `SonarSource/rspec` repository as part of the build. On first run, the rspec repo is cloned (sparse checkout) into `resources/rspec/` via SSH. On subsequent runs, the latest changes are fetched automatically.
+The build fetches rule metadata from the private `SonarSource/rspec` repository through `rspec-maven-plugin`. You need a GitHub personal access token with read access to this repository.
 
-The generated RSPEC rule metadata JSON published under `sonar-plugin/*/src/main/resources/**/rules/*/` is tracked in Git. The rendered HTML files in those directories remain ignored.
+1. Create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) with:
+   - Repository access: `SonarSource/rspec`
+   - Permissions: **Contents: Read**
 
-Use `--rspec-path` to point to an existing local clone instead:
+2. Add it to your shell environment (e.g., `~/.zshenv` for zsh):
 
-```bash
-npm run sync-rspec -- --rspec-path ../rspec --language javascript
-```
+   ```bash
+   export GITHUB_TOKEN="your-token-here"
+   ```
 
-#### Pinning a specific rspec version
+3. Restart your terminal or source the file:
+   ```bash
+   source ~/.zshenv
+   ```
 
-To use a specific rspec commit instead of the latest `dogfood-automerge`, create a `rspec.sha` file at the repo root:
-
-```bash
-echo "<commit-sha>" > rspec.sha
-```
-
-When this file is present, `sync-rspec` fetches that exact SHA and the skip check becomes local (no network call needed). The file is not tracked by default but can be committed to make CI builds reproducible against a specific rspec version.
+`npm run generate-meta` now invokes Maven first to materialize RSPEC rule data before generating the tracked TypeScript metadata.
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
@@ -115,7 +114,6 @@ To patch a local VS Code SonarLint or SonarQube for IDE installation with the la
 
 1. Create a PR with a rule description in the RSPEC repo as described in the
    [RSPEC create-or-modify-a-rule guide](https://github.com/SonarSource/rspec#create-or-modify-a-rule)
-
    - Tag the RSPEC with `type-dependent` if the rule relies partially or fully
      on type information.
      - In practice, this means the implementation uses TypeScript parser
