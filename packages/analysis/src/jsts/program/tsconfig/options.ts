@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { EcmaVersion } from '@eslint/core';
 import ts from 'typescript';
 import { error, warn } from '../../../../../shared/src/helpers/logging.js';
 import {
@@ -261,7 +260,7 @@ function targetOptionToString(target: ts.ScriptTarget | undefined): string | und
  * @param lib normalized lib file names (e.g. ['lib.es2022.d.ts', 'lib.dom.d.ts'])
  * @returns ES year (e.g. 2022) or null if esnext/not found
  */
-export function esLibToYear(lib: string[] | undefined): EcmaVersion | null {
+export function esLibToYear(lib: string[] | undefined): number | null {
   if (!lib) {
     return null;
   }
@@ -279,7 +278,7 @@ export function esLibToYear(lib: string[] | undefined): EcmaVersion | null {
       }
     }
   }
-  return maxYear as EcmaVersion | null;
+  return maxYear;
 }
 
 /**

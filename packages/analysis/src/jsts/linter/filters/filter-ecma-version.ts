@@ -21,5 +21,5 @@ export const filterEcmaVersion: RuleFilter = (_config, meta, ctx) => {
     return true;
   }
   const required = meta.requiredEcmaVersion;
-  return required == null || ctx.detectedEsYear === 'latest' || required <= ctx.detectedEsYear;
+  return required == null || required <= ctx.detectedEsYear;
 };
