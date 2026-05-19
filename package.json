@@ -6,7 +6,7 @@
     "format": "prettier --write .",
     "check-format": "prettier --list-different .",
     "new-rule": "tsx tools/new-rule.mts",
-    "generate-meta": "npm run generate-rule-data:maven && npm run generate-meta:raw",
+    "generate-meta": "node tools/generate-meta.mjs",
     "generate-meta:raw": "npm run grpc:generate-proto && tsx tools/generate-meta.ts",
     "generate-rule-data:maven": "mvn -q -ntp -f pom.xml -pl sonar-plugin/api -am install -DskipTests && mvn -q -ntp -f sonar-plugin/javascript-checks/pom.xml rspec:generate-rule-data@generate-rspec-javascript rspec:generate-rule-data@generate-rspec-css exec:exec@deploy-rule-data",
     "validate-quickfix": "tsx tools/validate-quickfix.ts",
