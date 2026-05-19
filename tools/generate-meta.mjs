@@ -60,15 +60,27 @@ if (skipRuleDataGeneration) {
   }
 }
 
-const npmExecutable = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const command =
+  process.env.npm_execpath === undefined
+    ? process.platform === 'win32'
+      ? 'npm.cmd'
+      : 'npm'
+    : process.execPath;
+const commandArgumentsPrefix =
+  process.env.npm_execpath === undefined ? [] : [process.env.npm_execpath];
 const scripts = skipRuleDataGeneration
   ? ['generate-meta:raw']
   : ['generate-rule-data:maven', 'generate-meta:raw'];
 
 for (const script of scripts) {
-  const result = spawnSync(npmExecutable, ['run', script], {
+  const result = spawnSync(command, [...commandArgumentsPrefix, 'run', script], {
     stdio: 'inherit',
   });
+
+  if (result.error !== undefined) {
+    console.error(result.error);
+    process.exit(1);
+  }
 
   if (result.status !== 0) {
     process.exit(result.status ?? 1);
