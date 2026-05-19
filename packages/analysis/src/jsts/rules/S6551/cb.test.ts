@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { test } from '../../../../tests/jsts/tools/testers/comment-based/checker.js';
-import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { RuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './index.js';
 import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
 import { describe, it } from 'node:test';
@@ -28,7 +28,7 @@ const upstreamRule = tsEslintRules['no-base-to-string'];
 // it signals that the decorator can be safely removed.
 describe('S6551 upstream sentinel', () => {
   it('upstream no-base-to-string raises on guarded toString calls that decorator suppresses', () => {
-    const ruleTester = new DefaultParserRuleTester();
+    const ruleTester = new RuleTester();
     ruleTester.run('no-base-to-string', upstreamRule, {
       valid: [],
       invalid: [
@@ -37,6 +37,19 @@ describe('S6551 upstream sentinel', () => {
 function guardedByPrototypeComparison(value: object) {
   if (value.toString !== Object.prototype.toString) {
     return value.toString();
+  }
+
+  return undefined;
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function guardedByFunctionAndPrototypeComparison(value: object) {
+  if (typeof value.toString === 'function' && value.toString !== Object.prototype.toString) {
+    const rendered = value.toString();
+    return rendered;
   }
 
   return undefined;

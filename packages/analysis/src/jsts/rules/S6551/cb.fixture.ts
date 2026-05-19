@@ -21,6 +21,15 @@ function guardedByPrototypeComparison(value: object) {
   return undefined;
 }
 
+function guardedByFunctionAndPrototypeComparison(value: object) {
+  if (typeof value.toString === 'function' && value.toString !== Object.prototype.toString) {
+    const rendered = value.toString(); // Compliant
+    return rendered;
+  }
+
+  return undefined;
+}
+
 function guardedByPrototypeComparisonOnElse(value: object) {
   if (value.toString === Object.prototype.toString) {
     return undefined;
