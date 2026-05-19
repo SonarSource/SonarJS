@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { EcmaVersion } from '@eslint/core';
 import type { Program } from 'typescript';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import type { JsTsLanguage } from '../../../src/common/configuration.js';
@@ -61,7 +60,7 @@ export interface JsTsAnalysisInput extends AnalysisInput {
   skipAst: boolean;
   clearDependenciesCache: boolean;
   reportNclocForTestFiles: boolean;
-  detectedEsYear?: EcmaVersion;
+  detectedEsYear?: number;
 }
 
 export type AnalysisMode = 'DEFAULT' | 'SKIP_UNCHANGED';

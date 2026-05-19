@@ -14,7 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { EcmaVersion } from '@eslint/core';
 import { minVersion } from 'semver';
 import ts from 'typescript';
 import { getTypeScriptSignalsFromPackageJsonFiles } from './jsts/rules/helpers/dependency-manifests/dependencies.js';
@@ -147,7 +146,7 @@ export class ProjectAnalysisTelemetryCollector {
     }
   }
 
-  recordEcmaScriptVersion(ecmaScriptYear: EcmaVersion | undefined) {
+  recordEcmaScriptVersion(ecmaScriptYear: number | undefined) {
     if (ecmaScriptYear === undefined) {
       return;
     }

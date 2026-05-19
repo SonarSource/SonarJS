@@ -19,7 +19,6 @@ import babelPresetReact from '@babel/preset-react';
 import babelPresetFlow from '@babel/preset-flow';
 import babelPresetEnv from '@babel/preset-env';
 import babelPluginDecorators from '@babel/plugin-proposal-decorators';
-import { EcmaVersion } from '@eslint/core';
 import { parsersMap } from './eslint.js';
 import type { JsTsLanguage } from '../../common/configuration.js';
 import type { ModuleType } from '../rules/helpers/dependency-manifests/resolvers/types.js';
@@ -31,7 +30,7 @@ export const DEFAULT_ECMA_VERSION = 2018;
 export const DEFAULT_SOURCE_TYPE: ModuleType = 'module';
 
 export interface ParserContext {
-  detectedEsYear?: EcmaVersion;
+  detectedEsYear?: number;
   detectedModuleType?: ModuleType;
   jsx?: boolean;
 }
@@ -47,7 +46,8 @@ function commonParserOptions(context: ParserContext = {}): Linter.ParserOptions 
     comment: true,
     loc: true,
     range: true,
-    ecmaVersion: context.detectedEsYear ?? DEFAULT_ECMA_VERSION,
+    ecmaVersion: (context.detectedEsYear ??
+      DEFAULT_ECMA_VERSION) as Linter.ParserOptions['ecmaVersion'],
     sourceType: context.detectedModuleType ?? DEFAULT_SOURCE_TYPE,
     codeFrame: false,
     ecmaFeatures: {

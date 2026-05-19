@@ -23,14 +23,13 @@ import type {
   ModuleType,
 } from '../../rules/helpers/dependency-manifests/resolvers/types.js';
 import type { SonarMeta } from '../../rules/helpers/generate-meta.js';
-import { EcmaVersion } from '@eslint/core';
 
 export interface RuleFilterContext {
   extensionName: string;
   fileType: FileType;
   fileLanguage: JsTsLanguage;
   analysisMode: AnalysisMode;
-  detectedEsYear: EcmaVersion | undefined;
+  detectedEsYear: number | undefined;
   detectedModuleType: ModuleType | undefined;
   dependencies: DependenciesList;
 }
