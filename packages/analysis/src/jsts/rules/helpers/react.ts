@@ -153,10 +153,21 @@ function findPropTypesAssignmentOwner(
  * A report raised on `sharedValue` inside `SharedProps` belongs to both `Child` and `Wrapper`.
  * This helper returns both component nodes.
  *
- * It tries, in order:
+ * It resolves owners in three stages:
  * - a direct enclosing component
- * - a `Foo.propTypes = { ... }` assignment
- * - TypeScript props-type matching
+ * - a `Foo.propTypes = { ... }` assignment owner
+ * - a TypeScript fallback for reported props types
+ *
+ * In the TypeScript fallback, the helper:
+ * - resolves the reported enclosing props type
+ * - collects the candidate components in the file
+ * - if a specific reported member can be recovered, keeps only components whose
+ *   props type either contains that same member declaration or still reuses the
+ *   reported enclosing type with a compatible member
+ * - otherwise, falls back to matching the whole reported enclosing type
+ *
+ * The returned nodes are only the owner set for the report. Rule-specific
+ * suppression or false-positive handling can be applied afterwards by callers.
  *
  * @param node the reported node located inside a React-related construct
  * @param context the current ESLint rule context

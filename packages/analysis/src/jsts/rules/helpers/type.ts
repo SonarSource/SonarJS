@@ -23,6 +23,9 @@ import type { Rule } from 'eslint';
 
 export type RuleContext = TSESLint.RuleContext<string, string[]>;
 
+/**
+ * Returns true when `node` resolves to the built-in `Array` type.
+ */
 export function isArray(node: estree.Node, services: RequiredParserServices) {
   const type = getTypeFromTreeNode(node, services);
   return type.symbol?.name === 'Array';
@@ -86,36 +89,57 @@ export function isTypedArray(node: estree.Node, services: RequiredParserServices
   return TYPED_ARRAY_TYPES.has(type.symbol?.name);
 }
 
+/**
+ * Returns true when `node` resolves to a string-like type.
+ */
 export function isString(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   const typ = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
   return (typ.getFlags() & ts.TypeFlags.StringLike) !== 0;
 }
 
+/**
+ * Returns true when `node` resolves to a number-like type.
+ */
 export function isNumber(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   const typ = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
   return (typ.getFlags() & ts.TypeFlags.NumberLike) !== 0;
 }
 
+/**
+ * Returns true when `type` is bigint-like.
+ */
 export function isBigIntType(type: ts.Type) {
   return (type.getFlags() & ts.TypeFlags.BigIntLike) !== 0;
 }
 
+/**
+ * Returns true when `type` is number-like.
+ */
 export function isNumberType(type: ts.Type) {
   return (type.getFlags() & ts.TypeFlags.NumberLike) !== 0;
 }
 
+/**
+ * Returns true when `type` is string-like.
+ */
 export function isStringType(type: ts.Type) {
   return (type.flags & ts.TypeFlags.StringLike) > 0 || type.symbol?.name === 'String';
 }
 
+/**
+ * Returns true when `node` resolves to a function type.
+ */
 export function isFunction(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   const type = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
   return type.symbol && (type.symbol.flags & ts.SymbolFlags.Function) !== 0;
 }
 
+/**
+ * Returns true when `node` resolves to a union type.
+ */
 export function isUnion(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   const type = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
@@ -132,6 +156,9 @@ function getUnionTypes(type: ts.Type): ts.Type[] {
   return type.isUnion() ? type.types : [type];
 }
 
+/**
+ * Returns true when `node` resolves to `undefined`, `null`, or a union containing either.
+ */
 export function isUndefinedOrNull(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   const typ = checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
@@ -140,6 +167,9 @@ export function isUndefinedOrNull(node: estree.Node, services: RequiredParserSer
   );
 }
 
+/**
+ * Returns true when `node` resolves to a thenable type.
+ */
 export function isThenable(node: estree.Node, services: RequiredParserServices) {
   const mapped = services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node);
   const checker = services.program.getTypeChecker();
@@ -182,6 +212,9 @@ function hasThenMethod(type: ts.Type, checker: ts.TypeChecker): boolean {
   return thenType.getCallSignatures().length > 0;
 }
 
+/**
+ * Returns true when `type` is exactly `any`.
+ */
 export function isAny(type: ts.Type) {
   return type.flags === ts.TypeFlags.Any;
 }
@@ -208,13 +241,19 @@ export function areMutuallyAssignableTypes(
 }
 
 /**
- * Returns true when both types resolve to the same declared type symbol and, for
- * generic declarations, the same instantiated type arguments.
+ * Returns true when both types come from the same named declaration and, for
+ * generic declarations, are instantiated with the same type arguments.
  *
- * Unlike structural assignability, this keeps unrelated declarations with the
- * same shape distinct. That nominal-ish behavior is intentional: `Props<User>`
- * and `Props<{ id: string }>` remain different when only one side points at a
- * declared symbol, while `Props<User>` and `Props<Product>` still stay distinct.
+ * The comparison has two steps:
+ * 1. the declarations must resolve to the same symbol
+ * 2. each type argument must match through `areSameTypeArguments(...)`
+ *
+ * That helper can call back into this function for named type arguments, so
+ * generic comparisons recurse through nested declarations.
+ *
+ * This is intentionally stricter than structural equality: `Props<User>` and
+ * `Props<Product>` are different, and `Props<User>` also stays different from
+ * `Props<{ id: string }>` even if the shapes happen to match.
  */
 export function areSameTypeDeclarations(
   checker: ts.TypeChecker,
@@ -274,6 +313,14 @@ function isAnyOrUnknownType(type: ts.Type): boolean {
   return (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0;
 }
 
+/**
+ * Returns the symbol to use for declaration-based comparisons.
+ *
+ * Anonymous type literals such as `{ id: string }` are intentionally excluded:
+ * their `TypeLiteral` symbols do not represent stable declaration identities.
+ * Named interfaces and type aliases are still kept because we prefer
+ * `aliasSymbol` over the underlying `TypeLiteral` symbol.
+ */
 function getComparableDeclaredTypeSymbol(type: ts.Type): ts.Symbol | undefined {
   const symbol = type.aliasSymbol ?? type.symbol;
   return symbol && (symbol.flags & ts.SymbolFlags.TypeLiteral) === 0 ? symbol : undefined;
@@ -310,21 +357,33 @@ export function isGenericType(node: TSESTree.Node, services: RequiredParserServi
   return type.isTypeParameter();
 }
 
+/**
+ * Returns the TypeScript type resolved at `node`.
+ */
 export function getTypeFromTreeNode(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
 }
 
+/**
+ * Returns the widened string representation of the type resolved at `node`.
+ */
 export function getTypeAsString(node: estree.Node, services: RequiredParserServices) {
   const { typeToString, getBaseTypeOfLiteralType } = services.program.getTypeChecker();
   return typeToString(getBaseTypeOfLiteralType(getTypeFromTreeNode(node, services)));
 }
 
+/**
+ * Returns the symbol resolved at `node`, if any.
+ */
 export function getSymbolAtLocation(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   return checker.getSymbolAtLocation(services.esTreeNodeToTSNodeMap.get(node as TSESTree.Node));
 }
 
+/**
+ * Returns the resolved call signature for the call-like expression at `node`.
+ */
 export function getSignatureFromCallee(node: estree.Node, services: RequiredParserServices) {
   const checker = services.program.getTypeChecker();
   return checker.getResolvedSignature(
@@ -437,22 +496,37 @@ function isBooleanLiteralType(type: ts.Type): type is ts.Type & {
   return type.flags === ts.TypeFlags.BooleanLiteral;
 }
 
+/**
+ * Returns true when `type` is the boolean literal `true`.
+ */
 export function isBooleanTrueType(type: ts.Type) {
   return isBooleanLiteralType(type) && type.intrinsicName === 'true';
 }
 
+/**
+ * Returns true when `type` is boolean-like.
+ */
 export function isBooleanType({ flags }: ts.Type) {
   return (flags & ts.TypeFlags.BooleanLike) !== 0;
 }
 
+/**
+ * Returns true when `type` is `null`, `undefined`, or a union containing either.
+ */
 export function isNullOrUndefinedType({ flags }: ts.Type) {
   return flags & ts.TypeFlags.Null || flags & ts.TypeFlags.Undefined;
 }
 
+/**
+ * Returns true when `type` is object-like.
+ */
 export function isObjectType({ flags }: ts.Type) {
   return flags & ts.TypeFlags.Object;
 }
 
+/**
+ * Returns true when `node` exposes a callable member named `methodName`.
+ */
 export function typeHasMethod(
   node: estree.Node,
   methodName: string,
