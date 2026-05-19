@@ -15,9 +15,54 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { test } from '../../../../tests/jsts/tools/testers/comment-based/checker.js';
+import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './index.js';
-import { describe } from 'node:test';
+import { rules as tsEslintRules } from '../external/typescript-eslint/index.js';
+import { describe, it } from 'node:test';
 import * as meta from './generated-meta.js';
+
+const upstreamRule = tsEslintRules['no-base-to-string'];
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
+describe('S6551 upstream sentinel', () => {
+  it('upstream no-base-to-string raises on guarded toString calls that decorator suppresses', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('no-base-to-string', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+function guardedByPrototypeComparison(value: object) {
+  if (value.toString !== Object.prototype.toString) {
+    return value.toString();
+  }
+
+  return undefined;
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function rejectedDefaultStringResult(data: unknown) {
+  if (data && typeof data === 'object' && typeof data.toString === 'function') {
+    const rendered = data.toString();
+    if (rendered !== '[object Object]') {
+      return rendered;
+    }
+  }
+
+  return data;
+}
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
 
 describe('Rule S6551', () => {
   test(meta, rule, import.meta.dirname);
