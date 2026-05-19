@@ -35,9 +35,8 @@ import { APIError } from '../../contracts/error.js';
 import { pathToFileURL } from 'node:url';
 import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
-import { defaultOptions, applyTransformations } from '../rules/helpers/configs.js';
+import { materializeRuleOptions } from '../rules/helpers/configs.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
-import merge from 'lodash.merge';
 import {
   getDependencies,
   getModuleType,
@@ -236,7 +235,7 @@ export class Linter {
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
-    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
+    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath, rules));
     clearFileCaches();
     return transformMessages(messages, language, {
       sourceCode,
@@ -372,21 +371,16 @@ export class Linter {
    * @param rules the rules from the active quality profile
    */
   private static createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
-    return rules.reduce((rules, rule) => {
-      // in the case of bundles, rule.key will not be present in the ruleMetas
-      const ruleMeta = getRuleMeta(rule);
-      if (ruleMeta?.fields) {
-        rules[`sonarjs/${rule.key}`] = [
-          'error',
-          ...applyTransformations(
-            ruleMeta.fields,
-            merge(defaultOptions(ruleMeta.fields), rule.configurations),
-          ),
-        ];
-      } else {
-        rules[`sonarjs/${rule.key}`] = ['error'];
-      }
-      return rules;
+    return rules.reduce((rulesRecord, rule) => {
+      const transformedOptions = materializeRuleOptions(
+        getRuleMeta(rule),
+        Linter.rules[rule.key],
+        rule.configurations,
+      );
+
+      rulesRecord[`sonarjs/${rule.key}`] =
+        transformedOptions.length > 0 ? ['error', ...transformedOptions] : ['error'];
+      return rulesRecord;
     }, {} as ESLintLinter.RulesRecord);
   }
 }
