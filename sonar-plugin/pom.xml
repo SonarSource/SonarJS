@@ -16,6 +16,7 @@
   <properties>
     <node.init.phase>initialize</node.init.phase>
     <node.build.phase>generate-resources</node.build.phase>
+    <rule.data.build.phase>${node.build.phase}</rule.data.build.phase>
     <node.resources.phase>process-resources</node.resources.phase>
     <protobuf.generation.phase>generate-sources</protobuf.generation.phase>
     <java.generation.phase>generate-resources</java.generation.phase>
@@ -62,6 +63,18 @@
       </activation>
       <properties>
         <java.generation.phase>none</java.generation.phase>
+      </properties>
+    </profile>
+    <profile>
+      <id>skip-rule-data-generation</id>
+      <activation>
+        <property>
+          <name>env.SONARJS_SKIP_RULE_DATA_GENERATION</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <properties>
+        <rule.data.build.phase>none</rule.data.build.phase>
       </properties>
     </profile>
   </profiles>

@@ -89,7 +89,7 @@
         <executions>
           <execution>
             <id>generate-rspec-javascript</id>
-            <phase>${node.build.phase}</phase>
+            <phase>${rule.data.build.phase}</phase>
             <goals>
               <goal>generate-rule-data</goal>
             </goals>
@@ -101,7 +101,7 @@
           </execution>
           <execution>
             <id>generate-rspec-css</id>
-            <phase>${node.build.phase}</phase>
+            <phase>${rule.data.build.phase}</phase>
             <goals>
               <goal>generate-rule-data</goal>
             </goals>
@@ -120,7 +120,7 @@
         <executions>
           <execution>
             <id>deploy-rule-data</id>
-            <phase>${node.build.phase}</phase>
+            <phase>${rule.data.build.phase}</phase>
             <goals>
               <goal>exec</goal>
             </goals>

@@ -62,7 +62,6 @@
   },
   "type": "module",
   "devDependencies": {
-    "@asciidoctor/core": "3.0.4",
     "@eslint/core": "1.2.1",
     "@inquirer/prompts": "8.5.2",
     "@istanbuljs/esm-loader-hook": "0.3.0",
