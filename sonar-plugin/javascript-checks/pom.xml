@@ -13,6 +13,7 @@
   <name>SonarQube JavaScript :: Checks</name>
 
   <properties>
+    <rule.data.build.phase>none</rule.data.build.phase>
     <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.exclusions>src/main/java/org/sonar/javascript/checks/AllChecks.java,src/main/java/org/sonar/javascript/checks/S*.java</sonar.exclusions>
     <sonar.coverage.exclusions>src/main/java/org/sonar/javascript/checks/AllChecks.java,src/main/java/org/sonar/javascript/checks/S*.java</sonar.coverage.exclusions>
@@ -57,6 +58,12 @@
               <includes>
                 <include>org/sonar/l10n/javascript/rules/javascript/**</include>
                 <include>rspec.sha</include>
+              </includes>
+            </fileset>
+            <fileset>
+              <directory>${project.basedir}/../css/src/main/resources</directory>
+              <includes>
+                <include>org/sonar/l10n/css/rules/css/**</include>
               </includes>
             </fileset>
             <fileset>
@@ -182,5 +189,41 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>generate-rule-data-when-javascript-rule-data-is-missing</id>
+      <activation>
+        <file>
+          <missing>${project.basedir}/src/main/resources/org/sonar/l10n/javascript/rules/javascript</missing>
+        </file>
+      </activation>
+      <properties>
+        <rule.data.build.phase>${node.build.phase}</rule.data.build.phase>
+      </properties>
+    </profile>
+    <profile>
+      <id>generate-rule-data-when-css-rule-data-is-missing</id>
+      <activation>
+        <file>
+          <missing>${project.basedir}/../css/src/main/resources/org/sonar/l10n/css/rules/css</missing>
+        </file>
+      </activation>
+      <properties>
+        <rule.data.build.phase>${node.build.phase}</rule.data.build.phase>
+      </properties>
+    </profile>
+    <profile>
+      <id>generate-rule-data-when-rspec-sha-is-missing</id>
+      <activation>
+        <file>
+          <missing>${project.basedir}/src/main/resources/rspec.sha</missing>
+        </file>
+      </activation>
+      <properties>
+        <rule.data.build.phase>${node.build.phase}</rule.data.build.phase>
+      </properties>
+    </profile>
+  </profiles>
 
 </project>

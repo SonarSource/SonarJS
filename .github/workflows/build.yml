@@ -149,7 +149,6 @@ jobs:
     env: &shared_build_number
       # Reuse the build number minted once in get_build_number across every config-maven caller.
       BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
-      SONARJS_SKIP_RULE_DATA_GENERATION: 'true'
     steps:
       - *checkout
       - &mise
@@ -282,8 +281,6 @@ jobs:
     name: Build ESLint Plugin
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
-    env: &prepared_rule_data_env
-      SONARJS_SKIP_RULE_DATA_GENERATION: 'true'
     steps:
       - *checkout
       - *mise
@@ -316,7 +313,6 @@ jobs:
       id-token: write
       contents: write
       pull-requests: write
-    env: *prepared_rule_data_env
     steps:
       - *checkout
       - *mise
@@ -402,7 +398,6 @@ jobs:
     name: Knip
     needs: [setup, populate_npm_cache, prepare_rspec_rule_data]
     permissions: *read_permissions
-    env: *prepared_rule_data_env
     steps:
       - *checkout
       - *mise
@@ -418,7 +413,6 @@ jobs:
     name: Unit tests JavaScript/TypeScript
     needs: [setup, populate_npm_cache, prepare_rspec_rule_data]
     permissions: *read_permissions
-    env: *prepared_rule_data_env
     steps:
       - name: Check JS coverage cache
         id: cache
@@ -464,7 +458,6 @@ jobs:
     name: Unit tests JavaScript on Windows
     needs: [setup, populate_npm_cache_win, prepare_rspec_rule_data]
     permissions: *read_permissions
-    env: *prepared_rule_data_env
     steps:
       - name: Cache JS test results marker (Windows)
         id: cache
@@ -1025,7 +1018,6 @@ jobs:
       id-token: write
       contents: write
       pull-requests: write
-    env: *prepared_rule_data_env
     steps:
       - &checkout_with_submodules
         name: Checkout source code

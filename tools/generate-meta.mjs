@@ -18,8 +18,7 @@ import { existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 
-const skipRuleDataGeneration = process.env.SONARJS_SKIP_RULE_DATA_GENERATION === 'true';
-const ruleDataDirectories = [
+const preparedRuleDataPaths = [
   join(
     'sonar-plugin',
     'javascript-checks',
@@ -46,19 +45,9 @@ const ruleDataDirectories = [
     'rules',
     'css',
   ),
+  join('sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha'),
 ];
-
-if (skipRuleDataGeneration) {
-  const missingRuleDataDirectories = ruleDataDirectories.filter(
-    directory => !existsSync(directory),
-  );
-  if (missingRuleDataDirectories.length > 0) {
-    console.error(
-      `SONARJS_SKIP_RULE_DATA_GENERATION=true requires prepared rule data. Missing: ${missingRuleDataDirectories.join(', ')}`,
-    );
-    process.exit(1);
-  }
-}
+const hasPreparedRuleData = preparedRuleDataPaths.every(path => existsSync(path));
 
 const command =
   process.env.npm_execpath === undefined
@@ -68,7 +57,7 @@ const command =
     : process.execPath;
 const commandArgumentsPrefix =
   process.env.npm_execpath === undefined ? [] : [process.env.npm_execpath];
-const scripts = skipRuleDataGeneration
+const scripts = hasPreparedRuleData
   ? ['generate-meta:raw']
   : ['generate-rule-data:maven', 'generate-meta:raw'];
 

@@ -28,7 +28,7 @@ The build fetches rule metadata from the private `SonarSource/rspec` repository 
    source ~/.zshenv
    ```
 
-`npm run generate-meta` now invokes Maven first to materialize RSPEC rule data before generating the tracked TypeScript metadata.
+`npm run generate-meta` refreshes RSPEC rule data only when the generated local outputs are missing. On a fresh checkout, or after `mvn clean`, it still needs `GITHUB_TOKEN` to fetch from `SonarSource/rspec`.
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
