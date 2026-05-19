@@ -21,8 +21,7 @@ import type { CallExpression, Node } from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { hasStringFirstArgument } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
-
-const TEST_FILE_PATTERN = /\.(?:spec|test|cy)\./;
+import { isTestFile } from '../helpers/test-file-pattern.js';
 
 const APIs = new Set([
   // Jasmine test cases: it(...), fit(...), xit(...).
@@ -120,8 +119,8 @@ export const rule: Rule.RuleModule = {
     },
   }),
   create(context: Rule.RuleContext) {
-    const { filename } = context;
-    if (!TEST_FILE_PATTERN.test(filename)) {
+    const { filename, settings } = context;
+    if (!isTestFile(filename, settings?.testFileExtensions as string[] | undefined)) {
       return {};
     }
 

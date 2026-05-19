@@ -14,20 +14,5 @@
 "templating:src/util/ng_polymer.js": [
 7,
 26
-],
-"templating:test/example/greet.spec.js": [
-5
-],
-"templating:test/example/ngmodel.spec.js": [
-5
-],
-"templating:test/example/tab.spec.js": [
-14
-],
-"templating:test/example/todo.spec.js": [
-4
-],
-"templating:test/example/video.spec.js": [
-7
 ]
 }

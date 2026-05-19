@@ -5,9 +5,6 @@
 "Joust:ts/Choices.ts": [
 6
 ],
-"Joust:ts/Entity.spec.ts": [
-7
-],
 "Joust:ts/Entity.ts": [
 5
 ],
@@ -19,9 +16,6 @@
 ],
 "Joust:ts/Option.ts": [
 3
-],
-"Joust:ts/Player.spec.ts": [
-6
 ],
 "Joust:ts/Player.ts": [
 6
@@ -167,9 +161,6 @@
 "Joust:ts/debug.tsx": [
 7
 ],
-"Joust:ts/protocol/HSReplayDecoder.spec.ts": [
-11
-],
 "Joust:ts/protocol/HSReplayDecoder.ts": [
 28
 ],
@@ -182,17 +173,11 @@
 "Joust:ts/run.ts": [
 5
 ],
-"Joust:ts/state/GameState.spec.ts": [
-5
-],
 "Joust:ts/state/GameState.ts": [
 16
 ],
 "Joust:ts/state/GameStateDescriptor.ts": [
 7
-],
-"Joust:ts/state/GameStateHistory.spec.ts": [
-9
 ],
 "Joust:ts/state/GameStateHistory.ts": [
 10
@@ -226,9 +211,6 @@
 ],
 "Joust:ts/state/mutators/HideEntityMutator.ts": [
 7
-],
-"Joust:ts/state/mutators/IncrementTimeMutator.spec.ts": [
-6
 ],
 "Joust:ts/state/mutators/IncrementTimeMutator.ts": [
 5

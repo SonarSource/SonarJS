@@ -395,6 +395,8 @@ export interface FilterPathParams {
   testInclusions: Minimatch[];
   /** sonar.test.exclusions - wildcards to narrow down sonar.tests */
   testExclusions: Minimatch[];
+  /** Union of jsSuffixes and tsSuffixes used by the test-file filename heuristic */
+  testFileExtensions: string[];
 }
 
 /**
@@ -413,6 +415,10 @@ export function getFilterPathParams(configuration: Configuration): FilterPathPar
     exclusions: configuration.exclusions,
     testInclusions: configuration.testInclusions,
     testExclusions: configuration.testExclusions,
+    testFileExtensions: [
+      ...(configuration.jsSuffixes.length ? configuration.jsSuffixes : DEFAULT_JS_EXTENSIONS),
+      ...(configuration.tsSuffixes.length ? configuration.tsSuffixes : DEFAULT_TS_EXTENSIONS),
+    ],
   };
 }
 

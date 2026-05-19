@@ -1,27 +1,4 @@
 {
-"postgraphql:src/__tests__/utils/pgPool.ts": [
-8
-],
-"postgraphql:src/graphql/__tests__/fixtures/forumInventory.ts": [
-15,
-24,
-35,
-36,
-46,
-54,
-63,
-74,
-82,
-91,
-102,
-112,
-113,
-123,
-134,
-142,
-151,
-160
-],
 "postgraphql:src/graphql/index.ts": [
 4
 ],
@@ -411,15 +388,6 @@
 "postgraphql:src/postgres/introspection/introspectDatabase.ts": [
 29
 ],
-"postgraphql:src/postgres/inventory/__tests__/conditionToSql-test.ts": [
-84,
-85,
-86,
-87,
-88,
-89,
-94
-],
 "postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts": [
 13,
 18,
@@ -534,19 +502,6 @@
 ],
 "postgraphql:src/postgres/inventory/type/scalar/pgStringType.ts": [
 19
-],
-"postgraphql:src/postgres/utils/__tests__/sql-test.ts": [
-78,
-85,
-92,
-99,
-103,
-110,
-121,
-129,
-140,
-149,
-157
 ],
 "postgraphql:src/postgres/utils/sql.ts": [
 102

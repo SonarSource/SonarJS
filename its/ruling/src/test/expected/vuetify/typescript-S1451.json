@@ -263,13 +263,7 @@
 "vuetify:packages/vuetify/src/components/VCode/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/VColorPicker/__tests__/VColorPicker.spec.cy.tsx": [
-0
-],
 "vuetify:packages/vuetify/src/components/VColorPicker/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VColorPicker/util/__tests__/index.spec.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VCombobox/index.ts": [
@@ -287,9 +281,6 @@
 "vuetify:packages/vuetify/src/components/VDatePicker/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/util/__tests__/sanitizeDateString.spec.ts": [
-0
-],
 "vuetify:packages/vuetify/src/components/VDefaultsProvider/index.ts": [
 0
 ],
@@ -305,25 +296,16 @@
 "vuetify:packages/vuetify/src/components/VField/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/VFileInput/__tests__/VFileInput.spec.tsx": [
-0
-],
 "vuetify:packages/vuetify/src/components/VFileInput/index.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VFooter/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/VForm/__tests__/VForm.spec.cy.tsx": [
-0
-],
 "vuetify:packages/vuetify/src/components/VForm/index.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VGrid/VSpacer.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VGrid/__tests__/VCol.spec.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VGrid/index.ts": [
@@ -369,9 +351,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/components/VList/VListItemTitle.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VList/__tests__/VList.spec.cy.tsx": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VList/index.ts": [
@@ -461,9 +440,6 @@
 "vuetify:packages/vuetify/src/components/VSkeletonLoader/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/VSlideGroup/__tests__/VSlideGroup.spec.cy.tsx": [
-0
-],
 "vuetify:packages/vuetify/src/components/VSlideGroup/helpers.ts": [
 0
 ],
@@ -503,13 +479,7 @@
 "vuetify:packages/vuetify/src/components/VTabs/shared.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/components/VTextField/__tests__/VTextField.spec.tsx": [
-0
-],
 "vuetify:packages/vuetify/src/components/VTextField/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VTextarea/__tests__/VTextarea.spec.tsx": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VTextarea/index.ts": [
@@ -519,9 +489,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/components/VTimePicker/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/components/VTimeline/__tests__/VTimeline.spec.cy.tsx": [
 0
 ],
 "vuetify:packages/vuetify/src/components/VTimeline/index.ts": [
@@ -548,24 +515,6 @@
 "vuetify:packages/vuetify/src/components/transitions/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/composables/__tests__/forwardRefs.spec.tsx": [
-0
-],
-"vuetify:packages/vuetify/src/composables/__tests__/group.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/composables/__tests__/scroll.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/composables/__tests__/size.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/composables/__tests__/theme.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/composables/__tests__/variant.spec.ts": [
-0
-],
 "vuetify:packages/vuetify/src/composables/filter.ts": [
 0
 ],
@@ -576,9 +525,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/composables/locale.ts": [
-0
-],
-"vuetify:packages/vuetify/src/composables/nested/__tests__/selectStrategies.spec.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/composables/nested/nested.ts": [
@@ -602,31 +548,13 @@
 "vuetify:packages/vuetify/src/composables/touch.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside-shadow-dom.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside.spec.ts": [
-0
-],
 "vuetify:packages/vuetify/src/directives/click-outside/index.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/directives/index.ts": [
 0
 ],
-"vuetify:packages/vuetify/src/directives/intersect/__tests__/intersect.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/directives/resize/__tests__/resize.spec.ts": [
-0
-],
 "vuetify:packages/vuetify/src/directives/resize/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/directives/ripple/__tests__/ripple.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/directives/scroll/index.ts": [
@@ -639,9 +567,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableColumn.tsx": [
-0
-],
-"vuetify:packages/vuetify/src/labs/VDataTable/__tests__/sort.spec.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/index.ts": [
@@ -663,9 +588,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/labs/index.ts": [
-0
-],
-"vuetify:packages/vuetify/src/locale/__tests__/index.spec.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/locale/adapters/vue-i18n.ts": [
@@ -804,24 +726,6 @@
 0
 ],
 "vuetify:packages/vuetify/src/services/goto/easing-patterns.ts": [
-0
-],
-"vuetify:packages/vuetify/src/util/__tests__/colorUtils.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/util/__tests__/console.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/util/__tests__/dateTimeUtils.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/util/__tests__/dom.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/util/__tests__/helpers.spec.ts": [
-0
-],
-"vuetify:packages/vuetify/src/util/__tests__/propsFactory.spec.ts": [
 0
 ],
 "vuetify:packages/vuetify/src/util/anchor.ts": [

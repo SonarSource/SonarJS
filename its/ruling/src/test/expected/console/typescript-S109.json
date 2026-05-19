@@ -1,8 +1,4 @@
 {
-"console:src/actions/databrowser/__tests__/data.ts": [
-160,
-167
-],
 "console:src/actions/gettingStarted.tsx": [
 57
 ],
@@ -50,27 +46,8 @@
 43,
 47
 ],
-"console:src/reducers/databrowser/__tests__/data.ts": [
-50
-],
 "console:src/routes.tsx": [
 107
-],
-"console:src/utils/__tests__/valueparser.ts": [
-38,
-47,
-65,
-74,
-92,
-173,
-264,
-271,
-271,
-271,
-320,
-320,
-329,
-329
 ],
 "console:src/utils/creditCardValidator.ts": [
 26,
@@ -248,13 +225,6 @@
 199,
 199,
 339
-],
-"console:src/views/models/FieldPopup/__tests__/FieldPopupStateTest.ts": [
-31,
-43,
-55,
-67,
-79
 ],
 "console:src/views/models/utils.ts": [
 137,

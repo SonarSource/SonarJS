@@ -153,11 +153,6 @@
 "console:src/views/models/DatabrowserView/Cell/SelectNodesCell/Table/headerRenderer.tsx": [
 16
 ],
-"console:src/views/models/DatabrowserView/Cell/__tests__/NullableCell.tsx": [
-11,
-12,
-13
-],
 "console:src/views/models/DatabrowserView/Cell/cellgenerator.tsx": [
 72,
 75

@@ -1,11 +1,4 @@
 {
-"tailwindcss:__tests__/cli.test.js": [
-4,
-5
-],
-"tailwindcss:__tests__/cli.utils.test.js": [
-1
-],
 "tailwindcss:src/cli.js": [
 4
 ],

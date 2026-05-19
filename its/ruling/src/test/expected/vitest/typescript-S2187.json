@@ -47,9 +47,6 @@
 "vitest:test/cli/fixtures/rollup-error/not-found-package.test.ts": [
 0
 ],
-"vitest:test/config/fixtures/mode/vitest.test.config.ts": [
-0
-],
 "vitest:test/core/test/fixture-concurrent-beforeEach.test.ts": [
 0
 ],

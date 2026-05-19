@@ -1,0 +1,35 @@
+{
+"vuetify:packages/vuetify/src/components/VBtn/__tests__/VBtn.spec.cy.tsx": [
+129
+],
+"vuetify:packages/vuetify/src/components/VFileInput/__tests__/VFileInput.spec.cy.tsx": [
+109
+],
+"vuetify:packages/vuetify/src/components/VList/__tests__/VList.spec.cy.tsx": [
+13,
+35,
+57,
+86
+],
+"vuetify:packages/vuetify/src/components/VList/__tests__/VListGroup.spec.cy.tsx": [
+13,
+29
+],
+"vuetify:packages/vuetify/src/components/VList/__tests__/VListItem.spec.cy.tsx": [
+12
+],
+"vuetify:packages/vuetify/src/components/VPagination/__tests__/VPagination.spec.cy.tsx": [
+95
+],
+"vuetify:packages/vuetify/src/components/VSlider/__tests__/VSlider.spec.cy.tsx": [
+165,
+187
+],
+"vuetify:packages/vuetify/src/components/VToolbar/__tests__/VToolbar.spec.cy.tsx": [
+15,
+39
+],
+"vuetify:packages/vuetify/src/components/VWindow/__tests__/VWindow.spec.cy.tsx": [
+197
+]
+}

@@ -22,15 +22,8 @@
 173,
 182
 ],
-"oak:middleware/serve.test.ts": [
-50,
-99
-],
 "oak:router.ts": [
 392
-],
-"oak:send.test.ts": [
-431
 ],
 "oak:send.ts": [
 259,

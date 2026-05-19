@@ -47,7 +47,7 @@ export const rule: Rule.RuleModule = {
               data: {
                 parameter: param.name,
               },
-              node: param as estree.Node,
+              node: param,
             });
           }
         }

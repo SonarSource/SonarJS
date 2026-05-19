@@ -104,9 +104,6 @@
 "vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
 115
 ],
-"vuetify:packages/vuetify/src/composables/__tests__/proxiedModel.spec.ts": [
-153
-],
 "vuetify:packages/vuetify/src/composables/delay.ts": [
 31
 ],

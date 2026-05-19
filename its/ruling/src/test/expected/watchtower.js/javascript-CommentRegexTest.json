@@ -70,28 +70,5 @@
 284,
 308,
 320
-],
-"watchtower.js:test/dirtychecking.spec.js": [
-170,
-281,
-414,
-418,
-552
-],
-"watchtower.js:test/observer.spec.js": [
-115
-],
-"watchtower.js:test/watchgroup.spec.js": [
-285,
-394,
-395,
-396,
-397,
-398,
-399,
-682,
-854,
-886,
-890
 ]
 }

@@ -77,19 +77,6 @@
 "Joust:ts/components/game/visuals/CardArt.tsx": [
 142
 ],
-"Joust:ts/protocol/HSReplayDecoder.spec.ts": [
-24,
-35,
-44,
-57,
-70,
-85,
-97,
-108,
-123,
-147,
-156
-],
 "Joust:ts/protocol/KettleDecoder.ts": [
 40,
 97,

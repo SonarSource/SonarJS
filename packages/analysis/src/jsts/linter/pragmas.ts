@@ -16,12 +16,12 @@
  */
 import { SourceCode as ESLintSourceCode, type Linter, type Rule, type SourceCode } from 'eslint';
 import type estree from 'estree';
-import merge from 'lodash.merge';
 import * as ruleMetas from '../rules/metas.js';
 import * as rules from '../rules/rules.js';
 import { getExternalRuleDefinition } from '../rules/external/registry.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import { materializeRuleOptions, mergeRuleOptions } from '../rules/helpers/configs.js';
 
 const sonarRules = rules as Record<string, Rule.RuleModule>;
 
@@ -95,19 +95,29 @@ function getScopedExternalRuleId(externalPlugin: string, externalRule: string): 
 
 function normalizeInlineRuleOptions(
   options: Linter.RuleEntry,
-  directiveRuleDefinition: Rule.RuleModule,
+  mapping: MappingEntry,
+  activeRuleOptions?: Linter.RuleEntry,
 ): Linter.RuleEntry {
-  if (!Array.isArray(options) || options.length === 0) {
+  if (Array.isArray(options) && options.length === 0) {
     return options;
   }
 
-  const [severity, ...ruleOptions] = options;
-  const defaultOptions = directiveRuleDefinition.meta?.defaultOptions;
-  if (!defaultOptions?.length) {
-    return options;
+  const [severity, ...ruleOptions] = Array.isArray(options) ? options : [options];
+  const defaultOptions = getInlineRuleDefaultOptions(mapping, activeRuleOptions);
+  const mergedOptions = mergeRuleOptions(defaultOptions, ruleOptions);
+
+  return mergedOptions.length > 0 ? [severity, ...mergedOptions] : severity;
+}
+
+function getInlineRuleDefaultOptions(
+  mapping: MappingEntry,
+  activeRuleOptions?: Linter.RuleEntry,
+): unknown[] {
+  if (Array.isArray(activeRuleOptions)) {
+    return activeRuleOptions.slice(1);
   }
 
-  return [severity, ...merge([], defaultOptions, ruleOptions)];
+  return materializeRuleOptions(getSonarMeta(mapping.ruleId), mapping.directiveRuleDefinition);
 }
 
 /**
@@ -222,7 +232,10 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-export function createOptions(filename: NormalizedAbsolutePath): Linter.LintOptions & {
+export function createOptions(
+  filename: NormalizedAbsolutePath,
+  activeRules: Linter.RulesRecord,
+): Linter.LintOptions & {
   getRule: (ruleId: string) => Rule.RuleModule | undefined;
   patchDirectives: (disableDirectives: Directive[]) => void;
   patchInlineOptions: (config: { rules: Linter.RulesRecord }) => void;
@@ -260,21 +273,44 @@ export function createOptions(filename: NormalizedAbsolutePath): Linter.LintOpti
       }
     },
     patchInlineOptions: (config: { rules: Linter.RulesRecord }) => {
-      const patchedOptions: Linter.RulesRecord = {};
+      const patchedOptions: Linter.RulesRecord = { ...config.rules };
+      const aliasedRuleIds = new Set<string>();
+
       for (const [ruleId, options] of Object.entries(config.rules)) {
         const mapping = eslintMapping[getRuleId(ruleId)];
-        if (mapping) {
+        if (mapping && ruleId !== mapping.ruleId) {
           // ESLint has already parsed the inline directive at this point, but once we remap the
-          // rule id we must reapply the defaults for the alias used in the file. Otherwise a
-          // severity-only pragma such as `/* eslint prefer-const: 2 */` drops the option object
-          // that external rules expect and can crash during rule creation.
+          // rule id we must reapply the active Sonar/materialized options for that rule. Otherwise
+          // severity-only pragmas drop Sonar defaults, and inline overrides merge against raw
+          // upstream alias defaults instead of the effective runtime config.
           patchedOptions[mapping.ruleId] = normalizeInlineRuleOptions(
             options,
-            mapping.directiveRuleDefinition,
+            mapping,
+            activeRules[mapping.ruleId],
+          );
+          delete patchedOptions[ruleId];
+          aliasedRuleIds.add(mapping.ruleId);
+        }
+      }
+
+      for (const [ruleId, options] of Object.entries(config.rules)) {
+        const mapping = eslintMapping[getRuleId(ruleId)];
+        if (ruleId === mapping?.ruleId && !aliasedRuleIds.has(ruleId)) {
+          patchedOptions[ruleId] = normalizeInlineRuleOptions(
+            options,
+            mapping,
+            activeRules[ruleId],
           );
         }
       }
       config.rules = patchedOptions;
     },
   };
+}
+
+function getSonarMeta(ruleId: string): SonarMeta | undefined {
+  const sonarKey = getRuleId(ruleId);
+  return sonarKey in ruleMetas
+    ? (ruleMetas[sonarKey as keyof typeof ruleMetas] as SonarMeta)
+    : undefined;
 }

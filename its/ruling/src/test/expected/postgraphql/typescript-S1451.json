@@ -1,19 +1,4 @@
 {
-"postgraphql:src/__tests__/utils/createTestInParallel.ts": [
-0
-],
-"postgraphql:src/__tests__/utils/kitchenSinkSchemaSql.ts": [
-0
-],
-"postgraphql:src/__tests__/utils/pgPool.ts": [
-0
-],
-"postgraphql:src/__tests__/utils/withPgClient.ts": [
-0
-],
-"postgraphql:src/graphql/__tests__/fixtures/forumInventory.ts": [
-0
-],
 "postgraphql:src/graphql/index.ts": [
 0
 ],
@@ -86,15 +71,6 @@
 "postgraphql:src/graphql/schema/type/getGqlOutputType.ts": [
 0
 ],
-"postgraphql:src/graphql/utils/__tests__/buildObject-test.ts": [
-0
-],
-"postgraphql:src/graphql/utils/__tests__/formatName-test.ts": [
-0
-],
-"postgraphql:src/graphql/utils/__tests__/memoize-test.ts": [
-0
-],
 "postgraphql:src/graphql/utils/buildObject.ts": [
 0
 ],
@@ -135,9 +111,6 @@
 0
 ],
 "postgraphql:src/interface/collection/Relation.ts": [
-0
-],
-"postgraphql:src/interface/collection/__tests__/Condition-test.ts": [
 0
 ],
 "postgraphql:src/interface/index.ts": [
@@ -281,9 +254,6 @@
 "postgraphql:src/postgres/inventory/Options.ts": [
 0
 ],
-"postgraphql:src/postgres/inventory/__tests__/conditionToSql-test.ts": [
-0
-],
 "postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts": [
 0
 ],
@@ -363,15 +333,6 @@
 0
 ],
 "postgraphql:src/postgres/inventory/type/scalar/pgStringType.ts": [
-0
-],
-"postgraphql:src/postgres/utils/__tests__/mapToObject-test.ts": [
-0
-],
-"postgraphql:src/postgres/utils/__tests__/objectToMap-test.ts": [
-0
-],
-"postgraphql:src/postgres/utils/__tests__/sql-test.ts": [
 0
 ],
 "postgraphql:src/postgres/utils/index.ts": [

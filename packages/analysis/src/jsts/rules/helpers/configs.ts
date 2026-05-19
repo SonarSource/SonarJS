@@ -14,6 +14,8 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import type { Rule } from 'eslint';
+
 type Default = string | boolean | number | string[] | number[] | Object;
 
 type ESLintConfigurationDefaultProperty = {
@@ -64,6 +66,62 @@ export function defaultOptions(configuration?: ESLintConfiguration) {
   });
 }
 
+type RuleMetaWithFields = {
+  fields?: ESLintConfiguration;
+};
+
+export function materializeRuleOptions(
+  ruleMeta: RuleMetaWithFields | undefined,
+  ruleModule: Rule.RuleModule | undefined,
+  configurations: unknown[] = [],
+): unknown[] {
+  const mergedOptions = mergeRuleOptions(
+    ruleModule?.meta?.defaultOptions,
+    ruleMeta?.fields ? defaultOptions(ruleMeta.fields) : undefined,
+    configurations,
+  );
+
+  return ruleMeta?.fields ? applyTransformations(ruleMeta.fields, mergedOptions) : mergedOptions;
+}
+
+export function mergeRuleOptions(...optionSets: (unknown[] | undefined)[]): unknown[] {
+  const mergedOptions: unknown[] = [];
+
+  for (const optionSet of optionSets) {
+    optionSet?.forEach((option, index) => {
+      if (option !== undefined) {
+        mergedOptions[index] = mergeRuleOptionValue(mergedOptions[index], option);
+      }
+    });
+  }
+
+  return mergedOptions;
+}
+
+function mergeRuleOptionValue(base: unknown, override: unknown): unknown {
+  if (Array.isArray(override)) {
+    return override;
+  }
+
+  if (isRecord(base) && isRecord(override)) {
+    const mergedEntries = Object.entries(override).map(([key, value]) => [
+      key,
+      mergeRuleOptionValue(base[key], value),
+    ]);
+
+    return {
+      ...base,
+      ...Object.fromEntries(mergedEntries),
+    };
+  }
+
+  return override;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 /**
  * Applies `customForConfiguration` transformations to merged configuration values.
  *
@@ -101,7 +159,7 @@ export function defaultOptions(configuration?: ESLintConfiguration) {
  * applyTransformations(fields, [{secretWords: 'api_key', randomnessSensibility: '5.0'}])
  * // → [{secretWords: 'api_key', randomnessSensibility: 5}]
  */
-export function applyTransformations(
+function applyTransformations(
   fields: ESLintConfiguration | undefined,
   mergedValues: unknown[] | undefined,
 ): unknown[] {

@@ -1,15 +1,4 @@
 {
-"jira-clone:client/cypress/integration/issueFilters.spec.js": [
-14,
-19,
-24,
-27
-],
-"jira-clone:client/cypress/integration/issueSearch.spec.js": [
-13,
-20,
-27
-],
 "jira-clone:client/server.js": [
 13
 ],
