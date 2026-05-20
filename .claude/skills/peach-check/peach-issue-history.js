@@ -496,8 +496,8 @@ async function fetchResolvedIssues(projectKey, apiToken, oldestAnalysisTimestamp
     {
       resolved: 'true',
       createdBefore,
-      s: 'CLOSE_DATE',
-      asc: 'false',
+      s: 'CREATION_DATE',
+      asc: 'true',
     },
     issues => normalizeResolvedIssues(issues, oldestAnalysisTimestamp),
   );
@@ -505,7 +505,7 @@ async function fetchResolvedIssues(projectKey, apiToken, oldestAnalysisTimestamp
 
 async function fetchIssuesForComponent(componentKey, apiToken, params, normalizePage) {
   const firstResponse = await fetchIssuesPage(apiToken, {
-    componentKeys: componentKey,
+    components: componentKey,
     ...params,
     p: '1',
     ps: String(DEFAULT_ISSUES_PAGE_SIZE),
@@ -513,6 +513,17 @@ async function fetchIssuesForComponent(componentKey, apiToken, params, normalize
   const total = firstResponse.paging?.total ?? (firstResponse.issues ?? []).length;
 
   if (total > DEFAULT_ISSUES_RESULT_WINDOW) {
+    const splitRanges = splitIssueSearchByCreationDate(params, firstResponse.issues ?? []);
+    if (splitRanges) {
+      const [olderRangeParams, newerRangeParams] = splitRanges;
+      const [olderIssues, newerIssues] = await Promise.all([
+        fetchIssuesForComponent(componentKey, apiToken, olderRangeParams, normalizePage),
+        fetchIssuesForComponent(componentKey, apiToken, newerRangeParams, normalizePage),
+      ]);
+
+      return [...olderIssues, ...newerIssues];
+    }
+
     const { directories, files } = await fetchDirectChildComponents(componentKey, apiToken);
     if (directories.length === 0 && files.length === 0) {
       throw new Error(`Issue search exceeded ${DEFAULT_ISSUES_RESULT_WINDOW} results for leaf component ${componentKey}`);
@@ -539,7 +550,7 @@ async function fetchIssuesForComponent(componentKey, apiToken, params, normalize
 
   for (let pageIndex = 2; ; pageIndex += 1) {
     const response = await fetchIssuesPage(apiToken, {
-      componentKeys: componentKey,
+      components: componentKey,
       ...params,
       p: String(pageIndex),
       ps: String(DEFAULT_ISSUES_PAGE_SIZE),
@@ -550,6 +561,58 @@ async function fetchIssuesForComponent(componentKey, apiToken, params, normalize
       return normalizedIssues;
     }
   }
+}
+
+function splitIssueSearchByCreationDate(params, issues) {
+  const createdBeforeTimestamp = parseTimestamp(params.createdBefore);
+  const earliestIssueTimestamp = earliestCreationTimestamp(issues);
+  if (createdBeforeTimestamp === undefined || earliestIssueTimestamp === undefined) {
+    return undefined;
+  }
+
+  const createdAfterTimestamp = parseTimestamp(params.createdAfter);
+  const lowerBoundTimestamp = Math.max(createdAfterTimestamp ?? earliestIssueTimestamp, earliestIssueTimestamp);
+  const splitTimestamp = computeCreationDateSplitTimestamp(lowerBoundTimestamp, createdBeforeTimestamp);
+  if (splitTimestamp === undefined) {
+    return undefined;
+  }
+
+  const splitBoundary = formatPeachDateTime(splitTimestamp);
+  return [
+    {
+      ...params,
+      createdBefore: splitBoundary,
+    },
+    {
+      ...params,
+      createdAfter: splitBoundary,
+    },
+  ];
+}
+
+function earliestCreationTimestamp(issues) {
+  return (issues ?? []).reduce((earliest, issue) => {
+    const timestamp = parseTimestamp(issue.creationDate);
+    if (timestamp === undefined) {
+      return earliest;
+    }
+
+    return earliest === undefined || timestamp < earliest ? timestamp : earliest;
+  }, undefined);
+}
+
+function computeCreationDateSplitTimestamp(lowerBoundTimestamp, upperBoundTimestamp) {
+  const lowerBoundSecond = floorToSecond(lowerBoundTimestamp);
+  const upperBoundSecond = floorToSecond(upperBoundTimestamp);
+
+  if (upperBoundSecond - lowerBoundSecond < 2000) {
+    return undefined;
+  }
+
+  const midpoint = lowerBoundSecond + Math.floor((upperBoundSecond - lowerBoundSecond) / 2);
+  const splitTimestamp = roundUpToNextSecond(midpoint - 1);
+
+  return splitTimestamp > lowerBoundSecond && splitTimestamp < upperBoundSecond ? splitTimestamp : undefined;
 }
 
 async function fetchDirectChildComponents(componentKey, apiToken) {
@@ -852,6 +915,10 @@ function formatExclusiveIsoTimestamp(timestamp) {
 
 function roundUpToNextSecond(timestamp) {
   return Math.floor(timestamp / 1000) * 1000 + 1000;
+}
+
+function floorToSecond(timestamp) {
+  return Math.floor(timestamp / 1000) * 1000;
 }
 
 function formatPeachDateTime(timestamp) {

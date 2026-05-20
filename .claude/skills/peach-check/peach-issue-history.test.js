@@ -90,7 +90,9 @@ function installPeachFetchMock(t, options) {
     analyses: [],
     open: [],
     resolved: [],
+    openCreatedAfter: [],
     openCreatedBefore: [],
+    resolvedCreatedAfter: [],
     resolvedCreatedBefore: [],
     issueScopes: [],
     componentTree: [],
@@ -147,6 +149,8 @@ function installPeachFetchMock(t, options) {
       const resolved = parsedUrl.searchParams.get('resolved') === 'true';
       const pageIndex = Number(parsedUrl.searchParams.get('p') ?? '1');
       const pageSize = Number(parsedUrl.searchParams.get('ps') ?? '500');
+      const createdAfterTimestamp = Date.parse(parsedUrl.searchParams.get('createdAfter') ?? '');
+      const createdAfter = parsedUrl.searchParams.get('createdAfter');
       const createdBeforeTimestamp = Date.parse(parsedUrl.searchParams.get('createdBefore') ?? '');
       const createdBefore = parsedUrl.searchParams.get('createdBefore');
       const scopeKey = parsedUrl.searchParams.get('componentKeys') ?? parsedUrl.searchParams.get('components');
@@ -156,14 +160,16 @@ function installPeachFetchMock(t, options) {
       const start = (pageIndex - 1) * pageSize;
 
       if (resolved) {
-        assert.equal(parsedUrl.searchParams.get('s'), 'CLOSE_DATE');
-        assert.equal(parsedUrl.searchParams.get('asc'), 'false');
+        assert.equal(parsedUrl.searchParams.get('s'), 'CREATION_DATE');
+        assert.equal(parsedUrl.searchParams.get('asc'), 'true');
         requests.resolved.push(pageIndex);
+        requests.resolvedCreatedAfter.push(createdAfter);
         requests.resolvedCreatedBefore.push(createdBefore);
       } else {
         assert.equal(parsedUrl.searchParams.get('s'), 'CREATION_DATE');
         assert.equal(parsedUrl.searchParams.get('asc'), 'true');
         requests.open.push(pageIndex);
+        requests.openCreatedAfter.push(createdAfter);
         requests.openCreatedBefore.push(createdBefore);
       }
       requests.issueScopes.push({ scopeKey, resolved, pageIndex });
@@ -179,14 +185,12 @@ function installPeachFetchMock(t, options) {
         .filter(issue => supportedLanguages.has(issue.language))
         .filter(issue => requestedLanguages.has(issue.language))
         .filter(issue =>
+          Number.isNaN(createdAfterTimestamp) ? true : Date.parse(issue.creationDate) >= createdAfterTimestamp,
+        )
+        .filter(issue =>
           Number.isNaN(createdBeforeTimestamp) ? true : Date.parse(issue.creationDate) < createdBeforeTimestamp,
         )
-        .sort((left, right) => {
-          if (resolved) {
-            return Date.parse(right.closeDate) - Date.parse(left.closeDate);
-          }
-          return Date.parse(left.creationDate) - Date.parse(right.creationDate);
-        })
+        .sort((left, right) => Date.parse(left.creationDate) - Date.parse(right.creationDate))
         .map(issue => {
           const responseIssue = {
             key: issue.key,
@@ -544,6 +548,7 @@ test('runIssueHistory splits capped issue searches across child components', asy
 
   assert.deepEqual(report.summary, { OK: 1 });
   assert.equal(report.rows[0].current_value, 10010);
+  assert.ok(requests.openCreatedAfter.some(value => value));
   assert.ok(
     requests.componentTree.some(
       entry => entry.componentKey === 'js:CappedProject' && entry.qualifiers === 'DIR',
@@ -555,6 +560,57 @@ test('runIssueHistory splits capped issue searches across child components', asy
   assert.ok(
     requests.issueScopes.some(entry => entry.scopeKey === 'js:CappedProject:backend' && !entry.resolved),
   );
+});
+
+test('runIssueHistory counts >10k open issues without relying on component splits', async t => {
+  const analyses = createDailyAnalyses('2026-04-26T03:09:22Z', 6);
+  const { report } = await runSingleProjectIssueHistory(t, {
+    analyses,
+    openIssues: [
+      ...createOpenIssues(2500, '2026-03-01T00:00:00Z', 'js'),
+      ...createOpenIssues(2500, '2026-03-15T00:00:00Z', 'ts'),
+      ...createOpenIssues(2500, '2026-04-01T00:00:00Z', 'css'),
+      ...createOpenIssues(2500, '2026-04-10T00:00:00Z', 'web'),
+      ...createOpenIssues(10, '2026-04-20T00:00:00Z', 'yaml'),
+    ],
+    resolvedIssues: [],
+    projectKey: 'js:TimeSplitOpenProject',
+    projectName: 'time-split-open-project',
+  });
+
+  assert.deepEqual(report.summary, { OK: 1 });
+
+  const row = report.rows[0];
+  assert.equal(row.project_key, 'js:TimeSplitOpenProject');
+  assert.equal(row.status, 'OK');
+  assert.equal(row.current_value, 10010);
+  assert.equal(row.baseline_value, 10010);
+});
+
+test('runIssueHistory counts >10k resolved issues without relying on component splits', async t => {
+  const analyses = createDailyAnalyses('2026-04-26T03:09:22Z', 6);
+  const futureCloseDate = '2026-05-02T00:00:00Z';
+  const { report } = await runSingleProjectIssueHistory(t, {
+    analyses,
+    openIssues: createOpenIssues(50, '2026-03-01T00:00:00Z', 'js'),
+    resolvedIssues: [
+      ...createResolvedIssues(2500, '2026-03-01T00:00:00Z', futureCloseDate, 'js'),
+      ...createResolvedIssues(2500, '2026-03-15T00:00:00Z', futureCloseDate, 'ts'),
+      ...createResolvedIssues(2500, '2026-04-01T00:00:00Z', futureCloseDate, 'css'),
+      ...createResolvedIssues(2500, '2026-04-10T00:00:00Z', futureCloseDate, 'web'),
+      ...createResolvedIssues(10, '2026-04-20T00:00:00Z', futureCloseDate, 'yaml'),
+    ],
+    projectKey: 'js:TimeSplitResolvedProject',
+    projectName: 'time-split-resolved-project',
+  });
+
+  assert.deepEqual(report.summary, { OK: 1 });
+
+  const row = report.rows[0];
+  assert.equal(row.project_key, 'js:TimeSplitResolvedProject');
+  assert.equal(row.status, 'OK');
+  assert.equal(row.current_value, 10060);
+  assert.equal(row.baseline_value, 10060);
 });
 
 test('runIssueHistory retries the full issue snapshot fetch when a later open-issues page fails', async t => {
