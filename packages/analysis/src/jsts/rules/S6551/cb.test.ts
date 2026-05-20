@@ -76,10 +76,39 @@ function guardedByFunctionAndPrototypeComparisonReturn(value: unknown) {
         },
         {
           code: `
+function guardedByPrototypeComparisonOnElse(value: object) {
+  if (value.toString === Object.prototype.toString) {
+    return undefined;
+  } else {
+    return value.toString();
+  }
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
 function rejectedDefaultStringResult(data: unknown) {
   if (data && typeof data === 'object' && typeof data.toString === 'function') {
     const rendered = data.toString();
     if (rendered !== '[object Object]') {
+      return rendered;
+    }
+  }
+
+  return data;
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function rejectedDefaultStringResultOnElse(data: unknown) {
+  if (data && typeof data === 'object' && typeof data.toString === 'function') {
+    const rendered = data.toString();
+    if (rendered === '[object Object]') {
+      return data;
+    } else {
       return rendered;
     }
   }
