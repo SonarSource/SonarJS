@@ -45,6 +45,10 @@ export type ComponentNode =
   | estree.FunctionDeclaration
   | estree.FunctionExpression
   | estree.ArrowFunctionExpression;
+type FunctionComponentNode =
+  | estree.FunctionDeclaration
+  | estree.FunctionExpression
+  | estree.ArrowFunctionExpression;
 export type CollectedComponent = {
   componentNode: ComponentNode;
   componentIdentifier: estree.Identifier | undefined;
@@ -61,9 +65,7 @@ function isClassComponentNode(
   return node.type === 'ClassDeclaration' || node.type === 'ClassExpression';
 }
 
-function isFunctionComponentNode(
-  node: estree.Node,
-): node is estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression {
+function isFunctionComponentNode(node: estree.Node): node is FunctionComponentNode {
   return (
     node.type === 'FunctionDeclaration' ||
     node.type === 'FunctionExpression' ||
