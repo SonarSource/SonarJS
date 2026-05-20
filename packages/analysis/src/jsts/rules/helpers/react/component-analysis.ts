@@ -145,6 +145,18 @@ function getOwningVariableDeclarator(
   return isVariableDeclaratorWithIdentifierId(parent) ? parent : undefined;
 }
 
+function isAnonymousDefaultExportComponent(componentNode: estree.Node): boolean {
+  let currentNode: estree.Node = componentNode;
+  let parent = getNodeParent(currentNode);
+
+  while (isWrappedInReactComponentCall(currentNode, parent)) {
+    currentNode = parent;
+    parent = getNodeParent(currentNode);
+  }
+
+  return parent?.type === 'ExportDefaultDeclaration';
+}
+
 export function getComponentPropsType(
   componentNode: estree.Node,
   services: RequiredParserServices,
@@ -327,10 +339,16 @@ function getClassPropsPropertyType(
   return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
 }
 
-function isPascalCaseFunctionComponent(
+function isEligibleFunctionComponent(
+  componentNode:
+    | estree.FunctionDeclaration
+    | estree.FunctionExpression
+    | estree.ArrowFunctionExpression,
   componentIdentifier: estree.Identifier | undefined,
 ): boolean {
-  return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
+  return componentIdentifier === undefined
+    ? isAnonymousDefaultExportComponent(componentNode)
+    : /^[A-Z]/.test(componentIdentifier.name);
 }
 
 function hasRenderMethodOrProperty(componentNode: estree.Node): boolean {
@@ -390,7 +408,7 @@ export function createComponentAnalysis(
 
   if (
     !isFunctionComponentNode(componentNode) ||
-    !isPascalCaseFunctionComponent(componentIdentifier)
+    !isEligibleFunctionComponent(componentNode, componentIdentifier)
   ) {
     return EMPTY_COMPONENT_ANALYSIS;
   }

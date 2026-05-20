@@ -50,7 +50,9 @@ function hasDecoratorFactoryCallPropUsage(
   propName: string,
 ): boolean {
   const componentIdentifier = getComponentIdentifier(componentNode);
-  if (!componentIdentifier) {
+  const componentVariable =
+    componentIdentifier && getVariableForIdentifier(sourceCode, componentIdentifier);
+  if (!componentVariable) {
     return false;
   }
 
@@ -64,7 +66,7 @@ function hasDecoratorFactoryCallPropUsage(
     if (
       node.type === 'CallExpression' &&
       node.arguments.length === 1 &&
-      isIdentifier(node.arguments[0], componentIdentifier.name) &&
+      isDecoratorTargetingComponent(sourceCode, node.arguments[0], componentVariable) &&
       node.callee.type === 'CallExpression' &&
       node.callee.arguments.some(argument =>
         isComponentPropsCallbackUsingProp(sourceCode, componentNode, argument, propName),
@@ -80,6 +82,17 @@ function hasDecoratorFactoryCallPropUsage(
   }
 
   return false;
+}
+
+function isDecoratorTargetingComponent(
+  sourceCode: SourceCode,
+  targetNode: estree.Node,
+  componentVariable: Scope.Variable,
+): boolean {
+  return (
+    isIdentifier(targetNode) &&
+    getVariableForIdentifier(sourceCode, targetNode) === componentVariable
+  );
 }
 
 function isComponentPropsCallbackUsingProp(
@@ -106,6 +119,30 @@ function isComponentPropsCallbackUsingProp(
   }
 
   return variable.references.some(reference => isComponentPropsUsageReference(reference, propName));
+}
+
+function getVariableForIdentifier(
+  sourceCode: SourceCode,
+  identifier: estree.Identifier,
+): Scope.Variable | undefined {
+  let scope: Scope.Scope | null = sourceCode.getScope(identifier);
+  while (scope) {
+    const reference = scope.references.find(candidate => candidate.identifier === identifier);
+    if (reference) {
+      return reference.resolved ?? undefined;
+    }
+
+    const variable = scope.variables.find(candidate =>
+      candidate.defs.some(definition => definition.name === identifier),
+    );
+    if (variable) {
+      return variable;
+    }
+
+    scope = scope.upper;
+  }
+
+  return undefined;
 }
 
 function isSameDeclaredPropsType(

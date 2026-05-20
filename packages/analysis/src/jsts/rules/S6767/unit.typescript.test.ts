@@ -427,4 +427,80 @@ class PageWrapper extends React.Component<PageWrapperProps> {
       ],
     });
   });
+
+  it('should not report anonymous default-export component props used via forwardRef closure', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // Regression: anonymous default-export components still own typed props
+          // even though their component identifier is attached later in analysis.
+          code: `
+declare const React: any;
+interface Props {
+  label: string;
+}
+export default function (props: Props) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label ref={ref}>{props.label}</label>
+  ));
+  return <ForwardedInput />;
+}
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should report props when a decorator target only matches a shadowed local binding', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [],
+      invalid: [
+        {
+          // Regression: the decorator callback matches the component props type,
+          // but the applied target is a nested shadowing binding, not the component.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface Props {
+  label: string;
+  userId: string;
+}
+function Comp(props: Props) {
+  {
+    const Comp = 0;
+    track((decoratedProps: Props) => ({
+      user_id: decoratedProps.userId,
+    }))(Comp);
+  }
+  return <div>{props.label}</div>;
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });
