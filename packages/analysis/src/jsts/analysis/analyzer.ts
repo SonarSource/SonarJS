@@ -36,11 +36,7 @@ import {
   type InternalMetricsSink,
   toInternalMetricsSettings,
 } from '../rules/helpers/internal-metrics.js';
-import {
-  DEFAULT_ECMA_VERSION,
-  DEFAULT_SOURCE_TYPE,
-  type ParserContext,
-} from '../parsers/options.js';
+import { DEFAULT_ECMA_VERSION, type ParserContext } from '../parsers/options.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
 
 const COGNITIVE_COMPLEXITY_RULE_ID = 'sonarjs/S3776';
@@ -80,7 +76,7 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     );
   }
   if (detectedModuleType === undefined) {
-    debug(`No module type detected for "${filePath}"; using default '${DEFAULT_SOURCE_TYPE}'`);
+    debug(`No module type detected for "${filePath}"`);
   }
 
   const parserContext: ParserContext = { detectedEsYear, detectedModuleType };

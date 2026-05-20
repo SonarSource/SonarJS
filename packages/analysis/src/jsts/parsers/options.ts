@@ -26,9 +26,6 @@ import type { ModuleType } from '../rules/helpers/dependency-manifests/resolvers
 /** Fallback ECMAScript version when none is detected. */
 export const DEFAULT_ECMA_VERSION = 2018;
 
-/** Fallback source type when no module type is detected. */
-export const DEFAULT_SOURCE_TYPE: ModuleType = 'module';
-
 export interface ParserContext {
   detectedEsYear?: number;
   detectedModuleType?: ModuleType;
@@ -48,7 +45,7 @@ function commonParserOptions(context: ParserContext = {}): Linter.ParserOptions 
     range: true,
     ecmaVersion: (context.detectedEsYear ??
       DEFAULT_ECMA_VERSION) as Linter.ParserOptions['ecmaVersion'],
-    sourceType: context.detectedModuleType ?? DEFAULT_SOURCE_TYPE,
+    sourceType: 'module',
     codeFrame: false,
     ecmaFeatures: {
       jsx: context.jsx ?? true,
