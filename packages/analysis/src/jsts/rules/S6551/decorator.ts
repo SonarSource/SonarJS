@@ -70,6 +70,21 @@ function isGuardedDirectToStringCall(
 }
 
 function getReportedToStringCall(node: TSESTree.Node): TSESTree.CallExpression | undefined {
+  if (
+    node.type === 'CallExpression' &&
+    isCallingMethod(node as estree.CallExpression, 0, 'toString')
+  ) {
+    return node;
+  }
+  if (
+    node.type === 'MemberExpression' &&
+    node.parent?.type === 'CallExpression' &&
+    node.parent.callee === node &&
+    isCallingMethod(node.parent as estree.CallExpression, 0, 'toString')
+  ) {
+    return node.parent;
+  }
+
   const parent: TSESTree.Node | undefined = node.parent;
   if (
     parent?.type === 'MemberExpression' &&
@@ -149,9 +164,14 @@ function provesCustomToString(
   positiveBranch: boolean,
 ): boolean {
   if (condition.type === 'LogicalExpression' && condition.operator === '&&' && positiveBranch) {
+    const conjuncts = flattenConjunction(condition);
     return (
-      provesCustomToString(condition.left, receiver, context, positiveBranch) ||
-      provesCustomToString(condition.right, receiver, context, positiveBranch)
+      conjuncts.some(conjunct => provesCustomToString(conjunct, receiver, context, true)) &&
+      conjuncts.every(
+        conjunct =>
+          provesCustomToString(conjunct, receiver, context, true) ||
+          provesReceiverToStringIsFunction(conjunct, receiver, context),
+      )
     );
   }
 
@@ -166,6 +186,34 @@ function provesCustomToString(
       isObjectPrototypeToString(condition.right)) ||
       (isObjectPrototypeToString(condition.left) &&
         isReceiverToString(condition.right, receiver, context)))
+  );
+}
+
+function flattenConjunction(condition: TSESTree.Expression): TSESTree.Expression[] {
+  if (condition.type === 'LogicalExpression' && condition.operator === '&&') {
+    return [...flattenConjunction(condition.left), ...flattenConjunction(condition.right)];
+  }
+  return [condition];
+}
+
+function provesReceiverToStringIsFunction(
+  condition: TSESTree.Expression,
+  receiver: TSESTree.Expression,
+  context: Rule.RuleContext,
+): boolean {
+  return (
+    condition.type === 'BinaryExpression' &&
+    condition.operator === '===' &&
+    ((condition.left.type === 'UnaryExpression' &&
+      condition.left.operator === 'typeof' &&
+      isReceiverToString(condition.left.argument, receiver, context) &&
+      condition.right.type === 'Literal' &&
+      condition.right.value === 'function') ||
+      (condition.right.type === 'UnaryExpression' &&
+        condition.right.operator === 'typeof' &&
+        isReceiverToString(condition.right.argument, receiver, context) &&
+        condition.left.type === 'Literal' &&
+        condition.left.value === 'function'))
   );
 }
 

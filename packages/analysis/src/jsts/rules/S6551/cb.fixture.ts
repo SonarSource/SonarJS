@@ -30,6 +30,16 @@ function guardedByFunctionAndPrototypeComparison(value: object) {
   return undefined;
 }
 
+function guardedByFunctionAndPrototypeComparisonReturn(value: unknown) {
+  if (typeof value === 'object' && value !== null) {
+    if (typeof value.toString === 'function' && value.toString !== Object.prototype.toString) {
+      return value.toString(); // Compliant
+    }
+  }
+
+  return undefined;
+}
+
 function guardedByPrototypeComparisonOnElse(value: object) {
   if (value.toString === Object.prototype.toString) {
     return undefined;
@@ -86,6 +96,13 @@ function mixedConjunctAlternateStillUnsafe(value: object, other: boolean) {
   } else {
     return value.toString(); // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}}
   }
+}
+
+function mixedConjunctPositiveStillUnsafe(value: object, other: boolean) {
+  if (other && value.toString !== Object.prototype.toString) {
+    return value.toString(); // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}}
+  }
+  return undefined;
 }
 
 declare function next(): object;
