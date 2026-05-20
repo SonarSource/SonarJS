@@ -36,6 +36,8 @@ type NormalizedAnalysisOutput = {
   files: NormalizedFileResult[];
 };
 
+type BatchNormalizedAnalysisOutput = Record<string, NormalizedAnalysisOutput>;
+
 type NormalizedFileResult = {
   filePath: string;
   error?: string;
@@ -97,8 +99,24 @@ async function main() {
       return;
     case 'run-node':
     case 'run-go':
-    case 'diff': {
+    case 'diff':
+    case 'run-node-all':
+    case 'run-go-all':
+    case 'diff-all': {
       const options = parseCommonOptions(rest);
+      if (command === 'run-node-all') {
+        printJSON(await runNodeAll(options), options.pretty);
+        return;
+      }
+      if (command === 'run-go-all') {
+        printJSON(await runGoAll(options), options.pretty);
+        return;
+      }
+      if (command === 'diff-all') {
+        await diffAll(options);
+        return;
+      }
+
       const request = await loadRequest(options);
       if (command === 'run-node') {
         const result = await runNode(request.request);
@@ -139,13 +157,7 @@ function parseCommonOptions(args: string[]) {
 }
 
 async function listProjects() {
-  const entries = await readdir(parityCorpusRoot, { withFileTypes: true });
-  const projects = entries
-    .filter(entry => entry.isDirectory())
-    .map(entry => entry.name)
-    .sort((left, right) => left.localeCompare(right));
-
-  for (const project of projects) {
+  for (const project of await listProjectNames()) {
     console.log(project);
   }
 }
@@ -259,6 +271,75 @@ async function diffNodeAndGo(request: LoadedRequest, pretty: boolean) {
   for (const mismatch of mismatches) {
     console.error(`- ${mismatch}`);
   }
+  process.exitCode = 1;
+}
+
+async function runNodeAll(options: {
+  project?: string;
+  request?: string;
+  baseDir?: string;
+  pretty: boolean;
+}): Promise<BatchNormalizedAnalysisOutput> {
+  assertBatchCompatibleOptions(options);
+
+  const results: BatchNormalizedAnalysisOutput = {};
+  for (const project of await listProjectNames()) {
+    const request = await loadRequest({ project });
+    results[project] = await runNode(request.request);
+  }
+  return sortObjectKeys(results);
+}
+
+async function runGoAll(options: {
+  project?: string;
+  request?: string;
+  baseDir?: string;
+  pretty: boolean;
+}): Promise<BatchNormalizedAnalysisOutput> {
+  assertBatchCompatibleOptions(options);
+
+  const results: BatchNormalizedAnalysisOutput = {};
+  for (const project of await listProjectNames()) {
+    const request = await loadRequest({ project });
+    results[project] = await runGo(request, options.pretty);
+  }
+  return sortObjectKeys(results);
+}
+
+async function diffAll(options: {
+  project?: string;
+  request?: string;
+  baseDir?: string;
+  pretty: boolean;
+}) {
+  assertBatchCompatibleOptions(options);
+
+  const mismatchedProjects: string[] = [];
+  for (const project of await listProjectNames()) {
+    const request = await loadRequest({ project });
+    const node = await runNode(request.request);
+    const go = await runGo(request, options.pretty);
+    const mismatches = collectMismatches(node, go);
+    if (mismatches.length === 0) {
+      console.log(`OK ${project}`);
+      continue;
+    }
+
+    mismatchedProjects.push(project);
+    console.error(`MISMATCH ${project}`);
+    for (const mismatch of mismatches) {
+      console.error(`- ${mismatch}`);
+    }
+  }
+
+  if (mismatchedProjects.length === 0) {
+    console.log('All corpus projects match between Node and Go.');
+    return;
+  }
+
+  console.error(
+    `Found ${mismatchedProjects.length} mismatched project(s): ${mismatchedProjects.join(', ')}`,
+  );
   process.exitCode = 1;
 }
 
@@ -449,6 +530,14 @@ async function resolveProjectPath(project?: string): Promise<string | undefined>
   throw new Error(`Project ${project} was not found as a directory or corpus entry.`);
 }
 
+async function listProjectNames(): Promise<string[]> {
+  const entries = await readdir(parityCorpusRoot, { withFileTypes: true });
+  return entries
+    .filter(entry => entry.isDirectory())
+    .map(entry => entry.name)
+    .sort((left, right) => left.localeCompare(right));
+}
+
 async function resolveRequestPath(
   projectPath: string | undefined,
   requestPath: string | undefined,
@@ -472,6 +561,22 @@ function resolvePath(target: string, basePath?: string): string {
     return resolve(basePath, target);
   }
   return resolve(target);
+}
+
+function assertBatchCompatibleOptions(options: {
+  project?: string;
+  request?: string;
+  baseDir?: string;
+}) {
+  if (options.project || options.request || options.baseDir) {
+    throw new Error('Batch commands do not accept --project, --request, or --base-dir.');
+  }
+}
+
+function sortObjectKeys<T>(value: Record<string, T>): Record<string, T> {
+  return Object.fromEntries(
+    Object.entries(value).sort(([left], [right]) => left.localeCompare(right)),
+  );
 }
 
 async function isDirectory(target: string): Promise<boolean> {
@@ -545,6 +650,9 @@ function printUsage() {
   tsx tools/jsts-go-parity.ts run-node --project <name-or-path>
   tsx tools/jsts-go-parity.ts run-go --project <name-or-path>
   tsx tools/jsts-go-parity.ts diff --project <name-or-path>
+  tsx tools/jsts-go-parity.ts run-node-all
+  tsx tools/jsts-go-parity.ts run-go-all
+  tsx tools/jsts-go-parity.ts diff-all
 
 Common options:
   --project   Synthetic parity project directory or corpus entry name

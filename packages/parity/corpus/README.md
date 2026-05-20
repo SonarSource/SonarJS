@@ -17,4 +17,5 @@ Examples:
 
 - `npm run jsts-go-parity:diff -- --project S6551-no-base-to-string`
 - `npm run jsts-go-parity:node -- --project S4137-consistent-type-assertions`
+- `npm run jsts-go-parity:diff-all`
 - `go run ./server-go/sonar-server --project packages/parity/corpus/S6551-no-base-to-string`
