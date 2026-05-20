@@ -82,6 +82,33 @@ describe('S5845', () => {
           code: `
             import { expect } from 'vitest';
 
+            declare function readValue(): any;
+
+            let value: number = 1;
+            value = readValue();
+            expect(value).toBe('1');
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            declare function readValue(): any;
+
+            let value: number = 1;
+
+            function mutate() {
+              value = readValue();
+            }
+
+            mutate();
+            expect(value).toBe('1');
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
             function same<T>(actual: T, expected: number) {
               expect(actual).toBe(expected);
             }
@@ -222,6 +249,56 @@ describe('S5845', () => {
             expect(score).toStrictEqual(scoreText);
           `,
           errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            function getCount(): number {
+              return 1;
+            }
+
+            expect(getCount()).toBe('1');
+          `,
+          errors: [{ messageId: 'alwaysFails' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            let value: number | string = 1;
+            value = 'ready';
+
+            expect(value).toBe(true);
+          `,
+          errors: [{ messageId: 'alwaysFails' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            let value: number | string;
+
+            if (Math.random() > 0.5) {
+              value = 'ready';
+            } else {
+              value = 1;
+            }
+
+            if (typeof value === 'string') {
+              expect(value).toBe(true);
+            }
+          `,
+          errors: [{ messageId: 'alwaysFails' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            const token: symbol = Symbol('token');
+            expect(token).toBe(1);
+          `,
+          errors: [{ messageId: 'alwaysFails' }],
         },
         {
           code: `

@@ -38,6 +38,7 @@ type PrimitiveCategory =
   | 'number'
   | 'boolean'
   | 'bigint'
+  | 'symbol'
   | 'null'
   | 'undefined'
   | 'object';
@@ -61,17 +62,29 @@ export const rule: Rule.RuleModule = {
 
     const checker = services.program.getTypeChecker();
 
-    // Centralise the whole decision tree once per extracted assertion so both visitors below
-    // share the same filtering, type lookup, and reporting logic.
+    // Non-identifiers can rely directly on the expression type at the assertion site:
+    //   expect(getCount()).toBe('1');
+    //   expect(Number(title)).toStrictEqual('1');
+    //
+    // Identifiers need one extra guard. `getTypeAtLocation(value)` can stay narrow even after an
+    // imprecise write, so using the identifier type alone would introduce false positives:
+    //   declare function readAny(): any;
+    //   let value: number = 1;
+    //   value = readAny();
+    //   expect(value).toBe('1'); // keep silent: runtime value may be string
+    //
+    // We therefore trust an identifier's current type only when every write assigned to it is
+    // itself classifiable to primitive families. That still lets TypeScript's flow narrowing do
+    // the useful work for precise writes:
+    //   let value: number | string;
+    //   if (Math.random() > 0.5) value = 'ready'; else value = 1;
+    //   if (typeof value === 'string') expect(value).toBe(true); // report
+    //
+    // This is intentionally coarser than full reaching-definitions. If any write is `any`,
+    // `unknown`, a type parameter, indexed access, etc., we bail out conservatively.
     function checkAssertion(node: estree.Node): void {
       const assertion = extractTestAssertion(context, node);
       if (!isRelevantAssertion(assertion)) {
-        return;
-      }
-      if (
-        assertion.actual.type === 'CallExpression' ||
-        assertion.expected.type === 'CallExpression'
-      ) {
         return;
       }
 
@@ -87,6 +100,7 @@ export const rule: Rule.RuleModule = {
       ) {
         return;
       }
+
       const incompatibility = getIncompatibility(actualType, expectedType, checker);
       if (incompatibility) {
         context.report({
@@ -95,6 +109,30 @@ export const rule: Rule.RuleModule = {
           data: incompatibility,
         });
       }
+    }
+
+    function hasStablePrimitiveType(
+      context: Rule.RuleContext,
+      node: estree.Node,
+      nodeType: ts.Type,
+      checker: ts.TypeChecker,
+      services: Rule.RuleContext['sourceCode']['parserServices'],
+    ): boolean {
+      const allowedCategories = getPrimitiveCategories(nodeType);
+      if (!allowedCategories) {
+        return false;
+      }
+      if (node.type !== 'Identifier') {
+        return true;
+      }
+
+      const variable = getVariableFromName(context, node.name, node);
+      if (!variable) {
+        return true;
+      }
+      return variable.references
+        .filter(ref => ref.isWrite())
+        .every(ref => isPreciselyTypedWrite(ref.writeExpr, checker, services));
     }
 
     return {
@@ -114,50 +152,6 @@ function isRelevantAssertion(assertion: Assertion | null): assertion is Assertio
   kind: 'comparison';
 } {
   return assertion?.kind === 'comparison' && assertion.comparison !== 'loose';
-}
-
-// Mutable identifiers need extra care: the current type at the assertion site may be narrower
-// than what was actually written earlier. We only trust identifier types when every write stays in
-// the same primitive family as the current type.
-function hasStablePrimitiveType(
-  context: Rule.RuleContext,
-  node: estree.Node,
-  nodeType: ts.Type,
-  checker: ts.TypeChecker,
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-): boolean {
-  if (node.type !== 'Identifier') {
-    return true;
-  }
-  const allowedCategories = getPrimitiveCategories(nodeType);
-  if (!allowedCategories) {
-    return false;
-  }
-  const variable = getVariableFromName(context, node.name, node);
-  if (!variable) {
-    return true;
-  }
-
-  return variable.references
-    .filter(ref => ref.isWrite())
-    .every(ref => isCompatibleWrite(ref.writeExpr, allowedCategories, checker, services));
-}
-
-// A write is compatible only when we can classify it precisely and every resulting primitive
-// family is still inside the identifier's allowed families. If not, we bail out conservatively.
-function isCompatibleWrite(
-  writeExpr: estree.Node | null,
-  allowedCategories: PrimitiveCategory[],
-  checker: ts.TypeChecker,
-  services: Rule.RuleContext['sourceCode']['parserServices'],
-): boolean {
-  if (!writeExpr) {
-    return false;
-  }
-  const writeCategories = getPrimitiveCategories(
-    checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(writeExpr, services)),
-  );
-  return writeCategories?.every(category => allowedCategories.includes(category)) ?? false;
 }
 
 // The rule reports only when the two operands have no plausible primitive-family overlap.
@@ -234,6 +228,9 @@ function getPrimitiveCategory(type: ts.Type): PrimitiveCategory | null {
   if ((type.flags & ts.TypeFlags.BigIntLike) !== 0) {
     return 'bigint';
   }
+  if ((type.flags & ts.TypeFlags.ESSymbolLike) !== 0) {
+    return 'symbol';
+  }
   if ((type.flags & ts.TypeFlags.Null) !== 0) {
     return 'null';
   }
@@ -249,4 +246,27 @@ function getPrimitiveCategory(type: ts.Type): PrimitiveCategory | null {
 // Narrow the mapped category list back to `PrimitiveCategory[]` once null has been ruled out.
 function isPrimitiveCategory(category: PrimitiveCategory | null): category is PrimitiveCategory {
   return category !== null;
+}
+
+// A write is trustworthy when TypeScript can still classify the assigned value into primitive
+// families at the write site. If not, the identifier's current type is not reliable enough for
+// this rule:
+//   value = readAny();      // bail out
+//   value = values[index];  // bail out when the indexed access is imprecise
+//
+//   value = 'ready';        // precise
+//   value = 1;              // precise
+function isPreciselyTypedWrite(
+  writeExpr: estree.Node | null,
+  checker: ts.TypeChecker,
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+): boolean {
+  if (!writeExpr) {
+    return false;
+  }
+  return (
+    getPrimitiveCategories(
+      checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(writeExpr, services)),
+    ) !== null
+  );
 }
