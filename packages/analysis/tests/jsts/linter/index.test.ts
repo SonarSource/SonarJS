@@ -1458,11 +1458,10 @@ describe('Linter', () => {
       baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
       rules: [],
     });
-    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', {
+    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', 2022, {
       additionalRules: {
         'sonarjs/S3776': ['error', 0],
       },
-      detectedEsYear: 2022,
     });
 
     expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3776' })]);
@@ -1486,11 +1485,10 @@ describe('Linter', () => {
         },
       ],
     });
-    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', {
+    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', 2022, {
       additionalRules: {
         'sonarjs/S3776': ['error', 'silence-issues'],
       },
-      detectedEsYear: 2022,
     });
 
     expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3776' })]);
@@ -1507,12 +1505,11 @@ describe('Linter', () => {
       rules: [],
     });
     const sink = {};
-    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', {
+    const issues = Linter.lint(parseResult, filePath, 'MAIN', 'CHANGED', 'DEFAULT', 'js', 2022, {
       additionalRules: {
         'sonarjs/S3776': ['error', 'silence-issues'],
       },
       additionalSettings: toInternalMetricsSettings(sink),
-      detectedEsYear: 2022,
     });
 
     expect(sink).toEqual({ cognitiveComplexity: 1 });

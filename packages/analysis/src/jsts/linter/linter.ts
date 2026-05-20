@@ -26,13 +26,14 @@ import {
   type NormalizedAbsolutePath,
   dirnamePath,
 } from '../../../../shared/src/helpers/files.js';
-import { createOptions, remapInlineConfigComments } from './pragmas.js';
+import { createOptions } from './pragmas.js';
 import path from 'node:path';
 import type { ParseResult } from '../parsers/parse.js';
 import type { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
 import { APIError } from '../../contracts/error.js';
 import { pathToFileURL } from 'node:url';
+import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { materializeRuleOptions } from '../rules/helpers/configs.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
@@ -53,7 +54,6 @@ import type { FileType } from '../../contracts/file.js';
 import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/deno.js';
 import type { DependenciesList } from '../rules/helpers/dependency-manifests/resolvers/types.js';
-import { sonarRuleMetas } from './rule-metas.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -69,7 +69,6 @@ interface InitializeParams {
 interface LintOptions {
   additionalSettings?: Record<string, unknown>;
   additionalRules?: ESLintLinter.RulesRecord;
-  detectedEsYear?: number;
 }
 
 /**
@@ -186,6 +185,7 @@ export class Linter {
    * @param fileStatus whether the file has changed or not
    * @param analysisMode whether we are analyzing all files or only changed files
    * @param language language of the source file
+   * @param detectedEsYear ecmascript version for the file
    * @param lintOptions additional rules and settings for linting
    * @returns linting issues
    */
@@ -196,6 +196,7 @@ export class Linter {
     fileStatus: FileStatus = 'CHANGED',
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
+    detectedEsYear?: number,
     lintOptions: LintOptions = {},
   ) {
     if (!Linter.linter) {
@@ -206,7 +207,7 @@ export class Linter {
       fileType,
       fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
       language,
-      lintOptions.detectedEsYear,
+      detectedEsYear,
       sourceCode,
     );
     const rules = lintOptions.additionalRules
@@ -234,12 +235,11 @@ export class Linter {
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
-    remapInlineConfigComments(sourceCode);
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath, rules));
     clearFileCaches();
     return transformMessages(messages, language, {
       sourceCode,
-      ruleMetas: sonarRuleMetas,
+      ruleMetas,
       filePath,
     });
   }
@@ -386,7 +386,9 @@ export class Linter {
 }
 
 function getRuleMeta(ruleConfig: RuleConfig): SonarMeta | undefined {
-  return sonarRuleMetas[ruleConfig.key];
+  return ruleConfig.key in ruleMetas
+    ? (ruleMetas[ruleConfig.key as keyof typeof ruleMetas] as SonarMeta)
+    : undefined;
 }
 
 function hasRequiredDependencies(ruleMeta: SonarMeta | undefined): boolean {

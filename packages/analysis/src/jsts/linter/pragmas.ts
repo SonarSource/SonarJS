@@ -16,15 +16,14 @@
  */
 import type { Linter, Rule } from 'eslint';
 import type estree from 'estree';
+import * as ruleMetas from '../rules/metas.js';
 import * as rules from '../rules/rules.js';
 import { getExternalRuleDefinition } from '../rules/external/registry.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { materializeRuleOptions, mergeRuleOptions } from '../rules/helpers/configs.js';
-import { sonarRuleMetas } from './rule-metas.js';
 
 const sonarRules = rules as Record<string, Rule.RuleModule>;
-const RULE_ID_CHARACTERS = String.raw`[\w@/-]`;
 
 type MappingEntry = {
   ruleId: string;
@@ -46,7 +45,8 @@ type Directive = {
   justification: string;
 };
 
-for (const [sonarKey, meta] of Object.entries(sonarRuleMetas)) {
+for (const [sonarKey, rawMeta] of Object.entries(ruleMetas)) {
+  const meta = rawMeta as SonarMeta;
   const ruleId = `sonarjs/${sonarKey}`;
   const ruleModule = sonarRules[sonarKey];
   registerRuleAlias(sonarKey, ruleId, ruleModule);
@@ -111,12 +111,7 @@ function getInlineRuleDefaultOptions(
  * @returns string The rule part of the ruleId;
  */
 function getRuleId(ruleId: string | null) {
-  return ruleId?.split('/').at(-1);
-}
-
-function getRuleMapping(ruleId: string | null): MappingEntry | undefined {
-  const normalizedRuleId = getRuleId(ruleId);
-  return normalizedRuleId ? eslintMapping[normalizedRuleId] : undefined;
+  return ruleId?.split('/').at(-1)!;
 }
 
 export function createOptions(
@@ -136,17 +131,16 @@ export function createOptions(
     // such as `prefer-const`, we therefore expose the rule definition that matches the alias
     // seen in the file, while `patchInlineOptions` and `patchDirectives` later remap everything
     // back onto the internal `sonarjs/Sxxxx` rule id that we actually execute.
-    getRule: (ruleId: string) => getRuleMapping(ruleId)?.directiveRuleDefinition,
+    getRule: (ruleId: string) => eslintMapping[getRuleId(ruleId)]?.directiveRuleDefinition,
     patchDirectives: (disableDirectives: Directive[]) => {
       for (const directive of disableDirectives) {
-        const mapping = getRuleMapping(directive.ruleId);
-        if (!mapping) {
+        if (!eslintMapping[getRuleId(directive.ruleId)]) {
           continue;
         }
-        directive.ruleId = mapping.ruleId;
+        directive.ruleId = eslintMapping[getRuleId(directive.ruleId)].ruleId;
         if (!mappedParentDirectives.has(directive.parentDirective)) {
           directive.parentDirective.ruleIds = directive.parentDirective.ruleIds.map(ruleId => {
-            const mappedRule = getRuleMapping(ruleId);
+            const mappedRule = ruleId && eslintMapping[getRuleId(ruleId)];
             if (mappedRule) {
               directive.parentDirective.value = directive.parentDirective.value.replaceAll(
                 ruleId,
@@ -165,7 +159,7 @@ export function createOptions(
       const aliasedRuleIds = new Set<string>();
 
       for (const [ruleId, options] of Object.entries(config.rules)) {
-        const mapping = getRuleMapping(ruleId);
+        const mapping = eslintMapping[getRuleId(ruleId)];
         if (mapping && ruleId !== mapping.ruleId) {
           // ESLint has already parsed the inline directive at this point, but once we remap the
           // rule id we must reapply the active Sonar/materialized options for that rule. Otherwise
@@ -182,7 +176,7 @@ export function createOptions(
       }
 
       for (const [ruleId, options] of Object.entries(config.rules)) {
-        const mapping = getRuleMapping(ruleId);
+        const mapping = eslintMapping[getRuleId(ruleId)];
         if (ruleId === mapping?.ruleId && !aliasedRuleIds.has(ruleId)) {
           patchedOptions[ruleId] = normalizeInlineRuleOptions(
             options,
@@ -196,76 +190,9 @@ export function createOptions(
   };
 }
 
-type InlineConfigSourceCode = {
-  getInlineConfigNodes?: () => estree.Comment[];
-};
-
-export function remapInlineConfigComments(sourceCode: unknown) {
-  const inlineConfigSourceCode = sourceCode as InlineConfigSourceCode;
-  for (const comment of inlineConfigSourceCode.getInlineConfigNodes?.() ?? []) {
-    comment.value = remapRuleAliases(comment.value);
-  }
-}
-
-function remapRuleAliases(commentValue: string): string {
-  const [configPart, ...justificationParts] = commentValue.split(/\s--\s/u);
-  const configPartWithUpstreamDefaults = expandSeverityOnlyAliases(configPart);
-  const remappedConfigPart = sortedMappingEntries().reduce((value, [alias, { ruleId }]) => {
-    const escapedAlias = escapeRegExp(alias);
-    return value.replaceAll(
-      new RegExp(
-        String.raw`(?<!${RULE_ID_CHARACTERS})${escapedAlias}(?!${RULE_ID_CHARACTERS})`,
-        'gu',
-      ),
-      ruleId,
-    );
-  }, configPartWithUpstreamDefaults);
-
-  return justificationParts.length > 0
-    ? `${remappedConfigPart} -- ${justificationParts.join(' -- ')}`
-    : remappedConfigPart;
-}
-
-function sortedMappingEntries() {
-  return Object.entries(eslintMapping).sort(([left], [right]) => right.length - left.length);
-}
-
-function expandSeverityOnlyAliases(commentValue: string): string {
-  return sortedMappingEntries().reduce((value, [alias, mapping]) => {
-    const defaultOptions = mapping.directiveRuleDefinition.meta?.defaultOptions;
-    if (!hasMeaningfulDefaultOptions(defaultOptions)) {
-      return value;
-    }
-
-    const escapedAlias = escapeRegExp(alias);
-    return value.replaceAll(
-      new RegExp(
-        String.raw`(?<!${RULE_ID_CHARACTERS})${escapedAlias}(?!${RULE_ID_CHARACTERS})(\s*:\s*)(["'](?:off|warn|error)["']|[012])(?=\s*(?:[,}]|$))`,
-        'giu',
-      ),
-      `${mapping.ruleId}$1[$2, ${defaultOptions.map(option => JSON.stringify(option)).join(', ')}]`,
-    );
-  }, commentValue);
-}
-
-function hasMeaningfulDefaultOptions(defaultOptions: unknown[] | undefined): defaultOptions is unknown[] {
-  return defaultOptions?.some(option => !isEmptyObjectOption(option)) ?? false;
-}
-
-function isEmptyObjectOption(option: unknown): boolean {
-  return (
-    option !== null &&
-    typeof option === 'object' &&
-    !Array.isArray(option) &&
-    Object.keys(option).length === 0
-  );
-}
-
 function getSonarMeta(ruleId: string): SonarMeta | undefined {
   const sonarKey = getRuleId(ruleId);
-  return sonarKey && sonarKey in sonarRuleMetas ? sonarRuleMetas[sonarKey] : undefined;
-}
-
-function escapeRegExp(value: string): string {
-  return value.replaceAll(/[.*+?^${}()|[\]\\]/gu, String.raw`\$&`);
+  return sonarKey in ruleMetas
+    ? (ruleMetas[sonarKey as keyof typeof ruleMetas] as SonarMeta)
+    : undefined;
 }
