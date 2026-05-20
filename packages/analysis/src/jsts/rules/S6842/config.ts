@@ -16,32 +16,25 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6842/javascript
 
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import type { ESLintConfiguration } from '../helpers/configs.js';
 
+type Allowlist = Record<string, string[]>;
+
+const { configs } = jsxA11yPlugin as unknown as {
+  configs: {
+    recommended: {
+      rules: Record<string, [string, Allowlist]>;
+    };
+  };
+};
+
+const allowlist =
+  configs.recommended.rules['jsx-a11y/no-noninteractive-element-to-interactive-role'][1];
+
 export const fields = [
-  [
-    {
-      field: 'ul',
-      default: ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid'],
-    },
-    {
-      field: 'ol',
-      default: ['listbox', 'menu', 'menubar', 'radiogroup', 'tablist', 'tree', 'treegrid'],
-    },
-    {
-      field: 'li',
-      default: [
-        'menuitem',
-        'menuitemradio',
-        'menuitemcheckbox',
-        'option',
-        'row',
-        'tab',
-        'treeitem',
-      ],
-    },
-    { field: 'table', default: ['grid'] },
-    { field: 'td', default: ['gridcell'] },
-    { field: 'fieldset', default: ['radiogroup', 'presentation'] },
-  ],
+  Object.entries(allowlist).map(([field, roles]) => ({
+    field,
+    default: roles,
+  })),
 ] as const satisfies ESLintConfiguration;
