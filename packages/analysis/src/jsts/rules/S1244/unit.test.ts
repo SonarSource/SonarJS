@@ -89,6 +89,20 @@ describe('S1244', () => {
         },
         {
           code: `
+            if (x <= 0.1 && y >= 0.1) {
+              publish(x, y);
+            }
+          `,
+        },
+        {
+          code: `
+            if (x < 0.1 || y > 0.1) {
+              publish(x, y);
+            }
+          `,
+        },
+        {
+          code: `
             if (x === someFunc()) {
               publish(x);
             }
@@ -104,6 +118,12 @@ describe('S1244', () => {
           code: `
             import { expect } from 'vitest';
             expect(2 * 3).toBe(6);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'bun:test';
+            expect(0.1 + 0.2).toBeCloseTo(0.3);
           `,
         },
         {
@@ -128,6 +148,12 @@ describe('S1244', () => {
           code: `
             import { assert } from 'chai';
             assert.equal(2 * 3, 6);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+            expect(2 * 3).to.deep.equal(6);
           `,
         },
         {
@@ -197,6 +223,30 @@ describe('S1244', () => {
         },
         {
           code: `
+            if (area === width * 2.5) {
+              publish(area);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            if (remainder === total % 0.3) {
+              publish(remainder);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            if (power === 2.5 ** exponent) {
+              publish(power);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             const status = total === 0.3 ? "done" : "retry";
           `,
           errors: 1,
@@ -251,6 +301,20 @@ describe('S1244', () => {
           code: `
             import { expect } from 'vitest';
             expect(0.1 + 0.2).not.toBe(0.3);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { expect } from '@playwright/test';
+            expect(0.1 + 0.2).toBe(0.3);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import { expect } from 'bun:test';
+            expect(10 / 3).toBe(3.333);
           `,
           errors: 1,
         },
