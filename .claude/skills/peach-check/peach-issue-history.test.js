@@ -92,11 +92,22 @@ function installPeachFetchMock(t, options) {
     analyses: [],
     open: [],
     resolved: [],
+    openCreatedBefore: [],
+    resolvedCreatedBefore: [],
+    issueScopes: [],
+    componentTree: [],
   };
   const supportedLanguages = new Set(SUPPORTED_LANGUAGES);
   const remainingFailures = new Map(Object.entries(options.failOnce ?? {}));
   const originalFetch = globalThis.fetch;
   const analysesDesc = [...options.analyses].sort((left, right) => Date.parse(right.date) - Date.parse(left.date));
+  const issueSources = options.issueSources ?? {
+    [options.projectKey]: {
+      openIssues: options.openIssues,
+      resolvedIssues: options.resolvedIssues,
+    },
+  };
+  const componentChildren = options.componentChildren ?? {};
 
   t.after(() => {
     globalThis.fetch = originalFetch;
@@ -132,7 +143,6 @@ function installPeachFetchMock(t, options) {
     }
 
     if (parsedUrl.pathname === '/api/issues/search') {
-      assert.equal(parsedUrl.searchParams.get('components'), options.projectKey);
       assert.equal(parsedUrl.searchParams.get('languages'), SUPPORTED_LANGUAGES.join(','));
 
       const requestedLanguages = new Set(parsedUrl.searchParams.get('languages').split(','));
@@ -140,6 +150,10 @@ function installPeachFetchMock(t, options) {
       const pageIndex = Number(parsedUrl.searchParams.get('p') ?? '1');
       const pageSize = Number(parsedUrl.searchParams.get('ps') ?? '500');
       const createdBeforeTimestamp = Date.parse(parsedUrl.searchParams.get('createdBefore') ?? '');
+      const createdBefore = parsedUrl.searchParams.get('createdBefore');
+      const scopeKey = parsedUrl.searchParams.get('componentKeys') ?? parsedUrl.searchParams.get('components');
+      const source = issueSources[scopeKey];
+      assert.ok(source, `unexpected issue scope: ${scopeKey}`);
       const failureKey = `${resolved ? 'resolved' : 'open'}:${pageIndex}`;
       const start = (pageIndex - 1) * pageSize;
 
@@ -147,11 +161,14 @@ function installPeachFetchMock(t, options) {
         assert.equal(parsedUrl.searchParams.get('s'), 'CLOSE_DATE');
         assert.equal(parsedUrl.searchParams.get('asc'), 'false');
         requests.resolved.push(pageIndex);
+        requests.resolvedCreatedBefore.push(createdBefore);
       } else {
         assert.equal(parsedUrl.searchParams.get('s'), 'CREATION_DATE');
         assert.equal(parsedUrl.searchParams.get('asc'), 'true');
         requests.open.push(pageIndex);
+        requests.openCreatedBefore.push(createdBefore);
       }
+      requests.issueScopes.push({ scopeKey, resolved, pageIndex });
 
       if (remainingFailures.has(failureKey)) {
         const failureStatus = remainingFailures.get(failureKey);
@@ -159,7 +176,7 @@ function installPeachFetchMock(t, options) {
         return createErrorFetchResponse(failureStatus);
       }
 
-      const sourceIssues = resolved ? options.resolvedIssues : options.openIssues;
+      const sourceIssues = resolved ? source.resolvedIssues : source.openIssues;
       const filteredIssues = sourceIssues
         .filter(issue => supportedLanguages.has(issue.language))
         .filter(issue => requestedLanguages.has(issue.language))
@@ -183,6 +200,13 @@ function installPeachFetchMock(t, options) {
           return responseIssue;
         });
 
+      if (filteredIssues.length > 10000 && start >= 10000) {
+        return createErrorFetchResponse(
+          400,
+          '{"errors":[{"msg":"Can return only the first 10000 results. 10500th result asked."}]}',
+        );
+      }
+
       return createFetchResponse({
         paging: {
           pageIndex,
@@ -190,6 +214,37 @@ function installPeachFetchMock(t, options) {
           total: filteredIssues.length,
         },
         issues: filteredIssues.slice(start, start + pageSize),
+      });
+    }
+
+    if (parsedUrl.pathname === '/api/components/tree') {
+      const componentKey = parsedUrl.searchParams.get('component');
+      const qualifiers = parsedUrl.searchParams.get('qualifiers');
+      const strategy = parsedUrl.searchParams.get('strategy');
+      const pageIndex = Number(parsedUrl.searchParams.get('p') ?? '1');
+      const pageSize = Number(parsedUrl.searchParams.get('ps') ?? '500');
+      const start = (pageIndex - 1) * pageSize;
+      const children = componentChildren[componentKey] ?? { dirs: [], files: [] };
+
+      assert.equal(strategy, 'children');
+      requests.componentTree.push({ componentKey, qualifiers, pageIndex });
+
+      let components;
+      if (qualifiers === 'DIR') {
+        components = children.dirs;
+      } else if (qualifiers === 'FIL') {
+        components = children.files;
+      } else {
+        throw new Error(`unexpected qualifiers: ${qualifiers}`);
+      }
+
+      return createFetchResponse({
+        paging: {
+          pageIndex,
+          pageSize,
+          total: components.length,
+        },
+        components: components.slice(start, start + pageSize),
       });
     }
 
@@ -213,6 +268,8 @@ async function runSingleProjectIssueHistory(
     jobStartedAt,
     jobCompletedAt,
     failOnce,
+    issueSources,
+    componentChildren,
   },
 ) {
   const output = {};
@@ -222,6 +279,8 @@ async function runSingleProjectIssueHistory(
     openIssues,
     resolvedIssues,
     failOnce,
+    issueSources,
+    componentChildren,
   });
   const effectiveStartedAt = jobStartedAt ?? analyses[analyses.length - 1].date;
   const effectiveCompletedAt =
@@ -432,6 +491,72 @@ test('runIssueHistory paginates analyses and issue snapshots with the supported-
   assert.equal(row.status, 'OK');
   assert.equal(row.current_value, 600);
   assert.equal(row.baseline_value, 600);
+});
+
+test('runIssueHistory formats Peach issue-search timestamps with a UTC offset', async t => {
+  const analyses = createDailyAnalyses('2026-04-26T03:09:22Z', 6);
+  const { requests } = await runSingleProjectIssueHistory(t, {
+    analyses,
+    openIssues: createOpenIssues(10, '2026-04-01T00:00:00Z', 'js'),
+    resolvedIssues: [],
+    projectKey: 'js:TimestampProject',
+    projectName: 'timestamp-project',
+  });
+
+  assert.deepEqual(requests.openCreatedBefore, ['2026-05-01T03:09:23+0000']);
+  assert.deepEqual(requests.resolvedCreatedBefore, ['2026-05-01T03:09:23+0000']);
+});
+
+test('runIssueHistory splits capped issue searches across child components', async t => {
+  const analyses = createDailyAnalyses('2026-04-26T03:09:22Z', 6);
+  const frontendIssues = createOpenIssues(5001, '2026-04-01T00:00:00Z', 'js');
+  const backendIssues = createOpenIssues(5009, '2026-04-01T00:00:00Z', 'ts');
+  const { report, requests } = await runSingleProjectIssueHistory(t, {
+    analyses,
+    openIssues: [],
+    resolvedIssues: [],
+    projectKey: 'js:CappedProject',
+    projectName: 'capped-project',
+    issueSources: {
+      'js:CappedProject': {
+        openIssues: [...frontendIssues, ...backendIssues],
+        resolvedIssues: [],
+      },
+      'js:CappedProject:frontend': {
+        openIssues: frontendIssues,
+        resolvedIssues: [],
+      },
+      'js:CappedProject:backend': {
+        openIssues: backendIssues,
+        resolvedIssues: [],
+      },
+    },
+    componentChildren: {
+      'js:CappedProject': {
+        dirs: [
+          { key: 'js:CappedProject:frontend', path: 'frontend' },
+          { key: 'js:CappedProject:backend', path: 'backend' },
+        ],
+        files: [],
+      },
+      'js:CappedProject:frontend': { dirs: [], files: [] },
+      'js:CappedProject:backend': { dirs: [], files: [] },
+    },
+  });
+
+  assert.deepEqual(report.summary, { OK: 1 });
+  assert.equal(report.rows[0].current_value, 10010);
+  assert.ok(
+    requests.componentTree.some(
+      entry => entry.componentKey === 'js:CappedProject' && entry.qualifiers === 'DIR',
+    ),
+  );
+  assert.ok(
+    requests.issueScopes.some(entry => entry.scopeKey === 'js:CappedProject:frontend' && !entry.resolved),
+  );
+  assert.ok(
+    requests.issueScopes.some(entry => entry.scopeKey === 'js:CappedProject:backend' && !entry.resolved),
+  );
 });
 
 test('runIssueHistory retries the full issue snapshot fetch when a later open-issues page fails', async t => {

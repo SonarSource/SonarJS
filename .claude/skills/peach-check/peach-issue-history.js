@@ -27,6 +27,8 @@ const DEFAULT_THRESHOLD_ABS = 20;
 const DEFAULT_CONCURRENCY = 8;
 const DEFAULT_ANALYSES_PAGE_SIZE = 100;
 const DEFAULT_ISSUES_PAGE_SIZE = 500;
+const DEFAULT_COMPONENTS_PAGE_SIZE = 500;
+const DEFAULT_ISSUES_RESULT_WINDOW = 10000;
 const DEFAULT_RETRY_ATTEMPTS = 3;
 const RETRYABLE_STATUS_CODES = new Set([429, 502, 503]);
 const WORKFLOW_ONLY_JOBS = new Set(['prepare-project-matrix', 'diff-validation-aggregated']);
@@ -474,58 +476,119 @@ async function defaultFetchIssueCounts(projectKey, analyses, apiToken) {
 }
 
 async function fetchOpenIssues(projectKey, apiToken, createdBefore) {
-  const issues = [];
-
-  for (let pageIndex = 1; ; pageIndex += 1) {
-    const response = await fetchIssuesPage(projectKey, apiToken, {
+  return fetchIssuesForComponent(
+    projectKey,
+    apiToken,
+    {
       resolved: 'false',
       createdBefore,
       s: 'CREATION_DATE',
       asc: 'true',
-      p: String(pageIndex),
-      ps: String(DEFAULT_ISSUES_PAGE_SIZE),
-    });
-    issues.push(...normalizeOpenIssues(response.issues));
-
-    const total = response.paging?.total ?? issues.length;
-    if (pageIndex * DEFAULT_ISSUES_PAGE_SIZE >= total) {
-      break;
-    }
-  }
-
-  return issues;
+    },
+    normalizeOpenIssues,
+  );
 }
 
 async function fetchResolvedIssues(projectKey, apiToken, oldestAnalysisTimestamp, createdBefore) {
-  const issues = [];
-
-  for (let pageIndex = 1; ; pageIndex += 1) {
-    const response = await fetchIssuesPage(projectKey, apiToken, {
+  return fetchIssuesForComponent(
+    projectKey,
+    apiToken,
+    {
       resolved: 'true',
       createdBefore,
       s: 'CLOSE_DATE',
       asc: 'false',
+    },
+    issues => normalizeResolvedIssues(issues, oldestAnalysisTimestamp),
+  );
+}
+
+async function fetchIssuesForComponent(componentKey, apiToken, params, normalizePage) {
+  const firstResponse = await fetchIssuesPage(apiToken, {
+    componentKeys: componentKey,
+    ...params,
+    p: '1',
+    ps: String(DEFAULT_ISSUES_PAGE_SIZE),
+  });
+  const total = firstResponse.paging?.total ?? (firstResponse.issues ?? []).length;
+
+  if (total > DEFAULT_ISSUES_RESULT_WINDOW) {
+    const { directories, files } = await fetchDirectChildComponents(componentKey, apiToken);
+    if (directories.length === 0 && files.length === 0) {
+      throw new Error(`Issue search exceeded ${DEFAULT_ISSUES_RESULT_WINDOW} results for leaf component ${componentKey}`);
+    }
+
+    const nestedIssues = [];
+
+    for (const file of files) {
+      nestedIssues.push(...(await fetchIssuesForComponent(file.key, apiToken, params, normalizePage)));
+    }
+
+    for (const directory of directories) {
+      nestedIssues.push(...(await fetchIssuesForComponent(directory.key, apiToken, params, normalizePage)));
+    }
+
+    return nestedIssues;
+  }
+
+  const normalizedIssues = [...normalizePage(firstResponse.issues ?? [])];
+
+  if (DEFAULT_ISSUES_PAGE_SIZE >= total) {
+    return normalizedIssues;
+  }
+
+  for (let pageIndex = 2; ; pageIndex += 1) {
+    const response = await fetchIssuesPage(apiToken, {
+      componentKeys: componentKey,
+      ...params,
       p: String(pageIndex),
       ps: String(DEFAULT_ISSUES_PAGE_SIZE),
     });
-    const { issues: pageIssues, reachedOldHistory } = normalizeResolvedIssues(
-      response.issues,
-      oldestAnalysisTimestamp,
-    );
-    issues.push(...pageIssues);
+    normalizedIssues.push(...normalizePage(response.issues ?? []));
 
-    const total = response.paging?.total ?? issues.length;
-    if (reachedOldHistory || pageIndex * DEFAULT_ISSUES_PAGE_SIZE >= total) {
-      break;
+    if (pageIndex * DEFAULT_ISSUES_PAGE_SIZE >= total) {
+      return normalizedIssues;
     }
   }
-
-  return issues;
 }
 
-async function fetchIssuesPage(projectKey, apiToken, params) {
+async function fetchDirectChildComponents(componentKey, apiToken) {
+  const [directories, files] = await Promise.all([
+    fetchChildComponents(componentKey, 'DIR', apiToken),
+    fetchChildComponents(componentKey, 'FIL', apiToken),
+  ]);
+
+  return { directories, files };
+}
+
+async function fetchChildComponents(componentKey, qualifiers, apiToken) {
+  const components = [];
+
+  for (let pageIndex = 1; ; pageIndex += 1) {
+    const response = await fetchComponentsTreePage(componentKey, qualifiers, apiToken, pageIndex);
+    components.push(...(response.components ?? []));
+
+    const total = response.paging?.total ?? components.length;
+    if (pageIndex * DEFAULT_COMPONENTS_PAGE_SIZE >= total) {
+      return components;
+    }
+  }
+}
+
+async function fetchComponentsTreePage(componentKey, qualifiers, apiToken, pageIndex) {
   const query = new URLSearchParams({
-    components: projectKey,
+    component: componentKey,
+    qualifiers,
+    strategy: 'children',
+    p: String(pageIndex),
+    ps: String(DEFAULT_COMPONENTS_PAGE_SIZE),
+  });
+
+  return fetchPeachJson(`/api/components/tree?${query.toString()}`, apiToken);
+}
+
+async function fetchIssuesPage(apiToken, params) {
+  const query = new URLSearchParams({
     languages: SUPPORTED_LANGUAGES_QUERY,
     ...params,
   });
@@ -547,33 +610,25 @@ function normalizeOpenIssues(issues) {
 }
 
 function normalizeResolvedIssues(issues, oldestAnalysisTimestamp) {
-  const normalizedIssues = [];
-
-  for (const issue of issues ?? []) {
+  return (issues ?? []).flatMap(issue => {
     const creationTimestamp = parseTimestamp(issue.creationDate);
     const closeTimestamp = parseTimestamp(issue.closeDate);
 
     if (creationTimestamp === undefined || closeTimestamp === undefined) {
-      continue;
+      return [];
     }
 
     if (closeTimestamp <= oldestAnalysisTimestamp) {
-      return {
-        issues: normalizedIssues,
-        reachedOldHistory: true,
-      };
+      return [];
     }
 
-    normalizedIssues.push({
-      creationTimestamp,
-      closeTimestamp,
-    });
-  }
-
-  return {
-    issues: normalizedIssues,
-    reachedOldHistory: false,
-  };
+    return [
+      {
+        creationTimestamp,
+        closeTimestamp,
+      },
+    ];
+  });
 }
 
 async function fetchPeachJson(pathname, apiToken) {
@@ -792,7 +847,15 @@ function formatIsoTimestamp(timestamp) {
 }
 
 function formatExclusiveIsoTimestamp(timestamp) {
-  return new Date(timestamp + 1).toISOString();
+  return formatPeachDateTime(roundUpToNextSecond(timestamp));
+}
+
+function roundUpToNextSecond(timestamp) {
+  return Math.floor(timestamp / 1000) * 1000 + 1000;
+}
+
+function formatPeachDateTime(timestamp) {
+  return new Date(timestamp).toISOString().replace(/\.\d{3}Z$/, '+0000');
 }
 
 function firstDefinedNumber(...values) {
