@@ -603,9 +603,7 @@ function extractChaiShouldChain(
   return null;
 }
 
-export function extractMemberChain(
-  node: estree.Node,
-): { base: estree.Node; properties: string[] } | null {
+function extractMemberChain(node: estree.Node): { base: estree.Node; properties: string[] } | null {
   const properties: string[] = [];
   let current = node;
 
