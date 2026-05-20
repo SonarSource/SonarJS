@@ -18,21 +18,29 @@ import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 
 export type Allowlist = Record<string, string[]>;
 
-type JsxA11yRuleEntry = [string, Allowlist];
-
 type JsxA11yPluginWithRecommendedConfig = {
   configs?: {
     recommended?: {
-      rules?: Record<string, JsxA11yRuleEntry | undefined>;
+      rules?: Record<string, unknown>;
     };
   };
 };
 
 const RULE_KEY = 'jsx-a11y/no-noninteractive-element-to-interactive-role';
 
+function isAllowlist(value: unknown): value is Allowlist {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    Object.values(value).every(
+      roles => Array.isArray(roles) && roles.every(role => typeof role === 'string'),
+    )
+  );
+}
+
 export function extractUpstreamAllowlist(plugin: JsxA11yPluginWithRecommendedConfig): Allowlist {
   const entry = plugin.configs?.recommended?.rules?.[RULE_KEY];
-  if (!entry?.[1]) {
+  if (!Array.isArray(entry) || !isAllowlist(entry[1])) {
     throw new Error(
       'eslint-plugin-jsx-a11y: upstream allowlist for no-noninteractive-element-to-interactive-role not found; plugin API may have changed',
     );
