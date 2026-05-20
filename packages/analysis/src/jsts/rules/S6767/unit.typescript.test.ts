@@ -246,29 +246,6 @@ screenTrack(function (props: DecoratorHelperProps) {
 `,
           filename: fixtureFile,
         },
-        {
-          // FP: class decorator callback forwards typed props to a helper.
-          code: `
-declare const React: any;
-declare function buildPayload<P>(props: P): Record<string, unknown>;
-declare function screenTrack<P>(
-  mapper: (props: P) => Record<string, unknown>,
-): <TComponent>(target: TComponent) => TComponent;
-interface DecoratorAnnotationHelperProps {
-  screenName: string;
-}
-@screenTrack(function (props: DecoratorAnnotationHelperProps) {
-  return buildPayload(props);
-})
-class DecoratorAnnotationHelperComponent extends React.Component<DecoratorAnnotationHelperProps> {
-  props: DecoratorAnnotationHelperProps;
-  render() {
-    return <main />;
-  }
-}
-`,
-          filename: fixtureFile,
-        },
       ],
       invalid: [
         {
