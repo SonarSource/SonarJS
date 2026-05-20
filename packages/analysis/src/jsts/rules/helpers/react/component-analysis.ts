@@ -215,10 +215,7 @@ function isSpecificPropsType(type: ts.Type | undefined): type is ts.Type {
 }
 
 function getFunctionComponentParamPropsType(
-  componentNode:
-    | estree.FunctionDeclaration
-    | estree.FunctionExpression
-    | estree.ArrowFunctionExpression,
+  componentNode: FunctionComponentNode,
   services: RequiredParserServices,
 ): ts.Type | undefined {
   const firstParam = componentNode.params[0];
@@ -340,10 +337,7 @@ function getClassPropsPropertyType(
 }
 
 function isEligibleFunctionComponent(
-  componentNode:
-    | estree.FunctionDeclaration
-    | estree.FunctionExpression
-    | estree.ArrowFunctionExpression,
+  componentNode: FunctionComponentNode,
   componentIdentifier: estree.Identifier | undefined,
 ): boolean {
   return componentIdentifier === undefined

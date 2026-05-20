@@ -17,7 +17,7 @@
 
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
-import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
+import { getNodeParent } from '../helpers/ancestor.js';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import {
@@ -56,42 +56,79 @@ function hasDecoratorFactoryCallPropUsage(
     return false;
   }
 
-  const stack: estree.Node[] = [sourceCode.ast];
-  while (stack.length > 0) {
-    const node = stack.pop();
-    if (node === undefined) {
-      continue;
-    }
-
-    if (
-      node.type === 'CallExpression' &&
-      node.arguments.length === 1 &&
-      isDecoratorTargetingComponent(sourceCode, node.arguments[0], componentVariable) &&
-      node.callee.type === 'CallExpression' &&
-      node.callee.arguments.some(argument =>
-        isComponentPropsCallbackUsingProp(sourceCode, componentNode, argument, propName),
-      )
-    ) {
-      return true;
-    }
-
-    const children = childrenOf(node, sourceCode.visitorKeys);
-    for (let i = children.length - 1; i >= 0; i--) {
-      stack.push(children[i]);
-    }
-  }
-
-  return false;
+  return componentVariable.references.some(reference =>
+    isDecoratorFactoryTargetReference(sourceCode, componentNode, reference, propName),
+  );
 }
 
-function isDecoratorTargetingComponent(
+/**
+ * Pseudo code:
+ *   track(callback)(Component)
+ *
+ * The matched component reference must be the only outer application argument.
+ */
+function isDecoratorFactoryTargetReference(
   sourceCode: SourceCode,
-  targetNode: estree.Node,
-  componentVariable: Scope.Variable,
+  componentNode: estree.Node,
+  reference: Scope.Reference,
+  propName: string,
 ): boolean {
+  const decoratorApplication = getDecoratorApplicationForReference(reference);
   return (
-    isIdentifier(targetNode) &&
-    getVariableForIdentifier(sourceCode, targetNode) === componentVariable
+    !!decoratorApplication &&
+    hasMatchingDecoratorCallbackArgument(
+      sourceCode,
+      componentNode,
+      decoratorApplication.callee,
+      propName,
+    )
+  );
+}
+
+/**
+ * Pseudo code:
+ *   track(callback)(Component)
+ *
+ * Returns the outer application call when the reference is the only target argument.
+ */
+function getDecoratorApplicationForReference(
+  reference: Scope.Reference,
+): (estree.CallExpression & { callee: estree.CallExpression }) | undefined {
+  const parent = getNodeParent(reference.identifier);
+  return isDecoratorApplicationCall(parent, reference.identifier) ? parent : undefined;
+}
+
+function isDecoratorApplicationCall(
+  node: estree.Node | undefined,
+  targetNode: estree.Identifier,
+): node is estree.CallExpression & { callee: estree.CallExpression } {
+  return (
+    node?.type === 'CallExpression' &&
+    node.arguments.length === 1 &&
+    node.arguments[0] === targetNode &&
+    node.callee.type === 'CallExpression'
+  );
+}
+
+/**
+ * Pseudo code:
+ *   track(
+ *     (props: ComponentProps) => {
+ *       props.propName;
+ *     },
+ *   )(Component)
+ *
+ * At least one inner call argument must be a callback whose first parameter is typed
+ * with the same declared props contract as the component and uses the reported prop.
+ */
+function hasMatchingDecoratorCallbackArgument(
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+  decoratorFactoryCall: estree.CallExpression,
+  propName: string,
+): boolean {
+  return decoratorFactoryCall.arguments.some(argument =>
+    isComponentPropsCallbackUsingProp(sourceCode, componentNode, argument, propName),
   );
 }
 
@@ -101,8 +138,27 @@ function isComponentPropsCallbackUsingProp(
   callbackNode: estree.Node,
   propName: string,
 ): boolean {
+  const propsVariable = getMatchingCallbackPropsVariable(sourceCode, componentNode, callbackNode);
+  return (
+    !!propsVariable &&
+    propsVariable.references.some(reference => isComponentPropsUsageReference(reference, propName))
+  );
+}
+
+/**
+ * Pseudo code:
+ *   (props: ComponentProps) => ...
+ *
+ * The first callback parameter must be an identifier typed with the same declared props
+ * contract as the component. When that holds, return its scope variable.
+ */
+function getMatchingCallbackPropsVariable(
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+  callbackNode: estree.Node,
+): Scope.Variable | undefined {
   if (!isFunctionNode(callbackNode)) {
-    return false;
+    return undefined;
   }
 
   const firstParam = callbackNode.params[0];
@@ -110,15 +166,10 @@ function isComponentPropsCallbackUsingProp(
     !isIdentifier(firstParam) ||
     !isSameDeclaredPropsType(sourceCode, componentNode, firstParam)
   ) {
-    return false;
+    return undefined;
   }
 
-  const variable = sourceCode.getScope(callbackNode).set.get(firstParam.name);
-  if (!variable) {
-    return false;
-  }
-
-  return variable.references.some(reference => isComponentPropsUsageReference(reference, propName));
+  return sourceCode.getScope(callbackNode).set.get(firstParam.name);
 }
 
 function getVariableForIdentifier(
@@ -163,16 +214,39 @@ function isSameDeclaredPropsType(
 
 function isComponentPropsUsageReference(reference: Scope.Reference, propName: string): boolean {
   const parent = getNodeParent(reference.identifier);
-  if (
-    parent?.type === 'MemberExpression' &&
-    parent.object === reference.identifier &&
-    !parent.computed &&
-    isIdentifier(parent.property, propName)
-  ) {
-    return true;
-  }
-
   return (
-    !!parent && isSupportedWholePropsUsage(parent, argument => argument === reference.identifier)
+    isDirectPropMemberAccess(parent, reference.identifier, propName) ||
+    isWholePropsForwardingUsage(parent, reference.identifier)
   );
+}
+
+/**
+ * Pseudo code:
+ *   props.propName
+ */
+function isDirectPropMemberAccess(
+  node: estree.Node | undefined,
+  propsIdentifier: estree.Identifier,
+  propName: string,
+): boolean {
+  return (
+    node?.type === 'MemberExpression' &&
+    node.object === propsIdentifier &&
+    !node.computed &&
+    isIdentifier(node.property, propName)
+  );
+}
+
+/**
+ * Pseudo code:
+ *   consume(props)
+ *   [...props]
+ *   <Component {...props} />
+ *   props[key]
+ */
+function isWholePropsForwardingUsage(
+  node: estree.Node | undefined,
+  propsIdentifier: estree.Identifier,
+): boolean {
+  return !!node && isSupportedWholePropsUsage(node, argument => argument === propsIdentifier);
 }

@@ -48,6 +48,10 @@ function hasSupportedWholePropsUsageInSubtree(
  * Returns true when `node` matches any supported whole-props usage shape for the
  * provided `isPropsArgument` predicate and is not filtered out by the ignore rules.
  *
+ * Exported so sibling S6767 escapes can reuse the same whole-props shape matcher
+ * with a narrower props-binding predicate, for example a decorator callback
+ * parameter instead of only literal `props` or `this.props`.
+ *
  * Pseudo code:
  *   consume(props)
  *   [...props]
