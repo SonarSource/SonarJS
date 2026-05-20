@@ -97,9 +97,9 @@ function mutates(value: { toString: () => string }) {
   return true;
 }
 
-function maybeFalseNegative(value: { toString: () => string }) {
+function maybeFalseNegative(value: object) {
   if (value.toString !== Object.prototype.toString) {
-    return mutates(value) && value.toString(); // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+    return mutates(value as { toString: () => string }) && value.toString(); // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
   }
 }
 
