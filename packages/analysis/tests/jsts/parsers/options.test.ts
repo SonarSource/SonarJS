@@ -94,17 +94,17 @@ describe('buildTsParserOptions', () => {
     );
   });
 
-  it('should use detectedModuleType as sourceType when provided', () => {
+  it('should always use module sourceType regardless of detectedModuleType', () => {
     expect(buildTsParserOptions({}, { detectedModuleType: 'commonjs' })).toEqual(
-      expect.objectContaining({ sourceType: 'commonjs' }),
+      expect.objectContaining({ sourceType: 'module' }),
     );
-  });
-
-  it('should fall back to module sourceType when detectedModuleType is undefined', () => {
+    expect(buildTsParserOptions({}, { detectedModuleType: 'module' })).toEqual(
+      expect.objectContaining({ sourceType: 'module' }),
+    );
     expect(buildTsParserOptions()).toEqual(expect.objectContaining({ sourceType: 'module' }));
   });
 
-  it('should let an explicit sourceType override win over detectedModuleType', () => {
+  it('should let an explicit sourceType override win', () => {
     expect(
       buildTsParserOptions({ sourceType: 'script' }, { detectedModuleType: 'commonjs' }),
     ).toEqual(expect.objectContaining({ sourceType: 'script' }));

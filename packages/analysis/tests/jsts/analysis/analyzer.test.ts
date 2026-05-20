@@ -36,7 +36,7 @@ import { getPackageJsonManifests } from '../../../src/jsts/rules/helpers/depende
 import { createProgramOptions } from '../../../src/jsts/program/tsconfig/options.js';
 import { createStandardProgram } from '../../../src/jsts/program/factory.js';
 import { clearDependenciesCache } from '../../../src/jsts/rules/helpers/dependency-manifests/index.js';
-import { DEFAULT_ECMA_VERSION, DEFAULT_SOURCE_TYPE } from '../../../src/jsts/parsers/options.js';
+import { DEFAULT_ECMA_VERSION } from '../../../src/jsts/parsers/options.js';
 
 const currentPath = normalizePath(import.meta.dirname);
 
@@ -1093,7 +1093,7 @@ describe('await analyzeJSTS', () => {
       `DEBUG No ECMAScript version detected for "${normalizeToAbsolutePath(filePath)}"; using default ${DEFAULT_ECMA_VERSION}`,
     );
     expect(logs).toContain(
-      `DEBUG No module type detected for "${normalizeToAbsolutePath(filePath)}"; using default '${DEFAULT_SOURCE_TYPE}'`,
+      `DEBUG No module type detected for "${normalizeToAbsolutePath(filePath)}"`,
     );
   });
 });
