@@ -239,7 +239,7 @@ export class Linter {
     clearFileCaches();
     return transformMessages(messages, language, {
       sourceCode,
-      ruleMetas,
+      ruleMetas: sonarRuleMetas,
       filePath,
     });
   }
