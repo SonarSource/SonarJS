@@ -26,7 +26,7 @@ import {
   type NormalizedAbsolutePath,
   dirnamePath,
 } from '../../../../shared/src/helpers/files.js';
-import { createOptions } from './pragmas.js';
+import { createOptions, remapInlineConfigComments } from './pragmas.js';
 import path from 'node:path';
 import type { ParseResult } from '../parsers/parse.js';
 import type { AnalysisMode, FileStatus } from '../analysis/analysis.js';
@@ -235,6 +235,7 @@ export class Linter {
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
+    remapInlineConfigComments(sourceCode);
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath, rules));
     clearFileCaches();
     return transformMessages(messages, language, {

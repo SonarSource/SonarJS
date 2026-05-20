@@ -24,6 +24,7 @@ import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/file
 import { materializeRuleOptions, mergeRuleOptions } from '../rules/helpers/configs.js';
 
 const sonarRules = rules as Record<string, Rule.RuleModule>;
+const RULE_ID_CHARACTERS = String.raw`[\w@/-]`;
 
 type MappingEntry = {
   ruleId: string;
@@ -190,9 +191,77 @@ export function createOptions(
   };
 }
 
+type InlineConfigSourceCode = {
+  getInlineConfigNodes?: () => estree.Comment[];
+};
+
+export function remapInlineConfigComments(sourceCode: unknown) {
+  const inlineConfigSourceCode = sourceCode as InlineConfigSourceCode;
+  for (const comment of inlineConfigSourceCode.getInlineConfigNodes?.() ?? []) {
+    comment.value = remapRuleAliases(comment.value);
+  }
+}
+
+function remapRuleAliases(commentValue: string): string {
+  const [configPart, ...justificationParts] = commentValue.split(/\s--\s/u);
+  const configPartWithUpstreamDefaults = expandSeverityOnlyAliases(configPart);
+  const remappedConfigPart = Object.entries(eslintMapping)
+    .sort(([left], [right]) => right.length - left.length)
+    .reduce((value, [alias, { ruleId }]) => {
+      const escapedAlias = escapeRegExp(alias);
+      return value.replace(
+        new RegExp(`(?<!${RULE_ID_CHARACTERS})${escapedAlias}(?!${RULE_ID_CHARACTERS})`, 'gu'),
+        ruleId,
+      );
+    }, configPartWithUpstreamDefaults);
+
+  return justificationParts.length > 0
+    ? `${remappedConfigPart} -- ${justificationParts.join(' -- ')}`
+    : remappedConfigPart;
+}
+
+function expandSeverityOnlyAliases(commentValue: string): string {
+  return Object.entries(eslintMapping)
+    .sort(([left], [right]) => right.length - left.length)
+    .reduce((value, [alias, mapping]) => {
+      const defaultOptions = mapping.directiveRuleDefinition.meta?.defaultOptions;
+      if (!hasMeaningfulDefaultOptions(defaultOptions)) {
+        return value;
+      }
+
+      const escapedAlias = escapeRegExp(alias);
+      return value.replace(
+        new RegExp(
+          `(?<!${RULE_ID_CHARACTERS})${escapedAlias}(?!${RULE_ID_CHARACTERS})(\\s*:\\s*)(["'](?:off|warn|error)["']|[012])(?=\\s*(?:[,}]|$))`,
+          'giu',
+        ),
+        `${mapping.ruleId}$1[$2, ${defaultOptions.map(option => JSON.stringify(option)).join(', ')}]`,
+      );
+    }, commentValue);
+}
+
+function hasMeaningfulDefaultOptions(defaultOptions: unknown[] | undefined): defaultOptions is unknown[] {
+  return (
+    defaultOptions !== undefined &&
+    defaultOptions.some(
+      option =>
+        !(
+          option &&
+          typeof option === 'object' &&
+          !Array.isArray(option) &&
+          Object.keys(option).length === 0
+        ),
+    )
+  );
+}
+
 function getSonarMeta(ruleId: string): SonarMeta | undefined {
   const sonarKey = getRuleId(ruleId);
   return sonarKey in ruleMetas
     ? (ruleMetas[sonarKey as keyof typeof ruleMetas] as SonarMeta)
     : undefined;
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 }
