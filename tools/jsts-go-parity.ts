@@ -201,6 +201,8 @@ async function loadRequest(options: {
       ...(isRecord(rawRequest.configuration) ? rawRequest.configuration : {}),
       baseDir: effectiveBaseDir,
     },
+    rules: wrapRuleConfigurations(rawRequest.rules),
+    cssRules: wrapRuleConfigurations(rawRequest.cssRules),
   };
 
   const request = analyzeProjectProto.analyzeproject.v1.AnalyzeProjectRequest.fromObject(
@@ -213,6 +215,55 @@ async function loadRequest(options: {
     requestPath,
     baseDir: effectiveBaseDir,
   };
+}
+
+function wrapRuleConfigurations(rules: unknown): unknown {
+  if (!Array.isArray(rules)) {
+    return rules;
+  }
+
+  return rules.map(rule => {
+    if (!isRecord(rule) || !Array.isArray(rule.configurations)) {
+      return rule;
+    }
+
+    return {
+      ...rule,
+      configurations: rule.configurations.map(configuration => toProtoValue(configuration)),
+    };
+  });
+}
+
+function toProtoValue(value: unknown): Record<string, unknown> {
+  if (value === null) {
+    return { nullValue: 0 };
+  }
+  if (typeof value === 'number') {
+    return { numberValue: value };
+  }
+  if (typeof value === 'string') {
+    return { stringValue: value };
+  }
+  if (typeof value === 'boolean') {
+    return { boolValue: value };
+  }
+  if (Array.isArray(value)) {
+    return {
+      listValue: {
+        values: value.map(entry => toProtoValue(entry)),
+      },
+    };
+  }
+  if (isRecord(value)) {
+    return {
+      structValue: {
+        fields: Object.fromEntries(
+          Object.entries(value).map(([key, entry]) => [key, toProtoValue(entry)]),
+        ),
+      },
+    };
+  }
+  return { nullValue: 0 };
 }
 
 async function runNode(request: AnalyzeProjectProtoRequest): Promise<NormalizedAnalysisOutput> {

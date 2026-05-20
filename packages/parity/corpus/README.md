@@ -8,6 +8,9 @@ Conventions:
 - The project directory itself is the default `baseDir`.
 - `request.json` is optional. When present, it is treated as an
   `AnalyzeProjectRequest` JSON payload and merged with the project `baseDir`.
+- `rules[].configurations` and `cssRules[].configurations` can be written as
+  normal JSON values in `request.json`; the parity runner wraps them for the
+  Node proto path before calling `AnalyzeProjectRequest.fromObject(...)`.
 - Files are discovered from disk by default. The normal path is to omit `files`
   and let Node and Go exercise their own file stores and project discovery.
 - Projects should stay focused: one rule family per directory, with source files

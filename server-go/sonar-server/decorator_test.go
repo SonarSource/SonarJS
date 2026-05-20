@@ -443,6 +443,26 @@ func TestS6544ChecksVoidReturnTrueReportsAtFunctionHead(t *testing.T) {
 	}
 }
 
+func TestGetFunctionHeadLocArrowFunctionUsesArrowToken(t *testing.T) {
+	t.Parallel()
+
+	code := "declare function onEvent(callback: () => void): void; onEvent(async () => {});"
+	sourceFile := parser.ParseSourceFile(ast.SourceFileParseOptions{
+		FileName: "/test.ts",
+		Path:     "/test.ts",
+	}, code, core.ScriptKindTS)
+
+	arrow := findFirstNode(t, sourceFile, ast.IsArrowFunction)
+	location := utils.GetFunctionHeadLoc(sourceFile, arrow)
+	expectedPos := strings.LastIndex(code, "=>")
+	if expectedPos < 0 {
+		t.Fatal("expected arrow token in test source")
+	}
+	if location.Pos() != expectedPos {
+		t.Fatalf("expected arrow function head to start at => token %d, got %d", expectedPos, location.Pos())
+	}
+}
+
 func TestNoAsyncPromiseExecutorRuleReportsOnJavaScriptOnly(t *testing.T) {
 	t.Parallel()
 

@@ -196,7 +196,7 @@ func GetFunctionHeadLoc(
 ) core.TextRange {
 	if ast.IsArrowFunction(node) {
 		if arrow := node.AsArrowFunction().EqualsGreaterThanToken; arrow != nil {
-			return arrow.Loc
+			return scanner.GetRangeOfTokenAtPosition(sourceFile, arrow.Pos())
 		}
 	}
 	params := node.ParameterList()
