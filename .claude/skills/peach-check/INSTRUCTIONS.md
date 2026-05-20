@@ -147,7 +147,16 @@ successful project both:
 - looks materially consistent with recent history, so a green GitHub job does not hide a
   suspicious downward shift in the analyzed state
 
-The helper uses recent SonarQube history as the baseline:
+The helper reconstructs recent unresolved-issue counts from Peach analyses plus
+`api/issues/search`, filtered to the SonarJS-owned languages:
+
+- `js`
+- `ts`
+- `css`
+- `web` (HTML)
+- `yaml`
+
+Use the repo-local helper:
 
 ```bash
 node .claude/skills/peach-check/peach-issue-history.js \
@@ -163,12 +172,16 @@ The helper script reads:
 - `PEACH_ISSUE_DROP_MIN_ABS` with default `20`
 - `PEACH_ISSUE_HISTORY_CONCURRENCY` with default `8`
 
+Do not use the whole-project `violations` history from `api/measures/search_history` for this
+check anymore. That metric cannot be filtered by language and can hide false drops caused by
+non-SonarJS analyzers.
+
 Do not call `mc peach issue-history` from this skill anymore.
 
 Interpret the helper statuses like this:
 
-- `OK` → the project has a fresh analysis in the run window and its current metric is materially
-  consistent with the recent baseline
+- `OK` → the project has a fresh analysis in the run window and its current SonarJS-language issue
+  count is materially consistent with the recent baseline
 - `DROP` → record one `NEEDS-MANUAL-REVIEW` finding per flagged project; describe it as a
   suspicious downward variation versus recent history
 - `INSUFFICIENT_HISTORY` → mention only in the summary; there is not enough baseline to judge
@@ -203,7 +216,7 @@ Each `DROP` finding should include:
 
 - SonarQube project key
 - latest analysis date
-- current metric value
+- current SonarJS-language issue count
 - baseline value
 - absolute drop
 - percentage drop
@@ -400,7 +413,7 @@ Excluded by design: prepare-project-matrix, diff-validation-aggregated (workflow
 - nx — `ReportPublisher.upload` to `/api/ce/submit` timed out after JS analysis completed
 
 ### NEEDS-MANUAL-REVIEW — Suspicious issue count drop
-- js:FreeCodeCamp — `violations` dropped from median baseline 4150 to 3821 (-7.9%, -329)
+- js:FreeCodeCamp — SonarJS-language issue count dropped from median baseline 4150 to 3821 (-7.9%, -329)
 
 ### Summary
 - CRITICAL: N jobs
