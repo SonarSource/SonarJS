@@ -92,6 +92,17 @@ function precededByStatementStillUnsafe(value: object) {
   return undefined;
 }
 
+function mutates(value: { toString: () => string }) {
+  value.toString = Object.prototype.toString;
+  return true;
+}
+
+function maybeFalseNegative(value: { toString: () => string }) {
+  if (value.toString !== Object.prototype.toString) {
+    return mutates(value) && value.toString(); // Noncompliant {{'value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  }
+}
+
 declare function shouldSkipDefaultString(): boolean;
 declare function requiresCustomString(): boolean;
 

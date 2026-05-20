@@ -140,20 +140,22 @@ function isCallInFirstStatementOfBranch(
   }
 
   const firstStatement = branch.type === 'BlockStatement' ? branch.body[0] : branch;
-  return firstStatement !== undefined && isAncestorOrSelf(firstStatement, call);
+  return firstStatement !== undefined && startsWithCall(firstStatement, call);
 }
 
-function isAncestorOrSelf(ancestor: TSESTree.Node, node: TSESTree.Node): boolean {
-  let current: TSESTree.Node | undefined = node;
-  while (current) {
-    if (current === ancestor) {
-      return true;
-    }
-    if (isFunctionBoundary(current)) {
-      return false;
-    }
-    current = current.parent;
+function startsWithCall(statement: TSESTree.Statement, call: TSESTree.CallExpression): boolean {
+  if (statement.type === 'ReturnStatement') {
+    return statement.argument === call;
   }
+
+  if (statement.type === 'ExpressionStatement') {
+    return statement.expression === call;
+  }
+
+  if (statement.type === 'VariableDeclaration' && statement.declarations.length === 1) {
+    return statement.declarations[0].init === call;
+  }
+
   return false;
 }
 
