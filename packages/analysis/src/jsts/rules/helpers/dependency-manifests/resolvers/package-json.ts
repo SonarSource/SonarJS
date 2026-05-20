@@ -70,11 +70,9 @@ export const packageJsonManifestResolver: ManifestResolver = {
 
     parsedPackageJson = resolveCatalogReferences(parsedPackageJson, catalogSource);
 
-    // Only propagate an explicit module type signal; absence stays undefined so the parser
-    // falls back to its default ('module') instead of inferring CommonJS.
-    const { type } = parsedPackageJson;
-    const moduleType: ModuleType | undefined =
-      type === 'module' || type === 'commonjs' ? type : undefined;
+    // Match Node's resolution: explicit "module" is ESM, anything else (including
+    // missing "type") is CommonJS.
+    const moduleType: ModuleType = parsedPackageJson.type === 'module' ? 'module' : 'commonjs';
     return [
       {
         type: 'package-json',
