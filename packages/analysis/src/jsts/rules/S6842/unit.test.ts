@@ -14,33 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { deepStrictEqual, ok } from 'node:assert';
+import { deepStrictEqual, ok, throws } from 'node:assert';
 import { describe, it } from 'node:test';
-import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import { defaultOptions } from '../helpers/configs.js';
 import { fields } from './config.js';
 import { rule } from './index.js';
+import { extractUpstreamAllowlist, getUpstreamAllowlist } from './upstream.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import type { Allowlist } from './upstream.js';
 
-type Allowlist = {
-  ul: string[];
-  ol: string[];
-  li: string[];
-  table: string[];
-  td: string[];
-  fieldset: string[];
-};
-
-const { configs } = jsxA11yPlugin as unknown as {
-  configs: {
-    recommended: {
-      rules: Record<string, [string, Allowlist]>;
-    };
-  };
-};
-
-const UPSTREAM_ALLOWLIST =
-  configs.recommended.rules['jsx-a11y/no-noninteractive-element-to-interactive-role'][1];
+const UPSTREAM_ALLOWLIST = getUpstreamAllowlist();
 
 const OPTIONS = defaultOptions(fields) as [Allowlist];
 const [allowlist] = OPTIONS;
@@ -88,6 +71,13 @@ const VALID_CASES = [
 ];
 
 describe('S6842', () => {
+  it('should fail clearly when the upstream allowlist cannot be read', () => {
+    throws(
+      () => extractUpstreamAllowlist({ configs: { recommended: { rules: {} } } }),
+      /upstream allowlist.*not found/i,
+    );
+  });
+
   it('should expose the upstream recommended allowlist as default options', () => {
     deepStrictEqual(allowlist, UPSTREAM_ALLOWLIST);
   });

@@ -16,21 +16,10 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6842/javascript
 
-import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import type { ESLintConfiguration } from '../helpers/configs.js';
+import { getUpstreamAllowlist } from './upstream.js';
 
-type Allowlist = Record<string, string[]>;
-
-const { configs } = jsxA11yPlugin as unknown as {
-  configs: {
-    recommended: {
-      rules: Record<string, [string, Allowlist]>;
-    };
-  };
-};
-
-const allowlist =
-  configs.recommended.rules['jsx-a11y/no-noninteractive-element-to-interactive-role'][1];
+const allowlist = getUpstreamAllowlist();
 
 export const fields = [
   Object.entries(allowlist).map(([field, roles]) => ({
