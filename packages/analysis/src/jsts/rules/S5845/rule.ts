@@ -19,11 +19,8 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
-import {
-  type Assertion,
-  extractMemberChain,
-  extractTestAssertion,
-} from '../helpers/assertions.js';
+import { getVariableFromName } from '../helpers/ast.js';
+import { type Assertion, extractTestAssertion } from '../helpers/assertions.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import { getTypeFromTreeNode } from '../helpers/type.js';
@@ -47,15 +44,26 @@ type PrimitiveCategory =
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
+  /*
+   * High-level idea:
+   * - only run when the parser provides type information;
+   * - reduce both assertion operands to broad primitive families instead of comparing exact
+   *   TypeScript types, because the rule is only meant to catch obviously impossible equality
+   *   assertions;
+   * - stay conservative whenever the type is imprecise (`any`, `unknown`, type parameters, etc.),
+   *   or when a mutable identifier may have been reassigned to a different family.
+   */
   create(context: Rule.RuleContext) {
     const services = context.sourceCode.parserServices;
-    if (!isRequiredParserServices(services) || !/\.tsx?$/i.test(context.filename)) {
+    if (!isRequiredParserServices(services)) {
       return {};
     }
 
     const checker = services.program.getTypeChecker();
 
-    function checkAssertion(node: estree.Node) {
+    // Centralise the whole decision tree once per extracted assertion so both visitors below
+    // share the same filtering, type lookup, and reporting logic.
+    function checkAssertion(node: estree.Node): void {
       const assertion = extractTestAssertion(context, node);
       if (!isRelevantAssertion(assertion)) {
         return;
@@ -73,6 +81,12 @@ export const rule: Rule.RuleModule = {
       const expectedType = checker.getBaseTypeOfLiteralType(
         getTypeFromTreeNode(assertion.expected, services),
       );
+      if (
+        !hasStablePrimitiveType(context, assertion.actual, actualType, checker, services) ||
+        !hasStablePrimitiveType(context, assertion.expected, expectedType, checker, services)
+      ) {
+        return;
+      }
       const incompatibility = getIncompatibility(actualType, expectedType, checker);
       if (incompatibility) {
         context.report({
@@ -94,44 +108,69 @@ export const rule: Rule.RuleModule = {
   },
 };
 
+// Only strict comparison-style assertions are in scope. Loose equality is intentionally excluded
+// because coercion rules make "always true/false" reasoning much less reliable there.
 function isRelevantAssertion(assertion: Assertion | null): assertion is Assertion & {
   kind: 'comparison';
 } {
-  return (
-    assertion?.kind === 'comparison' &&
-    assertion.comparison !== 'loose' &&
-    !isChaiBddEqualAssertion(assertion)
+  return assertion?.kind === 'comparison' && assertion.comparison !== 'loose';
+}
+
+// Mutable identifiers need extra care: the current type at the assertion site may be narrower
+// than what was actually written earlier. We only trust identifier types when every write stays in
+// the same primitive family as the current type.
+function hasStablePrimitiveType(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  nodeType: ts.Type,
+  checker: ts.TypeChecker,
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+): boolean {
+  if (node.type !== 'Identifier') {
+    return true;
+  }
+  const allowedCategories = getPrimitiveCategories(nodeType);
+  if (!allowedCategories) {
+    return false;
+  }
+  const variable = getVariableFromName(context, node.name, node);
+  if (!variable) {
+    return true;
+  }
+
+  return variable.references
+    .filter(ref => ref.isWrite())
+    .every(ref => isCompatibleWrite(ref.writeExpr, allowedCategories, checker, services));
+}
+
+// A write is compatible only when we can classify it precisely and every resulting primitive
+// family is still inside the identifier's allowed families. If not, we bail out conservatively.
+function isCompatibleWrite(
+  writeExpr: estree.Node | null,
+  allowedCategories: PrimitiveCategory[],
+  checker: ts.TypeChecker,
+  services: Rule.RuleContext['sourceCode']['parserServices'],
+): boolean {
+  if (!writeExpr) {
+    return false;
+  }
+  const writeCategories = getPrimitiveCategories(
+    checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(writeExpr, services)),
   );
+  return writeCategories?.every(category => allowedCategories.includes(category)) ?? false;
 }
 
-function isChaiBddEqualAssertion(assertion: Assertion & { kind: 'comparison' }): boolean {
-  if (
-    assertion.reportNode.type !== 'Identifier' ||
-    !['equal', 'equals', 'eq'].includes(assertion.reportNode.name)
-  ) {
-    return false;
-  }
-  if (
-    assertion.node.type !== 'CallExpression' ||
-    assertion.node.callee.type !== 'MemberExpression'
-  ) {
-    return false;
-  }
-  const chain = extractMemberChain(assertion.node.callee.object)?.properties ?? [];
-  return !chain.includes('deep') && (chain.includes('to') || chain.includes('should'));
-}
-
+// The rule reports only when the two operands have no plausible primitive-family overlap.
+// If they share a family, or either side falls into a conservative family, we skip reporting.
 function getIncompatibility(
   actualType: ts.Type,
   expectedType: ts.Type,
   checker: ts.TypeChecker,
 ): { actual: string; expected: string } | null {
-  const actualMembers = getUnionMembers(actualType);
-  const expectedMembers = getUnionMembers(expectedType);
-  const actualCategories = actualMembers.map(getPrimitiveCategory);
-  const expectedCategories = expectedMembers.map(getPrimitiveCategory);
+  const actualCategories = getPrimitiveCategories(actualType);
+  const expectedCategories = getPrimitiveCategories(expectedType);
 
-  if (actualCategories.includes(null) || expectedCategories.includes(null)) {
+  if (!actualCategories || !expectedCategories) {
     return null;
   }
 
@@ -153,14 +192,27 @@ function getIncompatibility(
   };
 }
 
+// Objects, null, and undefined are kept conservative because structural typing and JS runtime
+// behavior make "always incompatible" claims too risky for this rule.
 function isConservativeCategory(category: PrimitiveCategory | null): boolean {
   return category === 'object' || category === 'null' || category === 'undefined';
 }
 
+// Normalise scalar and union types to a flat list so the rest of the logic can treat both cases
+// uniformly.
 function getUnionMembers(type: ts.Type): ts.Type[] {
   return type.isUnion() ? type.types : [type];
 }
 
+// Collapse a TypeScript type into primitive families. If any union member is too imprecise to
+// classify, return null so callers can stay conservative.
+function getPrimitiveCategories(type: ts.Type): PrimitiveCategory[] | null {
+  const categories = getUnionMembers(type).map(getPrimitiveCategory);
+  return categories.every(isPrimitiveCategory) ? categories : null;
+}
+
+// Translate the detailed TypeScript type system into the coarse families this rule reasons about.
+// Anything outside those obvious buckets is treated as indeterminate.
 function getPrimitiveCategory(type: ts.Type): PrimitiveCategory | null {
   const indeterminateFlags =
     ts.TypeFlags.Any |
@@ -192,4 +244,9 @@ function getPrimitiveCategory(type: ts.Type): PrimitiveCategory | null {
     return 'object';
   }
   return null;
+}
+
+// Narrow the mapped category list back to `PrimitiveCategory[]` once null has been ruled out.
+function isPrimitiveCategory(category: PrimitiveCategory | null): category is PrimitiveCategory {
+  return category !== null;
 }

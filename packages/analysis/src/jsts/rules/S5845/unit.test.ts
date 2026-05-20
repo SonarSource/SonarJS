@@ -15,11 +15,19 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
+import path from 'node:path';
 import {
   NoTypeCheckingRuleTester,
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
+
+const jsFixture = path.join(import.meta.dirname, 'fixtures', 'placeholder.js');
+const jsTypeAwareRuleTester = new RuleTester({
+  parserOptions: {
+    project: path.join(import.meta.dirname, 'fixtures', 'tsconfig.json'),
+  },
+});
 
 describe('S5845', () => {
   it('reports assertions comparing incompatible types', () => {
@@ -134,8 +142,22 @@ describe('S5845', () => {
             import { expect } from 'chai';
 
             const version: number = 3;
-            const versionText: string = '3';
-            expect(version).to.equal(versionText);
+            expect(version).to.equal(3);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+
+            let messageErrorValue = false;
+
+            try {
+              throw 'boo!';
+            } catch (e) {
+              messageErrorValue = e;
+            }
+
+            expect(messageErrorValue).to.equal('boo!');
           `,
         },
         {
@@ -143,8 +165,7 @@ describe('S5845', () => {
             import 'chai/register-should';
 
             const timeout: number = 1000;
-            const timeoutText: string = '1000';
-            timeout.should.equal(timeoutText);
+            timeout.should.equal(1000);
           `,
         },
         {
@@ -241,10 +262,15 @@ describe('S5845', () => {
             const versionText: string = '3';
             const deprecated: boolean = false;
 
+            expect(version).to.equal(versionText);
             expect(versionText).to.deep.equal(version);
             expect(deprecated).to.eql(version);
           `,
-          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
+          errors: [
+            { messageId: 'alwaysFails' },
+            { messageId: 'alwaysFails' },
+            { messageId: 'alwaysFails' },
+          ],
         },
         {
           code: `
@@ -253,9 +279,10 @@ describe('S5845', () => {
             const timeout: number = 1000;
             const timeoutText: string = '1000';
 
+            timeout.should.equal(timeoutText);
             timeoutText.should.deep.equal(timeout);
           `,
-          errors: [{ messageId: 'alwaysFails' }],
+          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
         },
         {
           code: `
@@ -298,6 +325,28 @@ describe('S5845', () => {
         },
       ],
       invalid: [],
+    });
+  });
+
+  it('reports assertions comparing incompatible types in JavaScript files when type checking is available', () => {
+    jsTypeAwareRuleTester.run('no-incompatible-assertion-types [js]', rule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            /** @type {number} */
+            const count = 1;
+            /** @type {string} */
+            const title = '1';
+
+            expect(count).toBe(title);
+          `,
+          filename: jsFixture,
+          errors: [{ messageId: 'alwaysFails' }],
+        },
+      ],
     });
   });
 });
