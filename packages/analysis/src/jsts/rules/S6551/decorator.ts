@@ -296,7 +296,7 @@ function isReceiverToString(
     node.type === 'MemberExpression' &&
     !node.computed &&
     isIdentifier(node.property, 'toString') &&
-    areEquivalent(node.object as estree.Node, receiver as estree.Node, context.sourceCode)
+    areEquivalent(node.object, receiver, context.sourceCode)
   );
 }
 

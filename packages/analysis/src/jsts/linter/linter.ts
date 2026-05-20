@@ -69,7 +69,10 @@ interface InitializeParams {
 interface LintOptions {
   additionalSettings?: Record<string, unknown>;
   additionalRules?: ESLintLinter.RulesRecord;
+  detectedEsYear?: number;
 }
+
+const sonarRuleMetas = ruleMetas as Record<string, SonarMeta>;
 
 /**
  * A singleton ESLint linter
@@ -185,7 +188,6 @@ export class Linter {
    * @param fileStatus whether the file has changed or not
    * @param analysisMode whether we are analyzing all files or only changed files
    * @param language language of the source file
-   * @param detectedEsYear ecmascript version for the file
    * @param lintOptions additional rules and settings for linting
    * @returns linting issues
    */
@@ -196,7 +198,6 @@ export class Linter {
     fileStatus: FileStatus = 'CHANGED',
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
-    detectedEsYear?: number,
     lintOptions: LintOptions = {},
   ) {
     if (!Linter.linter) {
@@ -207,7 +208,7 @@ export class Linter {
       fileType,
       fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
       language,
-      detectedEsYear,
+      lintOptions.detectedEsYear,
       sourceCode,
     );
     const rules = lintOptions.additionalRules
@@ -387,9 +388,7 @@ export class Linter {
 }
 
 function getRuleMeta(ruleConfig: RuleConfig): SonarMeta | undefined {
-  return ruleConfig.key in ruleMetas
-    ? (ruleMetas[ruleConfig.key as keyof typeof ruleMetas] as SonarMeta)
-    : undefined;
+  return sonarRuleMetas[ruleConfig.key];
 }
 
 function hasRequiredDependencies(ruleMeta: SonarMeta | undefined): boolean {
