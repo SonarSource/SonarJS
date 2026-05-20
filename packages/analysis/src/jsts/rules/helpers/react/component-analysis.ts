@@ -131,9 +131,7 @@ function isWrappedInReactComponentCall(
   );
 }
 
-function getOwningVariableDeclarator(
-  componentNode: estree.Node,
-): (estree.VariableDeclarator & { id: estree.Identifier }) | undefined {
+function getOutermostReactWrapperParent(componentNode: estree.Node): estree.Node | undefined {
   let currentNode: estree.Node = componentNode;
   let parent = getNodeParent(currentNode);
 
@@ -142,18 +140,18 @@ function getOwningVariableDeclarator(
     parent = getNodeParent(currentNode);
   }
 
+  return parent;
+}
+
+function getOwningVariableDeclarator(
+  componentNode: estree.Node,
+): (estree.VariableDeclarator & { id: estree.Identifier }) | undefined {
+  const parent = getOutermostReactWrapperParent(componentNode);
   return isVariableDeclaratorWithIdentifierId(parent) ? parent : undefined;
 }
 
 function isAnonymousDefaultExportComponent(componentNode: estree.Node): boolean {
-  let currentNode: estree.Node = componentNode;
-  let parent = getNodeParent(currentNode);
-
-  while (isWrappedInReactComponentCall(currentNode, parent)) {
-    currentNode = parent;
-    parent = getNodeParent(currentNode);
-  }
-
+  const parent = getOutermostReactWrapperParent(componentNode);
   return parent?.type === 'ExportDefaultDeclaration';
 }
 
