@@ -59,6 +59,23 @@ function guardedByFunctionAndPrototypeComparison(value: object) {
         },
         {
           code: `
+function guardedByFunctionAndPrototypeComparisonReturn(value: unknown) {
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof value.toString === 'function' &&
+    value.toString !== Object.prototype.toString
+  ) {
+    return value.toString();
+  }
+
+  return undefined;
+}
+          `,
+          errors: 1,
+        },
+        {
+          code: `
 function rejectedDefaultStringResult(data: unknown) {
   if (data && typeof data === 'object' && typeof data.toString === 'function') {
     const rendered = data.toString();

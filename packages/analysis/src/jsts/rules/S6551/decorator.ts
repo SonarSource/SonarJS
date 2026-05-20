@@ -170,7 +170,8 @@ function provesCustomToString(
       conjuncts.every(
         conjunct =>
           provesCustomToString(conjunct, receiver, context, true) ||
-          provesReceiverToStringIsFunction(conjunct, receiver, context),
+          provesReceiverToStringIsFunction(conjunct, receiver, context) ||
+          provesReceiverIsObjectLike(conjunct, receiver, context),
       )
     );
   }
@@ -214,6 +215,34 @@ function provesReceiverToStringIsFunction(
         isReceiverToString(condition.right.argument, receiver, context) &&
         condition.left.type === 'Literal' &&
         condition.left.value === 'function'))
+  );
+}
+
+function provesReceiverIsObjectLike(
+  condition: TSESTree.Expression,
+  receiver: TSESTree.Expression,
+  context: Rule.RuleContext,
+): boolean {
+  return (
+    condition.type === 'BinaryExpression' &&
+    ((condition.operator === '===' &&
+      ((condition.left.type === 'UnaryExpression' &&
+        condition.left.operator === 'typeof' &&
+        areEquivalent(condition.left.argument, receiver, context.sourceCode) &&
+        condition.right.type === 'Literal' &&
+        condition.right.value === 'object') ||
+        (condition.right.type === 'UnaryExpression' &&
+          condition.right.operator === 'typeof' &&
+          areEquivalent(condition.right.argument, receiver, context.sourceCode) &&
+          condition.left.type === 'Literal' &&
+          condition.left.value === 'object'))) ||
+      (condition.operator === '!==' &&
+        ((areEquivalent(condition.left, receiver, context.sourceCode) &&
+          condition.right.type === 'Literal' &&
+          condition.right.value === null) ||
+          (areEquivalent(condition.right, receiver, context.sourceCode) &&
+            condition.left.type === 'Literal' &&
+            condition.left.value === null))))
   );
 }
 
