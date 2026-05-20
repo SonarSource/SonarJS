@@ -94,20 +94,17 @@ describe('buildTsParserOptions', () => {
     );
   });
 
-  it('should always use module sourceType regardless of detectedModuleType', () => {
-    expect(buildTsParserOptions({}, { detectedModuleType: 'commonjs' })).toEqual(
-      expect.objectContaining({ sourceType: 'module' }),
-    );
-    expect(buildTsParserOptions({}, { detectedModuleType: 'module' })).toEqual(
-      expect.objectContaining({ sourceType: 'module' }),
-    );
+  it('should always default sourceType to module', () => {
     expect(buildTsParserOptions()).toEqual(expect.objectContaining({ sourceType: 'module' }));
+    expect(buildTsParserOptions({}, { detectedEsYear: 2022 })).toEqual(
+      expect.objectContaining({ sourceType: 'module' }),
+    );
   });
 
   it('should let an explicit sourceType override win', () => {
-    expect(
-      buildTsParserOptions({ sourceType: 'script' }, { detectedModuleType: 'commonjs' }),
-    ).toEqual(expect.objectContaining({ sourceType: 'script' }));
+    expect(buildTsParserOptions({ sourceType: 'script' })).toEqual(
+      expect.objectContaining({ sourceType: 'script' }),
+    );
   });
 
   it('should disable jsx in ecmaFeatures when context.jsx is false', () => {

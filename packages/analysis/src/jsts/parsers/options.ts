@@ -21,14 +21,12 @@ import babelPresetEnv from '@babel/preset-env';
 import babelPluginDecorators from '@babel/plugin-proposal-decorators';
 import { parsersMap } from './eslint.js';
 import type { JsTsLanguage } from '../../common/configuration.js';
-import type { ModuleType } from '../rules/helpers/dependency-manifests/resolvers/types.js';
 
 /** Fallback ECMAScript version when none is detected. */
 export const DEFAULT_ECMA_VERSION = 2018;
 
 export interface ParserContext {
   detectedEsYear?: number;
-  detectedModuleType?: ModuleType;
   jsx?: boolean;
 }
 
