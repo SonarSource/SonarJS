@@ -249,6 +249,7 @@ jobs:
     runs-on: sonar-xs
     name: Prepare RSPEC rule data
     needs: [setup, populate_npm_cache]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
     steps:
       - *checkout
