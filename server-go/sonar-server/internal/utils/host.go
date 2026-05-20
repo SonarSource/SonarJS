@@ -282,6 +282,10 @@ func (fs *nodeModuleBoundaryFS) WriteFile(path string, data string) error {
 	return fs.base.WriteFile(path, data)
 }
 
+func (fs *nodeModuleBoundaryFS) AppendFile(path string, data string) error {
+	return fs.base.AppendFile(path, data)
+}
+
 func (fs *nodeModuleBoundaryFS) Remove(path string) error {
 	return fs.base.Remove(path)
 }

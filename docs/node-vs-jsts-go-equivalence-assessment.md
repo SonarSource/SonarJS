@@ -32,6 +32,9 @@ Scoped follow-ups that are intentionally outside `JS-1745`:
 - `JS-1760` - honor `analyze-project` `globals` and `environments` for scope-sensitive migrated rules
 - `JS-1761` - revisit orphan-program caching for JS-only projects without `tsconfig`
 
+See also: `docs/jsts-go-scope-globals-parity-assessment.md` for the narrower `JS-1760`
+assessment on scope-sensitive rule behavior.
+
 ## High-Level Conclusion
 
 The assessment from before the rebase was stale. For the current secondary JS/TS issue-engine scope, the current Go path is no longer just a thin fixed-rule pass. It now mirrors several important parts of the Node pipeline for the migrated JS/TS issue subset:

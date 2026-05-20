@@ -119,6 +119,7 @@ type RuleContext struct {
 	SourceFile                      *ast.SourceFile
 	Program                         *compiler.Program
 	TypeChecker                     *checker.Checker
+	KnownGlobals                    map[string]bool
 	ReportDiagnostic                func(diagnostic RuleDiagnostic)
 	ReportDiagnosticWithFixes       func(diagnostic RuleDiagnostic, fixesFn func() []RuleFix)
 	ReportDiagnosticWithSuggestions func(diagnostic RuleDiagnostic, suggestionsFn func() []RuleSuggestion)

@@ -308,16 +308,18 @@ var NoBaseToStringRule = rule.Rule{
 
 		isBuiltInStringCall := func(node *ast.CallExpression) bool {
 			if ast.IsIdentifier(node.Expression) && node.Expression.AsIdentifier().Text == "String" && len(node.Arguments.Nodes) > 0 {
+				resolution := rule.ResolveValueName(ctx, node.Expression, "String")
+				if resolution.LocalSymbol != nil {
+					return false
+				}
+				if resolution.AnySymbol == nil {
+					return false
+				}
+
 				tt := ctx.TypeChecker.GetTypeAtLocation(node.Expression)
 				s := utils.IsBuiltinSymbolLike(ctx.Program, ctx.TypeChecker, tt, "String")
 				sc := utils.IsBuiltinSymbolLike(ctx.Program, ctx.TypeChecker, tt, "StringConstructor")
 				return s || sc
-				// TODO(port-scopemanager)
-				// const scope = context.sourceCode.getScope(node);
-				// // eslint-disable-next-line @typescript-eslint/internal/prefer-ast-types-enum
-				// const variable = scope.set.get('String');
-				// return !variable?.defs.length;
-				// return true
 			}
 			return false
 		}

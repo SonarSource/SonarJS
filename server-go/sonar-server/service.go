@@ -212,7 +212,8 @@ func runProjectAnalysisWithState(
 		boolValue(input.Config.DisableTypeChecking, false),
 	)
 
-	configuredRules := configuredRulesFor(requestedRules)
+	knownGlobals := knownGlobalsForConfiguration(input.Config)
+	configuredRules := configuredRulesFor(requestedRules, knownGlobals)
 	requestedJsTsRules := requestedJsTsRulesByKey(input.Rules)
 	rulesByFile := make(map[fileRuleCacheKey][]linter.ConfiguredRule, len(filePaths))
 	activationSignalsByFile := make(map[string]ruleActivationSignals, len(filePaths))
@@ -358,23 +359,28 @@ func jsTsAnalysisTargets(filePaths []string, config NormalizedProjectConfigurati
 	return filtered
 }
 
-func configuredRulesFor(requestedRules map[string]requestedRuleConfig) []linter.ConfiguredRule {
+func configuredRulesFor(requestedRules map[string]requestedRuleConfig, knownGlobals map[string]bool) []linter.ConfiguredRule {
 	rules := make([]linter.ConfiguredRule, 0, len(requestedRules))
 	for _, availableRule := range allRules {
 		requestedRuleConfig, ok := requestedRules[availableRule.Name]
 		if !ok {
 			continue
 		}
-		capturedRule := availableRule
-		ruleOptions := requestedRuleConfig.Options
-		rules = append(rules, linter.ConfiguredRule{
-			Name: capturedRule.Name,
-			Run: func(ctx rule.RuleContext) rule.RuleListeners {
-				return capturedRule.Run(ctx, ruleOptions)
-			},
-		})
+		rules = append(rules, configuredRuleFor(availableRule, requestedRuleConfig, knownGlobals))
 	}
 	return rules
+}
+
+func configuredRuleFor(availableRule rule.Rule, requestedRuleConfig requestedRuleConfig, knownGlobals map[string]bool) linter.ConfiguredRule {
+	capturedRule := availableRule
+	ruleOptions := requestedRuleConfig.Options
+	return linter.ConfiguredRule{
+		Name: capturedRule.Name,
+		Run: func(ctx rule.RuleContext) rule.RuleListeners {
+			ctx.KnownGlobals = knownGlobals
+			return capturedRule.Run(ctx, ruleOptions)
+		},
+	}
 }
 
 func analyzeBatchPrograms(
@@ -803,7 +809,7 @@ func reuseConfiguredProgramForFile(
 
 	currentDirectory := tspath.GetDirectoryPath(tsconfig)
 	host := newAnalysisCompilerHost(analysisConfig, currentDirectory, fsys)
-	updated, reused := program.UpdateProgram(sourceFile.Path(), host)
+	updated, reused := program.UpdateProgram(sourceFile.Path(), host, nil)
 	if reused {
 		return updated, nil
 	}
@@ -907,7 +913,7 @@ func inferredProgramForFile(
 			programOptions = nil
 		} else if currentText, ok := fsys.ReadFile(filePath); ok && sourceFile.Text() != currentText {
 			host := newAnalysisCompilerHost(analysisConfig, baseDir, fsys)
-			updated, reused := program.UpdateProgram(sourceFile.Path(), host)
+			updated, reused := program.UpdateProgram(sourceFile.Path(), host, nil)
 			if reused {
 				program = updated
 			} else {

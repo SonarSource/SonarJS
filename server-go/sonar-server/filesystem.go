@@ -50,6 +50,10 @@ func (denyAllFS) WriteFile(path string, data string) error {
 	return vfs.ErrPermission
 }
 
+func (denyAllFS) AppendFile(path string, data string) error {
+	return vfs.ErrPermission
+}
+
 func (denyAllFS) Remove(path string) error {
 	return vfs.ErrPermission
 }

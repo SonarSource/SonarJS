@@ -16,6 +16,7 @@
  */
 import { listRulesDir } from './helpers.js';
 import { generateMetaForRule } from './generate-eslint-meta.js';
+import { generateGoEnvironmentGlobals } from './generate-go-environment-globals.js';
 import { generateGoRuleMetadata } from './generate-go-rule-metadata.js';
 import { updateIndexes } from './generate-rule-indexes.js';
 
@@ -27,4 +28,5 @@ for (const file of await listRulesDir()) {
   await generateMetaForRule(file);
 }
 await updateIndexes();
+await generateGoEnvironmentGlobals();
 await generateGoRuleMetadata();
