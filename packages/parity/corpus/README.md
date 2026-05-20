@@ -15,6 +15,9 @@ Conventions:
   and let Node and Go exercise their own file stores and project discovery.
 - Projects should stay focused: one rule family per directory, with source files
   that trigger or suppress the rule intentionally.
+- A few projects currently exercise only the clean path because violating samples
+  still expose known Node-vs-Go diagnostic-shape differences; keep those gaps
+  visible in follow-up work instead of relaxing the diff logic.
 
 Examples:
 
