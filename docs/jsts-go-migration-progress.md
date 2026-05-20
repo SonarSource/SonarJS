@@ -13,7 +13,7 @@ Generated from the current branch state.
 | Bucket                                           | Count | Notes                                                                               |
 | ------------------------------------------------ | ----: | ----------------------------------------------------------------------------------- |
 | Total Sonar rules                                |   526 | Full inventory below                                                                |
-| Already routed to jsts-go                        |    15 | Current `JSTS_GO_RULES` set in `JsTsChecks.java`                                    |
+| Already routed to jsts-go                        |    16 | Current `JSTS_GO_RULES` set in `JsTsChecks.java`                                    |
 | Rules with any migration signal                  |   234 | `Type svc = Yes` or `Ext AST = Yes`                                                 |
 | Subject to migration                             |    92 | `Type svc = Yes`; needs type services or checker support                            |
 | Possibly subject to migration                    |   142 | `Type svc = No`, `Ext AST = Yes`; may stay in Node with TS parser support           |
@@ -37,8 +37,10 @@ Current `typescript-eslint` slice on this branch:
 
 - `39` Sonar rules map to `typescript-eslint` upstream rules
 - `15` of those have a hard type-service dependency (`Subject to migration = Yes`)
-- `14` are already routed through `JSTS_GO_RULES`
-- `S4137` is the only `typescript-eslint`-backed rule with `Type svc = Yes` that is not yet migrated
+- `15` are already routed through `JSTS_GO_RULES`
+- the hard type-service `typescript-eslint` slice is now fully routed on this branch
+- remaining external/decorated hard type-service work for `JS-1746` is currently the typed `unicorn` slice:
+  - `S7727`, `S7728`, `S7729`, `S7755`, `S7778`, `S7785`
 
 ## How To Read The Table
 
@@ -297,7 +299,7 @@ Current `typescript-eslint` slice on this branch:
 | S4124 | external  | typescript-eslint                  | typescript-eslint/no-misused-new                                                               | No        | No     | No       | No       | No       | Yes     | Possibly             | -                                                                      |
 | S4125 | external  | eslint                             | eslint/valid-typeof                                                                            | No        | No     | No       | No       | No       | No      | No                   | -                                                                      |
 | S4136 | external  | typescript-eslint                  | typescript-eslint/adjacent-overload-signatures                                                 | No        | No     | No       | No       | No       | Yes     | Possibly             | -                                                                      |
-| S4137 | external  | typescript-eslint                  | typescript-eslint/consistent-type-assertions                                                   | No        | Yes    | Yes      | No       | Yes      | Yes     | Yes                  | type services beyond generated metadata                                |
+| S4137 | external  | typescript-eslint                  | typescript-eslint/consistent-type-assertions                                                   | No        | Yes    | Yes      | Yes      | Yes      | Yes     | Yes                  | type services beyond generated metadata                                |
 | S4138 | decorated | typescript-eslint                  | typescript-eslint/prefer-for-of                                                                | No        | No     | No       | No       | No       | Yes     | Possibly             | local wrapper adds dependency                                          |
 | S4139 | original  | original                           | -                                                                                              | Yes       | No     | No       | No       | Yes      | No      | Yes                  | -                                                                      |
 | S4140 | external  | eslint                             | eslint/no-sparse-arrays                                                                        | No        | No     | No       | No       | No       | No      | No                   | -                                                                      |

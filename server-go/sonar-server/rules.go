@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rule"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/await_thenable"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/consistent_type_assertions"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_base_to_string"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_misused_promises"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_mixed_enums"
@@ -31,6 +32,7 @@ var ruleDecoratorsByName = map[string][]RuleDecorator{
 
 var allRules = decorateRules([]rule.Rule{
 	await_thenable.AwaitThenableRule,
+	consistent_type_assertions.ConsistentTypeAssertionsRule,
 	prefer_readonly.PreferReadonlyRule,
 	no_unnecessary_type_arguments.NoUnnecessaryTypeArgumentsRule,
 	no_unnecessary_type_assertion.NoUnnecessaryTypeAssertionRule,
@@ -51,6 +53,7 @@ var allRules = decorateRules([]rule.Rule{
 var jstsGoRuleNameBySonarKey = map[string]string{
 	"S131":  "switch-exhaustiveness-check",
 	"S4123": "await-thenable",
+	"S4137": "consistent-type-assertions",
 	"S2933": "prefer-readonly",
 	"S4157": "no-unnecessary-type-arguments",
 	"S4325": "no-unnecessary-type-assertion",
@@ -67,7 +70,8 @@ var jstsGoRuleNameBySonarKey = map[string]string{
 }
 
 var rulesRunnableWithoutProgram = map[string]struct{}{
-	"no-async-promise-executor": {},
+	"consistent-type-assertions": {},
+	"no-async-promise-executor":  {},
 }
 
 var sonarRuleKeyByJstsGoRuleName = map[string]string{}

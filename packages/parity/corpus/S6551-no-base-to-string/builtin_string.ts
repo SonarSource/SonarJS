@@ -1,0 +1,3 @@
+const builtinValue = {};
+
+String(builtinValue);

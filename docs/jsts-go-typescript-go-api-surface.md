@@ -1,6 +1,6 @@
 # jsts-go / TypeScript-Go API Surface Used by SonarJS
 
-Date: 2026-05-12
+Date: 2026-05-20
 Branch: `feat/tsgolint-grpc-poc`
 
 ## Scope
@@ -22,6 +22,7 @@ Use it as the code-facing companion to:
 - `JS-1738` - add the plugin-to-Go gRPC bridge and dual-runtime orchestration
 - `JS-1739` - implement `analyze-project` core semantics in Go
 - `JS-1745` - close remaining `analyze-project` and runtime parity gaps for migrated rules
+- `JS-1760` - honor `analyze-project` globals and environments for scope-sensitive migrated rules
 - `JS-1746` - migrate remaining type-service external and decorated rules
 - `JS-1747` - migrate remaining type-service original SonarJS rules
 - `JS-1749` - productize TS7 routing and packaging for SonarQube and SonarLint
@@ -34,8 +35,8 @@ Use it as the code-facing companion to:
   - `server-go/patches/typescript-go`
   - `server-go/shim`
 - Java still treats Node as the primary analyzer. The Go sidecar is a secondary JS/TS issue engine for the routed rule subset.
-- `JsTsChecks.JSTS_GO_RULES` currently routes `15` Sonar rules to Go.
-- The Go runtime exposes `16` rule entry points because `S6544` expands to:
+- `JsTsChecks.JSTS_GO_RULES` currently routes `16` Sonar rules to Go.
+- The Go runtime exposes `17` rule entry points because `S6544` expands to:
   - `no-misused-promises`
   - `no-async-promise-executor`
 
@@ -53,6 +54,7 @@ Current routed Sonar keys:
 - `S2870` -> `no-array-delete`
 - `S2933` -> `prefer-readonly`
 - `S4123` -> `await-thenable`
+- `S4137` -> `consistent-type-assertions`
 - `S4157` -> `no-unnecessary-type-arguments`
 - `S4325` -> `no-unnecessary-type-assertion`
 - `S6544` -> `no-misused-promises` + `no-async-promise-executor`

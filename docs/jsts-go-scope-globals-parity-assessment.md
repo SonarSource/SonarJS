@@ -15,6 +15,14 @@ This note separates:
 3. what the current Go runtime already exposes through `typescript-go`,
 4. the lowest-cost parity path before migrating more scope-sensitive rules.
 
+Status on this branch:
+
+- the first-step `JS-1760` design described here is now implemented
+- `RuleContext` now carries `KnownGlobals`
+- the Go runtime expands request `globals` and `environments`
+- the narrow name-resolution helper is in place
+- `S6551` now uses that helper instead of the earlier `TODO(port-scopemanager)` path
+
 ## Node Path Today
 
 The current Node path is:
@@ -106,6 +114,7 @@ Current `JSTS_GO_RULES` in `JsTsChecks.java`:
 - `S2870`
 - `S2933`
 - `S4123`
+- `S4137`
 - `S4157`
 - `S4325`
 - `S6544`
@@ -122,12 +131,13 @@ Observation from the current branch:
 
 - the current offloaded set is mostly type-checker driven, not ESLint-scope-manager driven
 - none of those Node rule folders currently depend on `context.sourceCode.getDeclaredVariables(...)`, `scopeManager.getDeclaredVariables(...)`, or the main scope helpers listed above
-- the one explicit Go-side scope gap already visible in the current migrated set is:
+- the explicit Go-side scope gap that originally motivated `JS-1760` was:
   - `server-go/sonar-server/internal/rules/no_base_to_string/no_base_to_string.go`
-  - `TODO(port-scopemanager)` around distinguishing the built-in global `String` from a shadowed local `String`
+  - distinguishing the built-in global `String` from a shadowed local `String`
+- that gap is now closed on this branch through the narrow `ResolveValueName(...)` helper plus configured known globals
 
-So `JS-1760` is not primarily blocked by the currently offloaded set.
-It matters more as a prerequisite for future scope-sensitive migrations.
+So `JS-1760` is now implemented as groundwork for the current offloaded set.
+It still matters more as a prerequisite for future scope-sensitive migrations than as a blocker for the current routed rules.
 
 Likely future rule pressure points include:
 
@@ -147,6 +157,7 @@ The current Go rule runtime does not expose an ESLint-style scope manager.
 - `Program`
 - `TypeChecker`
 - `SourceFile`
+- `KnownGlobals`
 - reporting callbacks
 
 No current equivalent exists in `RuleContext` for:
@@ -168,7 +179,7 @@ However, `typescript-go` already exposes useful primitives that are enough for a
 That means Go is not starting from nothing.
 It already has name-resolution and local-symbol primitives from the TypeScript binder / checker.
 
-## Recommended Parity Plan
+## Implemented First Step
 
 ### 1. Add a narrow Go-side scope helper layer first
 
@@ -185,7 +196,7 @@ That layer should sit in Sonar-owned Go code, not in `typescript-go`.
 
 ### 2. Thread config-expanded known globals into Go rule execution
 
-Add a config-derived known-global set to the Go rule runtime.
+The branch now threads a config-derived known-global set into the Go rule runtime.
 
 That set should:
 
@@ -229,11 +240,10 @@ For TypeScript rules, the real behavioral target is the `typescript-eslint` scop
 
 ## Practical Next Step
 
-The next implementation step for `JS-1760` should be:
+Implemented on this branch:
 
-1. add config-expanded known globals / environments to the Go runtime,
-2. add a narrow scope helper API over `ResolveName(...)` and `GetLocals(...)`,
-3. use that API on the first migrated or soon-to-be-migrated rule that only needs
-   "local vs global vs configured-global" semantics.
+1. config-expanded known globals / environments in the Go runtime,
+2. a narrow scope helper API over `ResolveName(...)` and `GetLocals(...)`,
+3. first use of that API on `S6551` for "local vs global vs configured-global" semantics.
 
-That gives useful parity without committing yet to a full ESLint-scope reimplementation.
+The remaining future work here is only needed if later migrations require a fuller scope/reference model than this narrow helper layer provides.

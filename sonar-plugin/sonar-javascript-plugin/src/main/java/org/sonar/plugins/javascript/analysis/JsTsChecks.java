@@ -84,6 +84,7 @@ public class JsTsChecks {
   static final Set<String> JSTS_GO_RULES = Set.of(
     "S131", // switch-exhaustiveness-check with Sonar defaults/decorator on Go side
     "S4123", // await-thenable
+    "S4137", // consistent-type-assertions
     "S2933", // prefer-readonly
     "S4157", // no-unnecessary-type-arguments
     "S4325", // no-unnecessary-type-assertion
