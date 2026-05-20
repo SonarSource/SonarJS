@@ -1,30 +1,7 @@
 {
-"desktop:app/src/ui/app-menu/app-menu.tsx": [
-41
-],
-"desktop:app/src/ui/branches/branch-list.tsx": [
-30,
-35,
-45,
-50
-],
-"desktop:app/src/ui/branches/pull-request-list.tsx": [
-44
-],
-"desktop:app/src/ui/changes/changes-list.tsx": [
-119
-],
-"desktop:app/src/ui/changes/sidebar.tsx": [
-49,
-54
-],
 "desktop:app/src/ui/check-runs/ci-check-run-list-item.tsx": [
 18,
 21
-],
-"desktop:app/src/ui/commit-message/commit-message-dialog.tsx": [
-37,
-77
 ],
 "desktop:app/src/ui/diff/seamless-diff-switcher.tsx": [
 43,
@@ -36,12 +13,6 @@
 76,
 82,
 88
-],
-"desktop:app/src/ui/diff/side-by-side-diff.tsx": [
-79
-],
-"desktop:app/src/ui/diff/text-diff.tsx": [
-147
 ],
 "desktop:app/src/ui/history/selected-commit.tsx": [
 41

@@ -168,6 +168,23 @@ class ForwardedCounterPanel extends CounterPanelBase {
           filename: fixtureFile,
         },
         {
+          // FP: wrapped callbacks should still resolve their owner, so the forwardRef
+          // closure escape continues to suppress WrappedProps.label.
+          code: `
+declare const React: any;
+interface WrappedProps {
+  label: string;
+}
+const Wrapped = React.memo(function (props: WrappedProps) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label ref={ref}>{props.label}</label>
+  ));
+  return <ForwardedInput />;
+});
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: whole props are only forwarded to the custom superclass, never accessed locally.
           // This isolates hasOwnCustomSuperclassPropsForwarding from other whole-props escapes.
           code: `
@@ -286,6 +303,57 @@ class DerivedForwarder extends CustomIntermediateBase {
   }
   render() {
     return <div>{this.props.label}</div>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: a shared base props declaration can belong to multiple components.
+          // The wrapper forwards whole props to the child, but the child still leaves
+          // the inherited prop unused, so the report must remain.
+          code: `
+import * as React from 'react';
+interface SharedProps {
+  relay: string;
+}
+interface ChildProps extends SharedProps {
+  title: string;
+}
+const SavedSearchesList: React.FC<ChildProps> = props => {
+  const { title } = props;
+  return <div>{title}</div>;
+};
+const SavedSearchesListWrapper: React.FC<SharedProps> = props => {
+  const { relay } = props;
+  return <div data-id={relay}><SavedSearchesList {...props} title="x" /></div>;
+};
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: an exact shared props contract can belong to both a destructuring React.FC
+          // and a class component that forwards whole props. The issue must remain until
+          // every owner proves the prop is consumed through an FP remediation pattern.
+          code: `
+import * as React from 'react';
+interface PageWrapperProps {
+  moduleName: string;
+  viewProps: { isVisible: boolean };
+}
+const InnerPageWrapper: React.FC<PageWrapperProps> = ({ viewProps }) => {
+  return <div>{String(viewProps.isVisible)}</div>;
+};
+class PageWrapper extends React.Component<PageWrapperProps> {
+  componentDidUpdate() {
+    if (this.props.moduleName === 'Map') {
+      return;
+    }
+  }
+  render() {
+    return <InnerPageWrapper {...this.props} />;
   }
 }
 `,
