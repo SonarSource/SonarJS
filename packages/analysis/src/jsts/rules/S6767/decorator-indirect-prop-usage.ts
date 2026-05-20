@@ -54,7 +54,7 @@ function hasDecoratorFactoryCallPropUsage(
     return false;
   }
 
-  const stack = [sourceCode.ast];
+  const stack: estree.Node[] = [sourceCode.ast];
   while (stack.length > 0) {
     const node = stack.pop();
     if (node === undefined) {
