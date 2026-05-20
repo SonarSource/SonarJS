@@ -344,13 +344,7 @@ function isObjectPrototypeToString(node: TSESTree.Node): boolean {
 }
 
 function isStableReceiver(node: TSESTree.Node): boolean {
-  return (
-    isIdentifier(node) ||
-    (node.type === 'MemberExpression' &&
-      !node.computed &&
-      isIdentifier(node.property) &&
-      isStableReceiver(node.object))
-  );
+  return isIdentifier(node) || node.type === 'ThisExpression';
 }
 
 function usesIdentifierAfter(

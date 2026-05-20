@@ -130,6 +130,13 @@ function repeatedEvaluationReceiverStillUnsafe() {
   return undefined;
 }
 
+function getterBackedReceiverStillUnsafe(holder: { readonly value: object }) {
+  if (holder.value.toString !== Object.prototype.toString) {
+    return holder.value.toString(); // Noncompliant {{'holder.value' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
+  }
+  return undefined;
+}
+
 function booleanResultValidationStillUnsafe(data: object, debug: boolean) {
   const rendered = data.toString(); // Noncompliant {{'data' will use Object's default stringification format ('[object Object]') when stringified.}} // NOSONAR S6551 - intentional noncompliant fixture case.
   if (debug || rendered !== '[object Object]') {
