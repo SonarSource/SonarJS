@@ -21,7 +21,7 @@ import type { RequiredParserServices } from './parser-services.js';
 import { areSameTypeDeclarations } from './type.js';
 
 type TypeDeclarationNode = TSESTree.TSInterfaceDeclaration | TSESTree.TSTypeAliasDeclaration;
-export type ReportedEnclosingType = ReportedTypeDetails<
+export type ReportedType = ReportedTypeDetails<
   TypeDeclarationNode,
   ts.InterfaceDeclaration | ts.TypeAliasDeclaration
 >;
@@ -29,8 +29,8 @@ export type ReportedEnclosingType = ReportedTypeDetails<
 /**
  * Stores both ESTree and TypeScript views of a reported type-related construct.
  *
- * React helpers use it for both reported enclosing types and reported type members.
- * When the instance represents an enclosing type, the predicate methods below answer
+ * React helpers use it for both reported types and reported type members.
+ * When the instance represents a reported type, the predicate methods below answer
  * whether another TypeScript type still refers back to it.
  */
 export class ReportedTypeDetails<TDeclaration extends TSESTree.Node, TTsNode extends ts.Node> {
@@ -200,11 +200,11 @@ function getTypeDeclarationName(
   return typeDeclaration?.id.name;
 }
 
-export function getReportedEnclosingType(
+export function getReportedTypeFromAncestors(
   ancestors: estree.Node[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-): ReportedEnclosingType | undefined {
+): ReportedType | undefined {
   const declaration = findEnclosingTypeDeclaration(ancestors);
   return ReportedTypeDetails.fromDeclaration(
     declaration,

@@ -168,6 +168,23 @@ class ForwardedCounterPanel extends CounterPanelBase {
           filename: fixtureFile,
         },
         {
+          // FP: wrapped callbacks should still resolve their owner, so the forwardRef
+          // closure escape continues to suppress WrappedProps.label.
+          code: `
+declare const React: any;
+interface WrappedProps {
+  label: string;
+}
+const Wrapped = React.memo(function (props: WrappedProps) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label ref={ref}>{props.label}</label>
+  ));
+  return <ForwardedInput />;
+});
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: whole props are only forwarded to the custom superclass, never accessed locally.
           // This isolates hasOwnCustomSuperclassPropsForwarding from other whole-props escapes.
           code: `
@@ -190,26 +207,6 @@ class ForwardedOnlyPanel extends CounterPanelBase {
         },
       ],
       invalid: [
-        {
-          // TP after removing the legacy single-owner fallback: the anonymous
-          // React.memo callback is no longer recovered as a component owner, so
-          // the forwardRef closure escape does not run and WrappedProps.label
-          // is reported again.
-          code: `
-declare const React: any;
-interface WrappedProps {
-  label: string;
-}
-const Wrapped = React.memo(function (props: WrappedProps) {
-  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
-    <label ref={ref}>{props.label}</label>
-  ));
-  return <ForwardedInput />;
-});
-`,
-          filename: fixtureFile,
-          errors: 1,
-        },
         {
           // TP: TypeScript function component — Strategy C exercises findOwnerByType,
           // collectComponentNodes, matchesFunctionProps, and getFunctionName (FunctionDeclaration path).

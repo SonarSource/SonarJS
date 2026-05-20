@@ -20,7 +20,7 @@ import { parseForESLint } from '@typescript-eslint/parser';
 import ts from 'typescript';
 import type { RequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
 import {
-  getReportedEnclosingType,
+  getReportedTypeFromAncestors,
   ReportedTypeDetails,
 } from '../../../../src/jsts/rules/helpers/reported-type.js';
 import { createProgramFromSingleFile } from '../../../../src/jsts/program/factory.js';
@@ -144,7 +144,7 @@ describe('ReportedTypeDetails', () => {
     const sharedValue = findNodeWithAncestorsByText(ast, 'sharedValue');
     expect(sharedValue).toBeTruthy();
 
-    const reportedType = getReportedEnclosingType(sharedValue!.ancestors, services, checker);
+    const reportedType = getReportedTypeFromAncestors(sharedValue!.ancestors, services, checker);
     expect(reportedType?.name).toBe('SharedProps');
     expect(reportedType?.isUsedByType(reportedType.tsType, checker)).toBe(true);
     expect(
@@ -171,7 +171,7 @@ describe('ReportedTypeDetails', () => {
     const aliasedValue = findNodeWithAncestorsByText(ast, 'aliasedValue');
     expect(aliasedValue).toBeTruthy();
 
-    const reportedType = getReportedEnclosingType(aliasedValue!.ancestors, services, checker);
+    const reportedType = getReportedTypeFromAncestors(aliasedValue!.ancestors, services, checker);
     expect(reportedType?.name).toBe('SharedAlias');
     expect(reportedType?.isUsedByType(getTypeByIdentifierText(ast, services, 'aliasValue'), checker)).toBe(
       true,
@@ -193,7 +193,7 @@ describe('ReportedTypeDetails', () => {
     const value = findNodeWithAncestorsByText(ast, 'value');
     expect(value).toBeTruthy();
 
-    const reportedType = getReportedEnclosingType(value!.ancestors, services, checker);
+    const reportedType = getReportedTypeFromAncestors(value!.ancestors, services, checker);
     expect(reportedType?.name).toBe('Tree');
     expect(reportedType?.isUsedByType(getTypeByIdentifierText(ast, services, 'treeValue'), checker)).toBe(
       true,
@@ -217,7 +217,7 @@ describe('ReportedTypeDetails', () => {
     const sharedValue = findNodeWithAncestorsByText(ast, 'sharedValue');
     expect(sharedValue).toBeTruthy();
 
-    const reportedType = getReportedEnclosingType(sharedValue!.ancestors, services, checker);
+    const reportedType = getReportedTypeFromAncestors(sharedValue!.ancestors, services, checker);
     expect(reportedType).toBeDefined();
 
     const childPropsType = getTypeByIdentifierText(ast, services, 'childPropsValue');
