@@ -321,6 +321,7 @@
                 <exclude>**/*.d.ts</exclude>
                 <!-- Folders -->
                 <exclude>its/**/*</exclude>
+                <exclude>tsgolint/**/*</exclude>
                 <exclude>server-go/typescript-go/**/*</exclude>
                 <!-- Generated -->
                 <exclude>**/bin/**/*</exclude>
