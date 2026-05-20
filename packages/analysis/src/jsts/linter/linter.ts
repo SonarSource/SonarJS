@@ -26,11 +26,7 @@ import {
   type NormalizedAbsolutePath,
   dirnamePath,
 } from '../../../../shared/src/helpers/files.js';
-import {
-  createOptions,
-  filterMessagesSuppressedByRuleAlias,
-  patchSourceCodeComments,
-} from './pragmas.js';
+import { createOptions } from './pragmas.js';
 import path from 'node:path';
 import type { ParseResult } from '../parsers/parse.js';
 import type { AnalysisMode, FileStatus } from '../analysis/analysis.js';
@@ -239,14 +235,10 @@ export class Linter {
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
-    const patchedSourceCode = patchSourceCodeComments(sourceCode);
-    const messages = filterMessagesSuppressedByRuleAlias(
-      patchedSourceCode,
-      Linter.linter.verify(patchedSourceCode, config, createOptions(filePath, rules)),
-    );
+    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath, rules));
     clearFileCaches();
     return transformMessages(messages, language, {
-      sourceCode: patchedSourceCode,
+      sourceCode,
       ruleMetas,
       filePath,
     });

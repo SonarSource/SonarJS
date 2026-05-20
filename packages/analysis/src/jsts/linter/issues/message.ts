@@ -62,10 +62,10 @@ export function convertMessage(
    * The first should not happen because we lint ready SourceCode instances and not file contents.
    * The second we can ignore.
    */
-  const ruleId = getSonarRuleId(message.ruleId);
-  if (!ruleId) {
+  if (!message.ruleId?.startsWith('sonarjs/')) {
     return null;
   }
+  const ruleId = message.ruleId.slice(8); // remove "sonarjs/" prefix
   return {
     ruleId,
     language,
@@ -79,25 +79,4 @@ export function convertMessage(
     ruleESLintKeys: getESLintKeys(ruleId),
     filePath,
   };
-}
-
-function getSonarRuleId(ruleId: string | null): string | null {
-  if (!ruleId) {
-    return null;
-  }
-  if (ruleId.startsWith('sonarjs/')) {
-    return ruleId.slice(8);
-  }
-  for (const [sonarKey, ruleMeta] of Object.entries(ruleMetas)) {
-    if (ruleMeta.eslintId === ruleId) {
-      return sonarKey;
-    }
-    if (
-      ruleMeta.implementation === 'decorated' &&
-      ruleMeta.externalRules.some(externalRule => externalRule.externalRule === ruleId)
-    ) {
-      return sonarKey;
-    }
-  }
-  return null;
 }
