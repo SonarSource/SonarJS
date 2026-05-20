@@ -174,13 +174,24 @@ async function mergeAdditionalCssAnalysis(
     return result;
   }
   result.issues.push(...cssResult.issues);
+  const cssSonarResolveComments =
+    'sonarResolveComments' in cssResult ? (cssResult.sonarResolveComments ?? []) : [];
+  const sonarResolveComments = [...(result.sonarResolveComments ?? []), ...cssSonarResolveComments];
   if ('parsingErrors' in cssResult && cssResult.parsingErrors?.length) {
     const parsingErrors = [...(result.parsingErrors ?? []), ...cssResult.parsingErrors];
     return {
       ...result,
       parsingErrors,
+      ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
     };
   }
 
-  return result;
+  if (sonarResolveComments.length === 0) {
+    return result;
+  }
+
+  return {
+    ...result,
+    sonarResolveComments,
+  };
 }

@@ -35,6 +35,7 @@ import type {
   Location as InternalLocation,
   SymbolHighlight,
 } from '../../analysis/src/jsts/analysis/file-artifacts.js';
+import type { SonarResolveComment as InternalSonarResolveComment } from '../../analysis/src/contracts/analysis.js';
 import { ErrorCode } from '../../analysis/src/contracts/error.js';
 import { sonarjs } from './proto/analyze-project.js';
 
@@ -127,6 +128,7 @@ function toProjectAnalysisFileResult(
     metrics: result.metrics ? toMetrics(result.metrics) : undefined,
     cpdTokens: ('cpdTokens' in result ? result.cpdTokens : undefined)?.map(toCpdToken) ?? [],
     ast: 'ast' in result && result.ast != null ? Buffer.from(result.ast, 'base64') : undefined,
+    sonarResolveComments: (result.sonarResolveComments ?? []).map(toSonarResolveComment),
   };
 }
 
@@ -246,6 +248,15 @@ function toCpdToken(cpdToken: InternalCpdToken): sonarjs.analyzeproject.v1.ICpdT
   return {
     location: toLocation(cpdToken.location),
     image: cpdToken.image,
+  };
+}
+
+function toSonarResolveComment(
+  comment: InternalSonarResolveComment,
+): sonarjs.analyzeproject.v1.ISonarResolveComment {
+  return {
+    line: comment.line,
+    text: comment.text,
   };
 }
 

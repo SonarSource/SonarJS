@@ -99,6 +99,71 @@ describe('await analyzeJSTS', () => {
     );
   });
 
+  it('should extract sonar-resolve directives from block comments', async () => {
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(fixtures), rules: [] });
+
+    const result = await analyzeJSTS(
+      await jsTsInput({
+        filePath: path.join(fixtures, 'sonar-resolve-block.js'),
+        fileContent: '/* sonar-resolve javascript:S1116 "reason" */\nfoo();\n',
+      }),
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 1,
+        text: ' sonar-resolve javascript:S1116 "reason" ',
+      },
+    ]);
+  });
+
+  it('should preserve multiline sonar-resolve directives across consecutive line comments', async () => {
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(fixtures), rules: [] });
+
+    const result = await analyzeJSTS(
+      await jsTsInput({
+        filePath: path.join(fixtures, 'sonar-resolve-line.js'),
+        fileContent: ['// sonar-resolve javascript:S1116 "reason', '// continued"', 'foo();'].join(
+          '\n',
+        ),
+      }),
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 1,
+        text: ' sonar-resolve javascript:S1116 "reason\n continued"',
+      },
+    ]);
+  });
+
+  it('should extract sonar-resolve directives from Vue script comments only', async () => {
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(fixtures), rules: [] });
+
+    const result = await analyzeJSTS(
+      await jsTsInput({
+        filePath: path.join(fixtures, 'sonar-resolve.vue'),
+        fileContent: [
+          '<template>',
+          '  <!-- sonar-resolve javascript:S1116 "template" -->',
+          '  <div />',
+          '</template>',
+          '<script>',
+          '// sonar-resolve javascript:S1116 "script"',
+          'const x = 1;',
+          '</script>',
+        ].join('\n'),
+      }),
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 6,
+        text: ' sonar-resolve javascript:S1116 "script"',
+      },
+    ]);
+  });
+
   it('should not analyze Vue.js with type checking', async () => {
     const rules: RuleConfig[] = [
       {

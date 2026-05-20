@@ -21,6 +21,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { Linter } from '../linter/linter.js';
 import { build } from '../builders/build.js';
 import { serializeInProtobuf } from '../parsers/ast.js';
+import { extractSonarResolveCommentsFromJsTsComments } from '../../common/sonar-resolve.js';
 import {
   collectMainFileArtifacts,
   collectNoSonarMetrics,
@@ -102,10 +103,14 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     parseResult.sourceCode,
     metricsSink?.cognitiveComplexity,
   );
+  const sonarResolveComments = extractSonarResolveCommentsFromJsTsComments(
+    parseResult.sourceCode.ast.comments ?? [],
+  );
 
   const result = {
     issues,
     ...extendedMetrics,
+    ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
   };
 
   if (!input.skipAst) {
