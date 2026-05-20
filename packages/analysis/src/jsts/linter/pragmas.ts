@@ -16,15 +16,14 @@
  */
 import type { Linter, Rule } from 'eslint';
 import type estree from 'estree';
-import * as ruleMetas from '../rules/metas.js';
 import * as rules from '../rules/rules.js';
 import { getExternalRuleDefinition } from '../rules/external/registry.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
 import type { NormalizedAbsolutePath } from '../../../../shared/src/helpers/files.js';
 import { materializeRuleOptions, mergeRuleOptions } from '../rules/helpers/configs.js';
+import { sonarRuleMetas } from './rule-metas.js';
 
 const sonarRules = rules as Record<string, Rule.RuleModule>;
-const sonarRuleMetas = ruleMetas as Record<string, SonarMeta>;
 const RULE_ID_CHARACTERS = String.raw`[\w@/-]`;
 
 type MappingEntry = {
@@ -47,8 +46,7 @@ type Directive = {
   justification: string;
 };
 
-for (const [sonarKey, rawMeta] of Object.entries(ruleMetas)) {
-  const meta = rawMeta as SonarMeta;
+for (const [sonarKey, meta] of Object.entries(sonarRuleMetas)) {
   const ruleId = `sonarjs/${sonarKey}`;
   const ruleModule = sonarRules[sonarKey];
   registerRuleAlias(sonarKey, ruleId, ruleModule);

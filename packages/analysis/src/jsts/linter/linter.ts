@@ -33,7 +33,6 @@ import type { AnalysisMode, FileStatus } from '../analysis/analysis.js';
 import globalsPkg from 'globals';
 import { APIError } from '../../contracts/error.js';
 import { pathToFileURL } from 'node:url';
-import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { materializeRuleOptions } from '../rules/helpers/configs.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
@@ -54,6 +53,7 @@ import type { FileType } from '../../contracts/file.js';
 import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/deno.js';
 import type { DependenciesList } from '../rules/helpers/dependency-manifests/resolvers/types.js';
+import { sonarRuleMetas } from './rule-metas.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -71,8 +71,6 @@ interface LintOptions {
   additionalRules?: ESLintLinter.RulesRecord;
   detectedEsYear?: number;
 }
-
-const sonarRuleMetas = ruleMetas as Record<string, SonarMeta>;
 
 /**
  * A singleton ESLint linter
