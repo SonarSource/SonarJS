@@ -11,19 +11,27 @@ To work on this project, it is required to have the following tools installed:
 
 ### GitHub Token for RSPEC Access
 
-The build fetches rule metadata from the private `SonarSource/rspec` repository through `rspec-maven-plugin`. You need a GitHub personal access token with read access to this repository.
+The build fetches rule metadata from the private `SonarSource/rspec` repository through `rspec-maven-plugin`.
 
-1. Create a [fine-grained personal access token](https://github.com/settings/personal-access-tokens/new) with:
-   - Repository access: `SonarSource/rspec`
-   - Permissions: **Contents: Read**
+For local development, set `GITHUB_TOKEN` to any GitHub token that can read `SonarSource/rspec`.
+In CI, this token is provided from Vault-managed secrets.
 
-2. Add it to your shell environment (e.g., `~/.zshenv` for zsh):
+Examples:
+
+1. Reuse your GitHub CLI login:
+
+   ```bash
+   export GITHUB_TOKEN="$(gh auth token)"
+   ```
+
+2. Or use a token with read access to `SonarSource/rspec` and export it in your shell:
 
    ```bash
    export GITHUB_TOKEN="your-token-here"
    ```
 
-3. Restart your terminal or source the file:
+3. Restart your terminal or source the file if needed:
+
    ```bash
    source ~/.zshenv
    ```
