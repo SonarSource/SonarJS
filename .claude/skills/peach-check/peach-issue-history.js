@@ -20,7 +20,7 @@ import process from 'node:process';
 import { execFileSync as nodeExecFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-const DEFAULT_METRIC = 'violations';
+const DEFAULT_METRIC = 'sonarjs_issue_count';
 const DEFAULT_BASELINE_WINDOW = 5;
 const DEFAULT_THRESHOLD_PCT = 5;
 const DEFAULT_THRESHOLD_ABS = 20;
@@ -32,7 +32,7 @@ const DEFAULT_ISSUES_RESULT_WINDOW = 10000;
 const DEFAULT_RETRY_ATTEMPTS = 3;
 const RETRYABLE_STATUS_CODES = new Set([429, 502, 503]);
 const WORKFLOW_ONLY_JOBS = new Set(['prepare-project-matrix', 'diff-validation-aggregated']);
-const SUPPORTED_LANGUAGES = Object.freeze(['js', 'ts', 'css', 'web', 'yaml']);
+export const SUPPORTED_LANGUAGES = Object.freeze(['js', 'ts', 'css', 'web', 'yaml']);
 const SUPPORTED_LANGUAGES_QUERY = SUPPORTED_LANGUAGES.join(',');
 
 export async function runIssueHistory(options, runtime = {}) {

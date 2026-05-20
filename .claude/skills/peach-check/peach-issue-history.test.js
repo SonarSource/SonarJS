@@ -17,9 +17,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { runIssueHistory } from './peach-issue-history.js';
-
-const SUPPORTED_LANGUAGES = ['js', 'ts', 'css', 'web', 'yaml'];
+import { runIssueHistory, SUPPORTED_LANGUAGES } from './peach-issue-history.js';
 
 function createGitExecFileSyncStub(headSha, files) {
   return (command, args) => {
@@ -346,7 +344,7 @@ test('runIssueHistory filters to SonarJS-supported languages and ignores unsuppo
   assert.deepEqual(report.summary, { OK: 1 });
 
   const row = report.rows[0];
-  assert.equal(row.metric, 'violations');
+  assert.equal(row.metric, 'sonarjs_issue_count');
   assert.equal(row.project_key, 'js:FilteredProject');
   assert.equal(row.status, 'OK');
   assert.equal(row.analysis_date, analyses[5].date);
