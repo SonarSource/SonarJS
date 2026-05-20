@@ -145,7 +145,7 @@ function getOwningVariableDeclarator(
   return isVariableDeclaratorWithIdentifierId(parent) ? parent : undefined;
 }
 
-function getComponentPropsType(
+export function getComponentPropsType(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type | undefined {
@@ -330,7 +330,7 @@ function getClassPropsPropertyType(
 function isPascalCaseFunctionComponent(
   componentIdentifier: estree.Identifier | undefined,
 ): boolean {
-  return componentIdentifier === undefined || /^[A-Z]/.test(componentIdentifier.name);
+  return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
 }
 
 function hasRenderMethodOrProperty(componentNode: estree.Node): boolean {

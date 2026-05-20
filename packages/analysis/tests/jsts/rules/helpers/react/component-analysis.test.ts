@@ -63,7 +63,7 @@ const componentAnalysisRule: Rule.RuleModule = {
           { name: 'Button', memberCount: 1, typeCount: 1 },
           { name: 'MemoButton', memberCount: 1, typeCount: 1 },
           { name: 'ForwardedButton', memberCount: 1, typeCount: 1 },
-          { name: '<anonymous>', memberCount: 1, typeCount: 1 },
+          { name: '<anonymous>', memberCount: 0, typeCount: 0 },
           { name: 'Panel', memberCount: 1, typeCount: 1 },
         ]);
       },

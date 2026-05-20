@@ -168,8 +168,8 @@ class ForwardedCounterPanel extends CounterPanelBase {
           filename: fixtureFile,
         },
         {
-          // FP: wrapped callbacks should still resolve their owner, so the forwardRef
-          // closure escape continues to suppress WrappedProps.label.
+          // FP: wrapped callbacks still resolve through the owning variable, so the
+          // forwardRef closure escape continues to suppress WrappedProps.label.
           code: `
 declare const React: any;
 interface WrappedProps {
@@ -200,6 +200,70 @@ class ForwardedOnlyPanel extends CounterPanelBase {
   }
   render() {
     return <span>ready</span>;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: decorator-factory callback reads typed component props.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorFactoryProps {
+  contextModule: string;
+  userId: string;
+}
+function DecoratorFactoryComponent(props: DecoratorFactoryProps) {
+  return <div />;
+}
+track((props: DecoratorFactoryProps) => ({
+  context_module: props.contextModule,
+  user_id: props.userId,
+}))(DecoratorFactoryComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: decorator-factory callback forwards typed props to a helper.
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function screenTrack<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorHelperProps {
+  screenName: string;
+}
+function DecoratorHelperComponent(props: DecoratorHelperProps) {
+  return <main />;
+}
+screenTrack(function (props: DecoratorHelperProps) {
+  return buildPayload(props);
+})(DecoratorHelperComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: class decorator callback forwards typed props to a helper.
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function screenTrack<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAnnotationHelperProps {
+  screenName: string;
+}
+@screenTrack(function (props: DecoratorAnnotationHelperProps) {
+  return buildPayload(props);
+})
+class DecoratorAnnotationHelperComponent extends React.Component<DecoratorAnnotationHelperProps> {
+  props: DecoratorAnnotationHelperProps;
+  render() {
+    return <main />;
   }
 }
 `,
