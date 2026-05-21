@@ -62,7 +62,7 @@ export function getPatternFromNode(
   } else if (isRegexLiteral(node)) {
     return node.regex;
   } else if (isStringLiteral(node)) {
-    return { pattern: node.value as string, flags: '' };
+    return { pattern: node.value, flags: '' };
   } else if (isStaticTemplateLiteral(node)) {
     return { pattern: node.quasis[0].value.raw, flags: '' };
   } else if (isSimpleRawString(node)) {

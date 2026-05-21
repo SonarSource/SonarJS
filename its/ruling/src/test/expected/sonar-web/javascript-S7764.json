@@ -760,12 +760,6 @@
 80,
 83
 ],
-"sonar-web:test/medium/issues.spec.js": [
-179
-],
-"sonar-web:test/medium/update-center.spec.js": [
-100
-],
 "sonar-web:tests/application-test.js": [
 4,
 8,

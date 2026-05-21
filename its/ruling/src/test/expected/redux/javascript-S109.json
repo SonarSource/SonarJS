@@ -1,7 +1,4 @@
 {
-"redux:examples/counter/test/components/Counter.spec.js": [
-48
-],
 "redux:examples/real-world/components/Explore.js": [
 30
 ],
@@ -14,37 +11,11 @@
 "redux:examples/todomvc/components/TodoTextInput.js": [
 14
 ],
-"redux:examples/todomvc/test/components/Footer.spec.js": [
-61
-],
 "redux:examples/universal/common/api/counter.js": [
 9
 ],
 "redux:src/utils/combineReducers.js": [
 68,
 68
-],
-"redux:test/createStore.spec.js": [
-210,
-214,
-218,
-222,
-226,
-230,
-310
-],
-"redux:test/utils/combineReducers.spec.js": [
-221,
-231
-],
-"redux:test/utils/compose.spec.js": [
-9,
-9,
-10,
-11,
-11
-],
-"redux:test/utils/isPlainObject.spec.js": [
-17
 ]
 }

@@ -286,9 +286,6 @@
 "eigen:src/app/Scenes/MyProfile/MyProfilePushNotifications.tests.tsx": [
 21
 ],
-"eigen:src/app/Scenes/MyProfile/__tests__/MyProfileEditForm.tests.tsx": [
-26
-],
 "eigen:src/app/Scenes/Onboarding/OnboardingCreateAccount/OnboardingCreateAccount.tsx": [
 163
 ],

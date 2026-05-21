@@ -105,7 +105,7 @@ class CallLikeExpressionVisitor {
         case 'ArrowFunctionExpression':
           return;
       }
-      for (const childNode of childrenOf(node as estree.Node, context.sourceCode.visitorKeys)) {
+      for (const childNode of childrenOf(node, context.sourceCode.visitorKeys)) {
         visitNode(childNode);
       }
     };

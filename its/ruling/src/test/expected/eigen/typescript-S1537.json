@@ -2814,12 +2814,6 @@
 "eigen:src/app/Components/Bidding/Validators/validateAddressFieldsPresence.tests.ts": [
 13
 ],
-"eigen:src/app/Components/Bidding/__mocks__/billingAddress.ts": [
-9,
-12,
-23,
-26
-],
 "eigen:src/app/Components/Buttons/InfoButton.tsx": [
 27
 ],
@@ -8334,26 +8328,6 @@
 120,
 121
 ],
-"eigen:src/app/Scenes/MyProfile/__tests__/MyProfileEditForm.tests.tsx": [
-20,
-21,
-62,
-63,
-75,
-76,
-86,
-87,
-99,
-100,
-101,
-103,
-116,
-117,
-136,
-137,
-145,
-146
-],
 "eigen:src/app/Scenes/NewWorksForYou/NewWorksForYou.tests.tsx": [
 40,
 58,
@@ -13018,10 +12992,6 @@
 52,
 53,
 54
-],
-"eigen:src/palette/elements/Box/Box.test.tsx": [
-11,
-18
 ],
 "eigen:src/palette/elements/Box/Box.tsx": [
 20

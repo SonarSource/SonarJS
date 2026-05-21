@@ -35,15 +35,18 @@ import { APIError } from '../../contracts/error.js';
 import { pathToFileURL } from 'node:url';
 import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
-import { defaultOptions, applyTransformations } from '../rules/helpers/configs.js';
+import { materializeRuleOptions } from '../rules/helpers/configs.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
-import merge from 'lodash.merge';
 import {
   getDependencies,
   getModuleType,
   setCurrentFileInlineDependencies,
   withCurrentFileInlineDependencies,
 } from '../rules/helpers/dependency-manifests/dependencies.js';
+import type {
+  DependenciesList,
+  ModuleType,
+} from '../rules/helpers/dependency-manifests/resolvers/types.js';
 import {
   DEPENDENCY_INDEPENDENT_RULE_FILTERS,
   DEPENDENCY_SENSITIVE_RULE_FILTERS,
@@ -54,7 +57,6 @@ import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js
 import type { FileType } from '../../contracts/file.js';
 import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/deno.js';
-import type { DependenciesList } from '../rules/helpers/dependency-manifests/resolvers/types.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -63,6 +65,8 @@ interface InitializeParams {
   baseDir: NormalizedAbsolutePath;
   bundles?: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
+  /** Union of jsSuffixes and tsSuffixes; exposed to rules via context.settings.testFileExtensions */
+  testFileExtensions?: string[];
 }
 
 interface LintOptions {
@@ -111,6 +115,8 @@ export class Linter {
   /** The rules working directory (used for architecture, dbd...) */
   private static rulesWorkdir?: NormalizedAbsolutePath;
   private static baseDir: NormalizedAbsolutePath;
+  /** Union of jsSuffixes and tsSuffixes, surfaced to rules through ESLint settings. */
+  private static testFileExtensions: string[] = [];
 
   /** Linter is a static class and cannot be instantiated */
   private constructor() {
@@ -140,6 +146,7 @@ export class Linter {
     bundles = [],
     baseDir,
     rulesWorkdir,
+    testFileExtensions = [],
   }: InitializeParams) {
     debug(`Initializing linter with ${rules?.map(rule => rule.key)}`);
     Linter.ruleConfigs = rules;
@@ -149,6 +156,7 @@ export class Linter {
     Linter.dependencyIndependentRulesCache.clear();
     Linter.dependencySensitiveRulesCache.clear();
     Linter.baseDir = baseDir;
+    Linter.testFileExtensions = testFileExtensions;
     /**
      * Context bundles define a set of external custom rules (like the architecture rule)
      * including rule keys and rule definitions that cannot be provided to the linter
@@ -157,6 +165,11 @@ export class Linter {
     for (const ruleBundle of bundles) {
       await Linter.loadRulesFromBundle(ruleBundle);
     }
+  }
+
+  /** Resolve the module type for a file against the linter's base directory. */
+  public static detectModuleType(filePath: NormalizedAbsolutePath): ModuleType | undefined {
+    return getModuleType(normalizeToAbsolutePath(filePath), Linter.baseDir);
   }
 
   private static async loadRulesFromBundle(ruleBundle: NormalizedAbsolutePath) {
@@ -181,6 +194,7 @@ export class Linter {
    * @param analysisMode whether we are analyzing all files or only changed files
    * @param language language of the source file
    * @param detectedEsYear ecmascript version for the file
+   * @param detectedModuleType module type for the file
    * @param lintOptions additional rules and settings for linting
    * @returns linting issues
    */
@@ -192,6 +206,7 @@ export class Linter {
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
     detectedEsYear?: number,
+    detectedModuleType?: ModuleType,
     lintOptions: LintOptions = {},
   ) {
     if (!Linter.linter) {
@@ -203,6 +218,7 @@ export class Linter {
       fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
       language,
       detectedEsYear,
+      detectedModuleType,
       sourceCode,
     );
     const rules = lintOptions.additionalRules
@@ -224,12 +240,13 @@ export class Linter {
         fileType,
         sonarRuntime: true,
         workDir: Linter.rulesWorkdir,
+        testFileExtensions: Linter.testFileExtensions,
         ...lintOptions.additionalSettings,
       },
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
-    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath));
+    const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath, rules));
     clearFileCaches();
     return transformMessages(messages, language, {
       sourceCode,
@@ -266,11 +283,14 @@ export class Linter {
     analysisMode: AnalysisMode,
     fileLanguage: JsTsLanguage,
     detectedEsYear?: number,
+    detectedModuleType?: ModuleType,
     sourceCode?: SourceCode,
   ): ESLintLinter.RulesRecord {
     const normalizedFilePath = normalizeToAbsolutePath(filePath);
-    const detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
-    getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
+    if (detectedModuleType === undefined) {
+      detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
+      getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
+    }
     const manifestDependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
     // Make inline npm: imports visible to both rule activation and to dependency helpers
     // (getReactVersion, getDependenciesSanitizePaths) called from rules during linting.
@@ -365,21 +385,16 @@ export class Linter {
    * @param rules the rules from the active quality profile
    */
   private static createRulesRecord(rules: RuleConfig[]): ESLintLinter.RulesRecord {
-    return rules.reduce((rules, rule) => {
-      // in the case of bundles, rule.key will not be present in the ruleMetas
-      const ruleMeta = getRuleMeta(rule);
-      if (ruleMeta?.fields) {
-        rules[`sonarjs/${rule.key}`] = [
-          'error',
-          ...applyTransformations(
-            ruleMeta.fields,
-            merge(defaultOptions(ruleMeta.fields), rule.configurations),
-          ),
-        ];
-      } else {
-        rules[`sonarjs/${rule.key}`] = ['error'];
-      }
-      return rules;
+    return rules.reduce((rulesRecord, rule) => {
+      const transformedOptions = materializeRuleOptions(
+        getRuleMeta(rule),
+        Linter.rules[rule.key],
+        rule.configurations,
+      );
+
+      rulesRecord[`sonarjs/${rule.key}`] =
+        transformedOptions.length > 0 ? ['error', ...transformedOptions] : ['error'];
+      return rulesRecord;
     }, {} as ESLintLinter.RulesRecord);
   }
 }
@@ -430,7 +445,7 @@ function createLinterConfigKey(
   language: JsTsLanguage,
   analysisMode: AnalysisMode,
   detectedEsYear?: number,
-  detectedModuleType?: string,
+  detectedModuleType?: ModuleType,
 ): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const normalizedPath = normalizeToAbsolutePath(filePath);

@@ -170,6 +170,18 @@ const findComponentNodesRule: Rule.RuleModule = {
         if (node.key.type === 'Identifier' && node.key.name === 'relay') {
           validateComponentOwners(node.key, ['SavedSearchesList', 'SavedSearchesListWrapper']);
         }
+        if (node.key.type === 'Identifier' && node.key.name === 'cachedRelay') {
+          validateComponentOwners(node.key, ['CachedRelayChild', 'CachedRelayWrapper']);
+        }
+        if (
+          node.key.type === 'Identifier' &&
+          node.key.name === 'cachedRelayMismatch' &&
+          context.sourceCode
+            .getAncestors(node)
+            .some(ancestor => (ancestor as { type: string }).type === 'TSInterfaceDeclaration')
+        ) {
+          validateComponentOwners(node.key, ['CachedRelayWrapper']);
+        }
         if (
           node.key.type === 'Identifier' &&
           node.key.name === 'relayMismatch' &&
@@ -417,6 +429,24 @@ type AliasChildProps = SharedAlias & {
 
 const AliasChild: React.FC<AliasChildProps> = props => props.title;
 const AliasWrapper: React.FC<SharedAlias> = props => props.aliasRelay;
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+interface CachedSharedProps {
+  cachedRelay: string;
+  cachedRelayMismatch: string;
+}
+
+type CachedChildProps = CachedSharedProps & {
+  cachedRelayMismatch: number;
+  title: string;
+};
+
+const CachedRelayChild: React.FC<CachedChildProps> = props => props.title;
+const CachedRelayWrapper: React.FC<CachedSharedProps> = props => props.cachedRelay;
 `,
     },
     {

@@ -58,7 +58,7 @@ export const rule: Rule.RuleModule = {
     const functionContextStack: FunctionContext[] = [];
     const checkOnFunctionExit = (node: estree.Node) =>
       checkFunctionLikeDeclaration(
-        node as FunctionLikeDeclaration,
+        node,
         functionContextStack.at(-1),
         hasTypeInformation ? services : undefined,
       );

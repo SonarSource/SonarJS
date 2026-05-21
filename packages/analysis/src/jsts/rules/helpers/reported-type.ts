@@ -25,12 +25,13 @@ export type ReportedEnclosingType = ReportedTypeDetails<
   TypeDeclarationNode,
   ts.InterfaceDeclaration | ts.TypeAliasDeclaration
 >;
+export type ReportedType = ReportedEnclosingType;
 
 /**
  * Stores both ESTree and TypeScript views of a reported type-related construct.
  *
- * React helpers use it for both reported enclosing types and reported type members.
- * When the instance represents an enclosing type, the predicate methods below answer
+ * React helpers use it for both reported types and reported type members.
+ * When the instance represents a reported type, the predicate methods below answer
  * whether another TypeScript type still refers back to it.
  */
 export class ReportedTypeDetails<TDeclaration extends TSESTree.Node, TTsNode extends ts.Node> {
@@ -213,4 +214,12 @@ export function getReportedEnclosingType(
     checker,
     isTypeDeclarationTsNode,
   );
+}
+
+export function getReportedTypeFromAncestors(
+  ancestors: estree.Node[],
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+): ReportedType | undefined {
+  return getReportedEnclosingType(ancestors, services, checker);
 }

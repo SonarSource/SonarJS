@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
-import { buildParserOptions } from '../../parsers/options.js';
+import { buildBabelParserOptions } from '../../parsers/options.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import parser from '@babel/eslint-parser';
 import { Linter } from 'eslint';
@@ -412,7 +412,7 @@ class RootViewSizeFlexibilityExampleApp extends React.Component<
       {
         languageOptions: {
           parser,
-          parserOptions: buildParserOptions({}, true),
+          parserOptions: buildBabelParserOptions({}),
         },
         settings: { react: { version: '999.999.999' } },
         files: ['**/*.js'],

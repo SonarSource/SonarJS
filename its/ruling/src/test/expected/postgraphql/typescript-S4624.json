@@ -5,13 +5,7 @@
 138,
 141
 ],
-"postgraphql:src/postgres/inventory/__tests__/conditionToSql-test.ts": [
-14
-],
 "postgraphql:src/postgres/inventory/addPgCatalogToInventory.ts": [
 65
-],
-"postgraphql:src/postgres/utils/__tests__/sql-test.ts": [
-154
 ]
 }

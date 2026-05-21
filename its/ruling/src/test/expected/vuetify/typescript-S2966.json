@@ -29,16 +29,6 @@
 14,
 32
 ],
-"vuetify:packages/vuetify/src/components/VColorPicker/__tests__/VColorPicker.spec.cy.tsx": [
-104,
-127,
-150,
-173,
-199,
-245,
-267,
-286
-],
 "vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
 60,
 92,
@@ -47,9 +37,6 @@
 "vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 145,
 146
-],
-"vuetify:packages/vuetify/src/components/VForm/__tests__/VForm.spec.cy.tsx": [
-182
 ],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 116
@@ -129,15 +116,6 @@
 71,
 71
 ],
-"vuetify:packages/vuetify/src/directives/mutate/__tests__/mutate.spec.ts": [
-50,
-67,
-67,
-70,
-87,
-87,
-90
-],
 "vuetify:packages/vuetify/src/directives/mutate/index.ts": [
 40,
 40,
@@ -146,12 +124,6 @@
 48,
 49
 ],
-"vuetify:packages/vuetify/src/directives/resize/__tests__/resize.spec.ts": [
-19,
-23,
-38,
-42
-],
 "vuetify:packages/vuetify/src/directives/resize/index.ts": [
 20,
 20,
@@ -159,9 +131,6 @@
 33,
 33,
 37
-],
-"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
-22
 ],
 "vuetify:packages/vuetify/src/directives/scroll/index.ts": [
 30,

@@ -23,60 +23,13 @@
 6,
 10
 ],
-"watchtower.js:test/dirtychecking.spec.js": [
-2,
-6,
-16,
-207,
-220,
-234,
-250,
-261,
-276,
-356,
-371,
-379,
-394,
-409,
-426,
-433,
-440,
-470,
-483,
-496,
-511,
-524,
-537,
-570
-],
 "watchtower.js:test/matchers.js": [
 59,
 82,
 151
 ],
-"watchtower.js:test/observer.spec.js": [
-2,
-6,
-15
-],
 "watchtower.js:test/test.js": [
 21,
 28
-],
-"watchtower.js:test/watchgroup.spec.js": [
-8,
-14,
-19,
-23,
-635,
-637,
-638,
-653,
-655,
-656,
-673,
-674,
-688,
-689
 ]
 }

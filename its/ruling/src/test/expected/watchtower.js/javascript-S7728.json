@@ -1,8 +1,5 @@
 {
 "watchtower.js:test/test.js": [
 9
-],
-"watchtower.js:test/watchgroup.spec.js": [
-31
 ]
 }

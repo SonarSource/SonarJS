@@ -8,9 +8,6 @@
 "vuetify:packages/vuetify/dev/Playground.datatable.vue": [
 143
 ],
-"vuetify:packages/vuetify/src/components/VBadge/__tests__/VBadge.spec.cy.tsx": [
-12
-],
 "vuetify:packages/vuetify/src/components/VItemGroup/VItem.tsx": [
 22
 ],
@@ -50,33 +47,6 @@
 "vuetify:packages/vuetify/src/composables/layout.ts": [
 135
 ],
-"vuetify:packages/vuetify/src/composables/nested/__tests__/selectStrategies.spec.ts": [
-56,
-66,
-89,
-101,
-126,
-188,
-198,
-221,
-233,
-258,
-320,
-328,
-351,
-363,
-388,
-451,
-459,
-482,
-494,
-519,
-551,
-582,
-614,
-694,
-712
-],
 "vuetify:packages/vuetify/src/composables/nested/nested.ts": [
 133,
 167,
@@ -94,16 +64,6 @@
 ],
 "vuetify:packages/vuetify/src/composables/theme.ts": [
 350
-],
-"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside-shadow-dom.spec.ts": [
-47
-],
-"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside.spec.ts": [
-31
-],
-"vuetify:packages/vuetify/src/directives/scroll/__tests__/scroll.spec.ts": [
-33,
-38
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableRows.tsx": [
 106,

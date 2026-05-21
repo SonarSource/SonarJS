@@ -39,8 +39,5 @@
 "redux:examples/universal/webpack.config.js": [
 1,
 58
-],
-"redux:test/utils/isPlainObject.spec.js": [
-3
 ]
 }

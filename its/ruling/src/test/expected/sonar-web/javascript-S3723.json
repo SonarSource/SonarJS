@@ -2356,32 +2356,6 @@
 53,
 54
 ],
-"sonar-web:test/medium/coding-rules.spec.js": [
-936,
-937,
-943,
-944
-],
-"sonar-web:test/medium/custom-measures.spec.js": [
-60,
-114
-],
-"sonar-web:test/medium/quality-profiles.spec.js": [
-119,
-189,
-223,
-249,
-276,
-391,
-435,
-458,
-485,
-486,
-496,
-497,
-514,
-544
-],
 "sonar-web:tests/apps/background-tasks-test.js": [
 189
 ],

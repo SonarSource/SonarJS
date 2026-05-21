@@ -97,7 +97,7 @@ const ruleDecoration: Rule.RuleModule = interceptReport(
 
       function isConstructor(node: TSESTree.Node | undefined): node is TSESTree.MethodDefinition {
         return (
-          node?.type === 'MethodDefinition' && isIdentifier(node.key as estree.Node, 'constructor')
+          node?.type === 'MethodDefinition' && isIdentifier(node.key, 'constructor')
         );
       }
 

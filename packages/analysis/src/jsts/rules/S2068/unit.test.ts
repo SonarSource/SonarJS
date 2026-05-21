@@ -16,7 +16,6 @@
  */
 import { rule } from './rule.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
-import path from 'node:path';
 import { describe, it } from 'node:test';
 
 describe('S2068', () => {
@@ -30,73 +29,6 @@ describe('S2068', () => {
         // Empty password
         {
           code: `let password = ""`,
-          options,
-        },
-        // Password in L10n path
-        {
-          code: `let password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: path.join('some', 'L10n', 'path', 'file.js'),
-          options,
-        },
-        // Test/spec/mock files are skipped
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.spec.js',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.spec.ts',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.spec.jsx',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.spec.tsx',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.test.js',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.test.ts',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.test.jsx',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'login.test.tsx',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'auth.mock.js',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'auth.mock.ts',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'auth.mock.jsx',
-          options,
-        },
-        {
-          code: `const password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: 'auth.mock.tsx',
           options,
         },
         // Low-entropy single dictionary words
@@ -327,13 +259,6 @@ describe('S2068', () => {
         {
           code: `let url = "https://example.com?token=hl2OAIXXZ60";`,
           options: [{ passwordWords: ['token'] }],
-          errors: 1,
-        },
-        // Non-L10n path should still raise
-        {
-          code: `let password = 'xK9#mP2$vL5nQ8wR';`,
-          filename: path.join('some', 'random', 'path', 'file.js'),
-          options,
           errors: 1,
         },
         // Hex hash used as password
