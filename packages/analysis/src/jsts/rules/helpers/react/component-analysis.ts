@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { SourceCode } from 'eslint';
+import type { Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import { childrenOf, getNodeParent } from '../ancestor.js';
@@ -59,13 +59,13 @@ const EMPTY_COMPONENT_ANALYSIS: ComponentAnalysis = {
   enclosingTypePropsTypeCandidates: [],
 };
 
-function isClassComponentNode(
+export function isClassComponentNode(
   node: estree.Node,
 ): node is estree.ClassDeclaration | estree.ClassExpression {
   return node.type === 'ClassDeclaration' || node.type === 'ClassExpression';
 }
 
-function isFunctionComponentNode(node: estree.Node): node is FunctionComponentNode {
+export function isFunctionComponentNode(node: estree.Node): node is FunctionComponentNode {
   return (
     node.type === 'FunctionDeclaration' ||
     node.type === 'FunctionExpression' ||
@@ -177,7 +177,7 @@ export function getComponentPropsType(
   return getDeclaredClassPropsType(tsNode, checker) ?? getClassPropsPropertyType(tsNode, checker);
 }
 
-function getComponentPropsTypeCandidates(
+export function getComponentPropsTypeCandidates(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type[] {
@@ -311,14 +311,29 @@ function getDeclaredClassPropsType(
   classNode: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
 ): ts.Type | undefined {
+  const propsTypeNode = getReactSuperclassTypeArguments(classNode)[0];
+  return propsTypeNode ? checker.getTypeAtLocation(propsTypeNode) : undefined;
+}
+
+function getReactSuperclassTypeArguments(
+  classNode: ts.ClassLikeDeclaration,
+): readonly ts.TypeNode[] {
   const extendsClause = classNode.heritageClauses?.find(
     clause => clause.token === ts.SyntaxKind.ExtendsKeyword,
   );
   const reactSuperclass = extendsClause?.types.find(type =>
     isReactComponentHeritageSuperclass(type),
   );
-  const propsTypeNode = reactSuperclass?.typeArguments?.[0];
-  return propsTypeNode ? checker.getTypeAtLocation(propsTypeNode) : undefined;
+  return reactSuperclass?.typeArguments ?? [];
+}
+
+export function getDeclaredClassNonPropsTypes(
+  classNode: ts.ClassLikeDeclaration,
+  checker: ts.TypeChecker,
+): ts.Type[] {
+  return getReactSuperclassTypeArguments(classNode)
+    .slice(1)
+    .map(typeArgument => checker.getTypeAtLocation(typeArgument));
 }
 
 function getClassPropsPropertyType(
@@ -456,20 +471,47 @@ export function collectComponentNodes(
   return collectComponents(root, keys).map(component => component.componentNode);
 }
 
+export function getComponentVariable(
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+): Scope.Variable | undefined {
+  const componentIdentifier = getComponentIdentifier(componentNode);
+  if (!componentIdentifier) {
+    return undefined;
+  }
+
+  let scope: Scope.Scope | null = sourceCode.getScope(componentNode);
+  while (scope) {
+    const variable = scope.set.get(componentIdentifier.name);
+    if (variable) {
+      return variable;
+    }
+    scope = scope.upper;
+  }
+
+  return undefined;
+}
+
 export function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
-  const variableDeclarator = getOwningVariableDeclarator(componentNode);
-  if (
-    variableDeclarator &&
-    (isVariableAssignedFunctionOrClassExpression(componentNode, getNodeParent(componentNode)) ||
-      componentNode.type === 'ArrowFunctionExpression' ||
-      getNodeParent(componentNode)?.type === 'CallExpression')
-  ) {
-    return variableDeclarator.id;
+  const parent = getNodeParent(componentNode);
+  if (componentNode.type === 'ArrowFunctionExpression' && parent?.type === 'CallExpression') {
+    return getOwningVariableDeclarator(componentNode)?.id;
+  }
+
+  if (isVariableAssignedFunctionOrClassExpression(componentNode, parent)) {
+    return parent.id;
   }
 
   if (hasIdentifierId(componentNode)) {
     return componentNode.id;
   }
 
-  return variableDeclarator?.id;
+  return isVariableDeclaratorWithIdentifierId(parent) ? parent.id : undefined;
+}
+
+export function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
+  return (
+    isFunctionComponentNode(componentNode) &&
+    isEligibleFunctionComponent(componentNode, getComponentIdentifier(componentNode))
+  );
 }
