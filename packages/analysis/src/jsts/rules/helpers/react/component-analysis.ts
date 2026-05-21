@@ -336,6 +336,11 @@ function getClassPropsPropertyType(
   return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
 }
 
+/**
+ * Returns whether a function component should participate in component analysis.
+ * Named components must follow React's uppercase convention, while anonymous
+ * function components stay eligible only when they are exported as default.
+ */
 function isEligibleFunctionComponent(
   componentNode: FunctionComponentNode,
   componentIdentifier: estree.Identifier | undefined,
