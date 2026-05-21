@@ -28,8 +28,7 @@ import { areSameTypeDeclarations, getTypeFromTreeNode } from '../helpers/type.js
 import { isSupportedWholePropsUsage } from './whole-props-usage.js';
 
 /**
- * False-positive remediation escape:
- * returns true when the specific reported prop is consumed through a decorator
+ * Returns true when the specific reported prop is consumed through a decorator
  * factory callback typed with the same props contract as the component.
  *
  * track((props: ComponentProps) => props.propName)(Component);
