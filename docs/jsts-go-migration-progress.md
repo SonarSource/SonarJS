@@ -81,6 +81,48 @@ Current `typescript-eslint` slice on this branch:
 - `Safe in JS-only Node`: any rule with `Type svc = No` and `Ext AST = No`, subject to the extra caveats listed above about parser/runtime compatibility.
 - This planning split now matches the `Subject to migration` column: hard migration is driven by type-service dependency, while AST-only rules remain conditional on TS parser/runtime support in Node.
 
+## Per-Rule Acceptance
+
+A rule is not "accepted" just because it is present in `JSTS_GO_RULES`. For each migrated rule we want evidence for:
+
+- `Config/defaults`: Go consumes the same generated defaults, configuration transforms, and any rule-specific option mapping as Node.
+- `Program contract`: the rule runs under the same prerequisites as Node: typed vs no-program path, orphan-file behavior, SonarQube vs SonarLint program creation, and activation gating from ECMAScript version, Node version, dependencies, and module type.
+- `Sonar behavior`: Sonar-owned semantics beyond the upstream rule are preserved: decorators, companion rules, issue filtering, location/message rewrites, suggestion handling, and similar wrapper logic.
+- `Go tests`: focused Go tests cover the rule implementation and/or its bridge behavior.
+- `Parity corpus`: the rule has a parity fixture under `packages/parity/corpus`.
+- `Diff validated`: Node and Go outputs have been explicitly compared on the parity corpus, or through an equivalent focused diff run, and accepted.
+
+Status legend:
+
+- `Yes`: direct evidence exists on this branch.
+- `Partial`: wiring exists or indirect coverage exists, but rule-specific proof is still incomplete.
+- `Missing`: not yet validated.
+- `N/A`: the dimension does not apply to that rule.
+
+Current routed slice:
+
+- All rows below are already routed through `JSTS_GO_RULES`.
+- None of them is end-to-end accepted yet, because `Diff validated` is still `Missing` across the slice.
+
+| Sonar | Go rule                           | Config/defaults | Program contract | Sonar behavior | Go tests | Parity corpus | Diff validated | Acceptance | Notes                                                             |
+| ----- | --------------------------------- | --------------- | ---------------- | -------------- | -------- | ------------- | -------------- | ---------- | ----------------------------------------------------------------- |
+| S131  | `switch-exhaustiveness-check`     | Yes             | Partial          | Yes            | Yes      | Yes           | Missing        | Partial    | Defaults and diagnostic relocation are covered in decorator tests. |
+| S2870 | `no-array-delete`                 | N/A             | Yes              | N/A            | Yes      | Yes           | Missing        | Partial    | JS/TS file gating and end-to-end rule mapping are covered.         |
+| S2933 | `prefer-readonly`                 | N/A             | Partial          | N/A            | Missing  | Yes           | Missing        | Missing    | Plain upstream rule; no focused Go validation yet.                 |
+| S4123 | `await-thenable`                  | N/A             | Partial          | N/A            | Missing  | Yes           | Missing        | Partial    | `ES2017` activation metadata is bridged; no focused Go test yet.   |
+| S4137 | `consistent-type-assertions`      | Yes             | Yes              | N/A            | Yes      | Yes           | Missing        | Partial    | Default config is bridged and explicit no-program coverage exists. |
+| S4157 | `no-unnecessary-type-arguments`   | N/A             | Partial          | N/A            | Missing  | Yes           | Missing        | Missing    | Plain upstream typed rule; no focused Go validation yet.           |
+| S4325 | `no-unnecessary-type-assertion`   | N/A             | Partial          | Missing        | Missing  | Yes           | Missing        | Missing    | Node adds a decorator to suppress false positives; Go still needs an explicit audit. |
+| S6544 | `no-misused-promises`             | Yes             | Yes              | Yes            | Yes      | Yes           | Missing        | Partial    | Companion rule, defaults merge, and orphan gating are covered.     |
+| S6551 | `no-base-to-string`               | N/A             | Partial          | Yes            | Yes      | Yes           | Missing        | Partial    | Decorator behavior around built-ins and known globals has focused tests. |
+| S6557 | `prefer-string-starts-ends-with`  | N/A             | Partial          | Yes            | Yes      | Yes           | Missing        | Partial    | Suggestion-message conversion is covered.                           |
+| S6565 | `prefer-return-this-type`         | N/A             | Partial          | N/A            | Missing  | Yes           | Missing        | Missing    | Plain upstream typed rule; no focused Go validation yet.           |
+| S6571 | `no-redundant-type-constituents`  | N/A             | Partial          | Partial        | Missing  | Yes           | Missing        | Partial    | Go decorator exists, but unresolved-type suppression still needs focused validation. |
+| S6582 | `prefer-optional-chain`           | N/A             | Partial          | Yes            | Yes      | Yes           | Missing        | Partial    | Decorator filters typed false positives and has focused tests.      |
+| S6583 | `no-mixed-enums`                  | N/A             | Partial          | N/A            | Missing  | Yes           | Missing        | Missing    | Plain upstream typed rule; no focused Go validation yet.           |
+| S6606 | `prefer-nullish-coalescing`       | Yes             | Yes              | Yes            | Yes      | Yes           | Missing        | Partial    | Defaults, decorator filtering, and orphan / Node-version gating are covered. |
+| S6671 | `prefer-promise-reject-errors`    | Yes             | Partial          | N/A            | Missing  | Yes           | Missing        | Partial    | Defaults are bridged; no focused Go test yet.                      |
+
 ## Rule Inventory
 
 | Sonar | Impl      | Source                             | Upstream                                                                                       | Gen typed | Config | Defaults | Migrated | Type svc | Ext AST | Subject to migration | Notes                                                                  |

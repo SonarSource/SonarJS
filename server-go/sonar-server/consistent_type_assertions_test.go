@@ -45,6 +45,32 @@ const value = [] as Foo[];
 	}
 }
 
+func TestConsistentTypeAssertionsRejectsArrayLiteralAssertionsWhenConfigured(t *testing.T) {
+	t.Parallel()
+
+	diagnostics := runNamedRuleOnCode(
+		t,
+		"consistent-type-assertions",
+		map[string]any{
+			"assertionStyle":             "as",
+			"arrayLiteralTypeAssertions": "never",
+		},
+		"file.ts",
+		`
+const value = [] as Foo[];
+`,
+		"tsconfig.minimal.json",
+		"",
+	)
+
+	if len(diagnostics) != 1 {
+		t.Fatalf("expected one diagnostic, got %d", len(diagnostics))
+	}
+	if diagnostics[0].Message.Id != "unexpectedArrayTypeAssertion" {
+		t.Fatalf("expected array literal assertion diagnostic, got %q", diagnostics[0].Message.Id)
+	}
+}
+
 func TestConsistentTypeAssertionsAllowsObjectLiteralAssertionsByDefault(t *testing.T) {
 	t.Parallel()
 
