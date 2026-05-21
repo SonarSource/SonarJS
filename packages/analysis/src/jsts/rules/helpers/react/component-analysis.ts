@@ -45,6 +45,10 @@ export type ComponentNode =
   | estree.FunctionDeclaration
   | estree.FunctionExpression
   | estree.ArrowFunctionExpression;
+type FunctionComponentNode =
+  | estree.FunctionDeclaration
+  | estree.FunctionExpression
+  | estree.ArrowFunctionExpression;
 export type CollectedComponent = {
   componentNode: ComponentNode;
   componentIdentifier: estree.Identifier | undefined;
@@ -61,9 +65,7 @@ function isClassComponentNode(
   return node.type === 'ClassDeclaration' || node.type === 'ClassExpression';
 }
 
-function isFunctionComponentNode(
-  node: estree.Node,
-): node is estree.FunctionDeclaration | estree.FunctionExpression | estree.ArrowFunctionExpression {
+function isFunctionComponentNode(node: estree.Node): node is FunctionComponentNode {
   return (
     node.type === 'FunctionDeclaration' ||
     node.type === 'FunctionExpression' ||
@@ -131,9 +133,7 @@ function isWrappedInReactComponentCall(
   );
 }
 
-function getOwningVariableDeclarator(
-  componentNode: estree.Node,
-): (estree.VariableDeclarator & { id: estree.Identifier }) | undefined {
+function getOutermostReactWrapperParent(componentNode: estree.Node): estree.Node | undefined {
   let currentNode: estree.Node = componentNode;
   let parent = getNodeParent(currentNode);
 
@@ -142,10 +142,22 @@ function getOwningVariableDeclarator(
     parent = getNodeParent(currentNode);
   }
 
+  return parent;
+}
+
+function getOwningVariableDeclarator(
+  componentNode: estree.Node,
+): (estree.VariableDeclarator & { id: estree.Identifier }) | undefined {
+  const parent = getOutermostReactWrapperParent(componentNode);
   return isVariableDeclaratorWithIdentifierId(parent) ? parent : undefined;
 }
 
-function getComponentPropsType(
+function isAnonymousDefaultExportComponent(componentNode: estree.Node): boolean {
+  const parent = getOutermostReactWrapperParent(componentNode);
+  return parent?.type === 'ExportDefaultDeclaration';
+}
+
+export function getComponentPropsType(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type | undefined {
@@ -203,10 +215,7 @@ function isSpecificPropsType(type: ts.Type | undefined): type is ts.Type {
 }
 
 function getFunctionComponentParamPropsType(
-  componentNode:
-    | estree.FunctionDeclaration
-    | estree.FunctionExpression
-    | estree.ArrowFunctionExpression,
+  componentNode: FunctionComponentNode,
   services: RequiredParserServices,
 ): ts.Type | undefined {
   const firstParam = componentNode.params[0];
@@ -327,10 +336,18 @@ function getClassPropsPropertyType(
   return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
 }
 
-function isPascalCaseFunctionComponent(
+/**
+ * Returns whether a function component should participate in component analysis.
+ * Named components must follow React's uppercase convention, while anonymous
+ * function components stay eligible only when they are exported as default.
+ */
+function isEligibleFunctionComponent(
+  componentNode: FunctionComponentNode,
   componentIdentifier: estree.Identifier | undefined,
 ): boolean {
-  return componentIdentifier === undefined || /^[A-Z]/.test(componentIdentifier.name);
+  return componentIdentifier === undefined
+    ? isAnonymousDefaultExportComponent(componentNode)
+    : /^[A-Z]/.test(componentIdentifier.name);
 }
 
 function hasRenderMethodOrProperty(componentNode: estree.Node): boolean {
@@ -390,7 +407,7 @@ export function createComponentAnalysis(
 
   if (
     !isFunctionComponentNode(componentNode) ||
-    !isPascalCaseFunctionComponent(componentIdentifier)
+    !isEligibleFunctionComponent(componentNode, componentIdentifier)
   ) {
     return EMPTY_COMPONENT_ANALYSIS;
   }

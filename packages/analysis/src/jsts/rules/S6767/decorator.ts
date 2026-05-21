@@ -22,11 +22,15 @@ import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { findComponentNodes } from '../helpers/react.js';
 import { hasOwnCustomSuperclassPropsForwarding } from './custom-superclass-forwarding.js';
+import { hasDecoratorPropUsage } from './decorator-indirect-prop-usage.js';
 import { hasForwardRefCallbackPropUsage } from './forward-ref-indirect-prop-usage.js';
 import * as meta from './generated-meta.js';
 import { hasSupportedWholePropsUsage } from './whole-props-usage.js';
 
-function allMatch(componentNodes: estree.Node[], predicate: (componentNode: estree.Node) => boolean) {
+function allMatch(
+  componentNodes: estree.Node[],
+  predicate: (componentNode: estree.Node) => boolean,
+) {
   return componentNodes.length > 0 && componentNodes.every(predicate);
 }
 
@@ -38,15 +42,30 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       const { data } = descriptor as { data?: Record<string, string> };
       const propName = data?.name;
       const componentNodes = findComponentNodes(node, context);
-      if (allMatch(componentNodes, componentNode => hasSupportedWholePropsUsage(componentNode, context))) {
+      if (
+        allMatch(componentNodes, componentNode =>
+          hasSupportedWholePropsUsage(componentNode, context),
+        )
+      ) {
         return;
       }
-      if (allMatch(componentNodes, componentNode => hasOwnCustomSuperclassPropsForwarding(componentNode))) {
+      if (
+        allMatch(componentNodes, componentNode =>
+          hasOwnCustomSuperclassPropsForwarding(componentNode),
+        )
+      ) {
         return;
       }
       if (
         allMatch(componentNodes, componentNode =>
           hasForwardRefCallbackPropUsage(componentNode, context, propName),
+        )
+      ) {
+        return;
+      }
+      if (
+        allMatch(componentNodes, componentNode =>
+          hasDecoratorPropUsage(componentNode, context, propName),
         )
       ) {
         return;
