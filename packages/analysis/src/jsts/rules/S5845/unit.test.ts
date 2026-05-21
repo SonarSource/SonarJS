@@ -212,6 +212,25 @@ describe('S5845', () => {
             expect(value).toBeTruthy();
           `,
         },
+        {
+          // intersection type is not classifiable to a primitive family — stay silent
+          code: `
+            import { expect } from 'vitest';
+
+            type UserId = number & { readonly _brand: unique symbol };
+            const id = 1 as UserId;
+            expect(id).toBe('hello');
+          `,
+        },
+        {
+          // void return type maps to 'undefined', which is conservative — stay silent
+          code: `
+            import { expect } from 'vitest';
+
+            function reset(): void {}
+            expect(reset()).toBe(true);
+          `,
+        },
       ],
       invalid: [
         {
@@ -408,6 +427,26 @@ describe('S5845', () => {
             const timeout: number = 1000;
             const timeoutText: string = '1000';
             timeout.should.deep.equal(timeoutText);
+          `,
+          errors: [{ messageId: 'alwaysFails' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            const big: bigint = 1n;
+            const count: number = 1;
+            expect(big).toBe(count);
+          `,
+          errors: [{ messageId: 'alwaysFails' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            const token: symbol = Symbol('token');
+            const name: string = 'token';
+            expect(token).toBe(name);
           `,
           errors: [{ messageId: 'alwaysFails' }],
         },
