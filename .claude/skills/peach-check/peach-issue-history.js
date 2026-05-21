@@ -30,6 +30,7 @@ const DEFAULT_ISSUES_PAGE_SIZE = 500;
 const DEFAULT_COMPONENTS_PAGE_SIZE = 500;
 const DEFAULT_ISSUES_RESULT_WINDOW = 10000;
 const DEFAULT_RETRY_ATTEMPTS = 3;
+const DEFAULT_COMPONENT_FALLBACK_CONCURRENCY = 8;
 const RETRYABLE_STATUS_CODES = new Set([429, 502, 503]);
 const WORKFLOW_ONLY_JOBS = new Set(['prepare-project-matrix', 'diff-validation-aggregated']);
 export const SUPPORTED_LANGUAGES = Object.freeze(['js', 'ts', 'css', 'web', 'yaml']);
@@ -529,17 +530,13 @@ async function fetchIssuesForComponent(componentKey, apiToken, params, normalize
       throw new Error(`Issue search exceeded ${DEFAULT_ISSUES_RESULT_WINDOW} results for leaf component ${componentKey}`);
     }
 
-    const nestedIssues = [];
+    const nestedIssues = await mapWithConcurrencyLimit(
+      [...files, ...directories],
+      DEFAULT_COMPONENT_FALLBACK_CONCURRENCY,
+      component => fetchIssuesForComponent(component.key, apiToken, params, normalizePage),
+    );
 
-    for (const file of files) {
-      nestedIssues.push(...(await fetchIssuesForComponent(file.key, apiToken, params, normalizePage)));
-    }
-
-    for (const directory of directories) {
-      nestedIssues.push(...(await fetchIssuesForComponent(directory.key, apiToken, params, normalizePage)));
-    }
-
-    return nestedIssues;
+    return nestedIssues.flat();
   }
 
   const normalizedIssues = [...normalizePage(firstResponse.issues ?? [])];

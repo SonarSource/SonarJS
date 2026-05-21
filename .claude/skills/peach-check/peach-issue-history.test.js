@@ -96,9 +96,12 @@ function installPeachFetchMock(t, options) {
     resolvedCreatedBefore: [],
     issueScopes: [],
     componentTree: [],
+    activeIssueRequests: 0,
+    maxConcurrentIssueRequests: 0,
   };
   const supportedLanguages = new Set(SUPPORTED_LANGUAGES);
   const remainingFailures = new Map(Object.entries(options.failOnce ?? {}));
+  const issueSearchDelayMsByScope = new Map(Object.entries(options.issueSearchDelayMsByScope ?? {}));
   const originalFetch = globalThis.fetch;
   const analysesDesc = [...options.analyses].sort((left, right) => Date.parse(right.date) - Date.parse(left.date));
   const issueSources = options.issueSources ?? {
@@ -174,49 +177,64 @@ function installPeachFetchMock(t, options) {
       }
       requests.issueScopes.push({ scopeKey, resolved, pageIndex });
 
-      if (remainingFailures.has(failureKey)) {
-        const failureStatus = remainingFailures.get(failureKey);
-        remainingFailures.delete(failureKey);
-        return createErrorFetchResponse(failureStatus);
-      }
+      requests.activeIssueRequests += 1;
+      requests.maxConcurrentIssueRequests = Math.max(
+        requests.maxConcurrentIssueRequests,
+        requests.activeIssueRequests,
+      );
 
-      const sourceIssues = resolved ? source.resolvedIssues : source.openIssues;
-      const filteredIssues = sourceIssues
-        .filter(issue => supportedLanguages.has(issue.language))
-        .filter(issue => requestedLanguages.has(issue.language))
-        .filter(issue =>
-          Number.isNaN(createdAfterTimestamp) ? true : Date.parse(issue.creationDate) >= createdAfterTimestamp,
-        )
-        .filter(issue =>
-          Number.isNaN(createdBeforeTimestamp) ? true : Date.parse(issue.creationDate) < createdBeforeTimestamp,
-        )
-        .sort((left, right) => Date.parse(left.creationDate) - Date.parse(right.creationDate))
-        .map(issue => {
-          const responseIssue = {
-            key: issue.key,
-            creationDate: issue.creationDate,
-          };
-          if (resolved) {
-            responseIssue.closeDate = issue.closeDate;
-          }
-          return responseIssue;
+      try {
+        const delayMs = issueSearchDelayMsByScope.get(scopeKey) ?? 0;
+        if (delayMs > 0) {
+          await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+
+        if (remainingFailures.has(failureKey)) {
+          const failureStatus = remainingFailures.get(failureKey);
+          remainingFailures.delete(failureKey);
+          return createErrorFetchResponse(failureStatus);
+        }
+
+        const sourceIssues = resolved ? source.resolvedIssues : source.openIssues;
+        const filteredIssues = sourceIssues
+          .filter(issue => supportedLanguages.has(issue.language))
+          .filter(issue => requestedLanguages.has(issue.language))
+          .filter(issue =>
+            Number.isNaN(createdAfterTimestamp) ? true : Date.parse(issue.creationDate) >= createdAfterTimestamp,
+          )
+          .filter(issue =>
+            Number.isNaN(createdBeforeTimestamp) ? true : Date.parse(issue.creationDate) < createdBeforeTimestamp,
+          )
+          .sort((left, right) => Date.parse(left.creationDate) - Date.parse(right.creationDate))
+          .map(issue => {
+            const responseIssue = {
+              key: issue.key,
+              creationDate: issue.creationDate,
+            };
+            if (resolved) {
+              responseIssue.closeDate = issue.closeDate;
+            }
+            return responseIssue;
+          });
+
+        if (filteredIssues.length > 10000 && start >= 10000) {
+          return createErrorFetchResponse(
+            400,
+            '{"errors":[{"msg":"Can return only the first 10000 results. 10500th result asked."}]}',
+          );
+        }
+
+        return createFetchResponse({
+          paging: {
+            pageIndex,
+            pageSize,
+            total: filteredIssues.length,
+          },
+          issues: filteredIssues.slice(start, start + pageSize),
         });
-
-      if (filteredIssues.length > 10000 && start >= 10000) {
-        return createErrorFetchResponse(
-          400,
-          '{"errors":[{"msg":"Can return only the first 10000 results. 10500th result asked."}]}',
-        );
+      } finally {
+        requests.activeIssueRequests -= 1;
       }
-
-      return createFetchResponse({
-        paging: {
-          pageIndex,
-          pageSize,
-          total: filteredIssues.length,
-        },
-        issues: filteredIssues.slice(start, start + pageSize),
-      });
     }
 
     if (parsedUrl.pathname === '/api/components/tree') {
@@ -272,6 +290,7 @@ async function runSingleProjectIssueHistory(
     failOnce,
     issueSources,
     componentChildren,
+    issueSearchDelayMsByScope,
   },
 ) {
   const output = {};
@@ -283,6 +302,7 @@ async function runSingleProjectIssueHistory(
     failOnce,
     issueSources,
     componentChildren,
+    issueSearchDelayMsByScope,
   });
   const effectiveStartedAt = jobStartedAt ?? analyses[analyses.length - 1].date;
   const effectiveCompletedAt =
@@ -585,6 +605,61 @@ test('runIssueHistory counts >10k open issues without relying on component split
   assert.equal(row.status, 'OK');
   assert.equal(row.current_value, 10010);
   assert.equal(row.baseline_value, 10010);
+});
+
+test('runIssueHistory traverses component-fallback child scopes with bounded concurrency', async t => {
+  const analyses = createDailyAnalyses('2026-04-26T03:09:22Z', 6);
+  const sharedCreationDate = '2026-04-01T00:00:00Z';
+  const childScopes = [
+    'js:ConcurrentFallbackProject:file-1',
+    'js:ConcurrentFallbackProject:file-2',
+    'js:ConcurrentFallbackProject:file-3',
+    'js:ConcurrentFallbackProject:file-4',
+  ];
+  const childIssues = Object.fromEntries(
+    childScopes.map((scopeKey, index) => [
+      scopeKey,
+      {
+        openIssues: createOpenIssues(2501, sharedCreationDate, index % 2 === 0 ? 'js' : 'ts'),
+        resolvedIssues: [],
+      },
+    ]),
+  );
+  const { report, requests } = await runSingleProjectIssueHistory(t, {
+    analyses,
+    openIssues: childScopes.flatMap((scopeKey, index) =>
+      createOpenIssues(2501, sharedCreationDate, index % 2 === 0 ? 'js' : 'ts'),
+    ),
+    resolvedIssues: [],
+    projectKey: 'js:ConcurrentFallbackProject',
+    projectName: 'concurrent-fallback-project',
+    issueSources: {
+      'js:ConcurrentFallbackProject': {
+        openIssues: childScopes.flatMap((scopeKey, index) =>
+          createOpenIssues(2501, sharedCreationDate, index % 2 === 0 ? 'js' : 'ts'),
+        ),
+        resolvedIssues: [],
+      },
+      ...childIssues,
+    },
+    componentChildren: {
+      'js:ConcurrentFallbackProject': {
+        dirs: [],
+        files: childScopes.map((scopeKey, index) => ({
+          key: scopeKey,
+          path: `file-${index + 1}.ts`,
+        })),
+      },
+      ...Object.fromEntries(childScopes.map(scopeKey => [scopeKey, { dirs: [], files: [] }])),
+    },
+    issueSearchDelayMsByScope: Object.fromEntries(childScopes.map(scopeKey => [scopeKey, 20])),
+  });
+
+  assert.deepEqual(report.summary, { OK: 1 });
+  assert.ok(
+    requests.maxConcurrentIssueRequests > 1,
+    `expected concurrent child-scope traversal, got max concurrency ${requests.maxConcurrentIssueRequests}`,
+  );
 });
 
 test('runIssueHistory counts >10k resolved issues without relying on component splits', async t => {
