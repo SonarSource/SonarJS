@@ -198,7 +198,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
               reportUnusedPropType(
                 context,
                 component,
-                component.declaredPropTypes ?? true,
+                component.declaredPropTypes ?? {},
                 configuration,
               );
             });

@@ -490,14 +490,20 @@ function getDeclaredClassPropsType(
   classNode: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
 ): ts.Type | undefined {
+  const propsTypeNode = getReactSuperclassTypeArguments(classNode)[0];
+  return propsTypeNode ? checker.getTypeAtLocation(propsTypeNode) : undefined;
+}
+
+function getReactSuperclassTypeArguments(
+  classNode: ts.ClassLikeDeclaration,
+): readonly ts.TypeNode[] {
   const extendsClause = classNode.heritageClauses?.find(
     clause => clause.token === ts.SyntaxKind.ExtendsKeyword,
   );
   const reactSuperclass = extendsClause?.types.find(type =>
     isReactComponentHeritageSuperclass(type),
   );
-  const propsTypeNode = reactSuperclass?.typeArguments?.[0];
-  return propsTypeNode ? checker.getTypeAtLocation(propsTypeNode) : undefined;
+  return reactSuperclass?.typeArguments ?? [];
 }
 
 /**
@@ -526,17 +532,9 @@ export function getDeclaredClassNonPropsTypes(
   classNode: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
 ): ts.Type[] {
-  const extendsClause = classNode.heritageClauses?.find(
-    clause => clause.token === ts.SyntaxKind.ExtendsKeyword,
-  );
-  const reactSuperclass = extendsClause?.types.find(type =>
-    isReactComponentHeritageSuperclass(type),
-  );
-  return (
-    reactSuperclass?.typeArguments
-      ?.slice(1)
-      .map(typeArgument => checker.getTypeAtLocation(typeArgument)) ?? []
-  );
+  return getReactSuperclassTypeArguments(classNode)
+    .slice(1)
+    .map(typeArgument => checker.getTypeAtLocation(typeArgument));
 }
 
 /**
