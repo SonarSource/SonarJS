@@ -32,7 +32,7 @@ type UpstreamRecommendedField = {
   default: UpstreamRecommendedFieldValue;
 };
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+function isObjectLike(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
@@ -47,7 +47,7 @@ function isSupportedUpstreamFieldValue(value: unknown): value is UpstreamRecomme
 function isUpstreamRecommendedConfiguration(
   value: unknown,
 ): value is UpstreamRecommendedConfiguration {
-  return isRecord(value) && Object.values(value).every(isSupportedUpstreamFieldValue);
+  return isObjectLike(value) && Object.values(value).every(isSupportedUpstreamFieldValue);
 }
 
 function ruleKey(ruleId: string) {
@@ -62,7 +62,7 @@ export function extractUpstreamRecommendedConfiguration(
 ): UpstreamRecommendedConfiguration {
   const entry = plugin.configs?.recommended?.rules?.[ruleKey(ruleId)];
 
-  if (!Array.isArray(entry) || !isRecord(entry[1])) {
+  if (!Array.isArray(entry) || !isObjectLike(entry[1])) {
     throw new Error(
       `eslint-plugin-jsx-a11y: upstream recommended config for ${ruleId} not found; plugin API may have changed`,
     );
