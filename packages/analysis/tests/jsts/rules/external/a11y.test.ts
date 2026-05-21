@@ -31,6 +31,14 @@ describe('jsx-a11y upstream recommended configuration', () => {
     });
   });
 
+  test('should expose an array-only recommended config for no-noninteractive-element-to-interactive-role', () => {
+    assert.ok(
+      Object.values(
+        getUpstreamRecommendedConfiguration('no-noninteractive-element-to-interactive-role'),
+      ).every(Array.isArray),
+    );
+  });
+
   test('should map supported recommended config values to Sonar fields', () => {
     assert.deepStrictEqual(
       extractUpstreamRecommendedFields(
