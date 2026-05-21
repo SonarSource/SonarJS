@@ -25,7 +25,6 @@ export type ReportedEnclosingType = ReportedTypeDetails<
   TypeDeclarationNode,
   ts.InterfaceDeclaration | ts.TypeAliasDeclaration
 >;
-export type ReportedType = ReportedEnclosingType;
 
 /**
  * Stores both ESTree and TypeScript views of a reported type-related construct.
@@ -220,6 +219,6 @@ export function getReportedTypeFromAncestors(
   ancestors: estree.Node[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-): ReportedType | undefined {
+): ReportedEnclosingType | undefined {
   return getReportedEnclosingType(ancestors, services, checker);
 }

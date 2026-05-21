@@ -189,10 +189,13 @@ describe('ReportedTypeDetails', () => {
     const checker = services.program.getTypeChecker();
     const sharedValue = findNodeWithAncestorsByText(ast, 'sharedValue');
     expect(sharedValue).toBeTruthy();
+    if (!sharedValue) {
+      throw new Error('Expected to find sharedValue node');
+    }
 
-    const reportedType = getReportedTypeFromAncestors(sharedValue!.ancestors, services, checker);
+    const reportedType = getReportedTypeFromAncestors(sharedValue.ancestors, services, checker);
     const reportedEnclosingType = getReportedEnclosingType(
-      sharedValue!.ancestors,
+      sharedValue.ancestors,
       services,
       checker,
     );

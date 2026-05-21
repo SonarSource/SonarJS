@@ -168,7 +168,7 @@ function findPropTypesAssignmentOwner(
   },
 ): estree.Node | undefined {
   return getVariableFromScope(sourceCode.getScope(reportedNode), propTypesAssignment.left.object.name)
-    ?.defs[0]?.node as estree.Node | undefined;
+    ?.defs[0]?.node;
 }
 
 /**
