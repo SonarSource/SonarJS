@@ -21,7 +21,7 @@ import type { RequiredParserServices } from './parser-services.js';
 import { areSameTypeDeclarations } from './type.js';
 
 type TypeDeclarationNode = TSESTree.TSInterfaceDeclaration | TSESTree.TSTypeAliasDeclaration;
-export type ReportedEnclosingType = ReportedTypeDetails<
+export type ReportedType = ReportedTypeDetails<
   TypeDeclarationNode,
   ts.InterfaceDeclaration | ts.TypeAliasDeclaration
 >;
@@ -204,7 +204,7 @@ export function getReportedEnclosingType(
   ancestors: estree.Node[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-): ReportedEnclosingType | undefined {
+): ReportedType | undefined {
   const declaration = findEnclosingTypeDeclaration(ancestors);
   return ReportedTypeDetails.fromDeclaration(
     declaration,
@@ -219,6 +219,6 @@ export function getReportedTypeFromAncestors(
   ancestors: estree.Node[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-): ReportedEnclosingType | undefined {
+): ReportedType | undefined {
   return getReportedEnclosingType(ancestors, services, checker);
 }

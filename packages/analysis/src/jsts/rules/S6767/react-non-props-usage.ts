@@ -25,7 +25,7 @@ import {
 } from '../helpers/parser-services.js';
 import {
   getReportedEnclosingType,
-  type ReportedEnclosingType,
+  type ReportedType,
 } from '../helpers/reported-type.js';
 import {
   getComponentPropsTypeCandidates,
@@ -39,7 +39,7 @@ import {
 import { areSameTypeDeclarations } from '../helpers/type.js';
 
 type ReactNonPropsTypeUsage = 'mixed' | 'non-props' | 'other' | 'props';
-type ReactNonPropsTypeDeclaration = ReportedEnclosingType['declaration'];
+type ReactNonPropsTypeDeclaration = ReportedType['declaration'];
 type SourceCache = {
   reactNonPropsTypeDeclByComponent: WeakMap<
     ReactNonPropsTypeDeclaration,
@@ -109,7 +109,7 @@ function usesReportedTypeAsComponentProps(
   componentNode: estree.Node,
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-  reportedEnclosingType: ReportedEnclosingType,
+  reportedEnclosingType: ReportedType,
   reportedTypeMember: ReportedTypeMember | undefined,
 ): boolean {
   if (isFunctionComponentNode(componentNode) && !isPascalCaseFunctionComponent(componentNode)) {
@@ -125,7 +125,7 @@ function usesReportedTypeAsReactClassNonProps(
   componentNode: estree.Node,
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-  reportedEnclosingType: ReportedEnclosingType,
+  reportedEnclosingType: ReportedType,
   reportedTypeMember: ReportedTypeMember | undefined,
 ): boolean {
   if (!isClassComponentNode(componentNode)) {
@@ -142,7 +142,7 @@ function usesReportedTypeAsReactClassNonProps(
 
 function getReactNonPropsTypeUsage(
   componentNode: estree.Node,
-  reportedEnclosingType: ReportedEnclosingType,
+  reportedEnclosingType: ReportedType,
   reportedTypeMember: ReportedTypeMember | undefined,
   services: RequiredParserServices,
   checker: ts.TypeChecker,
@@ -192,7 +192,7 @@ function getReactNonPropsTypeUsage(
 
 function doesSlotExposeReportedMember(
   slotType: ts.Type,
-  reportedEnclosingType: ReportedEnclosingType,
+  reportedEnclosingType: ReportedType,
   reportedTypeMember: ReportedTypeMember | undefined,
   checker: ts.TypeChecker,
 ): boolean {

@@ -25,7 +25,7 @@ import { isRequiredParserServices, type RequiredParserServices } from './parser-
 import {
   getReportedEnclosingType,
   ReportedTypeDetails,
-  type ReportedEnclosingType,
+  type ReportedType,
 } from './reported-type.js';
 import { areMutuallyAssignableTypes, areSameTypeDeclarations, getTypeFromTreeNode } from './type.js';
 
@@ -669,7 +669,7 @@ function findComponentOwnersByReportedTypeMember(
   componentNodes: estree.Node[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-  reportedEnclosingType: ReportedEnclosingType,
+  reportedEnclosingType: ReportedType,
   reportedTypeMember: ReportedTypeMember,
 ): estree.Node[] {
   return componentNodes.filter(componentNode =>
@@ -687,7 +687,7 @@ function findComponentOwnersByReportedEnclosingType(
   componentNodes: estree.Node[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-  reportedEnclosingType: ReportedEnclosingType,
+  reportedEnclosingType: ReportedType,
 ): estree.Node[] {
   return componentNodes.filter(componentNode =>
     componentUsesReportedEnclosingType(componentNode, services, checker, reportedEnclosingType),
@@ -698,7 +698,7 @@ function componentUsesReportedEnclosingType(
   componentNode: estree.Node,
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-  reportedEnclosingType: ReportedEnclosingType,
+  reportedEnclosingType: ReportedType,
 ): boolean {
   if (!isClassComponentNode(componentNode)) {
     return matchesFunctionProps(componentNode, services, checker, reportedEnclosingType.tsType);
@@ -819,7 +819,7 @@ function componentPropsIncludeReportedTypeMember(
   componentNode: estree.Node,
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-  reportedEnclosingType: ReportedEnclosingType,
+  reportedEnclosingType: ReportedType,
   reportedTypeMember: ReportedTypeMember,
 ): boolean {
   if (isClassComponentNode(componentNode) && !hasRenderMethodOrProperty(componentNode)) {

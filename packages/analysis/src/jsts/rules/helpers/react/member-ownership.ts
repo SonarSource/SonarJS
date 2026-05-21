@@ -18,7 +18,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
 import ts from 'typescript';
 import type { ComponentAnalysis } from './component-analysis.js';
-import { ReportedTypeDetails, type ReportedEnclosingType } from '../reported-type.js';
+import { ReportedTypeDetails, type ReportedType } from '../reported-type.js';
 import type { RequiredParserServices } from '../parser-services.js';
 
 type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
@@ -72,7 +72,7 @@ export function getReportedTypeMember(
 export function componentPropsIncludeReportedTypeMember(
   componentAnalysis: ComponentAnalysis,
   checker: ts.TypeChecker,
-  reportedType: ReportedEnclosingType,
+  reportedType: ReportedType,
   reportedTypeMember: ReportedTypeMember,
 ): boolean {
   const componentPropsTypeCandidates = componentAnalysis.memberPropsTypeCandidates;

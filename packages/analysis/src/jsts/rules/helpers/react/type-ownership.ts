@@ -23,7 +23,7 @@ import {
   type CollectedComponent,
   type ComponentAnalysis,
 } from './component-analysis.js';
-import { getReportedTypeFromAncestors, type ReportedEnclosingType } from '../reported-type.js';
+import { getReportedTypeFromAncestors, type ReportedType } from '../reported-type.js';
 import {
   componentPropsIncludeReportedTypeMember,
   getReportedTypeMember,
@@ -117,7 +117,7 @@ function getCandidateOwnersByReportedType(
   components: CollectedComponent[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-  reportedType: ReportedEnclosingType,
+  reportedType: ReportedType,
 ): CollectedComponent[] {
   const cacheKey = reportedType.declaration as unknown as estree.Node;
   const cachedOwners = sourceCache.candidateOwnersByTypeDecl.get(cacheKey);
@@ -141,7 +141,7 @@ function findComponentOwnersByReportedTypeMember(
   components: CollectedComponent[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-  reportedType: ReportedEnclosingType,
+  reportedType: ReportedType,
   reportedTypeMember: ReportedTypeMember,
 ): CollectedComponent[] {
   return components.filter(component =>
@@ -159,7 +159,7 @@ function findComponentOwnersByReportedType(
   components: CollectedComponent[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
-  reportedType: ReportedEnclosingType,
+  reportedType: ReportedType,
 ): CollectedComponent[] {
   return components.filter(component =>
     componentUsesReportedType(
@@ -173,7 +173,7 @@ function findComponentOwnersByReportedType(
 function componentUsesReportedType(
   componentAnalysis: ComponentAnalysis,
   checker: ts.TypeChecker,
-  reportedType: ReportedEnclosingType,
+  reportedType: ReportedType,
 ): boolean {
   return componentAnalysis.enclosingTypePropsTypeCandidates.some(componentPropsType =>
     areMutuallyAssignableTypes(checker, reportedType.tsType, componentPropsType),
@@ -183,7 +183,7 @@ function componentUsesReportedType(
 function componentMayUseReportedType(
   componentAnalysis: ComponentAnalysis,
   checker: ts.TypeChecker,
-  reportedType: ReportedEnclosingType,
+  reportedType: ReportedType,
 ): boolean {
   return componentAnalysis.memberPropsTypeCandidates.some(componentPropsType =>
     reportedType.isUsedByType(componentPropsType, checker),
