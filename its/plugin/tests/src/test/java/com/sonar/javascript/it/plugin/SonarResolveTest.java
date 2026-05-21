@@ -59,6 +59,10 @@ class SonarResolveTest {
         assertThat(issue.getIssueStatus()).isEqualTo("ACCEPTED");
         assertThat(issue.hasResolution()).isTrue();
         assertThat(issue.getResolution()).isNotBlank();
+        assertThat(issue.hasComments()).isTrue();
+        assertThat(issue.getComments().getCommentsList()).anySatisfy(comment ->
+          assertThat(comment.getMarkdown()).contains("accepted in HTML")
+        );
       });
   }
 
