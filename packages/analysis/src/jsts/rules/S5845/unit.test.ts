@@ -72,6 +72,15 @@ describe('S5845', () => {
           code: `
             import { expect } from 'vitest';
 
+            const actual: number | string = Math.random() > 0.5 ? 1 : 'hello';
+            const expected: boolean | string = Math.random() > 0.5 ? true : 'world';
+            expect(actual).toBe(expected);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
             const result: any = readValue();
             const value: unknown = readValue();
             expect(result).toBe(42);
@@ -381,6 +390,26 @@ describe('S5845', () => {
             cy.wrap(idText).should('deep.equal', id);
           `,
           errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
+        },
+        {
+          code: `
+            import 'cypress';
+
+            const count: number = 1;
+            const label: string = '1';
+            cy.wrap(count).should('not.deep.equal', label);
+          `,
+          errors: [{ messageId: 'alwaysSucceeds' }],
+        },
+        {
+          code: `
+            import 'chai/register-should';
+
+            const timeout: number = 1000;
+            const timeoutText: string = '1000';
+            timeout.should.deep.equal(timeoutText);
+          `,
+          errors: [{ messageId: 'alwaysFails' }],
         },
       ],
     });

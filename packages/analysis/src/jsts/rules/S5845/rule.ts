@@ -95,8 +95,8 @@ export const rule: Rule.RuleModule = {
         getTypeFromTreeNode(assertion.expected, services),
       );
       if (
-        !hasStablePrimitiveType(context, assertion.actual, actualType, checker, services) ||
-        !hasStablePrimitiveType(context, assertion.expected, expectedType, checker, services)
+        !hasStablePrimitiveType(assertion.actual, actualType) ||
+        !hasStablePrimitiveType(assertion.expected, expectedType)
       ) {
         return;
       }
@@ -111,13 +111,7 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function hasStablePrimitiveType(
-      context: Rule.RuleContext,
-      node: estree.Node,
-      nodeType: ts.Type,
-      checker: ts.TypeChecker,
-      services: Rule.RuleContext['sourceCode']['parserServices'],
-    ): boolean {
+    function hasStablePrimitiveType(node: estree.Node, nodeType: ts.Type): boolean {
       const allowedCategories = getPrimitiveCategories(nodeType);
       if (!allowedCategories) {
         return false;
@@ -137,9 +131,6 @@ export const rule: Rule.RuleModule = {
 
     return {
       CallExpression(node: estree.Node) {
-        checkAssertion(node);
-      },
-      MemberExpression(node: estree.Node) {
         checkAssertion(node);
       },
     };

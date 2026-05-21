@@ -77,7 +77,7 @@ function getTrivialAssertion(
       return null;
     case 'comparison':
       if (assertion.comparison !== 'deep') {
-        // a freshly-created value on either side makes the identity check trivially fail (or trivially succeed when negated)
+        // a freshly-created value on either side makes the strict/loose equality trivially fail (or trivially succeed when negated)
         if (isFreshReferenceExpression(assertion.actual)) {
           return { reportNode: assertion.actual, messageId: 'freshIdentity' };
         }
