@@ -44,6 +44,12 @@ function isSupportedUpstreamFieldValue(value: unknown): value is UpstreamRecomme
   return typeof value === 'boolean' || isStringArray(value);
 }
 
+function isUpstreamRecommendedConfiguration(
+  value: unknown,
+): value is UpstreamRecommendedConfiguration {
+  return isRecord(value) && Object.values(value).every(isSupportedUpstreamFieldValue);
+}
+
 function ruleKey(ruleId: string) {
   return `jsx-a11y/${ruleId}`;
 }
@@ -62,7 +68,7 @@ export function extractUpstreamRecommendedConfiguration(
     );
   }
 
-  if (!Object.values(entry[1]).every(isSupportedUpstreamFieldValue)) {
+  if (!isUpstreamRecommendedConfiguration(entry[1])) {
     throw new Error(
       `eslint-plugin-jsx-a11y: unsupported upstream recommended config for ${ruleId}; expected boolean or string[] field values`,
     );
