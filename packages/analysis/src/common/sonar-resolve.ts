@@ -91,7 +91,12 @@ function extractSonarResolveComments(comments: CommentSource[]): SonarResolveCom
 
   for (const comment of orderedComments) {
     if (comment.kind === 'line') {
-      if (lineCommentRun.length > 0 && lineCommentRun.at(-1)!.endLine + 1 !== comment.line) {
+      const previousLineComment = lineCommentRun.at(-1);
+      if (
+        lineCommentRun.length > 0 &&
+        previousLineComment != null &&
+        previousLineComment.endLine + 1 !== comment.line
+      ) {
         pushLineCommentRun(lineCommentRun, extracted);
         lineCommentRun = [];
       }
