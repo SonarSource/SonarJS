@@ -23,7 +23,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { isGenericType } from '../helpers/type.js';
 import { childrenOf } from '../helpers/ancestor.js';
-import { isCallingMethod, isIdentifier, isIfStatement } from '../helpers/ast.js';
+import { isCallingMethod, isFunctionNode, isIdentifier, isIfStatement } from '../helpers/ast.js';
 import { areEquivalent } from '../helpers/equivalence.js';
 import * as meta from './generated-meta.js';
 
@@ -132,7 +132,7 @@ function isGuardedReceiverCall(call: TSESTree.CallExpression, context: Rule.Rule
         return true;
       }
     }
-    if (isFunctionBoundary(parent)) {
+    if (isFunctionNode(parent as estree.Node)) {
       break;
     }
     current = parent;
@@ -444,13 +444,5 @@ function usesIdentifier(
   }
   return childrenOf(node as estree.Node, context.sourceCode.visitorKeys).some(child =>
     usesIdentifier(child as TSESTree.Node, variableName, context),
-  );
-}
-
-function isFunctionBoundary(node: TSESTree.Node): boolean {
-  return (
-    node.type === 'FunctionDeclaration' ||
-    node.type === 'FunctionExpression' ||
-    node.type === 'ArrowFunctionExpression'
   );
 }
