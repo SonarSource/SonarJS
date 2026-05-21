@@ -17,10 +17,13 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6842/javascript
 
 import type { ESLintConfiguration } from '../helpers/configs.js';
+import { getUpstreamAllowlist } from './upstream.js';
+
+const allowlist = getUpstreamAllowlist();
 
 export const fields = [
-  [
-    { field: 'ul', default: ['listbox'] },
-    { field: 'li', default: ['option'] },
-  ],
+  Object.entries(allowlist).map(([field, roles]) => ({
+    field,
+    default: roles,
+  })),
 ] as const satisfies ESLintConfiguration;
