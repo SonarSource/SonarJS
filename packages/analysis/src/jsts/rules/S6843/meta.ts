@@ -17,3 +17,4 @@
 export const implementation = 'external';
 export const eslintId = 'no-interactive-element-to-noninteractive-role';
 export const externalPlugin = 'jsx-a11y';
+export * from './config.js';
