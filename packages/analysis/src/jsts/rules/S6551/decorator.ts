@@ -50,6 +50,15 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
+/**
+ * Suppresses only direct `receiver.toString()` reports covered by one of two runtime defenses:
+ * 1. the receiver is used in the first statement of a branch guarded by
+ *    `receiver.toString !== Object.prototype.toString`;
+ * 2. the call result is stored in a const and immediately used only in the branch that rejects
+ *    the default `[object Object]` result.
+ *
+ * Other stringification forms and nearby-but-weaker shapes keep reporting.
+ */
 function isGuardedDirectToStringCall(
   reportDescriptor: Rule.ReportDescriptor,
   context: Rule.RuleContext,
@@ -131,6 +140,18 @@ function isGuardedReceiverCall(call: TSESTree.CallExpression, context: Rule.Rule
   return false;
 }
 
+/**
+ * Matches a guarded branch only when the reported call is reached before any sibling statement:
+ *
+ *   if (value.toString !== Object.prototype.toString) {
+ *     return value.toString(); // match
+ *   }
+ *
+ *   if (value.toString !== Object.prototype.toString) {
+ *     mutate(value);
+ *     return value.toString(); // non-match
+ *   }
+ */
 function isCallInFirstStatementOfBranch(
   call: TSESTree.CallExpression,
   branch: TSESTree.Statement | null,
@@ -143,6 +164,10 @@ function isCallInFirstStatementOfBranch(
   return firstStatement !== undefined && startsWithCall(firstStatement, call);
 }
 
+/**
+ * Accepts only statement forms where the call itself is evaluated first.
+ * `return value.toString()` matches; `return mutate(value) && value.toString()` does not.
+ */
 function startsWithCall(statement: TSESTree.Statement, call: TSESTree.CallExpression): boolean {
   if (statement.type === 'ReturnStatement') {
     return statement.argument === call;
@@ -159,6 +184,17 @@ function startsWithCall(statement: TSESTree.Statement, call: TSESTree.CallExpres
   return false;
 }
 
+/**
+ * Recognizes the branch condition proving a custom implementation.
+ *
+ * Matches:
+ *   value.toString !== Object.prototype.toString
+ *   typeof value.toString === 'function' && value.toString !== Object.prototype.toString
+ *
+ * Non-matches:
+ *   value.toString !== Object.prototype.toString || fallback
+ *   value.toString !== Object.prototype.toString && hasSideEffect()
+ */
 function provesCustomToString(
   condition: TSESTree.Expression,
   receiver: TSESTree.Expression,
@@ -199,6 +235,10 @@ function flattenConjunction(condition: TSESTree.Expression): TSESTree.Expression
   return [condition];
 }
 
+/**
+ * Allows optional support conjuncts that only prove `receiver.toString` is callable.
+ * They are not sufficient on their own because inherited `Object.prototype.toString` is callable too.
+ */
 function provesReceiverToStringIsFunction(
   condition: TSESTree.Expression,
   receiver: TSESTree.Expression,
@@ -220,6 +260,10 @@ function provesReceiverToStringIsFunction(
   );
 }
 
+/**
+ * Allows optional support conjuncts that prove the receiver is object-like before reading
+ * `receiver.toString`. These checks support the custom-toString comparison but never suppress alone.
+ */
 function provesReceiverIsObjectLike(
   condition: TSESTree.Expression,
   receiver: TSESTree.Expression,
@@ -248,6 +292,16 @@ function provesReceiverIsObjectLike(
   );
 }
 
+/**
+ * Matches immediate result validation only:
+ *
+ *   const result = value.toString();
+ *   if (result !== '[object Object]') {
+ *     return result; // match
+ *   }
+ *
+ * The result must not be used after the validation or in the rejected branch.
+ */
 function isValidatedResultCall(call: TSESTree.CallExpression, context: Rule.RuleContext): boolean {
   const declarator: TSESTree.Node | undefined = call.parent;
   if (
@@ -298,6 +352,11 @@ function isValidatedResultCall(call: TSESTree.CallExpression, context: Rule.Rule
   );
 }
 
+/**
+ * Recognizes the accepted branch of the default-string rejection:
+ * `result !== '[object Object]'` accepts the consequent, while
+ * `result === '[object Object]'` accepts the else branch.
+ */
 function provesAcceptedResult(
   condition: TSESTree.Expression,
   variableName: string,
@@ -318,6 +377,10 @@ function provesAcceptedResult(
   );
 }
 
+/**
+ * Matches non-computed `.toString` reads on the same stable receiver expression.
+ * `value.toString` matches for `value`; `value['toString']` and `other.toString` do not.
+ */
 function isReceiverToString(
   node: TSESTree.Node,
   receiver: TSESTree.Expression,
@@ -331,6 +394,9 @@ function isReceiverToString(
   );
 }
 
+/**
+ * Matches exactly `Object.prototype.toString`, the default implementation the rule warns about.
+ */
 function isObjectPrototypeToString(node: TSESTree.Node): boolean {
   return (
     node.type === 'MemberExpression' &&
@@ -343,10 +409,17 @@ function isObjectPrototypeToString(node: TSESTree.Node): boolean {
   );
 }
 
+/**
+ * Limits receiver-guard suppression to single-evaluation receivers.
+ * `value` and `this` match; `holder.value` does not because it may invoke a getter on each access.
+ */
 function isStableReceiver(node: TSESTree.Node): boolean {
   return isIdentifier(node) || node.type === 'ThisExpression';
 }
 
+/**
+ * Prevents suppressing when a validated result escapes after the guarding `if`.
+ */
 function usesIdentifierAfter(
   block: TSESTree.BlockStatement,
   statementIndex: number,
