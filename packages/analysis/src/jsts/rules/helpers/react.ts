@@ -47,6 +47,7 @@ const REACT_QUALIFIED_CLASS_SUPERS = new Set(['react.Component', 'react.PureComp
 const REACT_LOCAL_CLASS_SUPERS = new Set(['Component', 'PureComponent']);
 const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
 const REACT_FORWARD_REF_RENDER_FUNCTION_TYPES = new Set(['ForwardRefRenderFunction']);
+const REACT_COMPONENT_WRAPPER_CALLEES = new Set(['memo', 'forwardRef']);
 
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 
@@ -120,6 +121,43 @@ function isVariableAssignedFunctionOrClassExpression(
     (componentNode.type === 'ClassExpression' || componentNode.type === 'FunctionExpression') &&
     isVariableDeclaratorWithIdentifierId(parent)
   );
+}
+
+function isReactComponentWrapperCallee(callee: estree.Expression | estree.Super): boolean {
+  return (
+    (callee.type === 'Identifier' && REACT_COMPONENT_WRAPPER_CALLEES.has(callee.name)) ||
+    (callee.type === 'MemberExpression' &&
+      isIdentifier(callee.object, 'React') &&
+      callee.property.type === 'Identifier' &&
+      REACT_COMPONENT_WRAPPER_CALLEES.has(callee.property.name))
+  );
+}
+
+function isWrappedInReactComponentCall(
+  node: estree.Node,
+  parent: estree.Node | undefined,
+): parent is estree.CallExpression {
+  return (
+    parent?.type === 'CallExpression' &&
+    parent.arguments.includes(node as unknown as estree.Expression) &&
+    isReactComponentWrapperCallee(parent.callee)
+  );
+}
+
+function getOutermostReactWrapperParent(componentNode: estree.Node): estree.Node | undefined {
+  let currentNode: estree.Node = componentNode;
+  let parent = getNodeParent(currentNode);
+
+  while (isWrappedInReactComponentCall(currentNode, parent)) {
+    currentNode = parent;
+    parent = getNodeParent(currentNode);
+  }
+
+  return parent;
+}
+
+function isAnonymousDefaultExportComponent(componentNode: estree.Node): boolean {
+  return getOutermostReactWrapperParent(componentNode)?.type === 'ExportDefaultDeclaration';
 }
 
 function findPropTypesAssignmentOwner(
@@ -731,7 +769,9 @@ export function getReportedTypeMember(
 
 export function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
   const componentIdentifier = getComponentIdentifier(componentNode);
-  return componentIdentifier !== undefined && /^[A-Z]/.test(componentIdentifier.name);
+  return componentIdentifier === undefined
+    ? isAnonymousDefaultExportComponent(componentNode)
+    : /^[A-Z]/.test(componentIdentifier.name);
 }
 
 /**
