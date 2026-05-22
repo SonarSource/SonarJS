@@ -89,15 +89,54 @@ public class JsTsChecks {
    */
   static final Set<String> JSTS_GO_RULES = Set.of(
     "S131", // switch-exhaustiveness-check with Sonar defaults/decorator on Go side
+    "S1154", // useless-string-operation
+    "S1301", // no-small-switch
+    "S1488", // prefer-immediate-return
+    "S1529", // bitwise-operators
+    "S1874", // deprecation
+    "S2077", // sql-queries
+    "S2201", // no-ignored-return
+    "S2234", // arguments-order
+    "S2259", // null-dereference
+    "S2301", // no-selector-parameter
+    "S2639", // no-empty-character-class
+    "S2692", // index-of-compare-to-positive-number
+    "S2699", // assertions-in-tests
+    "S2817", // web-sql-database
+    "S2819", // post-message
     "S4123", // await-thenable
+    "S4139", // no-for-in-iterable
     "S4137", // consistent-type-assertions
     "S2933", // prefer-readonly
+    "S2871", // no-alphabetical-sort
+    "S2999", // new-operator-misuse
+    "S3003", // strings-comparison
+    "S3402", // no-incorrect-string-concat
+    "S3403", // different-types-comparison
+    "S3525", // class-prototype
+    "S3533", // no-require-or-define
+    "S3579", // no-associative-arrays
+    "S3735", // void-use
+    "S3757", // operation-returning-nan
+    "S3758", // values-not-convertible-to-numbers
+    "S3760", // non-number-in-arithmetic-expression
+    "S3782", // argument-type
     "S4157", // no-unnecessary-type-arguments
+    "S4324", // no-return-type-any
     "S4325", // no-unnecessary-type-assertion
+    "S4619", // no-in-misuse
     "S6565", // prefer-return-this-type
     "S6583", // no-mixed-enums
+    "S6594", // prefer-regexp-exec
+    "S6959", // reduce-initial-value
+    "S7059", // no-async-constructor
     "S6551", // no-base-to-string
+    "S7727", // no-array-callback-reference
+    "S7728", // no-array-for-each
     "S7729", // no-array-method-this-argument
+    "S7755", // prefer-at
+    "S7778", // prefer-single-call
+    "S7785", // prefer-top-level-await
     "S6557", // prefer-string-starts-ends-with
     "S6571", // no-redundant-type-constituents
     "S6544", // no-misused-promises (+ no-async-promise-executor companion on Go side)

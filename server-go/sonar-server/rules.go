@@ -59,18 +59,38 @@ import (
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/prefer_string_starts_ends_with"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/prefer_type_error"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/radix"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s1154_useless_string_operation"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s1529_bitwise_and_or_in_condition"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s1874_deprecation"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s2692_index_of_compare_to_positive_number"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s2817_web_sql_database"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s2999_new_operator_misuse"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s3003_string_lexicographic_comparison"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s3525_class_prototype"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s3579_no_associative_arrays"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s4139_no_for_in_iterable"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s4324_return_any_type"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s4619_array_in_misuse"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s6594_prefer_regexp_exec"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s6959_reduce_initial_value"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s7059_no_async_constructor"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/switch_exhaustiveness_check"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/valid_typeof"
 )
 
 // allRules contains the rules available in the sonar-server.
 var ruleDecoratorsByName = map[string][]RuleDecorator{
+	"no-array-callback-reference":    {NoArrayCallbackReferenceDecorator},
+	"no-array-for-each":              {NoArrayForEachDecorator},
 	"no-base-to-string":              {NoBaseToStringDecorator},
 	"no-misused-promises":            {NoMisusedPromisesDecorator},
 	"no-redundant-type-constituents": {NoRedundantTypeConstituentsDecorator},
+	"prefer-at":                      {PreferAtDecorator},
 	"prefer-nullish-coalescing":      {PreferNullishCoalescingDecorator},
 	"prefer-optional-chain":          {PreferOptionalChainDecorator},
+	"prefer-single-call":             {PreferSingleCallDecorator},
 	"prefer-string-starts-ends-with": {PreferStringStartsEndsWithDecorator},
+	"prefer-top-level-await":         {PreferTopLevelAwaitDecorator},
 	"switch-exhaustiveness-check":    {SwitchExhaustivenessCheckDecorator},
 }
 
@@ -79,7 +99,24 @@ var allRules = decorateRules([]rule.Rule{
 	consistent_date_clone.ConsistentDateCloneRule,
 	consistent_empty_array_spread.ConsistentEmptyArraySpreadRule,
 	consistent_type_assertions.ConsistentTypeAssertionsRule,
+	s1874_deprecation.DeprecationRule,
+	s2692_index_of_compare_to_positive_number.IndexOfCompareToPositiveNumberRule,
+	s2817_web_sql_database.WebSQLDatabaseRule,
+	s2999_new_operator_misuse.NewOperatorMisuseRule,
+	s3003_string_lexicographic_comparison.StringLexicographicComparisonRule,
+	s3525_class_prototype.ClassPrototypeRule,
+	s3579_no_associative_arrays.NoAssociativeArraysRule,
+	s4139_no_for_in_iterable.NoForInIterableRule,
+	s4324_return_any_type.ReturnAnyTypeRule,
+	s4619_array_in_misuse.NoInMisuseRule,
+	s6594_prefer_regexp_exec.PreferRegexpExecRule,
+	s6959_reduce_initial_value.ReduceInitialValueRule,
+	s7059_no_async_constructor.NoAsyncConstructorRule,
+	s1154_useless_string_operation.UselessStringOperationRule,
+	s1529_bitwise_and_or_in_condition.BitwiseAndOrInConditionRule,
 	no_alert.NoAlertRule,
+	NoArrayCallbackReferenceRule,
+	NoArrayForEachRule,
 	no_non_null_assertion.NoNonNullAssertionRule,
 	no_misused_new.NoMisusedNewRule,
 	adjacent_overload_signatures.AdjacentOverloadSignaturesRule,
@@ -126,10 +163,13 @@ var allRules = decorateRules([]rule.Rule{
 	no_zero_fractions.NoZeroFractionsRule,
 	no_await_expression_member.NoAwaitExpressionMemberRule,
 	no_misused_promises.NoMisusedPromisesRule,
+	PreferAtRule,
 	prefer_string_starts_ends_with.PreferStringStartsEndsWithRule,
 	prefer_optional_chain.PreferOptionalChainRule,
 	prefer_nullish_coalescing.PreferNullishCoalescingRule,
 	prefer_promise_reject_errors.PreferPromiseRejectErrorsRule,
+	PreferSingleCallRule,
+	PreferTopLevelAwaitRule,
 	prefer_type_error.PreferTypeErrorRule,
 	radix.RadixRule,
 	switch_exhaustiveness_check.SwitchExhaustivenessCheckRule,
@@ -146,28 +186,41 @@ var allRules = decorateRules([]rule.Rule{
 // remaining type-service original SonarJS rules") are purely about hard
 // type-service rules.
 var jstsGoRuleNameBySonarKey = map[string]string{
+	"S1154": "useless-string-operation",
 	"S131":  "switch-exhaustiveness-check",
+	"S1529": "bitwise-operators",
 	"S1525": "no-debugger",
+	"S1874": "deprecation",
 	"S1774": "no-ternary",
 	"S2427": "radix",
 	"S2432": "no-setter-return",
+	"S2692": "index-of-compare-to-positive-number",
+	"S2817": "web-sql-database",
 	"S2870": "no-array-delete",
 	"S2933": "prefer-readonly",
 	"S2966": "no-non-null-assertion",
+	"S2999": "new-operator-misuse",
+	"S3003": "strings-comparison",
 	"S3257": "no-inferrable-types",
 	"S3523": "no-new-func",
+	"S3525": "class-prototype",
+	"S3579": "no-associative-arrays",
 	"S4123": "await-thenable",
 	"S4124": "no-misused-new",
 	"S4125": "valid-typeof",
+	"S4139": "no-for-in-iterable",
 	"S4136": "adjacent-overload-signatures",
 	"S4137": "consistent-type-assertions",
 	"S4140": "no-sparse-arrays",
 	"S4157": "no-unnecessary-type-arguments",
 	"S4204": "no-explicit-any",
+	"S4324": "no-return-type-any",
 	"S4325": "no-unnecessary-type-assertion",
+	"S4619": "no-in-misuse",
 	"S6544": "no-misused-promises",
 	"S6551": "no-base-to-string",
 	"S6557": "prefer-string-starts-ends-with",
+	"S6594": "prefer-regexp-exec",
 	"S6565": "prefer-return-this-type",
 	"S6568": "no-confusing-non-null-assertion",
 	"S6569": "no-unnecessary-type-constraint",
@@ -180,6 +233,8 @@ var jstsGoRuleNameBySonarKey = map[string]string{
 	"S6635": "no-constructor-return",
 	"S6645": "no-undef-init",
 	"S6671": "prefer-promise-reject-errors",
+	"S6959": "reduce-initial-value",
+	"S7059": "no-async-constructor",
 	"S2685": "no-caller",
 	"S878":  "no-sequences",
 	"S909":  "no-continue",
@@ -196,15 +251,20 @@ var jstsGoRuleNameBySonarKey = map[string]string{
 	"S6836": "no-case-declarations",
 	"S7719": "consistent-date-clone",
 	"S7720": "consistent-empty-array-spread",
+	"S7727": "no-array-callback-reference",
+	"S7728": "no-array-for-each",
 	"S7729": "no-array-method-this-argument",
 	"S7730": "no-await-expression-member",
 	"S7732": "no-instanceof-builtins",
+	"S7755": "prefer-at",
 	"S7736": "no-negation-in-equality-check",
 	"S7737": "no-object-as-default-parameter",
 	"S7740": "no-this-assignment",
 	"S7741": "no-typeof-undefined",
 	"S7743": "no-unreadable-iife",
 	"S7748": "no-zero-fractions",
+	"S7778": "prefer-single-call",
+	"S7785": "prefer-top-level-await",
 	"S7786": "prefer-type-error",
 }
 
