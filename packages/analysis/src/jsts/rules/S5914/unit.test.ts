@@ -170,6 +170,13 @@ describe('S5914', () => {
             assert.deepEqual(getValue(), {});
           `,
         },
+        // loose equality can coerce a fresh reference to a primitive, so this is not trivially determined
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.equal([], false);
+          `,
+        },
         {
           code: `cy.wrap(getValue()).should('be.true');`,
           filename: cypressFixture,
@@ -595,18 +602,18 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'freshIdentity' }],
         },
-        // chai assert.equal / assert.notEqual (loose equality is just as trivial against fresh refs)
+        // chai assert strict equality against fresh references is still trivial
         {
           code: `
             import { assert } from 'chai';
-            assert.equal(getValue(), {});
+            assert.strictEqual(getValue(), /value/);
           `,
           errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
             import { assert } from 'chai';
-            assert.notEqual(getItems(), []);
+            assert.notStrictEqual(getItems(), new Set());
           `,
           errors: [{ messageId: 'freshIdentity' }],
         },
