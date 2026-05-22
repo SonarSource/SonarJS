@@ -35,6 +35,7 @@ import {
 } from '../jsts/rules/helpers/generated-sources/index.js';
 import { relativeToAncestorPath } from '../jsts/rules/helpers/files.js';
 import { deriveGeneratedSources } from '../jsts/rules/helpers/generated-sources/derive.js';
+import { sortPathEntries } from '../jsts/rules/helpers/generated-sources/shared.js';
 import {
   cloneGeneratedSourcesTelemetry,
   createEmptyGeneratedSourcesTelemetry,
@@ -390,8 +391,4 @@ function formatSamplePaths(
     .map(filePath => relativeToAncestorPath(filePath, baseDir) ?? filePath);
   const moreCount = filePaths.length - samplePaths.length;
   return moreCount > 0 ? `${samplePaths.join(', ')} (+${moreCount} more)` : samplePaths.join(', ');
-}
-
-function sortPathEntries<T>(entries: Iterable<[NormalizedAbsolutePath, T]>) {
-  return [...entries].sort(([leftPath], [rightPath]) => leftPath.localeCompare(rightPath));
 }

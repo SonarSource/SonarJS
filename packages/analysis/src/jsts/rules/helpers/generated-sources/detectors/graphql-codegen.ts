@@ -30,12 +30,7 @@ import {
   type ResolvedGeneratedOutputs,
 } from '../detector-api.js';
 import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
-import {
-  addFamilyFiles,
-  createDerivedGeneratedSources,
-  isIgnorableFileAccessError,
-  isLiteralPathToken,
-} from '../shared.js';
+import { addFamilyFiles, createDerivedGeneratedSources, isLiteralPathToken } from '../shared.js';
 
 const STANDARD_GRAPHQL_CONFIGS = [
   'codegen.yml',
@@ -127,11 +122,9 @@ async function parseGraphqlGenerates(configPath: NormalizedAbsolutePath) {
     ) {
       return getGeneratesKeysFromSource(configContents, configPath);
     }
-  } catch (error) {
-    if (isIgnorableFileAccessError(error)) {
-      return [];
-    }
-    throw error;
+  } catch {
+    // Broken or unreadable GraphQL config files should not abort the whole analysis.
+    return [];
   }
 
   return [];

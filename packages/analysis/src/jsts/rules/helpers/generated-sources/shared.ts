@@ -281,7 +281,7 @@ function sortPaths<T extends NormalizedAbsolutePath>(paths: Iterable<T>) {
   return [...paths].sort(comparePathsAlphabetically);
 }
 
-function sortPathEntries<T>(entries: Iterable<[NormalizedAbsolutePath, T]>) {
+export function sortPathEntries<T>(entries: Iterable<[NormalizedAbsolutePath, T]>) {
   return [...entries].sort(([left], [right]) => comparePathsAlphabetically(left, right));
 }
 

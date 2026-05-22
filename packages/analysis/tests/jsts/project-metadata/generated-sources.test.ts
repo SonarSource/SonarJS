@@ -915,23 +915,30 @@ export default config;
     expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
   });
 
-  it('rethrows malformed GraphQL config parse errors', async () => {
+  it('ignores malformed GraphQL config parse errors', async () => {
     const baseDir = await createTempBaseDir();
-    const configPath = joinPaths(baseDir, 'codegen.json');
 
     try {
-      await writeFile(configPath, '{ invalid json');
+      for (const [filename, configContents] of [
+        ['codegen.json', '{ invalid json'],
+        ['codegen.yml', 'generates: ['],
+      ]) {
+        const configPath = joinPaths(baseDir, filename);
+        await writeFile(configPath, configContents);
 
-      const packageJsons = createPackageJsonMap(baseDir, {
-        devDependencies: {
-          '@graphql-codegen/cli': '1.0.0',
-        },
-        scripts: {
-          codegen: 'graphql-codegen --config codegen.json',
-        },
-      });
+        const packageJsons = createPackageJsonMap(baseDir, {
+          devDependencies: {
+            '@graphql-codegen/cli': '1.0.0',
+          },
+          scripts: {
+            codegen: `graphql-codegen --config ${filename}`,
+          },
+        });
 
-      await expect(deriveGeneratedSources(baseDir, packageJsons)).rejects.toThrow(SyntaxError);
+        const derived = await deriveGeneratedSources(baseDir, packageJsons);
+
+        expect([...derived.familyByFile.keys()]).toEqual([]);
+      }
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
