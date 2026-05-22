@@ -363,6 +363,27 @@ track((props: NamedExpressionProps) => ({
           filename: fixtureFile,
         },
         {
+          // FP: wrapped function expressions must keep the outer component binding
+          // so decorator targets still resolve to `Wrapped`, not the inner function id.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface WrappedDecoratorProps {
+  label: string;
+  contextModule: string;
+}
+const Wrapped = React.memo(function InnerWrappedComponent(props: WrappedDecoratorProps) {
+  return <div>{props.label}</div>;
+});
+track((props: WrappedDecoratorProps) => ({
+  context_module: props.contextModule,
+}))(Wrapped);
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: parenthesized aliases and quoted member keys still resolve back to the
           // reported enclosing type and reported type member.
           code: `
@@ -400,6 +421,23 @@ function CallbackComponent(props: CallbackProps) {
 track((props: CallbackProps) => ({
   on_select: props.onSelect,
 }))(CallbackComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: wrapped function expressions must also keep the outer binding for
+          // forwardRef closure analysis inside the component body.
+          code: `
+declare const React: any;
+interface WrappedProps {
+  label: string;
+}
+const Wrapped = React.memo(function (props: WrappedProps) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label ref={ref}>{props.label}</label>
+  ));
+  return <ForwardedInput />;
+});
 `,
           filename: fixtureFile,
         },
@@ -472,26 +510,6 @@ class DecoratorAnnotationHelperComponent extends React.Component<DecoratorAnnota
         },
       ],
       invalid: [
-        {
-          // TP after removing the legacy single-owner fallback: the anonymous
-          // React.memo callback is no longer recovered as a component owner, so
-          // the forwardRef closure escape does not run and WrappedProps.label
-          // is reported again.
-          code: `
-declare const React: any;
-interface WrappedProps {
-  label: string;
-}
-const Wrapped = React.memo(function (props: WrappedProps) {
-  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
-    <label ref={ref}>{props.label}</label>
-  ));
-  return <ForwardedInput />;
-});
-`,
-          filename: fixtureFile,
-          errors: 1,
-        },
         {
           // TP: TypeScript function component — Strategy C exercises findOwnerByType,
           // collectComponentNodes, matchesFunctionProps, and getFunctionName (FunctionDeclaration path).

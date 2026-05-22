@@ -496,8 +496,9 @@ export function getComponentVariable(
 
 export function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
   const parent = getNodeParent(componentNode);
-  if (componentNode.type === 'ArrowFunctionExpression' && parent?.type === 'CallExpression') {
-    return getOwningVariableDeclarator(componentNode)?.id;
+  const owningVariableDeclarator = getOwningVariableDeclarator(componentNode);
+  if (parent?.type === 'CallExpression' && owningVariableDeclarator) {
+    return owningVariableDeclarator.id;
   }
 
   if (isVariableAssignedFunctionOrClassExpression(componentNode, parent)) {
