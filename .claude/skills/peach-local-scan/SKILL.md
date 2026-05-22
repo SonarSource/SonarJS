@@ -11,6 +11,8 @@ entry in `projects.json`.
 
 Use that file verbatim. Treat `.claude/skills/peach-local-scan/fetch-local-issues.js` as the
 canonical post-scan CE-polling and issue-fetch helper, treat
+`.claude/skills/peach-local-scan/scan-report.js` as the canonical scan-report checkpoint and
+summary helper, treat
 `.claude/skills/peach-local-scan/manage-local-analyzer.sh` as the canonical analyzer
 inspection/patch/restore helper, and reuse `.claude/skills/build/SKILL.md` rather than
 duplicating analyzer build guidance when the user wants to rebuild the plugin.

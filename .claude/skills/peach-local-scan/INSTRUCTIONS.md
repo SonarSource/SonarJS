@@ -14,6 +14,8 @@ Important architecture note:
   duration of the scan and then restore the previous state before finishing the task.
 - Treat `.claude/skills/peach-local-scan/manage-local-analyzer.sh` as the canonical helper for
   analyzer inspection, snapshot, patch, and restore.
+- Treat `.claude/skills/peach-local-scan/scan-report.js` as the canonical helper for initializing
+  and updating the resumable scan report under `target/peach-local-scan/`.
 
 This skill is intentionally narrow:
 
@@ -56,7 +58,11 @@ Rules:
 Write per-project artifacts under:
 
 ```text
+target/peach-local-scan/
+  scan-report.json
+  scan-report.md
 target/peach-local-scan/<project>/
+  report-task.txt
   scan.log
   issues.json
 target/peach-local-scan/sonarqube-analyzer-state/
@@ -66,6 +72,9 @@ target/peach-local-scan/sonarqube-analyzer-state/
 
 If you install dependencies for a freshly checked out project, keep that log in the same
 directory as `install.log`.
+
+Treat `scan-report.json` as the source of truth for resume decisions and `scan-report.md` as the
+human-readable progress snapshot. Both files must exist before scanning the first project.
 
 ## Workflow
 
@@ -142,6 +151,12 @@ Interpret the result with these rules:
 - If the user wants exact local-worktree validation, patch the local SonarQube analyzer only for
   this run, and restore it afterward.
 
+Initialize the report flag before deciding whether to patch:
+
+```bash
+PATCH_LOCAL_ANALYZER=false
+```
+
 ### 4. Patch The Local SonarQube Analyzer Only When Required
 
 If the user wants exact local-worktree validation, snapshot the current analyzer state, register a
@@ -149,6 +164,7 @@ restore trap, and then patch the running SonarQube analyzer:
 
 ```bash
 ANALYZER_STATE_DIR="target/peach-local-scan/sonarqube-analyzer-state"
+PATCH_LOCAL_ANALYZER=true
 PATCHED_ANALYZER=0
 
 cleanup_analyzer() {
@@ -186,10 +202,10 @@ install the root dependency exactly like the Peach workflow does:
 npm install --ignore-scripts --no-audit --no-fund --package-lock=false
 ```
 
-### 6. Resolve Project Selection Then Process Projects Serially
+### 6. Resolve Project Selection Then Initialize Or Reuse The Run Report
 
 From `PEACHEE_ROOT`, first resolve the user's project selection into a concrete `PROJECTS`
-list. Then process that list one project at a time so logs and failures stay attributable.
+list. Then initialize or reuse the resumable run report before scanning anything.
 
 Project-selection rules:
 
@@ -204,6 +220,76 @@ mapfile -t PROJECTS < <(jq -r 'keys_unsorted[]' projects.json)
 
 If that expansion yields no projects, stop and report that `projects.json` did not define any
 Peach projects to scan.
+
+Normalize the run-level report locations up front:
+
+```bash
+SCAN_REPORT_JSON="target/peach-local-scan/scan-report.json"
+SCAN_REPORT_MD="target/peach-local-scan/scan-report.md"
+```
+
+Normalize the rebuild choice into a shell boolean string before initializing the report:
+
+```bash
+REBUILD_ANALYZER=true   # if the user asked for a rebuild
+REBUILD_ANALYZER=false  # otherwise
+```
+
+If `$SCAN_REPORT_JSON` already exists, inspect it before scanning:
+
+```bash
+sed -n '1,20p' "$SCAN_REPORT_MD"
+jq '{status, currentProject, progress}' "$SCAN_REPORT_JSON"
+```
+
+Interpret an existing report like this:
+
+- If the report status is `completed`, tell the user the previous run already finished and do not
+  rescan unless they explicitly ask to rerun.
+- If the report status is anything else, tell the user the run is resumable and ask whether to
+  continue from that report or start from scratch.
+- If the report still shows a project with status `running`, treat that project as interrupted and
+  re-run it when continuing.
+
+If the user chooses to continue, derive the remaining project list from the existing report in
+stored order:
+
+```bash
+mapfile -t PROJECTS < <(
+  jq -r '.projects[] | select(.status != "succeeded" and .status != "skipped") | .name' \
+    "$SCAN_REPORT_JSON"
+)
+```
+
+If the user chooses to start from scratch, recreate the report placeholders with `--force`:
+
+```bash
+node .claude/skills/peach-local-scan/scan-report.js init --force \
+  "$SCAN_REPORT_JSON" \
+  "$PEACHEE_ROOT" \
+  "$NIGEL_ROOT" \
+  "$REBUILD_ANALYZER" \
+  "$PATCH_LOCAL_ANALYZER" \
+  "${PROJECTS[@]}"
+```
+
+If there is no existing report, initialize it before scanning the first project:
+
+```bash
+node .claude/skills/peach-local-scan/scan-report.js init \
+  "$SCAN_REPORT_JSON" \
+  "$PEACHEE_ROOT" \
+  "$NIGEL_ROOT" \
+  "$REBUILD_ANALYZER" \
+  "$PATCH_LOCAL_ANALYZER" \
+  "${PROJECTS[@]}"
+```
+
+The report must exist before scanning begins so every selected project has a placeholder entry.
+The Markdown header at the top of `scan-report.md` is the quick answer to "where is this run right
+now?".
+
+### 7. Process Projects Serially And Update The Report Around Each Attempt
 
 Apply the per-project steps below inside a serial loop such as:
 
@@ -221,9 +307,12 @@ For each project:
 4. Install dependencies only if the workspace had to be freshly created and the project defines
    an install mode.
 5. Ensure the local SonarQube project exists.
-6. Run the scan with debug-friendly settings.
-7. Poll SonarQube until the submitted analysis report is processed, then fetch the currently raised
+6. Mark the project as running in the scan report.
+7. Run the scan with debug-friendly settings.
+8. Copy `report-task.txt` into the artifact directory.
+9. Poll SonarQube until the submitted analysis report is processed, then fetch the currently raised
    issues.
+10. Mark the project as succeeded or failed in the report before moving on.
 
 Use these values:
 
@@ -233,6 +322,7 @@ INSTALL_MODE="$(jq -r --arg p "$PROJECT" '.[$p].install // empty' projects.json)
 JAVA_OPTS="$(jq -r --arg p "$PROJECT" '.[$p].java_opts // empty' projects.json)"
 ARTIFACT_DIR="target/peach-local-scan/$PROJECT"
 WORKSPACE="$PROJECT/workspace"
+ARTIFACT_REPORT_TASK_PATH="$ARTIFACT_DIR/report-task.txt"
 ```
 
 Validate the project name before doing anything else:
@@ -306,7 +396,24 @@ curl -sf -u "$SONAR_TOKEN:" -X POST \
   --data-urlencode "name=$PROJECT"
 ```
 
-### 7. Run The Host-Based Scan
+Immediately before the scan attempt, mark the project as running in the report:
+
+```bash
+node .claude/skills/peach-local-scan/scan-report.js project-start \
+  "$SCAN_REPORT_JSON" \
+  "$PROJECT" \
+  "$PROJECT_KEY" \
+  "$ARTIFACT_DIR"
+```
+
+Once `project-start` has run, never leave the report stale:
+
+- If setup, install, or scanner execution fails, record a concise failure summary with
+  `project-failure`.
+- If CE polling or issue fetching fails, record that failure before moving on or stopping.
+- Only call `project-success` after `issues.json` exists.
+
+### 8. Run The Host-Based Scan, Copy Report Metadata, Then Fetch Raised Issues
 
 Still from `PEACHEE_ROOT`, run the scanner from the host shell. Do not run the scanner in a
 container for this skill. Again: you are not patching `node_modules/.bin/sonar-scanner`; you
@@ -355,12 +462,10 @@ The scanner writes report metadata to:
 
 ```bash
 REPORT_TASK_PATH="$WORKSPACE/.scannerwork/report-task.txt"
+cp "$REPORT_TASK_PATH" "$ARTIFACT_REPORT_TASK_PATH"
 ```
 
-That file contains the compute-engine task id for the submitted analysis report. Use it to poll
-SonarQube before fetching issues.
-
-### 8. Poll SonarQube Then Fetch Raised Issues
+That copied `report-task.txt` is the durable compute-engine metadata artifact for the project.
 
 After each successful scan, wait for SonarQube compute-engine completion and then fetch the
 currently raised issues into the project artifact directory:
@@ -369,19 +474,46 @@ currently raised issues into the project artifact directory:
 node .claude/skills/peach-local-scan/fetch-local-issues.js \
   "$PROJECT_KEY" \
   "$ARTIFACT_DIR/issues.json" \
-  "$REPORT_TASK_PATH"
+  "$ARTIFACT_REPORT_TASK_PATH"
 ```
 
 This helper polls `/api/ce/task` until the submitted analysis reaches `SUCCESS`, fails fast on
 `FAILED` or `CANCELED`, and only then calls `/api/issues/search`.
 
+After `issues.json` has been written, finalize the project entry in the report:
+
+```bash
+node .claude/skills/peach-local-scan/scan-report.js project-success \
+  "$SCAN_REPORT_JSON" \
+  "$PROJECT" \
+  "$PROJECT_KEY" \
+  "$ARTIFACT_DIR"
+```
+
+That helper keeps the report generic. It records the artifact paths and derives only generic issue
+summaries from `issues.json`: total raised issues, per-rule counts, JS/TS/other counts, and the
+same language split per rule.
+
+If the scan itself failed, or if CE polling / issue retrieval failed, keep the artifacts already
+written and update the report explicitly before moving on:
+
+```bash
+node .claude/skills/peach-local-scan/scan-report.js project-failure \
+  "$SCAN_REPORT_JSON" \
+  "$PROJECT" \
+  "$PROJECT_KEY" \
+  "$ARTIFACT_DIR" \
+  scan \
+  "scanner exited with a non-zero status"
+```
+
+Use `scan`, `ce`, `issue-fetch`, or another short generic phase label that matches the failure.
+Keep the failure message concise and specific.
+
 Do not consider a project scan complete until both of these are true:
 
 - SonarQube compute-engine processing for the submitted report reached `SUCCESS`
-- `issues.json` exists
-
-If the scan itself failed, keep `scan.log`, report the scan failure, and do not pretend that a
-later issue fetch represents that failed attempt.
+- `issues.json` exists and the report shows the project as `succeeded`
 
 ### 9. Restore The Previous Analyzer State If You Patched It
 
@@ -400,13 +532,29 @@ to keep it that way.
 
 ## Reviewing The Results
 
-The helper writes only currently raised issues after compute-engine completion. Useful follow-up
-commands:
+Start with the run report:
+
+```bash
+sed -n '1,40p' target/peach-local-scan/scan-report.md
+```
+
+That file tells you whether the run is complete, which project was last in progress, and where the
+artifacts live. For machine-readable inspection, use `target/peach-local-scan/scan-report.json`.
+
+The issue-fetch helper writes only currently raised issues after compute-engine completion. Useful
+follow-up commands:
 
 Count issues:
 
 ```bash
 jq '.total' "target/peach-local-scan/$PROJECT/issues.json"
+```
+
+Read the generic per-rule summary already recorded in the scan report:
+
+```bash
+jq '.projects[] | select(.name == "'"$PROJECT"'") | .issueSummary.byRule' \
+  target/peach-local-scan/scan-report.json
 ```
 
 List the raised issues in a readable table:
