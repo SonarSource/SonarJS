@@ -16,54 +16,20 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6767/javascript
 
-import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-// eslint-disable-next-line import/no-internal-modules
-import ReactComponents from 'eslint-plugin-react/lib/util/Components.js';
+import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { findComponentNodes, getComponentReportedTypeUsage } from '../helpers/react.js';
+import { findComponentNodes } from '../helpers/react.js';
 import { hasOwnCustomSuperclassPropsForwarding } from './custom-superclass-forwarding.js';
 import { hasDecoratorPropUsage } from './decorator-indirect-prop-usage.js';
 import { hasForwardRefCallbackPropUsage } from './forward-ref-indirect-prop-usage.js';
 import * as meta from './generated-meta.js';
+import { hasOnlyNonPropsReportedTypeUsage } from './reported-type-non-props-usage.js';
 import { hasSupportedWholePropsUsage } from './whole-props-usage.js';
 
-type RuleConfiguration = {
-  ignore: string[];
-  skipShapeProps: boolean;
-};
-type UsedPropType = {
-  allNames?: string[];
-  name: string;
-};
-type ReportedPropNode = TSESTree.Node & {
-  key?: estree.Node;
-  typeAnnotation?: TSESTree.TSTypeAnnotation;
-};
-type ReportedProp = {
-  children?: ReportedProps;
-  fullName?: string;
-  name: string;
-  node?: ReportedPropNode;
-  type?: string;
-};
-type ReportedProps = Record<string, ReportedProp | true> | true;
-type ReactComponent = {
-  declaredPropTypes?: ReportedProps;
-  ignoreUnusedPropTypesValidation?: boolean;
-  node: estree.Node;
-  usedPropTypes?: UsedPropType[];
-};
-type ReactComponentsRegistry = {
-  list(): Record<string, ReactComponent>;
-};
-
-const Components = ReactComponents as unknown as {
-  detect(
-    rule: (context: Rule.RuleContext, components: ReactComponentsRegistry) => Rule.RuleListener,
-  ): (context: Rule.RuleContext) => Rule.RuleListener;
-};
+const reportedDescriptorsBySourceCode = new WeakMap<Rule.RuleContext['sourceCode'], Set<string>>();
+type ComponentNodeSuppressor = (componentNode: estree.Node) => boolean;
 
 function allMatch(
   componentNodes: estree.Node[],
@@ -72,139 +38,59 @@ function allMatch(
   return componentNodes.length > 0 && componentNodes.every(predicate);
 }
 
-function mustBeValidated(component: ReactComponent): boolean {
-  return !component.ignoreUnusedPropTypesValidation;
-}
-
-function getConfiguration(context: Rule.RuleContext): RuleConfiguration {
-  return {
-    ignore: [],
-    skipShapeProps: true,
-    ...(context.options[0] as Partial<RuleConfiguration> | undefined),
-  };
-}
-
-function isIgnored(name: string, configuration: RuleConfiguration): boolean {
-  return configuration.ignore.includes(name);
-}
-
-function isPropUsed(component: ReactComponent, prop: ReportedProp): boolean {
-  const usedPropTypes = component.usedPropTypes ?? [];
-  return usedPropTypes.some(
-    usedProp =>
-      prop.type === 'shape' ||
-      prop.type === 'exact' ||
-      prop.name === '__ANY_KEY__' ||
-      usedProp.name === prop.name,
-  );
-}
-
-function shouldSuppressUnusedPropType(
-  componentNode: estree.Node,
-  node: estree.Node,
+function shouldSuppressForAllComponentOwners(
+  componentNodes: estree.Node[],
   context: Rule.RuleContext,
-  propName: string,
+  propName: string | undefined,
 ): boolean {
-  const ancestors = context.sourceCode.getAncestors(node);
-  if (getComponentReportedTypeUsage(componentNode, ancestors, context) === 'non-props') {
-    return true;
-  }
+  const suppressors: ComponentNodeSuppressor[] = [
+    componentNode => hasSupportedWholePropsUsage(componentNode, context),
+    componentNode => hasOwnCustomSuperclassPropsForwarding(componentNode),
+    componentNode => hasForwardRefCallbackPropUsage(componentNode, context, propName),
+    componentNode => hasDecoratorPropUsage(componentNode, context, propName),
+  ];
 
-  const componentNodes = findComponentNodes(node, context);
-
-  if (allMatch(componentNodes, other => hasSupportedWholePropsUsage(other, context))) {
-    return true;
-  }
-
-  if (allMatch(componentNodes, other => hasOwnCustomSuperclassPropsForwarding(other))) {
-    return true;
-  }
-
-  if (allMatch(componentNodes, other => hasForwardRefCallbackPropUsage(other, context, propName))) {
-    return true;
-  }
-
-  return allMatch(componentNodes, other => hasDecoratorPropUsage(other, context, propName));
-}
-
-function reportUnusedPropType(
-  context: Rule.RuleContext,
-  component: ReactComponent,
-  props: ReportedProps,
-  configuration: RuleConfiguration,
-): void {
-  if (props === true) {
-    return;
-  }
-
-  Object.values(props ?? {}).forEach(prop => {
-    if (prop === true) {
-      return;
-    }
-
-    if ((prop.type === 'shape' || prop.type === 'exact') && configuration.skipShapeProps) {
-      return;
-    }
-
-    if (
-      prop.node?.typeAnnotation?.typeAnnotation.type === 'TSNeverKeyword' ||
-      !prop.node ||
-      isPropUsed(component, prop)
-    ) {
-      if (prop.children) {
-        reportUnusedPropType(context, component, prop.children, configuration);
-      }
-      return;
-    }
-
-    const propName = prop.fullName ?? prop.name;
-    if (isIgnored(propName, configuration)) {
-      if (prop.children) {
-        reportUnusedPropType(context, component, prop.children, configuration);
-      }
-      return;
-    }
-
-    const reportNode = (prop.node.key ?? prop.node) as unknown as estree.Node;
-    if (!shouldSuppressUnusedPropType(component.node, reportNode, context, propName)) {
-      context.report({
-        messageId: 'unusedPropType',
-        node: reportNode,
-        data: { name: propName },
-      });
-    }
-
-    if (prop.children) {
-      reportUnusedPropType(context, component, prop.children, configuration);
-    }
-  });
+  return suppressors.some(suppressor => allMatch(componentNodes, suppressor));
 }
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
-  return {
-    meta: generateMeta(meta, rule.meta),
-    create: Components.detect((context, components) => {
-      // The intercepted upstream descriptor only tells us which prop node is reported.
-      // It does not tell us which component is currently being validated, and the same
-      // declaration can be props for one component and state/snapshot for another.
-      // S6767 therefore keeps a component-aware report loop so it can suppress only
-      // the non-props false positive without hiding a real props-side report.
-      const configuration = getConfiguration(context);
+  return interceptReportForReact(
+    { ...rule, meta: generateMeta(meta, rule.meta) },
+    (context, descriptor) => {
+      const { node } = descriptor as { node: estree.Node };
+      const { data } = descriptor as { data?: Record<string, string> };
+      const propName = data?.name;
 
-      return {
-        'Program:exit'() {
-          Object.values(components.list())
-            .filter(component => mustBeValidated(component))
-            .forEach(component => {
-              reportUnusedPropType(
-                context,
-                component,
-                component.declaredPropTypes ?? {},
-                configuration,
-              );
-            });
-        },
-      };
-    }),
-  };
+      if (hasOnlyNonPropsReportedTypeUsage(node, context)) {
+        return;
+      }
+
+      const componentNodes = findComponentNodes(node, context);
+      if (shouldSuppressForAllComponentOwners(componentNodes, context, propName)) {
+        return;
+      }
+
+      const reportedDescriptors = getReportedDescriptors(context.sourceCode);
+      const reportKey = getReportKey(node, propName);
+      if (reportedDescriptors.has(reportKey)) {
+        return;
+      }
+      reportedDescriptors.add(reportKey);
+      context.report(descriptor);
+    },
+  );
+}
+
+function getReportedDescriptors(sourceCode: Rule.RuleContext['sourceCode']): Set<string> {
+  let reportedDescriptors = reportedDescriptorsBySourceCode.get(sourceCode);
+  if (!reportedDescriptors) {
+    reportedDescriptors = new Set<string>();
+    reportedDescriptorsBySourceCode.set(sourceCode, reportedDescriptors);
+  }
+  return reportedDescriptors;
+}
+
+function getReportKey(node: estree.Node, propName: string | undefined): string {
+  const [start = -1, end = -1] = node.range ?? [];
+  return `${start}:${end}:${propName ?? ''}`;
 }

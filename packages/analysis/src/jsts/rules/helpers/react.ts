@@ -22,7 +22,7 @@ import { isComponentNode } from './react/component-analysis.js';
 import { findComponentOwnersByType } from './react/type-ownership.js';
 
 export { getComponentPropsType, getComponentVariable } from './react/component-analysis.js';
-export { getComponentReportedTypeUsage } from './react/type-ownership.js';
+export { hasOnlyReactClassNonPropsReportedTypeUsage } from './react/type-ownership.js';
 
 const REACT_QUALIFIED_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
 const REACT_LOCAL_CLASS_SUPERS = new Set(['Component', 'PureComponent']);
@@ -76,8 +76,13 @@ function findPropTypesAssignmentOwner(
  * - a `Foo.propTypes = { ... }` assignment owner
  * - a TypeScript fallback for reported props types
  *
- * The returned nodes are only the owner set for the report. Rule-specific
- * suppression or false-positive handling can be applied afterwards by callers.
+ * The returned nodes are the components that still own the report from a props
+ * validation perspective. For the TypeScript fallback, that means components
+ * classified as `props` or `mixed`; pure `non-props` owners such as state-only
+ * or snapshot-only class usages are intentionally filtered out.
+ *
+ * Rule-specific suppression or false-positive handling can be applied
+ * afterwards by callers.
  *
  * @param node the reported node located inside a React-related construct
  * @param context the current ESLint rule context
@@ -104,7 +109,7 @@ export function findComponentNodes(node: estree.Node, context: Rule.RuleContext)
     }
   }
 
-  return findComponentOwnersByType(ancestors, context, context.sourceCode.visitorKeys);
+  return findComponentOwnersByType(ancestors, context);
 }
 
 /**

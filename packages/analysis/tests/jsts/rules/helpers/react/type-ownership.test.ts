@@ -27,6 +27,7 @@ import {
 import {
   findComponentOwnersByType,
   getComponentReportedTypeUsage,
+  hasOnlyReactClassNonPropsReportedTypeUsage,
 } from '../../../../../src/jsts/rules/helpers/react/type-ownership.js';
 
 const fixtureDirectory = path.join(
@@ -56,11 +57,7 @@ const typeOwnershipRule: Rule.RuleModule = {
     let sawWrappedProps = false;
 
     const assertOwners = (node: estree.Node, expectedOwners: string[]) => {
-      const owners = findComponentOwnersByType(
-        context.sourceCode.getAncestors(node),
-        context,
-        context.sourceCode.visitorKeys,
-      )
+      const owners = findComponentOwnersByType(context.sourceCode.getAncestors(node), context)
         .map(componentNode => getComponentIdentifier(componentNode)?.name)
         .filter((name): name is string => name !== undefined)
         .sort();
@@ -238,6 +235,126 @@ const typeUsageRule: Rule.RuleModule = {
 };
 
 ruleTester.run('type-usage', typeUsageRule, {
+  valid: [
+    {
+      filename: fixtureFilePath,
+      code: `
+declare const React: any;
+
+interface AnchorState {
+  activeLink: null | string;
+}
+interface AnchorProps {
+  href?: string;
+}
+interface AnchorSnapshot {
+  scrollTop: number;
+}
+class Anchor extends React.Component<AnchorProps, AnchorState, AnchorSnapshot> {
+  render() {
+    return <a href={this.props.href}>{this.state.activeLink}</a>;
+  }
+}
+
+interface SlotSplitType {
+  propsOnly: string;
+  stateOnly: string;
+}
+class SlotSplitOwner extends React.Component<Pick<SlotSplitType, 'propsOnly'>, Pick<SlotSplitType, 'stateOnly'>> {
+  render() {
+    return <div>{this.state.stateOnly}</div>;
+  }
+}
+
+interface SharedType {
+  unused: string;
+}
+interface Snapshot {
+  scrollTop: number;
+}
+class PropsOwner extends React.Component<SharedType> {
+  render() {
+    return <div />;
+  }
+}
+class StateOwner extends React.Component<{}, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+class WrappedPropsOwner extends React.Component<Readonly<SharedType>, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+`,
+    },
+  ],
+  invalid: [],
+});
+
+const nonPropsProofRule: Rule.RuleModule = {
+  meta: {
+    messages: {},
+  },
+  create(context: Rule.RuleContext) {
+    const services = context.sourceCode.parserServices;
+    if (!isRequiredParserServices(services)) {
+      throw new Error('Expected required parser services');
+    }
+
+    let sawAnchorState = false;
+    let sawSharedType = false;
+    let sawSlotSplitType = false;
+
+    const getEnclosingInterfaceName = (node: estree.Node): string | undefined => {
+      const interfaceDeclaration = context.sourceCode
+        .getAncestors(node)
+        .findLast(ancestor => (ancestor as { type?: string }).type === 'TSInterfaceDeclaration');
+      return (interfaceDeclaration as { id?: { name?: string } } | undefined)?.id?.name;
+    };
+
+    const assertNonPropsProof = (node: estree.Node, expected: boolean) => {
+      assert.equal(
+        hasOnlyReactClassNonPropsReportedTypeUsage(node, context),
+        expected,
+      );
+    };
+
+    return {
+      TSPropertySignature(node) {
+        if (node.key.type !== 'Identifier') {
+          return;
+        }
+
+        const interfaceName = getEnclosingInterfaceName(node.key);
+
+        if (interfaceName === 'AnchorState' && node.key.name === 'activeLink') {
+          sawAnchorState = true;
+          assertNonPropsProof(node.key, true);
+        }
+
+        if (interfaceName === 'SharedType' && node.key.name === 'unused') {
+          sawSharedType = true;
+          assertNonPropsProof(node.key, false);
+        }
+      },
+      TSInterfaceDeclaration(node) {
+        if (node.id.name === 'SlotSplitType') {
+          sawSlotSplitType = true;
+          assertNonPropsProof(node.id, false);
+        }
+      },
+      'Program:exit'() {
+        assert.equal(sawAnchorState, true, 'Expected to visit AnchorState.activeLink');
+        assert.equal(sawSharedType, true, 'Expected to visit SharedType.unused');
+        assert.equal(sawSlotSplitType, true, 'Expected to visit SlotSplitType');
+      },
+    };
+  },
+};
+
+ruleTester.run('non-props-proof', nonPropsProofRule, {
   valid: [
     {
       filename: fixtureFilePath,

@@ -33,13 +33,19 @@ import { areMutuallyAssignableTypes, areSameTypeDeclarations } from '../type.js'
 type SourceCache = {
   components: CollectedComponent[] | undefined;
   componentAnalysisByNode: WeakMap<estree.Node, ComponentAnalysis>;
-  candidateOwnersByTypeDecl: WeakMap<estree.Node, CollectedComponent[] | null>;
-  reportedTypeUsageBySubject: WeakMap<
-    estree.Node,
-    WeakMap<estree.Node, ComponentReportedTypeUsage>
-  >;
+  candidateOwnersByTypeDecl: WeakMap<object, CollectedComponent[] | null>;
+  relevantOwnersByReportedTypeUsageSubject: WeakMap<object, CollectedComponent[] | null>;
+  reportedTypeUsageBySubject: WeakMap<object, WeakMap<estree.Node, ComponentReportedTypeUsage>>;
 };
 type ReportedTypeMember = NonNullable<ReturnType<typeof getReportedTypeMember>>;
+type ReportedSubjectContext = {
+  checker: ts.TypeChecker;
+  components: CollectedComponent[];
+  reportedType: ReportedType;
+  reportedTypeMember: ReportedTypeMember | undefined;
+  services: RequiredParserServices;
+  sourceCache: SourceCache;
+};
 export type ComponentReportedTypeUsage = 'mixed' | 'non-props' | 'other' | 'props';
 
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
@@ -55,7 +61,9 @@ const perSourceCache = new WeakMap<SourceCode, SourceCache>();
  * - keep only candidates whose props mention the reported declaration at all
  * - classify each candidate as `props`, `non-props`, `mixed`, or `other`
  *
- * Only `props` and `mixed` candidates are returned as owners.
+ * Only `props` and `mixed` candidates are returned as owners. Pure
+ * `non-props` and `other` classifications are excluded because this helper
+ * models the owner set that remains relevant for props reporting.
  *
  * @returns Every component that owns the reported type. Returns an empty array when
  * no match is found.
@@ -63,27 +71,14 @@ const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 export function findComponentOwnersByType(
   ancestors: estree.Node[],
   context: Rule.RuleContext,
-  keys: SourceCode.VisitorKeys,
 ): estree.Node[] {
-  const services = context.sourceCode.parserServices;
-  if (!isRequiredParserServices(services)) {
+  const reportedSubject = getReportedSubjectContext(ancestors, context);
+  if (!reportedSubject) {
     return [];
   }
 
-  const checker = services.program.getTypeChecker();
-  const reportedType = getReportedTypeFromAncestors(ancestors, services, checker);
-  if (!reportedType) {
-    return [];
-  }
-
-  const sourceCache = getSourceCache(context.sourceCode);
-  const components =
-    sourceCache.components ??
-    (sourceCache.components = collectComponents(context.sourceCode.ast, keys));
-  if (components.length === 0) {
-    return [];
-  }
-
+  const { checker, components, reportedType, reportedTypeMember, services, sourceCache } =
+    reportedSubject;
   const candidateOwners = getCandidateOwnersByReportedType(
     sourceCache,
     components,
@@ -95,7 +90,6 @@ export function findComponentOwnersByType(
     return [];
   }
 
-  const reportedTypeMember = getReportedTypeMember(ancestors, services, checker);
   return findComponentOwnersByReportedTypeUsage(
     sourceCache,
     candidateOwners,
@@ -123,26 +117,101 @@ export function getComponentReportedTypeUsage(
     return 'other';
   }
 
-  const services = context.sourceCode.parserServices;
-  if (!isRequiredParserServices(services)) {
+  const reportedSubject = getReportedSubjectContext(ancestors, context);
+  if (!reportedSubject) {
     return 'other';
   }
 
-  const checker = services.program.getTypeChecker();
-  const reportedType = getReportedTypeFromAncestors(ancestors, services, checker);
-  if (!reportedType) {
-    return 'other';
-  }
-
-  const reportedTypeMember = getReportedTypeMember(ancestors, services, checker);
+  const { checker, reportedType, reportedTypeMember, services, sourceCache } = reportedSubject;
   return getComponentReportedTypeUsageFromDetails(
-    getSourceCache(context.sourceCode),
+    sourceCache,
     componentNode,
     services,
     checker,
     reportedType,
     reportedTypeMember,
   );
+}
+
+/**
+ * Returns true when the reported type or reported member has at least one
+ * relevant component owner and every such owner uses it only in React class
+ * non-props slots (`state` / `snapshot`).
+ *
+ * This is broader than `findComponentOwnersByType(...)`: it also considers
+ * components whose class non-props slots mention the reported type or reported
+ * member, even when they are excluded from that props-reporting owner set.
+ */
+export function hasOnlyReactClassNonPropsReportedTypeUsage(
+  node: estree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  const reportedSubject = getReportedSubjectContext(context.sourceCode.getAncestors(node), context);
+  if (!reportedSubject) {
+    return false;
+  }
+
+  const { checker, components, reportedType, reportedTypeMember, services, sourceCache } =
+    reportedSubject;
+  const relevantOwners = getRelevantOwnersByReportedTypeUsage(
+    sourceCache,
+    components,
+    services,
+    checker,
+    reportedType,
+    reportedTypeMember,
+  );
+  if (relevantOwners.length === 0) {
+    return false;
+  }
+
+  return relevantOwners.every(component => {
+    const usage = getComponentReportedTypeUsageFromDetails(
+      sourceCache,
+      component.componentNode,
+      services,
+      checker,
+      reportedType,
+      reportedTypeMember,
+    );
+    return usage === 'non-props';
+  });
+}
+
+function getReportedSubjectContext(
+  ancestors: estree.Node[],
+  context: Rule.RuleContext,
+): ReportedSubjectContext | undefined {
+  const services = context.sourceCode.parserServices;
+  if (!isRequiredParserServices(services)) {
+    return undefined;
+  }
+
+  const checker = services.program.getTypeChecker();
+  const reportedType = getReportedTypeFromAncestors(ancestors, services, checker);
+  if (!reportedType) {
+    return undefined;
+  }
+
+  const sourceCache = getSourceCache(context.sourceCode);
+  const components =
+    sourceCache.components ??
+    (sourceCache.components = collectComponents(
+      context.sourceCode.ast,
+      context.sourceCode.visitorKeys,
+    ));
+  if (components.length === 0) {
+    return undefined;
+  }
+
+  return {
+    checker,
+    components,
+    reportedType,
+    reportedTypeMember: getReportedTypeMember(ancestors, services, checker),
+    services,
+    sourceCache,
+  };
 }
 
 function getCandidateOwnersByReportedType(
@@ -152,7 +221,7 @@ function getCandidateOwnersByReportedType(
   checker: ts.TypeChecker,
   reportedType: ReportedType,
 ): CollectedComponent[] {
-  const cacheKey = reportedType.declaration as unknown as estree.Node;
+  const cacheKey = reportedType.declaration;
   const cachedOwners = sourceCache.candidateOwnersByTypeDecl.get(cacheKey);
   if (cachedOwners !== undefined) {
     return cachedOwners ?? [];
@@ -166,6 +235,32 @@ function getCandidateOwnersByReportedType(
     ),
   );
   sourceCache.candidateOwnersByTypeDecl.set(cacheKey, owners.length > 0 ? owners : null);
+  return owners;
+}
+
+function getRelevantOwnersByReportedTypeUsage(
+  sourceCache: SourceCache,
+  components: CollectedComponent[],
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+  reportedType: ReportedType,
+  reportedTypeMember: ReportedTypeMember | undefined,
+): CollectedComponent[] {
+  const cacheKey = getReportedTypeUsageCacheKey(reportedType, reportedTypeMember);
+  const cachedOwners = sourceCache.relevantOwnersByReportedTypeUsageSubject.get(cacheKey);
+  if (cachedOwners !== undefined) {
+    return cachedOwners ?? [];
+  }
+
+  const owners = components.filter(component =>
+    componentMayUseReportedTypeInReactClassUsage(
+      getComponentAnalysis(sourceCache, component, services),
+      checker,
+      reportedType,
+      reportedTypeMember,
+    ),
+  );
+  sourceCache.relevantOwnersByReportedTypeUsageSubject.set(cacheKey, owners.length > 0 ? owners : null);
   return owners;
 }
 
@@ -243,8 +338,8 @@ function getComponentReportedTypeUsageFromDetails(
 function getReportedTypeUsageCacheKey(
   reportedType: ReportedType,
   reportedTypeMember: ReportedTypeMember | undefined,
-): estree.Node {
-  return (reportedTypeMember?.declaration ?? reportedType.declaration) as unknown as estree.Node;
+): object {
+  return reportedTypeMember?.declaration ?? reportedType.declaration;
 }
 
 function usesReportedTypeAsComponentProps(
@@ -291,15 +386,43 @@ function componentMayUseReportedType(
   );
 }
 
+function componentMayUseReportedTypeInReactClassUsage(
+  componentAnalysis: ComponentAnalysis,
+  checker: ts.TypeChecker,
+  reportedType: ReportedType,
+  reportedTypeMember: ReportedTypeMember | undefined,
+): boolean {
+  if (reportedTypeMember) {
+    return (
+      componentAnalysis.memberPropsTypeCandidates.some(componentPropsType =>
+        slotIncludesReportedTypeMember(componentPropsType, checker, reportedType, reportedTypeMember),
+      ) ||
+      componentAnalysis.classNonPropsTypeCandidates.some(nonPropsType =>
+        slotIncludesReportedTypeMember(nonPropsType, checker, reportedType, reportedTypeMember),
+      )
+    );
+  }
+
+  return (
+    componentAnalysis.memberPropsTypeCandidates.some(componentPropsType =>
+      reportedType.isUsedByType(componentPropsType, checker),
+    ) ||
+    componentAnalysis.classNonPropsTypeCandidates.some(nonPropsType =>
+      reportedType.isUsedByType(nonPropsType, checker),
+    )
+  );
+}
+
 function getSourceCache(sourceCode: SourceCode): SourceCache {
   let cache = perSourceCache.get(sourceCode);
   if (!cache) {
     cache = {
       components: undefined,
       componentAnalysisByNode: new WeakMap<estree.Node, ComponentAnalysis>(),
-      candidateOwnersByTypeDecl: new WeakMap<estree.Node, CollectedComponent[] | null>(),
+      candidateOwnersByTypeDecl: new WeakMap<object, CollectedComponent[] | null>(),
+      relevantOwnersByReportedTypeUsageSubject: new WeakMap<object, CollectedComponent[] | null>(),
       reportedTypeUsageBySubject: new WeakMap<
-        estree.Node,
+        object,
         WeakMap<estree.Node, ComponentReportedTypeUsage>
       >(),
     };

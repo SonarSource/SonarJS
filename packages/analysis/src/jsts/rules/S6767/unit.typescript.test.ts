@@ -697,6 +697,30 @@ class WrappedPropsOwner extends React.Component<Readonly<SharedType>, SharedType
           errors: 1,
         },
         {
+          // TP: an `Omit`-based owner leaves the specific member classification at
+          // `other`, but a real props owner in the same file must keep the issue
+          // reportable. `other` is not suppressive evidence.
+          code: `
+declare const React: any;
+interface SharedType {
+  unused: string;
+  kept: string;
+}
+class PropsOwner extends React.Component<SharedType> {
+  render() {
+    return <div>{this.props.kept}</div>;
+  }
+}
+class OmittedMemberOwner extends React.Component<Omit<SharedType, 'unused'>> {
+  render() {
+    return <div>{this.props.kept}</div>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
           // TP: a shared base props declaration can belong to multiple components.
           // The wrapper forwards whole props to the child, but the child still leaves
           // the inherited prop unused. The decorator must keep the issue unless every

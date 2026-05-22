@@ -510,10 +510,3 @@ export function getComponentIdentifier(componentNode: estree.Node): estree.Ident
 
   return isVariableDeclaratorWithIdentifierId(parent) ? parent.id : undefined;
 }
-
-function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
-  return (
-    isFunctionComponentNode(componentNode) &&
-    isEligibleFunctionComponent(componentNode, getComponentIdentifier(componentNode))
-  );
-}
