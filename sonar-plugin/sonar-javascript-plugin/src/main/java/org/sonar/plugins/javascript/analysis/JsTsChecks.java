@@ -121,10 +121,30 @@ public class JsTsChecks {
     "S3758", // values-not-convertible-to-numbers
     "S3760", // non-number-in-arithmetic-expression
     "S3782", // argument-type
+    "S3785", // in-operator-type-error
+    "S3796", // array-callback-without-return
+    "S3800", // function-return-type
+    "S3981", // no-collection-size-mischeck
+    "S4043", // no-misleading-array-reverse
     "S4157", // no-unnecessary-type-arguments
     "S4324", // no-return-type-any
     "S4325", // no-unnecessary-type-assertion
+    "S4335", // no-useless-intersection
     "S4619", // no-in-misuse
+    "S4623", // no-undefined-argument
+    "S4782", // no-redundant-optional
+    "S4822", // no-try-promise
+    "S5247", // disabled-auto-escaping
+    "S5725", // disabled-resource-integrity
+    "S5850", // anchor-precedence
+    "S5856", // no-invalid-regexp
+    "S6035", // single-character-alternation
+    "S6323", // no-empty-alternatives
+    "S6326", // no-regex-spaces
+    "S6328", // existing-groups
+    "S6331", // no-empty-group
+    "S6397", // single-char-in-character-classes
+    "S6439", // jsx-no-leaked-render
     "S6565", // prefer-return-this-type
     "S6583", // no-mixed-enums
     "S6594", // prefer-regexp-exec
@@ -143,6 +163,7 @@ public class JsTsChecks {
     "S6582", // prefer-optional-chain
     "S6606", // prefer-nullish-coalescing
     "S6671", // prefer-promise-reject-errors
+    "S8479", // dompurify-unsafe-config
     "S2870" // no-array-delete
   );
 

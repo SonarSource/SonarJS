@@ -332,6 +332,7 @@
                 <exclude>**/fixtures/**/*</exclude>
                 <exclude>**/fixtures-*/**/*</exclude>
                 <exclude>**/*.fixture.*</exclude>
+                <exclude>packages/parity/corpus/**/*</exclude>
                 <!-- Resources -->
                 <exclude>**/src/test/resources/**/*</exclude>
                 <exclude>coverage/**/*</exclude>
