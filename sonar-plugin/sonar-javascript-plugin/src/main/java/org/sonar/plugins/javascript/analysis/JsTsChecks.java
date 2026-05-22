@@ -77,71 +77,34 @@ public class JsTsChecks {
   private static final Logger LOG = LoggerFactory.getLogger(JsTsChecks.class);
 
   /**
-   * Sonar rule keys for rules offloaded to jsts-go (Go-based linter).
+   * Sonar rule keys for hard type-service rules offloaded to jsts-go (Go-based linter).
    * These rules are excluded from the Node.js bridge and run via the shared
    * analyze-project gRPC contract against the Go sidecar.
+   *
+   * <p>AST-only Go ports may still exist locally for parity and validation work,
+   * but they are intentionally not routed here. `JS-1746 - migrate remaining
+   * type-service external and decorated rules` and `JS-1747 - migrate remaining
+   * type-service original SonarJS rules` are purely about the blocking hard
+   * type-service slice.</p>
    */
   static final Set<String> JSTS_GO_RULES = Set.of(
     "S131", // switch-exhaustiveness-check with Sonar defaults/decorator on Go side
-    "S1525", // no-debugger
-    "S1774", // no-ternary
-    "S2427", // radix
-    "S2432", // no-setter-return
-    "S2966", // no-non-null-assertion
-    "S3257", // no-inferrable-types
-    "S3523", // no-new-func
     "S4123", // await-thenable
-    "S4124", // no-misused-new
-    "S4125", // valid-typeof
-    "S4136", // adjacent-overload-signatures
     "S4137", // consistent-type-assertions
-    "S4204", // no-explicit-any
     "S2933", // prefer-readonly
     "S4157", // no-unnecessary-type-arguments
     "S4325", // no-unnecessary-type-assertion
     "S6565", // prefer-return-this-type
-    "S6568", // no-confusing-non-null-assertion
-    "S6569", // no-unnecessary-type-constraint
-    "S6578", // no-duplicate-enum-values
     "S6583", // no-mixed-enums
-    "S6590", // prefer-as-const
     "S6551", // no-base-to-string
     "S7729", // no-array-method-this-argument
-    "S7732", // no-instanceof-builtins
-    "S7736", // no-negation-in-equality-check
-    "S7737", // no-object-as-default-parameter
-    "S7740", // no-this-assignment
-    "S7741", // no-typeof-undefined
     "S6557", // prefer-string-starts-ends-with
     "S6571", // no-redundant-type-constituents
     "S6544", // no-misused-promises (+ no-async-promise-executor companion on Go side)
     "S6582", // prefer-optional-chain
     "S6606", // prefer-nullish-coalescing
     "S6671", // prefer-promise-reject-errors
-    "S2870", // no-array-delete
-    "S878", // no-sequences
-    "S909", // no-continue
-    "S1199", // no-lone-blocks
-    "S1314", // no-octal
-    "S1321", // no-with
-    "S1442", // no-alert
-    "S1516", // no-multi-str
-    "S1536", // no-dupe-args
-    "S2685", // no-caller
-    "S3786", // no-template-curly-in-string
-    "S4140", // no-sparse-arrays
-    "S6534", // no-loss-of-precision
-    "S6635", // no-constructor-return
-    "S6645", // no-undef-init
-    "S6654", // no-proto
-    "S6657", // no-octal-escape
-    "S6836", // no-case-declarations
-    "S7719", // consistent-date-clone
-    "S7720", // consistent-empty-array-spread
-    "S7730", // no-await-expression-member
-    "S7743", // no-unreadable-iife
-    "S7748", // no-zero-fractions
-    "S7786" // prefer-type-error
+    "S2870" // no-array-delete
   );
 
   /**

@@ -138,6 +138,13 @@ var allRules = decorateRules([]rule.Rule{
 	NoArrayDeleteRule,
 })
 
+// jstsGoRuleNameBySonarKey is the local Go registry used by direct Go runs,
+// JS-1743 parity work, and AST runtime evaluation. Product routing is
+// controlled separately by JsTsChecks.JSTS_GO_RULES on the Java side, so this
+// map may intentionally keep unrouted AST-only ports. JS-1746 ("migrate
+// remaining type-service external and decorated rules") and JS-1747 ("migrate
+// remaining type-service original SonarJS rules") are purely about hard
+// type-service rules.
 var jstsGoRuleNameBySonarKey = map[string]string{
 	"S131":  "switch-exhaustiveness-check",
 	"S1525": "no-debugger",

@@ -38,7 +38,15 @@ Branch note: `JS-1743` now has a working differential harness on this branch:
 
 - a direct Node runner that goes through `packages/grpc` request normalization
 - a direct local Go CLI mode that runs `AnalyzeProjectUnary` without Java or gRPC
-- a synthetic corpus covering the full `60`-rule routed Go slice, with targeted `diff` and `diff-all` entrypoints
+- a synthetic corpus covering the broader `60`-rule local Go parity surface, with targeted `diff` and `diff-all` entrypoints
+
+Current product routing remains intentionally narrower:
+
+- `JsTsChecks.JSTS_GO_RULES` now routes only the `17` hard type-service Sonar
+  rules that block TS7 typed analysis.
+- AST-only Go ports stay local to `JS-1743` parity work and `JS-1748`
+  runtime-evaluation work; they are not counted as `JS-1746` / `JS-1747`
+  migration progress.
 
 The remaining `JS-1743` work is broadening corpus depth and benchmark/reporting coverage, not bootstrapping the harness itself.
 

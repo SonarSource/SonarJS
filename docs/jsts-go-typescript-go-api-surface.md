@@ -27,6 +27,10 @@ Use it as the code-facing companion to:
 - `JS-1747` - migrate remaining type-service original SonarJS rules
 - `JS-1749` - productize TS7 routing and packaging for SonarQube and SonarLint
 
+`JS-1746` and `JS-1747` are purely about hard type-service rules. AST-only Go
+ports can stay in the local Go registry for parity and evaluation, but they are
+not part of product routing until `JS-1748` is answered.
+
 ## High-Level State
 
 - `tsgolint` is no longer a git submodule or build/runtime dependency. It is now a reference implementation only. See [../server-go/UPSTREAM.md](../server-go/UPSTREAM.md).
@@ -35,26 +39,32 @@ Use it as the code-facing companion to:
   - `server-go/patches/typescript-go`
   - `server-go/shim`
 - Java still treats Node as the primary analyzer. The Go sidecar is a secondary JS/TS issue engine for the routed rule subset.
-- `JsTsChecks.JSTS_GO_RULES` currently routes `60` Sonar rules to Go.
-- The Go runtime exposes `61` rule entry points because `S6544` expands to:
+- `JsTsChecks.JSTS_GO_RULES` currently routes `17` hard type-service Sonar rules to Go in product.
+- That product-routed subset expands to `18` Go rule entry points because `S6544` expands to:
   - `no-misused-promises`
   - `no-async-promise-executor`
+- The broader local Go registry currently covers `60` Sonar keys / `61` rule entry points for direct Go runs and `JS-1743` parity work. AST-only ports can exist there without being product-routed.
 
 ## Routed Rule Set
 
-Current Sonar-to-Go routing is defined in:
+Current product routing is defined in:
 
 - [JsTsChecks.java](../sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/analysis/JsTsChecks.java)
+
+The broader local Go availability surface is defined in:
+
 - [rules.go](../server-go/sonar-server/rules.go)
 - [requested_rules.go](../server-go/sonar-server/requested_rules.go)
 
-Current routed Sonar keys now span the original pilot plus two parity-validated expansion batches, for `60` routed Sonar rules in total.
+Current product routing is intentionally restricted to the `17` hard
+type-service Sonar keys in `JSTS_GO_RULES`. The broader local Go registry still
+spans `60` Sonar keys for parity and direct Go validation.
 
-Use these as the source of truth for the full set:
+Use these as the source of truth:
 
-- [JsTsChecks.java](../sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/analysis/JsTsChecks.java)
-- [rules.go](../server-go/sonar-server/rules.go)
-- [jsts-go-migration-progress.md](./jsts-go-migration-progress.md)
+- product-routed subset: [JsTsChecks.java](../sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/analysis/JsTsChecks.java)
+- broader local Go registry: [rules.go](../server-go/sonar-server/rules.go)
+- planning inventory: [jsts-go-migration-progress.md](./jsts-go-migration-progress.md)
 
 ## Shared Analyze-Project Contract
 
