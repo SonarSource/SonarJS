@@ -13,6 +13,11 @@ import (
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s3758_values_not_convertible_to_numbers"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s3760_non_number_in_arithmetic_expression"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s3782_argument_type"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s5843_regex_complexity"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s5852_slow_regex"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s5860_unused_named_groups"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s5868_unicode_grapheme_in_class"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s5869_duplicate_characters_in_class"
 )
 
 var _ = registerTypeServiceBatchRules()
@@ -29,6 +34,11 @@ func registerTypeServiceBatchRules() struct{} {
 	registerTypeServiceBatchRule("S3758", s3758_values_not_convertible_to_numbers.ValuesNotConvertibleToNumbersRule)
 	registerTypeServiceBatchRule("S3760", s3760_non_number_in_arithmetic_expression.NonNumberInArithmeticExpressionRule)
 	registerTypeServiceBatchRule("S3782", s3782_argument_type.ArgumentTypeRule)
+	registerTypeServiceBatchRule("S5843", s5843_regex_complexity.RegexComplexityRule)
+	registerTypeServiceBatchRule("S5852", s5852_slow_regex.SlowRegexRule)
+	registerTypeServiceBatchRule("S5860", s5860_unused_named_groups.UnusedNamedGroupsRule)
+	registerTypeServiceBatchRule("S5868", s5868_unicode_grapheme_in_class.UnicodeGraphemeInClassRule)
+	registerTypeServiceBatchRule("S5869", s5869_duplicate_characters_in_class.DuplicateCharactersInClassRule)
 	return struct{}{}
 }
 

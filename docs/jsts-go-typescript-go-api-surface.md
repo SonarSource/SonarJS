@@ -40,11 +40,11 @@ not part of product routing until `JS-1748` is answered.
   - `server-go/shim`
 - Java still treats Node as the primary analyzer. The Go sidecar is a secondary JS/TS issue engine for the routed rule subset.
 - Migrated Go rules are Sonar-owned implementations in this repository. The Node-side labels `original`, `external`, and `decorated` are provenance labels only; they do not mean that the Go runtime delegates to external rule packages.
-- `JsTsChecks.JSTS_GO_RULES` currently routes `37` hard type-service Sonar rules to Go in product.
-- That product-routed subset expands to `38` Go rule entry points because `S6544` expands to:
+- `JsTsChecks.JSTS_GO_RULES` currently routes `92` hard type-service Sonar rules to Go in product.
+- That product-routed subset expands to `93` Go rule entry points because `S6544` expands to:
   - `no-misused-promises`
   - `no-async-promise-executor`
-- The broader local Go registry currently covers `80` Sonar keys / `81` rule entry points for direct Go runs and `JS-1743` parity work. AST-only ports can exist there without being product-routed.
+- The broader local Go registry covers additional Sonar keys for direct Go runs and `JS-1743` parity work. AST-only ports can exist there without being product-routed.
 
 ## Routed Rule Set
 
@@ -57,9 +57,9 @@ The broader local Go availability surface is defined in:
 - [rules.go](../server-go/sonar-server/rules.go)
 - [requested_rules.go](../server-go/sonar-server/requested_rules.go)
 
-Current product routing is intentionally restricted to the `37` hard
+Current product routing is intentionally restricted to the `92` hard
 type-service Sonar keys in `JSTS_GO_RULES`. The broader local Go registry still
-spans `80` Sonar keys for parity and direct Go validation.
+spans a larger parity-only surface for direct Go validation.
 
 Use these as the source of truth:
 

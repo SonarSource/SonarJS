@@ -89,6 +89,7 @@ public class JsTsChecks {
    */
   static final Set<String> JSTS_GO_RULES = Set.of(
     "S131", // switch-exhaustiveness-check with Sonar defaults/decorator on Go side
+    "S1128", // unused-import
     "S1154", // useless-string-operation
     "S1301", // no-small-switch
     "S1488", // prefer-immediate-return
@@ -124,11 +125,13 @@ public class JsTsChecks {
     "S3785", // in-operator-type-error
     "S3796", // array-callback-without-return
     "S3800", // function-return-type
+    "S3801", // inconsistent-return
     "S3981", // no-collection-size-mischeck
     "S4043", // no-misleading-array-reverse
     "S4157", // no-unnecessary-type-arguments
     "S4324", // no-return-type-any
     "S4325", // no-unnecessary-type-assertion
+    "S4328", // no-implicit-dependencies
     "S4335", // no-useless-intersection
     "S4619", // no-in-misuse
     "S4623", // no-undefined-argument
@@ -136,13 +139,24 @@ public class JsTsChecks {
     "S4822", // no-try-promise
     "S5247", // disabled-auto-escaping
     "S5725", // disabled-resource-integrity
+    "S5842", // empty-string-repetition
+    "S5843", // regex-complexity
     "S5850", // anchor-precedence
+    "S5852", // slow-regex
     "S5856", // no-invalid-regexp
+    "S5860", // unused-named-groups
+    "S5867", // unicode-aware-regex
+    "S5868", // unicode-grapheme-in-class
+    "S5869", // duplicate-characters-in-class
+    "S6019", // no-empty-after-reluctant
     "S6035", // single-character-alternation
+    "S6299", // no-vue-bypass-sanitization
     "S6323", // no-empty-alternatives
+    "S6324", // no-control-regex
     "S6326", // no-regex-spaces
     "S6328", // existing-groups
     "S6331", // no-empty-group
+    "S6353", // concise-regex
     "S6397", // single-char-in-character-classes
     "S6439", // jsx-no-leaked-render
     "S6565", // prefer-return-this-type
@@ -163,6 +177,7 @@ public class JsTsChecks {
     "S6582", // prefer-optional-chain
     "S6606", // prefer-nullish-coalescing
     "S6671", // prefer-promise-reject-errors
+    "S6759", // prefer-read-only-props
     "S8479", // dompurify-unsafe-config
     "S2870" // no-array-delete
   );

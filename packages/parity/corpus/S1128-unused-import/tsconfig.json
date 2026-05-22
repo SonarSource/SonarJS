@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "module": "commonjs",
+    "jsx": "preserve",
+    "esModuleInterop": true,
+    "lib": ["esnext"],
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "types": []
+  },
+  "include": ["*.ts", "*.tsx"]
+}

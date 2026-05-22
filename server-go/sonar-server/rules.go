@@ -70,8 +70,11 @@ import (
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s3579_no_associative_arrays"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s4139_no_for_in_iterable"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s4324_return_any_type"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s4328_no_implicit_dependencies"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s4619_array_in_misuse"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s6299_no_vue_bypass_sanitization"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s6594_prefer_regexp_exec"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s6759_prefer_read_only_props"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s6959_reduce_initial_value"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/s7059_no_async_constructor"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/switch_exhaustiveness_check"
@@ -107,9 +110,12 @@ var allRules = decorateRules([]rule.Rule{
 	s3525_class_prototype.ClassPrototypeRule,
 	s3579_no_associative_arrays.NoAssociativeArraysRule,
 	s4139_no_for_in_iterable.NoForInIterableRule,
+	s4328_no_implicit_dependencies.NoImplicitDependenciesRule,
 	s4324_return_any_type.ReturnAnyTypeRule,
 	s4619_array_in_misuse.NoInMisuseRule,
+	s6299_no_vue_bypass_sanitization.NoVueBypassSanitizationRule,
 	s6594_prefer_regexp_exec.PreferRegexpExecRule,
+	s6759_prefer_read_only_props.PreferReadOnlyPropsRule,
 	s6959_reduce_initial_value.ReduceInitialValueRule,
 	s7059_no_async_constructor.NoAsyncConstructorRule,
 	s1154_useless_string_operation.UselessStringOperationRule,
@@ -214,9 +220,11 @@ var jstsGoRuleNameBySonarKey = map[string]string{
 	"S4140": "no-sparse-arrays",
 	"S4157": "no-unnecessary-type-arguments",
 	"S4204": "no-explicit-any",
+	"S4328": "no-implicit-dependencies",
 	"S4324": "no-return-type-any",
 	"S4325": "no-unnecessary-type-assertion",
 	"S4619": "no-in-misuse",
+	"S6299": "no-vue-bypass-sanitization",
 	"S6544": "no-misused-promises",
 	"S6551": "no-base-to-string",
 	"S6557": "prefer-string-starts-ends-with",
@@ -249,6 +257,7 @@ var jstsGoRuleNameBySonarKey = map[string]string{
 	"S6654": "no-proto",
 	"S6657": "no-octal-escape",
 	"S6836": "no-case-declarations",
+	"S6759": "prefer-read-only-props",
 	"S7719": "consistent-date-clone",
 	"S7720": "consistent-empty-array-spread",
 	"S7727": "no-array-callback-reference",
@@ -271,6 +280,7 @@ var jstsGoRuleNameBySonarKey = map[string]string{
 var rulesRunnableWithoutProgram = map[string]struct{}{
 	"consistent-type-assertions": {},
 	"no-async-promise-executor":  {},
+	"no-vue-bypass-sanitization": {},
 }
 
 var sonarRuleKeyByJstsGoRuleName = map[string]string{}
