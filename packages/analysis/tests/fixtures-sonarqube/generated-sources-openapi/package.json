@@ -1,0 +1,9 @@
+{
+  "name": "generated-sources-openapi",
+  "dependencies": {
+    "@openapitools/openapi-generator-cli": "7.0.0"
+  },
+  "scripts": {
+    "codegen": "openapi-generator-cli generate -i ./spec.yaml -g typescript-axios -o ./src/api"
+  }
+}

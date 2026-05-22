@@ -20,8 +20,14 @@ import { describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { Linter } from '../../../src/jsts/linter/linter.js';
 import { RuleConfig } from '../../../src/jsts/linter/config/rule-config.js';
+import { createConfiguration } from '../../../src/common/configuration.js';
 import { JsTsLanguage } from '../../../src/common/configuration.js';
 import { AnalysisMode } from '../../../src/jsts/analysis/analysis.js';
+import {
+  dependencyManifestStore,
+  generatedSourceStore,
+  initFileStores,
+} from '../../../src/file-stores/index.js';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
@@ -499,6 +505,52 @@ describe('Linter', () => {
         'js',
       ),
     ).toEqual({});
+  });
+
+  it('should disable generated-source-irrelevant rules on matched files', async () => {
+    const baseDir = normalizeToAbsolutePath(
+      path.join(
+        import.meta.dirname,
+        '..',
+        'project-metadata',
+        'fixtures',
+        'generated-sources',
+        'proto-loader',
+      ),
+    );
+    dependencyManifestStore.clearCache();
+    generatedSourceStore.clearCache();
+    await initFileStores(createConfiguration({ baseDir }));
+
+    await Linter.initialize({
+      baseDir,
+      rules: [
+        {
+          key: 'S3776',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'ts',
+          analysisModes: ['DEFAULT'],
+        },
+        {
+          key: 'S888',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'ts',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const rules = Linter.getRulesForFile(
+      normalizeToAbsolutePath(path.join(baseDir, 'src', 'generated', 'service.ts')),
+      'MAIN',
+      'DEFAULT',
+      'ts',
+    );
+
+    expect(rules).not.toHaveProperty('sonarjs/S3776');
+    expect(rules).toHaveProperty('sonarjs/S888');
   });
 
   it('should keep S3776 options from quality profile', async () => {

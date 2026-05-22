@@ -19,7 +19,7 @@ import { expect } from 'expect';
 import { join } from 'node:path/posix';
 import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { analyzeProject, cancelAnalysis } from '../src/analyzeProject.js';
-import { sourceFileStore, tsConfigStore } from '../src/file-stores/index.js';
+import { generatedSourceStore, sourceFileStore, tsConfigStore } from '../src/file-stores/index.js';
 import { ErrorCode } from '../src/contracts/error.js';
 import ts from 'typescript';
 import { valid } from 'semver';
@@ -49,6 +49,15 @@ const rules: RuleConfig[] = [
     analysisModes: ['DEFAULT'],
   },
 ];
+const skipOnGeneratedSourceRules: RuleConfig[] = [
+  {
+    key: 'S107',
+    configurations: [],
+    fileTypeTargets: ['MAIN'],
+    language: 'ts',
+    analysisModes: ['DEFAULT'],
+  },
+];
 
 describe('SonarQube project analysis', () => {
   beforeEach(() => {
@@ -57,6 +66,7 @@ describe('SonarQube project analysis', () => {
     sourceFileStore.clearCache();
     getProgramCacheManager().clear();
     clearProgramOptionsCache();
+    generatedSourceStore.clearCache();
   });
 
   it('should analyze files using tsconfig', async () => {
@@ -854,6 +864,73 @@ describe('SonarQube project analysis', () => {
     expect(result.meta.telemetry?.compilerOptions.jsx).toEqual(
       expect.arrayContaining(['preserve', 'react-jsx']),
     );
+  });
+
+  it('should suppress skipOnGeneratedSource rules for config-derived generated files', async () => {
+    const baseDir = join(fixtures, 'generated-sources-openapi');
+    const generatedFile = join(baseDir, 'src/api/index.ts');
+
+    const configuration = await initForTest(
+      { baseDir },
+      { [generatedFile]: { filePath: generatedFile, fileType: 'MAIN' } },
+    );
+
+    const result = await analyzeProject(
+      { rules: skipOnGeneratedSourceRules, bundles: [] },
+      configuration,
+    );
+
+    const fileResult = result.files[normalizeToAbsolutePath(generatedFile)];
+    expect(fileResult).toBeDefined();
+    expect('issues' in fileResult!).toBe(true);
+    if ('issues' in fileResult!) {
+      expect(fileResult.issues).toEqual([]);
+    }
+  });
+
+  it('should clear generated-source cache between project analyses', async () => {
+    const baseDir = join(fixtures, 'generated-sources-openapi');
+    const generatedFile = join(baseDir, 'src/api/index.ts');
+
+    const generatedConfiguration = await initForTest(
+      { baseDir },
+      { [generatedFile]: { filePath: generatedFile, fileType: 'MAIN' } },
+    );
+
+    const generatedResult = await analyzeProject(
+      { rules: skipOnGeneratedSourceRules, bundles: [] },
+      generatedConfiguration,
+    );
+
+    const generatedFileResult = generatedResult.files[normalizeToAbsolutePath(generatedFile)];
+    expect(generatedFileResult).toBeDefined();
+    expect('issues' in generatedFileResult!).toBe(true);
+    if ('issues' in generatedFileResult!) {
+      expect(generatedFileResult.issues).toEqual([]);
+    }
+
+    const virtualConfiguration = await initForTest(
+      { baseDir, canAccessFileSystem: false },
+      {
+        [generatedFile]: {
+          filePath: generatedFile,
+          fileType: 'MAIN',
+          fileContent: 'export function localApi(a, b, c, d, e, f, g, h) { return a; }',
+        },
+      },
+    );
+
+    const virtualResult = await analyzeProject(
+      { rules: skipOnGeneratedSourceRules, bundles: [] },
+      virtualConfiguration,
+    );
+
+    const virtualFileResult = virtualResult.files[normalizeToAbsolutePath(generatedFile)];
+    expect(virtualFileResult).toBeDefined();
+    expect('issues' in virtualFileResult!).toBe(true);
+    if ('issues' in virtualFileResult!) {
+      expect(virtualFileResult.issues.some(issue => issue.ruleId === 'S107')).toBe(true);
+    }
   });
 
   it('should resolve orphan-file lib per package even when tsconfigs are present (JS-1723)', async () => {

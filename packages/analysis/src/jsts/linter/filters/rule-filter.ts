@@ -31,6 +31,7 @@ export interface RuleFilterContext {
   analysisMode: AnalysisMode;
   detectedEsYear: number | undefined;
   detectedModuleType: ModuleType | undefined;
+  isGeneratedSource: boolean;
   dependencies: DependenciesList;
 }
 

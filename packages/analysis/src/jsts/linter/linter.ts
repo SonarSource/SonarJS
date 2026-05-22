@@ -37,6 +37,8 @@ import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { materializeRuleOptions } from '../rules/helpers/configs.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
+import merge from 'lodash.merge';
+import { generatedSourceStore } from '../../file-stores/index.js';
 import {
   getDependencies,
   getModuleType,
@@ -47,6 +49,7 @@ import type {
   DependenciesList,
   ModuleType,
 } from '../rules/helpers/dependency-manifests/resolvers/types.js';
+import type { GeneratedSourceFamily } from '../rules/helpers/generated-sources/index.js';
 import {
   DEPENDENCY_INDEPENDENT_RULE_FILTERS,
   DEPENDENCY_SENSITIVE_RULE_FILTERS,
@@ -291,6 +294,7 @@ export class Linter {
       detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
       getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
     }
+    const generatedSourceFamily = generatedSourceStore.getFamily(normalizedFilePath);
     const manifestDependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
     // Make inline npm: imports visible to both rule activation and to dependency helpers
     // (getReactVersion, getDependenciesSanitizePaths) called from rules during linting.
@@ -304,6 +308,7 @@ export class Linter {
       analysisMode,
       detectedEsYear,
       detectedModuleType,
+      generatedSourceFamily,
     );
     let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
     let dependencySensitiveRules = Linter.dependencySensitiveRulesCache.get(linterConfigKey);
@@ -315,6 +320,7 @@ export class Linter {
       analysisMode,
       detectedEsYear,
       detectedModuleType,
+      isGeneratedSource: generatedSourceFamily !== undefined,
     };
 
     if (baseRules === undefined || dependencySensitiveRules === undefined) {
@@ -446,6 +452,7 @@ function createLinterConfigKey(
   analysisMode: AnalysisMode,
   detectedEsYear?: number,
   detectedModuleType?: ModuleType,
+  generatedSourceFamily?: GeneratedSourceFamily,
 ): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const normalizedPath = normalizeToAbsolutePath(filePath);
@@ -454,5 +461,6 @@ function createLinterConfigKey(
     baseDir,
   );
   const linterConfigKey = `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
-  return `${linterConfigKey}:${detectedEsYear ?? 'esnext'}:${detectedModuleType ?? 'unknown'}`;
+  const generatedCode = generatedSourceFamily ? `generated:${generatedSourceFamily}` : 'regular';
+  return `${linterConfigKey}:${detectedEsYear ?? 'esnext'}:${detectedModuleType ?? 'unknown'}:${generatedCode}`;
 }

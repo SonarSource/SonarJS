@@ -27,10 +27,12 @@ import {
   typeMatrix,
 } from './helpers.js';
 import { readFile } from 'fs/promises';
+import { GENERATED_SOURCE_IRRELEVANT_RULES } from './generated-source-irrelevant-rules.js';
 
 const sonarWayProfile = JSON.parse(
   await readFile(join(METADATA_FOLDER, `Sonar_way_profile.json`), 'utf-8'),
 );
+const generatedSourceIrrelevantRules = new Set(GENERATED_SOURCE_IRRELEVANT_RULES);
 
 /**
  * From the RSPEC json file, creates a generated-meta.ts file with ESLint formatted metadata
@@ -71,6 +73,7 @@ export async function generateMetaForRule(
       ___LANGUAGES___: JSON.stringify(ruleRspecMeta.compatibleLanguages),
       ___SCOPE___: ruleRspecMeta.scope,
       ___REQUIRED_DEPENDENCY___: JSON.stringify(ruleRspecMeta.extra?.requiredDependency ?? []),
+      ___SKIP_ON_GENERATED_SOURCE___: `${generatedSourceIrrelevantRules.has(sonarKey)}`,
       ___REQUIRED_MODULE_TYPE_EXPORT___:
         requiredModuleType !== undefined
           ? `export const requiredModuleType = '${requiredModuleType}';`

@@ -26,6 +26,7 @@ import {
   dirnamePath,
   joinPaths,
   basenamePath,
+  relativeToAncestorPath,
   type NormalizedAbsolutePath,
   type NormalizedPath,
 } from '../../../../src/jsts/rules/helpers/files.js';
@@ -231,6 +232,41 @@ describe('files', () => {
       const path = '/foo/bar/baz.ts' as NormalizedAbsolutePath;
       const result: NormalizedAbsolutePath = dirnamePath(path);
       expect(result).toEqual('/foo/bar');
+    });
+  });
+
+  describe('relativeToAncestorPath', () => {
+    test('should return the relative path for nested Unix paths', () => {
+      const path = '/foo/bar/baz.ts' as NormalizedAbsolutePath;
+      const topDir = '/foo' as NormalizedAbsolutePath;
+
+      expect(relativeToAncestorPath(path, topDir)).toEqual('bar/baz.ts');
+    });
+
+    test('should handle Unix root as top directory', () => {
+      const path = '/build/api/index.ts' as NormalizedAbsolutePath;
+
+      expect(relativeToAncestorPath(path, ROOT_PATH)).toEqual('build/api/index.ts');
+    });
+
+    test('should handle Windows root as top directory', () => {
+      const path = 'C:/build/api/index.ts' as NormalizedAbsolutePath;
+      const topDir = 'C:/' as NormalizedAbsolutePath;
+
+      expect(relativeToAncestorPath(path, topDir)).toEqual('build/api/index.ts');
+    });
+
+    test('should return an empty string for the top directory itself', () => {
+      const topDir = '/foo' as NormalizedAbsolutePath;
+
+      expect(relativeToAncestorPath(topDir, topDir)).toEqual('');
+    });
+
+    test('should return undefined for non-nested paths', () => {
+      const path = '/bar/baz.ts' as NormalizedAbsolutePath;
+      const topDir = '/foo' as NormalizedAbsolutePath;
+
+      expect(relativeToAncestorPath(path, topDir)).toBeUndefined();
     });
   });
 

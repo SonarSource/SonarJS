@@ -1,0 +1,12 @@
+{
+  "name": "proto-loader-fixture",
+  "scripts": {
+    "codegen": "proto-loader-gen-types -O ./src/generated ./proto/service.proto",
+    "via-bin": "node ./bin/proto-loader-gen-types.js -O ./src/generated ./proto/health.proto",
+    "dynamic": "proto-loader-gen-types -O $PROTO_OUT ./proto/service.proto",
+    "build-output": "proto-loader-gen-types -O ./build/generated ./proto/service.proto"
+  },
+  "bin": {
+    "proto-loader-gen-types": "./bin/proto-loader-gen-types.js"
+  }
+}
