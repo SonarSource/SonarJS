@@ -83,14 +83,35 @@ public class JsTsChecks {
    */
   static final Set<String> JSTS_GO_RULES = Set.of(
     "S131", // switch-exhaustiveness-check with Sonar defaults/decorator on Go side
+    "S1525", // no-debugger
+    "S1774", // no-ternary
+    "S2427", // radix
+    "S2432", // no-setter-return
+    "S2966", // no-non-null-assertion
+    "S3257", // no-inferrable-types
+    "S3523", // no-new-func
     "S4123", // await-thenable
+    "S4124", // no-misused-new
+    "S4125", // valid-typeof
+    "S4136", // adjacent-overload-signatures
     "S4137", // consistent-type-assertions
+    "S4204", // no-explicit-any
     "S2933", // prefer-readonly
     "S4157", // no-unnecessary-type-arguments
     "S4325", // no-unnecessary-type-assertion
     "S6565", // prefer-return-this-type
+    "S6568", // no-confusing-non-null-assertion
+    "S6569", // no-unnecessary-type-constraint
+    "S6578", // no-duplicate-enum-values
     "S6583", // no-mixed-enums
+    "S6590", // prefer-as-const
     "S6551", // no-base-to-string
+    "S7729", // no-array-method-this-argument
+    "S7732", // no-instanceof-builtins
+    "S7736", // no-negation-in-equality-check
+    "S7737", // no-object-as-default-parameter
+    "S7740", // no-this-assignment
+    "S7741", // no-typeof-undefined
     "S6557", // prefer-string-starts-ends-with
     "S6571", // no-redundant-type-constituents
     "S6544", // no-misused-promises (+ no-async-promise-executor companion on Go side)
