@@ -118,6 +118,17 @@ describe('S5845', () => {
           code: `
             import { expect } from 'vitest';
 
+            declare function readValue(): any;
+
+            let user: { id: number } = { id: 1 };
+            user = readValue();
+            expect(user.id).toBe('1');
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
             function same<T>(actual: T, expected: number) {
               expect(actual).toBe(expected);
             }
@@ -315,6 +326,24 @@ describe('S5845', () => {
 
             if (typeof value === 'string') {
               expect(value).toBe(true);
+            }
+          `,
+          errors: [{ messageId: 'alwaysFails' }],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            let user: { id: string } | { id: number };
+
+            if (Math.random() > 0.5) {
+              user = { id: 'ready' };
+            } else {
+              user = { id: 1 };
+            }
+
+            if (typeof user.id === 'string') {
+              expect(user.id).toBe(true);
             }
           `,
           errors: [{ messageId: 'alwaysFails' }],

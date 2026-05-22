@@ -62,20 +62,25 @@ export const rule: Rule.RuleModule = {
 
     const checker = services.program.getTypeChecker();
 
-    // Non-identifiers can rely directly on the expression type at the assertion site:
+    // Expressions that are not rooted in a mutable local binding can rely directly on the
+    // expression type at the assertion site:
     //   expect(getCount()).toBe('1');
     //   expect(Number(title)).toStrictEqual('1');
     //
-    // Identifiers need one extra guard. `getTypeAtLocation(value)` can stay narrow even after an
-    // imprecise write, so using the identifier type alone would introduce false positives:
+    // Bare identifiers and member expressions rooted in an identifier need one extra guard.
+    // `getTypeAtLocation(value)` can stay narrow even after an imprecise write, so using the
+    // current type alone would introduce false positives:
     //   declare function readAny(): any;
     //   let value: number = 1;
     //   value = readAny();
     //   expect(value).toBe('1'); // keep silent: runtime value may be string
+    //   let user: { id: number } = { id: 1 };
+    //   user = readAny();
+    //   expect(user.id).toBe('1'); // keep silent for the same reason
     //
-    // We therefore trust an identifier's current type only when every write assigned to it is
-    // itself classifiable to primitive families. That still lets TypeScript's flow narrowing do
-    // the useful work for precise writes:
+    // We therefore trust the current type only when the root identifier of the expression has only
+    // been written with values that are themselves classifiable to primitive families. That still
+    // lets TypeScript's flow narrowing do the useful work for precise writes:
     //   let value: number | string;
     //   if (Math.random() > 0.5) value = 'ready'; else value = 1;
     //   if (typeof value === 'string') expect(value).toBe(true); // report
@@ -116,11 +121,12 @@ export const rule: Rule.RuleModule = {
       if (!allowedCategories) {
         return false;
       }
-      if (node.type !== 'Identifier') {
+      const rootIdentifier = getRootIdentifier(node);
+      if (!rootIdentifier) {
         return true;
       }
 
-      const variable = getVariableFromName(context, node.name, node);
+      const variable = getVariableFromName(context, rootIdentifier.name, node);
       if (!variable) {
         return true;
       }
@@ -260,4 +266,12 @@ function isPreciselyTypedWrite(
       checker.getBaseTypeOfLiteralType(getTypeFromTreeNode(writeExpr, services)),
     ) !== null
   );
+}
+
+function getRootIdentifier(node: estree.Node): estree.Identifier | null {
+  let current = node;
+  while (current.type === 'ChainExpression' || current.type === 'MemberExpression') {
+    current = current.type === 'ChainExpression' ? current.expression : current.object;
+  }
+  return current.type === 'Identifier' ? current : null;
 }
