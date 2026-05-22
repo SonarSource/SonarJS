@@ -14,8 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { PackageJson } from 'type-fest';
 import type { NormalizedAbsolutePath } from '../../../../../../shared/src/helpers/files.js';
+import type { DependenciesList } from '../dependency-manifests/resolvers/types.js';
+import type { TaskInvocation } from './task-invocations.js';
 
 export const GRAPHQL_CODEGEN_FAMILY = '@graphql-codegen/cli';
 export const OPENAPI_GENERATOR_FAMILY = '@openapitools/openapi-generator-cli';
@@ -28,6 +29,8 @@ export const SUPPORTED_GENERATED_SOURCE_FAMILIES = [
 ] as const;
 
 export type GeneratedSourceFamily = (typeof SUPPORTED_GENERATED_SOURCE_FAMILIES)[number];
+
+export type GeneratedSourceFileMatcher = (filePath: NormalizedAbsolutePath) => boolean;
 
 export type DerivedGeneratedSources = {
   familyByFile: Map<NormalizedAbsolutePath, GeneratedSourceFamily>;
@@ -49,8 +52,8 @@ export interface GeneratedSourceDetector {
   detect(context: {
     baseDir: NormalizedAbsolutePath;
     packageDir: NormalizedAbsolutePath;
-    packageJson: PackageJson;
-    scripts: readonly string[];
-    analyzableFiles?: ReadonlySet<NormalizedAbsolutePath>;
+    getDependencies: () => DependenciesList;
+    taskInvocations: readonly TaskInvocation[];
+    sourceFileMatcher?: GeneratedSourceFileMatcher;
   }): Promise<DerivedGeneratedSources>;
 }

@@ -507,7 +507,7 @@ describe('Linter', () => {
     ).toEqual({});
   });
 
-  it('should disable generated-source-irrelevant rules on matched files', async () => {
+  it('should disable generated-source-irrelevant rules on matched files', async ({ mock }) => {
     const baseDir = normalizeToAbsolutePath(
       path.join(
         import.meta.dirname,
@@ -518,6 +518,10 @@ describe('Linter', () => {
         'proto-loader',
       ),
     );
+    const generatedFile = normalizeToAbsolutePath(
+      path.join(baseDir, 'src', 'generated', 'service.ts'),
+    );
+    console.log = mock.fn(console.log);
     dependencyManifestStore.clearCache();
     generatedSourceStore.clearCache();
     await initFileStores(createConfiguration({ baseDir }));
@@ -542,15 +546,17 @@ describe('Linter', () => {
       ],
     });
 
-    const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath(path.join(baseDir, 'src', 'generated', 'service.ts')),
-      'MAIN',
-      'DEFAULT',
-      'ts',
-    );
+    const rules = Linter.getRulesForFile(generatedFile, 'MAIN', 'DEFAULT', 'ts');
+    Linter.getRulesForFile(generatedFile, 'MAIN', 'DEFAULT', 'ts');
 
     expect(rules).not.toHaveProperty('sonarjs/S3776');
     expect(rules).toHaveProperty('sonarjs/S888');
+
+    const expectedInfo = `Dynamic rule context: file=${generatedFile}, esYear=esnext, moduleType=commonjs, generatedSourceFamily=proto-loader-gen-types, skippedByGeneratedSource=[S3776]`;
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs.filter(log => log === expectedInfo)).toHaveLength(1);
   });
 
   it('should keep S3776 options from quality profile', async () => {

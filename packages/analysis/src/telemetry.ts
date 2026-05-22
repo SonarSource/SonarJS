@@ -85,6 +85,23 @@ type ProgramCreationTelemetry = {
   failed: number;
 };
 
+export type GeneratedSourceFamilyTelemetry = {
+  family: string;
+  resolvedFileCount: number;
+  taggedFileCount: number;
+  outOfScopeFileCount: number;
+  excludedFileCount: number;
+};
+
+export type GeneratedSourcesTelemetry = {
+  familyCount: number;
+  resolvedFileCount: number;
+  taggedFileCount: number;
+  outOfScopeFileCount: number;
+  excludedFileCount: number;
+  families: GeneratedSourceFamilyTelemetry[];
+};
+
 export type ProjectAnalysisTelemetry = {
   typescriptVersions: string[];
   typescriptNativePreview: boolean;
@@ -94,7 +111,28 @@ export type ProjectAnalysisTelemetry = {
   esmFileCount: number;
   cjsFileCount: number;
   denoImportCounts: Record<string, number>;
+  generatedSources: GeneratedSourcesTelemetry;
 };
+
+export function createEmptyGeneratedSourcesTelemetry(): GeneratedSourcesTelemetry {
+  return {
+    familyCount: 0,
+    resolvedFileCount: 0,
+    taggedFileCount: 0,
+    outOfScopeFileCount: 0,
+    excludedFileCount: 0,
+    families: [],
+  };
+}
+
+export function cloneGeneratedSourcesTelemetry(
+  telemetry: GeneratedSourcesTelemetry,
+): GeneratedSourcesTelemetry {
+  return {
+    ...telemetry,
+    families: telemetry.families.map(family => ({ ...family })),
+  };
+}
 
 export function resetProjectAnalysisTelemetry() {
   projectAnalysisTelemetryCollector = new ProjectAnalysisTelemetryCollector();
@@ -128,6 +166,7 @@ export class ProjectAnalysisTelemetryCollector {
   private esmFileCount = 0;
   private cjsFileCount = 0;
   private readonly denoImportCountsByProtocol = new Map<string, number>();
+  private generatedSources = createEmptyGeneratedSourcesTelemetry();
 
   constructor() {
     const { typeScriptVersionSignals, hasTypeScriptNativePreview } =
@@ -178,6 +217,10 @@ export class ProjectAnalysisTelemetryCollector {
     }
   }
 
+  recordGeneratedSources(generatedSources: GeneratedSourcesTelemetry) {
+    this.generatedSources = cloneGeneratedSourcesTelemetry(generatedSources);
+  }
+
   getTelemetry(): ProjectAnalysisTelemetry {
     const compilerOptions: Record<string, string[]> = {};
     for (const [optionName, values] of this.compilerOptionValues.entries()) {
@@ -199,6 +242,7 @@ export class ProjectAnalysisTelemetryCollector {
       esmFileCount: this.esmFileCount,
       cjsFileCount: this.cjsFileCount,
       denoImportCounts: Object.fromEntries(this.denoImportCountsByProtocol),
+      generatedSources: cloneGeneratedSourcesTelemetry(this.generatedSources),
     };
   }
 

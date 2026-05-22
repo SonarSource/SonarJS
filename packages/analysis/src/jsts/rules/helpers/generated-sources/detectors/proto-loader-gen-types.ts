@@ -14,64 +14,36 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { PackageJson } from 'type-fest';
 import { type GeneratedSourceDetector, PROTO_LOADER_GEN_TYPES_FAMILY } from '../contracts.js';
-import { createDerivedGeneratedSources, matchesCommandToken, tokenizeScript } from '../shared.js';
+import { createDerivedGeneratedSources } from '../shared.js';
 import {
   deriveSourcesFromOutputDirectories,
-  hasToolEvidence,
-  resolveOutputDirectoriesFromScripts,
+  resolveOutputDirectoriesFromTaskInvocations,
 } from '../detector-api.js';
+import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
 
 export const protoLoaderGenTypesDetector = {
   family: PROTO_LOADER_GEN_TYPES_FAMILY,
 
-  async detect({ baseDir, packageDir, packageJson, scripts, analyzableFiles }) {
-    const binTarget = getProtoLoaderBinTarget(packageJson);
-    const matchesScript = (script: string) => isProtoLoaderInvocation(script, binTarget);
-    if (!hasToolEvidence({ packageJson, scripts, matchesScript })) {
+  async detect({ baseDir, packageDir, taskInvocations, sourceFileMatcher }) {
+    const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
+      taskInvocationInvokesCommand(taskInvocation, PROTO_LOADER_GEN_TYPES_FAMILY);
+    if (!taskInvocations.some(matchesTaskInvocation)) {
       return createDerivedGeneratedSources();
     }
 
-    const outputDirectories = await resolveOutputDirectoriesFromScripts({
+    const outputDirectories = await resolveOutputDirectoriesFromTaskInvocations({
       baseDir,
       packageDir,
-      scripts,
-      matchesScript,
+      taskInvocations,
+      matchesTaskInvocation,
       flags: ['-O'],
     });
     return deriveSourcesFromOutputDirectories(
       PROTO_LOADER_GEN_TYPES_FAMILY,
       outputDirectories,
       true,
-      analyzableFiles,
+      sourceFileMatcher,
     );
   },
 } satisfies GeneratedSourceDetector;
-
-function getProtoLoaderBinTarget(packageJson: PackageJson) {
-  if (typeof packageJson.bin === 'object' && packageJson.bin !== null) {
-    const binTarget = packageJson.bin[PROTO_LOADER_GEN_TYPES_FAMILY];
-    return typeof binTarget === 'string' ? binTarget : undefined;
-  }
-  return undefined;
-}
-
-function isProtoLoaderInvocation(script: string, binTarget: string | undefined) {
-  const tokens = tokenizeScript(script);
-  if (!tokens) {
-    return false;
-  }
-
-  for (const token of tokens) {
-    if (matchesCommandToken(token, PROTO_LOADER_GEN_TYPES_FAMILY)) {
-      return true;
-    }
-
-    if (binTarget && token === binTarget) {
-      return true;
-    }
-  }
-
-  return false;
-}

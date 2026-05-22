@@ -30,6 +30,8 @@ import org.junit.jupiter.api.Test;
 import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.utils.Version;
+import org.sonar.plugins.javascript.analyzeproject.grpc.GeneratedSourceFamilyTelemetry;
+import org.sonar.plugins.javascript.analyzeproject.grpc.GeneratedSourcesTelemetry;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProgramCreationTelemetry;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisTelemetry;
 import org.sonar.plugins.javascript.analyzeproject.grpc.StringList;
@@ -95,6 +97,24 @@ class PluginTelemetryTest {
       )
       .setEsmFileCount(4)
       .setCjsFileCount(1)
+      .setGeneratedSources(
+        GeneratedSourcesTelemetry.newBuilder()
+          .setFamilyCount(1)
+          .setResolvedFileCount(7)
+          .setTaggedFileCount(5)
+          .setOutOfScopeFileCount(1)
+          .setExcludedFileCount(1)
+          .addFamilies(
+            GeneratedSourceFamilyTelemetry.newBuilder()
+              .setFamily("@graphql-codegen/cli")
+              .setResolvedFileCount(7)
+              .setTaggedFileCount(5)
+              .setOutOfScopeFileCount(1)
+              .setExcludedFileCount(1)
+              .build()
+          )
+          .build()
+      )
       .build();
 
     new PluginTelemetry(jsTsContext, server, projectTelemetry).reportTelemetry();
@@ -127,6 +147,43 @@ class PluginTelemetryTest {
     );
     verify(ctx).addTelemetryProperty("javascript.telemetry.module-type.esm-file-count", "4");
     verify(ctx).addTelemetryProperty("javascript.telemetry.module-type.cjs-file-count", "1");
-    verify(ctx, times(13)).addTelemetryProperty(anyString(), anyString());
+    verify(ctx).addTelemetryProperty("javascript.telemetry.generated-sources.family-count", "1");
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.generated-sources.resolved-file-count",
+      "7"
+    );
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.generated-sources.tagged-file-count",
+      "5"
+    );
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.generated-sources.out-of-scope-file-count",
+      "1"
+    );
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.generated-sources.excluded-file-count",
+      "1"
+    );
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.generated-sources.families.0.family",
+      "@graphql-codegen/cli"
+    );
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.generated-sources.families.0.resolved-file-count",
+      "7"
+    );
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.generated-sources.families.0.tagged-file-count",
+      "5"
+    );
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.generated-sources.families.0.out-of-scope-file-count",
+      "1"
+    );
+    verify(ctx).addTelemetryProperty(
+      "javascript.telemetry.generated-sources.families.0.excluded-file-count",
+      "1"
+    );
+    verify(ctx, times(23)).addTelemetryProperty(anyString(), anyString());
   }
 }

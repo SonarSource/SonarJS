@@ -15,14 +15,17 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { readdir, stat } from 'node:fs/promises';
-import type { PackageJson } from 'type-fest';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../../../shared/src/helpers/files.js';
 import { isJsTsCodeFileByExtension } from '../../../../common/file-kinds.js';
 import { relativeToAncestorPath } from '../files.js';
-import type { DerivedGeneratedSources, GeneratedSourceFamily } from './contracts.js';
+import type {
+  DerivedGeneratedSources,
+  GeneratedSourceFamily,
+  GeneratedSourceFileMatcher,
+} from './contracts.js';
 
 const OBVIOUS_BUILD_OR_CACHE_SEGMENTS = new Set([
   'node_modules',
@@ -32,6 +35,8 @@ const OBVIOUS_BUILD_OR_CACHE_SEGMENTS = new Set([
   'coverage',
   '.next',
 ]);
+const defaultGeneratedSourceFileMatcher: GeneratedSourceFileMatcher = filePath =>
+  isJsTsCodeFileByExtension(filePath);
 
 export function createDerivedGeneratedSources(): DerivedGeneratedSources {
   return {
@@ -70,19 +75,6 @@ export function addFamilyFiles(
   }
 }
 
-export function getPackageScripts(packageJson: PackageJson) {
-  return Object.values(packageJson.scripts ?? {}).filter(
-    (value): value is string => typeof value === 'string',
-  );
-}
-
-export function hasPackageDependency(packageJson: PackageJson, dependencyName: string) {
-  return (
-    dependencyName in (packageJson.dependencies ?? {}) ||
-    dependencyName in (packageJson.devDependencies ?? {})
-  );
-}
-
 export function resolveLiteralPath(
   maybePath: string,
   declaredFromDir: NormalizedAbsolutePath,
@@ -108,8 +100,11 @@ export function isLiteralPathToken(value: string) {
   );
 }
 
-export function isSourceFile(path: NormalizedAbsolutePath) {
-  return isJsTsCodeFileByExtension(path);
+export function isSourceFile(
+  path: NormalizedAbsolutePath,
+  sourceFileMatcher: GeneratedSourceFileMatcher = defaultGeneratedSourceFileMatcher,
+) {
+  return sourceFileMatcher(path);
 }
 
 export async function isFile(path: NormalizedAbsolutePath) {
@@ -150,6 +145,7 @@ async function safeReadDir(path: NormalizedAbsolutePath) {
 export async function listSourceFilesInDirectory(
   directory: NormalizedAbsolutePath,
   recursive: boolean,
+  sourceFileMatcher: GeneratedSourceFileMatcher = defaultGeneratedSourceFileMatcher,
 ) {
   const entries = await safeReadDir(directory);
   const sourceFiles: NormalizedAbsolutePath[] = [];
@@ -160,13 +156,13 @@ export async function listSourceFilesInDirectory(
       continue;
     }
 
-    if (entry.isFile() && isSourceFile(entryPath)) {
+    if (entry.isFile() && isSourceFile(entryPath, sourceFileMatcher)) {
       sourceFiles.push(entryPath);
       continue;
     }
 
     if (recursive && entry.isDirectory()) {
-      sourceFiles.push(...(await listSourceFilesInDirectory(entryPath, true)));
+      sourceFiles.push(...(await listSourceFilesInDirectory(entryPath, true, sourceFileMatcher)));
     }
   }
 
@@ -178,12 +174,16 @@ export async function listSourceFilesInDirectory(
  * Exported for testing purposes.
  */
 export function extractFlagValues(script: string, flags: string[]) {
-  const values: string[] = [];
   const tokens = tokenizeScript(script);
   if (!tokens) {
-    return values;
+    return [];
   }
 
+  return extractFlagValuesFromTokens(tokens, flags);
+}
+
+export function extractFlagValuesFromTokens(tokens: readonly string[], flags: string[]) {
+  const values: string[] = [];
   for (const [index, token] of tokens.entries()) {
     const value = resolveFlagValue(token, tokens[index + 1], flags);
     if (value !== undefined) {

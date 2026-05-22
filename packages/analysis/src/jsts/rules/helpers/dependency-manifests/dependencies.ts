@@ -22,7 +22,10 @@ import { minVersion } from 'semver';
 import type { PackageJson } from 'type-fest';
 import { type NormalizedAbsolutePath, normalizeToAbsolutePath, dirnamePath } from '../files.js';
 import { getClosestDependencyManifestDir } from './closest.js';
-import { getDependencyManifests } from './all-in-parent-dirs.js';
+import {
+  getDependencyManifests,
+  type DependencyManifestLookupOptions,
+} from './all-in-parent-dirs.js';
 import { DEFINITELY_TYPED, type DependenciesList, type ModuleType } from './resolvers/types.js';
 import { parsePackageJsonContent } from './parsed-dependency-files.js';
 
@@ -39,25 +42,9 @@ const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
 export const dependenciesCache = new ComputedCache(
   (dir: NormalizedAbsolutePath, topDir?: NormalizedAbsolutePath) => {
     const closestDependencyManifestDir = getClosestDependencyManifestDir(dir, topDir);
-    const result: DependenciesList = new Map();
-
-    if (!closestDependencyManifestDir) {
-      return result;
-    }
-
-    for (const { dependencies } of getDependencyManifests(
-      closestDependencyManifestDir,
-      topDir,
-      fs,
-    )) {
-      for (const [name, version] of dependencies) {
-        if (!result.has(name)) {
-          result.set(name, version);
-        }
-      }
-    }
-
-    return result;
+    return closestDependencyManifestDir
+      ? collectDependencies(closestDependencyManifestDir, topDir)
+      : new Map();
   },
 );
 
@@ -85,7 +72,12 @@ export const moduleTypeCache = new ComputedCache(
 export function getDependencies(
   dir: NormalizedAbsolutePath,
   topDir: NormalizedAbsolutePath,
+  options: DependencyManifestLookupOptions = {},
 ): DependenciesList {
+  if (options.includeParentManifests === false) {
+    return collectDependencies(dir, topDir, options);
+  }
+
   const closestDependencyManifestDir = getClosestDependencyManifestDir(dir, topDir);
   if (closestDependencyManifestDir) {
     return dependenciesCache.get(closestDependencyManifestDir, topDir);
@@ -211,6 +203,24 @@ function getDependencyVersionSignal(
 ): string | null {
   const dependencyVersion = getAllDependencySignals(packageJson)[dependencyName];
   return typeof dependencyVersion === 'string' ? dependencyVersion : null;
+}
+
+function collectDependencies(
+  dir: NormalizedAbsolutePath,
+  topDir?: NormalizedAbsolutePath,
+  options: DependencyManifestLookupOptions = {},
+): DependenciesList {
+  const result: DependenciesList = new Map();
+
+  for (const { dependencies } of getDependencyManifests(dir, topDir, fs, options)) {
+    for (const [name, version] of dependencies) {
+      if (!result.has(name)) {
+        result.set(name, version);
+      }
+    }
+  }
+
+  return result;
 }
 
 function getVersionSignalFromManifests(

@@ -362,6 +362,8 @@ class SonarLintIntegrationTest {
       )
       .withUnboundConfigScope(CONFIG_SCOPE_ID)
       .start(client);
+
+    waitUntilAnalysisReady();
   }
 
   private void assertResults(Consumer<List<RaisedIssueDto>> assertionLambda) {
@@ -371,6 +373,12 @@ class SonarLintIntegrationTest {
         var results = client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID);
         assertionLambda.accept(results);
       });
+  }
+
+  private void waitUntilAnalysisReady() {
+    await()
+      .atMost(30, TimeUnit.SECONDS)
+      .until(() -> client.isAnalysisReadyForScope(CONFIG_SCOPE_ID));
   }
 
   private void assertQuickFix(

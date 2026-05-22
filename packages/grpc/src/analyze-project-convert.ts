@@ -154,6 +154,20 @@ function toTelemetry(
     esmFileCount: telemetry.esmFileCount,
     cjsFileCount: telemetry.cjsFileCount,
     denoImportCounts: telemetry.denoImportCounts,
+    generatedSources: {
+      familyCount: telemetry.generatedSources.familyCount,
+      resolvedFileCount: telemetry.generatedSources.resolvedFileCount,
+      taggedFileCount: telemetry.generatedSources.taggedFileCount,
+      outOfScopeFileCount: telemetry.generatedSources.outOfScopeFileCount,
+      excludedFileCount: telemetry.generatedSources.excludedFileCount,
+      families: telemetry.generatedSources.families.map(family => ({
+        family: family.family,
+        resolvedFileCount: family.resolvedFileCount,
+        taggedFileCount: family.taggedFileCount,
+        outOfScopeFileCount: family.outOfScopeFileCount,
+        excludedFileCount: family.excludedFileCount,
+      })),
+    },
   };
 }
 

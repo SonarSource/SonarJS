@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { debug } from '../../../../shared/src/helpers/logging.js';
+import { debug, info } from '../../../../shared/src/helpers/logging.js';
 import { type Rule, Linter as ESLintLinter, type SourceCode } from 'eslint';
 import type { RuleConfig } from './config/rule-config.js';
 import type { JsTsLanguage } from '../../common/configuration.js';
@@ -37,7 +37,6 @@ import * as ruleMetas from '../rules/metas.js';
 import { extname } from 'node:path/posix';
 import { materializeRuleOptions } from '../rules/helpers/configs.js';
 import type { SonarMeta } from '../rules/helpers/generate-meta.js';
-import merge from 'lodash.merge';
 import { generatedSourceStore } from '../../file-stores/index.js';
 import {
   getDependencies,
@@ -55,6 +54,7 @@ import {
   DEPENDENCY_SENSITIVE_RULE_FILTERS,
   type RuleFilterContext,
 } from './filters/index.js';
+import { filterGeneratedSource } from './filters/filter-generated-source.js';
 import { getClosestDependencyManifestDir } from '../rules/helpers/dependency-manifests/closest.js';
 import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js';
 import type { FileType } from '../../contracts/file.js';
@@ -330,28 +330,18 @@ export class Linter {
        * configurations: one per fileType/language/analysisMode combination.
        */
       const context: RuleFilterContext = { ...baseContext, dependencies: manifestDependencies };
-      // Partition rules into dependency-independent rules and dependency-sensitive rules based on the presence of required dependencies
-      // in their meta, as well as the result of dependency-independent filters
-      const dependencyIndependentRules: RuleConfig[] = [];
-      dependencySensitiveRules = [];
-
-      for (const ruleConfig of Linter.ruleConfigs ?? []) {
-        const ruleMeta = getRuleMeta(ruleConfig);
-        if (
-          DEPENDENCY_INDEPENDENT_RULE_FILTERS.every(predicate =>
-            predicate(ruleConfig, ruleMeta, context),
-          )
-        ) {
-          const ruleArray = hasRequiredDependencies(ruleMeta)
-            ? dependencySensitiveRules
-            : dependencyIndependentRules;
-          ruleArray.push(ruleConfig);
-        }
-      }
-
-      baseRules = Linter.createRulesRecord(dependencyIndependentRules);
+      const partitionedRules = partitionRulesForContext(Linter.ruleConfigs ?? [], context);
+      baseRules = Linter.createRulesRecord(partitionedRules.dependencyIndependentRules);
+      dependencySensitiveRules = partitionedRules.dependencySensitiveRules;
       Linter.dependencyIndependentRulesCache.set(linterConfigKey, baseRules);
       Linter.dependencySensitiveRulesCache.set(linterConfigKey, dependencySensitiveRules);
+      logGeneratedSourceRuleContext(
+        normalizedFilePath,
+        detectedEsYear,
+        detectedModuleType,
+        generatedSourceFamily,
+        partitionedRules.skippedByGeneratedSource,
+      );
     }
 
     if (dependencySensitiveRules.length === 0) {
@@ -413,6 +403,53 @@ function getRuleMeta(ruleConfig: RuleConfig): SonarMeta | undefined {
 
 function hasRequiredDependencies(ruleMeta: SonarMeta | undefined): boolean {
   return (ruleMeta?.requiredDependency.length ?? 0) > 0;
+}
+
+function partitionRulesForContext(ruleConfigs: RuleConfig[], context: RuleFilterContext) {
+  const dependencyIndependentRules: RuleConfig[] = [];
+  const dependencySensitiveRules: RuleConfig[] = [];
+  const skippedByGeneratedSource: string[] = [];
+
+  for (const ruleConfig of ruleConfigs) {
+    const ruleMeta = getRuleMeta(ruleConfig);
+    const failingPredicate = DEPENDENCY_INDEPENDENT_RULE_FILTERS.find(
+      predicate => !predicate(ruleConfig, ruleMeta, context),
+    );
+
+    if (failingPredicate !== undefined) {
+      if (failingPredicate === filterGeneratedSource) {
+        skippedByGeneratedSource.push(ruleConfig.key);
+      }
+      continue;
+    }
+
+    const destination = hasRequiredDependencies(ruleMeta)
+      ? dependencySensitiveRules
+      : dependencyIndependentRules;
+    destination.push(ruleConfig);
+  }
+
+  return {
+    dependencyIndependentRules,
+    dependencySensitiveRules,
+    skippedByGeneratedSource,
+  };
+}
+
+function logGeneratedSourceRuleContext(
+  filePath: NormalizedAbsolutePath,
+  detectedEsYear: number | undefined,
+  detectedModuleType: string | undefined,
+  generatedSourceFamily: GeneratedSourceFamily | undefined,
+  skippedByGeneratedSource: string[],
+) {
+  if (generatedSourceFamily === undefined) {
+    return;
+  }
+
+  info(
+    `Dynamic rule context: file=${filePath}, esYear=${detectedEsYear ?? 'esnext'}, moduleType=${detectedModuleType ?? 'unknown'}, generatedSourceFamily=${generatedSourceFamily}, skippedByGeneratedSource=[${skippedByGeneratedSource.join(', ')}]`,
+  );
 }
 
 // Matches a valid URL scheme per RFC 3986: letter followed by letters, digits, '+', '-', or '.'

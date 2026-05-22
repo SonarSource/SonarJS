@@ -11,6 +11,7 @@
     "generate-java-rule-classes": "tsx tools/generate-java-rule-classes.ts",
     "ruling": "tsx --tsconfig packages/tsconfig.test.json --test packages/ruling/projects/*.ruling.test.ts",
     "sync-rspec": "tsx tools/sync-rspec.ts",
+    "list-peach-project-files": "tsx tools/list-peach-project-files.ts",
     "sync-rspec-all": "npm run sync-rspec -- --language javascript && npm run sync-rspec -- --language css && npm run deploy-rule-data",
     "ruling-sync": "node tools/ruling-sync.js",
     "bridge:compile:ts5": "npm run grpc:generate-proto && tsc -b packages && npm run grpc:copy-proto",

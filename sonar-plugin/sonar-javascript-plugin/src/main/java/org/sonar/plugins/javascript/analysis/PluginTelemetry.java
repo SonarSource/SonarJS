@@ -35,6 +35,7 @@ public class PluginTelemetry {
   private static final String RUNTIME_PREFIX = KEY_PREFIX + "runtime.";
   private static final String TELEMETRY_PREFIX = KEY_PREFIX + "telemetry.";
   private static final String MODULE_TYPE_PREFIX = TELEMETRY_PREFIX + "module-type.";
+  private static final String GENERATED_SOURCES_PREFIX = TELEMETRY_PREFIX + "generated-sources.";
 
   private final BridgeServer server;
   private final JsTsContext<?> ctx;
@@ -146,6 +147,52 @@ public class PluginTelemetry {
       MODULE_TYPE_PREFIX + "cjs-file-count",
       Integer.toString(projectAnalysisTelemetry.getCjsFileCount())
     );
+
+    if (projectAnalysisTelemetry.hasGeneratedSources()) {
+      var generatedSources = projectAnalysisTelemetry.getGeneratedSources();
+      keyMapToSave.put(
+        GENERATED_SOURCES_PREFIX + "family-count",
+        Integer.toString(generatedSources.getFamilyCount())
+      );
+      keyMapToSave.put(
+        GENERATED_SOURCES_PREFIX + "resolved-file-count",
+        Integer.toString(generatedSources.getResolvedFileCount())
+      );
+      keyMapToSave.put(
+        GENERATED_SOURCES_PREFIX + "tagged-file-count",
+        Integer.toString(generatedSources.getTaggedFileCount())
+      );
+      keyMapToSave.put(
+        GENERATED_SOURCES_PREFIX + "out-of-scope-file-count",
+        Integer.toString(generatedSources.getOutOfScopeFileCount())
+      );
+      keyMapToSave.put(
+        GENERATED_SOURCES_PREFIX + "excluded-file-count",
+        Integer.toString(generatedSources.getExcludedFileCount())
+      );
+
+      for (var familyIndex = 0; familyIndex < generatedSources.getFamiliesCount(); familyIndex++) {
+        var family = generatedSources.getFamilies(familyIndex);
+        var familyPrefix = GENERATED_SOURCES_PREFIX + "families." + familyIndex + ".";
+        keyMapToSave.put(familyPrefix + "family", family.getFamily());
+        keyMapToSave.put(
+          familyPrefix + "resolved-file-count",
+          Integer.toString(family.getResolvedFileCount())
+        );
+        keyMapToSave.put(
+          familyPrefix + "tagged-file-count",
+          Integer.toString(family.getTaggedFileCount())
+        );
+        keyMapToSave.put(
+          familyPrefix + "out-of-scope-file-count",
+          Integer.toString(family.getOutOfScopeFileCount())
+        );
+        keyMapToSave.put(
+          familyPrefix + "excluded-file-count",
+          Integer.toString(family.getExcludedFileCount())
+        );
+      }
+    }
   }
 
   private static void addCompilerOptionTelemetry(

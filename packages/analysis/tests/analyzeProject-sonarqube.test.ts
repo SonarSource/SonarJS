@@ -15,8 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it, beforeEach, type Mock, mock } from 'node:test';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { expect } from 'expect';
-import { join } from 'node:path/posix';
+import { dirname, join } from 'node:path/posix';
 import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { analyzeProject, cancelAnalysis } from '../src/analyzeProject.js';
 import { generatedSourceStore, sourceFileStore, tsConfigStore } from '../src/file-stores/index.js';
@@ -36,6 +38,15 @@ async function initForTest(configOptions: object, rawFiles: object) {
     files: rawFiles,
   });
   return configuration;
+}
+
+async function createTempBaseDir() {
+  return normalizeToAbsolutePath(await mkdtemp(join(tmpdir(), 'analyze-project-generated-')));
+}
+
+async function writeFixtureFile(filePath: string, content = '') {
+  await mkdir(dirname(filePath), { recursive: true });
+  await writeFile(filePath, content);
 }
 
 const fixtures = normalizePath(join(import.meta.dirname, 'fixtures-sonarqube'));
@@ -203,6 +214,85 @@ describe('SonarQube project analysis', () => {
     expect(result.meta.telemetry?.compilerOptions.lib).toEqual(['dom', 'es2020', 'es2022']);
   });
 
+  it('should emit generated-source telemetry summaries in project metadata', async () => {
+    const baseDir = await createTempBaseDir();
+
+    try {
+      await writeFixtureFile(
+        join(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              '@graphql-codegen/cli': '1.0.0',
+              '@openapitools/openapi-generator-cli': '1.0.0',
+            },
+            scripts: {
+              graphql: 'graphql-codegen --config ./codegen.yml',
+              openapi: 'openapi-generator-cli generate --output=./outside/api',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        join(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/keep.ts:
+    plugins:
+      - typescript
+  ./src/excluded/blocked.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(join(baseDir, 'src/generated/keep.ts'), 'export const keep = true;\n');
+      await writeFixtureFile(
+        join(baseDir, 'src/excluded/blocked.ts'),
+        'export const blocked = true;\n',
+      );
+      await writeFixtureFile(
+        join(baseDir, 'outside/api/index.ts'),
+        'export const outOfScope = true;\n',
+      );
+
+      const { configuration } = await sanitizeProjectAnalysisInput({
+        configuration: {
+          baseDir,
+          sources: ['src'],
+          exclusions: ['src/excluded/**'],
+        },
+      });
+      const result = await analyzeProject({ rules, bundles: [] }, configuration);
+
+      expect(result.meta.telemetry?.generatedSources).toEqual({
+        familyCount: 2,
+        resolvedFileCount: 3,
+        taggedFileCount: 1,
+        outOfScopeFileCount: 1,
+        excludedFileCount: 1,
+        families: [
+          {
+            family: '@graphql-codegen/cli',
+            resolvedFileCount: 2,
+            taggedFileCount: 1,
+            outOfScopeFileCount: 0,
+            excludedFileCount: 1,
+          },
+          {
+            family: '@openapitools/openapi-generator-cli',
+            resolvedFileCount: 1,
+            taggedFileCount: 0,
+            outOfScopeFileCount: 1,
+            excludedFileCount: 0,
+          },
+        ],
+      });
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('should analyze files not in any tsconfig with default options', async () => {
     const baseDir = join(fixtures, 'no-tsconfig');
     const filePath = join(baseDir, 'orphan.ts');
@@ -307,6 +397,14 @@ describe('SonarQube project analysis', () => {
           esmFileCount: 0,
           cjsFileCount: 0,
           denoImportCounts: {},
+          generatedSources: {
+            familyCount: 0,
+            resolvedFileCount: 0,
+            taggedFileCount: 0,
+            outOfScopeFileCount: 0,
+            excludedFileCount: 0,
+            families: [],
+          },
           programCreation: {
             attempted: 0,
             succeeded: 0,

@@ -20,7 +20,8 @@ import { join, dirname } from 'node:path/posix';
 import fs from 'node:fs';
 import yaml from 'yaml';
 import { initFileStores, dependencyManifestStore } from '../src/file-stores/index.js';
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { createConfiguration } from '../src/common/configuration.js';
 import { UNINITIALIZED_ERROR } from '../src/file-stores/dependency-manifests.js';
@@ -55,6 +56,23 @@ const denoJsoncsInParentsCache = patternInParentsCache.get(DENO_JSONC);
 const closestPnpmWorkspaceCache = closestPatternCache.get(PNPM_WORKSPACE_YAML);
 
 const fixtures = normalizeToAbsolutePath(join(import.meta.dirname, 'fixtures-package-jsons'));
+
+async function createTempBaseDir() {
+  return normalizeToAbsolutePath(await mkdtemp(join(tmpdir(), 'dependency-manifests-test-')));
+}
+
+async function writeFixtureFile(filePath: string, content = '') {
+  await mkdir(dirname(filePath), { recursive: true });
+  await writeFile(filePath, content);
+}
+
+function getNamedDependencies(dependencies: ReturnType<typeof getDependencies>) {
+  return new Map(
+    [...dependencies].filter(
+      (entry): entry is [string, string | undefined] => typeof entry[0] === 'string',
+    ),
+  );
+}
 
 describe('files', () => {
   beforeEach(() => {
@@ -304,6 +322,73 @@ describe('files', () => {
         ['vue', '^3.5.0'],
       ]),
     );
+  });
+
+  it('should optionally skip parent manifests while still resolving pnpm catalog dependencies', async () => {
+    const baseDir = await createTempBaseDir();
+    const appBaseDir = normalizeToAbsolutePath(join(baseDir, 'packages/app'));
+
+    try {
+      await writeFixtureFile(
+        join(baseDir, 'pnpm-workspace.yaml'),
+        yaml.stringify({
+          packages: ['packages/*'],
+          catalog: {
+            '@graphql-codegen/cli': '^5.0.0',
+          },
+        }),
+      );
+      await writeFixtureFile(
+        join(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            private: true,
+            devDependencies: {
+              '@openapitools/openapi-generator-cli': '7.0.0',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        join(appBaseDir, 'package.json'),
+        JSON.stringify(
+          {
+            name: 'app',
+            peerDependencies: {
+              '@graphql-codegen/cli': 'catalog:',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+
+      await initFileStores(createConfiguration({ baseDir }));
+
+      expect(getNamedDependencies(getDependencies(appBaseDir, baseDir))).toEqual(
+        new Map([
+          ['app', '*'],
+          ['@graphql-codegen/cli', '^5.0.0'],
+          ['@openapitools/openapi-generator-cli', '7.0.0'],
+        ]),
+      );
+      expect(
+        getNamedDependencies(
+          getDependencies(appBaseDir, baseDir, {
+            includeParentManifests: false,
+          }),
+        ),
+      ).toEqual(
+        new Map([
+          ['app', '*'],
+          ['@graphql-codegen/cli', '^5.0.0'],
+        ]),
+      );
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
   });
 
   it('should inject pnpm workspace packages into manifest workspaces', async () => {

@@ -19,3 +19,7 @@ export {
   GENERATED_SOURCE_DETECTORS,
   GENERATED_SOURCE_WATCHED_FILENAMES,
 } from './detectors/index.js';
+export {
+  GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,
+  collectGeneratedSourceTaskInvocations,
+} from './task-invocations.js';

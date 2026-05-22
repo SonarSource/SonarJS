@@ -70,6 +70,10 @@ type DependencyDefinition = {
  */
 const MANIFEST_RESOLVERS: ManifestResolver[] = [denoManifestResolver, packageJsonManifestResolver];
 
+export type DependencyManifestLookupOptions = {
+  includeParentManifests?: boolean;
+};
+
 /**
  * Returns dependency manifest files from closest-to-file and then up to root.
  *
@@ -80,8 +84,10 @@ export const getDependencyManifests = (
   dir: NormalizedAbsolutePath,
   topDir?: NormalizedAbsolutePath,
   fileSystem?: Filesystem,
+  options: DependencyManifestLookupOptions = {},
 ): DependencyManifest[] => {
   const rootDir = topDir ?? getPathRoot(dir);
+  const includeParentManifests = options.includeParentManifests ?? true;
   const manifests: DependencyManifest[] = [];
   let currentDir: NormalizedAbsolutePath = dir;
 
@@ -91,7 +97,7 @@ export const getDependencyManifests = (
     );
     logDuplicateDependenciesInManifests(manifestsInDir);
     manifests.push(...manifestsInDir);
-    if (currentDir === rootDir || isRoot(currentDir)) {
+    if (!includeParentManifests || currentDir === rootDir || isRoot(currentDir)) {
       break;
     }
     currentDir = dirnamePath(currentDir);

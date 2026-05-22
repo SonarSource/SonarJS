@@ -29,6 +29,7 @@ import {
   resolveGeneratedOutputsFromLiteralPaths,
   type ResolvedGeneratedOutputs,
 } from '../detector-api.js';
+import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
 import {
   addFamilyFiles,
   createDerivedGeneratedSources,
@@ -48,31 +49,36 @@ export const graphqlCodegenDetector = {
   family: GRAPHQL_CODEGEN_FAMILY,
   watchedFilenames: STANDARD_GRAPHQL_CONFIGS,
 
-  async detect({ baseDir, packageDir, packageJson, scripts, analyzableFiles }) {
-    const matchesScript = (script: string) => script.includes('graphql-codegen');
+  async detect({ baseDir, packageDir, getDependencies, taskInvocations, sourceFileMatcher }) {
+    const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
+      taskInvocationInvokesCommand(taskInvocation, 'graphql-codegen');
+    const configPaths = await resolveConfigPaths({
+      baseDir,
+      packageDir,
+      taskInvocations,
+      matchesTaskInvocation,
+      flags: ['--config'],
+      fallbackBasenames: STANDARD_GRAPHQL_CONFIGS,
+    });
+    if (configPaths.size === 0) {
+      return createDerivedGeneratedSources();
+    }
+
     if (
       !hasToolEvidence({
-        packageJson,
-        scripts,
+        getDependencies,
+        taskInvocations,
         dependencyName: GRAPHQL_CODEGEN_FAMILY,
-        matchesScript,
+        matchesTaskInvocation,
       })
     ) {
       return createDerivedGeneratedSources();
     }
 
     const derived = createDerivedGeneratedSources();
-    const configPaths = await resolveConfigPaths({
-      baseDir,
-      packageDir,
-      scripts,
-      matchesScript,
-      flags: ['--config'],
-      fallbackBasenames: STANDARD_GRAPHQL_CONFIGS,
-    });
     for (const configPath of [...configPaths].sort((left, right) => left.localeCompare(right))) {
       derived.configPaths.add(configPath);
-      const resolvedOutputs = await resolveGraphqlOutputs(baseDir, configPath, analyzableFiles);
+      const resolvedOutputs = await resolveGraphqlOutputs(baseDir, configPath, sourceFileMatcher);
       addFamilyFiles(GRAPHQL_CODEGEN_FAMILY, resolvedOutputs.filePaths, derived);
       for (const outputDirectory of resolvedOutputs.outputDirectories) {
         derived.outputDirectories.add(outputDirectory);
@@ -86,7 +92,7 @@ export const graphqlCodegenDetector = {
 async function resolveGraphqlOutputs(
   baseDir: NormalizedAbsolutePath,
   configPath: NormalizedAbsolutePath,
-  analyzableFiles?: ReadonlySet<NormalizedAbsolutePath>,
+  sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
 ): Promise<ResolvedGeneratedOutputs> {
   const outputPaths = await parseGraphqlGenerates(configPath);
   return resolveGeneratedOutputsFromLiteralPaths(
@@ -94,7 +100,7 @@ async function resolveGraphqlOutputs(
     dirnamePath(configPath),
     outputPaths,
     true,
-    analyzableFiles,
+    sourceFileMatcher,
   );
 }
 

@@ -18,38 +18,32 @@ import { type GeneratedSourceDetector, OPENAPI_GENERATOR_FAMILY } from '../contr
 import { createDerivedGeneratedSources } from '../shared.js';
 import {
   deriveSourcesFromOutputDirectories,
-  hasToolEvidence,
-  resolveOutputDirectoriesFromScripts,
+  resolveOutputDirectoriesFromTaskInvocations,
 } from '../detector-api.js';
+import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
 
 export const openApiGeneratorDetector = {
   family: OPENAPI_GENERATOR_FAMILY,
 
-  async detect({ baseDir, packageDir, packageJson, scripts, analyzableFiles }) {
-    const matchesScript = (script: string) => script.includes('openapi-generator-cli generate');
-    if (
-      !hasToolEvidence({
-        packageJson,
-        scripts,
-        dependencyName: OPENAPI_GENERATOR_FAMILY,
-        matchesScript,
-      })
-    ) {
+  async detect({ baseDir, packageDir, taskInvocations, sourceFileMatcher }) {
+    const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
+      taskInvocationInvokesCommand(taskInvocation, 'openapi-generator-cli generate');
+    if (!taskInvocations.some(matchesTaskInvocation)) {
       return createDerivedGeneratedSources();
     }
 
-    const outputDirectories = await resolveOutputDirectoriesFromScripts({
+    const outputDirectories = await resolveOutputDirectoriesFromTaskInvocations({
       baseDir,
       packageDir,
-      scripts,
-      matchesScript,
+      taskInvocations,
+      matchesTaskInvocation,
       flags: ['-o', '--output'],
     });
     return deriveSourcesFromOutputDirectories(
       OPENAPI_GENERATOR_FAMILY,
       outputDirectories,
-      false,
-      analyzableFiles,
+      true,
+      sourceFileMatcher,
     );
   },
 } satisfies GeneratedSourceDetector;

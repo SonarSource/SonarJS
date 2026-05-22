@@ -14,25 +14,61 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { basename } from 'node:path/posix';
+import { basename, extname } from 'node:path/posix';
 import type { FileStore } from './store-type.js';
-import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
-import { getAnalyzableFilesConfigKey, type Configuration } from '../common/configuration.js';
+import {
+  normalizeToAbsolutePath,
+  type NormalizedAbsolutePath,
+} from '../../../shared/src/helpers/files.js';
+import { debug, info } from '../../../shared/src/helpers/logging.js';
+import {
+  getAnalyzableFilesConfigKey,
+  getFilterPathParams,
+  type Configuration,
+} from '../common/configuration.js';
+import { classifyFilePath } from '../common/filter/filter-path.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 import { dependencyManifestStore } from './dependency-manifests.js';
 import {
   GENERATED_SOURCE_WATCHED_FILENAMES,
   type GeneratedSourceFamily,
 } from '../jsts/rules/helpers/generated-sources/index.js';
+import { relativeToAncestorPath } from '../jsts/rules/helpers/files.js';
 import { deriveGeneratedSources } from '../jsts/rules/helpers/generated-sources/derive.js';
+import {
+  cloneGeneratedSourcesTelemetry,
+  createEmptyGeneratedSourcesTelemetry,
+  getOptionalProjectAnalysisTelemetryCollector,
+  type GeneratedSourceFamilyTelemetry,
+  type GeneratedSourcesTelemetry,
+} from '../telemetry.js';
+
+const DEFAULT_DTS_EXCLUSION_PATTERN = '**/*.d.ts';
+const OBSERVABILITY_SAMPLE_LIMIT = 3;
+
+type GeneratedSourceFamilyObservability = GeneratedSourceFamilyTelemetry & {
+  excludedPaths: NormalizedAbsolutePath[];
+  outOfScopePaths: NormalizedAbsolutePath[];
+};
+
+type GeneratedSourceObservability = {
+  telemetry: GeneratedSourcesTelemetry;
+  families: GeneratedSourceFamilyObservability[];
+  ignoredDefaultDtsFamilies: Array<{
+    family: GeneratedSourceFamily;
+    filePaths: NormalizedAbsolutePath[];
+  }>;
+};
 
 class GeneratedSourceStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
   private familyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
+  private resolvedFiles = new Set<NormalizedAbsolutePath>();
   private configPaths = new Set<NormalizedAbsolutePath>();
   private outputDirectories = new Set<NormalizedAbsolutePath>();
+  private observabilityTelemetry = createEmptyGeneratedSourcesTelemetry();
 
   async isInitialized(configuration: Configuration) {
     this.dirtyCachesIfNeeded(configuration);
@@ -41,6 +77,10 @@ class GeneratedSourceStore implements FileStore {
 
   getFamily(filePath: NormalizedAbsolutePath): GeneratedSourceFamily | undefined {
     return this.familyByFile.get(filePath);
+  }
+
+  getObservabilityTelemetry(): GeneratedSourcesTelemetry {
+    return cloneGeneratedSourcesTelemetry(this.observabilityTelemetry);
   }
 
   dirtyCachesIfNeeded(configuration: Configuration) {
@@ -106,15 +146,24 @@ class GeneratedSourceStore implements FileStore {
     const derived = await deriveGeneratedSources(
       baseDir,
       dependencyManifestStore.getPackageJsons(),
-      analyzableFiles
-        ? new Set(Object.keys(analyzableFiles) as NormalizedAbsolutePath[])
-        : undefined,
+      {
+        sourceFileMatcher: createConfiguredGeneratedSourceFileMatcher(configuration),
+      },
     );
     // Generated-source tagging must stay aligned with the analyzer's real file scope
     // so configurable suffixes and exclusions win over detector-local heuristics.
     this.familyByFile = filterAnalyzableGeneratedFiles(derived.familyByFile, analyzableFiles);
+    this.resolvedFiles = new Set(derived.familyByFile.keys());
     this.configPaths = derived.configPaths;
     this.outputDirectories = derived.outputDirectories;
+    const observability = buildGeneratedSourceObservability(
+      derived.familyByFile,
+      this.familyByFile,
+      configuration,
+    );
+    this.observabilityTelemetry = observability.telemetry;
+    getOptionalProjectAnalysisTelemetryCollector()?.recordGeneratedSources(observability.telemetry);
+    logGeneratedSourceObservability(baseDir, observability);
   }
 
   private isRelevantEvent(filename: NormalizedAbsolutePath) {
@@ -126,7 +175,11 @@ class GeneratedSourceStore implements FileStore {
       return true;
     }
 
-    if (this.configPaths.has(filename) || this.familyByFile.has(filename)) {
+    if (
+      this.configPaths.has(filename) ||
+      this.familyByFile.has(filename) ||
+      this.resolvedFiles.has(filename)
+    ) {
       return true;
     }
 
@@ -137,8 +190,10 @@ class GeneratedSourceStore implements FileStore {
 
   private clearDerivedState() {
     this.familyByFile.clear();
+    this.resolvedFiles.clear();
     this.configPaths.clear();
     this.outputDirectories.clear();
+    this.observabilityTelemetry = createEmptyGeneratedSourcesTelemetry();
   }
 }
 
@@ -160,3 +215,183 @@ function filterAnalyzableGeneratedFiles(
 }
 
 export const generatedSourceStore = new GeneratedSourceStore();
+
+function createConfiguredGeneratedSourceFileMatcher(configuration: Configuration) {
+  const supportedExtensions = new Set(
+    [...configuration.jsSuffixes, ...configuration.tsSuffixes].map(extension =>
+      extension.toLowerCase(),
+    ),
+  );
+  return (filePath: NormalizedAbsolutePath) =>
+    supportedExtensions.has(extname(filePath).toLowerCase());
+}
+
+function buildGeneratedSourceObservability(
+  resolvedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, GeneratedSourceFamily>,
+  taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, GeneratedSourceFamily>,
+  configuration: Configuration,
+): GeneratedSourceObservability {
+  const filterPathParams = getFilterPathParams(configuration);
+  const pathsByFamily = new Map<GeneratedSourceFamily, NormalizedAbsolutePath[]>();
+
+  for (const [filePath, family] of sortPathEntries(resolvedFamilyByFile.entries())) {
+    let familyPaths = pathsByFamily.get(family);
+    if (!familyPaths) {
+      familyPaths = [];
+      pathsByFamily.set(family, familyPaths);
+    }
+    familyPaths.push(filePath);
+  }
+
+  const families: GeneratedSourceFamilyObservability[] = [];
+  const ignoredDefaultDtsFamilies: GeneratedSourceObservability['ignoredDefaultDtsFamilies'] = [];
+
+  for (const family of [...pathsByFamily.keys()].sort((left, right) => left.localeCompare(right))) {
+    const filePaths = pathsByFamily.get(family) ?? [];
+    if (
+      shouldIgnoreDefaultDtsFamily(filePaths, taggedFamilyByFile, configuration, filterPathParams)
+    ) {
+      ignoredDefaultDtsFamilies.push({
+        family,
+        filePaths,
+      });
+      continue;
+    }
+
+    const familySummary: GeneratedSourceFamilyObservability = {
+      family,
+      resolvedFileCount: filePaths.length,
+      taggedFileCount: 0,
+      outOfScopeFileCount: 0,
+      excludedFileCount: 0,
+      excludedPaths: [],
+      outOfScopePaths: [],
+    };
+
+    for (const filePath of filePaths) {
+      if (taggedFamilyByFile.get(filePath) === family) {
+        familySummary.taggedFileCount += 1;
+        continue;
+      }
+
+      const pathClassification = classifyFilePath(filePath, filterPathParams);
+      if (pathClassification.status === 'OUT_OF_SCOPE') {
+        familySummary.outOfScopeFileCount += 1;
+        familySummary.outOfScopePaths.push(filePath);
+      } else {
+        familySummary.excludedFileCount += 1;
+        familySummary.excludedPaths.push(filePath);
+      }
+    }
+
+    families.push(familySummary);
+  }
+
+  const telemetryFamilies: GeneratedSourceFamilyTelemetry[] = families.map(family => ({
+    family: family.family,
+    resolvedFileCount: family.resolvedFileCount,
+    taggedFileCount: family.taggedFileCount,
+    outOfScopeFileCount: family.outOfScopeFileCount,
+    excludedFileCount: family.excludedFileCount,
+  }));
+
+  return {
+    telemetry: {
+      familyCount: telemetryFamilies.length,
+      resolvedFileCount: telemetryFamilies.reduce(
+        (count, family) => count + family.resolvedFileCount,
+        0,
+      ),
+      taggedFileCount: telemetryFamilies.reduce(
+        (count, family) => count + family.taggedFileCount,
+        0,
+      ),
+      outOfScopeFileCount: telemetryFamilies.reduce(
+        (count, family) => count + family.outOfScopeFileCount,
+        0,
+      ),
+      excludedFileCount: telemetryFamilies.reduce(
+        (count, family) => count + family.excludedFileCount,
+        0,
+      ),
+      families: telemetryFamilies,
+    },
+    families,
+    ignoredDefaultDtsFamilies,
+  };
+}
+
+function shouldIgnoreDefaultDtsFamily(
+  filePaths: readonly NormalizedAbsolutePath[],
+  taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, GeneratedSourceFamily>,
+  configuration: Configuration,
+  filterPathParams: ReturnType<typeof getFilterPathParams>,
+) {
+  if (
+    filePaths.length === 0 ||
+    !configuration.jsTsExclusions.some(
+      exclusion =>
+        exclusion.pattern ===
+        normalizeToAbsolutePath(DEFAULT_DTS_EXCLUSION_PATTERN, configuration.baseDir),
+    )
+  ) {
+    return false;
+  }
+
+  return filePaths.every(filePath => {
+    if (!filePath.endsWith('.d.ts') || taggedFamilyByFile.has(filePath)) {
+      return false;
+    }
+
+    const pathClassification = classifyFilePath(filePath, filterPathParams);
+    return pathClassification.status === 'MAIN' || pathClassification.status === 'TEST';
+  });
+}
+
+function logGeneratedSourceObservability(
+  baseDir: NormalizedAbsolutePath,
+  observability: GeneratedSourceObservability,
+) {
+  info(
+    `Generated source observability: families=${observability.telemetry.familyCount}, resolvedFiles=${observability.telemetry.resolvedFileCount}, taggedFiles=${observability.telemetry.taggedFileCount}, outOfScopeFiles=${observability.telemetry.outOfScopeFileCount}, excludedFiles=${observability.telemetry.excludedFileCount}`,
+  );
+
+  for (const family of observability.families) {
+    info(
+      `Generated source family=${family.family} resolvedFiles=${family.resolvedFileCount} taggedFiles=${family.taggedFileCount} outOfScopeFiles=${family.outOfScopeFileCount} excludedFiles=${family.excludedFileCount}`,
+    );
+
+    if (family.outOfScopePaths.length > 0) {
+      debug(
+        `Generated source family=${family.family} outOfScope sample=${formatSamplePaths(baseDir, family.outOfScopePaths)}`,
+      );
+    }
+
+    if (family.excludedPaths.length > 0) {
+      debug(
+        `Generated source family=${family.family} excluded sample=${formatSamplePaths(baseDir, family.excludedPaths)}`,
+      );
+    }
+  }
+
+  for (const ignoredFamily of observability.ignoredDefaultDtsFamilies) {
+    debug(
+      `Generated source family=${ignoredFamily.family} ignored for observability because all resolved outputs are declaration files excluded by default ${DEFAULT_DTS_EXCLUSION_PATTERN}: ${formatSamplePaths(baseDir, ignoredFamily.filePaths)}`,
+    );
+  }
+}
+
+function formatSamplePaths(
+  baseDir: NormalizedAbsolutePath,
+  filePaths: readonly NormalizedAbsolutePath[],
+) {
+  const samplePaths = filePaths
+    .slice(0, OBSERVABILITY_SAMPLE_LIMIT)
+    .map(filePath => relativeToAncestorPath(filePath, baseDir) ?? filePath);
+  const moreCount = filePaths.length - samplePaths.length;
+  return moreCount > 0 ? `${samplePaths.join(', ')} (+${moreCount} more)` : samplePaths.join(', ');
+}
+
+function sortPathEntries<T>(entries: Iterable<[NormalizedAbsolutePath, T]>) {
+  return [...entries].sort(([leftPath], [rightPath]) => leftPath.localeCompare(rightPath));
+}

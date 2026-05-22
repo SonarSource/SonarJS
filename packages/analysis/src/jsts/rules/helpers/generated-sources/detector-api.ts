@@ -18,14 +18,15 @@ import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../../../shared/src/helpers/files.js';
-import type { PackageJson } from 'type-fest';
-import { relativeToAncestorPath } from '../files.js';
-import type { DerivedGeneratedSources, GeneratedSourceFamily } from './contracts.js';
+import type {
+  DerivedGeneratedSources,
+  GeneratedSourceFamily,
+  GeneratedSourceFileMatcher,
+} from './contracts.js';
 import {
   addFamilyFiles,
   createDerivedGeneratedSources,
-  extractFlagValues,
-  hasPackageDependency,
+  extractFlagValuesFromTokens,
   isDirectory,
   isFile,
   isSourceFile,
@@ -33,27 +34,28 @@ import {
   resolveLiteralPath,
   safeStat,
 } from './shared.js';
-
+import type { DependenciesList } from '../dependency-manifests/resolvers/types.js';
+import type { TaskInvocation } from './task-invocations.js';
 export type ResolvedGeneratedOutputs = {
   filePaths: Set<NormalizedAbsolutePath>;
   outputDirectories: Set<NormalizedAbsolutePath>;
 };
 
-type ScriptMatcher = (script: string) => boolean;
+type TaskInvocationMatcher = (taskInvocation: TaskInvocation) => boolean;
 type ExistingPathKind = 'file' | 'directory';
 
 type ToolEvidenceOptions = {
-  packageJson: PackageJson;
-  scripts: readonly string[];
+  getDependencies: () => DependenciesList;
+  taskInvocations: readonly TaskInvocation[];
   dependencyName?: string;
-  matchesScript: ScriptMatcher;
+  matchesTaskInvocation: TaskInvocationMatcher;
 };
 
-type ResolvePathsFromScriptsOptions = {
+type ResolvePathsFromTaskInvocationsOptions = {
   baseDir: NormalizedAbsolutePath;
   packageDir: NormalizedAbsolutePath;
-  scripts: readonly string[];
-  matchesScript: ScriptMatcher;
+  taskInvocations: readonly TaskInvocation[];
+  matchesTaskInvocation: TaskInvocationMatcher;
   flags: string[];
   kind: ExistingPathKind;
 };
@@ -61,37 +63,38 @@ type ResolvePathsFromScriptsOptions = {
 type ResolveConfigPathsOptions = {
   baseDir: NormalizedAbsolutePath;
   packageDir: NormalizedAbsolutePath;
-  scripts: readonly string[];
-  matchesScript: ScriptMatcher;
+  taskInvocations: readonly TaskInvocation[];
+  matchesTaskInvocation: TaskInvocationMatcher;
   flags: string[];
   fallbackBasenames: readonly string[];
 };
 
 export function hasToolEvidence({
-  packageJson,
-  scripts,
+  getDependencies,
+  taskInvocations,
   dependencyName,
-  matchesScript,
+  matchesTaskInvocation,
 }: ToolEvidenceOptions) {
-  return (
-    (dependencyName ? hasPackageDependency(packageJson, dependencyName) : false) ||
-    scripts.some(matchesScript)
-  );
+  if (taskInvocations.some(matchesTaskInvocation)) {
+    return true;
+  }
+
+  return dependencyName ? getDependencies().has(dependencyName) : false;
 }
 
 export async function resolveConfigPaths({
   baseDir,
   packageDir,
-  scripts,
-  matchesScript,
+  taskInvocations,
+  matchesTaskInvocation,
   flags,
   fallbackBasenames,
 }: ResolveConfigPathsOptions) {
-  const explicitConfigPaths = await resolveExistingPathsFromScripts({
+  const explicitConfigPaths = await resolveExistingPathsFromTaskInvocations({
     baseDir,
     packageDir,
-    scripts,
-    matchesScript,
+    taskInvocations,
+    matchesTaskInvocation,
     flags,
     kind: 'file',
   });
@@ -103,18 +106,18 @@ export async function resolveConfigPaths({
   return resolveExistingSiblingPaths(packageDir, fallbackBasenames, 'file');
 }
 
-export async function resolveOutputDirectoriesFromScripts({
+export async function resolveOutputDirectoriesFromTaskInvocations({
   baseDir,
   packageDir,
-  scripts,
-  matchesScript,
+  taskInvocations,
+  matchesTaskInvocation,
   flags,
-}: Omit<ResolvePathsFromScriptsOptions, 'kind'>) {
-  return resolveExistingPathsFromScripts({
+}: Omit<ResolvePathsFromTaskInvocationsOptions, 'kind'>) {
+  return resolveExistingPathsFromTaskInvocations({
     baseDir,
     packageDir,
-    scripts,
-    matchesScript,
+    taskInvocations,
+    matchesTaskInvocation,
     flags,
     kind: 'directory',
   });
@@ -124,7 +127,7 @@ export async function deriveSourcesFromOutputDirectories(
   family: GeneratedSourceFamily,
   outputDirectories: Iterable<NormalizedAbsolutePath>,
   recursive: boolean,
-  analyzableFiles?: ReadonlySet<NormalizedAbsolutePath>,
+  sourceFileMatcher?: GeneratedSourceFileMatcher,
 ): Promise<DerivedGeneratedSources> {
   const derived = createDerivedGeneratedSources();
 
@@ -134,7 +137,7 @@ export async function deriveSourcesFromOutputDirectories(
     derived.outputDirectories.add(outputDirectory);
     addFamilyFiles(
       family,
-      await listAcceptedGeneratedFilesInDirectory(outputDirectory, recursive, analyzableFiles),
+      await listAcceptedGeneratedFilesInDirectory(outputDirectory, recursive, sourceFileMatcher),
       derived,
     );
   }
@@ -147,7 +150,7 @@ export async function resolveGeneratedOutputsFromLiteralPaths(
   declaredFromDir: NormalizedAbsolutePath,
   outputPaths: Iterable<string>,
   recursive: boolean,
-  analyzableFiles?: ReadonlySet<NormalizedAbsolutePath>,
+  sourceFileMatcher?: GeneratedSourceFileMatcher,
 ): Promise<ResolvedGeneratedOutputs> {
   const resolvedOutputs: ResolvedGeneratedOutputs = {
     filePaths: new Set<NormalizedAbsolutePath>(),
@@ -157,7 +160,7 @@ export async function resolveGeneratedOutputsFromLiteralPaths(
   for (const outputPath of outputPaths) {
     const resolvedPath = resolveLiteralPath(outputPath, declaredFromDir, baseDir);
     if (resolvedPath) {
-      await addResolvedGeneratedOutput(resolvedOutputs, resolvedPath, recursive, analyzableFiles);
+      await addResolvedGeneratedOutput(resolvedOutputs, resolvedPath, recursive, sourceFileMatcher);
     }
   }
 
@@ -168,7 +171,7 @@ async function addResolvedGeneratedOutput(
   resolvedOutputs: ResolvedGeneratedOutputs,
   resolvedPath: NormalizedAbsolutePath,
   recursive: boolean,
-  analyzableFiles?: ReadonlySet<NormalizedAbsolutePath>,
+  sourceFileMatcher?: GeneratedSourceFileMatcher,
 ) {
   const stats = await safeStat(resolvedPath);
   if (!stats) {
@@ -176,7 +179,7 @@ async function addResolvedGeneratedOutput(
   }
 
   if (stats.isFile()) {
-    if (isAcceptedGeneratedFile(resolvedPath, analyzableFiles)) {
+    if (isAcceptedGeneratedFile(resolvedPath, sourceFileMatcher)) {
       resolvedOutputs.filePaths.add(resolvedPath);
     }
     return;
@@ -190,7 +193,7 @@ async function addResolvedGeneratedOutput(
   for (const childFile of await listAcceptedGeneratedFilesInDirectory(
     resolvedPath,
     recursive,
-    analyzableFiles,
+    sourceFileMatcher,
   )) {
     resolvedOutputs.filePaths.add(childFile);
   }
@@ -198,60 +201,35 @@ async function addResolvedGeneratedOutput(
 
 function isAcceptedGeneratedFile(
   filePath: NormalizedAbsolutePath,
-  analyzableFiles?: ReadonlySet<NormalizedAbsolutePath>,
+  sourceFileMatcher?: GeneratedSourceFileMatcher,
 ) {
-  return analyzableFiles ? analyzableFiles.has(filePath) : isSourceFile(filePath);
-}
-
-function collectAnalyzableFilesFromOutputDirectory(
-  outputDirectory: NormalizedAbsolutePath,
-  recursive: boolean,
-  analyzableFiles: ReadonlySet<NormalizedAbsolutePath>,
-) {
-  const files: NormalizedAbsolutePath[] = [];
-
-  for (const filePath of analyzableFiles) {
-    const relativePath = relativeToAncestorPath(filePath, outputDirectory);
-    if (relativePath === undefined || relativePath.length === 0) {
-      continue;
-    }
-
-    if (!recursive && relativePath.includes('/')) {
-      continue;
-    }
-
-    files.push(filePath);
-  }
-
-  return files.sort((left, right) => left.localeCompare(right));
+  return isSourceFile(filePath, sourceFileMatcher);
 }
 
 async function listAcceptedGeneratedFilesInDirectory(
   outputDirectory: NormalizedAbsolutePath,
   recursive: boolean,
-  analyzableFiles?: ReadonlySet<NormalizedAbsolutePath>,
+  sourceFileMatcher?: GeneratedSourceFileMatcher,
 ) {
-  return analyzableFiles
-    ? collectAnalyzableFilesFromOutputDirectory(outputDirectory, recursive, analyzableFiles)
-    : listSourceFilesInDirectory(outputDirectory, recursive);
+  return listSourceFilesInDirectory(outputDirectory, recursive, sourceFileMatcher);
 }
 
-async function resolveExistingPathsFromScripts({
+async function resolveExistingPathsFromTaskInvocations({
   baseDir,
   packageDir,
-  scripts,
-  matchesScript,
+  taskInvocations,
+  matchesTaskInvocation,
   flags,
   kind,
-}: ResolvePathsFromScriptsOptions) {
+}: ResolvePathsFromTaskInvocationsOptions) {
   const resolvedPaths = new Set<NormalizedAbsolutePath>();
 
-  for (const script of scripts) {
-    if (!matchesScript(script)) {
+  for (const taskInvocation of taskInvocations) {
+    if (!matchesTaskInvocation(taskInvocation) || !taskInvocation.tokens) {
       continue;
     }
 
-    for (const token of extractFlagValues(script, flags)) {
+    for (const token of extractFlagValuesFromTokens(taskInvocation.tokens, flags)) {
       const resolvedPath = resolveLiteralPath(token, packageDir, baseDir);
       if (resolvedPath && (await matchesExistingPathKind(resolvedPath, kind))) {
         resolvedPaths.add(resolvedPath);

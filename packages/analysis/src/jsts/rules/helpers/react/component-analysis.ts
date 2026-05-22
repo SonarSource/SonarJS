@@ -39,7 +39,7 @@ export type ComponentAnalysis = {
   memberPropsTypeCandidates: ts.Type[];
   enclosingTypePropsTypeCandidates: ts.Type[];
 };
-export type ComponentNode =
+type ComponentNode =
   | estree.ClassDeclaration
   | estree.ClassExpression
   | estree.FunctionDeclaration
