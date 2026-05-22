@@ -21,20 +21,8 @@ import { getFullyQualifiedName } from './module.js';
 import { isComponentNode } from './react/component-analysis.js';
 import { findComponentOwnersByType } from './react/type-ownership.js';
 
-export {
-  getComponentPropsType,
-  getComponentPropsTypeCandidates,
-  getComponentVariable,
-  getDeclaredClassNonPropsTypes,
-  isClassComponentNode,
-  isFunctionComponentNode,
-  isPascalCaseFunctionComponent,
-} from './react/component-analysis.js';
-export { getReportedTypeMember, type ReportedTypeMember } from './react/member-ownership.js';
-export {
-  getComponentReportedTypeUsage,
-  type ComponentReportedTypeUsage,
-} from './react/type-ownership.js';
+export { getComponentPropsType, getComponentVariable } from './react/component-analysis.js';
+export { getComponentReportedTypeUsage } from './react/type-ownership.js';
 
 const REACT_QUALIFIED_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
 const REACT_LOCAL_CLASS_SUPERS = new Set(['Component', 'PureComponent']);

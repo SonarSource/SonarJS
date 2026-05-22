@@ -61,13 +61,13 @@ const EMPTY_COMPONENT_ANALYSIS: ComponentAnalysis = {
   classNonPropsTypeCandidates: [],
 };
 
-export function isClassComponentNode(
+function isClassComponentNode(
   node: estree.Node,
 ): node is estree.ClassDeclaration | estree.ClassExpression {
   return node.type === 'ClassDeclaration' || node.type === 'ClassExpression';
 }
 
-export function isFunctionComponentNode(node: estree.Node): node is FunctionComponentNode {
+function isFunctionComponentNode(node: estree.Node): node is FunctionComponentNode {
   return (
     node.type === 'FunctionDeclaration' ||
     node.type === 'FunctionExpression' ||
@@ -179,7 +179,7 @@ export function getComponentPropsType(
   return getDeclaredClassPropsType(tsNode, checker) ?? getClassPropsPropertyType(tsNode, checker);
 }
 
-export function getComponentPropsTypeCandidates(
+function getComponentPropsTypeCandidates(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type[] {
@@ -329,7 +329,7 @@ function getReactSuperclassTypeArguments(
   return reactSuperclass?.typeArguments ?? [];
 }
 
-export function getDeclaredClassNonPropsTypes(
+function getDeclaredClassNonPropsTypes(
   classNode: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
 ): ts.Type[] {
@@ -511,7 +511,7 @@ export function getComponentIdentifier(componentNode: estree.Node): estree.Ident
   return isVariableDeclaratorWithIdentifierId(parent) ? parent.id : undefined;
 }
 
-export function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
+function isPascalCaseFunctionComponent(componentNode: estree.Node): boolean {
   return (
     isFunctionComponentNode(componentNode) &&
     isEligibleFunctionComponent(componentNode, getComponentIdentifier(componentNode))
