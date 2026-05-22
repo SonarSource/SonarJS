@@ -178,6 +178,50 @@ Wrapper.propTypes = {
     });
   });
 
+  it('upstream rule should NOT report direct class decorator prop access', () => {
+    // Characterizes the current upstream behavior for class decorators:
+    // direct prop reads inside @screenTrack(...) do not need an S6767 escape.
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run(
+      'no-unused-prop-types (upstream, class decorator direct prop access)',
+      upstreamRule,
+      {
+        valid: [
+          {
+            code: `
+declare const React: any;
+declare function screenTrack<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): ClassDecorator;
+interface DecoratorAnnotationProps {
+  screenName: string;
+}
+@screenTrack((props: DecoratorAnnotationProps) => ({
+  screen_name: props.screenName,
+}))
+class DecoratorAnnotationComponent extends React.Component<DecoratorAnnotationProps> {
+  props: DecoratorAnnotationProps;
+  render() {
+    return <main />;
+  }
+}
+`,
+            filename: fixtureFile,
+          },
+        ],
+        invalid: [],
+      },
+    );
+  });
+
   it('upstream rule should NOT report state interface properties when TypeScript type info is available', () => {
     // Confirms that the upstream rule uses TypeScript type information to distinguish
     // state types from props types. AnchorState (used as the second type parameter of

@@ -43,6 +43,10 @@ import {
   setCurrentFileInlineDependencies,
   withCurrentFileInlineDependencies,
 } from '../rules/helpers/dependency-manifests/dependencies.js';
+import type {
+  DependenciesList,
+  ModuleType,
+} from '../rules/helpers/dependency-manifests/resolvers/types.js';
 import {
   DEPENDENCY_INDEPENDENT_RULE_FILTERS,
   DEPENDENCY_SENSITIVE_RULE_FILTERS,
@@ -53,7 +57,6 @@ import { getOptionalProjectAnalysisTelemetryCollector } from '../../telemetry.js
 import type { FileType } from '../../contracts/file.js';
 import { clearFileCaches, getCurrentFileImports } from '../rules/helpers/module.js';
 import { parseInlineNPMImport } from '../rules/helpers/dependency-manifests/resolvers/deno.js';
-import type { DependenciesList } from '../rules/helpers/dependency-manifests/resolvers/types.js';
 
 interface InitializeParams {
   rules?: RuleConfig[];
@@ -164,6 +167,11 @@ export class Linter {
     }
   }
 
+  /** Resolve the module type for a file against the linter's base directory. */
+  public static detectModuleType(filePath: NormalizedAbsolutePath): ModuleType | undefined {
+    return getModuleType(normalizeToAbsolutePath(filePath), Linter.baseDir);
+  }
+
   private static async loadRulesFromBundle(ruleBundle: NormalizedAbsolutePath) {
     const { rules: bundleRules } = await import(pathToFileURL(ruleBundle).toString());
     for (const rule of bundleRules) {
@@ -186,6 +194,7 @@ export class Linter {
    * @param analysisMode whether we are analyzing all files or only changed files
    * @param language language of the source file
    * @param detectedEsYear ecmascript version for the file
+   * @param detectedModuleType module type for the file
    * @param lintOptions additional rules and settings for linting
    * @returns linting issues
    */
@@ -197,6 +206,7 @@ export class Linter {
     analysisMode: AnalysisMode = 'DEFAULT',
     language: JsTsLanguage = 'js',
     detectedEsYear?: number,
+    detectedModuleType?: ModuleType,
     lintOptions: LintOptions = {},
   ) {
     if (!Linter.linter) {
@@ -208,6 +218,7 @@ export class Linter {
       fileStatus === 'SAME' ? analysisMode : 'DEFAULT',
       language,
       detectedEsYear,
+      detectedModuleType,
       sourceCode,
     );
     const rules = lintOptions.additionalRules
@@ -272,11 +283,14 @@ export class Linter {
     analysisMode: AnalysisMode,
     fileLanguage: JsTsLanguage,
     detectedEsYear?: number,
+    detectedModuleType?: ModuleType,
     sourceCode?: SourceCode,
   ): ESLintLinter.RulesRecord {
     const normalizedFilePath = normalizeToAbsolutePath(filePath);
-    const detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
-    getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
+    if (detectedModuleType === undefined) {
+      detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
+      getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
+    }
     const manifestDependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
     // Make inline npm: imports visible to both rule activation and to dependency helpers
     // (getReactVersion, getDependenciesSanitizePaths) called from rules during linting.
@@ -431,7 +445,7 @@ function createLinterConfigKey(
   language: JsTsLanguage,
   analysisMode: AnalysisMode,
   detectedEsYear?: number,
-  detectedModuleType?: string,
+  detectedModuleType?: ModuleType,
 ): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const normalizedPath = normalizeToAbsolutePath(filePath);

@@ -15,7 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { collectNclocLines } from '../../../../src/jsts/analysis/file-artifacts.js';
-import { buildParserOptions } from '../../../../src/jsts/parsers/options.js';
+import {
+  buildTsParserOptions,
+  buildVueParserOptions,
+} from '../../../../src/jsts/parsers/options.js';
 import { parse } from '../../../../src/jsts/parsers/parse.js';
 import { parsersMap } from '../../../../src/jsts/parsers/eslint.js';
 import { describe, it } from 'node:test';
@@ -82,13 +85,9 @@ p {
 });
 
 function parseJavaScriptSource(source: string) {
-  return parse(source, parsersMap.typescript, buildParserOptions({}, false)).sourceCode;
+  return parse(source, parsersMap.typescript, buildTsParserOptions()).sourceCode;
 }
 
 function parseVueSource(source: string) {
-  return parse(
-    source,
-    parsersMap.vuejs,
-    buildParserOptions({ parser: parsersMap.typescript }, false),
-  ).sourceCode;
+  return parse(source, parsersMap.vuejs, buildVueParserOptions('ts')).sourceCode;
 }

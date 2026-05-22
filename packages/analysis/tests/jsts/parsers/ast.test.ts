@@ -26,7 +26,10 @@ import {
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
 import { JsTsAnalysisInput } from '../../../src/jsts/analysis/analysis.js';
-import { buildParserOptions } from '../../../src/jsts/parsers/options.js';
+import {
+  buildBabelParserOptions,
+  buildTsParserOptions,
+} from '../../../src/jsts/parsers/options.js';
 import {
   deserializeProtobuf,
   lowerCaseFirstLetter,
@@ -61,7 +64,7 @@ async function parseSourceFile(
   const fileType = 'MAIN';
 
   const input = { filePath, fileType, fileContent } as JsTsAnalysisInput;
-  const options = buildParserOptions(input, usingBabel);
+  const options = usingBabel ? buildBabelParserOptions(input) : buildTsParserOptions(input);
   return parse(fileContent, parser, options);
 }
 

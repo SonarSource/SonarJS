@@ -70,6 +70,8 @@ export const packageJsonManifestResolver: ManifestResolver = {
 
     parsedPackageJson = resolveCatalogReferences(parsedPackageJson, catalogSource);
 
+    // Match Node's resolution: explicit "module" is ESM, anything else (including
+    // missing "type") is CommonJS.
     const moduleType: ModuleType = parsedPackageJson.type === 'module' ? 'module' : 'commonjs';
     return [
       {

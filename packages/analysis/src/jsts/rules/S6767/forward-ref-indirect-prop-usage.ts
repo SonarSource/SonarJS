@@ -41,9 +41,9 @@ const forwardRefCalleePatterns: Array<(callee: estree.Expression | estree.Super)
 export function hasForwardRefCallbackPropUsage(
   componentNode: estree.Node,
   context: Rule.RuleContext,
-  propName: string,
+  propName: string | undefined,
 ): boolean {
-  if (!isFunctionNode(componentNode)) {
+  if (!propName || !isFunctionNode(componentNode)) {
     return false;
   }
 

@@ -168,6 +168,23 @@ class ForwardedCounterPanel extends CounterPanelBase {
           filename: fixtureFile,
         },
         {
+          // FP: wrapped callbacks still resolve through the owning variable, so the
+          // forwardRef closure escape continues to suppress WrappedProps.label.
+          code: `
+declare const React: any;
+interface WrappedProps {
+  label: string;
+}
+const Wrapped = React.memo(function (props: WrappedProps) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label ref={ref}>{props.label}</label>
+  ));
+  return <ForwardedInput />;
+});
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: whole props are only forwarded to the custom superclass, never accessed locally.
           // This isolates hasOwnCustomSuperclassPropsForwarding from other whole-props escapes.
           code: `
@@ -185,6 +202,47 @@ class ForwardedOnlyPanel extends CounterPanelBase {
     return <span>ready</span>;
   }
 }
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: decorator-factory callback reads typed component props.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorFactoryProps {
+  contextModule: string;
+  userId: string;
+}
+function DecoratorFactoryComponent(props: DecoratorFactoryProps) {
+  return <div />;
+}
+track((props: DecoratorFactoryProps) => ({
+  context_module: props.contextModule,
+  user_id: props.userId,
+}))(DecoratorFactoryComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: decorator-factory callback forwards typed props to a helper.
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function screenTrack<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorHelperProps {
+  screenName: string;
+}
+function DecoratorHelperComponent(props: DecoratorHelperProps) {
+  return <main />;
+}
+screenTrack(function (props: DecoratorHelperProps) {
+  return buildPayload(props);
+})(DecoratorHelperComponent);
 `,
           filename: fixtureFile,
         },
@@ -287,6 +345,133 @@ class DerivedForwarder extends CustomIntermediateBase {
   render() {
     return <div>{this.props.label}</div>;
   }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: a shared base props declaration can belong to multiple components.
+          // The wrapper forwards whole props to the child, but the child still leaves
+          // the inherited prop unused, so the report must remain.
+          code: `
+import * as React from 'react';
+interface SharedProps {
+  relay: string;
+}
+interface ChildProps extends SharedProps {
+  title: string;
+}
+const SavedSearchesList: React.FC<ChildProps> = props => {
+  const { title } = props;
+  return <div>{title}</div>;
+};
+const SavedSearchesListWrapper: React.FC<SharedProps> = props => {
+  const { relay } = props;
+  return <div data-id={relay}><SavedSearchesList {...props} title="x" /></div>;
+};
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: an exact shared props contract can belong to both a destructuring React.FC
+          // and a class component that forwards whole props. The issue must remain until
+          // every owner proves the prop is consumed through an FP remediation pattern.
+          code: `
+import * as React from 'react';
+interface PageWrapperProps {
+  moduleName: string;
+  viewProps: { isVisible: boolean };
+}
+const InnerPageWrapper: React.FC<PageWrapperProps> = ({ viewProps }) => {
+  return <div>{String(viewProps.isVisible)}</div>;
+};
+class PageWrapper extends React.Component<PageWrapperProps> {
+  componentDidUpdate() {
+    if (this.props.moduleName === 'Map') {
+      return;
+    }
+  }
+  render() {
+    return <InnerPageWrapper {...this.props} />;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should not report anonymous default-export component props used via forwardRef closure', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          // Regression: anonymous default-export components still own typed props
+          // even though their component identifier is attached later in analysis.
+          code: `
+declare const React: any;
+interface Props {
+  label: string;
+}
+export default function (props: Props) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label ref={ref}>{props.label}</label>
+  ));
+  return <ForwardedInput />;
+}
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
+  it('should report props when a decorator target only matches a shadowed local binding', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [],
+      invalid: [
+        {
+          // Regression: the decorator callback matches the component props type,
+          // but the applied target is a nested shadowing binding, not the component.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface Props {
+  label: string;
+  userId: string;
+}
+function Comp(props: Props) {
+  {
+    const Comp = 0;
+    track((decoratedProps: Props) => ({
+      user_id: decoratedProps.userId,
+    }))(Comp);
+  }
+  return <div>{props.label}</div>;
 }
 `,
           filename: fixtureFile,

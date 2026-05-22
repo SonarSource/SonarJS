@@ -17,8 +17,13 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { parseForESLint } from '@typescript-eslint/parser';
+import ts from 'typescript';
 import { RequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
-import { typeHasMethod } from '../../../../src/jsts/rules/helpers/type.js';
+import {
+  areMutuallyAssignableTypes,
+  areSameTypeDeclarations,
+  typeHasMethod,
+} from '../../../../src/jsts/rules/helpers/type.js';
 import { createProgramFromSingleFile } from '../../../../src/jsts/program/factory.js';
 
 // Helper function to create a TypeScript program and services from source code
@@ -79,6 +84,13 @@ function findNodeByText(node: any, text: string): any {
     }
   }
   return null;
+}
+
+function getTypeByText(ast: any, services: RequiredParserServices, text: string): ts.Type {
+  const node = findNodeByText(ast, text);
+  expect(node).toBeTruthy();
+  const checker = services.program.getTypeChecker();
+  return checker.getTypeAtLocation(services.esTreeNodeToTSNodeMap.get(node));
 }
 
 describe('typeHasMethod', () => {
@@ -382,5 +394,89 @@ describe('typeHasMethod', () => {
       const result = typeHasMethod(instanceNode, 'baseMethod', services);
       expect(result).toBe(true);
     });
+  });
+});
+
+describe('areMutuallyAssignableTypes', () => {
+  it('requires both directions of assignability and rejects any, unknown, and missing types', () => {
+    const sourceCode = `
+      type Box<T> = { value: T };
+      const stringBox = {} as Box<string>;
+      const aliasStringBox = {} as Box<string>;
+      const numberBox = {} as Box<number>;
+      const anyValue = {} as any;
+      const unknownValue = {} as unknown;
+    `;
+
+    const { services, ast } = createProgramFromSource(sourceCode);
+    const checker = services.program.getTypeChecker();
+
+    const stringBoxType = getTypeByText(ast, services, 'stringBox');
+    const aliasStringBoxType = getTypeByText(ast, services, 'aliasStringBox');
+    const numberBoxType = getTypeByText(ast, services, 'numberBox');
+    const anyValueType = getTypeByText(ast, services, 'anyValue');
+    const unknownValueType = getTypeByText(ast, services, 'unknownValue');
+
+    expect(areMutuallyAssignableTypes(checker, stringBoxType, aliasStringBoxType)).toBe(true);
+    expect(areMutuallyAssignableTypes(checker, stringBoxType, numberBoxType)).toBe(false);
+    expect(areMutuallyAssignableTypes(checker, stringBoxType, undefined)).toBe(false);
+    expect(areMutuallyAssignableTypes(checker, anyValueType, stringBoxType)).toBe(false);
+    expect(areMutuallyAssignableTypes(checker, unknownValueType, stringBoxType)).toBe(false);
+  });
+});
+
+describe('areSameTypeDeclarations', () => {
+  it('distinguishes declarations, generic arguments, and instantiated anonymous shapes', () => {
+    const sourceCode = `
+      interface ShapeA {
+        id: string;
+      }
+      interface ShapeB {
+        id: string;
+      }
+      type Box<T> = { value: T };
+
+      const shapeA = {} as ShapeA;
+      const shapeB = {} as ShapeB;
+      const stringBox = {} as Box<string>;
+      const otherStringBox = {} as Box<string>;
+      const numberBox = {} as Box<number>;
+      const anyBox = {} as Box<any>;
+      const sameAnyBox = {} as Box<any>;
+      const unknownBox = {} as Box<unknown>;
+      interface NamedShape {
+        id: string;
+      }
+      const namedObjectBox = {} as Box<NamedShape>;
+      const objectBox = {} as Box<{ id: string }>;
+      const sameObjectBox = {} as Box<{ id: string }>;
+      const differentObjectBox = {} as Box<{ id: number }>;
+    `;
+
+    const { services, ast } = createProgramFromSource(sourceCode);
+    const checker = services.program.getTypeChecker();
+
+    const shapeAType = getTypeByText(ast, services, 'shapeA');
+    const shapeBType = getTypeByText(ast, services, 'shapeB');
+    const stringBoxType = getTypeByText(ast, services, 'stringBox');
+    const otherStringBoxType = getTypeByText(ast, services, 'otherStringBox');
+    const numberBoxType = getTypeByText(ast, services, 'numberBox');
+    const anyBoxType = getTypeByText(ast, services, 'anyBox');
+    const sameAnyBoxType = getTypeByText(ast, services, 'sameAnyBox');
+    const unknownBoxType = getTypeByText(ast, services, 'unknownBox');
+    const namedObjectBoxType = getTypeByText(ast, services, 'namedObjectBox');
+    const objectBoxType = getTypeByText(ast, services, 'objectBox');
+    const sameObjectBoxType = getTypeByText(ast, services, 'sameObjectBox');
+    const differentObjectBoxType = getTypeByText(ast, services, 'differentObjectBox');
+
+    expect(areSameTypeDeclarations(checker, shapeAType, shapeBType)).toBe(false);
+    expect(areSameTypeDeclarations(checker, stringBoxType, otherStringBoxType)).toBe(true);
+    expect(areSameTypeDeclarations(checker, stringBoxType, numberBoxType)).toBe(false);
+    expect(areSameTypeDeclarations(checker, anyBoxType, sameAnyBoxType)).toBe(true);
+    expect(areSameTypeDeclarations(checker, anyBoxType, unknownBoxType)).toBe(false);
+    expect(areSameTypeDeclarations(checker, namedObjectBoxType, objectBoxType)).toBe(false);
+    expect(areSameTypeDeclarations(checker, objectBoxType, sameObjectBoxType)).toBe(true);
+    expect(areSameTypeDeclarations(checker, objectBoxType, differentObjectBoxType)).toBe(false);
+    expect(areSameTypeDeclarations(checker, undefined, stringBoxType)).toBe(false);
   });
 });

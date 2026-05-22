@@ -22,6 +22,8 @@ import { expect } from 'expect';
 import { build } from '../../../src/jsts/builders/build.js';
 import { APIError } from '../../../src/contracts/error.js';
 import { normalizeToAbsolutePath } from '../../../../shared/src/helpers/files.js';
+import { createStandardProgram } from '../../../src/jsts/program/factory.js';
+import { createProgramOptions } from '../../../src/jsts/program/tsconfig/options.js';
 
 describe('buildSourceCode', () => {
   it('should build JavaScript source code', async () => {
@@ -247,10 +249,89 @@ describe('buildSourceCode', () => {
     const analysisInput = await jsTsInput({ filePath, language: 'ts' });
     expect(() => build(analysisInput)).toThrow(new Error('Expression expected.'));
 
-    const log = `DEBUG Failed to parse ${normalizeToAbsolutePath(filePath)} with vue-eslint-parser: Expression expected.`;
     const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
       call => call.arguments[0],
     );
-    expect(logs).toContain(log);
+    expect(logs).toContain(
+      `DEBUG Failed to parse ${normalizeToAbsolutePath(filePath)} with vue-eslint-parser: Expression expected.`,
+    );
+    // Both attempts failed; the JSX retry was tried then the original error was thrown.
+    expect(logs).toContain(`DEBUG Retrying ${normalizeToAbsolutePath(filePath)} with JSX disabled`);
+    expect(
+      logs.some(l =>
+        l.startsWith(`DEBUG JSX-disabled retry failed for ${normalizeToAbsolutePath(filePath)}:`),
+      ),
+    ).toBe(true);
+  });
+
+  it('should parse Vue+TS file containing a TS angle-bracket assertion', async ({ mock }) => {
+    console.log = mock.fn(console.log);
+
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'ts-assertion.vue');
+    const sourceCode = build(await jsTsInput({ filePath, language: 'ts' })).sourceCode;
+    expect(sourceCode.ast).toBeDefined();
+
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain(`DEBUG Retrying ${normalizeToAbsolutePath(filePath)} with JSX disabled`);
+  });
+
+  it('should parse Vue+TS file with JSX content', async ({ mock }) => {
+    console.log = mock.fn(console.log);
+
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'tsx-content.vue');
+    const sourceCode = build(await jsTsInput({ filePath, language: 'ts' })).sourceCode;
+    expect(sourceCode.ast).toBeDefined();
+
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).not.toContain(
+      `DEBUG Retrying ${normalizeToAbsolutePath(filePath)} with JSX disabled`,
+    );
+  });
+
+  it('should parse Vue+TS angle-bracket assertion without retry when tsconfig has no JSX', async ({
+    mock,
+  }) => {
+    console.log = mock.fn(console.log);
+
+    const tsConfig = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'build-vue', 'tsconfig.json'),
+    );
+    const program = createStandardProgram(createProgramOptions(tsConfig, undefined, true));
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'ts-assertion.vue');
+    const sourceCode = build(await jsTsInput({ filePath, language: 'ts', program })).sourceCode;
+    expect(sourceCode.ast).toBeDefined();
+
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).not.toContain(
+      `DEBUG Retrying ${normalizeToAbsolutePath(filePath)} with JSX disabled`,
+    );
+    expect(logs).not.toContain(
+      `DEBUG Retrying ${normalizeToAbsolutePath(filePath)} with JSX enabled`,
+    );
+  });
+
+  it('should recover JSX content when tsconfig disables JSX by retrying with JSX enabled', async ({
+    mock,
+  }) => {
+    console.log = mock.fn(console.log);
+
+    const tsConfig = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'build-vue', 'tsconfig.json'),
+    );
+    const program = createStandardProgram(createProgramOptions(tsConfig, undefined, true));
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-vue', 'tsx-content.vue');
+    const sourceCode = build(await jsTsInput({ filePath, language: 'ts', program })).sourceCode;
+    expect(sourceCode.ast).toBeDefined();
+
+    const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+      call => call.arguments[0],
+    );
+    expect(logs).toContain(`DEBUG Retrying ${normalizeToAbsolutePath(filePath)} with JSX enabled`);
   });
 });
