@@ -53,7 +53,7 @@ function isStackTraceCapturePattern(node: estree.Node, context: Rule.RuleContext
   }
 
   // Pattern 1: new Error().stack or new Error()['stack'] used as a read (not write target)
-  if (parent.type === 'MemberExpression' && isStackRead(parent as estree.MemberExpression)) {
+  if (parent.type === 'MemberExpression' && isStackRead(parent)) {
     return true;
   }
 
@@ -150,7 +150,7 @@ function isVariableUsedExclusivelyForStackReads(
     readRefs.every(ref => {
       const refParent = (ref.identifier as Rule.Node).parent;
       return (
-        refParent?.type === 'MemberExpression' && isStackRead(refParent as estree.MemberExpression)
+        refParent?.type === 'MemberExpression' && isStackRead(refParent)
       );
     })
   );
