@@ -43,6 +43,16 @@ const ruleTester = new RuleTester({
   },
 });
 
+function getEnclosingInterfaceName(
+  sourceCode: Rule.RuleContext['sourceCode'],
+  node: estree.Node,
+): string | undefined {
+  const interfaceDeclaration = sourceCode
+    .getAncestors(node)
+    .findLast(ancestor => (ancestor as { type?: string }).type === 'TSInterfaceDeclaration');
+  return (interfaceDeclaration as { id?: { name?: string } } | undefined)?.id?.name;
+}
+
 const typeOwnershipRule: Rule.RuleModule = {
   meta: {
     messages: {},
@@ -157,13 +167,6 @@ const typeUsageRule: Rule.RuleModule = {
     let sawStateOnly = false;
     let sawSharedType = false;
 
-    const getEnclosingInterfaceName = (node: estree.Node): string | undefined => {
-      const interfaceDeclaration = context.sourceCode
-        .getAncestors(node)
-        .findLast(ancestor => (ancestor as { type?: string }).type === 'TSInterfaceDeclaration');
-      return (interfaceDeclaration as { id?: { name?: string } } | undefined)?.id?.name;
-    };
-
     const assertUsage = (
       node: estree.Node,
       expectedUsages: Record<string, 'mixed' | 'non-props' | 'other' | 'props'>,
@@ -198,7 +201,7 @@ const typeUsageRule: Rule.RuleModule = {
           return;
         }
 
-        const interfaceName = getEnclosingInterfaceName(node.key);
+        const interfaceName = getEnclosingInterfaceName(context.sourceCode, node.key);
 
         if (interfaceName === 'AnchorState' && node.key.name === 'activeLink') {
           sawAnchorState = true;
@@ -307,13 +310,6 @@ const nonPropsProofRule: Rule.RuleModule = {
     let sawSharedType = false;
     let sawSlotSplitType = false;
 
-    const getEnclosingInterfaceName = (node: estree.Node): string | undefined => {
-      const interfaceDeclaration = context.sourceCode
-        .getAncestors(node)
-        .findLast(ancestor => (ancestor as { type?: string }).type === 'TSInterfaceDeclaration');
-      return (interfaceDeclaration as { id?: { name?: string } } | undefined)?.id?.name;
-    };
-
     const assertNonPropsProof = (node: estree.Node, expected: boolean) => {
       assert.equal(
         hasOnlyReactClassNonPropsReportedTypeUsage(node, context),
@@ -327,7 +323,7 @@ const nonPropsProofRule: Rule.RuleModule = {
           return;
         }
 
-        const interfaceName = getEnclosingInterfaceName(node.key);
+        const interfaceName = getEnclosingInterfaceName(context.sourceCode, node.key);
 
         if (interfaceName === 'AnchorState' && node.key.name === 'activeLink') {
           sawAnchorState = true;
