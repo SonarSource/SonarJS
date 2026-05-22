@@ -125,15 +125,6 @@ export async function safeStat(path: NormalizedAbsolutePath) {
   }
 }
 
-function isIgnorableFileAccessError(error: unknown) {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    (error.code === 'ENOENT' || error.code === 'EACCES' || error.code === 'EPERM')
-  );
-}
-
 async function safeReadDir(path: NormalizedAbsolutePath) {
   try {
     return await readdir(path, { withFileTypes: true });
