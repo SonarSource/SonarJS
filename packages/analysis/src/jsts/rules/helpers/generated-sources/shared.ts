@@ -125,7 +125,7 @@ export async function safeStat(path: NormalizedAbsolutePath) {
   }
 }
 
-export function isIgnorableFileAccessError(error: unknown) {
+function isIgnorableFileAccessError(error: unknown) {
   return (
     typeof error === 'object' &&
     error !== null &&
