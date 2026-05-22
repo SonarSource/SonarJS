@@ -766,6 +766,13 @@ When summarizing a run for SonarJS release triage:
 - Prefer a short roll-up note such as `Ignored 4 Diff Val monitoring failures`
 - If every failed job is either a Diff Val monitoring failure or another `IGNORE` category, the
   release verdict is `SAFE`
+- A run with zero failed GitHub jobs is still not `SAFE` when the analysis-consistency check
+  reports any `DROP`, `STALE`, non-excluded `UNRESOLVED_PROJECT`, or `ERROR` rows
+- If the analysis-consistency helper returns many `ERROR` rows with the same Peach API response
+  (for example `502 Bad Gateway`), group them as one shared `NEEDS-MANUAL-REVIEW` infrastructure
+  event in the summary instead of printing one paragraph per project
+- For that shared-helper failure pattern, recommend rerunning the consistency check before calling
+  the release safe, because the GitHub workflow may be green while the post-run verification is incomplete
 
 ---
 
