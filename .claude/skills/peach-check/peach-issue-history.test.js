@@ -291,6 +291,7 @@ async function runSingleProjectIssueHistory(
     issueSources,
     componentChildren,
     issueSearchDelayMsByScope,
+    propertiesContent,
   },
 ) {
   const output = {};
@@ -341,7 +342,8 @@ async function runSingleProjectIssueHistory(
         return true;
       },
       execFileSync: createGitExecFileSyncStub(headSha, {
-        [`${projectName}/sonar-project.properties`]: `sonar.projectKey=${projectKey}\n`,
+        [`${projectName}/sonar-project.properties`]:
+          propertiesContent ?? `sonar.projectKey=${projectKey}\n`,
       }),
       sleep: async () => {},
       random: () => 0,
@@ -374,6 +376,34 @@ test('runIssueHistory filters to SonarJS-supported languages and ignores unsuppo
   assert.equal(row.analysis_date, analyses[5].date);
   assert.equal(row.current_value, 100);
   assert.equal(row.baseline_value, 100);
+});
+
+test('runIssueHistory reports project scope metadata and unambiguous freshness window bounds', async t => {
+  const analyses = createDailyAnalyses('2026-04-26T03:10:35Z', 6);
+  const { report } = await runSingleProjectIssueHistory(t, {
+    analyses,
+    openIssues: createOpenIssues(100, '2026-04-01T00:00:00Z', 'js'),
+    resolvedIssues: [],
+    projectKey: 'js:ScopeProject',
+    projectName: 'scope-project',
+    propertiesContent: [
+      'sonar.projectKey=js:ScopeProject',
+      'sonar.sources=src,e2e',
+      'sonar.tests=test,e2e',
+      '',
+    ].join('\n'),
+  });
+
+  assert.equal(report.analysis_window_start, '2026-04-30T00:00:00Z');
+  assert.equal(report.analysis_window_end, '2026-05-01T03:11:35Z');
+  assert.equal(report.analysis_after, undefined);
+  assert.equal(report.analysis_before, undefined);
+
+  const row = report.rows[0];
+  assert.equal(row.project_dir, 'scope-project');
+  assert.equal(row.has_sonar_tests, true);
+  assert.deepEqual(row.sonar_sources, ['src', 'e2e']);
+  assert.deepEqual(row.sonar_tests, ['test', 'e2e']);
 });
 
 test('runIssueHistory marks DROP when supported-language issue counts fall enough', async t => {

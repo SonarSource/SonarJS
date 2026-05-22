@@ -1,0 +1,313 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import fs from 'node:fs';
+import path from 'node:path';
+import process from 'node:process';
+import { fileURLToPath } from 'node:url';
+import {
+  parseProjectProperties,
+  readProjectPropertiesForJob,
+} from './peach-project-properties.js';
+
+const DEFAULT_TEST_FILE_EXTENSIONS = ['js', 'mjs', 'cjs', 'jsx', 'vue', 'ts', 'mts', 'cts', 'tsx'];
+const TEST_ONLY_RULES = new Set([
+  'javascript:S1607',
+  'javascript:S2187',
+  'javascript:S2699',
+  'javascript:S5914',
+  'javascript:S6426',
+  'typescript:S1607',
+  'typescript:S2187',
+  'typescript:S2699',
+  'typescript:S5914',
+  'typescript:S6426',
+]);
+
+const TEST_RELATED_PATH_PATTERN = new RegExp(
+  String.raw`\.(?:test|spec|cy)\.(?:${DEFAULT_TEST_FILE_EXTENSIONS.join('|')})$|\.(?:e2e|mock)\.(?:${DEFAULT_TEST_FILE_EXTENSIONS.join('|')})$|(?:^|[\\/])(?:__tests__|__mocks__)[\\/]`,
+);
+
+export async function runDropForensics(options, runtime = {}) {
+  const readFileSync = runtime.readFileSync ?? fs.readFileSync;
+  const writeFileSync = runtime.writeFileSync ?? fs.writeFileSync;
+  const existsSync = runtime.existsSync ?? fs.existsSync;
+
+  if (!options.projectKey) {
+    throw new Error('projectKey is required');
+  }
+  if (!options.sourceJobName) {
+    throw new Error('sourceJobName is required');
+  }
+  if (!options.peacheeRoot) {
+    throw new Error('peacheeRoot is required');
+  }
+  if (!options.outputPath) {
+    throw new Error('outputPath is required');
+  }
+  if (!options.sarifPaths || options.sarifPaths.length === 0) {
+    throw new Error('At least one SARIF path is required');
+  }
+
+  const propertiesContent = readProjectPropertiesForJob(options.peacheeRoot, options.sourceJobName, undefined, {
+    readFileSync,
+    existsSync,
+  });
+  const projectMetadata = propertiesContent
+    ? parseProjectProperties(propertiesContent, options.sourceJobName)
+    : {
+        projectKey: options.projectKey,
+        projectDir: options.sourceJobName,
+        hasSonarTests: false,
+        sonarSources: [],
+        sonarTests: [],
+      };
+
+  const candidates = options.sarifPaths.map(sarifPath =>
+    summarizeSarifCandidate(sarifPath, options.projectKey, readFileSync),
+  );
+  const selectedCandidate =
+    candidates.find(candidate => candidate.projectMatched && candidate.resultCount > 0) ??
+    candidates.find(candidate => candidate.projectMatched) ??
+    candidates[0];
+
+  const report = {
+    project_key: options.projectKey,
+    source_job_name: options.sourceJobName,
+    project_metadata: {
+      project_dir: projectMetadata.projectDir,
+      has_sonar_tests: projectMetadata.hasSonarTests,
+      sonar_sources: projectMetadata.sonarSources,
+      sonar_tests: projectMetadata.sonarTests,
+    },
+    selected_sarif_path: selectedCandidate.sarifPath,
+    sarif_candidates: candidates.map(candidate => ({
+      sarif_path: candidate.sarifPath,
+      project_matched: candidate.projectMatched,
+      result_count: candidate.resultCount,
+    })),
+    counts_by_baseline_state: selectedCandidate.countsByBaselineState,
+    test_like_counts_by_baseline_state: selectedCandidate.testLikeCountsByBaselineState,
+    non_test_like_counts_by_baseline_state: selectedCandidate.nonTestLikeCountsByBaselineState,
+    top_rules_by_baseline_state: selectedCandidate.topRulesByBaselineState,
+    top_paths_by_baseline_state: selectedCandidate.topPathsByBaselineState,
+    diagnosis: diagnoseDrop(selectedCandidate, projectMetadata),
+  };
+
+  writeFileSync(options.outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
+  return report;
+}
+
+function summarizeSarifCandidate(sarifPath, projectKey, readFileSync) {
+  const sarif = JSON.parse(readFileSync(sarifPath, 'utf-8'));
+  const runs = Array.isArray(sarif.runs) ? sarif.runs : [];
+  const run = runs.find(candidate => candidate?.properties?.project === projectKey);
+  const results = Array.isArray(run?.results) ? run.results : [];
+
+  return {
+    sarifPath,
+    projectMatched: run !== undefined,
+    resultCount: results.length,
+    countsByBaselineState: countBy(results, result => normalizeBaselineState(result.baselineState)),
+    testLikeCountsByBaselineState: countBy(
+      results.filter(result => isTestLikeResult(result)),
+      result => normalizeBaselineState(result.baselineState),
+    ),
+    nonTestLikeCountsByBaselineState: countBy(
+      results.filter(result => !isTestLikeResult(result)),
+      result => normalizeBaselineState(result.baselineState),
+    ),
+    topRulesByBaselineState: summarizeTopRulesByState(results),
+    topPathsByBaselineState: summarizeTopPathsByState(results),
+  };
+}
+
+function diagnoseDrop(candidate, projectMetadata) {
+  if (!candidate.projectMatched) {
+    return {
+      id: 'PROJECT_NOT_FOUND_IN_SARIF',
+      confidence: 'high',
+      reasons: ['The selected SARIF candidates do not contain a run for this project.'],
+    };
+  }
+
+  if (candidate.resultCount === 0) {
+    return {
+      id: 'NO_PROJECT_DIFFS',
+      confidence: 'high',
+      reasons: ['The selected SARIF run contains no differential-validation results for this project.'],
+    };
+  }
+
+  const onlyTestLikePaths = Object.keys(candidate.nonTestLikeCountsByBaselineState).length === 0;
+  const newRuleIds = Object.keys(candidate.topRulesByBaselineState.new ?? {});
+  const onlyTestRuleAdditions =
+    newRuleIds.length === 0 ||
+    candidate.topRulesByBaselineState.new.every(entry => TEST_ONLY_RULES.has(entry.rule_id));
+
+  if (!projectMetadata.hasSonarTests && onlyTestLikePaths && onlyTestRuleAdditions) {
+    return {
+      id: 'LIKELY_TEST_SCOPE_RECLASSIFICATION',
+      confidence: 'high',
+      reasons: [
+        'Project does not configure sonar.tests.',
+        'All differential-validation results are on test-like paths.',
+        'New issues, if any, are limited to test-focused rules.',
+      ],
+    };
+  }
+
+  return {
+    id: 'UNCLASSIFIED_DROP',
+    confidence: 'low',
+    reasons: ['The differential-validation summary does not match any known DROP diagnosis.'],
+  };
+}
+
+function summarizeTopRulesByState(results) {
+  return summarizeByBaselineState(results, result => result.ruleId ?? 'unknown', 'rule_id');
+}
+
+function summarizeTopPathsByState(results) {
+  const grouped = new Map();
+
+  for (const result of results) {
+    const state = normalizeBaselineState(result.baselineState);
+    const pathKey = getResultPath(result) ?? 'unknown';
+    const stateGroups = grouped.get(state) ?? new Map();
+    const summary = stateGroups.get(pathKey) ?? {
+      count: 0,
+      rules: new Map(),
+    };
+
+    summary.count += 1;
+    const ruleId = result.ruleId ?? 'unknown';
+    summary.rules.set(ruleId, (summary.rules.get(ruleId) ?? 0) + 1);
+    stateGroups.set(pathKey, summary);
+    grouped.set(state, stateGroups);
+  }
+
+  return Object.fromEntries(
+    Array.from(grouped.entries(), ([state, stateGroups]) => [
+      state,
+      Array.from(stateGroups.entries())
+        .map(([pathKey, summary]) => ({
+          path: pathKey,
+          count: summary.count,
+          rules: sortCountEntries(summary.rules, 'rule_id'),
+        }))
+        .sort(compareCountEntries)
+        .slice(0, 10),
+    ]),
+  );
+}
+
+function summarizeByBaselineState(results, keySelector, propertyName) {
+  const grouped = new Map();
+
+  for (const result of results) {
+    const state = normalizeBaselineState(result.baselineState);
+    const stateGroups = grouped.get(state) ?? new Map();
+    const key = keySelector(result);
+    stateGroups.set(key, (stateGroups.get(key) ?? 0) + 1);
+    grouped.set(state, stateGroups);
+  }
+
+  return Object.fromEntries(
+    Array.from(grouped.entries(), ([state, stateGroups]) => [
+      state,
+      sortCountEntries(stateGroups, propertyName),
+    ]),
+  );
+}
+
+function sortCountEntries(counts, propertyName) {
+  return Array.from(counts.entries())
+    .map(([value, count]) => ({
+      [propertyName]: value,
+      count,
+    }))
+    .sort(compareCountEntries)
+    .slice(0, 10);
+}
+
+function compareCountEntries(left, right) {
+  if (right.count !== left.count) {
+    return right.count - left.count;
+  }
+
+  const leftKey = left.rule_id ?? left.path ?? '';
+  const rightKey = right.rule_id ?? right.path ?? '';
+  return String(leftKey).localeCompare(String(rightKey));
+}
+
+function countBy(items, keySelector) {
+  const counts = new Map();
+
+  for (const item of items) {
+    const key = keySelector(item);
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  return Object.fromEntries(
+    Array.from(counts.entries()).sort(([leftKey], [rightKey]) =>
+      String(leftKey).localeCompare(String(rightKey)),
+    ),
+  );
+}
+
+function isTestLikeResult(result) {
+  const resultPath = getResultPath(result);
+  return resultPath !== undefined && TEST_RELATED_PATH_PATTERN.test(resultPath);
+}
+
+function getResultPath(result) {
+  return result?.locations?.[0]?.physicalLocation?.artifactLocation?.uri;
+}
+
+function normalizeBaselineState(baselineState) {
+  return typeof baselineState === 'string' && baselineState.length > 0
+    ? baselineState
+    : 'unspecified';
+}
+
+export async function main(argv = process.argv.slice(2), runtime = {}) {
+  if (argv.length < 5) {
+    throw new Error(
+      'Usage: node .claude/skills/peach-check/peach-drop-forensics.js <project-key> <source-job-name> <peachee-root> <output.json> <sarif.json> [sarif.json ...]',
+    );
+  }
+
+  const [projectKey, sourceJobName, peacheeRoot, outputPath, ...sarifPaths] = argv;
+  await runDropForensics(
+    {
+      projectKey,
+      sourceJobName,
+      peacheeRoot,
+      outputPath,
+      sarifPaths,
+    },
+    runtime,
+  );
+}
+
+const entrypoint = fileURLToPath(import.meta.url);
+if (process.argv[1] && path.resolve(process.argv[1]) === entrypoint) {
+  main().catch(error => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  });
+}

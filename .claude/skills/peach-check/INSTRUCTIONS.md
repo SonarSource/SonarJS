@@ -12,6 +12,7 @@ failures, or decide whether Peach blocks a SonarJS release.
 - Branch: `js-ts-css-html`
 - Classification guide: `docs/peach-main-analysis.md`
 - Canonical issue-history helper: `.claude/skills/peach-check/peach-issue-history.js`
+- Canonical DROP-forensics helper: `.claude/skills/peach-check/peach-drop-forensics.js`
 
 This skill fetches the target run, collects failed jobs, runs an analysis-consistency check across
 successful project scans to verify that the current Peach state is materially consistent with
@@ -182,8 +183,9 @@ Interpret the helper statuses like this:
 
 - `OK` → the project has a fresh analysis in the run window and its current SonarJS-language issue
   count is materially consistent with the recent baseline
-- `DROP` → record one `NEEDS-MANUAL-REVIEW` finding per flagged project; describe it as a
-  suspicious downward variation versus recent history
+- `DROP` → investigate with the DROP-forensics workflow below before writing the finding; keep it
+  as `NEEDS-MANUAL-REVIEW` unless the forensics clearly downgrades it to expected project-scope
+  churn
 - `INSUFFICIENT_HISTORY` → mention only in the summary; there is not enough baseline to judge
   consistency, but this alone does not block a `SAFE` verdict
 - `STALE` → treat as `NEEDS-MANUAL-REVIEW`; describe it as "no fresh Peach analysis observed
@@ -221,6 +223,16 @@ Each `DROP` finding should include:
 - absolute drop
 - percentage drop
 
+Each history row also carries the project-scope metadata needed for DROP triage:
+
+- `project_dir`
+- `has_sonar_tests`
+- `sonar_sources`
+- `sonar_tests`
+
+The top-level report now uses `analysis_window_start` and `analysis_window_end` for the run
+window bounds. Prefer those names over the old `analysis_after` / `analysis_before` wording.
+
 Treat `threshold-abs` as a small-project noise floor, not an alternative trigger. Flag `DROP`
 only when the measured drop clears both gates:
 
@@ -232,6 +244,83 @@ Equivalent single-condition restatement after converting the percentage gate int
 - `drop_abs >= max(threshold-abs, baseline * threshold_pct / 100)`
 
 That `max(...)` form is the same two-gate rule above, not an OR trigger.
+
+#### DROP forensics
+
+When a project is `DROP`, inspect the merged SARIF diff before deciding whether the drop looks
+like a real analyzer regression or a project-scope change.
+
+1. Download the current run's aggregated SARIF artifact:
+
+```bash
+mkdir -p target/peach-drop-forensics/current
+```
+
+```bash
+gh run download RUN_ID \
+  --repo SonarSource/peachee-js \
+  --name 0-aggregated-sarif \
+  --dir target/peach-drop-forensics/current
+```
+
+2. If the current merged SARIF has no results for the dropped project, backtrack to the previous
+   completed run and download its `0-aggregated-sarif` too:
+
+```bash
+mkdir -p target/peach-drop-forensics/previous
+```
+
+```bash
+gh run download PREVIOUS_RUN_ID \
+  --repo SonarSource/peachee-js \
+  --name 0-aggregated-sarif \
+  --dir target/peach-drop-forensics/previous
+```
+
+Pass SARIF paths newest first; the helper will automatically pick the first candidate that
+contains results for the project.
+
+3. Run the helper with the project key, source job name, `PEACHEE_ROOT`, an output path, and the
+   extracted `.sarif` files you want to inspect:
+
+```bash
+node .claude/skills/peach-check/peach-drop-forensics.js \
+  PROJECT_KEY \
+  SOURCE_JOB_NAME \
+  "${PEACHEE_ROOT}" \
+  target/peach-drop-forensics/PROJECT_KEY.json \
+  CURRENT_MERGED_SARIF_PATH \
+  [PREVIOUS_MERGED_SARIF_PATH ...]
+```
+
+The helper reports:
+
+- `selected_sarif_path`
+- `counts_by_baseline_state`
+- `test_like_counts_by_baseline_state`
+- `non_test_like_counts_by_baseline_state`
+- `top_rules_by_baseline_state`
+- `top_paths_by_baseline_state`
+- `project_metadata`
+- `diagnosis`
+
+Interpret the diagnosis like this:
+
+- `LIKELY_TEST_SCOPE_RECLASSIFICATION` → the project does not define `sonar.tests`, all observed
+  removals are on test-like paths, and any additions are absent or limited to test-only rules.
+  Keep the item as `NEEDS-MANUAL-REVIEW`, but explain that the drop is likely caused by test-file
+  fallback/reclassification rather than broad issue disappearance in production code.
+- `NO_PROJECT_DIFFS` on the current run → do not stop there; inspect the previous completed run's
+  merged SARIF because the actual drop may have been introduced earlier and the latest diff can be
+  `NO DIFFERENCE`.
+- `PROJECT_NOT_FOUND_IN_SARIF` → mention that differential validation did not capture this project,
+  so the drop remains unexplained.
+- `UNCLASSIFIED_DROP` → keep the generic suspicious-drop wording and summarize the dominant rules
+  and paths from the helper output.
+
+When the helper points to test-scope reclassification, explicitly mention whether
+`has_sonar_tests` is `false` and cite the affected test-like paths. Do not invent
+generated-source explanations unless the evidence actually shows generated-code-only paths.
 
 ### 4. Early exit if no failures and the analysis state looks consistent
 

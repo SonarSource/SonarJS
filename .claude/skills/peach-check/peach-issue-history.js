@@ -19,6 +19,10 @@ import path from 'node:path';
 import process from 'node:process';
 import { execFileSync as nodeExecFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import {
+  parseProjectProperties,
+  readProjectPropertiesForJob,
+} from './peach-project-properties.js';
 
 const DEFAULT_METRIC = 'sonarjs_issue_count';
 const DEFAULT_BASELINE_WINDOW = 5;
@@ -68,12 +72,13 @@ export async function runIssueHistory(options, runtime = {}) {
   const rows = await mapWithConcurrencyLimit(
     Array.from(projectSources.entries()),
     concurrency,
-    async ([projectKey, sourceJobName]) =>
+    async ([projectKey, projectSource]) =>
       evaluateProjectHistory(
         {
           apiToken,
           projectKey,
-          sourceJobName,
+          sourceJobName: projectSource.sourceJobName,
+          projectMetadata: projectSource.projectMetadata,
           metric,
           baselineWindow,
           thresholdPct,
@@ -95,8 +100,8 @@ export async function runIssueHistory(options, runtime = {}) {
     threshold_pct: thresholdPct,
     threshold_abs: thresholdAbs,
     concurrency,
-    analysis_after: freshnessWindow.analysisAfter,
-    analysis_before: freshnessWindow.analysisBefore,
+    analysis_window_start: freshnessWindow.analysisWindowStart,
+    analysis_window_end: freshnessWindow.analysisWindowEnd,
     rows: combinedRows.map(toJsonRow),
     summary: summarizeRows(combinedRows),
   };
@@ -184,7 +189,8 @@ function collectProjectsFromJobsJson(jobsJsonData, peacheeRoot, options) {
       continue;
     }
 
-    const projectKey = extractProjectKeyFromProperties(propertiesContent);
+    const projectMetadata = parseProjectProperties(propertiesContent, job.name);
+    const projectKey = projectMetadata.projectKey;
     if (!projectKey) {
       unresolvedRows.set(
         job.name,
@@ -194,7 +200,10 @@ function collectProjectsFromJobsJson(jobsJsonData, peacheeRoot, options) {
     }
 
     if (!options.projectSources.has(projectKey) || options.projectSources.get(projectKey) === undefined) {
-      options.projectSources.set(projectKey, job.name);
+      options.projectSources.set(projectKey, {
+        sourceJobName: job.name,
+        projectMetadata,
+      });
     }
   }
 
@@ -219,8 +228,8 @@ function resolveFreshnessWindow(jobsJsonData) {
   previousDayStart.setUTCDate(previousDayStart.getUTCDate() - 1);
 
   return {
-    analysisAfter: formatIsoTimestamp(previousDayStart.getTime()),
-    analysisBefore: formatIsoTimestamp(referenceTimestamp),
+    analysisWindowStart: formatIsoTimestamp(previousDayStart.getTime()),
+    analysisWindowEnd: formatIsoTimestamp(referenceTimestamp),
   };
 }
 
@@ -231,35 +240,10 @@ function ensureCommitAvailable(peacheeRoot, headSha, execFileSync) {
       encoding: 'utf-8',
     });
   } catch {
-    throw new Error(`jobs-json headSha ${headSha} is not available in ${peacheeRoot}`);
+    throw new Error(
+      `jobs-json headSha ${headSha} is not available in ${peacheeRoot}. Run: git -C ${peacheeRoot} fetch origin ${headSha}`,
+    );
   }
-}
-
-function readProjectPropertiesForJob(peacheeRoot, jobName, headSha, runtime) {
-  const relativePath = path.posix.join(jobName, 'sonar-project.properties');
-
-  if (headSha) {
-    try {
-      return runtime.execFileSync('git', ['show', `${headSha}:${relativePath}`], {
-        cwd: peacheeRoot,
-        encoding: 'utf-8',
-      });
-    } catch {
-      return undefined;
-    }
-  }
-
-  const propertiesPath = path.join(peacheeRoot, jobName, 'sonar-project.properties');
-  if (!runtime.existsSync(propertiesPath)) {
-    return undefined;
-  }
-
-  return runtime.readFileSync(propertiesPath, 'utf-8');
-}
-
-function extractProjectKeyFromProperties(content) {
-  const match = /^\s*sonar\.projectKey\s*=\s*(.+)\s*$/m.exec(content);
-  return match?.[1]?.trim();
 }
 
 async function evaluateProjectHistory(options, runtime) {
@@ -288,6 +272,7 @@ async function evaluateProjectHistory(options, runtime) {
         status: 'STALE',
         projectKey: options.projectKey,
         sourceJobName: options.sourceJobName,
+        projectMetadata: options.projectMetadata,
         metric: options.metric,
         analysisDate: latest.date,
         currentValue: latestCounts.get(latest.date),
@@ -330,6 +315,7 @@ async function evaluateProjectHistory(options, runtime) {
         status: 'INSUFFICIENT_HISTORY',
         projectKey: options.projectKey,
         sourceJobName: options.sourceJobName,
+        projectMetadata: options.projectMetadata,
         metric: options.metric,
         analysisDate: current.date,
         currentValue,
@@ -353,6 +339,7 @@ async function evaluateProjectHistory(options, runtime) {
       status,
       projectKey: options.projectKey,
       sourceJobName: options.sourceJobName,
+      projectMetadata: options.projectMetadata,
       metric: options.metric,
       analysisDate: current.date,
       currentValue,
@@ -739,33 +726,42 @@ function toDatedEntries(entries) {
 }
 
 function parseFreshnessWindow(window) {
-  const analysisAfterTimestamp = parseTimestamp(window.analysisAfter);
-  const analysisBeforeTimestamp = parseTimestamp(window.analysisBefore);
+  const analysisWindowStartTimestamp = parseTimestamp(
+    window.analysisWindowStart ?? window.analysisAfter,
+  );
+  const analysisWindowEndTimestamp = parseTimestamp(
+    window.analysisWindowEnd ?? window.analysisBefore,
+  );
 
   if (
-    analysisAfterTimestamp !== undefined &&
-    analysisBeforeTimestamp !== undefined &&
-    analysisAfterTimestamp > analysisBeforeTimestamp
+    analysisWindowStartTimestamp !== undefined &&
+    analysisWindowEndTimestamp !== undefined &&
+    analysisWindowStartTimestamp > analysisWindowEndTimestamp
   ) {
-    throw new Error('analysisAfter must be earlier than or equal to analysisBefore');
+    throw new Error('analysisWindowStart must be earlier than or equal to analysisWindowEnd');
   }
 
   return {
-    analysisAfterTimestamp,
-    analysisBeforeTimestamp,
+    analysisWindowStartTimestamp,
+    analysisWindowEndTimestamp,
   };
 }
 
 function findCurrentHistoryIndex(history, window) {
-  if (window.analysisAfterTimestamp === undefined && window.analysisBeforeTimestamp === undefined) {
+  if (
+    window.analysisWindowStartTimestamp === undefined &&
+    window.analysisWindowEndTimestamp === undefined
+  ) {
     return history.length - 1;
   }
 
   for (let index = history.length - 1; index >= 0; index -= 1) {
     const point = history[index];
     if (
-      (window.analysisAfterTimestamp === undefined || point.timestamp >= window.analysisAfterTimestamp) &&
-      (window.analysisBeforeTimestamp === undefined || point.timestamp <= window.analysisBeforeTimestamp)
+      (window.analysisWindowStartTimestamp === undefined ||
+        point.timestamp >= window.analysisWindowStartTimestamp) &&
+      (window.analysisWindowEndTimestamp === undefined ||
+        point.timestamp <= window.analysisWindowEndTimestamp)
     ) {
       return index;
     }
@@ -815,6 +811,12 @@ function createUnresolvedRow(sourceJobName, message, metric, baselineWindow) {
   return {
     status: 'UNRESOLVED_PROJECT',
     sourceJobName,
+    projectMetadata: {
+      projectDir: sourceJobName,
+      hasSonarTests: false,
+      sonarSources: [],
+      sonarTests: [],
+    },
     metric,
     baselineKind: 'median',
     baselineWindow,
@@ -829,6 +831,7 @@ function createErrorRow(options, message) {
     status: 'ERROR',
     projectKey: options.projectKey,
     sourceJobName: options.sourceJobName,
+    projectMetadata: options.projectMetadata,
     metric: options.metric,
     baselineKind: 'median',
     baselineWindow: options.baselineWindow,
@@ -848,6 +851,10 @@ function summarizeRows(rows) {
 function toJsonRow(row) {
   return {
     project_key: row.projectKey,
+    project_dir: row.projectMetadata?.projectDir,
+    has_sonar_tests: row.projectMetadata?.hasSonarTests ?? false,
+    sonar_sources: row.projectMetadata?.sonarSources ?? [],
+    sonar_tests: row.projectMetadata?.sonarTests ?? [],
     metric: row.metric,
     analysis_date: row.analysisDate,
     current_value: row.currentValue,
