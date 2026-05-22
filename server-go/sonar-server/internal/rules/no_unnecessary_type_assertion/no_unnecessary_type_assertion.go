@@ -1,7 +1,6 @@
 package no_unnecessary_type_assertion
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 
@@ -29,12 +28,6 @@ func buildUnnecessaryAssertionDiagnostic(assertion core.TextRange, expression co
 			Id:          "unnecessaryAssertion",
 			Description: "This assertion is unnecessary since it does not change the type of the expression.",
 		},
-		LabeledRanges: []rule.RuleLabeledRange{
-			{
-				Label: fmt.Sprintf("This expression already has the type '%s'", expressionType),
-				Range: expression,
-			},
-		},
 	}
 }
 
@@ -44,16 +37,6 @@ func buildUnnecessaryTypeAssertionDiagnostic(assertion core.TextRange, expressio
 		Message: rule.RuleMessage{
 			Id:          "unnecessaryAssertion",
 			Description: "This assertion is unnecessary since it does not change the type of the expression.",
-		},
-		LabeledRanges: []rule.RuleLabeledRange{
-			{
-				Label: fmt.Sprintf("This expression already has the type '%s'", expressionType),
-				Range: expression,
-			},
-			{
-				Label: fmt.Sprintf("Casting it to '%s' is unnecessary", assertedType),
-				Range: assertion,
-			},
 		},
 	}
 }
@@ -240,6 +223,29 @@ var NoUnnecessaryTypeAssertionRule = rule.Rule{
 
 			return false
 		}
+		isGenericCall := func(expression *ast.Node) bool {
+			if !ast.IsCallExpression(expression) {
+				return false
+			}
+
+			signature := checker.Checker_getResolvedSignature(ctx.TypeChecker, expression, nil, checker.CheckModeNormal)
+			if signature == nil {
+				return false
+			}
+			if len(signature.TypeParameters()) > 0 {
+				return true
+			}
+
+			declaration := checker.Signature_declaration(signature)
+			return declaration != nil && len(declaration.TypeParameters()) > 0
+		}
+		isNonNullWrappedGenericCallAssertion := func(expression *ast.Node) bool {
+			expression = ast.SkipParentheses(expression)
+			if !ast.IsNonNullExpression(expression) {
+				return false
+			}
+			return isGenericCall(ast.SkipParentheses(expression.Expression()))
+		}
 
 		getUncastType := func(node *ast.Node) *checker.Type {
 			expression := ast.SkipParentheses(node.Expression())
@@ -284,6 +290,10 @@ var NoUnnecessaryTypeAssertionRule = rule.Rule{
 			}
 
 			expression := node.Expression()
+			if isNonNullWrappedGenericCallAssertion(expression) {
+				return
+			}
+			fullAssertionRange := utils.TrimNodeTextRange(ctx.SourceFile, node)
 			uncastType := getUncastType(node)
 
 			expressionForType := ast.SkipParentheses(expression)
@@ -326,10 +336,9 @@ var NoUnnecessaryTypeAssertionRule = rule.Rule{
 						fixEnd++
 					}
 
-					assertionRange := core.NewTextRange(commentStart, commentEnd)
 					ctx.ReportDiagnosticWithFixes(
 						buildUnnecessaryTypeAssertionDiagnostic(
-							assertionRange,
+							fullAssertionRange,
 							utils.TrimNodeTextRange(ctx.SourceFile, expressionForType),
 							ctx.TypeChecker.TypeToString(uncastType),
 							ctx.TypeChecker.TypeToString(castType),
@@ -355,12 +364,9 @@ var NoUnnecessaryTypeAssertionRule = rule.Rule{
 				//                         ^
 				typeNodeRange := typeNode.Loc
 
-				// Report the `as T` part of `const x = y as T;` for the main diagnostic message
-				assertionRange := asKeywordRange.WithEnd(typeNodeRange.End())
-
 				ctx.ReportDiagnosticWithFixes(
 					buildUnnecessaryTypeAssertionDiagnostic(
-						assertionRange,
+						fullAssertionRange,
 						utils.TrimNodeTextRange(ctx.SourceFile, expressionForType),
 						ctx.TypeChecker.TypeToString(uncastType),
 						ctx.TypeChecker.TypeToString(castType),
@@ -420,7 +426,7 @@ var NoUnnecessaryTypeAssertionRule = rule.Rule{
 				assertionRange := openingAngleBracket.WithEnd(closingAngleBracket.End())
 				ctx.ReportDiagnosticWithFixes(
 					buildUnnecessaryTypeAssertionDiagnostic(
-						assertionRange,
+						fullAssertionRange,
 						utils.TrimNodeTextRange(ctx.SourceFile, expressionForType),
 						ctx.TypeChecker.TypeToString(uncastType),
 						ctx.TypeChecker.TypeToString(castType),
@@ -438,6 +444,7 @@ var NoUnnecessaryTypeAssertionRule = rule.Rule{
 
 			ast.KindNonNullExpression: func(node *ast.Node) {
 				expression := node.Expression()
+				fullAssertionRange := utils.TrimNodeTextRange(ctx.SourceFile, node)
 
 				getExclamationTokenRange := func() core.TextRange {
 					s := scanner.GetScannerForSourceFile(ctx.SourceFile, expression.End())
@@ -451,7 +458,7 @@ var NoUnnecessaryTypeAssertionRule = rule.Rule{
 				if ast.IsAssignmentExpression(node.Parent, true) {
 					if node.Parent.AsBinaryExpression().Left == node {
 						exclamationRange := getExclamationTokenRange()
-						ctx.ReportDiagnosticWithFixes(buildContextuallyUnnecessaryMessage(exclamationRange), func() []rule.RuleFix { return []rule.RuleFix{buildRemoveExclamationFix(exclamationRange)} })
+						ctx.ReportDiagnosticWithFixes(buildContextuallyUnnecessaryMessage(fullAssertionRange), func() []rule.RuleFix { return []rule.RuleFix{buildRemoveExclamationFix(exclamationRange)} })
 					}
 					// for all other = assignments we ignore non-null checks
 					// this is because non-null assertions can change the type-flow of the code
@@ -477,7 +484,7 @@ var NoUnnecessaryTypeAssertionRule = rule.Rule{
 					exclamationRange := getExclamationTokenRange()
 					ctx.ReportDiagnosticWithFixes(
 						buildUnnecessaryAssertionDiagnostic(
-							exclamationRange,
+							fullAssertionRange,
 							expression.Loc,
 							ctx.TypeChecker.TypeToString(t),
 						),
@@ -515,7 +522,7 @@ var NoUnnecessaryTypeAssertionRule = rule.Rule{
 
 						if isValidUndefined && isValidNull && isValidVoid {
 							exclamationRange := getExclamationTokenRange()
-							ctx.ReportDiagnosticWithFixes(buildContextuallyUnnecessaryMessage(exclamationRange), func() []rule.RuleFix { return []rule.RuleFix{buildRemoveExclamationFix(exclamationRange)} })
+							ctx.ReportDiagnosticWithFixes(buildContextuallyUnnecessaryMessage(fullAssertionRange), func() []rule.RuleFix { return []rule.RuleFix{buildRemoveExclamationFix(exclamationRange)} })
 						}
 					}
 				}
