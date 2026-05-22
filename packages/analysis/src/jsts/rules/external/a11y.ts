@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
+import { isObjectLike } from '../helpers/configs.js';
 
 type JsxA11yPluginWithRecommendedConfig = {
   configs?: {
@@ -31,10 +32,6 @@ type UpstreamRecommendedField = {
   field: string;
   default: UpstreamRecommendedFieldValue;
 };
-
-function isObjectLike(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function isStringArray(value: unknown): value is string[] {
   return Array.isArray(value) && value.every(item => typeof item === 'string');
