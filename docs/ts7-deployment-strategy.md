@@ -93,8 +93,8 @@ The right retirement condition for Node is evidence-based, not date-based.
 - The current Node analyzer is mature, broadly tested, and already deployed in products.
 - The current Go runtime is no longer only a toy PoC. It already mirrors a meaningful part of the `analyze-project` semantics for the currently migrated subset.
 - The current Go path is still a secondary JS/TS issue engine, not a full replacement for Node.
-- `JsTsChecks.JSTS_GO_RULES` currently routes 17 hard type-service Sonar rules to Go.
-- The broader local Go implementation surface still covers 60 Sonar rules for parity and experimentation, but AST-only ports are intentionally not product-routed.
+- `JsTsChecks.JSTS_GO_RULES` currently routes 37 hard type-service Sonar rules to Go.
+- The broader local Go implementation surface now covers 80 Sonar rules for parity and experimentation, but AST-only ports are intentionally not product-routed.
 - The current migration inventory identifies 92 rules with a hard type-service dependency and 142 AST-only rules that are conditional on the future TS runtime choice.
 
 ### What is still missing or unresolved
@@ -134,7 +134,7 @@ As of 2026-05-21, the external ecosystem does not justify a wait-only strategy:
 
 - Microsoft has stated in the [TypeScript 7 beta announcement](https://devblogs.microsoft.com/typescript/announcing-typescript-7-0-beta/) that the stable public compiler API is expected later, not in TS 7.0 itself.
 - The [`typescript-eslint` tracking issue](https://github.com/typescript-eslint/typescript-eslint/issues/10940) for using the Go port is still blocked on external API readiness.
-- The [`tsgolint` repository](https://github.com/typescript-eslint/tsgolint) is useful evidence that native typed linting can be fast, but it is not by itself a reason to assume the `typescript-eslint` ecosystem will switch quickly.
+- The [`tsgolint` repository](https://github.com/oxc-project/tsgolint) is useful evidence that native typed linting can be fast, but it is not by itself a reason to assume the `typescript-eslint` ecosystem will switch quickly.
 
 The practical implication is:
 
@@ -283,7 +283,7 @@ Any deployment strategy should follow these principles:
 
 ## Production Routing Principle: No Double Typed Execution
 
-The current state has 60 Sonar rules implemented in both Node and Go locally, but only 17 hard type-service rules are currently product-routed to Go. That broader overlap is an implementation/parity state, not a target execution model.
+The current state has 80 Sonar rules implemented in both Node and Go locally, but only 37 hard type-service rules are currently product-routed to Go. That broader overlap is an implementation/parity state, not a target execution model.
 
 For production routing, the rule should be:
 

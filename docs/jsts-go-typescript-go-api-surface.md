@@ -39,11 +39,12 @@ not part of product routing until `JS-1748` is answered.
   - `server-go/patches/typescript-go`
   - `server-go/shim`
 - Java still treats Node as the primary analyzer. The Go sidecar is a secondary JS/TS issue engine for the routed rule subset.
-- `JsTsChecks.JSTS_GO_RULES` currently routes `17` hard type-service Sonar rules to Go in product.
-- That product-routed subset expands to `18` Go rule entry points because `S6544` expands to:
+- Migrated Go rules are Sonar-owned implementations in this repository. The Node-side labels `original`, `external`, and `decorated` are provenance labels only; they do not mean that the Go runtime delegates to external rule packages.
+- `JsTsChecks.JSTS_GO_RULES` currently routes `37` hard type-service Sonar rules to Go in product.
+- That product-routed subset expands to `38` Go rule entry points because `S6544` expands to:
   - `no-misused-promises`
   - `no-async-promise-executor`
-- The broader local Go registry currently covers `60` Sonar keys / `61` rule entry points for direct Go runs and `JS-1743` parity work. AST-only ports can exist there without being product-routed.
+- The broader local Go registry currently covers `80` Sonar keys / `81` rule entry points for direct Go runs and `JS-1743` parity work. AST-only ports can exist there without being product-routed.
 
 ## Routed Rule Set
 
@@ -56,9 +57,9 @@ The broader local Go availability surface is defined in:
 - [rules.go](../server-go/sonar-server/rules.go)
 - [requested_rules.go](../server-go/sonar-server/requested_rules.go)
 
-Current product routing is intentionally restricted to the `17` hard
+Current product routing is intentionally restricted to the `37` hard
 type-service Sonar keys in `JSTS_GO_RULES`. The broader local Go registry still
-spans `60` Sonar keys for parity and direct Go validation.
+spans `80` Sonar keys for parity and direct Go validation.
 
 Use these as the source of truth:
 
@@ -140,6 +141,7 @@ On the Go side, the analogous normalization/runtime split now lives under:
 - [dependency_signals.go](../server-go/sonar-server/dependency_signals.go)
 - [requested_rules.go](../server-go/sonar-server/requested_rules.go)
 - generated `generated_rule_metadata.go` data produced by [tools/generate-go-rule-metadata.ts](../tools/generate-go-rule-metadata.ts)
+- generated `generated_environment_globals.go` data produced by [tools/generate-go-environment-globals.ts](../tools/generate-go-environment-globals.ts)
 
 Unlike the older PoC state, the Go runtime now actively consumes normalized configuration and file metadata, including:
 
@@ -149,6 +151,9 @@ Unlike the older PoC state, the Go runtime now actively consumes normalized conf
 - `canAccessFileSystem`
 - `createTSProgramForOrphanFiles`
 - `disableTypeChecking`
+- `globals` and `environments` via a per-analysis known-global set
+- `skipNodeModuleLookupOutsideBaseDir`
+- `FsEvents`-driven SonarLint invalidation
 - file type and file status
 - manifest-derived dependency and module-type signals
 
@@ -175,7 +180,9 @@ The current Go stack is split into these layers:
 
 - [rules.go](../server-go/sonar-server/rules.go)
 - [requested_rules.go](../server-go/sonar-server/requested_rules.go)
+- [known_globals.go](../server-go/sonar-server/known_globals.go)
 - generated `generated_rule_metadata.go` data produced by [tools/generate-go-rule-metadata.ts](../tools/generate-go-rule-metadata.ts)
+- generated `generated_environment_globals.go` data produced by [tools/generate-go-environment-globals.ts](../tools/generate-go-environment-globals.ts)
 - [decorator_test.go](../server-go/sonar-server/decorator_test.go)
 
 ### Rule execution runtime

@@ -38,11 +38,11 @@ Branch note: `JS-1743` now has a working differential harness on this branch:
 
 - a direct Node runner that goes through `packages/grpc` request normalization
 - a direct local Go CLI mode that runs `AnalyzeProjectUnary` without Java or gRPC
-- a synthetic corpus covering the broader `60`-rule local Go parity surface, with targeted `diff` and `diff-all` entrypoints
+- a synthetic corpus covering the broader local Go parity surface, with `80` registry-backed rule projects, `2` empty placeholders (`S6509`, `S6637`), and targeted `diff` and `diff-all` entrypoints
 
 Current product routing remains intentionally narrower:
 
-- `JsTsChecks.JSTS_GO_RULES` now routes only the `17` hard type-service Sonar
+- `JsTsChecks.JSTS_GO_RULES` now routes `37` hard type-service Sonar
   rules that block TS7 typed analysis.
 - AST-only Go ports stay local to `JS-1743` parity work and `JS-1748`
   runtime-evaluation work; they are not counted as `JS-1746` / `JS-1747`
@@ -111,12 +111,15 @@ Main code paths checked for this update:
   - `server-go/sonar-server/service.go`
   - `server-go/sonar-server/service_lifecycle.go`
   - `server-go/sonar-server/decorator_test.go`
-  - `server-go/sonar-server/service_test.go`
-  - `server-go/sonar-server/sonarlint_state_test.go`
-  - `server-go/sonar-server/requested_rules.go`
-  - `server-go/sonar-server/internal/utils/host.go`
-  - `server-go/sonar-server/internal/utils/host_test.go`
-  - `tools/generate-go-rule-metadata.ts`
+- `server-go/sonar-server/service_test.go`
+- `server-go/sonar-server/sonarlint_state_test.go`
+- `server-go/sonar-server/requested_rules.go`
+- `server-go/sonar-server/known_globals.go`
+- `server-go/sonar-server/internal/rule/scope.go`
+- `server-go/sonar-server/internal/utils/host.go`
+- `server-go/sonar-server/internal/utils/host_test.go`
+- `tools/generate-go-rule-metadata.ts`
+- `tools/generate-go-environment-globals.ts`
 
 ## Matrix Legend
 
@@ -147,7 +150,7 @@ For the current branch, read them as one of:
 | Request          | Omitted `files` request field                                                       | If `files` is omitted and FS access is allowed, Node discovers analyzable files from disk.                                                                  | `walkProjectTree` now discovers project files when `req.files` is omitted.                                                                                                                                                                                                                                                                                                 | Equivalent enough | None for current JS/TS discovery needs.                                                                         |
 | Discovery        | JS/TS source/test/inclusion/exclusion and suffix handling                           | Classifies files using `sources`, `tests`, inclusions, exclusions, test inclusions/exclusions, and suffix settings.                                         | The Go path now mirrors those path-based JS/TS filters and uses configured JS/TS suffixes.                                                                                                                                                                                                                                                                                 | Equivalent enough | None for JS/TS scope.                                                                                           |
 | Discovery        | Content-based prefilters                                                            | Local discovery also applies bundle detection, minified detection, and max-file-size checks.                                                                | `DetectBundles` and `MaxFileSize` are normalized but intentionally unused; there is no equivalent content-based skip layer.                                                                                                                                                                                                                                                | Out of scope      | Non-goal for the current issue-only sidecar unless migrated rules become sensitive to those skips.              |
-| Discovery        | Manifest and tsconfig discovery                                                     | Node stores gather tsconfigs and dependency manifests; dependency helpers also understand `pnpm-workspace.yaml` and JSONC nuances.                          | The Go path discovers `tsconfig.json`, `package.json`, `deno.json`, and `deno.jsonc`, then builds dependency/module signals from them.                                                                                                                                                                                                                                     | Partial           | Parse `deno.jsonc` as JSONC and add `pnpm-workspace.yaml` support if parity needs it.                           |
+| Discovery        | Manifest and tsconfig discovery                                                     | Node stores gather tsconfigs and dependency manifests; dependency helpers also understand `pnpm-workspace.yaml`, Bun workspace catalogs, and JSONC nuances. | The Go path discovers `tsconfig.json`, `package.json`, `pnpm-workspace.yaml`, `deno.json`, and `deno.jsonc`, then builds dependency/module signals from them. It already resolves package.json and pnpm catalog references.                                                                                                                                                | Partial           | Parse `deno.jsonc` as JSONC and add Bun workspace/catalog parity if dependency gating needs it.                 |
 | Programs         | SonarQube batch typed path                                                          | Walks provided/discovered tsconfigs, analyzes typed files, then falls back to untyped analysis for leftovers.                                               | Builds typed programs from discovered/prioritized tsconfigs, optionally creates an inferred typed program for orphans, then falls back to AST-only analysis for the remaining runnable-without-program rule subset.                                                                                                                                                        | Partial           | Broaden no-type coverage only if more migrated rules become runnable without the typechecker.                   |
 | Programs         | SonarLint incremental typed path                                                    | Uses incremental typed analysis with cache-aware builder programs and invalidation inputs.                                                                  | There is now an incremental per-file path with a per-request program cache, targeted `FsEvents` invalidation for cached configured/orphan programs, and the same AST-only fallback for files left without a program.                                                                                                                                                       | Partial           | There is still no long-lived tsserver-style cache; `JS-1761` tracks the remaining orphan-cache design work.     |
 | Programs         | `tsConfigPaths` and project references                                              | Provided tsconfig paths override lookup discovery when found; project references are followed.                                                              | Provided tsconfig patterns are prioritized, warnings are emitted when none match, and program creation follows project references.                                                                                                                                                                                                                                         | Equivalent enough | No comparable persistent tsconfig cache/invalidation semantics.                                                 |
