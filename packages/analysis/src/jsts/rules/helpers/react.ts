@@ -30,10 +30,11 @@ export {
   isFunctionComponentNode,
   isPascalCaseFunctionComponent,
 } from './react/component-analysis.js';
+export { getReportedTypeMember, type ReportedTypeMember } from './react/member-ownership.js';
 export {
-  getReportedTypeMember,
-  type ReportedTypeMember,
-} from './react/member-ownership.js';
+  getComponentReportedTypeUsage,
+  type ComponentReportedTypeUsage,
+} from './react/type-ownership.js';
 
 const REACT_QUALIFIED_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
 const REACT_LOCAL_CLASS_SUPERS = new Set(['Component', 'PureComponent']);

@@ -22,21 +22,25 @@ import {
   createComponentAnalysis,
   type CollectedComponent,
   type ComponentAnalysis,
+  type ComponentNode,
+  isComponentNode,
 } from './component-analysis.js';
 import { getReportedTypeFromAncestors, type ReportedType } from '../reported-type.js';
-import {
-  componentPropsIncludeReportedTypeMember,
-  getReportedTypeMember,
-} from './member-ownership.js';
+import { getReportedTypeMember, slotIncludesReportedTypeMember } from './member-ownership.js';
 import { isRequiredParserServices, type RequiredParserServices } from '../parser-services.js';
-import { areMutuallyAssignableTypes } from '../type.js';
+import { areMutuallyAssignableTypes, areSameTypeDeclarations } from '../type.js';
 
 type SourceCache = {
   components: CollectedComponent[] | undefined;
   componentAnalysisByNode: WeakMap<estree.Node, ComponentAnalysis>;
   candidateOwnersByTypeDecl: WeakMap<estree.Node, CollectedComponent[] | null>;
+  reportedTypeUsageBySubject: WeakMap<
+    estree.Node,
+    WeakMap<estree.Node, ComponentReportedTypeUsage>
+  >;
 };
 type ReportedTypeMember = NonNullable<ReturnType<typeof getReportedTypeMember>>;
+export type ComponentReportedTypeUsage = 'mixed' | 'non-props' | 'other' | 'props';
 
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 
@@ -47,11 +51,11 @@ const perSourceCache = new WeakMap<SourceCode, SourceCache>();
  * type, such as
  * `interface FooProps { ... }` or `type FooProps = ...`.
  *
- * We scan the components in the file and keep the ones whose props match that
- * reported type declaration.
- * If the report is on a specific member such as `sharedValue`, we first try to match that
- * member. If that is not possible, we fall back to matching the whole reported
- * type.
+ * We scan the components in the file in two stages:
+ * - keep only candidates whose props mention the reported declaration at all
+ * - classify each candidate as `props`, `non-props`, `mixed`, or `other`
+ *
+ * Only `props` and `mixed` candidates are returned as owners.
  *
  * @returns Every component that owns the reported type. Returns an empty array when
  * no match is found.
@@ -92,24 +96,53 @@ export function findComponentOwnersByType(
   }
 
   const reportedTypeMember = getReportedTypeMember(ancestors, services, checker);
-  if (reportedTypeMember) {
-    return findComponentOwnersByReportedTypeMember(
-      sourceCache,
-      candidateOwners,
-      services,
-      checker,
-      reportedType,
-      reportedTypeMember,
-    ).map(component => component.componentNode);
-  }
-
-  return findComponentOwnersByReportedType(
+  return findComponentOwnersByReportedTypeUsage(
     sourceCache,
     candidateOwners,
     services,
     checker,
     reportedType,
+    reportedTypeMember,
   ).map(component => component.componentNode);
+}
+
+/**
+ * Classifies how a reported type declaration is used by a specific component.
+ *
+ * Examples:
+ * - `class Anchor extends React.Component<Props, State>` => `State` is `non-props`
+ * - `class Panel extends React.Component<Props>` => `Props` is `props`
+ * - `class Panel extends React.Component<Readonly<Props>, Props>` => `Props` is `mixed`
+ */
+export function getComponentReportedTypeUsage(
+  componentNode: estree.Node,
+  ancestors: estree.Node[],
+  context: Rule.RuleContext,
+): ComponentReportedTypeUsage {
+  if (!isComponentNode(componentNode)) {
+    return 'other';
+  }
+
+  const services = context.sourceCode.parserServices;
+  if (!isRequiredParserServices(services)) {
+    return 'other';
+  }
+
+  const checker = services.program.getTypeChecker();
+  const reportedType = getReportedTypeFromAncestors(ancestors, services, checker);
+  if (!reportedType) {
+    return 'other';
+  }
+
+  const reportedTypeMember = getReportedTypeMember(ancestors, services, checker);
+  return getComponentReportedTypeUsageFromDetails(
+    getSourceCache(context.sourceCode),
+    componentNode,
+    services,
+    checker,
+    reportedType,
+    reportedTypeMember,
+  );
 }
 
 function getCandidateOwnersByReportedType(
@@ -136,47 +169,115 @@ function getCandidateOwnersByReportedType(
   return owners;
 }
 
-function findComponentOwnersByReportedTypeMember(
+function findComponentOwnersByReportedTypeUsage(
   sourceCache: SourceCache,
   components: CollectedComponent[],
   services: RequiredParserServices,
   checker: ts.TypeChecker,
   reportedType: ReportedType,
-  reportedTypeMember: ReportedTypeMember,
+  reportedTypeMember: ReportedTypeMember | undefined,
 ): CollectedComponent[] {
   return components.filter(component =>
-    componentPropsIncludeReportedTypeMember(
-      getComponentAnalysis(sourceCache, component, services),
-      checker,
-      reportedType,
-      reportedTypeMember,
+    isPropsUsage(
+      getComponentReportedTypeUsageFromDetails(
+        sourceCache,
+        component.componentNode,
+        services,
+        checker,
+        reportedType,
+        reportedTypeMember,
+      ),
     ),
   );
 }
 
-function findComponentOwnersByReportedType(
+function isPropsUsage(usage: ComponentReportedTypeUsage): boolean {
+  return usage === 'mixed' || usage === 'props';
+}
+
+function getComponentReportedTypeUsageFromDetails(
   sourceCache: SourceCache,
-  components: CollectedComponent[],
+  componentNode: ComponentNode,
   services: RequiredParserServices,
   checker: ts.TypeChecker,
   reportedType: ReportedType,
-): CollectedComponent[] {
-  return components.filter(component =>
-    componentUsesReportedType(
-      getComponentAnalysis(sourceCache, component, services),
-      checker,
-      reportedType,
-    ),
+  reportedTypeMember: ReportedTypeMember | undefined,
+): ComponentReportedTypeUsage {
+  const cacheKey = getReportedTypeUsageCacheKey(reportedType, reportedTypeMember);
+  let usagesByComponent = sourceCache.reportedTypeUsageBySubject.get(cacheKey);
+  if (!usagesByComponent) {
+    usagesByComponent = new WeakMap<estree.Node, ComponentReportedTypeUsage>();
+    sourceCache.reportedTypeUsageBySubject.set(cacheKey, usagesByComponent);
+  }
+
+  const cached = usagesByComponent.get(componentNode);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const componentAnalysis = getComponentAnalysis(sourceCache, componentNode, services);
+  const isPropsType = usesReportedTypeAsComponentProps(
+    componentAnalysis,
+    checker,
+    reportedType,
+    reportedTypeMember,
   );
+  const isNonPropsType = usesReportedTypeAsReactClassNonProps(
+    componentAnalysis,
+    checker,
+    reportedType,
+    reportedTypeMember,
+  );
+
+  let usage: ComponentReportedTypeUsage = 'other';
+  if (isNonPropsType) {
+    usage = isPropsType ? 'mixed' : 'non-props';
+  } else if (isPropsType) {
+    usage = 'props';
+  }
+
+  usagesByComponent.set(componentNode, usage);
+  return usage;
 }
 
-function componentUsesReportedType(
+function getReportedTypeUsageCacheKey(
+  reportedType: ReportedType,
+  reportedTypeMember: ReportedTypeMember | undefined,
+): estree.Node {
+  return (reportedTypeMember?.declaration ?? reportedType.declaration) as unknown as estree.Node;
+}
+
+function usesReportedTypeAsComponentProps(
   componentAnalysis: ComponentAnalysis,
   checker: ts.TypeChecker,
   reportedType: ReportedType,
+  reportedTypeMember: ReportedTypeMember | undefined,
 ): boolean {
+  if (reportedTypeMember) {
+    return componentAnalysis.memberPropsTypeCandidates.some(componentPropsType =>
+      slotIncludesReportedTypeMember(componentPropsType, checker, reportedType, reportedTypeMember),
+    );
+  }
+
   return componentAnalysis.enclosingTypePropsTypeCandidates.some(componentPropsType =>
     areMutuallyAssignableTypes(checker, reportedType.tsType, componentPropsType),
+  );
+}
+
+function usesReportedTypeAsReactClassNonProps(
+  componentAnalysis: ComponentAnalysis,
+  checker: ts.TypeChecker,
+  reportedType: ReportedType,
+  reportedTypeMember: ReportedTypeMember | undefined,
+): boolean {
+  if (reportedTypeMember) {
+    return componentAnalysis.classNonPropsTypeCandidates.some(nonPropsType =>
+      slotIncludesReportedTypeMember(nonPropsType, checker, reportedType, reportedTypeMember),
+    );
+  }
+
+  return componentAnalysis.classNonPropsTypeCandidates.some(nonPropsType =>
+    areSameTypeDeclarations(checker, reportedType.tsType, nonPropsType),
   );
 }
 
@@ -197,6 +298,10 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
       components: undefined,
       componentAnalysisByNode: new WeakMap<estree.Node, ComponentAnalysis>(),
       candidateOwnersByTypeDecl: new WeakMap<estree.Node, CollectedComponent[] | null>(),
+      reportedTypeUsageBySubject: new WeakMap<
+        estree.Node,
+        WeakMap<estree.Node, ComponentReportedTypeUsage>
+      >(),
     };
     perSourceCache.set(sourceCode, cache);
   }
@@ -205,13 +310,14 @@ function getSourceCache(sourceCode: SourceCode): SourceCache {
 
 function getComponentAnalysis(
   sourceCache: SourceCache,
-  component: CollectedComponent,
+  component: CollectedComponent | ComponentNode,
   services: RequiredParserServices,
 ): ComponentAnalysis {
-  let componentAnalysis = sourceCache.componentAnalysisByNode.get(component.componentNode);
+  const componentNode = 'componentNode' in component ? component.componentNode : component;
+  let componentAnalysis = sourceCache.componentAnalysisByNode.get(componentNode);
   if (!componentAnalysis) {
     componentAnalysis = createComponentAnalysis(component, services);
-    sourceCache.componentAnalysisByNode.set(component.componentNode, componentAnalysis);
+    sourceCache.componentAnalysisByNode.set(componentNode, componentAnalysis);
   }
   return componentAnalysis;
 }

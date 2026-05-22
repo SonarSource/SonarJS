@@ -75,44 +75,22 @@ export function componentPropsIncludeReportedTypeMember(
   reportedType: ReportedType,
   reportedTypeMember: ReportedTypeMember,
 ): boolean {
-  const componentPropsTypeCandidates = componentAnalysis.memberPropsTypeCandidates;
-  if (
-    componentPropsTypeCandidates.some(componentPropsType =>
-      hasExactAssignableReportedTypeMember(componentPropsType, reportedTypeMember, checker),
-    )
-  ) {
-    return true;
-  }
-
-  return componentPropsTypeCandidates.some(
-    componentPropsType =>
-      hasAssignableReportedTypeMember(componentPropsType, reportedTypeMember, checker) &&
-      reportedType.isUsedByType(componentPropsType, checker),
+  return componentAnalysis.memberPropsTypeCandidates.some(componentPropsType =>
+    slotIncludesReportedTypeMember(componentPropsType, checker, reportedType, reportedTypeMember),
   );
 }
 
-function hasExactAssignableReportedTypeMember(
-  componentPropsType: ts.Type,
-  reportedTypeMember: ReportedTypeMember,
+export function slotIncludesReportedTypeMember(
+  slotType: ts.Type,
   checker: ts.TypeChecker,
-): boolean {
-  const componentPropSymbol = getAssignableComponentPropSymbol(
-    componentPropsType,
-    reportedTypeMember,
-    checker,
-  );
-  return componentPropSymbol
-    ? hasExactReportedTypeMemberDeclaration(componentPropSymbol, reportedTypeMember)
-    : false;
-}
-
-function hasAssignableReportedTypeMember(
-  componentPropsType: ts.Type,
+  reportedType: ReportedType,
   reportedTypeMember: ReportedTypeMember,
-  checker: ts.TypeChecker,
 ): boolean {
+  const slotPropSymbol = getAssignableComponentPropSymbol(slotType, reportedTypeMember, checker);
   return (
-    getAssignableComponentPropSymbol(componentPropsType, reportedTypeMember, checker) !== undefined
+    slotPropSymbol !== undefined &&
+    (hasExactReportedTypeMemberDeclaration(slotPropSymbol, reportedTypeMember) ||
+      reportedType.isUsedByType(slotType, checker))
   );
 }
 

@@ -22,12 +22,11 @@ import type estree from 'estree';
 // eslint-disable-next-line import/no-internal-modules
 import ReactComponents from 'eslint-plugin-react/lib/util/Components.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { findComponentNodes } from '../helpers/react.js';
+import { findComponentNodes, getComponentReportedTypeUsage } from '../helpers/react.js';
 import { hasOwnCustomSuperclassPropsForwarding } from './custom-superclass-forwarding.js';
 import { hasDecoratorPropUsage } from './decorator-indirect-prop-usage.js';
 import { hasForwardRefCallbackPropUsage } from './forward-ref-indirect-prop-usage.js';
 import * as meta from './generated-meta.js';
-import { isUsedAsReactComponentNonPropsType } from './react-non-props-usage.js';
 import { hasSupportedWholePropsUsage } from './whole-props-usage.js';
 
 type RuleConfiguration = {
@@ -106,7 +105,8 @@ function shouldSuppressUnusedPropType(
   context: Rule.RuleContext,
   propName: string,
 ): boolean {
-  if (isUsedAsReactComponentNonPropsType(node, componentNode, context)) {
+  const ancestors = context.sourceCode.getAncestors(node);
+  if (getComponentReportedTypeUsage(componentNode, ancestors, context) === 'non-props') {
     return true;
   }
 
@@ -120,11 +120,7 @@ function shouldSuppressUnusedPropType(
     return true;
   }
 
-  if (
-    allMatch(componentNodes, other =>
-      hasForwardRefCallbackPropUsage(other, context, propName),
-    )
-  ) {
+  if (allMatch(componentNodes, other => hasForwardRefCallbackPropUsage(other, context, propName))) {
     return true;
   }
 
@@ -188,6 +184,11 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return {
     meta: generateMeta(meta, rule.meta),
     create: Components.detect((context, components) => {
+      // The intercepted upstream descriptor only tells us which prop node is reported.
+      // It does not tell us which component is currently being validated, and the same
+      // declaration can be props for one component and state/snapshot for another.
+      // S6767 therefore keeps a component-aware report loop so it can suppress only
+      // the non-props false positive without hiding a real props-side report.
       const configuration = getConfiguration(context);
 
       return {

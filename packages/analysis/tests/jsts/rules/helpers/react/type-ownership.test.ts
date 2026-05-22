@@ -20,8 +20,14 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { RuleTester } from '../../../tools/testers/rule-tester.js';
 import { isRequiredParserServices } from '../../../../../src/jsts/rules/helpers/parser-services.js';
-import { getComponentIdentifier } from '../../../../../src/jsts/rules/helpers/react/component-analysis.js';
-import { findComponentOwnersByType } from '../../../../../src/jsts/rules/helpers/react/type-ownership.js';
+import {
+  collectComponentNodes,
+  getComponentIdentifier,
+} from '../../../../../src/jsts/rules/helpers/react/component-analysis.js';
+import {
+  findComponentOwnersByType,
+  getComponentReportedTypeUsage,
+} from '../../../../../src/jsts/rules/helpers/react/type-ownership.js';
 
 const fixtureDirectory = path.join(
   import.meta.dirname,
@@ -133,6 +139,157 @@ interface WrappedProps {
 }
 
 const Wrapped = React.memo((props: WrappedProps) => props.label);
+`,
+    },
+  ],
+  invalid: [],
+});
+
+const typeUsageRule: Rule.RuleModule = {
+  meta: {
+    messages: {},
+  },
+  create(context: Rule.RuleContext) {
+    const services = context.sourceCode.parserServices;
+    if (!isRequiredParserServices(services)) {
+      throw new Error('Expected required parser services');
+    }
+
+    let sawAnchorState = false;
+    let sawPropsOnly = false;
+    let sawStateOnly = false;
+    let sawSharedType = false;
+
+    const getEnclosingInterfaceName = (node: estree.Node): string | undefined => {
+      const interfaceDeclaration = context.sourceCode
+        .getAncestors(node)
+        .findLast(ancestor => (ancestor as { type?: string }).type === 'TSInterfaceDeclaration');
+      return (interfaceDeclaration as { id?: { name?: string } } | undefined)?.id?.name;
+    };
+
+    const assertUsage = (
+      node: estree.Node,
+      expectedUsages: Record<string, 'mixed' | 'non-props' | 'other' | 'props'>,
+    ) => {
+      const ancestors = context.sourceCode.getAncestors(node);
+      const usages = collectComponentNodes(context.sourceCode.ast, context.sourceCode.visitorKeys)
+        .map(componentNode => ({
+          name: getComponentIdentifier(componentNode)?.name,
+          usage: getComponentReportedTypeUsage(componentNode, ancestors, context),
+        }))
+        .filter(
+          (
+            componentSummary,
+          ): componentSummary is {
+            name: string;
+            usage: 'mixed' | 'non-props' | 'other' | 'props';
+          } => componentSummary.name !== undefined && componentSummary.usage !== 'other',
+        )
+        .sort((left, right) => left.name.localeCompare(right.name));
+
+      assert.deepStrictEqual(
+        usages,
+        Object.entries(expectedUsages)
+          .map(([name, usage]) => ({ name, usage }))
+          .sort((left, right) => left.name.localeCompare(right.name)),
+      );
+    };
+
+    return {
+      TSPropertySignature(node) {
+        if (node.key.type !== 'Identifier') {
+          return;
+        }
+
+        const interfaceName = getEnclosingInterfaceName(node.key);
+
+        if (interfaceName === 'AnchorState' && node.key.name === 'activeLink') {
+          sawAnchorState = true;
+          assertUsage(node.key, { Anchor: 'non-props' });
+        }
+
+        if (interfaceName === 'SlotSplitType' && node.key.name === 'propsOnly') {
+          sawPropsOnly = true;
+          assertUsage(node.key, { SlotSplitOwner: 'props' });
+        }
+
+        if (interfaceName === 'SlotSplitType' && node.key.name === 'stateOnly') {
+          sawStateOnly = true;
+          assertUsage(node.key, { SlotSplitOwner: 'non-props' });
+        }
+
+        if (interfaceName === 'SharedType' && node.key.name === 'unused') {
+          sawSharedType = true;
+          assertUsage(node.key, {
+            PropsOwner: 'props',
+            StateOwner: 'non-props',
+            WrappedPropsOwner: 'mixed',
+          });
+        }
+      },
+      'Program:exit'() {
+        assert.equal(sawAnchorState, true, 'Expected to visit AnchorState.activeLink');
+        assert.equal(sawPropsOnly, true, 'Expected to visit SlotSplitType.propsOnly');
+        assert.equal(sawStateOnly, true, 'Expected to visit SlotSplitType.stateOnly');
+        assert.equal(sawSharedType, true, 'Expected to visit SharedType.unused');
+      },
+    };
+  },
+};
+
+ruleTester.run('type-usage', typeUsageRule, {
+  valid: [
+    {
+      filename: fixtureFilePath,
+      code: `
+declare const React: any;
+
+interface AnchorState {
+  activeLink: null | string;
+}
+interface AnchorProps {
+  href?: string;
+}
+interface AnchorSnapshot {
+  scrollTop: number;
+}
+class Anchor extends React.Component<AnchorProps, AnchorState, AnchorSnapshot> {
+  render() {
+    return <a href={this.props.href}>{this.state.activeLink}</a>;
+  }
+}
+
+interface SlotSplitType {
+  propsOnly: string;
+  stateOnly: string;
+}
+class SlotSplitOwner extends React.Component<Pick<SlotSplitType, 'propsOnly'>, Pick<SlotSplitType, 'stateOnly'>> {
+  render() {
+    return <div>{this.state.stateOnly}</div>;
+  }
+}
+
+interface SharedType {
+  unused: string;
+}
+interface Snapshot {
+  scrollTop: number;
+}
+class PropsOwner extends React.Component<SharedType> {
+  render() {
+    return <div />;
+  }
+}
+class StateOwner extends React.Component<{}, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+class WrappedPropsOwner extends React.Component<Readonly<SharedType>, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
 `,
     },
   ],

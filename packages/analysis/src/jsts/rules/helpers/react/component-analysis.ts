@@ -38,6 +38,7 @@ const REACT_COMPONENT_WRAPPER_CALLEES = new Set(['memo', 'forwardRef']);
 export type ComponentAnalysis = {
   memberPropsTypeCandidates: ts.Type[];
   enclosingTypePropsTypeCandidates: ts.Type[];
+  classNonPropsTypeCandidates: ts.Type[];
 };
 export type ComponentNode =
   | estree.ClassDeclaration
@@ -57,6 +58,7 @@ export type CollectedComponent = {
 const EMPTY_COMPONENT_ANALYSIS: ComponentAnalysis = {
   memberPropsTypeCandidates: [],
   enclosingTypePropsTypeCandidates: [],
+  classNonPropsTypeCandidates: [],
 };
 
 export function isClassComponentNode(
@@ -409,14 +411,13 @@ export function createComponentAnalysis(
     }
 
     const checker = services.program.getTypeChecker();
-    const classPropsType = getClassPropsPropertyType(
-      getClassComponentTsNode(componentNode, services),
-      checker,
-    );
+    const classTsNode = getClassComponentTsNode(componentNode, services);
+    const classPropsType = getClassPropsPropertyType(classTsNode, checker);
     const memberPropsTypeCandidates = getComponentPropsTypeCandidates(componentNode, services);
     return {
       memberPropsTypeCandidates,
       enclosingTypePropsTypeCandidates: classPropsType ? [classPropsType] : [],
+      classNonPropsTypeCandidates: getDeclaredClassNonPropsTypes(classTsNode, checker),
     };
   }
 
@@ -431,6 +432,7 @@ export function createComponentAnalysis(
   return {
     memberPropsTypeCandidates: propsTypeCandidates,
     enclosingTypePropsTypeCandidates: propsTypeCandidates,
+    classNonPropsTypeCandidates: [],
   };
 }
 
