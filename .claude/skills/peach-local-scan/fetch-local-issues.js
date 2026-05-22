@@ -24,8 +24,14 @@ const DEFAULT_HOST = 'http://localhost:9000';
 const DEFAULT_PAGE_SIZE = 500;
 const DEFAULT_CE_POLL_INTERVAL_MS = 2000;
 const DEFAULT_CE_TIMEOUT_MS = 10 * 60 * 1000;
+const MAX_ISSUE_SEARCH_RESULTS = 10_000;
 const MIN_CLI_ARGS = 2;
 const MAX_CLI_ARGS = 3;
+const ISSUE_SEARCH_PARTITIONS = [
+  { facet: 'rules', parameter: 'rules' },
+  { facet: 'severities', parameter: 'severities' },
+  { facet: 'types', parameter: 'types' },
+];
 const USAGE =
   'Usage: node .claude/skills/peach-local-scan/fetch-local-issues.js <project-key> <output-path> [report-task-path]';
 
@@ -42,10 +48,12 @@ export async function fetchLocalIssues(options, runtime = {}) {
     path.join(resolveHomedir(runtime), '.vibe-bot-credentials/.sonarqube/token');
   const fetchImpl = runtime.fetch ?? globalThis.fetch;
   const mkdirSync = runtime.mkdirSync ?? fs.mkdirSync;
+  const readdirSync = runtime.readdirSync ?? fs.readdirSync;
   const readFileSync = runtime.readFileSync ?? fs.readFileSync;
   const sleepImpl = runtime.sleep ?? sleep;
   const writeFileSync = runtime.writeFileSync ?? fs.writeFileSync;
   const log = runtime.log ?? console.log;
+  const workspaceRoot = reportTaskPath ? resolveWorkspaceRoot(reportTaskPath) : undefined;
 
   if (typeof fetchImpl !== 'function') {
     throw new TypeError('fetch implementation is required');
@@ -68,34 +76,22 @@ export async function fetchLocalIssues(options, runtime = {}) {
     });
   }
 
-  const issues = [];
-  let rawIssueCount = 0;
-  let page = 1;
-  let total = 0;
-
-  do {
-    const pageUrl = new URL('/api/issues/search', host);
-    pageUrl.searchParams.set('projects', projectKey);
-    pageUrl.searchParams.set('resolved', 'false');
-    pageUrl.searchParams.set('p', String(page));
-    pageUrl.searchParams.set('ps', String(pageSize));
-
-    const response = await fetchImpl(pageUrl, {
-      headers: {
-        Accept: 'application/json',
-        Authorization: authorization,
+  const stableIssues = (
+    await fetchIssuePartition(
+      {
+        authorization,
+        fetchImpl,
+        host,
+        pageSize,
+        readdirSync,
+        workspaceRoot,
       },
-    });
-    const payload = await parseJsonResponse(response, pageUrl);
-    const pageIssues = Array.isArray(payload.issues) ? payload.issues : [];
-
-    total = Number.isInteger(payload.total) ? payload.total : pageIssues.length;
-    rawIssueCount += pageIssues.length;
-    issues.push(...pageIssues.filter(isRaisedIssue).map(projectIssue));
-    page += 1;
-  } while (rawIssueCount < total);
-
-  const stableIssues = issues.toSorted(compareIssues);
+      {
+        projects: projectKey,
+        resolved: 'false',
+      },
+    )
+  ).toSorted(compareIssues);
   const artifact = {
     projectKey,
     total: stableIssues.length,
@@ -107,6 +103,182 @@ export async function fetchLocalIssues(options, runtime = {}) {
   log(`Fetched ${stableIssues.length} raised issues for ${projectKey} into ${outputPath}`);
 
   return artifact;
+}
+
+async function fetchIssuePartition(runtime, filters) {
+  const { authorization, fetchImpl, host, pageSize } = runtime;
+  const firstPage = await fetchIssuesSearchPage({
+    authorization,
+    fetchImpl,
+    filters,
+    host,
+    page: 1,
+    pageSize,
+  });
+  const { pageIssues, total } = parseIssueSearchPayload(firstPage);
+
+  if (total > MAX_ISSUE_SEARCH_RESULTS) {
+    const partitionFilters = await buildPartitionFilters(runtime, filters, total);
+    const partitionedIssues = [];
+
+    for (const nextFilters of partitionFilters) {
+      partitionedIssues.push(...(await fetchIssuePartition(runtime, nextFilters)));
+    }
+
+    return partitionedIssues;
+  }
+
+  const issues = pageIssues.filter(isRaisedIssue).map(projectIssue);
+  let rawIssueCount = pageIssues.length;
+  let page = 2;
+
+  while (rawIssueCount < total) {
+    const payload = await fetchIssuesSearchPage({
+      authorization,
+      fetchImpl,
+      filters,
+      host,
+      page,
+      pageSize,
+    });
+    const nextPageIssues = parseIssueSearchPayload(payload).pageIssues;
+    rawIssueCount += nextPageIssues.length;
+    issues.push(...nextPageIssues.filter(isRaisedIssue).map(projectIssue));
+    page += 1;
+  }
+
+  return issues;
+}
+
+async function buildPartitionFilters(runtime, filters, total) {
+  for (const partition of ISSUE_SEARCH_PARTITIONS) {
+    if (filters[partition.parameter]) {
+      continue;
+    }
+
+    const payload = await fetchIssuesSearchPage({
+      authorization: runtime.authorization,
+      fetchImpl: runtime.fetchImpl,
+      filters,
+      host: runtime.host,
+      page: 1,
+      pageSize: 1,
+      facets: [partition.facet],
+    });
+    const partitionValues = readFacetValues(payload, partition.facet).filter(
+      value =>
+        typeof value?.val === 'string' &&
+        value.val.length > 0 &&
+        Number.isInteger(value.count) &&
+        value.count > 0,
+    );
+    const partitionTotal = partitionValues.reduce((count, value) => count + value.count, 0);
+
+    if (partitionValues.length <= 1 || partitionTotal !== total) {
+      continue;
+    }
+
+    return partitionValues.map(value => ({
+      ...filters,
+      [partition.parameter]: value.val,
+    }));
+  }
+
+  const workspacePartitions = buildWorkspacePartitionFilters(runtime, filters);
+  if (workspacePartitions.length > 0) {
+    return workspacePartitions;
+  }
+
+  throw new Error(
+    `Unable to fetch ${total} issues within SonarQube's ${MAX_ISSUE_SEARCH_RESULTS}-result window for ${describeFilters(filters)}`,
+  );
+}
+
+function buildWorkspacePartitionFilters(runtime, filters) {
+  const { readdirSync, workspaceRoot } = runtime;
+
+  if (!workspaceRoot || filters.files || typeof readdirSync !== 'function') {
+    return [];
+  }
+
+  const scopeDirectory = filters.directories;
+  const scopeRoot = scopeDirectory ? path.join(workspaceRoot, scopeDirectory) : workspaceRoot;
+  let entries;
+
+  try {
+    entries = readdirSync(scopeRoot, { withFileTypes: true });
+  } catch {
+    return [];
+  }
+
+  return entries
+    .filter(entry => entry.name !== '.scannerwork' && (entry.isDirectory() || entry.isFile()))
+    .toSorted((left, right) => left.name.localeCompare(right.name))
+    .map(entry => {
+      const relativePath = scopeDirectory
+        ? path.posix.join(scopeDirectory, entry.name)
+        : entry.name;
+
+      if (entry.isDirectory()) {
+        return {
+          ...filters,
+          directories: relativePath,
+        };
+      }
+
+      const nextFilters = {
+        ...filters,
+        files: relativePath,
+      };
+      delete nextFilters.directories;
+      return nextFilters;
+    });
+}
+
+async function fetchIssuesSearchPage(options) {
+  const { authorization, fetchImpl, filters, facets = [], host, page, pageSize } = options;
+  const pageUrl = new URL('/api/issues/search', host);
+
+  for (const [key, value] of Object.entries(filters)) {
+    if (typeof value === 'string' && value.length > 0) {
+      pageUrl.searchParams.set(key, value);
+    }
+  }
+
+  if (facets.length > 0) {
+    pageUrl.searchParams.set('facets', facets.join(','));
+  }
+
+  pageUrl.searchParams.set('p', String(page));
+  pageUrl.searchParams.set('ps', String(pageSize));
+
+  const response = await fetchImpl(pageUrl, {
+    headers: {
+      Accept: 'application/json',
+      Authorization: authorization,
+    },
+  });
+
+  return parseJsonResponse(response, pageUrl);
+}
+
+function parseIssueSearchPayload(payload) {
+  const pageIssues = Array.isArray(payload?.issues) ? payload.issues : [];
+
+  return {
+    pageIssues,
+    total: Number.isInteger(payload?.total) ? payload.total : pageIssues.length,
+  };
+}
+
+function readFacetValues(payload, property) {
+  return payload?.facets?.find(facet => facet?.property === property)?.values ?? [];
+}
+
+function describeFilters(filters) {
+  return Object.entries(filters)
+    .map(([key, value]) => `${key}=${value}`)
+    .join(', ');
 }
 
 function readRequiredOption(value, message) {
@@ -127,6 +299,10 @@ function resolveHomedir(runtime) {
 
 function normalizeHost(host) {
   return host.endsWith('/') ? host.slice(0, -1) : host;
+}
+
+function resolveWorkspaceRoot(reportTaskPath) {
+  return path.dirname(path.dirname(reportTaskPath));
 }
 
 function readToken(readFileSync, tokenFile) {

@@ -289,6 +289,351 @@ test('fetchLocalIssues waits for CE completion before querying issues when repor
   assert.equal(output[OUTPUT_PATH], `${JSON.stringify(expectedArtifact, null, 2)}\n`);
 });
 
+test('fetchLocalIssues partitions oversized issue searches using the workspace tree when needed', async () => {
+  const output = {};
+  const fetchCalls = [];
+  const logs = [];
+  const largeReportTaskPath = '/workspace/project/.scannerwork/report-task.txt';
+  const directoryEntry = name => ({
+    name,
+    isDirectory: () => true,
+    isFile: () => false,
+  });
+
+  await fetchLocalIssues(
+    {
+      projectKey: 'peach:gamma',
+      outputPath: OUTPUT_PATH,
+      pageSize: 10000,
+      reportTaskPath: largeReportTaskPath,
+    },
+    {
+      homedir: () => VIRTUAL_HOME,
+      readFileSync: (filePath, encoding) => {
+        assert.equal(encoding, 'utf-8');
+        if (filePath === TOKEN_FILE) {
+          return 'local-token\n';
+        }
+        if (filePath === largeReportTaskPath) {
+          return 'projectKey=peach:gamma\nceTaskId=task-gamma\nceTaskUrl=http://localhost:9000/api/ce/task?id=task-gamma\n';
+        }
+        throw new Error(`unexpected read ${filePath}`);
+      },
+      fetch: async url => {
+        const parsed = new URL(url);
+        const request = {
+          directories: parsed.searchParams.get('directories'),
+          facets: parsed.searchParams.get('facets'),
+          files: parsed.searchParams.get('files'),
+          page: Number(parsed.searchParams.get('p')),
+          pageSize: Number(parsed.searchParams.get('ps')),
+          projects: parsed.searchParams.get('projects'),
+          resolved: parsed.searchParams.get('resolved'),
+          rules: parsed.searchParams.get('rules'),
+        };
+        fetchCalls.push(request);
+
+        if (parsed.pathname === '/api/ce/task') {
+          return {
+            ok: true,
+            json: async () => ({
+              task: {
+                id: 'task-gamma',
+                status: 'SUCCESS',
+              },
+            }),
+          };
+        }
+
+        assert.equal(request.projects, 'peach:gamma');
+        assert.equal(request.resolved, 'false');
+
+        if (!request.facets && !request.rules && request.page === 1) {
+          return {
+            ok: true,
+            json: async () => ({
+              total: 10002,
+              issues: [
+                {
+                  key: 'root-sample',
+                  rule: 'rule:A',
+                  severity: 'MAJOR',
+                  component: 'peach:gamma:src/root.js',
+                  project: 'peach:gamma',
+                  line: 1,
+                  message: 'root sample',
+                  type: 'CODE_SMELL',
+                  status: 'OPEN',
+                },
+              ],
+            }),
+          };
+        }
+
+        if (request.facets === 'rules') {
+          return {
+            ok: true,
+            json: async () => ({
+              total: 10002,
+              issues: [],
+              facets: [
+                {
+                  property: 'rules',
+                  values: [
+                    { val: 'rule:A', count: 10001 },
+                    { val: 'rule:B', count: 1 },
+                  ],
+                },
+              ],
+            }),
+          };
+        }
+
+        if (!request.facets && request.rules === 'rule:B' && request.page === 1) {
+          return {
+            ok: true,
+            json: async () => ({
+              total: 1,
+              issues: [
+                {
+                  key: 'issue-b',
+                  rule: 'rule:B',
+                  severity: 'MINOR',
+                  component: 'peach:gamma:src/b.js',
+                  project: 'peach:gamma',
+                  line: 7,
+                  message: 'rule b issue',
+                  type: 'BUG',
+                  status: 'OPEN',
+                },
+              ],
+            }),
+          };
+        }
+
+        if (
+          !request.facets &&
+          request.rules === 'rule:A' &&
+          !request.directories &&
+          request.page === 1
+        ) {
+          return {
+            ok: true,
+            json: async () => ({
+              total: 10001,
+              issues: [
+                {
+                  key: 'rule-a-sample',
+                  rule: 'rule:A',
+                  severity: 'MAJOR',
+                  component: 'peach:gamma:src/root.js',
+                  project: 'peach:gamma',
+                  line: 2,
+                  message: 'rule a sample',
+                  type: 'CODE_SMELL',
+                  status: 'OPEN',
+                },
+              ],
+            }),
+          };
+        }
+
+        if (request.facets === 'severities' && request.rules === 'rule:A') {
+          return {
+            ok: true,
+            json: async () => ({
+              total: 10001,
+              issues: [],
+              facets: [
+                {
+                  property: 'severities',
+                  values: [{ val: 'MAJOR', count: 10001 }],
+                },
+              ],
+            }),
+          };
+        }
+
+        if (request.facets === 'types' && request.rules === 'rule:A') {
+          return {
+            ok: true,
+            json: async () => ({
+              total: 10001,
+              issues: [],
+              facets: [
+                {
+                  property: 'types',
+                  values: [{ val: 'BUG', count: 10001 }],
+                },
+              ],
+            }),
+          };
+        }
+
+        if (
+          !request.facets &&
+          request.rules === 'rule:A' &&
+          request.directories === 'src' &&
+          request.page === 1
+        ) {
+          return {
+            ok: true,
+            json: async () => ({
+              total: 10001,
+              issues: [],
+            }),
+          };
+        }
+
+        if (
+          !request.facets &&
+          request.rules === 'rule:A' &&
+          request.directories === 'src/dir-one'
+        ) {
+          return {
+            ok: true,
+            json: async () => ({
+              total: 2,
+              issues: [
+                {
+                  key: 'issue-a2',
+                  rule: 'rule:A',
+                  severity: 'CRITICAL',
+                  component: 'peach:gamma:src/dir-one/zeta.js',
+                  project: 'peach:gamma',
+                  line: 12,
+                  message: 'zeta issue',
+                  type: 'BUG',
+                  status: 'OPEN',
+                },
+                {
+                  key: 'issue-a1',
+                  rule: 'rule:A',
+                  severity: 'MAJOR',
+                  component: 'peach:gamma:src/dir-one/alpha.js',
+                  project: 'peach:gamma',
+                  line: 4,
+                  message: 'alpha issue',
+                  type: 'CODE_SMELL',
+                  status: 'OPEN',
+                },
+              ],
+            }),
+          };
+        }
+
+        if (
+          !request.facets &&
+          request.rules === 'rule:A' &&
+          request.directories === 'src/dir-two'
+        ) {
+          return {
+            ok: true,
+            json: async () => ({
+              total: 1,
+              issues: [
+                {
+                  key: 'issue-a3',
+                  rule: 'rule:A',
+                  severity: 'MAJOR',
+                  component: 'peach:gamma:src/dir-two/beta.js',
+                  project: 'peach:gamma',
+                  line: 2,
+                  message: 'beta issue',
+                  type: 'CODE_SMELL',
+                  status: 'OPEN',
+                },
+              ],
+            }),
+          };
+        }
+
+        throw new Error(`unexpected request: ${parsed.toString()}`);
+      },
+      mkdirSync: () => {},
+      readdirSync: directoryPath => {
+        if (directoryPath === '/workspace') {
+          return [directoryEntry('project')];
+        }
+        if (directoryPath === '/workspace/project') {
+          return [directoryEntry('src')];
+        }
+        if (directoryPath === '/workspace/project/src') {
+          return [directoryEntry('dir-one'), directoryEntry('dir-two')];
+        }
+        throw new Error(`unexpected readdir ${directoryPath}`);
+      },
+      writeFileSync: (filePath, content) => {
+        output[filePath] = content;
+      },
+      log: message => {
+        logs.push(message);
+      },
+    },
+  );
+
+  assert.ok(fetchCalls.some(call => call.facets === 'rules'));
+  assert.ok(fetchCalls.some(call => call.directories === 'src'));
+  assert.ok(fetchCalls.some(call => call.directories === 'src/dir-one'));
+
+  const expectedArtifact = {
+    projectKey: 'peach:gamma',
+    total: 4,
+    issues: [
+      {
+        key: 'issue-b',
+        rule: 'rule:B',
+        severity: 'MINOR',
+        component: 'peach:gamma:src/b.js',
+        project: 'peach:gamma',
+        line: 7,
+        message: 'rule b issue',
+        type: 'BUG',
+        status: 'OPEN',
+      },
+      {
+        key: 'issue-a1',
+        rule: 'rule:A',
+        severity: 'MAJOR',
+        component: 'peach:gamma:src/dir-one/alpha.js',
+        project: 'peach:gamma',
+        line: 4,
+        message: 'alpha issue',
+        type: 'CODE_SMELL',
+        status: 'OPEN',
+      },
+      {
+        key: 'issue-a2',
+        rule: 'rule:A',
+        severity: 'CRITICAL',
+        component: 'peach:gamma:src/dir-one/zeta.js',
+        project: 'peach:gamma',
+        line: 12,
+        message: 'zeta issue',
+        type: 'BUG',
+        status: 'OPEN',
+      },
+      {
+        key: 'issue-a3',
+        rule: 'rule:A',
+        severity: 'MAJOR',
+        component: 'peach:gamma:src/dir-two/beta.js',
+        project: 'peach:gamma',
+        line: 2,
+        message: 'beta issue',
+        type: 'CODE_SMELL',
+        status: 'OPEN',
+      },
+    ],
+  };
+
+  assert.equal(output[OUTPUT_PATH], `${JSON.stringify(expectedArtifact, null, 2)}\n`);
+  assert.deepEqual(logs, [
+    'CE task task-gamma status: SUCCESS',
+    `Fetched 4 raised issues for peach:gamma into ${OUTPUT_PATH}`,
+  ]);
+});
+
 test('main prints usage for --help', async () => {
   const logs = [];
 
