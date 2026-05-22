@@ -34,13 +34,13 @@ Scoped follow-ups that are intentionally outside `JS-1745`:
 See also: `docs/jsts-go-scope-globals-parity-assessment.md` for the narrower `JS-1760`
 assessment on scope-sensitive rule behavior.
 
-Branch note: `JS-1743` now has an initial working scaffold on this branch:
+Branch note: `JS-1743` now has a working differential harness on this branch:
 
 - a direct Node runner that goes through `packages/grpc` request normalization
 - a direct local Go CLI mode that runs `AnalyzeProjectUnary` without Java or gRPC
-- an initial synthetic corpus with parity checks for `S6551` and `S4137`
+- a synthetic corpus covering the full `60`-rule routed Go slice, with targeted `diff` and `diff-all` entrypoints
 
-The remaining `JS-1743` work is expanding that corpus and broadening the differential coverage across the shared rule set.
+The remaining `JS-1743` work is broadening corpus depth and benchmark/reporting coverage, not bootstrapping the harness itself.
 
 ## High-Level Conclusion
 

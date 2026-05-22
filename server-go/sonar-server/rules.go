@@ -4,30 +4,52 @@ import (
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rule"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/adjacent_overload_signatures"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/await_thenable"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/consistent_date_clone"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/consistent_empty_array_spread"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/consistent_type_assertions"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_alert"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_array_method_this_argument"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_await_expression_member"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_base_to_string"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_caller"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_case_declarations"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_confusing_non_null_assertion"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_constructor_return"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_continue"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_debugger"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_dupe_args"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_duplicate_enum_values"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_explicit_any"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_inferrable_types"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_instanceof_builtins"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_lone_blocks"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_loss_of_precision"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_misused_new"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_misused_promises"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_mixed_enums"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_multi_str"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_negation_in_equality_check"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_new_func"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_non_null_assertion"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_object_as_default_parameter"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_octal"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_octal_escape"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_proto"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_redundant_type_constituents"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_sequences"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_setter_return"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_sparse_arrays"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_template_curly_in_string"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_ternary"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_this_assignment"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_typeof_undefined"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_undef_init"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_unnecessary_type_arguments"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_unnecessary_type_assertion"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_unnecessary_type_constraint"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_unreadable_iife"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_with"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/no_zero_fractions"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/prefer_as_const"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/prefer_nullish_coalescing"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/prefer_optional_chain"
@@ -35,6 +57,7 @@ import (
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/prefer_readonly"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/prefer_return_this_type"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/prefer_string_starts_ends_with"
+	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/prefer_type_error"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/radix"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/switch_exhaustiveness_check"
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rules/valid_typeof"
@@ -53,7 +76,10 @@ var ruleDecoratorsByName = map[string][]RuleDecorator{
 
 var allRules = decorateRules([]rule.Rule{
 	await_thenable.AwaitThenableRule,
+	consistent_date_clone.ConsistentDateCloneRule,
+	consistent_empty_array_spread.ConsistentEmptyArraySpreadRule,
 	consistent_type_assertions.ConsistentTypeAssertionsRule,
+	no_alert.NoAlertRule,
 	no_non_null_assertion.NoNonNullAssertionRule,
 	no_misused_new.NoMisusedNewRule,
 	adjacent_overload_signatures.AdjacentOverloadSignaturesRule,
@@ -62,6 +88,10 @@ var allRules = decorateRules([]rule.Rule{
 	no_duplicate_enum_values.NoDuplicateEnumValuesRule,
 	no_inferrable_types.NoInferrableTypesRule,
 	no_instanceof_builtins.NoInstanceofBuiltinsRule,
+	no_loss_of_precision.NoLossOfPrecisionRule,
+	no_multi_str.NoMultiStrRule,
+	no_sparse_arrays.NoSparseArraysRule,
+	no_undef_init.NoUndefInitRule,
 	prefer_readonly.PreferReadonlyRule,
 	no_unnecessary_type_arguments.NoUnnecessaryTypeArgumentsRule,
 	no_unnecessary_type_assertion.NoUnnecessaryTypeAssertionRule,
@@ -72,19 +102,35 @@ var allRules = decorateRules([]rule.Rule{
 	no_redundant_type_constituents.NoRedundantTypeConstituentsRule,
 	no_base_to_string.NoBaseToStringRule,
 	no_array_method_this_argument.NoArrayMethodThisArgumentRule,
+	no_caller.NoCallerRule,
+	no_case_declarations.NoCaseDeclarationsRule,
+	no_constructor_return.NoConstructorReturnRule,
+	no_continue.NoContinueRule,
 	no_debugger.NoDebuggerRule,
+	no_dupe_args.NoDupeArgsRule,
 	no_negation_in_equality_check.NoNegationInEqualityCheckRule,
 	no_new_func.NoNewFuncRule,
 	no_object_as_default_parameter.NoObjectAsDefaultParameterRule,
+	no_octal.NoOctalRule,
+	no_octal_escape.NoOctalEscapeRule,
+	no_proto.NoProtoRule,
+	no_lone_blocks.NoLoneBlocksRule,
+	no_sequences.NoSequencesRule,
 	no_setter_return.NoSetterReturnRule,
 	no_ternary.NoTernaryRule,
+	no_template_curly_in_string.NoTemplateCurlyInStringRule,
 	no_this_assignment.NoThisAssignmentRule,
 	no_typeof_undefined.NoTypeofUndefinedRule,
+	no_unreadable_iife.NoUnreadableIifeRule,
+	no_with.NoWithRule,
+	no_zero_fractions.NoZeroFractionsRule,
+	no_await_expression_member.NoAwaitExpressionMemberRule,
 	no_misused_promises.NoMisusedPromisesRule,
 	prefer_string_starts_ends_with.PreferStringStartsEndsWithRule,
 	prefer_optional_chain.PreferOptionalChainRule,
 	prefer_nullish_coalescing.PreferNullishCoalescingRule,
 	prefer_promise_reject_errors.PreferPromiseRejectErrorsRule,
+	prefer_type_error.PreferTypeErrorRule,
 	radix.RadixRule,
 	switch_exhaustiveness_check.SwitchExhaustivenessCheckRule,
 	valid_typeof.ValidTypeofRule,
@@ -108,6 +154,7 @@ var jstsGoRuleNameBySonarKey = map[string]string{
 	"S4125": "valid-typeof",
 	"S4136": "adjacent-overload-signatures",
 	"S4137": "consistent-type-assertions",
+	"S4140": "no-sparse-arrays",
 	"S4157": "no-unnecessary-type-arguments",
 	"S4204": "no-explicit-any",
 	"S4325": "no-unnecessary-type-assertion",
@@ -123,13 +170,35 @@ var jstsGoRuleNameBySonarKey = map[string]string{
 	"S6583": "no-mixed-enums",
 	"S6590": "prefer-as-const",
 	"S6606": "prefer-nullish-coalescing",
+	"S6635": "no-constructor-return",
+	"S6645": "no-undef-init",
 	"S6671": "prefer-promise-reject-errors",
+	"S2685": "no-caller",
+	"S878":  "no-sequences",
+	"S909":  "no-continue",
+	"S1199": "no-lone-blocks",
+	"S1314": "no-octal",
+	"S1321": "no-with",
+	"S1442": "no-alert",
+	"S1516": "no-multi-str",
+	"S1536": "no-dupe-args",
+	"S3786": "no-template-curly-in-string",
+	"S6534": "no-loss-of-precision",
+	"S6654": "no-proto",
+	"S6657": "no-octal-escape",
+	"S6836": "no-case-declarations",
+	"S7719": "consistent-date-clone",
+	"S7720": "consistent-empty-array-spread",
 	"S7729": "no-array-method-this-argument",
+	"S7730": "no-await-expression-member",
 	"S7732": "no-instanceof-builtins",
 	"S7736": "no-negation-in-equality-check",
 	"S7737": "no-object-as-default-parameter",
 	"S7740": "no-this-assignment",
 	"S7741": "no-typeof-undefined",
+	"S7743": "no-unreadable-iife",
+	"S7748": "no-zero-fractions",
+	"S7786": "prefer-type-error",
 }
 
 var rulesRunnableWithoutProgram = map[string]struct{}{

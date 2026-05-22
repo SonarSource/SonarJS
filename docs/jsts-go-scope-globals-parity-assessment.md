@@ -108,7 +108,7 @@ Helpers that only enumerate declarations introduced by a local syntax node are n
 
 ## Current Impact On The Go-Offloaded Rule Set
 
-Current `JSTS_GO_RULES` in `JsTsChecks.java`:
+Current scope-sensitive subset within `JSTS_GO_RULES` on this branch:
 
 - `S131`
 - `S2870`

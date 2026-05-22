@@ -1,0 +1,1 @@
+const symbol = '\251';

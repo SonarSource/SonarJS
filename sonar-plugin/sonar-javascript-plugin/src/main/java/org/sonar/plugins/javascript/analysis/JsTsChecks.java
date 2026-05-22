@@ -118,7 +118,30 @@ public class JsTsChecks {
     "S6582", // prefer-optional-chain
     "S6606", // prefer-nullish-coalescing
     "S6671", // prefer-promise-reject-errors
-    "S2870" // no-array-delete
+    "S2870", // no-array-delete
+    "S878", // no-sequences
+    "S909", // no-continue
+    "S1199", // no-lone-blocks
+    "S1314", // no-octal
+    "S1321", // no-with
+    "S1442", // no-alert
+    "S1516", // no-multi-str
+    "S1536", // no-dupe-args
+    "S2685", // no-caller
+    "S3786", // no-template-curly-in-string
+    "S4140", // no-sparse-arrays
+    "S6534", // no-loss-of-precision
+    "S6635", // no-constructor-return
+    "S6645", // no-undef-init
+    "S6654", // no-proto
+    "S6657", // no-octal-escape
+    "S6836", // no-case-declarations
+    "S7719", // consistent-date-clone
+    "S7720", // consistent-empty-array-spread
+    "S7730", // no-await-expression-member
+    "S7743", // no-unreadable-iife
+    "S7748", // no-zero-fractions
+    "S7786" // prefer-type-error
   );
 
   /**

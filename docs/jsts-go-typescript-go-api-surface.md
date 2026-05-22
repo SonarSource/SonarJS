@@ -35,8 +35,8 @@ Use it as the code-facing companion to:
   - `server-go/patches/typescript-go`
   - `server-go/shim`
 - Java still treats Node as the primary analyzer. The Go sidecar is a secondary JS/TS issue engine for the routed rule subset.
-- `JsTsChecks.JSTS_GO_RULES` currently routes `16` Sonar rules to Go.
-- The Go runtime exposes `17` rule entry points because `S6544` expands to:
+- `JsTsChecks.JSTS_GO_RULES` currently routes `60` Sonar rules to Go.
+- The Go runtime exposes `61` rule entry points because `S6544` expands to:
   - `no-misused-promises`
   - `no-async-promise-executor`
 
@@ -48,24 +48,13 @@ Current Sonar-to-Go routing is defined in:
 - [rules.go](../server-go/sonar-server/rules.go)
 - [requested_rules.go](../server-go/sonar-server/requested_rules.go)
 
-Current routed Sonar keys:
+Current routed Sonar keys now span the original pilot plus two parity-validated expansion batches, for `60` routed Sonar rules in total.
 
-- `S131` -> `switch-exhaustiveness-check`
-- `S2870` -> `no-array-delete`
-- `S2933` -> `prefer-readonly`
-- `S4123` -> `await-thenable`
-- `S4137` -> `consistent-type-assertions`
-- `S4157` -> `no-unnecessary-type-arguments`
-- `S4325` -> `no-unnecessary-type-assertion`
-- `S6544` -> `no-misused-promises` + `no-async-promise-executor`
-- `S6551` -> `no-base-to-string`
-- `S6557` -> `prefer-string-starts-ends-with`
-- `S6565` -> `prefer-return-this-type`
-- `S6571` -> `no-redundant-type-constituents`
-- `S6582` -> `prefer-optional-chain`
-- `S6583` -> `no-mixed-enums`
-- `S6606` -> `prefer-nullish-coalescing`
-- `S6671` -> `prefer-promise-reject-errors`
+Use these as the source of truth for the full set:
+
+- [JsTsChecks.java](../sonar-plugin/sonar-javascript-plugin/src/main/java/org/sonar/plugins/javascript/analysis/JsTsChecks.java)
+- [rules.go](../server-go/sonar-server/rules.go)
+- [jsts-go-migration-progress.md](./jsts-go-migration-progress.md)
 
 ## Shared Analyze-Project Contract
 

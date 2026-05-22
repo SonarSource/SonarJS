@@ -93,7 +93,7 @@ The right retirement condition for Node is evidence-based, not date-based.
 - The current Node analyzer is mature, broadly tested, and already deployed in products.
 - The current Go runtime is no longer only a toy PoC. It already mirrors a meaningful part of the `analyze-project` semantics for the currently migrated subset.
 - The current Go path is still a secondary JS/TS issue engine, not a full replacement for Node.
-- `JsTsChecks.JSTS_GO_RULES` currently routes 16 Sonar rules to Go.
+- `JsTsChecks.JSTS_GO_RULES` currently routes 60 Sonar rules to Go.
 - The current migration inventory identifies 92 rules with a hard type-service dependency and 142 AST-only rules that are conditional on the future TS runtime choice.
 
 ### What is still missing or unresolved
@@ -242,14 +242,14 @@ These are recommended SonarJS operating thresholds, not public TypeScript thresh
 
 These thresholds should be treated as operational gates, not only as advisory text buried in the document.
 
-| Signal | Threshold | Meaning |
-| --- | --- | --- |
-| TS7-specific analysis failures among TS7-eligible analyses | `>0.10%` over 7 consecutive days | Early warning |
-| TS7-specific analysis failures among TS7-eligible analyses | `>0.25%` over 7 consecutive days | Escalation |
-| TS7-specific analysis failures among TS7-eligible analyses | `>0.50%` over 14 consecutive days | Too late |
-| TS7-specific analysis failures among TS7-eligible analyses | `>1.00%` on any single day after TS7 stable | Immediate red flag |
-| TS7-using repositories with at least one TS7-related failure in a week | `>2%` | Early warning |
-| TS7-using repositories with at least one TS7-related failure in a week | `>5%` | Too late |
+| Signal                                                                 | Threshold                                   | Meaning            |
+| ---------------------------------------------------------------------- | ------------------------------------------- | ------------------ |
+| TS7-specific analysis failures among TS7-eligible analyses             | `>0.10%` over 7 consecutive days            | Early warning      |
+| TS7-specific analysis failures among TS7-eligible analyses             | `>0.25%` over 7 consecutive days            | Escalation         |
+| TS7-specific analysis failures among TS7-eligible analyses             | `>0.50%` over 14 consecutive days           | Too late           |
+| TS7-specific analysis failures among TS7-eligible analyses             | `>1.00%` on any single day after TS7 stable | Immediate red flag |
+| TS7-using repositories with at least one TS7-related failure in a week | `>2%`                                       | Early warning      |
+| TS7-using repositories with at least one TS7-related failure in a week | `>5%`                                       | Too late           |
 
 Recommended handling:
 
@@ -282,7 +282,7 @@ Any deployment strategy should follow these principles:
 
 ## Production Routing Principle: No Double Typed Execution
 
-The current state has 16 Sonar rules implemented in both Node and Go. That is an implementation state, not a target execution model.
+The current state has 60 Sonar rules implemented in both Node and Go. That is an implementation state, not a target execution model.
 
 For production routing, the rule should be:
 
@@ -573,16 +573,16 @@ After server telemetry and the next ecosystem checkpoint:
 
 The decision to push farther toward Go should be driven by concrete signals, not by the existence of the PoC alone.
 
-| Signal | Push toward more Go | Push toward keeping Node primary |
-| --- | --- | --- |
-| TS7 adoption in analyzed codebases | A material and rising share of analyses clearly use TS7 | TS7 usage stays marginal or mostly internal/early adopter |
-| Share of TS7 codebases using unsupported surfaces | Low share of Vue and embedded JS in HTML/YAML among TS7 users | High share of those surfaces among the codebases that need TS7 |
-| Go startup and extraction reliability | Startup, extraction, and binary verification are boring on all supported platforms | Platform-specific failures remain visible or frequent |
-| Node-vs-Go parity on the validation and cutover candidate set | Diff rate is low and understood before production cutover | Parity keeps regressing or requires constant special cases |
-| User feedback on migrated rules | FP/WF rates are stable or better than Node baseline | Feedback worsens after migration |
-| Analysis latency and memory | Go gives a measurable net gain after it becomes the sole typed owner for eligible projects | Startup and memory overhead erase the expected win, or Node still has to type-check the same projects |
-| SonarLint packaging and behavior | Delivery model is solved and divergence is acceptable | IDE packaging remains unresolved or user-hostile |
-| External ecosystem status | TS7 API path stays blocked or clearly unfit for linting | TS7 API/public interface becomes viable and cheaper to adopt than more Go migration |
+| Signal                                                        | Push toward more Go                                                                        | Push toward keeping Node primary                                                                      |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| TS7 adoption in analyzed codebases                            | A material and rising share of analyses clearly use TS7                                    | TS7 usage stays marginal or mostly internal/early adopter                                             |
+| Share of TS7 codebases using unsupported surfaces             | Low share of Vue and embedded JS in HTML/YAML among TS7 users                              | High share of those surfaces among the codebases that need TS7                                        |
+| Go startup and extraction reliability                         | Startup, extraction, and binary verification are boring on all supported platforms         | Platform-specific failures remain visible or frequent                                                 |
+| Node-vs-Go parity on the validation and cutover candidate set | Diff rate is low and understood before production cutover                                  | Parity keeps regressing or requires constant special cases                                            |
+| User feedback on migrated rules                               | FP/WF rates are stable or better than Node baseline                                        | Feedback worsens after migration                                                                      |
+| Analysis latency and memory                                   | Go gives a measurable net gain after it becomes the sole typed owner for eligible projects | Startup and memory overhead erase the expected win, or Node still has to type-check the same projects |
+| SonarLint packaging and behavior                              | Delivery model is solved and divergence is acceptable                                      | IDE packaging remains unresolved or user-hostile                                                      |
+| External ecosystem status                                     | TS7 API path stays blocked or clearly unfit for linting                                    | TS7 API/public interface becomes viable and cheaper to adopt than more Go migration                   |
 
 ### Signals to collect explicitly
 

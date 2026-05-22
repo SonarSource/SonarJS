@@ -15,7 +15,7 @@ Issue: [JS-1140](https://sonarsource.atlassian.net/browse/JS-1140) (`Investigate
 > Since this report was written:
 >
 > - `JS-1140` was split into `JS-1737` through `JS-1750`
-> - `JSTS_GO_RULES` grew from the original 7-rule pilot to 16 routed Sonar keys
+> - `JSTS_GO_RULES` grew from the original 7-rule pilot to 60 routed Sonar keys
 > - the shared proto contract grew beyond the original pilot shape and now includes `AnalyzeProject`, `AnalyzeProjectUnary`, `CancelAnalysis`, and `Lease`
 > - `tsgolint` stopped being a submodule/dependency; `server-go/typescript-go` plus Sonar-owned shims and patches are now the live upstream inputs
 
