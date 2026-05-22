@@ -291,7 +291,7 @@ function traverseProperties(
   }
 
   for (const child of children) {
-    const property = getProperty(child.node as estree.ObjectExpression, propertyName, ctx);
+    const property = getProperty(child.node, propertyName, ctx);
     if (property === undefined) {
       continue;
     }
