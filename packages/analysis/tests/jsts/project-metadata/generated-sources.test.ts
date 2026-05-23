@@ -94,9 +94,15 @@ describe('generated sources project metadata', () => {
     expect(GENERATED_SOURCE_DETECTORS.map(detector => detector.family)).toEqual([
       ...SUPPORTED_GENERATED_SOURCE_FAMILIES,
     ]);
-    expect(GENERATED_SOURCE_WATCHED_FILENAMES).toHaveLength(5);
+    expect(GENERATED_SOURCE_WATCHED_FILENAMES).toHaveLength(11);
     expect(GENERATED_SOURCE_WATCHED_FILENAMES).toEqual(
       expect.arrayContaining([
+        'codegen.config.cjs',
+        'codegen.config.cts',
+        'codegen.config.js',
+        'codegen.config.mjs',
+        'codegen.config.mts',
+        'codegen.config.ts',
         'codegen.js',
         'codegen.json',
         'codegen.ts',
@@ -361,6 +367,42 @@ export default config;
 
       expect(derived.configPaths).toEqual(new Set());
       expect(derived.familyByFile.get(outputPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives GraphQL outputs from a package-local codegen.config.ts fallback file', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'codegen.config.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const packageJsons = createPackageJsonMap(baseDir, {
+        devDependencies: {
+          '@graphql-codegen/cli': '1.0.0',
+        },
+      });
+
+      const derived = await deriveGeneratedSources(baseDir, packageJsons);
+
+      expect(derived.configPaths).toEqual(new Set([configPath]));
+      expect(derived.familyByFile.get(outputPath)).toEqual('@graphql-codegen/cli');
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }

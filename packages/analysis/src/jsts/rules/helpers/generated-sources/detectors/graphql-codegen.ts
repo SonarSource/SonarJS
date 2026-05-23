@@ -33,6 +33,12 @@ import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invoc
 import { addFamilyFiles, createDerivedGeneratedSources, isLiteralPathToken } from '../shared.js';
 
 const STANDARD_GRAPHQL_CONFIGS = [
+  'codegen.config.cjs',
+  'codegen.config.cts',
+  'codegen.config.js',
+  'codegen.config.mjs',
+  'codegen.config.mts',
+  'codegen.config.ts',
   'codegen.yml',
   'codegen.yaml',
   'codegen.json',
