@@ -184,9 +184,13 @@ class GeneratedSourceStore implements FileStore {
       return true;
     }
 
-    return [...this.outputDirectories].some(
-      directory => filename === directory || filename.startsWith(`${directory}/`),
-    );
+    for (const directory of this.outputDirectories) {
+      if (filename === directory || filename.startsWith(`${directory}/`)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private clearDerivedState() {
