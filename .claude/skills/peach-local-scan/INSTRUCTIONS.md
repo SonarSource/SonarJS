@@ -28,15 +28,48 @@ This skill is intentionally narrow:
 
 ## Inputs And Reuse
 
-Reuse values already established earlier in the current conversation if they still validate on
-disk:
+Before asking the user for any scan inputs, check whether the current SonarJS worktree already has
+an in-flight Peach local scan report. This skill should prefer the persisted run state over asking
+the same setup questions again.
+
+Normalize the report path up front:
+
+```bash
+SCAN_REPORT_JSON="target/peach-local-scan/peach-local-scan.json"
+
+if [[ -f target/peach-local-scan/scan-report.json && ! -f "$SCAN_REPORT_JSON" ]]; then
+  node .claude/skills/peach-local-scan/scan-report.js migrate target/peach-local-scan
+fi
+```
+
+If `$SCAN_REPORT_JSON` exists:
+
+- Inspect it before asking for `PEACHEE_ROOT`, `NIGEL_ROOT`, project selection, or rebuild choice.
+- Treat the report as the source of truth for the stored run inputs:
+  - `.options.peacheeRoot`
+  - `.options.nigelRoot`
+  - `.options.rebuildAnalyzer`
+  - `.options.patchLocalAnalyzer`
+  - `.projectOrder`
+- If the report status is not `completed`, ask only whether to **continue** or **restart**.
+- If the user chooses `continue`, reuse the stored report values exactly as-is. Do not re-ask the
+  initial setup questions and do not replace them with conflicting values volunteered later in the
+  turn.
+- If the user chooses `restart`, default to the same stored values and project order from the
+  report unless the user explicitly says they want to change one of them.
+- If the report status is `completed`, tell the user the previous run already finished and ask only
+  whether they want to rerun with the stored values.
+
+If no resumable report exists, reuse values already established earlier in the current
+conversation if they still validate on disk:
 
 - `PEACHEE_ROOT`: must contain `projects.json`
 - `NIGEL_ROOT`: must contain `start-services.sh`
 - project selection
 - rebuild choice
 
-If any of those are missing or invalid, ask only for the missing values:
+If any of those are missing or invalid and there is no resumable report to reuse, ask only for the
+missing values:
 
 - path to the `peachee-js` checkout
 - path to the Nigel checkout
@@ -52,6 +85,8 @@ Rules:
 - If the user asks to scan all projects, derive the project list directly from `projects.json`
   instead of asking them to enumerate names.
 - Validate every requested or expanded project name against `projects.json` before scanning.
+- When continuing an existing report, prefer stored report values over re-asking or recomputing the
+  initial inputs.
 
 ## Outputs
 
@@ -59,22 +94,22 @@ Write per-project artifacts under:
 
 ```text
 target/peach-local-scan/
-  scan-report.json
-  scan-report.md
+  peach-local-scan.json
+  peach-local-scan.md
 target/peach-local-scan/<project>/
   report-task.txt
   scan.log
   issues.json
 target/peach-local-scan/sonarqube-analyzer-state/
-  snapshot.tsv
   files/*
 ```
 
 If you install dependencies for a freshly checked out project, keep that log in the same
 directory as `install.log`.
 
-Treat `scan-report.json` as the source of truth for resume decisions and `scan-report.md` as the
-human-readable progress snapshot. Both files must exist before scanning the first project.
+Treat `peach-local-scan.json` as the source of truth for resume decisions and analyzer snapshot
+metadata, and `peach-local-scan.md` as the human-readable progress snapshot. Both files must
+exist before patching the analyzer or scanning the first project.
 
 ## Workflow
 
@@ -157,55 +192,75 @@ Initialize the report flag before deciding whether to patch:
 PATCH_LOCAL_ANALYZER=false
 ```
 
-### 4. Patch The Local SonarQube Analyzer Only When Required
+### 4. Resolve Project Selection Then Initialize Or Reuse The Run Report
 
-If the user wants exact local-worktree validation, snapshot the current analyzer state, register a
-restore trap, and then patch the running SonarQube analyzer:
+Normalize the run-level report locations before asking for setup inputs or resolving project
+selection:
 
 ```bash
+SCAN_REPORT_JSON="target/peach-local-scan/peach-local-scan.json"
+SCAN_REPORT_MD="target/peach-local-scan/peach-local-scan.md"
 ANALYZER_STATE_DIR="target/peach-local-scan/sonarqube-analyzer-state"
-PATCH_LOCAL_ANALYZER=true
-PATCHED_ANALYZER=0
-
-cleanup_analyzer() {
-  if [[ "${PATCHED_ANALYZER:-0}" -eq 1 ]]; then
-    bash .claude/skills/peach-local-scan/manage-local-analyzer.sh restore "$ANALYZER_STATE_DIR"
-  fi
-}
-
-trap cleanup_analyzer EXIT
-bash .claude/skills/peach-local-scan/manage-local-analyzer.sh snapshot "$ANALYZER_STATE_DIR"
-bash .claude/skills/peach-local-scan/manage-local-analyzer.sh patch "$ANALYZER_JAR" "$ANALYZER_STATE_DIR"
-PATCHED_ANALYZER=1
 ```
 
-Why this helper exists:
-
-- Current SonarQube versions can fail on duplicate JavaScript plugin keys if you blindly add a
-  second jar in `extensions/plugins`.
-- The helper snapshots the current analyzer state first, then patches the active analyzer jar in
-  the running container, and finally restores the previous state when requested.
-
-If you discover a previously patched container but do **not** have a snapshot to restore from,
-recreate the SonarQube container with `./start-services.sh`. The built-in analyzer jar lives in
-the container filesystem, not in the mounted `extensions` volume, so recreating the container
-discards the mutation.
-
-### 5. Prepare The Root Scanner Installation
-
-Run from `PEACHEE_ROOT`.
-
-The root scanner used by Peach lives at `node_modules/.bin/sonar-scanner`. If it is missing,
-install the root dependency exactly like the Peach workflow does:
+If the artifact root still uses the legacy report names, migrate it before inspecting or resuming:
 
 ```bash
-npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+if [[ -f target/peach-local-scan/scan-report.json && ! -f "$SCAN_REPORT_JSON" ]]; then
+  node .claude/skills/peach-local-scan/scan-report.js migrate target/peach-local-scan
+fi
 ```
 
-### 6. Resolve Project Selection Then Initialize Or Reuse The Run Report
+That migration renames the report files to `peach-local-scan.*`, upgrades the JSON schema, and
+merges any legacy `container.txt` / `snapshot.tsv` metadata into the main report.
 
-From `PEACHEE_ROOT`, first resolve the user's project selection into a concrete `PROJECTS`
-list. Then initialize or reuse the resumable run report before scanning anything.
+If `$SCAN_REPORT_JSON` already exists, inspect it before asking for initial scan inputs:
+
+```bash
+sed -n '1,20p' "$SCAN_REPORT_MD"
+jq '{status, currentProject, progress, options, projectOrder}' "$SCAN_REPORT_JSON"
+```
+
+Interpret an existing report like this:
+
+- If the report status is `completed`, tell the user the previous run already finished and do not
+  rescan unless they explicitly ask to rerun.
+- If the report status is anything else, ask only whether to continue from that report or restart.
+- If the report still shows a project with status `running`, treat that project as interrupted and
+  re-run it when continuing.
+- If the user chooses `continue`, reuse `.options` from the report as the active input set for this
+  turn.
+- If the user chooses `restart`, reuse the stored report values by default and only ask follow-up
+  questions if the user explicitly wants to change one of them.
+
+Hydrate stored inputs from the report like this:
+
+```bash
+PEACHEE_ROOT="$(jq -r '.options.peacheeRoot' "$SCAN_REPORT_JSON")"
+NIGEL_ROOT="$(jq -r '.options.nigelRoot' "$SCAN_REPORT_JSON")"
+REBUILD_ANALYZER="$(jq -r '.options.rebuildAnalyzer' "$SCAN_REPORT_JSON")"
+PATCH_LOCAL_ANALYZER="$(jq -r '.options.patchLocalAnalyzer' "$SCAN_REPORT_JSON")"
+```
+
+If the user chooses to continue, derive the remaining project list from the existing report in
+stored order:
+
+```bash
+mapfile -t PROJECTS < <(
+  jq -r '.projects[] | select(.status != "succeeded" and .status != "skipped") | .name' \
+    "$SCAN_REPORT_JSON"
+)
+```
+
+If the user chooses to restart from an existing report and did not explicitly change the selection,
+reuse the original stored project order:
+
+```bash
+mapfile -t PROJECTS < <(jq -r '.projectOrder[]' "$SCAN_REPORT_JSON")
+```
+
+Only when no existing report is being reused should you resolve the current user's project
+selection from `projects.json`.
 
 Project-selection rules:
 
@@ -221,44 +276,11 @@ mapfile -t PROJECTS < <(jq -r 'keys_unsorted[]' projects.json)
 If that expansion yields no projects, stop and report that `projects.json` did not define any
 Peach projects to scan.
 
-Normalize the run-level report locations up front:
-
-```bash
-SCAN_REPORT_JSON="target/peach-local-scan/scan-report.json"
-SCAN_REPORT_MD="target/peach-local-scan/scan-report.md"
-```
-
 Normalize the rebuild choice into a shell boolean string before initializing the report:
 
 ```bash
 REBUILD_ANALYZER=true   # if the user asked for a rebuild
 REBUILD_ANALYZER=false  # otherwise
-```
-
-If `$SCAN_REPORT_JSON` already exists, inspect it before scanning:
-
-```bash
-sed -n '1,20p' "$SCAN_REPORT_MD"
-jq '{status, currentProject, progress}' "$SCAN_REPORT_JSON"
-```
-
-Interpret an existing report like this:
-
-- If the report status is `completed`, tell the user the previous run already finished and do not
-  rescan unless they explicitly ask to rerun.
-- If the report status is anything else, tell the user the run is resumable and ask whether to
-  continue from that report or start from scratch.
-- If the report still shows a project with status `running`, treat that project as interrupted and
-  re-run it when continuing.
-
-If the user chooses to continue, derive the remaining project list from the existing report in
-stored order:
-
-```bash
-mapfile -t PROJECTS < <(
-  jq -r '.projects[] | select(.status != "succeeded" and .status != "skipped") | .name' \
-    "$SCAN_REPORT_JSON"
-)
 ```
 
 If the user chooses to start from scratch, recreate the report placeholders with `--force`:
@@ -285,9 +307,56 @@ node .claude/skills/peach-local-scan/scan-report.js init \
   "${PROJECTS[@]}"
 ```
 
-The report must exist before scanning begins so every selected project has a placeholder entry.
-The Markdown header at the top of `scan-report.md` is the quick answer to "where is this run right
-now?".
+The report must exist before patching or scanning begins so every selected project has a
+placeholder entry and `.analyzerState` has a single durable home. The Markdown header at the top
+of `peach-local-scan.md` is the quick answer to "where is this run right now?".
+
+### 5. Patch The Local SonarQube Analyzer Only When Required
+
+If the user wants exact local-worktree validation, snapshot the current analyzer state, register a
+restore trap, and then patch the running SonarQube analyzer:
+
+```bash
+PATCH_LOCAL_ANALYZER=true
+PATCHED_ANALYZER=0
+
+cleanup_analyzer() {
+  if [[ "${PATCHED_ANALYZER:-0}" -eq 1 ]]; then
+    bash .claude/skills/peach-local-scan/manage-local-analyzer.sh restore "$ANALYZER_STATE_DIR"
+  fi
+}
+
+trap cleanup_analyzer EXIT
+bash .claude/skills/peach-local-scan/manage-local-analyzer.sh snapshot "$ANALYZER_STATE_DIR"
+bash .claude/skills/peach-local-scan/manage-local-analyzer.sh patch "$ANALYZER_JAR" "$ANALYZER_STATE_DIR"
+PATCHED_ANALYZER=1
+```
+
+Why this helper exists:
+
+- Current SonarQube versions can fail on duplicate JavaScript plugin keys if you blindly add a
+  second jar in `extensions/plugins`.
+- The helper snapshots the current analyzer state first, then records that snapshot in
+  `peach-local-scan.json`, then patches the active analyzer jar in the running container, and
+  finally restores the previous state when requested.
+- If a migrated report still carries analyzer metadata from an older container instance, `patch`
+  refreshes that snapshot against the current container before installing the local jar.
+
+If you discover a previously patched container but do **not** have a snapshot to restore from,
+recreate the SonarQube container with `./start-services.sh`. The built-in analyzer jar lives in
+the container filesystem, not in the mounted `extensions` volume, so recreating the container
+discards the mutation.
+
+### 6. Prepare The Root Scanner Installation
+
+Run from `PEACHEE_ROOT`.
+
+The root scanner used by Peach lives at `node_modules/.bin/sonar-scanner`. If it is missing,
+install the root dependency exactly like the Peach workflow does:
+
+```bash
+npm install --ignore-scripts --no-audit --no-fund --package-lock=false
+```
 
 ### 7. Process Projects Serially And Update The Report Around Each Attempt
 
@@ -535,11 +604,11 @@ to keep it that way.
 Start with the run report:
 
 ```bash
-sed -n '1,40p' target/peach-local-scan/scan-report.md
+sed -n '1,40p' target/peach-local-scan/peach-local-scan.md
 ```
 
 That file tells you whether the run is complete, which project was last in progress, and where the
-artifacts live. For machine-readable inspection, use `target/peach-local-scan/scan-report.json`.
+artifacts live. For machine-readable inspection, use `target/peach-local-scan/peach-local-scan.json`.
 
 The issue-fetch helper writes only currently raised issues after compute-engine completion. Useful
 follow-up commands:
@@ -554,7 +623,7 @@ Read the generic per-rule summary already recorded in the scan report:
 
 ```bash
 jq '.projects[] | select(.name == "'"$PROJECT"'") | .issueSummary.byRule' \
-  target/peach-local-scan/scan-report.json
+  target/peach-local-scan/peach-local-scan.json
 ```
 
 List the raised issues in a readable table:
