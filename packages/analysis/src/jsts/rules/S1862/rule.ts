@@ -141,6 +141,6 @@ function isSubset(first: estree.Node[], second: estree.Node[], sourceCode: Sourc
       }
     }
 
-    return areEquivalent(first as TSESTree.Node, second as TSESTree.Node, sourceCode);
+    return areEquivalent(first, second, sourceCode);
   }
 }
