@@ -76,21 +76,27 @@ function getTrivialAssertion(
       }
       return null;
     case 'comparison':
-      if (assertion.comparison === 'identity') {
-        // a freshly-created value on either side makes the identity check trivially fail (or trivially succeed when negated)
+      if (assertion.comparison === 'strict') {
+        // a freshly-created value on either side makes strict equality trivially fail
+        // (or trivially succeed when negated). Loose equality is excluded because object-to-primitive
+        // coercion can make comparisons like `[] == false` pass.
         if (isFreshReferenceExpression(assertion.actual)) {
           return { reportNode: assertion.actual, messageId: 'freshIdentity' };
         }
         if (isFreshReferenceExpression(assertion.expected)) {
           return { reportNode: assertion.expected, messageId: 'freshIdentity' };
         }
-        // both sides are constant (syntactically or via a resolved binding): the comparison result is statically determined
-        if (
-          isConstantPrimitiveValue(context, assertion.actual) &&
-          isConstantPrimitiveValue(context, assertion.expected)
-        ) {
-          return { reportNode: assertion.actual, messageId: 'issue' };
-        }
+      }
+      // both sides are constant (syntactically or via a resolved binding): for strict or loose
+      // equality the comparison result is statically determined. Deep equality is intentionally
+      // skipped via an explicit whitelist to avoid widening this rule when assertion helper
+      // comparison kinds evolve.
+      if (
+        (assertion.comparison === 'strict' || assertion.comparison === 'loose') &&
+        isConstantPrimitiveValue(context, assertion.actual) &&
+        isConstantPrimitiveValue(context, assertion.expected)
+      ) {
+        return { reportNode: assertion.actual, messageId: 'issue' };
       }
       return null;
     default:
