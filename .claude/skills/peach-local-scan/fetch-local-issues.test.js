@@ -411,7 +411,12 @@ test('fetchLocalIssues partitions oversized issue searches using the workspace t
           };
         }
 
-        if (!request.facets && request.rules === 'rule:A' && !request.directories && request.page === 1) {
+        if (
+          !request.facets &&
+          request.rules === 'rule:A' &&
+          !request.directories &&
+          request.page === 1
+        ) {
           return {
             ok: true,
             json: async () => ({
@@ -465,7 +470,12 @@ test('fetchLocalIssues partitions oversized issue searches using the workspace t
           };
         }
 
-        if (!request.facets && request.rules === 'rule:A' && request.directories === 'src' && request.page === 1) {
+        if (
+          !request.facets &&
+          request.rules === 'rule:A' &&
+          request.directories === 'src' &&
+          request.page === 1
+        ) {
           return {
             ok: true,
             json: async () => ({
@@ -475,7 +485,11 @@ test('fetchLocalIssues partitions oversized issue searches using the workspace t
           };
         }
 
-        if (!request.facets && request.rules === 'rule:A' && request.directories === 'src/dir-one') {
+        if (
+          !request.facets &&
+          request.rules === 'rule:A' &&
+          request.directories === 'src/dir-one'
+        ) {
           return {
             ok: true,
             json: async () => ({
@@ -508,7 +522,11 @@ test('fetchLocalIssues partitions oversized issue searches using the workspace t
           };
         }
 
-        if (!request.facets && request.rules === 'rule:A' && request.directories === 'src/dir-two') {
+        if (
+          !request.facets &&
+          request.rules === 'rule:A' &&
+          request.directories === 'src/dir-two'
+        ) {
           return {
             ok: true,
             json: async () => ({

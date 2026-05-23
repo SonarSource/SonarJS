@@ -19,10 +19,12 @@ import path from 'node:path';
 import process from 'node:process';
 import { fileURLToPath } from 'node:url';
 
-const REPORT_VERSION = 1;
+const REPORT_VERSION = 2;
 const TERMINAL_STATES = new Set(['succeeded', 'skipped', 'failed']);
 const USAGE = `Usage:
   node .claude/skills/peach-local-scan/scan-report.js init [--force] <report-path> <peachee-root> <nigel-root> <rebuild-analyzer:true|false> <patch-local-analyzer:true|false> <project>...
+  node .claude/skills/peach-local-scan/scan-report.js migrate <artifact-root>
+  node .claude/skills/peach-local-scan/scan-report.js analyzer-state <report-path> <state-dir> <container-json> <entries-json>
   node .claude/skills/peach-local-scan/scan-report.js project-start <report-path> <project> <project-key> <artifact-dir>
   node .claude/skills/peach-local-scan/scan-report.js project-success <report-path> <project> <project-key> <artifact-dir>
   node .claude/skills/peach-local-scan/scan-report.js project-failure <report-path> <project> <project-key> <artifact-dir> <phase> <message>`;
@@ -56,6 +58,7 @@ export function initializeScanReport(options, runtime = {}) {
       peacheeRoot: readRequiredOption(options.peacheeRoot, 'peacheeRoot is required'),
       rebuildAnalyzer: readBooleanOption(options.rebuildAnalyzer, 'rebuildAnalyzer is required'),
     },
+    analyzerState: null,
     projectOrder: [...projects],
     progress: {
       completed: 0,
@@ -93,6 +96,55 @@ export function markProjectStarted(options, runtime = {}) {
     projectRecord.issueSummary = null;
     report.currentProject = projectRecord.name;
   });
+}
+
+export function writeAnalyzerState(options, runtime = {}) {
+  const reportPath = readRequiredOption(options.reportPath, 'reportPath is required');
+  const stateDir = readRequiredOption(options.stateDir, 'stateDir is required');
+  const container = readAnalyzerContainer(options.container, 'container metadata is required');
+  const entries = readAnalyzerEntries(options.entries);
+  const writeReport = createWriteReport(runtime);
+  const report = readScanReport({ reportPath }, runtime);
+
+  report.analyzerState = {
+    stateDir,
+    container,
+    entries,
+  };
+  report.updatedAt = toTimestamp(runtime.now);
+  writeReport(reportPath, report);
+  return report;
+}
+
+export function migrateLegacyScanReport(options, runtime = {}) {
+  const artifactRoot = readRequiredOption(options.artifactRoot, 'artifactRoot is required');
+  const legacyReportPath = path.join(artifactRoot, 'scan-report.json');
+  const reportPath = path.join(artifactRoot, 'peach-local-scan.json');
+  const existsSync = runtime.existsSync ?? fs.existsSync;
+  const readFileSync = runtime.readFileSync ?? fs.readFileSync;
+  const writeReport = createWriteReport(runtime);
+  const removePath = createRemovePath(runtime);
+
+  if (!existsSync(legacyReportPath)) {
+    if (existsSync(reportPath)) {
+      return readScanReport({ reportPath }, runtime);
+    }
+    throw new Error(`Legacy scan report not found: ${legacyReportPath}`);
+  }
+  if (existsSync(reportPath)) {
+    throw new Error(`Refusing to migrate because target report already exists: ${reportPath}`);
+  }
+
+  const report = JSON.parse(readFileSync(legacyReportPath, 'utf-8'));
+  report.version = REPORT_VERSION;
+  report.analyzerState = readLegacyAnalyzerState(artifactRoot, runtime);
+  writeReport(reportPath, report);
+
+  removePath(legacyReportPath);
+  removePath(markdownPathFor(legacyReportPath), { force: true });
+  removePath(path.join(artifactRoot, 'sonarqube-analyzer-state', 'container.txt'), { force: true });
+  removePath(path.join(artifactRoot, 'sonarqube-analyzer-state', 'snapshot.tsv'), { force: true });
+  return report;
 }
 
 export function markProjectSucceeded(options, runtime = {}) {
@@ -205,7 +257,18 @@ function createWriteReport(runtime) {
     const reportDirectory = path.dirname(reportPath);
     mkdirSync(reportDirectory, { recursive: true });
     writeFileSync(reportPath, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
-    writeFileSync(markdownPathFor(reportPath), `${renderScanReportMarkdown(report)}\n`, 'utf-8');
+    writeFileSync(
+      markdownPathFor(reportPath),
+      `${renderScanReportMarkdown(report, reportPath)}\n`,
+      'utf-8',
+    );
+  };
+}
+
+function createRemovePath(runtime) {
+  const rmSync = runtime.rmSync ?? fs.rmSync;
+  return (targetPath, options = {}) => {
+    rmSync(targetPath, { force: options.force ?? false });
   };
 }
 
@@ -278,7 +341,12 @@ function createProjectRecord(project, artifactRoot) {
   };
 }
 
-function renderScanReportMarkdown(report) {
+function renderScanReportMarkdown(report, reportPath) {
+  const analyzerState = report.analyzerState;
+  const analyzerSummary =
+    analyzerState == null
+      ? 'none'
+      : `${analyzerState.entries.length} ${analyzerState.entries.length === 1 ? 'entry' : 'entries'} for ${analyzerState.container.id}`;
   const lines = [
     '# Peach Local Scan Report',
     '',
@@ -300,6 +368,7 @@ function renderScanReportMarkdown(report) {
     '- Nigel Root: `' + report.options.nigelRoot + '`',
     '- Rebuild Analyzer: `' + String(report.options.rebuildAnalyzer) + '`',
     '- Patch Local Analyzer: `' + String(report.options.patchLocalAnalyzer) + '`',
+    '- Analyzer Snapshot: `' + analyzerSummary + '`',
     '',
     '## Projects',
     '',
@@ -333,7 +402,9 @@ function renderScanReportMarkdown(report) {
   }
 
   lines.push('');
-  lines.push('See `scan-report.json` for per-project artifact paths and rule summaries.');
+  lines.push(
+    `See \`${path.basename(reportPath)}\` for per-project artifact paths and rule summaries.`,
+  );
   return lines.join('\n');
 }
 
@@ -348,6 +419,31 @@ function classifyIssueLanguage(issue) {
     return 'ts';
   }
   return 'other';
+}
+
+function readLegacyAnalyzerState(artifactRoot, runtime) {
+  const existsSync = runtime.existsSync ?? fs.existsSync;
+  const readFileSync = runtime.readFileSync ?? fs.readFileSync;
+  const stateDir = path.join(artifactRoot, 'sonarqube-analyzer-state');
+  const containerPath = path.join(stateDir, 'container.txt');
+  const snapshotPath = path.join(stateDir, 'snapshot.tsv');
+  const hasContainer = existsSync(containerPath);
+  const hasSnapshot = existsSync(snapshotPath);
+
+  if (!hasContainer && !hasSnapshot) {
+    return null;
+  }
+  if (!hasContainer || !hasSnapshot) {
+    throw new Error(
+      'Legacy analyzer snapshot is incomplete; expected both container.txt and snapshot.tsv',
+    );
+  }
+
+  return {
+    stateDir,
+    container: parseLegacyContainerMetadata(readFileSync(containerPath, 'utf-8')),
+    entries: parseLegacyAnalyzerEntries(readFileSync(snapshotPath, 'utf-8')),
+  };
 }
 
 function extractIssuePath(issue) {
@@ -388,6 +484,67 @@ function readRequiredOption(value, message) {
     return value;
   }
   throw new Error(message);
+}
+
+function parseLegacyContainerMetadata(text) {
+  const fields = text.trim().split(/\s+/);
+  if (fields.length !== 4) {
+    throw new Error('Legacy analyzer container metadata is invalid');
+  }
+  const [id, image, createdAt, startedAt] = fields;
+  return readAnalyzerContainer(
+    {
+      id,
+      image,
+      createdAt,
+      startedAt,
+    },
+    'container metadata is required',
+  );
+}
+
+function parseLegacyAnalyzerEntries(text) {
+  const entries = text
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .map(line => {
+      const [kind, originalPath, backupName, ...rest] = line.split('\t');
+      if (rest.length > 0) {
+        throw new Error('Legacy analyzer snapshot entry is invalid');
+      }
+      return { kind, originalPath, backupName };
+    });
+  return readAnalyzerEntries(entries);
+}
+
+function readAnalyzerContainer(value, message) {
+  if (!value || typeof value !== 'object') {
+    throw new Error(message);
+  }
+  return {
+    id: readRequiredOption(value.id, 'container.id is required'),
+    image: readRequiredOption(value.image, 'container.image is required'),
+    createdAt: readRequiredOption(value.createdAt, 'container.createdAt is required'),
+    startedAt: readRequiredOption(value.startedAt, 'container.startedAt is required'),
+  };
+}
+
+function readAnalyzerEntries(value) {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error('entries must be a non-empty array');
+  }
+
+  return value.map(entry => {
+    if (!entry || typeof entry !== 'object') {
+      throw new Error('analyzer entry must be an object');
+    }
+    return {
+      kind: readRequiredOption(entry.kind, 'entry.kind is required'),
+      originalPath: readRequiredOption(entry.originalPath, 'entry.originalPath is required'),
+      backupName: readRequiredOption(entry.backupName, 'entry.backupName is required'),
+    };
+  });
 }
 
 function readBooleanOption(value, message) {
@@ -451,6 +608,14 @@ export async function main(argv = process.argv.slice(2), runtime = {}) {
 
   const [command, ...rest] = argv;
   switch (command) {
+    case 'migrate': {
+      if (rest.length !== 1) {
+        throw new Error(USAGE);
+      }
+      const [artifactRoot] = rest;
+      migrateLegacyScanReport({ artifactRoot }, runtime);
+      return;
+    }
     case 'init': {
       const force = rest[0] === '--force';
       const args = force ? rest.slice(1) : rest;
@@ -479,6 +644,22 @@ export async function main(argv = process.argv.slice(2), runtime = {}) {
       }
       const [reportPath, project, projectKey, artifactDir] = rest;
       markProjectStarted({ reportPath, project, projectKey, artifactDir }, runtime);
+      return;
+    }
+    case 'analyzer-state': {
+      if (rest.length !== 4) {
+        throw new Error(USAGE);
+      }
+      const [reportPath, stateDir, containerText, entriesText] = rest;
+      writeAnalyzerState(
+        {
+          reportPath,
+          stateDir,
+          container: JSON.parse(containerText),
+          entries: JSON.parse(entriesText),
+        },
+        runtime,
+      );
       return;
     }
     case 'project-success': {
