@@ -301,7 +301,7 @@ export const rule: Rule.RuleModule = {
           ctx.report(descriptor);
         } else {
           const { suggest: _suggest, ...rest } = descriptor;
-          ctx.report({ ...rest, fix: suggestFix } as Rule.ReportDescriptor);
+          ctx.report({ ...rest, fix: suggestFix });
         }
         return;
       }
