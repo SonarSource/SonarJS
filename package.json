@@ -112,7 +112,7 @@
     "@grpc/grpc-js": "1.14.3",
     "@protobufjs/base64": "1.1.2",
     "@stylistic/eslint-plugin": "5.10.0",
-    "@stylistic/stylelint-plugin": "5.1.0",
+    "@stylistic/stylelint-plugin": "5.2.0",
     "@typescript-eslint/eslint-plugin": "8.59.3",
     "@typescript-eslint/parser": "8.59.3",
     "@typescript-eslint/type-utils": "8.59.3",
