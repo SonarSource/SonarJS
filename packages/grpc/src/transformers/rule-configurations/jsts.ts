@@ -306,13 +306,13 @@ function buildConfigurations(
     const element = fields[index];
 
     if (Array.isArray(element)) {
-      const objConfig = buildObjectConfiguration(element as FieldDef[], paramsLookup);
+      const objConfig = buildObjectConfiguration(element, paramsLookup);
       if (objConfig !== undefined) {
         configurations.push(objConfig);
       }
     } else {
       const primitiveConfig = buildPrimitiveConfiguration(
-        element as { default: unknown; displayName?: string },
+        element,
         paramsLookup,
         params,
         index,
