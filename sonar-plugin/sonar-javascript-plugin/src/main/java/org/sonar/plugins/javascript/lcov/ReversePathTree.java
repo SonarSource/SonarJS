@@ -26,8 +26,10 @@ class ReversePathTree {
 
   void index(InputFile inputFile, String[] path) {
     Node currentNode = root;
+    currentNode.leafCount++;
     for (int i = path.length - 1; i >= 0; i--) {
       currentNode = currentNode.children.computeIfAbsent(path[i], e -> new Node());
+      currentNode.leafCount++;
     }
     currentNode.file = inputFile;
   }
@@ -41,19 +43,29 @@ class ReversePathTree {
         return null;
       }
     }
-    return getFirstLeaf(currentNode);
+    return getOnlyLeaf(currentNode);
   }
 
-  private static InputFile getFirstLeaf(Node node) {
-    while (!node.children.isEmpty()) {
-      node = node.children.values().iterator().next();
+  private static InputFile getOnlyLeaf(Node node) {
+    if (node.leafCount != 1) {
+      return null;
     }
-    return node.file;
+    if (node.file != null) {
+      return node.file;
+    }
+    for (Node child : node.children.values()) {
+      InputFile inputFile = getOnlyLeaf(child);
+      if (inputFile != null) {
+        return inputFile;
+      }
+    }
+    return null;
   }
 
   static class Node {
 
     final Map<String, Node> children = new LinkedHashMap<>();
     InputFile file = null;
+    int leafCount = 0;
   }
 }

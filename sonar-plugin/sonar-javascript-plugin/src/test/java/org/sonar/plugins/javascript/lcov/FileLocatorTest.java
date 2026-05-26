@@ -50,7 +50,7 @@ class FileLocatorTest {
   }
 
   @Test
-  void should_match_first_with_many_options() {
+  void should_not_match_ambiguous_suffix() {
     InputFile inputFile1 = new TestInputFileBuilder(
       "module1",
       "src/main/java/org/sonar/test/File.java"
@@ -61,7 +61,7 @@ class FileLocatorTest {
     ).build();
 
     FileLocator locator = new FileLocator(Arrays.asList(inputFile1, inputFile2));
-    assertThat(locator.getInputFile("org/sonar/test/File.java")).isEqualTo(inputFile1);
+    assertThat(locator.getInputFile("org/sonar/test/File.java")).isNull();
   }
 
   @Test

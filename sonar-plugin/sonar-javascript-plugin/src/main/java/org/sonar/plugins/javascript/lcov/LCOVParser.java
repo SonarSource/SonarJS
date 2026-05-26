@@ -18,21 +18,21 @@ package org.sonar.plugins.javascript.lcov;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.utils.PathUtils;
 
 /**
  * http://ltp.sourceforge.net/coverage/lcov/geninfo.1.php
@@ -54,25 +54,17 @@ class LCOVParser {
 
   private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
 
-  private LCOVParser(List<String> lines, SensorContext context, FileLocator fileLocator) {
+  private LCOVParser(SensorContext context, List<File> files, FileLocator fileLocator) {
     this.context = context;
     this.fileLocator = fileLocator;
-    this.coverageByFile = parse(lines);
+    this.coverageByFile = parse(files);
   }
 
   /**
    * Reads all report files and parses them as a single LCOV stream.
    */
   static LCOVParser create(SensorContext context, List<File> files, FileLocator fileLocator) {
-    final List<String> lines = new LinkedList<>();
-    for (File file : files) {
-      try (Stream<String> fileLines = Files.lines(file.toPath())) {
-        lines.addAll(fileLines.toList());
-      } catch (IOException e) {
-        throw new IllegalArgumentException("Could not read content from file: " + file, e);
-      }
-    }
-    return new LCOVParser(lines, context, fileLocator);
+    return new LCOVParser(context, files, fileLocator);
   }
 
   Map<InputFile, NewCoverage> coverageByFile() {
@@ -94,25 +86,32 @@ class LCOVParser {
    * the active {@link FileData}. Every SF block gets a unique record index to support branch merge
    * logic across multiple reports.
    */
-  private Map<InputFile, NewCoverage> parse(List<String> lines) {
+  private Map<InputFile, NewCoverage> parse(List<File> reportFiles) {
     final Map<InputFile, FileData> files = new HashMap<>();
-    FileData fileData = null;
     int sourceFileRecordIndex = 0;
-    int reportLineNum = 0;
 
-    for (String line : lines) {
-      reportLineNum++;
-      if (line.startsWith(SF)) {
-        sourceFileRecordIndex++;
-        fileData = files.computeIfAbsent(inputFileForSourceFile(line), inputFile ->
-          inputFile == null ? null : new FileData(inputFile)
-        );
-      } else if (fileData != null) {
-        if (line.startsWith(DA)) {
-          parseLineCoverage(fileData, reportLineNum, line);
-        } else if (line.startsWith(BRDA)) {
-          parseBranchCoverage(fileData, sourceFileRecordIndex, reportLineNum, line);
+    for (File reportFile : reportFiles) {
+      FileData fileData = null;
+      int reportLineNum = 0;
+
+      try {
+        for (String line : java.nio.file.Files.readAllLines(reportFile.toPath())) {
+          reportLineNum++;
+          if (line.startsWith(SF)) {
+            sourceFileRecordIndex++;
+            fileData = files.computeIfAbsent(inputFileForSourceFile(reportFile, line), inputFile ->
+              inputFile == null ? null : new FileData(inputFile)
+            );
+          } else if (fileData != null) {
+            if (line.startsWith(DA)) {
+              parseLineCoverage(fileData, reportLineNum, line);
+            } else if (line.startsWith(BRDA)) {
+              parseBranchCoverage(fileData, sourceFileRecordIndex, reportLineNum, line);
+            }
+          }
         }
+      } catch (IOException e) {
+        throw new IllegalArgumentException("Could not read content from file: " + reportFile, e);
       }
     }
 
@@ -191,16 +190,17 @@ class LCOVParser {
    * <p>
    * Resolution order:
    * 1) exact filesystem predicate match (absolute or project-relative path),
-   * 2) suffix-based lookup through {@link FileLocator} for cross-tool/cross-root path variants.
+   * 2) relative-to-report lookup for package-local LCOV paths,
+   * 3) unique suffix-based lookup through {@link FileLocator} for cross-tool/cross-root path variants.
    */
   @CheckForNull
-  private InputFile inputFileForSourceFile(String line) {
+  private InputFile inputFileForSourceFile(File reportFile, String line) {
     // SF:<absolute path to the source file>
     String filePath = line.substring(SF.length());
-    // some tools (like Istanbul, Karma) provide relative paths, so let's consider them relative to project directory
-    InputFile inputFile = context
-      .fileSystem()
-      .inputFile(context.fileSystem().predicates().hasPath(filePath));
+    InputFile inputFile = inputFileByExactPath(filePath);
+    if (inputFile == null) {
+      inputFile = inputFileRelativeToReport(reportFile, filePath);
+    }
     if (inputFile == null) {
       inputFile = fileLocator.getInputFile(filePath);
     }
@@ -208,6 +208,25 @@ class LCOVParser {
       unresolvedPaths.add(filePath);
     }
     return inputFile;
+  }
+
+  @CheckForNull
+  private InputFile inputFileByExactPath(String filePath) {
+    FilePredicates predicates = context.fileSystem().predicates();
+    return context.fileSystem().inputFile(predicates.hasPath(filePath));
+  }
+
+  @CheckForNull
+  private InputFile inputFileRelativeToReport(File reportFile, String filePath) {
+    String sanitizedPath = PathUtils.sanitize(filePath);
+    if (sanitizedPath == null || new File(sanitizedPath).isAbsolute()) {
+      return null;
+    }
+
+    Path resolvedPath = reportFile.getParentFile().toPath().resolve(sanitizedPath).normalize();
+    return context
+      .fileSystem()
+      .inputFile(context.fileSystem().predicates().hasAbsolutePath(resolvedPath.toString()));
   }
 
   private static class FileData {
