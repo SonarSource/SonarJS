@@ -64,10 +64,12 @@ type PredicateAssertion = AssertionBase & {
  */
 type ComparisonAssertion = AssertionBase & {
   kind: 'comparison';
-  comparison: 'strict' | 'deep' | 'loose';
+  comparison: ComparisionAssertionStrictness;
   actual: estree.Node;
   expected: estree.Node;
 };
+
+type ComparisionAssertionStrictness = 'strict' | 'deep' | 'loose';
 
 /**
  * Maps common Jest matcher names to their corresponding assertion predicates.
@@ -88,6 +90,8 @@ type NodeAssertMethod =
   | 'ok'
   | 'strictEqual'
   | 'notStrictEqual'
+  | 'deepEqual'
+  | 'notDeepEqual'
   | 'deepStrictEqual'
   | 'notDeepStrictEqual';
 
@@ -194,7 +198,7 @@ function extractExpectAssertion(expectCall: estree.Node): Assertion | null {
   return null;
 }
 
-function getJestComparison(name: string): ComparisonAssertion['comparison'] | null {
+function getJestComparison(name: string): ComparisionAssertionStrictness | null {
   switch (name) {
     case 'toBe':
       return 'strict';
@@ -309,7 +313,7 @@ function extractChaiAssertAssertion(
   };
 }
 
-function getChaiAssertComparison(method: ChaiAssertMethod): ComparisonAssertion['comparison'] {
+function getChaiAssertComparison(method: ChaiAssertMethod): ComparisionAssertionStrictness {
   switch (method) {
     case 'equal':
     case 'notEqual':
@@ -695,8 +699,11 @@ function extractNodeJSAssertion(
   };
 }
 
-function getNodeJSComparison(method: NodeAssertMethod): ComparisonAssertion['comparison'] {
+function getNodeJSComparison(method: NodeAssertMethod): ComparisionAssertionStrictness {
   switch (method) {
+    case 'deepEqual':
+    case 'notDeepEqual':
+      return 'loose';
     case 'deepStrictEqual':
     case 'notDeepStrictEqual':
       return 'deep';
@@ -740,6 +747,14 @@ function getNodeJSAssertMethodFromFqn(fqn: string | null): NodeAssertMethod | nu
     case 'assert.notStrictEqual':
     case 'assert.strict.notStrictEqual':
       return 'notStrictEqual';
+    case 'assert.deepEqual':
+      return 'deepEqual';
+    case 'assert.notDeepEqual':
+      return 'notDeepEqual';
+    case 'assert.strict.deepEqual':
+      return 'deepStrictEqual';
+    case 'assert.strict.notDeepEqual':
+      return 'notDeepStrictEqual';
     case 'assert.deepStrictEqual':
     case 'assert.strict.deepStrictEqual':
       return 'deepStrictEqual';
@@ -759,6 +774,8 @@ function getNodeJSAssertMethodFromName(name: string): NodeAssertMethod | null {
     case 'ok':
     case 'strictEqual':
     case 'notStrictEqual':
+    case 'deepEqual':
+    case 'notDeepEqual':
     case 'deepStrictEqual':
     case 'notDeepStrictEqual':
       return name;
@@ -821,7 +838,7 @@ function extractCypressChainAssertion(node: estree.Node): Assertion | null {
   };
 }
 
-function parseCypressComparisonString(predicate: string): ComparisonAssertion['comparison'] | null {
+function parseCypressComparisonString(predicate: string): ComparisionAssertionStrictness | null {
   const parts = predicate.split('.');
   let idx = 0;
   if (parts[idx] === 'not') {

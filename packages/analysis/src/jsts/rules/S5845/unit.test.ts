@@ -178,6 +178,16 @@ describe('S5845', () => {
         },
         {
           code: `
+            import assert from 'node:assert';
+
+            const count: number = 1;
+            const title: string = '1';
+            assert.deepEqual(count, title);
+            assert.notDeepEqual(count, title);
+          `,
+        },
+        {
+          code: `
             import { assert } from 'chai';
 
             const price = 19.99;
@@ -315,11 +325,15 @@ describe('S5845', () => {
               const title: string = '1';
               const enabled: boolean = true;
 
+              assert.deepEqual(count, title);
+              assert.notDeepEqual(enabled, 1);
               assert.deepStrictEqual(count, title);
               assert.notDeepStrictEqual(enabled, 1);
             });
           `,
           errors: [
+            { messageId: 'incompatibleStaticTypes' },
+            { messageId: 'incompatibleStaticTypes' },
             { messageId: 'incompatibleStaticTypes' },
             { messageId: 'incompatibleStaticTypes' },
           ],

@@ -149,6 +149,12 @@ describe('S5914', () => {
         {
           code: `
             import assert from 'node:assert';
+            assert.deepEqual(getValue(), {});
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
             assert.deepStrictEqual(getUser(), {});
           `,
         },
@@ -644,6 +650,13 @@ describe('S5914', () => {
           code: `
             import assert from 'node:assert';
             assert.strictEqual(1, 2);
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+            assert.deepEqual(1, '1');
           `,
           errors: [{ messageId: 'issue' }],
         },
