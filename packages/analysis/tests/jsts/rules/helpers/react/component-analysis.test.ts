@@ -17,11 +17,12 @@
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import type { Rule } from 'eslint';
-import { RuleTester } from '../../../tools/testers/rule-tester.js';
+import { DefaultParserRuleTester, RuleTester } from '../../../tools/testers/rule-tester.js';
 import { isRequiredParserServices } from '../../../../../src/jsts/rules/helpers/parser-services.js';
 import {
   collectComponents,
   createComponentAnalysis,
+  isReactClassComponent,
 } from '../../../../../src/jsts/rules/helpers/react/component-analysis.js';
 
 const fixtureDirectory = path.join(
@@ -30,6 +31,7 @@ const fixtureDirectory = path.join(
 );
 const fixtureFilePath = path.join(fixtureDirectory, 'placeholder.tsx');
 
+const defaultParserRuleTester = new DefaultParserRuleTester();
 const ruleTester = new RuleTester({
   parserOptions: {
     project: './tsconfig.json',
@@ -70,6 +72,74 @@ const componentAnalysisRule: Rule.RuleModule = {
     };
   },
 };
+
+const reactClassComponentRule: Rule.RuleModule = {
+  meta: {
+    messages: {},
+  },
+  create(context: Rule.RuleContext) {
+    return {
+      Program(node) {
+        const summary = collectComponents(node, context.sourceCode.visitorKeys)
+          .filter(component => isReactClassComponent(component.componentNode))
+          .map(component => component.componentIdentifier?.name ?? '<anonymous>');
+
+        assert.deepStrictEqual(summary, [
+          'Panel',
+          'SettingsPanel',
+          'LocalPanel',
+          'LocalPurePanel',
+          'PanelExpression',
+        ]);
+      },
+    };
+  },
+};
+
+defaultParserRuleTester.run('isReactClassComponent', reactClassComponentRule, {
+  valid: [
+    {
+      code: `
+const React = { Component: class {}, PureComponent: class {} };
+const Component = class {};
+const PureComponent = class {};
+class View {}
+class Helper {}
+class Panel extends React.Component {
+  render() {
+    return null;
+  }
+}
+class SettingsPanel extends React.PureComponent {
+  render() {
+    return null;
+  }
+}
+class LocalPanel extends Component {
+  render() {
+    return null;
+  }
+}
+class LocalPurePanel extends PureComponent {
+  render() {
+    return null;
+  }
+}
+const PanelExpression = class extends React.Component {
+  render() {
+    return null;
+  }
+};
+class NonReactView extends View {
+  render() {
+    return null;
+  }
+}
+`,
+    },
+  ],
+  invalid: [],
+});
 
 ruleTester.run('component-analysis', componentAnalysisRule, {
   valid: [

@@ -18,10 +18,10 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
-import { ancestorsChain } from '../helpers/ancestor.js';
-import { isIdentifier } from '../helpers/ast.js';
+import { ancestorsChain, findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { isReactClassComponent } from '../helpers/react/component-analysis.js';
 import * as meta from './generated-meta.js';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
@@ -51,7 +51,7 @@ function isThisMemberExpression(
 function isLexicallyBoundToReactClassComponent(node: TSESTree.MemberExpression): boolean {
   for (const current of ancestorsChain(node, new Set<string>())) {
     if (isClassMember(current)) {
-      return isInsideReactClassComponent(current);
+      return findFirstMatchingAncestor(current, isReactClassComponent) !== undefined;
     }
 
     if (isNonLexicalFunctionBoundary(current)) {
@@ -77,31 +77,4 @@ function isNonLexicalFunctionBoundary(node: TSESTree.Node): boolean {
 
   // Method bodies are transparent so traversal can reach the enclosing MethodDefinition.
   return node.parent?.type !== 'MethodDefinition';
-}
-
-function isInsideReactClassComponent(classMember: TSESTree.Node): boolean {
-  for (const current of ancestorsChain(classMember, new Set<string>())) {
-    if (current.type === 'ClassDeclaration' || current.type === 'ClassExpression') {
-      return isReactClassComponent(current);
-    }
-  }
-
-  return false;
-}
-
-function isReactClassComponent(
-  node: TSESTree.ClassDeclaration | TSESTree.ClassExpression,
-): boolean {
-  return node.superClass != null && isReactComponentSuperclass(node.superClass);
-}
-
-function isReactComponentSuperclass(superClass: TSESTree.Expression): boolean {
-  return (
-    isIdentifier(superClass, 'Component') ||
-    isIdentifier(superClass, 'PureComponent') ||
-    (superClass.type === 'MemberExpression' &&
-      isIdentifier(superClass.object, 'React') &&
-      (isIdentifier(superClass.property, 'Component') ||
-        isIdentifier(superClass.property, 'PureComponent')))
-  );
 }
