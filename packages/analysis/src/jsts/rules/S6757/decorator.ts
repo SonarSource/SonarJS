@@ -18,6 +18,7 @@
 
 import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule } from 'eslint';
+import type estree from 'estree';
 import { ancestorsChain, findFirstMatchingAncestor } from '../helpers/ancestor.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -51,7 +52,14 @@ function isThisMemberExpression(
 function isLexicallyBoundToReactClassComponent(node: TSESTree.MemberExpression): boolean {
   for (const current of ancestorsChain(node, new Set<string>())) {
     if (isClassMember(current)) {
-      return findFirstMatchingAncestor(current, isReactClassComponent) !== undefined;
+      return (
+        findFirstMatchingAncestor(
+          current,
+          ancestor =>
+            (ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression') &&
+            isReactClassComponent(ancestor as unknown as estree.Node),
+        ) !== undefined
+      );
     }
 
     if (isNonLexicalFunctionBoundary(current)) {
