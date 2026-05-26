@@ -32,6 +32,7 @@ import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.PathUtils;
 
 /**
@@ -44,9 +45,12 @@ class LCOVParser {
   private static final String SF = "SF:";
   private static final String DA = "DA:";
   private static final String BRDA = "BRDA:";
+  private static final PathResolver PATH_RESOLVER = new PathResolver();
 
   private final Map<InputFile, NewCoverage> coverageByFile;
   private final SensorContext context;
+  private final Path analysisBaseDir;
+  private final Path realAnalysisBaseDir;
   // deduplicated list of unresolved paths (keep order of insertion)
   private final Set<String> unresolvedPaths = new LinkedHashSet<>();
   private final FileLocator fileLocator;
@@ -57,6 +61,8 @@ class LCOVParser {
   LCOVParser(SensorContext context, List<File> files, FileLocator fileLocator) {
     this.context = context;
     this.fileLocator = fileLocator;
+    this.analysisBaseDir = context.fileSystem().baseDir().toPath().toAbsolutePath().normalize();
+    this.realAnalysisBaseDir = resolveRealPath(analysisBaseDir);
     this.coverageByFile = parse(files);
   }
 
@@ -239,7 +245,6 @@ class LCOVParser {
     }
 
     FilePredicates predicates = context.fileSystem().predicates();
-    Path analysisBaseDir = context.fileSystem().baseDir().toPath().toAbsolutePath().normalize();
     for (
       Path currentDirectory = reportDirectory.toPath().toAbsolutePath().normalize();
       currentDirectory != null;
@@ -263,7 +268,39 @@ class LCOVParser {
 
   @CheckForNull
   private InputFile inputFileByAbsolutePath(FilePredicates predicates, String absolutePath) {
-    return context.fileSystem().inputFile(predicates.hasAbsolutePath(absolutePath));
+    InputFile inputFile = context.fileSystem().inputFile(predicates.hasAbsolutePath(absolutePath));
+    if (inputFile != null) {
+      return inputFile;
+    }
+
+    String relativePath = relativePathFromAnalysisBaseDir(absolutePath);
+    if (relativePath != null) {
+      return context.fileSystem().inputFile(predicates.hasPath(relativePath));
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private String relativePathFromAnalysisBaseDir(String absolutePath) {
+    Path absoluteFilePath = new File(absolutePath).toPath().toAbsolutePath().normalize();
+
+    String relativePath = PATH_RESOLVER.relativePath(analysisBaseDir, absoluteFilePath);
+    if (relativePath != null) {
+      return relativePath;
+    }
+
+    if (!realAnalysisBaseDir.equals(analysisBaseDir)) {
+      return PATH_RESOLVER.relativePath(realAnalysisBaseDir, absoluteFilePath);
+    }
+    return null;
+  }
+
+  private static Path resolveRealPath(Path path) {
+    try {
+      return path.toRealPath();
+    } catch (IOException e) {
+      return path;
+    }
   }
 
   private static class FileData {

@@ -17,7 +17,9 @@
 package org.sonar.plugins.javascript.lcov;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -266,13 +268,85 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
     assertThat(context.lineHits(packageB.key(), 5)).isEqualTo(1);
   }
 
+  @Test
+  void should_import_absolute_paths_when_analysis_base_dir_is_an_alias() throws Exception {
+    Path realBaseDir = Files.createDirectories(tempDir.resolve("real-base-dir"));
+    Path analysisBaseDir = createDirectoryAlias(tempDir.resolve("analysis-base-dir"), realBaseDir);
+
+    settings = new MapSettings();
+    context = SensorContextTester.create(analysisBaseDir.toFile());
+    context.setSettings(settings);
+
+    DefaultInputFile packageA = tsInputFile(
+      realBaseDir,
+      "packages/a/src/index.ts",
+      String.join(
+          "\n",
+          "export const fromA = 1;",
+          "export function fromPackageA() {",
+          "  return fromA;",
+          "}"
+        ) +
+        "\n"
+    );
+
+    Path lcov = analysisBaseDir.resolve("duplicate-suffix-absolute-alias.lcov");
+    Files.write(
+      lcov,
+      String.join("\n", "SF:" + packageA.absolutePath(), "DA:1,1", "end_of_record", "").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.toAbsolutePath().toString());
+    coverageSensor.execute(context);
+
+    assertThat(context.lineHits(packageA.key(), 1)).isEqualTo(1);
+  }
+
   private DefaultInputFile tsInputFile(String relativePath, String contents) {
+    return tsInputFile(tempDir, relativePath, contents);
+  }
+
+  private DefaultInputFile tsInputFile(Path moduleBaseDir, String relativePath, String contents) {
     DefaultInputFile inputFile = new TestInputFileBuilder("moduleKey", relativePath)
-      .setModuleBaseDir(tempDir)
+      .setModuleBaseDir(moduleBaseDir)
       .setLanguage("ts")
       .setContents(contents)
       .build();
     context.fileSystem().add(inputFile);
     return inputFile;
+  }
+
+  private static Path createDirectoryAlias(Path alias, Path target) throws Exception {
+    if (isWindows()) {
+      Process process = new ProcessBuilder(
+        "cmd",
+        "/c",
+        String.format("mklink /J \"%s\" \"%s\"", alias, target)
+      )
+        .redirectErrorStream(true)
+        .start();
+      String output;
+      try (var reader = process.inputReader(StandardCharsets.UTF_8)) {
+        output = reader.lines().reduce("", (left, right) -> left + right + System.lineSeparator());
+      }
+      assumeTrue(
+        process.waitFor() == 0,
+        () -> "Unable to create directory junction for test: " + output
+      );
+      return alias;
+    }
+
+    try {
+      return Files.createSymbolicLink(alias, target);
+    } catch (IOException | UnsupportedOperationException e) {
+      assumeTrue(false, () -> "Unable to create directory alias for test: " + e.getMessage());
+      return alias;
+    }
+  }
+
+  private static boolean isWindows() {
+    return System.getProperty("os.name").startsWith("Windows");
   }
 }
