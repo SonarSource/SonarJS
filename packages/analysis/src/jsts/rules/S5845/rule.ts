@@ -28,7 +28,7 @@ import * as meta from './generated-meta.js';
 
 const messages = {
   incompatibleStaticTypes:
-    'Review this strict equality assertion: the compared expressions have incompatible static types ("{{actual}}" and "{{expected}}").',
+    'Review this equality assertion: the compared expressions have incompatible static types ("{{actual}}" and "{{expected}}").',
 };
 
 type PrimitiveCategory =
@@ -46,10 +46,10 @@ export const rule: Rule.RuleModule = {
   /*
    * High-level idea:
    * - only run when the parser provides type information;
-   * - only analyse strict equality assertions;
+   * - only analyse strict and deep equality assertions;
    * - reduce both assertion operands to broad primitive families instead of comparing exact
    *   TypeScript types, because the rule is meant to highlight incompatible static typings on
-   *   strict equality checks rather than to model all runtime equality behavior;
+   *   equality checks rather than to model all runtime equality behavior;
    * - stay conservative whenever the type is imprecise (`any`, `unknown`, type parameters, etc.),
    *   or when a mutable identifier may have been reassigned to a different family.
    */
@@ -142,13 +142,16 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-// Only strict equality assertions are in scope. Loose equality depends on coercion, and deep
-// equality compares runtime shapes rather than identity-compatible static types.
+// Strict and deep equality assertions are in scope. Loose equality depends on coercion, while
+// deep equality is relevant here because the rule only reasons about primitive type families.
 function isRelevantAssertion(assertion: Assertion | null): assertion is Assertion & {
   kind: 'comparison';
-  comparison: 'strict';
+  comparison: 'strict' | 'deep';
 } {
-  return assertion?.kind === 'comparison' && assertion.comparison === 'strict';
+  return (
+    assertion?.kind === 'comparison' &&
+    (assertion.comparison === 'strict' || assertion.comparison === 'deep')
+  );
 }
 
 // The rule reports only when the two operands have no plausible primitive-family overlap.

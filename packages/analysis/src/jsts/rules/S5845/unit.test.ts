@@ -212,10 +212,11 @@ describe('S5845', () => {
             import { expect } from 'vitest';
 
             const id: number = 123;
+            const otherId: number = 123;
             const name: string = '123';
 
-            expect(id).toEqual(name);
-            expect(id).toStrictEqual(name);
+            expect(id).toEqual(otherId);
+            expect(name).toStrictEqual('123');
           `,
         },
         {
@@ -223,20 +224,19 @@ describe('S5845', () => {
             import assert from 'node:assert';
 
             const port: number = 8080;
-            const portText: string = '8080';
+            const portCopy: number = 8080;
 
-            assert.deepStrictEqual(port, portText);
+            assert.deepStrictEqual(port, portCopy);
           `,
         },
         {
           code: `
             import { expect } from 'chai';
 
-            const version: number = 3;
             const versionText: string = '3';
 
-            expect(versionText).to.deep.equal(version);
-            expect(versionText).to.eql(version);
+            expect(versionText).to.deep.equal('3');
+            expect(versionText).to.eql('3');
           `,
         },
         {
@@ -244,10 +244,10 @@ describe('S5845', () => {
             import 'cypress';
 
             const count: number = 1;
-            const label: string = '1';
+            const otherCount: number = 1;
 
-            cy.wrap(count).should('deep.equal', label);
-            cy.wrap(count).should('not.deep.equal', label);
+            cy.wrap(count).should('deep.equal', otherCount);
+            cy.wrap(count).should('not.deep.equal', 2);
           `,
         },
         {
@@ -297,7 +297,7 @@ describe('S5845', () => {
               const enabled: boolean = true;
 
               expect(title).toBe(count);
-              expect(enabled).not.toBe('true');
+              expect(enabled).not.toEqual('true');
             });
           `,
           errors: [
@@ -315,8 +315,8 @@ describe('S5845', () => {
               const title: string = '1';
               const enabled: boolean = true;
 
-              assert.strictEqual(count, title);
-              assert.notStrictEqual(enabled, 1);
+              assert.deepStrictEqual(count, title);
+              assert.notDeepStrictEqual(enabled, 1);
             });
           `,
           errors: [
@@ -333,8 +333,8 @@ describe('S5845', () => {
             const score: number = 10;
             const scoreText: string = '10';
 
-            expect(id).toBe(name);
-            expect(score).toBe(scoreText);
+            expect(id).toEqual(name);
+            expect(score).toStrictEqual(scoreText);
           `,
           errors: [
             { messageId: 'incompatibleStaticTypes' },
@@ -417,8 +417,8 @@ describe('S5845', () => {
             const quantityText: string = '2';
             const inStock: boolean = true;
 
-            assert.strictEqual(quantity, quantityText);
-            assert.notStrictEqual(inStock, 1);
+            assert.deepEqual(quantity, quantityText);
+            assert.notDeepEqual(inStock, 1);
           `,
           errors: [
             { messageId: 'incompatibleStaticTypes' },
@@ -433,8 +433,8 @@ describe('S5845', () => {
             const versionText: string = '3';
             const deprecated: boolean = false;
 
-            expect(version).to.equal(versionText);
-            expect(deprecated).to.equal(version);
+            expect(version).to.deep.equal(versionText);
+            expect(deprecated).to.eql(version);
           `,
           errors: [
             { messageId: 'incompatibleStaticTypes' },
@@ -448,8 +448,8 @@ describe('S5845', () => {
             const timeout: number = 1000;
             const timeoutText: string = '1000';
 
-            timeout.should.equal(timeoutText);
-            timeout.should.equal('1000');
+            timeout.should.deep.equal(timeoutText);
+            timeout.should.deep.equal('1000');
           `,
           errors: [
             { messageId: 'incompatibleStaticTypes' },
@@ -472,8 +472,8 @@ describe('S5845', () => {
 
             const id: number = 1;
             const idText: string = '1';
-            cy.wrap(id).should('equal', idText);
-            cy.wrap(true).should('equal', id);
+            cy.wrap(id).should('deep.equal', idText);
+            cy.wrap(true).should('deep.equal', id);
           `,
           errors: [
             { messageId: 'incompatibleStaticTypes' },
@@ -486,7 +486,7 @@ describe('S5845', () => {
 
             const count: number = 1;
             const label: string = '1';
-            cy.wrap(count).should('not.equal', label);
+            cy.wrap(count).should('not.deep.equal', label);
           `,
           errors: [{ messageId: 'incompatibleStaticTypes' }],
         },
