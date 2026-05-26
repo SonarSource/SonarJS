@@ -52,14 +52,12 @@ function isThisMemberExpression(
 function isLexicallyBoundToReactClassComponent(node: TSESTree.MemberExpression): boolean {
   for (const current of ancestorsChain(node, new Set<string>())) {
     if (isClassMember(current)) {
-      return (
-        findFirstMatchingAncestor(
-          current,
-          ancestor =>
-            (ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression') &&
-            isReactClassComponent(ancestor as unknown as estree.Node),
-        ) !== undefined
+      const enclosingClass = findFirstMatchingAncestor(
+        current,
+        ancestor => ancestor.type === 'ClassDeclaration' || ancestor.type === 'ClassExpression',
       );
+
+      return enclosingClass !== undefined && isReactClassComponent(enclosingClass as estree.Node);
     }
 
     if (isNonLexicalFunctionBoundary(current)) {

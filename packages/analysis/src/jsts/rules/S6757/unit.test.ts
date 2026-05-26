@@ -183,6 +183,22 @@ class NonReactView extends View {
           `,
           errors: 1,
         },
+        {
+          code: `
+const React = { Component: class {} };
+
+class Outer extends React.Component {
+  render() {
+    class Inner {
+      make = () => item => <div>{this.value}{item}</div>;
+    }
+
+    return Inner;
+  }
+}
+          `,
+          errors: 1,
+        },
       ],
     });
   });
