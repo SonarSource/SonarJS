@@ -203,7 +203,7 @@ class LCOVParser {
           "Ambiguous LCOV path '{}' in '{}' matched multiple analyzed files; falling back to '{}'.",
           filePath,
           reportFile,
-          inputFile.relativePath()
+          inputFile
         );
       }
     }
