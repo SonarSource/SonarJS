@@ -209,6 +209,49 @@ describe('S5845', () => {
         },
         {
           code: `
+            import { expect } from 'vitest';
+
+            const id: number = 123;
+            const name: string = '123';
+
+            expect(id).toEqual(name);
+            expect(id).toStrictEqual(name);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+
+            const port: number = 8080;
+            const portText: string = '8080';
+
+            assert.deepStrictEqual(port, portText);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+
+            const version: number = 3;
+            const versionText: string = '3';
+
+            expect(versionText).to.deep.equal(version);
+            expect(versionText).to.eql(version);
+          `,
+        },
+        {
+          code: `
+            import 'cypress';
+
+            const count: number = 1;
+            const label: string = '1';
+
+            cy.wrap(count).should('deep.equal', label);
+            cy.wrap(count).should('not.deep.equal', label);
+          `,
+        },
+        {
+          code: `
             import 'chai/register-should';
 
             const timeout: number = 1000;
@@ -254,10 +297,13 @@ describe('S5845', () => {
               const enabled: boolean = true;
 
               expect(title).toBe(count);
-              expect(enabled).not.toEqual('true');
+              expect(enabled).not.toBe('true');
             });
           `,
-          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysSucceeds' }],
+          errors: [
+            { messageId: 'incompatibleStaticTypes' },
+            { messageId: 'incompatibleStaticTypes' },
+          ],
         },
         {
           code: `
@@ -273,7 +319,10 @@ describe('S5845', () => {
               assert.notStrictEqual(enabled, 1);
             });
           `,
-          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysSucceeds' }],
+          errors: [
+            { messageId: 'incompatibleStaticTypes' },
+            { messageId: 'incompatibleStaticTypes' },
+          ],
         },
         {
           code: `
@@ -284,10 +333,13 @@ describe('S5845', () => {
             const score: number = 10;
             const scoreText: string = '10';
 
-            expect(id).toEqual(name);
-            expect(score).toStrictEqual(scoreText);
+            expect(id).toBe(name);
+            expect(score).toBe(scoreText);
           `,
-          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
+          errors: [
+            { messageId: 'incompatibleStaticTypes' },
+            { messageId: 'incompatibleStaticTypes' },
+          ],
         },
         {
           code: `
@@ -299,7 +351,7 @@ describe('S5845', () => {
 
             expect(getCount()).toBe('1');
           `,
-          errors: [{ messageId: 'alwaysFails' }],
+          errors: [{ messageId: 'incompatibleStaticTypes' }],
         },
         {
           code: `
@@ -310,7 +362,7 @@ describe('S5845', () => {
 
             expect(value).toBe(true);
           `,
-          errors: [{ messageId: 'alwaysFails' }],
+          errors: [{ messageId: 'incompatibleStaticTypes' }],
         },
         {
           code: `
@@ -328,7 +380,7 @@ describe('S5845', () => {
               expect(value).toBe(true);
             }
           `,
-          errors: [{ messageId: 'alwaysFails' }],
+          errors: [{ messageId: 'incompatibleStaticTypes' }],
         },
         {
           code: `
@@ -346,7 +398,7 @@ describe('S5845', () => {
               expect(user.id).toBe(true);
             }
           `,
-          errors: [{ messageId: 'alwaysFails' }],
+          errors: [{ messageId: 'incompatibleStaticTypes' }],
         },
         {
           code: `
@@ -355,20 +407,7 @@ describe('S5845', () => {
             const token: symbol = Symbol('token');
             expect(token).toBe(1);
           `,
-          errors: [{ messageId: 'alwaysFails' }],
-        },
-        {
-          code: `
-            import assert from 'node:assert';
-
-            const port: number = 8080;
-            const portText: string = '8080';
-            const active: boolean = true;
-
-            assert.deepStrictEqual(port, portText);
-            assert.notDeepStrictEqual(active, 0);
-          `,
-          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysSucceeds' }],
+          errors: [{ messageId: 'incompatibleStaticTypes' }],
         },
         {
           code: `
@@ -380,12 +419,10 @@ describe('S5845', () => {
 
             assert.strictEqual(quantity, quantityText);
             assert.notStrictEqual(inStock, 1);
-            assert.deepEqual(quantity, inStock);
           `,
           errors: [
-            { messageId: 'alwaysFails' },
-            { messageId: 'alwaysSucceeds' },
-            { messageId: 'alwaysFails' },
+            { messageId: 'incompatibleStaticTypes' },
+            { messageId: 'incompatibleStaticTypes' },
           ],
         },
         {
@@ -397,13 +434,11 @@ describe('S5845', () => {
             const deprecated: boolean = false;
 
             expect(version).to.equal(versionText);
-            expect(versionText).to.deep.equal(version);
-            expect(deprecated).to.eql(version);
+            expect(deprecated).to.equal(version);
           `,
           errors: [
-            { messageId: 'alwaysFails' },
-            { messageId: 'alwaysFails' },
-            { messageId: 'alwaysFails' },
+            { messageId: 'incompatibleStaticTypes' },
+            { messageId: 'incompatibleStaticTypes' },
           ],
         },
         {
@@ -414,9 +449,12 @@ describe('S5845', () => {
             const timeoutText: string = '1000';
 
             timeout.should.equal(timeoutText);
-            timeoutText.should.deep.equal(timeout);
+            timeout.should.equal('1000');
           `,
-          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
+          errors: [
+            { messageId: 'incompatibleStaticTypes' },
+            { messageId: 'incompatibleStaticTypes' },
+          ],
         },
         {
           code: `
@@ -426,7 +464,7 @@ describe('S5845', () => {
             const expectedCount: number = 1;
             expect(pageTitle).toBe(expectedCount);
           `,
-          errors: [{ messageId: 'alwaysFails' }],
+          errors: [{ messageId: 'incompatibleStaticTypes' }],
         },
         {
           code: `
@@ -435,9 +473,12 @@ describe('S5845', () => {
             const id: number = 1;
             const idText: string = '1';
             cy.wrap(id).should('equal', idText);
-            cy.wrap(idText).should('deep.equal', id);
+            cy.wrap(true).should('equal', id);
           `,
-          errors: [{ messageId: 'alwaysFails' }, { messageId: 'alwaysFails' }],
+          errors: [
+            { messageId: 'incompatibleStaticTypes' },
+            { messageId: 'incompatibleStaticTypes' },
+          ],
         },
         {
           code: `
@@ -445,19 +486,9 @@ describe('S5845', () => {
 
             const count: number = 1;
             const label: string = '1';
-            cy.wrap(count).should('not.deep.equal', label);
+            cy.wrap(count).should('not.equal', label);
           `,
-          errors: [{ messageId: 'alwaysSucceeds' }],
-        },
-        {
-          code: `
-            import 'chai/register-should';
-
-            const timeout: number = 1000;
-            const timeoutText: string = '1000';
-            timeout.should.deep.equal(timeoutText);
-          `,
-          errors: [{ messageId: 'alwaysFails' }],
+          errors: [{ messageId: 'incompatibleStaticTypes' }],
         },
         {
           code: `
@@ -467,7 +498,7 @@ describe('S5845', () => {
             const count: number = 1;
             expect(big).toBe(count);
           `,
-          errors: [{ messageId: 'alwaysFails' }],
+          errors: [{ messageId: 'incompatibleStaticTypes' }],
         },
         {
           code: `
@@ -477,7 +508,7 @@ describe('S5845', () => {
             const name: string = 'token';
             expect(token).toBe(name);
           `,
-          errors: [{ messageId: 'alwaysFails' }],
+          errors: [{ messageId: 'incompatibleStaticTypes' }],
         },
       ],
     });
@@ -518,7 +549,7 @@ describe('S5845', () => {
             expect(count).toBe(title);
           `,
           filename: jsFixture,
-          errors: [{ messageId: 'alwaysFails' }],
+          errors: [{ messageId: 'incompatibleStaticTypes' }],
         },
       ],
     });
