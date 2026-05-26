@@ -215,8 +215,15 @@ class LCOVParser {
 
   @CheckForNull
   private InputFile inputFileByExactPath(String filePath) {
+    String sanitizedPath = PathUtils.sanitize(filePath);
+    if (sanitizedPath == null) {
+      return null;
+    }
     FilePredicates predicates = context.fileSystem().predicates();
-    return context.fileSystem().inputFile(predicates.hasPath(filePath));
+    if (new File(sanitizedPath).isAbsolute()) {
+      return context.fileSystem().inputFile(predicates.hasAbsolutePath(sanitizedPath));
+    }
+    return context.fileSystem().inputFile(predicates.hasPath(sanitizedPath));
   }
 
   @CheckForNull
