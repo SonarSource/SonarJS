@@ -71,7 +71,7 @@ function isPassthroughContainer(node: estree.Node, child: estree.Node): boolean 
       return true;
     case 'Property':
       // Only passthrough when child is the value side, not the key side.
-      return (node as estree.Property).value === child;
+      return node.value === child;
     default:
       return false;
   }

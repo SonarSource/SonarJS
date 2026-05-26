@@ -121,7 +121,7 @@ It can be combined with `-Dskip-nodejs`.
 The clean phase removes the outputs that make the fast loop work:
 
 - `sonar-plugin/bridge/target/generated-sources`
-- `sonar-plugin/bridge/src/main/resources/node-info.properties`
+- `sonar-plugin/bridge/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
 - `sonar-plugin/sonar-javascript-plugin/src/main/resources/node-info.properties`
 - `lib/` and `bin/`
 - downloaded rule data under `resources/rule-data`
@@ -151,7 +151,7 @@ Because of that, a common workflow is:
 - runs `npm run generate-java-rule-classes`
 - runs `npm run count-rules`
 - builds, bundles, and packs the bridge
-- generates `bridge/src/main/resources/node-info.properties`
+- generates `bridge/src/main/resources/org/sonar/plugins/javascript/bridge/node-info.properties`
 
 `process-resources`
 

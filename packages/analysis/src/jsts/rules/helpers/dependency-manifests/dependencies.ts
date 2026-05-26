@@ -20,15 +20,11 @@ import fs from 'node:fs';
 import { extname } from 'node:path/posix';
 import { minVersion } from 'semver';
 import type { PackageJson } from 'type-fest';
-import {
-  type NormalizedAbsolutePath,
-  normalizeToAbsolutePath,
-  dirnamePath,
-  stripBOM,
-} from '../files.js';
+import { type NormalizedAbsolutePath, normalizeToAbsolutePath, dirnamePath } from '../files.js';
 import { getClosestDependencyManifestDir } from './closest.js';
-import { getDependencyManifests, getPackageJsonManifests } from './all-in-parent-dirs.js';
+import { getDependencyManifests } from './all-in-parent-dirs.js';
 import { DEFINITELY_TYPED, type DependenciesList, type ModuleType } from './resolvers/types.js';
+import { parsePackageJsonContent } from './parsed-dependency-files.js';
 
 const MODULE_TYPE_BY_EXTENSION: Readonly<Record<string, ModuleType>> = {
   '.mjs': 'module',
@@ -112,10 +108,50 @@ export function getModuleType(filePath: NormalizedAbsolutePath, topDir: Normaliz
   return moduleTypeCache.get(dirnamePath(filePath), topDir);
 }
 
+/**
+ * Inline npm: imports parsed from the source file currently being linted (Deno-style).
+ * Set by the linter before each file is verified, cleared afterwards via clearFileCaches().
+ * Allows dependency-helper consumers (getReactVersion, getDependenciesSanitizePaths)
+ * to see the same dependency picture as rule-activation filtering.
+ */
+let currentFileInlineDependencies: DependenciesList | null = null;
+
+export function setCurrentFileInlineDependencies(deps: DependenciesList | null): void {
+  currentFileInlineDependencies = deps;
+}
+
+/**
+ * Merges inline npm: imports with manifest dependencies, giving precedence to inline imports.
+ */
+export function withCurrentFileInlineDependencies(manifest: DependenciesList): DependenciesList {
+  if (!currentFileInlineDependencies || currentFileInlineDependencies.size === 0) {
+    return manifest;
+  }
+  const merged: DependenciesList = new Map(manifest);
+  for (const [name, inlineVersion] of currentFileInlineDependencies) {
+    // Inline npm: imports are the version actually loaded at runtime for this file,
+    // so they take precedence over the project-wide manifest version.
+    if (merged.has(name)) {
+      const manifestVersion = merged.get(name);
+      if (manifestVersion !== inlineVersion) {
+        console.debug(
+          `Dependency "${typeof name === 'string' ? name : name.pattern}" has a version conflict between the manifest ` +
+            `(${manifestVersion ?? '<unspecified>'}) and an inline npm: import ` +
+            `(${inlineVersion ?? '<unspecified>'}). Using the inline version.`,
+        );
+      }
+    }
+    merged.set(name, inlineVersion);
+  }
+  return merged;
+}
+
 export function getDependenciesSanitizePaths(context: Rule.RuleContext): DependenciesList {
-  return getDependencies(
-    dirnamePath(normalizeToAbsolutePath(context.filename)),
-    normalizeToAbsolutePath(context.cwd),
+  return withCurrentFileInlineDependencies(
+    getDependencies(
+      dirnamePath(normalizeToAbsolutePath(context.filename)),
+      normalizeToAbsolutePath(context.cwd),
+    ),
   );
 }
 
@@ -127,7 +163,9 @@ export function getDependenciesSanitizePaths(context: Rule.RuleContext): Depende
  */
 export function getReactVersion(context: Rule.RuleContext): string | null {
   const dir = dirnamePath(normalizeToAbsolutePath(context.filename));
-  const dependencies = getDependencies(dir, normalizeToAbsolutePath(context.cwd));
+  const dependencies = withCurrentFileInlineDependencies(
+    getDependencies(dir, normalizeToAbsolutePath(context.cwd)),
+  );
   const reactVersion = dependencies.get('react');
   // Deno npm: imports reflect the actual runtime version and are intentionally included here, unlike the TypeScript/Node.js version signals
   if (!reactVersion) {
@@ -176,36 +214,39 @@ function getDependencyVersionSignal(
 }
 
 function getVersionSignalFromManifests(
-  baseDir: NormalizedAbsolutePath,
+  dir: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
   dependencyName: string,
   fallbackSignal?: (packageJson: PackageJson) => string | null,
 ): string | null {
-  // Only look at npm manifests: Deno `npm:` imports are download aliases and don't carry
-  // meaningful version signals for the project's actual npm dependency resolution.
+  // Walk up nearest-first. At each node manifest, prefer the primary signal
+  // (e.g. @types/node — catalog/workspace-resolved by the npm resolver) over the
+  // fallback (engines.node, read from the same manifest's PackageJson). The
+  // first valid primary signal wins; otherwise the first valid fallback wins; if
+  // neither is valid, continue walking parents. This lets a parent package's
+  // engines.node be picked up when the nested package declares neither signal,
+  // or only unusable fallbacks like "*" / "latest".
+  // Deno manifests are skipped — @types/node and engines.node are npm concepts.
   const lookupKey = dependencyName.startsWith(DEFINITELY_TYPED)
     ? dependencyName.substring(DEFINITELY_TYPED.length)
     : dependencyName;
 
   for (const manifest of getDependencyManifests(
-    normalizeToAbsolutePath(baseDir),
-    normalizeToAbsolutePath(baseDir),
+    normalizeToAbsolutePath(dir),
+    normalizeToAbsolutePath(topDir),
     fs,
   )) {
-    if (manifest.type !== 'npm') {
+    if (manifest.type !== 'package-json') {
       continue;
     }
     const version = manifest.dependencies.get(lookupKey) ?? null;
     if (isValidDependencySignal(version)) {
       return version;
     }
-  }
-
-  if (fallbackSignal) {
-    const packageJson = getPackageJsonManifests(baseDir, baseDir, fs)[0];
-    if (packageJson) {
-      const fallbackVersion = fallbackSignal(packageJson);
-      if (fallbackVersion !== null && fallbackVersion !== undefined) {
-        return fallbackVersion;
+    if (fallbackSignal) {
+      const fb = fallbackSignal(manifest.manifest);
+      if (isValidDependencySignal(fb)) {
+        return fb;
       }
     }
   }
@@ -259,36 +300,34 @@ export function getTypeScriptSignalsFromPackageJsonFiles(
 }
 
 /**
- * Gets a Node.js version signal from the package.json at baseDir.
- * Checks @types/node in all dependency fields first, then engines.node.
- * Returns the raw version string for further parsing.
+ * Gets a Node.js version signal by walking up from `dir` toward `topDir`,
+ * picking the closest package.json with @types/node (preferred) or engines.node.
  *
- * @param baseDir project base directory containing package.json
+ * @param dir directory to start the upward search from (e.g. tsconfig dir, file dir)
+ * @param topDir analysis base directory; walk stops here. Defaults to `dir` to
+ *   preserve the legacy "manifest at exactly this dir" semantics for callers
+ *   that don't yet provide a separate analysis root.
  * @returns raw version string from @types/node or engines.node, or null if not found
  */
-export function getNodeVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
-  return getVersionSignalFromManifests(baseDir, '@types/node', packageJson => {
+export function getNodeVersionSignal(
+  dir: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath = dir,
+): string | null {
+  return getVersionSignalFromManifests(dir, topDir, '@types/node', packageJson => {
     const enginesNode = packageJson.engines?.['node'];
     return typeof enginesNode === 'string' ? enginesNode : null;
   });
 }
 
 /**
- * Gets a TypeScript version signal from the package.json at baseDir.
- * Checks dependency fields for "typescript" and returns the raw version range.
+ * Gets a TypeScript version signal from the closest package.json walking up
+ * from `dir` to `topDir`. Defaults `topDir = dir` for backward compatibility.
  *
- * @param baseDir project base directory containing package.json
  * @returns raw version string from typescript dependency, or null if not found
  */
-export function getTypeScriptVersionSignal(baseDir: NormalizedAbsolutePath): string | null {
-  return getVersionSignalFromManifests(baseDir, 'typescript');
-}
-
-function parsePackageJsonContent(content: string | Buffer): PackageJson | undefined {
-  const packageJsonContent = typeof content === 'string' ? content : content.toString();
-  try {
-    return JSON.parse(stripBOM(packageJsonContent)) as PackageJson;
-  } catch {
-    return undefined;
-  }
+export function getTypeScriptVersionSignal(
+  dir: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath = dir,
+): string | null {
+  return getVersionSignalFromManifests(dir, topDir, 'typescript');
 }

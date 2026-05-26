@@ -776,7 +776,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_without_node_alpine:
-    runs-on: sonar-m-docker
+    runs-on: warp-custom-ubuntu-24-04
     name: QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
@@ -883,7 +883,7 @@ jobs:
           GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
 
   plugin_qa_fast_without_node_alpine:
-    runs-on: sonar-m-docker
+    runs-on: warp-custom-ubuntu-24-04
     name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
     needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'

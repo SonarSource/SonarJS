@@ -27,11 +27,11 @@ import merge from 'lodash.merge';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import { IncrementalCompilerHost } from './jsts/program/compilerHost.js';
 import {
-  computeLibJson,
   createProgramOptions,
   createProgramOptionsFromJson,
   defaultCompilerOptions,
   esLibToYear,
+  groupFilesByResolvedLib,
   MISSING_EXTENDED_TSCONFIG,
   type ProgramOptions,
 } from './jsts/program/tsconfig/options.js';
@@ -161,50 +161,87 @@ async function analyzeFilesFromEntryPoint(
     return;
   }
 
-  const programOptions = foundProgramOptions.length
-    ? merge({}, ...foundProgramOptions)
-    : createProgramOptionsFromJson(
-        {
-          ...defaultCompilerOptions,
-          lib: computeLibJson(jsTsConfigFields.ecmaScriptVersion, undefined, baseDir),
-        },
-        rootNames,
-        baseDir,
+  const runProgram = async (
+    programOptions: ProgramOptions,
+    groupRootNames: NormalizedAbsolutePath[],
+    label: string,
+  ): Promise<void> => {
+    programOptions.rootNames = groupRootNames;
+    telemetry.recordCompilerOptions(programOptions.options);
+
+    info(
+      `Analyzing ${groupRootNames.length} file(s) using ${label} [lib: ${programOptions.options.lib?.join(', ')}]`,
+    );
+    programOptions.host = new IncrementalCompilerHost(
+      programOptions.options,
+      baseDir,
+      jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
+    );
+
+    telemetry.recordProgramCreationAttempt();
+    const tsProgram = createStandardProgram(programOptions);
+    const detectedEsYear = esLibToYear(programOptions.options.lib);
+    telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
+
+    for (const fileName of groupRootNames) {
+      if (isAnalysisCancelled()) {
+        return;
+      }
+
+      await analyzeFile(
+        fileName,
+        files[fileName],
+        jsTsConfigFields,
+        tsProgram,
+        results,
+        pendingFiles,
+        progressReport,
+        incrementalResultsChannel,
+        detectedEsYear ?? undefined,
       );
-  programOptions.rootNames = rootNames;
-  telemetry.recordCompilerOptions(programOptions.options);
+    }
+  };
 
-  info(
-    `Analyzing ${rootNames.length} file(s) using ${foundProgramOptions.length ? 'merged compiler options' : 'default options'} [lib: ${programOptions.options.lib?.join(', ')}]`,
-  );
-  programOptions.host = new IncrementalCompilerHost(
-    programOptions.options,
-    baseDir,
-    jsTsConfigFields.skipNodeModuleLookupOutsideBaseDir,
-  );
+  // Partition orphans by resolved lib so files in different packages don't share a
+  // single Node.js signal. Files producing the same lib share a program — best case
+  // (uniform signals) collapses back to a single program.
+  //
+  // When some tsconfigs were already processed, use the merged tsconfig options as a
+  // baseline for non-lib settings (strict, target, paths, etc.) but override .options.lib
+  // per group. The merged baseline is built once outside the loop.
+  const groups = groupFilesByResolvedLib(rootNames, baseDir, jsTsConfigFields.ecmaScriptVersion);
+  const mergedBaseline = foundProgramOptions.length
+    ? (merge({}, ...foundProgramOptions) as ProgramOptions)
+    : undefined;
+  const label = mergedBaseline ? 'merged compiler options' : 'default options';
 
-  telemetry.recordProgramCreationAttempt();
-  const tsProgram = createStandardProgram(programOptions);
-  const detectedEsYear = esLibToYear(programOptions.options.lib);
-  telemetry.recordEcmaScriptVersion(detectedEsYear ?? undefined);
-
-  for (const fileName of rootNames) {
+  for (const { lib, files: groupRootNames } of groups) {
     if (isAnalysisCancelled()) {
       return;
     }
-
-    await analyzeFile(
-      fileName,
-      files[fileName],
-      jsTsConfigFields,
-      tsProgram,
-      results,
-      pendingFiles,
-      progressReport,
-      incrementalResultsChannel,
-      detectedEsYear ?? undefined,
-    );
+    const programOptions = mergedBaseline
+      ? withOverriddenLib(mergedBaseline, lib, baseDir)
+      : createProgramOptionsFromJson({ ...defaultCompilerOptions, lib }, groupRootNames, baseDir);
+    await runProgram(programOptions, groupRootNames, label);
   }
+}
+
+/**
+ * Builds a fresh ProgramOptions from a merged tsconfig baseline, replacing only
+ * `options.lib` with the per-package value converted to TypeScript's internal format.
+ * `rootNames` and `host` are owned by the caller (set in runProgram).
+ */
+function withOverriddenLib(
+  baseline: ProgramOptions,
+  lib: string[],
+  baseDir: NormalizedAbsolutePath,
+): ProgramOptions {
+  const { options: libOptions } = ts.convertCompilerOptionsFromJson({ lib }, baseDir);
+  return {
+    ...baseline,
+    options: { ...baseline.options, lib: libOptions.lib },
+    rootNames: [],
+  };
 }
 
 async function analyzeFilesFromTsConfig(

@@ -24,11 +24,5 @@
 ],
 "templating:scripts/read-pkg-url.js": [
 3
-],
-"templating:test/example/tab.spec.js": [
-1
-],
-"templating:test/example/video.spec.js": [
-1
 ]
 }

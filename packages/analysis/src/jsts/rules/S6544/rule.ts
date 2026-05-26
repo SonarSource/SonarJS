@@ -64,7 +64,7 @@ function hasAssignmentInBody(
     if (
       stmt.type === 'ExpressionStatement' &&
       stmt.expression.type === 'AssignmentExpression' &&
-      areEquivalent(stmt.expression.left as TSESTree.Node, variable, sourceCode)
+      areEquivalent(stmt.expression.left, variable, sourceCode)
     ) {
       return true;
     }

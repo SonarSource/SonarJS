@@ -17,6 +17,7 @@
 import { Minimatch } from 'minimatch';
 import type { NormalizedAbsolutePath } from '../../files.js';
 import type { Filesystem } from '../../find-up/find-minimatch.js';
+import type { PackageJson } from 'type-fest';
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap
 type ImportMap = Record<string, unknown>;
@@ -27,16 +28,25 @@ export type ModuleType = 'module' | 'commonjs';
 
 export const DEFINITELY_TYPED = '@types/';
 
-export type DenoManifest = {
+type PackageJsonManifest = {
+  type: 'package-json';
+  manifest: PackageJson;
+};
+
+export type DenoJson = {
   imports?: ImportMap;
   workspace?: string[] | { members?: string[] };
 };
 
-export interface DependencyManifest {
-  readonly type: 'npm' | 'deno';
+type DenoManifest = {
+  type: 'deno';
+  manifest: DenoJson;
+};
+
+export type DependencyManifest = (PackageJsonManifest | DenoManifest) & {
   readonly dependencies: DependenciesList;
   readonly moduleType: ModuleType | undefined;
-}
+};
 
 /**
  * Strategy interface for resolving dependency manifests of a specific type from a single
@@ -50,3 +60,21 @@ export interface ManifestResolver {
     fileSystem?: Filesystem,
   ): DependencyManifest[];
 }
+
+// Catalog is a mapping of package names to versions, used in some package managers' workspaces (e.g., Bun).
+type Catalog = Record<string, string>;
+
+export type CatalogSource = {
+  catalog?: Catalog;
+  catalogs?: Record<string, Catalog>;
+};
+
+// Workspace type as defined by Bun and Pnpm.
+export type Workspace = CatalogSource & {
+  packages?: string[];
+};
+
+export type ExtendedPackageJson = PackageJson &
+  CatalogSource & {
+    workspaces?: PackageJson.WorkspacePattern[] | Workspace;
+  };

@@ -17,9 +17,9 @@
 import type { RuleFilter } from './rule-filter.js';
 
 export const filterDependency: RuleFilter = (_config, meta, ctx) => {
-  if (!meta || !('requiredDependency' in meta)) {
+  if (!meta) {
     return true;
   }
-  const required = meta.requiredDependency as string[];
+  const required = meta.requiredDependency;
   return required.length === 0 || required.some(dep => ctx.dependencies.has(dep));
 };

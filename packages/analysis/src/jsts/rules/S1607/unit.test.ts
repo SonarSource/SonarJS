@@ -17,16 +17,18 @@
 import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
+import path from 'node:path';
 
 describe('S1607', () => {
   it('S1607', () => {
-    process.chdir(import.meta.dirname); // change current working dir to avoid the package.json lookup to up in the tree
     const ruleTester = new DefaultParserRuleTester();
+    const noFrameworkFixture = path.join(import.meta.dirname, 'fixtures', 'test.js');
 
     ruleTester.run(`Tests should not be skipped without providing a reason`, rule, {
       valid: [
         {
           code: `it.skip('test', function() {});`,
+          filename: noFrameworkFixture,
         },
       ],
       invalid: [],

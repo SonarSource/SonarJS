@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
       const statements = node.body;
 
       if (statements.length === 1) {
-        suspectBodies.push(statements[0] as Node);
+        suspectBodies.push(statements[0]);
       }
     };
 
@@ -140,12 +140,12 @@ export const rule: Rule.RuleModule = {
           if (!hasSideEffects(node.consequent) && !hasSideEffects(node.alternate)) {
             return;
           }
-          suspectTestNodes.push(node.test as Node);
+          suspectTestNodes.push(node.test);
         }
       },
       IfStatement: node => {
         if (suspectBodies.includes(node) && node.alternate) {
-          suspectTestNodes.push(node.test as Node);
+          suspectTestNodes.push(node.test);
         }
       },
       'IfStatement:exit': node => {
@@ -211,10 +211,10 @@ function hasSideEffects(node: Node): boolean {
     case 'MemberExpression':
       return hasSideEffects(node.object);
     case 'ArrayExpression':
-      return node.elements.some(el => el !== null && hasSideEffects(el as Node));
+      return node.elements.some(el => el !== null && hasSideEffects(el));
     case 'ObjectExpression':
       return node.properties.some(
-        prop => prop.type !== 'SpreadElement' && hasSideEffects(prop.value as Node),
+        prop => prop.type !== 'SpreadElement' && hasSideEffects(prop.value),
       );
     default:
       return false;

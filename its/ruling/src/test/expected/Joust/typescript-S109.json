@@ -1,18 +1,6 @@
 {
-"Joust:ts/Entity.spec.ts": [
-14,
-15,
-21,
-28
-],
 "Joust:ts/Launcher.tsx": [
 301
-],
-"Joust:ts/Player.spec.ts": [
-8,
-8,
-13,
-14
 ],
 "Joust:ts/components/EventLog.tsx": [
 106,
@@ -60,50 +48,13 @@
 8,
 15
 ],
-"Joust:ts/protocol/HSReplayDecoder.spec.ts": [
-29,
-48,
-52,
-61,
-61,
-75,
-90,
-102,
-114,
-133,
-133,
-134,
-137,
-137,
-138,
-160
-],
 "Joust:ts/protocol/KettleEncoder.ts": [
 37,
 42,
 63
 ],
-"Joust:ts/state/GameStateHistory.spec.ts": [
-18,
-22,
-26,
-34,
-136,
-137,
-138,
-143,
-157,
-159,
-160,
-175,
-177
-],
 "Joust:ts/state/GameStateScrubber.ts": [
 308
-],
-"Joust:ts/state/mutators/IncrementTimeMutator.spec.ts": [
-26,
-35
 ],
 "Joust:ts/state/plugins/CoinDetector.ts": [
 30

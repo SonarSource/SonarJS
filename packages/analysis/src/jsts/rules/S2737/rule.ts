@@ -62,6 +62,6 @@ function onlyRethrows(
     isThrowStatement(statement) &&
     catchParam !== null &&
     statement.argument !== null &&
-    areEquivalent(catchParam as TSESTree.Node, statement.argument, sourceCode)
+    areEquivalent(catchParam, statement.argument, sourceCode)
   );
 }

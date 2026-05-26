@@ -16,7 +16,6 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6572/javascript
 
-import type estree from 'estree';
 import type { Rule } from 'eslint';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -62,7 +61,7 @@ function numericalOrder(enumDecl: TSESTree.TSEnumDeclaration) {
   const membersRest = members.slice(1);
   return (
     firstMember.initializer?.type === 'Literal' &&
-    isNumberLiteral(firstMember.initializer as estree.Node) &&
+    isNumberLiteral(firstMember.initializer) &&
     membersRest.every(m => m.initializer === undefined)
   );
 }

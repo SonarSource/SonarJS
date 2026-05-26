@@ -7,10 +7,5 @@
 ],
 "redux:examples/real-world/reducers/paginate.js": [
 19
-],
-"redux:test/utils/combineReducers.spec.js": [
-137,
-188,
-191
 ]
 }

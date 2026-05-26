@@ -2,59 +2,9 @@
 "console:sortSchema.ts": [
 21
 ],
-"console:src/__mocks__/lokka.ts": [
-18,
-19,
-20,
-28,
-29,
-30,
-38,
-39,
-40,
-42,
-43,
-44,
-61,
-62,
-63,
-64,
-72,
-73,
-74,
-81,
-82
-],
 "console:src/actions/codeGeneration.ts": [
 10,
 18
-],
-"console:src/actions/databrowser/__tests__/data.ts": [
-22,
-25,
-32,
-36,
-43,
-44,
-53,
-54,
-55,
-56,
-72,
-86,
-100,
-117,
-125,
-128,
-129,
-133,
-147,
-153,
-157,
-161,
-162,
-210,
-226
 ],
 "console:src/actions/databrowser/data.ts": [
 24,
@@ -674,29 +624,6 @@
 22,
 26
 ],
-"console:src/reducers/databrowser/__tests__/data.ts": [
-4,
-17,
-21,
-25,
-26,
-27,
-29,
-43,
-67,
-69,
-81,
-85,
-86,
-88,
-100,
-113,
-115,
-125,
-127,
-128,
-138
-],
 "console:src/reducers/databrowser/data.ts": [
 12,
 16,
@@ -783,57 +710,6 @@
 "console:src/utils/QueryHistoryStorage.ts": [
 5,
 13
-],
-"console:src/utils/__tests__/graphql.ts": [
-15,
-43,
-49,
-57,
-65,
-73
-],
-"console:src/utils/__tests__/valueparser.ts": [
-19,
-27,
-36,
-45,
-54,
-63,
-72,
-81,
-90,
-99,
-108,
-117,
-126,
-135,
-144,
-153,
-162,
-171,
-180,
-189,
-198,
-207,
-224,
-230,
-262,
-269,
-276,
-283,
-295,
-296,
-303,
-308,
-318,
-327,
-336,
-345,
-354,
-363,
-372,
-381,
-390
 ],
 "console:src/utils/codeGeneration.ts": [
 93
@@ -2212,47 +2088,6 @@
 139,
 141
 ],
-"console:src/views/models/DatabrowserView/Cell/__tests__/BooleanCell.tsx": [
-25,
-35
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/DateTimeCell.tsx": [
-25,
-35
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/DefaultCell.tsx": [
-25,
-35
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/EnumCell.tsx": [
-25,
-35
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/FloatCell.tsx": [
-25,
-35
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/IntCell.tsx": [
-25,
-35
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/JsonCell.tsx": [
-25,
-35
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/NullableCell.tsx": [
-25,
-32
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/ScalarListCell.tsx": [
-25,
-34,
-37
-],
-"console:src/views/models/DatabrowserView/Cell/__tests__/StringCell.tsx": [
-25,
-35
-],
 "console:src/views/models/DatabrowserView/CheckboxCell.tsx": [
 23,
 34
@@ -2340,19 +2175,6 @@
 288,
 321,
 322
-],
-"console:src/views/models/DatabrowserView/__tests__/Cell.tsx": [
-19,
-33,
-47,
-62,
-70,
-75,
-76,
-109,
-141,
-183,
-213
 ],
 "console:src/views/models/FieldPopup/AdvancedSettings.tsx": [
 41,
@@ -2500,20 +2322,6 @@
 ],
 "console:src/views/models/FieldPopup/OptionInput.tsx": [
 41
-],
-"console:src/views/models/FieldPopup/__tests__/FieldPopupStateTest.ts": [
-22,
-24,
-34,
-36,
-46,
-48,
-58,
-60,
-70,
-72,
-83,
-84
 ],
 "console:src/views/models/FieldPopup/constants.ts": [
 9,

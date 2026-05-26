@@ -32,19 +32,28 @@ const rangeSantized = range
   .join(',');
 const minVersion = semver.minVersion(range).version;
 
-// 2. Prepare the properties content
-const propertiesContent =
-  `# This file is auto-generated from package.json\n` +
-  `node.min.version=${minVersion}\n` +
-  `node.recommended.versions=${rangeSantized}\n`;
-
-// 3. Ensure the resources directory exists
 for (const dir of dirs) {
   const resourcesDir = path.resolve(path.join(dir, 'src', 'main', 'resources'));
-  await fs.mkdir(resourcesDir, { recursive: true });
-
-  // 4. Write the properties file
-  const propertiesFile = path.join(resourcesDir, 'node-info.properties');
+  const propertiesFile =
+    dir === 'sonar-plugin/bridge'
+      ? path.join(
+          resourcesDir,
+          'org',
+          'sonar',
+          'plugins',
+          'javascript',
+          'bridge',
+          'node-info.properties',
+        )
+      : path.join(resourcesDir, 'node-info.properties');
+  const propertiesContent =
+    dir === 'sonar-plugin/bridge'
+      ? `# This file is auto-generated from package.json\n` +
+        `node.supported.versions=${rangeSantized}\n`
+      : `# This file is auto-generated from package.json\n` + `node.min.version=${minVersion}\n`;
+  await fs.mkdir(path.dirname(propertiesFile), { recursive: true });
   await fs.writeFile(propertiesFile, propertiesContent, 'utf8');
-  console.log(`node-info.properties for ${dir} updated with versions=${range}`);
+  console.log(
+    `${path.relative(resourcesDir, propertiesFile)} for ${dir} updated with versions=${range}`,
+  );
 }

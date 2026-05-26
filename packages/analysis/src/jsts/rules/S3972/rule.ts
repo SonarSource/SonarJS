@@ -17,7 +17,7 @@
 // https://sonarsource.github.io/rspec/#/rspec/S3972
 
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
-import type { AST, Rule } from 'eslint';
+import type { Rule } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import type estree from 'estree';
@@ -68,7 +68,7 @@ export const rule: Rule.RuleModule = {
               suggest: [
                 {
                   messageId: 'suggestAddingElse',
-                  fix: fixer => fixer.insertTextBefore(followingIfToken as AST.Token, 'else '),
+                  fix: fixer => fixer.insertTextBefore(followingIfToken, 'else '),
                 },
                 {
                   messageId: 'suggestAddingNewline',

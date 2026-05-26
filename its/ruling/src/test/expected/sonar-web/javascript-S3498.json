@@ -2413,26 +2413,6 @@
 "sonar-web:test/intern.js": [
 36
 ],
-"sonar-web:test/medium/custom-measures.spec.js": [
-12,
-31,
-37,
-47,
-55,
-60,
-75,
-88,
-103,
-110,
-128,
-134
-],
-"sonar-web:test/medium/source-viewer.spec.js": [
-17,
-40,
-59,
-78
-],
 "sonar-web:tests/nav-test.js": [
 16
 ]

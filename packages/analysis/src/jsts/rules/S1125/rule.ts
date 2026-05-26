@@ -68,7 +68,7 @@ export const rule: Rule.RuleModule = {
       operator: string,
     ): Rule.Fix {
       const booleanValue = booleanLiteral.value as boolean;
-      const otherText = context.sourceCode.getText(otherOperand as estree.Node);
+      const otherText = context.sourceCode.getText(otherOperand);
 
       // x == true -> x, x == false -> !x, x != true -> !x, x != false -> x
       const shouldNegate =

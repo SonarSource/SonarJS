@@ -73,13 +73,6 @@
 37,
 42
 ],
-"Joust:ts/state/GameStateHistory.spec.ts": [
-17,
-21,
-25,
-29,
-33
-],
 "Joust:ts/state/mutators/AddEntityMutator.ts": [
 43
 ],

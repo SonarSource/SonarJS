@@ -156,7 +156,7 @@ function walkLoopNodes(
     ) {
       return;
     }
-    if (node.type === 'CallExpression' && predicate(node as estree.CallExpression)) {
+    if (node.type === 'CallExpression' && predicate(node)) {
       found = true;
       return;
     }

@@ -1,21 +1,4 @@
 {
-"http:test/ConnectionMock.spec.js": [
-69,
-83,
-96,
-250,
-252
-],
-"http:test/Http.spec.js": [
-172,
-187
-],
-"http:test/QueryParams.spec.js": [
-30
-],
-"http:test/XHRConnection.spec.js": [
-152
-],
 "http:test/mocks/HttpResponse.js": [
 23
 ]

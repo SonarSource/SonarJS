@@ -1,0 +1,9 @@
+{
+"jira-clone:client/cypress/integration/issueDetails.spec.js": [
+11,
+93
+],
+"jira-clone:client/cypress/integration/issuesDragDrop.spec.js": [
+23
+]
+}

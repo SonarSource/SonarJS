@@ -103,6 +103,10 @@ You can run your own Node.js process manually and set the environment variable `
 
 When using this for the ruling tests, make sure that you run them in series (and not in parallel), by removing `@Execution(ExecutionMode.CONCURRENT)` from the ruling test.
 
+## Testing in VS Code SonarLint
+
+To patch a local VS Code SonarLint or SonarQube for IDE installation with the latest SonarJS master build from Repox, see [Testing VS Code SonarLint with the latest SonarJS master build](./vscode-sonarlint-master-build.md).
+
 ## Adding a rule
 
 ### Rule Description

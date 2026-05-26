@@ -19,6 +19,7 @@ import { type NormalizedAbsolutePath } from '../../../../shared/src/helpers/file
 import { debug } from '../../../../shared/src/helpers/logging.js';
 import type { FileType } from '../../contracts/file.js';
 import { type FilterPathParams } from '../configuration.js';
+import { isTestRelatedFile } from '../../jsts/rules/helpers/test-file-pattern.js';
 
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
@@ -71,9 +72,41 @@ export function filterPathAndGetFileType(
   debug(`File ignored due to analysis scope filters: ${filePath}`);
 }
 
+function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolutePath[]): boolean {
+  return paths.some(path => filePath === path || filePath.startsWith(`${path}/`));
+}
+
 function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
-  const { testPaths, testExclusions, testInclusions } = params;
-  if (!testPaths?.some(testPath => filePath === testPath || filePath.startsWith(`${testPath}/`))) {
+  const {
+    testPaths,
+    testExclusions,
+    testInclusions,
+    inclusions,
+    sourcesPaths,
+    testFileExtensions,
+  } = params;
+
+  // If `sonar.tests` is not configured, fall back to the filename heuristic — unless the file
+  // qualifies as MAIN via the user's `sonar.inclusions` (which narrows `sonar.sources`), in which
+  // case the user has explicitly opted it into MAIN scope and we should not second-guess them.
+  if (!testPaths.length) {
+    if (
+      inclusions.length > 0 &&
+      fileIsUnder(filePath, sourcesPaths) &&
+      inclusions.some(inclusion => inclusion.match(filePath))
+    ) {
+      return false;
+    }
+    const doesLookLikeTestFile = isTestRelatedFile(filePath, testFileExtensions);
+    if (doesLookLikeTestFile) {
+      debug(
+        `Test file detected: ${filePath}. If this file should not be treated as a test, please configure sonar.tests or adjust your sonar.sources/sonar.inclusions to explicitly include it as MAIN.`,
+      );
+    }
+    return doesLookLikeTestFile;
+  }
+
+  if (!fileIsUnder(filePath, testPaths)) {
     return false;
   }
   if (testExclusions?.some(exclusion => exclusion.match(filePath))) {
@@ -87,11 +120,7 @@ function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams):
 
 function fileIsMain(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
   const { sourcesPaths, exclusions, inclusions } = params;
-  if (
-    !sourcesPaths.some(
-      sourcePath => filePath === sourcePath || filePath.startsWith(`${sourcePath}/`),
-    )
-  ) {
+  if (!fileIsUnder(filePath, sourcesPaths)) {
     return false;
   }
 

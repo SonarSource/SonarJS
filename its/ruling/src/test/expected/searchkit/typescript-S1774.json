@@ -35,13 +35,6 @@
 201,
 229
 ],
-"searchkit:packages/searchkit-schema/tests/Customisations.test.ts": [
-14
-],
-"searchkit:packages/searchkit-schema/tests/HitsResolver.test.ts": [
-20,
-30
-],
 "searchkit:packages/searchkit-schema/tests/support/server.ts": [
 80
 ],

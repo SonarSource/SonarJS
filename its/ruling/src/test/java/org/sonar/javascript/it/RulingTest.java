@@ -95,6 +95,7 @@ class RulingTest {
       project("ecmascript6-today"),
       project("expressionist.js"),
       project("Ghost"),
+      project("hs-template"),
       project("http"),
       project("reddit-mobile"),
       project("redux"),

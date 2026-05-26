@@ -16,219 +16,61 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S6767/javascript
 
-import type { Rule, Scope, SourceCode } from 'eslint';
+import type { Rule } from 'eslint';
 import type estree from 'estree';
-import type { JSXSpreadAttribute } from 'estree-jsx';
-import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
-import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { interceptReportForReact } from '../helpers/decorators/interceptor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { findComponentNode } from '../helpers/react.js';
+import { findComponentNodes } from '../helpers/react.js';
+import { hasOwnCustomSuperclassPropsForwarding } from './custom-superclass-forwarding.js';
+import { hasDecoratorPropUsage } from './decorator-indirect-prop-usage.js';
+import { hasForwardRefCallbackPropUsage } from './forward-ref-indirect-prop-usage.js';
 import * as meta from './generated-meta.js';
+import { hasSupportedWholePropsUsage } from './whole-props-usage.js';
 
-/** Composable pattern checkers — extend via Array.some() for future FP patterns. */
-const propsArgPatterns: Array<(arg: estree.Node) => boolean> = [
-  arg => isIdentifier(arg, 'props'),
-  arg =>
-    arg.type === 'MemberExpression' &&
-    arg.object.type === 'ThisExpression' &&
-    isIdentifier(arg.property, 'props'),
-];
-
-/** Composable callee checkers for forwardRef call detection. */
-const forwardRefCalleePatterns: Array<(callee: estree.Expression | estree.Super) => boolean> = [
-  callee => isIdentifier(callee, 'forwardRef'),
-  callee =>
-    callee.type === 'MemberExpression' &&
-    isIdentifier(callee.object, 'React') &&
-    isIdentifier(callee.property, 'forwardRef'),
-];
+function allMatch(
+  componentNodes: estree.Node[],
+  predicate: (componentNode: estree.Node) => boolean,
+) {
+  return componentNodes.length > 0 && componentNodes.every(predicate);
+}
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     { ...rule, meta: generateMeta(meta, rule.meta) },
     (context, descriptor) => {
       const { node } = descriptor as { node: estree.Node };
-      const componentNode = findComponentNode(node, context);
+      const { data } = descriptor as { data?: Record<string, string> };
+      const propName = data?.name;
+      const componentNodes = findComponentNodes(node, context);
       if (
-        componentNode &&
-        (hasPropsCall(componentNode, context.sourceCode.visitorKeys) ||
-          hasOwnCustomSuperclassPropsForwarding(componentNode))
+        allMatch(componentNodes, componentNode =>
+          hasSupportedWholePropsUsage(componentNode, context),
+        )
       ) {
         return;
       }
-      // Suppress FP only when the specific reported prop is referenced inside a forwardRef callback.
-      const { data } = descriptor as { data?: Record<string, string> };
-      const propName = data?.name;
       if (
-        propName &&
-        componentNode &&
-        hasPropMemberReference(context.sourceCode, componentNode, propName)
+        allMatch(componentNodes, componentNode =>
+          hasOwnCustomSuperclassPropsForwarding(componentNode),
+        )
+      ) {
+        return;
+      }
+      if (
+        allMatch(componentNodes, componentNode =>
+          hasForwardRefCallbackPropUsage(componentNode, context, propName),
+        )
+      ) {
+        return;
+      }
+      if (
+        allMatch(componentNodes, componentNode =>
+          hasDecoratorPropUsage(componentNode, context, propName),
+        )
       ) {
         return;
       }
       context.report(descriptor);
     },
-  );
-}
-
-function hasOwnCustomSuperclassPropsForwarding(componentNode: estree.Node): boolean {
-  if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
-    return false;
-  }
-
-  const superClass = componentNode.superClass;
-  if (superClass == null || isBuiltinReactSuperclass(superClass)) {
-    return false;
-  }
-
-  return componentNode.body.body.some(
-    member =>
-      member.type === 'MethodDefinition' &&
-      member.kind === 'constructor' &&
-      member.value.body?.body.some(isWholePropsSuperCallStatement) === true,
-  );
-}
-
-function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
-  return (
-    isIdentifier(superClass, 'Component') ||
-    isIdentifier(superClass, 'PureComponent') ||
-    (superClass.type === 'MemberExpression' &&
-      isIdentifier(superClass.object, 'React') &&
-      (isIdentifier(superClass.property, 'Component') ||
-        isIdentifier(superClass.property, 'PureComponent')))
-  );
-}
-
-function isWholePropsSuperCallStatement(statement: estree.Statement): boolean {
-  if (
-    statement.type !== 'ExpressionStatement' ||
-    statement.expression.type !== 'CallExpression' ||
-    statement.expression.callee.type !== 'Super'
-  ) {
-    return false;
-  }
-
-  // This decorator intentionally treats direct whole-props forwarding to a custom
-  // superclass as sufficient usage. Deeper validation of actual superclass prop
-  // consumption is intentionally out of scope for this decorator-based design, even
-  // though that accepts a small false-negative risk when forwarded props are not read.
-  return statement.expression.arguments.some(argument =>
-    isIdentifier(argument as estree.Node, 'props'),
-  );
-}
-
-/**
- * Returns true only when `propName` is referenced through the component's actual
- * first parameter binding and the matching member access sits inside a forwardRef callback.
- */
-function hasPropMemberReference(
-  sourceCode: SourceCode,
-  componentNode: estree.Node,
-  propName: string,
-): boolean {
-  if (!isFunctionNode(componentNode)) {
-    return false;
-  }
-
-  const propsParam = componentNode.params[0];
-  if (!isIdentifier(propsParam)) {
-    return false;
-  }
-
-  const variable = sourceCode.getScope(componentNode).set.get(propsParam.name);
-  if (!variable) {
-    return false;
-  }
-
-  return variable.references.some(reference =>
-    isPropReferenceInForwardRefCallback(reference, propName),
-  );
-}
-
-function isPropReferenceInForwardRefCallback(
-  reference: Scope.Reference,
-  propName: string,
-): boolean {
-  const memberExpression = getNodeParent(reference.identifier);
-  if (
-    memberExpression?.type !== 'MemberExpression' ||
-    memberExpression.object !== reference.identifier ||
-    memberExpression.computed ||
-    !isIdentifier(memberExpression.property, propName)
-  ) {
-    return false;
-  }
-
-  // Walk up ancestors. Track `prev` so that when we find a forwardRef CallExpression
-  // we can confirm the reference sits inside its first argument (the render callback),
-  // not in the callee position or a later argument.
-  let prev: estree.Node = memberExpression;
-  let current: estree.Node | undefined = getNodeParent(memberExpression);
-  while (current) {
-    if (current.type === 'CallExpression') {
-      const call = current;
-      if (
-        forwardRefCalleePatterns.some(pattern => pattern(call.callee)) &&
-        call.arguments[0] === prev
-      ) {
-        return true;
-      }
-    }
-    prev = current;
-    current = getNodeParent(current);
-  }
-  return false;
-}
-
-function hasPropsCall(root: estree.Node, keys: SourceCode.VisitorKeys): boolean {
-  if (!root) {
-    return false;
-  }
-
-  // Check if this is a CallExpression with props as argument
-  if (root.type === 'CallExpression') {
-    const call = root as estree.CallExpression;
-    if (
-      call.callee.type !== 'Super' &&
-      !isPropTypesCheckCall(call) &&
-      call.arguments.some(a => propsArgPatterns.some(p => p(a as estree.Node)))
-    ) {
-      return true;
-    }
-  }
-
-  // Check if this is a SpreadElement with props (for {...props} in JSX)
-  if (root.type === 'SpreadElement' && propsArgPatterns.some(p => p(root.argument))) {
-    return true;
-  }
-
-  // Check if this is a JSXSpreadAttribute with props (for {...props} or {...this.props} in JSX elements)
-  if (
-    root.type === 'JSXSpreadAttribute' &&
-    propsArgPatterns.some(p => p((root as unknown as JSXSpreadAttribute).argument))
-  ) {
-    return true;
-  }
-
-  // Check if this is a computed MemberExpression with props (for props[key] or this.props[key])
-  if (
-    root.type === 'MemberExpression' &&
-    root.computed &&
-    propsArgPatterns.some(p => p(root.object))
-  ) {
-    return true;
-  }
-
-  // Recursively check all children
-  return childrenOf(root, keys).some(child => hasPropsCall(child, keys));
-}
-
-function isPropTypesCheckCall(call: estree.CallExpression): boolean {
-  return (
-    call.callee.type === 'MemberExpression' &&
-    isIdentifier(call.callee.object, 'PropTypes') &&
-    isIdentifier(call.callee.property, 'checkPropTypes')
   );
 }

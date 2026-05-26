@@ -26,22 +26,13 @@
 "watchtower.js:src/watch_record.js": [
 0
 ],
-"watchtower.js:test/dirtychecking.spec.js": [
-0
-],
 "watchtower.js:test/helpers.js": [
 0
 ],
 "watchtower.js:test/matchers.js": [
 0
 ],
-"watchtower.js:test/observer.spec.js": [
-0
-],
 "watchtower.js:test/test.js": [
-0
-],
-"watchtower.js:test/watchgroup.spec.js": [
 0
 ]
 }

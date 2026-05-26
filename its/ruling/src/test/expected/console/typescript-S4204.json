@@ -1,13 +1,4 @@
 {
-"console:src/__mocks__/lokka.ts": [
-5,
-52
-],
-"console:src/actions/databrowser/__tests__/data.ts": [
-28,
-30,
-38
-],
 "console:src/actions/databrowser/data.ts": [
 53,
 63,
@@ -182,9 +173,6 @@
 ],
 "console:src/components/onboarding/Steps.tsx": [
 38
-],
-"console:src/reducers/databrowser/__tests__/data.ts": [
-13
 ],
 "console:src/reducers/databrowser/data.ts": [
 8,

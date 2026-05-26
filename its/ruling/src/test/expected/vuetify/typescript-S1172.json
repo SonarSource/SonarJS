@@ -207,9 +207,6 @@
 108,
 151
 ],
-"vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
-26
-],
 "vuetify:packages/vuetify/src/components/VSelectionControl/VSelectionControl.tsx": [
 142
 ],
@@ -268,24 +265,12 @@
 "vuetify:packages/vuetify/src/components/transitions/createTransition.ts": [
 93
 ],
-"vuetify:packages/vuetify/src/composables/__tests__/filter.spec.ts": [
-25,
-116,
-136
-],
 "vuetify:packages/vuetify/src/composables/filter.ts": [
 34
 ],
 "vuetify:packages/vuetify/src/composables/router.tsx": [
 96,
 96
-],
-"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside-shadow-dom.spec.ts": [
-32,
-37
-],
-"vuetify:packages/vuetify/src/directives/click-outside/__tests__/click-outside.spec.ts": [
-23
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTable.tsx": [
 73,
@@ -334,9 +319,6 @@
 ],
 "vuetify:packages/vuetify/src/labs/VVirtualScroll/VVirtualScrollItem.tsx": [
 17
-],
-"vuetify:packages/vuetify/src/labs/VVirtualScroll/__tests__/VVirtualScroll.spec.cy.tsx": [
-13
 ],
 "vuetify:packages/vuetify/src/locale/adapters/vuetify.ts": [
 12,

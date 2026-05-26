@@ -1,0 +1,12 @@
+{
+  "name": "my-app",
+  "dependencies": {
+    "react": "catalog:ui",
+    "react-dom": "catalog:ui"
+  },
+  "devDependencies": {
+    "jest": "catalog:testing",
+    "testing-library": "catalog:testing",
+    "webpack": "catalog:unknown"
+  }
+}

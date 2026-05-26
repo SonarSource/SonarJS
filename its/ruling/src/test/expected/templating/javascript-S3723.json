@@ -54,26 +54,6 @@
 38,
 39
 ],
-"templating:test/example/video.spec.js": [
-23
-],
-"templating:test/lib/compiler/compiler.spec.js": [
-93,
-102,
-118,
-163,
-169,
-172,
-179,
-190,
-236,
-241,
-244
-],
-"templating:test/lib/util/document_ready.spec.js": [
-12,
-16
-],
 "templating:test/unit-test-main.js": [
 20,
 28,

@@ -45,7 +45,7 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
     onCapturingGroupEnter: checkAlternation,
     onAssertionEnter(node: AST.Assertion) {
       if (node.kind === 'lookahead' || node.kind === 'lookbehind') {
-        checkAlternation(node as Alternation);
+        checkAlternation(node);
       }
     },
   };

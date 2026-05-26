@@ -8,16 +8,7 @@
 "courselit:apps/web/next.config.js": [
 0
 ],
-"courselit:packages/common-widgets/__tests__/common-widgets.test.js": [
-0
-],
 "courselit:packages/common-widgets/webpack.config.js": [
-0
-],
-"courselit:packages/components-library/__tests__/components-library.test.js": [
-0
-],
-"courselit:packages/rich-text/__tests__/rich-text.test.js": [
 0
 ],
 "courselit:packages/rich-text/babel.config.js": [
@@ -63,9 +54,6 @@
 0
 ],
 "courselit:packages/utils/src/utils.js": [
-0
-],
-"courselit:packages/widget-buttondown/__tests__/widget-buttondown.test.js": [
 0
 ],
 "courselit:packages/widget-buttondown/babel.config.js": [

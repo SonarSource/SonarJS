@@ -34,9 +34,5 @@
 "vuetify:packages/docs/vite.config.ts": [
 1,
 2
-],
-"vuetify:packages/vuetify/src/locale/__tests__/index.spec.ts": [
-3,
-4
 ]
 }

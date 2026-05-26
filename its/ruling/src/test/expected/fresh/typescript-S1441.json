@@ -8079,9 +8079,6 @@
 "fresh:packages/plugin-vite/tests/fixtures/test_files_exclusion/main.ts": [
 1
 ],
-"fresh:packages/plugin-vite/tests/fixtures/test_files_exclusion/routes/foo.test.ts": [
-3
-],
 "fresh:packages/plugin-vite/tests/fixtures/test_files_exclusion/vite.config.ts": [
 1,
 2

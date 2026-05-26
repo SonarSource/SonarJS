@@ -86,19 +86,12 @@
 "vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
 136
 ],
-"vuetify:packages/vuetify/src/components/VSelect/__tests__/VSelect.spec.cy.tsx": [
-26
-],
 "vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
 332,
 336
 ],
 "vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
 121
-],
-"vuetify:packages/vuetify/src/composables/__tests__/proxiedModel.spec.ts": [
-149,
-152
 ],
 "vuetify:packages/vuetify/src/composables/density.ts": [
 31
