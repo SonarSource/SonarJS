@@ -64,12 +64,12 @@ type PredicateAssertion = AssertionBase & {
  */
 type ComparisonAssertion = AssertionBase & {
   kind: 'comparison';
-  comparison: ComparisionAssertionStrictness;
+  comparison: ComparisonAssertionStrictness;
   actual: estree.Node;
   expected: estree.Node;
 };
 
-type ComparisionAssertionStrictness = 'strict' | 'deep' | 'loose';
+type ComparisonAssertionStrictness = 'strict' | 'deep' | 'loose';
 
 /**
  * Maps common Jest matcher names to their corresponding assertion predicates.
@@ -198,7 +198,7 @@ function extractExpectAssertion(expectCall: estree.Node): Assertion | null {
   return null;
 }
 
-function getJestComparison(name: string): ComparisionAssertionStrictness | null {
+function getJestComparison(name: string): ComparisonAssertionStrictness | null {
   switch (name) {
     case 'toBe':
       return 'strict';
@@ -313,7 +313,7 @@ function extractChaiAssertAssertion(
   };
 }
 
-function getChaiAssertComparison(method: ChaiAssertMethod): ComparisionAssertionStrictness {
+function getChaiAssertComparison(method: ChaiAssertMethod): ComparisonAssertionStrictness {
   switch (method) {
     case 'equal':
     case 'notEqual':
@@ -699,7 +699,7 @@ function extractNodeJSAssertion(
   };
 }
 
-function getNodeJSComparison(method: NodeAssertMethod): ComparisionAssertionStrictness {
+function getNodeJSComparison(method: NodeAssertMethod): ComparisonAssertionStrictness {
   switch (method) {
     case 'deepEqual':
     case 'notDeepEqual':
@@ -838,7 +838,7 @@ function extractCypressChainAssertion(node: estree.Node): Assertion | null {
   };
 }
 
-function parseCypressComparisonString(predicate: string): ComparisionAssertionStrictness | null {
+function parseCypressComparisonString(predicate: string): ComparisonAssertionStrictness | null {
   const parts = predicate.split('.');
   let idx = 0;
   if (parts[idx] === 'not') {
