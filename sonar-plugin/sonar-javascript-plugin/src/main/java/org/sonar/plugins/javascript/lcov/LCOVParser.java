@@ -54,17 +54,10 @@ class LCOVParser {
 
   private static final Logger LOG = LoggerFactory.getLogger(LCOVParser.class);
 
-  private LCOVParser(SensorContext context, List<File> files, FileLocator fileLocator) {
+  LCOVParser(SensorContext context, List<File> files, FileLocator fileLocator) {
     this.context = context;
     this.fileLocator = fileLocator;
     this.coverageByFile = parse(files);
-  }
-
-  /**
-   * Reads all report files and parses them as a single LCOV stream.
-   */
-  static LCOVParser create(SensorContext context, List<File> files, FileLocator fileLocator) {
-    return new LCOVParser(context, files, fileLocator);
   }
 
   Map<InputFile, NewCoverage> coverageByFile() {
