@@ -124,6 +124,18 @@ describe('S5914', () => {
         },
         {
           code: `
+            import { expect } from 'vitest';
+            expect(1 + 1).toEqual(2);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+            expect(Math.sqrt(144)).toStrictEqual(12);
+          `,
+        },
+        {
+          code: `
             import assert from 'node:assert';
             assert.ok(loadConfig());
           `,
@@ -156,6 +168,13 @@ describe('S5914', () => {
           code: `
             import { assert } from 'chai';
             assert.deepEqual(getValue(), {});
+          `,
+        },
+        // loose equality can coerce a fresh reference to a primitive, so this is not trivially determined
+        {
+          code: `
+            import { assert } from 'chai';
+            assert.equal([], false);
           `,
         },
         {
@@ -583,18 +602,18 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'freshIdentity' }],
         },
-        // chai assert.equal / assert.notEqual (loose equality is just as trivial against fresh refs)
+        // chai assert strict equality against fresh references is still trivial
         {
           code: `
             import { assert } from 'chai';
-            assert.equal(getValue(), {});
+            assert.strictEqual(getValue(), /value/);
           `,
           errors: [{ messageId: 'freshIdentity' }],
         },
         {
           code: `
             import { assert } from 'chai';
-            assert.notEqual(getItems(), []);
+            assert.notStrictEqual(getItems(), new Set());
           `,
           errors: [{ messageId: 'freshIdentity' }],
         },
