@@ -50,7 +50,7 @@ class FileLocatorTest {
   }
 
   @Test
-  void should_not_match_ambiguous_suffix() {
+  void should_match_first_with_many_options_and_mark_as_guess() {
     InputFile inputFile1 = new TestInputFileBuilder(
       "module1",
       "src/main/java/org/sonar/test/File.java"
@@ -61,7 +61,9 @@ class FileLocatorTest {
     ).build();
 
     FileLocator locator = new FileLocator(Arrays.asList(inputFile1, inputFile2));
-    assertThat(locator.getInputFile("org/sonar/test/File.java")).isNull();
+    FileLocator.Resolution resolution = locator.resolve("org/sonar/test/File.java");
+    assertThat(resolution.inputFile()).isEqualTo(inputFile1);
+    assertThat(resolution.guessed()).isTrue();
   }
 
   @Test

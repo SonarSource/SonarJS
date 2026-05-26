@@ -34,32 +34,23 @@ class ReversePathTree {
     currentNode.file = inputFile;
   }
 
-  InputFile getFileWithSuffix(String[] path) {
+  FileLocator.Resolution getFileWithSuffix(String[] path) {
     Node currentNode = root;
 
     for (int i = path.length - 1; i >= 0; i--) {
       currentNode = currentNode.children.get(path[i]);
       if (currentNode == null) {
-        return null;
+        return new FileLocator.Resolution(null, false);
       }
     }
-    return getOnlyLeaf(currentNode);
+    return new FileLocator.Resolution(getFirstLeaf(currentNode), currentNode.leafCount > 1);
   }
 
-  private static InputFile getOnlyLeaf(Node node) {
-    if (node.leafCount != 1) {
-      return null;
+  private static InputFile getFirstLeaf(Node node) {
+    while (!node.children.isEmpty()) {
+      node = node.children.values().iterator().next();
     }
-    if (node.file != null) {
-      return node.file;
-    }
-    for (Node child : node.children.values()) {
-      InputFile inputFile = getOnlyLeaf(child);
-      if (inputFile != null) {
-        return inputFile;
-      }
-    }
-    return null;
+    return node.file;
   }
 
   static class Node {

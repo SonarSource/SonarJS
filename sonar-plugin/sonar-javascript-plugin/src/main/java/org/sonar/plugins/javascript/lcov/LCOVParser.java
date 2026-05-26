@@ -184,7 +184,8 @@ class LCOVParser {
    * Resolution order:
    * 1) exact filesystem predicate match (absolute or project-relative path),
    * 2) relative-to-report lookup for package-local LCOV paths,
-   * 3) unique suffix-based lookup through {@link FileLocator} for cross-tool/cross-root path variants.
+   * 3) suffix-based lookup through {@link FileLocator}, preferring unique matches and falling back
+   * to the historical deterministic guess when several analyzed files share the same suffix.
    */
   @CheckForNull
   private InputFile inputFileForSourceFile(File reportFile, String line) {
@@ -195,7 +196,16 @@ class LCOVParser {
       inputFile = inputFileRelativeToReport(reportFile, filePath);
     }
     if (inputFile == null) {
-      inputFile = fileLocator.getInputFile(filePath);
+      FileLocator.Resolution resolution = fileLocator.resolve(filePath);
+      inputFile = resolution.inputFile();
+      if (inputFile != null && resolution.guessed() && LOG.isDebugEnabled()) {
+        LOG.debug(
+          "Ambiguous LCOV path '{}' in '{}' matched multiple analyzed files; falling back to '{}'.",
+          filePath,
+          reportFile,
+          inputFile.relativePath()
+        );
+      }
     }
     if (inputFile == null) {
       unresolvedPaths.add(filePath);

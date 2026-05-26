@@ -109,7 +109,7 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
   }
 
   @Test
-  void should_not_guess_when_duplicate_suffix_match_is_ambiguous() throws Exception {
+  void should_guess_when_duplicate_suffix_match_is_ambiguous() throws Exception {
     DefaultInputFile packageA = tsInputFile(
       "packages/a/src/index.ts",
       String.join(
@@ -152,10 +152,12 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
     settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.toAbsolutePath().toString());
     coverageSensor.execute(context);
 
-    assertThat(context.lineHits(packageA.key(), 1)).isNull();
+    assertThat(context.lineHits(packageA.key(), 1)).isEqualTo(1);
     assertThat(context.lineHits(packageB.key(), 5)).isNull();
-    assertThat(logTester.logs(Level.WARN)).contains(
-      "Could not resolve 1 file paths in [" + lcov.toAbsolutePath() + "]"
+    assertThat(logTester.logs(Level.DEBUG)).anyMatch(
+      log ->
+        log.contains("Ambiguous LCOV path 'src/index.ts'") &&
+        log.contains("falling back to 'packages/a/src/index.ts'")
     );
   }
 
