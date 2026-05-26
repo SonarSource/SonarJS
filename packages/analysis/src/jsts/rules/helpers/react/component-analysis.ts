@@ -295,7 +295,7 @@ function isQualifiedReactClassSuper(objectName: string | undefined, propertyName
     : objectName === 'React' && isReactClassSuperName(propertyName);
 }
 
-export function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
+function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
   return (
     (superClass.type === 'Identifier' && isQualifiedReactClassSuper(undefined, superClass.name)) ||
     (superClass.type === 'MemberExpression' &&

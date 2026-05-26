@@ -20,9 +20,12 @@ import type { Rule } from 'eslint';
 import { DefaultParserRuleTester, RuleTester } from '../../../tools/testers/rule-tester.js';
 import { isRequiredParserServices } from '../../../../../src/jsts/rules/helpers/parser-services.js';
 import {
+  collectComponentNodes,
   collectComponents,
   createComponentAnalysis,
+  getComponentIdentifier,
   isReactClassComponent,
+  type ComponentNode,
 } from '../../../../../src/jsts/rules/helpers/react/component-analysis.js';
 
 const fixtureDirectory = path.join(
@@ -80,9 +83,13 @@ const reactClassComponentRule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     return {
       Program(node) {
-        const summary = collectComponents(node, context.sourceCode.visitorKeys)
-          .filter(component => isReactClassComponent(component.componentNode))
-          .map(component => component.componentIdentifier?.name ?? '<anonymous>');
+        const reactClassComponents: ComponentNode[] = collectComponentNodes(
+          node,
+          context.sourceCode.visitorKeys,
+        ).filter(isReactClassComponent);
+        const summary = reactClassComponents.map(
+          component => getComponentIdentifier(component)?.name ?? '<anonymous>',
+        );
 
         assert.deepStrictEqual(summary, [
           'Panel',
