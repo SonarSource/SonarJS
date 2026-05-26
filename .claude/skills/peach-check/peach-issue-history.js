@@ -36,6 +36,11 @@ const DEFAULT_ISSUES_RESULT_WINDOW = 10000;
 const DEFAULT_RETRY_ATTEMPTS = 3;
 const DEFAULT_COMPONENT_FALLBACK_CONCURRENCY = 8;
 const RETRYABLE_STATUS_CODES = new Set([429, 502, 503]);
+const RETRYABLE_UNKNOWN_URL_PATHS = new Set([
+  '/api/components/tree',
+  '/api/issues/search',
+  '/api/project_analyses/search',
+]);
 const WORKFLOW_ONLY_JOBS = new Set(['prepare-project-matrix', 'diff-validation-aggregated']);
 export const SUPPORTED_LANGUAGES = Object.freeze(['js', 'ts', 'css', 'web', 'yaml']);
 const SUPPORTED_LANGUAGES_QUERY = SUPPORTED_LANGUAGES.join(',');
@@ -358,12 +363,12 @@ async function evaluateProjectHistory(options, runtime) {
 
 async function fetchProjectAnalysesWithRetry(projectKey, apiToken, runtime) {
   const fetchProjectAnalyses = runtime.fetchProjectAnalyses ?? defaultFetchProjectAnalyses;
-  return retryPeachRequest(() => fetchProjectAnalyses(projectKey, apiToken), runtime);
+  return fetchProjectAnalyses(projectKey, apiToken, runtime);
 }
 
 async function fetchIssueCountsWithRetry(projectKey, analyses, apiToken, runtime) {
   const fetchIssueCounts = runtime.fetchIssueCounts ?? defaultFetchIssueCounts;
-  return retryPeachRequest(() => fetchIssueCounts(projectKey, analyses, apiToken), runtime);
+  return fetchIssueCounts(projectKey, analyses, apiToken, runtime);
 }
 
 async function retryPeachRequest(request, runtime) {
@@ -374,8 +379,7 @@ async function retryPeachRequest(request, runtime) {
     try {
       return await request();
     } catch (error) {
-      const statusCode = getStatusCode(error);
-      const isRetryable = statusCode !== undefined && RETRYABLE_STATUS_CODES.has(statusCode);
+      const isRetryable = isRetryablePeachError(error);
       if (!isRetryable || attempt === DEFAULT_RETRY_ATTEMPTS - 1) {
         throw error;
       }
@@ -388,11 +392,17 @@ async function retryPeachRequest(request, runtime) {
   throw new Error('Peach request retry loop exhausted');
 }
 
-async function defaultFetchProjectAnalyses(projectKey, apiToken) {
+async function defaultFetchProjectAnalyses(projectKey, apiToken, runtime) {
   const analyses = [];
 
   for (let pageIndex = 1; ; pageIndex += 1) {
-    const page = await fetchProjectAnalysesPage(projectKey, apiToken, pageIndex, DEFAULT_ANALYSES_PAGE_SIZE);
+    const page = await fetchProjectAnalysesPage(
+      projectKey,
+      apiToken,
+      pageIndex,
+      DEFAULT_ANALYSES_PAGE_SIZE,
+      runtime,
+    );
     analyses.push(
       ...(page.analyses ?? [])
         .map(entry => ({
@@ -410,17 +420,17 @@ async function defaultFetchProjectAnalyses(projectKey, apiToken) {
   return analyses;
 }
 
-async function fetchProjectAnalysesPage(projectKey, apiToken, pageIndex, pageSize) {
+async function fetchProjectAnalysesPage(projectKey, apiToken, pageIndex, pageSize, runtime) {
   const params = new URLSearchParams({
     project: projectKey,
     p: String(pageIndex),
     ps: String(pageSize),
   });
 
-  return fetchPeachJson(`/api/project_analyses/search?${params.toString()}`, apiToken);
+  return fetchPeachJson(`/api/project_analyses/search?${params.toString()}`, apiToken, runtime);
 }
 
-async function defaultFetchIssueCounts(projectKey, analyses, apiToken) {
+async function defaultFetchIssueCounts(projectKey, analyses, apiToken, runtime) {
   const targetAnalyses = toDatedEntries(analyses);
   if (targetAnalyses.length === 0) {
     return new Map();
@@ -429,28 +439,19 @@ async function defaultFetchIssueCounts(projectKey, analyses, apiToken) {
   const oldestAnalysisTimestamp = targetAnalyses[0].timestamp;
   const latestAnalysisTimestamp = targetAnalyses[targetAnalyses.length - 1].timestamp;
   const createdBefore = formatExclusiveIsoTimestamp(latestAnalysisTimestamp);
-  const openIssues = await fetchOpenIssues(projectKey, apiToken, createdBefore);
-  const resolvedIssues = await fetchResolvedIssues(
-    projectKey,
-    apiToken,
-    oldestAnalysisTimestamp,
-    createdBefore,
-  );
+  const [openCountsByAnalysisDate, resolvedIssues] = await Promise.all([
+    fetchOpenIssueCounts(projectKey, targetAnalyses, apiToken, runtime),
+    fetchResolvedIssues(projectKey, apiToken, oldestAnalysisTimestamp, createdBefore, runtime),
+  ]);
   const countsByAnalysisDate = new Map();
-  const sortedOpenIssues = [...openIssues].sort(
-    (left, right) => left.creationTimestamp - right.creationTimestamp,
-  );
-  let openIssueIndex = 0;
 
   for (const analysis of targetAnalyses) {
-    while (
-      openIssueIndex < sortedOpenIssues.length &&
-      sortedOpenIssues[openIssueIndex].creationTimestamp <= analysis.timestamp
-    ) {
-      openIssueIndex += 1;
+    const openIssueCount = openCountsByAnalysisDate.get(analysis.date);
+    if (openIssueCount === undefined) {
+      throw new Error(`Missing open issue count for analysis ${analysis.date}`);
     }
 
-    let count = openIssueIndex;
+    let count = openIssueCount;
     for (const issue of resolvedIssues) {
       if (issue.creationTimestamp <= analysis.timestamp && issue.closeTimestamp > analysis.timestamp) {
         count += 1;
@@ -463,21 +464,37 @@ async function defaultFetchIssueCounts(projectKey, analyses, apiToken) {
   return countsByAnalysisDate;
 }
 
-async function fetchOpenIssues(projectKey, apiToken, createdBefore) {
-  return fetchIssuesForComponent(
-    projectKey,
-    apiToken,
-    {
-      resolved: 'false',
-      createdBefore,
-      s: 'CREATION_DATE',
-      asc: 'true',
-    },
-    normalizeOpenIssues,
-  );
+async function fetchOpenIssueCounts(projectKey, analyses, apiToken, runtime) {
+  const countsByCreatedBefore = new Map();
+  const countsByAnalysisDate = new Map();
+
+  for (const analysis of analyses) {
+    const createdBefore = formatExclusiveIsoTimestamp(analysis.timestamp);
+    let count = countsByCreatedBefore.get(createdBefore);
+    if (count === undefined) {
+      count = await fetchOpenIssueCountBefore(projectKey, apiToken, createdBefore, runtime);
+      countsByCreatedBefore.set(createdBefore, count);
+    }
+
+    countsByAnalysisDate.set(analysis.date, count);
+  }
+
+  return countsByAnalysisDate;
 }
 
-async function fetchResolvedIssues(projectKey, apiToken, oldestAnalysisTimestamp, createdBefore) {
+async function fetchOpenIssueCountBefore(projectKey, apiToken, createdBefore, runtime) {
+  const response = await fetchIssuesPage(apiToken, {
+    components: projectKey,
+    resolved: 'false',
+    createdBefore,
+    p: '1',
+    ps: '1',
+  }, runtime);
+
+  return response.paging?.total ?? (response.issues ?? []).length;
+}
+
+async function fetchResolvedIssues(projectKey, apiToken, oldestAnalysisTimestamp, createdBefore, runtime) {
   return fetchIssuesForComponent(
     projectKey,
     apiToken,
@@ -488,16 +505,17 @@ async function fetchResolvedIssues(projectKey, apiToken, oldestAnalysisTimestamp
       asc: 'true',
     },
     issues => normalizeResolvedIssues(issues, oldestAnalysisTimestamp),
+    runtime,
   );
 }
 
-async function fetchIssuesForComponent(componentKey, apiToken, params, normalizePage) {
+async function fetchIssuesForComponent(componentKey, apiToken, params, normalizePage, runtime) {
   const firstResponse = await fetchIssuesPage(apiToken, {
     components: componentKey,
     ...params,
     p: '1',
     ps: String(DEFAULT_ISSUES_PAGE_SIZE),
-  });
+  }, runtime);
   const total = firstResponse.paging?.total ?? (firstResponse.issues ?? []).length;
 
   if (total > DEFAULT_ISSUES_RESULT_WINDOW) {
@@ -505,14 +523,14 @@ async function fetchIssuesForComponent(componentKey, apiToken, params, normalize
     if (splitRanges) {
       const [olderRangeParams, newerRangeParams] = splitRanges;
       const [olderIssues, newerIssues] = await Promise.all([
-        fetchIssuesForComponent(componentKey, apiToken, olderRangeParams, normalizePage),
-        fetchIssuesForComponent(componentKey, apiToken, newerRangeParams, normalizePage),
+        fetchIssuesForComponent(componentKey, apiToken, olderRangeParams, normalizePage, runtime),
+        fetchIssuesForComponent(componentKey, apiToken, newerRangeParams, normalizePage, runtime),
       ]);
 
       return [...olderIssues, ...newerIssues];
     }
 
-    const { directories, files } = await fetchDirectChildComponents(componentKey, apiToken);
+    const { directories, files } = await fetchDirectChildComponents(componentKey, apiToken, runtime);
     if (directories.length === 0 && files.length === 0) {
       throw new Error(`Issue search exceeded ${DEFAULT_ISSUES_RESULT_WINDOW} results for leaf component ${componentKey}`);
     }
@@ -520,7 +538,7 @@ async function fetchIssuesForComponent(componentKey, apiToken, params, normalize
     const nestedIssues = await mapWithConcurrencyLimit(
       [...files, ...directories],
       DEFAULT_COMPONENT_FALLBACK_CONCURRENCY,
-      component => fetchIssuesForComponent(component.key, apiToken, params, normalizePage),
+      component => fetchIssuesForComponent(component.key, apiToken, params, normalizePage, runtime),
     );
 
     return nestedIssues.flat();
@@ -538,7 +556,7 @@ async function fetchIssuesForComponent(componentKey, apiToken, params, normalize
       ...params,
       p: String(pageIndex),
       ps: String(DEFAULT_ISSUES_PAGE_SIZE),
-    });
+    }, runtime);
     normalizedIssues.push(...normalizePage(response.issues ?? []));
 
     if (pageIndex * DEFAULT_ISSUES_PAGE_SIZE >= total) {
@@ -599,20 +617,20 @@ function computeCreationDateSplitTimestamp(lowerBoundTimestamp, upperBoundTimest
   return splitTimestamp > lowerBoundSecond && splitTimestamp < upperBoundSecond ? splitTimestamp : undefined;
 }
 
-async function fetchDirectChildComponents(componentKey, apiToken) {
+async function fetchDirectChildComponents(componentKey, apiToken, runtime) {
   const [directories, files] = await Promise.all([
-    fetchChildComponents(componentKey, 'DIR', apiToken),
-    fetchChildComponents(componentKey, 'FIL', apiToken),
+    fetchChildComponents(componentKey, 'DIR', apiToken, runtime),
+    fetchChildComponents(componentKey, 'FIL', apiToken, runtime),
   ]);
 
   return { directories, files };
 }
 
-async function fetchChildComponents(componentKey, qualifiers, apiToken) {
+async function fetchChildComponents(componentKey, qualifiers, apiToken, runtime) {
   const components = [];
 
   for (let pageIndex = 1; ; pageIndex += 1) {
-    const response = await fetchComponentsTreePage(componentKey, qualifiers, apiToken, pageIndex);
+    const response = await fetchComponentsTreePage(componentKey, qualifiers, apiToken, pageIndex, runtime);
     components.push(...(response.components ?? []));
 
     const total = response.paging?.total ?? components.length;
@@ -622,7 +640,7 @@ async function fetchChildComponents(componentKey, qualifiers, apiToken) {
   }
 }
 
-async function fetchComponentsTreePage(componentKey, qualifiers, apiToken, pageIndex) {
+async function fetchComponentsTreePage(componentKey, qualifiers, apiToken, pageIndex, runtime) {
   const query = new URLSearchParams({
     component: componentKey,
     qualifiers,
@@ -631,29 +649,16 @@ async function fetchComponentsTreePage(componentKey, qualifiers, apiToken, pageI
     ps: String(DEFAULT_COMPONENTS_PAGE_SIZE),
   });
 
-  return fetchPeachJson(`/api/components/tree?${query.toString()}`, apiToken);
+  return fetchPeachJson(`/api/components/tree?${query.toString()}`, apiToken, runtime);
 }
 
-async function fetchIssuesPage(apiToken, params) {
+async function fetchIssuesPage(apiToken, params, runtime) {
   const query = new URLSearchParams({
     languages: SUPPORTED_LANGUAGES_QUERY,
     ...params,
   });
 
-  return fetchPeachJson(`/api/issues/search?${query.toString()}`, apiToken);
-}
-
-function normalizeOpenIssues(issues) {
-  return (issues ?? []).flatMap(issue => {
-    const creationTimestamp = parseTimestamp(issue.creationDate);
-    return creationTimestamp === undefined
-      ? []
-      : [
-          {
-            creationTimestamp,
-          },
-        ];
-  });
+  return fetchPeachJson(`/api/issues/search?${query.toString()}`, apiToken, runtime);
 }
 
 function normalizeResolvedIssues(issues, oldestAnalysisTimestamp) {
@@ -678,7 +683,11 @@ function normalizeResolvedIssues(issues, oldestAnalysisTimestamp) {
   });
 }
 
-async function fetchPeachJson(pathname, apiToken) {
+async function fetchPeachJson(pathname, apiToken, runtime) {
+  return retryPeachRequest(() => fetchPeachJsonOnce(pathname, apiToken), runtime);
+}
+
+async function fetchPeachJsonOnce(pathname, apiToken) {
   const response = await fetch(`https://peach.sonarsource.com${pathname}`, {
     headers: {
       Authorization: `Basic ${Buffer.from(`${apiToken}:`).toString('base64')}`,
@@ -939,6 +948,26 @@ function getStatusCode(error) {
   }
 
   return undefined;
+}
+
+function isRetryablePeachError(error) {
+  const statusCode = getStatusCode(error);
+  if (statusCode !== undefined && RETRYABLE_STATUS_CODES.has(statusCode)) {
+    return true;
+  }
+
+  const message = error instanceof Error ? error.message : String(error);
+  if (error instanceof TypeError || message === 'Failed to parse JSON response from Peach.') {
+    return true;
+  }
+
+  if (statusCode !== 404) {
+    return false;
+  }
+
+  return [...RETRYABLE_UNKNOWN_URL_PATHS].some(pathname =>
+    message.includes(`Unknown url : ${pathname}`),
+  );
 }
 
 function readNumberEnv(name, fallback) {

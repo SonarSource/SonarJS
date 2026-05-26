@@ -51,6 +51,18 @@ function createFetchResponse(payload) {
   };
 }
 
+function createMalformedJsonFetchResponse() {
+  return {
+    status: 200,
+    headers: {
+      get: () => null,
+    },
+    json: async () => {
+      throw new SyntaxError('Unexpected end of JSON input');
+    },
+  };
+}
+
 function createErrorFetchResponse(status, body = 'temporary failure') {
   return {
     status,
@@ -68,6 +80,13 @@ function createDailyAnalyses(startDate, count) {
   }));
 }
 
+function formatExclusivePeachTimestamp(value) {
+  const timestamp = Date.parse(value);
+  return new Date(Math.floor(timestamp / 1000) * 1000 + 1000)
+    .toISOString()
+    .replace(/\.\d{3}Z$/, '+0000');
+}
+
 function createOpenIssues(count, creationDate, language = 'js') {
   return Array.from({ length: count }, (_, index) => ({
     key: `open-${language}-${index}`,
@@ -83,6 +102,35 @@ function createResolvedIssues(count, creationDate, closeDate, language = 'js') {
     closeDate,
     language,
   }));
+}
+
+function consumeFailure(remainingFailures, failureKey) {
+  if (!remainingFailures.has(failureKey)) {
+    return undefined;
+  }
+
+  const failure = remainingFailures.get(failureKey);
+  remainingFailures.delete(failureKey);
+
+  if (typeof failure === 'number') {
+    return {
+      status: failure,
+      body: 'temporary failure',
+    };
+  }
+
+  return failure;
+}
+
+function consumeFirstMatchingFailure(remainingFailures, failureKeys) {
+  for (const failureKey of failureKeys) {
+    const failure = consumeFailure(remainingFailures, failureKey);
+    if (failure) {
+      return failure;
+    }
+  }
+
+  return undefined;
 }
 
 function installPeachFetchMock(t, options) {
@@ -129,10 +177,15 @@ function installPeachFetchMock(t, options) {
       const failureKey = `analyses:${pageIndex}`;
       requests.analyses.push(pageIndex);
 
-      if (remainingFailures.has(failureKey)) {
-        const failureStatus = remainingFailures.get(failureKey);
-        remainingFailures.delete(failureKey);
-        return createErrorFetchResponse(failureStatus);
+      const failure = consumeFailure(remainingFailures, failureKey);
+      if (failure) {
+        if (failure.error) {
+          throw failure.error;
+        }
+        if (failure.invalidJson) {
+          return createMalformedJsonFetchResponse();
+        }
+        return createErrorFetchResponse(failure.status, failure.body);
       }
 
       return createFetchResponse({
@@ -169,13 +222,11 @@ function installPeachFetchMock(t, options) {
         requests.resolvedCreatedAfter.push(createdAfter);
         requests.resolvedCreatedBefore.push(createdBefore);
       } else {
-        assert.equal(parsedUrl.searchParams.get('s'), 'CREATION_DATE');
-        assert.equal(parsedUrl.searchParams.get('asc'), 'true');
         requests.open.push(pageIndex);
         requests.openCreatedAfter.push(createdAfter);
         requests.openCreatedBefore.push(createdBefore);
       }
-      requests.issueScopes.push({ scopeKey, resolved, pageIndex });
+      requests.issueScopes.push({ scopeKey, resolved, pageIndex, pageSize, createdAfter, createdBefore });
 
       requests.activeIssueRequests += 1;
       requests.maxConcurrentIssueRequests = Math.max(
@@ -189,10 +240,20 @@ function installPeachFetchMock(t, options) {
           await new Promise(resolve => setTimeout(resolve, delayMs));
         }
 
-        if (remainingFailures.has(failureKey)) {
-          const failureStatus = remainingFailures.get(failureKey);
-          remainingFailures.delete(failureKey);
-          return createErrorFetchResponse(failureStatus);
+        const failure = consumeFirstMatchingFailure(remainingFailures, [
+          `${resolved ? 'resolved' : 'open'}:${pageIndex}:${createdBefore ?? ''}:${scopeKey}`,
+          `${resolved ? 'resolved' : 'open'}:${pageIndex}:${createdBefore ?? ''}`,
+          `${resolved ? 'resolved' : 'open'}:${createdBefore ?? ''}`,
+          failureKey,
+        ]);
+        if (failure) {
+          if (failure.error) {
+            throw failure.error;
+          }
+          if (failure.invalidJson) {
+            return createMalformedJsonFetchResponse();
+          }
+          return createErrorFetchResponse(failure.status, failure.body);
         }
 
         const sourceIssues = resolved ? source.resolvedIssues : source.openIssues;
@@ -521,7 +582,7 @@ test('runIssueHistory reports STALE when no analysis falls inside the run window
   assert.equal(row.message, 'Latest analysis is outside the freshness window');
 });
 
-test('runIssueHistory paginates analyses and issue snapshots with the supported-language filter', async t => {
+test('runIssueHistory paginates analyses and uses page-1 open issue count queries with the supported-language filter', async t => {
   const analyses = createDailyAnalyses('2026-01-01T03:00:00Z', 131);
   const { report, requests } = await runSingleProjectIssueHistory(t, {
     analyses,
@@ -534,9 +595,15 @@ test('runIssueHistory paginates analyses and issue snapshots with the supported-
   });
 
   assert.deepEqual(requests.analyses, [1, 2]);
-  assert.deepEqual(requests.open, [1, 2]);
+  assert.deepEqual(requests.open, [1, 1, 1, 1, 1, 1]);
   assert.deepEqual(requests.resolved, [1]);
   assert.deepEqual(report.summary, { OK: 1 });
+
+  const openSearches = requests.issueScopes.filter(entry => !entry.resolved);
+  assert.equal(openSearches.length, 6);
+  assert.ok(openSearches.every(entry => entry.scopeKey === 'js:LongLivedProject'));
+  assert.ok(openSearches.every(entry => entry.pageIndex === 1));
+  assert.ok(openSearches.every(entry => entry.pageSize === 1));
 
   const row = report.rows[0];
   assert.equal(row.project_key, 'js:LongLivedProject');
@@ -555,14 +622,19 @@ test('runIssueHistory formats Peach issue-search timestamps with a UTC offset', 
     projectName: 'timestamp-project',
   });
 
-  assert.deepEqual(requests.openCreatedBefore, ['2026-05-01T03:09:23+0000']);
-  assert.deepEqual(requests.resolvedCreatedBefore, ['2026-05-01T03:09:23+0000']);
+  assert.deepEqual(requests.openCreatedBefore, analyses.map(analysis => formatExclusivePeachTimestamp(analysis.date)));
+  assert.ok(requests.openCreatedAfter.every(value => value === null));
+  assert.deepEqual(
+    requests.resolvedCreatedBefore,
+    [formatExclusivePeachTimestamp(analyses[analyses.length - 1].date)],
+  );
 });
 
-test('runIssueHistory splits capped issue searches across child components', async t => {
+test('runIssueHistory splits capped resolved-issue searches across child components', async t => {
   const analyses = createDailyAnalyses('2026-04-26T03:09:22Z', 6);
-  const frontendIssues = createOpenIssues(5001, '2026-04-01T00:00:00Z', 'js');
-  const backendIssues = createOpenIssues(5009, '2026-04-01T00:00:00Z', 'ts');
+  const futureCloseDate = '2026-05-02T00:00:00Z';
+  const frontendIssues = createResolvedIssues(5001, '2026-04-01T00:00:00Z', futureCloseDate, 'js');
+  const backendIssues = createResolvedIssues(5009, '2026-04-01T00:00:00Z', futureCloseDate, 'ts');
   const { report, requests } = await runSingleProjectIssueHistory(t, {
     analyses,
     openIssues: [],
@@ -571,16 +643,16 @@ test('runIssueHistory splits capped issue searches across child components', asy
     projectName: 'capped-project',
     issueSources: {
       'js:CappedProject': {
-        openIssues: [...frontendIssues, ...backendIssues],
-        resolvedIssues: [],
+        openIssues: [],
+        resolvedIssues: [...frontendIssues, ...backendIssues],
       },
       'js:CappedProject:frontend': {
-        openIssues: frontendIssues,
-        resolvedIssues: [],
+        openIssues: [],
+        resolvedIssues: frontendIssues,
       },
       'js:CappedProject:backend': {
-        openIssues: backendIssues,
-        resolvedIssues: [],
+        openIssues: [],
+        resolvedIssues: backendIssues,
       },
     },
     componentChildren: {
@@ -598,23 +670,23 @@ test('runIssueHistory splits capped issue searches across child components', asy
 
   assert.deepEqual(report.summary, { OK: 1 });
   assert.equal(report.rows[0].current_value, 10010);
-  assert.ok(requests.openCreatedAfter.some(value => value));
+  assert.ok(requests.resolvedCreatedAfter.some(value => value));
   assert.ok(
     requests.componentTree.some(
       entry => entry.componentKey === 'js:CappedProject' && entry.qualifiers === 'DIR',
     ),
   );
   assert.ok(
-    requests.issueScopes.some(entry => entry.scopeKey === 'js:CappedProject:frontend' && !entry.resolved),
+    requests.issueScopes.some(entry => entry.scopeKey === 'js:CappedProject:frontend' && entry.resolved),
   );
   assert.ok(
-    requests.issueScopes.some(entry => entry.scopeKey === 'js:CappedProject:backend' && !entry.resolved),
+    requests.issueScopes.some(entry => entry.scopeKey === 'js:CappedProject:backend' && entry.resolved),
   );
 });
 
 test('runIssueHistory counts >10k open issues without relying on component splits', async t => {
   const analyses = createDailyAnalyses('2026-04-26T03:09:22Z', 6);
-  const { report } = await runSingleProjectIssueHistory(t, {
+  const { report, requests } = await runSingleProjectIssueHistory(t, {
     analyses,
     openIssues: [
       ...createOpenIssues(2500, '2026-03-01T00:00:00Z', 'js'),
@@ -635,11 +707,21 @@ test('runIssueHistory counts >10k open issues without relying on component split
   assert.equal(row.status, 'OK');
   assert.equal(row.current_value, 10010);
   assert.equal(row.baseline_value, 10010);
+
+  const openSearches = requests.issueScopes.filter(entry => !entry.resolved);
+  assert.deepEqual(requests.open, [1, 1, 1, 1, 1, 1]);
+  assert.equal(openSearches.length, 6);
+  assert.ok(openSearches.every(entry => entry.scopeKey === 'js:TimeSplitOpenProject'));
+  assert.ok(openSearches.every(entry => entry.pageIndex === 1));
+  assert.ok(openSearches.every(entry => entry.pageSize === 1));
+  assert.ok(openSearches.every(entry => entry.createdAfter === null));
+  assert.deepEqual(requests.componentTree, []);
 });
 
-test('runIssueHistory traverses component-fallback child scopes with bounded concurrency', async t => {
+test('runIssueHistory traverses resolved component-fallback child scopes with bounded concurrency', async t => {
   const analyses = createDailyAnalyses('2026-04-26T03:09:22Z', 6);
   const sharedCreationDate = '2026-04-01T00:00:00Z';
+  const futureCloseDate = '2026-05-02T00:00:00Z';
   const childScopes = [
     'js:ConcurrentFallbackProject:file-1',
     'js:ConcurrentFallbackProject:file-2',
@@ -650,25 +732,30 @@ test('runIssueHistory traverses component-fallback child scopes with bounded con
     childScopes.map((scopeKey, index) => [
       scopeKey,
       {
-        openIssues: createOpenIssues(2501, sharedCreationDate, index % 2 === 0 ? 'js' : 'ts'),
-        resolvedIssues: [],
+        openIssues: [],
+        resolvedIssues: createResolvedIssues(
+          2501,
+          sharedCreationDate,
+          futureCloseDate,
+          index % 2 === 0 ? 'js' : 'ts',
+        ),
       },
     ]),
   );
   const { report, requests } = await runSingleProjectIssueHistory(t, {
     analyses,
-    openIssues: childScopes.flatMap((scopeKey, index) =>
-      createOpenIssues(2501, sharedCreationDate, index % 2 === 0 ? 'js' : 'ts'),
+    openIssues: [],
+    resolvedIssues: childScopes.flatMap((scopeKey, index) =>
+      createResolvedIssues(2501, sharedCreationDate, futureCloseDate, index % 2 === 0 ? 'js' : 'ts'),
     ),
-    resolvedIssues: [],
     projectKey: 'js:ConcurrentFallbackProject',
     projectName: 'concurrent-fallback-project',
     issueSources: {
       'js:ConcurrentFallbackProject': {
-        openIssues: childScopes.flatMap((scopeKey, index) =>
-          createOpenIssues(2501, sharedCreationDate, index % 2 === 0 ? 'js' : 'ts'),
+        openIssues: [],
+        resolvedIssues: childScopes.flatMap((scopeKey, index) =>
+          createResolvedIssues(2501, sharedCreationDate, futureCloseDate, index % 2 === 0 ? 'js' : 'ts'),
         ),
-        resolvedIssues: [],
       },
       ...childIssues,
     },
@@ -718,8 +805,9 @@ test('runIssueHistory counts >10k resolved issues without relying on component s
   assert.equal(row.baseline_value, 10060);
 });
 
-test('runIssueHistory retries the full issue snapshot fetch when a later open-issues page fails', async t => {
+test('runIssueHistory retries only the failed open issue count query when a later analysis returns 503', async t => {
   const analyses = createDailyAnalyses('2026-01-01T03:00:00Z', 131);
+  const retriedCreatedBefore = formatExclusivePeachTimestamp(analyses[129].date);
   const { report, requests } = await runSingleProjectIssueHistory(t, {
     analyses,
     openIssues: createOpenIssues(600, '2025-12-01T00:00:00Z', 'js'),
@@ -729,20 +817,135 @@ test('runIssueHistory retries the full issue snapshot fetch when a later open-is
     jobStartedAt: '2026-05-10T03:10:46Z',
     jobCompletedAt: '2026-05-10T03:16:08Z',
     failOnce: {
-      'open:2': 503,
+      [`open:1:${retriedCreatedBefore}`]: 503,
     },
   });
 
   assert.deepEqual(requests.analyses, [1, 2]);
-  assert.deepEqual(requests.open, [1, 2, 1, 2]);
+  assert.deepEqual(requests.open, [1, 1, 1, 1, 1, 1, 1]);
   assert.deepEqual(requests.resolved, [1]);
   assert.deepEqual(report.summary, { OK: 1 });
+  assert.equal(requests.openCreatedBefore.length, 7);
+  assert.equal(requests.openCreatedBefore.filter(value => value === retriedCreatedBefore).length, 2);
 
   const row = report.rows[0];
   assert.equal(row.project_key, 'js:RetriedProject');
   assert.equal(row.status, 'OK');
   assert.equal(row.current_value, 600);
   assert.equal(row.baseline_value, 600);
+});
+
+test('runIssueHistory retries only the failed analyses page when Peach fetch rejects', async t => {
+  const analyses = createDailyAnalyses('2026-01-01T03:00:00Z', 131);
+  const { report, requests } = await runSingleProjectIssueHistory(t, {
+    analyses,
+    openIssues: createOpenIssues(100, '2025-12-01T00:00:00Z', 'js'),
+    resolvedIssues: [],
+    projectKey: 'js:RejectedAnalysesProject',
+    projectName: 'rejected-analyses-project',
+    jobStartedAt: '2026-05-10T03:10:46Z',
+    jobCompletedAt: '2026-05-10T03:16:08Z',
+    failOnce: {
+      'analyses:2': {
+        error: new TypeError('fetch failed'),
+      },
+    },
+  });
+
+  assert.deepEqual(requests.analyses, [1, 2, 2]);
+  assert.deepEqual(requests.open, [1, 1, 1, 1, 1, 1]);
+  assert.deepEqual(requests.resolved, [1]);
+  assert.deepEqual(report.summary, { OK: 1 });
+
+  const row = report.rows[0];
+  assert.equal(row.project_key, 'js:RejectedAnalysesProject');
+  assert.equal(row.status, 'OK');
+  assert.equal(row.current_value, 100);
+  assert.equal(row.baseline_value, 100);
+});
+
+test('runIssueHistory retries only the failed open issue count query when Peach returns malformed JSON', async t => {
+  const analyses = createDailyAnalyses('2026-01-01T03:00:00Z', 131);
+  const retriedCreatedBefore = formatExclusivePeachTimestamp(analyses[129].date);
+  const { report, requests } = await runSingleProjectIssueHistory(t, {
+    analyses,
+    openIssues: createOpenIssues(600, '2025-12-01T00:00:00Z', 'js'),
+    resolvedIssues: [],
+    projectKey: 'js:MalformedJsonProject',
+    projectName: 'malformed-json-project',
+    jobStartedAt: '2026-05-10T03:10:46Z',
+    jobCompletedAt: '2026-05-10T03:16:08Z',
+    failOnce: {
+      [`open:1:${retriedCreatedBefore}`]: {
+        invalidJson: true,
+      },
+    },
+  });
+
+  assert.deepEqual(requests.analyses, [1, 2]);
+  assert.deepEqual(requests.open, [1, 1, 1, 1, 1, 1, 1]);
+  assert.deepEqual(requests.resolved, [1]);
+  assert.deepEqual(report.summary, { OK: 1 });
+  assert.equal(requests.openCreatedBefore.length, 7);
+  assert.equal(requests.openCreatedBefore.filter(value => value === retriedCreatedBefore).length, 2);
+
+  const row = report.rows[0];
+  assert.equal(row.project_key, 'js:MalformedJsonProject');
+  assert.equal(row.status, 'OK');
+  assert.equal(row.current_value, 600);
+  assert.equal(row.baseline_value, 600);
+});
+
+test('runIssueHistory retries bogus unknown-url 404 responses from project analyses', async t => {
+  const analyses = createDailyAnalyses('2026-04-26T03:10:35Z', 6);
+  const { report, requests } = await runSingleProjectIssueHistory(t, {
+    analyses,
+    openIssues: createOpenIssues(100, '2026-04-01T00:00:00Z', 'js'),
+    resolvedIssues: [],
+    projectKey: 'js:RetriedUnknownAnalysesProject',
+    projectName: 'retried-unknown-analyses-project',
+    failOnce: {
+      'analyses:1': {
+        status: 404,
+        body: '{"errors":[{"msg":"Unknown url : /api/project_analyses/search"}]}',
+      },
+    },
+  });
+
+  assert.deepEqual(requests.analyses, [1, 1]);
+  assert.deepEqual(report.summary, { OK: 1 });
+
+  const row = report.rows[0];
+  assert.equal(row.project_key, 'js:RetriedUnknownAnalysesProject');
+  assert.equal(row.status, 'OK');
+});
+
+test('runIssueHistory retries bogus unknown-url 404 responses from open issue count queries', async t => {
+  const analyses = createDailyAnalyses('2026-04-26T03:10:35Z', 6);
+  const retriedCreatedBefore = formatExclusivePeachTimestamp(analyses[analyses.length - 1].date);
+  const { report, requests } = await runSingleProjectIssueHistory(t, {
+    analyses,
+    openIssues: createOpenIssues(100, '2026-04-01T00:00:00Z', 'js'),
+    resolvedIssues: [],
+    projectKey: 'js:RetriedUnknownIssuesProject',
+    projectName: 'retried-unknown-issues-project',
+    failOnce: {
+      [`open:1:${retriedCreatedBefore}`]: {
+        status: 404,
+        body: '{"errors":[{"msg":"Unknown url : /api/issues/search"}]}',
+      },
+    },
+  });
+
+  assert.deepEqual(requests.open, [1, 1, 1, 1, 1, 1, 1]);
+  assert.deepEqual(requests.resolved, [1]);
+  assert.deepEqual(report.summary, { OK: 1 });
+  assert.equal(requests.openCreatedBefore.length, 7);
+  assert.equal(requests.openCreatedBefore.filter(value => value === retriedCreatedBefore).length, 2);
+
+  const row = report.rows[0];
+  assert.equal(row.project_key, 'js:RetriedUnknownIssuesProject');
+  assert.equal(row.status, 'OK');
 });
 
 test('runIssueHistory omits drop metrics when a row has insufficient history', async t => {
