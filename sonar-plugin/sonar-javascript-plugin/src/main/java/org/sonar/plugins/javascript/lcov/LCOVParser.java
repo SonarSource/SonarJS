@@ -221,7 +221,7 @@ class LCOVParser {
     }
     FilePredicates predicates = context.fileSystem().predicates();
     if (new File(sanitizedPath).isAbsolute()) {
-      return context.fileSystem().inputFile(predicates.hasAbsolutePath(sanitizedPath));
+      return inputFileByAbsolutePath(predicates, sanitizedPath);
     }
     return context.fileSystem().inputFile(predicates.hasPath(sanitizedPath));
   }
@@ -233,10 +233,37 @@ class LCOVParser {
       return null;
     }
 
-    Path resolvedPath = reportFile.getParentFile().toPath().resolve(sanitizedPath).normalize();
-    return context
-      .fileSystem()
-      .inputFile(context.fileSystem().predicates().hasAbsolutePath(resolvedPath.toString()));
+    File reportDirectory = reportFile.getParentFile();
+    if (reportDirectory == null) {
+      return null;
+    }
+
+    FilePredicates predicates = context.fileSystem().predicates();
+    Path analysisBaseDir = context.fileSystem().baseDir().toPath().toAbsolutePath().normalize();
+    for (
+      Path currentDirectory = reportDirectory.toPath().toAbsolutePath().normalize();
+      currentDirectory != null;
+      currentDirectory = currentDirectory.getParent()
+    ) {
+      InputFile inputFile = inputFileByAbsolutePath(
+        predicates,
+        currentDirectory.resolve(sanitizedPath).normalize().toString()
+      );
+      if (inputFile != null) {
+        return inputFile;
+      }
+      if (
+        currentDirectory.equals(analysisBaseDir) || !currentDirectory.startsWith(analysisBaseDir)
+      ) {
+        break;
+      }
+    }
+    return null;
+  }
+
+  @CheckForNull
+  private InputFile inputFileByAbsolutePath(FilePredicates predicates, String absolutePath) {
+    return context.fileSystem().inputFile(predicates.hasAbsolutePath(absolutePath));
   }
 
   private static class FileData {

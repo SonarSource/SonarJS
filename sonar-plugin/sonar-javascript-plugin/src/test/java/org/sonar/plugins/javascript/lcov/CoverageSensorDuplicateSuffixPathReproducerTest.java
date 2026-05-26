@@ -109,6 +109,63 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
   }
 
   @Test
+  void should_resolve_package_relative_lcov_paths_against_report_ancestor_directories()
+    throws Exception {
+    DefaultInputFile packageA = tsInputFile(
+      "packages/a/src/index.ts",
+      String.join(
+          "\n",
+          "export const fromA = 1;",
+          "export function fromPackageA() {",
+          "  return fromA;",
+          "}"
+        ) +
+        "\n"
+    );
+    DefaultInputFile packageB = tsInputFile(
+      "packages/b/src/index.ts",
+      String.join(
+          "\n",
+          "export const fromB = 1;",
+          "export function fromPackageB() {",
+          "  return fromB + 1;",
+          "}",
+          "export const uncoveredButCounted = fromB + 2;"
+        ) +
+        "\n"
+    );
+
+    Path packageACoverageDir = Files.createDirectories(tempDir.resolve("packages/a/coverage"));
+    Path packageBCoverageDir = Files.createDirectories(tempDir.resolve("packages/b/coverage"));
+    Path packageALcov = packageACoverageDir.resolve("lcov.info");
+    Path packageBLcov = packageBCoverageDir.resolve("lcov.info");
+    Files.write(
+      packageALcov,
+      String.join("\n", "SF:src/index.ts", "DA:1,1", "end_of_record", "").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+    Files.write(
+      packageBLcov,
+      String.join("\n", "SF:src/index.ts", "DA:5,1", "end_of_record", "").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+
+    settings.setProperty(
+      JavaScriptPlugin.LCOV_REPORT_PATHS,
+      packageALcov.toAbsolutePath() + "," + packageBLcov.toAbsolutePath()
+    );
+    coverageSensor.execute(context);
+
+    assertThat(context.lineHits(packageA.key(), 1)).isEqualTo(1);
+    assertThat(context.lineHits(packageB.key(), 5)).isEqualTo(1);
+    assertThat(logTester.logs(Level.DEBUG)).noneMatch(log ->
+      log.contains("Ambiguous LCOV path 'src/index.ts'")
+    );
+  }
+
+  @Test
   void should_guess_when_duplicate_suffix_match_is_ambiguous() throws Exception {
     DefaultInputFile packageA = tsInputFile(
       "packages/a/src/index.ts",
