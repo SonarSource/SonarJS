@@ -27,12 +27,10 @@ import {
   typeMatrix,
 } from './helpers.js';
 import { readFile } from 'fs/promises';
-import { GENERATED_SOURCE_IRRELEVANT_RULES } from './generated-source-irrelevant-rules.js';
 
 const sonarWayProfile = JSON.parse(
   await readFile(join(METADATA_FOLDER, `Sonar_way_profile.json`), 'utf-8'),
 );
-const generatedSourceIrrelevantRules = new Set(GENERATED_SOURCE_IRRELEVANT_RULES);
 
 /**
  * From the RSPEC json file, creates a generated-meta.ts file with ESLint formatted metadata
@@ -51,11 +49,12 @@ export async function generateMetaForRule(
 
   const ruleFolder = join(RULES_FOLDER, sonarKey);
   const eslintConfiguration = await getESLintDefaultConfiguration(sonarKey);
+  const tags = ruleRspecMeta.tags;
 
   // Extract ES year from tags like ["es2022", "performance"]
-  const ecmaTag = ruleRspecMeta.tags.find((t: string) => /^es20\d\d$/i.test(t));
+  const ecmaTag = tags.find((t: string) => /^es20\d\d$/i.test(t));
   const requiredEcmaVersion = ecmaTag ? Number.parseInt(ecmaTag.slice(2), 10) : undefined;
-  const requiredModuleType = getRequiredModuleType(sonarKey, ruleRspecMeta.tags);
+  const requiredModuleType = getRequiredModuleType(sonarKey, tags);
 
   await inflateTemplateToFile(
     join(TS_TEMPLATES_FOLDER, 'generated-meta.template'),
@@ -66,14 +65,14 @@ export async function generateMetaForRule(
       ___RULE_KEY___: sonarKey,
       ___DESCRIPTION___: ruleRspecMeta.title.replace(/'/g, "\\'"),
       ___RECOMMENDED___: sonarWayProfile.ruleKeys.includes(sonarKey),
-      ___TYPE_CHECKING___: `${ruleRspecMeta.tags.includes('type-dependent')}`,
+      ___TYPE_CHECKING___: `${tags.includes('type-dependent')}`,
       ___FIXABLE___: ruleRspecMeta.quickfix === 'covered' ? "'code'" : undefined,
       ___DEPRECATED___: `${ruleRspecMeta.status === 'deprecated'}`,
       ___DEFAULT_OPTIONS___: JSON.stringify(defaultOptions(eslintConfiguration), null, 2),
       ___LANGUAGES___: JSON.stringify(ruleRspecMeta.compatibleLanguages),
       ___SCOPE___: ruleRspecMeta.scope,
       ___REQUIRED_DEPENDENCY___: JSON.stringify(ruleRspecMeta.extra?.requiredDependency ?? []),
-      ___SKIP_ON_GENERATED_SOURCE___: `${generatedSourceIrrelevantRules.has(sonarKey)}`,
+      ___SKIP_ON_GENERATED_SOURCE___: `${tags.includes('editable-source')}`,
       ___REQUIRED_MODULE_TYPE_EXPORT___:
         requiredModuleType !== undefined
           ? `export const requiredModuleType = '${requiredModuleType}';`
