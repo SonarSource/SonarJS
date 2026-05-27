@@ -22,14 +22,17 @@ import { childrenOf, getNodeParent } from '../ancestor.js';
 import { isIdentifier } from '../ast.js';
 import type { RequiredParserServices } from '../parser-services.js';
 import { areSameTypeDeclarations, getTypeFromTreeNode } from '../type.js';
+import {
+  isClassComponentNode,
+  isComponentNode,
+  isFunctionComponentNode,
+  type ClassComponentNode,
+  type ComponentNode,
+  type FunctionComponentNode,
+} from './component-nodes.js';
 
-const COMPONENT_NODE_TYPES = new Set([
-  'ClassDeclaration',
-  'ClassExpression',
-  'FunctionDeclaration',
-  'FunctionExpression',
-  'ArrowFunctionExpression',
-]);
+export { isComponentNode, type ComponentNode } from './component-nodes.js';
+
 const REACT_LOCAL_CLASS_SUPERS = new Set(['Component', 'PureComponent']);
 const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
 const REACT_FORWARD_REF_RENDER_FUNCTION_TYPES = new Set(['ForwardRefRenderFunction']);
@@ -40,16 +43,6 @@ export type ComponentAnalysis = {
   enclosingTypePropsTypeCandidates: ts.Type[];
   classNonPropsTypeCandidates: ts.Type[];
 };
-export type ComponentNode =
-  | estree.ClassDeclaration
-  | estree.ClassExpression
-  | estree.FunctionDeclaration
-  | estree.FunctionExpression
-  | estree.ArrowFunctionExpression;
-type FunctionComponentNode =
-  | estree.FunctionDeclaration
-  | estree.FunctionExpression
-  | estree.ArrowFunctionExpression;
 export type CollectedComponent = {
   componentNode: ComponentNode;
   componentIdentifier: estree.Identifier | undefined;
@@ -61,26 +54,12 @@ const EMPTY_COMPONENT_ANALYSIS: ComponentAnalysis = {
   classNonPropsTypeCandidates: [],
 };
 
-function isClassComponentNode(
-  node: estree.Node,
-): node is estree.ClassDeclaration | estree.ClassExpression {
-  return node.type === 'ClassDeclaration' || node.type === 'ClassExpression';
-}
-
-function isFunctionComponentNode(node: estree.Node): node is FunctionComponentNode {
-  return (
-    node.type === 'FunctionDeclaration' ||
-    node.type === 'FunctionExpression' ||
-    node.type === 'ArrowFunctionExpression'
-  );
-}
-
 function hasIdentifierId(node: estree.Node): node is estree.Node & { id: estree.Identifier } {
   return 'id' in node && node.id != null && isIdentifier(node.id);
 }
 
 function getClassComponentTsNode(
-  componentNode: estree.ClassDeclaration | estree.ClassExpression,
+  componentNode: ClassComponentNode,
   services: RequiredParserServices,
 ): ts.ClassLikeDeclaration {
   return services.esTreeNodeToTSNodeMap.get(
@@ -210,7 +189,7 @@ function getFunctionComponentPropsTypeCandidates(
 }
 
 function getClassComponentPropsTypeCandidates(
-  componentNode: estree.ClassDeclaration | estree.ClassExpression,
+  componentNode: ClassComponentNode,
   services: RequiredParserServices,
 ): ts.Type[] {
   const checker = services.program.getTypeChecker();
@@ -417,10 +396,6 @@ function hasRenderMethodOrProperty(componentNode: estree.Node): boolean {
       member.key.type === 'Identifier' &&
       member.key.name === 'render',
   );
-}
-
-export function isComponentNode(node: estree.Node): node is ComponentNode {
-  return COMPONENT_NODE_TYPES.has(node.type);
 }
 
 function isCollectedComponent(
