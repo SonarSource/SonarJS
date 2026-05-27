@@ -17,13 +17,8 @@
 // https://sonarsource.github.io/rspec/#/rspec/S6842/javascript
 
 import type { ESLintConfiguration } from '../helpers/configs.js';
-import { getUpstreamAllowlist } from './upstream.js';
+import { getUpstreamRecommendedFields } from '../external/a11y.js';
 
-const allowlist = getUpstreamAllowlist();
-
-export const fields = [
-  Object.entries(allowlist).map(([field, roles]) => ({
-    field,
-    default: roles,
-  })),
-] as const satisfies ESLintConfiguration;
+export const fields: ESLintConfiguration = [
+  getUpstreamRecommendedFields('no-noninteractive-element-to-interactive-role'),
+];

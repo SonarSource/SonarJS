@@ -14,16 +14,31 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { deepStrictEqual, ok, throws } from 'node:assert';
+import { deepStrictEqual, ok } from 'node:assert';
 import { describe, it } from 'node:test';
+import { getUpstreamRecommendedConfiguration } from '../external/a11y.js';
 import { defaultOptions } from '../helpers/configs.js';
 import { fields } from './config.js';
 import { rule } from './index.js';
-import { extractUpstreamAllowlist, getUpstreamAllowlist } from './upstream.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
-import type { Allowlist } from './upstream.js';
 
-const UPSTREAM_ALLOWLIST = getUpstreamAllowlist();
+type Allowlist = Record<string, string[]>;
+
+function isAllowlist(
+  configuration: Record<string, boolean | string[]>,
+): configuration is Allowlist {
+  return Object.values(configuration).every(Array.isArray);
+}
+
+const upstreamConfiguration = getUpstreamRecommendedConfiguration(
+  'no-noninteractive-element-to-interactive-role',
+);
+if (!isAllowlist(upstreamConfiguration)) {
+  throw new Error(
+    'eslint-plugin-jsx-a11y: expected S6842 upstream config to contain only string[] values',
+  );
+}
+const UPSTREAM_ALLOWLIST = upstreamConfiguration;
 
 const OPTIONS = defaultOptions(fields) as [Allowlist];
 const [allowlist] = OPTIONS;
@@ -71,13 +86,6 @@ const VALID_CASES = [
 ];
 
 describe('S6842', () => {
-  it('should fail clearly when the upstream allowlist cannot be read', () => {
-    throws(
-      () => extractUpstreamAllowlist({ configs: { recommended: { rules: {} } } }),
-      /upstream allowlist.*not found/i,
-    );
-  });
-
   it('should expose the upstream recommended allowlist as default options', () => {
     deepStrictEqual(allowlist, UPSTREAM_ALLOWLIST);
   });

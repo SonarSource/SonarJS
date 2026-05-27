@@ -14,11 +14,11 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S6847/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S6848/javascript
 
 import type { ESLintConfiguration } from '../helpers/configs.js';
 import { getUpstreamRecommendedFields } from '../external/a11y.js';
 
 export const fields: ESLintConfiguration = [
-  getUpstreamRecommendedFields('no-noninteractive-element-interactions'),
+  getUpstreamRecommendedFields('no-static-element-interactions'),
 ];

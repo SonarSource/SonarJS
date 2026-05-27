@@ -103,7 +103,7 @@ function mergeRuleOptionValue(base: unknown, override: unknown): unknown {
     return override;
   }
 
-  if (isRecord(base) && isRecord(override)) {
+  if (isObjectLike(base) && isObjectLike(override)) {
     const mergedEntries = Object.entries(override).map(([key, value]) => [
       key,
       mergeRuleOptionValue(base[key], value),
@@ -118,7 +118,7 @@ function mergeRuleOptionValue(base: unknown, override: unknown): unknown {
   return override;
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
+export function isObjectLike(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
