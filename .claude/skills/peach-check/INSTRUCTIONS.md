@@ -24,8 +24,16 @@ ownership.
 - Run from the SonarJS repository.
 - Verify GitHub auth first with `gh auth status`.
 - Ensure the current GitHub identity can access `SonarSource/peachee-js`.
-- Ensure `PEACH_KEY` and `PEACHEE_ROOT` are set, and that `PEACHEE_ROOT` points to a local
-  `peachee-js` checkout.
+- Ensure `PEACH_KEY` is set.
+- Know the path to a local `peachee-js` checkout. If `PEACHEE_ROOT` is set, use it. Otherwise
+  pass the checkout path explicitly to the helper scripts.
+- If `PEACHEE_ROOT` is unset and the checkout path is not obvious, locate it before continuing,
+  for example:
+
+```bash
+find ~ -maxdepth 4 -type d -name peachee-js
+```
+
 - Parallelize independent job triage work when the runtime permits it, but do not chain shell commands.
 
 ## Command Discipline
@@ -43,6 +51,17 @@ ownership.
 - With `run-id`: analyze that specific run.
 
 ## Workflow
+
+### Quick green path
+
+This is the common case:
+
+1. Resolve the run.
+2. Collect project jobs.
+3. Run the analysis-consistency helper.
+4. If `target/failed-jobs.json` reports `0` failed jobs and the problematic-history query returns
+   `[]`, print the `SAFE` summary and stop.
+5. Only continue to DROP forensics or log triage when step 4 fails.
 
 ### 1. Resolve the run
 
@@ -77,6 +96,9 @@ rest of the workflow:
 ```bash
 node .claude/skills/peach-check/peach-run-jobs.js RUN_ID target
 ```
+
+The helper is usually silent on success. Inspect the JSON files it writes rather than waiting for
+stdout.
 
 The script calls `gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?per_page=100"`
 from Node.js, falls back to explicit `?page=N` fetches if the paginated response comes back short,
@@ -162,9 +184,15 @@ Use the repo-local helper:
 ```bash
 node .claude/skills/peach-check/peach-issue-history.js \
   target/project-jobs.json \
-  "${PEACHEE_ROOT}" \
+  PEACHEE_ROOT_OR_PATH \
   target/peach-issue-history.json
 ```
+
+Use `${PEACHEE_ROOT}` when it is set, otherwise pass the explicit checkout path.
+
+The helper is usually silent on success and can take tens of seconds across the full project
+matrix. Wait for `target/peach-issue-history.json` to be written, then inspect that file instead
+of expecting stdout.
 
 The helper script reads:
 
@@ -213,6 +241,9 @@ jq '
   )]
 ' target/peach-issue-history.json
 ```
+
+`target/peach-issue-history.json.summary` may omit statuses whose count is `0`. When writing the
+final report, render omitted statuses as `0` instead of leaving them out.
 
 Each `DROP` finding should include:
 
@@ -280,18 +311,20 @@ gh run download PREVIOUS_RUN_ID \
 Pass SARIF paths newest first; the helper will automatically pick the first candidate that
 contains results for the project.
 
-3. Run the helper with the project key, source job name, `PEACHEE_ROOT`, an output path, and the
-   extracted `.sarif` files you want to inspect:
+3. Run the helper with the project key, source job name, `PEACHEE_ROOT_OR_PATH`, an output path,
+   and the extracted `.sarif` files you want to inspect:
 
 ```bash
 node .claude/skills/peach-check/peach-drop-forensics.js \
   PROJECT_KEY \
   SOURCE_JOB_NAME \
-  "${PEACHEE_ROOT}" \
+  PEACHEE_ROOT_OR_PATH \
   target/peach-drop-forensics/PROJECT_KEY.json \
   CURRENT_MERGED_SARIF_PATH \
   [PREVIOUS_MERGED_SARIF_PATH ...]
 ```
+
+Use `${PEACHEE_ROOT}` when it is set, otherwise pass the explicit checkout path.
 
 The helper reports:
 
@@ -490,7 +523,25 @@ Do not emit `prepare-project-matrix` or `diff-validation-aggregated` as findings
 exclusion line that names the excluded workflow jobs and prints both exclusion counts, for example
 `Excluded by design: prepare-project-matrix, diff-validation-aggregated (workflow jobs excluded: 2, project jobs excluded: 0)`.
 
-Use this structure:
+Use one of these structures:
+
+Clean run example:
+
+```text
+## Peach Main Analysis — Run RUN_ID (DATE)
+
+Excluded by design: prepare-project-matrix, diff-validation-aggregated (workflow jobs excluded: 2, project jobs excluded: 0)
+
+### Summary
+- CRITICAL: 0 jobs
+- NEEDS-MANUAL-REVIEW: 0 items
+- IGNORE: 0 jobs
+- Analysis-consistency check: OK=245, DROP=0, INSUFFICIENT_HISTORY=0, STALE=0, UNRESOLVED_PROJECT=0, ERROR=0
+
+Release recommendation: SAFE
+```
+
+Failure-oriented example:
 
 ```text
 ## Peach Main Analysis — Run RUN_ID (DATE)
