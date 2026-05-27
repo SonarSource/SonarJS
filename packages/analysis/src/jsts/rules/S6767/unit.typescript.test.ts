@@ -34,7 +34,7 @@ describe('S6767 TypeScript coverage', () => {
       valid: [
         {
           // FP: TypeScript function component with props delegation — Strategy C finds
-          // the component and recognizes the whole props object as used.
+          // the component and hasPropsCall suppresses the report.
           code: `
 declare const React: any;
 interface CardProps {
@@ -49,7 +49,7 @@ function Card(props: CardProps) {
         },
         {
           // FP: TypeScript class component with this.props delegation — Strategy C
-          // matches BarProps to Bar via matchesClassProps and recognizes getStyle(this.props).
+          // matches BarProps to Bar via matchesClassProps, hasPropsCall finds getStyle(this.props).
           code: `
 declare const React: any;
 interface BarProps {
@@ -66,7 +66,7 @@ class Bar extends React.Component<BarProps> {
         },
         {
           // FP: TypeScript function component spreads props — Strategy C matches
-          // MyComponentProps to MyComponent and recognizes the SpreadElement.
+          // MyComponentProps to MyComponent, hasPropsCall finds the SpreadElement.
           code: `
 declare const React: any;
 interface MyComponentProps {
@@ -81,7 +81,7 @@ function MyComponent(props: MyComponentProps) {
         },
         {
           // FP: TypeScript class component with this.props[key] — Strategy C matches
-          // VictoryAxisProps to VictoryAxis via matchesClassProps and recognizes computed member access.
+          // VictoryAxisProps to VictoryAxis via matchesClassProps, hasPropsCall finds computed MemberExpression.
           code: `
 declare const React: any;
 interface VictoryAxisProps {
@@ -168,25 +168,8 @@ class ForwardedCounterPanel extends CounterPanelBase {
           filename: fixtureFile,
         },
         {
-          // FP: wrapped callbacks still resolve through the owning variable, so the
-          // forwardRef closure escape continues to suppress WrappedProps.label.
-          code: `
-declare const React: any;
-interface WrappedProps {
-  label: string;
-}
-const Wrapped = React.memo(function (props: WrappedProps) {
-  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
-    <label ref={ref}>{props.label}</label>
-  ));
-  return <ForwardedInput />;
-});
-`,
-          filename: fixtureFile,
-        },
-        {
           // FP: whole props are only forwarded to the custom superclass, never accessed locally.
-          // This isolates hasOwnCustomSuperclassPropsForwarding from other whole-props escapes.
+          // This isolates hasOwnCustomSuperclassPropsForwarding from hasPropsCall.
           code: `
 declare const React: any;
 interface ForwardedOnlyProps {
@@ -202,11 +185,35 @@ class ForwardedOnlyPanel extends CounterPanelBase {
     return <span>ready</span>;
   }
 }
+        `,
+          filename: fixtureFile,
+        },
+        {
+          // FP: upstream can misreport the second React class type parameter when a
+          // third type parameter is also present. The decorator suppresses these
+          // non-props generic declarations explicitly.
+          code: `
+declare const React: any;
+interface AnchorState {
+  activeLink: null | string;
+}
+interface AnchorProps {
+  href?: string;
+}
+interface AnchorSnapshot {
+  scrollTop: number;
+}
+class Anchor extends React.Component<AnchorProps, AnchorState, AnchorSnapshot> {
+  render() {
+    const { activeLink } = this.state;
+    return <a href={this.props.href}>{activeLink}</a>;
+  }
+}
 `,
           filename: fixtureFile,
         },
         {
-          // FP: decorator-factory callback reads typed component props.
+          // FP: decorator-factory callback uses props
           code: `
 declare const React: any;
 declare function track<P>(
@@ -227,6 +234,238 @@ track((props: DecoratorFactoryProps) => ({
           filename: fixtureFile,
         },
         {
+          // FP: identical generic alias instantiations with `any` type arguments
+          // must still count as the same declared props type.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+type Box<T> = {
+  contextModule: string;
+  payload: T;
+};
+function AnyGenericComponent(props: Box<any>) {
+  return <div>{String(props.payload)}</div>;
+}
+track((props: Box<any>) => ({
+  context_module: props.contextModule,
+}))(AnyGenericComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: identical generic alias instantiations with `unknown` type arguments
+          // must still count as the same declared props type.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+type Box<T> = {
+  contextModule: string;
+  payload: T;
+};
+function UnknownGenericComponent(props: Box<unknown>) {
+  return <div>{String(props.payload)}</div>;
+}
+track((props: Box<unknown>) => ({
+  context_module: props.contextModule,
+}))(UnknownGenericComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: nested generic instantiations stay equal when their innermost type
+          // argument is an alias to `any`.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+type AnyAlias = any;
+type Inner<T> = {
+  value: T;
+};
+type Box<T> = {
+  contextModule: string;
+  payload: T;
+};
+function NestedAnyAliasComponent(props: Box<Inner<AnyAlias>>) {
+  return <div>{String(props.payload.value)}</div>;
+}
+track((props: Box<Inner<AnyAlias>>) => ({
+  context_module: props.contextModule,
+}))(NestedAnyAliasComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: identical generic alias instantiations with primitive type arguments
+          // must still count as the same declared props type.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+type Box<T> = {
+  contextModule: string;
+  payload: T;
+};
+function PrimitiveGenericComponent(props: Box<string>) {
+  return <div>{props.payload}</div>;
+}
+track((props: Box<string>) => ({
+  context_module: props.contextModule,
+}))(PrimitiveGenericComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: identical generic alias instantiations with anonymous object type
+          // arguments must still count as the same declared props type.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+type Box<T> = {
+  contextModule: string;
+  payload: T;
+};
+function ObjectGenericComponent(props: Box<{ x: number }>) {
+  return <div>{props.payload.x}</div>;
+}
+track((props: Box<{ x: number }>) => ({
+  context_module: props.contextModule,
+}))(ObjectGenericComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: decorator-factory callback uses outer binding of named function expression
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface NamedExpressionProps {
+  label: string;
+  contextModule: string;
+}
+const WrappedComponent = function InnerWrappedComponent(props: NamedExpressionProps) {
+  return <div>{props.label}</div>;
+};
+track((props: NamedExpressionProps) => ({
+  context_module: props.contextModule,
+}))(WrappedComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: wrapped function expressions must keep the outer component binding
+          // so decorator targets still resolve to `Wrapped`, not the inner function id.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface WrappedDecoratorProps {
+  label: string;
+  contextModule: string;
+}
+const Wrapped = React.memo(function InnerWrappedComponent(props: WrappedDecoratorProps) {
+  return <div>{props.label}</div>;
+});
+track((props: WrappedDecoratorProps) => ({
+  context_module: props.contextModule,
+}))(Wrapped);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: parenthesized aliases and quoted member keys still resolve back to the
+          // reported enclosing type and reported type member.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface SharedLiteralProps {
+  'data-id': string;
+}
+type WrappedLiteralProps = (SharedLiteralProps);
+function LiteralKeyComponent(props: WrappedLiteralProps) {
+  return <div />;
+}
+track((props: SharedLiteralProps) => ({
+  data_id: props['data-id'],
+}))(LiteralKeyComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: method-signature props follow the same reported type member path as
+          // property signatures.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface CallbackProps {
+  onSelect(): void;
+}
+function CallbackComponent(props: CallbackProps) {
+  return <div />;
+}
+track((props: CallbackProps) => ({
+  on_select: props.onSelect,
+}))(CallbackComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: wrapped function expressions must also keep the outer binding for
+          // forwardRef closure analysis inside the component body.
+          code: `
+declare const React: any;
+interface WrappedProps {
+  label: string;
+}
+const Wrapped = React.memo(function (props: WrappedProps) {
+  const ForwardedInput = React.forwardRef((_: any, ref: any) => (
+    <label ref={ref}>{props.label}</label>
+  ));
+  return <ForwardedInput />;
+});
+`,
+          filename: fixtureFile,
+        },
+        {
+          // Compliant: upstream tracks class decorator member reads
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAnnotationProps {
+  contextModule: string;
+  userId: string;
+}
+@track((props: DecoratorAnnotationProps) => ({
+  context_module: props.contextModule,
+  user_id: props.userId,
+}))
+class DecoratorAnnotationComponent extends React.Component<DecoratorAnnotationProps> {
+  props: DecoratorAnnotationProps;
+  render() {
+    return <div />;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: decorator-factory callback forwards typed props to a helper.
           code: `
 declare const React: any;
@@ -243,6 +482,29 @@ function DecoratorHelperComponent(props: DecoratorHelperProps) {
 screenTrack(function (props: DecoratorHelperProps) {
   return buildPayload(props);
 })(DecoratorHelperComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          // FP: class decorator callback forwards typed props
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function screenTrack<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAnnotationHelperProps {
+  screenName: string;
+}
+@screenTrack(function (props: DecoratorAnnotationHelperProps) {
+  return buildPayload(props);
+})
+class DecoratorAnnotationHelperComponent extends React.Component<DecoratorAnnotationHelperProps> {
+  props: DecoratorAnnotationHelperProps;
+  render() {
+    return <main />;
+  }
+}
 `,
           filename: fixtureFile,
         },
@@ -319,6 +581,38 @@ class FooComp extends React.Component<FooProps> {
           errors: 1,
         },
         {
+          // TP: default anonymous function component has no component identifier.
+          code: `
+declare const React: any;
+interface DefaultProps {
+  used: string;
+  unused: string;
+}
+export default function (props: DefaultProps) {
+  return <div>{props.used}</div>;
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: named function expression remains reportable without decorator usage.
+          code: `
+declare const React: any;
+interface FunctionExpressionProps {
+  used: string;
+  unused: string;
+}
+const FunctionExpressionComponent = function InnerFunctionExpression(
+  props: FunctionExpressionProps,
+) {
+  return <div>{props.used}</div>;
+};
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
           // TP: suppression is owner-local. The base component still reports even if
           // a subclass elsewhere forwards whole props to its own custom superclass.
           code: `
@@ -351,9 +645,104 @@ class DerivedForwarder extends CustomIntermediateBase {
           errors: 1,
         },
         {
+          // TP: a mixed props/state declaration must keep the props-side report
+          // even when the state-owning class appears first in source order.
+          code: `
+declare const React: any;
+interface SharedType {
+  unused: string;
+}
+interface Snapshot {
+  scrollTop: number;
+}
+class StateOwner extends React.Component<{}, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+class PropsOwner extends React.Component<SharedType> {
+  render() {
+    return <div />;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: the non-props safeguard stays local to state/snapshot usage and
+          // must not suppress when the same declaration is used as props elsewhere.
+          code: `
+declare const React: any;
+interface SharedType {
+  unused: string;
+}
+interface Snapshot {
+  scrollTop: number;
+}
+class PropsOwner extends React.Component<SharedType> {
+  render() {
+    return <div />;
+  }
+}
+class StateOwner extends React.Component<{}, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: wrapped props contracts still count as props, so a class that also
+          // reuses the same declaration for state must keep the props-side report.
+          code: `
+declare const React: any;
+interface SharedType {
+  unused: string;
+}
+interface Snapshot {
+  scrollTop: number;
+}
+class WrappedPropsOwner extends React.Component<Readonly<SharedType>, SharedType, Snapshot> {
+  render() {
+    return <div>{this.state.unused}</div>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: an `Omit`-based owner leaves the specific member classification at
+          // `other`, but a real props owner in the same file must keep the issue
+          // reportable. `other` is not suppressive evidence.
+          code: `
+declare const React: any;
+interface SharedType {
+  unused: string;
+  kept: string;
+}
+class PropsOwner extends React.Component<SharedType> {
+  render() {
+    return <div>{this.props.kept}</div>;
+  }
+}
+class OmittedMemberOwner extends React.Component<Omit<SharedType, 'unused'>> {
+  render() {
+    return <div>{this.props.kept}</div>;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
           // TP: a shared base props declaration can belong to multiple components.
           // The wrapper forwards whole props to the child, but the child still leaves
-          // the inherited prop unused, so the report must remain.
+          // the inherited prop unused. The decorator must keep the issue unless every
+          // owning component matches an FP suppression pattern.
           code: `
 import * as React from 'react';
 interface SharedProps {
@@ -395,6 +784,129 @@ class PageWrapper extends React.Component<PageWrapperProps> {
   }
   render() {
     return <InnerPageWrapper {...this.props} />;
+  }
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: unrelated decorator callback
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratedProps {
+  contextModule: string;
+}
+interface PlainProps {
+  title: string;
+  color: string;
+}
+function DecoratedComponent(props: DecoratedProps) {
+  return <div />;
+}
+track((props: DecoratedProps) => ({
+  context_module: props.contextModule,
+}))(DecoratedComponent);
+function PlainComponent(props: PlainProps) {
+  return <div>{props.title}</div>;
+}
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: decorator-factory application with extra outer arguments is not the
+          // conservative one-target pattern that this escape recognizes.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent, ...extraArgs: unknown[]) => TComponent;
+interface DecoratedProps {
+  contextModule: string;
+}
+function DecoratedComponent(props: DecoratedProps) {
+  return <div />;
+}
+track((props: DecoratedProps) => ({
+  context_module: props.contextModule,
+}))(DecoratedComponent, { unexpected: true });
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: decorator callback parameter is not the component props type.
+          code: `
+declare const React: any;
+declare function decorate<TMetadata>(
+  mapper: (metadata: TMetadata) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratedProps {
+  contextModule: string;
+}
+interface Metadata {
+  contextModule: string;
+}
+function DecoratedComponent(props: DecoratedProps) {
+  return <div />;
+}
+decorate((metadata: Metadata) => ({
+  context_module: metadata.contextModule,
+}))(DecoratedComponent);
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: a generic alias with a different instantiation is not the same props type.
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface UserEntity {
+  userName: string;
+}
+interface ProductEntity {
+  sku: string;
+}
+type WithEntity<T> = {
+  id: string;
+  data: T;
+};
+function ComponentA(props: WithEntity<UserEntity>) {
+  return <div>{props.data.userName}</div>;
+}
+track((props: WithEntity<ProductEntity>) => ({
+  id: props.id,
+}))(ComponentA);
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+        {
+          // TP: class decorator callback forwards metadata, not component props.
+          code: `
+declare const React: any;
+declare function buildPayload<TMetadata>(metadata: TMetadata): Record<string, unknown>;
+declare function decorate<TMetadata>(
+  mapper: (metadata: TMetadata) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratedProps {
+  contextModule: string;
+}
+interface Metadata {
+  contextModule: string;
+}
+@decorate((metadata: Metadata) => buildPayload(metadata))
+class DecoratedComponent extends React.Component<DecoratedProps> {
+  props: DecoratedProps;
+  render() {
+    return <div />;
   }
 }
 `,

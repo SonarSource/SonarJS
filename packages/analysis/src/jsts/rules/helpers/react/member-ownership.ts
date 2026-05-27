@@ -22,27 +22,13 @@ import { ReportedTypeDetails, type ReportedType } from '../reported-type.js';
 import type { RequiredParserServices } from '../parser-services.js';
 
 type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
-type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
+export type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
 
 function isTypeMemberNode(node: TSESTree.Node): node is TypeMemberNode {
   return node.type === 'TSPropertySignature' || node.type === 'TSMethodSignature';
 }
 
-function findEnclosingTypeMember(ancestors: estree.Node[]): TypeMemberNode | undefined {
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    const ancestor = ancestors[i] as TSESTree.Node;
-    if (isTypeMemberNode(ancestor)) {
-      return ancestor;
-    }
-  }
-  return undefined;
-}
-
-function getTypeMemberName(typeMember: TypeMemberNode | undefined): string | undefined {
-  if (!typeMember) {
-    return undefined;
-  }
-
+function getTypeMemberName(typeMember: TypeMemberNode): string | undefined {
   const { key } = typeMember;
   if (key.type === 'Identifier') {
     return key.name;
@@ -59,10 +45,10 @@ export function getReportedTypeMember(
   services: RequiredParserServices,
   checker: ts.TypeChecker,
 ): ReportedTypeMember | undefined {
-  const declaration = findEnclosingTypeMember(ancestors);
-  return ReportedTypeDetails.fromDeclaration(
-    declaration,
-    getTypeMemberName(declaration),
+  return ReportedTypeDetails.fromNearestAncestorDeclaration(
+    ancestors,
+    isTypeMemberNode,
+    getTypeMemberName,
     services,
     checker,
     ts.isTypeElement,
@@ -75,44 +61,22 @@ export function componentPropsIncludeReportedTypeMember(
   reportedType: ReportedType,
   reportedTypeMember: ReportedTypeMember,
 ): boolean {
-  const componentPropsTypeCandidates = componentAnalysis.memberPropsTypeCandidates;
-  if (
-    componentPropsTypeCandidates.some(componentPropsType =>
-      hasExactAssignableReportedTypeMember(componentPropsType, reportedTypeMember, checker),
-    )
-  ) {
-    return true;
-  }
-
-  return componentPropsTypeCandidates.some(
-    componentPropsType =>
-      hasAssignableReportedTypeMember(componentPropsType, reportedTypeMember, checker) &&
-      reportedType.isUsedByType(componentPropsType, checker),
+  return componentAnalysis.memberPropsTypeCandidates.some(componentPropsType =>
+    slotIncludesReportedTypeMember(componentPropsType, checker, reportedType, reportedTypeMember),
   );
 }
 
-function hasExactAssignableReportedTypeMember(
-  componentPropsType: ts.Type,
-  reportedTypeMember: ReportedTypeMember,
+export function slotIncludesReportedTypeMember(
+  slotType: ts.Type,
   checker: ts.TypeChecker,
-): boolean {
-  const componentPropSymbol = getAssignableComponentPropSymbol(
-    componentPropsType,
-    reportedTypeMember,
-    checker,
-  );
-  return componentPropSymbol
-    ? hasExactReportedTypeMemberDeclaration(componentPropSymbol, reportedTypeMember)
-    : false;
-}
-
-function hasAssignableReportedTypeMember(
-  componentPropsType: ts.Type,
+  reportedType: ReportedType,
   reportedTypeMember: ReportedTypeMember,
-  checker: ts.TypeChecker,
 ): boolean {
+  const slotPropSymbol = getAssignableComponentPropSymbol(slotType, reportedTypeMember, checker);
   return (
-    getAssignableComponentPropSymbol(componentPropsType, reportedTypeMember, checker) !== undefined
+    slotPropSymbol !== undefined &&
+    (hasExactReportedTypeMemberDeclaration(slotPropSymbol, reportedTypeMember) ||
+      reportedType.isUsedByType(slotType, checker))
   );
 }
 

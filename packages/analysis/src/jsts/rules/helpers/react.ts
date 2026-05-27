@@ -17,8 +17,14 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { getVariableFromScope, isIdentifier } from './ast.js';
-import { isComponentNode } from './react/component-analysis.js';
+import { getFullyQualifiedName } from './module.js';
+import { isBuiltinReactSuperclassName, isComponentNode } from './react/component-analysis.js';
 import { findComponentOwnersByType } from './react/type-ownership.js';
+
+export { getComponentPropsType, getComponentVariable } from './react/component-analysis.js';
+export { hasOnlyReactClassNonPropsReportedTypeUsage } from './react/type-ownership.js';
+
+const REACT_QUALIFIED_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
 
 function isReactPropTypesAssignment(node: estree.Node): node is estree.AssignmentExpression & {
   left: estree.MemberExpression & { object: estree.Identifier };
@@ -69,8 +75,13 @@ function findPropTypesAssignmentOwner(
  * - a `Foo.propTypes = { ... }` assignment owner
  * - a TypeScript fallback for reported props types
  *
- * The returned nodes are only the owner set for the report. Rule-specific
- * suppression or false-positive handling can be applied afterwards by callers.
+ * The returned nodes are the components that still own the report from a props
+ * validation perspective. For the TypeScript fallback, that means components
+ * classified as `props` or `mixed`; pure `non-props` owners such as state-only
+ * or snapshot-only class usages are intentionally filtered out.
+ *
+ * Rule-specific suppression or false-positive handling can be applied
+ * afterwards by callers.
  *
  * @param node the reported node located inside a React-related construct
  * @param context the current ESLint rule context
@@ -79,25 +90,55 @@ function findPropTypesAssignmentOwner(
 export function findComponentNodes(node: estree.Node, context: Rule.RuleContext): estree.Node[] {
   const ancestors = context.sourceCode.getAncestors(node);
 
-  // Strategy A: direct component ancestor
   for (let i = ancestors.length - 1; i >= 0; i--) {
     if (isComponentNode(ancestors[i])) {
       return [ancestors[i]];
     }
   }
 
-  // Strategy B: Foo.propTypes = {...} assignment ancestor
   for (let i = ancestors.length - 1; i >= 0; i--) {
-    const anc = ancestors[i];
-    if (!isReactPropTypesAssignment(anc)) {
+    const ancestor = ancestors[i];
+    if (!isReactPropTypesAssignment(ancestor)) {
       continue;
     }
-    const defNode = findPropTypesAssignmentOwner(node, context.sourceCode, anc);
-    if (defNode) {
-      return [defNode];
+
+    const owner = findPropTypesAssignmentOwner(node, context.sourceCode, ancestor);
+    if (owner) {
+      return [owner];
     }
   }
 
-  // Strategy C: TypeScript type checker
-  return findComponentOwnersByType(ancestors, context, context.sourceCode.visitorKeys);
+  return findComponentOwnersByType(ancestors, context);
+}
+
+/**
+ * Returns true when an ESTree superclass expression resolves to one of React's
+ * built-in component base classes.
+ *
+ * This recognizes imported aliases such as:
+ * - `import { Component as BaseComponent } from 'react';`
+ * - `import * as UI from 'react';`
+ *
+ * and preserves the existing syntax-based fallback for bare `Component` /
+ * `PureComponent` and `React.Component` / `React.PureComponent`.
+ */
+export function isReactComponentSuperclass(
+  context: Rule.RuleContext,
+  superClass: estree.Expression,
+): boolean {
+  return (
+    REACT_QUALIFIED_CLASS_SUPERS.has(getFullyQualifiedName(context, superClass) ?? '') ||
+    isBuiltinReactSuperclass(superClass)
+  );
+}
+
+function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
+  return (
+    (superClass.type === 'Identifier' &&
+      isBuiltinReactSuperclassName(undefined, superClass.name)) ||
+    (superClass.type === 'MemberExpression' &&
+      isIdentifier(superClass.object, 'React') &&
+      superClass.property.type === 'Identifier' &&
+      isBuiltinReactSuperclassName('React', superClass.property.name))
+  );
 }

@@ -17,35 +17,124 @@
 import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { DefaultParserRuleTester, RuleTester } from '../../tools/testers/rule-tester.js';
-import { getNodeParent } from '../../../../src/jsts/rules/helpers/ancestor.js';
 import { isRequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
-import { findComponentNodes } from '../../../../src/jsts/rules/helpers/react.js';
+import {
+  findComponentNodes,
+  getComponentVariable,
+  getComponentPropsType,
+  isReactComponentSuperclass,
+} from '../../../../src/jsts/rules/helpers/react.js';
 
-function hasIdentifierId(node: estree.Node): node is estree.Node & { id: estree.Identifier } {
-  return 'id' in node && node.id != null && node.id.type === 'Identifier';
-}
-
-function getComponentName(componentNode: estree.Node): string | undefined {
-  const parent = getNodeParent(componentNode);
-  if (
-    (componentNode.type === 'ClassExpression' || componentNode.type === 'FunctionExpression') &&
-    parent?.type === 'VariableDeclarator' &&
-    parent.id.type === 'Identifier'
-  ) {
-    return parent.id.name;
-  }
-
-  if (hasIdentifierId(componentNode)) {
-    return componentNode.id.name;
-  }
-
-  return parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier'
-    ? parent.id.name
-    : undefined;
-}
+const rule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      notReactSuperclass: 'Superclass is not a React component base class',
+    },
+  },
+  create(context: Rule.RuleContext) {
+    return {
+      ClassDeclaration(node) {
+        if (node.superClass && !isReactComponentSuperclass(context, node.superClass)) {
+          context.report({
+            node: node.superClass,
+            messageId: 'notReactSuperclass',
+          });
+        }
+      },
+    };
+  },
+};
 
 const ruleTester = new DefaultParserRuleTester();
 const typeCheckingRuleTester = new RuleTester();
+
+ruleTester.run('isReactComponentSuperclass', rule, {
+  valid: [
+    {
+      code: `
+import { Component as BaseComponent } from 'react';
+
+class Button extends BaseComponent {}
+`,
+    },
+    {
+      code: `
+import * as UI from 'react';
+
+class Button extends UI.Component {}
+`,
+    },
+    {
+      code: `
+class Button extends React.Component {}
+`,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+class CustomBase {}
+
+class Button extends CustomBase {}
+`,
+      errors: 1,
+    },
+  ],
+});
+
+const propsTypeRule: Rule.RuleModule = {
+  meta: {
+    messages: {
+      unresolvedComponentPropsType:
+        'Component props type could not be resolved or did not match the component name',
+    },
+  },
+  create(context: Rule.RuleContext) {
+    const services = context.sourceCode.parserServices;
+    if (!isRequiredParserServices(services)) {
+      return {};
+    }
+
+    const checker = services.program.getTypeChecker();
+    const validateComponentPropsType = (
+      componentNode: estree.Node,
+      expectedName: string,
+      reportNode: estree.Node,
+    ) => {
+      const propsType = getComponentPropsType(componentNode, services);
+      if (checker.typeToString(propsType ?? checker.getNeverType()) !== `${expectedName}Props`) {
+        context.report({
+          node: reportNode,
+          messageId: 'unresolvedComponentPropsType',
+        });
+      }
+    };
+
+    return {
+      FunctionDeclaration(node) {
+        if (node.id) {
+          validateComponentPropsType(node, node.id.name, node);
+        }
+      },
+      ClassDeclaration(node) {
+        if (node.id) {
+          validateComponentPropsType(node, node.id.name, node);
+        }
+      },
+      VariableDeclarator(node) {
+        if (
+          node.id.type !== 'Identifier' ||
+          (node.init?.type !== 'ArrowFunctionExpression' &&
+            node.init?.type !== 'FunctionExpression')
+        ) {
+          return;
+        }
+
+        validateComponentPropsType(node.init, node.id.name, node);
+      },
+    };
+  },
+};
 
 const findComponentNodesRule: Rule.RuleModule = {
   meta: {
@@ -61,7 +150,7 @@ const findComponentNodesRule: Rule.RuleModule = {
 
     const validateComponentOwners = (reportedNode: estree.Node, expectedNames: string[]) => {
       const componentNames = findComponentNodes(reportedNode, context)
-        .map(getComponentName)
+        .map(componentNode => getComponentVariable(context.sourceCode, componentNode)?.name)
         .filter((name): name is string => name !== undefined)
         .sort();
       const sortedExpectedNames = [...expectedNames].sort();
@@ -127,7 +216,7 @@ const propTypesOwnerRule: Rule.RuleModule = {
         }
 
         const componentNames = findComponentNodes(node.key, context)
-          .map(getComponentName)
+          .map(componentNode => getComponentVariable(context.sourceCode, componentNode)?.name)
           .filter((name): name is string => name !== undefined)
           .sort();
 
@@ -142,16 +231,14 @@ const propTypesOwnerRule: Rule.RuleModule = {
   },
 };
 
-typeCheckingRuleTester.run('findComponentNodes', findComponentNodesRule, {
+typeCheckingRuleTester.run('getComponentPropsType', propsTypeRule, {
   valid: [
     {
       code: `
 declare const React: any;
-
 interface ButtonProps {
   label: string;
 }
-
 function Button(props: ButtonProps) {
   return <div>{props.label}</div>;
 }
@@ -160,11 +247,9 @@ function Button(props: ButtonProps) {
     {
       code: `
 declare const React: any;
-
 interface ButtonProps {
   label: string;
 }
-
 class Button extends React.Component<ButtonProps> {
   render() {
     return <div>{this.props.label}</div>;
@@ -172,6 +257,72 @@ class Button extends React.Component<ButtonProps> {
 }
 `,
     },
+    {
+      code: `
+declare const React: any;
+interface ButtonProps {
+  label: string;
+}
+class Button extends React.Component {
+  props: ButtonProps;
+
+  render() {
+    return <div>{this.props.label}</div>;
+  }
+}
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+interface ButtonProps {
+  label: string;
+}
+
+const Button: React.FC<ButtonProps> = props => props.label;
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+interface ButtonProps {
+  label: string;
+}
+
+const Button: React.FC<ButtonProps> & { Group?: string } = props => props.label;
+`,
+    },
+    {
+      code: `
+import * as React from 'react';
+
+interface ButtonProps {
+  label: string;
+}
+
+const Button: React.ForwardRefRenderFunction<unknown, ButtonProps> = (props, ref) => props.label;
+`,
+    },
+  ],
+  invalid: [
+    {
+      code: `
+declare const React: any;
+class Button extends React.Component {
+  render() {
+    return <div />;
+  }
+}
+`,
+      errors: 1,
+    },
+  ],
+});
+
+typeCheckingRuleTester.run('findComponentNodes', findComponentNodesRule, {
+  valid: [
     {
       code: `
 import * as React from 'react';
@@ -317,22 +468,6 @@ class Button extends React.Component {
     },
   ],
   invalid: [
-    {
-      code: `
-declare const React: any;
-
-interface ButtonProps {
-  label: string;
-}
-
-class Button extends React.Component {
-  render() {
-    return <div />;
-  }
-}
-`,
-      errors: 1,
-    },
     {
       code: `
 interface ButtonProps {

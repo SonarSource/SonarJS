@@ -60,16 +60,18 @@ const componentAnalysisRule: Rule.RuleModule = {
             name: component.componentIdentifier?.name ?? '<anonymous>',
             memberCount: analysis.memberPropsTypeCandidates.length,
             typeCount: analysis.enclosingTypePropsTypeCandidates.length,
+            nonPropsCount: analysis.classNonPropsTypeCandidates.length,
           };
         });
 
         assert.deepStrictEqual(summary, [
-          { name: 'helper', memberCount: 0, typeCount: 0 },
-          { name: 'Button', memberCount: 1, typeCount: 1 },
-          { name: 'MemoButton', memberCount: 1, typeCount: 1 },
-          { name: 'ForwardedButton', memberCount: 1, typeCount: 1 },
-          { name: '<anonymous>', memberCount: 1, typeCount: 1 },
-          { name: 'Panel', memberCount: 1, typeCount: 1 },
+          { name: 'helper', memberCount: 0, typeCount: 0, nonPropsCount: 0 },
+          { name: 'Button', memberCount: 1, typeCount: 1, nonPropsCount: 0 },
+          { name: 'MemoButton', memberCount: 1, typeCount: 1, nonPropsCount: 0 },
+          { name: 'ForwardedButton', memberCount: 1, typeCount: 1, nonPropsCount: 0 },
+          { name: '<anonymous>', memberCount: 1, typeCount: 1, nonPropsCount: 0 },
+          { name: 'Panel', memberCount: 1, typeCount: 1, nonPropsCount: 0 },
+          { name: 'StatefulPanel', memberCount: 1, typeCount: 1, nonPropsCount: 2 },
         ]);
       },
     };
@@ -154,22 +156,30 @@ ruleTester.run('component-analysis', componentAnalysisRule, {
       filename: fixtureFilePath,
       code: `
 declare namespace React {
-  interface Component<P> {
+  interface Component<P, S = unknown, SS = unknown> {
     props: P;
+    state: S;
   }
-  const Component: new <P>() => Component<P>;
+  const Component: new <P, S = unknown, SS = unknown>() => Component<P, S, SS>;
   type FC<P> = (props: P) => unknown;
   function memo<T>(component: T): T;
   function forwardRef<T>(render: T): T;
 }
 
 type Props = { label: string; };
+type State = { count: number; };
+type Snapshot = { top: number; };
 function helper(props: Props) { return props.label; }
 const Button: React.FC<Props> = props => props.label;
 const MemoButton = React.memo((props: Props) => props.label);
 const ForwardedButton = React.forwardRef((props: Props, ref: unknown) => props.label);
 export default React.memo((props: Props) => props.label);
 class Panel extends React.Component<Props> { render() { return <div>{this.props.label}</div>; } }
+class StatefulPanel extends React.Component<Props, State, Snapshot> {
+  render() {
+    return <div>{this.state.count}</div>;
+  }
+}
 `,
     },
   ],

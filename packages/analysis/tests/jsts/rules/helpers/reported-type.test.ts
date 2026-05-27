@@ -20,6 +20,7 @@ import { parseForESLint } from '@typescript-eslint/parser';
 import ts from 'typescript';
 import type { RequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
 import {
+  getReportedEnclosingType,
   getReportedTypeFromAncestors,
   ReportedTypeDetails,
 } from '../../../../src/jsts/rules/helpers/reported-type.js';
@@ -176,6 +177,32 @@ describe('ReportedTypeDetails', () => {
     expect(reportedType?.isUsedByType(getTypeByIdentifierText(ast, services, 'aliasValue'), checker)).toBe(
       true,
     );
+  });
+
+  it('keeps getReportedEnclosingType aligned with getReportedTypeFromAncestors', () => {
+    const sourceCode = `
+      interface SharedProps {
+        sharedValue: string;
+      }
+    `;
+    const { services, ast } = createProgramFromSource(sourceCode);
+    const checker = services.program.getTypeChecker();
+    const sharedValue = findNodeWithAncestorsByText(ast, 'sharedValue');
+    expect(sharedValue).toBeTruthy();
+    if (!sharedValue) {
+      throw new Error('Expected to find sharedValue node');
+    }
+
+    const reportedType = getReportedTypeFromAncestors(sharedValue.ancestors, services, checker);
+    const reportedEnclosingType = getReportedEnclosingType(
+      sharedValue.ancestors,
+      services,
+      checker,
+    );
+
+    expect(reportedEnclosingType?.name).toBe(reportedType?.name);
+    expect(reportedEnclosingType?.tsNode).toBe(reportedType?.tsNode);
+    expect(reportedEnclosingType?.tsType).toBe(reportedType?.tsType);
   });
 
   it('handles recursive type aliases without looping', () => {

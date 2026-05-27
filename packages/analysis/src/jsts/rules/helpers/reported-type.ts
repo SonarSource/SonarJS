@@ -73,6 +73,31 @@ export class ReportedTypeDetails<TDeclaration extends TSESTree.Node, TTsNode ext
   }
 
   /**
+   * Builds a reported type wrapper from the nearest ancestor declaration that
+   * matches the expected ESTree and TypeScript node kinds.
+   */
+  static fromNearestAncestorDeclaration<
+    TDeclaration extends TSESTree.Node,
+    TTsNode extends ts.Node,
+  >(
+    ancestors: estree.Node[],
+    isDeclarationNode: (node: TSESTree.Node) => node is TDeclaration,
+    getDeclarationName: (declaration: TDeclaration) => string | undefined,
+    services: RequiredParserServices,
+    checker: ts.TypeChecker,
+    isTsNode: (node: ts.Node) => node is TTsNode,
+  ): ReportedTypeDetails<TDeclaration, TTsNode> | undefined {
+    const declaration = findNearestAncestorDeclaration(ancestors, isDeclarationNode);
+    return ReportedTypeDetails.fromDeclaration(
+      declaration,
+      declaration ? getDeclarationName(declaration) : undefined,
+      services,
+      checker,
+      isTsNode,
+    );
+  }
+
+  /**
    * Returns true when `type` uses this reported type declaration, directly or
    * through another type.
    *
@@ -184,20 +209,36 @@ function isTypeDeclarationTsNode(
   return ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node);
 }
 
-function findEnclosingTypeDeclaration(ancestors: estree.Node[]): TypeDeclarationNode | undefined {
+function findNearestAncestorDeclaration<TDeclaration extends TSESTree.Node>(
+  ancestors: estree.Node[],
+  isDeclarationNode: (node: TSESTree.Node) => node is TDeclaration,
+): TDeclaration | undefined {
   for (let i = ancestors.length - 1; i >= 0; i--) {
     const ancestor = ancestors[i] as TSESTree.Node;
-    if (isTypeDeclarationNode(ancestor)) {
+    if (isDeclarationNode(ancestor)) {
       return ancestor;
     }
   }
   return undefined;
 }
 
-function getTypeDeclarationName(
-  typeDeclaration: TypeDeclarationNode | undefined,
-): string | undefined {
-  return typeDeclaration?.id.name;
+function getTypeDeclarationName(typeDeclaration: TypeDeclarationNode): string | undefined {
+  return typeDeclaration.id.name;
+}
+
+export function getReportedEnclosingType(
+  ancestors: estree.Node[],
+  services: RequiredParserServices,
+  checker: ts.TypeChecker,
+): ReportedType | undefined {
+  return ReportedTypeDetails.fromNearestAncestorDeclaration(
+    ancestors,
+    isTypeDeclarationNode,
+    getTypeDeclarationName,
+    services,
+    checker,
+    isTypeDeclarationTsNode,
+  );
 }
 
 export function getReportedTypeFromAncestors(
@@ -205,12 +246,5 @@ export function getReportedTypeFromAncestors(
   services: RequiredParserServices,
   checker: ts.TypeChecker,
 ): ReportedType | undefined {
-  const declaration = findEnclosingTypeDeclaration(ancestors);
-  return ReportedTypeDetails.fromDeclaration(
-    declaration,
-    getTypeDeclarationName(declaration),
-    services,
-    checker,
-    isTypeDeclarationTsNode,
-  );
+  return getReportedEnclosingType(ancestors, services, checker);
 }

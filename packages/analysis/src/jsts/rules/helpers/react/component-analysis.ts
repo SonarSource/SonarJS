@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { SourceCode } from 'eslint';
+import type { Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import { childrenOf, getNodeParent } from '../ancestor.js';
@@ -38,6 +38,7 @@ const REACT_COMPONENT_WRAPPER_CALLEES = new Set(['memo', 'forwardRef']);
 export type ComponentAnalysis = {
   memberPropsTypeCandidates: ts.Type[];
   enclosingTypePropsTypeCandidates: ts.Type[];
+  classNonPropsTypeCandidates: ts.Type[];
 };
 export type ComponentNode =
   | estree.ClassDeclaration
@@ -57,6 +58,7 @@ export type CollectedComponent = {
 const EMPTY_COMPONENT_ANALYSIS: ComponentAnalysis = {
   memberPropsTypeCandidates: [],
   enclosingTypePropsTypeCandidates: [],
+  classNonPropsTypeCandidates: [],
 };
 
 function isClassComponentNode(
@@ -161,31 +163,28 @@ export function getComponentPropsType(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type | undefined {
-  const checker = services.program.getTypeChecker();
-  if (isFunctionComponentNode(componentNode)) {
-    return (
-      getFunctionComponentParamPropsType(componentNode, services) ??
-      getComponentPropsTypeFromVariableDeclaration(componentNode, services)
-    );
-  }
-
-  if (!isClassComponentNode(componentNode)) {
-    return undefined;
-  }
-
-  const tsNode = getClassComponentTsNode(componentNode, services);
-  return getDeclaredClassPropsType(tsNode, checker) ?? getClassPropsPropertyType(tsNode, checker);
+  return getComponentPropsTypeCandidates(componentNode, services)[0];
 }
 
 function getComponentPropsTypeCandidates(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type[] {
-  if (!isFunctionComponentNode(componentNode)) {
-    const propsType = getComponentPropsType(componentNode, services);
-    return propsType ? [propsType] : [];
+  if (isFunctionComponentNode(componentNode)) {
+    return getFunctionComponentPropsTypeCandidates(componentNode, services);
   }
 
+  if (isClassComponentNode(componentNode)) {
+    return getClassComponentPropsTypeCandidates(componentNode, services);
+  }
+
+  return [];
+}
+
+function getFunctionComponentPropsTypeCandidates(
+  componentNode: FunctionComponentNode,
+  services: RequiredParserServices,
+): ts.Type[] {
   const checker = services.program.getTypeChecker();
   const propsTypes: ts.Type[] = [];
   const primaryPropsType = getFunctionComponentParamPropsType(componentNode, services);
@@ -208,6 +207,18 @@ function getComponentPropsTypeCandidates(
   }
 
   return propsTypes;
+}
+
+function getClassComponentPropsTypeCandidates(
+  componentNode: estree.ClassDeclaration | estree.ClassExpression,
+  services: RequiredParserServices,
+): ts.Type[] {
+  const checker = services.program.getTypeChecker();
+  const classTsNode = getClassComponentTsNode(componentNode, services);
+  const propsType =
+    getDeclaredClassPropsType(classTsNode, checker) ??
+    getClassPropsPropertyType(classTsNode, checker);
+  return propsType ? [propsType] : [];
 }
 
 function isSpecificPropsType(type: ts.Type | undefined): type is ts.Type {
@@ -289,7 +300,10 @@ function isReactClassSuperName(name: string): boolean {
   return REACT_LOCAL_CLASS_SUPERS.has(name);
 }
 
-function isQualifiedReactClassSuper(objectName: string | undefined, propertyName: string): boolean {
+function isQualifiedReactClassSuper(
+  objectName: string | undefined,
+  propertyName: string,
+): boolean {
   return objectName === undefined
     ? isReactClassSuperName(propertyName)
     : objectName === 'React' && isReactClassSuperName(propertyName);
@@ -327,18 +341,40 @@ function isReactComponentHeritageSuperclass(superclass: ts.ExpressionWithTypeArg
   );
 }
 
+export function isBuiltinReactSuperclassName(
+  objectName: string | undefined,
+  propertyName: string,
+): boolean {
+  return isQualifiedReactClassSuper(objectName, propertyName);
+}
+
 function getDeclaredClassPropsType(
   classNode: ts.ClassLikeDeclaration,
   checker: ts.TypeChecker,
 ): ts.Type | undefined {
+  const propsTypeNode = getReactSuperclassTypeArguments(classNode)[0];
+  return propsTypeNode ? checker.getTypeAtLocation(propsTypeNode) : undefined;
+}
+
+function getReactSuperclassTypeArguments(
+  classNode: ts.ClassLikeDeclaration,
+): readonly ts.TypeNode[] {
   const extendsClause = classNode.heritageClauses?.find(
     clause => clause.token === ts.SyntaxKind.ExtendsKeyword,
   );
   const reactSuperclass = extendsClause?.types.find(type =>
     isReactComponentHeritageSuperclass(type),
   );
-  const propsTypeNode = reactSuperclass?.typeArguments?.[0];
-  return propsTypeNode ? checker.getTypeAtLocation(propsTypeNode) : undefined;
+  return reactSuperclass?.typeArguments ?? [];
+}
+
+function getDeclaredClassNonPropsTypes(
+  classNode: ts.ClassLikeDeclaration,
+  checker: ts.TypeChecker,
+): ts.Type[] {
+  return getReactSuperclassTypeArguments(classNode)
+    .slice(1)
+    .map(typeArgument => checker.getTypeAtLocation(typeArgument));
 }
 
 function getClassPropsPropertyType(
@@ -414,14 +450,13 @@ export function createComponentAnalysis(
     }
 
     const checker = services.program.getTypeChecker();
-    const classPropsType = getClassPropsPropertyType(
-      getClassComponentTsNode(componentNode, services),
-      checker,
-    );
+    const classTsNode = getClassComponentTsNode(componentNode, services);
+    const classPropsType = getClassPropsPropertyType(classTsNode, checker);
     const memberPropsTypeCandidates = getComponentPropsTypeCandidates(componentNode, services);
     return {
       memberPropsTypeCandidates,
       enclosingTypePropsTypeCandidates: classPropsType ? [classPropsType] : [],
+      classNonPropsTypeCandidates: getDeclaredClassNonPropsTypes(classTsNode, checker),
     };
   }
 
@@ -436,6 +471,7 @@ export function createComponentAnalysis(
   return {
     memberPropsTypeCandidates: propsTypeCandidates,
     enclosingTypePropsTypeCandidates: propsTypeCandidates,
+    classNonPropsTypeCandidates: [],
   };
 }
 
@@ -476,20 +512,41 @@ export function collectComponentNodes(
   return collectComponents(root, keys).map(component => component.componentNode);
 }
 
+export function getComponentVariable(
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+): Scope.Variable | undefined {
+  const componentIdentifier = getComponentIdentifier(componentNode);
+  if (!componentIdentifier) {
+    return undefined;
+  }
+
+  let scope: Scope.Scope | null = sourceCode.getScope(componentNode);
+  while (scope) {
+    const variable = scope.set.get(componentIdentifier.name);
+    if (variable) {
+      return variable;
+    }
+    scope = scope.upper;
+  }
+
+  return undefined;
+}
+
 export function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
-  const variableDeclarator = getOwningVariableDeclarator(componentNode);
-  if (
-    variableDeclarator &&
-    (isVariableAssignedFunctionOrClassExpression(componentNode, getNodeParent(componentNode)) ||
-      componentNode.type === 'ArrowFunctionExpression' ||
-      getNodeParent(componentNode)?.type === 'CallExpression')
-  ) {
-    return variableDeclarator.id;
+  const parent = getNodeParent(componentNode);
+  const owningVariableDeclarator = getOwningVariableDeclarator(componentNode);
+  if (parent?.type === 'CallExpression' && owningVariableDeclarator) {
+    return owningVariableDeclarator.id;
+  }
+
+  if (isVariableAssignedFunctionOrClassExpression(componentNode, parent)) {
+    return parent.id;
   }
 
   if (hasIdentifierId(componentNode)) {
     return componentNode.id;
   }
 
-  return variableDeclarator?.id;
+  return isVariableDeclaratorWithIdentifierId(parent) ? parent.id : undefined;
 }

@@ -15,10 +15,84 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { buildBabelParserOptions } from '../../parsers/options.js';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import parser from '@babel/eslint-parser';
+import { Linter } from 'eslint';
 import { describe, it } from 'node:test';
+import { expect } from 'expect';
 
 describe('S6767', () => {
+  it('should report decorator-factory callbacks without provable props', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [],
+      invalid: [
+        {
+          // TP: untyped decorator callback parameter might not be component props
+          code: `
+function decorate(metadataMapper) {
+  return function applyDecorator(target) {
+    return target;
+  };
+}
+function DecoratedComponent(props) {
+  return <div />;
+}
+DecoratedComponent.propTypes = {
+  contextModule: PropTypes.string,
+};
+decorate(function (metadata) {
+  return {
+    context_module: metadata.contextModule,
+  };
+})(DecoratedComponent);
+`,
+          errors: 1,
+        },
+        {
+          // TP: decorator factory receives no callback that can consume props
+          code: `
+function track(config) {
+  return function applyDecorator(target) {
+    return target;
+  };
+}
+function DecoratorConfigComponent(props) {
+  return <div />;
+}
+DecoratorConfigComponent.propTypes = {
+  contextModule: PropTypes.string,
+};
+track({ event: 'view' })(DecoratorConfigComponent);
+`,
+          errors: 1,
+        },
+        {
+          // TP: destructured callback parameter is not tracked as whole props usage
+          code: `
+function track(mapper) {
+  return function applyDecorator(target) {
+    return target;
+  };
+}
+function DecoratorDestructureComponent(props) {
+  return <div />;
+}
+DecoratorDestructureComponent.propTypes = {
+  contextModule: PropTypes.string,
+};
+track(({ contextModule }) => ({
+  context_module: contextModule,
+}))(DecoratorDestructureComponent);
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('should not report props passed wholesale to a helper function', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
@@ -120,6 +194,34 @@ class Button extends React.Component {
     return <button>{this.props.label}</button>;
   }
 }
+`,
+          errors: 1,
+        },
+        {
+          // TP: anonymous class component cannot be resolved for decorator usage
+          code: `
+export default class extends React.Component {
+  static propTypes = {
+    color: PropTypes.string,
+  };
+  render() {
+    return <button />;
+  }
+}
+`,
+          errors: 1,
+        },
+        {
+          // TP: named class expression remains reportable without decorator usage
+          code: `
+const Button = class InnerButton extends React.Component {
+  static propTypes = {
+    color: PropTypes.string,
+  };
+  render() {
+    return <button />;
+  }
+};
 `,
           errors: 1,
         },
@@ -285,6 +387,47 @@ Wrapper.propTypes = {
           errors: 1,
         },
       ],
+    });
+  });
+
+  it('should not crash on Flow React classes parsed with Babel when no decorators are present', () => {
+    const linter = new Linter();
+
+    const messages = linter.verify(
+      `// @flow
+const React = require('react');
+class RootViewSizeFlexibilityExampleApp extends React.Component<
+  {toggled: boolean, ...},
+  any,
+> {
+  constructor(props: {toggled: boolean, ...}) {
+    super(props);
+  }
+
+  render() {
+    return null;
+  }
+}
+`,
+      {
+        languageOptions: {
+          parser,
+          parserOptions: buildBabelParserOptions({}),
+        },
+        settings: { react: { version: '999.999.999' } },
+        files: ['**/*.js'],
+        plugins: { sonarjs: { rules: { S6767: rule } } },
+        rules: { 'sonarjs/S6767': 'error' },
+      },
+      { filename: 'minimal-flow-class.js', allowInlineConfig: false },
+    );
+
+    expect(messages).toHaveLength(1);
+    expect(messages[0]).toMatchObject({
+      ruleId: 'sonarjs/S6767',
+      message: "'toggled' PropType is defined but prop is never used",
+      line: 4,
+      column: 4,
     });
   });
 });

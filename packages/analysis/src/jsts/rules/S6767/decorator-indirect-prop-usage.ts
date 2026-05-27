@@ -15,184 +15,163 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
+import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { getNodeParent } from '../helpers/ancestor.js';
 import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
-import {
-  getComponentIdentifier,
-  getComponentPropsType,
-} from '../helpers/react/component-analysis.js';
+import { getComponentPropsType, getComponentVariable } from '../helpers/react.js';
 import { areSameTypeDeclarations, getTypeFromTreeNode } from '../helpers/type.js';
 import { isSupportedWholePropsUsage } from './whole-props-usage.js';
 
 /**
- * Returns true when the specific reported prop is consumed through a decorator
- * factory callback typed with the same props contract as the component.
+ * False-positive remediation escape:
+ * returns true when the specific reported prop is consumed through one of these
+ * decorator-specific indirect patterns:
  *
  * track((props: ComponentProps) => props.propName)(Component);
+ *
+ * @track((props: ComponentProps) => props.propName)
+ * class Component extends React.Component<ComponentProps> {}
  */
 export function hasDecoratorPropUsage(
   componentNode: estree.Node,
   context: Rule.RuleContext,
   propName: string | undefined,
 ): boolean {
+  if (!propName) {
+    return false;
+  }
+
   return (
-    !!propName && hasDecoratorFactoryCallPropUsage(context.sourceCode, componentNode, propName)
+    hasDecoratorFactoryCallPropUsage(context.sourceCode, componentNode, propName) ||
+    hasDecoratorAnnotationPropUsage(context.sourceCode, componentNode, propName)
   );
 }
 
+/**
+ * Pseudo code for the matched AST:
+ * track(
+ *   (props: ComponentProps) => {
+ *     props.propName;
+ *     return buildPayload(props);
+ *   },
+ * )(Component);
+ *
+ * The decorated target must be the component reference passed as the sole outer
+ * call argument.
+ */
 function hasDecoratorFactoryCallPropUsage(
   sourceCode: SourceCode,
   componentNode: estree.Node,
   propName: string,
 ): boolean {
-  const componentIdentifier = getComponentIdentifier(componentNode);
-  const componentVariable =
-    componentIdentifier && getVariableForIdentifier(sourceCode, componentIdentifier);
+  const componentVariable = getComponentVariable(sourceCode, componentNode);
   if (!componentVariable) {
     return false;
   }
 
-  return componentVariable.references.some(reference =>
-    isDecoratorFactoryTargetReference(sourceCode, componentNode, reference, propName),
-  );
+  return componentVariable.references.some(reference => {
+    const decoratorApplication = getNodeParent(reference.identifier);
+    return (
+      decoratorApplication?.type === 'CallExpression' &&
+      decoratorApplication.arguments.length === 1 &&
+      decoratorApplication.arguments[0] === reference.identifier &&
+      decoratorApplication.callee.type === 'CallExpression' &&
+      decoratorApplication.callee.arguments.some(argument =>
+        isComponentPropsCallbackUsingProp(sourceCode, componentNode, argument, propName),
+      )
+    );
+  });
 }
 
 /**
- * Pseudo code:
- *   track(callback)(Component)
- *
- * The matched component reference must be the only outer application argument.
+ * Pseudo code for the matched AST:
+ * @track(
+ *   (props: ComponentProps) => {
+ *     props.propName;
+ *     return buildPayload(props);
+ *   },
+ * )
+ * class Component extends React.Component<ComponentProps> {}
  */
-function isDecoratorFactoryTargetReference(
+function hasDecoratorAnnotationPropUsage(
   sourceCode: SourceCode,
   componentNode: estree.Node,
-  reference: Scope.Reference,
   propName: string,
 ): boolean {
-  const decoratorApplication = getDecoratorApplicationForReference(reference);
+  const componentTsNode = componentNode as TSESTree.Node;
+  if (componentTsNode.type !== 'ClassDeclaration' && componentTsNode.type !== 'ClassExpression') {
+    return false;
+  }
+
   return (
-    !!decoratorApplication &&
-    hasMatchingDecoratorCallbackArgument(
-      sourceCode,
-      componentNode,
-      decoratorApplication.callee,
-      propName,
+    componentTsNode.decorators?.some(({ expression }) =>
+      isDecoratorCallUsingProp(expression, sourceCode, componentNode, propName),
+    ) ?? false
+  );
+}
+
+function isDecoratorCallUsingProp(
+  expression: TSESTree.Node,
+  sourceCode: SourceCode,
+  componentNode: estree.Node,
+  propName: string,
+): boolean {
+  return (
+    expression.type === 'CallExpression' &&
+    expression.arguments.some(argument =>
+      isComponentPropsCallbackUsingProp(
+        sourceCode,
+        componentNode,
+        argument as estree.Node,
+        propName,
+      ),
     )
   );
 }
 
 /**
- * Pseudo code:
- *   track(callback)(Component)
+ * Pseudo code for the matched AST:
+ * (props: ComponentProps) => {
+ *   props.propName;
+ *   return buildPayload(props);
+ * }
  *
- * Returns the outer application call when the reference is the only target argument.
+ * The callback first parameter must be provably the same component props type,
+ * including the same generic instantiation, not just any object with a matching
+ * alias symbol.
  */
-function getDecoratorApplicationForReference(
-  reference: Scope.Reference,
-): (estree.CallExpression & { callee: estree.CallExpression }) | undefined {
-  const parent = getNodeParent(reference.identifier);
-  return isDecoratorApplicationCall(parent, reference.identifier) ? parent : undefined;
-}
-
-function isDecoratorApplicationCall(
-  node: estree.Node | undefined,
-  targetNode: estree.Identifier,
-): node is estree.CallExpression & { callee: estree.CallExpression } {
-  return (
-    node?.type === 'CallExpression' &&
-    node.arguments.length === 1 &&
-    node.arguments[0] === targetNode &&
-    node.callee.type === 'CallExpression'
-  );
-}
-
-/**
- * Pseudo code:
- *   track(
- *     (props: ComponentProps) => {
- *       props.propName;
- *     },
- *   )(Component)
- *
- * At least one inner call argument must be a callback whose first parameter is typed
- * with the same declared props contract as the component and uses the reported prop.
- */
-function hasMatchingDecoratorCallbackArgument(
-  sourceCode: SourceCode,
-  componentNode: estree.Node,
-  decoratorFactoryCall: estree.CallExpression,
-  propName: string,
-): boolean {
-  return decoratorFactoryCall.arguments.some(argument =>
-    isComponentPropsCallbackUsingProp(sourceCode, componentNode, argument, propName),
-  );
-}
-
 function isComponentPropsCallbackUsingProp(
   sourceCode: SourceCode,
   componentNode: estree.Node,
   callbackNode: estree.Node,
   propName: string,
 ): boolean {
-  const propsVariable = getMatchingCallbackPropsVariable(sourceCode, componentNode, callbackNode);
-  return (
-    !!propsVariable &&
-    propsVariable.references.some(reference => isComponentPropsUsageReference(reference, propName))
-  );
-}
-
-/**
- * Pseudo code:
- *   (props: ComponentProps) => ...
- *
- * The first callback parameter must be an identifier typed with the same declared props
- * contract as the component. When that holds, return its scope variable.
- */
-function getMatchingCallbackPropsVariable(
-  sourceCode: SourceCode,
-  componentNode: estree.Node,
-  callbackNode: estree.Node,
-): Scope.Variable | undefined {
   if (!isFunctionNode(callbackNode)) {
-    return undefined;
+    return false;
   }
 
   const firstParam = callbackNode.params[0];
-  if (
-    !isIdentifier(firstParam) ||
-    !isSameDeclaredPropsType(sourceCode, componentNode, firstParam)
-  ) {
-    return undefined;
+  if (!isIdentifier(firstParam)) {
+    return false;
+  }
+  if (!isSameDeclaredPropsType(sourceCode, componentNode, firstParam)) {
+    return false;
   }
 
-  return sourceCode.getScope(callbackNode).set.get(firstParam.name);
-}
-
-function getVariableForIdentifier(
-  sourceCode: SourceCode,
-  identifier: estree.Identifier,
-): Scope.Variable | undefined {
-  let scope: Scope.Scope | null = sourceCode.getScope(identifier);
-  while (scope) {
-    const reference = scope.references.find(candidate => candidate.identifier === identifier);
-    if (reference) {
-      return reference.resolved ?? undefined;
-    }
-
-    const variable = scope.variables.find(candidate =>
-      candidate.defs.some(definition => definition.name === identifier),
-    );
-    if (variable) {
-      return variable;
-    }
-
-    scope = scope.upper;
+  const variable = sourceCode.getScope(callbackNode).set.get(firstParam.name);
+  if (!variable) {
+    return false;
   }
 
-  return undefined;
+  // Unlike forwardRef closures, decorator callbacks introduce their own props
+  // parameter instead of closing over the component's original one. That means
+  // the rule-level whole-props remediation does not naturally observe callback
+  // usages such as `buildPayload(props)`, so we re-apply the same whole-props
+  // shapes against this callback parameter here.
+  return variable.references.some(reference => isComponentPropsUsageReference(reference, propName));
 }
 
 function isSameDeclaredPropsType(
@@ -204,48 +183,37 @@ function isSameDeclaredPropsType(
   if (!isRequiredParserServices(services)) {
     return false;
   }
-
   const checker = services.program.getTypeChecker();
+
   const componentPropsType = getComponentPropsType(componentNode, services);
   const callbackPropsType = getTypeFromTreeNode(callbackPropsParam, services);
+  // Keep the escape conservative when either side collapses to top-level `any`
+  // or `unknown`: without a declared props shape, we cannot prove equivalence.
   return areSameTypeDeclarations(checker, callbackPropsType, componentPropsType);
 }
 
+/**
+ * Pseudo code for the matched AST patterns:
+ * props.propName;
+ *
+ * buildPayload(props);
+ *
+ * The whole-props handoff must also pass the ignore filter from `whole-props-usage.ts`.
+ */
 function isComponentPropsUsageReference(reference: Scope.Reference, propName: string): boolean {
   const parent = getNodeParent(reference.identifier);
-  return (
-    isDirectPropMemberAccess(parent, reference.identifier, propName) ||
-    isWholePropsForwardingUsage(parent, reference.identifier)
-  );
-}
+  if (!parent) {
+    return false;
+  }
 
-/**
- * Pseudo code:
- *   props.propName
- */
-function isDirectPropMemberAccess(
-  node: estree.Node | undefined,
-  propsIdentifier: estree.Identifier,
-  propName: string,
-): boolean {
-  return (
-    node?.type === 'MemberExpression' &&
-    node.object === propsIdentifier &&
-    !node.computed &&
-    isIdentifier(node.property, propName)
-  );
-}
+  if (
+    parent.type === 'MemberExpression' &&
+    parent.object === reference.identifier &&
+    !parent.computed &&
+    isIdentifier(parent.property, propName)
+  ) {
+    return true;
+  }
 
-/**
- * Pseudo code:
- *   consume(props)
- *   [...props]
- *   <Component {...props} />
- *   props[key]
- */
-function isWholePropsForwardingUsage(
-  node: estree.Node | undefined,
-  propsIdentifier: estree.Identifier,
-): boolean {
-  return !!node && isSupportedWholePropsUsage(node, argument => argument === propsIdentifier);
+  return isSupportedWholePropsUsage(parent, argument => argument === reference.identifier);
 }
