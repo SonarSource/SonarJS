@@ -107,6 +107,13 @@ describe('S1244', () => {
             expect(2 * 3).to.equal(6);
           `,
         },
+        {
+          code: `
+            import 'cypress';
+
+            cy.wrap(0.1 + 0.2).should('be.closeTo', 0.3, Number.EPSILON);
+          `,
+        },
       ],
       invalid: [
         {
@@ -147,6 +154,15 @@ describe('S1244', () => {
         {
           code: `
             const status = total === 0.3 ? "done" : "retry";
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            const threshold = getThreshold();
+            if (threshold === -0.1) {
+              publish(threshold);
+            }
           `,
           errors: 1,
         },
@@ -218,6 +234,14 @@ describe('S1244', () => {
             import { expect } from 'chai';
 
             expect(0.1 + 0.2).to.equal(0.3);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import 'cypress';
+
+            cy.wrap(0.1 + 0.2).should('equal', 0.3);
           `,
           errors: 1,
         },
