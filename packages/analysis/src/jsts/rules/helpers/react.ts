@@ -18,14 +18,13 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { getVariableFromScope, isIdentifier } from './ast.js';
 import { getFullyQualifiedName } from './module.js';
-import { isComponentNode } from './react/component-analysis.js';
+import { isBuiltinReactSuperclassName, isComponentNode } from './react/component-analysis.js';
 import { findComponentOwnersByType } from './react/type-ownership.js';
 
 export { getComponentPropsType, getComponentVariable } from './react/component-analysis.js';
 export { hasOnlyReactClassNonPropsReportedTypeUsage } from './react/type-ownership.js';
 
 const REACT_QUALIFIED_CLASS_SUPERS = new Set(['react.Component', 'react.PureComponent']);
-const REACT_LOCAL_CLASS_SUPERS = new Set(['Component', 'PureComponent']);
 
 function isReactPropTypesAssignment(node: estree.Node): node is estree.AssignmentExpression & {
   left: estree.MemberExpression & { object: estree.Identifier };
@@ -133,22 +132,13 @@ export function isReactComponentSuperclass(
   );
 }
 
-function isReactClassSuperName(name: string): boolean {
-  return REACT_LOCAL_CLASS_SUPERS.has(name);
-}
-
-function isQualifiedReactClassSuper(objectName: string | undefined, propertyName: string): boolean {
-  return objectName === undefined
-    ? isReactClassSuperName(propertyName)
-    : objectName === 'React' && isReactClassSuperName(propertyName);
-}
-
 function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
   return (
-    (superClass.type === 'Identifier' && isQualifiedReactClassSuper(undefined, superClass.name)) ||
+    (superClass.type === 'Identifier' &&
+      isBuiltinReactSuperclassName(undefined, superClass.name)) ||
     (superClass.type === 'MemberExpression' &&
       isIdentifier(superClass.object, 'React') &&
       superClass.property.type === 'Identifier' &&
-      isQualifiedReactClassSuper('React', superClass.property.name))
+      isBuiltinReactSuperclassName('React', superClass.property.name))
   );
 }

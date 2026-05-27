@@ -163,31 +163,28 @@ export function getComponentPropsType(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type | undefined {
-  const checker = services.program.getTypeChecker();
-  if (isFunctionComponentNode(componentNode)) {
-    return (
-      getFunctionComponentParamPropsType(componentNode, services) ??
-      getComponentPropsTypeFromVariableDeclaration(componentNode, services)
-    );
-  }
-
-  if (!isClassComponentNode(componentNode)) {
-    return undefined;
-  }
-
-  const tsNode = getClassComponentTsNode(componentNode, services);
-  return getDeclaredClassPropsType(tsNode, checker) ?? getClassPropsPropertyType(tsNode, checker);
+  return getComponentPropsTypeCandidates(componentNode, services)[0];
 }
 
 function getComponentPropsTypeCandidates(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type[] {
-  if (!isFunctionComponentNode(componentNode)) {
-    const propsType = getComponentPropsType(componentNode, services);
-    return propsType ? [propsType] : [];
+  if (isFunctionComponentNode(componentNode)) {
+    return getFunctionComponentPropsTypeCandidates(componentNode, services);
   }
 
+  if (isClassComponentNode(componentNode)) {
+    return getClassComponentPropsTypeCandidates(componentNode, services);
+  }
+
+  return [];
+}
+
+function getFunctionComponentPropsTypeCandidates(
+  componentNode: FunctionComponentNode,
+  services: RequiredParserServices,
+): ts.Type[] {
   const checker = services.program.getTypeChecker();
   const propsTypes: ts.Type[] = [];
   const primaryPropsType = getFunctionComponentParamPropsType(componentNode, services);
@@ -210,6 +207,18 @@ function getComponentPropsTypeCandidates(
   }
 
   return propsTypes;
+}
+
+function getClassComponentPropsTypeCandidates(
+  componentNode: estree.ClassDeclaration | estree.ClassExpression,
+  services: RequiredParserServices,
+): ts.Type[] {
+  const checker = services.program.getTypeChecker();
+  const classTsNode = getClassComponentTsNode(componentNode, services);
+  const propsType =
+    getDeclaredClassPropsType(classTsNode, checker) ??
+    getClassPropsPropertyType(classTsNode, checker);
+  return propsType ? [propsType] : [];
 }
 
 function isSpecificPropsType(type: ts.Type | undefined): type is ts.Type {
@@ -291,7 +300,10 @@ function isReactClassSuperName(name: string): boolean {
   return REACT_LOCAL_CLASS_SUPERS.has(name);
 }
 
-function isQualifiedReactClassSuper(objectName: string | undefined, propertyName: string): boolean {
+export function isBuiltinReactSuperclassName(
+  objectName: string | undefined,
+  propertyName: string,
+): boolean {
   return objectName === undefined
     ? isReactClassSuperName(propertyName)
     : objectName === 'React' && isReactClassSuperName(propertyName);
@@ -300,12 +312,12 @@ function isQualifiedReactClassSuper(objectName: string | undefined, propertyName
 function isReactComponentHeritageSuperclass(superclass: ts.ExpressionWithTypeArguments): boolean {
   const expression = superclass.expression;
   if (ts.isIdentifier(expression)) {
-    return isQualifiedReactClassSuper(undefined, expression.text);
+    return isBuiltinReactSuperclassName(undefined, expression.text);
   }
   return (
     ts.isPropertyAccessExpression(expression) &&
     ts.isIdentifier(expression.expression) &&
-    isQualifiedReactClassSuper(expression.expression.text, expression.name.text)
+    isBuiltinReactSuperclassName(expression.expression.text, expression.name.text)
   );
 }
 

@@ -28,21 +28,7 @@ function isTypeMemberNode(node: TSESTree.Node): node is TypeMemberNode {
   return node.type === 'TSPropertySignature' || node.type === 'TSMethodSignature';
 }
 
-function findEnclosingTypeMember(ancestors: estree.Node[]): TypeMemberNode | undefined {
-  for (let i = ancestors.length - 1; i >= 0; i--) {
-    const ancestor = ancestors[i] as TSESTree.Node;
-    if (isTypeMemberNode(ancestor)) {
-      return ancestor;
-    }
-  }
-  return undefined;
-}
-
-function getTypeMemberName(typeMember: TypeMemberNode | undefined): string | undefined {
-  if (!typeMember) {
-    return undefined;
-  }
-
+function getTypeMemberName(typeMember: TypeMemberNode): string | undefined {
   const { key } = typeMember;
   if (key.type === 'Identifier') {
     return key.name;
@@ -59,10 +45,10 @@ export function getReportedTypeMember(
   services: RequiredParserServices,
   checker: ts.TypeChecker,
 ): ReportedTypeMember | undefined {
-  const declaration = findEnclosingTypeMember(ancestors);
-  return ReportedTypeDetails.fromDeclaration(
-    declaration,
-    getTypeMemberName(declaration),
+  return ReportedTypeDetails.fromNearestAncestorDeclaration(
+    ancestors,
+    isTypeMemberNode,
+    getTypeMemberName,
     services,
     checker,
     ts.isTypeElement,

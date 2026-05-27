@@ -307,6 +307,8 @@ const nonPropsProofRule: Rule.RuleModule = {
     }
 
     let sawAnchorState = false;
+    let sawPropsOnly = false;
+    let sawStateOnly = false;
     let sawSharedType = false;
     let sawSlotSplitType = false;
 
@@ -330,6 +332,16 @@ const nonPropsProofRule: Rule.RuleModule = {
           assertNonPropsProof(node.key, true);
         }
 
+        if (interfaceName === 'SlotSplitType' && node.key.name === 'propsOnly') {
+          sawPropsOnly = true;
+          assertNonPropsProof(node.key, false);
+        }
+
+        if (interfaceName === 'SlotSplitType' && node.key.name === 'stateOnly') {
+          sawStateOnly = true;
+          assertNonPropsProof(node.key, true);
+        }
+
         if (interfaceName === 'SharedType' && node.key.name === 'unused') {
           sawSharedType = true;
           assertNonPropsProof(node.key, false);
@@ -343,6 +355,8 @@ const nonPropsProofRule: Rule.RuleModule = {
       },
       'Program:exit'() {
         assert.equal(sawAnchorState, true, 'Expected to visit AnchorState.activeLink');
+        assert.equal(sawPropsOnly, true, 'Expected to visit SlotSplitType.propsOnly');
+        assert.equal(sawStateOnly, true, 'Expected to visit SlotSplitType.stateOnly');
         assert.equal(sawSharedType, true, 'Expected to visit SharedType.unused');
         assert.equal(sawSlotSplitType, true, 'Expected to visit SlotSplitType');
       },
