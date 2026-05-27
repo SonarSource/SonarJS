@@ -35,7 +35,7 @@ export type FunctionComponentDescriptor = {
   node: FunctionComponentNode;
 };
 
-export type ComponentDescriptor = ClassComponentDescriptor | FunctionComponentDescriptor;
+type ComponentDescriptor = ClassComponentDescriptor | FunctionComponentDescriptor;
 
 function isCollectedComponent(
   component: ComponentNode | CollectedComponent,

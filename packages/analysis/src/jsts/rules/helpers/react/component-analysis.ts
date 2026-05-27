@@ -39,7 +39,7 @@ export {
   collectComponents,
   type CollectedComponent,
 } from './component-collection.js';
-export { isBuiltinReactSuperclassName, isReactClassComponent } from './class-component-analysis.js';
+export { isBuiltinReactSuperclassName } from './class-component-analysis.js';
 
 export type ComponentAnalysis = {
   memberPropsTypeCandidates: ts.Type[];

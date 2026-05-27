@@ -17,7 +17,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import type estree from 'estree';
 import ts from 'typescript';
-import { isIdentifier } from '../ast.js';
 import type { RequiredParserServices } from '../parser-services.js';
 import type { ComponentAnalysis } from './component-analysis.js';
 import type { ClassComponentNode } from './component-nodes.js';
@@ -76,26 +75,6 @@ export function isBuiltinReactSuperclassName(
   propertyName: string,
 ): boolean {
   return isQualifiedReactClassSuper(objectName, propertyName);
-}
-
-function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
-  return (
-    (superClass.type === 'Identifier' && isQualifiedReactClassSuper(undefined, superClass.name)) ||
-    (superClass.type === 'MemberExpression' &&
-      isIdentifier(superClass.object, 'React') &&
-      superClass.property.type === 'Identifier' &&
-      isQualifiedReactClassSuper(superClass.object.name, superClass.property.name))
-  );
-}
-
-export function isReactClassComponent(
-  node: estree.Node,
-): node is estree.ClassDeclaration | estree.ClassExpression {
-  return (
-    (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') &&
-    node.superClass != null &&
-    isBuiltinReactSuperclass(node.superClass)
-  );
 }
 
 function isReactComponentHeritageSuperclass(superclass: ts.ExpressionWithTypeArguments): boolean {

@@ -55,7 +55,7 @@ type ReportedSubjectContext = {
   services: RequiredParserServices;
   sourceCache: SourceCache;
 };
-export type ComponentReportedTypeUsage = 'mixed' | 'non-props' | 'other' | 'props';
+type ComponentReportedTypeUsage = 'mixed' | 'non-props' | 'other' | 'props';
 
 const perSourceCache = new WeakMap<SourceCode, SourceCache>();
 
@@ -307,7 +307,10 @@ function getRelevantOwnersByReportedTypeUsage(
   const owners = components.filter(component =>
     reportedSubject.matchesRelevantOwner(getComponentAnalysis(sourceCache, component, services)),
   );
-  sourceCache.relevantOwnersByReportedTypeUsageSubject.set(cacheKey, owners.length > 0 ? owners : null);
+  sourceCache.relevantOwnersByReportedTypeUsageSubject.set(
+    cacheKey,
+    owners.length > 0 ? owners : null,
+  );
   return owners;
 }
 
@@ -370,18 +373,18 @@ function usesReportedTypeAsComponentProps(
   componentAnalysis: ComponentAnalysis,
   reportedSubject: ReportedSubject,
 ): boolean {
-  return reportedSubject.getPropsSlotCandidates(componentAnalysis).some(componentPropsType =>
-    reportedSubject.matchesPropsSlot(componentPropsType),
-  );
+  return reportedSubject
+    .getPropsSlotCandidates(componentAnalysis)
+    .some(componentPropsType => reportedSubject.matchesPropsSlot(componentPropsType));
 }
 
 function usesReportedTypeAsReactClassNonProps(
   componentAnalysis: ComponentAnalysis,
   reportedSubject: ReportedSubject,
 ): boolean {
-  return reportedSubject.getNonPropsSlotCandidates(componentAnalysis).some(nonPropsType =>
-    reportedSubject.matchesNonPropsSlot(nonPropsType),
-  );
+  return reportedSubject
+    .getNonPropsSlotCandidates(componentAnalysis)
+    .some(nonPropsType => reportedSubject.matchesNonPropsSlot(nonPropsType));
 }
 
 function getSourceCache(sourceCode: SourceCode): SourceCache {
