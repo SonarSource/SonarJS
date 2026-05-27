@@ -89,9 +89,9 @@ function getNullState(
   const { left, right } = expr;
   if (
     (isNull(right) &&
-      areEquivalent(left as TSESTree.Node, node as TSESTree.Node, context.sourceCode)) ||
+      areEquivalent(left, node, context.sourceCode)) ||
     (isNull(left) &&
-      areEquivalent(right as TSESTree.Node, node as TSESTree.Node, context.sourceCode))
+      areEquivalent(right, node, context.sourceCode))
   ) {
     if (notEqualOperators.has(expr.operator)) {
       return Null.discarded;
