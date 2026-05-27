@@ -15,7 +15,6 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import type estree from 'estree';
 import ts from 'typescript';
 import type { RequiredParserServices } from '../parser-services.js';
 import type { ComponentAnalysis } from './component-analysis.js';
