@@ -47,7 +47,7 @@ class ReversePathTree {
   }
 
   private static InputFile getFirstLeaf(Node node) {
-    while (!node.children.isEmpty()) {
+    while (node.file == null && !node.children.isEmpty()) {
       node = node.children.values().iterator().next();
     }
     return node.file;
