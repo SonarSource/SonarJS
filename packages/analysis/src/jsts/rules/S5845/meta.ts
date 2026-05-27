@@ -14,7 +14,5 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { rules } from '../external/react.js';
-import { decorate } from './decorator.js';
-
-export const rule = decorate(rules['no-this-in-sfc']);
+export const implementation = 'original';
+export const eslintId = 'no-incompatible-assertion-types';

@@ -16,7 +16,6 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S2428
 
-import type { TSESTree } from '@typescript-eslint/utils';
 import type { Rule, SourceCode } from 'eslint';
 import { areEquivalent } from '../helpers/equivalence.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -83,12 +82,8 @@ function isPropertyAssignment(
       return (
         !left.computed &&
         isSingleLineExpression(right, sourceCode) &&
-        areEquivalent(
-          left.object as TSESTree.Node,
-          objectIdentifier as TSESTree.Node,
-          sourceCode,
-        ) &&
-        !areEquivalent(left.object as TSESTree.Node, right as TSESTree.Node, sourceCode)
+        areEquivalent(left.object, objectIdentifier, sourceCode) &&
+        !areEquivalent(left.object, right, sourceCode)
       );
     }
   }

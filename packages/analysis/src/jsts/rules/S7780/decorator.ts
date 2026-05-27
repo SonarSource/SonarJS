@@ -41,10 +41,7 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
         fix: _fix,
         suggest: _suggest,
         ...rest
-      } = descriptor as Rule.ReportDescriptor & {
-        fix?: unknown;
-        suggest?: unknown;
-      };
+      } = descriptor;
       _context.report(rest);
     },
   );

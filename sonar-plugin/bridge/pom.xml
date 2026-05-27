@@ -10,7 +10,7 @@
   <artifactId>bridge</artifactId>
   <name>SonarQube JavaScript :: Bridge</name>
   <properties>
-    <protobuf.version>4.34.1</protobuf.version>
+    <protobuf.version>4.35.0</protobuf.version>
     <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <grpc.version>1.81.0</grpc.version>
   </properties>
