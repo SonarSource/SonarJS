@@ -51,7 +51,7 @@ function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: Node): bo
 
   for (const ancestor of ancestors) {
     if (ancestor.type === 'CallExpression') {
-      const fqn = getFullyQualifiedName(context, ancestor as CallExpression);
+      const fqn = getFullyQualifiedName(context, ancestor);
       if (fqn && EXCEPTION_LIBRARIES.some(lib => fqn.startsWith(lib))) {
         return true;
       }
@@ -352,8 +352,7 @@ function isInterfaceShapeDescriptor(node: Node): boolean {
   if (parent?.type !== 'Property') {
     return false;
   }
-  const prop = parent as Node & { type: 'Property'; key: Node; value: Node; computed: boolean };
-  return !prop.computed && prop.key === node && isIdentifier(prop.value, 'Function');
+  return !parent.computed && parent.key === node && isIdentifier(parent.value, 'Function');
 }
 
 /**

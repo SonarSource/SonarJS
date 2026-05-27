@@ -36,7 +36,7 @@ export const rule: Rule.RuleModule = {
       const counters: estree.Identifier[] = [];
       extractCounters(updateNode, counters);
       for (const counter of counters) {
-        checkCounter(counter, loopBody as estree.BlockStatement);
+        checkCounter(counter, loopBody);
       }
     }
 
