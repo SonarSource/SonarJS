@@ -56,22 +56,15 @@ export function getComponentPropsType(
   componentNode: estree.Node,
   services: RequiredParserServices,
 ): ts.Type | undefined {
-  return getComponentPropsTypeCandidates(componentNode, services)[0];
-}
-
-function getComponentPropsTypeCandidates(
-  componentNode: estree.Node,
-  services: RequiredParserServices,
-): ts.Type[] {
   if (isFunctionComponentNode(componentNode)) {
-    return getFunctionComponentPropsTypeCandidates(componentNode, services);
+    return getFunctionComponentPropsTypeCandidates(componentNode, services)[0];
   }
 
   if (isClassComponentNode(componentNode)) {
-    return getClassComponentPropsTypeCandidates(componentNode, services);
+    return getClassComponentPropsTypeCandidates(componentNode, services)[0];
   }
 
-  return [];
+  return undefined;
 }
 
 export function createComponentAnalysis(
