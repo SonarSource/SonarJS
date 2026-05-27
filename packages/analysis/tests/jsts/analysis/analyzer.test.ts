@@ -137,6 +137,32 @@ describe('await analyzeJSTS', () => {
     ]);
   });
 
+  it('should split adjacent sonar-resolve directives in consecutive line comments', async () => {
+    await Linter.initialize({ baseDir: normalizeToAbsolutePath(fixtures), rules: [] });
+
+    const result = await analyzeJSTS(
+      await jsTsInput({
+        filePath: path.join(fixtures, 'sonar-resolve-adjacent-line.js'),
+        fileContent: [
+          '// sonar-resolve javascript:S1116 "first',
+          '// sonar-resolve javascript:S1121 "second"',
+          'foo();',
+        ].join('\n'),
+      }),
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 1,
+        text: ' sonar-resolve javascript:S1116 "first',
+      },
+      {
+        line: 2,
+        text: ' sonar-resolve javascript:S1121 "second"',
+      },
+    ]);
+  });
+
   it('should extract sonar-resolve directives from Vue script comments only', async () => {
     await Linter.initialize({ baseDir: normalizeToAbsolutePath(fixtures), rules: [] });
 

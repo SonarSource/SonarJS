@@ -93,9 +93,9 @@ function extractSonarResolveComments(comments: CommentSource[]): SonarResolveCom
     if (comment.kind === 'line') {
       const previousLineComment = lineCommentRun.at(-1);
       if (
-        lineCommentRun.length > 0 &&
         previousLineComment != null &&
-        previousLineComment.endLine + 1 !== comment.line
+        (previousLineComment.endLine + 1 !== comment.line ||
+          startsWithDirectiveKeyword(comment.text))
       ) {
         pushLineCommentRun(lineCommentRun, extracted);
         lineCommentRun = [];
