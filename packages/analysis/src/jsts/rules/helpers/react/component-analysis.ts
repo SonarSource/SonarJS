@@ -300,7 +300,7 @@ function isReactClassSuperName(name: string): boolean {
   return REACT_LOCAL_CLASS_SUPERS.has(name);
 }
 
-export function isBuiltinReactSuperclassName(
+function isQualifiedReactClassSuper(
   objectName: string | undefined,
   propertyName: string,
 ): boolean {
@@ -309,16 +309,43 @@ export function isBuiltinReactSuperclassName(
     : objectName === 'React' && isReactClassSuperName(propertyName);
 }
 
+function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
+  return (
+    (superClass.type === 'Identifier' && isQualifiedReactClassSuper(undefined, superClass.name)) ||
+    (superClass.type === 'MemberExpression' &&
+      isIdentifier(superClass.object, 'React') &&
+      superClass.property.type === 'Identifier' &&
+      isQualifiedReactClassSuper(superClass.object.name, superClass.property.name))
+  );
+}
+
+export function isReactClassComponent(
+  node: estree.Node,
+): node is estree.ClassDeclaration | estree.ClassExpression {
+  return (
+    isClassComponentNode(node) &&
+    node.superClass != null &&
+    isBuiltinReactSuperclass(node.superClass)
+  );
+}
+
 function isReactComponentHeritageSuperclass(superclass: ts.ExpressionWithTypeArguments): boolean {
   const expression = superclass.expression;
   if (ts.isIdentifier(expression)) {
-    return isBuiltinReactSuperclassName(undefined, expression.text);
+    return isQualifiedReactClassSuper(undefined, expression.text);
   }
   return (
     ts.isPropertyAccessExpression(expression) &&
     ts.isIdentifier(expression.expression) &&
-    isBuiltinReactSuperclassName(expression.expression.text, expression.name.text)
+    isQualifiedReactClassSuper(expression.expression.text, expression.name.text)
   );
+}
+
+export function isBuiltinReactSuperclassName(
+  objectName: string | undefined,
+  propertyName: string,
+): boolean {
+  return isQualifiedReactClassSuper(objectName, propertyName);
 }
 
 function getDeclaredClassPropsType(
