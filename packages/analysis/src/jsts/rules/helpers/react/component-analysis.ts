@@ -15,13 +15,17 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import type { Scope, SourceCode } from 'eslint';
+import type { SourceCode } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
-import { childrenOf, getNodeParent } from '../ancestor.js';
-import { isIdentifier } from '../ast.js';
+import { childrenOf } from '../ancestor.js';
 import type { RequiredParserServices } from '../parser-services.js';
 import { areSameTypeDeclarations, getTypeFromTreeNode } from '../type.js';
+import {
+  getComponentIdentifier,
+  getOwningVariableDeclarator,
+  isAnonymousDefaultExportComponent,
+} from './component-identity.js';
 import {
   isClassComponentNode,
   isComponentNode,
@@ -32,11 +36,11 @@ import {
 } from './component-nodes.js';
 
 export { isComponentNode, type ComponentNode } from './component-nodes.js';
+export { getComponentIdentifier, getComponentVariable } from './component-identity.js';
 
 const REACT_LOCAL_CLASS_SUPERS = new Set(['Component', 'PureComponent']);
 const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
 const REACT_FORWARD_REF_RENDER_FUNCTION_TYPES = new Set(['ForwardRefRenderFunction']);
-const REACT_COMPONENT_WRAPPER_CALLEES = new Set(['memo', 'forwardRef']);
 
 export type ComponentAnalysis = {
   memberPropsTypeCandidates: ts.Type[];
@@ -54,10 +58,6 @@ const EMPTY_COMPONENT_ANALYSIS: ComponentAnalysis = {
   classNonPropsTypeCandidates: [],
 };
 
-function hasIdentifierId(node: estree.Node): node is estree.Node & { id: estree.Identifier } {
-  return 'id' in node && node.id != null && isIdentifier(node.id);
-}
-
 function getClassComponentTsNode(
   componentNode: ClassComponentNode,
   services: RequiredParserServices,
@@ -65,77 +65,6 @@ function getClassComponentTsNode(
   return services.esTreeNodeToTSNodeMap.get(
     componentNode as TSESTree.Node,
   ) as ts.ClassLikeDeclaration;
-}
-
-function isVariableDeclaratorWithIdentifierId(
-  node: unknown,
-): node is estree.VariableDeclarator & { id: estree.Identifier } {
-  return (
-    !!node &&
-    typeof node === 'object' &&
-    'type' in node &&
-    node.type === 'VariableDeclarator' &&
-    'id' in node &&
-    !!node.id &&
-    typeof node.id === 'object' &&
-    'type' in node.id &&
-    node.id.type === 'Identifier'
-  );
-}
-
-function isVariableAssignedFunctionOrClassExpression(
-  componentNode: estree.Node,
-  parent: unknown,
-): parent is estree.VariableDeclarator & { id: estree.Identifier } {
-  return (
-    (componentNode.type === 'ClassExpression' || componentNode.type === 'FunctionExpression') &&
-    isVariableDeclaratorWithIdentifierId(parent)
-  );
-}
-
-function isReactComponentWrapperCallee(callee: estree.Expression | estree.Super): boolean {
-  return (
-    (callee.type === 'Identifier' && REACT_COMPONENT_WRAPPER_CALLEES.has(callee.name)) ||
-    (callee.type === 'MemberExpression' &&
-      isIdentifier(callee.object, 'React') &&
-      callee.property.type === 'Identifier' &&
-      REACT_COMPONENT_WRAPPER_CALLEES.has(callee.property.name))
-  );
-}
-
-function isWrappedInReactComponentCall(
-  node: estree.Node,
-  parent: estree.Node | undefined,
-): parent is estree.CallExpression {
-  return (
-    parent?.type === 'CallExpression' &&
-    parent.arguments.includes(node as unknown as estree.Expression) &&
-    isReactComponentWrapperCallee(parent.callee)
-  );
-}
-
-function getOutermostReactWrapperParent(componentNode: estree.Node): estree.Node | undefined {
-  let currentNode: estree.Node = componentNode;
-  let parent = getNodeParent(currentNode);
-
-  while (isWrappedInReactComponentCall(currentNode, parent)) {
-    currentNode = parent;
-    parent = getNodeParent(currentNode);
-  }
-
-  return parent;
-}
-
-function getOwningVariableDeclarator(
-  componentNode: estree.Node,
-): (estree.VariableDeclarator & { id: estree.Identifier }) | undefined {
-  const parent = getOutermostReactWrapperParent(componentNode);
-  return isVariableDeclaratorWithIdentifierId(parent) ? parent : undefined;
-}
-
-function isAnonymousDefaultExportComponent(componentNode: estree.Node): boolean {
-  const parent = getOutermostReactWrapperParent(componentNode);
-  return parent?.type === 'ExportDefaultDeclaration';
 }
 
 export function getComponentPropsType(
@@ -485,43 +414,4 @@ export function collectComponentNodes(
   keys: SourceCode.VisitorKeys,
 ): ComponentNode[] {
   return collectComponents(root, keys).map(component => component.componentNode);
-}
-
-export function getComponentVariable(
-  sourceCode: SourceCode,
-  componentNode: estree.Node,
-): Scope.Variable | undefined {
-  const componentIdentifier = getComponentIdentifier(componentNode);
-  if (!componentIdentifier) {
-    return undefined;
-  }
-
-  let scope: Scope.Scope | null = sourceCode.getScope(componentNode);
-  while (scope) {
-    const variable = scope.set.get(componentIdentifier.name);
-    if (variable) {
-      return variable;
-    }
-    scope = scope.upper;
-  }
-
-  return undefined;
-}
-
-export function getComponentIdentifier(componentNode: estree.Node): estree.Identifier | undefined {
-  const parent = getNodeParent(componentNode);
-  const owningVariableDeclarator = getOwningVariableDeclarator(componentNode);
-  if (parent?.type === 'CallExpression' && owningVariableDeclarator) {
-    return owningVariableDeclarator.id;
-  }
-
-  if (isVariableAssignedFunctionOrClassExpression(componentNode, parent)) {
-    return parent.id;
-  }
-
-  if (hasIdentifierId(componentNode)) {
-    return componentNode.id;
-  }
-
-  return isVariableDeclaratorWithIdentifierId(parent) ? parent.id : undefined;
 }
