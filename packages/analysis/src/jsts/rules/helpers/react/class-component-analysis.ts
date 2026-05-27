@@ -15,27 +15,23 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { TSESTree } from '@typescript-eslint/utils';
-import type estree from 'estree';
 import ts from 'typescript';
 import { isIdentifier } from '../ast.js';
 import type { RequiredParserServices } from '../parser-services.js';
 import type { ComponentAnalysis } from './component-analysis.js';
 import type { ClassComponentNode } from './component-nodes.js';
+import type { ClassComponentDescriptor } from './component-resolution.js';
 
 const REACT_LOCAL_CLASS_SUPERS = new Set(['Component', 'PureComponent']);
 
 export function createClassComponentAnalysis(
-  componentNode: ClassComponentNode,
+  component: ClassComponentDescriptor,
   services: RequiredParserServices,
-): ComponentAnalysis | undefined {
-  if (!hasRenderMethodOrProperty(componentNode)) {
-    return undefined;
-  }
-
+): ComponentAnalysis {
   const checker = services.program.getTypeChecker();
-  const classTsNode = getClassComponentTsNode(componentNode, services);
+  const classTsNode = getClassComponentTsNode(component.node, services);
   const classPropsType = getClassPropsPropertyType(classTsNode, checker);
-  const memberPropsTypeCandidates = getClassComponentPropsTypeCandidates(componentNode, services);
+  const memberPropsTypeCandidates = getClassComponentPropsTypeCandidates(component.node, services);
   return {
     memberPropsTypeCandidates,
     enclosingTypePropsTypeCandidates: classPropsType ? [classPropsType] : [],
@@ -56,7 +52,7 @@ export function getClassComponentPropsTypeCandidates(
 }
 
 function getClassComponentTsNode(
-  componentNode: ClassComponentNode,
+  componentNode: ClassComponentDescriptor['node'],
   services: RequiredParserServices,
 ): ts.ClassLikeDeclaration {
   return services.esTreeNodeToTSNodeMap.get(
@@ -155,16 +151,4 @@ function getClassPropsPropertyType(
     ? checker.getDeclaredTypeOfSymbol(classSymbol).getProperty('props')
     : undefined;
   return propsSymbol ? checker.getTypeOfSymbol(propsSymbol) : undefined;
-}
-
-function hasRenderMethodOrProperty(componentNode: estree.Node): boolean {
-  return (
-    (componentNode.type === 'ClassDeclaration' || componentNode.type === 'ClassExpression') &&
-    componentNode.body.body.some(
-      member =>
-        (member.type === 'MethodDefinition' || member.type === 'PropertyDefinition') &&
-        member.key.type === 'Identifier' &&
-        member.key.name === 'render',
-    )
-  );
 }

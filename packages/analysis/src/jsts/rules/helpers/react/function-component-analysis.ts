@@ -19,26 +19,19 @@ import type estree from 'estree';
 import ts from 'typescript';
 import type { RequiredParserServices } from '../parser-services.js';
 import { areSameTypeDeclarations, getTypeFromTreeNode } from '../type.js';
-import {
-  getOwningVariableDeclarator,
-  isAnonymousDefaultExportComponent,
-} from './component-identity.js';
+import { getOwningVariableDeclarator } from './component-identity.js';
 import type { ComponentAnalysis } from './component-analysis.js';
 import type { FunctionComponentNode } from './component-nodes.js';
+import type { FunctionComponentDescriptor } from './component-resolution.js';
 
 const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
 const REACT_FORWARD_REF_RENDER_FUNCTION_TYPES = new Set(['ForwardRefRenderFunction']);
 
 export function createFunctionComponentAnalysis(
-  componentNode: FunctionComponentNode,
-  componentIdentifier: estree.Identifier | undefined,
+  component: FunctionComponentDescriptor,
   services: RequiredParserServices,
-): ComponentAnalysis | undefined {
-  if (!isEligibleFunctionComponent(componentNode, componentIdentifier)) {
-    return undefined;
-  }
-
-  const propsTypeCandidates = getFunctionComponentPropsTypeCandidates(componentNode, services);
+): ComponentAnalysis {
+  const propsTypeCandidates = getFunctionComponentPropsTypeCandidates(component.node, services);
   return {
     memberPropsTypeCandidates: propsTypeCandidates,
     enclosingTypePropsTypeCandidates: propsTypeCandidates,
@@ -72,20 +65,6 @@ export function getFunctionComponentPropsTypeCandidates(
   }
 
   return propsTypes;
-}
-
-/**
- * Returns whether a function component should participate in component analysis.
- * Named components must follow React's uppercase convention, while anonymous
- * function components stay eligible only when they are exported as default.
- */
-function isEligibleFunctionComponent(
-  componentNode: FunctionComponentNode,
-  componentIdentifier: estree.Identifier | undefined,
-): boolean {
-  return componentIdentifier === undefined
-    ? isAnonymousDefaultExportComponent(componentNode)
-    : /^[A-Z]/.test(componentIdentifier.name);
 }
 
 function isSpecificPropsType(type: ts.Type | undefined): type is ts.Type {

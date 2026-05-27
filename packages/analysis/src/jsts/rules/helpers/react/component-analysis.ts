@@ -22,10 +22,9 @@ import {
   getClassComponentPropsTypeCandidates,
 } from './class-component-analysis.js';
 import type { CollectedComponent } from './component-collection.js';
-import { getComponentIdentifier } from './component-identity.js';
+import { resolveComponent } from './component-resolution.js';
 import {
   isClassComponentNode,
-  isComponentNode,
   isFunctionComponentNode,
   type ComponentNode,
 } from './component-nodes.js';
@@ -75,37 +74,18 @@ function getComponentPropsTypeCandidates(
   return [];
 }
 
-function isCollectedComponent(
-  component: ComponentNode | CollectedComponent,
-): component is CollectedComponent {
-  return 'componentNode' in component;
-}
-
-function getCollectedComponent(component: ComponentNode | CollectedComponent): CollectedComponent {
-  return isCollectedComponent(component)
-    ? component
-    : {
-        componentNode: component,
-        componentIdentifier: getComponentIdentifier(component),
-      };
-}
-
 export function createComponentAnalysis(
   component: ComponentNode | CollectedComponent,
   services: RequiredParserServices,
 ): ComponentAnalysis {
-  const { componentNode, componentIdentifier } = getCollectedComponent(component);
-
-  if (isClassComponentNode(componentNode)) {
-    return createClassComponentAnalysis(componentNode, services) ?? EMPTY_COMPONENT_ANALYSIS;
+  const resolvedComponent = resolveComponent(component);
+  if (!resolvedComponent) {
+    return EMPTY_COMPONENT_ANALYSIS;
   }
 
-  if (isFunctionComponentNode(componentNode)) {
-    return (
-      createFunctionComponentAnalysis(componentNode, componentIdentifier, services) ??
-      EMPTY_COMPONENT_ANALYSIS
-    );
+  if (resolvedComponent.kind === 'class') {
+    return createClassComponentAnalysis(resolvedComponent, services);
   }
 
-  return EMPTY_COMPONENT_ANALYSIS;
+  return createFunctionComponentAnalysis(resolvedComponent, services);
 }
