@@ -424,8 +424,13 @@ public class AnalysisProcessor {
         saveIssueResolution(context, parser.result());
       } else if (state == SonarResolve.StreamingParser.State.INVALID) {
         logInvalidDirective(directiveLine, parser.errorMessage());
-      } else if (parser.finish() == SonarResolve.StreamingParser.State.INVALID) {
-        logInvalidDirective(directiveLine, parser.errorMessage());
+      } else {
+        var finalState = parser.finish();
+        if (finalState == SonarResolve.StreamingParser.State.COMPLETE) {
+          saveIssueResolution(context, parser.result());
+        } else if (finalState == SonarResolve.StreamingParser.State.INVALID) {
+          logInvalidDirective(directiveLine, parser.errorMessage());
+        }
       }
 
       index = lastConsumedIndex + 1;

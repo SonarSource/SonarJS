@@ -311,6 +311,38 @@ class AnalysisProcessorTest {
   }
 
   @Test
+  void should_save_multiline_sonar_resolve_directive() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(13, 5),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "js", "file.js", "const x = 1;\nconst y = 2;\n");
+    var response = responseWithSonarResolveComments(
+      SonarResolveComment.newBuilder()
+        .setLine(1)
+        .setText("sonar-resolve javascript:S1116 \"reason\ncontinued\"")
+        .build()
+    );
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    assertThat(issueResolutions(sensorContext, file))
+      .singleElement()
+      .satisfies(issueResolution -> {
+        assertThat(issueResolution.status()).isEqualTo(IssueResolution.Status.DEFAULT);
+        assertThat(issueResolution.ruleKeys()).containsExactly(RuleKey.of("javascript", "S1116"));
+        assertThat(issueResolution.comment()).isEqualTo("reason\ncontinued");
+        assertThat(issueResolution.textRange().start().line()).isEqualTo(1);
+      });
+  }
+
+  @Test
   void should_ignore_sonar_resolve_before_supported_runtime() {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
