@@ -14,46 +14,39 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { SourceCode } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
-import { childrenOf } from '../ancestor.js';
 import type { RequiredParserServices } from '../parser-services.js';
-import { areSameTypeDeclarations, getTypeFromTreeNode } from '../type.js';
 import {
   createClassComponentAnalysis,
   getClassComponentPropsTypeCandidates,
 } from './class-component-analysis.js';
-import {
-  getComponentIdentifier,
-  getOwningVariableDeclarator,
-  isAnonymousDefaultExportComponent,
-} from './component-identity.js';
+import type { CollectedComponent } from './component-collection.js';
+import { getComponentIdentifier } from './component-identity.js';
 import {
   isClassComponentNode,
   isComponentNode,
   isFunctionComponentNode,
   type ComponentNode,
-  type FunctionComponentNode,
 } from './component-nodes.js';
-import { TSESTree } from '@typescript-eslint/utils';
+import {
+  createFunctionComponentAnalysis,
+  getFunctionComponentPropsTypeCandidates,
+} from './function-component-analysis.js';
 export { isComponentNode, type ComponentNode } from './component-nodes.js';
 export { getComponentIdentifier, getComponentVariable } from './component-identity.js';
+export {
+  collectComponentNodes,
+  collectComponents,
+  type CollectedComponent,
+} from './component-collection.js';
 export { isBuiltinReactSuperclassName, isReactClassComponent } from './class-component-analysis.js';
-
-const REACT_FUNCTION_COMPONENT_TYPES = new Set(['FC', 'FunctionComponent']);
-const REACT_FORWARD_REF_RENDER_FUNCTION_TYPES = new Set(['ForwardRefRenderFunction']);
 
 export type ComponentAnalysis = {
   memberPropsTypeCandidates: ts.Type[];
   enclosingTypePropsTypeCandidates: ts.Type[];
   classNonPropsTypeCandidates: ts.Type[];
 };
-export type CollectedComponent = {
-  componentNode: ComponentNode;
-  componentIdentifier: estree.Identifier | undefined;
-};
-
 const EMPTY_COMPONENT_ANALYSIS: ComponentAnalysis = {
   memberPropsTypeCandidates: [],
   enclosingTypePropsTypeCandidates: [],
@@ -82,123 +75,6 @@ function getComponentPropsTypeCandidates(
   return [];
 }
 
-function getFunctionComponentPropsTypeCandidates(
-  componentNode: FunctionComponentNode,
-  services: RequiredParserServices,
-): ts.Type[] {
-  const checker = services.program.getTypeChecker();
-  const propsTypes: ts.Type[] = [];
-  const primaryPropsType = getFunctionComponentParamPropsType(componentNode, services);
-  if (primaryPropsType) {
-    propsTypes.push(primaryPropsType);
-  }
-
-  const declaredVariablePropsType = getComponentPropsTypeFromVariableDeclaration(
-    componentNode,
-    services,
-  );
-  if (
-    declaredVariablePropsType &&
-    !(
-      primaryPropsType &&
-      areSameTypeDeclarations(checker, primaryPropsType, declaredVariablePropsType)
-    )
-  ) {
-    propsTypes.push(declaredVariablePropsType);
-  }
-
-  return propsTypes;
-}
-
-function isSpecificPropsType(type: ts.Type | undefined): type is ts.Type {
-  return !!type && (type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) === 0;
-}
-
-function getFunctionComponentParamPropsType(
-  componentNode: FunctionComponentNode,
-  services: RequiredParserServices,
-): ts.Type | undefined {
-  const firstParam = componentNode.params[0];
-  const propsType = firstParam ? getTypeFromTreeNode(firstParam, services) : undefined;
-  return isSpecificPropsType(propsType) ? propsType : undefined;
-}
-
-function getComponentPropsTypeFromVariableDeclaration(
-  componentNode: estree.Node,
-  services: RequiredParserServices,
-): ts.Type | undefined {
-  const variableDeclarator = getOwningVariableDeclarator(componentNode);
-  if (!variableDeclarator) {
-    return undefined;
-  }
-
-  const declaredType = (variableDeclarator.id as TSESTree.Identifier).typeAnnotation
-    ?.typeAnnotation;
-  if (!declaredType) {
-    return undefined;
-  }
-
-  const propsTypeNode = findDeclaredFunctionComponentPropsType(declaredType);
-  return propsTypeNode
-    ? getTypeFromTreeNode(propsTypeNode as unknown as estree.Node, services)
-    : undefined;
-}
-
-function findDeclaredFunctionComponentPropsType(
-  typeNode: TSESTree.TypeNode,
-): TSESTree.TypeNode | undefined {
-  if (typeNode.type === 'TSIntersectionType') {
-    for (const type of typeNode.types) {
-      const propsType = findDeclaredFunctionComponentPropsType(type);
-      if (propsType) {
-        return propsType;
-      }
-    }
-    return undefined;
-  }
-
-  if (typeNode.type !== 'TSTypeReference') {
-    return undefined;
-  }
-
-  const typeName = getRightmostTypeName(typeNode.typeName);
-  const typeArguments = typeNode.typeArguments?.params ?? [];
-
-  if (typeName && REACT_FUNCTION_COMPONENT_TYPES.has(typeName)) {
-    return typeArguments[0];
-  }
-
-  if (typeName && REACT_FORWARD_REF_RENDER_FUNCTION_TYPES.has(typeName)) {
-    return typeArguments[1];
-  }
-
-  return undefined;
-}
-
-function getRightmostTypeName(typeName: TSESTree.EntityName): string | undefined {
-  if (typeName.type === 'Identifier') {
-    return typeName.name;
-  }
-  if (typeName.type === 'TSQualifiedName') {
-    return typeName.right.name;
-  }
-  return undefined;
-}
-
-/**
- * Returns whether a function component should participate in component analysis.
- * Named components must follow React's uppercase convention, while anonymous
- * function components stay eligible only when they are exported as default.
- */
-function isEligibleFunctionComponent(
-  componentNode: FunctionComponentNode,
-  componentIdentifier: estree.Identifier | undefined,
-): boolean {
-  return componentIdentifier === undefined
-    ? isAnonymousDefaultExportComponent(componentNode)
-    : /^[A-Z]/.test(componentIdentifier.name);
-}
-
 function isCollectedComponent(
   component: ComponentNode | CollectedComponent,
 ): component is CollectedComponent {
@@ -224,54 +100,12 @@ export function createComponentAnalysis(
     return createClassComponentAnalysis(componentNode, services) ?? EMPTY_COMPONENT_ANALYSIS;
   }
 
-  if (
-    !isFunctionComponentNode(componentNode) ||
-    !isEligibleFunctionComponent(componentNode, componentIdentifier)
-  ) {
-    return EMPTY_COMPONENT_ANALYSIS;
+  if (isFunctionComponentNode(componentNode)) {
+    return (
+      createFunctionComponentAnalysis(componentNode, componentIdentifier, services) ??
+      EMPTY_COMPONENT_ANALYSIS
+    );
   }
 
-  const propsTypeCandidates = getComponentPropsTypeCandidates(componentNode, services);
-  return {
-    memberPropsTypeCandidates: propsTypeCandidates,
-    enclosingTypePropsTypeCandidates: propsTypeCandidates,
-    classNonPropsTypeCandidates: [],
-  };
-}
-
-function collectComponent(componentNode: ComponentNode): CollectedComponent {
-  return {
-    componentNode,
-    componentIdentifier: getComponentIdentifier(componentNode),
-  };
-}
-
-export function collectComponents(
-  root: estree.Node,
-  keys: SourceCode.VisitorKeys,
-): CollectedComponent[] {
-  const result: CollectedComponent[] = [];
-  const stack = [root];
-  while (stack.length > 0) {
-    const node = stack.pop();
-    if (node === undefined) {
-      continue;
-    }
-    if (isComponentNode(node)) {
-      result.push(collectComponent(node));
-      continue;
-    }
-    const children = childrenOf(node, keys);
-    for (let i = children.length - 1; i >= 0; i--) {
-      stack.push(children[i]);
-    }
-  }
-  return result;
-}
-
-export function collectComponentNodes(
-  root: estree.Node,
-  keys: SourceCode.VisitorKeys,
-): ComponentNode[] {
-  return collectComponents(root, keys).map(component => component.componentNode);
+  return EMPTY_COMPONENT_ANALYSIS;
 }
