@@ -20,6 +20,7 @@ import { dirname, join } from 'node:path';
 import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { createConfiguration } from '../../../src/common/configuration.js';
+import { sanitizeRawInputFiles } from '../../../src/common/input-sanitize.js';
 import {
   dependencyManifestStore,
   generatedSourceStore,
@@ -946,6 +947,94 @@ export default config;
     expect(
       generatedSourceStore.getFamily(joinPaths(baseDir, 'src', 'generated', 'graphql.ts')),
     ).toEqual('@graphql-codegen/cli');
+  });
+
+  it('clears generated-source cache when pnpm workspace manifests are updated', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
+
+    try {
+      await writeFixtureFile(
+        join(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            name: 'catalog-peer-dependency-fixture',
+            peerDependencies: {
+              '@graphql-codegen/cli': 'catalog:',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        join(baseDir, 'pnpm-workspace.yaml'),
+        `catalog:
+  "@graphql-codegen/cli": "^5.0.0"
+`,
+      );
+      await writeFixtureFile(
+        join(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/graphql.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const generated = true;\n');
+
+      let configuration = createConfiguration({ baseDir });
+      await initFileStores(configuration);
+
+      expect(generatedSourceStore.getFamily(outputPath)).toEqual('@graphql-codegen/cli');
+
+      configuration = createConfiguration({
+        baseDir,
+        fsEvents: { [join(baseDir, 'pnpm-workspace.yaml')]: 'MODIFIED' },
+      });
+      generatedSourceStore.dirtyCachesIfNeeded(configuration);
+
+      expect(generatedSourceStore.getFamily(outputPath)).toBeUndefined();
+      expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('recomputes generated-source matches when the request file set changes', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+    const firstGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
+    const secondGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'types', 'schema.ts');
+    const configuration = createConfiguration({ baseDir });
+    const { files: firstInputFiles } = await sanitizeRawInputFiles(
+      {
+        [firstGeneratedFile]: {
+          filePath: firstGeneratedFile,
+          fileType: 'MAIN',
+        },
+      },
+      configuration,
+    );
+
+    await initFileStores(configuration, firstInputFiles);
+
+    expect(generatedSourceStore.getFamily(firstGeneratedFile)).toEqual('@graphql-codegen/cli');
+    expect(generatedSourceStore.getFamily(secondGeneratedFile)).toBeUndefined();
+
+    const { files: secondInputFiles } = await sanitizeRawInputFiles(
+      {
+        [secondGeneratedFile]: {
+          filePath: secondGeneratedFile,
+          fileType: 'MAIN',
+        },
+      },
+      configuration,
+    );
+
+    await initFileStores(configuration, secondInputFiles);
+
+    expect(generatedSourceStore.getFamily(firstGeneratedFile)).toBeUndefined();
+    expect(generatedSourceStore.getFamily(secondGeneratedFile)).toEqual('@graphql-codegen/cli');
   });
 
   it('records the current configuration when post-processing exits early', async () => {

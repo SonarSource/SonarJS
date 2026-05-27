@@ -33,6 +33,7 @@ import {
   GENERATED_SOURCE_WATCHED_FILENAMES,
   type GeneratedSourceFamily,
 } from '../jsts/rules/helpers/generated-sources/index.js';
+import { isPreloadableDependencyManifestPath } from '../jsts/rules/helpers/dependency-manifests/index.js';
 import { relativeToAncestorPath } from '../jsts/rules/helpers/files.js';
 import { deriveGeneratedSources } from '../jsts/rules/helpers/generated-sources/derive.js';
 import { sortPathEntries } from '../jsts/rules/helpers/generated-sources/shared.js';
@@ -65,15 +66,31 @@ class GeneratedSourceStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
+  private requestFilesKey: string | undefined = undefined;
+  private derivedFamilyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
   private familyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
   private resolvedFiles = new Set<NormalizedAbsolutePath>();
   private configPaths = new Set<NormalizedAbsolutePath>();
   private outputDirectories = new Set<NormalizedAbsolutePath>();
   private observabilityTelemetry = createEmptyGeneratedSourcesTelemetry();
 
-  async isInitialized(configuration: Configuration) {
+  async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
-    return this.baseDir !== undefined;
+    if (this.baseDir === undefined) {
+      return false;
+    }
+
+    const requestFilesKey = getRequestFilesKey(inputFiles);
+    if (requestFilesKey === this.requestFilesKey) {
+      return true;
+    }
+
+    if (requestFilesKey === undefined) {
+      return false;
+    }
+
+    this.refreshFilteredState(configuration, inputFiles);
+    return true;
   }
 
   getFamily(filePath: NormalizedAbsolutePath): GeneratedSourceFamily | undefined {
@@ -151,26 +168,17 @@ class GeneratedSourceStore implements FileStore {
         sourceFileMatcher: createConfiguredGeneratedSourceFileMatcher(configuration),
       },
     );
-    // Generated-source tagging must stay aligned with the analyzer's real file scope
-    // so configurable suffixes and exclusions win over detector-local heuristics.
-    this.familyByFile = filterAnalyzableGeneratedFiles(derived.familyByFile, analyzableFiles);
-    this.resolvedFiles = new Set(derived.familyByFile.keys());
+    this.derivedFamilyByFile = new Map(derived.familyByFile);
+    this.resolvedFiles = new Set(this.derivedFamilyByFile.keys());
     this.configPaths = derived.configPaths;
     this.outputDirectories = derived.outputDirectories;
-    const observability = buildGeneratedSourceObservability(
-      derived.familyByFile,
-      this.familyByFile,
-      configuration,
-    );
-    this.observabilityTelemetry = observability.telemetry;
-    getOptionalProjectAnalysisTelemetryCollector()?.recordGeneratedSources(observability.telemetry);
-    logGeneratedSourceObservability(baseDir, observability);
+    this.refreshFilteredState(configuration, analyzableFiles);
   }
 
   private isRelevantEvent(filename: NormalizedAbsolutePath) {
     const eventBaseName = basename(filename).toLowerCase();
     if (
-      eventBaseName === 'package.json' ||
+      isPreloadableDependencyManifestPath(filename) ||
       GENERATED_SOURCE_WATCHED_FILENAMES.includes(eventBaseName)
     ) {
       return true;
@@ -194,11 +202,33 @@ class GeneratedSourceStore implements FileStore {
   }
 
   private clearDerivedState() {
-    this.familyByFile.clear();
-    this.resolvedFiles.clear();
-    this.configPaths.clear();
-    this.outputDirectories.clear();
+    this.requestFilesKey = undefined;
+    this.derivedFamilyByFile = new Map();
+    this.familyByFile = new Map();
+    this.resolvedFiles = new Set();
+    this.configPaths = new Set();
+    this.outputDirectories = new Set();
     this.observabilityTelemetry = createEmptyGeneratedSourcesTelemetry();
+  }
+
+  private refreshFilteredState(configuration: Configuration, analyzableFiles?: AnalyzableFiles) {
+    if (!this.baseDir) {
+      return;
+    }
+
+    this.requestFilesKey = getRequestFilesKey(analyzableFiles);
+    // Generated-source tagging must stay aligned with the analyzer's real file scope
+    // so configurable suffixes and exclusions win over detector-local heuristics.
+    this.familyByFile = filterAnalyzableGeneratedFiles(this.derivedFamilyByFile, analyzableFiles);
+
+    const observability = buildGeneratedSourceObservability(
+      this.derivedFamilyByFile,
+      this.familyByFile,
+      configuration,
+    );
+    this.observabilityTelemetry = observability.telemetry;
+    getOptionalProjectAnalysisTelemetryCollector()?.recordGeneratedSources(observability.telemetry);
+    logGeneratedSourceObservability(this.baseDir, observability);
   }
 }
 
@@ -217,6 +247,14 @@ function filterAnalyzableGeneratedFiles(
     }
   }
   return filtered;
+}
+
+function getRequestFilesKey(analyzableFiles?: AnalyzableFiles) {
+  if (!analyzableFiles) {
+    return undefined;
+  }
+
+  return JSON.stringify(Object.keys(analyzableFiles).sort());
 }
 
 export const generatedSourceStore = new GeneratedSourceStore();
