@@ -22,7 +22,7 @@ import { ReportedTypeDetails, type ReportedType } from '../reported-type.js';
 import type { RequiredParserServices } from '../parser-services.js';
 
 type TypeMemberNode = TSESTree.TSPropertySignature | TSESTree.TSMethodSignature;
-export type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
+type ReportedTypeMember = ReportedTypeDetails<TypeMemberNode, ts.TypeElement>;
 
 function isTypeMemberNode(node: TSESTree.Node): node is TypeMemberNode {
   return node.type === 'TSPropertySignature' || node.type === 'TSMethodSignature';
