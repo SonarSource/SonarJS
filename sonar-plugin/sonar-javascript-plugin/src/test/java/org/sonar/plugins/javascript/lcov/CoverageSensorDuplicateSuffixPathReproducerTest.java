@@ -304,6 +304,50 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
     assertThat(context.lineHits(packageA.key(), 1)).isEqualTo(1);
   }
 
+  @Test
+  void should_import_absolute_paths_when_lcov_uses_an_alias_of_analysis_base_dir()
+    throws Exception {
+    Path realBaseDir = Files.createDirectories(tempDir.resolve("real-base-dir"));
+    Path analysisBaseDirAlias = createDirectoryAlias(
+      tempDir.resolve("analysis-base-dir-alias"),
+      realBaseDir
+    );
+
+    settings = new MapSettings();
+    context = SensorContextTester.create(realBaseDir.toFile());
+    context.setSettings(settings);
+
+    DefaultInputFile packageA = tsInputFile(
+      realBaseDir,
+      "packages/a/src/index.ts",
+      String.join(
+          "\n",
+          "export const fromA = 1;",
+          "export function fromPackageA() {",
+          "  return fromA;",
+          "}"
+        ) +
+        "\n"
+    );
+
+    Path lcov = realBaseDir.resolve("duplicate-suffix-absolute-alias-spelling.lcov");
+    Files.write(
+      lcov,
+      String.join(
+        "\n",
+        "SF:" + analysisBaseDirAlias.resolve("packages/a/src/index.ts").toAbsolutePath(),
+        "DA:1,1",
+        "end_of_record",
+        ""
+      ).getBytes(StandardCharsets.UTF_8)
+    );
+
+    settings.setProperty(JavaScriptPlugin.LCOV_REPORT_PATHS, lcov.toAbsolutePath().toString());
+    coverageSensor.execute(context);
+
+    assertThat(context.lineHits(packageA.key(), 1)).isEqualTo(1);
+  }
+
   private DefaultInputFile tsInputFile(String relativePath, String contents) {
     return tsInputFile(tempDir, relativePath, contents);
   }

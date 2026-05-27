@@ -247,7 +247,7 @@ class LCOVParser {
     FilePredicates predicates = context.fileSystem().predicates();
     for (
       Path currentDirectory = reportDirectory.toPath().toAbsolutePath().normalize();
-      currentDirectory != null;
+      isInsideAnalysisBaseDir(currentDirectory);
       currentDirectory = currentDirectory.getParent()
     ) {
       InputFile inputFile = inputFileByAbsolutePath(
@@ -257,33 +257,59 @@ class LCOVParser {
       if (inputFile != null) {
         return inputFile;
       }
-      if (
-        currentDirectory.equals(analysisBaseDir) || !currentDirectory.startsWith(analysisBaseDir)
-      ) {
+      if (isAnalysisBaseDir(currentDirectory)) {
         break;
       }
     }
     return null;
   }
 
+  private boolean isInsideAnalysisBaseDir(@CheckForNull Path path) {
+    return (
+      path != null && (path.startsWith(analysisBaseDir) || path.startsWith(realAnalysisBaseDir))
+    );
+  }
+
+  private boolean isAnalysisBaseDir(Path path) {
+    return path.equals(analysisBaseDir) || path.equals(realAnalysisBaseDir);
+  }
+
   @CheckForNull
   private InputFile inputFileByAbsolutePath(FilePredicates predicates, String absolutePath) {
-    InputFile inputFile = context.fileSystem().inputFile(predicates.hasAbsolutePath(absolutePath));
+    Path normalizedAbsolutePath = new File(absolutePath).toPath().toAbsolutePath().normalize();
+    InputFile inputFile = context
+      .fileSystem()
+      .inputFile(predicates.hasAbsolutePath(normalizedAbsolutePath.toString()));
     if (inputFile != null) {
       return inputFile;
     }
 
-    String relativePath = relativePathFromAnalysisBaseDir(absolutePath);
-    if (relativePath != null) {
-      return context.fileSystem().inputFile(predicates.hasPath(relativePath));
+    inputFile = inputFileByRelativePathFromAnalysisBaseDir(predicates, normalizedAbsolutePath);
+    if (inputFile != null) {
+      return inputFile;
+    }
+
+    Path canonicalAbsolutePath = canonicalizePathSpelling(normalizedAbsolutePath);
+    if (!canonicalAbsolutePath.equals(normalizedAbsolutePath)) {
+      return inputFileByRelativePathFromAnalysisBaseDir(predicates, canonicalAbsolutePath);
     }
     return null;
   }
 
   @CheckForNull
-  private String relativePathFromAnalysisBaseDir(String absolutePath) {
-    Path absoluteFilePath = new File(absolutePath).toPath().toAbsolutePath().normalize();
+  private InputFile inputFileByRelativePathFromAnalysisBaseDir(
+    FilePredicates predicates,
+    Path absoluteFilePath
+  ) {
+    String relativePath = relativePathFromAnalysisBaseDir(absoluteFilePath);
+    if (relativePath == null) {
+      return null;
+    }
+    return context.fileSystem().inputFile(predicates.hasPath(relativePath));
+  }
 
+  @CheckForNull
+  private String relativePathFromAnalysisBaseDir(Path absoluteFilePath) {
     String relativePath = PATH_RESOLVER.relativePath(analysisBaseDir, absoluteFilePath);
     if (relativePath != null) {
       return relativePath;
@@ -293,6 +319,24 @@ class LCOVParser {
       return PATH_RESOLVER.relativePath(realAnalysisBaseDir, absoluteFilePath);
     }
     return null;
+  }
+
+  private static Path canonicalizePathSpelling(Path path) {
+    Path normalizedPath = path.toAbsolutePath().normalize();
+    Path existingPath = normalizedPath;
+    while (existingPath != null && !java.nio.file.Files.exists(existingPath)) {
+      existingPath = existingPath.getParent();
+    }
+    if (existingPath == null) {
+      return normalizedPath;
+    }
+
+    Path realExistingPath = resolveRealPath(existingPath);
+    if (realExistingPath.equals(existingPath)) {
+      return normalizedPath;
+    }
+
+    return realExistingPath.resolve(existingPath.relativize(normalizedPath)).normalize();
   }
 
   private static Path resolveRealPath(Path path) {
