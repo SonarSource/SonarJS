@@ -39,7 +39,6 @@ async function initForTest(configOptions: object, rawFiles: object) {
 }
 
 const fixtures = normalizePath(join(import.meta.dirname, 'fixtures-sonarqube'));
-
 const rules: RuleConfig[] = [
   {
     key: 'S1116',
