@@ -18,17 +18,15 @@
 
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
+import { extractTestAssertion } from '../helpers/assertions.js';
 import { isIdentifier, isMethodCall } from '../helpers/ast.js';
-import {
-  getFullyQualifiedName,
-  importsModule,
-  importsOrDependsOnModule,
-} from '../helpers/module.js';
+import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
   preferSpecificAssertion: 'Use a more specific assertion instead of this generic one.',
+  suggestSpecificAssertion: 'Replace with "{{assertion}}".',
 };
 
 type Suggestion = {
@@ -53,10 +51,10 @@ export const rule: Rule.RuleModule = {
     const hasJestLike = importsOrDependsOnModule(context, JEST_LIKE_MODULES, JEST_LIKE_MODULES);
     const hasChai = importsOrDependsOnModule(context, CHAI_MODULES, CHAI_MODULES);
     const hasCypress = importsOrDependsOnModule(context, CYPRESS_MODULES, CYPRESS_MODULES);
-    const hasPlaywright = importsModule(context, PLAYWRIGHT_MODULES);
+    const hasPlaywright = importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES);
     const playwrightLocators = new Set<string>();
 
-    function report(node: estree.CallExpression) {
+    function report(node: estree.CallExpression, _suggestion: Suggestion) {
       context.report({
         node: node.callee,
         messageId: 'preferSpecificAssertion',
@@ -75,28 +73,32 @@ export const rule: Rule.RuleModule = {
             playwrightLocators,
           );
           if (playwrightSuggestion) {
-            report(node);
+            report(node, playwrightSuggestion);
             return;
           }
+        }
+        const assertion = extractTestAssertion(context, node);
+        if (!assertion || assertion.kind !== 'comparison') {
+          return;
         }
         if (hasJestLike) {
           const jestSuggestion = getJestLikeSuggestion(node, sourceCode);
           if (jestSuggestion) {
-            report(node);
+            report(node, jestSuggestion);
             return;
           }
         }
         if (hasChai) {
           const chaiSuggestion = getChaiSuggestion(context, node, sourceCode);
           if (chaiSuggestion) {
-            report(node);
+            report(node, chaiSuggestion);
             return;
           }
         }
         if (hasCypress) {
           const cypressSuggestion = getCypressSuggestion(node, sourceCode);
           if (cypressSuggestion) {
-            report(node);
+            report(node, cypressSuggestion);
           }
         }
       },
@@ -426,7 +428,8 @@ function getBooleanExpressionSuggestion(
     actual.type === 'CallExpression' &&
     isMethodCall(actual) &&
     isIdentifier(actual.callee.property, 'includes') &&
-    actual.arguments.length === 1
+    actual.arguments.length === 1 &&
+    isTrustedStringReceiver(actual.callee.object)
   ) {
     const receiver = sourceCode.getText(actual.callee.object);
     const needle = sourceCode.getText(actual.arguments[0]);
@@ -443,6 +446,16 @@ function getBooleanExpressionSuggestion(
         );
   }
   return null;
+}
+
+function isTrustedStringReceiver(node: estree.Node): boolean {
+  if (node.type === 'Literal') {
+    return typeof node.value === 'string';
+  }
+  if (node.type === 'TemplateLiteral') {
+    return node.expressions.length === 0;
+  }
+  return isIdentifier(node) && /(?:text|string|message|content|html)$/i.test(node.name);
 }
 
 function getNumericComparison(operator: estree.BinaryOperator, positive: boolean) {

@@ -38,11 +38,21 @@ describe('S5906', () => {
         },
         {
           code: `
+            import { expect } from 'vitest';
+
+            expect(value).toBeTruthy();
+            expect(value).toBeFalsy();
+            expect(items.includes(NaN)).toBe(true);
+          `,
+        },
+        {
+          code: `
             import { expect } from 'chai';
 
             expect(value).to.be.null;
             expect(items).to.have.lengthOf(2);
             expect(text).to.include('email');
+            expect(value).to.be.true;
           `,
         },
         {
@@ -51,6 +61,16 @@ describe('S5906', () => {
 
             assert.equal(value, null);
             assert.notEqual(value, undefined);
+            assert.ok(value);
+            assert.isTrue(value);
+          `,
+        },
+        {
+          code: `
+            import 'cypress';
+
+            cy.get('button').should('be.visible');
+            cy.wrap(value).should('be.null');
           `,
         },
         {
@@ -68,6 +88,13 @@ describe('S5906', () => {
             import { expect } from 'jasmine';
 
             expect(error).toBe(null);
+          `,
+        },
+        {
+          code: `
+            import assert from 'node:assert';
+
+            assert.strictEqual(value, null);
           `,
         },
         {
@@ -109,12 +136,38 @@ describe('S5906', () => {
           code: `
             import { expect } from 'vitest';
 
+            expect(value).not.toBe(undefined);
+            expect(value).toEqual(NaN);
+            expect(Number.isFinite(total)).toBe(false);
+          `,
+          errors: [
+            {
+              messageId: 'preferSpecificAssertion',
+            },
+            {
+              messageId: 'preferSpecificAssertion',
+            },
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
             expect(summary.itemCount === 2).toBe(true);
             expect(total > 0).toBe(true);
             expect(user instanceof User).toBe(true);
             expect(text.includes('admin')).toBe(true);
           `,
           errors: 4,
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            expect(total <= 0).toBe(false);
+            expect(user instanceof User).not.toBe(true);
+          `,
+          errors: 2,
         },
         {
           code: `
@@ -126,6 +179,15 @@ describe('S5906', () => {
             expect(user instanceof User).to.equal(true);
           `,
           errors: 4,
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+
+            expect(total <= 0).to.equal(false);
+            expect(text.includes('admin')).to.not.equal(true);
+          `,
+          errors: 2,
         },
         {
           code: `
