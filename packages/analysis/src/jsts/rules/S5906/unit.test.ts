@@ -191,6 +191,14 @@ describe('S5906', () => {
         },
         {
           code: `
+            import { expect } from 'chai';
+
+            expect(typeof result === 'number').to.eql(true);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             import { assert } from 'chai';
 
             assert.strictEqual(value, undefined);
@@ -219,9 +227,10 @@ describe('S5906', () => {
               expect(await banner.isVisible()).toBe(true);
               expect(await rows.count()).toBe(3);
               expect(await input.inputValue()).toEqual('Ada');
+              expect(await page.getByTestId('input-name').inputValue()).toEqual('Ada');
             });
           `,
-          errors: 3,
+          errors: 4,
         },
       ],
     });
