@@ -80,6 +80,9 @@ function hasThisPropertyAssignmentInConstructor(
   }
 
   const constructorBody = ctor.value.body;
+  if (constructorBody == null) {
+    return false;
+  }
   return walkForThisAssignment(constructorBody, visitorKeys);
 }
 

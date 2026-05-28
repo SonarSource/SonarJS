@@ -169,6 +169,14 @@ describe('S2094', () => {
           errors: 1,
         },
         {
+          code: `declare class Stats {
+  private constructor();
+}`,
+          filename: 'file.ts',
+          options,
+          errors: 1,
+        },
+        {
           // Noncompliant: side effects only
           code: `class SideEffects {
   constructor() {
