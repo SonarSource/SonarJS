@@ -31,8 +31,8 @@ type NumericComparison = {
   chai: string;
 };
 
-const EQUALITY_OPERATORS = ['===', '==', '!==', '!='];
-const POSITIVE_EQUALITY_OPERATORS = ['===', '=='];
+const EQUALITY_OPERATORS = new Set(['===', '==', '!==', '!=']);
+const POSITIVE_EQUALITY_OPERATORS = new Set(['===', '==']);
 const STRING_LIKE_IDENTIFIER = /(?:text|string|message|content|html)$/i;
 
 export function getBooleanExpressionSuggestion(
@@ -58,8 +58,8 @@ function getBinaryExpressionSuggestion(
   const left = sourceCode.getText(actual.left);
   const right = sourceCode.getText(actual.right);
 
-  if (EQUALITY_OPERATORS.includes(actual.operator)) {
-    const same = POSITIVE_EQUALITY_OPERATORS.includes(actual.operator) ? positive : !positive;
+  if (EQUALITY_OPERATORS.has(actual.operator)) {
+    const same = POSITIVE_EQUALITY_OPERATORS.has(actual.operator) ? positive : !positive;
     return buildEqualitySuggestion(left, right, same, family, node);
   }
 
