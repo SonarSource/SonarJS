@@ -225,6 +225,11 @@ class AnalyzeProjectMessagesTest {
       }
 
       @Override
+      public boolean shouldDetectGeneratedCode() {
+        return false;
+      }
+
+      @Override
       public boolean canAccessFileSystem() {
         return false;
       }
@@ -310,6 +315,7 @@ class AnalyzeProjectMessagesTest {
     assertThat(proto.getTestInclusionsList()).containsExactly("**/*.spec.ts");
     assertThat(proto.getTestExclusionsList()).containsExactly("**/*.snap.ts");
     assertThat(proto.getDetectBundles()).isFalse();
+    assertThat(proto.getDetectGeneratedCode()).isFalse();
     assertThat(proto.getCanAccessFileSystem()).isFalse();
     assertThat(proto.getCreateTsProgramForOrphanFiles()).isFalse();
     assertThat(proto.getDisableTypeChecking()).isTrue();
@@ -329,6 +335,7 @@ class AnalyzeProjectMessagesTest {
       org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisMode.ANALYSIS_MODE_DEFAULT
     );
     assertThat(proto.getDetectBundles()).isTrue();
+    assertThat(proto.getDetectGeneratedCode()).isTrue();
     assertThat(proto.getCanAccessFileSystem()).isTrue();
     assertThat(proto.getCreateTsProgramForOrphanFiles()).isTrue();
     assertThat(proto.getDisableTypeChecking()).isFalse();

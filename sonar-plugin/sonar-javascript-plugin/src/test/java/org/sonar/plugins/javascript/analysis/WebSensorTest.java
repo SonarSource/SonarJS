@@ -536,6 +536,29 @@ class WebSensorTest {
   }
 
   @Test
+  void should_send_detectGeneratedCode_true_by_default() {
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .getDetectGeneratedCode()
+    ).isTrue();
+  }
+
+  @Test
+  void should_send_detectGeneratedCode_false_when_disabled() {
+    context.setSettings(
+      new MapSettings().setProperty(JavaScriptPlugin.DETECT_GENERATED_CODE_PROPERTY, "false")
+    );
+    assertThat(
+      executeSensorAndCaptureHandler(createSensor(), context)
+        .getRequest()
+        .getConfiguration()
+        .getDetectGeneratedCode()
+    ).isFalse();
+  }
+
+  @Test
   void should_send_skipNodeModuleLookupOutsideBaseDir_false_by_default() {
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)

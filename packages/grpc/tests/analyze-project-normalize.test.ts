@@ -83,6 +83,7 @@ describe('normalizeAnalyzeProjectRequest', () => {
         testInclusions: ['**/*.spec.ts'],
         testExclusions: ['**/*.snap.ts'],
         detectBundles: false,
+        detectGeneratedCode: false,
         canAccessFileSystem: false,
         createTsProgramForOrphanFiles: false,
         disableTypeChecking: true,
@@ -167,6 +168,7 @@ describe('normalizeAnalyzeProjectRequest', () => {
     expect(normalized.configuration.canAccessFileSystem).toBe(false);
     expect(normalized.configuration.clearDependenciesCache).toBe(true);
     expect(normalized.configuration.clearTsConfigCache).toBe(true);
+    expect(normalized.configuration.detectGeneratedCode).toBe(false);
     expect(normalized.configuration.ecmaScriptVersion).toBe('2024');
     expect(normalized.configuration.reportNclocForTestFiles).toBe(true);
     expect(normalized.rules).toHaveLength(2);
@@ -205,6 +207,7 @@ describe('normalizeAnalyzeProjectRequest', () => {
     expect(normalized.baseDir).toBe(baseDir);
     expect(normalized.pathMap.size).toBe(0);
     expect(normalized.configuration.canAccessFileSystem).toBe(true);
+    expect(normalized.configuration.detectGeneratedCode).toBe(true);
     expect(normalized.configuration.maxFileSize).toBe(64);
   });
 

@@ -142,6 +142,8 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
   public static final String DETECT_BUNDLES_PROPERTY = "sonar.javascript.detectBundles";
+  public static final String DETECT_GENERATED_CODE_PROPERTY =
+    "sonar.javascript.detectGeneratedCode";
   public static final String NO_FS = "sonar.javascript.canAccessFileSystem";
   public static final String CREATE_TS_PROGRAM_FOR_ORPHAN_FILES =
     "sonar.javascript.createTSProgramForOrphanFiles";
