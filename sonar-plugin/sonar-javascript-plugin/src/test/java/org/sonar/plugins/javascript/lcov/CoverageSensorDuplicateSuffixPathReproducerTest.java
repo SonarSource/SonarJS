@@ -111,6 +111,43 @@ class CoverageSensorDuplicateSuffixPathReproducerTest {
   }
 
   @Test
+  void should_prefer_report_relative_match_over_repo_root_relative_match() throws Exception {
+    DefaultInputFile repoRoot = tsInputFile(
+      "src/index.ts",
+      String.join("\n", "export const fromRoot = 1;", "export const stillRoot = 2;") + "\n"
+    );
+    DefaultInputFile packageA = tsInputFile(
+      "packages/a/src/index.ts",
+      String.join(
+          "\n",
+          "export const fromA = 1;",
+          "export function fromPackageA() {",
+          "  return fromA;",
+          "}"
+        ) +
+        "\n"
+    );
+
+    Path packageACoverageDir = Files.createDirectories(tempDir.resolve("packages/a/coverage"));
+    Path packageALcov = packageACoverageDir.resolve("lcov.info");
+    Files.write(
+      packageALcov,
+      String.join("\n", "SF:src/index.ts", "DA:1,1", "end_of_record", "").getBytes(
+        StandardCharsets.UTF_8
+      )
+    );
+
+    settings.setProperty(
+      JavaScriptPlugin.LCOV_REPORT_PATHS,
+      packageALcov.toAbsolutePath().toString()
+    );
+    coverageSensor.execute(context);
+
+    assertThat(context.lineHits(repoRoot.key(), 1)).isNull();
+    assertThat(context.lineHits(packageA.key(), 1)).isEqualTo(1);
+  }
+
+  @Test
   void should_resolve_package_relative_lcov_paths_against_report_ancestor_directories()
     throws Exception {
     DefaultInputFile packageA = tsInputFile(

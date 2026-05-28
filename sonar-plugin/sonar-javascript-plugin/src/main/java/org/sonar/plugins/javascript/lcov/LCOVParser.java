@@ -188,18 +188,30 @@ class LCOVParser {
    * Resolves the SF path to an indexed input file.
    * <p>
    * Resolution order:
-   * 1) exact filesystem predicate match (absolute or project-relative path),
+   * 1) exact absolute-path match,
    * 2) relative-to-report lookup for package-local LCOV paths,
-   * 3) suffix-based lookup through {@link FileLocator}, preferring unique matches and falling back
+   * 3) exact project-relative match,
+   * 4) suffix-based lookup through {@link FileLocator}, preferring unique matches and falling back
    * to the historical deterministic guess when several analyzed files share the same suffix.
    */
   @CheckForNull
   private InputFile inputFileForSourceFile(File reportFile, String line) {
     // SF:<absolute path to the source file>
     String filePath = line.substring(SF.length());
-    InputFile inputFile = inputFileByExactPath(filePath);
-    if (inputFile == null) {
-      inputFile = inputFileRelativeToReport(reportFile, filePath);
+    String sanitizedPath = PathUtils.sanitize(filePath);
+    if (sanitizedPath == null) {
+      unresolvedPaths.add(filePath);
+      return null;
+    }
+
+    InputFile inputFile;
+    if (new File(sanitizedPath).isAbsolute()) {
+      inputFile = inputFileByAbsolutePath(context.fileSystem().predicates(), sanitizedPath);
+    } else {
+      inputFile = inputFileRelativeToReport(reportFile, sanitizedPath);
+      if (inputFile == null) {
+        inputFile = inputFileByProjectRelativePath(sanitizedPath);
+      }
     }
     if (inputFile == null) {
       FileLocator.Resolution resolution = fileLocator.resolve(filePath);
@@ -220,25 +232,12 @@ class LCOVParser {
   }
 
   @CheckForNull
-  private InputFile inputFileByExactPath(String filePath) {
-    String sanitizedPath = PathUtils.sanitize(filePath);
-    if (sanitizedPath == null) {
-      return null;
-    }
-    FilePredicates predicates = context.fileSystem().predicates();
-    if (new File(sanitizedPath).isAbsolute()) {
-      return inputFileByAbsolutePath(predicates, sanitizedPath);
-    }
-    return context.fileSystem().inputFile(predicates.hasPath(sanitizedPath));
+  private InputFile inputFileByProjectRelativePath(String relativePath) {
+    return context.fileSystem().inputFile(context.fileSystem().predicates().hasPath(relativePath));
   }
 
   @CheckForNull
   private InputFile inputFileRelativeToReport(File reportFile, String filePath) {
-    String sanitizedPath = PathUtils.sanitize(filePath);
-    if (sanitizedPath == null || new File(sanitizedPath).isAbsolute()) {
-      return null;
-    }
-
     File reportDirectory = reportFile.getParentFile();
     if (reportDirectory == null) {
       return null;
@@ -252,7 +251,7 @@ class LCOVParser {
     ) {
       InputFile inputFile = inputFileByAbsolutePath(
         predicates,
-        currentDirectory.resolve(sanitizedPath).normalize().toString()
+        currentDirectory.resolve(filePath).normalize().toString()
       );
       if (inputFile != null) {
         return inputFile;
