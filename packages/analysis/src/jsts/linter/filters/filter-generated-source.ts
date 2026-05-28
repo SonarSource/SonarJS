@@ -18,5 +18,5 @@ import type { RuleFilter } from './rule-filter.js';
 
 export const filterGeneratedSource: RuleFilter = (_config, meta, ctx) => {
   // Generated sources only suppress rules that explicitly opt out via SonarMeta.
-  return !ctx.isGeneratedSource || meta?.skipOnGeneratedSource !== true;
+  return !ctx.detectGeneratedCode || !ctx.isGeneratedSource || meta?.skipOnGeneratedSource !== true;
 };

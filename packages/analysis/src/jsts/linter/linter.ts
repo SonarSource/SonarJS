@@ -66,6 +66,7 @@ interface InitializeParams {
   environments?: string[];
   globals?: string[];
   baseDir: NormalizedAbsolutePath;
+  detectGeneratedCode?: boolean;
   bundles?: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
   /** Union of jsSuffixes and tsSuffixes; exposed to rules via context.settings.testFileExtensions */
@@ -118,6 +119,7 @@ export class Linter {
   /** The rules working directory (used for architecture, dbd...) */
   private static rulesWorkdir?: NormalizedAbsolutePath;
   private static baseDir: NormalizedAbsolutePath;
+  private static detectGeneratedCode = true;
   /** Union of jsSuffixes and tsSuffixes, surfaced to rules through ESLint settings. */
   private static testFileExtensions: string[] = [];
 
@@ -148,6 +150,7 @@ export class Linter {
     globals = [],
     bundles = [],
     baseDir,
+    detectGeneratedCode = true,
     rulesWorkdir,
     testFileExtensions = [],
   }: InitializeParams) {
@@ -159,6 +162,7 @@ export class Linter {
     Linter.dependencyIndependentRulesCache.clear();
     Linter.dependencySensitiveRulesCache.clear();
     Linter.baseDir = baseDir;
+    Linter.detectGeneratedCode = detectGeneratedCode;
     Linter.testFileExtensions = testFileExtensions;
     /**
      * Context bundles define a set of external custom rules (like the architecture rule)
@@ -320,6 +324,7 @@ export class Linter {
       analysisMode,
       detectedEsYear,
       detectedModuleType,
+      detectGeneratedCode: Linter.detectGeneratedCode,
       isGeneratedSource: generatedSourceFamily !== undefined,
     };
 

@@ -95,6 +95,7 @@ export async function analyzeProject(
     globals,
     bundles,
     baseDir,
+    detectGeneratedCode: configuration.detectGeneratedCode,
     rulesWorkdir,
     testFileExtensions,
   });

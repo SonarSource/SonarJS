@@ -986,6 +986,28 @@ describe('SonarQube project analysis', () => {
     }
   });
 
+  it('should not suppress skipOnGeneratedSource rules when generated-code detection is disabled', async () => {
+    const baseDir = join(fixtures, 'generated-sources-openapi');
+    const generatedFile = join(baseDir, 'src/api/index.ts');
+
+    const configuration = await initForTest(
+      { baseDir, detectGeneratedCode: false },
+      { [generatedFile]: { filePath: generatedFile, fileType: 'MAIN' } },
+    );
+
+    const result = await analyzeProject(
+      { rules: skipOnGeneratedSourceRules, bundles: [] },
+      configuration,
+    );
+
+    const fileResult = result.files[normalizeToAbsolutePath(generatedFile)];
+    expect(fileResult).toBeDefined();
+    expect('issues' in fileResult!).toBe(true);
+    if ('issues' in fileResult!) {
+      expect(fileResult.issues.some(issue => issue.ruleId === 'S107')).toBe(true);
+    }
+  });
+
   it('should clear generated-source cache between project analyses', async () => {
     const baseDir = join(fixtures, 'generated-sources-openapi');
     const generatedFile = join(baseDir, 'src/api/index.ts');

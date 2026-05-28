@@ -82,3 +82,5 @@ lcov.info
 .codex/*
 !.codex/skills/
 .mcp.json
+docs/js-1597
+docs/superpowers/
