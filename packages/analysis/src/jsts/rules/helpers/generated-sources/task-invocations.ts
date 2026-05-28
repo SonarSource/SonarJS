@@ -23,7 +23,6 @@ export type TaskInvocation = {
   taskName: string;
   commandLine?: string;
   tokens?: readonly string[];
-  normalizedCommands: readonly string[];
 };
 
 interface TaskInvocationProvider {
@@ -39,8 +38,6 @@ const packageJsonTaskInvocationProvider = {
   kind: 'package-json-scripts',
 
   collect({ packageJson }) {
-    const normalizedCommandByToken = getNormalizedCommandByToken(packageJson);
-
     return Object.entries(packageJson.scripts ?? {}).flatMap(([taskName, commandLine]) => {
       if (typeof commandLine !== 'string') {
         return [];
@@ -53,7 +50,6 @@ const packageJsonTaskInvocationProvider = {
           taskName,
           commandLine,
           tokens,
-          normalizedCommands: collectNormalizedCommands(tokens, normalizedCommandByToken),
         } satisfies TaskInvocation,
       ];
     });
@@ -80,43 +76,7 @@ export async function collectGeneratedSourceTaskInvocations(context: {
 
 export function taskInvocationInvokesCommand(taskInvocation: TaskInvocation, commandName: string) {
   return (
-    taskInvocation.normalizedCommands.includes(commandName) ||
     taskInvocation.tokens?.some(token => matchesCommandToken(token, commandName)) === true ||
     taskInvocation.commandLine?.includes(commandName) === true
   );
-}
-
-function getNormalizedCommandByToken(packageJson: PackageJson) {
-  const normalizedCommandByToken = new Map<string, string>();
-
-  if (typeof packageJson.bin !== 'object' || packageJson.bin === null) {
-    return normalizedCommandByToken;
-  }
-
-  for (const [commandName, commandTarget] of Object.entries(packageJson.bin)) {
-    if (typeof commandTarget === 'string') {
-      normalizedCommandByToken.set(commandTarget, commandName);
-    }
-  }
-
-  return normalizedCommandByToken;
-}
-
-function collectNormalizedCommands(
-  tokens: readonly string[] | undefined,
-  normalizedCommandByToken: ReadonlyMap<string, string>,
-) {
-  if (!tokens) {
-    return [];
-  }
-
-  const normalizedCommands = new Set<string>();
-  for (const token of tokens) {
-    const normalizedCommand = normalizedCommandByToken.get(token);
-    if (normalizedCommand) {
-      normalizedCommands.add(normalizedCommand);
-    }
-  }
-
-  return [...normalizedCommands].sort((left, right) => left.localeCompare(right));
 }

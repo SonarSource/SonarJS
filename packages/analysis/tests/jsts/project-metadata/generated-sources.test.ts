@@ -119,7 +119,7 @@ describe('generated sources project metadata', () => {
     ]);
   });
 
-  it('collects package.json task invocations with normalized bin aliases', async () => {
+  it('collects package.json task invocations as tokenized scripts', async () => {
     const baseDir = await createTempBaseDir();
 
     try {
@@ -131,9 +131,6 @@ describe('generated sources project metadata', () => {
             graphql: 'graphql-codegen --config ./codegen.yml',
             proto: 'node ./bin/internal-proto-codegen.js -O=./src/generated ./proto/service.proto',
           },
-          bin: {
-            'proto-loader-gen-types': './bin/internal-proto-codegen.js',
-          },
         },
       });
 
@@ -143,7 +140,6 @@ describe('generated sources project metadata', () => {
           taskName: 'graphql',
           commandLine: 'graphql-codegen --config ./codegen.yml',
           tokens: ['graphql-codegen', '--config', './codegen.yml'],
-          normalizedCommands: [],
         },
         {
           source: 'package-json-script',
@@ -156,7 +152,6 @@ describe('generated sources project metadata', () => {
             '-O=./src/generated',
             './proto/service.proto',
           ],
-          normalizedCommands: ['proto-loader-gen-types'],
         },
       ]);
     } finally {
@@ -236,7 +231,7 @@ describe('generated sources project metadata', () => {
     }
   });
 
-  it('does not inherit parent GraphQL Code Generator dependencies into nested packages', async () => {
+  it('inherits parent GraphQL Code Generator dependencies into nested packages', async () => {
     const baseDir = await createTempBaseDir();
     const packageDir = joinPaths(baseDir, 'packages', 'app');
     const outputPath = joinPaths(packageDir, 'src', 'generated', 'graphql.ts');
@@ -277,7 +272,7 @@ describe('generated sources project metadata', () => {
 
       await initFileStores(createConfiguration({ baseDir }));
 
-      expect(generatedSourceStore.getFamily(outputPath)).toBeUndefined();
+      expect(generatedSourceStore.getFamily(outputPath)).toEqual('@graphql-codegen/cli');
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
@@ -874,30 +869,6 @@ export default config;
     expect(
       generatedSourceStore.getFamily(joinPaths(baseDir, 'build', 'generated', 'ignored.ts')),
     ).toEqual('proto-loader-gen-types');
-  });
-
-  it('derives proto-loader outputs from a bin target flag using equals syntax', async () => {
-    const baseDir = await createTempBaseDir();
-    const outputFile = joinPaths(baseDir, 'src', 'generated', 'service.ts');
-
-    try {
-      await writeFixtureFile(outputFile, 'export const service = true;\n');
-
-      const packageJsons = createPackageJsonMap(baseDir, {
-        scripts: {
-          codegen: 'node ./bin/proto-loader-gen-types.js -O=./src/generated ./proto/service.proto',
-        },
-        bin: {
-          'proto-loader-gen-types': './bin/proto-loader-gen-types.js',
-        },
-      });
-
-      const derived = await deriveGeneratedSources(baseDir, packageJsons);
-
-      expect(derived.familyByFile.get(outputFile)).toEqual('proto-loader-gen-types');
-    } finally {
-      await rm(baseDir, { recursive: true, force: true });
-    }
   });
 
   it('derives recursive proto-loader outputs rooted under dist while pruning nested build/cache folders', async () => {

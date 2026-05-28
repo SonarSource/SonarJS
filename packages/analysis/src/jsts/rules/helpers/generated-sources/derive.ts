@@ -75,9 +75,7 @@ function resolveGeneratedSourceDependencies(
   baseDir: NormalizedAbsolutePath,
   packageJson: PackageJson,
 ): DependenciesList {
-  const dependencies = getDependencies(packageDir, baseDir, {
-    includeParentManifests: false,
-  });
+  const dependencies = getDependencies(packageDir, baseDir);
 
   // Some unit tests call deriveGeneratedSources with synthetic package.json maps
   // without initializing the manifest store or writing manifests to disk.
