@@ -101,6 +101,24 @@ describe('ast', () => {
         const deserializedProtoMessage = deserializeProtobuf(serialized);
         compareASTs(protoMessage, deserializedProtoMessage);
       });
+
+    test('should serialize and deserialize deep commander call chains', async () => {
+      const filePath = normalizeToAbsolutePath(
+        path.join(
+          import.meta.dirname,
+          '..',
+          '..',
+          'fixtures-sonarqube',
+          'sonar-armor-commander',
+          'commander.js',
+        ),
+      );
+      const sc = await parseSourceFile(filePath, parsersMap.typescript);
+      const protoMessage = parseInProtobuf(sc.sourceCode.ast as TSESTree.Program);
+      const serialized = serializeInProtobuf(sc.sourceCode.ast as TSESTree.Program, filePath);
+      const deserializedProtoMessage = deserializeProtobuf(serialized);
+      compareASTs(protoMessage, deserializedProtoMessage);
+    });
   });
   test('should support TSAsExpression nodes', async () => {
     const code = `const foo = '5' as string;`;

@@ -15,6 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import base64 from '@protobufjs/base64';
+import protobuf from 'protobufjs/minimal.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 
 import { debug } from '../../../../shared/src/helpers/logging.js';
@@ -25,6 +26,7 @@ const NODE_TYPE = estree.Node;
 const NodeType = estree.NodeType;
 export { NodeType };
 const unsupportedNodeTypes = new Map<string, number>();
+const AST_PROTOBUF_RECURSION_LIMIT = 1000;
 
 export function serializeInProtobuf(
   ast: TSESTree.Program,
@@ -40,8 +42,10 @@ export function serializeInProtobuf(
           .join(', '),
     );
   }
-  const binaryArray = NODE_TYPE.encode(NODE_TYPE.create(protobufAST)).finish();
-  return base64.encode(binaryArray, 0, binaryArray.length);
+  return withRaisedProtobufRecursionLimit(() => {
+    const binaryArray = NODE_TYPE.encode(NODE_TYPE.create(protobufAST)).finish();
+    return base64.encode(binaryArray, 0, binaryArray.length);
+  });
 }
 
 /**
@@ -59,7 +63,26 @@ export function deserializeProtobuf(serialized: string): estree.Node {
   const computedLength = base64.length(serialized);
   const buffer = new Uint8Array(computedLength);
   base64.decode(serialized, buffer, 0);
-  return NODE_TYPE.decode(buffer);
+  return withRaisedProtobufRecursionLimit(() => NODE_TYPE.decode(buffer));
+}
+
+function withRaisedProtobufRecursionLimit<T>(callback: () => T): T {
+  const previousUtilLimit = protobuf.util.recursionLimit;
+  const previousReaderLimit = protobuf.Reader.recursionLimit;
+  const targetLimit = Math.max(
+    previousUtilLimit,
+    previousReaderLimit,
+    AST_PROTOBUF_RECURSION_LIMIT,
+  );
+
+  protobuf.util.recursionLimit = targetLimit;
+  protobuf.Reader.recursionLimit = targetLimit;
+  try {
+    return callback();
+  } finally {
+    protobuf.util.recursionLimit = previousUtilLimit;
+    protobuf.Reader.recursionLimit = previousReaderLimit;
+  }
 }
 
 // Exported for testing purpose

@@ -16,6 +16,7 @@
  */
 import { describe, it, beforeEach, type Mock, mock } from 'node:test';
 import { expect } from 'expect';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path/posix';
 import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { analyzeProject, cancelAnalysis } from '../src/analyzeProject.js';
@@ -39,6 +40,7 @@ async function initForTest(configOptions: object, rawFiles: object) {
 }
 
 const fixtures = normalizePath(join(import.meta.dirname, 'fixtures-sonarqube'));
+const sonarArmorCommanderFixture = join(fixtures, 'sonar-armor-commander', 'commander.js');
 
 const rules: RuleConfig[] = [
   {
@@ -864,6 +866,45 @@ describe('SonarQube project analysis', () => {
         line: 3,
       });
     }
+  });
+
+  it('should serialize AST for sonar-armor commander.js', async ({ mock }) => {
+    mock.method(console, 'log');
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const baseDir = normalizePath(
+      'C:/GIT/sonar-armor/its/src/test/resources/projects/internal/sonarsec-jsInternalConfig',
+    );
+    const filePath = join(baseDir, 'commander.js');
+    const normalizedFilePath = normalizeToAbsolutePath(filePath);
+    const fileContent = readFileSync(sonarArmorCommanderFixture, 'utf8');
+
+    const configuration = await initForTest(
+      { baseDir, canAccessFileSystem: false, skipAst: false },
+      {
+        [filePath]: {
+          filePath,
+          fileType: 'MAIN',
+          fileContent,
+        },
+      },
+    );
+
+    const result = await analyzeProject({ rules: [], bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizedFilePath];
+    expect(fileResult).toBeDefined();
+    expect(fileResult && 'parsingErrors' in fileResult).toBe(false);
+    expect(fileResult && 'ast' in fileResult).toBe(true);
+    if (!fileResult || !('ast' in fileResult) || !fileResult.ast) {
+      throw new Error('Expected serialized AST for commander.js');
+    }
+    expect(fileResult.ast.length).toBeGreaterThan(0);
+    expect(
+      consoleLogMock.calls.some(
+        call => call.arguments[0] === `Failed to serialize AST for file "${normalizedFilePath}"`,
+      ),
+    ).toBe(false);
   });
 
   it('should analyze JSX cache collision fixture with mixed jsx compiler options', async () => {
