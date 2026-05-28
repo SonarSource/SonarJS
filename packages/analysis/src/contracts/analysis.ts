@@ -55,6 +55,11 @@ export interface BaseIssue {
   endColumn?: number;
 }
 
+export interface SonarResolveComment {
+  line: number;
+  text: string;
+}
+
 /**
  * An analysis output
  *
@@ -65,6 +70,7 @@ export interface BaseIssue {
  */
 export interface AnalysisOutput<I extends BaseIssue = BaseIssue> {
   issues: I[];
+  sonarResolveComments?: SonarResolveComment[];
 }
 
 /**

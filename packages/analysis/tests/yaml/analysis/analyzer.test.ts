@@ -70,6 +70,36 @@ describe('analyzeYAML', () => {
     );
   });
 
+  it('should preserve host line numbers for sonar-resolve directives in embedded YAML JS', async () => {
+    await Linter.initialize({ baseDir: fixturesPath, rules: [] });
+
+    const result = await analyzeEmbedded(
+      await embeddedInput({
+        filePath: join(fixturesPath, 'sonar-resolve.yaml'),
+        fileContent: [
+          'AWSTemplateFormatVersion: 2010-09-09',
+          'Resources:',
+          '  SomeLambdaFunction:',
+          '    Type: "AWS::Lambda::Function"',
+          '    Properties:',
+          '      Runtime: "nodejs16.0"',
+          '      Code:',
+          '        ZipFile: |',
+          '          // sonar-resolve javascript:S1116 "reason"',
+          '          exports.handler = async () => {};',
+        ].join('\n'),
+      }),
+      parseAwsFromYaml,
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 9,
+        text: ' sonar-resolve javascript:S1116 "reason"',
+      },
+    ]);
+  });
+
   it('should return an empty issues list on parsing error', async () => {
     await Linter.initialize({
       baseDir: fixturesPath,
