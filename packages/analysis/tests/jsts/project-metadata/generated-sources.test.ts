@@ -162,6 +162,50 @@ describe('generated sources project metadata', () => {
     }
   });
 
+  it('normalizes true runner wrappers in package.json task invocations', async () => {
+    const baseDir = await createTempBaseDir();
+
+    try {
+      const taskInvocations = await collectGeneratedSourceTaskInvocations({
+        baseDir,
+        packageDir: baseDir,
+        packageJson: {
+          scripts: {
+            openapi: 'npx openapi-generator-cli generate --output ./src/api',
+            proto: 'pnpm exec tsx tools/generate-proto.ts --copy',
+            graphql: 'yarn graphql-codegen --config ./codegen.yml',
+          },
+        },
+      });
+
+      expect(taskInvocations).toEqual([
+        {
+          source: 'package-json-script',
+          taskName: 'openapi',
+          commandLine: 'npx openapi-generator-cli generate --output ./src/api',
+          command: 'openapi-generator-cli',
+          args: ['generate', '--output', './src/api'],
+        },
+        {
+          source: 'package-json-script',
+          taskName: 'proto',
+          commandLine: 'pnpm exec tsx tools/generate-proto.ts --copy',
+          command: 'tsx',
+          args: ['tools/generate-proto.ts', '--copy'],
+        },
+        {
+          source: 'package-json-script',
+          taskName: 'graphql',
+          commandLine: 'yarn graphql-codegen --config ./codegen.yml',
+          command: 'yarn',
+          args: ['graphql-codegen', '--config', './codegen.yml'],
+        },
+      ]);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('extracts output flag values from separate and equals syntax', () => {
     expect(
       extractFlagValues('openapi-generator-cli generate -o ./src/api --output=./src/other', [
@@ -513,6 +557,30 @@ export default config;
         },
         scripts: {
           generate: 'openapi-generator-cli generate --output=./src/api',
+        },
+      });
+
+      const derived = await deriveGeneratedSources(baseDir, packageJsons);
+
+      expect(derived.familyByFile.get(outputFile)).toEqual('@openapitools/openapi-generator-cli');
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives OpenAPI Generator outputs from an npx-wrapped command', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputFile = joinPaths(baseDir, 'src', 'api', 'index.ts');
+
+    try {
+      await writeFixtureFile(outputFile, 'export const api = true;\n');
+
+      const packageJsons = createPackageJsonMap(baseDir, {
+        devDependencies: {
+          '@openapitools/openapi-generator-cli': '1.0.0',
+        },
+        scripts: {
+          generate: 'npx openapi-generator-cli generate --output ./src/api',
         },
       });
 

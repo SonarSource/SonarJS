@@ -16,7 +16,12 @@
  */
 import type { PackageJson } from 'type-fest';
 import type { NormalizedAbsolutePath } from '../../../../../../shared/src/helpers/files.js';
-import { matchesCommandToken, parseDirectCommandSegments } from './shared.js';
+import {
+  isDirectCommandToken,
+  matchesCommandToken,
+  parseDirectCommandSegments,
+  type ParsedCommandSegment,
+} from './shared.js';
 
 export type TaskInvocation = {
   source: string;
@@ -49,7 +54,7 @@ const packageJsonTaskInvocationProvider = {
           ({
             source: 'package-json-script',
             taskName,
-            ...segment,
+            ...normalizePackageJsonTaskInvocation(segment),
           }) satisfies TaskInvocation,
       );
     });
@@ -76,4 +81,77 @@ export async function collectGeneratedSourceTaskInvocations(context: {
 
 export function taskInvocationInvokesCommand(taskInvocation: TaskInvocation, commandName: string) {
   return matchesCommandToken(taskInvocation.command, commandName);
+}
+
+type InvocationTokens = Pick<TaskInvocation, 'command' | 'args'>;
+type PackageJsonRunnerWrapperNormalizer = (
+  tokens: InvocationTokens,
+) => InvocationTokens | undefined;
+
+// Keep normalization limited to wrappers that unambiguously execute a nested binary.
+// Package-manager shorthands like `yarn <script>` or `npm run <script>` may resolve to
+// user-defined scripts, so they stay raw until we can distinguish them safely.
+const PACKAGE_JSON_RUNNER_WRAPPER_NORMALIZERS = [
+  normalizeNpxTaskInvocation,
+  normalizePnpmExecTaskInvocation,
+] as const satisfies readonly PackageJsonRunnerWrapperNormalizer[];
+
+function normalizePackageJsonTaskInvocation(segment: ParsedCommandSegment): ParsedCommandSegment {
+  let normalized: InvocationTokens = {
+    command: segment.command,
+    args: segment.args,
+  };
+
+  while (true) {
+    const next = unwrapKnownRunnerWrapper(normalized);
+    if (!next) {
+      return {
+        ...segment,
+        ...normalized,
+      };
+    }
+
+    normalized = next;
+  }
+}
+
+function unwrapKnownRunnerWrapper(tokens: InvocationTokens) {
+  for (const normalizeWrapper of PACKAGE_JSON_RUNNER_WRAPPER_NORMALIZERS) {
+    const normalized = normalizeWrapper(tokens);
+    if (normalized) {
+      return normalized;
+    }
+  }
+
+  return undefined;
+}
+
+function normalizeNpxTaskInvocation(tokens: InvocationTokens) {
+  return matchesCommandToken(tokens.command, 'npx')
+    ? unwrapNestedCommandTokens(tokens.args)
+    : undefined;
+}
+
+function normalizePnpmExecTaskInvocation(tokens: InvocationTokens) {
+  return matchesCommandToken(tokens.command, 'pnpm') && tokens.args[0] === 'exec'
+    ? unwrapNestedCommandTokens(tokens.args.slice(1))
+    : undefined;
+}
+
+function unwrapNestedCommandTokens(args: readonly string[]): InvocationTokens | undefined {
+  const commandIndex = args[0] === '--' ? 1 : 0;
+  const command = args[commandIndex];
+
+  if (!command || !isDirectCommandToken(command) || isOptionToken(command)) {
+    return undefined;
+  }
+
+  return {
+    command,
+    args: args.slice(commandIndex + 1),
+  };
+}
+
+function isOptionToken(token: string) {
+  return token.startsWith('-') && token !== '-';
 }

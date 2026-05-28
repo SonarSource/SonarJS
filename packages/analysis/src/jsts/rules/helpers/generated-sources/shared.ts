@@ -219,7 +219,7 @@ export function parseDirectCommandSegments(script: string): ParsedCommandSegment
     const [command, ...args] = tokens;
     tokens.length = 0;
 
-    if (!isDirectCommand(command)) {
+    if (!isDirectCommandToken(command)) {
       return;
     }
 
@@ -309,7 +309,7 @@ export function matchesCommandToken(token: string, commandName: string) {
   return lastPathSegment === commandName || lastPathSegment.startsWith(`${commandName}.`);
 }
 
-function isDirectCommand(command: string) {
+export function isDirectCommandToken(command: string) {
   return !isShellGeneratedToken(command) && !isEnvironmentAssignment(command);
 }
 
