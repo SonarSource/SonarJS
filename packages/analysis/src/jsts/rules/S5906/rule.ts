@@ -36,24 +36,36 @@ import {
 import * as meta from './generated-meta.js';
 
 const messages = {
-  preferSpecificAssertion: 'Use a more specific assertion instead of this generic one.',
-  suggestSpecificAssertion: 'Replace with "{{assertion}}".',
+  preferSpecificAssertion: 'Use the more specific assertion {{assertion}}.',
+  quickfix: 'Replace with {{assertion}}.',
 };
 
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const MAX_ASSERT_ARGUMENTS_WITH_MESSAGE = 3;
 
 export const rule: Rule.RuleModule = {
-  meta: generateMeta(meta, { messages }),
+  meta: generateMeta(meta, { messages, hasSuggestions: true }),
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
     const hasPlaywright = importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES);
     const playwrightLocators = new Set<string>();
 
-    function report(node: estree.CallExpression, _suggestion: Suggestion) {
+    function report(node: estree.CallExpression, suggestion: Suggestion) {
       context.report({
         node: node.callee,
         messageId: 'preferSpecificAssertion',
+        data: { assertion: suggestion.assertion },
+        ...(suggestion.replacement
+          ? {
+              suggest: [
+                {
+                  messageId: 'quickfix',
+                  data: { assertion: suggestion.assertion },
+                  fix: fixer => fixer.replaceText(node, suggestion.replacement!),
+                },
+              ],
+            }
+          : {}),
       });
     }
 
@@ -150,9 +162,9 @@ function getJestLikeSuggestion(
   if (isNaNExpression(expected)) {
     return replacement(`${prefix}.toBeNaN()`, node, sourceCode);
   }
-  if (isLengthAccess(actual) && !negated) {
+  if (isLengthAccess(actual)) {
     return replacement(
-      `expect(${sourceCode.getText(actual.object)}).toHaveLength(${expectedText})`,
+      `expect(${sourceCode.getText(actual.object)}).${negated ? 'not.' : ''}toHaveLength(${expectedText})`,
       node,
       sourceCode,
     );
@@ -188,11 +200,18 @@ function getChaiExpectSuggestion(
   ) {
     return null;
   }
-  const chain = getChaiExpectChain(node.callee.object);
+  const chain = getChaiExpectChain(node.callee.object, sourceCode);
   if (!chain) {
     return null;
   }
-  return getChaiValueSuggestion(chain.actual, node.arguments[0], chain.negated, node, sourceCode);
+  return getChaiValueSuggestion(
+    chain.actual,
+    node.arguments[0],
+    chain.negated,
+    node,
+    sourceCode,
+    chain.messageArguments,
+  );
 }
 
 function getChaiShouldSuggestion(
@@ -210,7 +229,13 @@ function getChaiShouldSuggestion(
   if (!chain) {
     return null;
   }
-  return getChaiValueSuggestion(chain.actual, node.arguments[0], chain.negated, node, sourceCode);
+  return getChaiShouldValueSuggestion(
+    chain.actual,
+    node.arguments[0],
+    chain.negated,
+    node,
+    sourceCode,
+  );
 }
 
 function getChaiAssertSuggestion(
@@ -228,25 +253,50 @@ function getChaiAssertSuggestion(
   }
   const [actual, expected] = node.arguments;
   const negated = method.startsWith('not');
+  const assertObject = getAssertObject(context, node);
+  if (!assertObject) {
+    return null;
+  }
+  const assertText = sourceCode.getText(assertObject);
   if (!['strictEqual', 'notStrictEqual'].includes(method)) {
     return null;
   }
   const actualText = sourceCode.getText(actual);
+  const trailingArgs = messageArgument(node, sourceCode);
   if (isNullLiteral(expected)) {
     return replacement(
-      `assert.${negated ? 'isNotNull' : 'isNull'}(${actualText}${messageArgument(node, sourceCode)})`,
+      `${assertText}.${negated ? 'isNotNull' : 'isNull'}(${actualText}${trailingArgs})`,
       node,
       sourceCode,
     );
   }
   if (isUndefinedExpression(expected)) {
     return replacement(
-      `assert.${negated ? 'isDefined' : 'isUndefined'}(${actualText}${messageArgument(node, sourceCode)})`,
+      `${assertText}.${negated ? 'isDefined' : 'isUndefined'}(${actualText}${trailingArgs})`,
       node,
       sourceCode,
     );
   }
-  return null;
+  if (isLengthAccess(actual) && !negated) {
+    return replacement(
+      `${assertText}.lengthOf(${sourceCode.getText(actual.object)}, ${sourceCode.getText(expected)}${trailingArgs})`,
+      node,
+      sourceCode,
+    );
+  }
+  const booleanExpected = getBooleanValue(expected);
+  if (booleanExpected === undefined) {
+    return null;
+  }
+  return getBooleanExpressionSuggestion(
+    actual,
+    booleanExpected !== negated,
+    'assert',
+    sourceCode,
+    node,
+    assertText,
+    trailingArgs,
+  );
 }
 
 function getChaiValueSuggestion(
@@ -255,25 +305,26 @@ function getChaiValueSuggestion(
   negated: boolean,
   node: estree.CallExpression,
   sourceCode: SourceCode,
+  messageArguments = '',
 ): Suggestion | null {
   const actualText = sourceCode.getText(actual);
   if (isNullLiteral(expected)) {
     return replacement(
-      `expect(${actualText}).to${negated ? '.not' : ''}.be.null`,
+      `expect(${actualText}${messageArguments}).to${negated ? '.not' : ''}.be.null`,
       node,
       sourceCode,
     );
   }
   if (isUndefinedExpression(expected)) {
     return replacement(
-      `expect(${actualText}).to${negated ? '.not' : ''}.be.undefined`,
+      `expect(${actualText}${messageArguments}).to${negated ? '.not' : ''}.be.undefined`,
       node,
       sourceCode,
     );
   }
-  if (isLengthAccess(actual) && !negated) {
+  if (isLengthAccess(actual)) {
     return replacement(
-      `expect(${sourceCode.getText(actual.object)}).to.have.lengthOf(${sourceCode.getText(expected)})`,
+      `expect(${sourceCode.getText(actual.object)}${messageArguments}).to${negated ? '.not' : ''}.have.lengthOf(${sourceCode.getText(expected)})`,
       node,
       sourceCode,
     );
@@ -288,7 +339,30 @@ function getChaiValueSuggestion(
     'chai',
     sourceCode,
     node,
+    'expect',
+    messageArguments,
   );
+}
+
+function getChaiShouldValueSuggestion(
+  actual: estree.Node,
+  expected: estree.Node,
+  negated: boolean,
+  node: estree.CallExpression,
+  sourceCode: SourceCode,
+): Suggestion | null {
+  const actualText = sourceCode.getText(actual);
+  if (isNullLiteral(expected)) {
+    return replacement(`${actualText}.should${negated ? '.not' : ''}.be.null`, node, sourceCode);
+  }
+  if (isUndefinedExpression(expected)) {
+    return replacement(
+      `${actualText}.should${negated ? '.not' : ''}.be.undefined`,
+      node,
+      sourceCode,
+    );
+  }
+  return getChaiValueSuggestion(actual, expected, negated, node, sourceCode);
 }
 
 function getCypressSuggestion(
@@ -298,7 +372,7 @@ function getCypressSuggestion(
   if (
     !isMethodCall(node) ||
     !['should', 'and'].includes(node.callee.property.name) ||
-    node.arguments.length < 2
+    node.arguments.length !== 2
   ) {
     return null;
   }
@@ -334,13 +408,13 @@ function getPlaywrightLocatorSuggestion(
 ): Suggestion | null {
   if (
     !isMethodCall(node) ||
-    !['toBe', 'toEqual'].includes(node.callee.property.name) ||
+    !['toBe', 'toEqual', 'toStrictEqual'].includes(node.callee.property.name) ||
     node.arguments.length !== 1
   ) {
     return null;
   }
   const chain = getExpectChain(node.callee.object);
-  if (!chain || chain.negated || chain.actual.type !== 'AwaitExpression') {
+  if (!chain || chain.actual.type !== 'AwaitExpression') {
     return null;
   }
   const awaited = chain.actual.argument;
@@ -356,14 +430,38 @@ function getPlaywrightLocatorSuggestion(
   }
   const locator = sourceCode.getText(awaited.callee.object);
   const expected = node.arguments[0];
-  if (isIdentifier(awaited.callee.property, 'isVisible') && getBooleanValue(expected) === true) {
-    return { assertion: `await expect(${locator}).toBeVisible()` };
+  const expectedBoolean = getBooleanValue(expected);
+  const wantsTruth = expectedBoolean === undefined ? undefined : expectedBoolean !== chain.negated;
+  if (isIdentifier(awaited.callee.property, 'isVisible') && wantsTruth !== undefined) {
+    return { assertion: `await expect(${locator}).${wantsTruth ? 'toBeVisible' : 'toBeHidden'}()` };
+  }
+  if (isIdentifier(awaited.callee.property, 'isHidden') && wantsTruth !== undefined) {
+    return { assertion: `await expect(${locator}).${wantsTruth ? 'toBeHidden' : 'toBeVisible'}()` };
+  }
+  if (isIdentifier(awaited.callee.property, 'isEnabled') && wantsTruth !== undefined) {
+    return {
+      assertion: `await expect(${locator}).${wantsTruth ? 'toBeEnabled' : 'toBeDisabled'}()`,
+    };
+  }
+  if (isIdentifier(awaited.callee.property, 'isDisabled') && wantsTruth !== undefined) {
+    return {
+      assertion: `await expect(${locator}).${wantsTruth ? 'toBeDisabled' : 'toBeEnabled'}()`,
+    };
+  }
+  if (isIdentifier(awaited.callee.property, 'isChecked') && wantsTruth !== undefined) {
+    return {
+      assertion: `await expect(${locator}).${wantsTruth ? '' : 'not.'}toBeChecked()`,
+    };
   }
   if (isIdentifier(awaited.callee.property, 'count')) {
-    return { assertion: `await expect(${locator}).toHaveCount(${sourceCode.getText(expected)})` };
+    return {
+      assertion: `await expect(${locator}).${chain.negated ? 'not.' : ''}toHaveCount(${sourceCode.getText(expected)})`,
+    };
   }
   if (isIdentifier(awaited.callee.property, 'inputValue')) {
-    return { assertion: `await expect(${locator}).toHaveValue(${sourceCode.getText(expected)})` };
+    return {
+      assertion: `await expect(${locator}).${chain.negated ? 'not.' : ''}toHaveValue(${sourceCode.getText(expected)})`,
+    };
   }
   return null;
 }
@@ -383,7 +481,10 @@ function getExpectChain(node: estree.Node): { actual: estree.Node; negated: bool
   return { actual: node.arguments[0], negated: false };
 }
 
-function getChaiExpectChain(node: estree.Node): { actual: estree.Node; negated: boolean } | null {
+function getChaiExpectChain(
+  node: estree.Node,
+  sourceCode: SourceCode,
+): { actual: estree.Node; negated: boolean; messageArguments: string } | null {
   let current = node;
   let negated = false;
   while (
@@ -399,11 +500,18 @@ function getChaiExpectChain(node: estree.Node): { actual: estree.Node; negated: 
   if (
     current.type !== 'CallExpression' ||
     !isIdentifier(current.callee, 'expect') ||
-    current.arguments.length !== 1
+    current.arguments.length < 1
   ) {
     return null;
   }
-  return { actual: current.arguments[0], negated };
+  return {
+    actual: current.arguments[0],
+    negated,
+    messageArguments: current.arguments
+      .slice(1)
+      .map(argument => `, ${sourceCode.getText(argument)}`)
+      .join(''),
+  };
 }
 
 function getShouldChain(node: estree.Node): { actual: estree.Node; negated: boolean } | null {
@@ -442,6 +550,28 @@ function getAssertMethod(context: Rule.RuleContext, node: estree.CallExpression)
     if (fqn?.startsWith('chai.assert.')) {
       return node.callee.property.name;
     }
+  }
+  return null;
+}
+
+function getAssertObject(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+): estree.Node | null {
+  if (
+    node.callee.type !== 'MemberExpression' ||
+    node.callee.computed ||
+    node.callee.property.type !== 'Identifier'
+  ) {
+    return null;
+  }
+  const object = node.callee.object;
+  if (
+    isIdentifier(object, 'assert') ||
+    (object.type === 'MemberExpression' && isIdentifier(object.property, 'assert')) ||
+    getFullyQualifiedName(context, node.callee)?.startsWith('chai.assert.')
+  ) {
+    return object;
   }
   return null;
 }

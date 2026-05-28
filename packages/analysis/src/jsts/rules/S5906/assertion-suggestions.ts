@@ -24,11 +24,12 @@ export type Suggestion = {
   replacement?: string;
 };
 
-type AssertionFamily = 'jest' | 'chai';
+type AssertionFamily = 'jest' | 'chai' | 'assert';
 
 type NumericComparison = {
   jest: string;
   chai: string;
+  assert: string;
 };
 
 const EQUALITY_OPERATORS = new Set(['===', '==', '!==', '!=']);
@@ -41,11 +42,29 @@ export function getBooleanExpressionSuggestion(
   family: AssertionFamily,
   sourceCode: SourceCode,
   node: estree.CallExpression,
+  assertObject = 'assert',
+  extraArguments = '',
 ): Suggestion | null {
   if (actual.type === 'BinaryExpression') {
-    return getBinaryExpressionSuggestion(actual, positive, family, sourceCode, node);
+    return getBinaryExpressionSuggestion(
+      actual,
+      positive,
+      family,
+      sourceCode,
+      node,
+      assertObject,
+      extraArguments,
+    );
   }
-  return getIncludesSuggestion(actual, positive, family, sourceCode, node);
+  return getIncludesSuggestion(
+    actual,
+    positive,
+    family,
+    sourceCode,
+    node,
+    assertObject,
+    extraArguments,
+  );
 }
 
 function getBinaryExpressionSuggestion(
@@ -54,22 +73,40 @@ function getBinaryExpressionSuggestion(
   family: AssertionFamily,
   sourceCode: SourceCode,
   node: estree.CallExpression,
+  assertObject: string,
+  extraArguments: string,
 ): Suggestion | null {
   const left = sourceCode.getText(actual.left);
   const right = sourceCode.getText(actual.right);
 
   if (EQUALITY_OPERATORS.has(actual.operator)) {
     const same = POSITIVE_EQUALITY_OPERATORS.has(actual.operator) ? positive : !positive;
-    return buildEqualitySuggestion(left, right, same, family, node);
+    return buildEqualitySuggestion(left, right, same, family, node, assertObject, extraArguments);
   }
 
   if (actual.operator === 'instanceof') {
-    return buildInstanceofSuggestion(left, right, positive, family, node);
+    return buildInstanceofSuggestion(
+      left,
+      right,
+      positive,
+      family,
+      node,
+      assertObject,
+      extraArguments,
+    );
   }
 
   const comparison = getNumericComparison(actual.operator, positive);
   if (comparison) {
-    return buildNumericComparisonSuggestion(left, right, comparison, family, node);
+    return buildNumericComparisonSuggestion(
+      left,
+      right,
+      comparison,
+      family,
+      node,
+      assertObject,
+      extraArguments,
+    );
   }
 
   return null;
@@ -81,11 +118,19 @@ function buildEqualitySuggestion(
   same: boolean,
   family: AssertionFamily,
   node: estree.CallExpression,
+  assertObject: string,
+  extraArguments: string,
 ): Suggestion {
   if (family === 'jest') {
     return replacement(`expect(${left})${negation(same)}.toBe(${right})`, node);
   }
-  return replacement(`expect(${left}).to${negation(same)}.equal(${right})`, node);
+  if (family === 'assert') {
+    return replacement(
+      `${assertObject}.${same ? 'strictEqual' : 'notStrictEqual'}(${left}, ${right}${extraArguments})`,
+      node,
+    );
+  }
+  return replacement(`expect(${left}${extraArguments}).to${negation(same)}.equal(${right})`, node);
 }
 
 function buildInstanceofSuggestion(
@@ -94,11 +139,22 @@ function buildInstanceofSuggestion(
   positive: boolean,
   family: AssertionFamily,
   node: estree.CallExpression,
+  assertObject: string,
+  extraArguments: string,
 ): Suggestion {
   if (family === 'jest') {
     return replacement(`expect(${left})${negation(positive)}.toBeInstanceOf(${right})`, node);
   }
-  return replacement(`expect(${left}).to${negation(positive)}.be.instanceOf(${right})`, node);
+  if (family === 'assert') {
+    return replacement(
+      `${assertObject}.${positive ? 'instanceOf' : 'notInstanceOf'}(${left}, ${right}${extraArguments})`,
+      node,
+    );
+  }
+  return replacement(
+    `expect(${left}${extraArguments}).to${negation(positive)}.be.instanceOf(${right})`,
+    node,
+  );
 }
 
 function buildNumericComparisonSuggestion(
@@ -107,11 +163,19 @@ function buildNumericComparisonSuggestion(
   comparison: NumericComparison,
   family: AssertionFamily,
   node: estree.CallExpression,
+  assertObject: string,
+  extraArguments: string,
 ): Suggestion {
   if (family === 'jest') {
     return replacement(`expect(${left}).${comparison.jest}(${right})`, node);
   }
-  return replacement(`expect(${left}).to.be.${comparison.chai}(${right})`, node);
+  if (family === 'assert') {
+    return replacement(
+      `${assertObject}.${comparison.assert}(${left}, ${right}${extraArguments})`,
+      node,
+    );
+  }
+  return replacement(`expect(${left}${extraArguments}).to.be.${comparison.chai}(${right})`, node);
 }
 
 function getIncludesSuggestion(
@@ -120,6 +184,8 @@ function getIncludesSuggestion(
   family: AssertionFamily,
   sourceCode: SourceCode,
   node: estree.CallExpression,
+  assertObject: string,
+  extraArguments: string,
 ): Suggestion | null {
   if (
     actual.type !== 'CallExpression' ||
@@ -136,7 +202,16 @@ function getIncludesSuggestion(
   if (family === 'jest') {
     return replacement(`expect(${receiver})${negation(positive)}.toContain(${needle})`, node);
   }
-  return replacement(`expect(${receiver}).to${negation(positive)}.include(${needle})`, node);
+  if (family === 'assert') {
+    return replacement(
+      `${assertObject}.${positive ? 'include' : 'notInclude'}(${receiver}, ${needle}${extraArguments})`,
+      node,
+    );
+  }
+  return replacement(
+    `expect(${receiver}${extraArguments}).to${negation(positive)}.include(${needle})`,
+    node,
+  );
 }
 
 function negation(positive: boolean): string {
@@ -160,13 +235,13 @@ function getNumericComparison(
   const effective = positive ? operator : invertComparison(operator);
   switch (effective) {
     case '>':
-      return { jest: 'toBeGreaterThan', chai: 'greaterThan' };
+      return { jest: 'toBeGreaterThan', chai: 'above', assert: 'isAbove' };
     case '>=':
-      return { jest: 'toBeGreaterThanOrEqual', chai: 'greaterThanOrEqual' };
+      return { jest: 'toBeGreaterThanOrEqual', chai: 'at.least', assert: 'isAtLeast' };
     case '<':
-      return { jest: 'toBeLessThan', chai: 'lessThan' };
+      return { jest: 'toBeLessThan', chai: 'below', assert: 'isBelow' };
     case '<=':
-      return { jest: 'toBeLessThanOrEqual', chai: 'lessThanOrEqual' };
+      return { jest: 'toBeLessThanOrEqual', chai: 'at.most', assert: 'isAtMost' };
     default:
       return null;
   }
