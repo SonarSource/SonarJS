@@ -21,6 +21,14 @@ import { rule } from './rule.js';
 describe('S5906', () => {
   it('reports generic assertions with more specific alternatives', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
+    const expectedError = (output: string) => ({
+      messageId: 'preferSpecificAssertion',
+      suggestions: [{ messageId: 'quickfix', output }],
+    });
+    const expectedErrorWithoutSuggestion = {
+      messageId: 'preferSpecificAssertion',
+      suggestions: [],
+    };
 
     ruleTester.run('prefer-specific-assertions', rule, {
       valid: [
@@ -113,9 +121,13 @@ describe('S5906', () => {
             });
           `,
           errors: [
-            {
-              messageId: 'preferSpecificAssertion',
-            },
+            expectedError(`
+            import { expect, test } from 'vitest';
+
+            test('uses generic null assertion', () => {
+              expect(error).toBeNull();
+            });
+          `),
           ],
         },
         {
@@ -127,9 +139,13 @@ describe('S5906', () => {
             });
           `,
           errors: [
-            {
-              messageId: 'preferSpecificAssertion',
-            },
+            expectedError(`
+            import { expect, test } from 'vitest';
+
+            test('uses generic length assertion', () => {
+              expect(items).toHaveLength(3);
+            });
+          `),
           ],
         },
         {
@@ -141,12 +157,20 @@ describe('S5906', () => {
             expect(Number.isFinite(total)).toBe(false);
           `,
           errors: [
-            {
-              messageId: 'preferSpecificAssertion',
-            },
-            {
-              messageId: 'preferSpecificAssertion',
-            },
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(value).toBeDefined();
+            expect(value).toEqual(NaN);
+            expect(Number.isFinite(total)).toBe(false);
+          `),
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(value).not.toBe(undefined);
+            expect(value).toBeNaN();
+            expect(Number.isFinite(total)).toBe(false);
+          `),
           ],
         },
         {
@@ -158,7 +182,40 @@ describe('S5906', () => {
             expect(user instanceof User).toBe(true);
             expect(text.includes('admin')).toBe(true);
           `,
-          errors: 4,
+          errors: [
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(summary.itemCount).toBe(2);
+            expect(total > 0).toBe(true);
+            expect(user instanceof User).toBe(true);
+            expect(text.includes('admin')).toBe(true);
+          `),
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(summary.itemCount === 2).toBe(true);
+            expect(total).toBeGreaterThan(0);
+            expect(user instanceof User).toBe(true);
+            expect(text.includes('admin')).toBe(true);
+          `),
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(summary.itemCount === 2).toBe(true);
+            expect(total > 0).toBe(true);
+            expect(user).toBeInstanceOf(User);
+            expect(text.includes('admin')).toBe(true);
+          `),
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(summary.itemCount === 2).toBe(true);
+            expect(total > 0).toBe(true);
+            expect(user instanceof User).toBe(true);
+            expect(text).toContain('admin');
+          `),
+          ],
         },
         {
           code: `
@@ -167,7 +224,20 @@ describe('S5906', () => {
             expect(total <= 0).toBe(false);
             expect(user instanceof User).not.toBe(true);
           `,
-          errors: 2,
+          errors: [
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(total).toBeGreaterThan(0);
+            expect(user instanceof User).not.toBe(true);
+          `),
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(total <= 0).toBe(false);
+            expect(user).not.toBeInstanceOf(User);
+          `),
+          ],
         },
         {
           code: `
@@ -178,7 +248,40 @@ describe('S5906', () => {
             expect(items.length).to.equal(2);
             expect(user instanceof User).to.equal(true);
           `,
-          errors: 4,
+          errors: [
+            expectedError(`
+            import { expect } from 'chai';
+
+            expect(value).to.be.null;
+            value.should.equal(undefined);
+            expect(items.length).to.equal(2);
+            expect(user instanceof User).to.equal(true);
+          `),
+            expectedError(`
+            import { expect } from 'chai';
+
+            expect(value).to.equal(null);
+            value.should.be.undefined;
+            expect(items.length).to.equal(2);
+            expect(user instanceof User).to.equal(true);
+          `),
+            expectedError(`
+            import { expect } from 'chai';
+
+            expect(value).to.equal(null);
+            value.should.equal(undefined);
+            expect(items).to.have.lengthOf(2);
+            expect(user instanceof User).to.equal(true);
+          `),
+            expectedError(`
+            import { expect } from 'chai';
+
+            expect(value).to.equal(null);
+            value.should.equal(undefined);
+            expect(items.length).to.equal(2);
+            expect(user).to.be.instanceOf(User);
+          `),
+          ],
         },
         {
           code: `
@@ -187,7 +290,20 @@ describe('S5906', () => {
             expect(total <= 0).to.equal(false);
             expect(text.includes('admin')).to.not.equal(true);
           `,
-          errors: 2,
+          errors: [
+            expectedError(`
+            import { expect } from 'chai';
+
+            expect(total).to.be.above(0);
+            expect(text.includes('admin')).to.not.equal(true);
+          `),
+            expectedError(`
+            import { expect } from 'chai';
+
+            expect(total <= 0).to.equal(false);
+            expect(text).to.not.include('admin');
+          `),
+          ],
         },
         {
           code: `
@@ -195,7 +311,13 @@ describe('S5906', () => {
 
             expect(typeof result === 'number').to.eql(true);
           `,
-          errors: 1,
+          errors: [
+            expectedError(`
+            import { expect } from 'chai';
+
+            expect(typeof result).to.equal('number');
+          `),
+          ],
         },
         {
           code: `
@@ -204,7 +326,20 @@ describe('S5906', () => {
             assert.strictEqual(value, undefined);
             assert.notStrictEqual(value, null, 'must be set');
           `,
-          errors: 2,
+          errors: [
+            expectedError(`
+            import { assert } from 'chai';
+
+            assert.isUndefined(value);
+            assert.notStrictEqual(value, null, 'must be set');
+          `),
+            expectedError(`
+            import { assert } from 'chai';
+
+            assert.strictEqual(value, undefined);
+            assert.isNotNull(value, 'must be set');
+          `),
+          ],
         },
         {
           code: `
@@ -213,7 +348,20 @@ describe('S5906', () => {
             cy.wrap(value).should('equal', null);
             cy.wrap(value).and('not.equal', undefined);
           `,
-          errors: 2,
+          errors: [
+            expectedError(`
+            import 'cypress';
+
+            cy.wrap(value).should('be.null');
+            cy.wrap(value).and('not.equal', undefined);
+          `),
+            expectedError(`
+            import 'cypress';
+
+            cy.wrap(value).should('equal', null);
+            cy.wrap(value).and('not.be.undefined');
+          `),
+          ],
         },
         {
           code: `
@@ -230,7 +378,12 @@ describe('S5906', () => {
               expect(await page.getByTestId('input-name').inputValue()).toEqual('Ada');
             });
           `,
-          errors: 4,
+          errors: [
+            expectedErrorWithoutSuggestion,
+            expectedErrorWithoutSuggestion,
+            expectedErrorWithoutSuggestion,
+            expectedErrorWithoutSuggestion,
+          ],
         },
       ],
     });
