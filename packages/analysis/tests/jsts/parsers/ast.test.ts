@@ -104,14 +104,7 @@ describe('ast', () => {
 
     test('should serialize and deserialize deep commander call chains', async () => {
       const filePath = normalizeToAbsolutePath(
-        path.join(
-          import.meta.dirname,
-          '..',
-          '..',
-          'fixtures-sonarqube',
-          'sonar-armor-commander',
-          'commander.js',
-        ),
+        path.join(import.meta.dirname, 'fixtures', 'ast', 'commander.js'),
       );
       const sc = await parseSourceFile(filePath, parsersMap.typescript);
       const protoMessage = parseInProtobuf(sc.sourceCode.ast as TSESTree.Program);

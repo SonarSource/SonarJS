@@ -15,7 +15,7 @@ new Command().action(() => {
   sink(source()); // Noncompliant (S5883) - TP
 });
 
-// test if all known methods return the receiver to verify if method chaining works
+// Verify long commander method chains are serializable.
 new Command()
   .command()
   .option()
