@@ -59,8 +59,9 @@ This is the common case:
 1. Resolve the run.
 2. Collect project jobs.
 3. Run the analysis-consistency helper.
-4. If `target/failed-jobs.json` reports `0` failed jobs and the problematic-history query returns
-   `[]`, print the `SAFE` summary and stop.
+4. If `target/failed-jobs.json.total_jobs` is `0` and
+   `target/peach-issue-history.json.clean_for_early_exit` is `true`, print the `SAFE` summary and
+   stop.
 5. Only continue to DROP forensics or log triage when step 4 fails.
 
 ### 1. Resolve the run
@@ -110,9 +111,32 @@ and writes these files:
 - `target/failed-jobs.json`
 - `target/project-jobs.json`
 
-`target/jobs-merged.json` includes `expected_total`, `total_jobs`, `failed_jobs`, and
-`counts_match`. If the script still cannot reconcile `expected_total` with `total_jobs` after the
-explicit page fallback, it exits non-zero. Stop there and report the mismatch instead of
+Use these low-noise checks right away instead of opening the full JSON blobs:
+
+```bash
+jq '{expected_total, total_jobs, failed_jobs, counts_match}' target/jobs-merged.json
+```
+
+```bash
+jq '{excluded_workflow_jobs, excluded_project_jobs}' target/exclusion-counts.json
+```
+
+```bash
+jq '{total_jobs}' target/failed-jobs.json
+```
+
+```bash
+jq '{total_jobs}' target/project-jobs.json
+```
+
+JSON shapes:
+
+- `target/jobs-merged.json` → `{ expected_total, total_jobs, failed_jobs, counts_match, jobs }`
+- `target/failed-jobs.json` → `{ total_jobs, jobs }` for failed analyzed jobs
+- `target/project-jobs.json` → `{ total_jobs, jobs }` for successful analyzed jobs
+
+If `target/jobs-merged.json` still cannot reconcile `expected_total` with `total_jobs` after the
+explicit page fallback, the helper exits non-zero. Stop there and report the mismatch instead of
 classifying partial data.
 
 `target/analyzed-jobs.json` excludes workflow-only jobs such as `prepare-project-matrix` and
@@ -182,6 +206,10 @@ The helper reconstructs recent unresolved-issue counts from Peach analyses plus
 Use the repo-local helper:
 
 ```bash
+rm -f target/peach-issue-history.json
+```
+
+```bash
 node .claude/skills/peach-check/peach-issue-history.js \
   target/project-jobs.json \
   PEACHEE_ROOT_OR_PATH \
@@ -190,9 +218,15 @@ node .claude/skills/peach-check/peach-issue-history.js \
 
 Use `${PEACHEE_ROOT}` when it is set, otherwise pass the explicit checkout path.
 
-The helper is usually silent on success and can take tens of seconds across the full project
-matrix. Wait for `target/peach-issue-history.json` to be written, then inspect that file instead
-of expecting stdout.
+The helper writes two short stderr progress lines and can take tens of seconds across the full
+project matrix. Wait for the `node` process to exit successfully, then inspect the JSON file
+instead of relying on the progress lines.
+
+Use this low-noise check after the helper finishes:
+
+```bash
+jq '{analysis_window_start, analysis_window_end, blocking_rows_count, clean_for_early_exit, summary}' target/peach-issue-history.json
+```
 
 The helper script reads:
 
@@ -224,26 +258,20 @@ Interpret the helper statuses like this:
 - `ERROR` → treat as `NEEDS-MANUAL-REVIEW`; describe it as "analysis-consistency check failed for
   this project"
 
-Use this query to isolate the history rows that block the clean early exit:
+The helper also writes these top-level fields so the skill does not need ad hoc `jq` logic for
+the clean green path:
 
-```bash
-jq '
-  [.rows[] | select(
-    .status != "OK" and
-    .status != "INSUFFICIENT_HISTORY" and
-    (
-      .status != "UNRESOLVED_PROJECT" or
-      (
-        .source_job_name != "prepare-project-matrix" and
-        .source_job_name != "diff-validation-aggregated"
-      )
-    )
-  )]
-' target/peach-issue-history.json
-```
+- `blocking_rows_count`
+- `clean_for_early_exit`
+- `generated_at`
+- `source_run_id`
+- `source_head_sha`
+- `source_jobs_total`
+- `source_job_completed_at_min`
+- `source_job_completed_at_max`
 
-`target/peach-issue-history.json.summary` may omit statuses whose count is `0`. When writing the
-final report, render omitted statuses as `0` instead of leaving them out.
+`target/peach-issue-history.json.summary` always includes `OK`, `DROP`,
+`INSUFFICIENT_HISTORY`, `STALE`, `UNRESOLVED_PROJECT`, and `ERROR`, even when a count is `0`.
 
 Each `DROP` finding should include:
 
@@ -261,8 +289,15 @@ Each history row also carries the project-scope metadata needed for DROP triage:
 - `sonar_sources`
 - `sonar_tests`
 
-The top-level report now uses `analysis_window_start` and `analysis_window_end` for the run
-window bounds. Prefer those names over the old `analysis_after` / `analysis_before` wording.
+The top-level report now uses `analysis_window_start` and `analysis_window_end` for the helper's
+freshness bounds. Prefer those names over the old `analysis_after` / `analysis_before` wording.
+
+Do not use `analysis_window_start` or `analysis_window_end` to identify the GitHub Actions run in
+the report title. The report title should use the run timestamp recorded in Section 1 because that
+timestamp answers "which run did we inspect?" The analysis-window fields answer a different
+question: "which Peach analyses counted as fresh for the consistency check?" If you want to show
+the freshness bounds, print them as separate supporting metadata instead of replacing the run
+timestamp.
 
 Treat `threshold-abs` as a small-project noise floor, not an alternative trigger. Flag `DROP`
 only when the measured drop clears both gates:
@@ -357,9 +392,10 @@ generated-source explanations unless the evidence actually shows generated-code-
 
 ### 4. Early exit if no failures and the analysis state looks consistent
 
-This is the normal green path. If `target/failed-jobs.json` reports `0` failed jobs and the
-problematic-history query above returns `[]`, stop here: Sections 5 through 9 do not apply.
-Report the run as safe, include the exclusion counts plus the consistency summary, and stop.
+This is the normal green path. If `target/failed-jobs.json.total_jobs` is `0` and
+`target/peach-issue-history.json.clean_for_early_exit` is `true`, stop here: Sections 5 through 9
+do not apply. Report the run as safe, include the exclusion counts plus the consistency summary,
+and stop.
 
 If any project is `DROP`, `STALE`, non-excluded `UNRESOLVED_PROJECT`, or `ERROR`, do not call the
 run safe even if the GitHub workflow has no failed project jobs.

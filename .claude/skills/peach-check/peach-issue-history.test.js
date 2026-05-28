@@ -17,7 +17,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { runIssueHistory, SUPPORTED_LANGUAGES } from './peach-issue-history.js';
+import { main, runIssueHistory, SUPPORTED_LANGUAGES } from './peach-issue-history.js';
+
+function expectedSummary(overrides = {}) {
+  return {
+    OK: 0,
+    DROP: 0,
+    INSUFFICIENT_HISTORY: 0,
+    STALE: 0,
+    UNRESOLVED_PROJECT: 0,
+    ERROR: 0,
+    ...overrides,
+  };
+}
 
 function createGitExecFileSyncStub(headSha, files) {
   return (command, args) => {
@@ -353,6 +365,8 @@ async function runSingleProjectIssueHistory(
     componentChildren,
     issueSearchDelayMsByScope,
     propertiesContent,
+    runId = '25710841728',
+    jobsCreatedAt,
   },
 ) {
   const output = {};
@@ -383,11 +397,13 @@ async function runSingleProjectIssueHistory(
       readFileSync: filePath => {
         assert.equal(filePath, '/tmp/project-jobs.json');
         return JSON.stringify({
+          created_at: jobsCreatedAt,
           total_jobs: 1,
           jobs: [
             {
               name: projectName,
               conclusion: 'success',
+              run_id: runId,
               head_sha: headSha,
               started_at: effectiveStartedAt,
               completed_at: effectiveCompletedAt,
@@ -428,7 +444,9 @@ test('runIssueHistory filters to SonarJS-supported languages and ignores unsuppo
   });
 
   assert.deepEqual(report.languages, SUPPORTED_LANGUAGES);
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
+  assert.equal(report.blocking_rows_count, 0);
+  assert.equal(report.clean_for_early_exit, true);
 
   const row = report.rows[0];
   assert.equal(row.metric, 'sonarjs_issue_count');
@@ -459,6 +477,12 @@ test('runIssueHistory reports project scope metadata and unambiguous freshness w
   assert.equal(report.analysis_window_end, '2026-05-01T03:11:35Z');
   assert.equal(report.analysis_after, undefined);
   assert.equal(report.analysis_before, undefined);
+  assert.match(report.generated_at, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
+  assert.equal(report.source_run_id, '25710841728');
+  assert.equal(report.source_head_sha, '1111111111111111111111111111111111111111');
+  assert.equal(report.source_jobs_total, 1);
+  assert.equal(report.source_job_completed_at_min, '2026-05-01T03:11:35Z');
+  assert.equal(report.source_job_completed_at_max, '2026-05-01T03:11:35Z');
 
   const row = report.rows[0];
   assert.equal(row.project_dir, 'scope-project');
@@ -479,7 +503,9 @@ test('runIssueHistory marks DROP when supported-language issue counts fall enoug
     thresholdAbs: 2,
   });
 
-  assert.deepEqual(report.summary, { DROP: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ DROP: 1 }));
+  assert.equal(report.blocking_rows_count, 1);
+  assert.equal(report.clean_for_early_exit, false);
 
   const row = report.rows[0];
   assert.equal(row.status, 'DROP');
@@ -501,7 +527,7 @@ test('runIssueHistory keeps high-percentage drops OK below the absolute noise fl
     thresholdAbs: 2,
   });
 
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
 
   const row = report.rows[0];
   assert.equal(row.status, 'OK');
@@ -523,7 +549,7 @@ test('runIssueHistory keeps drops OK when only the absolute threshold is exceede
     thresholdAbs: 20,
   });
 
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
 
   const row = report.rows[0];
   assert.equal(row.status, 'OK');
@@ -550,7 +576,7 @@ test('runIssueHistory keeps the in-window analysis when later analyses exist', a
     jobCompletedAt: '2026-05-03T03:16:08Z',
   });
 
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
 
   const row = report.rows[0];
   assert.equal(row.project_key, 'js:WindowedProject');
@@ -573,7 +599,9 @@ test('runIssueHistory reports STALE when no analysis falls inside the run window
     jobCompletedAt: '2026-05-05T03:16:08Z',
   });
 
-  assert.deepEqual(report.summary, { STALE: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ STALE: 1 }));
+  assert.equal(report.blocking_rows_count, 1);
+  assert.equal(report.clean_for_early_exit, false);
 
   const row = report.rows[0];
   assert.equal(row.status, 'STALE');
@@ -597,7 +625,7 @@ test('runIssueHistory paginates analyses and uses page-1 open issue count querie
   assert.deepEqual(requests.analyses, [1, 2]);
   assert.deepEqual(requests.open, [1, 1, 1, 1, 1, 1]);
   assert.deepEqual(requests.resolved, [1]);
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
 
   const openSearches = requests.issueScopes.filter(entry => !entry.resolved);
   assert.equal(openSearches.length, 6);
@@ -668,7 +696,7 @@ test('runIssueHistory splits capped resolved-issue searches across child compone
     },
   });
 
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
   assert.equal(report.rows[0].current_value, 10010);
   assert.ok(requests.resolvedCreatedAfter.some(value => value));
   assert.ok(
@@ -700,7 +728,7 @@ test('runIssueHistory counts >10k open issues without relying on component split
     projectName: 'time-split-open-project',
   });
 
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
 
   const row = report.rows[0];
   assert.equal(row.project_key, 'js:TimeSplitOpenProject');
@@ -772,7 +800,7 @@ test('runIssueHistory traverses resolved component-fallback child scopes with bo
     issueSearchDelayMsByScope: Object.fromEntries(childScopes.map(scopeKey => [scopeKey, 20])),
   });
 
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
   assert.ok(
     requests.maxConcurrentIssueRequests > 1,
     `expected concurrent child-scope traversal, got max concurrency ${requests.maxConcurrentIssueRequests}`,
@@ -796,7 +824,7 @@ test('runIssueHistory counts >10k resolved issues without relying on component s
     projectName: 'time-split-resolved-project',
   });
 
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
 
   const row = report.rows[0];
   assert.equal(row.project_key, 'js:TimeSplitResolvedProject');
@@ -824,7 +852,7 @@ test('runIssueHistory retries only the failed open issue count query when a late
   assert.deepEqual(requests.analyses, [1, 2]);
   assert.deepEqual(requests.open, [1, 1, 1, 1, 1, 1, 1]);
   assert.deepEqual(requests.resolved, [1]);
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
   assert.equal(requests.openCreatedBefore.length, 7);
   assert.equal(requests.openCreatedBefore.filter(value => value === retriedCreatedBefore).length, 2);
 
@@ -855,7 +883,7 @@ test('runIssueHistory retries only the failed analyses page when Peach fetch rej
   assert.deepEqual(requests.analyses, [1, 2, 2]);
   assert.deepEqual(requests.open, [1, 1, 1, 1, 1, 1]);
   assert.deepEqual(requests.resolved, [1]);
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
 
   const row = report.rows[0];
   assert.equal(row.project_key, 'js:RejectedAnalysesProject');
@@ -885,7 +913,7 @@ test('runIssueHistory retries only the failed open issue count query when Peach 
   assert.deepEqual(requests.analyses, [1, 2]);
   assert.deepEqual(requests.open, [1, 1, 1, 1, 1, 1, 1]);
   assert.deepEqual(requests.resolved, [1]);
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
   assert.equal(requests.openCreatedBefore.length, 7);
   assert.equal(requests.openCreatedBefore.filter(value => value === retriedCreatedBefore).length, 2);
 
@@ -913,7 +941,7 @@ test('runIssueHistory retries bogus unknown-url 404 responses from project analy
   });
 
   assert.deepEqual(requests.analyses, [1, 1]);
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
 
   const row = report.rows[0];
   assert.equal(row.project_key, 'js:RetriedUnknownAnalysesProject');
@@ -939,7 +967,7 @@ test('runIssueHistory retries bogus unknown-url 404 responses from open issue co
 
   assert.deepEqual(requests.open, [1, 1, 1, 1, 1, 1, 1]);
   assert.deepEqual(requests.resolved, [1]);
-  assert.deepEqual(report.summary, { OK: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
   assert.equal(requests.openCreatedBefore.length, 7);
   assert.equal(requests.openCreatedBefore.filter(value => value === retriedCreatedBefore).length, 2);
 
@@ -958,10 +986,31 @@ test('runIssueHistory omits drop metrics when a row has insufficient history', a
     projectName: 'short-history',
   });
 
-  assert.deepEqual(report.summary, { INSUFFICIENT_HISTORY: 1 });
+  assert.deepEqual(report.summary, expectedSummary({ INSUFFICIENT_HISTORY: 1 }));
+  assert.equal(report.blocking_rows_count, 0);
+  assert.equal(report.clean_for_early_exit, true);
 
   const row = report.rows[0];
   assert.equal(row.status, 'INSUFFICIENT_HISTORY');
   assert.equal(Object.hasOwn(row, 'drop_abs'), false);
   assert.equal(Object.hasOwn(row, 'drop_pct'), false);
+});
+
+test('main prints concise progress lines for CLI use', async () => {
+  const logLines = [];
+
+  await main(
+    ['/tmp/project-jobs.json', '/tmp/peachee-js', '/tmp/peach-issue-history.json'],
+    {
+      log: message => {
+        logLines.push(message);
+      },
+      runIssueHistory: async () => ({}),
+    },
+  );
+
+  assert.deepEqual(logLines, [
+    'peach-issue-history: starting /tmp/project-jobs.json -> /tmp/peach-issue-history.json',
+    'peach-issue-history: wrote /tmp/peach-issue-history.json',
+  ]);
 });

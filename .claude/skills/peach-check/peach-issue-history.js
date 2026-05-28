@@ -42,6 +42,15 @@ const RETRYABLE_UNKNOWN_URL_PATHS = new Set([
   '/api/project_analyses/search',
 ]);
 const WORKFLOW_ONLY_JOBS = new Set(['prepare-project-matrix', 'diff-validation-aggregated']);
+const REPORT_STATUSES = Object.freeze([
+  'OK',
+  'DROP',
+  'INSUFFICIENT_HISTORY',
+  'STALE',
+  'UNRESOLVED_PROJECT',
+  'ERROR',
+]);
+const BLOCKING_STATUSES = new Set(['DROP', 'STALE', 'UNRESOLVED_PROJECT', 'ERROR']);
 export const SUPPORTED_LANGUAGES = Object.freeze(['js', 'ts', 'css', 'web', 'yaml']);
 const SUPPORTED_LANGUAGES_QUERY = SUPPORTED_LANGUAGES.join(',');
 
@@ -97,7 +106,19 @@ export async function runIssueHistory(options, runtime = {}) {
   const combinedRows = [...rows, ...unresolvedRows].sort((left, right) =>
     getRowIdentifier(left).localeCompare(getRowIdentifier(right)),
   );
+  const summary = summarizeRows(combinedRows);
+  const blockingRowsCount = countBlockingRows(combinedRows);
   const report = {
+    generated_at: new Date().toISOString(),
+    source_run_id: jobsJsonData.metadata.runId,
+    source_head_sha: jobsJsonData.metadata.headSha,
+    source_jobs_total: jobsJsonData.jobs.length,
+    source_job_completed_at_min: formatOptionalTimestamp(
+      earliestTimestamp(jobsJsonData.jobs.map(job => job.completedAt)),
+    ),
+    source_job_completed_at_max: formatOptionalTimestamp(
+      latestTimestamp(jobsJsonData.jobs.map(job => job.completedAt)),
+    ),
     metric,
     languages: SUPPORTED_LANGUAGES,
     baseline_kind: 'median',
@@ -107,8 +128,10 @@ export async function runIssueHistory(options, runtime = {}) {
     concurrency,
     analysis_window_start: freshnessWindow.analysisWindowStart,
     analysis_window_end: freshnessWindow.analysisWindowEnd,
+    blocking_rows_count: blockingRowsCount,
+    clean_for_early_exit: blockingRowsCount === 0,
     rows: combinedRows.map(toJsonRow),
-    summary: summarizeRows(combinedRows),
+    summary,
   };
 
   writeFileSync(options.outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
@@ -123,6 +146,9 @@ function readJobsJsonData(jobsJsonPath, readFileSync) {
   return {
     jobs,
     metadata: {
+      runId:
+        readScalarField(payload, ['runId', 'run_id']) ??
+        (firstJob ? readScalarField(firstJob.raw, ['runId', 'run_id']) : undefined),
       headSha:
         readStringField(payload, ['headSha', 'head_sha']) ??
         (firstJob ? readStringField(firstJob.raw, ['headSha', 'head_sha']) : undefined),
@@ -854,7 +880,11 @@ function summarizeRows(rows) {
   return rows.reduce((summary, row) => {
     summary[row.status] = (summary[row.status] ?? 0) + 1;
     return summary;
-  }, {});
+  }, Object.fromEntries(REPORT_STATUSES.map(status => [status, 0])));
+}
+
+function countBlockingRows(rows) {
+  return rows.filter(row => BLOCKING_STATUSES.has(row.status)).length;
 }
 
 function toJsonRow(row) {
@@ -898,6 +928,20 @@ function readStringField(value, keys) {
   return undefined;
 }
 
+function readScalarField(value, keys) {
+  if (!value || typeof value !== 'object') {
+    return undefined;
+  }
+
+  for (const key of keys) {
+    if (typeof value[key] === 'string' || typeof value[key] === 'number') {
+      return value[key];
+    }
+  }
+
+  return undefined;
+}
+
 function parseTimestamp(value) {
   if (!value) {
     return undefined;
@@ -918,8 +962,23 @@ function latestTimestamp(values) {
   }, undefined);
 }
 
+function earliestTimestamp(values) {
+  return values.reduce((earliest, value) => {
+    const timestamp = parseTimestamp(value);
+    if (timestamp === undefined) {
+      return earliest;
+    }
+
+    return earliest === undefined || timestamp < earliest ? timestamp : earliest;
+  }, undefined);
+}
+
 function formatIsoTimestamp(timestamp) {
   return new Date(timestamp).toISOString().replace('.000Z', 'Z');
+}
+
+function formatOptionalTimestamp(timestamp) {
+  return timestamp === undefined ? undefined : formatIsoTimestamp(timestamp);
 }
 
 function formatExclusiveIsoTimestamp(timestamp) {
@@ -1012,7 +1071,11 @@ export async function main(argv = process.argv.slice(2), runtime = {}) {
   }
 
   const [jobsJsonPath, peacheeRoot, outputPath] = argv;
-  await runIssueHistory(
+  const log = runtime.log ?? (message => console.error(message));
+  const runIssueHistoryFn = runtime.runIssueHistory ?? runIssueHistory;
+
+  log(`peach-issue-history: starting ${jobsJsonPath} -> ${outputPath}`);
+  await runIssueHistoryFn(
     {
       jobsJsonPath,
       peacheeRoot,
@@ -1020,6 +1083,7 @@ export async function main(argv = process.argv.slice(2), runtime = {}) {
     },
     runtime,
   );
+  log(`peach-issue-history: wrote ${outputPath}`);
 }
 
 const entrypoint = fileURLToPath(import.meta.url);
