@@ -22,16 +22,22 @@ import { extractTestAssertion } from '../helpers/assertions.js';
 import { isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import {
+  getBooleanExpressionSuggestion,
+  getBooleanValue,
+  isLengthAccess,
+  isNaNExpression,
+  isNullLiteral,
+  isPlaywrightLocatorExpression,
+  isUndefinedExpression,
+  replacement,
+  type Suggestion,
+} from './assertion-suggestions.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
   preferSpecificAssertion: 'Use a more specific assertion instead of this generic one.',
   suggestSpecificAssertion: 'Replace with "{{assertion}}".',
-};
-
-type Suggestion = {
-  assertion: string;
-  replacement?: string;
 };
 
 const JEST_LIKE_MODULES = ['vitest', 'bun:test', '@jest/globals', 'jest'];
@@ -43,6 +49,7 @@ const CHAI_MODULES = [
 ];
 const CYPRESS_MODULES = ['cypress'];
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
+const MAX_ASSERT_ARGUMENTS_WITH_MESSAGE = 3;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
@@ -78,7 +85,7 @@ export const rule: Rule.RuleModule = {
           }
         }
         const assertion = extractTestAssertion(context, node);
-        if (!assertion || assertion.kind !== 'comparison') {
+        if (assertion?.kind !== 'comparison') {
           return;
         }
         if (hasJestLike) {
@@ -131,9 +138,8 @@ function getJestLikeSuggestion(
   if (!chain || node.arguments.length !== 1) {
     return null;
   }
-  const actual = chain.actual;
+  const { actual, negated } = chain;
   const expected = node.arguments[0];
-  const negated = chain.negated;
   const actualText = sourceCode.getText(actual);
   const expectedText = sourceCode.getText(expected);
   const prefix = `expect(${actualText})${negated ? '.not' : ''}`;
@@ -225,11 +231,14 @@ function getChaiAssertSuggestion(
   sourceCode: SourceCode,
 ): Suggestion | null {
   const method = getAssertMethod(context, node);
-  if (!method || node.arguments.length < 2 || node.arguments.length > 3) {
+  if (
+    !method ||
+    node.arguments.length < 2 ||
+    node.arguments.length > MAX_ASSERT_ARGUMENTS_WITH_MESSAGE
+  ) {
     return null;
   }
-  const actual = node.arguments[0];
-  const expected = node.arguments[1];
+  const [actual, expected] = node.arguments;
   const negated = method.startsWith('not');
   if (!['strictEqual', 'notStrictEqual'].includes(method)) {
     return null;
@@ -371,124 +380,6 @@ function getPlaywrightLocatorSuggestion(
   return null;
 }
 
-function isPlaywrightLocatorExpression(
-  node: estree.Node,
-  locatorNames: ReadonlySet<string>,
-): boolean {
-  if (isIdentifier(node)) {
-    return locatorNames.has(node.name);
-  }
-  if (node.type !== 'CallExpression' || !isMethodCall(node)) {
-    return false;
-  }
-  const property = node.callee.property;
-  return (
-    isIdentifier(property) &&
-    (property.name.startsWith('getBy') || ['locator', 'frameLocator'].includes(property.name))
-  );
-}
-
-function getBooleanExpressionSuggestion(
-  actual: estree.Node,
-  positive: boolean,
-  family: 'jest' | 'chai',
-  sourceCode: SourceCode,
-  node: estree.CallExpression,
-): Suggestion | null {
-  if (actual.type === 'BinaryExpression') {
-    const left = sourceCode.getText(actual.left);
-    const right = sourceCode.getText(actual.right);
-    if (['===', '==', '!==', '!='].includes(actual.operator)) {
-      const same = ['===', '=='].includes(actual.operator) ? positive : !positive;
-      return family === 'jest'
-        ? replacement(`expect(${left})${same ? '' : '.not'}.toBe(${right})`, node, sourceCode)
-        : replacement(`expect(${left}).to${same ? '' : '.not'}.equal(${right})`, node, sourceCode);
-    }
-    if (actual.operator === 'instanceof') {
-      return family === 'jest'
-        ? replacement(
-            `expect(${left})${positive ? '' : '.not'}.toBeInstanceOf(${right})`,
-            node,
-            sourceCode,
-          )
-        : replacement(
-            `expect(${left}).to${positive ? '' : '.not'}.be.instanceOf(${right})`,
-            node,
-            sourceCode,
-          );
-    }
-    const comparison = getNumericComparison(actual.operator, positive);
-    if (comparison) {
-      return family === 'jest'
-        ? replacement(`expect(${left}).${comparison.jest}(${right})`, node, sourceCode)
-        : replacement(`expect(${left}).to.be.${comparison.chai}(${right})`, node, sourceCode);
-    }
-  }
-  if (
-    actual.type === 'CallExpression' &&
-    isMethodCall(actual) &&
-    isIdentifier(actual.callee.property, 'includes') &&
-    actual.arguments.length === 1 &&
-    isTrustedStringReceiver(actual.callee.object)
-  ) {
-    const receiver = sourceCode.getText(actual.callee.object);
-    const needle = sourceCode.getText(actual.arguments[0]);
-    return family === 'jest'
-      ? replacement(
-          `expect(${receiver})${positive ? '' : '.not'}.toContain(${needle})`,
-          node,
-          sourceCode,
-        )
-      : replacement(
-          `expect(${receiver}).to${positive ? '' : '.not'}.include(${needle})`,
-          node,
-          sourceCode,
-        );
-  }
-  return null;
-}
-
-function isTrustedStringReceiver(node: estree.Node): boolean {
-  if (node.type === 'Literal') {
-    return typeof node.value === 'string';
-  }
-  if (node.type === 'TemplateLiteral') {
-    return node.expressions.length === 0;
-  }
-  return isIdentifier(node) && /(?:text|string|message|content|html)$/i.test(node.name);
-}
-
-function getNumericComparison(operator: estree.BinaryOperator, positive: boolean) {
-  const effective = positive ? operator : invertComparison(operator);
-  switch (effective) {
-    case '>':
-      return { jest: 'toBeGreaterThan', chai: 'greaterThan' };
-    case '>=':
-      return { jest: 'toBeGreaterThanOrEqual', chai: 'greaterThanOrEqual' };
-    case '<':
-      return { jest: 'toBeLessThan', chai: 'lessThan' };
-    case '<=':
-      return { jest: 'toBeLessThanOrEqual', chai: 'lessThanOrEqual' };
-    default:
-      return null;
-  }
-}
-
-function invertComparison(operator: estree.BinaryOperator): estree.BinaryOperator | null {
-  switch (operator) {
-    case '>':
-      return '<=';
-    case '>=':
-      return '<';
-    case '<':
-      return '>=';
-    case '<=':
-      return '>';
-    default:
-      return null;
-  }
-}
-
 function getExpectChain(node: estree.Node): { actual: estree.Node; negated: boolean } | null {
   if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property, 'not')) {
     const chain = getExpectChain(node.object);
@@ -576,46 +467,6 @@ function isCyWrapCall(node: estree.Node): boolean {
   );
 }
 
-function isLengthAccess(node: estree.Node): node is estree.MemberExpression {
-  return (
-    node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property, 'length')
-  );
-}
-
-function isNullLiteral(node: estree.Node): boolean {
-  return node.type === 'Literal' && node.value === null;
-}
-
-function isUndefinedExpression(node: estree.Node): boolean {
-  return (
-    isIdentifier(node, 'undefined') || (node.type === 'UnaryExpression' && node.operator === 'void')
-  );
-}
-
-function isNaNExpression(node: estree.Node): boolean {
-  return (
-    isIdentifier(node, 'NaN') ||
-    (node.type === 'MemberExpression' &&
-      isIdentifier(node.object, 'Number') &&
-      isIdentifier(node.property, 'NaN'))
-  );
-}
-
-function getBooleanValue(node: estree.Node): boolean | undefined {
-  return node.type === 'Literal' && typeof node.value === 'boolean' ? node.value : undefined;
-}
-
 function messageArgument(node: estree.CallExpression, sourceCode: SourceCode): string {
   return node.arguments[2] ? `, ${sourceCode.getText(node.arguments[2])}` : '';
-}
-
-function replacement(
-  replacementText: string,
-  _node: estree.CallExpression,
-  _sourceCode: SourceCode,
-): Suggestion {
-  return {
-    assertion: replacementText,
-    replacement: replacementText,
-  };
 }
