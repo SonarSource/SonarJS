@@ -119,7 +119,7 @@ describe('generated sources project metadata', () => {
     ]);
   });
 
-  it('collects package.json task invocations as tokenized scripts', async () => {
+  it('collects package.json task invocations as direct command segments', async () => {
     const baseDir = await createTempBaseDir();
 
     try {
@@ -128,8 +128,8 @@ describe('generated sources project metadata', () => {
         packageDir: baseDir,
         packageJson: {
           scripts: {
-            graphql: 'graphql-codegen --config ./codegen.yml',
-            proto: 'node ./bin/internal-proto-codegen.js -O=./src/generated ./proto/service.proto',
+            codegen: 'graphql-codegen --config ./codegen.yml && prettier src/generated',
+            ignored: 'echo graphql-codegen --config ./codegen.yml',
           },
         },
       });
@@ -137,21 +137,24 @@ describe('generated sources project metadata', () => {
       expect(taskInvocations).toEqual([
         {
           source: 'package-json-script',
-          taskName: 'graphql',
+          taskName: 'codegen',
           commandLine: 'graphql-codegen --config ./codegen.yml',
-          tokens: ['graphql-codegen', '--config', './codegen.yml'],
+          command: 'graphql-codegen',
+          args: ['--config', './codegen.yml'],
         },
         {
           source: 'package-json-script',
-          taskName: 'proto',
-          commandLine:
-            'node ./bin/internal-proto-codegen.js -O=./src/generated ./proto/service.proto',
-          tokens: [
-            'node',
-            './bin/internal-proto-codegen.js',
-            '-O=./src/generated',
-            './proto/service.proto',
-          ],
+          taskName: 'codegen',
+          commandLine: 'prettier src/generated',
+          command: 'prettier',
+          args: ['src/generated'],
+        },
+        {
+          source: 'package-json-script',
+          taskName: 'ignored',
+          commandLine: 'echo graphql-codegen --config ./codegen.yml',
+          command: 'echo',
+          args: ['graphql-codegen', '--config', './codegen.yml'],
         },
       ]);
     } finally {
@@ -329,6 +332,83 @@ export default config;
     }
   });
 
+  it('derives GraphQL Code Generator outputs when the codegen command is followed by &&', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    '../src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const packageJsons = createPackageJsonMap(baseDir, {
+        devDependencies: {
+          '@graphql-codegen/cli': '1.0.0',
+        },
+        scripts: {
+          codegen:
+            'graphql-codegen --config ./config/custom-codegen.ts && prettier src/generated/sdk.ts',
+        },
+      });
+
+      const derived = await deriveGeneratedSources(baseDir, packageJsons);
+
+      expect(derived.familyByFile.get(outputPath)).toEqual('@graphql-codegen/cli');
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not derive GraphQL Code Generator outputs when graphql-codegen is only echoed', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    '../src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const packageJsons = createPackageJsonMap(baseDir, {
+        devDependencies: {
+          '@graphql-codegen/cli': '1.0.0',
+        },
+        scripts: {
+          codegen: 'echo graphql-codegen --config ./config/custom-codegen.ts',
+        },
+      });
+
+      const derived = await deriveGeneratedSources(baseDir, packageJsons);
+
+      expect(derived.familyByFile.get(outputPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('ignores GraphQL config flags with unterminated quoted values', async () => {
     const baseDir = await createTempBaseDir();
     const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
@@ -439,6 +519,30 @@ export default config;
       const derived = await deriveGeneratedSources(baseDir, packageJsons);
 
       expect(derived.familyByFile.get(outputFile)).toEqual('@openapitools/openapi-generator-cli');
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not derive OpenAPI Generator outputs when openapi-generator-cli is only echoed', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputFile = joinPaths(baseDir, 'src', 'api', 'index.ts');
+
+    try {
+      await writeFixtureFile(outputFile, 'export const api = true;\n');
+
+      const packageJsons = createPackageJsonMap(baseDir, {
+        devDependencies: {
+          '@openapitools/openapi-generator-cli': '1.0.0',
+        },
+        scripts: {
+          generate: 'echo openapi-generator-cli generate --output=./src/api',
+        },
+      });
+
+      const derived = await deriveGeneratedSources(baseDir, packageJsons);
+
+      expect(derived.familyByFile.get(outputFile)).toBeUndefined();
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }

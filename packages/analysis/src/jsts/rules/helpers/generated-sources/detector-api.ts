@@ -225,11 +225,11 @@ async function resolveExistingPathsFromTaskInvocations({
   const resolvedPaths = new Set<NormalizedAbsolutePath>();
 
   for (const taskInvocation of taskInvocations) {
-    if (!matchesTaskInvocation(taskInvocation) || !taskInvocation.tokens) {
+    if (!matchesTaskInvocation(taskInvocation)) {
       continue;
     }
 
-    for (const token of extractFlagValuesFromTokens(taskInvocation.tokens, flags)) {
+    for (const token of extractFlagValuesFromTokens(taskInvocation.args, flags)) {
       const resolvedPath = resolveLiteralPath(token, packageDir, baseDir);
       if (resolvedPath && (await matchesExistingPathKind(resolvedPath, kind))) {
         resolvedPaths.add(resolvedPath);

@@ -16,13 +16,14 @@
  */
 import type { PackageJson } from 'type-fest';
 import type { NormalizedAbsolutePath } from '../../../../../../shared/src/helpers/files.js';
-import { matchesCommandToken, tokenizeScript } from './shared.js';
+import { matchesCommandToken, parseDirectCommandSegments } from './shared.js';
 
 export type TaskInvocation = {
   source: string;
   taskName: string;
-  commandLine?: string;
-  tokens?: readonly string[];
+  commandLine: string;
+  command: string;
+  args: readonly string[];
 };
 
 interface TaskInvocationProvider {
@@ -43,15 +44,14 @@ const packageJsonTaskInvocationProvider = {
         return [];
       }
 
-      const tokens = tokenizeScript(commandLine);
-      return [
-        {
-          source: 'package-json-script',
-          taskName,
-          commandLine,
-          tokens,
-        } satisfies TaskInvocation,
-      ];
+      return parseDirectCommandSegments(commandLine).map(
+        segment =>
+          ({
+            source: 'package-json-script',
+            taskName,
+            ...segment,
+          }) satisfies TaskInvocation,
+      );
     });
   },
 } satisfies TaskInvocationProvider;
@@ -75,8 +75,5 @@ export async function collectGeneratedSourceTaskInvocations(context: {
 }
 
 export function taskInvocationInvokesCommand(taskInvocation: TaskInvocation, commandName: string) {
-  return (
-    taskInvocation.tokens?.some(token => matchesCommandToken(token, commandName)) === true ||
-    taskInvocation.commandLine?.includes(commandName) === true
-  );
+  return matchesCommandToken(taskInvocation.command, commandName);
 }

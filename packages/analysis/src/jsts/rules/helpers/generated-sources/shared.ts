@@ -185,6 +185,90 @@ export function extractFlagValuesFromTokens(tokens: readonly string[], flags: st
   return values;
 }
 
+export type ParsedCommandSegment = {
+  commandLine: string;
+  command: string;
+  args: readonly string[];
+};
+
+export function parseDirectCommandSegments(script: string): ParsedCommandSegment[] {
+  const segments: ParsedCommandSegment[] = [];
+  const tokens: string[] = [];
+  let current = '';
+  let quote: '"' | "'" | undefined;
+  let segmentStart = 0;
+
+  const flushToken = () => {
+    if (current.length > 0) {
+      tokens.push(current);
+      current = '';
+    }
+  };
+
+  const finalizeSegment = (segmentEnd: number, nextSegmentStart: number) => {
+    flushToken();
+
+    const commandLine = script.slice(segmentStart, segmentEnd).trim();
+    segmentStart = nextSegmentStart;
+
+    if (tokens.length === 0 || commandLine.length === 0) {
+      tokens.length = 0;
+      return;
+    }
+
+    const [command, ...args] = tokens;
+    tokens.length = 0;
+
+    if (!isDirectCommand(command)) {
+      return;
+    }
+
+    segments.push({
+      commandLine,
+      command,
+      args,
+    });
+  };
+
+  for (let index = 0; index < script.length; index++) {
+    const char = script[index];
+
+    if (quote) {
+      if (char === quote) {
+        quote = undefined;
+      } else {
+        current += char;
+      }
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      continue;
+    }
+
+    if (char === '&' && script[index + 1] === '&') {
+      finalizeSegment(index, index + 2);
+      index += 1;
+      continue;
+    }
+
+    if (isWhitespace(char)) {
+      flushToken();
+      continue;
+    }
+
+    current += char;
+  }
+
+  if (quote) {
+    return [];
+  }
+
+  finalizeSegment(script.length, script.length);
+  return segments;
+}
+
 export function tokenizeScript(script: string) {
   const tokens: string[] = [];
   let current = '';
@@ -223,6 +307,10 @@ export function tokenizeScript(script: string) {
 export function matchesCommandToken(token: string, commandName: string) {
   const lastPathSegment = getLastPathSegment(token);
   return lastPathSegment === commandName || lastPathSegment.startsWith(`${commandName}.`);
+}
+
+function isDirectCommand(command: string) {
+  return !isShellGeneratedToken(command) && !isEnvironmentAssignment(command);
 }
 
 function resolveFlagValue(token: string, nextToken: string | undefined, flags: string[]) {
@@ -279,6 +367,19 @@ export function sortPathEntries<T>(entries: Iterable<[NormalizedAbsolutePath, T]
 function getLastPathSegment(path: string) {
   const separatorIndex = Math.max(path.lastIndexOf('/'), path.lastIndexOf('\\'));
   return separatorIndex >= 0 ? path.slice(separatorIndex + 1) : path;
+}
+
+function isShellGeneratedToken(token: string) {
+  return token.includes('$') || token.includes('`') || token.includes('$(');
+}
+
+function isEnvironmentAssignment(token: string) {
+  const equalsIndex = token.indexOf('=');
+  if (equalsIndex <= 0) {
+    return false;
+  }
+
+  return /^[A-Za-z_][A-Za-z0-9_]*$/.test(token.slice(0, equalsIndex));
 }
 
 function isWhitespace(char: string) {

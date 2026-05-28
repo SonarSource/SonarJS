@@ -27,7 +27,8 @@ export const openApiGeneratorDetector = {
 
   async detect({ baseDir, packageDir, taskInvocations, sourceFileMatcher }) {
     const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
-      taskInvocationInvokesCommand(taskInvocation, 'openapi-generator-cli generate');
+      taskInvocationInvokesCommand(taskInvocation, 'openapi-generator-cli') &&
+      taskInvocation.args[0] === 'generate';
     if (!taskInvocations.some(matchesTaskInvocation)) {
       return createDerivedGeneratedSources();
     }
