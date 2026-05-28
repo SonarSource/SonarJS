@@ -26,7 +26,7 @@ const NODE_TYPE = estree.Node;
 const NodeType = estree.NodeType;
 export { NodeType };
 const unsupportedNodeTypes = new Map<string, number>();
-const AST_PROTOBUF_RECURSION_LIMIT = 1000;
+const AST_PROTOBUF_RECURSION_LIMIT = 300;
 
 export function serializeInProtobuf(
   ast: TSESTree.Program,
