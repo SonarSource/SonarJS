@@ -40,7 +40,18 @@ describe('S4782', () => {
             brand: string;
             insurance: (undefined | string);
             color?: string;
-          }`,
+          }
+          interface T {
+            p?: undefined;
+          }
+          type IntersectionBaseObject = {
+            specificAttribute?: string;
+            otherAttribute: number;
+            aThirdAttribute: boolean;
+          };
+          type WithoutSpecificAttribute = Omit<IntersectionBaseObject, 'specificAttribute'> & {
+            specificAttribute?: undefined;
+          };`,
           },
         ],
         invalid: [
@@ -251,21 +262,6 @@ describe('S4782', () => {
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: number | string; }',
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            code: `interface T { p?: undefined; }`,
-            errors: [
-              {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: 'interface T { p: undefined; }',
                   },
                 ],
               },
