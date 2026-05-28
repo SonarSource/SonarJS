@@ -295,6 +295,26 @@ function isQualifiedReactClassSuper(objectName: string | undefined, propertyName
     : objectName === 'React' && isReactClassSuperName(propertyName);
 }
 
+function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
+  return (
+    (superClass.type === 'Identifier' && isQualifiedReactClassSuper(undefined, superClass.name)) ||
+    (superClass.type === 'MemberExpression' &&
+      isIdentifier(superClass.object, 'React') &&
+      superClass.property.type === 'Identifier' &&
+      isQualifiedReactClassSuper(superClass.object.name, superClass.property.name))
+  );
+}
+
+export function isReactClassComponent(
+  node: estree.Node,
+): node is estree.ClassDeclaration | estree.ClassExpression {
+  return (
+    isClassComponentNode(node) &&
+    node.superClass != null &&
+    isBuiltinReactSuperclass(node.superClass)
+  );
+}
+
 function isReactComponentHeritageSuperclass(superclass: ts.ExpressionWithTypeArguments): boolean {
   const expression = superclass.expression;
   if (ts.isIdentifier(expression)) {
