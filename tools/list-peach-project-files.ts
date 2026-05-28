@@ -114,16 +114,16 @@ async function resolveProjectBaseDir(projectDir: string) {
   return projectDir;
 }
 
-function isDetectBundlesEnabled(properties: SonarProperties) {
+export function isDetectBundlesEnabled(properties: SonarProperties) {
   return properties.get('sonar.javascript.detectBundles')?.toLowerCase() !== 'false';
 }
 
-function isDetectGeneratedCodeEnabled(properties: SonarProperties) {
+export function isDetectGeneratedCodeEnabled(properties: SonarProperties) {
   const rawDetectGeneratedCode = properties.get('sonar.javascript.detectGeneratedCode');
   if (rawDetectGeneratedCode !== undefined) {
     return rawDetectGeneratedCode.toLowerCase() !== 'false';
   }
-  return isDetectBundlesEnabled(properties);
+  return true;
 }
 
 export function parseCommandLine(arguments_: string[]): ParsedArguments {

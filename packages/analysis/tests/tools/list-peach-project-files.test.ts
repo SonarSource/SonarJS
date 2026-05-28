@@ -17,6 +17,10 @@
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
 import { classifyRelativePath, type SonarProperties } from '../../src/common/project-file-scope.js';
+import {
+  isDetectBundlesEnabled,
+  isDetectGeneratedCodeEnabled,
+} from '../../../../tools/list-peach-project-files.ts';
 
 function createProperties(entries: Record<string, string>): SonarProperties {
   return new Map(Object.entries(entries));
@@ -70,5 +74,23 @@ describe('list peach project files helper', () => {
     );
 
     expect(classification.status).toBe('EXCLUDED_BY_SCAN_SETTINGS');
+  });
+
+  it('defaults generated-code detection independently from bundle detection', () => {
+    const properties = createProperties({
+      'sonar.javascript.detectBundles': 'false',
+    });
+
+    expect(isDetectBundlesEnabled(properties)).toBe(false);
+    expect(isDetectGeneratedCodeEnabled(properties)).toBe(true);
+  });
+
+  it('honors explicit generated-code detection overrides', () => {
+    const properties = createProperties({
+      'sonar.javascript.detectBundles': 'false',
+      'sonar.javascript.detectGeneratedCode': 'false',
+    });
+
+    expect(isDetectGeneratedCodeEnabled(properties)).toBe(false);
   });
 });
