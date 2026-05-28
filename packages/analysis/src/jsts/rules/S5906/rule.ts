@@ -54,6 +54,7 @@ export const rule: Rule.RuleModule = {
     const hasChai = importsOrDependsOnModule(context, CHAI_MODULES, CHAI_MODULES);
     const hasCypress = importsOrDependsOnModule(context, CYPRESS_MODULES, CYPRESS_MODULES);
     const hasPlaywright = importsModule(context, PLAYWRIGHT_MODULES);
+    const playwrightLocators = new Set<string>();
 
     function report(node: estree.CallExpression) {
       context.report({
@@ -68,7 +69,11 @@ export const rule: Rule.RuleModule = {
           return;
         }
         if (hasPlaywright) {
-          const playwrightSuggestion = getPlaywrightLocatorSuggestion(node, sourceCode);
+          const playwrightSuggestion = getPlaywrightLocatorSuggestion(
+            node,
+            sourceCode,
+            playwrightLocators,
+          );
           if (playwrightSuggestion) {
             report(node);
             return;
@@ -93,6 +98,17 @@ export const rule: Rule.RuleModule = {
           if (cypressSuggestion) {
             report(node);
           }
+        }
+      },
+      VariableDeclarator(node: estree.Node) {
+        if (
+          hasPlaywright &&
+          node.type === 'VariableDeclarator' &&
+          isIdentifier(node.id) &&
+          node.init &&
+          isPlaywrightLocatorExpression(node.init, playwrightLocators)
+        ) {
+          playwrightLocators.add(node.id.name);
         }
       },
     };
@@ -315,6 +331,7 @@ function getCypressSuggestion(
 function getPlaywrightLocatorSuggestion(
   node: estree.CallExpression,
   sourceCode: SourceCode,
+  locatorNames: ReadonlySet<string>,
 ): Suggestion | null {
   if (
     !isMethodCall(node) ||
@@ -335,6 +352,9 @@ function getPlaywrightLocatorSuggestion(
   ) {
     return null;
   }
+  if (!isPlaywrightLocatorExpression(awaited.callee.object, locatorNames)) {
+    return null;
+  }
   const locator = sourceCode.getText(awaited.callee.object);
   const expected = node.arguments[0];
   if (isIdentifier(awaited.callee.property, 'isVisible') && getBooleanValue(expected) === true) {
@@ -347,6 +367,23 @@ function getPlaywrightLocatorSuggestion(
     return { assertion: `await expect(${locator}).toHaveValue(${sourceCode.getText(expected)})` };
   }
   return null;
+}
+
+function isPlaywrightLocatorExpression(
+  node: estree.Node,
+  locatorNames: ReadonlySet<string>,
+): boolean {
+  if (isIdentifier(node)) {
+    return locatorNames.has(node.name);
+  }
+  if (node.type !== 'CallExpression' || !isMethodCall(node)) {
+    return false;
+  }
+  const property = node.callee.property;
+  return (
+    isIdentifier(property) &&
+    (property.name.startsWith('getBy') || ['locator', 'frameLocator'].includes(property.name))
+  );
 }
 
 function getBooleanExpressionSuggestion(
