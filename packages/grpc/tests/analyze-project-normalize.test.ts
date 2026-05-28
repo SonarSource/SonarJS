@@ -15,10 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { afterEach, describe, it } from 'node:test';
-import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect } from 'expect';
+import {
+  dependencyManifestStore,
+  generatedSourceStore,
+  sourceFileStore,
+  tsConfigStore,
+} from '../../analysis/src/file-stores/index.js';
 import {
   InvalidAnalyzeProjectRequestError,
   normalizeAnalyzeProjectRequest,
@@ -34,6 +40,10 @@ const { AnalysisMode, FileStatus, FileType, JsTsLanguage } = sonarjs.analyzeproj
 const temporaryDirectories: string[] = [];
 
 afterEach(async () => {
+  sourceFileStore.clearCache();
+  dependencyManifestStore.clearCache();
+  generatedSourceStore.clearCache();
+  tsConfigStore.clearCache();
   await Promise.all(
     temporaryDirectories.splice(0).map(path => rm(path, { force: true, recursive: true })),
   );
@@ -209,6 +219,65 @@ describe('normalizeAnalyzeProjectRequest', () => {
     expect(normalized.configuration.canAccessFileSystem).toBe(true);
     expect(normalized.configuration.detectGeneratedCode).toBe(true);
     expect(normalized.configuration.maxFileSize).toBe(64);
+  });
+
+  it('should clear generated-source cache for repeated full filesystem discovery requests', async () => {
+    const baseDir = await createBaseDir();
+    const generatedFile = join(baseDir, 'src', 'generated', 'graphql.ts');
+    const codegenConfig = join(baseDir, 'codegen.yml');
+
+    await mkdir(join(baseDir, 'src', 'generated'), { recursive: true });
+    await writeFile(
+      join(baseDir, 'package.json'),
+      JSON.stringify(
+        {
+          devDependencies: {
+            '@graphql-codegen/cli': '1.0.0',
+          },
+        },
+        null,
+        2,
+      ),
+    );
+    await writeFile(
+      codegenConfig,
+      `generates:
+  ./src/generated/graphql.ts:
+    plugins:
+      - typescript
+`,
+    );
+    await writeFile(generatedFile, 'export const generated = true;\n');
+
+    await normalizeAnalyzeProjectRequest({
+      configuration: {
+        baseDir,
+        canAccessFileSystem: true,
+      },
+      rules: [],
+      cssRules: [],
+      bundles: [],
+    });
+
+    expect(generatedSourceStore.getFamily(normalizeToAbsolutePath(generatedFile, baseDir))).toEqual(
+      '@graphql-codegen/cli',
+    );
+
+    await rm(codegenConfig);
+
+    await normalizeAnalyzeProjectRequest({
+      configuration: {
+        baseDir,
+        canAccessFileSystem: true,
+      },
+      rules: [],
+      cssRules: [],
+      bundles: [],
+    });
+
+    expect(generatedSourceStore.getFamily(normalizeToAbsolutePath(generatedFile, baseDir))).toBe(
+      undefined,
+    );
   });
 
   it('should keep empty files explicit when filesystem access is disabled', async () => {
