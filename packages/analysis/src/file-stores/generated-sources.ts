@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { createHash } from 'node:crypto';
 import { basename, extname } from 'node:path/posix';
 import type { FileStore } from './store-type.js';
 import {
@@ -47,6 +48,10 @@ import {
 
 const DEFAULT_DTS_EXCLUSION_PATTERN = '**/*.d.ts';
 const OBSERVABILITY_SAMPLE_LIMIT = 3;
+const ALL_FILES_REQUEST_KEY = 'all-files';
+const EXPLICIT_FILE_SET_REQUEST_KEY_PREFIX = 'explicit';
+
+type RequestFilesKey = string | undefined;
 
 type GeneratedSourceFamilyObservability = GeneratedSourceFamilyTelemetry & {
   excludedPaths: NormalizedAbsolutePath[];
@@ -66,7 +71,8 @@ class GeneratedSourceStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
-  private requestFilesKey: string | undefined = undefined;
+  private activeRequestFilesKey: RequestFilesKey = undefined;
+  private requestFilesKey: RequestFilesKey = undefined;
   private derivedFamilyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
   private familyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
   private resolvedFiles = new Set<NormalizedAbsolutePath>();
@@ -76,11 +82,12 @@ class GeneratedSourceStore implements FileStore {
 
   async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
+    const requestFilesKey = getRequestFilesKey(configuration.canAccessFileSystem, inputFiles);
+    this.activeRequestFilesKey = requestFilesKey;
     if (this.baseDir === undefined) {
       return false;
     }
 
-    const requestFilesKey = getRequestFilesKey(inputFiles);
     if (requestFilesKey === this.requestFilesKey) {
       return true;
     }
@@ -89,7 +96,7 @@ class GeneratedSourceStore implements FileStore {
       return false;
     }
 
-    this.refreshFilteredState(configuration, inputFiles);
+    this.refreshFilteredState(configuration, inputFiles, requestFilesKey);
     return true;
   }
 
@@ -126,6 +133,7 @@ class GeneratedSourceStore implements FileStore {
     this.baseDir = undefined;
     this.canAccessFileSystem = undefined;
     this.analyzableFilesConfigKey = undefined;
+    this.activeRequestFilesKey = undefined;
     this.clearDerivedState();
   }
 
@@ -172,7 +180,11 @@ class GeneratedSourceStore implements FileStore {
     this.resolvedFiles = new Set(this.derivedFamilyByFile.keys());
     this.configPaths = derived.configPaths;
     this.outputDirectories = derived.outputDirectories;
-    this.refreshFilteredState(configuration, analyzableFiles);
+    this.refreshFilteredState(
+      configuration,
+      analyzableFiles,
+      this.activeRequestFilesKey ?? getRequestFilesKey(canAccessFileSystem, analyzableFiles),
+    );
   }
 
   private isRelevantEvent(filename: NormalizedAbsolutePath) {
@@ -211,12 +223,16 @@ class GeneratedSourceStore implements FileStore {
     this.observabilityTelemetry = createEmptyGeneratedSourcesTelemetry();
   }
 
-  private refreshFilteredState(configuration: Configuration, analyzableFiles?: AnalyzableFiles) {
+  private refreshFilteredState(
+    configuration: Configuration,
+    analyzableFiles: AnalyzableFiles | undefined,
+    requestFilesKey: RequestFilesKey,
+  ) {
     if (!this.baseDir) {
       return;
     }
 
-    this.requestFilesKey = getRequestFilesKey(analyzableFiles);
+    this.requestFilesKey = requestFilesKey;
     // Generated-source tagging must stay aligned with the analyzer's real file scope
     // so configurable suffixes and exclusions win over detector-local heuristics.
     this.familyByFile = filterAnalyzableGeneratedFiles(this.derivedFamilyByFile, analyzableFiles);
@@ -249,12 +265,22 @@ function filterAnalyzableGeneratedFiles(
   return filtered;
 }
 
-function getRequestFilesKey(analyzableFiles?: AnalyzableFiles) {
+function getRequestFilesKey(
+  canAccessFileSystem: boolean,
+  analyzableFiles?: AnalyzableFiles,
+): RequestFilesKey {
   if (!analyzableFiles) {
-    return undefined;
+    return canAccessFileSystem ? ALL_FILES_REQUEST_KEY : undefined;
   }
 
-  return JSON.stringify(Object.keys(analyzableFiles).sort());
+  const filePaths = Object.keys(analyzableFiles).sort();
+  const hash = createHash('sha256');
+  for (const filePath of filePaths) {
+    hash.update(filePath);
+    hash.update('\0');
+  }
+
+  return `${EXPLICIT_FILE_SET_REQUEST_KEY_PREFIX}:${filePaths.length}:${hash.digest('hex')}`;
 }
 
 export const generatedSourceStore = new GeneratedSourceStore();

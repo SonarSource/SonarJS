@@ -1076,7 +1076,20 @@ export default config;
     }
   });
 
-  it('recomputes generated-source matches when the request file set changes', async () => {
+  it('reuses generated-source cache for repeated all-files discovery requests', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+    const generatedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
+    const configuration = createConfiguration({ baseDir });
+
+    expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
+
+    await initFileStores(configuration);
+
+    expect(generatedSourceStore.getFamily(generatedFile)).toEqual('@graphql-codegen/cli');
+    expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
+  });
+
+  it('refreshes generated-source matches when the explicit request file set changes', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
     const firstGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
     const secondGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'types', 'schema.ts');
@@ -1106,7 +1119,7 @@ export default config;
       configuration,
     );
 
-    await initFileStores(configuration, secondInputFiles);
+    expect(await generatedSourceStore.isInitialized(configuration, secondInputFiles)).toBe(true);
 
     expect(generatedSourceStore.getFamily(firstGeneratedFile)).toBeUndefined();
     expect(generatedSourceStore.getFamily(secondGeneratedFile)).toEqual('@graphql-codegen/cli');
