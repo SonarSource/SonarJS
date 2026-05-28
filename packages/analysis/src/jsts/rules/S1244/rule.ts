@@ -187,16 +187,16 @@ function isIndirectExactComparison(
       : node.operator === '||'
         ? new Set(['<', '>'])
         : null;
+  const leftComparison = node.left;
+  const rightComparison = node.right;
   if (
     !acceptedOperators ||
-    !isAcceptedComparison(node.left, acceptedOperators) ||
-    !isAcceptedComparison(node.right, acceptedOperators)
+    !isAcceptedComparison(leftComparison, acceptedOperators) ||
+    !isAcceptedComparison(rightComparison, acceptedOperators)
   ) {
     return false;
   }
 
-  const leftComparison = node.left;
-  const rightComparison = node.right;
   return comparisonAlternatives(leftComparison).some(left =>
     comparisonAlternatives(rightComparison).some(
       right =>
