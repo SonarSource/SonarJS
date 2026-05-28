@@ -64,7 +64,7 @@ function reportExempting(context: Rule.RuleContext, descriptor: Rule.ReportDescr
       nodeToCheck.parent?.type === 'CallExpression' &&
       nodeToCheck.parent.callee === nodeToCheck
     ) {
-      nodeToCheck = nodeToCheck.parent.arguments[0] as TSESTree.Node;
+      nodeToCheck = nodeToCheck.parent.arguments[0];
     }
     if (nodeToCheck && typeHasMethod(nodeToCheck as estree.Node, 'at', services)) {
       context.report({ node, ...rest });
