@@ -18,7 +18,7 @@
 
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
-import { extractTestAssertion } from '../helpers/assertions.js';
+import { extractTestAssertion, type AssertionStyle } from '../helpers/assertions.js';
 import { isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -40,14 +40,6 @@ const messages = {
   suggestSpecificAssertion: 'Replace with "{{assertion}}".',
 };
 
-const JEST_LIKE_MODULES = ['vitest', 'bun:test', '@jest/globals', 'jest'];
-const CHAI_MODULES = [
-  'chai',
-  'chai/register-assert',
-  'chai/register-expect',
-  'chai/register-should',
-];
-const CYPRESS_MODULES = ['cypress'];
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const MAX_ASSERT_ARGUMENTS_WITH_MESSAGE = 3;
 
@@ -55,9 +47,6 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
-    const hasJestLike = importsOrDependsOnModule(context, JEST_LIKE_MODULES, JEST_LIKE_MODULES);
-    const hasChai = importsOrDependsOnModule(context, CHAI_MODULES, CHAI_MODULES);
-    const hasCypress = importsOrDependsOnModule(context, CYPRESS_MODULES, CYPRESS_MODULES);
     const hasPlaywright = importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES);
     const playwrightLocators = new Set<string>();
 
@@ -88,25 +77,9 @@ export const rule: Rule.RuleModule = {
         if (assertion?.kind !== 'comparison') {
           return;
         }
-        if (hasJestLike) {
-          const jestSuggestion = getJestLikeSuggestion(node, sourceCode);
-          if (jestSuggestion) {
-            report(node, jestSuggestion);
-            return;
-          }
-        }
-        if (hasChai) {
-          const chaiSuggestion = getChaiSuggestion(context, node, sourceCode);
-          if (chaiSuggestion) {
-            report(node, chaiSuggestion);
-            return;
-          }
-        }
-        if (hasCypress) {
-          const cypressSuggestion = getCypressSuggestion(node, sourceCode);
-          if (cypressSuggestion) {
-            report(node, cypressSuggestion);
-          }
+        const suggestion = getSuggestion(context, assertion.style, node, sourceCode);
+        if (suggestion) {
+          report(node, suggestion);
         }
       },
       VariableDeclarator(node: estree.Node) {
@@ -123,6 +96,26 @@ export const rule: Rule.RuleModule = {
     };
   },
 };
+
+function getSuggestion(
+  context: Rule.RuleContext,
+  style: AssertionStyle,
+  node: estree.CallExpression,
+  sourceCode: SourceCode,
+): Suggestion | null {
+  switch (style) {
+    case 'jest-like':
+      return getJestLikeSuggestion(node, sourceCode);
+    case 'chai-bdd':
+      return getChaiBddSuggestion(node, sourceCode);
+    case 'chai-assert':
+      return getChaiAssertSuggestion(context, node, sourceCode);
+    case 'cypress':
+      return getCypressSuggestion(node, sourceCode);
+    default:
+      return null;
+  }
+}
 
 function getJestLikeSuggestion(
   node: estree.CallExpression,
@@ -177,16 +170,11 @@ function getJestLikeSuggestion(
   );
 }
 
-function getChaiSuggestion(
-  context: Rule.RuleContext,
+function getChaiBddSuggestion(
   node: estree.CallExpression,
   sourceCode: SourceCode,
 ): Suggestion | null {
-  return (
-    getChaiExpectSuggestion(node, sourceCode) ??
-    getChaiShouldSuggestion(node, sourceCode) ??
-    getChaiAssertSuggestion(context, node, sourceCode)
-  );
+  return getChaiExpectSuggestion(node, sourceCode) ?? getChaiShouldSuggestion(node, sourceCode);
 }
 
 function getChaiExpectSuggestion(

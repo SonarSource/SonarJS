@@ -19,9 +19,11 @@ import type estree from 'estree';
 import { isIdentifier, isMethodCall } from './ast.js';
 import { getFullyQualifiedName, importsModule, importsOrDependsOnModule } from './module.js';
 
-const JEST_LIKE_MODULES = ['vitest', 'bun:test', '@jest/globals', '@playwright/test'];
+const JEST_LIKE_MODULES = ['vitest', 'bun:test', '@jest/globals'];
 // Jest-like test runners which expose global methods that can be used in assertions
-const JEST_LIKE_GLOBAL_MODULES = ['jest', 'jasmine', '@playwright/test'];
+const JEST_LIKE_GLOBAL_MODULES = ['jest'];
+const JASMINE_GLOBAL_MODULES = ['jasmine'];
+const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const CHAI_LIKE_GLOBAL_MODULES = [
   'chai',
   'chai/register-assert',
@@ -32,6 +34,14 @@ const CHAI_LIKE_GLOBAL_MODULES = [
 const NODE_ASSERT_MODULES = ['assert', 'node:assert', 'assert/strict', 'node:assert/strict'];
 
 type AssertionPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
+export type AssertionStyle =
+  | 'jest-like'
+  | 'jasmine'
+  | 'chai-bdd'
+  | 'chai-assert'
+  | 'cypress'
+  | 'playwright'
+  | 'node-assert';
 
 /**
  * Cross-framework representation of a test assertion
@@ -39,6 +49,7 @@ type AssertionPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
 export type Assertion = PredicateAssertion | ComparisonAssertion;
 
 type AssertionBase = {
+  style: AssertionStyle;
   node: estree.Node;
   reportNode: estree.Node;
   negated: boolean;
@@ -120,7 +131,23 @@ export function extractTestAssertion(
 ): Assertion | null {
   // covers Jest-like assertion libraries
   if (importsOrDependsOnModule(context, JEST_LIKE_MODULES, JEST_LIKE_GLOBAL_MODULES)) {
-    const assertion = extractExpectAssertion(node);
+    const assertion = extractExpectAssertion(node, 'jest-like');
+    if (assertion) {
+      return assertion;
+    }
+  }
+
+  // covers Jasmine's Jest-like assertion shape
+  if (importsOrDependsOnModule(context, [], JASMINE_GLOBAL_MODULES)) {
+    const assertion = extractExpectAssertion(node, 'jasmine');
+    if (assertion) {
+      return assertion;
+    }
+  }
+
+  // covers Playwright's generic `expect(...).toBe()/toEqual()` shape
+  if (importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES)) {
+    const assertion = extractExpectAssertion(node, 'playwright');
     if (assertion) {
       return assertion;
     }
@@ -143,7 +170,10 @@ export function extractTestAssertion(
   return null;
 }
 
-function extractExpectAssertion(expectCall: estree.Node): Assertion | null {
+function extractExpectAssertion(
+  expectCall: estree.Node,
+  style: AssertionStyle,
+): Assertion | null {
   if (expectCall.type !== 'CallExpression') {
     return null;
   }
@@ -165,6 +195,7 @@ function extractExpectAssertion(expectCall: estree.Node): Assertion | null {
   const predicate = JEST_PREDICATES_MAPPING[matcher.name];
   if (predicate !== undefined && expectCall.arguments.length === 0) {
     return {
+      style,
       kind: 'predicate',
       predicate,
       actual,
@@ -181,6 +212,7 @@ function extractExpectAssertion(expectCall: estree.Node): Assertion | null {
       return null;
     }
     return {
+      style,
       kind: 'comparison',
       comparison,
       actual,
@@ -283,6 +315,7 @@ function extractChaiAssertAssertion(
       return null;
     }
     return {
+      style: 'chai-assert',
       kind: 'predicate',
       predicate: predicate.predicate,
       actual,
@@ -299,6 +332,7 @@ function extractChaiAssertAssertion(
   }
 
   return {
+    style: 'chai-assert',
     kind: 'comparison',
     comparison: getChaiAssertComparison(assertCall.method),
     actual,
@@ -439,6 +473,7 @@ function extractChaiExpectCallAssertion(
   }
 
   return {
+    style: 'chai-bdd',
     kind: 'comparison',
     comparison,
     actual: chain.actual,
@@ -469,6 +504,7 @@ function extractChaiExpectPropertyAssertion(
   }
 
   return {
+    style: 'chai-bdd',
     kind: 'predicate',
     predicate: predicate.predicate,
     actual: chain.actual,
@@ -544,6 +580,7 @@ function extractChaiShouldCallAssertion(node: estree.CallExpression): Assertion 
   }
 
   return {
+    style: 'chai-bdd',
     kind: 'comparison',
     comparison,
     actual: chain.actual,
@@ -570,6 +607,7 @@ function extractChaiShouldPropertyAssertion(node: estree.MemberExpression): Asse
   }
 
   return {
+    style: 'chai-bdd',
     kind: 'predicate',
     predicate: predicate.predicate,
     actual: chain.actual,
@@ -669,6 +707,7 @@ function extractNodeJSAssertion(
       return null;
     }
     return {
+      style: 'node-assert',
       kind: 'predicate',
       predicate: 'truthy',
       actual,
@@ -685,6 +724,7 @@ function extractNodeJSAssertion(
   }
 
   return {
+    style: 'node-assert',
     kind: 'comparison',
     comparison: getNodeJSComparison(assertCall.method),
     actual,
@@ -796,6 +836,7 @@ function extractCypressChainAssertion(node: estree.Node): Assertion | null {
       return null;
     }
     return {
+      style: 'cypress',
       kind: 'comparison',
       comparison,
       actual: subject,
@@ -812,6 +853,7 @@ function extractCypressChainAssertion(node: estree.Node): Assertion | null {
   }
 
   return {
+    style: 'cypress',
     kind: 'predicate',
     predicate: parsed.predicate,
     actual: subject,
