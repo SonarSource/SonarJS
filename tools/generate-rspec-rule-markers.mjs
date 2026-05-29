@@ -42,13 +42,10 @@ const CSS_MARKERS_FOLDER = join(MARKERS_ROOT, 'css');
 
 const localRuleDataRoot = join(ROOT_DIR, 'resources', 'rule-data');
 const ruleDataRoots = [
-  process.env.RSPEC_RULE_DATA_ROOT,
   localRuleDataRoot,
   // Useful after a sync or build: full generated metadata should override checked-in markers.
   join(ROOT_DIR, 'sonar-plugin', 'javascript-checks', 'src', 'main', 'resources'),
-]
-  .filter(Boolean)
-  .map(root => String(root));
+];
 
 const changedFiles = [];
 const checkFailures = [];
@@ -112,7 +109,7 @@ async function createJstsMarker(ruleKey) {
   }
 
   throw new Error(
-    `Could not find compatibleLanguages for ${ruleKey}. Run \`npm run generate-meta\` first, or provide RSPEC_RULE_DATA_ROOT.`,
+    `Could not find compatibleLanguages for ${ruleKey}. Run \`npm run generate-meta\` first.`,
   );
 }
 
