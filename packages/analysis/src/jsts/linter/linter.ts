@@ -307,20 +307,6 @@ export class Linter {
     // (getReactVersion, getDependenciesSanitizePaths) called from rules during linting.
     // Cleared by clearFileCaches() once linting completes.
     setCurrentFileInlineDependencies(sourceCode ? extractInlineNpmDependencies(sourceCode) : null);
-    const linterConfigKey = createLinterConfigKey(
-      filePath,
-      Linter.baseDir,
-      fileType,
-      fileLanguage,
-      analysisMode,
-      detectedEsYear,
-      detectedModuleType,
-      Linter.detectGeneratedCode,
-      isGeneratedSource,
-    );
-    let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
-    let dependencySensitiveRules = Linter.dependencySensitiveRulesCache.get(linterConfigKey);
-
     const baseContext = {
       extensionName: extname(normalizePath(filePath)),
       fileType,
@@ -331,6 +317,9 @@ export class Linter {
       detectGeneratedCode: Linter.detectGeneratedCode,
       isGeneratedSource,
     };
+    const linterConfigKey = createLinterConfigKey(filePath, Linter.baseDir, baseContext);
+    let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
+    let dependencySensitiveRules = Linter.dependencySensitiveRulesCache.get(linterConfigKey);
 
     if (baseRules === undefined || dependencySensitiveRules === undefined) {
       /**
@@ -456,13 +445,16 @@ function extractInlineNpmDependencies(sourceCode: SourceCode): DependenciesList 
 function createLinterConfigKey(
   filePath: NormalizedAbsolutePath,
   baseDir: NormalizedAbsolutePath,
-  fileType: FileType,
-  language: JsTsLanguage,
-  analysisMode: AnalysisMode,
-  detectedEsYear?: number,
-  detectedModuleType?: ModuleType,
-  detectGeneratedCode?: boolean,
-  isGeneratedSource?: boolean,
+  context: Pick<
+    RuleFilterContext,
+    | 'fileType'
+    | 'fileLanguage'
+    | 'analysisMode'
+    | 'detectedEsYear'
+    | 'detectedModuleType'
+    | 'detectGeneratedCode'
+    | 'isGeneratedSource'
+  >,
 ): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const normalizedPath = normalizeToAbsolutePath(filePath);
@@ -470,6 +462,6 @@ function createLinterConfigKey(
     dirnamePath(normalizedPath),
     baseDir,
   );
-  const linterConfigKey = `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
-  return `${linterConfigKey}:${detectedEsYear ?? 'esnext'}:${detectedModuleType ?? 'unknown'}:${detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${isGeneratedSource === true ? 'generated' : 'regular'}`;
+  const linterConfigKey = `${context.fileType}-${context.fileLanguage}-${context.analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
+  return `${linterConfigKey}:${context.detectedEsYear ?? 'esnext'}:${context.detectedModuleType ?? 'unknown'}:${context.detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${context.isGeneratedSource === true ? 'generated' : 'regular'}`;
 }
