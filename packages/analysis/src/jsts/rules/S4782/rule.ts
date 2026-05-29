@@ -70,7 +70,7 @@ export const rule: Rule.RuleModule = {
 };
 
 function getUndefinedTypeAnnotation(tsTypeAnnotation?: TSESTree.TSTypeAnnotation) {
-  if (tsTypeAnnotation) {
+  if (tsTypeAnnotation?.typeAnnotation.type === 'TSUnionType') {
     return getUndefinedTypeNode(tsTypeAnnotation.typeAnnotation);
   }
   return undefined;
@@ -79,7 +79,8 @@ function getUndefinedTypeAnnotation(tsTypeAnnotation?: TSESTree.TSTypeAnnotation
 function getUndefinedTypeNode(typeNode: TSESTree.TypeNode): TSESTree.TypeNode | undefined {
   if (typeNode.type === 'TSUndefinedKeyword') {
     return typeNode;
-  } else if (typeNode.type === 'TSUnionType') {
+  }
+  if (typeNode.type === 'TSUnionType') {
     return typeNode.types.map(getUndefinedTypeNode).find(tpe => tpe !== undefined);
   }
   return undefined;

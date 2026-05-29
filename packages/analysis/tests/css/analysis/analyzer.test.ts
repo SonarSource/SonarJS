@@ -73,6 +73,63 @@ describe('analyzeCSS', () => {
     );
   });
 
+  it('should extract sonar-resolve directives from block comments in CSS', async () => {
+    const result = await analyzeCSS(
+      await input(
+        '/some/fake/path.css',
+        '/* sonar-resolve css:no-extra-semicolons "reason" */\na { color: red; }',
+      ),
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 1,
+        text: 'sonar-resolve css:no-extra-semicolons "reason"',
+      },
+    ]);
+  });
+
+  it('should preserve multiline sonar-resolve directives across consecutive SCSS line comments', async () => {
+    const result = await analyzeCSS(
+      await input(
+        '/some/fake/path.scss',
+        [
+          '// sonar-resolve css:no-extra-semicolons "reason',
+          '// continued"',
+          'a { color: red; }',
+        ].join('\n'),
+      ),
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 1,
+        text: 'sonar-resolve css:no-extra-semicolons "reason\ncontinued"',
+      },
+    ]);
+  });
+
+  it('should extract sonar-resolve directives from CSS inside HTML style blocks', async () => {
+    const result = await analyzeCSS(
+      await input(
+        '/some/fake/path.html',
+        [
+          '<style>',
+          '/* sonar-resolve css:no-extra-semicolons "reason" */',
+          'a { color: red; }',
+          '</style>',
+        ].join('\n'),
+      ),
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 2,
+        text: 'sonar-resolve css:no-extra-semicolons "reason"',
+      },
+    ]);
+  });
+
   it('should still parse and compute metrics/highlighting with no rules', async () => {
     const fileContent = 'a { color: red; }';
     const result = await analyzeCSS(await input('/some/fake/path', fileContent, []));

@@ -252,7 +252,7 @@ export const rule: Rule.RuleModule = {
       }
       const jsxReference = new JSXReference(
         node,
-        context.sourceCode.getScope(node as unknown as estree.Node),
+        context.sourceCode.getScope(node),
       );
       return { ref: jsxReference, variable: jsxReference.resolved };
     }

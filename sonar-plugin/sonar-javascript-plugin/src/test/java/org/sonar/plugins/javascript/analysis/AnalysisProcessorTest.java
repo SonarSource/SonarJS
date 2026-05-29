@@ -26,12 +26,19 @@ import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.sonar.api.SonarEdition;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.batch.sensor.issue.IssueResolution;
+import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.testfixtures.log.LogTesterJUnit5;
+import org.sonar.api.utils.Version;
 import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisLanguage;
 import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
@@ -43,6 +50,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.Metrics;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingError;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingErrorCode;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
+import org.sonar.plugins.javascript.analyzeproject.grpc.SonarResolveComment;
 import org.sonar.plugins.javascript.analyzeproject.grpc.TextType;
 
 class AnalysisProcessorTest {
@@ -268,5 +276,208 @@ class AnalysisProcessorTest {
         file.uri() +
         " at line 1, column 2. Falling back to file start."
     );
+  }
+
+  @Test
+  void should_save_sonar_resolve_at_supported_runtime() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(13, 5),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "js", "file.js", "const x = 1;\nconst y = 2;\n");
+    var response = responseWithSonarResolveComments(
+      SonarResolveComment.newBuilder()
+        .setLine(1)
+        .setText("sonar-resolve javascript:S1116 \"reason\"")
+        .build()
+    );
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    assertThat(issueResolutions(sensorContext, file))
+      .singleElement()
+      .satisfies(issueResolution -> {
+        assertThat(issueResolution.status()).isEqualTo(IssueResolution.Status.DEFAULT);
+        assertThat(issueResolution.ruleKeys()).containsExactly(RuleKey.of("javascript", "S1116"));
+        assertThat(issueResolution.comment()).isEqualTo("reason");
+        assertThat(issueResolution.textRange().start().line()).isEqualTo(1);
+      });
+  }
+
+  @Test
+  void should_save_multiline_sonar_resolve_directive() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(13, 5),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "js", "file.js", "const x = 1;\nconst y = 2;\n");
+    var response = responseWithSonarResolveComments(
+      SonarResolveComment.newBuilder()
+        .setLine(1)
+        .setText("sonar-resolve javascript:S1116 \"reason\ncontinued\"")
+        .build()
+    );
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    assertThat(issueResolutions(sensorContext, file))
+      .singleElement()
+      .satisfies(issueResolution -> {
+        assertThat(issueResolution.status()).isEqualTo(IssueResolution.Status.DEFAULT);
+        assertThat(issueResolution.ruleKeys()).containsExactly(RuleKey.of("javascript", "S1116"));
+        assertThat(issueResolution.comment()).isEqualTo("reason\ncontinued");
+        assertThat(issueResolution.textRange().start().line()).isEqualTo(1);
+      });
+  }
+
+  @Test
+  void should_ignore_sonar_resolve_before_supported_runtime() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(13, 4),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "js", "file.js", "const x = 1;\n");
+    var response = responseWithSonarResolveComments(
+      SonarResolveComment.newBuilder()
+        .setLine(1)
+        .setText("sonar-resolve javascript:S1116 \"reason\"")
+        .build()
+    );
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    assertThat(issueResolutions(sensorContext, file)).isEmpty();
+  }
+
+  @Test
+  void should_ignore_sonar_resolve_in_sonarlint() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(13, 6)));
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "js", "file.js", "const x = 1;\n");
+    var response = responseWithSonarResolveComments(
+      SonarResolveComment.newBuilder()
+        .setLine(1)
+        .setText("sonar-resolve javascript:S1116 \"reason\"")
+        .build()
+    );
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    assertThat(issueResolutions(sensorContext, file)).isEmpty();
+  }
+
+  @Test
+  void should_warn_and_continue_on_invalid_sonar_resolve_directive() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(13, 5),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "js", "file.js", "const x = 1;\nconst y = 2;\n");
+    var response = responseWithSonarResolveComments(
+      SonarResolveComment.newBuilder().setLine(1).setText("sonar-resolve [oops]").build(),
+      SonarResolveComment.newBuilder()
+        .setLine(2)
+        .setText("sonar-resolve javascript:S1116 \"reason\"")
+        .build()
+    );
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    assertThat(issueResolutions(sensorContext, file))
+      .singleElement()
+      .satisfies(issueResolution ->
+        assertThat(issueResolution.textRange().start().line()).isEqualTo(2)
+      );
+    assertThat(logTester.logs()).anySatisfy(log ->
+      assertThat(log).contains("Invalid sonar-resolve directive:")
+    );
+  }
+
+  @Test
+  void should_save_sonar_resolve_for_non_js_owned_files() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(13, 5),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "yaml", "file.yaml", "key: value\n");
+    var response = responseWithSonarResolveComments(
+      SonarResolveComment.newBuilder()
+        .setLine(1)
+        .setText("sonar-resolve javascript:S1116 \"reason\"")
+        .build()
+    );
+
+    processor.processResponse(context, mock(JsTsChecks.class), file, response);
+
+    assertThat(issueResolutions(sensorContext, file)).hasSize(1);
+  }
+
+  private AnalysisProcessor createProcessor() {
+    var fileLinesContextFactory = mock(FileLinesContextFactory.class);
+    when(fileLinesContextFactory.createFor(any())).thenReturn(mock(FileLinesContext.class));
+    return new AnalysisProcessor(
+      mock(NoSonarFilter.class),
+      fileLinesContextFactory,
+      mock(CssRules.class)
+    );
+  }
+
+  private InputFile createInputFile(
+    SensorContextTester sensorContext,
+    String language,
+    String filename,
+    String contents
+  ) {
+    var inputFile = TestInputFileBuilder.create("moduleKey", filename)
+      .setContents(contents)
+      .setLanguage(language)
+      .build();
+    sensorContext.fileSystem().add(inputFile);
+    return inputFile;
+  }
+
+  private ProjectAnalysisFileResult responseWithSonarResolveComments(
+    SonarResolveComment... sonarResolveComments
+  ) {
+    return ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .addAllSonarResolveComments(List.of(sonarResolveComments))
+      .build();
+  }
+
+  private List<IssueResolution> issueResolutions(SensorContextTester tester, InputFile inputFile) {
+    return tester.getIssueResolutions().getOrDefault(inputFile.key(), List.of());
   }
 }

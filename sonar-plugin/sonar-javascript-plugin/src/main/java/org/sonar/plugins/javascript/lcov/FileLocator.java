@@ -24,6 +24,8 @@ class FileLocator {
 
   private final ReversePathTree tree = new ReversePathTree();
 
+  record Resolution(@CheckForNull InputFile inputFile, boolean guessed) {}
+
   FileLocator(Iterable<InputFile> inputFiles) {
     inputFiles.forEach(inputFile -> {
       String[] path = inputFile.relativePath().split("/");
@@ -31,13 +33,17 @@ class FileLocator {
     });
   }
 
-  @CheckForNull
-  InputFile getInputFile(String filePath) {
+  Resolution resolve(String filePath) {
     String sanitizedPath = PathUtils.sanitize(filePath);
     if (sanitizedPath == null) {
-      return null;
+      return new Resolution(null, false);
     }
     String[] pathElements = sanitizedPath.split("/");
     return tree.getFileWithSuffix(pathElements);
+  }
+
+  @CheckForNull
+  InputFile getInputFile(String filePath) {
+    return resolve(filePath).inputFile();
   }
 }

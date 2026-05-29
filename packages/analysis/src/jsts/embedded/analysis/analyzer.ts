@@ -22,6 +22,8 @@ import type { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.j
 import { collectNclocLines } from '../../analysis/file-artifacts.js';
 import { type ExtendedParseResult, type LanguageParser, build } from '../builder/build.js';
 import { debug } from '../../../../../shared/src/helpers/logging.js';
+import { extractSonarResolveCommentsFromJsTsComments } from '../../../common/sonar-resolve.js';
+import type { SonarResolveComment } from '../../../contracts/analysis.js';
 
 /**
  * Analyzes a file containing JS snippets
@@ -52,23 +54,35 @@ export async function analyzeEmbedded(
   debug(`Analyzing file "${input.filePath}"`);
   const extendedParseResults = build(input, languageParser);
   const aggregatedIssues: JsTsIssue[] = [];
+  const aggregatedSonarResolveComments: SonarResolveComment[] = [];
   let ncloc: number[] = [];
   for (const extendedParseResult of extendedParseResults) {
-    const { issues, ncloc: singleNcLoc } = analyzeSnippet(extendedParseResult);
+    const {
+      issues,
+      ncloc: singleNcLoc,
+      sonarResolveComments: singleSonarResolveComments,
+    } = analyzeSnippet(extendedParseResult);
     ncloc = ncloc.concat(singleNcLoc);
     const filteredIssues = removeNonJsIssues(extendedParseResult.sourceCode, issues);
     aggregatedIssues.push(...filteredIssues);
+    aggregatedSonarResolveComments.push(...singleSonarResolveComments);
   }
   return {
     issues: aggregatedIssues,
     metrics: { ncloc },
+    ...(aggregatedSonarResolveComments.length > 0
+      ? { sonarResolveComments: aggregatedSonarResolveComments }
+      : {}),
   };
 }
 
 function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
   const issues = Linter.lint(extendedParseResult, extendedParseResult.syntheticFilePath, 'MAIN');
   const ncloc = collectNclocLines(extendedParseResult.sourceCode);
-  return { issues, ncloc };
+  const sonarResolveComments = extractSonarResolveCommentsFromJsTsComments(
+    extendedParseResult.sourceCode.ast.comments ?? [],
+  );
+  return { issues, ncloc, sonarResolveComments };
 }
 
 /**

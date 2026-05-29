@@ -113,7 +113,7 @@ public class CoverageSensor implements Sensor {
       );
     FileLocator fileLocator = new FileLocator(fileSystem.inputFiles(mainFilePredicate));
 
-    LCOVParser parser = LCOVParser.create(context, lcovFiles, fileLocator);
+    LCOVParser parser = new LCOVParser(context, lcovFiles, fileLocator);
     Map<InputFile, NewCoverage> coveredFiles = parser.coverageByFile();
 
     for (InputFile inputFile : fileSystem.inputFiles(mainFilePredicate)) {

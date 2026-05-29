@@ -57,6 +57,32 @@ describe('analyzeHTML', () => {
     );
   });
 
+  it('should preserve host line numbers for sonar-resolve directives in embedded JS', async () => {
+    await Linter.initialize({ baseDir: fixturesPath, rules: [] });
+
+    const result = await analyzeEmbedded(
+      await embeddedInput({
+        filePath: normalizeToAbsolutePath(join(fixturesPath, 'sonar-resolve.html')),
+        fileContent: [
+          '<html>',
+          '<script>',
+          '// sonar-resolve javascript:S1116 "reason"',
+          'const x = 1;',
+          '</script>',
+          '</html>',
+        ].join('\n'),
+      }),
+      parseHTML,
+    );
+
+    expect(result.sonarResolveComments).toEqual([
+      {
+        line: 3,
+        text: ' sonar-resolve javascript:S1116 "reason"',
+      },
+    ]);
+  });
+
   it('should not break when using a rule with a quickfix', async () => {
     await Linter.initialize({
       baseDir: fixturesPath,

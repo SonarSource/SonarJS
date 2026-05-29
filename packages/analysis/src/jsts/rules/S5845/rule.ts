@@ -27,10 +27,8 @@ import { getTypeFromTreeNode } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
-  alwaysFails:
-    'Change this assertion; it always fails because it compares dissimilar types ("{{actual}}" and "{{expected}}").',
-  alwaysSucceeds:
-    'Change this assertion; it always succeeds because it compares dissimilar types ("{{actual}}" and "{{expected}}").',
+  incompatibleStaticTypes:
+    'Review this equality assertion: the compared expressions have incompatible static types ("{{actual}}" and "{{expected}}").',
 };
 
 type PrimitiveCategory =
@@ -48,9 +46,10 @@ export const rule: Rule.RuleModule = {
   /*
    * High-level idea:
    * - only run when the parser provides type information;
+   * - only analyse strict and deep equality assertions;
    * - reduce both assertion operands to broad primitive families instead of comparing exact
-   *   TypeScript types, because the rule is only meant to catch obviously impossible equality
-   *   assertions;
+   *   TypeScript types, because the rule is meant to highlight incompatible static typings on
+   *   equality checks rather than to model all runtime equality behavior;
    * - stay conservative whenever the type is imprecise (`any`, `unknown`, type parameters, etc.),
    *   or when a mutable identifier may have been reassigned to a different family.
    */
@@ -65,7 +64,7 @@ export const rule: Rule.RuleModule = {
     // Expressions that are not rooted in a mutable local binding can rely directly on the
     // expression type at the assertion site:
     //   expect(getCount()).toBe('1');
-    //   expect(Number(title)).toStrictEqual('1');
+    //   expect(Number(title)).toBe('1');
     //
     // Bare identifiers and member expressions rooted in an identifier need one extra guard.
     // `getTypeAtLocation(value)` can stay narrow even after an imprecise write, so using the
@@ -110,7 +109,7 @@ export const rule: Rule.RuleModule = {
       if (incompatibility) {
         context.report({
           node: assertion.reportNode,
-          messageId: assertion.negated ? 'alwaysSucceeds' : 'alwaysFails',
+          messageId: 'incompatibleStaticTypes',
           data: incompatibility,
         });
       }
@@ -143,12 +142,16 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-// Only strict comparison-style assertions are in scope. Loose equality is intentionally excluded
-// because coercion rules make "always true/false" reasoning much less reliable there.
+// Strict and deep equality assertions are in scope. Loose equality depends on coercion, while
+// deep equality is relevant here because the rule only reasons about primitive type families.
 function isRelevantAssertion(assertion: Assertion | null): assertion is Assertion & {
   kind: 'comparison';
+  comparison: 'strict' | 'deep';
 } {
-  return assertion?.kind === 'comparison' && assertion.comparison !== 'loose';
+  return (
+    assertion?.kind === 'comparison' &&
+    (assertion.comparison === 'strict' || assertion.comparison === 'deep')
+  );
 }
 
 // The rule reports only when the two operands have no plausible primitive-family overlap.

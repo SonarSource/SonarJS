@@ -331,7 +331,7 @@ function findEventOrigin(event: TSESTree.Identifier) {
  * Checks if node has a property 'origin'
  */
 function isPropertyOrigin(node: TSESTree.MemberExpression) {
-  return isIdentifier(node.property as estree.Node, 'origin');
+  return isIdentifier(node.property, 'origin');
 }
 
 /**
@@ -345,7 +345,7 @@ function findEventOriginalEvent(event: TSESTree.Identifier) {
   const { object: eventCandidate, property: originalEventIdentifierCandidate } = memberExpr;
   if (
     eventCandidate === event &&
-    isIdentifier(originalEventIdentifierCandidate as estree.Node, 'originalEvent')
+    isIdentifier(originalEventIdentifierCandidate, 'originalEvent')
   ) {
     return memberExpr;
   }
