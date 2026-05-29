@@ -69,6 +69,28 @@ describe('S5868', () => {
         { code: String.raw`var r = /[\u200D]/` },
         { code: String.raw`var r = /[\u200D]/u` },
 
+        {
+          code: String.raw`const part1 = '\u00BA', part2 = '\u0300', r = new RegExp('[' + part1 + part2 + ']')`,
+        },
+        {
+          code: String.raw`const rangeA = '\u00C0-\u00D6', rangeB = '\u0300-\u036F', r = new RegExp('[' + rangeA + rangeB + ']')`,
+        },
+        {
+          code: String.raw`const high = '\uD83D', low = '\uDC4D', r = new RegExp('[' + high + low + ']')`,
+        },
+        {
+          code: String.raw`const baby = '\u{1F476}', skinTone = '\u{1F3FB}', r = new RegExp('[' + baby + skinTone + ']', 'u')`,
+          languageOptions: { ecmaVersion: 2015 },
+        },
+        {
+          code: String.raw`const first = '\u{1F1EF}', second = '\u{1F1F5}', r = new RegExp('[' + first + second + ']', 'u')`,
+          languageOptions: { ecmaVersion: 2015 },
+        },
+        {
+          code: String.raw`const man = '\u{1F468}', zwjChar = '\u200D', woman = '\u{1F469}', r = new RegExp('[' + man + zwjChar + woman + ']', 'u')`,
+          languageOptions: { ecmaVersion: 2015 },
+        },
+
         // don't report and don't crash on invalid regex
         { code: "var r = new RegExp('[Á] [ ');" },
         { code: "var r = RegExp('{ [Á]', 'u');" },
@@ -388,6 +410,10 @@ describe('S5868', () => {
         {
           code: 'const c = "👍", p = "[" + c + "]", r = new RegExp(p)',
           errors: surrogatePair('👍', 'const c = "👍", p = "[" + c + "]", r = new RegExp(p, "u")'),
+        },
+        {
+          code: String.raw`const part1 = '\u00BA', part2 = '\u0300A\u0301', r = new RegExp('[' + part1 + part2 + ']')`,
+          errors: [{ message: combiningClass(String.raw`A\u0301`) }],
         },
       ],
     });
