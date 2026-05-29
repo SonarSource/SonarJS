@@ -71,6 +71,41 @@ describe('S6478', () => {
             }
           `,
         },
+        {
+          code: `
+            function Parent() {
+              const columns = [
+                {
+                  Header: () => <CustomHeader />,
+                  accessor: 'name',
+                },
+              ];
+              useTable({ columns });
+              return <Table columns={columns} />;
+            }
+          `,
+        },
+        {
+          code: `
+            function Parent() {
+              const columns = [
+                {
+                  Header: function Header() {
+                    return <CustomHeader />;
+                  },
+                  columns: [
+                    {
+                      Header: () => <NestedHeader />,
+                      id: 'nested',
+                    },
+                  ],
+                },
+              ];
+              useTable({ columns });
+              return <Table columns={columns} />;
+            }
+          `,
+        },
       ],
       invalid: [
         {
@@ -124,6 +159,17 @@ describe('S6478', () => {
                 return <div />;
               }
               return <Child />;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            function Parent() {
+              const renderers = {
+                Header: () => <div />,
+              };
+              return <Something renderers={renderers} />;
             }
           `,
           errors: 1,

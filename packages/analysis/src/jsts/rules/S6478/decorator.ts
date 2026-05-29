@@ -37,6 +37,8 @@ const REACT_INTL_COMPONENTS = new Set([
   '$t', // common alias
 ]);
 
+const REACT_TABLE_COLUMN_PROPERTIES = new Set(['accessor', 'columns', 'id']);
+
 /**
  * Checks if a JSXExpressionContainer is the `values` attribute of a react-intl component.
  */
@@ -120,6 +122,48 @@ function isReactIntlFormattingValue(node: estree.Node): boolean {
   return false;
 }
 
+/**
+ * Checks if a function is used as a react-table column header renderer.
+ * react-table accepts `Header` functions in column definitions as render callbacks.
+ */
+function isReactTableColumnHeaderRenderer(node: estree.Node): boolean {
+  if (node.type !== 'ArrowFunctionExpression' && node.type !== 'FunctionExpression') {
+    return false;
+  }
+
+  const property = (node as TSESTree.Node).parent as TSESTree.Property | undefined;
+  const columnDefinition = property?.parent as TSESTree.ObjectExpression | undefined;
+  if (
+    property?.type !== 'Property' ||
+    columnDefinition?.type !== 'ObjectExpression' ||
+    getStaticPropertyName(property) !== 'Header'
+  ) {
+    return false;
+  }
+
+  return columnDefinition.properties.some(
+    columnProperty =>
+      columnProperty.type === 'Property' &&
+      REACT_TABLE_COLUMN_PROPERTIES.has(getStaticPropertyName(columnProperty) ?? ''),
+  );
+}
+
+function getStaticPropertyName(property: TSESTree.Property) {
+  if (property.computed) {
+    return undefined;
+  }
+
+  const { key } = property;
+  if (key.type === 'Identifier') {
+    return key.name;
+  }
+  if (key.type === 'Literal' && typeof key.value === 'string') {
+    return key.value;
+  }
+
+  return undefined;
+}
+
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReportForReact(
     {
@@ -132,6 +176,11 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
       // Skip functions used as react-intl rich text formatting values.
       // These are render callbacks, not React components.
       if (isReactIntlFormattingValue(node)) {
+        return;
+      }
+
+      // Skip react-table column header renderers.
+      if (isReactTableColumnHeaderRenderer(node)) {
         return;
       }
 
