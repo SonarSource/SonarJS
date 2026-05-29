@@ -16,7 +16,7 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { isIdentifier, isMethodCall } from './ast.js';
+import { getVariableFromName, isIdentifier, isMethodCall } from './ast.js';
 import { getFullyQualifiedName, importsModule, importsOrDependsOnModule } from './module.js';
 
 const JEST_LIKE_MODULES = ['vitest', 'bun:test', '@jest/globals', '@playwright/test'];
@@ -64,10 +64,12 @@ type PredicateAssertion = AssertionBase & {
  */
 type ComparisonAssertion = AssertionBase & {
   kind: 'comparison';
-  comparison: 'strict' | 'deep' | 'loose';
+  comparison: ComparisonAssertionStrictness;
   actual: estree.Node;
   expected: estree.Node;
 };
+
+type ComparisonAssertionStrictness = 'strict' | 'deep' | 'loose';
 
 /**
  * Maps common Jest matcher names to their corresponding assertion predicates.
@@ -88,6 +90,8 @@ type NodeAssertMethod =
   | 'ok'
   | 'strictEqual'
   | 'notStrictEqual'
+  | 'deepEqual'
+  | 'notDeepEqual'
   | 'deepStrictEqual'
   | 'notDeepStrictEqual';
 
@@ -194,7 +198,7 @@ function extractExpectAssertion(expectCall: estree.Node): Assertion | null {
   return null;
 }
 
-function getJestComparison(name: string): ComparisonAssertion['comparison'] | null {
+function getJestComparison(name: string): ComparisonAssertionStrictness | null {
   switch (name) {
     case 'toBe':
       return 'strict';
@@ -309,7 +313,7 @@ function extractChaiAssertAssertion(
   };
 }
 
-function getChaiAssertComparison(method: ChaiAssertMethod): ComparisonAssertion['comparison'] {
+function getChaiAssertComparison(method: ChaiAssertMethod): ComparisonAssertionStrictness {
   switch (method) {
     case 'equal':
     case 'notEqual':
@@ -332,11 +336,20 @@ function getChaiAssertCall(
     return { method: fqnMethod, reportNode: node.callee };
   }
 
-  if (allowGlobal && isIdentifier(node.callee, 'assert')) {
+  if (
+    allowGlobal &&
+    isIdentifier(node.callee, 'assert') &&
+    isGlobalAssertReference(context, node)
+  ) {
     return { method: 'assert', reportNode: node.callee };
   }
 
-  if (allowGlobal && isMethodCall(node) && isIdentifier(node.callee.object, 'assert')) {
+  if (
+    allowGlobal &&
+    isMethodCall(node) &&
+    isIdentifier(node.callee.object, 'assert') &&
+    isGlobalAssertReference(context, node)
+  ) {
     const method = getChaiAssertMethodFromName(node.callee.property.name);
     if (method) {
       return { method, reportNode: node.callee.property };
@@ -344,6 +357,13 @@ function getChaiAssertCall(
   }
 
   return null;
+}
+
+// Chai global `assert` should not steal calls from a locally-bound `assert`
+// such as `import assert from 'node:assert'`.
+function isGlobalAssertReference(context: Rule.RuleContext, node: estree.Node) {
+  const variable = getVariableFromName(context, 'assert', node);
+  return !variable || variable.defs.length === 0;
 }
 
 function getChaiAssertMethodFromFqn(fqn: string | null): ChaiAssertMethod | null {
@@ -695,8 +715,11 @@ function extractNodeJSAssertion(
   };
 }
 
-function getNodeJSComparison(method: NodeAssertMethod): ComparisonAssertion['comparison'] {
+function getNodeJSComparison(method: NodeAssertMethod): ComparisonAssertionStrictness {
   switch (method) {
+    case 'deepEqual':
+    case 'notDeepEqual':
+      return 'loose';
     case 'deepStrictEqual':
     case 'notDeepStrictEqual':
       return 'deep';
@@ -740,6 +763,14 @@ function getNodeJSAssertMethodFromFqn(fqn: string | null): NodeAssertMethod | nu
     case 'assert.notStrictEqual':
     case 'assert.strict.notStrictEqual':
       return 'notStrictEqual';
+    case 'assert.deepEqual':
+      return 'deepEqual';
+    case 'assert.notDeepEqual':
+      return 'notDeepEqual';
+    case 'assert.strict.deepEqual':
+      return 'deepStrictEqual';
+    case 'assert.strict.notDeepEqual':
+      return 'notDeepStrictEqual';
     case 'assert.deepStrictEqual':
     case 'assert.strict.deepStrictEqual':
       return 'deepStrictEqual';
@@ -759,6 +790,8 @@ function getNodeJSAssertMethodFromName(name: string): NodeAssertMethod | null {
     case 'ok':
     case 'strictEqual':
     case 'notStrictEqual':
+    case 'deepEqual':
+    case 'notDeepEqual':
     case 'deepStrictEqual':
     case 'notDeepStrictEqual':
       return name;
@@ -821,7 +854,7 @@ function extractCypressChainAssertion(node: estree.Node): Assertion | null {
   };
 }
 
-function parseCypressComparisonString(predicate: string): ComparisonAssertion['comparison'] | null {
+function parseCypressComparisonString(predicate: string): ComparisonAssertionStrictness | null {
   const parts = predicate.split('.');
   let idx = 0;
   if (parts[idx] === 'not') {
