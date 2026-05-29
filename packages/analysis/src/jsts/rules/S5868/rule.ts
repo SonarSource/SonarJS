@@ -47,9 +47,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
     let currentSeams: number[] = [];
 
     // Seam positions are in pattern space, while regexpp positions include the opening slash.
-    // A pair straddles seam s when charA.start < s + 1 <= charB.start.
+    // A pair straddles a seam only when the seam is exactly before charB.
     function spansSeam(charA: RegexppAST.Character, charB: RegexppAST.Character): boolean {
-      return currentSeams.some(s => charA.start <= s && s < charB.start);
+      return charA.end === charB.start && currentSeams.some(seam => seam + 1 === charB.start);
     }
 
     function checkSequence(sequence: RegexppAST.Character[]) {

@@ -440,6 +440,12 @@ describe('S5868', () => {
           errors: surrogatePair('👍', 'const c = "👍", p = "[" + c + "]", r = new RegExp(p, "u")'),
         },
         {
+          code: String.raw`const part1 = '\\uD83';
+const part2 = 'D\\uDC4D';
+new RegExp('[' + part1 + part2 + ']');`,
+          errors: surrogatePair(String.raw`\uD83D\uDC4D`),
+        },
+        {
           code: String.raw`const part1 = '\u00BA', part2 = '\u0300A\u0301', r = new RegExp('[' + part1 + part2 + ']')`,
           errors: [{ message: combiningClass('Á') }],
         },
