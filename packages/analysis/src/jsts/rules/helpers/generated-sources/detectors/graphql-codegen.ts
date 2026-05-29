@@ -30,7 +30,13 @@ import {
   type ResolvedGeneratedOutputs,
 } from '../detector-api.js';
 import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
-import { addFamilyFiles, createDerivedGeneratedSources, isLiteralPathToken } from '../shared.js';
+import {
+  addFamilyFiles,
+  createDerivedGeneratedSources,
+  isLiteralPathToken,
+  resolveLiteralPath,
+  safeStat,
+} from '../shared.js';
 
 const STANDARD_GRAPHQL_CONFIGS = [
   'codegen.config.cjs',
@@ -45,6 +51,14 @@ const STANDARD_GRAPHQL_CONFIGS = [
   'codegen.ts',
   'codegen.js',
 ] as const;
+const DEFAULT_NEAR_OPERATION_FILE_EXTENSION = '.generated.ts';
+const GRAPHQL_GENERATED_DIRECTORY_SEGMENTS = new Set(['generated', '__generated__', 'gql']);
+
+type GraphqlGenerateTarget = {
+  outputPath: string;
+  preset?: string;
+  generatedFileExtension?: string;
+};
 
 export const graphqlCodegenDetector = {
   family: GRAPHQL_CODEGEN_FAMILY,
@@ -101,15 +115,30 @@ async function resolveGraphqlOutputs(
   configPath: NormalizedAbsolutePath,
   sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
 ): Promise<ResolvedGeneratedOutputs> {
-  const outputPaths = await parseGraphqlGenerates(configPath);
+  const generateTargets = await parseGraphqlGenerates(configPath);
   const configDir = dirnamePath(configPath);
-  return resolveGeneratedOutputsFromLiteralPaths(
-    baseDir,
-    uniqueCandidateDirs([configDir, packageDir, baseDir]),
-    outputPaths,
-    true,
-    sourceFileMatcher,
-  );
+  const candidateDirs = uniqueCandidateDirs([configDir, packageDir, baseDir]);
+  const resolvedOutputs: ResolvedGeneratedOutputs = {
+    filePaths: new Set(),
+    outputDirectories: new Set(),
+    watchedOutputPaths: new Set(),
+  };
+
+  for (const generateTarget of [...generateTargets].sort((left, right) =>
+    left.outputPath.localeCompare(right.outputPath),
+  )) {
+    mergeResolvedGeneratedOutputs(
+      resolvedOutputs,
+      await resolveGraphqlGenerateTargetOutputs(
+        baseDir,
+        candidateDirs,
+        generateTarget,
+        sourceFileMatcher,
+      ),
+    );
+  }
+
+  return resolvedOutputs;
 }
 
 function uniqueCandidateDirs(paths: readonly NormalizedAbsolutePath[]) {
@@ -122,11 +151,11 @@ async function parseGraphqlGenerates(configPath: NormalizedAbsolutePath) {
     const configExtension = extname(configPath).toLowerCase();
 
     if (configExtension === '.yml' || configExtension === '.yaml') {
-      return getGeneratesKeysFromObject(yaml.parse(configContents));
+      return getGenerateTargetsFromObject(yaml.parse(configContents));
     }
 
     if (configExtension === '.json') {
-      return getGeneratesKeysFromObject(JSON.parse(configContents) as unknown);
+      return getGenerateTargetsFromObject(JSON.parse(configContents) as unknown);
     }
 
     if (
@@ -137,7 +166,7 @@ async function parseGraphqlGenerates(configPath: NormalizedAbsolutePath) {
       configExtension === '.mjs' ||
       configExtension === '.cjs'
     ) {
-      return getGeneratesKeysFromSource(configContents, configPath);
+      return getGenerateTargetsFromSource(configContents, configPath);
     }
   } catch {
     // Broken or unreadable GraphQL config files should not abort the whole analysis.
@@ -147,18 +176,22 @@ async function parseGraphqlGenerates(configPath: NormalizedAbsolutePath) {
   return [];
 }
 
-function getGeneratesKeysFromObject(config: unknown) {
+function getGenerateTargetsFromObject(config: unknown) {
   if (!isRecord(config) || !isRecord(config.generates)) {
     return [];
   }
 
-  return Object.keys(config.generates).filter(isLiteralPathToken);
+  return Object.entries(config.generates).flatMap(([outputPath, generateConfig]) => {
+    return isLiteralPathToken(outputPath)
+      ? [createGraphqlGenerateTarget(outputPath, generateConfig)]
+      : [];
+  });
 }
 
-function getGeneratesKeysFromSource(
+function getGenerateTargetsFromSource(
   sourceText: string,
   filePath: NormalizedAbsolutePath,
-): string[] {
+): GraphqlGenerateTarget[] {
   const sourceFile = ts.createSourceFile(filePath, sourceText, ts.ScriptTarget.Latest, true);
   const configObject = extractExportedObjectLiteral(sourceFile);
   if (!configObject) {
@@ -190,8 +223,192 @@ function getGeneratesKeysFromSource(
       return [];
     }
 
-    return isLiteralPathToken(property.name.text) ? [property.name.text] : [];
+    if (!isLiteralPathToken(property.name.text)) {
+      return [];
+    }
+
+    return [
+      createGraphqlGenerateTarget(
+        property.name.text,
+        extractGenerateConfigFromSource(property.initializer, sourceFile),
+      ),
+    ];
   });
+}
+
+function createGraphqlGenerateTarget(
+  outputPath: string,
+  generateConfig: unknown,
+): GraphqlGenerateTarget {
+  const presetConfig =
+    isRecord(generateConfig) && isRecord(generateConfig.presetConfig)
+      ? generateConfig.presetConfig
+      : undefined;
+
+  return {
+    outputPath,
+    preset:
+      isRecord(generateConfig) && typeof generateConfig.preset === 'string'
+        ? generateConfig.preset
+        : undefined,
+    generatedFileExtension:
+      presetConfig && typeof presetConfig.extension === 'string'
+        ? presetConfig.extension
+        : undefined,
+  };
+}
+
+function extractGenerateConfigFromSource(expression: ts.Expression, sourceFile: ts.SourceFile) {
+  const configObject = resolveObjectLiteral(expression, sourceFile);
+  if (!configObject) {
+    return undefined;
+  }
+
+  const presetConfigInitializer = getNamedObjectPropertyInitializer(configObject, 'presetConfig');
+  const presetConfig = presetConfigInitializer
+    ? resolveObjectLiteral(presetConfigInitializer, sourceFile)
+    : undefined;
+
+  return {
+    preset: getNamedStringPropertyValue(configObject, 'preset'),
+    presetConfig: presetConfig
+      ? {
+          extension: getNamedStringPropertyValue(presetConfig, 'extension'),
+        }
+      : undefined,
+  };
+}
+
+async function resolveGraphqlGenerateTargetOutputs(
+  baseDir: NormalizedAbsolutePath,
+  candidateDirs: readonly NormalizedAbsolutePath[],
+  generateTarget: GraphqlGenerateTarget,
+  sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
+) {
+  if (!isGraphqlDirectoryOutput(generateTarget.outputPath)) {
+    return resolveGeneratedOutputsFromLiteralPaths(
+      baseDir,
+      candidateDirs,
+      [generateTarget.outputPath],
+      true,
+      createGraphqlOutputFileMatcher(generateTarget, sourceFileMatcher),
+    );
+  }
+
+  if (isNearOperationFilePreset(generateTarget.preset)) {
+    return resolveGeneratedOutputsFromLiteralPaths(
+      baseDir,
+      candidateDirs,
+      [generateTarget.outputPath],
+      true,
+      createNearOperationFileMatcher(generateTarget, sourceFileMatcher),
+    );
+  }
+
+  if (isGeneratedOnlyGraphqlDirectory(generateTarget.outputPath)) {
+    return resolveGeneratedOutputsFromLiteralPaths(
+      baseDir,
+      candidateDirs,
+      [generateTarget.outputPath],
+      true,
+      sourceFileMatcher,
+    );
+  }
+
+  return watchOnlyGraphqlDirectoryOutput(baseDir, candidateDirs, generateTarget.outputPath);
+}
+
+function isGraphqlDirectoryOutput(outputPath: string) {
+  const normalizedPath = outputPath.replaceAll('\\', '/');
+  return normalizedPath.endsWith('/') || extname(normalizedPath) === '';
+}
+
+function isNearOperationFilePreset(preset?: string) {
+  return preset?.includes('near-operation-file') === true;
+}
+
+function isGeneratedOnlyGraphqlDirectory(outputPath: string) {
+  return outputPath
+    .replaceAll('\\', '/')
+    .split('/')
+    .some(segment => GRAPHQL_GENERATED_DIRECTORY_SEGMENTS.has(segment));
+}
+
+function createGraphqlOutputFileMatcher(
+  generateTarget: GraphqlGenerateTarget,
+  sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
+) {
+  if (!isNearOperationFilePreset(generateTarget.preset)) {
+    return sourceFileMatcher;
+  }
+
+  return createNearOperationFileMatcher(generateTarget, sourceFileMatcher);
+}
+
+function createNearOperationFileMatcher(
+  generateTarget: GraphqlGenerateTarget,
+  sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
+) {
+  const generatedFileExtension =
+    generateTarget.generatedFileExtension ?? DEFAULT_NEAR_OPERATION_FILE_EXTENSION;
+
+  return (filePath: NormalizedAbsolutePath) =>
+    filePath.endsWith(generatedFileExtension) && (sourceFileMatcher?.(filePath) ?? true);
+}
+
+async function watchOnlyGraphqlDirectoryOutput(
+  baseDir: NormalizedAbsolutePath,
+  candidateDirs: readonly NormalizedAbsolutePath[],
+  outputPath: string,
+): Promise<ResolvedGeneratedOutputs> {
+  const resolvedOutputs: ResolvedGeneratedOutputs = {
+    filePaths: new Set(),
+    outputDirectories: new Set(),
+    watchedOutputPaths: new Set(),
+  };
+  const seenResolvedPaths = new Set<NormalizedAbsolutePath>();
+
+  for (const declaredFromDir of candidateDirs) {
+    const resolvedPath = resolveLiteralPath(outputPath, declaredFromDir, baseDir);
+    if (!resolvedPath || seenResolvedPaths.has(resolvedPath)) {
+      continue;
+    }
+    seenResolvedPaths.add(resolvedPath);
+    resolvedOutputs.watchedOutputPaths.add(resolvedPath);
+
+    const stats = await safeStat(resolvedPath);
+    if (!stats) {
+      continue;
+    }
+
+    if (stats.isDirectory()) {
+      resolvedOutputs.outputDirectories.add(resolvedPath);
+      break;
+    }
+
+    if (stats.isFile()) {
+      break;
+    }
+  }
+
+  return resolvedOutputs;
+}
+
+function mergeResolvedGeneratedOutputs(
+  target: ResolvedGeneratedOutputs,
+  source: ResolvedGeneratedOutputs,
+) {
+  for (const filePath of source.filePaths) {
+    target.filePaths.add(filePath);
+  }
+
+  for (const outputDirectory of source.outputDirectories) {
+    target.outputDirectories.add(outputDirectory);
+  }
+
+  for (const watchedOutputPath of source.watchedOutputPaths) {
+    target.watchedOutputPaths.add(watchedOutputPath);
+  }
 }
 
 function extractExportedObjectLiteral(
@@ -290,6 +507,33 @@ function getPropertyName(name: ts.PropertyName) {
     return name.text;
   }
   return undefined;
+}
+
+function getNamedObjectPropertyInitializer(
+  objectLiteral: ts.ObjectLiteralExpression,
+  propertyName: string,
+) {
+  const property = objectLiteral.properties.find(property => {
+    return (
+      ts.isPropertyAssignment(property) &&
+      !ts.isComputedPropertyName(property.name) &&
+      getPropertyName(property.name) === propertyName
+    );
+  });
+
+  if (!property || !ts.isPropertyAssignment(property)) {
+    return undefined;
+  }
+
+  return property.initializer;
+}
+
+function getNamedStringPropertyValue(
+  objectLiteral: ts.ObjectLiteralExpression,
+  propertyName: string,
+) {
+  const initializer = getNamedObjectPropertyInitializer(objectLiteral, propertyName);
+  return initializer && ts.isStringLiteralLike(initializer) ? initializer.text : undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

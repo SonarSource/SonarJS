@@ -180,6 +180,47 @@ describe('generated sources project metadata', () => {
     ).toBeUndefined();
   });
 
+  it('does not tag handwritten files for near-operation-file directory outputs', async () => {
+    const baseDir = await createTempBaseDir();
+    const handWrittenPath = joinPaths(baseDir, 'src', 'App.tsx');
+    const generatedPath = joinPaths(baseDir, 'src', 'App.generated.tsx');
+
+    try {
+      await writeFixtureFile(
+        join(baseDir, 'codegen.config.ts'),
+        `const config = {
+  generates: {
+    './src/': {
+      preset: 'near-operation-file',
+      presetConfig: {
+        extension: '.generated.tsx',
+      },
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(handWrittenPath, 'export const app = true;\n');
+      await writeFixtureFile(generatedPath, 'export const generated = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(handWrittenPath)).toBeUndefined();
+      expect(derived.familyByFile.get(generatedPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('inherits parent GraphQL Code Generator dependencies into nested packages', async () => {
     const baseDir = await createTempBaseDir();
     const packageDir = joinPaths(baseDir, 'packages', 'app');
