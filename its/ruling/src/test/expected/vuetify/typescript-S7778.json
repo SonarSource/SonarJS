@@ -5,9 +5,6 @@
 "vuetify:packages/vuetify/cypress/templates/generateStories.tsx": [
 74
 ],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerTitle.ts": [
-56
-],
 "vuetify:packages/vuetify/src/directives/ripple/index.ts": [
 118
 ]

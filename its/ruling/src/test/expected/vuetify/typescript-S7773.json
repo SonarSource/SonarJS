@@ -11,78 +11,10 @@
 "vuetify:packages/vuetify/src/components/VBottomNavigation/VBottomNavigation.tsx": [
 77
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
-76
-],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.ts": [
-41,
-157
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-base.ts": [
-49
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-99
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-intervals.ts": [
-30,
-33,
-36,
-39
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/props.ts": [
-148,
-148,
-148,
-217,
-217,
-226,
-238
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-79,
-81,
-81,
-95,
-95,
-110,
-118,
-153,
-154,
-155,
-156,
-157,
-225
-],
 "vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerCanvas.tsx": [
 49,
 59,
 60
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-360,
-361,
-380,
-381,
-382,
-521,
-522,
-524
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
-45,
-70,
-77,
-78
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerMonthTable.ts": [
-29
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerYears.ts": [
-78,
-92,
-93,
-94
 ],
 "vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 162,
@@ -149,15 +81,6 @@
 301,
 302
 ],
-"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
-145,
-148,
-153,
-171
-],
-"vuetify:packages/vuetify/src/components/VSparkline/helpers/math.ts": [
-7
-],
 "vuetify:packages/vuetify/src/components/VSystemBar/VSystemBar.tsx": [
 41
 ],
@@ -173,12 +96,6 @@
 160,
 161,
 163
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-223,
-223,
-224,
-225
 ],
 "vuetify:packages/vuetify/src/components/VToolbar/VToolbar.tsx": [
 83,

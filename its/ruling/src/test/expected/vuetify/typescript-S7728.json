@@ -13,30 +13,8 @@
 "vuetify:packages/docs/src/util/markdown-it.ts": [
 53
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
-308
-],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
-79
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-209,
-467
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/column.ts": [
-16
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/common.ts": [
-39,
-40,
-100
-],
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 150
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
-139,
-151
 ],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 113
@@ -61,14 +39,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VSelectionControlGroup/VSelectionControlGroup.tsx": [
 81
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-131,
-181,
-189,
-289,
-290,
-333
 ],
 "vuetify:packages/vuetify/src/composables/filter.ts": [
 162

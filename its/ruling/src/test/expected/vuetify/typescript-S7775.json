@@ -2,10 +2,6 @@
 "vuetify:packages/docs/src/util/markdown-it.ts": [
 34
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-80,
-111
-],
 "vuetify:packages/vuetify/src/composables/display.ts": [
 113
 ]

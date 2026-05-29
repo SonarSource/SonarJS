@@ -56,21 +56,6 @@
 "vuetify:packages/vuetify/src/components/VBtnToggle/VBtnToggle.tsx": [
 35
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
-64
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-119,
-150,
-467
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/column.ts": [
-9,
-9
-],
-"vuetify:packages/vuetify/src/components/VCalendar/modes/stack.ts": [
-44
-],
 "vuetify:packages/vuetify/src/components/VCarousel/VCarousel.tsx": [
 56
 ],
@@ -119,10 +104,6 @@
 104,
 192,
 313
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-245,
-278
 ],
 "vuetify:packages/vuetify/src/components/VDialog/VDialog.tsx": [
 42
@@ -250,9 +231,6 @@
 "vuetify:packages/vuetify/src/components/VSnackbar/VSnackbar.tsx": [
 51
 ],
-"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
-419
-],
 "vuetify:packages/vuetify/src/components/VSwitch/VSwitch.tsx": [
 43,
 45
@@ -271,11 +249,6 @@
 64,
 65,
 66
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-77,
-85,
-93
 ],
 "vuetify:packages/vuetify/src/components/VTooltip/VTooltip.tsx": [
 48

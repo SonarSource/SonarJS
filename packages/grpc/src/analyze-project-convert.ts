@@ -19,7 +19,10 @@ import type { ProjectAnalysisOutput, FileResult } from '../../analysis/src/proje
 import type { ProjectAnalysisTelemetry } from '../../analysis/src/telemetry.js';
 import type { WsIncrementalResult } from '../../analysis/src/incremental-result.js';
 import type { AnalyzeProjectPathMap } from './analyze-project-request.js';
-import type { SuppressedIssue } from '../../analysis/src/contracts/analysis.js';
+import type {
+  SonarResolveComment as InternalSonarResolveComment,
+  SuppressedIssue,
+} from '../../analysis/src/contracts/analysis.js';
 import type {
   ParsingError as InternalParsingError,
   ParsingErrorLanguage,
@@ -36,7 +39,6 @@ import type {
   Location as InternalLocation,
   SymbolHighlight,
 } from '../../analysis/src/jsts/analysis/file-artifacts.js';
-import type { SonarResolveComment as InternalSonarResolveComment } from '../../analysis/src/contracts/analysis.js';
 import { ErrorCode } from '../../analysis/src/contracts/error.js';
 import { sonarjs } from './proto/analyze-project.js';
 

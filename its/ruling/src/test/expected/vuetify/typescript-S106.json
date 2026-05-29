@@ -26,12 +26,5 @@
 ],
 "vuetify:packages/docs/src/plugins/pwa.ts": [
 42
-],
-"vuetify:packages/vuetify/src/composables/validation.ts": [
-171
-],
-"vuetify:packages/vuetify/src/util/console.ts": [
-34,
-39
 ]
 }

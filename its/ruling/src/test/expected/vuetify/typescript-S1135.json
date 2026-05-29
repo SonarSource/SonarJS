@@ -23,25 +23,8 @@
 "vuetify:packages/vuetify/src/components/VAutocomplete/VAutocomplete.tsx": [
 87
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
-50
-],
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 89
-],
-"vuetify:packages/vuetify/src/components/VData/VData.ts": [
-372
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
-165,
-166,
-172
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
-30
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-131
 ],
 "vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 353
@@ -61,19 +44,6 @@
 ],
 "vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
 122
-],
-"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
-306
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-275
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-80,
-430
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeviewNode.ts": [
-173
 ],
 "vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
 88

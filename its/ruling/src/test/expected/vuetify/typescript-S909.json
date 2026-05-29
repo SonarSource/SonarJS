@@ -12,20 +12,8 @@
 "vuetify:packages/docs/vite.config.ts": [
 106
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
-48
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-440
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
-180
-],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 348
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-384
 ],
 "vuetify:packages/vuetify/src/composables/filter.ts": [
 93,

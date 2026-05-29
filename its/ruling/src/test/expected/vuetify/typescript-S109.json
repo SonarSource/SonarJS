@@ -63,66 +63,6 @@
 "vuetify:packages/vuetify/src/components/VBadge/VBadge.tsx": [
 72
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
-96,
-105,
-110,
-111,
-112,
-112,
-135
-],
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-299,
-299
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/events.ts": [
-34
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/props.ts": [
-24,
-24,
-24
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-10,
-10,
-10,
-10,
-10,
-10,
-10,
-10,
-10,
-10,
-10,
-10,
-11,
-11,
-11,
-11,
-11,
-11,
-11,
-11,
-11,
-11,
-11,
-11,
-95,
-156,
-160,
-273,
-277,
-277,
-277,
-277,
-277,
-349,
-373,
-374,
-375
-],
 "vuetify:packages/vuetify/src/components/VCarousel/VCarousel.tsx": [
 77
 ],
@@ -132,40 +72,6 @@
 142,
 186,
 209
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
-31,
-31
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-177,
-179
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
-48,
-48,
-49,
-49,
-70,
-70,
-100,
-100,
-102,
-123,
-128,
-129
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerMonthTable.ts": [
-33,
-34
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
-95,
-226,
-228
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/util/monthChange.ts": [
-15
 ],
 "vuetify:packages/vuetify/src/components/VField/VField.tsx": [
 155,
@@ -197,69 +103,8 @@
 83,
 84
 ],
-"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
-148,
-153,
-326,
-327
-],
-"vuetify:packages/vuetify/src/components/VSpeedDial/VSpeedDial.ts": [
-82
-],
-"vuetify:packages/vuetify/src/components/VStepper/VStepperContent.ts": [
-132
-],
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 104
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
-22,
-23,
-109,
-132,
-132,
-165,
-165,
-165,
-166,
-167,
-170,
-206,
-206,
-221,
-228,
-231,
-231,
-234,
-234,
-281,
-305,
-305,
-305,
-306,
-309,
-309,
-310,
-356
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.ts": [
-85,
-88,
-94,
-166,
-166,
-167,
-167,
-171,
-202,
-202,
-204,
-222,
-248
-],
-"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerTitle.ts": [
-42,
-42
 ],
 "vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
 41,

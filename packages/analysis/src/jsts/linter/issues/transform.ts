@@ -106,7 +106,7 @@ function transformMessage(
 
 function getResolutionComment(message: SuppressedLintMessage) {
   const justification = message.suppressions?.[0]?.justification?.trim();
-  return justification ? justification : DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT;
+  return justification || DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT;
 }
 
 /**

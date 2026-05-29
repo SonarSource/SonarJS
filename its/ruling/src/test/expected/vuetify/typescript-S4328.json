@@ -142,15 +142,6 @@
 "vuetify:packages/docs/src/util/routes.ts": [
 3
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
-15
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts": [
-4
-],
-"vuetify:packages/vuetify/src/directives/color/index.ts": [
-13
-],
 "vuetify:packages/vuetify/test/util/to-have-been-warned.ts": [
 1
 ],

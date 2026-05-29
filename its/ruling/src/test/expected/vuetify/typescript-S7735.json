@@ -13,23 +13,8 @@
 "vuetify:packages/vuetify/src/components/VBottomNavigation/VBottomNavigation.tsx": [
 118
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarDaily.ts": [
-259
-],
-"vuetify:packages/vuetify/src/components/VCalendar/VCalendarWeekly.ts": [
-229
-],
 "vuetify:packages/vuetify/src/components/VCombobox/VCombobox.tsx": [
 136
-],
-"vuetify:packages/vuetify/src/components/VData/VData.ts": [
-296
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
-120
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-313
 ],
 "vuetify:packages/vuetify/src/components/VExpansionPanel/VExpansionPanelTitle.tsx": [
 85
@@ -58,10 +43,6 @@
 70,
 73
 ],
-"vuetify:packages/vuetify/src/components/VSkeletonLoader/VSkeletonLoader.ts": [
-51,
-148
-],
 "vuetify:packages/vuetify/src/components/VSlider/VSlider.tsx": [
 122,
 123
@@ -76,17 +57,8 @@
 "vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
 291
 ],
-"vuetify:packages/vuetify/src/components/VSparkline/VSparkline.ts": [
-246
-],
-"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
-60
-],
 "vuetify:packages/vuetify/src/components/VTimeline/VTimeline.tsx": [
 79
-],
-"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
-355
 ],
 "vuetify:packages/vuetify/src/components/VWindow/VWindowItem.tsx": [
 110,
@@ -112,11 +84,6 @@
 ],
 "vuetify:packages/vuetify/src/composables/ssrBoot.ts": [
 14
-],
-"vuetify:packages/vuetify/src/directives/color/index.ts": [
-28,
-39,
-51
 ],
 "vuetify:packages/vuetify/src/labs/VDataTable/VDataTableFooter.tsx": [
 106

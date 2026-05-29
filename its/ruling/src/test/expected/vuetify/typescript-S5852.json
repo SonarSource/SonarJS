@@ -25,9 +25,6 @@
 "vuetify:packages/docs/src/util/markdown-it.ts": [
 32
 ],
-"vuetify:packages/vuetify/src/components/VCalendar/util/parser.ts": [
-21
-],
 "vuetify:packages/vuetify/src/util/colorUtils.ts": [
 204
 ],

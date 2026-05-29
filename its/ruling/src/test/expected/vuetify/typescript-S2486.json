@@ -7,11 +7,5 @@
 ],
 "vuetify:packages/docs/src/store/banners.ts": [
 80
-],
-"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
-479
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/util/createNativeLocaleFormatter.ts": [
-36
 ]
 }

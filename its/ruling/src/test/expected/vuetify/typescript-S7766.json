@@ -1,9 +1,5 @@
 {
 "vuetify:packages/docs/src/util/helpers.ts": [
 64
-],
-"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
-223,
-224
 ]
 }

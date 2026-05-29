@@ -2,10 +2,6 @@
 "vitest:packages/browser-playwright/src/playwright.ts": [
 496
 ],
-"vitest:packages/browser/src/client/tester/context.ts": [
-501,
-505
-],
 "vitest:packages/browser/src/client/tester/dialog.ts": [
 5
 ],
@@ -46,9 +42,6 @@
 52,
 343
 ],
-"vitest:packages/vitest/src/create/browser/creator.ts": [
-15
-],
 "vitest:packages/vitest/src/integrations/env/loader.ts": [
 91
 ],
@@ -80,9 +73,6 @@
 1550,
 1553,
 1557
-],
-"vitest:packages/vitest/src/node/plugins/index.ts": [
-267
 ],
 "vitest:packages/vitest/src/node/pools/rpc.ts": [
 163
@@ -117,9 +107,6 @@
 92,
 110,
 122
-],
-"vitest:packages/vitest/src/utils/base.ts": [
-20
 ],
 "vitest:packages/vitest/src/utils/traces.ts": [
 76

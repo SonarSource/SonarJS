@@ -115,9 +115,6 @@
 "vuetify:packages/vuetify/src/labs/index.ts": [
 1
 ],
-"vuetify:packages/vuetify/src/services/goto/index.ts": [
-8
-],
 "vuetify:packages/vuetify/src/util/colorUtils.ts": [
 4,
 5

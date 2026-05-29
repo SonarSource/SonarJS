@@ -8,9 +8,6 @@
 "tailwindcss:src/lib/substituteClassApplyAtRules.js": [
 270
 ],
-"tailwindcss:src/plugins/container.js": [
-5
-],
 "tailwindcss:src/util/disposables.js": [
 2
 ],

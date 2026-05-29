@@ -2,23 +2,8 @@
 "vuetify:packages/docs/src/composables/ad.ts": [
 43
 ],
-"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
-325
-],
-"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
-254
-],
 "vuetify:packages/vuetify/src/components/VSelect/VSelect.tsx": [
 144
-],
-"vuetify:packages/vuetify/src/components/VSkeletonLoader/VSkeletonLoader.ts": [
-133,
-135,
-137,
-139
-],
-"vuetify:packages/vuetify/src/components/VTreeview/util/filterTreeItems.ts": [
-10
 ],
 "vuetify:packages/vuetify/src/util/helpers.ts": [
 289

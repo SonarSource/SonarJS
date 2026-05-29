@@ -1,8 +1,4 @@
 {
-"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
-210,
-219
-],
 "vuetify:packages/vuetify/src/components/VOverlay/useActivator.tsx": [
 280
 ]
