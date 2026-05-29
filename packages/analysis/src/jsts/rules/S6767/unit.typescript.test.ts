@@ -480,4 +480,85 @@ function Comp(props: Props) {
       ],
     });
   });
+
+  it('should not report narrow local aliases in typed decorator callbacks', () => {
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          code: `
+declare const React: any;
+declare function buildPayload<P>(props: P): Record<string, unknown>;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAliasProps {
+  screenName: string;
+}
+function DecoratorAliasComponent(props: DecoratorAliasProps) {
+  return <main />;
+}
+track((props: DecoratorAliasProps) => {
+  const forwarded = props;
+  return buildPayload(forwarded);
+})(DecoratorAliasComponent);
+`,
+          filename: fixtureFile,
+        },
+        {
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorNamedPropProps {
+  screenName: string;
+}
+function DecoratorNamedPropComponent(props: DecoratorNamedPropProps) {
+  return <main />;
+}
+track((props: DecoratorNamedPropProps) => {
+  const { screenName } = props;
+  return { screen_name: screenName };
+})(DecoratorNamedPropComponent);
+`,
+          filename: fixtureFile,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorShadowedProps {
+  screenName: string;
+}
+function DecoratorShadowedComponent(props: DecoratorShadowedProps) {
+  return <main />;
+}
+track((props: DecoratorShadowedProps) => {
+  const { screenName } = props;
+  const value = (() => {
+    const screenName = 'shadowed';
+    return screenName;
+  })();
+  return { screen_name: value };
+})(DecoratorShadowedComponent);
+`,
+          filename: fixtureFile,
+          errors: [{ message: "'screenName' PropType is defined but prop is never used" }],
+        },
+      ],
+    });
+  });
 });
