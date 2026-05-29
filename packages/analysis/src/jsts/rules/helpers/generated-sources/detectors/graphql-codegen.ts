@@ -187,7 +187,7 @@ function extractExportedObjectLiteral(
   sourceFile: ts.SourceFile,
 ): ts.ObjectLiteralExpression | undefined {
   for (const statement of sourceFile.statements) {
-    if (ts.isExportAssignment(statement) && !statement.isExportEquals) {
+    if (ts.isExportAssignment(statement)) {
       const objectLiteral = resolveObjectLiteral(statement.expression, sourceFile);
       if (objectLiteral) {
         return objectLiteral;

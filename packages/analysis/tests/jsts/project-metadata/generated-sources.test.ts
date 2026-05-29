@@ -257,6 +257,42 @@ export default config;
     }
   });
 
+  it('derives GraphQL outputs from a codegen.config.cts file using export equals', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'codegen.config.cts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export = config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('refreshes generated-source metadata when an explicit GraphQL config file is created later', async () => {
     const baseDir = await createTempBaseDir();
     const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
