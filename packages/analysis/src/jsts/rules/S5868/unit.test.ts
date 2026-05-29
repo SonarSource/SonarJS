@@ -443,7 +443,12 @@ describe('S5868', () => {
           code: String.raw`const part1 = '\\uD83';
 const part2 = 'D\\uDC4D';
 new RegExp('[' + part1 + part2 + ']');`,
-          errors: surrogatePair(String.raw`\uD83D\uDC4D`),
+          errors: surrogatePair(
+            String.raw`\uD83D\uDC4D`,
+            String.raw`const part1 = '\\uD83';
+const part2 = 'D\\uDC4D';
+new RegExp('[' + part1 + part2 + ']', "u");`,
+          ),
         },
         {
           code: String.raw`const part1 = '\u00BA', part2 = '\u0300A\u0301', r = new RegExp('[' + part1 + part2 + ']')`,
