@@ -77,9 +77,7 @@ export async function analyzeEmbedded(
 }
 
 function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
-  const issues = Linter.lint(extendedParseResult, extendedParseResult.syntheticFilePath, {
-    fileType: 'MAIN',
-  });
+  const issues = Linter.lint(extendedParseResult, extendedParseResult.syntheticFilePath, 'MAIN');
   const ncloc = collectNclocLines(extendedParseResult.sourceCode);
   const sonarResolveComments = extractSonarResolveCommentsFromJsTsComments(
     extendedParseResult.sourceCode.ast.comments ?? [],

@@ -26,7 +26,7 @@ import {
   type NormalizedAbsolutePath,
   dirnamePath,
 } from '../../../../shared/src/helpers/files.js';
-import { createOptions, patchDirectiveComments } from './pragmas.js';
+import { createOptions } from './pragmas.js';
 import path from 'node:path';
 import type { ParseResult } from '../parsers/parse.js';
 import type { AnalysisMode, FileStatus } from '../analysis/analysis.js';
@@ -72,16 +72,6 @@ interface InitializeParams {
 interface LintOptions {
   additionalSettings?: Record<string, unknown>;
   additionalRules?: ESLintLinter.RulesRecord;
-}
-
-interface LintConfig {
-  fileType?: FileType;
-  fileStatus?: FileStatus;
-  analysisMode?: AnalysisMode;
-  language?: JsTsLanguage;
-  detectedEsYear?: number;
-  detectedModuleType?: ModuleType;
-  lintOptions?: LintOptions;
 }
 
 /**
@@ -199,21 +189,25 @@ export class Linter {
    *
    * @param parseResult the ESLint source code
    * @param filePath the normalized absolute path of the source file
-   * @param config additional file metadata, analysis metadata, rules and settings for linting
+   * @param fileType the type of the source file
+   * @param fileStatus whether the file has changed or not
+   * @param analysisMode whether we are analyzing all files or only changed files
+   * @param language language of the source file
+   * @param detectedEsYear ecmascript version for the file
+   * @param detectedModuleType module type for the file
+   * @param lintOptions additional rules and settings for linting
    * @returns linting issues
    */
   static lint(
     { sourceCode, parserOptions, parser }: ParseResult,
     filePath: NormalizedAbsolutePath,
-    {
-      fileType = 'MAIN',
-      fileStatus = 'CHANGED',
-      analysisMode = 'DEFAULT',
-      language = 'js',
-      detectedEsYear,
-      detectedModuleType,
-      lintOptions = {},
-    }: LintConfig = {},
+    fileType: FileType = 'MAIN',
+    fileStatus: FileStatus = 'CHANGED',
+    analysisMode: AnalysisMode = 'DEFAULT',
+    language: JsTsLanguage = 'js',
+    detectedEsYear?: number,
+    detectedModuleType?: ModuleType,
+    lintOptions: LintOptions = {},
   ) {
     if (!Linter.linter) {
       throw APIError.linterError(`Linter does not exist.`);
@@ -252,7 +246,6 @@ export class Linter {
       files: [`**/*${path.posix.extname(normalizePath(filePath))}`],
     };
 
-    patchDirectiveComments(sourceCode, rules);
     const messages = Linter.linter.verify(sourceCode, config, createOptions(filePath, rules));
     clearFileCaches();
     return transformMessages(messages, language, {

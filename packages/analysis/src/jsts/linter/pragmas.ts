@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { Linter, Rule, SourceCode } from 'eslint';
+import type { Linter, Rule } from 'eslint';
 import type estree from 'estree';
 import * as ruleMetas from '../rules/metas.js';
 import * as rules from '../rules/rules.js';
@@ -111,7 +111,7 @@ function getInlineRuleDefaultOptions(
  * @returns string The rule part of the ruleId;
  */
 function getRuleId(ruleId: string | null) {
-  return ruleId?.split('/').at(-1) ?? '';
+  return ruleId?.split('/').at(-1)!;
 }
 
 export function createOptions(
@@ -188,55 +188,6 @@ export function createOptions(
       config.rules = patchedOptions;
     },
   };
-}
-
-export function patchDirectiveComments(sourceCode: SourceCode, activeRules: Linter.RulesRecord) {
-  for (const comment of sourceCode.getAllComments()) {
-    if (!comment.value.includes('eslint')) {
-      continue;
-    }
-    for (const [alias, mapping] of Object.entries(eslintMapping)) {
-      comment.value = replaceRuleIdAlias(comment.value, alias, mapping);
-    }
-    for (const [ruleId, options] of Object.entries(activeRules)) {
-      comment.value = preserveActiveRuleOptions(comment.value, ruleId, options);
-    }
-  }
-}
-
-function replaceRuleIdAlias(comment: string, alias: string, mapping: MappingEntry) {
-  const escapedAlias = alias.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
-  const ruleIdPattern = new RegExp(
-    String.raw`(^|[\s,:[{])((?:@?[\w-]+\/)?${escapedAlias})(?=$|[\s,\]:}])`,
-    'g',
-  );
-  return comment.replaceAll(ruleIdPattern, (match, prefix, matchedRuleId) => {
-    if (matchedRuleId.startsWith('sonarjs/')) {
-      return match;
-    }
-    return `${prefix}${mapping.ruleId}`;
-  });
-}
-
-function preserveActiveRuleOptions(
-  comment: string,
-  ruleId: string,
-  activeRuleOptions: Linter.RuleEntry,
-) {
-  if (!Array.isArray(activeRuleOptions) || activeRuleOptions.length <= 1) {
-    return comment;
-  }
-  const escapedRuleId = ruleId.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
-  const severityOnlyPattern = new RegExp(
-    String.raw`(${escapedRuleId}\s*:\s*)("error"|"warn"|"off"|'error'|'warn'|'off'|[012])(?=\s*(?:[,}]|$))`,
-    'g',
-  );
-  return comment.replaceAll(severityOnlyPattern, (_match, prefix, severity) => {
-    return `${prefix}[${severity},${activeRuleOptions
-      .slice(1)
-      .map(option => JSON.stringify(option))
-      .join(',')}]`;
-  });
 }
 
 function getSonarMeta(ruleId: string): SonarMeta | undefined {

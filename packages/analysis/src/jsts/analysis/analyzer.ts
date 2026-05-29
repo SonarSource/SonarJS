@@ -87,15 +87,17 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     clearDependenciesCache();
   }
   const { additionalRules, additionalSettings, metricsSink } = prepareLinterOptions(input);
-  const issues = Linter.lint(parseResult, filePath, {
+  const issues = Linter.lint(
+    parseResult,
+    filePath,
     fileType,
     fileStatus,
     analysisMode,
     language,
     detectedEsYear,
     detectedModuleType,
-    lintOptions: { additionalRules, additionalSettings },
-  });
+    { additionalRules, additionalSettings },
+  );
   const extendedMetrics = computeExtendedMetrics(
     input,
     parseResult.sourceCode,
