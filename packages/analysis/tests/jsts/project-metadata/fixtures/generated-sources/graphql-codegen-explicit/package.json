@@ -1,0 +1,9 @@
+{
+  "name": "graphql-codegen-explicit-fixture",
+  "scripts": {
+    "codegen": "graphql-codegen --config ./config/codegen.ts"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "5.0.0"
+  }
+}

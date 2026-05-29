@@ -20,12 +20,9 @@ import type { FileStore } from './store-type.js';
 import type { Configuration } from '../common/configuration.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
-import {
-  getAnalyzableFilesConfigKey,
-  getProjectFileDiscoveryConfigKey,
-} from '../common/configuration.js';
+import { getAnalyzableFilesConfigKey } from '../common/configuration.js';
 import { dependencyManifestStore } from './dependency-manifests.js';
-import { getGeneratedSourceWatchedFilenames } from '../jsts/rules/helpers/generated-sources/index.js';
+import { GENERATED_SOURCE_WATCHED_FILENAMES } from '../jsts/rules/helpers/generated-sources/index.js';
 import { isPreloadableDependencyManifestPath } from '../jsts/rules/helpers/dependency-manifests/index.js';
 import { deriveGeneratedSources } from '../jsts/rules/helpers/generated-sources/derive.js';
 
@@ -35,11 +32,9 @@ const EXPLICIT_FILE_SET_REQUEST_KEY_PREFIX = 'explicit';
 type RequestFilesKey = string | undefined;
 
 class GeneratedSourceStore implements FileStore {
-  private readonly explicitRequestFilesKeys = new WeakMap<AnalyzableFiles, string>();
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
-  private projectFileDiscoveryConfigKey: string | undefined = undefined;
   private activeRequestFilesKey: RequestFilesKey = undefined;
   private requestFilesKey: RequestFilesKey = undefined;
   private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
@@ -50,7 +45,7 @@ class GeneratedSourceStore implements FileStore {
 
   async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
-    const requestFilesKey = this.getRequestFilesKey(configuration.canAccessFileSystem, inputFiles);
+    const requestFilesKey = getRequestFilesKey(configuration.canAccessFileSystem, inputFiles);
     this.activeRequestFilesKey = requestFilesKey;
     if (this.baseDir === undefined) {
       return false;
@@ -84,14 +79,8 @@ class GeneratedSourceStore implements FileStore {
       return;
     }
 
-    if (getProjectFileDiscoveryConfigKey(configuration) !== this.projectFileDiscoveryConfigKey) {
-      this.clearCache();
-      return;
-    }
-
-    const generatedSourceWatchedFilenames = getGeneratedSourceWatchedFilenames();
     for (const filename of fsEvents) {
-      if (this.isRelevantEvent(filename, generatedSourceWatchedFilenames)) {
+      if (this.isRelevantEvent(filename)) {
         this.clearCache();
         return;
       }
@@ -102,7 +91,6 @@ class GeneratedSourceStore implements FileStore {
     this.baseDir = undefined;
     this.canAccessFileSystem = undefined;
     this.analyzableFilesConfigKey = undefined;
-    this.projectFileDiscoveryConfigKey = undefined;
     this.activeRequestFilesKey = undefined;
     this.clearDerivedState();
   }
@@ -111,7 +99,6 @@ class GeneratedSourceStore implements FileStore {
     this.baseDir = configuration.baseDir;
     this.canAccessFileSystem = configuration.canAccessFileSystem;
     this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
-    this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
     this.clearDerivedState();
   }
 
@@ -131,7 +118,6 @@ class GeneratedSourceStore implements FileStore {
       this.baseDir = configuration.baseDir;
       this.canAccessFileSystem = configuration.canAccessFileSystem;
       this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
-      this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
     }
 
     const { baseDir, canAccessFileSystem } = this;
@@ -152,18 +138,15 @@ class GeneratedSourceStore implements FileStore {
     this.watchedOutputPaths = derived.watchedOutputPaths;
     this.refreshFilteredState(
       analyzableFiles,
-      this.activeRequestFilesKey ?? this.getRequestFilesKey(canAccessFileSystem, analyzableFiles),
+      this.activeRequestFilesKey ?? getRequestFilesKey(canAccessFileSystem, analyzableFiles),
     );
   }
 
-  private isRelevantEvent(
-    filename: NormalizedAbsolutePath,
-    generatedSourceWatchedFilenames: readonly string[],
-  ) {
+  private isRelevantEvent(filename: NormalizedAbsolutePath) {
     const eventBaseName = basename(filename).toLowerCase();
     if (
       isPreloadableDependencyManifestPath(filename) ||
-      generatedSourceWatchedFilenames.includes(eventBaseName)
+      GENERATED_SOURCE_WATCHED_FILENAMES.includes(eventBaseName)
     ) {
       return true;
     }
@@ -194,24 +177,6 @@ class GeneratedSourceStore implements FileStore {
     this.watchedOutputPaths = new Set();
   }
 
-  private getRequestFilesKey(
-    canAccessFileSystem: boolean,
-    analyzableFiles?: AnalyzableFiles,
-  ): RequestFilesKey {
-    if (!analyzableFiles) {
-      return canAccessFileSystem ? ALL_FILES_REQUEST_KEY : undefined;
-    }
-
-    const cachedRequestFilesKey = this.explicitRequestFilesKeys.get(analyzableFiles);
-    if (cachedRequestFilesKey !== undefined) {
-      return cachedRequestFilesKey;
-    }
-
-    const requestFilesKey = createExplicitRequestFilesKey(analyzableFiles);
-    this.explicitRequestFilesKeys.set(analyzableFiles, requestFilesKey);
-    return requestFilesKey;
-  }
-
   private refreshFilteredState(
     analyzableFiles: AnalyzableFiles | undefined,
     requestFilesKey: RequestFilesKey,
@@ -238,7 +203,14 @@ function filterAnalyzableGeneratedFiles(
   return filtered;
 }
 
-function createExplicitRequestFilesKey(analyzableFiles: AnalyzableFiles) {
+function getRequestFilesKey(
+  canAccessFileSystem: boolean,
+  analyzableFiles?: AnalyzableFiles,
+): RequestFilesKey {
+  if (!analyzableFiles) {
+    return canAccessFileSystem ? ALL_FILES_REQUEST_KEY : undefined;
+  }
+
   const filePaths = Object.keys(analyzableFiles).sort((left, right) => left.localeCompare(right));
   const hash = createHash('sha256');
   for (const filePath of filePaths) {

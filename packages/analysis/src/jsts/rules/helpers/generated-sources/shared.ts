@@ -15,11 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { readdir, stat } from 'node:fs/promises';
-import { extname } from 'node:path/posix';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../../../shared/src/helpers/files.js';
+import { isJsTsCodeFileByExtension } from '../../../../common/file-kinds.js';
+import { relativeToAncestorPath } from '../files.js';
 import type { DerivedGeneratedSources, GeneratedSourceFileMatcher } from './contracts.js';
 
 const OBVIOUS_BUILD_OR_CACHE_SEGMENTS = new Set([
@@ -30,18 +31,8 @@ const OBVIOUS_BUILD_OR_CACHE_SEGMENTS = new Set([
   'coverage',
   '.next',
 ]);
-const DEFAULT_GENERATED_SOURCE_EXTENSIONS = new Set([
-  '.js',
-  '.mjs',
-  '.cjs',
-  '.jsx',
-  '.ts',
-  '.mts',
-  '.cts',
-  '.tsx',
-]);
 const defaultGeneratedSourceFileMatcher: GeneratedSourceFileMatcher = filePath =>
-  DEFAULT_GENERATED_SOURCE_EXTENSIONS.has(extname(filePath).toLowerCase());
+  isJsTsCodeFileByExtension(filePath);
 
 export function createDerivedGeneratedSources(): DerivedGeneratedSources {
   return {
@@ -96,7 +87,13 @@ export function resolveLiteralPath(
 }
 
 export function isLiteralPathToken(value: string) {
-  return value.length > 0 && !value.includes('$') && !value.includes('`') && !value.includes('+');
+  return (
+    value.length > 0 &&
+    !value.includes('$') &&
+    !value.includes('`') &&
+    !value.includes('+') &&
+    !value.includes('$(')
+  );
 }
 
 export function isSourceFile(
@@ -332,7 +329,7 @@ function resolveEqualsFlagValue(token: string, flags: string[]) {
 }
 
 function isWithinBaseDir(path: NormalizedAbsolutePath, baseDir: NormalizedAbsolutePath) {
-  const relativePath = getRelativeToAncestorPath(path, baseDir);
+  const relativePath = relativeToAncestorPath(path, baseDir);
   return relativePath !== undefined;
 }
 
@@ -340,20 +337,8 @@ function isSafeChildEntryPath(
   path: NormalizedAbsolutePath,
   parentDirectory: NormalizedAbsolutePath,
 ) {
-  const relativePath = getRelativeToAncestorPath(path, parentDirectory);
+  const relativePath = relativeToAncestorPath(path, parentDirectory);
   return relativePath !== undefined && !hasObviousBuildOrCacheDirectory(relativePath);
-}
-
-function getRelativeToAncestorPath(
-  filePath: NormalizedAbsolutePath,
-  topDir: NormalizedAbsolutePath,
-) {
-  const topDirPrefix = topDir.endsWith('/') ? topDir : `${topDir}/`;
-  if (filePath === topDir) {
-    return '';
-  }
-
-  return filePath.startsWith(topDirPrefix) ? filePath.slice(topDirPrefix.length) : undefined;
 }
 
 function hasObviousBuildOrCacheDirectory(path: string) {
@@ -381,7 +366,7 @@ function getLastPathSegment(path: string) {
 }
 
 function isShellGeneratedToken(token: string) {
-  return token.includes('$') || token.includes('`');
+  return token.includes('$') || token.includes('`') || token.includes('$(');
 }
 
 function isEnvironmentAssignment(token: string) {

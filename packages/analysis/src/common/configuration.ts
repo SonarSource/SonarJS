@@ -29,6 +29,7 @@ import {
   isStringArray,
   isObject,
 } from '../../../shared/src/helpers/sanitize.js';
+import { JAVASCRIPT_CODE_FILE_EXTENSIONS, TYPESCRIPT_CODE_FILE_EXTENSIONS } from './file-kinds.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -127,8 +128,8 @@ export type ConfigurationInput = {
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
 const IGNORED_PATTERNS = ['.scannerwork'];
 
-const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
-const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
+const DEFAULT_JS_EXTENSIONS = [...JAVASCRIPT_CODE_FILE_EXTENSIONS, '.vue'];
+const DEFAULT_TS_EXTENSIONS = TYPESCRIPT_CODE_FILE_EXTENSIONS.slice();
 const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
 const DEFAULT_HTML_EXTENSIONS = ['.html', '.htm', '.xhtml'];
 const DEFAULT_YAML_EXTENSIONS = ['.yml', '.yaml'];
@@ -424,16 +425,6 @@ export function getFilterPathParams(configuration: Configuration): FilterPathPar
 
 function serializeMinimatchPatterns(patterns: Minimatch[]) {
   return patterns.map(({ pattern }) => pattern);
-}
-
-/**
- * Returns a stable cache key for configuration fields that decide which project-level
- * helper files can be discovered during the file-system walk.
- */
-export function getProjectFileDiscoveryConfigKey(configuration: Configuration) {
-  return JSON.stringify({
-    jsTsExclusions: serializeMinimatchPatterns(configuration.jsTsExclusions),
-  });
 }
 
 /**

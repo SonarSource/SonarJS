@@ -15,12 +15,12 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
-import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { beforeEach, describe, it } from 'node:test';
 import { expect } from 'expect';
 import { createConfiguration } from '../../../src/common/configuration.js';
+import { sanitizeRawInputFiles } from '../../../src/common/input-sanitize.js';
 import {
   dependencyManifestStore,
   generatedSourceStore,
@@ -28,37 +28,16 @@ import {
   sourceFileStore,
 } from '../../../src/file-stores/index.js';
 import {
-  hasToolEvidence,
-  resolveConfigPaths,
-  resolveGeneratedOutputsFromLiteralPaths,
-  type ResolvedGeneratedOutputs,
-} from '../../../src/jsts/rules/helpers/generated-sources/detector-api.js';
-import {
   deriveGeneratedSources,
   extractFlagValues,
 } from '../../../src/jsts/rules/helpers/generated-sources/derive.js';
 import {
+  GRAPHQL_CODEGEN_FAMILY,
   GENERATED_SOURCE_DETECTORS,
   GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,
+  GENERATED_SOURCE_WATCHED_FILENAMES,
   collectGeneratedSourceTaskInvocations,
-  getGeneratedSourceWatchedFilenames,
 } from '../../../src/jsts/rules/helpers/generated-sources/index.js';
-import {
-  addFamilyFiles,
-  createDerivedGeneratedSources,
-  isDirectory,
-  isFile,
-  isLiteralPathToken,
-  listSourceFilesInDirectory,
-  mergeDerivedGeneratedSources,
-  parseDirectCommandSegments,
-  resolveLiteralPath,
-} from '../../../src/jsts/rules/helpers/generated-sources/shared.js';
-import {
-  taskInvocationInvokesCommand,
-  type TaskInvocation,
-} from '../../../src/jsts/rules/helpers/generated-sources/task-invocations.js';
-import { createAnalyzableFiles, type AnalyzableFiles } from '../../../src/projectAnalysis.js';
 import {
   joinPaths,
   normalizeToAbsolutePath,
@@ -66,7 +45,11 @@ import {
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
 
-const itIfNotWindows = process.platform === 'win32' ? it.skip : it;
+const fixtures = joinPaths(
+  normalizeToAbsolutePath(import.meta.dirname),
+  'fixtures',
+  'generated-sources',
+);
 
 function createPackageJsonMap(
   packageDir: NormalizedAbsolutePath,
@@ -87,31 +70,6 @@ async function writeFixtureFile(filePath: string, content = '') {
   await writeFile(filePath, content);
 }
 
-function createObservedInputFiles(filePaths: NormalizedAbsolutePath[]) {
-  const analyzableFiles = createAnalyzableFiles();
-  for (const filePath of filePaths) {
-    analyzableFiles[filePath] = {
-      filePath,
-      fileContent: '',
-      fileType: 'MAIN',
-      fileStatus: 'SAME',
-    };
-  }
-
-  let ownKeysCalls = 0;
-  const observedInputFiles = new Proxy(analyzableFiles, {
-    ownKeys(target) {
-      ownKeysCalls++;
-      return Reflect.ownKeys(target);
-    },
-  }) as AnalyzableFiles;
-
-  return {
-    ownKeysCalls: () => ownKeysCalls,
-    observedInputFiles,
-  };
-}
-
 describe('generated sources project metadata', () => {
   beforeEach(() => {
     dependencyManifestStore.clearCache();
@@ -119,12 +77,33 @@ describe('generated sources project metadata', () => {
     sourceFileStore.clearCache();
   });
 
-  it('registers no detector yet through the shared contract', () => {
-    expect(GENERATED_SOURCE_DETECTORS).toEqual([]);
+  it('registers the GraphQL detector through the shared contract', () => {
+    expect(GENERATED_SOURCE_DETECTORS.map(detector => detector.family)).toEqual([
+      GRAPHQL_CODEGEN_FAMILY,
+    ]);
     expect(GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS.map(provider => provider.kind)).toEqual([
       'package-json-scripts',
     ]);
-    expect(getGeneratedSourceWatchedFilenames()).toEqual([]);
+    expect(GENERATED_SOURCE_WATCHED_FILENAMES).toEqual(
+      expect.arrayContaining([
+        'codegen.config.cjs',
+        'codegen.config.cts',
+        'codegen.config.js',
+        'codegen.config.mjs',
+        'codegen.config.mts',
+        'codegen.config.ts',
+        'codegen.js',
+        'codegen.json',
+        'codegen.ts',
+        'codegen.yaml',
+        'codegen.yml',
+        '.codegenrc.js',
+        '.codegenrc.json',
+        '.codegenrc.ts',
+        '.codegenrc.yaml',
+        '.codegenrc.yml',
+      ]),
+    );
   });
 
   it('collects and normalizes package.json task invocations', async () => {
@@ -186,663 +165,131 @@ describe('generated sources project metadata', () => {
     ).toEqual(['./codegen.yml', './other.yml']);
   });
 
-  it('handles generated-source parsing and filesystem edge cases defensively', async () => {
+  it('derives GraphQL outputs from the standard fixture', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+    await initFileStores(createConfiguration({ baseDir }));
+
+    expect(
+      generatedSourceStore.getFamily(joinPaths(baseDir, 'src', 'generated', 'graphql.ts')),
+    ).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    expect(
+      generatedSourceStore.getFamily(joinPaths(baseDir, 'src', 'generated', 'types', 'schema.ts')),
+    ).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    expect(
+      generatedSourceStore.getFamily(
+        joinPaths(baseDir, 'src', 'generated', 'types', 'nested', 'schema.ts'),
+      ),
+    ).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    expect(
+      generatedSourceStore.getFamily(joinPaths(baseDir, 'dist', 'generated', 'ignored.ts')),
+    ).toBeUndefined();
+  });
+
+  it('does not tag handwritten files for near-operation-file directory outputs', async () => {
     const baseDir = await createTempBaseDir();
-
-    try {
-      expect(extractFlagValues('graphql-codegen --config "./codegen.yml"', ['--config'])).toEqual([
-        './codegen.yml',
-      ]);
-      expect(extractFlagValues('graphql-codegen --config "./broken', ['--config'])).toEqual([]);
-
-      expect(
-        parseDirectCommandSegments(
-          'graphql-codegen --config "./codegen.yml" && && NODE_ENV=production graphql-codegen --config ./ignored.yml && prettier src/generated',
-        ),
-      ).toEqual([
-        {
-          commandLine: 'graphql-codegen --config "./codegen.yml"',
-          command: 'graphql-codegen',
-          args: ['--config', './codegen.yml'],
-        },
-        {
-          commandLine: 'prettier src/generated',
-          command: 'prettier',
-          args: ['src/generated'],
-        },
-      ]);
-      expect(parseDirectCommandSegments('graphql-codegen --config "./broken')).toEqual([]);
-
-      expect(resolveLiteralPath('$(pwd)/generated', baseDir, baseDir)).toBeUndefined();
-
-      const missingFile = joinPaths(baseDir, 'missing.ts');
-      const missingDirectory = joinPaths(baseDir, 'missing-directory');
-      expect(await isFile(missingFile)).toBe(false);
-      expect(await isDirectory(missingDirectory)).toBe(false);
-      expect(await listSourceFilesInDirectory(missingDirectory, true)).toEqual([]);
-    } finally {
-      await rm(baseDir, { recursive: true, force: true });
-    }
-  });
-
-  it('merges derived generated-source metadata in a deterministic order', () => {
-    const target = createDerivedGeneratedSources();
-    const source = createDerivedGeneratedSources();
-    const aConfigPath = normalizeToAbsolutePath('/generated/a/codegen.yml');
-    const zConfigPath = normalizeToAbsolutePath('/generated/z/codegen.yml');
-    const aFilePath = normalizeToAbsolutePath('/generated/a/output.ts');
-    const zFilePath = normalizeToAbsolutePath('/generated/z/output.ts');
-    const aOutputPath = normalizeToAbsolutePath('/generated/a/output');
-    const zOutputPath = normalizeToAbsolutePath('/generated/z/output');
-
-    source.familyByFile.set(zFilePath, 'graphql-codegen');
-    source.familyByFile.set(aFilePath, 'graphql-codegen');
-    source.configPaths.add(zConfigPath);
-    source.configPaths.add(aConfigPath);
-    source.watchedOutputPaths.add(zOutputPath);
-    source.watchedOutputPaths.add(aOutputPath);
-
-    mergeDerivedGeneratedSources(target, source);
-
-    expect([...target.familyByFile.entries()]).toEqual([
-      [aFilePath, 'graphql-codegen'],
-      [zFilePath, 'graphql-codegen'],
-    ]);
-    expect([...target.configPaths]).toEqual([aConfigPath, zConfigPath]);
-    expect([...target.watchedOutputPaths]).toEqual([aOutputPath, zOutputPath]);
-  });
-
-  it('filters explicit generated-source families, reuses stable request keys, and resets on discovery-config changes', async () => {
-    let configuration = createConfiguration({
-      baseDir: normalizeToAbsolutePath('/generated-sources-fixture'),
-    });
-    const includedFile = joinPaths(configuration.baseDir, 'src', 'generated', 'graphql.ts');
-    const secondIncludedFile = joinPaths(
-      configuration.baseDir,
-      'src',
-      'generated',
-      'graphql-second.ts',
-    );
-    const excludedFile = joinPaths(configuration.baseDir, 'src', 'generated', 'graphql-extra.ts');
-    const state = generatedSourceStore as unknown as {
-      derivedFamilyByFile: Map<NormalizedAbsolutePath, string>;
-    };
-    const { ownKeysCalls, observedInputFiles } = createObservedInputFiles([
-      secondIncludedFile,
-      includedFile,
-    ]);
-
-    generatedSourceStore.setup(configuration);
-    state.derivedFamilyByFile = new Map([
-      [includedFile, 'graphql-codegen'],
-      [secondIncludedFile, 'graphql-codegen'],
-      [excludedFile, 'graphql-codegen'],
-    ]);
-
-    await generatedSourceStore.isInitialized(configuration, observedInputFiles);
-    expect(generatedSourceStore.getFamily(includedFile)).toEqual('graphql-codegen');
-    expect(generatedSourceStore.getFamily(secondIncludedFile)).toEqual('graphql-codegen');
-    expect(generatedSourceStore.getFamily(excludedFile)).toBeUndefined();
-
-    await generatedSourceStore.isInitialized(configuration, observedInputFiles);
-    expect(ownKeysCalls()).toEqual(1);
-
-    configuration = createConfiguration({
-      baseDir: configuration.baseDir,
-      jsTsExclusions: ['**/dist/**'],
-    });
-    expect(await generatedSourceStore.isInitialized(configuration, observedInputFiles)).toBe(false);
-    expect(generatedSourceStore.getFamily(includedFile)).toBeUndefined();
-  });
-
-  it('keeps all derived generated-source families in filesystem mode and invalidates on relevant file events', async () => {
-    let configuration = createConfiguration({
-      baseDir: normalizeToAbsolutePath('/generated-sources-all-files'),
-    });
-    const generatedFile = joinPaths(configuration.baseDir, 'src', 'generated', 'graphql.ts');
-    const state = generatedSourceStore as unknown as {
-      derivedFamilyByFile: Map<NormalizedAbsolutePath, string>;
-    };
-
-    generatedSourceStore.setup(configuration);
-    state.derivedFamilyByFile = new Map([[generatedFile, 'graphql-codegen']]);
-
-    await generatedSourceStore.isInitialized(configuration);
-    expect(generatedSourceStore.getFamily(generatedFile)).toEqual('graphql-codegen');
-
-    configuration = createConfiguration({
-      baseDir: configuration.baseDir,
-      fsEvents: [generatedFile],
-    });
-    expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
-  });
-
-  it('invalidates the generated-source store on detector watched filenames', async () => {
-    const registeredDetectors = GENERATED_SOURCE_DETECTORS;
-    const originalDetectorCount = registeredDetectors.length;
-    const baseDir = normalizeToAbsolutePath('/generated-sources-watched-filename');
-
-    registeredDetectors.push({
-      family: 'graphql-codegen',
-      watchedFilenames: ['Codegen.yml'],
-      async detect() {
-        return createDerivedGeneratedSources();
-      },
-    });
-
-    try {
-      expect(getGeneratedSourceWatchedFilenames()).toEqual(['codegen.yml']);
-
-      let configuration = createConfiguration({ baseDir });
-      generatedSourceStore.setup(configuration);
-      expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
-
-      configuration = createConfiguration({
-        baseDir,
-        fsEvents: [joinPaths(baseDir, 'codegen.yml')],
-      });
-      expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
-    } finally {
-      registeredDetectors.splice(originalDetectorCount);
-    }
-  });
-
-  it('computes detector watched filenames once per filesystem event batch', async () => {
-    const registeredDetectors = GENERATED_SOURCE_DETECTORS;
-    const originalDetectorCount = registeredDetectors.length;
-    const baseDir = normalizeToAbsolutePath('/generated-sources-watched-filename-batch');
-    let watchedFilenameReads = 0;
-
-    registeredDetectors.push({
-      family: 'graphql-codegen',
-      get watchedFilenames() {
-        watchedFilenameReads++;
-        return ['codegen.yml'];
-      },
-      async detect() {
-        return createDerivedGeneratedSources();
-      },
-    });
-
-    try {
-      let configuration = createConfiguration({ baseDir });
-      generatedSourceStore.setup(configuration);
-      expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
-
-      watchedFilenameReads = 0;
-      configuration = createConfiguration({
-        baseDir,
-        fsEvents: [joinPaths(baseDir, 'src', 'first.ts'), joinPaths(baseDir, 'src', 'second.ts')],
-      });
-
-      expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
-      expect(watchedFilenameReads).toEqual(1);
-    } finally {
-      registeredDetectors.splice(originalDetectorCount);
-    }
-  });
-
-  it('normalizes supported runner wrappers and preserves unsupported script forms', async () => {
-    const baseDir = await createTempBaseDir();
-
-    try {
-      const taskInvocations = await collectGeneratedSourceTaskInvocations({
-        baseDir,
-        packageDir: baseDir,
-        packageJson: {
-          scripts: {
-            ignored: 42 as never,
-            wrappedPnpm: 'pnpm exec graphql-codegen --config ./codegen.yml',
-            wrappedDashDash: 'npx -- graphql-codegen --config ./codegen.yml',
-            rawNpxOption: 'npx --yes graphql-codegen --config ./codegen.yml',
-          },
-        },
-      });
-
-      expect(taskInvocations).toEqual([
-        {
-          source: 'package-json-script',
-          taskName: 'wrappedPnpm',
-          commandLine: 'pnpm exec graphql-codegen --config ./codegen.yml',
-          command: 'graphql-codegen',
-          args: ['--config', './codegen.yml'],
-        },
-        {
-          source: 'package-json-script',
-          taskName: 'wrappedDashDash',
-          commandLine: 'npx -- graphql-codegen --config ./codegen.yml',
-          command: 'graphql-codegen',
-          args: ['--config', './codegen.yml'],
-        },
-        {
-          source: 'package-json-script',
-          taskName: 'rawNpxOption',
-          commandLine: 'npx --yes graphql-codegen --config ./codegen.yml',
-          command: 'npx',
-          args: ['--yes', 'graphql-codegen', '--config', './codegen.yml'],
-        },
-      ]);
-    } finally {
-      await rm(baseDir, { recursive: true, force: true });
-    }
-  });
-
-  it('exercises the detector foundation helpers through realistic task/config/output flows', async () => {
-    const baseDir = await createTempBaseDir();
-    const packageDir = joinPaths(baseDir, 'packages', 'app');
-    const configPath = joinPaths(packageDir, 'codegen.yml');
-    const outputDirectory = joinPaths(packageDir, 'src', 'generated');
-    const outputFile = joinPaths(outputDirectory, 'graphql.ts');
-    const nestedOutputFile = joinPaths(outputDirectory, 'nested', 'types.ts');
-    const ignoredBuildOutput = joinPaths(outputDirectory, 'dist', 'ignored.ts');
-    const taskInvocations: TaskInvocation[] = [
-      {
-        source: 'package-json-script',
-        taskName: 'codegen',
-        commandLine: 'npx graphql-codegen --config ./codegen.yml',
-        command: 'graphql-codegen',
-        args: ['--config', './codegen.yml'],
-      },
-    ];
-
-    try {
-      await writeFixtureFile(configPath, 'schema: schema.graphql\n');
-      await writeFixtureFile(outputFile, 'export const output = true;\n');
-      await writeFixtureFile(nestedOutputFile, 'export const nested = true;\n');
-      await writeFixtureFile(ignoredBuildOutput, 'export const ignored = true;\n');
-
-      expect(
-        hasToolEvidence({
-          getDependencies: () => new Map([['@graphql-codegen/cli', '5.0.0']]),
-          taskInvocations: [],
-          dependencyName: '@graphql-codegen/cli',
-          matchesTaskInvocation: invocation =>
-            taskInvocationInvokesCommand(invocation, 'graphql-codegen'),
-        }),
-      ).toBe(true);
-      expect(taskInvocationInvokesCommand(taskInvocations[0], 'graphql-codegen')).toBe(true);
-
-      const declaredConfigPaths = await resolveConfigPaths({
-        baseDir,
-        packageDir,
-        taskInvocations,
-        matchesTaskInvocation: invocation =>
-          taskInvocationInvokesCommand(invocation, 'graphql-codegen'),
-        flags: ['--config'],
-        fallbackBasenames: ['fallback-codegen.yml'],
-      });
-      expect([...declaredConfigPaths]).toEqual([configPath]);
-
-      const fallbackConfigPaths = await resolveConfigPaths({
-        baseDir,
-        packageDir,
-        taskInvocations: [],
-        matchesTaskInvocation: invocation =>
-          taskInvocationInvokesCommand(invocation, 'graphql-codegen'),
-        flags: ['--config'],
-        fallbackBasenames: ['codegen.yml'],
-      });
-      expect([...fallbackConfigPaths]).toEqual([configPath]);
-
-      expect(isLiteralPathToken('./src/generated')).toBe(true);
-      expect(isLiteralPathToken('$(pwd)/generated')).toBe(false);
-
-      const resolvedOutputs: ResolvedGeneratedOutputs =
-        await resolveGeneratedOutputsFromLiteralPaths(
-          baseDir,
-          packageDir,
-          ['./src/generated/graphql.ts', './src/generated', '../../../outside.ts'],
-          true,
-        );
-      expect([...resolvedOutputs.filePaths]).toEqual([outputFile, nestedOutputFile]);
-      expect([...resolvedOutputs.outputDirectories]).toEqual([outputDirectory]);
-      expect([...resolvedOutputs.watchedOutputPaths]).toEqual([outputFile, outputDirectory]);
-
-      const derived = createDerivedGeneratedSources();
-      addFamilyFiles('graphql-codegen', [nestedOutputFile, outputFile], derived);
-      expect([...derived.familyByFile.entries()]).toEqual([
-        [outputFile, 'graphql-codegen'],
-        [nestedOutputFile, 'graphql-codegen'],
-      ]);
-    } finally {
-      await rm(baseDir, { recursive: true, force: true });
-    }
-  });
-
-  it('resolves config and output paths across fallback, duplicate, and unsupported candidates', async () => {
-    const baseDir = await createTempBaseDir();
-    const packageDir = joinPaths(baseDir, 'packages', 'app');
-    const configPath = joinPaths(packageDir, 'codegen.yml');
-    const generatedFile = joinPaths(packageDir, 'src', 'generated', 'graphql.ts');
-    const nonSourceFile = joinPaths(packageDir, 'README.md');
-    const rootOutputFile = joinPaths(baseDir, 'index.ts');
-    const missingOutputPath = joinPaths(packageDir, 'missing.ts');
-    const codegenInvocation: TaskInvocation = {
-      source: 'package-json-script',
-      taskName: 'codegen',
-      commandLine: 'graphql-codegen --config ./codegen.yml',
-      command: 'graphql-codegen',
-      args: ['--config', './codegen.yml'],
-    };
-    const prettierInvocation: TaskInvocation = {
-      source: 'package-json-script',
-      taskName: 'format',
-      commandLine: 'prettier .',
-      command: 'prettier',
-      args: ['.'],
-    };
-
-    try {
-      await writeFixtureFile(configPath, 'schema: schema.graphql\n');
-      await writeFixtureFile(generatedFile, 'export const generated = true;\n');
-      await writeFixtureFile(nonSourceFile, '# generated sources\n');
-      await writeFixtureFile(rootOutputFile, 'export const root = true;\n');
-
-      expect(
-        hasToolEvidence({
-          getDependencies: () => new Map(),
-          taskInvocations: [codegenInvocation],
-          matchesTaskInvocation: invocation =>
-            taskInvocationInvokesCommand(invocation, 'graphql-codegen'),
-        }),
-      ).toBe(true);
-
-      const fallbackConfigPaths = await resolveConfigPaths({
-        baseDir,
-        packageDir,
-        taskInvocations: [prettierInvocation],
-        matchesTaskInvocation: invocation =>
-          taskInvocationInvokesCommand(invocation, 'graphql-codegen'),
-        flags: ['--config'],
-        fallbackBasenames: ['codegen.yml'],
-      });
-      expect([...fallbackConfigPaths]).toEqual([configPath]);
-
-      const resolvedOutputs = await resolveGeneratedOutputsFromLiteralPaths(
-        baseDir,
-        [packageDir, packageDir],
-        ['./README.md', './missing.ts', './src/generated/graphql.ts'],
-        false,
-      );
-      expect([...resolvedOutputs.filePaths]).toEqual([generatedFile]);
-      expect([...resolvedOutputs.outputDirectories]).toEqual([]);
-      expect([...resolvedOutputs.watchedOutputPaths]).toEqual([
-        nonSourceFile,
-        missingOutputPath,
-        generatedFile,
-      ]);
-
-      const baseDirOutputs = await resolveGeneratedOutputsFromLiteralPaths(
-        baseDir,
-        baseDir,
-        ['.'],
-        false,
-      );
-      expect([...baseDirOutputs.filePaths]).toEqual([rootOutputFile]);
-      expect([...baseDirOutputs.outputDirectories]).toEqual([baseDir]);
-      expect([...baseDirOutputs.watchedOutputPaths]).toEqual([baseDir]);
-    } finally {
-      await rm(baseDir, { recursive: true, force: true });
-    }
-  });
-
-  itIfNotWindows('ignores resolved outputs that are neither files nor directories', async () => {
-    const baseDir = await createTempBaseDir();
-    const socketPath = joinPaths(baseDir, 'generated.sock');
-    const server = createServer();
-
-    try {
-      await new Promise<void>((resolve, reject) => {
-        server.once('error', reject);
-        server.listen(socketPath, () => {
-          server.off('error', reject);
-          resolve();
-        });
-      });
-
-      const resolvedOutputs = await resolveGeneratedOutputsFromLiteralPaths(
-        baseDir,
-        baseDir,
-        ['./generated.sock'],
-        false,
-      );
-      expect([...resolvedOutputs.filePaths]).toEqual([]);
-      expect([...resolvedOutputs.outputDirectories]).toEqual([]);
-      expect([...resolvedOutputs.watchedOutputPaths]).toEqual([socketPath]);
-    } finally {
-      await new Promise<void>(resolve => server.close(() => resolve()));
-      await rm(baseDir, { recursive: true, force: true });
-    }
-  });
-
-  it('merges detector output and falls back to raw package dependencies for synthetic manifests', async () => {
-    const baseDir = await createTempBaseDir();
-    const packageDir = joinPaths(baseDir, 'packages', 'fixture');
-    const configPath = joinPaths(packageDir, 'codegen.yml');
-    const outputDirectory = joinPaths(packageDir, 'src', 'generated');
-    const outputFile = joinPaths(outputDirectory, 'graphql.ts');
-    const registeredDetectors = GENERATED_SOURCE_DETECTORS;
-    const originalDetectorCount = registeredDetectors.length;
-
-    registeredDetectors.push({
-      family: 'graphql-codegen',
-      async detect({ getDependencies, taskInvocations }) {
-        expect(getDependencies().get('@graphql-codegen/cli')).toEqual('5.0.0');
-        expect(taskInvocations).toEqual([
-          {
-            source: 'package-json-script',
-            taskName: 'codegen',
-            commandLine: 'graphql-codegen --config ./codegen.yml',
-            command: 'graphql-codegen',
-            args: ['--config', './codegen.yml'],
-          },
-        ]);
-
-        const derived = createDerivedGeneratedSources();
-        addFamilyFiles('graphql-codegen', [outputFile], derived);
-        derived.configPaths.add(configPath);
-        derived.watchedOutputPaths.add(outputDirectory);
-        return derived;
-      },
-    });
-
-    try {
-      const derived = await deriveGeneratedSources(
-        baseDir,
-        createPackageJsonMap(packageDir, {
-          devDependencies: {
-            '@graphql-codegen/cli': '5.0.0',
-          },
-          scripts: {
-            codegen: 'graphql-codegen --config ./codegen.yml',
-          },
-        }),
-      );
-
-      expect([...derived.familyByFile.entries()]).toEqual([[outputFile, 'graphql-codegen']]);
-      expect([...derived.configPaths]).toEqual([configPath]);
-      expect([...derived.watchedOutputPaths]).toEqual([outputDirectory]);
-    } finally {
-      registeredDetectors.splice(originalDetectorCount);
-      await rm(baseDir, { recursive: true, force: true });
-    }
-  });
-
-  it('keeps generated-source store defensive in request-only mode and on stale refresh signals', async () => {
-    const requestOnlyBaseDir = normalizeToAbsolutePath('/generated-sources-request-only');
-    let configuration = createConfiguration({
-      baseDir: requestOnlyBaseDir,
-      canAccessFileSystem: false,
-    });
-
-    generatedSourceStore.setup(configuration);
-    (
-      generatedSourceStore as unknown as {
-        requestFilesKey: string | undefined;
-      }
-    ).requestFilesKey = 'all-files';
-    expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
-
-    generatedSourceStore.clearCache();
-    await generatedSourceStore.postProcess(configuration);
-
-    const requestOnlyState = generatedSourceStore as unknown as {
-      baseDir: NormalizedAbsolutePath | undefined;
-      canAccessFileSystem: boolean | undefined;
-      familyByFile: Map<NormalizedAbsolutePath, string>;
-    };
-    expect(requestOnlyState.baseDir).toEqual(requestOnlyBaseDir);
-    expect(requestOnlyState.canAccessFileSystem).toBe(false);
-    expect(requestOnlyState.familyByFile).toEqual(new Map());
-
-    const watchedBaseDir = normalizeToAbsolutePath('/generated-sources-watched-output');
-    const generatedFile = joinPaths(watchedBaseDir, 'src', 'generated', 'graphql.ts');
-    const watchedOutputPath = joinPaths(watchedBaseDir, 'src', 'generated');
-
-    configuration = createConfiguration({ baseDir: watchedBaseDir });
-    generatedSourceStore.setup(configuration);
-    const watchedState = generatedSourceStore as unknown as {
-      analyzableFilesConfigKey: string | undefined;
-      derivedFamilyByFile: Map<NormalizedAbsolutePath, string>;
-      projectFileDiscoveryConfigKey: string | undefined;
-      watchedOutputPaths: Set<NormalizedAbsolutePath>;
-    };
-    watchedState.derivedFamilyByFile = new Map([[generatedFile, 'graphql-codegen']]);
-    watchedState.watchedOutputPaths = new Set([watchedOutputPath]);
-
-    expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
-
-    configuration = createConfiguration({
-      baseDir: watchedBaseDir,
-      fsEvents: [joinPaths(watchedOutputPath, 'nested', 'child.ts')],
-    });
-    expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
-
-    configuration = createConfiguration({ baseDir: watchedBaseDir });
-    generatedSourceStore.setup(configuration);
-    watchedState.projectFileDiscoveryConfigKey = 'stale-discovery-key';
-    expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
-  });
-
-  it('filters derived generated-source files with the configured source suffix matcher', async () => {
-    const baseDir = await createTempBaseDir();
-    const supportedOutputFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
-    const unsupportedOutputFile = joinPaths(baseDir, 'src', 'generated', 'graphql.txt');
-    const registeredDetectors = GENERATED_SOURCE_DETECTORS;
-    const originalDetectorCount = registeredDetectors.length;
-
-    registeredDetectors.push({
-      family: 'graphql-codegen',
-      async detect({ baseDir, packageDir, sourceFileMatcher }) {
-        const derived = createDerivedGeneratedSources();
-        const outputs = await resolveGeneratedOutputsFromLiteralPaths(
-          baseDir,
-          packageDir,
-          ['./src/generated/graphql.ts', './src/generated/graphql.txt'],
-          false,
-          sourceFileMatcher,
-        );
-        addFamilyFiles('graphql-codegen', outputs.filePaths, derived);
-        return derived;
-      },
-    });
+    const handWrittenPath = joinPaths(baseDir, 'src', 'App.tsx');
+    const generatedPath = joinPaths(baseDir, 'src', 'App.generated.tsx');
 
     try {
       await writeFixtureFile(
-        join(baseDir, 'package.json'),
-        JSON.stringify(
-          {
-            scripts: {
-              codegen: 'graphql-codegen --config ./codegen.yml',
-            },
-          },
-          null,
-          2,
-        ),
+        join(baseDir, 'codegen.ts'),
+        `const config = {
+  generates: {
+    './src/': {
+      preset: 'near-operation-file',
+      presetConfig: {
+        extension: '.generated.tsx',
+      },
+    },
+  },
+};
+
+export default config;
+`,
       );
-      await writeFixtureFile(supportedOutputFile, 'export const generated = true;\n');
-      await writeFixtureFile(unsupportedOutputFile, 'generated output\n');
+      await writeFixtureFile(handWrittenPath, 'export const app = true;\n');
+      await writeFixtureFile(generatedPath, 'export const generated = true;\n');
 
-      await initFileStores(createConfiguration({ baseDir }));
-
-      expect(generatedSourceStore.getFamily(supportedOutputFile)).toEqual('graphql-codegen');
-      expect(generatedSourceStore.getFamily(unsupportedOutputFile)).toBeUndefined();
-    } finally {
-      registeredDetectors.splice(originalDetectorCount);
-      await rm(baseDir, { recursive: true, force: true });
-    }
-  });
-
-  it('returns no derived metadata when no detector is registered', async () => {
-    const baseDir = await createTempBaseDir();
-
-    try {
       const derived = await deriveGeneratedSources(
         baseDir,
         createPackageJsonMap(baseDir, {
           devDependencies: {
-            '@graphql-codegen/cli': '1.0.0',
-          },
-          scripts: {
-            codegen: 'graphql-codegen --config ./codegen.ts',
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
           },
         }),
       );
 
-      expect(derived.familyByFile).toEqual(new Map());
-      expect(derived.configPaths).toEqual(new Set());
-      expect(derived.watchedOutputPaths).toEqual(new Set());
+      expect(derived.familyByFile.get(handWrittenPath)).toBeUndefined();
+      expect(derived.familyByFile.get(generatedPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
   });
 
-  it('skips package metadata traversal when no detector is registered', async () => {
-    const packageJsons = {
-      [Symbol.iterator](): IterableIterator<[NormalizedAbsolutePath, File]> {
-        throw new Error('package.json metadata should not be read without detectors');
-      },
-    } as ReadonlyMap<NormalizedAbsolutePath, File>;
-
-    const derived = await deriveGeneratedSources(
-      normalizeToAbsolutePath('/generated-sources-no-detectors'),
-      packageJsons,
-    );
-
-    expect(derived.familyByFile).toEqual(new Map());
-    expect(derived.configPaths).toEqual(new Set());
-    expect(derived.watchedOutputPaths).toEqual(new Set());
-  });
-
-  it('keeps the generated-source store empty when no detector is registered', async () => {
+  it('inherits parent GraphQL Code Generator dependencies into nested packages', async () => {
     const baseDir = await createTempBaseDir();
-    const outputPath = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
+    const packageDir = joinPaths(baseDir, 'packages', 'app');
+    const outputPath = joinPaths(packageDir, 'src', 'generated', 'graphql.ts');
 
     try {
       await writeFixtureFile(
         join(baseDir, 'package.json'),
         JSON.stringify(
           {
+            private: true,
             devDependencies: {
-              '@graphql-codegen/cli': '5.0.0',
-            },
-            scripts: {
-              codegen: 'graphql-codegen --config ./codegen.ts',
+              [GRAPHQL_CODEGEN_FAMILY]: '5.0.0',
             },
           },
           null,
           2,
         ),
       );
+      await writeFixtureFile(join(packageDir, 'package.json'), JSON.stringify({ name: 'app' }));
       await writeFixtureFile(
-        join(baseDir, 'codegen.ts'),
-        `export default {
-  generates: {
-    './src/generated/graphql.ts': {
-      plugins: ['typescript'],
-    },
-  },
-};
+        join(packageDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/graphql.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const generated = true;\n');
+
+      await initFileStores(createConfiguration({ baseDir }));
+
+      expect(generatedSourceStore.getFamily(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not derive nested package GraphQL outputs from workspace-root-relative fallback paths', async () => {
+    const baseDir = await createTempBaseDir();
+    const packageDir = joinPaths(baseDir, 'libs', 'shared', 'cms');
+    const outputPath = joinPaths(packageDir, 'src', '__generated__', 'graphql.ts');
+
+    try {
+      await writeFixtureFile(
+        join(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            private: true,
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '5.0.0',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(join(packageDir, 'package.json'), JSON.stringify({ name: 'cms' }));
+      await writeFixtureFile(
+        join(packageDir, 'codegen.yml'),
+        `generates:
+  libs/shared/cms/src/__generated__/graphql.ts:
+    plugins:
+      - typescript
 `,
       );
       await writeFixtureFile(outputPath, 'export const generated = true;\n');
@@ -850,6 +297,833 @@ describe('generated sources project metadata', () => {
       await initFileStores(createConfiguration({ baseDir }));
 
       expect(generatedSourceStore.getFamily(outputPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('resolves explicit GraphQL config outputs from the package directory, not the config directory', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+    const configRelativePath = joinPaths(baseDir, 'config', 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+      await writeFixtureFile(configRelativePath, 'export const stray = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            codegen: 'graphql-codegen --config=./config/custom-codegen.ts',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(derived.familyByFile.get(configRelativePath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives GraphQL outputs from an explicit config flag using equals syntax', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            codegen: 'graphql-codegen --config=./config/custom-codegen.ts',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives GraphQL outputs from an explicit short config flag', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            codegen: 'graphql-codegen -c ./config/custom-codegen.ts',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives GraphQL outputs from a codegen.config.cts file using export equals', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'codegen.config.cts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export = config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            codegen: 'graphql-codegen --config ./codegen.config.cts',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('ignores circular identifier references while resolving GraphQL config objects', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const circularA = circularB;
+const circularB = circularA;
+const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      presetConfig: circularA,
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            codegen: 'graphql-codegen --config ./codegen.ts',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('ignores GraphQL fallback configs without task or dependency evidence', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'codegen.yml');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `generates:
+  ./src/generated/sdk.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          scripts: {
+            lint: 'eslint .',
+          },
+        }),
+      );
+
+      expect(derived.configPaths).toEqual(new Set());
+      expect(derived.familyByFile.get(outputPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('supports additional GraphQL source config syntaxes and watched directories', async () => {
+    const baseDir = await createTempBaseDir();
+    const mtsConfigPath = joinPaths(baseDir, 'codegen.config.mts');
+    const jsConfigPath = joinPaths(baseDir, 'codegen.js');
+    const generatedNearOperationPath = joinPaths(baseDir, 'src', 'App.generated.ts');
+    const handWrittenPath = joinPaths(baseDir, 'src', 'App.ts');
+    const asExpressionPath = joinPaths(baseDir, 'src', 'generated', 'as-expression.ts');
+    const callExpressionPath = joinPaths(baseDir, 'src', 'generated', 'call-expression.ts');
+    const satisfiesExpressionPath = joinPaths(
+      baseDir,
+      'src',
+      'generated',
+      'satisfies-expression.ts',
+    );
+    const typeAssertionPath = joinPaths(baseDir, 'src', 'generated', 'type-asserted.ts');
+    const watchedOutputDirectory = joinPaths(baseDir, 'src', 'runtime');
+
+    try {
+      await writeFixtureFile(
+        mtsConfigPath,
+        `const dynamicKey = './src/generated/ignored-computed.ts';
+const config = ({
+  1: true,
+  generates: {
+    [dynamicKey]: { plugins: ['typescript'] },
+    '$INVALID_OUTPUT': { plugins: ['typescript'] },
+    './src/': {
+      preset: 'near-operation-file',
+    },
+    './src/generated/as-expression.ts': ({ plugins: ['typescript'] } as const),
+    './src/generated/call-expression.ts': buildTarget(),
+    './src/generated/satisfies-expression.ts': ({
+      plugins: ['typescript'],
+    } satisfies Record<string, unknown>),
+    './src/generated/type-asserted.ts': <Record<string, unknown>>{
+      plugins: ['typescript'],
+    },
+  },
+});
+
+function buildTarget() {
+  return { plugins: ['typescript'] };
+}
+
+export default config;
+`,
+      );
+      await writeFixtureFile(
+        jsConfigPath,
+        `module.exports = {
+  generates: {
+    './src/runtime/': {
+      plugins: ['typescript'],
+    },
+  },
+};
+`,
+      );
+      await writeFixtureFile(generatedNearOperationPath, 'export const generated = true;\n');
+      await writeFixtureFile(handWrittenPath, 'export const handwritten = true;\n');
+      await writeFixtureFile(asExpressionPath, 'export const asExpression = true;\n');
+      await writeFixtureFile(callExpressionPath, 'export const callExpression = true;\n');
+      await writeFixtureFile(satisfiesExpressionPath, 'export const satisfiesExpression = true;\n');
+      await writeFixtureFile(typeAssertionPath, 'export const typeAssertion = true;\n');
+      await writeFixtureFile(join(watchedOutputDirectory, 'placeholder.txt'), 'placeholder\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            codegenJs: 'graphql-codegen --config ./codegen.js',
+            codegenMts: 'graphql-codegen --config ./codegen.config.mts',
+          },
+        }),
+      );
+
+      expect(derived.configPaths).toEqual(new Set([jsConfigPath, mtsConfigPath]));
+      expect(derived.familyByFile.get(generatedNearOperationPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(derived.familyByFile.get(handWrittenPath)).toBeUndefined();
+      expect(derived.familyByFile.get(asExpressionPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(derived.familyByFile.get(callExpressionPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(derived.familyByFile.get(satisfiesExpressionPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(derived.familyByFile.get(typeAssertionPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(
+        derived.familyByFile.get(joinPaths(baseDir, 'src', 'generated', 'ignored-computed.ts')),
+      ).toBeUndefined();
+      expect(derived.watchedOutputPaths.has(watchedOutputDirectory)).toBe(true);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('handles unsupported GraphQL config structures defensively', async () => {
+    const cases = [
+      {
+        configFilename: 'codegen.json',
+        configContents: JSON.stringify(
+          {
+            generates: {
+              $INVALID_OUTPUT: {
+                plugins: ['typescript'],
+              },
+              './src/generated/sdk.ts': {
+                plugins: ['typescript'],
+              },
+            },
+          },
+          null,
+          2,
+        ),
+        expectedOutputDetected: true,
+        script: 'graphql-codegen --config ./codegen.json',
+      },
+      {
+        configFilename: 'codegen.yml',
+        configContents: 'generates: true\n',
+        expectedOutputDetected: false,
+        script: 'graphql-codegen --config ./codegen.yml',
+      },
+      {
+        configFilename: 'codegen.ts',
+        configContents: `function createConfig() {
+  return {
+    generates: {
+      './src/generated/sdk.ts': {
+        plugins: ['typescript'],
+      },
+    },
+  };
+}
+
+export default createConfig();
+`,
+        expectedOutputDetected: false,
+        script: 'graphql-codegen --config ./codegen.ts',
+      },
+      {
+        configFilename: 'codegen.config.ts',
+        configContents: `export default {
+  generates: 0,
+};
+`,
+        expectedOutputDetected: false,
+        script: 'graphql-codegen --config ./codegen.config.ts',
+      },
+      {
+        configFilename: 'codegen.config.cjs',
+        configContents: `module.exports = {
+  generates: {
+    '../../../outside/': {
+      plugins: ['typescript'],
+    },
+  },
+};
+`,
+        expectedOutputDetected: false,
+        expectNoWatchedOutputs: true,
+        script: 'graphql-codegen --config ./codegen.config.cjs',
+      },
+    ] satisfies ReadonlyArray<{
+      configFilename: string;
+      configContents: string;
+      expectedOutputDetected: boolean;
+      expectNoWatchedOutputs?: boolean;
+      script: string;
+    }>;
+
+    for (const {
+      configFilename,
+      configContents,
+      expectedOutputDetected,
+      expectNoWatchedOutputs = false,
+      script,
+    } of cases) {
+      const baseDir = await createTempBaseDir();
+      const configPath = joinPaths(baseDir, configFilename);
+      const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+      try {
+        await writeFixtureFile(configPath, configContents);
+        await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+        const derived = await deriveGeneratedSources(
+          baseDir,
+          createPackageJsonMap(baseDir, {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              codegen: script,
+            },
+          }),
+        );
+
+        expect(derived.familyByFile.get(outputPath) !== undefined).toBe(expectedOutputDetected);
+        if (expectNoWatchedOutputs) {
+          expect(derived.watchedOutputPaths).toEqual(new Set());
+        }
+      } finally {
+        await rm(baseDir, { recursive: true, force: true });
+      }
+    }
+  });
+
+  it('refreshes generated-source metadata when an explicit GraphQL config file is created later', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        join(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              codegen: 'graphql-codegen --config ./config/custom-codegen.ts',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+
+      await initFileStores(createConfiguration({ baseDir }));
+      expect(generatedSourceStore.getFamily(outputPath)).toBeUndefined();
+
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const configuration = createConfiguration({
+        baseDir,
+        fsEvents: {
+          [configPath]: 'CREATED',
+          [outputPath]: 'CREATED',
+        },
+      });
+      const { files: inputFiles } = await sanitizeRawInputFiles(
+        {
+          [outputPath]: {
+            filePath: outputPath,
+            fileType: 'MAIN',
+          },
+        },
+        configuration,
+      );
+
+      await initFileStores(configuration, inputFiles);
+
+      expect(generatedSourceStore.getFamily(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('refreshes generated-source metadata when a declared GraphQL output file is created later', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        join(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+
+      await initFileStores(createConfiguration({ baseDir }));
+      expect(generatedSourceStore.getFamily(outputPath)).toBeUndefined();
+
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const configuration = createConfiguration({
+        baseDir,
+        fsEvents: {
+          [outputPath]: 'CREATED',
+        },
+      });
+      const { files: inputFiles } = await sanitizeRawInputFiles(
+        {
+          [outputPath]: {
+            filePath: outputPath,
+            fileType: 'MAIN',
+          },
+        },
+        configuration,
+      );
+
+      await initFileStores(configuration, inputFiles);
+
+      expect(generatedSourceStore.getFamily(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not derive GraphQL outputs when graphql-codegen is only echoed', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            codegen: 'echo graphql-codegen --config ./config/custom-codegen.ts',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives GraphQL outputs from an explicit package-local codegen.config.ts flag', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'codegen.config.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            codegen: 'graphql-codegen --config ./codegen.config.ts',
+          },
+        }),
+      );
+
+      expect(derived.configPaths).toEqual(new Set([configPath]));
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not auto-discover a package-local codegen.config.ts without an explicit task invocation', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'codegen.config.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+        }),
+      );
+
+      expect(derived.configPaths).toEqual(new Set());
+      expect(derived.familyByFile.get(outputPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives GraphQL outputs from a package-local .codegenrc.yml fallback file', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, '.codegenrc.yml');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `generates:
+  ./src/generated/sdk.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+        }),
+      );
+
+      expect(derived.configPaths).toEqual(new Set([configPath]));
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives GraphQL outputs from a package-local .codegenrc.ts fallback file', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, '.codegenrc.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+        }),
+      );
+
+      expect(derived.configPaths).toEqual(new Set([configPath]));
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('refreshes generated-source matches when the explicit request file set changes', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+    const firstGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
+    const secondGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'types', 'schema.ts');
+    const configuration = createConfiguration({ baseDir });
+    const { files: firstInputFiles } = await sanitizeRawInputFiles(
+      {
+        [firstGeneratedFile]: {
+          filePath: firstGeneratedFile,
+          fileType: 'MAIN',
+        },
+      },
+      configuration,
+    );
+
+    await initFileStores(configuration, firstInputFiles);
+
+    expect(generatedSourceStore.getFamily(firstGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    expect(generatedSourceStore.getFamily(secondGeneratedFile)).toBeUndefined();
+
+    const { files: secondInputFiles } = await sanitizeRawInputFiles(
+      {
+        [secondGeneratedFile]: {
+          filePath: secondGeneratedFile,
+          fileType: 'MAIN',
+        },
+      },
+      configuration,
+    );
+
+    expect(await generatedSourceStore.isInitialized(configuration, secondInputFiles)).toBe(true);
+
+    expect(generatedSourceStore.getFamily(firstGeneratedFile)).toBeUndefined();
+    expect(generatedSourceStore.getFamily(secondGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+  });
+
+  it('recomputes generated-source metadata when filesystem access becomes available again', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+
+    await initFileStores(createConfiguration({ baseDir, canAccessFileSystem: false }));
+    await initFileStores(createConfiguration({ baseDir }));
+
+    expect(
+      generatedSourceStore.getFamily(joinPaths(baseDir, 'src', 'generated', 'graphql.ts')),
+    ).toEqual(GRAPHQL_CODEGEN_FAMILY);
+  });
+
+  it('ignores malformed GraphQL config parse errors', async () => {
+    const baseDir = await createTempBaseDir();
+
+    try {
+      for (const [filename, configContents] of [
+        ['codegen.json', '{ invalid json'],
+        ['codegen.yml', 'generates: ['],
+      ]) {
+        await writeFile(join(baseDir, filename), configContents);
+
+        const derived = await deriveGeneratedSources(
+          baseDir,
+          createPackageJsonMap(baseDir, {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              codegen: `graphql-codegen --config ${filename}`,
+            },
+          }),
+        );
+
+        expect([...derived.familyByFile.keys()]).toEqual([]);
+      }
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
