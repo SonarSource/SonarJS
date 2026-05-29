@@ -432,6 +432,17 @@ describe('S5868', () => {
           errors: surrogatePair('👍', 'var r = new RegExp("[" + "👍" + "]", "u")'),
         },
         {
+          code: String.raw`var r = new RegExp('[A' + '\\u0301]')`,
+          errors: [{ message: combiningClass(String.raw`A\u0301`) }],
+        },
+        {
+          code: String.raw`var r = new RegExp('[\\uD83D' + '\\uDC4D]')`,
+          errors: surrogatePair(
+            String.raw`\uD83D\uDC4D`,
+            String.raw`var r = new RegExp('[\\uD83D' + '\\uDC4D]', "u")`,
+          ),
+        },
+        {
           code: 'const p = "[" + "👍" + "]", r = new RegExp(p)',
           errors: surrogatePair('👍', 'const p = "[" + "👍" + "]", r = new RegExp(p, "u")'),
         },
