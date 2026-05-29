@@ -54,7 +54,7 @@ export const openApiGeneratorDetector = {
     return deriveSourcesFromOutputDirectories(
       OPENAPI_GENERATOR_FAMILY,
       outputDirectories,
-      true,
+      false,
       sourceFileMatcher,
     );
   },
