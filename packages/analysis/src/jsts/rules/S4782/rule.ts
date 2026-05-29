@@ -23,6 +23,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
+import ts from 'typescript';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { hasSuggestions: true }),
@@ -45,8 +46,10 @@ export const rule: Rule.RuleModule = {
       if (!tsNode.optional || !optionalToken) {
         return;
       }
-
-      const typeNode = getUndefinedTypeAnnotation(tsNode.typeAnnotation);
+      const typeNode = getUndefinedTypeAnnotation(
+        tsNode.typeAnnotation,
+        context.sourceCode.parserServices,
+      );
       if (typeNode) {
         const suggest = getQuickFixSuggestions(context, optionalToken, typeNode);
 
@@ -69,11 +72,36 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getUndefinedTypeAnnotation(tsTypeAnnotation?: TSESTree.TSTypeAnnotation) {
-  if (tsTypeAnnotation?.typeAnnotation.type === 'TSUnionType') {
+function getUndefinedTypeAnnotation(
+  tsTypeAnnotation: TSESTree.TSTypeAnnotation | undefined,
+  services: any,
+) {
+  if (!tsTypeAnnotation) {
+    return undefined;
+  }
+
+  if (tsTypeAnnotation.typeAnnotation.type === 'TSTypeReference') {
+    return getUndefinedFromTypeAlias(tsTypeAnnotation, services);
+  }
+  if (tsTypeAnnotation.typeAnnotation.type === 'TSUnionType') {
     return getUndefinedTypeNode(tsTypeAnnotation.typeAnnotation);
   }
   return undefined;
+}
+
+function getUndefinedFromTypeAlias(
+  tsTypeAnnotation: TSESTree.TSTypeAnnotation,
+  services: any,
+): TSESTree.TypeNode | undefined {
+  const tsTypeNode = services.esTreeNodeToTSNodeMap.get(tsTypeAnnotation.typeAnnotation);
+  const checker: ts.TypeChecker = services.program.getTypeChecker();
+  const type = checker.getTypeAtLocation(tsTypeNode);
+  if (!type.isUnion()) {
+    return undefined;
+  }
+  const hasUndefined = type.types.some(t => (t.flags & ts.TypeFlags.Undefined) !== 0);
+  const hasNonUndefined = type.types.some(t => (t.flags & ts.TypeFlags.Undefined) === 0);
+  return hasUndefined && hasNonUndefined ? tsTypeAnnotation.typeAnnotation : undefined;
 }
 
 function getUndefinedTypeNode(typeNode: TSESTree.TypeNode): TSESTree.TypeNode | undefined {

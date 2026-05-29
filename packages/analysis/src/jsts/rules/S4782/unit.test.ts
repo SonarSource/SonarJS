@@ -53,6 +53,56 @@ describe('S4782', () => {
             specificAttribute?: undefined;
           };`,
           },
+          {
+            code: `
+            type StringOrNumber = string | number;
+            interface Example {
+              attribute?: StringOrNumber;
+            };
+            type UndefinedAlias = undefined;
+            interface Example2 {
+              attribute?: UndefinedAlias;
+            };
+            `,
+          },
+          {
+            code: `
+            type A = string;
+            type B = A;
+            type C = B;
+            interface Example {
+              attribute?: C;
+            };
+            type D = undefined;
+            type E = D;
+            type F = E;
+            interface Example2 {
+              attribute?: F;
+            }; 
+            `,
+          },
+          {
+            code: `
+            type Recursive = string | Recursive;
+            interface Example {
+              attribute?: Recursive;
+            };
+            type RecursiveUndefined = undefined | Recursive;
+            interface Example2 {
+              attribute?: RecursiveUndefined;
+            };`,
+          },
+          {
+            code: `
+            type Box<T> = T;
+            interface Example {
+              attribute?: Box<string>;
+            };
+            type BoxU<T> = T;
+            interface Example2 {
+              attribute?: BoxU<undefined>;
+            };`,
+          },
         ],
         invalid: [
           {
@@ -281,6 +331,121 @@ describe('S4782', () => {
                   {
                     desc: 'Remove "undefined" type annotation',
                     output: 'interface T { p?: number; }',
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `type StringOrUndefined = string | undefined;
+            interface Example {
+              attribute?: StringOrUndefined;
+            };`,
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `type StringOrUndefined = string | undefined;
+            interface Example {
+              attribute: StringOrUndefined;
+            };`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+            type NumberOrUndefined = number | undefined;
+            type Attribute = string | NumberOrUndefined;
+            interface Example {
+              attribute?: Attribute;
+            };`,
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            type NumberOrUndefined = number | undefined;
+            type Attribute = string | NumberOrUndefined;
+            interface Example {
+              attribute: Attribute;
+            };`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+            type Maybe<T> = T | undefined;
+            interface Example {
+              attribute?: Maybe<string>;
+            };`,
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            type Maybe<T> = T | undefined;
+            interface Example {
+              attribute: Maybe<string>;
+            };`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+            type Box<T> = T;
+            interface Example {
+              attribute?: Box<string | undefined>;
+            };`,
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            type Box<T> = T;
+            interface Example {
+              attribute: Box<string | undefined>;
+            };`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+            type Wrapped = (string | undefined);
+            interface Example {
+              attribute?: Wrapped;
+            };`,
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            type Wrapped = (string | undefined);
+            interface Example {
+              attribute: Wrapped;
+            };`,
                   },
                 ],
               },
