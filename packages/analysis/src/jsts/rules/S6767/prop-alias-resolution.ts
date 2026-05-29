@@ -16,7 +16,7 @@
  */
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import { getUniqueWriteReference, getVariableFromName } from '../helpers/ast.js';
+import { getUniqueWriteReference, getVariableFromName, isIdentifier } from '../helpers/ast.js';
 
 function isObjectPatternBinding(variable: Scope.Variable) {
   return variable.defs.some(
@@ -49,5 +49,62 @@ export function isWholePropsExpressionOrAlias(
   const writeExpr = getUniqueWriteReference(variable);
   return (
     !!writeExpr && isWholePropsExpressionOrAlias(context, writeExpr, isTrackedPropsExpression, seen)
+  );
+}
+
+export function isNamedPropExpressionOrAlias(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  propName: string,
+  isTrackedPropsExpression: (node: estree.Node) => boolean,
+  seen = new Set<Scope.Variable>(),
+): boolean {
+  if (
+    node.type === 'MemberExpression' &&
+    !node.computed &&
+    isIdentifier(node.property, propName) &&
+    isWholePropsExpressionOrAlias(context, node.object, isTrackedPropsExpression, seen)
+  ) {
+    return true;
+  }
+  if (node.type !== 'Identifier') {
+    return false;
+  }
+
+  const variable = getVariableFromName(context, node.name, node);
+  if (!variable || seen.has(variable)) {
+    return false;
+  }
+
+  seen.add(variable);
+  const writeExpr = getUniqueWriteReference(variable);
+  if (
+    writeExpr &&
+    isNamedPropExpressionOrAlias(context, writeExpr, propName, isTrackedPropsExpression, seen)
+  ) {
+    return true;
+  }
+
+  return variable.defs.some(
+    definition =>
+      definition.type === 'Variable' &&
+      definition.node.type === 'VariableDeclarator' &&
+      definition.node.id.type === 'ObjectPattern' &&
+      definition.node.init != null &&
+      isWholePropsExpressionOrAlias(
+        context,
+        definition.node.init,
+        isTrackedPropsExpression,
+        seen,
+      ) &&
+      definition.node.id.properties.some(
+        property =>
+          property.type === 'Property' &&
+          !property.computed &&
+          property.kind === 'init' &&
+          isIdentifier(property.key, propName) &&
+          property.value.type === 'Identifier' &&
+          property.value === definition.name,
+      ),
   );
 }

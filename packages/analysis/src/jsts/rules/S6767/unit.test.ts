@@ -308,4 +308,105 @@ Wrapper.propTypes = {
       ],
     });
   });
+
+  it('should not report narrow local aliases used inside forwardRef callbacks', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          code: `
+function Wrapper(props) {
+  const forwarded = props;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{forwarded.label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+        {
+          code: `
+function Wrapper(props) {
+  const label = props.label;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+        {
+          code: `
+function Wrapper(props) {
+  const { label } = props;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+function Wrapper(props) {
+  const forwarded = props;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{forwarded.label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+  color: PropTypes.string,
+};
+`,
+          errors: 1,
+        },
+        {
+          code: `
+function Wrapper(props) {
+  const label = props.label;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+  color: PropTypes.string,
+};
+`,
+          errors: 1,
+        },
+        {
+          code: `
+function Wrapper(props) {
+  const { label } = props;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+  color: PropTypes.string,
+};
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
 });
