@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -61,7 +62,7 @@ public final class OrchestratorStarter
     try (var stream = Files.walk(target, 1)) {
       var plugin = stream
         .filter(p -> pluginFilenameMatcher().matcher(p.getFileName().toString()).matches())
-        .findAny()
+        .max(Comparator.comparingLong(p -> p.toFile().lastModified()))
         .orElseThrow();
       return URLLocation.create(plugin.toUri().toURL());
     } catch (IOException e) {
@@ -101,6 +102,7 @@ public final class OrchestratorStarter
     .restoreProfileAtStartup(FileLocation.ofClasspath("/js-with-ts-eslint-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/html-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/html-blacklist-profile.xml"))
+    .restoreProfileAtStartup(FileLocation.ofClasspath("/suppressed-issues-profile.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/typechecker-config-js.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/typechecker-config-ts.xml"))
     .restoreProfileAtStartup(FileLocation.ofClasspath("/resolve-json-module-profile.xml"))

@@ -19,6 +19,7 @@ import type { ProjectAnalysisOutput, FileResult } from '../../analysis/src/proje
 import type { ProjectAnalysisTelemetry } from '../../analysis/src/telemetry.js';
 import type { WsIncrementalResult } from '../../analysis/src/incremental-result.js';
 import type { AnalyzeProjectPathMap } from './analyze-project-request.js';
+import type { SuppressedIssue } from '../../analysis/src/contracts/analysis.js';
 import type {
   ParsingError as InternalParsingError,
   ParsingErrorLanguage,
@@ -120,6 +121,11 @@ function toProjectAnalysisFileResult(
   return {
     parsingErrors: (result.parsingErrors ?? []).map(toParsingError),
     issues: result.issues.map(issue => toIssue(issue, pathMap)),
+    ...(result.suppressedIssues?.length
+      ? {
+          suppressedIssues: result.suppressedIssues.map(issue => toSuppressedIssue(issue, pathMap)),
+        }
+      : {}),
     highlights: ('highlights' in result ? result.highlights : undefined)?.map(toHighlight) ?? [],
     highlightedSymbols:
       ('highlightedSymbols' in result ? result.highlightedSymbols : undefined)?.map(
@@ -187,6 +193,16 @@ function toIssue(
     quickFixes: 'quickFixes' in issue ? (issue.quickFixes ?? []).map(toQuickFix) : [],
     ruleEslintKeys: 'ruleESLintKeys' in issue ? [...issue.ruleESLintKeys] : [],
     filePath: 'filePath' in issue ? restorePath(issue.filePath, pathMap) : undefined,
+  };
+}
+
+function toSuppressedIssue(
+  issue: SuppressedIssue<JsTsIssue> | SuppressedIssue<CssIssue>,
+  pathMap: AnalyzeProjectPathMap,
+): sonarjs.analyzeproject.v1.IIssue {
+  return {
+    ...toIssue(issue, pathMap),
+    resolutionComment: issue.resolutionComment,
   };
 }
 
