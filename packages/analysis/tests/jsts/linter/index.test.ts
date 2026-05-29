@@ -1424,7 +1424,7 @@ describe('Linter', () => {
     expect(issues).toHaveLength(0);
   });
 
-  it('should let external inline configs override Sonar defaults for wrapped rules', async () => {
+  it('should preserve Sonar defaults for external severity-only inline configs', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, 'fixtures', 'wrapper', 'inline-eslint-prefer-const.js'),
     );
@@ -1444,7 +1444,7 @@ describe('Linter', () => {
     });
     const issues = Linter.lint(parseResult, filePath);
 
-    expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3353', line: 3 })]);
+    expect(issues).toHaveLength(0);
   });
 
   it('should keep external rule defaults when remapping inline configs', async () => {
