@@ -372,7 +372,7 @@ Wrapper.propTypes = {
   color: PropTypes.string,
 };
 `,
-          errors: 1,
+          errors: [{ message: "'color' PropType is defined but prop is never used" }],
         },
         {
           code: `
@@ -388,7 +388,7 @@ Wrapper.propTypes = {
   color: PropTypes.string,
 };
 `,
-          errors: 1,
+          errors: [{ message: "'color' PropType is defined but prop is never used" }],
         },
         {
           code: `
@@ -404,7 +404,7 @@ Wrapper.propTypes = {
   color: PropTypes.string,
 };
 `,
-          errors: 1,
+          errors: [{ message: "'color' PropType is defined but prop is never used" }],
         },
       ],
     });
