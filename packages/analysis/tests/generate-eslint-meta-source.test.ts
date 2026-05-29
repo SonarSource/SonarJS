@@ -16,15 +16,53 @@
  */
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
-import { join } from 'node:path/posix';
-import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path/posix';
+import { existsSync, readFileSync } from 'node:fs';
 
-const generatorSource = readFileSync(
-  join(import.meta.dirname, '../../../tools/generate-eslint-meta.ts'),
-  'utf8',
-);
+function getGeneratorSourcePath(
+  testDirectory: string,
+  fileExists: (path: string) => boolean = existsSync,
+) {
+  let currentDirectory = testDirectory;
+
+  while (true) {
+    const candidatePath = join(currentDirectory, 'tools/generate-eslint-meta.ts');
+
+    if (fileExists(candidatePath)) {
+      return candidatePath;
+    }
+
+    const parentDirectory = dirname(currentDirectory);
+    if (parentDirectory === currentDirectory) {
+      throw new Error(`Could not resolve generator source path from ${testDirectory}`);
+    }
+
+    currentDirectory = parentDirectory;
+  }
+}
+
+const generatorSource = readFileSync(getGeneratorSourcePath(import.meta.dirname), 'utf8');
 
 describe('generate-eslint-meta source of truth', () => {
+  it('should locate the generator source from source-mode tests', () => {
+    const generatorSourcePath = '/repo/tools/generate-eslint-meta.ts';
+
+    expect(
+      getGeneratorSourcePath('/repo/packages/analysis/tests', path => path === generatorSourcePath),
+    ).toBe(generatorSourcePath);
+  });
+
+  it('should locate the generator source from compiled JS tests', () => {
+    const generatorSourcePath = '/repo/tools/generate-eslint-meta.ts';
+
+    expect(
+      getGeneratorSourcePath(
+        '/repo/lib/packages/analysis/tests',
+        path => path === generatorSourcePath,
+      ),
+    ).toBe(generatorSourcePath);
+  });
+
   it('should derive generated-source suppression from RSPEC tags', () => {
     expect(generatorSource).toContain("'editable-source'");
   });
