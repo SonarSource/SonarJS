@@ -18,7 +18,11 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { getVariableFromName, isIdentifier, isMethodCall } from './ast.js';
 import type { Assertion } from './assertions.js';
-import { getArgumentAtIndex, getChaiPropertyPredicate } from './assertions-chai-common.js';
+import {
+  getArgumentAtIndex,
+  getChaiPropertyPredicate,
+  type ChaiPredicate,
+} from './assertions-chai-common.js';
 import { getFullyQualifiedName } from './module.js';
 
 type ChaiComparison = 'strict' | 'deep' | 'loose';
