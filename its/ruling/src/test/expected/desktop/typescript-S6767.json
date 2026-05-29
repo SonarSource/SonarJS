@@ -30,5 +30,8 @@
 ],
 "desktop:app/src/ui/relative-time.tsx": [
 19
+],
+"desktop:app/src/ui/welcome/welcome.tsx": [
+24
 ]
 }

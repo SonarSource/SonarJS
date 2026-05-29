@@ -65,6 +65,30 @@ class Bar extends React.Component<BarProps> {
           filename: fixtureFile,
         },
         {
+          // FP: TypeScript class constructor forwards the real props object to a helper.
+          code: `
+declare const React: any;
+interface DialogProps {
+  showCoAuthoredBy: boolean;
+  coAuthors: string[];
+}
+declare function createState(props: DialogProps): {
+  showCoAuthoredBy: boolean;
+  coAuthors: string[];
+};
+class CommitMessageDialog extends React.Component<DialogProps, ReturnType<typeof createState>> {
+  constructor(props: DialogProps) {
+    super(props);
+    this.state = createState(props);
+  }
+  render() {
+    return <div />;
+  }
+}
+`,
+          filename: fixtureFile,
+        },
+        {
           // FP: TypeScript function component spreads props — Strategy C matches
           // MyComponentProps to MyComponent and recognizes the SpreadElement.
           code: `

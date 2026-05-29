@@ -127,6 +127,46 @@ class Button extends React.Component {
 }
 `,
         },
+        {
+          // FP: class constructor forwards the real props object to a helper.
+          code: `
+function createState(props) {
+  return { label: props.label };
+}
+class Button extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = createState(props);
+  }
+  render() {
+    return <button />;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+        {
+          // FP: class constructor forwards the real props object into a member helper.
+          code: `
+class Button extends React.Component {
+  constructor(props) {
+    super(props);
+    this.receiveProps(props);
+  }
+  receiveProps(props) {
+    return getLabel(props);
+  }
+  render() {
+    return <button />;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
       ],
       invalid: [
         {
@@ -175,27 +215,6 @@ class Button extends React.Component {
           errors: 1,
         },
         {
-          // TP: constructor helper forwarding from `props` is intentionally unsupported.
-          code: `
-function createState(props) {
-  return { label: props.label };
-}
-class Button extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = createState(props);
-  }
-  render() {
-    return <button />;
-  }
-}
-Button.propTypes = {
-  label: PropTypes.string,
-};
-`,
-          errors: 1,
-        },
-        {
           // TP: lifecycle helper forwarding from `nextProps` is intentionally unsupported.
           code: `
 function createState(props) {
@@ -216,16 +235,9 @@ Button.propTypes = {
           errors: 1,
         },
         {
-          // TP: helper-local `props` params should not suppress class unused-prop reports.
+          // TP: helper-local `props` params alone do not suppress class unused-prop reports.
           code: `
 class Button extends React.Component {
-  constructor(props) {
-    super(props);
-    this.receiveProps(props);
-  }
-  componentWillReceiveProps(nextProps) {
-    this.receiveProps(nextProps);
-  }
   receiveProps(props) {
     return getLabel(props);
   }

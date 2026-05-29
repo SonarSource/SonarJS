@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { Rule, SourceCode } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { childrenOf } from '../helpers/ancestor.js';
 import { getVariableFromName, isFunctionNode, isIdentifier } from '../helpers/ast.js';
@@ -34,7 +34,7 @@ export function hasSupportedWholePropsUsage(
   return hasSupportedWholePropsUsageInSubtree(
     componentNode,
     context.sourceCode.visitorKeys,
-    argument => isWholePropsExpressionOrAlias(context, argument, isTrackedPropsExpression),
+    isTrackedPropsExpression,
   );
 }
 
@@ -42,22 +42,65 @@ function getTrackedWholePropsExpression(
   componentNode: estree.Node,
   context: Rule.RuleContext,
 ): (node: estree.Node) => boolean {
-  if (!isFunctionNode(componentNode)) {
-    return isWholePropsArgument;
+  if (isFunctionNode(componentNode)) {
+    const propsVariable = getFunctionPropsVariable(componentNode, context);
+    return node =>
+      isWholePropsExpressionOrAlias(context, node, argument =>
+        isTrackedIdentifier(context, argument, propsVariable),
+      );
   }
 
-  const propsParam = getPropsParamIdentifier(componentNode.params[0]);
-  if (!propsParam) {
-    return () => false;
-  }
-
-  const propsVariable = context.sourceCode.getScope(componentNode).set.get(propsParam.name);
-  if (!propsVariable) {
-    return () => false;
-  }
+  const constructorPropsVariable = getClassConstructorPropsVariable(componentNode, context);
 
   return node =>
-    node.type === 'Identifier' && getVariableFromName(context, node.name, node) === propsVariable;
+    isWholePropsExpressionOrAlias(context, node, isWholePropsArgument) ||
+    isTrackedIdentifier(context, node, constructorPropsVariable);
+}
+
+function getFunctionPropsVariable(
+  componentNode: estree.Function,
+  context: Rule.RuleContext,
+): Scope.Variable | undefined {
+  const propsParam = getPropsParamIdentifier(componentNode.params[0]);
+  return propsParam
+    ? context.sourceCode.getScope(componentNode).set.get(propsParam.name)
+    : undefined;
+}
+
+function getClassConstructorPropsVariable(
+  componentNode: estree.Node,
+  context: Rule.RuleContext,
+): Scope.Variable | undefined {
+  if (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression') {
+    return undefined;
+  }
+
+  const ctor = componentNode.body.body.find(
+    (member): member is estree.MethodDefinition =>
+      member.type === 'MethodDefinition' && member.kind === 'constructor',
+  );
+  if (!ctor) {
+    return undefined;
+  }
+
+  const propsParam = getPropsParamIdentifier(ctor.value.params[0]);
+  if (!propsParam || propsParam.name !== 'props') {
+    return undefined;
+  }
+
+  return context.sourceCode.getScope(ctor.value).set.get(propsParam.name);
+}
+
+function isTrackedIdentifier(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  variable: Scope.Variable | undefined,
+): boolean {
+  return (
+    !!variable &&
+    node.type === 'Identifier' &&
+    getVariableFromName(context, node.name, node) === variable
+  );
 }
 
 function getPropsParamIdentifier(
