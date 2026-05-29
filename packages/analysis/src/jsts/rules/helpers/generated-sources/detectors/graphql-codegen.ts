@@ -39,6 +39,11 @@ import {
 } from '../shared.js';
 
 const STANDARD_GRAPHQL_CONFIGS = [
+  '.codegenrc.js',
+  '.codegenrc.json',
+  '.codegenrc.ts',
+  '.codegenrc.yaml',
+  '.codegenrc.yml',
   'codegen.config.cjs',
   'codegen.config.cts',
   'codegen.config.js',
@@ -51,6 +56,7 @@ const STANDARD_GRAPHQL_CONFIGS = [
   'codegen.ts',
   'codegen.js',
 ] as const;
+const GRAPHQL_CONFIG_FLAGS = ['--config', '-c'];
 const DEFAULT_NEAR_OPERATION_FILE_EXTENSION = '.generated.ts';
 const GRAPHQL_GENERATED_DIRECTORY_SEGMENTS = new Set(['generated', '__generated__', 'gql']);
 
@@ -72,7 +78,7 @@ export const graphqlCodegenDetector = {
       packageDir,
       taskInvocations,
       matchesTaskInvocation,
-      flags: ['--config'],
+      flags: GRAPHQL_CONFIG_FLAGS,
       fallbackBasenames: STANDARD_GRAPHQL_CONFIGS,
     });
     if (configPaths.size === 0) {
