@@ -27,6 +27,17 @@ function isObjectPatternBinding(variable: Scope.Variable) {
   );
 }
 
+/**
+ * Returns all read references reachable from `scope`, including nested scopes.
+ *
+ * Pseudo code:
+ *   function outer() {
+ *     props.label; // included
+ *     function inner() {
+ *       props.title; // included
+ *     }
+ *   }
+ */
 export function collectReferences(scope: Scope.Scope): Scope.Reference[] {
   return [
     ...scope.references.filter(reference => reference.isRead()),
@@ -34,6 +45,19 @@ export function collectReferences(scope: Scope.Scope): Scope.Reference[] {
   ];
 }
 
+/**
+ * Returns true when `node` is the tracked whole-props expression itself or a
+ * single-write alias of it.
+ *
+ * Pseudo code:
+ *   props
+ *   const forwarded = props;
+ *   forwarded
+ *
+ *   const forwarded = props;
+ *   const copy = forwarded;
+ *   copy
+ */
 export function isWholePropsExpressionOrAlias(
   context: Rule.RuleContext,
   node: estree.Node,
@@ -59,6 +83,23 @@ export function isWholePropsExpressionOrAlias(
   );
 }
 
+/**
+ * Returns true when `node` reads `propName` from the tracked props expression,
+ * either directly, through a whole-props alias, or through destructuring.
+ *
+ * Pseudo code:
+ *   props.label
+ *
+ *   const forwarded = props;
+ *   forwarded.label
+ *
+ *   const { label } = props;
+ *   label
+ *
+ *   const forwarded = props;
+ *   const { label } = forwarded;
+ *   label
+ */
 export function isNamedPropExpressionOrAlias(
   context: Rule.RuleContext,
   node: estree.Node,
