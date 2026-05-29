@@ -21,6 +21,14 @@ import { describe, it } from 'node:test';
 describe('S5868', () => {
   it('S5868', () => {
     const ruleTester = new DefaultParserRuleTester();
+    const ecma2015 = 2015;
+    const literalSuggestionStart = 12;
+    const literalSuggestionEnd = 13;
+    const quotedConstructorSuggestionStart = 24;
+    const quotedConstructorSuggestionEnd = 25;
+    const templateConstructorSuggestionStart = 20;
+    const templateConstructorSuggestionEnd = 26;
+    const rawConstructorSuggestionEnd = 36;
 
     const combiningClass = c =>
       `Move this Unicode combined character '${c}' outside of the character class`;
@@ -80,15 +88,15 @@ describe('S5868', () => {
         },
         {
           code: String.raw`const baby = '\u{1F476}', skinTone = '\u{1F3FB}', r = new RegExp('[' + baby + skinTone + ']', 'u')`,
-          languageOptions: { ecmaVersion: 2015 },
+          languageOptions: { ecmaVersion: ecma2015 },
         },
         {
           code: String.raw`const first = '\u{1F1EF}', second = '\u{1F1F5}', r = new RegExp('[' + first + second + ']', 'u')`,
-          languageOptions: { ecmaVersion: 2015 },
+          languageOptions: { ecmaVersion: ecma2015 },
         },
         {
           code: String.raw`const man = '\u{1F468}', zwjChar = '\u200D', woman = '\u{1F469}', r = new RegExp('[' + man + zwjChar + woman + ']', 'u')`,
-          languageOptions: { ecmaVersion: 2015 },
+          languageOptions: { ecmaVersion: ecma2015 },
         },
 
         // don't report and don't crash on invalid regex
@@ -181,7 +189,12 @@ describe('S5868', () => {
         // RegExp Literals.
         {
           code: 'var r = /[👍]/',
-          errors: surrogatePair('👍', 'var r = /[👍]/u', 12, 13),
+          errors: surrogatePair(
+            '👍',
+            'var r = /[👍]/u',
+            literalSuggestionStart,
+            literalSuggestionEnd,
+          ),
         },
         {
           code: String.raw`var r = /[\uD83D\uDC4D]/`,
@@ -280,15 +293,30 @@ describe('S5868', () => {
         // RegExp constructors.
         {
           code: 'var r = new RegExp("[👍]")',
-          errors: surrogatePair('👍', 'var r = new RegExp("[👍]", "u")', 24, 25),
+          errors: surrogatePair(
+            '👍',
+            'var r = new RegExp("[👍]", "u")',
+            quotedConstructorSuggestionStart,
+            quotedConstructorSuggestionEnd,
+          ),
         },
         {
           code: 'var r = new RegExp(`[👍]`)',
-          errors: surrogatePair('👍', 'var r = new RegExp(`[👍]`, "u")', 20, 26),
+          errors: surrogatePair(
+            '👍',
+            'var r = new RegExp(`[👍]`, "u")',
+            templateConstructorSuggestionStart,
+            templateConstructorSuggestionEnd,
+          ),
         },
         {
           code: 'var r = new RegExp(String.raw`[👍]`)',
-          errors: surrogatePair('👍', 'var r = new RegExp(String.raw`[👍]`, "u")', 20, 36),
+          errors: surrogatePair(
+            '👍',
+            'var r = new RegExp(String.raw`[👍]`, "u")',
+            templateConstructorSuggestionStart,
+            rawConstructorSuggestionEnd,
+          ),
         },
         {
           code: 'var r = new RegExp("[👍]", "")',

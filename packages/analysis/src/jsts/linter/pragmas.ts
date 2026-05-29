@@ -111,7 +111,7 @@ function getInlineRuleDefaultOptions(
  * @returns string The rule part of the ruleId;
  */
 function getRuleId(ruleId: string | null) {
-  return ruleId?.split('/').at(-1)!;
+  return ruleId?.split('/').at(-1) ?? '';
 }
 
 export function createOptions(
@@ -205,12 +205,12 @@ export function patchDirectiveComments(sourceCode: SourceCode, activeRules: Lint
 }
 
 function replaceRuleIdAlias(comment: string, alias: string, mapping: MappingEntry) {
-  const escapedAlias = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedAlias = alias.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
   const ruleIdPattern = new RegExp(
     String.raw`(^|[\s,:[{])((?:@?[\w-]+\/)?${escapedAlias})(?=$|[\s,\]:}])`,
     'g',
   );
-  return comment.replace(ruleIdPattern, (match, prefix, matchedRuleId) => {
+  return comment.replaceAll(ruleIdPattern, (match, prefix, matchedRuleId) => {
     if (matchedRuleId.startsWith('sonarjs/')) {
       return match;
     }
@@ -226,12 +226,12 @@ function preserveActiveRuleOptions(
   if (!Array.isArray(activeRuleOptions) || activeRuleOptions.length <= 1) {
     return comment;
   }
-  const escapedRuleId = ruleId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const escapedRuleId = ruleId.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
   const severityOnlyPattern = new RegExp(
     String.raw`(${escapedRuleId}\s*:\s*)("error"|"warn"|"off"|'error'|'warn'|'off'|[012])(?=\s*(?:[,}]|$))`,
     'g',
   );
-  return comment.replace(severityOnlyPattern, (_match, prefix, severity) => {
+  return comment.replaceAll(severityOnlyPattern, (_match, prefix, severity) => {
     return `${prefix}[${severity},${activeRuleOptions
       .slice(1)
       .map(option => JSON.stringify(option))

@@ -76,17 +76,25 @@ export function getPatternFromNode(
       return getPatternFromNode(assignedExpression, context);
     }
   } else if (isBinaryPlus(node)) {
-    const left = getPatternFromNode(node.left, context);
-    const right = getPatternFromNode(node.right, context);
-    if (left && right) {
-      const splitOffset = left.pattern.length;
-      return {
-        pattern: left.pattern + right.pattern,
-        flags: '',
-        seams: [...left.seams, splitOffset, ...right.seams.map(s => s + splitOffset)],
-      };
-    }
+    return getBinaryPlusPattern(node, context);
   }
 
   return null;
+}
+
+function getBinaryPlusPattern(
+  node: estree.BinaryExpression,
+  context: Rule.RuleContext,
+): { pattern: string; flags: string; seams: number[] } | null {
+  const left = getPatternFromNode(node.left, context);
+  const right = getPatternFromNode(node.right, context);
+  if (!left || !right) {
+    return null;
+  }
+  const splitOffset = left.pattern.length;
+  return {
+    pattern: left.pattern + right.pattern,
+    flags: '',
+    seams: [...left.seams, splitOffset, ...right.seams.map(s => s + splitOffset)],
+  };
 }
