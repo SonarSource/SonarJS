@@ -148,9 +148,9 @@ function isVersionedRemoteUrl(memberExpression: TSESTree.Node): boolean {
   );
 }
 
-function shouldReport(
-  assignedVariable: Scope.Variable,
-): 'missingBoth' | 'missingIntegrity' | 'missingCrossOrigin' | null {
+type MessageId = 'missingBoth' | 'missingIntegrity' | 'missingCrossOrigin';
+
+function shouldReport(assignedVariable: Scope.Variable): MessageId | null {
   let nbSrcAssignment = 0;
   let hasVersionedRemoteUrl = false;
   let hasIntegrityAssignment = false;
