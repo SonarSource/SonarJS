@@ -84,7 +84,7 @@ function getClassConstructorPropsVariable(
   }
 
   const propsParam = getPropsParamIdentifier(ctor.value.params[0]);
-  if (!propsParam || propsParam.name !== 'props') {
+  if (propsParam?.name !== 'props') {
     return undefined;
   }
 
