@@ -192,7 +192,7 @@ describe('generated sources project metadata', () => {
 
     try {
       await writeFixtureFile(
-        join(baseDir, 'codegen.config.ts'),
+        join(baseDir, 'codegen.ts'),
         `const config = {
   generates: {
     './src/': {
@@ -449,6 +449,9 @@ export = config;
           devDependencies: {
             [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
           },
+          scripts: {
+            codegen: 'graphql-codegen --config ./codegen.config.cts',
+          },
         }),
       );
 
@@ -525,7 +528,7 @@ export default config;
 
   it('refreshes generated-source metadata when a declared GraphQL output file is created later', async () => {
     const baseDir = await createTempBaseDir();
-    const configPath = joinPaths(baseDir, 'codegen.config.ts');
+    const configPath = joinPaths(baseDir, 'codegen.ts');
     const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
 
     try {
@@ -623,7 +626,47 @@ export default config;
     }
   });
 
-  it('derives GraphQL outputs from a package-local codegen.config.ts fallback file', async () => {
+  it('derives GraphQL outputs from an explicit package-local codegen.config.ts flag', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'codegen.config.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            codegen: 'graphql-codegen --config ./codegen.config.ts',
+          },
+        }),
+      );
+
+      expect(derived.configPaths).toEqual(new Set([configPath]));
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not auto-discover a package-local codegen.config.ts without an explicit task invocation', async () => {
     const baseDir = await createTempBaseDir();
     const configPath = joinPaths(baseDir, 'codegen.config.ts');
     const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
@@ -653,8 +696,8 @@ export default config;
         }),
       );
 
-      expect(derived.configPaths).toEqual(new Set([configPath]));
-      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(derived.configPaths).toEqual(new Set());
+      expect(derived.familyByFile.get(outputPath)).toBeUndefined();
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }

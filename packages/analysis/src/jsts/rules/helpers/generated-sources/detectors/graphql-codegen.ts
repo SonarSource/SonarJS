@@ -35,23 +35,31 @@ import {
   safeStat,
 } from '../shared.js';
 
-const STANDARD_GRAPHQL_CONFIGS = [
+const AUTO_DISCOVERED_GRAPHQL_CONFIGS = [
   '.codegenrc.js',
   '.codegenrc.json',
   '.codegenrc.ts',
   '.codegenrc.yaml',
   '.codegenrc.yml',
+  'codegen.yml',
+  'codegen.yaml',
+  'codegen.json',
+  'codegen.ts',
+  'codegen.js',
+] as const;
+// These config names work when passed explicitly via --config / -c, but they are not
+// part of GraphQL Codegen's implicit fallback search.
+const EXPLICIT_GRAPHQL_CONFIGS = [
   'codegen.config.cjs',
   'codegen.config.cts',
   'codegen.config.js',
   'codegen.config.mjs',
   'codegen.config.mts',
   'codegen.config.ts',
-  'codegen.yml',
-  'codegen.yaml',
-  'codegen.json',
-  'codegen.ts',
-  'codegen.js',
+] as const;
+const WATCHED_GRAPHQL_CONFIGS = [
+  ...AUTO_DISCOVERED_GRAPHQL_CONFIGS,
+  ...EXPLICIT_GRAPHQL_CONFIGS,
 ] as const;
 const GRAPHQL_CONFIG_FLAGS = ['--config', '-c'];
 const DEFAULT_NEAR_OPERATION_FILE_EXTENSION = '.generated.ts';
@@ -65,7 +73,7 @@ type GraphqlGenerateTarget = {
 
 export const graphqlCodegenDetector = {
   family: GRAPHQL_CODEGEN_FAMILY,
-  watchedFilenames: STANDARD_GRAPHQL_CONFIGS,
+  watchedFilenames: WATCHED_GRAPHQL_CONFIGS,
 
   async detect({ baseDir, packageDir, getDependencies, taskInvocations, sourceFileMatcher }) {
     const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
@@ -76,7 +84,7 @@ export const graphqlCodegenDetector = {
       taskInvocations,
       matchesTaskInvocation,
       flags: GRAPHQL_CONFIG_FLAGS,
-      fallbackBasenames: STANDARD_GRAPHQL_CONFIGS,
+      fallbackBasenames: AUTO_DISCOVERED_GRAPHQL_CONFIGS,
     });
     if (configPaths.size === 0) {
       return createDerivedGeneratedSources();
