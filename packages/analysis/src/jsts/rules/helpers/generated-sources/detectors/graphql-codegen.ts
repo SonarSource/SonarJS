@@ -81,8 +81,8 @@ export const graphqlCodegenDetector = {
       derived.configPaths.add(configPath);
       const resolvedOutputs = await resolveGraphqlOutputs(baseDir, configPath, sourceFileMatcher);
       addFamilyFiles(GRAPHQL_CODEGEN_FAMILY, resolvedOutputs.filePaths, derived);
-      for (const outputDirectory of resolvedOutputs.outputDirectories) {
-        derived.outputDirectories.add(outputDirectory);
+      for (const watchedOutputPath of resolvedOutputs.watchedOutputPaths) {
+        derived.watchedOutputPaths.add(watchedOutputPath);
       }
     }
 
