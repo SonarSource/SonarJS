@@ -15,12 +15,20 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { type GeneratedSourceDetector, OPENAPI_GENERATOR_FAMILY } from '../contracts.js';
-import { createDerivedGeneratedSources } from '../shared.js';
+import { extractFlagValuesFromTokens, createDerivedGeneratedSources } from '../shared.js';
 import {
   deriveSourcesFromOutputDirectories,
   resolveOutputDirectoriesFromTaskInvocations,
 } from '../detector-api.js';
 import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
+
+const JS_TS_OPENAPI_GENERATORS = new Set([
+  'k6',
+  'nodejs-express-server',
+  'graphql-nodejs-express-server',
+]);
+
+const OPENAPI_GENERATOR_NAME_FLAGS = ['-g', '--generator-name'];
 
 export const openApiGeneratorDetector = {
   family: OPENAPI_GENERATOR_FAMILY,
@@ -28,7 +36,10 @@ export const openApiGeneratorDetector = {
   async detect({ baseDir, packageDir, taskInvocations, sourceFileMatcher }) {
     const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
       taskInvocationInvokesCommand(taskInvocation, 'openapi-generator-cli') &&
-      taskInvocation.args[0] === 'generate';
+      taskInvocation.args[0] === 'generate' &&
+      extractFlagValuesFromTokens(taskInvocation.args, OPENAPI_GENERATOR_NAME_FLAGS).some(
+        isJsTsOpenApiGenerator,
+      );
     if (!taskInvocations.some(matchesTaskInvocation)) {
       return createDerivedGeneratedSources();
     }
@@ -48,3 +59,11 @@ export const openApiGeneratorDetector = {
     );
   },
 } satisfies GeneratedSourceDetector;
+
+function isJsTsOpenApiGenerator(generatorName: string) {
+  return (
+    generatorName.startsWith('javascript') ||
+    generatorName.startsWith('typescript') ||
+    JS_TS_OPENAPI_GENERATORS.has(generatorName)
+  );
+}

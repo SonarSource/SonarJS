@@ -817,7 +817,8 @@ export default config;
             [OPENAPI_GENERATOR_FAMILY]: '1.0.0',
           },
           scripts: {
-            generate: 'openapi-generator-cli generate --output=./src/api',
+            generate:
+              'openapi-generator-cli generate --generator-name=typescript-axios --output=./src/api',
           },
         }),
       );
@@ -842,7 +843,7 @@ export default config;
             [OPENAPI_GENERATOR_FAMILY]: '1.0.0',
           },
           scripts: {
-            generate: 'npx openapi-generator-cli generate --output ./src/api',
+            generate: 'npx openapi-generator-cli generate -g typescript-axios --output ./src/api',
           },
         }),
       );
@@ -868,6 +869,56 @@ export default config;
           },
           scripts: {
             generate: 'echo openapi-generator-cli generate --output=./src/api',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not derive OpenAPI outputs without an explicit JS/TS generator name', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputPath = joinPaths(baseDir, 'src', 'api', 'index.ts');
+
+    try {
+      await writeFixtureFile(outputPath, 'export const api = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [OPENAPI_GENERATOR_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            generate: 'openapi-generator-cli generate --output=./src/api',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not derive OpenAPI outputs for non-JS generators', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputPath = joinPaths(baseDir, 'src', 'index.ts');
+
+    try {
+      await writeFixtureFile(outputPath, 'export const handwritten = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [OPENAPI_GENERATOR_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            generate: 'openapi-generator-cli generate -g java -o .',
           },
         }),
       );
