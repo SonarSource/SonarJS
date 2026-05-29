@@ -40,12 +40,7 @@ const MARKERS_ROOT = join(ROOT_DIR, 'rspec-rule-markers');
 const JS_MARKERS_FOLDER = join(MARKERS_ROOT, 'javascript');
 const CSS_MARKERS_FOLDER = join(MARKERS_ROOT, 'css');
 
-const localRuleDataRoot = join(ROOT_DIR, 'resources', 'rule-data');
-const ruleDataRoots = [
-  localRuleDataRoot,
-  // Useful after a sync or build: full generated metadata should override checked-in markers.
-  join(ROOT_DIR, 'sonar-plugin', 'javascript-checks', 'src', 'main', 'resources'),
-];
+const RULE_DATA_ROOT = join(ROOT_DIR, 'resources', 'rule-data');
 
 const changedFiles = [];
 const checkFailures = [];
@@ -115,10 +110,7 @@ async function createJstsMarker(ruleKey) {
 
 async function readCompatibleLanguages(ruleKey) {
   const candidates = [
-    ...ruleDataRoots.flatMap(root => [
-      join(root, 'javascript', `${ruleKey}.json`),
-      join(root, 'org', 'sonar', 'l10n', 'javascript', 'rules', 'javascript', `${ruleKey}.json`),
-    ]),
+    join(RULE_DATA_ROOT, 'javascript', `${ruleKey}.json`),
     join(JS_MARKERS_FOLDER, `${ruleKey}.json`),
   ];
 
