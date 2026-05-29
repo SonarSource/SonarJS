@@ -306,8 +306,18 @@ function isZeroWidthJoiner(code: number) {
   return code === ZERO_WIDTH_JOINER;
 }
 
-function getRegExpConstructor(node: estree.Node, sourceCode: SourceCode) {
-  return sourceCode.getAncestors(node).findLast(isRegExpConstructorCallOrNew);
+function getRegExpConstructor(
+  node: estree.Node,
+  sourceCode: SourceCode,
+): estree.CallExpression | estree.NewExpression | undefined {
+  const ancestors = sourceCode.getAncestors(node);
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    const ancestor = ancestors[i];
+    if (ancestor && isRegExpConstructorCallOrNew(ancestor)) {
+      return ancestor;
+    }
+  }
+  return undefined;
 }
 
 function isRegExpConstructorCallOrNew(
