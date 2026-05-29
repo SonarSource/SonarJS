@@ -18,7 +18,7 @@
 import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { childrenOf } from '../helpers/ancestor.js';
-import { isIdentifier } from '../helpers/ast.js';
+import { getVariableFromName, isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { isWholePropsExpressionOrAlias } from './prop-alias-resolution.js';
 
 /**
@@ -30,11 +30,46 @@ export function hasSupportedWholePropsUsage(
   componentNode: estree.Node,
   context: Rule.RuleContext,
 ): boolean {
+  const isTrackedPropsExpression = getTrackedWholePropsExpression(componentNode, context);
   return hasSupportedWholePropsUsageInSubtree(
     componentNode,
     context.sourceCode.visitorKeys,
-    argument => isWholePropsExpressionOrAlias(context, argument, isWholePropsArgument),
+    argument => isWholePropsExpressionOrAlias(context, argument, isTrackedPropsExpression),
   );
+}
+
+function getTrackedWholePropsExpression(
+  componentNode: estree.Node,
+  context: Rule.RuleContext,
+): (node: estree.Node) => boolean {
+  if (!isFunctionNode(componentNode)) {
+    return isWholePropsArgument;
+  }
+
+  const propsParam = getPropsParamIdentifier(componentNode.params[0]);
+  if (!propsParam) {
+    return () => false;
+  }
+
+  const propsVariable = context.sourceCode.getScope(componentNode).set.get(propsParam.name);
+  if (!propsVariable) {
+    return () => false;
+  }
+
+  return node =>
+    node.type === 'Identifier' && getVariableFromName(context, node.name, node) === propsVariable;
+}
+
+function getPropsParamIdentifier(
+  propsParam: estree.Function['params'][number] | undefined,
+): estree.Identifier | undefined {
+  if (isIdentifier(propsParam)) {
+    return propsParam;
+  }
+
+  return propsParam?.type === 'AssignmentPattern' && isIdentifier(propsParam.left)
+    ? propsParam.left
+    : undefined;
 }
 
 function hasSupportedWholePropsUsageInSubtree(
@@ -104,15 +139,13 @@ function isIgnoredWholePropsUsage(node: estree.Node): boolean {
 
 /**
  * Pseudo code:
- *   props
  *   this.props
  */
 function isWholePropsArgument(argument: estree.Node): boolean {
   return (
-    isIdentifier(argument, 'props') ||
-    (argument.type === 'MemberExpression' &&
-      argument.object.type === 'ThisExpression' &&
-      isIdentifier(argument.property, 'props'))
+    argument.type === 'MemberExpression' &&
+    argument.object.type === 'ThisExpression' &&
+    isIdentifier(argument.property, 'props')
   );
 }
 

@@ -36,7 +36,26 @@ Wrapper.propTypes = {
 `,
         },
       ],
-      invalid: [],
+      invalid: [
+        {
+          code: `
+function getStyle(input) {
+  return input;
+}
+function Wrapper(props) {
+  function inner(props) {
+    const forwarded = props;
+    return getStyle(forwarded);
+  }
+  return <div />;
+}
+Wrapper.propTypes = {
+  color: PropTypes.string,
+};
+`,
+          errors: [{ message: "'color' PropType is defined but prop is never used" }],
+        },
+      ],
     });
   });
 
@@ -50,6 +69,17 @@ Wrapper.propTypes = {
           code: `
 function Button(props) {
   return <button style={getStyle(props)} />;
+}
+Button.propTypes = {
+  color: PropTypes.string,
+};
+`,
+        },
+        {
+          code: `
+function Button(componentProps) {
+  const forwarded = componentProps;
+  return <button style={getStyle(forwarded)} />;
 }
 Button.propTypes = {
   color: PropTypes.string,
