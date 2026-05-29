@@ -163,6 +163,63 @@ describe('S3801', () => {
       }
     `,
         },
+        {
+          code: `
+      import { useEffect, useInsertionEffect, useLayoutEffect } from 'react';
+
+      function Component({ enabled }) {
+        useEffect(() => {
+          if (!enabled) {
+            return;
+          }
+          const subscription = subscribe();
+          return () => subscription.unsubscribe();
+        }, [enabled]);
+
+        useLayoutEffect(function () {
+          if (!enabled) {
+            return;
+          }
+          return () => cleanupLayout();
+        }, [enabled]);
+
+        useInsertionEffect(() => {
+          if (!enabled) {
+            return;
+          }
+          return () => cleanupInsertion();
+        }, [enabled]);
+      }
+    `,
+        },
+        {
+          code: `
+      import React from 'react';
+
+      function Component({ enabled }) {
+        React.useEffect(() => {
+          if (!enabled) {
+            return;
+          }
+          return () => cleanup();
+        }, [enabled]);
+      }
+    `,
+        },
+        {
+          code: `
+      import { useEffect as useReactEffect } from 'react';
+
+      function Component({ enabled }) {
+        useReactEffect(() => {
+          if (!enabled) {
+            return;
+          }
+          return () => cleanup();
+        }, [enabled]);
+      }
+    `,
+        },
       ],
       invalid: [
         {

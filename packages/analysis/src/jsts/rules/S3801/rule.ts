@@ -28,7 +28,10 @@ import { type RuleContext, getSignatureFromCallee, getTypeFromTreeNode } from '.
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getMainFunctionTokenLocation, report, toSecondaryLocation } from '../helpers/location.js';
 import { getParent } from '../helpers/ancestor.js';
+import { isIdentifier, isMethodCall } from '../helpers/ast.js';
 import * as meta from './generated-meta.js';
+
+const REACT_EFFECT_HOOKS = new Set(['useEffect', 'useInsertionEffect', 'useLayoutEffect']);
 
 interface FunctionContext {
   codePath: Rule.CodePath;
@@ -49,6 +52,10 @@ interface FunctionLikeDeclaration {
   returnType?: TSESTree.TSTypeAnnotation;
 }
 
+function isImportedEffectHook(node: TSESTree.Node) {
+  return node.type === 'Identifier' && REACT_EFFECT_HOOKS.has(node.name);
+}
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta),
   create(context: Rule.RuleContext) {
@@ -56,6 +63,8 @@ export const rule: Rule.RuleModule = {
     const services = sourceCode.parserServices;
     const hasTypeInformation = isRequiredParserServices(services);
     const functionContextStack: FunctionContext[] = [];
+    const reactEffectHookNames = new Set<string>();
+    const reactNames = new Set<string>();
     const checkOnFunctionExit = (node: estree.Node) =>
       checkFunctionLikeDeclaration(
         node,
@@ -76,6 +85,7 @@ export const rule: Rule.RuleModule = {
     ) {
       if (
         !functionContext ||
+        isReactEffectCallback(node as estree.Node) ||
         (!!node.returnType &&
           declaredReturnTypeContainsVoidOrNeverTypes(node.returnType.typeAnnotation))
       ) {
@@ -156,7 +166,56 @@ export const rule: Rule.RuleModule = {
       return secondaryLocations;
     }
 
+    function isReactEffectCallback(node: estree.Node) {
+      const parent = (node as TSESTree.Node).parent;
+      return (
+        parent?.type === 'CallExpression' &&
+        parent.arguments[0] === node &&
+        isReactEffectHookCall(parent as estree.CallExpression)
+      );
+    }
+
+    function isReactEffectHookCall(callExpression: estree.CallExpression) {
+      const { callee } = callExpression;
+      if (isIdentifier(callee)) {
+        return reactEffectHookNames.has(callee.name);
+      }
+
+      if (isMethodCall(callExpression)) {
+        const { object, property } = callExpression.callee;
+        return (
+          isIdentifier(object) &&
+          reactNames.has(object.name) &&
+          REACT_EFFECT_HOOKS.has(property.name)
+        );
+      }
+
+      return false;
+    }
+
+    function collectReactEffectHookImports(node: estree.Node) {
+      const importDeclaration = node as TSESTree.ImportDeclaration;
+      if (importDeclaration.source.value !== 'react') {
+        return;
+      }
+
+      for (const specifier of importDeclaration.specifiers) {
+        if (
+          specifier.type === 'ImportSpecifier' &&
+          isImportedEffectHook(specifier.imported as TSESTree.Node)
+        ) {
+          reactEffectHookNames.add(specifier.local.name);
+        } else if (
+          specifier.type === 'ImportDefaultSpecifier' ||
+          specifier.type === 'ImportNamespaceSpecifier'
+        ) {
+          reactNames.add(specifier.local.name);
+        }
+      }
+    }
+
     return {
+      ImportDeclaration: collectReactEffectHookImports,
       onCodePathStart(codePath: Rule.CodePath) {
         functionContextStack.push({
           codePath,
