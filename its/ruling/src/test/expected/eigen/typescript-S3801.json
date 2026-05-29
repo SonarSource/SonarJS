@@ -19,8 +19,7 @@
 97
 ],
 "eigen:src/app/Components/ArtsyWebView.tsx": [
-101,
-298
+101
 ],
 "eigen:src/app/Components/ArtworkFilter/FilterModal.tests.tsx": [
 520
@@ -103,9 +102,6 @@
 "eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryModal.tests.tsx": [
 56,
 77
-],
-"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/InquiryModal.tsx": [
-177
 ],
 "eigen:src/app/Scenes/Artwork/Components/ImageCarousel/FullScreen/useDoublePressCallback.ts": [
 12
@@ -220,10 +216,6 @@
 "eigen:src/app/Scenes/MyProfile/MyProfileHeaderMyCollectionAndSavedWorks.tests.tsx": [
 46
 ],
-"eigen:src/app/Scenes/Onboarding/OnboardingWelcome.tsx": [
-54,
-67
-],
 "eigen:src/app/Scenes/OrderHistory/OrderDetails/OrderDetails.tests.tsx": [
 46
 ],
@@ -244,9 +236,6 @@
 ],
 "eigen:src/app/Scenes/SavedSearchAlert/pillExtractors.ts": [
 50
-],
-"eigen:src/app/Scenes/Search/components/SearchInput.tsx": [
-38
 ],
 "eigen:src/app/Scenes/SellWithArtsy/SubmitArtwork/UploadPhotos/utils/addPhotoToConsignment.ts": [
 16
@@ -272,9 +261,6 @@
 "eigen:src/app/Scenes/Show/ShowViewingRoom.tests.tsx": [
 32
 ],
-"eigen:src/app/Websockets/auctions/AuctionSocketContext.tsx": [
-50
-],
 "eigen:src/app/navigation/useReloadedDevNavigationState.ts": [
 50
 ],
@@ -292,9 +278,6 @@
 31,
 68
 ],
-"eigen:src/app/utils/AboveTheFoldQueryRenderer.tsx": [
-90
-],
 "eigen:src/app/utils/getTestWrapper.tsx": [
 13
 ],
@@ -305,7 +288,6 @@
 100
 ],
 "eigen:src/palette/elements/Input/Input.tsx": [
-127,
 147
 ],
 "eigen:src/palette/elements/OpaqueImageView/OpaqueImageView2.tsx": [
