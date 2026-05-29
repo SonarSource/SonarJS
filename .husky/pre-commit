@@ -1,1 +1,3 @@
+npm run generate-rspec-rule-markers
+git add rspec-rule-markers
 npm run precommit

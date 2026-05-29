@@ -1,0 +1,10 @@
+{
+  "rules-metadata-path": "javascript",
+  "languages": [
+    "JS"
+  ],
+  "options": {
+    "no-language-in-filenames": true,
+    "preserve-filenames": true
+  }
+}

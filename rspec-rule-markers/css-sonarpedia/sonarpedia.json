@@ -1,0 +1,9 @@
+{
+  "rules-metadata-path": "../css",
+  "languages": [
+    "CSS"
+  ],
+  "options": {
+    "no-language-in-filenames": true
+  }
+}
