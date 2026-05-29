@@ -127,6 +127,68 @@ class Button extends React.Component {
 }
 `,
         },
+        {
+          // FP: class constructor forwards whole props to a helper
+          code: `
+function createState(props) {
+  return { label: props.label };
+}
+class Button extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = createState(props);
+  }
+  render() {
+    return <button />;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+        {
+          // FP: class lifecycle forwards nextProps to a whole-props helper
+          code: `
+function createState(props) {
+  return { label: props.label };
+}
+class Button extends React.Component {
+  componentWillReceiveProps(nextProps) {
+    this.setState(createState(nextProps));
+  }
+  render() {
+    return <button />;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+        {
+          // FP: class member helper receives whole props through its own parameter
+          code: `
+class Button extends React.Component {
+  constructor(props) {
+    super(props);
+    this.receiveProps(props);
+  }
+  componentWillReceiveProps(nextProps) {
+    this.receiveProps(nextProps);
+  }
+  receiveProps(props) {
+    return getLabel(props);
+  }
+  render() {
+    return <button />;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
       ],
       invalid: [
         {

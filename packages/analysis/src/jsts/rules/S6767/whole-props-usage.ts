@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { Rule, SourceCode } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
-import { childrenOf } from '../helpers/ancestor.js';
+import { childrenOf, getNodeParent } from '../helpers/ancestor.js';
 import { getVariableFromName, isFunctionNode, isIdentifier } from '../helpers/ast.js';
 import { isWholePropsExpressionOrAlias } from './prop-alias-resolution.js';
 
@@ -43,7 +43,8 @@ function getTrackedWholePropsExpression(
   context: Rule.RuleContext,
 ): (node: estree.Node) => boolean {
   if (!isFunctionNode(componentNode)) {
-    return isWholePropsArgument;
+    return node =>
+      isWholePropsArgument(node) || isClassComponentPropsParameter(node, componentNode, context);
   }
 
   const propsParam = getPropsParamIdentifier(componentNode.params[0]);
@@ -58,6 +59,54 @@ function getTrackedWholePropsExpression(
 
   return node =>
     node.type === 'Identifier' && getVariableFromName(context, node.name, node) === propsVariable;
+}
+
+function isClassComponentPropsParameter(
+  node: estree.Node,
+  componentNode: estree.Node,
+  context: Rule.RuleContext,
+): boolean {
+  if (node.type !== 'Identifier' || (node.name !== 'props' && node.name !== 'nextProps')) {
+    return false;
+  }
+
+  const variable = getVariableFromName(context, node.name, node);
+  return isDirectClassMemberPropsParameter(variable, componentNode);
+}
+
+function isDirectClassMemberPropsParameter(
+  variable: Scope.Variable | undefined,
+  componentNode: estree.Node,
+): boolean {
+  return (
+    !!variable &&
+    variable.defs.some(
+      definition =>
+        definition.type === 'Parameter' &&
+        isDirectClassMemberParamDefinition(definition.node, definition.name, componentNode),
+    )
+  );
+}
+
+function isDirectClassMemberParamDefinition(
+  functionNode: estree.Node,
+  parameterIdentifier: estree.Identifier,
+  componentNode: estree.Node,
+): boolean {
+  if (
+    !isFunctionNode(functionNode) ||
+    (componentNode.type !== 'ClassDeclaration' && componentNode.type !== 'ClassExpression')
+  ) {
+    return false;
+  }
+
+  const directClassMember = getNodeParent(functionNode);
+  return (
+    getPropsParamIdentifier(functionNode.params[0]) === parameterIdentifier &&
+    (directClassMember?.type === 'MethodDefinition' ||
+      directClassMember?.type === 'PropertyDefinition') &&
+    getNodeParent(directClassMember) === componentNode.body
+  );
 }
 
 function getPropsParamIdentifier(
