@@ -660,6 +660,14 @@ describe('S5914', () => {
           `,
           errors: [{ messageId: 'issue' }],
         },
+        {
+          code: `
+            import 'cypress';
+            import assert from 'node:assert';
+            assert.deepEqual(1, '1');
+          `,
+          errors: [{ messageId: 'issue' }],
+        },
         // regex literals create a fresh RegExp on each evaluation
         {
           code: `

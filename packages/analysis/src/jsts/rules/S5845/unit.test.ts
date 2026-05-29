@@ -188,6 +188,16 @@ describe('S5845', () => {
         },
         {
           code: `
+            import 'cypress';
+            import assert from 'node:assert';
+
+            const count: number = 1;
+            const title: string = '1';
+            assert.deepEqual(count, title);
+          `,
+        },
+        {
+          code: `
             import { assert } from 'chai';
 
             const price = 19.99;

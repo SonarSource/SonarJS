@@ -16,7 +16,7 @@
  */
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { isIdentifier, isMethodCall } from './ast.js';
+import { getVariableFromName, isIdentifier, isMethodCall } from './ast.js';
 import { getFullyQualifiedName, importsModule, importsOrDependsOnModule } from './module.js';
 
 const JEST_LIKE_MODULES = ['vitest', 'bun:test', '@jest/globals', '@playwright/test'];
@@ -336,11 +336,20 @@ function getChaiAssertCall(
     return { method: fqnMethod, reportNode: node.callee };
   }
 
-  if (allowGlobal && isIdentifier(node.callee, 'assert')) {
+  if (
+    allowGlobal &&
+    isIdentifier(node.callee, 'assert') &&
+    isGlobalAssertReference(context, node)
+  ) {
     return { method: 'assert', reportNode: node.callee };
   }
 
-  if (allowGlobal && isMethodCall(node) && isIdentifier(node.callee.object, 'assert')) {
+  if (
+    allowGlobal &&
+    isMethodCall(node) &&
+    isIdentifier(node.callee.object, 'assert') &&
+    isGlobalAssertReference(context, node)
+  ) {
     const method = getChaiAssertMethodFromName(node.callee.property.name);
     if (method) {
       return { method, reportNode: node.callee.property };
@@ -348,6 +357,13 @@ function getChaiAssertCall(
   }
 
   return null;
+}
+
+// Chai global `assert` should not steal calls from a locally-bound `assert`
+// such as `import assert from 'node:assert'`.
+function isGlobalAssertReference(context: Rule.RuleContext, node: estree.Node) {
+  const variable = getVariableFromName(context, 'assert', node);
+  return !variable || variable.defs.length === 0;
 }
 
 function getChaiAssertMethodFromFqn(fqn: string | null): ChaiAssertMethod | null {
