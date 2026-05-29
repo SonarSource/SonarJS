@@ -167,22 +167,6 @@
 "console:src/views/models/DatabrowserView/DataActionRow/NewNodeRow.tsx": [
 20
 ],
-"console:src/views/models/DatabrowserView/DatabrowserView.tsx": [
-66,
-67,
-68,
-69,
-70,
-71,
-72,
-73,
-78,
-81,
-82,
-101,
-102,
-127
-],
 "console:src/views/models/DatabrowserView/NewRow.tsx": [
 30,
 31,
