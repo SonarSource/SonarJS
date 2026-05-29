@@ -264,7 +264,7 @@ export default config;
     }
   });
 
-  it('derives package-local GraphQL outputs declared relative to the workspace root', async () => {
+  it('does not derive nested package GraphQL outputs from workspace-root-relative fallback paths', async () => {
     const baseDir = await createTempBaseDir();
     const packageDir = joinPaths(baseDir, 'libs', 'shared', 'cms');
     const outputPath = joinPaths(packageDir, 'src', '__generated__', 'graphql.ts');
@@ -285,11 +285,36 @@ export default config;
       );
       await writeFixtureFile(join(packageDir, 'package.json'), JSON.stringify({ name: 'cms' }));
       await writeFixtureFile(
-        join(packageDir, 'codegen.config.ts'),
+        join(packageDir, 'codegen.yml'),
+        `generates:
+  libs/shared/cms/src/__generated__/graphql.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const generated = true;\n');
+
+      await initFileStores(createConfiguration({ baseDir }));
+
+      expect(generatedSourceStore.getFamily(outputPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('resolves explicit GraphQL config outputs from the package directory, not the config directory', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+    const configRelativePath = joinPaths(baseDir, 'config', 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
         `const config = {
   generates: {
-    'libs/shared/cms/src/__generated__/': {
-      preset: 'client',
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
     },
   },
 };
@@ -297,11 +322,23 @@ export default config;
 export default config;
 `,
       );
-      await writeFixtureFile(outputPath, 'export const generated = true;\n');
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+      await writeFixtureFile(configRelativePath, 'export const stray = true;\n');
 
-      await initFileStores(createConfiguration({ baseDir }));
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            codegen: 'graphql-codegen --config=./config/custom-codegen.ts',
+          },
+        }),
+      );
 
-      expect(generatedSourceStore.getFamily(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(derived.familyByFile.get(configRelativePath)).toBeUndefined();
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
@@ -317,7 +354,7 @@ export default config;
         configPath,
         `const config = {
   generates: {
-    '../src/generated/sdk.ts': {
+    './src/generated/sdk.ts': {
       plugins: ['typescript'],
     },
   },
@@ -356,7 +393,7 @@ export default config;
         configPath,
         `const config = {
   generates: {
-    '../src/generated/sdk.ts': {
+    './src/generated/sdk.ts': {
       plugins: ['typescript'],
     },
   },
@@ -450,7 +487,7 @@ export = config;
         configPath,
         `const config = {
   generates: {
-    '../src/generated/sdk.ts': {
+    './src/generated/sdk.ts': {
       plugins: ['typescript'],
     },
   },
@@ -557,7 +594,7 @@ export default config;
         configPath,
         `const config = {
   generates: {
-    '../src/generated/sdk.ts': {
+    './src/generated/sdk.ts': {
       plugins: ['typescript'],
     },
   },

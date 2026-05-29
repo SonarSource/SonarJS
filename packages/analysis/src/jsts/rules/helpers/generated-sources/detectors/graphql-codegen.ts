@@ -18,10 +18,7 @@ import { readFile } from 'node:fs/promises';
 import { extname } from 'node:path/posix';
 import ts from 'typescript';
 import yaml from 'yaml';
-import {
-  dirnamePath,
-  type NormalizedAbsolutePath,
-} from '../../../../../../../shared/src/helpers/files.js';
+import { type NormalizedAbsolutePath } from '../../../../../../../shared/src/helpers/files.js';
 import { type GeneratedSourceDetector, GRAPHQL_CODEGEN_FAMILY } from '../contracts.js';
 import {
   hasToolEvidence,
@@ -122,8 +119,6 @@ async function resolveGraphqlOutputs(
   sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
 ): Promise<ResolvedGeneratedOutputs> {
   const generateTargets = await parseGraphqlGenerates(configPath);
-  const configDir = dirnamePath(configPath);
-  const candidateDirs = uniqueCandidateDirs([configDir, packageDir, baseDir]);
   const resolvedOutputs: ResolvedGeneratedOutputs = {
     filePaths: new Set(),
     outputDirectories: new Set(),
@@ -137,7 +132,7 @@ async function resolveGraphqlOutputs(
       resolvedOutputs,
       await resolveGraphqlGenerateTargetOutputs(
         baseDir,
-        candidateDirs,
+        packageDir,
         generateTarget,
         sourceFileMatcher,
       ),
@@ -145,10 +140,6 @@ async function resolveGraphqlOutputs(
   }
 
   return resolvedOutputs;
-}
-
-function uniqueCandidateDirs(paths: readonly NormalizedAbsolutePath[]) {
-  return [...new Set(paths)];
 }
 
 async function parseGraphqlGenerates(configPath: NormalizedAbsolutePath) {
@@ -287,14 +278,14 @@ function extractGenerateConfigFromSource(expression: ts.Expression, sourceFile: 
 
 async function resolveGraphqlGenerateTargetOutputs(
   baseDir: NormalizedAbsolutePath,
-  candidateDirs: readonly NormalizedAbsolutePath[],
+  packageDir: NormalizedAbsolutePath,
   generateTarget: GraphqlGenerateTarget,
   sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
 ) {
   if (!isGraphqlDirectoryOutput(generateTarget.outputPath)) {
     return resolveGeneratedOutputsFromLiteralPaths(
       baseDir,
-      candidateDirs,
+      packageDir,
       [generateTarget.outputPath],
       true,
       createGraphqlOutputFileMatcher(generateTarget, sourceFileMatcher),
@@ -304,7 +295,7 @@ async function resolveGraphqlGenerateTargetOutputs(
   if (isNearOperationFilePreset(generateTarget.preset)) {
     return resolveGeneratedOutputsFromLiteralPaths(
       baseDir,
-      candidateDirs,
+      packageDir,
       [generateTarget.outputPath],
       true,
       createNearOperationFileMatcher(generateTarget, sourceFileMatcher),
@@ -314,14 +305,14 @@ async function resolveGraphqlGenerateTargetOutputs(
   if (isGeneratedOnlyGraphqlDirectory(generateTarget.outputPath)) {
     return resolveGeneratedOutputsFromLiteralPaths(
       baseDir,
-      candidateDirs,
+      packageDir,
       [generateTarget.outputPath],
       true,
       sourceFileMatcher,
     );
   }
 
-  return watchOnlyGraphqlDirectoryOutput(baseDir, candidateDirs, generateTarget.outputPath);
+  return watchOnlyGraphqlDirectoryOutput(baseDir, packageDir, generateTarget.outputPath);
 }
 
 function isGraphqlDirectoryOutput(outputPath: string) {
@@ -364,7 +355,7 @@ function createNearOperationFileMatcher(
 
 async function watchOnlyGraphqlDirectoryOutput(
   baseDir: NormalizedAbsolutePath,
-  candidateDirs: readonly NormalizedAbsolutePath[],
+  packageDir: NormalizedAbsolutePath,
   outputPath: string,
 ): Promise<ResolvedGeneratedOutputs> {
   const resolvedOutputs: ResolvedGeneratedOutputs = {
@@ -372,29 +363,16 @@ async function watchOnlyGraphqlDirectoryOutput(
     outputDirectories: new Set(),
     watchedOutputPaths: new Set(),
   };
-  const seenResolvedPaths = new Set<NormalizedAbsolutePath>();
+  const resolvedPath = resolveLiteralPath(outputPath, packageDir, baseDir);
+  if (!resolvedPath) {
+    return resolvedOutputs;
+  }
 
-  for (const declaredFromDir of candidateDirs) {
-    const resolvedPath = resolveLiteralPath(outputPath, declaredFromDir, baseDir);
-    if (!resolvedPath || seenResolvedPaths.has(resolvedPath)) {
-      continue;
-    }
-    seenResolvedPaths.add(resolvedPath);
-    resolvedOutputs.watchedOutputPaths.add(resolvedPath);
+  resolvedOutputs.watchedOutputPaths.add(resolvedPath);
 
-    const stats = await safeStat(resolvedPath);
-    if (!stats) {
-      continue;
-    }
-
-    if (stats.isDirectory()) {
-      resolvedOutputs.outputDirectories.add(resolvedPath);
-      break;
-    }
-
-    if (stats.isFile()) {
-      break;
-    }
+  const stats = await safeStat(resolvedPath);
+  if (stats?.isDirectory()) {
+    resolvedOutputs.outputDirectories.add(resolvedPath);
   }
 
   return resolvedOutputs;
