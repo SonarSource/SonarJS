@@ -79,7 +79,12 @@ export const graphqlCodegenDetector = {
     const derived = createDerivedGeneratedSources();
     for (const configPath of [...configPaths].sort((left, right) => left.localeCompare(right))) {
       derived.configPaths.add(configPath);
-      const resolvedOutputs = await resolveGraphqlOutputs(baseDir, configPath, sourceFileMatcher);
+      const resolvedOutputs = await resolveGraphqlOutputs(
+        baseDir,
+        packageDir,
+        configPath,
+        sourceFileMatcher,
+      );
       addFamilyFiles(GRAPHQL_CODEGEN_FAMILY, resolvedOutputs.filePaths, derived);
       for (const watchedOutputPath of resolvedOutputs.watchedOutputPaths) {
         derived.watchedOutputPaths.add(watchedOutputPath);
@@ -92,17 +97,23 @@ export const graphqlCodegenDetector = {
 
 async function resolveGraphqlOutputs(
   baseDir: NormalizedAbsolutePath,
+  packageDir: NormalizedAbsolutePath,
   configPath: NormalizedAbsolutePath,
   sourceFileMatcher?: (filePath: NormalizedAbsolutePath) => boolean,
 ): Promise<ResolvedGeneratedOutputs> {
   const outputPaths = await parseGraphqlGenerates(configPath);
+  const configDir = dirnamePath(configPath);
   return resolveGeneratedOutputsFromLiteralPaths(
     baseDir,
-    dirnamePath(configPath),
+    uniqueCandidateDirs([configDir, packageDir, baseDir]),
     outputPaths,
     true,
     sourceFileMatcher,
   );
+}
+
+function uniqueCandidateDirs(paths: readonly NormalizedAbsolutePath[]) {
+  return [...new Set(paths)];
 }
 
 async function parseGraphqlGenerates(configPath: NormalizedAbsolutePath) {

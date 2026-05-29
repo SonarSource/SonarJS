@@ -218,6 +218,49 @@ describe('generated sources project metadata', () => {
     }
   });
 
+  it('derives package-local GraphQL outputs declared relative to the workspace root', async () => {
+    const baseDir = await createTempBaseDir();
+    const packageDir = joinPaths(baseDir, 'libs', 'shared', 'cms');
+    const outputPath = joinPaths(packageDir, 'src', '__generated__', 'graphql.ts');
+
+    try {
+      await writeFixtureFile(
+        join(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            private: true,
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '5.0.0',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(join(packageDir, 'package.json'), JSON.stringify({ name: 'cms' }));
+      await writeFixtureFile(
+        join(packageDir, 'codegen.config.ts'),
+        `const config = {
+  generates: {
+    'libs/shared/cms/src/__generated__/': {
+      preset: 'client',
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const generated = true;\n');
+
+      await initFileStores(createConfiguration({ baseDir }));
+
+      expect(generatedSourceStore.getFamily(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('derives GraphQL outputs from an explicit config flag using equals syntax', async () => {
     const baseDir = await createTempBaseDir();
     const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');

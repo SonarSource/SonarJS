@@ -147,7 +147,7 @@ export async function deriveSourcesFromOutputDirectories(
 
 export async function resolveGeneratedOutputsFromLiteralPaths(
   baseDir: NormalizedAbsolutePath,
-  declaredFromDir: NormalizedAbsolutePath,
+  declaredFromDirs: NormalizedAbsolutePath | readonly NormalizedAbsolutePath[],
   outputPaths: Iterable<string>,
   recursive: boolean,
   sourceFileMatcher?: GeneratedSourceFileMatcher,
@@ -157,11 +157,26 @@ export async function resolveGeneratedOutputsFromLiteralPaths(
     outputDirectories: new Set<NormalizedAbsolutePath>(),
     watchedOutputPaths: new Set<NormalizedAbsolutePath>(),
   };
+  const candidateDirs = Array.isArray(declaredFromDirs) ? declaredFromDirs : [declaredFromDirs];
 
   for (const outputPath of outputPaths) {
-    const resolvedPath = resolveLiteralPath(outputPath, declaredFromDir, baseDir);
-    if (resolvedPath) {
-      await addResolvedGeneratedOutput(resolvedOutputs, resolvedPath, recursive, sourceFileMatcher);
+    const seenResolvedPaths = new Set<NormalizedAbsolutePath>();
+    for (const declaredFromDir of candidateDirs) {
+      const resolvedPath = resolveLiteralPath(outputPath, declaredFromDir, baseDir);
+      if (!resolvedPath || seenResolvedPaths.has(resolvedPath)) {
+        continue;
+      }
+      seenResolvedPaths.add(resolvedPath);
+      if (
+        await addResolvedGeneratedOutput(
+          resolvedOutputs,
+          resolvedPath,
+          recursive,
+          sourceFileMatcher,
+        )
+      ) {
+        break;
+      }
     }
   }
 
@@ -177,28 +192,31 @@ async function addResolvedGeneratedOutput(
   resolvedOutputs.watchedOutputPaths.add(resolvedPath);
   const stats = await safeStat(resolvedPath);
   if (!stats) {
-    return;
+    return false;
   }
 
   if (stats.isFile()) {
     if (isAcceptedGeneratedFile(resolvedPath, sourceFileMatcher)) {
       resolvedOutputs.filePaths.add(resolvedPath);
+      return true;
     }
-    return;
+    return false;
   }
 
   if (!stats.isDirectory()) {
-    return;
+    return false;
   }
 
   resolvedOutputs.outputDirectories.add(resolvedPath);
-  for (const childFile of await listAcceptedGeneratedFilesInDirectory(
+  const childFiles = await listAcceptedGeneratedFilesInDirectory(
     resolvedPath,
     recursive,
     sourceFileMatcher,
-  )) {
+  );
+  for (const childFile of childFiles) {
     resolvedOutputs.filePaths.add(childFile);
   }
+  return childFiles.length > 0;
 }
 
 function isAcceptedGeneratedFile(
