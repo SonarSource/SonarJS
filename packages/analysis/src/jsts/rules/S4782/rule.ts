@@ -20,7 +20,7 @@ import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { isRequiredParserServices, RequiredParserServices } from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
 import ts from 'typescript';
@@ -74,7 +74,7 @@ export const rule: Rule.RuleModule = {
 
 function getUndefinedTypeAnnotation(
   tsTypeAnnotation: TSESTree.TSTypeAnnotation | undefined,
-  services: any,
+  services: RequiredParserServices,
 ) {
   if (!tsTypeAnnotation) {
     return undefined;
@@ -91,7 +91,7 @@ function getUndefinedTypeAnnotation(
 
 function getUndefinedFromTypeAlias(
   tsTypeAnnotation: TSESTree.TSTypeAnnotation,
-  services: any,
+  services: RequiredParserServices,
 ): TSESTree.TypeNode | undefined {
   const tsTypeNode = services.esTreeNodeToTSNodeMap.get(tsTypeAnnotation.typeAnnotation);
   const checker: ts.TypeChecker = services.program.getTypeChecker();
