@@ -19,11 +19,15 @@ import type { DependenciesList } from '../dependency-manifests/resolvers/types.j
 import type { TaskInvocation } from './task-invocations.js';
 
 export const GRAPHQL_CODEGEN_FAMILY = '@graphql-codegen/cli';
+export const OPENAPI_GENERATOR_FAMILY = '@openapitools/openapi-generator-cli';
+// Keep the family contract open-ended so later detector PRs can add new families
+// without modifying the shared detector/store API.
+export type GeneratedSourceFamily = string;
 
 export type GeneratedSourceFileMatcher = (filePath: NormalizedAbsolutePath) => boolean;
 
 export type DerivedGeneratedSources = {
-  familyByFile: Map<NormalizedAbsolutePath, string>;
+  familyByFile: Map<NormalizedAbsolutePath, GeneratedSourceFamily>;
   configPaths: Set<NormalizedAbsolutePath>;
   watchedOutputPaths: Set<NormalizedAbsolutePath>;
 };
@@ -37,7 +41,7 @@ export type DerivedGeneratedSources = {
  * - reporting any config files and declared output paths it inferred so the store can refresh on change
  */
 export interface GeneratedSourceDetector {
-  readonly family: string;
+  readonly family: GeneratedSourceFamily;
   readonly watchedFilenames?: readonly string[];
   detect(context: {
     baseDir: NormalizedAbsolutePath;

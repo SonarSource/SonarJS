@@ -16,9 +16,11 @@
  */
 import type { GeneratedSourceDetector } from '../contracts.js';
 import { graphqlCodegenDetector } from './graphql-codegen.js';
+import { openApiGeneratorDetector } from './openapi-generator.js';
 
 export const GENERATED_SOURCE_DETECTORS: readonly GeneratedSourceDetector[] = [
   graphqlCodegenDetector,
+  openApiGeneratorDetector,
 ];
 
 export const GENERATED_SOURCE_WATCHED_FILENAMES = [

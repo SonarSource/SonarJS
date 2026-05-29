@@ -33,6 +33,7 @@ import {
 } from '../../../src/jsts/rules/helpers/generated-sources/derive.js';
 import {
   GRAPHQL_CODEGEN_FAMILY,
+  OPENAPI_GENERATOR_FAMILY,
   GENERATED_SOURCE_DETECTORS,
   GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,
   GENERATED_SOURCE_WATCHED_FILENAMES,
@@ -77,9 +78,10 @@ describe('generated sources project metadata', () => {
     sourceFileStore.clearCache();
   });
 
-  it('registers the GraphQL detector through the shared contract', () => {
+  it('registers the GraphQL and OpenAPI detectors through the shared contract', () => {
     expect(GENERATED_SOURCE_DETECTORS.map(detector => detector.family)).toEqual([
       GRAPHQL_CODEGEN_FAMILY,
+      OPENAPI_GENERATOR_FAMILY,
     ]);
     expect(GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS.map(provider => provider.kind)).toEqual([
       'package-json-scripts',
@@ -116,6 +118,7 @@ describe('generated sources project metadata', () => {
         packageJson: {
           scripts: {
             codegen: 'graphql-codegen --config ./codegen.yml && prettier src/generated',
+            openapi: 'npx openapi-generator-cli generate --output ./src/api',
             wrapped: 'npx graphql-codegen --config ./codegen.yml',
             rawYarn: 'yarn graphql-codegen --config ./codegen.yml',
           },
@@ -139,6 +142,13 @@ describe('generated sources project metadata', () => {
         },
         {
           source: 'package-json-script',
+          taskName: 'openapi',
+          commandLine: 'npx openapi-generator-cli generate --output ./src/api',
+          command: 'openapi-generator-cli',
+          args: ['generate', '--output', './src/api'],
+        },
+        {
+          source: 'package-json-script',
           taskName: 'wrapped',
           commandLine: 'npx graphql-codegen --config ./codegen.yml',
           command: 'graphql-codegen',
@@ -157,12 +167,18 @@ describe('generated sources project metadata', () => {
     }
   });
 
-  it('extracts output flag values from separate and equals syntax', () => {
+  it('extracts flag values from separate and equals syntax', () => {
     expect(
       extractFlagValues('graphql-codegen --config ./codegen.yml --config=./other.yml', [
         '--config',
       ]),
     ).toEqual(['./codegen.yml', './other.yml']);
+    expect(
+      extractFlagValues('openapi-generator-cli generate -o ./src/api --output=./src/other', [
+        '-o',
+        '--output',
+      ]),
+    ).toEqual(['./src/api', './src/other']);
   });
 
   it('derives GraphQL outputs from the standard fixture', async () => {
@@ -767,6 +783,96 @@ export default config;
 
       expect(derived.configPaths).toEqual(new Set([configPath]));
       expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives OpenAPI outputs from the standard fixture', async () => {
+    const baseDir = joinPaths(fixtures, 'openapi');
+    await initFileStores(createConfiguration({ baseDir }));
+
+    expect(generatedSourceStore.getFamily(joinPaths(baseDir, 'src', 'api', 'index.ts'))).toEqual(
+      OPENAPI_GENERATOR_FAMILY,
+    );
+    expect(
+      generatedSourceStore.getFamily(joinPaths(baseDir, 'src', 'api', 'models', 'pet.ts')),
+    ).toEqual(OPENAPI_GENERATOR_FAMILY);
+    expect(
+      generatedSourceStore.getFamily(joinPaths(baseDir, 'build', 'api', 'ignored.ts')),
+    ).toEqual(OPENAPI_GENERATOR_FAMILY);
+  });
+
+  it('derives OpenAPI outputs from an output flag using equals syntax', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputPath = joinPaths(baseDir, 'src', 'api', 'index.ts');
+
+    try {
+      await writeFixtureFile(outputPath, 'export const api = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [OPENAPI_GENERATOR_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            generate: 'openapi-generator-cli generate --output=./src/api',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toEqual(OPENAPI_GENERATOR_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives OpenAPI outputs from an npx-wrapped command', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputPath = joinPaths(baseDir, 'src', 'api', 'index.ts');
+
+    try {
+      await writeFixtureFile(outputPath, 'export const api = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [OPENAPI_GENERATOR_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            generate: 'npx openapi-generator-cli generate --output ./src/api',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toEqual(OPENAPI_GENERATOR_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not derive OpenAPI outputs when openapi-generator-cli is only echoed', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputPath = joinPaths(baseDir, 'src', 'api', 'index.ts');
+
+    try {
+      await writeFixtureFile(outputPath, 'export const api = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [OPENAPI_GENERATOR_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            generate: 'echo openapi-generator-cli generate --output=./src/api',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toBeUndefined();
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
