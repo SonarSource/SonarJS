@@ -141,4 +141,55 @@ describe('project analysis telemetry', () => {
       useUnknownInCatchVariables: ['true'],
     });
   });
+
+  it('should expose generated-source telemetry summaries', () => {
+    const collector = new ProjectAnalysisTelemetryCollector();
+    collector.recordGeneratedSources({
+      familyCount: 2,
+      resolvedFileCount: 9,
+      taggedFileCount: 5,
+      outOfScopeFileCount: 2,
+      excludedFileCount: 2,
+      families: [
+        {
+          family: '@graphql-codegen/cli',
+          resolvedFileCount: 4,
+          taggedFileCount: 2,
+          outOfScopeFileCount: 1,
+          excludedFileCount: 1,
+        },
+        {
+          family: 'proto-loader-gen-types',
+          resolvedFileCount: 5,
+          taggedFileCount: 3,
+          outOfScopeFileCount: 1,
+          excludedFileCount: 1,
+        },
+      ],
+    });
+
+    expect(collector.getTelemetry().generatedSources).toEqual({
+      familyCount: 2,
+      resolvedFileCount: 9,
+      taggedFileCount: 5,
+      outOfScopeFileCount: 2,
+      excludedFileCount: 2,
+      families: [
+        {
+          family: '@graphql-codegen/cli',
+          resolvedFileCount: 4,
+          taggedFileCount: 2,
+          outOfScopeFileCount: 1,
+          excludedFileCount: 1,
+        },
+        {
+          family: 'proto-loader-gen-types',
+          resolvedFileCount: 5,
+          taggedFileCount: 3,
+          outOfScopeFileCount: 1,
+          excludedFileCount: 1,
+        },
+      ],
+    });
+  });
 });
