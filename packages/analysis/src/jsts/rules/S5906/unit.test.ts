@@ -107,6 +107,49 @@ describe('S5906', () => {
         },
         {
           code: `
+            import { assert } from 'chai';
+
+            assert.strictEqual(value);
+            assert.strictEqual(value, expected, message, extra);
+            assert.equal(value, true);
+            assert.strictEqual(value, maybe);
+            assert.notStrictEqual(items.length, 2);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+
+            expect(value).to.not.equal();
+            expect(value).to.match(/ok/);
+            expect(value).to.equal(maybe);
+            expect(items.includes('admin')).to.equal(true);
+          `,
+        },
+        {
+          code: `
+            import 'cypress';
+
+            cy.get('button').should('equal', null);
+            cy.wrap(value).should(option, null);
+            cy.wrap(value).should('equal');
+            cy.wrap(value).should('contain', null);
+            cy.wrap(...values).should('be.false');
+          `,
+        },
+        {
+          code: `
+            import { expect, test } from '@playwright/test';
+
+            test('checks non-locator values', async ({ page }) => {
+              expect(await page.title()).toBe('Home');
+              expect(await page.locator('input').inputValue('name')).toEqual('Ada');
+              expect(await page.locator('input').textContent()).toEqual('Ada');
+            });
+          `,
+        },
+        {
+          code: `
             expect(error).toBe(null);
           `,
         },
@@ -223,6 +266,9 @@ describe('S5906', () => {
 
             expect(total <= 0).toBe(false);
             expect(user instanceof User).not.toBe(true);
+            expect(total >= 0).toBe(false);
+            expect(total < limit).toBe(false);
+            expect(total <= limit).toBe(true);
           `,
           errors: [
             expectedError(`
@@ -230,12 +276,45 @@ describe('S5906', () => {
 
             expect(total).toBeGreaterThan(0);
             expect(user instanceof User).not.toBe(true);
+            expect(total >= 0).toBe(false);
+            expect(total < limit).toBe(false);
+            expect(total <= limit).toBe(true);
           `),
             expectedError(`
             import { expect } from 'vitest';
 
             expect(total <= 0).toBe(false);
             expect(user).not.toBeInstanceOf(User);
+            expect(total >= 0).toBe(false);
+            expect(total < limit).toBe(false);
+            expect(total <= limit).toBe(true);
+          `),
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(total <= 0).toBe(false);
+            expect(user instanceof User).not.toBe(true);
+            expect(total).toBeLessThan(0);
+            expect(total < limit).toBe(false);
+            expect(total <= limit).toBe(true);
+          `),
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(total <= 0).toBe(false);
+            expect(user instanceof User).not.toBe(true);
+            expect(total >= 0).toBe(false);
+            expect(total).toBeGreaterThanOrEqual(limit);
+            expect(total <= limit).toBe(true);
+          `),
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(total <= 0).toBe(false);
+            expect(user instanceof User).not.toBe(true);
+            expect(total >= 0).toBe(false);
+            expect(total < limit).toBe(false);
+            expect(total).toBeLessThanOrEqual(limit);
           `),
           ],
         },
@@ -289,6 +368,7 @@ describe('S5906', () => {
 
             expect(total <= 0).to.equal(false);
             expect(text.includes('admin')).to.not.equal(true);
+            expect(result, 'value type').to.equal(undefined);
           `,
           errors: [
             expectedError(`
@@ -296,12 +376,21 @@ describe('S5906', () => {
 
             expect(total).to.be.above(0);
             expect(text.includes('admin')).to.not.equal(true);
+            expect(result, 'value type').to.equal(undefined);
           `),
             expectedError(`
             import { expect } from 'chai';
 
             expect(total <= 0).to.equal(false);
             expect(text).to.not.include('admin');
+            expect(result, 'value type').to.equal(undefined);
+          `),
+            expectedError(`
+            import { expect } from 'chai';
+
+            expect(total <= 0).to.equal(false);
+            expect(text.includes('admin')).to.not.equal(true);
+            expect(result, 'value type').to.be.undefined;
           `),
           ],
         },
@@ -325,6 +414,9 @@ describe('S5906', () => {
 
             assert.strictEqual(value, undefined);
             assert.notStrictEqual(value, null, 'must be set');
+            assert.strictEqual(user instanceof User, true);
+            assert.strictEqual(messageText.includes('admin'), false, 'role missing');
+            assert.strictEqual(items.length, 2, 'item count');
           `,
           errors: [
             expectedError(`
@@ -332,12 +424,45 @@ describe('S5906', () => {
 
             assert.isUndefined(value);
             assert.notStrictEqual(value, null, 'must be set');
+            assert.strictEqual(user instanceof User, true);
+            assert.strictEqual(messageText.includes('admin'), false, 'role missing');
+            assert.strictEqual(items.length, 2, 'item count');
           `),
             expectedError(`
             import { assert } from 'chai';
 
             assert.strictEqual(value, undefined);
             assert.isNotNull(value, 'must be set');
+            assert.strictEqual(user instanceof User, true);
+            assert.strictEqual(messageText.includes('admin'), false, 'role missing');
+            assert.strictEqual(items.length, 2, 'item count');
+          `),
+            expectedError(`
+            import { assert } from 'chai';
+
+            assert.strictEqual(value, undefined);
+            assert.notStrictEqual(value, null, 'must be set');
+            assert.instanceOf(user, User);
+            assert.strictEqual(messageText.includes('admin'), false, 'role missing');
+            assert.strictEqual(items.length, 2, 'item count');
+          `),
+            expectedError(`
+            import { assert } from 'chai';
+
+            assert.strictEqual(value, undefined);
+            assert.notStrictEqual(value, null, 'must be set');
+            assert.strictEqual(user instanceof User, true);
+            assert.notInclude(messageText, 'admin', 'role missing');
+            assert.strictEqual(items.length, 2, 'item count');
+          `),
+            expectedError(`
+            import { assert } from 'chai';
+
+            assert.strictEqual(value, undefined);
+            assert.notStrictEqual(value, null, 'must be set');
+            assert.strictEqual(user instanceof User, true);
+            assert.strictEqual(messageText.includes('admin'), false, 'role missing');
+            assert.lengthOf(items, 2, 'item count');
           `),
           ],
         },
@@ -347,6 +472,8 @@ describe('S5906', () => {
 
             cy.wrap(value).should('equal', null);
             cy.wrap(value).and('not.equal', undefined);
+            cy.wrap(value).and('deep.equal', null);
+            cy.wrap(value).should('be.false');
           `,
           errors: [
             expectedError(`
@@ -354,12 +481,24 @@ describe('S5906', () => {
 
             cy.wrap(value).should('be.null');
             cy.wrap(value).and('not.equal', undefined);
+            cy.wrap(value).and('deep.equal', null);
+            cy.wrap(value).should('be.false');
           `),
             expectedError(`
             import 'cypress';
 
             cy.wrap(value).should('equal', null);
             cy.wrap(value).and('not.be.undefined');
+            cy.wrap(value).and('deep.equal', null);
+            cy.wrap(value).should('be.false');
+          `),
+            expectedError(`
+            import 'cypress';
+
+            cy.wrap(value).should('equal', null);
+            cy.wrap(value).and('not.equal', undefined);
+            cy.wrap(value).and('be.null');
+            cy.wrap(value).should('be.false');
           `),
           ],
         },
@@ -376,9 +515,13 @@ describe('S5906', () => {
               expect(await rows.count()).toBe(3);
               expect(await input.inputValue()).toEqual('Ada');
               expect(await page.getByTestId('input-name').inputValue()).toEqual('Ada');
+              expect(await banner.isVisible()).not.toBe(true);
+              expect(await input.inputValue()).not.toEqual('Ada');
             });
           `,
           errors: [
+            expectedErrorWithoutSuggestion,
+            expectedErrorWithoutSuggestion,
             expectedErrorWithoutSuggestion,
             expectedErrorWithoutSuggestion,
             expectedErrorWithoutSuggestion,
