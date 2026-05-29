@@ -34,6 +34,7 @@ import {
   type Suggestion,
 } from './assertion-suggestions.js';
 import { getCypressSuggestion } from './cypress-suggestions.js';
+import { getExpectChain } from './expect-chain.js';
 import * as meta from './generated-meta.js';
 import { getPlaywrightLocatorSuggestion } from './playwright-suggestions.js';
 
@@ -363,21 +364,6 @@ function getChaiShouldValueSuggestion(
     );
   }
   return getChaiValueSuggestion(actual, expected, negated, node, sourceCode);
-}
-
-function getExpectChain(node: estree.Node): { actual: estree.Node; negated: boolean } | null {
-  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property, 'not')) {
-    const chain = getExpectChain(node.object);
-    return chain ? { ...chain, negated: !chain.negated } : null;
-  }
-  if (
-    node.type !== 'CallExpression' ||
-    !isIdentifier(node.callee, 'expect') ||
-    node.arguments.length !== 1
-  ) {
-    return null;
-  }
-  return { actual: node.arguments[0], negated: false };
 }
 
 function getChaiExpectChain(

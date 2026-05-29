@@ -17,8 +17,12 @@
 import type estree from 'estree';
 import { isIdentifier, isMethodCall } from './ast.js';
 import type { Assertion } from './assertions.js';
+import {
+  getArgumentAtIndex,
+  getChaiPropertyPredicate,
+  type ChaiPredicate,
+} from './assertions-chai-common.js';
 
-type CypressPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
 type CypressComparison = 'strict' | 'deep';
 
 /**
@@ -108,7 +112,7 @@ function extractCyWrapSubject(node: estree.Node): estree.Node | null {
 
 function parseCypressPredicateString(
   predicate: string,
-): { predicate: CypressPredicate; negated: boolean } | null {
+): { predicate: ChaiPredicate; negated: boolean } | null {
   const parts = predicate.split('.');
   let idx = 0;
 
@@ -123,33 +127,4 @@ function parseCypressPredicateString(
 
   const result = getChaiPropertyPredicate(parts[idx]);
   return result ? { predicate: result.predicate, negated } : null;
-}
-
-function getChaiPropertyPredicate(
-  name: string,
-): { predicate: CypressPredicate; negated: boolean } | null {
-  switch (name) {
-    case 'true':
-    case 'ok':
-      return { predicate: 'truthy', negated: false };
-    case 'false':
-      return { predicate: 'falsy', negated: false };
-    case 'null':
-      return { predicate: 'null', negated: false };
-    case 'undefined':
-      return { predicate: 'undefined', negated: false };
-    case 'exist':
-    case 'exists':
-      return { predicate: 'defined', negated: false };
-    default:
-      return null;
-  }
-}
-
-function getArgumentAtIndex(node: estree.CallExpression, index: number): estree.Node | null {
-  const argument = node.arguments[index];
-  if (!argument || argument.type === 'SpreadElement') {
-    return null;
-  }
-  return argument;
 }

@@ -17,12 +17,13 @@
 
 import type { SourceCode } from 'eslint';
 import type estree from 'estree';
-import { isIdentifier, isMethodCall } from '../helpers/ast.js';
+import { isMethodCall } from '../helpers/ast.js';
 import {
   getBooleanValue,
   isPlaywrightLocatorExpression,
   type Suggestion,
 } from './assertion-suggestions.js';
+import { getExpectChain } from './expect-chain.js';
 
 const PLAYWRIGHT_BOOLEAN_GETTERS = new Map<string, { truthy: string; falsy: string }>([
   ['isVisible', { truthy: 'toBeVisible', falsy: 'toBeHidden' }],
@@ -120,19 +121,4 @@ function getValueGetterSuggestion(
   return {
     assertion: `await expect(${sourceCode.getText(locator)}).${negated ? 'not.' : ''}${matcher}(${sourceCode.getText(expected)})`,
   };
-}
-
-function getExpectChain(node: estree.Node): { actual: estree.Node; negated: boolean } | null {
-  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property, 'not')) {
-    const chain = getExpectChain(node.object);
-    return chain ? { ...chain, negated: !chain.negated } : null;
-  }
-  if (
-    node.type !== 'CallExpression' ||
-    !isIdentifier(node.callee, 'expect') ||
-    node.arguments.length !== 1
-  ) {
-    return null;
-  }
-  return { actual: node.arguments[0], negated: false };
 }

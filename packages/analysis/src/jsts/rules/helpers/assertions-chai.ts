@@ -18,9 +18,9 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { getVariableFromName, isIdentifier, isMethodCall } from './ast.js';
 import type { Assertion } from './assertions.js';
+import { getArgumentAtIndex, getChaiPropertyPredicate } from './assertions-chai-common.js';
 import { getFullyQualifiedName } from './module.js';
 
-type ChaiPredicate = 'truthy' | 'falsy' | 'defined' | 'undefined' | 'null';
 type ChaiComparison = 'strict' | 'deep' | 'loose';
 
 // https://www.chaijs.com/api/assert/
@@ -459,34 +459,4 @@ function getChaiComparison(matcher: string, chainNode: estree.Node): ChaiCompari
     return chain?.properties.includes('deep') ? 'deep' : 'strict';
   }
   return null;
-}
-
-function getChaiPropertyPredicate(
-  name: string,
-): { predicate: ChaiPredicate; negated: boolean } | null {
-  switch (name) {
-    case 'true':
-    case 'ok':
-      return { predicate: 'truthy', negated: false };
-    case 'false':
-      return { predicate: 'falsy', negated: false };
-    case 'null':
-      return { predicate: 'null', negated: false };
-    case 'undefined':
-      return { predicate: 'undefined', negated: false };
-    // chai BDD `.exist` (with `.exists` alias) checks neither null nor undefined
-    case 'exist':
-    case 'exists':
-      return { predicate: 'defined', negated: false };
-    default:
-      return null;
-  }
-}
-
-function getArgumentAtIndex(node: estree.CallExpression, index: number): estree.Node | null {
-  const argument = node.arguments[index];
-  if (!argument || argument.type === 'SpreadElement') {
-    return null;
-  }
-  return argument;
 }
