@@ -99,6 +99,10 @@ const JEST_PREDICATES_MAPPING: Record<string, AssertionPredicate> = {
 type NodeAssertMethod =
   | 'assert'
   | 'ok'
+  | 'looseDeepEqual'
+  | 'looseNotDeepEqual'
+  | 'deepEqual'
+  | 'notDeepEqual'
   | 'strictEqual'
   | 'notStrictEqual'
   | 'deepStrictEqual'
@@ -291,7 +295,12 @@ function getNodeJSComparison(method: NodeAssertMethod): ComparisonAssertion['com
   switch (method) {
     case 'deepStrictEqual':
     case 'notDeepStrictEqual':
+    case 'deepEqual':
+    case 'notDeepEqual':
       return 'deep';
+    case 'looseDeepEqual':
+    case 'looseNotDeepEqual':
+      return 'loose';
     default:
       return 'strict';
   }
@@ -304,18 +313,38 @@ function getNodeJSAssertCall(
   // fully qualified assert method like `assert.strictEqual()`
   const fqnMethod = getNodeJSAssertMethodFromFqn(getFullyQualifiedName(context, node.callee));
   if (fqnMethod) {
-    return { method: fqnMethod, reportNode: node.callee };
+    return { method: normalizeNodeJSAssertMethod(context, fqnMethod), reportNode: node.callee };
   }
 
   // assert method from destructured import like `const { strictEqual } = require('assert');`
   if (isMethodCall(node) && isIdentifier(node.callee.object, 'assert')) {
     const method = getNodeJSAssertMethodFromName(node.callee.property.name);
     if (method) {
-      return { method, reportNode: node.callee.property };
+      return {
+        method: normalizeNodeJSAssertMethod(context, method),
+        reportNode: node.callee.property,
+      };
     }
   }
 
   return null;
+}
+
+function normalizeNodeJSAssertMethod(
+  context: Rule.RuleContext,
+  method: NodeAssertMethod,
+): NodeAssertMethod {
+  if (method === 'deepEqual') {
+    return importsModule(context, ['assert/strict', 'node:assert/strict'])
+      ? method
+      : 'looseDeepEqual';
+  }
+  if (method === 'notDeepEqual') {
+    return importsModule(context, ['assert/strict', 'node:assert/strict'])
+      ? method
+      : 'looseNotDeepEqual';
+  }
+  return method;
 }
 
 function getNodeJSAssertMethodFromFqn(fqn: string | null): NodeAssertMethod | null {
@@ -326,6 +355,12 @@ function getNodeJSAssertMethodFromFqn(fqn: string | null): NodeAssertMethod | nu
     case 'assert.ok':
     case 'assert.strict.ok':
       return 'ok';
+    case 'assert.deepEqual':
+    case 'assert.strict.deepEqual':
+      return 'deepEqual';
+    case 'assert.notDeepEqual':
+    case 'assert.strict.notDeepEqual':
+      return 'notDeepEqual';
     case 'assert.strictEqual':
     case 'assert.strict.strictEqual':
       return 'strictEqual';
@@ -349,6 +384,8 @@ function getNodeJSAssertMethodFromFqn(fqn: string | null): NodeAssertMethod | nu
 function getNodeJSAssertMethodFromName(name: string): NodeAssertMethod | null {
   switch (name) {
     case 'ok':
+    case 'deepEqual':
+    case 'notDeepEqual':
     case 'strictEqual':
     case 'notStrictEqual':
     case 'deepStrictEqual':
