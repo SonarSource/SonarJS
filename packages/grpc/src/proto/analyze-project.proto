@@ -176,6 +176,7 @@ message ProjectAnalysisFileResult {
   repeated CpdToken cpd_tokens = 6;
   bytes ast = 7;
   optional string error = 8;
+  repeated SonarResolveComment sonar_resolve_comments = 9;
 }
 
 message ParsingError {
@@ -254,6 +255,11 @@ message Metrics {
 message CpdToken {
   Location location = 1;
   string image = 2;
+}
+
+message SonarResolveComment {
+  int32 line = 1;
+  string text = 2;
 }
 
 message ProjectAnalysisMeta {

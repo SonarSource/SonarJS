@@ -58,8 +58,10 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.Metrics;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingError;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingErrorCode;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
+import org.sonar.plugins.javascript.analyzeproject.grpc.SonarResolveComment;
 import org.sonar.plugins.javascript.analyzeproject.grpc.TextType;
 import org.sonar.plugins.javascript.api.Language;
+import org.sonarsource.analyzer.commons.SonarResolve;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 
@@ -68,6 +70,7 @@ import org.sonarsource.sonarlint.plugin.api.SonarLintRuntime;
 public class AnalysisProcessor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AnalysisProcessor.class);
+  private static final Version ISSUE_RESOLUTION_API_MIN_VERSION = Version.create(13, 5);
 
   private final NoSonarFilter noSonarFilter;
   private final FileLinesContextFactory fileLinesContextFactory;
@@ -119,6 +122,7 @@ public class AnalysisProcessor {
       // sonar-html plugin.
       saveIssues(context, issues);
     }
+    saveIssueResolutions(context, response.getSonarResolveCommentsList());
 
     return issues;
   }
@@ -376,6 +380,63 @@ public class AnalysisProcessor {
     }
   }
 
+  private void saveIssueResolutions(
+    JsTsContext<?> context,
+    List<SonarResolveComment> sonarResolveComments
+  ) {
+    if (!supportsIssueResolution(context)) {
+      return;
+    }
+
+    for (SonarResolveComment sonarResolveComment : sonarResolveComments) {
+      processSonarResolveComment(context, sonarResolveComment);
+    }
+  }
+
+  private void processSonarResolveComment(
+    JsTsContext<?> context,
+    SonarResolveComment sonarResolveComment
+  ) {
+    String[] commentLines = sonarResolveComment.getText().split("\\R", -1);
+    int index = 0;
+    while (index < commentLines.length) {
+      int directiveLine = sonarResolveComment.getLine() + index;
+      String line = commentLines[index];
+      if (!startsWithDirectiveKeyword(line)) {
+        index++;
+        continue;
+      }
+
+      SonarResolve.StreamingParser parser = new SonarResolve.StreamingParser(directiveLine);
+      SonarResolve.StreamingParser.State state = parser.consumeLine(directiveLine, line);
+      int lastConsumedIndex = index;
+
+      while (
+        state == SonarResolve.StreamingParser.State.INCOMPLETE &&
+        lastConsumedIndex + 1 < commentLines.length
+      ) {
+        lastConsumedIndex++;
+        int lineNumber = sonarResolveComment.getLine() + lastConsumedIndex;
+        state = parser.consumeLine(lineNumber, commentLines[lastConsumedIndex]);
+      }
+
+      if (state == SonarResolve.StreamingParser.State.COMPLETE) {
+        saveIssueResolution(context, parser.result());
+      } else if (state == SonarResolve.StreamingParser.State.INVALID) {
+        logInvalidDirective(directiveLine, parser.errorMessage());
+      } else {
+        var finalState = parser.finish();
+        if (finalState == SonarResolve.StreamingParser.State.COMPLETE) {
+          saveIssueResolution(context, parser.result());
+        } else if (finalState == SonarResolve.StreamingParser.State.INVALID) {
+          logInvalidDirective(directiveLine, parser.errorMessage());
+        }
+      }
+
+      index = lastConsumedIndex + 1;
+    }
+  }
+
   void saveIssue(JsTsContext<?> context, Issue issue) {
     var newIssue = context.getSensorContext().newIssue();
     var location = newIssue.newLocation().on(file);
@@ -445,6 +506,17 @@ public class AnalysisProcessor {
         .runtime()
         .getApiVersion()
         .isGreaterThanOrEqual(Version.create(9, 2))
+    );
+  }
+
+  private static boolean supportsIssueResolution(JsTsContext<?> context) {
+    return (
+      !context.isSonarLint() &&
+      context
+        .getSensorContext()
+        .runtime()
+        .getApiVersion()
+        .isGreaterThanOrEqual(ISSUE_RESOLUTION_API_MIN_VERSION)
     );
   }
 
@@ -518,6 +590,27 @@ public class AnalysisProcessor {
         yield null;
       }
     };
+  }
+
+  private static boolean startsWithDirectiveKeyword(String line) {
+    String trimmed = line.stripLeading();
+    return trimmed.regionMatches(true, 0, SonarResolve.KEYWORD, 0, SonarResolve.KEYWORD.length());
+  }
+
+  private void saveIssueResolution(JsTsContext<?> context, SonarResolve sonarResolve) {
+    context
+      .getSensorContext()
+      .newIssueResolution()
+      .on(file)
+      .at(file.selectLine(sonarResolve.targetLine()))
+      .status(sonarResolve.status())
+      .forRules(sonarResolve.ruleKeys())
+      .comment(sonarResolve.justification())
+      .save();
+  }
+
+  private void logInvalidDirective(int line, String errorMessage) {
+    LOG.warn("{} in file {} at line {}", errorMessage, file.uri(), line);
   }
 
   @Nullable

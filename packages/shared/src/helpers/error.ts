@@ -32,7 +32,7 @@ export function handleError(err: unknown) {
 
 export function normalizeError(err: unknown): ErrorWithMessageAndStack {
   if (typeof err === 'object' && err !== null) {
-    return err as ErrorWithMessageAndStack;
+    return err;
   }
   if (typeof err === 'string') {
     return { message: err };

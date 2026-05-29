@@ -39,7 +39,6 @@ async function initForTest(configOptions: object, rawFiles: object) {
 }
 
 const fixtures = normalizePath(join(import.meta.dirname, 'fixtures-sonarqube'));
-
 const rules: RuleConfig[] = [
   {
     key: 'S1116',
@@ -488,6 +487,52 @@ describe('SonarQube project analysis', () => {
       // CSS issues from <style> block should be merged into the result
       const ruleIds = fileResult.issues.map(i => i.ruleId);
       expect(ruleIds).toContain('no-extra-semicolons');
+    }
+  });
+
+  it('should merge sonar-resolve comments from embedded JS and CSS for HTML files', async () => {
+    const baseDir = join(fixtures, 'html-yaml');
+    const htmlFile = join(baseDir, 'sonar-resolve.html');
+    const cssRules: CssRuleConfig[] = [{ key: 'no-extra-semicolons', configurations: [] }];
+
+    const configuration = await initForTest(
+      { baseDir },
+      {
+        [htmlFile]: {
+          filePath: htmlFile,
+          fileType: 'MAIN',
+          fileContent: [
+            '<html>',
+            '<script>',
+            '// sonar-resolve javascript:S1116 "js reason"',
+            'const x = 1;',
+            '</script>',
+            '<style>',
+            '/* sonar-resolve css:no-extra-semicolons "css reason" */',
+            'a { color: pink; }',
+            '</style>',
+            '</html>',
+          ].join('\n'),
+        },
+      },
+    );
+
+    const result = await analyzeProject({ rules: [], cssRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(htmlFile)];
+    expect(fileResult).toBeDefined();
+    expect('issues' in fileResult!).toBe(true);
+    if ('issues' in fileResult!) {
+      expect(fileResult.sonarResolveComments).toEqual([
+        {
+          line: 3,
+          text: ' sonar-resolve javascript:S1116 "js reason"',
+        },
+        {
+          line: 7,
+          text: 'sonar-resolve css:no-extra-semicolons "css reason"',
+        },
+      ]);
     }
   });
 

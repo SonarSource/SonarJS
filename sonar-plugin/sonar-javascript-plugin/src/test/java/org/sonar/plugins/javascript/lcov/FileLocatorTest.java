@@ -50,7 +50,7 @@ class FileLocatorTest {
   }
 
   @Test
-  void should_match_first_with_many_options() {
+  void should_match_first_with_many_options_and_mark_as_guess() {
     InputFile inputFile1 = new TestInputFileBuilder(
       "module1",
       "src/main/java/org/sonar/test/File.java"
@@ -61,7 +61,23 @@ class FileLocatorTest {
     ).build();
 
     FileLocator locator = new FileLocator(Arrays.asList(inputFile1, inputFile2));
-    assertThat(locator.getInputFile("org/sonar/test/File.java")).isEqualTo(inputFile1);
+    FileLocator.Resolution resolution = locator.resolve("org/sonar/test/File.java");
+    assertThat(resolution.inputFile()).isEqualTo(inputFile1);
+    assertThat(resolution.guessed()).isTrue();
+  }
+
+  @Test
+  void should_prefer_exact_suffix_node_over_deeper_leaf() {
+    InputFile inputFile1 = new TestInputFileBuilder("module1", "lib/src/index.ts").build();
+    InputFile inputFile2 = new TestInputFileBuilder(
+      "module1",
+      "packages/a/lib/src/index.ts"
+    ).build();
+
+    FileLocator locator = new FileLocator(Arrays.asList(inputFile1, inputFile2));
+    FileLocator.Resolution resolution = locator.resolve("lib/src/index.ts");
+    assertThat(resolution.inputFile()).isEqualTo(inputFile1);
+    assertThat(resolution.guessed()).isTrue();
   }
 
   @Test

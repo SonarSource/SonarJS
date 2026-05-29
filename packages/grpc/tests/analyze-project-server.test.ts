@@ -500,6 +500,30 @@ async function withAnalyzeProjectServer(
 }
 
 describe('analyze-project gRPC server', () => {
+  it('should preserve sonar-resolve comments in unary responses', () => {
+    const unaryResponse = createAnalyzeProjectUnaryResponse({
+      files: {
+        [basicFixtureFile]: {
+          issues: [],
+          sonarResolveComments: [
+            {
+              line: 7,
+              text: 'sonar-resolve javascript:S1116 "reason"',
+            },
+          ],
+        },
+      } as unknown as ProjectAnalysisOutput['files'],
+      meta: { warnings: [] },
+    });
+
+    expect(unaryResponse.files?.[basicFixtureFile]?.sonarResolveComments).toEqual([
+      {
+        line: 7,
+        text: 'sonar-resolve javascript:S1116 "reason"',
+      },
+    ]);
+  });
+
   it('should handle unary analyze-project requests', async t => {
     for (const mode of serverModes) {
       await t.test(mode.label, async () => {
