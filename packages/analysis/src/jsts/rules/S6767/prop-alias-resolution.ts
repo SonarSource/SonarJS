@@ -27,6 +27,13 @@ function isObjectPatternBinding(variable: Scope.Variable) {
   );
 }
 
+export function collectReferences(scope: Scope.Scope): Scope.Reference[] {
+  return [
+    ...scope.references.filter(reference => reference.isRead()),
+    ...scope.childScopes.flatMap(collectReferences),
+  ];
+}
+
 export function isWholePropsExpressionOrAlias(
   context: Rule.RuleContext,
   node: estree.Node,

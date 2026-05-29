@@ -19,7 +19,7 @@ import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { getNodeParent } from '../helpers/ancestor.js';
 import { getVariableFromName, isFunctionNode, isIdentifier } from '../helpers/ast.js';
-import { isNamedPropExpressionOrAlias } from './prop-alias-resolution.js';
+import { collectReferences, isNamedPropExpressionOrAlias } from './prop-alias-resolution.js';
 
 /** Composable callee checkers for forwardRef call detection. */
 const forwardRefCalleePatterns: Array<(callee: estree.Expression | estree.Super) => boolean> = [
@@ -68,13 +68,6 @@ export function hasForwardRefCallbackPropUsage(
         node.type === 'Identifier' && getVariableFromName(context, node.name, node) === variable,
     ),
   );
-}
-
-function collectReferences(scope: Scope.Scope): Scope.Reference[] {
-  return [
-    ...scope.references.filter(reference => reference.isRead()),
-    ...scope.childScopes.flatMap(collectReferences),
-  ];
 }
 
 /**

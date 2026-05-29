@@ -26,6 +26,7 @@ import {
 } from '../helpers/react/component-analysis.js';
 import { areSameTypeDeclarations, getTypeFromTreeNode } from '../helpers/type.js';
 import {
+  collectReferences,
   isNamedPropExpressionOrAlias,
   isWholePropsExpressionOrAlias,
 } from './prop-alias-resolution.js';
@@ -157,13 +158,6 @@ function isComponentPropsCallbackUsingProp(
       isComponentPropsUsageReference(context, reference, isTrackedPropsExpression, propName),
     )
   );
-}
-
-function collectReferences(scope: Scope.Scope): Scope.Reference[] {
-  return [
-    ...scope.references.filter(reference => reference.isRead()),
-    ...scope.childScopes.flatMap(collectReferences),
-  ];
 }
 
 /**
