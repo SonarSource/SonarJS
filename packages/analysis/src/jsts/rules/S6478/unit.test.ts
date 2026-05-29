@@ -90,6 +90,20 @@ describe('S6478', () => {
             function Parent() {
               const columns = [
                 {
+                  'Header': () => <CustomHeader />,
+                  'accessor': 'name',
+                },
+              ];
+              useTable({ columns });
+              return <Table columns={columns} />;
+            }
+          `,
+        },
+        {
+          code: `
+            function Parent() {
+              const columns = [
+                {
                   Header: function Header() {
                     return <CustomHeader />;
                   },
@@ -168,6 +182,18 @@ describe('S6478', () => {
             function Parent() {
               const renderers = {
                 Header: () => <div />,
+              };
+              return <Something renderers={renderers} />;
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            function Parent() {
+              const renderers = {
+                [Header]: () => <div />,
+                accessor: 'name',
               };
               return <Something renderers={renderers} />;
             }

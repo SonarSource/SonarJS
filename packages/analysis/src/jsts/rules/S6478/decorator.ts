@@ -131,8 +131,8 @@ function isReactTableColumnHeaderRenderer(node: estree.Node): boolean {
     return false;
   }
 
-  const property = (node as TSESTree.Node).parent as TSESTree.Property | undefined;
-  const columnDefinition = property?.parent as TSESTree.ObjectExpression | undefined;
+  const property = (node as TSESTree.Node).parent;
+  const columnDefinition = property?.parent;
   if (
     property?.type !== 'Property' ||
     columnDefinition?.type !== 'ObjectExpression' ||
