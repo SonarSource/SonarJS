@@ -63,6 +63,8 @@ interface InitializeParams {
   environments?: string[];
   globals?: string[];
   baseDir: NormalizedAbsolutePath;
+  detectGeneratedCode?: boolean;
+  isGeneratedSourceFile?: (filePath: NormalizedAbsolutePath) => boolean;
   bundles?: NormalizedAbsolutePath[];
   rulesWorkdir?: NormalizedAbsolutePath;
   /** Union of jsSuffixes and tsSuffixes; exposed to rules via context.settings.testFileExtensions */
@@ -115,6 +117,8 @@ export class Linter {
   /** The rules working directory (used for architecture, dbd...) */
   private static rulesWorkdir?: NormalizedAbsolutePath;
   private static baseDir: NormalizedAbsolutePath;
+  private static detectGeneratedCode = true;
+  private static isGeneratedSourceFile = (_filePath: NormalizedAbsolutePath) => false;
   /** Union of jsSuffixes and tsSuffixes, surfaced to rules through ESLint settings. */
   private static testFileExtensions: string[] = [];
 
@@ -145,6 +149,8 @@ export class Linter {
     globals = [],
     bundles = [],
     baseDir,
+    detectGeneratedCode = true,
+    isGeneratedSourceFile = _filePath => false,
     rulesWorkdir,
     testFileExtensions = [],
   }: InitializeParams) {
@@ -156,6 +162,8 @@ export class Linter {
     Linter.dependencyIndependentRulesCache.clear();
     Linter.dependencySensitiveRulesCache.clear();
     Linter.baseDir = baseDir;
+    Linter.detectGeneratedCode = detectGeneratedCode;
+    Linter.isGeneratedSourceFile = isGeneratedSourceFile;
     Linter.testFileExtensions = testFileExtensions;
     /**
      * Context bundles define a set of external custom rules (like the architecture rule)
@@ -291,6 +299,7 @@ export class Linter {
       detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
       getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
     }
+    const isGeneratedSource = Linter.isGeneratedSourceFile(normalizedFilePath);
     const manifestDependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
     // Make inline npm: imports visible to both rule activation and to dependency helpers
     // (getReactVersion, getDependenciesSanitizePaths) called from rules during linting.
@@ -304,6 +313,8 @@ export class Linter {
       analysisMode,
       detectedEsYear,
       detectedModuleType,
+      Linter.detectGeneratedCode,
+      isGeneratedSource,
     );
     let baseRules = Linter.dependencyIndependentRulesCache.get(linterConfigKey);
     let dependencySensitiveRules = Linter.dependencySensitiveRulesCache.get(linterConfigKey);
@@ -315,6 +326,8 @@ export class Linter {
       analysisMode,
       detectedEsYear,
       detectedModuleType,
+      detectGeneratedCode: Linter.detectGeneratedCode,
+      isGeneratedSource,
     };
 
     if (baseRules === undefined || dependencySensitiveRules === undefined) {
@@ -446,6 +459,8 @@ function createLinterConfigKey(
   analysisMode: AnalysisMode,
   detectedEsYear?: number,
   detectedModuleType?: ModuleType,
+  detectGeneratedCode?: boolean,
+  isGeneratedSource?: boolean,
 ): string {
   // depending on the path, some rules may be enabled or disabled based on the dependencies found
   const normalizedPath = normalizeToAbsolutePath(filePath);
@@ -454,5 +469,5 @@ function createLinterConfigKey(
     baseDir,
   );
   const linterConfigKey = `${fileType}-${language}-${analysisMode}-${extname(normalizedPath)}-${dependencyManifestDirName}`;
-  return `${linterConfigKey}:${detectedEsYear ?? 'esnext'}:${detectedModuleType ?? 'unknown'}`;
+  return `${linterConfigKey}:${detectedEsYear ?? 'esnext'}:${detectedModuleType ?? 'unknown'}:${detectGeneratedCode === false ? 'generated-off' : 'generated-on'}:${isGeneratedSource === true ? 'generated' : 'regular'}`;
 }

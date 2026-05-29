@@ -27,6 +27,7 @@ export type SonarMeta = {
   eslintId: string;
   scope: 'All' | 'Main' | 'Tests';
   languages: ('ts' | 'js')[];
+  skipOnGeneratedSource?: boolean;
   blacklistedExtensions?: string[];
   schema?: JSONSchema4;
   hasSecondaries?: boolean;
