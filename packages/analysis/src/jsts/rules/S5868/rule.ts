@@ -37,6 +37,14 @@ const MODIFIABLE_REGEXP_FLAGS_TYPES = new Set([
 
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
+    let currentSeams: number[] = [];
+
+    // Seam positions are in pattern space, while regexpp positions include the opening slash.
+    // A pair straddles seam s when charA.start < s + 1 <= charB.start.
+    function spansSeam(charA: RegexppAST.Character, charB: RegexppAST.Character): boolean {
+      return currentSeams.some(s => charA.start <= s && s < charB.start);
+    }
+
     function checkSequence(sequence: RegexppAST.Character[]) {
       // Stop on the first illegal character in the sequence
       for (let index = 0; index < sequence.length; index++) {
@@ -70,7 +78,8 @@ export const rule: Rule.RuleModule = createRegExpRule(
       if (
         index !== 0 &&
         isCombiningCharacter(character.value) &&
-        !isCombiningCharacter(characters[index - 1].value)
+        !isCombiningCharacter(characters[index - 1].value) &&
+        !spansSeam(characters[index - 1], character)
       ) {
         const combinedChar = characters[index - 1].raw + characters[index].raw;
         const message = `Move this Unicode combined character '${combinedChar}' outside of the character class`;
@@ -86,7 +95,11 @@ export const rule: Rule.RuleModule = createRegExpRule(
       characters: RegexppAST.Character[],
     ) {
       let reported = false;
-      if (index !== 0 && isSurrogatePair(characters[index - 1].value, character.value)) {
+      if (
+        index !== 0 &&
+        isSurrogatePair(characters[index - 1].value, character.value) &&
+        !spansSeam(characters[index - 1], character)
+      ) {
         const surrogatePair = characters[index - 1].raw + characters[index].raw;
         const message = `Move this Unicode surrogate pair '${surrogatePair}' outside of the character class or use 'u' flag`;
         const pattern = getPatternFromNode(context.node, context)?.pattern;
@@ -145,7 +158,8 @@ export const rule: Rule.RuleModule = createRegExpRule(
       if (
         index !== 0 &&
         isEmojiModifier(character.value) &&
-        !isEmojiModifier(characters[index - 1].value)
+        !isEmojiModifier(characters[index - 1].value) &&
+        !spansSeam(characters[index - 1], character)
       ) {
         const modifiedEmoji = characters[index - 1].raw + characters[index].raw;
         const message = `Move this Unicode modified Emoji '${modifiedEmoji}' outside of the character class`;
@@ -164,7 +178,8 @@ export const rule: Rule.RuleModule = createRegExpRule(
       if (
         index !== 0 &&
         isRegionalIndicator(character.value) &&
-        isRegionalIndicator(characters[index - 1].value)
+        isRegionalIndicator(characters[index - 1].value) &&
+        !spansSeam(characters[index - 1], character)
       ) {
         const regionalIndicator = characters[index - 1].raw + characters[index].raw;
         const message = `Move this Unicode regional indicator '${regionalIndicator}' outside of the character class`;
@@ -185,7 +200,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
         index !== characters.length - 1 &&
         isZeroWidthJoiner(character.value) &&
         !isZeroWidthJoiner(characters[index - 1].value) &&
-        !isZeroWidthJoiner(characters[index + 1].value)
+        !isZeroWidthJoiner(characters[index + 1].value) &&
+        !spansSeam(characters[index - 1], character) &&
+        !spansSeam(character, characters[index + 1])
       ) {
         // It's practically difficult to determine the full joined character sequence
         // as it may join more than 2 elements that consist of characters or modified Emojis
@@ -225,6 +242,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
 
     return {
       onCharacterClassEnter(ccNode) {
+        currentSeams = getPatternFromNode(context.node, context)?.seams ?? [];
         for (const chars of characters(ccNode.elements)) {
           checkSequence(chars);
         }

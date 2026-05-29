@@ -50,23 +50,23 @@ export function getParsedRegex(
 export function getPatternFromNode(
   node: estree.Node,
   context: Rule.RuleContext,
-): { pattern: string; flags: string } | null {
+): { pattern: string; flags: string; seams: number[] } | null {
   if (isRegExpConstructor(node)) {
     const patternOnly = getPatternFromNode(node.arguments[0], context);
     const flags = getFlags(node, context);
     if (patternOnly && flags !== null) {
       // if we can't extract flags correctly, we skip this
       // to avoid FPs
-      return { pattern: patternOnly.pattern, flags };
+      return { pattern: patternOnly.pattern, flags, seams: patternOnly.seams };
     }
   } else if (isRegexLiteral(node)) {
-    return node.regex;
+    return { ...node.regex, seams: [] };
   } else if (isStringLiteral(node)) {
-    return { pattern: node.value, flags: '' };
+    return { pattern: node.value, flags: '', seams: [] };
   } else if (isStaticTemplateLiteral(node)) {
-    return { pattern: node.quasis[0].value.raw, flags: '' };
+    return { pattern: node.quasis[0].value.raw, flags: '', seams: [] };
   } else if (isSimpleRawString(node)) {
-    return { pattern: getSimpleRawStringValue(node), flags: '' };
+    return { pattern: getSimpleRawStringValue(node), flags: '', seams: [] };
   } else if (isIdentifier(node)) {
     const assignedExpression = getUniqueWriteUsage(context, node.name, node);
     if (
@@ -79,7 +79,12 @@ export function getPatternFromNode(
     const left = getPatternFromNode(node.left, context);
     const right = getPatternFromNode(node.right, context);
     if (left && right) {
-      return { pattern: left.pattern + right.pattern, flags: '' };
+      const splitOffset = left.pattern.length;
+      return {
+        pattern: left.pattern + right.pattern,
+        flags: '',
+        seams: [...left.seams, splitOffset, ...right.seams.map(s => s + splitOffset)],
+      };
     }
   }
 

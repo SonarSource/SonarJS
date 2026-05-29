@@ -413,7 +413,7 @@ describe('S5868', () => {
         },
         {
           code: String.raw`const part1 = '\u00BA', part2 = '\u0300A\u0301', r = new RegExp('[' + part1 + part2 + ']')`,
-          errors: [{ message: combiningClass(String.raw`A\u0301`) }],
+          errors: [{ message: combiningClass('Á') }],
         },
       ],
     });
