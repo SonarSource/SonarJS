@@ -32,6 +32,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.IssueResolution;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.internal.SonarRuntimeImpl;
 import org.sonar.api.issue.NoSonarFilter;
 import org.sonar.api.measures.FileLinesContext;
@@ -398,6 +399,11 @@ class AnalysisProcessorTest {
   }
 
   @Test
+  void should_ignore_suppressed_issues_when_disabled_by_internal_flag() {
+    assertSuppressedIssueBehavior(Version.create(13, 5), false, true);
+  }
+
+  @Test
   void should_warn_and_continue_on_invalid_sonar_resolve_directive() {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
@@ -496,11 +502,27 @@ class AnalysisProcessorTest {
   }
 
   private void assertSuppressedIssueBehavior(Version apiVersion, boolean expectSaved) {
+    assertSuppressedIssueBehavior(apiVersion, expectSaved, false);
+  }
+
+  private void assertSuppressedIssueBehavior(
+    Version apiVersion,
+    boolean expectSaved,
+    boolean disabledByInternalFlag
+  ) {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY)
     );
+    if (disabledByInternalFlag) {
+      sensorContext.setSettings(
+        new MapSettings().setProperty(
+          "sonar.internal.analysis.createIssuesForEslintDisabled",
+          "false"
+        )
+      );
+    }
     var context = new JsTsContext<>(sensorContext);
     var file = createInputFile(sensorContext, "js", "file.js", "const value = 42;;\n");
 

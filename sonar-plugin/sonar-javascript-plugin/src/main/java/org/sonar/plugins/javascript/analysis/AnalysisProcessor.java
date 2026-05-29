@@ -241,7 +241,7 @@ public class AnalysisProcessor {
   }
 
   private void saveSuppressedIssues(JsTsContext<?> context, List<Issue> suppressedIssues) {
-    if (!supportsIssueResolution(context)) {
+    if (!supportsIssueResolution(context) || !context.createIssuesForEslintDisabled()) {
       return;
     }
 
@@ -486,14 +486,12 @@ public class AnalysisProcessor {
       location.at(file.selectLine(issue.getLine()));
     }
 
-    issue
-      .getSecondaryLocationsList()
-      .forEach(secondary -> {
-        NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
-        if (newIssueLocation != null) {
-          newIssue.addLocation(newIssueLocation);
-        }
-      });
+    issue.getSecondaryLocationsList().forEach(secondary -> {
+      NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
+      if (newIssueLocation != null) {
+        newIssue.addLocation(newIssueLocation);
+      }
+    });
 
     if (issue.hasCost()) {
       newIssue.gap(issue.getCost());
@@ -556,9 +554,9 @@ public class AnalysisProcessor {
   private static boolean isQuickFixCompatible(JsTsContext<?> context) {
     return (
       context.isSonarLint() &&
-      (
-        (SonarLintRuntime) context.getSensorContext().runtime()
-      ).getSonarLintPluginApiVersion().isGreaterThanOrEqual(Version.create(6, 3))
+      ((SonarLintRuntime) context.getSensorContext().runtime())
+        .getSonarLintPluginApiVersion()
+        .isGreaterThanOrEqual(Version.create(6, 3))
     );
   }
 
