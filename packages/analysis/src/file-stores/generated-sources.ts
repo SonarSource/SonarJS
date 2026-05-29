@@ -22,10 +22,7 @@ import type { AnalyzableFiles } from '../projectAnalysis.js';
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { getAnalyzableFilesConfigKey } from '../common/configuration.js';
 import { dependencyManifestStore } from './dependency-manifests.js';
-import {
-  GENERATED_SOURCE_WATCHED_FILENAMES,
-  type GeneratedSourceFamily,
-} from '../jsts/rules/helpers/generated-sources/index.js';
+import { GENERATED_SOURCE_WATCHED_FILENAMES } from '../jsts/rules/helpers/generated-sources/index.js';
 import { isPreloadableDependencyManifestPath } from '../jsts/rules/helpers/dependency-manifests/index.js';
 import { deriveGeneratedSources } from '../jsts/rules/helpers/generated-sources/derive.js';
 
@@ -40,8 +37,8 @@ class GeneratedSourceStore implements FileStore {
   private analyzableFilesConfigKey: string | undefined = undefined;
   private activeRequestFilesKey: RequestFilesKey = undefined;
   private requestFilesKey: RequestFilesKey = undefined;
-  private derivedFamilyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
-  private familyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
+  private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
+  private familyByFile = new Map<NormalizedAbsolutePath, string>();
   private resolvedFiles = new Set<NormalizedAbsolutePath>();
   private configPaths = new Set<NormalizedAbsolutePath>();
   private watchedOutputPaths = new Set<NormalizedAbsolutePath>();
@@ -66,7 +63,7 @@ class GeneratedSourceStore implements FileStore {
     return true;
   }
 
-  getFamily(filePath: NormalizedAbsolutePath): GeneratedSourceFamily | undefined {
+  getFamily(filePath: NormalizedAbsolutePath): string | undefined {
     return this.familyByFile.get(filePath);
   }
 
@@ -190,14 +187,14 @@ class GeneratedSourceStore implements FileStore {
 }
 
 function filterAnalyzableGeneratedFiles(
-  familyByFile: ReadonlyMap<NormalizedAbsolutePath, GeneratedSourceFamily>,
+  familyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   analyzableFiles: AnalyzableFiles | undefined,
 ) {
   if (!analyzableFiles) {
     return new Map(familyByFile);
   }
 
-  const filtered = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
+  const filtered = new Map<NormalizedAbsolutePath, string>();
   for (const [filePath, family] of familyByFile) {
     if (Object.hasOwn(analyzableFiles, filePath)) {
       filtered.set(filePath, family);
@@ -214,7 +211,7 @@ function getRequestFilesKey(
     return canAccessFileSystem ? ALL_FILES_REQUEST_KEY : undefined;
   }
 
-  const filePaths = Object.keys(analyzableFiles).sort();
+  const filePaths = Object.keys(analyzableFiles).sort((left, right) => left.localeCompare(right));
   const hash = createHash('sha256');
   for (const filePath of filePaths) {
     hash.update(filePath);

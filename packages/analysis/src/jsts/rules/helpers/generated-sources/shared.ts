@@ -21,11 +21,7 @@ import {
 } from '../../../../../../shared/src/helpers/files.js';
 import { isJsTsCodeFileByExtension } from '../../../../common/file-kinds.js';
 import { relativeToAncestorPath } from '../files.js';
-import type {
-  DerivedGeneratedSources,
-  GeneratedSourceFamily,
-  GeneratedSourceFileMatcher,
-} from './contracts.js';
+import type { DerivedGeneratedSources, GeneratedSourceFileMatcher } from './contracts.js';
 
 const OBVIOUS_BUILD_OR_CACHE_SEGMENTS = new Set([
   'node_modules',
@@ -40,7 +36,7 @@ const defaultGeneratedSourceFileMatcher: GeneratedSourceFileMatcher = filePath =
 
 export function createDerivedGeneratedSources(): DerivedGeneratedSources {
   return {
-    familyByFile: new Map<NormalizedAbsolutePath, GeneratedSourceFamily>(),
+    familyByFile: new Map<NormalizedAbsolutePath, string>(),
     configPaths: new Set<NormalizedAbsolutePath>(),
     watchedOutputPaths: new Set<NormalizedAbsolutePath>(),
   };
@@ -66,7 +62,7 @@ export function mergeDerivedGeneratedSources(
 }
 
 export function addFamilyFiles(
-  family: GeneratedSourceFamily,
+  family: string,
   filePaths: Iterable<NormalizedAbsolutePath>,
   target: DerivedGeneratedSources,
 ) {
@@ -379,7 +375,7 @@ function isEnvironmentAssignment(token: string) {
     return false;
   }
 
-  return /^[A-Za-z_][A-Za-z0-9_]*$/.test(token.slice(0, equalsIndex));
+  return /^[A-Za-z_]\w*$/.test(token.slice(0, equalsIndex));
 }
 
 function isWhitespace(char: string) {

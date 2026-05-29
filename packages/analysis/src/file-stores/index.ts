@@ -30,7 +30,8 @@ import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const tsConfigStore = new TsConfigStore();
-export { dependencyManifestStore, generatedSourceStore };
+export { dependencyManifestStore } from './dependency-manifests.js';
+export { generatedSourceStore } from './generated-sources.js';
 
 export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
