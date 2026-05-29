@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.issue.IssueResolution;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.sensor.symbol.NewSymbol;
@@ -112,6 +113,7 @@ public class AnalysisProcessor {
       // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
       saveMetrics(context, response.getMetrics());
       saveIssues(context, issues);
+      saveSuppressedIssues(context, response.getSuppressedIssuesList());
       saveHighlights(context, response.getHighlightsList());
       saveHighlightedSymbols(context, response.getHighlightedSymbolsList());
       saveCpd(context, response.getCpdTokensList());
@@ -121,6 +123,7 @@ public class AnalysisProcessor {
       // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
       // sonar-html plugin.
       saveIssues(context, issues);
+      saveSuppressedIssues(context, response.getSuppressedIssuesList());
     }
     saveIssueResolutions(context, response.getSonarResolveCommentsList());
 
@@ -232,6 +235,33 @@ public class AnalysisProcessor {
         saveIssue(context, issue);
       } catch (RuntimeException e) {
         LOG.warn("Failed to save issue in {} at line {}", file.uri(), issue.getLine());
+        LOG.warn("Exception cause", e);
+      }
+    }
+  }
+
+  private void saveSuppressedIssues(JsTsContext<?> context, List<Issue> suppressedIssues) {
+    if (!supportsIssueResolution(context)) {
+      return;
+    }
+
+    for (Issue issue : suppressedIssues) {
+      LOG.debug(
+        "Saving suppressed issue for rule {} on file {} at line {}",
+        issue.getRuleId(),
+        file,
+        issue.getLine()
+      );
+      var ruleKey = findRuleKey(issue);
+      if (ruleKey == null) {
+        continue;
+      }
+      try {
+        saveIssue(context, issue, ruleKey);
+        // Issue resolutions only persist the accepted state; the issue still has to be saved first.
+        saveAcceptedIssueResolution(context, issue, ruleKey);
+      } catch (RuntimeException e) {
+        LOG.warn("Failed to save suppressed issue in {} at line {}", file.uri(), issue.getLine());
         LOG.warn("Exception cause", e);
       }
     }
@@ -438,6 +468,10 @@ public class AnalysisProcessor {
   }
 
   void saveIssue(JsTsContext<?> context, Issue issue) {
+    saveIssue(context, issue, findRuleKey(issue));
+  }
+
+  private void saveIssue(JsTsContext<?> context, Issue issue, @Nullable RuleKey ruleKey) {
     var newIssue = context.getSensorContext().newIssue();
     var location = newIssue.newLocation().on(file);
     if (!issue.getMessage().isEmpty()) {
@@ -474,7 +508,6 @@ public class AnalysisProcessor {
       }
     }
 
-    var ruleKey = findRuleKey(issue);
     if (ruleKey != null) {
       newIssue.at(location).forRule(ruleKey).save();
     } else if (CssRules.CSS_PARSING_ERROR_STYLELINT_KEY.equals(issue.getRuleId())) {
@@ -611,6 +644,18 @@ public class AnalysisProcessor {
 
   private void logInvalidDirective(int line, String errorMessage) {
     LOG.warn("{} in file {} at line {}", errorMessage, file.uri(), line);
+  }
+
+  private void saveAcceptedIssueResolution(JsTsContext<?> context, Issue issue, RuleKey ruleKey) {
+    context
+      .getSensorContext()
+      .newIssueResolution()
+      .on(file)
+      .at(file.selectLine(issue.getLine()))
+      .status(IssueResolution.Status.DEFAULT)
+      .forRules(List.of(ruleKey))
+      .comment(issue.getResolutionComment())
+      .save();
   }
 
   @Nullable

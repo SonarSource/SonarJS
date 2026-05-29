@@ -177,6 +177,7 @@ message ProjectAnalysisFileResult {
   bytes ast = 7;
   optional string error = 8;
   repeated SonarResolveComment sonar_resolve_comments = 9;
+  repeated Issue suppressed_issues = 10;
 }
 
 message ParsingError {
@@ -201,6 +202,7 @@ message Issue {
   repeated QuickFix quick_fixes = 10;
   repeated string rule_eslint_keys = 11;
   string file_path = 12;
+  optional string resolution_comment = 13;
 }
 
 message QuickFix {

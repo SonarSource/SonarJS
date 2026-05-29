@@ -19,6 +19,7 @@ import {
   type ProjectAnalysisOutput,
   entriesOfFileResults,
 } from '../../../analysis/src/projectAnalysis.js';
+import type { SuppressedIssue } from '../../../analysis/src/contracts/analysis.js';
 import type { ParsingErrorLanguage } from '../../../analysis/src/contracts/project-analysis.js';
 import { reverseCssRuleKeyMap } from '../../../analysis/src/css/rules/metadata.js';
 import type { JsTsIssue } from '../../../analysis/src/jsts/linter/issues/issue.js';
@@ -128,6 +129,13 @@ function transformIssue(issue: JsTsIssue): analyzer.IIssue {
   };
 }
 
+function transformSuppressedIssue(issue: SuppressedIssue<JsTsIssue>): analyzer.IIssue {
+  return {
+    ...transformIssue(issue),
+    resolutionComment: issue.resolutionComment,
+  };
+}
+
 /**
  * Transform a single CSS issue from the internal format to the gRPC Issue format.
  *
@@ -147,6 +155,16 @@ function transformCssIssue(issue: CssIssue, filePath: string): analyzer.IIssue {
     rule: { repo: 'css', rule: sqKey },
     textRange: toTextRange(issue.line, issue.column, issue.endLine, issue.endColumn),
     flows: [],
+  };
+}
+
+function transformSuppressedCssIssue(
+  issue: SuppressedIssue<CssIssue>,
+  filePath: string,
+): analyzer.IIssue {
+  return {
+    ...transformCssIssue(issue, filePath),
+    resolutionComment: issue.resolutionComment,
   };
 }
 
@@ -216,6 +234,7 @@ export function transformProjectOutputToResponse(
   pathMap: Map<string, string> = new Map(),
 ): analyzer.IAnalyzeResponse {
   const issues: analyzer.IIssue[] = [];
+  const suppressedIssues: analyzer.IIssue[] = [];
   const analysisProblems: analyzer.IAnalysisProblem[] = [];
   const measures: analyzer.IFileMeasures[] = [];
 
@@ -253,6 +272,22 @@ export function transformProjectOutputToResponse(
             break;
         }
       }
+      for (const suppressedIssue of fileResult.suppressedIssues ?? []) {
+        switch (suppressedIssue.language) {
+          case 'css':
+            suppressedIssues.push(transformSuppressedCssIssue(suppressedIssue, originalPath));
+            break;
+          case 'js':
+          case 'ts':
+            suppressedIssues.push(
+              transformSuppressedIssue({
+                ...suppressedIssue,
+                filePath: originalPath as NormalizedAbsolutePath,
+              }),
+            );
+            break;
+        }
+      }
       const ncloc = 'metrics' in fileResult ? fileResult.metrics?.ncloc : undefined;
       if (ncloc !== undefined) {
         measures.push({
@@ -285,6 +320,7 @@ export function transformProjectOutputToResponse(
 
   return {
     issues,
+    ...(suppressedIssues.length > 0 ? { suppressedIssues } : {}),
     analysisProblems,
     measures,
   };

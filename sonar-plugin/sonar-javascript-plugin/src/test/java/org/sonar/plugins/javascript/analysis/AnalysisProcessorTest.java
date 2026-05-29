@@ -52,6 +52,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.ParsingErrorCode;
 import org.sonar.plugins.javascript.analyzeproject.grpc.ProjectAnalysisFileResult;
 import org.sonar.plugins.javascript.analyzeproject.grpc.SonarResolveComment;
 import org.sonar.plugins.javascript.analyzeproject.grpc.TextType;
+import org.sonar.plugins.javascript.api.Language;
 
 class AnalysisProcessorTest {
 
@@ -387,6 +388,16 @@ class AnalysisProcessorTest {
   }
 
   @Test
+  void should_save_suppressed_issue_as_accepted_at_supported_runtime() {
+    assertSuppressedIssueBehavior(Version.create(13, 5), true);
+  }
+
+  @Test
+  void should_ignore_suppressed_issues_before_supported_runtime() {
+    assertSuppressedIssueBehavior(Version.create(13, 4), false);
+  }
+
+  @Test
   void should_warn_and_continue_on_invalid_sonar_resolve_directive() {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
@@ -475,6 +486,66 @@ class AnalysisProcessorTest {
       .setMetrics(Metrics.getDefaultInstance())
       .addAllSonarResolveComments(List.of(sonarResolveComments))
       .build();
+  }
+
+  private ProjectAnalysisFileResult responseWithSuppressedIssues(Issue... suppressedIssues) {
+    return ProjectAnalysisFileResult.newBuilder()
+      .setMetrics(Metrics.getDefaultInstance())
+      .addAllSuppressedIssues(List.of(suppressedIssues))
+      .build();
+  }
+
+  private void assertSuppressedIssueBehavior(Version apiVersion, boolean expectSaved) {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY)
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "js", "file.js", "const value = 42;;\n");
+
+    var savedIssues = processor.processResponse(
+      context,
+      createChecks(),
+      file,
+      responseWithSuppressedIssues(
+        Issue.newBuilder()
+          .setLine(1)
+          .setColumn(17)
+          .setEndLine(1)
+          .setEndColumn(18)
+          .setMessage("Unnecessary semicolon.")
+          .setRuleId("S1116")
+          .setLanguage(AnalysisLanguage.ANALYSIS_LANGUAGE_JS)
+          .setFilePath("file.js")
+          .setResolutionComment("accepted")
+          .build()
+      )
+    );
+
+    assertThat(savedIssues).isEmpty();
+    if (expectSaved) {
+      assertThat(sensorContext.allIssues()).hasSize(1);
+      assertThat(issueResolutions(sensorContext, file))
+        .singleElement()
+        .satisfies(issueResolution -> {
+          assertThat(issueResolution.status()).isEqualTo(IssueResolution.Status.DEFAULT);
+          assertThat(issueResolution.ruleKeys()).containsExactly(RuleKey.of("javascript", "S1116"));
+          assertThat(issueResolution.comment()).isEqualTo("accepted");
+          assertThat(issueResolution.textRange().start().line()).isEqualTo(1);
+        });
+    } else {
+      assertThat(sensorContext.allIssues()).isEmpty();
+      assertThat(issueResolutions(sensorContext, file)).isEmpty();
+    }
+  }
+
+  private JsTsChecks createChecks() {
+    var checks = mock(JsTsChecks.class);
+    when(checks.ruleKeyByEslintKey("S1116", Language.of("js"))).thenReturn(
+      RuleKey.of("javascript", "S1116")
+    );
+    return checks;
   }
 
   private List<IssueResolution> issueResolutions(SensorContextTester tester, InputFile inputFile) {

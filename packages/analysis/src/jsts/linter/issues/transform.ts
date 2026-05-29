@@ -16,11 +16,25 @@
  */
 import type { Linter, SourceCode } from 'eslint';
 import { decodeSecondaryLocations } from './decode.js';
-import type { JsTsIssue } from './issue.js';
+import type { JsTsIssue, SuppressedJsTsIssue } from './issue.js';
 import { convertMessage } from './message.js';
 import type { JsTsLanguage } from '../../../common/configuration.js';
 import type { SonarMeta } from '../../rules/helpers/generate-meta.js';
 import type { NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
+
+export const DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT = 'Accepted via ESLint directive';
+
+type TransformContext = {
+  sourceCode: SourceCode;
+  ruleMetas: { [key: string]: SonarMeta };
+  filePath: NormalizedAbsolutePath;
+};
+
+export type SuppressedLintMessage = Linter.LintMessage & {
+  suppressions?: Array<{
+    justification?: string | null;
+  }>;
+};
 
 /**
  * Transforms ESLint messages into SonarQube issues
@@ -44,23 +58,55 @@ import type { NormalizedAbsolutePath } from '../../../../../shared/src/helpers/f
 export function transformMessages(
   messages: Linter.LintMessage[],
   language: JsTsLanguage,
-  ctx: {
-    sourceCode: SourceCode;
-    ruleMetas: { [key: string]: SonarMeta };
-    filePath: NormalizedAbsolutePath;
-  },
+  ctx: TransformContext,
 ): JsTsIssue[] {
-  const issues: JsTsIssue[] = [];
+  return transformLintMessages(messages, language, ctx, issue => issue);
+}
+
+export function transformSuppressedMessages(
+  messages: SuppressedLintMessage[],
+  language: JsTsLanguage,
+  ctx: TransformContext,
+): SuppressedJsTsIssue[] {
+  return transformLintMessages(messages, language, ctx, (issue, message) => ({
+    ...issue,
+    resolutionComment: getResolutionComment(message),
+  }));
+}
+
+function transformLintMessages<TMessage extends Linter.LintMessage, TIssue>(
+  messages: TMessage[],
+  language: JsTsLanguage,
+  ctx: TransformContext,
+  decorateIssue: (issue: JsTsIssue, message: TMessage) => TIssue,
+) {
+  const issues: TIssue[] = [];
 
   for (const message of messages) {
-    let issue = convertMessage(ctx.sourceCode, message, ctx.filePath, language);
+    const issue = transformMessage(message, language, ctx);
     if (issue !== null) {
-      issue = normalizeLocation(decodeSecondaryLocations(ctx.ruleMetas[issue.ruleId], issue));
-      issues.push(issue);
+      issues.push(decorateIssue(issue, message));
     }
   }
 
   return issues;
+}
+
+function transformMessage(
+  message: Linter.LintMessage,
+  language: JsTsLanguage,
+  ctx: TransformContext,
+) {
+  let issue = convertMessage(ctx.sourceCode, message, ctx.filePath, language);
+  if (issue !== null) {
+    issue = normalizeLocation(decodeSecondaryLocations(ctx.ruleMetas[issue.ruleId], issue));
+  }
+  return issue;
+}
+
+function getResolutionComment(message: SuppressedLintMessage) {
+  const justification = message.suppressions?.[0]?.justification?.trim();
+  return justification ? justification : DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT;
 }
 
 /**

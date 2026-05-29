@@ -55,6 +55,10 @@ export interface BaseIssue {
   endColumn?: number;
 }
 
+export type SuppressedIssue<I extends BaseIssue = BaseIssue> = I & {
+  resolutionComment: string;
+};
+
 export interface SonarResolveComment {
   line: number;
   text: string;
@@ -70,6 +74,7 @@ export interface SonarResolveComment {
  */
 export interface AnalysisOutput<I extends BaseIssue = BaseIssue> {
   issues: I[];
+  suppressedIssues?: SuppressedIssue<I>[];
   sonarResolveComments?: SonarResolveComment[];
 }
 

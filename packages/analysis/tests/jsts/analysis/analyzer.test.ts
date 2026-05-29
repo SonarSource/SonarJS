@@ -76,6 +76,40 @@ describe('await analyzeJSTS', () => {
     );
   });
 
+  it('should return ESLint-suppressed issues separately from open issues', async () => {
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(fixtures),
+      rules: [
+        {
+          key: 'S3504',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const result = await analyzeJSTS(
+      await jsTsInput({
+        filePath: path.join(fixtures, 'eslint-suppressed.js'),
+        fileContent: '/* eslint-disable-next-line no-var -- accepted */\nvar value = 42;\n',
+      }),
+    );
+
+    expect(result.issues).toEqual([]);
+    expect(result.suppressedIssues).toEqual([
+      expect.objectContaining({
+        ruleId: 'S3504',
+        line: 2,
+        column: 0,
+        endLine: 2,
+        endColumn: 9,
+        resolutionComment: 'accepted',
+      }),
+    ]);
+  });
+
   it('should analyze Vue.js code', async () => {
     const rules: RuleConfig[] = [
       {

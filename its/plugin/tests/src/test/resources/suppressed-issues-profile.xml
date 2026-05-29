@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profile>
+  <name>suppressed-issues-profile</name>
+  <language>js</language>
+  <rules>
+    <rule>
+      <repositoryKey>javascript</repositoryKey>
+      <key>S3504</key> <!-- no-var -->
+      <priority>INFO</priority>
+    </rule>
+  </rules>
+</profile>
