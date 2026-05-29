@@ -97,7 +97,7 @@ function getBooleanGetterSuggestion(
     return null;
   }
 
-  const method = expectedBoolean !== negated ? matcher.truthy : matcher.falsy;
+  const method = expectedBoolean === negated ? matcher.falsy : matcher.truthy;
   return { assertion: `await expect(${sourceCode.getText(locator)}).${method}()` };
 }
 
