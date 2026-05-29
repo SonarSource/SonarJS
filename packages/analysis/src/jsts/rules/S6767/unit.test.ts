@@ -19,6 +19,27 @@ import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/r
 import { describe, it } from 'node:test';
 
 describe('S6767', () => {
+  it('should not report whole-props aliases in supported forwarding shapes', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          code: `
+function Wrapper(props) {
+  const forwarded = props;
+  return <Child {...forwarded} />;
+}
+Wrapper.propTypes = {
+  onClick: PropTypes.func,
+};
+`,
+        },
+      ],
+      invalid: [],
+    });
+  });
+
   it('should not report props passed wholesale to a helper function', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 

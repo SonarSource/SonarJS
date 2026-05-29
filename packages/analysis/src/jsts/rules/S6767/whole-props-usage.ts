@@ -19,6 +19,7 @@ import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { childrenOf } from '../helpers/ancestor.js';
 import { isIdentifier } from '../helpers/ast.js';
+import { isWholePropsExpressionOrAlias } from './prop-alias-resolution.js';
 
 /**
  * False-positive remediation escape:
@@ -29,19 +30,25 @@ export function hasSupportedWholePropsUsage(
   componentNode: estree.Node,
   context: Rule.RuleContext,
 ): boolean {
-  return hasSupportedWholePropsUsageInSubtree(componentNode, context.sourceCode.visitorKeys);
+  return hasSupportedWholePropsUsageInSubtree(
+    componentNode,
+    context.sourceCode.visitorKeys,
+    argument => isWholePropsExpressionOrAlias(context, argument, isWholePropsArgument),
+  );
 }
 
 function hasSupportedWholePropsUsageInSubtree(
   root: estree.Node,
   keys: SourceCode.VisitorKeys,
+  isPropsArgument: (argument: estree.Node) => boolean,
 ): boolean {
-  if (isSupportedWholePropsUsage(root, isWholePropsArgument)) {
+  if (isSupportedWholePropsUsage(root, isPropsArgument)) {
     return true;
   }
 
-  // Recursively check all children
-  return childrenOf(root, keys).some(child => hasSupportedWholePropsUsageInSubtree(child, keys));
+  return childrenOf(root, keys).some(child =>
+    hasSupportedWholePropsUsageInSubtree(child, keys, isPropsArgument),
+  );
 }
 
 /**
