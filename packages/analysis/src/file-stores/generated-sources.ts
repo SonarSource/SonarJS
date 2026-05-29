@@ -72,13 +72,12 @@ class GeneratedSourceStore implements FileStore {
 
   dirtyCachesIfNeeded(configuration: Configuration) {
     const { baseDir, canAccessFileSystem, fsEvents } = configuration;
-    const analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
     if (baseDir !== this.baseDir || canAccessFileSystem !== this.canAccessFileSystem) {
       this.clearCache();
       return;
     }
 
-    if (analyzableFilesConfigKey !== this.analyzableFilesConfigKey) {
+    if (getAnalyzableFilesConfigKey(configuration) !== this.analyzableFilesConfigKey) {
       this.clearCache();
       return;
     }

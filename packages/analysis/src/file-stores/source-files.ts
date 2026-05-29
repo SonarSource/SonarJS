@@ -74,12 +74,13 @@ export class SourceFileStore implements FileStore {
   }
 
   dirtyCachesIfNeeded(configuration: Configuration) {
-    const analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
-    if (
-      configuration.baseDir !== this.baseDir ||
-      configuration.canAccessFileSystem !== this.canAccessFileSystem ||
-      analyzableFilesConfigKey !== this.analyzableFilesConfigKey
-    ) {
+    const { baseDir, canAccessFileSystem } = configuration;
+    if (baseDir !== this.baseDir || canAccessFileSystem !== this.canAccessFileSystem) {
+      this.clearCache();
+      return;
+    }
+
+    if (getAnalyzableFilesConfigKey(configuration) !== this.analyzableFilesConfigKey) {
       this.clearCache();
     }
   }
