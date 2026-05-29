@@ -854,6 +854,57 @@ export default config;
     }
   });
 
+  it('refreshes generated-source metadata when a declared OpenAPI output file is created later', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputPath = joinPaths(baseDir, 'src', 'api', 'index.ts');
+
+    try {
+      await writeFixtureFile(
+        join(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [OPENAPI_GENERATOR_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              generate:
+                'openapi-generator-cli generate -g typescript-axios --output ./src/api',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+
+      await initFileStores(createConfiguration({ baseDir }));
+      expect(generatedSourceStore.getFamily(outputPath)).toBeUndefined();
+
+      await writeFixtureFile(outputPath, 'export const api = true;\n');
+
+      const configuration = createConfiguration({
+        baseDir,
+        fsEvents: {
+          [outputPath]: 'CREATED',
+        },
+      });
+      const { files: inputFiles } = await sanitizeRawInputFiles(
+        {
+          [outputPath]: {
+            filePath: outputPath,
+            fileType: 'MAIN',
+          },
+        },
+        configuration,
+      );
+
+      await initFileStores(configuration, inputFiles);
+
+      expect(generatedSourceStore.getFamily(outputPath)).toEqual(OPENAPI_GENERATOR_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('does not derive OpenAPI outputs when openapi-generator-cli is only echoed', async () => {
     const baseDir = await createTempBaseDir();
     const outputPath = joinPaths(baseDir, 'src', 'api', 'index.ts');

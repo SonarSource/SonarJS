@@ -15,11 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { type GeneratedSourceDetector, OPENAPI_GENERATOR_FAMILY } from '../contracts.js';
-import { extractFlagValuesFromTokens, createDerivedGeneratedSources } from '../shared.js';
-import {
-  deriveSourcesFromOutputDirectories,
-  resolveOutputDirectoriesFromTaskInvocations,
-} from '../detector-api.js';
+import { addFamilyFiles, createDerivedGeneratedSources, extractFlagValuesFromTokens } from '../shared.js';
+import { resolveGeneratedOutputsFromLiteralPaths } from '../detector-api.js';
 import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
 
 const JS_TS_OPENAPI_GENERATORS = new Set([
@@ -44,19 +41,26 @@ export const openApiGeneratorDetector = {
       return createDerivedGeneratedSources();
     }
 
-    const outputDirectories = await resolveOutputDirectoriesFromTaskInvocations({
+    const outputPaths = taskInvocations.flatMap(taskInvocation => {
+      if (!matchesTaskInvocation(taskInvocation)) {
+        return [];
+      }
+
+      return extractFlagValuesFromTokens(taskInvocation.args, ['-o', '--output']);
+    });
+    const resolvedOutputs = await resolveGeneratedOutputsFromLiteralPaths(
       baseDir,
       packageDir,
-      taskInvocations,
-      matchesTaskInvocation,
-      flags: ['-o', '--output'],
-    });
-    return deriveSourcesFromOutputDirectories(
-      OPENAPI_GENERATOR_FAMILY,
-      outputDirectories,
+      outputPaths,
       false,
       sourceFileMatcher,
     );
+    const derived = createDerivedGeneratedSources();
+    addFamilyFiles(OPENAPI_GENERATOR_FAMILY, resolvedOutputs.filePaths, derived);
+    for (const watchedOutputPath of resolvedOutputs.watchedOutputPaths) {
+      derived.watchedOutputPaths.add(watchedOutputPath);
+    }
+    return derived;
   },
 } satisfies GeneratedSourceDetector;
 
