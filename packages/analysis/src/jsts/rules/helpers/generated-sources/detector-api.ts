@@ -39,6 +39,7 @@ import type { TaskInvocation } from './task-invocations.js';
 export type ResolvedGeneratedOutputs = {
   filePaths: Set<NormalizedAbsolutePath>;
   outputDirectories: Set<NormalizedAbsolutePath>;
+  watchedOutputPaths: Set<NormalizedAbsolutePath>;
 };
 
 type TaskInvocationMatcher = (taskInvocation: TaskInvocation) => boolean;
@@ -90,17 +91,16 @@ export async function resolveConfigPaths({
   flags,
   fallbackBasenames,
 }: ResolveConfigPathsOptions) {
-  const explicitConfigPaths = await resolveExistingPathsFromTaskInvocations({
+  const declaredConfigPaths = resolveDeclaredPathsFromTaskInvocations({
     baseDir,
     packageDir,
     taskInvocations,
     matchesTaskInvocation,
     flags,
-    kind: 'file',
   });
 
-  if (explicitConfigPaths.size > 0) {
-    return explicitConfigPaths;
+  if (declaredConfigPaths.size > 0) {
+    return declaredConfigPaths;
   }
 
   return resolveExistingSiblingPaths(packageDir, fallbackBasenames, 'file');
@@ -134,7 +134,7 @@ export async function deriveSourcesFromOutputDirectories(
   for (const outputDirectory of [...outputDirectories].sort((left, right) =>
     left.localeCompare(right),
   )) {
-    derived.outputDirectories.add(outputDirectory);
+    derived.watchedOutputPaths.add(outputDirectory);
     addFamilyFiles(
       family,
       await listAcceptedGeneratedFilesInDirectory(outputDirectory, recursive, sourceFileMatcher),
@@ -155,6 +155,7 @@ export async function resolveGeneratedOutputsFromLiteralPaths(
   const resolvedOutputs: ResolvedGeneratedOutputs = {
     filePaths: new Set<NormalizedAbsolutePath>(),
     outputDirectories: new Set<NormalizedAbsolutePath>(),
+    watchedOutputPaths: new Set<NormalizedAbsolutePath>(),
   };
 
   for (const outputPath of outputPaths) {
@@ -173,6 +174,7 @@ async function addResolvedGeneratedOutput(
   recursive: boolean,
   sourceFileMatcher?: GeneratedSourceFileMatcher,
 ) {
+  resolvedOutputs.watchedOutputPaths.add(resolvedPath);
   const stats = await safeStat(resolvedPath);
   if (!stats) {
     return;
@@ -232,6 +234,31 @@ async function resolveExistingPathsFromTaskInvocations({
     for (const token of extractFlagValuesFromTokens(taskInvocation.args, flags)) {
       const resolvedPath = resolveLiteralPath(token, packageDir, baseDir);
       if (resolvedPath && (await matchesExistingPathKind(resolvedPath, kind))) {
+        resolvedPaths.add(resolvedPath);
+      }
+    }
+  }
+
+  return resolvedPaths;
+}
+
+function resolveDeclaredPathsFromTaskInvocations({
+  baseDir,
+  packageDir,
+  taskInvocations,
+  matchesTaskInvocation,
+  flags,
+}: Omit<ResolvePathsFromTaskInvocationsOptions, 'kind'>) {
+  const resolvedPaths = new Set<NormalizedAbsolutePath>();
+
+  for (const taskInvocation of taskInvocations) {
+    if (!matchesTaskInvocation(taskInvocation)) {
+      continue;
+    }
+
+    for (const token of extractFlagValuesFromTokens(taskInvocation.args, flags)) {
+      const resolvedPath = resolveLiteralPath(token, packageDir, baseDir);
+      if (resolvedPath) {
         resolvedPaths.add(resolvedPath);
       }
     }

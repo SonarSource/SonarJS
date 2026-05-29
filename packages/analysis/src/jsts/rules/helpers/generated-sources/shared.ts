@@ -42,7 +42,7 @@ export function createDerivedGeneratedSources(): DerivedGeneratedSources {
   return {
     familyByFile: new Map<NormalizedAbsolutePath, GeneratedSourceFamily>(),
     configPaths: new Set<NormalizedAbsolutePath>(),
-    outputDirectories: new Set<NormalizedAbsolutePath>(),
+    watchedOutputPaths: new Set<NormalizedAbsolutePath>(),
   };
 }
 
@@ -60,8 +60,8 @@ export function mergeDerivedGeneratedSources(
     target.configPaths.add(configPath);
   }
 
-  for (const outputDirectory of sortPaths(source.outputDirectories)) {
-    target.outputDirectories.add(outputDirectory);
+  for (const outputPath of sortPaths(source.watchedOutputPaths)) {
+    target.watchedOutputPaths.add(outputPath);
   }
 }
 

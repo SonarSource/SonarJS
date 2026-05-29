@@ -28,7 +28,7 @@ export type GeneratedSourceFileMatcher = (filePath: NormalizedAbsolutePath) => b
 export type DerivedGeneratedSources = {
   familyByFile: Map<NormalizedAbsolutePath, GeneratedSourceFamily>;
   configPaths: Set<NormalizedAbsolutePath>;
-  outputDirectories: Set<NormalizedAbsolutePath>;
+  watchedOutputPaths: Set<NormalizedAbsolutePath>;
 };
 
 /**
@@ -37,7 +37,7 @@ export type DerivedGeneratedSources = {
  * Each detector owns one tool family and is responsible for:
  * - declaring cache-invalidating config basenames through `watchedFilenames`
  * - deriving only project-local generated files rooted under `baseDir`
- * - reporting any config files and output directories it inferred so the store can refresh on change
+ * - reporting any config files and declared output paths it inferred so the store can refresh on change
  */
 export interface GeneratedSourceDetector {
   readonly family: GeneratedSourceFamily;

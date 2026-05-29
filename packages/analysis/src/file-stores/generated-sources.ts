@@ -44,7 +44,7 @@ class GeneratedSourceStore implements FileStore {
   private familyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
   private resolvedFiles = new Set<NormalizedAbsolutePath>();
   private configPaths = new Set<NormalizedAbsolutePath>();
-  private outputDirectories = new Set<NormalizedAbsolutePath>();
+  private watchedOutputPaths = new Set<NormalizedAbsolutePath>();
 
   async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
@@ -139,7 +139,7 @@ class GeneratedSourceStore implements FileStore {
     this.derivedFamilyByFile = new Map(derived.familyByFile);
     this.resolvedFiles = new Set(this.derivedFamilyByFile.keys());
     this.configPaths = derived.configPaths;
-    this.outputDirectories = derived.outputDirectories;
+    this.watchedOutputPaths = derived.watchedOutputPaths;
     this.refreshFilteredState(
       analyzableFiles,
       this.activeRequestFilesKey ?? getRequestFilesKey(canAccessFileSystem, analyzableFiles),
@@ -163,8 +163,8 @@ class GeneratedSourceStore implements FileStore {
       return true;
     }
 
-    for (const directory of this.outputDirectories) {
-      if (filename === directory || filename.startsWith(`${directory}/`)) {
+    for (const watchedOutputPath of this.watchedOutputPaths) {
+      if (filename === watchedOutputPath || filename.startsWith(`${watchedOutputPath}/`)) {
         return true;
       }
     }
@@ -178,7 +178,7 @@ class GeneratedSourceStore implements FileStore {
     this.familyByFile = new Map();
     this.resolvedFiles = new Set();
     this.configPaths = new Set();
-    this.outputDirectories = new Set();
+    this.watchedOutputPaths = new Set();
   }
 
   private refreshFilteredState(

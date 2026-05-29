@@ -257,6 +257,132 @@ export default config;
     }
   });
 
+  it('refreshes generated-source metadata when an explicit GraphQL config file is created later', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        join(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              codegen: 'graphql-codegen --config ./config/custom-codegen.ts',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+
+      await initFileStores(createConfiguration({ baseDir }));
+      expect(generatedSourceStore.getFamily(outputPath)).toBeUndefined();
+
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    '../src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const configuration = createConfiguration({
+        baseDir,
+        fsEvents: {
+          [configPath]: 'CREATED',
+          [outputPath]: 'CREATED',
+        },
+      });
+      const { files: inputFiles } = await sanitizeRawInputFiles(
+        {
+          [outputPath]: {
+            filePath: outputPath,
+            fileType: 'MAIN',
+          },
+        },
+        configuration,
+      );
+
+      await initFileStores(configuration, inputFiles);
+
+      expect(generatedSourceStore.getFamily(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('refreshes generated-source metadata when a declared GraphQL output file is created later', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'codegen.config.ts');
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+    try {
+      await writeFixtureFile(
+        join(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        configPath,
+        `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+      );
+
+      await initFileStores(createConfiguration({ baseDir }));
+      expect(generatedSourceStore.getFamily(outputPath)).toBeUndefined();
+
+      await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+      const configuration = createConfiguration({
+        baseDir,
+        fsEvents: {
+          [outputPath]: 'CREATED',
+        },
+      });
+      const { files: inputFiles } = await sanitizeRawInputFiles(
+        {
+          [outputPath]: {
+            filePath: outputPath,
+            fileType: 'MAIN',
+          },
+        },
+        configuration,
+      );
+
+      await initFileStores(configuration, inputFiles);
+
+      expect(generatedSourceStore.getFamily(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('does not derive GraphQL outputs when graphql-codegen is only echoed', async () => {
     const baseDir = await createTempBaseDir();
     const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');
