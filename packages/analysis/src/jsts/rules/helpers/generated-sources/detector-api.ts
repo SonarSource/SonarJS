@@ -18,14 +18,8 @@ import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
 } from '../../../../../../shared/src/helpers/files.js';
-import type {
-  DerivedGeneratedSources,
-  GeneratedSourceFamily,
-  GeneratedSourceFileMatcher,
-} from './contracts.js';
+import type { GeneratedSourceFileMatcher } from './contracts.js';
 import {
-  addFamilyFiles,
-  createDerivedGeneratedSources,
   extractFlagValuesFromTokens,
   isDirectory,
   isFile,
@@ -104,45 +98,6 @@ export async function resolveConfigPaths({
   }
 
   return resolveExistingSiblingPaths(packageDir, fallbackBasenames, 'file');
-}
-
-export async function resolveOutputDirectoriesFromTaskInvocations({
-  baseDir,
-  packageDir,
-  taskInvocations,
-  matchesTaskInvocation,
-  flags,
-}: Omit<ResolvePathsFromTaskInvocationsOptions, 'kind'>) {
-  return resolveExistingPathsFromTaskInvocations({
-    baseDir,
-    packageDir,
-    taskInvocations,
-    matchesTaskInvocation,
-    flags,
-    kind: 'directory',
-  });
-}
-
-export async function deriveSourcesFromOutputDirectories(
-  family: GeneratedSourceFamily,
-  outputDirectories: Iterable<NormalizedAbsolutePath>,
-  recursive: boolean,
-  sourceFileMatcher?: GeneratedSourceFileMatcher,
-): Promise<DerivedGeneratedSources> {
-  const derived = createDerivedGeneratedSources();
-
-  for (const outputDirectory of [...outputDirectories].sort((left, right) =>
-    left.localeCompare(right),
-  )) {
-    derived.watchedOutputPaths.add(outputDirectory);
-    addFamilyFiles(
-      family,
-      await listAcceptedGeneratedFilesInDirectory(outputDirectory, recursive, sourceFileMatcher),
-      derived,
-    );
-  }
-
-  return derived;
 }
 
 export async function resolveGeneratedOutputsFromLiteralPaths(
@@ -232,32 +187,6 @@ async function listAcceptedGeneratedFilesInDirectory(
   sourceFileMatcher?: GeneratedSourceFileMatcher,
 ) {
   return listSourceFilesInDirectory(outputDirectory, recursive, sourceFileMatcher);
-}
-
-async function resolveExistingPathsFromTaskInvocations({
-  baseDir,
-  packageDir,
-  taskInvocations,
-  matchesTaskInvocation,
-  flags,
-  kind,
-}: ResolvePathsFromTaskInvocationsOptions) {
-  const resolvedPaths = new Set<NormalizedAbsolutePath>();
-
-  for (const taskInvocation of taskInvocations) {
-    if (!matchesTaskInvocation(taskInvocation)) {
-      continue;
-    }
-
-    for (const token of extractFlagValuesFromTokens(taskInvocation.args, flags)) {
-      const resolvedPath = resolveLiteralPath(token, packageDir, baseDir);
-      if (resolvedPath && (await matchesExistingPathKind(resolvedPath, kind))) {
-        resolvedPaths.add(resolvedPath);
-      }
-    }
-  }
-
-  return resolvedPaths;
 }
 
 function resolveDeclaredPathsFromTaskInvocations({

@@ -269,7 +269,7 @@ export function parseDirectCommandSegments(script: string): ParsedCommandSegment
   return segments;
 }
 
-export function tokenizeScript(script: string) {
+function tokenizeScript(script: string) {
   const tokens: string[] = [];
   let current = '';
   let quote: '"' | "'" | undefined;
@@ -360,7 +360,7 @@ function sortPaths<T extends NormalizedAbsolutePath>(paths: Iterable<T>) {
   return [...paths].sort(comparePathsAlphabetically);
 }
 
-export function sortPathEntries<T>(entries: Iterable<[NormalizedAbsolutePath, T]>) {
+function sortPathEntries<T>(entries: Iterable<[NormalizedAbsolutePath, T]>) {
   return [...entries].sort(([left], [right]) => comparePathsAlphabetically(left, right));
 }
 
