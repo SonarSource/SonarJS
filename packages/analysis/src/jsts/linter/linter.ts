@@ -299,7 +299,9 @@ export class Linter {
       detectedModuleType = getModuleType(normalizedFilePath, Linter.baseDir);
       getOptionalProjectAnalysisTelemetryCollector()?.recordModuleType(detectedModuleType);
     }
-    const isGeneratedSource = Linter.isGeneratedSourceFile(normalizedFilePath);
+    const isGeneratedSource = Linter.detectGeneratedCode
+      ? Linter.isGeneratedSourceFile(normalizedFilePath)
+      : false;
     const manifestDependencies = getDependencies(dirnamePath(normalizedFilePath), Linter.baseDir);
     // Make inline npm: imports visible to both rule activation and to dependency helpers
     // (getReactVersion, getDependenciesSanitizePaths) called from rules during linting.

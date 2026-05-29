@@ -14,16 +14,6 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { describe, it } from 'node:test';
-import { expect } from 'expect';
-import { shouldSkipOnGeneratedSource } from '../src/jsts/rules/helpers/generated-source.js';
-
-describe('generated-source RSPEC metadata', () => {
-  it('should enable generated-source suppression for editable-source rules', () => {
-    expect(shouldSkipOnGeneratedSource(['editable-source'])).toBe(true);
-  });
-
-  it('should keep generated-source suppression disabled when editable-source tag is absent', () => {
-    expect(shouldSkipOnGeneratedSource(['es2022', 'type-dependent'])).toBe(false);
-  });
-});
+export function shouldSkipOnGeneratedSource(tags: readonly string[]): boolean {
+  return tags.includes('editable-source');
+}

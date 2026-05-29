@@ -16,6 +16,7 @@
  */
 import { join } from 'node:path/posix';
 import { defaultOptions } from '../packages/analysis/src/jsts/rules/helpers/configs.js';
+import { shouldSkipOnGeneratedSource } from '../packages/analysis/src/jsts/rules/helpers/generated-source.js';
 import {
   getESLintDefaultConfiguration,
   getRspecMeta,
@@ -72,7 +73,7 @@ export async function generateMetaForRule(
       ___LANGUAGES___: JSON.stringify(ruleRspecMeta.compatibleLanguages),
       ___SCOPE___: ruleRspecMeta.scope,
       ___REQUIRED_DEPENDENCY___: JSON.stringify(ruleRspecMeta.extra?.requiredDependency ?? []),
-      ___SKIP_ON_GENERATED_SOURCE___: `${tags.includes('editable-source')}`,
+      ___SKIP_ON_GENERATED_SOURCE___: `${shouldSkipOnGeneratedSource(tags)}`,
       ___REQUIRED_MODULE_TYPE_EXPORT___:
         requiredModuleType !== undefined
           ? `export const requiredModuleType = '${requiredModuleType}';`
