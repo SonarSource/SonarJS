@@ -11,6 +11,7 @@ failures, or decide whether Peach blocks a SonarJS release.
 - Workflow file: `main-analysis.yml`
 - Branch: `js-ts-css-html`
 - Classification guide: `docs/peach-main-analysis.md`
+- Canonical run-jobs helper: `.claude/skills/peach-check/peach-run-jobs.js`
 - Canonical issue-history helper: `.claude/skills/peach-check/peach-issue-history.js`
 - Canonical DROP-forensics helper: `.claude/skills/peach-check/peach-drop-forensics.js`
 
@@ -63,6 +64,37 @@ This is the common case:
    `target/peach-issue-history.json.clean_for_early_exit` is `true`, print the `SAFE` summary and
    stop.
 5. Only continue to DROP forensics or log triage when step 4 fails.
+
+Common green-path command sequence:
+
+```bash
+gh run list \
+  --repo SonarSource/peachee-js \
+  --workflow main-analysis.yml \
+  --branch js-ts-css-html \
+  --limit 5 \
+  --json databaseId,conclusion,createdAt,status \
+  --jq '[.[] | select(.status == "completed")] | first | {databaseId, conclusion, createdAt}'
+
+node .claude/skills/peach-check/peach-run-jobs.js RUN_ID target
+
+jq '{expected_total, total_jobs, failed_jobs, counts_match}' target/jobs-merged.json
+
+jq '{excluded_workflow_jobs, excluded_project_jobs}' target/exclusion-counts.json
+
+jq '{total_jobs}' target/failed-jobs.json
+
+jq '{total_jobs}' target/project-jobs.json
+
+rm -f target/peach-issue-history.json
+
+node .claude/skills/peach-check/peach-issue-history.js \
+  target/project-jobs.json \
+  PEACHEE_ROOT_OR_PATH \
+  target/peach-issue-history.json
+
+jq '{analysis_window_start, analysis_window_end, blocking_rows_count, clean_for_early_exit, summary}' target/peach-issue-history.json
+```
 
 ### 1. Resolve the run
 
@@ -134,6 +166,9 @@ JSON shapes:
 - `target/jobs-merged.json` → `{ expected_total, total_jobs, failed_jobs, counts_match, jobs }`
 - `target/failed-jobs.json` → `{ total_jobs, jobs }` for failed analyzed jobs
 - `target/project-jobs.json` → `{ total_jobs, jobs }` for successful analyzed jobs
+
+`jobs` entries are raw GitHub Actions job objects from the jobs API. Expect fields such as `id`,
+`name`, `html_url`, `head_sha`, and `steps` when GitHub includes them in the payload.
 
 If `target/jobs-merged.json` still cannot reconcile `expected_total` with `total_jobs` after the
 explicit page fallback, the helper exits non-zero. Stop there and report the mismatch instead of
@@ -209,6 +244,9 @@ Use the repo-local helper:
 rm -f target/peach-issue-history.json
 ```
 
+Remove any stale output first so an old JSON file is not mistaken for fresh helper output while the
+new helper run is still in progress.
+
 ```bash
 node .claude/skills/peach-check/peach-issue-history.js \
   target/project-jobs.json \
@@ -219,8 +257,9 @@ node .claude/skills/peach-check/peach-issue-history.js \
 Use `${PEACHEE_ROOT}` when it is set, otherwise pass the explicit checkout path.
 
 The helper writes two short stderr progress lines and can take tens of seconds across the full
-project matrix. Wait for the `node` process to exit successfully, then inspect the JSON file
-instead of relying on the progress lines.
+project matrix, with little or no intermediate output while it runs. Judge completion from the
+`node` process exit plus the final `peach-issue-history: wrote ...` line, then inspect the JSON
+file instead of relying on progress-line frequency.
 
 Use this low-noise check after the helper finishes:
 
