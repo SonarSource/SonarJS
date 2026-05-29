@@ -15,7 +15,8 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { SourceFileStore } from './source-files.js';
-import { DependencyManifestStore } from './dependency-manifests.js';
+import { dependencyManifestStore } from './dependency-manifests.js';
+import { generatedSourceStore } from './generated-sources.js';
 import { TsConfigStore } from './tsconfigs.js';
 import { findFiles } from '../common/find-files.js';
 import type { FileStore } from './store-type.js';
@@ -28,14 +29,19 @@ import {
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
-export const dependencyManifestStore = new DependencyManifestStore();
 export const tsConfigStore = new TsConfigStore();
+export { dependencyManifestStore, generatedSourceStore };
 
 export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
 
-  for (const store of [sourceFileStore, dependencyManifestStore, tsConfigStore]) {
+  for (const store of [
+    sourceFileStore,
+    dependencyManifestStore,
+    generatedSourceStore,
+    tsConfigStore,
+  ]) {
     if (!(await store.isInitialized(configuration, inputFiles))) {
       pendingStores.push(store);
     }
@@ -64,8 +70,9 @@ export async function initFileStores(configuration: Configuration, inputFiles?: 
     await simulateFromInputFiles(inputFiles, configuration, pendingStores);
   }
 
+  const analyzableFiles = sourceFileStore.getFiles();
   for (const store of pendingStores) {
-    await store.postProcess(configuration);
+    await store.postProcess(configuration, analyzableFiles);
   }
 }
 

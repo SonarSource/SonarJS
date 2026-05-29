@@ -34,7 +34,7 @@ import { info, error } from '../../shared/src/helpers/logging.js';
 import { ProgressReport } from './common/progress-report.js';
 import type { WsIncrementalResult } from './incremental-result.js';
 import { setSourceFilesContext } from './jsts/program/cache/sourceFileCache.js';
-import { sourceFileStore } from './file-stores/index.js';
+import { generatedSourceStore, sourceFileStore } from './file-stores/index.js';
 import type { NormalizedAbsolutePath } from '../../shared/src/helpers/files.js';
 import { getProjectAnalysisTelemetry, resetProjectAnalysisTelemetry } from './telemetry.js';
 
@@ -88,6 +88,7 @@ export async function analyzeProject(
     globals,
     bundles,
     baseDir,
+    isGeneratedSourceFile: filePath => generatedSourceStore.getFamily(filePath) !== undefined,
     rulesWorkdir,
     testFileExtensions,
   });

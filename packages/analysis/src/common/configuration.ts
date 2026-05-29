@@ -29,6 +29,7 @@ import {
   isStringArray,
   isObject,
 } from '../../../shared/src/helpers/sanitize.js';
+import { JAVASCRIPT_CODE_FILE_EXTENSIONS, TYPESCRIPT_CODE_FILE_EXTENSIONS } from './file-kinds.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -127,8 +128,8 @@ export type ConfigurationInput = {
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
 const IGNORED_PATTERNS = ['.scannerwork'];
 
-const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
-const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
+const DEFAULT_JS_EXTENSIONS = [...JAVASCRIPT_CODE_FILE_EXTENSIONS, '.vue'];
+const DEFAULT_TS_EXTENSIONS = TYPESCRIPT_CODE_FILE_EXTENSIONS.slice();
 const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
 const DEFAULT_HTML_EXTENSIONS = ['.html', '.htm', '.xhtml'];
 const DEFAULT_YAML_EXTENSIONS = ['.yml', '.yaml'];
@@ -420,6 +421,37 @@ export function getFilterPathParams(configuration: Configuration): FilterPathPar
       ...(configuration.tsSuffixes.length ? configuration.tsSuffixes : DEFAULT_TS_EXTENSIONS),
     ],
   };
+}
+
+function serializeMinimatchPatterns(patterns: Minimatch[]) {
+  return patterns.map(({ pattern }) => pattern);
+}
+
+/**
+ * Returns a stable cache key for the configuration fields that decide which files
+ * are discovered, kept, and classified for analysis.
+ */
+export function getAnalyzableFilesConfigKey(configuration: Configuration) {
+  const shouldIgnoreParams = getShouldIgnoreParams(configuration);
+  const filterPathParams = getFilterPathParams(configuration);
+
+  return JSON.stringify({
+    jsSuffixes: shouldIgnoreParams.jsSuffixes,
+    tsSuffixes: shouldIgnoreParams.tsSuffixes,
+    cssSuffixes: shouldIgnoreParams.cssSuffixes,
+    htmlSuffixes: shouldIgnoreParams.htmlSuffixes,
+    yamlSuffixes: shouldIgnoreParams.yamlSuffixes,
+    cssAdditionalSuffixes: shouldIgnoreParams.cssAdditionalSuffixes,
+    detectBundles: shouldIgnoreParams.detectBundles,
+    maxFileSize: shouldIgnoreParams.maxFileSize,
+    jsTsExclusions: serializeMinimatchPatterns(shouldIgnoreParams.jsTsExclusions),
+    sourcesPaths: filterPathParams.sourcesPaths,
+    testPaths: filterPathParams.testPaths,
+    inclusions: serializeMinimatchPatterns(filterPathParams.inclusions),
+    exclusions: serializeMinimatchPatterns(filterPathParams.exclusions),
+    testInclusions: serializeMinimatchPatterns(filterPathParams.testInclusions),
+    testExclusions: serializeMinimatchPatterns(filterPathParams.testExclusions),
+  });
 }
 
 function isJsFile(
