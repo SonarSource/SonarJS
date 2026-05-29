@@ -200,10 +200,7 @@ export const rule: Rule.RuleModule = {
       }
 
       for (const specifier of importDeclaration.specifiers) {
-        if (
-          specifier.type === 'ImportSpecifier' &&
-          isImportedEffectHook(specifier.imported as TSESTree.Node)
-        ) {
+        if (specifier.type === 'ImportSpecifier' && isImportedEffectHook(specifier.imported)) {
           reactEffectHookNames.add(specifier.local.name);
         } else if (
           specifier.type === 'ImportDefaultSpecifier' ||
