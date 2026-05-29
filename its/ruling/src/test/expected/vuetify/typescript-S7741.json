@@ -2,6 +2,12 @@
 "vuetify:packages/docs/src/components/promoted/Carbon.vue": [
 34
 ],
+"vuetify:packages/vuetify/src/components/VCalendar/util/timestamp.ts": [
+470
+],
+"vuetify:packages/vuetify/src/components/VSpeedDial/VSpeedDial.ts": [
+78
+],
 "vuetify:packages/vuetify/src/directives/ripple/index.ts": [
 161
 ],

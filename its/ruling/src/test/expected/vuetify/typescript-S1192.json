@@ -2,6 +2,12 @@
 "vuetify:packages/docs/src/App.vue": [
 107
 ],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
+310
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
+217
+],
 "vuetify:packages/vuetify/src/components/VOverlay/scrollStrategies.ts": [
 80,
 89,

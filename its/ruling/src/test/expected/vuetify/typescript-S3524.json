@@ -57,6 +57,12 @@
 "vuetify:packages/vuetify/src/components/VBtn/VBtn.tsx": [
 120
 ],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendarCategory.ts": [
+46,
+64,
+92,
+134
+],
 "vuetify:packages/vuetify/src/components/VColorPicker/VColorPickerEdit.tsx": [
 51
 ],
@@ -89,6 +95,12 @@
 "vuetify:packages/vuetify/src/components/VSlideGroup/VSlideGroup.tsx": [
 332,
 336
+],
+"vuetify:packages/vuetify/src/components/VSpeedDial/VSpeedDial.ts": [
+30
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
+422
 ],
 "vuetify:packages/vuetify/src/components/VWindow/VWindow.tsx": [
 121

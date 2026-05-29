@@ -1,5 +1,16 @@
 {
 "vuetify:packages/docs/src/composables/codepen.ts": [
 97
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataFooter.ts": [
+83
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
+175,
+199,
+237
+],
+"vuetify:packages/vuetify/src/components/VOtpInput/VOtpInput.ts": [
+150
 ]
 }

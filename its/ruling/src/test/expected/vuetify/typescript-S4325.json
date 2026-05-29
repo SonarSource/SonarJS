@@ -26,6 +26,18 @@
 "vuetify:packages/vuetify/src/components/VBtnToggle/VBtnToggle.tsx": [
 49
 ],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
+100
+],
+"vuetify:packages/vuetify/src/components/VData/VData.ts": [
+382
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePicker.ts": [
+191
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerDateTable.ts": [
+48
+],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 114,
 116
@@ -59,9 +71,23 @@
 "vuetify:packages/vuetify/src/components/VSlider/slider.ts": [
 235
 ],
+"vuetify:packages/vuetify/src/components/VStepper/VStepper.ts": [
+109,
+111,
+112,
+119
+],
 "vuetify:packages/vuetify/src/components/VTextarea/VTextarea.tsx": [
 163,
 179
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePicker.ts": [
+194
+],
+"vuetify:packages/vuetify/src/components/VTreeview/VTreeview.ts": [
+92,
+94,
+95
 ],
 "vuetify:packages/vuetify/src/components/transitions/dialog-transition.tsx": [
 35,

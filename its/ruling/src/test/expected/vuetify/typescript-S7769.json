@@ -1,4 +1,10 @@
 {
+"vuetify:packages/vuetify/src/components/VSparkline/helpers/math.ts": [
+27
+],
+"vuetify:packages/vuetify/src/components/VTimePicker/VTimePickerClock.ts": [
+244
+],
 "vuetify:packages/vuetify/src/directives/ripple/index.ts": [
 67,
 69

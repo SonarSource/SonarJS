@@ -7,6 +7,9 @@
 131,
 143
 ],
+"vuetify:packages/vuetify/src/components/VDatePicker/mixins/date-picker-table.ts": [
+242
+],
 "vuetify:packages/vuetify/src/components/VOverlay/VOverlay.tsx": [
 278
 ],

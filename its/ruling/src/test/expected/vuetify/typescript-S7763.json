@@ -1,4 +1,8 @@
 {
+"vuetify:packages/vuetify/src/components/VDatePicker/util/index.ts": [
+14,
+15
+],
 "vuetify:packages/vuetify/src/labs/index.ts": [
 4
 ]

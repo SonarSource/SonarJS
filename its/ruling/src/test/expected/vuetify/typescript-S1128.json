@@ -5,6 +5,9 @@
 "vuetify:packages/api-generator/src/web-types.ts": [
 3
 ],
+"vuetify:packages/vuetify/src/services/goto/index.ts": [
+17
+],
 "vuetify:templates/jest-test.ts": [
 2
 ]

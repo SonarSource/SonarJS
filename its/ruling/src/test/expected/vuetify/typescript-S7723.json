@@ -3,6 +3,9 @@
 121,
 123
 ],
+"vuetify:packages/vuetify/src/components/VDatePicker/VDatePickerMonthTable.ts": [
+33
+],
 "vuetify:packages/vuetify/src/components/VTabs/VTab.tsx": [
 104
 ],

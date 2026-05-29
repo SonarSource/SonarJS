@@ -9,6 +9,12 @@
 "vuetify:packages/docs/src/util/metadata.ts": [
 95
 ],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/calendar-with-events.ts": [
+167
+],
+"vuetify:packages/vuetify/src/components/VCalendar/mixins/mouse.ts": [
+45
+],
 "vuetify:packages/vuetify/src/components/VGrid/VCol.ts": [
 112
 ],

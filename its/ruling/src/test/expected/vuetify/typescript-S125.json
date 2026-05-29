@@ -40,12 +40,19 @@
 "vuetify:packages/docs/src/util/routes.ts": [
 9
 ],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
+4
+],
 "vuetify:packages/vuetify/src/components/VOverlay/locationStrategies.ts": [
 120,
 140
 ],
 "vuetify:packages/vuetify/src/composables/touch.ts": [
 26
+],
+"vuetify:packages/vuetify/src/services/goto/index.ts": [
+86,
+92
 ],
 "vuetify:packages/vuetify/src/util/console.ts": [
 5

@@ -72,7 +72,6 @@ class EslintSuppressedIssuesTest {
     assertThat(issue.getIssueStatus()).isEqualTo("ACCEPTED");
     assertThat(issue.hasResolution()).isTrue();
     assertThat(issue.getResolution()).isNotBlank();
-    assertThat(issue.hasComments()).isTrue();
     assertThat(issue.getComments().getCommentsList()).anySatisfy(comment ->
       assertThat(comment.getMarkdown()).contains(commentText)
     );
@@ -82,7 +81,7 @@ class EslintSuppressedIssuesTest {
     assertThat(issue).isNotNull();
     assertThat(issue.getIssueStatus()).isEqualTo("OPEN");
     assertThat(issue.hasResolution()).isFalse();
-    assertThat(issue.hasComments()).isFalse();
+    assertThat(issue.getComments().getCommentsList()).isEmpty();
   }
 
   private static void enableIssueResolution(String projectKey) {

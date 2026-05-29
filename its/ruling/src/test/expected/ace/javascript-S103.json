@@ -80,7 +80,8 @@
 ],
 "ace:lib/ace/mode/yaml/yaml-lint.js": [
 1,
-79
+79,
+2879
 ],
 "ace:src/autocomplete_test.js": [
 29,

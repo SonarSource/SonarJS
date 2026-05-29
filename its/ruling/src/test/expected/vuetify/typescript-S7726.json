@@ -2,6 +2,12 @@
 "vuetify:packages/api-generator/src/worker.ts": [
 9
 ],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/monthChange.ts": [
+10
+],
+"vuetify:packages/vuetify/src/components/VDatePicker/util/pad.ts": [
+19
+],
 "vuetify:packages/vuetify/src/components/VDatePicker/util/sanitizeDateString.ts": [
 5
 ],

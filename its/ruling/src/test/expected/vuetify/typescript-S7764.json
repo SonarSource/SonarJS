@@ -34,6 +34,9 @@
 "vuetify:packages/docs/src/util/routes.ts": [
 18
 ],
+"vuetify:packages/vuetify/src/components/VCalendar/VCalendar.ts": [
+192
+],
 "vuetify:packages/vuetify/src/components/VCarousel/VCarousel.tsx": [
 69,
 77,
@@ -49,6 +52,12 @@
 110,
 111,
 112
+],
+"vuetify:packages/vuetify/src/components/VDataIterator/VDataIterator.ts": [
+157,
+158,
+161,
+162
 ],
 "vuetify:packages/vuetify/src/components/VImg/VImg.tsx": [
 187
