@@ -81,8 +81,8 @@ function resolveGeneratedSourceDependencies(
 ): DependenciesList {
   const dependencies = getDependencies(packageDir, baseDir);
 
-  // Some unit tests call deriveGeneratedSources with synthetic package.json maps
-  // without initializing the manifest store or writing manifests to disk.
+  // Support in-memory package.json fixtures that do not populate the manifest caches.
+  // When raw dependency sections are still present, derive the dependency list from them.
   return dependencies.size > 0 || !hasRawDependencySections(packageJson)
     ? dependencies
     : createFallbackDependencies(packageJson);
