@@ -170,6 +170,31 @@ describe('Linter', () => {
     );
   });
 
+  it('should not invoke generated-source detector when generated-code detection is disabled', async ({
+    mock,
+  }) => {
+    const isGeneratedSourceFile = mock.fn((_filePath: NormalizedAbsolutePath) => {
+      throw new Error('Generated-source detector should not be called.');
+    });
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(import.meta.dirname),
+      rules: [],
+      detectGeneratedCode: false,
+      isGeneratedSourceFile,
+    });
+
+    expect(() =>
+      Linter.getRulesForFile(
+        normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
+        'MAIN',
+        'DEFAULT',
+        'js',
+      ),
+    ).not.toThrow();
+    expect(isGeneratedSourceFile.mock.calls).toHaveLength(0);
+  });
+
   it('should keep Sonar defaults from config.ts when no explicit configuration is provided', async () => {
     await Linter.initialize({
       baseDir: normalizeToAbsolutePath(import.meta.dirname),

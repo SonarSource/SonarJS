@@ -24,6 +24,7 @@ import { filterReactVue } from './filter-react-vue.js';
 import { filterEcmaVersion } from './filter-ecma-version.js';
 import { filterModuleType } from './filter-module-type.js';
 import { filterDependency } from './filter-dependency.js';
+import { filterGeneratedSource } from './filter-generated-source.js';
 
 export type { RuleFilterContext } from './rule-filter.js';
 
@@ -38,6 +39,7 @@ export const DEPENDENCY_INDEPENDENT_RULE_FILTERS: readonly RuleFilter[] = [
   filterAnalysisMode,
   filterLanguage,
   filterBlacklistedExtensions,
+  filterGeneratedSource,
   filterEcmaVersion,
   filterModuleType,
 ];
