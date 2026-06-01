@@ -52,7 +52,6 @@ type ResolvePathsFromTaskInvocationsOptions = {
   taskInvocations: readonly TaskInvocation[];
   matchesTaskInvocation: TaskInvocationMatcher;
   flags: string[];
-  kind: ExistingPathKind;
 };
 
 type ResolveConfigPathsOptions = {
@@ -151,7 +150,7 @@ async function addResolvedGeneratedOutput(
   }
 
   if (stats.isFile()) {
-    if (isAcceptedGeneratedFile(resolvedPath, sourceFileMatcher)) {
+    if (isSourceFile(resolvedPath, sourceFileMatcher)) {
       resolvedOutputs.filePaths.add(resolvedPath);
       return true;
     }
@@ -163,30 +162,11 @@ async function addResolvedGeneratedOutput(
   }
 
   resolvedOutputs.outputDirectories.add(resolvedPath);
-  const childFiles = await listAcceptedGeneratedFilesInDirectory(
-    resolvedPath,
-    recursive,
-    sourceFileMatcher,
-  );
+  const childFiles = await listSourceFilesInDirectory(resolvedPath, recursive, sourceFileMatcher);
   for (const childFile of childFiles) {
     resolvedOutputs.filePaths.add(childFile);
   }
   return childFiles.length > 0;
-}
-
-function isAcceptedGeneratedFile(
-  filePath: NormalizedAbsolutePath,
-  sourceFileMatcher?: GeneratedSourceFileMatcher,
-) {
-  return isSourceFile(filePath, sourceFileMatcher);
-}
-
-async function listAcceptedGeneratedFilesInDirectory(
-  outputDirectory: NormalizedAbsolutePath,
-  recursive: boolean,
-  sourceFileMatcher?: GeneratedSourceFileMatcher,
-) {
-  return listSourceFilesInDirectory(outputDirectory, recursive, sourceFileMatcher);
 }
 
 function resolveDeclaredPathsFromTaskInvocations({
@@ -223,14 +203,10 @@ async function resolveExistingSiblingPaths(
 
   for (const basename of basenames) {
     const resolvedPath = normalizeToAbsolutePath(basename, packageDir);
-    if (await matchesExistingPathKind(resolvedPath, kind)) {
+    if ((kind === 'file' ? await isFile(resolvedPath) : await isDirectory(resolvedPath))) {
       resolvedPaths.add(resolvedPath);
     }
   }
 
   return resolvedPaths;
-}
-
-async function matchesExistingPathKind(path: NormalizedAbsolutePath, kind: ExistingPathKind) {
-  return kind === 'file' ? isFile(path) : isDirectory(path);
 }
