@@ -123,6 +123,8 @@ public class AnalysisProcessor {
       // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
       // sonar-html plugin.
       saveIssues(context, issues);
+      // Embedded JS/TS in HTML/YAML can still produce suppressed issues on the host file.
+      // saveSuppressedIssues() filters out unsupported non-JS/TS suppressed issues.
       saveSuppressedIssues(context, response.getSuppressedIssuesList());
     }
     saveIssueResolutions(context, response.getSonarResolveCommentsList());
