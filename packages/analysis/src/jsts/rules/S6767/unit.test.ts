@@ -200,6 +200,28 @@ Button.propTypes = {
           errors: 1,
         },
         {
+          // TP: constructor-local whole-props aliases stay unsupported for React.Component.
+          code: `
+function createState(props) {
+  return { label: props.label };
+}
+class Button extends React.Component {
+  constructor(props) {
+    super(props);
+    const forwarded = props;
+    this.state = createState(forwarded);
+  }
+  render() {
+    return <button />;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+};
+`,
+          errors: 1,
+        },
+        {
           // TP: static class propTypes — prop is inside ClassDeclaration (Strategy A in findComponentNodes)
           code: `
 class Button extends React.Component {
