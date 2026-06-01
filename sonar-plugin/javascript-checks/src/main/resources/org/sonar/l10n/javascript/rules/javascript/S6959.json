@@ -1,0 +1,31 @@
+{
+  "title": "\"Array.reduce()\" calls should include an initial value",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "2min"
+  },
+  "tags": [
+    "type-dependent"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6959",
+  "sqKey": "S6959",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "targeted",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

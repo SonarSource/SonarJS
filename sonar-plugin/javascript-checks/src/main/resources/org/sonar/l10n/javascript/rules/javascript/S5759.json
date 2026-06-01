@@ -1,0 +1,46 @@
+{
+  "title": "Client IP address should not be forwarded to proxies",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "deprecated",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "privacy",
+    "express.js",
+    "former-hotspot"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-5759",
+  "sqKey": "S5759",
+  "scope": "Main",
+  "securityStandards": {
+    "OWASP": [
+      "A3"
+    ],
+    "OWASP Top 10 2021": [
+      "A5"
+    ],
+    "CWE": [
+      200,
+      359
+    ]
+  },
+  "defaultQualityProfiles": [],
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

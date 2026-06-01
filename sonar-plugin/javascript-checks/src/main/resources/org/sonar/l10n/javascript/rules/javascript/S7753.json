@@ -1,0 +1,34 @@
+{
+  "title": "\"indexOf()\" and \"lastIndexOf()\" should be used instead of \"findIndex()\" and \"findLastIndex()\" for simple equality searches",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "2 min"
+  },
+  "tags": [
+    "performance",
+    "javascript",
+    "array",
+    "editable-source"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-7753",
+  "sqKey": "S7753",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "EFFICIENT"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

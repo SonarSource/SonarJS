@@ -1,0 +1,33 @@
+{
+  "title": "Array methods \".map().flat()\" should be replaced with \".flatMap()\"",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "2 min"
+  },
+  "tags": [
+    "performance",
+    "es2019",
+    "editable-source"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-7752",
+  "sqKey": "S7752",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "EFFICIENT"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

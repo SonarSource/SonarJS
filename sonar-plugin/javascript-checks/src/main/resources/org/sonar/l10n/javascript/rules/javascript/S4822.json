@@ -1,0 +1,36 @@
+{
+  "title": "Promise rejections should not be caught by \"try\" blocks",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "type-dependent",
+    "es2017"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4822",
+  "sqKey": "S4822",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

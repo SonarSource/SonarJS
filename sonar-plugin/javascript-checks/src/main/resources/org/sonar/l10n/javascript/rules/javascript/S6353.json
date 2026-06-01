@@ -1,0 +1,36 @@
+{
+  "title": "Regular expression quantifiers and character classes should be used concisely",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "regex",
+    "type-dependent",
+    "editable-source"
+  ],
+  "extra": {
+    "replacementRules": []
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6353",
+  "sqKey": "S6353",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "targeted",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

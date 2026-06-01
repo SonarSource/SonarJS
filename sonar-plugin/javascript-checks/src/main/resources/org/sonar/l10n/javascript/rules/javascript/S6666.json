@@ -1,0 +1,31 @@
+{
+  "title": "Spread syntax should be used instead of \"apply()\"",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "editable-source"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6666",
+  "sqKey": "S6666",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

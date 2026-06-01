@@ -1,0 +1,34 @@
+{
+  "title": "Callbacks of array methods should have return statements",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "BLOCKER"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "type-dependent"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-3796",
+  "sqKey": "S3796",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "js"
+  ]
+}

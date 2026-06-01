@@ -1,0 +1,38 @@
+{
+  "title": "React components should not render non-boolean condition values",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "type-dependent"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "react",
+      "react-native"
+    ]
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6439",
+  "sqKey": "S6439",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

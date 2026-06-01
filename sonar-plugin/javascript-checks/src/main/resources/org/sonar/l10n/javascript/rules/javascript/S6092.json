@@ -1,0 +1,37 @@
+{
+  "title": "Chai assertions should have only one reason to succeed",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "FOCUSED"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "chai",
+    "tests",
+    "editable-source"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6092",
+  "sqKey": "S6092",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

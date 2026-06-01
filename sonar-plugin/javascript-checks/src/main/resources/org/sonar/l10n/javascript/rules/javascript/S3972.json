@@ -1,0 +1,36 @@
+{
+  "title": "Conditionals should start on new lines",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "FORMATTED"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "suspicious",
+    "editable-source"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-3972",
+  "sqKey": "S3972",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

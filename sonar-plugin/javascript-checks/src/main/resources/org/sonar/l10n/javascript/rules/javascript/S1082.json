@@ -1,0 +1,32 @@
+{
+  "title": "Mouse events should have corresponding keyboard events",
+  "type": "BUG",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "accessibility",
+    "react"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-1082",
+  "sqKey": "S1082",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "COMPLETE"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "title": "Content Security Policy should block mixed-content",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "deprecated",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "60min"
+  },
+  "tags": [
+    "express.js",
+    "former-hotspot"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-5730",
+  "sqKey": "S5730",
+  "scope": "Main",
+  "quickfix": "unknown",
+  "securityStandards": {
+    "CWE": [
+      319,
+      311,
+      693
+    ],
+    "OWASP": [
+      "A3"
+    ],
+    "OWASP Top 10 2021": [
+      "A5"
+    ]
+  },
+  "defaultQualityProfiles": [],
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

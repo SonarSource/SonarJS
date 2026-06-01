@@ -1,0 +1,31 @@
+{
+  "title": "Unnecessary character escapes should be removed",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "editable-source"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6535",
+  "sqKey": "S6535",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

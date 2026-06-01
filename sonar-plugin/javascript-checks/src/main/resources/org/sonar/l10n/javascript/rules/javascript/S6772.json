@@ -1,0 +1,32 @@
+{
+  "title": "Spacing between inline elements should be explicit",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6772",
+  "sqKey": "S6772",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "FORMATTED"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

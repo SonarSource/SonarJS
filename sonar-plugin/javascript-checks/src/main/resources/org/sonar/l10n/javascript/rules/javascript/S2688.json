@@ -1,0 +1,33 @@
+{
+  "title": "\"NaN\" should not be used in comparisons",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2688",
+  "sqKey": "S2688",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

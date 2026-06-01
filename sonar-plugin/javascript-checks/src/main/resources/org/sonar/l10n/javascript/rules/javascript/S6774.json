@@ -1,0 +1,37 @@
+{
+  "title": "React components should validate prop types",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "editable-source"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "react"
+    ]
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6774",
+  "sqKey": "S6774",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "RELIABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js"
+  ]
+}

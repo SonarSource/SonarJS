@@ -1,0 +1,35 @@
+{
+  "title": "Sparse arrays should not be created with extra commas",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "suspicious"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-4140",
+  "sqKey": "S4140",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

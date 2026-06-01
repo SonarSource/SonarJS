@@ -1,0 +1,33 @@
+{
+  "title": "ESLint disable comments should specify which rules to disable",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "eslint",
+    "linting",
+    "editable-source"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-7724",
+  "sqKey": "S7724",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

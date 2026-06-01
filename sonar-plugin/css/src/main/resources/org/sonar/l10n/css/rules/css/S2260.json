@@ -1,0 +1,27 @@
+{
+  "title": "CSS parser failure",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "suspicious"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "ParsingError",
+      "PlSql.ParsingError",
+      "ParseError",
+      "COBOL.ParsingErrorCheck"
+    ]
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2260",
+  "sqKey": "S2260",
+  "scope": "Main",
+  "defaultQualityProfiles": [],
+  "quickfix": "infeasible"
+}

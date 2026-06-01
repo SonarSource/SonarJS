@@ -1,0 +1,31 @@
+{
+  "title": "HTML elements should have a valid language attribute",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "accessibility",
+    "react"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-5254",
+  "sqKey": "S5254",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "targeted",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

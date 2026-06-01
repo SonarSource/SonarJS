@@ -1,0 +1,30 @@
+{
+  "title": "Mutable variables should not be exported",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-6861",
+  "sqKey": "S6861",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH",
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "MODULAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

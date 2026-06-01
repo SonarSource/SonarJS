@@ -1,0 +1,33 @@
+{
+  "title": "Default parameters should be used instead of reassigning parameters with literal fallback values",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "confusing",
+    "es2015",
+    "editable-source"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-7760",
+  "sqKey": "S7760",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

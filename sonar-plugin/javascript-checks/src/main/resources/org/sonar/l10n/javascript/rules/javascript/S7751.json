@@ -1,0 +1,33 @@
+{
+  "title": "Array flattening should use the native \"flat()\" method",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "es2019",
+    "readability",
+    "editable-source"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-7751",
+  "sqKey": "S7751",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

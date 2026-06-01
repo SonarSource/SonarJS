@@ -1,0 +1,35 @@
+{
+  "title": "Top-level await should be preferred over promise chains and async wrappers",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "es2022",
+    "async",
+    "modernize",
+    "esm-only",
+    "editable-source"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-7785",
+  "sqKey": "S7785",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "title": "Alternation in regular expressions should not contain empty alternatives",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "regex",
+    "type-dependent"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6323",
+  "sqKey": "S6323",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

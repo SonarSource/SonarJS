@@ -1,0 +1,33 @@
+{
+  "title": "Date objects should be cloned directly without calling \"getTime()\"",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "1 min"
+  },
+  "tags": [
+    "convention",
+    "readability",
+    "editable-source"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-7719",
+  "sqKey": "S7719",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

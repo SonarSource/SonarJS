@@ -1,0 +1,33 @@
+{
+  "title": "Number literals should not have unnecessary decimal points or trailing zeros",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "1 min"
+  },
+  "tags": [
+    "formatting",
+    "consistency",
+    "editable-source"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-7748",
+  "sqKey": "S7748",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}
