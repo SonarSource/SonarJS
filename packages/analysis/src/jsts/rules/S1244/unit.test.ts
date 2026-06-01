@@ -28,6 +28,7 @@ describe('S1244', () => {
         { code: `count !== 10 / 2;` },
         { code: `result === expected;` },
         { code: `value < 4 || value > 5;` },
+        { code: `value <= 4 && value >= 5;` },
         { code: `Math.abs(total - 0.3) < Number.EPSILON;` },
         { code: `almostEqual(total, 0.3);` },
         {
@@ -68,17 +69,37 @@ describe('S1244', () => {
             mutable === expected;
           `,
         },
+        {
+          code: `
+            const precision = 10 / 2;
+            total === precision;
+          `,
+        },
+        {
+          code: `
+            import { expect, test } from 'vitest';
+            test('computes a total', () => {
+              expect(0.1 + 0.2).not.toBeCloseTo(0.4);
+            });
+          `,
+        },
       ],
       invalid: [
         { code: `if (total === 0.3) { publish(total); }`, errors: 1 },
+        { code: `if (total === +0.3) { publish(total); }`, errors: 1 },
+        { code: `if (delta !== -1e-12) { publish(delta); }`, errors: 1 },
         { code: `const retryStatus = total !== 0.3 ? 'retry' : 'settled';`, errors: 1 },
         { code: `function isUnexpected() { return getRatio() != 10 / 3; }`, errors: 1 },
         { code: `const same = 0.1 + 0.2 == expected;`, errors: 1 },
+        { code: `const same = amount * 0.0825 === expectedTax;`, errors: 1 },
+        { code: `const same = expectedRemainder === total % 0.5;`, errors: 1 },
         { code: `if (average <= 1.1 && average >= 1.1) { publish(average); }`, errors: 1 },
         { code: `if (average >= 1.1 && average <= 1.1) { publish(average); }`, errors: 1 },
         { code: `if (1.1 >= average && 1.1 <= average) { publish(average); }`, errors: 1 },
+        { code: `if (1.1 <= average && average <= 1.1) { publish(average); }`, errors: 1 },
         { code: `if (conversionRate < 10 / 3 || conversionRate > 10 / 3) { retry(); }`, errors: 1 },
         { code: `if (conversionRate > 10 / 3 || conversionRate < 10 / 3) { retry(); }`, errors: 1 },
+        { code: `if (10 / 3 < conversionRate || conversionRate < 10 / 3) { retry(); }`, errors: 1 },
         {
           code: `
             const averageScore = (0.8 + 0.3) / 2;
@@ -99,6 +120,16 @@ describe('S1244', () => {
         },
         {
           code: `
+            const rawTotal = 0.1 + 0.2;
+            const expectedTotal = rawTotal;
+            if (actualTotal === expectedTotal) {
+              publish(actualTotal);
+            }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             import { expect, test } from 'vitest';
             test('computes a total', () => {
               expect(0.1 + 0.2).toBe(0.3);
@@ -108,8 +139,24 @@ describe('S1244', () => {
         },
         {
           code: `
+            import { expect, test } from 'vitest';
+            test('computes a total', () => {
+              expect(0.1 + 0.2).not.toBe(0.4);
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             import assert from 'node:assert/strict';
             assert.strictEqual(taxAmount(1), 1 / 12);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import assert from 'node:assert/strict';
+            assert.notStrictEqual(taxAmount(1), 1 / 12);
           `,
           errors: 1,
         },

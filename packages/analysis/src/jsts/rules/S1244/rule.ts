@@ -31,7 +31,7 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
       noExactFloatEquality:
-        'Do not check floating point inequality with exact values, use a range instead.',
+        'Do not check floating point equality or inequality with exact values, use a range instead.',
     },
   }),
   create(context: Rule.RuleContext) {
