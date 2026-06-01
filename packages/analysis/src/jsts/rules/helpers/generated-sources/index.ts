@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+export { GRAPHQL_CODEGEN_FAMILY } from './contracts.js';
 export {
   GRAPHQL_CODEGEN_FAMILY,
   OPENAPI_GENERATOR_FAMILY,
