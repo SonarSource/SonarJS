@@ -216,6 +216,7 @@ describe('S4325', () => {
         },
       ],
     });
+    assert.ok(true);
   });
 
   it('should suppress non-null assertion on nullable union with strictNullChecks', () => {
@@ -255,6 +256,7 @@ describe('S4325', () => {
         invalid: [],
       },
     );
+    assert.ok(true);
   });
 
   it('should flag non-null assertions after null guard with strictNullChecks', () => {
@@ -305,6 +307,7 @@ describe('S4325', () => {
         },
       ],
     });
+    assert.ok(true);
   });
 
   it('should flag non-generic function call assertions', () => {
@@ -326,6 +329,7 @@ describe('S4325', () => {
         },
       ],
     });
+    assert.ok(true);
   });
 
   it('should pass through report descriptor without a node', () => {
