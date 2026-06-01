@@ -49,6 +49,7 @@ export class SourceFileStore implements FileStore {
   async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
     if (inputFiles) {
+      this.clearCache();
       this.setup(configuration);
       this.files = inputFiles;
       this.directoryIndex.buildFromFiles(Object.keys(inputFiles) as NormalizedAbsolutePath[]);
