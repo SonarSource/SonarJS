@@ -35,7 +35,7 @@ type NumericComparison = {
 const STRICT_EQUALITY_OPERATORS = new Set(['===', '!==']);
 const STRING_LIKE_IDENTIFIER = /(?:text|string|message|content|html)$/i;
 const NUMERIC_IDENTIFIER =
-  /(?:amount|count|depth|height|index|length|level|limit|number|price|score|size|total|width)$/i;
+  /(?:amount|count|delta|depth|diff|duration|elapsed|height|index|length|level|limit|number|price|score|size|total|width)$/i;
 const DATE_LIKE_IDENTIFIER = /(?:date|time|timestamp)$/i;
 
 export function getBooleanExpressionSuggestion(

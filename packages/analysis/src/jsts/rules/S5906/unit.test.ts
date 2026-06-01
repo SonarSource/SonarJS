@@ -209,6 +209,20 @@ describe('S5906', () => {
           code: `
             import { expect } from 'vitest';
 
+            expect(diff >= 100).toBe(true);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(diff).toBeGreaterThanOrEqual(100);
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
             expect(user instanceof User).toBe(true);
           `,
           errors: [
