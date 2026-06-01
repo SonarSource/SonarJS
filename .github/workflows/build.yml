@@ -359,7 +359,8 @@ jobs:
             - `sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.json`
             - `sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/*.json`
 
-            If CI does not start automatically, please approve workflow runs for this PR in GitHub.
+            If this PR is created without CI, please click GitHub's `Approve workflows` button.
+            If that still does not start CI, close and reopen the PR to retrigger it.
           branch: bot/update-generated-files
           base: master
           add-paths: |
