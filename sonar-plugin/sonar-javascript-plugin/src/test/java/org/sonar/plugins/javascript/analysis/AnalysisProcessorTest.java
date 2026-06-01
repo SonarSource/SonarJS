@@ -394,7 +394,7 @@ class AnalysisProcessorTest {
   }
 
   @Test
-  void should_save_suppressed_issue_as_file_level_without_resolution_when_location_is_missing() {
+  void should_skip_suppressed_issue_when_location_is_missing() {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
@@ -415,13 +415,11 @@ class AnalysisProcessorTest {
     );
 
     assertThat(savedIssues).isEmpty();
-    assertThat(sensorContext.allIssues())
-      .singleElement()
-      .satisfies(issue -> assertThat(issue.primaryLocation().textRange()).isNull());
+    assertThat(sensorContext.allIssues()).isEmpty();
     assertThat(issueResolutions(sensorContext, file)).isEmpty();
-    assertThat(logTester.logs()).contains(
-      "Cannot save issue resolution for rule javascript:S1116 without a valid location"
-    );
+    assertThat(logTester.logs()).anySatisfy(log -> assertThat(log)
+      .contains("Skipping suppressed issue for rule javascript:S1116")
+      .contains("because accepted issues require a valid location"));
   }
 
   @Test

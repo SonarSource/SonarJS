@@ -261,6 +261,15 @@ public class AnalysisProcessor {
       if (ruleKey == null) {
         continue;
       }
+      var primaryTextRange = primaryTextRange(issue);
+      if (primaryTextRange == null) {
+        LOG.warn(
+          "Skipping suppressed issue for rule {} in {} because accepted issues require a valid location",
+          ruleKey,
+          file.uri()
+        );
+        continue;
+      }
       try {
         saveIssue(context, issue, ruleKey);
       } catch (RuntimeException e) {
