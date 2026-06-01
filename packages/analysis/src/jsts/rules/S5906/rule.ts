@@ -45,6 +45,7 @@ const messages = {
 
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const MAX_ASSERT_ARGUMENTS_WITH_MESSAGE = 3;
+const CHAI_EQUALITY_MATCHERS = ['equal', 'equals', 'eq', 'eql', 'eqls'];
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages, hasSuggestions: true }),
@@ -196,7 +197,7 @@ function getChaiExpectSuggestion(
 ): Suggestion | null {
   if (
     !isMethodCall(node) ||
-    !['equal', 'eql'].includes(node.callee.property.name) ||
+    !CHAI_EQUALITY_MATCHERS.includes(node.callee.property.name) ||
     node.arguments.length !== 1
   ) {
     return null;
@@ -221,7 +222,7 @@ function getChaiShouldSuggestion(
 ): Suggestion | null {
   if (
     !isMethodCall(node) ||
-    !['equal', 'eql'].includes(node.callee.property.name) ||
+    !CHAI_EQUALITY_MATCHERS.includes(node.callee.property.name) ||
     node.arguments.length !== 1
   ) {
     return null;
@@ -363,7 +364,24 @@ function getChaiShouldValueSuggestion(
       sourceCode,
     );
   }
-  return getChaiValueSuggestion(actual, expected, negated, node, sourceCode);
+  if (isLengthAccess(actual)) {
+    return replacement(
+      `${sourceCode.getText(actual.object)}.should${negated ? '.not' : ''}.have.lengthOf(${sourceCode.getText(expected)})`,
+      node,
+      sourceCode,
+    );
+  }
+  const booleanExpected = getBooleanValue(expected);
+  if (booleanExpected === undefined) {
+    return null;
+  }
+  return getBooleanExpressionSuggestion(
+    actual,
+    booleanExpected !== negated,
+    'chai-should',
+    sourceCode,
+    node,
+  );
 }
 
 function getChaiExpectChain(

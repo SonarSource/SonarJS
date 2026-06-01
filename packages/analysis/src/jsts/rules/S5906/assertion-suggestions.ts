@@ -24,7 +24,7 @@ export type Suggestion = {
   replacement?: string;
 };
 
-type AssertionFamily = 'jest' | 'chai' | 'assert';
+type AssertionFamily = 'jest' | 'chai' | 'chai-should' | 'assert';
 
 type NumericComparison = {
   jest: string;
@@ -130,6 +130,9 @@ function buildEqualitySuggestion(
       node,
     );
   }
+  if (family === 'chai-should') {
+    return replacement(`${left}.should${negation(same)}.equal(${right})`, node);
+  }
   return replacement(`expect(${left}${extraArguments}).to${negation(same)}.equal(${right})`, node);
 }
 
@@ -150,6 +153,9 @@ function buildInstanceofSuggestion(
       `${assertObject}.${positive ? 'instanceOf' : 'notInstanceOf'}(${left}, ${right}${extraArguments})`,
       node,
     );
+  }
+  if (family === 'chai-should') {
+    return replacement(`${left}.should${negation(positive)}.be.instanceOf(${right})`, node);
   }
   return replacement(
     `expect(${left}${extraArguments}).to${negation(positive)}.be.instanceOf(${right})`,
@@ -174,6 +180,9 @@ function buildNumericComparisonSuggestion(
       `${assertObject}.${comparison.assert}(${left}, ${right}${extraArguments})`,
       node,
     );
+  }
+  if (family === 'chai-should') {
+    return replacement(`${left}.should.be.${comparison.chai}(${right})`, node);
   }
   return replacement(`expect(${left}${extraArguments}).to.be.${comparison.chai}(${right})`, node);
 }
@@ -207,6 +216,9 @@ function getIncludesSuggestion(
       `${assertObject}.${positive ? 'include' : 'notInclude'}(${receiver}, ${needle}${extraArguments})`,
       node,
     );
+  }
+  if (family === 'chai-should') {
+    return replacement(`${receiver}.should${negation(positive)}.include(${needle})`, node);
   }
   return replacement(
     `expect(${receiver}${extraArguments}).to${negation(positive)}.include(${needle})`,
