@@ -311,9 +311,13 @@ function getNodeJSAssertCall(
   node: estree.CallExpression,
 ): { method: NodeAssertMethod; reportNode: estree.Node } | null {
   // fully qualified assert method like `assert.strictEqual()`
-  const fqnMethod = getNodeJSAssertMethodFromFqn(getFullyQualifiedName(context, node.callee));
+  const fqn = getFullyQualifiedName(context, node.callee);
+  const fqnMethod = getNodeJSAssertMethodFromFqn(fqn);
   if (fqnMethod) {
-    return { method: normalizeNodeJSAssertMethod(context, fqnMethod), reportNode: node.callee };
+    return {
+      method: normalizeNodeJSAssertMethod(fqnMethod, isStrictNodeJSAssertFqn(fqn)),
+      reportNode: node.callee,
+    };
   }
 
   // assert method from destructured import like `const { strictEqual } = require('assert');`
@@ -321,7 +325,7 @@ function getNodeJSAssertCall(
     const method = getNodeJSAssertMethodFromName(node.callee.property.name);
     if (method) {
       return {
-        method: normalizeNodeJSAssertMethod(context, method),
+        method: normalizeNodeJSAssertMethod(method, false),
         reportNode: node.callee.property,
       };
     }
@@ -331,20 +335,20 @@ function getNodeJSAssertCall(
 }
 
 function normalizeNodeJSAssertMethod(
-  context: Rule.RuleContext,
   method: NodeAssertMethod,
+  isStrictAssert: boolean,
 ): NodeAssertMethod {
   if (method === 'deepEqual') {
-    return importsModule(context, ['assert/strict', 'node:assert/strict'])
-      ? method
-      : 'looseDeepEqual';
+    return isStrictAssert ? method : 'looseDeepEqual';
   }
   if (method === 'notDeepEqual') {
-    return importsModule(context, ['assert/strict', 'node:assert/strict'])
-      ? method
-      : 'looseNotDeepEqual';
+    return isStrictAssert ? method : 'looseNotDeepEqual';
   }
   return method;
+}
+
+function isStrictNodeJSAssertFqn(fqn: string | null): boolean {
+  return fqn?.startsWith('assert.strict.') ?? false;
 }
 
 function getNodeJSAssertMethodFromFqn(fqn: string | null): NodeAssertMethod | null {
