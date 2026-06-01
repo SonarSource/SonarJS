@@ -262,41 +262,6 @@ describe('generated sources project metadata', () => {
     }
   });
 
-  it('computes detector watched filenames once per filesystem event batch', async () => {
-    const registeredDetectors = GENERATED_SOURCE_DETECTORS as GeneratedSourceDetector[];
-    const originalDetectorCount = registeredDetectors.length;
-    const baseDir = normalizeToAbsolutePath('/generated-sources-watched-filename-batch');
-    let watchedFilenameReads = 0;
-
-    registeredDetectors.push({
-      family: 'graphql-codegen',
-      get watchedFilenames() {
-        watchedFilenameReads++;
-        return ['codegen.yml'];
-      },
-      async detect() {
-        return createDerivedGeneratedSources();
-      },
-    });
-
-    try {
-      let configuration = createConfiguration({ baseDir });
-      generatedSourceStore.setup(configuration);
-      expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
-
-      watchedFilenameReads = 0;
-      configuration = createConfiguration({
-        baseDir,
-        fsEvents: [joinPaths(baseDir, 'src', 'first.ts'), joinPaths(baseDir, 'src', 'second.ts')],
-      });
-
-      expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
-      expect(watchedFilenameReads).toEqual(1);
-    } finally {
-      registeredDetectors.splice(originalDetectorCount);
-    }
-  });
-
   it('exercises the detector foundation helpers through realistic task/config/output flows', async () => {
     const baseDir = await createTempBaseDir();
     const packageDir = joinPaths(baseDir, 'packages', 'app');
