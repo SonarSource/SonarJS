@@ -65,9 +65,9 @@ const packageJsonTaskInvocationProvider = {
 // Shell preambles such as `NODE_ENV=production tool ...`, command separators other than
 // `&&`, and runner options such as `npx --yes tool ...` are left out until a detector
 // needs that broader shell surface and can justify the parsing rules.
-export const GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS = [
+export const GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS: readonly TaskInvocationProvider[] = [
   packageJsonTaskInvocationProvider,
-] as const satisfies readonly TaskInvocationProvider[];
+];
 
 export async function collectGeneratedSourceTaskInvocations(context: {
   baseDir: NormalizedAbsolutePath;
