@@ -366,8 +366,8 @@ jobs:
           add-paths: |
             README.md
             packages/analysis/src/jsts/rules/README.md
-            sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript
-            sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
+            sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.json
+            sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/*.json
           delete-branch: true
 
   test_eslint_plugin:
