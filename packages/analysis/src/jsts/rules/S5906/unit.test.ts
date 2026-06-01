@@ -47,6 +47,8 @@ describe('S5906', () => {
             expect(value).toBeTruthy();
             expect(value).toBeFalsy();
             expect(items.includes(NaN)).toBe(true);
+            expect(value == null).toBe(true);
+            expect(value != null).toBe(false);
           `,
         },
         {
