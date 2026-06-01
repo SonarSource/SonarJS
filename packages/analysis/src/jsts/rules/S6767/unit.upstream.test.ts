@@ -178,6 +178,79 @@ Wrapper.propTypes = {
     });
   });
 
+  it('upstream rule should report forwardRef alias FP pattern (sentinel: remove decorator alias check if this fails)', () => {
+    // Confirms that the upstream eslint-plugin-react no-unused-prop-types rule DOES raise
+    // issues when the forwardRef callback closes over a local alias of the component props.
+    // If this test starts failing, the upstream rule has been fixed and the alias-specific
+    // forwardRef handling in the S6767 decorator can be removed.
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types (upstream, forwardRef alias)', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // upstream does not credit outer component props once they flow through a local alias
+          code: `
+function Wrapper(props) {
+  const forwarded = props;
+  const ForwardedInput = React.forwardRef((_, ref) => (
+    <label ref={ref}>{forwarded.label}</label>
+  ));
+  return <ForwardedInput />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+};
+`,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('upstream rule should report typed decorator alias FP pattern (sentinel: remove decorator alias check if this fails)', () => {
+    // Confirms that the upstream eslint-plugin-react no-unused-prop-types rule DOES raise
+    // issues when a typed decorator callback uses a local alias of the component props.
+    // If this test starts failing, the upstream rule has been fixed and the alias-specific
+    // typed decorator handling in the S6767 decorator can be removed.
+    const upstreamRule = rules['no-unused-prop-types'];
+    const ruleTester = new RuleTester({
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
+      },
+    });
+    const fixtureFile = path.join(import.meta.dirname, 'fixtures', 'placeholder.tsx');
+
+    ruleTester.run('no-unused-prop-types (upstream, typed decorator alias)', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // upstream does not track aliased props inside typed decorator callbacks
+          code: `
+declare const React: any;
+declare function track<P>(
+  mapper: (props: P) => Record<string, unknown>,
+): <TComponent>(target: TComponent) => TComponent;
+interface DecoratorAliasProps {
+  screenName: string;
+}
+function DecoratorAliasComponent(props: DecoratorAliasProps) {
+  return <main />;
+}
+track((props: DecoratorAliasProps) => {
+  const forwarded = props;
+  return { screen_name: forwarded.screenName };
+})(DecoratorAliasComponent);
+`,
+          filename: fixtureFile,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('upstream rule should NOT report direct class decorator prop access', () => {
     // Characterizes the current upstream behavior for class decorators:
     // direct prop reads inside @screenTrack(...) do not need an S6767 escape.
