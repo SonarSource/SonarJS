@@ -9,7 +9,7 @@ on:
   merge_group:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'  # Nightly for analysis, IRIS, and ESLint README freshness
+    - cron: '0 0 * * *'  # Nightly for analysis, IRIS, and generated file freshness
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
@@ -311,10 +311,10 @@ jobs:
           path: lib/*.tgz
           key: eslint-tarball-${{ github.sha }}
 
-  eslint_readme_freshness:
+  generated_files_freshness:
     runs-on: github-ubuntu-latest-s
     needs: [setup, populate_npm_cache, sync_rspec]
-    name: ESLint README Freshness
+    name: Generated Files Freshness
     if: github.event_name == 'schedule'
     permissions:
       id-token: write
@@ -336,7 +336,7 @@ jobs:
       - *npm_cache
       - *download_rspec_rule_data
       - *rspec_secrets
-      - name: Regenerate README files
+      - name: Regenerate tracked generated files
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
         run: |
@@ -344,18 +344,29 @@ jobs:
           npm install --no-save builtin-modules@3.3.0
           npm run eslint-plugin:compile
           npm run count-rules
-      - name: Open or update README refresh PR
+      - name: Open or update generated files refresh PR
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
         with:
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
-          commit-message: Update generated README files
-          title: Update generated README files
-          body: Automated refresh of `packages/analysis/src/jsts/rules/README.md` and rule counts in `README.md`.
-          branch: bot/update-eslint-rules-readme
+          commit-message: Update generated README files and RSPEC JSON
+          title: Update generated README files and RSPEC JSON
+          body: |
+            Automated refresh of generated README files and tracked RSPEC JSON resources.
+
+            Updated paths:
+            - `README.md`
+            - `packages/analysis/src/jsts/rules/README.md`
+            - `sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.json`
+            - `sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/*.json`
+
+            If CI does not start automatically, please approve workflow runs for this PR in GitHub.
+          branch: bot/update-generated-files
           base: master
           add-paths: |
             README.md
             packages/analysis/src/jsts/rules/README.md
+            sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript
+            sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
           delete-branch: true
 
   test_eslint_plugin:
