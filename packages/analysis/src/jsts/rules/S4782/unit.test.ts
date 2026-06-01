@@ -86,10 +86,6 @@ describe('S4782', () => {
             type Recursive = string | Recursive;
             interface Example {
               attribute?: Recursive;
-            };
-            type RecursiveUndefined = undefined | Recursive;
-            interface Example2 {
-              attribute?: RecursiveUndefined;
             };`,
           },
           {
@@ -336,11 +332,30 @@ describe('S4782', () => {
               },
             ],
           },
+        ],
+      },
+    );
+
+    const semanticRuleTester = new RuleTester({
+      parser,
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks'),
+      },
+    });
+
+    semanticRuleTester.run(
+      'S4782 reports alias-based undefined types with strictNullChecks',
+      rule,
+      {
+        valid: [],
+        invalid: [
           {
             code: `type StringOrUndefined = string | undefined;
             interface Example {
               attribute?: StringOrUndefined;
             };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
                 message:
@@ -364,6 +379,7 @@ describe('S4782', () => {
             interface Example {
               attribute?: Attribute;
             };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
                 message:
@@ -388,6 +404,7 @@ describe('S4782', () => {
             interface Example {
               attribute?: Maybe<string>;
             };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
                 message:
@@ -407,10 +424,12 @@ describe('S4782', () => {
           },
           {
             code: `
-            type Box<T> = T;
+            type Recursive<T> = T | Recursive<T>[];
+            type RecursiveUndefined = Recursive<string | undefined>;
             interface Example {
-              attribute?: Box<string | undefined>;
+              attribute?: RecursiveUndefined;
             };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
             errors: [
               {
                 message:
@@ -419,32 +438,10 @@ describe('S4782', () => {
                   {
                     desc: 'Remove "?" operator',
                     output: `
-            type Box<T> = T;
+            type Recursive<T> = T | Recursive<T>[];
+            type RecursiveUndefined = Recursive<string | undefined>;
             interface Example {
-              attribute: Box<string | undefined>;
-            };`,
-                  },
-                ],
-              },
-            ],
-          },
-          {
-            code: `
-            type Wrapped = (string | undefined);
-            interface Example {
-              attribute?: Wrapped;
-            };`,
-            errors: [
-              {
-                message:
-                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
-                suggestions: [
-                  {
-                    desc: 'Remove "?" operator',
-                    output: `
-            type Wrapped = (string | undefined);
-            interface Example {
-              attribute: Wrapped;
+              attribute: RecursiveUndefined;
             };`,
                   },
                 ],
@@ -452,6 +449,37 @@ describe('S4782', () => {
             ],
           },
         ],
+      },
+    );
+
+    const noStrictNullRuleTester = new RuleTester({
+      parser,
+      parserOptions: {
+        project: './tsconfig.json',
+        tsconfigRootDir: path.join(import.meta.dirname, 'fixtures', 'no-strict-null-checks'),
+      },
+    });
+
+    noStrictNullRuleTester.run(
+      'S4782 does not report alias-based undefined types when strictNullChecks is disabled',
+      rule,
+      {
+        valid: [
+          {
+            code: `
+            type MaybeString = string | undefined;
+            interface Example {
+              attribute?: MaybeString;
+            };`,
+            filename: path.join(
+              import.meta.dirname,
+              'fixtures',
+              'no-strict-null-checks',
+              'index.ts',
+            ),
+          },
+        ],
+        invalid: [],
       },
     );
 

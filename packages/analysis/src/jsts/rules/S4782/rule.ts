@@ -19,11 +19,14 @@
 import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
+import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isRequiredParserServices, RequiredParserServices } from '../helpers/parser-services.js';
+import {
+  isRequiredParserServices,
+  type RequiredParserServices,
+} from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import * as meta from './generated-meta.js';
-import ts from 'typescript';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { hasSuggestions: true }),
@@ -37,6 +40,7 @@ export const rule: Rule.RuleModule = {
     if (compilerOptions.exactOptionalPropertyTypes) {
       return {};
     }
+    const canUseSemanticTypes = compilerOptions.strictNullChecks ?? compilerOptions.strict ?? false;
 
     function checkProperty(node: estree.Node) {
       const tsNode = node as TSESTree.Node as
@@ -49,6 +53,7 @@ export const rule: Rule.RuleModule = {
       const typeNode = getUndefinedTypeAnnotation(
         tsNode.typeAnnotation,
         context.sourceCode.parserServices,
+        canUseSemanticTypes,
       );
       if (typeNode) {
         const suggest = getQuickFixSuggestions(context, optionalToken, typeNode);
@@ -75,16 +80,17 @@ export const rule: Rule.RuleModule = {
 function getUndefinedTypeAnnotation(
   tsTypeAnnotation: TSESTree.TSTypeAnnotation | undefined,
   services: RequiredParserServices,
+  canUseSemanticTypes: boolean,
 ) {
   if (!tsTypeAnnotation) {
     return undefined;
   }
 
-  if (tsTypeAnnotation.typeAnnotation.type === 'TSTypeReference') {
-    return getUndefinedFromTypeAlias(tsTypeAnnotation, services);
-  }
   if (tsTypeAnnotation.typeAnnotation.type === 'TSUnionType') {
     return getUndefinedTypeNode(tsTypeAnnotation.typeAnnotation);
+  }
+  if (canUseSemanticTypes && tsTypeAnnotation.typeAnnotation.type === 'TSTypeReference') {
+    return getUndefinedFromTypeAlias(tsTypeAnnotation, services);
   }
   return undefined;
 }
