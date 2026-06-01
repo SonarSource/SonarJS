@@ -89,8 +89,9 @@ class GeneratedSourceStore implements FileStore {
       return;
     }
 
+    const generatedSourceWatchedFilenames = getGeneratedSourceWatchedFilenames();
     for (const filename of fsEvents) {
-      if (this.isRelevantEvent(filename)) {
+      if (this.isRelevantEvent(filename, generatedSourceWatchedFilenames)) {
         this.clearCache();
         return;
       }
@@ -155,11 +156,14 @@ class GeneratedSourceStore implements FileStore {
     );
   }
 
-  private isRelevantEvent(filename: NormalizedAbsolutePath) {
+  private isRelevantEvent(
+    filename: NormalizedAbsolutePath,
+    generatedSourceWatchedFilenames: readonly string[],
+  ) {
     const eventBaseName = basename(filename).toLowerCase();
     if (
       isPreloadableDependencyManifestPath(filename) ||
-      getGeneratedSourceWatchedFilenames().includes(eventBaseName)
+      generatedSourceWatchedFilenames.includes(eventBaseName)
     ) {
       return true;
     }
