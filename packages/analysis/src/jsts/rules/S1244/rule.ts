@@ -111,10 +111,26 @@ function isFloatingPointLiteral(node: estree.Literal & { value: number }) {
 }
 
 function isFractionProducingDivision(node: estree.BinaryExpression) {
-  if (!isNumberLiteral(node.left) || !isNumberLiteral(node.right) || node.right.value === 0) {
+  const leftValue = numericLiteralValue(node.left);
+  const rightValue = numericLiteralValue(node.right);
+  if (leftValue === null || rightValue === null || rightValue === 0) {
     return false;
   }
-  return Number.isInteger(node.left.value) && !Number.isInteger(node.left.value / node.right.value);
+  return Number.isInteger(leftValue) && !Number.isInteger(leftValue / rightValue);
+}
+
+function numericLiteralValue(node: estree.Node): number | null {
+  if (isNumberLiteral(node)) {
+    return node.value;
+  }
+  if (
+    node.type === 'UnaryExpression' &&
+    (node.operator === '+' || node.operator === '-') &&
+    isNumberLiteral(node.argument)
+  ) {
+    return node.operator === '-' ? -node.argument.value : node.argument.value;
+  }
+  return null;
 }
 
 function isFloatingPointConst(

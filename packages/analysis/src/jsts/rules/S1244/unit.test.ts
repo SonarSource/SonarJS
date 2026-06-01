@@ -93,6 +93,7 @@ describe('S1244', () => {
         { code: `const same = 0.1 + 0.2 == expected;`, errors: 1 },
         { code: `const same = amount * 0.0825 === expectedTax;`, errors: 1 },
         { code: `const same = expectedRemainder === total % 0.5;`, errors: 1 },
+        { code: `function isUnexpected() { return getRatio() != -10 / 3; }`, errors: 1 },
         { code: `if (average <= 1.1 && average >= 1.1) { publish(average); }`, errors: 1 },
         { code: `if (average >= 1.1 && average <= 1.1) { publish(average); }`, errors: 1 },
         { code: `if (1.1 >= average && 1.1 <= average) { publish(average); }`, errors: 1 },
