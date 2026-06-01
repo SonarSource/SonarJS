@@ -34,6 +34,9 @@ type NumericComparison = {
 
 const STRICT_EQUALITY_OPERATORS = new Set(['===', '!==']);
 const STRING_LIKE_IDENTIFIER = /(?:text|string|message|content|html)$/i;
+const NUMERIC_IDENTIFIER =
+  /(?:amount|count|depth|height|index|length|level|limit|number|price|score|size|total|width)$/i;
+const DATE_LIKE_IDENTIFIER = /(?:date|time|timestamp)$/i;
 
 export function getBooleanExpressionSuggestion(
   actual: estree.Node,
@@ -95,7 +98,9 @@ function getBinaryExpressionSuggestion(
     );
   }
 
-  const comparison = getNumericComparison(actual.operator, positive);
+  const comparison = isNumericComparison(actual)
+    ? getNumericComparison(actual.operator, positive)
+    : null;
   if (comparison) {
     return buildNumericComparisonSuggestion(
       left,
@@ -237,6 +242,55 @@ function isTrustedStringReceiver(node: estree.Node): boolean {
     return node.expressions.length === 0;
   }
   return isIdentifier(node) && STRING_LIKE_IDENTIFIER.test(node.name);
+}
+
+function isNumericComparison(node: estree.BinaryExpression): boolean {
+  return (
+    isKnownNumericOperand(node.left) &&
+    isKnownNumericOperand(node.right) &&
+    !isKnownNonNumericOperand(node.left) &&
+    !isKnownNonNumericOperand(node.right)
+  );
+}
+
+function isKnownNumericOperand(node: estree.Node): boolean {
+  if (node.type === 'Literal') {
+    return typeof node.value === 'number' || typeof node.value === 'bigint';
+  }
+  if (node.type === 'UnaryExpression' && ['+', '-'].includes(node.operator)) {
+    return isKnownNumericOperand(node.argument);
+  }
+  if (isIdentifier(node)) {
+    return NUMERIC_IDENTIFIER.test(node.name);
+  }
+  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)) {
+    return NUMERIC_IDENTIFIER.test(node.property.name);
+  }
+  return false;
+}
+
+function isKnownNonNumericOperand(node: estree.Node): boolean {
+  if (node.type === 'Literal') {
+    return typeof node.value === 'string';
+  }
+  if (node.type === 'TemplateLiteral') {
+    return node.expressions.length === 0;
+  }
+  if (node.type === 'NewExpression' && isIdentifier(node.callee, 'Date')) {
+    return true;
+  }
+  if (node.type === 'CallExpression' && isIdentifier(node.callee, 'Date')) {
+    return true;
+  }
+  if (isIdentifier(node)) {
+    return STRING_LIKE_IDENTIFIER.test(node.name) || DATE_LIKE_IDENTIFIER.test(node.name);
+  }
+  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)) {
+    return (
+      STRING_LIKE_IDENTIFIER.test(node.property.name) || DATE_LIKE_IDENTIFIER.test(node.property.name)
+    );
+  }
+  return false;
 }
 
 function getNumericComparison(

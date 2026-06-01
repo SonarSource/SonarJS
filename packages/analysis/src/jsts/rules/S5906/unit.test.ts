@@ -50,6 +50,8 @@ describe('S5906', () => {
             expect(value == null).toBe(true);
             expect(value != null).toBe(false);
             expect(value).toBe(void sideEffect());
+            expect(name > 'A').toBe(true);
+            expect(startDate < endDate).toBe(true);
           `,
         },
         {
