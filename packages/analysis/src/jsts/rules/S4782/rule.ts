@@ -87,10 +87,15 @@ function findRedundantUndefinedInOptionalType(
     return undefined;
   }
 
-  if (tsTypeAnnotation.typeAnnotation.type === 'TSUnionType') {
-    return findSyntacticUndefinedTypeNode(tsTypeAnnotation.typeAnnotation);
+  const rootType = tsTypeAnnotation.typeAnnotation;
+  if (rootType.type === 'TSUnionType') {
+    const syntacticUndefined = findSyntacticUndefinedTypeNode(rootType);
+    if (syntacticUndefined) {
+      return syntacticUndefined;
+    }
   }
-  if (canUseSemanticUndefinedCheck && tsTypeAnnotation.typeAnnotation.type === 'TSTypeReference') {
+
+  if (canUseSemanticUndefinedCheck) {
     return findSemanticUndefinedTypeNode(tsTypeAnnotation, services);
   }
   return undefined;

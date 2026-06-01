@@ -34,6 +34,9 @@
 "vitest:packages/vitest/src/node/core.ts": [
 142
 ],
+"vitest:packages/vitest/src/node/reporters/benchmark/reporter.ts": [
+16
+],
 "vitest:packages/vitest/src/node/reporters/github-actions.ts": [
 53,
 59,
@@ -44,7 +47,9 @@
 ],
 "vitest:packages/vitest/src/node/types/config.ts": [
 565,
-1027
+1027,
+1153,
+1217
 ],
 "vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
 28

@@ -373,6 +373,28 @@ describe('S4782', () => {
             ],
           },
           {
+            code: `type NumberOrUndefined = number | undefined;
+            interface Example {
+              attribute?: string | NumberOrUndefined;
+            };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `type NumberOrUndefined = number | undefined;
+            interface Example {
+              attribute: string | NumberOrUndefined;
+            };`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
             code: `
             type NumberOrUndefined = number | undefined;
             type Attribute = string | NumberOrUndefined;
