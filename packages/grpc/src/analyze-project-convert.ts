@@ -199,7 +199,7 @@ function toIssue(
 }
 
 function toSuppressedIssue(
-  issue: SuppressedIssue<JsTsIssue> | SuppressedIssue<CssIssue>,
+  issue: SuppressedIssue<JsTsIssue>,
   pathMap: AnalyzeProjectPathMap,
 ): sonarjs.analyzeproject.v1.IIssue {
   return {

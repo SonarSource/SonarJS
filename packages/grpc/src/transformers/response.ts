@@ -159,16 +159,6 @@ function transformCssIssue(issue: CssIssue, filePath: string): analyzer.IIssue {
   };
 }
 
-function transformSuppressedCssIssue(
-  issue: SuppressedIssue<CssIssue>,
-  filePath: string,
-): analyzer.IIssue {
-  return {
-    ...transformCssIssue(issue, filePath),
-    resolutionComment: issue.resolutionComment,
-  };
-}
-
 /**
  * Transform a parsing error into a gRPC issue.
  *
@@ -236,13 +226,9 @@ function transformOutputIssue(issue: CssIssue | JsTsIssue, filePath: string): an
 }
 
 function transformOutputSuppressedIssue(
-  issue: SuppressedIssue<CssIssue> | SuppressedIssue<JsTsIssue>,
+  issue: SuppressedIssue<JsTsIssue>,
   filePath: string,
 ): analyzer.IIssue {
-  if (issue.language === 'css') {
-    return transformSuppressedCssIssue(issue, filePath);
-  }
-
   return transformSuppressedIssue({ ...issue, filePath: filePath as NormalizedAbsolutePath });
 }
 

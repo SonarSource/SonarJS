@@ -394,6 +394,37 @@ class AnalysisProcessorTest {
   }
 
   @Test
+  void should_save_suppressed_issue_as_file_level_without_resolution_when_location_is_missing() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(13, 5),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "js", "file.js", "const value = 42;;\n");
+
+    var savedIssues = processor.processResponse(
+      context,
+      createChecks(),
+      file,
+      responseWithSuppressedIssues(suppressedIssueAtLine(0))
+    );
+
+    assertThat(savedIssues).isEmpty();
+    assertThat(sensorContext.allIssues())
+      .singleElement()
+      .satisfies(issue -> assertThat(issue.primaryLocation().textRange()).isNull());
+    assertThat(issueResolutions(sensorContext, file)).isEmpty();
+    assertThat(logTester.logs()).contains(
+      "Cannot save issue resolution for rule javascript:S1116 without a valid location"
+    );
+  }
+
+  @Test
   void should_ignore_suppressed_issues_before_supported_runtime() {
     assertSuppressedIssueBehavior(Version.create(13, 4), false);
   }
@@ -401,6 +432,44 @@ class AnalysisProcessorTest {
   @Test
   void should_ignore_suppressed_issues_when_disabled_by_internal_flag() {
     assertSuppressedIssueBehavior(Version.create(13, 5), false, true);
+  }
+
+  @Test
+  void should_ignore_non_js_suppressed_issues() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(13, 5),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "css", "file.css", "a {}\n");
+
+    var savedIssues = processor.processResponse(
+      context,
+      createChecks(),
+      file,
+      responseWithSuppressedIssues(
+        Issue.newBuilder()
+          .setLine(1)
+          .setColumn(0)
+          .setEndLine(1)
+          .setEndColumn(4)
+          .setMessage("Empty block")
+          .setRuleId("block-no-empty")
+          .setLanguage(AnalysisLanguage.ANALYSIS_LANGUAGE_CSS)
+          .setFilePath("file.css")
+          .setResolutionComment("accepted")
+          .build()
+      )
+    );
+
+    assertThat(savedIssues).isEmpty();
+    assertThat(sensorContext.allIssues()).isEmpty();
+    assertThat(issueResolutions(sensorContext, file)).isEmpty();
   }
 
   @Test
@@ -530,19 +599,7 @@ class AnalysisProcessorTest {
       context,
       createChecks(),
       file,
-      responseWithSuppressedIssues(
-        Issue.newBuilder()
-          .setLine(1)
-          .setColumn(17)
-          .setEndLine(1)
-          .setEndColumn(18)
-          .setMessage("Unnecessary semicolon.")
-          .setRuleId("S1116")
-          .setLanguage(AnalysisLanguage.ANALYSIS_LANGUAGE_JS)
-          .setFilePath("file.js")
-          .setResolutionComment("accepted")
-          .build()
-      )
+      responseWithSuppressedIssues(suppressedIssueAtLine(1))
     );
 
     assertThat(savedIssues).isEmpty();
@@ -568,6 +625,20 @@ class AnalysisProcessorTest {
       RuleKey.of("javascript", "S1116")
     );
     return checks;
+  }
+
+  private Issue suppressedIssueAtLine(int line) {
+    var issue = Issue.newBuilder()
+      .setLine(line)
+      .setMessage("Unnecessary semicolon.")
+      .setRuleId("S1116")
+      .setLanguage(AnalysisLanguage.ANALYSIS_LANGUAGE_JS)
+      .setFilePath("file.js")
+      .setResolutionComment("accepted");
+    if (line != 0) {
+      issue.setColumn(17).setEndLine(line).setEndColumn(18);
+    }
+    return issue.build();
   }
 
   private List<IssueResolution> issueResolutions(SensorContextTester tester, InputFile inputFile) {

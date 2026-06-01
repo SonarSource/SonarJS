@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -62,7 +61,7 @@ public final class OrchestratorStarter
     try (var stream = Files.walk(target, 1)) {
       var plugin = stream
         .filter(p -> pluginFilenameMatcher().matcher(p.getFileName().toString()).matches())
-        .max(Comparator.comparingLong(p -> p.toFile().lastModified()))
+        .findAny()
         .orElseThrow();
       return URLLocation.create(plugin.toUri().toURL());
     } catch (IOException e) {

@@ -246,6 +246,9 @@ public class AnalysisProcessor {
     }
 
     for (Issue issue : suppressedIssues) {
+      if (!isJsTs(issue.getLanguage())) {
+        continue;
+      }
       LOG.debug(
         "Saving suppressed issue for rule {} on file {} at line {}",
         issue.getRuleId(),
@@ -258,8 +261,6 @@ public class AnalysisProcessor {
       }
       try {
         saveIssue(context, issue, ruleKey);
-        // Issue resolutions only persist the accepted state; the issue still has to be saved first.
-        saveAcceptedIssueResolution(context, issue, ruleKey);
       } catch (RuntimeException e) {
         LOG.warn("Failed to save suppressed issue in {} at line {}", file.uri(), issue.getLine());
         LOG.warn("Exception cause", e);
@@ -478,12 +479,9 @@ public class AnalysisProcessor {
       location.message(issue.getMessage());
     }
 
-    if (issue.hasEndLine() && issue.hasEndColumn()) {
-      location.at(
-        file.newRange(issue.getLine(), issue.getColumn(), issue.getEndLine(), issue.getEndColumn())
-      );
-    } else if (issue.getLine() != 0) {
-      location.at(file.selectLine(issue.getLine()));
+    var primaryTextRange = primaryTextRange(issue);
+    if (primaryTextRange != null) {
+      location.at(primaryTextRange);
     }
 
     issue.getSecondaryLocationsList().forEach(secondary -> {
@@ -508,6 +506,7 @@ public class AnalysisProcessor {
 
     if (ruleKey != null) {
       newIssue.at(location).forRule(ruleKey).save();
+      saveAcceptedIssueResolution(context, ruleKey, issue.getResolutionComment(), primaryTextRange);
     } else if (CssRules.CSS_PARSING_ERROR_STYLELINT_KEY.equals(issue.getRuleId())) {
       LOG.warn(
         "Failed to parse file {}, line {}, {}",
@@ -557,6 +556,13 @@ public class AnalysisProcessor {
       ((SonarLintRuntime) context.getSensorContext().runtime())
         .getSonarLintPluginApiVersion()
         .isGreaterThanOrEqual(Version.create(6, 3))
+    );
+  }
+
+  private static boolean isJsTs(AnalysisLanguage language) {
+    return (
+      language == AnalysisLanguage.ANALYSIS_LANGUAGE_JS ||
+      language == AnalysisLanguage.ANALYSIS_LANGUAGE_TS
     );
   }
 
@@ -628,6 +634,14 @@ public class AnalysisProcessor {
     return trimmed.regionMatches(true, 0, SonarResolve.KEYWORD, 0, SonarResolve.KEYWORD.length());
   }
 
+  @Nullable
+  private TextRange primaryTextRange(Issue issue) {
+    if (issue.hasEndLine() && issue.hasEndColumn()) {
+      return file.newRange(issue.getLine(), issue.getColumn(), issue.getEndLine(), issue.getEndColumn());
+    }
+    return issue.getLine() != 0 ? file.selectLine(issue.getLine()) : null;
+  }
+
   private void saveIssueResolution(JsTsContext<?> context, SonarResolve sonarResolve) {
     context
       .getSensorContext()
@@ -644,15 +658,27 @@ public class AnalysisProcessor {
     LOG.warn("{} in file {} at line {}", errorMessage, file.uri(), line);
   }
 
-  private void saveAcceptedIssueResolution(JsTsContext<?> context, Issue issue, RuleKey ruleKey) {
+  private void saveAcceptedIssueResolution(
+    JsTsContext<?> context,
+    RuleKey ruleKey,
+    String resolutionComment,
+    @Nullable TextRange textRange
+  ) {
+    if (resolutionComment.isEmpty() || !supportsIssueResolution(context)) {
+      return;
+    }
+    if (textRange == null) {
+      LOG.warn("Cannot save issue resolution for rule {} without a valid location", ruleKey);
+      return;
+    }
     context
       .getSensorContext()
       .newIssueResolution()
       .on(file)
-      .at(file.selectLine(issue.getLine()))
+      .at(textRange)
       .status(IssueResolution.Status.DEFAULT)
       .forRules(List.of(ruleKey))
-      .comment(issue.getResolutionComment())
+      .comment(resolutionComment)
       .save();
   }
 
