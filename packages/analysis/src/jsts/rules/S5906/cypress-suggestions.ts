@@ -61,11 +61,16 @@ function getCypressNullishSuggestion(
   property: string,
   nullish: 'null' | 'undefined',
 ): Suggestion | null {
-  if (chainer !== 'equal' && chainer !== 'not.equal' && chainer !== 'deep.equal') {
+  if (
+    chainer !== 'equal' &&
+    chainer !== 'not.equal' &&
+    chainer !== 'deep.equal' &&
+    chainer !== 'not.deep.equal'
+  ) {
     return null;
   }
 
-  const negation = chainer === 'not.equal' ? 'not.' : '';
+  const negation = chainer === 'not.equal' || chainer === 'not.deep.equal' ? 'not.' : '';
   return replacement(
     `${subject}.${property}('${negation}be.${nullish}')`,
     node,

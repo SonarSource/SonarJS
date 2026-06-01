@@ -198,6 +198,34 @@ describe('S5906 additional assertion styles', () => {
         },
         {
           code: `
+            import 'cypress';
+
+            cy.wrap(value).should('not.deep.equal', null);
+          `,
+          errors: [
+            expectedError(`
+            import 'cypress';
+
+            cy.wrap(value).should('not.be.null');
+          `),
+          ],
+        },
+        {
+          code: `
+            import 'cypress';
+
+            cy.wrap(value).and('not.deep.equal', undefined);
+          `,
+          errors: [
+            expectedError(`
+            import 'cypress';
+
+            cy.wrap(value).and('not.be.undefined');
+          `),
+          ],
+        },
+        {
+          code: `
             import { expect, test } from '@playwright/test';
 
             test('checks page', async ({ page }) => {
