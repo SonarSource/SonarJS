@@ -25,7 +25,7 @@ import {
   getProjectFileDiscoveryConfigKey,
 } from '../common/configuration.js';
 import { dependencyManifestStore } from './dependency-manifests.js';
-import { GENERATED_SOURCE_WATCHED_FILENAMES } from '../jsts/rules/helpers/generated-sources/index.js';
+import { getGeneratedSourceWatchedFilenames } from '../jsts/rules/helpers/generated-sources/index.js';
 import { isPreloadableDependencyManifestPath } from '../jsts/rules/helpers/dependency-manifests/index.js';
 import { deriveGeneratedSources } from '../jsts/rules/helpers/generated-sources/derive.js';
 
@@ -159,7 +159,7 @@ class GeneratedSourceStore implements FileStore {
     const eventBaseName = basename(filename).toLowerCase();
     if (
       isPreloadableDependencyManifestPath(filename) ||
-      GENERATED_SOURCE_WATCHED_FILENAMES.includes(eventBaseName)
+      getGeneratedSourceWatchedFilenames().includes(eventBaseName)
     ) {
       return true;
     }

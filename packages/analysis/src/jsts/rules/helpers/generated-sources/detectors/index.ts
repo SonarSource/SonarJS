@@ -17,4 +17,13 @@
 import type { GeneratedSourceDetector } from '../contracts.js';
 
 export const GENERATED_SOURCE_DETECTORS: readonly GeneratedSourceDetector[] = [];
-export const GENERATED_SOURCE_WATCHED_FILENAMES: readonly string[] = [];
+
+export function getGeneratedSourceWatchedFilenames() {
+  return [
+    ...new Set(
+      GENERATED_SOURCE_DETECTORS.flatMap(detector =>
+        (detector.watchedFilenames ?? []).map(filename => filename.toLowerCase()),
+      ),
+    ),
+  ].sort((left, right) => left.localeCompare(right));
+}

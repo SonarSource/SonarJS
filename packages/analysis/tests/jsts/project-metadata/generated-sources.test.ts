@@ -40,8 +40,8 @@ import {
 import {
   GENERATED_SOURCE_DETECTORS,
   GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,
-  GENERATED_SOURCE_WATCHED_FILENAMES,
   collectGeneratedSourceTaskInvocations,
+  getGeneratedSourceWatchedFilenames,
 } from '../../../src/jsts/rules/helpers/generated-sources/index.js';
 import {
   addFamilyFiles,
@@ -116,7 +116,7 @@ describe('generated sources project metadata', () => {
     expect(GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS.map(provider => provider.kind)).toEqual([
       'package-json-scripts',
     ]);
-    expect(GENERATED_SOURCE_WATCHED_FILENAMES).toEqual([]);
+    expect(getGeneratedSourceWatchedFilenames()).toEqual([]);
   });
 
   it('collects and normalizes package.json task invocations', async () => {
@@ -230,6 +230,36 @@ describe('generated sources project metadata', () => {
       fsEvents: [generatedFile],
     });
     expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
+  });
+
+  it('invalidates the generated-source store on detector watched filenames', async () => {
+    const registeredDetectors = GENERATED_SOURCE_DETECTORS as GeneratedSourceDetector[];
+    const originalDetectorCount = registeredDetectors.length;
+    const baseDir = normalizeToAbsolutePath('/generated-sources-watched-filename');
+
+    registeredDetectors.push({
+      family: 'graphql-codegen',
+      watchedFilenames: ['Codegen.yml'],
+      async detect() {
+        return createDerivedGeneratedSources();
+      },
+    });
+
+    try {
+      expect(getGeneratedSourceWatchedFilenames()).toEqual(['codegen.yml']);
+
+      let configuration = createConfiguration({ baseDir });
+      generatedSourceStore.setup(configuration);
+      expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
+
+      configuration = createConfiguration({
+        baseDir,
+        fsEvents: [joinPaths(baseDir, 'codegen.yml')],
+      });
+      expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
+    } finally {
+      registeredDetectors.splice(originalDetectorCount);
+    }
   });
 
   it('exercises the detector foundation helpers through realistic task/config/output flows', async () => {
