@@ -77,7 +77,7 @@ export async function collectGeneratedSourceTaskInvocations(context: {
   const taskInvocations: TaskInvocation[] = [];
 
   for (const provider of GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS) {
-    taskInvocations.push(...(await Promise.resolve(provider.collect(context))));
+    taskInvocations.push(...(await provider.collect(context)));
   }
 
   return taskInvocations;
