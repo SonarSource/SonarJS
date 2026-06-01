@@ -1,0 +1,52 @@
+{
+  "title": "Angular built-in sanitization should not be disabled",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "BLOCKER"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "30min"
+  },
+  "tags": [
+    "cwe",
+    "former-hotspot"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-6268",
+  "sqKey": "S6268",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      79
+    ],
+    "OWASP": [
+      "A7"
+    ],
+    "OWASP Top 10 2021": [
+      "A3"
+    ],
+    "PCI DSS 3.2": [
+      "6.5.7"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ],
+    "ASVS 4.0": [
+      "5.3.3"
+    ]
+  },
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "suspicious",
+    "pitfall"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": [
+      "S1524",
+      "VariableHiding",
+      "VariableShadowing",
+      "HiddenFieldCheck"
+    ]
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-1117",
+  "sqKey": "S1117",
+  "scope": "Main",
+  "defaultQualityProfiles": [],
+  "quickfix": "unknown",
+  "title": "Variables should not be shadowed",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

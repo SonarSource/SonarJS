@@ -1,0 +1,39 @@
+{
+  "title": "Tests should be stable",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM",
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "TESTED"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "20min"
+  },
+  "tags": [
+    "tests",
+    "design",
+    "unpredictable",
+    "editable-source"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-5973",
+  "sqKey": "S5973",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "title": "Regular expressions with the global flag should be used with caution",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "regex"
+  ],
+  "extra": {
+    "replacementRules": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6351",
+  "sqKey": "S6351",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

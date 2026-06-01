@@ -1,0 +1,44 @@
+{
+  "title": "Tests should not be skipped without providing a reason",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "TESTED"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "tests",
+    "jasmine",
+    "jest",
+    "mocha",
+    "vitest",
+    "cypress",
+    "playwright",
+    "node",
+    "karma",
+    "editable-source"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-1607",
+  "sqKey": "S1607",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

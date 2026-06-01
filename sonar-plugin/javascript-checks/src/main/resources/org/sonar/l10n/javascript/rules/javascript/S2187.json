@@ -1,0 +1,46 @@
+{
+  "title": "Test files should contain at least one test case",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "TESTED"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "jasmine",
+    "jest",
+    "mocha",
+    "vitest",
+    "cypress",
+    "playwright",
+    "karma",
+    "node",
+    "tests",
+    "unused",
+    "confusing",
+    "editable-source"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2187",
+  "sqKey": "S2187",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

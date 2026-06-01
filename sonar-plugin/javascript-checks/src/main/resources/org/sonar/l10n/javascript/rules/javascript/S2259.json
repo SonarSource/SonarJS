@@ -1,0 +1,40 @@
+{
+  "title": "Properties of variables with \"null\" or \"undefined\" values should not be accessed",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "cwe",
+    "type-dependent"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-2259",
+  "sqKey": "S2259",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      476
+    ]
+  },
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "js"
+  ]
+}

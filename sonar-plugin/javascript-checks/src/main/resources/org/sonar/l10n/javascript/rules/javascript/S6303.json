@@ -1,0 +1,54 @@
+{
+  "title": "Amazon RDS resources should be encrypted at rest",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "MEDIUM"
+    },
+    "attribute": "TRUSTWORTHY"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "aws",
+    "cwe",
+    "former-hotspot"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-6303",
+  "sqKey": "S6303",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      311
+    ],
+    "PCI DSS 3.2": [
+      "2.2",
+      "6.5.3"
+    ],
+    "PCI DSS 4.0": [
+      "2.2",
+      "6.2.4"
+    ],
+    "STIG ASD_V5R3": [
+      "V-222588"
+    ]
+  },
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

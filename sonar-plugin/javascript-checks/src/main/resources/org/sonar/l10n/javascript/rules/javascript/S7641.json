@@ -1,0 +1,36 @@
+{
+  "title": "Angular lifecycle methods should be used in the correct context",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "angular",
+    "lifecycle"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7641",
+  "sqKey": "S7641",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "LOGICAL"
+  },
+  "extra": {
+    "requiredDependency": [
+      "@angular/core"
+    ]
+  },
+  "compatibleLanguages": [
+    "ts"
+  ]
+}

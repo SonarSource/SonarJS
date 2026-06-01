@@ -13,6 +13,8 @@ To work on this project, it is required to have the following tools installed:
 
 Rule metadata is automatically fetched from the `SonarSource/rspec` repository as part of the build. On first run, the rspec repo is cloned (sparse checkout) into `resources/rspec/` via SSH. On subsequent runs, the latest changes are fetched automatically.
 
+The generated RSPEC rule metadata JSON published under `sonar-plugin/*/src/main/resources/**/rules/*/` is tracked in Git. The rendered HTML files in those directories remain ignored.
+
 Use `--rspec-path` to point to an existing local clone instead:
 
 ```bash
