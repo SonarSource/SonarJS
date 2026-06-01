@@ -35,6 +35,7 @@ const EXPLICIT_FILE_SET_REQUEST_KEY_PREFIX = 'explicit';
 type RequestFilesKey = string | undefined;
 
 class GeneratedSourceStore implements FileStore {
+  private readonly explicitRequestFilesKeys = new WeakMap<AnalyzableFiles, string>();
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
@@ -49,7 +50,7 @@ class GeneratedSourceStore implements FileStore {
 
   async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
-    const requestFilesKey = getRequestFilesKey(configuration.canAccessFileSystem, inputFiles);
+    const requestFilesKey = this.getRequestFilesKey(configuration.canAccessFileSystem, inputFiles);
     this.activeRequestFilesKey = requestFilesKey;
     if (this.baseDir === undefined) {
       return false;
@@ -150,7 +151,7 @@ class GeneratedSourceStore implements FileStore {
     this.watchedOutputPaths = derived.watchedOutputPaths;
     this.refreshFilteredState(
       analyzableFiles,
-      this.activeRequestFilesKey ?? getRequestFilesKey(canAccessFileSystem, analyzableFiles),
+      this.activeRequestFilesKey ?? this.getRequestFilesKey(canAccessFileSystem, analyzableFiles),
     );
   }
 
@@ -189,6 +190,24 @@ class GeneratedSourceStore implements FileStore {
     this.watchedOutputPaths = new Set();
   }
 
+  private getRequestFilesKey(
+    canAccessFileSystem: boolean,
+    analyzableFiles?: AnalyzableFiles,
+  ): RequestFilesKey {
+    if (!analyzableFiles) {
+      return canAccessFileSystem ? ALL_FILES_REQUEST_KEY : undefined;
+    }
+
+    const cachedRequestFilesKey = this.explicitRequestFilesKeys.get(analyzableFiles);
+    if (cachedRequestFilesKey !== undefined) {
+      return cachedRequestFilesKey;
+    }
+
+    const requestFilesKey = createExplicitRequestFilesKey(analyzableFiles);
+    this.explicitRequestFilesKeys.set(analyzableFiles, requestFilesKey);
+    return requestFilesKey;
+  }
+
   private refreshFilteredState(
     analyzableFiles: AnalyzableFiles | undefined,
     requestFilesKey: RequestFilesKey,
@@ -215,14 +234,7 @@ function filterAnalyzableGeneratedFiles(
   return filtered;
 }
 
-function getRequestFilesKey(
-  canAccessFileSystem: boolean,
-  analyzableFiles?: AnalyzableFiles,
-): RequestFilesKey {
-  if (!analyzableFiles) {
-    return canAccessFileSystem ? ALL_FILES_REQUEST_KEY : undefined;
-  }
-
+function createExplicitRequestFilesKey(analyzableFiles: AnalyzableFiles) {
   const filePaths = Object.keys(analyzableFiles).sort((left, right) => left.localeCompare(right));
   const hash = createHash('sha256');
   for (const filePath of filePaths) {

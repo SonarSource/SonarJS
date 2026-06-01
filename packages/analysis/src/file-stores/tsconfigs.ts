@@ -114,6 +114,7 @@ export class TsConfigStore implements FileStore {
     this.foundLookupTsConfigs = [];
     this.foundPropertyTsConfigs = [];
     this.providedPropertyTsConfigs = undefined;
+    this.propertyTsConfigsHash = undefined;
     clearTsConfigContentCache();
     clearProgramOptionsCache();
     getProgramCacheManager().clear();

@@ -90,6 +90,28 @@ describe('tsconfigs', () => {
     );
   });
 
+  it('should keep using provided tsconfig paths after project-file discovery resets the cache', async () => {
+    const providedTsconfig = normalizeToAbsolutePath(join(fixtures, 'project3', 'tsconfig.json'));
+    let configuration = createConfiguration({
+      baseDir: fixtures,
+      tsConfigPaths: [providedTsconfig],
+    });
+    await initFileStores(configuration);
+
+    expect(tsConfigStore.getTsConfigs()).toEqual([providedTsconfig]);
+    expect(tsConfigStore.usingPropertyTsConfigs()).toBe(true);
+
+    configuration = createConfiguration({
+      baseDir: fixtures,
+      tsConfigPaths: [providedTsconfig],
+      jsTsExclusions: ['**/project1/**'],
+    });
+    await initFileStores(configuration);
+
+    expect(tsConfigStore.getTsConfigs()).toEqual([providedTsconfig]);
+    expect(tsConfigStore.usingPropertyTsConfigs()).toBe(true);
+  });
+
   it('should refresh discovered tsconfigs when project-file discovery config changes', async () => {
     let configuration = createConfiguration({ baseDir: fixtures });
     await initFileStores(configuration);
