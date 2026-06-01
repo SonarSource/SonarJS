@@ -139,13 +139,10 @@ function normalizePnpmExecTaskInvocation(tokens: InvocationTokens) {
 }
 
 function unwrapNestedCommandTokens(args: readonly string[]): InvocationTokens | undefined {
-  let commandIndex = args[0] === '--' ? 1 : 0;
-  while (isOptionToken(args[commandIndex] ?? '')) {
-    commandIndex += 1;
-  }
+  const commandIndex = args[0] === '--' ? 1 : 0;
   const command = args[commandIndex];
 
-  if (!command || !isDirectCommandToken(command)) {
+  if (!command || !isDirectCommandToken(command) || isOptionToken(command)) {
     return undefined;
   }
 
