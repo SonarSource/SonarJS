@@ -63,13 +63,6 @@ describe('S5906', () => {
         },
         {
           code: `
-            import { expect } from 'jasmine';
-
-            expect(error).toBe(null);
-          `,
-        },
-        {
-          code: `
             import assert from 'node:assert';
 
             assert.strictEqual(value, null);
@@ -118,6 +111,20 @@ describe('S5906', () => {
             test('uses generic null assertion', () => {
               expect(error).toBeNull();
             });
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'jasmine';
+
+            expect(error).toBe(null);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'jasmine';
+
+            expect(error).toBeNull();
           `),
           ],
         },

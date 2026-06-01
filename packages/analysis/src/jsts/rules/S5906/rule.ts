@@ -119,6 +119,8 @@ function getSuggestion(
 ): Suggestion | null {
   switch (style) {
     case 'jest-like':
+    case 'playwright':
+    case 'jasmine':
       return getJestLikeSuggestion(node, sourceCode);
     case 'chai-bdd':
       return getChaiBddSuggestion(node, sourceCode);

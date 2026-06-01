@@ -212,6 +212,24 @@ describe('S5906 additional assertion styles', () => {
           code: `
             import { expect, test } from '@playwright/test';
 
+            test('checks error', () => {
+              expect(error).toBe(null);
+            });
+          `,
+          errors: [
+            expectedError(`
+            import { expect, test } from '@playwright/test';
+
+            test('checks error', () => {
+              expect(error).toBeNull();
+            });
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect, test } from '@playwright/test';
+
             test('checks page', async ({ page }) => {
               const rows = page.getByRole('row');
 
