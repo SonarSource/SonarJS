@@ -301,9 +301,7 @@ export function isNullLiteral(node: estree.Node): boolean {
 }
 
 export function isUndefinedExpression(node: estree.Node): boolean {
-  return (
-    isIdentifier(node, 'undefined') || (node.type === 'UnaryExpression' && node.operator === 'void')
-  );
+  return isIdentifier(node, 'undefined');
 }
 
 export function isNaNExpression(node: estree.Node): boolean {

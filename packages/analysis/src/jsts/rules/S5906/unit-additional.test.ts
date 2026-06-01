@@ -40,6 +40,7 @@ describe('S5906 additional assertion styles', () => {
             assert.notEqual(value, undefined);
             assert.ok(value);
             assert.isTrue(value);
+            assert.strictEqual(value, void sideEffect());
           `,
         },
         {
@@ -48,6 +49,7 @@ describe('S5906 additional assertion styles', () => {
 
             cy.get('button').should('be.visible');
             cy.wrap(value).should('be.null');
+            cy.wrap(value).should('equal', void sideEffect());
           `,
         },
         {
