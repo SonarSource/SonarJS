@@ -82,14 +82,14 @@ export const rule: Rule.RuleModule = {
       'MethodDefinition[key.type="Identifier"]': (node: estree.MethodDefinition) => {
         knowledgeStack.push({
           node: node.key as estree.Identifier,
-          func: node.value as estree.Function,
+          func: node.value,
           returnsJSX: false,
         });
       },
       'FunctionDeclaration[id.type="Identifier"]': (node: estree.FunctionDeclaration) => {
         knowledgeStack.push({
           node: node.id,
-          func: node as estree.Function,
+          func: node,
           returnsJSX: false,
         });
       },
