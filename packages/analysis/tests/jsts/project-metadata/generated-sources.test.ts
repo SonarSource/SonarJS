@@ -26,6 +26,7 @@ import {
   initFileStores,
   sourceFileStore,
 } from '../../../src/file-stores/index.js';
+import type { GeneratedSourceDetector } from '../../../src/jsts/rules/helpers/generated-sources/contracts.js';
 import {
   hasToolEvidence,
   resolveConfigPaths,
@@ -209,6 +210,28 @@ describe('generated sources project metadata', () => {
     expect(generatedSourceStore.getFamily(includedFile)).toBeUndefined();
   });
 
+  it('keeps all derived generated-source families in filesystem mode and invalidates on relevant file events', async () => {
+    let configuration = createConfiguration({
+      baseDir: normalizeToAbsolutePath('/generated-sources-all-files'),
+    });
+    const generatedFile = joinPaths(configuration.baseDir, 'src', 'generated', 'graphql.ts');
+    const state = generatedSourceStore as unknown as {
+      derivedFamilyByFile: Map<NormalizedAbsolutePath, string>;
+    };
+
+    generatedSourceStore.setup(configuration);
+    state.derivedFamilyByFile = new Map([[generatedFile, 'graphql-codegen']]);
+
+    await generatedSourceStore.isInitialized(configuration);
+    expect(generatedSourceStore.getFamily(generatedFile)).toEqual('graphql-codegen');
+
+    configuration = createConfiguration({
+      baseDir: configuration.baseDir,
+      fsEvents: [generatedFile],
+    });
+    expect(await generatedSourceStore.isInitialized(configuration)).toBe(false);
+  });
+
   it('exercises the detector foundation helpers through realistic task/config/output flows', async () => {
     const baseDir = await createTempBaseDir();
     const packageDir = joinPaths(baseDir, 'packages', 'app');
@@ -287,6 +310,59 @@ describe('generated sources project metadata', () => {
         [nestedOutputFile, 'graphql-codegen'],
       ]);
     } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('merges detector output and falls back to raw package dependencies for synthetic manifests', async () => {
+    const baseDir = await createTempBaseDir();
+    const packageDir = joinPaths(baseDir, 'packages', 'fixture');
+    const configPath = joinPaths(packageDir, 'codegen.yml');
+    const outputDirectory = joinPaths(packageDir, 'src', 'generated');
+    const outputFile = joinPaths(outputDirectory, 'graphql.ts');
+    const registeredDetectors = GENERATED_SOURCE_DETECTORS as GeneratedSourceDetector[];
+    const originalDetectorCount = registeredDetectors.length;
+
+    registeredDetectors.push({
+      family: 'graphql-codegen',
+      async detect({ getDependencies, taskInvocations }) {
+        expect(getDependencies().get('@graphql-codegen/cli')).toEqual('5.0.0');
+        expect(taskInvocations).toEqual([
+          {
+            source: 'package-json-script',
+            taskName: 'codegen',
+            commandLine: 'graphql-codegen --config ./codegen.yml',
+            command: 'graphql-codegen',
+            args: ['--config', './codegen.yml'],
+          },
+        ]);
+
+        const derived = createDerivedGeneratedSources();
+        addFamilyFiles('graphql-codegen', [outputFile], derived);
+        derived.configPaths.add(configPath);
+        derived.watchedOutputPaths.add(outputDirectory);
+        return derived;
+      },
+    });
+
+    try {
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(packageDir, {
+          devDependencies: {
+            '@graphql-codegen/cli': '5.0.0',
+          },
+          scripts: {
+            codegen: 'graphql-codegen --config ./codegen.yml',
+          },
+        }),
+      );
+
+      expect([...derived.familyByFile.entries()]).toEqual([[outputFile, 'graphql-codegen']]);
+      expect([...derived.configPaths]).toEqual([configPath]);
+      expect([...derived.watchedOutputPaths]).toEqual([outputDirectory]);
+    } finally {
+      registeredDetectors.splice(originalDetectorCount);
       await rm(baseDir, { recursive: true, force: true });
     }
   });
