@@ -348,7 +348,38 @@ describe('S4782', () => {
       'S4782 reports alias-based undefined types with strictNullChecks',
       rule,
       {
-        valid: [],
+        valid: [
+          {
+            code: `
+            type StringOrNumber = string | number;
+            interface Example {
+              attribute?: StringOrNumber;
+            };
+            type UndefinedAlias = undefined;
+            interface Example2 {
+              attribute?: UndefinedAlias;
+            };
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+          {
+            code: `
+            type A = string;
+            type B = A;
+            type C = B;
+            interface Example {
+              attribute?: C;
+            };
+            type D = undefined;
+            type E = D;
+            type F = E;
+            interface Example2 {
+              attribute?: F;
+            };
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+        ],
         invalid: [
           {
             code: `type StringOrUndefined = string | undefined;
@@ -492,6 +523,59 @@ describe('S4782', () => {
             type MaybeString = string | undefined;
             interface Example {
               attribute?: MaybeString;
+            };`,
+            filename: path.join(
+              import.meta.dirname,
+              'fixtures',
+              'no-strict-null-checks',
+              'index.ts',
+            ),
+          },
+          {
+            code: `
+            type StringOrUndefined = string | undefined;
+            interface Example {
+              attribute?: StringOrUndefined;
+            };`,
+            filename: path.join(
+              import.meta.dirname,
+              'fixtures',
+              'no-strict-null-checks',
+              'index.ts',
+            ),
+          },
+          {
+            code: `
+            type NumberOrUndefined = number | undefined;
+            interface Example {
+              attribute?: string | NumberOrUndefined;
+            };`,
+            filename: path.join(
+              import.meta.dirname,
+              'fixtures',
+              'no-strict-null-checks',
+              'index.ts',
+            ),
+          },
+          {
+            code: `
+            type NumberOrUndefined = number | undefined;
+            type Attribute = string | NumberOrUndefined;
+            interface Example {
+              attribute?: Attribute;
+            };`,
+            filename: path.join(
+              import.meta.dirname,
+              'fixtures',
+              'no-strict-null-checks',
+              'index.ts',
+            ),
+          },
+          {
+            code: `
+            type Maybe<T> = T | undefined;
+            interface Example {
+              attribute?: Maybe<string>;
             };`,
             filename: path.join(
               import.meta.dirname,
