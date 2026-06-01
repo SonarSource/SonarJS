@@ -130,6 +130,7 @@ describe('generated sources project metadata', () => {
           scripts: {
             codegen: 'graphql-codegen --config ./codegen.yml && prettier src/generated',
             wrapped: 'npx graphql-codegen --config ./codegen.yml',
+            wrappedWithFlags: 'npx --yes graphql-codegen --config ./codegen.yml',
             rawYarn: 'yarn graphql-codegen --config ./codegen.yml',
           },
         },
@@ -154,6 +155,13 @@ describe('generated sources project metadata', () => {
           source: 'package-json-script',
           taskName: 'wrapped',
           commandLine: 'npx graphql-codegen --config ./codegen.yml',
+          command: 'graphql-codegen',
+          args: ['--config', './codegen.yml'],
+        },
+        {
+          source: 'package-json-script',
+          taskName: 'wrappedWithFlags',
+          commandLine: 'npx --yes graphql-codegen --config ./codegen.yml',
           command: 'graphql-codegen',
           args: ['--config', './codegen.yml'],
         },
