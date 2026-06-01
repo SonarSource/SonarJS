@@ -26,6 +26,9 @@ import * as meta from './generated-meta.js';
 
 const equalityOperators = new Set(['===', '!==', '==', '!=']);
 const arithmeticOperators = new Set(['+', '-', '*', '%', '**']);
+const indirectEqualityOperators = new Set(['<=', '>=']);
+const indirectInequalityOperators = new Set(['<', '>']);
+const decimalLiteralPattern = /^(\d*)(?:\.(\d*))?(?:e([+-]?\d+))?$/u;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -119,7 +122,7 @@ function isFloatingPointLiteral(node: estree.Literal & { value: number }) {
 }
 
 function isExactlyRepresentableAsBinaryFraction(raw: string) {
-  const match = raw.match(/^(\d*)(?:\.(\d*))?(?:e([+-]?\d+))?$/u);
+  const match = decimalLiteralPattern.exec(raw);
   if (!match) {
     return false;
   }
@@ -241,14 +244,8 @@ function isIndirectExactComparison(
   node: estree.LogicalExpression,
   isFloatingPointSensitive: FloatingPointPredicate,
 ) {
-  const acceptedOperators =
-    node.operator === '&&'
-      ? new Set(['<=', '>='])
-      : node.operator === '||'
-        ? new Set(['<', '>'])
-        : null;
-  const leftComparison = node.left;
-  const rightComparison = node.right;
+  const acceptedOperators = acceptedIndirectOperators(node.operator);
+  const { left: leftComparison, right: rightComparison } = node;
   if (
     !acceptedOperators ||
     !isAcceptedComparison(leftComparison, acceptedOperators) ||
@@ -268,6 +265,16 @@ function isIndirectExactComparison(
   );
 }
 
+function acceptedIndirectOperators(operator: estree.LogicalExpression['operator']) {
+  if (operator === '&&') {
+    return indirectEqualityOperators;
+  }
+  if (operator === '||') {
+    return indirectInequalityOperators;
+  }
+  return null;
+}
+
 function isAcceptedComparison(
   node: estree.Expression,
   acceptedOperators: Set<string>,
@@ -276,8 +283,7 @@ function isAcceptedComparison(
 }
 
 function comparisonAlternatives(node: estree.BinaryExpression) {
-  const left = node.left;
-  const right = node.right;
+  const { left, right } = node;
   switch (node.operator) {
     case '<':
     case '<=':
