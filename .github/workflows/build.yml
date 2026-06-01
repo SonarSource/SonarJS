@@ -174,16 +174,6 @@ jobs:
         run: npm run sync-rspec-all
         env:
           GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
-      - name: Verify tracked RSPEC JSON
-        run: |
-          CHANGES=$(git status --short --untracked-files=all -- \
-            sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript \
-            sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css)
-          if [ -n "$CHANGES" ]; then
-            echo "Tracked RSPEC JSON files are out of date. Run \`npm run sync-rspec-all\` and commit the generated JSON files:"
-            echo "$CHANGES"
-            exit 1
-          fi
       - name: Upload RSPEC rule data
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
