@@ -40,7 +40,8 @@ export const rule: Rule.RuleModule = {
     if (compilerOptions.exactOptionalPropertyTypes) {
       return {};
     }
-    const canUseSemanticTypes = compilerOptions.strictNullChecks ?? compilerOptions.strict ?? false;
+    const canUseSemanticUndefinedCheck =
+      compilerOptions.strictNullChecks ?? compilerOptions.strict ?? false;
 
     function checkProperty(node: estree.Node) {
       const tsNode = node as TSESTree.Node as
@@ -50,10 +51,10 @@ export const rule: Rule.RuleModule = {
       if (!tsNode.optional || !optionalToken) {
         return;
       }
-      const typeNode = getUndefinedTypeAnnotation(
+      const typeNode = findRedundantUndefinedInOptionalType(
         tsNode.typeAnnotation,
         context.sourceCode.parserServices,
-        canUseSemanticTypes,
+        canUseSemanticUndefinedCheck,
       );
       if (typeNode) {
         const suggest = getQuickFixSuggestions(context, optionalToken, typeNode);
@@ -77,25 +78,25 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getUndefinedTypeAnnotation(
+function findRedundantUndefinedInOptionalType(
   tsTypeAnnotation: TSESTree.TSTypeAnnotation | undefined,
   services: RequiredParserServices,
-  canUseSemanticTypes: boolean,
+  canUseSemanticUndefinedCheck: boolean,
 ) {
   if (!tsTypeAnnotation) {
     return undefined;
   }
 
   if (tsTypeAnnotation.typeAnnotation.type === 'TSUnionType') {
-    return getUndefinedTypeNode(tsTypeAnnotation.typeAnnotation);
+    return findSyntacticUndefinedTypeNode(tsTypeAnnotation.typeAnnotation);
   }
-  if (canUseSemanticTypes && tsTypeAnnotation.typeAnnotation.type === 'TSTypeReference') {
-    return getUndefinedFromTypeAlias(tsTypeAnnotation, services);
+  if (canUseSemanticUndefinedCheck && tsTypeAnnotation.typeAnnotation.type === 'TSTypeReference') {
+    return findSemanticUndefinedTypeNode(tsTypeAnnotation, services);
   }
   return undefined;
 }
 
-function getUndefinedFromTypeAlias(
+function findSemanticUndefinedTypeNode(
   tsTypeAnnotation: TSESTree.TSTypeAnnotation,
   services: RequiredParserServices,
 ): TSESTree.TypeNode | undefined {
@@ -110,12 +111,14 @@ function getUndefinedFromTypeAlias(
   return hasUndefined && hasNonUndefined ? tsTypeAnnotation.typeAnnotation : undefined;
 }
 
-function getUndefinedTypeNode(typeNode: TSESTree.TypeNode): TSESTree.TypeNode | undefined {
+function findSyntacticUndefinedTypeNode(
+  typeNode: TSESTree.TypeNode,
+): TSESTree.TypeNode | undefined {
   if (typeNode.type === 'TSUndefinedKeyword') {
     return typeNode;
   }
   if (typeNode.type === 'TSUnionType') {
-    return typeNode.types.map(getUndefinedTypeNode).find(tpe => tpe !== undefined);
+    return typeNode.types.map(findSyntacticUndefinedTypeNode).find(tpe => tpe !== undefined);
   }
   return undefined;
 }
