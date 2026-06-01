@@ -107,7 +107,51 @@ export const rule: Rule.RuleModule = {
 };
 
 function isFloatingPointLiteral(node: estree.Literal & { value: number }) {
-  return /[.eE]/.test(String(node.raw));
+  const raw = String(node.raw).replaceAll('_', '').toLowerCase();
+  if (!raw.includes('.') && !raw.includes('e')) {
+    return false;
+  }
+  if (!/^\d*(?:\.\d*)?(?:e[+-]?\d+)?$/u.test(raw)) {
+    return false;
+  }
+
+  return !isExactlyRepresentableAsBinaryFraction(raw);
+}
+
+function isExactlyRepresentableAsBinaryFraction(raw: string) {
+  const match = raw.match(/^(\d*)(?:\.(\d*))?(?:e([+-]?\d+))?$/u);
+  if (!match) {
+    return false;
+  }
+
+  const [, integerPart, fractionalPart = '', exponentPart] = match;
+  const digits = `${integerPart}${fractionalPart}`;
+  if (digits === '') {
+    return false;
+  }
+
+  const exponent = Number(exponentPart ?? 0) - fractionalPart.length;
+  const numerator = BigInt(digits);
+  if (numerator === 0n || exponent >= 0) {
+    return true;
+  }
+
+  const denominator = 10n ** BigInt(-exponent);
+  const reducedDenominator = denominator / greatestCommonDivisor(numerator, denominator);
+  return isPowerOfTwo(reducedDenominator);
+}
+
+function greatestCommonDivisor(left: bigint, right: bigint): bigint {
+  let a = left;
+  let b = right;
+  while (b !== 0n) {
+    [a, b] = [b, a % b];
+  }
+  return a;
+}
+
+function isPowerOfTwo(value: bigint) {
+  return value > 0n && (value & (value - 1n)) === 0n;
 }
 
 function isFractionProducingDivision(node: estree.BinaryExpression) {
