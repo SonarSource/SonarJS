@@ -32,7 +32,6 @@ import {
   type PreloadableDependencyManifestName,
   isPreloadableDependencyManifestPath,
 } from '../jsts/rules/helpers/dependency-manifests/index.js';
-import { getProjectFileDiscoveryConfigKey } from '../common/configuration.js';
 
 export const UNINITIALIZED_ERROR =
   'dependency manifest cache has not been initialized. Call loadFiles() first.';
@@ -52,7 +51,6 @@ class DependencyManifestStore implements FileStore {
   private readonly manifestsByName = createManifestFilesByName();
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
-  private projectFileDiscoveryConfigKey: string | undefined = undefined;
   private readonly dirnameToParent: Map<
     NormalizedAbsolutePath,
     NormalizedAbsolutePath | undefined
@@ -72,11 +70,7 @@ class DependencyManifestStore implements FileStore {
 
   dirtyCachesIfNeeded(configuration: Configuration) {
     const { baseDir, canAccessFileSystem, fsEvents } = configuration;
-    if (
-      baseDir !== this.baseDir ||
-      canAccessFileSystem !== this.canAccessFileSystem ||
-      getProjectFileDiscoveryConfigKey(configuration) !== this.projectFileDiscoveryConfigKey
-    ) {
+    if (baseDir !== this.baseDir || canAccessFileSystem !== this.canAccessFileSystem) {
       this.clearCache();
       return;
     }
@@ -91,7 +85,6 @@ class DependencyManifestStore implements FileStore {
   clearCache() {
     this.baseDir = undefined;
     this.canAccessFileSystem = undefined;
-    this.projectFileDiscoveryConfigKey = undefined;
     for (const manifestFiles of Object.values(this.manifestsByName)) {
       manifestFiles.clear();
     }
@@ -103,7 +96,6 @@ class DependencyManifestStore implements FileStore {
   setup(configuration: Configuration) {
     this.baseDir = configuration.baseDir;
     this.canAccessFileSystem = configuration.canAccessFileSystem;
-    this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
     this.dirnameToParent.set(configuration.baseDir, undefined);
   }
 

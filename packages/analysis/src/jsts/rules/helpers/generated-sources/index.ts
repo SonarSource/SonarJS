@@ -15,8 +15,14 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 export {
+  GRAPHQL_CODEGEN_FAMILY,
+  OPENAPI_GENERATOR_FAMILY,
+  PROTO_LOADER_GEN_TYPES_FAMILY,
+  type GeneratedSourceFamily,
+} from './contracts.js';
+export {
   GENERATED_SOURCE_DETECTORS,
-  getGeneratedSourceWatchedFilenames,
+  GENERATED_SOURCE_WATCHED_FILENAMES,
 } from './detectors/index.js';
 export {
   GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,

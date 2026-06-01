@@ -61,13 +61,9 @@ const packageJsonTaskInvocationProvider = {
   },
 } satisfies TaskInvocationProvider;
 
-// The package.json script parser intentionally recognizes only simple command chains.
-// Shell preambles such as `NODE_ENV=production tool ...`, command separators other than
-// `&&`, and runner options such as `npx --yes tool ...` are left out until a detector
-// needs that broader shell surface and can justify the parsing rules.
-export const GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS: readonly TaskInvocationProvider[] = [
+export const GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS = [
   packageJsonTaskInvocationProvider,
-];
+] as const satisfies readonly TaskInvocationProvider[];
 
 export async function collectGeneratedSourceTaskInvocations(context: {
   baseDir: NormalizedAbsolutePath;
@@ -77,7 +73,7 @@ export async function collectGeneratedSourceTaskInvocations(context: {
   const taskInvocations: TaskInvocation[] = [];
 
   for (const provider of GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS) {
-    taskInvocations.push(...(await provider.collect(context)));
+    taskInvocations.push(...(await Promise.resolve(provider.collect(context))));
   }
 
   return taskInvocations;

@@ -25,14 +25,6 @@ export const GENERATED_SOURCE_DETECTORS: readonly GeneratedSourceDetector[] = [
   protoLoaderGenTypesDetector,
 ];
 
-export function getGeneratedSourceWatchedFilenames(
-  detectors: readonly GeneratedSourceDetector[] = GENERATED_SOURCE_DETECTORS,
-) {
-  return [
-    ...new Set(
-      detectors.flatMap(detector =>
-        (detector.watchedFilenames ?? []).map(filename => filename.toLowerCase()),
-      ),
-    ),
-  ].sort((left, right) => left.localeCompare(right));
-}
+export const GENERATED_SOURCE_WATCHED_FILENAMES = [
+  ...new Set(GENERATED_SOURCE_DETECTORS.flatMap(detector => detector.watchedFilenames ?? [])),
+].sort((left, right) => left.localeCompare(right));

@@ -29,7 +29,6 @@ import {
   isStringArray,
   isObject,
 } from '../../../shared/src/helpers/sanitize.js';
-import { JAVASCRIPT_CODE_FILE_EXTENSIONS, TYPESCRIPT_CODE_FILE_EXTENSIONS } from './file-kinds.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -82,6 +81,7 @@ export type Configuration = {
   testInclusions: Minimatch[] /* sonar.test.inclusions - WILDCARD to narrow down sonar.tests */;
   testExclusions: Minimatch[] /* sonar.test.exclusions - WILDCARD to narrow down sonar.tests */;
   detectBundles: boolean /* sonar.javascript.detectBundles - whether files looking like bundled code should be ignored */;
+  detectGeneratedCode: boolean /* sonar.javascript.detectGeneratedCode - whether generated-source detection should affect analysis behavior */;
   createTSProgramForOrphanFiles: boolean /* sonar.javascript.createTSProgramForOrphanFiles - whether to create a TS program for orphan files */;
   disableTypeChecking: boolean /* sonar.javascript.disableTypeChecking - whether to completely disable TypeScript type checking */;
   skipNodeModuleLookupOutsideBaseDir: boolean /* sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir - whether to skip node_modules lookups outside baseDir in TS compiler host */;
@@ -118,6 +118,7 @@ export type ConfigurationInput = {
   testInclusions?: string[];
   testExclusions?: string[];
   detectBundles?: boolean;
+  detectGeneratedCode?: boolean;
   createTSProgramForOrphanFiles?: boolean;
   disableTypeChecking?: boolean;
   skipNodeModuleLookupOutsideBaseDir?: boolean;
@@ -128,8 +129,8 @@ export type ConfigurationInput = {
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
 const IGNORED_PATTERNS = ['.scannerwork'];
 
-const DEFAULT_JS_EXTENSIONS = [...JAVASCRIPT_CODE_FILE_EXTENSIONS, '.vue'];
-const DEFAULT_TS_EXTENSIONS = TYPESCRIPT_CODE_FILE_EXTENSIONS.slice();
+const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
+const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
 const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
 const DEFAULT_HTML_EXTENSIONS = ['.html', '.htm', '.xhtml'];
 const DEFAULT_YAML_EXTENSIONS = ['.yml', '.yaml'];
@@ -256,6 +257,7 @@ export function createConfiguration(raw: unknown): Configuration {
     testInclusions: isStringArray(raw.testInclusions) ? raw.testInclusions : undefined,
     testExclusions: isStringArray(raw.testExclusions) ? raw.testExclusions : undefined,
     detectBundles: isBoolean(raw.detectBundles) ? raw.detectBundles : undefined,
+    detectGeneratedCode: isBoolean(raw.detectGeneratedCode) ? raw.detectGeneratedCode : undefined,
     createTSProgramForOrphanFiles: isBoolean(raw.createTSProgramForOrphanFiles)
       ? raw.createTSProgramForOrphanFiles
       : undefined,
@@ -308,6 +310,7 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
     testInclusions: normalizeGlobs(input.testInclusions, baseDir),
     testExclusions: normalizeGlobs(input.testExclusions, baseDir),
     detectBundles: input.detectBundles ?? true,
+    detectGeneratedCode: input.detectGeneratedCode ?? true,
     createTSProgramForOrphanFiles: input.createTSProgramForOrphanFiles ?? true,
     disableTypeChecking: input.disableTypeChecking ?? false,
     skipNodeModuleLookupOutsideBaseDir: input.skipNodeModuleLookupOutsideBaseDir ?? false,
@@ -425,16 +428,6 @@ export function getFilterPathParams(configuration: Configuration): FilterPathPar
 
 function serializeMinimatchPatterns(patterns: Minimatch[]) {
   return patterns.map(({ pattern }) => pattern);
-}
-
-/**
- * Returns a stable cache key for configuration fields that decide which project-level
- * helper files can be discovered during the file-system walk.
- */
-export function getProjectFileDiscoveryConfigKey(configuration: Configuration) {
-  return JSON.stringify({
-    jsTsExclusions: serializeMinimatchPatterns(configuration.jsTsExclusions),
-  });
 }
 
 /**
