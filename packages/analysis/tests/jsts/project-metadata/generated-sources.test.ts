@@ -26,7 +26,6 @@ import {
   initFileStores,
   sourceFileStore,
 } from '../../../src/file-stores/index.js';
-import type { GeneratedSourceDetector } from '../../../src/jsts/rules/helpers/generated-sources/contracts.js';
 import {
   hasToolEvidence,
   resolveConfigPaths,
@@ -233,7 +232,7 @@ describe('generated sources project metadata', () => {
   });
 
   it('invalidates the generated-source store on detector watched filenames', async () => {
-    const registeredDetectors = GENERATED_SOURCE_DETECTORS as GeneratedSourceDetector[];
+    const registeredDetectors = GENERATED_SOURCE_DETECTORS;
     const originalDetectorCount = registeredDetectors.length;
     const baseDir = normalizeToAbsolutePath('/generated-sources-watched-filename');
 
@@ -263,7 +262,7 @@ describe('generated sources project metadata', () => {
   });
 
   it('computes detector watched filenames once per filesystem event batch', async () => {
-    const registeredDetectors = GENERATED_SOURCE_DETECTORS as GeneratedSourceDetector[];
+    const registeredDetectors = GENERATED_SOURCE_DETECTORS;
     const originalDetectorCount = registeredDetectors.length;
     const baseDir = normalizeToAbsolutePath('/generated-sources-watched-filename-batch');
     let watchedFilenameReads = 0;
@@ -385,7 +384,7 @@ describe('generated sources project metadata', () => {
     const configPath = joinPaths(packageDir, 'codegen.yml');
     const outputDirectory = joinPaths(packageDir, 'src', 'generated');
     const outputFile = joinPaths(outputDirectory, 'graphql.ts');
-    const registeredDetectors = GENERATED_SOURCE_DETECTORS as GeneratedSourceDetector[];
+    const registeredDetectors = GENERATED_SOURCE_DETECTORS;
     const originalDetectorCount = registeredDetectors.length;
 
     registeredDetectors.push({
@@ -458,7 +457,7 @@ describe('generated sources project metadata', () => {
 
   it('skips package metadata traversal when no detector is registered', async () => {
     const packageJsons = {
-      *[Symbol.iterator](): IterableIterator<[NormalizedAbsolutePath, File]> {
+      [Symbol.iterator](): IterableIterator<[NormalizedAbsolutePath, File]> {
         throw new Error('package.json metadata should not be read without detectors');
       },
     } as ReadonlyMap<NormalizedAbsolutePath, File>;

@@ -16,7 +16,7 @@
  */
 import type { GeneratedSourceDetector } from '../contracts.js';
 
-export const GENERATED_SOURCE_DETECTORS: readonly GeneratedSourceDetector[] = [];
+export const GENERATED_SOURCE_DETECTORS: GeneratedSourceDetector[] = [];
 
 export function getGeneratedSourceWatchedFilenames() {
   return [
