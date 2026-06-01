@@ -45,7 +45,7 @@ const messages = {
 
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const MAX_ASSERT_ARGUMENTS_WITH_MESSAGE = 3;
-const CHAI_EQUALITY_MATCHERS = ['equal', 'equals', 'eq', 'eql', 'eqls'];
+const CHAI_EQUALITY_MATCHERS = new Set(['equal', 'equals', 'eq', 'eql', 'eqls']);
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages, hasSuggestions: true }),
@@ -197,7 +197,7 @@ function getChaiExpectSuggestion(
 ): Suggestion | null {
   if (
     !isMethodCall(node) ||
-    !CHAI_EQUALITY_MATCHERS.includes(node.callee.property.name) ||
+    !CHAI_EQUALITY_MATCHERS.has(node.callee.property.name) ||
     node.arguments.length !== 1
   ) {
     return null;
@@ -222,7 +222,7 @@ function getChaiShouldSuggestion(
 ): Suggestion | null {
   if (
     !isMethodCall(node) ||
-    !CHAI_EQUALITY_MATCHERS.includes(node.callee.property.name) ||
+    !CHAI_EQUALITY_MATCHERS.has(node.callee.property.name) ||
     node.arguments.length !== 1
   ) {
     return null;
