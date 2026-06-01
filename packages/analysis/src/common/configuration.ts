@@ -422,6 +422,37 @@ export function getFilterPathParams(configuration: Configuration): FilterPathPar
   };
 }
 
+function serializeMinimatchPatterns(patterns: Minimatch[]) {
+  return patterns.map(({ pattern }) => pattern);
+}
+
+/**
+ * Returns a stable cache key for the configuration fields that decide which files
+ * are discovered, kept, and classified for analysis.
+ */
+export function getAnalyzableFilesConfigKey(configuration: Configuration) {
+  const shouldIgnoreParams = getShouldIgnoreParams(configuration);
+  const filterPathParams = getFilterPathParams(configuration);
+
+  return JSON.stringify({
+    jsSuffixes: shouldIgnoreParams.jsSuffixes,
+    tsSuffixes: shouldIgnoreParams.tsSuffixes,
+    cssSuffixes: shouldIgnoreParams.cssSuffixes,
+    htmlSuffixes: shouldIgnoreParams.htmlSuffixes,
+    yamlSuffixes: shouldIgnoreParams.yamlSuffixes,
+    cssAdditionalSuffixes: shouldIgnoreParams.cssAdditionalSuffixes,
+    detectBundles: shouldIgnoreParams.detectBundles,
+    maxFileSize: shouldIgnoreParams.maxFileSize,
+    jsTsExclusions: serializeMinimatchPatterns(shouldIgnoreParams.jsTsExclusions),
+    sourcesPaths: filterPathParams.sourcesPaths,
+    testPaths: filterPathParams.testPaths,
+    inclusions: serializeMinimatchPatterns(filterPathParams.inclusions),
+    exclusions: serializeMinimatchPatterns(filterPathParams.exclusions),
+    testInclusions: serializeMinimatchPatterns(filterPathParams.testInclusions),
+    testExclusions: serializeMinimatchPatterns(filterPathParams.testExclusions),
+  });
+}
+
 function isJsFile(
   filePath: NormalizedAbsolutePath,
   jsSuffixes: string[] = DEFAULT_JS_EXTENSIONS,

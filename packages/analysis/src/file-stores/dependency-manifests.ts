@@ -47,9 +47,10 @@ function createManifestFilesByName(): ManifestFilesByName {
   ) as ManifestFilesByName;
 }
 
-export class DependencyManifestStore implements FileStore {
+class DependencyManifestStore implements FileStore {
   private readonly manifestsByName = createManifestFilesByName();
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
+  private canAccessFileSystem: boolean | undefined = undefined;
   private readonly dirnameToParent: Map<
     NormalizedAbsolutePath,
     NormalizedAbsolutePath | undefined
@@ -68,8 +69,8 @@ export class DependencyManifestStore implements FileStore {
   }
 
   dirtyCachesIfNeeded(configuration: Configuration) {
-    const { baseDir, fsEvents } = configuration;
-    if (baseDir !== this.baseDir) {
+    const { baseDir, canAccessFileSystem, fsEvents } = configuration;
+    if (baseDir !== this.baseDir || canAccessFileSystem !== this.canAccessFileSystem) {
       this.clearCache();
       return;
     }
@@ -83,6 +84,7 @@ export class DependencyManifestStore implements FileStore {
 
   clearCache() {
     this.baseDir = undefined;
+    this.canAccessFileSystem = undefined;
     for (const manifestFiles of Object.values(this.manifestsByName)) {
       manifestFiles.clear();
     }
@@ -93,6 +95,7 @@ export class DependencyManifestStore implements FileStore {
 
   setup(configuration: Configuration) {
     this.baseDir = configuration.baseDir;
+    this.canAccessFileSystem = configuration.canAccessFileSystem;
     this.dirnameToParent.set(configuration.baseDir, undefined);
   }
 
@@ -133,3 +136,5 @@ export class DependencyManifestStore implements FileStore {
     }
   }
 }
+
+export const dependencyManifestStore = new DependencyManifestStore();
