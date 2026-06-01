@@ -35,6 +35,10 @@ export async function deriveGeneratedSources(
   },
 ): Promise<DerivedGeneratedSources> {
   const derived = createDerivedGeneratedSources();
+  if (GENERATED_SOURCE_DETECTORS.length === 0) {
+    return derived;
+  }
+
   const { sourceFileMatcher } = options ?? {};
 
   for (const [packageDir, file] of packageJsons) {
