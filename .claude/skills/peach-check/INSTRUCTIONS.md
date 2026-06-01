@@ -2,15 +2,15 @@
 
 Canonical instructions for the `peach-check` skill live in this file.
 
-Use this skill when the user asks to check the latest Peach run, triage Peach Main Analysis
-failures, or decide whether Peach blocks a SonarJS release.
+Use this skill as a daily Peach Main Analysis sanity check, when the user asks to check the latest
+Peach run, triage Peach Main Analysis failures, or decide whether Peach blocks a SonarJS release.
 
 ## Overview
 
 - Repository under analysis: `SonarSource/peachee-js`
 - Workflow file: `main-analysis.yml`
 - Branch: `js-ts-css-html`
-- Classification guide: `docs/peach-main-analysis.md`
+- Classification guide (failure path only): `docs/peach-main-analysis.md`
 - Canonical run-jobs helper: `.claude/skills/peach-check/peach-run-jobs.js`
 - Canonical issue-history helper: `.claude/skills/peach-check/peach-issue-history.js`
 - Canonical DROP-forensics helper: `.claude/skills/peach-check/peach-drop-forensics.js`
@@ -20,12 +20,23 @@ successful project scans to verify that the current Peach state is materially co
 recent history, classifies the findings with the guide, and prints a summary focused on SonarJS
 ownership.
 
+Do not open `docs/peach-main-analysis.md` unless `failed-jobs.total_jobs > 0` or
+`clean_for_early_exit == false`.
+
 ## Prerequisites
 
 - Run from the SonarJS repository.
 - Verify GitHub auth first with `gh auth status`.
 - Ensure the current GitHub identity can access `SonarSource/peachee-js`.
 - Ensure `PEACH_KEY` is set.
+- Verify it without printing the secret, for example:
+
+```bash
+test -n "${PEACH_KEY:-}"
+```
+
+  A zero exit status means `PEACH_KEY` is available.
+- Do not `echo` or otherwise print `PEACH_KEY`.
 - Know the path to a local `peachee-js` checkout. If `PEACHEE_ROOT` is set, use it. Otherwise
   pass the checkout path explicitly to the helper scripts.
 - If `PEACHEE_ROOT` is unset and the checkout path is not obvious, locate it before continuing,
@@ -53,17 +64,20 @@ find ~ -maxdepth 4 -type d -name peachee-js
 
 ## Workflow
 
-### Quick green path
+### Green path
 
 This is the common case:
 
 1. Resolve the run.
-2. Collect project jobs.
-3. Run the analysis-consistency helper.
-4. If `target/failed-jobs.json.total_jobs` is `0` and
-   `target/peach-issue-history.json.clean_for_early_exit` is `true`, print the `SAFE` summary and
-   stop.
-5. Only continue to DROP forensics or log triage when step 4 fails.
+2. Create a run-scoped output directory.
+3. Collect project jobs.
+4. Run the analysis-consistency helper.
+5. If `OUTPUT_DIR/failed-jobs.json.total_jobs` is `0` and
+   `OUTPUT_DIR/peach-issue-history.json.clean_for_early_exit` is `true`, print the `SAFE` summary
+   and stop.
+6. Only continue to DROP forensics or log triage when step 5 fails.
+
+Do not open `docs/peach-main-analysis.md` on the green path unless step 5 fails.
 
 Common green-path command sequence:
 
@@ -76,24 +90,26 @@ gh run list \
   --json databaseId,conclusion,createdAt,status \
   --jq '[.[] | select(.status == "completed")] | first | {databaseId, conclusion, createdAt}'
 
-node .claude/skills/peach-check/peach-run-jobs.js RUN_ID target
+mkdir -p OUTPUT_DIR
 
-jq '{expected_total, total_jobs, failed_jobs, counts_match}' target/jobs-merged.json
+node .claude/skills/peach-check/peach-run-jobs.js RUN_ID OUTPUT_DIR
 
-jq '{excluded_workflow_jobs, excluded_project_jobs}' target/exclusion-counts.json
+jq '{expected_total, total_jobs, failed_jobs, counts_match}' OUTPUT_DIR/jobs-merged.json
 
-jq '{total_jobs}' target/failed-jobs.json
+jq '{excluded_workflow_jobs, excluded_project_jobs}' OUTPUT_DIR/exclusion-counts.json
 
-jq '{total_jobs}' target/project-jobs.json
+jq '{total_jobs}' OUTPUT_DIR/failed-jobs.json
 
-rm -f target/peach-issue-history.json
+jq '{total_jobs}' OUTPUT_DIR/project-jobs.json
+
+rm -f OUTPUT_DIR/peach-issue-history.json
 
 node .claude/skills/peach-check/peach-issue-history.js \
-  target/project-jobs.json \
+  OUTPUT_DIR/project-jobs.json \
   PEACHEE_ROOT_OR_PATH \
-  target/peach-issue-history.json
+  OUTPUT_DIR/peach-issue-history.json
 
-jq '{analysis_window_start, analysis_window_end, blocking_rows_count, clean_for_early_exit, summary}' target/peach-issue-history.json
+jq '{analysis_window_start, analysis_window_end, blocking_rows_count, clean_for_early_exit, summary}' OUTPUT_DIR/peach-issue-history.json
 ```
 
 ### 1. Resolve the run
@@ -117,9 +133,13 @@ Record:
 - `RUN_ID`
 - run timestamp
 - overall conclusion
+- `OUTPUT_DIR = target/peach-check/RUN_ID`
 
 If the chosen run has `conclusion == "cancelled"`, stop and report that the run is incomplete and
 not usable for release triage. Recommend a rerun and do not classify jobs from that run.
+
+A workflow conclusion of `success` is not by itself a `SAFE` release verdict. Section 3 still
+needs to confirm that the successful jobs produced fresh, materially consistent Peach analyses.
 
 ### 2. Collect project jobs
 
@@ -127,7 +147,11 @@ Use the helper script to fetch the Peach run jobs and materialize the working se
 rest of the workflow:
 
 ```bash
-node .claude/skills/peach-check/peach-run-jobs.js RUN_ID target
+mkdir -p OUTPUT_DIR
+```
+
+```bash
+node .claude/skills/peach-check/peach-run-jobs.js RUN_ID OUTPUT_DIR
 ```
 
 The helper is usually silent on success. Inspect the JSON files it writes rather than waiting for
@@ -137,47 +161,54 @@ The script calls `gh api "repos/SonarSource/peachee-js/actions/runs/RUN_ID/jobs?
 from Node.js, falls back to explicit `?page=N` fetches if the paginated response comes back short,
 and writes these files:
 
-- `target/jobs-merged.json`
-- `target/analyzed-jobs.json`
-- `target/exclusion-counts.json`
-- `target/failed-jobs.json`
-- `target/project-jobs.json`
+- `OUTPUT_DIR/jobs-merged.json`
+- `OUTPUT_DIR/analyzed-jobs.json`
+- `OUTPUT_DIR/exclusion-counts.json`
+- `OUTPUT_DIR/failed-jobs.json`
+- `OUTPUT_DIR/project-jobs.json`
 
 Use these low-noise checks right away instead of opening the full JSON blobs:
 
 ```bash
-jq '{expected_total, total_jobs, failed_jobs, counts_match}' target/jobs-merged.json
+jq '{expected_total, total_jobs, failed_jobs, counts_match}' OUTPUT_DIR/jobs-merged.json
 ```
 
 ```bash
-jq '{excluded_workflow_jobs, excluded_project_jobs}' target/exclusion-counts.json
+jq '{excluded_workflow_jobs, excluded_project_jobs}' OUTPUT_DIR/exclusion-counts.json
 ```
 
 ```bash
-jq '{total_jobs}' target/failed-jobs.json
+jq '{total_jobs}' OUTPUT_DIR/failed-jobs.json
 ```
 
 ```bash
-jq '{total_jobs}' target/project-jobs.json
+jq '{total_jobs}' OUTPUT_DIR/project-jobs.json
 ```
+
+Count invariant:
+
+`jobs-merged.total_jobs == project-jobs.total_jobs + failed-jobs.total_jobs + excluded_workflow_jobs + excluded_project_jobs`
+
+Use that identity as a quick sanity check before moving on. For example, a clean run can look like
+`247 = 245 + 0 + 2 + 0`.
 
 JSON shapes:
 
-- `target/jobs-merged.json` → `{ expected_total, total_jobs, failed_jobs, counts_match, jobs }`
-- `target/failed-jobs.json` → `{ total_jobs, jobs }` for failed analyzed jobs
-- `target/project-jobs.json` → `{ total_jobs, jobs }` for successful analyzed jobs
+- `OUTPUT_DIR/jobs-merged.json` → `{ expected_total, total_jobs, failed_jobs, counts_match, jobs }`
+- `OUTPUT_DIR/failed-jobs.json` → `{ total_jobs, jobs }` for failed analyzed jobs
+- `OUTPUT_DIR/project-jobs.json` → `{ total_jobs, jobs }` for successful analyzed jobs
 
 `jobs` entries are raw GitHub Actions job objects from the jobs API. Expect fields such as `id`,
 `name`, `html_url`, `head_sha`, and `steps` when GitHub includes them in the payload.
 
-If `target/jobs-merged.json` still cannot reconcile `expected_total` with `total_jobs` after the
+If `OUTPUT_DIR/jobs-merged.json` still cannot reconcile `expected_total` with `total_jobs` after the
 explicit page fallback, the helper exits non-zero. Stop there and report the mismatch instead of
 classifying partial data.
 
-`target/analyzed-jobs.json` excludes workflow-only jobs such as `prepare-project-matrix` and
+`OUTPUT_DIR/analyzed-jobs.json` excludes workflow-only jobs such as `prepare-project-matrix` and
 `diff-validation-aggregated`.
 
-`target/exclusion-counts.json` records:
+`OUTPUT_DIR/exclusion-counts.json` records:
 
 - `excluded_workflow_jobs`
 - `excluded_project_jobs`
@@ -196,7 +227,7 @@ For excluded jobs:
 - record `excluded_project_jobs` separately so the summary makes it explicit how many actual
   project scans were excluded; this is normally `0` unless you intentionally exclude a real project scan
 
-Use `target/failed-jobs.json` for failure triage and `target/project-jobs.json` for the
+Use `OUTPUT_DIR/failed-jobs.json` for failure triage and `OUTPUT_DIR/project-jobs.json` for the
 analysis-consistency check.
 
 For each remaining failed job, record:
@@ -241,7 +272,7 @@ The helper reconstructs recent unresolved-issue counts from Peach analyses plus
 Use the repo-local helper:
 
 ```bash
-rm -f target/peach-issue-history.json
+rm -f OUTPUT_DIR/peach-issue-history.json
 ```
 
 Remove any stale output first so an old JSON file is not mistaken for fresh helper output while the
@@ -249,22 +280,23 @@ new helper run is still in progress.
 
 ```bash
 node .claude/skills/peach-check/peach-issue-history.js \
-  target/project-jobs.json \
+  OUTPUT_DIR/project-jobs.json \
   PEACHEE_ROOT_OR_PATH \
-  target/peach-issue-history.json
+  OUTPUT_DIR/peach-issue-history.json
 ```
 
 Use `${PEACHEE_ROOT}` when it is set, otherwise pass the explicit checkout path.
 
 The helper writes two short stderr progress lines and can take tens of seconds across the full
-project matrix, with little or no intermediate output while it runs. Judge completion from the
-`node` process exit plus the final `peach-issue-history: wrote ...` line, then inspect the JSON
-file instead of relying on progress-line frequency.
+project matrix, with little or no intermediate output while it runs. Repeated blank polls while
+waiting are normal and do not by themselves indicate a hang. Judge completion from the `node`
+process exit plus the final `peach-issue-history: wrote ...` line, then inspect the JSON file
+instead of relying on progress-line frequency.
 
 Use this low-noise check after the helper finishes:
 
 ```bash
-jq '{analysis_window_start, analysis_window_end, blocking_rows_count, clean_for_early_exit, summary}' target/peach-issue-history.json
+jq '{analysis_window_start, analysis_window_end, blocking_rows_count, clean_for_early_exit, summary}' OUTPUT_DIR/peach-issue-history.json
 ```
 
 The helper script reads:
@@ -309,7 +341,7 @@ the clean green path:
 - `source_job_completed_at_min`
 - `source_job_completed_at_max`
 
-`target/peach-issue-history.json.summary` always includes `OK`, `DROP`,
+`OUTPUT_DIR/peach-issue-history.json.summary` always includes `OK`, `DROP`,
 `INSUFFICIENT_HISTORY`, `STALE`, `UNRESOLVED_PROJECT`, and `ERROR`, even when a count is `0`.
 
 Each `DROP` finding should include:
@@ -358,28 +390,28 @@ like a real analyzer regression or a project-scope change.
 1. Download the current run's aggregated SARIF artifact:
 
 ```bash
-mkdir -p target/peach-drop-forensics/current
+mkdir -p OUTPUT_DIR/peach-drop-forensics/current
 ```
 
 ```bash
 gh run download RUN_ID \
   --repo SonarSource/peachee-js \
   --name 0-aggregated-sarif \
-  --dir target/peach-drop-forensics/current
+  --dir OUTPUT_DIR/peach-drop-forensics/current
 ```
 
 2. If the current merged SARIF has no results for the dropped project, backtrack to the previous
    completed run and download its `0-aggregated-sarif` too:
 
 ```bash
-mkdir -p target/peach-drop-forensics/previous
+mkdir -p OUTPUT_DIR/peach-drop-forensics/previous
 ```
 
 ```bash
 gh run download PREVIOUS_RUN_ID \
   --repo SonarSource/peachee-js \
   --name 0-aggregated-sarif \
-  --dir target/peach-drop-forensics/previous
+  --dir OUTPUT_DIR/peach-drop-forensics/previous
 ```
 
 Pass SARIF paths newest first; the helper will automatically pick the first candidate that
@@ -393,7 +425,7 @@ node .claude/skills/peach-check/peach-drop-forensics.js \
   PROJECT_KEY \
   SOURCE_JOB_NAME \
   PEACHEE_ROOT_OR_PATH \
-  target/peach-drop-forensics/PROJECT_KEY.json \
+  OUTPUT_DIR/peach-drop-forensics/PROJECT_KEY.json \
   CURRENT_MERGED_SARIF_PATH \
   [PREVIOUS_MERGED_SARIF_PATH ...]
 ```
@@ -431,15 +463,19 @@ generated-source explanations unless the evidence actually shows generated-code-
 
 ### 4. Early exit if no failures and the analysis state looks consistent
 
-This is the normal green path. If `target/failed-jobs.json.total_jobs` is `0` and
-`target/peach-issue-history.json.clean_for_early_exit` is `true`, stop here: Sections 5 through 9
-do not apply. Report the run as safe, include the exclusion counts plus the consistency summary,
-and stop.
+This is the normal green path. If `OUTPUT_DIR/failed-jobs.json.total_jobs` is `0` and
+`OUTPUT_DIR/peach-issue-history.json.clean_for_early_exit` is `true`, stop here: the failure-path
+sections below do not apply. Report the run as safe, include the exclusion counts plus the
+consistency summary, and stop.
 
 If any project is `DROP`, `STALE`, non-excluded `UNRESOLVED_PROJECT`, or `ERROR`, do not call the
 run safe even if the GitHub workflow has no failed project jobs.
 
 If one or more failed jobs remain after exclusions, continue to Section 5.
+
+### Failure path only
+
+Sections 5 through 10 apply only when the Section 4 early exit does not apply.
 
 ### 5. Read the classification guide
 
@@ -472,7 +508,7 @@ Only download logs for jobs that still need log-based classification.
 If any failed jobs remain after the early-exit check, create the output directory:
 
 ```bash
-mkdir -p target/peach-logs
+mkdir -p OUTPUT_DIR/peach-logs
 ```
 
 #### Phase 1 — Download log and filter failure signals
@@ -480,7 +516,7 @@ mkdir -p target/peach-logs
 Download the log to disk:
 
 ```bash
-gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs" > target/peach-logs/JOB_ID.log
+gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID/logs" > OUTPUT_DIR/peach-logs/JOB_ID.log
 ```
 
 Then filter for high-signal markers:
@@ -507,7 +543,7 @@ sed --sandbox -n '
 /does not exist for/p
 /SocketTimeoutException/p
 /ReportPublisher\.upload/p
-' target/peach-logs/JOB_ID.log
+' OUTPUT_DIR/peach-logs/JOB_ID.log
 ```
 
 Important rules:
@@ -548,7 +584,7 @@ sed --sandbox -n '
 /SocketTimeoutException/p
 /Process completed with exit code/p
 /org\.sonar\.plugins\.javascript/p
-' target/peach-logs/JOB_ID.log
+' OUTPUT_DIR/peach-logs/JOB_ID.log
 ```
 
 Apply the last-sensor-wins rule from the guide:
@@ -594,6 +630,9 @@ Group findings by shared cause, not one row per job.
 Translate raw helper statuses such as `STALE` into plain language in the findings; reserve the raw
 status names for the compact summary counts.
 
+Use the exact UTC `createdAt` timestamp recorded in Section 1 in the report title, for example
+`2026-06-01T03:10:36Z`, not a local date label.
+
 Do not emit `prepare-project-matrix` or `diff-validation-aggregated` as findings. Add a single
 exclusion line that names the excluded workflow jobs and prints both exclusion counts, for example
 `Excluded by design: prepare-project-matrix, diff-validation-aggregated (workflow jobs excluded: 2, project jobs excluded: 0)`.
@@ -603,7 +642,7 @@ Use one of these structures:
 Clean run example:
 
 ```text
-## Peach Main Analysis — Run RUN_ID (DATE)
+## Peach Main Analysis — Run RUN_ID (RUN_CREATED_AT_UTC)
 
 Excluded by design: prepare-project-matrix, diff-validation-aggregated (workflow jobs excluded: 2, project jobs excluded: 0)
 
@@ -619,7 +658,7 @@ Release recommendation: SAFE
 Failure-oriented example:
 
 ```text
-## Peach Main Analysis — Run RUN_ID (DATE)
+## Peach Main Analysis — Run RUN_ID (RUN_CREATED_AT_UTC)
 
 Excluded by design: prepare-project-matrix, diff-validation-aggregated (workflow jobs excluded: WORKFLOW_EXCLUDED, project jobs excluded: PROJECT_EXCLUDED)
 
