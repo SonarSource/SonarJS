@@ -23,13 +23,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
-@InstantiationStrategy(InstantiationStrategy.PER_BATCH)
+@SonarLintSide
 public class WebSensorModuleConfiguration {
 
   private final Set<String> collectedTsConfigPaths = new LinkedHashSet<>();

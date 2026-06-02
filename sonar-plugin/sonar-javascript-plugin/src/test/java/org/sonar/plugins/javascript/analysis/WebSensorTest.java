@@ -599,9 +599,15 @@ class WebSensorTest {
     )
       .getRequest()
       .getConfiguration();
-    assertThat(configuration.getTsConfigPathsList()).containsExactly(
-      baseDir.resolve("tsconfig.shared.json").toAbsolutePath().normalize().toString()
-    );
+    var expectedPath = projectContext
+      .fileSystem()
+      .baseDir()
+      .toPath()
+      .resolve("tsconfig.shared.json")
+      .toAbsolutePath()
+      .normalize()
+      .toString();
+    assertThat(configuration.getTsConfigPathsList()).containsExactly(expectedPath);
   }
 
   @Test
