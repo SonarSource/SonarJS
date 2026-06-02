@@ -83,3 +83,6 @@ lcov.info
 .codex/*
 !.codex/skills/
 .mcp.json
+telemetry-dashboard/.cache/
+telemetry-dashboard/data/*.json
+telemetry-dashboard/dist/

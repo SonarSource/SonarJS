@@ -1,0 +1,5 @@
+dist/
+node_modules/
+.cache/
+data/latest.json
+data/*.json

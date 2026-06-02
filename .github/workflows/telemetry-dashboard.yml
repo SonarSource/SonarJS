@@ -1,0 +1,62 @@
+name: Refresh Telemetry Dashboard
+
+on:
+  schedule:
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: telemetry-dashboard
+  cancel-in-progress: false
+
+jobs:
+  fetch-and-deploy:
+    runs-on: sonar-xs
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: jdx/mise-action@v4.0.1
+        with:
+          version: 2025.11.2
+          mise_toml: |
+            [tools]
+            node = "24.11.0"
+
+      - name: Configure npm
+        uses: SonarSource/ci-github-actions/config-npm@v1
+
+      - name: Install telemetry dashboard dependencies
+        run: npm --prefix telemetry-dashboard ci
+
+      - name: Validate Redshift role configuration
+        run: |
+          if [ -z "${{ vars.TELEMETRY_DASHBOARD_REDSHIFT_ROLE_ARN }}" ]; then
+            echo "Missing repository variable TELEMETRY_DASHBOARD_REDSHIFT_ROLE_ARN"
+            exit 1
+          fi
+
+      - name: Configure AWS credentials for Redshift
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+        with:
+          role-to-assume: ${{ vars.TELEMETRY_DASHBOARD_REDSHIFT_ROLE_ARN }}
+          aws-region: eu-west-1
+
+      - name: Fetch telemetry snapshot
+        run: npm --prefix telemetry-dashboard run fetch:redshift
+
+      - name: Build static site
+        run: npm --prefix telemetry-dashboard run build
+
+      - name: Deploy to GitHub Pages
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          npm --prefix telemetry-dashboard run deploy

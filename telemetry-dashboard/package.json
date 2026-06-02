@@ -1,0 +1,26 @@
+{
+  "name": "sonarjs-telemetry-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Static site for exploring SonarJS analyzer telemetry",
+  "type": "module",
+  "scripts": {
+    "build": "tsx scripts/build.ts",
+    "deploy": "gh-pages -d dist -b gh_pages --dotfiles",
+    "fetch:redshift": "tsx scripts/fetch-redshift.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aws-sdk/client-redshift": "3.975.0",
+    "@aws-sdk/client-sts": "3.975.0",
+    "pg": "8.17.2"
+  },
+  "devDependencies": {
+    "@types/node": "24.12.4",
+    "@types/pg": "8.16.0",
+    "esbuild": "0.28.0",
+    "gh-pages": "6.3.0",
+    "tsx": "4.22.3",
+    "typescript": "6.0.3"
+  }
+}
