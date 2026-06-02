@@ -261,6 +261,14 @@ public class AnalysisProcessor {
       if (ruleKey == null) {
         continue;
       }
+      if (issue.getResolutionComment().isEmpty()) {
+        LOG.warn(
+          "Skipping suppressed issue for rule {} in {} because accepted issues require a justification comment",
+          ruleKey,
+          file.uri()
+        );
+        continue;
+      }
       var primaryTextRange = primaryTextRange(issue);
       if (primaryTextRange == null) {
         LOG.warn(
@@ -271,7 +279,7 @@ public class AnalysisProcessor {
         continue;
       }
       try {
-        saveIssue(context, issue, ruleKey);
+        saveSuppressedIssueAsAccepted(context, issue, ruleKey, primaryTextRange);
       } catch (RuntimeException e) {
         LOG.warn("Failed to save suppressed issue in {} at line {}", file.uri(), issue.getLine());
         LOG.warn("Exception cause", e);
@@ -480,17 +488,31 @@ public class AnalysisProcessor {
   }
 
   void saveIssue(JsTsContext<?> context, Issue issue) {
-    saveIssue(context, issue, findRuleKey(issue));
+    saveIssue(context, issue, findRuleKey(issue), primaryTextRange(issue));
   }
 
-  private void saveIssue(JsTsContext<?> context, Issue issue, @Nullable RuleKey ruleKey) {
+  private void saveSuppressedIssueAsAccepted(
+    JsTsContext<?> context,
+    Issue issue,
+    RuleKey ruleKey,
+    TextRange primaryTextRange
+  ) {
+    saveIssue(context, issue, ruleKey, primaryTextRange);
+    saveAcceptedIssueResolution(context, ruleKey, issue.getResolutionComment(), primaryTextRange);
+  }
+
+  private void saveIssue(
+    JsTsContext<?> context,
+    Issue issue,
+    @Nullable RuleKey ruleKey,
+    @Nullable TextRange primaryTextRange
+  ) {
     var newIssue = context.getSensorContext().newIssue();
     var location = newIssue.newLocation().on(file);
     if (!issue.getMessage().isEmpty()) {
       location.message(issue.getMessage());
     }
 
-    var primaryTextRange = primaryTextRange(issue);
     if (primaryTextRange != null) {
       location.at(primaryTextRange);
     }
@@ -517,7 +539,6 @@ public class AnalysisProcessor {
 
     if (ruleKey != null) {
       newIssue.at(location).forRule(ruleKey).save();
-      saveAcceptedIssueResolution(context, ruleKey, issue.getResolutionComment(), primaryTextRange);
     } else if (CssRules.CSS_PARSING_ERROR_STYLELINT_KEY.equals(issue.getRuleId())) {
       LOG.warn(
         "Failed to parse file {}, line {}, {}",
@@ -673,15 +694,8 @@ public class AnalysisProcessor {
     JsTsContext<?> context,
     RuleKey ruleKey,
     String resolutionComment,
-    @Nullable TextRange textRange
+    TextRange textRange
   ) {
-    if (resolutionComment.isEmpty() || !supportsIssueResolution(context)) {
-      return;
-    }
-    if (textRange == null) {
-      LOG.warn("Cannot save issue resolution for rule {} without a valid location", ruleKey);
-      return;
-    }
     context
       .getSensorContext()
       .newIssueResolution()

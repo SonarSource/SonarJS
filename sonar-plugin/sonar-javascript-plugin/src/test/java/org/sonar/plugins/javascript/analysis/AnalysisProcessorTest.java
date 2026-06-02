@@ -423,6 +423,35 @@ class AnalysisProcessorTest {
   }
 
   @Test
+  void should_skip_suppressed_issue_when_resolution_comment_is_missing() {
+    var processor = createProcessor();
+    var sensorContext = SensorContextTester.create(baseDir);
+    sensorContext.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(13, 5),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
+    var context = new JsTsContext<>(sensorContext);
+    var file = createInputFile(sensorContext, "js", "file.js", "const value = 42;;\n");
+
+    var savedIssues = processor.processResponse(
+      context,
+      createChecks(),
+      file,
+      responseWithSuppressedIssues(suppressedIssueAtLine(1).toBuilder().clearResolutionComment().build())
+    );
+
+    assertThat(savedIssues).isEmpty();
+    assertThat(sensorContext.allIssues()).isEmpty();
+    assertThat(issueResolutions(sensorContext, file)).isEmpty();
+    assertThat(logTester.logs()).anySatisfy(log -> assertThat(log)
+      .contains("Skipping suppressed issue for rule javascript:S1116")
+      .contains("because accepted issues require a justification comment"));
+  }
+
+  @Test
   void should_ignore_suppressed_issues_before_supported_runtime() {
     assertSuppressedIssueBehavior(Version.create(13, 4), false);
   }
