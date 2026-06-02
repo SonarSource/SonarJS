@@ -21,6 +21,8 @@ const childEnv = {
   ...process.env,
   PATH: [dirname(process.execPath), process.env.PATH].filter(Boolean).join(delimiter),
 };
+const backupStampPrefix = 'sonarjs.jar.bak-';
+const backupStampPattern = /^\d{8}T\d{6}[+-]\d{4}$/;
 
 const state = {
   activeStamp: '',
@@ -79,6 +81,24 @@ function formatCommand(command, args) {
   return [command, ...args].join(' ');
 }
 
+function stderrText(stderr) {
+  if (typeof stderr === 'string') {
+    return stderr.trim();
+  }
+
+  if (Buffer.isBuffer(stderr)) {
+    return stderr.toString('utf8').trim();
+  }
+
+  return '';
+}
+
+function commandFailureMessage(description, stderr) {
+  return stderr
+    ? `Command failed: ${description}\n${stderr}`
+    : `Command failed: ${description}`;
+}
+
 function spawnChecked(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: options.cwd,
@@ -94,14 +114,9 @@ function spawnChecked(command, args, options = {}) {
   }
 
   if (result.status !== 0) {
-    const stderr =
-      typeof result.stderr === 'string'
-        ? result.stderr.trim()
-        : Buffer.isBuffer(result.stderr)
-          ? result.stderr.toString('utf8').trim()
-          : '';
+    const stderr = stderrText(result.stderr);
     const description = options.description ?? formatCommand(command, args);
-    fail(`Command failed: ${description}${stderr ? `\n${stderr}` : ''}`);
+    fail(commandFailureMessage(description, stderr));
   }
 
   return result;
@@ -309,10 +324,24 @@ function latestBackupStamp(extensionPath) {
   const analyzerDirectory = join(extensionPath, 'analyzers');
   const matches = listFiles(
     analyzerDirectory,
-    name => name.startsWith('sonarjs.jar.bak-') && name.length > 'sonarjs.jar.bak-'.length,
+    name =>
+      name.startsWith(backupStampPrefix) &&
+      backupStampPattern.test(name.slice(backupStampPrefix.length)),
   );
   const latest = selectLatest(matches);
-  return latest ? basename(latest).slice('sonarjs.jar.bak-'.length) : '';
+  return latest ? basename(latest).slice(backupStampPrefix.length) : '';
+}
+
+function desktopLogRoot(home) {
+  if (process.platform === 'darwin') {
+    return join(home, 'Library', 'Application Support', 'Code', 'logs');
+  }
+
+  if (process.platform === 'linux') {
+    return join(home, '.config', 'Code', 'logs');
+  }
+
+  return '';
 }
 
 function logRootForExtension(extensionPath) {
@@ -325,7 +354,7 @@ function logRootForExtension(extensionPath) {
   }
 
   if (extensionPath.startsWith(desktopPrefix)) {
-    return join(home, 'Library', 'Application Support', 'Code', 'logs');
+    return desktopLogRoot(home);
   }
 
   return '';
@@ -344,7 +373,7 @@ function printLogHint(extensionPath) {
     `  LATEST_LOG="$(find "${logRoot}" -path '*SonarSource.sonarlint-vscode/SonarQube for IDE.log' 2>/dev/null | sort | tail -n 1)"`,
   );
   info(
-    `  grep -En 'Starting analysis with configuration|sonar\\.js\\.internal\\.bundlePath|server\\.cjs' "$LATEST_LOG"`,
+    String.raw`  grep -En 'Starting analysis with configuration|sonar\.js\.internal\.bundlePath|server\.cjs' "$LATEST_LOG"`,
   );
 }
 
@@ -381,6 +410,16 @@ function printManifestSummary(jarPath) {
   for (const line of manifestSummaryLines(jarPath)) {
     info(line);
   }
+}
+
+function validateBackupStamp(stamp) {
+  if (!backupStampPattern.test(stamp)) {
+    fail(
+      `Invalid backup stamp format: ${stamp} (expected YYYYMMDDTHHmmss+HHMM or YYYYMMDDTHHmmss-HHMM)`,
+    );
+  }
+
+  return stamp;
 }
 
 function patchExtension(extensionPath, patchJar) {
@@ -439,17 +478,18 @@ function patchExtension(extensionPath, patchJar) {
 }
 
 function restoreExtension(extensionPath, stamp) {
+  const validatedStamp = validateBackupStamp(stamp);
   const analyzerJar = join(extensionPath, 'analyzers', 'sonarjs.jar');
-  const backupJar = `${analyzerJar}.bak-${stamp}`;
+  const backupJar = `${analyzerJar}.bak-${validatedStamp}`;
   const eslintBridge = join(extensionPath, 'eslint-bridge');
-  const backupBridge = `${eslintBridge}.bak-${stamp}`;
+  const backupBridge = `${eslintBridge}.bak-${validatedStamp}`;
 
   if (!existsSync(backupJar)) {
     fail(`Backup jar not found: ${backupJar}`);
   }
 
   info(`Restoring extension: ${extensionPath}`);
-  info(`Using backup stamp: ${stamp}`);
+  info(`Using backup stamp: ${validatedStamp}`);
 
   cpSync(backupJar, analyzerJar);
 
@@ -457,7 +497,9 @@ function restoreExtension(extensionPath, stamp) {
     rmSync(eslintBridge, { recursive: true, force: true });
     renameSync(backupBridge, eslintBridge);
   } else {
-    warn(`No eslint-bridge backup found for stamp ${stamp}; left current eslint-bridge in place.`);
+    warn(
+      `No eslint-bridge backup found for stamp ${validatedStamp}; left current eslint-bridge in place.`,
+    );
   }
 
   info('');
@@ -465,13 +507,7 @@ function restoreExtension(extensionPath, stamp) {
   printManifestSummary(analyzerJar);
 }
 
-function main() {
-  const options = parseCliArgs(process.argv.slice(2));
-  if (options.help) {
-    info(usage());
-    return;
-  }
-
+function validateOptions(options) {
   if (options.restoreStamp && options.runBuild) {
     fail('--restore cannot be combined with --build');
   }
@@ -483,7 +519,9 @@ function main() {
   if (options.patchJar && options.runBuild) {
     fail('--build cannot be combined with --jar');
   }
+}
 
+function resolveTargetExtensionPath(options) {
   const extensionPath = options.extensionPath
     ? resolveExistingPath(options.extensionPath)
     : detectExtensionPath(options.targetKind);
@@ -492,15 +530,43 @@ function main() {
     fail(`Extension directory not found: ${extensionPath}`);
   }
 
+  return extensionPath;
+}
+
+function resolveRestoreStamp(restoreStamp, extensionPath) {
+  if (restoreStamp !== 'latest') {
+    return restoreStamp;
+  }
+
+  const latestStamp = latestBackupStamp(extensionPath);
+  if (!latestStamp) {
+    fail(`No backup stamps found under ${join(extensionPath, 'analyzers')}`);
+  }
+
+  return latestStamp;
+}
+
+function resolvePatchJarPath(patchJar) {
+  const resolvedPatchJar = patchJar ? resolveExistingPath(patchJar) : latestLocalPatchJar();
+  if (!resolvedPatchJar) {
+    fail('No local sonar-javascript-plugin jar found. Run with --build or pass --jar <path>.');
+  }
+
+  return resolvedPatchJar;
+}
+
+function main() {
+  const options = parseCliArgs(process.argv.slice(2));
+  if (options.help) {
+    info(usage());
+    return;
+  }
+
+  validateOptions(options);
+
+  const extensionPath = resolveTargetExtensionPath(options);
   if (options.restoreStamp) {
-    const stamp =
-      options.restoreStamp === 'latest' ? latestBackupStamp(extensionPath) : options.restoreStamp;
-
-    if (!stamp) {
-      fail(`No backup stamps found under ${join(extensionPath, 'analyzers')}`);
-    }
-
-    restoreExtension(extensionPath, stamp);
+    restoreExtension(extensionPath, resolveRestoreStamp(options.restoreStamp, extensionPath));
     return;
   }
 
@@ -508,13 +574,7 @@ function main() {
     buildLocalPlugin();
   }
 
-  const patchJar = options.patchJar ? resolveExistingPath(options.patchJar) : latestLocalPatchJar();
-
-  if (!patchJar) {
-    fail('No local sonar-javascript-plugin jar found. Run with --build or pass --jar <path>.');
-  }
-
-  patchExtension(extensionPath, patchJar);
+  patchExtension(extensionPath, resolvePatchJarPath(options.patchJar));
 }
 
 try {
