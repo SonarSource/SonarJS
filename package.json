@@ -93,7 +93,7 @@
     "nyc": "18.0.0",
     "package-manifest-generator": "1.0.0-beta.4",
     "prettier": "3.8.3",
-    "prettier-plugin-java": "2.9.6",
+    "prettier-plugin-java": "2.9.7",
     "pretty-quick": "4.2.2",
     "protobufjs-cli": "2.4.2",
     "rimraf": "6.1.3",
