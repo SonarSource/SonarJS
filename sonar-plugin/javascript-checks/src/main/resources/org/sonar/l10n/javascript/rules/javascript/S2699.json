@@ -1,0 +1,47 @@
+{
+  "title": "Tests should include assertions",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "TESTED"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "10min"
+  },
+  "tags": [
+    "tests",
+    "chai",
+    "sinon",
+    "supertest",
+    "mocha",
+    "vitest",
+    "cypress",
+    "jest",
+    "jasmine",
+    "playwright",
+    "node",
+    "type-dependent",
+    "editable-source"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-2699",
+  "sqKey": "S2699",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "unknown",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

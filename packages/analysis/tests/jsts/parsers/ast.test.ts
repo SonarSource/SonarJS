@@ -99,6 +99,7 @@ describe('ast', () => {
         const protoMessage = parseInProtobuf(sc.sourceCode.ast as TSESTree.Program);
         const serialized = serializeInProtobuf(sc.sourceCode.ast as TSESTree.Program, filePath);
         const deserializedProtoMessage = deserializeProtobuf(serialized);
+        assert.ok(protoMessage);
         compareASTs(protoMessage, deserializedProtoMessage);
       });
 

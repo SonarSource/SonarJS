@@ -1,0 +1,36 @@
+{
+  "title": "Output bindings should not be aliased",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "2 min"
+  },
+  "tags": [
+    "angular",
+    "convention"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-7653",
+  "sqKey": "S7653",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "BLOCKER"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "extra": {
+    "requiredDependency": [
+      "@angular/core"
+    ]
+  },
+  "compatibleLanguages": [
+    "ts"
+  ]
+}

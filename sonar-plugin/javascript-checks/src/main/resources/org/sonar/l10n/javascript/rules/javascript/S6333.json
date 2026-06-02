@@ -1,0 +1,52 @@
+{
+  "title": "AWS API Gateway should require authentication",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "BLOCKER"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "quickfix": "unknown",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "15min"
+  },
+  "tags": [
+    "aws",
+    "cwe",
+    "former-hotspot"
+  ],
+  "defaultSeverity": "Blocker",
+  "ruleSpecification": "RSPEC-6333",
+  "sqKey": "S6333",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      306
+    ],
+    "PCI DSS 3.2": [
+      "6.5.8"
+    ],
+    "PCI DSS 4.0": [
+      "6.2.4"
+    ],
+    "STIG ASD_V5R3": [
+      "V-222620"
+    ]
+  },
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ],
+  "extra": {
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
+  }
+}

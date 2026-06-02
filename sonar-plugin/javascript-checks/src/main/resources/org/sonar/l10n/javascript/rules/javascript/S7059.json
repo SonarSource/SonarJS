@@ -1,0 +1,33 @@
+{
+  "title": "Constructors should not contain asynchronous operations",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "type-dependent",
+    "es2017"
+  ],
+  "defaultSeverity": "Critical",
+  "ruleSpecification": "RSPEC-7059",
+  "sqKey": "S7059",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "infeasible",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH",
+      "RELIABILITY": "HIGH"
+    },
+    "attribute": "MODULAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

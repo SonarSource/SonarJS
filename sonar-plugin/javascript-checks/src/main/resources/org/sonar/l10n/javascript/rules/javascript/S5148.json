@@ -1,0 +1,48 @@
+{
+  "title": "Opened windows should not have access to the originating page",
+  "type": "VULNERABILITY",
+  "code": {
+    "impacts": {
+      "SECURITY": "LOW"
+    },
+    "attribute": "COMPLETE"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "1min"
+  },
+  "quickfix": "unknown",
+  "tags": [
+    "cwe",
+    "phishing",
+    "former-hotspot"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-5148",
+  "sqKey": "S5148",
+  "scope": "Main",
+  "securityStandards": {
+    "CWE": [
+      1022
+    ],
+    "OWASP": [
+      "A6"
+    ],
+    "OWASP Top 10 2021": [
+      "A5"
+    ]
+  },
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

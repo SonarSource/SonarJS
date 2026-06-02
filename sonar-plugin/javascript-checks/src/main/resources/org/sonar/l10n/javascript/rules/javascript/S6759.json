@@ -1,0 +1,31 @@
+{
+  "title": "React props should be read-only",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "react",
+    "type-dependent"
+  ],
+  "defaultSeverity": "Minor",
+  "ruleSpecification": "RSPEC-6759",
+  "sqKey": "S6759",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "covered",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "LOW"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "ts"
+  ]
+}

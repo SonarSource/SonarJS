@@ -22,5 +22,6 @@ export const sonarKey = '___RULE_KEY___';
 export const scope = '___SCOPE___';
 export const languages: ('js' | 'ts')[] = ___LANGUAGES___;
 export const requiredDependency = ___REQUIRED_DEPENDENCY___;
+export const skipOnGeneratedSource = ___SKIP_ON_GENERATED_SOURCE___;
 ___REQUIRED_MODULE_TYPE_EXPORT___
 ___REQUIRED_ECMA_VERSION_EXPORT___
