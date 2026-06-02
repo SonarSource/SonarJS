@@ -39,7 +39,8 @@ import * as meta from './generated-meta.js';
 import { getPlaywrightLocatorSuggestion } from './playwright-suggestions.js';
 
 const messages = {
-  preferSpecificAssertion: 'Use the more specific assertion {{assertion}}.',
+  preferSpecificAssertion:
+    'Prefer a more specific assertion instead of this generic one, e.g. "{{assertion}}".',
   quickfix: 'Replace with {{assertion}}.',
 };
 
