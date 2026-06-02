@@ -25,10 +25,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.fs.FilePredicates;
@@ -54,9 +56,19 @@ public class EslintReportImporter {
   }
 
   InputFile getInputFile(JsTsContext<?> context, String fileName) {
+    return getInputFile(context, fileName, context.getSensorContext().fileSystem().baseDir());
+  }
+
+  InputFile getInputFile(JsTsContext<?> context, String fileName, @Nullable File pathBaseDir) {
     var fileSystem = context.getSensorContext().fileSystem();
     FilePredicates predicates = fileSystem.predicates();
-    InputFile inputFile = fileSystem.inputFile(predicates.hasPath(fileName));
+    InputFile inputFile = null;
+    if (pathBaseDir != null) {
+      inputFile = inputFileByResolvedPath(fileSystem, predicates, pathBaseDir.toPath(), fileName);
+    }
+    if (inputFile == null) {
+      inputFile = fileSystem.inputFile(predicates.hasPath(fileName));
+    }
     if (inputFile == null) {
       LOG.warn(
         "No input file found for {}. No {} issues will be imported on this file.",
@@ -72,26 +84,51 @@ public class EslintReportImporter {
    * Execute the importer, and return the list of external issues found.
    */
   public Map<String, List<ExternalIssue>> execute(JsTsContext<?> context) {
-    var results = new HashMap<String, List<ExternalIssue>>();
+    return execute(context, prepareReports(context.getSensorContext()));
+  }
 
-    List<File> reportFiles = ExternalReportProvider.getReportFiles(
-      context.getSensorContext(),
-      reportsPropertyName()
-    );
-    reportFiles.forEach(report -> results.putAll(importReportByFilePath(report, context)));
+  public Map<String, List<ExternalIssue>> execute(
+    JsTsContext<?> context,
+    List<PreparedReport> reports
+  ) {
+    var results = new HashMap<String, List<ExternalIssue>>();
+    reports.forEach(report -> results.putAll(importReportByFilePath(report, context)));
 
     return results;
   }
 
+  public List<PreparedReport> prepareReports(
+    org.sonar.api.batch.sensor.SensorContext sensorContext
+  ) {
+    File baseDir = normalize(sensorContext.fileSystem().baseDir());
+    return ExternalReportProvider.getReportFiles(sensorContext, reportsPropertyName())
+      .stream()
+      .map(report -> new PreparedReport(normalize(report), baseDir))
+      .toList();
+  }
+
   Map<String, List<ExternalIssue>> importReportByFilePath(File report, JsTsContext<?> context) {
-    LOG.info("Importing external issues from: {}", report.getAbsoluteFile());
+    return importReportByFilePath(
+      new PreparedReport(
+        normalize(report),
+        normalize(context.getSensorContext().fileSystem().baseDir())
+      ),
+      context
+    );
+  }
+
+  Map<String, List<ExternalIssue>> importReportByFilePath(
+    PreparedReport report,
+    JsTsContext<?> context
+  ) {
+    LOG.info("Importing external issues from: {}", report.reportFile().getAbsoluteFile());
 
     var results = new HashMap<String, List<ExternalIssue>>();
     var serializer = new Gson();
 
     try (
       InputStreamReader inputStreamReader = new InputStreamReader(
-        new FileInputStream(report),
+        new FileInputStream(report.reportFile()),
         StandardCharsets.UTF_8
       )
     ) {
@@ -101,7 +138,7 @@ public class EslintReportImporter {
       );
 
       for (FileWithMessages fileWithMessages : filesWithMessages) {
-        InputFile inputFile = getInputFile(context, fileWithMessages.filePath);
+        InputFile inputFile = getInputFile(context, fileWithMessages.filePath, report.baseDir());
         if (inputFile != null) {
           var externalIssuesForFile = new ArrayList<ExternalIssue>();
           for (EslintError eslintError : fileWithMessages.messages) {
@@ -124,6 +161,28 @@ public class EslintReportImporter {
     }
 
     return results;
+  }
+
+  private static InputFile inputFileByResolvedPath(
+    org.sonar.api.batch.fs.FileSystem fileSystem,
+    FilePredicates predicates,
+    Path pathBaseDir,
+    String fileName
+  ) {
+    Path resolvedPath = Path.of(fileName);
+    if (!resolvedPath.isAbsolute()) {
+      resolvedPath = pathBaseDir.resolve(fileName);
+    }
+    String absolutePath = resolvedPath.toAbsolutePath().normalize().toString();
+    InputFile inputFile = fileSystem.inputFile(predicates.hasAbsolutePath(absolutePath));
+    if (inputFile == null) {
+      inputFile = fileSystem.inputFile(predicates.hasPath(absolutePath));
+    }
+    return inputFile;
+  }
+
+  private static File normalize(File file) {
+    return file.toPath().toAbsolutePath().normalize().toFile();
   }
 
   private static ExternalIssue createIssue(EslintError eslintError, InputFile inputFile) {
@@ -182,4 +241,6 @@ public class EslintReportImporter {
       return line == endLine && column == endColumn;
     }
   }
+
+  public record PreparedReport(File reportFile, File baseDir) {}
 }
