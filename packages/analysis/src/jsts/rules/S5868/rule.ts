@@ -16,13 +16,11 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5868/javascript
 
-import type { AST, Rule } from 'eslint';
-import { ancestorsChain } from '../helpers/ancestor.js';
+import type { AST, Rule, SourceCode } from 'eslint';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isRegexLiteral } from '../helpers/ast.js';
 import { RegExpValidator, type AST as RegexppAST } from '@eslint-community/regexpp';
 import type estree from 'estree';
-import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 import { getPatternFromNode } from '../helpers/regex/extract.js';
 import { getFlags } from '../helpers/regex/flags.js';
@@ -35,8 +33,25 @@ const MODIFIABLE_REGEXP_FLAGS_TYPES = new Set([
   'TaggedTemplateExpression',
 ]);
 
+const MIN_HIGH_SURROGATE = 0xd800;
+const MIN_LOW_SURROGATE = 0xdc00;
+const MAX_LOW_SURROGATE_EXCLUSIVE = 0xe000;
+const MIN_EMOJI_MODIFIER = 0x1f3fb;
+const MAX_EMOJI_MODIFIER = 0x1f3ff;
+const MIN_REGIONAL_INDICATOR = 0x1f1e6;
+const MAX_REGIONAL_INDICATOR = 0x1f1ff;
+const ZERO_WIDTH_JOINER = 0x200d;
+
 export const rule: Rule.RuleModule = createRegExpRule(
   context => {
+    let currentSeams: number[] = [];
+
+    // Seam positions are in pattern space, while regexpp positions include the opening slash.
+    // A pair straddles a seam only when the seam is exactly before charB.
+    function spansSeam(charA: RegexppAST.Character, charB: RegexppAST.Character): boolean {
+      return charA.end === charB.start && currentSeams.some(seam => seam + 1 === charB.start);
+    }
+
     function checkSequence(sequence: RegexppAST.Character[]) {
       // Stop on the first illegal character in the sequence
       for (let index = 0; index < sequence.length; index++) {
@@ -51,14 +66,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
       index: number,
       characters: RegexppAST.Character[],
     ) {
-      // Stop on the first failed check as there may be overlaps between checks
-      // for instance a zero-width-sequence containing a modified emoji.
-      for (const check of characterChecks) {
-        if (check(character, index, characters)) {
-          return true;
-        }
-      }
-      return false;
+      // Stop on the first check that fires as checks may overlap,
+      // for instance a zero-width sequence containing a modified emoji.
+      return characterChecks.some(check => check(character, index, characters));
     }
 
     function checkCombinedCharacter(
@@ -70,7 +80,8 @@ export const rule: Rule.RuleModule = createRegExpRule(
       if (
         index !== 0 &&
         isCombiningCharacter(character.value) &&
-        !isCombiningCharacter(characters[index - 1].value)
+        !isCombiningCharacter(characters[index - 1].value) &&
+        !spansSeam(characters[index - 1], character)
       ) {
         const combinedChar = characters[index - 1].raw + characters[index].raw;
         const message = `Move this Unicode combined character '${combinedChar}' outside of the character class`;
@@ -86,7 +97,11 @@ export const rule: Rule.RuleModule = createRegExpRule(
       characters: RegexppAST.Character[],
     ) {
       let reported = false;
-      if (index !== 0 && isSurrogatePair(characters[index - 1].value, character.value)) {
+      if (
+        index !== 0 &&
+        isSurrogatePair(characters[index - 1].value, character.value) &&
+        !spansSeam(characters[index - 1], character)
+      ) {
         const surrogatePair = characters[index - 1].raw + characters[index].raw;
         const message = `Move this Unicode surrogate pair '${surrogatePair}' outside of the character class or use 'u' flag`;
         const pattern = getPatternFromNode(context.node, context)?.pattern;
@@ -117,7 +132,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
         return insertTextAfter(fixer, node, 'u');
       }
 
-      const regExpConstructor = getRegExpConstructor(node);
+      const regExpConstructor = getRegExpConstructor(node, sourceCode);
       if (!regExpConstructor) {
         return null;
       }
@@ -145,7 +160,8 @@ export const rule: Rule.RuleModule = createRegExpRule(
       if (
         index !== 0 &&
         isEmojiModifier(character.value) &&
-        !isEmojiModifier(characters[index - 1].value)
+        !isEmojiModifier(characters[index - 1].value) &&
+        !spansSeam(characters[index - 1], character)
       ) {
         const modifiedEmoji = characters[index - 1].raw + characters[index].raw;
         const message = `Move this Unicode modified Emoji '${modifiedEmoji}' outside of the character class`;
@@ -164,7 +180,8 @@ export const rule: Rule.RuleModule = createRegExpRule(
       if (
         index !== 0 &&
         isRegionalIndicator(character.value) &&
-        isRegionalIndicator(characters[index - 1].value)
+        isRegionalIndicator(characters[index - 1].value) &&
+        !spansSeam(characters[index - 1], character)
       ) {
         const regionalIndicator = characters[index - 1].raw + characters[index].raw;
         const message = `Move this Unicode regional indicator '${regionalIndicator}' outside of the character class`;
@@ -185,7 +202,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
         index !== characters.length - 1 &&
         isZeroWidthJoiner(character.value) &&
         !isZeroWidthJoiner(characters[index - 1].value) &&
-        !isZeroWidthJoiner(characters[index + 1].value)
+        !isZeroWidthJoiner(characters[index + 1].value) &&
+        !spansSeam(characters[index - 1], character) &&
+        !spansSeam(character, characters[index + 1])
       ) {
         // It's practically difficult to determine the full joined character sequence
         // as it may join more than 2 elements that consist of characters or modified Emojis
@@ -204,7 +223,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
 
     function isValidWithUnicodeFlag(pattern: string) {
       try {
-        validator.validatePattern(pattern, undefined, undefined, true);
+        validator.validatePattern(pattern, undefined, undefined, { unicode: true });
         return true;
       } catch {
         return false;
@@ -225,6 +244,7 @@ export const rule: Rule.RuleModule = createRegExpRule(
 
     return {
       onCharacterClassEnter(ccNode) {
+        currentSeams = getPatternFromNode(context.node, context)?.seams ?? [];
         for (const chars of characters(ccNode.elements)) {
           checkSequence(chars);
         }
@@ -261,25 +281,44 @@ function isCombiningCharacter(codePoint: number) {
 }
 
 function isSurrogatePair(lead: number, tail: number) {
-  return lead >= 0xd800 && lead < 0xdc00 && tail >= 0xdc00 && tail < 0xe000;
+  return (
+    lead >= MIN_HIGH_SURROGATE &&
+    lead < MIN_LOW_SURROGATE &&
+    tail >= MIN_LOW_SURROGATE &&
+    tail < MAX_LOW_SURROGATE_EXCLUSIVE
+  );
 }
 
 function isEmojiModifier(code: number) {
-  return code >= 0x1f3fb && code <= 0x1f3ff;
+  return code >= MIN_EMOJI_MODIFIER && code <= MAX_EMOJI_MODIFIER;
 }
 
 function isRegionalIndicator(code: number) {
-  return code >= 0x1f1e6 && code <= 0x1f1ff;
+  return code >= MIN_REGIONAL_INDICATOR && code <= MAX_REGIONAL_INDICATOR;
 }
 
 function isZeroWidthJoiner(code: number) {
-  return code === 0x200d;
+  return code === ZERO_WIDTH_JOINER;
 }
 
-function getRegExpConstructor(node: estree.Node) {
-  return ancestorsChain(node as TSESTree.Node, new Set(['CallExpression', 'NewExpression'])).find(
-    n => isRegExpConstructor(n as estree.Node),
-  ) as estree.CallExpression | estree.NewExpression | undefined;
+function getRegExpConstructor(
+  node: estree.Node,
+  sourceCode: SourceCode,
+): estree.CallExpression | estree.NewExpression | undefined {
+  const ancestors = sourceCode.getAncestors(node);
+  for (let i = ancestors.length - 1; i >= 0; i--) {
+    const ancestor = ancestors[i];
+    if (ancestor && isRegExpConstructorCallOrNew(ancestor)) {
+      return ancestor;
+    }
+  }
+  return undefined;
+}
+
+function isRegExpConstructorCallOrNew(
+  node: estree.Node,
+): node is estree.CallExpression | estree.NewExpression {
+  return isRegExpConstructor(node);
 }
 
 function hasModifiableFlags(regExpConstructor: estree.CallExpression | estree.NewExpression) {
