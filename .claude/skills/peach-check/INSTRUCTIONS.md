@@ -15,10 +15,19 @@ Peach run, triage Peach Main Analysis failures, or decide whether Peach blocks a
 - Canonical issue-history helper: `.claude/skills/peach-check/peach-issue-history.js`
 - Canonical DROP-forensics helper: `.claude/skills/peach-check/peach-drop-forensics.js`
 
-This skill fetches the target run, collects failed jobs, runs an analysis-consistency check across
-successful project scans to verify that the current Peach state is materially consistent with
-recent history, classifies the findings with the guide, and prints a summary focused on SonarJS
-ownership.
+This skill validates a Peach Main Analysis GitHub run in two layers:
+
+1. GitHub run validation: resolve a completed `main-analysis.yml` run, classify analyzed jobs by
+   GitHub job conclusion, and identify failed analyzed jobs.
+2. Peach result validation: for successful project jobs, verify that the run produced fresh Peach
+   analyses whose SonarJS-language issue counts are materially consistent with recent history.
+
+A run is `SAFE` only when both layers are clean:
+
+- there are no failed analyzed jobs
+- the issue-history helper reports no blocking project rows
+
+Blocking project rows are: `DROP`, `STALE`, `UNRESOLVED_PROJECT`, and `ERROR`.
 
 Do not open `docs/peach-main-analysis.md` unless `failed-jobs.total_jobs > 0` or
 `clean_for_early_exit == false`.
