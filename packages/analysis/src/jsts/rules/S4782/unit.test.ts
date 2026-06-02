@@ -15,7 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './rule.js';
-import { RuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  NoTypeCheckingRuleTester,
+  RuleTester,
+} from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import path from 'node:path';
 import parser from '@typescript-eslint/parser';
 import { describe, it } from 'node:test';
@@ -335,6 +338,52 @@ describe('S4782', () => {
         ],
       },
     );
+
+    const noTypeCheckingRuleTester = new NoTypeCheckingRuleTester();
+    noTypeCheckingRuleTester.run('S4782 reports syntactic cases without type checking', rule, {
+      valid: [
+        {
+          code: `
+          interface T {
+            p?: string;
+          }`,
+        },
+        {
+          code: `
+          interface T {
+            p?: undefined;
+          }`,
+        },
+        {
+          code: `
+          type MaybeString = string | undefined;
+          interface T {
+            p?: MaybeString;
+          }`,
+        },
+      ],
+      invalid: [
+        {
+          code: `interface T { p?: string | undefined; }`,
+          errors: [
+            {
+              message:
+                "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+              suggestions: [
+                {
+                  desc: 'Remove "?" operator',
+                  output: 'interface T { p: string | undefined; }',
+                },
+                {
+                  desc: 'Remove "undefined" type annotation',
+                  output: 'interface T { p?: string; }',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
 
     const semanticRuleTester = new RuleTester({
       parser,

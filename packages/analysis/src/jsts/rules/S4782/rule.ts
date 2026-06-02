@@ -32,30 +32,40 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { hasSuggestions: true }),
 
   create(context: Rule.RuleContext) {
-    if (!isRequiredParserServices(context.sourceCode.parserServices)) {
+    const parserServices = context.sourceCode.parserServices;
+    const hasTypeChecking = isRequiredParserServices(parserServices);
+    const compilerOptions = hasTypeChecking
+      ? parserServices.program.getCompilerOptions()
+      : undefined;
+    if (compilerOptions?.exactOptionalPropertyTypes) {
       return {};
     }
-
-    const compilerOptions = context.sourceCode.parserServices.program.getCompilerOptions();
-    if (compilerOptions.exactOptionalPropertyTypes) {
-      return {};
-    }
-    const canUseSemanticUndefinedCheck =
-      compilerOptions.strictNullChecks ?? compilerOptions.strict ?? false;
+    const canResolveTypes = hasTypeChecking
+      ? (compilerOptions.strictNullChecks ?? compilerOptions.strict ?? false)
+      : false;
 
     function checkProperty(node: estree.Node) {
       const tsNode = node as TSESTree.Node as
         | TSESTree.PropertyDefinition
         | TSESTree.TSPropertySignature;
       const optionalToken = context.sourceCode.getFirstToken(node, token => token.value === '?');
-      if (!tsNode.optional || !optionalToken) {
+      const rootType = tsNode.typeAnnotation?.typeAnnotation;
+      if (!tsNode.optional || !optionalToken || !rootType) {
         return;
       }
-      const typeNode = findRedundantUndefinedInOptionalType(
-        tsNode.typeAnnotation,
-        context.sourceCode.parserServices,
-        canUseSemanticUndefinedCheck,
-      );
+
+      let typeNode: TSESTree.TypeNode | undefined;
+      if (rootType.type === 'TSUnionType') {
+        typeNode = findSyntacticUndefinedTypeNode(rootType);
+      }
+
+      if (!typeNode && canResolveTypes) {
+        typeNode = findSemanticUndefinedTypeNode(
+          rootType,
+          parserServices as RequiredParserServices,
+        );
+      }
+
       if (typeNode) {
         const suggest = getQuickFixSuggestions(context, optionalToken, typeNode);
 
@@ -78,34 +88,11 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function findRedundantUndefinedInOptionalType(
-  tsTypeAnnotation: TSESTree.TSTypeAnnotation | undefined,
-  services: RequiredParserServices,
-  canUseSemanticUndefinedCheck: boolean,
-) {
-  if (!tsTypeAnnotation) {
-    return undefined;
-  }
-
-  const rootType = tsTypeAnnotation.typeAnnotation;
-  if (rootType.type === 'TSUnionType') {
-    const syntacticUndefined = findSyntacticUndefinedTypeNode(rootType);
-    if (syntacticUndefined) {
-      return syntacticUndefined;
-    }
-  }
-
-  if (canUseSemanticUndefinedCheck) {
-    return findSemanticUndefinedTypeNode(tsTypeAnnotation, services);
-  }
-  return undefined;
-}
-
 function findSemanticUndefinedTypeNode(
-  tsTypeAnnotation: TSESTree.TSTypeAnnotation,
+  rootType: TSESTree.TypeNode,
   services: RequiredParserServices,
 ): TSESTree.TypeNode | undefined {
-  const tsTypeNode = services.esTreeNodeToTSNodeMap.get(tsTypeAnnotation.typeAnnotation);
+  const tsTypeNode = services.esTreeNodeToTSNodeMap.get(rootType);
   const checker: ts.TypeChecker = services.program.getTypeChecker();
   const type = checker.getTypeAtLocation(tsTypeNode);
   if (!type.isUnion()) {
@@ -113,7 +100,7 @@ function findSemanticUndefinedTypeNode(
   }
   const hasUndefined = type.types.some(t => (t.flags & ts.TypeFlags.Undefined) !== 0);
   const hasNonUndefined = type.types.some(t => (t.flags & ts.TypeFlags.Undefined) === 0);
-  return hasUndefined && hasNonUndefined ? tsTypeAnnotation.typeAnnotation : undefined;
+  return hasUndefined && hasNonUndefined ? rootType : undefined;
 }
 
 function findSyntacticUndefinedTypeNode(
