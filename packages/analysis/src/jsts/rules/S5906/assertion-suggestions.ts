@@ -15,9 +15,9 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { SourceCode } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
-import { isIdentifier, isMethodCall } from '../helpers/ast.js';
+import { getVariableFromName, isIdentifier, isMethodCall } from '../helpers/ast.js';
 
 export type Suggestion = {
   assertion: string;
@@ -487,11 +487,13 @@ function invertComparison(operator: estree.BinaryOperator): estree.BinaryOperato
 }
 
 export function isPlaywrightLocatorExpression(
+  context: Rule.RuleContext,
   node: estree.Node,
-  locatorNames: ReadonlySet<string>,
+  locatorVariables: ReadonlySet<Scope.Variable>,
 ): boolean {
   if (isIdentifier(node)) {
-    return locatorNames.has(node.name);
+    const variable = getVariableFromName(context, node.name, node);
+    return variable !== undefined && locatorVariables.has(variable);
   }
   if (node.type !== 'CallExpression' || !isMethodCall(node)) {
     return false;
@@ -500,15 +502,23 @@ export function isPlaywrightLocatorExpression(
   return (
     isIdentifier(property) &&
     PLAYWRIGHT_LOCATOR_FACTORIES.has(property.name) &&
-    isPlaywrightLocatorRoot(node.callee.object, locatorNames)
+    isPlaywrightLocatorRoot(context, node.callee.object, locatorVariables)
   );
 }
 
-function isPlaywrightLocatorRoot(node: estree.Node, locatorNames: ReadonlySet<string>): boolean {
+function isPlaywrightLocatorRoot(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  locatorVariables: ReadonlySet<Scope.Variable>,
+): boolean {
   if (isIdentifier(node)) {
-    return node.name === 'page' || locatorNames.has(node.name);
+    if (node.name === 'page') {
+      return true;
+    }
+    const variable = getVariableFromName(context, node.name, node);
+    return variable !== undefined && locatorVariables.has(variable);
   }
-  return isPlaywrightLocatorExpression(node, locatorNames);
+  return isPlaywrightLocatorExpression(context, node, locatorVariables);
 }
 
 export function isLengthAccess(node: estree.Node): node is estree.MemberExpression {

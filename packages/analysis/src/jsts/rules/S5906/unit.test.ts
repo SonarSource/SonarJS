@@ -576,6 +576,19 @@ describe('S5906', () => {
         },
         {
           code: `
+            import { expect, test } from '@playwright/test';
+
+            test('does not treat a shadowed locator name as a locator', async ({ page }) => {
+              const banner = page.getByRole('status');
+              if (condition) {
+                const banner = new Widget();
+                expect(await banner.isVisible()).toBe(true);
+              }
+            });
+          `,
+        },
+        {
+          code: `
             import 'cypress';
 
             cy.get('button').should('equal', null);

@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5906/javascript
 
-import type { Rule, SourceCode } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { extractTestAssertion, type AssertionStyle } from '../helpers/assertions.js';
 import { isIdentifier, isMethodCall } from '../helpers/ast.js';
@@ -52,7 +52,7 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
     const hasPlaywright = importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES);
-    const playwrightLocators = new Set<string>();
+    const playwrightLocators = new Set<Scope.Variable>();
 
     function report(node: estree.CallExpression, suggestion: Suggestion) {
       const replacementText = suggestion.replacement;
@@ -104,8 +104,11 @@ export const rule: Rule.RuleModule = {
         if (!hasPlaywright || node.type !== 'VariableDeclarator' || !isIdentifier(node.id)) {
           return;
         }
-        if (node.init && isPlaywrightLocatorExpression(node.init, playwrightLocators)) {
-          playwrightLocators.add(node.id.name);
+        if (node.init && isPlaywrightLocatorExpression(context, node.init, playwrightLocators)) {
+          const variable = sourceCode.getDeclaredVariables(node)[0];
+          if (variable) {
+            playwrightLocators.add(variable);
+          }
         }
       },
     };

@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { Rule, SourceCode } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
@@ -43,7 +43,7 @@ export function getPlaywrightLocatorSuggestion(
   context: Rule.RuleContext,
   node: estree.CallExpression,
   sourceCode: SourceCode,
-  locatorNames: ReadonlySet<string>,
+  locatorVariables: ReadonlySet<Scope.Variable>,
 ): Suggestion | null {
   const chain = getPlaywrightAssertionChain(context, node);
   if (!chain) {
@@ -51,7 +51,7 @@ export function getPlaywrightLocatorSuggestion(
   }
 
   const { getter, locator, negated } = chain;
-  if (!isPlaywrightLocatorExpression(locator, locatorNames)) {
+  if (!isPlaywrightLocatorExpression(context, locator, locatorVariables)) {
     return null;
   }
 
