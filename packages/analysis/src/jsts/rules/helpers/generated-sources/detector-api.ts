@@ -203,7 +203,7 @@ async function resolveExistingSiblingPaths(
 
   for (const basename of basenames) {
     const resolvedPath = normalizeToAbsolutePath(basename, packageDir);
-    if (kind === 'file' ? await isFile(resolvedPath) : await isDirectory(resolvedPath)) {
+    if ((kind === 'file' ? await isFile(resolvedPath) : await isDirectory(resolvedPath))) {
       resolvedPaths.add(resolvedPath);
     }
   }
