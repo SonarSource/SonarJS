@@ -66,6 +66,8 @@ import {
   type NormalizedAbsolutePath,
 } from '../../../../shared/src/helpers/files.js';
 
+const itIfNotWindows = process.platform === 'win32' ? it.skip : it;
+
 function createPackageJsonMap(
   packageDir: NormalizedAbsolutePath,
   packageJson: Record<string, unknown>,
@@ -584,7 +586,7 @@ describe('generated sources project metadata', () => {
     }
   });
 
-  it('ignores resolved outputs that are neither files nor directories', async () => {
+  itIfNotWindows('ignores resolved outputs that are neither files nor directories', async () => {
     const baseDir = await createTempBaseDir();
     const socketPath = joinPaths(baseDir, 'generated.sock');
     const server = createServer();
