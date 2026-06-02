@@ -66,14 +66,9 @@ export const rule: Rule.RuleModule = createRegExpRule(
       index: number,
       characters: RegexppAST.Character[],
     ) {
-      // Stop on the first failed check as there may be overlaps between checks
-      // for instance a zero-width-sequence containing a modified emoji.
-      for (const check of characterChecks) {
-        if (check(character, index, characters)) {
-          return true;
-        }
-      }
-      return false;
+      // Stop on the first check that fires as checks may overlap,
+      // for instance a zero-width sequence containing a modified emoji.
+      return characterChecks.some(check => check(character, index, characters));
     }
 
     function checkCombinedCharacter(

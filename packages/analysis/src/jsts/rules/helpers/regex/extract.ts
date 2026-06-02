@@ -67,13 +67,13 @@ export function getPatternFromNode(
       return { ...patternOnly, flags };
     }
   } else if (isRegexLiteral(node)) {
-    return { ...node.regex, seams: [], isPureLiteral: true };
+    return literalPattern(node.regex.pattern, node.regex.flags);
   } else if (isStringLiteral(node)) {
-    return { pattern: node.value, flags: '', seams: [], isPureLiteral: true };
+    return literalPattern(node.value);
   } else if (isStaticTemplateLiteral(node)) {
-    return { pattern: node.quasis[0].value.raw, flags: '', seams: [], isPureLiteral: true };
+    return literalPattern(node.quasis[0].value.raw);
   } else if (isSimpleRawString(node)) {
-    return { pattern: getSimpleRawStringValue(node), flags: '', seams: [], isPureLiteral: true };
+    return literalPattern(getSimpleRawStringValue(node));
   } else if (isIdentifier(node)) {
     const assignedExpression = getUniqueWriteUsage(context, node.name, node);
     if (
@@ -84,21 +84,22 @@ export function getPatternFromNode(
       return pattern ? { ...pattern, isPureLiteral: false } : null;
     }
   } else if (isBinaryPlus(node)) {
-    return getBinaryPlusPattern(node, context);
+    const left = getPatternFromNode(node.left, context);
+    const right = getPatternFromNode(node.right, context);
+    return left && right ? concatPatterns(left, right) : null;
   }
 
   return null;
 }
 
-function getBinaryPlusPattern(
-  node: estree.BinaryExpression,
-  context: Rule.RuleContext,
-): ExtractedRegexPattern | null {
-  const left = getPatternFromNode(node.left, context);
-  const right = getPatternFromNode(node.right, context);
-  if (!left || !right) {
-    return null;
-  }
+function literalPattern(pattern: string, flags = ''): ExtractedRegexPattern {
+  return { pattern, flags, seams: [], isPureLiteral: true };
+}
+
+function concatPatterns(
+  left: ExtractedRegexPattern,
+  right: ExtractedRegexPattern,
+): ExtractedRegexPattern {
   const splitOffset = left.pattern.length;
   const splitSeams = left.isPureLiteral && right.isPureLiteral ? [] : [splitOffset];
   return {

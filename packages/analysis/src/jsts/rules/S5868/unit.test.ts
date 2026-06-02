@@ -98,6 +98,9 @@ describe('S5868', () => {
           code: String.raw`const man = '\u{1F468}', zwjChar = '\u200D', woman = '\u{1F469}', r = new RegExp('[' + man + zwjChar + woman + ']', 'u')`,
           languageOptions: { ecmaVersion: ecma2015 },
         },
+        {
+          code: String.raw`const tail = '\u0301', r = new RegExp('[' + 'A' + tail + ']')`,
+        },
 
         // don't report and don't crash on invalid regex
         { code: "var r = new RegExp('[Á] [ ');" },
@@ -220,6 +223,14 @@ describe('S5868', () => {
         {
           code: 'var r = new RegExp(String.raw`[👶🏻]`, String.raw`u`)',
           errors: [{ column: 20, endColumn: 38, message: modifiedEmoji('👶🏻') }],
+        },
+        {
+          code: 'const flags = `u`; var r = new RegExp("[👶🏻]", flags)',
+          errors: [{ message: modifiedEmoji('👶🏻') }],
+        },
+        {
+          code: 'const flags = String.raw`u`; var r = new RegExp("[👶🏻]", flags)',
+          errors: [{ message: modifiedEmoji('👶🏻') }],
         },
         {
           code: String.raw`var r = /[\uD83D\uDC76\uD83C\uDFFB]/u`,
