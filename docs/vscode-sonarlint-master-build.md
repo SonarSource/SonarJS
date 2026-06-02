@@ -6,6 +6,32 @@ The extension is now branded **SonarQube for IDE**, but the VS Code package name
 
 This is a local testing workflow only. Updating or reinstalling the extension will overwrite the patched files.
 
+## Automated helper script
+
+The repo now includes a helper script that automates the patch, backup, and restore workflow:
+
+```bash
+tools/patch-vscode-sonarlint.sh --build
+```
+
+`--build` runs the Maven packaging command from the current checkout, so it may update generated tracked files such as README rule counts.
+
+If you already have a jar, pass it explicitly:
+
+```bash
+tools/patch-vscode-sonarlint.sh --jar "$HOME/Downloads/sonar-javascript-plugin-<version>.jar"
+```
+
+By default, the script prefers `~/.vscode-server/extensions/...` when present, otherwise `~/.vscode/extensions/...`. Use `--server`, `--desktop`, or `--ext <path>` to override that detection.
+
+To restore the official extension files from the latest backup created by the script:
+
+```bash
+tools/patch-vscode-sonarlint.sh --restore latest
+```
+
+The remaining sections document the manual flow that the script automates.
+
 ## Why both `sonarjs.jar` and `eslint-bridge` must be updated
 
 Replacing `analyzers/sonarjs.jar` alone is not enough.
