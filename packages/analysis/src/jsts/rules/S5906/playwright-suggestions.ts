@@ -15,9 +15,10 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { SourceCode } from 'eslint';
+import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
-import { isMethodCall } from '../helpers/ast.js';
+import { isIdentifier, isMethodCall } from '../helpers/ast.js';
+import { getFullyQualifiedName } from '../helpers/module.js';
 import {
   getBooleanValue,
   isPlaywrightLocatorExpression,
@@ -39,11 +40,12 @@ const PLAYWRIGHT_VALUE_GETTERS = new Map<string, string>([
 ]);
 
 export function getPlaywrightLocatorSuggestion(
+  context: Rule.RuleContext,
   node: estree.CallExpression,
   sourceCode: SourceCode,
   locatorNames: ReadonlySet<string>,
 ): Suggestion | null {
-  const chain = getPlaywrightAssertionChain(node);
+  const chain = getPlaywrightAssertionChain(context, node);
   if (!chain) {
     return null;
   }
@@ -60,6 +62,7 @@ export function getPlaywrightLocatorSuggestion(
 }
 
 function getPlaywrightAssertionChain(
+  context: Rule.RuleContext,
   node: estree.CallExpression,
 ): { getter: estree.CallExpression; locator: estree.Node; negated: boolean } | null {
   if (
@@ -67,6 +70,10 @@ function getPlaywrightAssertionChain(
     !['toBe', 'toEqual', 'toStrictEqual'].includes(node.callee.property.name) ||
     node.arguments.length !== 1
   ) {
+    return null;
+  }
+
+  if (!isPlaywrightExpect(context, node.callee.object)) {
     return null;
   }
 
@@ -79,6 +86,24 @@ function getPlaywrightAssertionChain(
     return null;
   }
   return { getter: awaited, locator: awaited.callee.object, negated: chain.negated };
+}
+
+function isPlaywrightExpect(context: Rule.RuleContext, node: estree.Node): boolean {
+  const expectCall = getExpectCall(node);
+  return (
+    expectCall !== null &&
+    getFullyQualifiedName(context, expectCall.callee) === '@playwright.test.expect'
+  );
+}
+
+function getExpectCall(node: estree.Node): estree.CallExpression | null {
+  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property, 'not')) {
+    return getExpectCall(node.object);
+  }
+  if (node.type === 'CallExpression' && isIdentifier(node.callee, 'expect')) {
+    return node;
+  }
+  return null;
 }
 
 function getBooleanGetterSuggestion(

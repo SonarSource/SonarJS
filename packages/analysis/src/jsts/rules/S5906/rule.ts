@@ -81,6 +81,7 @@ export const rule: Rule.RuleModule = {
         }
         if (hasPlaywright) {
           const playwrightSuggestion = getPlaywrightLocatorSuggestion(
+            context,
             node,
             sourceCode,
             playwrightLocators,

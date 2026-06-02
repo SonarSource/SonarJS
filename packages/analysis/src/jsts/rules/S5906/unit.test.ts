@@ -596,6 +596,18 @@ describe('S5906', () => {
             });
           `,
         },
+        {
+          code: `
+            import { expect } from 'vitest';
+            import { test } from '@playwright/test';
+
+            test('checks page', async ({ page }) => {
+              const banner = page.getByRole('status');
+
+              expect(await banner.isVisible()).toBe(true);
+            });
+          `,
+        },
       ],
       invalid: [
         {
