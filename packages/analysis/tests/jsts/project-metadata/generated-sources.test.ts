@@ -32,11 +32,10 @@ import {
   extractFlagValues,
 } from '../../../src/jsts/rules/helpers/generated-sources/derive.js';
 import {
-  GRAPHQL_CODEGEN_FAMILY,
   GENERATED_SOURCE_DETECTORS,
   GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,
-  GENERATED_SOURCE_WATCHED_FILENAMES,
   collectGeneratedSourceTaskInvocations,
+  getGeneratedSourceWatchedFilenames,
 } from '../../../src/jsts/rules/helpers/generated-sources/index.js';
 import {
   joinPaths,
@@ -50,6 +49,7 @@ const fixtures = joinPaths(
   'fixtures',
   'generated-sources',
 );
+const GRAPHQL_CODEGEN_FAMILY = '@graphql-codegen/cli';
 
 function createPackageJsonMap(
   packageDir: NormalizedAbsolutePath,
@@ -84,7 +84,7 @@ describe('generated sources project metadata', () => {
     expect(GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS.map(provider => provider.kind)).toEqual([
       'package-json-scripts',
     ]);
-    expect(GENERATED_SOURCE_WATCHED_FILENAMES).toEqual(
+    expect(getGeneratedSourceWatchedFilenames()).toEqual(
       expect.arrayContaining([
         'codegen.config.cjs',
         'codegen.config.cts',

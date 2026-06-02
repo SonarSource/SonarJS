@@ -18,8 +18,6 @@ import type { NormalizedAbsolutePath } from '../../../../../../shared/src/helper
 import type { DependenciesList } from '../dependency-manifests/resolvers/types.js';
 import type { TaskInvocation } from './task-invocations.js';
 
-export const GRAPHQL_CODEGEN_FAMILY = '@graphql-codegen/cli';
-
 export type GeneratedSourceFileMatcher = (filePath: NormalizedAbsolutePath) => boolean;
 
 export type DerivedGeneratedSources = {

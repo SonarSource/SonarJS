@@ -19,7 +19,7 @@ import { extname } from 'node:path/posix';
 import ts from 'typescript';
 import yaml from 'yaml';
 import { type NormalizedAbsolutePath } from '../../../../../../../shared/src/helpers/files.js';
-import { type GeneratedSourceDetector, GRAPHQL_CODEGEN_FAMILY } from '../contracts.js';
+import { type GeneratedSourceDetector } from '../contracts.js';
 import {
   hasToolEvidence,
   resolveConfigPaths,
@@ -64,6 +64,7 @@ const WATCHED_GRAPHQL_CONFIGS = [
 const GRAPHQL_CONFIG_FLAGS = ['--config', '-c'];
 const DEFAULT_NEAR_OPERATION_FILE_EXTENSION = '.generated.ts';
 const GRAPHQL_GENERATED_DIRECTORY_SEGMENTS = new Set(['generated', '__generated__', 'gql']);
+const GRAPHQL_CODEGEN_FAMILY = '@graphql-codegen/cli';
 
 type GraphqlGenerateTarget = {
   outputPath: string;

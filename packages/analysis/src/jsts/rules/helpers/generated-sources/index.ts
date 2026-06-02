@@ -14,10 +14,9 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-export { GRAPHQL_CODEGEN_FAMILY } from './contracts.js';
 export {
   GENERATED_SOURCE_DETECTORS,
-  GENERATED_SOURCE_WATCHED_FILENAMES,
+  getGeneratedSourceWatchedFilenames,
 } from './detectors/index.js';
 export {
   GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,

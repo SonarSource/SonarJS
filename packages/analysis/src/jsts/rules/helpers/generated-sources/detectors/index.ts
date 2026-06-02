@@ -17,10 +17,16 @@
 import type { GeneratedSourceDetector } from '../contracts.js';
 import { graphqlCodegenDetector } from './graphql-codegen.js';
 
-export const GENERATED_SOURCE_DETECTORS: readonly GeneratedSourceDetector[] = [
-  graphqlCodegenDetector,
-];
+export const GENERATED_SOURCE_DETECTORS: GeneratedSourceDetector[] = [graphqlCodegenDetector];
 
-export const GENERATED_SOURCE_WATCHED_FILENAMES = [
-  ...new Set(GENERATED_SOURCE_DETECTORS.flatMap(detector => detector.watchedFilenames ?? [])),
-].sort((left, right) => left.localeCompare(right));
+export function getGeneratedSourceWatchedFilenames(
+  detectors: readonly GeneratedSourceDetector[] = GENERATED_SOURCE_DETECTORS,
+) {
+  return [
+    ...new Set(
+      detectors.flatMap(detector =>
+        (detector.watchedFilenames ?? []).map(filename => filename.toLowerCase()),
+      ),
+    ),
+  ].sort((left, right) => left.localeCompare(right));
+}
