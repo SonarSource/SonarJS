@@ -25,11 +25,12 @@ import { isIdentifier } from '../helpers/ast.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
-// Matches a path segment with a semantic version (e.g. /3.7.1/ or /v5.3.0/1.2)
-// or a package@version alias (e.g. /jquery@3.7.1/ or /bootstrap@5.3.0).
+// Matches a path segment with a semantic version (e.g. /3.7.1/, /v5.3.0/, /1.2/, /3.7.1-rc.1/)
+// or a package@version alias (e.g. /jquery@3.7.1/, /bootstrap@5.3.0, /react@19.0.0-rc.1/).
+// Prerelease identifiers (e.g. -rc.1, -beta.3) are included.
 // The lookahead allows the version to be the last path segment (no trailing slash required).
-const SEMVER_PATH_REGEX = /\/v?\d+\.\d+(?:\.\d+)?(?=[/?#]|$)/;
-const ALIAS_PATH_REGEX = /\/[^/@]*@[\d.]+(?=[/?#]|$)/;
+const SEMVER_PATH_REGEX = /\/v?\d+\.\d+(?:\.\d+)?(?:-[a-zA-Z0-9][a-zA-Z0-9.-]*)?(?=[/?#]|$)/;
+const ALIAS_PATH_REGEX = /\/[^/@]*@[\d.]+(?:-[a-zA-Z0-9][a-zA-Z0-9.-]*)?(?=[/?#]|$)/;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {

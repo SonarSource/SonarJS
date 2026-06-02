@@ -320,6 +320,62 @@ describe('S5725', () => {
             },
           ],
         },
+        {
+          // Sensitive: prerelease alias URL (package@major.minor.patch-pre), both missing
+          code: `
+      var script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/react@19.0.0-rc.1/umd/react.production.min.js";
+      document.head.appendChild(script);
+            `,
+          errors: [
+            {
+              message:
+                'Add integrity and crossorigin="anonymous" attributes to this element to enforce integrity checks.',
+            },
+          ],
+        },
+        {
+          // Sensitive: prerelease semver path segment (/major.minor.patch-pre/), both missing
+          code: `
+      var script = document.createElement("script");
+      script.src = "https://example.com/libs/3.7.1-beta.3/script.min.js";
+      document.head.appendChild(script);
+            `,
+          errors: [
+            {
+              message:
+                'Add integrity and crossorigin="anonymous" attributes to this element to enforce integrity checks.',
+            },
+          ],
+        },
+        {
+          // Sensitive: minor-only semver path segment (/major.minor/), both missing
+          code: `
+      var script = document.createElement("script");
+      script.src = "https://cdn.example.com/1.2/script.js";
+      document.head.appendChild(script);
+            `,
+          errors: [
+            {
+              message:
+                'Add integrity and crossorigin="anonymous" attributes to this element to enforce integrity checks.',
+            },
+          ],
+        },
+        {
+          // Sensitive: minor-only alias (package@major.minor), both missing
+          code: `
+      var script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/bootstrap@5.3/dist/js/bootstrap.min.js";
+      document.head.appendChild(script);
+            `,
+          errors: [
+            {
+              message:
+                'Add integrity and crossorigin="anonymous" attributes to this element to enforce integrity checks.',
+            },
+          ],
+        },
       ],
     });
   });
