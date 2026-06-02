@@ -35,25 +35,19 @@ const BLOCK_PUBLIC_ACCESS_PROPERTY_KEYS = [
 ];
 
 const messages = {
-  omitted:
-    'No Public Access Block configuration prevents public ACL/policies ' +
-    'to be set on this S3 bucket. Make sure it is safe here.',
-  public: 'Make sure allowing public ACL/policies to be set is safe here.',
+  public:
+    'Disabling public access block settings allows public ACL/policies to be set on this S3 bucket.',
+  blockAclsOnly: 'Using BLOCK_ACLS_ONLY allows public access via bucket policies.',
 };
 
 export const rule: Rule.RuleModule = S3BucketTemplate((bucket, context) => {
   const blockPublicAccess = getBucketProperty(context, bucket, BLOCK_PUBLIC_ACCESS_KEY);
-  if (blockPublicAccess == null) {
-    report(context, {
-      message: messages['omitted'],
-      node: bucket.callee,
-    });
-  } else {
+  if (blockPublicAccess != null) {
     checkBlockPublicAccessValue(blockPublicAccess);
     checkBlockPublicAccessConstructor(blockPublicAccess);
   }
 
-  /** Checks `blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS` sensitive pattern */
+  /** Checks `blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS_ONLY` sensitive pattern */
   function checkBlockPublicAccessValue(blockPublicAccess: Property) {
     const blockPublicAccessMember = getValueOfExpression(
       context,
@@ -63,13 +57,13 @@ export const rule: Rule.RuleModule = S3BucketTemplate((bucket, context) => {
     if (
       blockPublicAccessMember !== undefined &&
       normalizeFQN(getFullyQualifiedName(context, blockPublicAccessMember)) ===
-        'aws_cdk_lib.aws_s3.BlockPublicAccess.BLOCK_ACLS'
+        'aws_cdk_lib.aws_s3.BlockPublicAccess.BLOCK_ACLS_ONLY'
     ) {
       const propagated = findPropagatedSetting(blockPublicAccess, blockPublicAccessMember);
       report(
         context,
         {
-          message: messages['public'],
+          message: messages['blockAclsOnly'],
           node: blockPublicAccess,
         },
         propagated ? [propagated] : [],
@@ -93,12 +87,7 @@ export const rule: Rule.RuleModule = S3BucketTemplate((bucket, context) => {
         blockPublicAccessNew.arguments[0],
         'ObjectExpression',
       );
-      if (blockPublicAccessConfig === undefined) {
-        report(context, {
-          message: messages['omitted'],
-          node: blockPublicAccessNew,
-        });
-      } else {
+      if (blockPublicAccessConfig !== undefined) {
         for (const key of BLOCK_PUBLIC_ACCESS_PROPERTY_KEYS) {
           checkBlockPublicAccessConstructorProperty(blockPublicAccessConfig, key);
         }
