@@ -165,10 +165,18 @@ function shouldReport(assignedVariable: Scope.Variable): MessageId | null {
     nbSrcAssignment += isSrcAssignment(parentNode) ? 1 : 0;
     hasVersionedRemoteUrl = hasVersionedRemoteUrl || isVersionedRemoteUrl(parentNode);
     hasIntegrityAssignment = hasIntegrityAssignment || isIntegrityAssignment(parentNode);
-    hasCrossOriginAnonymous =
-      hasCrossOriginAnonymous || isCrossOriginAnonymousAssignment(parentNode);
-    hasCrossOriginUnresolved =
-      hasCrossOriginUnresolved || isCrossOriginUnresolvedAssignment(parentNode);
+    // Overwrite on each crossOrigin assignment so the last assignment wins.
+    // Using || would make an earlier "anonymous" mask a later "use-credentials".
+    if (isCrossOriginAnonymousAssignment(parentNode)) {
+      hasCrossOriginAnonymous = true;
+      hasCrossOriginUnresolved = false;
+    } else if (isCrossOriginUnresolvedAssignment(parentNode)) {
+      hasCrossOriginAnonymous = false;
+      hasCrossOriginUnresolved = true;
+    } else if (isCrossOriginAssignment(parentNode)) {
+      hasCrossOriginAnonymous = false;
+      hasCrossOriginUnresolved = false;
+    }
   }
   if (nbSrcAssignment !== 1 || !hasVersionedRemoteUrl) {
     return null;

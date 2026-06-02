@@ -140,6 +140,17 @@ describe('S5725', () => {
             `,
         },
         {
+          // Compliant: "use-credentials" overwritten by "anonymous" — final value is compliant
+          code: `
+      var script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js";
+      script.integrity = "sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=";
+      script.crossOrigin = "use-credentials";
+      script.crossOrigin = "anonymous";
+      document.head.appendChild(script);
+            `,
+        },
+        {
           code: `
         if (cond) {
           var script = document.createElement( "script" );
@@ -254,6 +265,23 @@ describe('S5725', () => {
       var script = document.createElement("script");
       script.src = "https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js";
       script.integrity = "sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=";
+      script.crossOrigin = "use-credentials";
+      document.head.appendChild(script);
+            `,
+          errors: [
+            {
+              message:
+                'Add a crossorigin="anonymous" attribute to this element to enforce integrity checks.',
+            },
+          ],
+        },
+        {
+          // Sensitive: "anonymous" then "use-credentials" — final value is non-compliant
+          code: `
+      var script = document.createElement("script");
+      script.src = "https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js";
+      script.integrity = "sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=";
+      script.crossOrigin = "anonymous";
       script.crossOrigin = "use-credentials";
       document.head.appendChild(script);
             `,
