@@ -4,17 +4,23 @@ This guide explains how to patch a local VS Code SonarLint installation so that 
 
 The extension is now branded **SonarQube for IDE**, but the VS Code package name is still `sonarsource.sonarlint-vscode`, and the logs still use `sonarlint-vscode`.
 
-This is a local testing workflow only. Updating or reinstalling the extension will overwrite the patched files.
+This is a local testing workflow only. Updating or reinstalling the extension creates a new versioned extension directory, which naturally resets any local patch.
 
 ## Automated helper script
 
-The repo now includes a helper script that automates the patch, backup, and restore workflow:
+The repo now includes a helper script that rebuilds from the current checkout and patches the extension in one command:
 
 ```bash
-tools/patch-vscode-sonarlint.mjs --build
+tools/patch-vscode-sonarlint.mjs
 ```
 
-`--build` runs the Maven packaging command from the current checkout, so it may update generated tracked files such as README rule counts.
+Normal patch mode is now always `rebuild + patch`. The helper runs:
+
+```bash
+mvn -pl sonar-plugin/sonar-javascript-plugin -am -DskipTests package
+```
+
+before touching the installed extension, so a failed build leaves the extension untouched. That Maven build may update generated tracked files such as README rule counts.
 
 If you already have a jar, pass it explicitly:
 
@@ -22,13 +28,24 @@ If you already have a jar, pass it explicitly:
 tools/patch-vscode-sonarlint.mjs --jar "$HOME/Downloads/sonar-javascript-plugin-<version>.jar"
 ```
 
+`--jar <path>` is the explicit opt-out from the automatic rebuild. `--build` is now only a compatibility alias and prints a warning because rebuild is already the default.
+
 By default, the script prefers `~/.vscode-server/extensions/...` when present, otherwise `~/.vscode/extensions/...`. Use `--server`, `--desktop`, or `--ext <path>` to override that detection.
 
-To restore the official extension files from the latest backup created by the script:
+On the first successful patch of a given extension directory, the helper stores one original backup and keeps reusing it:
+
+- `analyzers/sonarjs.jar.original`
+- `eslint-bridge.original`
+
+Subsequent patches rebuild again, patch again, and leave those original backups unchanged.
+
+To restore the original official extension files captured for the current extension directory:
 
 ```bash
-tools/patch-vscode-sonarlint.mjs --restore latest
+tools/patch-vscode-sonarlint.mjs --restore
 ```
+
+`--restore latest` and `--restore original` are still accepted as compatibility aliases, but they now mean the same original-backup restore path.
 
 The remaining sections document the manual flow that the script automates.
 
@@ -57,21 +74,25 @@ Then export the path you want to patch:
 SONARLINT_EXT="$HOME/.vscode-server/extensions/sonarsource.sonarlint-vscode-5.2.1"
 ```
 
-## 2. Back up the current files
+## 2. Capture the original files once
 
 ```bash
-STAMP="$(date +%Y%m%dT%H%M%S%z)"
+if [ ! -f "$SONARLINT_EXT/analyzers/sonarjs.jar.original" ]; then
+  cp "$SONARLINT_EXT/analyzers/sonarjs.jar" \
+    "$SONARLINT_EXT/analyzers/sonarjs.jar.original"
+fi
 
-cp "$SONARLINT_EXT/analyzers/sonarjs.jar" \
-  "$SONARLINT_EXT/analyzers/sonarjs.jar.bak-$STAMP"
-
-if [ -d "$SONARLINT_EXT/eslint-bridge" ]; then
-  mv "$SONARLINT_EXT/eslint-bridge" \
-    "$SONARLINT_EXT/eslint-bridge.bak-$STAMP"
+if [ ! -d "$SONARLINT_EXT/eslint-bridge.original" ]; then
+  cp -R "$SONARLINT_EXT/eslint-bridge" \
+    "$SONARLINT_EXT/eslint-bridge.original"
 fi
 ```
 
+Do not overwrite those backups on later patches. They are the restore target for this versioned extension directory.
+
 ## 3. Download the latest master build from Repox
+
+If you use the helper script without `--jar`, you can skip this section because the helper rebuilds from the current checkout automatically. This section is for the manual workflow or for `--jar`.
 
 Use the Repox JFrog Web UI to download the same Maven artifact with these coordinates:
 
@@ -115,14 +136,18 @@ unzip -p "$SONARLINT_EXT/analyzers/sonarjs.jar" META-INF/MANIFEST.MF \
   | grep -E 'Plugin-Version|Plugin-Display-Version|Implementation-Build'
 ```
 
-## 5. Rebuild `eslint-bridge` from the patched jar
+## 5. Refresh `eslint-bridge` from the patched jar
 
-The jar embeds the Node payload as `sonarjs-1.0.0.tgz`. Extract it into the extension directory:
+The jar embeds the Node payload as `sonarjs-*.tgz`. Refresh the extension directory from that payload:
 
 ```bash
+BRIDGE_PAYLOAD="$(unzip -Z1 "$SONARLINT_EXT/analyzers/sonarjs.jar" \
+  | grep -E '^sonarjs-.*\.tgz$' | head -n 1)"
+
+rm -rf "$SONARLINT_EXT/eslint-bridge"
 mkdir -p "$SONARLINT_EXT/eslint-bridge"
 
-unzip -p "$SONARLINT_EXT/analyzers/sonarjs.jar" sonarjs-1.0.0.tgz \
+unzip -p "$SONARLINT_EXT/analyzers/sonarjs.jar" "$BRIDGE_PAYLOAD" \
   | tar -xzf - -C "$SONARLINT_EXT/eslint-bridge"
 ```
 
@@ -170,24 +195,18 @@ What you want to see:
 
 ## 8. Restore the official extension files
 
-If you open a new shell before restoring, re-export `SONARLINT_EXT` and set `STAMP` to the backup timestamp first. To find it, list the backup jar names and reuse the suffix after `sonarjs.jar.bak-`:
+Restore from the original backups created for this versioned extension directory:
 
 ```bash
-ls "$SONARLINT_EXT"/analyzers/sonarjs.jar.bak-*
-```
-
-```bash
-cp "$SONARLINT_EXT/analyzers/sonarjs.jar.bak-$STAMP" \
+cp "$SONARLINT_EXT/analyzers/sonarjs.jar.original" \
   "$SONARLINT_EXT/analyzers/sonarjs.jar"
 
-if [ -d "$SONARLINT_EXT/eslint-bridge.bak-$STAMP" ]; then
-  rm -rf "$SONARLINT_EXT/eslint-bridge"
-  mv "$SONARLINT_EXT/eslint-bridge.bak-$STAMP" \
-    "$SONARLINT_EXT/eslint-bridge"
-fi
+rm -rf "$SONARLINT_EXT/eslint-bridge"
+cp -R "$SONARLINT_EXT/eslint-bridge.original" \
+  "$SONARLINT_EXT/eslint-bridge"
 ```
 
-Reinstalling or updating the extension also restores the official files.
+Reinstalling or updating the extension also restores the official files because VS Code switches to a new versioned extension directory.
 
 ## Troubleshooting
 

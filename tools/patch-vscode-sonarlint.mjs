@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-
 /*
  * SonarQube JavaScript Plugin
  * Copyright (C) SonarSource Sàrl
@@ -23,7 +22,6 @@ import {
   mkdirSync,
   readdirSync,
   realpathSync,
-  renameSync,
   rmSync,
   statSync,
 } from 'node:fs';
@@ -38,11 +36,9 @@ const childEnv = {
   ...process.env,
   PATH: [dirname(process.execPath), process.env.PATH].filter(Boolean).join(delimiter),
 };
-const backupStampPrefix = 'sonarjs.jar.bak-';
-const backupStampPattern = /^\d{8}T\d{6}[+-]\d{4}$/;
 
 const state = {
-  activeStamp: '',
+  canRestore: false,
   extensionPath: '',
 };
 
@@ -53,33 +49,35 @@ USAGE:
   ${scriptName} [OPTIONS]
 
 PATCH OPTIONS:
-  --build               Build the plugin jar from the current checkout with:
-                        mvn -pl sonar-plugin/sonar-javascript-plugin -am -DskipTests package
-                        This may update generated tracked files in the repo.
-  --jar <path>          Use an existing sonar-javascript-plugin jar
+  --build               Compatibility alias. Patch mode already rebuilds by default.
+  --jar <path>          Use an existing sonar-javascript-plugin jar instead of rebuilding
   --ext <path>          Patch a specific sonarsource.sonarlint-vscode-* directory
   --server              Prefer ~/.vscode-server/extensions
   --desktop             Prefer ~/.vscode/extensions
 
 RESTORE OPTIONS:
-  --restore <stamp>     Restore analyzer and eslint-bridge from a backup stamp
-  --restore latest      Restore the most recent backup for the chosen extension
+  --restore [target]    Restore the original backup for the chosen extension
+                        Accepts 'original' and 'latest' as compatibility aliases
 
 GENERAL:
   --help, -h            Show this help text
 
 DEFAULTS:
-  - Without --jar, the script uses the newest local
-    sonar-plugin/sonar-javascript-plugin/target/sonar-javascript-plugin-*.jar
+  - Without --jar, the script rebuilds the plugin from the current checkout with:
+    mvn -pl sonar-plugin/sonar-javascript-plugin -am -DskipTests package
+  - The patch uses the non-classifier sonar-javascript-plugin-*.jar produced by
+    that build and aborts if the build does not produce one
+  - The first successful patch of an extension directory stores one original backup:
+    analyzers/sonarjs.jar.original and eslint-bridge.original
   - In auto mode, the script prefers ~/.vscode-server/extensions when present,
     otherwise ~/.vscode/extensions
 
 EXAMPLES:
-  ${scriptName} --build
+  ${scriptName}
   ${scriptName} --jar "$HOME/Downloads/sonar-javascript-plugin-12.6.0-SNAPSHOT.jar"
-  ${scriptName} --desktop --build
-  ${scriptName} --restore latest
-  ${scriptName} --restore 20260602T105318+0200 --ext "$HOME/.vscode/extensions/sonarsource.sonarlint-vscode-5.3.0-darwin-arm64"`;
+  ${scriptName} --desktop
+  ${scriptName} --restore
+  ${scriptName} --restore latest --ext "$HOME/.vscode/extensions/sonarsource.sonarlint-vscode-5.3.0-darwin-arm64"`;
 }
 
 function info(message = '') {
@@ -179,8 +177,8 @@ function parseCliArgs(argv) {
     targetKind: 'auto',
     extensionPath: '',
     patchJar: '',
-    runBuild: false,
-    restoreStamp: '',
+    runBuildAlias: false,
+    restoreMode: '',
     help: false,
   };
 
@@ -189,7 +187,7 @@ function parseCliArgs(argv) {
 
     switch (arg) {
       case '--build':
-        options.runBuild = true;
+        options.runBuildAlias = true;
         break;
       case '--jar':
         index += 1;
@@ -206,11 +204,12 @@ function parseCliArgs(argv) {
         options.extensionPath = argv[index];
         break;
       case '--restore':
-        index += 1;
-        if (index >= argv.length) {
-          fail("--restore requires a stamp or 'latest'");
+        if (index + 1 < argv.length && !argv[index + 1].startsWith('--')) {
+          index += 1;
+          options.restoreMode = argv[index];
+        } else {
+          options.restoreMode = 'original';
         }
-        options.restoreStamp = argv[index];
         break;
       case '--server':
         options.targetKind = 'server';
@@ -311,21 +310,6 @@ function detectExtensionPath(targetKind) {
   fail(`No sonarsource.sonarlint-vscode-* extension found under ${serverRoot} or ${desktopRoot}`);
 }
 
-function latestLocalPatchJar() {
-  const targetDirectory = join(repoRoot, 'sonar-plugin', 'sonar-javascript-plugin', 'target');
-  const matches = listFiles(targetDirectory, name => {
-    if (!name.startsWith('sonar-javascript-plugin-') || !name.endsWith('.jar')) {
-      return false;
-    }
-
-    return !['-sources.jar', '-javadoc.jar', '-multi.jar', '-darwin-', '-linux-', '-win-'].some(
-      fragment => name.includes(fragment),
-    );
-  });
-
-  return selectLatest(matches);
-}
-
 function bridgePayloadEntry(jarPath) {
   const entries = commandOutput('unzip', ['-Z1', jarPath]).split(/\r?\n/);
   return entries.find(entry => /^sonarjs-.*\.tgz$/.test(entry)) ?? '';
@@ -335,18 +319,6 @@ function manifestSummaryLines(jarPath) {
   return commandOutput('unzip', ['-p', jarPath, 'META-INF/MANIFEST.MF'])
     .split(/\r?\n/)
     .filter(line => /^(Plugin-Version|Plugin-Display-Version|Implementation-Build):/.test(line));
-}
-
-function latestBackupStamp(extensionPath) {
-  const analyzerDirectory = join(extensionPath, 'analyzers');
-  const matches = listFiles(
-    analyzerDirectory,
-    name =>
-      name.startsWith(backupStampPrefix) &&
-      backupStampPattern.test(name.slice(backupStampPrefix.length)),
-  );
-  const latest = selectLatest(matches);
-  return latest ? basename(latest).slice(backupStampPrefix.length) : '';
 }
 
 function desktopLogRoot(home) {
@@ -394,24 +366,119 @@ function printLogHint(extensionPath) {
   );
 }
 
-function formatTimestamp(date) {
-  const pad = value => String(value).padStart(2, '0');
-  const year = date.getFullYear();
-  const month = pad(date.getMonth() + 1);
-  const day = pad(date.getDate());
-  const hours = pad(date.getHours());
-  const minutes = pad(date.getMinutes());
-  const seconds = pad(date.getSeconds());
-  const offsetMinutes = -date.getTimezoneOffset();
-  const sign = offsetMinutes >= 0 ? '+' : '-';
-  const absoluteOffset = Math.abs(offsetMinutes);
-  const offsetHours = pad(Math.floor(absoluteOffset / 60));
-  const offsetRemainder = pad(absoluteOffset % 60);
+function patchJarTargetDirectory() {
+  return join(repoRoot, 'sonar-plugin', 'sonar-javascript-plugin', 'target');
+}
 
-  return `${year}${month}${day}T${hours}${minutes}${seconds}${sign}${offsetHours}${offsetRemainder}`;
+function isPatchJarFile(name) {
+  if (!name.startsWith('sonar-javascript-plugin-') || !name.endsWith('.jar')) {
+    return false;
+  }
+
+  return !['-sources.jar', '-javadoc.jar', '-multi.jar', '-darwin-', '-linux-', '-win-'].some(
+    fragment => name.includes(fragment),
+  );
+}
+
+function patchJarCandidates(targetDirectory = patchJarTargetDirectory()) {
+  return listFiles(targetDirectory, isPatchJarFile);
+}
+
+function fileSignature(path) {
+  const stats = statSync(path);
+  return `${stats.size}:${stats.mtimeMs}`;
+}
+
+function snapshotFiles(paths) {
+  return new Map(paths.map(path => [path, fileSignature(path)]));
+}
+
+function resolveBuiltPatchJar(targetDirectory, beforeBuildSnapshot) {
+  const candidates = patchJarCandidates(targetDirectory);
+  const changedCandidates = candidates.filter(
+    candidate => beforeBuildSnapshot.get(candidate) !== fileSignature(candidate),
+  );
+
+  if (changedCandidates.length === 1) {
+    return changedCandidates[0];
+  }
+
+  if (changedCandidates.length === 0) {
+    fail(
+      `Build completed but did not produce a non-classifier sonar-javascript-plugin-*.jar under ${targetDirectory}`,
+    );
+  }
+
+  fail(
+    `Build completed but produced multiple candidate jars under ${targetDirectory}: ${changedCandidates.join(', ')}`,
+  );
+}
+
+function originalAnalyzerBackupPath(extensionPath) {
+  return join(extensionPath, 'analyzers', 'sonarjs.jar.original');
+}
+
+function originalBridgeBackupPath(extensionPath) {
+  return join(extensionPath, 'eslint-bridge.original');
+}
+
+function ensureOriginalBackup(extensionPath) {
+  const analyzerJar = join(extensionPath, 'analyzers', 'sonarjs.jar');
+  const eslintBridge = join(extensionPath, 'eslint-bridge');
+  const backupJar = originalAnalyzerBackupPath(extensionPath);
+  const backupBridge = originalBridgeBackupPath(extensionPath);
+  const hasBackupJar = existsSync(backupJar);
+  const hasBackupBridge = existsSync(backupBridge);
+
+  if (hasBackupJar && hasBackupBridge) {
+    return false;
+  }
+
+  if (hasBackupJar || hasBackupBridge) {
+    fail(
+      `Found an incomplete original backup under ${extensionPath}. Remove ${basename(backupJar)} and ${basename(backupBridge)}, or reinstall the extension before retrying.`,
+    );
+  }
+
+  if (!existsSync(analyzerJar)) {
+    fail(`Missing analyzer jar under ${join(extensionPath, 'analyzers')}`);
+  }
+
+  if (!existsSync(eslintBridge)) {
+    fail(`Missing eslint-bridge under ${extensionPath}; cannot capture the original backup.`);
+  }
+
+  try {
+    cpSync(analyzerJar, backupJar);
+    cpSync(eslintBridge, backupBridge, { recursive: true });
+  } catch (error) {
+    rmSync(backupJar, { force: true });
+    rmSync(backupBridge, { recursive: true, force: true });
+    throw error;
+  }
+
+  return true;
+}
+
+function normalizeRestoreMode(requestedRestoreMode) {
+  if (!requestedRestoreMode || requestedRestoreMode === 'original') {
+    return 'original';
+  }
+
+  if (requestedRestoreMode === 'latest') {
+    warn('--restore latest now restores the original backup for the selected extension directory.');
+    return 'original';
+  }
+
+  fail(
+    'Restore no longer accepts backup stamps. Use --restore to restore the original backup for the selected extension directory.',
+  );
 }
 
 function buildLocalPlugin() {
+  const targetDirectory = patchJarTargetDirectory();
+  const beforeBuildSnapshot = snapshotFiles(patchJarCandidates(targetDirectory));
+
   info(`Building sonar-javascript-plugin from ${repoRoot}`);
   info('Command: mvn -pl sonar-plugin/sonar-javascript-plugin -am -DskipTests package');
   info('Note: this build may update generated tracked files such as README rule counts.');
@@ -421,22 +488,16 @@ function buildLocalPlugin() {
     ['-pl', 'sonar-plugin/sonar-javascript-plugin', '-am', '-DskipTests', 'package'],
     { cwd: repoRoot },
   );
+
+  const builtJar = resolveBuiltPatchJar(targetDirectory, beforeBuildSnapshot);
+  info(`Built jar: ${builtJar}`);
+  return builtJar;
 }
 
 function printManifestSummary(jarPath) {
   for (const line of manifestSummaryLines(jarPath)) {
     info(line);
   }
-}
-
-function validateBackupStamp(stamp) {
-  if (!backupStampPattern.test(stamp)) {
-    fail(
-      `Invalid backup stamp format: ${stamp} (expected YYYYMMDDTHHmmss+HHMM or YYYYMMDDTHHmmss-HHMM)`,
-    );
-  }
-
-  return stamp;
 }
 
 function patchExtension(extensionPath, patchJar) {
@@ -456,21 +517,21 @@ function patchExtension(extensionPath, patchJar) {
     fail(`Could not find embedded sonarjs *.tgz payload in ${patchJar}`);
   }
 
-  const stamp = formatTimestamp(new Date());
-  state.activeStamp = stamp;
-  state.extensionPath = extensionPath;
-
   info(`Patching extension: ${extensionPath}`);
   info(`Using jar: ${patchJar}`);
   info(`Embedded bridge payload: ${payload}`);
+  const createdOriginalBackup = ensureOriginalBackup(extensionPath);
+  info(
+    createdOriginalBackup
+      ? 'Captured the original extension backup for this directory.'
+      : 'Original extension backup already exists; leaving it unchanged.',
+  );
 
-  cpSync(analyzerJar, `${analyzerJar}.bak-${stamp}`);
-
-  if (existsSync(eslintBridge)) {
-    renameSync(eslintBridge, `${eslintBridge}.bak-${stamp}`);
-  }
+  state.canRestore = true;
+  state.extensionPath = extensionPath;
 
   cpSync(patchJar, analyzerJar);
+  rmSync(eslintBridge, { recursive: true, force: true });
   mkdirSync(eslintBridge, { recursive: true });
 
   const payloadBuffer = commandBuffer('unzip', ['-p', analyzerJar, payload]);
@@ -486,90 +547,35 @@ function patchExtension(extensionPath, patchJar) {
 
   info('');
   info('Patch complete.');
-  info(`Backup stamp: ${stamp}`);
   printManifestSummary(analyzerJar);
   info('');
-  info('Restore with:');
-  info(`  ${scriptPath} --restore ${stamp} --ext ${JSON.stringify(extensionPath)}`);
+  info('Restore the original extension with:');
+  info(`  ${scriptPath} --restore --ext ${JSON.stringify(extensionPath)}`);
   printLogHint(extensionPath);
 }
 
-function restoreExtension(extensionPath, stamp) {
-  const validatedStamp = validateBackupStamp(stamp);
+function restoreExtension(extensionPath) {
   const analyzerJar = join(extensionPath, 'analyzers', 'sonarjs.jar');
-  const backupJar = `${analyzerJar}.bak-${validatedStamp}`;
+  const backupJar = originalAnalyzerBackupPath(extensionPath);
   const eslintBridge = join(extensionPath, 'eslint-bridge');
-  const backupBridge = `${eslintBridge}.bak-${validatedStamp}`;
+  const backupBridge = originalBridgeBackupPath(extensionPath);
 
-  if (!existsSync(backupJar)) {
-    fail(`Backup jar not found: ${backupJar}`);
+  if (!existsSync(backupJar) || !existsSync(backupBridge)) {
+    fail(
+      `Original backup not found for ${extensionPath}. Reinstall or update the extension to get a fresh official copy, or patch a clean extension directory first.`,
+    );
   }
 
   info(`Restoring extension: ${extensionPath}`);
-  info(`Using backup stamp: ${validatedStamp}`);
+  info('Using original backup files.');
 
   cpSync(backupJar, analyzerJar);
-
-  if (existsSync(backupBridge)) {
-    rmSync(eslintBridge, { recursive: true, force: true });
-    renameSync(backupBridge, eslintBridge);
-  } else {
-    warn(
-      `No eslint-bridge backup found for stamp ${validatedStamp}; left current eslint-bridge in place.`,
-    );
-  }
+  rmSync(eslintBridge, { recursive: true, force: true });
+  cpSync(backupBridge, eslintBridge, { recursive: true });
 
   info('');
   info('Restore complete.');
   printManifestSummary(analyzerJar);
-}
-
-function validateOptions(options) {
-  if (options.restoreStamp && options.runBuild) {
-    fail('--restore cannot be combined with --build');
-  }
-
-  if (options.restoreStamp && options.patchJar) {
-    fail('--restore cannot be combined with --jar');
-  }
-
-  if (options.patchJar && options.runBuild) {
-    fail('--build cannot be combined with --jar');
-  }
-}
-
-function resolveTargetExtensionPath(options) {
-  const extensionPath = options.extensionPath
-    ? resolveExistingPath(options.extensionPath)
-    : detectExtensionPath(options.targetKind);
-
-  if (!existsSync(extensionPath)) {
-    fail(`Extension directory not found: ${extensionPath}`);
-  }
-
-  return extensionPath;
-}
-
-function resolveRestoreStamp(restoreStamp, extensionPath) {
-  if (restoreStamp !== 'latest') {
-    return restoreStamp;
-  }
-
-  const latestStamp = latestBackupStamp(extensionPath);
-  if (!latestStamp) {
-    fail(`No backup stamps found under ${join(extensionPath, 'analyzers')}`);
-  }
-
-  return latestStamp;
-}
-
-function resolvePatchJarPath(patchJar) {
-  const resolvedPatchJar = patchJar ? resolveExistingPath(patchJar) : latestLocalPatchJar();
-  if (!resolvedPatchJar) {
-    fail('No local sonar-javascript-plugin jar found. Run with --build or pass --jar <path>.');
-  }
-
-  return resolvedPatchJar;
 }
 
 function main() {
@@ -579,29 +585,45 @@ function main() {
     return;
   }
 
-  validateOptions(options);
+  if (options.restoreMode && options.patchJar) {
+    fail('--restore cannot be combined with --jar');
+  }
 
-  const extensionPath = resolveTargetExtensionPath(options);
-  if (options.restoreStamp) {
-    restoreExtension(extensionPath, resolveRestoreStamp(options.restoreStamp, extensionPath));
+  const extensionPath = options.extensionPath
+    ? resolveExistingPath(options.extensionPath)
+    : detectExtensionPath(options.targetKind);
+
+  if (!existsSync(extensionPath)) {
+    fail(`Extension directory not found: ${extensionPath}`);
+  }
+
+  if (options.runBuildAlias) {
+    if (options.restoreMode) {
+      warn('--build is ignored because --restore does not rebuild.');
+    } else if (options.patchJar) {
+      warn('--build is ignored because --jar skips the rebuild.');
+    } else {
+      warn('--build is no longer required; patch mode already rebuilds by default.');
+    }
+  }
+
+  if (options.restoreMode) {
+    normalizeRestoreMode(options.restoreMode);
+    restoreExtension(extensionPath);
     return;
   }
 
-  if (options.runBuild) {
-    buildLocalPlugin();
-  }
+  const patchJar = options.patchJar ? resolveExistingPath(options.patchJar) : buildLocalPlugin();
 
-  patchExtension(extensionPath, resolvePatchJarPath(options.patchJar));
+  patchExtension(extensionPath, patchJar);
 }
 
 try {
   main();
 } catch (error) {
-  if (state.activeStamp && state.extensionPath) {
+  if (state.canRestore && state.extensionPath) {
     warn('Patch may be incomplete.');
-    warn(
-      `Restore with: ${scriptPath} --restore ${state.activeStamp} --ext ${JSON.stringify(state.extensionPath)}`,
-    );
+    warn(`Restore with: ${scriptPath} --restore --ext ${JSON.stringify(state.extensionPath)}`);
   }
 
   process.stderr.write(`Error: ${error instanceof Error ? error.message : String(error)}\n`);
