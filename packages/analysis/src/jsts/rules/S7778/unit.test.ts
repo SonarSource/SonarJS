@@ -196,7 +196,6 @@ unknownObj.push(1, 2);
         },
       ],
     });
-    assert.ok(true);
   });
 });
 
@@ -230,7 +229,6 @@ instance.push(1, 2);
         },
       ],
     });
-    assert.ok(true);
   });
 });
 
@@ -260,7 +258,6 @@ describe('S7778 decorator TypeScript else-fallback', () => {
         },
       ],
     });
-    assert.ok(true);
   });
 });
 
