@@ -428,6 +428,16 @@ function serializeMinimatchPatterns(patterns: Minimatch[]) {
 }
 
 /**
+ * Returns a stable cache key for configuration fields that decide which project-level
+ * helper files can be discovered during the file-system walk.
+ */
+export function getProjectFileDiscoveryConfigKey(configuration: Configuration) {
+  return JSON.stringify({
+    jsTsExclusions: serializeMinimatchPatterns(configuration.jsTsExclusions),
+  });
+}
+
+/**
  * Returns a stable cache key for the configuration fields that decide which files
  * are discovered, kept, and classified for analysis.
  */
