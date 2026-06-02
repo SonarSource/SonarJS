@@ -18,9 +18,11 @@ package com.sonar.javascript.it.plugin.sonarlint.tests;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 public class TestUtils {
@@ -69,5 +71,35 @@ public class TestUtils {
     return platformStrings
       .stream()
       .anyMatch(TestUtils.JAVASCRIPT_PLUGIN_LOCATION.toString()::contains);
+  }
+
+  static Path clientNodeJsPath() {
+    try {
+      var process = new ProcessBuilder("node", "-p", "process.execPath")
+        .redirectErrorStream(true)
+        .start();
+
+      if (!process.waitFor(30, TimeUnit.SECONDS)) {
+        process.destroyForcibly();
+        throw new IllegalStateException("Timed out while locating the Node.js executable");
+      }
+
+      var output = new String(
+        process.getInputStream().readAllBytes(),
+        StandardCharsets.UTF_8
+      ).trim();
+      if (process.exitValue() != 0 || output.isEmpty()) {
+        throw new IllegalStateException(
+          "Unable to locate the Node.js executable via 'node -p process.execPath'"
+        );
+      }
+
+      return Path.of(output);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException("Interrupted while locating the Node.js executable", e);
+    }
   }
 }

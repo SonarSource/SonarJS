@@ -16,6 +16,7 @@
  */
 package com.sonar.javascript.it.plugin.sonarlint.tests;
 
+import static com.sonar.javascript.it.plugin.sonarlint.tests.TestUtils.clientNodeJsPath;
 import static com.sonar.javascript.it.plugin.sonarlint.tests.TestUtils.usingEmbeddedNode;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
@@ -350,7 +351,7 @@ class SonarLintIntegrationTest {
       .withInitialFs(CONFIG_SCOPE_ID, baseDir, Arrays.asList(fileDTOs))
       .build();
 
-    backend = harness
+    var backendBuilder = harness
       .newBackend()
       .withStandaloneEmbeddedPluginAndEnabledLanguage(
         new Plugin(
@@ -359,9 +360,13 @@ class SonarLintIntegrationTest {
           "",
           ""
         )
-      )
-      .withUnboundConfigScope(CONFIG_SCOPE_ID)
-      .start(client);
+      );
+
+    if (!usingEmbeddedNode()) {
+      backendBuilder.withClientNodeJsPath(clientNodeJsPath());
+    }
+
+    backend = backendBuilder.withUnboundConfigScope(CONFIG_SCOPE_ID).start(client);
   }
 
   private void assertResults(Consumer<List<RaisedIssueDto>> assertionLambda) {
