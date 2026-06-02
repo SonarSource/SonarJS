@@ -658,6 +658,19 @@ export default config;
         script: 'graphql-codegen --config ./codegen.yml',
       },
       {
+        configFilename: 'codegen.json',
+        configContents: JSON.stringify(
+          {
+            generates: ['./src/generated/sdk.ts'],
+          },
+          null,
+          2,
+        ),
+        expectedOutputDetected: false,
+        expectNoWatchedOutputs: true,
+        script: 'graphql-codegen --config ./codegen.json',
+      },
+      {
         configFilename: 'codegen.ts',
         configContents: `function createConfig() {
   return {

@@ -87,13 +87,7 @@ export function resolveLiteralPath(
 }
 
 export function isLiteralPathToken(value: string) {
-  return (
-    value.length > 0 &&
-    !value.includes('$') &&
-    !value.includes('`') &&
-    !value.includes('+') &&
-    !value.includes('$(')
-  );
+  return value.length > 0 && !value.includes('$') && !value.includes('`') && !value.includes('+');
 }
 
 export function isSourceFile(
@@ -366,7 +360,7 @@ function getLastPathSegment(path: string) {
 }
 
 function isShellGeneratedToken(token: string) {
-  return token.includes('$') || token.includes('`') || token.includes('$(');
+  return token.includes('$') || token.includes('`');
 }
 
 function isEnvironmentAssignment(token: string) {
