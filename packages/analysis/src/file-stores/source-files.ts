@@ -19,6 +19,7 @@ import { JSTS_ANALYSIS_DEFAULTS } from '../jsts/analysis/analysis.js';
 import {
   isAnalyzableFile,
   type Configuration,
+  getAnalyzableFilesConfigKey,
   getShouldIgnoreParams,
   getFilterPathParams,
 } from '../common/configuration.js';
@@ -36,6 +37,8 @@ export const UNINITIALIZED_ERROR = 'Files cache has not been initialized. Call l
 
 export class SourceFileStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
+  private canAccessFileSystem: boolean | undefined = undefined;
+  private analyzableFilesConfigKey: string | undefined = undefined;
   private readonly ignoredPaths = new Set<string>();
   private files: AnalyzableFiles | undefined = undefined;
   private readonly directoryIndex = new DirectoryIndex();
@@ -44,9 +47,9 @@ export class SourceFileStore implements FileStore {
    * Checks if the file store is initialized for the given base directory.
    */
   async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
-    const { baseDir } = configuration;
-    this.dirtyCachesIfNeeded(baseDir);
+    this.dirtyCachesIfNeeded(configuration);
     if (inputFiles) {
+      this.clearCache();
       this.setup(configuration);
       this.files = inputFiles;
       this.directoryIndex.buildFromFiles(Object.keys(inputFiles) as NormalizedAbsolutePath[]);
@@ -71,13 +74,22 @@ export class SourceFileStore implements FileStore {
     return this.directoryIndex.getFilesInDirectory(dir);
   }
 
-  dirtyCachesIfNeeded(currentBaseDir: NormalizedAbsolutePath) {
-    if (currentBaseDir !== this.baseDir) {
+  dirtyCachesIfNeeded(configuration: Configuration) {
+    const { baseDir, canAccessFileSystem } = configuration;
+    if (baseDir !== this.baseDir || canAccessFileSystem !== this.canAccessFileSystem) {
+      this.clearCache();
+      return;
+    }
+
+    if (getAnalyzableFilesConfigKey(configuration) !== this.analyzableFilesConfigKey) {
       this.clearCache();
     }
   }
 
   clearCache() {
+    this.baseDir = undefined;
+    this.canAccessFileSystem = undefined;
+    this.analyzableFilesConfigKey = undefined;
     this.files = undefined;
     this.ignoredPaths.clear();
     this.directoryIndex.clear();
@@ -85,6 +97,8 @@ export class SourceFileStore implements FileStore {
 
   setup(configuration: Configuration) {
     this.baseDir = configuration.baseDir;
+    this.canAccessFileSystem = configuration.canAccessFileSystem;
+    this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
     this.files = createAnalyzableFiles();
   }
 
