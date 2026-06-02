@@ -221,14 +221,20 @@ function buildNullishEqualitySuggestion(
     );
   }
   if (family === 'assert') {
-    const method =
-      nullish === 'null' ? (same ? 'isNull' : 'isNotNull') : same ? 'isUndefined' : 'isDefined';
+    const method = getAssertNullishMethod(nullish, same);
     return replacement(`${assertObject}.${method}(${actual}${extraArguments})`, node);
   }
   if (family === 'chai-should') {
     return replacement(`${actual}.should${negation(same)}.be.${nullish}`, node);
   }
   return replacement(`expect(${actual}${extraArguments}).to${negation(same)}.be.${nullish}`, node);
+}
+
+function getAssertNullishMethod(nullish: 'null' | 'undefined', same: boolean): string {
+  if (nullish === 'null') {
+    return same ? 'isNull' : 'isNotNull';
+  }
+  return same ? 'isUndefined' : 'isDefined';
 }
 
 function buildLengthEqualitySuggestion(
