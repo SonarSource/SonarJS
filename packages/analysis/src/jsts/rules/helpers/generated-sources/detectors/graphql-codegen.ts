@@ -433,17 +433,18 @@ function extractExportedObjectLiteral(
 function resolveObjectLiteral(
   expression: ts.Expression,
   sourceFile: ts.SourceFile,
+  visitedIdentifiers: Set<string> = new Set(),
 ): ts.ObjectLiteralExpression | undefined {
   if (ts.isParenthesizedExpression(expression)) {
-    return resolveObjectLiteral(expression.expression, sourceFile);
+    return resolveObjectLiteral(expression.expression, sourceFile, visitedIdentifiers);
   }
 
   if (ts.isAsExpression(expression) || ts.isSatisfiesExpression(expression)) {
-    return resolveObjectLiteral(expression.expression, sourceFile);
+    return resolveObjectLiteral(expression.expression, sourceFile, visitedIdentifiers);
   }
 
   if (ts.isTypeAssertionExpression(expression)) {
-    return resolveObjectLiteral(expression.expression, sourceFile);
+    return resolveObjectLiteral(expression.expression, sourceFile, visitedIdentifiers);
   }
 
   if (ts.isObjectLiteralExpression(expression)) {
@@ -451,7 +452,12 @@ function resolveObjectLiteral(
   }
 
   if (ts.isIdentifier(expression)) {
-    return resolveTopLevelIdentifierObject(expression.text, sourceFile);
+    if (visitedIdentifiers.has(expression.text)) {
+      return undefined;
+    }
+
+    visitedIdentifiers.add(expression.text);
+    return resolveTopLevelIdentifierObject(expression.text, sourceFile, visitedIdentifiers);
   }
 
   return undefined;
@@ -460,6 +466,7 @@ function resolveObjectLiteral(
 function resolveTopLevelIdentifierObject(
   identifierName: string,
   sourceFile: ts.SourceFile,
+  visitedIdentifiers: Set<string>,
 ): ts.ObjectLiteralExpression | undefined {
   for (const statement of sourceFile.statements) {
     if (!ts.isVariableStatement(statement)) {
@@ -475,7 +482,11 @@ function resolveTopLevelIdentifierObject(
         continue;
       }
 
-      const objectLiteral = resolveObjectLiteral(declaration.initializer, sourceFile);
+      const objectLiteral = resolveObjectLiteral(
+        declaration.initializer,
+        sourceFile,
+        visitedIdentifiers,
+      );
       if (objectLiteral) {
         return objectLiteral;
       }
