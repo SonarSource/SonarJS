@@ -23,6 +23,7 @@ import {
 } from '../../analysis/src/common/configuration.js';
 import {
   dependencyManifestStore,
+  generatedSourceStore,
   initFileStores,
   sourceFileStore,
   tsConfigStore,
@@ -432,5 +433,6 @@ function hasExplicitFiles(
 function resetFileStoresForFileSystemDiscovery() {
   sourceFileStore.clearCache();
   dependencyManifestStore.clearCache();
+  generatedSourceStore.clearCache();
   tsConfigStore.clearCache();
 }

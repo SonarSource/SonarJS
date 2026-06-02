@@ -14,6 +14,17 @@ The analyzer needs more than the current source file contents:
 
 Those concerns change for different reasons, so they are cached separately instead of being recomputed as one large blob.
 
+## Scope Boundary
+
+This document is only about the file stores under `packages/analysis/src/file-stores/`.
+
+It does **not** describe:
+
+- the TypeScript program caches under `packages/analysis/src/jsts/program/cache/`
+- the higher-level dependency-helper caches under `packages/analysis/src/jsts/rules/helpers/dependency-manifests/`
+
+Those layers are downstream consumers of the file stores, not file stores themselves.
+
 ## Two Execution Models
 
 The analyzer has two execution models:
@@ -35,6 +46,46 @@ Its job is:
 4. Run each refreshed store's `postProcess()` step once source files are known.
 
 This means a store is only recomputed when its own invalidation rules say it must be.
+
+The main entrypoints that do this are:
+
+- `sanitizeProjectAnalysisInput()` in `packages/analysis/src/common/input-sanitize.ts`
+- `normalizeAnalyzeProjectRequest()` in `packages/grpc/src/analyze-project-normalize.ts`
+
+Both normalize `Configuration`, optionally sanitize explicit request files, and then call `initFileStores()`.
+
+## Population Modes
+
+`initFileStores()` can populate stores in two different ways.
+
+### Real Filesystem Traversal
+
+When `configuration.canAccessFileSystem === true`, `initFileStores()` walks the tree with `findFiles()`.
+
+That traversal:
+
+- starts from `baseDir`
+- skips paths matching `jsTsExclusions`
+- calls `processDirectory()` for directories
+- calls `processFile()` for files
+
+That walk is intentionally broader than the current analyzable source-file set.
+
+Its job is not only to find source files. It also needs to discover helper files such as `tsconfig.json` and dependency manifests. The `source-files` store applies source/test scope filtering itself during processing.
+
+In some direct filesystem-discovery request flows, callers clear the stores before calling `initFileStores()` so a same-`baseDir` rediscovery starts from empty state.
+
+### Simulated Traversal From Explicit Request Files
+
+When `configuration.canAccessFileSystem === false` and explicit `inputFiles` are present, `initFileStores()` calls `simulateFromInputFiles()`.
+
+That simulated walk:
+
+- synthesizes all parent directories from each request file up to `baseDir`
+- calls `processDirectory()` on those synthetic directories first
+- then calls `processFile()` on the explicit files
+
+This preserves parent-directory lookup semantics such as "closest manifest" and "closest tsconfig" lookups without inventing files that the request did not provide.
 
 ## Refresh Inputs
 
@@ -64,12 +115,13 @@ It depends on:
 
 When `inputFiles` are present, `sourceFileStore.isInitialized()` always rebuilds itself from that explicit file list.
 
-That is the IDE-style behavior:
+That is the main product behavior in SonarQube and SonarLint:
 
 - the store does **not** try to reuse the previous analyzed source-file set across analyses
+- the explicit request files are authoritative
 - the directory index is rebuilt from the new request files
 
-When `inputFiles` are not present, the store can be reused until the analyzable-file-selection configuration changes.
+When `inputFiles` are not present, the store behaves like a real discovery cache and can be reused until the analyzable-file-selection configuration changes or a caller explicitly clears it before rediscovery.
 
 ## `tsconfigs`
 
@@ -135,6 +187,8 @@ Like `tsconfigs`, this store is intentionally independent from the current set o
 ## `generated-sources`
 
 `generated-sources.ts` owns metadata about generated source files.
+
+See [Generated Source Detection](./generated-sources.md) for the detector pipeline, linter integration, and cache behavior behind this store.
 
 It stores:
 

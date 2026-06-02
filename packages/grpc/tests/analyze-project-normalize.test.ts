@@ -23,6 +23,13 @@ import {
   InvalidAnalyzeProjectRequestError,
   normalizeAnalyzeProjectRequest,
 } from '../src/analyze-project-normalize.js';
+import { createConfiguration } from '../../analysis/src/common/configuration.js';
+import {
+  dependencyManifestStore,
+  generatedSourceStore,
+  sourceFileStore,
+  tsConfigStore,
+} from '../../analysis/src/file-stores/index.js';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
@@ -37,6 +44,10 @@ afterEach(async () => {
   await Promise.all(
     temporaryDirectories.splice(0).map(path => rm(path, { force: true, recursive: true })),
   );
+  sourceFileStore.clearCache();
+  dependencyManifestStore.clearCache();
+  generatedSourceStore.clearCache();
+  tsConfigStore.clearCache();
 });
 
 async function createBaseDir() {
@@ -206,6 +217,41 @@ describe('normalizeAnalyzeProjectRequest', () => {
     expect(normalized.pathMap.size).toBe(0);
     expect(normalized.configuration.canAccessFileSystem).toBe(true);
     expect(normalized.configuration.maxFileSize).toBe(64);
+  });
+
+  it('should reset the generated-source store before filesystem rediscovery', async () => {
+    const baseDir = await createBaseDir();
+    const staleGeneratedFile = normalizeToAbsolutePath(
+      join(baseDir, 'src', 'generated.ts'),
+      baseDir,
+    );
+    const generatedSourceState = generatedSourceStore as unknown as {
+      derivedFamilyByFile: Map<NormalizedAbsolutePath, string>;
+      familyByFile: Map<NormalizedAbsolutePath, string>;
+      requestFilesKey: string | undefined;
+    };
+
+    generatedSourceStore.setup(
+      createConfiguration({
+        baseDir,
+        canAccessFileSystem: true,
+      }),
+    );
+    generatedSourceState.derivedFamilyByFile = new Map([[staleGeneratedFile, 'stale-family']]);
+    generatedSourceState.familyByFile = new Map([[staleGeneratedFile, 'stale-family']]);
+    generatedSourceState.requestFilesKey = 'all-files';
+
+    await normalizeAnalyzeProjectRequest({
+      configuration: {
+        baseDir,
+        canAccessFileSystem: true,
+      },
+      rules: [],
+      cssRules: [],
+      bundles: [],
+    });
+
+    expect(generatedSourceStore.getFamily(staleGeneratedFile)).toBeUndefined();
   });
 
   it('should keep empty files explicit when filesystem access is disabled', async () => {
