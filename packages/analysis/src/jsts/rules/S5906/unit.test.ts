@@ -195,6 +195,48 @@ describe('S5906', () => {
           code: `
             import { expect } from 'vitest';
 
+            expect(value === null).toBe(true);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(value).toBeNull();
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            expect(value !== undefined).toBe(true);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(value).toBeDefined();
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
+            expect(items.length === 2).toBe(true);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'vitest';
+
+            expect(items).toHaveLength(2);
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'vitest';
+
             expect(total > 0).toBe(true);
           `,
           errors: [

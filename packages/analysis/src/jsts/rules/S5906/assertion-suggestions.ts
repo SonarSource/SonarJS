@@ -32,6 +32,8 @@ type NumericComparison = {
   assert: string;
 };
 
+type SpecificEqualitySuggestion = Suggestion | null | undefined;
+
 const STRICT_EQUALITY_OPERATORS = new Set(['===', '!==']);
 const STRING_LIKE_IDENTIFIER = /(?:text|string|message|content|html)$/i;
 const NUMERIC_IDENTIFIER =
@@ -83,6 +85,18 @@ function getBinaryExpressionSuggestion(
 
   if (STRICT_EQUALITY_OPERATORS.has(actual.operator)) {
     const same = actual.operator === '===' ? positive : !positive;
+    const specificSuggestion = buildSpecificEqualitySuggestion(
+      actual,
+      same,
+      family,
+      sourceCode,
+      node,
+      assertObject,
+      extraArguments,
+    );
+    if (specificSuggestion !== undefined) {
+      return specificSuggestion;
+    }
     return buildEqualitySuggestion(left, right, same, family, node, assertObject, extraArguments);
   }
 
@@ -114,6 +128,133 @@ function getBinaryExpressionSuggestion(
   }
 
   return null;
+}
+
+function buildSpecificEqualitySuggestion(
+  actual: estree.BinaryExpression,
+  same: boolean,
+  family: AssertionFamily,
+  sourceCode: SourceCode,
+  node: estree.CallExpression,
+  assertObject: string,
+  extraArguments: string,
+): SpecificEqualitySuggestion {
+  const leftNullish = getNullishKind(actual.left);
+  if (leftNullish) {
+    return buildNullishEqualitySuggestion(
+      sourceCode.getText(actual.right),
+      leftNullish,
+      same,
+      family,
+      node,
+      assertObject,
+      extraArguments,
+    );
+  }
+
+  const rightNullish = getNullishKind(actual.right);
+  if (rightNullish) {
+    return buildNullishEqualitySuggestion(
+      sourceCode.getText(actual.left),
+      rightNullish,
+      same,
+      family,
+      node,
+      assertObject,
+      extraArguments,
+    );
+  }
+
+  if (isLengthAccess(actual.left)) {
+    return buildLengthEqualitySuggestion(
+      sourceCode.getText(actual.left.object),
+      sourceCode.getText(actual.right),
+      same,
+      family,
+      node,
+      assertObject,
+      extraArguments,
+    );
+  }
+
+  if (isLengthAccess(actual.right)) {
+    return buildLengthEqualitySuggestion(
+      sourceCode.getText(actual.right.object),
+      sourceCode.getText(actual.left),
+      same,
+      family,
+      node,
+      assertObject,
+      extraArguments,
+    );
+  }
+
+  return undefined;
+}
+
+function getNullishKind(node: estree.Node): 'null' | 'undefined' | null {
+  if (isNullLiteral(node)) {
+    return 'null';
+  }
+  if (isUndefinedExpression(node)) {
+    return 'undefined';
+  }
+  return null;
+}
+
+function buildNullishEqualitySuggestion(
+  actual: string,
+  nullish: 'null' | 'undefined',
+  same: boolean,
+  family: AssertionFamily,
+  node: estree.CallExpression,
+  assertObject: string,
+  extraArguments: string,
+): Suggestion {
+  if (family === 'jest') {
+    if (nullish === 'null') {
+      return replacement(`expect(${actual})${negation(same)}.toBeNull()`, node);
+    }
+    return replacement(
+      same ? `expect(${actual}).toBeUndefined()` : `expect(${actual}).toBeDefined()`,
+      node,
+    );
+  }
+  if (family === 'assert') {
+    const method =
+      nullish === 'null' ? (same ? 'isNull' : 'isNotNull') : same ? 'isUndefined' : 'isDefined';
+    return replacement(`${assertObject}.${method}(${actual}${extraArguments})`, node);
+  }
+  if (family === 'chai-should') {
+    return replacement(`${actual}.should${negation(same)}.be.${nullish}`, node);
+  }
+  return replacement(`expect(${actual}${extraArguments}).to${negation(same)}.be.${nullish}`, node);
+}
+
+function buildLengthEqualitySuggestion(
+  actual: string,
+  expected: string,
+  same: boolean,
+  family: AssertionFamily,
+  node: estree.CallExpression,
+  assertObject: string,
+  extraArguments: string,
+): Suggestion | null {
+  if (family === 'jest') {
+    return replacement(`expect(${actual})${negation(same)}.toHaveLength(${expected})`, node);
+  }
+  if (family === 'assert') {
+    return same
+      ? replacement(`${assertObject}.lengthOf(${actual}, ${expected}${extraArguments})`, node)
+      : null;
+  }
+  if (family === 'chai-should') {
+    return replacement(`${actual}.should${negation(same)}.have.lengthOf(${expected})`, node);
+  }
+  return replacement(
+    `expect(${actual}${extraArguments}).to${negation(same)}.have.lengthOf(${expected})`,
+    node,
+  );
 }
 
 function buildEqualitySuggestion(
@@ -287,7 +428,8 @@ function isKnownNonNumericOperand(node: estree.Node): boolean {
   }
   if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)) {
     return (
-      STRING_LIKE_IDENTIFIER.test(node.property.name) || DATE_LIKE_IDENTIFIER.test(node.property.name)
+      STRING_LIKE_IDENTIFIER.test(node.property.name) ||
+      DATE_LIKE_IDENTIFIER.test(node.property.name)
     );
   }
   return false;
