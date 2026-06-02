@@ -33,6 +33,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -608,6 +609,46 @@ class WebSensorTest {
       .normalize()
       .toString();
     assertThat(configuration.getTsConfigPathsList()).containsExactly(expectedPath);
+  }
+
+  @Test
+  void should_preserve_wildcard_module_tsconfig_paths() throws IOException {
+    var moduleConfiguration = new WebSensorModuleConfiguration();
+    var collector = new WebSensorModuleConfigurationSensor(moduleConfiguration);
+
+    var projectContext = createSensorContext(baseDir);
+    setSonarQubeRuntime(projectContext);
+    projectContext.setSettings(
+      new MapSettings().setProperty(
+        JavaScriptPlugin.TSCONFIG_PATHS,
+        "tsconfig.json,**/custom.tsconfig.json"
+      )
+    );
+    createInputFile(projectContext, "file.ts", StandardCharsets.UTF_8, baseDir);
+
+    collector.execute(projectContext);
+
+    var configuration = executeSensorAndCaptureHandler(
+      createSensor(moduleConfiguration),
+      projectContext
+    )
+      .getRequest()
+      .getConfiguration();
+    var expectedGlobPath = new File(
+      new File(projectContext.fileSystem().baseDir(), "**/custom.tsconfig.json").toURI().normalize()
+    ).getPath();
+
+    assertThat(configuration.getTsConfigPathsList()).containsExactly(
+      projectContext
+        .fileSystem()
+        .baseDir()
+        .toPath()
+        .resolve("tsconfig.json")
+        .toAbsolutePath()
+        .normalize()
+        .toString(),
+      expectedGlobPath
+    );
   }
 
   @Test

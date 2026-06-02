@@ -81,14 +81,14 @@ public class WebSensorModuleConfiguration {
   }
 
   private static String resolvePath(Path baseDir, String path) {
-    Path resolvedPath = Path.of(path);
-    if (!resolvedPath.isAbsolute()) {
-      resolvedPath = baseDir.resolve(path);
+    File resolvedFile = new File(path);
+    if (!resolvedFile.isAbsolute()) {
+      resolvedFile = new File(baseDir.toFile(), path);
     }
-    return normalize(resolvedPath.toFile());
+    return normalize(resolvedFile);
   }
 
   private static String normalize(File file) {
-    return file.toPath().toAbsolutePath().normalize().toString();
+    return new File(file.toURI().normalize()).getPath();
   }
 }
