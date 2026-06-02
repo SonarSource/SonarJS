@@ -276,7 +276,7 @@ jobs:
       - name: Build and test Maven (no deploy)
         run: mvn verify -T1C
         env:
-          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
