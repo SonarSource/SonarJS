@@ -598,6 +598,23 @@ describe('S5906', () => {
         },
         {
           code: `
+            import { expect, test } from '@playwright/test';
+
+            test('checks custom values', async ({ api }) => {
+              const widget = api.getById();
+              const item = api.getByIdentifier();
+              const row = api.locator('row');
+              const banner = api.getByRole('status');
+
+              expect(await widget.isVisible()).toBe(true);
+              expect(await item.isVisible()).toBe(true);
+              expect(await row.isVisible()).toBe(true);
+              expect(await banner.isVisible()).toBe(true);
+            });
+          `,
+        },
+        {
+          code: `
             import { expect } from 'vitest';
             import { test } from '@playwright/test';
 

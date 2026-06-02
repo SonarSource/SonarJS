@@ -39,6 +39,17 @@ const STRING_LIKE_IDENTIFIER = /(?:text|string|message|content|html)$/i;
 const NUMERIC_IDENTIFIER =
   /(?:amount|count|delta|depth|diff|duration|elapsed|height|index|length|level|limit|number|price|score|size|total|width)$/i;
 const DATE_LIKE_IDENTIFIER = /(?:date|time|timestamp)$/i;
+const PLAYWRIGHT_LOCATOR_FACTORIES = new Set([
+  'getByRole',
+  'getByText',
+  'getByLabel',
+  'getByPlaceholder',
+  'getByAltText',
+  'getByTitle',
+  'getByTestId',
+  'locator',
+  'frameLocator',
+]);
 
 export function getBooleanExpressionSuggestion(
   actual: estree.Node,
@@ -488,8 +499,16 @@ export function isPlaywrightLocatorExpression(
   const property = node.callee.property;
   return (
     isIdentifier(property) &&
-    (property.name.startsWith('getBy') || ['locator', 'frameLocator'].includes(property.name))
+    PLAYWRIGHT_LOCATOR_FACTORIES.has(property.name) &&
+    isPlaywrightLocatorRoot(node.callee.object, locatorNames)
   );
+}
+
+function isPlaywrightLocatorRoot(node: estree.Node, locatorNames: ReadonlySet<string>): boolean {
+  if (isIdentifier(node)) {
+    return node.name === 'page' || locatorNames.has(node.name);
+  }
+  return isPlaywrightLocatorExpression(node, locatorNames);
 }
 
 export function isLengthAccess(node: estree.Node): node is estree.MemberExpression {
