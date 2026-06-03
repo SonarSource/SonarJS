@@ -109,6 +109,17 @@ export const graphqlCodegenDetector = {
   async detect({ baseDir, packageDir, getDependencies, taskInvocations, sourceFileMatcher }) {
     const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
       taskInvocationInvokesCommand(taskInvocation, 'graphql-codegen');
+    if (
+      !hasToolEvidence({
+        getDependencies,
+        taskInvocations,
+        dependencyName: GRAPHQL_CODEGEN_FAMILY,
+        matchesTaskInvocation,
+      })
+    ) {
+      return createDerivedGeneratedSources();
+    }
+
     const configPaths = await filterGraphqlConfigPaths(
       await resolveConfigPaths({
         baseDir,
@@ -120,17 +131,6 @@ export const graphqlCodegenDetector = {
       }),
     );
     if (configPaths.size === 0) {
-      return createDerivedGeneratedSources();
-    }
-
-    if (
-      !hasToolEvidence({
-        getDependencies,
-        taskInvocations,
-        dependencyName: GRAPHQL_CODEGEN_FAMILY,
-        matchesTaskInvocation,
-      })
-    ) {
       return createDerivedGeneratedSources();
     }
 

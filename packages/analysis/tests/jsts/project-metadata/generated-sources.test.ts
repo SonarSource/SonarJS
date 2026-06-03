@@ -665,6 +665,35 @@ export default config;
     }
   });
 
+  it('skips GraphQL fallback config probing without task or dependency evidence', async ({
+    mock,
+  }) => {
+    const baseDir = await createTempBaseDir();
+    const packageJson = {
+      name: 'graphql-no-evidence-fixture',
+      scripts: {
+        lint: 'eslint .',
+      },
+    };
+
+    try {
+      await writeFixtureFile(join(baseDir, 'package.json'), JSON.stringify(packageJson, null, 2));
+      mock.method(JSON, 'parse');
+      const jsonParseMock = JSON.parse.mock;
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, packageJson),
+      );
+
+      expect(derived.configPaths).toEqual(new Set());
+      expect(derived.familyByFile).toEqual(new Map());
+      expect(jsonParseMock.calls).toHaveLength(1);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('supports additional GraphQL source config syntaxes and watched directories', async () => {
     const baseDir = await createTempBaseDir();
     const mtsConfigPath = joinPaths(baseDir, 'codegen.config.mts');
@@ -1501,7 +1530,7 @@ export default config;
 
       expect(derived.configPaths).toEqual(new Set());
       expect(derived.familyByFile.size).toEqual(0);
-      expect(dependencyLookups).toEqual(0);
+      expect(dependencyLookups).toEqual(1);
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
