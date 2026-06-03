@@ -23,7 +23,7 @@ import {
   getBooleanValue,
   isPlaywrightLocatorExpression,
   type Suggestion,
-} from './assertion-suggestions.js';
+} from './assertion-utils.js';
 import { getExpectChain } from './expect-chain.js';
 
 const PLAYWRIGHT_BOOLEAN_GETTERS = new Map<string, { truthy: string; falsy: string }>([

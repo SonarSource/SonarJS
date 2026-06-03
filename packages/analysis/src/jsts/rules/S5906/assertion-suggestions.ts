@@ -15,14 +15,16 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 
-import type { Rule, Scope, SourceCode } from 'eslint';
+import type { SourceCode } from 'eslint';
 import type estree from 'estree';
-import { getVariableFromName, isIdentifier, isMethodCall } from '../helpers/ast.js';
-
-export type Suggestion = {
-  assertion: string;
-  replacement?: string;
-};
+import { isIdentifier, isMethodCall } from '../helpers/ast.js';
+import {
+  isLengthAccess,
+  isNullLiteral,
+  isUndefinedExpression,
+  replacement,
+  type Suggestion,
+} from './assertion-utils.js';
 
 type AssertionFamily = 'jest' | 'chai' | 'chai-should' | 'assert';
 
@@ -33,24 +35,19 @@ type NumericComparison = {
 };
 
 type SpecificEqualitySuggestion = Suggestion | null | undefined;
+type SuggestionContext = {
+  family: AssertionFamily;
+  sourceCode: SourceCode;
+  node: estree.CallExpression;
+  assertObject: string;
+  extraArguments: string;
+};
 
 const STRICT_EQUALITY_OPERATORS = new Set(['===', '!==']);
 const STRING_LIKE_IDENTIFIER = /(?:text|string|message|content|html)$/i;
 const NUMERIC_IDENTIFIER =
   /(?:amount|count|delta|depth|diff|duration|elapsed|height|index|length|level|limit|number|price|score|size|total|width)$/i;
 const DATE_LIKE_IDENTIFIER = /(?:date|time|timestamp)$/i;
-const PLAYWRIGHT_LOCATOR_FACTORIES = new Set([
-  'getByRole',
-  'getByText',
-  'getByLabel',
-  'getByPlaceholder',
-  'getByAltText',
-  'getByTitle',
-  'getByTestId',
-  'locator',
-  'frameLocator',
-]);
-
 export function getBooleanExpressionSuggestion(
   actual: estree.Node,
   positive: boolean,
@@ -107,44 +104,19 @@ function getBinaryExpressionSuggestion(
 ): Suggestion | null {
   const left = sourceCode.getText(actual.left);
   const right = sourceCode.getText(actual.right);
+  const suggestionContext = { family, sourceCode, node, assertObject, extraArguments };
 
   if (STRICT_EQUALITY_OPERATORS.has(actual.operator)) {
     const same = actual.operator === '===' ? positive : !positive;
-    const specificSuggestion = buildSpecificEqualitySuggestion(
-      actual,
-      same,
-      family,
-      sourceCode,
-      node,
-      assertObject,
-      extraArguments,
-    );
+    const specificSuggestion = buildSpecificEqualitySuggestion(actual, same, suggestionContext);
     if (specificSuggestion !== undefined) {
       return specificSuggestion;
     }
-    return buildEqualitySuggestion(
-      actual.left,
-      right,
-      same,
-      family,
-      sourceCode,
-      node,
-      assertObject,
-      extraArguments,
-    );
+    return buildEqualitySuggestion(actual.left, right, same, suggestionContext);
   }
 
   if (actual.operator === 'instanceof') {
-    return buildInstanceofSuggestion(
-      left,
-      actual.left,
-      right,
-      positive,
-      family,
-      node,
-      assertObject,
-      extraArguments,
-    );
+    return buildInstanceofSuggestion(left, actual.left, right, positive, suggestionContext);
   }
 
   const comparison = isNumericComparison(actual)
@@ -156,10 +128,7 @@ function getBinaryExpressionSuggestion(
       actual.left,
       right,
       comparison,
-      family,
-      node,
-      assertObject,
-      extraArguments,
+      suggestionContext,
     );
   }
 
@@ -169,63 +138,33 @@ function getBinaryExpressionSuggestion(
 function buildSpecificEqualitySuggestion(
   actual: estree.BinaryExpression,
   same: boolean,
-  family: AssertionFamily,
-  sourceCode: SourceCode,
-  node: estree.CallExpression,
-  assertObject: string,
-  extraArguments: string,
+  context: SuggestionContext,
 ): SpecificEqualitySuggestion {
   const leftNullish = getNullishKind(actual.left);
   if (leftNullish) {
-    return buildNullishEqualitySuggestion(
-      actual.right,
-      leftNullish,
-      same,
-      family,
-      sourceCode,
-      node,
-      assertObject,
-      extraArguments,
-    );
+    return buildNullishEqualitySuggestion(actual.right, leftNullish, same, context);
   }
 
   const rightNullish = getNullishKind(actual.right);
   if (rightNullish) {
-    return buildNullishEqualitySuggestion(
-      actual.left,
-      rightNullish,
-      same,
-      family,
-      sourceCode,
-      node,
-      assertObject,
-      extraArguments,
-    );
+    return buildNullishEqualitySuggestion(actual.left, rightNullish, same, context);
   }
 
   if (isLengthAccess(actual.left)) {
     return buildLengthEqualitySuggestion(
       actual.left.object,
-      sourceCode.getText(actual.right),
+      context.sourceCode.getText(actual.right),
       same,
-      family,
-      sourceCode,
-      node,
-      assertObject,
-      extraArguments,
+      context,
     );
   }
 
   if (isLengthAccess(actual.right)) {
     return buildLengthEqualitySuggestion(
       actual.right.object,
-      sourceCode.getText(actual.left),
+      context.sourceCode.getText(actual.left),
       same,
-      family,
-      sourceCode,
-      node,
-      assertObject,
-      extraArguments,
+      context,
     );
   }
 
@@ -246,12 +185,9 @@ function buildNullishEqualitySuggestion(
   actualNode: estree.Node,
   nullish: 'null' | 'undefined',
   same: boolean,
-  family: AssertionFamily,
-  sourceCode: SourceCode,
-  node: estree.CallExpression,
-  assertObject: string,
-  extraArguments: string,
+  context: SuggestionContext,
 ): Suggestion {
+  const { family, sourceCode, node, assertObject, extraArguments } = context;
   const actual = sourceCode.getText(actualNode);
   if (family === 'jest') {
     if (nullish === 'null') {
@@ -286,12 +222,9 @@ function buildLengthEqualitySuggestion(
   actualNode: estree.Node,
   expected: string,
   same: boolean,
-  family: AssertionFamily,
-  sourceCode: SourceCode,
-  node: estree.CallExpression,
-  assertObject: string,
-  extraArguments: string,
+  context: SuggestionContext,
 ): Suggestion | null {
+  const { family, sourceCode, node, assertObject, extraArguments } = context;
   const actual = sourceCode.getText(actualNode);
   if (family === 'jest') {
     return replacement(`expect(${actual})${negation(same)}.toHaveLength(${expected})`, node);
@@ -317,12 +250,9 @@ function buildEqualitySuggestion(
   leftNode: estree.Node,
   right: string,
   same: boolean,
-  family: AssertionFamily,
-  sourceCode: SourceCode,
-  node: estree.CallExpression,
-  assertObject: string,
-  extraArguments: string,
+  context: SuggestionContext,
 ): Suggestion {
+  const { family, sourceCode, node, assertObject, extraArguments } = context;
   const left = sourceCode.getText(leftNode);
   if (family === 'jest') {
     return replacement(`expect(${left})${negation(same)}.toBe(${right})`, node);
@@ -347,11 +277,9 @@ function buildInstanceofSuggestion(
   leftNode: estree.Node,
   right: string,
   positive: boolean,
-  family: AssertionFamily,
-  node: estree.CallExpression,
-  assertObject: string,
-  extraArguments: string,
+  context: SuggestionContext,
 ): Suggestion {
+  const { family, node, assertObject, extraArguments } = context;
   if (family === 'jest') {
     return replacement(`expect(${left})${negation(positive)}.toBeInstanceOf(${right})`, node);
   }
@@ -378,11 +306,9 @@ function buildNumericComparisonSuggestion(
   leftNode: estree.Node,
   right: string,
   comparison: NumericComparison,
-  family: AssertionFamily,
-  node: estree.CallExpression,
-  assertObject: string,
-  extraArguments: string,
+  context: SuggestionContext,
 ): Suggestion {
+  const { family, node, assertObject, extraArguments } = context;
   if (family === 'jest') {
     return replacement(`expect(${left}).${comparison.jest}(${right})`, node);
   }
@@ -539,77 +465,4 @@ function invertComparison(operator: estree.BinaryOperator): estree.BinaryOperato
     default:
       return null;
   }
-}
-
-export function isPlaywrightLocatorExpression(
-  context: Rule.RuleContext,
-  node: estree.Node,
-  locatorVariables: ReadonlySet<Scope.Variable>,
-): boolean {
-  if (isIdentifier(node)) {
-    const variable = getVariableFromName(context, node.name, node);
-    return variable !== undefined && locatorVariables.has(variable);
-  }
-  if (node.type !== 'CallExpression' || !isMethodCall(node)) {
-    return false;
-  }
-  const property = node.callee.property;
-  return (
-    isIdentifier(property) &&
-    PLAYWRIGHT_LOCATOR_FACTORIES.has(property.name) &&
-    isPlaywrightLocatorRoot(context, node.callee.object, locatorVariables)
-  );
-}
-
-function isPlaywrightLocatorRoot(
-  context: Rule.RuleContext,
-  node: estree.Node,
-  locatorVariables: ReadonlySet<Scope.Variable>,
-): boolean {
-  if (isIdentifier(node)) {
-    if (node.name === 'page') {
-      return true;
-    }
-    const variable = getVariableFromName(context, node.name, node);
-    return variable !== undefined && locatorVariables.has(variable);
-  }
-  return isPlaywrightLocatorExpression(context, node, locatorVariables);
-}
-
-export function isLengthAccess(node: estree.Node): node is estree.MemberExpression {
-  return (
-    node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property, 'length')
-  );
-}
-
-export function isNullLiteral(node: estree.Node): boolean {
-  return node.type === 'Literal' && node.value === null;
-}
-
-export function isUndefinedExpression(node: estree.Node): boolean {
-  return isIdentifier(node, 'undefined');
-}
-
-export function isNaNExpression(node: estree.Node): boolean {
-  return (
-    isIdentifier(node, 'NaN') ||
-    (node.type === 'MemberExpression' &&
-      isIdentifier(node.object, 'Number') &&
-      isIdentifier(node.property, 'NaN'))
-  );
-}
-
-export function getBooleanValue(node: estree.Node): boolean | undefined {
-  return node.type === 'Literal' && typeof node.value === 'boolean' ? node.value : undefined;
-}
-
-export function replacement(
-  replacementText: string,
-  _node: estree.CallExpression,
-  _sourceCode?: SourceCode,
-): Suggestion {
-  return {
-    assertion: replacementText,
-    replacement: replacementText,
-  };
 }

@@ -22,9 +22,8 @@ import { extractTestAssertion, type AssertionStyle } from '../helpers/assertions
 import { isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import { generateMeta } from '../helpers/generate-meta.js';
+import { chaiShouldReceiver, getBooleanExpressionSuggestion } from './assertion-suggestions.js';
 import {
-  chaiShouldReceiver,
-  getBooleanExpressionSuggestion,
   getBooleanValue,
   isLengthAccess,
   isNaNExpression,
@@ -33,7 +32,7 @@ import {
   isUndefinedExpression,
   replacement,
   type Suggestion,
-} from './assertion-suggestions.js';
+} from './assertion-utils.js';
 import { getCypressSuggestion } from './cypress-suggestions.js';
 import { getExpectChain } from './expect-chain.js';
 import * as meta from './generated-meta.js';

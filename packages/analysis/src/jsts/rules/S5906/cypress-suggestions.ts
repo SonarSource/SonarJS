@@ -23,7 +23,7 @@ import {
   isUndefinedExpression,
   replacement,
   type Suggestion,
-} from './assertion-suggestions.js';
+} from './assertion-utils.js';
 
 export function getCypressSuggestion(
   node: estree.CallExpression,
@@ -71,11 +71,7 @@ function getCypressNullishSuggestion(
   }
 
   const negation = chainer === 'not.equal' || chainer === 'not.deep.equal' ? 'not.' : '';
-  return replacement(
-    `${subject}.${property}('${negation}be.${nullish}')`,
-    node,
-    sourceCode,
-  );
+  return replacement(`${subject}.${property}('${negation}be.${nullish}')`, node, sourceCode);
 }
 
 function hasCyWrapCall(node: estree.Node): boolean {
