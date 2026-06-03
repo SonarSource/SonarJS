@@ -17,7 +17,7 @@
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { beforeEach, describe, it } from 'node:test';
+import { beforeEach, describe, it, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { createConfiguration } from '../../../src/common/configuration.js';
 import { sanitizeRawInputFiles } from '../../../src/common/input-sanitize.js';
@@ -679,7 +679,7 @@ export default config;
     try {
       await writeFixtureFile(join(baseDir, 'package.json'), JSON.stringify(packageJson, null, 2));
       mock.method(JSON, 'parse');
-      const jsonParseMock = JSON.parse.mock;
+      const jsonParseMock = (JSON.parse as Mock<typeof JSON.parse>).mock;
 
       const derived = await deriveGeneratedSources(
         baseDir,
