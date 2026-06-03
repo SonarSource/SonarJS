@@ -200,34 +200,6 @@ function hasUnreachableAssertion(text: string): boolean {
   return /\bexpect\.unreachable\s*\(/u.test(text);
 }
 
-function isEnvironmentOrMatrixText(text: string): boolean {
-  return [
-    '__WIN32__',
-    'process.platform',
-    'process.env',
-    'import.meta.env',
-    'server.provider',
-    'server.platform',
-    'provider.name',
-    'browser',
-    'browsers',
-    'instances',
-    'traceFile',
-    'osPlatform',
-    'rolldownVersion',
-    'viteVersion',
-    'isVm',
-    'isV8Provider',
-    'isBrowser',
-    'isNativeRunner',
-    'config.pool',
-    'project',
-    'task.file.projectName',
-    'locale',
-    'CI',
-  ].some(marker => text.includes(marker));
-}
-
 function isCatchCall(node: estree.CallExpression): boolean {
   return (
     node.callee.type === 'MemberExpression' &&
