@@ -77,6 +77,30 @@ it('asserts before handling cleanup failure', () => {
         },
         {
           code: `
+import { expect, it } from '@jest/globals';
+
+it('asserts during cleanup', () => {
+  try {
+    run();
+  } finally {
+    expect(cleanupDone).toBe(true);
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+test('checks resolved data', async () => {
+  await loadData().then(data => {
+    expect(data.ready).toBe(true);
+  });
+});
+`,
+        },
+        {
+          code: `
 import { expect, test } from '@jest/globals';
 
 function helper(value) {
