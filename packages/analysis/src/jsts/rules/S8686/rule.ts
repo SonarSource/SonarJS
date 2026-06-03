@@ -126,7 +126,12 @@ function isCatchCall(node: estree.CallExpression): boolean {
 }
 
 function isFunctionNode(
-  node: estree.Node | estree.SpreadElement | null | undefined,
+  node: unknown,
 ): node is estree.FunctionExpression | estree.ArrowFunctionExpression {
-  return node?.type === 'FunctionExpression' || node?.type === 'ArrowFunctionExpression';
+  return (
+    typeof node === 'object' &&
+    node !== null &&
+    'type' in node &&
+    (node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression')
+  );
 }
