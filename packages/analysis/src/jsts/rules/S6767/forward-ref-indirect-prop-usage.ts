@@ -18,17 +18,14 @@
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { getNodeParent } from '../helpers/ancestor.js';
-import { getVariableFromName, isFunctionNode, isIdentifier } from '../helpers/ast.js';
-import { collectReferences, isNamedPropExpressionOrAlias } from './prop-alias-resolution.js';
-
-/** Composable callee checkers for forwardRef call detection. */
-const forwardRefCalleePatterns: Array<(callee: estree.Expression | estree.Super) => boolean> = [
-  callee => isIdentifier(callee, 'forwardRef'),
-  callee =>
-    callee.type === 'MemberExpression' &&
-    isIdentifier(callee.object, 'React') &&
-    isIdentifier(callee.property, 'forwardRef'),
-];
+import {
+  collectReferences,
+  getVariableFromName,
+  isFunctionNode,
+  isIdentifier,
+} from '../helpers/ast.js';
+import { isForwardRefCallee } from '../helpers/react/component-analysis.js';
+import { isNamedPropExpressionOrAlias } from '../helpers/react/prop-alias-resolution.js';
 
 /**
  * False-positive remediation escape:
@@ -105,10 +102,7 @@ function isPropReferenceInForwardRefCallback(
   while (current) {
     if (current.type === 'CallExpression') {
       const call = current;
-      if (
-        forwardRefCalleePatterns.some(pattern => pattern(call.callee)) &&
-        call.arguments[0] === prev
-      ) {
+      if (isForwardRefCallee(call.callee) && call.arguments[0] === prev) {
         return true;
       }
     }

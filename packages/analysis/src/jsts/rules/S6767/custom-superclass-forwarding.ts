@@ -17,6 +17,7 @@
 
 import type estree from 'estree';
 import { isIdentifier } from '../helpers/ast.js';
+import { isBuiltinReactSuperclass } from '../helpers/react/component-analysis.js';
 
 /**
  * False-positive remediation escape:
@@ -38,17 +39,6 @@ export function hasOwnCustomSuperclassPropsForwarding(componentNode: estree.Node
       member.type === 'MethodDefinition' &&
       member.kind === 'constructor' &&
       member.value.body?.body.some(isWholePropsSuperCallStatement) === true,
-  );
-}
-
-function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
-  return (
-    isIdentifier(superClass, 'Component') ||
-    isIdentifier(superClass, 'PureComponent') ||
-    (superClass.type === 'MemberExpression' &&
-      isIdentifier(superClass.object, 'React') &&
-      (isIdentifier(superClass.property, 'Component') ||
-        isIdentifier(superClass.property, 'PureComponent')))
   );
 }
 

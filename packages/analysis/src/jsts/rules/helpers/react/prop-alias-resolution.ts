@@ -16,7 +16,7 @@
  */
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import { getUniqueWriteReference, getVariableFromName, isIdentifier } from '../helpers/ast.js';
+import { getUniqueWriteReference, getVariableFromName, isIdentifier } from '../ast.js';
 
 function isObjectPatternBinding(variable: Scope.Variable) {
   return variable.defs.some(
@@ -25,24 +25,6 @@ function isObjectPatternBinding(variable: Scope.Variable) {
       definition.node.type === 'VariableDeclarator' &&
       definition.node.id.type === 'ObjectPattern',
   );
-}
-
-/**
- * Returns all read references reachable from `scope`, including nested scopes.
- *
- * Pseudo code:
- *   function outer() {
- *     props.label; // included
- *     function inner() {
- *       props.title; // included
- *     }
- *   }
- */
-export function collectReferences(scope: Scope.Scope): Scope.Reference[] {
-  return [
-    ...scope.references.filter(reference => reference.isRead()),
-    ...scope.childScopes.flatMap(collectReferences),
-  ];
 }
 
 /**
