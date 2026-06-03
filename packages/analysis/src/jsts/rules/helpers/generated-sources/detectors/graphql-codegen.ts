@@ -106,11 +106,19 @@ export const graphqlCodegenDetector = {
   family: GRAPHQL_CODEGEN_FAMILY,
   watchedFilenames: WATCHED_GRAPHQL_CONFIGS,
 
-  async detect({ baseDir, packageDir, getDependencies, taskInvocations, sourceFileMatcher }) {
+  async detect({
+    baseDir,
+    packageDir,
+    hasDependency,
+    getDependencies,
+    taskInvocations,
+    sourceFileMatcher,
+  }) {
     const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
       taskInvocationInvokesCommand(taskInvocation, 'graphql-codegen');
     if (
       !hasToolEvidence({
+        hasDependency,
         getDependencies,
         taskInvocations,
         dependencyName: GRAPHQL_CODEGEN_FAMILY,
