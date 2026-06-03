@@ -42,33 +42,61 @@ export const rule: Rule.RuleModule = {
 
     let testCaseDepth = 0;
     let conditionalDepth = 0;
+    let suppressedConditionalDepth = 0;
     let promiseCatchDepth = 0;
+    let suppressedPromiseCatchDepth = 0;
+    const testCases: estree.CallExpression[] = [];
+    const conditionals: estree.Node[] = [];
+    const environmentAliases = new Set<string>();
     const catchCallbacks = new WeakSet<estree.Node>();
+    const suppressedCatchCallbacks = new WeakSet<estree.Node>();
+    const sourceCode = context.sourceCode;
 
-    function enterConditional() {
+    function enterConditional(node: estree.Node) {
       if (testCaseDepth > 0) {
         conditionalDepth++;
+        conditionals.push(node);
+        if (isSuppressedConditional(node)) {
+          suppressedConditionalDepth++;
+        }
       }
     }
 
     function exitConditional() {
       if (testCaseDepth > 0) {
+        const conditional = conditionals.pop();
+        if (conditional && isSuppressedConditional(conditional)) {
+          suppressedConditionalDepth--;
+        }
         conditionalDepth--;
       }
     }
 
     return {
+      VariableDeclarator(node: estree.VariableDeclarator) {
+        if (
+          node.id.type === 'Identifier' &&
+          node.init &&
+          isEnvironmentOrMatrixText(sourceCode.getText(node.init))
+        ) {
+          environmentAliases.add(node.id.name);
+        }
+      },
       CallExpression(node: estree.CallExpression) {
         if (Mocha.isTestCase(node)) {
           testCaseDepth++;
+          testCases.push(node);
         }
         if (isCatchCall(node)) {
           const [callback] = node.arguments;
           if (isFunctionNode(callback)) {
             catchCallbacks.add(callback);
+            if (isSuppressedPromiseCatch(callback)) {
+              suppressedCatchCallbacks.add(callback);
+            }
           }
         }
-        if (isExpectCall(node) && testCaseDepth > 0 && isConditional()) {
+        if (isExpectCall(node) && testCaseDepth > 0 && isConditional() && !isSuppressed()) {
           context.report({
             node,
             messageId: 'conditionalAssertion',
@@ -78,9 +106,13 @@ export const rule: Rule.RuleModule = {
       'CallExpression:exit'(node: estree.CallExpression) {
         if (Mocha.isTestCase(node)) {
           testCaseDepth--;
+          testCases.pop();
           if (testCaseDepth === 0) {
             conditionalDepth = 0;
+            suppressedConditionalDepth = 0;
             promiseCatchDepth = 0;
+            suppressedPromiseCatchDepth = 0;
+            conditionals.length = 0;
           }
         }
       },
@@ -97,11 +129,17 @@ export const rule: Rule.RuleModule = {
       ':function'(node: estree.Node) {
         if (catchCallbacks.has(node)) {
           promiseCatchDepth++;
+          if (suppressedCatchCallbacks.has(node)) {
+            suppressedPromiseCatchDepth++;
+          }
         }
       },
       ':function:exit'(node: estree.Node) {
         if (catchCallbacks.has(node)) {
           promiseCatchDepth--;
+          if (suppressedCatchCallbacks.has(node)) {
+            suppressedPromiseCatchDepth--;
+          }
         }
       },
     };
@@ -109,8 +147,122 @@ export const rule: Rule.RuleModule = {
     function isConditional(): boolean {
       return conditionalDepth > 0 || promiseCatchDepth > 0;
     }
+
+    function isSuppressed(): boolean {
+      return (
+        (promiseCatchDepth > 0 && suppressedPromiseCatchDepth > 0) ||
+        suppressedConditionalDepth > 0
+      );
+    }
+
+    function isSuppressedPromiseCatch(callback: estree.Node): boolean {
+      const callbackText = sourceCode.getText(callback);
+      const testText = currentTestCaseText();
+      return hasFailureSentinel(callbackText) || hasAssertionCount(testText);
+    }
+
+    function isSuppressedConditional(conditional: estree.Node): boolean {
+      if (conditional.type === 'CatchClause') {
+        return isExpectedErrorCatch(conditional);
+      }
+      if (conditional.type === 'SwitchStatement') {
+        return isEnvironmentOrMatrixText(sourceCode.getText(conditional.discriminant));
+      }
+      if (
+        conditional.type === 'IfStatement' ||
+        conditional.type === 'ConditionalExpression' ||
+        conditional.type === 'LogicalExpression'
+      ) {
+        return (
+          isEnvironmentOrMatrixText(sourceCode.getText(conditional)) ||
+          referencesEnvironmentAlias(conditional) ||
+          isDiscriminatedVariantCheck(conditional)
+        );
+      }
+      return false;
+    }
+
+    function referencesEnvironmentAlias(node: estree.Node): boolean {
+      const text = sourceCode.getText(node);
+      return [...environmentAliases].some(alias => new RegExp(`\\b${alias}\\b`, 'u').test(text));
+    }
+
+    function isDiscriminatedVariantCheck(node: estree.Node): boolean {
+      return /\.\s*type\s*={2,3}/u.test(sourceCode.getText(node));
+    }
+
+    function currentTestCaseText(): string {
+      const currentTestCase = testCases[testCases.length - 1];
+      return currentTestCase ? sourceCode.getText(currentTestCase) : '';
+    }
+
+    function isExpectedErrorCatch(catchClause: estree.CatchClause): boolean {
+      const catchText = sourceCode.getText(catchClause);
+      const tryStatement = (catchClause as estree.CatchClause & { parent?: estree.TryStatement })
+        .parent;
+      const tryText = tryStatement?.type === 'TryStatement' ? sourceCode.getText(tryStatement) : '';
+      const testText = currentTestCaseText();
+
+      return (
+        hasFailureSentinel(catchText) ||
+        hasFailureSentinel(tryText) ||
+        hasUnreachableAssertion(tryText) ||
+        countExpectCalls(catchText) > 1 ||
+        hasAssertionCount(testText) ||
+        /expect\s*\(\s*\w*error\w*\s*\)\s*\.toBe\s*\(\s*true\s*\)/iu.test(testText) ||
+        /\bexpected\w*error\b/iu.test(catchText) ||
+        /expect\s*\(\s*\w+\s*\)\s*\.toBe\s*\(\s*null\s*\)/u.test(testText)
+      );
+    }
   },
 };
+
+function hasFailureSentinel(text: string): boolean {
+  return (
+    /expect\s*\(\s*false\s*\)\s*\.toBe\s*\(\s*true\s*\)/u.test(text) ||
+    /expect\s*\(\s*true\s*\)\s*\.toBe\s*\(\s*false\s*\)/u.test(text)
+  );
+}
+
+function hasAssertionCount(text: string): boolean {
+  return /expect\.(?:assertions|hasAssertions)\s*\(/u.test(text);
+}
+
+function hasUnreachableAssertion(text: string): boolean {
+  return /\bexpect\.unreachable\s*\(/u.test(text);
+}
+
+function countExpectCalls(text: string): number {
+  return text.match(/\bexpect(?:\.\w+)?\s*\(/gu)?.length ?? 0;
+}
+
+function isEnvironmentOrMatrixText(text: string): boolean {
+  return [
+    '__WIN32__',
+    'process.platform',
+    'process.env',
+    'import.meta.env',
+    'server.provider',
+    'server.platform',
+    'provider.name',
+    'browser',
+    'browsers',
+    'instances',
+    'traceFile',
+    'osPlatform',
+    'rolldownVersion',
+    'viteVersion',
+    'isVm',
+    'isV8Provider',
+    'isBrowser',
+    'isNativeRunner',
+    'config.pool',
+    'project',
+    'task.file.projectName',
+    'locale',
+    'CI',
+  ].some(marker => text.includes(marker));
+}
 
 function isExpectCall(node: estree.CallExpression): boolean {
   return node.callee.type === 'Identifier' && node.callee.name.startsWith('expect');

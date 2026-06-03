@@ -107,6 +107,184 @@ test('uses another assertion API', () => {
 });
 `,
         },
+        {
+          code: `
+import { expect, it } from '@jest/globals';
+
+it('checks platform-specific output', () => {
+  if (process.platform === 'win32') {
+    expect(message).toContain('exited with code 1');
+  } else {
+    expect(message).toContain('ENOENT');
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+test('checks an expected rejection with assertion count', async () => {
+  expect.assertions(1);
+
+  await run().catch(error => {
+    expect(error.message).toBe('failed');
+  });
+});
+`,
+        },
+        {
+          code: `
+import { expect, it } from '@jest/globals';
+
+it('uses a catch callback as a failure sentinel after successful assertions', () => {
+  return loadData()
+    .then(() => {
+      expect(store.getActions()).toMatchSnapshot();
+    })
+    .catch(() => {
+      expect(false).toBe(true);
+    });
+});
+`,
+        },
+        {
+          code: `
+import { expect, it } from '@jest/globals';
+
+it('checks expected failure details with an explicit flag assertion', async () => {
+  let errorRaised = false;
+
+  try {
+    await checkoutBranch('..');
+  } catch (error) {
+    errorRaised = true;
+    expect(error.message).toBe('fatal: invalid reference: ..');
+  }
+
+  expect(errorRaised).toBe(true);
+});
+`,
+        },
+        {
+          code: `
+import { expect, it } from '@jest/globals';
+
+it('checks expected failure details with a post-catch sentinel', async () => {
+  let result = null;
+
+  try {
+    result = await cherryPick(repository, commits);
+  } catch (error) {
+    expect(error.toString()).toContain('untracked working tree files');
+  }
+
+  expect(result).toBe(null);
+});
+`,
+        },
+        {
+          code: `
+import { expect, test, vi } from 'vitest';
+
+test('checks expected error details with multiple assertions', async () => {
+  try {
+    await vi.waitFor(check, 100);
+  } catch (error) {
+    expect(error.message).toMatchInlineSnapshot('"Fail."');
+    expect(error.stack).toMatch(/at check/);
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+test('checks expected DOMException details', () => {
+  try {
+    new FormData(form, submitter);
+  } catch (error) {
+    const expectedError = new DOMException('bad submitter', 'NotFoundError');
+    expect(error).toEqual(expectedError);
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+test('checks entries for each generated trace file', async () => {
+  for (const traceFile of traceFiles) {
+    const events = await readEvents(traceFile);
+
+    if (traceFile.includes('locator-mark')) {
+      expect(events).toEqual(expect.arrayContaining([expect.objectContaining({ title: 'mark' })]));
+    }
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, it } from '@jest/globals';
+
+it('checks line numbers by diff line variant', () => {
+  for (const line of firstHunk.lines) {
+    if (line.type === DiffLineType.Add) {
+      expect(line.newLineNumber).toBe(expectedNewLine);
+    } else if (line.type === DiffLineType.Delete) {
+      expect(line.oldLineNumber).toBe(expectedOldLine);
+    }
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+const IS_PLAYWRIGHT = process.env.PROVIDER === 'playwright';
+
+test('checks provider-specific benchmark output', () => {
+  if (IS_PLAYWRIGHT) {
+    expect(result.stdout).toContain('|chromium| basic.bench.ts');
+  } else {
+    expect(result.stdout).toContain('|chrome| basic.bench.ts');
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+test('checks version-specific transformed source', () => {
+  if (viteVersion[0] >= '6') {
+    expect(result.scriptSource).toContain('test)("sum", () => {');
+  } else {
+    expect(result.scriptSource).toContain('test("sum", () => {');
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, it } from 'vitest';
+
+it('checks inherited values for each project', ({ task }) => {
+  const project = task.file.projectName;
+  switch (project) {
+    case 'project-1':
+      expect(process.env.TEST_ROOT).toBe('1');
+      return;
+    default:
+      expect.unreachable();
+  }
+});
+`,
+        },
       ],
       invalid: [
         {
@@ -234,57 +412,7 @@ it('checks both branches', () => {
   }
 });
 `,
-          errors: [
-            { messageId: 'conditionalAssertion' },
-            { messageId: 'conditionalAssertion' },
-          ],
-        },
-        {
-          code: `
-import { expect, test } from 'vitest';
-
-test('checks an expected failure', async () => {
-  expect.assertions(1);
-
-  await fails().catch(error => {
-    expect(error.message).toBe('failed');
-  });
-});
-`,
-          errors: [{ messageId: 'conditionalAssertion' }],
-        },
-        {
-          code: `
-import { expect, test } from 'vitest';
-
-test('uses platform-specific expectations', () => {
-  if (process.platform === 'win32') {
-    expect(message).toContain('exited with code 1');
-  } else {
-    expect(message).toContain('ENOENT');
-  }
-});
-`,
-          errors: [
-            { messageId: 'conditionalAssertion' },
-            { messageId: 'conditionalAssertion' },
-          ],
-        },
-        {
-          code: `
-import { expect, it } from '@jest/globals';
-
-it('uses a catch callback as a failure sentinel after successful assertions', () => {
-  return loadData()
-    .then(() => {
-      expect(store.getActions()).toMatchSnapshot();
-    })
-    .catch(() => {
-      expect(false).toBe(true);
-    });
-});
-`,
-          errors: [{ messageId: 'conditionalAssertion' }],
+          errors: [{ messageId: 'conditionalAssertion' }, { messageId: 'conditionalAssertion' }],
         },
         {
           code: `
@@ -295,39 +423,6 @@ test('checks expected errors from APIs that cannot use toThrow', async () => {
     await vi.waitFor(check, 100);
   } catch (error) {
     expect(error.message).toMatchInlineSnapshot('"Fail."');
-  }
-});
-`,
-          errors: [{ messageId: 'conditionalAssertion' }],
-        },
-        {
-          code: `
-import { expect, test } from 'vitest';
-
-test('checks entries for each generated trace file', async () => {
-  for (const traceFile of traceFiles) {
-    const events = await readEvents(traceFile);
-
-    if (traceFile.includes('locator-mark')) {
-      expect(events).toEqual(expect.arrayContaining([expect.objectContaining({ title: 'mark' })]));
-    }
-  }
-});
-`,
-          errors: [{ messageId: 'conditionalAssertion' }],
-        },
-        {
-          code: `
-import { expect, it } from 'vitest';
-
-it('checks inherited values for each project', ({ task }) => {
-  const project = task.file.projectName;
-  switch (project) {
-    case 'project-1':
-      expect(process.env.TEST_ROOT).toBe('1');
-      return;
-    default:
-      expect.unreachable();
   }
 });
 `,
