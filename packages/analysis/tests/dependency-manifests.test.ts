@@ -798,4 +798,41 @@ describe('files', () => {
     expect(dependenciesCache.size).toEqual(0);
     expect(moduleTypeCache.size).toEqual(0);
   });
+
+  it('should refresh discovered manifests when project-file discovery config changes', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
+    const subDir = normalizeToAbsolutePath(join(baseDir, 'subdir'));
+
+    let configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    expect(dependencyManifestStore.getPackageJsons().has(baseDir)).toEqual(true);
+    expect(dependencyManifestStore.getPackageJsons().has(subDir)).toEqual(true);
+
+    configuration = createConfiguration({
+      baseDir,
+      jsTsExclusions: ['**/subdir/**'],
+    });
+    await initFileStores(configuration);
+
+    expect(dependencyManifestStore.getPackageJsons().has(baseDir)).toEqual(true);
+    expect(dependencyManifestStore.getPackageJsons().has(subDir)).toEqual(false);
+  });
+
+  it('should keep discovered manifests when only source-file selection changes', async () => {
+    const baseDir = normalizeToAbsolutePath(join(fixtures, 'child-parent-merge'));
+    const subDir = normalizeToAbsolutePath(join(baseDir, 'subdir'));
+
+    let configuration = createConfiguration({ baseDir });
+    await initFileStores(configuration);
+
+    configuration = createConfiguration({
+      baseDir,
+      sources: ['subdir'],
+    });
+    await initFileStores(configuration);
+
+    expect(dependencyManifestStore.getPackageJsons().has(baseDir)).toEqual(true);
+    expect(dependencyManifestStore.getPackageJsons().has(subDir)).toEqual(true);
+  });
 });

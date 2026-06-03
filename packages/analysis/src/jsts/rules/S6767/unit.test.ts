@@ -19,6 +19,46 @@ import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/r
 import { describe, it } from 'node:test';
 
 describe('S6767', () => {
+  it('should not report whole-props aliases in supported forwarding shapes', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          code: `
+function Wrapper(props) {
+  const forwarded = props;
+  return <Child {...forwarded} />;
+}
+Wrapper.propTypes = {
+  onClick: PropTypes.func,
+};
+`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+function getStyle(input) {
+  return input;
+}
+function Wrapper(props) {
+  function inner(props) {
+    const forwarded = props;
+    return getStyle(forwarded);
+  }
+  return <div />;
+}
+Wrapper.propTypes = {
+  color: PropTypes.string,
+};
+`,
+          errors: [{ message: "'color' PropType is defined but prop is never used" }],
+        },
+      ],
+    });
+  });
+
   it('should not report props passed wholesale to a helper function', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
 
@@ -29,6 +69,17 @@ describe('S6767', () => {
           code: `
 function Button(props) {
   return <button style={getStyle(props)} />;
+}
+Button.propTypes = {
+  color: PropTypes.string,
+};
+`,
+        },
+        {
+          code: `
+function Button(componentProps) {
+  const forwarded = componentProps;
+  return <button style={getStyle(forwarded)} />;
 }
 Button.propTypes = {
   color: PropTypes.string,
@@ -76,6 +127,46 @@ class Button extends React.Component {
 }
 `,
         },
+        {
+          // FP: class constructor forwards the real props object to a helper.
+          code: `
+function createState(props) {
+  return { label: props.label };
+}
+class Button extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = createState(props);
+  }
+  render() {
+    return <button />;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+        {
+          // FP: class constructor forwards the real props object into a member helper.
+          code: `
+class Button extends React.Component {
+  constructor(props) {
+    super(props);
+    this.receiveProps(props);
+  }
+  receiveProps(props) {
+    return getLabel(props);
+  }
+  render() {
+    return <button />;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
       ],
       invalid: [
         {
@@ -109,6 +200,28 @@ Button.propTypes = {
           errors: 1,
         },
         {
+          // TP: constructor-local whole-props aliases stay unsupported for React.Component.
+          code: `
+function createState(props) {
+  return { label: props.label };
+}
+class Button extends React.Component {
+  constructor(props) {
+    super(props);
+    const forwarded = props;
+    this.state = createState(forwarded);
+  }
+  render() {
+    return <button />;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+};
+`,
+          errors: 1,
+        },
+        {
           // TP: static class propTypes — prop is inside ClassDeclaration (Strategy A in findComponentNodes)
           code: `
 class Button extends React.Component {
@@ -120,6 +233,43 @@ class Button extends React.Component {
     return <button>{this.props.label}</button>;
   }
 }
+`,
+          errors: 1,
+        },
+        {
+          // TP: lifecycle helper forwarding from `nextProps` is intentionally unsupported.
+          code: `
+function createState(props) {
+  return { label: props.label };
+}
+class Button extends React.Component {
+  componentWillReceiveProps(nextProps) {
+    this.setState(createState(nextProps));
+  }
+  render() {
+    return <button />;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+};
+`,
+          errors: 1,
+        },
+        {
+          // TP: helper-local `props` params alone do not suppress class unused-prop reports.
+          code: `
+class Button extends React.Component {
+  receiveProps(props) {
+    return getLabel(props);
+  }
+  render() {
+    return <button />;
+  }
+}
+Button.propTypes = {
+  label: PropTypes.string,
+};
 `,
           errors: 1,
         },
@@ -283,6 +433,107 @@ Wrapper.propTypes = {
 };
 `,
           errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('should not report narrow local aliases used inside forwardRef callbacks', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+
+    ruleTester.run('no-unused-prop-types', rule, {
+      valid: [
+        {
+          code: `
+function Wrapper(props) {
+  const forwarded = props;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{forwarded.label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+        {
+          code: `
+function Wrapper(props) {
+  const label = props.label;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+        {
+          code: `
+function Wrapper(props) {
+  const { label } = props;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+};
+`,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+function Wrapper(props) {
+  const forwarded = props;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{forwarded.label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+  color: PropTypes.string,
+};
+`,
+          errors: [{ message: "'color' PropType is defined but prop is never used" }],
+        },
+        {
+          code: `
+function Wrapper(props) {
+  const label = props.label;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+  color: PropTypes.string,
+};
+`,
+          errors: [{ message: "'color' PropType is defined but prop is never used" }],
+        },
+        {
+          code: `
+function Wrapper(props) {
+  const { label } = props;
+  const ForwardedButton = forwardRef((_, ref) => (
+    <button ref={ref}>{label}</button>
+  ));
+  return <ForwardedButton />;
+}
+Wrapper.propTypes = {
+  label: PropTypes.string,
+  color: PropTypes.string,
+};
+`,
+          errors: [{ message: "'color' PropType is defined but prop is never used" }],
         },
       ],
     });

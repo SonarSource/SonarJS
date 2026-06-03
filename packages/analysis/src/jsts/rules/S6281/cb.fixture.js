@@ -1,40 +1,38 @@
 const s3 = require('aws-cdk-lib/aws-s3');
 
-new s3.Bucket(this, 'id', { // Noncompliant {{No Public Access Block configuration prevents public ACL/policies to be set on this S3 bucket. Make sure it is safe here.}}
-//  ^^^^^^^^^
+new s3.Bucket(this, 'id', { // Compliant: omitting blockPublicAccess defaults to all blocked
   bucketName: 'bucket',
 });
 
 new s3.Bucket(this, 'id', {
   bucketName: 'bucket',
-  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS // Noncompliant {{Make sure allowing public ACL/policies to be set is safe here.}}
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS_ONLY // Noncompliant {{Using BLOCK_ACLS_ONLY allows public access via bucket policies.}}
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 });
 
-const blockPublicAccess = s3.BlockPublicAccess.BLOCK_ACLS;
-//    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Propagated setting.}}
+const blockPublicAccess = s3.BlockPublicAccess.BLOCK_ACLS_ONLY;
+//    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^> {{Propagated setting.}}
 new s3.Bucket(this, 'id', {
   bucketName: 'bucket',
-  blockPublicAccess: blockPublicAccess, // Noncompliant {{Make sure allowing public ACL/policies to be set is safe here.}}
+  blockPublicAccess: blockPublicAccess, // Noncompliant {{Using BLOCK_ACLS_ONLY allows public access via bucket policies.}}
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 });
 
 new s3.Bucket(this, 'id', {
   bucketName: 'bucket',
-  blockPublicAccess: new s3.BlockPublicAccess() // Noncompliant {{No Public Access Block configuration prevents public ACL/policies to be set on this S3 bucket. Make sure it is safe here.}}
-//                   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  blockPublicAccess: new s3.BlockPublicAccess() // Compliant: omitting args defaults to all blocked
 });
 
 new s3.Bucket(this, 'id', {
   bucketName: 'bucket',
   blockPublicAccess: new s3.BlockPublicAccess({
-    blockPublicAcls         : false, // Noncompliant {{Make sure allowing public ACL/policies to be set is safe here.}}
+    blockPublicAcls         : false, // Noncompliant {{Disabling public access block settings allows public ACL/policies to be set on this S3 bucket.}}
 //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    blockPublicPolicy       : false, // Noncompliant {{Make sure allowing public ACL/policies to be set is safe here.}}
+    blockPublicPolicy       : false, // Noncompliant {{Disabling public access block settings allows public ACL/policies to be set on this S3 bucket.}}
 //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    ignorePublicAcls        : false, // Noncompliant {{Make sure allowing public ACL/policies to be set is safe here.}}
+    ignorePublicAcls        : false, // Noncompliant {{Disabling public access block settings allows public ACL/policies to be set on this S3 bucket.}}
 //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    restrictPublicBuckets   : false  // Noncompliant {{Make sure allowing public ACL/policies to be set is safe here.}}
+    restrictPublicBuckets   : false  // Noncompliant {{Disabling public access block settings allows public ACL/policies to be set on this S3 bucket.}}
 //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   })
 });
@@ -46,7 +44,7 @@ new s3.Bucket(this, 'id', {
   blockPublicAccess: new s3.BlockPublicAccess({
     blockPublicAcls         : true, // Compliant
     blockPublicPolicy       : true, // Compliant
-    ignorePublicAcls        : ignorePublicAcls, // Noncompliant {{Make sure allowing public ACL/policies to be set is safe here.}}
+    ignorePublicAcls        : ignorePublicAcls, // Noncompliant {{Disabling public access block settings allows public ACL/policies to be set on this S3 bucket.}}
 //  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     restrictPublicBuckets   : true  // Compliant
   })
@@ -55,6 +53,11 @@ new s3.Bucket(this, 'id', {
 new s3.Bucket(this, 'id', {
   bucketName: 'bucket',
   blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL // Compliant
+});
+
+new s3.Bucket(this, 'id', {
+  bucketName: 'bucket',
+  blockPublicAccess: s3.BlockPublicAccess.BLOCK_ACLS // Compliant: now sets all four attributes to true
 });
 
 const restrictPublicBuckets = true;

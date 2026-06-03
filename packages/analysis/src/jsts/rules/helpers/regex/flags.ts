@@ -34,17 +34,27 @@ export function getFlags(
   }
 
   const flags = callExpr.arguments[1];
-  // Matches flags in: new RegExp(pattern, 'u')
-  if (isStringLiteral(flags)) {
-    return flags.value;
+  const staticFlags = getStaticFlagsValue(flags);
+  if (staticFlags !== null) {
+    return staticFlags;
   }
+
   if (flags.type === 'Identifier' && context !== undefined) {
     // it's a variable, so we try to extract its value, but only if it's written once (const)
     const variable = getVariableFromIdentifier(flags, context.sourceCode.getScope(callExpr));
     const ref = getUniqueWriteReference(variable);
-    if (ref !== undefined && isStringLiteral(ref)) {
-      return ref.value;
+    if (ref !== undefined) {
+      return getStaticFlagsValue(ref);
     }
+  }
+
+  return null;
+}
+
+function getStaticFlagsValue(flags: estree.Node): string | null {
+  // Matches flags in: new RegExp(pattern, 'u')
+  if (isStringLiteral(flags)) {
+    return flags.value;
   }
   // Matches flags with basic template literals as in: new RegExp(pattern, `u`)
   // but not: new RegExp(pattern, `${flag}`)

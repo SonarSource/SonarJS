@@ -18,16 +18,14 @@
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { getNodeParent } from '../helpers/ancestor.js';
-import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
-
-/** Composable callee checkers for forwardRef call detection. */
-const forwardRefCalleePatterns: Array<(callee: estree.Expression | estree.Super) => boolean> = [
-  callee => isIdentifier(callee, 'forwardRef'),
-  callee =>
-    callee.type === 'MemberExpression' &&
-    isIdentifier(callee.object, 'React') &&
-    isIdentifier(callee.property, 'forwardRef'),
-];
+import {
+  collectReferences,
+  getVariableFromName,
+  isFunctionNode,
+  isIdentifier,
+} from '../helpers/ast.js';
+import { isForwardRefCallee } from '../helpers/react/component-analysis.js';
+import { isNamedPropExpressionOrAlias } from '../helpers/react/prop-alias-resolution.js';
 
 /**
  * False-positive remediation escape:
@@ -52,13 +50,20 @@ export function hasForwardRefCallbackPropUsage(
     return false;
   }
 
-  const variable = context.sourceCode.getScope(componentNode).set.get(propsParam.name);
+  const componentScope = context.sourceCode.getScope(componentNode);
+  const variable = componentScope.set.get(propsParam.name);
   if (!variable) {
     return false;
   }
 
-  return variable.references.some(reference =>
-    isPropReferenceInForwardRefCallback(reference, propName),
+  return collectReferences(componentScope).some(reference =>
+    isPropReferenceInForwardRefCallback(
+      context,
+      reference,
+      propName,
+      node =>
+        node.type === 'Identifier' && getVariableFromName(context, node.name, node) === variable,
+    ),
   );
 }
 
@@ -74,31 +79,30 @@ export function hasForwardRefCallbackPropUsage(
  * and that member access must appear somewhere inside the first argument of `forwardRef(...)`.
  */
 function isPropReferenceInForwardRefCallback(
+  context: Rule.RuleContext,
   reference: Scope.Reference,
   propName: string,
+  isTrackedPropsExpression: (node: estree.Node) => boolean,
 ): boolean {
-  const memberExpression = getNodeParent(reference.identifier);
-  if (
-    memberExpression?.type !== 'MemberExpression' ||
-    memberExpression.object !== reference.identifier ||
-    memberExpression.computed ||
-    !isIdentifier(memberExpression.property, propName)
-  ) {
+  const parent = getNodeParent(reference.identifier);
+  const usageNode =
+    parent?.type === 'MemberExpression' && parent.object === reference.identifier
+      ? parent
+      : reference.identifier;
+
+  if (!isNamedPropExpressionOrAlias(context, usageNode, propName, isTrackedPropsExpression)) {
     return false;
   }
 
   // Walk up ancestors. Track `prev` so that when we find a forwardRef CallExpression
   // we can confirm the reference sits inside its first argument (the render callback),
   // not in the callee position or a later argument.
-  let prev: estree.Node = memberExpression;
-  let current: estree.Node | undefined = getNodeParent(memberExpression);
+  let prev: estree.Node = usageNode;
+  let current: estree.Node | undefined = getNodeParent(usageNode);
   while (current) {
     if (current.type === 'CallExpression') {
       const call = current;
-      if (
-        forwardRefCalleePatterns.some(pattern => pattern(call.callee)) &&
-        call.arguments[0] === prev
-      ) {
+      if (isForwardRefCallee(call.callee) && call.arguments[0] === prev) {
         return true;
       }
     }

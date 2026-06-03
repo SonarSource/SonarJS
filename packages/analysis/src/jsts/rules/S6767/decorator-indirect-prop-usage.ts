@@ -18,13 +18,22 @@
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { getNodeParent } from '../helpers/ancestor.js';
-import { isFunctionNode, isIdentifier } from '../helpers/ast.js';
+import {
+  collectReferences,
+  getVariableFromName,
+  isFunctionNode,
+  isIdentifier,
+} from '../helpers/ast.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
 import {
   getComponentIdentifier,
   getComponentPropsType,
 } from '../helpers/react/component-analysis.js';
 import { areSameTypeDeclarations, getTypeFromTreeNode } from '../helpers/type.js';
+import {
+  isNamedPropExpressionOrAlias,
+  isWholePropsExpressionOrAlias,
+} from '../helpers/react/prop-alias-resolution.js';
 import { isSupportedWholePropsUsage } from './whole-props-usage.js';
 
 /**
@@ -39,11 +48,13 @@ export function hasDecoratorPropUsage(
   propName: string | undefined,
 ): boolean {
   return (
-    !!propName && hasDecoratorFactoryCallPropUsage(context.sourceCode, componentNode, propName)
+    !!propName &&
+    hasDecoratorFactoryCallPropUsage(context, context.sourceCode, componentNode, propName)
   );
 }
 
 function hasDecoratorFactoryCallPropUsage(
+  context: Rule.RuleContext,
   sourceCode: SourceCode,
   componentNode: estree.Node,
   propName: string,
@@ -56,7 +67,7 @@ function hasDecoratorFactoryCallPropUsage(
   }
 
   return componentVariable.references.some(reference =>
-    isDecoratorFactoryTargetReference(sourceCode, componentNode, reference, propName),
+    isDecoratorFactoryTargetReference(context, sourceCode, componentNode, reference, propName),
   );
 }
 
@@ -67,6 +78,7 @@ function hasDecoratorFactoryCallPropUsage(
  * The matched component reference must be the only outer application argument.
  */
 function isDecoratorFactoryTargetReference(
+  context: Rule.RuleContext,
   sourceCode: SourceCode,
   componentNode: estree.Node,
   reference: Scope.Reference,
@@ -76,6 +88,7 @@ function isDecoratorFactoryTargetReference(
   return (
     !!decoratorApplication &&
     hasMatchingDecoratorCallbackArgument(
+      context,
       sourceCode,
       componentNode,
       decoratorApplication.callee,
@@ -121,26 +134,33 @@ function isDecoratorApplicationCall(
  * with the same declared props contract as the component and uses the reported prop.
  */
 function hasMatchingDecoratorCallbackArgument(
+  context: Rule.RuleContext,
   sourceCode: SourceCode,
   componentNode: estree.Node,
   decoratorFactoryCall: estree.CallExpression,
   propName: string,
 ): boolean {
   return decoratorFactoryCall.arguments.some(argument =>
-    isComponentPropsCallbackUsingProp(sourceCode, componentNode, argument, propName),
+    isComponentPropsCallbackUsingProp(context, sourceCode, componentNode, argument, propName),
   );
 }
 
 function isComponentPropsCallbackUsingProp(
+  context: Rule.RuleContext,
   sourceCode: SourceCode,
   componentNode: estree.Node,
   callbackNode: estree.Node,
   propName: string,
 ): boolean {
   const propsVariable = getMatchingCallbackPropsVariable(sourceCode, componentNode, callbackNode);
+  const isTrackedPropsExpression = (node: estree.Node) =>
+    node.type === 'Identifier' && getVariableFromName(context, node.name, node) === propsVariable;
+
   return (
     !!propsVariable &&
-    propsVariable.references.some(reference => isComponentPropsUsageReference(reference, propName))
+    collectReferences(sourceCode.getScope(callbackNode)).some(reference =>
+      isComponentPropsUsageReference(context, reference, isTrackedPropsExpression, propName),
+    )
   );
 }
 
@@ -211,28 +231,21 @@ function isSameDeclaredPropsType(
   return areSameTypeDeclarations(checker, callbackPropsType, componentPropsType);
 }
 
-function isComponentPropsUsageReference(reference: Scope.Reference, propName: string): boolean {
-  const parent = getNodeParent(reference.identifier);
-  return (
-    isDirectPropMemberAccess(parent, reference.identifier, propName) ||
-    isWholePropsForwardingUsage(parent, reference.identifier)
-  );
-}
-
-/**
- * Pseudo code:
- *   props.propName
- */
-function isDirectPropMemberAccess(
-  node: estree.Node | undefined,
-  propsIdentifier: estree.Identifier,
+function isComponentPropsUsageReference(
+  context: Rule.RuleContext,
+  reference: Scope.Reference,
+  isTrackedPropsExpression: (node: estree.Node) => boolean,
   propName: string,
 ): boolean {
+  const parent = getNodeParent(reference.identifier);
+  const usageNode =
+    parent?.type === 'MemberExpression' && parent.object === reference.identifier
+      ? parent
+      : reference.identifier;
+
   return (
-    node?.type === 'MemberExpression' &&
-    node.object === propsIdentifier &&
-    !node.computed &&
-    isIdentifier(node.property, propName)
+    isNamedPropExpressionOrAlias(context, usageNode, propName, isTrackedPropsExpression) ||
+    isWholePropsForwardingUsage(context, parent, isTrackedPropsExpression)
   );
 }
 
@@ -244,8 +257,14 @@ function isDirectPropMemberAccess(
  *   props[key]
  */
 function isWholePropsForwardingUsage(
+  context: Rule.RuleContext,
   node: estree.Node | undefined,
-  propsIdentifier: estree.Identifier,
+  isTrackedPropsExpression: (node: estree.Node) => boolean,
 ): boolean {
-  return !!node && isSupportedWholePropsUsage(node, argument => argument === propsIdentifier);
+  return (
+    !!node &&
+    isSupportedWholePropsUsage(node, argument =>
+      isWholePropsExpressionOrAlias(context, argument, isTrackedPropsExpression),
+    )
+  );
 }

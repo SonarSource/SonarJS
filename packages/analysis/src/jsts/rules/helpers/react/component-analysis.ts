@@ -122,6 +122,18 @@ function isReactComponentWrapperCallee(callee: estree.Expression | estree.Super)
   );
 }
 
+/**
+ * Returns true when `callee` is a call to `forwardRef` or `React.forwardRef`.
+ */
+export function isForwardRefCallee(callee: estree.Expression | estree.Super): boolean {
+  return (
+    isIdentifier(callee, 'forwardRef') ||
+    (callee.type === 'MemberExpression' &&
+      isIdentifier(callee.object, 'React') &&
+      isIdentifier(callee.property, 'forwardRef'))
+  );
+}
+
 function isWrappedInReactComponentCall(
   node: estree.Node,
   parent: estree.Node | undefined,
@@ -295,7 +307,7 @@ function isQualifiedReactClassSuper(objectName: string | undefined, propertyName
     : objectName === 'React' && isReactClassSuperName(propertyName);
 }
 
-function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
+export function isBuiltinReactSuperclass(superClass: estree.Expression): boolean {
   return (
     (superClass.type === 'Identifier' && isQualifiedReactClassSuper(undefined, superClass.name)) ||
     (superClass.type === 'MemberExpression' &&
