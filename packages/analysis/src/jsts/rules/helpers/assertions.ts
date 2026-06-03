@@ -147,6 +147,27 @@ export function extractTestAssertion(
   return null;
 }
 
+export function getGlobalExpectCall(node: estree.CallExpression): estree.CallExpression | null {
+  if (node.callee.type !== 'MemberExpression') {
+    return null;
+  }
+
+  let current: estree.Expression | estree.Super = node.callee.object;
+  while (current.type === 'MemberExpression') {
+    current = current.object;
+  }
+
+  if (current.type !== 'CallExpression' || !isIdentifier(current.callee)) {
+    return null;
+  }
+
+  return current.callee.name.startsWith('expect') ? current : null;
+}
+
+export function isGlobalExpectExpression(node: estree.CallExpression): boolean {
+  return getGlobalExpectCall(node) !== null;
+}
+
 function extractExpectAssertion(expectCall: estree.Node): Assertion | null {
   if (expectCall.type !== 'CallExpression') {
     return null;

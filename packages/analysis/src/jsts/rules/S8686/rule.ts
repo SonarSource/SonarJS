@@ -18,6 +18,7 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
+import { getGlobalExpectCall } from '../helpers/assertions.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { importsOrDependsOnModule } from '../helpers/module.js';
 import * as Mocha from '../helpers/mocha.js';
@@ -96,9 +97,10 @@ export const rule: Rule.RuleModule = {
             }
           }
         }
-        if (isExpectCall(node) && testCaseDepth > 0 && isConditional() && !isSuppressed()) {
+        const expectCall = getGlobalExpectCall(node);
+        if (expectCall && testCaseDepth > 0 && isConditional() && !isSuppressed()) {
           context.report({
-            node,
+            node: expectCall,
             messageId: 'conditionalAssertion',
           });
         }
@@ -262,10 +264,6 @@ function isEnvironmentOrMatrixText(text: string): boolean {
     'locale',
     'CI',
   ].some(marker => text.includes(marker));
-}
-
-function isExpectCall(node: estree.CallExpression): boolean {
-  return node.callee.type === 'Identifier' && node.callee.name.startsWith('expect');
 }
 
 function isCatchCall(node: estree.CallExpression): boolean {

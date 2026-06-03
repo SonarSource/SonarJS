@@ -19,6 +19,7 @@ import type { Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import * as Chai from '../helpers/chai.js';
 import { childrenOf } from '../helpers/ancestor.js';
+import { isGlobalExpectExpression as isGlobalExpectExpressionJS } from '../helpers/assertions.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import { getFullyQualifiedNameTS } from '../helpers/module-ts.js';
@@ -353,39 +354,10 @@ function isGlobalAssertion(context: Rule.RuleContext, node: estree.Node): boolea
   if (node.type !== 'CallExpression') {
     return false;
   }
-  // Check for global expect (mirrors isGlobalExpectExpression for TS)
   if (isGlobalExpectExpressionJS(node)) {
     return true;
   }
   return isFunctionCallFromNodeAssert(context, node);
-}
-
-/**
- * Checks if the node matches the pattern expectX(...).method() where:
- * - expectX is a function whose name starts with "expect" (e.g., expect, expectObservable, expectSubscriptions, expectTypeOf)
- * - method is a chained property access with a method call (e.g., .toBe(), .toEqual(), .not.toBe())
- *
- * This mirrors the TypeScript isGlobalExpectExpression function logic.
- */
-function isGlobalExpectExpressionJS(node: estree.CallExpression): boolean {
-  if (node.callee.type !== 'MemberExpression') {
-    return false;
-  }
-
-  // Walk up the chain of member expressions to find the innermost call expression
-  // This handles: expect(...).toBe() as well as expect(...).not.toBe()
-  // Also handles: expectObservable(...).toBe(...), expectSubscriptions(...).toBe(...), etc.
-  let current: estree.Expression | estree.Super = node.callee.object;
-  while (current.type === 'MemberExpression') {
-    current = current.object;
-  }
-
-  if (current.type !== 'CallExpression') {
-    return false;
-  }
-
-  const innerCall = current;
-  return innerCall.callee.type === 'Identifier' && innerCall.callee.name.startsWith('expect');
 }
 
 function isFunctionCallFromNodeAssert(context: Rule.RuleContext, node: estree.Node) {
