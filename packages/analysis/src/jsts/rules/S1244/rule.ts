@@ -79,6 +79,12 @@ export const rule: Rule.RuleModule = {
           report(assertion.reportNode);
         }
       },
+      SwitchCase(node: estree.Node) {
+        const { test } = node as estree.SwitchCase;
+        if (test && isFloatingPointSensitive(test)) {
+          report(test);
+        }
+      },
     };
   },
 };

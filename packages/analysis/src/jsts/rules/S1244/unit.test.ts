@@ -82,6 +82,15 @@ describe('S1244', () => {
         },
         {
           code: `
+            switch (count) {
+              case 3:
+              case 10 / 2:
+                publish(count);
+            }
+          `,
+        },
+        {
+          code: `
             import { expect, test } from 'vitest';
             test('computes a total', () => {
               expect(0.1 + 0.2).not.toBeCloseTo(0.4);
@@ -185,6 +194,19 @@ describe('S1244', () => {
             cy.wrap(price()).should('equal', 0.3);
           `,
           errors: 1,
+        },
+        {
+          code: `
+            switch (total) {
+              case 0.3:
+                publish(total);
+                break;
+              case 1 / 3:
+                retry();
+                break;
+            }
+          `,
+          errors: 2,
         },
       ],
     });
