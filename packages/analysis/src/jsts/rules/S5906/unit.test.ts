@@ -782,6 +782,34 @@ describe('S5906', () => {
         },
         {
           code: `
+            import 'cypress';
+
+            cy.wrap(value).should('be.null').and('equal', undefined);
+          `,
+          errors: [
+            expectedError(`
+            import 'cypress';
+
+            cy.wrap(value).should('be.null').and('be.undefined');
+          `),
+          ],
+        },
+        {
+          code: `
+            import 'cypress';
+
+            cy.wrap(value).should('exist').and('not.equal', null);
+          `,
+          errors: [
+            expectedError(`
+            import 'cypress';
+
+            cy.wrap(value).should('exist').and('not.be.null');
+          `),
+          ],
+        },
+        {
+          code: `
             import { expect, test } from '@playwright/test';
 
             test('checks page', async ({ page }) => {

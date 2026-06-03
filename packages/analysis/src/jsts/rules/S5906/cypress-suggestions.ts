@@ -36,7 +36,7 @@ export function getCypressSuggestion(
   ) {
     return null;
   }
-  if (!isCyWrapCall(node.callee.object) || node.arguments[0].type !== 'Literal') {
+  if (!hasCyWrapCall(node.callee.object) || node.arguments[0].type !== 'Literal') {
     return null;
   }
 
@@ -78,11 +78,15 @@ function getCypressNullishSuggestion(
   );
 }
 
-function isCyWrapCall(node: estree.Node): boolean {
-  return (
-    node.type === 'CallExpression' &&
-    isMethodCall(node) &&
-    isIdentifier(node.callee.property, 'wrap') &&
-    isIdentifier(node.callee.object, 'cy')
-  );
+function hasCyWrapCall(node: estree.Node): boolean {
+  if (node.type === 'CallExpression' && isMethodCall(node)) {
+    return (
+      (isIdentifier(node.callee.property, 'wrap') && isIdentifier(node.callee.object, 'cy')) ||
+      hasCyWrapCall(node.callee.object)
+    );
+  }
+  if (node.type === 'MemberExpression' && !node.computed) {
+    return hasCyWrapCall(node.object);
+  }
+  return false;
 }
