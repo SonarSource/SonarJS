@@ -42,17 +42,14 @@ export const openApiGeneratorDetector = {
       extractFlagValuesFromTokens(taskInvocation.args, OPENAPI_GENERATOR_NAME_FLAGS).some(
         isJsTsOpenApiGenerator,
       );
-    if (!taskInvocations.some(matchesTaskInvocation)) {
+    const matchingInvocations = taskInvocations.filter(matchesTaskInvocation);
+    if (matchingInvocations.length === 0) {
       return createDerivedGeneratedSources();
     }
 
-    const outputPaths = taskInvocations.flatMap(taskInvocation => {
-      if (!matchesTaskInvocation(taskInvocation)) {
-        return [];
-      }
-
-      return extractFlagValuesFromTokens(taskInvocation.args, OPENAPI_OUTPUT_FLAGS);
-    });
+    const outputPaths = matchingInvocations.flatMap(taskInvocation =>
+      extractFlagValuesFromTokens(taskInvocation.args, OPENAPI_OUTPUT_FLAGS),
+    );
     const resolvedOutputs = await resolveGeneratedOutputsFromLiteralPaths(
       baseDir,
       packageDir,
