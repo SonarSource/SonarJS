@@ -311,6 +311,16 @@ export function getUniqueWriteReference(
   return undefined;
 }
 
+/**
+ * Returns all read references reachable from `scope`, including nested scopes.
+ */
+export function collectReferences(scope: Scope.Scope): Scope.Reference[] {
+  return [
+    ...scope.references.filter(reference => reference.isRead()),
+    ...scope.childScopes.flatMap(collectReferences),
+  ];
+}
+
 export function getUniqueWriteUsageOrNode(
   context: Rule.RuleContext,
   node: estree.Node,
