@@ -54,7 +54,7 @@ export const openApiGeneratorDetector = {
       baseDir,
       packageDir,
       outputPaths,
-      false,
+      true,
       sourceFileMatcher,
     );
     const derived = createDerivedGeneratedSources();

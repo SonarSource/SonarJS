@@ -1056,7 +1056,7 @@ export default config;
     }
   });
 
-  it('derives OpenAPI outputs only from immediate output directory children', async () => {
+  it('derives OpenAPI outputs recursively from output directories', async () => {
     const baseDir = joinPaths(fixtures, 'openapi');
     await initFileStores(createConfiguration({ baseDir }));
 
@@ -1065,7 +1065,7 @@ export default config;
     );
     expect(
       generatedSourceStore.getFamily(joinPaths(baseDir, 'src', 'api', 'models', 'pet.ts')),
-    ).toBeUndefined();
+    ).toEqual(OPENAPI_GENERATOR_FAMILY);
     expect(
       generatedSourceStore.getFamily(joinPaths(baseDir, 'build', 'api', 'ignored.ts')),
     ).toEqual(OPENAPI_GENERATOR_FAMILY);
