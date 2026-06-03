@@ -41,7 +41,7 @@ export const rule: Rule.RuleModule = {
       return {};
     }
     const canResolveTypes = hasTypeChecking
-      ? (compilerOptions.strictNullChecks ?? compilerOptions.strict ?? false)
+      ? (compilerOptions?.strictNullChecks ?? compilerOptions?.strict ?? false)
       : false;
 
     function checkProperty(node: estree.Node) {
