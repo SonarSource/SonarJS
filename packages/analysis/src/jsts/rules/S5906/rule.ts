@@ -364,20 +364,20 @@ function getChaiShouldValueSuggestion(
   const actualText = sourceCode.getText(actual);
   if (isNullLiteral(expected)) {
     return replacement(
-      `${chaiShouldReceiver(actualText)}.should${negated ? '.not' : ''}.be.null`,
+      `${chaiShouldReceiver(actualText, actual)}.should${negated ? '.not' : ''}.be.null`,
       node,
       sourceCode,
     );
   }
   if (isUndefinedExpression(expected)) {
     return replacement(
-      `${chaiShouldReceiver(actualText)}.should${negated ? '.not' : ''}.be.undefined`,
+      `${chaiShouldReceiver(actualText, actual)}.should${negated ? '.not' : ''}.be.undefined`,
       node,
       sourceCode,
     );
   }
   if (isLengthAccess(actual)) {
-    const receiver = chaiShouldReceiver(sourceCode.getText(actual.object));
+    const receiver = chaiShouldReceiver(sourceCode.getText(actual.object), actual.object);
     return replacement(
       `${receiver}.should${negated ? '.not' : ''}.have.lengthOf(${sourceCode.getText(expected)})`,
       node,

@@ -383,7 +383,7 @@ describe('S5906', () => {
             expectedError(`
             import { expect } from 'chai';
 
-            (value).should.be.undefined;
+            value.should.be.undefined;
           `),
           ],
         },
@@ -495,7 +495,7 @@ describe('S5906', () => {
             expectedError(`
             import { expect } from 'chai';
 
-            (value).should.be.undefined;
+            value.should.be.undefined;
           `),
           ],
         },
@@ -523,7 +523,35 @@ describe('S5906', () => {
             expectedError(`
             import { expect } from 'chai';
 
-            (user).should.be.instanceOf(User);
+            user.should.be.instanceOf(User);
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+
+            user.name.should.equal(undefined);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'chai';
+
+            user.name.should.be.undefined;
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+
+            getName().should.equal(null);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'chai';
+
+            getName().should.be.null;
           `),
           ],
         },
