@@ -31,6 +31,7 @@ import {
   deriveGeneratedSources,
   extractFlagValues,
 } from '../../../src/jsts/rules/helpers/generated-sources/derive.js';
+import { graphqlCodegenDetector } from '../../../src/jsts/rules/helpers/generated-sources/detectors/graphql-codegen.js';
 import {
   GENERATED_SOURCE_DETECTORS,
   GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS,
@@ -1332,6 +1333,35 @@ export default config;
 
       expect(derived.configPaths).toEqual(new Set([configPath]));
       expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not treat a plain package.json as GraphQL config evidence', async () => {
+    const baseDir = await createTempBaseDir();
+    let dependencyLookups = 0;
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify({ name: 'plain-package-json-fixture' }, null, 2),
+      );
+
+      const derived = await graphqlCodegenDetector.detect({
+        baseDir,
+        packageDir: baseDir,
+        getDependencies: () => {
+          dependencyLookups++;
+          return new Map([[GRAPHQL_CODEGEN_FAMILY, '1.0.0']]);
+        },
+        taskInvocations: [],
+        sourceFileMatcher: undefined,
+      });
+
+      expect(derived.configPaths).toEqual(new Set());
+      expect(derived.familyByFile.size).toEqual(0);
+      expect(dependencyLookups).toEqual(0);
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }

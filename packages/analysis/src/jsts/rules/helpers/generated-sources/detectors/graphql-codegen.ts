@@ -107,14 +107,16 @@ export const graphqlCodegenDetector = {
   async detect({ baseDir, packageDir, getDependencies, taskInvocations, sourceFileMatcher }) {
     const matchesTaskInvocation = (taskInvocation: TaskInvocation) =>
       taskInvocationInvokesCommand(taskInvocation, 'graphql-codegen');
-    const configPaths = await resolveConfigPaths({
-      baseDir,
-      packageDir,
-      taskInvocations,
-      matchesTaskInvocation,
-      flags: GRAPHQL_CONFIG_FLAGS,
-      fallbackBasenames: AUTO_DISCOVERED_GRAPHQL_CONFIGS,
-    });
+    const configPaths = await filterGraphqlConfigPaths(
+      await resolveConfigPaths({
+        baseDir,
+        packageDir,
+        taskInvocations,
+        matchesTaskInvocation,
+        flags: GRAPHQL_CONFIG_FLAGS,
+        fallbackBasenames: AUTO_DISCOVERED_GRAPHQL_CONFIGS,
+      }),
+    );
     if (configPaths.size === 0) {
       return createDerivedGeneratedSources();
     }
@@ -148,6 +150,21 @@ export const graphqlCodegenDetector = {
     return derived;
   },
 } satisfies GeneratedSourceDetector;
+
+async function filterGraphqlConfigPaths(configPaths: Set<NormalizedAbsolutePath>) {
+  const filteredConfigPaths = new Set<NormalizedAbsolutePath>();
+
+  for (const configPath of configPaths) {
+    if (
+      basename(configPath).toLowerCase() !== 'package.json' ||
+      (await parseGraphqlGenerates(configPath)).length > 0
+    ) {
+      filteredConfigPaths.add(configPath);
+    }
+  }
+
+  return filteredConfigPaths;
+}
 
 async function resolveGraphqlOutputs(
   baseDir: NormalizedAbsolutePath,
