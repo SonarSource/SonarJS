@@ -2,5 +2,28 @@
 "desktop:app/test/unit/fatal-error-test.ts": [
 10,
 20
+],
+"desktop:app/test/unit/git/core-test.ts": [
+120,
+128,
+136
+],
+"desktop:app/test/unit/path-text-test.ts": [
+47,
+48,
+50,
+51,
+57,
+60,
+63,
+67,
+70,
+73
+],
+"desktop:app/test/unit/text-diff-expansion-test.ts": [
+211,
+214,
+217,
+219
 ]
 }
