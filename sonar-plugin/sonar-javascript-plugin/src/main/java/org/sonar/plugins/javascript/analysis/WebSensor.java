@@ -230,20 +230,6 @@ public class WebSensor implements Sensor {
     ).toList();
   }
 
-  private List<InputFile> getProjectMetadataFiles() {
-    FileSystem fileSystem = context.getSensorContext().fileSystem();
-    return StreamSupport.stream(
-      fileSystem.inputFiles(fileSystem.predicates().all()).spliterator(),
-      false
-    )
-      .filter(this::isProjectMetadataFile)
-      .toList();
-  }
-
-  private boolean isProjectMetadataFile(InputFile inputFile) {
-    return PROJECT_METADATA_FILENAMES.contains(inputFile.filename().toLowerCase(Locale.ROOT));
-  }
-
   private void analyzeFiles(List<InputFile> inputFiles) {
     var eslintImporter = new EslintReportImporter();
     var externalIssues = eslintImporter.execute(context);
@@ -277,6 +263,7 @@ public class WebSensor implements Sensor {
     private final JsTsContext<?> context;
     private final Map<String, List<ExternalIssue>> externalIssues;
     private final List<InputFile> inputFiles;
+    private final List<InputFile> projectMetadataFiles;
     private final Map<String, InputFile> fileToInputFile = new HashMap<>();
     private final HashMap<String, CacheStrategy> fileToCacheStrategy = new HashMap<>();
     private final CompletableFuture<Void> handle;
@@ -291,6 +278,9 @@ public class WebSensor implements Sensor {
     ) {
       this.inputFiles = inputFiles;
       this.context = context;
+      this.projectMetadataFiles = context.canAccessFileSystem()
+        ? List.of()
+        : collectProjectMetadataFiles();
       this.handle = new CompletableFuture<>();
       this.externalIssues = externalIssues;
     }
@@ -299,36 +289,8 @@ public class WebSensor implements Sensor {
     public AnalyzeProjectRequest getRequest() {
       var files = new HashMap<String, ProjectFileInput>();
       try {
-        for (InputFile inputFile : inputFiles) {
-          var language = inputFile.language();
-          var isJsTs = isJsTsFile(inputFile);
-          var isHtmlOrYaml =
-            JavaScriptFilePredicate.WEB_LANGUAGE.equals(language) ||
-            JavaScriptFilePredicate.YAML_LANGUAGE.equals(language);
-
-          if (isJsTs || isHtmlOrYaml) {
-            CacheStrategy cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
-            if (cacheStrategy.isAnalysisRequired()) {
-              addFileToAnalyze(files, inputFile);
-              fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
-            } else if (isJsTs) {
-              LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
-              var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
-              analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
-              acceptAstResponse(cacheAnalysis.getAst(), inputFile);
-            }
-          } else {
-            // CSS and extension-based HTML/YAML/CSS-additional files: always analyze, no caching.
-            addFileToAnalyze(files, inputFile);
-          }
-        }
-        if (!context.canAccessFileSystem()) {
-          for (InputFile metadataFile : getProjectMetadataFiles()) {
-            if (!files.containsKey(metadataFile.absolutePath())) {
-              addFileToAnalyze(files, metadataFile);
-            }
-          }
-        }
+        addInputFilesToRequest(files);
+        addProjectMetadataFilesToRequest(files);
       } catch (IOException e) {
         var failure = new IllegalStateException(e);
         handle.completeExceptionally(failure);
@@ -348,6 +310,69 @@ public class WebSensor implements Sensor {
           cssRules.getStylelintRules().stream().map(AnalyzeProjectMessages::toProtoRule).toList()
         )
         .build();
+    }
+
+    private void addInputFilesToRequest(Map<String, ProjectFileInput> files) throws IOException {
+      for (InputFile inputFile : inputFiles) {
+        addInputFileToRequest(files, inputFile);
+      }
+    }
+
+    private void addInputFileToRequest(Map<String, ProjectFileInput> files, InputFile inputFile)
+      throws IOException {
+      if (shouldUseCache(inputFile)) {
+        handleCachedInputFile(files, inputFile);
+      } else {
+        // CSS and extension-based HTML/YAML/CSS-additional files: always analyze, no caching.
+        addFileToAnalyze(files, inputFile);
+      }
+    }
+
+    private boolean shouldUseCache(InputFile inputFile) {
+      var language = inputFile.language();
+      return (
+        isJsTsFile(inputFile) ||
+        JavaScriptFilePredicate.WEB_LANGUAGE.equals(language) ||
+        JavaScriptFilePredicate.YAML_LANGUAGE.equals(language)
+      );
+    }
+
+    private void handleCachedInputFile(Map<String, ProjectFileInput> files, InputFile inputFile)
+      throws IOException {
+      CacheStrategy cacheStrategy = CacheStrategies.getStrategyFor(context, inputFile);
+      if (cacheStrategy.isAnalysisRequired()) {
+        addFileToAnalyze(files, inputFile);
+        fileToCacheStrategy.put(inputFile.absolutePath(), cacheStrategy);
+        return;
+      }
+
+      if (isJsTsFile(inputFile)) {
+        LOG.debug("Processing cache analysis of file: {}", inputFile.uri());
+        var cacheAnalysis = cacheStrategy.readAnalysisFromCache();
+        analysisProcessor.processCacheAnalysis(context, inputFile, cacheAnalysis);
+        acceptAstResponse(cacheAnalysis.getAst(), inputFile);
+      }
+    }
+
+    private void addProjectMetadataFilesToRequest(Map<String, ProjectFileInput> files)
+      throws IOException {
+      for (InputFile metadataFile : projectMetadataFiles) {
+        addFileToAnalyze(files, metadataFile);
+      }
+    }
+
+    private List<InputFile> collectProjectMetadataFiles() {
+      FileSystem fileSystem = context.getSensorContext().fileSystem();
+      return StreamSupport.stream(
+        fileSystem.inputFiles(fileSystem.predicates().all()).spliterator(),
+        false
+      )
+        .filter(AnalyzeProjectHandler::isProjectMetadataFile)
+        .toList();
+    }
+
+    private static boolean isProjectMetadataFile(InputFile inputFile) {
+      return PROJECT_METADATA_FILENAMES.contains(inputFile.filename().toLowerCase(Locale.ROOT));
     }
 
     public CompletableFuture<Void> getFuture() {

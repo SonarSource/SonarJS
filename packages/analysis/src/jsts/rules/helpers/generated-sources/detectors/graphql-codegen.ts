@@ -86,9 +86,10 @@ const GRAPHQL_CONFIG_FLAGS = ['--config', '-c'];
 const DEFAULT_NEAR_OPERATION_FILE_EXTENSION = '.generated.ts';
 const GRAPHQL_GENERATED_DIRECTORY_SEGMENTS = new Set(['generated', '__generated__', 'gql']);
 const GRAPHQL_CODEGEN_FAMILY = '@graphql-codegen/cli';
-const TOML_ASSIGNMENT_PATTERN = /^([A-Za-z0-9_.-]+)\s*=\s*(.*)$/u;
 const TOML_TABLE_PATH_PATTERN = /^\[([^\]]+)\]$/u;
 const SUPPORTED_TOML_GENERATES_INDEXES = [2, 4] as const;
+const TOP_LEVEL_TOML_CODEGEN_PREFIX = ['extensions', 'codegen'] as const;
+const PROJECT_TOML_CODEGEN_PREFIX_LENGTH = 4;
 
 type GraphqlGenerateTarget = {
   outputPath: string;
@@ -99,6 +100,16 @@ type GraphqlGenerateTarget = {
 type GraphqlTomlGenerateTargetContext = {
   outputPath: string;
   nestedPath: string[];
+};
+
+type GraphqlTomlAssignment = {
+  key: string;
+  value: string;
+};
+
+type ParsedTomlQuotedSegment = {
+  segment: string;
+  nextIndex: number;
 };
 
 export const graphqlCodegenDetector = {
@@ -297,13 +308,12 @@ function getGenerateTargetsFromToml(configContents: string) {
       continue;
     }
 
-    const assignmentMatch = TOML_ASSIGNMENT_PATTERN.exec(line);
-    if (!assignmentMatch) {
+    const assignment = parseTomlAssignment(line);
+    if (!assignment) {
       continue;
     }
 
-    const [, key, value] = assignmentMatch;
-    const parsedValue = parseTomlStringLiteral(value);
+    const parsedValue = parseTomlStringLiteral(assignment.value);
     if (!parsedValue) {
       continue;
     }
@@ -311,7 +321,7 @@ function getGenerateTargetsFromToml(configContents: string) {
     applyTomlGenerateTargetAssignment(
       currentGenerateTarget,
       currentGenerateTargetPath,
-      key,
+      assignment.key,
       parsedValue,
     );
   }
@@ -340,13 +350,25 @@ function getTomlGenerateTargetContext(
 
 function isSupportedTomlGenerateTargetPrefix(pathSegments: string[]) {
   return (
-    (pathSegments.length === 2 &&
-      pathSegments[0] === 'extensions' &&
-      pathSegments[1] === 'codegen') ||
-    (pathSegments.length === 4 &&
-      pathSegments[0] === 'projects' &&
-      pathSegments[2] === 'extensions' &&
-      pathSegments[3] === 'codegen')
+    matchesTomlPathPrefix(pathSegments, TOP_LEVEL_TOML_CODEGEN_PREFIX) ||
+    isProjectTomlGenerateTargetPrefix(pathSegments)
+  );
+}
+
+function matchesTomlPathPrefix(pathSegments: string[], prefix: readonly string[]) {
+  return (
+    pathSegments.length === prefix.length &&
+    prefix.every((segment, index) => pathSegments[index] === segment)
+  );
+}
+
+function isProjectTomlGenerateTargetPrefix(pathSegments: string[]) {
+  const [projectsSegment, , extensionsSegment, codegenSegment] = pathSegments;
+  return (
+    pathSegments.length === PROJECT_TOML_CODEGEN_PREFIX_LENGTH &&
+    projectsSegment === 'projects' &&
+    extensionsSegment === 'extensions' &&
+    codegenSegment === 'codegen'
   );
 }
 
@@ -371,52 +393,100 @@ function applyTomlGenerateTargetAssignment(
 function splitTomlPath(value: string) {
   const segments: string[] = [];
   let current = '';
-  let quote: '"' | "'" | undefined;
-  let escaped = false;
+  let index = 0;
 
-  for (const char of value) {
-    if (quote) {
-      if (escaped) {
-        current += char;
-        escaped = false;
-        continue;
-      }
-
-      if (quote === '"' && char === '\\') {
-        escaped = true;
-        continue;
-      }
-
-      if (char === quote) {
-        quote = undefined;
-        continue;
-      }
-
-      current += char;
-      continue;
-    }
+  while (index < value.length) {
+    const char = value[index];
 
     if (char === '"' || char === "'") {
-      quote = char;
+      const parsedQuotedSegment = parseQuotedTomlPathSegment(value, index);
+      current += parsedQuotedSegment.segment;
+      index = parsedQuotedSegment.nextIndex;
       continue;
     }
 
     if (char === '.') {
-      segments.push(current);
+      appendTomlPathSegment(segments, current);
       current = '';
+      index++;
       continue;
     }
 
-    if (char !== ' ' && char !== '\t') {
+    if (!isTomlPathWhitespace(char)) {
       current += char;
     }
+
+    index++;
   }
 
-  if (current.length > 0) {
-    segments.push(current);
-  }
+  appendTomlPathSegment(segments, current);
 
   return segments;
+}
+
+function parseQuotedTomlPathSegment(value: string, startIndex: number): ParsedTomlQuotedSegment {
+  const quote = value[startIndex] as '"' | "'";
+  let segment = '';
+  let index = startIndex + 1;
+
+  while (index < value.length) {
+    const char = value[index];
+
+    if (quote === '"' && char === '\\') {
+      index++;
+      if (index >= value.length) {
+        return { segment, nextIndex: index };
+      }
+      segment += value[index];
+      index++;
+      continue;
+    }
+
+    if (char === quote) {
+      return { segment, nextIndex: index + 1 };
+    }
+
+    segment += char;
+    index++;
+  }
+
+  return { segment, nextIndex: index };
+}
+
+function appendTomlPathSegment(segments: string[], segment: string) {
+  if (segment.length > 0) {
+    segments.push(segment);
+  }
+}
+
+function isTomlPathWhitespace(char: string) {
+  return char === ' ' || char === '\t';
+}
+
+function parseTomlAssignment(line: string): GraphqlTomlAssignment | undefined {
+  const assignmentIndex = line.indexOf('=');
+  if (assignmentIndex < 1) {
+    return undefined;
+  }
+
+  const key = line.slice(0, assignmentIndex).trimEnd();
+  return isTomlAssignmentKey(key) ? { key, value: line.slice(assignmentIndex + 1) } : undefined;
+}
+
+function isTomlAssignmentKey(value: string) {
+  return value.length > 0 && [...value].every(isTomlAssignmentKeyCharacter);
+}
+
+function isTomlAssignmentKeyCharacter(char: string) {
+  return isAsciiLetter(char) || isAsciiDigit(char) || char === '_' || char === '.' || char === '-';
+}
+
+function isAsciiLetter(char: string) {
+  return (char >= 'a' && char <= 'z') || (char >= 'A' && char <= 'Z');
+}
+
+function isAsciiDigit(char: string) {
+  return char >= '0' && char <= '9';
 }
 
 function parseTomlStringLiteral(value: string) {

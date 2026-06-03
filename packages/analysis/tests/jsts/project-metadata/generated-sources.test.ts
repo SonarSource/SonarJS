@@ -1716,6 +1716,79 @@ plugins = [
     }
   });
 
+  it('derives TOML outputs when a GraphQL project name contains dots', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'graphql.config.toml');
+    const outputPath = joinPaths(baseDir, 'src', 'contra-api', '__generated__', 'types.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `[projects."server.api".extensions.codegen.generates."src/contra-api/__generated__/types.ts"]
+plugins = [
+  "typescript",
+]
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const types = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          scripts: {
+            codegen: 'graphql-codegen',
+          },
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+        }),
+      );
+
+      expect(derived.configPaths).toEqual(new Set([configPath]));
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives TOML near-operation outputs when presetConfig extension contains equals signs', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'graphql.config.toml');
+    const generatedPath = joinPaths(baseDir, 'src', 'App.generated=custom.ts');
+    const defaultGeneratedPath = joinPaths(baseDir, 'src', 'App.generated.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `[extensions.codegen.generates."./src/"]
+preset = "near-operation-file"
+
+[extensions.codegen.generates."./src/".presetConfig]
+extension = ".generated=custom.ts"
+`,
+      );
+      await writeFixtureFile(generatedPath, 'export const generated = true;\n');
+      await writeFixtureFile(defaultGeneratedPath, 'export const wrong = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          scripts: {
+            codegen: 'graphql-codegen',
+          },
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(generatedPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(derived.familyByFile.get(defaultGeneratedPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('refreshes generated-source matches when the explicit request file set changes', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
     const firstGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
