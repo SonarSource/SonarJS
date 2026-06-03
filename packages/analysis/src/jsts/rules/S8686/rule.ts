@@ -66,7 +66,7 @@ export const rule: Rule.RuleModule = {
         }
         if (isExpectCall(node) && testCaseDepth > 0 && isConditional()) {
           context.report({
-            node: node.callee,
+            node,
             messageId: 'conditionalAssertion',
           });
         }
