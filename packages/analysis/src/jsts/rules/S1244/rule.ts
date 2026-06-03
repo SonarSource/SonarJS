@@ -228,8 +228,8 @@ function isIndirectExactComparison(
     return false;
   }
 
-  return comparisonAlternatives(leftComparison).some(left =>
-    comparisonAlternatives(rightComparison).some(
+  return comparisonOrientations(leftComparison).some(left =>
+    comparisonOrientations(rightComparison).some(
       right =>
         left.isAbove !== right.isAbove &&
         areEquivalent(left.expression, right.expression, context.sourceCode) &&
@@ -241,7 +241,7 @@ function isIndirectExactComparison(
 
 function acceptedIndirectOperators(operator: estree.LogicalExpression['operator']) {
   // && of two <=/>= comparisons collapses to equality; || of two strict </> comparisons
-  // asserts inequality. Keep operator sets, this mapping, and comparisonAlternatives in sync.
+  // asserts inequality. Keep operator sets, this mapping, and comparisonOrientations in sync.
   if (operator === '&&') {
     return indirectEqualityOperators;
   }
@@ -258,7 +258,7 @@ function isAcceptedComparison(
   return node.type === 'BinaryExpression' && acceptedOperators.has(node.operator);
 }
 
-function comparisonAlternatives(node: estree.BinaryExpression) {
+function comparisonOrientations(node: estree.BinaryExpression) {
   const { left, right } = node;
   switch (node.operator) {
     case '<':
