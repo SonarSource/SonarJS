@@ -1,0 +1,40 @@
+name: dogfood merge
+# This workflow is triggered:
+# - After the Build workflow completes successfully on master (to avoid redundant builds)
+# - On direct pushes to dogfood/* branches
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types: [completed]
+    branches: [master]
+  push:
+    branches:
+      - 'dogfood/*'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  dogfood_merge:
+    # Run if triggered by push to dogfood/*, or if Build workflow succeeded on master
+    if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
+    runs-on: warp-custom-ubuntu-24-04
+    name: Update dogfood branch
+    permissions:
+      id-token: write # required for SonarSource/vault-action-wrapper
+    steps:
+      - name: get secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-dogfood-merge token | dogfood_token;
+      - name: git octopus step
+        id: dogfood
+        uses: SonarSource/gh-action_dogfood_merge@v1
+        with:
+          dogfood-branch: 'dogfood-on-peach'
+          github-token: ${{ fromJSON(steps.secrets.outputs.vault).dogfood_token }}
+      # Use the output from the `dogfood` step
+      - name: Get the name of the dogfood branch and its HEAD SHA1
+        run: echo "The dogfood branch was ${{ steps.dogfood.outputs.dogfood-branch }} and its HEAD SHA1 was ${{ steps.dogfood.outputs.sha1 }}"

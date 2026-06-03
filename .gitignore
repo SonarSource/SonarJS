@@ -1,0 +1,85 @@
+# Maven
+target/
+bin/
+.flattened-pom.xml
+
+lib/
+node_modules
+node_modules/
+coverage/
+
+packages/analysis/src/jsts/rules/*/generated-meta.ts
+packages/grpc/src/proto/*.js
+packages/grpc/src/proto/*.d.ts
+packages/analysis/src/jsts/parsers/estree.js
+packages/analysis/src/jsts/parsers/estree.d.ts
+
+# Auto-generated RSPEC rule data (by npm run sync-rspec-all)
+# Keep generated RSPEC JSON tracked; ignore rendered HTML and sync marker.
+sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.html
+sonar-plugin/javascript-checks/src/main/resources/rspec.sha
+sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/*.html
+
+# Auto-generated CSS Java rule classes (by npm run generate-java-rule-classes)
+sonar-plugin/css/src/main/java/org/sonar/css/rules/S*.java
+sonar-plugin/css/src/main/java/org/sonar/css/CssRules.java
+sonar-plugin/css/src/test/java/org/sonar/css/rules/CssRuleTest.java
+sonarjs-1.0.0.tgz
+
+# IntelliJ IDEA
+*.iws
+*.iml
+*.ipr
+.idea/
+
+# Eclipse
+.classpath
+.project
+.settings
+
+# Visual Studio
+.vs/
+
+# VS Code
+.vscode
+.vscode/
+
+# ---- Mac OS X
+.DS_Store
+Icon?
+# Thumbnails
+._*
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+# ---- Windows
+# Windows image file caches
+Thumbs.db
+# Folder config file
+Desktop.ini
+
+# ---- Sonar
+.sonar
+.scannerwork
+
+# eslint-plugin-sonarjs
+eslint-plugin-sonarjs-*.tgz
+its/eslint8-plugin-sonarjs/package-lock.json
+its/eslint9-plugin-sonarjs/package-lock.json
+its/eslint10-plugin-sonarjs/package-lock.json
+
+/resources
+node-info.properties
+
+# coverage
+.nyc_output/
+lcov.info
+
+.claude/*
+!.claude/*.md
+!.claude/skills/
+
+.codex/*
+!.codex/skills/
+.mcp.json

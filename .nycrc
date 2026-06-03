@@ -1,0 +1,11 @@
+{
+  "exclude": [
+    "**/*.test.*",
+    "*/jsts/src/rules/*/generated-meta.*",
+    "**/tests/**/*",
+    "**/fixtures/**/*",
+    "tools/*"
+  ],
+  "reporter": ["lcov", "text-summary"],
+  "report-dir": "coverage/js/"
+}

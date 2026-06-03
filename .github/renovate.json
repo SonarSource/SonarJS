@@ -1,0 +1,69 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>SonarSource/renovate-config:languages-team"],
+  "configMigration": true,
+  "enabledManagers": ["github-actions", "maven", "npm"],
+  "dockerfile": {
+    "enabled": true
+  },
+  "ignorePaths": [
+    "its/sources/**",
+    "its/plugin/projects/**",
+    "**/test/**",
+    "**/tests/**",
+    "**/fixtures/**",
+    "packages/analysis/src/jsts/rules/**",
+    "its/eslint8-plugin-sonarjs/**",
+    "its/eslint9-plugin-sonarjs/**",
+    "its/eslint10-plugin-sonarjs/**"
+  ],
+  "packageRules": [
+    {
+      "description": "Ignore project revision property - managed by CI during release",
+      "matchManagers": ["maven"],
+      "matchCurrentVersion": "/-SNAPSHOT$/",
+      "enabled": false,
+      "matchDepNames": ["/^org\\.sonarsource\\.javascript:/"]
+    },
+    {
+      "description": "Don't group updates by default",
+      "matchPackageNames": ["*"],
+      "groupName": null
+    },
+    {
+      "description": "Group npm updates per source repository (monorepo), fallback to per dependency",
+      "matchManagers": ["npm"],
+      "groupName": "{{#if sourceRepo}}{{sourceRepo}} monorepo{{else}}{{depName}}{{/if}}",
+      "groupSlug": "{{#if sourceRepo}}{{sourceRepo}}{{else}}{{depName}}{{/if}}"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "pinDigests": false
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["pin", "rollback"],
+      "enabled": false
+    },
+    {
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": false
+    },
+    {
+      "description": "@typescript/native-preview - dev builds update daily, limit to weekly",
+      "matchPackageNames": ["@typescript/native-preview"],
+      "extends": ["schedule:weekly"]
+    }
+  ],
+  "hostRules": [
+    {
+      "hostType": "npm",
+      "matchHost": "https://repox.jfrog.io/artifactory/api/npm/npm/",
+      "token": "{{ secrets.REPOX_TOKEN }}"
+    }
+  ],
+  "autoApprove": true,
+  "prCreation": "immediate",
+  "rebaseWhen": "never"
+}

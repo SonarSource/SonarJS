@@ -1,0 +1,1357 @@
+name: Build
+on:
+  push:
+    branches:
+      - master
+      - branch-*
+      - dogfood-*
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # Nightly for analysis, IRIS, and generated file freshness
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  setup:
+    runs-on: sonar-xs
+    name: Setup - Prepare Node.js versions and test hashes
+    permissions: &read_permissions
+      id-token: write
+      contents: read
+    outputs:
+      node-matrix: ${{ steps.generate-matrix.outputs.matrix }}
+      js-files-hash: ${{ steps.compute-js-hash.outputs.hash }}
+      maven-hash: ${{ steps.compute-maven-hash.outputs.hash }}
+      npm-hash: ${{ steps.compute-npm-hash.outputs.hash }}
+      cache-month: ${{ steps.cache-month.outputs.month }}
+      is-default-branch: ${{ github.ref_name == github.event.repository.default_branch }}
+    steps:
+      - &checkout
+        name: Checkout source code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Generate Node.js version matrix from package.json
+        id: generate-matrix
+        run: |
+          # Extract node version range from package.json and parse versions with jq
+          MATRIX=$(jq -c '{
+            "node-version": (
+              .engines.node
+              | split(" || ")
+              | map(gsub("^[~^>=<]+"; ""))
+            )
+          }' package.json)
+
+          echo "matrix=$MATRIX" >> $GITHUB_OUTPUT
+          echo "Generated Node.js version matrix from package.json: $MATRIX"
+      - name: Compute JS files hash for test caching
+        id: compute-js-hash
+        run: |
+          HASH=$(find packages patches sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules tools typings .nycrc package.json server.mjs -type f 2>/dev/null | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "Computed JS files hash: $HASH"
+      - name: Compute Maven hash for cache key
+        id: compute-maven-hash
+        run: |
+          HASH=$(find . -name 'pom.xml' -type f | sort | xargs sha256sum | sha256sum | cut -d' ' -f1)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "Computed Maven hash: $HASH"
+      - name: Compute NPM hash for cache key
+        id: compute-npm-hash
+        run: |
+          HASH=$(sha256sum package-lock.json patches/* 2>/dev/null | sha256sum | cut -d' ' -f1)
+          echo "hash=$HASH" >> $GITHUB_OUTPUT
+          echo "Computed NPM hash: $HASH"
+      - name: Compute cache month for periodic reset
+        id: cache-month
+        run: |
+          MONTH=$(date +'%Y-%m')
+          echo "month=$MONTH" >> $GITHUB_OUTPUT
+          echo "Cache month: $MONTH"
+
+  get_build_number:
+    runs-on: sonar-xs
+    name: Get build number
+    needs: setup
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    outputs:
+      build-number: ${{ steps.build-number.outputs.BUILD_NUMBER }}
+    steps:
+      - id: build-number
+        uses: SonarSource/ci-github-actions/get-build-number@master
+
+  populate_npm_cache:
+    runs-on: sonar-xs
+    name: Populate NPM cache for Linux
+    needs: setup
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps: &populate_npm_cache_steps
+      - name: Cache NPM dependencies
+        id: cache
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
+          lookup-only: true
+      - name: Checkout source code
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: jdx/mise-action@v4.0.1
+        with:
+          version: 2025.11.2
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
+          mise_toml: |
+            [tools]
+            java = "21.0"
+            maven = "3.9"
+            node = "24.11.0"
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os != 'Windows'
+        uses: SonarSource/ci-github-actions/config-npm@v1
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
+        id: secrets
+        name: Access vault secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - if: steps.cache.outputs.cache-hit != 'true' && runner.os == 'Windows'
+        name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Install NPM dependencies
+        run: npm ci
+
+  populate_npm_cache_win:
+    runs-on: github-windows-latest-s
+    name: Populate NPM cache for Windows
+    needs: setup
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps: *populate_npm_cache_steps
+
+  sync_rspec:
+    runs-on: sonar-m
+    name: Sync RSPEC metadata
+    needs: [setup, populate_npm_cache]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - &mise
+        uses: jdx/mise-action@v4.0.1
+        with:
+          version: 2025.11.2
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
+          mise_toml: |
+            [tools]
+            java = "21.0"
+            maven = "3.9"
+            node = "24.11.0"
+      - &npm_cache
+        name: Cache NPM dependencies
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
+      - &rspec_secrets
+        id: rspec-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+      - name: Sync RSPEC rule data
+        run: npm run sync-rspec-all
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+      - name: Upload RSPEC rule data
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: rspec-rule-data
+          path: |
+            sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript
+            sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
+            resources/rule-data/javascript
+            resources/rule-data/css
+            resources/rule-data/.synced-sha-javascript
+            resources/rule-data/.synced-sha-css
+          retention-days: 1
+
+  build:
+    runs-on: sonar-l
+    name: Build SonarJS on Linux
+    needs: [setup, get_build_number, populate_npm_cache, sync_rspec]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - *npm_cache
+      - &maven_cache
+        uses: ./.github/actions/maven-cache
+        with:
+          cache-month: ${{ needs.setup.outputs.cache-month }}
+          maven-hash: ${{ needs.setup.outputs.maven-hash }}
+      - &config_maven
+        name: Configure Maven
+        id: config-maven
+        uses: SonarSource/ci-github-actions/config-maven@master
+        with:
+          artifactory-reader-role: private-reader
+          disable-caching: 'true'
+      - &download_rspec_rule_data
+        name: Download RSPEC rule data
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: rspec-rule-data
+      - *rspec_secrets
+      - id: deployer-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer username | ARTIFACTORY_DEPLOY_USERNAME;
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-qa-deployer access_token | ARTIFACTORY_DEPLOY_ACCESS_TOKEN;
+            development/kv/data/sign key | SIGN_KEY;
+            development/kv/data/sign passphrase | PGP_PASSPHRASE;
+      - name: Build, test and deploy Maven artifacts
+        run: mvn deploy -Pdeploy-sonarsource,coverage,sign,release -T1C
+        env:
+          ARTIFACTORY_DEPLOY_USERNAME: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_USERNAME }}
+          ARTIFACTORY_DEPLOY_PASSWORD: ${{ fromJSON(steps.deployer-secrets.outputs.vault).ARTIFACTORY_DEPLOY_ACCESS_TOKEN }}
+          ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
+          SIGN_KEY: ${{ fromJSON(steps.deployer-secrets.outputs.vault).SIGN_KEY }}
+          PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault).PGP_PASSPHRASE }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+      - name: Upload SonarJS artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: sonarjs-m2
+          path: ~/.m2/repository/org/sonarsource/javascript
+          retention-days: 1
+      - name: Upload Maven target artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: maven-targets-${{ github.sha }}
+          path: |
+            **/target/
+            !**/target/site/
+          retention-days: 1
+      - &upload_jacoco_xml_reports
+        name: Upload JaCoCo XML reports
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: jacoco-xml-reports-${{ github.sha }}
+          path: sonar-plugin/**/target/site/jacoco/jacoco.xml
+          retention-days: 1
+      # Clean up SonarJS artifacts before post-job cache save (only on default branch where cache is saved)
+      - name: Clean up SonarJS artifacts before cache save
+        if: github.ref_name == github.event.repository.default_branch
+        run: rm -rf ~/.m2/repository/org/sonarsource/javascript
+
+  # Windows builds and tests
+  build_win:
+    runs-on: github-windows-latest-m
+    name: Build SonarJS on Windows
+    needs: [setup, populate_npm_cache_win, sync_rspec]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - *npm_cache
+      - *maven_cache
+      - *config_maven
+      - *download_rspec_rule_data
+      - *rspec_secrets
+      - name: Build and test Maven (no deploy)
+        run: mvn verify -T1C
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+
+  build_eslint_plugin:
+    runs-on: github-ubuntu-latest-s
+    needs: [setup, populate_npm_cache, sync_rspec]
+    name: Build ESLint Plugin
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - id: secrets
+        name: Access vault secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - *npm_cache
+      - *download_rspec_rule_data
+      - *rspec_secrets
+      - name: Build ESLint plugin
+        run: npm run eslint-plugin:build
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+      - &eslint_tarball_cache
+        name: Cache ESLint plugin tarball
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: lib/*.tgz
+          key: eslint-tarball-${{ github.sha }}
+
+  generated_files_freshness:
+    runs-on: github-ubuntu-latest-s
+    needs: [setup, populate_npm_cache, sync_rspec]
+    name: Generated Files Freshness
+    if: github.event_name == 'schedule'
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    steps:
+      - *checkout
+      - *mise
+      - id: secrets
+        name: Access vault secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/artifactory/token/${{ github.repository_owner }}-${{ github.event.repository.name }}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+      - name: Configure npm registry
+        run: |
+          npm config set //repox.jfrog.io/artifactory/api/npm/:_authToken=${{ fromJSON(steps.secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          npm config set registry https://repox.jfrog.io/artifactory/api/npm/npm/
+      - *npm_cache
+      - *download_rspec_rule_data
+      - *rspec_secrets
+      - name: Regenerate tracked generated files
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+        run: |
+          git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "git@github.com:"
+          npm install --no-save builtin-modules@3.3.0
+          npm run eslint-plugin:compile
+          npm run count-rules
+      - name: Open or update generated files refresh PR
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
+        with:
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          commit-message: Update generated README files and RSPEC JSON
+          title: Update generated README files and RSPEC JSON
+          body: |
+            Automated refresh of generated README files and tracked RSPEC JSON resources.
+
+            Updated paths:
+            - `README.md`
+            - `packages/analysis/src/jsts/rules/README.md`
+            - `sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.json`
+            - `sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/*.json`
+
+            If this PR is created without CI, please click GitHub's `Approve workflows` button.
+            If that still does not start CI, close and reopen the PR to retrigger it.
+          branch: bot/update-generated-files
+          base: master
+          add-paths: |
+            README.md
+            packages/analysis/src/jsts/rules/README.md
+            sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.json
+            sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/*.json
+          delete-branch: true
+
+  test_eslint_plugin:
+    runs-on: github-ubuntu-latest-s
+    name: ESLint Plugin Test - ESLint ${{ matrix.eslint-version }} Node ${{ matrix.node-version }}
+    needs: [setup, build_eslint_plugin]
+    permissions: *read_permissions
+    strategy:
+      matrix:
+        include:
+          - eslint-version: 10
+            node-version: '20.19.0'
+            node-label: 'min supported'
+          - eslint-version: 9
+            node-version: '18.18.0'
+            node-label: 'min supported'
+          - eslint-version: 8
+            node-version: '18.18.0'
+            node-label: 'min supported'
+    steps:
+      - *checkout
+      - uses: jdx/mise-action@v4.0.1
+        with:
+          version: 2025.11.2
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
+          mise_toml: |
+            [tools]
+            node = "${{ matrix.node-version }}"
+      - *eslint_tarball_cache
+      - name: Test ESLint Plugin
+        run: |
+          cd its/eslint${{ matrix.eslint-version }}-plugin-sonarjs
+          npm install --ignore-scripts --fetch-retry-mintimeout=10000 --fetch-retry-maxtimeout=60000 --fetch-retries=3
+          npx tsc --noEmit
+          npm run test
+
+  knip:
+    runs-on: sonar-xs
+    name: Knip
+    needs: [setup, populate_npm_cache, sync_rspec]
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - *npm_cache
+      - *download_rspec_rule_data
+      - *rspec_secrets
+      - name: Run knip
+        run: |
+          npm run bbf
+          npx knip
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+
+  test_js:
+    runs-on: sonar-m
+    name: Unit tests JavaScript/TypeScript
+    needs: [setup, populate_npm_cache, sync_rspec]
+    permissions: *read_permissions
+    steps:
+      - name: Check JS coverage cache
+        id: cache
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: coverage/js
+          key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
+          lookup-only: true
+      - name: Checkout source code
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: jdx/mise-action@v4.0.1
+        with:
+          version: 2025.11.2
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
+          mise_toml: |
+            [tools]
+            java = "21.0"
+            maven = "3.9"
+            node = "24.11.0"
+      - name: Cache NPM dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Download RSPEC rule data
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: rspec-rule-data
+      - if: steps.cache.outputs.cache-hit != 'true'
+        id: rspec-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Run JS tests with coverage
+        run: |
+          npm run generate-meta
+          npm run bridge:compile
+          npm run bridge:test:cov
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
+
+  test_js_win:
+    runs-on: github-windows-latest-m
+    name: Unit tests JavaScript on Windows
+    needs: [setup, populate_npm_cache_win, sync_rspec]
+    permissions: *read_permissions
+    steps:
+      - name: Cache JS test results marker (Windows)
+        id: cache
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: .js-test-marker-win
+          key: js-test-win-${{ needs.setup.outputs.js-files-hash }}
+          lookup-only: true
+      - name: Checkout source code
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - if: steps.cache.outputs.cache-hit != 'true'
+        uses: jdx/mise-action@v4.0.1
+        with:
+          version: 2025.11.2
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
+          mise_toml: |
+            [tools]
+            java = "21.0"
+            maven = "3.9"
+            node = "24.11.0"
+      - name: Cache NPM dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: node_modules
+          key: npm-${{ runner.os }}-${{ needs.setup.outputs.npm-hash }}
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Download RSPEC rule data
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: rspec-rule-data
+      - if: steps.cache.outputs.cache-hit != 'true'
+        id: rspec-secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/{REPO_OWNER_NAME_DASH}-rspec token | RSPEC_GITHUB_TOKEN;
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Run JS tests on Windows
+        shell: bash
+        run: |
+          npm run generate-meta
+          npm run bridge:compile
+          npm run bridge:test:js
+          mkdir -p .js-test-marker-win && touch .js-test-marker-win/success
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
+
+  analyze_primary:
+    runs-on: sonar-m
+    name: Analyze in SonarQube NEXT
+    needs: [setup, test_js, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - &checkout_with_tags
+        name: Checkout source code with tags
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: '0'
+          fetch-tags: 'true'
+      - *mise
+      - *npm_cache
+      - *maven_cache
+      - &js_coverage_cache
+        name: Cache JS coverage
+        id: js-coverage-cache
+        uses: SonarSource/gh-action_cache@v1
+        with:
+          path: coverage/js
+          key: js-coverage-${{ needs.setup.outputs.js-files-hash }}
+      - &download_maven_targets
+        name: Download Maven target artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: maven-targets-${{ github.sha }}
+      - &download_jacoco_xml_reports
+        name: Download JaCoCo XML reports
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: jacoco-xml-reports-${{ github.sha }}
+          path: sonar-plugin
+      - *config_maven
+      - id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/kv/data/next url | SONAR_URL;
+            development/kv/data/next token | SONAR_TOKEN;
+      - name: Run SonarQube analysis on Next
+        env:
+          SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
+          SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
+        run: |
+          SONAR_ARGS="-Dsonar.host.url=$SONAR_HOST_URL"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.token=$SONAR_TOKEN"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectKey=org.sonarsource.javascript:javascript"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectVersion=${{ steps.config-maven.outputs.project-version }}"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.scm.revision=${{ github.sha }}"
+          SONAR_ARGS="$SONAR_ARGS -Dcommercial"
+
+          # Add branch/PR information
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}"
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.branch=${{ github.head_ref }}"
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.base=${{ github.base_ref }}"
+          else
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
+          fi
+
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
+
+  analyze_shadows:
+    runs-on: sonar-m
+    name: Analyze in ${{ matrix.platform }}
+    needs: [setup, test_js, build]
+    permissions: *read_permissions
+    if: github.event_name == 'schedule'
+    strategy:
+      matrix:
+        include:
+          - platform: SonarCloud EU
+            sonar-platform: sonarcloud
+          - platform: SonarQube US
+            sonar-platform: sonarqube-us
+    steps:
+      - *checkout_with_tags
+      - *mise
+      - *npm_cache
+      - *maven_cache
+      - *js_coverage_cache
+      - *download_maven_targets
+      - *download_jacoco_xml_reports
+      - *config_maven
+      - id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/kv/data/${{ matrix.sonar-platform }} url | SONAR_URL;
+            development/kv/data/${{ matrix.sonar-platform }} token | SONAR_TOKEN;
+      - name: Run SonarQube analysis on ${{ matrix.platform }}
+        env:
+          SONAR_HOST_URL: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_URL }}
+          SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).SONAR_TOKEN }}
+        run: |
+          SONAR_ARGS="-Dsonar.host.url=$SONAR_HOST_URL"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.token=$SONAR_TOKEN"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectKey=SonarSource_SonarJS"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.projectVersion=${{ steps.config-maven.outputs.project-version }}"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.scm.revision=${{ github.sha }}"
+          SONAR_ARGS="$SONAR_ARGS -Dsonar.organization=sonarsource"
+          SONAR_ARGS="$SONAR_ARGS -Dcommercial"
+
+          # Add branch/PR information
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.key=${{ github.event.pull_request.number }}"
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.branch=${{ github.head_ref }}"
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.pullrequest.base=${{ github.base_ref }}"
+          else
+            SONAR_ARGS="$SONAR_ARGS -Dsonar.branch.name=${{ github.ref_name }}"
+          fi
+
+          mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar $SONAR_ARGS
+
+  plugin_qa_with_node:
+    runs-on: sonar-m
+    name: QA with Node ${{ matrix.node-version }} on Ubuntu
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    strategy:
+      matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
+    steps:
+      - *checkout
+      - &mise_java_matrix_node
+        uses: jdx/mise-action@v4.0.1
+        with:
+          version: 2025.11.2
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
+          mise_toml: |
+            [tools]
+            java = "21.0"
+            maven = "3.9"
+            node = "${{ matrix.node-version }}"
+      - *maven_cache
+      - &download_sonarjs_m2
+        name: Download SonarJS artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: sonarjs-m2
+          path: ~/.m2/repository/org/sonarsource/javascript
+      - *config_maven
+      - &get_licenses_token
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@v3
+        with:
+          secrets: |
+            development/github/token/licenses-ro token | licenses_token;
+      - &orchestrator_cache
+        uses: ./.github/actions/orchestrator-cache
+      - name: Run Plugin QA
+        run: |
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  plugin_qa_fast_with_node:
+    runs-on: sonar-m
+    name: Fast QA with Node ${{ matrix.node-version }} on Ubuntu
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    strategy:
+      matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
+    steps:
+      - *checkout
+      - *mise_java_matrix_node
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          key-prefix: orchestrator-fast
+      - name: Run Fast Plugin QA
+        run: |
+          mvn package -f its/plugin/plugins/pom.xml
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  plugin_qa_without_node:
+    runs-on: sonar-m
+    name: QA without Node on Ubuntu SQ:LATEST_RELEASE
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - &mise_java_only
+        name: Setup Java and Maven
+        uses: jdx/mise-action@v4.0.1
+        with:
+          version: 2025.11.2
+          cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
+          mise_toml: |
+            [tools]
+            java = "21.0"
+            maven = "3.9"
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - &remove_node_from_path
+        name: Disable existing node
+        shell: bash
+        run: |
+          node --version
+
+          function node() {
+            echo "node is disabled"
+            exit 0
+          }
+          export -f node
+
+          node
+      - *orchestrator_cache
+      - name: Run Plugin QA without Node
+        run: |
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: multi
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  # DEV tests run only on nightly schedule to avoid constant downloads
+  plugin_qa_without_node_dev:
+    runs-on: sonar-m
+    name: QA without Node on Ubuntu SQ:DEV
+    needs: [setup, build]
+    if: github.event_name == 'schedule'
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise_java_only
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - *remove_node_from_path
+      # No orchestrator cache for DEV - version changes too frequently
+      - name: Run Plugin QA without Node (DEV)
+        run: |
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: multi
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  plugin_qa_without_node_alpine:
+    runs-on: warp-custom-ubuntu-24-04
+    name: QA without Node on Alpine SQ:LATEST_RELEASE
+    needs: [setup, get_build_number, build]
+    if: github.event_name == 'schedule'
+    container:
+      image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
+    permissions: *read_permissions
+    env:
+      # Pre-set build number to avoid cache miss in container.
+      # actions/cache doesn't work in Alpine containers (OS detection mismatch),
+      # so get-build-number would generate a new number instead of reusing the one
+      # from the get_build_number job.
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    steps:
+      - *checkout
+      - &alpine_install_deps
+        name: Install dependencies
+        run: apk add --no-cache bash curl util-linux
+      - name: Create non-root user
+        run: |
+          # Elasticsearch refuses to run as root. Create a non-root user for the QA steps.
+          # Use /github/home as home dir so Java's user.home matches where Maven cache lives.
+          adduser -D -H -h /github/home -s /bin/bash sonar
+          chown -R sonar:sonar "$GITHUB_WORKSPACE"
+          chown -R sonar:sonar /github/home
+      - &alpine_setup_maven
+        name: Setup Maven
+        uses: jdx/mise-action@v4.0.1
+        with:
+          version: 2025.11.2
+          cache_save: true
+          mise_toml: |
+            [tools]
+            maven = "3.9"
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - *orchestrator_cache
+      - name: Fix permissions for non-root user
+        run: |
+          # Ensure the sonar user can access all necessary directories after cache restores
+          chown -R sonar:sonar "$GITHUB_WORKSPACE"
+          chown -R sonar:sonar /github/home
+      - name: Run Plugin QA without Node
+        shell: bash
+        run: |
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn package -f its/plugin/plugins/consumer-plugin/pom.xml -B
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+          setpriv --reuid=sonar --regid=sonar --init-groups -- mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: linux-x64-musl
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  plugin_qa_fast_without_node:
+    runs-on: sonar-m
+    name: Fast QA without Node on Ubuntu SQ:LATEST_RELEASE
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise_java_only
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - *remove_node_from_path
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          key-prefix: orchestrator-fast
+      - name: Run Fast Plugin QA without Node
+        run: |
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: multi
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  # DEV tests run only on nightly schedule to avoid constant downloads
+  plugin_qa_fast_without_node_dev:
+    runs-on: sonar-m
+    name: Fast QA without Node on Ubuntu SQ:DEV
+    needs: [setup, build]
+    if: github.event_name == 'schedule'
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise_java_only
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - *remove_node_from_path
+      # No orchestrator cache for DEV - version changes too frequently
+      - name: Run Fast Plugin QA without Node (DEV)
+        run: |
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=DEV -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: multi
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  plugin_qa_fast_without_node_alpine:
+    runs-on: warp-custom-ubuntu-24-04
+    name: Fast QA without Node on Alpine SQ:LATEST_RELEASE
+    needs: [setup, get_build_number, build]
+    if: github.event_name == 'schedule'
+    container:
+      image: alpine/java:22-jdk@sha256:f1537f450ab5c45a07a3323cbbdc2e4388d70b01940cf2acecea67faa3b36229
+    permissions: *read_permissions
+    env:
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
+    steps:
+      - *checkout
+      - *alpine_install_deps
+      - *alpine_setup_maven
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          key-prefix: orchestrator-fast
+      - name: Run Fast Plugin QA without Node
+        shell: bash
+        run: |
+          mvn package -f its/plugin/plugins/pom.xml --projects !org.sonarsource.javascript:eslint-custom-rules-plugin,!org.sonarsource.javascript:eslint-custom-rules-plugin-legacy -B
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dtest=!EslintCustomRulesTest,!EslintCustomRulesLegacyTest -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          SONARJS_ARTIFACT: linux-x64-musl
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  plugin_qa_win:
+    runs-on: github-windows-latest-m
+    name: QA on Windows (${{ matrix.group }})
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    strategy:
+      matrix:
+        include:
+          - group: 1
+            exclude: false
+          - group: 2
+            exclude: true
+    steps:
+      - *checkout
+      - *mise
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - *orchestrator_cache
+      - name: Run Plugin QA on Windows
+        shell: bash
+        run: |
+          # Tests for group 1 (group 2 runs everything else)
+          GROUP1_TESTS="CoverageTest,CssMetricsTest,MetricsTest,MinifiedFilesTest"
+
+          if [ "${{ matrix.exclude }}" == "true" ]; then
+            # Convert to exclusion pattern: add ! prefix to each test
+            TEST_PATTERN=$(echo "$GROUP1_TESTS" | sed 's/,/,!/g' | sed 's/^/!/')
+          else
+            TEST_PATTERN="$GROUP1_TESTS"
+          fi
+
+          mvn package -f its/plugin/plugins/consumer-plugin/pom.xml
+          mvn -f its/plugin/tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  plugin_qa_sonarlint_win:
+    runs-on: github-windows-latest-m
+    name: QA SonarLint on Windows
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - name: Run Plugin QA on Windows
+        shell: bash
+        run: |
+          mvn -f its/plugin/sonarlint-tests/pom.xml -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+
+  plugin_qa_win_fast_with_node:
+    runs-on: github-windows-latest-m
+    name: Fast QA on Windows with Node (${{ matrix.group }})
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    strategy:
+      matrix:
+        include:
+          - group: 1
+            exclude: false
+          - group: 2
+            exclude: true
+    steps:
+      - *checkout
+      - *mise
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          key-prefix: orchestrator-fast
+      - name: Run Fast Plugin QA on Windows
+        shell: bash
+        run: |
+          # Tests for group 1 (group 2 runs everything else)
+          GROUP1_TESTS="ConsumerPluginTest,CssIssuesTest,CssNoCssFileProjectTest,CssNonStandardPathTest,CssStylelintReportTest,ECMAScriptModulesTest,EmbeddedNodeTest,EslintBasedRulesTest,EslintCustomRulesLegacyTest,EslintCustomRulesTest,EslintReportTest,ExternalTSConfigDependencyTest"
+
+          if [ "${{ matrix.exclude }}" == "true" ]; then
+            # Convert to exclusion pattern: add ! prefix to each test
+            TEST_PATTERN=$(echo "$GROUP1_TESTS" | sed 's/,/,!/g' | sed 's/^/!/')
+          else
+            TEST_PATTERN="$GROUP1_TESTS"
+          fi
+
+          mvn package -f its/plugin/plugins/pom.xml
+          mvn -f its/plugin/fast-tests/pom.xml -DskipTests=false -Dtest="$TEST_PATTERN" -Dsonar.runtimeVersion=LATEST_RELEASE -B -e -V verify surefire-report:report
+        env:
+          SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+
+  js_ts_ruling:
+    runs-on: sonar-xl
+    name: JS/TS Ruling
+    needs: [setup, populate_npm_cache, sync_rspec]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+    steps:
+      - &checkout_with_submodules
+        name: Checkout source code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          submodules: true
+      - *mise
+      - *npm_cache
+      - *download_rspec_rule_data
+      - *rspec_secrets
+      - name: Run JS/TS Ruling
+        id: ruling
+        run: |
+          npm run generate-meta
+          npm run ruling
+        env:
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+      - name: Update ruling and notify
+        if: always() && (github.event_name == 'pull_request' || github.ref_name == github.event.repository.default_branch)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number || '' }}
+          TARGET_REF: ${{ github.head_ref || github.ref_name }}
+          BASE_REF: ${{ github.base_ref || github.event.repository.default_branch }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+          IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
+          RULING_FAILED: ${{ steps.ruling.outcome == 'failure' }}
+        run: |
+          git fetch origin "$BASE_REF"
+          if [ -n "$BASE_SHA" ]; then
+            git fetch origin "$BASE_SHA" || true
+            if ! git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null; then
+              echo "::error::Failed to fetch PR base SHA: $BASE_SHA"
+              exit 1
+            fi
+          fi
+
+          # If ruling failed, sync the actual results first to get the differences
+          if [ "$RULING_FAILED" = "true" ]; then
+            # Check if last commit was already an auto-update (prevent infinite loop)
+            LAST_COMMIT_MSG=$(git log -1 --format=%B)
+            if echo "$LAST_COMMIT_MSG" | grep -q "🤖 Generated with GitHub Actions"; then
+              echo "Last commit was an auto-update, skipping to prevent infinite loop"
+              exit 0
+            fi
+
+            # Sync ruling results (this modifies its/ruling/...)
+            npm run ruling-sync
+          fi
+
+          # Generate report comparing against base branch (after sync if ruling failed)
+          node tools/ruling-report.js > ruling-report.md
+
+          # Check if there are ruling differences
+          if [ -s ruling-report.md ]; then
+            HAS_DIFFERENCES=true
+          else
+            HAS_DIFFERENCES=false
+          fi
+
+          FIX_BRANCH="fix/update-ruling-for-${TARGET_REF}"
+
+          if [ "$IS_PULL_REQUEST" = "true" ]; then
+            FIX_PR_TITLE="Update ruling results for PR #${PR_NUMBER}"
+            FIX_PR_BODY="Auto-generated ruling update for PR #${PR_NUMBER}.
+
+          🤖 Generated with GitHub Actions"
+          else
+            FIX_PR_TITLE="Update ruling results for ${TARGET_REF}"
+            FIX_PR_BODY="Auto-generated ruling update for ${TARGET_REF}.
+
+          🤖 Generated with GitHub Actions"
+          fi
+
+          get_open_fix_pr_url() {
+            gh pr list \
+              --head "$FIX_BRANCH" \
+              --base "$TARGET_REF" \
+              --state open \
+              --json url \
+              --jq '.[0].url // empty'
+          }
+
+          # Create/update fix PR if ruling failed and there are differences
+          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
+            # Stash changes before checkout
+            git stash push -m "ruling-sync-changes" -- its/ruling/src/test/expected/
+
+            git fetch origin "$TARGET_REF"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            if git ls-remote --exit-code origin "refs/heads/$FIX_BRANCH" > /dev/null 2>&1; then
+              git checkout -b "$FIX_BRANCH" "origin/$TARGET_REF"
+              git stash pop
+              git add its/ruling/src/test/expected/
+
+              if git diff --staged --quiet; then
+                echo "No ruling changes to commit"
+              else
+                git commit -m "Update ruling results
+
+          🤖 Generated with GitHub Actions"
+                git push --force-with-lease origin "$FIX_BRANCH"
+              fi
+              FIX_PR_URL=$(get_open_fix_pr_url 2>/dev/null || true)
+              if [ -z "${FIX_PR_URL:-}" ]; then
+                FIX_PR_URL=$(gh pr create \
+                  --title "$FIX_PR_TITLE" \
+                  --base "$TARGET_REF" \
+                  --head "$FIX_BRANCH" \
+                  --body "$FIX_PR_BODY")
+              fi
+            else
+              git checkout -b "$FIX_BRANCH" "origin/$TARGET_REF"
+              git stash pop
+              git add its/ruling/src/test/expected/
+
+              if git diff --staged --quiet; then
+                echo "No ruling changes to commit"
+              else
+                git commit -m "Update ruling results
+
+          🤖 Generated with GitHub Actions"
+                git push origin "$FIX_BRANCH"
+                FIX_PR_URL=$(gh pr create \
+                  --title "$FIX_PR_TITLE" \
+                  --base "$TARGET_REF" \
+                  --head "$FIX_BRANCH" \
+                  --body "$FIX_PR_BODY")
+              fi
+            fi
+          else
+            # No changes needed — clean up stale fix PR if one exists and is still open
+            FIX_PR_STATE=$(gh pr view "$FIX_BRANCH" --json state --jq '.state' 2>/dev/null || true)
+            if [ "$FIX_PR_STATE" = "OPEN" ]; then
+              gh pr close "$FIX_BRANCH" --comment "No longer needed — the original PR is now up to date."
+              git push origin --delete "$FIX_BRANCH" 2>/dev/null || true
+            fi
+          fi
+
+          if [ "$IS_PULL_REQUEST" = "true" ]; then
+            # Build comment with marker for identification
+            MARKER="<!-- ruling-report -->"
+            if [ "$HAS_DIFFERENCES" = "true" ]; then
+              # Build comment with ruling changes
+              {
+                echo "$MARKER"
+                cat ruling-report.md
+                echo ""
+                if [ "$RULING_FAILED" = "true" ] && [ -n "${FIX_PR_URL:-}" ]; then
+                  echo "---"
+                  echo "❌ **Ruling needs updating.** A fix PR has been created: ${FIX_PR_URL}"
+                  echo ""
+                  echo "Please review and merge it into your branch."
+                fi
+              } > comment.md
+            else
+              # Build comment for no changes
+              {
+                echo "$MARKER"
+                echo "## Ruling Report"
+                echo ""
+                echo "✅ **No changes to ruling expected issues in this PR**"
+              } > comment.md
+            fi
+
+            # Truncate comment to 50KB to stay within GitHub API limits
+            MAX_BYTES=50000
+            if [ "$(wc -c < comment.md)" -gt "$MAX_BYTES" ]; then
+              head -c "$MAX_BYTES" comment.md > comment-truncated.md
+              echo "" >> comment-truncated.md
+              echo "_(truncated — full report too large for PR comment)_" >> comment-truncated.md
+              mv comment-truncated.md comment.md
+            fi
+
+            # Find existing ruling comment and update it, or create new one
+            EXISTING_COMMENT_ID=$(gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/comments" \
+              --jq ".[] | select(.body | startswith(\"$MARKER\")) | .id" | head -1)
+
+            if [ -n "$EXISTING_COMMENT_ID" ]; then
+              gh api "repos/${{ github.repository }}/issues/comments/$EXISTING_COMMENT_ID" \
+                -X PATCH -F body=@comment.md
+            else
+              gh pr comment "$PR_NUMBER" --body-file comment.md
+            fi
+          elif [ -n "${FIX_PR_URL:-}" ]; then
+            {
+              echo "## Ruling Report"
+              echo ""
+              echo "❌ **Ruling needs updating.** A fix PR has been created: ${FIX_PR_URL}"
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "## Ruling Report"
+              echo ""
+              echo "✅ **No ruling fix PR was needed for this run.**"
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          # Fail CI if ruling needs updating
+          if [ "$RULING_FAILED" = "true" ] && [ "$HAS_DIFFERENCES" = "true" ]; then
+            if [ -n "${FIX_PR_URL:-}" ]; then
+              echo "::error::Ruling results are out of date. See fix PR: ${FIX_PR_URL}"
+            else
+              echo "::error::Ruling results are out of date."
+            fi
+            exit 1
+          fi
+
+  ruling:
+    runs-on: sonar-xl
+    name: Ruling Test
+    needs: [setup, build]
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
+    permissions: *read_permissions
+    steps:
+      - *checkout_with_submodules
+      - *mise
+      - *maven_cache
+      - *download_sonarjs_m2
+      - *config_maven
+      - *get_licenses_token
+      - uses: ./.github/actions/orchestrator-cache
+        with:
+          save: 'false'
+      - name: Run Ruling Tests
+        run: |
+          cd its/ruling
+          # Cap ruling parallelism explicitly: using all CPUs on sonar-xl can
+          # overwhelm the shared SonarQube/Node workload and make the runner drop.
+          mvn test -Dtest=RulingTest -DskipTests=false -Dsonar.runtimeVersion=LATEST_RELEASE -Dmaven.test.redirectTestOutputToFile=false -Djunit.jupiter.execution.parallel.config.strategy=fixed -Djunit.jupiter.execution.parallel.config.fixed.parallelism=8 -B -e -V
+        env:
+          SONARSOURCE_QA: true
+          GITHUB_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
+      - name: Upload ruling differences
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ruling-differences
+          path: its/ruling/target/actual/
+
+  # IRIS tasks (nightly only)
+  run_iris:
+    runs-on: sonar-xs
+    name: IRIS SQ NEXT -> ${{ matrix.shadow-name }}
+    needs: [analyze_primary, analyze_shadows]
+    if: github.event_name == 'schedule'
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix:
+        include:
+          - shadow-name: SonarCloud EU
+            shadow-platform: SQC-EU
+          - shadow-name: SonarQube US
+            shadow-platform: SQC-US
+    steps:
+      - uses: SonarSource/unified-dogfooding-actions/run-iris@v1
+        with:
+          primary_project_key: org.sonarsource.javascript:javascript
+          primary_platform: Next
+          shadow1_project_key: SonarSource_SonarJS
+          shadow1_platform: ${{ matrix.shadow-platform }}
+
+  promote:
+    runs-on: sonar-xs
+    needs:
+      - build
+      - build_win
+      - test_js
+      - test_js_win
+      - analyze_primary
+      - test_eslint_plugin
+      - plugin_qa_with_node
+      - plugin_qa_without_node
+      - plugin_qa_fast_with_node
+      - plugin_qa_fast_without_node
+      - plugin_qa_without_node_alpine
+      - plugin_qa_fast_without_node_alpine
+      - plugin_qa_win
+      - plugin_qa_sonarlint_win
+      - plugin_qa_win_fast_with_node
+      - ruling
+      - js_ts_ruling
+    if: >-
+      !failure() && !cancelled() &&
+      (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - uses: SonarSource/ci-github-actions/promote@v1
+        with:
+          promote-pull-request: true
+
+  releasability:
+    runs-on: sonar-xs
+    name: Releasability
+    needs:
+      - promote
+    if: >-
+      !failure() && !cancelled() &&
+      needs.promote.result == 'success' &&
+      (
+        github.ref_name == github.event.repository.default_branch ||
+        startsWith(github.ref_name, 'branch-') ||
+        startsWith(github.ref_name, 'dogfood-')
+      )
+    permissions:
+      id-token: write
+      statuses: write
+      contents: read
+    steps:
+      - uses: SonarSource/gh-action_releasability/releasability-status@v3
+        with:
+          optional_checks: "Jira"
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'

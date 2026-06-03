@@ -1,0 +1,4 @@
+
+[submodule "its/sources/jsts/projects"]
+	path = its/sources/projects
+	url = https://github.com/SonarSource/jsts-test-sources.git

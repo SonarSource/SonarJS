@@ -1,0 +1,34 @@
+{
+  "generatedAt": "2026-06-03T10:17:02.904Z",
+  "source": "empty",
+  "windowDays": 21,
+  "windowStart": "2026-05-13T10:17:02.904Z",
+  "notes": [
+    "No local telemetry snapshot was found at data/latest.json.",
+    "Run npm run fetch:redshift locally or let CI refresh the dashboard before publishing."
+  ],
+  "platforms": {
+    "sq": {
+      "id": "sq",
+      "label": "SonarQube Server",
+      "shortLabel": "SQS",
+      "view": "measures.sq_analysis_javascript_adhoc",
+      "latestProjectCount": 0,
+      "fieldCount": 0,
+      "fields": {}
+    },
+    "sc": {
+      "id": "sc",
+      "label": "SonarQube Cloud",
+      "shortLabel": "SQC",
+      "view": "measures.sc_analysis_javascript_adhoc",
+      "latestProjectCount": 0,
+      "fieldCount": 0,
+      "fields": {}
+    }
+  },
+  "catalog": [],
+  "overview": {
+    "moduleType": {}
+  }
+}
