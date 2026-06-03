@@ -291,6 +291,20 @@ it('checks inherited values for each project', ({ task }) => {
           code: `
 import { expect, it } from '@jest/globals';
 
+it('checks required settings', () => {
+  expect(config.loaded).toBe(true);
+
+  if (config.enabled) {
+    expect(config.mode).toBe('strict');
+  }
+});
+`,
+          errors: [{ messageId: 'conditionalAssertion', line: 8, column: 5 }],
+        },
+        {
+          code: `
+import { expect, it } from '@jest/globals';
+
 it('rejects duplicate emails', async () => {
   await register(user).catch((error) => {
     expect(error.message).toBe('Email already exists');
