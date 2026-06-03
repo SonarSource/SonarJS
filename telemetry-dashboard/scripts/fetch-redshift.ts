@@ -16,7 +16,7 @@ import type {
   TelemetrySnapshot,
   VersionTimeline,
 } from '../src/types.js';
-import { createClient } from './lib/redshift.js';
+import { createClient } from './redshift.js';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const DATA_DIR = path.join(ROOT, 'data');
@@ -297,7 +297,10 @@ function inferValueType(
   }
 
   const normalized = new Set(topValues.map(entry => entry.value.toLowerCase()));
-  if (normalized.size > 0 && [...normalized].every(value => value === 'true' || value === 'false')) {
+  if (
+    normalized.size > 0 &&
+    [...normalized].every(value => value === 'true' || value === 'false')
+  ) {
     return 'boolean';
   }
 
@@ -312,7 +315,10 @@ function inferValueType(
   return 'string';
 }
 
-function buildTokenValues(values: DistributionValue[], nonNullRows: number): DistributionValue[] | undefined {
+function buildTokenValues(
+  values: DistributionValue[],
+  nonNullRows: number,
+): DistributionValue[] | undefined {
   const counts = new Map<string, number>();
   let sawSplitValue = false;
 
@@ -353,7 +359,14 @@ function parseTelemetryTokens(
     return [fallback];
   }
 
-  const tokens = [...new Set(value.split(',').map(part => part.trim()).filter(Boolean))];
+  const tokens = [
+    ...new Set(
+      value
+        .split(',')
+        .map(part => part.trim())
+        .filter(Boolean),
+    ),
+  ];
   return tokens.length > 0 ? tokens : [fallback];
 }
 
@@ -405,17 +418,15 @@ function buildCatalog(platforms: Record<PlatformId, PlatformSnapshot>): CatalogF
 
   for (const platformId of Object.keys(platforms) as PlatformId[]) {
     for (const field of Object.values(platforms[platformId].fields)) {
-      const existing =
-        catalog.get(field.key) ??
-        {
-          key: field.key,
-          columnName: field.columnName,
-          displayName: field.displayName,
-          path: field.path,
-          category: field.category,
-          availability: { sq: false, sc: false },
-          redshiftTypes: {},
-        };
+      const existing = catalog.get(field.key) ?? {
+        key: field.key,
+        columnName: field.columnName,
+        displayName: field.displayName,
+        path: field.path,
+        category: field.category,
+        availability: { sq: false, sc: false },
+        redshiftTypes: {},
+      };
 
       existing.availability[platformId] = true;
       existing.redshiftTypes[platformId] = field.redshiftType;
@@ -431,10 +442,7 @@ function buildCatalog(platforms: Record<PlatformId, PlatformSnapshot>): CatalogF
   );
 }
 
-function buildSingleValueTimelineSeriesQuery(
-  platformView: string,
-  columnName: string,
-): string {
+function buildSingleValueTimelineSeriesQuery(platformView: string, columnName: string): string {
   const valueExpression = `CAST(${quoteIdentifier(columnName)} AS VARCHAR(1024))`;
 
   return `
@@ -453,10 +461,7 @@ function buildSingleValueTimelineSeriesQuery(
   `;
 }
 
-function buildSingleValueTimelineWeeksQuery(
-  platformView: string,
-  columnName: string,
-): string {
+function buildSingleValueTimelineWeeksQuery(platformView: string, columnName: string): string {
   const valueExpression = `CAST(${quoteIdentifier(columnName)} AS VARCHAR(1024))`;
 
   return `
@@ -474,10 +479,7 @@ function buildSingleValueTimelineWeeksQuery(
   `;
 }
 
-function buildSplitValueTimelineSeriesQuery(
-  platformView: string,
-  columnName: string,
-): string {
+function buildSplitValueTimelineSeriesQuery(platformView: string, columnName: string): string {
   const valueExpression = `CAST(${quoteIdentifier(columnName)} AS VARCHAR(4096))`;
 
   return `
@@ -524,10 +526,7 @@ function buildSplitValueTimelineSeriesQuery(
   `;
 }
 
-function buildSplitValueTimelineWeeksQuery(
-  platformView: string,
-  columnName: string,
-): string {
+function buildSplitValueTimelineWeeksQuery(platformView: string, columnName: string): string {
   const valueExpression = `CAST(${quoteIdentifier(columnName)} AS VARCHAR(4096))`;
 
   return `
@@ -621,10 +620,7 @@ function buildAggregateQuery(platformView: string, columns: ColumnMeta[]): strin
   `;
 }
 
-async function getTelemetryColumns(
-  client: Client,
-  tableName: string,
-): Promise<ColumnMeta[]> {
+async function getTelemetryColumns(client: Client, tableName: string): Promise<ColumnMeta[]> {
   const result = await client.query<ColumnRow>(`
     SELECT column_name, data_type, ordinal_position
     FROM svv_columns
@@ -634,7 +630,9 @@ async function getTelemetryColumns(
   `);
 
   return result.rows
-    .filter(row => row.column_name.startsWith('runtime_') || row.column_name.startsWith('telemetry_'))
+    .filter(
+      row => row.column_name.startsWith('runtime_') || row.column_name.startsWith('telemetry_'),
+    )
     .map(row => ({
       columnName: row.column_name,
       redshiftType: row.data_type,
@@ -785,16 +783,14 @@ async function getProgramCreationOverview(
     }
 
     for (const version of versions) {
-      const entry =
-        byVersion.get(version) ??
-        {
-          version,
-          projects: 0,
-          projectsWithFailures: 0,
-          attempts: 0,
-          succeeded: 0,
-          failed: 0,
-        };
+      const entry = byVersion.get(version) ?? {
+        version,
+        projects: 0,
+        projectsWithFailures: 0,
+        attempts: 0,
+        succeeded: 0,
+        failed: 0,
+      };
 
       entry.projects += 1;
       entry.attempts += attempts;
@@ -929,7 +925,9 @@ async function fetchPlatformSnapshot(
   }
 
   console.log(`Aggregating coverage and numeric summaries for ${platform.shortLabel}...`);
-  const aggregateResult = await client.query<AggregateRow>(buildAggregateQuery(platform.view, columns));
+  const aggregateResult = await client.query<AggregateRow>(
+    buildAggregateQuery(platform.view, columns),
+  );
   const aggregateRow = aggregateResult.rows[0];
   const latestProjectCount = toNumber(aggregateRow?.total_rows);
   console.log(`Latest deduplicated projects for ${platform.shortLabel}: ${latestProjectCount}`);
@@ -1025,7 +1023,9 @@ async function fetchPlatformSnapshot(
       fieldCount: columns.length,
       fields,
     },
-    moduleTypeOverview: hasModuleColumns ? await getModuleTypeOverview(client, platform.view) : undefined,
+    moduleTypeOverview: hasModuleColumns
+      ? await getModuleTypeOverview(client, platform.view)
+      : undefined,
     programCreationOverview: hasProgramCreationColumns
       ? await getProgramCreationOverview(client, platform.view, hasTypeScriptVersionColumn)
       : undefined,
@@ -1065,7 +1065,9 @@ async function main(): Promise<void> {
     const programCreationOverview: Partial<Record<PlatformId, ProgramCreationOverview>> = {};
     const timelineOverview: Partial<Record<PlatformId, PlatformTimelineOverview>> = {};
 
-    console.log(`Fetching telemetry for platforms: ${PLATFORMS.map(platform => platform.shortLabel).join(', ')}`);
+    console.log(
+      `Fetching telemetry for platforms: ${PLATFORMS.map(platform => platform.shortLabel).join(', ')}`,
+    );
 
     for (const platform of PLATFORMS) {
       const result = await fetchPlatformSnapshot(client, platform);

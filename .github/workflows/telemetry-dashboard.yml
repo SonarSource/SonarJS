@@ -35,17 +35,10 @@ jobs:
       - name: Install telemetry dashboard dependencies
         run: npm --prefix telemetry-dashboard ci
 
-      - name: Validate Redshift role configuration
-        run: |
-          if [ -z "${{ vars.TELEMETRY_DASHBOARD_REDSHIFT_ROLE_ARN }}" ]; then
-            echo "Missing repository variable TELEMETRY_DASHBOARD_REDSHIFT_ROLE_ARN"
-            exit 1
-          fi
-
       - name: Configure AWS credentials for Redshift
         uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
         with:
-          role-to-assume: ${{ vars.TELEMETRY_DASHBOARD_REDSHIFT_ROLE_ARN }}
+          role-to-assume: arn:aws:iam::478507623792:role/deploymentroles/SonarJSTelemetryDashboardRedshiftRole
           aws-region: eu-west-1
 
       - name: Fetch telemetry snapshot

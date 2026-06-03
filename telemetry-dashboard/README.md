@@ -48,6 +48,5 @@ The GitHub Actions workflow is expected to:
 4. Run `npm --prefix telemetry-dashboard run build`
 5. Deploy `telemetry-dashboard/dist` to `gh_pages`
 
-The workflow uses a repository variable for the Redshift role ARN:
-
-- `TELEMETRY_DASHBOARD_REDSHIFT_ROLE_ARN`
+The workflow assumes `SonarJSTelemetryDashboardRedshiftRole` from the Data Team prod account
+through GitHub OIDC, following the same deployment model as `issue-feedback-dashboard`.
