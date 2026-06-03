@@ -1135,8 +1135,7 @@ export default config;
               [OPENAPI_GENERATOR_FAMILY]: '1.0.0',
             },
             scripts: {
-              generate:
-                'openapi-generator-cli generate -g typescript-axios --output ./src/api',
+              generate: 'openapi-generator-cli generate -g typescript-axios --output ./src/api',
             },
           },
           null,

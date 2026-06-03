@@ -16,7 +16,11 @@
  */
 import type { GeneratedSourceDetector } from '../contracts.js';
 import { resolveGeneratedOutputsFromLiteralPaths } from '../detector-api.js';
-import { addFamilyFiles, createDerivedGeneratedSources, extractFlagValuesFromTokens } from '../shared.js';
+import {
+  addFamilyFiles,
+  createDerivedGeneratedSources,
+  extractFlagValuesFromTokens,
+} from '../shared.js';
 import { taskInvocationInvokesCommand, type TaskInvocation } from '../task-invocations.js';
 
 const OPENAPI_GENERATOR_FAMILY = '@openapitools/openapi-generator-cli';
