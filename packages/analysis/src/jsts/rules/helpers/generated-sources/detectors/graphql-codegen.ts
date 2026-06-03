@@ -82,6 +82,7 @@ const WATCHED_GRAPHQL_CONFIGS = [
   ...AUTO_DISCOVERED_GRAPHQL_CONFIGS,
   ...EXPLICIT_GRAPHQL_CONFIGS,
 ] as const;
+const PACKAGE_JSON_BASENAME = 'package.json';
 const GRAPHQL_CONFIG_FLAGS = ['--config', '-c'];
 const DEFAULT_NEAR_OPERATION_FILE_EXTENSION = '.generated.ts';
 const GRAPHQL_GENERATED_DIRECTORY_SEGMENTS = new Set(['generated', '__generated__', 'gql']);
@@ -168,7 +169,7 @@ async function filterGraphqlConfigPaths(configPaths: Set<NormalizedAbsolutePath>
 
   for (const configPath of configPaths) {
     if (
-      basename(configPath).toLowerCase() !== 'package.json' ||
+      basename(configPath).toLowerCase() !== PACKAGE_JSON_BASENAME ||
       (await parseGraphqlGenerates(configPath)).length > 0
     ) {
       filteredConfigPaths.add(configPath);
@@ -214,7 +215,7 @@ async function parseGraphqlGenerates(configPath: NormalizedAbsolutePath) {
     const configBasename = basename(configPath).toLowerCase();
     const configExtension = extname(configPath).toLowerCase();
 
-    if (configBasename === 'package.json') {
+    if (configBasename === PACKAGE_JSON_BASENAME) {
       return getGenerateTargetsFromPackageJson(JSON.parse(configContents) as unknown);
     }
 
