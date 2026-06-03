@@ -131,6 +131,8 @@ test('uses another assertion API', () => {
 });
 `,
         },
+      ],
+      invalid: [
         {
           code: `
 import { expect, test } from 'vitest';
@@ -143,6 +145,7 @@ test('checks an expected rejection with assertion count', async () => {
   });
 });
 `,
+          errors: [{ messageId: 'conditionalAssertion' }],
         },
         {
           code: `
@@ -158,6 +161,7 @@ it('uses a catch callback as a failure sentinel after successful assertions', ()
     });
 });
 `,
+          errors: [{ messageId: 'conditionalAssertion', line: 10, column: 7 }],
         },
         {
           code: `
@@ -176,6 +180,7 @@ it('checks expected failure details with an explicit flag assertion', async () =
   expect(errorRaised).toBe(true);
 });
 `,
+          errors: [{ messageId: 'conditionalAssertion' }],
         },
         {
           code: `
@@ -193,6 +198,7 @@ it('checks expected failure details with a post-catch sentinel', async () => {
   expect(result).toBe(null);
 });
 `,
+          errors: [{ messageId: 'conditionalAssertion' }],
         },
         {
           code: `
@@ -207,9 +213,8 @@ test('checks expected DOMException details', () => {
   }
 });
 `,
+          errors: [{ messageId: 'conditionalAssertion' }],
         },
-      ],
-      invalid: [
         {
           code: `
 import { expect, it } from '@jest/globals';

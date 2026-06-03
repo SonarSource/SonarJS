@@ -43,31 +43,17 @@ export const rule: Rule.RuleModule = {
 
     let testCaseDepth = 0;
     let conditionalDepth = 0;
-    let suppressedConditionalDepth = 0;
     let promiseCatchDepth = 0;
-    let suppressedPromiseCatchDepth = 0;
-    const testCases: estree.CallExpression[] = [];
-    const conditionals: estree.Node[] = [];
     const catchCallbacks = new WeakSet<estree.Node>();
-    const suppressedCatchCallbacks = new WeakSet<estree.Node>();
-    const sourceCode = context.sourceCode;
 
-    function enterConditional(node: estree.Node) {
+    function enterConditional() {
       if (testCaseDepth > 0) {
         conditionalDepth++;
-        conditionals.push(node);
-        if (isSuppressedConditional(node)) {
-          suppressedConditionalDepth++;
-        }
       }
     }
 
     function exitConditional() {
       if (testCaseDepth > 0) {
-        const conditional = conditionals.pop();
-        if (conditional && isSuppressedConditional(conditional)) {
-          suppressedConditionalDepth--;
-        }
         conditionalDepth--;
       }
     }
@@ -76,19 +62,15 @@ export const rule: Rule.RuleModule = {
       CallExpression(node: estree.CallExpression) {
         if (Mocha.isTestCase(node)) {
           testCaseDepth++;
-          testCases.push(node);
         }
         if (isCatchCall(node)) {
           const [callback] = node.arguments;
           if (isFunctionNode(callback)) {
             catchCallbacks.add(callback);
-            if (isSuppressedPromiseCatch(callback)) {
-              suppressedCatchCallbacks.add(callback);
-            }
           }
         }
         const expectCall = getGlobalExpectCall(node);
-        if (expectCall && testCaseDepth > 0 && isConditional() && !isSuppressed()) {
+        if (expectCall && testCaseDepth > 0 && isConditional()) {
           context.report({
             node: expectCall,
             messageId: 'conditionalAssertion',
@@ -98,13 +80,9 @@ export const rule: Rule.RuleModule = {
       'CallExpression:exit'(node: estree.CallExpression) {
         if (Mocha.isTestCase(node)) {
           testCaseDepth--;
-          testCases.pop();
           if (testCaseDepth === 0) {
             conditionalDepth = 0;
-            suppressedConditionalDepth = 0;
             promiseCatchDepth = 0;
-            suppressedPromiseCatchDepth = 0;
-            conditionals.length = 0;
           }
         }
       },
@@ -121,17 +99,11 @@ export const rule: Rule.RuleModule = {
       ':function'(node: estree.Node) {
         if (catchCallbacks.has(node)) {
           promiseCatchDepth++;
-          if (suppressedCatchCallbacks.has(node)) {
-            suppressedPromiseCatchDepth++;
-          }
         }
       },
       ':function:exit'(node: estree.Node) {
         if (catchCallbacks.has(node)) {
           promiseCatchDepth--;
-          if (suppressedCatchCallbacks.has(node)) {
-            suppressedPromiseCatchDepth--;
-          }
         }
       },
     };
@@ -139,66 +111,8 @@ export const rule: Rule.RuleModule = {
     function isConditional(): boolean {
       return conditionalDepth > 0 || promiseCatchDepth > 0;
     }
-
-    function isSuppressed(): boolean {
-      return (
-        (promiseCatchDepth > 0 && suppressedPromiseCatchDepth > 0) ||
-        suppressedConditionalDepth > 0
-      );
-    }
-
-    function isSuppressedPromiseCatch(callback: estree.Node): boolean {
-      const callbackText = sourceCode.getText(callback);
-      const testText = currentTestCaseText();
-      return hasFailureSentinel(callbackText) || hasAssertionCount(testText);
-    }
-
-    function isSuppressedConditional(conditional: estree.Node): boolean {
-      if (conditional.type === 'CatchClause') {
-        return isExpectedErrorCatch(conditional);
-      }
-      return false;
-    }
-
-    function currentTestCaseText(): string {
-      const currentTestCase = testCases.at(-1);
-      return currentTestCase ? sourceCode.getText(currentTestCase) : '';
-    }
-
-    function isExpectedErrorCatch(catchClause: estree.CatchClause): boolean {
-      const catchText = sourceCode.getText(catchClause);
-      const tryStatement = (catchClause as estree.CatchClause & { parent?: estree.TryStatement })
-        .parent;
-      const tryText = tryStatement?.type === 'TryStatement' ? sourceCode.getText(tryStatement) : '';
-      const testText = currentTestCaseText();
-
-      return (
-        hasFailureSentinel(catchText) ||
-        hasFailureSentinel(tryText) ||
-        hasUnreachableAssertion(tryText) ||
-        hasAssertionCount(testText) ||
-        /expect\s*\(\s*\w*error\w*\s*\)\s*\.toBe\s*\(\s*true\s*\)/iu.test(testText) ||
-        /\bexpected\w*error\b/iu.test(catchText) ||
-        /expect\s*\(\s*\w+\s*\)\s*\.toBe\s*\(\s*null\s*\)/u.test(testText)
-      );
-    }
   },
 };
-
-function hasFailureSentinel(text: string): boolean {
-  return (
-    /expect\s*\(\s*false\s*\)\s*\.toBe\s*\(\s*true\s*\)/u.test(text) ||
-    /expect\s*\(\s*true\s*\)\s*\.toBe\s*\(\s*false\s*\)/u.test(text)
-  );
-}
-
-function hasAssertionCount(text: string): boolean {
-  return /expect\.(?:assertions|hasAssertions)\s*\(/u.test(text);
-}
-
-function hasUnreachableAssertion(text: string): boolean {
-  return /\bexpect\.unreachable\s*\(/u.test(text);
-}
 
 function isCatchCall(node: estree.CallExpression): boolean {
   return (
