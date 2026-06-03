@@ -457,6 +457,75 @@ test('runIssueHistory filters to SonarJS-supported languages and ignores unsuppo
   assert.equal(row.baseline_value, 100);
 });
 
+test('runIssueHistory ignores prepare-diff-val as a workflow-only job', async t => {
+  const analyses = createDailyAnalyses('2026-04-26T03:10:35Z', 6);
+  const output = {};
+  installPeachFetchMock(t, {
+    projectKey: 'js:ScopeProject',
+    analyses,
+    openIssues: createOpenIssues(100, '2026-04-01T00:00:00Z', 'js'),
+    resolvedIssues: [],
+  });
+  const headSha = '1111111111111111111111111111111111111111';
+  const completedAt = new Date(Date.parse(analyses[5].date) + 60 * 1000).toISOString();
+
+  await runIssueHistory(
+    {
+      jobsJsonPath: '/tmp/project-jobs.json',
+      peacheeRoot: '/tmp/peachee-js',
+      outputPath: '/tmp/peach-issue-history.json',
+      apiToken: 'test-token',
+    },
+    {
+      readFileSync: filePath => {
+        assert.equal(filePath, '/tmp/project-jobs.json');
+        return JSON.stringify({
+          total_jobs: 2,
+          jobs: [
+            {
+              name: 'prepare-diff-val',
+              conclusion: 'success',
+              run_id: '25710841728',
+              head_sha: headSha,
+              started_at: analyses[5].date,
+              completed_at: completedAt,
+            },
+            {
+              name: 'scope-project',
+              conclusion: 'success',
+              run_id: '25710841728',
+              head_sha: headSha,
+              started_at: analyses[5].date,
+              completed_at: completedAt,
+            },
+          ],
+        });
+      },
+      writeFileSync: (filePath, content) => {
+        output[filePath] = content;
+      },
+      existsSync: filePath => {
+        assert.equal(filePath, '/tmp/peachee-js/scope-project/sonar-project.properties');
+        return true;
+      },
+      execFileSync: createGitExecFileSyncStub(headSha, {
+        'scope-project/sonar-project.properties': 'sonar.projectKey=js:ScopeProject\n',
+      }),
+      sleep: async () => {},
+      random: () => 0,
+    },
+  );
+
+  const report = JSON.parse(output['/tmp/peach-issue-history.json']);
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
+  assert.equal(report.blocking_rows_count, 0);
+  assert.equal(report.clean_for_early_exit, true);
+  assert.deepEqual(
+    report.rows.map(row => row.project_dir),
+    ['scope-project'],
+  );
+});
+
 test('runIssueHistory reports project scope metadata and unambiguous freshness window bounds', async t => {
   const analyses = createDailyAnalyses('2026-04-26T03:10:35Z', 6);
   const { report } = await runSingleProjectIssueHistory(t, {

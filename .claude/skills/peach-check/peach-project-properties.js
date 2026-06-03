@@ -21,9 +21,11 @@ export function readProjectPropertiesForJob(peacheeRoot, jobName, headSha, runti
 
   if (headSha) {
     try {
+      // A missing properties file becomes structured unresolved output, not CLI noise.
       return runtime.execFileSync('git', ['show', `${headSha}:${relativePath}`], {
         cwd: peacheeRoot,
         encoding: 'utf-8',
+        stdio: ['ignore', 'pipe', 'pipe'],
       });
     } catch {
       return undefined;

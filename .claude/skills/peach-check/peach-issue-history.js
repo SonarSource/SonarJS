@@ -41,7 +41,11 @@ const RETRYABLE_UNKNOWN_URL_PATHS = new Set([
   '/api/issues/search',
   '/api/project_analyses/search',
 ]);
-const WORKFLOW_ONLY_JOBS = new Set(['prepare-project-matrix', 'diff-validation-aggregated']);
+const WORKFLOW_ONLY_JOBS = new Set([
+  'prepare-project-matrix',
+  'prepare-diff-val',
+  'diff-validation-aggregated',
+]);
 const REPORT_STATUSES = Object.freeze([
   'OK',
   'DROP',

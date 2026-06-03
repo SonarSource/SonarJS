@@ -214,15 +214,15 @@ If `OUTPUT_DIR/jobs-merged.json` still cannot reconcile `expected_total` with `t
 explicit page fallback, the helper exits non-zero. Stop there and report the mismatch instead of
 classifying partial data.
 
-`OUTPUT_DIR/analyzed-jobs.json` excludes workflow-only jobs such as `prepare-project-matrix` and
-`diff-validation-aggregated`.
+`OUTPUT_DIR/analyzed-jobs.json` excludes workflow-only jobs such as `prepare-project-matrix`,
+`prepare-diff-val`, and `diff-validation-aggregated`.
 
 `OUTPUT_DIR/exclusion-counts.json` records:
 
 - `excluded_workflow_jobs`
 - `excluded_project_jobs`
 
-If you intentionally exclude any real project scans beyond those two workflow jobs, replace
+If you intentionally exclude any real project scans beyond those three workflow jobs, replace
 `excluded_project_jobs: 0` with the count from that additional exclusion filter and mention why.
 
 For excluded jobs:
@@ -232,7 +232,7 @@ For excluded jobs:
 - do not emit them as findings
 - mention them at most once as excluded-by-design context
 - record `excluded_workflow_jobs` for excluded non-project workflow jobs such as
-  `prepare-project-matrix` and `diff-validation-aggregated`
+  `prepare-project-matrix`, `prepare-diff-val`, and `diff-validation-aggregated`
 - record `excluded_project_jobs` separately so the summary makes it explicit how many actual
   project scans were excluded; this is normally `0` unless you intentionally exclude a real project scan
 
@@ -296,6 +296,13 @@ node .claude/skills/peach-check/peach-issue-history.js \
 
 Use `${PEACHEE_ROOT}` when it is set, otherwise pass the explicit checkout path.
 
+If the helper reports that `jobs-json headSha ... is not available` in the local `peachee-js`
+checkout, fetch that exact commit into the checkout and rerun the helper:
+
+```bash
+git -C PEACHEE_ROOT_OR_PATH fetch origin HEAD_SHA
+```
+
 The helper writes two short stderr progress lines and can take tens of seconds across the full
 project matrix, with little or no intermediate output while it runs. Repeated blank polls while
 waiting are normal and do not by themselves indicate a hang. Judge completion from the `node`
@@ -332,7 +339,8 @@ Interpret the helper statuses like this:
   consistency, but this alone does not block a `SAFE` verdict
 - `STALE` → treat as `NEEDS-MANUAL-REVIEW`; describe it as "no fresh Peach analysis observed
   during this run window", not just `STALE`
-- `UNRESOLVED_PROJECT` for excluded workflow jobs such as `prepare-project-matrix` → ignore it
+- `UNRESOLVED_PROJECT` for excluded workflow jobs such as `prepare-project-matrix` or
+  `prepare-diff-val` → ignore it
 - other `UNRESOLVED_PROJECT` rows → treat as `NEEDS-MANUAL-REVIEW`; describe them as "could not
   match successful job to Peach project", so the consistency check is incomplete
 - `ERROR` → treat as `NEEDS-MANUAL-REVIEW`; describe it as "analysis-consistency check failed for
@@ -642,9 +650,10 @@ status names for the compact summary counts.
 Use the exact UTC `createdAt` timestamp recorded in Section 1 in the report title, for example
 `2026-06-01T03:10:36Z`, not a local date label.
 
-Do not emit `prepare-project-matrix` or `diff-validation-aggregated` as findings. Add a single
-exclusion line that names the excluded workflow jobs and prints both exclusion counts, for example
-`Excluded by design: prepare-project-matrix, diff-validation-aggregated (workflow jobs excluded: 2, project jobs excluded: 0)`.
+Do not emit `prepare-project-matrix`, `prepare-diff-val`, or `diff-validation-aggregated` as
+findings. Add a single exclusion line that names the excluded workflow jobs and prints both
+exclusion counts, for example
+`Excluded by design: prepare-project-matrix, prepare-diff-val, diff-validation-aggregated (workflow jobs excluded: 3, project jobs excluded: 0)`.
 
 Use one of these structures:
 
@@ -653,7 +662,7 @@ Clean run example:
 ```text
 ## Peach Main Analysis — Run RUN_ID (RUN_CREATED_AT_UTC)
 
-Excluded by design: prepare-project-matrix, diff-validation-aggregated (workflow jobs excluded: 2, project jobs excluded: 0)
+Excluded by design: prepare-project-matrix, prepare-diff-val, diff-validation-aggregated (workflow jobs excluded: 3, project jobs excluded: 0)
 
 ### Summary
 - CRITICAL: 0 jobs
@@ -669,7 +678,7 @@ Failure-oriented example:
 ```text
 ## Peach Main Analysis — Run RUN_ID (RUN_CREATED_AT_UTC)
 
-Excluded by design: prepare-project-matrix, diff-validation-aggregated (workflow jobs excluded: WORKFLOW_EXCLUDED, project jobs excluded: PROJECT_EXCLUDED)
+Excluded by design: prepare-project-matrix, prepare-diff-val, diff-validation-aggregated (workflow jobs excluded: WORKFLOW_EXCLUDED, project jobs excluded: PROJECT_EXCLUDED)
 
 ### IGNORE — Peach report upload timeout
 - closure-library — `ReportPublisher.upload` to `/api/ce/submit` timed out after JS analysis completed

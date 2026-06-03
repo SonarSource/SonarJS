@@ -59,7 +59,7 @@ This is **not** a SonarJS analyzer failure. The last active sensor is `JsSecurit
 1. At which step did the job fail?
    ├─ Pre-scan step (checkout, vault secrets, clone, cache, dependency install) → IGNORE
    ├─ During `Analyze project` / sonar-scanner execution → go to step 2
-   ├─ Job is `diff-validation-aggregated` → EXCLUDE from analyzed-job counts and findings
+   ├─ Job is `prepare-project-matrix`, `prepare-diff-val`, or `diff-validation-aggregated` → EXCLUDE from analyzed-job counts and findings
    ├─ `Diff Val` / `diff-val` monitoring step → IGNORE
    ├─ After analysis completed (report upload / Diff Val / artifact upload / pages publishing / other post-scan step) → usually IGNORE
    └─ Unclear / no recognizable step → NEEDS-MANUAL-REVIEW
@@ -111,8 +111,9 @@ analysis.
   for monitoring purposes
 - Failures here often come from the same Peach API flakiness seen elsewhere, but they do not say
   anything about SonarJS analyzer correctness
-- This category applies to per-project jobs only. The standalone workflow job
-  `diff-validation-aggregated` is excluded entirely from analyzed-job counts and detailed findings.
+- This category applies to per-project jobs only. The workflow-only jobs
+  `prepare-project-matrix`, `prepare-diff-val`, and `diff-validation-aggregated` are excluded
+  entirely from analyzed-job counts and detailed findings.
 
 **Detection patterns:**
 - Classify from step metadata first; do not require log inspection
@@ -134,7 +135,8 @@ Application run failed ... ExitDiffAppException: The difference is found for pro
 
 **Action:** None for SonarJS release triage. Ignore and silence these failures in the detailed
 review output. If needed, track them separately as Peach monitoring noise. Do not use this
-category for `diff-validation-aggregated`; exclude that workflow job entirely instead.
+category for `prepare-project-matrix`, `prepare-diff-val`, or `diff-validation-aggregated`;
+exclude those workflow jobs entirely instead.
 
 ---
 
@@ -761,7 +763,8 @@ post-scan report-upload timeout pattern.
 
 When summarizing a run for SonarJS release triage:
 
-- Treat Diff Val / `diff-validation-aggregated` failures as silenced `IGNORE` items
+- Exclude workflow-only `prepare-project-matrix`, `prepare-diff-val`, and `diff-validation-aggregated`
+- Treat per-project Diff Val failures as silenced `IGNORE` items
 - Do not emit one detailed line per ignored Diff Val failure unless they are the only failures
 - Prefer a short roll-up note such as `Ignored 4 Diff Val monitoring failures`
 - If every failed job is either a Diff Val monitoring failure or another `IGNORE` category, the
