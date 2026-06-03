@@ -23,6 +23,7 @@ import { isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import {
+  chaiShouldReceiver,
   getBooleanExpressionSuggestion,
   getBooleanValue,
   isLengthAccess,
@@ -362,18 +363,23 @@ function getChaiShouldValueSuggestion(
 ): Suggestion | null {
   const actualText = sourceCode.getText(actual);
   if (isNullLiteral(expected)) {
-    return replacement(`${actualText}.should${negated ? '.not' : ''}.be.null`, node, sourceCode);
+    return replacement(
+      `${chaiShouldReceiver(actualText)}.should${negated ? '.not' : ''}.be.null`,
+      node,
+      sourceCode,
+    );
   }
   if (isUndefinedExpression(expected)) {
     return replacement(
-      `${actualText}.should${negated ? '.not' : ''}.be.undefined`,
+      `${chaiShouldReceiver(actualText)}.should${negated ? '.not' : ''}.be.undefined`,
       node,
       sourceCode,
     );
   }
   if (isLengthAccess(actual)) {
+    const receiver = chaiShouldReceiver(sourceCode.getText(actual.object));
     return replacement(
-      `${sourceCode.getText(actual.object)}.should${negated ? '.not' : ''}.have.lengthOf(${sourceCode.getText(expected)})`,
+      `${receiver}.should${negated ? '.not' : ''}.have.lengthOf(${sourceCode.getText(expected)})`,
       node,
       sourceCode,
     );

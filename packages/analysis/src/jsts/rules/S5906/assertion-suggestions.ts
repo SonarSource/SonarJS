@@ -82,6 +82,10 @@ export function getBooleanExpressionSuggestion(
   );
 }
 
+export function chaiShouldReceiver(source: string): string {
+  return `(${source})`;
+}
+
 function getBinaryExpressionSuggestion(
   actual: estree.BinaryExpression,
   positive: boolean,
@@ -236,7 +240,7 @@ function buildNullishEqualitySuggestion(
     return replacement(`${assertObject}.${method}(${actual}${extraArguments})`, node);
   }
   if (family === 'chai-should') {
-    return replacement(`${actual}.should${negation(same)}.be.${nullish}`, node);
+    return replacement(`${chaiShouldReceiver(actual)}.should${negation(same)}.be.${nullish}`, node);
   }
   return replacement(`expect(${actual}${extraArguments}).to${negation(same)}.be.${nullish}`, node);
 }
@@ -266,7 +270,10 @@ function buildLengthEqualitySuggestion(
       : null;
   }
   if (family === 'chai-should') {
-    return replacement(`${actual}.should${negation(same)}.have.lengthOf(${expected})`, node);
+    return replacement(
+      `${chaiShouldReceiver(actual)}.should${negation(same)}.have.lengthOf(${expected})`,
+      node,
+    );
   }
   return replacement(
     `expect(${actual}${extraArguments}).to${negation(same)}.have.lengthOf(${expected})`,
@@ -293,7 +300,7 @@ function buildEqualitySuggestion(
     );
   }
   if (family === 'chai-should') {
-    return replacement(`${left}.should${negation(same)}.equal(${right})`, node);
+    return replacement(`${chaiShouldReceiver(left)}.should${negation(same)}.equal(${right})`, node);
   }
   return replacement(`expect(${left}${extraArguments}).to${negation(same)}.equal(${right})`, node);
 }
@@ -317,7 +324,10 @@ function buildInstanceofSuggestion(
     );
   }
   if (family === 'chai-should') {
-    return replacement(`${left}.should${negation(positive)}.be.instanceOf(${right})`, node);
+    return replacement(
+      `${chaiShouldReceiver(left)}.should${negation(positive)}.be.instanceOf(${right})`,
+      node,
+    );
   }
   return replacement(
     `expect(${left}${extraArguments}).to${negation(positive)}.be.instanceOf(${right})`,
@@ -344,7 +354,7 @@ function buildNumericComparisonSuggestion(
     );
   }
   if (family === 'chai-should') {
-    return replacement(`${left}.should.be.${comparison.chai}(${right})`, node);
+    return replacement(`${chaiShouldReceiver(left)}.should.be.${comparison.chai}(${right})`, node);
   }
   return replacement(`expect(${left}${extraArguments}).to.be.${comparison.chai}(${right})`, node);
 }
@@ -380,7 +390,10 @@ function getIncludesSuggestion(
     );
   }
   if (family === 'chai-should') {
-    return replacement(`${receiver}.should${negation(positive)}.include(${needle})`, node);
+    return replacement(
+      `${chaiShouldReceiver(receiver)}.should${negation(positive)}.include(${needle})`,
+      node,
+    );
   }
   return replacement(
     `expect(${receiver}${extraArguments}).to${negation(positive)}.include(${needle})`,
