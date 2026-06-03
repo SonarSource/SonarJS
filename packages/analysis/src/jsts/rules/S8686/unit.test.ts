@@ -107,6 +107,104 @@ test('uses another assertion API', () => {
 });
 `,
         },
+        {
+          code: `
+import { expect, it } from '@jest/globals';
+
+it('checks both branches', () => {
+  if (enabled) {
+    expect(status).toBe('enabled');
+  } else {
+    expect(status).toBe('disabled');
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+test('checks an expected failure', async () => {
+  expect.assertions(1);
+
+  await fails().catch(error => {
+    expect(error.message).toBe('failed');
+  });
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+test('uses platform-specific expectations', () => {
+  if (process.platform === 'win32') {
+    expect(message).toContain('exited with code 1');
+  } else {
+    expect(message).toContain('ENOENT');
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, it } from '@jest/globals';
+
+it('uses a catch callback as a failure sentinel after successful assertions', () => {
+  return loadData()
+    .then(() => {
+      expect(store.getActions()).toMatchSnapshot();
+    })
+    .catch(() => {
+      expect(false).toBe(true);
+    });
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+test('checks expected errors from APIs that cannot use toThrow', async () => {
+  try {
+    await vi.waitFor(check, 100);
+  } catch (error) {
+    expect(error.message).toMatchInlineSnapshot('"Fail."');
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+test('checks entries for each generated trace file', async () => {
+  for (const traceFile of traceFiles) {
+    const events = await readEvents(traceFile);
+
+    if (traceFile.includes('locator-mark')) {
+      expect(events).toEqual(expect.arrayContaining([expect.objectContaining({ title: 'mark' })]));
+    }
+  }
+});
+`,
+        },
+        {
+          code: `
+import { expect, it } from 'vitest';
+
+it('checks inherited values for each project', ({ task }) => {
+  const project = task.file.projectName;
+  switch (project) {
+    case 'project-1':
+      expect(process.env.TEST_ROOT).toBe('1');
+      return;
+    default:
+      expect.unreachable();
+  }
+});
+`,
+        },
       ],
       invalid: [
         {
@@ -149,23 +247,6 @@ test('checks the review step', async () => {
 });
 `,
           errors: [{ messageId: 'conditionalAssertion' }],
-        },
-        {
-          code: `
-import { expect, it } from '@jest/globals';
-
-it('checks both branches', () => {
-  if (enabled) {
-    expect(status).toBe('enabled');
-  } else {
-    expect(status).toBe('disabled');
-  }
-});
-`,
-          errors: [
-            { messageId: 'conditionalAssertion' },
-            { messageId: 'conditionalAssertion' },
-          ],
         },
         {
           code: `
