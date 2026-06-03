@@ -1,6 +1,6 @@
 {
-  "title": "Allowing public ACLs or policies on a S3 bucket is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Amazon S3 bucket public access should be fully blocked",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "HIGH"
@@ -8,26 +8,24 @@
     "attribute": "COMPLETE"
   },
   "status": "ready",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant/Issue",
-    "constantCost": "5min"
+    "constantCost": "30min"
   },
   "tags": [
     "aws",
-    "cwe"
+    "cwe",
+    "former-hotspot"
   ],
-  "extra": {
-    "requiredDependency": [
-      "aws-cdk-lib"
-    ]
-  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-6281",
   "sqKey": "S6281",
   "scope": "Main",
   "securityStandards": {
     "CWE": [
-      284
+      284,
+      732
     ],
     "PCI DSS 3.2": [
       "6.5.8"
@@ -46,5 +44,10 @@
   "compatibleLanguages": [
     "js",
     "ts"
-  ]
+  ],
+  "extra": {
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
+  }
 }
