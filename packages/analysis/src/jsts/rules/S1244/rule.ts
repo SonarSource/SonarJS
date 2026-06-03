@@ -45,34 +45,8 @@ export const rule: Rule.RuleModule = {
       });
     }
 
-    function isFloatingPointSensitive(
-      node: estree.Node,
-      visitedVariables = new Set<string>(),
-    ): boolean {
-      if (isNumberLiteral(node)) {
-        return isFloatingPointLiteral(node);
-      }
-
-      switch (node.type) {
-        case 'UnaryExpression':
-          return ['+', '-'].includes(node.operator) && isFloatingPointSensitive(node.argument);
-        case 'BinaryExpression':
-          if (node.operator === '/') {
-            return (
-              isFloatingPointSensitive(node.left) ||
-              isFloatingPointSensitive(node.right) ||
-              isFractionProducingDivision(node)
-            );
-          }
-          return (
-            arithmeticOperators.has(node.operator) &&
-            (isFloatingPointSensitive(node.left) || isFloatingPointSensitive(node.right))
-          );
-        case 'Identifier':
-          return isFloatingPointConst(context, node, visitedVariables);
-        default:
-          return false;
-      }
+    function isFloatingPointSensitive(node: estree.Node): boolean {
+      return isFloatingPointExpression(context, node, new Set<string>());
     }
 
     function shouldReportComparison(node: estree.BinaryExpression): boolean {
