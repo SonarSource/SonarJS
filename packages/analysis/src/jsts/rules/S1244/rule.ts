@@ -240,6 +240,8 @@ function isIndirectExactComparison(
 }
 
 function acceptedIndirectOperators(operator: estree.LogicalExpression['operator']) {
+  // && of two <=/>= comparisons collapses to equality; || of two strict </> comparisons
+  // asserts inequality. Keep operator sets, this mapping, and comparisonAlternatives in sync.
   if (operator === '&&') {
     return indirectEqualityOperators;
   }
