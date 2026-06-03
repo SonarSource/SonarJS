@@ -1,29 +1,27 @@
 {
-  "title": "S3 buckets should enforce HTTPS-only access",
-  "type": "VULNERABILITY",
+  "title": "Authorizing HTTP communications with S3 buckets is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
   "code": {
     "impacts": {
-      "SECURITY": "LOW"
+      "SECURITY": "HIGH"
     },
-    "attribute": "TRUSTWORTHY"
+    "attribute": "COMPLETE"
   },
   "status": "ready",
-  "quickfix": "unknown",
   "remediation": {
     "func": "Constant/Issue",
     "constantCost": "10min"
   },
   "tags": [
     "aws",
-    "cwe",
-    "former-hotspot"
+    "cwe"
   ],
   "extra": {
     "requiredDependency": [
       "aws-cdk-lib"
     ]
   },
-  "defaultSeverity": "Minor",
+  "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-6249",
   "sqKey": "S6249",
   "scope": "Main",
