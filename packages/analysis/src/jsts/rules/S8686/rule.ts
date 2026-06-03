@@ -186,7 +186,9 @@ export const rule: Rule.RuleModule = {
 
     function referencesEnvironmentAlias(node: estree.Node): boolean {
       const text = sourceCode.getText(node);
-      return [...environmentAliases].some(alias => new RegExp(`\\b${alias}\\b`, 'u').test(text));
+      return [...environmentAliases].some(alias =>
+        new RegExp(String.raw`\b${alias}\b`, 'u').test(text),
+      );
     }
 
     function isDiscriminatedVariantCheck(node: estree.Node): boolean {
@@ -194,7 +196,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function currentTestCaseText(): string {
-      const currentTestCase = testCases[testCases.length - 1];
+      const currentTestCase = testCases.at(-1);
       return currentTestCase ? sourceCode.getText(currentTestCase) : '';
     }
 

@@ -238,7 +238,7 @@ class TestCaseAssertionVisitor {
     visitedTSNodes: Map<ts.Node, boolean>,
   ): boolean {
     if (visitedTSNodes.has(node)) {
-      return visitedTSNodes.get(node)!;
+      return visitedTSNodes.get(node) ?? false;
     }
     visitedTSNodes.set(node, false);
     if (
@@ -275,7 +275,7 @@ class TestCaseAssertionVisitor {
     visitedNodes: Map<estree.Node, boolean>,
   ): boolean {
     if (visitedNodes.has(node)) {
-      return visitedNodes.get(node)!;
+      return visitedNodes.get(node) ?? false;
     }
     visitedNodes.set(node, false);
     if (
