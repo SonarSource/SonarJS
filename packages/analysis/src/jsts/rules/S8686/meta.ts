@@ -15,4 +15,4 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 export const implementation = 'original';
-export const eslintId = 'no-conditional-assertions';
+export const eslintId = 'no-conditional-expect';
