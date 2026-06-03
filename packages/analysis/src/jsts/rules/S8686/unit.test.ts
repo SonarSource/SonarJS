@@ -339,6 +339,22 @@ it('rejects duplicate emails', async () => {
         },
         {
           code: `
+import { expect, it } from '@jest/globals';
+
+it('handles rejected dispatches', () => {
+  return store.dispatch(action)
+    .then(() => {
+      expect(state.ready).toBe(true);
+    })
+    .catch(error => {
+      expect(error.message).toBe('failed');
+    });
+});
+`,
+          errors: [{ messageId: 'conditionalAssertion', line: 10, column: 7 }],
+        },
+        {
+          code: `
 import { expect, test } from '@playwright/test';
 
 test('shows an error after a failed login', async ({ page }) => {
