@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S1244/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isNumberLiteral, getVariableFromName } from '../helpers/ast.js';
@@ -46,7 +46,7 @@ export const rule: Rule.RuleModule = {
     }
 
     function isFloatingPointSensitive(node: estree.Node): boolean {
-      return isFloatingPointExpression(context, node, new Set<string>());
+      return isFloatingPointExpression(context, node, new Set<Scope.Variable>());
     }
 
     function shouldReportComparison(node: estree.BinaryExpression): boolean {
@@ -157,13 +157,13 @@ function numericLiteralValue(node: estree.Node): number | null {
 function isFloatingPointConst(
   context: Rule.RuleContext,
   node: estree.Identifier,
-  visitedVariables: Set<string>,
+  visitedVariables: Set<Scope.Variable>,
 ) {
-  if (visitedVariables.has(node.name)) {
+  const variable = getVariableFromName(context, node.name, node);
+  if (!variable || visitedVariables.has(variable)) {
     return false;
   }
-  const variable = getVariableFromName(context, node.name, node);
-  const definition = variable?.defs[0];
+  const definition = variable.defs[0];
   if (definition?.type !== 'Variable' || definition.node.type !== 'VariableDeclarator') {
     return false;
   }
@@ -176,14 +176,14 @@ function isFloatingPointConst(
   ) {
     return false;
   }
-  visitedVariables.add(node.name);
+  visitedVariables.add(variable);
   return isFloatingPointExpression(context, definition.node.init, visitedVariables);
 }
 
 function isFloatingPointExpression(
   context: Rule.RuleContext,
   node: estree.Node,
-  visitedVariables: Set<string>,
+  visitedVariables: Set<Scope.Variable>,
 ): boolean {
   if (isNumberLiteral(node)) {
     return isFloatingPointLiteral(node);
