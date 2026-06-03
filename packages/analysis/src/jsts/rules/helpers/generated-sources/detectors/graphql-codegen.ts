@@ -15,7 +15,7 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { readFile } from 'node:fs/promises';
-import { extname } from 'node:path/posix';
+import { basename, extname } from 'node:path/posix';
 import ts from 'typescript';
 import yaml from 'yaml';
 import { type NormalizedAbsolutePath } from '../../../../../../../shared/src/helpers/files.js';
@@ -36,6 +36,18 @@ import {
 } from '../shared.js';
 
 const AUTO_DISCOVERED_GRAPHQL_CONFIGS = [
+  'package.json',
+  '.graphqlrc',
+  'graphql.config.cjs',
+  'graphql.config.cts',
+  'graphql.config.js',
+  'graphql.config.json',
+  'graphql.config.mjs',
+  'graphql.config.mts',
+  'graphql.config.toml',
+  'graphql.config.ts',
+  'graphql.config.yaml',
+  'graphql.config.yml',
   '.codegenrc.js',
   '.codegenrc.json',
   '.codegenrc.ts',
@@ -154,10 +166,23 @@ async function resolveGraphqlOutputs(
 async function parseGraphqlGenerates(configPath: NormalizedAbsolutePath) {
   try {
     const configContents = await readFile(configPath, 'utf8');
+    const configBasename = basename(configPath).toLowerCase();
     const configExtension = extname(configPath).toLowerCase();
+
+    if (configBasename === 'package.json') {
+      return getGenerateTargetsFromPackageJson(JSON.parse(configContents) as unknown);
+    }
+
+    if (configBasename === '.graphqlrc') {
+      return getGenerateTargetsFromObject(yaml.parse(configContents));
+    }
 
     if (configExtension === '.yml' || configExtension === '.yaml') {
       return getGenerateTargetsFromObject(yaml.parse(configContents));
+    }
+
+    if (configExtension === '.toml') {
+      return getGenerateTargetsFromToml(configContents);
     }
 
     if (configExtension === '.json') {
@@ -183,15 +208,199 @@ async function parseGraphqlGenerates(configPath: NormalizedAbsolutePath) {
 }
 
 function getGenerateTargetsFromObject(config: unknown) {
-  if (!isRecord(config) || !isRecord(config.generates)) {
+  return collectGenerateTargets([
+    getGenerateTargetsFromGeneratesRecord(getNestedValue(config, ['generates'])),
+    ...getGenerateTargetsFromGraphqlConfigObject(config),
+  ]);
+}
+
+function getGenerateTargetsFromPackageJson(config: unknown) {
+  return collectGenerateTargets([
+    getGenerateTargetsFromGeneratesRecord(getNestedValue(config, ['codegen', 'generates'])),
+    ...getGenerateTargetsFromGraphqlConfigObject(getNestedValue(config, ['graphql'])),
+  ]);
+}
+
+function getGenerateTargetsFromGeneratesRecord(generates: unknown) {
+  if (!isRecord(generates)) {
     return [];
   }
 
-  return Object.entries(config.generates).flatMap(([outputPath, generateConfig]) => {
+  return Object.entries(generates).flatMap(([outputPath, generateConfig]) => {
     return isLiteralPathToken(outputPath)
       ? [createGraphqlGenerateTarget(outputPath, generateConfig)]
       : [];
   });
+}
+
+function getGenerateTargetsFromToml(configContents: string) {
+  const generateTargets = new Map<string, GraphqlGenerateTarget>();
+  let currentGenerateTarget: GraphqlGenerateTarget | undefined;
+
+  for (const rawLine of configContents.split(/\r?\n/u)) {
+    const line = rawLine.trim();
+    if (line.length === 0 || line.startsWith('#')) {
+      continue;
+    }
+
+    const tablePathMatch = line.match(/^\[(.+)\]$/u);
+    if (tablePathMatch) {
+      currentGenerateTarget = undefined;
+      const outputPath = extractGenerateOutputPathFromTomlTablePath(tablePathMatch[1]);
+      if (outputPath && isLiteralPathToken(outputPath)) {
+        currentGenerateTarget = generateTargets.get(outputPath) ?? { outputPath };
+        generateTargets.set(outputPath, currentGenerateTarget);
+      }
+      continue;
+    }
+
+    if (!currentGenerateTarget) {
+      continue;
+    }
+
+    const assignmentMatch = line.match(/^([A-Za-z0-9_.-]+)\s*=\s*(.+)$/u);
+    if (!assignmentMatch) {
+      continue;
+    }
+
+    const [, key, value] = assignmentMatch;
+    const parsedValue = parseTomlStringLiteral(value);
+    if (!parsedValue) {
+      continue;
+    }
+
+    if (key === 'preset') {
+      currentGenerateTarget.preset = parsedValue;
+    }
+
+    if (key === 'presetConfig.extension') {
+      currentGenerateTarget.generatedFileExtension = parsedValue;
+    }
+  }
+
+  return [...generateTargets.values()];
+}
+
+function extractGenerateOutputPathFromTomlTablePath(tablePath: string) {
+  const pathSegments = splitTomlPath(tablePath);
+
+  if (
+    pathSegments.length === 4 &&
+    pathSegments[0] === 'extensions' &&
+    pathSegments[1] === 'codegen' &&
+    pathSegments[2] === 'generates'
+  ) {
+    return pathSegments[3];
+  }
+
+  if (
+    pathSegments.length === 6 &&
+    pathSegments[0] === 'projects' &&
+    pathSegments[2] === 'extensions' &&
+    pathSegments[3] === 'codegen' &&
+    pathSegments[4] === 'generates'
+  ) {
+    return pathSegments[5];
+  }
+
+  return undefined;
+}
+
+function splitTomlPath(value: string) {
+  const segments: string[] = [];
+  let current = '';
+  let quote: '"' | "'" | undefined;
+  let escaped = false;
+
+  for (const char of value) {
+    if (quote) {
+      if (escaped) {
+        current += char;
+        escaped = false;
+        continue;
+      }
+
+      if (quote === '"' && char === '\\') {
+        escaped = true;
+        continue;
+      }
+
+      if (char === quote) {
+        quote = undefined;
+        continue;
+      }
+
+      current += char;
+      continue;
+    }
+
+    if (char === '"' || char === "'") {
+      quote = char;
+      continue;
+    }
+
+    if (char === '.') {
+      segments.push(current);
+      current = '';
+      continue;
+    }
+
+    if (char !== ' ' && char !== '\t') {
+      current += char;
+    }
+  }
+
+  if (current.length > 0) {
+    segments.push(current);
+  }
+
+  return segments;
+}
+
+function parseTomlStringLiteral(value: string) {
+  const trimmedValue = value.trim();
+  if (
+    (trimmedValue.startsWith('"') && trimmedValue.endsWith('"')) ||
+    (trimmedValue.startsWith("'") && trimmedValue.endsWith("'"))
+  ) {
+    return trimmedValue.slice(1, -1);
+  }
+
+  return undefined;
+}
+
+function getGenerateTargetsFromGraphqlConfigObject(config: unknown) {
+  return [
+    getGenerateTargetsFromGeneratesRecord(
+      getNestedValue(config, ['extensions', 'codegen', 'generates']),
+    ),
+    ...getGenerateTargetsFromGraphqlProjectConfigs(config),
+  ];
+}
+
+function getGenerateTargetsFromGraphqlProjectConfigs(config: unknown) {
+  const projects = getNestedValue(config, ['projects']);
+  if (!isRecord(projects)) {
+    return [];
+  }
+
+  return Object.values(projects).map(project =>
+    getGenerateTargetsFromGeneratesRecord(
+      getNestedValue(project, ['extensions', 'codegen', 'generates']),
+    ),
+  );
+}
+
+function collectGenerateTargets(generateTargetsGroups: GraphqlGenerateTarget[][]) {
+  const generateTargets = new Map<string, GraphqlGenerateTarget>();
+
+  for (const generateTargetsGroup of generateTargetsGroups) {
+    for (const generateTarget of generateTargetsGroup) {
+      generateTargets.set(generateTarget.outputPath, generateTarget);
+    }
+  }
+
+  return [...generateTargets.values()];
 }
 
 function getGenerateTargetsFromSource(
@@ -204,23 +413,72 @@ function getGenerateTargetsFromSource(
     return [];
   }
 
-  const generatesProperty = configObject.properties.find(property => {
-    return (
-      ts.isPropertyAssignment(property) &&
-      !ts.isComputedPropertyName(property.name) &&
-      getPropertyName(property.name) === 'generates'
-    );
-  });
+  return collectGenerateTargets([
+    getGenerateTargetsFromGeneratesObjectLiteral(
+      resolveNamedObjectLiteralPath(configObject, ['generates'], sourceFile),
+      sourceFile,
+    ),
+    ...getGenerateTargetsFromGraphqlConfigSourceObject(configObject, sourceFile),
+  ]);
+}
 
-  if (
-    !generatesProperty ||
-    !ts.isPropertyAssignment(generatesProperty) ||
-    !ts.isObjectLiteralExpression(generatesProperty.initializer)
-  ) {
+function getGenerateTargetsFromGraphqlConfigSourceObject(
+  configObject: ts.ObjectLiteralExpression,
+  sourceFile: ts.SourceFile,
+) {
+  return [
+    getGenerateTargetsFromGeneratesObjectLiteral(
+      resolveNamedObjectLiteralPath(
+        configObject,
+        ['extensions', 'codegen', 'generates'],
+        sourceFile,
+      ),
+      sourceFile,
+    ),
+    ...getGenerateTargetsFromGraphqlProjectSourceObject(configObject, sourceFile),
+  ];
+}
+
+function getGenerateTargetsFromGraphqlProjectSourceObject(
+  configObject: ts.ObjectLiteralExpression,
+  sourceFile: ts.SourceFile,
+) {
+  const projectsObject = resolveNamedObjectLiteralPath(configObject, ['projects'], sourceFile);
+  if (!projectsObject) {
     return [];
   }
 
-  return generatesProperty.initializer.properties.flatMap(property => {
+  return projectsObject.properties.flatMap(property => {
+    if (!ts.isPropertyAssignment(property) || ts.isComputedPropertyName(property.name)) {
+      return [];
+    }
+
+    const projectObject = resolveObjectLiteral(property.initializer, sourceFile);
+
+    return projectObject
+      ? [
+          getGenerateTargetsFromGeneratesObjectLiteral(
+            resolveNamedObjectLiteralPath(
+              projectObject,
+              ['extensions', 'codegen', 'generates'],
+              sourceFile,
+            ),
+            sourceFile,
+          ),
+        ]
+      : [];
+  });
+}
+
+function getGenerateTargetsFromGeneratesObjectLiteral(
+  generatesObject: ts.ObjectLiteralExpression | undefined,
+  sourceFile: ts.SourceFile,
+) {
+  if (!generatesObject) {
+    return [];
+  }
+
+  return generatesObject.properties.flatMap(property => {
     if (
       !ts.isPropertyAssignment(property) ||
       ts.isComputedPropertyName(property.name) ||
@@ -532,12 +790,46 @@ function getNamedObjectPropertyInitializer(
   return property.initializer;
 }
 
+function resolveNamedObjectLiteralPath(
+  objectLiteral: ts.ObjectLiteralExpression,
+  path: string[],
+  sourceFile: ts.SourceFile,
+): ts.ObjectLiteralExpression | undefined {
+  let currentObject: ts.ObjectLiteralExpression | undefined = objectLiteral;
+
+  for (const propertyName of path) {
+    const initializer = currentObject
+      ? getNamedObjectPropertyInitializer(currentObject, propertyName)
+      : undefined;
+    if (!initializer) {
+      return undefined;
+    }
+
+    currentObject = resolveObjectLiteral(initializer, sourceFile);
+  }
+
+  return currentObject;
+}
+
 function getNamedStringPropertyValue(
   objectLiteral: ts.ObjectLiteralExpression,
   propertyName: string,
 ) {
   const initializer = getNamedObjectPropertyInitializer(objectLiteral, propertyName);
   return initializer && ts.isStringLiteralLike(initializer) ? initializer.text : undefined;
+}
+
+function getNestedValue(value: unknown, path: string[]) {
+  let current: unknown = value;
+
+  for (const pathSegment of path) {
+    if (!isRecord(current)) {
+      return undefined;
+    }
+    current = current[pathSegment];
+  }
+
+  return current;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
