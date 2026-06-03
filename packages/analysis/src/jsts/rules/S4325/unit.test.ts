@@ -165,56 +165,58 @@ describe('S4325', () => {
   });
 
   it('should still flag truly unnecessary type assertions', () => {
-    ruleTester.run('S4325 unnecessary assertions', rule, {
-      valid: [],
-      invalid: [
-        {
-          // Type already narrowed by typeof guard
-          code: `
-            function getName(x?: string | number) {
-              if (typeof x === 'string') {
-                return x as string;
+    assert.doesNotThrow(() => {
+      ruleTester.run('S4325 unnecessary assertions', rule, {
+        valid: [],
+        invalid: [
+          {
+            // Type already narrowed by typeof guard
+            code: `
+              function getName(x?: string | number) {
+                if (typeof x === 'string') {
+                  return x as string;
+                }
               }
-            }
-          `,
-          output: `
-            function getName(x?: string | number) {
-              if (typeof x === 'string') {
-                return x;
+            `,
+            output: `
+              function getName(x?: string | number) {
+                if (typeof x === 'string') {
+                  return x;
+                }
               }
-            }
-          `,
-          errors: 1,
-        },
-        {
-          // Non-null assertion on a non-nullable parameter
-          code: `
-            function greet(name: string) {
-              console.log(name!);
-            }
-          `,
-          output: `
-            function greet(name: string) {
-              console.log(name);
-            }
-          `,
-          errors: 1,
-        },
-        {
-          // Casting any to any is truly redundant
-          code: `
-            function process(chunk: any) {
-              let mutator = chunk as any;
-            }
-          `,
-          output: `
-            function process(chunk: any) {
-              let mutator = chunk;
-            }
-          `,
-          errors: 1,
-        },
-      ],
+            `,
+            errors: 1,
+          },
+          {
+            // Non-null assertion on a non-nullable parameter
+            code: `
+              function greet(name: string) {
+                console.log(name!);
+              }
+            `,
+            output: `
+              function greet(name: string) {
+                console.log(name);
+              }
+            `,
+            errors: 1,
+          },
+          {
+            // Casting any to any is truly redundant
+            code: `
+              function process(chunk: any) {
+                let mutator = chunk as any;
+              }
+            `,
+            output: `
+              function process(chunk: any) {
+                let mutator = chunk;
+              }
+            `,
+            errors: 1,
+          },
+        ],
+      });
     });
   });
 
@@ -226,35 +228,37 @@ describe('S4325', () => {
         tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
       },
     });
-    strictNullTester.run(
-      'S4325 suppress contextually unnecessary non-null on nullable union',
-      rule,
-      {
-        valid: [
-          {
-            // Non-null assertion on a parameter typed as a nullable union is suppressed when
-            // the contextual type (return type) also accepts null.
-            // Exercises shouldSuppressNonNullAssertion returning true (line 69 return).
-            code: `
-            function passNullable(x: string | null): string | null {
-              return x!;
-            }
-          `,
-            filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          },
-          {
-            // Non-null assertion on a nullable union with undefined is also suppressed.
-            code: `
-            function passUndefinable(x: number | undefined): number | undefined {
-              return x!;
-            }
-          `,
-            filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          },
-        ],
-        invalid: [],
-      },
-    );
+    assert.doesNotThrow(() => {
+      strictNullTester.run(
+        'S4325 suppress contextually unnecessary non-null on nullable union',
+        rule,
+        {
+          valid: [
+            {
+              // Non-null assertion on a parameter typed as a nullable union is suppressed when
+              // the contextual type (return type) also accepts null.
+              // Exercises shouldSuppressNonNullAssertion returning true (line 69 return).
+              code: `
+              function passNullable(x: string | null): string | null {
+                return x!;
+              }
+            `,
+              filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+            },
+            {
+              // Non-null assertion on a nullable union with undefined is also suppressed.
+              code: `
+              function passUndefinable(x: number | undefined): number | undefined {
+                return x!;
+              }
+            `,
+              filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+            },
+          ],
+          invalid: [],
+        },
+      );
+    });
   });
 
   it('should flag non-null assertions after null guard with strictNullChecks', () => {
@@ -265,69 +269,71 @@ describe('S4325', () => {
         tsconfigRootDir: path.join(import.meta.dirname, 'fixtures'),
       },
     });
-    strictNullTester.run('S4325 non-null after guard with strictNullChecks', rule, {
-      valid: [],
-      invalid: [
-        {
-          // Non-null assertion after null guard is unnecessary with strictNullChecks
-          code: `
-            function convert(str: string | number | null | undefined) {
-              if (str == null || str === '') {
-                return undefined;
+    assert.doesNotThrow(() => {
+      strictNullTester.run('S4325 non-null after guard with strictNullChecks', rule, {
+        valid: [],
+        invalid: [
+          {
+            // Non-null assertion after null guard is unnecessary with strictNullChecks
+            code: `
+              function convert(str: string | number | null | undefined) {
+                if (str == null || str === '') {
+                  return undefined;
+                }
+                return isNaN(+str!);
               }
-              return isNaN(+str!);
-            }
-          `,
-          output: `
-            function convert(str: string | number | null | undefined) {
-              if (str == null || str === '') {
-                return undefined;
+            `,
+            output: `
+              function convert(str: string | number | null | undefined) {
+                if (str == null || str === '') {
+                  return undefined;
+                }
+                return isNaN(+str);
               }
-              return isNaN(+str);
-            }
-          `,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          errors: 1,
-        },
-        {
-          // Non-null assertion on a call returning a non-nullable non-union type with strictNullChecks
-          // Exercises shouldSuppressNonNullAssertion when resolvedType is not a union
-          code: `
-            function getId(): number { return 42; }
-            const id = getId()!;
-          `,
-          output: `
-            function getId(): number { return 42; }
-            const id = getId();
-          `,
-          filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
-          errors: 1,
-        },
-      ],
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+            errors: 1,
+          },
+          {
+            // Non-null assertion on a call returning a non-nullable non-union type with strictNullChecks
+            // Exercises shouldSuppressNonNullAssertion when resolvedType is not a union
+            code: `
+              function getId(): number { return 42; }
+              const id = getId()!;
+            `,
+            output: `
+              function getId(): number { return 42; }
+              const id = getId();
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures/index.ts'),
+            errors: 1,
+          },
+        ],
+      });
     });
-    assert.ok(true);
   });
 
   it('should flag non-generic function call assertions', () => {
-    ruleTester.run('S4325 non-generic call assertion', rule, {
-      valid: [],
-      invalid: [
-        {
-          // Non-generic function call with assertion to the same return type should still be flagged
-          // Exercises isCalleeGeneric returning false for a non-generic function
-          code: `
-            function parse(): string { return ''; }
-            const result = parse() as string;
-          `,
-          output: `
-            function parse(): string { return ''; }
-            const result = parse();
-          `,
-          errors: 1,
-        },
-      ],
+    assert.doesNotThrow(() => {
+      ruleTester.run('S4325 non-generic call assertion', rule, {
+        valid: [],
+        invalid: [
+          {
+            // Non-generic function call with assertion to the same return type should still be flagged
+            // Exercises isCalleeGeneric returning false for a non-generic function
+            code: `
+              function parse(): string { return ''; }
+              const result = parse() as string;
+            `,
+            output: `
+              function parse(): string { return ''; }
+              const result = parse();
+            `,
+            errors: 1,
+          },
+        ],
+      });
     });
-    assert.ok(true);
   });
 
   it('should pass through report descriptor without a node', () => {
