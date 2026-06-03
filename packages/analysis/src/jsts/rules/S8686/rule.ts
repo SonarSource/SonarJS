@@ -176,7 +176,6 @@ export const rule: Rule.RuleModule = {
         hasFailureSentinel(catchText) ||
         hasFailureSentinel(tryText) ||
         hasUnreachableAssertion(tryText) ||
-        countExpectCalls(catchText) > 1 ||
         hasAssertionCount(testText) ||
         /expect\s*\(\s*\w*error\w*\s*\)\s*\.toBe\s*\(\s*true\s*\)/iu.test(testText) ||
         /\bexpected\w*error\b/iu.test(catchText) ||
@@ -199,10 +198,6 @@ function hasAssertionCount(text: string): boolean {
 
 function hasUnreachableAssertion(text: string): boolean {
   return /\bexpect\.unreachable\s*\(/u.test(text);
-}
-
-function countExpectCalls(text: string): number {
-  return text.match(/\bexpect(?:\.\w+)?\s*\(/gu)?.length ?? 0;
 }
 
 function isEnvironmentOrMatrixText(text: string): boolean {

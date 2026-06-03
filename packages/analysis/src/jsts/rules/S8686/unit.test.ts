@@ -196,20 +196,6 @@ it('checks expected failure details with a post-catch sentinel', async () => {
         },
         {
           code: `
-import { expect, test, vi } from 'vitest';
-
-test('checks expected error details with multiple assertions', async () => {
-  try {
-    await vi.waitFor(check, 100);
-  } catch (error) {
-    expect(error.message).toMatchInlineSnapshot('"Fail."');
-    expect(error.stack).toMatch(/at check/);
-  }
-});
-`,
-        },
-        {
-          code: `
 import { expect, test } from 'vitest';
 
 test('checks expected DOMException details', () => {
@@ -394,6 +380,21 @@ test('checks expected errors from APIs that cannot use toThrow', async () => {
 });
 `,
           errors: [{ messageId: 'conditionalAssertion' }],
+        },
+        {
+          code: `
+import { expect, test, vi } from 'vitest';
+
+test('checks expected error details with multiple assertions', async () => {
+  try {
+    await vi.waitFor(check, 100);
+  } catch (error) {
+    expect(error.message).toMatchInlineSnapshot('"Fail."');
+    expect(error.stack).toMatch(/at check/);
+  }
+});
+`,
+          errors: [{ messageId: 'conditionalAssertion' }, { messageId: 'conditionalAssertion' }],
         },
         {
           code: `
