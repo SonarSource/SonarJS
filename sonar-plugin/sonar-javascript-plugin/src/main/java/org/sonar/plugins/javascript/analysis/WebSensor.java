@@ -21,7 +21,9 @@ import static org.sonar.plugins.javascript.nodejs.NodeCommandBuilderImpl.NODE_EX
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.stream.StreamSupport;
@@ -74,6 +76,13 @@ public class WebSensor implements Sensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(WebSensor.class);
   private static final String LANG = "JS/TS";
+  private static final Set<String> PROJECT_METADATA_FILENAMES = Set.of(
+    "tsconfig.json",
+    "package.json",
+    "deno.json",
+    "deno.jsonc",
+    "pnpm-workspace.yaml"
+  );
 
   private final JsTsChecks checks;
   private final AnalysisConsumers consumers;
@@ -221,6 +230,20 @@ public class WebSensor implements Sensor {
     ).toList();
   }
 
+  private List<InputFile> getProjectMetadataFiles() {
+    FileSystem fileSystem = context.getSensorContext().fileSystem();
+    return StreamSupport.stream(
+      fileSystem.inputFiles(fileSystem.predicates().all()).spliterator(),
+      false
+    )
+      .filter(this::isProjectMetadataFile)
+      .toList();
+  }
+
+  private boolean isProjectMetadataFile(InputFile inputFile) {
+    return PROJECT_METADATA_FILENAMES.contains(inputFile.filename().toLowerCase(Locale.ROOT));
+  }
+
   private void analyzeFiles(List<InputFile> inputFiles) {
     var eslintImporter = new EslintReportImporter();
     var externalIssues = eslintImporter.execute(context);
@@ -297,6 +320,13 @@ public class WebSensor implements Sensor {
           } else {
             // CSS and extension-based HTML/YAML/CSS-additional files: always analyze, no caching.
             addFileToAnalyze(files, inputFile);
+          }
+        }
+        if (!context.canAccessFileSystem()) {
+          for (InputFile metadataFile : getProjectMetadataFiles()) {
+            if (!files.containsKey(metadataFile.absolutePath())) {
+              addFileToAnalyze(files, metadataFile);
+            }
           }
         }
       } catch (IOException e) {
