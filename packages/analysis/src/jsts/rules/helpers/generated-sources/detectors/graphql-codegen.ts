@@ -38,6 +38,13 @@ import {
 const AUTO_DISCOVERED_GRAPHQL_CONFIGS = [
   'package.json',
   '.graphqlrc',
+  '.graphqlrc.cjs',
+  '.graphqlrc.js',
+  '.graphqlrc.json',
+  '.graphqlrc.toml',
+  '.graphqlrc.ts',
+  '.graphqlrc.yaml',
+  '.graphqlrc.yml',
   'graphql.config.cjs',
   'graphql.config.cts',
   'graphql.config.js',
@@ -53,9 +60,11 @@ const AUTO_DISCOVERED_GRAPHQL_CONFIGS = [
   '.codegenrc.ts',
   '.codegenrc.yaml',
   '.codegenrc.yml',
+  'codegen.cts',
   'codegen.yml',
   'codegen.yaml',
   'codegen.json',
+  'codegen.mts',
   'codegen.ts',
   'codegen.js',
 ] as const;
@@ -77,11 +86,18 @@ const GRAPHQL_CONFIG_FLAGS = ['--config', '-c'];
 const DEFAULT_NEAR_OPERATION_FILE_EXTENSION = '.generated.ts';
 const GRAPHQL_GENERATED_DIRECTORY_SEGMENTS = new Set(['generated', '__generated__', 'gql']);
 const GRAPHQL_CODEGEN_FAMILY = '@graphql-codegen/cli';
+const TOML_ASSIGNMENT_PATTERN = /^([A-Za-z0-9_.-]+)\s*=\s*(.*)$/u;
+const TOML_TABLE_PATH_PATTERN = /^\[([^\]]+)\]$/u;
 
 type GraphqlGenerateTarget = {
   outputPath: string;
   preset?: string;
   generatedFileExtension?: string;
+};
+
+type GraphqlTomlGenerateTargetContext = {
+  outputPath: string;
+  nestedPath: string[];
 };
 
 export const graphqlCodegenDetector = {
@@ -236,6 +252,7 @@ function getGenerateTargetsFromGeneratesRecord(generates: unknown) {
 function getGenerateTargetsFromToml(configContents: string) {
   const generateTargets = new Map<string, GraphqlGenerateTarget>();
   let currentGenerateTarget: GraphqlGenerateTarget | undefined;
+  let currentGenerateTargetPath: string[] = [];
 
   for (const rawLine of configContents.split(/\r?\n/u)) {
     const line = rawLine.trim();
@@ -243,13 +260,17 @@ function getGenerateTargetsFromToml(configContents: string) {
       continue;
     }
 
-    const tablePathMatch = line.match(/^\[(.+)\]$/u);
+    const tablePathMatch = TOML_TABLE_PATH_PATTERN.exec(line);
     if (tablePathMatch) {
       currentGenerateTarget = undefined;
-      const outputPath = extractGenerateOutputPathFromTomlTablePath(tablePathMatch[1]);
-      if (outputPath && isLiteralPathToken(outputPath)) {
-        currentGenerateTarget = generateTargets.get(outputPath) ?? { outputPath };
-        generateTargets.set(outputPath, currentGenerateTarget);
+      currentGenerateTargetPath = [];
+      const tableContext = getTomlGenerateTargetContext(tablePathMatch[1]);
+      if (tableContext && isLiteralPathToken(tableContext.outputPath)) {
+        currentGenerateTarget = generateTargets.get(tableContext.outputPath) ?? {
+          outputPath: tableContext.outputPath,
+        };
+        generateTargets.set(tableContext.outputPath, currentGenerateTarget);
+        currentGenerateTargetPath = tableContext.nestedPath;
       }
       continue;
     }
@@ -258,7 +279,7 @@ function getGenerateTargetsFromToml(configContents: string) {
       continue;
     }
 
-    const assignmentMatch = line.match(/^([A-Za-z0-9_.-]+)\s*=\s*(.+)$/u);
+    const assignmentMatch = TOML_ASSIGNMENT_PATTERN.exec(line);
     if (!assignmentMatch) {
       continue;
     }
@@ -269,41 +290,64 @@ function getGenerateTargetsFromToml(configContents: string) {
       continue;
     }
 
-    if (key === 'preset') {
-      currentGenerateTarget.preset = parsedValue;
-    }
-
-    if (key === 'presetConfig.extension') {
-      currentGenerateTarget.generatedFileExtension = parsedValue;
-    }
+    applyTomlGenerateTargetAssignment(
+      currentGenerateTarget,
+      currentGenerateTargetPath,
+      key,
+      parsedValue,
+    );
   }
 
   return [...generateTargets.values()];
 }
 
-function extractGenerateOutputPathFromTomlTablePath(tablePath: string) {
+function getTomlGenerateTargetContext(
+  tablePath: string,
+): GraphqlTomlGenerateTargetContext | undefined {
   const pathSegments = splitTomlPath(tablePath);
-
+  const generatesIndex = pathSegments.indexOf('generates');
   if (
-    pathSegments.length === 4 &&
-    pathSegments[0] === 'extensions' &&
-    pathSegments[1] === 'codegen' &&
-    pathSegments[2] === 'generates'
+    generatesIndex === -1 ||
+    generatesIndex === pathSegments.length - 1 ||
+    !isSupportedTomlGenerateTargetPrefix(pathSegments.slice(0, generatesIndex))
   ) {
-    return pathSegments[3];
+    return undefined;
+  }
+
+  return {
+    outputPath: pathSegments[generatesIndex + 1],
+    nestedPath: pathSegments.slice(generatesIndex + 2),
+  };
+}
+
+function isSupportedTomlGenerateTargetPrefix(pathSegments: string[]) {
+  return (
+    (pathSegments.length === 2 &&
+      pathSegments[0] === 'extensions' &&
+      pathSegments[1] === 'codegen') ||
+    (pathSegments.length === 4 &&
+      pathSegments[0] === 'projects' &&
+      pathSegments[2] === 'extensions' &&
+      pathSegments[3] === 'codegen')
+  );
+}
+
+function applyTomlGenerateTargetAssignment(
+  generateTarget: GraphqlGenerateTarget,
+  nestedPath: string[],
+  key: string,
+  value: string,
+) {
+  if (nestedPath.length === 0 && key === 'preset') {
+    generateTarget.preset = value;
   }
 
   if (
-    pathSegments.length === 6 &&
-    pathSegments[0] === 'projects' &&
-    pathSegments[2] === 'extensions' &&
-    pathSegments[3] === 'codegen' &&
-    pathSegments[4] === 'generates'
+    (nestedPath.length === 0 && key === 'presetConfig.extension') ||
+    (nestedPath.length === 1 && nestedPath[0] === 'presetConfig' && key === 'extension')
   ) {
-    return pathSegments[5];
+    generateTarget.generatedFileExtension = value;
   }
-
-  return undefined;
 }
 
 function splitTomlPath(value: string) {

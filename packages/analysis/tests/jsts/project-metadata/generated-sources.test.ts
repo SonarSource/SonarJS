@@ -87,14 +87,23 @@ describe('generated sources project metadata', () => {
     expect(getGeneratedSourceWatchedFilenames()).toEqual(
       expect.arrayContaining([
         '.graphqlrc',
+        '.graphqlrc.cjs',
+        '.graphqlrc.js',
+        '.graphqlrc.json',
+        '.graphqlrc.toml',
+        '.graphqlrc.ts',
+        '.graphqlrc.yaml',
+        '.graphqlrc.yml',
         'codegen.config.cjs',
         'codegen.config.cts',
         'codegen.config.js',
         'codegen.config.mjs',
         'codegen.config.mts',
         'codegen.config.ts',
+        'codegen.cts',
         'codegen.js',
         'codegen.json',
+        'codegen.mts',
         'codegen.ts',
         'codegen.yaml',
         'codegen.yml',
@@ -166,6 +175,68 @@ describe('generated sources project metadata', () => {
       ]);
     } finally {
       await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives GraphQL outputs from additional implicit codegen fallback filenames', async () => {
+    const cases = [
+      {
+        configContents: `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export = config;
+`,
+        configFilename: 'codegen.cts',
+      },
+      {
+        configContents: `const config = {
+  generates: {
+    './src/generated/sdk.ts': {
+      plugins: ['typescript'],
+    },
+  },
+};
+
+export default config;
+`,
+        configFilename: 'codegen.mts',
+      },
+    ] satisfies ReadonlyArray<{
+      configContents: string;
+      configFilename: string;
+    }>;
+
+    for (const testCase of cases) {
+      const baseDir = await createTempBaseDir();
+      const configPath = joinPaths(baseDir, testCase.configFilename);
+      const outputPath = joinPaths(baseDir, 'src', 'generated', 'sdk.ts');
+
+      try {
+        await writeFixtureFile(configPath, testCase.configContents);
+        await writeFixtureFile(outputPath, 'export const sdk = true;\n');
+
+        const derived = await deriveGeneratedSources(
+          baseDir,
+          createPackageJsonMap(baseDir, {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              codegen: 'graphql-codegen',
+            },
+          }),
+        );
+
+        expect(derived.configPaths).toEqual(new Set([configPath]));
+        expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      } finally {
+        await rm(baseDir, { recursive: true, force: true });
+      }
     }
   });
 
@@ -1312,6 +1383,136 @@ export default config;
     }
   });
 
+  it('derives GraphQL outputs from dotted .graphqlrc fallback variants', async () => {
+    const cases = [
+      {
+        configContents: `projects:
+  server:
+    extensions:
+      codegen:
+        generates:
+          src/contra-api/__generated__/types.ts:
+            plugins:
+              - typescript
+`,
+        configFilename: '.graphqlrc.yml',
+      },
+      {
+        configContents: `projects:
+  server:
+    extensions:
+      codegen:
+        generates:
+          src/contra-api/__generated__/types.ts:
+            plugins:
+              - typescript
+`,
+        configFilename: '.graphqlrc.yaml',
+      },
+      {
+        configContents: JSON.stringify(
+          {
+            projects: {
+              server: {
+                extensions: {
+                  codegen: {
+                    generates: {
+                      'src/contra-api/__generated__/types.ts': {
+                        plugins: ['typescript'],
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          null,
+          2,
+        ),
+        configFilename: '.graphqlrc.json',
+      },
+      {
+        configContents: `const config = {
+  projects: {
+    server: {
+      extensions: {
+        codegen: {
+          generates: {
+            'src/contra-api/__generated__/types.ts': {
+              plugins: ['typescript'],
+            },
+          },
+        },
+      },
+    },
+  },
+};
+
+export default config;
+`,
+        configFilename: '.graphqlrc.ts',
+      },
+      {
+        configContents: `module.exports = {
+  projects: {
+    server: {
+      extensions: {
+        codegen: {
+          generates: {
+            'src/contra-api/__generated__/types.ts': {
+              plugins: ['typescript'],
+            },
+          },
+        },
+      },
+    },
+  },
+};
+`,
+        configFilename: '.graphqlrc.cjs',
+      },
+      {
+        configContents: `[projects.server.extensions.codegen.generates."src/contra-api/__generated__/types.ts"]
+plugins = [
+  "typescript",
+]
+`,
+        configFilename: '.graphqlrc.toml',
+      },
+    ] satisfies ReadonlyArray<{
+      configContents: string;
+      configFilename: string;
+    }>;
+
+    for (const testCase of cases) {
+      const baseDir = await createTempBaseDir();
+      const configPath = joinPaths(baseDir, testCase.configFilename);
+      const outputPath = joinPaths(baseDir, 'src', 'contra-api', '__generated__', 'types.ts');
+
+      try {
+        await writeFixtureFile(configPath, testCase.configContents);
+        await writeFixtureFile(outputPath, 'export const types = true;\n');
+
+        const derived = await deriveGeneratedSources(
+          baseDir,
+          createPackageJsonMap(baseDir, {
+            scripts: {
+              codegen: 'graphql-codegen',
+            },
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+          }),
+        );
+
+        expect(derived.configPaths).toEqual(new Set([configPath]));
+        expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      } finally {
+        await rm(baseDir, { recursive: true, force: true });
+      }
+    }
+  });
+
   it('derives GraphQL outputs from a package-local graphql.config.ts fallback file', async () => {
     const baseDir = await createTempBaseDir();
     const configPath = joinPaths(baseDir, 'graphql.config.ts');
@@ -1404,6 +1605,47 @@ plugins = [
 
       expect(derived.configPaths).toEqual(new Set([configPath]));
       expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives TOML near-operation outputs when presetConfig is declared in a sub-table', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'graphql.config.toml');
+    const customExtensionPath = joinPaths(baseDir, 'src', 'App.generated.tsx');
+    const defaultExtensionPath = joinPaths(baseDir, 'src', 'App.generated.ts');
+    const handWrittenPath = joinPaths(baseDir, 'src', 'App.tsx');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `[extensions.codegen.generates."./src/"]
+preset = "near-operation-file"
+
+[extensions.codegen.generates."./src/".presetConfig]
+extension = ".generated.tsx"
+`,
+      );
+      await writeFixtureFile(customExtensionPath, 'export const generated = true;\n');
+      await writeFixtureFile(defaultExtensionPath, 'export const wrong = true;\n');
+      await writeFixtureFile(handWrittenPath, 'export const handWritten = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          scripts: {
+            codegen: 'graphql-codegen',
+          },
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(customExtensionPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(derived.familyByFile.get(defaultExtensionPath)).toBeUndefined();
+      expect(derived.familyByFile.get(handWrittenPath)).toBeUndefined();
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
