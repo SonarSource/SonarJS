@@ -48,7 +48,6 @@ export const rule: Rule.RuleModule = {
     let suppressedPromiseCatchDepth = 0;
     const testCases: estree.CallExpression[] = [];
     const conditionals: estree.Node[] = [];
-    const environmentAliases = new Set<string>();
     const catchCallbacks = new WeakSet<estree.Node>();
     const suppressedCatchCallbacks = new WeakSet<estree.Node>();
     const sourceCode = context.sourceCode;
@@ -74,15 +73,6 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      VariableDeclarator(node: estree.VariableDeclarator) {
-        if (
-          node.id.type === 'Identifier' &&
-          node.init &&
-          isEnvironmentOrMatrixText(sourceCode.getText(node.init))
-        ) {
-          environmentAliases.add(node.id.name);
-        }
-      },
       CallExpression(node: estree.CallExpression) {
         if (Mocha.isTestCase(node)) {
           testCaseDepth++;
@@ -167,32 +157,7 @@ export const rule: Rule.RuleModule = {
       if (conditional.type === 'CatchClause') {
         return isExpectedErrorCatch(conditional);
       }
-      if (conditional.type === 'SwitchStatement') {
-        return isEnvironmentOrMatrixText(sourceCode.getText(conditional.discriminant));
-      }
-      if (
-        conditional.type === 'IfStatement' ||
-        conditional.type === 'ConditionalExpression' ||
-        conditional.type === 'LogicalExpression'
-      ) {
-        return (
-          isEnvironmentOrMatrixText(sourceCode.getText(conditional)) ||
-          referencesEnvironmentAlias(conditional) ||
-          isDiscriminatedVariantCheck(conditional)
-        );
-      }
       return false;
-    }
-
-    function referencesEnvironmentAlias(node: estree.Node): boolean {
-      const text = sourceCode.getText(node);
-      return [...environmentAliases].some(alias =>
-        new RegExp(String.raw`\b${alias}\b`, 'u').test(text),
-      );
-    }
-
-    function isDiscriminatedVariantCheck(node: estree.Node): boolean {
-      return /\.\s*type\s*={2,3}/u.test(sourceCode.getText(node));
     }
 
     function currentTestCaseText(): string {

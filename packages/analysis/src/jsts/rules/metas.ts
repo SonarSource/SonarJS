@@ -316,6 +316,7 @@ export * as S5867 from './S5867/generated-meta.js'; // unicode-aware-regex
 export * as S5868 from './S5868/generated-meta.js'; // no-misleading-character-class
 export * as S5869 from './S5869/generated-meta.js'; // duplicates-in-character-class
 export * as S5876 from './S5876/generated-meta.js'; // session-regeneration
+export * as S5906 from './S5906/generated-meta.js'; // prefer-specific-assertions
 export * as S5914 from './S5914/generated-meta.js'; // no-trivial-assertions
 export * as S5958 from './S5958/generated-meta.js'; // test-check-exception
 export * as S5973 from './S5973/generated-meta.js'; // stable-tests

@@ -316,6 +316,7 @@ export { rule as S5867 } from './S5867/index.js'; // unicode-aware-regex
 export { rule as S5868 } from './S5868/index.js'; // no-misleading-character-class
 export { rule as S5869 } from './S5869/index.js'; // duplicates-in-character-class
 export { rule as S5876 } from './S5876/index.js'; // session-regeneration
+export { rule as S5906 } from './S5906/index.js'; // prefer-specific-assertions
 export { rule as S5914 } from './S5914/index.js'; // no-trivial-assertions
 export { rule as S5958 } from './S5958/index.js'; // test-check-exception
 export { rule as S5973 } from './S5973/index.js'; // stable-tests

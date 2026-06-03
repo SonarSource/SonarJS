@@ -133,19 +133,6 @@ test('uses another assertion API', () => {
         },
         {
           code: `
-import { expect, it } from '@jest/globals';
-
-it('checks platform-specific output', () => {
-  if (process.platform === 'win32') {
-    expect(message).toContain('exited with code 1');
-  } else {
-    expect(message).toContain('ENOENT');
-  }
-});
-`,
-        },
-        {
-          code: `
 import { expect, test } from 'vitest';
 
 test('checks an expected rejection with assertion count', async () => {
@@ -231,80 +218,6 @@ test('checks expected DOMException details', () => {
   } catch (error) {
     const expectedError = new DOMException('bad submitter', 'NotFoundError');
     expect(error).toEqual(expectedError);
-  }
-});
-`,
-        },
-        {
-          code: `
-import { expect, test } from 'vitest';
-
-test('checks entries for each generated trace file', async () => {
-  for (const traceFile of traceFiles) {
-    const events = await readEvents(traceFile);
-
-    if (traceFile.includes('locator-mark')) {
-      expect(events).toEqual(expect.arrayContaining([expect.objectContaining({ title: 'mark' })]));
-    }
-  }
-});
-`,
-        },
-        {
-          code: `
-import { expect, it } from '@jest/globals';
-
-it('checks line numbers by diff line variant', () => {
-  for (const line of firstHunk.lines) {
-    if (line.type === DiffLineType.Add) {
-      expect(line.newLineNumber).toBe(expectedNewLine);
-    } else if (line.type === DiffLineType.Delete) {
-      expect(line.oldLineNumber).toBe(expectedOldLine);
-    }
-  }
-});
-`,
-        },
-        {
-          code: `
-import { expect, test } from 'vitest';
-
-const IS_PLAYWRIGHT = process.env.PROVIDER === 'playwright';
-
-test('checks provider-specific benchmark output', () => {
-  if (IS_PLAYWRIGHT) {
-    expect(result.stdout).toContain('|chromium| basic.bench.ts');
-  } else {
-    expect(result.stdout).toContain('|chrome| basic.bench.ts');
-  }
-});
-`,
-        },
-        {
-          code: `
-import { expect, test } from 'vitest';
-
-test('checks version-specific transformed source', () => {
-  if (viteVersion[0] >= '6') {
-    expect(result.scriptSource).toContain('test)("sum", () => {');
-  } else {
-    expect(result.scriptSource).toContain('test("sum", () => {');
-  }
-});
-`,
-        },
-        {
-          code: `
-import { expect, it } from 'vitest';
-
-it('checks inherited values for each project', ({ task }) => {
-  const project = task.file.projectName;
-  switch (project) {
-    case 'project-1':
-      expect(process.env.TEST_ROOT).toBe('1');
-      return;
-    default:
-      expect.unreachable();
   }
 });
 `,
@@ -477,6 +390,99 @@ test('checks expected errors from APIs that cannot use toThrow', async () => {
     await vi.waitFor(check, 100);
   } catch (error) {
     expect(error.message).toMatchInlineSnapshot('"Fail."');
+  }
+});
+`,
+          errors: [{ messageId: 'conditionalAssertion' }],
+        },
+        {
+          code: `
+import { expect, it } from '@jest/globals';
+
+it('checks platform-specific output', () => {
+  if (process.platform === 'win32') {
+    expect(message).toContain('exited with code 1');
+  } else {
+    expect(message).toContain('ENOENT');
+  }
+});
+`,
+          errors: [{ messageId: 'conditionalAssertion' }, { messageId: 'conditionalAssertion' }],
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+test('checks entries for each generated trace file', async () => {
+  for (const traceFile of traceFiles) {
+    const events = await readEvents(traceFile);
+
+    if (traceFile.includes('locator-mark')) {
+      expect(events).toEqual(expect.arrayContaining([expect.objectContaining({ title: 'mark' })]));
+    }
+  }
+});
+`,
+          errors: [{ messageId: 'conditionalAssertion' }],
+        },
+        {
+          code: `
+import { expect, it } from '@jest/globals';
+
+it('checks line numbers by diff line variant', () => {
+  for (const line of firstHunk.lines) {
+    if (line.type === DiffLineType.Add) {
+      expect(line.newLineNumber).toBe(expectedNewLine);
+    } else if (line.type === DiffLineType.Delete) {
+      expect(line.oldLineNumber).toBe(expectedOldLine);
+    }
+  }
+});
+`,
+          errors: [{ messageId: 'conditionalAssertion' }, { messageId: 'conditionalAssertion' }],
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+const IS_PLAYWRIGHT = process.env.PROVIDER === 'playwright';
+
+test('checks provider-specific benchmark output', () => {
+  if (IS_PLAYWRIGHT) {
+    expect(result.stdout).toContain('|chromium| basic.bench.ts');
+  } else {
+    expect(result.stdout).toContain('|chrome| basic.bench.ts');
+  }
+});
+`,
+          errors: [{ messageId: 'conditionalAssertion' }, { messageId: 'conditionalAssertion' }],
+        },
+        {
+          code: `
+import { expect, test } from 'vitest';
+
+test('checks version-specific transformed source', () => {
+  if (viteVersion[0] >= '6') {
+    expect(result.scriptSource).toContain('test)("sum", () => {');
+  } else {
+    expect(result.scriptSource).toContain('test("sum", () => {');
+  }
+});
+`,
+          errors: [{ messageId: 'conditionalAssertion' }, { messageId: 'conditionalAssertion' }],
+        },
+        {
+          code: `
+import { expect, it } from 'vitest';
+
+it('checks inherited values for each project', ({ task }) => {
+  const project = task.file.projectName;
+  switch (project) {
+    case 'project-1':
+      expect(process.env.TEST_ROOT).toBe('1');
+      return;
+    default:
+      expect.unreachable();
   }
 });
 `,

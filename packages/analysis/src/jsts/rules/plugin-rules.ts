@@ -233,6 +233,7 @@ import { rule as S5867 } from './S5867/index.js';
 import { rule as S5868 } from './S5868/index.js';
 import { rule as S5869 } from './S5869/index.js';
 import { rule as S5876 } from './S5876/index.js';
+import { rule as S5906 } from './S5906/index.js';
 import { rule as S5914 } from './S5914/index.js';
 import { rule as S5958 } from './S5958/index.js';
 import { rule as S5973 } from './S5973/index.js';
@@ -507,6 +508,7 @@ export const rules = {
   'no-misleading-character-class': S5868,
   'duplicates-in-character-class': S5869,
   'session-regeneration': S5876,
+  'prefer-specific-assertions': S5906,
   'no-trivial-assertions': S5914,
   'test-check-exception': S5958,
   'stable-tests': S5973,
