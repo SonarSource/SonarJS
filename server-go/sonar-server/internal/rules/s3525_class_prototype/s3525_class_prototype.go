@@ -16,11 +16,17 @@ func buildDeclareClassMessage(className string, declaration string) rule.RuleMes
 }
 
 func isFunctionLikeSyntax(node *ast.Node) bool {
+	if node == nil {
+		return false
+	}
 	node = ast.SkipParentheses(node)
 	return node != nil && (ast.IsFunctionDeclaration(node) || ast.IsFunctionExpression(node) || ast.IsArrowFunction(node))
 }
 
 func isFunctionValue(ctx rule.RuleContext, node *ast.Node) bool {
+	if node == nil {
+		return false
+	}
 	node = ast.SkipParentheses(node)
 	if node == nil {
 		return false

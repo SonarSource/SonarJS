@@ -50,10 +50,20 @@ func allowsUndefinedType(t *checker.Type) bool {
 
 func contextualTypeSubject(node *ast.Node) *ast.Node {
 	current := node
-	for current.Parent != nil &&
-		ast.IsLogicalExpression(current.Parent) &&
-		(current.Parent.AsBinaryExpression().Left == current || current.Parent.AsBinaryExpression().Right == current) {
-		current = current.Parent
+	for current != nil {
+		for current.Parent != nil && ast.IsParenthesizedExpression(current.Parent) {
+			current = current.Parent
+		}
+
+		parent := current.Parent
+		if parent == nil || !ast.IsBinaryExpression(parent) || !ast.IsLogicalExpression(parent) {
+			return current
+		}
+		if parent.AsBinaryExpression().Left != current && parent.AsBinaryExpression().Right != current {
+			return current
+		}
+
+		current = parent
 	}
 	return current
 }

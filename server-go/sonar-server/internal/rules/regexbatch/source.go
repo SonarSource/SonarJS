@@ -305,30 +305,39 @@ func resolveStringExpression(
 }
 
 func decodeQuotedStringLiteral(sourceFile *ast.SourceFile, node *ast.Node, quote byte) (decodedString, bool) {
+	sourceText := sourceFile.Text()
 	textRange := utils.TrimNodeTextRange(sourceFile, node)
-	raw := sourceFile.Text()[textRange.Pos():textRange.End()]
+	if textRange.Pos() < 0 || textRange.End() < textRange.Pos() || textRange.End() > len(sourceText) {
+		return decodedString{}, false
+	}
+	raw := sourceText[textRange.Pos():textRange.End()]
 	if len(raw) < 2 || raw[0] != quote || raw[len(raw)-1] != quote {
 		return decodedString{}, false
 	}
 
 	contentStart := textRange.Pos() + 1
 	contentEnd := textRange.End() - 1
-	return decodeEscapedStringContent(sourceFile.Text(), contentStart, contentEnd, true), true
+	return decodeEscapedStringContent(sourceText, contentStart, contentEnd, true), true
 }
 
 func decodeTemplateLiteral(sourceFile *ast.SourceFile, node *ast.Node) (decodedString, bool) {
+	sourceText := sourceFile.Text()
 	textRange := utils.TrimNodeTextRange(sourceFile, node)
-	raw := sourceFile.Text()[textRange.Pos():textRange.End()]
+	if textRange.Pos() < 0 || textRange.End() < textRange.Pos() || textRange.End() > len(sourceText) {
+		return decodedString{}, false
+	}
+	raw := sourceText[textRange.Pos():textRange.End()]
 	if len(raw) < 2 || raw[0] != '`' || raw[len(raw)-1] != '`' {
 		return decodedString{}, false
 	}
 
 	contentStart := textRange.Pos() + 1
 	contentEnd := textRange.End() - 1
-	return decodeEscapedStringContent(sourceFile.Text(), contentStart, contentEnd, false), true
+	return decodeEscapedStringContent(sourceText, contentStart, contentEnd, false), true
 }
 
 func decodeStringRawTemplate(sourceFile *ast.SourceFile, node *ast.Node) (decodedString, bool) {
+	sourceText := sourceFile.Text()
 	tagged := node.AsTaggedTemplateExpression()
 	tag := UnwrapExpression(tagged.Tag)
 	if tag == nil || !ast.IsPropertyAccessExpression(tag) {
@@ -351,7 +360,10 @@ func decodeStringRawTemplate(sourceFile *ast.SourceFile, node *ast.Node) (decode
 	}
 
 	textRange := utils.TrimNodeTextRange(sourceFile, template)
-	raw := sourceFile.Text()[textRange.Pos():textRange.End()]
+	if textRange.Pos() < 0 || textRange.End() < textRange.Pos() || textRange.End() > len(sourceText) {
+		return decodedString{}, false
+	}
+	raw := sourceText[textRange.Pos():textRange.End()]
 	if len(raw) < 2 || raw[0] != '`' || raw[len(raw)-1] != '`' {
 		return decodedString{}, false
 	}
@@ -362,7 +374,7 @@ func decodeStringRawTemplate(sourceFile *ast.SourceFile, node *ast.Node) (decode
 		contentRange: core.NewTextRange(contentStart, contentEnd),
 	}
 	for pos := contentStart; pos < contentEnd; {
-		r, size := utf8.DecodeRuneInString(sourceFile.Text()[pos:contentEnd])
+		r, size := utf8.DecodeRuneInString(sourceText[pos:contentEnd])
 		if r == utf8.RuneError && size == 0 {
 			break
 		}

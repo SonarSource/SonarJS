@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"slices"
 	"strings"
+	"time"
 
 	pb "github.com/SonarSource/SonarJS/server-go/sonar-server/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
@@ -52,6 +53,15 @@ type normalizedIssueLocation struct {
 	Message   *string `json:"message,omitempty"`
 }
 
+type benchmarkTimings struct {
+	AnalyzeMs float64 `json:"analyzeMs"`
+}
+
+type benchmarkAnalysisOutput struct {
+	Analysis normalizedAnalysisOutput `json:"analysis"`
+	Timings  benchmarkTimings         `json:"timings"`
+}
+
 func runAnalyzeProjectCLI(
 	projectPath string,
 	requestPath string,
@@ -65,12 +75,14 @@ func runAnalyzeProjectCLI(
 	}
 
 	service := NewAnalyzerService()
+	analyzeStart := time.Now()
 	response, err := service.AnalyzeProjectUnary(context.Background(), request)
 	if err != nil {
 		return err
 	}
+	analyzeDuration := time.Since(analyzeStart)
 
-	encoded, err := marshalAnalyzeProjectCLIResponse(response, outputFormat, pretty)
+	encoded, err := marshalAnalyzeProjectCLIResponse(response, outputFormat, pretty, analyzeDuration)
 	if err != nil {
 		return err
 	}
@@ -172,6 +184,7 @@ func marshalAnalyzeProjectCLIResponse(
 	response *pb.AnalyzeProjectUnaryResponse,
 	outputFormat string,
 	pretty bool,
+	analyzeDuration time.Duration,
 ) ([]byte, error) {
 	switch outputFormat {
 	case "normalized-json":
@@ -186,9 +199,24 @@ func marshalAnalyzeProjectCLIResponse(
 			Indent:          "  ",
 			EmitUnpopulated: false,
 		}.Marshal(response)
+	case "benchmark-json":
+		output := benchmarkAnalysisOutput{
+			Analysis: normalizeAnalyzeProjectResponse(response),
+			Timings: benchmarkTimings{
+				AnalyzeMs: durationToMilliseconds(analyzeDuration),
+			},
+		}
+		if pretty {
+			return json.MarshalIndent(output, "", "  ")
+		}
+		return json.Marshal(output)
 	default:
 		return nil, fmt.Errorf("unsupported analyze-project CLI format %q", outputFormat)
 	}
+}
+
+func durationToMilliseconds(value time.Duration) float64 {
+	return float64(value) / float64(time.Millisecond)
 }
 
 func normalizeAnalyzeProjectResponse(response *pb.AnalyzeProjectUnaryResponse) normalizedAnalysisOutput {

@@ -514,6 +514,30 @@ func TestPreferOptionalChainDecoratorKeepsBooleanContextDiagnostic(t *testing.T)
 	}
 }
 
+func TestPreferOptionalChainDecoratorSuppressesParenthesizedCallArgumentFalsePositive(t *testing.T) {
+	t.Parallel()
+
+	diagnostics := runNamedRuleOnCode(
+		t,
+		"prefer-optional-chain",
+		nil,
+		"file.ts",
+		`
+declare function consume(value: string): void;
+
+function f(arr: string[] | null) {
+  consume((arr && arr[0]));
+}
+`,
+		"tsconfig.minimal.json",
+		"",
+	)
+
+	if len(diagnostics) != 0 {
+		t.Fatalf("expected no diagnostics for a parenthesized type-unsafe call argument, got %#v", diagnostics)
+	}
+}
+
 func TestPreferNullishCoalescingDefaultOptionsSuppressFalsePositives(t *testing.T) {
 	t.Parallel()
 

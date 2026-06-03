@@ -15,7 +15,7 @@ func main() {
 	project := flag.String("project", "", "Synthetic parity project directory")
 	request := flag.String("request", "", "AnalyzeProjectRequest JSON file")
 	baseDir := flag.String("base-dir", "", "Base directory for direct analyze-project runs")
-	format := flag.String("format", "normalized-json", "CLI output format: normalized-json or protojson")
+	format := flag.String("format", "normalized-json", "CLI output format: normalized-json, protojson, or benchmark-json")
 	pretty := flag.Bool("pretty", true, "Pretty-print CLI JSON output")
 	flag.Parse()
 

@@ -180,7 +180,10 @@ var NoBaseToStringRule = rule.Rule{
 		) usefulness {
 			elemType := utils.GetNumberIndexType(ctx.TypeChecker, t)
 			if elemType == nil {
-				panic("array should have number index type")
+				elemType = ctx.TypeChecker.GetElementTypeOfArrayType(t)
+			}
+			if elemType == nil {
+				return usefulnessAlways
 			}
 			return collectToStringCertainty(elemType, visited)
 		}

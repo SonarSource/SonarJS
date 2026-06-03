@@ -125,3 +125,19 @@ function wrap() {
 
 	assertDiagnosticCount(t, diagnostics, 0)
 }
+
+func TestPreferImmediateReturnIgnoresBareReturn(t *testing.T) {
+	t.Parallel()
+
+	diagnostics := runRuleOnCode(t, "file.ts", `
+function wrap(flag: boolean) {
+  const value = compute();
+  if (flag) {
+    return;
+  }
+  return value;
+}
+`, "tsconfig.minimal.json")
+
+	assertDiagnosticCount(t, diagnostics, 0)
+}

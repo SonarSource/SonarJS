@@ -27,6 +27,9 @@ var NoObjectAsDefaultParameterRule = rule.Rule{
 		return rule.RuleListeners{
 			ast.KindParameter: func(node *ast.Node) {
 				param := node.AsParameterDeclaration()
+				if param.Initializer == nil {
+					return
+				}
 				if !ast.IsObjectLiteralExpression(param.Initializer) {
 					return
 				}

@@ -65,3 +65,23 @@ function configure(options = {}) {
 
 	assertDiagnosticCount(t, diagnostics, 0)
 }
+
+func TestNoObjectAsDefaultParameterIgnoresParametersWithoutDefault(t *testing.T) {
+	t.Parallel()
+
+	diagnostics := runRuleOnCode(
+		t,
+		no_object_as_default_parameter.NoObjectAsDefaultParameterRule,
+		nil,
+		"file.ts",
+		`
+function configure(options) {
+  return options;
+}
+`,
+		"tsconfig.minimal.json",
+		"",
+	)
+
+	assertDiagnosticCount(t, diagnostics, 0)
+}

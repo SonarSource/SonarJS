@@ -66,6 +66,9 @@ func previousStatement(node *ast.Node) *ast.Node {
 }
 
 func expressionStatementCall(node *ast.Node) *ast.CallExpression {
+	if node == nil {
+		return nil
+	}
 	if !ast.IsExpressionStatement(node) {
 		return nil
 	}

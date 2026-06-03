@@ -46,3 +46,23 @@ Foo.prototype.render = 1;
 
 	assertDiagnosticCount(t, diagnostics, 0)
 }
+
+func TestClassPrototypeIgnoresIncompleteAssignments(t *testing.T) {
+	t.Parallel()
+
+	diagnostics := runRuleOnCode(
+		t,
+		s3525_class_prototype.ClassPrototypeRule,
+		nil,
+		"file.ts",
+		`
+function Foo() {}
+
+Foo.prototype.render =
+`,
+		"tsconfig.minimal.json",
+		"",
+	)
+
+	assertDiagnosticCount(t, diagnostics, 0)
+}

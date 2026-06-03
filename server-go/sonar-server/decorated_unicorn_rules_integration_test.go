@@ -190,6 +190,23 @@ func TestPreferSingleCallRuleSuppressesSingleArgumentCustomMethods(t *testing.T)
 	}
 }
 
+func TestPreferSingleCallRuleIgnoresFirstStatementWithoutPreviousCall(t *testing.T) {
+	t.Parallel()
+
+	diagnostics := runNamedRuleOnCode(
+		t,
+		"prefer-single-call",
+		nil,
+		"file.ts",
+		"const items: number[] = [];\nitems.push(1);",
+		"tsconfig.minimal.json",
+		"",
+	)
+	if len(diagnostics) != 0 {
+		t.Fatalf("expected no diagnostics for a first push statement, got %d", len(diagnostics))
+	}
+}
+
 func TestPreferTopLevelAwaitRuleSuppressesSynchronousCatchChains(t *testing.T) {
 	t.Parallel()
 

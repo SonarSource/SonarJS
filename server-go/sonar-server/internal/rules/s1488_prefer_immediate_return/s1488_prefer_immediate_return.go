@@ -24,13 +24,20 @@ func buildDoImmediateActionMessage(action string, variable string) rule.RuleMess
 
 func getOnlyReturnedVariable(statement *ast.Node) *ast.Node {
 	switch {
-	case ast.IsReturnStatement(statement) && ast.IsIdentifier(statement.AsReturnStatement().Expression):
-		return statement.AsReturnStatement().Expression
-	case ast.IsThrowStatement(statement) && ast.IsIdentifier(statement.AsThrowStatement().Expression):
-		return statement.AsThrowStatement().Expression
+	case ast.IsReturnStatement(statement):
+		expression := statement.AsReturnStatement().Expression
+		if expression != nil && ast.IsIdentifier(expression) {
+			return expression
+		}
+	case ast.IsThrowStatement(statement):
+		expression := statement.AsThrowStatement().Expression
+		if expression != nil && ast.IsIdentifier(expression) {
+			return expression
+		}
 	default:
 		return nil
 	}
+	return nil
 }
 
 func getOnlyDeclaredVariable(statement *ast.Node) *declaredVariable {
