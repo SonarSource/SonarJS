@@ -231,7 +231,7 @@ function isIndirectExactComparison(
   return comparisonAlternatives(leftComparison).some(left =>
     comparisonAlternatives(rightComparison).some(
       right =>
-        left.direction !== right.direction &&
+        left.isAbove !== right.isAbove &&
         areEquivalent(left.expression, right.expression, context.sourceCode) &&
         areEquivalent(left.threshold, right.threshold, context.sourceCode) &&
         (isFloatingPointSensitive(left.expression) || isFloatingPointSensitive(left.threshold)),
@@ -262,14 +262,14 @@ function comparisonAlternatives(node: estree.BinaryExpression) {
     case '<':
     case '<=':
       return [
-        { expression: left, threshold: right, direction: 'below' },
-        { expression: right, threshold: left, direction: 'above' },
+        { expression: left, threshold: right, isAbove: false },
+        { expression: right, threshold: left, isAbove: true },
       ];
     case '>':
     case '>=':
       return [
-        { expression: left, threshold: right, direction: 'above' },
-        { expression: right, threshold: left, direction: 'below' },
+        { expression: left, threshold: right, isAbove: true },
+        { expression: right, threshold: left, isAbove: false },
       ];
     default:
       return [];
