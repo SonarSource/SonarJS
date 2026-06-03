@@ -1,8 +1,9 @@
-name: Refresh Telemetry Dashboard
+name: Publish Telemetry Dashboard
 
 on:
-  schedule:
-    - cron: '0 10 * * *'
+  push:
+    branches:
+      - codex/telemetry-static-site
   workflow_dispatch:
 
 concurrency:
@@ -10,11 +11,10 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  fetch-and-deploy:
+  build-and-deploy:
     runs-on: sonar-xs
     permissions:
       contents: write
-      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -34,15 +34,6 @@ jobs:
 
       - name: Install telemetry dashboard dependencies
         run: npm --prefix telemetry-dashboard ci
-
-      - name: Configure AWS credentials for Redshift
-        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
-        with:
-          role-to-assume: arn:aws:iam::478507623792:role/deploymentroles/SonarJSTelemetryDashboardRedshiftRole
-          aws-region: eu-west-1
-
-      - name: Fetch telemetry snapshot
-        run: npm --prefix telemetry-dashboard run fetch:redshift
 
       - name: Build static site
         run: npm --prefix telemetry-dashboard run build

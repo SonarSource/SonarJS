@@ -43,10 +43,8 @@ Useful environment variables:
 The GitHub Actions workflow is expected to:
 
 1. Configure Node and install `telemetry-dashboard` dependencies
-2. Assume the Redshift CI role
-3. Run `npm --prefix telemetry-dashboard run fetch:redshift`
-4. Run `npm --prefix telemetry-dashboard run build`
-5. Deploy `telemetry-dashboard/dist` to `gh_pages`
+2. Run `npm --prefix telemetry-dashboard run build`
+3. Deploy `telemetry-dashboard/dist` to `gh_pages`
 
-The workflow assumes `SonarJSTelemetryDashboardRedshiftRole` from the Data Team prod account
-through GitHub OIDC, following the same deployment model as `issue-feedback-dashboard`.
+The workflow currently publishes the static site without fetching Redshift data. This keeps the
+GitHub Pages deployment path testable before Redshift access is enabled.
