@@ -19,7 +19,7 @@ import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { childrenOf } from '../helpers/ancestor.js';
 import { getVariableFromName, isFunctionNode, isIdentifier } from '../helpers/ast.js';
-import { isWholePropsExpressionOrAlias } from './helpers/prop-alias-resolution.js';
+import { isWholePropsExpressionOrAlias } from '../helpers/react/prop-alias-resolution.js';
 
 /**
  * False-positive remediation escape:

@@ -33,7 +33,7 @@ import { areSameTypeDeclarations, getTypeFromTreeNode } from '../helpers/type.js
 import {
   isNamedPropExpressionOrAlias,
   isWholePropsExpressionOrAlias,
-} from './helpers/prop-alias-resolution.js';
+} from '../helpers/react/prop-alias-resolution.js';
 import { isSupportedWholePropsUsage } from './whole-props-usage.js';
 
 /**

@@ -25,7 +25,7 @@ import {
   isIdentifier,
 } from '../helpers/ast.js';
 import { isForwardRefCallee } from '../helpers/react/component-analysis.js';
-import { isNamedPropExpressionOrAlias } from './helpers/prop-alias-resolution.js';
+import { isNamedPropExpressionOrAlias } from '../helpers/react/prop-alias-resolution.js';
 
 /**
  * False-positive remediation escape:

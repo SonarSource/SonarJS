@@ -16,7 +16,7 @@
  */
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import { getUniqueWriteReference, getVariableFromName, isIdentifier } from '../../helpers/ast.js';
+import { getUniqueWriteReference, getVariableFromName, isIdentifier } from '../ast.js';
 
 function isObjectPatternBinding(variable: Scope.Variable) {
   return variable.defs.some(
