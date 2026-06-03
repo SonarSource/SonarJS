@@ -1681,6 +1681,41 @@ extension = ".generated.tsx"
     }
   });
 
+  it('derives TOML outputs when a GraphQL project is named generates', async () => {
+    const baseDir = await createTempBaseDir();
+    const configPath = joinPaths(baseDir, 'graphql.config.toml');
+    const outputPath = joinPaths(baseDir, 'src', 'contra-api', '__generated__', 'types.ts');
+
+    try {
+      await writeFixtureFile(
+        configPath,
+        `[projects.generates.extensions.codegen.generates."src/contra-api/__generated__/types.ts"]
+plugins = [
+  "typescript",
+]
+`,
+      );
+      await writeFixtureFile(outputPath, 'export const types = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          scripts: {
+            codegen: 'graphql-codegen',
+          },
+          devDependencies: {
+            [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+          },
+        }),
+      );
+
+      expect(derived.configPaths).toEqual(new Set([configPath]));
+      expect(derived.familyByFile.get(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('refreshes generated-source matches when the explicit request file set changes', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
     const firstGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');

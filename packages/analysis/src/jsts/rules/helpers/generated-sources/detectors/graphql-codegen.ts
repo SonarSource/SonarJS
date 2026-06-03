@@ -88,6 +88,7 @@ const GRAPHQL_GENERATED_DIRECTORY_SEGMENTS = new Set(['generated', '__generated_
 const GRAPHQL_CODEGEN_FAMILY = '@graphql-codegen/cli';
 const TOML_ASSIGNMENT_PATTERN = /^([A-Za-z0-9_.-]+)\s*=\s*(.*)$/u;
 const TOML_TABLE_PATH_PATTERN = /^\[([^\]]+)\]$/u;
+const SUPPORTED_TOML_GENERATES_INDEXES = [2, 4] as const;
 
 type GraphqlGenerateTarget = {
   outputPath: string;
@@ -322,12 +323,12 @@ function getTomlGenerateTargetContext(
   tablePath: string,
 ): GraphqlTomlGenerateTargetContext | undefined {
   const pathSegments = splitTomlPath(tablePath);
-  const generatesIndex = pathSegments.indexOf('generates');
-  if (
-    generatesIndex === -1 ||
-    generatesIndex === pathSegments.length - 1 ||
-    !isSupportedTomlGenerateTargetPrefix(pathSegments.slice(0, generatesIndex))
-  ) {
+  const generatesIndex = SUPPORTED_TOML_GENERATES_INDEXES.find(
+    index =>
+      pathSegments[index] === 'generates' &&
+      isSupportedTomlGenerateTargetPrefix(pathSegments.slice(0, index)),
+  );
+  if (generatesIndex === undefined || generatesIndex === pathSegments.length - 1) {
     return undefined;
   }
 
