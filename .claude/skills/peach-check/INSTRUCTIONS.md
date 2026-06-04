@@ -22,10 +22,18 @@ This skill validates a Peach Main Analysis GitHub run in two layers:
 2. Peach result validation: for successful project jobs, verify that the run produced fresh Peach
    analyses whose SonarJS-language issue counts are materially consistent with recent history.
 
-A run is `SAFE` only when both layers are clean:
+Keep these distinctions straight:
 
-- there are no failed analyzed jobs
-- the issue-history helper reports no blocking project rows
+- workflow `success` does not mean `SAFE`
+- workflow `failure` does not mean `NOT SAFE`
+- the release verdict comes from final failure classification plus the analysis-consistency check
+
+A run is `SAFE` only when the final verdict has:
+
+- `CRITICAL: 0`
+- `NEEDS-MANUAL-REVIEW: 0`
+
+`IGNORE` failures do not block a `SAFE` verdict when the analysis-consistency check is also clean.
 
 Blocking project rows are: `DROP`, `STALE`, `UNRESOLVED_PROJECT`, and `ERROR`.
 
@@ -150,6 +158,10 @@ not usable for release triage. Recommend a rerun and do not classify jobs from t
 A workflow conclusion of `success` is not by itself a `SAFE` release verdict. Section 3 still
 needs to confirm that the successful jobs produced fresh, materially consistent Peach analyses.
 
+A workflow conclusion of `failure` is not by itself a `NOT SAFE` verdict either. Failed analyzed
+jobs may still classify as `IGNORE`, and the run can still be `SAFE` when the analysis-consistency
+check is clean.
+
 ### 2. Collect project jobs
 
 Use the helper script to fetch the Peach run jobs and materialize the working sets consumed by the
@@ -199,7 +211,7 @@ Count invariant:
 `jobs-merged.total_jobs == project-jobs.total_jobs + failed-jobs.total_jobs + excluded_workflow_jobs + excluded_project_jobs`
 
 Use that identity as a quick sanity check before moving on. For example, a clean run can look like
-`247 = 245 + 0 + 2 + 0`.
+`248 = 245 + 0 + 3 + 0`.
 
 JSON shapes:
 
@@ -248,6 +260,26 @@ For each remaining failed job, record:
 - `failing_step_name`
 - `owning_phase` as `pre-scan`, `analyze`, or `post-scan`
 
+For a concise first pass, prefer this low-noise view before opening the full JSON:
+
+```bash
+jq '{
+  total_jobs,
+  jobs: [
+    .jobs[] |
+    {
+      id,
+      name,
+      completed_at,
+      html_url,
+      failing_steps: [
+        .steps[] | select(.conclusion == "failure") | {name, conclusion, started_at, completed_at}
+      ]
+    }
+  ]
+}' OUTPUT_DIR/failed-jobs.json
+```
+
 If job metadata is incomplete, fetch the job directly:
 
 ```bash
@@ -256,6 +288,11 @@ gh api "repos/SonarSource/peachee-js/actions/jobs/JOB_ID"
 
 When multiple steps are failed, use the earliest failed step that actually ran as the owner.
 Treat later cleanup or report failures as downstream noise unless they are the only failed steps.
+
+Important: do not assume `failing_step_name == "Analyze project"` means `owning_phase = analyze`.
+A job can fail inside the GitHub Actions `Analyze project` step after JavaScript analysis already
+finished, for example during `ReportPublisher.upload` or `/api/ce/submit`; that is `post-scan`
+ownership and often classifies as `IGNORE`.
 
 If the failing step name contains `Diff Val` or `diff-val`, classify the job immediately as
 `IGNORE`. These monitoring failures are not SonarJS release blockers.
