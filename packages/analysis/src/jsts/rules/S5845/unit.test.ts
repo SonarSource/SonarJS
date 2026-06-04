@@ -188,6 +188,17 @@ describe('S5845', () => {
         },
         {
           code: `
+            import assert from 'node:assert';
+            import assertStrict from 'node:assert/strict';
+
+            const count: number = 1;
+            const title: string = '1';
+            assert.deepEqual(count, title);
+            assertStrict.ok(count);
+          `,
+        },
+        {
+          code: `
             import 'cypress';
             import assert from 'node:assert';
 

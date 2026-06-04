@@ -1,0 +1,227 @@
+{
+"vitest:test/browser/fixtures/mocking/import-mock.test.ts": [
+15,
+19,
+25,
+37
+],
+"vitest:test/browser/test/userEvent.test.ts": [
+239
+],
+"vitest:test/browser/test/viewport.test.ts": [
+26,
+29
+],
+"vitest:test/cli/fixtures/no-module-runner/test/automock.test.ts": [
+11,
+12
+],
+"vitest:test/config/fixtures/mixed-environments/project/test/happy-dom.test.ts": [
+9,
+10
+],
+"vitest:test/config/fixtures/mixed-environments/project/test/jsdom.test.ts": [
+9,
+10
+],
+"vitest:test/config/fixtures/mixed-environments/project/test/node.test.ts": [
+9,
+10
+],
+"vitest:test/config/fixtures/mixed-environments/project/test/workspace-project.test.ts": [
+4
+],
+"vitest:test/config/test/shard.test.ts": [
+80,
+81,
+82
+],
+"vitest:test/core/test/circular.test.ts": [
+10
+],
+"vitest:test/core/test/define-ssr.test.ts": [
+35,
+36,
+73,
+74
+],
+"vitest:test/core/test/define-web.test.ts": [
+70,
+71
+],
+"vitest:test/core/test/esnext.test.ts": [
+18
+],
+"vitest:test/core/test/expect-poll.test.ts": [
+55,
+66
+],
+"vitest:test/core/test/fixture-initialization.test.ts": [
+175,
+178,
+182,
+183,
+186,
+187
+],
+"vitest:test/core/test/fixtures/timers.suite.ts": [
+30,
+37,
+44,
+51
+],
+"vitest:test/core/test/imports.test.ts": [
+13,
+85
+],
+"vitest:test/core/test/isolate.test.ts": [
+6
+],
+"vitest:test/core/test/jest-mock.test.ts": [
+145,
+155,
+338,
+635
+],
+"vitest:test/core/test/mocked.test.ts": [
+94,
+111,
+214,
+215
+],
+"vitest:test/core/test/mocking/automocking.spec.ts": [
+16,
+20,
+26,
+38,
+60,
+61
+],
+"vitest:test/core/test/mocking/circular-mocks.spec.ts": [
+27
+],
+"vitest:test/core/test/mocking/factory.test.ts": [
+74
+],
+"vitest:test/core/test/mocking/vi-fn.test.ts": [
+6,
+50,
+57,
+60,
+63,
+66,
+69,
+75,
+79,
+81,
+85,
+87,
+90,
+99,
+332,
+337,
+404,
+468,
+488,
+495,
+496,
+499,
+519,
+529,
+559,
+566,
+567,
+570,
+601,
+616,
+646,
+653,
+654,
+657,
+677,
+692,
+722,
+729,
+730,
+733,
+753,
+857
+],
+"vitest:test/core/test/mocking/vi-mockObject.test.ts": [
+8,
+36,
+45,
+55,
+59,
+143,
+144,
+156,
+170
+],
+"vitest:test/core/test/mocking/vi-spyOn.test.ts": [
+7,
+10,
+13,
+16,
+19,
+81,
+500,
+509,
+722,
+757
+],
+"vitest:test/core/test/module.test.ts": [
+127
+],
+"vitest:test/core/test/node-protocol-jsdom.spec.ts": [
+19
+],
+"vitest:test/core/test/node-protocol-node.spec.ts": [
+15
+],
+"vitest:test/core/test/pretty-format.test.ts": [
+165
+],
+"vitest:test/core/test/serialize.test.ts": [
+8,
+9,
+90
+],
+"vitest:test/core/test/stubs.test.ts": [
+62,
+63
+],
+"vitest:test/core/test/task-names.test.ts": [
+37,
+46,
+49,
+63,
+72,
+82,
+122
+],
+"vitest:test/core/test/timers-getMockedSystemTime.test.ts": [
+8,
+22,
+31,
+42
+],
+"vitest:test/core/test/utils.spec.ts": [
+63,
+94,
+95,
+96,
+133,
+134
+],
+"vitest:test/core/test/vi.spec.ts": [
+297,
+298
+],
+"vitest:test/coverage-test/fixtures/test/circular.test.ts": [
+9
+],
+"vitest:test/workspaces/space_3/global-provide.space-3-test.ts": [
+8
+]
+}
