@@ -26,6 +26,7 @@ import { decorate } from './decorator.js';
 import type { TSESTree } from '@typescript-eslint/utils';
 import * as meta from './generated-meta.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
+import { getImportDeclarations } from '../helpers/module.js';
 
 const noUnknownProp = reactRules['no-unknown-property'];
 const decoratedNoUnknownProp = decorate(noUnknownProp);
@@ -100,6 +101,15 @@ export const rule: Rule.RuleModule = {
     if (dependencies.has('@emotion/react')) {
       // Emotion uses css prop for styling
       frameworkIgnoredProps.push('css');
+    }
+    if (dependencies.has('@vercel/og') || dependencies.has('satori') || dependencies.has('twin.macro')) {
+      // These libraries use tw prop for Tailwind CSS styling in JSX
+      frameworkIgnoredProps.push('tw');
+    }
+    const imports = getImportDeclarations(context);
+    if (imports.some(i => i.source.value === 'next/og')) {
+      // next/og (re-export of satori's ImageResponse) uses tw prop for Tailwind styling
+      frameworkIgnoredProps.push('tw');
     }
 
     // If we have framework-specific props, create a modified context with updated options
