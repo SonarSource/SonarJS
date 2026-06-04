@@ -1,8 +1,248 @@
 {
-"vitest:test/typescript/test/runner.test.ts": [
+"vitest:test/browser/fixtures/user-event/keyboard.test.ts": [
+28,
+44,
+95,
+96,
+97,
+98,
+99,
+100,
+103,
+104,
+105,
+106,
+107,
+108,
+111,
+112,
+113,
+114,
+115,
+116
+],
+"vitest:test/browser/specs/benchmark.test.ts": [
+11,
+12,
+13,
+16,
+17
+],
+"vitest:test/browser/specs/errors.test.ts": [
+17,
+168,
+185,
+203
+],
+"vitest:test/browser/specs/playwright-trace-mark.test.ts": [
+93,
+110,
+113,
+118,
+132,
+135,
+140,
+157,
+160,
+165,
+186,
+189,
+197,
+200,
+205,
+225,
+228,
+232,
+237,
+247,
+250,
+255,
+265,
+268,
+273,
+283,
+286
+],
+"vitest:test/browser/specs/runner.test.ts": [
+191,
+195,
+200,
+223,
+286,
+304,
+305,
+308
+],
+"vitest:test/browser/specs/to-match-screenshot.test.ts": [
+156,
+157,
+160,
+161
+],
+"vitest:test/browser/test/commands.test.ts": [
+14,
+16,
+19,
+35,
+37,
+40
+],
+"vitest:test/cli/fixtures/optimize-deps/ssr.test.ts": [
+12
+],
+"vitest:test/cli/fixtures/workspace/api/basic.test.ts": [
+7,
+11,
+16,
+17
+],
+"vitest:test/cli/test/config/bail.test.ts": [
+84,
+85,
+87,
+88,
+89,
+90,
+93,
+94,
+96,
+97,
+98,
+99
+],
+"vitest:test/cli/test/console.test.ts": [
+68
+],
+"vitest:test/cli/test/inspect.test.ts": [
+42,
+43,
+46,
+47
+],
+"vitest:test/cli/test/mocking.test.ts": [
+61,
+62,
+77
+],
+"vitest:test/cli/test/rollup-error.test.ts": [
+12,
+13,
+16,
+17,
+29,
+30,
+33
+],
+"vitest:test/cli/test/stacktraces.test.ts": [
+222,
+301
+],
+"vitest:test/core/test/dynamic-import.test.ts": [
+9,
+12
+],
+"vitest:test/core/test/environments/jsdom.spec.ts": [
+156,
+289,
+300
+],
+"vitest:test/core/test/expect.test.ts": [
+537,
+577,
+620,
+657,
+658,
+675,
+725,
+759
+],
+"vitest:test/core/test/import-meta-resolve.test.ts": [
+18,
+19,
+30,
+31
+],
+"vitest:test/core/test/jest-expect.test.ts": [
+1129,
+1184,
+1192,
+1214,
+1223,
+1232,
+1241,
+1282,
+1283,
+1293,
+1294,
+1295,
+1296,
+1309,
+1317,
+1355,
+1356,
+1368,
+1369,
+1383
+],
+"vitest:test/core/test/wait.test.ts": [
+67,
+82,
+83,
+182
+],
+"vitest:test/core/test/wasm.test.ts": [
+48,
+51,
+59,
+62
+],
+"vitest:test/core/test/web-worker-jsdom.test.ts": [
+19,
+35
+],
+"vitest:test/coverage-test/test/file-outside-vite.test.ts": [
+15,
+27
+],
+"vitest:test/coverage-test/test/ignore-hints.test.ts": [
+40,
+43
+],
+"vitest:test/coverage-test/test/include-exclude.test.ts": [
+255,
+263
+],
+"vitest:test/coverage-test/test/mock-importActual.test.ts": [
+17,
+27,
 41
+],
+"vitest:test/coverage-test/test/source-maps.test.ts": [
+11,
+21
+],
+"vitest:test/snapshots/test/inline-multiple-calls.test.ts": [
+216,
+221,
+317,
+322
+],
+"vitest:test/typescript/test/runner.test.ts": [
+41,
+149,
+152
 ],
 "vitest:test/ui/test/ui.spec.ts": [
 349
+],
+"vitest:test/workspaces/space-pools/isolate.test.ts": [
+9,
+12,
+13
+],
+"vitest:test/workspaces/space-pools/no-isolate.test.ts": [
+9,
+12,
+13
 ]
 }
