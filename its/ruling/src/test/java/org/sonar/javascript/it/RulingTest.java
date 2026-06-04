@@ -56,7 +56,7 @@ import org.sonarsource.analyzer.commons.ProfileGenerator;
 class RulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(RulingTest.class);
-  static final String LITS_VERSION = "0.11.0.2659";
+  static final String LITS_VERSION = "0.12.0.5847";
   static final String SCANNER_VERSION = "5.0.1.3006";
 
   static final String DEFAULT_EXCLUSIONS = "**/.*,**/*.d.ts";
@@ -279,11 +279,15 @@ class RulingTest {
       .setScannerVersion(SCANNER_VERSION)
       .setProperty(
         "sonar.lits.dump.old",
-        FileLocation.of("src/test/expected/" + projectKey).getFile().getAbsolutePath()
+        FileLocation.of("src/test/expected/" + projectKey)
+          .getFile()
+          .getAbsolutePath()
       )
       .setProperty(
         "sonar.lits.dump.new",
-        FileLocation.of("target/actual/" + projectKey).getFile().getAbsolutePath()
+        FileLocation.of("target/actual/" + projectKey)
+          .getFile()
+          .getAbsolutePath()
       )
       .setProperty("sonar.lits.differences", differencesPath.toString())
       .setProperty("sonar.exclusions", actualExclusions)
