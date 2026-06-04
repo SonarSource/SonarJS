@@ -26,8 +26,11 @@ import { RequiredParserServices } from '../../../../src/jsts/rules/helpers/parse
 import { classifyTypesByOrigin } from '../../../../src/jsts/rules/helpers/external-library.js';
 import { createProgramFromSingleFile } from '../../../../src/jsts/program/factory.js';
 import { childrenOf } from '../../../../src/jsts/rules/helpers/ancestor.js';
+import { normalizePath } from '../../../../../shared/src/helpers/files.js';
 
-const externalLibraryFixtureDir = path.join(import.meta.dirname, 'fixtures', 'external-library');
+const externalLibraryFixtureDir = normalizePath(
+  path.join(import.meta.dirname, 'fixtures', 'external-library'),
+);
 
 type Parsed = {
   services: RequiredParserServices;
@@ -36,7 +39,7 @@ type Parsed = {
 };
 
 function parse(sourceCode: string): Parsed {
-  const fileName = path.join(externalLibraryFixtureDir, 'test.ts');
+  const fileName = `${externalLibraryFixtureDir}/test.ts`;
   const compilerOptions: ts.CompilerOptions = {
     lib: ['esnext', 'dom'],
     moduleResolution: ts.ModuleResolutionKind.NodeNext,
