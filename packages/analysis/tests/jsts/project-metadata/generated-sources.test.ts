@@ -72,6 +72,10 @@ async function writeFixtureFile(filePath: string, content = '') {
   await writeFile(filePath, content);
 }
 
+async function writeOpenApiFilesManifest(outputDir: string, filePaths: string[]) {
+  await writeFixtureFile(join(outputDir, '.openapi-generator', 'FILES'), `${filePaths.join('\n')}\n`);
+}
+
 describe('generated sources project metadata', () => {
   beforeEach(() => {
     dependencyManifestStore.clearCache();
@@ -1056,7 +1060,7 @@ export default config;
     }
   });
 
-  it('derives OpenAPI outputs recursively from output directories', async () => {
+  it('derives OpenAPI outputs from .openapi-generator/FILES manifests', async () => {
     const baseDir = joinPaths(fixtures, 'openapi');
     await initFileStores(createConfiguration({ baseDir }));
 
@@ -1069,6 +1073,7 @@ export default config;
     expect(
       generatedSourceStore.getFamily(joinPaths(baseDir, 'build', 'api', 'ignored.ts')),
     ).toEqual(OPENAPI_GENERATOR_FAMILY);
+    expect(generatedSourceStore.getFamily(joinPaths(baseDir, 'src', 'api', 'manual.ts'))).toBeUndefined();
   });
 
   it('derives OpenAPI outputs from an output flag using equals syntax', async () => {
@@ -1077,6 +1082,7 @@ export default config;
 
     try {
       await writeFixtureFile(outputPath, 'export const api = true;\n');
+      await writeOpenApiFilesManifest(join(baseDir, 'src', 'api'), ['index.ts']);
 
       const derived = await deriveGeneratedSources(
         baseDir,
@@ -1103,6 +1109,7 @@ export default config;
 
     try {
       await writeFixtureFile(outputPath, 'export const api = true;\n');
+      await writeOpenApiFilesManifest(join(baseDir, 'src', 'api'), ['index.ts']);
 
       const derived = await deriveGeneratedSources(
         baseDir,
@@ -1117,6 +1124,60 @@ export default config;
       );
 
       expect(derived.familyByFile.get(outputPath)).toEqual(OPENAPI_GENERATOR_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not derive OpenAPI outputs without an .openapi-generator/FILES manifest', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputPath = joinPaths(baseDir, 'src', 'api', 'index.ts');
+
+    try {
+      await writeFixtureFile(outputPath, 'export const api = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [OPENAPI_GENERATOR_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            generate: 'openapi-generator-cli generate -g typescript-axios --output ./src/api',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not tag handwritten files outside the OpenAPI FILES manifest for mixed output roots', async () => {
+    const baseDir = await createTempBaseDir();
+    const generatedPath = joinPaths(baseDir, 'src', 'generated.ts');
+    const handwrittenPath = joinPaths(baseDir, 'src', 'handwritten.ts');
+
+    try {
+      await writeFixtureFile(generatedPath, 'export const generated = true;\n');
+      await writeFixtureFile(handwrittenPath, 'export const handwritten = true;\n');
+      await writeOpenApiFilesManifest(baseDir, ['src/generated.ts']);
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          devDependencies: {
+            [OPENAPI_GENERATOR_FAMILY]: '1.0.0',
+          },
+          scripts: {
+            generate: 'openapi-generator-cli generate -g typescript-axios -o .',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(generatedPath)).toEqual(OPENAPI_GENERATOR_FAMILY);
+      expect(derived.familyByFile.get(handwrittenPath)).toBeUndefined();
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
@@ -1147,6 +1208,7 @@ export default config;
       expect(generatedSourceStore.getFamily(outputPath)).toBeUndefined();
 
       await writeFixtureFile(outputPath, 'export const api = true;\n');
+      await writeOpenApiFilesManifest(join(baseDir, 'src', 'api'), ['index.ts']);
 
       const configuration = createConfiguration({
         baseDir,
