@@ -14,19 +14,18 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import type { GeneratedSourceDetector } from '../contracts.js';
-import { graphqlCodegenDetector } from './graphql-codegen.js';
+import { extname } from 'node:path/posix';
+import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 
-export const GENERATED_SOURCE_DETECTORS: GeneratedSourceDetector[] = [graphqlCodegenDetector];
+export const JAVASCRIPT_CODE_FILE_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx'] as const;
+export const TYPESCRIPT_CODE_FILE_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'] as const;
+const JS_TS_CODE_FILE_EXTENSIONS = [
+  ...JAVASCRIPT_CODE_FILE_EXTENSIONS,
+  ...TYPESCRIPT_CODE_FILE_EXTENSIONS,
+] as const;
 
-export function getGeneratedSourceWatchedFilenames(
-  detectors: readonly GeneratedSourceDetector[] = GENERATED_SOURCE_DETECTORS,
-) {
-  return [
-    ...new Set(
-      detectors.flatMap(detector =>
-        (detector.watchedFilenames ?? []).map(filename => filename.toLowerCase()),
-      ),
-    ),
-  ].sort((left, right) => left.localeCompare(right));
+const JS_TS_CODE_FILE_EXTENSION_SET = new Set<string>(JS_TS_CODE_FILE_EXTENSIONS);
+
+export function isJsTsCodeFileByExtension(filePath: NormalizedAbsolutePath) {
+  return JS_TS_CODE_FILE_EXTENSION_SET.has(extname(filePath).toLowerCase());
 }

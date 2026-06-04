@@ -674,6 +674,50 @@ class WebSensorTest {
   }
 
   @Test
+  void should_send_project_metadata_files_on_sonarlint_when_filesystem_access_is_disabled()
+    throws Exception {
+    setSonarLintRuntime(context);
+    context.settings().setProperty(JavaScriptPlugin.NO_FS, "false");
+
+    var tsconfigFile = new TestInputFileBuilder(
+      "moduleKey",
+      baseDir.toFile(),
+      baseDir.resolve("dir/tsconfig.json").toFile()
+    )
+      .setLanguage("json")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("{\"files\": [\"file.ts\"]}")
+      .build();
+    var packageJsonFile = new TestInputFileBuilder(
+      "moduleKey",
+      baseDir.toFile(),
+      baseDir.resolve("dir/package.json").toFile()
+    )
+      .setLanguage("json")
+      .setCharset(StandardCharsets.UTF_8)
+      .setContents("{\"type\": \"module\"}")
+      .build();
+    context.fileSystem().add(tsconfigFile);
+    context.fileSystem().add(packageJsonFile);
+
+    var requestFiles = executeSensorAndCaptureHandler(createSonarLintSensor(), context)
+      .getRequest()
+      .getFiles();
+
+    assertThat(requestFiles).containsKeys(
+      inputFile.absolutePath(),
+      tsconfigFile.absolutePath(),
+      packageJsonFile.absolutePath()
+    );
+    assertThat(requestFiles.get(tsconfigFile.absolutePath()).getFileContent()).isEqualTo(
+      tsconfigFile.contents()
+    );
+    assertThat(requestFiles.get(packageJsonFile.absolutePath()).getFileContent()).isEqualTo(
+      packageJsonFile.contents()
+    );
+  }
+
+  @Test
   void should_send_content_when_not_utf8() {
     String content = "if (cond)\ndoFoo(); \nelse \ndoFoo();";
     var inputFile = new TestInputFileBuilder(
@@ -1766,43 +1810,35 @@ class WebSensorTest {
     }
 
     if (root.has("parsingErrors") && root.get("parsingErrors").isJsonArray()) {
-      root
-        .getAsJsonArray("parsingErrors")
-        .forEach(error -> {
-          if (error.isJsonObject()) {
-            builder.addParsingErrors(parseParsingError(error.getAsJsonObject()));
-          }
-        });
+      root.getAsJsonArray("parsingErrors").forEach(error -> {
+        if (error.isJsonObject()) {
+          builder.addParsingErrors(parseParsingError(error.getAsJsonObject()));
+        }
+      });
     }
 
     if (root.has("issues") && root.get("issues").isJsonArray()) {
-      root
-        .getAsJsonArray("issues")
-        .forEach(issue -> {
-          if (issue.isJsonObject()) {
-            builder.addIssues(parseIssue(issue.getAsJsonObject()));
-          }
-        });
+      root.getAsJsonArray("issues").forEach(issue -> {
+        if (issue.isJsonObject()) {
+          builder.addIssues(parseIssue(issue.getAsJsonObject()));
+        }
+      });
     }
 
     if (root.has("highlights") && root.get("highlights").isJsonArray()) {
-      root
-        .getAsJsonArray("highlights")
-        .forEach(highlight -> {
-          if (highlight.isJsonObject()) {
-            builder.addHighlights(parseHighlight(highlight.getAsJsonObject()));
-          }
-        });
+      root.getAsJsonArray("highlights").forEach(highlight -> {
+        if (highlight.isJsonObject()) {
+          builder.addHighlights(parseHighlight(highlight.getAsJsonObject()));
+        }
+      });
     }
 
     if (root.has("highlightedSymbols") && root.get("highlightedSymbols").isJsonArray()) {
-      root
-        .getAsJsonArray("highlightedSymbols")
-        .forEach(symbol -> {
-          if (symbol.isJsonObject()) {
-            builder.addHighlightedSymbols(parseHighlightedSymbol(symbol.getAsJsonObject()));
-          }
-        });
+      root.getAsJsonArray("highlightedSymbols").forEach(symbol -> {
+        if (symbol.isJsonObject()) {
+          builder.addHighlightedSymbols(parseHighlightedSymbol(symbol.getAsJsonObject()));
+        }
+      });
     }
 
     if (root.has("metrics") && root.get("metrics").isJsonObject()) {
@@ -1812,13 +1848,11 @@ class WebSensorTest {
     }
 
     if (root.has("cpdTokens") && root.get("cpdTokens").isJsonArray()) {
-      root
-        .getAsJsonArray("cpdTokens")
-        .forEach(cpdToken -> {
-          if (cpdToken.isJsonObject()) {
-            builder.addCpdTokens(parseCpdToken(cpdToken.getAsJsonObject()));
-          }
-        });
+      root.getAsJsonArray("cpdTokens").forEach(cpdToken -> {
+        if (cpdToken.isJsonObject()) {
+          builder.addCpdTokens(parseCpdToken(cpdToken.getAsJsonObject()));
+        }
+      });
     }
 
     if (root.has("error") && !root.get("error").isJsonNull()) {
@@ -1861,35 +1895,29 @@ class WebSensorTest {
       builder.setEndColumn(json.get("endColumn").getAsInt());
     }
     if (json.has("secondaryLocations") && json.get("secondaryLocations").isJsonArray()) {
-      json
-        .getAsJsonArray("secondaryLocations")
-        .forEach(location -> {
-          if (location.isJsonObject()) {
-            builder.addSecondaryLocations(parseIssueLocation(location.getAsJsonObject()));
-          }
-        });
+      json.getAsJsonArray("secondaryLocations").forEach(location -> {
+        if (location.isJsonObject()) {
+          builder.addSecondaryLocations(parseIssueLocation(location.getAsJsonObject()));
+        }
+      });
     }
     if (json.has("cost") && !json.get("cost").isJsonNull()) {
       builder.setCost(json.get("cost").getAsDouble());
     }
     if (json.has("quickFixes") && json.get("quickFixes").isJsonArray()) {
-      json
-        .getAsJsonArray("quickFixes")
-        .forEach(quickFix -> {
-          if (quickFix.isJsonObject()) {
-            builder.addQuickFixes(parseQuickFix(quickFix.getAsJsonObject()));
-          }
-        });
+      json.getAsJsonArray("quickFixes").forEach(quickFix -> {
+        if (quickFix.isJsonObject()) {
+          builder.addQuickFixes(parseQuickFix(quickFix.getAsJsonObject()));
+        }
+      });
     }
     String ruleEslintKeysField = json.has("ruleEslintKeys") ? "ruleEslintKeys" : "ruleESLintKeys";
     if (json.has(ruleEslintKeysField) && json.get(ruleEslintKeysField).isJsonArray()) {
-      json
-        .getAsJsonArray(ruleEslintKeysField)
-        .forEach(key -> {
-          if (!key.isJsonNull()) {
-            builder.addRuleEslintKeys(key.getAsString());
-          }
-        });
+      json.getAsJsonArray(ruleEslintKeysField).forEach(key -> {
+        if (!key.isJsonNull()) {
+          builder.addRuleEslintKeys(key.getAsString());
+        }
+      });
     }
     if (json.has("filePath") && !json.get("filePath").isJsonNull()) {
       builder.setFilePath(json.get("filePath").getAsString());
@@ -1925,13 +1953,11 @@ class WebSensorTest {
       builder.setMessage(json.get("message").getAsString());
     }
     if (json.has("edits") && json.get("edits").isJsonArray()) {
-      json
-        .getAsJsonArray("edits")
-        .forEach(edit -> {
-          if (edit.isJsonObject()) {
-            builder.addEdits(parseQuickFixEdit(edit.getAsJsonObject()));
-          }
-        });
+      json.getAsJsonArray("edits").forEach(edit -> {
+        if (edit.isJsonObject()) {
+          builder.addEdits(parseQuickFixEdit(edit.getAsJsonObject()));
+        }
+      });
     }
     return builder.build();
   }
@@ -1962,13 +1988,11 @@ class WebSensorTest {
       builder.setDeclaration(parseLocation(json.getAsJsonObject("declaration")));
     }
     if (json.has("references") && json.get("references").isJsonArray()) {
-      json
-        .getAsJsonArray("references")
-        .forEach(reference -> {
-          if (reference.isJsonObject()) {
-            builder.addReferences(parseLocation(reference.getAsJsonObject()));
-          }
-        });
+      json.getAsJsonArray("references").forEach(reference -> {
+        if (reference.isJsonObject()) {
+          builder.addReferences(parseLocation(reference.getAsJsonObject()));
+        }
+      });
     }
     return builder.build();
   }

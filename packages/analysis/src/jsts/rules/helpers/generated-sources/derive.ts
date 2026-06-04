@@ -20,6 +20,7 @@ import {
 } from '../../../../../../shared/src/helpers/files.js';
 import type { PackageJson } from 'type-fest';
 import { getDependencies } from '../dependency-manifests/dependencies.js';
+import { getPackageJsonManifests } from '../dependency-manifests/all-in-parent-dirs.js';
 import { parsePackageJson } from '../dependency-manifests/parsed-dependency-files.js';
 import type { DependenciesList } from '../dependency-manifests/resolvers/types.js';
 import type { DerivedGeneratedSources, GeneratedSourceFileMatcher } from './contracts.js';
@@ -52,7 +53,12 @@ export async function deriveGeneratedSources(
       packageDir,
       packageJson,
     });
+    let dependencyNames: Set<string> | undefined;
     let dependencies: DependenciesList | undefined;
+    const hasGeneratedSourceDependency = (dependencyName: string) => {
+      dependencyNames ??= collectGeneratedSourceDependencyNames(packageDir, baseDir, packageJson);
+      return dependencyNames.has(dependencyName);
+    };
     const getGeneratedSourceDependencies = () => {
       dependencies ??= resolveGeneratedSourceDependencies(packageDir, baseDir, packageJson);
       return dependencies;
@@ -63,6 +69,7 @@ export async function deriveGeneratedSources(
         await detector.detect({
           baseDir,
           packageDir,
+          hasDependency: hasGeneratedSourceDependency,
           getDependencies: getGeneratedSourceDependencies,
           taskInvocations,
           sourceFileMatcher,
@@ -72,6 +79,21 @@ export async function deriveGeneratedSources(
   }
 
   return derived;
+}
+
+function collectGeneratedSourceDependencyNames(
+  packageDir: NormalizedAbsolutePath,
+  baseDir: NormalizedAbsolutePath,
+  packageJson: PackageJson,
+) {
+  const dependencyNames = new Set<string>();
+  const packageJsons = getPackageJsonManifests(packageDir, baseDir);
+
+  for (const packageJsonManifest of packageJsons.length > 0 ? packageJsons : [packageJson]) {
+    addPackageJsonDependencyNames(dependencyNames, packageJsonManifest);
+  }
+
+  return dependencyNames;
 }
 
 function resolveGeneratedSourceDependencies(
@@ -116,6 +138,23 @@ function createFallbackDependencies(packageJson: PackageJson): DependenciesList 
   }
 
   return dependencies;
+}
+
+function addPackageJsonDependencyNames(dependencyNames: Set<string>, packageJson: PackageJson) {
+  for (const section of [
+    packageJson.dependencies,
+    packageJson.devDependencies,
+    packageJson.peerDependencies,
+    packageJson.optionalDependencies,
+  ]) {
+    if (!section) {
+      continue;
+    }
+
+    for (const dependencyName of Object.keys(section)) {
+      dependencyNames.add(dependencyName);
+    }
+  }
 }
 
 export { extractFlagValues } from './shared.js';

@@ -1,0 +1,10 @@
+{
+  "name": "graphql-codegen-standard-fixture",
+  "scripts": {
+    "codegen": "graphql-codegen",
+    "dynamic": "graphql-codegen --config $CODEGEN_CONFIG"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "5.0.0"
+  }
+}

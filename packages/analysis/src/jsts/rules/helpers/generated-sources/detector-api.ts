@@ -40,7 +40,8 @@ type TaskInvocationMatcher = (taskInvocation: TaskInvocation) => boolean;
 type ExistingPathKind = 'file' | 'directory';
 
 type ToolEvidenceOptions = {
-  getDependencies: () => DependenciesList;
+  hasDependency?: (dependencyName: string) => boolean;
+  getDependencies?: () => DependenciesList;
   taskInvocations: readonly TaskInvocation[];
   dependencyName?: string;
   matchesTaskInvocation: TaskInvocationMatcher;
@@ -64,6 +65,7 @@ type ResolveConfigPathsOptions = {
 };
 
 export function hasToolEvidence({
+  hasDependency,
   getDependencies,
   taskInvocations,
   dependencyName,
@@ -73,7 +75,15 @@ export function hasToolEvidence({
     return true;
   }
 
-  return dependencyName ? getDependencies().has(dependencyName) : false;
+  if (!dependencyName) {
+    return false;
+  }
+
+  if (hasDependency) {
+    return hasDependency(dependencyName);
+  }
+
+  return getDependencies ? getDependencies().has(dependencyName) : false;
 }
 
 export async function resolveConfigPaths({
@@ -203,7 +213,7 @@ async function resolveExistingSiblingPaths(
 
   for (const basename of basenames) {
     const resolvedPath = normalizeToAbsolutePath(basename, packageDir);
-    if ((kind === 'file' ? await isFile(resolvedPath) : await isDirectory(resolvedPath))) {
+    if (kind === 'file' ? await isFile(resolvedPath) : await isDirectory(resolvedPath)) {
       resolvedPaths.add(resolvedPath);
     }
   }

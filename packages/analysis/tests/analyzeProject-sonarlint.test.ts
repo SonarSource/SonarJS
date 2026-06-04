@@ -134,6 +134,44 @@ describe('SonarLint tsconfig change detection', () => {
     expect(usedDefaultLog).toBeDefined();
   });
 
+  it('should use tsconfig metadata from raw input when filesystem access is disabled', async () => {
+    await writeFile(
+      tsconfigPath,
+      JSON.stringify(
+        {
+          compilerOptions: {
+            target: 'ES2020',
+            strict: true,
+          },
+          files: ['file.ts'],
+        },
+        null,
+        2,
+      ),
+    );
+    await writeFile(filePath, 'const x: number = 1;');
+
+    console.log = mock.fn(console.log);
+    const consoleLogMock = (console.log as Mock<typeof console.log>).mock;
+
+    const configuration = await initForTest(
+      { baseDir: tempDir, sonarlint: true, canAccessFileSystem: false },
+      {
+        [filePath]: { filePath, fileContent: 'const x: number = 1;' },
+        [tsconfigPath]: { filePath: tsconfigPath },
+      },
+    );
+
+    const result = await analyzeProject({ rules, bundles: [] }, configuration);
+
+    expect(result.files[normalizeToAbsolutePath(filePath)]).toBeDefined();
+    expect(
+      consoleLogMock.calls.some(call =>
+        (call.arguments[0] as string)?.includes(`Using tsconfig ${tsconfigPath}`),
+      ),
+    ).toBe(true);
+  });
+
   it('should clear cache when tsconfig.json is deleted', async () => {
     // Step 1: Create tsconfig.json that includes file.ts
     const initialTsconfig = {
