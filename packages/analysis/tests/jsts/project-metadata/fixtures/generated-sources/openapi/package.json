@@ -1,0 +1,11 @@
+{
+  "name": "openapi-fixture",
+  "scripts": {
+    "codegen": "openapi-generator-cli generate -i ./spec.yaml -g typescript-axios -o ./src/api",
+    "dynamic": "openapi-generator-cli generate -i ./spec.yaml -g typescript-axios -o $OPENAPI_OUT",
+    "build-output": "openapi-generator-cli generate -i ./spec.yaml -g typescript-axios -o ./build/api"
+  },
+  "devDependencies": {
+    "@openapitools/openapi-generator-cli": "7.0.0"
+  }
+}
