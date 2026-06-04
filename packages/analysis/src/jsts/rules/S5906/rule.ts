@@ -125,8 +125,9 @@ function getSuggestion(
   switch (style) {
     case 'jest-like':
     case 'playwright':
+      return getExpectLikeSuggestion(node, sourceCode, 'jest');
     case 'jasmine':
-      return getJestLikeSuggestion(node, sourceCode);
+      return getExpectLikeSuggestion(node, sourceCode, 'jasmine');
     case 'chai-bdd':
       return getChaiBddSuggestion(node, sourceCode);
     case 'chai-assert':
@@ -138,9 +139,10 @@ function getSuggestion(
   }
 }
 
-function getJestLikeSuggestion(
+function getExpectLikeSuggestion(
   node: estree.CallExpression,
   sourceCode: SourceCode,
+  family: 'jest' | 'jasmine',
 ): Suggestion | null {
   if (
     !isMethodCall(node) ||
@@ -157,6 +159,7 @@ function getJestLikeSuggestion(
   const actualText = sourceCode.getText(actual);
   const expectedText = sourceCode.getText(expected);
   const prefix = `expect(${actualText})${negated ? '.not' : ''}`;
+  const lengthMatcher = family === 'jasmine' ? 'toHaveSize' : 'toHaveLength';
 
   if (isNullLiteral(expected)) {
     return replacement(`${prefix}.toBeNull()`, node, sourceCode);
@@ -173,7 +176,7 @@ function getJestLikeSuggestion(
   }
   if (isLengthAccess(actual)) {
     return replacement(
-      `expect(${sourceCode.getText(actual.object)}).${negated ? 'not.' : ''}toHaveLength(${expectedText})`,
+      `expect(${sourceCode.getText(actual.object)}).${negated ? 'not.' : ''}${lengthMatcher}(${expectedText})`,
       node,
       sourceCode,
     );
@@ -185,7 +188,7 @@ function getJestLikeSuggestion(
   return getBooleanExpressionSuggestion(
     actual,
     booleanExpected !== negated,
-    'jest',
+    family,
     sourceCode,
     node,
   );

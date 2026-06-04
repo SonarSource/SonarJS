@@ -133,6 +133,20 @@ describe('S5906', () => {
         },
         {
           code: `
+            import { expect } from 'jasmine';
+
+            expect(items.length).toBe(3);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'jasmine';
+
+            expect(items).toHaveSize(3);
+          `),
+          ],
+        },
+        {
+          code: `
             import { expect, test } from 'vitest';
 
             test('uses generic length assertion', () => {
@@ -230,6 +244,20 @@ describe('S5906', () => {
             import { expect } from 'vitest';
 
             expect(items).toHaveLength(2);
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'jasmine';
+
+            expect(items.length === 2).toBe(true);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'jasmine';
+
+            expect(items).toHaveSize(2);
           `),
           ],
         },
