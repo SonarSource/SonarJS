@@ -26,6 +26,7 @@ import {
   type RequiredParserServices,
 } from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
+import { classifyTypesByOrigin } from '../helpers/external-library.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -100,7 +101,27 @@ function findSemanticUndefinedTypeNode(
   }
   const hasUndefined = type.types.some(t => (t.flags & ts.TypeFlags.Undefined) !== 0);
   const hasNonUndefined = type.types.some(t => (t.flags & ts.TypeFlags.Undefined) === 0);
-  return hasUndefined && hasNonUndefined ? rootType : undefined;
+  if (!hasUndefined || !hasNonUndefined) {
+    return undefined;
+  }
+  // If `undefined` is in the resolved union but no internal member carries it,
+  // it can only come from an external type (e.g. `React.ReactNode`). Suppress:
+  // the user cannot edit that declaration to remove `undefined`.
+  const { internal } = classifyTypesByOrigin(rootType, services);
+  const undefinedReachableFromInternal = internal.some(member =>
+    resolvedTypeContainsUndefined(member, services),
+  );
+  return undefinedReachableFromInternal ? rootType : undefined;
+}
+
+function resolvedTypeContainsUndefined(
+  node: TSESTree.TypeNode,
+  services: RequiredParserServices,
+): boolean {
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+  const type = services.program.getTypeChecker().getTypeAtLocation(tsNode);
+  const members = type.isUnion() ? type.types : [type];
+  return members.some(t => (t.flags & ts.TypeFlags.Undefined) !== 0);
 }
 
 function findSyntacticUndefinedTypeNode(

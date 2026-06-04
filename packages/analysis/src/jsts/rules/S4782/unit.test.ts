@@ -428,8 +428,90 @@ describe('S4782', () => {
             `,
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
           },
+          {
+            code: `
+            import type { FakeUndefinedUnion } from 'fake-lib';
+            interface Example {
+              attribute?: FakeUndefinedUnion;
+            };
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+          {
+            // JS-1789 Peach-comment reproducer: React.ReactNode resolves to a
+            // union containing undefined, but the user cannot edit React's
+            // declaration. Suppress.
+            code: `
+            import type * as React from 'react';
+            interface MarkObj {
+              label?: React.ReactNode;
+            }
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+          {
+            code: `
+            import type { FakeUndefinedUnion } from 'fake-lib';
+            interface Example {
+              attribute?: FakeUndefinedUnion | string;
+            };
+            `,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
         ],
         invalid: [
+          {
+            code: `
+            import type { FakeUndefinedUnion } from 'fake-lib';
+            type LocalUndefinedUnion = number | undefined;
+            interface Example {
+              attribute?: FakeUndefinedUnion | LocalUndefinedUnion;
+            };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            import type { FakeUndefinedUnion } from 'fake-lib';
+            type LocalUndefinedUnion = number | undefined;
+            interface Example {
+              attribute: FakeUndefinedUnion | LocalUndefinedUnion;
+            };`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            code: `
+            import type { FakeUndefinedUnion } from 'fake-lib';
+            type LocalAlias = FakeUndefinedUnion;
+            interface Example {
+              attribute?: LocalAlias;
+            };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            import type { FakeUndefinedUnion } from 'fake-lib';
+            type LocalAlias = FakeUndefinedUnion;
+            interface Example {
+              attribute: LocalAlias;
+            };`,
+                  },
+                ],
+              },
+            ],
+          },
           {
             code: `type StringOrUndefined = string | undefined;
             interface Example {

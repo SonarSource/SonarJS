@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "strictNullChecks": true,
-    "exactOptionalPropertyTypes": false
+    "exactOptionalPropertyTypes": false,
+    "moduleResolution": "node"
   }
 }
