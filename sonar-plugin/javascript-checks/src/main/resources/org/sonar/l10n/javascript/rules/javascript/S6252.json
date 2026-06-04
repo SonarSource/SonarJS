@@ -1,6 +1,6 @@
 {
-  "title": "Disabling versioning of S3 buckets is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Amazon S3 buckets should have versioning enabled",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "LOW"
@@ -8,18 +8,15 @@
     "attribute": "CONVENTIONAL"
   },
   "status": "ready",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "aws"
+    "aws",
+    "former-hotspot"
   ],
-  "extra": {
-    "requiredDependency": [
-      "aws-cdk-lib"
-    ]
-  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-6252",
   "sqKey": "S6252",
@@ -32,8 +29,7 @@
       "10.2.1.7"
     ],
     "CWE": [
-      16,
-      693
+      16
     ]
   },
   "defaultQualityProfiles": [
@@ -43,5 +39,10 @@
   "compatibleLanguages": [
     "js",
     "ts"
-  ]
+  ],
+  "extra": {
+    "requiredDependency": [
+      "aws-cdk-lib"
+    ]
+  }
 }

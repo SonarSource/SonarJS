@@ -297,7 +297,7 @@ export default config;
     }
   });
 
-  it('extracts flag values from separate and equals syntax', () => {
+  it('extracts output flag values from separate and equals syntax', () => {
     expect(
       extractFlagValues('graphql-codegen --config ./codegen.yml --config=./other.yml', [
         '--config',
@@ -1246,7 +1246,6 @@ export default config;
       await rm(baseDir, { recursive: true, force: true });
     }
   });
-
   it('does not derive GraphQL outputs when graphql-codegen is only echoed', async () => {
     const baseDir = await createTempBaseDir();
     const configPath = joinPaths(baseDir, 'config', 'custom-codegen.ts');

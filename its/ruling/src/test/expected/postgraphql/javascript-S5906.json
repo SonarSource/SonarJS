@@ -1,0 +1,62 @@
+{
+"postgraphql:src/graphql/schema/__tests__/createMutationGqlField-test.js": [
+21,
+22,
+48
+],
+"postgraphql:src/graphql/schema/connection/__tests__/createConnectionGqlField-test.js": [
+41,
+42,
+43,
+44,
+91
+],
+"postgraphql:src/postgraphql/__tests__/postgraphql-test.js": [
+23,
+34,
+49,
+87,
+88,
+102,
+103
+],
+"postgraphql:src/postgraphql/__tests__/postgraphqlIntegrationSchemaExport-test.js": [
+19,
+28,
+37
+],
+"postgraphql:src/postgraphql/http/__tests__/createPostGraphQLHttpRequestHandler-test.js": [
+479
+],
+"postgraphql:src/postgraphql/schema/auth/__tests__/getJwtGqlType-test.js": [
+11
+],
+"postgraphql:src/postgraphql/watch/__tests__/watchPgSchemas-test.js": [
+13,
+14,
+41,
+42
+],
+"postgraphql:src/postgres/introspection/__tests__/PgCatalog-test.js": [
+58,
+70,
+78,
+95,
+96,
+104,
+108,
+139,
+143,
+144,
+152,
+176,
+178
+],
+"postgraphql:src/postgres/inventory/collection/__tests__/PgCollection-test.js": [
+69,
+103
+],
+"postgraphql:src/postgres/inventory/collection/__tests__/PgCollectionKey-test.js": [
+116
+]
+}
