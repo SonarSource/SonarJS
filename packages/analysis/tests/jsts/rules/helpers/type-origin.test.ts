@@ -23,7 +23,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
 import type estree from 'estree';
 import { RequiredParserServices } from '../../../../src/jsts/rules/helpers/parser-services.js';
-import { classifyTypesByOrigin } from '../../../../src/jsts/rules/helpers/external-library.js';
+import { classifyTypesByOrigin } from '../../../../src/jsts/rules/helpers/type-origin.js';
 import { createProgramFromSingleFile } from '../../../../src/jsts/program/factory.js';
 import { childrenOf } from '../../../../src/jsts/rules/helpers/ancestor.js';
 import { normalizePath } from '../../../../../shared/src/helpers/files.js';

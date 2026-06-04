@@ -26,7 +26,7 @@ import {
   type RequiredParserServices,
 } from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
-import { classifyTypesByOrigin } from '../helpers/external-library.js';
+import { classifyTypesByOrigin } from '../helpers/type-origin.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
