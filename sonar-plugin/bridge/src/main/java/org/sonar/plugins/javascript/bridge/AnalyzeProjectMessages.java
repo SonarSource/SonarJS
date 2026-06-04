@@ -25,7 +25,6 @@ import com.google.protobuf.NullValue;
 import com.google.protobuf.Struct;
 import com.google.protobuf.Value;
 import java.lang.reflect.Array;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -53,18 +52,6 @@ public final class AnalyzeProjectMessages {
     String baseDir,
     AnalysisConfiguration analysisConfiguration
   ) {
-    return newProjectConfigurationBuilder(
-      baseDir,
-      analysisConfiguration,
-      analysisConfiguration.getTsConfigPaths()
-    );
-  }
-
-  public static ProjectConfiguration.Builder newProjectConfigurationBuilder(
-    String baseDir,
-    AnalysisConfiguration analysisConfiguration,
-    Collection<String> tsConfigPaths
-  ) {
     var builder = ProjectConfiguration.newBuilder()
       .setBaseDir(baseDir)
       .setSonarlint(analysisConfiguration.isSonarLint())
@@ -74,7 +61,7 @@ public final class AnalyzeProjectMessages {
       .setMaxFileSize(analysisConfiguration.getMaxFileSizeProperty())
       .setEnvironments(stringList(analysisConfiguration.getEnvironments()))
       .setGlobals(stringList(analysisConfiguration.getGlobals()))
-      .addAllTsConfigPaths(tsConfigPaths)
+      .addAllTsConfigPaths(analysisConfiguration.getTsConfigPaths())
       .setJsTsExclusions(stringList(analysisConfiguration.getJsTsExcludedPaths()))
       .addAllSources(analysisConfiguration.getSources())
       .addAllInclusions(analysisConfiguration.getInclusions())

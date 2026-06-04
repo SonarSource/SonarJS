@@ -172,8 +172,7 @@ public class WebSensor implements ProjectSensor {
       LOG.debug(msg);
       configurationBuilder = AnalyzeProjectMessages.newProjectConfigurationBuilder(
         sensorContext.fileSystem().baseDir().getAbsolutePath(),
-        context,
-        moduleConfiguration.tsConfigPaths(context)
+        contextWithCollectedTsConfigPaths(sensorContext)
       );
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
       analyzeFiles(inputFiles);
@@ -206,6 +205,19 @@ public class WebSensor implements ProjectSensor {
       moduleConfiguration.clear();
       CacheStrategies.logReport();
     }
+  }
+
+  private JsTsContext<SensorContext> contextWithCollectedTsConfigPaths(
+    SensorContext sensorContext
+  ) {
+    var baseContext = new JsTsContext<>(sensorContext);
+    Set<String> collectedTsConfigPaths = moduleConfiguration.tsConfigPaths(baseContext);
+    return new JsTsContext<>(sensorContext) {
+      @Override
+      public Set<String> getTsConfigPaths() {
+        return collectedTsConfigPaths;
+      }
+    };
   }
 
   private List<InputFile> getInputFiles() {
