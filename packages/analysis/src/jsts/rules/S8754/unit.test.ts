@@ -277,6 +277,20 @@ function makeTests() {
         },
         {
           code: `
+import { describe, test } from 'vitest';
+describe('suite', () => {
+  makeTests();
+  makeTests();
+});
+function makeTests() {
+  test('dup', () => {});
+}
+          `,
+          filename: 'repeated-helper-call.test.ts',
+          errors: 1,
+        },
+        {
+          code: `
 const { test } = require('vitest');
 test('loads profile', () => {});
 test('loads profile', () => {});

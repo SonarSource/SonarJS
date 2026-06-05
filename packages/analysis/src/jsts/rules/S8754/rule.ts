@@ -66,7 +66,7 @@ export const rule: Rule.RuleModule = {
     let suiteStack: SuiteFrame[] = [createSuiteFrame()];
     const pushedSuiteCalls = new Set<estree.Node>();
     const concreteSuiteCallbacks = new Set<estree.Node>();
-    const checkedHelpersBySuiteFrame = new WeakMap<SuiteFrame, WeakSet<estree.Node>>();
+    const helperExpansionPath = new Set<estree.Node>();
     let testNesting = 0;
     let ignoredSuiteNesting = 0;
     let functionNesting = 0;
@@ -95,7 +95,7 @@ export const rule: Rule.RuleModule = {
           if (isTestDeclaration(context, node)) {
             checkTestTitle(context, node, currentSuiteFrame);
           } else {
-            checkHelperDefinedTests(context, node, currentSuiteFrame, checkedHelpersBySuiteFrame);
+            checkHelperDefinedTests(context, node, currentSuiteFrame, helperExpansionPath);
           }
         }
 
@@ -132,6 +132,7 @@ export const rule: Rule.RuleModule = {
         suiteStack = [createSuiteFrame()];
         pushedSuiteCalls.clear();
         concreteSuiteCallbacks.clear();
+        helperExpansionPath.clear();
         testNesting = 0;
         ignoredSuiteNesting = 0;
         functionNesting = 0;
@@ -177,22 +178,23 @@ function checkHelperDefinedTests(
   context: Rule.RuleContext,
   node: estree.CallExpression,
   suiteFrame: SuiteFrame,
-  checkedHelpersBySuiteFrame: WeakMap<SuiteFrame, WeakSet<estree.Node>>,
+  helperExpansionPath: Set<estree.Node>,
 ) {
   const helper = getLocalHelperFunction(context, node);
-  if (helper === undefined || isHelperChecked(helper, suiteFrame, checkedHelpersBySuiteFrame)) {
+  if (helper === undefined || helperExpansionPath.has(helper)) {
     return;
   }
 
-  markHelperChecked(helper, suiteFrame, checkedHelpersBySuiteFrame);
-  checkHelperNode(context, helper.body, suiteFrame, checkedHelpersBySuiteFrame);
+  helperExpansionPath.add(helper);
+  checkHelperNode(context, helper.body, suiteFrame, helperExpansionPath);
+  helperExpansionPath.delete(helper);
 }
 
 function checkHelperNode(
   context: Rule.RuleContext,
   node: estree.Node,
   suiteFrame: SuiteFrame,
-  checkedHelpersBySuiteFrame: WeakMap<SuiteFrame, WeakSet<estree.Node>>,
+  helperExpansionPath: Set<estree.Node>,
 ) {
   if (node.type === 'CallExpression') {
     if (isIgnoredSuiteDeclaration(context, node)) {
@@ -203,7 +205,7 @@ function checkHelperNode(
       const nestedSuiteFrame = createSuiteFrame();
       const callback = getCallback(node);
       if (callback !== undefined) {
-        checkHelperNode(context, callback.body, nestedSuiteFrame, checkedHelpersBySuiteFrame);
+        checkHelperNode(context, callback.body, nestedSuiteFrame, helperExpansionPath);
       }
       return;
     }
@@ -213,35 +215,14 @@ function checkHelperNode(
       return;
     }
 
-    checkHelperDefinedTests(context, node, suiteFrame, checkedHelpersBySuiteFrame);
+    checkHelperDefinedTests(context, node, suiteFrame, helperExpansionPath);
   }
 
   for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
     if (!FUNCTION_NODES.includes(child.type)) {
-      checkHelperNode(context, child, suiteFrame, checkedHelpersBySuiteFrame);
+      checkHelperNode(context, child, suiteFrame, helperExpansionPath);
     }
   }
-}
-
-function isHelperChecked(
-  helper: estree.Node,
-  suiteFrame: SuiteFrame,
-  checkedHelpersBySuiteFrame: WeakMap<SuiteFrame, WeakSet<estree.Node>>,
-): boolean {
-  return checkedHelpersBySuiteFrame.get(suiteFrame)?.has(helper) ?? false;
-}
-
-function markHelperChecked(
-  helper: estree.Node,
-  suiteFrame: SuiteFrame,
-  checkedHelpersBySuiteFrame: WeakMap<SuiteFrame, WeakSet<estree.Node>>,
-) {
-  let checkedHelpers = checkedHelpersBySuiteFrame.get(suiteFrame);
-  if (checkedHelpers === undefined) {
-    checkedHelpers = new WeakSet();
-    checkedHelpersBySuiteFrame.set(suiteFrame, checkedHelpers);
-  }
-  checkedHelpers.add(helper);
 }
 
 function getStaticTitle(node: estree.Node): string | undefined {
