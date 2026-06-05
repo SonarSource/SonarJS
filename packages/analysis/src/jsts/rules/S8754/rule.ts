@@ -18,19 +18,26 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { isIdentifier, isStaticTemplateLiteral, isStringLiteral } from '../helpers/ast.js';
+import {
+  FUNCTION_NODES,
+  getVariableFromScope,
+  isIdentifier,
+  isStaticTemplateLiteral,
+  isStringLiteral,
+} from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
-import * as Mocha from '../helpers/mocha.js';
 import * as Playwright from '../helpers/playwright.js';
 import * as meta from './generated-meta.js';
 
 const SUPPORTED_TEST_FRAMEWORKS = ['jest', 'mocha', 'vitest', '@playwright/test'];
 const TEST_FUNCTION_NAMES = ['it', 'specify', 'test'];
 const SUITE_FUNCTION_NAMES = ['describe', 'context', 'suite'];
+const CONCRETE_MOCHA_MODIFIERS = ['only', 'concurrent'];
 const PLAYWRIGHT_TEST_FQN = '@playwright.test.test';
-const PLAYWRIGHT_MODIFIERS = ['only', 'skip', 'fixme', 'parallel', 'serial'];
+const PLAYWRIGHT_TEST_MODIFIERS = ['only'];
+const PLAYWRIGHT_DESCRIBE_MODIFIERS = ['parallel', 'serial'];
 const MESSAGE = 'Rename this test title to make it unique within the suite.';
 const MESSAGE_ID = 'renameDuplicateTitle';
 
@@ -51,19 +58,35 @@ export const rule: Rule.RuleModule = {
 
     let suiteStack: SuiteFrame[] = [createSuiteFrame()];
     const pushedSuiteCalls = new Set<estree.Node>();
+    let testNesting = 0;
+    let ignoredSuiteNesting = 0;
 
     return {
       CallExpression(node: estree.CallExpression) {
-        if (isSuiteDeclaration(context, node)) {
+        if (isIgnoredSuiteDeclaration(context, node)) {
+          ignoredSuiteNesting++;
+        } else if (isSuiteDeclaration(context, node)) {
           pushedSuiteCalls.add(node);
           suiteStack.push(createSuiteFrame());
         }
 
-        if (isTestDeclaration(context, node)) {
+        if (ignoredSuiteNesting === 0 && testNesting === 0 && isTestDeclaration(context, node)) {
           checkTestTitle(context, node, suiteStack.at(-1)!);
+        }
+
+        if (isConcreteTestDeclaration(context, node)) {
+          testNesting++;
         }
       },
       'CallExpression:exit'(node: estree.CallExpression) {
+        if (isIgnoredSuiteDeclaration(context, node)) {
+          ignoredSuiteNesting--;
+        }
+
+        if (isConcreteTestDeclaration(context, node)) {
+          testNesting--;
+        }
+
         if (pushedSuiteCalls.delete(node)) {
           suiteStack.pop();
         }
@@ -71,6 +94,8 @@ export const rule: Rule.RuleModule = {
       'Program:exit'() {
         suiteStack = [createSuiteFrame()];
         pushedSuiteCalls.clear();
+        testNesting = 0;
+        ignoredSuiteNesting = 0;
       },
     };
   },
@@ -121,12 +146,131 @@ function getStaticTitle(node: estree.Node): string | undefined {
 
 function isSuiteDeclaration(context: Rule.RuleContext, node: estree.CallExpression): boolean {
   return (
-    Mocha.isTestConstruct(node, SUITE_FUNCTION_NAMES) || isPlaywrightDescribe(context, node.callee)
+    isMochaTestConstruct(context, node, SUITE_FUNCTION_NAMES) ||
+    isPlaywrightDescribe(context, node.callee)
   );
 }
 
 function isTestDeclaration(context: Rule.RuleContext, node: estree.CallExpression): boolean {
-  return Mocha.isTestConstruct(node, TEST_FUNCTION_NAMES) || isPlaywrightTest(context, node.callee);
+  return isConcreteTestDeclaration(context, node) || isPlaywrightTest(context, node.callee);
+}
+
+function isConcreteTestDeclaration(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+): boolean {
+  return isMochaTestConstruct(context, node, TEST_FUNCTION_NAMES) && hasCallback(node);
+}
+
+function isMochaTestConstruct(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+  constructs: string[],
+): boolean {
+  const calleeParts = getMochaCalleeParts(node.callee);
+  if (calleeParts === undefined || !constructs.includes(calleeParts.base.name)) {
+    return false;
+  }
+
+  return (
+    !isLocallyDefined(context, calleeParts.base) &&
+    calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.includes(modifier))
+  );
+}
+
+function isIgnoredSuiteDeclaration(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+): boolean {
+  const callee = node.callee;
+  if (isNonConcreteMochaSuite(context, callee)) {
+    return true;
+  }
+
+  const qualifiers = getPlaywrightTestQualifiers(context, callee);
+  return (
+    qualifiers !== undefined &&
+    qualifiers[0] === 'describe' &&
+    !qualifiers.slice(1).every(qualifier => PLAYWRIGHT_DESCRIBE_MODIFIERS.includes(qualifier))
+  );
+}
+
+function isNonConcreteMochaSuite(context: Rule.RuleContext, node: estree.Node): boolean {
+  const calleeParts = getMochaCalleeParts(node);
+  if (calleeParts === undefined || !SUITE_FUNCTION_NAMES.includes(calleeParts.base.name)) {
+    return false;
+  }
+
+  return (
+    !isLocallyDefined(context, calleeParts.base) &&
+    !calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.includes(modifier))
+  );
+}
+
+function getMochaCalleeParts(
+  node: estree.Node,
+  modifiers: string[] = [],
+): { base: estree.Identifier; modifiers: string[] } | undefined {
+  if (node.type === 'Identifier') {
+    return { base: node, modifiers };
+  }
+
+  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)) {
+    modifiers.unshift(node.property.name);
+    return getMochaCalleeParts(node.object, modifiers);
+  }
+
+  if (node.type === 'CallExpression') {
+    return getMochaCalleeParts(node.callee, modifiers);
+  }
+
+  return undefined;
+}
+
+function hasCallback(node: estree.CallExpression): boolean {
+  return node.arguments.some(argument => FUNCTION_NODES.includes(argument.type));
+}
+
+function isLocallyDefined(context: Rule.RuleContext, identifier: estree.Identifier): boolean {
+  const variable = getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name);
+  return (
+    variable != null &&
+    !variable.defs.some(def => def.type === 'ImportBinding' || isSupportedRequireBinding(def.node))
+  );
+}
+
+function isSupportedRequireBinding(node: estree.Node): boolean {
+  if (node.type !== 'VariableDeclarator' || node.init == null) {
+    return false;
+  }
+
+  const requireCall = getRequireCall(node.init);
+  const moduleName = requireCall?.arguments[0];
+  return (
+    moduleName?.type === 'Literal' &&
+    typeof moduleName.value === 'string' &&
+    SUPPORTED_TEST_FRAMEWORKS.includes(moduleName.value)
+  );
+}
+
+function getRequireCall(node: estree.Node): estree.CallExpression | undefined {
+  if (isRequireCall(node)) {
+    return node;
+  }
+
+  if (node.type === 'MemberExpression') {
+    return getRequireCall(node.object);
+  }
+
+  return undefined;
+}
+
+function isRequireCall(node: estree.Node): node is estree.CallExpression {
+  return (
+    node.type === 'CallExpression' &&
+    node.callee.type === 'Identifier' &&
+    node.callee.name === 'require'
+  );
 }
 
 function isPlaywrightDescribe(context: Rule.RuleContext, callee: estree.Node): boolean {
@@ -147,7 +291,7 @@ function isPlaywrightDescribe(context: Rule.RuleContext, callee: estree.Node): b
   return (
     qualifiers !== undefined &&
     qualifiers[0] === 'describe' &&
-    qualifiers.slice(1).every(qualifier => PLAYWRIGHT_MODIFIERS.includes(qualifier))
+    qualifiers.slice(1).every(qualifier => PLAYWRIGHT_DESCRIBE_MODIFIERS.includes(qualifier))
   );
 }
 
@@ -157,7 +301,7 @@ function isPlaywrightTest(context: Rule.RuleContext, callee: estree.Node): boole
     return false;
   }
 
-  return qualifiers.every(qualifier => PLAYWRIGHT_MODIFIERS.includes(qualifier));
+  return qualifiers.every(qualifier => PLAYWRIGHT_TEST_MODIFIERS.includes(qualifier));
 }
 
 function getPlaywrightTestQualifiers(

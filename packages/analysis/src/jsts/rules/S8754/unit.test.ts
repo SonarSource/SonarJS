@@ -94,6 +94,67 @@ describe('template titles', () => {
         },
         {
           code: `
+const jest = require('jest');
+function test(typesRoot, typeDirective, primary, ...files) {}
+describe('module resolution', () => {
+  it('can be resolved from primary location', () => {
+    test('/root/src/types', 'lib', true, f1, f2);
+    test('/root/src/types', 'lib', false, f3, f4);
+  });
+});
+          `,
+          filename: 'moduleResolution.test.ts',
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('parameter validation', () => {
+  test.skip('wrong param type at #0', () => {});
+  test.skip('wrong param type at #0', () => {});
+  test.todo('missing support');
+  test.todo('missing support');
+});
+          `,
+          filename: 'attributes.test.js',
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+describe.each([1, 2])('todo describe', () => {
+  test('this is todo test', () => {});
+});
+describe.for([
+  [1, 1],
+  [1, 2],
+])('add(%i, %i)', () => {
+  test('test', () => {});
+});
+          `,
+          filename: 'each.test.ts',
+        },
+        {
+          code: `
+import { test, expect } from 'vitest';
+test.concurrent('parallel test with nested test', () => {
+  expect(() => {
+    test('test inside test', () => {});
+  }).toThrowError();
+});
+          `,
+          filename: 'nested-test.test.ts',
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe('checkout', () => {
+  test.skip('applies a discount code', async () => {});
+  test.skip('applies a discount code', async () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+        },
+        {
+          code: `
 describe('no supported framework', () => {
   it('adds an item', () => {});
   it('adds an item', () => {});
@@ -115,6 +176,17 @@ test.describe.serial('guest checkout', () => {
         },
       ],
       invalid: [
+        {
+          code: `
+const jest = require('jest');
+describe('focused tests', () => {
+  it.only('loads profile', () => {});
+  it.only('loads profile', () => {});
+});
+          `,
+          filename: 'profile.test.js',
+          errors: 1,
+        },
         {
           code: `
 const jest = require('jest');
