@@ -70,22 +70,4 @@ public class TestUtils {
       .stream()
       .anyMatch(TestUtils.JAVASCRIPT_PLUGIN_LOCATION.toString()::contains);
   }
-
-  static Path hostNodeExecutable() {
-    var nodeExecutableName = isWindows() ? "node.exe" : "node";
-
-    return Pattern.compile(Pattern.quote(System.getProperty("path.separator")))
-      .splitAsStream(System.getenv("PATH"))
-      .map(Path::of)
-      .map(pathEntry -> pathEntry.resolve(nodeExecutableName))
-      .filter(Files::isRegularFile)
-      .findFirst()
-      .orElseThrow(() ->
-        new IllegalStateException("Cannot find " + nodeExecutableName + " in PATH")
-      );
-  }
-
-  private static boolean isWindows() {
-    return System.getProperty("os.name").toLowerCase().contains("win");
-  }
 }
