@@ -475,7 +475,7 @@ function wasOmittedFromExplicitRequest(
   filePath: NormalizedAbsolutePath,
   requestedFilePaths?: ReadonlySet<NormalizedAbsolutePath>,
 ) {
-  return requestedFilePaths !== undefined && requestedFilePaths.has(filePath) === false;
+  return requestedFilePaths?.has(filePath) === false;
 }
 
 function toGeneratedSourceFamilyTelemetry(
