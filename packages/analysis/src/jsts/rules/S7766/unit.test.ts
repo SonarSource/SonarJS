@@ -15,13 +15,87 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { rule } from './index.js';
+import { decorate } from './decorator.js';
 import {
   DefaultParserRuleTester,
   RuleTester,
 } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { describe, it } from 'node:test';
+import type { Rule } from 'eslint';
+
+const conditionalExpressionRule: Rule.RuleModule = {
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description: 'Reports conditional expressions',
+    },
+    fixable: 'code',
+    schema: [],
+  },
+  create(context) {
+    return {
+      ConditionalExpression(node) {
+        context.report({
+          node,
+          message: 'reported conditional expression',
+        });
+      },
+    };
+  },
+};
+
+const programReportRule: Rule.RuleModule = {
+  meta: {
+    type: 'suggestion',
+    docs: {
+      description: 'Reports the program',
+    },
+    fixable: 'code',
+    schema: [],
+  },
+  create(context) {
+    return {
+      Program() {
+        context.report({
+          loc: { line: 1, column: 0 },
+          message: 'reported program',
+        });
+      },
+    };
+  },
+};
 
 describe('S7766', () => {
+  it('forwards unrelated reports from the decorated rule', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('Decorated rule', decorate(conditionalExpressionRule), {
+      valid: [],
+      invalid: [
+        {
+          code: 'const value = condition ? left : right;',
+          errors: 1,
+        },
+        {
+          code: 'const value = left === right ? left : right;',
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('forwards reports without nodes from the decorated rule', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('Decorated rule', decorate(programReportRule), {
+      valid: [],
+      invalid: [
+        {
+          code: 'const value = condition ? left : right;',
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('S7766 with type information', () => {
     const ruleTester = new RuleTester();
     ruleTester.run('Ternary expressions selecting min/max values should use Math.min/max', rule, {
@@ -55,12 +129,40 @@ function latestMoment(first: MomentLike, second: MomentLike): MomentLike {
         },
         {
           code: `
+function compareBooleans(left: boolean, right: boolean): boolean {
+  return left < right ? left : right;
+}
+          `,
+        },
+        {
+          code: `
 function lowerDomainValue<T>(left: T, right: T): T {
   return left < right ? left : right;
 }
 
 function higherDomainValue<T>(left: T, right: T): T {
   return left > right ? left : right;
+}
+          `,
+        },
+        {
+          code: `
+function lowerConstrainedValue<T extends { valueOf(): string }>(left: T, right: T): T {
+  return left < right ? left : right;
+}
+          `,
+        },
+        {
+          code: `
+function lowerAnyConstraintValue<T extends any>(left: T, right: T): T {
+  return left < right ? left : right;
+}
+          `,
+        },
+        {
+          code: `
+function lowerUnknownConstraintValue<T extends unknown>(left: T, right: T): T {
+  return left < right ? left : right;
 }
           `,
         },
