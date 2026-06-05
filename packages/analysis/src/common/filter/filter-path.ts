@@ -107,10 +107,6 @@ function classifyFilePathInternal(
     return { status: 'EXCLUDED' };
   }
 
-  if (mainClassification === 'OUT_OF_SCOPE' || testClassification === 'OUT_OF_SCOPE') {
-    return { status: 'OUT_OF_SCOPE' };
-  }
-
   return { status: 'OUT_OF_SCOPE' };
 }
 

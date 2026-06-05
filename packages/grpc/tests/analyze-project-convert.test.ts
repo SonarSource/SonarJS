@@ -17,6 +17,7 @@
 
 import { describe, it } from 'node:test';
 import { expect } from 'expect';
+import { createFileResults } from '../../analysis/src/projectAnalysis.js';
 import {
   toAnalyzeProjectStreamResponse,
   toAnalyzeProjectUnaryResponse,
@@ -56,8 +57,12 @@ function createProjectAnalysisTelemetry() {
   };
 }
 
-function toPlainTelemetryValue<T extends { toJSON?: () => T } | undefined>(value: T) {
-  return value?.toJSON ? value.toJSON() : value;
+function toPlainTelemetryValue(value: object | null | undefined) {
+  if (value && 'toJSON' in value && typeof value.toJSON === 'function') {
+    return value.toJSON();
+  }
+
+  return value;
 }
 
 describe('analyze-project convert', () => {
@@ -66,7 +71,7 @@ describe('analyze-project convert', () => {
 
     const unaryResponse = toAnalyzeProjectUnaryResponse(
       {
-        files: {} as Record<string, never>,
+        files: createFileResults(),
         meta: {
           warnings: [],
           telemetry,

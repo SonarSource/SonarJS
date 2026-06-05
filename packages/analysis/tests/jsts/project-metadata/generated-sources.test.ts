@@ -2462,6 +2462,11 @@ plugins = [
     const taggedFile = joinPaths(baseDir, 'src', 'generated', 'keep.ts');
     const excludedFile = joinPaths(baseDir, 'src', 'excluded', 'blocked.ts');
     const outOfScopeFile = joinPaths(baseDir, 'outside', 'api', 'index.ts');
+    const configuration = createConfiguration({
+      baseDir,
+      sources: ['src'],
+      exclusions: ['src/excluded/**'],
+    });
     const originalConsoleLog = console.log;
     console.log = mock.fn(console.log);
 
@@ -2499,13 +2504,7 @@ plugins = [
       await writeFixtureFile(excludedFile, 'export const excluded = true;\n');
       await writeFixtureFile(outOfScopeFile, 'export const outOfScope = true;\n');
 
-      await initFileStores(
-        createConfiguration({
-          baseDir,
-          sources: ['src'],
-          exclusions: ['src/excluded/**'],
-        }),
-      );
+      await initFileStores(configuration);
 
       expect(generatedSourceStore.getFamily(taggedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
       expect(generatedSourceStore.getFamily(excludedFile)).toBeUndefined();
@@ -2542,6 +2541,26 @@ plugins = [
       expect(logs).toContain(
         'DEBUG Generated source family=@graphql-codegen/cli outOfScope sample=outside/api/index.ts',
       );
+
+      await generatedSourceStore.postProcess(configuration, sourceFileStore.getFiles());
+
+      const refreshedLogs = (console.log as Mock<typeof console.log>).mock.calls.map(
+        call => call.arguments[0],
+      );
+      expect(
+        refreshedLogs.filter(
+          log =>
+            log ===
+            'Generated source observability: families=1, resolvedFiles=3, taggedFiles=1, outOfScopeFiles=1, excludedFiles=1',
+        ),
+      ).toHaveLength(1);
+      expect(
+        refreshedLogs.filter(
+          log =>
+            log ===
+            'Generated source family=@graphql-codegen/cli resolvedFiles=3 taggedFiles=1 outOfScopeFiles=1 excludedFiles=1',
+        ),
+      ).toHaveLength(1);
     } finally {
       console.log = originalConsoleLog;
       await rm(baseDir, { recursive: true, force: true });

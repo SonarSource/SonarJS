@@ -87,6 +87,7 @@ class GeneratedSourceStore implements FileStore {
   private configPaths = new Set<NormalizedAbsolutePath>();
   private watchedOutputPaths = new Set<NormalizedAbsolutePath>();
   private observabilityTelemetry = createEmptyGeneratedSourcesTelemetry();
+  private lastLoggedObservabilityKey: string | undefined = undefined;
 
   async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
@@ -305,7 +306,11 @@ class GeneratedSourceStore implements FileStore {
       analyzableFiles,
     );
     this.observabilityTelemetry = observability.telemetry;
-    logGeneratedSourceObservability(this.baseDir, observability);
+    const observabilityKey = createGeneratedSourceObservabilityLogKey(this.baseDir, observability);
+    if (observabilityKey !== this.lastLoggedObservabilityKey) {
+      this.lastLoggedObservabilityKey = observabilityKey;
+      logGeneratedSourceObservability(this.baseDir, observability);
+    }
   }
 }
 
@@ -363,23 +368,16 @@ function buildGeneratedSourceObservability(
   analyzableFiles?: AnalyzableFiles,
 ): GeneratedSourceObservability {
   const filterPathParams = getFilterPathParams(configuration);
-  const requestedFilePaths = analyzableFiles ? new Set(Object.keys(analyzableFiles)) : undefined;
-  const pathsByFamily = new Map<string, NormalizedAbsolutePath[]>();
-
-  for (const [filePath, family] of sortPathEntries(resolvedFamilyByFile.entries())) {
-    let familyPaths = pathsByFamily.get(family);
-    if (!familyPaths) {
-      familyPaths = [];
-      pathsByFamily.set(family, familyPaths);
-    }
-    familyPaths.push(filePath);
-  }
-
+  const requestedFilePaths = analyzableFiles
+    ? new Set(Object.keys(analyzableFiles) as NormalizedAbsolutePath[])
+    : undefined;
+  const pathsByFamily = collectGeneratedSourcePathsByFamily(resolvedFamilyByFile);
   const families: GeneratedSourceFamilyObservability[] = [];
   const ignoredDefaultDtsFamilies: GeneratedSourceObservability['ignoredDefaultDtsFamilies'] = [];
 
-  for (const family of [...pathsByFamily.keys()].sort((left, right) => left.localeCompare(right))) {
-    const filePaths = pathsByFamily.get(family) ?? [];
+  for (const [family, filePaths] of [...pathsByFamily.entries()].sort(([left], [right]) =>
+    left.localeCompare(right),
+  )) {
     if (
       shouldIgnoreDefaultDtsFamily(filePaths, taggedFamilyByFile, configuration, filterPathParams)
     ) {
@@ -390,73 +388,118 @@ function buildGeneratedSourceObservability(
       continue;
     }
 
-    const familySummary: GeneratedSourceFamilyObservability = {
-      family,
-      resolvedFileCount: filePaths.length,
-      taggedFileCount: 0,
-      outOfScopeFileCount: 0,
-      excludedFileCount: 0,
-      excludedPaths: [],
-      outOfScopePaths: [],
-    };
-
-    for (const filePath of filePaths) {
-      if (taggedFamilyByFile.get(filePath) === family) {
-        familySummary.taggedFileCount += 1;
-        continue;
-      }
-
-      const pathClassification = classifyFilePath(filePath, filterPathParams);
-      if (pathClassification.status === 'OUT_OF_SCOPE') {
-        familySummary.outOfScopeFileCount += 1;
-        familySummary.outOfScopePaths.push(filePath);
-      } else if (pathClassification.status === 'EXCLUDED') {
-        familySummary.excludedFileCount += 1;
-        familySummary.excludedPaths.push(filePath);
-      } else if (!requestedFilePaths?.has(filePath)) {
-        // Explicit request.files may omit otherwise in-scope generated outputs.
-        // Keep them in resolved counts without misclassifying them as excluded.
-        continue;
-      } else {
-        familySummary.excludedFileCount += 1;
-        familySummary.excludedPaths.push(filePath);
-      }
-    }
-
-    families.push(familySummary);
+    families.push(
+      summarizeGeneratedSourceFamily(
+        family,
+        filePaths,
+        taggedFamilyByFile,
+        filterPathParams,
+        requestedFilePaths,
+      ),
+    );
   }
 
-  const telemetryFamilies: GeneratedSourceFamilyTelemetry[] = families.map(family => ({
+  const telemetryFamilies = families.map(toGeneratedSourceFamilyTelemetry);
+
+  return {
+    telemetry: aggregateGeneratedSourcesTelemetry(telemetryFamilies),
+    families,
+    ignoredDefaultDtsFamilies,
+  };
+}
+
+function collectGeneratedSourcePathsByFamily(
+  resolvedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
+) {
+  const pathsByFamily = new Map<string, NormalizedAbsolutePath[]>();
+
+  for (const [filePath, family] of sortPathEntries(resolvedFamilyByFile.entries())) {
+    const familyPaths = pathsByFamily.get(family);
+    if (familyPaths) {
+      familyPaths.push(filePath);
+    } else {
+      pathsByFamily.set(family, [filePath]);
+    }
+  }
+
+  return pathsByFamily;
+}
+
+function summarizeGeneratedSourceFamily(
+  family: string,
+  filePaths: readonly NormalizedAbsolutePath[],
+  taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
+  filterPathParams: ReturnType<typeof getFilterPathParams>,
+  requestedFilePaths?: ReadonlySet<NormalizedAbsolutePath>,
+): GeneratedSourceFamilyObservability {
+  const familySummary: GeneratedSourceFamilyObservability = {
+    family,
+    resolvedFileCount: filePaths.length,
+    taggedFileCount: 0,
+    outOfScopeFileCount: 0,
+    excludedFileCount: 0,
+    excludedPaths: [],
+    outOfScopePaths: [],
+  };
+
+  for (const filePath of filePaths) {
+    if (taggedFamilyByFile.get(filePath) === family) {
+      familySummary.taggedFileCount += 1;
+      continue;
+    }
+
+    const pathClassification = classifyFilePath(filePath, filterPathParams);
+    if (pathClassification.status === 'OUT_OF_SCOPE') {
+      familySummary.outOfScopeFileCount += 1;
+      familySummary.outOfScopePaths.push(filePath);
+      continue;
+    }
+
+    if (pathClassification.status === 'EXCLUDED') {
+      familySummary.excludedFileCount += 1;
+      familySummary.excludedPaths.push(filePath);
+      continue;
+    }
+
+    if (wasOmittedFromExplicitRequest(filePath, requestedFilePaths)) {
+      // Explicit request.files may omit otherwise in-scope generated outputs.
+      // Keep them in resolved counts without misclassifying them as excluded.
+      continue;
+    }
+  }
+
+  return familySummary;
+}
+
+function wasOmittedFromExplicitRequest(
+  filePath: NormalizedAbsolutePath,
+  requestedFilePaths?: ReadonlySet<NormalizedAbsolutePath>,
+) {
+  return requestedFilePaths !== undefined && requestedFilePaths.has(filePath) === false;
+}
+
+function toGeneratedSourceFamilyTelemetry(
+  family: GeneratedSourceFamilyObservability,
+): GeneratedSourceFamilyTelemetry {
+  return {
     family: family.family,
     resolvedFileCount: family.resolvedFileCount,
     taggedFileCount: family.taggedFileCount,
     outOfScopeFileCount: family.outOfScopeFileCount,
     excludedFileCount: family.excludedFileCount,
-  }));
+  };
+}
 
+function aggregateGeneratedSourcesTelemetry(
+  families: GeneratedSourceFamilyTelemetry[],
+): GeneratedSourcesTelemetry {
   return {
-    telemetry: {
-      familyCount: telemetryFamilies.length,
-      resolvedFileCount: telemetryFamilies.reduce(
-        (count, family) => count + family.resolvedFileCount,
-        0,
-      ),
-      taggedFileCount: telemetryFamilies.reduce(
-        (count, family) => count + family.taggedFileCount,
-        0,
-      ),
-      outOfScopeFileCount: telemetryFamilies.reduce(
-        (count, family) => count + family.outOfScopeFileCount,
-        0,
-      ),
-      excludedFileCount: telemetryFamilies.reduce(
-        (count, family) => count + family.excludedFileCount,
-        0,
-      ),
-      families: telemetryFamilies,
-    },
+    familyCount: families.length,
+    resolvedFileCount: families.reduce((count, family) => count + family.resolvedFileCount, 0),
+    taggedFileCount: families.reduce((count, family) => count + family.taggedFileCount, 0),
+    outOfScopeFileCount: families.reduce((count, family) => count + family.outOfScopeFileCount, 0),
+    excludedFileCount: families.reduce((count, family) => count + family.excludedFileCount, 0),
     families,
-    ignoredDefaultDtsFamilies,
   };
 }
 
@@ -531,6 +574,16 @@ function formatSamplePaths(
     .map(filePath => relativeToAncestorPath(filePath, baseDir) ?? filePath);
   const moreCount = filePaths.length - samplePaths.length;
   return moreCount > 0 ? `${samplePaths.join(', ')} (+${moreCount} more)` : samplePaths.join(', ');
+}
+
+function createGeneratedSourceObservabilityLogKey(
+  baseDir: NormalizedAbsolutePath,
+  observability: GeneratedSourceObservability,
+) {
+  return JSON.stringify({
+    baseDir,
+    observability,
+  });
 }
 
 function sortPathEntries<T>(entries: Iterable<[NormalizedAbsolutePath, T]>) {
