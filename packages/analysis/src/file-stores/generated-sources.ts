@@ -20,10 +20,7 @@ import type { FileStore } from './store-type.js';
 import type { Configuration } from '../common/configuration.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
-import {
-  getAnalyzableFilesConfigKey,
-  getProjectFileDiscoveryConfigKey,
-} from '../common/configuration.js';
+import { getAnalyzableFilesConfigKey } from '../common/configuration.js';
 import { dependencyManifestStore } from './dependency-manifests.js';
 import { getGeneratedSourceWatchedFilenames } from '../jsts/rules/helpers/generated-sources/index.js';
 import { isPreloadableDependencyManifestPath } from '../jsts/rules/helpers/dependency-manifests/index.js';
@@ -39,7 +36,6 @@ class GeneratedSourceStore implements FileStore {
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
-  private projectFileDiscoveryConfigKey: string | undefined = undefined;
   private activeRequestFilesKey: RequestFilesKey = undefined;
   private requestFilesKey: RequestFilesKey = undefined;
   private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
@@ -84,11 +80,6 @@ class GeneratedSourceStore implements FileStore {
       return;
     }
 
-    if (getProjectFileDiscoveryConfigKey(configuration) !== this.projectFileDiscoveryConfigKey) {
-      this.clearCache();
-      return;
-    }
-
     const generatedSourceWatchedFilenames = getGeneratedSourceWatchedFilenames();
     for (const filename of fsEvents) {
       if (this.isRelevantEvent(filename, generatedSourceWatchedFilenames)) {
@@ -102,7 +93,6 @@ class GeneratedSourceStore implements FileStore {
     this.baseDir = undefined;
     this.canAccessFileSystem = undefined;
     this.analyzableFilesConfigKey = undefined;
-    this.projectFileDiscoveryConfigKey = undefined;
     this.activeRequestFilesKey = undefined;
     this.clearDerivedState();
   }
@@ -111,7 +101,6 @@ class GeneratedSourceStore implements FileStore {
     this.baseDir = configuration.baseDir;
     this.canAccessFileSystem = configuration.canAccessFileSystem;
     this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
-    this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
     this.clearDerivedState();
   }
 
@@ -131,7 +120,6 @@ class GeneratedSourceStore implements FileStore {
       this.baseDir = configuration.baseDir;
       this.canAccessFileSystem = configuration.canAccessFileSystem;
       this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
-      this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
     }
 
     const { baseDir, canAccessFileSystem } = this;
