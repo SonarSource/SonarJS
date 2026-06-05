@@ -1,0 +1,23 @@
+{
+"vitest:test/cli/test/scoped-fixtures.test.ts": [
+746
+],
+"vitest:test/core/test/concurrent-suite.test.ts": [
+153,
+158
+],
+"vitest:test/core/test/execution-order.test.ts": [
+41
+],
+"vitest:test/core/test/hooks.test.ts": [
+52,
+102
+],
+"vitest:test/core/test/injector-mock.test.ts": [
+958
+],
+"vitest:test/core/test/mocking/vi-spyOn.test.ts": [
+655,
+676
+]
+}
