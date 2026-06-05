@@ -52,6 +52,7 @@ const fixtures = joinPaths(
 );
 const GRAPHQL_CODEGEN_FAMILY = '@graphql-codegen/cli';
 const OPENAPI_GENERATOR_FAMILY = '@openapitools/openapi-generator-cli';
+const PROTO_LOADER_GEN_TYPES_FAMILY = 'proto-loader-gen-types';
 
 function createPackageJsonMap(
   packageDir: NormalizedAbsolutePath,
@@ -73,7 +74,10 @@ async function writeFixtureFile(filePath: string, content = '') {
 }
 
 async function writeOpenApiFilesManifest(outputDir: string, filePaths: string[]) {
-  await writeFixtureFile(join(outputDir, '.openapi-generator', 'FILES'), `${filePaths.join('\n')}\n`);
+  await writeFixtureFile(
+    join(outputDir, '.openapi-generator', 'FILES'),
+    `${filePaths.join('\n')}\n`,
+  );
 }
 
 describe('generated sources project metadata', () => {
@@ -83,10 +87,11 @@ describe('generated sources project metadata', () => {
     sourceFileStore.clearCache();
   });
 
-  it('registers the GraphQL and OpenAPI detectors through the shared contract', () => {
+  it('registers the GraphQL, OpenAPI, and proto-loader detectors through the shared contract', () => {
     expect(GENERATED_SOURCE_DETECTORS.map(detector => detector.family)).toEqual([
       GRAPHQL_CODEGEN_FAMILY,
       OPENAPI_GENERATOR_FAMILY,
+      PROTO_LOADER_GEN_TYPES_FAMILY,
     ]);
     expect(GENERATED_SOURCE_TASK_INVOCATION_PROVIDERS.map(provider => provider.kind)).toEqual([
       'package-json-scripts',
@@ -1073,7 +1078,9 @@ export default config;
     expect(
       generatedSourceStore.getFamily(joinPaths(baseDir, 'build', 'api', 'ignored.ts')),
     ).toEqual(OPENAPI_GENERATOR_FAMILY);
-    expect(generatedSourceStore.getFamily(joinPaths(baseDir, 'src', 'api', 'manual.ts'))).toBeUndefined();
+    expect(
+      generatedSourceStore.getFamily(joinPaths(baseDir, 'src', 'api', 'manual.ts')),
+    ).toBeUndefined();
   });
 
   it('derives OpenAPI outputs from an output flag using equals syntax', async () => {
@@ -2183,6 +2190,138 @@ plugins = [
 
       expect(derived.configPaths).toEqual(new Set());
       expect(derived.familyByFile.get(outputPath)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives proto-loader outputs from the standard fixture', async () => {
+    const baseDir = joinPaths(fixtures, 'proto-loader');
+    await initFileStores(createConfiguration({ baseDir }));
+
+    expect(
+      generatedSourceStore.getFamily(joinPaths(baseDir, 'src', 'generated', 'service.ts')),
+    ).toEqual(PROTO_LOADER_GEN_TYPES_FAMILY);
+    expect(
+      generatedSourceStore.getFamily(joinPaths(baseDir, 'build', 'generated', 'ignored.ts')),
+    ).toEqual(PROTO_LOADER_GEN_TYPES_FAMILY);
+  });
+
+  it('derives recursive proto-loader outputs rooted under dist while pruning nested build/cache folders', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputPath = joinPaths(baseDir, 'dist', 'generated', 'nested', 'service.ts');
+    const ignoredBuildFile = joinPaths(baseDir, 'dist', 'generated', 'build', 'ignored.ts');
+    const ignoredCacheFile = joinPaths(baseDir, 'dist', 'generated', '.cache', 'ignored.ts');
+
+    try {
+      await writeFixtureFile(outputPath, 'export const service = true;\n');
+      await writeFixtureFile(ignoredBuildFile, 'export const ignored = true;\n');
+      await writeFixtureFile(ignoredCacheFile, 'export const ignored = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          scripts: {
+            codegen: 'proto-loader-gen-types -O=./dist/generated ./proto/service.proto',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toEqual(PROTO_LOADER_GEN_TYPES_FAMILY);
+      expect(derived.familyByFile.get(ignoredBuildFile)).toBeUndefined();
+      expect(derived.familyByFile.get(ignoredCacheFile)).toBeUndefined();
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('derives proto-loader outputs from generated-like directory names with separator variants', async () => {
+    const cases = [
+      {
+        outputDirFlag: './src/generated-types',
+        outputPathSegments: ['src', 'generated-types', 'service.ts'],
+      },
+      {
+        outputDirFlag: './src/generated_types',
+        outputPathSegments: ['src', 'generated_types', 'service.ts'],
+      },
+      {
+        outputDirFlag: './src/types-generated',
+        outputPathSegments: ['src', 'types-generated', 'service.ts'],
+      },
+      {
+        outputDirFlag: './src/types_generated',
+        outputPathSegments: ['src', 'types_generated', 'service.ts'],
+      },
+    ] satisfies ReadonlyArray<{
+      outputDirFlag: string;
+      outputPathSegments: readonly string[];
+    }>;
+
+    for (const testCase of cases) {
+      const baseDir = await createTempBaseDir();
+      const outputPath = joinPaths(baseDir, ...testCase.outputPathSegments);
+
+      try {
+        await writeFixtureFile(outputPath, 'export const service = true;\n');
+
+        const derived = await deriveGeneratedSources(
+          baseDir,
+          createPackageJsonMap(baseDir, {
+            scripts: {
+              codegen: `proto-loader-gen-types -O=${testCase.outputDirFlag} ./proto/service.proto`,
+            },
+          }),
+        );
+
+        expect(derived.familyByFile.get(outputPath)).toEqual(PROTO_LOADER_GEN_TYPES_FAMILY);
+      } finally {
+        await rm(baseDir, { recursive: true, force: true });
+      }
+    }
+  });
+
+  it('derives proto-loader outputs from the --outDir long flag', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputPath = joinPaths(baseDir, 'src', 'generated', 'service.ts');
+
+    try {
+      await writeFixtureFile(outputPath, 'export const service = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          scripts: {
+            codegen: 'proto-loader-gen-types --outDir=./src/generated ./proto/service.proto',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toEqual(PROTO_LOADER_GEN_TYPES_FAMILY);
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('does not derive proto-loader outputs from arbitrary directory names', async () => {
+    const baseDir = await createTempBaseDir();
+    const outputDirectory = joinPaths(baseDir, 'src', 'types');
+    const outputPath = joinPaths(outputDirectory, 'service.ts');
+
+    try {
+      await writeFixtureFile(outputPath, 'export const service = true;\n');
+
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        createPackageJsonMap(baseDir, {
+          scripts: {
+            codegen: 'proto-loader-gen-types -O=./src/types ./proto/service.proto',
+          },
+        }),
+      );
+
+      expect(derived.familyByFile.get(outputPath)).toBeUndefined();
+      expect(derived.watchedOutputPaths).toEqual(new Set([outputDirectory]));
     } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
