@@ -29,7 +29,6 @@ import {
   isStringArray,
   isObject,
 } from '../../../shared/src/helpers/sanitize.js';
-import { JAVASCRIPT_CODE_FILE_EXTENSIONS, TYPESCRIPT_CODE_FILE_EXTENSIONS } from './file-kinds.js';
 
 /**
  * A discriminator between JavaScript and TypeScript languages. This is used
@@ -128,8 +127,8 @@ export type ConfigurationInput = {
 // Patterns enforced to be ignored no matter what the user configures on sonar.properties
 const IGNORED_PATTERNS = ['.scannerwork'];
 
-const DEFAULT_JS_EXTENSIONS = [...JAVASCRIPT_CODE_FILE_EXTENSIONS, '.vue'];
-const DEFAULT_TS_EXTENSIONS = TYPESCRIPT_CODE_FILE_EXTENSIONS.slice();
+const DEFAULT_JS_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx', '.vue'];
+const DEFAULT_TS_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'];
 const DEFAULT_CSS_EXTENSIONS = ['.css', '.less', '.scss', '.sass'];
 const DEFAULT_HTML_EXTENSIONS = ['.html', '.htm', '.xhtml'];
 const DEFAULT_YAML_EXTENSIONS = ['.yml', '.yaml'];
@@ -195,6 +194,25 @@ const DEFAULT_GLOBALS = [
   'sap',
 ];
 
+type RawConfiguration = Record<string, unknown>;
+
+function getRequiredBaseDir(raw: RawConfiguration) {
+  const { baseDir } = raw;
+  if (!isString(baseDir)) {
+    throw new Error('baseDir is required and must be a string');
+  }
+  return baseDir;
+}
+
+function getOptionalValue<T>(
+  raw: RawConfiguration,
+  key: keyof ConfigurationInput,
+  predicate: (value: unknown) => value is T,
+) {
+  const value = raw[key];
+  return predicate(value) ? value : undefined;
+}
+
 /**
  * Creates a new Configuration instance from raw input.
  * Validates and normalizes the input without mutating any global state.
@@ -216,57 +234,49 @@ export function createConfiguration(raw: unknown): Configuration {
   if (!isObject(raw)) {
     throw new Error('Invalid configuration: expected object');
   }
-  if (!isString(raw.baseDir)) {
-    throw new Error('baseDir is required and must be a string');
-  }
+  const baseDir = getRequiredBaseDir(raw);
   return createConfigurationFromInput({
-    baseDir: raw.baseDir,
-    canAccessFileSystem: isBoolean(raw.canAccessFileSystem) ? raw.canAccessFileSystem : undefined,
-    sonarlint: isBoolean(raw.sonarlint) ? raw.sonarlint : undefined,
-    clearDependenciesCache: isBoolean(raw.clearDependenciesCache)
-      ? raw.clearDependenciesCache
-      : undefined,
-    clearTsConfigCache: isBoolean(raw.clearTsConfigCache) ? raw.clearTsConfigCache : undefined,
+    baseDir,
+    canAccessFileSystem: getOptionalValue(raw, 'canAccessFileSystem', isBoolean),
+    sonarlint: getOptionalValue(raw, 'sonarlint', isBoolean),
+    clearDependenciesCache: getOptionalValue(raw, 'clearDependenciesCache', isBoolean),
+    clearTsConfigCache: getOptionalValue(raw, 'clearTsConfigCache', isBoolean),
     fsEvents: sanitizeFsEvents(raw.fsEvents),
-    allowTsParserJsFiles: isBoolean(raw.allowTsParserJsFiles)
-      ? raw.allowTsParserJsFiles
-      : undefined,
-    analysisMode: isAnalysisMode(raw.analysisMode) ? raw.analysisMode : undefined,
-    skipAst: isBoolean(raw.skipAst) ? raw.skipAst : undefined,
-    ignoreHeaderComments: isBoolean(raw.ignoreHeaderComments)
-      ? raw.ignoreHeaderComments
-      : undefined,
-    maxFileSize: isNumber(raw.maxFileSize) ? raw.maxFileSize : undefined,
-    environments: isStringArray(raw.environments) ? raw.environments : undefined,
-    globals: isStringArray(raw.globals) ? raw.globals : undefined,
-    tsSuffixes: isStringArray(raw.tsSuffixes) ? raw.tsSuffixes : undefined,
-    jsSuffixes: isStringArray(raw.jsSuffixes) ? raw.jsSuffixes : undefined,
-    cssSuffixes: isStringArray(raw.cssSuffixes) ? raw.cssSuffixes : undefined,
-    htmlSuffixes: isStringArray(raw.htmlSuffixes) ? raw.htmlSuffixes : undefined,
-    yamlSuffixes: isStringArray(raw.yamlSuffixes) ? raw.yamlSuffixes : undefined,
-    cssAdditionalSuffixes: isStringArray(raw.cssAdditionalSuffixes)
-      ? raw.cssAdditionalSuffixes
-      : undefined,
-    tsConfigPaths: isStringArray(raw.tsConfigPaths) ? raw.tsConfigPaths : undefined,
-    jsTsExclusions: isStringArray(raw.jsTsExclusions) ? raw.jsTsExclusions : undefined,
-    sources: isStringArray(raw.sources) ? raw.sources : undefined,
-    inclusions: isStringArray(raw.inclusions) ? raw.inclusions : undefined,
-    exclusions: isStringArray(raw.exclusions) ? raw.exclusions : undefined,
-    tests: isStringArray(raw.tests) ? raw.tests : undefined,
-    testInclusions: isStringArray(raw.testInclusions) ? raw.testInclusions : undefined,
-    testExclusions: isStringArray(raw.testExclusions) ? raw.testExclusions : undefined,
-    detectBundles: isBoolean(raw.detectBundles) ? raw.detectBundles : undefined,
-    createTSProgramForOrphanFiles: isBoolean(raw.createTSProgramForOrphanFiles)
-      ? raw.createTSProgramForOrphanFiles
-      : undefined,
-    disableTypeChecking: isBoolean(raw.disableTypeChecking) ? raw.disableTypeChecking : undefined,
-    skipNodeModuleLookupOutsideBaseDir: isBoolean(raw.skipNodeModuleLookupOutsideBaseDir)
-      ? raw.skipNodeModuleLookupOutsideBaseDir
-      : undefined,
-    ecmaScriptVersion: isString(raw.ecmaScriptVersion) ? raw.ecmaScriptVersion : undefined,
-    reportNclocForTestFiles: isBoolean(raw.reportNclocForTestFiles)
-      ? raw.reportNclocForTestFiles
-      : undefined,
+    allowTsParserJsFiles: getOptionalValue(raw, 'allowTsParserJsFiles', isBoolean),
+    analysisMode: getOptionalValue(raw, 'analysisMode', isAnalysisMode),
+    skipAst: getOptionalValue(raw, 'skipAst', isBoolean),
+    ignoreHeaderComments: getOptionalValue(raw, 'ignoreHeaderComments', isBoolean),
+    maxFileSize: getOptionalValue(raw, 'maxFileSize', isNumber),
+    environments: getOptionalValue(raw, 'environments', isStringArray),
+    globals: getOptionalValue(raw, 'globals', isStringArray),
+    tsSuffixes: getOptionalValue(raw, 'tsSuffixes', isStringArray),
+    jsSuffixes: getOptionalValue(raw, 'jsSuffixes', isStringArray),
+    cssSuffixes: getOptionalValue(raw, 'cssSuffixes', isStringArray),
+    htmlSuffixes: getOptionalValue(raw, 'htmlSuffixes', isStringArray),
+    yamlSuffixes: getOptionalValue(raw, 'yamlSuffixes', isStringArray),
+    cssAdditionalSuffixes: getOptionalValue(raw, 'cssAdditionalSuffixes', isStringArray),
+    tsConfigPaths: getOptionalValue(raw, 'tsConfigPaths', isStringArray),
+    jsTsExclusions: getOptionalValue(raw, 'jsTsExclusions', isStringArray),
+    sources: getOptionalValue(raw, 'sources', isStringArray),
+    inclusions: getOptionalValue(raw, 'inclusions', isStringArray),
+    exclusions: getOptionalValue(raw, 'exclusions', isStringArray),
+    tests: getOptionalValue(raw, 'tests', isStringArray),
+    testInclusions: getOptionalValue(raw, 'testInclusions', isStringArray),
+    testExclusions: getOptionalValue(raw, 'testExclusions', isStringArray),
+    detectBundles: getOptionalValue(raw, 'detectBundles', isBoolean),
+    createTSProgramForOrphanFiles: getOptionalValue(
+      raw,
+      'createTSProgramForOrphanFiles',
+      isBoolean,
+    ),
+    disableTypeChecking: getOptionalValue(raw, 'disableTypeChecking', isBoolean),
+    skipNodeModuleLookupOutsideBaseDir: getOptionalValue(
+      raw,
+      'skipNodeModuleLookupOutsideBaseDir',
+      isBoolean,
+    ),
+    ecmaScriptVersion: getOptionalValue(raw, 'ecmaScriptVersion', isString),
+    reportNclocForTestFiles: getOptionalValue(raw, 'reportNclocForTestFiles', isBoolean),
   });
 }
 
