@@ -1,0 +1,28 @@
+{
+  "title": "Redundant values in shorthand properties should be removed",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "1min"
+  },
+  "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8761",
+  "sqKey": "S8761",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "unknown"
+}

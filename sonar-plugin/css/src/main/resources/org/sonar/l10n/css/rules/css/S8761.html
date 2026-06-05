@@ -1,0 +1,68 @@
+
+<h2>Why is this an issue?</h2>
+
+
+<p>Many CSS shorthand properties support collapsed forms. For example, <code>margin: 1px 1px</code> is equivalent to <code>margin: 1px</code>, and
+<code>padding: 1px 2px 1px</code> is equivalent to <code>padding: 1px 2px</code>.</p>
+
+
+<p>Keeping longer-than-necessary value lists adds noise, makes diffs harder to read, and can suggest that the values intentionally differ when they do
+not.</p>
+
+
+<p>This rule raises an issue when a shorthand property can be written with fewer values without changing the rendered result. It applies to edge
+shorthands such as <code>margin</code>, <code>padding</code>, <code>border-color</code>, <code>border-style</code>, <code>border-width</code>,
+<code>inset</code>, <code>scroll-margin</code>, and <code>scroll-padding</code>, as well as <code>border-radius</code>, <code>gap</code>,
+<code>overflow</code>, <code>overscroll-behavior</code>, and their logical or vendor-prefixed variants.</p>
+
+
+
+
+<h2>How to fix it</h2>
+
+
+<p>Rewrite the declaration using the shortest equivalent shorthand form.</p>
+
+
+<h3>Noncompliant code example</h3>
+<pre data-diff-id="1" data-diff-type="noncompliant">
+a {
+  margin: 1px 1px;
+  padding: 1px 2px 1px;
+  border-radius: 1px 2px 1px 2px;
+  -webkit-border-radius: 1px 1px 1px 1px;
+}
+</pre>
+
+<h4>Compliant solution</h4>
+<pre data-diff-id="1" data-diff-type="compliant">
+a {
+  margin: 1px;
+  padding: 1px 2px;
+  border-radius: 1px 2px;
+  -webkit-border-radius: 1px;
+  margin: 1px 1px 1px 2px;
+}
+</pre>
+
+
+
+
+
+<h2>Resources</h2>
+
+
+<h3>Documentation</h3>
+
+<ul>
+<li>
+<a href="https://developer.mozilla.org/en-US/docs/Web/CSS/Shorthand_properties">MDN - Shorthand properties</a>
+</li>
+<li>
+<a href="https://stylelint.io/user-guide/rules/shorthand-property-no-redundant-values/">Stylelint rule documentation</a>
+</li>
+</ul>
+
+
+
+

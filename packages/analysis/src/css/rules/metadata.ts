@@ -262,6 +262,10 @@ export const cssRulesMeta: CssRuleMeta[] = [
     sqKey: 'S7925',
     stylelintKey: 'sonar/text-spacing',
   },
+  {
+    sqKey: 'S8761',
+    stylelintKey: 'shorthand-property-no-redundant-values',
+  },
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
