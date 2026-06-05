@@ -21,12 +21,6 @@ export {
   type GeneratedSourceFamily,
 } from './contracts.js';
 export {
-  GRAPHQL_CODEGEN_FAMILY,
-  OPENAPI_GENERATOR_FAMILY,
-  PROTO_LOADER_GEN_TYPES_FAMILY,
-  type GeneratedSourceFamily,
-} from './contracts.js';
-export {
   GENERATED_SOURCE_DETECTORS,
   GENERATED_SOURCE_WATCHED_FILENAMES,
 } from './detectors/index.js';

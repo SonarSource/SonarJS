@@ -31,6 +31,7 @@ import { classifyFilePath } from '../common/filter/filter-path.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 import { dependencyManifestStore } from './dependency-manifests.js';
 import { GENERATED_SOURCE_WATCHED_FILENAMES } from '../jsts/rules/helpers/generated-sources/index.js';
+import type { GeneratedSourceFamily } from '../jsts/rules/helpers/generated-sources/contracts.js';
 import { isPreloadableDependencyManifestPath } from '../jsts/rules/helpers/dependency-manifests/index.js';
 import { relativeToAncestorPath } from '../jsts/rules/helpers/files.js';
 import { deriveGeneratedSources } from '../jsts/rules/helpers/generated-sources/derive.js';
@@ -69,8 +70,8 @@ class GeneratedSourceStore implements FileStore {
   private analyzableFilesConfigKey: string | undefined = undefined;
   private activeRequestFilesKey: RequestFilesKey = undefined;
   private requestFilesKey: RequestFilesKey = undefined;
-  private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
-  private familyByFile = new Map<NormalizedAbsolutePath, string>();
+  private derivedFamilyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
+  private familyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
   private resolvedFiles = new Set<NormalizedAbsolutePath>();
   private configPaths = new Set<NormalizedAbsolutePath>();
   private watchedOutputPaths = new Set<NormalizedAbsolutePath>();
@@ -96,7 +97,7 @@ class GeneratedSourceStore implements FileStore {
     return true;
   }
 
-  getFamily(filePath: NormalizedAbsolutePath): string | undefined {
+  getFamily(filePath: NormalizedAbsolutePath): GeneratedSourceFamily | undefined {
     return this.familyByFile.get(filePath);
   }
 
@@ -242,14 +243,14 @@ class GeneratedSourceStore implements FileStore {
 }
 
 function filterAnalyzableGeneratedFiles(
-  familyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
+  familyByFile: ReadonlyMap<NormalizedAbsolutePath, GeneratedSourceFamily>,
   analyzableFiles: AnalyzableFiles | undefined,
 ) {
   if (!analyzableFiles) {
     return new Map(familyByFile);
   }
 
-  const filtered = new Map<NormalizedAbsolutePath, string>();
+  const filtered = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
   for (const [filePath, family] of familyByFile) {
     if (Object.hasOwn(analyzableFiles, filePath)) {
       filtered.set(filePath, family);

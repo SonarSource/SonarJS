@@ -1088,7 +1088,7 @@ export default config;
             },
             scripts: {
               graphql: 'graphql-codegen --config ./codegen.yml',
-              openapi: 'openapi-generator-cli generate --output=./outside/api',
+              openapi: 'openapi-generator-cli generate -g typescript-axios --output=./outside/api',
             },
           },
           null,
