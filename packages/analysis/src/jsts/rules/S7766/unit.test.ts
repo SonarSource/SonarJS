@@ -16,6 +16,7 @@
  */
 import { rule } from './index.js';
 import { decorate } from './decorator.js';
+import { rules as externalRules } from '../external/unicorn.js';
 import {
   DefaultParserRuleTester,
   RuleTester,
@@ -65,6 +66,8 @@ const programReportRule: Rule.RuleModule = {
   },
 };
 
+const upstreamRule = externalRules['prefer-math-min-max'];
+
 describe('S7766', () => {
   it('forwards unrelated reports from the decorated rule', () => {
     const ruleTester = new DefaultParserRuleTester();
@@ -96,9 +99,9 @@ describe('S7766', () => {
     });
   });
 
-  it('suppresses only type-safe min/max reports from the decorated rule', () => {
+  it('raw upstream already accepts the stale typed examples', () => {
     const ruleTester = new RuleTester();
-    ruleTester.run('Decorated rule', decorate(conditionalExpressionRule), {
+    ruleTester.run('Raw unicorn rule', upstreamRule, {
       valid: [
         {
           code: `
@@ -122,12 +125,150 @@ function lowerConstrainedValue<T extends { valueOf(): string }>(left: T, right: 
           `,
         },
       ],
+      invalid: [],
+    });
+  });
+
+  it('raw upstream still reports the remaining plain-JS object cases', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('Raw unicorn rule', upstreamRule, {
+      valid: [],
       invalid: [
         {
           code: `
-function lowerAnyValue(left: any, right: any): any {
+function MomentLike(value) {
+  this.value = value;
+}
+
+MomentLike.prototype.valueOf = function () {
+  return this.value;
+};
+
+MomentLike.prototype.min = function (other) {
+  return other < this ? this : other;
+};
+          `,
+          output: `
+function MomentLike(value) {
+  this.value = value;
+}
+
+MomentLike.prototype.valueOf = function () {
+  return this.value;
+};
+
+MomentLike.prototype.min = function (other) {
+  return Math.max(other, this);
+};
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function earliestDate(left, right) {
   return left < right ? left : right;
 }
+
+earliestDate(new Date(1), new Date(2));
+          `,
+          output: `
+function earliestDate(left, right) {
+  return Math.min(left, right);
+}
+
+earliestDate(new Date(1), new Date(2));
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function lowerDomainValue(left, right) {
+  return left < right ? left : right;
+}
+
+lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
+          `,
+          output: `
+function lowerDomainValue(left, right) {
+  return Math.min(left, right);
+}
+
+lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('suppresses only direct plain-JS object min/max reports from the decorated rule', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    ruleTester.run('Decorated rule', decorate(conditionalExpressionRule), {
+      valid: [
+        {
+          code: `
+function MomentLike(value) {
+  this.value = value;
+}
+
+MomentLike.prototype.valueOf = function () {
+  return this.value;
+};
+
+MomentLike.prototype.min = function (other) {
+  return other < this ? this : other;
+};
+
+MomentLike.prototype.max = function (other) {
+  return other > this ? this : other;
+};
+          `,
+        },
+        {
+          code: `
+function earliestDate(left, right) {
+  return left < right ? left : right;
+}
+
+earliestDate(new Date(1), new Date(2));
+          `,
+        },
+        {
+          code: `
+function lowerDomainValue(left, right) {
+  return left < right ? left : right;
+}
+
+lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+function earliestTimestamp(firstDate, secondDate) {
+  return firstDate < secondDate ? firstDate : secondDate;
+}
+
+earliestTimestamp(Date.now(), Date.now() + 1);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function SomeType(value) {
+  this.value = value;
+}
+
+SomeType.prototype.valueOf = function () {
+  return this.value;
+};
+
+function clamp(value, upper) {
+  return value > upper ? upper : value;
+}
+
+clamp(10, 5);
           `,
           errors: 1,
         },
@@ -240,8 +381,7 @@ function earliestTimestamp(firstDate: number, secondDate: number): number {
   it('S7766 without type information', () => {
     const ruleTester = new DefaultParserRuleTester();
     ruleTester.run('Ternary expressions selecting min/max values should use Math.min/max', rule, {
-      valid: [],
-      invalid: [
+      valid: [
         {
           code: `
 function MomentLike(value) {
@@ -260,24 +400,15 @@ MomentLike.prototype.max = function (other) {
   return other > this ? this : other;
 };
           `,
-          output: `
-function MomentLike(value) {
-  this.value = value;
+        },
+        {
+          code: `
+function earliestDate(left, right) {
+  return left < right ? left : right;
 }
 
-MomentLike.prototype.valueOf = function () {
-  return this.value;
-};
-
-MomentLike.prototype.min = function (other) {
-  return Math.max(other, this);
-};
-
-MomentLike.prototype.max = function (other) {
-  return Math.min(other, this);
-};
+earliestDate(new Date(1), new Date(2));
           `,
-          errors: 2,
         },
         {
           code: `
@@ -292,20 +423,9 @@ function higherDomainValue(left, right) {
 lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
 higherDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
           `,
-          output: `
-function lowerDomainValue(left, right) {
-  return Math.min(left, right);
-}
-
-function higherDomainValue(left, right) {
-  return Math.max(left, right);
-}
-
-lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
-higherDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
-          `,
-          errors: 2,
         },
+      ],
+      invalid: [
         {
           code: `
 function earliestTimestamp(firstDate, secondDate) {

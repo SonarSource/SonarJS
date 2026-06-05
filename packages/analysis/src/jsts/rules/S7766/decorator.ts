@@ -16,16 +16,13 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7766/javascript
 
-import type { Rule, SourceCode } from 'eslint';
+import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
-import ts from 'typescript';
+import { getVariableFromScope, isThisExpression } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
+import { areEquivalent } from '../helpers/equivalence.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import {
-  isRequiredParserServices,
-  type RequiredParserServices,
-} from '../helpers/parser-services.js';
-import { getTypeFromTreeNode, isAny, isNumberType } from '../helpers/type.js';
+import { isRequiredParserServices } from '../helpers/parser-services.js';
 import * as meta from './generated-meta.js';
 
 const comparisonOperators = new Set(['<', '<=', '>', '>=']);
@@ -56,15 +53,9 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 }
 
 function shouldSuppressReport(node: MinMaxConditionalExpression, sourceCode: SourceCode): boolean {
-  if (!isRequiredParserServices(sourceCode.parserServices)) {
-    return false;
-  }
-
-  const services = sourceCode.parserServices;
-  const { left, right } = node.test;
   return (
-    isDefinitelyNonNumberDomainNode(left, services) ||
-    isDefinitelyNonNumberDomainNode(right, services)
+    !isRequiredParserServices(sourceCode.parserServices) &&
+    hasDirectObjectSelectionEvidence(node, sourceCode)
   );
 }
 
@@ -80,47 +71,169 @@ function isMinMaxConditionalReport(
   return (
     test.type === 'BinaryExpression' &&
     comparisonOperators.has(test.operator) &&
-    ((areSameExpression(test.left, consequent, sourceCode) &&
-      areSameExpression(test.right, alternate, sourceCode)) ||
-      (areSameExpression(test.left, alternate, sourceCode) &&
-        areSameExpression(test.right, consequent, sourceCode)))
+    ((areEquivalent(test.left, consequent, sourceCode) &&
+      areEquivalent(test.right, alternate, sourceCode)) ||
+      (areEquivalent(test.left, alternate, sourceCode) &&
+        areEquivalent(test.right, consequent, sourceCode)))
   );
 }
 
-function areSameExpression(left: estree.Node, right: estree.Node, sourceCode: SourceCode): boolean {
-  return sourceCode.getText(left) === sourceCode.getText(right);
-}
-
-function isDefinitelyNonNumberDomainNode(
-  node: estree.Node,
-  services: RequiredParserServices,
+function hasDirectObjectSelectionEvidence(
+  node: MinMaxConditionalExpression,
+  sourceCode: SourceCode,
 ): boolean {
-  const type = getTypeFromTreeNode(node, services);
-  return isDefinitelyNonNumberDomainType(type, services.program.getTypeChecker());
+  const { left, right } = node.test;
+  return (
+    hasDirectObjectEvidence(left, sourceCode, new Set()) ||
+    hasDirectObjectEvidence(right, sourceCode, new Set())
+  );
 }
 
-function isDefinitelyNonNumberDomainType(type: ts.Type, checker: ts.TypeChecker): boolean {
-  const unionTypes = type.isUnion() ? type.types : [type];
-  return unionTypes.every(typePart => isNonNumberDomainType(typePart, checker));
-}
+function hasDirectObjectEvidence(
+  node: estree.Node,
+  sourceCode: SourceCode,
+  visitedVariables: Set<Scope.Variable>,
+): boolean {
+  if (isThisExpression(node) || isDirectObjectExpression(node)) {
+    return true;
+  }
 
-function isNonNumberDomainType(type: ts.Type, checker: ts.TypeChecker): boolean {
-  if (isAnyOrUnknownType(type)) {
+  if (node.type !== 'Identifier') {
     return false;
   }
 
-  if ((type.getFlags() & ts.TypeFlags.TypeParameter) !== 0) {
-    const constraint = checker.getBaseConstraintOfType(type);
-    return (
-      constraint == null ||
-      isAnyOrUnknownType(constraint) ||
-      isDefinitelyNonNumberDomainType(constraint, checker)
-    );
+  const variable = getVariableFromScope(sourceCode.getScope(node), node.name);
+  if (!variable || visitedVariables.has(variable)) {
+    return false;
   }
+  visitedVariables.add(variable);
 
-  return !isNumberType(type) && (type.getFlags() & ts.TypeFlags.Object) !== 0;
+  return variable.defs.some(definition =>
+    hasDirectObjectDefinition(definition, sourceCode, visitedVariables),
+  );
 }
 
-function isAnyOrUnknownType(type: ts.Type): boolean {
-  return isAny(type) || (type.getFlags() & ts.TypeFlags.Unknown) !== 0;
+function hasDirectObjectDefinition(
+  definition: Scope.Definition,
+  sourceCode: SourceCode,
+  visitedVariables: Set<Scope.Variable>,
+): boolean {
+  switch (definition.type) {
+    case 'Parameter':
+      return hasDirectObjectCallSites(definition, sourceCode);
+    case 'Variable':
+      return (
+        definition.node.init != null &&
+        hasDirectObjectEvidence(definition.node.init, sourceCode, visitedVariables)
+      );
+    default:
+      return false;
+  }
+}
+
+function hasDirectObjectCallSites(definition: Scope.Definition, sourceCode: SourceCode): boolean {
+  if (definition.name.type !== 'Identifier' || !isFunctionNode(definition.node)) {
+    return false;
+  }
+
+  const parameterIndex = definition.node.params.findIndex(
+    parameter => parameter === definition.name,
+  );
+  if (parameterIndex === -1) {
+    return false;
+  }
+
+  const callSites = findDirectCallSites(definition.node, sourceCode);
+  return (
+    callSites !== null &&
+    callSites.length > 0 &&
+    callSites.every(callSite => isDirectObjectArgument(callSite.arguments[parameterIndex]))
+  );
+}
+
+function findDirectCallSites(
+  functionNode: estree.Function,
+  sourceCode: SourceCode,
+): estree.CallExpression[] | null {
+  const variable = getFunctionVariable(functionNode, sourceCode);
+  if (!variable) {
+    return null;
+  }
+
+  const calls: estree.CallExpression[] = [];
+  for (const reference of variable.references) {
+    const parent = getParent(reference.identifier);
+    if (parent?.type === 'CallExpression' && parent.callee === reference.identifier) {
+      calls.push(parent);
+      continue;
+    }
+    return null;
+  }
+
+  return calls;
+}
+
+function getFunctionVariable(
+  functionNode: estree.Function,
+  sourceCode: SourceCode,
+): Scope.Variable | undefined {
+  if (functionNode.type === 'FunctionDeclaration' && functionNode.id) {
+    return getVariableFromScope(sourceCode.getScope(functionNode.id), functionNode.id.name);
+  }
+
+  const parent = getParent(functionNode);
+  if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+    return getVariableFromScope(sourceCode.getScope(parent.id), parent.id.name);
+  }
+
+  if (parent?.type === 'AssignmentExpression' && parent.left.type === 'Identifier') {
+    return getVariableFromScope(sourceCode.getScope(parent.left), parent.left.name);
+  }
+
+  return undefined;
+}
+
+function isDirectObjectArgument(
+  argument: estree.Expression | estree.SpreadElement | undefined,
+): boolean {
+  return (
+    argument != null && argument.type !== 'SpreadElement' && isDirectObjectExpression(argument)
+  );
+}
+
+function isDirectObjectExpression(node: estree.Node): boolean {
+  return isDateConstruction(node) || isObjectLiteralWithValueOf(node);
+}
+
+function isDateConstruction(node: estree.Node): node is estree.NewExpression {
+  return (
+    node.type === 'NewExpression' &&
+    node.callee.type === 'Identifier' &&
+    node.callee.name === 'Date'
+  );
+}
+
+function isObjectLiteralWithValueOf(node: estree.Node): node is estree.ObjectExpression {
+  return (
+    node.type === 'ObjectExpression' &&
+    node.properties.some(
+      property =>
+        property.type === 'Property' &&
+        !property.computed &&
+        ((property.key.type === 'Identifier' && property.key.name === 'valueOf') ||
+          (property.key.type === 'Literal' && property.key.value === 'valueOf')),
+    )
+  );
+}
+
+function isFunctionNode(node: estree.Node): node is estree.Function {
+  return (
+    node.type === 'FunctionDeclaration' ||
+    node.type === 'FunctionExpression' ||
+    node.type === 'ArrowFunctionExpression'
+  );
+}
+
+function getParent(node: estree.Node): estree.Node | null {
+  return 'parent' in node ? (node as estree.Node & Rule.NodeParentExtension).parent : null;
 }
