@@ -83,14 +83,15 @@ export function chaiShouldReceiver(source: string, node: estree.Node): string {
   return isSafeChaiShouldReceiver(node) ? source : `(${source})`;
 }
 
+const SAFE_CHAI_SHOULD_RECEIVER_TYPES = new Set([
+  'Identifier',
+  'MemberExpression',
+  'CallExpression',
+  'ThisExpression',
+]);
+
 function isSafeChaiShouldReceiver(node: estree.Node): boolean {
-  return [
-    'Identifier',
-    'MemberExpression',
-    'CallExpression',
-    'ThisExpression',
-    'ChainExpression',
-  ].includes(node.type);
+  return SAFE_CHAI_SHOULD_RECEIVER_TYPES.has(node.type);
 }
 
 function getBinaryExpressionSuggestion(
