@@ -1128,6 +1128,68 @@ describe('gRPC server', () => {
       expect(responseIssue.issues?.[0].rule?.rule).toBe('S4656');
     });
 
+    it('should report redundant longhands and allow ignored shorthands (S4665)', async () => {
+      const content =
+        'a { margin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }';
+
+      const requestIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S4665' }, params: [] }],
+      };
+
+      const responseIssue = await client.analyze(requestIssue);
+      expect(responseIssue.issues?.length).toBe(1);
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S4665');
+
+      const requestNoIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4665' },
+            params: [{ key: 'ignoreShorthands', value: 'margin' }],
+          },
+        ],
+      };
+
+      const responseNoIssue = await client.analyze(requestNoIssue);
+      expect(responseNoIssue.issues?.length).toBe(0);
+    });
+
+    it('should apply ignoreLonghands to complete shorthand groups (S4665)', async () => {
+      const content =
+        'a { text-decoration-line: underline; text-decoration-style: solid; text-decoration-color: red; }';
+
+      const requestNoIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S4665' }, params: [] }],
+      };
+
+      const responseNoIssue = await client.analyze(requestNoIssue);
+      expect(responseNoIssue.issues?.length).toBe(0);
+
+      const requestIssue: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S4665' },
+            params: [{ key: 'ignoreLonghands', value: 'text-decoration-thickness' }],
+          },
+        ],
+      };
+
+      const responseIssue = await client.analyze(requestIssue);
+      expect(responseIssue.issues?.length).toBe(1);
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S4665');
+    });
+
     it('should not produce CSS issues when no CSS rules are active', async () => {
       const request: analyzer.IAnalyzeRequest = {
         analysisId: generateAnalysisId(),

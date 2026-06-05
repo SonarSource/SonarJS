@@ -337,6 +337,25 @@ describe('CSS rule configurations', () => {
       ]);
       expect(result!.configurations).toEqual([]);
     });
+
+    it('should return empty configurations when multiple listParams have empty defaults', () => {
+      const result = buildCssRuleConfigurations('S4665', []);
+      expect(result!.configurations).toEqual([]);
+    });
+
+    it('should merge provided listParams when multiple listParams have empty defaults', () => {
+      const result = buildCssRuleConfigurations('S4665', [
+        { key: 'ignoreLonghands', value: 'text-decoration-thickness' },
+        { key: 'ignoreShorthands', value: 'margin,/^flex/' },
+      ]);
+      expect(result!.configurations).toEqual([
+        true,
+        {
+          ignoreLonghands: ['text-decoration-thickness'],
+          ignoreShorthands: ['margin', '/^flex/'],
+        },
+      ]);
+    });
   });
 
   describe('booleanParam', () => {
