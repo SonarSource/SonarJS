@@ -335,6 +335,29 @@ describe('S4782', () => {
               },
             ],
           },
+          {
+            // Top-level union mixing a non-distributive generic (`Map`) with
+            // an explicit `| undefined`: handled by the syntactic top-level
+            // path, independent of the walker. Both quick-fix suggestions
+            // apply because the `undefined` keyword sits in the root union.
+            code: `interface T { p?: Map<string, number | undefined> | undefined; }`,
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: 'interface T { p: Map<string, number | undefined> | undefined; }',
+                  },
+                  {
+                    desc: 'Remove "undefined" type annotation',
+                    output: 'interface T { p?: Map<string, number | undefined>; }',
+                  },
+                ],
+              },
+            ],
+          },
         ],
       },
     );
@@ -475,6 +498,30 @@ describe('S4782', () => {
             import type { FakeMaybeRef, FakeUndefinedUnion } from 'fake-lib';
             interface Example {
               attribute?: FakeMaybeRef<FakeUndefinedUnion>;
+            };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+          {
+            // Top-level `undefined` comes from the external `FakeNullableWrapper`;
+            // the inline `| undefined` is buried inside a `Map` value type, which
+            // does not distribute to the top-level union. Removing the buried
+            // keyword would not change the property's nullability — the walker
+            // must NOT flag this case.
+            code: `
+            import type { FakeNullableWrapper } from 'fake-lib';
+            interface Example {
+              attribute?: FakeNullableWrapper<Map<string, number | undefined>>;
+            };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+          {
+            // Same selectivity check with `Array` in place of `Map`: a buried
+            // inline `| undefined` inside a non-distributive generic must not
+            // trip the walker.
+            code: `
+            import type { FakeNullableWrapper } from 'fake-lib';
+            interface Example {
+              attribute?: FakeNullableWrapper<Array<string | undefined>>;
             };`,
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
           },
@@ -702,6 +749,34 @@ describe('S4782', () => {
             type Status = 'idle' | 'loading';
             interface Example {
               attribute: FakeMaybeRef<Status | undefined>;
+            };`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            // The buried inline `| undefined` doesn't trigger the walker (Map
+            // is non-distributive), but the wrapper is project-local — the
+            // user can edit `NullableWrap` to remove its `| undefined`, so the
+            // classifier path still flags the property.
+            code: `
+            type NullableWrap<T> = T | undefined;
+            interface Example {
+              attribute?: NullableWrap<Map<string, number | undefined>>;
+            };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            type NullableWrap<T> = T | undefined;
+            interface Example {
+              attribute: NullableWrap<Map<string, number | undefined>>;
             };`,
                   },
                 ],

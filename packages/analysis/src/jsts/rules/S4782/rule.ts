@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4782/javascript
 
-import type { AST, Rule, SourceCode } from 'eslint';
+import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
@@ -27,7 +27,6 @@ import {
 } from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { classifyTypesByOrigin } from '../helpers/type-origin.js';
-import { childrenOf } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -65,7 +64,6 @@ export const rule: Rule.RuleModule = {
         typeNode = findSemanticUndefinedTypeNode(
           rootType,
           parserServices as RequiredParserServices,
-          context.sourceCode.visitorKeys,
         );
       }
 
@@ -94,7 +92,6 @@ export const rule: Rule.RuleModule = {
 function findSemanticUndefinedTypeNode(
   rootType: TSESTree.TypeNode,
   services: RequiredParserServices,
-  visitorKeys: SourceCode.VisitorKeys,
 ): TSESTree.TypeNode | undefined {
   const tsTypeNode = services.esTreeNodeToTSNodeMap.get(rootType);
   const checker: ts.TypeChecker = services.program.getTypeChecker();
@@ -102,15 +99,16 @@ function findSemanticUndefinedTypeNode(
   if (!type.isUnion()) {
     return undefined;
   }
-  const hasUndefined = type.types.some(t => (t.flags & ts.TypeFlags.Undefined) !== 0);
-  const hasNonUndefined = type.types.some(t => (t.flags & ts.TypeFlags.Undefined) === 0);
-  if (!hasUndefined || !hasNonUndefined) {
+  const hasUndefined = type.types.some(isUndefinedType);
+  const hasAllUndefined = type.types.every(isUndefinedType);
+  if (!hasUndefined || hasAllUndefined) {
     return undefined;
   }
-  // If the user wrote `... | undefined` anywhere in the annotation (e.g. as a
-  // type argument to an external generic like Vue's `MaybeRef`), the inline
-  // keyword is editable — flag without consulting the internal/external split.
-  if (hasInlineUnionPositionUndefined(rootType, visitorKeys)) {
+  // If the user wrote `... | undefined` anywhere in the annotation along a
+  // path that propagates into the top-level resolved union (e.g. inside the
+  // type argument of a distributive external generic like Vue's `MaybeRef`),
+  // the inline keyword is editable — flag without consulting the classifier.
+  if (hasInlineUnionPositionUndefined(rootType, services)) {
     return rootType;
   }
   // Otherwise `undefined` must come from a declaration: only flag when it's
@@ -123,23 +121,58 @@ function findSemanticUndefinedTypeNode(
   return undefinedReachableFromInternal ? rootType : undefined;
 }
 
+/**
+ * Looks for a `TSUndefinedKeyword` written in union position along a path
+ * that propagates into the top-level resolved union. We only descend through:
+ *
+ *  - `TSUnionType.types` — unions are naturally distributive at every level.
+ *  - `TSTypeReference.typeArguments.params`, but only when the reference's
+ *    own resolved type is a union containing `undefined`. This filters out
+ *    non-distributive wrappers like `Map<K, V | undefined>`, where the inner
+ *    `| undefined` is buried inside the value type and cannot reach the
+ *    property's top-level union.
+ */
 function hasInlineUnionPositionUndefined(
   root: TSESTree.TypeNode,
-  visitorKeys: SourceCode.VisitorKeys,
+  services: RequiredParserServices,
 ): boolean {
-  const stack: estree.Node[] = [root as unknown as estree.Node];
+  const stack: TSESTree.Node[] = [root];
   while (stack.length > 0) {
-    const node = stack.pop() as estree.Node;
-    if ((node as TSESTree.Node).type === 'TSUndefinedKeyword' && isInUnionPosition(node)) {
+    const node = stack.pop() as TSESTree.Node;
+    if (node.type === 'TSUndefinedKeyword' && node.parent?.type === 'TSUnionType') {
       return true;
     }
-    stack.push(...childrenOf(node, visitorKeys));
+    pushPropagatingChildren(node, stack, services);
   }
   return false;
 }
 
-function isInUnionPosition(node: estree.Node): boolean {
-  return (node as TSESTree.Node).parent?.type === 'TSUnionType';
+function pushPropagatingChildren(
+  node: TSESTree.Node,
+  stack: TSESTree.Node[],
+  services: RequiredParserServices,
+): void {
+  if (node.type === 'TSUnionType') {
+    stack.push(...node.types);
+    return;
+  }
+  if (node.type === 'TSTypeReference' && propagatesUndefined(node, services)) {
+    const params = node.typeArguments?.params;
+    params && stack.push(...params);
+  }
+}
+
+function isUndefinedType(t: ts.Type): boolean {
+  return (t.flags & ts.TypeFlags.Undefined) !== 0;
+}
+
+function propagatesUndefined(
+  node: TSESTree.TSTypeReference,
+  services: RequiredParserServices,
+): boolean {
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+  const type = services.program.getTypeChecker().getTypeAtLocation(tsNode);
+  return type.isUnion() && type.types.some(isUndefinedType);
 }
 
 function resolvedTypeContainsUndefined(
@@ -149,7 +182,7 @@ function resolvedTypeContainsUndefined(
   const tsNode = services.esTreeNodeToTSNodeMap.get(node);
   const type = services.program.getTypeChecker().getTypeAtLocation(tsNode);
   const members = type.isUnion() ? type.types : [type];
-  return members.some(t => (t.flags & ts.TypeFlags.Undefined) !== 0);
+  return members.some(isUndefinedType);
 }
 
 function findSyntacticUndefinedTypeNode(
