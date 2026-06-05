@@ -18,7 +18,7 @@
 
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
-import { getVariableFromScope, isThisExpression } from '../helpers/ast.js';
+import { getVariableFromScope, hasParent, isThisExpression } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { areEquivalent } from '../helpers/equivalence.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -136,9 +136,7 @@ function hasDirectObjectCallSites(definition: Scope.Definition, sourceCode: Sour
     return false;
   }
 
-  const parameterIndex = definition.node.params.findIndex(
-    parameter => parameter === definition.name,
-  );
+  const parameterIndex = definition.node.params.indexOf(definition.name);
   if (parameterIndex === -1) {
     return false;
   }
@@ -162,7 +160,7 @@ function findDirectCallSites(
 
   const calls: estree.CallExpression[] = [];
   for (const reference of variable.references) {
-    const parent = getParent(reference.identifier);
+    const parent = hasParent(reference.identifier) ? reference.identifier.parent : null;
     if (parent?.type === 'CallExpression' && parent.callee === reference.identifier) {
       calls.push(parent);
       continue;
@@ -181,7 +179,11 @@ function getFunctionVariable(
     return getVariableFromScope(sourceCode.getScope(functionNode.id), functionNode.id.name);
   }
 
-  const parent = getParent(functionNode);
+  if (!hasParent(functionNode)) {
+    return undefined;
+  }
+
+  const parent = functionNode.parent;
   if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
     return getVariableFromScope(sourceCode.getScope(parent.id), parent.id.name);
   }
@@ -232,8 +234,4 @@ function isFunctionNode(node: estree.Node): node is estree.Function {
     node.type === 'FunctionExpression' ||
     node.type === 'ArrowFunctionExpression'
   );
-}
-
-function getParent(node: estree.Node): estree.Node | null {
-  return 'parent' in node ? (node as estree.Node & Rule.NodeParentExtension).parent : null;
 }
