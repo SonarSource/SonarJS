@@ -2561,6 +2561,27 @@ plugins = [
             'Generated source family=@graphql-codegen/cli resolvedFiles=3 taggedFiles=1 outOfScopeFiles=1 excludedFiles=1',
         ),
       ).toHaveLength(1);
+
+      generatedSourceStore.clearCache();
+      await initFileStores(configuration);
+
+      const reinitializedLogs = (console.log as Mock<typeof console.log>).mock.calls.map(
+        call => call.arguments[0],
+      );
+      expect(
+        reinitializedLogs.filter(
+          log =>
+            log ===
+            'Generated source observability: families=1, resolvedFiles=3, taggedFiles=1, outOfScopeFiles=1, excludedFiles=1',
+        ),
+      ).toHaveLength(1);
+      expect(
+        reinitializedLogs.filter(
+          log =>
+            log ===
+            'Generated source family=@graphql-codegen/cli resolvedFiles=3 taggedFiles=1 outOfScopeFiles=1 excludedFiles=1',
+        ),
+      ).toHaveLength(1);
     } finally {
       console.log = originalConsoleLog;
       await rm(baseDir, { recursive: true, force: true });

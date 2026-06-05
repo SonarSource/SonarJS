@@ -87,6 +87,8 @@ class GeneratedSourceStore implements FileStore {
   private configPaths = new Set<NormalizedAbsolutePath>();
   private watchedOutputPaths = new Set<NormalizedAbsolutePath>();
   private observabilityTelemetry = createEmptyGeneratedSourcesTelemetry();
+  // Preserve the last logged fingerprint across cache invalidations so repeated analyses only
+  // re-emit observability logs when the content changes.
   private lastLoggedObservabilityKey: string | undefined = undefined;
 
   async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
@@ -582,7 +584,19 @@ function createGeneratedSourceObservabilityLogKey(
 ) {
   return JSON.stringify({
     baseDir,
-    observability,
+    telemetry: observability.telemetry,
+    families: observability.families.map(family => ({
+      family: family.family,
+      outOfScopeCount: family.outOfScopePaths.length,
+      outOfScopeSample: family.outOfScopePaths.slice(0, OBSERVABILITY_SAMPLE_LIMIT),
+      excludedCount: family.excludedPaths.length,
+      excludedSample: family.excludedPaths.slice(0, OBSERVABILITY_SAMPLE_LIMIT),
+    })),
+    ignoredDefaultDtsFamilies: observability.ignoredDefaultDtsFamilies.map(family => ({
+      family: family.family,
+      fileCount: family.filePaths.length,
+      fileSample: family.filePaths.slice(0, OBSERVABILITY_SAMPLE_LIMIT),
+    })),
   });
 }
 
