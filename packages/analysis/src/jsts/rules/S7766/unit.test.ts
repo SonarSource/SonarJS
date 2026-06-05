@@ -242,6 +242,23 @@ function lowerDomainValue(left, right) {
 lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
           `,
         },
+        {
+          code: `
+const first = new Date(1);
+const second = new Date(2);
+
+const earliest = first < second ? first : second;
+          `,
+        },
+        {
+          code: `
+function lowerDomainValue(left, right) {
+  return left < right ? left : right;
+}
+
+lowerDomainValue({ 'valueOf': () => 1 }, { 'valueOf': () => 2 });
+          `,
+        },
       ],
       invalid: [
         {
@@ -269,6 +286,78 @@ function clamp(value, upper) {
 }
 
 clamp(10, 5);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+let lowerDomainValue;
+
+lowerDomainValue = function (left, right) {
+  return left < right ? left : right;
+};
+
+lowerDomainValue(new Date(1), new Date(2));
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+const lowerDomainValue = (left, right) => left < right ? left : right;
+const alias = lowerDomainValue;
+
+lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+const lowerDomainValue = (left, right) => left < right ? left : right;
+
+lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
+  it('classifies typed unions and intersections in the decorated rule', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Decorated rule', decorate(conditionalExpressionRule), {
+      valid: [
+        {
+          code: `
+type NumericOrDate = number | Date;
+
+function lowerNumericOrDate(left: NumericOrDate, right: NumericOrDate): NumericOrDate {
+  return left < right ? left : right;
+}
+          `,
+        },
+        {
+          code: `
+type BrandedTimestamp = number & { readonly __brand: unique symbol };
+
+declare function getTimestamp(value: number): BrandedTimestamp;
+
+function earliestBrandedTimestamp(
+  first: BrandedTimestamp,
+  second: BrandedTimestamp,
+): BrandedTimestamp {
+  return first < second ? first : second;
+}
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+type NumericValue = 1 | 2 | 3;
+
+function earliestNumericValue(left: NumericValue, right: NumericValue): NumericValue {
+  return left < right ? left : right;
+}
           `,
           errors: 1,
         },
@@ -344,6 +433,29 @@ function higherDomainValue<T>(left: T, right: T): T {
           code: `
 function lowerConstrainedValue<T extends { valueOf(): string }>(left: T, right: T): T {
   return left < right ? left : right;
+}
+          `,
+        },
+        {
+          code: `
+type NumericOrDate = number | Date;
+
+function lowerNumericOrDate(left: NumericOrDate, right: NumericOrDate): NumericOrDate {
+  return left < right ? left : right;
+}
+          `,
+        },
+        {
+          code: `
+type BrandedTimestamp = number & { readonly __brand: unique symbol };
+
+declare function getTimestamp(value: number): BrandedTimestamp;
+
+function earliestBrandedTimestamp(
+  first: BrandedTimestamp,
+  second: BrandedTimestamp,
+): BrandedTimestamp {
+  return first < second ? first : second;
 }
           `,
         },
