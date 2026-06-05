@@ -195,34 +195,43 @@ It maintains two caches:
 - a **detector cache** with generated-file to family mappings, config paths used by generated-source detectors, and watched output paths
 - a **match cache** with the subset of detector matches visible to the current analysis request
 
-It depends on a mix of the other stores:
+The most useful way to reason about this store is by the corresponding Sonar property families.
 
-- **project helper files** because the detector cache derives metadata from files such as `package.json`
-- **source-file selection** because the match cache should only surface analyzable source files to the linter
+- **Source-scope properties**: `sonar.sources`, `sonar.tests`, `sonar.inclusions`, `sonar.exclusions`, `sonar.test.inclusions`, and `sonar.test.exclusions`
+- **Filesystem-walk exclusions**: `sonar.javascript.exclusions` and `sonar.typescript.exclusions`
+
+Internally, the source-scope properties map to `sources`, `tests`, `inclusions`, `exclusions`, `testInclusions`, and `testExclusions`.
+They decide which discovered source files remain visible to analysis, so they affect the **match cache**.
+
+Internally, `sonar.javascript.exclusions` and `sonar.typescript.exclusions` are merged into `jsTsExclusions`.
+They are different from `sonar.exclusions`: they are applied during `findFiles()`, before helper files such as `package.json` are discovered.
+Because the detector cache derives metadata from those helper files, the current implementation conservatively invalidates the **detector cache** whenever `jsTsExclusions` changes.
+
+For example:
+
+- changing `sonar.exclusions` to ignore `src/generated/**` only changes the visible generated-file matches
+- changing `sonar.javascript.exclusions` or `sonar.typescript.exclusions` to ignore `**/package.json` changes detector inputs and invalidates the detector cache
+
+The store also depends on:
+
 - **explicit request files** in request-driven analysis, where the visible match-cache subset may change from one request to the next
-
-Those dependencies are not represented by two disjoint configuration keys.
-
-- `jsTsExclusions` participates in **analyzable-file selection**
-- the same `jsTsExclusions` also participates in **project-file discovery**, because the filesystem walk skips excluded paths before helper files such as `package.json` are discovered
-
-That means a change classified as an analyzable-file-selection change is not automatically safe for a match-cache-only refresh. If it changes helper-file discovery, it also invalidates the detector cache.
+- **project helper files** because the detector cache derives metadata from files such as `package.json`
+- **JS/TS suffix settings** because detector output matching depends on the supported source extensions
 
 ### Refresh Model
 
-`generatedSourceStore` is refreshed when:
+`generatedSourceStore` recomputes the detector cache when:
 
 - the base directory changes
 - filesystem access mode changes
-- project-file-discovery configuration changes
+- JS/TS suffix settings change
+- `sonar.javascript.exclusions` or `sonar.typescript.exclusions` changes
 - `fsEvents` mention a relevant helper file, generated-source config file, or watched output path
 
-The detector cache is recomputed in those cases because the project-level detection inputs may have changed.
+`generatedSourceStore` refreshes only the match cache when:
 
-It also has a lighter-weight match-cache refresh:
-
-- when analyzable-file-selection configuration changes in a way that does **not** change helper-file discovery inputs
-- when the explicit request file set changes but the detector cache is still valid
+- `sonar.sources`, `sonar.tests`, `sonar.inclusions`, `sonar.exclusions`, `sonar.test.inclusions`, or `sonar.test.exclusions` changes
+- the explicit request file set changes but the detector cache is still valid
 
 This is why `generated-sources` is the hybrid store: its detector cache depends on helper-file discovery, while its match cache also depends on the currently visible source-file set.
 
