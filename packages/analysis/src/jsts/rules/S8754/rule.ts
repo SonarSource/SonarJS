@@ -50,6 +50,7 @@ type FunctionNode =
   | estree.FunctionDeclaration
   | estree.FunctionExpression
   | estree.ArrowFunctionExpression;
+type CallbackFunctionNode = estree.FunctionExpression | estree.ArrowFunctionExpression;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -340,8 +341,14 @@ function hasCallback(node: estree.CallExpression): boolean {
   return node.arguments.some(argument => FUNCTION_NODES.includes(argument.type));
 }
 
-function getCallback(node: estree.CallExpression): FunctionNode | undefined {
-  return node.arguments.find(isFunctionNode);
+function getCallback(node: estree.CallExpression): CallbackFunctionNode | undefined {
+  return node.arguments.find(isCallbackFunctionNode);
+}
+
+function isCallbackFunctionNode(
+  node: estree.CallExpression['arguments'][number],
+): node is CallbackFunctionNode {
+  return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
 }
 
 function isFunctionNode(node: estree.Node): node is FunctionNode {
