@@ -2455,6 +2455,166 @@ plugins = [
     expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
   });
 
+  it('records generated-source observability for tagged, excluded, and out-of-scope files', async ({
+    mock,
+  }) => {
+    const baseDir = await createTempBaseDir();
+    const taggedFile = joinPaths(baseDir, 'src', 'generated', 'keep.ts');
+    const excludedFile = joinPaths(baseDir, 'src', 'excluded', 'blocked.ts');
+    const outOfScopeFile = joinPaths(baseDir, 'outside', 'api', 'index.ts');
+    const originalConsoleLog = console.log;
+    console.log = mock.fn(console.log);
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              graphql: 'graphql-codegen --config ./codegen.yml',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        joinPaths(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/keep.ts:
+    plugins:
+      - typescript
+  ./src/excluded/blocked.ts:
+    plugins:
+      - typescript
+  ./outside/api/index.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(taggedFile, 'export const tagged = true;\n');
+      await writeFixtureFile(excludedFile, 'export const excluded = true;\n');
+      await writeFixtureFile(outOfScopeFile, 'export const outOfScope = true;\n');
+
+      await initFileStores(
+        createConfiguration({
+          baseDir,
+          sources: ['src'],
+          exclusions: ['src/excluded/**'],
+        }),
+      );
+
+      expect(generatedSourceStore.getFamily(taggedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(generatedSourceStore.getFamily(excludedFile)).toBeUndefined();
+      expect(generatedSourceStore.getFamily(outOfScopeFile)).toBeUndefined();
+      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+        familyCount: 1,
+        resolvedFileCount: 3,
+        taggedFileCount: 1,
+        outOfScopeFileCount: 1,
+        excludedFileCount: 1,
+        families: [
+          {
+            family: GRAPHQL_CODEGEN_FAMILY,
+            resolvedFileCount: 3,
+            taggedFileCount: 1,
+            outOfScopeFileCount: 1,
+            excludedFileCount: 1,
+          },
+        ],
+      });
+
+      const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+        call => call.arguments[0],
+      );
+      expect(logs).toContain(
+        'Generated source observability: families=1, resolvedFiles=3, taggedFiles=1, outOfScopeFiles=1, excludedFiles=1',
+      );
+      expect(logs).toContain(
+        'Generated source family=@graphql-codegen/cli resolvedFiles=3 taggedFiles=1 outOfScopeFiles=1 excludedFiles=1',
+      );
+      expect(logs).toContain(
+        'DEBUG Generated source family=@graphql-codegen/cli excluded sample=src/excluded/blocked.ts',
+      );
+      expect(logs).toContain(
+        'DEBUG Generated source family=@graphql-codegen/cli outOfScope sample=outside/api/index.ts',
+      );
+    } finally {
+      console.log = originalConsoleLog;
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('ignores declaration-only default-excluded generated families in observability', async ({
+    mock,
+  }) => {
+    const baseDir = await createTempBaseDir();
+    const declarationFile = joinPaths(baseDir, 'src', 'generated', 'operations.d.ts');
+    const originalConsoleLog = console.log;
+    console.log = mock.fn(console.log);
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              graphql: 'graphql-codegen --config ./codegen.yml',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        joinPaths(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/operations.d.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(declarationFile, 'export type Operation = string;\n');
+
+      await initFileStores(
+        createConfiguration({
+          baseDir,
+          sources: ['src'],
+        }),
+      );
+
+      expect(sourceFileStore.getFiles()[declarationFile]).toBeUndefined();
+      expect(generatedSourceStore.getFamily(declarationFile)).toBeUndefined();
+      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+        familyCount: 0,
+        resolvedFileCount: 0,
+        taggedFileCount: 0,
+        outOfScopeFileCount: 0,
+        excludedFileCount: 0,
+        families: [],
+      });
+
+      const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+        call => call.arguments[0],
+      );
+      expect(logs).not.toContain(
+        'Generated source observability: families=0, resolvedFiles=0, taggedFiles=0, outOfScopeFiles=0, excludedFiles=0',
+      );
+      expect(logs).toContain(
+        'DEBUG Generated source family=@graphql-codegen/cli ignored for observability because all resolved outputs are declaration files excluded by default **/*.d.ts: src/generated/operations.d.ts',
+      );
+    } finally {
+      console.log = originalConsoleLog;
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('recomputes generated-source metadata when filesystem access becomes available again', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
 

@@ -21,6 +21,14 @@ import type { FileType } from '../../contracts/file.js';
 import { type FilterPathParams } from '../configuration.js';
 import { isTestRelatedFile } from '../../jsts/rules/helpers/test-file-pattern.js';
 
+type CandidateClassification = 'MATCH' | 'EXCLUDED' | 'OUT_OF_SCOPE' | 'NO_MATCH';
+
+type FilePathClassification =
+  | { status: 'MAIN'; fileType: 'MAIN' }
+  | { status: 'TEST'; fileType: 'TEST' }
+  | { status: 'EXCLUDED' }
+  | { status: 'OUT_OF_SCOPE' };
+
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
  * properties sonar.typescript.exclusions and sonar.javascript.exclusions wildcards.
@@ -62,21 +70,55 @@ export function filterPathAndGetFileType(
   filePath: NormalizedAbsolutePath,
   params: FilterPathParams,
 ): FileType | undefined {
-  if (fileIsTest(filePath, params)) {
-    return 'TEST';
-  }
-
-  if (fileIsMain(filePath, params)) {
-    return 'MAIN';
+  const classification = classifyFilePathInternal(filePath, params, true);
+  if (classification.status === 'TEST' || classification.status === 'MAIN') {
+    return classification.fileType;
   }
   debug(`File ignored due to analysis scope filters: ${filePath}`);
+}
+
+export function classifyFilePath(
+  filePath: NormalizedAbsolutePath,
+  params: FilterPathParams,
+): FilePathClassification {
+  return classifyFilePathInternal(filePath, params, false);
 }
 
 function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolutePath[]): boolean {
   return paths.some(path => filePath === path || filePath.startsWith(`${path}/`));
 }
 
-function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
+function classifyFilePathInternal(
+  filePath: NormalizedAbsolutePath,
+  params: FilterPathParams,
+  logHeuristicTestDetection: boolean,
+): FilePathClassification {
+  const testClassification = classifyTestPath(filePath, params, logHeuristicTestDetection);
+  if (testClassification === 'MATCH') {
+    return { status: 'TEST', fileType: 'TEST' };
+  }
+
+  const mainClassification = classifyMainPath(filePath, params);
+  if (mainClassification === 'MATCH') {
+    return { status: 'MAIN', fileType: 'MAIN' };
+  }
+
+  if (mainClassification === 'EXCLUDED' || testClassification === 'EXCLUDED') {
+    return { status: 'EXCLUDED' };
+  }
+
+  if (mainClassification === 'OUT_OF_SCOPE' || testClassification === 'OUT_OF_SCOPE') {
+    return { status: 'OUT_OF_SCOPE' };
+  }
+
+  return { status: 'OUT_OF_SCOPE' };
+}
+
+function classifyTestPath(
+  filePath: NormalizedAbsolutePath,
+  params: FilterPathParams,
+  logHeuristicTestDetection: boolean,
+): CandidateClassification {
   const {
     testPaths,
     testExclusions,
@@ -95,41 +137,44 @@ function fileIsTest(filePath: NormalizedAbsolutePath, params: FilterPathParams):
       fileIsUnder(filePath, sourcesPaths) &&
       inclusions.some(inclusion => inclusion.match(filePath))
     ) {
-      return false;
+      return 'NO_MATCH';
     }
     const doesLookLikeTestFile = isTestRelatedFile(filePath, testFileExtensions);
-    if (doesLookLikeTestFile) {
+    if (doesLookLikeTestFile && logHeuristicTestDetection) {
       debug(
         `Test file detected: ${filePath}. If this file should not be treated as a test, please configure sonar.tests or adjust your sonar.sources/sonar.inclusions to explicitly include it as MAIN.`,
       );
     }
-    return doesLookLikeTestFile;
+    return doesLookLikeTestFile ? 'MATCH' : 'NO_MATCH';
   }
 
   if (!fileIsUnder(filePath, testPaths)) {
-    return false;
+    return 'NO_MATCH';
   }
   if (testExclusions?.some(exclusion => exclusion.match(filePath))) {
-    return false;
+    return 'EXCLUDED';
   }
   if (testInclusions?.length) {
-    return testInclusions.some(inclusion => inclusion.match(filePath));
+    return testInclusions.some(inclusion => inclusion.match(filePath)) ? 'MATCH' : 'OUT_OF_SCOPE';
   }
-  return true;
+  return 'MATCH';
 }
 
-function fileIsMain(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
+function classifyMainPath(
+  filePath: NormalizedAbsolutePath,
+  params: FilterPathParams,
+): CandidateClassification {
   const { sourcesPaths, exclusions, inclusions } = params;
   if (!fileIsUnder(filePath, sourcesPaths)) {
-    return false;
+    return 'NO_MATCH';
   }
 
   if (exclusions?.some(exclusion => exclusion.match(filePath))) {
-    return false;
+    return 'EXCLUDED';
   }
 
   if (inclusions?.length) {
-    return inclusions.some(inclusion => inclusion.match(filePath));
+    return inclusions.some(inclusion => inclusion.match(filePath)) ? 'MATCH' : 'OUT_OF_SCOPE';
   }
-  return true;
+  return 'MATCH';
 }
