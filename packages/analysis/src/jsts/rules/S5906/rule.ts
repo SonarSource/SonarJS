@@ -19,7 +19,7 @@
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import { extractTestAssertion, type AssertionStyle } from '../helpers/assertions.js';
-import { getVariableFromName, isIdentifier, isMethodCall } from '../helpers/ast.js';
+import { isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { chaiShouldReceiver, getBooleanExpressionSuggestion } from './assertion-suggestions.js';
@@ -54,11 +54,6 @@ export const rule: Rule.RuleModule = {
     const sourceCode = context.sourceCode;
     const hasPlaywright = importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES);
     const playwrightLocators = new Set<Scope.Variable>();
-    // Defer reporting until `Program:exit` so later call sites can still disambiguate `.length`.
-    const callExpressions: estree.CallExpression[] = [];
-    // Remember member refs that are invoked elsewhere so `foo.bar.length` can be treated as
-    // function arity rather than collection size.
-    const calledMemberExpressions = new Set<string>();
 
     function report(node: estree.CallExpression, suggestion: Suggestion) {
       const replacementText = suggestion.replacement;
@@ -80,48 +75,30 @@ export const rule: Rule.RuleModule = {
       });
     }
 
-    function checkCallExpression(node: estree.CallExpression) {
-      if (hasPlaywright) {
-        const playwrightSuggestion = getPlaywrightLocatorSuggestion(
-          context,
-          node,
-          sourceCode,
-          playwrightLocators,
-        );
-        if (playwrightSuggestion) {
-          report(node, playwrightSuggestion);
-          return;
-        }
-      }
-      const assertion = extractTestAssertion(context, node);
-      if (assertion?.kind !== 'comparison') {
-        return;
-      }
-      const suggestion = getSuggestion(
-        context,
-        assertion.style,
-        node,
-        sourceCode,
-        calledMemberExpressions,
-      );
-      if (suggestion) {
-        report(node, suggestion);
-      }
-    }
-
     return {
       CallExpression(node: estree.Node) {
         if (node.type !== 'CallExpression') {
           return;
         }
-        callExpressions.push(node);
-        if (node.callee.type === 'MemberExpression' && !node.callee.computed) {
-          calledMemberExpressions.add(sourceCode.getText(node.callee));
+        if (hasPlaywright) {
+          const playwrightSuggestion = getPlaywrightLocatorSuggestion(
+            context,
+            node,
+            sourceCode,
+            playwrightLocators,
+          );
+          if (playwrightSuggestion) {
+            report(node, playwrightSuggestion);
+            return;
+          }
         }
-      },
-      'Program:exit'() {
-        for (const node of callExpressions) {
-          checkCallExpression(node);
+        const assertion = extractTestAssertion(context, node);
+        if (assertion?.kind !== 'comparison') {
+          return;
+        }
+        const suggestion = getSuggestion(context, assertion.style, node, sourceCode);
+        if (suggestion) {
+          report(node, suggestion);
         }
       },
       VariableDeclarator(node: estree.Node) {
@@ -144,14 +121,13 @@ function getSuggestion(
   style: AssertionStyle,
   node: estree.CallExpression,
   sourceCode: SourceCode,
-  calledMemberExpressions: ReadonlySet<string>,
 ): Suggestion | null {
   switch (style) {
     case 'jest-like':
     case 'playwright':
-      return getExpectLikeSuggestion(context, node, sourceCode, 'jest', calledMemberExpressions);
+      return getExpectLikeSuggestion(node, sourceCode, 'jest');
     case 'jasmine':
-      return getExpectLikeSuggestion(context, node, sourceCode, 'jasmine', calledMemberExpressions);
+      return getExpectLikeSuggestion(node, sourceCode, 'jasmine');
     case 'chai-bdd':
       return getChaiBddSuggestion(node, sourceCode);
     case 'chai-assert':
@@ -164,11 +140,9 @@ function getSuggestion(
 }
 
 function getExpectLikeSuggestion(
-  context: Rule.RuleContext,
   node: estree.CallExpression,
   sourceCode: SourceCode,
   family: 'jest' | 'jasmine',
-  calledMemberExpressions: ReadonlySet<string>,
 ): Suggestion | null {
   if (
     !isMethodCall(node) ||
@@ -203,12 +177,7 @@ function getExpectLikeSuggestion(
     }
     return replacement(`${prefix}.toBeNaN()`, node, sourceCode);
   }
-  // `.length` is ambiguous in JavaScript: collections expose a size, while functions expose arity.
-  // Only suggest dedicated length matchers for obvious collection-style targets.
-  if (
-    isLengthAccess(actual) &&
-    isCollectionLengthTarget(context, actual.object, sourceCode, calledMemberExpressions)
-  ) {
+  if (isLengthAccess(actual)) {
     return replacement(
       `expect(${sourceCode.getText(actual.object)}).${negated ? 'not.' : ''}${lengthMatcher}(${expectedText})`,
       node,
@@ -225,82 +194,6 @@ function getExpectLikeSuggestion(
     family,
     sourceCode,
     node,
-  );
-}
-
-function isCollectionLengthTarget(
-  context: Rule.RuleContext,
-  node: estree.Node,
-  sourceCode: SourceCode,
-  calledMemberExpressions: ReadonlySet<string>,
-): boolean {
-  return !isFunctionLikeLengthTarget(context, node, sourceCode, calledMemberExpressions);
-}
-
-function isFunctionLikeLengthTarget(
-  context: Rule.RuleContext,
-  node: estree.Node,
-  sourceCode: SourceCode,
-  calledMemberExpressions: ReadonlySet<string>,
-): boolean {
-  if (node.type === 'Identifier') {
-    return isFunctionLikeIdentifier(context, node);
-  }
-
-  return (
-    node.type === 'MemberExpression' &&
-    (isPrototypeMethodReference(node) ||
-      (!node.computed && calledMemberExpressions.has(sourceCode.getText(node))))
-  );
-}
-
-function isFunctionLikeIdentifier(context: Rule.RuleContext, node: estree.Identifier): boolean {
-  const variable = getVariableFromName(context, node.name, node);
-  if (variable?.defs.length !== 1) {
-    return false;
-  }
-
-  const def = variable.defs[0];
-  switch (def.type) {
-    case 'FunctionName':
-    case 'ClassName':
-      return true;
-    case 'Variable':
-      return isFunctionLikeInitializer(def.node.init);
-    default:
-      return false;
-  }
-}
-
-function isFunctionLikeInitializer(node: estree.Expression | null | undefined): boolean {
-  return (
-    node?.type === 'FunctionExpression' ||
-    node?.type === 'ArrowFunctionExpression' ||
-    node?.type === 'ClassExpression' ||
-    isBoundFunction(node)
-  );
-}
-
-function isBoundFunction(
-  node: estree.Expression | null | undefined,
-): node is estree.CallExpression & {
-  callee: estree.MemberExpression & { property: estree.Identifier };
-} {
-  return (
-    node?.type === 'CallExpression' && isMethodCall(node) && node.callee.property.name === 'bind'
-  );
-}
-
-function isPrototypeMethodReference(
-  node: estree.MemberExpression,
-): node is estree.MemberExpression & {
-  object: estree.MemberExpression & { property: estree.Identifier };
-} {
-  return (
-    !node.computed &&
-    node.object.type === 'MemberExpression' &&
-    !node.object.computed &&
-    isIdentifier(node.object.property, 'prototype')
   );
 }
 
