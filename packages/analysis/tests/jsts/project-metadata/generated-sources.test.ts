@@ -2363,6 +2363,46 @@ plugins = [
     expect(generatedSourceStore.getFamily(secondGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
   });
 
+  it('memoizes explicit request-file keys per analyzable-file set', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+    const generatedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
+    const configuration = createConfiguration({ baseDir });
+    const { files: inputFiles } = await sanitizeRawInputFiles(
+      {
+        [generatedFile]: {
+          filePath: generatedFile,
+          fileType: 'MAIN',
+        },
+      },
+      configuration,
+    );
+
+    await initFileStores(configuration, inputFiles);
+
+    const explicitRequestFilesKeys = (
+      generatedSourceStore as unknown as {
+        explicitRequestFilesKeys?: WeakMap<object, string>;
+      }
+    ).explicitRequestFilesKeys;
+    expect(explicitRequestFilesKeys).toBeInstanceOf(WeakMap);
+
+    const cachedKey = explicitRequestFilesKeys?.get(inputFiles);
+    expect(cachedKey).toBeDefined();
+
+    await generatedSourceStore.isInitialized(configuration, inputFiles);
+
+    expect(explicitRequestFilesKeys?.get(inputFiles)).toEqual(cachedKey);
+  });
+
+  it('records the current configuration when post-processing exits early', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+    const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
+
+    await generatedSourceStore.postProcess(configuration);
+
+    expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
+  });
+
   it('recomputes generated-source metadata when filesystem access becomes available again', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
 
