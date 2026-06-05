@@ -31,7 +31,6 @@ import { classifyFilePath } from '../common/filter/filter-path.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 import { dependencyManifestStore } from './dependency-manifests.js';
 import { GENERATED_SOURCE_WATCHED_FILENAMES } from '../jsts/rules/helpers/generated-sources/index.js';
-import type { GeneratedSourceFamily } from '../jsts/rules/helpers/generated-sources/contracts.js';
 import { isPreloadableDependencyManifestPath } from '../jsts/rules/helpers/dependency-manifests/index.js';
 import { relativeToAncestorPath } from '../jsts/rules/helpers/files.js';
 import { deriveGeneratedSources } from '../jsts/rules/helpers/generated-sources/derive.js';
@@ -59,7 +58,7 @@ type GeneratedSourceObservability = {
   telemetry: GeneratedSourcesTelemetry;
   families: GeneratedSourceFamilyObservability[];
   ignoredDefaultDtsFamilies: Array<{
-    family: GeneratedSourceFamily;
+    family: string;
     filePaths: NormalizedAbsolutePath[];
   }>;
 };
@@ -70,8 +69,9 @@ class GeneratedSourceStore implements FileStore {
   private analyzableFilesConfigKey: string | undefined = undefined;
   private activeRequestFilesKey: RequestFilesKey = undefined;
   private requestFilesKey: RequestFilesKey = undefined;
-  private derivedFamilyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
-  private familyByFile = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
+  private readonly explicitRequestFilesKeys = new WeakMap<AnalyzableFiles, string>();
+  private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
+  private familyByFile = new Map<NormalizedAbsolutePath, string>();
   private resolvedFiles = new Set<NormalizedAbsolutePath>();
   private configPaths = new Set<NormalizedAbsolutePath>();
   private watchedOutputPaths = new Set<NormalizedAbsolutePath>();
@@ -79,7 +79,7 @@ class GeneratedSourceStore implements FileStore {
 
   async isInitialized(configuration: Configuration, inputFiles?: AnalyzableFiles) {
     this.dirtyCachesIfNeeded(configuration);
-    const requestFilesKey = getRequestFilesKey(configuration.canAccessFileSystem, inputFiles);
+    const requestFilesKey = this.getRequestFilesKey(configuration.canAccessFileSystem, inputFiles);
     this.activeRequestFilesKey = requestFilesKey;
     if (this.baseDir === undefined) {
       return false;
@@ -97,7 +97,7 @@ class GeneratedSourceStore implements FileStore {
     return true;
   }
 
-  getFamily(filePath: NormalizedAbsolutePath): GeneratedSourceFamily | undefined {
+  getFamily(filePath: NormalizedAbsolutePath): string | undefined {
     return this.familyByFile.get(filePath);
   }
 
@@ -179,7 +179,7 @@ class GeneratedSourceStore implements FileStore {
     this.refreshFilteredState(
       configuration,
       analyzableFiles,
-      this.activeRequestFilesKey ?? getRequestFilesKey(canAccessFileSystem, analyzableFiles),
+      this.activeRequestFilesKey ?? this.getRequestFilesKey(canAccessFileSystem, analyzableFiles),
     );
   }
 
@@ -219,6 +219,31 @@ class GeneratedSourceStore implements FileStore {
     this.observabilityTelemetry = createEmptyGeneratedSourcesTelemetry();
   }
 
+  private getRequestFilesKey(
+    canAccessFileSystem: boolean,
+    analyzableFiles?: AnalyzableFiles,
+  ): RequestFilesKey {
+    if (!analyzableFiles) {
+      return canAccessFileSystem ? ALL_FILES_REQUEST_KEY : undefined;
+    }
+
+    const cachedKey = this.explicitRequestFilesKeys.get(analyzableFiles);
+    if (cachedKey) {
+      return cachedKey;
+    }
+
+    const filePaths = Object.keys(analyzableFiles).sort((left, right) => left.localeCompare(right));
+    const hash = createHash('sha256');
+    for (const filePath of filePaths) {
+      hash.update(filePath);
+      hash.update('\0');
+    }
+
+    const requestFilesKey = `${EXPLICIT_FILE_SET_REQUEST_KEY_PREFIX}:${filePaths.length}:${hash.digest('hex')}`;
+    this.explicitRequestFilesKeys.set(analyzableFiles, requestFilesKey);
+    return requestFilesKey;
+  }
+
   private refreshFilteredState(
     configuration: Configuration,
     analyzableFiles: AnalyzableFiles | undefined,
@@ -243,38 +268,20 @@ class GeneratedSourceStore implements FileStore {
 }
 
 function filterAnalyzableGeneratedFiles(
-  familyByFile: ReadonlyMap<NormalizedAbsolutePath, GeneratedSourceFamily>,
+  familyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   analyzableFiles: AnalyzableFiles | undefined,
 ) {
   if (!analyzableFiles) {
     return new Map(familyByFile);
   }
 
-  const filtered = new Map<NormalizedAbsolutePath, GeneratedSourceFamily>();
+  const filtered = new Map<NormalizedAbsolutePath, string>();
   for (const [filePath, family] of familyByFile) {
     if (Object.hasOwn(analyzableFiles, filePath)) {
       filtered.set(filePath, family);
     }
   }
   return filtered;
-}
-
-function getRequestFilesKey(
-  canAccessFileSystem: boolean,
-  analyzableFiles?: AnalyzableFiles,
-): RequestFilesKey {
-  if (!analyzableFiles) {
-    return canAccessFileSystem ? ALL_FILES_REQUEST_KEY : undefined;
-  }
-
-  const filePaths = Object.keys(analyzableFiles).sort((left, right) => left.localeCompare(right));
-  const hash = createHash('sha256');
-  for (const filePath of filePaths) {
-    hash.update(filePath);
-    hash.update('\0');
-  }
-
-  return `${EXPLICIT_FILE_SET_REQUEST_KEY_PREFIX}:${filePaths.length}:${hash.digest('hex')}`;
 }
 
 function createConfiguredGeneratedSourceFileMatcher(configuration: Configuration) {
@@ -290,12 +297,12 @@ function createConfiguredGeneratedSourceFileMatcher(configuration: Configuration
 export const generatedSourceStore = new GeneratedSourceStore();
 
 function buildGeneratedSourceObservability(
-  resolvedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, GeneratedSourceFamily>,
-  taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, GeneratedSourceFamily>,
+  resolvedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
+  taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   configuration: Configuration,
 ): GeneratedSourceObservability {
   const filterPathParams = getFilterPathParams(configuration);
-  const pathsByFamily = new Map<GeneratedSourceFamily, NormalizedAbsolutePath[]>();
+  const pathsByFamily = new Map<string, NormalizedAbsolutePath[]>();
 
   for (const [filePath, family] of sortPathEntries(resolvedFamilyByFile.entries())) {
     let familyPaths = pathsByFamily.get(family);
@@ -386,7 +393,7 @@ function buildGeneratedSourceObservability(
 
 function shouldIgnoreDefaultDtsFamily(
   filePaths: readonly NormalizedAbsolutePath[],
-  taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, GeneratedSourceFamily>,
+  taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   configuration: Configuration,
   filterPathParams: ReturnType<typeof getFilterPathParams>,
 ) {
@@ -415,9 +422,11 @@ function logGeneratedSourceObservability(
   baseDir: NormalizedAbsolutePath,
   observability: GeneratedSourceObservability,
 ) {
-  info(
-    `Generated source observability: families=${observability.telemetry.familyCount}, resolvedFiles=${observability.telemetry.resolvedFileCount}, taggedFiles=${observability.telemetry.taggedFileCount}, outOfScopeFiles=${observability.telemetry.outOfScopeFileCount}, excludedFiles=${observability.telemetry.excludedFileCount}`,
-  );
+  if (observability.telemetry.familyCount > 0) {
+    info(
+      `Generated source observability: families=${observability.telemetry.familyCount}, resolvedFiles=${observability.telemetry.resolvedFileCount}, taggedFiles=${observability.telemetry.taggedFileCount}, outOfScopeFiles=${observability.telemetry.outOfScopeFileCount}, excludedFiles=${observability.telemetry.excludedFileCount}`,
+    );
+  }
 
   for (const family of observability.families) {
     info(

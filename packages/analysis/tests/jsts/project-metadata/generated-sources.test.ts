@@ -1058,6 +1058,37 @@ export default config;
     expect(generatedSourceStore.getFamily(secondGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
   });
 
+  it('memoizes explicit request-file keys per analyzable-file set', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+    const generatedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
+    const configuration = createConfiguration({ baseDir });
+    const { files: inputFiles } = await sanitizeRawInputFiles(
+      {
+        [generatedFile]: {
+          filePath: generatedFile,
+          fileType: 'MAIN',
+        },
+      },
+      configuration,
+    );
+
+    await initFileStores(configuration, inputFiles);
+
+    const explicitRequestFilesKeys = (
+      generatedSourceStore as unknown as {
+        explicitRequestFilesKeys?: WeakMap<object, string>;
+      }
+    ).explicitRequestFilesKeys;
+    expect(explicitRequestFilesKeys).toBeInstanceOf(WeakMap);
+
+    const cachedKey = explicitRequestFilesKeys?.get(inputFiles);
+    expect(cachedKey).toBeDefined();
+
+    await generatedSourceStore.isInitialized(configuration, inputFiles);
+
+    expect(explicitRequestFilesKeys?.get(inputFiles)).toEqual(cachedKey);
+  });
+
   it('records the current configuration when post-processing exits early', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
     const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
@@ -1221,7 +1252,7 @@ export default config;
       const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
         call => call.arguments[0],
       );
-      expect(logs).toContain(
+      expect(logs).not.toContain(
         'Generated source observability: families=0, resolvedFiles=0, taggedFiles=0, outOfScopeFiles=0, excludedFiles=0',
       );
       expect(logs).toContain(

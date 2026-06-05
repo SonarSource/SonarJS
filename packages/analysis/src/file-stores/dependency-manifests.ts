@@ -22,7 +22,10 @@ import {
   type NormalizedAbsolutePath,
   dirnamePath,
 } from '../../../shared/src/helpers/files.js';
-import type { Configuration } from '../common/configuration.js';
+import {
+  getProjectFileDiscoveryConfigKey,
+  type Configuration,
+} from '../common/configuration.js';
 import {
   clearDependenciesCache,
   getPreloadableDependencyManifestName,
@@ -51,6 +54,7 @@ class DependencyManifestStore implements FileStore {
   private readonly manifestsByName = createManifestFilesByName();
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
+  private projectFileDiscoveryConfigKey: string | undefined = undefined;
   private readonly dirnameToParent: Map<
     NormalizedAbsolutePath,
     NormalizedAbsolutePath | undefined
@@ -74,6 +78,12 @@ class DependencyManifestStore implements FileStore {
       this.clearCache();
       return;
     }
+
+    if (getProjectFileDiscoveryConfigKey(configuration) !== this.projectFileDiscoveryConfigKey) {
+      this.clearCache();
+      return;
+    }
+
     for (const filename of fsEvents) {
       if (isPreloadableDependencyManifestPath(filename)) {
         this.clearCache();
@@ -85,6 +95,7 @@ class DependencyManifestStore implements FileStore {
   clearCache() {
     this.baseDir = undefined;
     this.canAccessFileSystem = undefined;
+    this.projectFileDiscoveryConfigKey = undefined;
     for (const manifestFiles of Object.values(this.manifestsByName)) {
       manifestFiles.clear();
     }
@@ -96,6 +107,7 @@ class DependencyManifestStore implements FileStore {
   setup(configuration: Configuration) {
     this.baseDir = configuration.baseDir;
     this.canAccessFileSystem = configuration.canAccessFileSystem;
+    this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
     this.dirnameToParent.set(configuration.baseDir, undefined);
   }
 
