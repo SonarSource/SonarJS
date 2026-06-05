@@ -1,0 +1,39 @@
+{
+  "title": "Test titles should be unique within the same suite",
+  "type": "CODE_SMELL",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "HIGH"
+    },
+    "attribute": "TESTED"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "jest",
+    "mocha",
+    "vitest",
+    "playwright"
+  ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8754",
+  "sqKey": "S8754",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way",
+    "Sonar agentic AI"
+  ],
+  "quickfix": "infeasible",
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}
