@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4782/javascript
 
-import type { AST, Rule } from 'eslint';
+import type { AST, Rule, SourceCode } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
 import ts from 'typescript';
@@ -27,6 +27,7 @@ import {
 } from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { classifyTypesByOrigin } from '../helpers/type-origin.js';
+import { childrenOf } from '../helpers/ancestor.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
@@ -64,6 +65,7 @@ export const rule: Rule.RuleModule = {
         typeNode = findSemanticUndefinedTypeNode(
           rootType,
           parserServices as RequiredParserServices,
+          context.sourceCode.visitorKeys,
         );
       }
 
@@ -92,6 +94,7 @@ export const rule: Rule.RuleModule = {
 function findSemanticUndefinedTypeNode(
   rootType: TSESTree.TypeNode,
   services: RequiredParserServices,
+  visitorKeys: SourceCode.VisitorKeys,
 ): TSESTree.TypeNode | undefined {
   const tsTypeNode = services.esTreeNodeToTSNodeMap.get(rootType);
   const checker: ts.TypeChecker = services.program.getTypeChecker();
@@ -104,14 +107,39 @@ function findSemanticUndefinedTypeNode(
   if (!hasUndefined || !hasNonUndefined) {
     return undefined;
   }
-  // If `undefined` is in the resolved union but no internal member carries it,
-  // it can only come from an external type (e.g. `React.ReactNode`). Suppress:
-  // the user cannot edit that declaration to remove `undefined`.
+  // If the user wrote `... | undefined` anywhere in the annotation (e.g. as a
+  // type argument to an external generic like Vue's `MaybeRef`), the inline
+  // keyword is editable — flag without consulting the internal/external split.
+  if (hasInlineUnionPositionUndefined(rootType, visitorKeys)) {
+    return rootType;
+  }
+  // Otherwise `undefined` must come from a declaration: only flag when it's
+  // reachable from a user-editable (internal) top-level member. Pure external
+  // references like `React.ReactNode` stay suppressed.
   const { internal } = classifyTypesByOrigin(rootType, services);
   const undefinedReachableFromInternal = internal.some(member =>
     resolvedTypeContainsUndefined(member, services),
   );
   return undefinedReachableFromInternal ? rootType : undefined;
+}
+
+function hasInlineUnionPositionUndefined(
+  root: TSESTree.TypeNode,
+  visitorKeys: SourceCode.VisitorKeys,
+): boolean {
+  const stack: estree.Node[] = [root as unknown as estree.Node];
+  while (stack.length > 0) {
+    const node = stack.pop() as estree.Node;
+    if ((node as TSESTree.Node).type === 'TSUndefinedKeyword' && isInUnionPosition(node)) {
+      return true;
+    }
+    stack.push(...childrenOf(node, visitorKeys));
+  }
+  return false;
+}
+
+function isInUnionPosition(node: estree.Node): boolean {
+  return (node as TSESTree.Node).parent?.type === 'TSUnionType';
 }
 
 function resolvedTypeContainsUndefined(

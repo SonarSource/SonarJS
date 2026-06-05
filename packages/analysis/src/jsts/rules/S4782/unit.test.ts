@@ -458,6 +458,26 @@ describe('S4782', () => {
             `,
             filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
           },
+          {
+            // External generic carrying a non-undefined argument: nothing to flag.
+            code: `
+            import type { FakeMaybeRef } from 'fake-lib';
+            interface Example {
+              attribute?: FakeMaybeRef<string>;
+            };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
+          {
+            // External generic whose argument is an external alias that already
+            // carries `undefined`: the user did not write `undefined` inline, so
+            // it stays suppressed (mirrors the React.ReactNode rationale).
+            code: `
+            import type { FakeMaybeRef, FakeUndefinedUnion } from 'fake-lib';
+            interface Example {
+              attribute?: FakeMaybeRef<FakeUndefinedUnion>;
+            };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+          },
         ],
         invalid: [
           {
@@ -626,6 +646,62 @@ describe('S4782', () => {
             type RecursiveUndefined = Recursive<string | undefined>;
             interface Example {
               attribute: RecursiveUndefined;
+            };`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            // Adamant-im reproducer: external generic wrapping an inline
+            // `T | undefined`. The user authored the `undefined` keyword inside
+            // the type argument and can edit it, so the property must still be
+            // flagged even though the top-level `FakeMaybeRef` is external.
+            code: `
+            import type { FakeMaybeRef } from 'fake-lib';
+            interface Example {
+              attribute?: FakeMaybeRef<string | undefined>;
+            };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            import type { FakeMaybeRef } from 'fake-lib';
+            interface Example {
+              attribute: FakeMaybeRef<string | undefined>;
+            };`,
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            // Same shape with a project-defined type alias as the non-undefined
+            // member of the inline union (mirrors lines 8-9 of the report).
+            code: `
+            import type { FakeMaybeRef } from 'fake-lib';
+            type Status = 'idle' | 'loading';
+            interface Example {
+              attribute?: FakeMaybeRef<Status | undefined>;
+            };`,
+            filename: path.join(import.meta.dirname, 'fixtures', 'strict-null-checks', 'index.ts'),
+            errors: [
+              {
+                message:
+                  "Consider removing 'undefined' type or '?' specifier, one of them is redundant.",
+                suggestions: [
+                  {
+                    desc: 'Remove "?" operator',
+                    output: `
+            import type { FakeMaybeRef } from 'fake-lib';
+            type Status = 'idle' | 'loading';
+            interface Example {
+              attribute: FakeMaybeRef<Status | undefined>;
             };`,
                   },
                 ],
