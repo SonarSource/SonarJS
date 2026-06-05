@@ -18,11 +18,13 @@
 
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
+import ts from 'typescript';
 import { getVariableFromScope, hasParent, isThisExpression } from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { areEquivalent } from '../helpers/equivalence.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isRequiredParserServices } from '../helpers/parser-services.js';
+import { getTypeFromTreeNode, isNumberType } from '../helpers/type.js';
 import * as meta from './generated-meta.js';
 
 const comparisonOperators = new Set(['<', '<=', '>', '>=']);
@@ -30,6 +32,8 @@ const comparisonOperators = new Set(['<', '<=', '>', '>=']);
 type MinMaxConditionalExpression = estree.ConditionalExpression & {
   test: estree.BinaryExpression;
 };
+
+type TypedMinMaxEvidence = 'report' | 'suppress' | 'unknown';
 
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
@@ -53,10 +57,52 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
 }
 
 function shouldSuppressReport(node: MinMaxConditionalExpression, sourceCode: SourceCode): boolean {
-  return (
-    !isRequiredParserServices(sourceCode.parserServices) &&
-    hasDirectObjectSelectionEvidence(node, sourceCode)
-  );
+  const typedEvidence = getTypedMinMaxEvidence(node, sourceCode);
+  if (typedEvidence !== 'unknown') {
+    return typedEvidence === 'suppress';
+  }
+
+  return hasDirectObjectSelectionEvidence(node, sourceCode);
+}
+
+function getTypedMinMaxEvidence(
+  node: MinMaxConditionalExpression,
+  sourceCode: SourceCode,
+): TypedMinMaxEvidence {
+  if (!isRequiredParserServices(sourceCode.parserServices)) {
+    return 'unknown';
+  }
+
+  return classifyMinMaxType(getTypeFromTreeNode(node, sourceCode.parserServices));
+}
+
+function classifyMinMaxType(type: ts.Type): TypedMinMaxEvidence {
+  if (type.isUnion()) {
+    let sawSuppressibleType = false;
+
+    for (const constituent of type.types) {
+      const evidence = classifyMinMaxType(constituent);
+      if (evidence === 'unknown') {
+        return 'unknown';
+      }
+      sawSuppressibleType ||= evidence === 'suppress';
+    }
+
+    return sawSuppressibleType ? 'suppress' : 'report';
+  }
+
+  if ((type.flags & (ts.TypeFlags.Any | ts.TypeFlags.Unknown)) !== 0) {
+    return 'unknown';
+  }
+
+  if (
+    (type.flags & ts.TypeFlags.TypeParameter) !== 0 ||
+    (type.flags & ts.TypeFlags.Intersection) !== 0
+  ) {
+    return 'suppress';
+  }
+
+  return isNumberType(type) ? 'report' : 'suppress';
 }
 
 function isMinMaxConditionalReport(

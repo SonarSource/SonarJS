@@ -309,6 +309,21 @@ function latestMoment(first: MomentLike, second: MomentLike): MomentLike {
         },
         {
           code: `
+interface MomentLike {
+  valueOf(): number;
+  format(): string;
+}
+
+declare function getMoment(value: number): MomentLike;
+
+const first = getMoment(1);
+const second = getMoment(2);
+
+const earliest = first < second ? first : second;
+          `,
+        },
+        {
+          code: `
 function compareBooleans(left: boolean, right: boolean): boolean {
   return left < right ? left : right;
 }
@@ -346,6 +361,16 @@ function lowerUnknownConstraintValue<T extends unknown>(left: T, right: T): T {
 }
           `,
         },
+        {
+          code: `
+// @ts-nocheck
+function earliestDate(left, right) {
+  return left < right ? left : right;
+}
+
+const earliest = earliestDate(new Date(1), new Date(2));
+          `,
+        },
       ],
       invalid: [
         {
@@ -371,6 +396,25 @@ function earliestTimestamp(firstDate: number, secondDate: number): number {
 function earliestTimestamp(firstDate: number, secondDate: number): number {
   return Math.min(firstDate, secondDate);
 }
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+declare function getTimestamp(value: number): number;
+
+const first = getTimestamp(1);
+const second = getTimestamp(2);
+
+const earliest = first < second ? first : second;
+          `,
+          output: `
+declare function getTimestamp(value: number): number;
+
+const first = getTimestamp(1);
+const second = getTimestamp(2);
+
+const earliest = Math.min(first, second);
           `,
           errors: 1,
         },
