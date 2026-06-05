@@ -28,6 +28,12 @@ describe('S5906', () => {
       'angular-jasmine',
       'test.ts',
     );
+    const modernJasmineFixture = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'modern-jasmine',
+      'test.ts',
+    );
     const expectedError = (output: string) => ({
       messageId: 'preferSpecificAssertion',
       suggestions: [{ messageId: 'quickfix', output }],
@@ -111,6 +117,12 @@ describe('S5906', () => {
             expect(Number.NaN).not.toBe(Number.NaN);
           `,
         },
+        {
+          code: `
+            expect(items.length).toBe(3);
+          `,
+          filename: angularJasmineFixture,
+        },
       ],
       invalid: [
         {
@@ -151,6 +163,7 @@ describe('S5906', () => {
 
             expect(items.length).toBe(3);
           `,
+          filename: modernJasmineFixture,
           errors: [
             expectedError(`
             import { expect } from 'jasmine';
@@ -161,12 +174,12 @@ describe('S5906', () => {
         },
         {
           code: `
-            expect(items.length).toBe(3);
+            expect(error).toBe(null);
           `,
           filename: angularJasmineFixture,
           errors: [
             expectedError(`
-            expect(items).toHaveSize(3);
+            expect(error).toBeNull();
           `),
           ],
         },

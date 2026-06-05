@@ -18,8 +18,10 @@
 
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
+import { minVersion } from 'semver';
 import { extractTestAssertion, type AssertionStyle } from '../helpers/assertions.js';
 import { isIdentifier, isMethodCall } from '../helpers/ast.js';
+import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { chaiShouldReceiver, getBooleanExpressionSuggestion } from './assertion-suggestions.js';
@@ -47,12 +49,15 @@ const messages = {
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const MAX_ASSERT_ARGUMENTS_WITH_MESSAGE = 3;
 const CHAI_EQUALITY_MATCHERS = new Set(['equal', 'equals', 'eq', 'eql', 'eqls']);
+const JASMINE_SIZE_DEPENDENCIES = ['jasmine-core', 'jasmine'];
+const JASMINE_TO_HAVE_SIZE_MIN_VERSION = '3.6.0';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages, hasSuggestions: true }),
   create(context: Rule.RuleContext) {
     const sourceCode = context.sourceCode;
     const hasPlaywright = importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES);
+    const jasmineSupportsToHaveSize = supportsJasmineToHaveSize(context);
     const playwrightLocators = new Set<Scope.Variable>();
 
     function report(node: estree.CallExpression, suggestion: Suggestion) {
@@ -96,7 +101,13 @@ export const rule: Rule.RuleModule = {
         if (assertion?.kind !== 'comparison') {
           return;
         }
-        const suggestion = getSuggestion(context, assertion.style, node, sourceCode);
+        const suggestion = getSuggestion(
+          context,
+          assertion.style,
+          node,
+          sourceCode,
+          jasmineSupportsToHaveSize,
+        );
         if (suggestion) {
           report(node, suggestion);
         }
@@ -121,13 +132,14 @@ function getSuggestion(
   style: AssertionStyle,
   node: estree.CallExpression,
   sourceCode: SourceCode,
+  jasmineSupportsToHaveSize: boolean,
 ): Suggestion | null {
   switch (style) {
     case 'jest-like':
     case 'playwright':
       return getExpectLikeSuggestion(node, sourceCode, 'jest');
     case 'jasmine':
-      return getExpectLikeSuggestion(node, sourceCode, 'jasmine');
+      return getExpectLikeSuggestion(node, sourceCode, 'jasmine', jasmineSupportsToHaveSize);
     case 'chai-bdd':
       return getChaiBddSuggestion(node, sourceCode);
     case 'chai-assert':
@@ -143,6 +155,7 @@ function getExpectLikeSuggestion(
   node: estree.CallExpression,
   sourceCode: SourceCode,
   family: 'jest' | 'jasmine',
+  jasmineSupportsToHaveSize = true,
 ): Suggestion | null {
   if (
     !isMethodCall(node) ||
@@ -159,7 +172,6 @@ function getExpectLikeSuggestion(
   const actualText = sourceCode.getText(actual);
   const expectedText = sourceCode.getText(expected);
   const prefix = `expect(${actualText})${negated ? '.not' : ''}`;
-  const lengthMatcher = family === 'jasmine' ? 'toHaveSize' : 'toHaveLength';
 
   if (isNullLiteral(expected)) {
     return replacement(`${prefix}.toBeNull()`, node, sourceCode);
@@ -178,6 +190,10 @@ function getExpectLikeSuggestion(
     return replacement(`${prefix}.toBeNaN()`, node, sourceCode);
   }
   if (isLengthAccess(actual)) {
+    if (family === 'jasmine' && !jasmineSupportsToHaveSize) {
+      return null;
+    }
+    const lengthMatcher = family === 'jasmine' ? 'toHaveSize' : 'toHaveLength';
     return replacement(
       `expect(${sourceCode.getText(actual.object)}).${negated ? 'not.' : ''}${lengthMatcher}(${expectedText})`,
       node,
@@ -195,6 +211,26 @@ function getExpectLikeSuggestion(
     sourceCode,
     node,
   );
+}
+
+function supportsJasmineToHaveSize(context: Rule.RuleContext): boolean {
+  const dependencies = getDependenciesSanitizePaths(context);
+
+  for (const dependency of JASMINE_SIZE_DEPENDENCIES) {
+    const versionSignal = dependencies.get(dependency);
+    if (!versionSignal || versionSignal === 'latest' || versionSignal === '*') {
+      continue;
+    }
+
+    try {
+      const version = minVersion(versionSignal);
+      return version !== null && version.compare(JASMINE_TO_HAVE_SIZE_MIN_VERSION) >= 0;
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
 }
 
 function getChaiBddSuggestion(
