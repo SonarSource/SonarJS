@@ -1,0 +1,36 @@
+{
+"es5-shim:tests/spec/s-array.js": [
+1293,
+1304,
+1321,
+1332,
+1367,
+1450,
+1456,
+1462,
+1468,
+1540,
+1549,
+1560,
+1569
+],
+"es5-shim:tests/spec/s-date.js": [
+547
+],
+"es5-shim:tests/spec/s-function.js": [
+150,
+151
+],
+"es5-shim:tests/spec/s-object.js": [
+58,
+64,
+65,
+334,
+363
+],
+"es5-shim:tests/spec/s-string.js": [
+9,
+14,
+24
+]
+}

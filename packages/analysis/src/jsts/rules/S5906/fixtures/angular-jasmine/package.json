@@ -1,0 +1,7 @@
+{
+  "devDependencies": {
+    "jasmine-core": "2.8.0",
+    "jasmine-node": "2.0.0",
+    "karma-jasmine": "1.1.2"
+  }
+}
