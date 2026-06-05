@@ -2363,7 +2363,7 @@ plugins = [
     expect(generatedSourceStore.getFamily(secondGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
   });
 
-  it('reuses derived generated-source metadata when only exclusions change', async () => {
+  it('reuses derived generated-source metadata when only source-file scope changes', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
     const generatedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
 
@@ -2381,13 +2381,38 @@ plugins = [
     await initFileStores(
       createConfiguration({
         baseDir,
-        jsTsExclusions: ['**/src/generated/**'],
+        exclusions: ['**/src/generated/**'],
       }),
     );
 
     expect(generatedSourceStoreState.derivedFamilyByFile).toBe(initialDerivedFamilyByFile);
     expect(generatedSourceStoreState.familyByFile).not.toBe(initialFamilyByFile);
     expect(generatedSourceStore.getFamily(generatedFile)).toBeUndefined();
+  });
+
+  it('recomputes generated-source metadata when exclusions change package.json discovery', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+    const generatedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
+
+    await initFileStores(
+      createConfiguration({
+        baseDir,
+        jsTsExclusions: ['**/package.json'],
+      }),
+    );
+
+    const generatedSourceStoreState = generatedSourceStore as unknown as {
+      derivedFamilyByFile: Map<NormalizedAbsolutePath, string>;
+      familyByFile: Map<NormalizedAbsolutePath, string>;
+    };
+    const initialDerivedFamilyByFile = generatedSourceStoreState.derivedFamilyByFile;
+
+    expect(generatedSourceStore.getFamily(generatedFile)).toBeUndefined();
+
+    await initFileStores(createConfiguration({ baseDir }));
+
+    expect(generatedSourceStoreState.derivedFamilyByFile).not.toBe(initialDerivedFamilyByFile);
+    expect(generatedSourceStore.getFamily(generatedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
   });
 
   it('memoizes explicit request-file keys per analyzable-file set', async () => {

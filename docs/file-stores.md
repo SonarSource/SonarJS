@@ -190,18 +190,23 @@ Like `tsconfigs`, this store is intentionally independent from the current set o
 
 See [Generated Source Detection](./generated-sources.md) for the detector pipeline, linter integration, and cache behavior behind this store.
 
-It stores:
+It maintains two caches:
 
-- generated-file to family mappings
-- config paths used by generated-source detectors
-- watched output paths
-- a filtered view of those matches for the current request
+- a **detector cache** with generated-file to family mappings, config paths used by generated-source detectors, and watched output paths
+- a **match cache** with the subset of detector matches visible to the current analysis request
 
 It depends on a mix of the other stores:
 
-- **project helper files** because detectors derive metadata from files such as `package.json`
-- **source-file selection** because only analyzable source files should be surfaced to the linter
-- **explicit request files** in request-driven analysis, where the visible generated-file subset may change from one request to the next
+- **project helper files** because the detector cache derives metadata from files such as `package.json`
+- **source-file selection** because the match cache should only surface analyzable source files to the linter
+- **explicit request files** in request-driven analysis, where the visible match-cache subset may change from one request to the next
+
+Those dependencies are not represented by two disjoint configuration keys.
+
+- `jsTsExclusions` participates in **analyzable-file selection**
+- the same `jsTsExclusions` also participates in **project-file discovery**, because the filesystem walk skips excluded paths before helper files such as `package.json` are discovered
+
+That means a change classified as an analyzable-file-selection change is not automatically safe for a match-cache-only refresh. If it changes helper-file discovery, it also invalidates the detector cache.
 
 ### Refresh Model
 
@@ -209,15 +214,17 @@ It depends on a mix of the other stores:
 
 - the base directory changes
 - filesystem access mode changes
-- analyzable-file-selection configuration changes
 - project-file-discovery configuration changes
 - `fsEvents` mention a relevant helper file, generated-source config file, or watched output path
 
-It also has a lighter-weight request refresh:
+The detector cache is recomputed in those cases because the project-level detection inputs may have changed.
 
-- when the explicit request file set changes but the derived metadata is still valid, the store can refresh its filtered view without recomputing everything
+It also has a lighter-weight match-cache refresh:
 
-This is why `generated-sources` is the hybrid store: it depends on both helper-file discovery and the currently visible source-file set.
+- when analyzable-file-selection configuration changes in a way that does **not** change helper-file discovery inputs
+- when the explicit request file set changes but the detector cache is still valid
+
+This is why `generated-sources` is the hybrid store: its detector cache depends on helper-file discovery, while its match cache also depends on the currently visible source-file set.
 
 ## `fsEvents`
 

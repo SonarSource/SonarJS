@@ -20,7 +20,10 @@ import type { FileStore } from './store-type.js';
 import type { Configuration } from '../common/configuration.js';
 import type { AnalyzableFiles } from '../projectAnalysis.js';
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
-import { getAnalyzableFilesConfigKey } from '../common/configuration.js';
+import {
+  getAnalyzableFilesConfigKey,
+  getProjectFileDiscoveryConfigKey,
+} from '../common/configuration.js';
 import { dependencyManifestStore } from './dependency-manifests.js';
 import { getGeneratedSourceWatchedFilenames } from '../jsts/rules/helpers/generated-sources/index.js';
 import { isPreloadableDependencyManifestPath } from '../jsts/rules/helpers/dependency-manifests/index.js';
@@ -31,17 +34,25 @@ const EXPLICIT_FILE_SET_REQUEST_KEY_PREFIX = 'explicit';
 
 type RequestFilesKey = string | undefined;
 
+/**
+ * Maintains two generated-source caches:
+ * - the detector cache, which stores the project-level outputs of generated-source detection
+ * - the match cache, which stores the current analyzable subset exposed by the store
+ */
 class GeneratedSourceStore implements FileStore {
   private readonly explicitRequestFilesKeys = new WeakMap<AnalyzableFiles, string>();
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private derivedConfigKey: string | undefined = undefined;
+  private projectFileDiscoveryConfigKey: string | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
   private needsFilteredRefresh = false;
   private derivedMetadataInitialized = false;
   private activeRequestFilesKey: RequestFilesKey = undefined;
   private requestFilesKey: RequestFilesKey = undefined;
+  // Detector cache: generated-source families derived from project metadata.
   private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
+  // Match cache: detector results filtered to the current analyzable/requested files.
   private familyByFile = new Map<NormalizedAbsolutePath, string>();
   private resolvedFiles = new Set<NormalizedAbsolutePath>();
   private configPaths = new Set<NormalizedAbsolutePath>();
@@ -94,6 +105,13 @@ class GeneratedSourceStore implements FileStore {
       return;
     }
 
+    if (
+      getProjectFileDiscoveryConfigKey(configuration) !== this.projectFileDiscoveryConfigKey
+    ) {
+      this.clearCache();
+      return;
+    }
+
     const generatedSourceWatchedFilenames = getGeneratedSourceWatchedFilenames();
     for (const filename of fsEvents) {
       if (this.isRelevantEvent(filename, generatedSourceWatchedFilenames)) {
@@ -111,6 +129,7 @@ class GeneratedSourceStore implements FileStore {
     this.baseDir = undefined;
     this.canAccessFileSystem = undefined;
     this.derivedConfigKey = undefined;
+    this.projectFileDiscoveryConfigKey = undefined;
     this.analyzableFilesConfigKey = undefined;
     this.needsFilteredRefresh = false;
     this.derivedMetadataInitialized = false;
@@ -122,24 +141,27 @@ class GeneratedSourceStore implements FileStore {
     this.baseDir = configuration.baseDir;
     this.canAccessFileSystem = configuration.canAccessFileSystem;
     this.derivedConfigKey = getGeneratedSourceConfigKey(configuration);
+    this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
   }
 
   async processFile(
     _filename: NormalizedAbsolutePath,
     _configuration: Configuration,
   ): Promise<void> {
-    // Generated-source detection is derived from project metadata during postProcess.
+    // The detector cache is derived from project metadata during postProcess().
   }
 
   async postProcess(configuration: Configuration, analyzableFiles?: AnalyzableFiles) {
     if (
       this.baseDir === undefined ||
       this.canAccessFileSystem === undefined ||
-      this.derivedConfigKey === undefined
+      this.derivedConfigKey === undefined ||
+      this.projectFileDiscoveryConfigKey === undefined
     ) {
       this.baseDir = configuration.baseDir;
       this.canAccessFileSystem = configuration.canAccessFileSystem;
       this.derivedConfigKey = getGeneratedSourceConfigKey(configuration);
+      this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
     }
 
     const { baseDir, canAccessFileSystem } = this;
@@ -233,6 +255,7 @@ class GeneratedSourceStore implements FileStore {
     requestFilesKey: RequestFilesKey,
   ) {
     this.requestFilesKey = requestFilesKey;
+    // Refresh only the match cache from the stable detector cache.
     this.familyByFile = filterAnalyzableGeneratedFiles(this.derivedFamilyByFile, analyzableFiles);
   }
 }
