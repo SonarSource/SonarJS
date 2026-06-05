@@ -54,6 +54,8 @@ export const rule: Rule.RuleModule = {
     const sourceCode = context.sourceCode;
     const hasPlaywright = importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES);
     const playwrightLocators = new Set<Scope.Variable>();
+    // Defer reporting until `Program:exit` so later call sites can still disambiguate `.length`.
+    const callExpressions: estree.CallExpression[] = [];
     // Remember member refs that are invoked elsewhere so `foo.bar.length` can be treated as
     // function arity rather than collection size.
     const calledMemberExpressions = new Set<string>();
@@ -78,39 +80,48 @@ export const rule: Rule.RuleModule = {
       });
     }
 
+    function checkCallExpression(node: estree.CallExpression) {
+      if (hasPlaywright) {
+        const playwrightSuggestion = getPlaywrightLocatorSuggestion(
+          context,
+          node,
+          sourceCode,
+          playwrightLocators,
+        );
+        if (playwrightSuggestion) {
+          report(node, playwrightSuggestion);
+          return;
+        }
+      }
+      const assertion = extractTestAssertion(context, node);
+      if (assertion?.kind !== 'comparison') {
+        return;
+      }
+      const suggestion = getSuggestion(
+        context,
+        assertion.style,
+        node,
+        sourceCode,
+        calledMemberExpressions,
+      );
+      if (suggestion) {
+        report(node, suggestion);
+      }
+    }
+
     return {
       CallExpression(node: estree.Node) {
         if (node.type !== 'CallExpression') {
           return;
         }
+        callExpressions.push(node);
         if (node.callee.type === 'MemberExpression' && !node.callee.computed) {
           calledMemberExpressions.add(sourceCode.getText(node.callee));
         }
-        if (hasPlaywright) {
-          const playwrightSuggestion = getPlaywrightLocatorSuggestion(
-            context,
-            node,
-            sourceCode,
-            playwrightLocators,
-          );
-          if (playwrightSuggestion) {
-            report(node, playwrightSuggestion);
-            return;
-          }
-        }
-        const assertion = extractTestAssertion(context, node);
-        if (assertion?.kind !== 'comparison') {
-          return;
-        }
-        const suggestion = getSuggestion(
-          context,
-          assertion.style,
-          node,
-          sourceCode,
-          calledMemberExpressions,
-        );
-        if (suggestion) {
-          report(node, suggestion);
+      },
+      'Program:exit'() {
+        for (const node of callExpressions) {
+          checkCallExpression(node);
         }
       },
       VariableDeclarator(node: estree.Node) {

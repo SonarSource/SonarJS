@@ -132,6 +132,15 @@ describe('S5906', () => {
           code: `
             import { expect } from 'jasmine';
 
+            const testSubject = [1, 2, 3];
+            expect(testSubject.reduce.length).toBe(1);
+            testSubject.reduce((a, b) => a + b, 0);
+          `,
+        },
+        {
+          code: `
+            import { expect } from 'jasmine';
+
             expect(Array.prototype.splice.length).toBe(2);
           `,
         },
