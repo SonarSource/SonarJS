@@ -96,6 +96,45 @@ describe('S7766', () => {
     });
   });
 
+  it('suppresses only type-safe min/max reports from the decorated rule', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Decorated rule', decorate(conditionalExpressionRule), {
+      valid: [
+        {
+          code: `
+function earliestDate(first: Date, second: Date): Date {
+  return first < second ? first : second;
+}
+          `,
+        },
+        {
+          code: `
+function lowerDomainValue<T>(left: T, right: T): T {
+  return left < right ? left : right;
+}
+          `,
+        },
+        {
+          code: `
+function lowerConstrainedValue<T extends { valueOf(): string }>(left: T, right: T): T {
+  return left < right ? left : right;
+}
+          `,
+        },
+      ],
+      invalid: [
+        {
+          code: `
+function lowerAnyValue(left: any, right: any): any {
+  return left < right ? left : right;
+}
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('S7766 with type information', () => {
     const ruleTester = new RuleTester();
     ruleTester.run('Ternary expressions selecting min/max values should use Math.min/max', rule, {
