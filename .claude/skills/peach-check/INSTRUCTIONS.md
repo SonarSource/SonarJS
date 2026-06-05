@@ -14,6 +14,7 @@ Peach run, triage Peach Main Analysis failures, or decide whether Peach blocks a
 - Canonical run-jobs helper: `.claude/skills/peach-check/peach-run-jobs.js`
 - Canonical issue-history helper: `.claude/skills/peach-check/peach-issue-history.js`
 - Canonical DROP-forensics helper: `.claude/skills/peach-check/peach-drop-forensics.js`
+- Canonical issue-churn helper: `.claude/skills/peach-check/peach-diff-summary.js`
 
 This skill validates a Peach Main Analysis GitHub run in two layers:
 
@@ -21,6 +22,10 @@ This skill validates a Peach Main Analysis GitHub run in two layers:
    GitHub job conclusion, and identify failed analyzed jobs.
 2. Peach result validation: for successful project jobs, verify that the run produced fresh Peach
    analyses whose SonarJS-language issue counts are materially consistent with recent history.
+
+When the user asks whether issues were added or removed, that is a different question from the
+two-layer release verdict above. Use the issue-churn helper on the aggregated differential-
+validation artifacts for issue-level additions and removals.
 
 Keep these distinctions straight:
 
@@ -365,6 +370,11 @@ non-SonarJS analyzers.
 
 Do not call `mc peach issue-history` from this skill anymore.
 
+Important: `OK` in `peach-issue-history.json` does not mean "no issues were added" or "no issue-
+level churn happened." It means there was no stale/missing analysis and no suspicious net drop in
+the SonarJS-language issue count. Issue additions and removals can still cancel out at the project
+count level.
+
 Interpret the helper statuses like this:
 
 - `OK` → the project has a fresh analysis in the run window and its current SonarJS-language issue
@@ -435,6 +445,70 @@ Equivalent single-condition restatement after converting the percentage gate int
 - `drop_abs >= max(threshold-abs, baseline * threshold_pct / 100)`
 
 That `max(...)` form is the same two-gate rule above, not an OR trigger.
+
+#### Optional issue-level diff summary
+
+Use this only when the user asks whether issues were added or removed, or when you need issue-
+level churn details beyond the release verdict.
+
+1. Download the aggregated differential-validation artifacts:
+
+```bash
+mkdir -p OUTPUT_DIR/peach-diff-summary
+```
+
+```bash
+gh run download RUN_ID \
+  --repo SonarSource/peachee-js \
+  --name 0-aggregated-diff-val-logs \
+  --dir OUTPUT_DIR/peach-diff-summary
+```
+
+```bash
+gh run download RUN_ID \
+  --repo SonarSource/peachee-js \
+  --name 0-aggregated-sarif \
+  --dir OUTPUT_DIR/peach-diff-summary
+```
+
+2. Locate the extracted merged SARIF file:
+
+```bash
+find OUTPUT_DIR/peach-diff-summary -maxdepth 1 -type f -name '*.sarif'
+```
+
+3. Run the helper with the merged SARIF path, an output path, and the extracted `diff-app.log`:
+
+```bash
+node .claude/skills/peach-check/peach-diff-summary.js \
+  MERGED_SARIF_PATH \
+  OUTPUT_DIR/peach-diff-summary/peach-diff-summary.json \
+  OUTPUT_DIR/peach-diff-summary/diff-app.log
+```
+
+The helper writes:
+
+- `changed_projects_from_log` and `changed_projects_total_from_log`
+- `rule_repositories` across all diff results
+- `sonarjs_summary` with `new_by_rule`, `absent_by_rule`, and unchanged-file counts
+- `non_sonarjs_summary` so polyglot-repo churn is not mistaken for a SonarJS change
+- `projects[]` with per-project SonarJS new/absent counts plus non-SonarJS presence
+
+Interpret the report like this:
+
+- use `sonarjs_summary` for SonarJS-owned churn only
+- use `non_sonarjs_summary` to call out unrelated analyzer diffs in polyglot repositories
+- treat `new_issues_on_unchanged_files` as the strongest signal that analyzer behavior changed
+- do not treat issue-level additions or removals from this helper as release blockers by
+  themselves; combine them with the main verdict and the surrounding context
+
+SonarJS-owned rule repositories in this helper are:
+
+- `javascript`
+- `typescript`
+- `css`
+- `Web`
+- `yaml`
 
 #### DROP forensics
 

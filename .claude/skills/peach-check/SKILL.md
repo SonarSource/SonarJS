@@ -11,6 +11,7 @@ Canonical instructions for this skill live in `.claude/skills/peach-check/INSTRU
 relative to the SonarJS repository root; follow that file verbatim and treat
 `.claude/skills/peach-check/peach-run-jobs.js` as the canonical run-jobs helper,
 `.claude/skills/peach-check/peach-issue-history.js` as the canonical issue-history helper, and
-`.claude/skills/peach-check/peach-drop-forensics.js` as the canonical DROP-forensics helper.
+`.claude/skills/peach-check/peach-drop-forensics.js` as the canonical DROP-forensics helper, and
+`.claude/skills/peach-check/peach-diff-summary.js` as the canonical issue-churn helper.
 
 Do not duplicate or fork the instructions in this wrapper.
