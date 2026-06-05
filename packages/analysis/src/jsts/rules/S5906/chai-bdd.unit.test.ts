@@ -75,6 +75,34 @@ describe('S5906', () => {
           code: `
             import { expect } from 'chai';
 
+            (foo?.bar).should.equal(undefined);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'chai';
+
+            (foo?.bar).should.be.undefined;
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+
+            foo?.bar.should.equal(undefined);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'chai';
+
+            foo?.bar.should.be.undefined;
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'chai';
+
             expect(items.length).to.equal(2);
           `,
           errors: [

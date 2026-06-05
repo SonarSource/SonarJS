@@ -25,6 +25,7 @@ const JEST_LIKE_MODULES = ['vitest', 'bun:test', '@jest/globals'];
 // Jest-like test runners which expose global methods that can be used in assertions
 const JEST_LIKE_GLOBAL_MODULES = ['jest'];
 const JASMINE_MODULES = ['jasmine'];
+const JASMINE_GLOBAL_MODULES = ['jasmine', 'jasmine-core', 'jasmine-node', 'karma-jasmine'];
 const PLAYWRIGHT_MODULES = ['@playwright/test'];
 const CHAI_LIKE_GLOBAL_MODULES = [
   'chai',
@@ -121,7 +122,7 @@ export function extractTestAssertion(
   }
 
   // covers Jasmine's Jest-like assertion shape
-  if (importsOrDependsOnModule(context, JASMINE_MODULES, JASMINE_MODULES)) {
+  if (importsOrDependsOnModule(context, JASMINE_MODULES, JASMINE_GLOBAL_MODULES)) {
     const assertion = extractExpectAssertion(node, 'jasmine');
     if (assertion) {
       return assertion;

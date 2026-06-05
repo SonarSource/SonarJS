@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S5845/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import { getVariableFromName } from '../helpers/ast.js';
@@ -60,6 +60,7 @@ export const rule: Rule.RuleModule = {
     }
 
     const checker = services.program.getTypeChecker();
+    const monkeyPatchedReceivers = new Set<Scope.Variable>();
 
     // Expressions that are not rooted in a mutable local binding can rely directly on the
     // expression type at the assertion site:
@@ -116,6 +117,10 @@ export const rule: Rule.RuleModule = {
     }
 
     function hasStablePrimitiveType(node: estree.Node, nodeType: ts.Type): boolean {
+      const monkeyPatchedReceiver = getMonkeyPatchedReceiver(node);
+      if (monkeyPatchedReceiver) {
+        return false;
+      }
       const allowedCategories = getPrimitiveCategories(nodeType);
       if (!allowedCategories) {
         return false;
@@ -134,7 +139,45 @@ export const rule: Rule.RuleModule = {
         .every(ref => isPreciselyTypedWrite(ref.writeExpr, checker, services));
     }
 
+    function getMonkeyPatchedReceiver(node: estree.Node): Scope.Variable | null {
+      if (node.type !== 'CallExpression' || node.callee.type !== 'MemberExpression') {
+        return null;
+      }
+
+      const rootIdentifier = getRootIdentifier(node.callee.object);
+      if (!rootIdentifier) {
+        return null;
+      }
+
+      const variable = getVariableFromName(context, rootIdentifier.name, node);
+      return variable && monkeyPatchedReceivers.has(variable) ? variable : null;
+    }
+
+    function collectMonkeyPatchedReceiver(node: estree.Node): void {
+      if (
+        node.type !== 'AssignmentExpression' ||
+        node.operator !== '=' ||
+        node.left.type !== 'MemberExpression' ||
+        !isFunctionLikeExpression(node.right)
+      ) {
+        return;
+      }
+
+      const rootIdentifier = getRootIdentifier(node.left.object);
+      if (!rootIdentifier) {
+        return;
+      }
+
+      const variable = getVariableFromName(context, rootIdentifier.name, node);
+      if (variable) {
+        monkeyPatchedReceivers.add(variable);
+      }
+    }
+
     return {
+      AssignmentExpression(node: estree.Node) {
+        collectMonkeyPatchedReceiver(node);
+      },
       CallExpression(node: estree.Node) {
         checkAssertion(node);
       },
@@ -277,4 +320,10 @@ function getRootIdentifier(node: estree.Node): estree.Identifier | null {
     current = current.type === 'ChainExpression' ? current.expression : current.object;
   }
   return current.type === 'Identifier' ? current : null;
+}
+
+function isFunctionLikeExpression(
+  node: estree.Node,
+): node is estree.FunctionExpression | estree.ArrowFunctionExpression {
+  return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
 }
