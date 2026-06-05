@@ -387,6 +387,370 @@ func TestCreateConfiguredProgramSkipsAncestorNodeModulesWhenRequested(t *testing
 	}
 }
 
+func TestCreateConfiguredProgramSupportsLegacyBaseURL(t *testing.T) {
+	rootDir := tspath.NormalizePath(t.TempDir())
+	sourceDir := tspath.CombinePaths(rootDir, "src")
+	sourceFile := tspath.CombinePaths(sourceDir, "main.ts")
+	dependencyFile := tspath.CombinePaths(sourceDir, "lib.ts")
+	tsconfigPath := tspath.CombinePaths(rootDir, "tsconfig.json")
+
+	writeNormalizedTestFile(t, sourceFile, "import { answer } from \"lib\";\nconst result = \"foo\" < answer;\n")
+	writeNormalizedTestFile(t, dependencyFile, "export const answer = \"42\";\n")
+	writeNormalizedTestFile(
+		t,
+		tsconfigPath,
+		"{\"compilerOptions\":{\"module\":\"commonjs\",\"baseUrl\":\"./src\"},\"include\":[\"src/**/*.ts\"]}\n",
+	)
+
+	program, diagnostics, err := configuredProgramForTest(
+		NormalizedProjectConfiguration{BaseDir: rootDir},
+		tsconfigPath,
+	)
+	if err != nil {
+		t.Fatalf("expected configured program creation with legacy baseUrl to succeed, got %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("expected no internal diagnostics from legacy baseUrl compatibility, got %#v", diagnostics)
+	}
+	if program == nil {
+		t.Fatal("expected configured program with legacy baseUrl compatibility")
+	}
+	if program.GetSourceFile(dependencyFile) == nil {
+		t.Fatalf("expected configured program to resolve baseUrl import dependency %s", dependencyFile)
+	}
+	source := program.GetSourceFile(sourceFile)
+	if source == nil {
+		t.Fatalf("expected configured program to include %s", sourceFile)
+	}
+	if hasSemanticDiagnosticContaining(program, source, "Cannot find module 'lib'") {
+		t.Fatal("expected configured program to resolve legacy baseUrl import")
+	}
+}
+
+func TestCreateConfiguredProgramSupportsLegacyBaseURLFromExtendedConfig(t *testing.T) {
+	rootDir := tspath.NormalizePath(t.TempDir())
+	sourceDir := tspath.CombinePaths(rootDir, "src")
+	sourceFile := tspath.CombinePaths(sourceDir, "main.ts")
+	dependencyFile := tspath.CombinePaths(sourceDir, "lib.ts")
+	baseConfigPath := tspath.CombinePaths(rootDir, "tsconfig.base.json")
+	tsconfigPath := tspath.CombinePaths(sourceDir, "tsconfig.json")
+
+	writeNormalizedTestFile(t, sourceFile, "import { answer } from \"lib\";\nconst result = \"foo\" < answer;\n")
+	writeNormalizedTestFile(t, dependencyFile, "export const answer = \"42\";\n")
+	writeNormalizedTestFile(
+		t,
+		baseConfigPath,
+		"{\"compilerOptions\":{\"module\":\"commonjs\",\"baseUrl\":\"./src\"}}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		tsconfigPath,
+		"{\"extends\":\"../tsconfig.base.json\",\"include\":[\"*.ts\"]}\n",
+	)
+
+	program, diagnostics, err := configuredProgramForTest(
+		NormalizedProjectConfiguration{BaseDir: rootDir},
+		tsconfigPath,
+	)
+	if err != nil {
+		t.Fatalf("expected configured program creation with inherited legacy baseUrl to succeed, got %v", err)
+	}
+	if len(diagnostics) != 0 {
+		t.Fatalf("expected no internal diagnostics from inherited legacy baseUrl compatibility, got %#v", diagnostics)
+	}
+	if program == nil {
+		t.Fatal("expected configured program with inherited legacy baseUrl compatibility")
+	}
+	if program.GetSourceFile(dependencyFile) == nil {
+		t.Fatalf("expected configured program to resolve inherited baseUrl import dependency %s", dependencyFile)
+	}
+	source := program.GetSourceFile(sourceFile)
+	if source == nil {
+		t.Fatalf("expected configured program to include %s", sourceFile)
+	}
+	if hasSemanticDiagnosticContaining(program, source, "Cannot find module 'lib'") {
+		t.Fatal("expected configured program to resolve inherited legacy baseUrl import")
+	}
+}
+
+func TestAnalyzeProjectBatchUsesAllExplicitTSConfigsForMultipleTargets(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	sourceDir := tspath.CombinePaths(baseDir, "src")
+	packageJSONPath := tspath.CombinePaths(baseDir, "package.json")
+	rootConfigPath := tspath.CombinePaths(baseDir, "tsconfig.json")
+	es6ConfigPath := tspath.CombinePaths(baseDir, "tsconfig.es6.json")
+	mainPath := tspath.CombinePaths(sourceDir, "main.ts")
+	mainES6Path := tspath.CombinePaths(sourceDir, "main.es6.ts")
+	libPath := tspath.CombinePaths(sourceDir, "lib.ts")
+
+	writeNormalizedTestFile(
+		t,
+		rootConfigPath,
+		"{\"compilerOptions\":{\"module\":\"commonjs\",\"baseUrl\":\"./\"},\"include\":[\"**/*.ts\"],\"exclude\":[\"**/*.es6.ts\"]}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		es6ConfigPath,
+		"{\"compilerOptions\":{\"module\":\"commonjs\",\"baseUrl\":\"./src\",\"target\":\"es6\"},\"include\":[\"**/*.es6.ts\"]}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		packageJSONPath,
+		"{\"devDependencies\":{\"@types/node\":\"18.14.6\"}}\n",
+	)
+	writeNormalizedTestFile(t, libPath, "export const CONSTANT = \"42\";\n")
+	writeNormalizedTestFile(
+		t,
+		mainPath,
+		"import { CONSTANT } from './lib';\n\nfunction foo(value: string, logger: (flag: boolean) => void) {\n  logger(value < CONSTANT);\n}\n\nfoo('ES3', flag => console.log(flag ? 'FAILURE' : 'SUCCESS'));\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		mainES6Path,
+		"import { CONSTANT } from 'lib';\n\nfunction foo(value: string, logger: (flag: boolean) => void) {\n  logger(value < CONSTANT);\n}\n\nfoo('ES6', flag => console.log(flag ? 'FAILURE' : 'SUCCESS'));\n",
+	)
+
+	input := mustNormalizeAnalyzeProjectRequest(t, &pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:       baseDir,
+			TsConfigPaths: []string{rootConfigPath, es6ConfigPath},
+		},
+		Rules: []*pb.JsTsRule{{Key: "S3003"}},
+	})
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[mainPath].GetIssues()) != 1 {
+		t.Fatalf("expected one issue for %s, got %#v", mainPath, results[mainPath].GetIssues())
+	}
+	if len(results[mainES6Path].GetIssues()) != 1 {
+		t.Fatalf("expected one issue for %s, got %#v", mainES6Path, results[mainES6Path].GetIssues())
+	}
+}
+
+func TestAnalyzeProjectBatchZeroConfigSupportsSharedBaseLegacyBaseURL(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	sourceDir := tspath.CombinePaths(baseDir, "src")
+	packageJSONPath := tspath.CombinePaths(baseDir, "package.json")
+	baseConfigPath := tspath.CombinePaths(baseDir, "tsconfig.base.json")
+	tsconfigPath := tspath.CombinePaths(baseDir, "tsconfig.json")
+	mainPath := tspath.CombinePaths(sourceDir, "main.ts")
+	libPath := tspath.CombinePaths(sourceDir, "lib.ts")
+
+	writeNormalizedTestFile(
+		t,
+		baseConfigPath,
+		"{\"compilerOptions\":{\"module\":\"commonjs\",\"baseUrl\":\"./src\"}}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		tsconfigPath,
+		"{\"extends\":\"./tsconfig.base.json\",\"include\":[\"**/*.ts\"]}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		packageJSONPath,
+		"{\"devDependencies\":{\"@types/node\":\"18.14.6\"}}\n",
+	)
+	writeNormalizedTestFile(t, libPath, "export const CONSTANT = \"42\";\n")
+	writeNormalizedTestFile(
+		t,
+		mainPath,
+		"import { CONSTANT } from 'lib';\n\nfunction foo(value: string) {\n  return value < CONSTANT;\n}\n\nconsole.log(foo('10') ? 'SUCCESS' : 'FAILURE');\n",
+	)
+
+	input := mustNormalizeAnalyzeProjectRequest(t, &pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{BaseDir: baseDir},
+		Rules:         []*pb.JsTsRule{{Key: "S3003"}},
+	})
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[mainPath].GetIssues()) != 1 {
+		t.Fatalf("expected one issue for shared-base main file, got %#v", results[mainPath].GetIssues())
+	}
+}
+
+func TestAnalyzeProjectBatchZeroConfigSupportsSolutionTSConfigReferences(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	baseConfigPath := tspath.CombinePaths(baseDir, "tsconfig-base.json")
+	rootConfigPath := tspath.CombinePaths(baseDir, "tsconfig.json")
+	libraryConfigPath := tspath.CombinePaths(baseDir, "library/tsconfig.json")
+	endpointConfigPath := tspath.CombinePaths(baseDir, "endpoint/tsconfig.json")
+	libraryIndexPath := tspath.CombinePaths(baseDir, "library/index.ts")
+	libraryLibPath := tspath.CombinePaths(baseDir, "library/lib.ts")
+	endpointMainPath := tspath.CombinePaths(baseDir, "endpoint/main.ts")
+
+	writeNormalizedTestFile(
+		t,
+		baseConfigPath,
+		"{\"compilerOptions\":{\"rootDir\":\".\",\"outDir\":\"dist\",\"composite\":true,\"module\":\"commonjs\",\"baseUrl\":\"./\"}}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		rootConfigPath,
+		"{\"files\":[],\"include\":[],\"references\":[{\"path\":\"library\"},{\"path\":\"endpoint\"}]}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		libraryConfigPath,
+		"{\"extends\":\"../tsconfig-base\",\"include\":[\"*.ts\"]}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		endpointConfigPath,
+		"{\"extends\":\"../tsconfig-base\",\"include\":[\"*.ts\"],\"references\":[{\"path\":\"../library\"}]}\n",
+	)
+	writeNormalizedTestFile(t, libraryLibPath, "export const answer = \"42\";\n")
+	writeNormalizedTestFile(
+		t,
+		libraryIndexPath,
+		"import { answer } from \"library/lib\";\nexport function foo(value: string) {\n\treturn value < answer;\n}\n",
+	)
+	writeNormalizedTestFile(t, endpointMainPath, "import { foo } from \"../library\";\nconsole.log(foo(\"10\"));\n")
+
+	input := mustNormalizeAnalyzeProjectRequest(t, &pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{BaseDir: baseDir},
+		Rules:         []*pb.JsTsRule{{Key: "S3003"}},
+	})
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[libraryIndexPath].GetIssues()) != 1 {
+		t.Fatalf("expected one issue for solution-tsconfig library entrypoint, got %#v", results[libraryIndexPath].GetIssues())
+	}
+	if len(results[endpointMainPath].GetIssues()) != 0 {
+		t.Fatalf("expected endpoint file to stay clean, got %#v", results[endpointMainPath].GetIssues())
+	}
+}
+
+func TestAnalyzeProjectBatchWithExplicitFilesUsesAllExplicitTSConfigsForMultipleTargets(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	sourceDir := tspath.CombinePaths(baseDir, "src")
+	packageJSONPath := tspath.CombinePaths(baseDir, "package.json")
+	rootConfigPath := tspath.CombinePaths(baseDir, "tsconfig.json")
+	es6ConfigPath := tspath.CombinePaths(baseDir, "tsconfig.es6.json")
+	mainPath := tspath.CombinePaths(sourceDir, "main.ts")
+	mainES6Path := tspath.CombinePaths(sourceDir, "main.es6.ts")
+	libPath := tspath.CombinePaths(sourceDir, "lib.ts")
+
+	writeNormalizedTestFile(
+		t,
+		rootConfigPath,
+		"{\"compilerOptions\":{\"module\":\"commonjs\",\"baseUrl\":\"./\"},\"include\":[\"**/*.ts\"],\"exclude\":[\"**/*.es6.ts\"]}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		es6ConfigPath,
+		"{\"compilerOptions\":{\"module\":\"commonjs\",\"baseUrl\":\"./src\",\"target\":\"es6\"},\"include\":[\"**/*.es6.ts\"]}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		packageJSONPath,
+		"{\"devDependencies\":{\"@types/node\":\"18.14.6\"}}\n",
+	)
+	writeNormalizedTestFile(t, libPath, "export const CONSTANT = \"42\";\n")
+	writeNormalizedTestFile(
+		t,
+		mainPath,
+		"import { CONSTANT } from './lib';\n\nfunction foo(value: string, logger: (flag: boolean) => void) {\n  logger(value < CONSTANT);\n}\n\nfoo('ES3', flag => console.log(flag ? 'FAILURE' : 'SUCCESS'));\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		mainES6Path,
+		"import { CONSTANT } from 'lib';\n\nfunction foo(value: string, logger: (flag: boolean) => void) {\n  logger(value < CONSTANT);\n}\n\nfoo('ES6', flag => console.log(flag ? 'FAILURE' : 'SUCCESS'));\n",
+	)
+
+	input := mustNormalizeAnalyzeProjectRequest(t, &pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{
+			BaseDir:       baseDir,
+			TsConfigPaths: []string{rootConfigPath, es6ConfigPath},
+		},
+		Files: map[string]*pb.ProjectFileInput{
+			libPath:     {FileType: pb.FileType_FILE_TYPE_MAIN},
+			mainPath:    {FileType: pb.FileType_FILE_TYPE_MAIN},
+			mainES6Path: {FileType: pb.FileType_FILE_TYPE_MAIN},
+		},
+		Rules: []*pb.JsTsRule{{Key: "S3003"}},
+	})
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[mainPath].GetIssues()) != 1 {
+		t.Fatalf("expected one issue for %s, got %#v", mainPath, results[mainPath].GetIssues())
+	}
+	if len(results[mainES6Path].GetIssues()) != 1 {
+		t.Fatalf("expected one issue for %s, got %#v", mainES6Path, results[mainES6Path].GetIssues())
+	}
+}
+
+func TestAnalyzeProjectBatchWithExplicitFilesSupportsSharedBaseLegacyBaseURL(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	sourceDir := tspath.CombinePaths(baseDir, "src")
+	packageJSONPath := tspath.CombinePaths(baseDir, "package.json")
+	baseConfigPath := tspath.CombinePaths(baseDir, "tsconfig.base.json")
+	tsconfigPath := tspath.CombinePaths(baseDir, "tsconfig.json")
+	mainPath := tspath.CombinePaths(sourceDir, "main.ts")
+	libPath := tspath.CombinePaths(sourceDir, "lib.ts")
+
+	writeNormalizedTestFile(
+		t,
+		baseConfigPath,
+		"{\"compilerOptions\":{\"module\":\"commonjs\",\"baseUrl\":\"./src\"}}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		tsconfigPath,
+		"{\"extends\":\"./tsconfig.base.json\",\"include\":[\"**/*.ts\"]}\n",
+	)
+	writeNormalizedTestFile(
+		t,
+		packageJSONPath,
+		"{\"devDependencies\":{\"@types/node\":\"18.14.6\"}}\n",
+	)
+	writeNormalizedTestFile(t, libPath, "export const CONSTANT = \"42\";\n")
+	writeNormalizedTestFile(
+		t,
+		mainPath,
+		"import { CONSTANT } from 'lib';\n\nfunction foo(value: string) {\n  return value < CONSTANT;\n}\n\nconsole.log(foo('10') ? 'SUCCESS' : 'FAILURE');\n",
+	)
+
+	input := mustNormalizeAnalyzeProjectRequest(t, &pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{BaseDir: baseDir},
+		Files: map[string]*pb.ProjectFileInput{
+			libPath:  {FileType: pb.FileType_FILE_TYPE_MAIN},
+			mainPath: {FileType: pb.FileType_FILE_TYPE_MAIN},
+		},
+		Rules: []*pb.JsTsRule{{Key: "S3003"}},
+	})
+
+	results, meta := analyzeProject(input)
+	if len(meta.GetWarnings()) != 0 {
+		t.Fatalf("expected no warnings, got %#v", meta.GetWarnings())
+	}
+	if len(results[mainPath].GetIssues()) != 1 {
+		t.Fatalf("expected one issue for shared-base main file, got %#v", results[mainPath].GetIssues())
+	}
+}
+
 func TestCreateInferredProgramSkipsAncestorNodeModulesWhenRequested(t *testing.T) {
 	rootDir := tspath.NormalizePath(t.TempDir())
 	baseDir := tspath.CombinePaths(rootDir, "project")
@@ -531,6 +895,41 @@ func containsSubstring(values []string, target string) bool {
 		}
 	}
 	return false
+}
+
+func TestCreateConfiguredProgramSupportsFixtureOutDirWithoutExplicitRootDir(t *testing.T) {
+	t.Parallel()
+
+	testCases := []string{
+		"multiple-targets",
+		"shared-base",
+	}
+
+	for _, project := range testCases {
+		t.Run(project, func(t *testing.T) {
+			t.Parallel()
+
+			baseDir, err := filepath.Abs("../../its/plugin/projects/typechecker-config/" + project)
+			if err != nil {
+				t.Fatalf("failed to resolve %s fixture path: %v", project, err)
+			}
+			baseDir = tspath.NormalizePath(baseDir)
+
+			program, diagnostics, err := configuredProgramForTest(
+				NormalizedProjectConfiguration{BaseDir: baseDir},
+				tspath.CombinePaths(baseDir, "tsconfig.json"),
+			)
+			if err != nil {
+				t.Fatalf("expected fixture %s configured program creation to succeed, got %v", project, err)
+			}
+			if len(diagnostics) != 0 {
+				t.Fatalf("expected no diagnostics for fixture %s, got %#v", project, diagnostics)
+			}
+			if program == nil {
+				t.Fatalf("expected fixture %s configured program", project)
+			}
+		})
+	}
 }
 
 func hasSemanticDiagnosticContaining(program *compiler.Program, sourceFile *ast.SourceFile, target string) bool {

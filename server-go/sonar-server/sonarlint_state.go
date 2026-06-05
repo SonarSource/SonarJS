@@ -176,7 +176,7 @@ func (s *sonarlintState) getOrphanProgramForFile(
 			s.removeOrphanProgram(index)
 			continue
 		}
-		if cached.program == nil || cached.program.GetSourceFile(filePath) == nil {
+		if programSourceFileForPath(cached.program, filePath) == nil {
 			continue
 		}
 		if !compilerOptionsEqual(cached.options, options) {
@@ -251,7 +251,7 @@ func cachedProgramNeedsExternalInvalidation(
 		if normalized == "" || normalized == normalizedCurrentFile {
 			continue
 		}
-		if program.GetSourceFile(normalized) != nil {
+		if programSourceFileForPath(program, normalized) != nil {
 			return true
 		}
 	}

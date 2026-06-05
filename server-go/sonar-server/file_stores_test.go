@@ -223,6 +223,35 @@ func TestInitializeProjectFileStoresTracksClosestNodeVersionSignal(t *testing.T)
 	}
 }
 
+func TestInitializeProjectFileStoresOrdersLookupTSConfigsFromRootToNested(t *testing.T) {
+	t.Parallel()
+
+	baseDir := tspath.NormalizePath(t.TempDir())
+	rootTSConfig := tspath.ResolvePath(baseDir, "tsconfig.json")
+	endpointTSConfig := tspath.ResolvePath(baseDir, "endpoint/tsconfig.json")
+	libraryTSConfig := tspath.ResolvePath(baseDir, "library/tsconfig.json")
+
+	writeTestFile(t, rootTSConfig, `{"files":[]}`)
+	writeTestFile(t, endpointTSConfig, `{"extends":"../tsconfig-base","include":["*.ts"]}`)
+	writeTestFile(t, libraryTSConfig, `{"extends":"../tsconfig-base","include":["*.ts"]}`)
+
+	input, err := NormalizeAnalyzeProjectRequest(&pb.AnalyzeProjectRequest{
+		Configuration: &pb.ProjectConfiguration{BaseDir: baseDir},
+	})
+	if err != nil {
+		t.Fatalf("unexpected request normalization error: %v", err)
+	}
+
+	stores, err := initializeProjectFileStores(input, BuildAnalyzeProjectFS(input))
+	if err != nil {
+		t.Fatalf("unexpected store initialization error: %v", err)
+	}
+
+	if got := stores.tsConfigs(); len(got) != 3 || got[0] != rootTSConfig || got[1] != libraryTSConfig || got[2] != endpointTSConfig {
+		t.Fatalf("expected root tsconfig before nested configs, got %#v", got)
+	}
+}
+
 func TestInitializeProjectFileStoresUsesPnpmWorkspaceCatalogForNodeVersionSignals(t *testing.T) {
 	t.Parallel()
 

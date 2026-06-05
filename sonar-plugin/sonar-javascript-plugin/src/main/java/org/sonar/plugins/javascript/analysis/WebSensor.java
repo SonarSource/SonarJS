@@ -97,12 +97,16 @@ public class WebSensor implements ProjectSensor {
   private final CssRules cssRules;
   private final BridgeServer bridgeServer;
   private final WebSensorModuleConfiguration moduleConfiguration;
+
   @Nullable
   private final JstsGoBundle jstsGoBundle;
+
   private ProjectConfiguration.Builder configurationBuilder;
   private JsTsContext<?> context;
+
   @Nullable
   private AnalyzerGrpcServer jstsGoServer;
+
   FSListener fsListener;
 
   public WebSensor(
@@ -298,8 +302,12 @@ public class WebSensor implements ProjectSensor {
     }
   }
 
+  private boolean isJstsGoAnalysisActive() {
+    return jstsGoServer != null && jstsGoServer.isAlive();
+  }
+
   private void runJstsGoAnalysis(List<InputFile> inputFiles) {
-    if (jstsGoServer == null || !jstsGoServer.isAlive()) {
+    if (!isJstsGoAnalysisActive()) {
       return;
     }
     var enabledRules = checks.enabledJstsGoRules();
@@ -334,15 +342,23 @@ public class WebSensor implements ProjectSensor {
       fileMap.put(normalizePathKey(absolutePath), f);
     }
 
-    jstsGoServer.analyzeProject(request, issue -> {
-      var inputFile = fileMap.get(issue.getFilePath());
-      if (inputFile == null) {
-        inputFile = fileMap.get(normalizePathKey(issue.getFilePath()));
-      }
-      if (inputFile != null) {
-        analysisProcessor.saveIssue(context, checks, inputFile, issue);
-      }
-    });
+    // Node analysis disables type checking while jsts-go is active, so Go becomes the
+    // single source of type-related scanner logs.
+    var mirrorAnalysisLogs = true;
+
+    jstsGoServer.analyzeProject(
+      request,
+      issue -> {
+        var inputFile = fileMap.get(issue.getFilePath());
+        if (inputFile == null) {
+          inputFile = fileMap.get(normalizePathKey(issue.getFilePath()));
+        }
+        if (inputFile != null) {
+          analysisProcessor.saveIssue(context, checks, inputFile, issue);
+        }
+      },
+      mirrorAnalysisLogs
+    );
   }
 
   private AnalyzeProjectRequest createJstsGoRequest(
@@ -484,18 +500,29 @@ public class WebSensor implements ProjectSensor {
         configurationBuilder.clearFsEvents().addAllFsEvents(fsListener.listFSEvents().keySet());
       }
       configurationBuilder.setSkipAst(context.skipAst(consumers));
-      var bridgeRules =
-        jstsGoServer != null && jstsGoServer.isAlive()
-          ? checks.enabledBridgeEslintRules()
-          : checks.enabledEslintRules();
+      var jstsGoActive = isJstsGoAnalysisActive();
+      var configuration = configurationBuilder.build();
+      if (jstsGoActive) {
+        // While jsts-go handles type-aware rules, keep the Node bridge in AST-only mode
+        // so typed-program logs come from a single runtime.
+        configuration = configuration.toBuilder().setDisableTypeChecking(true).build();
+      }
+      var bridgeRules = jstsGoActive
+        ? checks.enabledBridgeEslintRules()
+        : checks.enabledEslintRules();
       return AnalyzeProjectRequest.newBuilder()
-        .setConfiguration(configurationBuilder.build())
+        .setConfiguration(configuration)
         .putAllFiles(files)
         .addAllRules(bridgeRules.stream().map(AnalyzeProjectMessages::toProtoRule).toList())
         .addAllCssRules(
           cssRules.getStylelintRules().stream().map(AnalyzeProjectMessages::toProtoRule).toList()
         )
         .build();
+    }
+
+    @Override
+    public boolean shouldSuppressNodeTypeCheckingDisabledLog() {
+      return isJstsGoAnalysisActive();
     }
 
     private void addInputFilesToRequest(Map<String, ProjectFileInput> files) throws IOException {

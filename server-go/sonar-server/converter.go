@@ -4,6 +4,8 @@ import (
 	"strings"
 
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/rule"
+	"github.com/microsoft/typescript-go/shim/ast"
+	"github.com/microsoft/typescript-go/shim/core"
 	"github.com/microsoft/typescript-go/shim/scanner"
 	"github.com/microsoft/typescript-go/shim/tspath"
 
@@ -12,9 +14,11 @@ import (
 
 // ConvertDiagnostic converts a jsts-go diagnostic to the shared analyze-project Issue.
 func ConvertDiagnostic(d rule.RuleDiagnostic) *pb.Issue {
-	startLine, startCol := scanner.GetECMALineAndUTF16CharacterOfPosition(d.SourceFile, d.Range.Pos())
-	endLine, endCol := scanner.GetECMALineAndUTF16CharacterOfPosition(d.SourceFile, d.Range.End())
-	filePath := tspath.NormalizeSlashes(d.SourceFile.FileName())
+	startLine, startCol, endLine, endCol := convertRangeClamped(d.SourceFile, d.Range)
+	filePath := ""
+	if d.SourceFile != nil {
+		filePath = tspath.NormalizeSlashes(d.SourceFile.FileName())
+	}
 
 	issue := &pb.Issue{
 		Line:      int32(startLine + 1), // 0-indexed -> 1-indexed
@@ -28,8 +32,10 @@ func ConvertDiagnostic(d rule.RuleDiagnostic) *pb.Issue {
 	}
 
 	for _, lr := range d.LabeledRanges {
-		lrStartLine, lrStartCol := scanner.GetECMALineAndUTF16CharacterOfPosition(d.SourceFile, lr.Range.Pos())
-		lrEndLine, lrEndCol := scanner.GetECMALineAndUTF16CharacterOfPosition(d.SourceFile, lr.Range.End())
+		lrStartLine, lrStartCol, lrEndLine, lrEndCol, ok := convertRange(d.SourceFile, lr.Range)
+		if !ok {
+			continue
+		}
 
 		issue.SecondaryLocations = append(issue.SecondaryLocations, &pb.IssueLocation{
 			Line:      int32Ptr(int32(lrStartLine + 1)),
@@ -41,6 +47,56 @@ func ConvertDiagnostic(d rule.RuleDiagnostic) *pb.Issue {
 	}
 
 	return issue
+}
+
+func convertRangeClamped(
+	sourceFile *ast.SourceFile,
+	textRange core.TextRange,
+) (startLine int, startCol core.UTF16Offset, endLine int, endCol core.UTF16Offset) {
+	if sourceFile == nil {
+		return 0, 0, 0, 0
+	}
+
+	textLen := len(sourceFile.Text())
+	startPos := clampPosition(textRange.Pos(), textLen)
+	endPos := clampPosition(textRange.End(), textLen)
+	if endPos < startPos {
+		endPos = startPos
+	}
+
+	startLine, startCol = scanner.GetECMALineAndUTF16CharacterOfPosition(sourceFile, startPos)
+	endLine, endCol = scanner.GetECMALineAndUTF16CharacterOfPosition(sourceFile, endPos)
+	return startLine, startCol, endLine, endCol
+}
+
+func convertRange(
+	sourceFile *ast.SourceFile,
+	textRange core.TextRange,
+) (startLine int, startCol core.UTF16Offset, endLine int, endCol core.UTF16Offset, ok bool) {
+	if sourceFile == nil {
+		return 0, 0, 0, 0, false
+	}
+
+	textLen := len(sourceFile.Text())
+	startPos := textRange.Pos()
+	endPos := textRange.End()
+	if startPos < 0 || endPos < startPos || endPos > textLen {
+		return 0, 0, 0, 0, false
+	}
+
+	startLine, startCol = scanner.GetECMALineAndUTF16CharacterOfPosition(sourceFile, startPos)
+	endLine, endCol = scanner.GetECMALineAndUTF16CharacterOfPosition(sourceFile, endPos)
+	return startLine, startCol, endLine, endCol, true
+}
+
+func clampPosition(pos int, textLen int) int {
+	if pos < 0 {
+		return 0
+	}
+	if pos > textLen {
+		return textLen
+	}
+	return pos
 }
 
 func issueLanguage(filePath string) pb.AnalysisLanguage {

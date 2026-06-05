@@ -174,6 +174,7 @@ func runProjectAnalysisWithState(
 		}
 	}
 	warnings = append(warnings, stores.Warnings...)
+	logDiscoveredTSConfigs(stores.tsConfigs())
 	if err := checkAnalysisCancelled(ctx); err != nil {
 		return projectAnalysisRun{
 			orderedFiles: orderedFiles,
@@ -212,6 +213,7 @@ func runProjectAnalysisWithState(
 		boolValue(input.Config.DisableTypeChecking, false),
 	)
 
+	resolveRequestedFilePath := requestedFilePathResolver(baseDir, orderedFiles, fsys.UseCaseSensitiveFileNames())
 	knownGlobals := knownGlobalsForConfiguration(input.Config)
 	configuredRules := configuredRulesFor(requestedRules, knownGlobals)
 	requestedJsTsRules := requestedJsTsRulesByKey(input.Rules)
@@ -223,6 +225,7 @@ func runProjectAnalysisWithState(
 
 	onRuleDiagnostic := func(d rule.RuleDiagnostic) {
 		issue := ConvertDiagnostic(d)
+		issue.FilePath = resolveRequestedFilePath(issue.GetFilePath())
 		diagnosticsByFile[issue.GetFilePath()] = append(diagnosticsByFile[issue.GetFilePath()], issue)
 	}
 	onInternalDiagnostic := func(d diagnostic.Internal) {
@@ -233,6 +236,7 @@ func runProjectAnalysisWithState(
 		}
 	}
 	rulesForFile := func(filePath string, detectedEcmaVersion int) []linter.ConfiguredRule {
+		filePath = resolveRequestedFilePath(filePath)
 		cacheKey := fileRuleCacheKey{
 			FilePath:            filePath,
 			DetectedEcmaVersion: detectedEcmaVersion,
@@ -259,10 +263,7 @@ func runProjectAnalysisWithState(
 
 	var analysisErr error
 	if boolValue(input.Config.DisableTypeChecking, false) {
-		log.Printf(
-			"Type checking is disabled; analyzing %d JS/TS file(s) without a TypeScript program",
-			len(filePaths),
-		)
+		logTypeCheckingDisabled()
 		analysisErr = analyzeSourceFilesWithoutProgram(
 			ctx,
 			logLevel,
@@ -346,6 +347,42 @@ func analysisTargetFilesMap(
 ) map[string]NormalizedProjectFile {
 	files, _ := analysisTargetFiles(input, stores)
 	return files
+}
+
+func canonicalAnalysisFileName(baseDir string, filePath string, useCaseSensitiveFileNames bool) string {
+	if filePath == "" {
+		return ""
+	}
+
+	return tspath.GetCanonicalFileName(
+		tspath.GetNormalizedAbsolutePath(filePath, baseDir),
+		useCaseSensitiveFileNames,
+	)
+}
+
+func requestedFilePathResolver(
+	baseDir string,
+	filePaths []string,
+	useCaseSensitiveFileNames bool,
+) func(filePath string) string {
+	requestedPaths := make(map[string]string, len(filePaths))
+	for _, filePath := range filePaths {
+		canonicalFilePath := canonicalAnalysisFileName(baseDir, filePath, useCaseSensitiveFileNames)
+		if canonicalFilePath == "" {
+			continue
+		}
+		if _, exists := requestedPaths[canonicalFilePath]; !exists {
+			requestedPaths[canonicalFilePath] = filePath
+		}
+	}
+
+	return func(filePath string) string {
+		canonicalFilePath := canonicalAnalysisFileName(baseDir, filePath, useCaseSensitiveFileNames)
+		if resolvedFilePath, ok := requestedPaths[canonicalFilePath]; ok {
+			return resolvedFilePath
+		}
+		return filePath
+	}
 }
 
 func jsTsAnalysisTargets(filePaths []string, config NormalizedProjectConfiguration) []string {
@@ -449,6 +486,11 @@ func analyzeBatchPrograms(
 		for _, group := range groupFilePathsByCompilerOptions(orphans, func(filePath string) *core.CompilerOptions {
 			return buildInferredCompilerOptions(input.Config, mergedOptions, stores.nodeVersionSignalForPath(filePath))
 		}) {
+			logOrphanProgramAnalysis(
+				len(group.filePaths),
+				orphanCompilerOptionsLabel(mergedOptions),
+				group.compilerOptions,
+			)
 			analyzed, err := analyzeInferredProgramFiles(
 				ctx,
 				logLevel,
@@ -467,7 +509,7 @@ func analyzeBatchPrograms(
 			unmatchedOrphans = append(unmatchedOrphans, unmatchedFilePaths(group.filePaths, analyzed)...)
 		}
 	} else {
-		log.Printf("Skipping TypeScript program creation for %d orphan file(s)", len(orphans))
+		logSkippingOrphanProgramCreation(len(orphans))
 	}
 
 	if len(unmatchedOrphans) == 0 {
@@ -523,7 +565,7 @@ func analyzeIncrementalPrograms(
 			return err
 		}
 		if program != nil {
-			sourceFile := program.GetSourceFile(filePath)
+			sourceFile := programSourceFileForPath(program, filePath)
 			if sourceFile != nil {
 				if err := lintSourceFiles(
 					ctx,
@@ -642,8 +684,10 @@ func analyzeConfiguredProgramFiles(
 	if program == nil {
 		return nil, nil, nil
 	}
+	logConfiguredProgramCreation(configFileName, program)
 
 	sourceFiles, matchedPaths := programSourceFilesMatchingPaths(program, filePaths)
+	logConfiguredProgramAnalysis(configFileName, len(matchedPaths), program)
 	if len(matchedPaths) == 0 {
 		return program, nil, nil
 	}
@@ -797,7 +841,7 @@ func reuseConfiguredProgramForFile(
 		return nil, nil
 	}
 
-	sourceFile := program.GetSourceFile(filePath)
+	sourceFile := programSourceFileForPath(program, filePath)
 	if sourceFile == nil {
 		return createConfiguredProgram(analysisConfig, tsconfig, nodeVersionSignal, fsys, onInternalDiagnostic)
 	}
@@ -907,7 +951,7 @@ func inferredProgramForFile(
 	}
 
 	if program != nil {
-		sourceFile := program.GetSourceFile(filePath)
+		sourceFile := programSourceFileForPath(program, filePath)
 		if sourceFile == nil {
 			program = nil
 			programOptions = nil
@@ -1124,22 +1168,76 @@ func incrementalProgramForFile(
 			foundOptions.add(configuredProgramOptionsForOrphans(analysisConfig, program, tsconfig, fsys))
 		}
 		addConfiguredProjectReferences(analysisConfig, tsconfig, stores, fsys)
-		if program != nil && program.GetSourceFile(filePath) != nil {
+		if programSourceFileForPath(program, filePath) != nil {
 			return program, nil
 		}
 	}
 }
 
+func canonicalProgramFileName(program *compiler.Program, filePath string) string {
+	if program == nil || filePath == "" {
+		return ""
+	}
+
+	return tspath.GetCanonicalFileName(
+		tspath.GetNormalizedAbsolutePath(filePath, program.GetCurrentDirectory()),
+		program.UseCaseSensitiveFileNames(),
+	)
+}
+
+func programSourceFileForPath(program *compiler.Program, filePath string) *ast.SourceFile {
+	if program == nil {
+		return nil
+	}
+
+	if sourceFile := program.GetSourceFile(filePath); sourceFile != nil {
+		return sourceFile
+	}
+
+	canonicalFilePath := canonicalProgramFileName(program, filePath)
+	if canonicalFilePath == "" {
+		return nil
+	}
+
+	for _, sourceFile := range program.GetSourceFiles() {
+		if canonicalProgramFileName(program, sourceFile.FileName()) == canonicalFilePath {
+			return sourceFile
+		}
+	}
+
+	return nil
+}
+
 func programSourceFilesMatchingPaths(program *compiler.Program, filePaths []string) ([]*ast.SourceFile, []string) {
-	sourceFiles := make([]*ast.SourceFile, 0, len(filePaths))
-	matchedPaths := make([]string, 0, len(filePaths))
+	if program == nil || len(filePaths) == 0 {
+		return nil, nil
+	}
+
+	requestedPaths := make(map[string]string, len(filePaths))
 	for _, filePath := range filePaths {
-		sourceFile := program.GetSourceFile(filePath)
-		if sourceFile == nil {
+		canonicalFilePath := canonicalProgramFileName(program, filePath)
+		if canonicalFilePath == "" {
+			continue
+		}
+		if _, exists := requestedPaths[canonicalFilePath]; !exists {
+			requestedPaths[canonicalFilePath] = filePath
+		}
+	}
+
+	sourceFiles := make([]*ast.SourceFile, 0, len(requestedPaths))
+	matchedPaths := make([]string, 0, len(requestedPaths))
+	for _, sourceFile := range program.GetSourceFiles() {
+		canonicalFileName := canonicalProgramFileName(program, sourceFile.FileName())
+		filePath, ok := requestedPaths[canonicalFileName]
+		if !ok {
 			continue
 		}
 		sourceFiles = append(sourceFiles, sourceFile)
 		matchedPaths = append(matchedPaths, filePath)
+		delete(requestedPaths, canonicalFileName)
+		if len(requestedPaths) == 0 {
+			break
+		}
 	}
 	return sourceFiles, matchedPaths
 }

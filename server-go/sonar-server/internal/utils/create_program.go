@@ -3,9 +3,11 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/SonarSource/SonarJS/server-go/sonar-server/internal/diagnostic"
+	"github.com/microsoft/typescript-go/shim/ast"
 	"github.com/microsoft/typescript-go/shim/bundled"
 	"github.com/microsoft/typescript-go/shim/compiler"
 	"github.com/microsoft/typescript-go/shim/core"
@@ -15,6 +17,12 @@ import (
 )
 
 type ParsedCommandLineTransform func(config *tsoptions.ParsedCommandLine)
+
+const (
+	referencedProjectMustHaveCompositeDiagnosticCode int32 = 6306
+	referencedProjectMayNotDisableEmitDiagnosticCode int32 = 6310
+	tsbuildinfoOverwriteDiagnosticCode               int32 = 6377
+)
 
 func CreateCompilerHost(cwd string, fs vfs.FS) compiler.CompilerHost {
 	defaultLibraryPath := bundled.LibPath()
@@ -27,6 +35,79 @@ func enhanceHelpDiagnosticMessage(msg string) string {
 
 	}
 	return msg
+}
+
+func ensureCompilerOptionPaths(options *core.CompilerOptions) bool {
+	if options == nil {
+		return false
+	}
+	if options.Paths != nil {
+		return true
+	}
+
+	optionsValue := reflect.ValueOf(options)
+	if optionsValue.Kind() != reflect.Pointer || optionsValue.IsNil() {
+		return false
+	}
+
+	pathsField := optionsValue.Elem().FieldByName("Paths")
+	if !pathsField.IsValid() || !pathsField.CanSet() || pathsField.Type().Kind() != reflect.Pointer {
+		return false
+	}
+
+	pathsField.Set(reflect.New(pathsField.Type().Elem()))
+	return options.Paths != nil
+}
+
+func applyLegacyBaseURLCompatibility(config *tsoptions.ParsedCommandLine) {
+	if config == nil {
+		return
+	}
+
+	options := config.CompilerOptions()
+	if options == nil || options.BaseUrl == "" {
+		return
+	}
+
+	baseURL := options.BaseUrl
+	if options.Paths == nil {
+		if !ensureCompilerOptionPaths(options) {
+			return
+		}
+		options.Paths.Set("*", []string{"./*"})
+	}
+
+	options.PathsBasePath = baseURL
+	options.BaseUrl = ""
+}
+
+func applyAnalysisOnlyCompilerOptions(config *tsoptions.ParsedCommandLine) {
+	if config == nil {
+		return
+	}
+
+	options := config.CompilerOptions()
+	if options == nil {
+		return
+	}
+
+	// The analyzer never emits build output, so emit-only diagnostics such as TS7's
+	// inferred rootDir/outDir layout check should not block program creation.
+	options.NoEmit = core.TSTrue
+}
+
+func shouldIgnoreAnalysisProgramDiagnostic(diag *ast.Diagnostic) bool {
+	if diag == nil {
+		return false
+	}
+	switch diag.Code() {
+	case referencedProjectMustHaveCompositeDiagnosticCode,
+		referencedProjectMayNotDisableEmitDiagnosticCode,
+		tsbuildinfoOverwriteDiagnosticCode:
+		return true
+	default:
+		return false
+	}
 }
 
 func CreateProgram(
@@ -69,6 +150,8 @@ func CreateProgram(
 			transform(configParseResult)
 		}
 	}
+	applyLegacyBaseURLCompatibility(configParseResult)
+	applyAnalysisOnlyCompilerOptions(configParseResult)
 
 	if len(configParseResult.Errors) > 0 && !suppressProgramDiagnostics {
 		internalDiags := make([]diagnostic.Internal, len(configParseResult.Errors))
@@ -106,6 +189,16 @@ func CreateProgram(
 	}
 
 	program_diagnostics := program.GetProgramDiagnostics()
+	if !suppressProgramDiagnostics {
+		filteredProgramDiagnostics := make([]*ast.Diagnostic, 0, len(program_diagnostics))
+		for _, diag := range program_diagnostics {
+			if shouldIgnoreAnalysisProgramDiagnostic(diag) {
+				continue
+			}
+			filteredProgramDiagnostics = append(filteredProgramDiagnostics, diag)
+		}
+		program_diagnostics = filteredProgramDiagnostics
+	}
 	if len(program_diagnostics) > 0 && !suppressProgramDiagnostics {
 		// Convert ast.Diagnostic to diagnostic.Internal
 		internalDiags := make([]diagnostic.Internal, len(program_diagnostics))

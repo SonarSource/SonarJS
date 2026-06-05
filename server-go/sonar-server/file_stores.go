@@ -207,19 +207,27 @@ func (s *projectFileStores) postProcess(config NormalizedProjectConfiguration) {
 		s.Warnings = append(s.Warnings, "Failed to find any of the provided tsconfig.json files: "+strings.Join(config.TsConfigPaths, ", "))
 	}
 
-	sort.Strings(s.lookupTSConfigs)
+	sort.SliceStable(s.lookupTSConfigs, func(i int, j int) bool {
+		return compareTSConfigPaths(s.lookupTSConfigs[i], s.lookupTSConfigs[j])
+	})
 	sort.SliceStable(s.propertyTSConfigs, func(i int, j int) bool {
 		leftRank := s.providedTSConfigRank(s.propertyTSConfigs[i])
 		rightRank := s.providedTSConfigRank(s.propertyTSConfigs[j])
 		if leftRank != rightRank {
 			return leftRank < rightRank
 		}
-		return s.propertyTSConfigs[i] < s.propertyTSConfigs[j]
+		return compareTSConfigPaths(s.propertyTSConfigs[i], s.propertyTSConfigs[j])
 	})
 
 	if !s.usingExplicitSourceFiles {
 		s.OrderedSourceFiles = uniqueSortedStrings(s.OrderedSourceFiles)
 	}
+}
+
+func compareTSConfigPaths(left string, right string) bool {
+	leftDepth := strings.Count(strings.Trim(left, "/"), "/")
+	rightDepth := strings.Count(strings.Trim(right, "/"), "/")
+	return leftDepth < rightDepth
 }
 
 func (s *projectFileStores) providedTSConfigRank(tsconfig string) int {

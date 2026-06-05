@@ -21,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -47,6 +48,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -91,6 +94,7 @@ import org.sonar.javascript.checks.CheckList;
 import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.analysis.cache.CacheTestUtils;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisLanguage;
+import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.CpdToken;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
@@ -112,6 +116,7 @@ import org.sonar.plugins.javascript.bridge.EslintRule;
 import org.sonar.plugins.javascript.bridge.PluginInfo;
 import org.sonar.plugins.javascript.bridge.ProjectAnalysisHandler;
 import org.sonar.plugins.javascript.bridge.ServerAlreadyFailedException;
+import org.sonar.plugins.javascript.bridge.grpc.AnalyzerGrpcServer;
 import org.sonar.plugins.javascript.bridge.protobuf.Node;
 import org.sonar.plugins.javascript.bridge.protobuf.NodeType;
 import org.sonar.plugins.javascript.bridge.protobuf.Position;
@@ -540,6 +545,42 @@ class WebSensorTest {
         .getConfiguration()
         .getDisableTypeChecking()
     ).isTrue();
+  }
+
+  @Test
+  void should_force_disableTypeChecking_for_node_when_jsts_go_is_active() throws Exception {
+    var sensor = createSensor(
+      checks("S3003"),
+      new AnalysisConsumers(),
+      null,
+      new WebSensorModuleConfiguration()
+    );
+    var jstsGoServer = mock(AnalyzerGrpcServer.class);
+    when(jstsGoServer.isAlive()).thenReturn(true);
+    setPrivateField(sensor, "jstsGoServer", jstsGoServer);
+
+    var requestRef = new AtomicReference<AnalyzeProjectRequest>();
+    var suppressNodeLogRef = new AtomicBoolean();
+    doAnswer(invocation -> {
+      ProjectAnalysisHandler handler = invocation.getArgument(0);
+      requestRef.set(handler.getRequest());
+      suppressNodeLogRef.set(handler.shouldSuppressNodeTypeCheckingDisabledLog());
+      handler.handleMessage(
+        AnalyzeProjectStreamResponse.newBuilder()
+          .setMeta(ProjectAnalysisMeta.getDefaultInstance())
+          .build()
+      );
+      return handler.getFuture().join();
+    })
+      .when(bridgeServerMock)
+      .analyzeProject(any(ProjectAnalysisHandler.class));
+
+    sensor.execute(context);
+
+    assertThat(requestRef.get()).isNotNull();
+    assertThat(requestRef.get().getConfiguration().getDisableTypeChecking()).isTrue();
+    assertThat(suppressNodeLogRef.get()).isTrue();
+    verify(jstsGoServer).analyzeProject(any(AnalyzeProjectRequest.class), any(), eq(true));
   }
 
   @Test
@@ -2292,6 +2333,13 @@ class WebSensorTest {
   private boolean isWindows() {
     var osName = System.getProperty("os.name");
     return osName.toLowerCase().startsWith("win");
+  }
+
+  private static void setPrivateField(WebSensor sensor, String fieldName, Object value)
+    throws Exception {
+    var field = WebSensor.class.getDeclaredField(fieldName);
+    field.setAccessible(true);
+    field.set(sensor, value);
   }
 
   private static JsTsChecks checks(String... ruleKeys) {

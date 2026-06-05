@@ -120,3 +120,33 @@ function getSortedTrigger(index1: number, index2: number) {
 
 	assertS2234DiagnosticCount(t, diagnostics, 0)
 }
+
+func TestS2234ArgumentsOrderConversionSkipsOutOfFileSecondaryLocations(t *testing.T) {
+	t.Parallel()
+
+	diagnostics := runDirectRuleOnCode(
+		t,
+		s2234_arguments_order.ArgumentsOrderRule,
+		nil,
+		"file.ts",
+		`
+function standardMethod() {
+  const length = 1;
+  const from = 0;
+  return "abcdef".substr(length, from);
+}
+`,
+		"tsconfig.minimal.json",
+		"",
+	)
+
+	assertS2234DiagnosticCount(t, diagnostics, 1)
+	if len(diagnostics[0].LabeledRanges) == 0 {
+		t.Fatalf("expected diagnostic to keep the original labeled range metadata")
+	}
+
+	issue := ConvertDiagnostic(diagnostics[0])
+	if len(issue.SecondaryLocations) != 0 {
+		t.Fatalf("expected out-of-file labeled ranges to be dropped, got %#v", issue.SecondaryLocations)
+	}
+}

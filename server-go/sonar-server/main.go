@@ -11,6 +11,8 @@ import (
 )
 
 func main() {
+	log.SetFlags(0)
+
 	port := flag.Int("port", 0, "gRPC server port")
 	project := flag.String("project", "", "Synthetic parity project directory")
 	request := flag.String("request", "", "AnalyzeProjectRequest JSON file")

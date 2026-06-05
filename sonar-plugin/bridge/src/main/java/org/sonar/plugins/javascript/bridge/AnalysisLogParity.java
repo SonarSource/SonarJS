@@ -14,20 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-package org.sonar.plugins.javascript.bridge.grpc;
+package org.sonar.plugins.javascript.bridge;
 
-import java.io.IOException;
-import java.util.function.Consumer;
-import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectRequest;
-import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
+public final class AnalysisLogParity {
 
-public interface AnalyzerGrpcServer {
-  void start() throws IOException;
-  void analyzeProject(
-    AnalyzeProjectRequest request,
-    Consumer<Issue> issueConsumer,
-    boolean mirrorAnalysisLogs
-  );
-  boolean isAlive();
-  void stop();
+  public static final String TYPE_CHECKING_DISABLED_LOG =
+    "Type checking is disabled (sonar.javascript.disableTypeChecking=true). All files will be analyzed without type information.";
+
+  private AnalysisLogParity() {}
+
+  public static boolean isTypeCheckingDisabledLog(String line) {
+    return TYPE_CHECKING_DISABLED_LOG.equals(line);
+  }
 }

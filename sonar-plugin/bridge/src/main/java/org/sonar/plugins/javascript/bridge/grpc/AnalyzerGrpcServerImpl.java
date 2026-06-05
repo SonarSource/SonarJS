@@ -38,6 +38,7 @@ import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectServiceGrp
 import org.sonar.plugins.javascript.analyzeproject.grpc.AnalyzeProjectStreamResponse;
 import org.sonar.plugins.javascript.analyzeproject.grpc.FileResultMessage;
 import org.sonar.plugins.javascript.analyzeproject.grpc.Issue;
+import org.sonar.plugins.javascript.bridge.AnalysisLogParity;
 import org.sonar.plugins.javascript.bridge.NetUtils;
 
 @ScannerSide
@@ -54,6 +55,7 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
   private ManagedChannel channel;
   private AnalyzeProjectServiceGrpc.AnalyzeProjectServiceBlockingStub blockingStub;
   private int port;
+  private volatile boolean mirrorAnalysisLogs;
 
   public AnalyzerGrpcServerImpl(Path binaryPath) {
     this.binaryPath = binaryPath;
@@ -71,19 +73,16 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
 
       // The Go runtime logs on stderr by default, so mirror that into the scanner logs.
       var stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-      Thread stderrThread = new Thread(
-        () -> {
-          try {
-            String line;
-            while ((line = stderr.readLine()) != null) {
-              LOG.info("[jsts-go] {}", line);
-            }
-          } catch (IOException e) {
-            LOG.debug("jsts-go stderr reader stopped", e);
+      Thread stderrThread = new Thread(() -> {
+        try {
+          String line;
+          while ((line = stderr.readLine()) != null) {
+            logProcessLine(line);
           }
-        },
-        "jsts-go-stderr"
-      );
+        } catch (IOException e) {
+          LOG.debug("jsts-go stderr reader stopped", e);
+        }
+      }, "jsts-go-stderr");
       stderrThread.setDaemon(true);
       stderrThread.start();
 
@@ -151,25 +150,66 @@ public class AnalyzerGrpcServerImpl implements AnalyzerGrpcServer {
   }
 
   @Override
-  public void analyzeProject(AnalyzeProjectRequest request, Consumer<Issue> issueConsumer) {
-    Iterator<AnalyzeProjectStreamResponse> responses = blockingStub
-      .withDeadlineAfter(5, TimeUnit.MINUTES)
-      .analyzeProject(request);
+  public void analyzeProject(
+    AnalyzeProjectRequest request,
+    Consumer<Issue> issueConsumer,
+    boolean mirrorAnalysisLogs
+  ) {
+    this.mirrorAnalysisLogs = mirrorAnalysisLogs;
+    try {
+      Iterator<AnalyzeProjectStreamResponse> responses = blockingStub
+        .withDeadlineAfter(5, TimeUnit.MINUTES)
+        .analyzeProject(request);
 
-    while (responses.hasNext()) {
-      AnalyzeProjectStreamResponse response = responses.next();
-      switch (response.getMessageCase()) {
-        case FILE_RESULT -> handleFileResult(response.getFileResult(), issueConsumer);
-        case META -> response
-          .getMeta()
-          .getWarningsList()
-          .forEach(warning -> LOG.warn("[jsts-go] {}", warning));
-        case CANCELLED -> LOG.warn("jsts-go analysis was cancelled");
-        case MESSAGE_NOT_SET -> {
-          // no-op
+      while (responses.hasNext()) {
+        AnalyzeProjectStreamResponse response = responses.next();
+        switch (response.getMessageCase()) {
+          case FILE_RESULT -> handleFileResult(response.getFileResult(), issueConsumer);
+          case META -> response
+            .getMeta()
+            .getWarningsList()
+            .forEach(warning -> LOG.warn("[jsts-go] {}", warning));
+          case CANCELLED -> LOG.warn("jsts-go analysis was cancelled");
+          case MESSAGE_NOT_SET -> {
+            // no-op
+          }
         }
       }
+    } finally {
+      this.mirrorAnalysisLogs = false;
     }
+  }
+
+  private void logProcessLine(String line) {
+    if (isSharedDiscoveryLog(line)) {
+      // The Node bridge already emits the shared tsconfig discovery line once.
+      return;
+    }
+    if (isParityAnalysisLog(line)) {
+      if (mirrorAnalysisLogs) {
+        LOG.info(line);
+      }
+      return;
+    }
+    LOG.info("[jsts-go] {}", line);
+  }
+
+  static boolean isSharedDiscoveryLog(String line) {
+    return line.startsWith("Found ") && line.contains(" tsconfig.json file(s): [");
+  }
+
+  static boolean isParityAnalysisLog(String line) {
+    return (
+      isSharedDiscoveryLog(line) ||
+      (line.startsWith("Analyzing ") &&
+        (line.contains(" file(s) using ") || line.contains(" file(s) from tsconfig "))) ||
+      line.startsWith("Creating TypeScript(") ||
+      line.startsWith("No files to analyze from tsconfig ") ||
+      line.startsWith("No tsconfig found for files, using default options ") ||
+      (line.startsWith("Skipping TypeScript program creation for ") &&
+        line.contains("(sonar.javascript.createTSProgramForOrphanFiles=false)")) ||
+      AnalysisLogParity.isTypeCheckingDisabledLog(line)
+    );
   }
 
   private static void handleFileResult(

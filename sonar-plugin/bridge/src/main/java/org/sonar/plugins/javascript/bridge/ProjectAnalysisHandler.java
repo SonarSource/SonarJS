@@ -42,6 +42,14 @@ public interface ProjectAnalysisHandler {
   CompletableFuture<Void> getFuture();
 
   /**
+   * Whether bridge-side process logs specific to Node-only type checking should be suppressed for
+   * this request because another analyzer runtime will mirror the parity log lines instead.
+   */
+  default boolean shouldSuppressNodeTypeCheckingDisabledLog() {
+    return false;
+  }
+
+  /**
    * Handles a streamed protobuf response from the analyzer runtime.
    */
   void handleMessage(AnalyzeProjectStreamResponse message);
