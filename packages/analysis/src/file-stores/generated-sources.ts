@@ -35,7 +35,10 @@ class GeneratedSourceStore implements FileStore {
   private readonly explicitRequestFilesKeys = new WeakMap<AnalyzableFiles, string>();
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
+  private derivedConfigKey: string | undefined = undefined;
   private analyzableFilesConfigKey: string | undefined = undefined;
+  private needsFilteredRefresh = false;
+  private derivedMetadataInitialized = false;
   private activeRequestFilesKey: RequestFilesKey = undefined;
   private requestFilesKey: RequestFilesKey = undefined;
   private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
@@ -50,6 +53,17 @@ class GeneratedSourceStore implements FileStore {
     this.activeRequestFilesKey = requestFilesKey;
     if (this.baseDir === undefined) {
       return false;
+    }
+
+    if (this.needsFilteredRefresh) {
+      if (requestFilesKey === undefined || inputFiles === undefined) {
+        return false;
+      }
+
+      this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
+      this.refreshFilteredState(inputFiles, requestFilesKey);
+      this.needsFilteredRefresh = false;
+      return true;
     }
 
     if (requestFilesKey === this.requestFilesKey) {
@@ -75,7 +89,7 @@ class GeneratedSourceStore implements FileStore {
       return;
     }
 
-    if (getAnalyzableFilesConfigKey(configuration) !== this.analyzableFilesConfigKey) {
+    if (getGeneratedSourceConfigKey(configuration) !== this.derivedConfigKey) {
       this.clearCache();
       return;
     }
@@ -87,12 +101,19 @@ class GeneratedSourceStore implements FileStore {
         return;
       }
     }
+
+    if (getAnalyzableFilesConfigKey(configuration) !== this.analyzableFilesConfigKey) {
+      this.needsFilteredRefresh = true;
+    }
   }
 
   clearCache() {
     this.baseDir = undefined;
     this.canAccessFileSystem = undefined;
+    this.derivedConfigKey = undefined;
     this.analyzableFilesConfigKey = undefined;
+    this.needsFilteredRefresh = false;
+    this.derivedMetadataInitialized = false;
     this.activeRequestFilesKey = undefined;
     this.clearDerivedState();
   }
@@ -100,8 +121,7 @@ class GeneratedSourceStore implements FileStore {
   setup(configuration: Configuration) {
     this.baseDir = configuration.baseDir;
     this.canAccessFileSystem = configuration.canAccessFileSystem;
-    this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
-    this.clearDerivedState();
+    this.derivedConfigKey = getGeneratedSourceConfigKey(configuration);
   }
 
   async processFile(
@@ -115,33 +135,41 @@ class GeneratedSourceStore implements FileStore {
     if (
       this.baseDir === undefined ||
       this.canAccessFileSystem === undefined ||
-      this.analyzableFilesConfigKey === undefined
+      this.derivedConfigKey === undefined
     ) {
       this.baseDir = configuration.baseDir;
       this.canAccessFileSystem = configuration.canAccessFileSystem;
-      this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
+      this.derivedConfigKey = getGeneratedSourceConfigKey(configuration);
     }
 
     const { baseDir, canAccessFileSystem } = this;
     if (!baseDir || !canAccessFileSystem) {
+      this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
+      this.needsFilteredRefresh = false;
       return;
     }
 
-    const derived = await deriveGeneratedSources(
-      baseDir,
-      dependencyManifestStore.getPackageJsons(),
-      {
-        sourceFileMatcher: createConfiguredGeneratedSourceFileMatcher(configuration),
-      },
-    );
-    this.derivedFamilyByFile = new Map(derived.familyByFile);
-    this.resolvedFiles = new Set(this.derivedFamilyByFile.keys());
-    this.configPaths = derived.configPaths;
-    this.watchedOutputPaths = derived.watchedOutputPaths;
+    if (!this.derivedMetadataInitialized) {
+      const derived = await deriveGeneratedSources(
+        baseDir,
+        dependencyManifestStore.getPackageJsons(),
+        {
+          sourceFileMatcher: createConfiguredGeneratedSourceFileMatcher(configuration),
+        },
+      );
+      this.derivedFamilyByFile = new Map(derived.familyByFile);
+      this.resolvedFiles = new Set(this.derivedFamilyByFile.keys());
+      this.configPaths = derived.configPaths;
+      this.watchedOutputPaths = derived.watchedOutputPaths;
+      this.derivedMetadataInitialized = true;
+    }
+
+    this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
     this.refreshFilteredState(
       analyzableFiles,
       this.activeRequestFilesKey ?? this.getRequestFilesKey(canAccessFileSystem, analyzableFiles),
     );
+    this.needsFilteredRefresh = false;
   }
 
   private isRelevantEvent(
@@ -207,6 +235,13 @@ class GeneratedSourceStore implements FileStore {
     this.requestFilesKey = requestFilesKey;
     this.familyByFile = filterAnalyzableGeneratedFiles(this.derivedFamilyByFile, analyzableFiles);
   }
+}
+
+function getGeneratedSourceConfigKey(configuration: Configuration) {
+  return JSON.stringify({
+    jsSuffixes: configuration.jsSuffixes,
+    tsSuffixes: configuration.tsSuffixes,
+  });
 }
 
 function filterAnalyzableGeneratedFiles(

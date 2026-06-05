@@ -2363,6 +2363,33 @@ plugins = [
     expect(generatedSourceStore.getFamily(secondGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
   });
 
+  it('reuses derived generated-source metadata when only exclusions change', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+    const generatedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
+
+    await initFileStores(createConfiguration({ baseDir }));
+
+    const generatedSourceStoreState = generatedSourceStore as unknown as {
+      derivedFamilyByFile: Map<NormalizedAbsolutePath, string>;
+      familyByFile: Map<NormalizedAbsolutePath, string>;
+    };
+    const initialDerivedFamilyByFile = generatedSourceStoreState.derivedFamilyByFile;
+    const initialFamilyByFile = generatedSourceStoreState.familyByFile;
+
+    expect(generatedSourceStore.getFamily(generatedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+
+    await initFileStores(
+      createConfiguration({
+        baseDir,
+        jsTsExclusions: ['**/src/generated/**'],
+      }),
+    );
+
+    expect(generatedSourceStoreState.derivedFamilyByFile).toBe(initialDerivedFamilyByFile);
+    expect(generatedSourceStoreState.familyByFile).not.toBe(initialFamilyByFile);
+    expect(generatedSourceStore.getFamily(generatedFile)).toBeUndefined();
+  });
+
   it('memoizes explicit request-file keys per analyzable-file set', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
     const generatedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
