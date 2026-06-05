@@ -157,10 +157,10 @@ function isMemberAccessingThen(node: Node): boolean {
  */
 function getAncestorsWithParent(node: Node): Node[] {
   const ancestors: Node[] = [];
-  let current = (node as Node & { parent?: Node }).parent;
+  let current: (Node & { parent?: Node }) | undefined = (node as Node & { parent?: Node }).parent;
   while (current) {
     ancestors.push(current);
-    current = (current as Node & { parent?: Node }).parent;
+    current = current.parent;
   }
   return ancestors;
 }
