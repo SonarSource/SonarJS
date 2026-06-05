@@ -112,6 +112,62 @@ describe('LinterWrapper', () => {
     ]);
   });
 
+  it('should lint with the deprecated at-rule rule', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, './fixtures/block.css'),
+    );
+    const rules = [{ key: 'at-rule-no-deprecated', configurations: [] }];
+    const code =
+      '@viewport { width: device-width; }\n@document url("https://example.com") { .hero { color: red; } }';
+
+    const linter = new LinterWrapper();
+    linter.initialize(rules);
+    const { issues } = await linter.lint(filePath, code);
+
+    expect(issues).toHaveLength(2);
+    expect(issues).toMatchObject([
+      {
+        ruleId: 'at-rule-no-deprecated',
+        language: 'css',
+        line: 1,
+        message: 'Deprecated at-rule "@viewport"',
+      },
+      {
+        ruleId: 'at-rule-no-deprecated',
+        language: 'css',
+        line: 2,
+        message: 'Deprecated at-rule "@document"',
+      },
+    ]);
+  });
+
+  it('should lint with a configured deprecated at-rule rule', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, './fixtures/block.css'),
+    );
+    const rules = [
+      {
+        key: 'at-rule-no-deprecated',
+        configurations: [true, { ignoreAtRules: ['viewport'] }],
+      },
+    ];
+    const code =
+      '@viewport { width: device-width; }\n@document url("https://example.com") { .hero { color: red; } }';
+
+    const linter = new LinterWrapper();
+    linter.initialize(rules);
+    const { issues } = await linter.lint(filePath, code);
+
+    expect(issues).toMatchObject([
+      {
+        ruleId: 'at-rule-no-deprecated',
+        language: 'css',
+        line: 2,
+        message: 'Deprecated at-rule "@document"',
+      },
+    ]);
+  });
+
   it('should omit end positions when they exceed line length (empty file)', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, './fixtures/empty.css'),

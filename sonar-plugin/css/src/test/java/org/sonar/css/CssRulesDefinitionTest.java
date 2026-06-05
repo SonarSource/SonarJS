@@ -49,7 +49,7 @@ class CssRulesDefinitionTest {
     assertThat(externalRepository.name()).isEqualTo("stylelint");
     assertThat(externalRepository.language()).isEqualTo("css");
     assertThat(externalRepository.isExternal()).isTrue();
-    assertThat(externalRepository.rules()).hasSize(170);
+    assertThat(externalRepository.rules()).hasSize(171);
 
     assertThat(mainRepository.name()).isEqualTo("SonarQube");
     assertThat(mainRepository.language()).isEqualTo("css");
@@ -79,13 +79,22 @@ class CssRulesDefinitionTest {
 
   private void assertParameterProperties(Repository repository) {
     // AtRuleNoUnknown
-    Param param = repository.rule("S4662").param("ignoreAtRules");
-    assertThat(param).isNotNull();
-    assertThat(param.defaultValue()).startsWith("value,at-root,content");
-    assertThat(param.description()).isEqualTo(
+    Param atRuleNoUnknownParam = repository.rule("S4662").param("ignoreAtRules");
+    assertThat(atRuleNoUnknownParam).isNotNull();
+    assertThat(atRuleNoUnknownParam.defaultValue()).startsWith("value,at-root,content");
+    assertThat(atRuleNoUnknownParam.description()).isEqualTo(
       "Comma-separated list of \"at-rules\" to consider as valid."
     );
-    assertThat(param.type()).isEqualTo(RuleParamType.STRING);
+    assertThat(atRuleNoUnknownParam.type()).isEqualTo(RuleParamType.STRING);
+
+    // AtRuleNoDeprecated
+    Param atRuleNoDeprecatedParam = repository.rule("S8756").param("ignoreAtRules");
+    assertThat(atRuleNoDeprecatedParam).isNotNull();
+    assertThat(atRuleNoDeprecatedParam.defaultValue()).isNull();
+    assertThat(atRuleNoDeprecatedParam.description()).isEqualTo(
+      "Comma-separated list of deprecated \"at-rules\" to ignore."
+    );
+    assertThat(atRuleNoDeprecatedParam.type()).isEqualTo(RuleParamType.STRING);
   }
 
   private void assertAllRuleParametersHaveDescription(Repository repository) {

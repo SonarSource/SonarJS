@@ -92,6 +92,12 @@
     "name": "Disallow unknown media feature names"
   },
   {
+    "key": "at-rule-no-deprecated",
+    "url": "https://stylelint.io/user-guide/rules/at-rule-no-deprecated/",
+    "name": "Disallow deprecated at-rules",
+    "type": "BUG"
+  },
+  {
     "key": "at-rule-no-unknown",
     "url": "https://stylelint.io/user-guide/rules/at-rule-no-unknown/",
     "name": "Disallow unknown at-rules",

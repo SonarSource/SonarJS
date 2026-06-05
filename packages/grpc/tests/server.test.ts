@@ -1242,6 +1242,39 @@ describe('gRPC server', () => {
       expect(responseIssue.issues?.[0].rule?.rule).toBe('S4662');
     });
 
+    it('should apply listParam ignoreAtRules to control deprecated at-rule behaviour (S8756)', async () => {
+      const content =
+        '@viewport { width: device-width; }\n@document url("https://example.com") { .hero { color: red; } }';
+
+      const requestDefault: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S8756' }, params: [] }],
+      };
+
+      const responseDefault = await client.analyze(requestDefault);
+      expect(responseDefault.issues?.map(issue => issue.rule?.rule)).toEqual(['S8756', 'S8756']);
+      expect(responseDefault.issues?.map(issue => issue.textRange?.startLine)).toEqual([1, 2]);
+
+      const requestIgnoredViewport: analyzer.IAnalyzeRequest = {
+        analysisId: generateAnalysisId(),
+        contextIds: {},
+        sourceFiles: [{ relativePath: 'src/styles.css', content }],
+        activeRules: [
+          {
+            ruleKey: { repo: 'css', rule: 'S8756' },
+            params: [{ key: 'ignoreAtRules', value: 'viewport' }],
+          },
+        ],
+      };
+
+      const responseIgnoredViewport = await client.analyze(requestIgnoredViewport);
+      expect(responseIgnoredViewport.issues?.length).toBe(1);
+      expect(responseIgnoredViewport.issues?.[0].rule?.rule).toBe('S8756');
+      expect(responseIgnoredViewport.issues?.[0].textRange?.startLine).toBe(2);
+    });
+
     it('should apply listParam ignorePseudoElements to control unknown pseudo-element behaviour (S4660)', async () => {
       // ::ng-deep is in the default ignorePseudoElements list → no issue
       const content = 'a::ng-deep { color: red; }';

@@ -205,6 +205,19 @@ export const cssRulesMeta: CssRuleMeta[] = [
     ],
   },
   {
+    sqKey: 'S8756',
+    stylelintKey: 'at-rule-no-deprecated',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoredAtRules',
+        description: 'Comma-separated list of deprecated "at-rules" to ignore.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
+  },
+  {
     sqKey: 'S4663',
     stylelintKey: 'comment-no-empty',
   },

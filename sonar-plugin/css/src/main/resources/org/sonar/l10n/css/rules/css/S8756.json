@@ -1,0 +1,28 @@
+{
+  "title": "Deprecated \"at-rules\" should not be used",
+  "type": "BUG",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8756",
+  "sqKey": "S8756",
+  "scope": "Main",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "unknown"
+}
