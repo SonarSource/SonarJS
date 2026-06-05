@@ -1,6 +1,6 @@
 {
-  "title": "Delivering code in production with debug features activated is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Debugging features should not be enabled in production",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "LOW"
@@ -8,6 +8,7 @@
     "attribute": "CONVENTIONAL"
   },
   "status": "ready",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant/Issue",
     "constantCost": "1min"
@@ -17,12 +18,9 @@
     "error-handling",
     "debug",
     "user-experience",
-    "express.js"
+    "express.js",
+    "former-hotspot"
   ],
-  "extra": {
-    "replacementRules": [],
-    "legacyKeys": []
-  },
   "defaultSeverity": "Minor",
   "ruleSpecification": "RSPEC-4507",
   "sqKey": "S4507",

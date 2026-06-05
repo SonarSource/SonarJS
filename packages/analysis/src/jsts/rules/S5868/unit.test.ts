@@ -67,6 +67,10 @@ describe('S5868', () => {
 
         { code: String.raw`var r = /[x\S]/u` },
         { code: 'var r = /[xa-z]/u' },
+        { code: String.raw`var r = /[\u0BE6-\u0BEF\u0C01-\u0C03]/` },
+        { code: String.raw`var r = /[\u0BE6-\u0BEF\u0C01-\u0C03]/u` },
+        { code: String.raw`var r = /[\u00F8-\u02B8\u0300-\u0590]/` },
+        { code: String.raw`var r = /[\u00F8-\u02B8\u0300]/` },
 
         { code: String.raw`var r = /[\u{1F3FB}]/u` },
         { code: 'var r = /[\u{1F3FB}]/u' },
@@ -82,6 +86,15 @@ describe('S5868', () => {
         },
         {
           code: String.raw`const rangeA = '\u00C0-\u00D6', rangeB = '\u0300-\u036F', r = new RegExp('[' + rangeA + rangeB + ']')`,
+        },
+        {
+          code: String.raw`const ranges = '\u0BE6-\u0BEF\u0C01-\u0C03', r = new RegExp('[' + ranges + ']')`,
+        },
+        {
+          code: String.raw`const start = '\u0BE6-\u0BEF', rest = '\u0C01-\u0C03', r = new RegExp('[' + start + rest + ']')`,
+        },
+        {
+          code: String.raw`const r = new RegExp("[\\u00F8-\\u02B8\\u0300-\\u0590]")`,
         },
         {
           code: String.raw`const high = '\uD83D', low = '\uDC4D', r = new RegExp('[' + high + low + ']')`,
