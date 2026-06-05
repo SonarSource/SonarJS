@@ -17,6 +17,7 @@ packages/analysis/src/jsts/parsers/estree.d.ts
 server-go/shim/**/shim.go
 server-go/sonar-server/internal/rules/*/options.go
 server-go/sonar-server/grpc/*.pb.go
+server-go/sonar-server/generated_environment_globals.go
 server-go/sonar-server/generated_rule_metadata.go
 server-go/sonar-server/go.work.sum
 
