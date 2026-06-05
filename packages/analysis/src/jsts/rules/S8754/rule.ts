@@ -58,8 +58,11 @@ export const rule: Rule.RuleModule = {
 
     let suiteStack: SuiteFrame[] = [createSuiteFrame()];
     const pushedSuiteCalls = new Set<estree.Node>();
+    const concreteSuiteCallbacks = new Set<estree.Node>();
     let testNesting = 0;
     let ignoredSuiteNesting = 0;
+    let functionNesting = 0;
+    let concreteSuiteCallbackNesting = 0;
 
     return {
       CallExpression(node: estree.CallExpression) {
@@ -67,6 +70,10 @@ export const rule: Rule.RuleModule = {
           ignoredSuiteNesting++;
         } else if (isSuiteDeclaration(context, node)) {
           pushedSuiteCalls.add(node);
+          const callback = getCallback(node);
+          if (callback !== undefined) {
+            concreteSuiteCallbacks.add(callback);
+          }
           suiteStack.push(createSuiteFrame());
         }
 
@@ -75,6 +82,7 @@ export const rule: Rule.RuleModule = {
           currentSuiteFrame !== undefined &&
           ignoredSuiteNesting === 0 &&
           testNesting === 0 &&
+          isInConcreteCollectionCallback(functionNesting, concreteSuiteCallbackNesting) &&
           isTestDeclaration(context, node)
         ) {
           checkTestTitle(context, node, currentSuiteFrame);
@@ -97,11 +105,26 @@ export const rule: Rule.RuleModule = {
           suiteStack.pop();
         }
       },
+      ':function'(node: estree.Node) {
+        functionNesting++;
+        if (concreteSuiteCallbacks.has(node)) {
+          concreteSuiteCallbackNesting++;
+        }
+      },
+      ':function:exit'(node: estree.Node) {
+        if (concreteSuiteCallbacks.delete(node)) {
+          concreteSuiteCallbackNesting--;
+        }
+        functionNesting--;
+      },
       'Program:exit'() {
         suiteStack = [createSuiteFrame()];
         pushedSuiteCalls.clear();
+        concreteSuiteCallbacks.clear();
         testNesting = 0;
         ignoredSuiteNesting = 0;
+        functionNesting = 0;
+        concreteSuiteCallbackNesting = 0;
       },
     };
   },
@@ -234,6 +257,17 @@ function getMochaCalleeParts(
 
 function hasCallback(node: estree.CallExpression): boolean {
   return node.arguments.some(argument => FUNCTION_NODES.includes(argument.type));
+}
+
+function getCallback(node: estree.CallExpression): estree.Node | undefined {
+  return node.arguments.find(argument => FUNCTION_NODES.includes(argument.type));
+}
+
+function isInConcreteCollectionCallback(
+  functionNesting: number,
+  concreteSuiteCallbackNesting: number,
+): boolean {
+  return functionNesting === concreteSuiteCallbackNesting;
 }
 
 function isLocallyDefined(context: Rule.RuleContext, identifier: estree.Identifier): boolean {

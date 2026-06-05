@@ -145,6 +145,30 @@ test.concurrent('parallel test with nested test', () => {
         },
         {
           code: `
+import { describe, test } from 'vitest';
+
+describe('sequential tests', () => {
+  checkSequentialTests();
+});
+
+describe('parallel tests', () => {
+  checkParallelTests();
+});
+
+function checkSequentialTests() {
+  test('t1', () => {});
+  test('t2', () => {});
+}
+
+function checkParallelTests() {
+  test('t1', () => {});
+  test('t2', () => {});
+}
+          `,
+          filename: 'concurrent-suite.test.ts',
+        },
+        {
+          code: `
 import { test } from '@playwright/test';
 test.describe('checkout', () => {
   test.skip('applies a discount code', async () => {});
