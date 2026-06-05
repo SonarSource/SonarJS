@@ -116,7 +116,7 @@ function findSemanticUndefinedTypeNode(
   // references like `React.ReactNode` stay suppressed.
   const { internal } = classifyTypesByOrigin(rootType, services);
   const undefinedReachableFromInternal = internal.some(member =>
-    resolvedTypeContainsUndefined(member, services),
+    containsUndefined(member, services),
   );
   return undefinedReachableFromInternal ? rootType : undefined;
 }
@@ -175,10 +175,7 @@ function propagatesUndefined(
   return type.isUnion() && type.types.some(isUndefinedType);
 }
 
-function resolvedTypeContainsUndefined(
-  node: TSESTree.TypeNode,
-  services: RequiredParserServices,
-): boolean {
+function containsUndefined(node: TSESTree.TypeNode, services: RequiredParserServices): boolean {
   const tsNode = services.esTreeNodeToTSNodeMap.get(node);
   const type = services.program.getTypeChecker().getTypeAtLocation(tsNode);
   const members = type.isUnion() ? type.types : [type];
@@ -192,7 +189,7 @@ function findSyntacticUndefinedTypeNode(
     return typeNode;
   }
   if (typeNode.type === 'TSUnionType') {
-    return typeNode.types.map(findSyntacticUndefinedTypeNode).find(tpe => tpe !== undefined);
+    return typeNode.types.map(findSyntacticUndefinedTypeNode).find(type => type !== undefined);
   }
   return undefined;
 }
