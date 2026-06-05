@@ -150,9 +150,9 @@ The `parseParamValue` function in `rule-configurations/jsts.ts` converts string 
 
 ## CSS Configuration Patterns
 
-CSS rules use stylelint, which expects rule configurations in the format `[primaryOption, secondaryOptions]` where the primary option is `true` (to enable the rule) and secondary options is an object with rule-specific settings.
+CSS rules use stylelint, which expects rule configurations in the format `[primaryOption, secondaryOptions]`. Most CSS rules use `true` as the primary option to enable the rule, while some rules use a fixed string primary option such as `"lower"`.
 
-CSS rule parameters are defined declaratively in `packages/analysis/src/css/rules/metadata.ts` using two patterns. The gRPC transformer in `rule-configurations/css.ts` reads these definitions and builds the stylelint configuration arrays.
+CSS rule parameters are defined declaratively in `packages/analysis/src/css/rules/metadata.ts` using three patterns. The gRPC transformer in `rule-configurations/css.ts` reads these definitions and builds the stylelint configuration arrays.
 
 ### Ignore Params (string-list)
 
@@ -245,9 +245,35 @@ booleanParam: {
 
 ---
 
+### Fixed Primary Option
+
+A fixed non-boolean primary option for stylelint rules that do not need extra secondary options.
+
+**Metadata structure:**
+
+```typescript
+primaryOption: string;
+```
+
+**Stylelint output:** `['lower']`
+
+**Example (S8763 — selector-type-case):**
+
+```typescript
+{
+  sqKey: 'S8763',
+  stylelintKey: 'selector-type-case',
+  primaryOption: 'lower',
+}
+```
+
+**Rules using this pattern:** S8763 (1 rule)
+
+---
+
 ### No Params
 
-Rules without `ignoreParams` or `booleanParam` have no configurable parameters. They are enabled with `true` as the sole configuration.
+Rules without `primaryOption`, `ignoreParams`, or `booleanParam` have no configurable parameters. They are enabled with `true` as the sole configuration.
 
 **Stylelint output:** `true`
 
@@ -257,10 +283,11 @@ Rules without `ignoreParams` or `booleanParam` have no configurable parameters. 
 
 ## CSS Summary Table
 
-| Pattern       | Count | Description                  | Stylelint Output                 |
-| ------------- | ----- | ---------------------------- | -------------------------------- |
-| No params     | 21    | Rule enabled with defaults   | `true`                           |
-| Ignore params | 7     | Comma-separated string lists | `[true, { key: ['v1', 'v2'] }]`  |
-| Boolean param | 1     | Conditional fixed options    | `[true, { key: ['v'] }]` or `[]` |
+| Pattern              | Count | Description                                          | Stylelint Output                 |
+| -------------------- | ----- | ---------------------------------------------------- | -------------------------------- |
+| No params            | 21    | Rule enabled with defaults                           | `true`                           |
+| Ignore params        | 7     | Comma-separated string lists                         | `[true, { key: ['v1', 'v2'] }]`  |
+| Boolean param        | 1     | Conditional fixed options                            | `[true, { key: ['v'] }]` or `[]` |
+| Fixed primary option | 1     | Rule enabled with a fixed non-boolean primary option | `['lower']`                      |
 
-**Total: 29 CSS rules (8 with configurable parameters)**
+**Total: 30 CSS rules (9 with non-default stylelint options)**

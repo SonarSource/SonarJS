@@ -316,13 +316,27 @@ function escapeJavaString(s: string): string {
 }
 
 function generateCssBody(rule: CssRuleMeta, imports: Set<string>): string {
-  const { listParam, booleanParam } = rule;
+  const { listParam, booleanParam, primaryOption } = rule;
+  const effectivePrimaryOption = primaryOption ?? true;
+  const javaPrimaryOption =
+    typeof effectivePrimaryOption === 'string'
+      ? `"${escapeJavaString(effectivePrimaryOption)}"`
+      : String(effectivePrimaryOption);
+  const lines: string[] = [];
 
   if (!listParam?.length && !booleanParam) {
-    return '';
+    if (primaryOption === undefined) {
+      return '';
+    }
+    imports.add('import java.util.Collections;');
+    imports.add('import java.util.List;');
+    lines.push('@Override');
+    lines.push('public List<Object> stylelintOptions() {');
+    lines.push(`  return Collections.singletonList((Object) ${javaPrimaryOption});`);
+    lines.push('}');
+    lines.push('');
+    return lines.join('\n');
   }
-
-  const lines: string[] = [];
 
   if (listParam?.length) {
     imports.add('import static org.sonar.css.rules.RuleUtils.splitAndTrim;');
@@ -351,7 +365,7 @@ function generateCssBody(rule: CssRuleMeta, imports: Set<string>): string {
     lines.push('@Override');
     lines.push('public List<Object> stylelintOptions() {');
     const args = listParam.map(p => `splitAndTrim(${p.javaField})`).join(', ');
-    lines.push(`  return Arrays.asList(true, new StylelintIgnoreOption(${args}));`);
+    lines.push(`  return Arrays.asList(${javaPrimaryOption}, new StylelintIgnoreOption(${args}));`);
     lines.push('}');
     lines.push('');
 
@@ -392,8 +406,10 @@ function generateCssBody(rule: CssRuleMeta, imports: Set<string>): string {
     lines.push('@Override');
     lines.push('public List<Object> stylelintOptions() {');
     lines.push(`  return ${javaField}`);
-    lines.push(`    ? Arrays.asList(true, new StylelintIgnoreOption())`);
-    lines.push(`    : Collections.emptyList();`);
+    lines.push(`    ? Arrays.asList(${javaPrimaryOption}, new StylelintIgnoreOption())`);
+    lines.push(
+      `    : ${primaryOption === undefined ? 'Collections.emptyList()' : `Collections.singletonList((Object) ${javaPrimaryOption})`};`,
+    );
     lines.push('}');
     lines.push('');
 
@@ -449,7 +465,9 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
   rulesWithOptionsClasses: string;
   propertiesCount: number;
 } {
-  const rulesWithOptions = rules.filter(r => r.listParam?.length || r.booleanParam);
+  const rulesWithOptions = rules.filter(
+    r => r.primaryOption !== undefined || r.listParam?.length || r.booleanParam,
+  );
   const sortedRulesWithOptions = rulesWithOptions.toSorted((a, b) =>
     sonarKeySorter(a.sqKey, b.sqKey),
   );
@@ -469,6 +487,19 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
   for (const rule of sortedRulesWithOptions) {
     const methodPrefix = rule.sqKey.toLowerCase(); // e.g. 's4662'
 
+    if (rule.primaryOption !== undefined && !rule.listParam?.length && !rule.booleanParam) {
+      const defaultJson = JSON.stringify([rule.primaryOption]).replace(/"/g, '\\"');
+
+      testMethods.push(`  @Test`);
+      testMethods.push(`  void ${methodPrefix}_default() {`);
+      testMethods.push(
+        `    String optionsAsJson = GSON.toJson(new ${rule.sqKey}().stylelintOptions());`,
+      );
+      testMethods.push(`    assertThat(optionsAsJson).isEqualTo("${defaultJson}");`);
+      testMethods.push(`  }`);
+      testMethods.push('');
+    }
+
     if (rule.listParam?.length) {
       const params = rule.listParam;
 
@@ -478,7 +509,10 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
         defaultOptionObj[p.stylelintOptionKey] =
           p.default.trim() === '' ? [] : p.default.split(',').map(v => v.trim());
       }
-      const defaultJson = JSON.stringify([true, defaultOptionObj]).replace(/"/g, '\\"');
+      const defaultJson = JSON.stringify([rule.primaryOption ?? true, defaultOptionObj]).replace(
+        /"/g,
+        '\\"',
+      );
 
       testMethods.push(`  @Test`);
       testMethods.push(`  void ${methodPrefix}_default() {`);
@@ -494,7 +528,10 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
       for (const p of params) {
         customOptionObj[p.stylelintOptionKey] = ['testValue1', 'testValue2'];
       }
-      const customJson = JSON.stringify([true, customOptionObj]).replace(/"/g, '\\"');
+      const customJson = JSON.stringify([rule.primaryOption ?? true, customOptionObj]).replace(
+        /"/g,
+        '\\"',
+      );
 
       testMethods.push(`  @Test`);
       testMethods.push(`  void ${methodPrefix}_custom() {`);
@@ -516,7 +553,10 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
       for (const opt of bp.onTrue) {
         trueOptionObj[opt.stylelintOptionKey] = opt.values;
       }
-      const trueJson = JSON.stringify([true, trueOptionObj]).replace(/"/g, '\\"');
+      const trueJson = JSON.stringify([rule.primaryOption ?? true, trueOptionObj]).replace(
+        /"/g,
+        '\\"',
+      );
 
       testMethods.push(`  @Test`);
       testMethods.push(`  void ${methodPrefix}_default() {`);
@@ -532,7 +572,13 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
       testMethods.push(`  void ${methodPrefix}_disabled() {`);
       testMethods.push(`    ${rule.sqKey} instance = new ${rule.sqKey}();`);
       testMethods.push(`    instance.${bp.javaField} = false;`);
-      testMethods.push(`    assertThat(instance.stylelintOptions()).isEmpty();`);
+      if (rule.primaryOption === undefined) {
+        testMethods.push(`    assertThat(instance.stylelintOptions()).isEmpty();`);
+      } else {
+        const disabledJson = JSON.stringify([rule.primaryOption]).replace(/"/g, '\\"');
+        testMethods.push(`    String optionsAsJson = GSON.toJson(instance.stylelintOptions());`);
+        testMethods.push(`    assertThat(optionsAsJson).isEqualTo("${disabledJson}");`);
+      }
       testMethods.push(`  }`);
       testMethods.push('');
     }

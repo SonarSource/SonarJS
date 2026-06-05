@@ -259,6 +259,11 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
   });
 
+  it('should return the fixed primary option for a rule without params', () => {
+    const result = buildCssRuleConfigurations('S8763', []);
+    expect(result).toEqual({ key: 'selector-type-case', configurations: ['lower'] });
+  });
+
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'

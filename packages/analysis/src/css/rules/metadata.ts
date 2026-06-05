@@ -43,6 +43,7 @@ type StylelintBooleanParam = {
 export type CssRuleMeta = {
   sqKey: string;
   stylelintKey: string;
+  primaryOption?: string;
   listParam?: StylelintListParam[];
   booleanParam?: StylelintBooleanParam;
 };
@@ -261,6 +262,11 @@ export const cssRulesMeta: CssRuleMeta[] = [
   {
     sqKey: 'S7925',
     stylelintKey: 'sonar/text-spacing',
+  },
+  {
+    sqKey: 'S8763',
+    stylelintKey: 'selector-type-case',
+    primaryOption: 'lower',
   },
 ];
 

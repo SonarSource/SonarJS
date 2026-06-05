@@ -115,6 +115,7 @@ export function ok(diff: Result) {
 function buildCssRules(): CssRuleConfig[] {
   return cssRulesMeta.map(meta => {
     const configurations: unknown[] = [];
+    const primaryOption = meta.primaryOption ?? true;
 
     if (meta.listParam?.length) {
       const secondaryOptions: Record<string, string[]> = {};
@@ -124,14 +125,18 @@ function buildCssRules(): CssRuleConfig[] {
         }
       }
       if (Object.keys(secondaryOptions).length > 0) {
-        configurations.push(true, secondaryOptions);
+        configurations.push(primaryOption, secondaryOptions);
+      } else if (meta.primaryOption !== undefined) {
+        configurations.push(primaryOption);
       }
     } else if (meta.booleanParam?.default) {
       const secondaryOptions: Record<string, string[]> = {};
       for (const opt of meta.booleanParam.onTrue) {
         secondaryOptions[opt.stylelintOptionKey] = opt.values;
       }
-      configurations.push(true, secondaryOptions);
+      configurations.push(primaryOption, secondaryOptions);
+    } else if (meta.primaryOption !== undefined) {
+      configurations.push(primaryOption);
     }
 
     return { key: meta.stylelintKey, configurations };

@@ -28,8 +28,9 @@ const cssRuleMetaMap = new Map<string, CssRuleMeta>(cssRulesMeta.map(r => [r.sqK
  *
  * Looks up the rule in cssRuleMetaMap, then builds stylelint configurations
  * mirroring the Java-generated `stylelintOptions()` logic:
- * - For `listParam`: builds `[true, { stylelintOptionKey: splitValues, ... }]`
- * - For `booleanParam`: when true, builds `[true, { optKey: values }]`; when false, `[]`
+ * - For `listParam`: builds `[primaryOption, { stylelintOptionKey: splitValues, ... }]`
+ * - For `booleanParam`: when true, builds `[primaryOption, { optKey: values }]`
+ * - For fixed primary options without params: builds `[primaryOption]`
  * - No params: returns `[]` (stylelint will use `true` as the rule value)
  *
  * @param ruleKey - The SonarQube rule key (e.g. 'S4662')
@@ -63,10 +64,11 @@ function sanitizeBooleanString(value: string | undefined, defaultValue: boolean)
 }
 
 function buildConfigurations(params: analyzer.IRuleParam[], meta: CssRuleMeta): unknown[] {
-  const { listParam, booleanParam } = meta;
+  const { listParam, booleanParam, primaryOption } = meta;
+  const effectivePrimaryOption = primaryOption ?? true;
 
   if (!listParam?.length && !booleanParam) {
-    return [];
+    return primaryOption === undefined ? [] : [effectivePrimaryOption];
   }
 
   const paramsLookup = new Map<string, string>();
@@ -84,7 +86,11 @@ function buildConfigurations(params: analyzer.IRuleParam[], meta: CssRuleMeta): 
         secondaryOptions[ignoreDef.stylelintOptionKey] = value.split(',').map(v => v.trim());
       }
     }
-    return Object.keys(secondaryOptions).length > 0 ? [true, secondaryOptions] : [];
+    return Object.keys(secondaryOptions).length > 0
+      ? [effectivePrimaryOption, secondaryOptions]
+      : primaryOption === undefined
+        ? []
+        : [effectivePrimaryOption];
   }
 
   if (booleanParam) {
@@ -95,9 +101,9 @@ function buildConfigurations(params: analyzer.IRuleParam[], meta: CssRuleMeta): 
       for (const opt of booleanParam.onTrue) {
         secondaryOptions[opt.stylelintOptionKey] = opt.values;
       }
-      return [true, secondaryOptions];
+      return [effectivePrimaryOption, secondaryOptions];
     }
-    return [];
+    return primaryOption === undefined ? [] : [effectivePrimaryOption];
   }
 
   return [];
