@@ -34,10 +34,10 @@ import * as meta from './generated-meta.js';
 const SUPPORTED_TEST_FRAMEWORKS = ['jest', 'mocha', 'vitest', '@playwright/test'];
 const TEST_FUNCTION_NAMES = ['it', 'specify', 'test'];
 const SUITE_FUNCTION_NAMES = ['describe', 'context', 'suite'];
-const CONCRETE_MOCHA_MODIFIERS = ['only', 'concurrent'];
+const CONCRETE_MOCHA_MODIFIERS = new Set(['only', 'concurrent']);
 const PLAYWRIGHT_TEST_FQN = '@playwright.test.test';
-const PLAYWRIGHT_TEST_MODIFIERS = ['only'];
-const PLAYWRIGHT_DESCRIBE_MODIFIERS = ['parallel', 'serial'];
+const PLAYWRIGHT_TEST_MODIFIERS = new Set(['only']);
+const PLAYWRIGHT_DESCRIBE_MODIFIERS = new Set(['parallel', 'serial']);
 const MESSAGE = 'Rename this test title to make it unique within the suite.';
 const MESSAGE_ID = 'renameDuplicateTitle';
 
@@ -70,8 +70,14 @@ export const rule: Rule.RuleModule = {
           suiteStack.push(createSuiteFrame());
         }
 
-        if (ignoredSuiteNesting === 0 && testNesting === 0 && isTestDeclaration(context, node)) {
-          checkTestTitle(context, node, suiteStack.at(-1)!);
+        const currentSuiteFrame = suiteStack.at(-1);
+        if (
+          currentSuiteFrame !== undefined &&
+          ignoredSuiteNesting === 0 &&
+          testNesting === 0 &&
+          isTestDeclaration(context, node)
+        ) {
+          checkTestTitle(context, node, currentSuiteFrame);
         }
 
         if (isConcreteTestDeclaration(context, node)) {
@@ -174,7 +180,7 @@ function isMochaTestConstruct(
 
   return (
     !isLocallyDefined(context, calleeParts.base) &&
-    calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.includes(modifier))
+    calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.has(modifier))
   );
 }
 
@@ -189,9 +195,8 @@ function isIgnoredSuiteDeclaration(
 
   const qualifiers = getPlaywrightTestQualifiers(context, callee);
   return (
-    qualifiers !== undefined &&
-    qualifiers[0] === 'describe' &&
-    !qualifiers.slice(1).every(qualifier => PLAYWRIGHT_DESCRIBE_MODIFIERS.includes(qualifier))
+    qualifiers?.[0] === 'describe' &&
+    !qualifiers.slice(1).every(qualifier => PLAYWRIGHT_DESCRIBE_MODIFIERS.has(qualifier))
   );
 }
 
@@ -203,7 +208,7 @@ function isNonConcreteMochaSuite(context: Rule.RuleContext, node: estree.Node): 
 
   return (
     !isLocallyDefined(context, calleeParts.base) &&
-    !calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.includes(modifier))
+    !calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.has(modifier))
   );
 }
 
@@ -289,9 +294,8 @@ function isPlaywrightDescribe(context: Rule.RuleContext, callee: estree.Node): b
 
   const qualifiers = getPlaywrightTestQualifiers(context, callee);
   return (
-    qualifiers !== undefined &&
-    qualifiers[0] === 'describe' &&
-    qualifiers.slice(1).every(qualifier => PLAYWRIGHT_DESCRIBE_MODIFIERS.includes(qualifier))
+    qualifiers?.[0] === 'describe' &&
+    qualifiers.slice(1).every(qualifier => PLAYWRIGHT_DESCRIBE_MODIFIERS.has(qualifier))
   );
 }
 
@@ -301,7 +305,7 @@ function isPlaywrightTest(context: Rule.RuleContext, callee: estree.Node): boole
     return false;
   }
 
-  return qualifiers.every(qualifier => PLAYWRIGHT_TEST_MODIFIERS.includes(qualifier));
+  return qualifiers.every(qualifier => PLAYWRIGHT_TEST_MODIFIERS.has(qualifier));
 }
 
 function getPlaywrightTestQualifiers(
