@@ -33,9 +33,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -421,7 +423,12 @@ class WebSensorTest {
       }
     );
     executeSensorMockingResponse(
-      createSensor(checks("S3923", "S1451"), new AnalysisConsumers(), null),
+      createSensor(
+        checks("S3923", "S1451"),
+        new AnalysisConsumers(),
+        null,
+        new WebSensorModuleConfiguration()
+      ),
       expectedResponse
     );
     Collection<Issue> issues = context.allIssues();
@@ -559,6 +566,89 @@ class WebSensorTest {
         .getConfiguration()
         .getSkipNodeModuleLookupOutsideBaseDir()
     ).isTrue();
+  }
+
+  @Test
+  void should_send_collected_module_tsconfig_paths_to_bridge_configuration() throws IOException {
+    Files.writeString(baseDir.resolve("tsconfig.shared.json"), "{}");
+    Files.createDirectories(baseDir.resolve("moduleA"));
+    Files.createDirectories(baseDir.resolve("moduleB"));
+
+    var moduleConfiguration = new WebSensorModuleConfiguration();
+    var collector = new WebSensorModuleConfigurationSensor(moduleConfiguration);
+
+    var projectContext = createSensorContext(baseDir);
+    setSonarQubeRuntime(projectContext);
+    createInputFile(projectContext, "moduleA/src/main.ts", StandardCharsets.UTF_8, baseDir);
+    createInputFile(projectContext, "moduleB/src/main.ts", StandardCharsets.UTF_8, baseDir);
+
+    var moduleAContext = createSensorContext(baseDir.resolve("moduleA"));
+    moduleAContext.setSettings(
+      new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, "../tsconfig.shared.json")
+    );
+    collector.execute(moduleAContext);
+
+    var moduleBContext = createSensorContext(baseDir.resolve("moduleB"));
+    moduleBContext.setSettings(
+      new MapSettings().setProperty(JavaScriptPlugin.TSCONFIG_PATHS, "../tsconfig.shared.json")
+    );
+    collector.execute(moduleBContext);
+
+    var configuration = executeSensorAndCaptureHandler(
+      createSensor(moduleConfiguration),
+      projectContext
+    )
+      .getRequest()
+      .getConfiguration();
+    var expectedPath = projectContext
+      .fileSystem()
+      .baseDir()
+      .toPath()
+      .resolve("tsconfig.shared.json")
+      .toAbsolutePath()
+      .normalize()
+      .toString();
+    assertThat(configuration.getTsConfigPathsList()).containsExactly(expectedPath);
+  }
+
+  @Test
+  void should_preserve_wildcard_module_tsconfig_paths() throws IOException {
+    var moduleConfiguration = new WebSensorModuleConfiguration();
+    var collector = new WebSensorModuleConfigurationSensor(moduleConfiguration);
+
+    var projectContext = createSensorContext(baseDir);
+    setSonarQubeRuntime(projectContext);
+    projectContext.setSettings(
+      new MapSettings().setProperty(
+        JavaScriptPlugin.TSCONFIG_PATHS,
+        "tsconfig.json,**/custom.tsconfig.json"
+      )
+    );
+    createInputFile(projectContext, "file.ts", StandardCharsets.UTF_8, baseDir);
+
+    collector.execute(projectContext);
+
+    var configuration = executeSensorAndCaptureHandler(
+      createSensor(moduleConfiguration),
+      projectContext
+    )
+      .getRequest()
+      .getConfiguration();
+    var expectedGlobPath = new File(
+      new File(projectContext.fileSystem().baseDir(), "**/custom.tsconfig.json").toURI().normalize()
+    ).getPath();
+
+    assertThat(configuration.getTsConfigPathsList()).containsExactly(
+      projectContext
+        .fileSystem()
+        .baseDir()
+        .toPath()
+        .resolve("tsconfig.json")
+        .toAbsolutePath()
+        .normalize()
+        .toString(),
+      expectedGlobPath
+    );
   }
 
   @Test
@@ -1636,26 +1726,43 @@ class WebSensorTest {
     return createSensor(
       checks("S3923", "S2260", "S1451"),
       new AnalysisConsumers(List.of(consumer)),
-      null
+      null,
+      new WebSensorModuleConfiguration()
     );
   }
 
   private WebSensor createSensor() {
-    return createSensor(checks("S3923", "S2260", "S1451"), new AnalysisConsumers(), null);
+    return createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      new WebSensorModuleConfiguration()
+    );
+  }
+
+  private WebSensor createSensor(WebSensorModuleConfiguration moduleConfiguration) {
+    return createSensor(
+      checks("S3923", "S2260", "S1451"),
+      new AnalysisConsumers(),
+      null,
+      moduleConfiguration
+    );
   }
 
   private WebSensor createSonarLintSensor() {
     return createSensor(
       checks("S3923", "S2260", "S1451"),
       new AnalysisConsumers(),
-      new FSListenerImpl()
+      new FSListenerImpl(),
+      new WebSensorModuleConfiguration()
     );
   }
 
   private WebSensor createSensor(
     JsTsChecks checks,
     AnalysisConsumers consumers,
-    @Nullable FSListener fsListener
+    @Nullable FSListener fsListener,
+    WebSensorModuleConfiguration moduleConfiguration
   ) {
     return new WebSensor(
       checks,
@@ -1664,7 +1771,8 @@ class WebSensorTest {
       analysisWarnings,
       consumers,
       mock(CssRules.class),
-      fsListener
+      fsListener,
+      moduleConfiguration
     );
   }
 
@@ -2168,6 +2276,16 @@ class WebSensorTest {
 
   private void setSonarLintRuntime(SensorContextTester context) {
     context.setRuntime(SonarRuntimeImpl.forSonarLint(Version.create(8, 9)));
+  }
+
+  private void setSonarQubeRuntime(SensorContextTester context) {
+    context.setRuntime(
+      SonarRuntimeImpl.forSonarQube(
+        Version.create(9, 3),
+        SonarQubeSide.SCANNER,
+        SonarEdition.COMMUNITY
+      )
+    );
   }
 
   private boolean isWindows() {

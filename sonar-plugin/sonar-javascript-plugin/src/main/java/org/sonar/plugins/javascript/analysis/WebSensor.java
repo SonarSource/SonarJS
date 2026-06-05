@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependedUpon;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.css.CssLanguage;
 import org.sonar.css.CssRules;
 import org.sonar.plugins.javascript.CancellationException;
@@ -72,7 +72,7 @@ import org.sonar.plugins.javascript.nodejs.NodeCommandException;
 import org.sonar.plugins.javascript.sonarlint.FSListener;
 
 @DependedUpon("js-analysis")
-public class WebSensor implements Sensor {
+public class WebSensor implements ProjectSensor {
 
   private static final Logger LOG = LoggerFactory.getLogger(WebSensor.class);
   private static final String LANG = "JS/TS";
@@ -90,6 +90,7 @@ public class WebSensor implements Sensor {
   private final AnalysisWarningsWrapper analysisWarnings;
   private final CssRules cssRules;
   private final BridgeServer bridgeServer;
+  private final WebSensorModuleConfiguration moduleConfiguration;
   private ProjectConfiguration.Builder configurationBuilder;
   private JsTsContext<?> context;
   FSListener fsListener;
@@ -100,9 +101,19 @@ public class WebSensor implements Sensor {
     AnalysisProcessor analysisProcessor,
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
-    CssRules cssRules
+    CssRules cssRules,
+    WebSensorModuleConfiguration moduleConfiguration
   ) {
-    this(checks, bridgeServer, analysisProcessor, analysisWarnings, consumers, cssRules, null);
+    this(
+      checks,
+      bridgeServer,
+      analysisProcessor,
+      analysisWarnings,
+      consumers,
+      cssRules,
+      null,
+      moduleConfiguration
+    );
   }
 
   public WebSensor(
@@ -112,7 +123,8 @@ public class WebSensor implements Sensor {
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
     CssRules cssRules,
-    @Nullable FSListener fsListener
+    @Nullable FSListener fsListener,
+    WebSensorModuleConfiguration moduleConfiguration
   ) {
     this.checks = checks;
     this.consumers = consumers;
@@ -121,6 +133,7 @@ public class WebSensor implements Sensor {
     this.analysisWarnings = analysisWarnings;
     this.cssRules = cssRules;
     this.bridgeServer = bridgeServer;
+    this.moduleConfiguration = moduleConfiguration;
   }
 
   @Override
@@ -159,7 +172,7 @@ public class WebSensor implements Sensor {
       LOG.debug(msg);
       configurationBuilder = AnalyzeProjectMessages.newProjectConfigurationBuilder(
         sensorContext.fileSystem().baseDir().getAbsolutePath(),
-        context
+        contextWithCollectedTsConfigPaths(sensorContext)
       );
       bridgeServer.startServerLazily(BridgeServerConfig.fromSensorContext(sensorContext));
       analyzeFiles(inputFiles);
@@ -189,8 +202,22 @@ public class WebSensor implements Sensor {
       LOG.error("Failure during analysis", e);
       throw new IllegalStateException("Analysis of " + LANG + " files failed", e);
     } finally {
+      moduleConfiguration.clear();
       CacheStrategies.logReport();
     }
+  }
+
+  private JsTsContext<SensorContext> contextWithCollectedTsConfigPaths(
+    SensorContext sensorContext
+  ) {
+    var baseContext = new JsTsContext<>(sensorContext);
+    Set<String> collectedTsConfigPaths = moduleConfiguration.tsConfigPaths(baseContext);
+    return new JsTsContext<>(sensorContext) {
+      @Override
+      public Set<String> getTsConfigPaths() {
+        return collectedTsConfigPaths;
+      }
+    };
   }
 
   private List<InputFile> getInputFiles() {
@@ -232,7 +259,10 @@ public class WebSensor implements Sensor {
 
   private void analyzeFiles(List<InputFile> inputFiles) {
     var eslintImporter = new EslintReportImporter();
-    var externalIssues = eslintImporter.execute(context);
+    var externalIssues = eslintImporter.execute(
+      context,
+      moduleConfiguration.eslintReports(context.getSensorContext())
+    );
     try {
       var handler = new AnalyzeProjectHandler(context, inputFiles, externalIssues);
       bridgeServer.analyzeProject(handler);
