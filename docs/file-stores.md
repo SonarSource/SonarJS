@@ -190,34 +190,50 @@ Like `tsconfigs`, this store is intentionally independent from the current set o
 
 See [Generated Source Detection](./generated-sources.md) for the detector pipeline, linter integration, and cache behavior behind this store.
 
-It stores:
+It maintains two caches:
 
-- generated-file to family mappings
-- config paths used by generated-source detectors
-- watched output paths
-- a filtered view of those matches for the current request
+- a **detector cache** with generated-file to family mappings, config paths used by generated-source detectors, and watched output paths
+- a **match cache** with the subset of detector matches visible to the current analysis request
 
-It depends on a mix of the other stores:
+The most useful way to reason about this store is by the corresponding Sonar property families.
 
-- **project helper files** because detectors derive metadata from files such as `package.json`
-- **source-file selection** because only analyzable source files should be surfaced to the linter
-- **explicit request files** in request-driven analysis, where the visible generated-file subset may change from one request to the next
+- **Source-scope properties**: `sonar.sources`, `sonar.tests`, `sonar.inclusions`, `sonar.exclusions`, `sonar.test.inclusions`, and `sonar.test.exclusions`
+- **Filesystem-walk exclusions**: `sonar.javascript.exclusions` and `sonar.typescript.exclusions`
+
+Internally, the source-scope properties map to `sources`, `tests`, `inclusions`, `exclusions`, `testInclusions`, and `testExclusions`.
+They decide which discovered source files remain visible to analysis, so they affect the **match cache**.
+
+Internally, `sonar.javascript.exclusions` and `sonar.typescript.exclusions` are merged into `jsTsExclusions`.
+They are different from `sonar.exclusions`: they are applied during `findFiles()`, before helper files such as `package.json` are discovered.
+Because the detector cache derives metadata from those helper files, the current implementation conservatively invalidates the **detector cache** whenever `jsTsExclusions` changes.
+
+For example:
+
+- changing `sonar.exclusions` to ignore `src/generated/**` only changes the visible generated-file matches
+- changing `sonar.javascript.exclusions` or `sonar.typescript.exclusions` to ignore `**/package.json` changes detector inputs and invalidates the detector cache
+
+The store also depends on:
+
+- **explicit request files** in request-driven analysis, where the visible match-cache subset may change from one request to the next
+- **project helper files** because the detector cache derives metadata from files such as `package.json`
+- **JS/TS suffix settings** because detector output matching depends on the supported source extensions
 
 ### Refresh Model
 
-`generatedSourceStore` is refreshed when:
+`generatedSourceStore` recomputes the detector cache when:
 
 - the base directory changes
 - filesystem access mode changes
-- analyzable-file-selection configuration changes
-- project-file-discovery configuration changes
+- JS/TS suffix settings change
+- `sonar.javascript.exclusions` or `sonar.typescript.exclusions` changes
 - `fsEvents` mention a relevant helper file, generated-source config file, or watched output path
 
-It also has a lighter-weight request refresh:
+`generatedSourceStore` refreshes only the match cache when:
 
-- when the explicit request file set changes but the derived metadata is still valid, the store can refresh its filtered view without recomputing everything
+- `sonar.sources`, `sonar.tests`, `sonar.inclusions`, `sonar.exclusions`, `sonar.test.inclusions`, or `sonar.test.exclusions` changes
+- the explicit request file set changes but the detector cache is still valid
 
-This is why `generated-sources` is the hybrid store: it depends on both helper-file discovery and the currently visible source-file set.
+This is why `generated-sources` is the hybrid store: its detector cache depends on helper-file discovery, while its match cache also depends on the currently visible source-file set.
 
 ## `fsEvents`
 
