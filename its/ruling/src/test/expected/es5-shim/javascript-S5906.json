@@ -1,9 +1,14 @@
 {
 "es5-shim:tests/spec/s-array.js": [
+966,
+1050,
+1145,
+1229,
 1293,
 1304,
 1321,
 1332,
+1360,
 1367,
 1450,
 1456,
@@ -19,7 +24,12 @@
 ],
 "es5-shim:tests/spec/s-function.js": [
 150,
-151
+151,
+155,
+159,
+163,
+167,
+171
 ],
 "es5-shim:tests/spec/s-object.js": [
 58,
@@ -31,6 +41,7 @@
 "es5-shim:tests/spec/s-string.js": [
 9,
 14,
-24
+24,
+252
 ]
 }
