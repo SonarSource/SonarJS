@@ -137,6 +137,14 @@ describe('S5868', () => {
           ],
         },
         {
+          code: String.raw`var r = /[\u0587\u0591-\u05BD]/`,
+          errors: [{ message: combiningClass(String.raw`\u0587\u0591`) }],
+        },
+        {
+          code: String.raw`var r = /[\u00ad\u0600-\u0604\u070f\u17b4\u17b5]/`,
+          errors: [{ message: combiningClass(String.raw`\u070f\u17b4`) }],
+        },
+        {
           code: 'var r = /[Á]/',
           errors: [{ message: combiningClass('Á') }],
         },
