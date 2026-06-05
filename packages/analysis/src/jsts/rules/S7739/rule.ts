@@ -53,7 +53,7 @@ function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: Node): bo
       if (
         fqn &&
         EXCEPTION_LIBRARIES.some(
-          lib => fqn === lib || fqn.startsWith(lib + '.') || fqn.includes('.' + lib + '.'),
+          lib => fqn === lib || fqn.startsWith(`${lib}.`) || fqn.includes(`.${lib}.`),
         )
       ) {
         return true;
