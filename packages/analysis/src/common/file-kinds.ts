@@ -17,8 +17,8 @@
 import { extname } from 'node:path/posix';
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 
-const JAVASCRIPT_CODE_FILE_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx'] as const;
-const TYPESCRIPT_CODE_FILE_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'] as const;
+export const JAVASCRIPT_CODE_FILE_EXTENSIONS = ['.js', '.mjs', '.cjs', '.jsx'] as const;
+export const TYPESCRIPT_CODE_FILE_EXTENSIONS = ['.ts', '.mts', '.cts', '.tsx'] as const;
 const JS_TS_CODE_FILE_EXTENSIONS = [
   ...JAVASCRIPT_CODE_FILE_EXTENSIONS,
   ...TYPESCRIPT_CODE_FILE_EXTENSIONS,
