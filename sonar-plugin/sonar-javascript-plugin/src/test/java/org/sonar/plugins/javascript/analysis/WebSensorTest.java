@@ -543,6 +543,22 @@ class WebSensorTest {
   }
 
   @Test
+  void should_send_detectGeneratedCode_false_when_disabled() {
+    context.setSettings(
+      new MapSettings().setProperty(JavaScriptPlugin.DETECT_GENERATED_CODE_PROPERTY, "false")
+    );
+
+    var configuration = executeSensorAndCaptureHandler(createSensor(), context)
+      .getRequest()
+      .getConfiguration();
+    var field = configuration.getDescriptorForType().findFieldByName("detect_generated_code");
+
+    assertThat(field).isNotNull();
+    assertThat(configuration.hasField(field)).isTrue();
+    assertThat(configuration.getField(field)).isEqualTo(false);
+  }
+
+  @Test
   void should_send_skipNodeModuleLookupOutsideBaseDir_false_by_default() {
     assertThat(
       executeSensorAndCaptureHandler(createSensor(), context)

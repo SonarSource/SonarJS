@@ -314,6 +314,15 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
   }
 
   @Override
+  public boolean shouldDetectGeneratedCode() {
+    return shouldDetectGeneratedCode(context.config());
+  }
+
+  public static boolean shouldDetectGeneratedCode(Configuration config) {
+    return config.getBoolean(JavaScriptPlugin.DETECT_GENERATED_CODE_PROPERTY).orElse(true);
+  }
+
+  @Override
   public boolean canAccessFileSystem() {
     return canAccessFileSystem(context.config());
   }
