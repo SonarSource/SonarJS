@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S8754/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import {
   FUNCTION_NODES,
@@ -25,6 +25,7 @@ import {
   isStaticTemplateLiteral,
   isStringLiteral,
 } from '../helpers/ast.js';
+import { childrenOf } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
@@ -45,6 +46,11 @@ interface SuiteFrame {
   titles: Map<string, estree.Node>;
 }
 
+type FunctionNode =
+  | estree.FunctionDeclaration
+  | estree.FunctionExpression
+  | estree.ArrowFunctionExpression;
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
@@ -59,6 +65,7 @@ export const rule: Rule.RuleModule = {
     let suiteStack: SuiteFrame[] = [createSuiteFrame()];
     const pushedSuiteCalls = new Set<estree.Node>();
     const concreteSuiteCallbacks = new Set<estree.Node>();
+    const checkedHelpersBySuiteFrame = new WeakMap<SuiteFrame, WeakSet<estree.Node>>();
     let testNesting = 0;
     let ignoredSuiteNesting = 0;
     let functionNesting = 0;
@@ -82,10 +89,13 @@ export const rule: Rule.RuleModule = {
           currentSuiteFrame !== undefined &&
           ignoredSuiteNesting === 0 &&
           testNesting === 0 &&
-          isInConcreteCollectionCallback(functionNesting, concreteSuiteCallbackNesting) &&
-          isTestDeclaration(context, node)
+          isInConcreteCollectionCallback(functionNesting, concreteSuiteCallbackNesting)
         ) {
-          checkTestTitle(context, node, currentSuiteFrame);
+          if (isTestDeclaration(context, node)) {
+            checkTestTitle(context, node, currentSuiteFrame);
+          } else {
+            checkHelperDefinedTests(context, node, currentSuiteFrame, checkedHelpersBySuiteFrame);
+          }
         }
 
         if (isConcreteTestDeclaration(context, node)) {
@@ -160,6 +170,77 @@ function checkTestTitle(
   }
 
   suiteFrame.titles.set(title, titleNode);
+}
+
+function checkHelperDefinedTests(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+  suiteFrame: SuiteFrame,
+  checkedHelpersBySuiteFrame: WeakMap<SuiteFrame, WeakSet<estree.Node>>,
+) {
+  const helper = getLocalHelperFunction(context, node);
+  if (helper === undefined || isHelperChecked(helper, suiteFrame, checkedHelpersBySuiteFrame)) {
+    return;
+  }
+
+  markHelperChecked(helper, suiteFrame, checkedHelpersBySuiteFrame);
+  checkHelperNode(context, helper.body, suiteFrame, checkedHelpersBySuiteFrame);
+}
+
+function checkHelperNode(
+  context: Rule.RuleContext,
+  node: estree.Node,
+  suiteFrame: SuiteFrame,
+  checkedHelpersBySuiteFrame: WeakMap<SuiteFrame, WeakSet<estree.Node>>,
+) {
+  if (node.type === 'CallExpression') {
+    if (isIgnoredSuiteDeclaration(context, node)) {
+      return;
+    }
+
+    if (isSuiteDeclaration(context, node)) {
+      const nestedSuiteFrame = createSuiteFrame();
+      const callback = getCallback(node);
+      if (callback !== undefined) {
+        checkHelperNode(context, callback.body, nestedSuiteFrame, checkedHelpersBySuiteFrame);
+      }
+      return;
+    }
+
+    if (isTestDeclaration(context, node)) {
+      checkTestTitle(context, node, suiteFrame);
+      return;
+    }
+
+    checkHelperDefinedTests(context, node, suiteFrame, checkedHelpersBySuiteFrame);
+  }
+
+  for (const child of childrenOf(node, context.sourceCode.visitorKeys)) {
+    if (!FUNCTION_NODES.includes(child.type)) {
+      checkHelperNode(context, child, suiteFrame, checkedHelpersBySuiteFrame);
+    }
+  }
+}
+
+function isHelperChecked(
+  helper: estree.Node,
+  suiteFrame: SuiteFrame,
+  checkedHelpersBySuiteFrame: WeakMap<SuiteFrame, WeakSet<estree.Node>>,
+): boolean {
+  return checkedHelpersBySuiteFrame.get(suiteFrame)?.has(helper) ?? false;
+}
+
+function markHelperChecked(
+  helper: estree.Node,
+  suiteFrame: SuiteFrame,
+  checkedHelpersBySuiteFrame: WeakMap<SuiteFrame, WeakSet<estree.Node>>,
+) {
+  let checkedHelpers = checkedHelpersBySuiteFrame.get(suiteFrame);
+  if (checkedHelpers === undefined) {
+    checkedHelpers = new WeakSet();
+    checkedHelpersBySuiteFrame.set(suiteFrame, checkedHelpers);
+  }
+  checkedHelpers.add(helper);
 }
 
 function getStaticTitle(node: estree.Node): string | undefined {
@@ -259,8 +340,50 @@ function hasCallback(node: estree.CallExpression): boolean {
   return node.arguments.some(argument => FUNCTION_NODES.includes(argument.type));
 }
 
-function getCallback(node: estree.CallExpression): estree.Node | undefined {
-  return node.arguments.find(argument => FUNCTION_NODES.includes(argument.type));
+function getCallback(node: estree.CallExpression): FunctionNode | undefined {
+  return node.arguments.find(isFunctionNode);
+}
+
+function isFunctionNode(node: estree.Node): node is FunctionNode {
+  return FUNCTION_NODES.includes(node.type);
+}
+
+function getLocalHelperFunction(
+  context: Rule.RuleContext,
+  node: estree.CallExpression,
+): FunctionNode | undefined {
+  if (node.callee.type !== 'Identifier') {
+    return undefined;
+  }
+
+  const variable = getVariableFromScope(context.sourceCode.getScope(node.callee), node.callee.name);
+  const definition = variable?.defs.find(isLocalFunctionDefinition);
+  if (definition?.node.type === 'FunctionDeclaration') {
+    return definition.node;
+  }
+
+  if (
+    definition?.node.type === 'VariableDeclarator' &&
+    definition.node.init != null &&
+    isFunctionNode(definition.node.init)
+  ) {
+    return definition.node.init;
+  }
+
+  return undefined;
+}
+
+function isLocalFunctionDefinition(definition: Scope.Definition): boolean {
+  if (definition.type === 'FunctionName') {
+    return true;
+  }
+
+  return (
+    definition.type === 'Variable' &&
+    definition.node.type === 'VariableDeclarator' &&
+    definition.node.init != null &&
+    isFunctionNode(definition.node.init)
+  );
 }
 
 function isInConcreteCollectionCallback(

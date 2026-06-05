@@ -263,6 +263,20 @@ test.describe('checkout', () => {
         },
         {
           code: `
+import { describe, test } from 'vitest';
+describe('suite', () => {
+  makeTests();
+});
+function makeTests() {
+  test('dup', () => {});
+  test('dup', () => {});
+}
+          `,
+          filename: 'helper-defined-tests.test.ts',
+          errors: 1,
+        },
+        {
+          code: `
 const { test } = require('vitest');
 test('loads profile', () => {});
 test('loads profile', () => {});
