@@ -38,24 +38,32 @@ const EXCEPTION_LIBRARIES = ['yup', 'joi'];
 /**
  * Checks if a node is inside a call expression from one of the exception libraries.
  * Uses two detection strategies:
- * 1. FQN check on ancestor CallExpressions (handles direct calls like yup.object({then: ...}))
+ * 1. FQN check on ancestor CallExpressions — runs before the dependency gate so it also matches
+ *    libs imported via re-exporting packages (e.g. `const { yup } = require('strapi-utils')`
+ *    produces FQN `strapi-utils.yup.mixed.when`, caught by the interior-segment check).
  * 2. Conditional validation config pattern ({is, then}) when a validation library is a dependency
+ *    — fallback for cases where the FQN cannot be resolved.
  */
 function isInsideExceptionLibraryCall(context: Rule.RuleContext, node: Node): boolean {
-  const dependencies = getDependenciesSanitizePaths(context);
-  if (!EXCEPTION_LIBRARIES.some(lib => dependencies.has(lib))) {
-    return false;
-  }
-
   const ancestors = context.sourceCode.getAncestors(node);
 
   for (const ancestor of ancestors) {
     if (ancestor.type === 'CallExpression') {
       const fqn = getFullyQualifiedName(context, ancestor);
-      if (fqn && EXCEPTION_LIBRARIES.some(lib => fqn.startsWith(lib))) {
+      if (
+        fqn &&
+        EXCEPTION_LIBRARIES.some(
+          lib => fqn === lib || fqn.startsWith(lib + '.') || fqn.includes('.' + lib + '.'),
+        )
+      ) {
         return true;
       }
     }
+  }
+
+  const dependencies = getDependenciesSanitizePaths(context);
+  if (!EXCEPTION_LIBRARIES.some(lib => dependencies.has(lib))) {
+    return false;
   }
 
   return isConditionalValidationConfig(node);
