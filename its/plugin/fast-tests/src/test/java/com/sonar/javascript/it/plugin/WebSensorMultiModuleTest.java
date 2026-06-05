@@ -92,6 +92,56 @@ class WebSensorMultiModuleTest {
   }
 
   @Test
+  void should_collect_module_glob_paths_and_analyze_matching_tsconfigs() {
+    ScannerInput build = ScannerInput.create(PROJECT_KEY, PROJECT_DIR)
+      .withScmDisabled()
+      .withScannerProperty("sonar.modules", "moduleA,moduleB")
+      .withScannerProperty("sonar.exclusions", "**")
+      .withScannerProperty("moduleA.sonar.projectBaseDir", "moduleA")
+      .withScannerProperty("moduleA.sonar.sources", "src")
+      .withScannerProperty("moduleA.sonar.exclusions", "")
+      .withScannerProperty("moduleA.sonar.typescript.tsconfigPaths", "../tsconfig.module*.json")
+      .withScannerProperty("moduleA.sonar.eslint.reportPaths", "report.json")
+      .withScannerProperty("moduleB.sonar.projectBaseDir", "moduleB")
+      .withScannerProperty("moduleB.sonar.sources", "src")
+      .withScannerProperty("moduleB.sonar.exclusions", "")
+      .withScannerProperty("moduleB.sonar.typescript.tsconfigPaths", "../tsconfig.module*.json")
+      .withScannerProperty("moduleB.sonar.eslint.reportPaths", "report.json")
+      .build();
+
+    var result = ScannerRunner.run(SERVER_CONTEXT, build, ScannerRunnerConfig.builder().build());
+    assertThat(result.logOutput())
+      .extracting(Log::message)
+      .filteredOn(message -> message.startsWith("Found 2 tsconfig.json file(s)"))
+      .hasSize(1);
+    assertThat(result.logOutput())
+      .filteredOn(
+        log ->
+          log.level().equals(Log.Level.INFO) &&
+          log.message().startsWith("Analyzing 1 file(s) from tsconfig")
+      )
+      .hasSize(2);
+
+    var issues = result
+      .scannerOutputReader()
+      .getProject()
+      .getAllIssues()
+      .stream()
+      .filter(TextRangeIssue.class::isInstance)
+      .map(TextRangeIssue.class::cast)
+      .toList();
+
+    assertThat(issues)
+      .extracting(TextRangeIssue::componentPath, TextRangeIssue::ruleKey, TextRangeIssue::line)
+      .containsExactlyInAnyOrder(
+        tuple("moduleA/src/main.ts", "typescript:S3003", 4),
+        tuple("moduleA/src/main.ts", "external_eslint_repo:semi", 4),
+        tuple("moduleB/src/main.ts", "typescript:S3003", 4),
+        tuple("moduleB/src/main.ts", "external_eslint_repo:semi", 4)
+      );
+  }
+
+  @Test
   void should_merge_project_and_module_tsconfig_paths_and_eslint_reports() {
     ScannerInput build = ScannerInput.create(PROJECT_KEY, PROJECT_DIR)
       .withScmDisabled()
