@@ -263,6 +263,39 @@ test.describe('checkout', () => {
         },
         {
           code: `
+import { test } from '@playwright/test';
+test.describe.only('checkout', () => {
+  test('applies a discount code', () => {});
+  test('applies a discount code', () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe.parallel.only('checkout', () => {
+  test('applies a discount code', () => {});
+  test('applies a discount code', () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe.serial.only('checkout', () => {
+  test('applies a discount code', () => {});
+  test('applies a discount code', () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+          errors: 1,
+        },
+        {
+          code: `
 import { describe, test } from 'vitest';
 describe('suite', () => {
   makeTests();

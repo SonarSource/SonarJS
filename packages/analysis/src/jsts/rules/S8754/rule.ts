@@ -29,7 +29,6 @@ import { childrenOf } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
 import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
-import * as Playwright from '../helpers/playwright.js';
 import * as meta from './generated-meta.js';
 
 const SUPPORTED_TEST_FRAMEWORKS = ['jest', 'mocha', 'vitest', '@playwright/test'];
@@ -39,8 +38,12 @@ const CONCRETE_MOCHA_MODIFIERS = new Set(['only', 'concurrent']);
 const PLAYWRIGHT_TEST_FQN = '@playwright.test.test';
 const PLAYWRIGHT_TEST_MODIFIERS = new Set(['only']);
 const PLAYWRIGHT_DESCRIBE_MODIFIERS = new Set(['parallel', 'serial']);
+const PLAYWRIGHT_DESCRIBE_FOCUS_MODIFIER = 'only';
+const PLAYWRIGHT_DISABLED_DESCRIBE_MODIFIERS = new Set(['skip', 'fixme']);
 const MESSAGE = 'Rename this test title to make it unique within the suite.';
 const MESSAGE_ID = 'renameDuplicateTitle';
+
+type PlaywrightDescribeClassification = 'concrete' | 'ignored' | 'unknown';
 
 interface SuiteFrame {
   titles: Map<string, estree.Node>;
@@ -274,16 +277,11 @@ function isIgnoredSuiteDeclaration(
   context: Rule.RuleContext,
   node: estree.CallExpression,
 ): boolean {
-  const callee = node.callee;
-  if (isNonConcreteMochaSuite(context, callee)) {
+  if (isNonConcreteMochaSuite(context, node.callee)) {
     return true;
   }
 
-  const qualifiers = getPlaywrightTestQualifiers(context, callee);
-  return (
-    qualifiers?.[0] === 'describe' &&
-    !qualifiers.slice(1).every(qualifier => PLAYWRIGHT_DESCRIBE_MODIFIERS.has(qualifier))
-  );
+  return getPlaywrightDescribeClassification(context, node.callee) === 'ignored';
 }
 
 function isNonConcreteMochaSuite(context: Rule.RuleContext, node: estree.Node): boolean {
@@ -424,24 +422,7 @@ function isRequireCall(node: estree.Node): node is estree.CallExpression {
 }
 
 function isPlaywrightDescribe(context: Rule.RuleContext, callee: estree.Node): boolean {
-  if (callee.type === 'MemberExpression' && !callee.computed) {
-    if (Playwright.isDescribe(callee)) {
-      return true;
-    }
-
-    if (
-      isIdentifier(callee.property, 'only', 'skip', 'fixme') &&
-      Playwright.isDescribe(callee.object)
-    ) {
-      return true;
-    }
-  }
-
-  const qualifiers = getPlaywrightTestQualifiers(context, callee);
-  return (
-    qualifiers?.[0] === 'describe' &&
-    qualifiers.slice(1).every(qualifier => PLAYWRIGHT_DESCRIBE_MODIFIERS.has(qualifier))
-  );
+  return getPlaywrightDescribeClassification(context, callee) === 'concrete';
 }
 
 function isPlaywrightTest(context: Rule.RuleContext, callee: estree.Node): boolean {
@@ -464,4 +445,40 @@ function getPlaywrightTestQualifiers(
   }
 
   return getFullyQualifiedName(context, node) === PLAYWRIGHT_TEST_FQN ? qualifiers : undefined;
+}
+
+function getPlaywrightDescribeClassification(
+  context: Rule.RuleContext,
+  callee: estree.Node,
+): PlaywrightDescribeClassification {
+  const qualifiers =
+    getPlaywrightTestQualifiers(context, callee) ?? getPlaywrightDescribeQualifiers(callee);
+  if (qualifiers?.[0] !== 'describe') {
+    return 'unknown';
+  }
+
+  const modifiers = qualifiers.slice(1);
+  if (modifiers.some(modifier => PLAYWRIGHT_DISABLED_DESCRIBE_MODIFIERS.has(modifier))) {
+    return 'ignored';
+  }
+
+  const runnableModifiers =
+    modifiers.at(-1) === PLAYWRIGHT_DESCRIBE_FOCUS_MODIFIER
+      ? modifiers.slice(0, -1)
+      : modifiers;
+  return runnableModifiers.every(modifier => PLAYWRIGHT_DESCRIBE_MODIFIERS.has(modifier))
+    ? 'concrete'
+    : 'unknown';
+}
+
+function getPlaywrightDescribeQualifiers(
+  node: estree.Node,
+  qualifiers: string[] = [],
+): string[] | undefined {
+  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)) {
+    qualifiers.unshift(node.property.name);
+    return getPlaywrightDescribeQualifiers(node.object, qualifiers);
+  }
+
+  return isIdentifier(node, 'test') ? qualifiers : undefined;
 }
