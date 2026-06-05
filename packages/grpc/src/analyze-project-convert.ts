@@ -164,6 +164,26 @@ function toTelemetry(
     esmFileCount: telemetry.esmFileCount,
     cjsFileCount: telemetry.cjsFileCount,
     denoImportCounts: telemetry.denoImportCounts,
+    generatedSources: toGeneratedSourcesTelemetry(telemetry.generatedSources),
+  };
+}
+
+function toGeneratedSourcesTelemetry(
+  telemetry: ProjectAnalysisTelemetry['generatedSources'],
+): sonarjs.analyzeproject.v1.IGeneratedSourcesTelemetry {
+  return {
+    familyCount: telemetry.familyCount,
+    resolvedFileCount: telemetry.resolvedFileCount,
+    taggedFileCount: telemetry.taggedFileCount,
+    outOfScopeFileCount: telemetry.outOfScopeFileCount,
+    excludedFileCount: telemetry.excludedFileCount,
+    families: telemetry.families.map(family => ({
+      family: family.family,
+      resolvedFileCount: family.resolvedFileCount,
+      taggedFileCount: family.taggedFileCount,
+      outOfScopeFileCount: family.outOfScopeFileCount,
+      excludedFileCount: family.excludedFileCount,
+    })),
   };
 }
 

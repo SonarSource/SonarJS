@@ -302,6 +302,7 @@ class GeneratedSourceStore implements FileStore {
       this.derivedFamilyByFile,
       this.familyByFile,
       configuration,
+      analyzableFiles,
     );
     this.observabilityTelemetry = observability.telemetry;
     logGeneratedSourceObservability(this.baseDir, observability);
@@ -359,8 +360,10 @@ function buildGeneratedSourceObservability(
   resolvedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   configuration: Configuration,
+  analyzableFiles?: AnalyzableFiles,
 ): GeneratedSourceObservability {
   const filterPathParams = getFilterPathParams(configuration);
+  const requestedFilePaths = analyzableFiles ? new Set(Object.keys(analyzableFiles)) : undefined;
   const pathsByFamily = new Map<string, NormalizedAbsolutePath[]>();
 
   for (const [filePath, family] of sortPathEntries(resolvedFamilyByFile.entries())) {
@@ -407,6 +410,13 @@ function buildGeneratedSourceObservability(
       if (pathClassification.status === 'OUT_OF_SCOPE') {
         familySummary.outOfScopeFileCount += 1;
         familySummary.outOfScopePaths.push(filePath);
+      } else if (pathClassification.status === 'EXCLUDED') {
+        familySummary.excludedFileCount += 1;
+        familySummary.excludedPaths.push(filePath);
+      } else if (!requestedFilePaths?.has(filePath)) {
+        // Explicit request.files may omit otherwise in-scope generated outputs.
+        // Keep them in resolved counts without misclassifying them as excluded.
+        continue;
       } else {
         familySummary.excludedFileCount += 1;
         familySummary.excludedPaths.push(filePath);

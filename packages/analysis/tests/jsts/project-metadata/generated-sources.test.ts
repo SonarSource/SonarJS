@@ -2548,6 +2548,80 @@ plugins = [
     }
   });
 
+  it('does not count generated files omitted from request.files as excluded', async () => {
+    const baseDir = await createTempBaseDir();
+    const firstGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'one.ts');
+    const secondGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'two.ts');
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              graphql: 'graphql-codegen --config ./codegen.yml',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        joinPaths(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/one.ts:
+    plugins:
+      - typescript
+  ./src/generated/two.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(firstGeneratedFile, 'export const one = true;\n');
+      await writeFixtureFile(secondGeneratedFile, 'export const two = true;\n');
+
+      const configuration = createConfiguration({
+        baseDir,
+        sources: ['src'],
+      });
+      const { files: inputFiles } = await sanitizeRawInputFiles(
+        {
+          [firstGeneratedFile]: {
+            filePath: firstGeneratedFile,
+            fileType: 'MAIN',
+          },
+        },
+        configuration,
+      );
+
+      await initFileStores(configuration, inputFiles);
+
+      expect(generatedSourceStore.getFamily(firstGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(generatedSourceStore.getFamily(secondGeneratedFile)).toBeUndefined();
+      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+        familyCount: 1,
+        resolvedFileCount: 2,
+        taggedFileCount: 1,
+        outOfScopeFileCount: 0,
+        excludedFileCount: 0,
+        families: [
+          {
+            family: GRAPHQL_CODEGEN_FAMILY,
+            resolvedFileCount: 2,
+            taggedFileCount: 1,
+            outOfScopeFileCount: 0,
+            excludedFileCount: 0,
+          },
+        ],
+      });
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('ignores declaration-only default-excluded generated families in observability', async ({
     mock,
   }) => {
