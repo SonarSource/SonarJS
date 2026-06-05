@@ -17,10 +17,12 @@
 import type { GeneratedSourceDetector } from '../contracts.js';
 import { graphqlCodegenDetector } from './graphql-codegen.js';
 import { openApiGeneratorDetector } from './openapi-generator.js';
+import { protoLoaderGenTypesDetector } from './proto-loader-gen-types.js';
 
 export const GENERATED_SOURCE_DETECTORS: readonly GeneratedSourceDetector[] = [
   graphqlCodegenDetector,
   openApiGeneratorDetector,
+  protoLoaderGenTypesDetector,
 ];
 
 export function getGeneratedSourceWatchedFilenames(
