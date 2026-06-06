@@ -69,7 +69,6 @@ import org.sonar.plugins.javascript.external.EslintReportImporter;
 import org.sonar.plugins.javascript.external.ExternalIssue;
 import org.sonar.plugins.javascript.external.ExternalIssueRepository;
 import org.sonar.plugins.javascript.nodejs.NodeCommandException;
-import org.sonar.plugins.javascript.sonarlint.FSListener;
 
 @DependedUpon("js-analysis")
 public class WebSensor implements ProjectSensor {
@@ -93,7 +92,6 @@ public class WebSensor implements ProjectSensor {
   private final WebSensorModuleConfiguration moduleConfiguration;
   private ProjectConfiguration.Builder configurationBuilder;
   private JsTsContext<?> context;
-  FSListener fsListener;
 
   public WebSensor(
     JsTsChecks checks,
@@ -102,34 +100,11 @@ public class WebSensor implements ProjectSensor {
     AnalysisWarningsWrapper analysisWarnings,
     AnalysisConsumers consumers,
     CssRules cssRules,
-    WebSensorModuleConfiguration moduleConfiguration
-  ) {
-    this(
-      checks,
-      bridgeServer,
-      analysisProcessor,
-      analysisWarnings,
-      consumers,
-      cssRules,
-      null,
-      moduleConfiguration
-    );
-  }
-
-  public WebSensor(
-    JsTsChecks checks,
-    BridgeServer bridgeServer,
-    AnalysisProcessor analysisProcessor,
-    AnalysisWarningsWrapper analysisWarnings,
-    AnalysisConsumers consumers,
-    CssRules cssRules,
-    @Nullable FSListener fsListener,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
     this.checks = checks;
     this.consumers = consumers;
     this.analysisProcessor = analysisProcessor;
-    this.fsListener = fsListener;
     this.analysisWarnings = analysisWarnings;
     this.cssRules = cssRules;
     this.bridgeServer = bridgeServer;
@@ -326,6 +301,7 @@ public class WebSensor implements ProjectSensor {
         handle.completeExceptionally(failure);
         throw failure;
       }
+      var fsListener = moduleConfiguration.getFsListener();
       if (fsListener != null) {
         configurationBuilder.clearFsEvents().addAllFsEvents(fsListener.listFSEvents().keySet());
       }

@@ -23,9 +23,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.scanner.ScannerSide;
 import org.sonar.plugins.javascript.external.EslintReportImporter;
+import org.sonar.plugins.javascript.sonarlint.FSListener;
 import org.sonarsource.api.sonarlint.SonarLintSide;
 
 @ScannerSide
@@ -36,6 +38,21 @@ public class WebSensorModuleConfiguration {
   private final Map<String, EslintReportImporter.PreparedReport> collectedEslintReports =
     new LinkedHashMap<>();
   private final EslintReportImporter eslintReportImporter = new EslintReportImporter();
+  @Nullable
+  private final FSListener fsListener;
+
+  public WebSensorModuleConfiguration() {
+    this(null);
+  }
+
+  public WebSensorModuleConfiguration(@Nullable FSListener fsListener) {
+    this.fsListener = fsListener;
+  }
+
+  @Nullable
+  public FSListener getFsListener() {
+    return fsListener;
+  }
 
   public synchronized void clear() {
     collectedTsConfigPaths.clear();

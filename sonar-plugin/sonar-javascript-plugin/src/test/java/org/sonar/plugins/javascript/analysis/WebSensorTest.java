@@ -426,7 +426,6 @@ class WebSensorTest {
       createSensor(
         checks("S3923", "S1451"),
         new AnalysisConsumers(),
-        null,
         new WebSensorModuleConfiguration()
       ),
       expectedResponse
@@ -1726,7 +1725,6 @@ class WebSensorTest {
     return createSensor(
       checks("S3923", "S2260", "S1451"),
       new AnalysisConsumers(List.of(consumer)),
-      null,
       new WebSensorModuleConfiguration()
     );
   }
@@ -1735,7 +1733,6 @@ class WebSensorTest {
     return createSensor(
       checks("S3923", "S2260", "S1451"),
       new AnalysisConsumers(),
-      null,
       new WebSensorModuleConfiguration()
     );
   }
@@ -1744,7 +1741,6 @@ class WebSensorTest {
     return createSensor(
       checks("S3923", "S2260", "S1451"),
       new AnalysisConsumers(),
-      null,
       moduleConfiguration
     );
   }
@@ -1753,15 +1749,13 @@ class WebSensorTest {
     return createSensor(
       checks("S3923", "S2260", "S1451"),
       new AnalysisConsumers(),
-      new FSListenerImpl(),
-      new WebSensorModuleConfiguration()
+      new WebSensorModuleConfiguration(new FSListenerImpl())
     );
   }
 
   private WebSensor createSensor(
     JsTsChecks checks,
     AnalysisConsumers consumers,
-    @Nullable FSListener fsListener,
     WebSensorModuleConfiguration moduleConfiguration
   ) {
     return new WebSensor(
@@ -1771,7 +1765,6 @@ class WebSensorTest {
       analysisWarnings,
       consumers,
       mock(CssRules.class),
-      fsListener,
       moduleConfiguration
     );
   }
