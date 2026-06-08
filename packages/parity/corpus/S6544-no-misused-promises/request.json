@@ -1,0 +1,15 @@
+{
+  "rules": [
+    {
+      "key": "S6544",
+      "language": "JS_TS_LANGUAGE_TS",
+      "fileTypeTargets": ["FILE_TYPE_MAIN"],
+      "analysisModes": ["ANALYSIS_MODE_DEFAULT"],
+      "configurations": [
+        {
+          "checksVoidReturn": true
+        }
+      ]
+    }
+  ]
+}

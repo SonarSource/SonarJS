@@ -1,0 +1,9 @@
+import * as mysql from 'mysql';
+
+declare const host: string;
+declare const user: string;
+declare const password: string;
+declare const database: string;
+
+const conn = mysql.createConnection({ host, user, password, database });
+conn.query('SELECT * FROM users');

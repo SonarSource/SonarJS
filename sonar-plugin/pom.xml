@@ -14,11 +14,13 @@
   <name>SonarQube JavaScript</name>
 
   <properties>
+    <protobuf.version>4.34.1</protobuf.version>
     <node.init.phase>initialize</node.init.phase>
     <node.build.phase>generate-resources</node.build.phase>
     <node.resources.phase>process-resources</node.resources.phase>
     <protobuf.generation.phase>generate-sources</protobuf.generation.phase>
     <java.generation.phase>generate-resources</java.generation.phase>
+    <!-- Override to 'none' via -Dskip-nodejs to skip npm/node, protobuf, and Java generation steps -->
     <!-- sonar scanner properties -->
     <sonar.sources>src/main</sonar.sources>
     <sonar.tests>src/test</sonar.tests>
@@ -27,6 +29,15 @@
     <sonar.test.exclusions>tests/**/fixtures/**/*,tests/**/rules/comment-based/**/*</sonar.test.exclusions>
   </properties>
 
+  <build>
+    <extensions>
+      <extension>
+        <groupId>kr.motd.maven</groupId>
+        <artifactId>os-maven-plugin</artifactId>
+        <version>1.7.1</version>
+      </extension>
+    </extensions>
+  </build>
 
   <modules>
     <module>api</module>

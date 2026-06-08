@@ -1,0 +1,1 @@
+const nullByte = '\0';

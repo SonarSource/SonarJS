@@ -1,0 +1,1 @@
+const values = [...(true ? [] : 'abc')];

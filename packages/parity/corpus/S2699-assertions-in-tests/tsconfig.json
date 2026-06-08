@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2020",
+    "strict": true
+  },
+  "include": ["invalid.ts", "valid.ts"]
+}

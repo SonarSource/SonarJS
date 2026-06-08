@@ -1,0 +1,13 @@
+{
+  "configuration": {
+    "skipNodeModuleLookupOutsideBaseDir": true
+  },
+  "rules": [
+    {
+      "key": "S6551",
+      "language": "JS_TS_LANGUAGE_TS",
+      "fileTypeTargets": ["FILE_TYPE_MAIN"],
+      "analysisModes": ["ANALYSIS_MODE_DEFAULT"]
+    }
+  ]
+}

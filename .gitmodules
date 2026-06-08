@@ -2,3 +2,7 @@
 [submodule "its/sources/jsts/projects"]
 	path = its/sources/projects
 	url = https://github.com/SonarSource/jsts-test-sources.git
+[submodule "typescript-go"]
+	path = server-go/typescript-go
+	url = https://github.com/microsoft/typescript-go
+	ignore = all

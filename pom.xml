@@ -322,6 +322,7 @@
                 <!-- Folders -->
                 <exclude>its/**/*</exclude>
                 <exclude>tsgolint/**/*</exclude>
+                <exclude>server-go/typescript-go/**/*</exclude>
                 <!-- Generated -->
                 <exclude>**/bin/**/*</exclude>
                 <exclude>**/dist/**/*</exclude>
@@ -331,9 +332,11 @@
                 <exclude>**/fixtures/**/*</exclude>
                 <exclude>**/fixtures-*/**/*</exclude>
                 <exclude>**/*.fixture.*</exclude>
+                <exclude>packages/parity/corpus/**/*</exclude>
                 <!-- Resources -->
                 <exclude>**/src/test/resources/**/*</exclude>
                 <exclude>coverage/**/*</exclude>
+                <exclude>server-go/typescript-go/**/*</exclude>
               </excludes>
             </licenseSet>
           </licenseSets>

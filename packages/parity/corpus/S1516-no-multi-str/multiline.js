@@ -1,0 +1,3 @@
+const value =
+  'first \
+second';

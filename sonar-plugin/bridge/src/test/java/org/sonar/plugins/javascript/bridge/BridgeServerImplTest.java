@@ -219,6 +219,24 @@ class BridgeServerImplTest {
   }
 
   @Test
+  void should_suppress_node_disable_type_checking_log_when_requested() {
+    var consumer = new BridgeServerImpl.LogOutputConsumer(() -> true);
+
+    consumer.accept(AnalysisLogParity.TYPE_CHECKING_DISABLED_LOG);
+
+    assertThat(logTester.logs(INFO)).doesNotContain(AnalysisLogParity.TYPE_CHECKING_DISABLED_LOG);
+  }
+
+  @Test
+  void should_forward_node_disable_type_checking_log_when_not_suppressed() {
+    var consumer = new BridgeServerImpl.LogOutputConsumer(() -> false);
+
+    consumer.accept(AnalysisLogParity.TYPE_CHECKING_DISABLED_LOG);
+
+    assertThat(logTester.logs(INFO)).contains(AnalysisLogParity.TYPE_CHECKING_DISABLED_LOG);
+  }
+
+  @Test
   void should_get_answer_from_server() throws Exception {
     bridgeServer = createBridgeServer(START_SERVER_SCRIPT);
     bridgeServer.startServer(serverConfig);

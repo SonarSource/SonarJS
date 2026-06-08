@@ -77,6 +77,112 @@ public class JsTsChecks {
   private static final Logger LOG = LoggerFactory.getLogger(JsTsChecks.class);
 
   /**
+   * Sonar rule keys for hard type-service rules offloaded to jsts-go (Go-based linter).
+   * These rules are excluded from the Node.js bridge and run via the shared
+   * analyze-project gRPC contract against the Go sidecar.
+   *
+   * <p>AST-only Go ports may still exist locally for parity and validation work,
+   * but they are intentionally not routed here. `JS-1746 - migrate remaining
+   * type-service external and decorated rules` and `JS-1747 - migrate remaining
+   * type-service original SonarJS rules` are purely about the blocking hard
+   * type-service slice.</p>
+   */
+  static final Set<String> JSTS_GO_RULES = Set.of(
+    "S131", // switch-exhaustiveness-check with Sonar defaults/decorator on Go side
+    "S1128", // unused-import
+    "S1154", // useless-string-operation
+    "S1301", // no-small-switch
+    "S1488", // prefer-immediate-return
+    "S1529", // bitwise-operators
+    "S1874", // deprecation
+    "S2077", // sql-queries
+    "S2201", // no-ignored-return
+    "S2234", // arguments-order
+    "S2259", // null-dereference
+    "S2301", // no-selector-parameter
+    "S2639", // no-empty-character-class
+    "S2692", // index-of-compare-to-positive-number
+    "S2699", // assertions-in-tests
+    "S2817", // web-sql-database
+    "S2819", // post-message
+    "S4123", // await-thenable
+    "S4139", // no-for-in-iterable
+    "S4137", // consistent-type-assertions
+    "S2933", // prefer-readonly
+    "S2871", // no-alphabetical-sort
+    "S2999", // new-operator-misuse
+    "S3003", // strings-comparison
+    "S3402", // no-incorrect-string-concat
+    "S3403", // different-types-comparison
+    "S3525", // class-prototype
+    "S3533", // no-require-or-define
+    "S3579", // no-associative-arrays
+    "S3735", // void-use
+    "S3757", // operation-returning-nan
+    "S3758", // values-not-convertible-to-numbers
+    "S3760", // non-number-in-arithmetic-expression
+    "S3782", // argument-type
+    "S3785", // in-operator-type-error
+    "S3796", // array-callback-without-return
+    "S3800", // function-return-type
+    "S3801", // inconsistent-return
+    "S3981", // no-collection-size-mischeck
+    "S4043", // no-misleading-array-reverse
+    "S4157", // no-unnecessary-type-arguments
+    "S4324", // no-return-type-any
+    "S4325", // no-unnecessary-type-assertion
+    "S4328", // no-implicit-dependencies
+    "S4335", // no-useless-intersection
+    "S4619", // no-in-misuse
+    "S4623", // no-undefined-argument
+    "S4782", // no-redundant-optional
+    "S4822", // no-try-promise
+    "S5247", // disabled-auto-escaping
+    "S5725", // disabled-resource-integrity
+    "S5842", // empty-string-repetition
+    "S5843", // regex-complexity
+    "S5850", // anchor-precedence
+    "S5852", // slow-regex
+    "S5856", // no-invalid-regexp
+    "S5860", // unused-named-groups
+    "S5867", // unicode-aware-regex
+    "S5868", // unicode-grapheme-in-class
+    "S5869", // duplicate-characters-in-class
+    "S6019", // no-empty-after-reluctant
+    "S6035", // single-character-alternation
+    "S6299", // no-vue-bypass-sanitization
+    "S6323", // no-empty-alternatives
+    "S6324", // no-control-regex
+    "S6326", // no-regex-spaces
+    "S6328", // existing-groups
+    "S6331", // no-empty-group
+    "S6353", // concise-regex
+    "S6397", // single-char-in-character-classes
+    "S6439", // jsx-no-leaked-render
+    "S6565", // prefer-return-this-type
+    "S6583", // no-mixed-enums
+    "S6594", // prefer-regexp-exec
+    "S6959", // reduce-initial-value
+    "S7059", // no-async-constructor
+    "S6551", // no-base-to-string
+    "S7727", // no-array-callback-reference
+    "S7728", // no-array-for-each
+    "S7729", // no-array-method-this-argument
+    "S7755", // prefer-at
+    "S7778", // prefer-single-call
+    "S7785", // prefer-top-level-await
+    "S6557", // prefer-string-starts-ends-with
+    "S6571", // no-redundant-type-constituents
+    "S6544", // no-misused-promises (+ no-async-promise-executor companion on Go side)
+    "S6582", // prefer-optional-chain
+    "S6606", // prefer-nullish-coalescing
+    "S6671", // prefer-promise-reject-errors
+    "S6759", // prefer-read-only-props
+    "S8479", // dompurify-unsafe-config
+    "S2870" // no-array-delete
+  );
+
+  /**
    * SonarQube-provided component that knows which rules are active in the quality profile.
    * When we call {@code checkFactory.create(repoKey).addAnnotatedChecks(classes)}, it only
    * instantiates checks whose rules are active in the current quality profile.
@@ -358,6 +464,23 @@ public class JsTsChecks {
 
     // Combine both sources - all will be sent to the bridge for execution
     return Stream.concat(eslintRules, eslintHooks).toList();
+  }
+
+  /**
+   * Returns ESLint rules for the bridge, excluding rules offloaded to jsts-go.
+   */
+  List<EslintRule> enabledBridgeEslintRules() {
+    return EslintRule.findAllBut(enabledEslintRules(), JSTS_GO_RULES);
+  }
+
+  /**
+   * Returns the active rules that are offloaded to the jsts-go sidecar.
+   */
+  List<EslintRule> enabledJstsGoRules() {
+    return enabledEslintRules()
+      .stream()
+      .filter(rule -> JSTS_GO_RULES.contains(rule.getKey()))
+      .toList();
   }
 
   static class LanguageAndRepository {

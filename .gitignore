@@ -13,6 +13,13 @@ packages/grpc/src/proto/*.js
 packages/grpc/src/proto/*.d.ts
 packages/analysis/src/jsts/parsers/estree.js
 packages/analysis/src/jsts/parsers/estree.d.ts
+# Generated Go source
+server-go/shim/**/shim.go
+server-go/sonar-server/internal/rules/*/options.go
+server-go/sonar-server/grpc/*.pb.go
+server-go/sonar-server/generated_environment_globals.go
+server-go/sonar-server/generated_rule_metadata.go
+server-go/sonar-server/go.work.sum
 
 # Auto-generated RSPEC rule data (by npm run sync-rspec-all)
 # Keep generated RSPEC JSON tracked; ignore rendered HTML and sync marker.

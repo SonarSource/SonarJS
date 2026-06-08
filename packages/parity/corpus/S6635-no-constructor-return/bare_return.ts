@@ -1,0 +1,5 @@
+class ValidExample {
+  constructor() {
+    return;
+  }
+}

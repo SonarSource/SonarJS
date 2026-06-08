@@ -39,6 +39,7 @@ import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
 import org.sonar.plugins.javascript.bridge.EmbeddedNode;
 import org.sonar.plugins.javascript.bridge.Environment;
+import org.sonar.plugins.javascript.bridge.JstsGoBundle;
 import org.sonar.plugins.javascript.bridge.NodeDeprecationWarning;
 import org.sonar.plugins.javascript.bridge.RulesBundles;
 import org.sonar.plugins.javascript.external.TslintReportSensor;
@@ -173,7 +174,8 @@ public class JavaScriptPlugin implements Plugin {
       AnalysisWarningsWrapper.class,
       AnalysisProcessor.class,
       EmbeddedNode.class,
-      Environment.class
+      Environment.class,
+      JstsGoBundle.class
     );
 
     context.addExtensions(

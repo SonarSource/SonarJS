@@ -1,0 +1,10 @@
+{
+  "rules": [
+    {
+      "key": "S2871",
+      "language": "JS_TS_LANGUAGE_TS",
+      "fileTypeTargets": ["FILE_TYPE_MAIN"],
+      "analysisModes": ["ANALYSIS_MODE_DEFAULT"]
+    }
+  ]
+}

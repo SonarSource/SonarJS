@@ -44,6 +44,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import org.slf4j.Logger;
@@ -110,6 +111,7 @@ public class BridgeServerImpl implements BridgeServer {
   private ManagedChannel channel;
   private StreamObserver<LeaseRequest> leaseObserver;
   private volatile boolean leaseTerminated;
+  private volatile boolean suppressNodeTypeCheckingDisabledLog;
   /**
    * Lease ownership only applies to the analyzer runtime that this JVM starts via {@code server.mjs}.
    * Externally managed runtimes (for example debug sessions attached through
@@ -215,7 +217,11 @@ public class BridgeServerImpl implements BridgeServer {
     nodeCommand = initNodeCommand(
       serverConfig,
       scriptFile,
-      new StartupLogOutputConsumer(new LogOutputConsumer(), startupPort, startupPortReady)
+      new StartupLogOutputConsumer(
+        new LogOutputConsumer(() -> suppressNodeTypeCheckingDisabledLog),
+        startupPort,
+        startupPortReady
+      )
     );
     nodeCommand.start();
     ownsNodeProcess = true;
@@ -441,42 +447,48 @@ public class BridgeServerImpl implements BridgeServer {
 
   @Override
   public void analyzeProject(ProjectAnalysisHandler handler) {
-    var grpcRequest = enrichAnalyzeProjectRequest(handler.getRequest());
-    var analyzeContext = Context.current().withCancellation();
-    var finished = new AtomicBoolean(false);
-    var cancellationWatcher = startStreamCancellationWatcher(handler, analyzeContext, finished);
-    Iterator<AnalyzeProjectStreamResponse> responses;
-    var previousContext = analyzeContext.attach();
     try {
-      responses = blockingAnalyzeProjectStub().analyzeProject(grpcRequest);
-    } catch (StatusRuntimeException e) {
-      finished.set(true);
-      cancellationWatcher.interrupt();
-      analyzeContext.cancel(null);
-      throw analyzeProjectException(e);
-    } finally {
-      analyzeContext.detach(previousContext);
-    }
+      suppressNodeTypeCheckingDisabledLog = handler.shouldSuppressNodeTypeCheckingDisabledLog();
+      var grpcRequest = enrichAnalyzeProjectRequest(handler.getRequest());
+      var analyzeContext = Context.current().withCancellation();
+      var finished = new AtomicBoolean(false);
+      var cancellationWatcher = startStreamCancellationWatcher(handler, analyzeContext, finished);
+      Iterator<AnalyzeProjectStreamResponse> responses;
+      var previousContext = analyzeContext.attach();
+      try {
+        responses = blockingAnalyzeProjectStub().analyzeProject(grpcRequest);
+      } catch (StatusRuntimeException e) {
+        finished.set(true);
+        cancellationWatcher.interrupt();
+        analyzeContext.cancel(null);
+        throw analyzeProjectException(e);
+      } finally {
+        analyzeContext.detach(previousContext);
+      }
 
-    try {
-      while (responses.hasNext()) {
-        handleStreamMessage(handler, responses.next(), analyzeContext);
-        if (handler.getContext().isCancelled()) {
-          analyzeContext.cancel(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
+      try {
+        while (responses.hasNext()) {
+          handleStreamMessage(handler, responses.next(), analyzeContext);
+          if (handler.getContext().isCancelled()) {
+            analyzeContext.cancel(new CancellationException(ANALYSIS_CANCELLED_MESSAGE));
+            throw cancelledStreamException();
+          }
+        }
+      } catch (StatusRuntimeException e) {
+        if (handler.getContext().isCancelled() && e.getStatus().getCode() == Code.CANCELLED) {
           throw cancelledStreamException();
         }
+        throw analyzeProjectException(e);
+      } finally {
+        finished.set(true);
+        cancellationWatcher.interrupt();
+        analyzeContext.cancel(null);
       }
-    } catch (StatusRuntimeException e) {
-      if (handler.getContext().isCancelled() && e.getStatus().getCode() == Code.CANCELLED) {
-        throw cancelledStreamException();
-      }
-      throw analyzeProjectException(e);
+
+      ensureProjectAnalysisCompleted(handler);
     } finally {
-      finished.set(true);
-      cancellationWatcher.interrupt();
-      analyzeContext.cancel(null);
+      suppressNodeTypeCheckingDisabledLog = false;
     }
-    ensureProjectAnalysisCompleted(handler);
   }
 
   /**
@@ -815,8 +827,20 @@ public class BridgeServerImpl implements BridgeServer {
 
   static class LogOutputConsumer implements Consumer<String> {
 
+    private final BooleanSupplier suppressNodeTypeCheckingDisabledLog;
+
+    LogOutputConsumer(BooleanSupplier suppressNodeTypeCheckingDisabledLog) {
+      this.suppressNodeTypeCheckingDisabledLog = suppressNodeTypeCheckingDisabledLog;
+    }
+
     @Override
     public void accept(String message) {
+      if (
+        suppressNodeTypeCheckingDisabledLog.getAsBoolean() &&
+        AnalysisLogParity.isTypeCheckingDisabledLog(message)
+      ) {
+        return;
+      }
       if (message.startsWith("DEBUG")) {
         if (LOG.isDebugEnabled()) {
           LOG.debug(message.substring(5).trim());

@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "module": "commonjs",
+    "lib": ["esnext"],
+    "types": []
+  },
+  "include": ["*.ts"]
+}

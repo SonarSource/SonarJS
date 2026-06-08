@@ -1,0 +1,3 @@
+function Factory() {}
+
+new Factory();
