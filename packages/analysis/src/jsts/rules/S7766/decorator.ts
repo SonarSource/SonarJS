@@ -40,6 +40,15 @@ type MinMaxConditionalExpression = estree.ConditionalExpression & {
 
 type TypedMinMaxEvidence = 'report' | 'suppress' | 'unknown';
 
+/**
+ * Decorates Unicorn's prefer-math-min-max rule with SonarJS false-positive escapes.
+ *
+ * The decorator only filters reports that already match the upstream min/max
+ * ternary pattern. Those reports are forwarded unless:
+ * 1. The type of the whole ternary proves the result is not a plain numeric value.
+ * 2. The typed path cannot decide and the compared values can be traced to
+ *    `this` or to direct object expressions such as `new Date(...)`.
+ */
 export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   return interceptReport(
     {
@@ -61,6 +70,13 @@ export function decorate(rule: Rule.RuleModule): Rule.RuleModule {
   );
 }
 
+/**
+ * Decides whether a ternary already matched as a min/max pattern should be suppressed.
+ *
+ * The decision order mirrors the implementation:
+ * 1. Use the type of the full conditional expression when available.
+ * 2. Use the object fallback only when typing is unavailable or inconclusive.
+ */
 function shouldSuppressReport(node: MinMaxConditionalExpression, sourceCode: SourceCode): boolean {
   const typedEvidence = getTypedMinMaxEvidence(node, sourceCode);
   if (typedEvidence !== 'unknown') {
@@ -70,6 +86,17 @@ function shouldSuppressReport(node: MinMaxConditionalExpression, sourceCode: Sou
   return hasDirectObjectSelectionEvidence(node, sourceCode);
 }
 
+/**
+ * Classifies the full ternary expression using TypeScript type information.
+ *
+ * This reads the type of `left < right ? left : right` as a whole, not the types
+ * of `left` and `right` separately. That matters for contextually typed callbacks:
+ *
+ * Pseudo-code:
+ *   const pick: (x: T, y: T) => T = (x, y) => x > y ? x : y
+ *
+ * The conditional expression is typed as `T`, so the report is suppressed.
+ */
 function getTypedMinMaxEvidence(
   node: MinMaxConditionalExpression,
   sourceCode: SourceCode,
@@ -81,6 +108,17 @@ function getTypedMinMaxEvidence(
   return classifyMinMaxType(getTypeFromTreeNode(node, sourceCode.parserServices));
 }
 
+/**
+ * Converts a TypeScript type into a reporting decision.
+ *
+ * Decision rules:
+ * 1. Union: return `unknown` if any branch is unknown, `suppress` if any branch
+ *    is suppressible, otherwise `report`.
+ * 2. `any` / `unknown`: return `unknown` so the syntax fallback can decide.
+ * 3. Type parameters and intersections: return `suppress`.
+ * 4. Plain numeric types: return `report`.
+ * 5. Every other type: return `suppress`.
+ */
 function classifyMinMaxType(type: ts.Type): TypedMinMaxEvidence {
   if (type.isUnion()) {
     let sawSuppressibleType = false;
@@ -110,6 +148,20 @@ function classifyMinMaxType(type: ts.Type): TypedMinMaxEvidence {
   return isNumberType(type) ? 'report' : 'suppress';
 }
 
+/**
+ * Matches the conditional expressions that the upstream rule treats as
+ * `Math.min(...)` or `Math.max(...)` candidates.
+ *
+ * Pseudo-code:
+ *   left < right ? left : right
+ *   left <= right ? left : right
+ *   left > right ? left : right
+ *   left >= right ? left : right
+ *   left < right ? right : left
+ *   left <= right ? right : left
+ *   left > right ? right : left
+ *   left >= right ? right : left
+ */
 function isMinMaxConditionalReport(
   descriptor: Rule.ReportDescriptor,
   sourceCode: SourceCode,
@@ -129,6 +181,16 @@ function isMinMaxConditionalReport(
   );
 }
 
+/**
+ * Checks whether either compared operand has direct-object evidence for the fallback.
+ *
+ * Pseudo-code:
+ *   left < right ? left : right
+ *   ^ inspect `left`
+ *           ^ inspect `right`
+ *
+ * This fallback runs only when the typed path returns `unknown`.
+ */
 function hasDirectObjectSelectionEvidence(
   node: MinMaxConditionalExpression,
   sourceCode: SourceCode,
@@ -140,6 +202,19 @@ function hasDirectObjectSelectionEvidence(
   );
 }
 
+/**
+ * Resolves an expression to determine whether it should count as direct object
+ * evidence for the fallback.
+ *
+ * Pseudo-code:
+ *   this
+ *   new Date(1)
+ *   a            where const a = new Date(1)
+ *   left         where every direct call passes a direct object to `left`
+ *
+ * `this` is accepted immediately. Identifiers are resolved recursively and the
+ * search stops when it cannot prove the origin of the value.
+ */
 function hasDirectObjectEvidence(
   node: estree.Node,
   sourceCode: SourceCode,
@@ -164,6 +239,14 @@ function hasDirectObjectEvidence(
   );
 }
 
+/**
+ * Follows the supported definition kinds for an identifier while looking for
+ * direct-object evidence.
+ *
+ * Parameters are resolved through their direct call sites, while variables are
+ * resolved through their initializer. All other definition kinds stop the search
+ * and return `false`.
+ */
 function hasDirectObjectDefinition(
   definition: Scope.Definition,
   sourceCode: SourceCode,
@@ -182,6 +265,14 @@ function hasDirectObjectDefinition(
   }
 }
 
+/**
+ * Accepts a parameter only when every direct call passes a direct object at the
+ * same argument position. No calls or mixed call shapes are treated as unproven.
+ *
+ * Pseudo-code:
+ *   function pick(left, right) { return left < right ? left : right; }
+ *   pick(new Date(1), new Date(2))
+ */
 function hasDirectObjectCallSites(definition: Scope.Definition, sourceCode: SourceCode): boolean {
   if (definition.name.type !== 'Identifier' || !isFunctionNode(definition.node)) {
     return false;
@@ -200,6 +291,16 @@ function hasDirectObjectCallSites(definition: Scope.Definition, sourceCode: Sour
   );
 }
 
+/**
+ * Collects the direct calls made through a function's own binding.
+ *
+ * Pseudo-code:
+ *   const fn = ...
+ *   fn(...)
+ *
+ * Any reference that is not used as the callee of a call makes the call set
+ * unreliable, so the function returns `null` and the fallback stops.
+ */
 function findDirectCallSites(
   functionNode: estree.Function,
   sourceCode: SourceCode,
@@ -222,6 +323,15 @@ function findDirectCallSites(
   return calls;
 }
 
+/**
+ * Resolves the variable that names a function when the function is declared,
+ * assigned to a variable, or assigned to an identifier.
+ *
+ * Pseudo-code:
+ *   function fn() {}
+ *   const fn = () => {}
+ *   fn = () => {}
+ */
 function getFunctionVariable(
   functionNode: estree.Function,
   sourceCode: SourceCode,
@@ -246,6 +356,12 @@ function getFunctionVariable(
   return undefined;
 }
 
+/**
+ * Checks whether an argument is a non-spread direct object expression.
+ *
+ * Spread arguments are rejected because they do not preserve the one-parameter
+ * to one-argument proof that the fallback relies on.
+ */
 function isDirectObjectArgument(
   argument: estree.Expression | estree.SpreadElement | undefined,
 ): boolean {
@@ -254,10 +370,27 @@ function isDirectObjectArgument(
   );
 }
 
+/**
+ * Matches the object expression shapes recognized by the fallback.
+ *
+ * Pseudo-code:
+ *   new Date(...)
+ *   { valueOf() { ... } }
+ *   { valueOf: () => ... }
+ *
+ * The helper is intentionally narrow: only these two shapes count as direct
+ * object evidence.
+ */
 function isDirectObjectExpression(node: estree.Node): boolean {
   return isDateConstruction(node) || isObjectLiteralWithValueOf(node);
 }
 
+/**
+ * Matches `new Date(...)`.
+ *
+ * Pseudo-code:
+ *   new Date(123)
+ */
 function isDateConstruction(node: estree.Node): node is estree.NewExpression {
   return (
     node.type === 'NewExpression' &&
@@ -266,6 +399,16 @@ function isDateConstruction(node: estree.Node): node is estree.NewExpression {
   );
 }
 
+/**
+ * Matches object literals that declare a `valueOf` property.
+ *
+ * Pseudo-code:
+ *   { valueOf() { ... } }
+ *   { valueOf: () => ... }
+ *   { 'valueOf': fn }
+ *
+ * The check only looks for the property name; it does not validate the value.
+ */
 function isObjectLiteralWithValueOf(node: estree.Node): node is estree.ObjectExpression {
   return (
     node.type === 'ObjectExpression' &&
