@@ -36,13 +36,15 @@ export { generatedSourceStore } from './generated-sources.js';
 export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
+  const fileStores = configuration.detectGeneratedCode
+    ? [sourceFileStore, dependencyManifestStore, generatedSourceStore, tsConfigStore]
+    : [sourceFileStore, dependencyManifestStore, tsConfigStore];
 
-  for (const store of [
-    sourceFileStore,
-    dependencyManifestStore,
-    generatedSourceStore,
-    tsConfigStore,
-  ]) {
+  if (!configuration.detectGeneratedCode) {
+    generatedSourceStore.clearCache();
+  }
+
+  for (const store of fileStores) {
     if (!(await store.isInitialized(configuration, inputFiles))) {
       pendingStores.push(store);
     }
