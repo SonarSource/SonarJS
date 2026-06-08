@@ -19,7 +19,12 @@
 import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
-import { getVariableFromScope, hasParent, isThisExpression } from '../helpers/ast.js';
+import {
+  getVariableFromScope,
+  hasParent,
+  isFunctionNode,
+  isThisExpression,
+} from '../helpers/ast.js';
 import { interceptReport } from '../helpers/decorators/interceptor.js';
 import { areEquivalent } from '../helpers/equivalence.js';
 import { generateMeta } from '../helpers/generate-meta.js';
@@ -271,13 +276,5 @@ function isObjectLiteralWithValueOf(node: estree.Node): node is estree.ObjectExp
         ((property.key.type === 'Identifier' && property.key.name === 'valueOf') ||
           (property.key.type === 'Literal' && property.key.value === 'valueOf')),
     )
-  );
-}
-
-function isFunctionNode(node: estree.Node): node is estree.Function {
-  return (
-    node.type === 'FunctionDeclaration' ||
-    node.type === 'FunctionExpression' ||
-    node.type === 'ArrowFunctionExpression'
   );
 }

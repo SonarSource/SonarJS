@@ -129,6 +129,65 @@ function lowerConstrainedValue<T extends { valueOf(): string }>(left: T, right: 
     });
   });
 
+  it('raw upstream still reports the live typed non-number cases', () => {
+    const ruleTester = new RuleTester();
+    ruleTester.run('Raw unicorn rule', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          code: `
+interface MomentLike {
+  valueOf(): number;
+  format(): string;
+}
+
+declare function getMoment(value: number): MomentLike;
+
+const first = getMoment(1);
+const second = getMoment(2);
+
+const earliest = first < second ? first : second;
+          `,
+          output: `
+interface MomentLike {
+  valueOf(): number;
+  format(): string;
+}
+
+declare function getMoment(value: number): MomentLike;
+
+const first = getMoment(1);
+const second = getMoment(2);
+
+const earliest = Math.min(first, second);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function maxReducer<T>(comparer?: (x: T, y: T) => number) {
+  const max: (x: T, y: T) => T =
+    typeof comparer === 'function'
+      ? (x, y) => comparer(x, y) > 0 ? x : y
+      : (x, y) => x > y ? x : y;
+  return max;
+}
+          `,
+          output: `
+function maxReducer<T>(comparer?: (x: T, y: T) => number) {
+  const max: (x: T, y: T) => T =
+    typeof comparer === 'function'
+      ? (x, y) => comparer(x, y) > 0 ? x : y
+      : (x, y) => Math.max(x, y);
+  return max;
+}
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+
   it('raw upstream still reports the remaining plain-JS object cases', () => {
     const ruleTester = new DefaultParserRuleTester();
     ruleTester.run('Raw unicorn rule', upstreamRule, {
@@ -409,6 +468,17 @@ const first = getMoment(1);
 const second = getMoment(2);
 
 const earliest = first < second ? first : second;
+          `,
+        },
+        {
+          code: `
+function maxReducer<T>(comparer?: (x: T, y: T) => number) {
+  const max: (x: T, y: T) => T =
+    typeof comparer === 'function'
+      ? (x, y) => comparer(x, y) > 0 ? x : y
+      : (x, y) => x > y ? x : y;
+  return max;
+}
           `,
         },
         {
