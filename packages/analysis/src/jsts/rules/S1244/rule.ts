@@ -143,7 +143,22 @@ function isFractionProducingDivision(node: estree.BinaryExpression) {
   if (leftValue === null || rightValue === null || rightValue === 0) {
     return false;
   }
-  return Number.isInteger(leftValue) && !Number.isInteger(leftValue / rightValue);
+  const result = leftValue / rightValue;
+  return (
+    Number.isInteger(leftValue) &&
+    !Number.isInteger(result) &&
+    !isExactlyRepresentableIntegerDivision(leftValue, rightValue)
+  );
+}
+
+function isExactlyRepresentableIntegerDivision(leftValue: number, rightValue: number) {
+  if (!Number.isSafeInteger(leftValue) || !Number.isSafeInteger(rightValue)) {
+    return false;
+  }
+  const numerator = BigInt(Math.abs(leftValue));
+  const denominator = BigInt(Math.abs(rightValue));
+  const reducedDenominator = denominator / greatestCommonDivisor(numerator, denominator);
+  return isPowerOfTwo(reducedDenominator);
 }
 
 function numericLiteralValue(node: estree.Node): number | null {

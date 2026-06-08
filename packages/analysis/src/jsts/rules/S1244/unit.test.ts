@@ -26,6 +26,9 @@ describe('S1244', () => {
       valid: [
         { code: `count === 3;` },
         { code: `count !== 10 / 2;` },
+        { code: `x === 3 / 2;` },
+        { code: `x === 5 / 4;` },
+        { code: `x === 7 / 8;` },
         { code: `codePoint === 0xFEFF;` },
         { code: `timestamp === 1e15;` },
         { code: `anchor === 0.5;` },
