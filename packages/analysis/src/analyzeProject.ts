@@ -88,6 +88,7 @@ export async function analyzeProject(
     globals,
     bundles,
     baseDir,
+    detectGeneratedCode: configuration.detectGeneratedCode,
     isGeneratedSourceFile: filePath => generatedSourceStore.getFamily(filePath) !== undefined,
     rulesWorkdir,
     testFileExtensions,
