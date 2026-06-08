@@ -14,11 +14,45 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { strict as assert } from 'node:assert';
 import { describe, it } from 'node:test';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import {
+  greatestCommonDivisor,
+  isExactlyRepresentableAsBinaryFraction,
+  isExactlyRepresentableIntegerDivision,
+  isPowerOfTwo,
+} from '../helpers/numbers.js';
 import { rule } from './rule.js';
 
 const ruleTester = new NoTypeCheckingRuleTester();
+
+describe('number helpers', () => {
+  it('checks powers of two', () => {
+    assert.equal(isPowerOfTwo(0n), false);
+    assert.equal(isPowerOfTwo(1n), true);
+    assert.equal(isPowerOfTwo(8n), true);
+    assert.equal(isPowerOfTwo(10n), false);
+  });
+
+  it('computes the greatest common divisor', () => {
+    assert.equal(greatestCommonDivisor(54n, 24n), 6n);
+  });
+
+  it('checks decimal literal binary representation', () => {
+    assert.equal(isExactlyRepresentableAsBinaryFraction('0.5'), true);
+    assert.equal(isExactlyRepresentableAsBinaryFraction('1e15'), true);
+    assert.equal(isExactlyRepresentableAsBinaryFraction('0.3'), false);
+    assert.equal(isExactlyRepresentableAsBinaryFraction('not-a-number'), false);
+  });
+
+  it('checks integer division binary representation', () => {
+    assert.equal(isExactlyRepresentableIntegerDivision(3, 2), true);
+    assert.equal(isExactlyRepresentableIntegerDivision(10, 3), false);
+    assert.equal(isExactlyRepresentableIntegerDivision(1, 0), false);
+    assert.equal(isExactlyRepresentableIntegerDivision(1.5, 2), false);
+  });
+});
 
 describe('S1244', () => {
   it('S1244', () => {

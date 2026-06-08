@@ -22,13 +22,16 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import { isIdentifier, isNumberLiteral, getVariableFromName } from '../helpers/ast.js';
 import { areEquivalent } from '../helpers/equivalence.js';
 import { extractTestAssertion } from '../helpers/assertions.js';
+import {
+  isExactlyRepresentableAsBinaryFraction,
+  isExactlyRepresentableIntegerDivision,
+} from '../helpers/numbers.js';
 import * as meta from './generated-meta.js';
 
 const equalityOperators = new Set(['===', '!==', '==', '!=']);
 const arithmeticOperators = new Set(['+', '-', '*', '%', '**']);
 const indirectEqualityOperators = new Set(['<=', '>=']);
 const indirectInequalityOperators = new Set(['<', '>']);
-const decimalLiteralPattern = /^(\d*)(?:\.(\d*))?(?:e([+-]?\d+))?$/u;
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
@@ -101,42 +104,6 @@ function isFloatingPointLiteral(node: estree.Literal & { value: number }) {
   return !isExactlyRepresentableAsBinaryFraction(raw);
 }
 
-function isExactlyRepresentableAsBinaryFraction(raw: string) {
-  const match = decimalLiteralPattern.exec(raw);
-  if (!match) {
-    return false;
-  }
-
-  const [, integerPart, fractionalPart = '', exponentPart] = match;
-  const digits = `${integerPart}${fractionalPart}`;
-  if (digits === '') {
-    return false;
-  }
-
-  const exponent = Number(exponentPart ?? 0) - fractionalPart.length;
-  const numerator = BigInt(digits);
-  if (numerator === 0n || exponent >= 0) {
-    return true;
-  }
-
-  const denominator = 10n ** BigInt(-exponent);
-  const reducedDenominator = denominator / greatestCommonDivisor(numerator, denominator);
-  return isPowerOfTwo(reducedDenominator);
-}
-
-function greatestCommonDivisor(left: bigint, right: bigint): bigint {
-  let a = left;
-  let b = right;
-  while (b !== 0n) {
-    [a, b] = [b, a % b];
-  }
-  return a;
-}
-
-function isPowerOfTwo(value: bigint) {
-  return value > 0n && (value & (value - 1n)) === 0n;
-}
-
 function isFractionProducingDivision(node: estree.BinaryExpression) {
   const leftValue = numericLiteralValue(node.left);
   const rightValue = numericLiteralValue(node.right);
@@ -149,16 +116,6 @@ function isFractionProducingDivision(node: estree.BinaryExpression) {
     !Number.isInteger(result) &&
     !isExactlyRepresentableIntegerDivision(leftValue, rightValue)
   );
-}
-
-function isExactlyRepresentableIntegerDivision(leftValue: number, rightValue: number) {
-  if (!Number.isSafeInteger(leftValue) || !Number.isSafeInteger(rightValue)) {
-    return false;
-  }
-  const numerator = BigInt(Math.abs(leftValue));
-  const denominator = BigInt(Math.abs(rightValue));
-  const reducedDenominator = denominator / greatestCommonDivisor(numerator, denominator);
-  return isPowerOfTwo(reducedDenominator);
 }
 
 function numericLiteralValue(node: estree.Node): number | null {
