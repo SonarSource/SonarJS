@@ -200,6 +200,9 @@
 "vuetify:packages/vuetify/src/util/dateTimeUtils.ts": [
 23
 ],
+"vuetify:packages/vuetify/src/util/defineComponent.tsx": [
+43
+],
 "vuetify:packages/vuetify/src/util/helpers.ts": [
 87
 ]
