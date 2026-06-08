@@ -1,5 +1,95 @@
 {
+"ant-design:components/button/button-group.tsx": [
+8
+],
+"ant-design:components/button/button.tsx": [
+105
+],
+"ant-design:components/cascader/index.tsx": [
+104
+],
+"ant-design:components/collapse/Collapse.tsx": [
+32
+],
+"ant-design:components/config-provider/DisabledContext.tsx": [
+8
+],
+"ant-design:components/config-provider/SizeContext.tsx": [
+8
+],
+"ant-design:components/config-provider/context.tsx": [
+41,
+43
+],
+"ant-design:components/config-provider/index.tsx": [
+83,
+85,
+87
+],
+"ant-design:components/date-picker/generatePicker/index.tsx": [
+82
+],
 "ant-design:components/drawer/index.tsx": [
 66
+],
+"ant-design:components/dropdown/dropdown-button.tsx": [
+20
+],
+"ant-design:components/form/Form.tsx": [
+31
+],
+"ant-design:components/grid/row.tsx": [
+16
+],
+"ant-design:components/input-number/index.tsx": [
+25
+],
+"ant-design:components/input/ClearableLabeledInput.tsx": [
+31,
+40
+],
+"ant-design:components/input/Input.tsx": [
+117
+],
+"ant-design:components/input/TextArea.tsx": [
+51
+],
+"ant-design:components/menu/MenuContext.tsx": [
+10
+],
+"ant-design:components/modal/Modal.tsx": [
+124
+],
+"ant-design:components/progress/Line.tsx": [
+9
+],
+"ant-design:components/radio/interface.tsx": [
+14,
+15
+],
+"ant-design:components/segmented/index.tsx": [
+41
+],
+"ant-design:components/select/index.tsx": [
+40
+],
+"ant-design:components/space/index.tsx": [
+22
+],
+"ant-design:components/table/Table.tsx": [
+88
+],
+"ant-design:components/tabs/index.tsx": [
+22
+],
+"ant-design:components/transfer/operation.tsx": [
+17
+],
+"ant-design:components/tree-select/index.tsx": [
+50,
+54
+],
+"ant-design:components/typography/Editable.tsx": [
+19
 ]
 }
