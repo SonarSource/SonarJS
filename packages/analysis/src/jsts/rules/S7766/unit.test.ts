@@ -303,6 +303,17 @@ lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
         },
         {
           code: `
+let lowerDomainValue;
+
+lowerDomainValue = function (left, right) {
+  return left < right ? left : right;
+};
+
+lowerDomainValue(new Date(1), new Date(2));
+          `,
+        },
+        {
+          code: `
 const first = new Date(1);
 const second = new Date(2);
 
@@ -316,6 +327,13 @@ function lowerDomainValue(left, right) {
 }
 
 lowerDomainValue({ 'valueOf': () => 1 }, { 'valueOf': () => 2 });
+          `,
+        },
+        {
+          code: `
+const lowerDomainValue = (left, right) => left < right ? left : right;
+
+lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
           `,
         },
       ],
@@ -350,18 +368,6 @@ clamp(10, 5);
         },
         {
           code: `
-let lowerDomainValue;
-
-lowerDomainValue = function (left, right) {
-  return left < right ? left : right;
-};
-
-lowerDomainValue(new Date(1), new Date(2));
-          `,
-          errors: 1,
-        },
-        {
-          code: `
 const lowerDomainValue = (left, right) => left < right ? left : right;
 const alias = lowerDomainValue;
 
@@ -371,9 +377,15 @@ lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
         },
         {
           code: `
-const lowerDomainValue = (left, right) => left < right ? left : right;
+const keepLatestDate = (left, right) => right;
+let lowerDomainValue;
 
-lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
+lowerDomainValue = function (left, right) {
+  return left < right ? left : right;
+};
+
+lowerDomainValue = keepLatestDate;
+lowerDomainValue(new Date(1), new Date(2));
           `,
           errors: 1,
         },
@@ -638,6 +650,17 @@ earliestDate(new Date(1), new Date(2));
         },
         {
           code: `
+let lowerDomainValue;
+
+lowerDomainValue = function (left, right) {
+  return left < right ? left : right;
+};
+
+lowerDomainValue(new Date(1), new Date(2));
+          `,
+        },
+        {
+          code: `
 function lowerDomainValue(left, right) {
   return left < right ? left : right;
 }
@@ -648,6 +671,13 @@ function higherDomainValue(left, right) {
 
 lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
 higherDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
+          `,
+        },
+        {
+          code: `
+const lowerDomainValue = (left, right) => left < right ? left : right;
+
+lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
           `,
         },
       ],
@@ -699,6 +729,21 @@ function clamp(value, upper) {
 }
 
 clamp(10, 5);
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+const lowerDomainValue = (left, right) => left < right ? left : right;
+const alias = lowerDomainValue;
+
+lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
+          `,
+          output: `
+const lowerDomainValue = (left, right) => Math.min(left, right);
+const alias = lowerDomainValue;
+
+lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
           `,
           errors: 1,
         },

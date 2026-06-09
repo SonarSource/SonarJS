@@ -298,8 +298,9 @@ function hasDirectObjectCallSites(definition: Scope.Definition, sourceCode: Sour
  *   const fn = ...
  *   fn(...)
  *
- * Any reference that is not used as the callee of a call makes the call set
- * unreliable, so the function returns `null` and the fallback stops.
+ * The function's own binding write is ignored for variable-bound functions.
+ * Any other reference that is not used as the callee of a call makes the call
+ * set unreliable, so the function returns `null` and the fallback stops.
  */
 function findDirectCallSites(
   functionNode: estree.Function,
@@ -310,8 +311,17 @@ function findDirectCallSites(
     return null;
   }
 
+  const bindingIdentifier = getFunctionBindingIdentifier(functionNode);
   const calls: estree.CallExpression[] = [];
   for (const reference of variable.references) {
+    if (
+      bindingIdentifier != null &&
+      reference.isWrite() &&
+      reference.identifier === bindingIdentifier
+    ) {
+      continue;
+    }
+
     const parent = hasParent(reference.identifier) ? reference.identifier.parent : null;
     if (parent?.type === 'CallExpression' && parent.callee === reference.identifier) {
       calls.push(parent);
@@ -321,6 +331,27 @@ function findDirectCallSites(
   }
 
   return calls;
+}
+
+function getFunctionBindingIdentifier(functionNode: estree.Function): estree.Identifier | null {
+  if (functionNode.type === 'FunctionDeclaration' && functionNode.id) {
+    return functionNode.id;
+  }
+
+  if (!hasParent(functionNode)) {
+    return null;
+  }
+
+  const parent = functionNode.parent;
+  if (parent?.type === 'VariableDeclarator' && parent.id.type === 'Identifier') {
+    return parent.id;
+  }
+
+  if (parent?.type === 'AssignmentExpression' && parent.left.type === 'Identifier') {
+    return parent.left;
+  }
+
+  return null;
 }
 
 /**
