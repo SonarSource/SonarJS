@@ -13,8 +13,7 @@
     "constantCost": "20min"
   },
   "tags": [
-    "cwe",
-    "type-dependent"
+    "cwe"
   ],
   "extra": {
     "replacementRules": [],
