@@ -259,6 +259,13 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
   });
 
+  it('should map S8761 to shorthand-property-no-redundant-values', () => {
+    expect(buildCssRuleConfigurations('S8761', [])).toEqual({
+      key: 'shorthand-property-no-redundant-values',
+      configurations: [],
+    });
+  });
+
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'

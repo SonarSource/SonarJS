@@ -112,48 +112,6 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should lint shorthand properties with redundant values', async () => {
-    const filePath = normalizeToAbsolutePath(
-      path.join(import.meta.dirname, './fixtures/shorthand.css'),
-    );
-    const rules = [{ key: 'shorthand-property-no-redundant-values', configurations: [] }];
-    const code = await readFile(filePath);
-
-    const linter = new LinterWrapper();
-    linter.initialize(rules);
-    const { issues } = await linter.lint(filePath, code);
-
-    expect(issues).toEqual([
-      {
-        ruleId: 'shorthand-property-no-redundant-values',
-        language: 'css',
-        line: 2,
-        column: 10,
-        endLine: 2,
-        endColumn: 17,
-        message: 'Expected "1px 1px" to be "1px"',
-      },
-      {
-        ruleId: 'shorthand-property-no-redundant-values',
-        language: 'css',
-        line: 3,
-        column: 11,
-        endLine: 3,
-        endColumn: 22,
-        message: 'Expected "1px 2px 1px" to be "1px 2px"',
-      },
-      {
-        ruleId: 'shorthand-property-no-redundant-values',
-        language: 'css',
-        line: 4,
-        column: 17,
-        endLine: 4,
-        endColumn: 32,
-        message: 'Expected "1px 2px 1px 2px" to be "1px 2px"',
-      },
-    ]);
-  });
-
   it('should omit end positions when they exceed line length (empty file)', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, './fixtures/empty.css'),

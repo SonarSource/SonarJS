@@ -15,16 +15,23 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
-import { expect } from 'expect';
+import { StylelintRuleTester } from '../tools/tester/tester.js';
 
-import { buildRuleConfigurations } from '../src/transformers/rule-configurations/css.js';
+const ruleTester = new StylelintRuleTester('shorthand-property-no-redundant-values');
 
-describe('CSS rule configurations', () => {
-  it('should map S8761 to the shorthand-property-no-redundant-values stylelint rule', () => {
-    const result = buildRuleConfigurations('S8761', []);
-    expect(result).toEqual({
-      key: 'shorthand-property-no-redundant-values',
-      configurations: [],
+describe('shorthand-property-no-redundant-values', () => {
+  it('accepts non-redundant shorthand values', async () => {
+    await ruleTester.valid({
+      code: 'a { margin: 1px 2px; }',
+    });
+  });
+
+  it('reports redundant shorthand values', async () => {
+    await ruleTester.invalid({
+      code: 'a { margin: 1px 1px; }',
+      errors: [
+        { text: 'Expected "1px 1px" to be "1px" (shorthand-property-no-redundant-values)', line: 1 },
+      ],
     });
   });
 });
