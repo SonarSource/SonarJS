@@ -76,6 +76,8 @@ describe('S1244', () => {
           { code: `codePoint === 0xFEFF;` },
           { code: `timestamp === 1e15;` },
           { code: `anchor === 0.5;` },
+          { code: `total === 1000 * 1.2;` },
+          { code: `total === (3 / 2) * 2;` },
           { code: `imageWidth === CONTAINER_HEIGHT * 0.75;` },
           { code: `expectedRemainder === total % 0.5;` },
           { code: `result === expected;` },
@@ -125,6 +127,12 @@ describe('S1244', () => {
             code: `
             const precision = 10 / 2;
             total === precision;
+          `,
+          },
+          {
+            code: `
+            const safeTotal = 1000 * 1.2;
+            total === safeTotal;
           `,
           },
           {

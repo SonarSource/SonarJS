@@ -30,6 +30,7 @@ import * as meta from './generated-meta.js';
 
 const equalityOperators = new Set(['===', '!==', '==', '!=']);
 const arithmeticOperators = new Set(['+', '-', '*', '%', '**']);
+const constantArithmeticOperators = new Set(['+', '-', '*', '/', '%', '**']);
 const indirectEqualityOperators = new Set(['<=', '>=']);
 const indirectInequalityOperators = new Set(['<', '>']);
 
@@ -132,6 +133,39 @@ function numericLiteralValue(node: estree.Node): number | null {
   return null;
 }
 
+function numericExpressionValue(node: estree.Node): number | null {
+  const literalValue = numericLiteralValue(node);
+  if (literalValue !== null) {
+    return literalValue;
+  }
+  if (node.type !== 'BinaryExpression' || !constantArithmeticOperators.has(node.operator)) {
+    return null;
+  }
+
+  const leftValue = numericExpressionValue(node.left);
+  const rightValue = numericExpressionValue(node.right);
+  if (leftValue === null || rightValue === null) {
+    return null;
+  }
+
+  switch (node.operator) {
+    case '+':
+      return leftValue + rightValue;
+    case '-':
+      return leftValue - rightValue;
+    case '*':
+      return leftValue * rightValue;
+    case '/':
+      return rightValue === 0 ? null : leftValue / rightValue;
+    case '%':
+      return rightValue === 0 ? null : leftValue % rightValue;
+    case '**':
+      return leftValue ** rightValue;
+    default:
+      return null;
+  }
+}
+
 function isFloatingPointConst(
   context: Rule.RuleContext,
   node: estree.Identifier,
@@ -173,6 +207,10 @@ function isFloatingPointExpression(
     );
   }
   if (node.type === 'BinaryExpression') {
+    const numericValue = numericExpressionValue(node);
+    if (numericValue !== null && Number.isSafeInteger(numericValue)) {
+      return false;
+    }
     if (node.operator === '/') {
       return (
         isFloatingPointExpression(context, node.left, visitedVariables) ||
