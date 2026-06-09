@@ -9,6 +9,7 @@
   "tags": [
     "performance",
     "readability",
+    "type-dependent",
     "editable-source"
   ],
   "defaultSeverity": "Minor",

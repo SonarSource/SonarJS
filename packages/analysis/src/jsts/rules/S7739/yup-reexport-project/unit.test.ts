@@ -66,6 +66,15 @@ describe('S7739', () => {
         filename: join(dirname, 'filename.js'),
         errors: [{ messageId: 'no-thenable-object' }],
       },
+      {
+        // Unrelated package that exports a 'yup' member: not a trusted re-exporter, should be flagged
+        code: `
+          const { yup } = require("my-lib");
+          yup.mixed().when("x", { is: true, then: yup.string() });
+        `,
+        filename: join(dirname, 'filename.js'),
+        errors: [{ messageId: 'no-thenable-object' }],
+      },
     ],
   });
 });
