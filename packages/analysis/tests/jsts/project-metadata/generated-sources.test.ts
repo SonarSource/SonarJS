@@ -2662,6 +2662,152 @@ plugins = [
     }
   });
 
+  it('counts js/ts-excluded generated files as excluded in observability', async () => {
+    const baseDir = await createTempBaseDir();
+    const taggedFile = joinPaths(baseDir, 'src', 'generated', 'keep.ts');
+    const jsTsExcludedFile = joinPaths(baseDir, 'src', 'generated', 'blocked.ts');
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              graphql: 'graphql-codegen --config ./codegen.yml',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        joinPaths(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/keep.ts:
+    plugins:
+      - typescript
+  ./src/generated/blocked.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(taggedFile, 'export const keep = true;\n');
+      await writeFixtureFile(jsTsExcludedFile, 'export const blocked = true;\n');
+
+      const configuration = createConfiguration({
+        baseDir,
+        sources: ['src'],
+        jsTsExclusions: ['src/generated/blocked.ts'],
+      });
+
+      await initFileStores(configuration);
+
+      expect(generatedSourceStore.getFamily(taggedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(generatedSourceStore.getFamily(jsTsExcludedFile)).toBeUndefined();
+      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+        familyCount: 1,
+        resolvedFileCount: 2,
+        taggedFileCount: 1,
+        outOfScopeFileCount: 0,
+        excludedFileCount: 1,
+        families: [
+          {
+            family: GRAPHQL_CODEGEN_FAMILY,
+            resolvedFileCount: 2,
+            taggedFileCount: 1,
+            outOfScopeFileCount: 0,
+            excludedFileCount: 1,
+          },
+        ],
+      });
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('relogs observability when tagged samples change across request.files refreshes', async ({
+    mock,
+  }) => {
+    const baseDir = await createTempBaseDir();
+    const firstGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'one.ts');
+    const secondGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'two.ts');
+    const originalConsoleLog = console.log;
+    console.log = mock.fn(console.log);
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              graphql: 'graphql-codegen --config ./codegen.yml',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        joinPaths(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/one.ts:
+    plugins:
+      - typescript
+  ./src/generated/two.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(firstGeneratedFile, 'export const one = true;\n');
+      await writeFixtureFile(secondGeneratedFile, 'export const two = true;\n');
+
+      const configuration = createConfiguration({
+        baseDir,
+        sources: ['src'],
+      });
+      const { files: firstInputFiles } = await sanitizeRawInputFiles(
+        {
+          [firstGeneratedFile]: {
+            filePath: firstGeneratedFile,
+            fileType: 'MAIN',
+          },
+        },
+        configuration,
+      );
+      const { files: secondInputFiles } = await sanitizeRawInputFiles(
+        {
+          [secondGeneratedFile]: {
+            filePath: secondGeneratedFile,
+            fileType: 'MAIN',
+          },
+        },
+        configuration,
+      );
+
+      await initFileStores(configuration, firstInputFiles);
+      await generatedSourceStore.isInitialized(configuration, secondInputFiles);
+
+      const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+        call => call.arguments[0],
+      );
+      expect(logs).toContain(
+        'DEBUG Generated source family=@graphql-codegen/cli tagged sample=src/generated/one.ts',
+      );
+      expect(logs).toContain(
+        'DEBUG Generated source family=@graphql-codegen/cli tagged sample=src/generated/two.ts',
+      );
+    } finally {
+      console.log = originalConsoleLog;
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('ignores declaration-only default-excluded generated families in observability', async ({
     mock,
   }) => {

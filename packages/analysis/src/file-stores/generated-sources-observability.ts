@@ -21,7 +21,7 @@ import {
 import { debug, info } from '../../../shared/src/helpers/logging.js';
 import type { Configuration } from '../common/configuration.js';
 import { getFilterPathParams } from '../common/configuration.js';
-import { classifyFilePath } from '../common/filter/filter-path.js';
+import { classifyFilePath, isJsTsExcluded } from '../common/filter/filter-path.js';
 import {
   type GeneratedSourceFamilyTelemetry,
   type GeneratedSourcesTelemetry,
@@ -130,6 +130,8 @@ export function createGeneratedSourceObservabilityLogKey(
     telemetry: observability.telemetry,
     families: observability.families.map(family => ({
       family: family.family,
+      taggedCount: family.taggedPaths.length,
+      taggedSample: family.taggedPaths.slice(0, OBSERVABILITY_SAMPLE_LIMIT),
       outOfScopeCount: family.outOfScopePaths.length,
       outOfScopeSample: family.outOfScopePaths.slice(0, OBSERVABILITY_SAMPLE_LIMIT),
       excludedCount: family.excludedPaths.length,
@@ -181,6 +183,12 @@ function summarizeGeneratedSourceFamily(
     if (taggedFamilyByFile.get(filePath) === family) {
       familySummary.taggedFileCount += 1;
       familySummary.taggedPaths.push(filePath);
+      continue;
+    }
+
+    if (isJsTsExcluded(filePath, filterPathParams.jsTsExclusions)) {
+      familySummary.excludedFileCount += 1;
+      familySummary.excludedPaths.push(filePath);
       continue;
     }
 

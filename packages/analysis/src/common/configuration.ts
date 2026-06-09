@@ -268,7 +268,11 @@ export function createConfiguration(raw: unknown): Configuration {
     testExclusions: getOptionalValue(raw, 'testExclusions', isStringArray),
     detectBundles: getOptionalValue(raw, 'detectBundles', isBoolean),
     detectGeneratedCode: getOptionalValue(raw, 'detectGeneratedCode', isBoolean),
-    createTSProgramForOrphanFiles: getOptionalValue(raw, 'createTSProgramForOrphanFiles', isBoolean),
+    createTSProgramForOrphanFiles: getOptionalValue(
+      raw,
+      'createTSProgramForOrphanFiles',
+      isBoolean,
+    ),
     disableTypeChecking: getOptionalValue(raw, 'disableTypeChecking', isBoolean),
     skipNodeModuleLookupOutsideBaseDir: getOptionalValue(
       raw,
@@ -395,6 +399,8 @@ export function getShouldIgnoreParams(configuration: Configuration): FilterFileP
  */
 
 export interface FilterPathParams {
+  /** sonar.typescript.exclusions and sonar.javascript.exclusions wildcards */
+  jsTsExclusions: Minimatch[];
   /** sonar.sources - absolute paths to look for files */
   sourcesPaths: NormalizedAbsolutePath[];
   /** sonar.tests - absolute paths to look for test files */
@@ -420,6 +426,7 @@ export interface FilterPathParams {
  */
 export function getFilterPathParams(configuration: Configuration): FilterPathParams {
   return {
+    jsTsExclusions: configuration.jsTsExclusions,
     sourcesPaths:
       configuration.sources.length > 0 ? configuration.sources : [configuration.baseDir],
     testPaths: configuration.tests,
