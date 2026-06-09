@@ -102,12 +102,6 @@ export type ProjectAnalysisTelemetry = {
   generatedSources: GeneratedSourcesTelemetry;
 };
 
-export {
-  cloneGeneratedSourcesTelemetry,
-  createEmptyGeneratedSourcesTelemetry,
-  type GeneratedSourcesTelemetry,
-} from './generated-source-telemetry.js';
-
 export function resetProjectAnalysisTelemetry() {
   projectAnalysisTelemetryCollector = new ProjectAnalysisTelemetryCollector();
 }
