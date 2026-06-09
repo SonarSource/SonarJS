@@ -54,9 +54,6 @@ export function buildGeneratedSourceObservability(
   analyzableFiles?: AnalyzableFiles,
 ): GeneratedSourceObservability {
   const filterPathParams = getFilterPathParams(configuration);
-  const requestedFilePaths = analyzableFiles
-    ? new Set(Object.keys(analyzableFiles) as NormalizedAbsolutePath[])
-    : undefined;
   const pathsByFamily = collectGeneratedSourcePathsByFamily(resolvedFamilyByFile);
   const families: GeneratedSourceFamilyObservability[] = [];
   const ignoredDefaultDtsFamilies: GeneratedSourceObservability['ignoredDefaultDtsFamilies'] = [];
@@ -72,13 +69,7 @@ export function buildGeneratedSourceObservability(
     }
 
     families.push(
-      summarizeGeneratedSourceFamily(
-        family,
-        filePaths,
-        taggedFamilyByFile,
-        filterPathParams,
-        requestedFilePaths,
-      ),
+      summarizeGeneratedSourceFamily(family, filePaths, taggedFamilyByFile, filterPathParams),
     );
   }
 
@@ -176,7 +167,6 @@ function summarizeGeneratedSourceFamily(
   filePaths: readonly NormalizedAbsolutePath[],
   taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   filterPathParams: ReturnType<typeof getFilterPathParams>,
-  requestedFilePaths?: ReadonlySet<NormalizedAbsolutePath>,
 ): GeneratedSourceFamilyObservability {
   const familySummary: GeneratedSourceFamilyObservability = {
     family,
@@ -206,12 +196,9 @@ function summarizeGeneratedSourceFamily(
     if (pathClassification.status === 'EXCLUDED') {
       familySummary.excludedFileCount += 1;
       familySummary.excludedPaths.push(filePath);
-      continue;
     }
-
-    if (requestedFilePaths?.has(filePath) === false) {
-      continue;
-    }
+    // In-scope files that are not tagged remain counted only in resolvedFileCount. They are
+    // intentionally not reclassified into another bucket here.
   }
 
   return familySummary;
