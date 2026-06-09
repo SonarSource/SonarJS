@@ -27,28 +27,28 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.sonarqube.ws.Issues;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
 @ExtendWith(OrchestratorStarter.class)
+@ResourceLock("issue-resolution-settings")
 class EslintSuppressedIssuesTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;
   private static final String RULE_KEY = "javascript:S3504";
   private static final String FALLBACK_COMMENT = "Accepted via ESLint directive";
+  private static final String ISSUE_RESOLUTION_GLOBAL_ENABLED =
+    "sonar.issues.issueResolution.global.enabled";
+  private static final String ISSUE_RESOLUTION_ENABLED = "sonar.issues.issueResolution.enabled";
 
   @Test
   void should_persist_eslint_suppressed_issues_as_accepted() {
     String projectKey = "eslint-suppressed-issues";
-    SonarScanner build = getSonarScanner()
-      .setProjectKey(projectKey)
-      .setSourceEncoding("UTF-8")
-      .setSourceDirs(".")
-      .setProjectDir(TestUtils.projectDir(projectKey));
 
     OrchestratorStarter.setProfile(projectKey, "suppressed-issues-profile", "js");
-    enableIssueResolution(projectKey);
-    orchestrator.executeBuild(build);
+    setIssueResolution(projectKey, true);
+    orchestrator.executeBuild(scanner(projectKey));
 
     String fileKey = projectKey + ":file.js";
     Map<Integer, Issues.Issue> issuesByLine = searchIssues(fileKey)
@@ -65,6 +65,39 @@ class EslintSuppressedIssuesTest {
     assertAcceptedIssue(issuesByLine.get(6), FALLBACK_COMMENT);
     assertAcceptedIssue(issuesByLine.get(8), FALLBACK_COMMENT);
     assertOpenIssue(issuesByLine.get(9));
+  }
+
+  @Test
+  void should_not_create_eslint_suppressed_issues_with_default_issue_resolution_settings() {
+    String projectKey = "eslint-suppressed-issues-defaults";
+
+    OrchestratorStarter.setProfile(projectKey, "suppressed-issues-profile", "js");
+    resetIssueResolution(projectKey);
+    orchestrator.executeBuild(scanner(projectKey));
+
+    assertOnlyOpenUnsuppressedIssue(projectKey);
+  }
+
+  @Test
+  void should_not_create_eslint_suppressed_issues_when_global_flag_is_disabled() {
+    String projectKey = "eslint-suppressed-issues-global-disabled";
+
+    OrchestratorStarter.setProfile(projectKey, "suppressed-issues-profile", "js");
+    resetIssueResolution(projectKey);
+    orchestrator.executeBuild(scanner(projectKey).setProperty(ISSUE_RESOLUTION_ENABLED, "true"));
+
+    assertOnlyOpenUnsuppressedIssue(projectKey);
+  }
+
+  @Test
+  void should_not_create_eslint_suppressed_issues_when_project_flag_is_disabled() {
+    String projectKey = "eslint-suppressed-issues-project-disabled";
+
+    OrchestratorStarter.setProfile(projectKey, "suppressed-issues-profile", "js");
+    setIssueResolution(projectKey, false);
+    orchestrator.executeBuild(scanner(projectKey));
+
+    assertOnlyOpenUnsuppressedIssue(projectKey);
   }
 
   private static void assertAcceptedIssue(Issues.Issue issue, String commentText) {
@@ -84,13 +117,38 @@ class EslintSuppressedIssuesTest {
     assertThat(issue.getComments().getCommentsList()).isEmpty();
   }
 
-  private static void enableIssueResolution(String projectKey) {
+  private static void assertOnlyOpenUnsuppressedIssue(String projectKey) {
+    assertThat(searchIssues(projectKey + ":file.js"))
+      .singleElement()
+      .satisfies(issue -> {
+        assertThat(issue.getLine()).isEqualTo(9);
+        assertOpenIssue(issue);
+      });
+  }
+
+  private static SonarScanner scanner(String projectKey) {
+    return getSonarScanner()
+      .setProjectKey(projectKey)
+      .setSourceEncoding("UTF-8")
+      .setSourceDirs(".")
+      .setProjectDir(TestUtils.projectDir("eslint-suppressed-issues"));
+  }
+
+  private static void setIssueResolution(String projectKey, boolean projectEnabled) {
+    setGlobalIssueResolution(true);
+    setProjectIssueResolution(projectKey, projectEnabled);
+  }
+
+  private static void setGlobalIssueResolution(boolean enabled) {
     orchestrator
       .getServer()
       .post(
         "api/settings/set",
-        Map.of("key", "sonar.issues.issueResolution.global.enabled", "value", "true")
+        Map.of("key", ISSUE_RESOLUTION_GLOBAL_ENABLED, "value", Boolean.toString(enabled))
       );
+  }
+
+  private static void setProjectIssueResolution(String projectKey, boolean enabled) {
     orchestrator
       .getServer()
       .post(
@@ -99,10 +157,22 @@ class EslintSuppressedIssuesTest {
           "component",
           projectKey,
           "key",
-          "sonar.issues.issueResolution.enabled",
+          ISSUE_RESOLUTION_ENABLED,
           "value",
-          "true"
+          Boolean.toString(enabled)
         )
+      );
+  }
+
+  private static void resetIssueResolution(String projectKey) {
+    orchestrator
+      .getServer()
+      .post("api/settings/reset", Map.of("keys", ISSUE_RESOLUTION_GLOBAL_ENABLED));
+    orchestrator
+      .getServer()
+      .post(
+        "api/settings/reset",
+        Map.of("component", projectKey, "keys", ISSUE_RESOLUTION_ENABLED)
       );
   }
 

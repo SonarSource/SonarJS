@@ -295,7 +295,6 @@ class RulingTest {
       .setProperty("sonar.javascript.maxFileSize", "4000")
       .setProperty("sonar.cpd.exclusions", "**/*")
       .setProperty("sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir", "true")
-      .setProperty("sonar.internal.analysis.createIssuesForEslintDisabled", "false")
       .setProperty("sonar.internal.analysis.failFast", "true");
 
     orchestrator.executeBuild(build);

@@ -57,8 +57,6 @@ import org.sonar.plugins.javascript.api.Language;
 
 class AnalysisProcessorTest {
 
-  private static final String CREATE_ISSUES_FOR_ESLINT_DISABLED =
-    "sonar.internal.analysis.createIssuesForEslintDisabled";
   private static final String ISSUE_RESOLUTION_GLOBAL_ENABLED =
     "sonar.issues.issueResolution.global.enabled";
   private static final String ISSUE_RESOLUTION_ENABLED = "sonar.issues.issueResolution.enabled";
@@ -424,9 +422,11 @@ class AnalysisProcessorTest {
     assertThat(savedIssues).isEmpty();
     assertThat(sensorContext.allIssues()).isEmpty();
     assertThat(issueResolutions(sensorContext, file)).isEmpty();
-    assertThat(logTester.logs()).anySatisfy(log -> assertThat(log)
-      .contains("Skipping suppressed issue for rule javascript:S1116")
-      .contains("because accepted issues require a valid location"));
+    assertThat(logTester.logs()).anySatisfy(log ->
+      assertThat(log)
+        .contains("Skipping suppressed issue for rule javascript:S1116")
+        .contains("because accepted issues require a valid location")
+    );
   }
 
   @Test
@@ -448,15 +448,19 @@ class AnalysisProcessorTest {
       context,
       createChecks(),
       file,
-      responseWithSuppressedIssues(suppressedIssueAtLine(1).toBuilder().clearResolutionComment().build())
+      responseWithSuppressedIssues(
+        suppressedIssueAtLine(1).toBuilder().clearResolutionComment().build()
+      )
     );
 
     assertThat(savedIssues).isEmpty();
     assertThat(sensorContext.allIssues()).isEmpty();
     assertThat(issueResolutions(sensorContext, file)).isEmpty();
-    assertThat(logTester.logs()).anySatisfy(log -> assertThat(log)
-      .contains("Skipping suppressed issue for rule javascript:S1116")
-      .contains("because accepted issues require a justification comment"));
+    assertThat(logTester.logs()).anySatisfy(log ->
+      assertThat(log)
+        .contains("Skipping suppressed issue for rule javascript:S1116")
+        .contains("because accepted issues require a justification comment")
+    );
   }
 
   @Test
@@ -466,17 +470,20 @@ class AnalysisProcessorTest {
 
   @Test
   void should_ignore_suppressed_issues_when_global_issue_resolution_flag_is_disabled() {
-    assertSuppressedIssueBehavior(Version.create(13, 5), false, issueResolutionSettings(false, true));
+    assertSuppressedIssueBehavior(
+      Version.create(13, 5),
+      false,
+      issueResolutionSettings(false, true)
+    );
   }
 
   @Test
   void should_ignore_suppressed_issues_when_project_issue_resolution_flag_is_disabled() {
-    assertSuppressedIssueBehavior(Version.create(13, 5), false, issueResolutionSettings(true, false));
-  }
-
-  @Test
-  void should_ignore_suppressed_issues_when_disabled_by_internal_flag() {
-    assertSuppressedIssueBehavior(Version.create(13, 5), false, true);
+    assertSuppressedIssueBehavior(
+      Version.create(13, 5),
+      false,
+      issueResolutionSettings(true, false)
+    );
   }
 
   @Test
@@ -616,7 +623,10 @@ class AnalysisProcessorTest {
       .build();
   }
 
-  private static MapSettings issueResolutionSettings(boolean globalEnabled, boolean projectEnabled) {
+  private static MapSettings issueResolutionSettings(
+    boolean globalEnabled,
+    boolean projectEnabled
+  ) {
     return new MapSettings()
       .setProperty(ISSUE_RESOLUTION_GLOBAL_ENABLED, Boolean.toString(globalEnabled))
       .setProperty(ISSUE_RESOLUTION_ENABLED, Boolean.toString(projectEnabled));
@@ -624,18 +634,6 @@ class AnalysisProcessorTest {
 
   private void assertSuppressedIssueBehavior(Version apiVersion, boolean expectSaved) {
     assertSuppressedIssueBehavior(apiVersion, expectSaved, issueResolutionSettings(true, true));
-  }
-
-  private void assertSuppressedIssueBehavior(
-    Version apiVersion,
-    boolean expectSaved,
-    boolean disabledByInternalFlag
-  ) {
-    var settings = issueResolutionSettings(true, true);
-    if (disabledByInternalFlag) {
-      settings.setProperty(CREATE_ISSUES_FOR_ESLINT_DISABLED, "false");
-    }
-    assertSuppressedIssueBehavior(apiVersion, expectSaved, settings);
   }
 
   private void assertSuppressedIssueBehavior(

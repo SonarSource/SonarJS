@@ -243,11 +243,7 @@ public class AnalysisProcessor {
   }
 
   private void saveSuppressedIssues(JsTsContext<?> context, List<Issue> suppressedIssues) {
-    if (
-      !supportsIssueResolution(context) ||
-      !context.createIssuesForEslintDisabled() ||
-      !context.isIssueResolutionEnabled()
-    ) {
+    if (!supportsIssueResolution(context) || !context.isIssueResolutionEnabled()) {
       return;
     }
 
@@ -673,7 +669,12 @@ public class AnalysisProcessor {
   @Nullable
   private TextRange primaryTextRange(Issue issue) {
     if (issue.hasEndLine() && issue.hasEndColumn()) {
-      return file.newRange(issue.getLine(), issue.getColumn(), issue.getEndLine(), issue.getEndColumn());
+      return file.newRange(
+        issue.getLine(),
+        issue.getColumn(),
+        issue.getEndLine(),
+        issue.getEndColumn()
+      );
     }
     return issue.getLine() != 0 ? file.selectLine(issue.getLine()) : null;
   }

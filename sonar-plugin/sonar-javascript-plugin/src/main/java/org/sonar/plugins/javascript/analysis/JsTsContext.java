@@ -46,8 +46,6 @@ import org.sonar.plugins.javascript.bridge.AnalysisConfiguration;
 public class JsTsContext<T extends SensorContext> implements AnalysisConfiguration {
 
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
-  private static final String CREATE_ISSUES_FOR_ESLINT_DISABLED =
-    "sonar.internal.analysis.createIssuesForEslintDisabled";
   private static final String ISSUE_RESOLUTION_GLOBAL_ENABLED =
     "sonar.issues.issueResolution.global.enabled";
   private static final String ISSUE_RESOLUTION_ENABLED = "sonar.issues.issueResolution.enabled";
@@ -87,10 +85,6 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
 
   public boolean failFast() {
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
-  }
-
-  public boolean createIssuesForEslintDisabled() {
-    return context.config().getBoolean(CREATE_ISSUES_FOR_ESLINT_DISABLED).orElse(true);
   }
 
   public boolean isIssueResolutionEnabled() {
