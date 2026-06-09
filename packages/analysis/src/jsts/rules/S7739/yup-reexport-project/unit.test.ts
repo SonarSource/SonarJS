@@ -14,10 +14,38 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { rules } from '../../external/unicorn.js';
 import { rule } from '../rule.js';
 import { join } from 'node:path/posix';
 import { NoTypeCheckingRuleTester } from '../../../../../tests/jsts/tools/testers/rule-tester.js';
-import { describe } from 'node:test';
+import { describe, it } from 'node:test';
+
+const upstreamRule = rules['no-thenable'];
+
+// Sentinel: verify that the upstream ESLint rule still raises on the patterns our decorator fixes.
+// If this test starts failing (i.e., the upstream rule no longer reports these patterns),
+// it signals that the decorator can be safely removed.
+describe('S7739 upstream sentinel', () => {
+  it('upstream no-thenable raises on re-exported yup .when() config that decorator suppresses', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('no-thenable', upstreamRule, {
+      valid: [],
+      invalid: [
+        {
+          // Yup via strapi-utils re-export with {is, then} config — suppressed by decorator, raised by upstream
+          code: `
+const { yup } = require('strapi-utils');
+yup.mixed().when('section', {
+  is: 'plugins',
+  then: yup.string().required(),
+});
+          `,
+          errors: 1,
+        },
+      ],
+    });
+  });
+});
 
 describe('S7739', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
@@ -58,20 +86,20 @@ describe('S7739', () => {
         `,
         filename: join(dirname, 'filename.js'),
       },
+      {
+        // FP: yup re-exported through an arbitrary package — FQN 'my-lib.yup.mixed.when' contains
+        // interior '.yup.' segment, so the rule should suppress it just like strapi-utils.yup
+        code: `
+          const { yup } = require('my-lib');
+          yup.mixed().when('x', { is: true, then: yup.string() });
+        `,
+        filename: join(dirname, 'filename.js'),
+      },
     ],
     invalid: [
       {
         // Non-yup code still flagged in a strapi-utils project
         code: `const schema = { then: function() { return this; } };`,
-        filename: join(dirname, 'filename.js'),
-        errors: [{ messageId: 'no-thenable-object' }],
-      },
-      {
-        // Unrelated package that exports a 'yup' member: not a trusted re-exporter, should be flagged
-        code: `
-          const { yup } = require("my-lib");
-          yup.mixed().when("x", { is: true, then: yup.string() });
-        `,
         filename: join(dirname, 'filename.js'),
         errors: [{ messageId: 'no-thenable-object' }],
       },
