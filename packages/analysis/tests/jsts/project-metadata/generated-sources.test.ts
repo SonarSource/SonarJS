@@ -2662,10 +2662,14 @@ plugins = [
     }
   });
 
-  it('counts js/ts-excluded generated files as excluded in observability', async () => {
+  it('counts js/ts-excluded generated files as excluded in observability without relogging exclusion debug lines on refresh', async ({
+    mock,
+  }) => {
     const baseDir = await createTempBaseDir();
     const taggedFile = joinPaths(baseDir, 'src', 'generated', 'keep.ts');
     const jsTsExcludedFile = joinPaths(baseDir, 'src', 'generated', 'blocked.ts');
+    const originalConsoleLog = console.log;
+    console.log = mock.fn(console.log);
 
     try {
       await writeFixtureFile(
@@ -2723,7 +2727,19 @@ plugins = [
           },
         ],
       });
+
+      const jsTsExclusionLog = `DEBUG File ignored due to js/ts exclusions: ${jsTsExcludedFile}`;
+      let logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+        call => call.arguments[0],
+      );
+      expect(logs.filter(log => log === jsTsExclusionLog)).toHaveLength(1);
+
+      await generatedSourceStore.postProcess(configuration, sourceFileStore.getFiles());
+
+      logs = (console.log as Mock<typeof console.log>).mock.calls.map(call => call.arguments[0]);
+      expect(logs.filter(log => log === jsTsExclusionLog)).toHaveLength(1);
     } finally {
+      console.log = originalConsoleLog;
       await rm(baseDir, { recursive: true, force: true });
     }
   });
@@ -2865,6 +2881,74 @@ plugins = [
       );
       expect(logs).not.toContain(
         'Generated source observability: families=0, resolvedFiles=0, taggedFiles=0, outOfScopeFiles=0, excludedFiles=0',
+      );
+      expect(logs).toContain(
+        'DEBUG Generated source family=@graphql-codegen/cli ignored for observability because all resolved outputs are declaration files excluded by default **/*.d.ts: src/generated/operations.d.ts',
+      );
+    } finally {
+      console.log = originalConsoleLog;
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('ignores declaration-only default-excluded generated families even when source exclusions also match', async ({
+    mock,
+  }) => {
+    const baseDir = await createTempBaseDir();
+    const declarationFile = joinPaths(baseDir, 'src', 'generated', 'operations.d.ts');
+    const originalConsoleLog = console.log;
+    console.log = mock.fn(console.log);
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              graphql: 'graphql-codegen --config ./codegen.yml',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        joinPaths(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/operations.d.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(declarationFile, 'export type Operation = string;\n');
+
+      await initFileStores(
+        createConfiguration({
+          baseDir,
+          sources: ['src'],
+          exclusions: ['src/generated/**'],
+        }),
+      );
+
+      expect(sourceFileStore.getFiles()[declarationFile]).toBeUndefined();
+      expect(generatedSourceStore.getFamily(declarationFile)).toBeUndefined();
+      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+        familyCount: 0,
+        resolvedFileCount: 0,
+        taggedFileCount: 0,
+        outOfScopeFileCount: 0,
+        excludedFileCount: 0,
+        families: [],
+      });
+
+      const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+        call => call.arguments[0],
+      );
+      expect(logs).not.toContain(
+        'Generated source family=@graphql-codegen/cli resolvedFiles=1 taggedFiles=0 outOfScopeFiles=0 excludedFiles=1',
       );
       expect(logs).toContain(
         'DEBUG Generated source family=@graphql-codegen/cli ignored for observability because all resolved outputs are declaration files excluded by default **/*.d.ts: src/generated/operations.d.ts',

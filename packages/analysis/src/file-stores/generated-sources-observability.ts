@@ -21,7 +21,7 @@ import {
 import { debug, info } from '../../../shared/src/helpers/logging.js';
 import type { Configuration } from '../common/configuration.js';
 import { getFilterPathParams } from '../common/configuration.js';
-import { classifyFilePath, isJsTsExcluded } from '../common/filter/filter-path.js';
+import { classifyFilePath, matchesJsTsExclusion } from '../common/filter/filter-path.js';
 import {
   type GeneratedSourceFamilyTelemetry,
   type GeneratedSourcesTelemetry,
@@ -59,9 +59,7 @@ export function buildGeneratedSourceObservability(
   for (const [family, filePaths] of [...pathsByFamily.entries()].sort(([left], [right]) =>
     left.localeCompare(right),
   )) {
-    if (
-      shouldIgnoreDefaultDtsFamily(filePaths, taggedFamilyByFile, configuration, filterPathParams)
-    ) {
+    if (shouldIgnoreDefaultDtsFamily(filePaths, taggedFamilyByFile, configuration)) {
       ignoredDefaultDtsFamilies.push({ family, filePaths });
       continue;
     }
@@ -186,7 +184,7 @@ function summarizeGeneratedSourceFamily(
       continue;
     }
 
-    if (isJsTsExcluded(filePath, filterPathParams.jsTsExclusions)) {
+    if (matchesJsTsExclusion(filePath, filterPathParams.jsTsExclusions)) {
       familySummary.excludedFileCount += 1;
       familySummary.excludedPaths.push(filePath);
       continue;
@@ -239,7 +237,6 @@ function shouldIgnoreDefaultDtsFamily(
   filePaths: readonly NormalizedAbsolutePath[],
   taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   configuration: Configuration,
-  filterPathParams: ReturnType<typeof getFilterPathParams>,
 ) {
   if (
     filePaths.length === 0 ||
@@ -257,8 +254,7 @@ function shouldIgnoreDefaultDtsFamily(
       return false;
     }
 
-    const pathClassification = classifyFilePath(filePath, filterPathParams);
-    return pathClassification.status === 'MAIN' || pathClassification.status === 'TEST';
+    return matchesJsTsExclusion(filePath, configuration.jsTsExclusions);
   });
 }
 

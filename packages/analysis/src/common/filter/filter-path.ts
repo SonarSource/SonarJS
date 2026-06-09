@@ -43,11 +43,18 @@ export function isJsTsExcluded(
   filePath: NormalizedAbsolutePath,
   jsTsExclusions: Minimatch[],
 ): boolean {
-  if (jsTsExclusions?.some(exclusion => exclusion.match(filePath))) {
+  if (matchesJsTsExclusion(filePath, jsTsExclusions)) {
     debug(`File ignored due to js/ts exclusions: ${filePath}`);
     return true;
   }
   return false;
+}
+
+export function matchesJsTsExclusion(
+  filePath: NormalizedAbsolutePath,
+  jsTsExclusions: Minimatch[],
+): boolean {
+  return jsTsExclusions?.some(exclusion => exclusion.match(filePath)) ?? false;
 }
 
 /**
