@@ -9,19 +9,23 @@ To work on this project, it is required to have the following tools installed:
 - [npm](https://www.npmjs.com/) >= 8
 - [Maven](https://maven.apache.org/) >= 3.8
 
-### GitHub Token for RSPEC Access
+### RSPEC Access
 
 The build fetches rule metadata from the private `SonarSource/rspec` repository through `rspec-maven-plugin`.
+The generated RSPEC rule metadata JSON published under `sonar-plugin/*/src/main/resources/**/rules/*/` is tracked in Git. The generated HTML files and `rspec.sha` remain build artifacts and are not tracked.
 
-For local development, set `GITHUB_TOKEN` to any GitHub token that can read `SonarSource/rspec`.
-In CI, this token is provided from Vault-managed secrets.
+For local development, the Maven flow can reuse your existing GitHub CLI login. Running `gh auth login` is enough on a fresh checkout or after `mvn clean`.
+
+If you already have a token with read access to `SonarSource/rspec`, exporting `GITHUB_TOKEN` still works as well.
+
+In CI, the token is provided from Vault-managed secrets and passed explicitly to the Maven plugin.
 
 Examples:
 
 1. Reuse your GitHub CLI login:
 
    ```bash
-   export GITHUB_TOKEN="$(gh auth token)"
+   gh auth login
    ```
 
 2. Or use a token with read access to `SonarSource/rspec` and export it in your shell:
@@ -36,7 +40,7 @@ Examples:
    source ~/.zshenv
    ```
 
-`npm run generate-meta` refreshes RSPEC rule data only when the generated local outputs are missing. On a fresh checkout, or after `mvn clean`, it still needs `GITHUB_TOKEN` to fetch from `SonarSource/rspec`.
+`npm run generate-meta` refreshes RSPEC rule data only when the generated local outputs are missing. On a fresh checkout, or after `mvn clean`, it runs Maven first and uses either your GitHub CLI auth or `GITHUB_TOKEN` to fetch from `SonarSource/rspec`.
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
