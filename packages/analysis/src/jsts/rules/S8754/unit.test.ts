@@ -179,6 +179,16 @@ test.describe('checkout', () => {
         },
         {
           code: `
+import { test } from '@playwright/test';
+test.describe('checkout', () => {
+  test.fixme('applies a discount code', async () => {});
+  test.fixme('applies a discount code', async () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+        },
+        {
+          code: `
 describe('no supported framework', () => {
   it('adds an item', () => {});
   it('adds an item', () => {});
@@ -252,10 +262,87 @@ describe('settings', () => {
         },
         {
           code: `
+const jest = require('jest');
+describe('shopping cart', () => {
+  test.concurrent('adds an item', async () => {});
+  test.concurrent('adds an item', async () => {});
+});
+          `,
+          filename: 'cart.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('shopping cart', () => {
+  it.concurrent('adds an item', async () => {});
+  it.concurrent('adds an item', async () => {});
+});
+          `,
+          filename: 'cart.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('shopping cart', () => {
+  test.failing('adds an item', () => {});
+  test.failing('adds an item', () => {});
+});
+          `,
+          filename: 'cart.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('shopping cart', () => {
+  it.failing('adds an item', () => {});
+  it.failing('adds an item', () => {});
+});
+          `,
+          filename: 'cart.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+describe('shopping cart', () => {
+  test.sequential('adds an item', () => {});
+  test.sequential('adds an item', () => {});
+});
+          `,
+          filename: 'cart.test.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, it } from 'vitest';
+describe('shopping cart', () => {
+  it.sequential('adds an item', () => {});
+  it.sequential('adds an item', () => {});
+});
+          `,
+          filename: 'cart.test.ts',
+          errors: 1,
+        },
+        {
+          code: `
 import { test } from '@playwright/test';
 test.describe('checkout', () => {
   test('applies a discount code', () => {});
   test('applies a discount code', () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe('checkout', () => {
+  test.fail('applies a discount code', async () => {});
+  test.fail('applies a discount code', async () => {});
 });
           `,
           filename: 'checkout.spec.ts',

@@ -35,9 +35,11 @@ const SUPPORTED_TEST_FRAMEWORKS = ['jest', 'mocha', 'vitest', '@playwright/test'
 const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['jest', 'mocha', 'vitest']);
 const TEST_FUNCTION_NAMES = ['it', 'specify', 'test'];
 const SUITE_FUNCTION_NAMES = ['describe', 'context', 'suite'];
-const CONCRETE_MOCHA_MODIFIERS = new Set(['only', 'concurrent']);
+const COMMON_MOCHA_TEST_MODIFIERS = new Set(['only', 'concurrent']);
+const JEST_TEST_MODIFIERS = new Set(['failing']);
+const VITEST_TEST_MODIFIERS = new Set(['sequential']);
 const PLAYWRIGHT_TEST_FQN = '@playwright.test.test';
-const PLAYWRIGHT_TEST_MODIFIERS = new Set(['only']);
+const PLAYWRIGHT_TEST_MODIFIERS = new Set(['only', 'fail']);
 const PLAYWRIGHT_DESCRIBE_MODIFIERS = new Set(['parallel', 'serial']);
 const PLAYWRIGHT_DESCRIBE_FOCUS_MODIFIER = 'only';
 const PLAYWRIGHT_DISABLED_DESCRIBE_MODIFIERS = new Set(['skip', 'fixme']);
@@ -248,7 +250,7 @@ function isSuiteDeclaration(context: Rule.RuleContext, node: estree.CallExpressi
 }
 
 function isTestDeclaration(context: Rule.RuleContext, node: estree.CallExpression): boolean {
-  return isConcreteTestDeclaration(context, node) || isPlaywrightTest(context, node.callee);
+  return isConcreteTestDeclaration(context, node) || isPlaywrightTest(context, node);
 }
 
 function isConcreteTestDeclaration(
@@ -264,12 +266,28 @@ function isMochaTestConstruct(
   constructs: string[],
 ): boolean {
   const calleeParts = getMochaCalleeParts(node.callee);
-  const constructName = calleeParts && getMochaConstructName(context, calleeParts.base);
+  if (calleeParts === undefined) {
+    return false;
+  }
+
+  const constructName = getMochaConstructName(context, calleeParts.base);
   if (constructName === undefined || !constructs.includes(constructName)) {
     return false;
   }
 
-  return calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.has(modifier));
+  return calleeParts.modifiers.every(modifier => isConcreteMochaTestModifier(context, modifier));
+}
+
+function isConcreteMochaTestModifier(context: Rule.RuleContext, modifier: string): boolean {
+  return (
+    COMMON_MOCHA_TEST_MODIFIERS.has(modifier) ||
+    (JEST_TEST_MODIFIERS.has(modifier) && isTestFrameworkActive(context, 'jest')) ||
+    (VITEST_TEST_MODIFIERS.has(modifier) && isTestFrameworkActive(context, 'vitest'))
+  );
+}
+
+function isTestFrameworkActive(context: Rule.RuleContext, framework: string): boolean {
+  return importsOrDependsOnModule(context, [framework], [framework]);
 }
 
 function isIgnoredSuiteDeclaration(
@@ -285,12 +303,16 @@ function isIgnoredSuiteDeclaration(
 
 function isNonConcreteMochaSuite(context: Rule.RuleContext, node: estree.Node): boolean {
   const calleeParts = getMochaCalleeParts(node);
-  const constructName = calleeParts && getMochaConstructName(context, calleeParts.base);
+  if (calleeParts === undefined) {
+    return false;
+  }
+
+  const constructName = getMochaConstructName(context, calleeParts.base);
   if (constructName === undefined || !SUITE_FUNCTION_NAMES.includes(constructName)) {
     return false;
   }
 
-  return !calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.has(modifier));
+  return !calleeParts.modifiers.every(modifier => isConcreteMochaTestModifier(context, modifier));
 }
 
 function getMochaCalleeParts(
@@ -438,13 +460,16 @@ function isPlaywrightDescribe(context: Rule.RuleContext, callee: estree.Node): b
   return getPlaywrightDescribeClassification(context, callee) === 'concrete';
 }
 
-function isPlaywrightTest(context: Rule.RuleContext, callee: estree.Node): boolean {
-  const qualifiers = getPlaywrightTestQualifiers(context, callee);
+function isPlaywrightTest(context: Rule.RuleContext, node: estree.CallExpression): boolean {
+  const qualifiers = getPlaywrightTestQualifiers(context, node.callee);
   if (qualifiers === undefined) {
     return false;
   }
 
-  return qualifiers.every(qualifier => PLAYWRIGHT_TEST_MODIFIERS.has(qualifier));
+  return (
+    qualifiers.every(qualifier => PLAYWRIGHT_TEST_MODIFIERS.has(qualifier)) &&
+    (!qualifiers.includes('fail') || hasCallback(node))
+  );
 }
 
 function getPlaywrightTestQualifiers(
