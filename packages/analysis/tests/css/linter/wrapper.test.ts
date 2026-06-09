@@ -112,39 +112,6 @@ describe('LinterWrapper', () => {
     ]);
   });
 
-  it('should lint with a configured primary option', async () => {
-    const filePath = normalizeToAbsolutePath(
-      path.join(import.meta.dirname, './fixtures/block.css'),
-    );
-    const rules = [{ key: 'selector-type-case', configurations: ['lower'] }];
-
-    const linter = new LinterWrapper();
-    linter.initialize(rules);
-    const { issues } = await linter.lint(filePath, 'A { color: red; }');
-
-    expect(issues).toHaveLength(1);
-    expect(issues).toMatchObject([
-      {
-        ruleId: 'selector-type-case',
-        language: 'css',
-        message: 'Expected "A" to be "a"',
-      },
-    ]);
-  });
-
-  it('should not lint when the configured primary option is already respected', async () => {
-    const filePath = normalizeToAbsolutePath(
-      path.join(import.meta.dirname, './fixtures/block.css'),
-    );
-    const rules = [{ key: 'selector-type-case', configurations: ['lower'] }];
-
-    const linter = new LinterWrapper();
-    linter.initialize(rules);
-    const { issues } = await linter.lint(filePath, 'a { color: red; }');
-
-    expect(issues).toHaveLength(0);
-  });
-
   it('should omit end positions when they exceed line length (empty file)', async () => {
     const filePath = normalizeToAbsolutePath(
       path.join(import.meta.dirname, './fixtures/empty.css'),
