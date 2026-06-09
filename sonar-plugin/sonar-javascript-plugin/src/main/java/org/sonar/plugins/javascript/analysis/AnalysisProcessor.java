@@ -243,7 +243,11 @@ public class AnalysisProcessor {
   }
 
   private void saveSuppressedIssues(JsTsContext<?> context, List<Issue> suppressedIssues) {
-    if (!supportsIssueResolution(context) || !context.createIssuesForEslintDisabled()) {
+    if (
+      !supportsIssueResolution(context) ||
+      !context.createIssuesForEslintDisabled() ||
+      !context.isIssueResolutionEnabled()
+    ) {
       return;
     }
 

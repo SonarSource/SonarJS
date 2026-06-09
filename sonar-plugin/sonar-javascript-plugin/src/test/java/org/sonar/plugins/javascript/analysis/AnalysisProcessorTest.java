@@ -57,6 +57,12 @@ import org.sonar.plugins.javascript.api.Language;
 
 class AnalysisProcessorTest {
 
+  private static final String CREATE_ISSUES_FOR_ESLINT_DISABLED =
+    "sonar.internal.analysis.createIssuesForEslintDisabled";
+  private static final String ISSUE_RESOLUTION_GLOBAL_ENABLED =
+    "sonar.issues.issueResolution.global.enabled";
+  private static final String ISSUE_RESOLUTION_ENABLED = "sonar.issues.issueResolution.enabled";
+
   @TempDir
   Path baseDir;
 
@@ -404,6 +410,7 @@ class AnalysisProcessorTest {
         SonarEdition.COMMUNITY
       )
     );
+    sensorContext.setSettings(issueResolutionSettings(true, true));
     var context = new JsTsContext<>(sensorContext);
     var file = createInputFile(sensorContext, "js", "file.js", "const value = 42;;\n");
 
@@ -433,6 +440,7 @@ class AnalysisProcessorTest {
         SonarEdition.COMMUNITY
       )
     );
+    sensorContext.setSettings(issueResolutionSettings(true, true));
     var context = new JsTsContext<>(sensorContext);
     var file = createInputFile(sensorContext, "js", "file.js", "const value = 42;;\n");
 
@@ -457,6 +465,16 @@ class AnalysisProcessorTest {
   }
 
   @Test
+  void should_ignore_suppressed_issues_when_global_issue_resolution_flag_is_disabled() {
+    assertSuppressedIssueBehavior(Version.create(13, 5), false, issueResolutionSettings(false, true));
+  }
+
+  @Test
+  void should_ignore_suppressed_issues_when_project_issue_resolution_flag_is_disabled() {
+    assertSuppressedIssueBehavior(Version.create(13, 5), false, issueResolutionSettings(true, false));
+  }
+
+  @Test
   void should_ignore_suppressed_issues_when_disabled_by_internal_flag() {
     assertSuppressedIssueBehavior(Version.create(13, 5), false, true);
   }
@@ -472,6 +490,7 @@ class AnalysisProcessorTest {
         SonarEdition.COMMUNITY
       )
     );
+    sensorContext.setSettings(issueResolutionSettings(true, true));
     var context = new JsTsContext<>(sensorContext);
     var file = createInputFile(sensorContext, "css", "file.css", "a {}\n");
 
@@ -597,8 +616,14 @@ class AnalysisProcessorTest {
       .build();
   }
 
+  private static MapSettings issueResolutionSettings(boolean globalEnabled, boolean projectEnabled) {
+    return new MapSettings()
+      .setProperty(ISSUE_RESOLUTION_GLOBAL_ENABLED, Boolean.toString(globalEnabled))
+      .setProperty(ISSUE_RESOLUTION_ENABLED, Boolean.toString(projectEnabled));
+  }
+
   private void assertSuppressedIssueBehavior(Version apiVersion, boolean expectSaved) {
-    assertSuppressedIssueBehavior(apiVersion, expectSaved, false);
+    assertSuppressedIssueBehavior(apiVersion, expectSaved, issueResolutionSettings(true, true));
   }
 
   private void assertSuppressedIssueBehavior(
@@ -606,19 +631,24 @@ class AnalysisProcessorTest {
     boolean expectSaved,
     boolean disabledByInternalFlag
   ) {
+    var settings = issueResolutionSettings(true, true);
+    if (disabledByInternalFlag) {
+      settings.setProperty(CREATE_ISSUES_FOR_ESLINT_DISABLED, "false");
+    }
+    assertSuppressedIssueBehavior(apiVersion, expectSaved, settings);
+  }
+
+  private void assertSuppressedIssueBehavior(
+    Version apiVersion,
+    boolean expectSaved,
+    MapSettings settings
+  ) {
     var processor = createProcessor();
     var sensorContext = SensorContextTester.create(baseDir);
     sensorContext.setRuntime(
       SonarRuntimeImpl.forSonarQube(apiVersion, SonarQubeSide.SCANNER, SonarEdition.COMMUNITY)
     );
-    if (disabledByInternalFlag) {
-      sensorContext.setSettings(
-        new MapSettings().setProperty(
-          "sonar.internal.analysis.createIssuesForEslintDisabled",
-          "false"
-        )
-      );
-    }
+    sensorContext.setSettings(settings);
     var context = new JsTsContext<>(sensorContext);
     var file = createInputFile(sensorContext, "js", "file.js", "const value = 42;;\n");
 
