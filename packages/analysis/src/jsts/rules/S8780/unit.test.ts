@@ -159,6 +159,18 @@ describe('S8780', () => {
         },
         {
           code: `
+            import { expect, it } from 'vitest';
+
+            it('waits for an async value', () => {
+              expect(getValue())
+                .resolves
+                .toBe(1);
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             import { expect as vitestExpect, it as vitestIt } from 'vitest';
 
             vitestIt('exports an invoice', () => {

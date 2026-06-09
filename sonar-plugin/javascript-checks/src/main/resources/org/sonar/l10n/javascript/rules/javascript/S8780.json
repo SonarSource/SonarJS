@@ -1,19 +1,15 @@
 {
   "title": "Async test assertions should be awaited or returned",
   "type": "BUG",
-  "code": {
-    "impacts": {
-      "RELIABILITY": "HIGH"
-    },
-    "attribute": "COMPLETE"
-  },
   "status": "ready",
   "remediation": {
     "func": "Constant/Issue",
-    "constantCost": "5min"
+    "constantCost": "5 min"
   },
   "tags": [
-    "tests"
+    "tests",
+    "async-await",
+    "promise"
   ],
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-8780",
@@ -23,6 +19,13 @@
     "Sonar way"
   ],
   "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "RELIABILITY": "HIGH",
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "LOGICAL"
+  },
   "compatibleLanguages": [
     "js",
     "ts"
