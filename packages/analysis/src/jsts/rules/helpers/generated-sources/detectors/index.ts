@@ -15,8 +15,15 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type { GeneratedSourceDetector } from '../contracts.js';
+import { graphqlCodegenDetector } from './graphql-codegen.js';
+import { openApiGeneratorDetector } from './openapi-generator.js';
+import { protoLoaderGenTypesDetector } from './proto-loader-gen-types.js';
 
-export const GENERATED_SOURCE_DETECTORS: GeneratedSourceDetector[] = [];
+export const GENERATED_SOURCE_DETECTORS: readonly GeneratedSourceDetector[] = [
+  graphqlCodegenDetector,
+  openApiGeneratorDetector,
+  protoLoaderGenTypesDetector,
+];
 
 export function getGeneratedSourceWatchedFilenames(
   detectors: readonly GeneratedSourceDetector[] = GENERATED_SOURCE_DETECTORS,

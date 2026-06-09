@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "strict": true
+  },
+  "include": [
+    "moduleA/src/**/*.ts",
+    "moduleB/src/**/*.ts",
+    "shared/**/*.ts"
+  ]
+}

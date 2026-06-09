@@ -15,12 +15,25 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import { describe, it } from 'node:test';
+import path from 'node:path';
 import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
 import { rule } from './rule.js';
 
 describe('S5906', () => {
   it('reports generic assertions with more specific alternatives', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
+    const angularJasmineFixture = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'angular-jasmine',
+      'test.ts',
+    );
+    const modernJasmineFixture = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'modern-jasmine',
+      'test.ts',
+    );
     const expectedError = (output: string) => ({
       messageId: 'preferSpecificAssertion',
       suggestions: [{ messageId: 'quickfix', output }],
@@ -97,6 +110,19 @@ describe('S5906', () => {
             expect(error).toBe(null);
           `,
         },
+        {
+          code: `
+            import { expect } from 'jasmine';
+
+            expect(Number.NaN).not.toBe(Number.NaN);
+          `,
+        },
+        {
+          code: `
+            expect(items.length).toBe(3);
+          `,
+          filename: angularJasmineFixture,
+        },
       ],
       invalid: [
         {
@@ -127,6 +153,32 @@ describe('S5906', () => {
             expectedError(`
             import { expect } from 'jasmine';
 
+            expect(error).toBeNull();
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'jasmine';
+
+            expect(items.length).toBe(3);
+          `,
+          filename: modernJasmineFixture,
+          errors: [
+            expectedError(`
+            import { expect } from 'jasmine';
+
+            expect(items).toHaveSize(3);
+          `),
+          ],
+        },
+        {
+          code: `
+            expect(error).toBe(null);
+          `,
+          filename: angularJasmineFixture,
+          errors: [
+            expectedError(`
             expect(error).toBeNull();
           `),
           ],
@@ -230,6 +282,20 @@ describe('S5906', () => {
             import { expect } from 'vitest';
 
             expect(items).toHaveLength(2);
+          `),
+          ],
+        },
+        {
+          code: `
+            import { expect } from 'jasmine';
+
+            expect(items.length === 2).toBe(true);
+          `,
+          errors: [
+            expectedError(`
+            import { expect } from 'jasmine';
+
+            expect(items).toHaveSize(2);
           `),
           ],
         },

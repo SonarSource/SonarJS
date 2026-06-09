@@ -1,0 +1,13 @@
+generates:
+  ./src/generated/graphql.ts:
+    plugins:
+      - typescript
+  ./src/generated/types:
+    plugins:
+      - typescript
+  ./dist/generated/ignored.ts:
+    plugins:
+      - typescript
+  ../outside.ts:
+    plugins:
+      - typescript

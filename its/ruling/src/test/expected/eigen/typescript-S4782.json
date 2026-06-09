@@ -1,8 +1,32 @@
 {
+"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/BuyNowButton.tsx": [
+14
+],
+"eigen:src/app/Scenes/Artwork/Components/CommercialButtons/MakeOfferButton.tsx": [
+17
+],
+"eigen:src/app/Scenes/Artwork/Components/ImageCarousel/ImageCarousel.tsx": [
+34
+],
 "eigen:src/app/Scenes/Fair/Components/FairArtworks.tsx": [
 25
 ],
 "eigen:src/app/Scenes/Fair/FairBMWArtActivation.tsx": [
 28
+],
+"eigen:src/app/Scenes/Inbox/Components/Conversations/InquiryPurchaseButton.tsx": [
+16
+],
+"eigen:src/app/Scenes/Partner/Components/PartnerFollowButton.tsx": [
+11
+],
+"eigen:src/app/Scenes/SavedAddresses/Components/AddAddressButton.tsx": [
+8
+],
+"eigen:src/app/store/AuthError.ts": [
+9
+],
+"eigen:src/palette/elements/Text/Typography-v1.tsx": [
+52
 ]
 }

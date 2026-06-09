@@ -157,6 +157,18 @@ export function dirnamePath(filePath: NormalizedAbsolutePath): NormalizedAbsolut
   return dirnamePosix(filePath) as NormalizedAbsolutePath;
 }
 
+export function relativeToAncestorPath(
+  filePath: NormalizedAbsolutePath,
+  topDir: NormalizedAbsolutePath,
+) {
+  const topDirPrefix = topDir.endsWith('/') ? topDir : `${topDir}/`;
+  if (filePath === topDir) {
+    return '';
+  }
+
+  return filePath.startsWith(topDirPrefix) ? filePath.slice(topDirPrefix.length) : undefined;
+}
+
 /**
  * Type-safe path join that preserves the NormalizedAbsolutePath brand.
  * Joins path segments using posix separators.

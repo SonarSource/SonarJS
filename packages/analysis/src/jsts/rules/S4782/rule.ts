@@ -19,34 +19,54 @@
 import type { AST, Rule } from 'eslint';
 import type estree from 'estree';
 import type { TSESTree } from '@typescript-eslint/utils';
+import ts from 'typescript';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isRequiredParserServices } from '../helpers/parser-services.js';
+import {
+  isRequiredParserServices,
+  type RequiredParserServices,
+} from '../helpers/parser-services.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
+import { classifyTypesByOrigin } from '../helpers/type-origin.js';
 import * as meta from './generated-meta.js';
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { hasSuggestions: true }),
 
   create(context: Rule.RuleContext) {
-    if (!isRequiredParserServices(context.sourceCode.parserServices)) {
+    const parserServices = context.sourceCode.parserServices;
+    const hasTypeChecking = isRequiredParserServices(parserServices);
+    const compilerOptions = hasTypeChecking
+      ? parserServices.program.getCompilerOptions()
+      : undefined;
+    if (compilerOptions?.exactOptionalPropertyTypes) {
       return {};
     }
-
-    const compilerOptions = context.sourceCode.parserServices.program.getCompilerOptions();
-    if (compilerOptions.exactOptionalPropertyTypes) {
-      return {};
-    }
+    const canResolveTypes = hasTypeChecking
+      ? (compilerOptions?.strictNullChecks ?? compilerOptions?.strict ?? false)
+      : false;
 
     function checkProperty(node: estree.Node) {
       const tsNode = node as TSESTree.Node as
         | TSESTree.PropertyDefinition
         | TSESTree.TSPropertySignature;
       const optionalToken = context.sourceCode.getFirstToken(node, token => token.value === '?');
-      if (!tsNode.optional || !optionalToken) {
+      const rootType = tsNode.typeAnnotation?.typeAnnotation;
+      if (!tsNode.optional || !optionalToken || !rootType) {
         return;
       }
 
-      const typeNode = getUndefinedTypeAnnotation(tsNode.typeAnnotation);
+      let typeNode: TSESTree.TypeNode | undefined;
+      if (rootType.type === 'TSUnionType') {
+        typeNode = findSyntacticUndefinedTypeNode(rootType);
+      }
+
+      if (!typeNode && canResolveTypes) {
+        typeNode = findSemanticUndefinedTypeNode(
+          rootType,
+          parserServices as RequiredParserServices,
+        );
+      }
+
       if (typeNode) {
         const suggest = getQuickFixSuggestions(context, optionalToken, typeNode);
 
@@ -69,19 +89,107 @@ export const rule: Rule.RuleModule = {
   },
 };
 
-function getUndefinedTypeAnnotation(tsTypeAnnotation?: TSESTree.TSTypeAnnotation) {
-  if (tsTypeAnnotation?.typeAnnotation.type === 'TSUnionType') {
-    return getUndefinedTypeNode(tsTypeAnnotation.typeAnnotation);
+function findSemanticUndefinedTypeNode(
+  rootType: TSESTree.TypeNode,
+  services: RequiredParserServices,
+): TSESTree.TypeNode | undefined {
+  const tsTypeNode = services.esTreeNodeToTSNodeMap.get(rootType);
+  const checker: ts.TypeChecker = services.program.getTypeChecker();
+  const type = checker.getTypeAtLocation(tsTypeNode);
+  if (!type.isUnion()) {
+    return undefined;
   }
-  return undefined;
+  const hasUndefined = type.types.some(isUndefinedType);
+  const hasAllUndefined = type.types.every(isUndefinedType);
+  if (!hasUndefined || hasAllUndefined) {
+    return undefined;
+  }
+  // If the user wrote `... | undefined` anywhere in the annotation along a
+  // path that propagates into the top-level resolved union (e.g. inside the
+  // type argument of a distributive external generic like Vue's `MaybeRef`),
+  // the inline keyword is editable — flag without consulting the classifier.
+  if (hasInlineUnionPositionUndefined(rootType, services)) {
+    return rootType;
+  }
+  // Otherwise `undefined` must come from a declaration: only flag when it's
+  // reachable from a user-editable (internal) top-level member. Pure external
+  // references like `React.ReactNode` stay suppressed.
+  const { internal } = classifyTypesByOrigin(rootType, services);
+  const undefinedReachableFromInternal = internal.some(member =>
+    containsUndefined(member, services),
+  );
+  return undefinedReachableFromInternal ? rootType : undefined;
 }
 
-function getUndefinedTypeNode(typeNode: TSESTree.TypeNode): TSESTree.TypeNode | undefined {
+/**
+ * Looks for a `TSUndefinedKeyword` written in union position along a path
+ * that propagates into the top-level resolved union. We only descend through:
+ *
+ *  - `TSUnionType.types` — unions are naturally distributive at every level.
+ *  - `TSTypeReference.typeArguments.params`, but only when the reference's
+ *    own resolved type is a union containing `undefined`. This filters out
+ *    non-distributive wrappers like `Map<K, V | undefined>`, where the inner
+ *    `| undefined` is buried inside the value type and cannot reach the
+ *    property's top-level union.
+ */
+function hasInlineUnionPositionUndefined(
+  root: TSESTree.TypeNode,
+  services: RequiredParserServices,
+): boolean {
+  const stack: TSESTree.Node[] = [root];
+  while (stack.length > 0) {
+    const node = stack.pop() as TSESTree.Node;
+    if (node.type === 'TSUndefinedKeyword' && node.parent?.type === 'TSUnionType') {
+      return true;
+    }
+    pushPropagatingChildren(node, stack, services);
+  }
+  return false;
+}
+
+function pushPropagatingChildren(
+  node: TSESTree.Node,
+  stack: TSESTree.Node[],
+  services: RequiredParserServices,
+): void {
+  if (node.type === 'TSUnionType') {
+    stack.push(...node.types);
+    return;
+  }
+  if (node.type === 'TSTypeReference' && propagatesUndefined(node, services)) {
+    const params = node.typeArguments?.params;
+    params && stack.push(...params);
+  }
+}
+
+function isUndefinedType(t: ts.Type): boolean {
+  return (t.flags & ts.TypeFlags.Undefined) !== 0;
+}
+
+function propagatesUndefined(
+  node: TSESTree.TSTypeReference,
+  services: RequiredParserServices,
+): boolean {
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+  const type = services.program.getTypeChecker().getTypeAtLocation(tsNode);
+  return type.isUnion() && type.types.some(isUndefinedType);
+}
+
+function containsUndefined(node: TSESTree.TypeNode, services: RequiredParserServices): boolean {
+  const tsNode = services.esTreeNodeToTSNodeMap.get(node);
+  const type = services.program.getTypeChecker().getTypeAtLocation(tsNode);
+  const members = type.isUnion() ? type.types : [type];
+  return members.some(isUndefinedType);
+}
+
+function findSyntacticUndefinedTypeNode(
+  typeNode: TSESTree.TypeNode,
+): TSESTree.TypeNode | undefined {
   if (typeNode.type === 'TSUndefinedKeyword') {
     return typeNode;
   }
   if (typeNode.type === 'TSUnionType') {
-    return typeNode.types.map(getUndefinedTypeNode).find(tpe => tpe !== undefined);
+    return typeNode.types.map(findSyntacticUndefinedTypeNode).find(type => type !== undefined);
   }
   return undefined;
 }

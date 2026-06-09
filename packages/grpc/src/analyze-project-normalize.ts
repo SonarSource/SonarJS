@@ -116,6 +116,7 @@ function createConfigurationFromProto(configuration: ProjectConfiguration | null
     testInclusions: repeatedStringValues(configuration.testInclusions),
     testExclusions: repeatedStringValues(configuration.testExclusions),
     detectBundles: optionalBoolean(configuration.detectBundles),
+    detectGeneratedCode: optionalBoolean(configuration.detectGeneratedCode),
     canAccessFileSystem: optionalBoolean(configuration.canAccessFileSystem),
     createTSProgramForOrphanFiles: optionalBoolean(configuration.createTsProgramForOrphanFiles),
     disableTypeChecking: optionalBoolean(configuration.disableTypeChecking),

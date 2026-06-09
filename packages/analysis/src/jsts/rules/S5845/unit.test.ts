@@ -570,7 +570,19 @@ describe('S5845', () => {
 
   it('reports assertions comparing incompatible types in JavaScript files when type checking is available', () => {
     jsTypeAwareRuleTester.run('no-incompatible-assertion-types [js]', rule, {
-      valid: [],
+      valid: [
+        {
+          code: `
+            var date = new Date(0);
+            date.toISOString = function () {
+              return 1;
+            };
+
+            expect(date.toJSON()).toBe(1);
+          `,
+          filename: jsFixture,
+        },
+      ],
       invalid: [
         {
           code: `

@@ -40,6 +40,7 @@ export interface GeneratedSourceDetector {
   detect(context: {
     baseDir: NormalizedAbsolutePath;
     packageDir: NormalizedAbsolutePath;
+    hasDependency?: (dependencyName: string) => boolean;
     getDependencies: () => DependenciesList;
     taskInvocations: readonly TaskInvocation[];
     sourceFileMatcher?: GeneratedSourceFileMatcher;

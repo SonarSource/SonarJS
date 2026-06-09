@@ -32,6 +32,8 @@ import org.sonar.plugins.javascript.analysis.AnalysisProcessor;
 import org.sonar.plugins.javascript.analysis.JsTsChecks;
 import org.sonar.plugins.javascript.analysis.JsTsExclusionsFilter;
 import org.sonar.plugins.javascript.analysis.WebSensor;
+import org.sonar.plugins.javascript.analysis.WebSensorModuleConfiguration;
+import org.sonar.plugins.javascript.analysis.WebSensorModuleConfigurationSensor;
 import org.sonar.plugins.javascript.bridge.AnalysisWarningsWrapper;
 import org.sonar.plugins.javascript.bridge.BridgeServerImpl;
 import org.sonar.plugins.javascript.bridge.BundleImpl;
@@ -142,6 +144,8 @@ public class JavaScriptPlugin implements Plugin {
 
   public static final String SKIP_NODE_PROVISIONING_PROPERTY = "sonar.scanner.skipNodeProvisioning";
   public static final String DETECT_BUNDLES_PROPERTY = "sonar.javascript.detectBundles";
+  public static final String DETECT_GENERATED_CODE_PROPERTY =
+    "sonar.javascript.detectGeneratedCode";
   public static final String NO_FS = "sonar.javascript.canAccessFileSystem";
   public static final String CREATE_TS_PROGRAM_FOR_ORPHAN_FILES =
     "sonar.javascript.createTSProgramForOrphanFiles";
@@ -161,6 +165,8 @@ public class JavaScriptPlugin implements Plugin {
       BridgeServerImpl.class,
       NodeDeprecationWarning.class,
       BundleImpl.class,
+      WebSensorModuleConfiguration.class,
+      WebSensorModuleConfigurationSensor.class,
       WebSensor.class,
       TypeScriptLanguage.class,
       TypeScriptRulesDefinition.class,

@@ -20,9 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.plugins.javascript.TestUtils.createInputFile;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.event.Level;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
@@ -36,6 +40,9 @@ import org.sonar.plugins.javascript.JavaScriptPlugin;
 import org.sonar.plugins.javascript.analysis.JsTsContext;
 
 class EslintReportImporterTest {
+
+  @TempDir
+  Path tempDir;
 
   @RegisterExtension
   public final LogTesterJUnit5 logTester = new LogTesterJUnit5();
@@ -127,6 +134,44 @@ class EslintReportImporterTest {
     assertThat(logTester.logs(Level.WARN)).contains(
       "No issues information will be saved as the report file can't be read."
     );
+  }
+
+  @Test
+  void should_resolve_module_relative_paths_when_importing_from_project_context() throws Exception {
+    Path moduleDir = Files.createDirectories(tempDir.resolve("module"));
+    Path report = moduleDir.resolve("report.json");
+    Files.writeString(
+      report,
+      """
+      [
+        {
+          "filePath": "src/file.ts",
+          "messages": [
+            {
+              "ruleId": "semi",
+              "message": "External issue",
+              "line": 1,
+              "column": 1,
+              "endLine": 1,
+              "endColumn": 2
+            }
+          ]
+        }
+      ]
+      """
+    );
+
+    var projectContext = SensorContextTester.create(tempDir.toFile());
+    var inputFile = createInputFile(projectContext, CONTENT, "module/src/file.ts", "ts");
+
+    var issues = eslintReportImporter.execute(
+      new JsTsContext<SensorContext>(projectContext),
+      List.of(new EslintReportImporter.PreparedReport(report.toFile(), moduleDir.toFile()))
+    );
+
+    assertThat(issues).containsOnlyKeys(inputFile.absolutePath());
+    assertThat(issues.get(inputFile.absolutePath())).hasSize(1);
+    assertThat(issues.get(inputFile.absolutePath()).get(0).file()).isEqualTo(inputFile);
   }
 
   private void setEslintReport(String reportFileName) {

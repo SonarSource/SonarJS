@@ -26,7 +26,7 @@ import {
   type Suggestion,
 } from './assertion-utils.js';
 
-type AssertionFamily = 'jest' | 'chai' | 'chai-should' | 'assert';
+type AssertionFamily = 'jest' | 'jasmine' | 'chai' | 'chai-should' | 'assert';
 
 type NumericComparison = {
   jest: string;
@@ -83,14 +83,15 @@ export function chaiShouldReceiver(source: string, node: estree.Node): string {
   return isSafeChaiShouldReceiver(node) ? source : `(${source})`;
 }
 
+const SAFE_CHAI_SHOULD_RECEIVER_TYPES = new Set([
+  'Identifier',
+  'MemberExpression',
+  'CallExpression',
+  'ThisExpression',
+]);
+
 function isSafeChaiShouldReceiver(node: estree.Node): boolean {
-  return [
-    'Identifier',
-    'MemberExpression',
-    'CallExpression',
-    'ThisExpression',
-    'ChainExpression',
-  ].includes(node.type);
+  return SAFE_CHAI_SHOULD_RECEIVER_TYPES.has(node.type);
 }
 
 function getBinaryExpressionSuggestion(
@@ -189,7 +190,7 @@ function buildNullishEqualitySuggestion(
 ): Suggestion {
   const { family, sourceCode, node, assertObject, extraArguments } = context;
   const actual = sourceCode.getText(actualNode);
-  if (family === 'jest') {
+  if (family === 'jest' || family === 'jasmine') {
     if (nullish === 'null') {
       return replacement(`expect(${actual})${negation(same)}.toBeNull()`, node);
     }
@@ -226,8 +227,9 @@ function buildLengthEqualitySuggestion(
 ): Suggestion | null {
   const { family, sourceCode, node, assertObject, extraArguments } = context;
   const actual = sourceCode.getText(actualNode);
-  if (family === 'jest') {
-    return replacement(`expect(${actual})${negation(same)}.toHaveLength(${expected})`, node);
+  if (family === 'jest' || family === 'jasmine') {
+    const matcher = family === 'jasmine' ? 'toHaveSize' : 'toHaveLength';
+    return replacement(`expect(${actual})${negation(same)}.${matcher}(${expected})`, node);
   }
   if (family === 'assert') {
     return same
@@ -254,7 +256,7 @@ function buildEqualitySuggestion(
 ): Suggestion {
   const { family, sourceCode, node, assertObject, extraArguments } = context;
   const left = sourceCode.getText(leftNode);
-  if (family === 'jest') {
+  if (family === 'jest' || family === 'jasmine') {
     return replacement(`expect(${left})${negation(same)}.toBe(${right})`, node);
   }
   if (family === 'assert') {
@@ -280,7 +282,7 @@ function buildInstanceofSuggestion(
   context: SuggestionContext,
 ): Suggestion {
   const { family, node, assertObject, extraArguments } = context;
-  if (family === 'jest') {
+  if (family === 'jest' || family === 'jasmine') {
     return replacement(`expect(${left})${negation(positive)}.toBeInstanceOf(${right})`, node);
   }
   if (family === 'assert') {
@@ -309,7 +311,7 @@ function buildNumericComparisonSuggestion(
   context: SuggestionContext,
 ): Suggestion {
   const { family, node, assertObject, extraArguments } = context;
-  if (family === 'jest') {
+  if (family === 'jest' || family === 'jasmine') {
     return replacement(`expect(${left}).${comparison.jest}(${right})`, node);
   }
   if (family === 'assert') {
@@ -348,7 +350,7 @@ function getIncludesSuggestion(
 
   const receiver = sourceCode.getText(actual.callee.object);
   const needle = sourceCode.getText(actual.arguments[0]);
-  if (family === 'jest') {
+  if (family === 'jest' || family === 'jasmine') {
     return replacement(`expect(${receiver})${negation(positive)}.toContain(${needle})`, node);
   }
   if (family === 'assert') {

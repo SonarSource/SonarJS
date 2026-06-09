@@ -70,6 +70,7 @@ public final class AnalyzeProjectMessages {
       .addAllTestInclusions(analysisConfiguration.getTestInclusions())
       .addAllTestExclusions(analysisConfiguration.getTestExclusions())
       .setDetectBundles(analysisConfiguration.shouldDetectBundles())
+      .setDetectGeneratedCode(analysisConfiguration.shouldDetectGeneratedCode())
       .setCanAccessFileSystem(analysisConfiguration.canAccessFileSystem())
       .setCreateTsProgramForOrphanFiles(analysisConfiguration.shouldCreateTSProgramForOrphanFiles())
       .setDisableTypeChecking(analysisConfiguration.shouldDisableTypeChecking())

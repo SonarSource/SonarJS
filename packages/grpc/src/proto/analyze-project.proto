@@ -84,6 +84,7 @@ message ProjectConfiguration {
   optional bool clear_dependencies_cache = 31;
   optional bool clear_ts_config_cache = 32;
   optional bool report_ncloc_for_test_files = 33;
+  optional bool detect_generated_code = 34;
 }
 
 message StringList {
