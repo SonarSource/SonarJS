@@ -20,6 +20,7 @@ import type { Rule, Scope, SourceCode } from 'eslint';
 import type estree from 'estree';
 import ts from 'typescript';
 import {
+  getUniqueWriteReference,
   getVariableFromScope,
   hasParent,
   isFunctionNode,
@@ -235,7 +236,7 @@ function hasDirectObjectEvidence(
   visitedVariables.add(variable);
 
   return variable.defs.some(definition =>
-    hasDirectObjectDefinition(definition, sourceCode, visitedVariables),
+    hasDirectObjectDefinition(definition, variable, sourceCode, visitedVariables),
   );
 }
 
@@ -249,17 +250,24 @@ function hasDirectObjectEvidence(
  */
 function hasDirectObjectDefinition(
   definition: Scope.Definition,
+  variable: Scope.Variable,
   sourceCode: SourceCode,
   visitedVariables: Set<Scope.Variable>,
 ): boolean {
   switch (definition.type) {
     case 'Parameter':
-      return hasDirectObjectCallSites(definition, sourceCode);
-    case 'Variable':
       return (
-        definition.node.init != null &&
-        hasDirectObjectEvidence(definition.node.init, sourceCode, visitedVariables)
+        !variable.references.some(reference => reference.isWrite()) &&
+        hasDirectObjectCallSites(definition, sourceCode)
       );
+    case 'Variable': {
+      const initializer = definition.node.init;
+      return (
+        initializer != null &&
+        getUniqueWriteReference(variable) === initializer &&
+        hasDirectObjectEvidence(initializer, sourceCode, visitedVariables)
+      );
+    }
     default:
       return false;
   }

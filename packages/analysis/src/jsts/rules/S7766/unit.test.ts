@@ -389,6 +389,28 @@ lowerDomainValue(new Date(1), new Date(2));
           `,
           errors: 1,
         },
+        {
+          code: `
+let left = new Date(1);
+left = Date.now();
+const right = Date.now() + 1;
+
+const earliest = left < right ? left : right;
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function earliestValue(left, right) {
+  left = Date.now();
+  right = Date.now() + 1;
+  return left < right ? left : right;
+}
+
+earliestValue(new Date(1), new Date(2));
+          `,
+          errors: 1,
+        },
       ],
     });
   });
@@ -744,6 +766,27 @@ const lowerDomainValue = (left, right) => Math.min(left, right);
 const alias = lowerDomainValue;
 
 lowerDomainValue({ valueOf: () => 1 }, { valueOf: () => 2 });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+function earliestValue(left, right) {
+  left = Date.now();
+  right = Date.now() + 1;
+  return left < right ? left : right;
+}
+
+earliestValue(new Date(1), new Date(2));
+          `,
+          output: `
+function earliestValue(left, right) {
+  left = Date.now();
+  right = Date.now() + 1;
+  return Math.min(left, right);
+}
+
+earliestValue(new Date(1), new Date(2));
           `,
           errors: 1,
         },
