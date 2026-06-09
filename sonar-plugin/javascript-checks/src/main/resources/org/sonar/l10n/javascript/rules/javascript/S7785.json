@@ -11,6 +11,7 @@
     "async",
     "modernize",
     "esm-only",
+    "type-dependent",
     "editable-source"
   ],
   "defaultSeverity": "Major",
