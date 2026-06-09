@@ -113,15 +113,27 @@ To patch a local VS Code SonarLint or SonarQube for IDE installation with the la
 
 ### Rule Description
 
-1. Create a PR with a rule description in RSPEC repo like described [here](https://github.com/SonarSource/rspec#create-or-modify-a-rule)
+1. Create a PR with a rule description in the RSPEC repo as described in the
+   [RSPEC create-or-modify-a-rule guide](https://github.com/SonarSource/rspec#create-or-modify-a-rule)
 
-- Tag the RSPEC with `type-dependent` if the rule relies partially or fully on type information
-  - In practice, this means the implementation uses TypeScript parser services, either directly or through shared helpers/wrappers.
-  - Direct signals are code paths using `context.sourceCode.parserServices`, `isRequiredParserServices(...)`, `services.program.getTypeChecker()`, or ESTree/TypeScript node maps such as `services.esTreeNodeToTSNodeMap`.
-  - Indirect signals include helpers that wrap the type checker such as `getTypeFromTreeNode(...)`, regex rules built with `createRegExpRule(...)`, and wrapped `@typescript-eslint` rules whose implementation requires typed services.
-  - Do not use `type-dependent` for rules that only inspect TypeScript syntax and never query typed parser services.
-- Add a field `dependencies` if your rule should only be executed if it relies on a specific import (example: 'react' or 'jest')
-- Add a field `compatibleLanguages` with an array including, which languages you support (`js` and/or `ts`).
+   - Tag the RSPEC with `type-dependent` if the rule relies partially or fully
+     on type information.
+     - In practice, this means the implementation uses TypeScript parser
+       services, either directly or through shared helpers or wrappers.
+     - Direct signals are code paths using
+       `context.sourceCode.parserServices`, `isRequiredParserServices(...)`,
+       `services.program.getTypeChecker()`, or ESTree/TypeScript node maps such
+       as `services.esTreeNodeToTSNodeMap`.
+     - Indirect signals include helpers that wrap the type checker such as
+       `getTypeFromTreeNode(...)`, regex rules built with
+       `createRegExpRule(...)`, and wrapped `@typescript-eslint` rules whose
+       implementation requires typed services.
+     - Do not use `type-dependent` for rules that only inspect TypeScript
+       syntax and never query typed parser services.
+   - Add a field `dependencies` if your rule should only be executed if it
+     relies on a specific import (example: 'react' or 'jest').
+   - Add a field `compatibleLanguages` with an array including which languages
+     you support (`js` and/or `ts`).
 
 2. Link this RSPEC PR to the implementation issue in this repo
 3. Make sure the implementation issue title contains the RSPEC number and name
