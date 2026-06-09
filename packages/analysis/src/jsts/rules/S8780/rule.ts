@@ -89,6 +89,8 @@ type Frameworks = {
   playwright: boolean;
 };
 
+type FunctionArgument = estree.FunctionExpression | estree.ArrowFunctionExpression;
+
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
 
@@ -148,13 +150,15 @@ function extractSupportedTestCallback(
     return null;
   }
 
-  const callback = call.arguments.find(isFunctionArgument);
-  return callback ?? null;
+  for (const argument of call.arguments) {
+    if (isFunctionArgument(argument)) {
+      return argument;
+    }
+  }
+  return null;
 }
 
-function isFunctionArgument(
-  node: estree.Node,
-): node is estree.FunctionExpression | estree.ArrowFunctionExpression {
+function isFunctionArgument(node: estree.Node | estree.SpreadElement): node is FunctionArgument {
   return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
 }
 
@@ -244,7 +248,7 @@ function getPlaywrightAsyncNode(
 
 function collectCallChain(call: estree.CallExpression): { name: string; node: estree.Node }[] {
   const chain: { name: string; node: estree.Node }[] = [];
-  let current: estree.Node = call;
+  let current: estree.Node | estree.Super = call;
 
   while (current.type === 'CallExpression' || current.type === 'MemberExpression') {
     if (current.type === 'CallExpression') {
@@ -264,7 +268,7 @@ function collectCallChain(call: estree.CallExpression): { name: string; node: es
 }
 
 function getRootCall(call: estree.CallExpression): estree.CallExpression | null {
-  let current: estree.Node = call;
+  let current: estree.Node | estree.Super = call;
 
   while (current.type === 'CallExpression' || current.type === 'MemberExpression') {
     if (current.type === 'CallExpression') {
@@ -312,7 +316,7 @@ function isNamedCall(
   return importedNames.includes(fqn ?? '') || isIdentifier(call.callee, globalName);
 }
 
-function unwrapChainExpression<T extends estree.Node>(node: T): T | estree.Expression {
+function unwrapChainExpression<T extends estree.Node | estree.Super>(node: T): T | estree.Expression {
   return node.type === 'ChainExpression' ? node.expression : node;
 }
 
