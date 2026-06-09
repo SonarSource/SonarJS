@@ -105,7 +105,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -149,7 +149,7 @@ jobs:
     steps:
       - *checkout
       - &mise
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -389,7 +389,7 @@ jobs:
             node-label: 'min supported'
     steps:
       - *checkout
-      - uses: jdx/mise-action@v4.0.1
+      - uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -439,7 +439,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -491,7 +491,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -655,7 +655,7 @@ jobs:
     steps:
       - *checkout
       - &mise_java_matrix_node
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -725,7 +725,7 @@ jobs:
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -815,7 +815,7 @@ jobs:
           chown -R sonar:sonar /github/home
       - &alpine_setup_maven
         name: Setup Maven
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: true
