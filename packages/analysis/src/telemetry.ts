@@ -18,7 +18,12 @@ import { minVersion } from 'semver';
 import ts from 'typescript';
 import { getTypeScriptSignalsFromPackageJsonFiles } from './jsts/rules/helpers/dependency-manifests/dependencies.js';
 import type { ModuleType } from './jsts/rules/helpers/dependency-manifests/resolvers/types.js';
-import { dependencyManifestStore } from './file-stores/index.js';
+import { dependencyManifestStore } from './file-stores/dependency-manifests.js';
+import {
+  cloneGeneratedSourcesTelemetry,
+  createEmptyGeneratedSourcesTelemetry,
+  type GeneratedSourcesTelemetry,
+} from './generated-source-telemetry.js';
 
 const NOT_DETECTED = 'not-detected';
 const STRICT_CHILD_COMPILER_OPTIONS = [
@@ -85,23 +90,6 @@ type ProgramCreationTelemetry = {
   failed: number;
 };
 
-export type GeneratedSourceFamilyTelemetry = {
-  family: string;
-  resolvedFileCount: number;
-  taggedFileCount: number;
-  outOfScopeFileCount: number;
-  excludedFileCount: number;
-};
-
-export type GeneratedSourcesTelemetry = {
-  familyCount: number;
-  resolvedFileCount: number;
-  taggedFileCount: number;
-  outOfScopeFileCount: number;
-  excludedFileCount: number;
-  families: GeneratedSourceFamilyTelemetry[];
-};
-
 export type ProjectAnalysisTelemetry = {
   typescriptVersions: string[];
   typescriptNativePreview: boolean;
@@ -114,25 +102,11 @@ export type ProjectAnalysisTelemetry = {
   generatedSources: GeneratedSourcesTelemetry;
 };
 
-export function createEmptyGeneratedSourcesTelemetry(): GeneratedSourcesTelemetry {
-  return {
-    familyCount: 0,
-    resolvedFileCount: 0,
-    taggedFileCount: 0,
-    outOfScopeFileCount: 0,
-    excludedFileCount: 0,
-    families: [],
-  };
-}
-
-export function cloneGeneratedSourcesTelemetry(
-  telemetry: GeneratedSourcesTelemetry,
-): GeneratedSourcesTelemetry {
-  return {
-    ...telemetry,
-    families: telemetry.families.map(family => ({ ...family })),
-  };
-}
+export {
+  cloneGeneratedSourcesTelemetry,
+  createEmptyGeneratedSourcesTelemetry,
+  type GeneratedSourcesTelemetry,
+} from './generated-source-telemetry.js';
 
 export function resetProjectAnalysisTelemetry() {
   projectAnalysisTelemetryCollector = new ProjectAnalysisTelemetryCollector();
