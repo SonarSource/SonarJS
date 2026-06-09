@@ -193,7 +193,7 @@ ignoreParams: [{
 
 Some rules have multiple ignore params (e.g., S4654 has `ignoreProperties` and `ignoreSelectors`), which are merged into a single secondary options object.
 
-**Rules using this pattern:** S4649, S4653, S4654, S4659, S4660, S4662, S4670, S8756 (8 rules)
+**Rules using this pattern:** S4649, S4653, S4654, S4659, S4660, S4662, S4670, S8779 (8 rules)
 
 ---
 

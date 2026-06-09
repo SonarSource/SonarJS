@@ -88,7 +88,7 @@ class CssRulesDefinitionTest {
     assertThat(atRuleNoUnknownParam.type()).isEqualTo(RuleParamType.STRING);
 
     // AtRuleNoDeprecated
-    Param atRuleNoDeprecatedParam = repository.rule("S8756").param("ignoreAtRules");
+    Param atRuleNoDeprecatedParam = repository.rule("S8779").param("ignoreAtRules");
     assertThat(atRuleNoDeprecatedParam).isNotNull();
     assertThat(atRuleNoDeprecatedParam.defaultValue()).isNull();
     assertThat(atRuleNoDeprecatedParam.description()).isEqualTo(

@@ -205,7 +205,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     ],
   },
   {
-    sqKey: 'S8756',
+    sqKey: 'S8779',
     stylelintKey: 'at-rule-no-deprecated',
     listParam: [
       {
