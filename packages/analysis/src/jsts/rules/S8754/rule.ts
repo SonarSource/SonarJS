@@ -32,6 +32,7 @@ import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/modu
 import * as meta from './generated-meta.js';
 
 const SUPPORTED_TEST_FRAMEWORKS = ['jest', 'mocha', 'vitest', '@playwright/test'];
+const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['jest', 'mocha', 'vitest']);
 const TEST_FUNCTION_NAMES = ['it', 'specify', 'test'];
 const SUITE_FUNCTION_NAMES = ['describe', 'context', 'suite'];
 const CONCRETE_MOCHA_MODIFIERS = new Set(['only', 'concurrent']);
@@ -263,14 +264,12 @@ function isMochaTestConstruct(
   constructs: string[],
 ): boolean {
   const calleeParts = getMochaCalleeParts(node.callee);
-  if (calleeParts === undefined || !constructs.includes(calleeParts.base.name)) {
+  const constructName = calleeParts && getMochaConstructName(context, calleeParts.base);
+  if (constructName === undefined || !constructs.includes(constructName)) {
     return false;
   }
 
-  return (
-    !isLocallyDefined(context, calleeParts.base) &&
-    calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.has(modifier))
-  );
+  return calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.has(modifier));
 }
 
 function isIgnoredSuiteDeclaration(
@@ -286,14 +285,12 @@ function isIgnoredSuiteDeclaration(
 
 function isNonConcreteMochaSuite(context: Rule.RuleContext, node: estree.Node): boolean {
   const calleeParts = getMochaCalleeParts(node);
-  if (calleeParts === undefined || !SUITE_FUNCTION_NAMES.includes(calleeParts.base.name)) {
+  const constructName = calleeParts && getMochaConstructName(context, calleeParts.base);
+  if (constructName === undefined || !SUITE_FUNCTION_NAMES.includes(constructName)) {
     return false;
   }
 
-  return (
-    !isLocallyDefined(context, calleeParts.base) &&
-    !calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.has(modifier))
-  );
+  return !calleeParts.modifiers.every(modifier => CONCRETE_MOCHA_MODIFIERS.has(modifier));
 }
 
 function getMochaCalleeParts(
@@ -379,12 +376,28 @@ function isInConcreteCollectionCallback(
   return functionNesting === concreteSuiteCallbackNesting;
 }
 
-function isLocallyDefined(context: Rule.RuleContext, identifier: estree.Identifier): boolean {
+function getMochaConstructName(
+  context: Rule.RuleContext,
+  identifier: estree.Identifier,
+): string | undefined {
   const variable = getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name);
-  return (
-    variable != null &&
-    !variable.defs.some(def => def.type === 'ImportBinding' || isSupportedRequireBinding(def.node))
-  );
+  if (
+    variable?.defs.some(def => def.type === 'ImportBinding' || isSupportedRequireBinding(def.node))
+  ) {
+    return getMochaConstructNameFromFqn(getFullyQualifiedName(context, identifier));
+  }
+
+  return variable == null || variable.defs.length === 0 ? identifier.name : undefined;
+}
+
+function getMochaConstructNameFromFqn(fqn: string | null): string | undefined {
+  const parts = fqn?.split('.');
+  if (parts?.length !== 2) {
+    return undefined;
+  }
+
+  const [framework, constructName] = parts;
+  return MOCHA_STYLE_TEST_FRAMEWORKS.has(framework) ? constructName : undefined;
 }
 
 function isSupportedRequireBinding(node: estree.Node): boolean {
@@ -427,7 +440,7 @@ function isPlaywrightDescribe(context: Rule.RuleContext, callee: estree.Node): b
 
 function isPlaywrightTest(context: Rule.RuleContext, callee: estree.Node): boolean {
   const qualifiers = getPlaywrightTestQualifiers(context, callee);
-  if (qualifiers === undefined || qualifiers.length === 0) {
+  if (qualifiers === undefined) {
     return false;
   }
 
@@ -463,9 +476,7 @@ function getPlaywrightDescribeClassification(
   }
 
   const runnableModifiers =
-    modifiers.at(-1) === PLAYWRIGHT_DESCRIBE_FOCUS_MODIFIER
-      ? modifiers.slice(0, -1)
-      : modifiers;
+    modifiers.at(-1) === PLAYWRIGHT_DESCRIBE_FOCUS_MODIFIER ? modifiers.slice(0, -1) : modifiers;
   return runnableModifiers.every(modifier => PLAYWRIGHT_DESCRIBE_MODIFIERS.has(modifier))
     ? 'concrete'
     : 'unknown';

@@ -324,6 +324,28 @@ function makeTests() {
         },
         {
           code: `
+import { describe as d, it as i } from 'vitest';
+d('suite', () => {
+  i('dup', () => {});
+  i('dup', () => {});
+});
+          `,
+          filename: 'aliased-vitest.test.ts',
+          errors: 1,
+        },
+        {
+          code: `
+const { describe: d, test: t } = require('vitest');
+d('suite', () => {
+  t('dup', () => {});
+  t('dup', () => {});
+});
+          `,
+          filename: 'aliased-vitest-require.test.js',
+          errors: 1,
+        },
+        {
+          code: `
 const { test } = require('vitest');
 test('loads profile', () => {});
 test('loads profile', () => {});
