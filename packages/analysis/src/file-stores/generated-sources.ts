@@ -284,7 +284,6 @@ class GeneratedSourceStore implements FileStore {
       this.derivedFamilyByFile,
       this.familyByFile,
       configuration,
-      analyzableFiles,
     );
     this.observabilityTelemetry = observability.telemetry;
     const observabilityKey = createGeneratedSourceObservabilityLogKey(this.baseDir, observability);

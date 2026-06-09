@@ -22,7 +22,6 @@ import { debug, info } from '../../../shared/src/helpers/logging.js';
 import type { Configuration } from '../common/configuration.js';
 import { getFilterPathParams } from '../common/configuration.js';
 import { classifyFilePath } from '../common/filter/filter-path.js';
-import type { AnalyzableFiles } from '../projectAnalysis.js';
 import {
   type GeneratedSourceFamilyTelemetry,
   type GeneratedSourcesTelemetry,
@@ -51,7 +50,6 @@ export function buildGeneratedSourceObservability(
   resolvedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   configuration: Configuration,
-  analyzableFiles?: AnalyzableFiles,
 ): GeneratedSourceObservability {
   const filterPathParams = getFilterPathParams(configuration);
   const pathsByFamily = collectGeneratedSourcePathsByFamily(resolvedFamilyByFile);
