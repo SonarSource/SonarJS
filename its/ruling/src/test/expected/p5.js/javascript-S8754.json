@@ -1,0 +1,48 @@
+{
+"p5.js:test/unit/core/2d_primitives.js": [
+62
+],
+"p5.js:test/unit/core/attributes.js": [
+32,
+49,
+80,
+97
+],
+"p5.js:test/unit/core/error_helpers.js": [
+123,
+132
+],
+"p5.js:test/unit/core/p5.Element.js": [
+34
+],
+"p5.js:test/unit/core/vertex.js": [
+38
+],
+"p5.js:test/unit/events/keyboard.js": [
+66,
+71
+],
+"p5.js:test/unit/math/calculation.js": [
+72,
+76,
+288,
+320
+],
+"p5.js:test/unit/math/p5.Vector.js": [
+572,
+685,
+737
+],
+"p5.js:test/unit/utilities/conversion.js": [
+162
+],
+"p5.js:test/unit/utilities/string_functions.js": [
+73,
+92,
+111,
+130
+],
+"p5.js:test/unit/webgl/interaction.js": [
+64
+]
+}

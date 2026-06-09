@@ -1,0 +1,17 @@
+{
+"TypeScript:src/harness/unittests/convertCompilerOptionsFromJson.ts": [
+275
+],
+"TypeScript:src/harness/unittests/services/patternMatcher.ts": [
+339,
+346,
+352,
+358
+],
+"TypeScript:src/harness/unittests/tsserverProjectSystem.ts": [
+1033
+],
+"TypeScript:src/harness/unittests/versionCache.ts": [
+145
+]
+}
