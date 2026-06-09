@@ -56,7 +56,7 @@ import org.sonarsource.analyzer.commons.ProfileGenerator;
 class RulingTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(RulingTest.class);
-  static final String LITS_VERSION = "0.12.0.5851";
+  static final String LITS_VERSION = "0.12.0.5861";
   static final String SCANNER_VERSION = "5.0.1.3006";
 
   static final String DEFAULT_EXCLUSIONS = "**/.*,**/*.d.ts";
