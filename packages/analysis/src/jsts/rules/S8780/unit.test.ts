@@ -221,6 +221,20 @@ describe('S8780', () => {
           `,
           errors: 1,
         },
+        {
+          code: `
+            import { test, expect } from '@playwright/test';
+
+            test('checks accessibility assertions', async ({ page }) => {
+              expect(page.getByRole('button')).toHaveRole('button');
+              expect(page.getByRole('button')).toContainClass('primary');
+              expect(page.getByRole('button')).toHaveAccessibleDescription('Submits the form');
+              expect(page.getByRole('button')).toHaveAccessibleName('Submit');
+              expect(page.getByRole('main')).toMatchAriaSnapshot();
+            });
+          `,
+          errors: 5,
+        },
       ],
     });
   });
