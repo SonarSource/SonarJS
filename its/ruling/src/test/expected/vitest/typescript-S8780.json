@@ -1,0 +1,12 @@
+{
+"vitest:test/cli/fixtures/fails/async-assertion.test.ts": [
+4,
+5
+],
+"vitest:test/cli/fixtures/fails/test-timeout.test.ts": [
+47
+],
+"vitest:test/core/test/jest-expect.test.ts": [
+1266
+]
+}
