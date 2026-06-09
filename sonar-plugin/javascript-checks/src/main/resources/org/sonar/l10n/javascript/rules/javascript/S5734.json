@@ -1,19 +1,21 @@
 {
-  "title": "Allowing browsers to sniff MIME types is security-sensitive",
-  "type": "SECURITY_HOTSPOT",
+  "title": "Browsers should not be allowed to perform MIME type sniffing",
+  "type": "VULNERABILITY",
   "code": {
     "impacts": {
       "SECURITY": "LOW"
     },
-    "attribute": "COMPLETE"
+    "attribute": "TRUSTWORTHY"
   },
   "status": "ready",
+  "quickfix": "unknown",
   "remediation": {
     "func": "Constant/Issue",
     "constantCost": "5min"
   },
   "tags": [
-    "express.js"
+    "express.js",
+    "former-hotspot"
   ],
   "extra": {
     "replacementRules": [],
@@ -31,9 +33,8 @@
       "A5"
     ],
     "CWE": [
-      16,
-      436,
-      693
+      79,
+      436
     ]
   },
   "defaultQualityProfiles": [
