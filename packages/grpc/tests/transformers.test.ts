@@ -260,7 +260,7 @@ describe('CSS rule configurations', () => {
   });
 
   it('should return the fixed primary option for a rule without params', () => {
-    const result = buildCssRuleConfigurations('S8763', []);
+    const result = buildCssRuleConfigurations('S8768', []);
     expect(result).toEqual({ key: 'selector-type-case', configurations: ['lower'] });
   });
 

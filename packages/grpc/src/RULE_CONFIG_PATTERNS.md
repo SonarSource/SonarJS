@@ -257,17 +257,17 @@ primaryOption: string;
 
 **Stylelint output:** `['lower']`
 
-**Example (S8763 — selector-type-case):**
+**Example (S8768 — selector-type-case):**
 
 ```typescript
 {
-  sqKey: 'S8763',
+  sqKey: 'S8768',
   stylelintKey: 'selector-type-case',
   primaryOption: 'lower',
 }
 ```
 
-**Rules using this pattern:** S8763 (1 rule)
+**Rules using this pattern:** S8768 (1 rule)
 
 ---
 

@@ -264,7 +264,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'sonar/text-spacing',
   },
   {
-    sqKey: 'S8763',
+    sqKey: 'S8768',
     stylelintKey: 'selector-type-case',
     primaryOption: 'lower',
   },

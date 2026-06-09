@@ -1095,12 +1095,12 @@ describe('gRPC server', () => {
       expect(responseIssue.issues?.[0].rule?.rule).toBe('S4659');
     });
 
-    it('should apply CSS rule fixed primaryOption (S8763)', async () => {
+    it('should apply CSS rule fixed primaryOption (S8768)', async () => {
       const requestNoIssue: analyzer.IAnalyzeRequest = {
         analysisId: generateAnalysisId(),
         contextIds: {},
         sourceFiles: [{ relativePath: 'src/styles.css', content: 'a { color: red; }' }],
-        activeRules: [{ ruleKey: { repo: 'css', rule: 'S8763' }, params: [] }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S8768' }, params: [] }],
       };
 
       const responseNoIssue = await client.analyze(requestNoIssue);
@@ -1110,12 +1110,12 @@ describe('gRPC server', () => {
         analysisId: generateAnalysisId(),
         contextIds: {},
         sourceFiles: [{ relativePath: 'src/styles.css', content: 'A { color: red; }' }],
-        activeRules: [{ ruleKey: { repo: 'css', rule: 'S8763' }, params: [] }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S8768' }, params: [] }],
       };
 
       const responseIssue = await client.analyze(requestIssue);
       expect(responseIssue.issues?.length).toBe(1);
-      expect(responseIssue.issues?.[0].rule?.rule).toBe('S8763');
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S8768');
     });
 
     it('should apply CSS rule booleanParam (ignoreFallbacks)', async () => {
