@@ -339,12 +339,12 @@ describe('CSS rule configurations', () => {
     });
 
     it('should return empty configurations when multiple listParams have empty defaults', () => {
-      const result = buildCssRuleConfigurations('S4665', []);
+      const result = buildCssRuleConfigurations('S8772', []);
       expect(result!.configurations).toEqual([]);
     });
 
     it('should merge provided listParams when multiple listParams have empty defaults', () => {
-      const result = buildCssRuleConfigurations('S4665', [
+      const result = buildCssRuleConfigurations('S8772', [
         { key: 'ignoreLonghands', value: 'text-decoration-thickness' },
         { key: 'ignoreShorthands', value: 'margin,/^flex/' },
       ]);

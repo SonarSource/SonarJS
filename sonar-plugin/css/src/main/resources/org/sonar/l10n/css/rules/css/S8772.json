@@ -19,7 +19,7 @@
   },
   "defaultSeverity": "Major",
   "ruleSpecification": "RSPEC-4665",
-  "sqKey": "S4665",
+  "sqKey": "S8772",
   "scope": "Main",
   "defaultQualityProfiles": [
     "Sonar way"

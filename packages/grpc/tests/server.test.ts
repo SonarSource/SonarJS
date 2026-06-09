@@ -1128,7 +1128,7 @@ describe('gRPC server', () => {
       expect(responseIssue.issues?.[0].rule?.rule).toBe('S4656');
     });
 
-    it('should report redundant longhands and allow ignored shorthands (S4665)', async () => {
+    it('should report redundant longhands and allow ignored shorthands (S8772)', async () => {
       const content =
         'a { margin-top: 1px; margin-right: 2px; margin-bottom: 3px; margin-left: 4px; }';
 
@@ -1136,12 +1136,12 @@ describe('gRPC server', () => {
         analysisId: generateAnalysisId(),
         contextIds: {},
         sourceFiles: [{ relativePath: 'src/styles.css', content }],
-        activeRules: [{ ruleKey: { repo: 'css', rule: 'S4665' }, params: [] }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S8772' }, params: [] }],
       };
 
       const responseIssue = await client.analyze(requestIssue);
       expect(responseIssue.issues?.length).toBe(1);
-      expect(responseIssue.issues?.[0].rule?.rule).toBe('S4665');
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S8772');
 
       const requestNoIssue: analyzer.IAnalyzeRequest = {
         analysisId: generateAnalysisId(),
@@ -1149,7 +1149,7 @@ describe('gRPC server', () => {
         sourceFiles: [{ relativePath: 'src/styles.css', content }],
         activeRules: [
           {
-            ruleKey: { repo: 'css', rule: 'S4665' },
+            ruleKey: { repo: 'css', rule: 'S8772' },
             params: [{ key: 'ignoreShorthands', value: 'margin' }],
           },
         ],
@@ -1159,7 +1159,7 @@ describe('gRPC server', () => {
       expect(responseNoIssue.issues?.length).toBe(0);
     });
 
-    it('should apply ignoreLonghands to complete shorthand groups (S4665)', async () => {
+    it('should apply ignoreLonghands to complete shorthand groups (S8772)', async () => {
       const content =
         'a { text-decoration-line: underline; text-decoration-style: solid; text-decoration-color: red; }';
 
@@ -1167,7 +1167,7 @@ describe('gRPC server', () => {
         analysisId: generateAnalysisId(),
         contextIds: {},
         sourceFiles: [{ relativePath: 'src/styles.css', content }],
-        activeRules: [{ ruleKey: { repo: 'css', rule: 'S4665' }, params: [] }],
+        activeRules: [{ ruleKey: { repo: 'css', rule: 'S8772' }, params: [] }],
       };
 
       const responseNoIssue = await client.analyze(requestNoIssue);
@@ -1179,7 +1179,7 @@ describe('gRPC server', () => {
         sourceFiles: [{ relativePath: 'src/styles.css', content }],
         activeRules: [
           {
-            ruleKey: { repo: 'css', rule: 'S4665' },
+            ruleKey: { repo: 'css', rule: 'S8772' },
             params: [{ key: 'ignoreLonghands', value: 'text-decoration-thickness' }],
           },
         ],
@@ -1187,7 +1187,7 @@ describe('gRPC server', () => {
 
       const responseIssue = await client.analyze(requestIssue);
       expect(responseIssue.issues?.length).toBe(1);
-      expect(responseIssue.issues?.[0].rule?.rule).toBe('S4665');
+      expect(responseIssue.issues?.[0].rule?.rule).toBe('S8772');
     });
 
     it('should not produce CSS issues when no CSS rules are active', async () => {

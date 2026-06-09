@@ -155,7 +155,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'declaration-block-no-shorthand-property-overrides',
   },
   {
-    sqKey: 'S4665',
+    sqKey: 'S8772',
     stylelintKey: 'declaration-block-no-redundant-longhand-properties',
     listParam: [
       {
