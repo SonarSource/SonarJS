@@ -208,6 +208,37 @@ describe('gRPC server', () => {
     expect(issue.message).toBe('Unnecessary semicolon.');
   });
 
+  it('should return ESLint-suppressed findings separately from open issues', async () => {
+    const request: analyzer.IAnalyzeRequest = {
+      analysisId: generateAnalysisId(),
+      contextIds: {},
+      sourceFiles: [
+        {
+          relativePath: '/project/src/suppressed.js',
+          content: '/* eslint-disable-next-line no-var -- accepted */\nvar value = 42;\n',
+        },
+      ],
+      activeRules: [
+        {
+          ruleKey: { repo: 'javascript', rule: 'S3504' },
+          params: [],
+        },
+      ],
+    };
+
+    const response = await client.analyze(request);
+
+    expect(response.issues || []).toEqual([]);
+    expect(response.suppressedIssues).toEqual([
+      expect.objectContaining({
+        filePath: '/project/src/suppressed.js',
+        message: expect.any(String),
+        resolutionComment: 'accepted',
+        rule: expect.objectContaining({ repo: 'javascript', rule: 'S3504' }),
+      }),
+    ]);
+  });
+
   it('should not reuse previous issues when the same file path is analyzed with different content', async () => {
     const filePath = '/project/src/cached-content.js';
 

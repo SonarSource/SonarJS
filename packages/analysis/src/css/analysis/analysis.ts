@@ -70,7 +70,7 @@ export interface CssMetrics {
  * Contains linting issues and, when not running in SonarLint mode,
  * syntax highlighting tokens and file metrics.
  */
-export interface CssAnalysisOutput extends AnalysisOutput<CssIssue> {
+export interface CssAnalysisOutput extends AnalysisOutput<CssIssue, never> {
   highlights?: CssSyntaxHighlight[];
   metrics?: CssMetrics;
 }
