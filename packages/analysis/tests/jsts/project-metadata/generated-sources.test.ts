@@ -2744,6 +2744,79 @@ plugins = [
     }
   });
 
+  it('counts accept()-rejected in-scope generated files as excluded in observability', async ({
+    mock,
+  }) => {
+    const baseDir = await createTempBaseDir();
+    const rejectedGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'blocked.ts');
+    const originalConsoleLog = console.log;
+    console.log = mock.fn(console.log);
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              graphql: 'graphql-codegen --config ./codegen.yml',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        joinPaths(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/blocked.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(rejectedGeneratedFile, 'export const blocked = true;\n');
+
+      await initFileStores(
+        createConfiguration({
+          baseDir,
+          sources: ['src'],
+          maxFileSize: 0,
+        }),
+      );
+
+      expect(sourceFileStore.getFiles()[rejectedGeneratedFile]).toBeUndefined();
+      expect(generatedSourceStore.getFamily(rejectedGeneratedFile)).toBeUndefined();
+      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+        familyCount: 1,
+        resolvedFileCount: 1,
+        taggedFileCount: 0,
+        outOfScopeFileCount: 0,
+        excludedFileCount: 1,
+        families: [
+          {
+            family: GRAPHQL_CODEGEN_FAMILY,
+            resolvedFileCount: 1,
+            taggedFileCount: 0,
+            outOfScopeFileCount: 0,
+            excludedFileCount: 1,
+          },
+        ],
+      });
+
+      const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+        call => call.arguments[0],
+      );
+      expect(logs).toContain(
+        'DEBUG Generated source family=@graphql-codegen/cli excluded sample=src/generated/blocked.ts',
+      );
+    } finally {
+      console.log = originalConsoleLog;
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('relogs observability when tagged samples change across request.files refreshes', async ({
     mock,
   }) => {

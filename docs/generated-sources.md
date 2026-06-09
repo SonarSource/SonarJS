@@ -129,11 +129,13 @@ The snapshot is built from:
 For each detector family, every resolved generated file contributes to one of these observability buckets:
 
 - **tagged**: the file is derived and visible to the current request
-- **excluded**: the file is filtered out either by JS/TS exclusions or by source/test scope exclusions
+- **excluded**: the file is filtered out either by JS/TS exclusions, by source/test scope exclusions, or by source-file acceptance checks such as size, bundle, or minification filters
 - **out of scope**: the file is outside the current analysis scope
 - **resolved only**: the file is derived but intentionally counted only in `resolvedFileCount`
 
-The last case happens in request-driven analyses when a file is analyzable for the project but absent from the current `request.files` subset. Those files are not reported as excluded.
+The last case happens only in request-driven analyses when a file is analyzable for the project but absent from the current `request.files` subset. Those files are not reported as excluded.
+
+In full-project filesystem analyses, an in-scope generated file that is not tagged is treated as excluded rather than `resolved only`. That is the case where the file passed path-based scope checks but `sourceFileStore` filtered it out later through content-based acceptance rules.
 
 For JS/TS exclusions specifically, observability classification uses a non-logging exclusion match. That detail matters because the store may rebuild buckets repeatedly during refreshes, and those refreshes should not emit extra generic `File ignored due to js/ts exclusions` DEBUG lines outside the deduplicated observability output.
 

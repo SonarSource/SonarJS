@@ -50,6 +50,7 @@ export function buildGeneratedSourceObservability(
   resolvedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   configuration: Configuration,
+  allowResolvedOnlyFiles: boolean,
 ): GeneratedSourceObservability {
   const filterPathParams = getFilterPathParams(configuration);
   const pathsByFamily = collectGeneratedSourcePathsByFamily(resolvedFamilyByFile);
@@ -65,7 +66,13 @@ export function buildGeneratedSourceObservability(
     }
 
     families.push(
-      summarizeGeneratedSourceFamily(family, filePaths, taggedFamilyByFile, filterPathParams),
+      summarizeGeneratedSourceFamily(
+        family,
+        filePaths,
+        taggedFamilyByFile,
+        filterPathParams,
+        allowResolvedOnlyFiles,
+      ),
     );
   }
 
@@ -165,6 +172,7 @@ function summarizeGeneratedSourceFamily(
   filePaths: readonly NormalizedAbsolutePath[],
   taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   filterPathParams: ReturnType<typeof getFilterPathParams>,
+  allowResolvedOnlyFiles: boolean,
 ): GeneratedSourceFamilyObservability {
   const familySummary: GeneratedSourceFamilyObservability = {
     family,
@@ -200,9 +208,16 @@ function summarizeGeneratedSourceFamily(
     if (pathClassification.status === 'EXCLUDED') {
       familySummary.excludedFileCount += 1;
       familySummary.excludedPaths.push(filePath);
+      continue;
     }
-    // In-scope files that are not tagged remain counted only in resolvedFileCount. They are
-    // intentionally not reclassified into another bucket here.
+
+    if (!allowResolvedOnlyFiles) {
+      familySummary.excludedFileCount += 1;
+      familySummary.excludedPaths.push(filePath);
+    }
+    // In explicit request-driven analyses, in-scope files omitted from request.files remain
+    // counted only in resolvedFileCount. Full-project analyses do not have that case, so an
+    // in-scope untagged file is treated as excluded because source-file acceptance rejected it.
   }
 
   return familySummary;
