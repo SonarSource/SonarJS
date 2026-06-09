@@ -135,6 +135,8 @@ For each detector family, every resolved generated file contributes to one of th
 
 The last case happens in request-driven analyses when a file is analyzable for the project but absent from the current `request.files` subset. Those files are not reported as excluded.
 
+For JS/TS exclusions specifically, observability classification uses a non-logging exclusion match. That detail matters because the store may rebuild buckets repeatedly during refreshes, and those refreshes should not emit extra generic `File ignored due to js/ts exclusions` DEBUG lines outside the deduplicated observability output.
+
 ### 7. Logs are deduplicated across refreshes
 
 The store logs observability only when the content changes.
@@ -356,6 +358,8 @@ The sampled file paths are relative to `baseDir` and capped to a small fixed sam
 ### Declaration-only default exclusions
 
 Families whose resolved outputs are all `.d.ts` files excluded by the default `**/*.d.ts` JS/TS exclusion are omitted from telemetry totals.
+
+That rule remains true even when those same `.d.ts` files also match `sonar.exclusions` or `sonar.test.exclusions`. The special case is about declaration-only default JS/TS exclusions, not about whether another analysis-scope exclusion also applies.
 
 They are still reported through DEBUG logging so the omission is explicit rather than silent.
 
