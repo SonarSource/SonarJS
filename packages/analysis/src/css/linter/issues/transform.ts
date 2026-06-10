@@ -15,9 +15,13 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import type stylelint from 'stylelint';
+import type PostCSS from 'postcss';
 import { debug, warn } from '../../../../../shared/src/helpers/logging.js';
 import type { CssIssue } from './issue.js';
 import type { NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
+import { cssOnlyRuleKeys } from '../css-only-rules.js';
+
+const NON_CSS_LANGS = new Set(['scss', 'sass', 'less', 'stylus', 'styl']);
 
 /**
  * Checks if a position value (line or column) is valid.
@@ -25,6 +29,43 @@ import type { NormalizedAbsolutePath } from '../../../../../shared/src/helpers/f
  */
 function isValidPosition(value: number | undefined): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 1;
+}
+
+/**
+ * Returns true when a CSS-only rule warning came from a non-CSS embedded block
+ * inside an HTML or Vue file (e.g. <style lang="scss">).
+ *
+ * When postcss-html parses an HTML/Vue file it produces a PostCSS Document whose
+ * child Root nodes each carry a `source.lang` from the block's lang attribute.
+ * We use that to decide whether to suppress the warning.
+ */
+function isInNonCssEmbeddedBlock(
+  warning: stylelint.Warning,
+  result: stylelint.LintResult,
+): boolean {
+  const root = (result as { _postcssResult?: { root?: unknown } })._postcssResult
+    ?.root as PostCSS.Root | PostCSS.Document | undefined;
+
+  if (root?.type !== 'document') {
+    return false;
+  }
+
+  const warnLine = warning.line ?? 1;
+  for (const child of (root as PostCSS.Document).nodes) {
+    if (child.type !== 'root') {
+      continue;
+    }
+    const lang = (child as PostCSS.Root).source?.lang?.toLowerCase();
+    if (!lang || !NON_CSS_LANGS.has(lang)) {
+      continue;
+    }
+    const startLine = (child as PostCSS.Root).source?.start?.line ?? 0;
+    const endLine = (child as PostCSS.Root).source?.end?.line ?? Infinity;
+    if (warnLine >= startLine && warnLine <= endLine) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /**
@@ -51,6 +92,11 @@ export function transform(
       continue;
     }
     for (const warning of result.warnings) {
+      // CSS-only rules must not report on non-CSS embedded blocks (e.g. <style lang="scss">).
+      if (cssOnlyRuleKeys.has(warning.rule) && isInNonCssEmbeddedBlock(warning, result)) {
+        continue;
+      }
+
       const line = isValidPosition(warning.line) ? warning.line : 1;
       // Stylelint columns are 1-based; SonarQube expects 0-based
       const column = isValidPosition(warning.column) ? warning.column - 1 : 0;
