@@ -321,6 +321,10 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'custom-property-no-missing-var-function',
   },
   {
+    sqKey: 'S8769',
+    stylelintKey: 'block-no-redundant-nested-style-rules',
+  },
+  {
     sqKey: 'S8770',
     stylelintKey: 'at-rule-descriptor-no-unknown',
   },
