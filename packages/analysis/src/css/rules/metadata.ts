@@ -329,6 +329,10 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'at-rule-descriptor-no-unknown',
   },
   {
+    sqKey: 'S8773',
+    stylelintKey: 'keyframe-block-no-duplicate-selectors',
+  },
+  {
     sqKey: 'S8774',
     stylelintKey: 'selector-anb-no-unmatchable',
   },
