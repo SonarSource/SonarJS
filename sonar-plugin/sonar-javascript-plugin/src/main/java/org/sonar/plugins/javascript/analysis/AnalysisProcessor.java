@@ -517,12 +517,14 @@ public class AnalysisProcessor {
       location.at(primaryTextRange);
     }
 
-    issue.getSecondaryLocationsList().forEach(secondary -> {
-      NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
-      if (newIssueLocation != null) {
-        newIssue.addLocation(newIssueLocation);
-      }
-    });
+    issue
+      .getSecondaryLocationsList()
+      .forEach(secondary -> {
+        NewIssueLocation newIssueLocation = newSecondaryLocation(file, newIssue, secondary);
+        if (newIssueLocation != null) {
+          newIssue.addLocation(newIssueLocation);
+        }
+      });
 
     if (issue.hasCost()) {
       newIssue.gap(issue.getCost());
@@ -585,9 +587,9 @@ public class AnalysisProcessor {
   private static boolean isQuickFixCompatible(JsTsContext<?> context) {
     return (
       context.isSonarLint() &&
-      ((SonarLintRuntime) context.getSensorContext().runtime())
-        .getSonarLintPluginApiVersion()
-        .isGreaterThanOrEqual(Version.create(6, 3))
+      (
+        (SonarLintRuntime) context.getSensorContext().runtime()
+      ).getSonarLintPluginApiVersion().isGreaterThanOrEqual(Version.create(6, 3))
     );
   }
 

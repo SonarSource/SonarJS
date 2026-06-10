@@ -74,10 +74,7 @@ export interface SonarResolveComment {
  * @template T the issue type, must extend BaseIssue
  * @template S the suppressible issue subtype, must extend T
  */
-export interface AnalysisOutput<
-  T extends BaseIssue = BaseIssue,
-  S extends T = T,
-> {
+export interface AnalysisOutput<T extends BaseIssue = BaseIssue, S extends T = T> {
   issues: T[];
   suppressedIssues?: SuppressedIssue<S>[];
   sonarResolveComments?: SonarResolveComment[];

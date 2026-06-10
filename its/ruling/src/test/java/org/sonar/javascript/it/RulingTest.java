@@ -279,15 +279,11 @@ class RulingTest {
       .setScannerVersion(SCANNER_VERSION)
       .setProperty(
         "sonar.lits.dump.old",
-        FileLocation.of("src/test/expected/" + projectKey)
-          .getFile()
-          .getAbsolutePath()
+        FileLocation.of("src/test/expected/" + projectKey).getFile().getAbsolutePath()
       )
       .setProperty(
         "sonar.lits.dump.new",
-        FileLocation.of("target/actual/" + projectKey)
-          .getFile()
-          .getAbsolutePath()
+        FileLocation.of("target/actual/" + projectKey).getFile().getAbsolutePath()
       )
       .setProperty("sonar.lits.differences", differencesPath.toString())
       .setProperty("sonar.exclusions", actualExclusions)
