@@ -21,7 +21,7 @@ import type { CssIssue } from './issue.js';
 import type { NormalizedAbsolutePath } from '../../../../../shared/src/helpers/files.js';
 import { cssOnlyRuleKeys } from '../css-only-rules.js';
 
-const NON_CSS_LANGS = new Set(['scss', 'sass', 'less']);
+const NON_CSS_LANGS = new Set(['scss', 'sass', 'less', 'stylus', 'styl']);
 
 /**
  * Checks if a position value (line or column) is valid.
