@@ -110,16 +110,6 @@
     </rule>
     <rule>
       <repositoryKey>typescript</repositoryKey>
-      <key>S4787</key>    <!-- EncryptionCheck -->
-      <priority>INFO</priority>
-    </rule>
-    <rule>
-      <repositoryKey>typescript</repositoryKey>
-      <key>S4817</key>    <!-- XpathCheck -->
-      <priority>INFO</priority>
-    </rule>
-    <rule>
-      <repositoryKey>typescript</repositoryKey>
       <key>S4822</key>    <!-- no-try-promise -->
       <priority>INFO</priority>
     </rule>
