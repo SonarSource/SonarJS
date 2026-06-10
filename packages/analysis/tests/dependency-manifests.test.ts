@@ -129,7 +129,7 @@ describe('files', () => {
     await dependencyManifestStore.processFile(
       normalizeToAbsolutePath(join(baseDir, 'subdir/package.json')),
     );
-    await dependencyManifestStore.postProcess();
+    await dependencyManifestStore.postProcess(configuration);
 
     expect(readdirSyncSpy.mock.calls).toHaveLength(0);
     expect(readFileSyncSpy.mock.calls).toHaveLength(0);

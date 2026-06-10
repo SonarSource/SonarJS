@@ -15,14 +15,25 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 // Mock FileStore implementation
-import { describe, it } from 'node:test';
-import { simulateFromInputFiles } from '../src/file-stores/index.js';
+import { beforeEach, describe, it } from 'node:test';
 import { expect } from 'expect';
+import { join } from 'node:path/posix';
 import { FileStore } from '../src/file-stores/store-type.js';
 import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { createConfiguration, type Configuration } from '../src/common/configuration.js';
 import type { FileStoreRequestContext } from '../src/projectAnalysis.js';
 import { sanitizeRawInputFiles } from '../src/common/input-sanitize.js';
+import {
+  dependencyManifestStore,
+  generatedSourceStore,
+  initFileStores,
+  simulateFromInputFiles,
+  sourceFileStore,
+} from '../src/file-stores/index.js';
+
+const sourceFileFixtures = normalizeToAbsolutePath(
+  join(import.meta.dirname, 'fixtures-source-files'),
+);
 
 class MockFileStore implements FileStore {
   public processedDirectories: string[] = [];
@@ -58,6 +69,12 @@ class MockFileStore implements FileStore {
 }
 
 describe('simulateFromInputFiles', () => {
+  beforeEach(() => {
+    dependencyManifestStore.clearCache();
+    generatedSourceStore.clearCache();
+    sourceFileStore.clearCache();
+  });
+
   it('should process directories and files correctly', async () => {
     // Arrange
     const mockStore = new MockFileStore();
@@ -177,5 +194,30 @@ describe('simulateFromInputFiles', () => {
 
     expect(mockStore1.processedFiles).toContain(normalizePath('/project/src/app.js'));
     expect(mockStore2.processedFiles).toContain(normalizePath('/project/src/app.js'));
+  });
+});
+
+describe('initFileStores', () => {
+  beforeEach(() => {
+    dependencyManifestStore.clearCache();
+    generatedSourceStore.clearCache();
+    sourceFileStore.clearCache();
+  });
+
+  it('should populate analyzableFiles when request context omits them', async ({ mock }) => {
+    const baseDir = normalizeToAbsolutePath(join(sourceFileFixtures, 'paths'));
+    const configuration = createConfiguration({ baseDir });
+    const postProcessMock = mock.method(
+      generatedSourceStore,
+      'postProcess',
+      async (_configuration, requestContext) => {
+        expect(requestContext?.isExplicitRequest).toBe(false);
+        expect(requestContext?.analyzableFiles).toBe(sourceFileStore.getFiles());
+      },
+    );
+
+    await initFileStores(configuration, { isExplicitRequest: false });
+
+    expect(postProcessMock.mock.calls).toHaveLength(1);
   });
 });

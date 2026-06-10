@@ -75,10 +75,13 @@ export async function initFileStores(
   } else if (requestContext?.analyzableFiles) {
     await simulateFromInputFiles(requestContext.analyzableFiles, configuration, pendingStores);
   }
-  const effectiveRequestContext = requestContext ?? {
-    analyzableFiles: sourceFileStore.getFiles(),
-    isExplicitRequest: false,
-  };
+  const effectiveRequestContext: FileStoreRequestContext = requestContext?.analyzableFiles
+    ? requestContext
+    : {
+        ...requestContext,
+        analyzableFiles: sourceFileStore.getFiles(),
+        isExplicitRequest: requestContext?.isExplicitRequest ?? false,
+      };
   for (const store of pendingStores) {
     await store.postProcess(configuration, effectiveRequestContext);
   }
