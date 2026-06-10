@@ -1,7 +1,7 @@
 {
   "title": "Reading the Standard Input is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "status": "deprecated",
+  "status": "closed",
   "tags": [],
   "extra": {
     "replacementRules": [],

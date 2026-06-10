@@ -1,7 +1,7 @@
 {
   "title": "Using command line arguments is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "status": "deprecated",
+  "status": "closed",
   "tags": [],
   "extra": {
     "replacementRules": [],
