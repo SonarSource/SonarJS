@@ -62,7 +62,7 @@ export const rule: Rule.RuleModule = {
 function checkTitle(context: Rule.RuleContext, node: estree.CallExpression) {
   const titleNode = node.arguments[0];
   const title = titleNode && getStaticTitle(titleNode);
-  if (title !== undefined && title.trim() === '') {
+  if (title?.trim() === '') {
     context.report({
       node: titleNode,
       messageId: MESSAGE_ID,
