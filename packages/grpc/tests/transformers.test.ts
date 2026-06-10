@@ -259,6 +259,13 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
   });
 
+  it('should map S8776 to nesting-selector-no-missing-scoping-root', () => {
+    expect(buildCssRuleConfigurations('S8776', [])).toEqual({
+      key: 'nesting-selector-no-missing-scoping-root',
+      configurations: [],
+    });
+  });
+
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'
