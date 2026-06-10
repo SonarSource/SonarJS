@@ -19,7 +19,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect } from 'expect';
-import { readRootRspecShaOverride } from '../../src/helpers/rspec.js';
+import { readRootRspecShaOverride } from '../check-rspec-sha.ts';
 
 const temporaryDirectories: string[] = [];
 
