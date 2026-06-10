@@ -131,22 +131,36 @@ function isTestFrameworkActive(context: Rule.RuleContext, framework: string): bo
 
 function getMochaCalleeParts(
   node: estree.Node,
-  modifiers: string[] = [],
 ): { base: estree.Identifier; modifiers: string[] } | undefined {
-  if (node.type === 'Identifier') {
-    return { base: node, modifiers };
+  const modifiers: string[] = [];
+  let current = node;
+  while (true) {
+    if (current.type === 'CallExpression') {
+      current = current.callee;
+    } else if (isQualifyingMember(current)) {
+      modifiers.unshift(current.property.name);
+      current = current.object;
+    } else {
+      break;
+    }
   }
+  return current.type === 'Identifier' ? { base: current, modifiers } : undefined;
+}
 
-  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)) {
-    modifiers.unshift(node.property.name);
-    return getMochaCalleeParts(node.object, modifiers);
+function collectMemberChain(node: estree.Node): { base: estree.Node; qualifiers: string[] } {
+  const qualifiers: string[] = [];
+  let current = node;
+  while (isQualifyingMember(current)) {
+    qualifiers.unshift(current.property.name);
+    current = current.object;
   }
+  return { base: current, qualifiers };
+}
 
-  if (node.type === 'CallExpression') {
-    return getMochaCalleeParts(node.callee, modifiers);
-  }
-
-  return undefined;
+function isQualifyingMember(
+  node: estree.Node,
+): node is estree.MemberExpression & { property: estree.Identifier } {
+  return node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property);
 }
 
 function hasCallback(node: estree.CallExpression): boolean {
@@ -245,24 +259,12 @@ function isPlaywrightDescribe(context: Rule.RuleContext, node: estree.CallExpres
 function getPlaywrightTestQualifiers(
   context: Rule.RuleContext,
   node: estree.Node,
-  qualifiers: string[] = [],
 ): string[] | undefined {
-  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)) {
-    qualifiers.unshift(node.property.name);
-    return getPlaywrightTestQualifiers(context, node.object, qualifiers);
-  }
-
-  return getFullyQualifiedName(context, node) === PLAYWRIGHT_TEST_FQN ? qualifiers : undefined;
+  const { base, qualifiers } = collectMemberChain(node);
+  return getFullyQualifiedName(context, base) === PLAYWRIGHT_TEST_FQN ? qualifiers : undefined;
 }
 
-function getPlaywrightDescribeQualifiers(
-  node: estree.Node,
-  qualifiers: string[] = [],
-): string[] | undefined {
-  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)) {
-    qualifiers.unshift(node.property.name);
-    return getPlaywrightDescribeQualifiers(node.object, qualifiers);
-  }
-
-  return isIdentifier(node, 'test') ? qualifiers : undefined;
+function getPlaywrightDescribeQualifiers(node: estree.Node): string[] | undefined {
+  const { base, qualifiers } = collectMemberChain(node);
+  return isIdentifier(base, 'test') ? qualifiers : undefined;
 }
