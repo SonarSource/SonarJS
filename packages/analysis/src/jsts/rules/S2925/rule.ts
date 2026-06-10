@@ -18,7 +18,12 @@
 
 import type { Rule } from 'eslint';
 import type estree from 'estree';
-import { isIdentifier, isMethodCall, isNumberLiteral } from '../helpers/ast.js';
+import {
+  getUniqueWriteUsage,
+  isIdentifier,
+  isMethodCall,
+  isNumberLiteral,
+} from '../helpers/ast.js';
 import { chainStartsWithCy } from '../helpers/cypress.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { isTestRelatedFile } from '../helpers/test-file-pattern.js';
@@ -63,8 +68,18 @@ export const rule: Rule.RuleModule = {
 
 function reportCypressWait(context: Rule.RuleContext, call: estree.CallExpression) {
   const [firstArgument] = call.arguments;
-  if (firstArgument && isNumericLiteralOrUnaryNumericLiteral(firstArgument)) {
+  if (!firstArgument) {
+    return;
+  }
+  if (isNumericLiteralOrUnaryNumericLiteral(firstArgument)) {
     report(context, call.callee, 'fixedWait');
+    return;
+  }
+  if (firstArgument.type === 'Identifier') {
+    const resolved = getUniqueWriteUsage(context, firstArgument.name, firstArgument);
+    if (resolved && isNumericLiteralOrUnaryNumericLiteral(resolved)) {
+      report(context, call.callee, 'fixedWait');
+    }
   }
 }
 

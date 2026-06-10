@@ -48,6 +48,54 @@ describe('S2925', () => {
         },
         {
           code: `
+            import { WAIT } from './constants';
+            it('ignores imported constants', () => {
+              cy.wait(WAIT);
+            });
+          `,
+          filename: 'cypress/e2e/imported.cy.js',
+        },
+        {
+          code: `
+            it('ignores string-aliased identifiers', () => {
+              const aliasVar = '@save';
+              cy.wait(aliasVar);
+            });
+          `,
+          filename: 'cypress/e2e/alias.cy.js',
+        },
+        {
+          code: `
+            it('ignores function parameters', () => {
+              function w(amount) {
+                cy.wait(amount);
+              }
+              w(1000);
+            });
+          `,
+          filename: 'cypress/e2e/param.cy.js',
+        },
+        {
+          code: `
+            it('ignores multi-write variables', () => {
+              let amount = 1000;
+              amount = computeWait();
+              cy.wait(amount);
+            });
+          `,
+          filename: 'cypress/e2e/multi-write.cy.js',
+        },
+        {
+          code: `
+            it('ignores uninitialised variables', () => {
+              let amount;
+              cy.wait(amount);
+            });
+          `,
+          filename: 'cypress/e2e/uninit.cy.js',
+        },
+        {
+          code: `
             test('saves a user', async ({ page }) => {
               await page.getByRole('button', { name: 'Save' }).click();
               await expect(page.getByText('Saved')).toBeVisible();
@@ -138,6 +186,24 @@ describe('S2925', () => {
             });
           `,
           filename: 'tests/retries.test.js',
+          errors: [
+            { messageId: 'fixedWait' },
+            { messageId: 'fixedWait' },
+            { messageId: 'fixedWait' },
+          ],
+        },
+        {
+          code: `
+            it('resolves identifier arguments to numeric literals', () => {
+              const WAIT = 1000;
+              const NEG = -1;
+              const ZERO = 0;
+              cy.wait(WAIT);
+              cy.wait(NEG);
+              cy.wait(ZERO);
+            });
+          `,
+          filename: 'cypress/e2e/constants.cy.js',
           errors: [
             { messageId: 'fixedWait' },
             { messageId: 'fixedWait' },
