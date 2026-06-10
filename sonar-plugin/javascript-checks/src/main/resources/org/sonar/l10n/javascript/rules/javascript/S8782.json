@@ -1,0 +1,33 @@
+{
+  "title": "Lifecycle hooks should be declared before test cases",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5min"
+  },
+  "tags": [
+    "tests",
+    "jest",
+    "vitest",
+    "mocha"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8782",
+  "sqKey": "S8782",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}
