@@ -37,7 +37,6 @@ import { parseArgs } from 'node:util';
 import Asciidoctor from '@asciidoctor/core';
 import { parseDocument, DomUtils } from 'htmlparser2';
 import { isTag, type ChildNode, type ParentNode } from 'domhandler';
-import { generateDeprecatedSectionAndCorrectStatus } from './sync-rspec-status.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = join(__dirname, '..');
@@ -337,6 +336,62 @@ function normalizeDefaultQualityProfiles(metadata: Record<string, unknown>): voi
     }
   }
   metadata.defaultQualityProfiles = normalizedProfiles;
+}
+
+function normalizeRuleKey(key: string): string {
+  const trimmed = key.trim();
+  if (/^RSPEC-\d+$/.test(trimmed)) {
+    return trimmed.replace(/^RSPEC-/, 'S');
+  }
+  if (/^S\d+$/.test(trimmed)) {
+    return trimmed;
+  }
+  if (/^\d+$/.test(trimmed)) {
+    return `S${trimmed}`;
+  }
+  throw new Error(`Wrong replacement rule key format: '${key}'. Expected S###, RSPEC-###, or ###.`);
+}
+
+/**
+ * Keep deprecated/superseded post-processing equivalent to the previous
+ * rspec-maven-plugin + sonar-rule-api generation path:
+ * - rspec-maven-plugin uses GitHubRuleMaker.getRulesByRuleSubdirectory(...)
+ *   https://github.com/SonarSource/rspec-maven-plugin/blob/master/src/main/java/application/ApplicationRuleRepository.java
+ * - which applies GitHubRuleMaker.generateDeprecatedSectionAndCorrectStatus(...)
+ *   https://github.com/SonarSource/sonar-rule-api/blob/master/src/main/java/com/sonarsource/ruleapi/github/GitHubRuleMaker.java
+ */
+function generateDeprecatedSectionAndCorrectStatus(
+  langSq: string,
+  metadata: Record<string, unknown>,
+): string {
+  const status = String(metadata.status ?? '').toLowerCase();
+  const extra = metadata.extra as Record<string, unknown> | undefined;
+  const replacements = extra?.replacementRules;
+
+  if (!['deprecated', 'superseded'].includes(status) || !Array.isArray(replacements)) {
+    return '';
+  }
+
+  let noReplacementDrafted = true;
+  const replacementRules: string[] = [];
+
+  for (const replacementRule of replacements) {
+    noReplacementDrafted = false;
+    const replacementRuleId = normalizeRuleKey(String(replacementRule));
+    // In getRulesByRuleSubdirectory mode, every drafted replacement is treated as implemented.
+    replacementRules.push(`{rule:${langSq}:${replacementRuleId}}`);
+  }
+
+  if (replacementRules.length === 0) {
+    if (noReplacementDrafted) {
+      return '<p>This rule is deprecated, and will eventually be removed.</p>\n';
+    }
+    metadata.status = 'ready';
+    return '';
+  }
+
+  metadata.status = 'deprecated';
+  return `<p>This rule is deprecated; use ${replacementRules.join(', ')} instead.</p>\n`;
 }
 
 function hasGeneratedRuleData(path: string): boolean {
