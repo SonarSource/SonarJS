@@ -26,13 +26,13 @@ import {
 import { getFullyQualifiedName, importsOrDependsOnModule } from './module.js';
 
 export const SUPPORTED_TEST_FRAMEWORKS = ['jest', 'mocha', 'vitest', '@playwright/test'];
-export const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['jest', 'mocha', 'vitest']);
+const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['jest', 'mocha', 'vitest']);
 export const TEST_FUNCTION_NAMES = ['it', 'specify', 'test'];
 export const SUITE_FUNCTION_NAMES = ['describe', 'context', 'suite'];
 const COMMON_MOCHA_TEST_MODIFIERS = new Set(['only', 'concurrent']);
 const JEST_TEST_MODIFIERS = new Set(['failing']);
 const VITEST_TEST_MODIFIERS = new Set(['sequential']);
-export const PLAYWRIGHT_TEST_FQN = '@playwright.test.test';
+const PLAYWRIGHT_TEST_FQN = '@playwright.test.test';
 export const PLAYWRIGHT_TEST_MODIFIERS = new Set(['only', 'fail']);
 export const PLAYWRIGHT_DESCRIBE_MODIFIERS = new Set(['parallel', 'serial']);
 export const PLAYWRIGHT_DESCRIBE_FOCUS_MODIFIER = 'only';
@@ -63,7 +63,7 @@ export function isConcreteMochaTestModifier(context: Rule.RuleContext, modifier:
   );
 }
 
-export function isTestFrameworkActive(context: Rule.RuleContext, framework: string): boolean {
+function isTestFrameworkActive(context: Rule.RuleContext, framework: string): boolean {
   return importsOrDependsOnModule(context, [framework], [framework]);
 }
 
@@ -85,7 +85,7 @@ export function getMochaCalleeParts(
   return current.type === 'Identifier' ? { base: current, modifiers } : undefined;
 }
 
-export function collectMemberChain(node: estree.Node): {
+function collectMemberChain(node: estree.Node): {
   base: estree.Node;
   qualifiers: string[];
 } {
