@@ -1,7 +1,7 @@
 {
   "title": "Using Sockets is security-sensitive",
   "type": "SECURITY_HOTSPOT",
-  "status": "closed",
+  "status": "deprecated",
   "tags": [],
   "extra": {
     "replacementRules": [],

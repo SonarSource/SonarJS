@@ -7,7 +7,7 @@
     },
     "attribute": "COMPLETE"
   },
-  "status": "closed",
+  "status": "deprecated",
   "tags": [],
   "extra": {
     "requiredDependency": [
