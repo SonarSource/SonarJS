@@ -42,6 +42,8 @@ Examples:
 
 `npm run generate-meta` refreshes RSPEC rule data only when the generated local outputs are missing. On a fresh checkout, or after `mvn clean`, it runs Maven first and uses either your GitHub CLI auth or `GITHUB_TOKEN` to fetch from `SonarSource/rspec`.
 
+To pin rule data generation to an exact RSPEC revision, write the commit SHA to `rspec.sha` at the repository root before running `npm run generate-meta` or `npm run generate-rule-data:maven`. When this ignored file is present, the Maven wrapper passes it to `rspec-maven-plugin` as `-Drspec.sha=<commit-sha>`. If there is no root pin, the wrapper falls back to `sonar-plugin/javascript-checks/src/main/resources/rspec.sha` when that generated artifact is present. For direct Maven commands that generate rule data, pass the pin explicitly with `-Drspec.sha=<commit-sha>`.
+
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
 ## Build and run unit tests

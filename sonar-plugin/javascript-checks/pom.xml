@@ -14,6 +14,7 @@
 
   <properties>
     <rule.data.build.phase>none</rule.data.build.phase>
+    <rspec.sha></rspec.sha>
     <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.exclusions>src/main/java/org/sonar/javascript/checks/AllChecks.java,src/main/java/org/sonar/javascript/checks/S*.java</sonar.exclusions>
     <sonar.coverage.exclusions>src/main/java/org/sonar/javascript/checks/AllChecks.java,src/main/java/org/sonar/javascript/checks/S*.java</sonar.coverage.exclusions>
@@ -92,9 +93,10 @@
       <plugin>
         <groupId>org.sonarsource.rspec</groupId>
         <artifactId>rspec-maven-plugin</artifactId>
-        <version>1.3.0.107</version>
+        <version>1.3.0.115</version>
         <configuration>
           <githubToken>${env.GITHUB_TOKEN}</githubToken>
+          <rspecSha>${rspec.sha}</rspecSha>
         </configuration>
         <executions>
           <execution>
