@@ -307,6 +307,18 @@ describe('CSS rule configurations', () => {
       ]);
     });
 
+    it('should return empty configurations for listParam rules with an empty default', () => {
+      const result = buildCssRuleConfigurations('S8767', []);
+      expect(result!.configurations).toEqual([]);
+    });
+
+    it('should build explicit ignoreAtRules configurations for S8767', () => {
+      const result = buildCssRuleConfigurations('S8767', [
+        { key: 'ignoreAtRules', value: 'include,/^custom-/' },
+      ]);
+      expect(result!.configurations).toEqual([true, { ignoreAtRules: ['include', '/^custom-/'] }]);
+    });
+
     it('should merge multiple listParams using defaults when no params sent', () => {
       // S4654 (property-no-unknown) has two listParams: ignoreTypes and ignoreSelectors
       const result = buildCssRuleConfigurations('S4654', []);
