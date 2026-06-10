@@ -443,6 +443,7 @@
 "ace:lib/ace/mode/xquery/jsoniq_lexer.js": [
 25,
 25,
+30,
 39,
 40,
 57,
@@ -456,6 +457,7 @@
 "ace:lib/ace/mode/xquery/xquery_lexer.js": [
 25,
 25,
+30,
 39,
 40,
 57,
