@@ -36,25 +36,15 @@
 60
 ],
 "paper.js:src/anim/Tween.js": [
-119,
 228
 ],
-"paper.js:src/basic/Line.js": [
-29
-],
-"paper.js:src/basic/Matrix.js": [
-73
-],
 "paper.js:src/basic/Point.js": [
-132,
 1037
 ],
 "paper.js:src/basic/Rectangle.js": [
-78,
 894
 ],
 "paper.js:src/basic/Size.js": [
-95,
 560
 ],
 "paper.js:src/core/Base.js": [
@@ -63,7 +53,6 @@
 466
 ],
 "paper.js:src/core/PaperScope.js": [
-45,
 232
 ],
 "paper.js:src/core/PaperScript.js": [
@@ -72,42 +61,8 @@
 480,
 503
 ],
-"paper.js:src/event/Event.js": [
-23
-],
-"paper.js:src/event/KeyEvent.js": [
-26
-],
-"paper.js:src/event/MouseEvent.js": [
-29
-],
-"paper.js:src/item/Group.js": [
-93
-],
-"paper.js:src/item/HitResult.js": [
-23
-],
 "paper.js:src/item/Item.js": [
-122,
 2938
-],
-"paper.js:src/item/Layer.js": [
-65
-],
-"paper.js:src/item/Project.js": [
-52
-],
-"paper.js:src/item/Raster.js": [
-109
-],
-"paper.js:src/item/Shape.js": [
-31
-],
-"paper.js:src/item/SymbolDefinition.js": [
-59
-],
-"paper.js:src/item/SymbolItem.js": [
-70
 ],
 "paper.js:src/load.js": [
 28
@@ -115,22 +70,16 @@
 "paper.js:src/node/extend.js": [
 144
 ],
-"paper.js:src/path/CompoundPath.js": [
-99
-],
 "paper.js:src/path/Curve.js": [
-63,
 851,
 1561,
 2167
 ],
 "paper.js:src/path/CurveLocation.js": [
-41,
 453,
 547
 ],
 "paper.js:src/path/Path.js": [
-88,
 1725,
 1729,
 1757,
@@ -177,23 +126,10 @@
 1316
 ],
 "paper.js:src/path/PathItem.js": [
-30,
 142
-],
-"paper.js:src/path/Segment.js": [
-116
-],
-"paper.js:src/path/SegmentPoint.js": [
-20
 ],
 "paper.js:src/style/Color.js": [
 541
-],
-"paper.js:src/style/Gradient.js": [
-68
-],
-"paper.js:src/style/GradientStop.js": [
-30
 ],
 "paper.js:src/style/Style.js": [
 129,
@@ -206,19 +142,9 @@
 677,
 686
 ],
-"paper.js:src/text/PointText.js": [
-57
-],
-"paper.js:src/text/TextItem.js": [
-35
-],
 "paper.js:src/tool/Tool.js": [
-54,
 304,
 304
-],
-"paper.js:src/tool/ToolEvent.js": [
-29
 ],
 "paper.js:src/util/CollisionDetection.js": [
 79
@@ -226,11 +152,7 @@
 "paper.js:src/util/Numerical.js": [
 351
 ],
-"paper.js:src/view/CanvasView.js": [
-34
-],
 "paper.js:src/view/View.js": [
-25,
 34,
 1219,
 1219,
