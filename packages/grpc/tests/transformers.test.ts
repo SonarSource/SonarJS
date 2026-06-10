@@ -259,6 +259,14 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
   });
 
+  it('should map S8765 to the stylelint custom property rule', () => {
+    const result = buildCssRuleConfigurations('S8765', []);
+    expect(result).toEqual({
+      key: 'custom-property-no-missing-var-function',
+      configurations: [],
+    });
+  });
+
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'
@@ -644,6 +652,30 @@ describe('transformProjectOutputToResponse', () => {
       startLineOffset: 2,
       endLine: 1,
       endLineOffset: 5,
+    });
+  });
+
+  it('should map CSS stylelint rule ids back to SonarQube rule keys', () => {
+    const output = makeOutput({
+      '/project/src/styles.css': {
+        issues: [
+          {
+            ruleId: 'custom-property-no-missing-var-function',
+            language: 'css',
+            line: 1,
+            column: 2,
+            message: 'Missing var function for "--accent-color"',
+          },
+        ],
+      },
+    });
+
+    const result = transformProjectOutputToResponse(output);
+
+    expect(result.issues?.length).toBe(1);
+    expect(result.issues?.[0].rule).toEqual({
+      repo: 'css',
+      rule: 'S8765',
     });
   });
 
