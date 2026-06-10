@@ -236,7 +236,7 @@ describe('transform', () => {
       const nodes = blocks.map(b => ({
         type: 'root' as const,
         source: {
-          lang: b.lang,
+          ...(b.lang === undefined ? {} : { lang: b.lang }),
           start: { line: b.startLine, column: 1, offset: 0 },
           end: { line: b.endLine, column: 1, offset: 0 },
         },
@@ -303,11 +303,11 @@ describe('transform', () => {
     it('handles mixed CSS and non-CSS blocks correctly', () => {
       const result = makeDocumentResult(
         [
-          { startLine: 1, endLine: 5 },       // CSS block
+          { startLine: 1, endLine: 5 }, // CSS block
           { lang: 'scss', startLine: 7, endLine: 15 }, // SCSS block
         ],
         [
-          { rule: 'css-only-rule', line: 3 },  // in CSS block → keep
+          { rule: 'css-only-rule', line: 3 }, // in CSS block → keep
           { rule: 'css-only-rule', line: 10 }, // in SCSS block → suppress
         ],
       );
@@ -325,6 +325,59 @@ describe('transform', () => {
       } as unknown as stylelint.LintResult;
       const issues = transform([result], cssFilePath);
       expect(issues).toHaveLength(1);
+    });
+
+    it('skips non-root child nodes in a document', () => {
+      const result = {
+        source: filePath as string,
+        warnings: [{ rule: 'css-only-rule', text: 'msg (css-only-rule)', line: 3, column: 1 }],
+        _postcssResult: {
+          root: {
+            type: 'document',
+            nodes: [
+              { type: 'atrule' }, // non-root node — must be skipped
+              {
+                type: 'root',
+                source: { lang: 'scss', start: { line: 1 }, end: { line: 10 } },
+              },
+            ],
+          },
+        },
+      } as unknown as stylelint.LintResult;
+      expect(transform([result], filePath)).toHaveLength(0);
+    });
+
+    it('treats a block with no source as CSS (does not suppress)', () => {
+      const result = {
+        source: filePath as string,
+        warnings: [{ rule: 'css-only-rule', text: 'msg (css-only-rule)', line: 3, column: 1 }],
+        _postcssResult: {
+          root: {
+            type: 'document',
+            nodes: [{ type: 'root', source: undefined }],
+          },
+        },
+      } as unknown as stylelint.LintResult;
+      expect(transform([result], filePath)).toHaveLength(1);
+    });
+
+    it('treats a block whose lang is not a string as CSS (does not suppress)', () => {
+      const result = {
+        source: filePath as string,
+        warnings: [{ rule: 'css-only-rule', text: 'msg (css-only-rule)', line: 3, column: 1 }],
+        _postcssResult: {
+          root: {
+            type: 'document',
+            nodes: [
+              {
+                type: 'root',
+                source: { lang: 42, start: { line: 1 }, end: { line: 10 } },
+              },
+            ],
+          },
+        },
+      } as unknown as stylelint.LintResult;
+      expect(transform([result], filePath)).toHaveLength(1);
     });
   });
 });
