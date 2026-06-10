@@ -259,6 +259,13 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
   });
 
+  it('should map S8777 to at-rule-prelude-no-invalid', () => {
+    expect(buildCssRuleConfigurations('S8777', [])).toEqual({
+      key: 'at-rule-prelude-no-invalid',
+      configurations: [],
+    });
+  });
+
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'
