@@ -266,6 +266,10 @@ export const cssRulesMeta: CssRuleMeta[] = [
     sqKey: 'S8770',
     stylelintKey: 'at-rule-descriptor-no-unknown',
   },
+  {
+    sqKey: 'S8775',
+    stylelintKey: 'at-rule-descriptor-value-no-unknown',
+  },
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
