@@ -262,6 +262,10 @@ export const cssRulesMeta: CssRuleMeta[] = [
     sqKey: 'S7925',
     stylelintKey: 'sonar/text-spacing',
   },
+  {
+    sqKey: 'S8774',
+    stylelintKey: 'selector-anb-no-unmatchable',
+  },
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
