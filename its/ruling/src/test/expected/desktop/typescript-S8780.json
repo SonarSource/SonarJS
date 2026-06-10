@@ -1,0 +1,18 @@
+{
+"desktop:app/test/unit/git/commit-test.ts": [
+730
+],
+"desktop:app/test/unit/git/diff-test.ts": [
+397
+],
+"desktop:app/test/unit/git/pull/ahead-and-behind-test.ts": [
+165
+],
+"desktop:app/test/unit/git/remote-test.ts": [
+126,
+148
+],
+"desktop:app/test/unit/git/tag-test.ts": [
+81
+]
+}
