@@ -155,28 +155,6 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'declaration-block-no-shorthand-property-overrides',
   },
   {
-    sqKey: 'S8772',
-    stylelintKey: 'declaration-block-no-redundant-longhand-properties',
-    listParam: [
-      {
-        sqKey: 'ignoreLonghands',
-        javaField: 'ignoreLonghands',
-        description:
-          'Comma-separated list of longhand property names to ignore so they do not count toward a complete shorthand group.',
-        default: '',
-        stylelintOptionKey: 'ignoreLonghands',
-      },
-      {
-        sqKey: 'ignoreShorthands',
-        javaField: 'ignoreShorthands',
-        description:
-          'Comma-separated list of shorthand property names and/or regular expressions to ignore.',
-        default: '',
-        stylelintOptionKey: 'ignoreShorthands',
-      },
-    ],
-  },
-  {
     sqKey: 'S4658',
     stylelintKey: 'block-no-empty',
   },
@@ -283,6 +261,28 @@ export const cssRulesMeta: CssRuleMeta[] = [
   {
     sqKey: 'S7925',
     stylelintKey: 'sonar/text-spacing',
+  },
+  {
+    sqKey: 'S8772',
+    stylelintKey: 'declaration-block-no-redundant-longhand-properties',
+    listParam: [
+      {
+        sqKey: 'ignoreLonghands',
+        javaField: 'ignoreLonghands',
+        description:
+          'Comma-separated list of longhand property names to ignore so they do not count toward a complete shorthand group.',
+        default: '',
+        stylelintOptionKey: 'ignoreLonghands',
+      },
+      {
+        sqKey: 'ignoreShorthands',
+        javaField: 'ignoreShorthands',
+        description:
+          'Comma-separated list of shorthand property names and/or regular expressions to ignore.',
+        default: '',
+        stylelintOptionKey: 'ignoreShorthands',
+      },
+    ],
   },
 ];
 
