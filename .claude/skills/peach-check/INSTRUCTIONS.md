@@ -2,8 +2,8 @@
 
 Canonical instructions for the `peach-check` skill live in this file.
 
-Use this skill as a daily Peach Main Analysis sanity check, when the user asks to check the latest
-Peach run, triage Peach Main Analysis failures, or decide whether Peach blocks a SonarJS release.
+Use this skill when doing a daily Peach Main Analysis sanity check, checking the latest Peach run,
+triaging Peach Main Analysis failures, or deciding whether Peach blocks a SonarJS release.
 
 ## Overview
 
@@ -22,6 +22,14 @@ This skill validates a Peach Main Analysis GitHub run in two layers:
    GitHub job conclusion, and identify failed analyzed jobs.
 2. Peach result validation: for successful project jobs, verify that the run produced fresh Peach
    analyses whose SonarJS-language issue counts are materially consistent with recent history.
+
+Use this table to keep the scopes straight:
+
+| Question | Primary evidence | Blocks `SAFE` by itself? |
+| --- | --- | --- |
+| Did analyzed GitHub jobs fail? | `peach-run-jobs.js` output plus failure-path log triage | Only when the final verdict includes `CRITICAL` or `NEEDS-MANUAL-REVIEW` |
+| Did successful jobs produce fresh, materially consistent Peach analyses? | `peach-issue-history.js` output | Yes. `DROP`, `STALE`, non-excluded `UNRESOLVED_PROJECT`, and `ERROR` block `SAFE` |
+| Were issues added or removed? | `peach-diff-summary.js` on aggregated differential-validation artifacts | No. This is issue-level churn context, not a release blocker by itself |
 
 When the user asks whether issues were added or removed, that is a different question from the
 two-layer release verdict above. Use the issue-churn helper on the aggregated differential-
@@ -57,7 +65,8 @@ Do not open `docs/peach-main-analysis.md` unless `failed-jobs.total_jobs > 0` or
 test -n "${PEACH_KEY:-}"
 ```
 
-  A zero exit status means `PEACH_KEY` is available.
+  A zero exit status means `PEACH_KEY` is available. The command is intentionally silent on
+  success.
 - Do not `echo` or otherwise print `PEACH_KEY`.
 - Know the path to a local `peachee-js` checkout. If `PEACHEE_ROOT` is set, use it. Otherwise
   pass the checkout path explicitly to the helper scripts.
@@ -68,11 +77,13 @@ test -n "${PEACH_KEY:-}"
 find ~ -maxdepth 4 -type d -name peachee-js
 ```
 
+- If any prerequisite check fails, stop and report the missing prerequisite instead of attempting
+  run triage.
 - Parallelize independent job triage work when the runtime permits it, but do not chain shell commands.
 
 ## Command Discipline
 
-- Never chain commands with `&&`, `;`, or `|`.
+- Never chain commands with `&&` or `;`.
 - Keep each shell command standalone so permission prompts and failures stay attributable.
 - Parallel execution is fine when calls are independent.
 - Put labels in prose, not in shell wrappers such as `echo "===" && ...`.
@@ -101,38 +112,15 @@ This is the common case:
 
 Do not open `docs/peach-main-analysis.md` on the green path unless step 5 fails.
 
-Common green-path command sequence:
+Quick green-path checklist:
 
-```bash
-gh run list \
-  --repo SonarSource/peachee-js \
-  --workflow main-analysis.yml \
-  --branch js-ts-css-html \
-  --limit 5 \
-  --json databaseId,conclusion,createdAt,status \
-  --jq '[.[] | select(.status == "completed")] | first | {databaseId, conclusion, createdAt}'
-
-mkdir -p OUTPUT_DIR
-
-node .claude/skills/peach-check/peach-run-jobs.js RUN_ID OUTPUT_DIR
-
-jq '{expected_total, total_jobs, failed_jobs, counts_match}' OUTPUT_DIR/jobs-merged.json
-
-jq '{excluded_workflow_jobs, excluded_project_jobs}' OUTPUT_DIR/exclusion-counts.json
-
-jq '{total_jobs}' OUTPUT_DIR/failed-jobs.json
-
-jq '{total_jobs}' OUTPUT_DIR/project-jobs.json
-
-rm -f OUTPUT_DIR/peach-issue-history.json
-
-node .claude/skills/peach-check/peach-issue-history.js \
-  OUTPUT_DIR/project-jobs.json \
-  PEACHEE_ROOT_OR_PATH \
-  OUTPUT_DIR/peach-issue-history.json
-
-jq '{analysis_window_start, analysis_window_end, blocking_rows_count, clean_for_early_exit, summary}' OUTPUT_DIR/peach-issue-history.json
-```
+1. Resolve the run and record `RUN_ID`, `createdAt`, `conclusion`, and `OUTPUT_DIR`.
+2. Create `OUTPUT_DIR`, run `peach-run-jobs.js`, and inspect the low-noise JSON summaries from
+   Section 2.
+3. Remove any stale `peach-issue-history.json`, run `peach-issue-history.js`, and inspect the
+   compact summary from Section 3.
+4. If `failed-jobs.total_jobs == 0` and `clean_for_early_exit == true`, print the clean summary
+   from Section 4 and stop.
 
 ### 1. Resolve the run
 
@@ -596,6 +584,22 @@ This is the normal green path. If `OUTPUT_DIR/failed-jobs.json.total_jobs` is `0
 sections below do not apply. Report the run as safe, include the exclusion counts plus the
 consistency summary, and stop.
 
+Use this exact structure for the clean summary:
+
+```text
+## Peach Main Analysis — Run RUN_ID (RUN_CREATED_AT_UTC)
+
+Excluded by design: prepare-project-matrix, prepare-diff-val, diff-validation-aggregated (workflow jobs excluded: WORKFLOW_EXCLUDED, project jobs excluded: PROJECT_EXCLUDED)
+
+### Summary
+- CRITICAL: 0 jobs
+- NEEDS-MANUAL-REVIEW: 0 items
+- IGNORE: 0 jobs
+- Analysis-consistency check: OK=OK_COUNT, DROP=DROP_COUNT, INSUFFICIENT_HISTORY=INSUFFICIENT_HISTORY_COUNT, STALE=STALE_COUNT, UNRESOLVED_PROJECT=UNRESOLVED_PROJECT_COUNT, ERROR=ERROR_COUNT
+
+Release recommendation: SAFE
+```
+
 If any project is `DROP`, `STALE`, non-excluded `UNRESOLVED_PROJECT`, or `ERROR`, do not call the
 run safe even if the GitHub workflow has no failed project jobs.
 
@@ -766,25 +770,7 @@ findings. Add a single exclusion line that names the excluded workflow jobs and 
 exclusion counts, for example
 `Excluded by design: prepare-project-matrix, prepare-diff-val, diff-validation-aggregated (workflow jobs excluded: 3, project jobs excluded: 0)`.
 
-Use one of these structures:
-
-Clean run example:
-
-```text
-## Peach Main Analysis — Run RUN_ID (RUN_CREATED_AT_UTC)
-
-Excluded by design: prepare-project-matrix, prepare-diff-val, diff-validation-aggregated (workflow jobs excluded: 3, project jobs excluded: 0)
-
-### Summary
-- CRITICAL: 0 jobs
-- NEEDS-MANUAL-REVIEW: 0 items
-- IGNORE: 0 jobs
-- Analysis-consistency check: OK=245, DROP=0, INSUFFICIENT_HISTORY=0, STALE=0, UNRESOLVED_PROJECT=0, ERROR=0
-
-Release recommendation: SAFE
-```
-
-Failure-oriented example:
+For failure-oriented reports, use this structure. For clean runs, reuse the Section 4 template:
 
 ```text
 ## Peach Main Analysis — Run RUN_ID (RUN_CREATED_AT_UTC)
