@@ -49,3 +49,20 @@ test('closed rules without replacement metadata are normalized to deprecated met
     '<p>This rule is deprecated, and will eventually be removed.</p>\n',
   );
 });
+
+test('closed rules with replacements are normalized to deprecated replacement metadata', () => {
+  const metadata: Record<string, unknown> = {
+    status: 'closed',
+    extra: {
+      replacementRules: ['RSPEC-1234', '5678'],
+    },
+  };
+
+  const deprecatedSection = generateDeprecatedSectionAndCorrectStatus('javascript', metadata);
+
+  assert.equal(metadata.status, 'deprecated');
+  assert.equal(
+    deprecatedSection,
+    '<p>This rule is deprecated; use {rule:javascript:S1234}, {rule:javascript:S5678} instead.</p>\n',
+  );
+});

@@ -49,22 +49,16 @@ export function generateDeprecatedSectionAndCorrectStatus(
     return '';
   }
 
-  let noReplacementDrafted = true;
   const replacementRules: string[] = [];
 
   for (const replacementRule of replacements) {
-    noReplacementDrafted = false;
     const replacementRuleId = normalizeRuleKey(String(replacementRule));
     replacementRules.push(`{rule:${langSq}:${replacementRuleId}}`);
   }
 
   if (replacementRules.length === 0) {
     metadata.status = 'deprecated';
-    if (noReplacementDrafted) {
-      return '<p>This rule is deprecated, and will eventually be removed.</p>\n';
-    }
-    metadata.status = 'ready';
-    return '';
+    return '<p>This rule is deprecated, and will eventually be removed.</p>\n';
   }
 
   metadata.status = 'deprecated';
