@@ -16,7 +16,15 @@
  */
 import { join, resolve } from 'node:path/posix';
 import { listRulesDir } from './helpers.js';
-import { copyFileSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { cssRulesMeta } from '../packages/analysis/src/css/rules/metadata.js';
 
 const sourceFolder = resolve('resources/rule-data');
@@ -73,6 +81,11 @@ syncRuleData(join(sourceFolder, 'css'), CSS_RULE_DATA_FOLDER, cssRuleNames);
 
 function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: string[]) {
   warnOnRulesWithoutImplementation(sourceFolder, ruleNames);
+  const existingRuleDataFallbacks = readExistingRuleDataFallbacks(
+    sourceFolder,
+    targetFolder,
+    ruleNames,
+  );
 
   rmSync(targetFolder, {
     recursive: true,
@@ -88,11 +101,17 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
   for (const ruleName of ruleNames) {
     for (const extension of ['json', 'html']) {
       const fileName = `${ruleName}.${extension}`;
-      copyFileSync(join(sourceFolder, fileName), join(targetFolder, fileName));
+      const sourcePath = join(sourceFolder, fileName);
+      const fallback = existingRuleDataFallbacks.get(fileName);
+      if (existsSync(sourcePath)) {
+        copyFileSync(sourcePath, join(targetFolder, fileName));
+      } else if (fallback !== undefined) {
+        writeFileSync(join(targetFolder, fileName), fallback);
+      } else {
+        copyFileSync(sourcePath, join(targetFolder, fileName));
+      }
     }
-    const manifest: RuleManifest = JSON.parse(
-      readFileSync(join(sourceFolder, `${ruleName}.json`), 'utf-8'),
-    );
+    const manifest: RuleManifest = JSON.parse(readRuleData(sourceFolder, targetFolder, ruleName));
 
     for (const qualityProfileName of manifest.defaultQualityProfiles ?? []) {
       if (!qualityProfileName) {
@@ -143,6 +162,40 @@ function syncRuleData(sourceFolder: string, targetFolder: string, ruleNames: str
       })),
     ),
   );
+}
+
+function readExistingRuleDataFallbacks(
+  sourceFolder: string,
+  targetFolder: string,
+  ruleNames: string[],
+) {
+  const fallbacks = new Map<string, string>();
+
+  for (const ruleName of ruleNames) {
+    const sourceJsonPath = join(sourceFolder, `${ruleName}.json`);
+    const targetJsonPath = join(targetFolder, `${ruleName}.json`);
+    if (existsSync(sourceJsonPath) || !existsSync(targetJsonPath)) {
+      continue;
+    }
+
+    fallbacks.set(`${ruleName}.json`, readFileSync(targetJsonPath, 'utf-8'));
+
+    const targetHtmlPath = join(targetFolder, `${ruleName}.html`);
+    fallbacks.set(
+      `${ruleName}.html`,
+      existsSync(targetHtmlPath) ? readFileSync(targetHtmlPath, 'utf-8') : '<html></html>',
+    );
+  }
+
+  return fallbacks;
+}
+
+function readRuleData(sourceFolder: string, targetFolder: string, ruleName: string) {
+  const sourcePath = join(sourceFolder, `${ruleName}.json`);
+  if (existsSync(sourcePath)) {
+    return readFileSync(sourcePath, 'utf-8');
+  }
+  return readFileSync(join(targetFolder, `${ruleName}.json`), 'utf-8');
 }
 
 function warnOnRulesWithoutImplementation(sourceFolder: string, ruleNames: string[]) {
