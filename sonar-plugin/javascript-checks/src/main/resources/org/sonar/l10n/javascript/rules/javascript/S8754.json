@@ -1,0 +1,35 @@
+{
+  "title": "Test titles should be unique within the same suite",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "2 min"
+  },
+  "tags": [
+    "tests",
+    "confusing",
+    "jest",
+    "mocha",
+    "vitest",
+    "playwright"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8754",
+  "sqKey": "S8754",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CLEAR"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}

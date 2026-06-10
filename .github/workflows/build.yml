@@ -105,7 +105,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -149,7 +149,7 @@ jobs:
     steps:
       - *checkout
       - &mise
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -209,6 +209,9 @@ jobs:
     needs: [setup, get_build_number, populate_npm_cache, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: &shared_build_number
+      # Reuse the build number minted once in get_build_number across every config-maven caller.
+      BUILD_NUMBER: ${{ needs.get_build_number.outputs.build-number }}
     steps:
       - *checkout
       - *mise
@@ -278,9 +281,10 @@ jobs:
   build_win:
     runs-on: github-windows-latest-m
     name: Build SonarJS on Windows
-    needs: [setup, populate_npm_cache_win, sync_rspec]
+    needs: [setup, get_build_number, populate_npm_cache_win, sync_rspec]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
@@ -405,7 +409,7 @@ jobs:
             node-label: 'min supported'
     steps:
       - *checkout
-      - uses: jdx/mise-action@v4.0.1
+      - uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -455,7 +459,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -507,7 +511,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - if: steps.cache.outputs.cache-hit != 'true'
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -547,9 +551,10 @@ jobs:
   analyze_primary:
     runs-on: sonar-m
     name: Analyze in SonarQube NEXT
-    needs: [setup, test_js, build]
+    needs: [setup, get_build_number, test_js, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - &checkout_with_tags
         name: Checkout source code with tags
@@ -611,9 +616,10 @@ jobs:
   analyze_shadows:
     runs-on: sonar-m
     name: Analyze in ${{ matrix.platform }}
-    needs: [setup, test_js, build]
+    needs: [setup, get_build_number, test_js, build]
     permissions: *read_permissions
     if: github.event_name == 'schedule'
+    env: *shared_build_number
     strategy:
       matrix:
         include:
@@ -663,15 +669,16 @@ jobs:
   plugin_qa_with_node:
     runs-on: sonar-m
     name: QA with Node ${{ matrix.node-version }} on Ubuntu
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
       - *checkout
       - &mise_java_matrix_node
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -708,9 +715,10 @@ jobs:
   plugin_qa_fast_with_node:
     runs-on: sonar-m
     name: Fast QA with Node ${{ matrix.node-version }} on Ubuntu
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     strategy:
       matrix: ${{ fromJson(needs.setup.outputs.node-matrix) }}
     steps:
@@ -734,14 +742,15 @@ jobs:
   plugin_qa_without_node:
     runs-on: sonar-m
     name: QA without Node on Ubuntu SQ:LATEST_RELEASE
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - &mise_java_only
         name: Setup Java and Maven
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: ${{ needs.setup.outputs.is-default-branch == 'true' }}
@@ -781,9 +790,10 @@ jobs:
   plugin_qa_without_node_dev:
     runs-on: sonar-m
     name: QA without Node on Ubuntu SQ:DEV
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise_java_only
@@ -831,7 +841,7 @@ jobs:
           chown -R sonar:sonar /github/home
       - &alpine_setup_maven
         name: Setup Maven
-        uses: jdx/mise-action@v4.0.1
+        uses: jdx/mise-action@v4.1.0
         with:
           version: 2025.11.2
           cache_save: true
@@ -862,9 +872,10 @@ jobs:
   plugin_qa_fast_without_node:
     runs-on: sonar-m
     name: Fast QA without Node on Ubuntu SQ:LATEST_RELEASE
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise_java_only
@@ -889,9 +900,10 @@ jobs:
   plugin_qa_fast_without_node_dev:
     runs-on: sonar-m
     name: Fast QA without Node on Ubuntu SQ:DEV
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name == 'schedule'
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise_java_only
@@ -944,9 +956,10 @@ jobs:
   plugin_qa_win:
     runs-on: github-windows-latest-m
     name: QA on Windows (${{ matrix.group }})
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     strategy:
       matrix:
         include:
@@ -984,9 +997,10 @@ jobs:
   plugin_qa_sonarlint_win:
     runs-on: github-windows-latest-m
     name: QA SonarLint on Windows
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout
       - *mise
@@ -1003,9 +1017,10 @@ jobs:
   plugin_qa_win_fast_with_node:
     runs-on: github-windows-latest-m
     name: Fast QA on Windows with Node (${{ matrix.group }})
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     strategy:
       matrix:
         include:
@@ -1264,9 +1279,10 @@ jobs:
   ruling:
     runs-on: sonar-xl
     name: Ruling Test
-    needs: [setup, build]
+    needs: [setup, get_build_number, build]
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false
     permissions: *read_permissions
+    env: *shared_build_number
     steps:
       - *checkout_with_submodules
       - *mise
