@@ -270,6 +270,13 @@ describe('CSS rule configurations', () => {
     const result = buildCssRuleConfigurations('S8775', []);
     expect(result).toEqual({ key: 'at-rule-descriptor-value-no-unknown', configurations: [] });
   });
+  
+  it('should map S8777 to at-rule-prelude-no-invalid', () => {
+    expect(buildCssRuleConfigurations('S8777', [])).toEqual({
+      key: 'at-rule-prelude-no-invalid',
+      configurations: [],
+    });
+  });
 
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {

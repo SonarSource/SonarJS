@@ -270,6 +270,20 @@ export const cssRulesMeta: CssRuleMeta[] = [
     sqKey: 'S8775',
     stylelintKey: 'at-rule-descriptor-value-no-unknown',
   },
+  {
+    sqKey: 'S8777',
+    stylelintKey: 'at-rule-prelude-no-invalid',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoredAtRules',
+        description:
+          'Comma-separated list of at-rule names or regular expressions whose preludes should not be validated.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
+  },
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
