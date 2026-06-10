@@ -1339,6 +1339,12 @@ jobs:
       - js_ts_ruling
     if: >-
       !failure() && !cancelled() &&
+      (
+        github.event_name == 'pull_request' ||
+        github.ref_name == github.event.repository.default_branch ||
+        startsWith(github.ref_name, 'branch-') ||
+        startsWith(github.ref_name, 'dogfood-')
+      ) &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
     permissions: *read_permissions
     steps:
