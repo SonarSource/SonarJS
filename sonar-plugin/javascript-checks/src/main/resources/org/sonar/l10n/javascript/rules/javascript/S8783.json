@@ -1,0 +1,32 @@
+{
+  "title": "Forced browser interactions should not bypass actionability checks",
+  "type": "CODE_SMELL",
+  "status": "ready",
+  "remediation": {
+    "func": "Constant/Issue",
+    "constantCost": "5 min"
+  },
+  "tags": [
+    "tests",
+    "cypress",
+    "playwright"
+  ],
+  "defaultSeverity": "Major",
+  "ruleSpecification": "RSPEC-8783",
+  "sqKey": "S8783",
+  "scope": "Tests",
+  "defaultQualityProfiles": [
+    "Sonar way"
+  ],
+  "quickfix": "unknown",
+  "code": {
+    "impacts": {
+      "MAINTAINABILITY": "MEDIUM"
+    },
+    "attribute": "CONVENTIONAL"
+  },
+  "compatibleLanguages": [
+    "js",
+    "ts"
+  ]
+}
