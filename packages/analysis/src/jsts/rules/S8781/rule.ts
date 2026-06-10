@@ -35,7 +35,9 @@ import {
 } from '../helpers/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
-const MESSAGE = 'Replace this empty test title with a descriptive name.';
+const MOCHA_TEST_AND_SUITE_NAMES = [...TEST_FUNCTION_NAMES, ...SUITE_FUNCTION_NAMES];
+
+const MESSAGE = 'Replace this empty or whitespace-only title with a descriptive name.';
 const MESSAGE_ID = 'emptyTitle';
 
 export const rule: Rule.RuleModule = {
@@ -75,8 +77,7 @@ function isTestOrSuiteDeclaration(context: Rule.RuleContext, node: estree.CallEx
     return false;
   }
   return (
-    isMochaTestConstruct(context, node, TEST_FUNCTION_NAMES) ||
-    isMochaTestConstruct(context, node, SUITE_FUNCTION_NAMES) ||
+    isMochaTestConstruct(context, node, MOCHA_TEST_AND_SUITE_NAMES) ||
     isPlaywrightTest(context, node) ||
     isPlaywrightDescribe(context, node)
   );

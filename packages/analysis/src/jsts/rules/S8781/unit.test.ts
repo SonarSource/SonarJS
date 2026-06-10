@@ -102,7 +102,9 @@ const jest = require('jest');
 it('', async () => {});
           `,
           filename: 'markdown.test.js',
-          errors: [{ message: 'Replace this empty test title with a descriptive name.' }],
+          errors: [
+            { message: 'Replace this empty or whitespace-only title with a descriptive name.' },
+          ],
         },
         {
           code: `
