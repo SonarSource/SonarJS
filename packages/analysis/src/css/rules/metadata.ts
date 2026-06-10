@@ -303,6 +303,20 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'sonar/text-spacing',
   },
   {
+    sqKey: 'S8757',
+    stylelintKey: 'sonar/annotation-no-unknown',
+    listParam: [
+      {
+        sqKey: 'ignoreAnnotations',
+        javaField: 'ignoreAnnotations',
+        description:
+          'Comma-separated list of strings and/or regular expressions for annotations to consider as valid.',
+        default: '',
+        stylelintOptionKey: 'ignoreAnnotations',
+      },
+    ],
+  },
+  {
     sqKey: 'S8759',
     stylelintKey: 'at-rule-no-vendor-prefix',
     listParam: [

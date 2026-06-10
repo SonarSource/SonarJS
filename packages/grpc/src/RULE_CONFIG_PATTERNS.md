@@ -193,7 +193,7 @@ ignoreParams: [{
 
 Some rules have multiple ignore params (e.g., S4654 has `ignoreProperties` and `ignoreSelectors`), which are merged into a single secondary options object.
 
-**Rules using this pattern:** S1874, S4649, S4653, S4654, S4659, S4660, S4662, S4670, S8759, S8767, S8776, S8777, S8778 (13 rules)
+**Rules using this pattern:** S1874, S4649, S4653, S4654, S4659, S4660, S4662, S4670, S8757, S8759, S8767, S8776, S8777, S8778 (14 rules)
 
 ---
 
@@ -274,7 +274,7 @@ One SonarQube rule maps to multiple stylelint rules. `buildRuleConfigurations` r
 | Pattern       | Count | Description                  | Stylelint Output                 |
 | ------------- | ----- | ---------------------------- | -------------------------------- |
 | No params     | 27    | Rule enabled with defaults   | `true`                           |
-| Ignore params | 13    | Comma-separated string lists | `[true, { key: ['v1', 'v2'] }]`  |
+| Ignore params | 14    | Comma-separated string lists | `[true, { key: ['v1', 'v2'] }]`  |
 | Boolean param | 1     | Conditional fixed options    | `[true, { key: ['v'] }]` or `[]` |
 
-**Total: 41 CSS rules (14 with configurable parameters)**
+**Total: 42 CSS rules (15 with configurable parameters)**
