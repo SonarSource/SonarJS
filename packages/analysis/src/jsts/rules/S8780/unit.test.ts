@@ -265,6 +265,32 @@ describe('S8780', () => {
           `,
           errors: 5,
         },
+        {
+          code: `
+            import { expect, it } from '@jest/globals';
+
+            it('reports nested async assertions', () => {
+              if (Math.random() > 0.5) {
+                expect(fetchUser(1)).resolves.toHaveProperty('name');
+              } else {
+                for (const id of [1, 2, 3]) {
+                  expect(fetchUser(id)).resolves.toHaveProperty('name');
+                }
+              }
+              try {
+                expect(fetchUser(2)).resolves.toHaveProperty('name');
+              } finally {
+                expect(fetchUser(3)).resolves.toHaveProperty('name');
+              }
+              switch (Math.random()) {
+                case 0:
+                  expect(fetchUser(4)).resolves.toHaveProperty('name');
+                  break;
+              }
+            });
+          `,
+          errors: 5,
+        },
       ],
     });
   });

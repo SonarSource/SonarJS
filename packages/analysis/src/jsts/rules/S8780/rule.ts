@@ -123,11 +123,7 @@ export const rule: Rule.RuleModule = {
           return;
         }
 
-        for (const statement of callback.body.body) {
-          if (statement.type !== 'ExpressionStatement') {
-            continue;
-          }
-
+        forEachExpressionStatement(callback.body, statement => {
           const assertionNode = getAsyncAssertionNode(context, statement.expression, frameworks);
           if (assertionNode) {
             context.report({
@@ -135,7 +131,7 @@ export const rule: Rule.RuleModule = {
               messageId: 'awaitOrReturn',
             });
           }
-        }
+        });
       },
     };
   },
@@ -165,6 +161,49 @@ function extractSupportedTestCallback(
 
 function isFunctionArgument(node: estree.Node | estree.SpreadElement): node is FunctionArgument {
   return node.type === 'FunctionExpression' || node.type === 'ArrowFunctionExpression';
+}
+
+function forEachExpressionStatement(
+  node: estree.Statement,
+  callback: (statement: estree.ExpressionStatement) => void,
+): void {
+  switch (node.type) {
+    case 'ExpressionStatement':
+      callback(node);
+      return;
+    case 'BlockStatement':
+      node.body.forEach(child => forEachExpressionStatement(child, callback));
+      return;
+    case 'IfStatement':
+      forEachExpressionStatement(node.consequent, callback);
+      if (node.alternate) {
+        forEachExpressionStatement(node.alternate, callback);
+      }
+      return;
+    case 'ForStatement':
+    case 'ForInStatement':
+    case 'ForOfStatement':
+    case 'WhileStatement':
+    case 'DoWhileStatement':
+    case 'LabeledStatement':
+    case 'WithStatement':
+      forEachExpressionStatement(node.body, callback);
+      return;
+    case 'SwitchStatement':
+      node.cases.forEach(switchCase =>
+        switchCase.consequent.forEach(child => forEachExpressionStatement(child, callback)),
+      );
+      return;
+    case 'TryStatement':
+      forEachExpressionStatement(node.block, callback);
+      if (node.handler) {
+        forEachExpressionStatement(node.handler.body, callback);
+      }
+      if (node.finalizer) {
+        forEachExpressionStatement(node.finalizer, callback);
+      }
+      return;
+  }
 }
 
 function getAsyncAssertionNode(
