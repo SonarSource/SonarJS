@@ -173,7 +173,7 @@ jobs:
       - name: Sync RSPEC rule data
         run: npm run sync-rspec-all
         env:
-          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
       - name: Upload RSPEC rule data
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -234,7 +234,7 @@ jobs:
           ARTIFACTORY_DEPLOY_REPO: sonarsource-public-qa
           SIGN_KEY: ${{ fromJSON(steps.deployer-secrets.outputs.vault).SIGN_KEY }}
           PGP_PASSPHRASE: ${{ fromJSON(steps.deployer-secrets.outputs.vault).PGP_PASSPHRASE }}
-          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
       - name: Upload SonarJS artifacts
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -280,7 +280,7 @@ jobs:
       - name: Build and test Maven (no deploy)
         run: mvn verify -T1C
         env:
-          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
 
   build_eslint_plugin:
     runs-on: github-ubuntu-latest-s
@@ -307,7 +307,7 @@ jobs:
       - name: Build ESLint plugin
         run: npm run eslint-plugin:build
         env:
-          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
       - &eslint_tarball_cache
         name: Cache ESLint plugin tarball
         uses: SonarSource/gh-action_cache@v1
@@ -342,7 +342,7 @@ jobs:
       - *rspec_secrets
       - name: Regenerate tracked generated files
         env:
-          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
         run: |
           git config --global url."https://x-access-token:${GITHUB_TOKEN}@github.com/".insteadOf "git@github.com:"
           npm install --no-save builtin-modules@3.3.0
@@ -424,7 +424,7 @@ jobs:
           npm run bbf
           npx knip
         env:
-          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
 
   test_js:
     runs-on: sonar-m
@@ -1066,7 +1066,7 @@ jobs:
           npm run generate-meta
           npm run ruling
         env:
-          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault).RSPEC_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ fromJSON(steps.rspec-secrets.outputs.vault || '{}').RSPEC_GITHUB_TOKEN }}
       - name: Update ruling and notify
         if: always() && (github.event_name == 'pull_request' || github.ref_name == github.event.repository.default_branch)
         env:
