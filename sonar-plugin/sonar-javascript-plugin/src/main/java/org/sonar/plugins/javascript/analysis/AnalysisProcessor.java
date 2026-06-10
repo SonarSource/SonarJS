@@ -30,6 +30,7 @@ import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
+import org.sonar.api.batch.sensor.issue.IssueResolution;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.sensor.symbol.NewSymbol;
@@ -112,6 +113,7 @@ public class AnalysisProcessor {
       // saving metrics should be done before saving issues so that NO SONAR lines with issues are indeed ignored
       saveMetrics(context, response.getMetrics());
       saveIssues(context, issues);
+      saveSuppressedIssues(context, response.getSuppressedIssuesList());
       saveHighlights(context, response.getHighlightsList());
       saveHighlightedSymbols(context, response.getHighlightedSymbolsList());
       saveCpd(context, response.getCpdTokensList());
@@ -121,6 +123,9 @@ public class AnalysisProcessor {
       // from Cloudformation configurations, we can only save issues for these files. Same applies for HTML and
       // sonar-html plugin.
       saveIssues(context, issues);
+      // Embedded JS/TS in HTML/YAML can still produce suppressed issues on the host file.
+      // saveSuppressedIssues() filters out unsupported non-JS/TS suppressed issues.
+      saveSuppressedIssues(context, response.getSuppressedIssuesList());
     }
     saveIssueResolutions(context, response.getSonarResolveCommentsList());
 
@@ -232,6 +237,51 @@ public class AnalysisProcessor {
         saveIssue(context, issue);
       } catch (RuntimeException e) {
         LOG.warn("Failed to save issue in {} at line {}", file.uri(), issue.getLine());
+        LOG.warn("Exception cause", e);
+      }
+    }
+  }
+
+  private void saveSuppressedIssues(JsTsContext<?> context, List<Issue> suppressedIssues) {
+    if (!supportsIssueResolution(context) || !context.isIssueResolutionEnabled()) {
+      return;
+    }
+
+    for (Issue issue : suppressedIssues) {
+      if (!isJsTs(issue.getLanguage())) {
+        continue;
+      }
+      LOG.debug(
+        "Saving suppressed issue for rule {} on file {} at line {}",
+        issue.getRuleId(),
+        file,
+        issue.getLine()
+      );
+      var ruleKey = findRuleKey(issue);
+      if (ruleKey == null) {
+        continue;
+      }
+      if (issue.getResolutionComment().isEmpty()) {
+        LOG.warn(
+          "Skipping suppressed issue for rule {} in {} because accepted issues require a justification comment",
+          ruleKey,
+          file.uri()
+        );
+        continue;
+      }
+      var primaryTextRange = primaryTextRange(issue);
+      if (primaryTextRange == null) {
+        LOG.warn(
+          "Skipping suppressed issue for rule {} in {} because accepted issues require a valid location",
+          ruleKey,
+          file.uri()
+        );
+        continue;
+      }
+      try {
+        saveSuppressedIssueAsAccepted(context, issue, ruleKey, primaryTextRange);
+      } catch (RuntimeException e) {
+        LOG.warn("Failed to save suppressed issue in {} at line {}", file.uri(), issue.getLine());
         LOG.warn("Exception cause", e);
       }
     }
@@ -438,18 +488,33 @@ public class AnalysisProcessor {
   }
 
   void saveIssue(JsTsContext<?> context, Issue issue) {
+    saveIssue(context, issue, findRuleKey(issue), primaryTextRange(issue));
+  }
+
+  private void saveSuppressedIssueAsAccepted(
+    JsTsContext<?> context,
+    Issue issue,
+    RuleKey ruleKey,
+    TextRange primaryTextRange
+  ) {
+    saveIssue(context, issue, ruleKey, primaryTextRange);
+    saveAcceptedIssueResolution(context, ruleKey, issue.getResolutionComment(), primaryTextRange);
+  }
+
+  private void saveIssue(
+    JsTsContext<?> context,
+    Issue issue,
+    @Nullable RuleKey ruleKey,
+    @Nullable TextRange primaryTextRange
+  ) {
     var newIssue = context.getSensorContext().newIssue();
     var location = newIssue.newLocation().on(file);
     if (!issue.getMessage().isEmpty()) {
       location.message(issue.getMessage());
     }
 
-    if (issue.hasEndLine() && issue.hasEndColumn()) {
-      location.at(
-        file.newRange(issue.getLine(), issue.getColumn(), issue.getEndLine(), issue.getEndColumn())
-      );
-    } else if (issue.getLine() != 0) {
-      location.at(file.selectLine(issue.getLine()));
+    if (primaryTextRange != null) {
+      location.at(primaryTextRange);
     }
 
     issue
@@ -474,7 +539,6 @@ public class AnalysisProcessor {
       }
     }
 
-    var ruleKey = findRuleKey(issue);
     if (ruleKey != null) {
       newIssue.at(location).forRule(ruleKey).save();
     } else if (CssRules.CSS_PARSING_ERROR_STYLELINT_KEY.equals(issue.getRuleId())) {
@@ -526,6 +590,13 @@ public class AnalysisProcessor {
       (
         (SonarLintRuntime) context.getSensorContext().runtime()
       ).getSonarLintPluginApiVersion().isGreaterThanOrEqual(Version.create(6, 3))
+    );
+  }
+
+  private static boolean isJsTs(AnalysisLanguage language) {
+    return (
+      language == AnalysisLanguage.ANALYSIS_LANGUAGE_JS ||
+      language == AnalysisLanguage.ANALYSIS_LANGUAGE_TS
     );
   }
 
@@ -597,6 +668,19 @@ public class AnalysisProcessor {
     return trimmed.regionMatches(true, 0, SonarResolve.KEYWORD, 0, SonarResolve.KEYWORD.length());
   }
 
+  @Nullable
+  private TextRange primaryTextRange(Issue issue) {
+    if (issue.hasEndLine() && issue.hasEndColumn()) {
+      return file.newRange(
+        issue.getLine(),
+        issue.getColumn(),
+        issue.getEndLine(),
+        issue.getEndColumn()
+      );
+    }
+    return issue.getLine() != 0 ? file.selectLine(issue.getLine()) : null;
+  }
+
   private void saveIssueResolution(JsTsContext<?> context, SonarResolve sonarResolve) {
     context
       .getSensorContext()
@@ -611,6 +695,23 @@ public class AnalysisProcessor {
 
   private void logInvalidDirective(int line, String errorMessage) {
     LOG.warn("{} in file {} at line {}", errorMessage, file.uri(), line);
+  }
+
+  private void saveAcceptedIssueResolution(
+    JsTsContext<?> context,
+    RuleKey ruleKey,
+    String resolutionComment,
+    TextRange textRange
+  ) {
+    context
+      .getSensorContext()
+      .newIssueResolution()
+      .on(file)
+      .at(textRange)
+      .status(IssueResolution.Status.DEFAULT)
+      .forRules(List.of(ruleKey))
+      .comment(resolutionComment)
+      .save();
   }
 
   @Nullable

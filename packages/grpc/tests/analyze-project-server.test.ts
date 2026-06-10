@@ -540,6 +540,44 @@ describe('analyze-project gRPC server', () => {
     }
   });
 
+  it('should preserve suppressed issues through unary protobuf serialization', () => {
+    const response = createAnalyzeProjectUnaryResponse({
+      files: {
+        [basicFixtureFile]: {
+          issues: [],
+          suppressedIssues: [
+            {
+              ruleId: 'S1116',
+              language: 'ts',
+              line: 1,
+              column: 0,
+              endLine: 1,
+              endColumn: 1,
+              message: 'Unnecessary semicolon.',
+              secondaryLocations: [],
+              ruleESLintKeys: [],
+              filePath: basicFixtureFile,
+              resolutionComment: 'accepted',
+            },
+          ],
+        },
+      } as unknown as ProjectAnalysisOutput['files'],
+      meta: { warnings: [] },
+    });
+
+    const roundTrip = analyzeProjectProto.analyzeproject.v1.AnalyzeProjectUnaryResponse.decode(
+      analyzeProjectProto.analyzeproject.v1.AnalyzeProjectUnaryResponse.encode(response).finish(),
+    );
+
+    expect(roundTrip.files?.[basicFixtureFile]?.issues).toEqual([]);
+    expect(roundTrip.files?.[basicFixtureFile]?.suppressedIssues).toEqual([
+      expect.objectContaining({
+        ruleId: 'S1116',
+        resolutionComment: 'accepted',
+      }),
+    ]);
+  });
+
   it('should support sparse typed analyze-project requests', async t => {
     for (const mode of serverModes) {
       await t.test(mode.label, async () => {

@@ -50,6 +50,7 @@ message AnalyzeResponse {
   repeated Issue issues = 1;
   repeated AnalysisProblem analysis_problems = 2;
   repeated FileMeasures measures = 3;
+  repeated Issue suppressed_issues = 4;
 }
 
 // Represents a problem encountered during analysis
@@ -109,6 +110,7 @@ message Issue {
   RuleKey rule = 4;                // Structured rule key
   TextRange text_range = 5;        // Location in the file
   repeated Flow flows = 6;         // Optional data/control flow paths
+  optional string resolution_comment = 7;
 }
 
 // Represents a text range in a file

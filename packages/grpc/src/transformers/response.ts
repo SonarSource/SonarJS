@@ -16,9 +16,11 @@
  */
 import { analyzer } from '../proto/language_analyzer.js';
 import {
+  type FileResult,
   type ProjectAnalysisOutput,
   entriesOfFileResults,
 } from '../../../analysis/src/projectAnalysis.js';
+import type { SuppressedIssue } from '../../../analysis/src/contracts/analysis.js';
 import type { ParsingErrorLanguage } from '../../../analysis/src/contracts/project-analysis.js';
 import { reverseCssRuleKeyMap } from '../../../analysis/src/css/rules/metadata.js';
 import type { JsTsIssue } from '../../../analysis/src/jsts/linter/issues/issue.js';
@@ -128,6 +130,13 @@ function transformIssue(issue: JsTsIssue): analyzer.IIssue {
   };
 }
 
+function transformSuppressedIssue(issue: SuppressedIssue<JsTsIssue>): analyzer.IIssue {
+  return {
+    ...transformIssue(issue),
+    resolutionComment: issue.resolutionComment,
+  };
+}
+
 /**
  * Transform a single CSS issue from the internal format to the gRPC Issue format.
  *
@@ -180,6 +189,49 @@ function restorePath(filePath: NormalizedAbsolutePath, pathMap: Map<string, stri
   return pathMap.get(filePath) ?? filePath;
 }
 
+type SuccessfulFileResult = Exclude<FileResult, { error: string }>;
+
+function appendSuccessfulFileResult(
+  fileResult: SuccessfulFileResult,
+  originalPath: string,
+  issues: analyzer.IIssue[],
+  suppressedIssues: analyzer.IIssue[],
+  measures: analyzer.IFileMeasures[],
+) {
+  if ('issues' in fileResult) {
+    for (const issue of fileResult.issues) {
+      issues.push(transformOutputIssue(issue, originalPath));
+    }
+
+    for (const suppressedIssue of fileResult.suppressedIssues ?? []) {
+      suppressedIssues.push(transformOutputSuppressedIssue(suppressedIssue, originalPath));
+    }
+  }
+
+  const ncloc = 'metrics' in fileResult ? fileResult.metrics?.ncloc : undefined;
+  if (ncloc !== undefined) {
+    measures.push({
+      filePath: originalPath,
+      measures: [{ metricKey: 'ncloc', intValue: ncloc.length }],
+    });
+  }
+}
+
+function transformOutputIssue(issue: CssIssue | JsTsIssue, filePath: string): analyzer.IIssue {
+  if (issue.language === 'css') {
+    return transformCssIssue(issue, filePath);
+  }
+
+  return transformIssue({ ...issue, filePath: filePath as NormalizedAbsolutePath });
+}
+
+function transformOutputSuppressedIssue(
+  issue: SuppressedIssue<JsTsIssue>,
+  filePath: string,
+): analyzer.IIssue {
+  return transformSuppressedIssue({ ...issue, filePath: filePath as NormalizedAbsolutePath });
+}
+
 /**
  * Transform the ProjectAnalysisOutput into a gRPC AnalyzeResponse.
  *
@@ -216,6 +268,7 @@ export function transformProjectOutputToResponse(
   pathMap: Map<string, string> = new Map(),
 ): analyzer.IAnalyzeResponse {
   const issues: analyzer.IIssue[] = [];
+  const suppressedIssues: analyzer.IIssue[] = [];
   const analysisProblems: analyzer.IAnalysisProblem[] = [];
   const measures: analyzer.IFileMeasures[] = [];
 
@@ -239,28 +292,7 @@ export function transformProjectOutputToResponse(
       continue;
     }
 
-    if ('issues' in fileResult) {
-      for (const issue of fileResult.issues) {
-        switch (issue.language) {
-          case 'css':
-            issues.push(transformCssIssue(issue, originalPath));
-            break;
-          case 'js':
-          case 'ts':
-            issues.push(
-              transformIssue({ ...issue, filePath: originalPath as NormalizedAbsolutePath }),
-            );
-            break;
-        }
-      }
-      const ncloc = 'metrics' in fileResult ? fileResult.metrics?.ncloc : undefined;
-      if (ncloc !== undefined) {
-        measures.push({
-          filePath: originalPath,
-          measures: [{ metricKey: 'ncloc', intValue: ncloc.length }],
-        });
-      }
-    }
+    appendSuccessfulFileResult(fileResult, originalPath, issues, suppressedIssues, measures);
 
     if ('parsingErrors' in fileResult) {
       for (const { message, line, column, language } of fileResult.parsingErrors ?? []) {
@@ -285,6 +317,7 @@ export function transformProjectOutputToResponse(
 
   return {
     issues,
+    ...(suppressedIssues.length > 0 ? { suppressedIssues } : {}),
     analysisProblems,
     measures,
   };

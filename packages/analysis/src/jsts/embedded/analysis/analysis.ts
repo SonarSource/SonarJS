@@ -30,7 +30,7 @@ export { type EmbeddedAnalysisInput } from '../../../contracts/analysis.js';
  *
  * @param issues the found issues
  */
-export interface EmbeddedAnalysisOutput extends AnalysisOutput<JsTsIssue | CssIssue> {
+export interface EmbeddedAnalysisOutput extends AnalysisOutput<JsTsIssue | CssIssue, JsTsIssue> {
   metrics: {
     ncloc: number[];
   };

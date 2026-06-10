@@ -55,6 +55,10 @@ export interface BaseIssue {
   endColumn?: number;
 }
 
+export type SuppressedIssue<T extends BaseIssue = BaseIssue> = T & {
+  resolutionComment: string;
+};
+
 export interface SonarResolveComment {
   line: number;
   text: string;
@@ -64,12 +68,15 @@ export interface SonarResolveComment {
  * An analysis output
  *
  * A common interface for all kinds of analysis output.
- * Generic parameter I allows specifying a more specific issue type.
+ * Generic parameter T allows specifying a more specific issue type.
+ * Generic parameter S narrows which issue subtype can appear in `suppressedIssues`.
  *
- * @template I the issue type, must extend BaseIssue
+ * @template T the issue type, must extend BaseIssue
+ * @template S the suppressible issue subtype, must extend T
  */
-export interface AnalysisOutput<I extends BaseIssue = BaseIssue> {
-  issues: I[];
+export interface AnalysisOutput<T extends BaseIssue = BaseIssue, S extends T = T> {
+  issues: T[];
+  suppressedIssues?: SuppressedIssue<S>[];
   sonarResolveComments?: SonarResolveComment[];
 }
 

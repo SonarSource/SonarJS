@@ -28,6 +28,7 @@ import type { RuleConfig as CssRuleConfig } from '../src/css/linter/config.js';
 import { getProgramCacheManager } from '../src/jsts/program/cache/programCache.js';
 import { clearProgramOptionsCache } from '../src/jsts/program/cache/programOptionsCache.js';
 import { sanitizeProjectAnalysisInput } from '../src/common/input-sanitize.js';
+import { DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT } from '../src/jsts/linter/issues/transform.js';
 
 // Helper to initialize file stores for tests - wraps sanitizeProjectAnalysisInput
 async function initForTest(configOptions: object, rawFiles: object) {
@@ -456,6 +457,77 @@ describe('SonarQube project analysis', () => {
     // Verify the issues are the expected rule
     expect('issues' in includedResult! && includedResult!.issues[0].ruleId).toBe('S1116');
     expect('issues' in excludedResult! && excludedResult!.issues[0].ruleId).toBe('S1116');
+  });
+
+  it('should keep suppressed issues separate from open issues in project analysis', async () => {
+    const baseDir = join(fixtures, 'no-tsconfig');
+    const filePath = join(baseDir, 'suppressed.js');
+    const suppressionRules: RuleConfig[] = [
+      {
+        key: 'S3504',
+        configurations: [],
+        fileTypeTargets: ['MAIN'],
+        language: 'js',
+        analysisModes: ['DEFAULT'],
+      },
+    ];
+
+    const configuration = await initForTest(
+      { baseDir },
+      {
+        [filePath]: {
+          filePath,
+          fileType: 'MAIN',
+          fileContent: [
+            '/* eslint-disable-next-line no-var -- eslint reason */',
+            'var a = 1;',
+            '/* eslint-disable-next-line sonarjs/S3504 -- sonar reason */',
+            'var b = 2;',
+            '/* eslint-disable-next-line no-var */',
+            'var c = 3;',
+            '/* eslint-disable-next-line sonarjs/S3504 */',
+            'var d = 4;',
+            'var e = 5;',
+          ].join('\n'),
+        },
+      },
+    );
+
+    const result = await analyzeProject({ rules: suppressionRules, bundles: [] }, configuration);
+
+    const fileResult = result.files[normalizeToAbsolutePath(filePath)];
+    expect(fileResult).toBeDefined();
+    expect('issues' in fileResult!).toBe(true);
+    if ('issues' in fileResult!) {
+      expect(fileResult.issues).toEqual([
+        expect.objectContaining({
+          ruleId: 'S3504',
+          line: 9,
+        }),
+      ]);
+      expect(fileResult.suppressedIssues).toEqual([
+        expect.objectContaining({
+          ruleId: 'S3504',
+          line: 2,
+          resolutionComment: 'eslint reason',
+        }),
+        expect.objectContaining({
+          ruleId: 'S3504',
+          line: 4,
+          resolutionComment: 'sonar reason',
+        }),
+        expect.objectContaining({
+          ruleId: 'S3504',
+          line: 6,
+          resolutionComment: DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT,
+        }),
+        expect.objectContaining({
+          ruleId: 'S3504',
+          line: 8,
+          resolutionComment: DEFAULT_SUPPRESSED_ISSUE_RESOLUTION_COMMENT,
+        }),
+      ]);
+    }
   });
 
   it('should route HTML files to HTML analyzer and include CSS issues from style blocks', async () => {

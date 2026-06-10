@@ -46,6 +46,9 @@ import org.sonar.plugins.javascript.bridge.AnalysisConfiguration;
 public class JsTsContext<T extends SensorContext> implements AnalysisConfiguration {
 
   private static final String ALLOW_TS_PARSER_JS_FILES = "sonar.javascript.allowTsParserJsFiles";
+  private static final String ISSUE_RESOLUTION_GLOBAL_ENABLED =
+    "sonar.issues.issueResolution.global.enabled";
+  private static final String ISSUE_RESOLUTION_ENABLED = "sonar.issues.issueResolution.enabled";
 
   private static final Logger LOG = LoggerFactory.getLogger(JsTsContext.class);
 
@@ -82,6 +85,13 @@ public class JsTsContext<T extends SensorContext> implements AnalysisConfigurati
 
   public boolean failFast() {
     return context.config().getBoolean("sonar.internal.analysis.failFast").orElse(false);
+  }
+
+  public boolean isIssueResolutionEnabled() {
+    return (
+      context.config().getBoolean(ISSUE_RESOLUTION_GLOBAL_ENABLED).orElse(false) &&
+      context.config().getBoolean(ISSUE_RESOLUTION_ENABLED).orElse(false)
+    );
   }
 
   @Override

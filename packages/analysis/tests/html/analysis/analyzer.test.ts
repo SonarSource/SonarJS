@@ -57,6 +57,48 @@ describe('analyzeHTML', () => {
     );
   });
 
+  it('should return suppressed issues for embedded HTML scripts separately', async () => {
+    await Linter.initialize({
+      baseDir: fixturesPath,
+      rules: [
+        {
+          key: 'S3504',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const result = await analyzeEmbedded(
+      await embeddedInput({
+        filePath: normalizeToAbsolutePath(join(fixturesPath, 'suppressed.html')),
+        fileContent: [
+          '<html>',
+          '<script>',
+          '/* eslint-disable-next-line no-var -- accepted */',
+          'var value = 42;',
+          '</script>',
+          '</html>',
+        ].join('\n'),
+      }),
+      parseHTML,
+    );
+
+    expect(result.issues).toEqual([]);
+    expect(result.suppressedIssues).toEqual([
+      expect.objectContaining({
+        ruleId: 'S3504',
+        line: 4,
+        column: 0,
+        endLine: 4,
+        endColumn: 9,
+        resolutionComment: 'accepted',
+      }),
+    ]);
+  });
+
   it('should preserve host line numbers for sonar-resolve directives in embedded JS', async () => {
     await Linter.initialize({ baseDir: fixturesPath, rules: [] });
 
