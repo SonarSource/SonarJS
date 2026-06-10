@@ -1,23 +1,21 @@
 {
-  "title": "Clear-text protocols should not be used",
-  "type": "VULNERABILITY",
+  "title": "Using clear-text protocols is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
   "code": {
     "impacts": {
-      "SECURITY": "LOW"
+      "SECURITY": "HIGH"
     },
     "attribute": "COMPLETE"
   },
   "status": "ready",
-  "quickfix": "unknown",
-  "remediation": {
-    "func": "Constant/Issue",
-    "constantCost": "30min"
-  },
   "tags": [
-    "cwe",
-    "former-hotspot"
+    "cwe"
   ],
-  "defaultSeverity": "Minor",
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
+  "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-5332",
   "sqKey": "S5332",
   "scope": "Main",

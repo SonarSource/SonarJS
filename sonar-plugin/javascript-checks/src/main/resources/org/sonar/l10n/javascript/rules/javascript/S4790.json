@@ -1,6 +1,6 @@
 {
-  "title": "Weak hashing algorithms should not be used",
-  "type": "VULNERABILITY",
+  "title": "Using weak hashing algorithms is security-sensitive",
+  "type": "SECURITY_HOTSPOT",
   "code": {
     "impacts": {
       "SECURITY": "HIGH"
@@ -8,15 +8,13 @@
     "attribute": "TRUSTWORTHY"
   },
   "status": "ready",
-  "quickfix": "unknown",
-  "remediation": {
-    "func": "Constant/Issue",
-    "constantCost": "30min"
-  },
   "tags": [
-    "cwe",
-    "former-hotspot"
+    "cwe"
   ],
+  "extra": {
+    "replacementRules": [],
+    "legacyKeys": []
+  },
   "defaultSeverity": "Critical",
   "ruleSpecification": "RSPEC-4790",
   "sqKey": "S4790",
