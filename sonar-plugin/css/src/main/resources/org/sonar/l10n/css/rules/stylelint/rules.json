@@ -69,12 +69,6 @@
     "name": "Disallow empty blocks"
   },
   {
-    "key": "selector-no-deprecated",
-    "url": "https://stylelint.io/user-guide/rules/selector-no-deprecated/",
-    "name": "Disallow deprecated selectors",
-    "type": "BUG"
-  },
-  {
     "key": "selector-pseudo-class-no-unknown",
     "url": "https://stylelint.io/user-guide/rules/selector-pseudo-class-no-unknown/",
     "name": "Disallow unknown pseudo-class selectors",
