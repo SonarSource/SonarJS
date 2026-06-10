@@ -30,4 +30,4 @@
  *
  * Each CSS-only rule branch adds its stylelint key here.
  */
-export const cssOnlyRuleKeys = new Set<string>();
+export const cssOnlyRuleKeys = new Set<string>(['at-rule-descriptor-value-no-unknown']);
