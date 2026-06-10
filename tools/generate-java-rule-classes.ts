@@ -429,6 +429,104 @@ async function generateCssJavaCheckClass(rule: CssRuleMeta): Promise<void> {
   );
 }
 
+/**
+ * Generate a Java check class for a sqKey that maps to multiple stylelint rules.
+ * The class overrides stylelintRules() to return one StylelintRule per binding.
+ */
+async function generateCssMultiBindingJavaCheckClass(
+  sqKey: string,
+  metas: CssRuleMeta[],
+): Promise<void> {
+  const imports = new Set<string>([
+    'import static org.sonar.css.rules.RuleUtils.splitAndTrim;',
+    'import java.util.Arrays;',
+    'import java.util.Collections;',
+    'import java.util.List;',
+    'import org.sonar.check.RuleProperty;',
+    'import org.sonar.plugins.javascript.bridge.StylelintRule;',
+  ]);
+
+  const lines: string[] = [];
+
+  // @RuleProperty fields — one per listParam entry across all bindings
+  for (const meta of metas) {
+    for (const param of meta.listParam ?? []) {
+      lines.push(`@RuleProperty(`);
+      lines.push(`  key = "${param.sqKey}",`);
+      lines.push(`  description = "${escapeJavaString(param.description)}",`);
+      lines.push(`  defaultValue = ""`);
+      lines.push(`)`);
+      lines.push(`String ${param.javaField} = "";`);
+      lines.push('');
+    }
+  }
+
+  // stylelintRules() override — one entry per binding
+  lines.push('@Override');
+  lines.push('public List<StylelintRule> stylelintRules() {');
+  lines.push('  return Arrays.asList(');
+  for (let i = 0; i < metas.length; i++) {
+    const meta = metas[i];
+    const isLast = i === metas.length - 1;
+    const param = meta.listParam?.[0];
+    if (param) {
+      const optClass = `${capitalize(param.stylelintOptionKey)}IgnoreOption`;
+      lines.push(
+        `    new StylelintRule("${meta.stylelintKey}", toOptions(splitAndTrim(${param.javaField}), new ${optClass}(splitAndTrim(${param.javaField}))))${isLast ? '' : ','}`,
+      );
+    } else {
+      lines.push(
+        `    new StylelintRule("${meta.stylelintKey}", Collections.emptyList())${isLast ? '' : ','}`,
+      );
+    }
+  }
+  lines.push('  );');
+  lines.push('}');
+  lines.push('');
+
+  // Helper: emit [true, option] or [] depending on whether values is empty
+  lines.push('private static List<Object> toOptions(List<String> values, Object ignoreOption) {');
+  lines.push(
+    '  return values.isEmpty() ? Collections.emptyList() : Arrays.asList(true, ignoreOption);',
+  );
+  lines.push('}');
+  lines.push('');
+
+  // Inner option classes — one per binding with a listParam
+  for (const meta of metas) {
+    const param = meta.listParam?.[0];
+    if (!param) continue;
+    const optClass = `${capitalize(param.stylelintOptionKey)}IgnoreOption`;
+    lines.push(`private static class ${optClass} {`);
+    lines.push('');
+    lines.push(`  // Used by GSON serialization`);
+    lines.push(`  private final List<String> ${param.stylelintOptionKey};`);
+    lines.push('');
+    lines.push(`  ${optClass}(List<String> ${param.stylelintOptionKey}) {`);
+    lines.push(`    this.${param.stylelintOptionKey} = ${param.stylelintOptionKey};`);
+    lines.push('  }');
+    lines.push('}');
+    lines.push('');
+  }
+
+  await inflateTemplateToFile(
+    join(JAVA_TEMPLATES_FOLDER, 'css-check.template'),
+    join(CSS_JAVA_CHECKS_FOLDER, `${sqKey}.java`),
+    {
+      ___HEADER___: header,
+      ___IMPORTS___: [...imports].sort().join('\n'),
+      ___RULE_KEY___: sqKey,
+      ___CLASS_NAME___: sqKey,
+      ___STYLELINT_KEY___: metas[0].stylelintKey,
+      ___BODY___: lines.join('\n'),
+    },
+  );
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 async function generateCssParsingErrorClass(): Promise<void> {
   await inflateTemplateToFile(
     join(JAVA_TEMPLATES_FOLDER, 'css-check.template'),
@@ -444,17 +542,25 @@ async function generateCssParsingErrorClass(): Promise<void> {
   );
 }
 
-function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
+function generateCssRuleTestBody(
+  rules: typeof cssRulesMeta,
+  multiBindingGroups: Map<string, CssRuleMeta[]>,
+): {
   perRuleTests: string;
   rulesWithOptionsClasses: string;
   propertiesCount: number;
 } {
-  const rulesWithOptions = rules.filter(r => r.listParam?.length || r.booleanParam);
-  const sortedRulesWithOptions = rulesWithOptions.toSorted((a, b) =>
+  // Exclude multi-binding rules: their stylelintOptions() returns [] (interface default),
+  // so they must not appear in rulesWithStylelintOptions (which asserts non-empty).
+  const multiBindingKeys = new Set([...multiBindingGroups.keys()]);
+  const singleBindingWithOptions = rules.filter(
+    r => !multiBindingKeys.has(r.sqKey) && (r.listParam?.length || r.booleanParam),
+  );
+  const sortedSingleWithOptions = singleBindingWithOptions.toSorted((a, b) =>
     sonarKeySorter(a.sqKey, b.sqKey),
   );
 
-  const rulesWithOptionsClasses = sortedRulesWithOptions
+  const rulesWithOptionsClasses = sortedSingleWithOptions
     .map(r => `${r.sqKey}.class`)
     .join(',\n      ');
 
@@ -466,7 +572,8 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
 
   const testMethods: string[] = [];
 
-  for (const rule of sortedRulesWithOptions) {
+  // Tests for single-binding rules with params (asserting stylelintOptions())
+  for (const rule of sortedSingleWithOptions) {
     const methodPrefix = rule.sqKey.toLowerCase(); // e.g. 's4662'
 
     if (rule.listParam?.length) {
@@ -538,11 +645,72 @@ function generateCssRuleTestBody(rules: typeof cssRulesMeta): {
     }
   }
 
+  // Tests for multi-binding rules (asserting stylelintRules())
+  for (const [sqKey, metas] of [...multiBindingGroups].toSorted(([a], [b]) =>
+    sonarKeySorter(a, b),
+  )) {
+    const methodPrefix = sqKey.toLowerCase();
+
+    testMethods.push(`  @Test`);
+    testMethods.push(`  void ${methodPrefix}_bindings_count() {`);
+    testMethods.push(`    assertThat(new ${sqKey}().stylelintRules()).hasSize(${metas.length});`);
+    testMethods.push(`  }`);
+    testMethods.push('');
+
+    for (let i = 0; i < metas.length; i++) {
+      const meta = metas[i];
+      const param = meta.listParam?.[0];
+      if (!param) continue;
+      const bindingPrefix = `${methodPrefix}_${param.javaField.toLowerCase()}`;
+
+      // Empty default → empty configurations
+      testMethods.push(`  @Test`);
+      testMethods.push(`  void ${bindingPrefix}_empty() {`);
+      testMethods.push(`    StylelintRule sr = new ${sqKey}().stylelintRules().get(${i});`);
+      testMethods.push(`    assertThat(sr.getKey()).isEqualTo("${meta.stylelintKey}");`);
+      testMethods.push(`    assertThat(sr.getConfigurations()).isEmpty();`);
+      testMethods.push(`  }`);
+      testMethods.push('');
+
+      // Custom value → [true, { optionKey: [...] }]
+      const customOptionObj: Record<string, string[]> = {
+        [param.stylelintOptionKey]: ['testValue1', 'testValue2'],
+      };
+      const customJson = JSON.stringify([true, customOptionObj]).replace(/"/g, '\\"');
+
+      testMethods.push(`  @Test`);
+      testMethods.push(`  void ${bindingPrefix}_custom() {`);
+      testMethods.push(`    ${sqKey} instance = new ${sqKey}();`);
+      testMethods.push(`    instance.${param.javaField} = "testValue1, testValue2";`);
+      testMethods.push(`    StylelintRule sr = instance.stylelintRules().get(${i});`);
+      testMethods.push(
+        `    assertThat(GSON.toJson(sr.getConfigurations())).isEqualTo("${customJson}");`,
+      );
+      testMethods.push(`  }`);
+      testMethods.push('');
+    }
+  }
+
   return { perRuleTests: testMethods.join('\n'), rulesWithOptionsClasses, propertiesCount };
 }
 
-for (const cssRule of cssRulesMeta) {
-  await generateCssJavaCheckClass(cssRule);
+// Group cssRulesMeta by sqKey; multi-member groups become single multi-binding classes
+const cssRuleGroups = new Map<string, CssRuleMeta[]>();
+for (const rule of cssRulesMeta) {
+  const group = cssRuleGroups.get(rule.sqKey) ?? [];
+  group.push(rule);
+  cssRuleGroups.set(rule.sqKey, group);
+}
+const cssMultiBindingGroups = new Map(
+  [...cssRuleGroups.entries()].filter(([, metas]) => metas.length > 1),
+);
+
+for (const [sqKey, metas] of cssRuleGroups) {
+  if (metas.length === 1) {
+    await generateCssJavaCheckClass(metas[0]);
+  } else {
+    await generateCssMultiBindingJavaCheckClass(sqKey, metas);
+  }
 }
 await generateCssParsingErrorClass();
 
@@ -568,8 +736,10 @@ await inflateTemplateToFile(
 );
 
 // Generate CssRuleTest.java
-const { perRuleTests, rulesWithOptionsClasses, propertiesCount } =
-  generateCssRuleTestBody(cssRulesMeta);
+const { perRuleTests, rulesWithOptionsClasses, propertiesCount } = generateCssRuleTestBody(
+  cssRulesMeta,
+  cssMultiBindingGroups,
+);
 
 await inflateTemplateToFile(
   join(JAVA_TEMPLATES_FOLDER, 'css-rule-test.template'),

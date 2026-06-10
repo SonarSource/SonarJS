@@ -1,0 +1,33 @@
+<h2>Why is this an issue?</h2>
+
+
+<p>CSS features are sometimes deprecated to indicate that they are no longer recommended for use. This is typically because a better alternative
+exists or because the feature is no longer supported by modern browsers.</p>
+
+
+<p>Using deprecated CSS selectors, at-rules, or property values can lead to inconsistent rendering across browsers and may stop working entirely
+as browsers remove support.</p>
+
+
+<pre>
+/* Noncompliant: deprecated selector */
+acronym {}
+
+/* Noncompliant: deprecated at-rule */
+@viewport { width: device-width; }
+
+/* Noncompliant: deprecated keyword value */
+a { overflow: overlay; }
+</pre>
+
+
+<h2>Resources</h2>
+
+
+<h3>Documentation</h3>
+
+<ul>
+<li>
+CWE - <a href="https://cwe.mitre.org/data/definitions/477">CWE-477 - Use of Obsolete Functions</a>
+</li>
+</ul>

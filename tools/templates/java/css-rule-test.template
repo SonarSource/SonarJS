@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.internal.util.collections.Sets;
 import org.sonar.check.RuleProperty;
 import org.sonar.css.CssRules;
+import org.sonar.plugins.javascript.bridge.StylelintRule;
 
 class CssRuleTest {
 

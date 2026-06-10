@@ -20,6 +20,7 @@ import { transformRequestToProjectInput } from '../src/transformers/request.js';
 import { transformProjectOutputToResponse } from '../src/transformers/response.js';
 import { buildRuleConfigurations as buildCssRuleConfigurations } from '../src/transformers/rule-configurations/css.js';
 import { buildRuleConfigurations as buildJstsRuleConfigurations } from '../src/transformers/rule-configurations/jsts.js';
+import { reverseCssRuleKeyMap } from '../../analysis/src/css/rules/metadata.js';
 import { analyzer } from '../src/proto/language_analyzer.js';
 
 describe('transformRequestToProjectInput', () => {
@@ -249,59 +250,59 @@ describe('transformRequestToProjectInput', () => {
 });
 
 describe('CSS rule configurations', () => {
-  it('should return null for unknown CSS rule', () => {
-    expect(buildCssRuleConfigurations('UNKNOWN_RULE', [])).toBeNull();
+  it('should return empty array for unknown CSS rule', () => {
+    expect(buildCssRuleConfigurations('UNKNOWN_RULE', [])).toEqual([]);
   });
 
   it('should return empty configurations for a rule with no params', () => {
     // S4658 (block-no-empty) has no listParam or booleanParam
     const result = buildCssRuleConfigurations('S4658', []);
-    expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
+    expect(result).toEqual([{ key: 'block-no-empty', configurations: [] }]);
   });
 
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'
-      const result = buildCssRuleConfigurations('S4659', []);
-      expect(result!.configurations).toEqual([
+      const [result] = buildCssRuleConfigurations('S4659', []);
+      expect(result.configurations).toEqual([
         true,
         { ignorePseudoClasses: ['local', 'global', 'export', 'import', 'deep'] },
       ]);
     });
 
     it('should use explicit param value overriding the default', () => {
-      const result = buildCssRuleConfigurations('S4659', [
+      const [result] = buildCssRuleConfigurations('S4659', [
         { key: 'ignorePseudoClasses', value: 'local,custom' },
       ]);
-      expect(result!.configurations).toEqual([true, { ignorePseudoClasses: ['local', 'custom'] }]);
+      expect(result.configurations).toEqual([true, { ignorePseudoClasses: ['local', 'custom'] }]);
     });
 
     it('should trim whitespace from comma-separated values', () => {
-      const result = buildCssRuleConfigurations('S4659', [
+      const [result] = buildCssRuleConfigurations('S4659', [
         { key: 'ignorePseudoClasses', value: ' local , custom ' },
       ]);
-      expect(result!.configurations).toEqual([true, { ignorePseudoClasses: ['local', 'custom'] }]);
+      expect(result.configurations).toEqual([true, { ignorePseudoClasses: ['local', 'custom'] }]);
     });
 
     it('should return empty configurations when param value is empty string', () => {
       // Explicit '' overrides the default and produces no secondary options
-      const result = buildCssRuleConfigurations('S4659', [
+      const [result] = buildCssRuleConfigurations('S4659', [
         { key: 'ignorePseudoClasses', value: '' },
       ]);
-      expect(result!.configurations).toEqual([]);
+      expect(result.configurations).toEqual([]);
     });
 
     it('should treat null param value as empty string, not the default', () => {
       // null → stored as '' via isString guard → not in secondary options → []
-      const result = buildCssRuleConfigurations('S4659', [
+      const [result] = buildCssRuleConfigurations('S4659', [
         { key: 'ignorePseudoClasses', value: null },
       ]);
-      expect(result!.configurations).toEqual([]);
+      expect(result.configurations).toEqual([]);
     });
 
     it('should skip params with a falsy key, falling back to defaults', () => {
-      const result = buildCssRuleConfigurations('S4659', [{ key: null, value: 'local' }]);
-      expect(result!.configurations).toEqual([
+      const [result] = buildCssRuleConfigurations('S4659', [{ key: null, value: 'local' }]);
+      expect(result.configurations).toEqual([
         true,
         { ignorePseudoClasses: ['local', 'global', 'export', 'import', 'deep'] },
       ]);
@@ -309,8 +310,8 @@ describe('CSS rule configurations', () => {
 
     it('should merge multiple listParams using defaults when no params sent', () => {
       // S4654 (property-no-unknown) has two listParams: ignoreTypes and ignoreSelectors
-      const result = buildCssRuleConfigurations('S4654', []);
-      expect(result!.configurations).toEqual([
+      const [result] = buildCssRuleConfigurations('S4654', []);
+      expect(result.configurations).toEqual([
         true,
         {
           ignoreProperties: ['composes', '/^mso-/'],
@@ -320,8 +321,10 @@ describe('CSS rule configurations', () => {
     });
 
     it('should partially override multiple listParams, keeping defaults for unset ones', () => {
-      const result = buildCssRuleConfigurations('S4654', [{ key: 'ignoreTypes', value: 'myProp' }]);
-      expect(result!.configurations).toEqual([
+      const [result] = buildCssRuleConfigurations('S4654', [
+        { key: 'ignoreTypes', value: 'myProp' },
+      ]);
+      expect(result.configurations).toEqual([
         true,
         {
           ignoreProperties: ['myProp'],
@@ -331,11 +334,11 @@ describe('CSS rule configurations', () => {
     });
 
     it('should return empty configurations when all listParam values are empty', () => {
-      const result = buildCssRuleConfigurations('S4654', [
+      const [result] = buildCssRuleConfigurations('S4654', [
         { key: 'ignoreTypes', value: '' },
         { key: 'ignoreSelectors', value: '' },
       ]);
-      expect(result!.configurations).toEqual([]);
+      expect(result.configurations).toEqual([]);
     });
   });
 
@@ -344,35 +347,114 @@ describe('CSS rule configurations', () => {
     const onTrue = [true, { ignore: ['consecutive-duplicates-with-different-values'] }];
 
     it('should use the default (true) when no params are sent', () => {
-      const result = buildCssRuleConfigurations('S4656', []);
-      expect(result!.configurations).toEqual(onTrue);
+      const [result] = buildCssRuleConfigurations('S4656', []);
+      expect(result.configurations).toEqual(onTrue);
     });
 
     it('should enable with explicit true value', () => {
-      const result = buildCssRuleConfigurations('S4656', [
+      const [result] = buildCssRuleConfigurations('S4656', [
         { key: 'ignoreFallbacks', value: 'true' },
       ]);
-      expect(result!.configurations).toEqual(onTrue);
+      expect(result.configurations).toEqual(onTrue);
     });
 
     it('should disable with explicit false value', () => {
-      const result = buildCssRuleConfigurations('S4656', [
+      const [result] = buildCssRuleConfigurations('S4656', [
         { key: 'ignoreFallbacks', value: 'false' },
       ]);
-      expect(result!.configurations).toEqual([]);
+      expect(result.configurations).toEqual([]);
     });
 
     it('should fall back to the default for unrecognized values', () => {
-      const result = buildCssRuleConfigurations('S4656', [
+      const [result] = buildCssRuleConfigurations('S4656', [
         { key: 'ignoreFallbacks', value: 'yes' },
       ]);
-      expect(result!.configurations).toEqual(onTrue);
+      expect(result.configurations).toEqual(onTrue);
     });
 
     it('should fall back to the default for null value', () => {
       // null → '' via isString guard → neither 'true' nor 'false' → uses default
-      const result = buildCssRuleConfigurations('S4656', [{ key: 'ignoreFallbacks', value: null }]);
-      expect(result!.configurations).toEqual(onTrue);
+      const [result] = buildCssRuleConfigurations('S4656', [
+        { key: 'ignoreFallbacks', value: null },
+      ]);
+      expect(result.configurations).toEqual(onTrue);
+    });
+  });
+
+  describe('S1874 multi-binding (deprecated CSS)', () => {
+    it('returns 3 configs when no params are sent', () => {
+      const results = buildCssRuleConfigurations('S1874', []);
+      expect(results).toHaveLength(3);
+      expect(results.map(r => r.key)).toEqual([
+        'selector-no-deprecated',
+        'declaration-property-value-keyword-no-deprecated',
+        'at-rule-no-deprecated',
+      ]);
+    });
+
+    it('all three bindings have empty configurations by default (all params default to empty)', () => {
+      const results = buildCssRuleConfigurations('S1874', []);
+      for (const r of results) {
+        expect(r.configurations).toEqual([]);
+      }
+    });
+
+    it('routes ignoreSelectors only to selector-no-deprecated', () => {
+      const results = buildCssRuleConfigurations('S1874', [
+        { key: 'ignoreSelectors', value: 'acronym' },
+      ]);
+      expect(results[0]).toEqual({
+        key: 'selector-no-deprecated',
+        configurations: [true, { ignoreSelectors: ['acronym'] }],
+      });
+      expect(results[1].configurations).toEqual([]);
+      expect(results[2].configurations).toEqual([]);
+    });
+
+    it('routes ignoreKeywords only to declaration-property-value-keyword-no-deprecated', () => {
+      const results = buildCssRuleConfigurations('S1874', [
+        { key: 'ignoreKeywords', value: 'overlay' },
+      ]);
+      expect(results[0].configurations).toEqual([]);
+      expect(results[1]).toEqual({
+        key: 'declaration-property-value-keyword-no-deprecated',
+        configurations: [true, { ignoreKeywords: ['overlay'] }],
+      });
+      expect(results[2].configurations).toEqual([]);
+    });
+
+    it('routes ignoreAtRules only to at-rule-no-deprecated', () => {
+      const results = buildCssRuleConfigurations('S1874', [
+        { key: 'ignoreAtRules', value: 'viewport' },
+      ]);
+      expect(results[0].configurations).toEqual([]);
+      expect(results[1].configurations).toEqual([]);
+      expect(results[2]).toEqual({
+        key: 'at-rule-no-deprecated',
+        configurations: [true, { ignoreAtRules: ['viewport'] }],
+      });
+    });
+
+    it('routes all three params independently when all are set', () => {
+      const results = buildCssRuleConfigurations('S1874', [
+        { key: 'ignoreSelectors', value: 'acronym' },
+        { key: 'ignoreKeywords', value: 'overlay' },
+        { key: 'ignoreAtRules', value: 'viewport' },
+      ]);
+      expect(results[0].configurations).toEqual([true, { ignoreSelectors: ['acronym'] }]);
+      expect(results[1].configurations).toEqual([true, { ignoreKeywords: ['overlay'] }]);
+      expect(results[2].configurations).toEqual([true, { ignoreAtRules: ['viewport'] }]);
+    });
+
+    it('maps all three stylelint violation ruleIds to S1874', () => {
+      const stylelintKeys = [
+        'selector-no-deprecated',
+        'declaration-property-value-keyword-no-deprecated',
+        'at-rule-no-deprecated',
+      ];
+      for (const key of stylelintKeys) {
+        expect(reverseCssRuleKeyMap.get(key)).toBe('S1874');
+      }
     });
   });
 });

@@ -255,12 +255,27 @@ Rules without `ignoreParams` or `booleanParam` have no configurable parameters. 
 
 ---
 
+### Multi-Binding (one sqKey → N stylelint rules)
+
+One SonarQube rule maps to multiple stylelint rules. `buildRuleConfigurations` returns one `CssRuleConfig` per stylelint binding; each consumes only its own `listParam` entries. The reverse map (`reverseCssRuleKeyMap`) maps every stylelint key back to the shared sqKey.
+
+**Metadata:** N `CssRuleMeta` entries with the same `sqKey`, each with its own `stylelintKey` and `listParam`.
+
+**Transformer output:** Array of `CssRuleConfig[]` (one per binding).
+
+**Rules using this pattern:**
+
+- S1874: `selector-no-deprecated` (`ignoreSelectors`), `declaration-property-value-keyword-no-deprecated` (`ignoreKeywords`), `at-rule-no-deprecated` (`ignoreAtRules`)
+
+---
+
 ## CSS Summary Table
 
-| Pattern       | Count | Description                  | Stylelint Output                 |
-| ------------- | ----- | ---------------------------- | -------------------------------- |
-| No params     | 21    | Rule enabled with defaults   | `true`                           |
-| Ignore params | 7     | Comma-separated string lists | `[true, { key: ['v1', 'v2'] }]`  |
-| Boolean param | 1     | Conditional fixed options    | `[true, { key: ['v'] }]` or `[]` |
+| Pattern       | Count | Description                                       | Stylelint Output                 |
+| ------------- | ----- | ------------------------------------------------- | -------------------------------- |
+| No params     | 21    | Rule enabled with defaults                        | `true`                           |
+| Ignore params | 7     | Comma-separated string lists                      | `[true, { key: ['v1', 'v2'] }]`  |
+| Boolean param | 1     | Conditional fixed options                         | `[true, { key: ['v'] }]` or `[]` |
+| Multi-binding | 1     | One sqKey → N stylelint rules, one param per rule | N × `CssRuleConfig`              |
 
-**Total: 29 CSS rules (8 with configurable parameters)**
+**Total: 30 CSS rules (11 with configurable parameters)**
