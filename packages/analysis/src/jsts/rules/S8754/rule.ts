@@ -18,30 +18,29 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import {
-  FUNCTION_NODES,
-  getVariableFromScope,
-  isIdentifier,
-  isStaticTemplateLiteral,
-  isStringLiteral,
-} from '../helpers/ast.js';
+import { FUNCTION_NODES, getVariableFromScope } from '../helpers/ast.js';
 import { childrenOf } from '../helpers/ancestor.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { report, toSecondaryLocation } from '../helpers/location.js';
-import { getFullyQualifiedName, importsOrDependsOnModule } from '../helpers/module.js';
+import { importsOrDependsOnModule } from '../helpers/module.js';
+import {
+  PLAYWRIGHT_DESCRIBE_FOCUS_MODIFIER,
+  PLAYWRIGHT_DESCRIBE_MODIFIERS,
+  PLAYWRIGHT_TEST_MODIFIERS,
+  SUITE_FUNCTION_NAMES,
+  SUPPORTED_TEST_FRAMEWORKS,
+  TEST_FUNCTION_NAMES,
+  getMochaCalleeParts,
+  getMochaConstructName,
+  getPlaywrightDescribeQualifiers,
+  getPlaywrightTestQualifiers,
+  getStaticTitle,
+  hasCallback,
+  isConcreteMochaTestModifier,
+  isMochaTestConstruct,
+} from '../helpers/mocha-style-test-frameworks.js';
 import * as meta from './generated-meta.js';
 
-const SUPPORTED_TEST_FRAMEWORKS = ['jest', 'mocha', 'vitest', '@playwright/test'];
-const MOCHA_STYLE_TEST_FRAMEWORKS = new Set(['jest', 'mocha', 'vitest']);
-const TEST_FUNCTION_NAMES = ['it', 'specify', 'test'];
-const SUITE_FUNCTION_NAMES = ['describe', 'context', 'suite'];
-const COMMON_MOCHA_TEST_MODIFIERS = new Set(['only', 'concurrent']);
-const JEST_TEST_MODIFIERS = new Set(['failing']);
-const VITEST_TEST_MODIFIERS = new Set(['sequential']);
-const PLAYWRIGHT_TEST_FQN = '@playwright.test.test';
-const PLAYWRIGHT_TEST_MODIFIERS = new Set(['only', 'fail']);
-const PLAYWRIGHT_DESCRIBE_MODIFIERS = new Set(['parallel', 'serial']);
-const PLAYWRIGHT_DESCRIBE_FOCUS_MODIFIER = 'only';
 const PLAYWRIGHT_DISABLED_DESCRIBE_MODIFIERS = new Set(['skip', 'fixme']);
 const MESSAGE = 'Rename this test title to make it unique within the suite.';
 const MESSAGE_ID = 'renameDuplicateTitle';
@@ -231,17 +230,6 @@ function checkHelperNode(
   }
 }
 
-function getStaticTitle(node: estree.Node): string | undefined {
-  if (isStringLiteral(node)) {
-    return node.value;
-  }
-  if (isStaticTemplateLiteral(node)) {
-    const value = node.quasis[0].value;
-    return value.cooked ?? value.raw;
-  }
-  return undefined;
-}
-
 function isSuiteDeclaration(context: Rule.RuleContext, node: estree.CallExpression): boolean {
   return (
     isMochaTestConstruct(context, node, SUITE_FUNCTION_NAMES) ||
@@ -258,36 +246,6 @@ function isConcreteTestDeclaration(
   node: estree.CallExpression,
 ): boolean {
   return isMochaTestConstruct(context, node, TEST_FUNCTION_NAMES) && hasCallback(node);
-}
-
-function isMochaTestConstruct(
-  context: Rule.RuleContext,
-  node: estree.CallExpression,
-  constructs: string[],
-): boolean {
-  const calleeParts = getMochaCalleeParts(node.callee);
-  if (calleeParts === undefined) {
-    return false;
-  }
-
-  const constructName = getMochaConstructName(context, calleeParts.base);
-  if (constructName === undefined || !constructs.includes(constructName)) {
-    return false;
-  }
-
-  return calleeParts.modifiers.every(modifier => isConcreteMochaTestModifier(context, modifier));
-}
-
-function isConcreteMochaTestModifier(context: Rule.RuleContext, modifier: string): boolean {
-  return (
-    COMMON_MOCHA_TEST_MODIFIERS.has(modifier) ||
-    (JEST_TEST_MODIFIERS.has(modifier) && isTestFrameworkActive(context, 'jest')) ||
-    (VITEST_TEST_MODIFIERS.has(modifier) && isTestFrameworkActive(context, 'vitest'))
-  );
-}
-
-function isTestFrameworkActive(context: Rule.RuleContext, framework: string): boolean {
-  return importsOrDependsOnModule(context, [framework], [framework]);
 }
 
 function isIgnoredSuiteDeclaration(
@@ -313,30 +271,6 @@ function isNonConcreteMochaSuite(context: Rule.RuleContext, node: estree.Node): 
   }
 
   return !calleeParts.modifiers.every(modifier => isConcreteMochaTestModifier(context, modifier));
-}
-
-function getMochaCalleeParts(
-  node: estree.Node,
-  modifiers: string[] = [],
-): { base: estree.Identifier; modifiers: string[] } | undefined {
-  if (node.type === 'Identifier') {
-    return { base: node, modifiers };
-  }
-
-  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)) {
-    modifiers.unshift(node.property.name);
-    return getMochaCalleeParts(node.object, modifiers);
-  }
-
-  if (node.type === 'CallExpression') {
-    return getMochaCalleeParts(node.callee, modifiers);
-  }
-
-  return undefined;
-}
-
-function hasCallback(node: estree.CallExpression): boolean {
-  return node.arguments.some(argument => FUNCTION_NODES.includes(argument.type));
 }
 
 function getCallback(node: estree.CallExpression): CallbackFunctionNode | undefined {
@@ -398,64 +332,6 @@ function isInConcreteCollectionCallback(
   return functionNesting === concreteSuiteCallbackNesting;
 }
 
-function getMochaConstructName(
-  context: Rule.RuleContext,
-  identifier: estree.Identifier,
-): string | undefined {
-  const variable = getVariableFromScope(context.sourceCode.getScope(identifier), identifier.name);
-  if (
-    variable?.defs.some(def => def.type === 'ImportBinding' || isSupportedRequireBinding(def.node))
-  ) {
-    return getMochaConstructNameFromFqn(getFullyQualifiedName(context, identifier));
-  }
-
-  return variable == null || variable.defs.length === 0 ? identifier.name : undefined;
-}
-
-function getMochaConstructNameFromFqn(fqn: string | null): string | undefined {
-  const parts = fqn?.split('.');
-  if (parts?.length !== 2) {
-    return undefined;
-  }
-
-  const [framework, constructName] = parts;
-  return MOCHA_STYLE_TEST_FRAMEWORKS.has(framework) ? constructName : undefined;
-}
-
-function isSupportedRequireBinding(node: estree.Node): boolean {
-  if (node.type !== 'VariableDeclarator' || node.init == null) {
-    return false;
-  }
-
-  const requireCall = getRequireCall(node.init);
-  const moduleName = requireCall?.arguments[0];
-  return (
-    moduleName?.type === 'Literal' &&
-    typeof moduleName.value === 'string' &&
-    SUPPORTED_TEST_FRAMEWORKS.includes(moduleName.value)
-  );
-}
-
-function getRequireCall(node: estree.Node): estree.CallExpression | undefined {
-  if (isRequireCall(node)) {
-    return node;
-  }
-
-  if (node.type === 'MemberExpression') {
-    return getRequireCall(node.object);
-  }
-
-  return undefined;
-}
-
-function isRequireCall(node: estree.Node): node is estree.CallExpression {
-  return (
-    node.type === 'CallExpression' &&
-    node.callee.type === 'Identifier' &&
-    node.callee.name === 'require'
-  );
-}
-
 function isPlaywrightDescribe(context: Rule.RuleContext, callee: estree.Node): boolean {
   return getPlaywrightDescribeClassification(context, callee) === 'concrete';
 }
@@ -470,19 +346,6 @@ function isPlaywrightTest(context: Rule.RuleContext, node: estree.CallExpression
     qualifiers.every(qualifier => PLAYWRIGHT_TEST_MODIFIERS.has(qualifier)) &&
     (!qualifiers.includes('fail') || hasCallback(node))
   );
-}
-
-function getPlaywrightTestQualifiers(
-  context: Rule.RuleContext,
-  node: estree.Node,
-  qualifiers: string[] = [],
-): string[] | undefined {
-  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)) {
-    qualifiers.unshift(node.property.name);
-    return getPlaywrightTestQualifiers(context, node.object, qualifiers);
-  }
-
-  return getFullyQualifiedName(context, node) === PLAYWRIGHT_TEST_FQN ? qualifiers : undefined;
 }
 
 function getPlaywrightDescribeClassification(
@@ -505,16 +368,4 @@ function getPlaywrightDescribeClassification(
   return runnableModifiers.every(modifier => PLAYWRIGHT_DESCRIBE_MODIFIERS.has(modifier))
     ? 'concrete'
     : 'unknown';
-}
-
-function getPlaywrightDescribeQualifiers(
-  node: estree.Node,
-  qualifiers: string[] = [],
-): string[] | undefined {
-  if (node.type === 'MemberExpression' && !node.computed && isIdentifier(node.property)) {
-    qualifiers.unshift(node.property.name);
-    return getPlaywrightDescribeQualifiers(node.object, qualifiers);
-  }
-
-  return isIdentifier(node, 'test') ? qualifiers : undefined;
 }
