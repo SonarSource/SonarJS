@@ -259,6 +259,13 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
   });
 
+  it('should map S8769 to block-no-redundant-nested-style-rules', () => {
+    expect(buildCssRuleConfigurations('S8769', [])).toEqual({
+      key: 'block-no-redundant-nested-style-rules',
+      configurations: [],
+    });
+  });
+
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'
