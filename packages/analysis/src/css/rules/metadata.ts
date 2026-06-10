@@ -262,6 +262,20 @@ export const cssRulesMeta: CssRuleMeta[] = [
     sqKey: 'S7925',
     stylelintKey: 'sonar/text-spacing',
   },
+  {
+    sqKey: 'S8757',
+    stylelintKey: 'sonar/annotation-no-unknown',
+    listParam: [
+      {
+        sqKey: 'ignoreAnnotations',
+        javaField: 'ignoreAnnotations',
+        description:
+          'Comma-separated list of strings and/or regular expressions for annotations to consider as valid.',
+        default: '',
+        stylelintOptionKey: 'ignoreAnnotations',
+      },
+    ],
+  },
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */

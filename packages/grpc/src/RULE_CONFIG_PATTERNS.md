@@ -193,7 +193,7 @@ ignoreParams: [{
 
 Some rules have multiple ignore params (e.g., S4654 has `ignoreProperties` and `ignoreSelectors`), which are merged into a single secondary options object.
 
-**Rules using this pattern:** S4649, S4653, S4654, S4659, S4660, S4662, S4670 (7 rules)
+**Rules using this pattern:** S4649, S4653, S4654, S4659, S4660, S4662, S4670, S8757 (8 rules)
 
 ---
 
@@ -260,7 +260,7 @@ Rules without `ignoreParams` or `booleanParam` have no configurable parameters. 
 | Pattern       | Count | Description                  | Stylelint Output                 |
 | ------------- | ----- | ---------------------------- | -------------------------------- |
 | No params     | 21    | Rule enabled with defaults   | `true`                           |
-| Ignore params | 7     | Comma-separated string lists | `[true, { key: ['v1', 'v2'] }]`  |
+| Ignore params | 8     | Comma-separated string lists | `[true, { key: ['v1', 'v2'] }]`  |
 | Boolean param | 1     | Conditional fixed options    | `[true, { key: ['v'] }]` or `[]` |
 
-**Total: 29 CSS rules (8 with configurable parameters)**
+**Total: 30 CSS rules (9 with configurable parameters)**
