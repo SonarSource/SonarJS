@@ -3094,6 +3094,107 @@ plugins = [
     }
   });
 
+  it('refreshes generated-source matches when an explicit-request file stops being sanitized away', async () => {
+    const baseDir = await createTempBaseDir();
+    const generatedFile = joinPaths(baseDir, 'src', 'generated', 'blocked.ts');
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              graphql: 'graphql-codegen --config ./codegen.yml',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        joinPaths(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/blocked.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(generatedFile, `${'export const blocked = true;\n'.repeat(128)}`);
+
+      const firstConfiguration = createConfiguration({
+        baseDir,
+        sources: ['src'],
+        maxFileSize: 1,
+      });
+      const secondConfiguration = createConfiguration({
+        baseDir,
+        sources: ['src'],
+        maxFileSize: 1000,
+      });
+      const requestedFiles = {
+        [generatedFile]: {
+          filePath: generatedFile,
+          fileType: 'MAIN' as const,
+        },
+      };
+      const { fileStoreRequestContext: firstRequestContext } = await sanitizeRawInputFiles(
+        requestedFiles,
+        firstConfiguration,
+      );
+      const { fileStoreRequestContext: secondRequestContext } = await sanitizeRawInputFiles(
+        requestedFiles,
+        secondConfiguration,
+      );
+
+      await initFileStores(firstConfiguration, firstRequestContext);
+
+      expect(generatedSourceStore.getFamily(generatedFile)).toBeUndefined();
+      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+        familyCount: 1,
+        resolvedFileCount: 1,
+        taggedFileCount: 0,
+        outOfScopeFileCount: 0,
+        excludedFileCount: 1,
+        families: [
+          {
+            family: GRAPHQL_CODEGEN_FAMILY,
+            resolvedFileCount: 1,
+            taggedFileCount: 0,
+            outOfScopeFileCount: 0,
+            excludedFileCount: 1,
+          },
+        ],
+      });
+
+      expect(
+        await generatedSourceStore.isInitialized(secondConfiguration, secondRequestContext),
+      ).toBe(true);
+
+      expect(generatedSourceStore.getFamily(generatedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+        familyCount: 1,
+        resolvedFileCount: 1,
+        taggedFileCount: 1,
+        outOfScopeFileCount: 0,
+        excludedFileCount: 0,
+        families: [
+          {
+            family: GRAPHQL_CODEGEN_FAMILY,
+            resolvedFileCount: 1,
+            taggedFileCount: 1,
+            outOfScopeFileCount: 0,
+            excludedFileCount: 0,
+          },
+        ],
+      });
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
   it('ignores declaration-only default-excluded generated families in observability', async ({
     mock,
   }) => {

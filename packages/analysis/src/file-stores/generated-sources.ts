@@ -266,7 +266,10 @@ class GeneratedSourceStore implements FileStore {
       return cachedRequestFilesKey;
     }
 
-    const requestFilesKey = createExplicitRequestFilesKey(getRequestedFilePaths(requestContext));
+    const requestFilesKey = createExplicitRequestFilesKey(
+      getRequestedFilePaths(requestContext),
+      requestContext.analyzableFiles,
+    );
     this.explicitRequestFilesKeys.set(requestContext, requestFilesKey);
     return requestFilesKey;
   }
@@ -333,15 +336,28 @@ function getRequestedFilePaths(
   return new Set(Object.keys(requestContext.analyzableFiles ?? {}) as NormalizedAbsolutePath[]);
 }
 
-function createExplicitRequestFilesKey(filePaths: ReadonlySet<NormalizedAbsolutePath>) {
-  const sortedFilePaths = [...filePaths].sort((left, right) => left.localeCompare(right));
+function createExplicitRequestFilesKey(
+  requestedFilePaths: ReadonlySet<NormalizedAbsolutePath>,
+  analyzableFiles: AnalyzableFiles | undefined,
+) {
+  const sortedRequestedFilePaths = [...requestedFilePaths].sort((left, right) =>
+    left.localeCompare(right),
+  );
+  const sortedAnalyzableFilePaths = Object.keys(analyzableFiles ?? {})
+    .map(filePath => filePath as NormalizedAbsolutePath)
+    .sort((left, right) => left.localeCompare(right));
   const hash = createHash('sha256');
-  for (const filePath of sortedFilePaths) {
+  for (const filePath of sortedRequestedFilePaths) {
+    hash.update(filePath);
+    hash.update('\0');
+  }
+  hash.update('\x01');
+  for (const filePath of sortedAnalyzableFilePaths) {
     hash.update(filePath);
     hash.update('\0');
   }
 
-  return `${EXPLICIT_FILE_SET_REQUEST_KEY_PREFIX}:${sortedFilePaths.length}:${hash.digest('hex')}`;
+  return `${EXPLICIT_FILE_SET_REQUEST_KEY_PREFIX}:${sortedRequestedFilePaths.length}:${sortedAnalyzableFilePaths.length}:${hash.digest('hex')}`;
 }
 
 function createConfiguredGeneratedSourceFileMatcher(configuration: Configuration) {
