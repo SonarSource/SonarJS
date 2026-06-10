@@ -329,6 +329,10 @@ export const cssRulesMeta: CssRuleMeta[] = [
     stylelintKey: 'at-rule-descriptor-no-unknown',
   },
   {
+    sqKey: 'S8774',
+    stylelintKey: 'selector-anb-no-unmatchable',
+  },
+  {
     sqKey: 'S8775',
     stylelintKey: 'at-rule-descriptor-value-no-unknown',
   },
