@@ -92,7 +92,9 @@ export const rule: Rule.RuleModule = {
   create(context: Rule.RuleContext) {
     const dependencies = getDependenciesSanitizePaths(context);
 
-    // Build list of props to ignore based on dependencies
+    // Project-wide dependency checks are used only for integrations whose props are valid anywhere
+    // in that framework's project. File-specific APIs such as ImageResponse or twin.macro must be
+    // imported in the current file before their JSX props are ignored.
     const frameworkIgnoredProps: string[] = [];
     if (dependencies.has('next') || dependencies.has('styled-jsx')) {
       // styled-jsx uses jsx and global props (used standalone or via Next.js)
@@ -102,13 +104,13 @@ export const rule: Rule.RuleModule = {
       // Emotion uses css prop for styling
       frameworkIgnoredProps.push('css');
     }
-    if (dependencies.has('@vercel/og') || dependencies.has('satori') || dependencies.has('twin.macro')) {
-      // These libraries use tw prop for Tailwind CSS styling in JSX
-      frameworkIgnoredProps.push('tw');
-    }
     const imports = getImportDeclarations(context);
-    if (imports.some(i => i.source.value === 'next/og')) {
-      // next/og (re-export of satori's ImageResponse) uses tw prop for Tailwind styling
+    if (
+      imports.some(i =>
+        ['next/og', '@vercel/og', 'satori', 'twin.macro'].includes(String(i.source.value)),
+      )
+    ) {
+      // These file-specific APIs use tw prop for Tailwind styling in JSX
       frameworkIgnoredProps.push('tw');
     }
 

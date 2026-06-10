@@ -23,22 +23,31 @@ describe('S6747', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('S6747 ignores tw prop for @vercel/og projects', rule, {
+  ruleTester.run('S6747 ignores tw prop when @vercel/og is imported', rule, {
     valid: [
       {
         // @vercel/og uses tw prop for Tailwind CSS styling in ImageResponse JSX
-        code: `<div tw="flex flex-col items-center justify-center w-full h-full bg-white">Hello</div>;`,
+        code: `import { ImageResponse } from '@vercel/og';
+<div tw="flex flex-col items-center justify-center w-full h-full bg-white">Hello</div>;`,
         filename: join(dirname, 'filename.jsx'),
       },
       {
-        code: `<h1 tw="text-6xl font-bold text-gray-900 tracking-tight">Title</h1>;`,
+        code: `import { ImageResponse } from '@vercel/og';
+<h1 tw="text-6xl font-bold text-gray-900 tracking-tight">Title</h1>;`,
         filename: join(dirname, 'filename.jsx'),
       },
     ],
     invalid: [
       {
+        // tw is still flagged in @vercel/og projects when the current file does not import its API
+        code: `<div tw="flex items-center">Hello</div>;`,
+        filename: join(dirname, 'filename.jsx'),
+        errors: 1,
+      },
+      {
         // Other unknown props are still flagged in @vercel/og projects
-        code: `<div class="foo">Hello</div>;`,
+        code: `import { ImageResponse } from '@vercel/og';
+<div class="foo">Hello</div>;`,
         filename: join(dirname, 'filename.jsx'),
         errors: 1,
       },

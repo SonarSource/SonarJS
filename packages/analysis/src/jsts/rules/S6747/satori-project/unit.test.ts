@@ -23,22 +23,31 @@ describe('S6747', () => {
   const dirname = join(import.meta.dirname, 'fixtures');
   process.chdir(dirname);
   const ruleTester = new NoTypeCheckingRuleTester();
-  ruleTester.run('S6747 ignores tw prop for satori projects', rule, {
+  ruleTester.run('S6747 ignores tw prop when satori is imported', rule, {
     valid: [
       {
         // satori uses tw prop for Tailwind CSS class names mapped to inline styles
-        code: `<div tw="flex flex-col w-full h-full p-16 bg-white">Hello</div>;`,
+        code: `import satori from 'satori';
+<div tw="flex flex-col w-full h-full p-16 bg-white">Hello</div>;`,
         filename: join(dirname, 'filename.jsx'),
       },
       {
-        code: `<span tw="ml-4 text-2xl font-semibold text-indigo-700">My Site</span>;`,
+        code: `import satori from 'satori';
+<span tw="ml-4 text-2xl font-semibold text-indigo-700">My Site</span>;`,
         filename: join(dirname, 'filename.jsx'),
       },
     ],
     invalid: [
       {
+        // tw is still flagged in satori projects when the current file does not import its API
+        code: `<div tw="flex items-center">Hello</div>;`,
+        filename: join(dirname, 'filename.jsx'),
+        errors: 1,
+      },
+      {
         // Other unknown props are still flagged in satori projects
-        code: `<div class="foo">Hello</div>;`,
+        code: `import satori from 'satori';
+<div class="foo">Hello</div>;`,
         filename: join(dirname, 'filename.jsx'),
         errors: 1,
       },
