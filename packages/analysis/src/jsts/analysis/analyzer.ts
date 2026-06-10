@@ -87,7 +87,7 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     clearDependenciesCache();
   }
   const { additionalRules, additionalSettings, metricsSink } = prepareLinterOptions(input);
-  const issues = Linter.lint(
+  const { issues, suppressedIssues } = Linter.lint(
     parseResult,
     filePath,
     fileType,
@@ -109,6 +109,7 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
 
   const result = {
     issues,
+    ...(suppressedIssues.length > 0 ? { suppressedIssues } : {}),
     ...extendedMetrics,
     ...(sonarResolveComments.length > 0 ? { sonarResolveComments } : {}),
   };

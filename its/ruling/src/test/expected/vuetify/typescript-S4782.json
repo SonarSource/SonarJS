@@ -1,10 +1,20 @@
 {
+"vuetify:packages/vuetify/src/composables/color.ts": [
+21,
+21
+],
 "vuetify:packages/vuetify/src/composables/group.ts": [
 21,
 22
 ],
+"vuetify:packages/vuetify/src/composables/rounded.ts": [
+11
+],
 "vuetify:packages/vuetify/src/composables/router.tsx": [
 42,
 43
+],
+"vuetify:packages/vuetify/src/framework.ts": [
+27
 ]
 }

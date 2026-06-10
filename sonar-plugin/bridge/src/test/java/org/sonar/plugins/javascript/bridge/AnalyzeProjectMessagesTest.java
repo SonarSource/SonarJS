@@ -225,6 +225,11 @@ class AnalyzeProjectMessagesTest {
       }
 
       @Override
+      public boolean shouldDetectGeneratedCode() {
+        return false;
+      }
+
+      @Override
       public boolean canAccessFileSystem() {
         return false;
       }
@@ -310,6 +315,7 @@ class AnalyzeProjectMessagesTest {
     assertThat(proto.getTestInclusionsList()).containsExactly("**/*.spec.ts");
     assertThat(proto.getTestExclusionsList()).containsExactly("**/*.snap.ts");
     assertThat(proto.getDetectBundles()).isFalse();
+    assertThat(proto.getDetectGeneratedCode()).isFalse();
     assertThat(proto.getCanAccessFileSystem()).isFalse();
     assertThat(proto.getCreateTsProgramForOrphanFiles()).isFalse();
     assertThat(proto.getDisableTypeChecking()).isTrue();
@@ -323,12 +329,18 @@ class AnalyzeProjectMessagesTest {
       "/base",
       new AnalysisConfiguration() {}
     ).build();
+    var detectGeneratedCodeField = proto
+      .getDescriptorForType()
+      .findFieldByName("detect_generated_code");
 
     assertThat(proto.getBaseDir()).isEqualTo("/base");
     assertThat(proto.getAnalysisMode()).isEqualTo(
       org.sonar.plugins.javascript.analyzeproject.grpc.AnalysisMode.ANALYSIS_MODE_DEFAULT
     );
     assertThat(proto.getDetectBundles()).isTrue();
+    assertThat(detectGeneratedCodeField).isNotNull();
+    assertThat(proto.hasField(detectGeneratedCodeField)).isTrue();
+    assertThat(proto.getField(detectGeneratedCodeField)).isEqualTo(true);
     assertThat(proto.getCanAccessFileSystem()).isTrue();
     assertThat(proto.getCreateTsProgramForOrphanFiles()).isTrue();
     assertThat(proto.getDisableTypeChecking()).isFalse();

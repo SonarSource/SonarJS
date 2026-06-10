@@ -2466,6 +2466,25 @@ plugins = [
     ).toEqual(GRAPHQL_CODEGEN_FAMILY);
   });
 
+  it('skips generated-source metadata derivation when detectGeneratedCode is disabled', async () => {
+    const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
+    const generatedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
+    const generatedSourceStoreState = generatedSourceStore as unknown as {
+      derivedFamilyByFile: Map<NormalizedAbsolutePath, string>;
+      familyByFile: Map<NormalizedAbsolutePath, string>;
+    };
+
+    await initFileStores(createConfiguration({ baseDir, detectGeneratedCode: false }));
+
+    expect(generatedSourceStoreState.derivedFamilyByFile).toEqual(new Map());
+    expect(generatedSourceStoreState.familyByFile).toEqual(new Map());
+    expect(generatedSourceStore.getFamily(generatedFile)).toBeUndefined();
+
+    await initFileStores(createConfiguration({ baseDir }));
+
+    expect(generatedSourceStore.getFamily(generatedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+  });
+
   it('ignores malformed GraphQL config parse errors', async () => {
     const baseDir = await createTempBaseDir();
 

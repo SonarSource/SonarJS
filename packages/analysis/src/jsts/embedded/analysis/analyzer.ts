@@ -17,7 +17,7 @@
 import type { SourceCode } from 'eslint';
 import type { Position } from 'estree';
 import type { JsTsIssue } from '../../linter/issues/issue.js';
-import { Linter } from '../../linter/linter.js';
+import { Linter, type LintResult } from '../../linter/linter.js';
 import type { EmbeddedAnalysisInput, EmbeddedAnalysisOutput } from './analysis.js';
 import { collectNclocLines } from '../../analysis/file-artifacts.js';
 import { type ExtendedParseResult, type LanguageParser, build } from '../builder/build.js';
@@ -54,21 +54,28 @@ export async function analyzeEmbedded(
   debug(`Analyzing file "${input.filePath}"`);
   const extendedParseResults = build(input, languageParser);
   const aggregatedIssues: JsTsIssue[] = [];
+  const aggregatedSuppressedIssues: NonNullable<EmbeddedAnalysisOutput['suppressedIssues']> = [];
   const aggregatedSonarResolveComments: SonarResolveComment[] = [];
   let ncloc: number[] = [];
   for (const extendedParseResult of extendedParseResults) {
     const {
       issues,
+      suppressedIssues,
       ncloc: singleNcLoc,
       sonarResolveComments: singleSonarResolveComments,
     } = analyzeSnippet(extendedParseResult);
     ncloc = ncloc.concat(singleNcLoc);
-    const filteredIssues = removeNonJsIssues(extendedParseResult.sourceCode, issues);
+    const { issues: filteredIssues, suppressedIssues: filteredSuppressedIssues } =
+      filterSnippetIssues(extendedParseResult.sourceCode, { issues, suppressedIssues });
     aggregatedIssues.push(...filteredIssues);
+    aggregatedSuppressedIssues.push(...filteredSuppressedIssues);
     aggregatedSonarResolveComments.push(...singleSonarResolveComments);
   }
   return {
     issues: aggregatedIssues,
+    ...(aggregatedSuppressedIssues.length > 0
+      ? { suppressedIssues: aggregatedSuppressedIssues }
+      : {}),
     metrics: { ncloc },
     ...(aggregatedSonarResolveComments.length > 0
       ? { sonarResolveComments: aggregatedSonarResolveComments }
@@ -77,12 +84,25 @@ export async function analyzeEmbedded(
 }
 
 function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
-  const issues = Linter.lint(extendedParseResult, extendedParseResult.syntheticFilePath, 'MAIN');
+  const { issues, suppressedIssues } = Linter.lint(
+    extendedParseResult,
+    extendedParseResult.syntheticFilePath,
+    'MAIN',
+  );
   const ncloc = collectNclocLines(extendedParseResult.sourceCode);
   const sonarResolveComments = extractSonarResolveCommentsFromJsTsComments(
     extendedParseResult.sourceCode.ast.comments ?? [],
   );
-  return { issues, ncloc, sonarResolveComments };
+  return { issues, suppressedIssues, ncloc, sonarResolveComments };
+}
+
+function filterSnippetIssues(sourceCode: SourceCode, { issues, suppressedIssues }: LintResult) {
+  // Suppressed messages originate from the same lint messages, so they still need the embedded
+  // host-range guard that drops false positives outside the extracted JS snippet.
+  return {
+    issues: removeNonJsIssues(sourceCode, issues),
+    suppressedIssues: removeNonJsIssues(sourceCode, suppressedIssues),
+  };
 }
 
 /**
@@ -92,7 +112,10 @@ function analyzeSnippet(extendedParseResult: ExtendedParseResult) {
  * to include the whole file in its properties outside its AST.
  * So rules that operate on SourceCode.text get flagged.
  */
-function removeNonJsIssues(sourceCode: SourceCode, issues: JsTsIssue[]) {
+function removeNonJsIssues<T extends Pick<JsTsIssue, 'line' | 'column'>>(
+  sourceCode: SourceCode,
+  issues: T[],
+) {
   const [jsStart, jsEnd] = sourceCode.ast.range.map(offset => sourceCode.getLocFromIndex(offset));
   return issues.filter(issue => {
     const issueStart = { line: issue.line, column: issue.column };

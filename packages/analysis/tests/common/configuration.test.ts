@@ -42,6 +42,15 @@ describe('createConfiguration', () => {
       new Error('baseDir is required and must be a string'),
     );
   });
+
+  it('should default generated-code detection to true and allow overriding it', () => {
+    const baseDir = '/path/to/project';
+
+    expect(createConfiguration({ baseDir }).detectGeneratedCode).toBe(true);
+    expect(createConfiguration({ baseDir, detectGeneratedCode: false }).detectGeneratedCode).toBe(
+      false,
+    );
+  });
 });
 
 describe('isYamlFile', () => {

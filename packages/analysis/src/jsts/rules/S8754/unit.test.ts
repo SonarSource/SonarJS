@@ -1,0 +1,476 @@
+/*
+ * SonarQube JavaScript Plugin
+ * Copyright (C) SonarSource Sàrl
+ * mailto:info AT sonarsource DOT com
+ *
+ * You can redistribute and/or modify this program under the terms of
+ * the Sonar Source-Available License Version 1, as published by SonarSource Sàrl.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the Sonar Source-Available License for more details.
+ *
+ * You should have received a copy of the Sonar Source-Available License
+ * along with this program; if not, see https://sonarsource.com/license/ssal/
+ */
+import { DefaultParserRuleTester } from '../../../../tests/jsts/tools/testers/rule-tester.js';
+import { rule } from './rule.js';
+import { describe, it } from 'node:test';
+import path from 'node:path';
+
+describe('S8754', () => {
+  it('S8754', () => {
+    const ruleTester = new DefaultParserRuleTester();
+    const noFrameworkFixture = path.join(import.meta.dirname, 'fixtures', 'test.js');
+
+    ruleTester.run('Test titles should be unique within the same suite', rule, {
+      valid: [
+        {
+          code: `
+const jest = require('jest');
+describe('shopping cart', () => {
+  it('adds an item to an empty cart', () => {});
+  it('adds an item to an existing cart', () => {});
+});
+          `,
+          filename: 'cart.test.js',
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('security preferences', () => {
+  it('saves preferences', () => {});
+});
+describe('email preferences', () => {
+  it('saves preferences', () => {});
+});
+          `,
+          filename: 'preferences.test.js',
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('settings', () => {
+  it('saves preferences', () => {});
+  describe('email preferences', () => {
+    it('saves preferences', () => {});
+  });
+});
+          `,
+          filename: 'preferences.test.js',
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('checkout', () => {
+  it('applies a discount code', () => {});
+});
+describe('checkout', () => {
+  it('removes a discount code', () => {});
+});
+          `,
+          filename: 'checkout.test.js',
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('dynamic titles', () => {
+  it(\`case \${name}\`, () => {});
+  it(title, () => {});
+});
+          `,
+          filename: 'dynamic.test.js',
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('template titles', () => {
+  it(\`loads profile\`, () => {});
+  it('loads settings', () => {});
+});
+          `,
+          filename: 'profile.test.js',
+        },
+        {
+          code: `
+const jest = require('jest');
+function test(typesRoot, typeDirective, primary, ...files) {}
+describe('module resolution', () => {
+  it('can be resolved from primary location', () => {
+    test('/root/src/types', 'lib', true, f1, f2);
+    test('/root/src/types', 'lib', false, f3, f4);
+  });
+});
+          `,
+          filename: 'moduleResolution.test.ts',
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('parameter validation', () => {
+  test.skip('wrong param type at #0', () => {});
+  test.skip('wrong param type at #0', () => {});
+  test.todo('missing support');
+  test.todo('missing support');
+});
+          `,
+          filename: 'attributes.test.js',
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+describe.each([1, 2])('todo describe', () => {
+  test('this is todo test', () => {});
+});
+describe.for([
+  [1, 1],
+  [1, 2],
+])('add(%i, %i)', () => {
+  test('test', () => {});
+});
+          `,
+          filename: 'each.test.ts',
+        },
+        {
+          code: `
+import { test, expect } from 'vitest';
+test.concurrent('parallel test with nested test', () => {
+  expect(() => {
+    test('test inside test', () => {});
+  }).toThrowError();
+});
+          `,
+          filename: 'nested-test.test.ts',
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+
+describe('sequential tests', () => {
+  checkSequentialTests();
+});
+
+describe('parallel tests', () => {
+  checkParallelTests();
+});
+
+function checkSequentialTests() {
+  test('t1', () => {});
+  test('t2', () => {});
+}
+
+function checkParallelTests() {
+  test('t1', () => {});
+  test('t2', () => {});
+}
+          `,
+          filename: 'concurrent-suite.test.ts',
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe('checkout', () => {
+  test.skip('applies a discount code', async () => {});
+  test.skip('applies a discount code', async () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe('checkout', () => {
+  test.fixme('applies a discount code', async () => {});
+  test.fixme('applies a discount code', async () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+        },
+        {
+          code: `
+describe('no supported framework', () => {
+  it('adds an item', () => {});
+  it('adds an item', () => {});
+});
+          `,
+          filename: noFrameworkFixture,
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe.parallel('checkout', () => {
+  test('applies a discount code', () => {});
+});
+test.describe.serial('guest checkout', () => {
+  test('applies a discount code', () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+        },
+      ],
+      invalid: [
+        {
+          code: `
+const jest = require('jest');
+describe('focused tests', () => {
+  it.only('loads profile', () => {});
+  it.only('loads profile', () => {});
+});
+          `,
+          filename: 'profile.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('shopping cart', () => {
+  it('adds an item', () => {});
+  it('adds an item', () => {});
+});
+          `,
+          filename: 'cart.test.js',
+          errors: [
+            {
+              message: 'Rename this test title to make it unique within the suite.',
+            },
+          ],
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('shopping cart', () => {
+  test('removes an item', () => {});
+  test('removes an item', () => {});
+});
+          `,
+          filename: 'cart.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('settings', () => {
+  describe('email preferences', () => {
+    it('saves preferences', () => {});
+    it('saves preferences', () => {});
+  });
+});
+          `,
+          filename: 'preferences.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('shopping cart', () => {
+  test.concurrent('adds an item', async () => {});
+  test.concurrent('adds an item', async () => {});
+});
+          `,
+          filename: 'cart.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('shopping cart', () => {
+  it.concurrent('adds an item', async () => {});
+  it.concurrent('adds an item', async () => {});
+});
+          `,
+          filename: 'cart.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('shopping cart', () => {
+  test.failing('adds an item', () => {});
+  test.failing('adds an item', () => {});
+});
+          `,
+          filename: 'cart.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('shopping cart', () => {
+  it.failing('adds an item', () => {});
+  it.failing('adds an item', () => {});
+});
+          `,
+          filename: 'cart.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+describe('shopping cart', () => {
+  test.sequential('adds an item', () => {});
+  test.sequential('adds an item', () => {});
+});
+          `,
+          filename: 'cart.test.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, it } from 'vitest';
+describe('shopping cart', () => {
+  it.sequential('adds an item', () => {});
+  it.sequential('adds an item', () => {});
+});
+          `,
+          filename: 'cart.test.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe('checkout', () => {
+  test('applies a discount code', () => {});
+  test('applies a discount code', () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe('checkout', () => {
+  test.fail('applies a discount code', async () => {});
+  test.fail('applies a discount code', async () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe.only('checkout', () => {
+  test('applies a discount code', () => {});
+  test('applies a discount code', () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe.parallel.only('checkout', () => {
+  test('applies a discount code', () => {});
+  test('applies a discount code', () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { test } from '@playwright/test';
+test.describe.serial.only('checkout', () => {
+  test('applies a discount code', () => {});
+  test('applies a discount code', () => {});
+});
+          `,
+          filename: 'checkout.spec.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+describe('suite', () => {
+  makeTests();
+});
+function makeTests() {
+  test('dup', () => {});
+  test('dup', () => {});
+}
+          `,
+          filename: 'helper-defined-tests.test.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { describe, test } from 'vitest';
+describe('suite', () => {
+  makeTests();
+  makeTests();
+});
+function makeTests() {
+  test('dup', () => {});
+}
+          `,
+          filename: 'repeated-helper-call.test.ts',
+          errors: 1,
+        },
+        {
+          code: `
+import { describe as d, it as i } from 'vitest';
+d('suite', () => {
+  i('dup', () => {});
+  i('dup', () => {});
+});
+          `,
+          filename: 'aliased-vitest.test.ts',
+          errors: 1,
+        },
+        {
+          code: `
+const { describe: d, test: t } = require('vitest');
+d('suite', () => {
+  t('dup', () => {});
+  t('dup', () => {});
+});
+          `,
+          filename: 'aliased-vitest-require.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+const { test } = require('vitest');
+test('loads profile', () => {});
+test('loads profile', () => {});
+          `,
+          filename: 'profile.test.js',
+          errors: 1,
+        },
+        {
+          code: `
+const jest = require('jest');
+describe('cart', () => {
+  it('adds', () => {});
+  it('adds', () => {});
+});
+          `,
+          filename: 'cart.test.js',
+          settings: { sonarRuntime: true },
+          errors: [
+            {
+              messageId: 'sonarRuntime',
+              data: {
+                sonarRuntimeData: JSON.stringify({
+                  message: 'Rename this test title to make it unique within the suite.',
+                  secondaryLocations: [
+                    {
+                      message: 'Original test title.',
+                      column: 5,
+                      line: 4,
+                      endColumn: 11,
+                      endLine: 4,
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
+});

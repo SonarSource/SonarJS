@@ -25,10 +25,12 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.sonarqube.ws.Issues.Issue;
 import org.sonarqube.ws.client.issues.SearchRequest;
 
 @ExtendWith(OrchestratorStarter.class)
+@ResourceLock("issue-resolution-settings")
 class SonarResolveTest {
 
   private static final Orchestrator orchestrator = OrchestratorStarter.ORCHESTRATOR;

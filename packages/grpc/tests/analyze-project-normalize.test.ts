@@ -272,6 +272,24 @@ describe('normalizeAnalyzeProjectRequest', () => {
     expect(normalized.configuration.canAccessFileSystem).toBe(false);
   });
 
+  it('should preserve detectGeneratedCode from protobuf configuration', async () => {
+    const baseDir = await createBaseDir();
+
+    const normalized = await normalizeAnalyzeProjectRequest({
+      configuration: {
+        baseDir,
+        canAccessFileSystem: false,
+        detectGeneratedCode: false,
+      },
+      files: {},
+      rules: [],
+      cssRules: [],
+      bundles: [],
+    } as unknown as sonarjs.analyzeproject.v1.IAnalyzeProjectRequest);
+
+    expect(normalized.configuration.detectGeneratedCode).toBe(false);
+  });
+
   it('should reject malformed requests', async () => {
     const baseDir = await createBaseDir();
 

@@ -82,6 +82,7 @@ export type Configuration = {
   testInclusions: Minimatch[] /* sonar.test.inclusions - WILDCARD to narrow down sonar.tests */;
   testExclusions: Minimatch[] /* sonar.test.exclusions - WILDCARD to narrow down sonar.tests */;
   detectBundles: boolean /* sonar.javascript.detectBundles - whether files looking like bundled code should be ignored */;
+  detectGeneratedCode: boolean /* sonar.javascript.detectGeneratedCode - whether generated-source detection should affect analysis behavior */;
   createTSProgramForOrphanFiles: boolean /* sonar.javascript.createTSProgramForOrphanFiles - whether to create a TS program for orphan files */;
   disableTypeChecking: boolean /* sonar.javascript.disableTypeChecking - whether to completely disable TypeScript type checking */;
   skipNodeModuleLookupOutsideBaseDir: boolean /* sonar.internal.analysis.skipNodeModuleLookupOutsideBaseDir - whether to skip node_modules lookups outside baseDir in TS compiler host */;
@@ -118,6 +119,7 @@ export type ConfigurationInput = {
   testInclusions?: string[];
   testExclusions?: string[];
   detectBundles?: boolean;
+  detectGeneratedCode?: boolean;
   createTSProgramForOrphanFiles?: boolean;
   disableTypeChecking?: boolean;
   skipNodeModuleLookupOutsideBaseDir?: boolean;
@@ -265,11 +267,8 @@ export function createConfiguration(raw: unknown): Configuration {
     testInclusions: getOptionalValue(raw, 'testInclusions', isStringArray),
     testExclusions: getOptionalValue(raw, 'testExclusions', isStringArray),
     detectBundles: getOptionalValue(raw, 'detectBundles', isBoolean),
-    createTSProgramForOrphanFiles: getOptionalValue(
-      raw,
-      'createTSProgramForOrphanFiles',
-      isBoolean,
-    ),
+    detectGeneratedCode: getOptionalValue(raw, 'detectGeneratedCode', isBoolean),
+    createTSProgramForOrphanFiles: getOptionalValue(raw, 'createTSProgramForOrphanFiles', isBoolean),
     disableTypeChecking: getOptionalValue(raw, 'disableTypeChecking', isBoolean),
     skipNodeModuleLookupOutsideBaseDir: getOptionalValue(
       raw,
@@ -319,6 +318,7 @@ export function createConfigurationFromInput(input: ConfigurationInput): Configu
     testInclusions: normalizeGlobs(input.testInclusions, baseDir),
     testExclusions: normalizeGlobs(input.testExclusions, baseDir),
     detectBundles: input.detectBundles ?? true,
+    detectGeneratedCode: input.detectGeneratedCode ?? true,
     createTSProgramForOrphanFiles: input.createTSProgramForOrphanFiles ?? true,
     disableTypeChecking: input.disableTypeChecking ?? false,
     skipNodeModuleLookupOutsideBaseDir: input.skipNodeModuleLookupOutsideBaseDir ?? false,
