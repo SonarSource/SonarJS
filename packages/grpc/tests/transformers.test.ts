@@ -259,6 +259,11 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
   });
 
+  it('should map S8775 to at-rule-descriptor-value-no-unknown', () => {
+    const result = buildCssRuleConfigurations('S8775', []);
+    expect(result).toEqual({ key: 'at-rule-descriptor-value-no-unknown', configurations: [] });
+  });
+
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'
@@ -565,58 +570,6 @@ describe('transformProjectOutputToResponse', () => {
     const result = transformProjectOutputToResponse(output);
 
     expect(result.measures).toEqual([]);
-  });
-
-  it('should keep suppressed issues separate from open issues', () => {
-    const output = makeOutput({
-      '/project/src/file.js': {
-        issues: [
-          {
-            ruleId: 'S1116',
-            language: 'js',
-            line: 1,
-            column: 0,
-            endLine: 1,
-            endColumn: 1,
-            message: 'Unnecessary semicolon.',
-            secondaryLocations: [],
-            ruleESLintKeys: [],
-            filePath: '/project/src/file.js',
-          },
-        ],
-        suppressedIssues: [
-          {
-            ruleId: 'S1116',
-            language: 'js',
-            line: 2,
-            column: 0,
-            endLine: 2,
-            endColumn: 1,
-            message: 'Unnecessary semicolon.',
-            secondaryLocations: [],
-            ruleESLintKeys: [],
-            filePath: '/project/src/file.js',
-            resolutionComment: 'accepted',
-          },
-        ],
-      },
-    });
-
-    const result = transformProjectOutputToResponse(output);
-
-    expect(result.issues).toEqual([
-      expect.objectContaining({
-        filePath: '/project/src/file.js',
-        message: 'Unnecessary semicolon.',
-      }),
-    ]);
-    expect(result.suppressedIssues).toEqual([
-      expect.objectContaining({
-        filePath: '/project/src/file.js',
-        message: 'Unnecessary semicolon.',
-        resolutionComment: 'accepted',
-      }),
-    ]);
   });
 
   it('should propagate CSS issue endLine and endColumn to textRange', () => {

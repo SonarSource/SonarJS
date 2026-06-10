@@ -262,6 +262,10 @@ export const cssRulesMeta: CssRuleMeta[] = [
     sqKey: 'S7925',
     stylelintKey: 'sonar/text-spacing',
   },
+  {
+    sqKey: 'S8775',
+    stylelintKey: 'at-rule-descriptor-value-no-unknown',
+  },
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
