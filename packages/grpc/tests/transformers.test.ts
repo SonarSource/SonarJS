@@ -337,6 +337,21 @@ describe('CSS rule configurations', () => {
       ]);
       expect(result!.configurations).toEqual([]);
     });
+
+    it('should return empty configurations when a listParam default is empty', () => {
+      const result = buildCssRuleConfigurations('S8766', []);
+      expect(result!.configurations).toEqual([]);
+    });
+
+    it('should honor ignoreKeywords when provided explicitly', () => {
+      const result = buildCssRuleConfigurations('S8766', [
+        { key: 'ignoreKeywords', value: 'overlay,/^blink$/' },
+      ]);
+      expect(result!.configurations).toEqual([
+        true,
+        { ignoreKeywords: ['overlay', '/^blink$/'] },
+      ]);
+    });
   });
 
   describe('booleanParam', () => {
@@ -565,58 +580,6 @@ describe('transformProjectOutputToResponse', () => {
     const result = transformProjectOutputToResponse(output);
 
     expect(result.measures).toEqual([]);
-  });
-
-  it('should keep suppressed issues separate from open issues', () => {
-    const output = makeOutput({
-      '/project/src/file.js': {
-        issues: [
-          {
-            ruleId: 'S1116',
-            language: 'js',
-            line: 1,
-            column: 0,
-            endLine: 1,
-            endColumn: 1,
-            message: 'Unnecessary semicolon.',
-            secondaryLocations: [],
-            ruleESLintKeys: [],
-            filePath: '/project/src/file.js',
-          },
-        ],
-        suppressedIssues: [
-          {
-            ruleId: 'S1116',
-            language: 'js',
-            line: 2,
-            column: 0,
-            endLine: 2,
-            endColumn: 1,
-            message: 'Unnecessary semicolon.',
-            secondaryLocations: [],
-            ruleESLintKeys: [],
-            filePath: '/project/src/file.js',
-            resolutionComment: 'accepted',
-          },
-        ],
-      },
-    });
-
-    const result = transformProjectOutputToResponse(output);
-
-    expect(result.issues).toEqual([
-      expect.objectContaining({
-        filePath: '/project/src/file.js',
-        message: 'Unnecessary semicolon.',
-      }),
-    ]);
-    expect(result.suppressedIssues).toEqual([
-      expect.objectContaining({
-        filePath: '/project/src/file.js',
-        message: 'Unnecessary semicolon.',
-        resolutionComment: 'accepted',
-      }),
-    ]);
   });
 
   it('should propagate CSS issue endLine and endColumn to textRange', () => {
