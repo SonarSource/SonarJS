@@ -35,7 +35,10 @@ import {
 } from '../generated-source-telemetry.js';
 import {
   buildGeneratedSourceObservability,
+  createGeneratedSourceDetectionLogKey,
   createGeneratedSourceObservabilityLogKey,
+  logGeneratedSourceDetectionInfo,
+  logMatchedGeneratedSourceFiles,
   logGeneratedSourceObservability,
 } from './generated-sources-observability.js';
 
@@ -68,6 +71,8 @@ class GeneratedSourceStore implements FileStore {
   private configPaths = new Set<NormalizedAbsolutePath>();
   private watchedOutputPaths = new Set<NormalizedAbsolutePath>();
   private observabilityTelemetry = createEmptyGeneratedSourcesTelemetry();
+  private lastLoggedGeneratedSourceDetectionKey: string | undefined = undefined;
+  private readonly generatedSourceDetectionInfoBaseDirs = new Set<NormalizedAbsolutePath>();
   // Preserve the last logged fingerprint across cache invalidations so repeated analyses only
   // re-emit observability logs when the content changes.
   private lastLoggedObservabilityKey: string | undefined = undefined;
@@ -294,6 +299,17 @@ class GeneratedSourceStore implements FileStore {
       requestContext?.isExplicitRequest ? getRequestedFilePaths(requestContext) : undefined,
     );
     this.observabilityTelemetry = observability.telemetry;
+    const detectionLogKey = createGeneratedSourceDetectionLogKey(this.baseDir, observability);
+    if (detectionLogKey !== this.lastLoggedGeneratedSourceDetectionKey) {
+      this.lastLoggedGeneratedSourceDetectionKey = detectionLogKey;
+      if (detectionLogKey !== undefined) {
+        if (!this.generatedSourceDetectionInfoBaseDirs.has(this.baseDir)) {
+          logGeneratedSourceDetectionInfo();
+          this.generatedSourceDetectionInfoBaseDirs.add(this.baseDir);
+        }
+        logMatchedGeneratedSourceFiles(observability);
+      }
+    }
     const observabilityKey = createGeneratedSourceObservabilityLogKey(this.baseDir, observability);
     if (observabilityKey !== this.lastLoggedObservabilityKey) {
       this.lastLoggedObservabilityKey = observabilityKey;

@@ -2532,6 +2532,12 @@ plugins = [
         call => call.arguments[0],
       );
       expect(logs).toContain(
+        `DEBUG File ${taggedFile} was detected as generated source. (Disable detection with sonar.javascript.detectGeneratedCode=false)`,
+      );
+      expect(logs).toContain(
+        'Some of the project files were detected as generated source files. Enable debug logging to see which files matched. You can disable generated-source detection by setting sonar.javascript.detectGeneratedCode=false',
+      );
+      expect(logs).toContain(
         'Generated source observability: families=1, resolvedFiles=3, taggedFiles=1, outOfScopeFiles=1, excludedFiles=1',
       );
       expect(logs).toContain(
@@ -2556,6 +2562,20 @@ plugins = [
         refreshedLogs.filter(
           log =>
             log ===
+            `DEBUG File ${taggedFile} was detected as generated source. (Disable detection with sonar.javascript.detectGeneratedCode=false)`,
+        ),
+      ).toHaveLength(1);
+      expect(
+        refreshedLogs.filter(
+          log =>
+            log ===
+            'Some of the project files were detected as generated source files. Enable debug logging to see which files matched. You can disable generated-source detection by setting sonar.javascript.detectGeneratedCode=false',
+        ),
+      ).toHaveLength(1);
+      expect(
+        refreshedLogs.filter(
+          log =>
+            log ===
             'Generated source observability: families=1, resolvedFiles=3, taggedFiles=1, outOfScopeFiles=1, excludedFiles=1',
         ),
       ).toHaveLength(1);
@@ -2573,6 +2593,20 @@ plugins = [
       const reinitializedLogs = (console.log as Mock<typeof console.log>).mock.calls.map(
         call => call.arguments[0],
       );
+      expect(
+        reinitializedLogs.filter(
+          log =>
+            log ===
+            `DEBUG File ${taggedFile} was detected as generated source. (Disable detection with sonar.javascript.detectGeneratedCode=false)`,
+        ),
+      ).toHaveLength(1);
+      expect(
+        reinitializedLogs.filter(
+          log =>
+            log ===
+            'Some of the project files were detected as generated source files. Enable debug logging to see which files matched. You can disable generated-source detection by setting sonar.javascript.detectGeneratedCode=false',
+        ),
+      ).toHaveLength(1);
       expect(
         reinitializedLogs.filter(
           log =>
@@ -2898,6 +2932,12 @@ plugins = [
       const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
         call => call.arguments[0],
       );
+      expect(logs).not.toContain(
+        `DEBUG File ${rejectedGeneratedFile} was detected as generated source. (Disable detection with sonar.javascript.detectGeneratedCode=false)`,
+      );
+      expect(logs).not.toContain(
+        'Some of the project files were detected as generated source files. Enable debug logging to see which files matched. You can disable generated-source detection by setting sonar.javascript.detectGeneratedCode=false',
+      );
       expect(logs).toContain(
         'DEBUG Generated source family=@graphql-codegen/cli excluded sample=src/generated/blocked.ts',
       );
@@ -2987,10 +3027,14 @@ plugins = [
     }
   });
 
-  it('refreshes observability when explicit request adds a generated file dropped by sanitization', async () => {
+  it('refreshes observability when explicit request adds a generated file dropped by sanitization', async ({
+    mock,
+  }) => {
     const baseDir = await createTempBaseDir();
     const keptGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'keep.ts');
     const droppedGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'blocked.ts');
+    const originalConsoleLog = console.log;
+    console.log = mock.fn(console.log);
 
     try {
       await writeFixtureFile(
@@ -3089,7 +3133,26 @@ plugins = [
           },
         ],
       });
+
+      const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
+        call => call.arguments[0],
+      );
+      expect(
+        logs.filter(
+          log =>
+            log ===
+            'Some of the project files were detected as generated source files. Enable debug logging to see which files matched. You can disable generated-source detection by setting sonar.javascript.detectGeneratedCode=false',
+        ),
+      ).toHaveLength(1);
+      expect(
+        logs.filter(
+          log =>
+            log ===
+            `DEBUG File ${keptGeneratedFile} was detected as generated source. (Disable detection with sonar.javascript.detectGeneratedCode=false)`,
+        ),
+      ).toHaveLength(1);
     } finally {
+      console.log = originalConsoleLog;
       await rm(baseDir, { recursive: true, force: true });
     }
   });

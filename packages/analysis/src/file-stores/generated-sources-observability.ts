@@ -14,6 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
+import { createHash } from 'node:crypto';
 import {
   normalizeToAbsolutePath,
   type NormalizedAbsolutePath,
@@ -30,6 +31,8 @@ import { relativeToAncestorPath } from '../jsts/rules/helpers/files.js';
 
 const DEFAULT_DTS_EXCLUSION_PATTERN = '**/*.d.ts';
 const OBSERVABILITY_SAMPLE_LIMIT = 3;
+const GENERATED_SOURCE_DETECTION_INFO =
+  'Some of the project files were detected as generated source files. Enable debug logging to see which files matched. You can disable generated-source detection by setting sonar.javascript.detectGeneratedCode=false';
 
 type GeneratedSourceFamilyObservability = GeneratedSourceFamilyTelemetry & {
   taggedPaths: NormalizedAbsolutePath[];
@@ -148,6 +151,32 @@ export function createGeneratedSourceObservabilityLogKey(
       fileSample: family.filePaths.slice(0, OBSERVABILITY_SAMPLE_LIMIT),
     })),
   });
+}
+
+export function createGeneratedSourceDetectionLogKey(
+  baseDir: NormalizedAbsolutePath,
+  observability: GeneratedSourceObservability,
+) {
+  if (observability.telemetry.taggedFileCount === 0) {
+    return undefined;
+  }
+
+  return JSON.stringify({
+    baseDir,
+    taggedFingerprint: createPathFingerprint(collectTaggedGeneratedSourcePaths(observability)),
+  });
+}
+
+export function logGeneratedSourceDetectionInfo() {
+  info(GENERATED_SOURCE_DETECTION_INFO);
+}
+
+export function logMatchedGeneratedSourceFiles(observability: GeneratedSourceObservability) {
+  for (const filePath of collectTaggedGeneratedSourcePaths(observability)) {
+    debug(
+      `File ${filePath} was detected as generated source. (Disable detection with sonar.javascript.detectGeneratedCode=false)`,
+    );
+  }
 }
 
 function collectGeneratedSourcePathsByFamily(
@@ -289,4 +318,17 @@ function formatSamplePaths(
 
 function sortPathEntries<T>(entries: Iterable<[NormalizedAbsolutePath, T]>) {
   return [...entries].sort(([left], [right]) => left.localeCompare(right));
+}
+
+function collectTaggedGeneratedSourcePaths(observability: GeneratedSourceObservability) {
+  return observability.families.flatMap(family => family.taggedPaths);
+}
+
+function createPathFingerprint(filePaths: readonly NormalizedAbsolutePath[]) {
+  const hash = createHash('sha256');
+  for (const filePath of filePaths) {
+    hash.update(filePath);
+    hash.update('\0');
+  }
+  return hash.digest('hex');
 }
