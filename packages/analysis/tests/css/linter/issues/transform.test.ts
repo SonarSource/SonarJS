@@ -16,9 +16,10 @@
  */
 import stylelint from 'stylelint';
 import { transform } from '../../../../src/css/linter/issues/transform.js';
-import { describe, it, type Mock } from 'node:test';
+import { describe, it, beforeEach, afterEach, type Mock } from 'node:test';
 import { expect } from 'expect';
 import { normalizeToAbsolutePath } from '../../../../../shared/src/helpers/files.js';
+import { cssOnlyRuleKeys } from '../../../../src/css/linter/css-only-rules.js';
 
 describe('transform', () => {
   it('should transform Stylelint results into issues', () => {
@@ -220,5 +221,106 @@ describe('transform', () => {
     expect((console.log as Mock<typeof console.log>).mock.calls[0].arguments[0]).toMatch(
       /^WARN Invalid position for rule no-empty-source/,
     );
+  });
+
+  describe('CSS-only rule filtering in HTML/Vue files', () => {
+    const filePath = normalizeToAbsolutePath('/tmp/page.html');
+
+    beforeEach(() => cssOnlyRuleKeys.add('css-only-rule'));
+    afterEach(() => cssOnlyRuleKeys.delete('css-only-rule'));
+
+    function makeDocumentResult(
+      blocks: Array<{ lang?: string; startLine: number; endLine: number }>,
+      warnings: Array<{ rule: string; line: number }>,
+    ): stylelint.LintResult {
+      const nodes = blocks.map(b => ({
+        type: 'root' as const,
+        source: {
+          lang: b.lang,
+          start: { line: b.startLine, column: 1, offset: 0 },
+          end: { line: b.endLine, column: 1, offset: 0 },
+        },
+      }));
+      return {
+        source: filePath as string,
+        warnings: warnings.map(w => ({
+          rule: w.rule,
+          text: `${w.rule} message (${w.rule})`,
+          line: w.line,
+          column: 1,
+        })),
+        _postcssResult: { root: { type: 'document', nodes } },
+      } as unknown as stylelint.LintResult;
+    }
+
+    it('reports CSS-only rule warnings from plain CSS blocks', () => {
+      const result = makeDocumentResult(
+        [{ startLine: 1, endLine: 5 }], // no lang → CSS
+        [{ rule: 'css-only-rule', line: 3 }],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].ruleId).toBe('css-only-rule');
+    });
+
+    it('suppresses CSS-only rule warnings from non-CSS embedded blocks', () => {
+      const result = makeDocumentResult(
+        [{ lang: 'scss', startLine: 1, endLine: 10 }],
+        [{ rule: 'css-only-rule', line: 5 }],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(0);
+    });
+
+    it('suppresses warnings from less and sass blocks too', () => {
+      const result = makeDocumentResult(
+        [
+          { lang: 'less', startLine: 1, endLine: 5 },
+          { lang: 'sass', startLine: 7, endLine: 12 },
+        ],
+        [
+          { rule: 'css-only-rule', line: 3 },
+          { rule: 'css-only-rule', line: 9 },
+        ],
+      );
+      expect(transform([result], filePath)).toHaveLength(0);
+    });
+
+    it('does not suppress regular rule warnings from non-CSS blocks', () => {
+      const result = makeDocumentResult(
+        [{ lang: 'scss', startLine: 1, endLine: 10 }],
+        [{ rule: 'regular-rule', line: 5 }],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].ruleId).toBe('regular-rule');
+    });
+
+    it('handles mixed CSS and non-CSS blocks correctly', () => {
+      const result = makeDocumentResult(
+        [
+          { startLine: 1, endLine: 5 },       // CSS block
+          { lang: 'scss', startLine: 7, endLine: 15 }, // SCSS block
+        ],
+        [
+          { rule: 'css-only-rule', line: 3 },  // in CSS block → keep
+          { rule: 'css-only-rule', line: 10 }, // in SCSS block → suppress
+        ],
+      );
+      const issues = transform([result], filePath);
+      expect(issues).toHaveLength(1);
+      expect(issues[0].line).toBe(3);
+    });
+
+    it('does not filter warnings from plain CSS files (no document root)', () => {
+      const cssFilePath = normalizeToAbsolutePath('/tmp/styles.css');
+      const result = {
+        source: cssFilePath as string,
+        warnings: [{ rule: 'css-only-rule', text: 'msg (css-only-rule)', line: 1, column: 1 }],
+        _postcssResult: { root: { type: 'root' } }, // not a document
+      } as unknown as stylelint.LintResult;
+      const issues = transform([result], cssFilePath);
+      expect(issues).toHaveLength(1);
+    });
   });
 });
