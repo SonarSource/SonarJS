@@ -50,7 +50,7 @@ export function buildGeneratedSourceObservability(
   resolvedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   configuration: Configuration,
-  allowResolvedOnlyFiles: boolean,
+  requestedFilePaths?: ReadonlySet<NormalizedAbsolutePath>,
 ): GeneratedSourceObservability {
   const filterPathParams = getFilterPathParams(configuration);
   const pathsByFamily = collectGeneratedSourcePathsByFamily(resolvedFamilyByFile);
@@ -71,7 +71,7 @@ export function buildGeneratedSourceObservability(
         filePaths,
         taggedFamilyByFile,
         filterPathParams,
-        allowResolvedOnlyFiles,
+        requestedFilePaths,
       ),
     );
   }
@@ -172,7 +172,7 @@ function summarizeGeneratedSourceFamily(
   filePaths: readonly NormalizedAbsolutePath[],
   taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   filterPathParams: ReturnType<typeof getFilterPathParams>,
-  allowResolvedOnlyFiles: boolean,
+  requestedFilePaths?: ReadonlySet<NormalizedAbsolutePath>,
 ): GeneratedSourceFamilyObservability {
   const familySummary: GeneratedSourceFamilyObservability = {
     family,
@@ -211,13 +211,16 @@ function summarizeGeneratedSourceFamily(
       continue;
     }
 
-    if (!allowResolvedOnlyFiles) {
-      familySummary.excludedFileCount += 1;
-      familySummary.excludedPaths.push(filePath);
+    if (requestedFilePaths?.has(filePath) === false) {
+      continue;
     }
+
+    familySummary.excludedFileCount += 1;
+    familySummary.excludedPaths.push(filePath);
     // In explicit request-driven analyses, in-scope files omitted from request.files remain
-    // counted only in resolvedFileCount. Full-project analyses do not have that case, so an
-    // in-scope untagged file is treated as excluded because source-file acceptance rejected it.
+    // counted only in resolvedFileCount. If the file was explicitly requested but is still
+    // untagged here, sanitization/source-file acceptance rejected it and observability reports it
+    // as excluded. Full-project analyses likewise treat in-scope untagged files as excluded.
   }
 
   return familySummary;

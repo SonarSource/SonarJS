@@ -124,6 +124,7 @@ The snapshot is built from:
 
 - `resolvedFamilyByFile`: every generated file derived for the project
 - `taggedFamilyByFile`: the subset currently visible to the analysis request
+- the file-store request context: the surviving `analyzableFiles` plus the original explicit `requestedFilePaths` when the request supplied `request.files`
 - the current analysis configuration
 
 For each detector family, every resolved generated file contributes to one of these observability buckets:
@@ -135,7 +136,9 @@ For each detector family, every resolved generated file contributes to one of th
 
 The last case happens only in request-driven analyses when a file is analyzable for the project but absent from the current `request.files` subset. Those files are not reported as excluded.
 
-In full-project filesystem analyses, an in-scope generated file that is not tagged is treated as excluded rather than `resolved only`. That is the case where the file passed path-based scope checks but `sourceFileStore` filtered it out later through content-based acceptance rules.
+If a request explicitly named a generated file but sanitization removed it before analysis, observability reports that file as `excluded`, not `resolved only`. That covers request-driven rejections from source-file acceptance checks such as size, bundle, or minification filters.
+
+In full-project filesystem analyses, an in-scope generated file that is not tagged is also treated as excluded rather than `resolved only`. That is the case where the file passed path-based scope checks but `sourceFileStore` filtered it out later through content-based acceptance rules.
 
 For JS/TS exclusions specifically, observability classification uses a non-logging exclusion match. That detail matters because the store may rebuild buckets repeatedly during refreshes, and those refreshes should not emit extra generic `File ignored due to js/ts exclusions` DEBUG lines outside the deduplicated observability output.
 

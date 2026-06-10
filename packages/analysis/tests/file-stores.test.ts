@@ -21,7 +21,7 @@ import { expect } from 'expect';
 import { FileStore } from '../src/file-stores/store-type.js';
 import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { createConfiguration, type Configuration } from '../src/common/configuration.js';
-import type { AnalyzableFiles } from '../src/projectAnalysis.js';
+import type { FileStoreRequestContext } from '../src/projectAnalysis.js';
 import { sanitizeRawInputFiles } from '../src/common/input-sanitize.js';
 
 class MockFileStore implements FileStore {
@@ -32,7 +32,7 @@ class MockFileStore implements FileStore {
 
   async isInitialized(
     _configuration: Configuration,
-    _inputFiles?: AnalyzableFiles,
+    _requestContext?: FileStoreRequestContext,
   ): Promise<boolean> {
     return false; // Always return false to simulate uninitialized state
   }
@@ -49,7 +49,10 @@ class MockFileStore implements FileStore {
     this.processedFiles.push(filename);
   }
 
-  async postProcess(_configuration: Configuration): Promise<void> {
+  async postProcess(
+    _configuration: Configuration,
+    _requestContext?: FileStoreRequestContext,
+  ): Promise<void> {
     this.postProcessCalled = true;
   }
 }
@@ -103,7 +106,7 @@ describe('simulateFromInputFiles', () => {
 
       async isInitialized(
         _configuration: Configuration,
-        _inputFiles?: AnalyzableFiles,
+        _requestContext?: FileStoreRequestContext,
       ): Promise<boolean> {
         return false;
       }
@@ -111,7 +114,10 @@ describe('simulateFromInputFiles', () => {
       async processFile(filename: string, _configuration: Configuration): Promise<void> {
         this.processedFiles.push(filename);
       }
-      async postProcess(_configuration: Configuration): Promise<void> {}
+      async postProcess(
+        _configuration: Configuration,
+        _requestContext?: FileStoreRequestContext,
+      ): Promise<void> {}
       // Note: processDirectory is optional, so we don't implement it
     }
 

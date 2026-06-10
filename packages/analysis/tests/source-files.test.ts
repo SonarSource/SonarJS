@@ -63,7 +63,7 @@ describe('files', () => {
     const baseDir = normalizeToAbsolutePath('/project');
     const configuration = createConfiguration({ baseDir, canAccessFileSystem: false });
 
-    const { files: firstInputFiles } = await sanitizeRawInputFiles(
+    const { fileStoreRequestContext: firstRequestContext } = await sanitizeRawInputFiles(
       {
         first: {
           filePath: '/project/src/first.ts',
@@ -72,12 +72,12 @@ describe('files', () => {
       },
       configuration,
     );
-    await sourceFileStore.isInitialized(configuration, firstInputFiles);
+    await sourceFileStore.isInitialized(configuration, firstRequestContext);
     expect([
       ...sourceFileStore.getFilesInDirectory(normalizeToAbsolutePath('/project/src'))!,
     ]).toEqual(['first.ts']);
 
-    const { files: secondInputFiles } = await sanitizeRawInputFiles(
+    const { fileStoreRequestContext: secondRequestContext } = await sanitizeRawInputFiles(
       {
         second: {
           filePath: '/project/src/second.ts',
@@ -86,7 +86,7 @@ describe('files', () => {
       },
       configuration,
     );
-    await sourceFileStore.isInitialized(configuration, secondInputFiles);
+    await sourceFileStore.isInitialized(configuration, secondRequestContext);
 
     expect([
       ...sourceFileStore.getFilesInDirectory(normalizeToAbsolutePath('/project/src'))!,

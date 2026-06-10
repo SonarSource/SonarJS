@@ -986,7 +986,7 @@ export default config;
           [outputPath]: 'CREATED',
         },
       });
-      const { files: inputFiles } = await sanitizeRawInputFiles(
+      const { fileStoreRequestContext } = await sanitizeRawInputFiles(
         {
           [outputPath]: {
             filePath: outputPath,
@@ -996,7 +996,7 @@ export default config;
         configuration,
       );
 
-      await initFileStores(configuration, inputFiles);
+      await initFileStores(configuration, fileStoreRequestContext);
 
       expect(generatedSourceStore.getFamily(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
     } finally {
@@ -1047,7 +1047,7 @@ export default config;
           [outputPath]: 'CREATED',
         },
       });
-      const { files: inputFiles } = await sanitizeRawInputFiles(
+      const { fileStoreRequestContext } = await sanitizeRawInputFiles(
         {
           [outputPath]: {
             filePath: outputPath,
@@ -1057,7 +1057,7 @@ export default config;
         configuration,
       );
 
-      await initFileStores(configuration, inputFiles);
+      await initFileStores(configuration, fileStoreRequestContext);
 
       expect(generatedSourceStore.getFamily(outputPath)).toEqual(GRAPHQL_CODEGEN_FAMILY);
     } finally {
@@ -1223,7 +1223,7 @@ export default config;
           [outputPath]: 'CREATED',
         },
       });
-      const { files: inputFiles } = await sanitizeRawInputFiles(
+      const { fileStoreRequestContext } = await sanitizeRawInputFiles(
         {
           [outputPath]: {
             filePath: outputPath,
@@ -1233,7 +1233,7 @@ export default config;
         configuration,
       );
 
-      await initFileStores(configuration, inputFiles);
+      await initFileStores(configuration, fileStoreRequestContext);
 
       expect(generatedSourceStore.getFamily(outputPath)).toEqual(OPENAPI_GENERATOR_FAMILY);
     } finally {
@@ -2332,7 +2332,7 @@ plugins = [
     const firstGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
     const secondGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'types', 'schema.ts');
     const configuration = createConfiguration({ baseDir });
-    const { files: firstInputFiles } = await sanitizeRawInputFiles(
+    const { fileStoreRequestContext: firstRequestContext } = await sanitizeRawInputFiles(
       {
         [firstGeneratedFile]: {
           filePath: firstGeneratedFile,
@@ -2342,12 +2342,12 @@ plugins = [
       configuration,
     );
 
-    await initFileStores(configuration, firstInputFiles);
+    await initFileStores(configuration, firstRequestContext);
 
     expect(generatedSourceStore.getFamily(firstGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
     expect(generatedSourceStore.getFamily(secondGeneratedFile)).toBeUndefined();
 
-    const { files: secondInputFiles } = await sanitizeRawInputFiles(
+    const { fileStoreRequestContext: secondRequestContext } = await sanitizeRawInputFiles(
       {
         [secondGeneratedFile]: {
           filePath: secondGeneratedFile,
@@ -2357,7 +2357,9 @@ plugins = [
       configuration,
     );
 
-    expect(await generatedSourceStore.isInitialized(configuration, secondInputFiles)).toBe(true);
+    expect(await generatedSourceStore.isInitialized(configuration, secondRequestContext)).toBe(
+      true,
+    );
 
     expect(generatedSourceStore.getFamily(firstGeneratedFile)).toBeUndefined();
     expect(generatedSourceStore.getFamily(secondGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
@@ -2415,11 +2417,11 @@ plugins = [
     expect(generatedSourceStore.getFamily(generatedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
   });
 
-  it('memoizes explicit request-file keys per analyzable-file set', async () => {
+  it('memoizes explicit request-file keys per request context', async () => {
     const baseDir = joinPaths(fixtures, 'graphql-codegen-standard');
     const generatedFile = joinPaths(baseDir, 'src', 'generated', 'graphql.ts');
     const configuration = createConfiguration({ baseDir });
-    const { files: inputFiles } = await sanitizeRawInputFiles(
+    const { fileStoreRequestContext } = await sanitizeRawInputFiles(
       {
         [generatedFile]: {
           filePath: generatedFile,
@@ -2429,7 +2431,7 @@ plugins = [
       configuration,
     );
 
-    await initFileStores(configuration, inputFiles);
+    await initFileStores(configuration, fileStoreRequestContext);
 
     const explicitRequestFilesKeys = (
       generatedSourceStore as unknown as {
@@ -2438,12 +2440,12 @@ plugins = [
     ).explicitRequestFilesKeys;
     expect(explicitRequestFilesKeys).toBeInstanceOf(WeakMap);
 
-    const cachedKey = explicitRequestFilesKeys?.get(inputFiles);
+    const cachedKey = explicitRequestFilesKeys?.get(fileStoreRequestContext);
     expect(cachedKey).toBeDefined();
 
-    await generatedSourceStore.isInitialized(configuration, inputFiles);
+    await generatedSourceStore.isInitialized(configuration, fileStoreRequestContext);
 
-    expect(explicitRequestFilesKeys?.get(inputFiles)).toEqual(cachedKey);
+    expect(explicitRequestFilesKeys?.get(fileStoreRequestContext)).toEqual(cachedKey);
   });
 
   it('records the current configuration when post-processing exits early', async () => {
@@ -2542,7 +2544,10 @@ plugins = [
         'DEBUG Generated source family=@graphql-codegen/cli outOfScope sample=outside/api/index.ts',
       );
 
-      await generatedSourceStore.postProcess(configuration, sourceFileStore.getFiles());
+      await generatedSourceStore.postProcess(configuration, {
+        analyzableFiles: sourceFileStore.getFiles(),
+        isExplicitRequest: false,
+      });
 
       const refreshedLogs = (console.log as Mock<typeof console.log>).mock.calls.map(
         call => call.arguments[0],
@@ -2627,7 +2632,7 @@ plugins = [
         baseDir,
         sources: ['src'],
       });
-      const { files: inputFiles } = await sanitizeRawInputFiles(
+      const { fileStoreRequestContext } = await sanitizeRawInputFiles(
         {
           [firstGeneratedFile]: {
             filePath: firstGeneratedFile,
@@ -2637,7 +2642,7 @@ plugins = [
         configuration,
       );
 
-      await initFileStores(configuration, inputFiles);
+      await initFileStores(configuration, fileStoreRequestContext);
 
       expect(generatedSourceStore.getFamily(firstGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
       expect(generatedSourceStore.getFamily(secondGeneratedFile)).toBeUndefined();
@@ -2654,6 +2659,88 @@ plugins = [
             taggedFileCount: 1,
             outOfScopeFileCount: 0,
             excludedFileCount: 0,
+          },
+        ],
+      });
+    } finally {
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('counts explicitly requested generated files dropped by sanitization as excluded', async () => {
+    const baseDir = await createTempBaseDir();
+    const keptGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'keep.ts');
+    const droppedGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'blocked.ts');
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              graphql: 'graphql-codegen --config ./codegen.yml',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        joinPaths(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/keep.ts:
+    plugins:
+      - typescript
+  ./src/generated/blocked.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(keptGeneratedFile, 'export const keep = true;\n');
+      await writeFixtureFile(
+        droppedGeneratedFile,
+        `${'export const blocked = true;\n'.repeat(128)}`,
+      );
+
+      const configuration = createConfiguration({
+        baseDir,
+        sources: ['src'],
+        maxFileSize: 1,
+      });
+      const { fileStoreRequestContext } = await sanitizeRawInputFiles(
+        {
+          [keptGeneratedFile]: {
+            filePath: keptGeneratedFile,
+            fileType: 'MAIN',
+          },
+          [droppedGeneratedFile]: {
+            filePath: droppedGeneratedFile,
+            fileType: 'MAIN',
+          },
+        },
+        configuration,
+      );
+
+      await initFileStores(configuration, fileStoreRequestContext);
+
+      expect(generatedSourceStore.getFamily(keptGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
+      expect(generatedSourceStore.getFamily(droppedGeneratedFile)).toBeUndefined();
+      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+        familyCount: 1,
+        resolvedFileCount: 2,
+        taggedFileCount: 1,
+        outOfScopeFileCount: 0,
+        excludedFileCount: 1,
+        families: [
+          {
+            family: GRAPHQL_CODEGEN_FAMILY,
+            resolvedFileCount: 2,
+            taggedFileCount: 1,
+            outOfScopeFileCount: 0,
+            excludedFileCount: 1,
           },
         ],
       });
@@ -2734,7 +2821,10 @@ plugins = [
       );
       expect(logs.filter(log => log === jsTsExclusionLog)).toHaveLength(1);
 
-      await generatedSourceStore.postProcess(configuration, sourceFileStore.getFiles());
+      await generatedSourceStore.postProcess(configuration, {
+        analyzableFiles: sourceFileStore.getFiles(),
+        isExplicitRequest: false,
+      });
 
       logs = (console.log as Mock<typeof console.log>).mock.calls.map(call => call.arguments[0]);
       expect(logs.filter(log => log === jsTsExclusionLog)).toHaveLength(1);
@@ -2860,7 +2950,7 @@ plugins = [
         baseDir,
         sources: ['src'],
       });
-      const { files: firstInputFiles } = await sanitizeRawInputFiles(
+      const { fileStoreRequestContext: firstRequestContext } = await sanitizeRawInputFiles(
         {
           [firstGeneratedFile]: {
             filePath: firstGeneratedFile,
@@ -2869,7 +2959,7 @@ plugins = [
         },
         configuration,
       );
-      const { files: secondInputFiles } = await sanitizeRawInputFiles(
+      const { fileStoreRequestContext: secondRequestContext } = await sanitizeRawInputFiles(
         {
           [secondGeneratedFile]: {
             filePath: secondGeneratedFile,
@@ -2879,8 +2969,8 @@ plugins = [
         configuration,
       );
 
-      await initFileStores(configuration, firstInputFiles);
-      await generatedSourceStore.isInitialized(configuration, secondInputFiles);
+      await initFileStores(configuration, firstRequestContext);
+      await generatedSourceStore.isInitialized(configuration, secondRequestContext);
 
       const logs = (console.log as Mock<typeof console.log>).mock.calls.map(
         call => call.arguments[0],
@@ -2893,6 +2983,113 @@ plugins = [
       );
     } finally {
       console.log = originalConsoleLog;
+      await rm(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it('refreshes observability when explicit request adds a generated file dropped by sanitization', async () => {
+    const baseDir = await createTempBaseDir();
+    const keptGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'keep.ts');
+    const droppedGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'blocked.ts');
+
+    try {
+      await writeFixtureFile(
+        joinPaths(baseDir, 'package.json'),
+        JSON.stringify(
+          {
+            devDependencies: {
+              [GRAPHQL_CODEGEN_FAMILY]: '1.0.0',
+            },
+            scripts: {
+              graphql: 'graphql-codegen --config ./codegen.yml',
+            },
+          },
+          null,
+          2,
+        ),
+      );
+      await writeFixtureFile(
+        joinPaths(baseDir, 'codegen.yml'),
+        `generates:
+  ./src/generated/keep.ts:
+    plugins:
+      - typescript
+  ./src/generated/blocked.ts:
+    plugins:
+      - typescript
+`,
+      );
+      await writeFixtureFile(keptGeneratedFile, 'export const keep = true;\n');
+      await writeFixtureFile(
+        droppedGeneratedFile,
+        `${'export const blocked = true;\n'.repeat(128)}`,
+      );
+
+      const configuration = createConfiguration({
+        baseDir,
+        sources: ['src'],
+        maxFileSize: 1,
+      });
+      const { fileStoreRequestContext: firstRequestContext } = await sanitizeRawInputFiles(
+        {
+          [keptGeneratedFile]: {
+            filePath: keptGeneratedFile,
+            fileType: 'MAIN',
+          },
+        },
+        configuration,
+      );
+      const { fileStoreRequestContext: secondRequestContext } = await sanitizeRawInputFiles(
+        {
+          [keptGeneratedFile]: {
+            filePath: keptGeneratedFile,
+            fileType: 'MAIN',
+          },
+          [droppedGeneratedFile]: {
+            filePath: droppedGeneratedFile,
+            fileType: 'MAIN',
+          },
+        },
+        configuration,
+      );
+
+      await initFileStores(configuration, firstRequestContext);
+      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+        familyCount: 1,
+        resolvedFileCount: 2,
+        taggedFileCount: 1,
+        outOfScopeFileCount: 0,
+        excludedFileCount: 0,
+        families: [
+          {
+            family: GRAPHQL_CODEGEN_FAMILY,
+            resolvedFileCount: 2,
+            taggedFileCount: 1,
+            outOfScopeFileCount: 0,
+            excludedFileCount: 0,
+          },
+        ],
+      });
+
+      await generatedSourceStore.isInitialized(configuration, secondRequestContext);
+
+      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+        familyCount: 1,
+        resolvedFileCount: 2,
+        taggedFileCount: 1,
+        outOfScopeFileCount: 0,
+        excludedFileCount: 1,
+        families: [
+          {
+            family: GRAPHQL_CODEGEN_FAMILY,
+            resolvedFileCount: 2,
+            taggedFileCount: 1,
+            outOfScopeFileCount: 0,
+            excludedFileCount: 1,
+          },
+        ],
+      });
+    } finally {
       await rm(baseDir, { recursive: true, force: true });
     }
   });
