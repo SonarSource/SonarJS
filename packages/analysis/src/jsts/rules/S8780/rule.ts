@@ -278,7 +278,10 @@ function getRootCall(call: estree.CallExpression): estree.CallExpression | null 
   while (current.type === 'CallExpression' || current.type === 'MemberExpression') {
     if (current.type === 'CallExpression') {
       const callee: estree.Expression | estree.Super = unwrapChainExpression(current.callee);
-      if (callee.type !== 'MemberExpression') {
+      if (
+        callee.type !== 'MemberExpression' ||
+        (callee.object.type !== 'CallExpression' && callee.object.type !== 'MemberExpression')
+      ) {
         return current;
       }
       current = callee;

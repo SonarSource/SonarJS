@@ -181,6 +181,16 @@ describe('S8780', () => {
         },
         {
           code: `
+            import * as vitest from 'vitest';
+
+            vitest.test('waits for a namespaced expect call', () => {
+              vitest.expect(fetchUser(1)).resolves.toHaveProperty('name');
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             import { expect, it } from '@jest/globals';
 
             it('supports not around async modifiers', () => {
@@ -202,6 +212,16 @@ describe('S8780', () => {
         },
         {
           code: `
+            import * as jasmine from 'jasmine';
+
+            it('loads configuration', () => {
+              jasmine.expectAsync(loadConfig()).toBeResolvedTo({ port: 3000 });
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
             import { test, expect } from '@playwright/test';
 
             test('displays welcome message', async ({ page }) => {
@@ -217,6 +237,16 @@ describe('S8780', () => {
 
             pwTest('shows the account menu after login', async ({ page }) => {
               playwrightExpect(page.getByRole('button', { name: 'Account' })).toBeVisible();
+            });
+          `,
+          errors: 1,
+        },
+        {
+          code: `
+            import * as playwright from '@playwright/test';
+
+            playwright.test('shows the account menu after login', async ({ page }) => {
+              playwright.expect(page.getByRole('button', { name: 'Account' })).toBeVisible();
             });
           `,
           errors: 1,
