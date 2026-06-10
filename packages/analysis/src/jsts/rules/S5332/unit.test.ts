@@ -37,10 +37,32 @@ describe('S5332', () => {
       doc = "See ftp://exemple.com";
       doc = "See telnet://exemple.com";
 
-      // Exception: The url domain component is a loopback address.
+      // Loopback
       url = "http://localhost";
       url = "http://127.0.0.1";
+      url = "http://127.255.255.254/path";
+      url = "http://[::1]/path";
       url = "ftp://user@localhost";
+
+      // Cloud IMDS — link-local range (169.254.0.0/16) and named endpoints
+      url = "http://169.254.169.254/latest/meta-data/";
+      url = "http://[fd00:ec2::254]/latest/meta-data/";
+      url = "http://168.63.129.16/";
+      url = "http://100.100.100.200/latest/meta-data/";
+      url = "http://metadata.google.internal/computeMetadata/v1";
+      url = "http://metadata.internal/";
+
+      // Docker internal hostnames
+      url = "http://host.docker.internal:8085/metrics";
+      url = "http://gateway.docker.internal";
+
+      // Kubernetes cluster-internal DNS
+      url = "http://vault.vault.svc.cluster.local:8200";
+      url = "http://auth-service.prod.svc.cluster.local:3001/auth";
+
+      // Template placeholders — lenient fallback prevents false positives
+      url = "http://localhost:\${port}/api";
+      url = "http://user:\${password}@localhost";
       `,
         },
         {
@@ -120,16 +142,20 @@ describe('S5332', () => {
         },
         {
           code: `
+      // IANA-reserved documentation / placeholder domains
       url = "http://example.example";
       url = "http://subdomain.example.example";
       url = "http://example.com";
       url = "http://someSubdomain.example.com";
+      url = "http://example.net";
       url = "http://example.org";
       url = "http://someSubdomain.example.org";
       url = "http://example.test";
       url = "http://subdomain.example.test";
-      url = "http://test.com";
-      url = "http://someSubdomain.test.com";
+      url = "http://myservice.example";
+      url = "http://myapi.test";
+      url = "http://db.myapi.test:5432";
+      url = "http://myapp.localhost";
       `,
         },
         {
@@ -158,9 +184,20 @@ describe('S5332', () => {
         },
         {
           code: `
+        // Namespace URI authorities — existing entries
         url = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/groups';
         url = 'http://schemas.microsoft.com/identity/claims/displayname';
         url = 'http://schemas.microsoft.com';
+        url = 'http://www.w3.org/2001/XMLSchema';
+        url = 'http://schemas.xmlsoap.org/soap/envelope/';
+
+        // Namespace URI authorities — added from CleartextProtocolFilter
+        url = 'http://schemas.android.com/apk/res/android';
+        url = 'http://hl7.org/fhir';
+        url = 'http://schema.org/Person';
+        url = 'http://www.springframework.org/schema/beans';
+        url = 'http://maven.apache.org/POM/4.0.0';
+        url = 'http://ogp.me/ns#';
       `,
         },
       ],
@@ -220,6 +257,26 @@ describe('S5332', () => {
         },
         {
           code: `
+      // test.com is a real public domain, not a reserved TLD
+      url = "http://test.com";
+      url = "http://someSubdomain.test.com";
+      `,
+          errors: 2,
+        },
+        {
+          code: `
+      // Safe-host-as-prefix attacks must not be allowed through
+      url = "http://localhost.evil.com";
+      url = "http://127.0.0.1.evil.com";
+      url = "http://169.254.169.254.evil.com";
+      url = "http://metadata.google.internal.evil.com";
+      url = "http://www.w3.org.evil.com/x";
+      url = "http://schema.org.evil.com/Person";
+      `,
+          errors: 6,
+        },
+        {
+          code: `
       url = "http://someSubdomain.xmlns.com";
       url = "http://someUrl.com?url=xmlns.com";
       `,
@@ -241,7 +298,7 @@ describe('S5332', () => {
         },
         {
           code: `
-      url = "http://::1"; // FP - url from Node.js is not able to parse IPV6 loopback address
+      url = "http://::1"; // Noncompliant — malformed IPv6 URL (brackets required: http://[::1])
       `,
           errors: 1,
         },
