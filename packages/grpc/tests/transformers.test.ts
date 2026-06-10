@@ -259,6 +259,13 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
   });
 
+  it('should map S8759 to at-rule-no-vendor-prefix', () => {
+    expect(buildCssRuleConfigurations('S8759', [])).toEqual({
+      key: 'at-rule-no-vendor-prefix',
+      configurations: [],
+    });
+  });
+
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'
