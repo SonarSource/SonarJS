@@ -862,5 +862,11 @@
     "key": "no-missing-end-of-source-newline",
     "url": "https://stylelint.io/user-guide/rules/no-missing-end-of-source-newline/",
     "name": "Disallow missing end-of-source newlines"
+  },
+  {
+    "key": "declaration-property-value-keyword-no-deprecated",
+    "url": "https://stylelint.io/user-guide/rules/declaration-property-value-keyword-no-deprecated/",
+    "name": "Disallow deprecated keyword values for properties",
+    "type": "BUG"
   }
 ]

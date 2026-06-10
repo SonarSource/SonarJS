@@ -262,6 +262,20 @@ export const cssRulesMeta: CssRuleMeta[] = [
     sqKey: 'S7925',
     stylelintKey: 'sonar/text-spacing',
   },
+  {
+    sqKey: 'S8766',
+    stylelintKey: 'declaration-property-value-keyword-no-deprecated',
+    listParam: [
+      {
+        sqKey: 'ignoreKeywords',
+        javaField: 'ignoreKeywords',
+        description:
+          'Comma-separated list of strings and/or regular expressions for deprecated keywords to ignore.',
+        default: '',
+        stylelintOptionKey: 'ignoreKeywords',
+      },
+    ],
+  },
 ];
 
 /** Reverse map: Stylelint rule key -> SonarQube rule key */
