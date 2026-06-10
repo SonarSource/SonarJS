@@ -45,6 +45,13 @@ describe('S6747', () => {
         errors: 1,
       },
       {
+        // Type-only imports must not enable the runtime tw prop allowance
+        code: `import type { ImageResponse } from '@vercel/og';
+<div tw="flex items-center">Hello</div>;`,
+        filename: join(dirname, 'filename.tsx'),
+        errors: 1,
+      },
+      {
         // Other unknown props are still flagged in @vercel/og projects
         code: `import { ImageResponse } from '@vercel/og';
 <div class="foo">Hello</div>;`,

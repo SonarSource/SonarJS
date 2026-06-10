@@ -106,8 +106,10 @@ export const rule: Rule.RuleModule = {
     }
     const imports = getImportDeclarations(context);
     if (
-      imports.some(i =>
-        ['next/og', '@vercel/og', 'satori', 'twin.macro'].includes(String(i.source.value)),
+      imports.some(
+        i =>
+          i.importKind !== 'type' &&
+          ['next/og', '@vercel/og', 'satori', 'twin.macro'].includes(String(i.source.value)),
       )
     ) {
       // These file-specific APIs use tw prop for Tailwind styling in JSX
