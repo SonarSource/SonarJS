@@ -265,6 +265,11 @@ describe('CSS rule configurations', () => {
       configurations: [],
     });
   });
+  
+  it('should map S8775 to at-rule-descriptor-value-no-unknown', () => {
+    const result = buildCssRuleConfigurations('S8775', []);
+    expect(result).toEqual({ key: 'at-rule-descriptor-value-no-unknown', configurations: [] });
+  });
 
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
