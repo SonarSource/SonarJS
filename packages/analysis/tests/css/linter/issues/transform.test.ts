@@ -272,15 +272,19 @@ describe('transform', () => {
       expect(issues).toHaveLength(0);
     });
 
-    it('suppresses warnings from less and sass blocks too', () => {
+    it('suppresses warnings from less, sass, stylus and styl blocks too', () => {
       const result = makeDocumentResult(
         [
           { lang: 'less', startLine: 1, endLine: 5 },
           { lang: 'sass', startLine: 7, endLine: 12 },
+          { lang: 'stylus', startLine: 14, endLine: 18 },
+          { lang: 'styl', startLine: 20, endLine: 24 },
         ],
         [
           { rule: 'css-only-rule', line: 3 },
           { rule: 'css-only-rule', line: 9 },
+          { rule: 'css-only-rule', line: 16 },
+          { rule: 'css-only-rule', line: 22 },
         ],
       );
       expect(transform([result], filePath)).toHaveLength(0);
