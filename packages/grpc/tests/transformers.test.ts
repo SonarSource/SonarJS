@@ -259,6 +259,14 @@ describe('CSS rule configurations', () => {
     expect(result).toEqual({ key: 'block-no-empty', configurations: [] });
   });
 
+  it('should map S8773 to the keyframe duplicate selector stylelint rule', () => {
+    const result = buildCssRuleConfigurations('S8773', []);
+    expect(result).toEqual({
+      key: 'keyframe-block-no-duplicate-selectors',
+      configurations: [],
+    });
+  });
+
   describe('listParam', () => {
     it('should use default values when no params are sent', () => {
       // S4659: ignorePseudoClasses default is 'local,global,export,import,deep'
