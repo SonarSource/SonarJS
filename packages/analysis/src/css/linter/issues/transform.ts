@@ -31,6 +31,13 @@ function isValidPosition(value: number | undefined): value is number {
   return typeof value === 'number' && Number.isFinite(value) && value >= 1;
 }
 
+function getEmbeddedBlockLang(source: PostCSS.Source | undefined): string | undefined {
+  if (!source || !('lang' in source) || typeof source.lang !== 'string') {
+    return undefined;
+  }
+  return source.lang.toLowerCase();
+}
+
 /**
  * Returns true when a CSS-only rule warning came from a non-CSS embedded block
  * inside an HTML or Vue file (e.g. <style lang="scss">).
@@ -43,8 +50,10 @@ function isInNonCssEmbeddedBlock(
   warning: stylelint.Warning,
   result: stylelint.LintResult,
 ): boolean {
-  const root = (result as { _postcssResult?: { root?: unknown } })._postcssResult
-    ?.root as PostCSS.Root | PostCSS.Document | undefined;
+  const root = (result as { _postcssResult?: { root?: unknown } })._postcssResult?.root as
+    | PostCSS.Root
+    | PostCSS.Document
+    | undefined;
 
   if (root?.type !== 'document') {
     return false;
@@ -53,10 +62,11 @@ function isInNonCssEmbeddedBlock(
   const warnLine = warning.line ?? 1;
   for (const child of (root as PostCSS.Document).nodes) {
     if (child.type !== 'root') continue;
-    const lang = (child as PostCSS.Root).source?.lang?.toLowerCase();
+    const source = (child as PostCSS.Root).source;
+    const lang = getEmbeddedBlockLang(source);
     if (!lang || !NON_CSS_LANGS.has(lang)) continue;
-    const startLine = (child as PostCSS.Root).source?.start?.line ?? 0;
-    const endLine = (child as PostCSS.Root).source?.end?.line ?? Infinity;
+    const startLine = source?.start?.line ?? 0;
+    const endLine = source?.end?.line ?? Infinity;
     if (warnLine >= startLine && warnLine <= endLine) {
       return true;
     }
