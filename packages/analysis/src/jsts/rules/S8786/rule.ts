@@ -14,7 +14,7 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-// https://sonarsource.github.io/rspec/#/rspec/S5852/javascript
+// https://sonarsource.github.io/rspec/#/rspec/S8786/javascript
 
 import type { Rule } from 'eslint';
 import type { AST } from '@eslint-community/regexpp';
@@ -23,7 +23,7 @@ import { generateMeta } from '../helpers/generate-meta.js';
 import * as meta from './generated-meta.js';
 import { createRegExpRule } from '../helpers/regex/rule-template.js';
 
-const message = `Fix this regular expression that is vulnerable to exponential backtracking, as it can lead to denial of service.`;
+const message = `Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.`;
 
 export const rule: Rule.RuleModule = createRegExpRule(context => {
   return {
@@ -32,11 +32,9 @@ export const rule: Rule.RuleModule = createRegExpRule(context => {
       try {
         ({ reports } = analyse(node));
       } catch {
-        // `scslre` does not understand every regexp accepted by the JS parser.
-        // Skip the S5852 check for those literals instead of aborting analysis for the whole file.
         return;
       }
-      if (reports.some(r => r.exponential)) {
+      if (reports.some(r => !r.exponential)) {
         context.report({
           message,
           node: context.node,
