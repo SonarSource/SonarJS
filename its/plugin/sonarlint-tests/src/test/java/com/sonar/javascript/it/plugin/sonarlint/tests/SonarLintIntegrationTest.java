@@ -46,6 +46,7 @@ import org.sonarsource.sonarlint.core.test.utils.plugins.Plugin;
 class SonarLintIntegrationTest {
 
   private static final String CONFIG_SCOPE_ID = "CONFIG_SCOPE_ID";
+  private static final long RESULTS_TIMEOUT_SECONDS = isWindows() ? 60 : 15;
   private SonarLintBackendFixture.FakeSonarLintRpcClient client;
   private SonarLintTestRpcServer backend;
 
@@ -366,11 +367,15 @@ class SonarLintIntegrationTest {
 
   private void assertResults(Consumer<List<RaisedIssueDto>> assertionLambda) {
     await()
-      .atMost(15, TimeUnit.SECONDS)
+      .atMost(RESULTS_TIMEOUT_SECONDS, TimeUnit.SECONDS)
       .untilAsserted(() -> {
         var results = client.getRaisedIssuesForScopeIdAsList(CONFIG_SCOPE_ID);
         assertionLambda.accept(results);
       });
+  }
+
+  private static boolean isWindows() {
+    return System.getProperty("os.name", "").startsWith("Windows");
   }
 
   private void assertQuickFix(
