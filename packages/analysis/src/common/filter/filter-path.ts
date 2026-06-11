@@ -84,7 +84,7 @@ export function filterPathAndGetFileType(
   debug(`File ignored due to analysis scope filters: ${filePath}`);
 }
 
-export function classifyFilePath(
+function classifyFilePath(
   filePath: NormalizedAbsolutePath,
   params: FilterPathParams,
 ): FilePathClassification {

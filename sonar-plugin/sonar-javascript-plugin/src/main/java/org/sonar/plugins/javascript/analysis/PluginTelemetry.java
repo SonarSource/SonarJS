@@ -162,14 +162,6 @@ public class PluginTelemetry {
         GENERATED_SOURCES_PREFIX + "tagged-file-count",
         Integer.toString(generatedSources.getTaggedFileCount())
       );
-      keyMapToSave.put(
-        GENERATED_SOURCES_PREFIX + "out-of-scope-file-count",
-        Integer.toString(generatedSources.getOutOfScopeFileCount())
-      );
-      keyMapToSave.put(
-        GENERATED_SOURCES_PREFIX + "excluded-file-count",
-        Integer.toString(generatedSources.getExcludedFileCount())
-      );
       addValueList(
         keyMapToSave,
         GENERATED_SOURCES_PREFIX + "families",
@@ -177,12 +169,10 @@ public class PluginTelemetry {
           .getFamiliesList()
           .stream()
           .map(family ->
-            "%s:%d/%d/%d/%d".formatted(
+            "%s:%d/%d".formatted(
               family.getFamily(),
               family.getResolvedFileCount(),
-              family.getTaggedFileCount(),
-              family.getOutOfScopeFileCount(),
-              family.getExcludedFileCount()
+              family.getTaggedFileCount()
             )
           )
           .toList()
