@@ -2457,9 +2457,7 @@ plugins = [
     expect(await generatedSourceStore.isInitialized(configuration)).toBe(true);
   });
 
-  it('records generated-source observability for tagged, excluded, and out-of-scope files', async ({
-    mock,
-  }) => {
+  it('records generated-source observability for resolved and tagged files', async ({ mock }) => {
     const baseDir = await createTempBaseDir();
     const taggedFile = joinPaths(baseDir, 'src', 'generated', 'keep.ts');
     const excludedFile = joinPaths(baseDir, 'src', 'excluded', 'blocked.ts');
@@ -2613,7 +2611,7 @@ plugins = [
     }
   });
 
-  it('does not count generated files omitted from request.files as excluded', async () => {
+  it('counts generated files omitted from request.files only as resolved files', async () => {
     const baseDir = await createTempBaseDir();
     const firstGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'one.ts');
     const secondGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'two.ts');
@@ -2683,7 +2681,7 @@ plugins = [
     }
   });
 
-  it('counts explicitly requested generated files dropped by sanitization as excluded', async () => {
+  it('counts requested generated files dropped by sanitization only as resolved files', async () => {
     const baseDir = await createTempBaseDir();
     const keptGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'keep.ts');
     const droppedGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'blocked.ts');
@@ -2761,7 +2759,7 @@ plugins = [
     }
   });
 
-  it('counts js/ts-excluded generated files as excluded in observability without relogging exclusion debug lines on refresh', async ({
+  it('keeps js/ts-excluded generated files in resolved counts without relogging exclusion debug lines on refresh', async ({
     mock,
   }) => {
     const baseDir = await createTempBaseDir();
@@ -2842,9 +2840,7 @@ plugins = [
     }
   });
 
-  it('counts accept()-rejected in-scope generated files as excluded in observability', async ({
-    mock,
-  }) => {
+  it('counts accept()-rejected generated files only as resolved files', async ({ mock }) => {
     const baseDir = await createTempBaseDir();
     const rejectedGeneratedFile = joinPaths(baseDir, 'src', 'generated', 'blocked.ts');
     const originalConsoleLog = console.log;
@@ -2914,7 +2910,7 @@ plugins = [
     }
   });
 
-  it('relogs observability when tagged samples change across request.files refreshes', async ({
+  it('relogs generated-source detection when tagged files change across request.files refreshes', async ({
     mock,
   }) => {
     const baseDir = await createTempBaseDir();
@@ -2983,10 +2979,10 @@ plugins = [
         call => call.arguments[0],
       );
       expect(logs).toContain(
-        'DEBUG Generated source family=@graphql-codegen/cli tagged sample=src/generated/one.ts',
+        `DEBUG File ${firstGeneratedFile} was detected as generated source. (Disable detection with sonar.javascript.detectGeneratedCode=false)`,
       );
       expect(logs).toContain(
-        'DEBUG Generated source family=@graphql-codegen/cli tagged sample=src/generated/two.ts',
+        `DEBUG File ${secondGeneratedFile} was detected as generated source. (Disable detection with sonar.javascript.detectGeneratedCode=false)`,
       );
     } finally {
       console.log = originalConsoleLog;
@@ -2994,7 +2990,7 @@ plugins = [
     }
   });
 
-  it('refreshes observability when explicit request adds a generated file dropped by sanitization', async ({
+  it('keeps observability unchanged when explicit request adds a generated file dropped by sanitization', async ({
     mock,
   }) => {
     const baseDir = await createTempBaseDir();

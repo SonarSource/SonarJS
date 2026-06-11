@@ -89,12 +89,6 @@ export function logGeneratedSourceObservability(
     info(
       `Generated source family=${family.family} resolvedFiles=${family.resolvedFileCount} taggedFiles=${family.taggedFileCount}`,
     );
-
-    if (family.taggedFileCount > 0) {
-      debug(
-        `Generated source family=${family.family} tagged sample=${formatSamplePaths(baseDir, family.taggedPaths)}`,
-      );
-    }
   }
 
   for (const ignoredFamily of observability.ignoredDefaultDtsFamilies) {
@@ -111,11 +105,6 @@ export function createGeneratedSourceObservabilityLogKey(
   return JSON.stringify({
     baseDir,
     telemetry: observability.telemetry,
-    families: observability.families.map(family => ({
-      family: family.family,
-      taggedCount: family.taggedPaths.length,
-      taggedSample: family.taggedPaths.slice(0, OBSERVABILITY_SAMPLE_LIMIT),
-    })),
     ignoredDefaultDtsFamilies: observability.ignoredDefaultDtsFamilies.map(family => ({
       family: family.family,
       fileCount: family.filePaths.length,

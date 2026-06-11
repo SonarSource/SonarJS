@@ -117,8 +117,8 @@ After rebuilding the request-filtered `familyByFile` view, the store computes an
 
 That snapshot serves two purposes:
 
-- expose structured telemetry for the current generated-source state
-- emit logs for the currently tagged generated files and for declaration-only families that are intentionally omitted from observability totals
+- expose structured telemetry for the current generated-source counts
+- emit summary logs for those counts and for declaration-only families that are intentionally omitted from observability totals
 
 The snapshot is built from:
 
@@ -131,9 +131,7 @@ For each detector family, observability keeps only two counters:
 - `resolvedFileCount`: files derived for that family before request filtering
 - `taggedFileCount`: derived files currently visible to the analysis request
 
-The difference between those counters covers every resolved generated file that is not currently tagged. That includes files omitted by `request.files`, files outside the current source/test scope, files filtered by exclusions, and files later rejected by source-file acceptance checks such as size, bundle, or minification filters.
-
-The current implementation does not publish separate `excluded`, `out-of-scope`, or `resolved only` buckets, and it does not emit DEBUG samples for those cases.
+The difference between those counters is only an aggregate count of resolved files that are not currently tagged. The current implementation does not publish additional per-reason telemetry.
 
 Families whose resolved outputs are all `.d.ts` files excluded by the default `**/*.d.ts` JS/TS exclusion remain a special case: they are omitted from telemetry totals and logged separately at DEBUG level so the omission is explicit.
 
@@ -144,10 +142,9 @@ The store logs observability only when the content changes.
 The deduplication fingerprint includes:
 
 - aggregate telemetry totals
-- per-family tagged samples
 - ignored declaration-only family samples
 
-This means repeated refreshes do not re-emit identical INFO and DEBUG lines, but a request refresh that changes the tagged sample does produce a new observability log entry.
+This means repeated refreshes do not re-emit identical INFO and DEBUG lines, but a request refresh that changes the resolved or tagged counts does produce a new observability log entry.
 
 The fingerprint is intentionally preserved across cache invalidations, so rebuilding identical generated-source state does not log the same observability snapshot again.
 
@@ -346,10 +343,11 @@ When telemetry is non-empty, the store logs:
 
 - one INFO summary line for the current snapshot
 - one INFO line per family
-- DEBUG sample lines for tagged files when a family has tagged outputs
 - DEBUG lines for declaration-only families that are intentionally ignored from observability totals
 
 The sampled file paths are relative to `baseDir` and capped to a small fixed sample size.
+
+Separately, when at least one generated source file is currently tagged, the detection log path emits one INFO guidance line once per `baseDir` and DEBUG lines for the matched files. Those matched-file logs are deduplicated by tagged file fingerprint, but they are not part of structured telemetry.
 
 ### Declaration-only default exclusions
 
@@ -364,8 +362,8 @@ They are still reported through DEBUG logging so the omission is explicit rather
 - The mechanism is metadata-driven. It does not inspect source-file contents to guess whether a file is generated.
 - The store derives its data in `postProcess()` because it depends on outputs from other stores.
 - The store exposes only analyzable files for the current request, even if more generated files were derived for the project.
-- Request-driven analyses can change tagged samples without changing project-wide derived metadata.
-- JS/TS exclusions and source/test scope exclusions are different concepts and affect observability in different ways.
+- Request-driven analyses can change matched generated files without changing project-wide derived metadata.
+- Exclusions and scope filters affect whether resolved files are tagged; they do not produce separate telemetry fields.
 - The detector foundation is intentionally conservative about shell parsing and path resolution.
 
 ## Related Documentation
