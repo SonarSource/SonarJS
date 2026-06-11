@@ -21,14 +21,6 @@ import type { FileType } from '../../contracts/file.js';
 import { type FilterPathParams } from '../configuration.js';
 import { isTestRelatedFile } from '../../jsts/rules/helpers/test-file-pattern.js';
 
-type CandidateClassification = 'MATCH' | 'EXCLUDED' | 'OUT_OF_SCOPE' | 'NO_MATCH';
-
-type FilePathClassification =
-  | { status: 'MAIN'; fileType: 'MAIN' }
-  | { status: 'TEST'; fileType: 'TEST' }
-  | { status: 'EXCLUDED' }
-  | { status: 'OUT_OF_SCOPE' };
-
 /**
  * Checks whether a given file path is excluded based on JavaScript/TypeScript exclusion
  * properties sonar.typescript.exclusions and sonar.javascript.exclusions wildcards.
@@ -60,10 +52,8 @@ export function matchesJsTsExclusion(
 /**
  * Filters a given file path based on inclusion and exclusion rules and determines its type.
  * This mimics the scanner engine implementation of "sources", "tests" and its inclusion/exclusion
- * properties. This is only used when Node.js loops the whole project tree looking for files. This
- * only happens in ruling tests and in SonarLint during the first lookup to count files.
- * In SQS this will never be executed, as the request already contains the list of files as
- * digested by the scanner engine. The only path filter that we need to run in SQS is isJsTsExcluded.
+ * properties. It is used during filesystem traversal and as a defensive file-type inference
+ * fallback for explicit request files whose incoming type is not explicitly TEST.
  *
  * @param {NormalizedAbsolutePath} filePath - The file path to be evaluated (must be normalized absolute path).
  * @param {FilterPathParams} params - The path filtering parameters from configuration.
@@ -77,10 +67,14 @@ export function filterPathAndGetFileType(
   filePath: NormalizedAbsolutePath,
   params: FilterPathParams,
 ): FileType | undefined {
-  const classification = classifyFilePathInternal(filePath, params, true);
-  if (classification.status === 'TEST' || classification.status === 'MAIN') {
-    return classification.fileType;
+  if (matchesTestPath(filePath, params, true)) {
+    return 'TEST';
   }
+
+  if (matchesMainPath(filePath, params)) {
+    return 'MAIN';
+  }
+
   debug(`File ignored due to analysis scope filters: ${filePath}`);
 }
 
@@ -88,33 +82,11 @@ function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolute
   return paths.some(path => filePath === path || filePath.startsWith(`${path}/`));
 }
 
-function classifyFilePathInternal(
+function matchesTestPath(
   filePath: NormalizedAbsolutePath,
   params: FilterPathParams,
   logHeuristicTestDetection: boolean,
-): FilePathClassification {
-  const testClassification = classifyTestPath(filePath, params, logHeuristicTestDetection);
-  if (testClassification === 'MATCH') {
-    return { status: 'TEST', fileType: 'TEST' };
-  }
-
-  const mainClassification = classifyMainPath(filePath, params);
-  if (mainClassification === 'MATCH') {
-    return { status: 'MAIN', fileType: 'MAIN' };
-  }
-
-  if (mainClassification === 'EXCLUDED' || testClassification === 'EXCLUDED') {
-    return { status: 'EXCLUDED' };
-  }
-
-  return { status: 'OUT_OF_SCOPE' };
-}
-
-function classifyTestPath(
-  filePath: NormalizedAbsolutePath,
-  params: FilterPathParams,
-  logHeuristicTestDetection: boolean,
-): CandidateClassification {
+): boolean {
   const {
     testPaths,
     testExclusions,
@@ -133,7 +105,7 @@ function classifyTestPath(
       fileIsUnder(filePath, sourcesPaths) &&
       inclusions.some(inclusion => inclusion.match(filePath))
     ) {
-      return 'NO_MATCH';
+      return false;
     }
     const doesLookLikeTestFile = isTestRelatedFile(filePath, testFileExtensions);
     if (doesLookLikeTestFile && logHeuristicTestDetection) {
@@ -141,36 +113,33 @@ function classifyTestPath(
         `Test file detected: ${filePath}. If this file should not be treated as a test, please configure sonar.tests or adjust your sonar.sources/sonar.inclusions to explicitly include it as MAIN.`,
       );
     }
-    return doesLookLikeTestFile ? 'MATCH' : 'NO_MATCH';
+    return doesLookLikeTestFile;
   }
 
   if (!fileIsUnder(filePath, testPaths)) {
-    return 'NO_MATCH';
+    return false;
   }
   if (testExclusions?.some(exclusion => exclusion.match(filePath))) {
-    return 'EXCLUDED';
+    return false;
   }
   if (testInclusions?.length) {
-    return testInclusions.some(inclusion => inclusion.match(filePath)) ? 'MATCH' : 'OUT_OF_SCOPE';
+    return testInclusions.some(inclusion => inclusion.match(filePath));
   }
-  return 'MATCH';
+  return true;
 }
 
-function classifyMainPath(
-  filePath: NormalizedAbsolutePath,
-  params: FilterPathParams,
-): CandidateClassification {
+function matchesMainPath(filePath: NormalizedAbsolutePath, params: FilterPathParams): boolean {
   const { sourcesPaths, exclusions, inclusions } = params;
   if (!fileIsUnder(filePath, sourcesPaths)) {
-    return 'NO_MATCH';
+    return false;
   }
 
   if (exclusions?.some(exclusion => exclusion.match(filePath))) {
-    return 'EXCLUDED';
+    return false;
   }
 
   if (inclusions?.length) {
-    return inclusions.some(inclusion => inclusion.match(filePath)) ? 'MATCH' : 'OUT_OF_SCOPE';
+    return inclusions.some(inclusion => inclusion.match(filePath));
   }
-  return 'MATCH';
+  return true;
 }

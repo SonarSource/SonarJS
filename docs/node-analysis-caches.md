@@ -198,7 +198,7 @@ That precedence appears in several places:
 1. Input sanitization:
    `sanitizeInputFiles()` uses request-provided `fileContent` when available, and only reads disk when the caller omitted content.
 2. `sourceFileStore`:
-   when `inputFiles` are present, the store is directly reseeded from those files instead of reusing the previous analyzable set. The file-store request context also keeps the original explicit requested path set so downstream observability can distinguish “not requested” from “requested, then sanitized away”.
+   when `inputFiles` are present, the store is directly reseeded from those files instead of reusing the previous analyzable set. The file-store request context also keeps the original explicit requested path set so generated-source refreshes can detect explicit-request changes without recomputing derived metadata.
 3. Compiler host file reads:
    `IncrementalCompilerHost.readFile()` checks the current request context first, then the shared source-file content cache, then disk.
 4. Parsed AST reuse:

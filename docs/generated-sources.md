@@ -314,7 +314,7 @@ That is an important current limitation.
 
 The subsystem exposes two observability outputs:
 
-- structured telemetry via `generatedSourceStore.getObservabilityTelemetry()`
+- structured telemetry via `generatedSourceStore.getGeneratedSourcesTelemetry()`
 - log lines emitted during refresh through `logGeneratedSourceObservability()`
 
 ### Structured telemetry

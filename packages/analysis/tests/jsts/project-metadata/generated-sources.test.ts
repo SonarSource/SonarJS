@@ -2509,7 +2509,7 @@ plugins = [
       expect(generatedSourceStore.getFamily(taggedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
       expect(generatedSourceStore.getFamily(excludedFile)).toBeUndefined();
       expect(generatedSourceStore.getFamily(outOfScopeFile)).toBeUndefined();
-      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+      expect(generatedSourceStore.getGeneratedSourcesTelemetry()).toEqual({
         familyCount: 1,
         resolvedFileCount: 3,
         taggedFileCount: 1,
@@ -2664,7 +2664,7 @@ plugins = [
 
       expect(generatedSourceStore.getFamily(firstGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
       expect(generatedSourceStore.getFamily(secondGeneratedFile)).toBeUndefined();
-      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+      expect(generatedSourceStore.getGeneratedSourcesTelemetry()).toEqual({
         familyCount: 1,
         resolvedFileCount: 2,
         taggedFileCount: 1,
@@ -2742,7 +2742,7 @@ plugins = [
 
       expect(generatedSourceStore.getFamily(keptGeneratedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
       expect(generatedSourceStore.getFamily(droppedGeneratedFile)).toBeUndefined();
-      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+      expect(generatedSourceStore.getGeneratedSourcesTelemetry()).toEqual({
         familyCount: 1,
         resolvedFileCount: 2,
         taggedFileCount: 1,
@@ -2808,7 +2808,7 @@ plugins = [
 
       expect(generatedSourceStore.getFamily(taggedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
       expect(generatedSourceStore.getFamily(jsTsExcludedFile)).toBeUndefined();
-      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+      expect(generatedSourceStore.getGeneratedSourcesTelemetry()).toEqual({
         familyCount: 1,
         resolvedFileCount: 2,
         taggedFileCount: 1,
@@ -2882,7 +2882,7 @@ plugins = [
 
       expect(sourceFileStore.getFiles()[rejectedGeneratedFile]).toBeUndefined();
       expect(generatedSourceStore.getFamily(rejectedGeneratedFile)).toBeUndefined();
-      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+      expect(generatedSourceStore.getGeneratedSourcesTelemetry()).toEqual({
         familyCount: 1,
         resolvedFileCount: 1,
         taggedFileCount: 0,
@@ -3061,7 +3061,7 @@ plugins = [
       );
 
       await initFileStores(configuration, firstRequestContext);
-      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+      expect(generatedSourceStore.getGeneratedSourcesTelemetry()).toEqual({
         familyCount: 1,
         resolvedFileCount: 2,
         taggedFileCount: 1,
@@ -3076,7 +3076,7 @@ plugins = [
 
       await generatedSourceStore.isInitialized(configuration, secondRequestContext);
 
-      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+      expect(generatedSourceStore.getGeneratedSourcesTelemetry()).toEqual({
         familyCount: 1,
         resolvedFileCount: 2,
         taggedFileCount: 1,
@@ -3170,7 +3170,7 @@ plugins = [
       await initFileStores(firstConfiguration, firstRequestContext);
 
       expect(generatedSourceStore.getFamily(generatedFile)).toBeUndefined();
-      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+      expect(generatedSourceStore.getGeneratedSourcesTelemetry()).toEqual({
         familyCount: 1,
         resolvedFileCount: 1,
         taggedFileCount: 0,
@@ -3188,7 +3188,7 @@ plugins = [
       ).toBe(true);
 
       expect(generatedSourceStore.getFamily(generatedFile)).toEqual(GRAPHQL_CODEGEN_FAMILY);
-      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+      expect(generatedSourceStore.getGeneratedSourcesTelemetry()).toEqual({
         familyCount: 1,
         resolvedFileCount: 1,
         taggedFileCount: 1,
@@ -3248,7 +3248,7 @@ plugins = [
 
       expect(sourceFileStore.getFiles()[declarationFile]).toBeUndefined();
       expect(generatedSourceStore.getFamily(declarationFile)).toBeUndefined();
-      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+      expect(generatedSourceStore.getGeneratedSourcesTelemetry()).toEqual({
         familyCount: 0,
         resolvedFileCount: 0,
         taggedFileCount: 0,
@@ -3314,7 +3314,7 @@ plugins = [
 
       expect(sourceFileStore.getFiles()[declarationFile]).toBeUndefined();
       expect(generatedSourceStore.getFamily(declarationFile)).toBeUndefined();
-      expect(generatedSourceStore.getObservabilityTelemetry()).toEqual({
+      expect(generatedSourceStore.getGeneratedSourcesTelemetry()).toEqual({
         familyCount: 0,
         resolvedFileCount: 0,
         taggedFileCount: 0,

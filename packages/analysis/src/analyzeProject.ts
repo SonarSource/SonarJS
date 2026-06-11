@@ -84,7 +84,7 @@ export async function analyzeProject(
   const { baseDir, environments, globals, sonarlint, canAccessFileSystem } = configuration;
   resetProjectAnalysisTelemetry();
   getProjectAnalysisTelemetryCollector().recordGeneratedSources(
-    generatedSourceStore.getObservabilityTelemetry(),
+    generatedSourceStore.getGeneratedSourcesTelemetry(),
   );
   const jsTsConfigFields = getJsTsConfigFields(configuration);
   setSourceFilesContext(filesToAnalyze);

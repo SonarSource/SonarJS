@@ -69,7 +69,7 @@ class GeneratedSourceStore implements FileStore {
   private resolvedFiles = new Set<NormalizedAbsolutePath>();
   private configPaths = new Set<NormalizedAbsolutePath>();
   private watchedOutputPaths = new Set<NormalizedAbsolutePath>();
-  private observabilityTelemetry = createEmptyGeneratedSourcesTelemetry();
+  private generatedSourcesTelemetry = createEmptyGeneratedSourcesTelemetry();
   private lastLoggedGeneratedSourceDetectionKey: string | undefined = undefined;
   private readonly generatedSourceDetectionInfoBaseDirs = new Set<NormalizedAbsolutePath>();
   // Preserve the last logged fingerprint across cache invalidations so repeated analyses only
@@ -113,8 +113,8 @@ class GeneratedSourceStore implements FileStore {
     return this.familyByFile.get(filePath);
   }
 
-  getObservabilityTelemetry(): GeneratedSourcesTelemetry {
-    return cloneGeneratedSourcesTelemetry(this.observabilityTelemetry);
+  getGeneratedSourcesTelemetry(): GeneratedSourcesTelemetry {
+    return cloneGeneratedSourcesTelemetry(this.generatedSourcesTelemetry);
   }
 
   dirtyCachesIfNeeded(configuration: Configuration) {
@@ -249,7 +249,7 @@ class GeneratedSourceStore implements FileStore {
     this.resolvedFiles = new Set();
     this.configPaths = new Set();
     this.watchedOutputPaths = new Set();
-    this.observabilityTelemetry = createEmptyGeneratedSourcesTelemetry();
+    this.generatedSourcesTelemetry = createEmptyGeneratedSourcesTelemetry();
   }
 
   private getRequestFilesKey(
@@ -291,7 +291,7 @@ class GeneratedSourceStore implements FileStore {
       this.familyByFile,
       configuration,
     );
-    this.observabilityTelemetry = observability.telemetry;
+    this.generatedSourcesTelemetry = observability.telemetry;
     const detectionLogKey = createGeneratedSourceDetectionLogKey(this.baseDir, observability);
     if (detectionLogKey !== this.lastLoggedGeneratedSourceDetectionKey) {
       this.lastLoggedGeneratedSourceDetectionKey = detectionLogKey;
