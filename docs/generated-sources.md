@@ -118,29 +118,24 @@ After rebuilding the request-filtered `familyByFile` view, the store computes an
 That snapshot serves two purposes:
 
 - expose structured telemetry for the current generated-source state
-- emit logs that explain why derived generated files are visible, excluded, or out of scope
+- emit logs for the currently tagged generated files and for declaration-only families that are intentionally omitted from observability totals
 
 The snapshot is built from:
 
 - `resolvedFamilyByFile`: every generated file derived for the project
 - `taggedFamilyByFile`: the subset currently visible to the analysis request
-- the file-store request context: the surviving `analyzableFiles` plus the original explicit `requestedFilePaths` when the request supplied `request.files`
 - the current analysis configuration
 
-For each detector family, every resolved generated file contributes to one of these observability buckets:
+For each detector family, observability keeps only two counters:
 
-- **tagged**: the file is derived and visible to the current request
-- **excluded**: the file is filtered out either by JS/TS exclusions, by source/test scope exclusions, or by source-file acceptance checks such as size, bundle, or minification filters
-- **out of scope**: the file is outside the current analysis scope
-- **resolved only**: the file is derived but intentionally counted only in `resolvedFileCount`
+- `resolvedFileCount`: files derived for that family before request filtering
+- `taggedFileCount`: derived files currently visible to the analysis request
 
-The last case happens only in request-driven analyses when a file is analyzable for the project but absent from the current `request.files` subset. Those files are not reported as excluded.
+The difference between those counters covers every resolved generated file that is not currently tagged. That includes files omitted by `request.files`, files outside the current source/test scope, files filtered by exclusions, and files later rejected by source-file acceptance checks such as size, bundle, or minification filters.
 
-If a request explicitly named a generated file but sanitization removed it before analysis, observability reports that file as `excluded`, not `resolved only`. That covers request-driven rejections from source-file acceptance checks such as size, bundle, or minification filters.
+The current implementation does not publish separate `excluded`, `out-of-scope`, or `resolved only` buckets, and it does not emit DEBUG samples for those cases.
 
-In full-project filesystem analyses, an in-scope generated file that is not tagged is also treated as excluded rather than `resolved only`. That is the case where the file passed path-based scope checks but `sourceFileStore` filtered it out later through content-based acceptance rules.
-
-For JS/TS exclusions specifically, observability classification uses a non-logging exclusion match. That detail matters because the store may rebuild buckets repeatedly during refreshes, and those refreshes should not emit extra generic `File ignored due to js/ts exclusions` DEBUG lines outside the deduplicated observability output.
+Families whose resolved outputs are all `.d.ts` files excluded by the default `**/*.d.ts` JS/TS exclusion remain a special case: they are omitted from telemetry totals and logged separately at DEBUG level so the omission is explicit.
 
 ### 7. Logs are deduplicated across refreshes
 
@@ -149,7 +144,7 @@ The store logs observability only when the content changes.
 The deduplication fingerprint includes:
 
 - aggregate telemetry totals
-- per-family tagged, excluded, and out-of-scope samples
+- per-family tagged samples
 - ignored declaration-only family samples
 
 This means repeated refreshes do not re-emit identical INFO and DEBUG lines, but a request refresh that changes the tagged sample does produce a new observability log entry.
@@ -351,7 +346,7 @@ When telemetry is non-empty, the store logs:
 
 - one INFO summary line for the current snapshot
 - one INFO line per family
-- DEBUG sample lines for tagged, excluded, and out-of-scope buckets when those buckets are non-empty
+- DEBUG sample lines for tagged files when a family has tagged outputs
 - DEBUG lines for declaration-only families that are intentionally ignored from observability totals
 
 The sampled file paths are relative to `baseDir` and capped to a small fixed sample size.
