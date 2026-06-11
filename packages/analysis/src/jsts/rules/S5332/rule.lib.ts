@@ -20,6 +20,7 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { URL } from 'node:url';
 import { getFullyQualifiedName } from '../helpers/module.js';
+import { getParent } from '../helpers/ancestor.js';
 import { getProperty, getValueOfExpression } from '../helpers/ast.js';
 import { normalizeFQN } from '../helpers/aws/cdk.js';
 
@@ -176,13 +177,21 @@ export const rule: Rule.RuleModule = {
       }
     }
 
+    function isExceptionUrl(value: string, node: estree.Node) {
+      if (INSECURE_PROTOCOLS.includes(value)) {
+        const parent = getParent(context, node);
+        return !(parent?.type === 'BinaryExpression' && parent.operator === '+');
+      }
+      return hasExceptionHost(value);
+    }
+
     return {
       Literal: (node: estree.Node) => {
         const literal = node as estree.Literal;
         if (typeof literal.value === 'string') {
           const value = literal.value.trim().toLocaleLowerCase();
           const insecure = INSECURE_PROTOCOLS.find(protocol => value.startsWith(protocol));
-          if (insecure && !hasExceptionHost(value)) {
+          if (insecure && !isExceptionUrl(value, node)) {
             const protocol = insecure.substring(0, insecure.indexOf(':'));
             context.report({
               ...getMessageAndData(protocol),

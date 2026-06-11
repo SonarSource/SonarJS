@@ -163,6 +163,17 @@ describe('S5332', () => {
         },
         {
           code: `
+      // Bare protocol strings are not flagged — only flagged when used in concatenation
+      url = "http://";
+      url = "ftp://";
+      url = "ws://";
+      url = "mqtt://";
+
+      // Protocol used as a check or transformation is not flagged
+      url = 'http://'.replace('', foo);
+      url = 'http://'.replace('', foo) + bar;
+      url.startsWith("http://");
+
       // Protocol appearing mid-string is not flagged — rule only triggers when the string starts with the protocol
       doc = "Make sure to use https instead of http://";
       doc = "some text that mentions http://";
@@ -339,23 +350,6 @@ describe('S5332', () => {
           code: `
       url = "http://someSubdomain.xmlns.com";
       url = "http://someUrl.com?url=xmlns.com";
-      `,
-          errors: 2,
-        },
-        {
-          code: `
-      // Bare cleartext protocol scheme is flagged regardless of concatenation context
-      url = "http://";
-      url = "ftp://";
-      url = "ws://";
-      url = "mqtt://";
-      `,
-          errors: 4,
-        },
-        {
-          code: `
-      url = 'http://'.replace('', foo);
-      url = 'http://'.replace('', foo) + bar;
       `,
           errors: 2,
         },
