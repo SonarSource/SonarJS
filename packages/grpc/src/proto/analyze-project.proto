@@ -292,8 +292,7 @@ message GeneratedSourcesTelemetry {
   int32 family_count = 1;
   int32 resolved_file_count = 2;
   int32 tagged_file_count = 3;
-  int32 out_of_scope_file_count = 4;
-  int32 excluded_file_count = 5;
+  reserved 4, 5;
   repeated GeneratedSourceFamilyTelemetry families = 6;
 }
 
@@ -301,6 +300,5 @@ message GeneratedSourceFamilyTelemetry {
   string family = 1;
   int32 resolved_file_count = 2;
   int32 tagged_file_count = 3;
-  int32 out_of_scope_file_count = 4;
-  int32 excluded_file_count = 5;
+  reserved 4, 5;
 }

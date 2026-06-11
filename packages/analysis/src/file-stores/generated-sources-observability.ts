@@ -21,8 +21,7 @@ import {
 } from '../../../shared/src/helpers/files.js';
 import { debug, info } from '../../../shared/src/helpers/logging.js';
 import type { Configuration } from '../common/configuration.js';
-import { getFilterPathParams } from '../common/configuration.js';
-import { classifyFilePath, matchesJsTsExclusion } from '../common/filter/filter-path.js';
+import { matchesJsTsExclusion } from '../common/filter/filter-path.js';
 import {
   type GeneratedSourceFamilyTelemetry,
   type GeneratedSourcesTelemetry,
@@ -36,8 +35,6 @@ const GENERATED_SOURCE_DETECTION_INFO =
 
 type GeneratedSourceFamilyObservability = GeneratedSourceFamilyTelemetry & {
   taggedPaths: NormalizedAbsolutePath[];
-  excludedPaths: NormalizedAbsolutePath[];
-  outOfScopePaths: NormalizedAbsolutePath[];
 };
 
 type GeneratedSourceObservability = {
@@ -53,9 +50,7 @@ export function buildGeneratedSourceObservability(
   resolvedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
   configuration: Configuration,
-  requestedFilePaths?: ReadonlySet<NormalizedAbsolutePath>,
 ): GeneratedSourceObservability {
-  const filterPathParams = getFilterPathParams(configuration);
   const pathsByFamily = collectGeneratedSourcePathsByFamily(resolvedFamilyByFile);
   const families: GeneratedSourceFamilyObservability[] = [];
   const ignoredDefaultDtsFamilies: GeneratedSourceObservability['ignoredDefaultDtsFamilies'] = [];
@@ -68,15 +63,7 @@ export function buildGeneratedSourceObservability(
       continue;
     }
 
-    families.push(
-      summarizeGeneratedSourceFamily(
-        family,
-        filePaths,
-        taggedFamilyByFile,
-        filterPathParams,
-        requestedFilePaths,
-      ),
-    );
+    families.push(summarizeGeneratedSourceFamily(family, filePaths, taggedFamilyByFile));
   }
 
   const telemetryFamilies = families.map(toGeneratedSourceFamilyTelemetry);
@@ -94,30 +81,18 @@ export function logGeneratedSourceObservability(
 ) {
   if (observability.telemetry.familyCount > 0) {
     info(
-      `Generated source observability: families=${observability.telemetry.familyCount}, resolvedFiles=${observability.telemetry.resolvedFileCount}, taggedFiles=${observability.telemetry.taggedFileCount}, outOfScopeFiles=${observability.telemetry.outOfScopeFileCount}, excludedFiles=${observability.telemetry.excludedFileCount}`,
+      `Generated source observability: families=${observability.telemetry.familyCount}, resolvedFiles=${observability.telemetry.resolvedFileCount}, taggedFiles=${observability.telemetry.taggedFileCount}`,
     );
   }
 
   for (const family of observability.families) {
     info(
-      `Generated source family=${family.family} resolvedFiles=${family.resolvedFileCount} taggedFiles=${family.taggedFileCount} outOfScopeFiles=${family.outOfScopeFileCount} excludedFiles=${family.excludedFileCount}`,
+      `Generated source family=${family.family} resolvedFiles=${family.resolvedFileCount} taggedFiles=${family.taggedFileCount}`,
     );
 
     if (family.taggedFileCount > 0) {
       debug(
         `Generated source family=${family.family} tagged sample=${formatSamplePaths(baseDir, family.taggedPaths)}`,
-      );
-    }
-
-    if (family.outOfScopePaths.length > 0) {
-      debug(
-        `Generated source family=${family.family} outOfScope sample=${formatSamplePaths(baseDir, family.outOfScopePaths)}`,
-      );
-    }
-
-    if (family.excludedPaths.length > 0) {
-      debug(
-        `Generated source family=${family.family} excluded sample=${formatSamplePaths(baseDir, family.excludedPaths)}`,
       );
     }
   }
@@ -140,10 +115,6 @@ export function createGeneratedSourceObservabilityLogKey(
       family: family.family,
       taggedCount: family.taggedPaths.length,
       taggedSample: family.taggedPaths.slice(0, OBSERVABILITY_SAMPLE_LIMIT),
-      outOfScopeCount: family.outOfScopePaths.length,
-      outOfScopeSample: family.outOfScopePaths.slice(0, OBSERVABILITY_SAMPLE_LIMIT),
-      excludedCount: family.excludedPaths.length,
-      excludedSample: family.excludedPaths.slice(0, OBSERVABILITY_SAMPLE_LIMIT),
     })),
     ignoredDefaultDtsFamilies: observability.ignoredDefaultDtsFamilies.map(family => ({
       family: family.family,
@@ -200,56 +171,19 @@ function summarizeGeneratedSourceFamily(
   family: string,
   filePaths: readonly NormalizedAbsolutePath[],
   taggedFamilyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
-  filterPathParams: ReturnType<typeof getFilterPathParams>,
-  requestedFilePaths?: ReadonlySet<NormalizedAbsolutePath>,
 ): GeneratedSourceFamilyObservability {
   const familySummary: GeneratedSourceFamilyObservability = {
     family,
     resolvedFileCount: filePaths.length,
     taggedFileCount: 0,
-    outOfScopeFileCount: 0,
-    excludedFileCount: 0,
     taggedPaths: [],
-    excludedPaths: [],
-    outOfScopePaths: [],
   };
 
   for (const filePath of filePaths) {
     if (taggedFamilyByFile.get(filePath) === family) {
       familySummary.taggedFileCount += 1;
       familySummary.taggedPaths.push(filePath);
-      continue;
     }
-
-    if (matchesJsTsExclusion(filePath, filterPathParams.jsTsExclusions)) {
-      familySummary.excludedFileCount += 1;
-      familySummary.excludedPaths.push(filePath);
-      continue;
-    }
-
-    const pathClassification = classifyFilePath(filePath, filterPathParams);
-    if (pathClassification.status === 'OUT_OF_SCOPE') {
-      familySummary.outOfScopeFileCount += 1;
-      familySummary.outOfScopePaths.push(filePath);
-      continue;
-    }
-
-    if (pathClassification.status === 'EXCLUDED') {
-      familySummary.excludedFileCount += 1;
-      familySummary.excludedPaths.push(filePath);
-      continue;
-    }
-
-    if (requestedFilePaths?.has(filePath) === false) {
-      continue;
-    }
-
-    familySummary.excludedFileCount += 1;
-    familySummary.excludedPaths.push(filePath);
-    // In explicit request-driven analyses, in-scope files omitted from request.files remain
-    // counted only in resolvedFileCount. If the file was explicitly requested but is still
-    // untagged here, sanitization/source-file acceptance rejected it and observability reports it
-    // as excluded. Full-project analyses likewise treat in-scope untagged files as excluded.
   }
 
   return familySummary;
@@ -262,8 +196,6 @@ function toGeneratedSourceFamilyTelemetry(
     family: family.family,
     resolvedFileCount: family.resolvedFileCount,
     taggedFileCount: family.taggedFileCount,
-    outOfScopeFileCount: family.outOfScopeFileCount,
-    excludedFileCount: family.excludedFileCount,
   };
 }
 
@@ -274,8 +206,6 @@ function aggregateGeneratedSourcesTelemetry(
     familyCount: families.length,
     resolvedFileCount: families.reduce((count, family) => count + family.resolvedFileCount, 0),
     taggedFileCount: families.reduce((count, family) => count + family.taggedFileCount, 0),
-    outOfScopeFileCount: families.reduce((count, family) => count + family.outOfScopeFileCount, 0),
-    excludedFileCount: families.reduce((count, family) => count + family.excludedFileCount, 0),
     families,
   };
 }

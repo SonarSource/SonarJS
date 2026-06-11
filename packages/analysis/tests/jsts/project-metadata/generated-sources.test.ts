@@ -2515,15 +2515,11 @@ plugins = [
         familyCount: 1,
         resolvedFileCount: 3,
         taggedFileCount: 1,
-        outOfScopeFileCount: 1,
-        excludedFileCount: 1,
         families: [
           {
             family: GRAPHQL_CODEGEN_FAMILY,
             resolvedFileCount: 3,
             taggedFileCount: 1,
-            outOfScopeFileCount: 1,
-            excludedFileCount: 1,
           },
         ],
       });
@@ -2538,16 +2534,10 @@ plugins = [
         'Some of the project files were detected as generated source files. Enable debug logging to see which files matched. You can disable generated-source detection by setting sonar.javascript.detectGeneratedCode=false',
       );
       expect(logs).toContain(
-        'Generated source observability: families=1, resolvedFiles=3, taggedFiles=1, outOfScopeFiles=1, excludedFiles=1',
+        'Generated source observability: families=1, resolvedFiles=3, taggedFiles=1',
       );
       expect(logs).toContain(
-        'Generated source family=@graphql-codegen/cli resolvedFiles=3 taggedFiles=1 outOfScopeFiles=1 excludedFiles=1',
-      );
-      expect(logs).toContain(
-        'DEBUG Generated source family=@graphql-codegen/cli excluded sample=src/excluded/blocked.ts',
-      );
-      expect(logs).toContain(
-        'DEBUG Generated source family=@graphql-codegen/cli outOfScope sample=outside/api/index.ts',
+        'Generated source family=@graphql-codegen/cli resolvedFiles=3 taggedFiles=1',
       );
 
       await generatedSourceStore.postProcess(configuration, {
@@ -2575,15 +2565,13 @@ plugins = [
       expect(
         refreshedLogs.filter(
           log =>
-            log ===
-            'Generated source observability: families=1, resolvedFiles=3, taggedFiles=1, outOfScopeFiles=1, excludedFiles=1',
+            log === 'Generated source observability: families=1, resolvedFiles=3, taggedFiles=1',
         ),
       ).toHaveLength(1);
       expect(
         refreshedLogs.filter(
           log =>
-            log ===
-            'Generated source family=@graphql-codegen/cli resolvedFiles=3 taggedFiles=1 outOfScopeFiles=1 excludedFiles=1',
+            log === 'Generated source family=@graphql-codegen/cli resolvedFiles=3 taggedFiles=1',
         ),
       ).toHaveLength(1);
 
@@ -2610,15 +2598,13 @@ plugins = [
       expect(
         reinitializedLogs.filter(
           log =>
-            log ===
-            'Generated source observability: families=1, resolvedFiles=3, taggedFiles=1, outOfScopeFiles=1, excludedFiles=1',
+            log === 'Generated source observability: families=1, resolvedFiles=3, taggedFiles=1',
         ),
       ).toHaveLength(1);
       expect(
         reinitializedLogs.filter(
           log =>
-            log ===
-            'Generated source family=@graphql-codegen/cli resolvedFiles=3 taggedFiles=1 outOfScopeFiles=1 excludedFiles=1',
+            log === 'Generated source family=@graphql-codegen/cli resolvedFiles=3 taggedFiles=1',
         ),
       ).toHaveLength(1);
     } finally {
@@ -2684,15 +2670,11 @@ plugins = [
         familyCount: 1,
         resolvedFileCount: 2,
         taggedFileCount: 1,
-        outOfScopeFileCount: 0,
-        excludedFileCount: 0,
         families: [
           {
             family: GRAPHQL_CODEGEN_FAMILY,
             resolvedFileCount: 2,
             taggedFileCount: 1,
-            outOfScopeFileCount: 0,
-            excludedFileCount: 0,
           },
         ],
       });
@@ -2766,15 +2748,11 @@ plugins = [
         familyCount: 1,
         resolvedFileCount: 2,
         taggedFileCount: 1,
-        outOfScopeFileCount: 0,
-        excludedFileCount: 1,
         families: [
           {
             family: GRAPHQL_CODEGEN_FAMILY,
             resolvedFileCount: 2,
             taggedFileCount: 1,
-            outOfScopeFileCount: 0,
-            excludedFileCount: 1,
           },
         ],
       });
@@ -2836,15 +2814,11 @@ plugins = [
         familyCount: 1,
         resolvedFileCount: 2,
         taggedFileCount: 1,
-        outOfScopeFileCount: 0,
-        excludedFileCount: 1,
         families: [
           {
             family: GRAPHQL_CODEGEN_FAMILY,
             resolvedFileCount: 2,
             taggedFileCount: 1,
-            outOfScopeFileCount: 0,
-            excludedFileCount: 1,
           },
         ],
       });
@@ -2916,15 +2890,11 @@ plugins = [
         familyCount: 1,
         resolvedFileCount: 1,
         taggedFileCount: 0,
-        outOfScopeFileCount: 0,
-        excludedFileCount: 1,
         families: [
           {
             family: GRAPHQL_CODEGEN_FAMILY,
             resolvedFileCount: 1,
             taggedFileCount: 0,
-            outOfScopeFileCount: 0,
-            excludedFileCount: 1,
           },
         ],
       });
@@ -2937,9 +2907,6 @@ plugins = [
       );
       expect(logs).not.toContain(
         'Some of the project files were detected as generated source files. Enable debug logging to see which files matched. You can disable generated-source detection by setting sonar.javascript.detectGeneratedCode=false',
-      );
-      expect(logs).toContain(
-        'DEBUG Generated source family=@graphql-codegen/cli excluded sample=src/generated/blocked.ts',
       );
     } finally {
       console.log = originalConsoleLog;
@@ -3102,15 +3069,11 @@ plugins = [
         familyCount: 1,
         resolvedFileCount: 2,
         taggedFileCount: 1,
-        outOfScopeFileCount: 0,
-        excludedFileCount: 0,
         families: [
           {
             family: GRAPHQL_CODEGEN_FAMILY,
             resolvedFileCount: 2,
             taggedFileCount: 1,
-            outOfScopeFileCount: 0,
-            excludedFileCount: 0,
           },
         ],
       });
@@ -3121,15 +3084,11 @@ plugins = [
         familyCount: 1,
         resolvedFileCount: 2,
         taggedFileCount: 1,
-        outOfScopeFileCount: 0,
-        excludedFileCount: 1,
         families: [
           {
             family: GRAPHQL_CODEGEN_FAMILY,
             resolvedFileCount: 2,
             taggedFileCount: 1,
-            outOfScopeFileCount: 0,
-            excludedFileCount: 1,
           },
         ],
       });
@@ -3219,15 +3178,11 @@ plugins = [
         familyCount: 1,
         resolvedFileCount: 1,
         taggedFileCount: 0,
-        outOfScopeFileCount: 0,
-        excludedFileCount: 1,
         families: [
           {
             family: GRAPHQL_CODEGEN_FAMILY,
             resolvedFileCount: 1,
             taggedFileCount: 0,
-            outOfScopeFileCount: 0,
-            excludedFileCount: 1,
           },
         ],
       });
@@ -3241,15 +3196,11 @@ plugins = [
         familyCount: 1,
         resolvedFileCount: 1,
         taggedFileCount: 1,
-        outOfScopeFileCount: 0,
-        excludedFileCount: 0,
         families: [
           {
             family: GRAPHQL_CODEGEN_FAMILY,
             resolvedFileCount: 1,
             taggedFileCount: 1,
-            outOfScopeFileCount: 0,
-            excludedFileCount: 0,
           },
         ],
       });
@@ -3305,8 +3256,6 @@ plugins = [
         familyCount: 0,
         resolvedFileCount: 0,
         taggedFileCount: 0,
-        outOfScopeFileCount: 0,
-        excludedFileCount: 0,
         families: [],
       });
 
@@ -3314,7 +3263,7 @@ plugins = [
         call => call.arguments[0],
       );
       expect(logs).not.toContain(
-        'Generated source observability: families=0, resolvedFiles=0, taggedFiles=0, outOfScopeFiles=0, excludedFiles=0',
+        'Generated source observability: families=0, resolvedFiles=0, taggedFiles=0',
       );
       expect(logs).toContain(
         'DEBUG Generated source family=@graphql-codegen/cli ignored for observability because all resolved outputs are declaration files excluded by default **/*.d.ts: src/generated/operations.d.ts',
@@ -3373,8 +3322,6 @@ plugins = [
         familyCount: 0,
         resolvedFileCount: 0,
         taggedFileCount: 0,
-        outOfScopeFileCount: 0,
-        excludedFileCount: 0,
         families: [],
       });
 
@@ -3382,7 +3329,7 @@ plugins = [
         call => call.arguments[0],
       );
       expect(logs).not.toContain(
-        'Generated source family=@graphql-codegen/cli resolvedFiles=1 taggedFiles=0 outOfScopeFiles=0 excludedFiles=1',
+        'Generated source family=@graphql-codegen/cli resolvedFiles=1 taggedFiles=0',
       );
       expect(logs).toContain(
         'DEBUG Generated source family=@graphql-codegen/cli ignored for observability because all resolved outputs are declaration files excluded by default **/*.d.ts: src/generated/operations.d.ts',

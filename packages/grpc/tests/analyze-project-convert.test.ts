@@ -42,15 +42,11 @@ function createProjectAnalysisTelemetry() {
       familyCount: 1,
       resolvedFileCount: 4,
       taggedFileCount: 2,
-      outOfScopeFileCount: 1,
-      excludedFileCount: 1,
       families: [
         {
           family: '@graphql-codegen/cli',
           resolvedFileCount: 4,
           taggedFileCount: 2,
-          outOfScopeFileCount: 1,
-          excludedFileCount: 1,
         },
       ],
     },

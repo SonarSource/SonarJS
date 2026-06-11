@@ -175,14 +175,10 @@ function toGeneratedSourcesTelemetry(
     familyCount: telemetry.familyCount,
     resolvedFileCount: telemetry.resolvedFileCount,
     taggedFileCount: telemetry.taggedFileCount,
-    outOfScopeFileCount: telemetry.outOfScopeFileCount,
-    excludedFileCount: telemetry.excludedFileCount,
     families: telemetry.families.map(family => ({
       family: family.family,
       resolvedFileCount: family.resolvedFileCount,
       taggedFileCount: family.taggedFileCount,
-      outOfScopeFileCount: family.outOfScopeFileCount,
-      excludedFileCount: family.excludedFileCount,
     })),
   };
 }

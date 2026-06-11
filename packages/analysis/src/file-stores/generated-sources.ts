@@ -296,7 +296,6 @@ class GeneratedSourceStore implements FileStore {
       this.derivedFamilyByFile,
       this.familyByFile,
       configuration,
-      requestContext?.isExplicitRequest ? getRequestedFilePaths(requestContext) : undefined,
     );
     this.observabilityTelemetry = observability.telemetry;
     const detectionLogKey = createGeneratedSourceDetectionLogKey(this.baseDir, observability);

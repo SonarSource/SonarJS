@@ -301,8 +301,6 @@ describe('SonarQube project analysis', () => {
             familyCount: 0,
             resolvedFileCount: 0,
             taggedFileCount: 0,
-            outOfScopeFileCount: 0,
-            excludedFileCount: 0,
             families: [],
           },
           programCreation: {

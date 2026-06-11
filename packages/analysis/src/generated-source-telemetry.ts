@@ -19,16 +19,12 @@ export type GeneratedSourceFamilyTelemetry = {
   family: string;
   resolvedFileCount: number;
   taggedFileCount: number;
-  outOfScopeFileCount: number;
-  excludedFileCount: number;
 };
 
 export type GeneratedSourcesTelemetry = {
   familyCount: number;
   resolvedFileCount: number;
   taggedFileCount: number;
-  outOfScopeFileCount: number;
-  excludedFileCount: number;
   families: GeneratedSourceFamilyTelemetry[];
 };
 
@@ -37,8 +33,6 @@ export function createEmptyGeneratedSourcesTelemetry(): GeneratedSourcesTelemetr
     familyCount: 0,
     resolvedFileCount: 0,
     taggedFileCount: 0,
-    outOfScopeFileCount: 0,
-    excludedFileCount: 0,
     families: [],
   };
 }
