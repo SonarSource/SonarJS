@@ -29,12 +29,6 @@
 "Ghost:core/server/config/index.js": [
 449
 ],
-"Ghost:core/server/data/meta/schema.js": [
-20,
-50,
-64,
-80
-],
 "Ghost:core/server/data/xml/rss/index.js": [
 133
 ],
@@ -93,10 +87,6 @@
 ],
 "Ghost:core/test/functional/routes/api/users_spec.js": [
 319
-],
-"Ghost:core/test/functional/routes/frontend_spec.js": [
-811,
-887
 ],
 "Ghost:core/test/integration/api/api_configuration_spec.js": [
 25
@@ -218,7 +208,6 @@
 14,
 17,
 25,
-32,
 37,
 39,
 40,
@@ -226,23 +215,19 @@
 49,
 59,
 61,
-79,
 84,
 91,
 100,
 101,
-108,
 111,
 113,
 122,
 123,
-133,
 136,
 139,
 148,
 149,
 155,
-160,
 165,
 166
 ],
