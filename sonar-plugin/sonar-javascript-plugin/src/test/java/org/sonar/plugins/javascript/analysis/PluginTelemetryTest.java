@@ -151,19 +151,11 @@ class PluginTelemetryTest {
       "1"
     );
     verify(ctx).addTelemetryProperty(
-      "javascript.telemetry.generated-sources.out-of-scope-file-count",
-      "1"
-    );
-    verify(ctx).addTelemetryProperty(
-      "javascript.telemetry.generated-sources.excluded-file-count",
-      "1"
-    );
-    verify(ctx).addTelemetryProperty(
       "javascript.telemetry.generated-sources.families",
-      "@graphql-codegen/cli:3/1/1/1"
+      "@graphql-codegen/cli:3/1"
     );
     verify(ctx).addTelemetryProperty("javascript.telemetry.module-type.esm-file-count", "4");
     verify(ctx).addTelemetryProperty("javascript.telemetry.module-type.cjs-file-count", "1");
-    verify(ctx, times(19)).addTelemetryProperty(anyString(), anyString());
+    verify(ctx, times(17)).addTelemetryProperty(anyString(), anyString());
   }
 }
