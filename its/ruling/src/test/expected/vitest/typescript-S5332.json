@@ -1,5 +1,18 @@
 {
 "vitest:examples/projects/packages/client/test/basic.test.tsx": [
 9
+],
+"vitest:packages/ui/client/components/AnnotationAttachmentImage.vue": [
+13
+],
+"vitest:packages/ui/client/components/views/ViewEditor.vue": [
+231
+],
+"vitest:packages/ui/client/composables/attachments.ts": [
+30,
+36
+],
+"vitest:packages/vitest/src/node/test-run.ts": [
+281
 ]
 }
