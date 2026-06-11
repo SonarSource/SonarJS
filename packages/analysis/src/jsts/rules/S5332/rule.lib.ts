@@ -24,7 +24,26 @@ import { getParent } from '../helpers/ancestor.js';
 import { getProperty, getValueOfExpression } from '../helpers/ast.js';
 import { normalizeFQN } from '../helpers/aws/cdk.js';
 
-const INSECURE_PROTOCOLS = ['http://', 'ftp://', 'telnet://'];
+// Mirrors CleartextProtocolFilter.CLEARTEXT_SCHEMES from sonar-analyzer-commons
+const INSECURE_PROTOCOLS = [
+  'http://',
+  'ftp://',
+  'ws://',
+  'telnet://',
+  'rtmp://',
+  'tftp://',
+  'gopher://',
+  'irc://',
+  'smtp://',
+  'ldap://',
+  'amqp://',
+  'mqtt://',
+  'imap://',
+  'pop3://',
+  'nntp://',
+  'sip://',
+  'stomp://',
+];
 
 // Internal / non-public hosts — port of CleartextProtocolFilter.SAFE_HOSTS from sonar-analyzer-commons
 const SAFE_HOSTS =
@@ -39,7 +58,8 @@ const DOCUMENTATION_HOSTS =
   /(?:(?:^|\.)example\.(?:com|net|org)|\.(?:example|test|localhost))(?=:|$)/i;
 
 // Lenient authority extractor for URLs that fail strict URL parsing (e.g. template placeholders, underscores in hostnames)
-const LENIENT_AUTHORITY = /^(?:http|ftp|telnet):\/\/(?:[^@\s/?#]+@)?([^\s/?#]+)/i;
+const LENIENT_AUTHORITY =
+  /^(?:http|ftp|ws|telnet|rtmp|tftp|gopher|irc|smtp|ldap|amqp|mqtt|imap|pop3|nntp|sip|stomp):\/\/(?:[^@\s/?#]+@)?([^\s/?#]+)/i;
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -197,18 +217,26 @@ export const rule: Rule.RuleModule = {
 };
 
 function getMessageAndData(protocol: string) {
-  let alternative;
-  switch (protocol) {
-    case 'http':
-      alternative = 'https';
-      break;
-    case 'ftp':
-      alternative = 'sftp, scp or ftps';
-      break;
-    default:
-      alternative = 'ssh';
-  }
-  return { messageId: 'insecureProtocol', data: { protocol, alternative } };
+  const alternatives: Record<string, string> = {
+    http: 'https',
+    ftp: 'sftp, scp or ftps',
+    ws: 'wss',
+    telnet: 'ssh',
+    rtmp: 'rtmps',
+    tftp: 'sftp',
+    gopher: 'https',
+    irc: 'ircs',
+    smtp: 'smtps',
+    ldap: 'ldaps',
+    amqp: 'amqps',
+    mqtt: 'mqtts',
+    imap: 'imaps',
+    pop3: 'pop3s',
+    nntp: 'nntps',
+    sip: 'sips',
+    stomp: 'stomps',
+  };
+  return { messageId: 'insecureProtocol', data: { protocol, alternative: alternatives[protocol] } };
 }
 
 function hasExceptionHost(value: string) {

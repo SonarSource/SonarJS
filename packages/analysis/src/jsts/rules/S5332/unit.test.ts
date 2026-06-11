@@ -31,11 +31,37 @@ describe('S5332', () => {
       url = "ftps://";
       url = "scp://";
       url = "ssh://";
+      url = "wss://";
+      url = "ircs://";
+      url = "smtps://";
+      url = "ldaps://";
 
-      // We only report string staring with the sensitive url scheme.
+      // We only report strings starting with the sensitive url scheme.
       doc = "See http://exemple.com";
       doc = "See ftp://exemple.com";
       doc = "See telnet://exemple.com";
+      doc = "See ws://exemple.com";
+      doc = "See mqtt://exemple.com";
+
+      // New cleartext protocols — safe because of internal/documentation host
+      url = "ws://localhost";
+      url = "ws://example.com";
+      url = "irc://localhost/channel";
+      url = "smtp://localhost:25";
+      url = "smtp://mail.example.com";
+      url = "ldap://localhost/dc=example,dc=com";
+      url = "amqp://localhost/vhost";
+      url = "amqp://example.com/queue";
+      url = "mqtt://localhost:1883";
+      url = "mqtt://broker.example.com";
+      url = "imap://localhost:143";
+      url = "pop3://localhost:110";
+      url = "sip://localhost";
+      url = "stomp://localhost:61613";
+      url = "rtmp://example.com/live";
+      url = "gopher://example.com";
+      url = "tftp://example.com/file";
+      url = "nntp://news.example.com";
 
       // Loopback
       url = "http://localhost";
@@ -211,6 +237,44 @@ describe('S5332', () => {
       url = "telnet://anonymous@exemple.com";
       `,
           errors: 5,
+        },
+        {
+          code: `
+      // New cleartext protocols — public hosts must be flagged
+      url = "ws://acme.com";
+      url = "rtmp://acme.com/live";
+      url = "tftp://acme.com/file";
+      url = "gopher://acme.com";
+      url = "irc://acme.com/channel";
+      url = "smtp://mail.acme.com";
+      url = "ldap://acme.com/dc=acme,dc=com";
+      url = "amqp://acme.com/vhost";
+      url = "mqtt://broker.acme.com";
+      url = "imap://mail.acme.com";
+      url = "pop3://mail.acme.com";
+      url = "nntp://news.acme.com";
+      url = "sip://acme.com";
+      url = "stomp://acme.com";
+      `,
+          errors: 14,
+        },
+        {
+          code: `
+      url = "ws://acme.com"; // Using ws protocol is insecure. Use wss instead.
+      `,
+          errors: [{ message: 'Using ws protocol is insecure. Use wss instead.' }],
+        },
+        {
+          code: `
+      url = "smtp://mail.acme.com"; // Using smtp protocol is insecure. Use smtps instead.
+      `,
+          errors: [{ message: 'Using smtp protocol is insecure. Use smtps instead.' }],
+        },
+        {
+          code: `
+      url = "mqtt://broker.acme.com"; // Using mqtt protocol is insecure. Use mqtts instead.
+      `,
+          errors: [{ message: 'Using mqtt protocol is insecure. Use mqtts instead.' }],
         },
         {
           code: `
