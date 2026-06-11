@@ -526,6 +526,41 @@ test('runIssueHistory ignores prepare-diff-val as a workflow-only job', async t 
   );
 });
 
+test('runIssueHistory does not allow early exit when no successful project jobs were analyzed', async () => {
+  const output = {};
+
+  await runIssueHistory(
+    {
+      jobsJsonPath: '/tmp/project-jobs.json',
+      peacheeRoot: '/tmp/peachee-js',
+      outputPath: '/tmp/peach-issue-history.json',
+      apiToken: 'test-token',
+    },
+    {
+      readFileSync: filePath => {
+        assert.equal(filePath, '/tmp/project-jobs.json');
+        return JSON.stringify({
+          total_jobs: 0,
+          jobs: [],
+        });
+      },
+      writeFileSync: (filePath, content) => {
+        output[filePath] = content;
+      },
+      existsSync: () => false,
+      sleep: async () => {},
+      random: () => 0,
+    },
+  );
+
+  const report = JSON.parse(output['/tmp/peach-issue-history.json']);
+  assert.equal(report.source_jobs_total, 0);
+  assert.equal(report.blocking_rows_count, 0);
+  assert.equal(report.clean_for_early_exit, false);
+  assert.deepEqual(report.summary, expectedSummary());
+  assert.deepEqual(report.rows, []);
+});
+
 test('runIssueHistory reports project scope metadata and unambiguous freshness window bounds', async t => {
   const analyses = createDailyAnalyses('2026-04-26T03:10:35Z', 6);
   const { report } = await runSingleProjectIssueHistory(t, {

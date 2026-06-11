@@ -133,7 +133,7 @@ export async function runIssueHistory(options, runtime = {}) {
     analysis_window_start: freshnessWindow.analysisWindowStart,
     analysis_window_end: freshnessWindow.analysisWindowEnd,
     blocking_rows_count: blockingRowsCount,
-    clean_for_early_exit: blockingRowsCount === 0,
+    clean_for_early_exit: jobsJsonData.jobs.length > 0 && blockingRowsCount === 0,
     rows: combinedRows.map(toJsonRow),
     summary,
   };

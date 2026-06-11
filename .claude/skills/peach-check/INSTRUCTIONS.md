@@ -105,7 +105,8 @@ This is the common case:
 2. Create a run-scoped output directory.
 3. Collect project jobs.
 4. Run the analysis-consistency helper.
-5. If `OUTPUT_DIR/failed-jobs.json.total_jobs` is `0` and
+5. If `OUTPUT_DIR/failed-jobs.json.total_jobs` is `0`,
+   `OUTPUT_DIR/peach-issue-history.json.source_jobs_total` is greater than `0`, and
    `OUTPUT_DIR/peach-issue-history.json.clean_for_early_exit` is `true`, print the `SAFE` summary
    and stop.
 6. Only continue to DROP forensics or log triage when step 5 fails.
@@ -119,8 +120,8 @@ Quick green-path checklist:
    Section 2.
 3. Remove any stale `peach-issue-history.json`, run `peach-issue-history.js`, and inspect the
    compact summary from Section 3.
-4. If `failed-jobs.total_jobs == 0` and `clean_for_early_exit == true`, print the clean summary
-   from Section 4 and stop.
+4. If `failed-jobs.total_jobs == 0`, `source_jobs_total > 0`, and
+   `clean_for_early_exit == true`, print the clean summary from Section 4 and stop.
 
 ### 1. Resolve the run
 
@@ -393,6 +394,10 @@ the clean green path:
 - `source_job_completed_at_min`
 - `source_job_completed_at_max`
 
+Treat `clean_for_early_exit` as valid only when `source_jobs_total > 0`. A run with zero
+successful analyzed project jobs is not a clean green path; it means the consistency check had no
+project analyses to verify.
+
 `OUTPUT_DIR/peach-issue-history.json.summary` always includes `OK`, `DROP`,
 `INSUFFICIENT_HISTORY`, `STALE`, `UNRESOLVED_PROJECT`, and `ERROR`, even when a count is `0`.
 
@@ -533,11 +538,13 @@ gh run download PREVIOUS_RUN_ID \
 Pass SARIF paths newest first; the helper will automatically pick the first candidate that
 contains results for the project.
 
-3. Run the helper with the project key, source job name, `PEACHEE_ROOT_OR_PATH`, an output path,
-   and the extracted `.sarif` files you want to inspect:
+3. Read `SOURCE_HEAD_SHA` from `OUTPUT_DIR/peach-issue-history.json.source_head_sha`, then run the
+   helper with that SHA, the project key, source job name, `PEACHEE_ROOT_OR_PATH`, an output
+   path, and the extracted `.sarif` files you want to inspect:
 
 ```bash
 node .claude/skills/peach-check/peach-drop-forensics.js \
+  --source-head-sha SOURCE_HEAD_SHA \
   PROJECT_KEY \
   SOURCE_JOB_NAME \
   PEACHEE_ROOT_OR_PATH \
@@ -559,6 +566,9 @@ The helper reports:
 - `project_metadata`
 - `diagnosis`
 
+If `SOURCE_HEAD_SHA` is unavailable, you may omit `--source-head-sha`, but treat any test-scope
+diagnosis more cautiously because the helper then falls back to the local checkout metadata.
+
 Interpret the diagnosis like this:
 
 - `LIKELY_TEST_SCOPE_RECLASSIFICATION` → the project does not define `sonar.tests`, all observed
@@ -574,12 +584,14 @@ Interpret the diagnosis like this:
   and paths from the helper output.
 
 When the helper points to test-scope reclassification, explicitly mention whether
-`has_sonar_tests` is `false` and cite the affected test-like paths. Do not invent
-generated-source explanations unless the evidence actually shows generated-code-only paths.
+`project_metadata.resolved` is `true`, whether `has_sonar_tests` is `false`, and cite the affected
+test-like paths. Do not invent generated-source explanations unless the evidence actually shows
+generated-code-only paths.
 
 ### 4. Early exit if no failures and the analysis state looks consistent
 
-This is the normal green path. If `OUTPUT_DIR/failed-jobs.json.total_jobs` is `0` and
+This is the normal green path. If `OUTPUT_DIR/failed-jobs.json.total_jobs` is `0`,
+`OUTPUT_DIR/peach-issue-history.json.source_jobs_total` is greater than `0`, and
 `OUTPUT_DIR/peach-issue-history.json.clean_for_early_exit` is `true`, stop here: the failure-path
 sections below do not apply. Report the run as safe, include the exclusion counts plus the
 consistency summary, and stop.
@@ -602,6 +614,10 @@ Release recommendation: SAFE
 
 If any project is `DROP`, `STALE`, non-excluded `UNRESOLVED_PROJECT`, or `ERROR`, do not call the
 run safe even if the GitHub workflow has no failed project jobs.
+
+If `source_jobs_total` is `0`, do not call the run safe even when `failed-jobs.total_jobs` is `0`.
+Report that no successful analyzed project jobs were available for the consistency check and keep
+the run in manual-review territory.
 
 If one or more failed jobs remain after exclusions, continue to Section 5.
 

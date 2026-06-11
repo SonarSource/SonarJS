@@ -17,6 +17,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
+import { execFileSync as nodeExecFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
   parseProjectProperties,
@@ -45,6 +46,7 @@ export async function runDropForensics(options, runtime = {}) {
   const readFileSync = runtime.readFileSync ?? fs.readFileSync;
   const writeFileSync = runtime.writeFileSync ?? fs.writeFileSync;
   const existsSync = runtime.existsSync ?? fs.existsSync;
+  const execFileSync = runtime.execFileSync ?? nodeExecFileSync;
 
   if (!options.projectKey) {
     throw new Error('projectKey is required');
@@ -62,19 +64,11 @@ export async function runDropForensics(options, runtime = {}) {
     throw new Error('At least one SARIF path is required');
   }
 
-  const propertiesContent = readProjectPropertiesForJob(options.peacheeRoot, options.sourceJobName, undefined, {
+  const projectMetadata = resolveProjectMetadata(options, {
     readFileSync,
     existsSync,
+    execFileSync,
   });
-  const projectMetadata = propertiesContent
-    ? parseProjectProperties(propertiesContent, options.sourceJobName)
-    : {
-        projectKey: options.projectKey,
-        projectDir: options.sourceJobName,
-        hasSonarTests: false,
-        sonarSources: [],
-        sonarTests: [],
-      };
 
   const candidates = options.sarifPaths.map(sarifPath =>
     summarizeSarifCandidate(sarifPath, options.projectKey, readFileSync),
@@ -87,11 +81,13 @@ export async function runDropForensics(options, runtime = {}) {
   const report = {
     project_key: options.projectKey,
     source_job_name: options.sourceJobName,
+    source_head_sha: options.sourceHeadSha,
     project_metadata: {
       project_dir: projectMetadata.projectDir,
       has_sonar_tests: projectMetadata.hasSonarTests,
       sonar_sources: projectMetadata.sonarSources,
       sonar_tests: projectMetadata.sonarTests,
+      resolved: projectMetadata.resolved,
     },
     selected_sarif_path: selectedCandidate.sarifPath,
     sarif_candidates: candidates.map(candidate => ({
@@ -157,6 +153,16 @@ function diagnoseDrop(candidate, projectMetadata) {
   const onlyTestRuleAdditions =
     newRuleIds.length === 0 ||
     candidate.topRulesByBaselineState.new.every(entry => TEST_ONLY_RULES.has(entry.rule_id));
+
+  if (!projectMetadata.resolved && onlyTestLikePaths && onlyTestRuleAdditions) {
+    return {
+      id: 'UNCLASSIFIED_DROP',
+      confidence: 'low',
+      reasons: [
+        'Project metadata could not be read for this run, so test-scope reclassification cannot be confirmed.',
+      ],
+    };
+  }
 
   if (!projectMetadata.hasSonarTests && onlyTestLikePaths && onlyTestRuleAdditions) {
     return {
@@ -284,14 +290,82 @@ function normalizeBaselineState(baselineState) {
     : 'unspecified';
 }
 
+function resolveProjectMetadata(options, runtime) {
+  if (options.projectMetadata) {
+    return {
+      projectKey: options.projectKey,
+      projectDir: options.projectMetadata.projectDir ?? options.sourceJobName,
+      hasSonarTests: options.projectMetadata.hasSonarTests ?? false,
+      sonarSources: options.projectMetadata.sonarSources ?? [],
+      sonarTests: options.projectMetadata.sonarTests ?? [],
+      resolved: true,
+    };
+  }
+
+  const propertiesContent = readProjectPropertiesForJob(
+    options.peacheeRoot,
+    options.sourceJobName,
+    options.sourceHeadSha,
+    runtime,
+  );
+
+  if (propertiesContent) {
+    return {
+      ...parseProjectProperties(propertiesContent, options.sourceJobName),
+      resolved: true,
+    };
+  }
+
+  return {
+    projectKey: options.projectKey,
+    projectDir: options.sourceJobName,
+    hasSonarTests: false,
+    sonarSources: [],
+    sonarTests: [],
+    resolved: false,
+  };
+}
+
+function parseCliArgs(argv) {
+  const positional = [];
+  let sourceHeadSha;
+
+  for (let index = 0; index < argv.length; index += 1) {
+    const argument = argv[index];
+
+    if (argument === '--source-head-sha') {
+      index += 1;
+      if (index >= argv.length) {
+        throw new Error('--source-head-sha requires a value');
+      }
+      sourceHeadSha = argv[index];
+      continue;
+    }
+
+    if (argument.startsWith('--source-head-sha=')) {
+      sourceHeadSha = argument.slice('--source-head-sha='.length);
+      continue;
+    }
+
+    positional.push(argument);
+  }
+
+  return {
+    positional,
+    sourceHeadSha,
+  };
+}
+
 export async function main(argv = process.argv.slice(2), runtime = {}) {
-  if (argv.length < 5) {
+  const { positional, sourceHeadSha } = parseCliArgs(argv);
+
+  if (positional.length < 5) {
     throw new Error(
-      'Usage: node .claude/skills/peach-check/peach-drop-forensics.js <project-key> <source-job-name> <peachee-root> <output.json> <sarif.json> [sarif.json ...]',
+      'Usage: node .claude/skills/peach-check/peach-drop-forensics.js [--source-head-sha <sha>] <project-key> <source-job-name> <peachee-root> <output.json> <sarif.json> [sarif.json ...]',
     );
   }
 
-  const [projectKey, sourceJobName, peacheeRoot, outputPath, ...sarifPaths] = argv;
+  const [projectKey, sourceJobName, peacheeRoot, outputPath, ...sarifPaths] = positional;
   await runDropForensics(
     {
       projectKey,
@@ -299,6 +373,7 @@ export async function main(argv = process.argv.slice(2), runtime = {}) {
       peacheeRoot,
       outputPath,
       sarifPaths,
+      sourceHeadSha,
     },
     runtime,
   );
