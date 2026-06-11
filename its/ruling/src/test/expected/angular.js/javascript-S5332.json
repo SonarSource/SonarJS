@@ -13,8 +13,5 @@
 ],
 "angular.js:src/ngMock/angular-mocks.js": [
 42
-],
-"angular.js:src/ngSanitize/filter/linky.js": [
-160
 ]
 }
