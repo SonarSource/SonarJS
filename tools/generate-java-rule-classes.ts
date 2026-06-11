@@ -439,6 +439,7 @@ async function generateCssMultiBindingJavaCheckClass(
 ): Promise<void> {
   const imports = new Set<string>([
     'import static org.sonar.css.rules.RuleUtils.splitAndTrim;',
+    'import static org.sonar.css.rules.RuleUtils.toOptions;',
     'import java.util.Arrays;',
     'import java.util.Collections;',
     'import java.util.List;',
@@ -484,14 +485,6 @@ async function generateCssMultiBindingJavaCheckClass(
   lines.push('}');
   lines.push('');
 
-  // Helper: emit [true, option] or [] depending on whether values is empty
-  lines.push('private static List<Object> toOptions(List<String> values, Object ignoreOption) {');
-  lines.push(
-    '  return values.isEmpty() ? Collections.emptyList() : Arrays.asList(true, ignoreOption);',
-  );
-  lines.push('}');
-  lines.push('');
-
   // Inner option classes — one per binding with a listParam
   for (const meta of metas) {
     const param = meta.listParam?.[0];
@@ -517,7 +510,7 @@ async function generateCssMultiBindingJavaCheckClass(
       ___IMPORTS___: [...imports].sort().join('\n'),
       ___RULE_KEY___: sqKey,
       ___CLASS_NAME___: sqKey,
-      ___STYLELINT_KEY___: metas[0].stylelintKey,
+      ___STYLELINT_KEY___: `multi_${metas.map(m => m.stylelintKey).join('_')}`,
       ___BODY___: lines.join('\n'),
     },
   );
@@ -654,6 +647,13 @@ function generateCssRuleTestBody(
     testMethods.push(`  @Test`);
     testMethods.push(`  void ${methodPrefix}_bindings_count() {`);
     testMethods.push(`    assertThat(new ${sqKey}().stylelintRules()).hasSize(${metas.length});`);
+    testMethods.push(`  }`);
+    testMethods.push('');
+
+    const multiKey = `multi_${metas.map(m => m.stylelintKey).join('_')}`;
+    testMethods.push(`  @Test`);
+    testMethods.push(`  void ${methodPrefix}_stylelint_key() {`);
+    testMethods.push(`    assertThat(new ${sqKey}().stylelintKey()).isEqualTo("${multiKey}");`);
     testMethods.push(`  }`);
     testMethods.push('');
 

@@ -196,7 +196,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     listParam: [
       {
         sqKey: 'ignoreAtRules',
-        javaField: 'ignoredAtRules',
+        javaField: 'ignoreAtRules',
         description: 'Comma-separated list of "at-rules" to consider as valid.',
         default:
           'value,at-root,content,debug,each,else,error,for,function,if,include,mixin,return,warn,while,extend,use,forward,tailwind,apply,layer,container,theme,utility,custom-variant,source,plugin,config,reference,variant,/^@.*/',
@@ -295,7 +295,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     listParam: [
       {
         sqKey: 'ignoreAtRules',
-        javaField: 'ignoredAtRules',
+        javaField: 'ignoreAtRules',
         description: 'Comma-separated list of deprecated "at-rules" to ignore.',
         default: '',
         stylelintOptionKey: 'ignoreAtRules',

@@ -24,25 +24,36 @@ const ruleTesterWithIgnore = new StylelintRuleTester('at-rule-no-deprecated', [
 ]);
 
 describe('at-rule-no-deprecated', () => {
-  it('accepts current at-rules', () =>
-    ruleTester.valid({
+  it('accepts current at-rules', async () => {
+    await ruleTester.valid({
       code: '@starting-style {} a { @layer {} }',
-    }));
+    });
+  });
 
-  it('reports deprecated @viewport', () =>
-    ruleTester.invalid({
+  it('reports deprecated @viewport', async () => {
+    await ruleTester.invalid({
       code: '@viewport { width: device-width; }',
       errors: [{ text: 'Deprecated at-rule "@viewport" (at-rule-no-deprecated)', line: 1 }],
-    }));
+    });
+  });
 
-  it('reports deprecated @document', () =>
-    ruleTester.invalid({
+  it('reports deprecated @document', async () => {
+    await ruleTester.invalid({
       code: '@document url("https://example.com") { .hero { color: red; } }',
       errors: [{ text: 'Deprecated at-rule "@document" (at-rule-no-deprecated)', line: 1 }],
-    }));
+    });
+  });
 
-  it('ignores at-rules listed in ignoreAtRules', () =>
-    ruleTesterWithIgnore.valid({
+  it('reports deprecated @nest', async () => {
+    await ruleTester.invalid({
+      code: '.foo { @nest .bar & { color: red; } }',
+      errors: [{ text: 'Deprecated at-rule "@nest" (at-rule-no-deprecated)', line: 1 }],
+    });
+  });
+
+  it('ignores at-rules listed in ignoreAtRules', async () => {
+    await ruleTesterWithIgnore.valid({
       code: '@viewport { width: device-width; }',
-    }));
+    });
+  });
 });
