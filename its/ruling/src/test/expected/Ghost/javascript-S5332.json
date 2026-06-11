@@ -2,8 +2,19 @@
 "Ghost:config.example.js": [
 14
 ],
+"Ghost:core/client/app/assets/lib/uploader.js": [
+183,
+214
+],
+"Ghost:core/client/app/components/gh-uploader.js": [
+76
+],
 "Ghost:core/client/app/mirage/config.js": [
 93
+],
+"Ghost:core/client/app/mixins/ed-editor-shortcuts.js": [
+39,
+43
 ],
 "Ghost:core/client/tests/integration/components/gh-navitem-url-input-test.js": [
 420,
@@ -28,6 +39,9 @@
 ],
 "Ghost:core/server/config/index.js": [
 449
+],
+"Ghost:core/server/config/url.js": [
+25
 ],
 "Ghost:core/server/data/xml/rss/index.js": [
 133
@@ -322,6 +336,9 @@
 "Ghost:core/test/unit/xmlrpc_spec.js": [
 31,
 32
+],
+"Ghost:core/test/utils/api.js": [
+8
 ],
 "Ghost:core/test/utils/fixtures/data-generator.js": [
 26
