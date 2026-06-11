@@ -61,7 +61,6 @@ class GeneratedSourceStore implements FileStore {
   private analyzableFilesConfigKey: string | undefined = undefined;
   private needsFilteredRefresh = false;
   private derivedMetadataInitialized = false;
-  private activeRequestFilesKey: RequestFilesKey = undefined;
   private requestFilesKey: RequestFilesKey = undefined;
   // Detector cache: generated-source families derived from project metadata.
   private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
@@ -83,7 +82,6 @@ class GeneratedSourceStore implements FileStore {
       configuration.canAccessFileSystem,
       requestContext,
     );
-    this.activeRequestFilesKey = requestFilesKey;
     if (this.baseDir === undefined) {
       return false;
     }
@@ -157,7 +155,6 @@ class GeneratedSourceStore implements FileStore {
     this.analyzableFilesConfigKey = undefined;
     this.needsFilteredRefresh = false;
     this.derivedMetadataInitialized = false;
-    this.activeRequestFilesKey = undefined;
     this.clearDerivedState();
   }
 
@@ -182,10 +179,7 @@ class GeneratedSourceStore implements FileStore {
       this.derivedConfigKey === undefined ||
       this.projectFileDiscoveryConfigKey === undefined
     ) {
-      this.baseDir = configuration.baseDir;
-      this.canAccessFileSystem = configuration.canAccessFileSystem;
-      this.derivedConfigKey = getGeneratedSourceConfigKey(configuration);
-      this.projectFileDiscoveryConfigKey = getProjectFileDiscoveryConfigKey(configuration);
+      this.setup(configuration);
     }
 
     const { baseDir, canAccessFileSystem } = this;
@@ -214,7 +208,7 @@ class GeneratedSourceStore implements FileStore {
     this.refreshFilteredState(
       configuration,
       requestContext,
-      this.activeRequestFilesKey ?? this.getRequestFilesKey(canAccessFileSystem, requestContext),
+      this.getRequestFilesKey(canAccessFileSystem, requestContext),
     );
     this.needsFilteredRefresh = false;
   }

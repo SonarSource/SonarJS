@@ -84,13 +84,6 @@ export function filterPathAndGetFileType(
   debug(`File ignored due to analysis scope filters: ${filePath}`);
 }
 
-function classifyFilePath(
-  filePath: NormalizedAbsolutePath,
-  params: FilterPathParams,
-): FilePathClassification {
-  return classifyFilePathInternal(filePath, params, false);
-}
-
 function fileIsUnder(filePath: NormalizedAbsolutePath, paths: NormalizedAbsolutePath[]): boolean {
   return paths.some(path => filePath === path || filePath.startsWith(`${path}/`));
 }
