@@ -334,8 +334,6 @@ type GeneratedSourcesTelemetry = {
   familyCount: number;
   resolvedFileCount: number;
   taggedFileCount: number;
-  outOfScopeFileCount: number;
-  excludedFileCount: number;
   families: GeneratedSourceFamilyTelemetry[];
 };
 ```
@@ -346,8 +344,6 @@ The counters mean:
 
 - `resolvedFileCount`: files derived for that family before request filtering
 - `taggedFileCount`: derived files currently visible to the analysis request
-- `excludedFileCount`: derived files filtered out by JS/TS exclusions or by source/test scope exclusions
-- `outOfScopeFileCount`: derived files that are outside the current analysis scope
 
 ### Log output
 
