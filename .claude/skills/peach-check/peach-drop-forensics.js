@@ -126,6 +126,7 @@ function summarizeSarifCandidate(sarifPath, projectKey, readFileSync) {
       results.filter(result => !isTestLikeResult(result)),
       result => normalizeBaselineState(result.baselineState),
     ),
+    newRuleIds: collectRuleIdsByBaselineState(results, 'new'),
     topRulesByBaselineState: summarizeTopRulesByState(results),
     topPathsByBaselineState: summarizeTopPathsByState(results),
   };
@@ -149,10 +150,9 @@ function diagnoseDrop(candidate, projectMetadata) {
   }
 
   const onlyTestLikePaths = Object.keys(candidate.nonTestLikeCountsByBaselineState).length === 0;
-  const newRuleIds = Object.keys(candidate.topRulesByBaselineState.new ?? {});
+  const newRuleIds = candidate.newRuleIds;
   const onlyTestRuleAdditions =
-    newRuleIds.length === 0 ||
-    candidate.topRulesByBaselineState.new.every(entry => TEST_ONLY_RULES.has(entry.rule_id));
+    newRuleIds.length === 0 || newRuleIds.every(ruleId => TEST_ONLY_RULES.has(ruleId));
 
   if (!projectMetadata.resolved && onlyTestLikePaths && onlyTestRuleAdditions) {
     return {
@@ -185,6 +185,16 @@ function diagnoseDrop(candidate, projectMetadata) {
 
 function summarizeTopRulesByState(results) {
   return summarizeByBaselineState(results, result => result.ruleId ?? 'unknown', 'rule_id');
+}
+
+function collectRuleIdsByBaselineState(results, baselineState) {
+  return Array.from(
+    new Set(
+      results
+        .filter(result => normalizeBaselineState(result.baselineState) === baselineState)
+        .map(result => result.ruleId ?? 'unknown'),
+    ),
+  ).sort();
 }
 
 function summarizeTopPathsByState(results) {

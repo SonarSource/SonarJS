@@ -175,3 +175,60 @@ test('runDropForensics does not report high-confidence test-scope reclassificati
   assert.equal(report.diagnosis.id, 'UNCLASSIFIED_DROP');
   assert.match(report.diagnosis.reasons[0], /project metadata/i);
 });
+
+test('runDropForensics checks all new rules before diagnosing test scope reclassification', async () => {
+  const output = {};
+  const sarifPath = '/tmp/current.sarif';
+  const sourceHeadSha = '1111111111111111111111111111111111111111';
+
+  await runDropForensics(
+    {
+      projectKey: 'js:angular-realworld-example-app',
+      sourceJobName: 'angular-realworld-example-app',
+      peacheeRoot: '/tmp/peachee-js',
+      outputPath: '/tmp/drop.json',
+      sarifPaths: [sarifPath],
+      sourceHeadSha,
+    },
+    {
+      readFileSync: filePath => {
+        if (filePath === sarifPath) {
+          return JSON.stringify(
+            createSarifRun('js:angular-realworld-example-app', [
+              createResult('javascript:S1607', 'new', 'src/app/app.component.spec.ts'),
+              createResult('javascript:S2187', 'new', 'src/app/app.component.spec.ts'),
+              createResult('javascript:S2699', 'new', 'src/app/app.component.spec.ts'),
+              createResult('javascript:S5914', 'new', 'src/app/app.component.spec.ts'),
+              createResult('javascript:S6426', 'new', 'src/app/app.component.spec.ts'),
+              createResult('typescript:S1607', 'new', 'src/app/app.component.spec.ts'),
+              createResult('typescript:S2187', 'new', 'src/app/app.component.spec.ts'),
+              createResult('typescript:S2699', 'new', 'src/app/app.component.spec.ts'),
+              createResult('typescript:S5914', 'new', 'src/app/app.component.spec.ts'),
+              createResult('typescript:S6426', 'new', 'src/app/app.component.spec.ts'),
+              createResult('typescript:S9999', 'new', 'src/app/app.component.spec.ts'),
+            ]),
+          );
+        }
+
+        throw new Error(`unexpected read: ${filePath}`);
+      },
+      writeFileSync: (filePath, content) => {
+        output[filePath] = content;
+      },
+      existsSync: () => {
+        throw new Error('existsSync should not be used when sourceHeadSha is provided');
+      },
+      execFileSync: createGitExecFileSyncStub(sourceHeadSha, {
+        'angular-realworld-example-app/sonar-project.properties': [
+          'sonar.projectKey=js:angular-realworld-example-app',
+          'sonar.sources=.',
+          '',
+        ].join('\n'),
+      }),
+    },
+  );
+
+  const report = JSON.parse(output['/tmp/drop.json']);
+  assert.equal(report.top_rules_by_baseline_state.new.length, 10);
+  assert.equal(report.diagnosis.id, 'UNCLASSIFIED_DROP');
+});
