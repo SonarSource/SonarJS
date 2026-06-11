@@ -63,10 +63,12 @@ describe('S5332', () => {
       url = "tftp://example.com/file";
       url = "nntp://news.example.com";
 
-      // Loopback
+      // Loopback — including abbreviated IPv4 forms valid on POSIX systems (APPSEC-3388)
       url = "http://localhost";
       url = "http://127.0.0.1";
       url = "http://127.255.255.254/path";
+      url = "http://127.1";
+      url = "http://127.0.1";
       url = "http://[::1]/path";
       url = "ftp://user@localhost";
 
@@ -161,9 +163,9 @@ describe('S5332', () => {
         },
         {
           code: `
-      url = "http://";
-      url = "ftp://";
-      url = "telnet://";
+      // Protocol appearing mid-string is not flagged — rule only triggers when the string starts with the protocol
+      doc = "Make sure to use https instead of http://";
+      doc = "some text that mentions http://";
       `,
         },
         {
@@ -187,12 +189,6 @@ describe('S5332', () => {
         {
           code: `
       url = "http://xmlns.com";
-      `,
-        },
-        {
-          code: `
-      url = 'http://'.replace('', foo);
-      url = 'http://'.replace('', foo) + bar;
       `,
         },
         {
@@ -343,6 +339,23 @@ describe('S5332', () => {
           code: `
       url = "http://someSubdomain.xmlns.com";
       url = "http://someUrl.com?url=xmlns.com";
+      `,
+          errors: 2,
+        },
+        {
+          code: `
+      // Bare cleartext protocol scheme is flagged regardless of concatenation context
+      url = "http://";
+      url = "ftp://";
+      url = "ws://";
+      url = "mqtt://";
+      `,
+          errors: 4,
+        },
+        {
+          code: `
+      url = 'http://'.replace('', foo);
+      url = 'http://'.replace('', foo) + bar;
       `,
           errors: 2,
         },

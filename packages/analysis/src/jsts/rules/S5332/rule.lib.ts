@@ -20,7 +20,6 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { URL } from 'node:url';
 import { getFullyQualifiedName } from '../helpers/module.js';
-import { getParent } from '../helpers/ancestor.js';
 import { getProperty, getValueOfExpression } from '../helpers/ast.js';
 import { normalizeFQN } from '../helpers/aws/cdk.js';
 
@@ -46,8 +45,9 @@ const INSECURE_PROTOCOLS = [
 ];
 
 // Internal / non-public hosts — port of CleartextProtocolFilter.SAFE_HOSTS from sonar-analyzer-commons
+// Note: ^127(?:\.\d+){1,3} covers abbreviated loopback forms (127.1, 127.0.1) that are valid on POSIX systems
 const SAFE_HOSTS =
-  /(?:^localhost|^127(?:\.\d+){3}|^\[(?:0*:){7}:?0*1]|^\[::1]|^169\.254\.\d+\.\d+|^\[fd00:ec2::254]|^168\.63\.129\.16|^100\.100\.100\.200|^metadata\.google\.internal|^metadata\.internal|^host\.docker\.internal|^gateway\.docker\.internal|\.svc\.cluster\.local)(?=:|$)/i;
+  /(?:^localhost|^127(?:\.\d+){1,3}|^\[(?:0*:){7}:?0*1]|^\[::1]|^169\.254\.\d+\.\d+|^\[fd00:ec2::254]|^168\.63\.129\.16|^100\.100\.100\.200|^metadata\.google\.internal|^metadata\.internal|^host\.docker\.internal|^gateway\.docker\.internal|\.svc\.cluster\.local)(?=:|$)/i;
 
 // XML namespace URI authorities — port of CleartextProtocolFilter.NAMESPACE_URI_AUTHORITIES, extended with pre-existing sonar-js exceptions
 const NAMESPACE_URI_AUTHORITIES =
@@ -169,21 +169,13 @@ export const rule: Rule.RuleModule = {
       }
     }
 
-    function isExceptionUrl(value: string, node: estree.Node) {
-      if (INSECURE_PROTOCOLS.includes(value)) {
-        const parent = getParent(context, node);
-        return !(parent?.type === 'BinaryExpression' && parent.operator === '+');
-      }
-      return hasExceptionHost(value);
-    }
-
     return {
       Literal: (node: estree.Node) => {
         const literal = node as estree.Literal;
         if (typeof literal.value === 'string') {
           const value = literal.value.trim().toLocaleLowerCase();
           const insecure = INSECURE_PROTOCOLS.find(protocol => value.startsWith(protocol));
-          if (insecure && !isExceptionUrl(value, node)) {
+          if (insecure && !hasExceptionHost(value)) {
             const protocol = insecure.substring(0, insecure.indexOf(':'));
             context.report({
               ...getMessageAndData(protocol),
@@ -246,7 +238,7 @@ function hasExceptionHost(value: string) {
     const url = new URL(value);
     host = url.hostname;
     if (host.length === 0) {
-      return true;
+      return false;
     }
   } catch {
     // Lenient fallback for template placeholders (e.g. http://localhost:${port}) and underscores in hostnames.
