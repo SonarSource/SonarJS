@@ -64,7 +64,7 @@ const DOCUMENTATION_HOSTS =
 // Lenient authority extractor for URLs that fail strict URL parsing (e.g. template placeholders, underscores in hostnames).
 // Derived from CLEARTEXT_PROTOCOL_ALTERNATIVES — no manual update needed when adding protocols.
 const LENIENT_AUTHORITY = new RegExp(
-  `^(?:${Object.keys(CLEARTEXT_PROTOCOL_ALTERNATIVES).join('|')}):\\/\\/(?:[^@\\s/?#]+@)?([^\\s/?#]+)`,
+  String.raw`^(?:${Object.keys(CLEARTEXT_PROTOCOL_ALTERNATIVES).join('|')}):\/\/(?:[^@\s/?#]+@)?([^\s/?#]+)`,
   'i',
 );
 
