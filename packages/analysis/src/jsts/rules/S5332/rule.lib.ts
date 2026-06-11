@@ -23,26 +23,30 @@ import { getFullyQualifiedName } from '../helpers/module.js';
 import { getProperty, getValueOfExpression } from '../helpers/ast.js';
 import { normalizeFQN } from '../helpers/aws/cdk.js';
 
-// Mirrors CleartextProtocolFilter.CLEARTEXT_SCHEMES from sonar-analyzer-commons
-const INSECURE_PROTOCOLS = [
-  'http://',
-  'ftp://',
-  'ws://',
-  'telnet://',
-  'rtmp://',
-  'tftp://',
-  'gopher://',
-  'irc://',
-  'smtp://',
-  'ldap://',
-  'amqp://',
-  'mqtt://',
-  'imap://',
-  'pop3://',
-  'nntp://',
-  'sip://',
-  'stomp://',
-];
+// Single source of truth: cleartext scheme → recommended secure alternative.
+// Mirrors CleartextProtocolFilter.CLEARTEXT_PROTOCOL_ALTERNATIVES from sonar-analyzer-commons.
+// To add a new protocol, add one entry here — INSECURE_PROTOCOLS and LENIENT_AUTHORITY are derived.
+const CLEARTEXT_PROTOCOL_ALTERNATIVES: Record<string, string> = {
+  http: 'https',
+  ftp: 'sftp, scp or ftps',
+  ws: 'wss',
+  telnet: 'ssh',
+  gopher: 'https',
+  tftp: 'sftp',
+  smtp: 'smtps',
+  ldap: 'ldaps',
+  imap: 'imaps',
+  pop3: 'pop3s',
+  amqp: 'amqps',
+  mqtt: 'mqtts',
+  sip: 'sips',
+  rtmp: 'rtmps',
+  irc: 'ircs',
+  nntp: 'nntps',
+  stomp: 'stomps',
+};
+
+const INSECURE_PROTOCOLS = Object.keys(CLEARTEXT_PROTOCOL_ALTERNATIVES).map(s => `${s}://`);
 
 // Internal / non-public hosts — port of CleartextProtocolFilter.SAFE_HOSTS from sonar-analyzer-commons
 // Note: ^127(?:\.\d+){1,3} covers abbreviated loopback forms (127.1, 127.0.1) that are valid on POSIX systems
@@ -57,9 +61,12 @@ const NAMESPACE_URI_AUTHORITIES =
 const DOCUMENTATION_HOSTS =
   /(?:(?:^|\.)example\.(?:com|net|org)|\.(?:example|test|localhost))(?=:|$)/i;
 
-// Lenient authority extractor for URLs that fail strict URL parsing (e.g. template placeholders, underscores in hostnames)
-const LENIENT_AUTHORITY =
-  /^(?:http|ftp|ws|telnet|rtmp|tftp|gopher|irc|smtp|ldap|amqp|mqtt|imap|pop3|nntp|sip|stomp):\/\/(?:[^@\s/?#]+@)?([^\s/?#]+)/i;
+// Lenient authority extractor for URLs that fail strict URL parsing (e.g. template placeholders, underscores in hostnames).
+// Derived from CLEARTEXT_PROTOCOL_ALTERNATIVES — no manual update needed when adding protocols.
+const LENIENT_AUTHORITY = new RegExp(
+  `^(?:${Object.keys(CLEARTEXT_PROTOCOL_ALTERNATIVES).join('|')}):\\/\\/(?:[^@\\s/?#]+@)?([^\\s/?#]+)`,
+  'i',
+);
 
 export const rule: Rule.RuleModule = {
   meta: {
@@ -209,26 +216,10 @@ export const rule: Rule.RuleModule = {
 };
 
 function getMessageAndData(protocol: string) {
-  const alternatives: Record<string, string> = {
-    http: 'https',
-    ftp: 'sftp, scp or ftps',
-    ws: 'wss',
-    telnet: 'ssh',
-    rtmp: 'rtmps',
-    tftp: 'sftp',
-    gopher: 'https',
-    irc: 'ircs',
-    smtp: 'smtps',
-    ldap: 'ldaps',
-    amqp: 'amqps',
-    mqtt: 'mqtts',
-    imap: 'imaps',
-    pop3: 'pop3s',
-    nntp: 'nntps',
-    sip: 'sips',
-    stomp: 'stomps',
+  return {
+    messageId: 'insecureProtocol',
+    data: { protocol, alternative: CLEARTEXT_PROTOCOL_ALTERNATIVES[protocol] },
   };
-  return { messageId: 'insecureProtocol', data: { protocol, alternative: alternatives[protocol] } };
 }
 
 function hasExceptionHost(value: string) {
