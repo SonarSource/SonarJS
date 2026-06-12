@@ -16,18 +16,18 @@
  */
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 import type { Configuration } from '../common/configuration.js';
-import type { FileStoreRequestContext } from '../projectAnalysis.js';
+import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export abstract class FileStore {
   /**
    * Checks if the store is initialized for the given base directory.
    *
    * @param configuration - The project configuration
-   * @param requestContext - Optional sanitized request context
+   * @param inputFiles - Optional authoritative analyzable files
    */
   abstract isInitialized(
     configuration: Configuration,
-    requestContext?: FileStoreRequestContext,
+    inputFiles?: AnalyzableFiles,
   ): Promise<boolean>;
 
   /**
@@ -46,12 +46,9 @@ export abstract class FileStore {
    * Performs post-processing after all files have been processed.
    *
    * @param configuration - The project configuration
-   * @param requestContext - Optional sanitized request context
+   * @param inputFiles - Optional authoritative analyzable files
    */
-  abstract postProcess(
-    configuration: Configuration,
-    requestContext?: FileStoreRequestContext,
-  ): Promise<void>;
+  abstract postProcess(configuration: Configuration, inputFiles?: AnalyzableFiles): Promise<void>;
 
   abstract processDirectory?(dir: NormalizedAbsolutePath, configuration: Configuration): void;
 }

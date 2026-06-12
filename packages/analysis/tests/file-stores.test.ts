@@ -21,7 +21,7 @@ import { join } from 'node:path/posix';
 import { FileStore } from '../src/file-stores/store-type.js';
 import { normalizePath, normalizeToAbsolutePath } from '../../shared/src/helpers/files.js';
 import { createConfiguration, type Configuration } from '../src/common/configuration.js';
-import type { FileStoreRequestContext } from '../src/projectAnalysis.js';
+import type { AnalyzableFiles } from '../src/projectAnalysis.js';
 import { sanitizeRawInputFiles } from '../src/common/input-sanitize.js';
 import {
   dependencyManifestStore,
@@ -43,7 +43,7 @@ class MockFileStore implements FileStore {
 
   async isInitialized(
     _configuration: Configuration,
-    _requestContext?: FileStoreRequestContext,
+    _inputFiles?: AnalyzableFiles,
   ): Promise<boolean> {
     return false; // Always return false to simulate uninitialized state
   }
@@ -60,10 +60,7 @@ class MockFileStore implements FileStore {
     this.processedFiles.push(filename);
   }
 
-  async postProcess(
-    _configuration: Configuration,
-    _requestContext?: FileStoreRequestContext,
-  ): Promise<void> {
+  async postProcess(_configuration: Configuration, _inputFiles?: AnalyzableFiles): Promise<void> {
     this.postProcessCalled = true;
   }
 }
@@ -123,7 +120,7 @@ describe('simulateFromInputFiles', () => {
 
       async isInitialized(
         _configuration: Configuration,
-        _requestContext?: FileStoreRequestContext,
+        _inputFiles?: AnalyzableFiles,
       ): Promise<boolean> {
         return false;
       }
@@ -133,7 +130,7 @@ describe('simulateFromInputFiles', () => {
       }
       async postProcess(
         _configuration: Configuration,
-        _requestContext?: FileStoreRequestContext,
+        _inputFiles?: AnalyzableFiles,
       ): Promise<void> {}
       // Note: processDirectory is optional, so we don't implement it
     }
@@ -204,19 +201,20 @@ describe('initFileStores', () => {
     sourceFileStore.clearCache();
   });
 
-  it('should populate analyzableFiles when request context omits them', async ({ mock }) => {
+  it('should populate inputFiles from sourceFileStore when caller does not provide them', async ({
+    mock,
+  }) => {
     const baseDir = normalizeToAbsolutePath(join(sourceFileFixtures, 'paths'));
     const configuration = createConfiguration({ baseDir });
     const postProcessMock = mock.method(
       generatedSourceStore,
       'postProcess',
-      async (_configuration, requestContext) => {
-        expect(requestContext?.isExplicitRequest).toBe(false);
-        expect(requestContext?.analyzableFiles).toBe(sourceFileStore.getFiles());
+      async (_configuration, inputFiles) => {
+        expect(inputFiles).toBe(sourceFileStore.getFiles());
       },
     );
 
-    await initFileStores(configuration, { isExplicitRequest: false });
+    await initFileStores(configuration);
 
     expect(postProcessMock.mock.calls).toHaveLength(1);
   });
