@@ -28,7 +28,7 @@
  * - Merges parent + language-specific metadata.json → resources/rule-data/<language>/<rule>.json
  * - Renders <language>/rule.adoc to HTML → resources/rule-data/<language>/<rule>.html
  */
-import { readdir, readFile, mkdir, writeFile, rm, access } from 'node:fs/promises';
+import { readdir, readFile, mkdir, writeFile, rm, access, cp } from 'node:fs/promises';
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -405,6 +405,13 @@ function hasGeneratedRuleData(path: string): boolean {
   }
 }
 
+function hasAppliedOverrides(source: string, target: string): boolean {
+  if (!existsSync(source)) {
+    return true;
+  }
+  return readdirSync(source).every(file => existsSync(join(target, file)));
+}
+
 async function exists(path: string): Promise<boolean> {
   try {
     await access(path);
@@ -435,6 +442,7 @@ const isManagedClone = !explicitPath;
 
 // SHA file stores the last-synced rspec SHA to detect whether re-sync is needed
 const outputDir = join(ROOT_DIR, 'resources', 'rule-data', language);
+const overrideDir = join(ROOT_DIR, 'tools', 'rule-data-overrides', language);
 const shaFile = join(ROOT_DIR, 'resources', 'rule-data', `.synced-sha-${language}`);
 
 // Optional override file: if rspec.sha exists at repo root, pin to that exact SHA.
@@ -452,18 +460,19 @@ if (pinnedSha) {
 if (isManagedClone && existsSync(shaFile)) {
   const storedSha = readFileSync(shaFile, 'utf-8').trim();
   const hasOutputData = hasGeneratedRuleData(outputDir);
+  const hasOverrides = hasAppliedOverrides(overrideDir, outputDir);
 
   if (pinnedSha) {
     // Pinned SHA: skip check is local, no network needed
-    if (storedSha === pinnedSha && hasOutputData) {
+    if (storedSha === pinnedSha && hasOutputData && hasOverrides) {
       console.log(
         `RSPEC ${language} rules are up to date (${storedSha.slice(0, 8)}), skipping sync`,
       );
       process.exit(0);
     }
-    if (storedSha === pinnedSha && !hasOutputData) {
+    if (storedSha === pinnedSha && (!hasOutputData || !hasOverrides)) {
       console.log(
-        `RSPEC ${language} SHA matches (${storedSha.slice(0, 8)}) but local rule data is missing, syncing`,
+        `RSPEC ${language} SHA matches (${storedSha.slice(0, 8)}) but local rule data is missing or stale, syncing`,
       );
     }
   } else {
@@ -475,15 +484,15 @@ if (isManagedClone && existsSync(shaFile)) {
         { encoding: 'utf-8' },
       );
       const remoteSha = remoteInfo.split('\t')[0].trim();
-      if (remoteSha && remoteSha === storedSha && hasOutputData) {
+      if (remoteSha && remoteSha === storedSha && hasOutputData && hasOverrides) {
         console.log(
           `RSPEC ${language} rules are up to date (${remoteSha.slice(0, 8)}), skipping sync`,
         );
         process.exit(0);
       }
-      if (remoteSha && remoteSha === storedSha && !hasOutputData) {
+      if (remoteSha && remoteSha === storedSha && (!hasOutputData || !hasOverrides)) {
         console.log(
-          `RSPEC ${language} SHA matches (${remoteSha.slice(0, 8)}) but local rule data is missing, syncing`,
+          `RSPEC ${language} SHA matches (${remoteSha.slice(0, 8)}) but local rule data is missing or stale, syncing`,
         );
       }
     } catch {
@@ -641,6 +650,10 @@ async function syncRule(ruleName: string): Promise<boolean> {
 
 const results = await Promise.all(ruleDirs.map(syncRule));
 const count = results.filter(Boolean).length;
+
+if (existsSync(overrideDir)) {
+  await cp(overrideDir, outputDir, { recursive: true });
+}
 
 // Read the actual rspec HEAD SHA used for this sync
 let usedSha: string | undefined = pinnedSha ?? undefined;
