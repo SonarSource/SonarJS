@@ -274,6 +274,7 @@ jobs:
             sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript
             sonar-plugin/javascript-checks/src/main/resources/rspec.sha
             sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css
+            sonar-plugin/css/src/main/resources/rspec.sha
           retention-days: 1
 
   build_eslint_plugin:

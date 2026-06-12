@@ -19,6 +19,7 @@ packages/analysis/src/jsts/parsers/estree.d.ts
 sonar-plugin/javascript-checks/src/main/resources/org/sonar/l10n/javascript/rules/javascript/*.html
 rspec.sha
 sonar-plugin/javascript-checks/src/main/resources/rspec.sha
+sonar-plugin/css/src/main/resources/rspec.sha
 sonar-plugin/css/src/main/resources/org/sonar/l10n/css/rules/css/*.html
 
 # Auto-generated CSS Java rule classes (by npm run generate-java-rule-classes)

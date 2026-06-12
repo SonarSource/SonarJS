@@ -46,6 +46,7 @@ const preparedRuleDataPaths = [
     'css',
   ),
   join('sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha'),
+  join('sonar-plugin', 'css', 'src', 'main', 'resources', 'rspec.sha'),
 ];
 const hasPreparedRuleData = preparedRuleDataPaths.every(path => existsSync(path));
 

@@ -18,20 +18,23 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const rspecShaPaths = [
-  'rspec.sha',
-  join('sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha'),
+const rspecShaPath = 'rspec.sha';
+const languagePins = [
+  {
+    language: 'javascript',
+    property: 'rspec.javascript.sha',
+    paths: [join('sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha')],
+  },
+  {
+    language: 'css',
+    property: 'rspec.css.sha',
+    paths: [join('sonar-plugin', 'css', 'src', 'main', 'resources', 'rspec.sha')],
+  },
 ];
 
 const sharedArgs = ['-q', '-ntp', '-Dskip-nodejs', '-DskipTests'];
 
-const bootstrapArgs = [
-  ...sharedArgs,
-  '-pl',
-  'sonar-plugin/api',
-  '-am',
-  'install',
-];
+const bootstrapArgs = [...sharedArgs, '-pl', 'sonar-plugin/api', '-am', 'install'];
 
 const generateArgs = [
   ...sharedArgs,
@@ -41,10 +44,13 @@ const generateArgs = [
   '-Drule.data.build.phase=generate-resources',
 ];
 
-const rspecSha = readRspecSha();
-if (rspecSha !== undefined) {
-  generateArgs.push(`-Drspec.sha=${rspecSha.sha}`);
-  console.log(`Using pinned RSPEC SHA ${rspecSha.sha} from ${rspecSha.path}`);
+const sharedRspecSha = readRspecSha([rspecShaPath]);
+for (const pin of languagePins) {
+  const rspecSha = sharedRspecSha ?? readRspecSha(pin.paths);
+  if (rspecSha !== undefined) {
+    generateArgs.push(`-D${pin.property}=${rspecSha.sha}`);
+    console.log(`Using pinned ${pin.language} RSPEC SHA ${rspecSha.sha} from ${rspecSha.path}`);
+  }
 }
 
 generateArgs.push('generate-resources');
@@ -53,8 +59,8 @@ const command = process.platform === 'win32' ? 'mvn.cmd' : 'mvn';
 runMaven(bootstrapArgs);
 runMaven(generateArgs);
 
-function readRspecSha() {
-  for (const path of rspecShaPaths) {
+function readRspecSha(paths) {
+  for (const path of paths) {
     if (existsSync(path)) {
       const sha = readFileSync(path, 'utf-8').trim();
       if (sha.length > 0) {
