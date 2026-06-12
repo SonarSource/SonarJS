@@ -20,6 +20,7 @@ import { Minimatch } from 'minimatch';
 import type { FileStore } from './store-type.js';
 import type { NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { type Configuration, getProjectFileDiscoveryConfigKey } from '../common/configuration.js';
+import type { FileStoreRequestContext } from '../projectAnalysis.js';
 import { clearTsConfigContentCache } from '../jsts/program/cache/tsconfigCache.js';
 import { clearProgramOptionsCache } from '../jsts/program/cache/programOptionsCache.js';
 import { getProgramCacheManager } from '../jsts/program/cache/programCache.js';
@@ -45,7 +46,7 @@ export class TsConfigStore implements FileStore {
   /**
    * Checks if the store is initialized for the given base directory.
    */
-  async isInitialized(configuration: Configuration) {
+  async isInitialized(configuration: Configuration, _requestContext?: FileStoreRequestContext) {
     this.dirtyCachesIfNeeded(configuration);
     return this.baseDir !== undefined;
   }
@@ -173,7 +174,7 @@ export class TsConfigStore implements FileStore {
   /**
    * Performs post-processing after all files have been processed.
    */
-  async postProcess(configuration: Configuration) {
+  async postProcess(configuration: Configuration, _requestContext?: FileStoreRequestContext) {
     const { tsConfigPaths } = configuration;
     if (tsConfigPaths.length && !this.foundPropertyTsConfigs.length) {
       error(`Failed to find any of the provided tsconfig.json files: ${tsConfigPaths.join(', ')}`);
