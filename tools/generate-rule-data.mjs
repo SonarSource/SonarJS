@@ -23,34 +23,35 @@ const rspecShaPaths = [
   join('sonar-plugin', 'javascript-checks', 'src', 'main', 'resources', 'rspec.sha'),
 ];
 
-const args = [
-  '-q',
-  '-ntp',
+const sharedArgs = ['-q', '-ntp', '-Dskip-nodejs', '-DskipTests'];
+
+const bootstrapArgs = [
+  ...sharedArgs,
+  '-pl',
+  'sonar-plugin/api',
+  '-am',
+  'install',
+];
+
+const generateArgs = [
+  ...sharedArgs,
   '-pl',
   'sonar-plugin/javascript-checks',
   '-am',
-  '-Dskip-nodejs',
   '-Drule.data.build.phase=generate-resources',
-  '-DskipTests',
 ];
 
 const rspecSha = readRspecSha();
 if (rspecSha !== undefined) {
-  args.push(`-Drspec.sha=${rspecSha.sha}`);
+  generateArgs.push(`-Drspec.sha=${rspecSha.sha}`);
   console.log(`Using pinned RSPEC SHA ${rspecSha.sha} from ${rspecSha.path}`);
 }
 
-args.push('generate-resources');
+generateArgs.push('generate-resources');
 
 const command = process.platform === 'win32' ? 'mvn.cmd' : 'mvn';
-const result = spawnSync(command, args, { stdio: 'inherit' });
-
-if (result.error !== undefined) {
-  console.error(result.error);
-  process.exit(1);
-}
-
-process.exit(result.status ?? 1);
+runMaven(bootstrapArgs);
+runMaven(generateArgs);
 
 function readRspecSha() {
   for (const path of rspecShaPaths) {
@@ -62,4 +63,17 @@ function readRspecSha() {
     }
   }
   return undefined;
+}
+
+function runMaven(args) {
+  const result = spawnSync(command, args, { stdio: 'inherit' });
+
+  if (result.error !== undefined) {
+    console.error(result.error);
+    process.exit(1);
+  }
+
+  if (result.status !== 0) {
+    process.exit(result.status ?? 1);
+  }
 }
