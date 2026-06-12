@@ -17,6 +17,9 @@
     <rspec.sha></rspec.sha>
     <rspec.javascript.sha>${rspec.sha}</rspec.javascript.sha>
     <rspec.css.sha>${rspec.sha}</rspec.css.sha>
+    <rspec.branch>dogfood-automerge</rspec.branch>
+    <rspec.javascript.branch>${rspec.branch}</rspec.javascript.branch>
+    <rspec.css.branch>${rspec.branch}</rspec.css.branch>
     <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     <sonar.exclusions>src/main/java/org/sonar/javascript/checks/AllChecks.java,src/main/java/org/sonar/javascript/checks/S*.java</sonar.exclusions>
     <sonar.coverage.exclusions>src/main/java/org/sonar/javascript/checks/AllChecks.java,src/main/java/org/sonar/javascript/checks/S*.java</sonar.coverage.exclusions>
@@ -96,7 +99,7 @@
       <plugin>
         <groupId>org.sonarsource.rspec</groupId>
         <artifactId>rspec-maven-plugin</artifactId>
-        <version>1.3.0.115</version>
+        <version>1.3.0.117</version>
         <configuration>
           <githubToken>${env.GITHUB_TOKEN}</githubToken>
         </configuration>
@@ -110,7 +113,7 @@
             <configuration>
               <ruleSubdirectory>javascript</ruleSubdirectory>
               <rspecSha>${rspec.javascript.sha}</rspecSha>
-              <vcsBranchName>dogfood-automerge</vcsBranchName>
+              <vcsBranchName>${rspec.javascript.branch}</vcsBranchName>
               <targetDirectory>${project.basedir}/../../resources/rule-data/javascript</targetDirectory>
             </configuration>
           </execution>
@@ -123,7 +126,7 @@
             <configuration>
               <ruleSubdirectory>css</ruleSubdirectory>
               <rspecSha>${rspec.css.sha}</rspecSha>
-              <vcsBranchName>dogfood-automerge</vcsBranchName>
+              <vcsBranchName>${rspec.css.branch}</vcsBranchName>
               <targetDirectory>${project.basedir}/../../resources/rule-data/css</targetDirectory>
             </configuration>
           </execution>
@@ -204,6 +207,40 @@
   </build>
 
   <profiles>
+    <profile>
+      <id>generate-rule-data-from-rspec-sha</id>
+      <activation>
+        <property>
+          <name>rspec.sha</name>
+        </property>
+      </activation>
+      <properties>
+        <rspec.javascript.branch></rspec.javascript.branch>
+        <rspec.css.branch></rspec.css.branch>
+      </properties>
+    </profile>
+    <profile>
+      <id>generate-javascript-rule-data-from-rspec-sha</id>
+      <activation>
+        <property>
+          <name>rspec.javascript.sha</name>
+        </property>
+      </activation>
+      <properties>
+        <rspec.javascript.branch></rspec.javascript.branch>
+      </properties>
+    </profile>
+    <profile>
+      <id>generate-css-rule-data-from-rspec-sha</id>
+      <activation>
+        <property>
+          <name>rspec.css.sha</name>
+        </property>
+      </activation>
+      <properties>
+        <rspec.css.branch></rspec.css.branch>
+      </properties>
+    </profile>
     <profile>
       <id>generate-rule-data-when-javascript-rule-data-is-missing</id>
       <activation>
