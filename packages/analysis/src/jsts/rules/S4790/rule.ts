@@ -56,7 +56,7 @@ export const rule: Rule.RuleModule = {
     function checkSubtleCrypto(fqn: string | null, node: estree.CallExpression) {
       // crypto.subtle#digest
       const { callee, arguments: args } = node;
-      if (fqn === 'crypto.subtle.digest') {
+      if (fqn === 'crypto.subtle.digest' && !isSubtleDigestTruncated(context, node)) {
         checkUnsecureAlgorithm(callee, args[0], SUBTLE_UNSECURE_HASH_ALGORITHMS);
       }
     }
@@ -120,19 +120,64 @@ function isDigestTruncated(
   return digestCall !== null && isBoundToTruncatedReference(context, digestCall);
 }
 
-function isBoundToTruncatedReference(
-  context: Rule.RuleContext,
-  digestCall: estree.CallExpression,
-): boolean {
-  const declarator = getNodeParent(digestCall);
+function isBoundToTruncatedReference(context: Rule.RuleContext, initNode: estree.Node): boolean {
+  const declarator = getNodeParent(initNode);
   if (
     declarator?.type !== 'VariableDeclarator' ||
-    declarator.init !== digestCall ||
+    declarator.init !== initNode ||
     declarator.id.type !== 'Identifier'
   ) {
     return false;
   }
   const variable = getVariableFromName(context, declarator.id.name, declarator.id);
+  return !!variable && variable.references.some(ref => isIdentifierTruncated(ref.identifier));
+}
+
+// crypto.subtle.digest(...) returns Promise<ArrayBuffer>. Truncation can happen via .then callback,
+// after await on a binding, or immediately on the awaited value.
+function isSubtleDigestTruncated(
+  context: Rule.RuleContext,
+  digestCall: estree.CallExpression,
+): boolean {
+  if (isPromiseThenTruncated(context, digestCall)) {
+    return true;
+  }
+  const parent = getNodeParent(digestCall);
+  const valueNode = parent?.type === 'AwaitExpression' ? parent : digestCall;
+  return isIdentifierTruncated(valueNode) || isBoundToTruncatedReference(context, valueNode);
+}
+
+function isPromiseThenTruncated(
+  context: Rule.RuleContext,
+  digestCall: estree.CallExpression,
+): boolean {
+  const member = getNodeParent(digestCall);
+  if (
+    member?.type !== 'MemberExpression' ||
+    member.object !== digestCall ||
+    member.property.type !== 'Identifier' ||
+    member.property.name !== 'then'
+  ) {
+    return false;
+  }
+  const thenCall = getNodeParent(member);
+  if (
+    thenCall?.type !== 'CallExpression' ||
+    thenCall.callee !== member ||
+    thenCall.arguments.length === 0
+  ) {
+    return false;
+  }
+  const callback = thenCall.arguments[0];
+  if (
+    (callback.type !== 'ArrowFunctionExpression' && callback.type !== 'FunctionExpression') ||
+    callback.params.length === 0 ||
+    callback.params[0].type !== 'Identifier'
+  ) {
+    return false;
+  }
+  const param = callback.params[0];
+  const variable = getVariableFromName(context, param.name, param);
   return !!variable && variable.references.some(ref => isIdentifierTruncated(ref.identifier));
 }
 
