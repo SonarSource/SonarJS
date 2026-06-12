@@ -38,15 +38,15 @@ function getDescribeBody(node: estree.CallExpression): estree.BlockStatement | n
 }
 
 function findTestCaseRange(body: estree.BlockStatement): TestCaseRange | null {
-  const isTestStatement = (statement: estree.Statement) =>
+  const isTestOrSuiteStatement = (statement: estree.Statement) =>
     statement.type === 'ExpressionStatement' &&
     statement.expression.type === 'CallExpression' &&
-    isTestCase(statement.expression);
-  const first = body.body.findIndex(isTestStatement);
+    (isTestCase(statement.expression) || isDescribeCase(statement.expression));
+  const first = body.body.findIndex(isTestOrSuiteStatement);
   if (first === -1) {
     return null;
   }
-  return { first, last: body.body.findLastIndex(isTestStatement) };
+  return { first, last: body.body.findLastIndex(isTestOrSuiteStatement) };
 }
 
 function extractLifecycleHookCall(statement: estree.Statement): estree.CallExpression | null {

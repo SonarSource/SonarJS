@@ -156,3 +156,25 @@ describe("after-hooks split: bottom majority", () => {
   afterEach(() => {});
   afterAll(() => {});
 });
+
+// Nested describes count as suite positions — hook between them is interleaved
+describe("hook between nested suites", () => {
+  describe("group a", () => { it("a", () => {}); });
+  beforeEach(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
+//^^^^^^^^^^
+  describe("group b", () => { it("b", () => {}); });
+});
+
+// after-hook between nested suites — interleaved variant
+describe("after-hook between nested suites", () => {
+  describe("group a", () => { it("a", () => {}); });
+  afterEach(() => {}); // Noncompliant {{Move this hook above or below the test cases in the same scope.}}
+//^^^^^^^^^
+  describe("group b", () => { it("b", () => {}); });
+});
+
+// after-hook after a trailing nested suite — compliant (bottom position)
+describe("after-hook after trailing suite", () => {
+  describe("group a", () => { it("a", () => {}); });
+  afterEach(() => {});
+});
