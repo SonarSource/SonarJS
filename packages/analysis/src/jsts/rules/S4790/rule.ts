@@ -210,7 +210,9 @@ type SubstringKind = 'zero' | 'length' | 'other';
 
 // Treat `slice` / `substring` as truncation unless the argument pattern obviously preserves the
 // whole output. This keeps named constants and unresolved bounds in scope while excluding simple
-// no-op forms like `.slice()`, `.slice(0, undefined)`, or `.substring('foo')`.
+// no-op forms like `.slice()`, `.slice(0, undefined)`, or `.substring('foo')`. Other shortening
+// helpers (`substr`, `at`, `charAt`, `subarray`, transform-based extraction, etc.) are
+// intentionally left out here to keep this PR scoped to the existing `slice` / `substring` idiom.
 function isTruncationCall(context: Rule.RuleContext, call: estree.CallExpression): boolean {
   if (call.callee.type !== 'MemberExpression' || call.callee.property.type !== 'Identifier') {
     return false;
