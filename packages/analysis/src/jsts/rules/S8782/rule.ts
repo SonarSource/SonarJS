@@ -20,48 +20,114 @@ import type { Rule } from 'eslint';
 import type estree from 'estree';
 import { FUNCTION_NODES } from '../helpers/ast.js';
 import { generateMeta } from '../helpers/generate-meta.js';
-import { isDescribeCase, isLifecycleHook, isTestCase } from '../helpers/mocha.js';
+import { isDescribeCase, isLifecycleHook, isTestCase, isTestConstruct } from '../helpers/mocha.js';
 import * as meta from './generated-meta.js';
+
+const AFTER_HOOK_CONSTRUCTS = ['after', 'afterAll', 'afterEach'];
+
+type TestCaseRange = { first: number; last: number };
+type ReportFn = (expr: estree.CallExpression, messageId: string) => void;
+
+function getDescribeBody(node: estree.CallExpression): estree.BlockStatement | null {
+  const callback = node.arguments[1];
+  if (!callback || !FUNCTION_NODES.includes(callback.type)) {
+    return null;
+  }
+  const body = (callback as estree.Function).body;
+  return body.type === 'BlockStatement' ? body : null;
+}
+
+function findTestCaseRange(body: estree.BlockStatement): TestCaseRange | null {
+  const isTestStatement = (statement: estree.Statement) =>
+    statement.type === 'ExpressionStatement' &&
+    statement.expression.type === 'CallExpression' &&
+    isTestCase(statement.expression);
+  const first = body.body.findIndex(isTestStatement);
+  if (first === -1) {
+    return null;
+  }
+  return { first, last: body.body.findLastIndex(isTestStatement) };
+}
+
+function extractLifecycleHookCall(statement: estree.Statement): estree.CallExpression | null {
+  if (
+    statement.type !== 'ExpressionStatement' ||
+    statement.expression.type !== 'CallExpression' ||
+    !isLifecycleHook(statement.expression)
+  ) {
+    return null;
+  }
+  return statement.expression;
+}
+
+function classifyHook(
+  expr: estree.CallExpression,
+  index: number,
+  range: TestCaseRange,
+  afterHooksAtTop: estree.CallExpression[],
+  afterHooksAtBottom: estree.CallExpression[],
+  report: ReportFn,
+) {
+  const isAfterHook = isTestConstruct(expr, AFTER_HOOK_CONSTRUCTS);
+  if (index < range.first) {
+    isAfterHook && afterHooksAtTop.push(expr);
+    return;
+  }
+  if (index > range.last) {
+    isAfterHook ? afterHooksAtBottom.push(expr) : report(expr, 'moveBeforeHook');
+    return;
+  }
+  report(expr, isAfterHook ? 'moveAfterHook' : 'moveBeforeHook');
+}
 
 export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, {
     messages: {
-      moveHook: 'Move this hook above the test cases in the same scope.',
+      moveBeforeHook: 'Move this hook above the test cases in the same scope.',
+      moveAfterHook: 'Move this hook above or below the test cases in the same scope.',
+      groupAfterHook: 'Group this hook with the other after-hooks in the same scope.',
     },
   }),
   create(context: Rule.RuleContext) {
+    const reportHook: ReportFn = (expr, messageId) => {
+      const callee = expr.callee;
+      context.report({
+        node: callee.type === 'MemberExpression' ? callee.object : callee,
+        messageId,
+      });
+    };
+
     return {
       CallExpression(node: estree.CallExpression) {
         if (!isDescribeCase(node)) {
           return;
         }
-        const callback = node.arguments[1];
-        if (!callback || !FUNCTION_NODES.includes(callback.type)) {
+        const body = getDescribeBody(node);
+        if (!body) {
           return;
         }
-        const body = (callback as estree.Function).body;
-        if (body.type !== 'BlockStatement') {
+        const range = findTestCaseRange(body);
+        if (!range) {
           return;
         }
 
-        let seenTestCase = false;
-        for (const stmt of body.body) {
-          if (stmt.type !== 'ExpressionStatement') {
-            continue;
+        const afterHooksAtTop: estree.CallExpression[] = [];
+        const afterHooksAtBottom: estree.CallExpression[] = [];
+
+        for (const [i, statement] of body.body.entries()) {
+          const expr = extractLifecycleHookCall(statement);
+          if (expr) {
+            classifyHook(expr, i, range, afterHooksAtTop, afterHooksAtBottom, reportHook);
           }
-          const expr = stmt.expression;
-          if (expr.type !== 'CallExpression') {
-            continue;
-          }
-          if (isTestCase(expr)) {
-            seenTestCase = true;
-          } else if (seenTestCase && isLifecycleHook(expr)) {
-            const callee = expr.callee;
-            context.report({
-              node: callee.type === 'MemberExpression' ? callee.object : callee,
-              messageId: 'moveHook',
-            });
-          }
+        }
+
+        if (afterHooksAtTop.length === 0 || afterHooksAtBottom.length === 0) {
+          return;
+        }
+        const minority =
+          afterHooksAtTop.length < afterHooksAtBottom.length ? afterHooksAtTop : afterHooksAtBottom;
+        for (const expr of minority) {
+          reportHook(expr, 'groupAfterHook');
         }
       },
     };
