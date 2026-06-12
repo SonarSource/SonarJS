@@ -1,5 +1,5 @@
 {
-  "title": "Lifecycle hooks should be declared before test cases",
+  "title": "Lifecycle hooks should not be interleaved with test cases",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
