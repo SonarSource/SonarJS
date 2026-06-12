@@ -25,7 +25,7 @@ import {
 } from './peach-project-properties.js';
 
 const DEFAULT_TEST_FILE_EXTENSIONS = ['js', 'mjs', 'cjs', 'jsx', 'vue', 'ts', 'mts', 'cts', 'tsx'];
-const SUPPORTED_RULE_PREFIXES = ['javascript:', 'typescript:', 'css:', 'web:', 'yaml:'];
+const SUPPORTED_RULE_PREFIXES = ['javascript:', 'typescript:', 'css:', 'Web:', 'yaml:'];
 const TEST_ONLY_RULES = new Set([
   'javascript:S1607',
   'javascript:S2187',

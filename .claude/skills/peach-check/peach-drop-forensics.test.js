@@ -297,6 +297,64 @@ test('runDropForensics ignores unrelated SARIF results when selecting the DROP c
   assert.equal(report.diagnosis.id, 'LIKELY_TEST_SCOPE_RECLASSIFICATION');
 });
 
+test('runDropForensics treats Web rule results as supported SonarJS diffs', async () => {
+  const output = {};
+  const currentSarifPath = '/tmp/current.sarif';
+  const previousSarifPath = '/tmp/previous.sarif';
+  const sourceHeadSha = '1111111111111111111111111111111111111111';
+
+  await runDropForensics(
+    {
+      projectKey: 'js:html-project',
+      sourceJobName: 'html-project',
+      peacheeRoot: '/tmp/peachee-js',
+      outputPath: '/tmp/drop.json',
+      sarifPaths: [currentSarifPath, previousSarifPath],
+      sourceHeadSha,
+    },
+    {
+      readFileSync: filePath => {
+        if (filePath === currentSarifPath) {
+          return JSON.stringify(
+            createSarifRun('js:html-project', [
+              createResult('Web:S6840', 'absent', 'src/index.html'),
+            ]),
+          );
+        }
+
+        if (filePath === previousSarifPath) {
+          return JSON.stringify(
+            createSarifRun('js:html-project', [
+              createResult('typescript:S1537', 'absent', 'e2e/error-handling.spec.ts'),
+            ]),
+          );
+        }
+
+        throw new Error(`unexpected read: ${filePath}`);
+      },
+      writeFileSync: (filePath, content) => {
+        output[filePath] = content;
+      },
+      existsSync: () => {
+        throw new Error('existsSync should not be used when sourceHeadSha is provided');
+      },
+      execFileSync: createGitExecFileSyncStub(sourceHeadSha, {
+        'html-project/sonar-project.properties': [
+          'sonar.projectKey=js:html-project',
+          'sonar.sources=.',
+          '',
+        ].join('\n'),
+      }),
+    },
+  );
+
+  const report = JSON.parse(output['/tmp/drop.json']);
+  assert.equal(report.selected_sarif_path, currentSarifPath);
+  assert.equal(report.sarif_candidates[0].supported_result_count, 1);
+  assert.deepEqual(report.counts_by_baseline_state, { absent: 1 });
+  assert.deepEqual(report.top_rules_by_baseline_state.absent, [{ rule_id: 'Web:S6840', count: 1 }]);
+});
+
 test('runDropForensics reports manual review when source head is missing locally', async () => {
   const output = {};
   const sarifPath = '/tmp/current.sarif';
