@@ -57,7 +57,7 @@ export function parseProjectProperties(content, projectDir) {
 function parseProperties(content) {
   const properties = new Map();
 
-  for (const rawLine of content.split(/\r?\n/u)) {
+  for (const rawLine of joinContinuedLines(content)) {
     const line = rawLine.trim();
     if (line.length === 0 || line.startsWith('#') || line.startsWith('!')) {
       continue;
@@ -75,6 +75,37 @@ function parseProperties(content) {
   }
 
   return properties;
+}
+
+function joinContinuedLines(content) {
+  const logicalLines = [];
+  let currentLine = '';
+  let continuing = false;
+
+  for (const rawLine of content.split(/\r?\n/u)) {
+    currentLine += continuing ? rawLine.replace(/^\s+/u, '') : rawLine;
+
+    if (hasContinuationBackslash(currentLine)) {
+      currentLine = currentLine.slice(0, -1);
+      continuing = true;
+      continue;
+    }
+
+    logicalLines.push(currentLine);
+    currentLine = '';
+    continuing = false;
+  }
+
+  if (currentLine.length > 0) {
+    logicalLines.push(currentLine);
+  }
+
+  return logicalLines;
+}
+
+function hasContinuationBackslash(line) {
+  const trailingBackslashes = line.match(/\\+$/u)?.[0].length ?? 0;
+  return trailingBackslashes % 2 === 1;
 }
 
 function splitPropertyList(value) {

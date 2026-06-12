@@ -17,7 +17,28 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { readProjectPropertiesForJob } from './peach-project-properties.js';
+import { parseProjectProperties, readProjectPropertiesForJob } from './peach-project-properties.js';
+
+test('parseProjectProperties joins continued sonar property values', () => {
+  const metadata = parseProjectProperties(
+    [
+      'sonar.projectKey=js:kibana',
+      'sonar.sources=\\',
+      '  src,\\',
+      '  packages/kbn-ui-shared-deps-npm',
+      'sonar.tests=\\',
+      '  test,\\',
+      '  x-pack/test',
+      '',
+    ].join('\n'),
+    'kibana',
+  );
+
+  assert.equal(metadata.projectKey, 'js:kibana');
+  assert.deepEqual(metadata.sonarSources, ['src', 'packages/kbn-ui-shared-deps-npm']);
+  assert.equal(metadata.hasSonarTests, true);
+  assert.deepEqual(metadata.sonarTests, ['test', 'x-pack/test']);
+});
 
 test('readProjectPropertiesForJob suppresses git probe stderr for missing head-sha files', () => {
   const calls = [];
