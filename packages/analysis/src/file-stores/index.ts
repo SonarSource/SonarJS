@@ -26,29 +26,33 @@ import {
   type NormalizedAbsolutePath,
   dirnamePath,
 } from '../../../shared/src/helpers/files.js';
-import type { AnalyzableFiles, FileStoreRequestContext } from '../projectAnalysis.js';
+import type { AnalyzableFiles } from '../projectAnalysis.js';
 
 export const sourceFileStore = new SourceFileStore();
 export const tsConfigStore = new TsConfigStore();
 export { dependencyManifestStore } from './dependency-manifests.js';
 export { generatedSourceStore } from './generated-sources.js';
 
-export async function initFileStores(
-  configuration: Configuration,
-  requestContext?: FileStoreRequestContext,
-) {
+const fileStores: FileStore[] = [
+  sourceFileStore,
+  dependencyManifestStore,
+  generatedSourceStore,
+  tsConfigStore,
+];
+
+export function resetFileStores() {
+  sourceFileStore.clearCache();
+  dependencyManifestStore.clearCache();
+  generatedSourceStore.clearCache();
+  tsConfigStore.clearCache();
+}
+
+export async function initFileStores(configuration: Configuration, inputFiles?: AnalyzableFiles) {
   const { baseDir, canAccessFileSystem, jsTsExclusions } = configuration;
   const pendingStores: FileStore[] = [];
-  const fileStores = configuration.detectGeneratedCode
-    ? [sourceFileStore, dependencyManifestStore, generatedSourceStore, tsConfigStore]
-    : [sourceFileStore, dependencyManifestStore, tsConfigStore];
-
-  if (!configuration.detectGeneratedCode) {
-    generatedSourceStore.clearCache();
-  }
 
   for (const store of fileStores) {
-    if (!(await store.isInitialized(configuration, requestContext))) {
+    if (!(await store.isInitialized(configuration, inputFiles))) {
       pendingStores.push(store);
     }
   }
@@ -72,18 +76,12 @@ export async function initFileStores(
         }
       }
     });
-  } else if (requestContext?.analyzableFiles) {
-    await simulateFromInputFiles(requestContext.analyzableFiles, configuration, pendingStores);
+  } else if (inputFiles) {
+    await simulateFromInputFiles(inputFiles, configuration, pendingStores);
   }
-  const effectiveRequestContext: FileStoreRequestContext = requestContext?.analyzableFiles
-    ? requestContext
-    : {
-        ...requestContext,
-        analyzableFiles: sourceFileStore.getFiles(),
-        isExplicitRequest: requestContext?.isExplicitRequest ?? false,
-      };
+  const effectiveInputFiles = inputFiles ?? sourceFileStore.getFiles();
   for (const store of pendingStores) {
-    await store.postProcess(configuration, effectiveRequestContext);
+    await store.postProcess(configuration, effectiveInputFiles);
   }
 }
 

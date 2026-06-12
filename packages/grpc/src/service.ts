@@ -22,12 +22,7 @@ import {
 } from './transformers/request.js';
 import { transformProjectOutputToResponse } from './transformers/response.js';
 import { analyzeProject } from '../../analysis/src/analyzeProject.js';
-import {
-  initFileStores,
-  sourceFileStore,
-  dependencyManifestStore,
-  tsConfigStore,
-} from '../../analysis/src/file-stores/index.js';
+import { initFileStores, resetFileStores } from '../../analysis/src/file-stores/index.js';
 import { info, error as logError } from '../../shared/src/helpers/logging.js';
 import { createConfiguration } from '../../analysis/src/common/configuration.js';
 import { ROOT_PATH } from '../../shared/src/helpers/files.js';
@@ -39,9 +34,7 @@ import { clearSourceFileContentCache } from '../../analysis/src/jsts/program/cac
  * leaking data between requests with overlapping file paths.
  */
 function resetGrpcCaches() {
-  sourceFileStore.clearCache();
-  dependencyManifestStore.clearCache();
-  tsConfigStore.clearCache();
+  resetFileStores();
   clearSourceFileContentCache();
 }
 
@@ -71,11 +64,8 @@ export async function analyzeFileHandler(
 
     // Transform, sanitize source files, and initialize file stores
     const rawFiles = transformSourceFilesToRawInputFiles(request.sourceFiles || []);
-    const { pathMap, fileStoreRequestContext } = await sanitizeRawInputFiles(
-      rawFiles,
-      configuration,
-    );
-    await initFileStores(configuration, fileStoreRequestContext);
+    const { files, pathMap } = await sanitizeRawInputFiles(rawFiles, configuration);
+    await initFileStores(configuration, files);
 
     const projectInput = transformRequestToProjectInput(request);
 

@@ -14,22 +14,16 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-import { createHash } from 'node:crypto';
 import { basename, extname } from 'node:path/posix';
 import type { FileStore } from './store-type.js';
-import {
-  getAnalyzableFilesConfigKey,
-  getProjectFileDiscoveryConfigKey,
-  type Configuration,
-} from '../common/configuration.js';
-import type { AnalyzableFiles, FileStoreRequestContext } from '../projectAnalysis.js';
+import { getProjectFileDiscoveryConfigKey, type Configuration } from '../common/configuration.js';
+import type { AnalyzableFiles } from '../projectAnalysis.js';
 import { type NormalizedAbsolutePath } from '../../../shared/src/helpers/files.js';
 import { dependencyManifestStore } from './dependency-manifests.js';
 import { getGeneratedSourceWatchedFilenames } from '../jsts/rules/helpers/generated-sources/index.js';
 import { isPreloadableDependencyManifestPath } from '../jsts/rules/helpers/dependency-manifests/index.js';
 import { deriveGeneratedSources } from '../jsts/rules/helpers/generated-sources/derive.js';
 import {
-  cloneGeneratedSourcesTelemetry,
   createEmptyGeneratedSourcesTelemetry,
   type GeneratedSourcesTelemetry,
 } from '../generated-source-telemetry.js';
@@ -42,79 +36,68 @@ import {
   logGeneratedSourceObservability,
 } from './generated-sources-observability.js';
 
-const ALL_FILES_REQUEST_KEY = 'all-files';
-const EXPLICIT_FILE_SET_REQUEST_KEY_PREFIX = 'explicit';
-
-type RequestFilesKey = string | undefined;
-
-/**
- * Maintains two generated-source caches:
- * - the detector cache, which stores the project-level outputs of generated-source detection
- * - the match cache, which stores the current analyzable subset exposed by the store
- */
 class GeneratedSourceStore implements FileStore {
-  private readonly explicitRequestFilesKeys = new WeakMap<FileStoreRequestContext, string>();
   private baseDir: NormalizedAbsolutePath | undefined = undefined;
   private canAccessFileSystem: boolean | undefined = undefined;
   private derivedConfigKey: string | undefined = undefined;
   private projectFileDiscoveryConfigKey: string | undefined = undefined;
-  private analyzableFilesConfigKey: string | undefined = undefined;
-  private needsFilteredRefresh = false;
   private derivedMetadataInitialized = false;
-  private requestFilesKey: RequestFilesKey = undefined;
-  // Detector cache: generated-source families derived from project metadata.
   private derivedFamilyByFile = new Map<NormalizedAbsolutePath, string>();
-  // Match cache: detector results filtered to the current analyzable/requested files.
-  private familyByFile = new Map<NormalizedAbsolutePath, string>();
-  private resolvedFiles = new Set<NormalizedAbsolutePath>();
   private configPaths = new Set<NormalizedAbsolutePath>();
   private watchedOutputPaths = new Set<NormalizedAbsolutePath>();
-  private generatedSourcesTelemetry = createEmptyGeneratedSourcesTelemetry();
   private lastLoggedGeneratedSourceDetectionKey: string | undefined = undefined;
   private readonly generatedSourceDetectionInfoBaseDirs = new Set<NormalizedAbsolutePath>();
   // Preserve the last logged fingerprint across cache invalidations so repeated analyses only
   // re-emit observability logs when the content changes.
   private lastLoggedObservabilityKey: string | undefined = undefined;
 
-  async isInitialized(configuration: Configuration, requestContext?: FileStoreRequestContext) {
+  async isInitialized(configuration: Configuration, _inputFiles?: AnalyzableFiles) {
+    if (!configuration.detectGeneratedCode) {
+      this.clearCache();
+      return true;
+    }
+
     this.dirtyCachesIfNeeded(configuration);
-    const requestFilesKey = this.getRequestFilesKey(
-      configuration.canAccessFileSystem,
-      requestContext,
-    );
-    if (this.baseDir === undefined) {
-      return false;
-    }
-
-    if (this.needsFilteredRefresh) {
-      if (requestFilesKey === undefined || requestContext?.analyzableFiles === undefined) {
-        return false;
-      }
-
-      this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
-      this.refreshFilteredState(configuration, requestContext, requestFilesKey);
-      this.needsFilteredRefresh = false;
-      return true;
-    }
-
-    if (requestFilesKey === this.requestFilesKey) {
-      return true;
-    }
-
-    if (requestFilesKey === undefined) {
-      return false;
-    }
-
-    this.refreshFilteredState(configuration, requestContext, requestFilesKey);
-    return true;
+    return this.baseDir !== undefined;
   }
 
   getFamily(filePath: NormalizedAbsolutePath): string | undefined {
-    return this.familyByFile.get(filePath);
+    return this.derivedFamilyByFile.get(filePath);
   }
 
-  getGeneratedSourcesTelemetry(): GeneratedSourcesTelemetry {
-    return cloneGeneratedSourcesTelemetry(this.generatedSourcesTelemetry);
+  observeGeneratedSources(
+    configuration: Configuration,
+    analyzableFiles: AnalyzableFiles,
+  ): GeneratedSourcesTelemetry {
+    if (!configuration.detectGeneratedCode) {
+      return createEmptyGeneratedSourcesTelemetry();
+    }
+
+    const observability = buildGeneratedSourceObservability(
+      this.derivedFamilyByFile,
+      filterAnalyzableGeneratedFiles(this.derivedFamilyByFile, analyzableFiles),
+      configuration,
+    );
+    const baseDir = this.baseDir ?? configuration.baseDir;
+    const detectionLogKey = createGeneratedSourceDetectionLogKey(baseDir, observability);
+    if (detectionLogKey !== this.lastLoggedGeneratedSourceDetectionKey) {
+      this.lastLoggedGeneratedSourceDetectionKey = detectionLogKey;
+      if (detectionLogKey !== undefined) {
+        if (!this.generatedSourceDetectionInfoBaseDirs.has(baseDir)) {
+          logGeneratedSourceDetectionInfo();
+          this.generatedSourceDetectionInfoBaseDirs.add(baseDir);
+        }
+        logMatchedGeneratedSourceFiles(observability);
+      }
+    }
+
+    const observabilityKey = createGeneratedSourceObservabilityLogKey(baseDir, observability);
+    if (observabilityKey !== this.lastLoggedObservabilityKey) {
+      this.lastLoggedObservabilityKey = observabilityKey;
+      logGeneratedSourceObservability(baseDir, observability);
+    }
+
+    return observability.telemetry;
   }
 
   dirtyCachesIfNeeded(configuration: Configuration) {
@@ -141,10 +124,6 @@ class GeneratedSourceStore implements FileStore {
         return;
       }
     }
-
-    if (getAnalyzableFilesConfigKey(configuration) !== this.analyzableFilesConfigKey) {
-      this.needsFilteredRefresh = true;
-    }
   }
 
   clearCache() {
@@ -152,8 +131,6 @@ class GeneratedSourceStore implements FileStore {
     this.canAccessFileSystem = undefined;
     this.derivedConfigKey = undefined;
     this.projectFileDiscoveryConfigKey = undefined;
-    this.analyzableFilesConfigKey = undefined;
-    this.needsFilteredRefresh = false;
     this.derivedMetadataInitialized = false;
     this.clearDerivedState();
   }
@@ -172,7 +149,12 @@ class GeneratedSourceStore implements FileStore {
     // The detector cache is derived from project metadata during postProcess().
   }
 
-  async postProcess(configuration: Configuration, requestContext?: FileStoreRequestContext) {
+  async postProcess(configuration: Configuration, _inputFiles?: AnalyzableFiles) {
+    if (!configuration.detectGeneratedCode) {
+      this.clearCache();
+      return;
+    }
+
     if (
       this.baseDir === undefined ||
       this.canAccessFileSystem === undefined ||
@@ -183,34 +165,21 @@ class GeneratedSourceStore implements FileStore {
     }
 
     const { baseDir, canAccessFileSystem } = this;
-    if (!baseDir || !canAccessFileSystem) {
-      this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
-      this.needsFilteredRefresh = false;
+    if (!baseDir || !canAccessFileSystem || this.derivedMetadataInitialized) {
       return;
     }
 
-    if (!this.derivedMetadataInitialized) {
-      const derived = await deriveGeneratedSources(
-        baseDir,
-        dependencyManifestStore.getPackageJsons(),
-        {
-          sourceFileMatcher: createConfiguredGeneratedSourceFileMatcher(configuration),
-        },
-      );
-      this.derivedFamilyByFile = new Map(derived.familyByFile);
-      this.resolvedFiles = new Set(this.derivedFamilyByFile.keys());
-      this.configPaths = derived.configPaths;
-      this.watchedOutputPaths = derived.watchedOutputPaths;
-      this.derivedMetadataInitialized = true;
-    }
-
-    this.analyzableFilesConfigKey = getAnalyzableFilesConfigKey(configuration);
-    this.refreshFilteredState(
-      configuration,
-      requestContext,
-      this.getRequestFilesKey(canAccessFileSystem, requestContext),
+    const derived = await deriveGeneratedSources(
+      baseDir,
+      dependencyManifestStore.getPackageJsons(),
+      {
+        sourceFileMatcher: createConfiguredGeneratedSourceFileMatcher(configuration),
+      },
     );
-    this.needsFilteredRefresh = false;
+    this.derivedFamilyByFile = new Map(derived.familyByFile);
+    this.configPaths = derived.configPaths;
+    this.watchedOutputPaths = derived.watchedOutputPaths;
+    this.derivedMetadataInitialized = true;
   }
 
   private isRelevantEvent(
@@ -225,11 +194,7 @@ class GeneratedSourceStore implements FileStore {
       return true;
     }
 
-    if (
-      this.configPaths.has(filename) ||
-      this.familyByFile.has(filename) ||
-      this.resolvedFiles.has(filename)
-    ) {
+    if (this.configPaths.has(filename) || this.derivedFamilyByFile.has(filename)) {
       return true;
     }
 
@@ -243,71 +208,9 @@ class GeneratedSourceStore implements FileStore {
   }
 
   private clearDerivedState() {
-    this.requestFilesKey = undefined;
     this.derivedFamilyByFile = new Map();
-    this.familyByFile = new Map();
-    this.resolvedFiles = new Set();
     this.configPaths = new Set();
     this.watchedOutputPaths = new Set();
-    this.generatedSourcesTelemetry = createEmptyGeneratedSourcesTelemetry();
-  }
-
-  private getRequestFilesKey(
-    canAccessFileSystem: boolean,
-    requestContext?: FileStoreRequestContext,
-  ): RequestFilesKey {
-    if (!requestContext?.isExplicitRequest) {
-      return canAccessFileSystem ? ALL_FILES_REQUEST_KEY : undefined;
-    }
-
-    const cachedRequestFilesKey = this.explicitRequestFilesKeys.get(requestContext);
-    if (cachedRequestFilesKey !== undefined) {
-      return cachedRequestFilesKey;
-    }
-
-    const requestFilesKey = createExplicitRequestFilesKey(
-      getRequestedFilePaths(requestContext),
-      requestContext.analyzableFiles,
-    );
-    this.explicitRequestFilesKeys.set(requestContext, requestFilesKey);
-    return requestFilesKey;
-  }
-
-  private refreshFilteredState(
-    configuration: Configuration,
-    requestContext: FileStoreRequestContext | undefined,
-    requestFilesKey: RequestFilesKey,
-  ) {
-    if (!this.baseDir) {
-      return;
-    }
-
-    this.requestFilesKey = requestFilesKey;
-    const analyzableFiles = requestContext?.analyzableFiles;
-    // Refresh only the match cache from the stable detector cache.
-    this.familyByFile = filterAnalyzableGeneratedFiles(this.derivedFamilyByFile, analyzableFiles);
-    const observability = buildGeneratedSourceObservability(
-      this.derivedFamilyByFile,
-      this.familyByFile,
-      configuration,
-    );
-    this.generatedSourcesTelemetry = observability.telemetry;
-    const detectionLogKey = createGeneratedSourceDetectionLogKey(this.baseDir, observability);
-    if (detectionLogKey !== this.lastLoggedGeneratedSourceDetectionKey) {
-      this.lastLoggedGeneratedSourceDetectionKey = detectionLogKey;
-      if (detectionLogKey !== undefined) {
-        if (!this.generatedSourceDetectionInfoBaseDirs.has(this.baseDir)) {
-          logGeneratedSourceDetectionInfo();
-          this.generatedSourceDetectionInfoBaseDirs.add(this.baseDir);
-        }
-        logMatchedGeneratedSourceFiles(observability);
-      }
-    }
-    const observabilityKey = createGeneratedSourceObservabilityLogKey(this.baseDir, observability);
-    if (observabilityKey !== this.lastLoggedObservabilityKey) {
-      this.lastLoggedObservabilityKey = observabilityKey;
-      logGeneratedSourceObservability(this.baseDir, observability);
-    }
   }
 }
 
@@ -320,12 +223,8 @@ function getGeneratedSourceConfigKey(configuration: Configuration) {
 
 function filterAnalyzableGeneratedFiles(
   familyByFile: ReadonlyMap<NormalizedAbsolutePath, string>,
-  analyzableFiles: AnalyzableFiles | undefined,
+  analyzableFiles: AnalyzableFiles,
 ) {
-  if (!analyzableFiles) {
-    return new Map(familyByFile);
-  }
-
   const filtered = new Map<NormalizedAbsolutePath, string>();
   for (const [filePath, family] of familyByFile) {
     if (Object.hasOwn(analyzableFiles, filePath)) {
@@ -333,40 +232,6 @@ function filterAnalyzableGeneratedFiles(
     }
   }
   return filtered;
-}
-
-function getRequestedFilePaths(
-  requestContext: FileStoreRequestContext,
-): ReadonlySet<NormalizedAbsolutePath> {
-  if (requestContext.requestedFilePaths) {
-    return requestContext.requestedFilePaths;
-  }
-
-  return new Set(Object.keys(requestContext.analyzableFiles ?? {}) as NormalizedAbsolutePath[]);
-}
-
-function createExplicitRequestFilesKey(
-  requestedFilePaths: ReadonlySet<NormalizedAbsolutePath>,
-  analyzableFiles: AnalyzableFiles | undefined,
-) {
-  const sortedRequestedFilePaths = [...requestedFilePaths].sort((left, right) =>
-    left.localeCompare(right),
-  );
-  const sortedAnalyzableFilePaths = Object.keys(analyzableFiles ?? {})
-    .map(filePath => filePath as NormalizedAbsolutePath)
-    .sort((left, right) => left.localeCompare(right));
-  const hash = createHash('sha256');
-  for (const filePath of sortedRequestedFilePaths) {
-    hash.update(filePath);
-    hash.update('\0');
-  }
-  hash.update('\x01');
-  for (const filePath of sortedAnalyzableFilePaths) {
-    hash.update(filePath);
-    hash.update('\0');
-  }
-
-  return `${EXPLICIT_FILE_SET_REQUEST_KEY_PREFIX}:${sortedRequestedFilePaths.length}:${sortedAnalyzableFilePaths.length}:${hash.digest('hex')}`;
 }
 
 function createConfiguredGeneratedSourceFileMatcher(configuration: Configuration) {

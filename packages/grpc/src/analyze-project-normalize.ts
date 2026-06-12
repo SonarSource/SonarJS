@@ -21,13 +21,7 @@ import {
   type ConfigurationInput,
   type JsTsLanguage as InternalJsTsLanguage,
 } from '../../analysis/src/common/configuration.js';
-import {
-  dependencyManifestStore,
-  generatedSourceStore,
-  initFileStores,
-  sourceFileStore,
-  tsConfigStore,
-} from '../../analysis/src/file-stores/index.js';
+import { initFileStores, resetFileStores } from '../../analysis/src/file-stores/index.js';
 import {
   sanitizeInputFiles,
   type ProjectAnalysisFileInput as SanitizableProjectFileInput,
@@ -69,9 +63,9 @@ export async function normalizeAnalyzeProjectRequest(
   const rulesWorkdir = normalizeOptionalPath(request.rulesWorkdir, configuration.baseDir);
 
   if (!filesPresent && configuration.canAccessFileSystem) {
-    resetFileStoresForFileSystemDiscovery();
+    resetFileStores();
   }
-  await initFileStores(configuration, sanitizedFiles?.fileStoreRequestContext);
+  await initFileStores(configuration, sanitizedFiles?.files);
 
   return {
     rules,
@@ -428,11 +422,4 @@ function hasExplicitFiles(
   // protobufjs 8 decodes omitted map fields as own empty objects, so with filesystem
   // access enabled the closest production behavior to "files omitted" is an empty map.
   return Object.keys(files).length > 0 || !canAccessFileSystem;
-}
-
-function resetFileStoresForFileSystemDiscovery() {
-  sourceFileStore.clearCache();
-  dependencyManifestStore.clearCache();
-  generatedSourceStore.clearCache();
-  tsConfigStore.clearCache();
 }

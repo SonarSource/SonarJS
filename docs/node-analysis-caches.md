@@ -58,23 +58,25 @@ The most important naming distinction is:
 
 They are related, but they do not own the same data and they do not have the same invalidation rules.
 
-## The Three File Stores
+## The Four File Stores
 
-`packages/analysis/src/file-stores/index.ts` exports three singleton stores:
+`packages/analysis/src/file-stores/index.ts` exports four singleton stores:
 
 - `sourceFileStore`
 - `dependencyManifestStore`
+- `generatedSourceStore`
 - `tsConfigStore`
 
 They are initialized through `initFileStores(configuration, inputFiles?)`.
 
 ### Summary Table
 
-| Store                     | What it owns                                                                               | How it is populated                                       | Main invalidation                                                                   |
-| ------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `sourceFileStore`         | analyzable files, file contents, file types, file statuses, ignored dirs, `DirectoryIndex` | filesystem walk or explicit request files                 | `baseDir` change, or direct reseeding from `inputFiles`                             |
-| `dependencyManifestStore` | raw preloadable manifest contents plus directory-parent graph                              | filesystem walk or simulated traversal from request files | `baseDir` change, manifest-shaped `fsEvents`                                        |
-| `tsConfigStore`           | discovered `tsconfig.json` files and provided `tsConfigPaths` matches                      | filesystem walk or simulated traversal from request files | `baseDir` change, `tsConfigPaths` change, `clearTsConfigCache`, relevant `fsEvents` |
+| Store                     | What it owns                                                                               | How it is populated                                       | Main invalidation                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `sourceFileStore`         | analyzable files, file contents, file types, file statuses, ignored dirs, `DirectoryIndex` | filesystem walk or explicit request files                 | `baseDir` change, or direct reseeding from `inputFiles`                                |
+| `dependencyManifestStore` | raw preloadable manifest contents plus directory-parent graph                              | filesystem walk or simulated traversal from request files | `baseDir` change, manifest-shaped `fsEvents`                                           |
+| `generatedSourceStore`    | project-derived generated-source families plus watched config/output paths                 | post-process derivation from discovered project metadata  | `baseDir` change, JS/TS suffix changes, project discovery changes, relevant `fsEvents` |
+| `tsConfigStore`           | discovered `tsconfig.json` files and provided `tsConfigPaths` matches                      | filesystem walk or simulated traversal from request files | `baseDir` change, `tsConfigPaths` change, `clearTsConfigCache`, relevant `fsEvents`    |
 
 ### `sourceFileStore`
 
@@ -126,6 +128,20 @@ It intentionally stores raw file contents rather than parsed manifest objects. P
 
 After traversal, `postProcess()` calls `fillManifestCaches()` to warm the "closest manifest" and "manifests in parents" caches used by the rest of the analyzer.
 
+### `generatedSourceStore`
+
+`GeneratedSourceStore` owns project-derived generated-source metadata.
+
+It stores:
+
+- generated-file to family mappings
+- detector config paths
+- watched output paths
+
+Unlike `sourceFileStore`, it is not keyed by the current explicit request contents. The current
+tagged subset and generated-source telemetry are computed later in `analyzeProject()` from
+`sourceFileStore.getFiles()`.
+
 ## Initialization Flow
 
 All project-style entrypoints go through the same basic sequence:
@@ -147,7 +163,7 @@ The main entrypoints are:
 
 One additional nuance in `normalizeAnalyzeProjectRequest()`:
 
-- when the request has no explicit files and filesystem access is enabled, it explicitly resets the three file stores before rediscovering the project from disk
+- when the request has no explicit files and filesystem access is enabled, it explicitly resets the four file stores before rediscovering the project from disk
 
 There is also a standalone gRPC path in `packages/grpc/src/service.ts` that always resets the shared caches before analyzing an inline virtual project rooted at `/`.
 
@@ -198,7 +214,7 @@ That precedence appears in several places:
 1. Input sanitization:
    `sanitizeInputFiles()` uses request-provided `fileContent` when available, and only reads disk when the caller omitted content.
 2. `sourceFileStore`:
-   when `inputFiles` are present, the store is directly reseeded from those files instead of reusing the previous analyzable set. The file-store request context also keeps the original explicit requested path set so generated-source refreshes can detect explicit-request changes without recomputing derived metadata.
+   when `inputFiles` are present, the store is directly reseeded from those files instead of reusing the previous analyzable set.
 3. Compiler host file reads:
    `IncrementalCompilerHost.readFile()` checks the current request context first, then the shared source-file content cache, then disk.
 4. Parsed AST reuse:
@@ -370,7 +386,7 @@ This is the path where the cache architecture matters most for latency.
 
 `packages/grpc/src/service.ts` intentionally does not share state between requests:
 
-- it resets all three file stores
+- it resets all four file stores
 - it clears the compiler-side source-file cache
 - it analyzes an inline request-only virtual project
 
