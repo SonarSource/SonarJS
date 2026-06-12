@@ -317,16 +317,18 @@ function installPeachFetchMock(t, options) {
       const pageIndex = Number(parsedUrl.searchParams.get('p') ?? '1');
       const pageSize = Number(parsedUrl.searchParams.get('ps') ?? '500');
       const start = (pageIndex - 1) * pageSize;
-      const children = componentChildren[componentKey] ?? { dirs: [], files: [] };
+      const children = componentChildren[componentKey] ?? { dirs: [], files: [], testFiles: [] };
 
       assert.equal(strategy, 'children');
       requests.componentTree.push({ componentKey, qualifiers, pageIndex });
 
       let components;
       if (qualifiers === 'DIR') {
-        components = children.dirs;
+        components = children.dirs ?? [];
       } else if (qualifiers === 'FIL') {
-        components = children.files;
+        components = children.files ?? [];
+      } else if (qualifiers === 'UTS') {
+        components = children.testFiles ?? [];
       } else {
         throw new Error(`unexpected qualifiers: ${qualifiers}`);
       }
@@ -909,6 +911,62 @@ test('runIssueHistory traverses resolved component-fallback child scopes with bo
     requests.maxConcurrentIssueRequests > 1,
     `expected concurrent child-scope traversal, got max concurrency ${requests.maxConcurrentIssueRequests}`,
   );
+});
+
+test('runIssueHistory includes UTS child components in resolved component fallback', async t => {
+  const analyses = createDailyAnalyses('2026-04-26T03:09:22Z', 6);
+  const sharedCreationDate = '2026-04-01T00:00:00Z';
+  const futureCloseDate = '2026-05-02T00:00:00Z';
+  const utsChildScopes = ['js:TestFileFallbackProject:test-file-1', 'js:TestFileFallbackProject:test-file-2'];
+  const utsChildIssues = Object.fromEntries(
+    utsChildScopes.map(scopeKey => [
+      scopeKey,
+      createResolvedIssues(5001, sharedCreationDate, futureCloseDate, 'ts'),
+    ]),
+  );
+  const { report, requests } = await runSingleProjectIssueHistory(t, {
+    analyses,
+    openIssues: [],
+    resolvedIssues: Object.values(utsChildIssues).flat(),
+    projectKey: 'js:TestFileFallbackProject',
+    projectName: 'test-file-fallback-project',
+    issueSources: {
+      'js:TestFileFallbackProject': {
+        openIssues: [],
+        resolvedIssues: Object.values(utsChildIssues).flat(),
+      },
+      ...Object.fromEntries(
+        utsChildScopes.map(scopeKey => [
+          scopeKey,
+          {
+            openIssues: [],
+            resolvedIssues: utsChildIssues[scopeKey],
+          },
+        ]),
+      ),
+    },
+    componentChildren: {
+      'js:TestFileFallbackProject': {
+        dirs: [],
+        files: [],
+        testFiles: utsChildScopes.map((scopeKey, index) => ({
+          key: scopeKey,
+          path: `test/example-${index + 1}.test.ts`,
+        })),
+      },
+      ...Object.fromEntries(utsChildScopes.map(scopeKey => [scopeKey, { dirs: [], files: [], testFiles: [] }])),
+    },
+  });
+
+  assert.deepEqual(report.summary, expectedSummary({ OK: 1 }));
+  assert.equal(report.rows[0].current_value, 10002);
+  assert.ok(
+    requests.componentTree.some(
+      entry => entry.componentKey === 'js:TestFileFallbackProject' && entry.qualifiers === 'UTS',
+    ),
+  );
+  assert.ok(requests.issueScopes.some(entry => entry.scopeKey === utsChildScopes[0] && entry.resolved));
+  assert.ok(requests.issueScopes.some(entry => entry.scopeKey === utsChildScopes[1] && entry.resolved));
 });
 
 test('runIssueHistory counts >10k resolved issues without relying on component splits', async t => {

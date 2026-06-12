@@ -560,13 +560,13 @@ async function fetchIssuesForComponent(componentKey, apiToken, params, normalize
       return [...olderIssues, ...newerIssues];
     }
 
-    const { directories, files } = await fetchDirectChildComponents(componentKey, apiToken, runtime);
-    if (directories.length === 0 && files.length === 0) {
+    const { directories, files, testFiles } = await fetchDirectChildComponents(componentKey, apiToken, runtime);
+    if (directories.length === 0 && files.length === 0 && testFiles.length === 0) {
       throw new Error(`Issue search exceeded ${DEFAULT_ISSUES_RESULT_WINDOW} results for leaf component ${componentKey}`);
     }
 
     const nestedIssues = await mapWithConcurrencyLimit(
-      [...files, ...directories],
+      [...files, ...testFiles, ...directories],
       DEFAULT_COMPONENT_FALLBACK_CONCURRENCY,
       component => fetchIssuesForComponent(component.key, apiToken, params, normalizePage, runtime),
     );
@@ -648,12 +648,13 @@ function computeCreationDateSplitTimestamp(lowerBoundTimestamp, upperBoundTimest
 }
 
 async function fetchDirectChildComponents(componentKey, apiToken, runtime) {
-  const [directories, files] = await Promise.all([
+  const [directories, files, testFiles] = await Promise.all([
     fetchChildComponents(componentKey, 'DIR', apiToken, runtime),
     fetchChildComponents(componentKey, 'FIL', apiToken, runtime),
+    fetchChildComponents(componentKey, 'UTS', apiToken, runtime),
   ]);
 
-  return { directories, files };
+  return { directories, files, testFiles };
 }
 
 async function fetchChildComponents(componentKey, qualifiers, apiToken, runtime) {
