@@ -38,6 +38,9 @@ const TEST_ONLY_RULES = new Set([
   'typescript:S6426',
 ]);
 
+// This is a conservative triage heuristic, not an exhaustive test-file detector.
+// Keep the pattern intentionally narrow; if a project does not clearly match,
+// fall back to UNCLASSIFIED_DROP rather than growing this into a broad classifier.
 const TEST_RELATED_PATH_PATTERN = new RegExp(
   String.raw`\.(?:test|spec|cy)\.(?:${DEFAULT_TEST_FILE_EXTENSIONS.join('|')})$|\.(?:e2e|mock)\.(?:${DEFAULT_TEST_FILE_EXTENSIONS.join('|')})$|(?:^|[\\/])(?:__tests__|__mocks__)[\\/]`,
 );
