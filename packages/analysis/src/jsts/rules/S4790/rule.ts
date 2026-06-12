@@ -202,27 +202,35 @@ function isIdentifierTruncated(identifier: estree.Node): boolean {
   );
 }
 
-// Conservative truncation check: only treat the call as truncation when at least one argument is a
-// non-zero numeric literal (positive or negative). Rejects all the obvious no-ops — `.slice()`,
-// `.slice(0)`, `.slice(-0)`, `.slice(0, undefined)`, `.slice(0, Infinity)`, etc.
-// Length-bound checks against the digest's own size (e.g. `.slice(0, 64)` on a 40-char sha1 hex)
-// remain out of scope — that needs digest-length and encoding awareness.
+// `slice` allows negative offsets; `substring` clamps negatives to 0.
 function isTruncationCall(call: estree.CallExpression): boolean {
   if (call.callee.type !== 'MemberExpression' || call.callee.property.type !== 'Identifier') {
     return false;
   }
-  if (!TRUNCATION_METHODS.has(call.callee.property.name)) {
+  const method = call.callee.property.name;
+  if (!TRUNCATION_METHODS.has(method)) {
     return false;
   }
-  return call.arguments.some(isNonZeroNumericLiteral);
+  const allowNegatives = method === 'slice';
+  return call.arguments.some(arg => isTruncatingArg(arg, allowNegatives));
 }
 
-function isNonZeroNumericLiteral(node: estree.Node | estree.SpreadElement): boolean {
+function isTruncatingArg(
+  node: estree.Node | estree.SpreadElement,
+  allowNegatives: boolean,
+): boolean {
   if (node.type === 'Literal') {
-    return typeof node.value === 'number' && node.value !== 0;
+    return typeof node.value === 'number' && node.value > 0;
   }
-  if (node.type === 'UnaryExpression' && (node.operator === '-' || node.operator === '+')) {
-    return isNonZeroNumericLiteral(node.argument);
+  if (node.type === 'UnaryExpression' && node.operator === '+') {
+    return isTruncatingArg(node.argument, allowNegatives);
+  }
+  if (node.type === 'UnaryExpression' && node.operator === '-' && allowNegatives) {
+    return (
+      node.argument.type === 'Literal' &&
+      typeof node.argument.value === 'number' &&
+      node.argument.value !== 0
+    );
   }
   return false;
 }
