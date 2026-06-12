@@ -1,58 +1,69 @@
-// Hook after a single it() — simplest noncompliant case
+// before-hook after a test — noncompliant; after-hook at bottom — compliant
 describe("user service", () => {
   it("returns list of users", () => {});
   beforeEach(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
 //^^^^^^^^^^
+  afterEach(() => {});
 });
 
 // Hooks before tests — compliant
-describe("compliant ordering", () => {
+describe("compliant: all hooks at top", () => {
   beforeEach(() => {});
   afterEach(() => {});
   it("a", () => {});
   it("b", () => {});
 });
 
-// Two hooks after one it — both reported independently
-describe("two misplaced hooks", () => {
+// after-hooks at the bottom of the suite — compliant
+describe("compliant: after-hooks at bottom", () => {
+  beforeEach(() => {});
+  it("a", () => {});
+  it("b", () => {});
+  afterEach(() => {});
+  afterAll(() => {});
+  after(() => {});
+});
+
+// Two hooks after a single it() — before-hook flagged, after-hook compliant at bottom
+describe("mixed hooks after last test", () => {
   it("a", () => {});
   beforeEach(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
 //^^^^^^^^^^
-  afterEach(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
-//^^^^^^^^^
+  afterEach(() => {});
 });
 
-// All six hook names exercised
-describe("all hook names", () => {
+// All hook names between two tests — every hook is noncompliant
+describe("all hook names between tests", () => {
   it("a", () => {});
   beforeAll(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
 //^^^^^^^^^
-  afterAll(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
+  afterAll(() => {}); // Noncompliant {{Move this hook above or below the test cases in the same scope.}}
 //^^^^^^^^
   beforeEach(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
 //^^^^^^^^^^
-  afterEach(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
+  afterEach(() => {}); // Noncompliant {{Move this hook above or below the test cases in the same scope.}}
 //^^^^^^^^^
   before(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
 //^^^^^^
-  after(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
+  after(() => {}); // Noncompliant {{Move this hook above or below the test cases in the same scope.}}
 //^^^^^
+  it("b", () => {});
 });
 
-// Hooks after .only / .skip member-expression test cases
+// before-hook after .only test case
 describe("only and skip variants", () => {
   it.only("a", () => {});
   beforeEach(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
 //^^^^^^^^^^
 });
 
+// after-hook trailing a .skip test case — compliant
 describe("skip variant", () => {
   test.skip("b", () => {});
-  afterEach(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
-//^^^^^^^^^
+  afterEach(() => {});
 });
 
-// Nested describe — inner suite judged independently; outer is compliant
+// Nested describe — inner suite judged independently
 describe("outer", () => {
   beforeEach(() => {});
   it("outer test", () => {});
@@ -64,7 +75,7 @@ describe("outer", () => {
   });
 });
 
-// Context scope — alias for describe
+// context scope — alias for describe
 context("context scope", () => {
   it("a", () => {});
   beforeEach(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
@@ -103,4 +114,45 @@ describe("only hooks", () => {
 describe("only tests", () => {
   it("a", () => {});
   it("b", () => {});
+});
+
+// before-hook after the last test — still noncompliant even with no later tests
+describe("before-hook after last test", () => {
+  it("a", () => {});
+  beforeEach(() => {}); // Noncompliant {{Move this hook above the test cases in the same scope.}}
+//^^^^^^^^^^
+});
+
+// after-hook between two tests — noncompliant
+describe("after-hook interleaved", () => {
+  it("a", () => {});
+  afterEach(() => {}); // Noncompliant {{Move this hook above or below the test cases in the same scope.}}
+//^^^^^^^^^
+  it("b", () => {});
+});
+
+// after-hooks split top + bottom (tie) — flag the bottom (tie-breaker)
+describe("after-hooks split: tie", () => {
+  afterEach(() => {});
+  it("a", () => {});
+  afterEach(() => {}); // Noncompliant {{Group this hook with the other after-hooks in the same scope.}}
+//^^^^^^^^^
+});
+
+// after-hooks split, more at top — flag the bottom minority
+describe("after-hooks split: top majority", () => {
+  afterEach(() => {});
+  afterAll(() => {});
+  it("a", () => {});
+  after(() => {}); // Noncompliant {{Group this hook with the other after-hooks in the same scope.}}
+//^^^^^
+});
+
+// after-hooks split, more at bottom — flag the top minority
+describe("after-hooks split: bottom majority", () => {
+  afterEach(() => {}); // Noncompliant {{Group this hook with the other after-hooks in the same scope.}}
+//^^^^^^^^^
+  it("a", () => {});
+  afterEach(() => {});
+  afterAll(() => {});
 });
