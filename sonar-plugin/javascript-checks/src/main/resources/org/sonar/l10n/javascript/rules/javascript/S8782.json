@@ -1,5 +1,5 @@
 {
-  "title": "Lifecycle hooks should not be interleaved with test cases",
+  "title": "Lifecycle hooks should not be interleaved with test cases or nested suites",
   "type": "CODE_SMELL",
   "status": "ready",
   "remediation": {
