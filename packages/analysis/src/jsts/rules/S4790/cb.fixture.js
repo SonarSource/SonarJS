@@ -47,6 +47,13 @@ crypto.createHash('sha1').update(p).digest('hex').toUpperCase().slice(0, 5);
 const h1 = crypto.createHash('sha1').update(x).digest('hex');
 h1.slice(0, 8);
 
+const PREFIX = 8;
+crypto.createHash('sha1').update(x).digest('hex').slice(0, PREFIX);
+crypto.createHash('md5').update(x).digest('hex').substring(0, PREFIX);
+
+const hConst = crypto.createHash('sha1').update(x).digest('hex');
+hConst.slice(0, PREFIX);
+
 const h2 = crypto.createHash('md5').update(x).digest('hex'); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
 useFully(h2);
 
@@ -65,6 +72,8 @@ crypto.createHash('md5').update(x).digest('hex').substring(0); // Noncompliant {
 crypto.createHash('sha1').update(x).digest('hex').slice(-0); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
 crypto.createHash('sha1').update(x).digest('hex').slice(0, undefined); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
 crypto.createHash('sha1').update(x).digest('hex').slice(0, Infinity); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+crypto.createHash('sha1').update(x).digest('hex').slice(undefined); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+crypto.createHash('sha1').update(x).digest('hex').slice('foo'); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
 crypto.createHash('md5').update(x).digest('hex').substring(0, undefined); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
 crypto.createHash('md5').update(x).digest('hex').substring(-1); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
 crypto.createHash('md5').update(x).digest('hex').substring('foo'); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
@@ -75,6 +84,8 @@ async function subtleTruncated() {
   const b1 = await crypto.subtle.digest('SHA-1', data);
   b1.slice(0, 4);
 
+  const LEN = 4;
+  (await crypto.subtle.digest('SHA-1', data)).slice(0, LEN);
   (await crypto.subtle.digest('SHA-1', data)).slice(0, 4);
 
   crypto.subtle.digest('SHA-1', data).then(buf => buf.slice(0, 4));
