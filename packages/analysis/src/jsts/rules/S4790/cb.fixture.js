@@ -62,6 +62,10 @@ h3.slice(0, 8);
 crypto.createHash('sha1').update(x).digest('hex').slice(); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
 crypto.createHash('sha1').update(x).digest('hex').slice(0); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
 crypto.createHash('md5').update(x).digest('hex').substring(0); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+crypto.createHash('sha1').update(x).digest('hex').slice(-0); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+crypto.createHash('sha1').update(x).digest('hex').slice(0, undefined); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+crypto.createHash('sha1').update(x).digest('hex').slice(0, Infinity); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+crypto.createHash('md5').update(x).digest('hex').substring(0, undefined); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
 
 // crypto.subtle.digest truncation — same idiom, async via await or .then
 async function subtleTruncated() {
