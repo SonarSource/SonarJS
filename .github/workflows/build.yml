@@ -187,6 +187,22 @@ jobs:
             resources/rule-data/.synced-sha-css
           retention-days: 1
 
+  check_rspec_sha:
+    runs-on: sonar-xs
+    name: Reject root rspec.sha on master
+    needs: [setup, populate_npm_cache]
+    if: >
+      (github.event_name == 'pull_request' && github.base_ref == 'master') ||
+      (github.event_name == 'merge_group' && github.event.merge_group.base_ref == 'refs/heads/master') ||
+      (github.event_name == 'push' && github.ref_name == 'master')
+    permissions: *read_permissions
+    steps:
+      - *checkout
+      - *mise
+      - *npm_cache
+      - name: Reject root rspec.sha override
+        run: npm run check-rspec-sha
+
   build:
     runs-on: sonar-l
     name: Build SonarJS on Linux
