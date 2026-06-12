@@ -221,7 +221,8 @@ function installPeachFetchMock(t, options) {
       const createdAfter = parsedUrl.searchParams.get('createdAfter');
       const createdBeforeTimestamp = Date.parse(parsedUrl.searchParams.get('createdBefore') ?? '');
       const createdBefore = parsedUrl.searchParams.get('createdBefore');
-      const scopeKey = parsedUrl.searchParams.get('componentKeys') ?? parsedUrl.searchParams.get('components');
+      assert.equal(parsedUrl.searchParams.has('components'), false);
+      const scopeKey = parsedUrl.searchParams.get('componentKeys');
       const source = issueSources[scopeKey];
       assert.ok(source, `unexpected issue scope: ${scopeKey}`);
       const failureKey = `${resolved ? 'resolved' : 'open'}:${pageIndex}`;
@@ -298,10 +299,10 @@ function installPeachFetchMock(t, options) {
         }
 
         return createFetchResponse({
+          total: filteredIssues.length,
           paging: {
             pageIndex,
             pageSize,
-            total: filteredIssues.length,
           },
           issues: filteredIssues.slice(start, start + pageSize),
         });

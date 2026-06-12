@@ -514,14 +514,14 @@ async function fetchOpenIssueCounts(projectKey, analyses, apiToken, runtime) {
 
 async function fetchOpenIssueCountBefore(projectKey, apiToken, createdBefore, runtime) {
   const response = await fetchIssuesPage(apiToken, {
-    components: projectKey,
+    componentKeys: projectKey,
     resolved: 'false',
     createdBefore,
     p: '1',
     ps: '1',
   }, runtime);
 
-  return response.paging?.total ?? (response.issues ?? []).length;
+  return getIssueSearchTotal(response);
 }
 
 async function fetchResolvedIssues(projectKey, apiToken, oldestAnalysisTimestamp, createdBefore, runtime) {
@@ -541,12 +541,12 @@ async function fetchResolvedIssues(projectKey, apiToken, oldestAnalysisTimestamp
 
 async function fetchIssuesForComponent(componentKey, apiToken, params, normalizePage, runtime) {
   const firstResponse = await fetchIssuesPage(apiToken, {
-    components: componentKey,
+    componentKeys: componentKey,
     ...params,
     p: '1',
     ps: String(DEFAULT_ISSUES_PAGE_SIZE),
   }, runtime);
-  const total = firstResponse.paging?.total ?? (firstResponse.issues ?? []).length;
+  const total = getIssueSearchTotal(firstResponse);
 
   if (total > DEFAULT_ISSUES_RESULT_WINDOW) {
     const splitRanges = splitIssueSearchByCreationDate(params, firstResponse.issues ?? []);
@@ -582,7 +582,7 @@ async function fetchIssuesForComponent(componentKey, apiToken, params, normalize
 
   for (let pageIndex = 2; ; pageIndex += 1) {
     const response = await fetchIssuesPage(apiToken, {
-      components: componentKey,
+      componentKeys: componentKey,
       ...params,
       p: String(pageIndex),
       ps: String(DEFAULT_ISSUES_PAGE_SIZE),
@@ -593,6 +593,10 @@ async function fetchIssuesForComponent(componentKey, apiToken, params, normalize
       return normalizedIssues;
     }
   }
+}
+
+function getIssueSearchTotal(response) {
+  return response.total ?? (response.issues ?? []).length;
 }
 
 function splitIssueSearchByCreationDate(params, issues) {
