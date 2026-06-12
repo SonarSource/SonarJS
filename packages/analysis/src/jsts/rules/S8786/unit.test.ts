@@ -18,10 +18,13 @@ import { NoTypeCheckingRuleTester } from '../../../../tests/jsts/tools/testers/r
 import { rule } from './rule.js';
 import { describe, it } from 'node:test';
 
-describe('S5852', () => {
-  it('S5852', () => {
-    const ruleTesterTs = new NoTypeCheckingRuleTester();
-    ruleTesterTs.run('redos', rule, {
+const message =
+  'Simplify this regular expression to reduce its runtime, as it has super-linear performance due to backtracking.';
+
+describe('S8786', () => {
+  it('S8786', () => {
+    const ruleTester = new NoTypeCheckingRuleTester();
+    ruleTester.run('super-linear-regex', rule, {
       valid: [
         {
           code: `
@@ -30,20 +33,35 @@ describe('S5852', () => {
       /a*(ab)*/;
       /x*|x*/;
       /a*b*/;
+      /^a+b/;
       `,
         },
         {
           code: String.raw`/\p{EMod}/u;`,
         },
+      ],
+      invalid: [
         {
-          // Polynomial-only (super-linear, non-exponential) — reported by S8786 instead
-          code: `
-      /([^,]*,)*/;
-      new RegExp('x*$');
-      `,
+          code: `/a+b/`,
+          errors: [{ message, line: 1 }],
         },
         {
-          // Polynomial-only real-world patterns — reported by S8786 instead
+          code: `/([^,]*,)*/`,
+          errors: [{ message, line: 1 }],
+        },
+        {
+          code: `new RegExp('x*$');`,
+          errors: [{ message, line: 1 }],
+        },
+        {
+          code: String.raw`/\s*$/`,
+          errors: [{ message, line: 1 }],
+        },
+        {
+          code: `/.*.*X/`,
+          errors: [{ message, line: 1 }],
+        },
+        {
           code: `
       protocol.trim().split(/ *, */);
       var matcher = /.+\\@.+\\..+/;
@@ -56,32 +74,22 @@ describe('S5852', () => {
       const entryPattern1 = /^(.)(.*?)\\t(.*?)\\t(.*?)\\t(.*?)\\u000d\\u000a$/
       const match = /^data:(?<type>.*?),(?<data>.*?)(?:#(?<hash>.*))?$/.exec(urlString);
       `,
+          errors: [
+            { message, line: 2 },
+            { message, line: 3 },
+            { message, line: 4 },
+            { message, line: 5 },
+            { message, line: 6 },
+            { message, line: 7 },
+            { message, line: 8 },
+            { message, line: 9 },
+            { message, line: 10 },
+            { message, line: 11 },
+          ],
         },
         {
           code: `new RegExp('[\\x09\\x0A]*$');`,
-        },
-      ],
-      invalid: [
-        {
-          code: `/(a+)+$/`,
-          errors: [
-            {
-              message: `Fix this regular expression that is vulnerable to exponential backtracking, as it can lead to denial of service.`,
-              line: 1,
-              endLine: 1,
-              column: 1,
-              endColumn: 9,
-            },
-          ],
-        },
-        {
-          code: String.raw`text.replace(/\033\[(\d+)*m/g, '');`,
-          errors: [
-            {
-              message: `Fix this regular expression that is vulnerable to exponential backtracking, as it can lead to denial of service.`,
-              line: 1,
-            },
-          ],
+          errors: [{ message, line: 1 }],
         },
       ],
     });
