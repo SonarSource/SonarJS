@@ -462,18 +462,27 @@ async function generateCssMultiBindingJavaCheckClass(
     }
   }
 
-  // stylelintRules() override — one entry per binding
+  // stylelintRules() override — one entry per binding.
+  // Split each field once into a local variable to avoid the duplicate splitAndTrim call
+  // that would arise from passing it to both toOptions() and the option class constructor.
   lines.push('@Override');
   lines.push('public List<StylelintRule> stylelintRules() {');
+  for (const meta of metas) {
+    for (const param of meta.listParam ?? []) {
+      lines.push(`  List<String> ${param.javaField}Split = splitAndTrim(${param.javaField});`);
+    }
+  }
   lines.push('  return Arrays.asList(');
   for (let i = 0; i < metas.length; i++) {
     const meta = metas[i];
     const isLast = i === metas.length - 1;
-    const param = meta.listParam?.[0];
-    if (param) {
-      const optClass = `${capitalize(param.stylelintOptionKey)}IgnoreOption`;
+    const params = meta.listParam ?? [];
+    if (params.length > 0) {
+      const optClass = `${capitalize(params[0].stylelintOptionKey)}IgnoreOption`;
+      const ctorArgs = params.map(p => `${p.javaField}Split`).join(', ');
+      const anyNonEmpty = params.map(p => `!${p.javaField}Split.isEmpty()`).join(' || ');
       lines.push(
-        `    new StylelintRule("${meta.stylelintKey}", toOptions(splitAndTrim(${param.javaField}), new ${optClass}(splitAndTrim(${param.javaField}))))${isLast ? '' : ','}`,
+        `    new StylelintRule("${meta.stylelintKey}", toOptions(${anyNonEmpty}, new ${optClass}(${ctorArgs})))${isLast ? '' : ','}`,
       );
     } else {
       lines.push(
@@ -485,18 +494,23 @@ async function generateCssMultiBindingJavaCheckClass(
   lines.push('}');
   lines.push('');
 
-  // Inner option classes — one per binding with a listParam
+  // Inner option classes — one per binding with listParams, covering all listParam fields
   for (const meta of metas) {
-    const param = meta.listParam?.[0];
-    if (!param) continue;
-    const optClass = `${capitalize(param.stylelintOptionKey)}IgnoreOption`;
+    const params = meta.listParam ?? [];
+    if (!params.length) continue;
+    const optClass = `${capitalize(params[0].stylelintOptionKey)}IgnoreOption`;
     lines.push(`private static class ${optClass} {`);
     lines.push('');
-    lines.push(`  // Used by GSON serialization`);
-    lines.push(`  private final List<String> ${param.stylelintOptionKey};`);
+    for (const param of params) {
+      lines.push(`  // Used by GSON serialization`);
+      lines.push(`  private final List<String> ${param.stylelintOptionKey};`);
+    }
     lines.push('');
-    lines.push(`  ${optClass}(List<String> ${param.stylelintOptionKey}) {`);
-    lines.push(`    this.${param.stylelintOptionKey} = ${param.stylelintOptionKey};`);
+    const ctorArgs = params.map(p => `List<String> ${p.stylelintOptionKey}`).join(', ');
+    lines.push(`  ${optClass}(${ctorArgs}) {`);
+    for (const param of params) {
+      lines.push(`    this.${param.stylelintOptionKey} = ${param.stylelintOptionKey};`);
+    }
     lines.push('  }');
     lines.push('}');
     lines.push('');
@@ -510,7 +524,7 @@ async function generateCssMultiBindingJavaCheckClass(
       ___IMPORTS___: [...imports].sort().join('\n'),
       ___RULE_KEY___: sqKey,
       ___CLASS_NAME___: sqKey,
-      ___STYLELINT_KEY___: `multi_${metas.map(m => m.stylelintKey).join('_')}`,
+      ___STYLELINT_KEY___: metas[0].stylelintKey,
       ___BODY___: lines.join('\n'),
     },
   );

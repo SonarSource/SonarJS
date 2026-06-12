@@ -32,7 +32,7 @@ public class RuleUtils {
     return Arrays.stream(split).map(String::trim).toList();
   }
 
-  public static List<Object> toOptions(List<String> values, Object ignoreOption) {
-    return values.isEmpty() ? Collections.emptyList() : Arrays.asList(true, ignoreOption);
+  public static List<Object> toOptions(boolean hasValues, Object ignoreOption) {
+    return hasValues ? Arrays.asList(true, ignoreOption) : Collections.emptyList();
   }
 }
