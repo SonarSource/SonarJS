@@ -17,16 +17,16 @@
 import type estree from 'estree';
 import { FUNCTION_NODES, isIdentifier } from './ast.js';
 
-const TEST_CONSTRUCTS = [
-  'describe',
-  'context',
-  'it',
-  'specify',
+const LIFECYCLE_HOOK_CONSTRUCTS = [
   'before',
   'after',
+  'beforeAll',
+  'afterAll',
   'beforeEach',
   'afterEach',
 ];
+
+const TEST_CONSTRUCTS = ['describe', 'context', 'it', 'specify', ...LIFECYCLE_HOOK_CONSTRUCTS];
 
 const TEST_CASE_CONSTRUCTS = ['it', 'specify', 'test'];
 
@@ -78,5 +78,15 @@ export function isTestCase(node: estree.Node): boolean {
  * @returns
  */
 export function isDescribeCase(node: estree.Node): boolean {
-  return isTestConstruct(node, ['describe']);
+  return isTestConstruct(node, ['describe', 'context']);
+}
+
+/**
+ * returns true if the node is a lifecycle hook
+ *
+ * @param node
+ * @returns
+ */
+export function isLifecycleHook(node: estree.Node): boolean {
+  return isTestConstruct(node, LIFECYCLE_HOOK_CONSTRUCTS);
 }
