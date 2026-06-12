@@ -53,6 +53,16 @@ useFully(h2);
 crypto.createHash('sha1').update(x).digest('hex'); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
 crypto.createHash('md5').update(x).digest('hex').toString(); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
 
+// Mixed-use binding: one ref full, one sliced — full ref still sensitive
+const h3 = crypto.createHash('md5').update(password).digest('hex'); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+storeCredential(h3);
+h3.slice(0, 8);
+
+// No-op slices don't actually truncate
+crypto.createHash('sha1').update(x).digest('hex').slice(); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+crypto.createHash('sha1').update(x).digest('hex').slice(0); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+crypto.createHash('md5').update(x).digest('hex').substring(0); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+
 // crypto.subtle.digest truncation — same idiom, async via await or .then
 async function subtleTruncated() {
   const b1 = await crypto.subtle.digest('SHA-1', data);
