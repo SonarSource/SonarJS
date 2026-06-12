@@ -52,6 +52,11 @@ function createResult(ruleId, baselineState, path) {
 function createGitExecFileSyncStub(headSha, files) {
   return (command, args) => {
     assert.equal(command, 'git');
+    if (args[0] === 'rev-parse') {
+      assert.deepEqual(args, ['rev-parse', '--verify', '--quiet', `${headSha}^{commit}`]);
+      return `${headSha}\n`;
+    }
+
     assert.equal(args[0], 'show');
 
     const filePath = args[1].slice(`${headSha}:`.length);
@@ -139,7 +144,6 @@ test('runDropForensics does not report high-confidence test-scope reclassificati
       peacheeRoot: '/tmp/peachee-js',
       outputPath: '/tmp/drop.json',
       sarifPaths: [sarifPath],
-      sourceHeadSha: '1111111111111111111111111111111111111111',
     },
     {
       readFileSync: filePath => {
@@ -162,10 +166,10 @@ test('runDropForensics does not report high-confidence test-scope reclassificati
         output[filePath] = content;
       },
       existsSync: () => {
-        throw new Error('existsSync should not be used when sourceHeadSha is provided');
+        return false;
       },
       execFileSync: () => {
-        throw new Error('fatal: path does not exist');
+        throw new Error('execFileSync should not be used when sourceHeadSha is omitted');
       },
     },
   );
@@ -173,7 +177,7 @@ test('runDropForensics does not report high-confidence test-scope reclassificati
   const report = JSON.parse(output['/tmp/drop.json']);
   assert.equal(report.project_metadata.resolved, false);
   assert.equal(report.diagnosis.id, 'UNCLASSIFIED_DROP');
-  assert.match(report.diagnosis.reasons[0], /project metadata/i);
+  assert.match(report.diagnosis.reasons[0], /sonar-project\.properties/i);
 });
 
 test('runDropForensics checks all new rules before diagnosing test scope reclassification', async () => {
@@ -231,4 +235,113 @@ test('runDropForensics checks all new rules before diagnosing test scope reclass
   const report = JSON.parse(output['/tmp/drop.json']);
   assert.equal(report.top_rules_by_baseline_state.new.length, 10);
   assert.equal(report.diagnosis.id, 'UNCLASSIFIED_DROP');
+});
+
+test('runDropForensics ignores unrelated SARIF results when selecting the DROP candidate', async () => {
+  const output = {};
+  const currentSarifPath = '/tmp/current.sarif';
+  const previousSarifPath = '/tmp/previous.sarif';
+  const sourceHeadSha = '1111111111111111111111111111111111111111';
+
+  await runDropForensics(
+    {
+      projectKey: 'js:angular-realworld-example-app',
+      sourceJobName: 'angular-realworld-example-app',
+      peacheeRoot: '/tmp/peachee-js',
+      outputPath: '/tmp/drop.json',
+      sarifPaths: [currentSarifPath, previousSarifPath],
+      sourceHeadSha,
+    },
+    {
+      readFileSync: filePath => {
+        if (filePath === currentSarifPath) {
+          return JSON.stringify(
+            createSarifRun('js:angular-realworld-example-app', [
+              createResult('python:S100', 'new', 'tools/script.py'),
+            ]),
+          );
+        }
+
+        if (filePath === previousSarifPath) {
+          return JSON.stringify(
+            createSarifRun('js:angular-realworld-example-app', [
+              createResult('typescript:S1537', 'absent', 'e2e/error-handling.spec.ts'),
+              createResult('typescript:S2699', 'new', 'src/app/features/article/services/comments.service.spec.ts'),
+            ]),
+          );
+        }
+
+        throw new Error(`unexpected read: ${filePath}`);
+      },
+      writeFileSync: (filePath, content) => {
+        output[filePath] = content;
+      },
+      existsSync: () => {
+        throw new Error('existsSync should not be used when sourceHeadSha is provided');
+      },
+      execFileSync: createGitExecFileSyncStub(sourceHeadSha, {
+        'angular-realworld-example-app/sonar-project.properties': [
+          'sonar.projectKey=js:angular-realworld-example-app',
+          'sonar.sources=.',
+          '',
+        ].join('\n'),
+      }),
+    },
+  );
+
+  const report = JSON.parse(output['/tmp/drop.json']);
+  assert.equal(report.selected_sarif_path, previousSarifPath);
+  assert.equal(report.sarif_candidates[0].result_count, 1);
+  assert.equal(report.sarif_candidates[0].supported_result_count, 0);
+  assert.equal(report.sarif_candidates[1].supported_result_count, 2);
+  assert.equal(report.diagnosis.id, 'LIKELY_TEST_SCOPE_RECLASSIFICATION');
+});
+
+test('runDropForensics reports manual review when source head is missing locally', async () => {
+  const output = {};
+  const sarifPath = '/tmp/current.sarif';
+  const sourceHeadSha = '1111111111111111111111111111111111111111';
+
+  await runDropForensics(
+    {
+      projectKey: 'js:angular-realworld-example-app',
+      sourceJobName: 'angular-realworld-example-app',
+      peacheeRoot: '/tmp/peachee-js',
+      outputPath: '/tmp/drop.json',
+      sarifPaths: [sarifPath],
+      sourceHeadSha,
+    },
+    {
+      readFileSync: filePath => {
+        if (filePath === sarifPath) {
+          return JSON.stringify(
+            createSarifRun('js:angular-realworld-example-app', [
+              createResult('typescript:S1537', 'absent', 'e2e/error-handling.spec.ts'),
+              createResult('typescript:S2699', 'new', 'src/app/features/article/services/comments.service.spec.ts'),
+            ]),
+          );
+        }
+
+        throw new Error(`unexpected read: ${filePath}`);
+      },
+      writeFileSync: (filePath, content) => {
+        output[filePath] = content;
+      },
+      existsSync: () => {
+        throw new Error('existsSync should not be used when sourceHeadSha is provided');
+      },
+      execFileSync: (command, args) => {
+        assert.equal(command, 'git');
+        assert.deepEqual(args, ['rev-parse', '--verify', '--quiet', `${sourceHeadSha}^{commit}`]);
+        throw new Error('fatal: bad object');
+      },
+    },
+  );
+
+  const report = JSON.parse(output['/tmp/drop.json']);
+  assert.equal(report.project_metadata.resolved, false);
+  assert.equal(report.project_metadata.resolution_status, 'source_head_sha_unavailable');
+  assert.match(report.project_metadata.resolution_error, /not available/i);
+  assert.equal(report.diagnosis.id, 'UNCLASSIFIED_DROP');
+  assert.match(report.diagnosis.reasons[0], /source-head-sha/i);
 });

@@ -25,6 +25,7 @@ import {
 } from './peach-project-properties.js';
 
 const DEFAULT_TEST_FILE_EXTENSIONS = ['js', 'mjs', 'cjs', 'jsx', 'vue', 'ts', 'mts', 'cts', 'tsx'];
+const SUPPORTED_RULE_PREFIXES = ['javascript:', 'typescript:', 'css:', 'web:', 'yaml:'];
 const TEST_ONLY_RULES = new Set([
   'javascript:S1607',
   'javascript:S2187',
@@ -77,7 +78,7 @@ export async function runDropForensics(options, runtime = {}) {
     summarizeSarifCandidate(sarifPath, options.projectKey, readFileSync),
   );
   const selectedCandidate =
-    candidates.find(candidate => candidate.projectMatched && candidate.resultCount > 0) ??
+    candidates.find(candidate => candidate.projectMatched && candidate.supportedResultCount > 0) ??
     candidates.find(candidate => candidate.projectMatched) ??
     candidates[0];
 
@@ -91,12 +92,15 @@ export async function runDropForensics(options, runtime = {}) {
       sonar_sources: projectMetadata.sonarSources,
       sonar_tests: projectMetadata.sonarTests,
       resolved: projectMetadata.resolved,
+      resolution_status: projectMetadata.resolutionStatus,
+      resolution_error: projectMetadata.resolutionError,
     },
     selected_sarif_path: selectedCandidate.sarifPath,
     sarif_candidates: candidates.map(candidate => ({
       sarif_path: candidate.sarifPath,
       project_matched: candidate.projectMatched,
       result_count: candidate.resultCount,
+      supported_result_count: candidate.supportedResultCount,
     })),
     counts_by_baseline_state: selectedCandidate.countsByBaselineState,
     test_like_counts_by_baseline_state: selectedCandidate.testLikeCountsByBaselineState,
@@ -115,23 +119,25 @@ function summarizeSarifCandidate(sarifPath, projectKey, readFileSync) {
   const runs = Array.isArray(sarif.runs) ? sarif.runs : [];
   const run = runs.find(candidate => candidate?.properties?.project === projectKey);
   const results = Array.isArray(run?.results) ? run.results : [];
+  const supportedResults = results.filter(result => isSupportedResult(result));
 
   return {
     sarifPath,
     projectMatched: run !== undefined,
     resultCount: results.length,
-    countsByBaselineState: countBy(results, result => normalizeBaselineState(result.baselineState)),
+    supportedResultCount: supportedResults.length,
+    countsByBaselineState: countBy(supportedResults, result => normalizeBaselineState(result.baselineState)),
     testLikeCountsByBaselineState: countBy(
-      results.filter(result => isTestLikeResult(result)),
+      supportedResults.filter(result => isTestLikeResult(result)),
       result => normalizeBaselineState(result.baselineState),
     ),
     nonTestLikeCountsByBaselineState: countBy(
-      results.filter(result => !isTestLikeResult(result)),
+      supportedResults.filter(result => !isTestLikeResult(result)),
       result => normalizeBaselineState(result.baselineState),
     ),
-    newRuleIds: collectRuleIdsByBaselineState(results, 'new'),
-    topRulesByBaselineState: summarizeTopRulesByState(results),
-    topPathsByBaselineState: summarizeTopPathsByState(results),
+    newRuleIds: collectRuleIdsByBaselineState(supportedResults, 'new'),
+    topRulesByBaselineState: summarizeTopRulesByState(supportedResults),
+    topPathsByBaselineState: summarizeTopPathsByState(supportedResults),
   };
 }
 
@@ -152,17 +158,29 @@ function diagnoseDrop(candidate, projectMetadata) {
     };
   }
 
+  if (candidate.supportedResultCount === 0) {
+    return {
+      id: 'UNCLASSIFIED_DROP',
+      confidence: 'low',
+      reasons: [
+        'The selected SARIF run has no supported-language differential results for this project, so it may not explain the DROP.',
+      ],
+    };
+  }
+
   const onlyTestLikePaths = Object.keys(candidate.nonTestLikeCountsByBaselineState).length === 0;
   const newRuleIds = candidate.newRuleIds;
   const onlyTestRuleAdditions =
     newRuleIds.length === 0 || newRuleIds.every(ruleId => TEST_ONLY_RULES.has(ruleId));
 
-  if (!projectMetadata.resolved && onlyTestLikePaths && onlyTestRuleAdditions) {
+  if (!projectMetadata.resolved) {
     return {
       id: 'UNCLASSIFIED_DROP',
       confidence: 'low',
       reasons: [
-        'Project metadata could not be read for this run, so test-scope reclassification cannot be confirmed.',
+        onlyTestLikePaths && onlyTestRuleAdditions
+          ? `${projectMetadata.resolutionError ?? 'Project metadata could not be read for this run'}, so test-scope reclassification cannot be confirmed.`
+          : (projectMetadata.resolutionError ?? 'Project metadata could not be read for this run.'),
       ],
     };
   }
@@ -293,6 +311,11 @@ function isTestLikeResult(result) {
   return resultPath !== undefined && TEST_RELATED_PATH_PATTERN.test(resultPath);
 }
 
+function isSupportedResult(result) {
+  const ruleId = result?.ruleId;
+  return typeof ruleId === 'string' && SUPPORTED_RULE_PREFIXES.some(prefix => ruleId.startsWith(prefix));
+}
+
 function getResultPath(result) {
   return result?.locations?.[0]?.physicalLocation?.artifactLocation?.uri;
 }
@@ -312,6 +335,22 @@ function resolveProjectMetadata(options, runtime) {
       sonarSources: options.projectMetadata.sonarSources ?? [],
       sonarTests: options.projectMetadata.sonarTests ?? [],
       resolved: true,
+      resolutionStatus: 'resolved',
+      resolutionError: undefined,
+    };
+  }
+
+  if (options.sourceHeadSha && !isCommitAvailable(options.peacheeRoot, options.sourceHeadSha, runtime.execFileSync)) {
+    return {
+      projectKey: options.projectKey,
+      projectDir: options.sourceJobName,
+      hasSonarTests: false,
+      sonarSources: [],
+      sonarTests: [],
+      resolved: false,
+      resolutionStatus: 'source_head_sha_unavailable',
+      resolutionError:
+        `Requested source-head-sha ${options.sourceHeadSha} is not available in ${options.peacheeRoot}. Review manually after fetching that commit.`,
     };
   }
 
@@ -326,6 +365,8 @@ function resolveProjectMetadata(options, runtime) {
     return {
       ...parseProjectProperties(propertiesContent, options.sourceJobName),
       resolved: true,
+      resolutionStatus: 'resolved',
+      resolutionError: undefined,
     };
   }
 
@@ -336,7 +377,23 @@ function resolveProjectMetadata(options, runtime) {
     sonarSources: [],
     sonarTests: [],
     resolved: false,
+    resolutionStatus: 'missing_project_properties',
+    resolutionError: options.sourceHeadSha
+      ? `Missing sonar-project.properties at ${options.sourceHeadSha}`
+      : 'Missing sonar-project.properties',
   };
+}
+
+function isCommitAvailable(peacheeRoot, headSha, execFileSync) {
+  try {
+    execFileSync('git', ['rev-parse', '--verify', '--quiet', `${headSha}^{commit}`], {
+      cwd: peacheeRoot,
+      encoding: 'utf-8',
+    });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function parseCliArgs(argv) {
