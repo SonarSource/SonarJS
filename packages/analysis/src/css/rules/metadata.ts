@@ -196,7 +196,7 @@ export const cssRulesMeta: CssRuleMeta[] = [
     listParam: [
       {
         sqKey: 'ignoreAtRules',
-        javaField: 'ignoredAtRules',
+        javaField: 'ignoreAtRules',
         description: 'Comma-separated list of "at-rules" to consider as valid.',
         default:
           'value,at-root,content,debug,each,else,error,for,function,if,include,mixin,return,warn,while,extend,use,forward,tailwind,apply,layer,container,theme,utility,custom-variant,source,plugin,config,reference,variant,/^@.*/',
@@ -261,6 +261,46 @@ export const cssRulesMeta: CssRuleMeta[] = [
   {
     sqKey: 'S7925',
     stylelintKey: 'sonar/text-spacing',
+  },
+  {
+    sqKey: 'S1874',
+    stylelintKey: 'selector-no-deprecated',
+    listParam: [
+      {
+        sqKey: 'ignoreSelectors',
+        javaField: 'ignoreSelectors',
+        description: 'Comma-separated list of selector names and/or regular expressions to ignore.',
+        default: '',
+        stylelintOptionKey: 'ignoreSelectors',
+      },
+    ],
+  },
+  {
+    sqKey: 'S1874',
+    stylelintKey: 'declaration-property-value-keyword-no-deprecated',
+    listParam: [
+      {
+        sqKey: 'ignoreKeywords',
+        javaField: 'ignoreKeywords',
+        description:
+          'Comma-separated list of strings and/or regular expressions for deprecated keywords to ignore.',
+        default: '',
+        stylelintOptionKey: 'ignoreKeywords',
+      },
+    ],
+  },
+  {
+    sqKey: 'S1874',
+    stylelintKey: 'at-rule-no-deprecated',
+    listParam: [
+      {
+        sqKey: 'ignoreAtRules',
+        javaField: 'ignoreAtRules',
+        description: 'Comma-separated list of deprecated "at-rules" to ignore.',
+        default: '',
+        stylelintOptionKey: 'ignoreAtRules',
+      },
+    ],
   },
 ];
 

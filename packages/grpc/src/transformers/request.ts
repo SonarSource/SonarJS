@@ -92,10 +92,7 @@ function transformActiveRules(activeRules: analyzer.IActiveRule[]): {
 
     switch (repo) {
       case 'css': {
-        const cssRuleConfig = buildCssRuleConfigurations(ruleKey, activeRule.params || []);
-        if (cssRuleConfig) {
-          cssRules.push(cssRuleConfig);
-        }
+        cssRules.push(...buildCssRuleConfigurations(ruleKey, activeRule.params || []));
         break;
       }
       case 'javascript':

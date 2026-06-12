@@ -18,11 +18,16 @@ package org.sonar.css.rules;
 
 import java.util.Collections;
 import java.util.List;
+import org.sonar.plugins.javascript.bridge.StylelintRule;
 
 public interface CssRule {
   String stylelintKey();
 
   default List<Object> stylelintOptions() {
     return Collections.emptyList();
+  }
+
+  default List<StylelintRule> stylelintRules() {
+    return Collections.singletonList(new StylelintRule(stylelintKey(), stylelintOptions()));
   }
 }

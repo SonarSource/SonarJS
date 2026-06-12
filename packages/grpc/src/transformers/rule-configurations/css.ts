@@ -20,36 +20,44 @@ import { isString } from '../../../../shared/src/helpers/sanitize.js';
 import { cssRulesMeta, type CssRuleMeta } from '../../../../analysis/src/css/rules/metadata.js';
 import type { RuleConfig as CssRuleConfig } from '../../../../analysis/src/css/linter/config.js';
 
-/** Map from SonarQube key to CSS rule metadata (includes param definitions) */
-const cssRuleMetaMap = new Map<string, CssRuleMeta>(cssRulesMeta.map(r => [r.sqKey, r]));
+/** Map from SonarQube key to CSS rule metadata entries (one sqKey may cover multiple stylelint rules) */
+const cssRuleMetaMap = new Map<string, CssRuleMeta[]>();
+for (const r of cssRulesMeta) {
+  const group = cssRuleMetaMap.get(r.sqKey) ?? [];
+  group.push(r);
+  cssRuleMetaMap.set(r.sqKey, group);
+}
 
 /**
- * Build a CssRuleConfig from a SonarQube rule key and gRPC params.
+ * Build CssRuleConfigs from a SonarQube rule key and gRPC params.
  *
- * Looks up the rule in cssRuleMetaMap, then builds stylelint configurations
- * mirroring the Java-generated `stylelintOptions()` logic:
+ * Returns one CssRuleConfig per stylelint rule bound to the sqKey, each
+ * consuming only its own listParam entries. Most rules have a single binding;
+ * multi-binding rules (e.g. S1874) return multiple configs.
+ *
+ * Configurations mirror the Java-generated `stylelintOptions()` logic:
  * - For `listParam`: builds `[true, { stylelintOptionKey: splitValues, ... }]`
  * - For `booleanParam`: when true, builds `[true, { optKey: values }]`; when false, `[]`
  * - No params: returns `[]` (stylelint will use `true` as the rule value)
  *
  * @param ruleKey - The SonarQube rule key (e.g. 'S4662')
  * @param params - Rule parameters from the gRPC request
- * @returns CssRuleConfig with stylelint key and configurations, or null if the rule is unknown
+ * @returns Array of CssRuleConfigs (empty array if the rule is unknown)
  */
 export function buildRuleConfigurations(
   ruleKey: string,
   params: analyzer.IRuleParam[],
-): CssRuleConfig | null {
-  const meta = cssRuleMetaMap.get(ruleKey);
-  if (!meta) {
+): CssRuleConfig[] {
+  const metas = cssRuleMetaMap.get(ruleKey);
+  if (!metas) {
     warn(`Ignoring unknown CSS rule ${ruleKey}. Not found in cssRuleMetaMap.`);
-    return null;
+    return [];
   }
 
-  return {
+  return metas.map(meta => ({
     key: meta.stylelintKey,
     configurations: buildConfigurations(params, meta),
-  };
+  }));
 }
 
 function sanitizeBooleanString(value: string | undefined, defaultValue: boolean) {
