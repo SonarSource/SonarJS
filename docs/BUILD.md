@@ -5,6 +5,7 @@
 Run `npm ci` first on a fresh checkout, and again after any `package.json` or lockfile change.
 
 Use `mvn install` for normal development after Node dependencies are installed.
+When generated RSPEC outputs are already present, this reuses them instead of refetching RSPEC.
 
 Avoid `mvn clean` while iterating. The fast Java-only loop reuses previously generated artifacts, and `clean` deletes them. Only use `mvn clean install` when you explicitly want to rebuild generated assets from scratch.
 
@@ -92,7 +93,7 @@ It skips:
 
 Important details:
 
-- `npm run generate-meta` already includes RSPEC sync and JS/TS proto generation, so those are skipped too.
+- `npm run generate-meta` reuses prepared RSPEC outputs when they already exist, and refreshes them when they do not.
 - The `bridge` module still adds `target/generated-sources` to the Java source roots, so an existing generated stub directory can be reused without re-running protobuf generation.
 - This flag is intended for Java-only loops after a previous non-skipped build.
 
@@ -125,6 +126,7 @@ The clean phase removes the outputs that make the fast loop work:
 - `sonar-plugin/sonar-javascript-plugin/src/main/resources/node-info.properties`
 - `lib/` and `bin/`
 - downloaded rule data under `resources/rule-data`
+- generated rule data copied under `sonar-plugin/javascript-checks/src/main/resources` and `sonar-plugin/css/src/main/resources`
 - generated rule metadata under `packages/analysis/src/jsts/rules`
 
 Because of that, a common workflow is:
