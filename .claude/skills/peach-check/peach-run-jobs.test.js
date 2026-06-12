@@ -48,15 +48,16 @@ test('collectRunJobs writes merged and derived job files from paginated gh api o
 
         return JSON.stringify([
           {
-            total_count: 4,
+            total_count: 5,
             jobs: [
               { name: 'prepare-project-matrix', conclusion: 'success' },
+              { name: 'prepare-diff-val', conclusion: 'success' },
               { name: 'project-a', conclusion: 'failure' },
               { name: 'project-b', conclusion: 'success' },
             ],
           },
           {
-            total_count: 4,
+            total_count: 5,
             jobs: [{ name: 'diff-validation-aggregated', conclusion: 'failure' }],
           },
         ]);
@@ -82,12 +83,13 @@ test('collectRunJobs writes merged and derived job files from paginated gh api o
   assert.deepEqual(mkdirCalls, [['/tmp/peach-target', { recursive: true }]]);
 
   assert.deepEqual(parseOutputJson(output, '/tmp/peach-target/jobs-merged.json'), {
-    expected_total: 4,
-    total_jobs: 4,
+    expected_total: 5,
+    total_jobs: 5,
     failed_jobs: 2,
     counts_match: true,
     jobs: [
       { name: 'prepare-project-matrix', conclusion: 'success' },
+      { name: 'prepare-diff-val', conclusion: 'success' },
       { name: 'project-a', conclusion: 'failure' },
       { name: 'project-b', conclusion: 'success' },
       { name: 'diff-validation-aggregated', conclusion: 'failure' },
@@ -103,7 +105,7 @@ test('collectRunJobs writes merged and derived job files from paginated gh api o
   });
 
   assert.deepEqual(parseOutputJson(output, '/tmp/peach-target/exclusion-counts.json'), {
-    excluded_workflow_jobs: 2,
+    excluded_workflow_jobs: 3,
     excluded_project_jobs: 0,
   });
 

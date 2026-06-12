@@ -19,16 +19,44 @@ import path from 'node:path';
 import process from 'node:process';
 import { execFileSync as nodeExecFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import {
+  parseProjectProperties,
+  readProjectPropertiesForJob,
+} from './peach-project-properties.js';
 
-const DEFAULT_METRIC = 'violations';
+const DEFAULT_METRIC = 'sonarjs_issue_count';
 const DEFAULT_BASELINE_WINDOW = 5;
 const DEFAULT_THRESHOLD_PCT = 5;
 const DEFAULT_THRESHOLD_ABS = 20;
 const DEFAULT_CONCURRENCY = 8;
-const DEFAULT_HISTORY_PAGE_SIZE = 100;
+const DEFAULT_ANALYSES_PAGE_SIZE = 100;
+const DEFAULT_ISSUES_PAGE_SIZE = 500;
+const DEFAULT_COMPONENTS_PAGE_SIZE = 500;
+const DEFAULT_ISSUES_RESULT_WINDOW = 10000;
 const DEFAULT_RETRY_ATTEMPTS = 3;
+const DEFAULT_COMPONENT_FALLBACK_CONCURRENCY = 8;
 const RETRYABLE_STATUS_CODES = new Set([429, 502, 503]);
-const WORKFLOW_ONLY_JOBS = new Set(['prepare-project-matrix', 'diff-validation-aggregated']);
+const RETRYABLE_UNKNOWN_URL_PATHS = new Set([
+  '/api/components/tree',
+  '/api/issues/search',
+  '/api/project_analyses/search',
+]);
+const WORKFLOW_ONLY_JOBS = new Set([
+  'prepare-project-matrix',
+  'prepare-diff-val',
+  'diff-validation-aggregated',
+]);
+const REPORT_STATUSES = Object.freeze([
+  'OK',
+  'DROP',
+  'INSUFFICIENT_HISTORY',
+  'STALE',
+  'UNRESOLVED_PROJECT',
+  'ERROR',
+]);
+const BLOCKING_STATUSES = new Set(['DROP', 'STALE', 'UNRESOLVED_PROJECT', 'ERROR']);
+export const SUPPORTED_LANGUAGES = Object.freeze(['js', 'ts', 'css', 'web', 'yaml']);
+const SUPPORTED_LANGUAGES_QUERY = SUPPORTED_LANGUAGES.join(',');
 
 export async function runIssueHistory(options, runtime = {}) {
   const readFileSync = runtime.readFileSync ?? fs.readFileSync;
@@ -62,12 +90,13 @@ export async function runIssueHistory(options, runtime = {}) {
   const rows = await mapWithConcurrencyLimit(
     Array.from(projectSources.entries()),
     concurrency,
-    async ([projectKey, sourceJobName]) =>
+    async ([projectKey, projectSource]) =>
       evaluateProjectHistory(
         {
           apiToken,
           projectKey,
-          sourceJobName,
+          sourceJobName: projectSource.sourceJobName,
+          projectMetadata: projectSource.projectMetadata,
           metric,
           baselineWindow,
           thresholdPct,
@@ -81,17 +110,32 @@ export async function runIssueHistory(options, runtime = {}) {
   const combinedRows = [...rows, ...unresolvedRows].sort((left, right) =>
     getRowIdentifier(left).localeCompare(getRowIdentifier(right)),
   );
+  const summary = summarizeRows(combinedRows);
+  const blockingRowsCount = countBlockingRows(combinedRows);
   const report = {
+    generated_at: new Date().toISOString(),
+    source_run_id: jobsJsonData.metadata.runId,
+    source_head_sha: jobsJsonData.metadata.headSha,
+    source_jobs_total: jobsJsonData.jobs.length,
+    source_job_completed_at_min: formatOptionalTimestamp(
+      earliestTimestamp(jobsJsonData.jobs.map(job => job.completedAt)),
+    ),
+    source_job_completed_at_max: formatOptionalTimestamp(
+      latestTimestamp(jobsJsonData.jobs.map(job => job.completedAt)),
+    ),
     metric,
+    languages: SUPPORTED_LANGUAGES,
     baseline_kind: 'median',
     baseline_window: baselineWindow,
     threshold_pct: thresholdPct,
     threshold_abs: thresholdAbs,
     concurrency,
-    analysis_after: freshnessWindow.analysisAfter,
-    analysis_before: freshnessWindow.analysisBefore,
+    analysis_window_start: freshnessWindow.analysisWindowStart,
+    analysis_window_end: freshnessWindow.analysisWindowEnd,
+    blocking_rows_count: blockingRowsCount,
+    clean_for_early_exit: jobsJsonData.jobs.length > 0 && blockingRowsCount === 0,
     rows: combinedRows.map(toJsonRow),
-    summary: summarizeRows(combinedRows),
+    summary,
   };
 
   writeFileSync(options.outputPath, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
@@ -106,6 +150,9 @@ function readJobsJsonData(jobsJsonPath, readFileSync) {
   return {
     jobs,
     metadata: {
+      runId:
+        readScalarField(payload, ['runId', 'run_id']) ??
+        (firstJob ? readScalarField(firstJob.raw, ['runId', 'run_id']) : undefined),
       headSha:
         readStringField(payload, ['headSha', 'head_sha']) ??
         (firstJob ? readStringField(firstJob.raw, ['headSha', 'head_sha']) : undefined),
@@ -177,7 +224,8 @@ function collectProjectsFromJobsJson(jobsJsonData, peacheeRoot, options) {
       continue;
     }
 
-    const projectKey = extractProjectKeyFromProperties(propertiesContent);
+    const projectMetadata = parseProjectProperties(propertiesContent, job.name);
+    const projectKey = projectMetadata.projectKey;
     if (!projectKey) {
       unresolvedRows.set(
         job.name,
@@ -187,7 +235,10 @@ function collectProjectsFromJobsJson(jobsJsonData, peacheeRoot, options) {
     }
 
     if (!options.projectSources.has(projectKey) || options.projectSources.get(projectKey) === undefined) {
-      options.projectSources.set(projectKey, job.name);
+      options.projectSources.set(projectKey, {
+        sourceJobName: job.name,
+        projectMetadata,
+      });
     }
   }
 
@@ -212,8 +263,8 @@ function resolveFreshnessWindow(jobsJsonData) {
   previousDayStart.setUTCDate(previousDayStart.getUTCDate() - 1);
 
   return {
-    analysisAfter: formatIsoTimestamp(previousDayStart.getTime()),
-    analysisBefore: formatIsoTimestamp(referenceTimestamp),
+    analysisWindowStart: formatIsoTimestamp(previousDayStart.getTime()),
+    analysisWindowEnd: formatIsoTimestamp(referenceTimestamp),
   };
 }
 
@@ -224,98 +275,94 @@ function ensureCommitAvailable(peacheeRoot, headSha, execFileSync) {
       encoding: 'utf-8',
     });
   } catch {
-    throw new Error(`jobs-json headSha ${headSha} is not available in ${peacheeRoot}`);
+    throw new Error(
+      `jobs-json headSha ${headSha} is not available in ${peacheeRoot}. Run: git -C ${peacheeRoot} fetch origin ${headSha}`,
+    );
   }
-}
-
-function readProjectPropertiesForJob(peacheeRoot, jobName, headSha, runtime) {
-  const relativePath = path.posix.join(jobName, 'sonar-project.properties');
-
-  if (headSha) {
-    try {
-      return runtime.execFileSync('git', ['show', `${headSha}:${relativePath}`], {
-        cwd: peacheeRoot,
-        encoding: 'utf-8',
-      });
-    } catch {
-      return undefined;
-    }
-  }
-
-  const propertiesPath = path.join(peacheeRoot, jobName, 'sonar-project.properties');
-  if (!runtime.existsSync(propertiesPath)) {
-    return undefined;
-  }
-
-  return runtime.readFileSync(propertiesPath, 'utf-8');
-}
-
-function extractProjectKeyFromProperties(content) {
-  const match = /^\s*sonar\.projectKey\s*=\s*(.+)\s*$/m.exec(content);
-  return match?.[1]?.trim();
 }
 
 async function evaluateProjectHistory(options, runtime) {
   try {
-    const history = await fetchMeasureHistoryWithRetry(
-      options.projectKey,
-      options.metric,
-      options.apiToken,
-      options.baselineWindow + 1,
-      runtime,
-    );
-    const sortedHistory = toDatedHistory(history);
+    const analyses = toDatedEntries(await fetchProjectAnalysesWithRetry(options.projectKey, options.apiToken, runtime));
 
-    if (sortedHistory.length === 0) {
-      return createErrorRow(options, 'No measure history found');
+    if (analyses.length === 0) {
+      return createErrorRow(options, 'No project analyses found');
     }
 
     const parsedWindow = parseFreshnessWindow(options.freshnessWindow);
-    const currentIndex = findCurrentHistoryIndex(sortedHistory, parsedWindow);
+    const currentIndex = findCurrentHistoryIndex(analyses, parsedWindow);
+    const latest = analyses[analyses.length - 1];
+    const previousAnalysisCount = Math.max(0, analyses.length - 1);
+    const historyTruncated = previousAnalysisCount > 0 && previousAnalysisCount < options.baselineWindow;
 
     if (currentIndex === -1) {
-      const latest = sortedHistory[sortedHistory.length - 1];
-      const previousValues = sortedHistory.slice(0, -1).map(entry => entry.value);
-      const historyTruncated = previousValues.length > 0 && previousValues.length < options.baselineWindow;
+      const latestCounts = await fetchIssueCountsWithRetry(
+        options.projectKey,
+        [latest],
+        options.apiToken,
+        runtime,
+      );
 
       return {
         status: 'STALE',
         projectKey: options.projectKey,
         sourceJobName: options.sourceJobName,
+        projectMetadata: options.projectMetadata,
         metric: options.metric,
         analysisDate: latest.date,
-        currentValue: latest.value,
+        currentValue: latestCounts.get(latest.date),
         baselineKind: 'median',
         baselineWindow: options.baselineWindow,
-        historyPoints: sortedHistory.length,
+        historyPoints: analyses.length,
         historyTruncated,
         message: 'Latest analysis is outside the freshness window',
       };
     }
 
-    const current = sortedHistory[currentIndex];
-    const previousValues = sortedHistory.slice(0, currentIndex).map(entry => entry.value);
-    const baselineSample = previousValues.slice(-options.baselineWindow);
-    const baselineValue = baselineSample.length > 0 ? computeMedian(baselineSample) : undefined;
-    const historyTruncated = previousValues.length > 0 && previousValues.length < options.baselineWindow;
+    const current = analyses[currentIndex];
+    const previousAnalyses = analyses.slice(0, currentIndex);
+    const baselineAnalyses = previousAnalyses.slice(-options.baselineWindow);
+    const relevantAnalyses = [...baselineAnalyses, current];
+    const countsByAnalysisDate = await fetchIssueCountsWithRetry(
+      options.projectKey,
+      relevantAnalyses,
+      options.apiToken,
+      runtime,
+    );
+    const currentValue = countsByAnalysisDate.get(current.date);
 
-    if (previousValues.length < options.baselineWindow) {
+    if (currentValue === undefined) {
+      throw new Error(`Missing issue count for analysis ${current.date}`);
+    }
+
+    const previousValues = baselineAnalyses.map(analysis => countsByAnalysisDate.get(analysis.date));
+    if (previousValues.some(value => value === undefined)) {
+      throw new Error(`Missing baseline issue counts for ${options.projectKey}`);
+    }
+
+    const baselineValue = previousValues.length > 0 ? computeMedian(previousValues) : undefined;
+    const currentHistoryPoints = currentIndex + 1;
+    const currentHistoryTruncated =
+      previousAnalyses.length > 0 && previousAnalyses.length < options.baselineWindow;
+
+    if (previousAnalyses.length < options.baselineWindow) {
       return {
         status: 'INSUFFICIENT_HISTORY',
         projectKey: options.projectKey,
         sourceJobName: options.sourceJobName,
+        projectMetadata: options.projectMetadata,
         metric: options.metric,
         analysisDate: current.date,
-        currentValue: current.value,
+        currentValue,
         baselineValue,
         baselineKind: 'median',
         baselineWindow: options.baselineWindow,
-        historyPoints: currentIndex + 1,
-        historyTruncated,
+        historyPoints: currentHistoryPoints,
+        historyTruncated: currentHistoryTruncated,
       };
     }
 
-    const dropAbs = (baselineValue ?? 0) - current.value;
+    const dropAbs = (baselineValue ?? 0) - currentValue;
     const dropPct = baselineValue && baselineValue > 0 ? (dropAbs / baselineValue) * 100 : 0;
     const clearsPctThreshold = dropPct >= options.thresholdPct;
     const clearsAbsNoiseFloor = dropAbs >= options.thresholdAbs;
@@ -327,14 +374,15 @@ async function evaluateProjectHistory(options, runtime) {
       status,
       projectKey: options.projectKey,
       sourceJobName: options.sourceJobName,
+      projectMetadata: options.projectMetadata,
       metric: options.metric,
       analysisDate: current.date,
-      currentValue: current.value,
+      currentValue,
       baselineValue,
       baselineKind: 'median',
       baselineWindow: options.baselineWindow,
-      historyPoints: currentIndex + 1,
-      historyTruncated: false,
+      historyPoints: currentHistoryPoints,
+      historyTruncated: currentHistoryTruncated,
       dropAbs,
       dropPct,
     };
@@ -343,17 +391,25 @@ async function evaluateProjectHistory(options, runtime) {
   }
 }
 
-async function fetchMeasureHistoryWithRetry(projectKey, metric, apiToken, requiredHistoryPoints, runtime) {
-  const fetchMeasureHistory = runtime.fetchMeasureHistory ?? defaultFetchMeasureHistory;
+async function fetchProjectAnalysesWithRetry(projectKey, apiToken, runtime) {
+  const fetchProjectAnalyses = runtime.fetchProjectAnalyses ?? defaultFetchProjectAnalyses;
+  return fetchProjectAnalyses(projectKey, apiToken, runtime);
+}
+
+async function fetchIssueCountsWithRetry(projectKey, analyses, apiToken, runtime) {
+  const fetchIssueCounts = runtime.fetchIssueCounts ?? defaultFetchIssueCounts;
+  return fetchIssueCounts(projectKey, analyses, apiToken, runtime);
+}
+
+async function retryPeachRequest(request, runtime) {
   const sleep = runtime.sleep ?? (ms => new Promise(resolve => setTimeout(resolve, ms)));
   const random = runtime.random ?? Math.random;
 
   for (let attempt = 0; attempt < DEFAULT_RETRY_ATTEMPTS; attempt += 1) {
     try {
-      return await fetchMeasureHistory(projectKey, metric, apiToken, requiredHistoryPoints);
+      return await request();
     } catch (error) {
-      const statusCode = getStatusCode(error);
-      const isRetryable = statusCode !== undefined && RETRYABLE_STATUS_CODES.has(statusCode);
+      const isRetryable = isRetryablePeachError(error);
       if (!isRetryable || attempt === DEFAULT_RETRY_ATTEMPTS - 1) {
         throw error;
       }
@@ -363,54 +419,310 @@ async function fetchMeasureHistoryWithRetry(projectKey, metric, apiToken, requir
     }
   }
 
-  throw new Error(`Failed to fetch measure history for ${projectKey}`);
+  throw new Error('Peach request retry loop exhausted');
 }
 
-async function defaultFetchMeasureHistory(projectKey, metric, apiToken, requiredHistoryPoints = DEFAULT_BASELINE_WINDOW + 1) {
-  const pageSize = Math.max(DEFAULT_HISTORY_PAGE_SIZE, requiredHistoryPoints);
-  const firstPage = await fetchMeasureHistoryPage(projectKey, metric, apiToken, 1, pageSize);
+async function defaultFetchProjectAnalyses(projectKey, apiToken, runtime) {
+  const analyses = [];
 
-  if (firstPage.total <= firstPage.history.length) {
-    return firstPage.history;
+  for (let pageIndex = 1; ; pageIndex += 1) {
+    const page = await fetchProjectAnalysesPage(
+      projectKey,
+      apiToken,
+      pageIndex,
+      DEFAULT_ANALYSES_PAGE_SIZE,
+      runtime,
+    );
+    analyses.push(
+      ...(page.analyses ?? [])
+        .map(entry => ({
+          date: entry.date ?? '',
+        }))
+        .filter(entry => entry.date.length > 0),
+    );
+
+    const total = page.paging?.total ?? analyses.length;
+    if (pageIndex * DEFAULT_ANALYSES_PAGE_SIZE >= total) {
+      break;
+    }
   }
 
-  const lastPageIndex = Math.ceil(firstPage.total / pageSize);
-  const history = [...firstPage.history];
-
-  // Freshness-window matching can target an older analysis when newer scans exist, so the
-  // caller needs the full ordered series rather than only the tail pages.
-  // Any later-page failure bubbles to fetchMeasureHistoryWithRetry(), which retries the
-  // full pagination pass so every page gets identical retry handling.
-  for (let pageIndex = 2; pageIndex <= lastPageIndex; pageIndex += 1) {
-    const page = await fetchMeasureHistoryPage(projectKey, metric, apiToken, pageIndex, pageSize);
-    history.push(...page.history);
-  }
-
-  return history;
+  return analyses;
 }
 
-async function fetchMeasureHistoryPage(projectKey, metric, apiToken, pageIndex, pageSize) {
+async function fetchProjectAnalysesPage(projectKey, apiToken, pageIndex, pageSize, runtime) {
   const params = new URLSearchParams({
-    component: projectKey,
-    metrics: metric,
+    project: projectKey,
     p: String(pageIndex),
     ps: String(pageSize),
   });
-  const response = await fetchPeachJson(`/api/measures/search_history?${params.toString()}`, apiToken);
-  const measure = response.measures?.find(entry => entry.metric === metric) ?? response.measures?.[0];
 
-  return {
-    total: response.paging?.total ?? measure?.history?.length ?? 0,
-    history: (measure?.history ?? [])
-      .map(entry => ({
-        date: entry.date ?? '',
-        value: Number(entry.value),
-      }))
-      .filter(entry => entry.date.length > 0 && Number.isFinite(entry.value)),
-  };
+  return fetchPeachJson(`/api/project_analyses/search?${params.toString()}`, apiToken, runtime);
 }
 
-async function fetchPeachJson(pathname, apiToken) {
+async function defaultFetchIssueCounts(projectKey, analyses, apiToken, runtime) {
+  const targetAnalyses = toDatedEntries(analyses);
+  if (targetAnalyses.length === 0) {
+    return new Map();
+  }
+
+  const oldestAnalysisTimestamp = targetAnalyses[0].timestamp;
+  const latestAnalysisTimestamp = targetAnalyses[targetAnalyses.length - 1].timestamp;
+  const createdBefore = formatExclusiveIsoTimestamp(latestAnalysisTimestamp);
+  const [openCountsByAnalysisDate, resolvedIssues] = await Promise.all([
+    fetchOpenIssueCounts(projectKey, targetAnalyses, apiToken, runtime),
+    fetchResolvedIssues(projectKey, apiToken, oldestAnalysisTimestamp, createdBefore, runtime),
+  ]);
+  const countsByAnalysisDate = new Map();
+
+  for (const analysis of targetAnalyses) {
+    const openIssueCount = openCountsByAnalysisDate.get(analysis.date);
+    if (openIssueCount === undefined) {
+      throw new Error(`Missing open issue count for analysis ${analysis.date}`);
+    }
+
+    let count = openIssueCount;
+    for (const issue of resolvedIssues) {
+      if (issue.creationTimestamp <= analysis.timestamp && issue.closeTimestamp > analysis.timestamp) {
+        count += 1;
+      }
+    }
+
+    countsByAnalysisDate.set(analysis.date, count);
+  }
+
+  return countsByAnalysisDate;
+}
+
+async function fetchOpenIssueCounts(projectKey, analyses, apiToken, runtime) {
+  const countsByCreatedBefore = new Map();
+  const countsByAnalysisDate = new Map();
+
+  for (const analysis of analyses) {
+    const createdBefore = formatExclusiveIsoTimestamp(analysis.timestamp);
+    let count = countsByCreatedBefore.get(createdBefore);
+    if (count === undefined) {
+      count = await fetchOpenIssueCountBefore(projectKey, apiToken, createdBefore, runtime);
+      countsByCreatedBefore.set(createdBefore, count);
+    }
+
+    countsByAnalysisDate.set(analysis.date, count);
+  }
+
+  return countsByAnalysisDate;
+}
+
+async function fetchOpenIssueCountBefore(projectKey, apiToken, createdBefore, runtime) {
+  const response = await fetchIssuesPage(apiToken, {
+    componentKeys: projectKey,
+    resolved: 'false',
+    createdBefore,
+    p: '1',
+    ps: '1',
+  }, runtime);
+
+  return getIssueSearchTotal(response);
+}
+
+async function fetchResolvedIssues(projectKey, apiToken, oldestAnalysisTimestamp, createdBefore, runtime) {
+  return fetchIssuesForComponent(
+    projectKey,
+    apiToken,
+    {
+      resolved: 'true',
+      createdBefore,
+      s: 'CREATION_DATE',
+      asc: 'true',
+    },
+    issues => normalizeResolvedIssues(issues, oldestAnalysisTimestamp),
+    runtime,
+  );
+}
+
+async function fetchIssuesForComponent(componentKey, apiToken, params, normalizePage, runtime) {
+  const firstResponse = await fetchIssuesPage(apiToken, {
+    componentKeys: componentKey,
+    ...params,
+    p: '1',
+    ps: String(DEFAULT_ISSUES_PAGE_SIZE),
+  }, runtime);
+  const total = getIssueSearchTotal(firstResponse);
+
+  if (total > DEFAULT_ISSUES_RESULT_WINDOW) {
+    const splitRanges = splitIssueSearchByCreationDate(params, firstResponse.issues ?? []);
+    if (splitRanges) {
+      const [olderRangeParams, newerRangeParams] = splitRanges;
+      const [olderIssues, newerIssues] = await Promise.all([
+        fetchIssuesForComponent(componentKey, apiToken, olderRangeParams, normalizePage, runtime),
+        fetchIssuesForComponent(componentKey, apiToken, newerRangeParams, normalizePage, runtime),
+      ]);
+
+      return [...olderIssues, ...newerIssues];
+    }
+
+    const { directories, files, testFiles } = await fetchDirectChildComponents(componentKey, apiToken, runtime);
+    if (directories.length === 0 && files.length === 0 && testFiles.length === 0) {
+      throw new Error(`Issue search exceeded ${DEFAULT_ISSUES_RESULT_WINDOW} results for leaf component ${componentKey}`);
+    }
+
+    const nestedIssues = await mapWithConcurrencyLimit(
+      [...files, ...testFiles, ...directories],
+      DEFAULT_COMPONENT_FALLBACK_CONCURRENCY,
+      component => fetchIssuesForComponent(component.key, apiToken, params, normalizePage, runtime),
+    );
+
+    return nestedIssues.flat();
+  }
+
+  const normalizedIssues = [...normalizePage(firstResponse.issues ?? [])];
+
+  if (DEFAULT_ISSUES_PAGE_SIZE >= total) {
+    return normalizedIssues;
+  }
+
+  for (let pageIndex = 2; ; pageIndex += 1) {
+    const response = await fetchIssuesPage(apiToken, {
+      componentKeys: componentKey,
+      ...params,
+      p: String(pageIndex),
+      ps: String(DEFAULT_ISSUES_PAGE_SIZE),
+    }, runtime);
+    normalizedIssues.push(...normalizePage(response.issues ?? []));
+
+    if (pageIndex * DEFAULT_ISSUES_PAGE_SIZE >= total) {
+      return normalizedIssues;
+    }
+  }
+}
+
+function getIssueSearchTotal(response) {
+  return response.total ?? (response.issues ?? []).length;
+}
+
+function splitIssueSearchByCreationDate(params, issues) {
+  const createdBeforeTimestamp = parseTimestamp(params.createdBefore);
+  const earliestIssueTimestamp = earliestCreationTimestamp(issues);
+  if (createdBeforeTimestamp === undefined || earliestIssueTimestamp === undefined) {
+    return undefined;
+  }
+
+  const createdAfterTimestamp = parseTimestamp(params.createdAfter);
+  const lowerBoundTimestamp = Math.max(createdAfterTimestamp ?? earliestIssueTimestamp, earliestIssueTimestamp);
+  const splitTimestamp = computeCreationDateSplitTimestamp(lowerBoundTimestamp, createdBeforeTimestamp);
+  if (splitTimestamp === undefined) {
+    return undefined;
+  }
+
+  const splitBoundary = formatPeachDateTime(splitTimestamp);
+  return [
+    {
+      ...params,
+      createdBefore: splitBoundary,
+    },
+    {
+      ...params,
+      createdAfter: splitBoundary,
+    },
+  ];
+}
+
+function earliestCreationTimestamp(issues) {
+  return (issues ?? []).reduce((earliest, issue) => {
+    const timestamp = parseTimestamp(issue.creationDate);
+    if (timestamp === undefined) {
+      return earliest;
+    }
+
+    return earliest === undefined || timestamp < earliest ? timestamp : earliest;
+  }, undefined);
+}
+
+function computeCreationDateSplitTimestamp(lowerBoundTimestamp, upperBoundTimestamp) {
+  const lowerBoundSecond = floorToSecond(lowerBoundTimestamp);
+  const upperBoundSecond = floorToSecond(upperBoundTimestamp);
+
+  if (upperBoundSecond - lowerBoundSecond < 2000) {
+    return undefined;
+  }
+
+  const midpoint = lowerBoundSecond + Math.floor((upperBoundSecond - lowerBoundSecond) / 2);
+  const splitTimestamp = roundUpToNextSecond(midpoint - 1);
+
+  return splitTimestamp > lowerBoundSecond && splitTimestamp < upperBoundSecond ? splitTimestamp : undefined;
+}
+
+async function fetchDirectChildComponents(componentKey, apiToken, runtime) {
+  const [directories, files, testFiles] = await Promise.all([
+    fetchChildComponents(componentKey, 'DIR', apiToken, runtime),
+    fetchChildComponents(componentKey, 'FIL', apiToken, runtime),
+    fetchChildComponents(componentKey, 'UTS', apiToken, runtime),
+  ]);
+
+  return { directories, files, testFiles };
+}
+
+async function fetchChildComponents(componentKey, qualifiers, apiToken, runtime) {
+  const components = [];
+
+  for (let pageIndex = 1; ; pageIndex += 1) {
+    const response = await fetchComponentsTreePage(componentKey, qualifiers, apiToken, pageIndex, runtime);
+    components.push(...(response.components ?? []));
+
+    const total = response.paging?.total ?? components.length;
+    if (pageIndex * DEFAULT_COMPONENTS_PAGE_SIZE >= total) {
+      return components;
+    }
+  }
+}
+
+async function fetchComponentsTreePage(componentKey, qualifiers, apiToken, pageIndex, runtime) {
+  const query = new URLSearchParams({
+    component: componentKey,
+    qualifiers,
+    strategy: 'children',
+    p: String(pageIndex),
+    ps: String(DEFAULT_COMPONENTS_PAGE_SIZE),
+  });
+
+  return fetchPeachJson(`/api/components/tree?${query.toString()}`, apiToken, runtime);
+}
+
+async function fetchIssuesPage(apiToken, params, runtime) {
+  const query = new URLSearchParams({
+    languages: SUPPORTED_LANGUAGES_QUERY,
+    ...params,
+  });
+
+  return fetchPeachJson(`/api/issues/search?${query.toString()}`, apiToken, runtime);
+}
+
+function normalizeResolvedIssues(issues, oldestAnalysisTimestamp) {
+  return (issues ?? []).flatMap(issue => {
+    const creationTimestamp = parseTimestamp(issue.creationDate);
+    const closeTimestamp = parseTimestamp(issue.closeDate);
+
+    if (creationTimestamp === undefined || closeTimestamp === undefined) {
+      return [];
+    }
+
+    if (closeTimestamp <= oldestAnalysisTimestamp) {
+      return [];
+    }
+
+    return [
+      {
+        creationTimestamp,
+        closeTimestamp,
+      },
+    ];
+  });
+}
+
+async function fetchPeachJson(pathname, apiToken, runtime) {
+  return retryPeachRequest(() => fetchPeachJsonOnce(pathname, apiToken), runtime);
+}
+
+async function fetchPeachJsonOnce(pathname, apiToken) {
   const response = await fetch(`https://peach.sonarsource.com${pathname}`, {
     headers: {
       Authorization: `Basic ${Buffer.from(`${apiToken}:`).toString('base64')}`,
@@ -448,8 +760,8 @@ function createRequestError(message, statusCode) {
   return error;
 }
 
-function toDatedHistory(history) {
-  return history
+function toDatedEntries(entries) {
+  return entries
     .flatMap(entry => {
       const timestamp = parseTimestamp(entry.date);
       return timestamp === undefined ? [] : [{ ...entry, timestamp }];
@@ -458,33 +770,42 @@ function toDatedHistory(history) {
 }
 
 function parseFreshnessWindow(window) {
-  const analysisAfterTimestamp = parseTimestamp(window.analysisAfter);
-  const analysisBeforeTimestamp = parseTimestamp(window.analysisBefore);
+  const analysisWindowStartTimestamp = parseTimestamp(
+    window.analysisWindowStart ?? window.analysisAfter,
+  );
+  const analysisWindowEndTimestamp = parseTimestamp(
+    window.analysisWindowEnd ?? window.analysisBefore,
+  );
 
   if (
-    analysisAfterTimestamp !== undefined &&
-    analysisBeforeTimestamp !== undefined &&
-    analysisAfterTimestamp > analysisBeforeTimestamp
+    analysisWindowStartTimestamp !== undefined &&
+    analysisWindowEndTimestamp !== undefined &&
+    analysisWindowStartTimestamp > analysisWindowEndTimestamp
   ) {
-    throw new Error('analysisAfter must be earlier than or equal to analysisBefore');
+    throw new Error('analysisWindowStart must be earlier than or equal to analysisWindowEnd');
   }
 
   return {
-    analysisAfterTimestamp,
-    analysisBeforeTimestamp,
+    analysisWindowStartTimestamp,
+    analysisWindowEndTimestamp,
   };
 }
 
 function findCurrentHistoryIndex(history, window) {
-  if (window.analysisAfterTimestamp === undefined && window.analysisBeforeTimestamp === undefined) {
+  if (
+    window.analysisWindowStartTimestamp === undefined &&
+    window.analysisWindowEndTimestamp === undefined
+  ) {
     return history.length - 1;
   }
 
   for (let index = history.length - 1; index >= 0; index -= 1) {
     const point = history[index];
     if (
-      (window.analysisAfterTimestamp === undefined || point.timestamp >= window.analysisAfterTimestamp) &&
-      (window.analysisBeforeTimestamp === undefined || point.timestamp <= window.analysisBeforeTimestamp)
+      (window.analysisWindowStartTimestamp === undefined ||
+        point.timestamp >= window.analysisWindowStartTimestamp) &&
+      (window.analysisWindowEndTimestamp === undefined ||
+        point.timestamp <= window.analysisWindowEndTimestamp)
     ) {
       return index;
     }
@@ -534,6 +855,12 @@ function createUnresolvedRow(sourceJobName, message, metric, baselineWindow) {
   return {
     status: 'UNRESOLVED_PROJECT',
     sourceJobName,
+    projectMetadata: {
+      projectDir: sourceJobName,
+      hasSonarTests: false,
+      sonarSources: [],
+      sonarTests: [],
+    },
     metric,
     baselineKind: 'median',
     baselineWindow,
@@ -548,6 +875,7 @@ function createErrorRow(options, message) {
     status: 'ERROR',
     projectKey: options.projectKey,
     sourceJobName: options.sourceJobName,
+    projectMetadata: options.projectMetadata,
     metric: options.metric,
     baselineKind: 'median',
     baselineWindow: options.baselineWindow,
@@ -561,12 +889,20 @@ function summarizeRows(rows) {
   return rows.reduce((summary, row) => {
     summary[row.status] = (summary[row.status] ?? 0) + 1;
     return summary;
-  }, {});
+  }, Object.fromEntries(REPORT_STATUSES.map(status => [status, 0])));
+}
+
+function countBlockingRows(rows) {
+  return rows.filter(row => BLOCKING_STATUSES.has(row.status)).length;
 }
 
 function toJsonRow(row) {
   return {
     project_key: row.projectKey,
+    project_dir: row.projectMetadata?.projectDir,
+    has_sonar_tests: row.projectMetadata?.hasSonarTests ?? false,
+    sonar_sources: row.projectMetadata?.sonarSources ?? [],
+    sonar_tests: row.projectMetadata?.sonarTests ?? [],
     metric: row.metric,
     analysis_date: row.analysisDate,
     current_value: row.currentValue,
@@ -601,6 +937,20 @@ function readStringField(value, keys) {
   return undefined;
 }
 
+function readScalarField(value, keys) {
+  if (!value || typeof value !== 'object') {
+    return undefined;
+  }
+
+  for (const key of keys) {
+    if (typeof value[key] === 'string' || typeof value[key] === 'number') {
+      return value[key];
+    }
+  }
+
+  return undefined;
+}
+
 function parseTimestamp(value) {
   if (!value) {
     return undefined;
@@ -621,8 +971,39 @@ function latestTimestamp(values) {
   }, undefined);
 }
 
+function earliestTimestamp(values) {
+  return values.reduce((earliest, value) => {
+    const timestamp = parseTimestamp(value);
+    if (timestamp === undefined) {
+      return earliest;
+    }
+
+    return earliest === undefined || timestamp < earliest ? timestamp : earliest;
+  }, undefined);
+}
+
 function formatIsoTimestamp(timestamp) {
   return new Date(timestamp).toISOString().replace('.000Z', 'Z');
+}
+
+function formatOptionalTimestamp(timestamp) {
+  return timestamp === undefined ? undefined : formatIsoTimestamp(timestamp);
+}
+
+function formatExclusiveIsoTimestamp(timestamp) {
+  return formatPeachDateTime(roundUpToNextSecond(timestamp));
+}
+
+function roundUpToNextSecond(timestamp) {
+  return Math.floor(timestamp / 1000) * 1000 + 1000;
+}
+
+function floorToSecond(timestamp) {
+  return Math.floor(timestamp / 1000) * 1000;
+}
+
+function formatPeachDateTime(timestamp) {
+  return new Date(timestamp).toISOString().replace(/\.\d{3}Z$/, '+0000');
 }
 
 function firstDefinedNumber(...values) {
@@ -635,6 +1016,26 @@ function getStatusCode(error) {
   }
 
   return undefined;
+}
+
+function isRetryablePeachError(error) {
+  const statusCode = getStatusCode(error);
+  if (statusCode !== undefined && RETRYABLE_STATUS_CODES.has(statusCode)) {
+    return true;
+  }
+
+  const message = error instanceof Error ? error.message : String(error);
+  if (error instanceof TypeError || message === 'Failed to parse JSON response from Peach.') {
+    return true;
+  }
+
+  if (statusCode !== 404) {
+    return false;
+  }
+
+  return [...RETRYABLE_UNKNOWN_URL_PATHS].some(pathname =>
+    message.includes(`Unknown url : ${pathname}`),
+  );
 }
 
 function readNumberEnv(name, fallback) {
@@ -679,7 +1080,11 @@ export async function main(argv = process.argv.slice(2), runtime = {}) {
   }
 
   const [jobsJsonPath, peacheeRoot, outputPath] = argv;
-  await runIssueHistory(
+  const log = runtime.log ?? (message => console.error(message));
+  const runIssueHistoryFn = runtime.runIssueHistory ?? runIssueHistory;
+
+  log(`peach-issue-history: starting ${jobsJsonPath} -> ${outputPath}`);
+  await runIssueHistoryFn(
     {
       jobsJsonPath,
       peacheeRoot,
@@ -687,6 +1092,7 @@ export async function main(argv = process.argv.slice(2), runtime = {}) {
     },
     runtime,
   );
+  log(`peach-issue-history: wrote ${outputPath}`);
 }
 
 const entrypoint = fileURLToPath(import.meta.url);

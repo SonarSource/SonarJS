@@ -22,7 +22,11 @@ import { fileURLToPath } from 'node:url';
 
 const DEFAULT_REPO = 'SonarSource/peachee-js';
 const DEFAULT_PAGE_SIZE = 100;
-const WORKFLOW_ONLY_JOBS = new Set(['prepare-project-matrix', 'diff-validation-aggregated']);
+const WORKFLOW_ONLY_JOBS = new Set([
+  'prepare-project-matrix',
+  'prepare-diff-val',
+  'diff-validation-aggregated',
+]);
 
 export async function collectRunJobs(options, runtime = {}) {
   const runId = readRunId(options.runId);
