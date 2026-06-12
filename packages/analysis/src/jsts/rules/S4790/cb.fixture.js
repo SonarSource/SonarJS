@@ -36,3 +36,19 @@ crypto.subtle.digest('SHA-512', data);
 notCrypto.subtle.digest('SHA-1', data);
 crypto.notSubtle.digest('SHA-1', data);
 crypto.subtle.notDigest('SHA-1', data);
+
+// Truncated digest output — short identifier, cache key, ETag
+crypto.createHash('sha1').update(x).digest('hex').slice(0, 8);
+crypto.createHash('md5').update(url).digest('hex').substring(0, 4);
+crypto.createHash('sha1').update(x).digest('hex').slice(-6);
+crypto.createHash('md5').update(payload).digest().slice(0, 4);
+crypto.createHash('sha1').update(p).digest('hex').toUpperCase().slice(0, 5);
+
+const h1 = crypto.createHash('sha1').update(x).digest('hex');
+h1.slice(0, 8);
+
+const h2 = crypto.createHash('md5').update(x).digest('hex'); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+useFully(h2);
+
+crypto.createHash('sha1').update(x).digest('hex'); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
+crypto.createHash('md5').update(x).digest('hex').toString(); // Noncompliant {{Make sure this weak hash algorithm is not used in a sensitive context here.}}
