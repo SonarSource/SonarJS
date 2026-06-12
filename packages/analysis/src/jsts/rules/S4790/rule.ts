@@ -108,7 +108,7 @@ function isDigestTruncated(
       break;
     }
     const methodName = parent.property.type === 'Identifier' ? parent.property.name : null;
-    if (digestCall && isTruncationCall(grandParent)) {
+    if (digestCall && isTruncationCall(context, grandParent)) {
       return true;
     }
     if (methodName === 'digest') {
@@ -133,12 +133,12 @@ function isBoundToTruncatedReference(context: Rule.RuleContext, initNode: estree
     return false;
   }
   const variable = getVariableFromName(context, declarator.id.name, declarator.id);
-  return !!variable && hasOnlyTruncatedReads(variable);
+  return !!variable && hasOnlyTruncatedReads(context, variable);
 }
 
-function hasOnlyTruncatedReads(variable: Scope.Variable): boolean {
+function hasOnlyTruncatedReads(context: Rule.RuleContext, variable: Scope.Variable): boolean {
   const reads = variable.references.filter(ref => ref.isRead());
-  return reads.length > 0 && reads.every(ref => isIdentifierTruncated(ref.identifier));
+  return reads.length > 0 && reads.every(ref => isIdentifierTruncated(context, ref.identifier));
 }
 
 // crypto.subtle.digest(...) returns Promise<ArrayBuffer>. Truncation can happen via .then callback,
@@ -152,7 +152,9 @@ function isSubtleDigestTruncated(
   }
   const parent = getNodeParent(digestCall);
   const valueNode = parent?.type === 'AwaitExpression' ? parent : digestCall;
-  return isIdentifierTruncated(valueNode) || isBoundToTruncatedReference(context, valueNode);
+  return (
+    isIdentifierTruncated(context, valueNode) || isBoundToTruncatedReference(context, valueNode)
+  );
 }
 
 function isPromiseThenTruncated(
@@ -186,10 +188,10 @@ function isPromiseThenTruncated(
   }
   const param = callback.params[0];
   const variable = getVariableFromName(context, param.name, param);
-  return !!variable && hasOnlyTruncatedReads(variable);
+  return !!variable && hasOnlyTruncatedReads(context, variable);
 }
 
-function isIdentifierTruncated(identifier: estree.Node): boolean {
+function isIdentifierTruncated(context: Rule.RuleContext, identifier: estree.Node): boolean {
   const parent = getNodeParent(identifier);
   if (parent?.type !== 'MemberExpression' || parent.object !== identifier) {
     return false;
@@ -198,12 +200,18 @@ function isIdentifierTruncated(identifier: estree.Node): boolean {
   return (
     grandParent?.type === 'CallExpression' &&
     grandParent.callee === parent &&
-    isTruncationCall(grandParent)
+    isTruncationCall(context, grandParent)
   );
 }
 
-// `slice` allows negative offsets; `substring` clamps negatives to 0.
-function isTruncationCall(call: estree.CallExpression): boolean {
+const UNKNOWN_VALUE = Symbol('unknown');
+type StaticValue = number | undefined | typeof UNKNOWN_VALUE;
+type SubstringKind = 'zero' | 'length' | 'other';
+
+// Treat `slice` / `substring` as truncation unless the argument pattern obviously preserves the
+// whole output. This keeps named constants and unresolved bounds in scope while excluding simple
+// no-op forms like `.slice()`, `.slice(0, undefined)`, or `.substring('foo')`.
+function isTruncationCall(context: Rule.RuleContext, call: estree.CallExpression): boolean {
   if (call.callee.type !== 'MemberExpression' || call.callee.property.type !== 'Identifier') {
     return false;
   }
@@ -211,26 +219,135 @@ function isTruncationCall(call: estree.CallExpression): boolean {
   if (!TRUNCATION_METHODS.has(method)) {
     return false;
   }
-  const allowNegatives = method === 'slice';
-  return call.arguments.some(arg => isTruncatingArg(arg, allowNegatives));
+  return !isObviouslyFullOutput(context, method, call.arguments);
 }
 
-function isTruncatingArg(
-  node: estree.Node | estree.SpreadElement,
-  allowNegatives: boolean,
+function isObviouslyFullOutput(
+  context: Rule.RuleContext,
+  method: string,
+  args: Array<estree.Node | estree.SpreadElement>,
 ): boolean {
+  if (args.length === 0) {
+    return true;
+  }
+  if (method === 'slice') {
+    return isSliceFullOutput(context, args);
+  }
+  return isSubstringFullOutput(context, args);
+}
+
+function isSliceFullOutput(
+  context: Rule.RuleContext,
+  args: Array<estree.Node | estree.SpreadElement>,
+): boolean {
+  if (!isSliceNoOpStart(resolveStaticValue(context, args[0]))) {
+    return false;
+  }
+  return args.length === 1 || isSliceFullOutputEnd(resolveStaticValue(context, args[1]));
+}
+
+function isSubstringFullOutput(
+  context: Rule.RuleContext,
+  args: Array<estree.Node | estree.SpreadElement>,
+): boolean {
+  const startKind = getSubstringStartKind(resolveStaticValue(context, args[0]));
+  if (args.length === 1) {
+    return startKind === 'zero';
+  }
+  const endKind = getSubstringEndKind(resolveStaticValue(context, args[1]));
+  return (
+    (startKind === 'zero' && endKind === 'length') || (startKind === 'length' && endKind === 'zero')
+  );
+}
+
+function isSliceNoOpStart(value: StaticValue): boolean {
+  return value === undefined || (typeof value === 'number' && (value === 0 || Number.isNaN(value)));
+}
+
+function isSliceFullOutputEnd(value: StaticValue): boolean {
+  return value === undefined || value === Infinity;
+}
+
+function getSubstringStartKind(value: StaticValue): SubstringKind {
+  if (value === undefined) {
+    return 'zero';
+  }
+  if (typeof value === 'number') {
+    if (value === Infinity) {
+      return 'length';
+    }
+    if (value <= 0 || Number.isNaN(value)) {
+      return 'zero';
+    }
+  }
+  return 'other';
+}
+
+function getSubstringEndKind(value: StaticValue): SubstringKind {
+  if (value === undefined) {
+    return 'length';
+  }
+  if (typeof value === 'number') {
+    if (value === Infinity) {
+      return 'length';
+    }
+    if (value <= 0 || Number.isNaN(value)) {
+      return 'zero';
+    }
+  }
+  return 'other';
+}
+
+function resolveStaticValue(
+  context: Rule.RuleContext,
+  node: estree.Node | estree.SpreadElement,
+): StaticValue {
+  if (node.type === 'SpreadElement') {
+    return UNKNOWN_VALUE;
+  }
+  return getStaticValue(getUniqueWriteUsageOrNode(context, node, true));
+}
+
+function getStaticValue(node: estree.Node): StaticValue {
   if (node.type === 'Literal') {
-    return typeof node.value === 'number' && node.value > 0;
+    return coerceLiteralValue(node.value);
   }
-  if (node.type === 'UnaryExpression' && node.operator === '+') {
-    return isTruncatingArg(node.argument, allowNegatives);
+  if (node.type === 'Identifier') {
+    if (node.name === 'undefined') {
+      return undefined;
+    }
+    if (node.name === 'Infinity') {
+      return Infinity;
+    }
+    if (node.name === 'NaN') {
+      return NaN;
+    }
+    return UNKNOWN_VALUE;
   }
-  if (node.type === 'UnaryExpression' && node.operator === '-' && allowNegatives) {
-    return (
-      node.argument.type === 'Literal' &&
-      typeof node.argument.value === 'number' &&
-      node.argument.value !== 0
-    );
+  if (node.type === 'UnaryExpression' && (node.operator === '+' || node.operator === '-')) {
+    const value = getStaticValue(node.argument);
+    if (value === UNKNOWN_VALUE) {
+      return UNKNOWN_VALUE;
+    }
+    if (value === undefined) {
+      return NaN;
+    }
+    return node.operator === '+' ? value : -value;
   }
-  return false;
+  return UNKNOWN_VALUE;
+}
+
+function coerceLiteralValue(value: estree.Literal['value']): StaticValue {
+  switch (typeof value) {
+    case 'number':
+      return value;
+    case 'string':
+    case 'boolean':
+    case 'bigint':
+      return Number(value);
+    case 'object':
+      return value === null ? 0 : UNKNOWN_VALUE;
+    default:
+      return UNKNOWN_VALUE;
+  }
 }
