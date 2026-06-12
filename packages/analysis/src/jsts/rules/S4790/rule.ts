@@ -16,7 +16,7 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S4790/javascript
 
-import type { Rule } from 'eslint';
+import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { getFullyQualifiedName } from '../helpers/module.js';
@@ -108,7 +108,7 @@ function isDigestTruncated(
       break;
     }
     const methodName = parent.property.type === 'Identifier' ? parent.property.name : null;
-    if (digestCall && methodName && TRUNCATION_METHODS.has(methodName)) {
+    if (digestCall && isTruncationCall(grandParent)) {
       return true;
     }
     if (methodName === 'digest') {
@@ -120,6 +120,9 @@ function isDigestTruncated(
   return digestCall !== null && isBoundToTruncatedReference(context, digestCall);
 }
 
+// Only suppress when every read of the bound digest is truncated — otherwise a mixed-use binding
+// (one full + one sliced) would silently silence the sensitive use. Write refs are skipped: the
+// declarator init is itself a write and reassignments don't consume the value.
 function isBoundToTruncatedReference(context: Rule.RuleContext, initNode: estree.Node): boolean {
   const declarator = getNodeParent(initNode);
   if (
@@ -130,7 +133,12 @@ function isBoundToTruncatedReference(context: Rule.RuleContext, initNode: estree
     return false;
   }
   const variable = getVariableFromName(context, declarator.id.name, declarator.id);
-  return !!variable && variable.references.some(ref => isIdentifierTruncated(ref.identifier));
+  return !!variable && hasOnlyTruncatedReads(variable);
+}
+
+function hasOnlyTruncatedReads(variable: Scope.Variable): boolean {
+  const reads = variable.references.filter(ref => ref.isRead());
+  return reads.length > 0 && reads.every(ref => isIdentifierTruncated(ref.identifier));
 }
 
 // crypto.subtle.digest(...) returns Promise<ArrayBuffer>. Truncation can happen via .then callback,
@@ -178,19 +186,38 @@ function isPromiseThenTruncated(
   }
   const param = callback.params[0];
   const variable = getVariableFromName(context, param.name, param);
-  return !!variable && variable.references.some(ref => isIdentifierTruncated(ref.identifier));
+  return !!variable && hasOnlyTruncatedReads(variable);
 }
 
 function isIdentifierTruncated(identifier: estree.Node): boolean {
   const parent = getNodeParent(identifier);
-  if (
-    parent?.type !== 'MemberExpression' ||
-    parent.object !== identifier ||
-    parent.property.type !== 'Identifier' ||
-    !TRUNCATION_METHODS.has(parent.property.name)
-  ) {
+  if (parent?.type !== 'MemberExpression' || parent.object !== identifier) {
     return false;
   }
   const grandParent = getNodeParent(parent);
-  return grandParent?.type === 'CallExpression' && grandParent.callee === parent;
+  return (
+    grandParent?.type === 'CallExpression' &&
+    grandParent.callee === parent &&
+    isTruncationCall(grandParent)
+  );
+}
+
+// Reject no-op slices that don't actually shorten the digest: `.slice()`, `.slice(0)`, `.substring(0)`.
+// Length-bound checks (e.g. `.slice(0, 64)` on a 40-char sha1 hex) are out of scope — that needs
+// digest-length and encoding awareness.
+function isTruncationCall(call: estree.CallExpression): boolean {
+  if (call.callee.type !== 'MemberExpression' || call.callee.property.type !== 'Identifier') {
+    return false;
+  }
+  if (!TRUNCATION_METHODS.has(call.callee.property.name)) {
+    return false;
+  }
+  if (call.arguments.length === 0) {
+    return false;
+  }
+  const [first] = call.arguments;
+  if (call.arguments.length === 1 && first.type === 'Literal' && first.value === 0) {
+    return false;
+  }
+  return true;
 }
