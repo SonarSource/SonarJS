@@ -18,7 +18,8 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import { getProperty, getValueOfExpression, isIdentifier, isMethodCall } from '../helpers/ast.js';
+import { getProperty, getValueOfExpression, isMethodCall } from '../helpers/ast.js';
+import { chainStartsWithCy } from '../helpers/cypress.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { importsOrDependsOnModule } from '../helpers/module.js';
@@ -136,20 +137,4 @@ function findForceTrueProperty(
   return forceProperty.value.type === 'Literal' && forceProperty.value.value === true
     ? forceProperty
     : null;
-}
-
-function chainStartsWithCy(node: estree.Node): boolean {
-  if (isIdentifier(node, 'cy')) {
-    return true;
-  }
-  if (node.type === 'MemberExpression') {
-    return chainStartsWithCy(node.object);
-  }
-  if (node.type === 'CallExpression') {
-    return chainStartsWithCy(node.callee);
-  }
-  if (node.type === 'ChainExpression') {
-    return chainStartsWithCy(node.expression);
-  }
-  return false;
 }
