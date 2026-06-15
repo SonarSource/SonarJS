@@ -1,0 +1,12 @@
+{
+"vitest:packages/browser/src/client/orchestrator.ts": [
+71,
+317
+],
+"vitest:packages/browser/src/client/tester/tester-utils.ts": [
+231
+],
+"vitest:packages/vitest/src/runtime/moduleRunner/moduleEvaluator.ts": [
+433
+]
+}
