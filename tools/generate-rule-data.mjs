@@ -56,6 +56,7 @@ for (const pin of languagePins) {
 generateArgs.push('generate-resources');
 
 const command = process.platform === 'win32' ? 'mvn.cmd' : 'mvn';
+const shouldUseShell = process.platform === 'win32' && command.toLowerCase().endsWith('.cmd');
 runMaven(bootstrapArgs);
 runMaven(generateArgs);
 
@@ -72,7 +73,10 @@ function readRspecSha(paths) {
 }
 
 function runMaven(args) {
-  const result = spawnSync(command, args, { stdio: 'inherit' });
+  const result = spawnSync(command, args, {
+    shell: shouldUseShell,
+    stdio: 'inherit',
+  });
 
   if (result.error !== undefined) {
     console.error(result.error);
