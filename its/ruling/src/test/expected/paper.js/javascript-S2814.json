@@ -29,6 +29,12 @@
 284,
 544
 ],
+"paper.js:src/event/Event.js": [
+20
+],
+"paper.js:src/event/MouseEvent.js": [
+26
+],
 "paper.js:src/item/Item.js": [
 979,
 1282,
@@ -45,6 +51,9 @@
 ],
 "paper.js:src/item/Shape.js": [
 141
+],
+"paper.js:src/node/self.js": [
+40
 ],
 "paper.js:src/path/CompoundPath.js": [
 149
