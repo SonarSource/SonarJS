@@ -1,0 +1,39 @@
+{
+"angular.js:src/AngularPublic.js": [
+119
+],
+"angular.js:src/jqLite.js": [
+578,
+601,
+609
+],
+"angular.js:src/ng/browser.js": [
+4
+],
+"angular.js:src/ng/directive/ngModel.js": [
+16,
+17,
+18,
+19,
+20,
+21
+],
+"angular.js:src/ng/location.js": [
+98
+],
+"angular.js:src/ngMessageFormat/messageFormatService.js": [
+212,
+213,
+214,
+215
+],
+"angular.js:src/ngTouch/touch.js": [
+25
+],
+"angular.js:src/routeToRegExp.js": [
+17
+],
+"angular.js:src/shallowCopy.js": [
+10
+]
+}
