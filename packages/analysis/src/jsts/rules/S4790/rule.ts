@@ -315,28 +315,36 @@ function getStaticValue(node: estree.Node): StaticValue {
     return coerceLiteralValue(node.value);
   }
   if (node.type === 'Identifier') {
-    if (node.name === 'undefined') {
-      return undefined;
-    }
-    if (node.name === 'Infinity') {
-      return Infinity;
-    }
-    if (node.name === 'NaN') {
-      return NaN;
-    }
-    return UNKNOWN_VALUE;
+    return getIdentifierStaticValue(node);
   }
   if (node.type === 'UnaryExpression' && (node.operator === '+' || node.operator === '-')) {
-    const value = getStaticValue(node.argument);
-    if (value === UNKNOWN_VALUE) {
-      return UNKNOWN_VALUE;
-    }
-    if (value === undefined) {
-      return NaN;
-    }
-    return node.operator === '+' ? value : -value;
+    return getUnaryStaticValue(node);
   }
   return UNKNOWN_VALUE;
+}
+
+function getIdentifierStaticValue(node: estree.Identifier): StaticValue {
+  switch (node.name) {
+    case 'undefined':
+      return undefined;
+    case 'Infinity':
+      return Infinity;
+    case 'NaN':
+      return Number.NaN;
+    default:
+      return UNKNOWN_VALUE;
+  }
+}
+
+function getUnaryStaticValue(node: estree.UnaryExpression): StaticValue {
+  const value = getStaticValue(node.argument);
+  if (value === UNKNOWN_VALUE) {
+    return UNKNOWN_VALUE;
+  }
+  if (value === undefined) {
+    return Number.NaN;
+  }
+  return node.operator === '+' ? value : -value;
 }
 
 function coerceLiteralValue(value: estree.Literal['value']): StaticValue {
