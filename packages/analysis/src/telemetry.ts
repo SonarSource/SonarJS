@@ -18,7 +18,12 @@ import { minVersion } from 'semver';
 import ts from 'typescript';
 import { getTypeScriptSignalsFromPackageJsonFiles } from './jsts/rules/helpers/dependency-manifests/dependencies.js';
 import type { ModuleType } from './jsts/rules/helpers/dependency-manifests/resolvers/types.js';
-import { dependencyManifestStore } from './file-stores/index.js';
+import { dependencyManifestStore } from './file-stores/dependency-manifests.js';
+import {
+  cloneGeneratedSourcesTelemetry,
+  createEmptyGeneratedSourcesTelemetry,
+  type GeneratedSourcesTelemetry,
+} from './generated-source-telemetry.js';
 
 const NOT_DETECTED = 'not-detected';
 const STRICT_CHILD_COMPILER_OPTIONS = [
@@ -94,6 +99,7 @@ export type ProjectAnalysisTelemetry = {
   esmFileCount: number;
   cjsFileCount: number;
   denoImportCounts: Record<string, number>;
+  generatedSources: GeneratedSourcesTelemetry;
 };
 
 export function resetProjectAnalysisTelemetry() {
@@ -128,6 +134,7 @@ export class ProjectAnalysisTelemetryCollector {
   private esmFileCount = 0;
   private cjsFileCount = 0;
   private readonly denoImportCountsByProtocol = new Map<string, number>();
+  private generatedSources = createEmptyGeneratedSourcesTelemetry();
 
   constructor() {
     const { typeScriptVersionSignals, hasTypeScriptNativePreview } =
@@ -178,6 +185,10 @@ export class ProjectAnalysisTelemetryCollector {
     }
   }
 
+  recordGeneratedSources(generatedSources: GeneratedSourcesTelemetry) {
+    this.generatedSources = cloneGeneratedSourcesTelemetry(generatedSources);
+  }
+
   getTelemetry(): ProjectAnalysisTelemetry {
     const compilerOptions: Record<string, string[]> = {};
     for (const [optionName, values] of this.compilerOptionValues.entries()) {
@@ -199,6 +210,7 @@ export class ProjectAnalysisTelemetryCollector {
       esmFileCount: this.esmFileCount,
       cjsFileCount: this.cjsFileCount,
       denoImportCounts: Object.fromEntries(this.denoImportCountsByProtocol),
+      generatedSources: cloneGeneratedSourcesTelemetry(this.generatedSources),
     };
   }
 

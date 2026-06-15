@@ -39,7 +39,11 @@ import { initFileStores } from '../file-stores/index.js';
 import { type FileStatus, JSTS_ANALYSIS_DEFAULTS } from '../jsts/analysis/analysis.js';
 import type { RuleConfig as CssRuleConfig } from '../css/linter/config.js';
 import type { RuleConfig } from '../jsts/linter/config/rule-config.js';
-import { type AnalyzableFiles, createAnalyzableFiles } from '../projectAnalysis.js';
+import {
+  type AnalyzableFiles,
+  createAnalyzableFiles,
+  type FileStoreRequestContext,
+} from '../projectAnalysis.js';
 
 function isFileStatus(value: unknown): value is FileStatus {
   return value === 'SAME' || value === 'CHANGED' || value === 'ADDED';
@@ -100,9 +104,8 @@ export async function sanitizeProjectAnalysisInput(
   const sanitizedFiles = isObject(raw.files)
     ? await sanitizeRawInputFiles(raw.files, configuration)
     : undefined;
-  const inputFiles = sanitizedFiles?.files;
 
-  await initFileStores(configuration, inputFiles);
+  await initFileStores(configuration, sanitizedFiles?.fileStoreRequestContext);
 
   return {
     rules: isJsTsRuleConfigArray(raw.rules) ? (raw.rules as RuleConfig[]) : [],
@@ -127,6 +130,7 @@ export type ProjectAnalysisFileInput = {
 type SanitizedInputFiles = {
   files: AnalyzableFiles;
   pathMap: Map<string, string>;
+  fileStoreRequestContext: FileStoreRequestContext;
 };
 
 export async function sanitizeInputFiles(
@@ -136,13 +140,21 @@ export async function sanitizeInputFiles(
   const { baseDir } = configuration;
   const files = createAnalyzableFiles();
   const pathMap = new Map<string, string>();
+  const requestedFilePaths = new Set<NormalizedAbsolutePath>();
 
   if (!inputFiles) {
-    return { files, pathMap };
+    return {
+      files,
+      pathMap,
+      fileStoreRequestContext: {
+        isExplicitRequest: false,
+      },
+    };
   }
 
   for (const [key, fileInput] of Object.entries(inputFiles)) {
     const filePath = normalizeToAbsolutePath(fileInput.filePath, baseDir);
+    requestedFilePaths.add(filePath);
     const fileContent = fileInput.fileContent ?? (await readFile(filePath));
     let rawFileType: FileType | undefined = fileInput.fileType;
     if (rawFileType !== 'TEST') {
@@ -170,7 +182,15 @@ export async function sanitizeInputFiles(
     pathMap.set(filePath, key);
   }
 
-  return { files, pathMap };
+  return {
+    files,
+    pathMap,
+    fileStoreRequestContext: {
+      analyzableFiles: files,
+      isExplicitRequest: true,
+      requestedFilePaths,
+    },
+  };
 }
 
 export async function sanitizeRawInputFiles(
