@@ -70,59 +70,53 @@ export const rule: Rule.RuleModule = {
       return {};
     }
 
-    function reportIfForced(call: estree.CallExpression, optionsIndex: number): boolean {
+    function reportIfForced(call: estree.CallExpression, optionsIndex: number): void {
       const forceProperty = findForceTrueProperty(context, call.arguments[optionsIndex]);
       if (!forceProperty) {
-        return false;
+        return;
       }
-
       context.report({
         node: forceProperty,
         messageId: 'removeForce',
       });
-      return true;
     }
 
     return {
       ...(hasPlaywright ? trackPlaywrightLocators(context, playwrightLocators) : {}),
       CallExpression(node: estree.Node) {
-        if (node.type !== 'CallExpression') {
+        if (node.type !== 'CallExpression' || !isMethodCall(node)) {
           return;
         }
-        if (!isMethodCall(node)) {
-          return;
+        if (hasCypress) {
+          checkCypressCall(node);
         }
-
-        if (hasCypress && checkCypressCall(node)) {
-          return;
-        }
-
         if (hasPlaywright) {
           checkPlaywrightCall(node);
         }
       },
     };
 
-    function checkCypressCall(call: estree.CallExpression): boolean {
+    function checkCypressCall(call: estree.CallExpression): void {
       if (!isMethodCall(call) || !chainStartsWithCy(call.callee.object)) {
-        return false;
+        return;
       }
       const optionsIndex = CYPRESS_OPTIONS_INDEX.get(call.callee.property.name);
-      return optionsIndex !== undefined && reportIfForced(call, optionsIndex);
+      if (optionsIndex !== undefined) {
+        reportIfForced(call, optionsIndex);
+      }
     }
 
-    function checkPlaywrightCall(call: estree.CallExpression): boolean {
+    function checkPlaywrightCall(call: estree.CallExpression): void {
       if (!isMethodCall(call)) {
-        return false;
+        return;
       }
       const optionsIndex = PLAYWRIGHT_OPTIONS_INDEX.get(call.callee.property.name);
       if (optionsIndex === undefined) {
-        return false;
+        return;
       }
-      return (
-        isPlaywrightLocatorExpression(context, call.callee.object, playwrightLocators) &&
-        reportIfForced(call, optionsIndex)
-      );
+      if (isPlaywrightLocatorExpression(context, call.callee.object, playwrightLocators)) {
+        reportIfForced(call, optionsIndex);
+      }
     }
   },
 };
