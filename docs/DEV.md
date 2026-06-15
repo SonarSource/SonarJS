@@ -40,9 +40,9 @@ Examples:
    source ~/.zshenv
    ```
 
-`npm run generate-meta` refreshes RSPEC rule data only when the generated local outputs are missing. On a fresh checkout, or after `mvn clean`, it runs Maven first and uses either your GitHub CLI auth or `GITHUB_TOKEN` to fetch from `SonarSource/rspec`.
+`npm run generate-meta` reuses prepared RSPEC outputs when the generated local rule data directories and per-language `rspec.sha` files are already present. On a fresh checkout, or after `mvn clean`, it runs Maven first and uses either your GitHub CLI auth or `GITHUB_TOKEN` to fetch from `SonarSource/rspec`.
 
-To pin all rule data generation to an exact RSPEC revision, write the commit SHA to `rspec.sha` at the repository root before running `npm run generate-meta` or `npm run generate-rule-data:maven`. When this ignored file is present, the Maven wrapper passes it to `rspec-maven-plugin` for both JavaScript and CSS.
+To pin all rule data generation to an exact RSPEC revision, write the commit SHA to `rspec.sha` at the repository root and run `npm run generate-rule-data:maven`. If you want to use `npm run generate-meta`, run it after `mvn clean` (or otherwise remove the prepared rule data) so the Maven wrapper is invoked. When the ignored root pin is present, the Maven wrapper passes it to `rspec-maven-plugin` for both JavaScript and CSS.
 
 Prepared rule data keeps separate generated pins in `sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and `sonar-plugin/css/src/main/resources/rspec.sha`. If there is no root pin, the Maven wrapper falls back to these per-language generated pins when they are present. For direct Maven commands that generate rule data, pass `-Drspec.sha=<commit-sha>` to pin both languages, or `-Drspec.javascript.sha=<commit-sha>` and `-Drspec.css.sha=<commit-sha>` to pin them independently.
 
