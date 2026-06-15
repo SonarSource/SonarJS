@@ -94,10 +94,19 @@ describe('buildTsParserOptions', () => {
     );
   });
 
-  it('should always default sourceType to module', () => {
+  it('should default sourceType to module when module type is unknown', () => {
     expect(buildTsParserOptions()).toEqual(expect.objectContaining({ sourceType: 'module' }));
     expect(buildTsParserOptions({}, { detectedEsYear: 2022 })).toEqual(
       expect.objectContaining({ sourceType: 'module' }),
+    );
+  });
+
+  it('should use detectedModuleType to select sourceType', () => {
+    expect(buildTsParserOptions({}, { detectedModuleType: 'module' })).toEqual(
+      expect.objectContaining({ sourceType: 'module' }),
+    );
+    expect(buildTsParserOptions({}, { detectedModuleType: 'commonjs' })).toEqual(
+      expect.objectContaining({ sourceType: 'script' }),
     );
   });
 
@@ -211,6 +220,12 @@ describe('buildVueParserOptions', () => {
 
   it('should use detectedModuleType for JavaScript Vue sourceType', () => {
     expect(buildVueParserOptions('js', {}, { detectedModuleType: 'commonjs' })).toEqual(
+      expect.objectContaining({ sourceType: 'script' }),
+    );
+  });
+
+  it('should use detectedModuleType for TypeScript Vue sourceType', () => {
+    expect(buildVueParserOptions('ts', {}, { detectedModuleType: 'commonjs' })).toEqual(
       expect.objectContaining({ sourceType: 'script' }),
     );
   });

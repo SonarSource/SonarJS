@@ -107,6 +107,20 @@ describe('buildSourceCode', () => {
     expect(sourceCode.ast.sourceType).toEqual('script');
   });
 
+  it('should prefer the module-mode parse error when script mode only rejects module syntax', async () => {
+    const filePath = path.join(
+      import.meta.dirname,
+      'fixtures',
+      'build-js',
+      'commonjs-module-syntax-error.js',
+    );
+    const analysisInput = await jsTsInput({ filePath, allowTsParserJsFiles: false });
+
+    expect(() => build(analysisInput, { detectedModuleType: 'commonjs' })).toThrow(
+      APIError.parsingError('Unexpected token (2:9)', { line: 2 }),
+    );
+  });
+
   it('should fail building malformed JavaScript code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'malformed.js');
 
@@ -183,6 +197,21 @@ describe('buildSourceCode', () => {
       },
     } = build(await jsTsInput({ filePath, tsConfigs, language: 'ts' })).sourceCode;
     expect(stmt.type).toEqual('FunctionDeclaration');
+  });
+
+  it('should use detected module type when building TypeScript code', async () => {
+    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-ts', 'module.ts');
+    const tsConfigs = [
+      normalizeToAbsolutePath(
+        path.join(import.meta.dirname, 'fixtures', 'build-ts', 'tsconfig.json'),
+      ),
+    ];
+    const sourceCode = build(await jsTsInput({ filePath, tsConfigs, language: 'ts' }), {
+      detectedModuleType: 'commonjs',
+    }).sourceCode;
+
+    expect(sourceCode.ast.sourceType).toEqual('script');
+    expect(sourceCode.ast.body[0].type).toEqual('ImportDeclaration');
   });
 
   it('should fail building malformed TypeScript code', async () => {

@@ -32,7 +32,7 @@ export interface ParserContext {
   jsx?: boolean;
 }
 
-export function getJavaScriptSourceType(
+export function getDetectedSourceType(
   context: ParserContext = {},
 ): Linter.ParserOptions['sourceType'] {
   return context.detectedModuleType === 'commonjs' ? 'script' : 'module';
@@ -95,6 +95,7 @@ export function buildTsParserOptions(
   return {
     ...commonParserOptions(context),
     ...typescriptParserOverlay(),
+    sourceType: getDetectedSourceType(context),
     ...overrides,
   };
 }
@@ -107,7 +108,7 @@ export function buildBabelParserOptions(
   return {
     ...commonParserOptions(context),
     ...babelParserOverlay(),
-    sourceType: getJavaScriptSourceType(context),
+    sourceType: getDetectedSourceType(context),
     ...overrides,
   };
 }
@@ -123,6 +124,7 @@ export function buildVueParserOptions(
       ...commonParserOptions(context),
       ...typescriptParserOverlay(),
       parser: parsersMap.typescript,
+      sourceType: getDetectedSourceType(context),
       ...overrides,
     };
   }
@@ -130,7 +132,7 @@ export function buildVueParserOptions(
     ...commonParserOptions(context),
     ...babelParserOverlay(),
     parser: parsersMap.javascript,
-    sourceType: getJavaScriptSourceType(context),
+    sourceType: getDetectedSourceType(context),
     ...overrides,
   };
 }

@@ -17,12 +17,13 @@
 import type { Linter } from 'eslint';
 import ts from 'typescript';
 import { debug } from '../../../../shared/src/helpers/logging.js';
+import { APIError, ErrorCode } from '../../contracts/error.js';
 import type { JsTsAnalysisInput } from '../analysis/analysis.js';
 import {
   buildBabelParserOptions,
   buildTsParserOptions,
   buildVueParserOptions,
-  getJavaScriptSourceType,
+  getDetectedSourceType,
   type ParserContext,
 } from '../parsers/options.js';
 import { parse } from '../parsers/parse.js';
@@ -110,7 +111,7 @@ function retryVueTsWithFlippedJsx(
 
 function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
   const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
-  const initialSourceType = getJavaScriptSourceType(context);
+  const initialSourceType = getDetectedSourceType(context);
   let moduleError;
   try {
     debug(`Parsing ${input.filePath} with ${parser.meta?.name}`);
@@ -144,10 +145,41 @@ function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: 
       `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in '${fallbackSourceType}' mode: ${error.message}`,
     );
     /**
-     * Report the error from the preferred module type after also trying the opposite mode.
+     * If script-mode only failed because module syntax was disabled, prefer a later module-mode
+     * parse error when it pinpoints a more specific syntax problem.
      */
+    if (shouldPreferFallbackParseError(initialSourceType, moduleError, error)) {
+      throw error;
+    }
     throw moduleError;
   }
+}
+
+const MODULE_ONLY_SYNTAX_ERROR_PATTERNS = [/sourceType:\s*"module"/, /outside a module/];
+
+function shouldPreferFallbackParseError(
+  initialSourceType: Linter.ParserOptions['sourceType'],
+  preferredError: unknown,
+  fallbackError: unknown,
+): fallbackError is APIError {
+  if (
+    initialSourceType !== 'script' ||
+    !(preferredError instanceof APIError) ||
+    !(fallbackError instanceof APIError)
+  ) {
+    return false;
+  }
+  if (preferredError.code !== ErrorCode.Parsing || fallbackError.code !== ErrorCode.Parsing) {
+    return false;
+  }
+  const preferredLine = preferredError.data?.line;
+  const fallbackLine = fallbackError.data?.line;
+  return (
+    preferredLine !== undefined &&
+    fallbackLine !== undefined &&
+    fallbackLine > preferredLine &&
+    MODULE_ONLY_SYNTAX_ERROR_PATTERNS.some(pattern => pattern.test(preferredError.message))
+  );
 }
 
 function shouldUseTypescriptParser({ allowTsParserJsFiles, language }: JsTsAnalysisInput): boolean {
