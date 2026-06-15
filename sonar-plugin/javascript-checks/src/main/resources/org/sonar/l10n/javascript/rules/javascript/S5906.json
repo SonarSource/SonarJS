@@ -28,13 +28,13 @@
   "ruleSpecification": "RSPEC-5906",
   "sqKey": "S5906",
   "scope": "Tests",
-  "defaultQualityProfiles": [
-    "Sonar way",
-    "Sonar agentic AI"
-  ],
   "quickfix": "covered",
   "compatibleLanguages": [
     "js",
     "ts"
+  ],
+  "defaultQualityProfiles": [
+    "Sonar agentic AI",
+    "Sonar way"
   ]
 }

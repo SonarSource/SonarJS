@@ -38,9 +38,9 @@
       "A5"
     ]
   },
-  "defaultQualityProfiles": [],
   "compatibleLanguages": [
     "js",
     "ts"
-  ]
+  ],
+  "defaultQualityProfiles": []
 }

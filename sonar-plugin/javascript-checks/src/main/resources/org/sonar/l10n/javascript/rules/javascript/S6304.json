@@ -38,7 +38,6 @@
       "7.2.2"
     ]
   },
-  "defaultQualityProfiles": [],
   "compatibleLanguages": [
     "js",
     "ts"
@@ -47,5 +46,6 @@
     "requiredDependency": [
       "aws-cdk-lib"
     ]
-  }
+  },
+  "defaultQualityProfiles": []
 }
