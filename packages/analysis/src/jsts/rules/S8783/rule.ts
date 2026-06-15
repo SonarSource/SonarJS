@@ -18,16 +18,14 @@
 
 import type { Rule, Scope } from 'eslint';
 import type estree from 'estree';
-import {
-  getProperty,
-  getValueOfExpression,
-  isIdentifier,
-  isMethodCall,
-} from '../helpers/ast.js';
+import { getProperty, getValueOfExpression, isIdentifier, isMethodCall } from '../helpers/ast.js';
 import { getDependenciesSanitizePaths } from '../helpers/dependency-manifests/dependencies.js';
 import { generateMeta } from '../helpers/generate-meta.js';
 import { importsOrDependsOnModule } from '../helpers/module.js';
-import { isPlaywrightLocatorExpression } from '../S5906/assertion-utils.js';
+import {
+  isPlaywrightLocatorExpression,
+  trackPlaywrightLocators,
+} from '../S5906/assertion-utils.js';
 import * as meta from './generated-meta.js';
 
 const messages = {
@@ -65,11 +63,7 @@ export const rule: Rule.RuleModule = {
   meta: generateMeta(meta, { messages }),
   create(context: Rule.RuleContext) {
     const hasCypress = getDependenciesSanitizePaths(context).has('cypress');
-    const hasPlaywright = importsOrDependsOnModule(
-      context,
-      PLAYWRIGHT_MODULES,
-      PLAYWRIGHT_MODULES,
-    );
+    const hasPlaywright = importsOrDependsOnModule(context, PLAYWRIGHT_MODULES, PLAYWRIGHT_MODULES);
     const playwrightLocators = new Set<Scope.Variable>();
 
     if (!hasCypress && !hasPlaywright) {
@@ -90,17 +84,7 @@ export const rule: Rule.RuleModule = {
     }
 
     return {
-      VariableDeclarator(node: estree.Node) {
-        if (!hasPlaywright || node.type !== 'VariableDeclarator' || !isIdentifier(node.id)) {
-          return;
-        }
-        if (node.init && isPlaywrightLocatorExpression(context, node.init, playwrightLocators)) {
-          const variable = context.sourceCode.getDeclaredVariables(node)[0];
-          if (variable) {
-            playwrightLocators.add(variable);
-          }
-        }
-      },
+      ...(hasPlaywright ? trackPlaywrightLocators(context, playwrightLocators) : {}),
       CallExpression(node: estree.Node) {
         if (node.type !== 'CallExpression') {
           return;
