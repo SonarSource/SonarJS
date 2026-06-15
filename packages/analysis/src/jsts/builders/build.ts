@@ -17,13 +17,11 @@
 import type { Linter } from 'eslint';
 import ts from 'typescript';
 import { debug } from '../../../../shared/src/helpers/logging.js';
-import { APIError, ErrorCode } from '../../contracts/error.js';
 import type { JsTsAnalysisInput } from '../analysis/analysis.js';
 import {
   buildBabelParserOptions,
   buildTsParserOptions,
   buildVueParserOptions,
-  getDetectedSourceType,
   type ParserContext,
 } from '../parsers/options.js';
 import { parse } from '../parsers/parse.js';
@@ -111,16 +109,13 @@ function retryVueTsWithFlippedJsx(
 
 function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
   const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
-  const initialSourceType = getDetectedSourceType(context);
   let moduleError;
   try {
     debug(`Parsing ${input.filePath} with ${parser.meta?.name}`);
     return parse(
       input.fileContent,
       parser,
-      vueFile
-        ? buildVueParserOptions('js', { sourceType: initialSourceType }, context)
-        : buildBabelParserOptions({ sourceType: initialSourceType }, context),
+      vueFile ? buildVueParserOptions('js', {}, context) : buildBabelParserOptions({}, context),
     );
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
@@ -130,56 +125,23 @@ function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: 
     moduleError = error;
   }
 
-  const fallbackSourceType = initialSourceType === 'module' ? 'script' : 'module';
   try {
-    debug(
-      `Parsing ${input.filePath} with ${parsersMap.javascript.meta?.name} in '${fallbackSourceType}' mode`,
-    );
+    debug(`Parsing ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode`);
     return parse(
       input.fileContent,
       parsersMap.javascript,
-      buildBabelParserOptions({ sourceType: fallbackSourceType }, context),
+      buildBabelParserOptions({ sourceType: 'script' }, context),
     );
   } catch (error) {
     debug(
-      `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in '${fallbackSourceType}' mode: ${error.message}`,
+      `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode: ${error.message}`,
     );
     /**
-     * If script-mode only failed because module syntax was disabled, prefer a later module-mode
-     * parse error when it pinpoints a more specific syntax problem.
+     * We prefer displaying parsing error as module if parsing as script also failed,
+     * as it is more likely that the expected source type is module.
      */
-    if (shouldPreferFallbackParseError(initialSourceType, moduleError, error)) {
-      throw error;
-    }
     throw moduleError;
   }
-}
-
-const MODULE_ONLY_SYNTAX_ERROR_PATTERNS = [/sourceType:\s*"module"/, /outside a module/];
-
-function shouldPreferFallbackParseError(
-  initialSourceType: Linter.ParserOptions['sourceType'],
-  preferredError: unknown,
-  fallbackError: unknown,
-): fallbackError is APIError {
-  if (
-    initialSourceType !== 'script' ||
-    !(preferredError instanceof APIError) ||
-    !(fallbackError instanceof APIError)
-  ) {
-    return false;
-  }
-  if (preferredError.code !== ErrorCode.Parsing || fallbackError.code !== ErrorCode.Parsing) {
-    return false;
-  }
-  const preferredLine = preferredError.data?.line;
-  const fallbackLine = fallbackError.data?.line;
-  return (
-    preferredLine !== undefined &&
-    fallbackLine !== undefined &&
-    fallbackLine > preferredLine &&
-    MODULE_ONLY_SYNTAX_ERROR_PATTERNS.some(pattern => pattern.test(preferredError.message))
-  );
 }
 
 function shouldUseTypescriptParser({ allowTsParserJsFiles, language }: JsTsAnalysisInput): boolean {
