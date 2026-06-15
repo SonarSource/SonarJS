@@ -10,7 +10,19 @@
 467,
 471
 ],
+"desktop:script/build.ts": [
+89
+],
 "desktop:script/draft-release/run.ts": [
 141
+],
+"desktop:script/package.ts": [
+40,
+57,
+118,
+121
+],
+"desktop:script/test-setup.ts": [
+14
 ]
 }

@@ -10,82 +10,9 @@
 40,
 82
 ],
-"qunit:reporter/html.js": [
-42,
-42,
-48,
-208,
-234,
-236,
-243,
-280,
-421,
-1005,
-1010,
-1016,
-1021,
-1059
-],
-"qunit:reporter/urlparams.js": [
-7,
-7
-],
-"qunit:runner/fixture.js": [
-6
-],
 "qunit:src/cli/run.js": [
 44,
 130
-],
-"qunit:src/core.js": [
-34
-],
-"qunit:src/core/config.js": [
-65,
-65,
-65,
-68,
-68,
-68
-],
-"qunit:src/core/utilities.js": [
-11,
-17,
-18,
-19,
-20,
-35,
-35
-],
-"qunit:src/export.js": [
-10,
-10,
-14,
-38,
-38,
-38,
-38,
-39
-],
-"qunit:src/globals.js": [
-3,
-3,
-4,
-4,
-5,
-6,
-7,
-9,
-9,
-10,
-10,
-15,
-16,
-17
-],
-"qunit:src/test.js": [
-647,
-648
 ],
 "qunit:test/amd.html": [
 22
