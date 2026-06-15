@@ -153,21 +153,6 @@ describe('buildBabelParserOptions', () => {
     );
     expect(buildBabelParserOptions()).toEqual(expect.objectContaining({ ecmaVersion: 2018 }));
   });
-
-  it('should use detectedModuleType to select sourceType', () => {
-    expect(buildBabelParserOptions({}, { detectedModuleType: 'module' })).toEqual(
-      expect.objectContaining({ sourceType: 'module' }),
-    );
-    expect(buildBabelParserOptions({}, { detectedModuleType: 'commonjs' })).toEqual(
-      expect.objectContaining({ sourceType: 'script' }),
-    );
-  });
-
-  it('should let an explicit sourceType override detectedModuleType', () => {
-    expect(
-      buildBabelParserOptions({ sourceType: 'module' }, { detectedModuleType: 'commonjs' }),
-    ).toEqual(expect.objectContaining({ sourceType: 'module' }));
-  });
 });
 
 describe('buildVueParserOptions', () => {
@@ -206,12 +191,6 @@ describe('buildVueParserOptions', () => {
     );
     expect(buildVueParserOptions('js', {}, { detectedEsYear: 2022 })).toEqual(
       expect.objectContaining({ ecmaVersion: 2022 }),
-    );
-  });
-
-  it('should use detectedModuleType for JavaScript Vue sourceType', () => {
-    expect(buildVueParserOptions('js', {}, { detectedModuleType: 'commonjs' })).toEqual(
-      expect.objectContaining({ sourceType: 'script' }),
     );
   });
 });

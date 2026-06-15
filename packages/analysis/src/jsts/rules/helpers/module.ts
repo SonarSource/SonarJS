@@ -23,21 +23,8 @@ import {
   setCurrentFileInlineDependencies,
 } from './dependency-manifests/dependencies.js';
 
-/**
- * Checks if the current file is an ES module based on sourceType.
- *
- * The parser sets sourceType based on file extension (.mjs/.cjs),
- * package.json "type" field, and ESLint configuration.
- */
-function isESModule(context: Rule.RuleContext): boolean {
-  return context.sourceCode.ast.sourceType === 'module';
-}
-
 export function getImportDeclarations(context: Rule.RuleContext): estree.ImportDeclaration[] {
-  if (isESModule(context)) {
-    return context.sourceCode.ast.body.filter(node => node.type === 'ImportDeclaration');
-  }
-  return [];
+  return context.sourceCode.ast.body.filter(node => node.type === 'ImportDeclaration');
 }
 
 /**
@@ -79,11 +66,9 @@ function computeCurrentFileImports(sourceCode: SourceCode): void {
   CURRENT_FILE_IMPORTS.sourceCode = sourceCode;
   CURRENT_FILE_IMPORTS.imports.clear();
 
-  if (sourceCode.ast.sourceType === 'module') {
-    for (const node of sourceCode.ast.body) {
-      if (node.type === 'ImportDeclaration' && typeof node.source.value === 'string') {
-        CURRENT_FILE_IMPORTS.imports.add(node.source.value);
-      }
+  for (const node of sourceCode.ast.body) {
+    if (node.type === 'ImportDeclaration' && typeof node.source.value === 'string') {
+      CURRENT_FILE_IMPORTS.imports.add(node.source.value);
     }
   }
 

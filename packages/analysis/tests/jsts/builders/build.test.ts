@@ -98,15 +98,6 @@ describe('buildSourceCode', () => {
     expect(stmt.type).toEqual('FunctionDeclaration');
   });
 
-  it('should use detected module type when building JavaScript code', async () => {
-    const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'file.js');
-    const sourceCode = build(await jsTsInput({ filePath, allowTsParserJsFiles: false }), {
-      detectedModuleType: 'commonjs',
-    }).sourceCode;
-
-    expect(sourceCode.ast.sourceType).toEqual('script');
-  });
-
   it('should fail building malformed JavaScript code', async () => {
     const filePath = path.join(import.meta.dirname, 'fixtures', 'build-js', 'malformed.js');
 

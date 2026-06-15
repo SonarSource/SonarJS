@@ -80,7 +80,7 @@ export async function analyzeJSTS(input: JsTsAnalysisInput): Promise<JsTsAnalysi
     debug(`No module type detected for "${filePath}"`);
   }
 
-  const parserContext: ParserContext = { detectedEsYear, detectedModuleType };
+  const parserContext: ParserContext = { detectedEsYear };
   const parseResult = build(input, parserContext);
   if (input.clearDependenciesCache) {
     debug('Clearing dependencies cache');

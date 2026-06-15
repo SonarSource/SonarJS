@@ -776,8 +776,8 @@ describe('Linter', () => {
     expect(rules).toHaveProperty('sonarjs/S7785');
   });
 
-  it('should disable rules with requiredModuleType when no module signal is available', async () => {
-    // ESM-only rules should require a positive module signal before activation
+  it('should not filter rules by module type when no module signal is available', async () => {
+    // Unknown module type should keep rules enabled (same behavior as unknown ES version)
     await Linter.initialize({
       baseDir: normalizeToAbsolutePath(import.meta.dirname),
       rules: [
@@ -797,30 +797,7 @@ describe('Linter', () => {
       'js',
       2022,
     );
-    expect(rules).not.toHaveProperty('sonarjs/S7785');
-  });
-
-  it('should keep rules without requiredModuleType enabled when no module signal is available', async () => {
-    await Linter.initialize({
-      baseDir: normalizeToAbsolutePath(import.meta.dirname),
-      rules: [
-        {
-          key: 'S7755',
-          configurations: [],
-          fileTypeTargets: ['MAIN'],
-          language: 'js',
-          analysisModes: ['DEFAULT'],
-        },
-      ],
-    });
-    const rules = Linter.getRulesForFile(
-      normalizeToAbsolutePath(path.join(import.meta.dirname, 'file.js')),
-      'MAIN',
-      'DEFAULT',
-      'js',
-      2022,
-    );
-    expect(rules).toHaveProperty('sonarjs/S7755');
+    expect(rules).toHaveProperty('sonarjs/S7785');
   });
 
   it('should track module type telemetry during rule filtering', async () => {
@@ -1732,6 +1709,78 @@ describe('Linter', () => {
     const { issues } = Linter.lint(parseResult, filePath);
 
     expect(Linter.globals.has('angular')).toEqual(true);
+    expect(issues).toHaveLength(0);
+  });
+
+  it('should report on top-level script declarations for S3798 when no module type is detected', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'script.js'),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S3798',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const { issues } = Linter.lint(parseResult, filePath);
+
+    expect(issues).toEqual([expect.objectContaining({ ruleId: 'S3798', line: 1 })]);
+  });
+
+  it('should not report on CommonJS files for S3798', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'commonjs.cjs'),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S3798',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const { issues } = Linter.lint(parseResult, filePath);
+
+    expect(issues).toHaveLength(0);
+  });
+
+  it('should not report on ES module files for S3798', async () => {
+    const filePath = normalizeToAbsolutePath(
+      path.join(import.meta.dirname, 'fixtures', 'wrapper', 'module.mjs'),
+    );
+    const parseResult = await parseJavaScriptSourceFile(filePath);
+
+    await Linter.initialize({
+      baseDir: normalizeToAbsolutePath(path.dirname(filePath)),
+      rules: [
+        {
+          key: 'S3798',
+          configurations: [],
+          fileTypeTargets: ['MAIN'],
+          language: 'js',
+          analysisModes: ['DEFAULT'],
+        },
+      ],
+    });
+
+    const { issues } = Linter.lint(parseResult, filePath);
+
     expect(issues).toHaveLength(0);
   });
 

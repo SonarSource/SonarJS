@@ -1,61 +1,22 @@
 {
-"router:examples/hello/jsonp.js": [
-1
-],
-"router:examples/http.js": [
-1
-],
 "router:gulpfile.js": [
+1,
+2,
+4,
+5,
 7,
 20,
+81,
 91
 ],
+"router:karma.conf.js": [
+1
+],
 "router:read-pkg-url.js": [
+3,
 4,
 5,
 6
-],
-"router:src/activation.js": [
-5,
-31,
-60,
-88,
-108,
-140,
-173
-],
-"router:src/history.js": [
-4,
-7,
-10,
-13,
-17
-],
-"router:src/navigationCommand.js": [
-1
-],
-"router:src/navigationPlan.js": [
-1,
-2,
-3,
-5,
-79
-],
-"router:src/pipeline.js": [
-1,
-10,
-11,
-12,
-13
-],
-"router:src/routerConfiguration.js": [
-101,
-111
-],
-"router:src/util.js": [
-1,
-17,
-37
 ],
 "router:test-main.js": [
 1,

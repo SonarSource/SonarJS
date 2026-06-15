@@ -22,7 +22,6 @@ import {
   buildBabelParserOptions,
   buildTsParserOptions,
   buildVueParserOptions,
-  getJavaScriptSourceType,
   type ParserContext,
 } from '../parsers/options.js';
 import { parse } from '../parsers/parse.js';
@@ -110,16 +109,13 @@ function retryVueTsWithFlippedJsx(
 
 function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: ParserContext) {
   const parser: Parser = vueFile ? parsersMap.vuejs : parsersMap.javascript;
-  const initialSourceType = getJavaScriptSourceType(context);
   let moduleError;
   try {
     debug(`Parsing ${input.filePath} with ${parser.meta?.name}`);
     return parse(
       input.fileContent,
       parser,
-      vueFile
-        ? buildVueParserOptions('js', { sourceType: initialSourceType }, context)
-        : buildBabelParserOptions({ sourceType: initialSourceType }, context),
+      vueFile ? buildVueParserOptions('js', {}, context) : buildBabelParserOptions({}, context),
     );
   } catch (error) {
     debug(`Failed to parse ${input.filePath} with ${parser.meta?.name}: ${error.message}`);
@@ -129,22 +125,20 @@ function parseAsJavascript(input: JsTsAnalysisInput, vueFile: boolean, context: 
     moduleError = error;
   }
 
-  const fallbackSourceType = initialSourceType === 'module' ? 'script' : 'module';
   try {
-    debug(
-      `Parsing ${input.filePath} with ${parsersMap.javascript.meta?.name} in '${fallbackSourceType}' mode`,
-    );
+    debug(`Parsing ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode`);
     return parse(
       input.fileContent,
       parsersMap.javascript,
-      buildBabelParserOptions({ sourceType: fallbackSourceType }, context),
+      buildBabelParserOptions({ sourceType: 'script' }, context),
     );
   } catch (error) {
     debug(
-      `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in '${fallbackSourceType}' mode: ${error.message}`,
+      `Failed to parse ${input.filePath} with ${parsersMap.javascript.meta?.name} in 'script' mode: ${error.message}`,
     );
     /**
-     * Report the error from the preferred module type after also trying the opposite mode.
+     * We prefer displaying parsing error as module if parsing as script also failed,
+     * as it is more likely that the expected source type is module.
      */
     throw moduleError;
   }
