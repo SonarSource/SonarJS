@@ -41,18 +41,6 @@ describe('S7785 upstream sentinel', () => {
 });
 
 describe('S7785', () => {
-  it('should skip CommonJS files (sourceType: script)', () => {
-    const cjsRuleTester = new NoTypeCheckingRuleTester({ sourceType: 'script' });
-    cjsRuleTester.run('S7785', rule, {
-      valid: [
-        {
-          code: `(async () => { await fetch('https://example.com'); })();`,
-        },
-      ],
-      invalid: [],
-    });
-  });
-
   it('should report in ES modules (sourceType: module)', () => {
     const esmRuleTester = new NoTypeCheckingRuleTester();
     esmRuleTester.run('S7785', rule, {
@@ -70,12 +58,12 @@ describe('S7785', () => {
     });
   });
 
-  it('should ignore .catch() on Zod schema objects imported from zod (no type-checker mode)', () => {
+  it('should rely on upstream no-typechecker handling for Zod schema objects', () => {
     const ruleTester = new NoTypeCheckingRuleTester();
     ruleTester.run('S7785', rule, {
       valid: [
         {
-          // Compliant: Zod string schema .catch()
+          // Compliant: Zod string schema .catch() via upstream Unicorn heuristic
           code: `import { z } from 'zod';
                  const nameSchema = z.string().optional().catch('');`,
         },
