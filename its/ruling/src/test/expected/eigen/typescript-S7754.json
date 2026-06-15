@@ -17,6 +17,9 @@
 "eigen:src/app/Scenes/Favorites/Favorites.tsx": [
 72
 ],
+"eigen:src/app/Scenes/MyCollection/MyCollection.tsx": [
+101
+],
 "eigen:src/app/Scenes/ViewingRoom/ViewingRoom.tsx": [
 183
 ]

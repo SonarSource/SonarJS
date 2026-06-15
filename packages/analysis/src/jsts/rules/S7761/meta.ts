@@ -16,6 +16,6 @@
  */
 // https://sonarsource.github.io/rspec/#/rspec/S7761/javascript
 export const implementation = 'external';
-export const eslintId = 'prefer-dom-node-dataset';
+export const eslintId = 'dom-node-dataset';
 export const externalPlugin = 'unicorn';
 export const quickFixMessage = 'Replace with .dataset property access';

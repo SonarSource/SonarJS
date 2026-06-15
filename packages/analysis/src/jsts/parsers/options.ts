@@ -21,13 +21,21 @@ import babelPresetEnv from '@babel/preset-env';
 import babelPluginDecorators from '@babel/plugin-proposal-decorators';
 import { parsersMap } from './eslint.js';
 import type { JsTsLanguage } from '../../common/configuration.js';
+import type { ModuleType } from '../rules/helpers/dependency-manifests/resolvers/types.js';
 
 /** Fallback ECMAScript version when none is detected. */
 export const DEFAULT_ECMA_VERSION = 2018;
 
 export interface ParserContext {
   detectedEsYear?: number;
+  detectedModuleType?: ModuleType;
   jsx?: boolean;
+}
+
+export function getJavaScriptSourceType(
+  context: ParserContext = {},
+): Linter.ParserOptions['sourceType'] {
+  return context.detectedModuleType === 'commonjs' ? 'script' : 'module';
 }
 
 /**
@@ -99,6 +107,7 @@ export function buildBabelParserOptions(
   return {
     ...commonParserOptions(context),
     ...babelParserOverlay(),
+    sourceType: getJavaScriptSourceType(context),
     ...overrides,
   };
 }
@@ -121,6 +130,7 @@ export function buildVueParserOptions(
     ...commonParserOptions(context),
     ...babelParserOverlay(),
     parser: parsersMap.javascript,
+    sourceType: getJavaScriptSourceType(context),
     ...overrides,
   };
 }

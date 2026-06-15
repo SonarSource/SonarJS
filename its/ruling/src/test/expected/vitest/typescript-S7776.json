@@ -17,6 +17,9 @@
 "vitest:packages/vitest/src/integrations/vi.ts": [
 496
 ],
+"vitest:packages/vitest/src/node/coverage.ts": [
+54
+],
 "vitest:packages/vitest/src/node/reporters/github-actions.ts": [
 196
 ],

@@ -540,7 +540,7 @@ SonarJS uses some rules are not shipped in this ESLint plugin to avoid duplicati
 | S7757           | [unicorn/prefer-class-fields](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/prefer-class-fields.md)                                                            |
 | S7758           | [unicorn/prefer-code-point](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/prefer-code-point.md)                                                                |
 | S7760           | [unicorn/prefer-default-parameters](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/prefer-default-parameters.md)                                                |
-| S7761           | [unicorn/prefer-dom-node-dataset](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/prefer-dom-node-dataset.md)                                                    |
+| S7761           | [unicorn/dom-node-dataset](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/dom-node-dataset.md)                                                                  |
 | S7762           | [unicorn/prefer-dom-node-remove](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/prefer-dom-node-remove.md)                                                      |
 | S7764           | [unicorn/prefer-global-this](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/prefer-global-this.md)                                                              |
 | S7765           | [unicorn/prefer-includes](https://github.com/sindresorhus/eslint-plugin-unicorn/blob/HEAD/docs/rules/prefer-includes.md)                                                                    |

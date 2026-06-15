@@ -29,7 +29,7 @@ import {
  * The parser sets sourceType based on file extension (.mjs/.cjs),
  * package.json "type" field, and ESLint configuration.
  */
-export function isESModule(context: Rule.RuleContext): boolean {
+function isESModule(context: Rule.RuleContext): boolean {
   return context.sourceCode.ast.sourceType === 'module';
 }
 
