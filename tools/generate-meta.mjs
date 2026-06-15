@@ -58,12 +58,14 @@ const command =
     : process.execPath;
 const commandArgumentsPrefix =
   process.env.npm_execpath === undefined ? [] : [process.env.npm_execpath];
+const shouldUseShell = process.platform === 'win32' && command.toLowerCase().endsWith('.cmd');
 const scripts = hasPreparedRuleData
   ? ['generate-meta:raw']
   : ['generate-rule-data:maven', 'generate-meta:raw'];
 
 for (const script of scripts) {
   const result = spawnSync(command, [...commandArgumentsPrefix, 'run', script], {
+    shell: shouldUseShell,
     stdio: 'inherit',
   });
 

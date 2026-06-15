@@ -94,6 +94,7 @@ It skips:
 Important details:
 
 - `npm run generate-meta` reuses prepared RSPEC outputs when they already exist, and refreshes them when they do not.
+- To force an RSPEC refresh, or to apply a new root `rspec.sha` pin, run `npm run generate-rule-data:maven` or run `mvn clean` before `npm run generate-meta`.
 - The `bridge` module still adds `target/generated-sources` to the Java source roots, so an existing generated stub directory can be reused without re-running protobuf generation.
 - This flag is intended for Java-only loops after a previous non-skipped build.
 
