@@ -9,27 +9,42 @@ To work on this project, it is required to have the following tools installed:
 - [npm](https://www.npmjs.com/) >= 8
 - [Maven](https://maven.apache.org/) >= 3.8
 
-### RSPEC Rule Metadata
+### RSPEC Access
 
-Rule metadata is automatically fetched from the `SonarSource/rspec` repository as part of the build. On first run, the rspec repo is cloned (sparse checkout) into `resources/rspec/` via SSH. On subsequent runs, the latest changes are fetched automatically.
+The build fetches rule metadata from the private `SonarSource/rspec` repository through `rspec-maven-plugin`.
+The generated RSPEC rule metadata JSON published under `sonar-plugin/*/src/main/resources/**/rules/*/` is tracked in Git. The generated HTML files and per-language `rspec.sha` files remain build artifacts and are not tracked.
 
-The generated RSPEC rule metadata JSON published under `sonar-plugin/*/src/main/resources/**/rules/*/` is tracked in Git. The rendered HTML files in those directories remain ignored.
+For local development, the Maven flow can reuse your existing GitHub CLI login. Running `gh auth login` is enough on a fresh checkout or after `mvn clean`.
 
-Use `--rspec-path` to point to an existing local clone instead:
+If you already have a token with read access to `SonarSource/rspec`, exporting `GITHUB_TOKEN` still works as well.
 
-```bash
-npm run sync-rspec -- --rspec-path ../rspec --language javascript
-```
+In CI, the token is provided from Vault-managed secrets and passed explicitly to the Maven plugin.
 
-#### Pinning a specific rspec version
+Examples:
 
-To use a specific rspec commit instead of the latest `dogfood-automerge`, create a `rspec.sha` file at the repo root:
+1. Reuse your GitHub CLI login:
 
-```bash
-echo "<commit-sha>" > rspec.sha
-```
+   ```bash
+   gh auth login
+   ```
 
-When this file is present, `sync-rspec` fetches that exact SHA and the skip check becomes local (no network call needed). The file is not tracked by default but can be committed to make CI builds reproducible against a specific rspec version.
+2. Or use a token with read access to `SonarSource/rspec` and export it in your shell:
+
+   ```bash
+   export GITHUB_TOKEN="your-token-here"
+   ```
+
+3. Restart your terminal or source the file if needed:
+
+   ```bash
+   source ~/.zshenv
+   ```
+
+`npm run generate-meta` refreshes RSPEC rule data only when the generated local outputs are missing. On a fresh checkout, or after `mvn clean`, it runs Maven first and uses either your GitHub CLI auth or `GITHUB_TOKEN` to fetch from `SonarSource/rspec`.
+
+To pin all rule data generation to an exact RSPEC revision, write the commit SHA to `rspec.sha` at the repository root before running `npm run generate-meta` or `npm run generate-rule-data:maven`. When this ignored file is present, the Maven wrapper passes it to `rspec-maven-plugin` for both JavaScript and CSS.
+
+Prepared rule data keeps separate generated pins in `sonar-plugin/javascript-checks/src/main/resources/rspec.sha` and `sonar-plugin/css/src/main/resources/rspec.sha`. If there is no root pin, the Maven wrapper falls back to these per-language generated pins when they are present. For direct Maven commands that generate rule data, pass `-Drspec.sha=<commit-sha>` to pin both languages, or `-Drspec.javascript.sha=<commit-sha>` and `-Drspec.css.sha=<commit-sha>` to pin them independently.
 
 You can also use Docker container defined in `./.cirrus/nodejs.Dockerfile` which bundles all required dependencies and is used for our CI pipeline.
 
@@ -115,7 +130,6 @@ To patch a local VS Code SonarLint or SonarQube for IDE installation with the la
 
 1. Create a PR with a rule description in the RSPEC repo as described in the
    [RSPEC create-or-modify-a-rule guide](https://github.com/SonarSource/rspec#create-or-modify-a-rule)
-
    - Tag the RSPEC with `type-dependent` if the rule relies partially or fully
      on type information.
      - In practice, this means the implementation uses TypeScript parser
